@@ -68,7 +68,7 @@ obj/%.o: %.S
 	$(L)$(call as_cmdline,$(INCLUDES_PATH), $(DEFINES),$<,$@)
 
 ifeq ($(SCRIPT_LD),)
-SCRIPT_LD:=$(BOLOS_SDK)/script.ld
+SCRIPT_LD:=$(BOLOS_SDK)/target/$(TARGET)/script.ld
 else
 $(info Using custom link script: $(SCRIPT_LD))
 endif

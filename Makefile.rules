@@ -22,6 +22,9 @@ else
 SDK_SOURCE_PATH += lib_ux
 endif
 
+# adding the correct target header to sources
+SDK_SOURCE_PATH += target/$(TARGET)/include
+
 #include the lib_cxng definition by default if not asked otherwise
 ifeq ($(NO_CXNG),)
 INCLUDES_PATH += $(BOLOS_SDK)/lib_cxng/include

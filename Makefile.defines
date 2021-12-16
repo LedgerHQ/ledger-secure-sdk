@@ -15,17 +15,23 @@
 #  limitations under the License.
 #*******************************************************************************
 
-#extract TARGET_NAME/TARGET_ID from the SDK to allow for makefile choices
-TARGET_ID:=$(shell cat $(BOLOS_SDK)/include/bolos_target.h | grep TARGET_ID | cut -f3 -d' ')
-TARGET_NAME:=$(shell cat $(BOLOS_SDK)/include/bolos_target.h | grep TARGET_ | grep -v TARGET_ID | cut -f2 -d' ')
-TARGET_VERSION:=$(shell cat $(BOLOS_SDK)/include/bolos_version.h | grep define | cut -f2 -d'"')
-$(info TARGET_NAME=$(TARGET_NAME) TARGET_ID=$(TARGET_ID) TARGET_VERSION=$(TARGET_VERSION))
+# TARGET should be set as an environment variable to know for which target to build
+TARGETS := nanos nanox blue
+ifeq ($(filter $(TARGET),$(TARGETS)),)
+$(error Unknown target should be nanos, nanox or blue)
+endif
+
+TARGET_PATH := $(BOLOS_SDK)/target/$(TARGET)
+TARGET_ID   := $(shell cat $(TARGET_PATH)/include/bolos_target.h | grep TARGET_ID | cut -f3 -d' ')
+TARGET_NAME := TARGET_$(shell echo $(TARGET) | tr a-z A-Z)
+
+$(info TARGET_NAME=$(TARGET_NAME) TARGET_ID=$(TARGET_ID))
 
 # extra load parameters for loadApp script
 ifneq ($(SCP_PRIVKEY),)
 PARAM_SCP+=--rootPrivateKey $(SCP_PRIVKEY)
 endif
-COMMON_LOAD_PARAMS=--tlv --targetId $(TARGET_ID) --targetVersion="$(TARGET_VERSION)" --delete --fileName bin/app.hex --appName $(APPNAME) --appVersion $(APPVERSION) --dataSize $$((0x`cat debug/app.map |grep _envram_data | tr -s ' ' | cut -f2 -d' '|cut -f2 -d'x'` - 0x`cat debug/app.map |grep _nvram_data | tr -s ' ' | cut -f2 -d' '|cut -f2 -d'x'`)) `ICONHEX=\`python3 $(BOLOS_SDK)/icon3.py --hexbitmaponly $(ICONNAME)  2>/dev/null\` ; [ ! -z "$$ICONHEX" ] && echo "--icon $$ICONHEX"` $(PARAM_SCP)
+COMMON_LOAD_PARAMS=--tlv --targetId $(TARGET_ID) --delete --fileName bin/app.hex --appName $(APPNAME) --appVersion $(APPVERSION) --dataSize $$((0x`cat debug/app.map |grep _envram_data | tr -s ' ' | cut -f2 -d' '|cut -f2 -d'x'` - 0x`cat debug/app.map |grep _nvram_data | tr -s ' ' | cut -f2 -d' '|cut -f2 -d'x'`)) `ICONHEX=\`python3 $(BOLOS_SDK)/icon3.py --hexbitmaponly $(ICONNAME)  2>/dev/null\` ; [ ! -z "$$ICONHEX" ] && echo "--icon $$ICONHEX"` $(PARAM_SCP)
 COMMON_DELETE_PARAMS=--targetId $(TARGET_ID) --appName $(APPNAME) $(PARAM_SCP)
 
 ### platform definitions
