@@ -195,7 +195,7 @@ static uint8_t const USBD_PRODUCT_FS_STRING[] = {
   'X', 0,
 };
 #else
-#error unknown TARGET_ID
+#error unknown TARGET_NAME
 #endif
 #endif
 
