@@ -18,12 +18,12 @@
 # TARGET should be set as an environment variable to know for which target to build
 TARGETS := nanos nanox blue
 ifeq ($(filter $(TARGET),$(TARGETS)),)
-$(error Unknown target should be nanos, nanox or blue)
+$(error TARGET not set (possible values: nanos, nanox, blue))
 endif
 
 TARGET_PATH := $(BOLOS_SDK)/target/$(TARGET)
 TARGET_ID   := $(shell cat $(TARGET_PATH)/include/bolos_target.h | grep TARGET_ID | cut -f3 -d' ')
-TARGET_NAME := TARGET_$(shell echo $(TARGET) | tr a-z A-Z)
+TARGET_NAME := $(shell cat $(TARGET_PATH)/include/bolos_target.h | grep TARGET_ | grep -v TARGET_ID | cut -f2 -d' ')
 
 $(info TARGET_NAME=$(TARGET_NAME) TARGET_ID=$(TARGET_ID))
 
