@@ -16,7 +16,7 @@
 #*******************************************************************************
 
 # TARGET should be set as an environment variable to know for which target to build
-TARGETS := nanos nanox blue
+TARGETS := nanos nanox blue blue-revd
 ifeq ($(filter $(TARGET),$(TARGETS)),)
 $(error TARGET not set (possible values: nanos, nanox, blue))
 endif
