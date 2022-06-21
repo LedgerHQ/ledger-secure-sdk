@@ -597,7 +597,7 @@ unsigned int io_seproxyhal_display_icon_header_and_colors(const bagl_component_t
   SWAP(raw.w.b[0], raw.w.b[1]);
   SWAP(raw.h.b[0], raw.h.b[1]);
 
-  io_seproxyhal_spi_send((unsigned char*)&raw, sizeof(raw));
+  io_seproxyhal_spi_send((const uint8_t *) &raw, sizeof(raw));
   io_seproxyhal_spi_send((const uint8_t *) PIC(icon_details->colors), (1<<raw.bpp)*4);
   len -= (1<<raw.bpp)*4;
 
@@ -623,7 +623,7 @@ void io_seproxyhal_display_icon(const bagl_component_t* icon_component, const ba
     unsigned int icon_off=0;
 
     len = io_seproxyhal_display_icon_header_and_colors(icon_component, icon_details, &icon_len);
-    io_seproxyhal_spi_send(PIC(icon_details->bitmap), len);
+    io_seproxyhal_spi_send((const uint8_t *) PIC(icon_details->bitmap), len);
     // advance in the bitmap to be transmitted
     icon_len -= len;
     icon_off += len;
@@ -640,7 +640,7 @@ void io_seproxyhal_display_icon(const bagl_component_t* icon_component, const ba
       G_io_seproxyhal_spi_buffer[1] = (len+1)>>8;
       G_io_seproxyhal_spi_buffer[2] = (len+1);
       io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 4);
-      io_seproxyhal_spi_send(PIC(icon_details->bitmap)+icon_off, len);
+      io_seproxyhal_spi_send((const uint8_t *) PIC(icon_details->bitmap)+icon_off, len);
 
       icon_len -= len;
       icon_off += len;
