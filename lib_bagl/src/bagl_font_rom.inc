@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -22,27 +22,22 @@
 #include "bagl_font_open_sans_extrabold_11px.inc"
 #include "bagl_font_open_sans_light_16px.inc"
 #include "bagl_font_open_sans_regular_11px.inc"
-
-// Blue
-#include "bagl_font_open_sans_light_16_22px.inc"
-
-#include "bagl_font_open_sans_semibold_10_13px.inc"
-
-#include "bagl_font_open_sans_semibold_11_16px.inc"
-
-#include "bagl_font_open_sans_semibold_8_11px.inc"
-
-#include "bagl_font_open_sans_regular_10_13px.inc"
-
-#include "bagl_font_open_sans_regular_11_14px.inc"
-
-#include "bagl_font_open_sans_regular_13_18px.inc"
-
-#include "bagl_font_open_sans_regular_22_30px.inc"
-
-#include "bagl_font_open_sans_regular_8_11px.inc"
-
-#include "bagl_font_open_sans_semibold_13_18px.inc"
-
-#include "bagl_font_symbols.inc"
-
+#if defined(HAVE_UNICODE_SUPPORT)
+#if !defined(HAVE_LANGUAGE_PACK)
+  #if defined(DISPLAY_FLOWS)
+    #include "bagl_font_open_sans_extrabold_11px_unicode.inc"
+    #include "bagl_font_open_sans_light_16px_unicode.inc"
+    #include "bagl_font_open_sans_regular_11px_unicode.inc"
+  #else //defined(DISPLAY_FLOWS)
+    #if (OS_LANGUAGE==LANG_ENGLISH)
+      #include "bolos_pack_en_glyphes.inc"
+    #elif (OS_LANGUAGE==LANG_FRENCH)
+      #include "bolos_pack_fr_glyphes.inc"
+    #elif (OS_LANGUAGE==LANG_SPANISH)
+      #include "bolos_pack_es_glyphes.inc"
+    #else //OS_LANGUAGE
+      #error No default language defined!
+    #endif //OS_LANGUAGE
+  #endif //defined(DISPLAY_FLOWS)
+#endif //!defined(HAVE_LANGUAGE_PACK)
+#endif //defined(HAVE_UNICODE_SUPPORT)

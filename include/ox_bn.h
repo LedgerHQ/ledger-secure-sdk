@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -49,12 +49,6 @@
 /* ===                               TYPES                               === */
 /* ========================================================================= */
 
-/**
- * @brief   Mark a BN as unset.
- *
- * @details To mark BN as unset/unused in wrapping structure, such as
- * cx_ecpoint_t.
- */
 #define CX_BN_FLAG_UNSET 0x80
 
 /** Index of a big number. */
@@ -73,9 +67,9 @@ typedef struct {
 /* ========================================================================= */
 
 /**
- * @brief   Acquire lock to BN processor.
+ * @brief   Locks the BN processor.
  *
- * @details Reset it, set the word size and configure.
+ * @details The memory is reset then the word size is set.
  *          Once locked the memory can be used.
  *
  * @param[in] word_nbytes  Word size in byte, the size of the parameters will be
@@ -90,9 +84,9 @@ typedef struct {
 SYSCALL cx_err_t cx_bn_lock(size_t word_nbytes, uint32_t flags);
 
 /**
- * @brief   Release the BN lock.
+ * @brief   Releases the BN lock.
  *
- * @details Erase all content data.
+ * @details It erases all content data.
  *          Once unlocked the memory cannot be used anymore.
  *
  * @return  Error code:
@@ -102,7 +96,7 @@ SYSCALL cx_err_t cx_bn_lock(size_t word_nbytes, uint32_t flags);
 SYSCALL uint32_t cx_bn_unlock(void);
 
 /**
- * @brief   Check if BN processor is currently locked.
+ * @brief   Checks whether the BN processor is currently locked.
  *
  * @details The memory can be used only if the BN processor is locked.
  *
@@ -111,7 +105,7 @@ SYSCALL uint32_t cx_bn_unlock(void);
 SYSCALL bool cx_bn_is_locked(void);
 
 /**
- * @brief   Ensure BN processor is currently locked.
+ * @brief   Ascertains whether the BN processor is currently locked.
  *
  * @details If the BN processor is not locked the memory
  *          cannot be used.
@@ -127,7 +121,7 @@ cx_err_t cx_bn_locked(void);
 /* ========================================================================= */
 
 /**
- * @brief   Allocate a new BN.
+ * @brief   Allocates memory for a new BN.
  *
  * @details The specified number of bytes is the minimal required bytes,
  *          the number of words allocated will be automatically a multiple
@@ -147,7 +141,8 @@ SYSCALL cx_err_t cx_bn_alloc(cx_bn_t *x PLENGTH(sizeof(cx_bn_t)),
                              size_t nbytes);
 
 /**
- * @brief   Allocate a new BN and initialize it with the specified value.
+ * @brief   Allocates memory for a new BN and
+ *          initializes it with the specified value.
  *
  * @details The specified number of bytes is the minimal required bytes,
  *          the number of words allocated will be automatically a multiple
@@ -172,7 +167,7 @@ SYSCALL cx_err_t cx_bn_alloc_init(cx_bn_t *x PLENGTH(sizeof(cx_bn_t)),
                                   size_t value_nbytes);
 
 /**
- * @brief   Release a BN and give back its attached memory to the system.
+ * @brief   Releases a BN and gives back its attached memory to the system.
  *
  * @param[in] x BN to release. If NULL, nothing is done.
  *
@@ -184,7 +179,7 @@ SYSCALL cx_err_t cx_bn_alloc_init(cx_bn_t *x PLENGTH(sizeof(cx_bn_t)),
 SYSCALL cx_err_t cx_bn_destroy(cx_bn_t *x PLENGTH(sizeof(cx_bn_t)));
 
 /**
- * @brief   Return the size in bytes of a BN.
+ * @brief   Gets the size in bytes of a BN.
  *
  * @param[in]  x      BN index.
  *
@@ -200,7 +195,7 @@ SYSCALL cx_err_t cx_bn_nbytes(const cx_bn_t x, size_t *nbytes);
 /* ===                                R/W                                === */
 /* ========================================================================= */
 /**
- * @brief   Initialize a BN with an unsigned value.
+ * @brief   Iinitializes a BN with an unsigned value.
  *
  * @param[in] x              BN index.
  *
@@ -218,7 +213,8 @@ SYSCALL cx_err_t cx_bn_init(cx_bn_t x,
                             size_t value_nbytes);
 
 /**
- * @brief   Generate a random number and store it in the given index.
+ * @brief   Generates a random number and
+ *          stores it in the given index.
  *
  * @param[in] x BN index.
  *
@@ -229,7 +225,7 @@ SYSCALL cx_err_t cx_bn_init(cx_bn_t x,
 SYSCALL cx_err_t cx_bn_rand(cx_bn_t x);
 
 /**
- * @brief   Copy the BN value.
+ * @brief   Copies the BN value.
  *
  * @param[out] a BN destination index.
  *
@@ -243,7 +239,7 @@ SYSCALL cx_err_t cx_bn_rand(cx_bn_t x);
 SYSCALL cx_err_t cx_bn_copy(cx_bn_t a, const cx_bn_t b);
 
 /**
- * @brief   Set the value of a BN with a 32-bit unsigned value.
+ * @brief   Sets the value of a BN with a 32-bit unsigned value.
  *
  * @param[in] x BN index.
  *
@@ -257,7 +253,7 @@ SYSCALL cx_err_t cx_bn_copy(cx_bn_t a, const cx_bn_t b);
 SYSCALL cx_err_t cx_bn_set_u32(cx_bn_t x, uint32_t n);
 
 /**
- * @brief   Get the 32-bit value corresponding to a BN.
+ * @brief   Gets the 32-bit value corresponding to a BN.
  *
  * @param[in]  x BN index.
  *
@@ -271,12 +267,12 @@ SYSCALL cx_err_t cx_bn_set_u32(cx_bn_t x, uint32_t n);
 SYSCALL cx_err_t cx_bn_get_u32(const cx_bn_t x, uint32_t *n);
 
 /**
- * @brief   Store/Serialize a BN value as unsigned raw bytes in big-endian
- * order.
+ * @brief   Stores (serializes) a BN value as
+ *          unsigned raw bytes in big-endian order.
  *
  * @details Only the least significant *nbytes* bytes of the BN are serialized
  *          If *nbytes* is greater than the BN size, *x* is serialized right
- * aligned and zero left padded.
+ * aligned and zero left-padded.
  *
  * @param[in]  x       BN index.
  *
@@ -297,7 +293,7 @@ SYSCALL cx_err_t cx_bn_export(const cx_bn_t x, uint8_t *bytes PLENGTH(nbytes),
 /* ========================================================================= */
 
 /**
- * @brief   Compare two BN values.
+ * @brief   Compares two BN values.
  *
  * @param[in]  a    BN index to the first value to be compared.
  *
@@ -316,7 +312,7 @@ SYSCALL cx_err_t cx_bn_export(const cx_bn_t x, uint8_t *bytes PLENGTH(nbytes),
 SYSCALL cx_err_t cx_bn_cmp(const cx_bn_t a, const cx_bn_t b, int *diff);
 
 /**
- * @brief   Compare a BN value with an unsigned integer.
+ * @brief   Compares a BN value with an unsigned integer.
  *
  * @param[in]  a    BN index to the value to be compared.
  *
@@ -335,7 +331,7 @@ SYSCALL cx_err_t cx_bn_cmp(const cx_bn_t a, const cx_bn_t b, int *diff);
 SYSCALL cx_err_t cx_bn_cmp_u32(const cx_bn_t a, uint32_t b, int *diff);
 
 /**
- * @brief   Test whether a BN value is odd.
+ * @brief   Tests whether a BN value is odd.
  *
  * @param[in]  n    BN index.
  *
@@ -355,7 +351,7 @@ SYSCALL cx_err_t cx_bn_is_odd(const cx_bn_t n, bool *odd);
 /* ========================================================================= */
 
 /**
- * @brief   Perform the bitwise 'exclusive-OR' of two BN values.
+ * @brief   Performs the bitwise 'exclusive-OR' of two BN values.
  *
  * @details *r* must be distinct from *a* and *b*.
  *
@@ -373,7 +369,7 @@ SYSCALL cx_err_t cx_bn_is_odd(const cx_bn_t n, bool *odd);
 SYSCALL cx_err_t cx_bn_xor(cx_bn_t r, const cx_bn_t a, const cx_bn_t b);
 
 /**
- * @brief   Perform the bitwise 'OR' of two BN values.
+ * @brief   Performs the bitwise 'OR' of two BN values.
  *
  * @details *r* must be distinct from *a* and *b*.
  *
@@ -391,7 +387,7 @@ SYSCALL cx_err_t cx_bn_xor(cx_bn_t r, const cx_bn_t a, const cx_bn_t b);
 SYSCALL cx_err_t cx_bn_or(cx_bn_t r, const cx_bn_t a, const cx_bn_t b);
 
 /**
- * @brief   Perform the bitwise 'AND' of two BN values.
+ * @brief   Performs the bitwise 'AND' of two BN values.
  *
  * @details *r* must be distinct from *a* and *b*.
  *
@@ -409,7 +405,7 @@ SYSCALL cx_err_t cx_bn_or(cx_bn_t r, const cx_bn_t a, const cx_bn_t b);
 SYSCALL cx_err_t cx_bn_and(cx_bn_t r, const cx_bn_t a, const cx_bn_t b);
 
 /**
- * @brief   Test the bit value at the specified index.
+ * @brief   Tests the bit value at the specified index.
  *
  * @details The BN value is in big endian order, thus the
  *          position 0 corresponds to the least significant bit.
@@ -430,7 +426,7 @@ SYSCALL cx_err_t cx_bn_and(cx_bn_t r, const cx_bn_t a, const cx_bn_t b);
 SYSCALL cx_err_t cx_bn_tst_bit(const cx_bn_t x, uint32_t pos, bool *set);
 
 /**
- * @brief   Set the bit value at the specified index.
+ * @brief   Sets the bit value at the specified index.
  *
  * @details The BN value is in big endian order, thus the
  *          position 0 corresponds to the least significant bit.
@@ -447,7 +443,7 @@ SYSCALL cx_err_t cx_bn_tst_bit(const cx_bn_t x, uint32_t pos, bool *set);
 SYSCALL cx_err_t cx_bn_set_bit(cx_bn_t x, uint32_t pos);
 
 /**
- * @brief   Clear the bit value at the specified index.
+ * @brief   Clears the bit value at the specified index.
  *
  * @details The BN value is in big endian order, thus the
  *          position 0 corresponds to the least significant bit.
@@ -464,7 +460,7 @@ SYSCALL cx_err_t cx_bn_set_bit(cx_bn_t x, uint32_t pos);
 SYSCALL cx_err_t cx_bn_clr_bit(cx_bn_t x, uint32_t pos);
 
 /**
- * @brief   Perform a right shift.
+ * @brief   Performs a right shift.
  *
  * @param[in]  x  BN index.
  *
@@ -478,7 +474,7 @@ SYSCALL cx_err_t cx_bn_clr_bit(cx_bn_t x, uint32_t pos);
 SYSCALL cx_err_t cx_bn_shr(cx_bn_t x, uint32_t n);
 
 /**
- * @brief   Perform a left shift.
+ * @brief   Performs a left shift.
  *
  * @param[in]  x  BN index.
  *
@@ -492,7 +488,7 @@ SYSCALL cx_err_t cx_bn_shr(cx_bn_t x, uint32_t n);
 SYSCALL cx_err_t cx_bn_shl(cx_bn_t x, uint32_t n);
 
 /**
- * @brief   Count the number of bits set to 1 of the BN value.
+ * @brief   Counts the number of bits set to 1 of the BN value.
  *
  * @param[in]  n      BN index.
  *
@@ -510,7 +506,7 @@ SYSCALL cx_err_t cx_bn_cnt_bits(cx_bn_t n, uint32_t *nbits);
 /* ========================================================================= */
 
 /**
- * @brief   Perform an addition **r = a + b**.
+ * @brief   Performs an addition **r = a + b**.
  *
  * @details *r*, *a* and *b* shall have the same BN size.
  *
@@ -528,7 +524,7 @@ SYSCALL cx_err_t cx_bn_cnt_bits(cx_bn_t n, uint32_t *nbits);
 SYSCALL cx_err_t cx_bn_add(cx_bn_t r, const cx_bn_t a, const cx_bn_t b);
 
 /**
- * @brief   Perform a subtraction **r = a - b**.
+ * @brief   Performs a subtraction **r = a - b**.
  *
  * @details *r*, *a* and *b* shall have the same BN size.
  *
@@ -546,9 +542,11 @@ SYSCALL cx_err_t cx_bn_add(cx_bn_t r, const cx_bn_t a, const cx_bn_t b);
 SYSCALL cx_err_t cx_bn_sub(cx_bn_t r, const cx_bn_t a, const cx_bn_t b);
 
 /**
- * @brief   Perform a multiplication **r = a * b**.
+ * @brief   Performs a multiplication **r = a * b**.
  *
- * @details *r*, *a* and *b* shall have the same BN size.
+ * @details *a* and *b* shall have the same BN size.
+ *          The size of *r* must be the size of *a*
+ *          + the size of *b*.
  *
  * @param[out] r BN index for the result.
  *
@@ -568,7 +566,7 @@ SYSCALL cx_err_t cx_bn_mul(cx_bn_t r, const cx_bn_t a, const cx_bn_t b);
 /* ========================================================================= */
 
 /**
- * @brief   Perform a modular addition **r = a + b mod n**.
+ * @brief   Performs a modular addition **r = a + b mod n**.
  *
  * @details *r*, *a*, *b* and *n* shall have the same BN size.
  *          The values of *a* and *b* must be strictly smaller
@@ -592,7 +590,7 @@ SYSCALL cx_err_t cx_bn_mod_add(cx_bn_t r, const cx_bn_t a, const cx_bn_t b,
                                const cx_bn_t n);
 
 /**
- * @brief   Perform a modular subtraction **r = a - b mod n**.
+ * @brief   Performs a modular subtraction **r = a - b mod n**.
  *
  * @details *r*, *a*, *b* and *n* shall have the same BN size.
  *          The values of *a* and *b* must be strictly smaller
@@ -616,7 +614,7 @@ SYSCALL cx_err_t cx_bn_mod_sub(cx_bn_t r, const cx_bn_t a, const cx_bn_t b,
                                const cx_bn_t n);
 
 /**
- * @brief   Perform a modular multiplication **r = a * b mod n**.
+ * @brief   Performs a modular multiplication **r = a * b mod n**.
  *
  * @details *r*, *a*, *b* and *n* shall have the same BN size.
  *          The value of b must be strictly smaller
@@ -641,7 +639,7 @@ SYSCALL cx_err_t cx_bn_mod_mul(cx_bn_t r, const cx_bn_t a, const cx_bn_t b,
                                const cx_bn_t n);
 
 /**
- * @brief   Perform a reduction **r = d mod n**.
+ * @brief   Performs a reduction **r = d mod n**.
  *
  * @details *r* and *n* shall have the same BN size.
  *
@@ -660,7 +658,7 @@ SYSCALL cx_err_t cx_bn_mod_mul(cx_bn_t r, const cx_bn_t a, const cx_bn_t b,
 SYSCALL cx_err_t cx_bn_reduce(cx_bn_t r, const cx_bn_t d, const cx_bn_t n);
 
 /**
- * @brief   Compute *r* such that **r² = a mod n** if *a* is a quadratic
+ * @brief   Computes *r* such that **r² = a mod n** if *a* is a quadratic
  * residue.
  *
  * @details This returns an error if the given number is not a quadratic
@@ -668,11 +666,11 @@ SYSCALL cx_err_t cx_bn_reduce(cx_bn_t r, const cx_bn_t d, const cx_bn_t n);
  *
  * @param[out] r    BN index for the result.
  *
- * @param[in]  a    BN index of the value to compute the quadratic residue.
+ * @param[in]  a    BN index of the quadratic residue or quadratic non residue.
  *
  * @param[in]  n    BN index of the modulus.
  *
- * @param[in]  sign Sign of the quadratic residue.
+ * @param[in]  sign Sign of the result.
  *
  * @return          Error code:
  *                  - CX_OK on success
@@ -685,7 +683,7 @@ SYSCALL cx_err_t cx_bn_mod_sqrt(cx_bn_t r, const cx_bn_t a, const cx_bn_t n,
                                 uint32_t sign);
 
 /**
- * @brief   Perform a modular exponentiation **r = a^e mod n**.
+ * @brief   Performs a modular exponentiation **r = a^e mod n**.
  *
  * @details *r*, *a* and *n* shall have the same BN size.
  *          *r*, *a* and *n* must be different.
@@ -708,7 +706,7 @@ SYSCALL cx_err_t cx_bn_mod_pow_bn(cx_bn_t r, const cx_bn_t a, const cx_bn_t e,
                                   const cx_bn_t n);
 
 /**
- * @brief   Perform a modular exponentiation **r = a^e mod n**.
+ * @brief   Performs a modular exponentiation **r = a^e mod n**.
  *
  * @details *r*, *a* and *n* shall have the same BN size.
  *          *r*, *a* and *n* must be different.
@@ -734,7 +732,7 @@ SYSCALL cx_err_t cx_bn_mod_pow(cx_bn_t r, const cx_bn_t a,
                                const cx_bn_t n);
 
 /**
- * @brief   Perform a modular exponentiation **r = a^e mod n**.
+ * @brief   Performs a modular exponentiation **r = a^e mod n**.
  *
  * @details This fonction reuses the parameter *a* for intermediate
  * computations, hence requires less memory. *r*, *a* and *n* shall have the
@@ -763,7 +761,7 @@ SYSCALL cx_err_t cx_bn_mod_pow2(cx_bn_t r, const cx_bn_t a,
                                 const cx_bn_t n);
 
 /**
- * @brief   Compute the modular inverse **r = a^(-1) mod n**,
+ * @brief   Computes the modular inverse **r = a^(-1) mod n**,
  *          for a prime *n*.
  *
  * @details *r*, *a* and *n* shall have the same BN size. *n* must be prime.
@@ -784,11 +782,11 @@ SYSCALL cx_err_t cx_bn_mod_invert_nprime(cx_bn_t r, const cx_bn_t a,
                                          const cx_bn_t n);
 
 /**
- * @brief   Compute the modular inverse **r = a^(-1) mod n**,
+ * @brief   Computes the modular inverse **r = a^(-1) mod n**,
  *          of a 32-bit value.
  *
  * @details *r* and *n* shall have the same BN size.
- *          The parameters *n* is detroyed and contains zero
+ *          The parameter *n* is detroyed and contains zero
  *          after the function returns.
  *
  * @param[out] r BN index for the result.
@@ -812,9 +810,9 @@ SYSCALL cx_err_t cx_bn_mod_u32_invert(cx_bn_t r, uint32_t a, cx_bn_t n);
 /* ========================================================================= */
 
 /**
- * @brief   Allocate memory for the Montgomery context.
+ * @brief   Allocates memory for the Montgomery context.
  *
- * @param[in] ctx    Pointer to the Montogmery context.
+ * @param[in] ctx    Pointer to the Montgomery context.
  *
  * @param[in] length BN size for the context fields.
  *
@@ -827,7 +825,7 @@ SYSCALL cx_err_t cx_mont_alloc(
     cx_bn_mont_ctx_t *ctx PLENGTH(sizeof(cx_bn_mont_ctx_t)), size_t length);
 
 /**
- * @brief   Initialize a Montgomery context with the modulus.
+ * @brief   Initializes a Montgomery context with the modulus.
  *
  * @details Calculate and set up the second Montgomery constant.
  *
@@ -845,7 +843,7 @@ SYSCALL cx_err_t cx_mont_init(
     cx_bn_mont_ctx_t *ctx PLENGTH(sizeof(cx_bn_mont_ctx_t)), const cx_bn_t n);
 
 /**
- * @brief   Initialize a Montgomery context with the modulus and
+ * @brief   Initializes a Montgomery context with the modulus and
  *          the second Montgomery constant.
  *
  * @details Set up the second Montgomery constant with the given
@@ -869,7 +867,7 @@ cx_mont_init2(cx_bn_mont_ctx_t *ctx PLENGTH(sizeof(cx_bn_mont_ctx_t)),
               const cx_bn_t n, const cx_bn_t h);
 
 /**
- * @brief   Compute the Montgomery representation of a BN value.
+ * @brief   Computes the Montgomery representation of a BN value.
  *
  * @details The context must be initialized.
  *
@@ -892,7 +890,7 @@ SYSCALL cx_err_t cx_mont_to_montgomery(cx_bn_t x, const cx_bn_t z,
                                            PLENGTH(sizeof(cx_bn_mont_ctx_t)));
 
 /**
- * @brief   Compute the normal representation of a BN value
+ * @brief   Computes the normal representation of a BN value
  *          given a Montgomery representation.
  *
  * @details The context must be initialized.
@@ -916,7 +914,7 @@ SYSCALL cx_err_t cx_mont_from_montgomery(cx_bn_t z, const cx_bn_t x,
                                              PLENGTH(sizeof(cx_bn_mont_ctx_t)));
 
 /**
- * @brief   Perform a Montgomery multiplication.
+ * @brief   Performs a Montgomery multiplication.
  *
  * @details The context must be initialized.
  *
@@ -939,7 +937,7 @@ cx_mont_mul(cx_bn_t r, const cx_bn_t a, const cx_bn_t b,
             const cx_bn_mont_ctx_t *ctx PLENGTH(sizeof(cx_bn_mont_ctx_t)));
 
 /**
- * @brief   Perform a modular exponentiation **r = a^e mod n**.
+ * @brief   Performs a modular exponentiation **r = a^e mod n**.
  *
  * @details The context must be initialized. The BN value *a*
  *          is in Montgomery representation.
@@ -968,7 +966,7 @@ SYSCALL cx_err_t cx_mont_pow(
     const cx_bn_mont_ctx_t *ctx PLENGTH(sizeof(cx_bn_mont_ctx_t)));
 
 /**
- * @brief   Perform a modular exponentiation **r = a^e mod n**.
+ * @brief   Performs a modular exponentiation **r = a^e mod n**.
  *
  * @details The context must be initialized. The BN value *a*
  *          is in Montgomery representation.
@@ -995,7 +993,7 @@ cx_mont_pow_bn(cx_bn_t r, const cx_bn_t a, const cx_bn_t e,
                const cx_bn_mont_ctx_t *ctx PLENGTH(sizeof(cx_bn_mont_ctx_t)));
 
 /**
- * @brief   Compute the modular inverse **r = a^(-1) mod n** for
+ * @brief   Computes the modular inverse **r = a^(-1) mod n** for
  *          a prime number *n*.
  *
  * @details The context must be initialized.
@@ -1024,7 +1022,7 @@ SYSCALL cx_err_t cx_mont_invert_nprime(cx_bn_t r, const cx_bn_t a,
 /* ========================================================================= */
 
 /**
- * @brief   Test whether a BN value is a probable prime.
+ * @brief   Tests whether a BN value is a probable prime.
  *
  * @param[in] n      BN index of the value.
  *
@@ -1041,7 +1039,7 @@ SYSCALL cx_err_t cx_mont_invert_nprime(cx_bn_t r, const cx_bn_t a,
 SYSCALL cx_err_t cx_bn_is_prime(const cx_bn_t n, bool *prime);
 
 /**
- * @brief   Return the first prime number after a
+ * @brief   Gets the first prime number after a
  *          given BN value.
  *
  * @param[in, out] n BN index of the value and the result.
@@ -1056,7 +1054,7 @@ SYSCALL cx_err_t cx_bn_is_prime(const cx_bn_t n, bool *prime);
 SYSCALL cx_err_t cx_bn_next_prime(cx_bn_t n);
 
 /**
- * @brief Generate a random number *r* in the range ]0,n[.
+ * @brief Generates a random number *r* in the range ]0,n[.
  *
  * @details *r* is such that: **0 < r < n**.
  *
@@ -1071,5 +1069,30 @@ SYSCALL cx_err_t cx_bn_next_prime(cx_bn_t n);
  *               - CX_MEMORY_FULL
  */
 SYSCALL cx_err_t cx_bn_rng(cx_bn_t r, const cx_bn_t n);
+
+/**
+ * @brief Performs a multiplication over GF(2^n).
+ *
+ * @param[out] bn_r BN index for the result.
+ *
+ * @param[in]  bn_a BN index of the first operand.
+ *
+ * @param[in]  bn_b BN index of the second operand.
+ *
+ * @param[in]  bn_n BN index of the modulus.
+ *                  The modulus must be an irreducible polynomial over GF(2)
+ *                  of degree n.
+ *
+ * @param[in]  bn_h BN index of the second montgomery constant.
+ *
+ * @return          Error code:
+ *                  - CX_OK on success
+ *                  - CX_NOT_LOCKED
+ *                  - CX_INVALID_PARAMETER
+ *                  - CX_MEMORY_FULL
+ */
+SYSCALL cx_err_t cx_bn_gf2_n_mul(cx_bn_t bn_r, const cx_bn_t bn_a,
+                                 const cx_bn_t bn_b, const cx_bn_t bn_n,
+                                 const cx_bn_t bn_h);
 
 #endif /* CX_BN_H */

@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -194,17 +194,6 @@ void ux_stack_init(unsigned int stack_slot) {
 const bagl_element_t *ux_stack_display_element_callback(const bagl_element_t *element) {
   const bagl_element_t *el;
   if (G_ux.stack_count) {
-#ifdef TARGET_BLUE
-    if (G_ux.stack[G_ux.stack_count - 1].keyboard_before_element_display_callback) {
-      el = G_ux.stack[G_ux.stack_count - 1].keyboard_before_element_display_callback(element);
-      if (!el) {
-        return 0;
-      }
-      if ((unsigned int)el != 1) {
-        element = el;
-      }
-    }
-#endif // TARGET_BLUE
     if (G_ux.stack[G_ux.stack_count - 1].screen_before_element_display_callback) {
       el = G_ux.stack[G_ux.stack_count - 1].screen_before_element_display_callback(element);
       if (!el) {
@@ -287,9 +276,9 @@ void ux_stack_display_elements(ux_stack_slot_t *slot) {
 #endif // HAVE_SE_SCREEN
 
 #ifndef HAVE_SE_SCREEN
-#if UX_STACK_SLOT_ARRAY_COUNT == 1
 void ux_stack_al_display_next_element(unsigned int stack_slot) __attribute__((weak));
 void ux_stack_al_display_next_element(unsigned int stack_slot) {
+#if UX_STACK_SLOT_ARRAY_COUNT == 1
   unsigned int status = os_sched_last_status(TASK_BOLOS_UX);
   if (status != BOLOS_UX_IGNORE && status != BOLOS_UX_CONTINUE) {
     while (G_ux.stack[stack_slot].element_arrays[0].element_array &&
@@ -299,7 +288,7 @@ void ux_stack_al_display_next_element(unsigned int stack_slot) {
       const bagl_element_t *element =
           &G_ux.stack[stack_slot].element_arrays[0].element_array[G_ux.stack[stack_slot].element_index];
       if (!G_ux.stack[stack_slot].screen_before_element_display_callback ||
-          (element = G_ux.stack[stack_slot].screen_before_element_display_callback(element))) {
+          (element = G_ux.stack[stack_slot].screen_before_element_display_callback(element)))       {
         if ((unsigned int)element == 1) { /*backward compat with coding to avoid smashing everything*/
           element = &G_ux.stack[stack_slot].element_arrays[0].element_array[G_ux.stack[stack_slot].element_index];
         }
@@ -308,8 +297,8 @@ void ux_stack_al_display_next_element(unsigned int stack_slot) {
       G_ux.stack[stack_slot].element_index++;
     }
   }
-}
 #endif // UX_STACK_SLOT_ARRAY_COUNT == 1
+}
 #endif // HAVE_SE_SCREEN
 
 // common code for all screens

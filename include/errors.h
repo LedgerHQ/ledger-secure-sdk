@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -108,7 +108,9 @@ enum generic_identifiers {
   ERR_GEN_ID_28,
   ERR_GEN_ID_29,
   ERR_GEN_ID_2A,
-  ERR_GEN_ID_2B
+  ERR_GEN_ID_2B,
+  ERR_GEN_ID_2C,
+  ERR_GEN_ID_2D
 };
 
 /**
@@ -328,6 +330,8 @@ enum generic_identifiers {
 #define SWO_SEC_APP_19 (ERR_SEC_APP + ERR_GEN_ID_19) // 0x5119
 #define SWO_SEC_APP_1A (ERR_SEC_APP + ERR_GEN_ID_1A) // 0x511A
 #define SWO_SEC_APP_1B (ERR_SEC_APP + ERR_GEN_ID_1B) // 0x511B
+#define SWO_SEC_APP_1C (ERR_SEC_APP + ERR_GEN_ID_1C) // 0x511C
+#define SWO_SEC_APP_1D (ERR_SEC_APP + ERR_GEN_ID_1D) // 0x511D
 
 #define SWO_SEC_CRC_01 (ERR_SEC_CRC + ERR_GEN_ID_01) // 0x5201
 #define SWO_SEC_CRC_02 (ERR_SEC_CRC + ERR_GEN_ID_02) // 0x5202
@@ -364,6 +368,7 @@ enum generic_identifiers {
 #define SWO_SEC_CRC_21 (ERR_SEC_CRC + ERR_GEN_ID_21) // 0x5221
 #define SWO_SEC_CRC_22 (ERR_SEC_CRC + ERR_GEN_ID_22) // 0x5222
 #define SWO_SEC_CRC_23 (ERR_SEC_CRC + ERR_GEN_ID_23) // 0x5223
+#define SWO_SEC_CRC_24 (ERR_SEC_CRC + ERR_GEN_ID_24) // 0x5224
 
 #define SWO_SEC_CHK_01 (ERR_SEC_CHK + ERR_GEN_ID_01) // 0x5301
 #define SWO_SEC_CHK_02 (ERR_SEC_CHK + ERR_GEN_ID_02) // 0x5302
@@ -389,6 +394,17 @@ enum generic_identifiers {
 #define SWO_SEC_CHK_16 (ERR_SEC_CHK + ERR_GEN_ID_16) // 0x5316
 #define SWO_SEC_CHK_17 (ERR_SEC_CHK + ERR_GEN_ID_17) // 0x5317
 #define SWO_SEC_CHK_18 (ERR_SEC_CHK + ERR_GEN_ID_18) // 0x5318
+#define SWO_SEC_CHK_19 (ERR_SEC_CHK + ERR_GEN_ID_19) // 0x5319
+#define SWO_SEC_CHK_1A (ERR_SEC_CHK + ERR_GEN_ID_1A) // 0x531A
+#define SWO_SEC_CHK_1B (ERR_SEC_CHK + ERR_GEN_ID_1B) // 0x531B
+#define SWO_SEC_CHK_1C (ERR_SEC_CHK + ERR_GEN_ID_1C) // 0x531C
+#define SWO_SEC_CHK_1D (ERR_SEC_CHK + ERR_GEN_ID_1D) // 0x531D
+#define SWO_SEC_CHK_1E (ERR_SEC_CHK + ERR_GEN_ID_1E) // 0x531E
+#define SWO_SEC_CHK_1F (ERR_SEC_CHK + ERR_GEN_ID_1F) // 0x531F
+#define SWO_SEC_CHK_20 (ERR_SEC_CHK + ERR_GEN_ID_20) // 0x5320
+#define SWO_SEC_CHK_21 (ERR_SEC_CHK + ERR_GEN_ID_21) // 0x5321
+#define SWO_SEC_CHK_22 (ERR_SEC_CHK + ERR_GEN_ID_22) // 0x5322
+#define SWO_SEC_CHK_23 (ERR_SEC_CHK + ERR_GEN_ID_23) // 0x5323
 
 #define SWO_SEC_KEY_01 (ERR_SEC_KEY + ERR_GEN_ID_01) // 0x5401
 
@@ -432,6 +448,7 @@ enum generic_identifiers {
 #define SWO_SEC_SIG_0D (ERR_SEC_SIG + ERR_GEN_ID_0D) // 0x570D
 #define SWO_SEC_SIG_0E (ERR_SEC_SIG + ERR_GEN_ID_0E) // 0x570E
 #define SWO_SEC_SIG_0F (ERR_SEC_SIG + ERR_GEN_ID_0F) // 0x570F
+#define SWO_SEC_SIG_10 (ERR_SEC_SIG + ERR_GEN_ID_10) // 0x5710
 
 #define SWO_SEC_MEM_01 (ERR_SEC_MEM + ERR_GEN_ID_01) // 0x5801
 #define SWO_SEC_MEM_02 (ERR_SEC_MEM + ERR_GEN_ID_02) // 0x5802
@@ -487,6 +504,8 @@ enum generic_identifiers {
 #define SWO_APD_INS_04 (ERR_APD_INS + ERR_GEN_ID_04) // 0x6D04
 #define SWO_APD_INS_05 (ERR_APD_INS + ERR_GEN_ID_05) // 0x6D05
 #define SWO_APD_INS_06 (ERR_APD_INS + ERR_GEN_ID_06) // 0x6D06
+#define SWO_APD_INS_07 (ERR_APD_INS + ERR_GEN_ID_07) // 0x6D07
+#define SWO_APD_INS_08 (ERR_APD_INS + ERR_GEN_ID_08) // 0x6D08
 
 #define SWO_APD_HDR_01 (ERR_APD_HDR + ERR_GEN_ID_01) // 0x6501
 #define SWO_APD_HDR_02 (ERR_APD_HDR + ERR_GEN_ID_02) // 0x6502
@@ -550,6 +569,8 @@ enum generic_identifiers {
 #define SWO_APD_LEN_29 (ERR_APD_LEN + ERR_GEN_ID_29) // 0x6729
 #define SWO_APD_LEN_2A (ERR_APD_LEN + ERR_GEN_ID_2A) // 0x672A
 #define SWO_APD_LEN_2B (ERR_APD_LEN + ERR_GEN_ID_2B) // 0x672B
+#define SWO_APD_LEN_2C (ERR_APD_LEN + ERR_GEN_ID_2C) // 0x672C
+#define SWO_APD_LEN_2D (ERR_APD_LEN + ERR_GEN_ID_2D) // 0x672D
 
 #define SWO_APD_DAT_01 (ERR_APD_DAT + ERR_GEN_ID_01) // 0x6801
 #define SWO_APD_DAT_02 (ERR_APD_DAT + ERR_GEN_ID_02) // 0x6802
@@ -575,6 +596,10 @@ enum generic_identifiers {
 #define SWO_APD_DAT_16 (ERR_APD_DAT + ERR_GEN_ID_16) // 0x6816
 #define SWO_APD_DAT_17 (ERR_APD_DAT + ERR_GEN_ID_17) // 0x6817
 #define SWO_APD_DAT_18 (ERR_APD_DAT + ERR_GEN_ID_18) // 0x6818
+#define SWO_APD_DAT_19 (ERR_APD_DAT + ERR_GEN_ID_19) // 0x6819
+#define SWO_APD_DAT_1A (ERR_APD_DAT + ERR_GEN_ID_1A) // 0x681A
+#define SWO_APD_DAT_1B (ERR_APD_DAT + ERR_GEN_ID_1B) // 0x681B
+#define SWO_APD_DAT_1C (ERR_APD_DAT + ERR_GEN_ID_1C) // 0x681C
 
 #define SWO_APD_STA_01 (ERR_APD_STA + ERR_GEN_ID_01) // 0x6601
 #define SWO_APD_STA_02 (ERR_APD_STA + ERR_GEN_ID_02) // 0x6602
@@ -619,6 +644,8 @@ enum generic_identifiers {
 #define SWO_APD_STA_29 (ERR_APD_STA + ERR_GEN_ID_29) // 0x6629
 #define SWO_APD_STA_2A (ERR_APD_STA + ERR_GEN_ID_2A) // 0x662A
 #define SWO_APD_STA_2B (ERR_APD_STA + ERR_GEN_ID_2B) // 0x662B
+#define SWO_APD_STA_2C (ERR_APD_STA + ERR_GEN_ID_2C) // 0x662C
+#define SWO_APD_STA_2D (ERR_APD_STA + ERR_GEN_ID_2D) // 0x662D
 
 /**
  * The process is successful.

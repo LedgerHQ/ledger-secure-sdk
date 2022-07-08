@@ -36,6 +36,9 @@
  extern "C" {
 #endif
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wtypedef-redefinition"
+
 /* Includes ------------------------------------------------------------------*/
 #include <stdio.h>
 #include <stdlib.h>
@@ -166,6 +169,8 @@ void USBD_static_free(void *p);
 
 
 void USB_power(unsigned char enabled);
+
+#pragma clang diagnostic pop
 
 #ifdef __cplusplus
 }

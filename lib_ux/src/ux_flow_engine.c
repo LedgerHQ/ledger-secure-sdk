@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -329,7 +329,7 @@ unsigned int ux_flow_button_callback(unsigned int button_mask, unsigned int butt
   return 0;
 }
 
-void* ux_stack_get_step_params(unsigned int stack_slot) {
+const void* ux_stack_get_step_params(unsigned int stack_slot) {
 	if (stack_slot >= UX_STACK_SLOT_COUNT) {
 		return NULL;
 	}
@@ -342,10 +342,10 @@ void* ux_stack_get_step_params(unsigned int stack_slot) {
 		return NULL;
 	}
 
-	return (void*)PIC(STEPPIC(STEPSPIC(G_ux.flow_stack[stack_slot].steps)[G_ux.flow_stack[stack_slot].index])->params);
+	return PIC(STEPPIC(STEPSPIC(G_ux.flow_stack[stack_slot].steps)[G_ux.flow_stack[stack_slot].index])->params);
 }
 
-void* ux_stack_get_current_step_params(void) {
+const void* ux_stack_get_current_step_params(void) {
 	unsigned int top_stack_slot = G_ux.stack_count - 1;
 
 	return ux_stack_get_step_params(top_stack_slot);

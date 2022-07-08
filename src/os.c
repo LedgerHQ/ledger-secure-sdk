@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ void os_xor(void * dst, void * src1, void * src2, unsigned int length) {
   }
 }
 
-char os_secure_memcmp(void * src1, void * src2, unsigned int length) {
+char os_secure_memcmp(const void *src1, const void* src2, size_t length) {
 #define SRC1 ((unsigned char const *)src1)
 #define SRC2 ((unsigned char const *)src2)
   unsigned int l = length;
@@ -209,7 +209,7 @@ retret:
 }
 
 #ifndef BOLOS_OS_UPGRADER_APP
-void safe_desynch() {
+void safe_desynch(void) {
   volatile int a, b;
   unsigned int i;
 
@@ -244,4 +244,38 @@ int os_memcmp(const void *s1, const void *s2, size_t n) {
 
 void *os_memset(void *s, int c, size_t n) {
   return memset(s, c, n);
+}
+
+int bytes_to_hex(char *out, size_t outl, const void *value, size_t len) {
+  const uint8_t *bytes = (const uint8_t *) value;
+  const char *hex = "0123456789ABCDEF";
+
+  if (outl < 2 * len + 1) {
+    *out = '\0';
+    return -1;
+  }
+
+  for (size_t i = 0; i < len; i++) {
+    *out++ = hex[(bytes[i] >> 4) & 0xf];
+    *out++ = hex[bytes[i] & 0xf];
+  }
+  *out = 0;
+  return 0;
+}
+
+int bytes_to_lowercase_hex(char *out, size_t outl, const void *value, size_t len) {
+  const uint8_t *bytes = (const uint8_t *) value;
+  const char *hex = "0123456789abcdef";
+
+  if (outl < 2 * len + 1) {
+    *out = '\0';
+    return -1;
+  }
+
+  for (size_t i = 0; i < len; i++) {
+    *out++ = hex[(bytes[i] >> 4) & 0xf];
+    *out++ = hex[bytes[i] & 0xf];
+  }
+  *out = 0;
+  return 0;
 }

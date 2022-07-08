@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -35,8 +35,8 @@ typedef struct ledger_protocol_s {
   uint16_t tx_apdu_sequence_number;
   uint16_t tx_apdu_offset;
 
-  uint8_t chunk[156 + 2];
-  uint8_t chunk_length;
+  uint8_t tx_chunk[156 + 2];
+  uint8_t tx_chunk_length;
 
   uint8_t *rx_apdu_buffer;
   uint16_t rx_apdu_buffer_max_length;
@@ -44,6 +44,7 @@ typedef struct ledger_protocol_s {
   uint16_t rx_apdu_sequence_number;
   uint16_t rx_apdu_length;
   uint16_t rx_apdu_offset;
+
   uint16_t mtu;
   uint8_t mtu_negotiated;
 } ledger_protocol_t;

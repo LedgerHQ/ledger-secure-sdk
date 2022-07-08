@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -40,10 +40,9 @@
 /** @brief   DES key container.
  *
  *  @details DES key container.
- *           Such container should be initialized with **cx_des_init_key** to
- * ensure future API compatibility. Indeed, in next API level, the key store
- * format may changed at all. 8 bytes (simple DES), 16 bytes (triple DES with 2
- * keys) and 24 bytes (triple DES with 3 keys) are supported.
+ *           Such container should be initialized with
+ * **cx_des_init_key_no_throw**. 8 bytes (simple DES), 16 bytes (triple DES with
+ * 2 keys) and 24 bytes (triple DES with 3 keys) are supported.
  */
 struct cx_des_key_s {
   uint8_t size;     ///< key size
@@ -53,7 +52,7 @@ struct cx_des_key_s {
 typedef struct cx_des_key_s cx_des_key_t;
 
 /**
- * @brief   Set a DES key in hardware.
+ * @brief   Sets a DES key in hardware.
  *
  * @param[in] keys DES key.
  *
@@ -67,12 +66,12 @@ SYSCALL cx_err_t cx_des_set_key_hw(
     const cx_des_key_t *keys PLENGTH(sizeof(cx_des_key_t)), uint32_t mode);
 
 /**
- * @brief   Reset DES context.
+ * @brief   Resets the DES context.
  */
 SYSCALL void cx_des_reset_hw(void);
 
 /**
- * @brief   Encrypt or decrypt a block with DES.
+ * @brief   Encrypts or decrypts a block with DES.
  *
  * @param[in]  inblock  Pointer to the block.
  *

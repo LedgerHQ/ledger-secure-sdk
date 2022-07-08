@@ -11,12 +11,9 @@
 #include "cx_sha256.h"
 #include "cx_hmac.h"
 #include "cx_pbkdf2.h"
-#include "cx_init.h"
-#include "cx_Groestl-ref.h"
 #include "cx_blake2.h"
 #include "cx_eddsa.h"
 #include "cx_ripemd160.h"
-#include "cx_groestl.h"
 #include "cx_selftests.h"
 #include "cx_math.h"
 #include "cx_ecdsa.h"
@@ -28,6 +25,16 @@
 #include "cx_blake2b.h"
 
 unsigned long __attribute((section ("._cx_exported_functions"))) cx_exported_functions[] = {
+  [_NR_cx_aead_check_tag] = (unsigned long)cx_aead_check_tag,
+  [_NR_cx_aead_decrypt] = (unsigned long)cx_aead_decrypt,
+  [_NR_cx_aead_encrypt] = (unsigned long)cx_aead_encrypt,
+  [_NR_cx_aead_init] = (unsigned long)cx_aead_init,
+  [_NR_cx_aead_set_iv] = (unsigned long)cx_aead_set_iv,
+  [_NR_cx_aead_set_key] = (unsigned long)cx_aead_set_key,
+  [_NR_cx_aead_setup] = (unsigned long)cx_aead_setup,
+  [_NR_cx_aead_update] = (unsigned long)cx_aead_update,
+  [_NR_cx_aead_update_ad] = (unsigned long)cx_aead_update_ad,
+  [_NR_cx_aead_write_tag] = (unsigned long)cx_aead_write_tag,
   [_NR_cx_aes_dec_block] = (unsigned long)cx_aes_dec_block,
   [_NR_cx_aes_enc_block] = (unsigned long)cx_aes_enc_block,
   [_NR_cx_aes_init_key_no_throw] = (unsigned long)cx_aes_init_key_no_throw,
@@ -39,6 +46,11 @@ unsigned long __attribute((section ("._cx_exported_functions"))) cx_exported_fun
   [_NR_cx_blake2b_init2_no_throw] = (unsigned long)cx_blake2b_init2_no_throw,
   [_NR_cx_blake2b_init_no_throw] = (unsigned long)cx_blake2b_init_no_throw,
   [_NR_cx_blake2b_update] = (unsigned long)cx_blake2b_update,
+  [_NR_cx_chacha_cipher] = (unsigned long)cx_chacha_cipher,
+  [_NR_cx_chacha_init] = (unsigned long)cx_chacha_init,
+  [_NR_cx_chacha_set_key] = (unsigned long)cx_chacha_set_key,
+  [_NR_cx_chacha_start] = (unsigned long)cx_chacha_start,
+  [_NR_cx_chacha_update] = (unsigned long)cx_chacha_update,
   [_NR_cx_crc16] = (unsigned long)cx_crc16,
   [_NR_cx_crc16_update] = (unsigned long)cx_crc16_update,
   [_NR_cx_crc32] = (unsigned long)cx_crc32,
@@ -68,17 +80,13 @@ unsigned long __attribute((section ("._cx_exported_functions"))) cx_exported_fun
   [_NR_cx_edwards_compress_point_no_throw] = (unsigned long)cx_edwards_compress_point_no_throw,
   [_NR_cx_edwards_decompress_point_no_throw] = (unsigned long)cx_edwards_decompress_point_no_throw,
   [_NR_cx_encode_coord] = (unsigned long)cx_encode_coord,
-  [_NR_cx_groestl] = (unsigned long)cx_groestl,
-  [_NR_cx_groestl_final] = (unsigned long)cx_groestl_final,
-  [_NR_cx_groestl_get_output_size] = (unsigned long)cx_groestl_get_output_size,
-  [_NR_cx_groestl_init_no_throw] = (unsigned long)cx_groestl_init_no_throw,
-  [_NR_cx_groestl_update] = (unsigned long)cx_groestl_update,
   [_NR_cx_hash_final] = (unsigned long)cx_hash_final,
   [_NR_cx_hash_get_info] = (unsigned long)cx_hash_get_info,
   [_NR_cx_hash_get_size] = (unsigned long)cx_hash_get_size,
   [_NR_cx_hash_init] = (unsigned long)cx_hash_init,
   [_NR_cx_hash_init_ex] = (unsigned long)cx_hash_init_ex,
   [_NR_cx_hash_no_throw] = (unsigned long)cx_hash_no_throw,
+  [_NR_cx_hash_ripemd160] = (unsigned long)cx_hash_ripemd160,
   [_NR_cx_hash_sha256] = (unsigned long)cx_hash_sha256,
   [_NR_cx_hash_sha512] = (unsigned long)cx_hash_sha512,
   [_NR_cx_hash_update] = (unsigned long)cx_hash_update,
@@ -95,7 +103,6 @@ unsigned long __attribute((section ("._cx_exported_functions"))) cx_exported_fun
   [_NR_cx_hmac_sha512] = (unsigned long)cx_hmac_sha512,
   [_NR_cx_hmac_sha512_init_no_throw] = (unsigned long)cx_hmac_sha512_init_no_throw,
   [_NR_cx_hmac_update] = (unsigned long)cx_hmac_update,
-  [_NR_cx_init] = (unsigned long)cx_init,
   [_NR_cx_keccak_init_no_throw] = (unsigned long)cx_keccak_init_no_throw,
   [_NR_cx_math_addm_no_throw] = (unsigned long)cx_math_addm_no_throw,
   [_NR_cx_math_add_no_throw] = (unsigned long)cx_math_add_no_throw,

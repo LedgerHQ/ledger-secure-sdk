@@ -16,6 +16,16 @@
       b    cx_trampoline_helper
 .endm
 
+CX_TRAMPOLINE _NR_cx_aead_check_tag                        cx_aead_check_tag
+CX_TRAMPOLINE _NR_cx_aead_decrypt                          cx_aead_decrypt
+CX_TRAMPOLINE _NR_cx_aead_encrypt                          cx_aead_encrypt
+CX_TRAMPOLINE _NR_cx_aead_init                             cx_aead_init
+CX_TRAMPOLINE _NR_cx_aead_set_iv                           cx_aead_set_iv
+CX_TRAMPOLINE _NR_cx_aead_set_key                          cx_aead_set_key
+CX_TRAMPOLINE _NR_cx_aead_setup                            cx_aead_setup
+CX_TRAMPOLINE _NR_cx_aead_update                           cx_aead_update
+CX_TRAMPOLINE _NR_cx_aead_update_ad                        cx_aead_update_ad
+CX_TRAMPOLINE _NR_cx_aead_write_tag                        cx_aead_write_tag
 CX_TRAMPOLINE _NR_cx_aes_dec_block                         cx_aes_dec_block
 CX_TRAMPOLINE _NR_cx_aes_enc_block                         cx_aes_enc_block
 CX_TRAMPOLINE _NR_cx_aes_init_key_no_throw                 cx_aes_init_key_no_throw
@@ -27,6 +37,11 @@ CX_TRAMPOLINE _NR_cx_blake2b_get_output_size               cx_blake2b_get_output
 CX_TRAMPOLINE _NR_cx_blake2b_init2_no_throw                cx_blake2b_init2_no_throw
 CX_TRAMPOLINE _NR_cx_blake2b_init_no_throw                 cx_blake2b_init_no_throw
 CX_TRAMPOLINE _NR_cx_blake2b_update                        cx_blake2b_update
+CX_TRAMPOLINE _NR_cx_chacha_cipher                         cx_chacha_cipher
+CX_TRAMPOLINE _NR_cx_chacha_init                           cx_chacha_init
+CX_TRAMPOLINE _NR_cx_chacha_set_key                        cx_chacha_set_key
+CX_TRAMPOLINE _NR_cx_chacha_start                          cx_chacha_start
+CX_TRAMPOLINE _NR_cx_chacha_update                         cx_chacha_update
 CX_TRAMPOLINE _NR_cx_crc16                                 cx_crc16
 CX_TRAMPOLINE _NR_cx_crc16_update                          cx_crc16_update
 CX_TRAMPOLINE _NR_cx_crc32                                 cx_crc32
@@ -56,17 +71,13 @@ CX_TRAMPOLINE _NR_cx_eddsa_verify_no_throw                 cx_eddsa_verify_no_th
 CX_TRAMPOLINE _NR_cx_edwards_compress_point_no_throw       cx_edwards_compress_point_no_throw
 CX_TRAMPOLINE _NR_cx_edwards_decompress_point_no_throw     cx_edwards_decompress_point_no_throw
 CX_TRAMPOLINE _NR_cx_encode_coord                          cx_encode_coord
-CX_TRAMPOLINE _NR_cx_groestl                               cx_groestl
-CX_TRAMPOLINE _NR_cx_groestl_final                         cx_groestl_final
-CX_TRAMPOLINE _NR_cx_groestl_get_output_size               cx_groestl_get_output_size
-CX_TRAMPOLINE _NR_cx_groestl_init_no_throw                 cx_groestl_init_no_throw
-CX_TRAMPOLINE _NR_cx_groestl_update                        cx_groestl_update
 CX_TRAMPOLINE _NR_cx_hash_final                            cx_hash_final
 CX_TRAMPOLINE _NR_cx_hash_get_info                         cx_hash_get_info
 CX_TRAMPOLINE _NR_cx_hash_get_size                         cx_hash_get_size
 CX_TRAMPOLINE _NR_cx_hash_init                             cx_hash_init
 CX_TRAMPOLINE _NR_cx_hash_init_ex                          cx_hash_init_ex
 CX_TRAMPOLINE _NR_cx_hash_no_throw                         cx_hash_no_throw
+CX_TRAMPOLINE _NR_cx_hash_ripemd160                        cx_hash_ripemd160
 CX_TRAMPOLINE _NR_cx_hash_sha256                           cx_hash_sha256
 CX_TRAMPOLINE _NR_cx_hash_sha512                           cx_hash_sha512
 CX_TRAMPOLINE _NR_cx_hash_update                           cx_hash_update
@@ -83,7 +94,6 @@ CX_TRAMPOLINE _NR_cx_hmac_sha384_init                      cx_hmac_sha384_init
 CX_TRAMPOLINE _NR_cx_hmac_sha512                           cx_hmac_sha512
 CX_TRAMPOLINE _NR_cx_hmac_sha512_init_no_throw             cx_hmac_sha512_init_no_throw
 CX_TRAMPOLINE _NR_cx_hmac_update                           cx_hmac_update
-CX_TRAMPOLINE _NR_cx_init                                  cx_init
 CX_TRAMPOLINE _NR_cx_keccak_init_no_throw                  cx_keccak_init_no_throw
 CX_TRAMPOLINE _NR_cx_math_addm_no_throw                    cx_math_addm_no_throw
 CX_TRAMPOLINE _NR_cx_math_add_no_throw                     cx_math_add_no_throw

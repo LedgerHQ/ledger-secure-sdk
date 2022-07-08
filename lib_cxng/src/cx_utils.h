@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -35,6 +35,9 @@ void     cx_swap_buffer32(uint32_t *v, size_t len);
 #define cx_rotl(x, n) (((x) << (n)) | ((x) >> (32 - (n))))
 #define cx_rotr(x, n) (((x) >> (n)) | ((x) << (32 - (n))))
 #define cx_shr(x, n) ((x) >> (n))
+
+#define htole32(value) ((uint32_t) (value))
+
 
 /* ======================================================================= */
 /*                          64 BITS manipulation                           */
@@ -86,3 +89,5 @@ void         cx_swap_buffer64(uint64bits_t *v, int len);
 void cx_memxor(uint8_t *buf1, const uint8_t *buf2, size_t len);
 
 #endif
+
+uint8_t cx_constant_time_eq(const uint8_t *buf1, uint8_t *buf2, size_t len);

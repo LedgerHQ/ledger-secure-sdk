@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -72,8 +72,8 @@ void ux_flow_validate(void); // called by layout's validation
 void ux_flow_error(unsigned int error); // called by layout's error
 unsigned int ux_flow_button_callback(unsigned int button_mask, unsigned int button_mask_counter);
 // retrieve the parameters of the currently displayed step
-void* ux_stack_get_current_step_params(void);
-void* ux_stack_get_step_params(unsigned int stack_slot);
+const void *ux_stack_get_current_step_params(void);
+const void *ux_stack_get_step_params(unsigned int stack_slot);
 /**
  * Return 0 when no relayout occured.
  */

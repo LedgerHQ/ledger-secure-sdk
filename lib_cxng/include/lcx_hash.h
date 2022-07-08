@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@
  * A hash function maps data of arbitrary size to a bit array of a fixed size,
  * called the message digest. Various hash functions are available:
  *   - BLAKE2B
- *   - GROESTL
  *   - KECCAK (Pre SHA3)
  *   - RIPEMD-160
  *   - SHAKE-128
@@ -58,15 +57,15 @@ enum cx_md_e {
   CX_SHA224 = 2,                        ///< SHA224 digest
   // 32 bytes
   CX_SHA256 = 3,                        ///< SHA256 digest
-  // 48 bytes 
+  // 48 bytes
   CX_SHA384 = 4,                        ///< SHA384 digest
-  // 64 bytes 
+  // 64 bytes
   CX_SHA512 = 5,                        ///< SHA512 digest
   // 28,32,48,64 bytes
   CX_KECCAK = 6,                        ///< Keccak (pre-SHA3) digest
   // 28,32,48,64 bytes
   CX_SHA3 = 7,                          ///< SHA3 Digest
-  CX_GROESTL = 8,                       ///< Groestl digest
+  DEPRECATED_0 = 8,                     ///< Keep compatibility
   CX_BLAKE2B = 9,                       ///< Blake digest
   // any bytes
   CX_SHAKE128 = 10,                     ///< SHAKE-128 digest
@@ -112,7 +111,7 @@ struct cx_hash_header_s {
 size_t cx_hash_get_size(const cx_hash_t *ctx);
 
 /**
- * @brief   Hash data according to the specified algorithm.
+ * @brief   Hashes data according to the specified algorithm.
  *
  * @param[in]  hash    Pointer to the hash context.
  *                     Shall be in RAM.
@@ -132,7 +131,7 @@ size_t cx_hash_get_size(const cx_hash_t *ctx);
  *                       - message digest if CX_LAST is set
  *
  * @param[out] out_len The size of the output buffer or 0 if out is NULL.
- *                     If buffer is too small to store the hash a exception is returned.
+ *                     If buffer is too small to store the hash an error is returned.
  *
  * @return             Error code:
  *                     - CX_OK on success
@@ -142,10 +141,13 @@ size_t cx_hash_get_size(const cx_hash_t *ctx);
 cx_err_t cx_hash_no_throw(cx_hash_t *hash, uint32_t mode, const uint8_t *in, size_t len, uint8_t *out, size_t out_len);
 
 /**
- * @brief   Hash data according to the specified algorithm.
+ * @brief   Hashes data according to the specified algorithm.
  * 
  * @details This function throws an exception if the computation
  *          doesn't succeed.
+ *
+ * @warning It is recommended to use #cx_hash_no_throw rather than
+ *          this function.
  *
  * @param[in]  hash    Pointer to the hash context.
  *                     Shall be in RAM.
@@ -165,21 +167,21 @@ cx_err_t cx_hash_no_throw(cx_hash_t *hash, uint32_t mode, const uint8_t *in, siz
  *                       - message digest if CX_LAST is set
  *
  * @param[out] out_len The size of the output buffer or 0 if out is NULL.
- *                     If buffer is too small to store the hash a exception is returned.
+ *                     If buffer is too small to store the hash an exception is thrown.
  *
  * @return             Length of the digest.
- * 
+ *
  * @throws             INVALID_PARAMETER
  * @throws             CX_INVALID_PARAMETER
  */
-static inline int cx_hash ( cx_hash_t * hash, int mode, const unsigned char * in, unsigned int len, unsigned char * out, unsigned int out_len )
+static inline size_t cx_hash ( cx_hash_t * hash, uint32_t mode, const unsigned char * in, unsigned int len, unsigned char * out, unsigned int out_len )
 {
   CX_THROW(cx_hash_no_throw(hash, mode, in, len, out, out_len));
   return cx_hash_get_size(hash);
 }
 
 /**
- * @brief   Initialize a hash context.
+ * @brief   Initializes a hash context.
  *
  * @param[out] hash    Pointer to the context to be initialized.
  *                     The context shall be in RAM.
@@ -193,9 +195,9 @@ static inline int cx_hash ( cx_hash_t * hash, int mode, const unsigned char * in
 cx_err_t cx_hash_init(cx_hash_t *hash, cx_md_t hash_id);
 
 /**
- * @brief   Initialize a hash context.
+ * @brief   Initializes a hash context.
  * 
- * @details Initialize a hash context with a chosen output length
+ * @details It initializes a hash context with a chosen output length
  *          (typically for eXtendable Output Functions (XOF)).
  *
  * @param[out] hash        Pointer to the context to be initialized.
@@ -203,12 +205,11 @@ cx_err_t cx_hash_init(cx_hash_t *hash, cx_md_t hash_id);
  *
  * @param [in] hash_id     Hash algorithm identifier. Typically:
  *                           - CX_BLAKE2B
- *                           - CX_GROESTL
  *                           - CX_SHAKE128
  *                           - CX_SHAKE256
  *
  * @param [in] output_size Length of the output.
- * 
+ *
  * @return                 Error code:
  *                         - CX_OK on success
  *                         - CX_INVALID_PARAMETER
@@ -216,7 +217,7 @@ cx_err_t cx_hash_init(cx_hash_t *hash, cx_md_t hash_id);
 cx_err_t cx_hash_init_ex(cx_hash_t *hash, cx_md_t hash_id, size_t output_size);
 
 /**
- * @brief   Add more data to hash.
+ * @brief   Adds more data to hash.
  * 
  * @details A call to this function is equivalent to:
  *          *cx_hash_no_throw(hash, 0, in, in_len, NULL, 0)*.
@@ -235,7 +236,7 @@ cx_err_t cx_hash_init_ex(cx_hash_t *hash, cx_md_t hash_id, size_t output_size);
 cx_err_t cx_hash_update(cx_hash_t *hash, const uint8_t *in, size_t in_len);
 
 /**
- * @brief   Finalize the hash. 
+ * @brief   Finalizes the hash. 
  * 
  * @details A call to this function is equivalent to:
  *          *cx_hash_no_throw(hash, CX_LAST, NULL, 0, out, out_len)*.
@@ -243,7 +244,7 @@ cx_err_t cx_hash_update(cx_hash_t *hash, const uint8_t *in, size_t in_len);
  * @param[in]  hash   Pointer to the hash context.
  *
  * @param[out] digest The message digest.
- * 
+ *
  * @return            Error code:
  *                    - CX_OK on success
  */

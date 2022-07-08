@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -35,71 +35,71 @@
 #define CX_MAX_DOMAIN_LENGTH 66
 
 #ifdef HAVE_SECP_CURVES
-/** Enable the Koblitz curve Secp256k1. */
+/** Enables the Koblitz curve Secp256k1. */
 #define HAVE_SECP256K1_CURVE
 
-/** Enable the verifiably random curve Secp256r1. */
+/** Enables the verifiably random curve Secp256r1. */
 #define HAVE_SECP256R1_CURVE
 
-/** Enable the verifiably random curve Secp384r1. */
+/** Enables the verifiably random curve Secp384r1. */
 #define HAVE_SECP384R1_CURVE
 
-/** Enable the verifiably random curve Secp521r1. */
+/** Enables the verifiably random curve Secp521r1. */
 #define HAVE_SECP521R1_CURVE
 #endif
 
 #ifdef HAVE_BRAINPOOL_CURVES
 
-/** Enable the curve BrainpoolP256r1. */
+/** Enables the curve BrainpoolP256r1. */
 #define HAVE_BRAINPOOL_P256R1_CURVE
 
-/** Enable the twisted curve BrainpoolP256t1. */
+/** Enables the twisted curve BrainpoolP256t1. */
 #define HAVE_BRAINPOOL_P256T1_CURVE
 
-/** Enable the curve BrainpoolP320r1. */
+/** Enables the curve BrainpoolP320r1. */
 #define HAVE_BRAINPOOL_P320R1_CURVE
 
-/** Enable the twisted curve BrainpoolP320t1. */
+/** Enables the twisted curve BrainpoolP320t1. */
 #define HAVE_BRAINPOOL_P320T1_CURVE
 
-/** Enable the curve BrainpoolP384r1. */
+/** Enables the curve BrainpoolP384r1. */
 #define HAVE_BRAINPOOL_P384R1_CURVE
 
-/** Enable the twisted curve BrainpoolP384t1. */
+/** Enables the twisted curve BrainpoolP384t1. */
 #define HAVE_BRAINPOOL_P384T1_CURVE
 
-/** Enable the curve BrainpoolP512r1. */
+/** Enables the curve BrainpoolP512r1. */
 #define HAVE_BRAINPOOL_P512R1_CURVE
 
-/** Enable the twisted curve BrainpoolP512t1. */
+/** Enables the twisted curve BrainpoolP512t1. */
 #define HAVE_BRAINPOOL_P512T1_CURVE
 #endif
 
 #ifdef HAVE_ED_CURVES
-/** Enable the twisted Edwards curve Ed25519. */
+/** Enables the twisted Edwards curve Ed25519. */
 #define HAVE_ED25519_CURVE
 
-/** Enable the twisted Edwards curve Ed448. */
+/** Enables the twisted Edwards curve Ed448. */
 #define HAVE_ED448_CURVE
 #endif
 
 #ifdef HAVE_CV_CURVES
-/** Enable the Montgomery curve Curve25519. */
+/** Enables the Montgomery curve Curve25519. */
 #define HAVE_CV25519_CURVE
 
-/** Enable the Montgomery curve Curve448. */
+/** Enables the Montgomery curve Curve448. */
 #define HAVE_CV448_CURVE
 #endif
 
 #ifdef HAVE_ANSSI_CURVES
 
-/** Enable the curve FRP256v1. */
+/** Enables the curve FRP256v1. */
 #define HAVE_FR256V1_CURVE
 #endif
 
 #ifdef HAVE_STARK_CURVES
 
-/** Enable the Stark curve. */
+/** Enables the Stark curve. */
 #define HAVE_STARK256_CURVE
 #endif
 
@@ -256,26 +256,26 @@ enum cx_curve_e {
 /** Convenience type. See #cx_curve_e. */
 typedef enum cx_curve_e cx_curve_t;
 
-/** Return true if the curve identifier is in the specified range
+/** Returns true if the curve identifier is in the specified range
  * @hideinitializer */
 #define CX_CURVE_RANGE(i, dom)                                                 \
   (((i) > (CX_CURVE_##dom##_START)) && ((i) < (CX_CURVE_##dom##_END)))
 
 #ifdef HAVE_ECC_WEIERSTRASS
-/** Return true if the curve is a short Weierstrass curve @hideinitializer */
+/** Returns true if the curve is a short Weierstrass curve @hideinitializer */
 #define CX_CURVE_IS_WEIERSTRASS(c)                                             \
   (((c) > CX_CURVE_WEIERSTRASS_START) && ((c) < CX_CURVE_WEIERSTRASS_END))
 #endif
 
 #ifdef HAVE_ECC_TWISTED_EDWARDS
-/** Return true if the curve is a twisted Edwards curve @hideinitializer */
+/** Returns true if the curve is a twisted Edwards curve @hideinitializer */
 #define CX_CURVE_IS_TWISTED_EDWARDS(c)                                         \
   (((c) > CX_CURVE_TWISTED_EDWARDS_START) &&                                   \
    ((c) < CX_CURVE_TWISTED_EDWARDS_END))
 #endif
 
 #ifdef HAVE_ECC_MONTGOMERY
-/** Return true if the curve is a Montgomery curve @hideinitializer */
+/** Returns true if the curve is a Montgomery curve @hideinitializer */
 #define CX_CURVE_IS_MONTGOMERY(c)                                              \
   (((c) > CX_CURVE_MONTGOMERY_START) && ((c) < CX_CURVE_MONTGOMERY_END))
 #endif
@@ -394,7 +394,7 @@ enum cx_curve_dom_param_s {
 typedef enum cx_curve_dom_param_s cx_curve_dom_param_t;
 
 /**
- * @brief   Return the bit length of each parameter of the curve.
+ * @brief   Gets the bit length of each parameter of the curve.
  *
  * @param[in] curve   Curve identifier.
  *
@@ -407,7 +407,7 @@ typedef enum cx_curve_dom_param_s cx_curve_dom_param_t;
 SYSCALL cx_err_t cx_ecdomain_size(cx_curve_t curve, size_t *length);
 
 /**
- * @brief   Return the byte length of each parameter of the curve.
+ * @brief   Gets the byte length of each parameter of the curve.
  *
  * @param[in]  cv     Curve identifier.
  *
@@ -420,7 +420,7 @@ SYSCALL cx_err_t cx_ecdomain_size(cx_curve_t curve, size_t *length);
 SYSCALL cx_err_t cx_ecdomain_parameters_length(cx_curve_t cv, size_t *length);
 
 /**
- * @brief   Get a specific parameter of the curve.
+ * @brief   Gets a specific parameter of the curve.
  *
  * @param[in]  cv    Curve identifier.
  *
@@ -440,7 +440,7 @@ SYSCALL cx_err_t cx_ecdomain_parameter(cx_curve_t cv, cx_curve_dom_param_t id,
                                        uint32_t p_len);
 
 /**
- * @brief   Store a specific parameter of the curve as a BN.
+ * @brief   Stores a specific parameter of the curve as a BN.
  *
  * @param[in]  cv Curve identifier.
  *
@@ -459,7 +459,7 @@ SYSCALL cx_err_t cx_ecdomain_parameter_bn(cx_curve_t cv,
                                           cx_curve_dom_param_t id, cx_bn_t p);
 
 /**
- * @brief   Get the generator of the curve.
+ * @brief   Gets the generator of the curve.
  *
  * @param[in] cv   Curve identifier.
  *
@@ -478,7 +478,8 @@ SYSCALL cx_err_t cx_ecdomain_generator(cx_curve_t cv, uint8_t *Gx PLENGTH(len),
                                        uint8_t *Gy PLENGTH(len), size_t len);
 
 /**
- * @brief   Get the generator of the curve and store it in the point structure.
+ * @brief   Gets the generator of the curve and stores it in the point
+ * structure.
  *
  * @param[in]  cv Curve identifier.
  *
@@ -496,7 +497,7 @@ SYSCALL cx_err_t cx_ecdomain_generator_bn(
     cx_curve_t cv, cx_ecpoint_t *P PLENGTH(sizeof(cx_ecpoint_t)));
 
 /**
- * @brief   Allocate memory for a point on the curve.
+ * @brief   Allocates memory for a point on the curve.
  *
  * @param[in] P  Pointer to a point.
  *
@@ -513,7 +514,7 @@ SYSCALL cx_err_t cx_ecpoint_alloc(cx_ecpoint_t *P PLENGTH(sizeof(cx_ecpoint_t)),
                                   cx_curve_t cv);
 
 /**
- * @brief   Destroy a point on the curve.
+ * @brief   Destroys a point on the curve.
  *
  * @param[in] P Pointer to the point to destroy. If the pointer is NULL,
  *              nothing is done.
@@ -528,7 +529,7 @@ SYSCALL cx_err_t
 cx_ecpoint_destroy(cx_ecpoint_t *P PLENGTH(sizeof(cx_ecpoint_t)));
 
 /**
- * @brief   Initialize a point on the curve.
+ * @brief   Initializes a point on the curve.
  *
  * @param[in] P     Pointer to the point to initialize.
  *
@@ -555,7 +556,7 @@ SYSCALL cx_err_t cx_ecpoint_init(cx_ecpoint_t *P PLENGTH(sizeof(cx_ecpoint_t)),
                                  const uint8_t *y PLENGTH(y_len), size_t y_len);
 
 /**
- * @brief   Initialize a point on the curve with the BN indexes of the
+ * @brief   Initializes a point on the curve with the BN indexes of the
  * coordinates.
  *
  * @param[in] P Pointer to the point to initialize.
@@ -577,11 +578,11 @@ cx_ecpoint_init_bn(cx_ecpoint_t *P PLENGTH(sizeof(cx_ecpoint_t)),
                    const cx_bn_t x, const cx_bn_t y);
 
 /**
- * @brief   Export a point.
+ * @brief   Exports a point.
  *
- * @details Fill two distinct buffers with the x-coordinate and the y-coordinate
- *          of the point. If the point is not in affine representation, it will
- *          be normalized first.
+ * @details Fills two distinct buffers with the x-coordinate and the
+ * y-coordinate of the point. If the point is not in affine representation, it
+ * will be normalized first.
  *
  * @param[in]  P     Pointer to the point to export.
  *
@@ -607,7 +608,7 @@ cx_ecpoint_export(const cx_ecpoint_t *P PLENGTH(sizeof(cx_ecpoint_t)),
                   uint8_t *y PLENGTH(y_len), size_t y_len);
 
 /**
- * @brief   Export a point using BN indexes of the coordinates.
+ * @brief   Exports a point using BN indexes of the coordinates.
  *
  * @param[in]  P Pointer to the point to export.
  *
@@ -628,7 +629,7 @@ SYSCALL cx_err_t cx_ecpoint_export_bn(
     cx_bn_t *x PLENGTH(sizeof(cx_bn_t)), cx_bn_t *y PLENGTH(sizeof(cx_bn_t)));
 
 /**
- * @brief   Compute the compressed form of a point.
+ * @brief   Computes the compressed form of a point.
  *
  * @details The compressed form depends on the curve type.
  *          For a Weierstrass or a Montgomery curve, the
@@ -636,14 +637,14 @@ SYSCALL cx_err_t cx_ecpoint_export_bn(
  *          a prefix. For a Twisted Edwards curve the compressed
  *          form consists of a y-coordinate and a prefix.
  *
- * @param[in]  P Pointer to the point to be compressed.
+ * @param[in]  P                 Pointer to the point to be compressed.
  *
  * @param[out] xy_compressed     Buffer to hold the compressed
  *                               coordinate.
  *
  * @param[in]  xy_compressed_len Length of the compressed coordinate in bytes.
- *                               This should be equal to twice of the length of
- * one coordinate plus one byte for the prefix.
+ *                               This should be equal to the length of one
+ * coordinate.
  *
  * @param[out] sign              Pointer to the sign of the hidden coordinate:
  *                               correspond to the least significant bit of the
@@ -664,16 +665,17 @@ cx_ecpoint_compress(const cx_ecpoint_t *P PLENGTH(sizeof(cx_ecpoint_t)),
                     size_t xy_compressed_len, uint32_t *sign);
 
 /**
- * @brief   Compute the affine coordinates of a point given its compressed form.
+ * @brief   Computes the affine coordinates of a point given its compressed
+ * form.
  *
- * @param[out] P Pointer to the point.
+ * @param[out] P                 Pointer to the point.
  *
  * @param[in]  xy_compressed     Pointer to the buffer holding the compressed
  *                               coordinate.
  *
  * @param[in]  xy_compressed_len Length of the compressed coordinate in bytes.
- *                               This should be equal to twice of the length of
- * one coordinate plus one byte for the prefix.
+ *                               This should be equal to the length of one
+ * coordinate.
  *
  * @param[in]  sign              Sign of the coordinate to recover.
  *
@@ -692,7 +694,7 @@ cx_ecpoint_decompress(cx_ecpoint_t *P PLENGTH(sizeof(cx_ecpoint_t)),
                       size_t xy_compressed_len, uint32_t sign);
 
 /**
- * @brief   Add two points on a curve.
+ * @brief   Adds two points on a curve.
  *
  * @details Each point should not be the point at infinity.
  *          If one of the point is the point at infinity then
@@ -721,14 +723,14 @@ cx_ecpoint_add(cx_ecpoint_t *R PLENGTH(sizeof(cx_ecpoint_t)),
                const cx_ecpoint_t *Q PLENGTH(sizeof(cx_ecpoint_t)));
 
 /**
- * @brief   Compute the opposite of a point.
+ * @brief   Computes the opposite of a point.
  *
  * @details The point should not be the point at infinity,
  *          otherwise the function returns a CX_EC_INFINITE_POINT
  *          error.
  *
  * @param[in, out] P Pointer to a point of the curve.
- *                   and will hold the result.
+ *                   This will hold the result.
  *
  * @return           Error code:
  *                   - CX_OK on success
@@ -742,7 +744,7 @@ cx_ecpoint_add(cx_ecpoint_t *R PLENGTH(sizeof(cx_ecpoint_t)),
 SYSCALL cx_err_t cx_ecpoint_neg(cx_ecpoint_t *P PLENGTH(sizeof(cx_ecpoint_t)));
 
 /**
- * @brief   Perform a secure scalar multiplication.
+ * @brief   Performs a secure scalar multiplication.
  *
  * @param[in, out] P     Pointer to a point on a curve. This will hold the
  * result.
@@ -767,7 +769,7 @@ cx_ecpoint_rnd_scalarmul(cx_ecpoint_t *P PLENGTH(sizeof(cx_ecpoint_t)),
                          const uint8_t *k PLENGTH(k_len), size_t k_len);
 
 /**
- * @brief   Perform a secure scalar multiplication given the BN index of the
+ * @brief   Performs a secure scalar multiplication given the BN index of the
  * scalar.
  *
  * @param[in, out] P    Pointer to a point on a curve. This will hold the
@@ -790,7 +792,7 @@ cx_ecpoint_rnd_scalarmul_bn(cx_ecpoint_t *P PLENGTH(sizeof(cx_ecpoint_t)),
                             const cx_bn_t bn_k PLENGTH(sizeof(cx_bn_t)));
 
 /**
- * @brief   Perform a secure scalar multiplication with a fixed scalar length.
+ * @brief   Performs a secure scalar multiplication with a fixed scalar length.
  *
  * @param[in, out] P     Pointer to a point on a curve. This will hold the
  * result.
@@ -815,9 +817,11 @@ cx_ecpoint_rnd_fixed_scalarmul(cx_ecpoint_t *P PLENGTH(sizeof(cx_ecpoint_t)),
                                const uint8_t *k PLENGTH(k_len), size_t k_len);
 
 /**
- * @brief   Perform a scalar multiplication.
+ * @brief   Performs a scalar multiplication.
  *
- * @details This should be called only for non critical purposes.
+ * @warning This should be called only for non critical purposes.
+ *          It is recommended to use #cx_ecpoint_rnd_scalarmul or
+ *          #cx_ecpoint_rnd_fixed_scalarmul rather than this function.
  *
  * @param[in, out] P      Pointer to a point on a curve. This will hold the
  * result.
@@ -841,9 +845,11 @@ cx_ecpoint_scalarmul(cx_ecpoint_t *P PLENGTH(sizeof(cx_ecpoint_t)),
                      const uint8_t *k PLENGTH(k_len), size_t k_len);
 
 /**
- * @brief   Perform a scalar multiplication given the BN index of the scalar.
+ * @brief   Performs a scalar multiplication given the BN index of the scalar.
  *
- * @details This should be called only for non critical purposes.
+ * @warning This should be called only for non critical purposes.
+ *          It is recommended to use #cx_ecpoint_rnd_scalarmul_bn
+ *          rather than this function.
  *
  * @param[in, out] P    Pointer to a point on a curve. This will hold the
  * result.
@@ -865,7 +871,7 @@ cx_ecpoint_scalarmul_bn(cx_ecpoint_t *P PLENGTH(sizeof(cx_ecpoint_t)),
                         const cx_bn_t bn_k PLENGTH(sizeof(cx_bn_t)));
 
 /**
- * @brief   Perform a double scalar multiplication.
+ * @brief   Performs a double scalar multiplication.
  *
  * @details This implements the Straus-Shamir algorithm for computing **R = [k]P
  * + [r]Q**. This should be used only for non-secret computations.
@@ -901,8 +907,8 @@ cx_ecpoint_double_scalarmul(cx_ecpoint_t *R PLENGTH(sizeof(cx_ecpoint_t)),
                             const uint8_t *r PLENGTH(r_len), size_t r_len);
 
 /**
- * @brief   Perform a double scalar multiplication given the BN indexes of the
- * scalars.
+ * @brief   Performs a double scalar multiplication
+ *          given the BN indexes of the scalars.
  *
  * @details This implements the Straus-Shamir algorithm for computing **R = [k]P
  * + [r]Q**. This should be used only for non-secret computations.
@@ -933,7 +939,7 @@ cx_ecpoint_double_scalarmul_bn(cx_ecpoint_t *R PLENGTH(sizeof(cx_ecpoint_t)),
                                const cx_bn_t bn_k, const cx_bn_t bn_r);
 
 /**
- * @brief   Compare two points on the same curve.
+ * @brief   Compares two points on the same curve.
  *
  * @param[in]  P        First point to compare.
  *
@@ -957,7 +963,7 @@ SYSCALL cx_err_t cx_ecpoint_cmp(
     const cx_ecpoint_t *Q PLENGTH(sizeof(cx_ecpoint_t)), bool *is_equal);
 
 /**
- * @brief   Check if a given point is on the curve.
+ * @brief   Checks whether a given point is on the curve.
  *
  * @param[in]  R           Pointer to the point to check.
  *
@@ -978,7 +984,7 @@ SYSCALL cx_err_t cx_ecpoint_is_on_curve(
     const cx_ecpoint_t *R PLENGTH(sizeof(cx_ecpoint_t)), bool *is_on_curve);
 
 /**
- * @brief   Check if a given point is the point at infinity.
+ * @brief   Checks whether a given point is the point at infinity.
  *
  * @details The point at infinity has a z-coordinate equal to 0.
  *

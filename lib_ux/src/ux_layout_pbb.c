@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -30,26 +30,26 @@
 const bagl_element_t ux_layout_pbb_elements[] = {
 #if (BAGL_WIDTH==128 && BAGL_HEIGHT==64)
   // erase
-  {{BAGL_RECTANGLE                      , 0x00,   0,   0, 128,  64, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF, 0, 0}, NULL},
+  {{BAGL_RECTANGLE                      , 0x00,   0,   0, 128,  64, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF, 0, 0}, .text=NULL},
 
   // left/right icons
-  {{BAGL_ICON                           , 0x01,   2,  28,   4,   7, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, 0  }, (const char*)&C_icon_left},
-  {{BAGL_ICON                           , 0x02, 122,  28,   4,   7, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, 0  }, (const char*)&C_icon_right},
+  {{BAGL_ICON                           , 0x01,   2,  28,   4,   7, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, 0  }, .text=(const char*)&C_icon_left},
+  {{BAGL_ICON                           , 0x02, 122,  28,   4,   7, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, 0  }, .text=(const char*)&C_icon_right},
 
-  {{BAGL_ICON                           , 0x0F,   57,  10, 14,  14, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_REGULAR_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, NULL},
-  {{BAGL_LABELINE                       , 0x10,   6,  37, 116,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_EXTRABOLD_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, NULL},
-  {{BAGL_LABELINE                       , 0x11,   6,  51, 116,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_EXTRABOLD_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, NULL},
+  {{BAGL_ICON                           , 0x0F,   57,  10, 14,  14, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_REGULAR_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, .text=NULL},
+  {{BAGL_LABELINE                       , 0x10,   6,  37, 116,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_EXTRABOLD_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, .text=NULL},
+  {{BAGL_LABELINE                       , 0x11,   6,  51, 116,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_EXTRABOLD_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, .text=NULL},
 #elif (BAGL_WIDTH==128 && BAGL_HEIGHT==32)
   // erase
-  {{BAGL_RECTANGLE                      , 0x00,   0,   0, 128,  32, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF, 0, 0}, NULL},
+  {{BAGL_RECTANGLE                      , 0x00,   0,   0, 128,  32, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF, 0, 0}, .text=NULL},
 
   // left/right icons
-  {{BAGL_ICON                           , 0x01,   2,  12,   4,   7, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, 0  }, (const char*)&C_icon_left},
-  {{BAGL_ICON                           , 0x02, 122,  12,   4,   7, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, 0  }, (const char*)&C_icon_right},
+  {{BAGL_ICON                           , 0x01,   2,  12,   4,   7, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, 0  }, .text=(const char*)&C_icon_left},
+  {{BAGL_ICON                           , 0x02, 122,  12,   4,   7, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, 0  }, .text=(const char*)&C_icon_right},
   
-  {{BAGL_ICON                           , 0x0F,  16,   8,  16,  16, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, 0  }, NULL},
-  {{BAGL_LABELINE                       , 0x10,  41,  12, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_EXTRABOLD_11px, 0  }, NULL},
-  {{BAGL_LABELINE                       , 0x11,  41,  26, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_EXTRABOLD_11px, 0  }, NULL},
+  {{BAGL_ICON                           , 0x0F,  16,   8,  16,  16, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, 0  }, .text=NULL},
+  {{BAGL_LABELINE                       , 0x10,  41,  12, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_EXTRABOLD_11px, 0  }, .text=NULL},
+  {{BAGL_LABELINE                       , 0x11,  41,  26, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_EXTRABOLD_11px, 0  }, .text=NULL},
 #else
   #error "BAGL_WIDTH/BAGL_HEIGHT not defined"
 #endif
@@ -57,38 +57,47 @@ const bagl_element_t ux_layout_pbb_elements[] = {
 
 const bagl_element_t* ux_layout_pbb_prepro(const bagl_element_t* element) {
   // don't display if null
-  const ux_layout_icon_strings_params_t* params = (const ux_layout_icon_strings_params_t*)ux_stack_get_current_step_params();
+  const void *params = ux_stack_get_current_step_params();
 
-	// ocpy element before any mod
-	memmove(&G_ux.tmp_element, element, sizeof(bagl_element_t));
+  // copy element before any mod
+  memmove(&G_ux.tmp_element, element, sizeof(bagl_element_t));
 
   // for dashboard, setup the current application's name
   switch (element->component.userid) {
-  	case 0x01:
-  		if (ux_flow_is_first()) {
-  			return NULL;
-  		}
-  		break;
+    case 0x01:
+      if (ux_flow_is_first()) {
+        return NULL;
+      }
+      break;
 
-  	case 0x02:
-  		if (ux_flow_is_last()) {
-  			return NULL;
-  		}
-  		break;
+    case 0x02:
+      if (ux_flow_is_last()) {
+        return NULL;
+      }
+      break;
 
     case 0x0F:
-  		G_ux.tmp_element.text = (const char*)params->icon;
+#if defined(HAVE_INDEXED_STRINGS)
+      G_ux.tmp_element.text = (const char*)(((const ux_loc_layout_icon_params_t*)params)->icon);
+#else //defined(HAVE_INDEXED_STRINGS)
+      G_ux.tmp_element.text = (const char*)(((const ux_layout_icon_strings_params_t*)params)->icon);
+#endif //defined(HAVE_INDEXED_STRINGS)
       break;
 
     case 0x10:
     case 0x11:
-      G_ux.tmp_element.text = params->lines[G_ux.tmp_element.component.userid&0xF];
+    {
+#if defined(HAVE_INDEXED_STRINGS)
+      UX_LOC_STRINGS_INDEX index = ((const ux_loc_layout_icon_params_t*)params)->index + (G_ux.tmp_element.component.userid&0xF);
+      G_ux.tmp_element.text = get_ux_loc_string(index);
+#else //defined(HAVE_INDEXED_STRINGS)
+      G_ux.tmp_element.text = ((const ux_layout_icon_strings_params_t*)params)->lines[G_ux.tmp_element.component.userid&0xF];
+#endif //defined(HAVE_INDEXED_STRINGS)
       break;
-
+    }
   }
   return &G_ux.tmp_element;
 }
-
 
 void ux_layout_pbb_init_common(unsigned int stack_slot) {
   ux_stack_init(stack_slot);

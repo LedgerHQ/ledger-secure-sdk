@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -52,35 +52,59 @@ static unsigned int ui_audited_elements_button(unsigned int button_mask, unsigne
 const bagl_element_t ui_audited_elements[] = {
 #if (BAGL_WIDTH==128 && BAGL_HEIGHT==32)
   // Erasure of the whole screen,
-  {{BAGL_RECTANGLE                      , 0x00,   0,   0, 128,  32, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF, 0, 0}, NULL},
+  {{BAGL_RECTANGLE                      , 0x00,   0,   0, 128,  32, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF, 0, 0}, .text=NULL},
   // First line of text,
   {
+#if defined(HAVE_INDEXED_STRINGS)
+    {BAGL_LABELINE_LOC, 0x01, 0, 12, 128, 32, 0, 0, 0, 0xFFFFFF, 0x000000,
+      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px | BAGL_FONT_ALIGNMENT_CENTER, 0},
+    .index=AUDITED_ELEMENT_PENDING,
+#else //defined(HAVE_INDEXED_STRINGS)
     {BAGL_LABELINE, 0x01, 0, 12, 128, 32, 0, 0, 0, 0xFFFFFF, 0x000000,
       BAGL_FONT_OPEN_SANS_EXTRABOLD_11px | BAGL_FONT_ALIGNMENT_CENTER, 0},
-    "Pending",
+    .text="Pending",
+#endif //defined(HAVE_INDEXED_STRINGS)
   },
   // Last line of text.
   {
+#if defined(HAVE_INDEXED_STRINGS)
+    {BAGL_LABELINE_LOC, 0x01, 0, 24, 128, 32, 0, 0, 0, 0xFFFFFF, 0x000000,
+      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px | BAGL_FONT_ALIGNMENT_CENTER, 0},
+      .index=AUDITED_ELEMENT_REVIEW,
+#else //defined(HAVE_INDEXED_STRINGS)
     {BAGL_LABELINE, 0x01, 0, 24, 128, 32, 0, 0, 0, 0xFFFFFF, 0x000000,
       BAGL_FONT_OPEN_SANS_EXTRABOLD_11px | BAGL_FONT_ALIGNMENT_CENTER, 0},
-      "Ledger review",
+    .text="Ledger review",
+#endif //defined(HAVE_INDEXED_STRINGS)
   },
 #elif (BAGL_WIDTH==128 && BAGL_HEIGHT==64)
   // Erasure of the whole screen,
-  {{BAGL_RECTANGLE                      , 0x00,   0,   0, 128,  64, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF, 0, 0}, NULL},
+  {{BAGL_RECTANGLE                      , 0x00,   0,   0, 128,  64, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF, 0, 0}, .text=NULL},
   // Warning icon.
-  {{BAGL_ICON                           , 0x02,  57,  10,  14,  14, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, 0  }, &C_icon_warning},
+  {{BAGL_ICON                           , 0x02,  57,  10,  14,  14, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, 0  }, .text=(const char*)&C_icon_warning},
   // First line of text,
   {
+#if defined(HAVE_INDEXED_STRINGS)
+    {BAGL_LABELINE_LOC, 0x01, 0, 37, 128, 11, 10, 0, 0, 0xFFFFFF, 0x000000,
+      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px | BAGL_FONT_ALIGNMENT_CENTER, 0},
+      .index=AUDITED_ELEMENT_PENDING,
+#else //defined(HAVE_INDEXED_STRINGS)
     {BAGL_LABELINE, 0x01, 0, 37, 128, 11, 10, 0, 0, 0xFFFFFF, 0x000000,
       BAGL_FONT_OPEN_SANS_EXTRABOLD_11px | BAGL_FONT_ALIGNMENT_CENTER, 0},
-      "Pending",
+    .text="Pending",
+#endif //defined(HAVE_INDEXED_STRINGS)
     },
   // Last line of text.
   {
-    {BAGL_LABELINE, 0x01, 0, 51, 128, 11, 10, 0, 0, 0xFFFFFF, 0x000000,
+#if defined(HAVE_INDEXED_STRINGS)
+    {BAGL_LABELINE_LOC, 0x01, 0, 51, 128, 11, 10, 0, 0, 0xFFFFFF, 0x000000,
       BAGL_FONT_OPEN_SANS_REGULAR_11px | BAGL_FONT_ALIGNMENT_CENTER, 0},
-      "Ledger review",
+      .index=AUDITED_ELEMENT_REVIEW,
+#else //defined(HAVE_INDEXED_STRINGS)
+    {BAGL_LABELINE_LOC, 0x01, 0, 51, 128, 11, 10, 0, 0, 0xFFFFFF, 0x000000,
+      BAGL_FONT_OPEN_SANS_REGULAR_11px | BAGL_FONT_ALIGNMENT_CENTER, 0},
+    .text="Ledger review",
+#endif //defined(HAVE_INDEXED_STRINGS)
   },
 #else
 #error "BAGL_WIDTH/BAGL_HEIGHT not defined"

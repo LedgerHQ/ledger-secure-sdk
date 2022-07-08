@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -240,6 +240,7 @@ typedef struct io_seph_s {
   unsigned char disabling_advertising;
 #endif // HAVE_BLE
 
+  unsigned char transfer_mode;
 } io_seph_app_t;
 
 extern io_seph_app_t G_io_app;
@@ -269,6 +270,7 @@ void io_seproxyhal_disable_io(void);
 void io_seph_ble_enable(unsigned char enable);
 void io_seph_ble_clear_bond_db(void);
 #endif // HAVE_BLE
+void io_seph_ux_redisplay(void);
 
 /**
  * Function to ensure a I/O channel is not timeouting waiting for operations

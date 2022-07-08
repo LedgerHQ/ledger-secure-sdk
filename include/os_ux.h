@@ -21,18 +21,13 @@ typedef enum bolos_ux_e {
   BOLOS_UX_EVENT,
   BOLOS_UX_KEYBOARD,
   BOLOS_UX_WAKE_UP,
-#if defined(TARGET_BLUE)
   BOLOS_UX_STATUS_BAR,
-#endif // TARGET_BLUE
 
-  BOLOS_UX_VALIDATE_PIN = 14,
-
-#if defined(HAVE_BLE)
-  BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST =
-      35, // ask the ux to display a modal to accept/reject the current pairing
-          // request
+  BOLOS_UX_VALIDATE_PIN,
+  BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST, // ask the ux to display a modal to
+                                        // accept/reject the current pairing
+                                        // request
   BOLOS_UX_ASYNCHMODAL_PAIRING_CANCEL,
-#endif // HAVE_BLE
   BOLOS_UX_LAST_ID,
 } bolos_ux_t;
 
@@ -44,16 +39,9 @@ typedef struct bolos_ux_params_s {
   // length of parameters in the u union to be copied during the syscall.
   unsigned int len;
 
-#if (defined(TARGET_BLUE) || defined(HAVE_BLE) || defined(HAVE_KEYBOARD_UX))
+#if defined(HAVE_BLE) || defined(HAVE_KEYBOARD_UX)
   union {
     // Structure for the lib ux.
-#if defined(TARGET_BLUE)
-    struct {
-      unsigned int fgcolor;
-      unsigned int bgcolor;
-    } status_bar;
-#endif // TARGET_BLUE
-
 #if defined(HAVE_KEYBOARD_UX)
     struct {
       unsigned int keycode;
@@ -79,8 +67,7 @@ typedef struct bolos_ux_params_s {
     } pairing_request;
 #endif // HAVE_BLE
   } u;
-#endif // (defined(TARGET_BLUE) || defined(HAVE_BLE) ||
-       // defined(HAVE_KEYBOARD_UX))
+#endif // defined(HAVE_BLE) || defined(HAVE_KEYBOARD_UX)
 } bolos_ux_params_t;
 
 #endif // !defined(HAVE_BOLOS)

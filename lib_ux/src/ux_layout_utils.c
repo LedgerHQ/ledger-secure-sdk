@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 
 #include "ux.h"
 #include "os_helpers.h"
+#include "os.h"
 
 #ifdef HAVE_UX_FLOW
 
@@ -44,8 +45,9 @@ void ux_layout_set_timeout(unsigned int stack_slot, unsigned int ms) {
 
 const bagl_element_t* ux_layout_strings_prepro(const bagl_element_t* element) {
   // don't display if null
-  const ux_layout_strings_params_t* params = (const ux_layout_strings_params_t*)ux_stack_get_current_step_params();
-  // ocpy element before any mod
+  const void *params = ux_stack_get_current_step_params();
+
+  // copy element before any mod
   memmove(&G_ux.tmp_element, element, sizeof(bagl_element_t));
 
   // for dashboard, setup the current application's name
@@ -63,12 +65,20 @@ const bagl_element_t* ux_layout_strings_prepro(const bagl_element_t* element) {
       break;
 
     default:
+    {
       if (G_ux.tmp_element.component.userid&0xF0) {
-        G_ux.tmp_element.text = params->lines[G_ux.tmp_element.component.userid&0xF];
+#if defined(HAVE_INDEXED_STRINGS)
+        UX_LOC_STRINGS_INDEX index = ((const ux_loc_layout_params_t*)params)->index + (G_ux.tmp_element.component.userid&0xF);
+        // NB: it will call the BOLOS version of the function when linked with
+        // BOLOS, and the app version when linked with the app!
+        G_ux.tmp_element.text = get_ux_loc_string(index);
+#else //defined(HAVE_INDEXED_STRINGS)
+        G_ux.tmp_element.text = ((const ux_layout_strings_params_t*)params)->lines[G_ux.tmp_element.component.userid&0xF];
+#endif //defined(HAVE_INDEXED_STRINGS)
       }
       break;
+    }
   }
   return &G_ux.tmp_element;
 }
-
 #endif // HAVE_UX_FLOW

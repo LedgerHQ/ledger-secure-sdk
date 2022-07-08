@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -110,7 +110,8 @@
 #define SEPROXYHAL_TAG_I2C_EVENT_KIND_WRITE 0x02
 #define SEPROXYHAL_TAG_BLE_RECV_EVENT 0x18 // <hcipacket raw>
 #define SEPROXYHAL_TAG_BOOTLOADER_RAPDU_EVENT                                  \
-  0x19 // <RAPDU from the bootloader>
+  0x19                               // <RAPDU from the bootloader>
+#define SEPROXYHAL_TAG_UX_EVENT 0x1A //
 
 // COMMANDS
 #ifdef HAVE_SEPROXYHAL_MCU
@@ -190,6 +191,11 @@
 #define SEPROXYHAL_TAG_I2C_XFER                                                \
   0x54 // <flags:b0=Start,b1=Stop,b2=Moreexpected> <address+R/w>
        // <write:rawdata,read=length(1B)>
+#define SEPROXYHAL_TAG_UX_CMD 0x5D
+#define SEPROXYHAL_TAG_UX_CMD_BLE_DISABLE_ADV 0x00
+#define SEPROXYHAL_TAG_UX_CMD_BLE_ENABLE_ADV 0x01
+#define SEPROXYHAL_TAG_UX_CMD_BLE_RESET_PAIRINGS 0x02
+#define SEPROXYHAL_TAG_UX_CMD_REDISPLAY 0x03
 #define SEPROXYHAL_TAG_PRINTF 0x5F // <bytes to push to the printf buffer>
 #define SEPROXYHAL_TAG_DBG_SCREEN_DISPLAY_STATUS                               \
   0x5E // <bagl_component_t little endian>
@@ -216,15 +222,6 @@
 #define SEPROXYHAL_TAG_SCREEN_ANIMATION_STATUS_VERTICAL_SPLIT_SLIDE            \
   0x00 // param[0:1](BE) = split Y coordinate, param[2:3](BE) = animation
        // duration in ms
-
-#ifdef TARGET_BLUE
-#define SEPROXYHAL_TAG_SCREEN_DISPLAY_RAW_STATUS                               \
-  0x69 // <start:0|next:1> [start? <x> <y> <w> <h> <bitperpixel> <color_count*4
-       // bytes (LE encoding)>] <icon bitmap (row scan, packed, LE)>
-#define SEPROXYHAL_TAG_SCREEN_DISPLAY_RAW_STATUS_START 0x00
-#define SEPROXYHAL_TAG_SCREEN_DISPLAY_RAW_STATUS_CONT 0x01
-#endif
-
 #define SEPROXYHAL_TAG_BOOTLOADER_CAPDU_STATUS 0x6A // <CAPDU to the bootloader>
 
 #endif

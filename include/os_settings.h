@@ -26,6 +26,8 @@ typedef enum os_setting_e {
   OS_SETTING_MCU_UPGRADE,
 #endif // HAVE_MCU_UPGRADE
 
+  OS_SETTING_LANGUAGE,
+
   // before that value, all settings are only making use of the length value
   // with a null buffer to be set, and are returned through the return value
   // with a maxlength = 0 in the get.
@@ -54,3 +56,15 @@ SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_SETTINGS) unsigned int os_setting_get(
 SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_SETTINGS) void os_setting_set(
     unsigned int setting_id, unsigned char *value PLENGTH(length),
     unsigned int length);
+
+#ifdef HAVE_LANGUAGE_PACK
+// Shift preferences settings (could be needed after an update)
+void os_setting_update(void);
+
+// Prototypes for language helper functions
+unsigned int get_os_language(void);
+void set_os_language(unsigned int language);
+#endif // HAVE_LANGUAGE_PACK
+
+// Reset the Preferences to default values
+void os_setting_reset(void);

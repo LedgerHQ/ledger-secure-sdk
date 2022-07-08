@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -20,8 +20,6 @@
 #include "os_helpers.h"
 
 #ifdef HAVE_UX_FLOW
-
-#ifndef TARGET_BLUE
 
 void ux_menulist_refresh(unsigned int stack_slot);
 
@@ -54,7 +52,7 @@ void ux_menulist_refresh(unsigned int stack_slot) {
   for (i = 0; i < 5; i++) {
     G_ux.menulist_params.lines[i] = G_ux.menulist_getter(G_ux.menulist_current+i-2);
   }
-  // display
+  // display (strings are localized before beeing displayed)
   ux_layout_nnbnn_init(stack_slot);
   // change callback to the menulist one
   G_ux.stack[stack_slot].button_push_callback = ux_menulist_button;
@@ -95,7 +93,5 @@ void ux_menulist_init(unsigned int stack_slot,
                              list_item_select_t selector) {
 	ux_menulist_init_select(stack_slot, getter, selector, 0);
 }
-
-#endif // TARGET_BLUE
 
 #endif // HAVE_UX_FLOW

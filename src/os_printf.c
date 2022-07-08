@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 
 #include <stdarg.h>
 #include <string.h>
+#include "decorators.h"
 
 #if defined(HAVE_BOLOS)
 # include "bolos_target.h"
@@ -407,7 +408,7 @@ s_pad:
                 //
                 case 'X':
                     ulCap = 1;
-                    __attribute__((fallthrough));
+                    FALL_THROUGH;
                 case 'x':
                 case 'p':
                 {
@@ -974,7 +975,7 @@ s_pad:
                 case 'X':
                     ulCap = 1;
 #if !defined(__clang__)
-                    __attribute__((fallthrough));
+                    FALL_THROUGH;
 #endif // !defined(__clang__)
                 case 'x':
                 case 'p':

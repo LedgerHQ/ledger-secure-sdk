@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -54,17 +54,18 @@ typedef struct hashState_s hashState;
  * @brief Groestl context
  */
 struct cx_groestl_s {
-  struct cx_hash_header_s header;       ///< @copydoc cx_ripemd160_s::header
   unsigned int output_size;             ///< Output digest size
   struct hashState_s ctx;               ///< Hash state
 };
 /** Convenience type.*/
 typedef struct cx_groestl_s cx_groestl_t;
 
+size_t cx_groestl_get_output_size(const cx_groestl_t *ctx);
+
 /**
- * @brief   Initialize a GROESTL224 context.
+ * @brief   Initializes a GROESTL context.
  *
- * @param[out] hash Pointer to the context to init.
+ * @param[out] hash Pointer to the context to init.ialize.
  * 
  * @param[in]  size Length of the digest.
  *
@@ -75,12 +76,12 @@ typedef struct cx_groestl_s cx_groestl_t;
   cx_err_t cx_groestl_init_no_throw(cx_groestl_t *hash, size_t size);
 
 /**
- * @brief   Initialize a GROESTL224 context.
+ * @brief   Initializes a GROESTL context.
  * 
- * @details This function throws an exception if the
+ * @details Throws an exception if the
  *          initialization fails.
  *
- * @param[out] hash Pointer to the context to init.
+ * @param[out] hash Pointer to the context to initialize.
  * 
  * @param[in]  size Length of the digest.
  *
@@ -88,11 +89,72 @@ typedef struct cx_groestl_s cx_groestl_t;
  * 
  * @throws          CX_INVALID_PARAMETER
  */
-static inline int cx_groestl_init ( cx_groestl_t * hash, unsigned int size )
+static inline void cx_groestl_init ( cx_groestl_t * hash, unsigned int size )
 {
   CX_THROW(cx_groestl_init_no_throw(hash, size));
-  return CX_GROESTL;
 }
+
+/**
+ * @brief   Hashes data with Groestl algorithm.
+ *
+ * @param[in]  hash    Pointer to the hash context.
+ *                     Shall be in RAM.
+ *                     Should be called with a cast.
+ *
+ * @param[in]  mode    Crypto flag. Supported flag: CX_LAST. If set:
+ *                       - the structure is not modified after finishing
+ *                       - if out is not NULL, the message digest is stored in out
+ *                       - the context is NOT automatically re-initialized.
+ *
+ * @param[in]  in      Input data to be hashed.
+ *
+ * @param[in]  len     Length of the input data.
+ *
+ * @param[out] out     Buffer where to store the message digest:
+ *                       - NULL (ignored) if CX_LAST is NOT set
+ *                       - message digest if CX_LAST is set
+ *
+ * @param[out] out_len The size of the output buffer or 0 if out is NULL.
+ *                     If buffer is too small to store the hash a exception is returned.
+ *
+ * @return             Error code:
+ *                     - CX_OK on success
+ *                     - CX_INVALID_PARAMETER
+ */
+cx_err_t cx_groestl(cx_groestl_t *hash, uint32_t mode, const uint8_t *in, size_t len, uint8_t *out, size_t out_len);
+
+/**
+ * @brief   Adds more data to hash.
+ *
+ * @details A call to this function is equivalent to:
+ *          *cx_groestl_no_throw(hash, 0, in, in_len, NULL, 0)*.
+ *
+ * @param[out] hash   Pointer to the groest context.
+ *
+ * @param[in]  in     Input data to add to the context.
+ *
+ * @param[in]  in_len Length of the input data.
+ *
+ * @return            Error code:
+ *                    - CX_OK on success
+ *                    - CX_INVALID_PARAMETER
+ */
+cx_err_t cx_groestl_update(cx_groestl_t *ctx, const uint8_t *data, size_t len);
+
+/**
+ * @brief   Finalizes the hash.
+ *
+ * @details A call to this function is equivalent to:
+ *          *cx_groestl_no_throw(hash, CX_LAST, NULL, 0, out, out_len)*.
+ *
+ * @param[in]  hash   Pointer to the groestl context.
+ *
+ * @param[out] digest The message digest.
+ *
+ * @return            Error code:
+ *                    - CX_OK on success
+ */
+cx_err_t cx_groestl_final(cx_groestl_t *ctx, uint8_t *digest);
 
 #endif
 

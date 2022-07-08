@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ const bagl_element_t* ux_layout_bn_prepro(const bagl_element_t* element) {
   return e;
 }
 
-void ux_layout_bn_init(unsigned int stack_slot) { 
+void ux_layout_bn_init(unsigned int stack_slot) {
   ux_layout_bb_init_common(stack_slot);
   G_ux.stack[stack_slot].screen_before_element_display_callback = ux_layout_bn_prepro;
   ux_stack_display(stack_slot);

@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@
 #define CX_CRC16_INIT 0xFFFF
 
 /**
- * @brief   Compute a 16-bit checksum value.
+ * @brief   Computes a 16-bit checksum value.
  * 
  * @details The 16-bit value is computed according to the CRC16 CCITT definition.
  *
@@ -48,7 +48,7 @@
   uint16_t cx_crc16(const void *buffer, size_t len);
 
 /**
- * @brief   Accumulate more data to CRC.
+ * @brief   Accumulates more data to CRC.
  * 
  * @param[in] crc    CRC value to be updated.
  * 

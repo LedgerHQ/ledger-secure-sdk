@@ -2,12 +2,9 @@
 
 #include "bolos_target.h"
 #include "decorators.h"
+#include <stdbool.h>
 
-#if defined(ST31)
-#define NVM_ERASED_WORD_VALUE 0xFFFFFFFFUL
-#elif defined(ST33)
 #define NVM_ERASED_WORD_VALUE 0xFFFFFFFF
-#endif
 
 // write in persistent memory, to make things easy keep a layout of the memory
 // in a structure and update fields upon needs The function throws exception
@@ -23,7 +20,7 @@ SYSCALL void nvm_erase(void *dst_adr PLENGTH(len), unsigned int len);
 
 // program a page with the content of the nvm_page_buffer, only callable by the
 // privileged APIs HAL for the high level NVM management functions
-SUDOCALL void nvm_write_page(unsigned int page_adr);
+SUDOCALL void nvm_write_page(unsigned int page_adr, bool force);
 
 // erase a nvm page at given address, only callable by the privileged APIs
 SUDOCALL void nvm_erase_page(unsigned int page_adr);

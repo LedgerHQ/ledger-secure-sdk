@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 #include "bagl_font_rom.inc"
 
 const bagl_font_t fontNONE = {
-	-1UL, /* last font id */
+	(unsigned int)-1, /* last font id */
 	 0 , /* font bit per pixels */
    0 , /* font height in pixels   */
    0 , /* baseline distance from top */
@@ -49,3 +49,16 @@ const bagl_font_t* const C_bagl_fonts[] = {
 
 const unsigned int C_bagl_fonts_count = sizeof(C_bagl_fonts)/sizeof(C_bagl_fonts[0]);
 
+#if defined(HAVE_UNICODE_SUPPORT)
+#if !defined(HAVE_LANGUAGE_PACK)
+const bagl_font_unicode_t* const C_bagl_fonts_unicode[] = {
+
+#include "bagl_font_unicode_rom_struct.inc"
+
+};
+
+// All Unicode fonts MUST have the same number of characters!
+const unsigned int C_unicode_characters_count = (sizeof(charactersOPEN_SANS_REGULAR_11PX_UNICODE)/sizeof(charactersOPEN_SANS_REGULAR_11PX_UNICODE[0]));
+
+#endif //!defined(HAVE_LANGUAGE_PACK)
+#endif //defined(HAVE_UNICODE_SUPPORT)

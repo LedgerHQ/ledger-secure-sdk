@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ struct cx_sha512_s {
 typedef struct cx_sha512_s cx_sha512_t;
 
 /**
- * @brief   Initialize a SHA-384 context.
+ * @brief   Initializes a SHA-384 context.
  *
  * @param[out] hash Pointer to the context.
  *                  The context shall be in RAM.
@@ -61,7 +61,7 @@ typedef struct cx_sha512_s cx_sha512_t;
 cx_err_t cx_sha384_init_no_throw(cx_sha512_t *hash);
 
 /**
- * @brief   Initialize a SHA-384 context.
+ * @brief   Initializes a SHA-384 context.
  *
  * @param[out] hash Pointer to the context.
  *                  The context shall be in RAM.
@@ -75,7 +75,7 @@ static inline int cx_sha384_init ( cx_sha512_t * hash )
 }
 
 /**
- * @brief   Initialize a SHA-512 context.
+ * @brief   Initializes a SHA-512 context.
  *
  * @param[out] hash Pointer to the context.
  *                  The context shall be in RAM.
@@ -86,7 +86,7 @@ static inline int cx_sha384_init ( cx_sha512_t * hash )
 cx_err_t cx_sha512_init_no_throw(cx_sha512_t *hash);
 
 /**
- * @brief   Initialize a SHA-512 context.
+ * @brief   Initializes a SHA-512 context.
  *
  * @param[out] hash Pointer to the context.
  *                  The context shall be in RAM.
@@ -100,7 +100,7 @@ static inline int cx_sha512_init ( cx_sha512_t * hash )
 }
 
 /**
- * @brief   Compute a one shot SHA-512 digest.
+ * @brief   Computes a one shot SHA-512 digest.
  *
  * @param[in]  in      Input data.
  *

@@ -8,10 +8,14 @@
 /* ----------------------------------------------------------------------- */
 /* -                            ID FUNCTIONS                             - */
 /* ----------------------------------------------------------------------- */
-#define OS_FLAG_RECOVERY 1
-#define OS_FLAG_SIGNED_MCU_CODE 2
-#define OS_FLAG_ONBOARDED 4
-#define OS_FLAG_PIN_VALIDATED 128
+#define OS_FLAG_RECOVERY (1 << 0)
+#define OS_FLAG_SIGNED_MCU_CODE (1 << 1)
+#define OS_FLAG_ONBOARDED (1 << 2)
+#define OS_FLAG_ISSUER_TRUSTED (1 << 3)
+#define OS_FLAG_CUSTOMCA_TRUSTED (1 << 4)
+#define OS_FLAG_HSM_INITIALIZED (1 << 5)
+#define OS_FLAG_FACTORY_FILLED (1 << 6)
+#define OS_FLAG_PIN_VALIDATED (1 << 7)
 //#define OS_FLAG_CUSTOM_UX       4
 /* Enable application to retrieve OS current running options */
 SYSCALL unsigned int os_flags(void);

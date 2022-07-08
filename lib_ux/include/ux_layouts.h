@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -31,38 +31,32 @@
  */
 
 typedef struct ux_layout_bnnn_params_s {
-	const char* line1;
-	const char* line2;
-	const char* line3;
-	const char* line4;
+  const char* line1;
+  const char* line2;
+  const char* line3;
+  const char* line4;
 } ux_layout_bnnn_params_t;
-
-void ux_layout_bnnn_init(unsigned int stack_slot);
 
 /*********************************************************************************
  * 4 text lines
  */
 
 typedef struct ux_layout_nnnn_params_s {
-	const char* line1;
-	const char* line2;
-	const char* line3;
-	const char* line4;
+  const char* line1;
+  const char* line2;
+  const char* line3;
+  const char* line4;
 } ux_layout_nnnn_params_t;
-
-void ux_layout_nnnn_init(unsigned int stack_slot);
 
 /*********************************************************************************
  * 3 normal text lines
  */
 
 typedef struct ux_layout_nnn_params_s {
-	const char* line1;
-	const char* line2;
-	const char* line3;
+  const char* line1;
+  const char* line2;
+  const char* line3;
 } ux_layout_nnn_params_t;
-
-void ux_layout_nnn_init(unsigned int stack_slot);
 
 /*********************************************************************************
  * 1 bold text lines
@@ -70,12 +64,16 @@ void ux_layout_nnn_init(unsigned int stack_slot);
  */
 
 typedef struct ux_layout_bnn_params_s {
-	const char* line1;
-	const char* line2;
-	const char* line3;
+  const char* line1;
+  const char* line2;
+  const char* line3;
 } ux_layout_bnn_params_t;
 
+void ux_layout_bnnn_init(unsigned int stack_slot);
+void ux_layout_nnnn_init(unsigned int stack_slot);
+void ux_layout_nnn_init(unsigned int stack_slot);
 void ux_layout_bnn_init(unsigned int stack_slot);
+
 #endif //(BAGL_WIDTH==128 && BAGL_HEIGHT==64)
 
 
@@ -84,9 +82,9 @@ void ux_layout_bnn_init(unsigned int stack_slot);
  * 1-3 text lines [nano s/nano x]
  */
 #if (BAGL_WIDTH==128 && BAGL_HEIGHT==64)
-#define UX_LAYOUT_PAGING_LINE_COUNT 3
+    #define UX_LAYOUT_PAGING_LINE_COUNT 3
 #elif (BAGL_WIDTH==128 && BAGL_HEIGHT==32)
-#define UX_LAYOUT_PAGING_LINE_COUNT 1
+    #define UX_LAYOUT_PAGING_LINE_COUNT 1
 #else
 #error "BAGL_WIDTH/BAGL_HEIGHT not defined"
 #endif
@@ -94,18 +92,11 @@ void ux_layout_bnn_init(unsigned int stack_slot);
 #include "ux_layout_paging_compute.h"
 
 typedef struct ux_layout_paging_params_s {
-	const char* title;
-	const char* text;
+  const char* title;
+  const char* text;
 } ux_layout_paging_params_t;
 
 void ux_layout_paging_init(unsigned int stack_slot);
-
-// variant with string getters instead of hardwired content
-typedef struct ux_layout_paging_func_params_s {
-	const char* (*get_title)(void);
-	const char* (*get_text)(void);
-} ux_layout_paging_func_params_t;
-void ux_layout_paging_func_init(unsigned int stack_slot);
 
 // For paging layouts, the first n/b deals with the first line (the title),
 // and the second n/b deals with the rest of the lines.
@@ -125,7 +116,7 @@ void ux_layout_paging_reset(void);
 
 // deprecation
 #define ux_layout_bnnn_paging_params_t ux_layout_paging_params_t
-#define ux_layout_bnnn_paging_init ux_layout_paging_init
+#define ux_layout_bnnn_paging_init ux_layout_bn_paging_init
 #define ux_layout_bnnn_paging_reset ux_layout_paging_reset
 #define ux_layout_bn_paging_reset ux_layout_paging_reset
 
@@ -136,14 +127,12 @@ void ux_layout_paging_reset(void);
  */
 
 typedef struct ux_layout_nnbnn_params_s {
-	const char* line1;
-	const char* line2;
-	const char* line3;
-	const char* line4;
-	const char* line5;
+  const char* line1;
+  const char* line2;
+  const char* line3;
+  const char* line4;
+  const char* line5;
 } ux_layout_nnbnn_params_t;
-
-void ux_layout_nnbnn_init(unsigned int stack_slot);
 
 /*********************************************************************************
  * ICON
@@ -151,22 +140,18 @@ void ux_layout_nnbnn_init(unsigned int stack_slot);
  */
 
 typedef struct ux_layout_pb_params_s {
-	const bagl_icon_details_t* icon;
-	const char* line1;
+  const bagl_icon_details_t* icon;
+  const char* line1;
 } ux_layout_pb_params_t;
-
-void ux_layout_pb_init(unsigned int stack_slot);
 
 /*********************************************************************************
  * 2 bold text line
  */
 
 typedef struct ux_layout_bb_params_s {
-	const char* line1;
-	const char* line2;
+  const char* line1;
+  const char* line2;
 } ux_layout_bb_params_t;
-
-void ux_layout_bb_init(unsigned int stack_slot);
 
 /*********************************************************************************
  * 1 text line
@@ -174,11 +159,9 @@ void ux_layout_bb_init(unsigned int stack_slot);
  */
 
 typedef struct ux_layout_bn_params_s {
-	const char* line1;
-	const char* line2;
+  const char* line1;
+  const char* line2;
 } ux_layout_bn_params_t;
-
-void ux_layout_bn_init(unsigned int stack_slot);
 
 /*********************************************************************************
  * ICON
@@ -186,26 +169,26 @@ void ux_layout_bn_init(unsigned int stack_slot);
  */
 
 typedef struct ux_layout_pbb_params_s {
-	const bagl_icon_details_t* icon;
-	const char* line1;
-	const char* line2;
+  const bagl_icon_details_t* icon;
+  const char* line1;
+  const char* line2;
 } ux_layout_pbb_params_t;
 
+void ux_layout_nnbnn_init(unsigned int stack_slot);
+void ux_layout_pb_init(unsigned int stack_slot);
+void ux_layout_bb_init(unsigned int stack_slot);
+void ux_layout_bn_init(unsigned int stack_slot);
 void ux_layout_pbb_init(unsigned int stack_slot);
-
 /*********************************************************************************
  * ICON
  * 2 normal text lines
  */
 
 typedef struct ux_layout_pnn_params_s {
-	const bagl_icon_details_t* icon;
-	const char* line1;
-	const char* line2;
+  const bagl_icon_details_t* icon;
+  const char* line1;
+  const char* line2;
 } ux_layout_pnn_params_t;
-
-void ux_layout_pnn_init(unsigned int stack_slot);
-
 
 /*********************************************************************************
  * ICON
@@ -214,12 +197,10 @@ void ux_layout_pnn_init(unsigned int stack_slot);
  */
 
 typedef struct ux_layout_pbn_params_s {
-	const bagl_icon_details_t* icon;
-	const char* line1;
-	const char* line2;
+  const bagl_icon_details_t* icon;
+  const char* line1;
+  const char* line2;
 } ux_layout_pbn_params_t;
-
-void ux_layout_pbn_init(unsigned int stack_slot);
 
 /*********************************************************************************
  * ICON
@@ -227,24 +208,28 @@ void ux_layout_pbn_init(unsigned int stack_slot);
  */
 
 typedef struct ux_layout_pn_params_s {
-	const bagl_icon_details_t* icon;
-	const char* line1;
+  const bagl_icon_details_t* icon;
+  const char* line1;
 } ux_layout_pn_params_t;
-
-void ux_layout_pn_init(unsigned int stack_slot);
-
 
 /*********************************************************************************
  * 2 normal text lines
  */
 
 typedef struct ux_layout_nn_params_s {
-	const char* line1;
-	const char* line2;
+  const char* line1;
+  const char* line2;
 } ux_layout_nn_params_t;
 
+void ux_layout_nnbnn_init(unsigned int stack_slot);
+void ux_layout_pb_init(unsigned int stack_slot);
+void ux_layout_bb_init(unsigned int stack_slot);
+void ux_layout_bn_init(unsigned int stack_slot);
+void ux_layout_pbb_init(unsigned int stack_slot);
+void ux_layout_pnn_init(unsigned int stack_slot);
+void ux_layout_pbn_init(unsigned int stack_slot);
+void ux_layout_pn_init(unsigned int stack_slot);
 void ux_layout_nn_init(unsigned int stack_slot);
-
 
 /*********************************************************************************
  * Browsable component
@@ -256,13 +241,13 @@ typedef void (*list_item_select_t) (unsigned int item_idx);
 // return NULL when item_idx is invalid
 typedef const char * (*list_item_value_t) (unsigned int item_idx);
 
-void ux_menulist_init(unsigned int stack_slot, 
-	                    list_item_value_t getter, 
-	                    list_item_select_t selector);
-void ux_menulist_init_select(unsigned int stack_slot, 
-	                           list_item_value_t getter, 
-	                           list_item_select_t selector, 
-	                           unsigned int selected_item_idx);
+void ux_menulist_init(unsigned int stack_slot,
+                      list_item_value_t getter,
+                      list_item_select_t selector);
+void ux_menulist_init_select(unsigned int stack_slot,
+                             list_item_value_t getter,
+                             list_item_select_t selector,
+                             unsigned int selected_item_idx);
 
 #define UX_STEP_MENULIST(stepname, getter, selector) \
   void stepname ## _init (unsigned int stack_slot) { ux_menulist_init(stack_slot, getter, selector); } \
@@ -287,7 +272,7 @@ void ux_menulist_init_select(unsigned int stack_slot,
  */
 
 /**
- * Set the timeout before auto validation of the step currently displayed 
+ * Set the timeout before auto validation of the step currently displayed
  * (must be called after layout init function).
  */
 void ux_layout_set_timeout(unsigned int stack_slot, unsigned int ms);

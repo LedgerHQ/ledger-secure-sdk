@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -35,10 +35,6 @@
 //#warning reduce MAX_HASH_SIZE and MAX_HASH_BLOCK_SIZE according to HAVE_xxx
 #define MAX_HASH_SIZE 128
 #define MAX_HASH_BLOCK_SIZE 128
-
-#ifdef HAVE_GROESTL
-cx_err_t cx_groestl(cx_hash_t *hash, uint32_t mode, const uint8_t *in, size_t in_len, uint8_t *out, size_t out_len);
-#endif
 
 #ifdef HAVE_BLAKE2
 cx_err_t cx_blake2b(cx_hash_t *hash, uint32_t mode, const uint8_t *in, size_t in_len, uint8_t *out, size_t out_len);

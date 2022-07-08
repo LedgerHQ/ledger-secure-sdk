@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -37,6 +37,12 @@
 
 #include "ux_layouts.h"
 #include "ux_flow_engine.h"
+#if defined(HAVE_INDEXED_STRINGS)
+#include "ux_loc.h"
+#include "bolos_ux_loc_strings.h"
+#include "ux_loc_layouts.h"
+#include "ux_loc_flow_engine.h"
+#endif //defined(HAVE_INDEXED_STRINGS)
 
 #include "bagl.h"
 #include <string.h>
@@ -50,17 +56,24 @@ typedef const bagl_element_t* (*bagl_element_callback_t)(const bagl_element_t* e
 struct bagl_element_e {
   bagl_component_t component;
 
+#if defined(HAVE_INDEXED_STRINGS)
+  // Nameless union, to be able to access one member of the union or the other.
+  // No space won when using index with bagl_element_e, but headaches are avoided :)
+  union {
+    const char* text;
+    UX_LOC_STRINGS_INDEX index;
+  };
+#else //defined(HAVE_INDEXED_STRINGS)
   const char* text;
-
-#ifdef TARGET_BLUE
-  unsigned char touch_area_brim;
-  int overfgcolor;
-  int overbgcolor;
-	bagl_element_callback_t tap;
-	bagl_element_callback_t out;
-	bagl_element_callback_t over;
-#endif // TARGET_BLUE
+#endif //defined(HAVE_INDEXED_STRINGS)
 };
+
+// When not using indexed strings, some functions can be inlined, to save space
+#if !defined(HAVE_INDEXED_STRINGS)
+#define STATIC_IF_NOT_INDEXED static
+#else
+#define STATIC_IF_NOT_INDEXED
+#endif
 
 // touch management helper function (callback the call with the element for the given position, taking into account touch release)
 void io_seproxyhal_touch(const bagl_element_t* elements, unsigned short element_count, unsigned short x, unsigned short y, unsigned char event_kind);
@@ -73,15 +86,37 @@ void io_seproxyhal_touch_callback(const bagl_element_t* element, unsigned char e
  * Common strings prepro tosave space
  */
 const bagl_element_t* ux_layout_strings_prepro(const bagl_element_t* element);
+
 // meta type to share amongst all multiline layouts
 typedef struct ux_layout_strings_params_s {
   const char* lines[5];
 } ux_layout_strings_params_t;
+
 // meta type to share amongst all icon + multiline layouts
 typedef struct ux_layout_icon_strings_params_s {
   const bagl_icon_details_t* icon;
   const char* lines[5];
 } ux_layout_icon_strings_params_t;
+
+#if defined(HAVE_INDEXED_STRINGS)
+const bagl_element_t* ux_loc_layout_strings_prepro(const bagl_element_t* element);
+
+// Prototypes related to localization
+const bagl_icon_details_t *get_glyphs_icon(unsigned char id);
+const char *get_string_buffer(unsigned char id);
+const char *get_ux_loc_string(UX_LOC_STRINGS_INDEX index);
+#endif //defined(HAVE_INDEXED_STRINGS)
+#if defined(HAVE_LANGUAGE_PACK)
+void select_language(uint16_t language);
+
+typedef struct ux_loc_language_pack_infos {
+  unsigned char available;
+
+} UX_LOC_LANGUAGE_PACK_INFO;
+
+// To populate infos about language packs
+SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) const LANGUAGE_PACK *fetch_language_packs(UX_LOC_LANGUAGE_PACK_INFO *packs PLENGTH(NB_LANG*sizeof(UX_LOC_LANGUAGE_PACK_INFO)), unsigned int language, const LANGUAGE_PACK *built_in, unsigned int built_in_length);
+#endif //defined(HAVE_LANGUAGE_PACK)
 
 #ifndef BUTTON_FAST_THRESHOLD_CS
 #define BUTTON_FAST_THRESHOLD_CS 8 //x100MS
@@ -115,11 +150,7 @@ void io_seproxyhal_display_default(const bagl_element_t * element);
 #endif // UX_STACK_SLOT_COUNT
 
 #ifndef UX_STACK_SLOT_ARRAY_COUNT
-#ifdef TARGET_BLUE
-#define UX_STACK_SLOT_ARRAY_COUNT 4
-#else // TARGET_BLUE
 #define UX_STACK_SLOT_ARRAY_COUNT 1
-#endif
 #endif // UX_STACK_SLOT_ARRAY_COUNT
 
 typedef unsigned int            (*callback_int_t)                 (unsigned int);
@@ -234,9 +265,9 @@ struct ux_stack_slot_s {
     unsigned char element_array_count;
   } element_arrays[UX_STACK_SLOT_ARRAY_COUNT];
 
-#if defined(HAVE_UX_FLOW) || defined(TARGET_BLUE)
+#if defined(HAVE_UX_FLOW)
   callback_int_t displayed_callback;
-#endif // defined(HAVE_UX_FLOW) || defined(TARGET_BLUE)
+#endif // defined(HAVE_UX_FLOW)
   // callback called before the screen callback to change the keyboard face
   bagl_element_callback_t screen_before_element_display_callback;
   button_push_callback_t button_push_callback;
@@ -244,18 +275,6 @@ struct ux_stack_slot_s {
   callback_int_t ticker_callback;
   unsigned int ticker_value;
   unsigned int ticker_interval;
-
-#ifdef TARGET_BLUE
-  unsigned int status_bar_fgcolor;
-  unsigned int status_bar_bgcolor;
-
-  bagl_element_callback_t keyboard_before_element_display_callback;
-  // callback for the keyboard touch tap (can be null)
-  unsigned char keyboard_displayed;
-  unsigned char keyboard_mode;
-  callback_int_t keyboard_callback; // the keyboard/pin keyboard must know where to send the key typed
-#endif // TARGET_BLUE
-
 };
 
 struct ux_state_s {
@@ -276,10 +295,10 @@ struct ux_state_s {
 
 #endif // HAVE_UX_FLOW
 
-#if defined(HAVE_UX_FLOW) || defined(TARGET_BLUE)
+#if defined(HAVE_UX_FLOW)
   // after an int to make sure it's aligned
   char string_buffer[MAX(128,sizeof(bagl_icon_details_t)-1)];
-#endif // defined(HAVE_UX_FLOW) || defined(TARGET_BLUE)
+#endif // defined(HAVE_UX_FLOW)
 
   bagl_element_t tmp_element;
 
@@ -327,18 +346,6 @@ extern bolos_ux_params_t G_ux_params;
 
 #endif // COMPLIANCE_UX_160
 
-#if defined(TARGET_BLUE)
-/**
- * Setup the status bar foreground and background colors.
- */
-#define UX_SET_STATUS_BAR_COLOR(fg, bg) \
-  G_ux_params.ux_id = BOLOS_UX_STATUS_BAR; \
-  G_ux_params.len = sizeof(G_ux_params.u.status_bar); \
-  G_ux_params.u.status_bar.fgcolor = fg; \
-  G_ux_params.u.status_bar.bgcolor = bg; \
-  os_ux_blocking(&G_ux_params);
-#endif // TARGET_BLUE
-
 /**
  * Request displaying the next element in the UX structure.
  * Take into account if a seproxyhal status has already been issued.
@@ -364,7 +371,7 @@ extern bolos_ux_params_t G_ux_params;
     } \
   }
 #else // HAVE_SE_SCREEN
-#define UX_DISPLAY_NEXT_ELEMENT() \
+#define UX_DISPLAY_NEXT_ELEMENT()                      \
   while (G_ux.stack[0].element_arrays[0].element_array \
     && G_ux.stack[0].element_index < G_ux.stack[0].element_arrays[0].element_array_count \
     && ! io_seproxyhal_spi_is_status_sent() \
@@ -482,7 +489,7 @@ extern bolos_ux_params_t G_ux_params;
 /**
  * internal bolos ux event processing with callback in case event is to be processed by the application
  */
-#define UX_FORWARD_EVENT(callback, ignoring_app_if_ux_busy) UX_FORWARD_EVENT_REDRAWCB(0, G_ux_params, G_ux, os_ux, os_sched_last_status, callback, UX_REDISPLAY(), ignoring_app_if_ux_busy);
+#define UX_FORWARD_EVENT(callback, ignoring_app_if_ux_busy) UX_FORWARD_EVENT_REDRAWCB(0, G_ux_params, G_io_asynch_ux_callback, os_ux, os_sched_last_status, callback, UX_REDISPLAY(), ignoring_app_if_ux_busy);
 
 #define UX_CONTINUE_DISPLAY_APP(displayed_callback) \
     UX_DISPLAY_NEXT_ELEMENT(); \
@@ -535,24 +542,7 @@ extern bolos_ux_params_t G_ux_params;
     UX_CONTINUE_DISPLAY_APP({}); \
   }, 1);
 
-#ifdef TARGET_BLUE
-/**
- * Process finger events. Application's finger event handler is called only if the ux app does not deny it (modal frame displayed).
- */
-#define UX_FINGER_EVENT(seph_packet) \
-  UX_FORWARD_EVENT({ \
-    io_seproxyhal_touch_element_callback(\
-                        G_ux.stack[0].element_arrays[0].element_array, \
-                        G_ux.stack[0].element_arrays[0].element_array_count, \
-                        (seph_packet[4] << 8) | (seph_packet[5] & 0xFF), \
-                        (seph_packet[6] << 8) | (seph_packet[7] & 0xFF), \
-                        seph_packet[3], \
-                        G_ux.stack[0].screen_before_element_display_callback); \
-    UX_CONTINUE_DISPLAY_APP({}); \
-  }, 1);
-#else // TARGET_BLUE
 #define UX_FINGER_EVENT(seph_packet)
-#endif // TARGET_BLUE
 /**
  * forward the ticker_event to the os ux handler. Ticker event callback is always called whatever the return code of the ux app.
  * Ticker event interval is assumed to be 100 ms.
@@ -619,20 +609,17 @@ void io_seproxyhal_backlight(unsigned int flags, unsigned int backlight_percenta
 /**
  * Helper function to send the given bitmap splitting into multiple DISPLAY_RAW packet as the bitmap is not meant to fit in a single SEPROXYHAL packet.
  */
-void io_seproxyhal_display_icon(bagl_component_t* icon_component, bagl_icon_details_t* icon_details);
+void io_seproxyhal_display_icon(const bagl_component_t* icon_component, const bagl_icon_details_t* icon_details);
 
 /**
  * Helper method on the Blue to output icon header to the MCU and allow for bitmap transformation
  */
-unsigned int io_seproxyhal_display_icon_header_and_colors(bagl_component_t* icon_component, bagl_icon_details_t* icon_details, unsigned int* icon_len);
+unsigned int io_seproxyhal_display_icon_header_and_colors(const bagl_component_t* icon_component, const bagl_icon_details_t* icon_details, unsigned int* icon_len);
 
 // discriminated from io to allow for different memory placement
 typedef struct ux_seph_s {
   unsigned int button_mask;
   unsigned int button_same_mask_counter;
-#ifdef TARGET_BLUE
-  bagl_element_t *last_touched_not_released_component;
-#endif // TARGET_BLUE
 #ifdef HAVE_BOLOS
   unsigned int ux_id;
   unsigned int ux_status;

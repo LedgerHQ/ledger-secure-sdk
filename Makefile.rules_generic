@@ -32,7 +32,7 @@ ifeq ($(shell $(CC) -v 2>&1 | grep clang),)
 $(error Compiler is not CLANG)
 endif
 
-ifeq ($(TARGET_NAME),TARGET_NANOX)
+ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOX TARGET_NANOS2))
 ifeq ($(shell $(LD) -v 2>&1 | grep clang),)
 LD := $(CC)
 ifneq ($(shell [ `$(CC) -v 2>&1 | grep -o "version .*" | cut -f2 -d' ' | cut -f1 -d'.'` -ge 7 ] && echo ok),ok)
@@ -68,7 +68,7 @@ obj/%.o: %.S
 	$(L)$(call as_cmdline,$(INCLUDES_PATH), $(DEFINES),$<,$@)
 
 ifeq ($(SCRIPT_LD),)
-SCRIPT_LD:=$(BOLOS_SDK)/script.ld
+SCRIPT_LD:=$(BOLOS_SDK)/target/$(TARGET)/script.ld
 else
 $(info Using custom link script: $(SCRIPT_LD))
 endif

@@ -3,7 +3,7 @@
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-__attribute__((naked)) void *pic_internal(void *link_address)
+__attribute__((naked,no_instrument_function)) void *pic_internal(void *link_address)
 {
   // compute the delta offset between LinkMemAddr & ExecMemAddr
   __asm volatile ("mov r2, pc\n");
@@ -33,7 +33,7 @@ void *pic(void *link_address) {
   return link_address;
 }
 
-#elif defined(ST33)
+#elif defined(ST33) || defined(ST33K1M5)
 
 extern void _bss;
 extern void _estack;

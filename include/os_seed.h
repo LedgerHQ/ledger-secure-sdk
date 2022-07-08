@@ -13,6 +13,7 @@
 #define BOLOS_UX_ONBOARDING_ALGORITHM_ELECTRUM 2
 #if defined(HAVE_VAULT_RECOVERY_ALGO)
 #define BOLOS_UX_ONBOARDING_ALGORITHM_BIP39_VAULT_REC_MSK 3
+#define BOLOS_VAULT_RECOVERY_WORK_BUFFER_SIZE 64
 #endif // HAVE_VAULT_RECOVERY_ALGO
 
 /**
@@ -32,9 +33,10 @@ SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_perso_derive_and_set_seed(
 #if defined(HAVE_VAULT_RECOVERY_ALGO)
 SYSCALL
     PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_perso_derive_and_prepare_seed(
-        const char *words, unsigned int words_length);
+        const char *words, unsigned int words_length,
+        uint8_t *vault_recovery_work_buffer);
 SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_perso_derive_and_xor_seed(
-    void);
+    uint8_t *vault_recovery_work_buffer);
 SYSCALL PERMISSION(
     APPLICATION_FLAG_BOLOS_UX) unsigned char os_perso_get_seed_algorithm(void);
 #endif // HAVE_VAULT_RECOVERY_ALGO
@@ -49,10 +51,23 @@ SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_perso_finalize(void);
 // @return BOLOS_UX_OK when perso is onboarded.
 SYSCALL bolos_bool_t os_perso_isonboarded(void);
 
-SYSCALL void os_perso_set_onboarding_status(unsigned int kind,
+enum {
+  ONBOARDING_STATUS_WELCOME = 0,
+  ONBOARDING_STATUS_WELCOME_STEP2,
+  ONBOARDING_STATUS_WELCOME_STEP5,
+  ONBOARDING_STATUS_WELCOME_STEP6,
+  ONBOARDING_STATUS_WELCOME_REMEMBER,
+  ONBOARDING_STATUS_SETUP_CHOICE,
+  ONBOARDING_STATUS_PIN,
+  ONBOARDING_STATUS_NEW_DEVICE,
+  ONBOARDING_STATUS_NEW_DEVICE_CONFIRMING,
+  ONBOARDING_STATUS_RESTORE_SEED,
+  ONBOARDING_STATUS_SAFETY_WARNINGS,
+  ONBOARDING_STATUS_READY,
+};
+SYSCALL void os_perso_set_onboarding_status(unsigned int state,
                                             unsigned int count,
-                                            unsigned int maxCount,
-                                            unsigned int isConfirming);
+                                            unsigned int total);
 
 // derive the seed for the requested BIP32 path
 SYSCALL void os_perso_derive_node_bip32(

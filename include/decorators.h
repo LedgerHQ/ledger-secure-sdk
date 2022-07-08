@@ -40,3 +40,22 @@
 #ifndef TASKLEVEL
 #define TASKLEVEL(...)
 #endif
+
+#ifndef OPT_NONE
+#if defined(__clang__)
+#define OPT_NONE __attribute__((optnone))
+#elif defined(__GNUC__)
+#define OPT_NONE __attribute__((optimize("O0")))
+#else
+#define OPT_NONE
+#endif
+#endif
+
+#ifndef FALL_THROUGH
+#if defined(__GNUC__) && __GNUC__ >= 7 ||                                      \
+    defined(__clang__) && __clang_major__ >= 12
+#define FALL_THROUGH __attribute__((fallthrough))
+#else
+#define FALL_THROUGH ((void)0)
+#endif
+#endif

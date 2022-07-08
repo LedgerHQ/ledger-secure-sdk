@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@
 #include "decorators.h"
 
 /**
- * @brief Calculate a 32-bit cyclic redundancy check.
+ * @brief Calculates a 32-bit cyclic redundancy check.
  *
  * @param[in] buf Pointer to the buffer to check.
  *

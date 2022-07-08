@@ -8,7 +8,7 @@
 #include <stdint.h>
 
 /**
- * Check the error code of a function.
+ * Checks the error code of a function.
  * @hideinitializer
  */
 #define CX_CHECK(call)                                                         \
@@ -20,7 +20,7 @@
   } while (0)
 
 /**
- * Check the error code of a function and ignore
+ * Checks the error code of a function and ignore
  * it if CX_CARRY.
  * @hideinitializer
  */
@@ -72,7 +72,6 @@
 
 /**
  * A parameter has an invalid value.
- * This error is returned if the given modulus is not odd.
  */
 #define CX_INVALID_PARAMETER_VALUE 0xFFFFFF87
 

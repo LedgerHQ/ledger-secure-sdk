@@ -10,7 +10,7 @@ typedef unsigned short exception_t;
 
 typedef struct try_context_s try_context_t;
 
-#if (defined(ST31) || defined(ST33) || defined(STM32)) && defined(__arm__)
+#if (defined(ST31) || defined(ST33) || defined(ST33K1M5)) && defined(__arm__)
 //#include <setjmp.h>
 // GCC/LLVM declare way too big jmp context, reduce them to what is used on CM0+
 
@@ -136,7 +136,8 @@ SUDOCALL try_context_t *try_context_set(try_context_t *context);
     /* rethrow */                                                              \
     THROW_L(L, __try##L.ex);                                                   \
   }                                                                            \
-  }
+  }                                                                            \
+  _Static_assert(true, "")
 
 // -----------------------------------------------------------------------
 // - EXCEPTION THROW

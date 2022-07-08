@@ -1,7 +1,7 @@
 
 /*******************************************************************************
 *   Ledger Nano S - Secure firmware
-*   (c) 2021 Ledger
+*   (c) 2022 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -29,35 +29,34 @@ ux_turner_state_t ux_turner;
 
 const bagl_element_t ux_menu_elements[] = {
   // erase
-  {{BAGL_RECTANGLE                      , 0x80,   0,   0, 128,  32, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF, 0, 0}, NULL},
+  {{BAGL_RECTANGLE                      , 0x80,   0,   0, 128,  32, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF, 0, 0}, .text=NULL},
 
   // icons
-  {{BAGL_ICON                           , 0x81,   3,  14,   7,   4, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, BAGL_GLYPH_ICON_UP   }, NULL },
-  {{BAGL_ICON                           , 0x82, 118,  14,   7,   4, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, BAGL_GLYPH_ICON_DOWN }, NULL },
-  
+  {{BAGL_ICON                           , 0x81,   3,  14,   7,   4, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, BAGL_GLYPH_ICON_UP   }, .text=NULL },
+  {{BAGL_ICON                           , 0x82, 118,  14,   7,   4, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, BAGL_GLYPH_ICON_DOWN }, .text=NULL },
 
   // previous setting name
-  {{BAGL_LABELINE                       , 0x41,  14,   3, 100,  12, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_REGULAR_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, NULL },
+  {{BAGL_LABELINE                       , 0x41,  14,   3, 100,  12, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_REGULAR_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, .text=NULL },
   // next setting name
-  {{BAGL_LABELINE                       , 0x42,  14,  35, 100,  12, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_REGULAR_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, NULL },
+  {{BAGL_LABELINE                       , 0x42,  14,  35, 100,  12, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_REGULAR_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, .text=NULL },
 
   // current setting (x to be adjusted if icon is present etc)
-  {{BAGL_ICON                           , 0x10,  14,   9,   0,   0, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, 0  }, NULL },
+  {{BAGL_ICON                           , 0x10,  14,   9,   0,   0, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, 0  }, .text=NULL },
   // single line layout
-  {{BAGL_LABELINE                       , 0x20,  14,  19, 100,  12, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_EXTRABOLD_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, NULL },
+  {{BAGL_LABELINE                       , 0x20,  14,  19, 100,  12, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_EXTRABOLD_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, .text=NULL },
 
   // 2 lines layout + icon
-  {{BAGL_LABELINE                       , 0x21,  14,  12, 100,  12, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_EXTRABOLD_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, NULL },
-  {{BAGL_LABELINE                       , 0x22,  14,  26, 100,  12, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_EXTRABOLD_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, NULL },
+  {{BAGL_LABELINE                       , 0x21,  14,  12, 100,  12, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_EXTRABOLD_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, .text=NULL },
+  {{BAGL_LABELINE                       , 0x22,  14,  26, 100,  12, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_EXTRABOLD_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, .text=NULL },
 
 };
 
 const ux_menu_entry_t* ux_menu_get_entry (unsigned int entry_idx) {
   if (ux_menu.menu_iterator) {
     return ux_menu.menu_iterator(entry_idx);
-  } 
+  }
   return &ux_menu.menu_entries[entry_idx];
-} 
+}
 
 const bagl_element_t* ux_menu_element_preprocessor(const bagl_element_t* element) {
   //todo avoid center alignment when text_x or icon_x AND text_x are not 0
@@ -263,20 +262,20 @@ void ux_menu_display(unsigned int current_entry,
 
 const bagl_element_t ux_turner_elements[] = {
   // erase
-  {{BAGL_RECTANGLE                      , 0x00,   0,   0, 128,  32, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF, 0, 0}, NULL},
+  {{BAGL_RECTANGLE                      , 0x00,   0,   0, 128,  32, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF, 0, 0}, .text=NULL},
 
   // icons
-  {{BAGL_ICON                           , 0x00,   3,  12,   7,   7, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, BAGL_GLYPH_ICON_CROSS  }, NULL },
-  {{BAGL_ICON                           , 0x00, 117,  13,   8,   6, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, BAGL_GLYPH_ICON_CHECK  }, NULL },
+  {{BAGL_ICON                           , 0x00,   3,  12,   7,   7, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, BAGL_GLYPH_ICON_CROSS  }, .text=NULL },
+  {{BAGL_ICON                           , 0x00, 117,  13,   8,   6, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, BAGL_GLYPH_ICON_CHECK  }, .text=NULL },
 
   // current setting (x to be adjusted if icon is present etc)
-  {{BAGL_ICON                           , 0x03,   0,   9,  14,  14, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, 0  }, NULL },
+  {{BAGL_ICON                           , 0x03,   0,   9,  14,  14, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, 0  }, .text=NULL },
 
   // single line layout
-  {{BAGL_LABELINE                       , 0x04,   0,  19, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_REGULAR_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, NULL },
+  {{BAGL_LABELINE                       , 0x04,   0,  19, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_REGULAR_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, .text=NULL },
   // 2 lines layout + icon
-  {{BAGL_LABELINE                       , 0x05,   0,  12, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_REGULAR_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, NULL },
-  {{BAGL_LABELINE                       , 0x06,   0,  26, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_REGULAR_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, NULL },
+  {{BAGL_LABELINE                       , 0x05,   0,  12, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_REGULAR_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, .text=NULL },
+  {{BAGL_LABELINE                       , 0x06,   0,  26, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_REGULAR_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, .text=NULL },
 
 };
 
@@ -399,11 +398,7 @@ void ux_turner_display(unsigned int current_step,
 
 #endif // HAVE_UX_LEGACY
 
-const bagl_element_t clear_element = {{BAGL_RECTANGLE, 0, 0, 0, 128, 32, 0, 0, 0, 0x000000, 0x000000, 0 , 0},NULL
-#ifdef TARGET_BLUE
-  , 0, 0, 0, NULL, NULL, NULL
-#endif // TARGET_BLUE
-};
+const bagl_element_t clear_element = {{BAGL_RECTANGLE, 0, 0, 0, 128, 32, 0, 0, 0, 0x000000, 0x000000, 0 , 0},.text=NULL};
 
 const bagl_element_t printf_element = {{BAGL_LABELINE, 0, 0, 9, 128, 32, 0, 0, 0, 0xFFFFFF, 0x000000,
 #ifdef TARGET_NANOS
@@ -411,10 +406,7 @@ const bagl_element_t printf_element = {{BAGL_LABELINE, 0, 0, 9, 128, 32, 0, 0, 0
 #else // TARGET_NANOS
   BAGL_FONT_OPEN_SANS_REGULAR_8_11PX
 #endif // TARGET_NANOS
-  , 0},"Default printf"
-#ifdef TARGET_BLUE
-  , 0, 0, 0, NULL, NULL, NULL
-#endif // TARGET_BLUE
+  , 0},.text="Default printf"
   };
 
 void debug_wait_displayed(void) {
@@ -434,12 +426,10 @@ void debug_printf(void* buffer) {
   G_ux.tmp_element.text = buffer;
   io_seproxyhal_display_default(&G_ux.tmp_element);
   debug_wait_displayed();
-// #ifndef TARGET_BLUE
   // // ask to replicate mcu buffer to the screen
   // io_seproxyhal_general_status();
   // // wait up the display processed
   // io_seproxyhal_spi_recv(G_io_seproxyhal_spi_buffer, sizeof(G_io_seproxyhal_spi_buffer), 0);
-// #endif // TARGET_BLUE
   // wait until a button event
   while (G_io_seproxyhal_spi_buffer[0] != SEPROXYHAL_TAG_BUTTON_PUSH_EVENT 
     // not marked as released
