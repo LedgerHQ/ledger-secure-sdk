@@ -874,7 +874,9 @@ static const unsigned char seph_io_device_off[] = {
 };
 void io_seproxyhal_power_off(void) {
   io_seproxyhal_spi_send(seph_io_device_off, sizeof(seph_io_device_off));
-  for(;;);
+  for(;;) {
+    halt();
+  }
 }
 
 static const unsigned char seph_io_se_reset[]= {
