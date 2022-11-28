@@ -159,3 +159,6 @@ SCAN_BUILD ?= scan-build
 SCAN_BUILD_OUTPUT ?= $(CURDIR)/output-scan-build
 scan-build:
 	$(SCAN_BUILD) --use-cc=$(CC) -analyze-headers -enable-checker security -enable-checker unix -enable-checker valist -o $(SCAN_BUILD_OUTPUT) $(MAKE) default
+
+manifest: bin/app.elf
+	python3 $(BOLOS_SDK)/create_manifest.py $(APP_LOAD_PARAMS) --gif $(ICONNAME)
