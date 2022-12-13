@@ -1,0 +1,67 @@
+{
+  "generated-files": [
+    {
+      "name": "Makefile.conf.cx.new",
+      "path": "public_sdk",
+      "desc": "List of macro to enable/disable features"
+    },
+    {
+      "name": "cx_exported_functions.c.new",
+      "path": "public_sdk/lib_cxng/src",
+      "desc": "Table of exported symbols"
+    },
+    {
+      "name": "cx_stubs.h.new",
+      "path": "public_sdk/include",
+      "desc": "Identifiers of the exported symbols"
+    },
+    {
+      "name": "cx_stubs.S.new",
+      "path": "public_sdk/src",
+      "desc": "ASM trampoline for the exported symbols"
+    }
+  ],
+  "groups-of-features": [
+    {
+      "description": "Brainpool curves",
+      "enable-all": false,
+      "features": [
+        { "name": "BRAINPOOL_P256R1_CURVE", "enable": true },
+        { "name": "BRAINPOOL_P256T1_CURVE", "enable": true },
+        { "name": "BRAINPOOL_P320R1_CURVE", "enable": true },
+        { "name": "BRAINPOOL_P320T1_CURVE", "enable": true },
+        { "name": "BRAINPOOL_P384R1_CURVE", "enable": true },
+        { "name": "BRAINPOOL_P384T1_CURVE", "enable": true },
+        { "name": "BRAINPOOL_P512R1_CURVE", "enable": true },
+        { "name": "BRAINPOOL_P512T1_CURVE", "enable": true }
+      ]
+    },
+    {
+      "description": "Elliptic curves",
+      "enable-all": false,
+      "features": [
+        { "name": "CV25519_CURVE", "enable": true },
+        { "name": "CV448_CURVE", "enable": true }
+      ]
+    },
+    {
+      "description": "Edwards-curve Digital Signature Algorithm",
+      "enable-all": false,
+      "features": [
+        { "name": "ED25519_CURVE", "enable": true },
+        { "name": "ED448_CURVE", "enable": true }
+      ]
+    },
+    {
+      "description": "Elliptic-curve Diffie–Hellman",
+      "features": [
+        {
+          "name": "ECDH",
+          "enable": true,
+          "dependencies": [ "X25519", "X448" ],
+          "symbols": [ "cx_ecdh_no_throw", "cx_x25519", "cx_x448" ]
+        }
+      ]
+    }
+  ]
+}
