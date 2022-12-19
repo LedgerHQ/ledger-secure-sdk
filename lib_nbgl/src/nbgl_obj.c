@@ -1120,7 +1120,9 @@ void nbgl_redrawObject(nbgl_obj_t *obj, nbgl_obj_t *prevObj, bool computePositio
  * @brief This functions refreshes the actual screen on display with what has changed since the last refresh
  *
  */
+bool hasRefresh = false;
 void nbgl_refresh(void) {
+  hasRefresh = true;
   nbgl_refreshSpecial(FULL_COLOR_REFRESH);
 }
 

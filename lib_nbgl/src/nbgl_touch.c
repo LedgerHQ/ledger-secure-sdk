@@ -116,10 +116,19 @@ static nbgl_obj_t * getTouchedObject(nbgl_obj_t *obj, nbgl_touchStatePosition_t 
  * @param touchStatePosition state and position read from touch screen
  * @param currentTime current time in ms
  */
+extern bool hasRefresh;
+
 void nbgl_touchHandler(nbgl_touchStatePosition_t *touchStatePosition, uint32_t currentTime) {
   static nbgl_touchState_t lastState = RELEASED;
   nbgl_obj_t *foundObj;
 
+  if (hasRefresh) {
+    if (lastState == PRESSED) {
+      lastState = RELEASED;
+    }
+    hasRefresh = false;
+    return;
+  }
   // save last received currentTime
   lastCurrentTime = currentTime;
 
