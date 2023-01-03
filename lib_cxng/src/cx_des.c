@@ -41,6 +41,11 @@ cx_err_t cx_des_dec_block(const cx_des_key_t *key, const uint8_t *inblock, uint8
     return error;
 }
 
+cx_err_t cx_des_block(const uint8_t *inblock, uint8_t *outblock) {
+  cx_des_block_hw(inblock, outblock);
+  return CX_OK;
+}
+
 cx_err_t cx_des_iv_no_throw(const cx_des_key_t *key,
                             uint32_t            mode,
                             const uint8_t *     iv,
@@ -80,6 +85,12 @@ cx_err_t cx_des_iv_no_throw(const cx_des_key_t *key,
   ctx->operation  = operation;
   ctx->cipher_key = (const cipher_key_t*)key;
   CX_CHECK(cx_cipher_setup(ctx, type, mode & CX_MASK_CHAIN));
+  if (CX_DECRYPT == operation) {
+    CX_CHECK(cx_des_set_key_hw(key, operation));
+  }
+  else {
+    CX_CHECK(cx_des_set_key_hw(key, CX_ENCRYPT));
+  }
   CX_CHECK(cx_cipher_set_padding(ctx, mode & CX_MASK_PAD));
   CX_CHECK(cx_cipher_enc_dec(ctx, iv, iv_len, in, len, out, out_len));
 
@@ -95,17 +106,24 @@ cx_err_t cx_des_no_throw(const cx_des_key_t *key, uint32_t mode, const uint8_t *
 cx_err_t des_setkey(cx_des_key_t *ctx_key, uint32_t operation, const uint8_t *key, uint32_t key_bitlen) {
   cx_err_t error;
   CX_CHECK(cx_des_init_key_no_throw(key, key_bitlen/8, ctx_key));
-  CX_CHECK(cx_des_set_key_hw(ctx_key, operation));
+  if (CX_DECRYPT == operation) {
+    CX_CHECK(cx_des_set_key_hw(ctx_key, operation));
+  }
+  else {
+    CX_CHECK(cx_des_set_key_hw(ctx_key, CX_ENCRYPT));
+  }
+
   end:
     return error;
 }
 
 static const cx_cipher_base_t des_base = {
-  (cx_err_t (*) (const cipher_key_t *ctx_key, const uint8_t *inblock, uint8_t *outblock))cx_des_enc_block,
-  (cx_err_t (*) (const cipher_key_t *ctx_key, const uint8_t *inblock, uint8_t *outblock))cx_des_dec_block,
+  (cx_err_t (*) (const uint8_t *inblock, uint8_t *outblock))cx_des_block,
+  (cx_err_t (*) (const uint8_t *inblock, uint8_t *outblock))cx_des_block,
   NULL,
   (cx_err_t(*) (const cipher_key_t *ctx_key, uint32_t operation, const uint8_t *key, uint32_t key_bitlen))des_setkey,
-  (cx_err_t(*)(void))cx_des_reset_hw
+  (cx_err_t(*)(void))cx_des_reset_hw,
+  (void(*)(const uint8_t *iv, size_t iv_len))cx_des_enable_cbc,
 };
 
 const cx_cipher_info_t cx_des_64_info = {

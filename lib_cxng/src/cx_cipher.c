@@ -142,9 +142,9 @@ static cx_err_t ecb_func(cx_cipher_context_t *ctx, uint32_t operation, size_t le
   }
   while (len > 0) {
     if (CX_ENCRYPT == operation) {
-      CX_CHECK(ctx->cipher_info->base->enc_func(ctx->cipher_key, input, output));
+      CX_CHECK(ctx->cipher_info->base->enc_func(input, output));
     } else if (CX_DECRYPT == operation) {
-      CX_CHECK(ctx->cipher_info->base->dec_func(ctx->cipher_key, input, output));
+      CX_CHECK(ctx->cipher_info->base->dec_func(input, output));
     }
     else {
       return CX_INVALID_PARAMETER_VALUE;
@@ -159,11 +159,10 @@ static cx_err_t ecb_func(cx_cipher_context_t *ctx, uint32_t operation, size_t le
     return error;
 }
 
-static cx_err_t cbc_func(cx_cipher_context_t *ctx, uint32_t operation, size_t len, uint8_t *iv,
+static cx_err_t cbc_func(cx_cipher_context_t *ctx, uint32_t operation, size_t len,
                          const uint8_t *input, uint8_t *output) {
 
   uint8_t  block[CX_MAX_BLOCK_SIZE];
-  uint8_t  tmp[CX_MAX_BLOCK_SIZE];
   uint32_t block_size = ctx->cipher_info->block_size;
   cx_err_t error      = CX_INTERNAL_ERROR;
 
@@ -172,27 +171,20 @@ static cx_err_t cbc_func(cx_cipher_context_t *ctx, uint32_t operation, size_t le
   }
   while (len > 0) {
     if (CX_DECRYPT == operation) {
-      CX_CHECK(ctx->cipher_info->base->dec_func(ctx->cipher_key, input, block));
-      for (uint32_t i = 0; i < block_size; i++) {
-        tmp[i] = block[i] ^ iv[i];
-      }
-      memcpy(iv, input, block_size);
+      CX_CHECK(ctx->cipher_info->base->dec_func(input, output));
+      output += block_size;
     }
     else {
-      for (uint32_t i = 0; i < block_size; i++) {
-        block[i] = input[i] ^ iv[i];
+      CX_CHECK(ctx->cipher_info->base->enc_func(input, block));
+      if (CX_ENCRYPT == operation) {
+        memcpy(output, block, block_size);
+        output += block_size;
       }
-      CX_CHECK(ctx->cipher_info->base->enc_func(ctx->cipher_key, block, tmp));
-      memcpy(iv, tmp, block_size);
-    }
-    if ((CX_ENCRYPT == operation) || (CX_DECRYPT == operation)) {
-      memcpy(output, tmp, block_size);
-      output += block_size;
     }
     input  += block_size;
     len    -= block_size;
   }
-  memcpy(ctx->sig, tmp, block_size);
+  memcpy(ctx->sig, block, block_size);
   error = CX_OK;
 
   end:
@@ -279,6 +271,10 @@ cx_err_t cx_cipher_setiv(cx_cipher_context_t *ctx, const uint8_t *iv, size_t iv_
 
     memcpy(ctx->iv, iv, iv_len);
     ctx->iv_size = iv_len;
+
+    if (CX_CHAIN_CBC == ctx->mode) {
+      ctx->cipher_info->base->enable_cbc_func(ctx->iv, ctx->iv_size);
+    }
     return CX_OK;
 }
 
@@ -336,7 +332,7 @@ cx_err_t cx_cipher_update(cx_cipher_context_t *ctx, const uint8_t *input, size_t
           if (CX_CHAIN_ECB == ctx->mode) {
             CX_CHECK(ecb_func(ctx, ctx->operation, block_size, ctx->unprocessed_data, output));
           } else {
-            CX_CHECK(cbc_func(ctx, ctx->operation, block_size, ctx->iv, ctx->unprocessed_data, output));
+            CX_CHECK(cbc_func(ctx, ctx->operation, block_size, ctx->unprocessed_data, output));
           }
           if (ctx->operation != CX_SIGN) {
             output += block_size;
@@ -348,7 +344,7 @@ cx_err_t cx_cipher_update(cx_cipher_context_t *ctx, const uint8_t *input, size_t
         }
         if (in_len != 0) {
           remain_len = in_len % block_size;
-          if ((remain_len == 0) && (ctx->operation == CX_DECRYPT)) {
+          if ((remain_len == 0) && (ctx->operation == CX_DECRYPT) && (ctx->add_padding != NULL)) {
             remain_len = block_size;
           }
           memcpy(ctx->unprocessed_data, &(input[in_len - remain_len]), remain_len);
@@ -360,7 +356,7 @@ cx_err_t cx_cipher_update(cx_cipher_context_t *ctx, const uint8_t *input, size_t
             CX_CHECK(ecb_func(ctx, ctx->operation, in_len, input, output));
           }
           else {
-            CX_CHECK(cbc_func(ctx, ctx->operation, in_len, ctx->iv, input, output));
+            CX_CHECK(cbc_func(ctx, ctx->operation, in_len, input, output));
           }
         }
         *out_len = in_len;
@@ -387,41 +383,51 @@ cx_err_t cx_cipher_finish(cx_cipher_context_t *ctx, uint8_t *output, size_t *out
   *out_len = 0;
   switch (ctx->mode) {
     case CX_CHAIN_CTR:
-      return CX_OK;
+      error = CX_OK;
+      break;
     case CX_CHAIN_ECB:
     case CX_CHAIN_CBC:
       if ((CX_ENCRYPT == ctx->operation) || (CX_SIGN == ctx->operation) || (CX_VERIFY == ctx->operation)) {
         if (NULL == ctx->add_padding) {
           if (ctx->unprocessed_len != 0) {
-            return CX_INTERNAL_ERROR;
+            goto end;
           }
-          return CX_OK;
+          error = CX_OK;
+          goto end;
         }
         if ((add_zeros_padding == ctx->add_padding) && (ctx->unprocessed_len == 0)) {
           *out_len = 0;
-          return CX_OK;
+          error = CX_OK;
+          goto end;
         }
         ctx->add_padding(ctx->unprocessed_data, ctx->cipher_info->block_size,
                          ctx->unprocessed_len);
       }
+      if (get_no_padding != ctx->get_padding) {
+        ctx->unprocessed_len = ctx->cipher_info->block_size;
+      }
       if (CX_CHAIN_ECB == ctx->mode) {
-        CX_CHECK(ecb_func(ctx, ctx->operation, ctx->cipher_info->block_size, ctx->unprocessed_data, output));
+        CX_CHECK(ecb_func(ctx, ctx->operation, ctx->unprocessed_len, ctx->unprocessed_data, output));
       }
       else {
-        CX_CHECK(cbc_func(ctx, ctx->operation, ctx->cipher_info->block_size, ctx->iv,
+        CX_CHECK(cbc_func(ctx, ctx->operation, ctx->unprocessed_len,
                         ctx->unprocessed_data, output));
       }
 
-      if (CX_DECRYPT == ctx->operation ) {
-        return ctx->get_padding(output, ctx->cipher_info->block_size, out_len);
+      if ((CX_DECRYPT == ctx->operation) && (NULL != ctx->get_padding)) {
+        error = ctx->get_padding(output, ctx->unprocessed_len, out_len);
+        goto end;
       }
 
-      *out_len = ctx->cipher_info->block_size;
-      return CX_OK;
+      *out_len = ctx->unprocessed_len;
+      error = CX_OK;
+      break;
     default:
-      return CX_INVALID_PARAMETER_VALUE;
+      error = CX_INVALID_PARAMETER_VALUE;
+      break;
   }
   end:
+    ctx->cipher_info->base->ctx_reset();
     return error;
 }
 
@@ -449,7 +455,10 @@ cx_err_t cx_cipher_enc_dec(cx_cipher_context_t *ctx, const uint8_t *iv, size_t i
 
   CX_CHECK(cx_cipher_setiv(ctx, iv, iv_len));
   CX_CHECK(cx_cipher_update(ctx, input, in_len, output, out_len));
-  CX_CHECK(cx_cipher_finish(ctx, output + *out_len, &finish_len));
+  if (ctx->add_padding != NULL) {
+    finish_len = *out_len;
+  }
+  CX_CHECK(cx_cipher_finish(ctx, output + finish_len, &finish_len));
   CX_CHECK(cx_cipher_mac(ctx, output, out_len, &finish_len));
   *out_len += finish_len;
 

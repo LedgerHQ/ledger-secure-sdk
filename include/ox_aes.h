@@ -112,5 +112,6 @@ SYSCALL void cx_aes_reset_hw(void);
  */
 SYSCALL cx_err_t cx_aes_block_hw(const unsigned char *inblock PLENGTH(16), unsigned char  *outblock PLENGTH(16));
 
+SYSCALL void cx_aes_enable_cbc(const uint8_t *iv, size_t iv_len);
 
 #endif

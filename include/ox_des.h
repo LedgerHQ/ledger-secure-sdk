@@ -79,5 +79,6 @@ SYSCALL void cx_des_reset_hw(void);
  */
 SYSCALL void cx_des_block_hw(const unsigned char *inblock PLENGTH(8), unsigned char  *outblock PLENGTH(8));
 
+SYSCALL void cx_des_enable_cbc(const uint8_t *iv, size_t iv_len);
 
 #endif

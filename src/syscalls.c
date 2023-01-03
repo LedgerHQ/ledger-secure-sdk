@@ -192,6 +192,13 @@ cx_err_t cx_aes_block_hw ( const unsigned char * inblock, unsigned char * outblo
   return SVC_cx_call(SYSCALL_cx_aes_block_hw_ID, parameters);
 }
 
+void cx_aes_enable_cbc(const uint8_t *iv, size_t iv_len) {
+  unsigned int parameters[2];
+  parameters[0] = (unsigned int)iv;
+  parameters[1] = (unsigned int)iv_len;
+  SVC_cx_call(SYSCALL_cx_aes_enable_cbc_ID, parameters);
+}
+
 cx_err_t cx_des_set_key_hw ( const cx_des_key_t * keys, uint32_t mode ) {
   unsigned int parameters[2];
   parameters[0] = (unsigned int)keys;
@@ -210,6 +217,13 @@ void cx_des_block_hw ( const unsigned char * inblock, unsigned char * outblock )
   parameters[0] = (unsigned int)inblock;
   parameters[1] = (unsigned int)outblock;
   SVC_cx_call(SYSCALL_cx_des_block_hw_ID, parameters);
+}
+
+void cx_des_enable_cbc(const uint8_t *iv, size_t iv_len) {
+  unsigned int parameters[2];
+  parameters[0] = (unsigned int)iv;
+  parameters[1] = (unsigned int)iv_len;
+  SVC_cx_call(SYSCALL_cx_des_enable_cbc_ID, parameters);
 }
 
 cx_err_t cx_bn_lock ( size_t word_nbytes, uint32_t flags ) {
