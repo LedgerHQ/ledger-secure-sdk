@@ -79,6 +79,13 @@ OPTI_ALVL = -Os # assembler does not handle -Oz, use -Os instead
 DBG_LVL   = -g0
 endif
 
+ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_FATSTACKS TARGET_NANOS2 TARGET_NANOX))
+# Stack Smashing Protector support
+LDLIBS   += -Wl,--wrap=__stack_chk_fail -Wl,--wrap=__stack_chk_init
+AFLAGS   += -fstack-protector-strong
+CFLAGS   += -fstack-protector-strong
+endif
+
 CFLAGS   += $(OPTI_LVL) $(DBG_LVL)
 CFLAGS   += -fomit-frame-pointer -momit-leaf-frame-pointer
 
