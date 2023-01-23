@@ -58,8 +58,6 @@
  * - extensive use of * and arch specific C modifier
  */
 
-#include "os_apilevel.h"
-
 #include "arch.h"
 
 #include "decorators.h"

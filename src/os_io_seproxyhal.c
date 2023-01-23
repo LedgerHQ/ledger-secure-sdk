@@ -29,7 +29,6 @@
 #include "errors.h"
 #include "exceptions.h"
 #include "os_apdu.h"
-#include "os_apilevel.h"
 
 #if defined(DEBUG_OS_STACK_CONSUMPTION)
 # include "os_debug.h"
