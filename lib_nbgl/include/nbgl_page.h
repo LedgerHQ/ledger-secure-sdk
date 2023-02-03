@@ -125,8 +125,8 @@ typedef struct nbgl_pageInfoList_s {
  * @brief This structure contains data to build a @ref BARS_LIST page content
  */
 typedef struct nbgl_pageBarsList_s {
-    const char **barTexts; ///< array of texts for each bar (nbBars items, in black/bold)
-    uint8_t *tokens; ///< array of tokens, one for each bar (nbBars items)
+    const char * const *barTexts; ///< array of texts for each bar (nbBars items, in black/bold)
+    const uint8_t *tokens; ///< array of tokens, one for each bar (nbBars items)
     uint8_t nbBars; ///< number of elements in barTexts and tokens array
     tune_index_e tuneId; ///< if not @ref NBGL_NO_TUNE, a tune will be played when a bar is touched
 } nbgl_pageBarsList_t;
