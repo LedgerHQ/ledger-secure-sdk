@@ -1782,9 +1782,9 @@ void touch_get_last_info( io_touch_info_t *info ) {
   SVC_Call(SYSCALL_touch_get_last_info_ID, parameters);
 }
 
-void touch_set_state( bool state ) {
+void standby( bool state ) {
   unsigned int parameters[1] = {(unsigned int) state};
-  SVC_Call(SYSCALL_set_touch_state_ID, parameters);
+  SVC_Call(SYSCALL_standby_ID, parameters);
 }
 
 #ifdef HAVE_TOUCH_DEBUG
