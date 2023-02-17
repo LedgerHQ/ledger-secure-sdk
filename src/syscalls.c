@@ -1136,6 +1136,17 @@ bolos_bool_t os_perso_seed_cookie ( unsigned char * seed_cookie ) {
 }
 #endif // HAVE_SEED_COOKIE
 
+#if defined(HAVE_LEDGER_PKI)
+bolos_err_t os_pki_load_certificate(uint8_t expected_key_usage, uint8_t *certificate, size_t certificate_len, cx_ecfp_public_key_t *public_key) {
+  unsigned int parameters[4];
+  parameters[0] = (unsigned int)expected_key_usage;
+  parameters[1] = (unsigned int)certificate;
+  parameters[2] = (unsigned int)certificate_len;
+  parameters[3] = (unsigned int)public_key;
+  return (bolos_err_t) SVC_Call(SYSCALL_os_pki_load_certificate_ID, parameters);
+}
+#endif // HAVE_LEDGER_PKI
+
 unsigned int os_endorsement_get_code_hash ( unsigned char * buffer ) {
   unsigned int parameters[2];
   parameters[0] = (unsigned int)buffer;

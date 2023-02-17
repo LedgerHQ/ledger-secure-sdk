@@ -141,6 +141,10 @@
 #define SYSCALL_os_perso_seed_cookie_ID                            0x010000a8
 #endif // HAVE_SEED_COOKIE
 
+#if defined(HAVE_LEDGER_PKI)
+#define SYSCALL_os_pki_load_certificate_ID                         0x040000aa
+#endif // HAVE_LEDGER_PKI
+
 #define SYSCALL_os_endorsement_get_code_hash_ID                    0x01000055
 #define SYSCALL_os_endorsement_get_public_key_ID                   0x03000056
 #define SYSCALL_os_endorsement_get_public_key_certificate_ID       0x03000057

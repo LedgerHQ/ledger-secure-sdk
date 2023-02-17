@@ -490,6 +490,8 @@ enum generic_identifiers {
 #define SWO_SEC_SIG_12                    (ERR_SEC_SIG + ERR_GEN_ID_12)    // 0x5712
 #define SWO_SEC_SIG_13                    (ERR_SEC_SIG + ERR_GEN_ID_13)    // 0x5713
 #define SWO_SEC_SIG_14                    (ERR_SEC_SIG + ERR_GEN_ID_14)    // 0x5714
+#define SWO_SEC_SIG_15                    (ERR_SEC_SIG + ERR_GEN_ID_15)    // 0x5715
+#define SWO_SEC_SIG_16                    (ERR_SEC_SIG + ERR_GEN_ID_16)    // 0x5716
 
 #define SWO_SEC_MEM_01                    (ERR_SEC_MEM + ERR_GEN_ID_01)    // 0x5801
 #define SWO_SEC_MEM_02                    (ERR_SEC_MEM + ERR_GEN_ID_02)    // 0x5802
@@ -674,6 +676,9 @@ enum generic_identifiers {
 #define SWO_APD_DAT_31                    (ERR_APD_DAT + ERR_GEN_ID_31)    // 0x6831
 #define SWO_APD_DAT_32                    (ERR_APD_DAT + ERR_GEN_ID_32)    // 0x6832
 #define SWO_APD_DAT_33                    (ERR_APD_DAT + ERR_GEN_ID_33)    // 0x6833
+#define SWO_APD_DAT_34                    (ERR_APD_DAT + ERR_GEN_ID_34)    // 0x6834
+#define SWO_APD_DAT_35                    (ERR_APD_DAT + ERR_GEN_ID_35)    // 0x6835
+#define SWO_APD_DAT_36                    (ERR_APD_DAT + ERR_GEN_ID_36)    // 0x6836
 
 #define SWO_APD_STA_01                    (ERR_APD_STA + ERR_GEN_ID_01)    // 0x6601
 #define SWO_APD_STA_02                    (ERR_APD_STA + ERR_GEN_ID_02)    // 0x6602

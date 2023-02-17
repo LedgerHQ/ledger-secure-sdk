@@ -91,19 +91,28 @@ extern USBD_HandleTypeDef USBD_Device;
 #include "nbgl_serialize.h"
 #endif
 
+#if defined(HAVE_LEDGER_PKI)
+#include "os_pki.h"
+#endif // HAVE_LEDGER_PKI
+
 #if !defined(HAVE_BOLOS_NO_DEFAULT_APDU)
-# define DEFAULT_APDU_CLA                         0xB0
-# define DEFAULT_APDU_INS_GET_VERSION             0x01
+#define DEFAULT_APDU_CLA                         0xB0
+#define DEFAULT_APDU_INS_GET_VERSION             0x01
 
-# if defined(HAVE_SEED_COOKIE)
-#  define DEFAULT_APDU_INS_GET_SEED_COOKIE         0x02
-# endif
+#if defined(HAVE_SEED_COOKIE)
+#define DEFAULT_APDU_INS_GET_SEED_COOKIE         0x02
+#endif
 
-# if defined(DEBUG_OS_STACK_CONSUMPTION)
-#  define DEFAULT_APDU_INS_STACK_CONSUMPTION      0x57
-# endif // DEBUG_OS_STACK_CONSUMPTION
+#if defined(DEBUG_OS_STACK_CONSUMPTION)
+#define DEFAULT_APDU_INS_STACK_CONSUMPTION       0x57
+#endif // DEBUG_OS_STACK_CONSUMPTION
 
-# define DEFAULT_APDU_INS_APP_EXIT                0xA7
+#define DEFAULT_APDU_INS_APP_EXIT                0xA7
+
+#if defined(HAVE_LEDGER_PKI)
+#define DEFAULT_APDU_INS_LOAD_CERTIFICATE        0x06
+#endif // HAVE_LEDGER_PKI
+
 #endif // !HAVE_BOLOS_NO_DEFAULT_APDU
 
 void io_seproxyhal_handle_ble_event(void);
@@ -1062,6 +1071,27 @@ unsigned int os_io_seproxyhal_get_app_name_and_version(void) {
   return tx_len;
 }
 
+#if defined(HAVE_LEDGER_PKI)
+unsigned int os_io_seproxyhal_pki_load_certificate(uint8_t *buffer, size_t buffer_len, uint8_t init) {
+  uint32_t error;
+  uint8_t key_usage;
+  cx_ecfp_public_key_t public_key;
+  if (init) {
+    key_usage = CERTIFICATE_INIT_KEY;
+  }
+  else {
+    key_usage = 0;
+  }
+  if ((error = os_pki_load_certificate(key_usage, buffer, buffer_len, &public_key))) {
+    U2BE_ENCODE(G_io_apdu_buffer, 0, error);
+  }
+  else {
+    U2BE_ENCODE(G_io_apdu_buffer, 0, SWO_SUCCESS);
+  }
+  return 2;
+}
+#endif // HAVE_LEDGER_PKI
+
 #if !defined(HAVE_BOLOS_NO_DEFAULT_APDU)
 // This function is used to process the default APDU commands.
 static bolos_bool_t io_process_default_apdus(unsigned char* channel, unsigned short* tx_len) {
@@ -1160,6 +1190,16 @@ static bolos_bool_t io_process_default_apdus(unsigned char* channel, unsigned sh
         processed = BOLOS_TRUE;
         break;
 #endif // DEBUG_OS_STACK_CONSUMPTION
+
+#if defined(HAVE_LEDGER_PKI)
+      case DEFAULT_APDU_INS_LOAD_CERTIFICATE:
+          *tx_len = os_io_seproxyhal_pki_load_certificate(G_io_apdu_buffer + APDU_OFF_LC + 1,
+                                                          G_io_apdu_buffer[APDU_OFF_LC],
+                                                          G_io_apdu_buffer[APDU_OFF_P1]);
+          *channel &= ~IO_FLAGS;
+          processed = BOLOS_TRUE;
+          break;
+#endif // HAVE_LEDGER_PKI
 
       default:
         // 'processed' is already initialized.

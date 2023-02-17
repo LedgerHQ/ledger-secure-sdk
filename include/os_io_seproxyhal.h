@@ -79,6 +79,10 @@ unsigned short io_exchange_al(unsigned char channel_and_flags, unsigned short tx
 // Allow application to overload how the io_exchange function automatically replies to get app name and version
 unsigned int os_io_seproxyhal_get_app_name_and_version(void);
 
+#if defined(HAVE_LEDGER_PKI)
+unsigned int os_io_seproxyhal_pki_load_certificate(uint8_t *buffer, size_t buffer_len, uint8_t init);
+#endif // HAVE_LEDGER_PKI
+
 // for delegation of Native NFC / USB
 unsigned char io_event(unsigned char channel);
 
