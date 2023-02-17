@@ -207,6 +207,8 @@ DEFINES       += HAVE_INAPP_BLE_PAIRING
 DEFINES       += HAVE_BATTERY
 endif
 
+DEFINES       += HAVE_LEDGER_PKI
+
 # include builtin CX libs options
 -include $(BOLOS_SDK)/Makefile.conf.cx
 
