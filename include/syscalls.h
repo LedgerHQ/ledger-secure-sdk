@@ -192,6 +192,10 @@
 #define SYSCALL_os_allow_protected_ram_ID                     0x00000092
 #define SYSCALL_os_deny_protected_ram_ID                      0x00000093
 #define SYSCALL_os_set_ux_time_ms_ID                          0x010000a2
+#if defined(HAVE_LEDGER_PKI)
+#define SYSCALL_os_pki_load_certificate_ID 0x060000aa
+#define SYSCALL_os_pki_verify_ID           0x040000ab
+#endif  // HAVE_LEDGER_PKI
 
 #ifdef HAVE_CUSTOM_CA_DETAILS_IN_SETTINGS
 #define SYSCALL_os_bolos_custom_ca_get_info_ID 0x01000CA0
