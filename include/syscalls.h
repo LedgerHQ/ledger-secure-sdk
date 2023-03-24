@@ -315,4 +315,8 @@
 #define SYSCALL_touch_read_sensi_ID                                      0x01fa000f
 #endif
 
+#ifdef HAVE_STANDBY
+#define SYSCALL_os_enable_standby_mode_ID                                0x0100014d
+#endif // HAVE_STANDBY
+
 #endif // HAVE_SE_TOUCH
