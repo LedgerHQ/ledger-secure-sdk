@@ -104,7 +104,7 @@
 #endif // HAVE_X448
 
 #ifdef HAVE_VSS
-#define SYSCALL_cx_vss_generate_shares_ID                          0x0a000001
+#define SYSCALL_cx_vss_generate_shares_ID                          0x0b000001
 #define SYSCALL_cx_vss_combine_shares_ID                           0x04000002
 #define SYSCALL_cx_vss_verify_commits_ID                           0x05000003
 #endif // HAVE_VSS

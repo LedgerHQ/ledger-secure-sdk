@@ -923,18 +923,20 @@ cx_err_t cx_vss_generate_shares(cx_vss_share_t *shares,
                                 const uint8_t *secret,
                                 size_t secret_len,
                                 uint8_t shares_number,
-                                uint8_t threshold) {
-  unsigned int parameters[10];
-  parameters[0] = (unsigned int)shares;
-  parameters[1] = (unsigned int)commits;
-  parameters[2] = (unsigned int)point;
-  parameters[3] = (unsigned int)point_len;
-  parameters[4] = (unsigned int)seed;
-  parameters[5] = (unsigned int)seed_len;
-  parameters[6] = (unsigned int)secret;
-  parameters[7] = (unsigned int)secret_len;
-  parameters[8] = (unsigned int)shares_number;
-  parameters[9] = (unsigned int)threshold;
+                                uint8_t threshold,
+                                uint8_t *index) {
+  unsigned int parameters[11];
+  parameters[0]  = (unsigned int)shares;
+  parameters[1]  = (unsigned int)commits;
+  parameters[2]  = (unsigned int)point;
+  parameters[3]  = (unsigned int)point_len;
+  parameters[4]  = (unsigned int)seed;
+  parameters[5]  = (unsigned int)seed_len;
+  parameters[6]  = (unsigned int)secret;
+  parameters[7]  = (unsigned int)secret_len;
+  parameters[8]  = (unsigned int)shares_number;
+  parameters[9]  = (unsigned int)threshold;
+  parameters[10] = (unsigned int)index;
   return SVC_cx_call(SYSCALL_cx_vss_generate_shares_ID, parameters);
 }
 

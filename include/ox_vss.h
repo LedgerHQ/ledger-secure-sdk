@@ -46,6 +46,9 @@ typedef struct {
  * @param[in]  secret_len    Length of the secret. This must be less than 48 bytes.
  * @param[in]  shares_number Number of shares to return.
  * @param[in]  threshold     Threshold of the secret sharing.
+ * @param[in]  index         Relative index of a share. This is used when the caller makes multiple calls
+ *                           to this function to generate multiple shares.
+ *                           Otherwise, the parameter is NULL.
  * @return Error code
  */
 SYSCALL cx_err_t cx_vss_generate_shares(cx_vss_share_t *shares PLENGTH(shares_number),
@@ -57,7 +60,8 @@ SYSCALL cx_err_t cx_vss_generate_shares(cx_vss_share_t *shares PLENGTH(shares_nu
                                         const uint8_t *secret PLENGTH(secret_len),
                                         size_t secret_len,
                                         uint8_t shares_number,
-                                        uint8_t threshold);
+                                        uint8_t threshold,
+                                        uint8_t *index);
 
 /**
  * @brief This function combines the given shares to get a secret.
