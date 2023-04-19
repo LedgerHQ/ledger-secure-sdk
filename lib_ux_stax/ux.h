@@ -40,7 +40,9 @@ struct ux_state_s {
 
   asynchmodal_end_callback_t asynchmodal_end_callback;
 
+#ifdef HAVE_BOLOS
   char string_buffer[520];
+#endif
 };
 
 
