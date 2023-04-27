@@ -2,6 +2,8 @@
 
 // the number of parameters of a syscall is stored in the syscall id
 #define SYSCALL_NUMBER_OF_PARAMETERS(id) (((id) >> 24) & 0xf)
+// The dispatch index for this syscall id
+#define SYSCALL_INDEX(id) ((uint16_t)((id) & 0xffff))
 
 #define SYSCALL_get_api_level_ID                                   0x00000001
 #define SYSCALL_halt_ID                                            0x00000002
@@ -104,9 +106,9 @@
 #endif // HAVE_X448
 
 #ifdef HAVE_VSS
-#define SYSCALL_cx_vss_generate_shares_ID                          0x0a000001
-#define SYSCALL_cx_vss_combine_shares_ID                           0x04000002
-#define SYSCALL_cx_vss_verify_commits_ID                           0x05000003
+#define SYSCALL_cx_vss_generate_shares_ID                          0x0a000201
+#define SYSCALL_cx_vss_combine_shares_ID                           0x04000202
+#define SYSCALL_cx_vss_verify_commits_ID                           0x05000203
 #endif // HAVE_VSS
 
 #define SYSCALL_cx_crc32_hw_ID                                     0x02000102
@@ -288,18 +290,18 @@
 
 // Stax syscalls
 #ifdef HAVE_NBGL
-#define SYSCALL_nbgl_front_draw_rect_ID                                  0x01fa0000
-#define SYSCALL_nbgl_front_draw_horizontal_line_ID                       0x03fa0001
-#define SYSCALL_nbgl_front_draw_img_ID                                   0x04fa0002
-#define SYSCALL_nbgl_front_refresh_area_ID                               0x02fa0003
-#define SYSCALL_nbgl_front_draw_img_file_ID                              0x05fa0004
-#define SYSCALL_nbgl_side_draw_rect_ID                                   0x01fa0005
-#define SYSCALL_nbgl_side_draw_horizontal_line_ID                        0x03fa0006
-#define SYSCALL_nbgl_side_draw_img_ID                                    0x04fa0007
-#define SYSCALL_nbgl_side_refresh_area_ID                                0x01fa0008
-#define SYSCALL_nbgl_get_font_ID                                         0x01fa000c
-#define SYSCALL_nbgl_screen_reinit_ID                                    0x00fa000d
-#define SYSCALL_nbgl_front_draw_img_rle_ID                               0x00fa000e
+#define SYSCALL_nbgl_front_draw_rect_ID                                  0x01fa0300
+#define SYSCALL_nbgl_front_draw_horizontal_line_ID                       0x03fa0301
+#define SYSCALL_nbgl_front_draw_img_ID                                   0x04fa0302
+#define SYSCALL_nbgl_front_refresh_area_ID                               0x02fa0303
+#define SYSCALL_nbgl_front_draw_img_file_ID                              0x05fa0304
+#define SYSCALL_nbgl_side_draw_rect_ID                                   0x01fa0305
+#define SYSCALL_nbgl_side_draw_horizontal_line_ID                        0x03fa0306
+#define SYSCALL_nbgl_side_draw_img_ID                                    0x04fa0307
+#define SYSCALL_nbgl_side_refresh_area_ID                                0x01fa0308
+#define SYSCALL_nbgl_get_font_ID                                         0x01fa030c
+#define SYSCALL_nbgl_screen_reinit_ID                                    0x00fa030d
+#define SYSCALL_nbgl_front_draw_img_rle_ID                               0x00fa030e
 #endif
 
 #ifdef HAVE_BACKGROUND_IMG
