@@ -666,10 +666,11 @@ void io_seproxyhal_display_icon(const bagl_component_t* icon_component, const ba
       icon_off += len;
     }
 #else // !SEPROXYHAL_TAG_SCREEN_DISPLAY_RAW_STATUS
-#ifdef HAVE_SE_SCREEN
+#if defined(HAVE_SE_SCREEN) && !defined(BOLOS_SEPH_SPI)
     bagl_draw_glyph(&icon_component_mod, icon_details);
 #endif // HAVE_SE_SCREEN
-#if !defined(HAVE_SE_SCREEN) || (defined(HAVE_SE_SCREEN) && defined(HAVE_PRINTF))
+#if !defined(HAVE_SE_SCREEN) || (defined(HAVE_SE_SCREEN) && defined(HAVE_PRINTF)) \
+        || defined(BOLOS_SEPH_SPI)
     if (io_seproxyhal_spi_is_status_sent()) {
       return;
     }
@@ -693,12 +694,11 @@ void io_seproxyhal_display_icon(const bagl_component_t* icon_component, const ba
 #endif // HAVE_SE_SCREEN && HAVE_PRINTF
     G_io_seproxyhal_spi_buffer[1] = length>>8;
     G_io_seproxyhal_spi_buffer[2] = length;
-    io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 3);
-    io_seproxyhal_spi_send((const uint8_t *) icon_component, sizeof(bagl_component_t));
-    G_io_seproxyhal_spi_buffer[0] = icon_details->bpp;
-    io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 1);
-    io_seproxyhal_spi_send((const uint8_t *) PIC(icon_details->colors), h);
-    io_seproxyhal_spi_send((const uint8_t *) PIC(icon_details->bitmap), w);
+    memcpy(G_io_seproxyhal_spi_buffer+3, (const uint8_t *) icon_component, sizeof(bagl_component_t));
+    G_io_seproxyhal_spi_buffer[3+sizeof(bagl_component_t)] = icon_details->bpp;
+    memcpy(G_io_seproxyhal_spi_buffer+4+sizeof(bagl_component_t), (const uint8_t *) PIC(icon_details->colors), h);
+    memcpy(G_io_seproxyhal_spi_buffer+4+sizeof(bagl_component_t)+h, (const uint8_t *) PIC(icon_details->bitmap), w);
+    io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 3+length);
 #else // !HAVE_SE_SCREEN || (HAVE_SE_SCREEN && HAVE_PRINTF)
     (void) icon_component;
 #endif // !HAVE_SE_SCREEN || (HAVE_SE_SCREEN && HAVE_PRINTF)
@@ -732,10 +732,11 @@ void io_seproxyhal_display_default(const bagl_element_t* element) {
         io_seproxyhal_display_icon(&el->component, (const bagl_icon_details_t *) txt);
       }
       else {
-#ifdef HAVE_SE_SCREEN
+#ifdef HAVE_SE_SCREEN && !defined(BOLOS_SEPH_SPI)
         bagl_draw_with_context(&el->component, txt, strlen(txt), BAGL_ENCODING_DEFAULT);
 #endif // HAVE_SE_SCREEN
-#if !defined(HAVE_SE_SCREEN) || (defined(HAVE_SE_SCREEN) && defined(HAVE_PRINTF))
+#if !defined(HAVE_SE_SCREEN) || (defined(HAVE_SE_SCREEN) && defined(HAVE_PRINTF)) \
+        || defined(BOLOS_SEPH_SPI)
         if (io_seproxyhal_spi_is_status_sent()) {
           return;
         }
@@ -760,17 +761,18 @@ void io_seproxyhal_display_default(const bagl_element_t* element) {
 #endif // HAVE_SE_SCREEN && HAVE_PRINTF
         G_io_seproxyhal_spi_buffer[1] = length>>8;
         G_io_seproxyhal_spi_buffer[2] = length;
-        io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 3);
-        io_seproxyhal_spi_send((const uint8_t *)&el->component, sizeof(bagl_component_t));
-        io_seproxyhal_spi_send((const uint8_t *)buffer, strlen(buffer));
+        memcpy(G_io_seproxyhal_spi_buffer +3, (const uint8_t *) &el->component, sizeof(bagl_component_t));
+        memcpy(G_io_seproxyhal_spi_buffer +3+sizeof(bagl_component_t), (const uint8_t *) txt, length-sizeof(bagl_component_t));
+        io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 3+length);
 #endif // !HAVE_SE_SCREEN || (HAVE_SE_SCREEN && HAVE_PRINTF)
       }
     }
     else {
-#ifdef HAVE_SE_SCREEN
+#if defined(HAVE_SE_SCREEN) && !defined(BOLOS_SEPH_SPI)
       bagl_draw_with_context(&el->component, NULL, 0, 0);
 #endif // HAVE_SE_SCREEN
-#if !defined(HAVE_SE_SCREEN) || (defined(HAVE_SE_SCREEN) && defined(HAVE_PRINTF))
+#if !defined(HAVE_SE_SCREEN) || (defined(HAVE_SE_SCREEN) && defined(HAVE_PRINTF)) \
+        || defined(BOLOS_SEPH_SPI)
       if (io_seproxyhal_spi_is_status_sent()) {
         return;
       }
@@ -781,8 +783,8 @@ void io_seproxyhal_display_default(const bagl_element_t* element) {
 #endif // HAVE_SE_SCREEN && HAVE_PRINTF
       G_io_seproxyhal_spi_buffer[1] = length>>8;
       G_io_seproxyhal_spi_buffer[2] = length;
-      io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 3);
-      io_seproxyhal_spi_send((const uint8_t *) &el->component, sizeof(bagl_component_t));
+      memcpy(G_io_seproxyhal_spi_buffer +3, (const uint8_t *) &el->component, sizeof(bagl_component_t));
+      io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 3+length);
 #endif // !HAVE_SE_SCREEN || (HAVE_SE_SCREEN && HAVE_PRINTF)
     }
   }
@@ -880,13 +882,12 @@ void io_seproxyhal_button_push(button_push_callback_t button_callback, unsigned 
 #endif // HAVE_BAGL
 
 void io_seproxyhal_setup_ticker(unsigned int interval_ms) {
-  uint8_t buffer[5];
-  buffer[0] = SEPROXYHAL_TAG_SET_TICKER_INTERVAL;
-  buffer[1] = 0;
-  buffer[2] = 2;
-  buffer[3] = (interval_ms>>8)&0xff;
-  buffer[4] = (interval_ms)&0xff;
-  io_seproxyhal_spi_send(buffer, 5);
+  G_io_seproxyhal_spi_buffer[0] = SEPROXYHAL_TAG_SET_TICKER_INTERVAL;
+  G_io_seproxyhal_spi_buffer[1] = 0;
+  G_io_seproxyhal_spi_buffer[2] = 2;
+  G_io_seproxyhal_spi_buffer[3] = (interval_ms>>8)&0xff;
+  G_io_seproxyhal_spi_buffer[4] = (interval_ms)&0xff;
+  io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 5);
 }
 
 static const unsigned char seph_io_device_off[] = {
@@ -1224,17 +1225,19 @@ reply_apdu:
 #endif
 
           case APDU_RAW:
-            if (tx_len > sizeof(G_io_apdu_buffer)) {
+            if (tx_len > sizeof(G_io_apdu_buffer) ||
+                tx_len > (sizeof(G_io_seproxyhal_spi_buffer)-3)) {
               THROW(INVALID_PARAMETER);
             }
             // reply the RAW APDU over SEPROXYHAL protocol
             G_io_seproxyhal_spi_buffer[0]  = SEPROXYHAL_TAG_RAPDU;
             G_io_seproxyhal_spi_buffer[1]  = (tx_len)>>8;
             G_io_seproxyhal_spi_buffer[2]  = (tx_len);
-            io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 3);
-            io_seproxyhal_spi_send(G_io_apdu_buffer, tx_len);
 
-            // isngle packet reply, mark immediate idle
+            memcpy(G_io_seproxyhal_spi_buffer+3, G_io_apdu_buffer, tx_len);
+            io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 3+tx_len);
+
+            // single packet reply, mark immediate idle
             G_io_app.apdu_state = APDU_IDLE;
             // finished, no chunking
             goto break_send;
@@ -1470,16 +1473,16 @@ unsigned int os_ux_blocking(bolos_ux_params_t* params) {
 
 #ifdef HAVE_PRINTF
 void mcu_usb_prints(const char* str, unsigned int charcount) {
-  unsigned char buf[4];
+  uint32_t len = MIN(charcount, sizeof(G_io_seproxyhal_spi_buffer)-3);
 #ifdef TARGET_NANOS
-  buf[0] = SEPROXYHAL_TAG_PRINTF_STATUS;
+  G_io_seproxyhal_spi_buffer[0] = SEPROXYHAL_TAG_PRINTF_STATUS;
 #else
-  buf[0] = SEPROXYHAL_TAG_PRINTF;
+  G_io_seproxyhal_spi_buffer[0] = SEPROXYHAL_TAG_PRINTF;
 #endif
-  buf[1] = charcount >> 8;
-  buf[2] = charcount;
-  io_seproxyhal_spi_send(buf, 3);
-  io_seproxyhal_spi_send((const uint8_t *) str, charcount);
+  G_io_seproxyhal_spi_buffer[1] = len >> 8;
+  G_io_seproxyhal_spi_buffer[2] = len;
+  memcpy(G_io_seproxyhal_spi_buffer+3, str, len);
+  io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 3+len);
 }
 #endif // HAVE_PRINTF
 

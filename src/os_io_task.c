@@ -12,15 +12,15 @@ bolos_ux_asynch_callback_t G_io_asynch_ux_callback;
 #endif // HAVE_BLE
 
 #ifdef HAVE_BOLOS
-#ifdef HAVE_BLE
-# if (IO_SEPROXYHAL_BUFFER_SIZE_B < 192) && (defined(BOLOS_RELEASE) || !defined(DEBUG_VARIABLE_SPI_SIZE))
-#  error IO_SEPROXYHAL_BUFFER_SIZE_B size is invalid
-# endif // (IO_SEPROXYHAL_BUFFER_SIZE_B < 192) && (defined(BOLOS_RELEASE) || !defined(DEBUG_VARIABLE_SPI_SIZE))
-#else // !HAVE_BLE
-# if (IO_SEPROXYHAL_BUFFER_SIZE_B != 128) && (defined(BOLOS_RELEASE) || !defined(DEBUG_VARIABLE_SPI_SIZE))
-#  error IO_SEPROXYHAL_BUFFER_SIZE_B size is invalid
-# endif // (IO_SEPROXYHAL_BUFFER_SIZE_B != 128) && (defined(BOLOS_RELEASE) || !defined(DEBUG_VARIABLE_SPI_SIZE))
-#endif // !HAVE_BLE
+// #ifdef HAVE_BLE
+// # if (IO_SEPROXYHAL_BUFFER_SIZE_B < 192) && (defined(BOLOS_RELEASE) || !defined(DEBUG_VARIABLE_SPI_SIZE))
+// #  error IO_SEPROXYHAL_BUFFER_SIZE_B size is invalid
+// # endif // (IO_SEPROXYHAL_BUFFER_SIZE_B != 192) && (defined(BOLOS_RELEASE) || !defined(DEBUG_VARIABLE_SPI_SIZE))
+// #else // !HAVE_BLE
+// # if (IO_SEPROXYHAL_BUFFER_SIZE_B != 192) && (defined(BOLOS_RELEASE) || !defined(DEBUG_VARIABLE_SPI_SIZE))
+// #  error IO_SEPROXYHAL_BUFFER_SIZE_B size is invalid
+// # endif // (IO_SEPROXYHAL_BUFFER_SIZE_B != 128) && (defined(BOLOS_RELEASE) || !defined(DEBUG_VARIABLE_SPI_SIZE))
+// #endif // !HAVE_BLE
 
 // Buffer dedicated to the MCU <-> SE data transfer.
 unsigned char G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];

@@ -25,7 +25,7 @@ endif
 GLYPH_DESTC := $(GLYPH_SRC_DIR)/glyphs.c
 GLYPH_DESTH := $(GLYPH_SRC_DIR)/glyphs.h
 
-ifeq ($(TARGET_NAME),TARGET_STAX)
+ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_STAX TARGET_HEADLESS))
 # Stax glyphs files and generation script
 GLYPH_FILES += $(addprefix $(BOLOS_SDK)/lib_nbgl/glyphs/,$(sort $(notdir $(shell find $(BOLOS_SDK)/lib_nbgl/glyphs/))))
 GLYPH_FILES += $(addprefix glyphs/,$(sort $(notdir $(shell find glyphs/))))

@@ -61,6 +61,7 @@ extern void ux_process_default_event(void);
 
 
 #ifdef HAVE_BOLOS
+#ifdef HAVE_BLE
 // to be used only by hal_io.c in BOLOS, for compatibility
 #define UX_FORWARD_EVENT_REDRAWCB(bypasspincheck, ux_params, ux, os_ux, os_sched_last_status, callback, redraw_cb, ignoring_app_if_ux_busy) \
   ux_params.ux_id = BOLOS_UX_EVENT; \
@@ -73,6 +74,13 @@ extern void ux_process_default_event(void);
     ux.asynchmodal_end_callback = NULL; \
     cb(os_ux_get_status(BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST)); \
   }
+#else //HAVE_BLE
+#define UX_FORWARD_EVENT_REDRAWCB(bypasspincheck, ux_params, ux, os_ux, os_sched_last_status, callback, redraw_cb, ignoring_app_if_ux_busy) \
+  ux_params.ux_id = BOLOS_UX_EVENT; \
+  ux_params.len = 0; \
+  os_ux(&ux_params); \
+  ux_params.len = os_sched_last_status(TASK_BOLOS_UX);
+#endif //HAVE_BLE
 #endif //HAVE_BOLOS
 
 /**

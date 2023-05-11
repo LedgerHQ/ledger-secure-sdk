@@ -229,6 +229,22 @@ static uint8_t const USBD_PRODUCT_FS_STRING[] = {
   'a', 0,
   'x', 0,
 };
+#elif defined(TARGET_HEADLESS)
+#ifndef HAVE_LEGACY_PID
+#define USBD_PID                      0x6000
+#else // HAVE_LEGACY_PID
+#define USBD_PID                      0x0006
+#endif // HAVE_LEGACY_PID
+static uint8_t const USBD_PRODUCT_FS_STRING[] = {
+  6*2+2,
+  USB_DESC_TYPE_STRING,
+  'L', 0,
+  'e', 0,
+  'd', 0,
+  'g', 0,
+  'e', 0,
+  'r', 0,
+};
 #else
 #error unknown TARGET_NAME
 #endif
