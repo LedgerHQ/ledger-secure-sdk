@@ -39,6 +39,17 @@ endif
 endif
 
 #####################################################################
+#                              SYNTH                                #
+#####################################################################
+ifeq ($(ENABLE_SYNTH), 1)
+ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME), TARGET_STAX))
+    STANDARD_APP_FLAGS = 0x200  # APPLICATION_FLAG_BOLOS_SETTINGS
+    DEFINES += HAVE_SYNTH
+    SDK_SOURCE_PATH += lib_stax_synth
+endif
+endif
+
+#####################################################################
 #                               DEBUG                               #
 #####################################################################
 ifneq ($(DEBUG), 0)

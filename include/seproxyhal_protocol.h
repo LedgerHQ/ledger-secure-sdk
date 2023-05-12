@@ -151,6 +151,11 @@
 #define SEPROXYHAL_TAG_NFC_INIT                    0x34
 #endif
 
+// #define SEPROXYHAL_TAG_NOTE_ON 					   0x35
+#define SEPROXYHAL_TAG_MIDI 					   0x35
+#define SEPROXYHAL_TAG_NOTE_OFF					   0x36
+#define SEPROXYHAL_TAG_CC   					   0x37
+
 #define SEPROXYHAL_TAG_DEVICE_OFF                  0x4B
 #define SEPROXYHAL_TAG_MORE_TIME                   0x4C
 #define SEPROXYHAL_TAG_M24SR_C_APDU                0x4D

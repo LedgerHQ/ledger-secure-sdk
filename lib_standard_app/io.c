@@ -47,10 +47,9 @@ WEAK void io_seproxyhal_display(const bagl_element_t *element) {
 // This function can be used to declare a callback to SEPROXYHAL_TAG_TICKER_EVENT in the application
 WEAK void app_ticker_event_callback(void) {
 }
-
+#include "stax_synth_se.h"
 WEAK uint8_t io_event(uint8_t channel) {
     (void) channel;
-
     switch (G_io_seproxyhal_spi_buffer[0]) {
         case SEPROXYHAL_TAG_BUTTON_PUSH_EVENT:
 #ifdef HAVE_BAGL
@@ -58,6 +57,8 @@ WEAK uint8_t io_event(uint8_t channel) {
 #endif  // HAVE_BAGL
             break;
         case SEPROXYHAL_TAG_STATUS_EVENT:
+			// PRINTF("[io_event] %.*H\n", 50, G_io_seproxyhal_spi_buffer);
+			// STAX_SYNTH_note_on(STAX_NOTE_D4, true);
             if (G_io_apdu_media == IO_APDU_MEDIA_USB_HID &&  //
                 !(U4BE(G_io_seproxyhal_spi_buffer, 3) &      //
                   SEPROXYHAL_TAG_STATUS_EVENT_FLAG_USB_POWERED)) {
