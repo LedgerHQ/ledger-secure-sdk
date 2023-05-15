@@ -28,8 +28,9 @@ extern "C" {
 
 /**
  * @brief prototype of function to be called when a timer on screen is fired
+ * @param allowDisplay if true, the callback is allowed to draw/refresh
  */
-typedef void (*nbgl_tickerCallback_t)(void);
+typedef void (*nbgl_tickerCallback_t)(bool allowDisplay);
 
 /**
  * @brief struct to configure a screen layer
@@ -81,7 +82,7 @@ int nbgl_screenRelease(void);
 int nbgl_screenPush(nbgl_obj_t*** elements, uint8_t nbElements, const nbgl_screenTickerConfiguration_t *ticker, nbgl_touchCallback_t touchCallback);
 int nbgl_screenPop(uint8_t screenIndex);
 int nbgl_screenReset(void);
-void nbgl_screenHandler(uint32_t intervaleMs);
+void nbgl_screenHandler(uint32_t intervaleMs, bool allowDisplay);
 
 
 /**********************

@@ -85,9 +85,13 @@ void ux_process_finger_event(uint8_t seph_packet[]) {
 void ux_process_ticker_event(void) {
   nbTicks++;
   // forward to UX
-  ux_forward_event(false);
-  nbgl_screenHandler(100);
+  bool display_allowed = ux_forward_event(true);
+  nbgl_screenHandler(100, display_allowed);
 
+  // exit here if no display of APP is allowed by UX
+  if (!display_allowed) {
+    return;
+  }
   // handle touch only if detected as pressed in last touch message
   if (pos.state == PRESSED) {
     io_touch_info_t touch_info;

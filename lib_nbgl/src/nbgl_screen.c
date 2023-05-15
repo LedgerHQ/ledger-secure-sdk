@@ -353,8 +353,9 @@ int nbgl_screenReset(void) {
  * @brief Function to be called periodically by system to enable using ticker
  *
  * @param intervaleMs intervale or time since the last call, in ms
+ * @param allowDisplay if true, the callback is allowed to draw/refresh
  */
-void nbgl_screenHandler(uint32_t intervaleMs) {
+void nbgl_screenHandler(uint32_t intervaleMs, bool allowDisplay) {
   // ensure a screen exists
   if (nbScreensOnStack == 0)
     return;
@@ -365,7 +366,7 @@ void nbgl_screenHandler(uint32_t intervaleMs) {
     if (topOfStack->tickerValue == 0) {
       // rearm if intervale is not null, and call the registered function
       topOfStack->tickerValue = topOfStack->tickerIntervale;
-      topOfStack->tickerCallback();
+      topOfStack->tickerCallback(allowDisplay);
     }
   }
 }

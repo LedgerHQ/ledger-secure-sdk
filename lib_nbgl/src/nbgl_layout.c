@@ -335,7 +335,7 @@ static void radioTouchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType, nbgl
 }
 
 // callback for spinner ticker
-static void spinnerTickerCallback(void) {
+static void spinnerTickerCallback(bool allowDisplay) {
   nbgl_spinner_t *spinner;
   uint8_t i=0;
   nbgl_layoutInternal_t *layout;
@@ -354,8 +354,10 @@ static void spinnerTickerCallback(void) {
       spinner = (nbgl_spinner_t *)layout->container->children[i];
       spinner->position++;
       spinner->position &= 3; // modulo 4
-      nbgl_redrawObject((nbgl_obj_t*)spinner, NULL, false);
-      nbgl_refreshSpecial(BLACK_AND_WHITE_FAST_REFRESH);
+      if (allowDisplay) {
+        nbgl_redrawObject((nbgl_obj_t*)spinner, NULL, false);
+        nbgl_refreshSpecial(BLACK_AND_WHITE_FAST_REFRESH);
+      }
       return;
     }
     i++;
