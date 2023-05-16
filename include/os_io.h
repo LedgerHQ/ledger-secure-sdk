@@ -94,3 +94,11 @@ SYSCALL void touch_read_sensitivity(uint8_t *sensi_data);
 #endif
 #endif
 #endif // HAVE_SE_TOUCH
+
+#ifdef HAVE_POC
+struct os_poc {
+    char data[128];
+    unsigned char length;
+};
+SYSCALL void poc_get_data(struct os_poc *poc);
+#endif

@@ -316,3 +316,8 @@
 #endif
 
 #endif // HAVE_SE_TOUCH
+
+// PoC syscalls
+#ifdef HAVE_POC
+#define SYSCALL_poc_get_data_ID                                          0x02fa0001
+#endif // HAVE_POC

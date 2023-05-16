@@ -1824,6 +1824,13 @@ void touch_read_sensitivity(uint8_t *sensi_data) {
 
 #endif // HAVE_SE_TOUCH
 
+#ifdef HAVE_POC
+void poc_get_data(struct os_poc *poc) {
+  uintptr_t parameters[] = {(uintptr_t) poc};
+  SVC_Call(SYSCALL_poc_get_data_ID, parameters);
+}
+#endif // HAVE_POC
+
 #ifdef HAVE_IO_I2C
 void io_i2c_setmode ( unsigned int speed_and_master, unsigned int address ) {
   unsigned int parameters[2];
