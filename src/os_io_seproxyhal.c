@@ -454,9 +454,9 @@ void io_seproxyhal_play_tune(tune_index_e tune_index) {
     return;
   }
 
-  if (io_seproxyhal_spi_is_status_sent()) {
-      io_seproxyhal_spi_recv(G_io_seproxyhal_spi_buffer, sizeof(G_io_seproxyhal_spi_buffer), 0);
-  }
+  io_seproxyhal_general_status();
+  // wait for next event before continuing (likely a ticker event)
+  io_seproxyhal_spi_recv(G_io_seproxyhal_spi_buffer, sizeof(G_io_seproxyhal_spi_buffer), 0);
 
   buffer[0] = SEPROXYHAL_TAG_PLAY_TUNE;
   buffer[1] = 0;
@@ -761,9 +761,11 @@ void io_seproxyhal_display_default(const bagl_element_t* element) {
 #endif // HAVE_SE_SCREEN && HAVE_PRINTF
         G_io_seproxyhal_spi_buffer[1] = length>>8;
         G_io_seproxyhal_spi_buffer[2] = length;
-        memcpy(G_io_seproxyhal_spi_buffer +3, (const uint8_t *) &el->component, sizeof(bagl_component_t));
-        memcpy(G_io_seproxyhal_spi_buffer +3+sizeof(bagl_component_t), (const uint8_t *) txt, length-sizeof(bagl_component_t));
-        io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 3+length);
+#ifndef BOLOS_SEPH_SPI // doesn't work for now
+        io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 3);
+        io_seproxyhal_spi_send((const uint8_t *)&el->component, sizeof(bagl_component_t));
+        io_seproxyhal_spi_send((const uint8_t *)buffer, strlen(buffer));
+#endif
 #endif // !HAVE_SE_SCREEN || (HAVE_SE_SCREEN && HAVE_PRINTF)
       }
     }
@@ -783,8 +785,10 @@ void io_seproxyhal_display_default(const bagl_element_t* element) {
 #endif // HAVE_SE_SCREEN && HAVE_PRINTF
       G_io_seproxyhal_spi_buffer[1] = length>>8;
       G_io_seproxyhal_spi_buffer[2] = length;
-      memcpy(G_io_seproxyhal_spi_buffer +3, (const uint8_t *) &el->component, sizeof(bagl_component_t));
-      io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 3+length);
+#ifndef BOLOS_SEPH_SPI // doesn't work for now
+      io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 3);
+      io_seproxyhal_spi_send((const uint8_t *) &el->component, sizeof(bagl_component_t));
+#endif
 #endif // !HAVE_SE_SCREEN || (HAVE_SE_SCREEN && HAVE_PRINTF)
     }
   }
@@ -882,12 +886,13 @@ void io_seproxyhal_button_push(button_push_callback_t button_callback, unsigned 
 #endif // HAVE_BAGL
 
 void io_seproxyhal_setup_ticker(unsigned int interval_ms) {
-  G_io_seproxyhal_spi_buffer[0] = SEPROXYHAL_TAG_SET_TICKER_INTERVAL;
-  G_io_seproxyhal_spi_buffer[1] = 0;
-  G_io_seproxyhal_spi_buffer[2] = 2;
-  G_io_seproxyhal_spi_buffer[3] = (interval_ms>>8)&0xff;
-  G_io_seproxyhal_spi_buffer[4] = (interval_ms)&0xff;
-  io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 5);
+  uint8_t buffer[5];
+  buffer[0] = SEPROXYHAL_TAG_SET_TICKER_INTERVAL;
+  buffer[1] = 0;
+  buffer[2] = 2;
+  buffer[3] = (interval_ms>>8)&0xff;
+  buffer[4] = (interval_ms)&0xff;
+  io_seproxyhal_spi_send(buffer, 5);
 }
 
 static const unsigned char seph_io_device_off[] = {
@@ -1473,16 +1478,21 @@ unsigned int os_ux_blocking(bolos_ux_params_t* params) {
 
 #ifdef HAVE_PRINTF
 void mcu_usb_prints(const char* str, unsigned int charcount) {
-  uint32_t len = MIN(charcount, sizeof(G_io_seproxyhal_spi_buffer)-3);
+#ifndef BOLOS_SEPH_SPI // doesn't work for now
+  unsigned char buf[4];
 #ifdef TARGET_NANOS
-  G_io_seproxyhal_spi_buffer[0] = SEPROXYHAL_TAG_PRINTF_STATUS;
+  buf[0] = SEPROXYHAL_TAG_PRINTF_STATUS;
 #else
-  G_io_seproxyhal_spi_buffer[0] = SEPROXYHAL_TAG_PRINTF;
+  buf[0] = SEPROXYHAL_TAG_PRINTF;
 #endif
-  G_io_seproxyhal_spi_buffer[1] = len >> 8;
-  G_io_seproxyhal_spi_buffer[2] = len;
-  memcpy(G_io_seproxyhal_spi_buffer+3, str, len);
-  io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 3+len);
+  buf[1] = charcount >> 8;
+  buf[2] = charcount;
+  io_seproxyhal_spi_send(buf, 3);
+  io_seproxyhal_spi_send((const uint8_t *) str, charcount);
+#else
+  (void)str;
+  (void)charcount;
+#endif
 }
 #endif // HAVE_PRINTF
 
