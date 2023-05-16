@@ -17,7 +17,7 @@
 
 # TARGET should be set as an environment variable otherwise it will be read from a `.target`
 # file in the SDK root repository
-TARGETS := nanos nanox nanos2 stax
+TARGETS := nanos nanox nanos2 stax headless
 ifeq ($(TARGET),)
 ifeq ("$(wildcard $(BOLOS_SDK)/.target)","")
 $(error No TARGET specified and no .target file in SDK repository $(BOLOS_SDK))
@@ -160,7 +160,7 @@ LDFLAGS  += -L$(BOLOS_SDK)/arch/st33/lib/
 AFLAGS   += -mcpu=cortex-m0plus -mtune=cortex-m0plus -mthumb
 endif
 
-ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_STAX TARGET_NANOS2))
+ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_STAX TARGET_NANOS2 TARGET_HEADLESS))
 CFLAGS   += -mno-movt -frwpi --target=armv8m-none-eabi -mcpu=cortex-m35p+nodsp -mthumb -msoft-float -mtune=cortex-m35p+nodsp
 LDFLAGS  += -momit-leaf-frame-pointer
 LDFLAGS  += --target=armv8m-none-eabi

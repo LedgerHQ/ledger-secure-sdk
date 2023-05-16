@@ -267,7 +267,6 @@ void io_seproxyhal_power_off(void);
 void io_seproxyhal_se_reset(void);
 void io_seproxyhal_disable_io(void);
 
-#ifdef HAVE_PIEZO_SOUND
 typedef enum tune_index_e {
     TUNE_RESERVED,
     TUNE_BOOT,
@@ -282,6 +281,8 @@ typedef enum tune_index_e {
     TUNE_TAP_NEXT,
     NB_TUNES // Keep at last position
 } tune_index_e;
+
+#ifdef HAVE_PIEZO_SOUND
 
 void io_seproxyhal_play_tune(tune_index_e tune_index);
 
