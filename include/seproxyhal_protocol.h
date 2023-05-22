@@ -97,6 +97,13 @@
 #define SEPROXYHAL_TAG_CAPDU_EVENT                 0x16 // raw command apdu transport
 
 #define SEPROXYHAL_TAG_I2C_EVENT                   0x17 // <kind(1):READ(0),WRITE(1),STOP(2),TIMEOUT(3)> <rawdata>
+
+#ifdef HW_TESTS
+#define SEPROXYHAL_TAG_HWTEST_EVENT                   0x18
+#define SEPROXYHAL_TAG_HWTEST_EVENT_FLAG_LED          0x01 // +<R><G><B><W> value
+#define SEPROXYHAL_TAG_HWTEST_EVENT_FLAG_MUX          0x02 // +<state>
+#endif
+
 #define SEPROXYHAL_TAG_I2C_EVENT_KIND_READ          0x01
 #define SEPROXYHAL_TAG_I2C_EVENT_KIND_WRITE         0x02
 #define SEPROXYHAL_TAG_BLE_RECV_EVENT              0x18 // <hcipacket raw>
