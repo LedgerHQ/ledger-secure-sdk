@@ -315,4 +315,8 @@
 #define SYSCALL_touch_read_sensi_ID                                      0x01fa000f
 #endif
 
+#ifdef HAVE_LED
+#define SYSCALL_led_set_ID                                               0x04fa0011
+#endif
+
 #endif // HAVE_SE_TOUCH

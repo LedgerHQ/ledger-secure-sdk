@@ -1824,6 +1824,18 @@ void touch_read_sensitivity(uint8_t *sensi_data) {
 
 #endif // HAVE_SE_TOUCH
 
+#ifdef HAVE_LED
+void led_set(uint8_t r, uint8_t g, uint8_t b, uint8_t w){
+  unsigned int parameters[4];
+  parameters[0] = (unsigned int)r;
+  parameters[1] = (unsigned int)g;
+  parameters[2] = (unsigned int)b;
+  parameters[3] = (unsigned int)w;
+  SVC_Call(SYSCALL_led_set_ID, parameters);
+  return;
+}
+#endif
+
 #ifdef HAVE_IO_I2C
 void io_i2c_setmode ( unsigned int speed_and_master, unsigned int address ) {
   unsigned int parameters[2];
