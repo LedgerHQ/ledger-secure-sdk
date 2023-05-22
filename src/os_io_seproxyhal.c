@@ -761,11 +761,9 @@ void io_seproxyhal_display_default(const bagl_element_t* element) {
 #endif // HAVE_SE_SCREEN && HAVE_PRINTF
         G_io_seproxyhal_spi_buffer[1] = length>>8;
         G_io_seproxyhal_spi_buffer[2] = length;
-#ifndef BOLOS_SEPH_SPI // doesn't work for now
-        io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 3);
-        io_seproxyhal_spi_send((const uint8_t *)&el->component, sizeof(bagl_component_t));
-        io_seproxyhal_spi_send((const uint8_t *)buffer, strlen(buffer));
-#endif
+        memcpy(G_io_seproxyhal_spi_buffer +3, (const uint8_t *) &el->component, sizeof(bagl_component_t));
+        memcpy(G_io_seproxyhal_spi_buffer +3+sizeof(bagl_component_t), (const uint8_t *) txt, length-sizeof(bagl_component_t));
+        io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 3+length);
 #endif // !HAVE_SE_SCREEN || (HAVE_SE_SCREEN && HAVE_PRINTF)
       }
     }
@@ -785,10 +783,8 @@ void io_seproxyhal_display_default(const bagl_element_t* element) {
 #endif // HAVE_SE_SCREEN && HAVE_PRINTF
       G_io_seproxyhal_spi_buffer[1] = length>>8;
       G_io_seproxyhal_spi_buffer[2] = length;
-#ifndef BOLOS_SEPH_SPI // doesn't work for now
-      io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 3);
-      io_seproxyhal_spi_send((const uint8_t *) &el->component, sizeof(bagl_component_t));
-#endif
+      memcpy(G_io_seproxyhal_spi_buffer +3, (const uint8_t *) &el->component, sizeof(bagl_component_t));
+      io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 3+length);
 #endif // !HAVE_SE_SCREEN || (HAVE_SE_SCREEN && HAVE_PRINTF)
     }
   }
@@ -1478,7 +1474,6 @@ unsigned int os_ux_blocking(bolos_ux_params_t* params) {
 
 #ifdef HAVE_PRINTF
 void mcu_usb_prints(const char* str, unsigned int charcount) {
-#ifndef BOLOS_SEPH_SPI // doesn't work for now
   unsigned char buf[4];
 #ifdef TARGET_NANOS
   buf[0] = SEPROXYHAL_TAG_PRINTF_STATUS;
@@ -1489,10 +1484,6 @@ void mcu_usb_prints(const char* str, unsigned int charcount) {
   buf[2] = charcount;
   io_seproxyhal_spi_send(buf, 3);
   io_seproxyhal_spi_send((const uint8_t *) str, charcount);
-#else
-  (void)str;
-  (void)charcount;
-#endif
 }
 #endif // HAVE_PRINTF
 
