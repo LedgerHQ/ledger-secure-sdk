@@ -23,7 +23,9 @@ extern "C" {
 /**
  * Width of the side screen in pixels
  */
+#ifdef TARGET_STAX
 #define SIDE_SCREEN_WIDTH        96
+#endif // TARGET_STAX
 
 
 /**********************

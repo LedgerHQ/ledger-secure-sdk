@@ -17,6 +17,7 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "bolos_target.h"
 
 /*********************
  *      DEFINES
@@ -24,12 +25,20 @@ extern "C" {
 /**
  * Width of the front screen in pixels
  */
+#ifdef HAVE_SE_TOUCH
 #define SCREEN_WIDTH        400
+#else // HAVE_SE_TOUCH
+#define SCREEN_WIDTH        BAGL_WIDTH
+#endif // HAVE_SE_TOUCH
 
 /**
  * Height of the front screen in pixels
  */
+#ifdef HAVE_SE_TOUCH
 #define SCREEN_HEIGHT       672
+#else // HAVE_SE_TOUCH
+#define SCREEN_HEIGHT       BAGL_HEIGHT
+#endif // HAVE_SE_TOUCH
 
 
 /**
@@ -135,8 +144,8 @@ typedef enum {
  *
  */
 typedef struct PACKED__ nbgl_area_s {
-    uint16_t x0; ///< horizontal position of the upper left point of the area
-    uint16_t y0; ///< vertical position of the upper left point of the area
+    int16_t x0; ///< horizontal position of the upper left point of the area (signed int allow for out of screen rendering)
+    int16_t y0; ///< vertical position of the upper left point of the area (signed int allow for out of screen rendering)
     uint16_t width; ///< width of the area, in pixels
     uint16_t height; ///< height of the area, in pixels
     color_t backgroundColor; ///< color (usually background) to be applied
@@ -175,14 +184,16 @@ typedef enum nbgl_post_refresh_t {
  *
  */
 typedef enum  {
-    RADIUS_4_PIXELS = 0,  ///< 4 pixels
+    RADIUS_3_PIXELS = 0,  ///< 3 pixels (not on Stax)
+    RADIUS_4_PIXELS,      ///< 4 pixels
     RADIUS_8_PIXELS,      ///< 8 pixels
     RADIUS_16_PIXELS,     ///< 16 pixels
     RADIUS_20_PIXELS,     ///< 20 pixels
     RADIUS_24_PIXELS,     ///< 24 pixels
     RADIUS_32_PIXELS,     ///< 32 pixels
     RADIUS_40_PIXELS,     ///< 40 pixels
-    RADIUS_48_PIXELS,     ///< 40 pixels
+    RADIUS_48_PIXELS,     ///< 48 pixels
+    RADIUS_1_PIXEL,       ///< 1 pixel (not on Stax)
     RADIUS_0_PIXELS = 0xFF,  ///< no radius (square angle)
 } nbgl_radius_t;
 

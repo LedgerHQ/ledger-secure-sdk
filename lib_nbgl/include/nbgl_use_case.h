@@ -15,7 +15,11 @@ extern "C" {
  *      INCLUDES
  *********************/
 
+#ifdef NBGL_PAGE
 #include "nbgl_page.h"
+#else // NBGL_PAGE
+#include "nbgl_flow.h"
+#endif // NBGL_PAGE
 
 /*********************
  *      DEFINES
@@ -54,22 +58,6 @@ extern "C" {
  */
 #define TAG_VALUE_AREA_HEIGHT   400
 
-/**
- *  @brief Default strings used in the Home tagline
- */
-#define TAGLINE_PART1 "This app enables signing\ntransactions on the"
-#define TAGLINE_PART2 "network."
-
-/**
- *  @brief Length of buffer used for the default Home tagline
- */
-#define APP_DESCRIPTION_MAX_LEN 74
-
-/**
- *  @brief Max supported length of appName used for the default Home tagline
- */
-#define MAX_APP_NAME_FOR_SDK_TAGLINE (APP_DESCRIPTION_MAX_LEN - 1 - (sizeof(TAGLINE_PART1) + sizeof(TAGLINE_PART2)))
-
 /**********************
  *      MACROS
  **********************/
@@ -96,10 +84,17 @@ typedef bool (*nbgl_navCallback_t)(uint8_t page, nbgl_pageContent_t *content);
  */
 typedef void (*nbgl_choiceCallback_t)(bool confirm);
 
+/**
+ * @brief prototype of function to be called when an page of settings is double-pressed
+ * @param page page index (0->(nb_pages-1))
+ */
+typedef void (*nbgl_actionCallback_t)(uint8_t page);
+
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
 
+#ifdef HAVE_SE_TOUCH
 // utils
 uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t nbPairs,
                                                 const nbgl_layoutTagValueList_t *tagValueList,
@@ -117,9 +112,26 @@ void nbgl_useCasePlugInHome(const char *plugInName, const char *appName,
                             const nbgl_icon_details_t *appIcon, const char *tagline,
                             const char *subTagline, bool withSettings,
                             nbgl_callback_t topRightCallback, nbgl_callback_t quitCallback);
+#else // TARGET_STAX
+void nbgl_useCaseHome(const char *appName,
+                      const nbgl_icon_details_t *appIcon,
+                      const char *appVersion,
+                      const char *tagline,
+                      nbgl_callback_t aboutCallback,
+                      nbgl_callback_t quitCallback);
+#endif // TARGET_STAX
+#ifdef TARGET_STAX
 void nbgl_useCaseSettings(const char *settingsTitle, uint8_t initPage, uint8_t nbPages, bool touchableTitle,
                           nbgl_callback_t quitCallback, nbgl_navCallback_t navCallback,
                           nbgl_layoutTouchCallback_t controlsCallback);
+#else // TARGET_STAX
+void nbgl_useCaseSettings(uint8_t initPage,
+                          uint8_t nbPages,
+                          nbgl_callback_t quitCallback,
+                          nbgl_navCallback_t navCallback,
+                          nbgl_actionCallback_t actionCallback);
+#endif // TARGET_STAX
+#ifdef TARGET_STAX
 void nbgl_useCaseChoice(const nbgl_icon_details_t *icon, const char *message, const char *subMessage, const char *confirmText, const char *rejectString, nbgl_choiceCallback_t callback);
 void nbgl_useCaseConfirm(const char *message, const char *subMessage, const char *confirmText, const char *rejectText, nbgl_callback_t callback);
 void nbgl_useCaseStatus(const char *message, bool isSuccess, nbgl_callback_t quitCallback);
@@ -136,8 +148,28 @@ void nbgl_useCaseStaticReviewLight(const nbgl_layoutTagValueList_t *tagValueList
 void nbgl_useCaseViewDetails(const char *tag, const char *value, bool wrapping);
 void nbgl_useCaseAddressConfirmation(const char *address, nbgl_choiceCallback_t callback);
 void nbgl_useCaseAddressConfirmationExt(const char *address, nbgl_choiceCallback_t callback, const nbgl_layoutTagValueList_t *tagValueList);
-void nbgl_useCaseSpinner(const char *text);
-
+#else // HAVE_SE_TOUCH
+void nbgl_useCaseHome(const char *appName,
+                      const nbgl_icon_details_t *appIcon,
+                      const char *appVersion,
+                      const char *tagline,
+                      nbgl_callback_t aboutCallback,
+                      nbgl_callback_t quitCallback);
+void nbgl_useCaseSettings(uint8_t initPage,
+                          uint8_t nbPages,
+                          nbgl_callback_t quitCallback,
+                          nbgl_navCallback_t navCallback,
+                          nbgl_actionCallback_t actionCallback);
+void nbgl_useCaseRegularReview(uint8_t initPage, uint8_t nbPages, nbgl_navCallback_t navCallback);
+void nbgl_useCaseForwardOnlyReview(nbgl_navCallback_t navCallback);
+void nbgl_useCaseStaticReview(nbgl_layoutTagValueList_t *tagValueList,
+                              const nbgl_icon_details_t *icon,
+                              const char *reviewTitle,
+                              const char *acceptText,
+                              const char *rejectText,
+                              nbgl_choiceCallback_t callback);
+#endif // HAVE_SE_TOUCH
+void nbgl_useCaseSpinner(const char* text);
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

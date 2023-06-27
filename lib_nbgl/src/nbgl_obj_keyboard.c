@@ -6,6 +6,7 @@
  */
 
 #ifdef NBGL_KEYBOARD
+#ifdef HAVE_SE_TOUCH
 
 /*********************
  *      INCLUDES
@@ -581,4 +582,5 @@ void nbgl_objDrawKeyboard(nbgl_keyboard_t *kbd) {
   // If a keyboard in the screen, exclude only top border from touch, to avoid missing touch on left keys
   touch_exclude_borders(TOP_BORDER);
 }
+#endif // HAVE_SE_TOUCH
 #endif // NBGL_KEYBOARD

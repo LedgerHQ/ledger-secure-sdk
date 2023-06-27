@@ -11,9 +11,9 @@
 extern "C" {
 #endif
 
+#include "ux_loc.h"
 #include "nbgl_types.h"
 #include "nbgl_fonts.h"
-#include "ux_loc.h"
 
 /*********************
  *      INCLUDES
@@ -28,11 +28,23 @@ extern "C" {
 #define VALIDATE_KEY '\r'
 
 // for Keyboard
+#ifdef HAVE_SE_TOUCH
 #define KEYBOARD_KEY_HEIGHT         60
+#else // HAVE_SE_TOUCH
+#define KEYBOARD_KEY_WIDTH          14
+#define KEYBOARD_KEY_HEIGHT         14
+#define KEYBOARD_WIDTH              (5*KEYBOARD_KEY_WIDTH)
+#endif // HAVE_SE_TOUCH
 
 // for Keypad
+#ifdef HAVE_SE_TOUCH
 #define KEYPAD_KEY_HEIGHT           104
+#else // HAVE_SE_TOUCH
+#define KEYPAD_WIDTH                114
+#define KEYPAD_HEIGHT               18
+#endif // HAVE_SE_TOUCH
 
+#ifdef HAVE_SE_TOUCH
 ///< special code used by given callback of @ref nbgl_navigationPopulate to inform when Exit key is pressed
 #define EXIT_PAGE 0xFF
 
@@ -45,6 +57,7 @@ extern "C" {
 // common dimensions for buttons
 #define BUTTON_RADIUS RADIUS_40_PIXELS
 #define BUTTON_DIAMETER 80
+#endif // HAVE_SE_TOUCH
 
 /**********************
  *      TYPEDEFS
@@ -69,7 +82,8 @@ typedef enum  {
     KEYBOARD,       ///< Keyboard
     KEYPAD,         ///< Keypad
     SPINNER,        ///< Spinner
-    IMAGE_FILE      ///< Image file (with Ledger compression)
+    IMAGE_FILE,     ///< Image file (with Ledger compression)
+    TEXT_ENTRY      ///< area for entered text, only for Nanos
 } nbgl_obj_type_t;
 
 /**
@@ -116,7 +130,8 @@ typedef enum  {
  */
 typedef enum  {
     NO_STYLE, ///< no border
-    LEDGER_BORDER ///< Ledger style border, only for @ref TEXT_AREA
+    LEDGER_BORDER,  ///< Ledger style border, only for @ref TEXT_AREA
+    INVERTED_COLORS ///< Inverted background and rounded corners, only for @ref TEXT_AREA
 } nbgl_style_t;
 
 /**
@@ -153,13 +168,31 @@ typedef enum {
 } nbgl_touchType_t;
 
 /**
- * @brief The different styles of panels (temporary)
+ * @brief The different pressed buttons
  *
  */
+#define LEFT_BUTTON     0x01  ///< Left button event
+#define RIGHT_BUTTON    0x02  ///< Right button event
+#define BOTH_BUTTONS    0x03  ///< Both buttons event
+#define RELEASED_MASK   0x80  ///< released (see LSB bits to know what buttons are released)
+#define CONTINUOUS_MASK 0x40  ///< if set, means that the button(s) is continuously pressed (this event is sent every 300ms after the first 800ms)
+
 typedef enum {
-    PLAIN_COLOR_PANEL = 0,
-    ROUNDED_BORDER_PANEL ///< with a thin border in borderColor, with rounded corners
-} nbgl_panelStyle_t;
+    BUTTON_LEFT_PRESSED = 0,         ///< Sent when Left button is released
+    BUTTON_RIGHT_PRESSED,            ///< Send when Right button is released
+    BUTTON_LEFT_CONTINUOUS_PRESSED,  ///< Send when Left button is continuouly pressed (sent every 300ms after the first 800ms)
+    BUTTON_RIGHT_CONTINUOUS_PRESSED, ///< Send when Left button is continuouly pressed (sent every 300ms after the first 800ms)
+    BUTTON_BOTH_PRESSED,             ///< Sent when both buttons are released
+    BUTTON_BOTH_TOUCHED,             ///< Sent when both buttons are touched
+    INVALID_BUTTON_EVENT
+} nbgl_buttonEvent_t;
+
+/**
+ * @brief prototype of function to be called when a button event is received by an object (TODO: change to screen?)
+ * @param obj the concerned object
+ * @param buttonState event on buttons
+ */
+typedef void (*nbgl_buttonCallback_t)(void *obj, nbgl_buttonEvent_t buttonEvent) ;
 
 /**
  * @brief The low level Touchscreen event, coming from driver
@@ -367,6 +400,16 @@ typedef struct PACKED__ nbgl_text_area_s {
 } nbgl_text_area_t;
 
 /**
+ * @brief struct to represent a text entry area (@ref TEXT_ENTRY type)
+ *
+ */
+typedef struct PACKED__ nbgl_text_entry_s {
+    struct nbgl_obj_s; ///< common part
+    nbgl_font_id_e fontId; ///< id of the font to use
+    const char *text; ///< 8 digits to use.
+} nbgl_text_entry_t;
+
+/**
  * @brief struct to represent a "spinner", represented by the Ledger corners, in gray, with one of the corners in black (@ref SPINNER type)
  *
  */
@@ -387,9 +430,16 @@ typedef void (*keyboardCallback_t)(char touchedKey);
  *
  */
 typedef enum {
+#ifdef HAVE_SE_TOUCH
   MODE_LETTERS=0, ///< letters mode
   MODE_DIGITS,    ///< digits and some special characters mode
-  MODE_SPECIAL    ///< extended special characters mode
+  MODE_SPECIAL,   ///< extended special characters mode
+#else // HAVE_SE_TOUCH
+  MODE_LOWER_LETTERS,        ///< lower case letters mode
+  MODE_UPPER_LETTERS,        ///< upper case letters mode
+  MODE_DIGITS_AND_SPECIALS,  ///< digits and some special characters mode
+  MODE_NONE                  ///< no mode defined (only for Nanos)
+#endif // HAVE_SE_TOUCH
 } keyboardMode_t;
 
 /**
@@ -410,14 +460,19 @@ typedef struct PACKED__ nbgl_keyboard_s {
     struct nbgl_obj_s; ///< common part
     color_t textColor; ///< color set to letters.
     color_t borderColor; ///< color set to key borders
-    bool lettersOnly; ///< if true, only display letter keys and Backspace
+#ifdef HAVE_SE_TOUCH
     bool needsRefresh; ///< if true, means that the keyboard has been redrawn and needs a refresh
     keyboardCase_t casing; ///< keyboard casing mode (lower, upper once or upper locked)
+#else // HAVE_SE_TOUCH
+    bool enableBackspace; ///< if true, Backspace key is enabled
+    bool enableValidate; ///< if true, Validate key is enabled
+    uint8_t selectedCharIndex;
+#endif // HAVE_SE_TOUCH
+    bool lettersOnly; ///< if true, only display letter keys and Backspace
     keyboardMode_t mode; ///< keyboard mode to start with
     uint32_t keyMask; ///< mask used to disable some keys in letters only mod. The 26 LSB bits of mask are used, for the 26 letters of a QWERTY keyboard. Bit[0] for Q, Bit[1] for W and so on
     keyboardCallback_t callback; ///< function called when an active key is pressed
 } nbgl_keyboard_t;
-
 
 /**
  * @brief struct to represent a keypad (@ref KEYPAD type)
@@ -425,15 +480,20 @@ typedef struct PACKED__ nbgl_keyboard_s {
  */
 typedef struct PACKED__ nbgl_keypad_s {
     struct nbgl_obj_s; ///< common part
+#ifdef HAVE_SE_TOUCH
     color_t textColor; ///< color set to digits.
     color_t borderColor; ///< color set to key borders
+    bool enableDigits; ///< if true, Digit keys are enabled
+    uint8_t digitIndexes[5]; ///< array of digits indexes, 4 bits per digit
+#else // HAVE_SE_TOUCH
+    uint8_t selectedKey; ///< selected key position
+#endif // HAVE_SE_TOUCH
     bool enableBackspace; ///< if true, Backspace key is enabled
     bool enableValidate; ///< if true, Validate key is enabled
-    bool enableDigits; ///< if true, Digit keys are enabled
     bool shuffled; ///< if true, Digit keys are shuffled
-    uint8_t digitIndexes[5]; ///< array of digits indexes, 4 bits per digit
     keyboardCallback_t callback; ///< function called when an active key is pressed
 } nbgl_keypad_t;
+
 #ifdef __clang__
 #pragma GCC diagnostic pop
 #endif // __clang__
@@ -461,15 +521,19 @@ void nbgl_containerPoolRelease(uint8_t layer);
 nbgl_obj_t** nbgl_containerPoolGet(uint8_t nbObjs, uint8_t layer);
 uint8_t nbgl_containerPoolGetNbUsed(uint8_t layer);
 
+#ifdef HAVE_SE_TOUCH
 nbgl_container_t *nbgl_navigationPopulate(uint8_t nbPages, uint8_t activePage, bool withExitKey, uint8_t layer);
 bool nbgl_navigationCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType, uint8_t nbPages, uint8_t *activePage);
 nbgl_container_t *nbgl_bottomButtonPopulate(const nbgl_icon_details_t *icon, bool separationLine, uint8_t layer);
+#endif // HAVE_SE_TOUCH
 
 // for internal use
 void nbgl_objDrawKeyboard(nbgl_keyboard_t *kbd);
 void nbgl_objDrawKeypad(nbgl_keypad_t *kbd);
 void nbgl_keyboardTouchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType);
 void nbgl_keypadTouchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType);
+void nbgl_keyboardCallback(nbgl_obj_t *obj, nbgl_buttonEvent_t buttonEvent);
+void nbgl_keypadCallback(nbgl_obj_t *obj, nbgl_buttonEvent_t buttonEvent);
 
 /**********************
  *      MACROS

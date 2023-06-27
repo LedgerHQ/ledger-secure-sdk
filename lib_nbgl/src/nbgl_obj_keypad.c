@@ -6,6 +6,7 @@
  */
 
 #ifdef NBGL_KEYPAD
+#ifdef HAVE_SE_TOUCH
 
 /*********************
  *      INCLUDES
@@ -306,4 +307,5 @@ void nbgl_objDrawKeypad(nbgl_keypad_t *kpd) {
   keypadDraw(kpd);
 }
 
+#endif // HAVE_SE_TOUCH
 #endif // NBGL_KEYPAD

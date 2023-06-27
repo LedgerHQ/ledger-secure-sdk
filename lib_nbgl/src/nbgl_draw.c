@@ -14,7 +14,9 @@
 #include "nbgl_fonts.h"
 #include "nbgl_debug.h"
 #include "nbgl_side.h"
+#ifdef NBGL_QRCODE
 #include "qrcodegen.h"
+#endif // NBGL_QRCODE
 #include "glyphs.h"
 #include "os_pic.h"
 #include "os_utils.h"
@@ -32,6 +34,7 @@
 /**********************
  *      TYPEDEFS
  **********************/
+#ifdef NBGL_QRCODE
 typedef struct {
   uint8_t qrcode[qrcodegen_BUFFER_LEN_MAX];
 	uint8_t tempBuffer[qrcodegen_BUFFER_LEN_MAX];
@@ -41,6 +44,7 @@ typedef struct {
 #define qrcode ((QrCodeBuffer_t*)ramBuffer)->qrcode
 #define tempBuffer ((QrCodeBuffer_t*)ramBuffer)->tempBuffer
 #define QrDrawBuffer ((QrCodeBuffer_t*)ramBuffer)->QrDrawBuffer
+#endif // NBGL_QRCODE
 
 /**********************
  *  STATIC PROTOTYPES
@@ -49,10 +53,20 @@ typedef struct {
 /**********************
  *  STATIC VARIABLES
  **********************/
+static const uint8_t quarter_disc_3px_1bpp[] = {
+  0x5F, 0xFF
+};
+static const nbgl_icon_details_t C_quarter_disc_3px_1bpp= { 2, 2, NBGL_BPP_1, false, quarter_disc_3px_1bpp};
+
 static const uint8_t quarter_disc_4px_1bpp[] = {
   0x13, 0xFF
 };
 static const nbgl_icon_details_t C_quarter_disc_4px_1bpp= { 4, 4, NBGL_BPP_1, false, quarter_disc_4px_1bpp};
+
+static const uint8_t quarter_circle_3px_1bpp[] = {
+  0x4C, 0x00
+};
+static const nbgl_icon_details_t C_quarter_circle_3px_1bpp= { 2, 2, NBGL_BPP_1, false, quarter_circle_3px_1bpp};
 
 static const uint8_t quarter_circle_4px_1bpp[] = {
   0x13, 0xFF
@@ -61,11 +75,12 @@ static const nbgl_icon_details_t C_quarter_circle_4px_1bpp= { 4, 4, NBGL_BPP_1, 
 
 // indexed by nbgl_radius_t (except RADIUS_0_PIXELS)
 static const uint8_t radiusValues[] = {
-  4, 8, 16, 20, 24, 32, 40, 48
+  3, 4, 8, 16, 20, 24, 32, 40, 48
 };
 
 // indexed by nbgl_radius_t (except RADIUS_0_PIXELS)
 static const nbgl_icon_details_t* quarterDiscs[] = {
+  &C_quarter_disc_3px_1bpp,
   &C_quarter_disc_4px_1bpp,
   &C_quarter_round_8px_1bpp,
   &C_quarter_round_16px_1bpp,
@@ -78,6 +93,7 @@ static const nbgl_icon_details_t* quarterDiscs[] = {
 
 // indexed by nbgl_radius_t (except RADIUS_0_PIXELS)
 static const nbgl_icon_details_t* quarterCircles[] = {
+  &C_quarter_circle_3px_1bpp,
   &C_quarter_circle_4px_1bpp,
   &C_quarter_circle_8px_1bpp,
   &C_quarter_circle_16px_1bpp,
@@ -103,7 +119,7 @@ CCASSERT(qr_code_buffer, sizeof(QrCodeBuffer_t) <= GZLIB_UNCOMPRESSED_CHUNK);
 
 static void draw_circle_helper(int x_center, int y_center, nbgl_radius_t radiusIndex, uint8_t quarter,
                                color_t borderColor, color_t innerColor, color_t backgroundColor) {
-  uint8_t *quarter_buffer = NULL;
+  const uint8_t *quarter_buffer = NULL;
   nbgl_area_t area = {
     .bpp = NBGL_BPP_1,
     .backgroundColor = backgroundColor
@@ -114,9 +130,9 @@ static void draw_circle_helper(int x_center, int y_center, nbgl_radius_t radiusI
     return;
   }
   if (borderColor == innerColor) {
-    quarter_buffer = (uint8_t*)((nbgl_icon_details_t*)PIC(quarterDiscs[radiusIndex]))->bitmap;
+    quarter_buffer = (const uint8_t*)((const nbgl_icon_details_t*)PIC(quarterDiscs[radiusIndex]))->bitmap;
   } else  {
-    quarter_buffer = (uint8_t*)((nbgl_icon_details_t*)PIC(quarterCircles[radiusIndex]))->bitmap;
+    quarter_buffer = (const uint8_t*)((const nbgl_icon_details_t*)PIC(quarterCircles[radiusIndex]))->bitmap;
   }
   area.width = area.height = radiusValues[radiusIndex];
   area.backgroundColor = backgroundColor;
@@ -162,6 +178,9 @@ void nbgl_drawRoundedRect(const nbgl_area_t *area, nbgl_radius_t radiusIndex, co
   if (radiusIndex <= RADIUS_48_PIXELS) {
     radius = radiusValues[radiusIndex];
   }
+  else if (radiusIndex == RADIUS_1_PIXEL) {
+    radius = 1;
+  }
   else if (radiusIndex == RADIUS_0_PIXELS) {
     radius = 0;
   }
@@ -195,6 +214,9 @@ void nbgl_drawRoundedRect(const nbgl_area_t *area, nbgl_radius_t radiusIndex, co
   rectArea.height = area->height-(2*radius);
   nbgl_frontDrawRect(&rectArea);
 
+  if (radiusIndex == RADIUS_1_PIXEL) {
+    return;
+  }
   // Draw 4 quarters of disc
   draw_circle_helper(     area->x0+radius,
                           area->y0+radius,
@@ -373,8 +395,8 @@ static uint16_t get_bitmap_byte_cnt(const nbgl_font_t *font, uint8_t charId) {
 
   uint16_t baseId = charId - font->first_char;
   if (charId < font->last_char) {
-    nbgl_font_character_t *character = (nbgl_font_character_t *)PIC(&font->characters[baseId]);
-    nbgl_font_character_t *nextCharacter = (nbgl_font_character_t *)PIC(&font->characters[baseId+1]);
+    const nbgl_font_character_t *character = (const nbgl_font_character_t *)PIC(&font->characters[baseId]);
+    const nbgl_font_character_t *nextCharacter = (const nbgl_font_character_t *)PIC(&font->characters[baseId+1]);
     return (nextCharacter->bitmap_offset - character->bitmap_offset);
   } else if (charId == font->last_char) {
     return (font->bitmap_len - font->characters[baseId].bitmap_offset);
@@ -391,7 +413,7 @@ static uint16_t get_bitmap_byte_cnt(const nbgl_font_t *font, uint8_t charId) {
  * @param fontId font to be used
  * @param fontColor color to use for font
  */
-void nbgl_drawText(const nbgl_area_t *area, const char* text, uint16_t textLen, nbgl_font_id_e fontId, color_t fontColor) {
+nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area, const char* text, uint16_t textLen, nbgl_font_id_e fontId, color_t fontColor) {
   // text is a series of characters, each character being a bitmap
   // we need to align bitmaps on width multiple of 4 limitation.
   int16_t x = area->x0;
@@ -445,12 +467,12 @@ void nbgl_drawText(const nbgl_area_t *area, const char* text, uint16_t textLen, 
         char_x_min = 0;
         char_y_min = 0;
       } else {
-      nb_skipped_bytes = 0;
-      char_x_min = (uint16_t)unicodeCharacter->x_min_offset;
-      char_y_min = unicode_ctx->font->y_min;
-      char_y_min += (uint16_t)unicodeCharacter->y_min_offset * 4;
-      char_x_max -= (uint16_t)unicodeCharacter->x_max_offset;
-      char_y_max -= (uint16_t)unicodeCharacter->y_max_offset * 4;
+        nb_skipped_bytes = 0;
+        char_x_min = (uint16_t)unicodeCharacter->x_min_offset;
+        char_y_min = unicode_ctx->font->y_min;
+        char_y_min += (uint16_t)unicodeCharacter->y_min_offset * 4;
+        char_x_max -= (uint16_t)unicodeCharacter->x_max_offset;
+        char_y_max -= (uint16_t)unicodeCharacter->y_max_offset * 4;
       }
 
       char_byte_cnt = nbgl_getUnicodeFontCharacterByteCount();
@@ -461,6 +483,38 @@ void nbgl_drawText(const nbgl_area_t *area, const char* text, uint16_t textLen, 
 #endif // HAVE_UNICODE_SUPPORT
     }
     else {
+      if (unicode == '\f') {
+        break;
+      }
+      // if \e, escape sequence, remove the next char
+      else if (unicode == '\e') {
+        textLen--; // skip 0xYY byte
+        text++;
+        // also skip potential '\n' or ' '
+        if ((*text == '\n') || (*text == ' ')) {
+          textLen--; // skip 0xYY byte
+          text++;
+        }
+        continue;
+      }
+      // if \b, switch fontId
+      else if (unicode == '\b') {
+        if (fontId == BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp) { // switch to bold
+          fontId = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
+#ifdef HAVE_UNICODE_SUPPORT
+          unicode_ctx = nbgl_getUnicodeFont(fontId);
+#endif // HAVE_UNICODE_SUPPORT
+          font = (const nbgl_font_t *)nbgl_getFont(fontId);
+        }
+        else if (fontId == BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp) { // switch to regular
+          fontId = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
+#ifdef HAVE_UNICODE_SUPPORT
+          unicode_ctx = nbgl_getUnicodeFont(fontId);
+#endif // HAVE_UNICODE_SUPPORT
+          font = (const nbgl_font_t *)nbgl_getFont(fontId);
+        }
+        continue;
+      }
       // if not supported char, go to next one
       if ((unicode < font->first_char) || (unicode > font->last_char)) {
         continue;
@@ -480,12 +534,12 @@ void nbgl_drawText(const nbgl_area_t *area, const char* text, uint16_t textLen, 
         char_x_min = 0;
         char_y_min = 0;
       } else {
-      nb_skipped_bytes = 0;
-      char_x_min = (uint16_t)character->x_min_offset;
-      char_y_min = font->y_min;
-      char_y_min += (uint16_t)character->y_min_offset * 4;
-      char_x_max -= (uint16_t)character->x_max_offset;
-      char_y_max -= (uint16_t)character->y_max_offset * 4;
+        nb_skipped_bytes = 0;
+        char_x_min = (uint16_t)character->x_min_offset;
+        char_y_min = font->y_min;
+        char_y_min += (uint16_t)character->y_min_offset * 4;
+        char_x_max -= (uint16_t)character->x_max_offset;
+        char_y_max -= (uint16_t)character->y_max_offset * 4;
       }
 
       char_byte_cnt = get_bitmap_byte_cnt(font, unicode);
@@ -508,8 +562,9 @@ void nbgl_drawText(const nbgl_area_t *area, const char* text, uint16_t textLen, 
           break;
       }
     }
-    x+=char_width;
+    x+=char_width - font->char_kerning;
   }
+  return fontId;
 }
 
 #ifdef NBGL_QRCODE

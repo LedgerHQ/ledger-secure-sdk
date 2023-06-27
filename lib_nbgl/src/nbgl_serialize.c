@@ -162,7 +162,9 @@ static void nbgl_serializeKeyboard(nbgl_keyboard_t *obj, uint8_t *out, size_t *w
 	nbgl_appendU8((uint8_t) obj->textColor, out, w_cnt, max_len);
 	nbgl_appendU8((uint8_t) obj->borderColor, out, w_cnt, max_len);
 	nbgl_appendU8((uint8_t) obj->lettersOnly, out, w_cnt, max_len);
+#ifdef HAVE_SE_TOUCH
 	nbgl_appendU8((uint8_t) obj->casing, out, w_cnt, max_len);
+#endif // HAVE_SE_TOUCH
 	nbgl_appendU8((uint8_t) obj->mode, out, w_cnt, max_len);
 	nbgl_appendU32(obj->keyMask, out, w_cnt, max_len);
 }
@@ -171,8 +173,10 @@ static void nbgl_serializeKeypad(nbgl_keypad_t *obj, uint8_t *out, size_t *w_cnt
 	nbgl_serializeType((nbgl_obj_t *) obj, out, w_cnt, max_len);
 	nbgl_serializeArea((nbgl_area_t *) obj, out, w_cnt, max_len);
 
+#ifdef HAVE_SE_TOUCH
 	nbgl_appendU8((uint8_t) obj->textColor, out, w_cnt, max_len);
 	nbgl_appendU8((uint8_t) obj->borderColor, out, w_cnt, max_len);
+#endif // HAVE_SE_TOUCH
 	nbgl_appendU8((uint8_t) obj->enableBackspace, out, w_cnt, max_len);
 	nbgl_appendU8((uint8_t) obj->enableValidate, out, w_cnt, max_len);
 }

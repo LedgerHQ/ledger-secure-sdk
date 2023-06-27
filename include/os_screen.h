@@ -3,7 +3,6 @@
 #include "bolos_target.h"
 #include "decorators.h"
 
-#ifdef HAVE_BAGL
 #ifdef HAVE_SE_SCREEN
 //SYSCALL void screen_write_frame(unsigned char* framebuffer PLENGTH(BAGL_WIDTH*BAGL_HEIGHT/8));
 /**
@@ -36,4 +35,3 @@ SYSCALL void bagl_hal_draw_bitmap_within_rect(int x, int y, unsigned int width, 
  */
 SYSCALL void bagl_hal_draw_rect(unsigned int color, int x, int y, unsigned int width, unsigned int height);
 #endif // HAVE_SE_SCREEN
-#endif // HAVE_BAGL

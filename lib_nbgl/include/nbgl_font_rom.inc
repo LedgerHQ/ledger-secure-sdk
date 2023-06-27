@@ -23,6 +23,11 @@
 #include "nbgl_font_inter_regular_24_1bpp.inc"
 #include "nbgl_font_inter_semibold_24_1bpp.inc"
 #include "nbgl_font_inter_medium_32_1bpp.inc"
+#ifndef HAVE_SE_TOUCH
+#include "nbgl_font_open_sans_extrabold_11.inc"
+#include "nbgl_font_open_sans_regular_11.inc"
+#include "nbgl_font_open_sans_light_16.inc"
+#endif // HAVE_SE_TOUCH
 #if (defined(HAVE_BOLOS) && !defined(BOLOS_OS_UPGRADER_APP))
 #if !defined(HAVE_LANGUAGE_PACK)
   #if (OS_LANGUAGE==LANG_ENGLISH)

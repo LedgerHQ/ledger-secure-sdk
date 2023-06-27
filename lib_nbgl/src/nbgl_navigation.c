@@ -5,6 +5,8 @@
  *
  */
 
+#ifdef HAVE_SE_TOUCH
+
 /*********************
  *      INCLUDES
  *********************/
@@ -183,3 +185,5 @@ nbgl_container_t *nbgl_navigationPopulate(uint8_t nbPages, uint8_t activePage, b
 
   return navContainer;
 }
+
+#endif // HAVE_SE_TOUCH

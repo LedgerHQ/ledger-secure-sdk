@@ -18,13 +18,24 @@
 
 #pragma once
 
+#if defined(HAVE_BOLOS)
+# include "bolos_privileged_ux.h"
+#endif // HAVE_BOLOS
+
 #include "os_math.h"
 #include "os_ux.h"
 #include "os_task.h"
 #include "nbgl_screen.h"
 #include "nbgl_touch.h"
+#if defined(HAVE_INDEXED_STRINGS)
+#include "ux_loc.h"
+#include "bolos_ux_loc_strings.h"
+#endif //defined(HAVE_INDEXED_STRINGS)
 
 #include <string.h>
+
+#define BUTTON_LEFT             1
+#define BUTTON_RIGHT            2
 
 
 typedef void                    (*asynchmodal_end_callback_t) (unsigned int ux_status);

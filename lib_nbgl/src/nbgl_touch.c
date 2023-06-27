@@ -3,6 +3,7 @@
  * Implementation of touchscreen management in new BAGL
  */
 
+#ifdef HAVE_SE_TOUCH
 /*********************
  *      INCLUDES
  *********************/
@@ -234,3 +235,4 @@ uint32_t nbgl_touchGetTouchDuration(nbgl_obj_t *obj) {
   }
   return 0;
 }
+#endif // HAVE_SE_TOUCH

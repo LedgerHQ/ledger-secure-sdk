@@ -5,6 +5,7 @@
  *
  */
 
+#ifdef HAVE_SE_TOUCH
 /*********************
  *      INCLUDES
  *********************/
@@ -91,3 +92,4 @@ nbgl_container_t *nbgl_bottomButtonPopulate(const nbgl_icon_details_t *icon, boo
 
   return container;
 }
+#endif // HAVE_SE_TOUCH

@@ -162,6 +162,7 @@ class TTF2INC:
             self.font_size = config.getint('fontSize')
             self.line_size = config.getint('lineSize')
             self.crop = config.getboolean('crop', False)
+            self.kerning = config.getint('kerning',0)
             self.rle = config.getboolean('rle', True)
             self.bpp = config.getint('bpp', 1)
             self.nbgl = config.getboolean('nbgl', False)
@@ -735,6 +736,7 @@ class TTF2INC:
           uint8_t bpp;              ///< number of bits per pixels
           uint8_t height;           ///< height of all characters in pixels
           uint8_t line_height;      ///< height of a line for all characters in pixels
+          uint8_t char_kerning;     ///< kerning for the font
           uint8_t crop;             ///< If false, x_min_offset+y_min_offset=bytes to skip
           uint8_t y_min;            ///< Most top Y coordinate of any char in the font
           uint8_t first_char;       ///< ASCII code of the first character
@@ -752,6 +754,7 @@ class TTF2INC:
             f"  (uint8_t) NBGL_BPP_{self.bpp}, // bpp\n"
             f"  {self.height}, // height of all characters in pixels\n"
             f"  {self.line_size}, // line height in pixels\n"
+            f"  {self.kerning}, // kerning\n"
             f"  {crop}, // crop enabled (1) or not (0)\n"
             f"  {self.char_topmost_y}, // Most top Y coordinate of any char\n"
             f"  0x{first_char:X}, // first character\n"
@@ -828,6 +831,7 @@ class TTF2INC:
           uint8_t   bpp;                ///< Number of bits/pixels, (nbgl_bpp_t)
           uint8_t   height;             ///< height of all characters in pixels
           uint8_t   line_height;        ///< height of a line for all characters in pixels
+          uint8_t   char_kerning;       ///< kerning for the font
           uint8_t   crop;               ///< If false, x_min_offset+y_min_offset=bytes to skip
           uint8_t   y_min;              ///< Most top Y coordinate of any char in the font
           uint16_t  nb_characters;      ///< Number of characters in this font
@@ -841,6 +845,7 @@ class TTF2INC:
             f"  (uint8_t) NBGL_BPP_{self.bpp}, // bpp\n"
             f"  {self.height}, // height of all characters in pixels\n"
             f"  {self.line_size}, // line height in pixels\n"
+            f"  {self.kerning}, // kerning in pixels\n"
             f"  {crop}, // crop enabled (1) or not (0)\n"
             f"  {self.char_topmost_y}, // Most top Y coordinate of any char\n"
             f"  {len(self.char_info)}, // Nb of characters\n")
@@ -1135,7 +1140,10 @@ class TTF2INC:
             "BAGL_FONT_HM_ALPHA_MONO_MEDIUM_32px": 3,
             "BAGL_FONT_INTER_REGULAR_24px_1bpp": 4,
             "BAGL_FONT_INTER_SEMIBOLD_24px_1bpp": 5,
-            "BAGL_FONT_INTER_MEDIUM_32px_1bpp": 6
+            "BAGL_FONT_INTER_MEDIUM_32px_1bpp": 6,
+            "BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp": 8,
+            "BAGL_FONT_OPEN_SANS_LIGHT_16px_1bpp": 9,
+            "BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp": 10
         }
         if self.nbgl:
             font_ids = nbgl_font_ids
@@ -1412,18 +1420,33 @@ if __name__ == "__main__":
                 # Write the struct containing information about the font:
                 if ttf.unicode_needed:
                     typedef = f"{ttf.font_prefix}unicode_t"
-                    ttf.ttf_info_dictionary[f"{ttf.font_prefix}unicode"] = {
-                        "bitmap_len": ttf.bitmap_len,
-                        "font_id": ttf.get_font_id(),
-                        "bpp": ttf.bpp,
-                        "height": ttf.height,
-                        "baseline": ttf.baseline,
-                        "line_height": ttf.line_size,
-                        "crop": crop,
-                        "nb_characters": len(ttf.char_info),
-                        "char_leftmost_x": ttf.char_leftmost_x,
-                        "char_topmost_y": ttf.char_topmost_y
-                    }
+                    if ttf.nbgl:
+                        ttf.ttf_info_dictionary[f"{ttf.font_prefix}unicode"] = {
+                            "bitmap_len": ttf.bitmap_len,
+                            "font_id": ttf.get_font_id(),
+                            "bpp": ttf.bpp,
+                            "height": ttf.height,
+                            "baseline": ttf.baseline,
+                            "line_height": ttf.line_size,
+                            "char_kerning": ttf.kerning,
+                            "crop": crop,
+                            "nb_characters": len(ttf.char_info),
+                            "char_leftmost_x": ttf.char_leftmost_x,
+                            "char_topmost_y": ttf.char_topmost_y
+                        }
+                    else:
+                        ttf.ttf_info_dictionary[f"{ttf.font_prefix}unicode"] = {
+                            "bitmap_len": ttf.bitmap_len,
+                            "font_id": ttf.get_font_id(),
+                            "bpp": ttf.bpp,
+                            "height": ttf.height,
+                            "baseline": ttf.baseline,
+                            "line_height": ttf.line_size,
+                            "crop": crop,
+                            "nb_characters": len(ttf.char_info),
+                            "char_leftmost_x": ttf.char_leftmost_x,
+                            "char_topmost_y": ttf.char_topmost_y
+                        }
                 else:
                     typedef = f"{ttf.font_prefix}t"
 

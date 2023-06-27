@@ -6,6 +6,7 @@
 /*********************
  *      INCLUDES
  *********************/
+#include <string.h>
 #include "nbgl_obj.h"
 #include "nbgl_draw.h"
 #include "nbgl_front.h"
@@ -21,6 +22,9 @@
  *      DEFINES
  *********************/
 #define NB_MAX_PAGES_WITH_DASHES 10
+
+// max number of letters in TEXT_ENTRY
+#define NB_MAX_LETTERS 9
 
 /**********************
  *      TYPEDEFS
@@ -195,8 +199,10 @@ static void compute_relativePosition(nbgl_obj_t* obj, nbgl_obj_t *prevObj) {
       }
     }
   }
+#ifdef HAVE_SE_TOUCH
   // align on multiples of 4
   obj->rel_y0 &= ~0x3;
+#endif // HAVE_SE_TOUCH
 }
 
 static void compute_position(nbgl_obj_t* obj, nbgl_obj_t *prevObj) {
@@ -217,9 +223,11 @@ static void compute_position(nbgl_obj_t* obj, nbgl_obj_t *prevObj) {
   if ((obj->x0+obj->width)>SCREEN_WIDTH) {
     LOG_FATAL(OBJ_LOGGER,"compute_position(), forbidden width, obj->type = %d, x0=%d, width=%d\n",obj->type,obj->x0,obj->width);
   }
+#ifdef HAVE_SE_TOUCH
   if ((obj->y0+obj->height)>SCREEN_HEIGHT) {
     LOG_FATAL(OBJ_LOGGER,"compute_position(), forbidden height, obj->type = %d, y0=%d, height=%d\n",obj->type,obj->y0,obj->height);
   }
+#endif // HAVE_SE_TOUCH
 }
 
 static void draw_screen(nbgl_container_t *obj) {
@@ -333,7 +341,7 @@ static void draw_button(nbgl_button_t* obj, nbgl_obj_t *prevObj, bool computePos
     rectArea.width = obj->icon->width;
     rectArea.height = obj->icon->height;
     rectArea.bpp = NBGL_BPP_1;
-    nbgl_frontDrawImage(&rectArea,(uint8_t*)obj->icon->bitmap,NO_TRANSFORMATION, obj->foregroundColor);
+    nbgl_frontDrawImage(&rectArea, obj->icon->bitmap,NO_TRANSFORMATION, obj->foregroundColor);
   }
 }
 
@@ -405,6 +413,9 @@ static void draw_image(nbgl_image_t* obj, nbgl_obj_t *prevObj, bool computePosit
   else {
     iconDetails = obj->buffer;
   }
+  if (iconDetails == NULL) {
+    return;
+  }
 
   // use dimension and bpp from the icon details
   obj->width = iconDetails->width;
@@ -429,10 +440,10 @@ static void draw_image(nbgl_image_t* obj, nbgl_obj_t *prevObj, bool computePosit
     colorMap = obj->foregroundColor;
   }
   if (!iconDetails->isFile) {
-    nbgl_frontDrawImage((nbgl_area_t*)obj, (uint8_t*)iconDetails->bitmap, NO_TRANSFORMATION, colorMap);
+    nbgl_frontDrawImage((nbgl_area_t*)obj, iconDetails->bitmap, NO_TRANSFORMATION, colorMap);
   }
   else {
-    nbgl_frontDrawImageFile((nbgl_area_t*)obj, (uint8_t*)iconDetails->bitmap, colorMap, ramBuffer);
+    nbgl_frontDrawImageFile((nbgl_area_t*)obj, iconDetails->bitmap, colorMap, ramBuffer);
   }
 }
 
@@ -460,11 +471,10 @@ static void draw_switch(nbgl_switch_t* obj, nbgl_obj_t *prevObj, bool computePos
   rectArea.backgroundColor = obj->backgroundColor;
   rectArea.bpp = NBGL_BPP_1;
   if (obj->state == OFF_STATE) {
-    nbgl_frontDrawImage(&rectArea,(uint8_t*)C_switch_60_40.bitmap,NO_TRANSFORMATION,obj->offColor);
+    nbgl_frontDrawImage(&rectArea, C_switch_60_40.bitmap, NO_TRANSFORMATION, obj->offColor);
   }
   else {
-    nbgl_frontDrawImage(&rectArea,
-                          (uint8_t*)C_switch_60_40.bitmap,VERTICAL_MIRROR,obj->onColor);
+    nbgl_frontDrawImage(&rectArea, C_switch_60_40.bitmap, VERTICAL_MIRROR, obj->onColor);
   }
 }
 
@@ -492,10 +502,10 @@ static void draw_radioButton(nbgl_radio_t* obj, nbgl_obj_t *prevObj, bool comput
   rectArea.backgroundColor = obj->backgroundColor;
   rectArea.bpp = NBGL_BPP_1;
   if (obj->state == OFF_STATE) {
-    nbgl_frontDrawImage(&rectArea,(uint8_t*)C_radio_inactive_32px.bitmap,NO_TRANSFORMATION,obj->borderColor);
+    nbgl_frontDrawImage(&rectArea, C_radio_inactive_32px.bitmap, NO_TRANSFORMATION, obj->borderColor);
   }
   else {
-    nbgl_frontDrawImage(&rectArea,(uint8_t*)C_radio_active_32px.bitmap,NO_TRANSFORMATION,obj->activeColor);
+    nbgl_frontDrawImage(&rectArea, C_radio_active_32px.bitmap, NO_TRANSFORMATION, obj->activeColor);
   }
 }
 
@@ -507,6 +517,7 @@ static void draw_radioButton(nbgl_radio_t* obj, nbgl_obj_t *prevObj, bool comput
  * @param computePosition if TRUE, force to compute the object position
  */
 static void draw_progressBar(nbgl_progress_bar_t* obj, nbgl_obj_t *prevObj, bool computePosition) {
+#ifdef HAVE_SE_TOUCH
   uint8_t stroke = 3; // 3 pixels for border
   uint16_t levelWidth;
 
@@ -538,6 +549,40 @@ static void draw_progressBar(nbgl_progress_bar_t* obj, nbgl_obj_t *prevObj, bool
                                RADIUS_0_PIXELS, obj->foregroundColor);
     obj->width = tmp_width;
   }
+#else // HAVE_SE_TOUCH
+  uint8_t stroke = 1; // 1 pixels for border
+  uint16_t levelWidth;
+
+  if (computePosition) {
+    compute_position((nbgl_obj_t *)obj,prevObj);
+  }
+  LOG_DEBUG(OBJ_LOGGER,"draw_progressBar(), x0 = %d, y0 = %d, level = %d %%\n", obj->x0, obj->y0, obj->state);
+
+  // inherit background from parent
+  obj->backgroundColor = obj->parent->backgroundColor;
+
+  // draw external part if necessary
+  if (obj->withBorder) {
+    nbgl_drawRoundedBorderedRect((nbgl_area_t*)obj,
+                                RADIUS_3_PIXELS, stroke, obj->backgroundColor, obj->foregroundColor);
+  } else {
+    nbgl_drawRoundedRect((nbgl_area_t*)obj,
+                              RADIUS_3_PIXELS, obj->backgroundColor);
+  }
+  // draw level
+  levelWidth = MIN(obj->width * obj->state / 100, obj->width);
+  if (levelWidth > 0) {
+    nbgl_area_t rectArea;
+    rectArea.width = levelWidth;
+    rectArea.height = obj->height - 2;
+    rectArea.backgroundColor = obj->foregroundColor;
+    rectArea.bpp = NBGL_BPP_1;
+    rectArea.x0 = obj->x0+1;
+    rectArea.y0 = obj->y0+1;
+
+    nbgl_frontDrawRect(&rectArea);
+  }
+#endif // HAVE_SE_TOUCH
 }
 
 /**
@@ -630,6 +675,7 @@ static void draw_textArea(nbgl_text_area_t* obj, nbgl_obj_t *prevObj, bool compu
   uint16_t textWidth,fontHeight,lineHeight, textHeight, midHeight;
   uint8_t line,nbLines;
   const char *text;
+  nbgl_font_id_e fontId = obj->fontId;
 
   if (computePosition) {
     compute_position((nbgl_obj_t *)obj,prevObj);
@@ -655,16 +701,27 @@ static void draw_textArea(nbgl_text_area_t* obj, nbgl_obj_t *prevObj, bool compu
 
   LOG_DEBUG(OBJ_LOGGER,"draw_textArea(), wrapping = %d, x0 = %d, y0 = %d, width = %d, height = %d, text = %s\n", obj->wrapping, obj->x0, obj->y0, obj->width, obj->height, text);
 
-  // inherit background from parent
-  obj->backgroundColor = obj->parent->backgroundColor;
 
   // draw background to make sure it's clean
+  if (obj->style == INVERTED_COLORS) {
+    obj->backgroundColor = WHITE;
+    rectArea.backgroundColor = BLACK;
+  }
+  else {
+    // inherit background from parent
+    obj->backgroundColor = obj->parent->backgroundColor;
+    rectArea.backgroundColor = obj->backgroundColor;
+  }
   rectArea.x0 = obj->x0;
   rectArea.y0 = obj->y0;
   rectArea.width = obj->width;
   rectArea.height = obj->height;
-  rectArea.backgroundColor = obj->backgroundColor;
-  nbgl_frontDrawRect(&rectArea);
+  if (obj->style == INVERTED_COLORS) {
+    nbgl_drawRoundedRect(&rectArea, RADIUS_1_PIXEL, WHITE);
+  }
+  else {
+    nbgl_frontDrawRect(&rectArea);
+  }
   // draw border with given style
   if (obj->style == LEDGER_BORDER) {
     // draw horizontal segments (4 pixels stroke)
@@ -729,9 +786,11 @@ static void draw_textArea(nbgl_text_area_t* obj, nbgl_obj_t *prevObj, bool compu
 
   midHeight = (obj->height - textHeight)/2;
   // Be sure midHeight is modulo 4
+#ifdef HAVE_SE_TOUCH
   if (midHeight % 4) {
     midHeight -= midHeight % 4;
   }
+#endif // HAVE_SE_TOUCH
 
   rectArea.backgroundColor = obj->backgroundColor;
   rectArea.height = fontHeight;
@@ -739,7 +798,7 @@ static void draw_textArea(nbgl_text_area_t* obj, nbgl_obj_t *prevObj, bool compu
   for (line=0;line<nbLines;line++) {
     uint16_t lineWidth,lineLen;
 
-    nbgl_getTextMaxLenAndWidth(obj->fontId,text,obj->width,&lineLen,&lineWidth,obj->wrapping);
+    nbgl_getTextMaxLenAndWidth(fontId,text,obj->width,&lineLen,&lineWidth,obj->wrapping);
     if (obj->textAlignment == MID_LEFT) {
       rectArea.x0 = obj->x0;
     }
@@ -755,11 +814,12 @@ static void draw_textArea(nbgl_text_area_t* obj, nbgl_obj_t *prevObj, bool compu
     rectArea.y0 = obj->y0 + midHeight + line*lineHeight;
     rectArea.width = lineWidth;
 
-    LOG_DEBUG(OBJ_LOGGER,"draw_textArea(), %s line %d, lineLen %d lineWidth = %d, obj->height = %d, textHeight = %d, obj->nbMaxLines = %d\n",text,  line,lineLen, lineWidth,obj->height, textHeight, obj->nbMaxLines);
+    LOG_DEBUG(OBJ_LOGGER,"draw_textArea(), %s line %d, lineLen %d lineWidth = %d, height = %d, textHeight = %d, nbMaxLines = %d, wrapping = %d\n",text+3,  line,lineLen, lineWidth,obj->height, textHeight, obj->nbMaxLines, obj->wrapping);
     if ((obj->nbMaxLines == 0) || (line < (obj->nbMaxLines-1))) {
-      nbgl_drawText(&rectArea, text, lineLen, obj->fontId, obj->textColor);
+      fontId = nbgl_drawText(&rectArea, text, lineLen, fontId, obj->textColor);
     }
     else {
+#ifdef HAVE_SE_TOUCH
       // for last chunk, if nbMaxLines is used, replace the 3 last chars by "..."
       // draw line except 3 last chars
       nbgl_drawText(&rectArea, text, lineLen-3, obj->fontId, obj->textColor);
@@ -767,6 +827,9 @@ static void draw_textArea(nbgl_text_area_t* obj, nbgl_obj_t *prevObj, bool compu
       rectArea.x0 += nbgl_getSingleLineTextWidthInLen(obj->fontId, text, lineLen-3);
       rectArea.width = nbgl_getSingleLineTextWidth(obj->fontId,"...");
       nbgl_drawText(&rectArea, "...", 3, obj->fontId, obj->textColor);
+#else // HAVE_SE_TOUCH
+      nbgl_drawText(&rectArea, text, lineLen, fontId, obj->textColor);
+#endif // HAVE_SE_TOUCH
       return;
     }
     text += lineLen;
@@ -777,6 +840,7 @@ static void draw_textArea(nbgl_text_area_t* obj, nbgl_obj_t *prevObj, bool compu
   }
 }
 
+#ifdef NBGL_QRCODE
 /**
  * @brief internal function used to draw a QR Code
  * @note the QRCode is centered in the given object area
@@ -804,11 +868,9 @@ static void draw_qrCode(nbgl_qrcode_t* obj, nbgl_obj_t *prevObj, bool computePos
   rectArea.width = obj->width;
   rectArea.height = obj->height;
   rectArea.backgroundColor = obj->backgroundColor;
-#ifdef NBGL_QRCODE
   nbgl_drawQrCode(&rectArea,(obj->version == QRCODE_V4) ? 4:10,obj->text,obj->foregroundColor);
-#endif // NBGL_QRCODE
-
 }
+#endif // NBGL_QRCODE
 
 /**
  * @brief internal function used to draw a Keyboard object
@@ -818,11 +880,16 @@ static void draw_qrCode(nbgl_qrcode_t* obj, nbgl_obj_t *prevObj, bool computePos
  * @param computePosition if TRUE, force to compute the object position
  */
 static void draw_keyboard(nbgl_keyboard_t* obj, nbgl_obj_t *prevObj, bool computePosition) {
+#ifdef HAVE_SE_TOUCH
   obj->width = SCREEN_WIDTH;
   obj->height = 3*KEYBOARD_KEY_HEIGHT;
   if (!obj->lettersOnly) {
     obj->height += KEYBOARD_KEY_HEIGHT;
   }
+#else // HAVE_SE_TOUCH
+  obj->width = KEYBOARD_WIDTH;
+  obj->height = KEYBOARD_KEY_HEIGHT;
+#endif // HAVE_SE_TOUCH
 
   if (computePosition) {
     compute_position((nbgl_obj_t *)obj,prevObj);
@@ -849,8 +916,13 @@ static void draw_keyboard(nbgl_keyboard_t* obj, nbgl_obj_t *prevObj, bool comput
  * @param computePosition if TRUE, force to compute the object position
  */
 static void draw_keypad(nbgl_keypad_t* obj, nbgl_obj_t *prevObj, bool computePosition) {
+#ifdef HAVE_SE_TOUCH
   obj->width = SCREEN_WIDTH;
   obj->height = 4*KEYPAD_KEY_HEIGHT;
+#else // HAVE_SE_TOUCH
+  obj->height = KEYPAD_HEIGHT;
+  obj->width = KEYPAD_WIDTH;
+#endif // HAVE_SE_TOUCH
 
   if (computePosition) {
     compute_position((nbgl_obj_t *)obj,prevObj);
@@ -866,8 +938,8 @@ static void draw_keypad(nbgl_keypad_t* obj, nbgl_obj_t *prevObj, bool computePos
 #ifdef NBGL_KEYPAD
   nbgl_objDrawKeypad(obj);
 #endif // NBGL_KEYPAD
-
 }
+
 
 /**
  * @brief internal function used to draw a Spinner object
@@ -993,6 +1065,68 @@ static void draw_spinner(nbgl_spinner_t* obj, nbgl_obj_t *prevObj, bool computeP
   }
 }
 
+#ifndef HAVE_SE_TOUCH
+/**
+ * @brief internal function used to draw a text entry
+ *
+ * @param obj the object to draw
+ * @param prevObj the previous object drawned in the same container, with the default layout
+ * @param computePosition if TRUE, force to compute the object position
+ */
+static void draw_textEntry(nbgl_text_entry_t* obj, nbgl_obj_t *prevObj, bool computePosition) {
+  nbgl_area_t rectArea;
+  int textLen = strlen(obj->text);
+
+  if (computePosition) {
+    compute_position((nbgl_obj_t *)obj,prevObj);
+  }
+
+  LOG_DEBUG(OBJ_LOGGER,"draw_textEntry(), x0 = %d, y0 = %d, width = %d, height = %d\n", obj->x0, obj->y0, obj->width, obj->height);
+
+  // draw background to make sure it's clean
+  obj->backgroundColor = WHITE;
+  rectArea.backgroundColor = BLACK;
+  rectArea.x0 = obj->x0;
+  rectArea.y0 = obj->y0;
+  rectArea.width = obj->width;
+  rectArea.height = obj->height;
+  rectArea.bpp = NBGL_BPP_1;
+  nbgl_drawRoundedRect(&rectArea, RADIUS_1_PIXEL, WHITE);
+
+  rectArea.backgroundColor = obj->backgroundColor;
+  rectArea.height = nbgl_getFontHeight(obj->fontId);
+  // draw each of the 9 digits
+  for (int i=0;i<NB_MAX_LETTERS;i++) {
+    char digit;
+    rectArea.x0 = obj->x0+4+(i*10);
+    rectArea.y0 = obj->y0;
+    rectArea.width = 8;
+    if (textLen < NB_MAX_LETTERS) {
+      if (i < textLen) {
+        digit = obj->text[i];
+      }
+      else {
+        digit = '_';
+      }
+    }
+    else {
+      // first char is '..' to notify continuing
+      if (i == 0) {
+        nbgl_drawText(&rectArea, "..", 2, BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp, BLACK);
+        continue;
+      }
+      else if (i < (NB_MAX_LETTERS-1)) {
+        digit = obj->text[textLen-NB_MAX_LETTERS+1+i];
+      }
+      else {
+        digit = '_';
+      }
+    }
+    nbgl_drawText(&rectArea, &digit, 1, BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp, BLACK);
+  }
+}
+#endif // HAVE_SE_TOUCH
+
 /**
  * @brief internal function used to draw an image file
  *
@@ -1012,7 +1146,7 @@ static void draw_image_file(nbgl_image_file_t* obj, nbgl_obj_t *prevObj, bool co
   }
 
   LOG_DEBUG(OBJ_LOGGER,"draw_image_file(), x0 = %d, y0 = %d\n", obj->x0, obj->y0);
-  nbgl_frontDrawImageFile((nbgl_area_t *)obj, (uint8_t*)obj->buffer, 0, ramBuffer);
+  nbgl_frontDrawImageFile((nbgl_area_t *)obj, obj->buffer, 0, ramBuffer);
 }
 
 /**
@@ -1061,7 +1195,9 @@ static void draw_object(nbgl_obj_t *obj, nbgl_obj_t *prevObj, bool computePositi
       draw_textArea((nbgl_text_area_t*)obj, prevObj, computePosition);
       break;
     case QR_CODE:
+#ifdef NBGL_QRCODE
       draw_qrCode((nbgl_qrcode_t*)obj, prevObj, computePosition);
+#endif // NBGL_QRCODE
       break;
     case KEYBOARD:
       draw_keyboard((nbgl_keyboard_t*)obj, prevObj, computePosition);
@@ -1075,6 +1211,11 @@ static void draw_object(nbgl_obj_t *obj, nbgl_obj_t *prevObj, bool computePositi
     case IMAGE_FILE:
       draw_image_file((nbgl_image_file_t*)obj, prevObj, computePosition);
       break;
+#ifndef HAVE_SE_TOUCH
+    case TEXT_ENTRY:
+      draw_textEntry((nbgl_text_entry_t*)obj, prevObj, computePosition);
+      break;
+#endif // HAVE_SE_TOUCH
     default:
       LOG_DEBUG(OBJ_LOGGER,"Not existing object type\n");
       break;
@@ -1095,13 +1236,13 @@ static void draw_object(nbgl_obj_t *obj, nbgl_obj_t *prevObj, bool computePositi
  * @param obj the object drawn
  */
 void extendRefreshArea(nbgl_obj_t *obj) {
-  uint16_t x1,y1; // bottom right corner
+  int16_t x1,y1; // bottom right corner
   x1 = refreshArea.x0+refreshArea.width;
   y1 = refreshArea.y0+refreshArea.height;
 
   // if obj top-left is on left of current top-left corner, move top-left corner
   if (obj->x0 < refreshArea.x0) {
-    refreshArea.x0 = obj->x0;
+    refreshArea.x0 = MAX(0,obj->x0);
   }
   // if obj bottom-right is on right of current bottom-right corner, move bottom-right corner
   if (((obj->x0+obj->width) > x1) || (refreshArea.width == 0)) {
@@ -1109,7 +1250,7 @@ void extendRefreshArea(nbgl_obj_t *obj) {
   }
   // if obj top-left is on top of current top-left corner, move top-left corner
   if (obj->y0 < refreshArea.y0) {
-    refreshArea.y0 = obj->y0;
+    refreshArea.y0 = MAX(0,obj->y0);
   }
   // if obj bottom-right is on bottom of current bottom-right corner, move bottom-right corner
   if (((obj->y0+obj->height) > y1) || (refreshArea.height == 0)) {
@@ -1121,7 +1262,11 @@ void extendRefreshArea(nbgl_obj_t *obj) {
     LOG_FATAL(OBJ_LOGGER,"extendRefreshArea: Impossible area x0 = %d width %d\n",refreshArea.x0,refreshArea.width);
   }
   if (y1 > SCREEN_HEIGHT) {
+#ifdef HAVE_SE_TOUCH
     LOG_FATAL(OBJ_LOGGER,"extendRefreshArea: Impossible area y0 = %d height %d\n",refreshArea.y0,refreshArea.height);
+#else // HAVE_SE_TOUCH
+    y1 = SCREEN_HEIGHT;
+#endif // HAVE_SE_TOUCH
   }
   // recompute width and height
   refreshArea.width = x1 - refreshArea.x0;

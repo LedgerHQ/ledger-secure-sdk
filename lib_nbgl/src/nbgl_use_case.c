@@ -4,6 +4,7 @@
  */
 
 #ifdef NBGL_USE_CASE
+#ifdef HAVE_SE_TOUCH
 /*********************
  *      INCLUDES
  *********************/
@@ -18,6 +19,8 @@
 /*********************
  *      DEFINES
  *********************/
+#define APP_DESCRIPTION_MAX_LEN 72
+
 /**********************
  *      TYPEDEFS
  **********************/
@@ -446,7 +449,7 @@ static const char *getDetailsPageAt(uint8_t detailsPage) {
     uint16_t nbLines = nbgl_getTextNbLinesInWidth(BAGL_FONT_INTER_REGULAR_24px, currentChar, SCREEN_WIDTH-2*BORDER_MARGIN, false);
     if (nbLines>NB_MAX_LINES_IN_DETAILS) {
       uint16_t len;
-      nbgl_getTextMaxLenInNbLines(BAGL_FONT_INTER_REGULAR_24px, currentChar,SCREEN_WIDTH-2*BORDER_MARGIN,NB_MAX_LINES_IN_DETAILS,&len);
+      nbgl_getTextMaxLenInNbLines(BAGL_FONT_INTER_REGULAR_24px, currentChar,SCREEN_WIDTH-2*BORDER_MARGIN,NB_MAX_LINES_IN_DETAILS,&len, false);
       len-=3;
       currentChar = currentChar+len;
     }
@@ -494,7 +497,7 @@ static void displayDetailsPage(uint8_t detailsPage, bool forceFullRefresh) {
 
   if (nbLines>NB_MAX_LINES_IN_DETAILS) {
     uint16_t len;
-    nbgl_getTextMaxLenInNbLines(BAGL_FONT_INTER_REGULAR_24px, currentPair.value,SCREEN_WIDTH-2*BORDER_MARGIN,NB_MAX_LINES_IN_DETAILS,&len);
+    nbgl_getTextMaxLenInNbLines(BAGL_FONT_INTER_REGULAR_24px, currentPair.value,SCREEN_WIDTH-2*BORDER_MARGIN,NB_MAX_LINES_IN_DETAILS,&len, false);
     len-=3;
     // memorize next position to save processing
     detailsContext.nextPageStart = currentPair.value+len;
@@ -777,16 +780,11 @@ void nbgl_useCaseHomeExt(const char *appName, const nbgl_icon_details_t *appIcon
     onAction = actionCallback;
   }
   if (tagline == NULL) {
-      if (strlen(appName) > MAX_APP_NAME_FOR_SDK_TAGLINE) {
-          snprintf(appDescription, APP_DESCRIPTION_MAX_LEN, "This app enables signing\ntransactions on its network.");
-      }
-      else {
-          snprintf(appDescription, APP_DESCRIPTION_MAX_LEN, "%s %s\n%s", TAGLINE_PART1, appName, TAGLINE_PART2);
-      }
+    snprintf(appDescription, APP_DESCRIPTION_MAX_LEN, "This app enables signing\ntransactions on the %s\nnetwork.", appName);
 
     // If there is more than 3 lines, it means the appName was split, so we put it on the next line
     if (nbgl_getTextNbLinesInWidth(BAGL_FONT_INTER_REGULAR_24px, appDescription, SCREEN_WIDTH-2*BORDER_MARGIN, false) > 3) {
-        snprintf(appDescription, APP_DESCRIPTION_MAX_LEN, "%s\n%s %s", TAGLINE_PART1, appName, TAGLINE_PART2);
+        snprintf(appDescription, APP_DESCRIPTION_MAX_LEN, "This app enables signing\ntransactions on the\n%s network.", appName);
     }
     info.centeredInfo.text2 = appDescription;
   }
@@ -1124,13 +1122,13 @@ void nbgl_useCaseStaticReview(const nbgl_layoutTagValueList_t *tagValueList,
   forwardNavOnly = false;
 
   staticReviewContext.withLongPress = true;
-  memcpy(&staticReviewContext.tagValueList, tagValueList, sizeof(nbgl_layoutTagValueList_t));
-  memcpy(&staticReviewContext.infoLongPress, infoLongPress, sizeof(nbgl_pageInfoLongPress_t));
+  memcpy(&staticReviewContext.tagValueList,tagValueList,sizeof(nbgl_layoutTagValueList_t));
+  memcpy(&staticReviewContext.infoLongPress,infoLongPress,sizeof(nbgl_pageInfoLongPress_t));
   staticReviewContext.currentPairIndex = 0;
   staticReviewContext.nbPairsInCurrentPage = 0;
 
   // compute number of pages & fill navigation structure
-  navInfo.nbPages = nbgl_useCaseGetNbPagesForTagValueList(tagValueList) + 1;
+  navInfo.nbPages = nbgl_useCaseGetNbPagesForTagValueList(tagValueList)+1;
   navInfo.activePage = 0;
   navInfo.navType = NAV_WITH_TAP;
   navInfo.quitToken = REJECT_TOKEN;
@@ -1262,8 +1260,9 @@ void nbgl_useCaseAddressConfirmationExt(const char *address, nbgl_choiceCallback
  *
  * @param text text to use under spinner
  */
-void nbgl_useCaseSpinner(const char *text) {
+void nbgl_useCaseSpinner(const char* text) {
   pageContext = nbgl_pageDrawSpinner(NULL, (const char*)text);
   nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
 }
+#endif // HAVE_SE_TOUCH
 #endif // NBGL_USE_CASE

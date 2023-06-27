@@ -20,12 +20,20 @@
  * @brief Max number of objects retrievable from pool
  *
  */
+#ifdef HAVE_SE_TOUCH
 #define OBJ_POOL_LEN 80
+#else // HAVE_SE_TOUCH
+#define OBJ_POOL_LEN 40
+#endif // HAVE_SE_TOUCH
 /**
  * @brief Max number of objects pointers usable for container pool
  *
  */
+#ifdef HAVE_SE_TOUCH
 #define OBJ_CONTAINER_POOL_LEN 128
+#else // HAVE_SE_TOUCH
+#define OBJ_CONTAINER_POOL_LEN 64
+#endif // HAVE_SE_TOUCH
 
 #define INVALID_LAYER 0xFF
 
@@ -218,7 +226,7 @@ int nbgl_objPoolGetArray(nbgl_obj_type_t type, uint8_t nbObjs, uint8_t layer, nb
  */
 void nbgl_containerPoolRelease(uint8_t layer) {
   uint8_t i;
-  LOG_DEBUG(OBJ_POOL_LOGGER,"nbgl_containerPoolRelease(): %d containers in pool\n",nbUsedObjsInContainerPool);
+  LOG_DEBUG(OBJ_POOL_LOGGER,"nbgl_containerPoolRelease(): %d used obj containers in pool, trying to release for layer %d\n", nbUsedObjsInContainerPool, layer);
   if (nbUsedObjsInContainerPool == 0) {
     return;
   }
@@ -239,6 +247,7 @@ void nbgl_containerPoolRelease(uint8_t layer) {
 nbgl_obj_t** nbgl_containerPoolGet(uint8_t nbObjs, uint8_t layer) {
   uint8_t i=0,nbContiguousFree=0;
   nbgl_obj_t** container;
+  LOG_DEBUG(OBJ_POOL_LOGGER,"nbgl_containerPoolGet(): getting %d obj containers for layer %d\n", nbObjs, layer);
   if (initialized == false) {
     memset(objPoolLayers,INVALID_LAYER,OBJ_POOL_LEN);
     memset(objPointersPoolLayers,INVALID_LAYER,OBJ_CONTAINER_POOL_LEN);
