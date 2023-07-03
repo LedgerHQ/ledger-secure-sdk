@@ -139,7 +139,7 @@ static void actionCallback(nbgl_step_t stepCtx, nbgl_buttonEvent_t event) {
     return;
   }
   const nbgl_stepDesc_t *step = &ctx->steps[ctx->curStep];
-  const char *txt = (step->text != NULL) ? step->text : ((step->textId != STRING_BUFFER_ID) ? get_ux_loc_string(step->textId) : NULL);
+  const char *txt = (step->text != NULL) ? step->text : ((step->textId != INVALID_ID) ? get_ux_loc_string(step->textId) : NULL);
   // release the current step before opening new one
   nbgl_stepRelease((nbgl_step_t)ctx->stepCtx);
   if (step->init != NULL) {
@@ -165,7 +165,7 @@ static void actionCallback(nbgl_step_t stepCtx, nbgl_buttonEvent_t event) {
  */
 nbgl_flow_t nbgl_flowDraw(const nbgl_stepDesc_t *steps, uint8_t nbSteps, uint8_t initStep, bool loop, bool modal) {
   const nbgl_stepDesc_t *step = &steps[initStep];
-  const char *txt = (step->text != NULL) ? step->text : ((step->textId != STRING_BUFFER_ID) ? get_ux_loc_string(step->textId) : NULL);
+  const char *txt = (step->text != NULL) ? step->text : ((step->textId != INVALID_ID) ? get_ux_loc_string(step->textId) : NULL);
   nbgl_stepPosition_t pos = FORWARD_DIRECTION;
   FlowContext_t* ctx = getFreeContext(modal);
 

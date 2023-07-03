@@ -23,7 +23,7 @@
 #define PIC_FONT(x) ((nbgl_font_t const *)PIC(x))
 #define BAGL_FONT_ID_MASK 0x0FFF
 
-#define IS_WORD_DELIM(c) (c == ' ' || c == '\n' || c == '\b' || c == '\f' || c == '\e' || c == '-' || c == '_')
+#define IS_WORD_DELIM(c) (c == ' ' || c == '\n' || c == '\b' || c == '\f' || c == '-' || c == '_')
 
 
 /**********************
@@ -224,18 +224,7 @@ static uint16_t getTextWidth(nbgl_font_id_e fontId, const char* text, bool break
     bool is_unicode;
 
     unicode = nbgl_popUnicodeChar((const uint8_t **)&text, &textLen, &is_unicode);
-    // if \e, escape sequence, remove the next char
-    if (unicode == '\e') {
-      textLen--; // skip 0xYY byte
-      text++;
-      // also skip potential '\n' or ' '
-      if ((*text == '\n') || (*text == ' ')) {
-        textLen--;
-        text++;
-      }
-      continue;
-    }
-    else if (unicode == '\n') {
+    if (unicode == '\n') {
       if (breakOnLineEnd)
         break;
       // reset line width for next line
@@ -358,15 +347,7 @@ uint8_t nbgl_getFontLineHeight(nbgl_font_id_e fontId) {
 uint16_t nbgl_getTextNbLines(const char*text) {
   uint16_t nbLines = 1;
   while (*text) {
-    if (*text == '\e') {
-      text+=2; // skip '\e' & 0xYY byte
-      // also skip potential '\n'
-      if (*text == '\n') {
-        text++;
-      }
-      continue;
-    }
-    else if (*text == '\n') {
+    if (*text == '\n') {
       nbLines++;
     }
     text++;
@@ -401,15 +382,6 @@ uint16_t nbgl_getTextLength(const char* text) {
     }
     else if (*text == '\n') {
       break;
-    }
-    // if \e, escape sequence, remove the next char
-    else if (*text == '\e') {
-      text+=2; // skip '\e' & 0xYY byte
-      // also skip potential '\n'
-      if (*text == '\n') {
-        text++;
-      }
-      continue;
     }
     text++;
   }
@@ -450,18 +422,6 @@ void nbgl_getTextMaxLenAndWidth(nbgl_font_id_e fontId, const char* text, uint16_
     if (unicode == '\f') {
       *len += curTextLen-textLen;
       break;
-    }
-    // if \e, escape sequence, remove the next char
-    else if (unicode == '\e') {
-      textLen--; // skip 0xYY byte
-      text++;
-      // also skip potential '\n' or ' '
-      if ((*text == '\n') || (*text == ' ')) {
-        textLen--;
-        text++;
-      }
-      *len += curTextLen-textLen;
-      continue;
     }
     // if \n, exit
     else if (unicode == '\n') {
@@ -556,17 +516,6 @@ bool nbgl_getTextMaxLenInNbLines(nbgl_font_id_e fontId, const char* text, uint16
     // if \f, exit
     else if (unicode == '\f') {
       maxNbLines = 0;
-      continue;
-    }
-    // if \e, escape sequence, remove the next char
-    else if (unicode == '\e') {
-      textLen -= 1; // skip 0xYY byte
-      text++;
-      // also skip potential '\n' or ' '
-      if ((*text == '\n') || (*text == ' ')) {
-        textLen -= 1; // skip 0xYY byte
-        text++;
-      }
       continue;
     }
     // if \b, switch fontId
@@ -699,17 +648,6 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId, const char* text, uin
     if (unicode == '\f') {
       break;
     }
-    // if \e, escape sequence, remove the next char
-    else if (unicode == '\e') {
-      textLen -= 1; // skip 0xYY byte
-      text++;
-      // also skip potential '\n' or ' '
-      if ((*text == '\n') || (*text == ' ')) {
-        textLen -= 1; // skip 0xYY byte
-        text++;
-      }
-      continue;
-    }
     // if \n, increment the number of lines
     else if (unicode == '\n') {
       nbLines++;
@@ -814,17 +752,6 @@ uint8_t nbgl_getTextNbPagesInWidth(nbgl_font_id_e fontId, const char* text, uint
 
       width = 0;
       lastDelimiter = NULL;
-      continue;
-    }
-    // if \e, escape sequence, remove the next char
-    else if (unicode == '\e') {
-      textLen -= 1; // skip 0xYY byte
-      text++;
-      // also skip potential '\n' or ' '
-      if ((*text == '\n') || (*text == ' ')) {
-        textLen -= 1; // skip 0xYY byte
-        text++;
-      }
       continue;
     }
     // if \b, switch fontId

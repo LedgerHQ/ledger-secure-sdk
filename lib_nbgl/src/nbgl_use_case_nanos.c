@@ -222,7 +222,7 @@ static void displayReviewPage(nbgl_stepPosition_t pos) {
   if (context.step.text != NULL) {
     txt = context.step.text;
   }
-  else if (context.step.textId != STRING_BUFFER_ID) {
+  else if (context.step.textId != INVALID_ID) {
     txt = get_ux_loc_string(context.step.textId);
   }
   if (context.step.init != NULL) {
@@ -263,7 +263,7 @@ static void displayHomePage(nbgl_stepPosition_t pos) {
   if (context.step.text != NULL) {
     txt = context.step.text;
   }
-  else if (context.step.textId != STRING_BUFFER_ID) {
+  else if (context.step.textId != INVALID_ID) {
     txt = get_ux_loc_string(context.step.textId);
   }
   if (context.step.init != NULL) {

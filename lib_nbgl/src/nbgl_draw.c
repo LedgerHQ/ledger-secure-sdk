@@ -486,17 +486,6 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area, const char* text, uint16_t
       if (unicode == '\f') {
         break;
       }
-      // if \e, escape sequence, remove the next char
-      else if (unicode == '\e') {
-        textLen--; // skip 0xYY byte
-        text++;
-        // also skip potential '\n' or ' '
-        if ((*text == '\n') || (*text == ' ')) {
-          textLen--; // skip 0xYY byte
-          text++;
-        }
-        continue;
-      }
       // if \b, switch fontId
       else if (unicode == '\b') {
         if (fontId == BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp) { // switch to bold
