@@ -790,7 +790,7 @@ __attribute__ ((section("._nbgl_fonts_"))) const unsigned char bitmapHMALPHAMONO
 };
 
  __attribute__ ((section("._nbgl_fonts_"))) const nbgl_font_character_t charactersHMALPHAMONO_MEDIUM_32PX[59] = {
-  { 0,    0,  10,0, 0, 0, 0 }, //asciii 0x0020
+  { 1,    0,  10,0, 0, 0, 0 }, //asciii 0x0020
   { 1,    0,  19,7, 0, 7, 6 }, //asciii 0x0021
   { 1,   31,  19,4, 0, 4, 2 }, //asciii 0x0022
   { 1,   54,  19,0, 0, 0, 6 }, //asciii 0x0023

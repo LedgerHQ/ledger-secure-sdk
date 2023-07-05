@@ -854,10 +854,9 @@ if __name__ == "__main__":
                         else:
                             method, compressed_data = Rle1bpp.rle_1bpp(img)
 
-                        # Is compressed size really better?
-                        if len(compressed_data) < len(image_data):
-                            image_data = compressed_data
-                            encoding = method
+                        # Always use compressed bitmaps
+                        image_data = compressed_data
+                        encoding = method
 
                     # Store the information to process it later:
                     char_info[char] = {"bitmap": image_data,
@@ -889,10 +888,7 @@ if __name__ == "__main__":
             inc_filename = change_ext(inc_filename, ".inc")
 
             # Build the corresponding .json file, if we need to
-            if ttf.unicode_needed:
-                inc_json = change_ext(inc_filename, ".json")
-            else:
-                inc_json = None
+            inc_json = change_ext(inc_filename, ".json")
 
             if args.suffix:
                 suffix = args.suffix
@@ -953,14 +949,14 @@ if __name__ == "__main__":
                 # Write the array containing information about characters:
                 if ttf.unicode_needed:
                     typedef = "nbgl_font_unicode_character_t"
+                    ttf_info_dictionary["nbgl_font_unicode_character"] = []
                 else:
                     typedef = "nbgl_font_character_t"
+                    ttf_info_dictionary["nbgl_font_character"] = []
 
                 inc.write(
                     f"\n __attribute__ ((section(\"._nbgl_fonts_\"))) const {typedef} characters"
                     f"{ttf.basename.upper()}{suffix}[{len(char_info)}] = {{\n")
-
-                ttf_info_dictionary["nbgl_font_unicode_character"] = []
 
                 for char, info in sorted(char_info.items()):
                     width = info["width"]
@@ -988,6 +984,17 @@ if __name__ == "__main__":
                         inc.write(f"  {{ 0x{ord(char):06X}, {size:3}, {offset:4}, {width:3}, "
                                   f"{x_min}, {y_min}, {x_max}, {y_max}, {encoding} }}, //unicode {unicode}\n")
                     else:
+                        ttf_info_dictionary["nbgl_font_character"].append({
+                            "char": ord(char),
+                            "bitmap_byte_count": size,
+                            "bitmap_offset": offset,
+                            "char_width": width,
+                            "x_min": x_min,
+                            "y_min": y_min,
+                            "x_max": x_max,
+                            "y_max": y_max,
+                            "encoding": encoding
+                        })
                         # We'll use bitfieds to store x_min x_max y_min y_max
                         # => we need to change a little bit the meaning:
                         # - y_min = Y offset in pixels*4 (ie 3=>12)
@@ -1078,6 +1085,16 @@ if __name__ == "__main__":
                     }
                 else:
                     typedef = "nbgl_font_t"
+                    ttf_info_dictionary["nbgl_font"] = {
+                        "font_id": ttf.get_font_id(),
+                        "bpp": ttf.bpp,
+                        "char_height": ttf.font_size,
+                        "baseline_height": baseline,
+                        "line_height": ttf.line_size,
+                        "char_kerning": 0,
+                        "first_char": first_char,
+                        "last_char" : last_char
+                    }
                 inc.write(
                     f"\n __attribute__ ((section(\"._nbgl_fonts_\"))) const {typedef} font{ttf.basename.upper()}{suffix} = {{\n")
                 inc.write(f"  {bitmap_len}, // bitmap len\n")
@@ -1094,29 +1111,27 @@ if __name__ == "__main__":
                     inc.write(f"  bitmap{ttf.basename.upper()}\n")
                 inc.write("};\n")
 
-                # Do we need to generate a JSON file with unicode related info?
-                if ttf.unicode_needed:
-                    ttf_info_list.append(ttf_info_dictionary)
-                    with open(inc_json, "w") as json_file:
-                        json.dump(ttf_info_list, json_file)
-                        # Be sure there is a newline at the end of the file
-                        json_file.write("\n")
+            # Generate a JSON file with all font related info?
+            ttf_info_list.append(ttf_info_dictionary)
+            with open(inc_json, "w") as json_file:
+                json.dump(ttf_info_list, json_file, indent=2)
+                # Be sure there is a newline at the end of the file
+                json_file.write("\n")
 
-                if args.test_align != None:
-                    string_width = 0
-                    for char, info in sorted(char_info.items()):
-                        string_width+=info['width']
-                    img = Image.new('1', (string_width, ttf.font_size), color='black')
-                    current_width = 0
-                    for char, info in sorted(char_info.items()):
-                        img.paste(info['img'], (current_width, 0))
-                        current_width += info['width']
-                    draw = ImageDraw.Draw(img)
-                    shape = [(0,args.test_align), (string_width, args.test_align)]
-                    draw.line(shape, fill='white',width=0)
+            if args.test_align != None:
+                string_width = 0
+                for char, info in sorted(char_info.items()):
+                    string_width+=info['width']
+                img = Image.new('1', (string_width, ttf.font_size), color='black')
+                current_width = 0
+                for char, info in sorted(char_info.items()):
+                    img.paste(info['img'], (current_width, 0))
+                    current_width += info['width']
+                draw = ImageDraw.Draw(img)
+                shape = [(0,args.test_align), (string_width, args.test_align)]
+                draw.line(shape, fill='white',width=0)
 
-                    img.show()
-
+                img.show()
 
 
         return 0
