@@ -126,7 +126,7 @@ typedef struct {
 } nbgl_layoutRadioChoice_t;
 
 /**
- * @brief This structure contains a  [tag,value] pair
+ * @brief This structure contains a [tag,value] pair
  */
 typedef struct {
     const char *item; ///< string giving the tag name

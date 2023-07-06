@@ -24,14 +24,13 @@
  *      DEFINES
  *********************/
 #define KEY_WIDTH            (SCREEN_WIDTH/3)
-#define DIGIT_OFFSET_Y       (((KEYPAD_KEY_HEIGHT-32)/2)%0xFFC)
+#define DIGIT_OFFSET_Y       (((KEYPAD_KEY_HEIGHT-48)/2)&0xFFC)
 
 #define BACKSPACE_KEY_INDEX  10
 #define VALIDATE_KEY_INDEX   11
 
 // to save RAM we use 5 uint8, and 4 bits per digit (MSBs for odd digits, LSBs for even ones)
 #define GET_DIGIT_INDEX(_keypad, _digit) ((_digit&1)?(_keypad->digitIndexes[_digit>>1]>>4):(_keypad->digitIndexes[_digit>>1]&0xF))
-#define SET_DIGIT_INDEX(_keypad, _digit, _index) (_keypad->digitIndexes[_digit>>1] |= (_digit&1)?(_index<<4):_index)
 
 /**********************
  *      TYPEDEFS
@@ -83,18 +82,18 @@ static void keypadDrawGrid(nbgl_keypad_t *keypad) {
   nbgl_area_t rectArea;
 
   // clean full area
-  rectArea.backgroundColor = keypad->backgroundColor;
-  rectArea.x0 = keypad->x0;
-  rectArea.y0 = keypad->y0;
-  rectArea.width = keypad->width;
-  rectArea.height = keypad->height;
+  rectArea.backgroundColor = keypad->obj.area.backgroundColor;
+  rectArea.x0 = keypad->obj.area.x0;
+  rectArea.y0 = keypad->obj.area.y0;
+  rectArea.width = keypad->obj.area.width;
+  rectArea.height = keypad->obj.area.height;
   nbgl_frontDrawRect(&rectArea);
 
   /// draw horizontal lines
-  rectArea.backgroundColor = keypad->backgroundColor;
-  rectArea.x0 = keypad->x0;
-  rectArea.y0 = keypad->y0;
-  rectArea.width = keypad->width;
+  rectArea.backgroundColor = keypad->obj.area.backgroundColor;
+  rectArea.x0 = keypad->obj.area.x0;
+  rectArea.y0 = keypad->obj.area.y0;
+  rectArea.width = keypad->obj.area.width;
   rectArea.height = 4;
   nbgl_frontDrawHorizontalLine(&rectArea, 0x1, keypad->borderColor); // 1st line (top)
   rectArea.y0 += KEYPAD_KEY_HEIGHT;
@@ -106,8 +105,8 @@ static void keypadDrawGrid(nbgl_keypad_t *keypad) {
 
   /// then draw 3 vertical lines
   rectArea.backgroundColor = keypad->borderColor;
-  rectArea.x0 = keypad->x0;
-  rectArea.y0 = keypad->y0;
+  rectArea.x0 = keypad->obj.area.x0;
+  rectArea.y0 = keypad->obj.area.y0;
   rectArea.width = 1;
   rectArea.height = KEYPAD_KEY_HEIGHT*4;
   nbgl_frontDrawRect(&rectArea); // 1st full line, on the left
@@ -123,14 +122,14 @@ static void keypadDrawDigits(nbgl_keypad_t *keypad) {
   nbgl_area_t rectArea;
   char key_value;
 
-  rectArea.backgroundColor = keypad->backgroundColor;
-  rectArea.y0 = keypad->y0 + DIGIT_OFFSET_Y;
+  rectArea.backgroundColor = keypad->obj.area.backgroundColor;
+  rectArea.y0 = keypad->obj.area.y0 + DIGIT_OFFSET_Y;
 
   // First row of keys: 1 2 3
   for (i=0;i<3;i++) {
     key_value = GET_DIGIT_INDEX(keypad,(i+1)) + 0x30;
 
-    rectArea.x0 = keypad->x0 + i*KEY_WIDTH;
+    rectArea.x0 = keypad->obj.area.x0 + i*KEY_WIDTH;
     rectArea.x0 += (KEY_WIDTH-nbgl_getCharWidth(BAGL_FONT_HM_ALPHA_MONO_MEDIUM_32px,&key_value))/2;
     nbgl_drawText(&rectArea, &key_value,
                   1, BAGL_FONT_HM_ALPHA_MONO_MEDIUM_32px,
@@ -140,7 +139,7 @@ static void keypadDrawDigits(nbgl_keypad_t *keypad) {
   rectArea.y0 += KEYPAD_KEY_HEIGHT;
   for (;i<6;i++) {
     key_value = GET_DIGIT_INDEX(keypad,(i+1)) + 0x30;
-    rectArea.x0 = keypad->x0 + (i-3)*KEY_WIDTH;
+    rectArea.x0 = keypad->obj.area.x0 + (i-3)*KEY_WIDTH;
     rectArea.x0 += (KEY_WIDTH-nbgl_getCharWidth(BAGL_FONT_HM_ALPHA_MONO_MEDIUM_32px,&key_value))/2;
     nbgl_drawText(&rectArea, &key_value,
                   1, BAGL_FONT_HM_ALPHA_MONO_MEDIUM_32px,
@@ -150,7 +149,7 @@ static void keypadDrawDigits(nbgl_keypad_t *keypad) {
   rectArea.y0 += KEYPAD_KEY_HEIGHT;
   for (;i<9;i++) {
     key_value = GET_DIGIT_INDEX(keypad,(i+1)) + 0x30;
-    rectArea.x0 = keypad->x0 + (i-6)*KEY_WIDTH;
+    rectArea.x0 = keypad->obj.area.x0 + (i-6)*KEY_WIDTH;
     rectArea.x0 += (KEY_WIDTH-nbgl_getCharWidth(BAGL_FONT_HM_ALPHA_MONO_MEDIUM_32px,&key_value))/2;
     nbgl_drawText(&rectArea, &key_value,
                   1, BAGL_FONT_HM_ALPHA_MONO_MEDIUM_32px,
@@ -161,15 +160,15 @@ static void keypadDrawDigits(nbgl_keypad_t *keypad) {
   rectArea.width = C_backspace32px.width;
   rectArea.height = C_backspace32px.height;
   rectArea.bpp = NBGL_BPP_1;
-  rectArea.x0 = keypad->x0 + (KEY_WIDTH-rectArea.width)/2;
-  rectArea.y0 = keypad->y0 + KEYPAD_KEY_HEIGHT*3 + (KEYPAD_KEY_HEIGHT-rectArea.height)/2;
+  rectArea.x0 = keypad->obj.area.x0 + (KEY_WIDTH-rectArea.width)/2;
+  rectArea.y0 = keypad->obj.area.y0 + KEYPAD_KEY_HEIGHT*3 + (KEYPAD_KEY_HEIGHT-rectArea.height)/2;
   nbgl_frontDrawImage(&rectArea,(uint8_t*)C_backspace32px.bitmap,NO_TRANSFORMATION, keypad->enableBackspace?BLACK:WHITE);
 
   // draw 0
   key_value = GET_DIGIT_INDEX(keypad,0)+0x30;
-  rectArea.x0 = keypad->x0 + KEY_WIDTH;
+  rectArea.x0 = keypad->obj.area.x0 + KEY_WIDTH;
   rectArea.x0 += (KEY_WIDTH-nbgl_getCharWidth(BAGL_FONT_HM_ALPHA_MONO_MEDIUM_32px,&key_value))/2;
-  rectArea.y0 = keypad->y0 + KEYPAD_KEY_HEIGHT*3 + DIGIT_OFFSET_Y;
+  rectArea.y0 = keypad->obj.area.y0 + KEYPAD_KEY_HEIGHT*3 + DIGIT_OFFSET_Y;
   nbgl_drawText(&rectArea, &key_value,
                 1, BAGL_FONT_HM_ALPHA_MONO_MEDIUM_32px,
                 keypad->enableDigits ? BLACK :  WHITE);
@@ -179,24 +178,24 @@ static void keypadDrawDigits(nbgl_keypad_t *keypad) {
     rectArea.width = C_check32px.width;
     rectArea.height = C_check32px.height;
     rectArea.bpp = NBGL_BPP_1;
-    rectArea.x0 = keypad->x0 + 2*KEY_WIDTH + (KEY_WIDTH-rectArea.width)/2;
-    rectArea.y0 = keypad->y0 + KEYPAD_KEY_HEIGHT*3 + (KEYPAD_KEY_HEIGHT-rectArea.height)/2;
+    rectArea.x0 = keypad->obj.area.x0 + 2*KEY_WIDTH + (KEY_WIDTH-rectArea.width)/2;
+    rectArea.y0 = keypad->obj.area.y0 + KEYPAD_KEY_HEIGHT*3 + (KEYPAD_KEY_HEIGHT-rectArea.height)/2;
     rectArea.backgroundColor = WHITE;
     nbgl_frontDrawRect(&rectArea);
   }
   else {
     // if enabled, draw icon in white on a black background
     rectArea.backgroundColor = BLACK;
-    rectArea.x0 = keypad->x0 + 2*KEY_WIDTH;
-    rectArea.y0 = keypad->y0 + KEYPAD_KEY_HEIGHT*3;
+    rectArea.x0 = keypad->obj.area.x0 + 2*KEY_WIDTH;
+    rectArea.y0 = keypad->obj.area.y0 + KEYPAD_KEY_HEIGHT*3;
     rectArea.width = KEY_WIDTH;
     rectArea.height = KEYPAD_KEY_HEIGHT;
     nbgl_frontDrawRect(&rectArea);
     rectArea.width = C_check32px.width;
     rectArea.height = C_check32px.height;
     rectArea.bpp = NBGL_BPP_1;
-    rectArea.x0 = keypad->x0 + 2*KEY_WIDTH + (KEY_WIDTH-rectArea.width)/2;
-    rectArea.y0 = keypad->y0 + KEYPAD_KEY_HEIGHT*3 + (KEYPAD_KEY_HEIGHT-rectArea.height)/2;
+    rectArea.x0 = keypad->obj.area.x0 + 2*KEY_WIDTH + (KEY_WIDTH-rectArea.width)/2;
+    rectArea.y0 = keypad->obj.area.y0 + KEYPAD_KEY_HEIGHT*3 + (KEYPAD_KEY_HEIGHT-rectArea.height)/2;
     nbgl_frontDrawImage(&rectArea,(uint8_t*)C_check32px.bitmap,NO_TRANSFORMATION, WHITE);
   }
 }
@@ -234,10 +233,10 @@ void nbgl_keypadTouchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType) {
   }
 
   // use positions relative to keypad position
-  firstIndex = getKeypadIndex(firstPosition->x - obj->x0, firstPosition->y - obj->y0);
+  firstIndex = getKeypadIndex(firstPosition->x - obj->area.x0, firstPosition->y - obj->area.y0);
   if (firstIndex > VALIDATE_KEY_INDEX)
     return;
-  lastIndex = getKeypadIndex(lastPosition->x - obj->x0, lastPosition->y - obj->y0);
+  lastIndex = getKeypadIndex(lastPosition->x - obj->area.x0, lastPosition->y - obj->area.y0);
   if (lastIndex > VALIDATE_KEY_INDEX)
     return;
 
@@ -273,36 +272,6 @@ void nbgl_keypadTouchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType) {
  * @return the keypad keypad object
  */
 void nbgl_objDrawKeypad(nbgl_keypad_t *kpd) {
-  kpd->touchMask = (1 << TOUCHED) | (1 << TOUCH_PRESSED);
-
-  // if the object has not been already used, prepare indexes of digits
-  if (kpd->digitIndexes[0] == 0) {
-    uint32_t i;
-    if (kpd->shuffled) {
-      uint8_t shuffledDigits[10] = {0,1,2,3,4,5,6,7,8,9};
-
-      // modern version of the Fisher-Yates shuffle
-      for (i=0;i<9;i++) {
-        // pick a random number k in [i:9] intervale
-        uint32_t j = cx_rng_u32_range(i, 10);
-        uint8_t tmp = shuffledDigits[j];
-
-        // exchange shuffledDigits[i] and shuffledDigits[j]
-        shuffledDigits[j] = shuffledDigits[i];
-        shuffledDigits[i] = tmp;
-      }
-      for (i=0;i<10;i++) {
-        // apply the permuted value to digit i
-        SET_DIGIT_INDEX(kpd,i,shuffledDigits[i]);
-      }
-    }
-    else {
-      // no shuffling
-      for (i=0;i<10;i++) {
-        SET_DIGIT_INDEX(kpd,i,i);
-      }
-    }
-  }
   keypadDraw(kpd);
 }
 

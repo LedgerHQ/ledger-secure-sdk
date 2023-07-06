@@ -269,7 +269,7 @@ nbgl_page_t* nbgl_pageDrawGenericContentExt(nbgl_layoutTouchCallback_t onActionC
                                             bool modal);
 nbgl_page_t* nbgl_pageDrawGenericContent(nbgl_layoutTouchCallback_t onActionCallback,
                         const nbgl_pageNavigationInfo_t *nav,
-                        nbgl_pageContent_t* content);
+                                         nbgl_pageContent_t* content);
 int nbgl_pageRelease(nbgl_page_t*);
 
 /**********************

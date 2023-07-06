@@ -54,6 +54,22 @@ extern "C" {
  */
 #define TAG_VALUE_AREA_HEIGHT   400
 
+/**
+ *  @brief Default strings used in the Home tagline
+ */
+#define TAGLINE_PART1 "This app enables signing\ntransactions on the"
+#define TAGLINE_PART2 "network."
+
+/**
+ *  @brief Length of buffer used for the default Home tagline
+ */
+#define APP_DESCRIPTION_MAX_LEN 74
+
+/**
+ *  @brief Max supported length of appName used for the default Home tagline
+ */
+#define MAX_APP_NAME_FOR_SDK_TAGLINE (APP_DESCRIPTION_MAX_LEN - 1 - (sizeof(TAGLINE_PART1) + sizeof(TAGLINE_PART2)))
+
 /**********************
  *      MACROS
  **********************/
@@ -120,7 +136,7 @@ void nbgl_useCaseStaticReviewLight(const nbgl_layoutTagValueList_t *tagValueList
 void nbgl_useCaseViewDetails(const char *tag, const char *value, bool wrapping);
 void nbgl_useCaseAddressConfirmation(const char *address, nbgl_choiceCallback_t callback);
 void nbgl_useCaseAddressConfirmationExt(const char *address, nbgl_choiceCallback_t callback, const nbgl_layoutTagValueList_t *tagValueList);
-void nbgl_useCaseSpinner(const char *text);
+void nbgl_useCaseSpinner(const char* text);
 
 #ifdef __cplusplus
 } /* extern "C" */

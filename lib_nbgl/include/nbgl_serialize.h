@@ -15,3 +15,5 @@ uint8_t nbgl_serializeNbglEvent(nbgl_serialized_event_type_e type,
 				uint8_t *out,
 				size_t *w_cnt,
 				size_t max_len);
+
+nbgl_obj_t *nbgl_deserializeNbglEvent(nbgl_serialized_event_type_e type, uint8_t *buffer, uint16_t bufferLen);
