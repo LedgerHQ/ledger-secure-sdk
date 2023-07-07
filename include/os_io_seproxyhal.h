@@ -135,6 +135,10 @@ void io_seproxyhal_touch_read_sensi(uint8_t * sensi_data);
 #endif
 #endif
 
+#ifdef HAVE_TUI
+void io_seproxyhal_trusted_display_control(uint8_t state);
+#endif
+
 typedef enum {
   APDU_IDLE,
   APDU_BLE,

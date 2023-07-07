@@ -227,4 +227,9 @@
 #define SEPROXYHAL_TAG_SCREEN_ANIMATION_STATUS_VERTICAL_SPLIT_SLIDE  0x00 // param[0:1](BE) = split Y coordinate, param[2:3](BE) = animation duration in ms
 #define SEPROXYHAL_TAG_BOOTLOADER_CAPDU_STATUS     0x6A // <CAPDU to the bootloader>
 
+#ifdef HAVE_TUI
+#define SEPROXYHAL_TAG_TRUSTED_DISPLAY             0x6B
+#define SEPROXYHAL_TAG_TRUSTED_DISPLAY_OPEN        0x01
+#define SEPROXYHAL_TAG_TRUSTED_DISPLAY_CLOSE       0x02
+#endif
 #endif

@@ -507,6 +507,14 @@ void io_seproxyhal_touch_read_sensi(uint8_t * sensi_data) {
 #endif
 #endif
 
+#ifdef HAVE_TUI
+void io_seproxyhal_trusted_display_control(uint8_t state)
+{
+  uint8_t buffer[4] = {SEPROXYHAL_TAG_TRUSTED_DISPLAY, 0, 1, state};
+  io_seproxyhal_spi_send(buffer, 4);
+}
+#endif // HAVE_TUI
+
 #ifdef HAVE_BAGL
 
 void io_seproxyhal_init_ux(void) {
