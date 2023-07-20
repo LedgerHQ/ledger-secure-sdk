@@ -2,6 +2,7 @@
 #include "nbgl_obj.h"
 #include "nbgl_serialize.h"
 #include "nbgl_image_utils.h"
+#include "os_pic.h"
 
 // Utility functions
 
@@ -17,13 +18,6 @@ static void nbgl_appendU32(uint32_t value, uint8_t *out, size_t *w_cnt, size_t m
     nbgl_appendU8((uint8_t) ((value >> 16) & 0xFF), out, w_cnt, max_len);
     nbgl_appendU8((uint8_t) ((value >> 8) & 0xFF), out, w_cnt, max_len);
     nbgl_appendU8((uint8_t) (value & 0xFF), out, w_cnt, max_len);
-}
-
-static void nbgl_appendPtr(void *value, uint8_t *out, size_t *w_cnt, size_t max_len) {
-    if (max_len < (*w_cnt + sizeof(void*)))
-        return;
-    memcpy(&out[*w_cnt], &value, sizeof(void*));
-    (*w_cnt) = (*w_cnt) + sizeof(void*);
 }
 
 static void nbgl_appendU16(uint16_t value, uint8_t *out, size_t *w_cnt, size_t max_len) {
@@ -67,12 +61,13 @@ static void nbgl_serializeText(const char* text, uint8_t *out, size_t *w_cnt, si
         nbgl_appendU8('\0', out, w_cnt, max_len);
         return;
     } else {
+        const char *t = PIC(text);
         while(*w_cnt < max_len) {
-            nbgl_appendU8(*text, out, w_cnt, max_len);
-            if(*text == '\0') {
+            nbgl_appendU8(*t, out, w_cnt, max_len);
+            if(*t == '\0') {
                 return;
             } else {
-                text++;
+                t++;
             }
         }
     }
@@ -121,7 +116,7 @@ static int32_t nbgl_bpp_get_window_size(uint16_t width, uint16_t height, nbgl_bp
         return -1;
     }
 
-    int32_t nb_bits = \
+    int32_t nb_bits =
         (width * height * nbgl_bpp_get_number_of_bits_per_pixel(nbgl_bpp));
     uint8_t remain = nb_bits % 8;
 
@@ -136,6 +131,7 @@ static int32_t nbgl_bpp_get_window_size(uint16_t width, uint16_t height, nbgl_bp
 
 static void nbgl_serializeIcon(const nbgl_icon_details_t *icon, uint8_t *out, size_t *w_cnt, size_t max_len) {
     int32_t size = 0;
+    const uint8_t *bitmap;
     if (icon == NULL) {
         nbgl_appendU16(0, out, w_cnt, max_len);
         nbgl_appendU16(0, out, w_cnt, max_len);
@@ -147,16 +143,17 @@ static void nbgl_serializeIcon(const nbgl_icon_details_t *icon, uint8_t *out, si
         nbgl_appendU16(icon->height, out, w_cnt, max_len);
         nbgl_appendU8(icon->bpp, out, w_cnt, max_len);
         nbgl_appendU8(icon->isFile, out, w_cnt, max_len);
+        bitmap = (const uint8_t *)PIC(icon->bitmap);
         if (!icon->isFile) {
             size = nbgl_bpp_get_window_size(icon->width, icon->height, icon->bpp);
         }
         else {
-            size = GET_IMAGE_FILE_BUFFER_LEN(icon->bitmap) + IMAGE_FILE_HEADER_SIZE;
+            size = GET_IMAGE_FILE_BUFFER_LEN(bitmap) + IMAGE_FILE_HEADER_SIZE;
         }
-    }
-    nbgl_appendU32(size, out, w_cnt, max_len);
-    for (int32_t i = 0; i < size; i++) {
-        nbgl_appendU8(icon->bitmap[i], out, w_cnt, max_len);
+        nbgl_appendU32(size, out, w_cnt, max_len);
+        for (int32_t i = 0; i < size; i++) {
+            nbgl_appendU8(bitmap[i], out, w_cnt, max_len);
+        }
     }
 }
 
@@ -279,10 +276,6 @@ static void nbgl_serializeKeypad(nbgl_keypad_t *obj, uint8_t *out, size_t *w_cnt
     nbgl_appendU8((uint8_t) obj->digitIndexes[4], out, w_cnt, max_len);
 }
 
-static void nbgl_serializeImageFile(nbgl_image_file_t *obj, uint8_t *out, size_t *w_cnt, size_t max_len) {
-    nbgl_serializeObj((nbgl_obj_t *)&obj->obj, out, w_cnt, max_len);
-    nbgl_appendPtr((void*)obj->buffer, out, w_cnt, max_len);
-}
 
 static void nbgl_serializeContainer(nbgl_container_t *obj, uint8_t *out, size_t *w_cnt, size_t max_len) {
     nbgl_serializeObj((nbgl_obj_t *)&obj->obj, out, w_cnt, max_len);
@@ -338,9 +331,6 @@ static uint8_t nbgl_serializeObject(nbgl_obj_t *obj, uint8_t *out, size_t *w_cnt
             break;
         case SPINNER:
             nbgl_serializeSpinner((nbgl_spinner_t *) obj, out, w_cnt, max_len);
-            break;
-        case IMAGE_FILE:
-            nbgl_serializeImageFile((nbgl_image_file_t *) obj, out, w_cnt, max_len);
             break;
         default:
             return NBGL_SERIALIZE_ERROR;
