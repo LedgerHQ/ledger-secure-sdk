@@ -34,6 +34,7 @@ extern "C" {
  * GLOBAL PROTOTYPES
  **********************/
 void nbgl_buttonsHandler(uint8_t buttonState, uint32_t currentTimeMs);
+void nbgl_buttonsReset(void);
 
 /**********************
  *      MACROS

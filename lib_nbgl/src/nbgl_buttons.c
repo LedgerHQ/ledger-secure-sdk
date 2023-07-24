@@ -136,4 +136,10 @@ void nbgl_buttonsHandler(uint8_t buttonState, uint32_t currentTimeMs) {
       topScreen->buttonCallback(topScreen, event);
   }
 }
+
+void nbgl_buttonsReset(void) {
+  // no button push so far
+  gButtonMask = 0;
+  gButtonSameMaskCounter = 0;
+}
 #endif // HAVE_SE_TOUCH

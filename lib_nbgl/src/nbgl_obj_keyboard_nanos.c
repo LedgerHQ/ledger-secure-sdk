@@ -117,27 +117,27 @@ static void keyboardDrawCommon(nbgl_keyboard_t *keyboard) {
 
   // clean full area
   rectArea.backgroundColor = BLACK;
-  rectArea.x0 = keyboard->x0;
-  rectArea.y0 = keyboard->y0;
-  rectArea.width = keyboard->width;
-  rectArea.height = keyboard->height;
+  rectArea.x0 = keyboard->obj.area.x0;
+  rectArea.y0 = keyboard->obj.area.y0;
+  rectArea.width = keyboard->obj.area.width;
+  rectArea.height = keyboard->obj.area.height;
   nbgl_frontDrawRect(&rectArea);
 
   // draw select 'key' in white
   rectArea.backgroundColor = WHITE;
-  rectArea.x0 = keyboard->x0 + 2 * KEYBOARD_KEY_WIDTH;
-  rectArea.y0 = keyboard->y0;
+  rectArea.x0 = keyboard->obj.area.x0 + 2 * KEYBOARD_KEY_WIDTH;
+  rectArea.y0 = keyboard->obj.area.y0;
   rectArea.width = KEYBOARD_KEY_WIDTH;
-  rectArea.height = keyboard->height;
+  rectArea.height = keyboard->obj.area.height;
   nbgl_frontDrawRect(&rectArea);
 
   // draw separating '-' in white
-  rectArea.x0 = keyboard->x0 + KEYBOARD_KEY_WIDTH + 5;
-  rectArea.y0 = keyboard->y0 + 6;
+  rectArea.x0 = keyboard->obj.area.x0 + KEYBOARD_KEY_WIDTH + 5;
+  rectArea.y0 = keyboard->obj.area.y0 + 6;
   rectArea.width = 3;
   rectArea.height = 1;
   nbgl_frontDrawRect(&rectArea);
-  rectArea.x0 = keyboard->x0 + 3 * KEYBOARD_KEY_WIDTH + 5;
+  rectArea.x0 = keyboard->obj.area.x0 + 3 * KEYBOARD_KEY_WIDTH + 5;
   nbgl_frontDrawRect(&rectArea);
 }
 
@@ -169,10 +169,10 @@ static void keyboardDrawLettersOnly(nbgl_keyboard_t *keyboard) {
     // use the provided mask to check what letters(+backspace at 27th position) to use
     if ((keyboard->keyMask & (1<<i)) == 0) {
       if (i == BACKSPACE_KEY_INDEX) { // backspace
-        keyboardDrawIcon(keyboard->x0 + 2 * j * KEYBOARD_KEY_WIDTH, keyboard->y0, (j==1), &C_icon_backspace);
+        keyboardDrawIcon(keyboard->obj.area.x0 + 2 * j * KEYBOARD_KEY_WIDTH, keyboard->obj.area.y0, (j==1), &C_icon_backspace);
       }
       else { // any char
-        keyboardDrawChar(keyboard->x0 + 2 * j * KEYBOARD_KEY_WIDTH, keyboard->y0, (j==1), &keys[i]);
+        keyboardDrawChar(keyboard->obj.area.x0 + 2 * j * KEYBOARD_KEY_WIDTH, keyboard->obj.area.y0, (j==1), &keys[i]);
       }
       j++;
     }
@@ -188,10 +188,10 @@ static void keyboardDrawLettersOnly(nbgl_keyboard_t *keyboard) {
   while (true) {
     if ((keyboard->keyMask & (1<<i)) == 0) {
       if (i == BACKSPACE_KEY_INDEX) { // backspace
-        keyboardDrawIcon(keyboard->x0, keyboard->y0, false, &C_icon_backspace);
+        keyboardDrawIcon(keyboard->obj.area.x0, keyboard->obj.area.y0, false, &C_icon_backspace);
       }
       else { // any char
-        keyboardDrawChar(keyboard->x0, keyboard->y0, false, &keys[i]);
+        keyboardDrawChar(keyboard->obj.area.x0, keyboard->obj.area.y0, false, &keys[i]);
       }
       break;
     }
@@ -219,7 +219,7 @@ static void keyboardDrawRegular(nbgl_keyboard_t *keyboard) {
   if (keyboard->mode == MODE_NONE) {
     for (i=0;i<3;i++) {
       uint8_t charIndex = (keyboard->selectedCharIndex + 2 + i) % 3;
-      keyboardDrawIcon(keyboard->x0 + 2 * i * KEYBOARD_KEY_WIDTH, keyboard->y0, (i==1), modeIcons[charIndex]);
+      keyboardDrawIcon(keyboard->obj.area.x0 + 2 * i * KEYBOARD_KEY_WIDTH, keyboard->obj.area.y0, (i==1), modeIcons[charIndex]);
     }
     return;
   }
@@ -231,16 +231,16 @@ static void keyboardDrawRegular(nbgl_keyboard_t *keyboard) {
   for (i=0;i<3;i++) {
     uint8_t charIndex = (keyboard->selectedCharIndex + maxLen - 1 + i) % maxLen;
     if (keys[charIndex] == '\r') {
-      keyboardDrawIcon(keyboard->x0 + 2 * i * KEYBOARD_KEY_WIDTH, keyboard->y0, (i==1), &C_icon_classes);
+      keyboardDrawIcon(keyboard->obj.area.x0 + 2 * i * KEYBOARD_KEY_WIDTH, keyboard->obj.area.y0, (i==1), &C_icon_classes);
     }
     else if (keys[charIndex] == '\n') {
-      keyboardDrawIcon(keyboard->x0 + 2 * i * KEYBOARD_KEY_WIDTH, keyboard->y0, (i==1), &C_icon_validate_14);
+      keyboardDrawIcon(keyboard->obj.area.x0 + 2 * i * KEYBOARD_KEY_WIDTH, keyboard->obj.area.y0, (i==1), &C_icon_validate_14);
     }
     else if (keys[charIndex] == '\b') {
-      keyboardDrawIcon(keyboard->x0 + 2 * i * KEYBOARD_KEY_WIDTH, keyboard->y0, (i==1), &C_icon_backspace);
+      keyboardDrawIcon(keyboard->obj.area.x0 + 2 * i * KEYBOARD_KEY_WIDTH, keyboard->obj.area.y0, (i==1), &C_icon_backspace);
     }
     else {
-      keyboardDrawChar(keyboard->x0 + 2 * i * KEYBOARD_KEY_WIDTH, keyboard->y0, (i==1), &keys[charIndex]);
+      keyboardDrawChar(keyboard->obj.area.x0 + 2 * i * KEYBOARD_KEY_WIDTH, keyboard->obj.area.y0, (i==1), &keys[charIndex]);
     }
   }
 }

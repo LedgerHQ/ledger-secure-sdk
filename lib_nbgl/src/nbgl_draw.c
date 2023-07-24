@@ -56,28 +56,45 @@ typedef struct {
 static const uint8_t quarter_disc_3px_1bpp[] = {
   0x5F, 0xFF
 };
-static const nbgl_icon_details_t C_quarter_disc_3px_1bpp= { 2, 2, NBGL_BPP_1, false, quarter_disc_3px_1bpp};
-
-static const uint8_t quarter_disc_4px_1bpp[] = {
-  0x13, 0xFF
+#ifndef HAVE_SE_TOUCH
+static const uint8_t quarter_disc_3px_90_1bpp[] = {
+  0x5F, 0xFF
 };
-static const nbgl_icon_details_t C_quarter_disc_4px_1bpp= { 4, 4, NBGL_BPP_1, false, quarter_disc_4px_1bpp};
+static const uint8_t quarter_disc_3px_180_1bpp[] = {
+  0x5F, 0xFF
+};
+static const uint8_t quarter_disc_3px_270_1bpp[] = {
+  0x5F, 0xFF
+};
+#endif // HAVE_SE_TOUCH
 
 static const uint8_t quarter_circle_3px_1bpp[] = {
   0x4C, 0x00
 };
-static const nbgl_icon_details_t C_quarter_circle_3px_1bpp= { 2, 2, NBGL_BPP_1, false, quarter_circle_3px_1bpp};
-
-static const uint8_t quarter_circle_4px_1bpp[] = {
-  0x13, 0xFF
+#ifndef HAVE_SE_TOUCH
+static const uint8_t quarter_circle_3px_90_1bpp[] = {
+  0x0D, 0x00
 };
-static const nbgl_icon_details_t C_quarter_circle_4px_1bpp= { 4, 4, NBGL_BPP_1, false, quarter_circle_4px_1bpp};
+static const uint8_t quarter_circle_3px_180_1bpp[] = {
+  0x19, 0x00
+};
+static const uint8_t quarter_circle_3px_270_1bpp[] = {
+  0x58, 0x00
+};
+#else // HAVE_SE_TOUCH
+static const nbgl_icon_details_t C_quarter_disc_3px_1bpp= { 2, 2, NBGL_BPP_1, false, quarter_disc_3px_1bpp};
+static const nbgl_icon_details_t C_quarter_circle_3px_1bpp= { 2, 2, NBGL_BPP_1, false, quarter_circle_3px_1bpp};
+#endif // HAVE_SE_TOUCH
 
 // indexed by nbgl_radius_t (except RADIUS_0_PIXELS)
 static const uint8_t radiusValues[] = {
-  3, 4, 8, 16, 20, 24, 32, 40, 48
+  3,
+#ifdef HAVE_SE_TOUCH
+  4, 8, 16, 20, 24, 32, 40, 48
+#endif // HAVE_SE_TOUCH
 };
 
+#ifdef HAVE_SE_TOUCH
 // indexed by nbgl_radius_t (except RADIUS_0_PIXELS)
 static const nbgl_icon_details_t* quarterDiscs[] = {
   &C_quarter_disc_3px_1bpp,
@@ -103,6 +120,7 @@ static const nbgl_icon_details_t* quarterCircles[] = {
   &C_quarter_circle_40px_1bpp,
   &C_quarter_circle_48px_1bpp
 };
+#endif // HAVE_SE_TOUCH
 
 #ifdef NBGL_QRCODE
 // ensure that the ramBuffer also used for image file decompression is big enough for QR code
@@ -125,6 +143,7 @@ static void draw_circle_helper(int x_center, int y_center, nbgl_radius_t radiusI
     .backgroundColor = backgroundColor
   };
 
+#ifdef HAVE_SE_TOUCH
   // radius is not supported
   if (radiusIndex > RADIUS_48_PIXELS) {
     return;
@@ -156,6 +175,35 @@ static void draw_circle_helper(int x_center, int y_center, nbgl_radius_t radiusI
     area.y0 = y_center-area.width;
     nbgl_frontDrawImage(&area,quarter_buffer,NO_TRANSFORMATION,borderColor);
   }
+#else // HAVE_SE_TOUCH
+  // radius is not supported
+  if (radiusIndex > RADIUS_3_PIXELS) {
+    return;
+  }
+  area.width = area.height = radiusValues[radiusIndex];
+  area.backgroundColor = backgroundColor;
+  if (quarter & BAGL_FILL_CIRCLE_3PI2_2PI) { //
+    area.x0 = x_center;
+    area.y0 = y_center;
+    quarter_buffer = (borderColor == innerColor) ? quarter_disc_3px_180_1bpp : quarter_circle_3px_180_1bpp;
+  }
+  if (quarter & BAGL_FILL_CIRCLE_PI_3PI2) { //
+    area.x0 = x_center-area.width;
+    area.y0 = y_center;
+    quarter_buffer = (borderColor == innerColor) ? quarter_disc_3px_270_1bpp : quarter_circle_3px_270_1bpp;
+  }
+  if (quarter & BAGL_FILL_CIRCLE_0_PI2) { //
+    area.x0 = x_center;
+    area.y0 = y_center-area.width;
+    quarter_buffer = (borderColor == innerColor) ? quarter_disc_3px_90_1bpp : quarter_circle_3px_90_1bpp;
+  }
+  if (quarter & BAGL_FILL_CIRCLE_PI2_PI) { //
+    area.x0 = x_center-area.width;
+    area.y0 = y_center-area.width;
+    quarter_buffer = (borderColor == innerColor) ? quarter_disc_3px_1bpp : quarter_circle_3px_1bpp;
+  }
+  nbgl_frontDrawImage(&area,quarter_buffer,NO_TRANSFORMATION,borderColor);
+#endif // HAVE_SE_TOUCH
 }
 
 /**********************
@@ -176,6 +224,11 @@ void nbgl_drawRoundedRect(const nbgl_area_t *area, nbgl_radius_t radiusIndex, co
   LOG_DEBUG(DRAW_LOGGER,"nbgl_drawRoundedRect x0 = %d, y0 = %d, width =%d, height =%d\n",area->x0,area->y0,area->width,area->height);
 
   if (radiusIndex <= RADIUS_48_PIXELS) {
+#ifndef HAVE_SE_TOUCH
+    if (radiusIndex > RADIUS_3_PIXELS) {
+      return;
+    }
+#endif // HAVE_SE_TOUCH
     radius = radiusValues[radiusIndex];
   }
   else if (radiusIndex == RADIUS_1_PIXEL) {
@@ -258,7 +311,6 @@ void nbgl_drawRoundedRect(const nbgl_area_t *area, nbgl_radius_t radiusIndex, co
  */
 void nbgl_drawRoundedBorderedRect(const nbgl_area_t *area, nbgl_radius_t radiusIndex, uint8_t stroke,
                                   color_t innerColor, color_t borderColor) {
-  uint8_t maskTop, maskBottom;
   uint8_t radius;
   nbgl_area_t rectArea;
 
@@ -309,6 +361,8 @@ void nbgl_drawRoundedBorderedRect(const nbgl_area_t *area, nbgl_radius_t radiusI
   }
   // border
   // 4 rectangles (with last pixel of each corner not set)
+#ifdef HAVE_SE_TOUCH
+  uint8_t maskTop, maskBottom;
   if (stroke == 1) {
     maskTop = 0x1;
     maskBottom = 0x8;
@@ -333,10 +387,20 @@ void nbgl_drawRoundedBorderedRect(const nbgl_area_t *area, nbgl_radius_t radiusI
   rectArea.y0 = area->y0;
   rectArea.width = area->width-2*radius;
   rectArea.height = 4;
-  nbgl_frontDrawHorizontalLine(&rectArea, maskTop,borderColor); // bottom
+  nbgl_frontDrawHorizontalLine(&rectArea, maskTop,borderColor); // top
   rectArea.x0 = area->x0+radius;
   rectArea.y0 = area->y0+area->height-4;
   nbgl_frontDrawHorizontalLine(&rectArea, maskBottom,borderColor); // bottom
+#else // HAVE_SE_TOUCH
+  rectArea.x0 = area->x0+radius;
+  rectArea.y0 = area->y0;
+  rectArea.width = area->width-2*radius;
+  rectArea.height = stroke;
+  rectArea.backgroundColor = borderColor;
+  nbgl_frontDrawRect(&rectArea); // top
+  rectArea.y0 = area->y0+area->height-stroke;
+  nbgl_frontDrawRect(&rectArea); // bottom
+#endif // HAVE_SE_TOUCH
   if ((2*radius)<area->height) {
     rectArea.x0 = area->x0;
     rectArea.y0 = area->y0+radius;

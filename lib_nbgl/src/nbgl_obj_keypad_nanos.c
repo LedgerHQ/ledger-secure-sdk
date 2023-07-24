@@ -74,29 +74,29 @@ static void keypadDrawDigits(nbgl_keypad_t *keypad) {
 
   // clean full area
   rectArea.backgroundColor = BLACK;
-  rectArea.x0 = keypad->x0;
-  rectArea.y0 = keypad->y0;
-  rectArea.width = keypad->width;
-  rectArea.height = keypad->height;
+  rectArea.x0 = keypad->obj.area.x0;
+  rectArea.y0 = keypad->obj.area.y0;
+  rectArea.width = keypad->obj.area.width;
+  rectArea.height = keypad->obj.area.height;
   nbgl_frontDrawRect(&rectArea);
 
   rectArea.backgroundColor = BLACK;
-  rectArea.y0 = keypad->y0 + DIGIT_OFFSET_Y;
+  rectArea.y0 = keypad->obj.area.y0 + DIGIT_OFFSET_Y;
   rectArea.bpp = NBGL_BPP_1;
   // row of digits: 0 1 2 3... 9
   for (i=0;i<10;i++) {
     rectArea.width = digits_icons[i]->width;
     rectArea.height = digits_icons[i]->height;
 
-    rectArea.x0 = keypad->x0 + DIGIT_OFFSET_X + i*KEY_WIDTH;
+    rectArea.x0 = keypad->obj.area.x0 + DIGIT_OFFSET_X + i*KEY_WIDTH;
     nbgl_frontDrawImage(&rectArea, digits_icons[i]->bitmap, NO_TRANSFORMATION, WHITE);
   }
   // draw backspace
   if (keypad->enableBackspace) {
     rectArea.width = C_icon_backspace.width;
     rectArea.height = C_icon_backspace.height;
-    rectArea.x0 = keypad->x0;
-    rectArea.y0 = keypad->y0 + ((KEYPAD_HEIGHT-C_icon_backspace.height)/2);
+    rectArea.x0 = keypad->obj.area.x0;
+    rectArea.y0 = keypad->obj.area.y0 + ((KEYPAD_HEIGHT-C_icon_backspace.height)/2);
     nbgl_frontDrawImage(&rectArea, C_icon_backspace.bitmap, NO_TRANSFORMATION, WHITE);
   }
 
@@ -104,8 +104,8 @@ static void keypadDrawDigits(nbgl_keypad_t *keypad) {
   if (keypad->enableValidate) {
     rectArea.width = C_digit_validate_bold.width;
     rectArea.height = C_digit_validate_bold.height;
-    rectArea.x0 = keypad->x0 + KEYPAD_WIDTH-C_digit_validate_bold.width;
-    rectArea.y0 = keypad->y0 + ((KEYPAD_HEIGHT-C_digit_validate_bold.height)/2);
+    rectArea.x0 = keypad->obj.area.x0 + KEYPAD_WIDTH-C_digit_validate_bold.width;
+    rectArea.y0 = keypad->obj.area.y0 + ((KEYPAD_HEIGHT-C_digit_validate_bold.height)/2);
     nbgl_frontDrawImage(&rectArea, C_digit_validate_bold.bitmap, NO_TRANSFORMATION, WHITE);
   }
 }
@@ -116,18 +116,18 @@ static void keypadDrawSelected(nbgl_keypad_t *keypad) {
   rectArea.backgroundColor = WHITE;
 
   if (keypad->selectedKey == 0) {
-    rectArea.x0 = keypad->x0 ;
+    rectArea.x0 = keypad->obj.area.x0 ;
   }
   else if (keypad->selectedKey < 11) { // if it's a digit
-    rectArea.x0 = keypad->x0 + DIGIT_OFFSET_X + (keypad->selectedKey-1)*KEY_WIDTH;
+    rectArea.x0 = keypad->obj.area.x0 + DIGIT_OFFSET_X + (keypad->selectedKey-1)*KEY_WIDTH;
   }
   else if (keypad->selectedKey == 11) {
-    rectArea.x0 = keypad->x0 + KEYPAD_WIDTH-C_digit_validate_bold.width;
+    rectArea.x0 = keypad->obj.area.x0 + KEYPAD_WIDTH-C_digit_validate_bold.width;
   }
   else {
     return;
   }
-  rectArea.y0 = keypad->y0+keypad->height - 2;
+  rectArea.y0 = keypad->obj.area.y0+keypad->obj.area.height - 2;
   rectArea.width = 8;
   rectArea.height = 2;
   nbgl_frontDrawRect(&rectArea);
@@ -139,18 +139,18 @@ static void keypadDrawSelectedTouched(nbgl_keypad_t *keypad) {
   rectArea.backgroundColor = WHITE;
 
   if (keypad->selectedKey == 0) {
-    rectArea.x0 = keypad->x0 ;
+    rectArea.x0 = keypad->obj.area.x0 ;
   }
   else if (keypad->selectedKey < 11) { // if it's a digit
-    rectArea.x0 = keypad->x0 + DIGIT_OFFSET_X + (keypad->selectedKey-1)*KEY_WIDTH;
+    rectArea.x0 = keypad->obj.area.x0 + DIGIT_OFFSET_X + (keypad->selectedKey-1)*KEY_WIDTH;
   }
   else if (keypad->selectedKey == 11) {
-    rectArea.x0 = keypad->x0 + KEYPAD_WIDTH-C_digit_validate_bold.width;
+    rectArea.x0 = keypad->obj.area.x0 + KEYPAD_WIDTH-C_digit_validate_bold.width;
   }
   else {
     return;
   }
-  rectArea.y0 = keypad->y0;
+  rectArea.y0 = keypad->obj.area.y0;
   rectArea.width = 8;
   rectArea.height = 2;
   nbgl_frontDrawRect(&rectArea);

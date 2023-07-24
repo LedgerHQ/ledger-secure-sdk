@@ -36,11 +36,6 @@ typedef void (*nbgl_tickerCallback_t)(void);
  *
  */
 typedef struct PACKED__ nbgl_screenTickerConfiguration_s {
-#ifdef HAVE_SE_TOUCH
-  nbgl_touchCallback_t touchCallback; ///< function to be called on events defined in touchMask of each objects
-#else // HAVE_SE_TOUCH
-  nbgl_buttonCallback_t buttonCallback;
-#endif // HAVE_SE_TOUCH
   nbgl_tickerCallback_t tickerCallback; ///< callback called when ticker timer is fired. Set to NULL for no ticker
   uint32_t tickerValue; ///< timer initial value, in ms (should be multiple of 100 ms). Set to 0 for no ticker
   uint32_t tickerIntervale; ///< for periodic timers, the intervale in ms to rearm the timer (should be multiple of 100 ms). Set to 0 for one-shot timers
@@ -52,21 +47,18 @@ typedef struct PACKED__ nbgl_screenTickerConfiguration_s {
  * @note inherits from container
  *
  */
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmicrosoft-anon-tag"
-#endif // __clang__
 typedef struct PACKED__ nbgl_screen_s {
-    struct nbgl_container_s; ///< common part
-    struct nbgl_screenTickerConfiguration_s; ///< ticker configuration
+    nbgl_container_t container; ///< common part
+    nbgl_screenTickerConfiguration_t ticker; ///< ticker configuration
+#ifdef HAVE_SE_TOUCH
+    nbgl_touchCallback_t touchCallback; ///< function to be called on events defined in touchMask of each objects
+#else // HAVE_SE_TOUCH
+    nbgl_buttonCallback_t buttonCallback;
+#endif // HAVE_SE_TOUCH
     struct nbgl_screen_s *next; ///< pointer to screen on top of this one (or NULL is this screen is top of stack)
     struct nbgl_screen_s *previous; ///< pointer to screen on bottom of this one (or NULL is this screen is bottom of stack)
     uint8_t index; ///< index in screenStack array
 } nbgl_screen_t;
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif // __clang__
-
 
 /**********************
  * GLOBAL PROTOTYPES
