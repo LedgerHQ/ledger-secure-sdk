@@ -1536,6 +1536,14 @@ unsigned int os_serial(unsigned char *serial, unsigned int maxlength)
     return (unsigned int) SVC_Call(SYSCALL_os_serial_ID, parameters);
 }
 
+unsigned int os_factory_hash(unsigned char *buffer, unsigned int maxlength)
+{
+    unsigned int parameters[2];
+    parameters[0] = (unsigned int) buffer;
+    parameters[1] = (unsigned int) maxlength;
+    return (unsigned int) SVC_Call(SYSCALL_os_factory_hash_ID, parameters);
+}
+
 unsigned int os_seph_features(void)
 {
     unsigned int parameters[2];
