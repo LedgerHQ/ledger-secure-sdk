@@ -467,15 +467,13 @@ void nbgl_drawText(const nbgl_area_t *area, const char* text, uint16_t textLen, 
     rectArea.height = (char_y_max - char_y_min);
     rectArea.width = (char_x_max -char_x_min);
 
-    if (char_byte_cnt) {
-      switch(encoding) {
-        case 0:
-          nbgl_frontDrawImage(&rectArea, char_buffer, NO_TRANSFORMATION, fontColor);
-          break;
-        case 1:
-          nbgl_frontDrawImageRle(&rectArea, char_buffer, char_byte_cnt, fontColor);
-          break;
-      }
+    // If char_byte_cnt = 0, call nbgl_frontDrawImageRle to let speculos notice
+    // a space character was 'displayed'
+    if (!char_byte_cnt || encoding == 1) {
+      nbgl_frontDrawImageRle(
+        &rectArea, char_buffer, char_byte_cnt, fontColor);
+    } else {
+      nbgl_frontDrawImage(&rectArea, char_buffer, NO_TRANSFORMATION, fontColor);
     }
     x+=char_width;
   }
