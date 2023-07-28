@@ -11,3 +11,6 @@ jobs:
         with:
           python-version: '3.10'
       - uses: pre-commit/action@v3.0.0
+        with:
+          exclude:
+            ["--skip", ".lib_nbgl/include/*.json", ".lib_bagl/include/*.json", "--"]
