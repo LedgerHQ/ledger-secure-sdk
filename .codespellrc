@@ -1,2 +1,3 @@
 [codespell]
 ignore-words-list=ontop,clen
+skip = ./lib_nbgl/include/*.json,./lib_bagl/include/*.json
