@@ -235,7 +235,7 @@
 #ifdef HAVE_BRIGHTNESS_SYSCALL
 #define SYSCALL_screen_set_brightness_ID                           0x0100008c
 #endif // HAVE_BRIGHTNESS_SYSCALL
-#define SYSCALL_bagl_hal_draw_bitmap_within_rect_ID                0x0900007c
+#define SYSCALL_bagl_hal_draw_bitmap_within_rect_ID                0x0A00007c
 #define SYSCALL_bagl_hal_draw_rect_ID                              0x0500007d
 #endif
 
@@ -287,7 +287,7 @@
 #ifdef HAVE_NBGL
 #define SYSCALL_nbgl_front_draw_rect_ID                                  0x01fa0000
 #define SYSCALL_nbgl_front_draw_horizontal_line_ID                       0x03fa0001
-#define SYSCALL_nbgl_front_draw_img_ID                                   0x04fa0002
+#define SYSCALL_nbgl_front_draw_img_ID                                   0x05fa0002
 #define SYSCALL_nbgl_front_refresh_area_ID                               0x03fa0003
 #define SYSCALL_nbgl_front_draw_img_file_ID                              0x05fa0004
 #define SYSCALL_nbgl_side_draw_rect_ID                                   0x01fa0005
@@ -296,7 +296,7 @@
 #define SYSCALL_nbgl_side_refresh_area_ID                                0x02fa0008
 #define SYSCALL_nbgl_get_font_ID                                         0x01fa000c
 #define SYSCALL_nbgl_screen_reinit_ID                                    0x00fa000d
-#define SYSCALL_nbgl_front_draw_img_rle_ID                               0x05fa0010
+#define SYSCALL_nbgl_front_draw_img_rle_ID                               0x06fa0010
 #ifdef HAVE_DISPLAY_FAST_MODE
 #define SYSCALL_nbgl_screen_update_temperature_ID                        0x01fa0011
 #endif // HAVE_DISPLAY_FAST_MODE

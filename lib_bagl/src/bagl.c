@@ -406,6 +406,7 @@ int bagl_draw_string(unsigned short font_id, unsigned int fgcolor, unsigned int 
     int ch_offset_y = 0;
     unsigned char ch_width = 0;
     uint16_t      ch_bits = 0;
+    uint32_t      ch_val = 0; // Character value (ASCII or Unicode)
     const unsigned char * ch_bitmap = NULL;
     int ch_y = y;
 
@@ -429,6 +430,7 @@ int bagl_draw_string(unsigned short font_id, unsigned int fgcolor, unsigned int 
       if (unicode) {
         const bagl_font_unicode_character_t *character;
         character = get_unicode_character(unicode);
+        ch_val = unicode;
         ch_width = character->width;
         // Number of bits needed to display this character
         ch_bits = unicode_byte_count * 8;
@@ -468,6 +470,7 @@ int bagl_draw_string(unsigned short font_id, unsigned int fgcolor, unsigned int 
       }
     }
     else {
+      ch_val = ch;
       // retrieve the char bitmap
       ch -= font->first_char;
       ch_bitmap = &PIC_BMP(font->bitmap)[PIC_CHAR(font->characters)[ch].bitmap_offset];
@@ -524,7 +527,7 @@ int bagl_draw_string(unsigned short font_id, unsigned int fgcolor, unsigned int 
 
       // chars are storred LSB to MSB in each char, packed chars. horizontal scan
       if (ch_bitmap) {
-        bagl_hal_draw_bitmap_within_rect(xx + ch_offset_x, ch_y + ch_offset_y, ch_width, ch_height, (1<<bpp), colors, bpp, ch_bitmap, ch_bits);
+        bagl_hal_draw_bitmap_within_rect(xx + ch_offset_x, ch_y + ch_offset_y, ch_width, ch_height, (1<<bpp), colors, bpp, ch_bitmap, ch_bits, ch_val);
       }
       else {
         bagl_hal_draw_rect(bgcolor, xx, ch_y, ch_width, ch_height);
@@ -1022,7 +1025,8 @@ idx_ok:
                                          (unsigned int*)context, // Endianness remarkably ignored !
                                          glyph->bits_per_pixel,
                                          glyph->bitmap,
-                                         glyph->bits_per_pixel*(glyph->width*glyph->height));
+                                         glyph->bits_per_pixel*(glyph->width*glyph->height),
+                                         0);
       }
       else {
         // context: <bitperpixel> [color_count*4 bytes (LE encoding)] <icon bitmap (raw scan, LE)>
@@ -1043,7 +1047,8 @@ idx_ok:
                                          component->width, component->height,
                                          1<<bpp, colors, bpp,
                                          ((unsigned char*)context)+1+(1<<bpp)*4,
-                                         bpp*(component->width*component->height));
+                                         bpp*(component->width*component->height)
+                                         0);
       }
       break;
 #endif // HAVE_BAGL_GLYPH_ARRAY
@@ -1094,7 +1099,8 @@ void bagl_draw_glyph(const bagl_component_t* component, const bagl_icon_details_
 #else //DISPLAY_FLOWS
                                    (unsigned char*)PIC((unsigned int)icon_details->bitmap),
 #endif //DISPLAY_FLOWS
-                                   icon_details->bpp*(icon_details->width*icon_details->height));
+                                   icon_details->bpp*(icon_details->width*icon_details->height),
+                                   0);
 }
 
 

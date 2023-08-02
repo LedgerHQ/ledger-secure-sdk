@@ -70,25 +70,27 @@ void nbgl_frontDrawHorizontalLine(nbgl_area_t *area, uint8_t mask, color_t lineC
   return;
 }
 
-void nbgl_frontDrawImage(nbgl_area_t *area, uint8_t *buffer, nbgl_transformation_t transformation, nbgl_color_map_t colorMap)
+void nbgl_frontDrawImage(nbgl_area_t *area, uint8_t *buffer, nbgl_transformation_t transformation, nbgl_color_map_t colorMap, uint32_t character)
 {
-  unsigned int parameters[4];
+  unsigned int parameters[5];
   parameters[0] = (unsigned int)area;
   parameters[1] = (unsigned int)PIC(buffer);
   parameters[2] = (unsigned int)transformation;
   parameters[3] = (unsigned int)colorMap;
+  parameters[4] = (unsigned int)character;
   SVC_Call(SYSCALL_nbgl_front_draw_img_ID, parameters);
   return;
 }
 
-void nbgl_frontDrawImageRle(nbgl_area_t *area, uint8_t *buffer, uint32_t buffer_len, color_t fore_color, uint8_t nb_skipped_bytes)
+void nbgl_frontDrawImageRle(nbgl_area_t *area, uint8_t *buffer, uint32_t buffer_len, color_t fore_color, uint8_t nb_skipped_bytes, uint32_t character)
 {
-  unsigned int parameters[5];
+  unsigned int parameters[6];
   parameters[0] = (unsigned int)area;
   parameters[1] = (unsigned int)PIC(buffer);
   parameters[2] = (unsigned int)buffer_len;
   parameters[3] = (unsigned int)fore_color;
   parameters[4] = (unsigned int)nb_skipped_bytes;
+  parameters[5] = (unsigned int)character;
   SVC_Call(SYSCALL_nbgl_front_draw_img_rle_ID, parameters);
   return;
 }
@@ -1614,8 +1616,8 @@ void screen_set_keepout ( unsigned int x, unsigned int y, unsigned int width, un
   return;
 }
 
-void bagl_hal_draw_bitmap_within_rect ( int x, int y, unsigned int width, unsigned int height, unsigned int color_count, const unsigned int * colors, unsigned int bit_per_pixel, const unsigned char * bitmap, unsigned int bitmap_length_bits ) {
-  unsigned int parameters[9];
+void bagl_hal_draw_bitmap_within_rect ( int x, int y, unsigned int width, unsigned int height, unsigned int color_count, const unsigned int * colors, unsigned int bit_per_pixel, const unsigned char * bitmap, unsigned int bitmap_length_bits, uint32_t character ) {
+  unsigned int parameters[10];
   parameters[0] = (unsigned int)x;
   parameters[1] = (unsigned int)y;
   parameters[2] = (unsigned int)width;
@@ -1625,6 +1627,7 @@ void bagl_hal_draw_bitmap_within_rect ( int x, int y, unsigned int width, unsign
   parameters[6] = (unsigned int)bit_per_pixel;
   parameters[7] = (unsigned int)bitmap;
   parameters[8] = (unsigned int)bitmap_length_bits;
+  parameters[9] = (unsigned int)character;
   SVC_Call(SYSCALL_bagl_hal_draw_bitmap_within_rect_ID, parameters);
   return;
 }

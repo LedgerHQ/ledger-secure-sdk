@@ -163,7 +163,7 @@ static void keypadDrawDigits(nbgl_keypad_t *keypad) {
   rectArea.bpp = NBGL_BPP_1;
   rectArea.x0 = keypad->obj.area.x0 + (KEY_WIDTH-rectArea.width)/2;
   rectArea.y0 = keypad->obj.area.y0 + KEYPAD_KEY_HEIGHT*3 + (KEYPAD_KEY_HEIGHT-rectArea.height)/2;
-  nbgl_frontDrawImage(&rectArea,(uint8_t*)C_backspace32px.bitmap,NO_TRANSFORMATION, keypad->enableBackspace?BLACK:WHITE);
+  nbgl_frontDrawImage(&rectArea,(uint8_t*)C_backspace32px.bitmap,NO_TRANSFORMATION, keypad->enableBackspace?BLACK:WHITE, 0);
 
   // draw 0
   key_value = GET_DIGIT_INDEX(keypad,0)+0x30;
@@ -197,7 +197,7 @@ static void keypadDrawDigits(nbgl_keypad_t *keypad) {
     rectArea.bpp = NBGL_BPP_1;
     rectArea.x0 = keypad->obj.area.x0 + 2*KEY_WIDTH + (KEY_WIDTH-rectArea.width)/2;
     rectArea.y0 = keypad->obj.area.y0 + KEYPAD_KEY_HEIGHT*3 + (KEYPAD_KEY_HEIGHT-rectArea.height)/2;
-    nbgl_frontDrawImage(&rectArea,(uint8_t*)C_check32px.bitmap,NO_TRANSFORMATION, WHITE);
+    nbgl_frontDrawImage(&rectArea,(uint8_t*)C_check32px.bitmap,NO_TRANSFORMATION, WHITE, 0);
   }
 }
 

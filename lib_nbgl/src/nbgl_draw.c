@@ -123,22 +123,22 @@ static void draw_circle_helper(int x_center, int y_center, nbgl_radius_t radiusI
   if (quarter & BAGL_FILL_CIRCLE_3PI2_2PI) { //
     area.x0 = x_center;
     area.y0 = y_center;
-    nbgl_frontDrawImage(&area,quarter_buffer,BOTH_MIRRORS,borderColor);
+    nbgl_frontDrawImage(&area,quarter_buffer,BOTH_MIRRORS,borderColor, 0);
   }
   if (quarter & BAGL_FILL_CIRCLE_PI_3PI2) { //
     area.x0 = x_center-area.width;
     area.y0 = y_center;
-    nbgl_frontDrawImage(&area,quarter_buffer,HORIZONTAL_MIRROR,borderColor);
+    nbgl_frontDrawImage(&area,quarter_buffer,HORIZONTAL_MIRROR,borderColor, 0);
   }
   if (quarter & BAGL_FILL_CIRCLE_0_PI2) { //
     area.x0 = x_center;
     area.y0 = y_center-area.width;
-    nbgl_frontDrawImage(&area,quarter_buffer,VERTICAL_MIRROR,borderColor);
+    nbgl_frontDrawImage(&area,quarter_buffer,VERTICAL_MIRROR,borderColor, 0);
   }
   if (quarter & BAGL_FILL_CIRCLE_PI2_PI) { //
     area.x0 = x_center-area.width;
     area.y0 = y_center-area.width;
-    nbgl_frontDrawImage(&area,quarter_buffer,NO_TRANSFORMATION,borderColor);
+    nbgl_frontDrawImage(&area,quarter_buffer,NO_TRANSFORMATION,borderColor, 0);
   }
 }
 
@@ -501,9 +501,9 @@ void nbgl_drawText(const nbgl_area_t *area, const char* text, uint16_t textLen, 
     // a space character was 'displayed'
     if (!char_byte_cnt || encoding == 1) {
       nbgl_frontDrawImageRle(
-        &rectArea, char_buffer, char_byte_cnt, fontColor, nb_skipped_bytes);
+        &rectArea, char_buffer, char_byte_cnt, fontColor, nb_skipped_bytes, unicode);
     } else {
-      nbgl_frontDrawImage(&rectArea, char_buffer, NO_TRANSFORMATION, fontColor);
+      nbgl_frontDrawImage(&rectArea, char_buffer, NO_TRANSFORMATION, fontColor, unicode);
     }
     x+=char_width;
   }
@@ -536,13 +536,13 @@ static void nbgl_frontDrawQrInternal(const nbgl_area_t *area, color_t foreground
         QrDrawBuffer[idx+QR_V4_NB_PIX_SIZE] = QrDrawBuffer[idx];
         idx += 1;
     }
-      nbgl_frontDrawImage(&qrArea, QrDrawBuffer, NO_TRANSFORMATION, foregroundColor);
+      nbgl_frontDrawImage(&qrArea, QrDrawBuffer, NO_TRANSFORMATION, foregroundColor, 0);
       qrArea.x0 += 2;
-      nbgl_frontDrawImage(&qrArea, QrDrawBuffer, NO_TRANSFORMATION, foregroundColor);
+      nbgl_frontDrawImage(&qrArea, QrDrawBuffer, NO_TRANSFORMATION, foregroundColor, 0);
       qrArea.x0 += 2;
-      nbgl_frontDrawImage(&qrArea, QrDrawBuffer, NO_TRANSFORMATION, foregroundColor);
+      nbgl_frontDrawImage(&qrArea, QrDrawBuffer, NO_TRANSFORMATION, foregroundColor, 0);
       qrArea.x0 += 2;
-      nbgl_frontDrawImage(&qrArea, QrDrawBuffer, NO_TRANSFORMATION, foregroundColor);
+      nbgl_frontDrawImage(&qrArea, QrDrawBuffer, NO_TRANSFORMATION, foregroundColor, 0);
       qrArea.x0 += 2;
     }
   }
@@ -557,7 +557,7 @@ static void nbgl_frontDrawQrInternal(const nbgl_area_t *area, color_t foreground
         memset(&QrDrawBuffer[idx], qrcodegen_getModule(qrcode, x, y)?0xFF:0x00, 2);
         idx += 2;
       }
-      nbgl_frontDrawImage(&qrArea, QrDrawBuffer, NO_TRANSFORMATION, foregroundColor);
+      nbgl_frontDrawImage(&qrArea, QrDrawBuffer, NO_TRANSFORMATION, foregroundColor, 0);
       qrArea.y0 += QR_PIXEL_WIDTH_HEIGHT;
     }
   }

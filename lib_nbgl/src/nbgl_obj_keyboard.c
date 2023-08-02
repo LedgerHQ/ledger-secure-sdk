@@ -331,7 +331,7 @@ static void keyboardDrawLetters(nbgl_keyboard_t *keyboard) {
     nbgl_frontDrawImage(&rectArea,
                         (keyboard->casing == LOCKED_UPPER_CASE)?(uint8_t*)C_shift_lock32px.bitmap:(uint8_t*)C_shift32px.bitmap,
                         NO_TRANSFORMATION,
-                        (keyboard->casing != LOWER_CASE)?WHITE:BLACK);
+                        (keyboard->casing != LOWER_CASE)?WHITE:BLACK, 0);
     rectArea.backgroundColor = WHITE;
     offsetX = keyboard->obj.area.x0 + SHIFT_KEY_WIDTH;
   }
@@ -358,7 +358,7 @@ static void keyboardDrawLetters(nbgl_keyboard_t *keyboard) {
   else {
     rectArea.x0 += (BACKSPACE_KEY_WIDTH_LETTERS_ONLY-rectArea.width)/2;
   }
-  nbgl_frontDrawImage(&rectArea,(uint8_t*)C_backspace32px.bitmap,NO_TRANSFORMATION,BLACK);
+  nbgl_frontDrawImage(&rectArea,(uint8_t*)C_backspace32px.bitmap,NO_TRANSFORMATION,BLACK,0);
 
   // 4th row, only in Full mode
   if (!keyboard->lettersOnly) {
@@ -367,7 +367,7 @@ static void keyboardDrawLetters(nbgl_keyboard_t *keyboard) {
     nbgl_drawText(&rectArea, ".?123", 5, BAGL_FONT_INTER_REGULAR_24px_1bpp, BLACK);
 
     rectArea.x0 = SWITCH_KEY_WIDTH+(SPACE_KEY_WIDTH-C_space32px.width)/2;
-    nbgl_frontDrawImage(&rectArea,(uint8_t*)C_space32px.bitmap, NO_TRANSFORMATION, (keyboard->keyMask&(1<<SPACE_KEY_INDEX))? WHITE:BLACK);
+    nbgl_frontDrawImage(&rectArea,(uint8_t*)C_space32px.bitmap, NO_TRANSFORMATION, (keyboard->keyMask&(1<<SPACE_KEY_INDEX))? WHITE:BLACK),0;
   }
 
 }
@@ -428,7 +428,7 @@ static void keyboardDrawDigits(nbgl_keyboard_t *keyboard) {
   rectArea.x0 = SPECIAL_CHARS_KEY_WIDTH + 5*NORMAL_KEY_WIDTH;
   rectArea.y0 = keyboard->obj.area.y0 + KEYBOARD_KEY_HEIGHT*2 + (KEYBOARD_KEY_HEIGHT-rectArea.height)/2;
   rectArea.x0 += (BACKSPACE_KEY_WIDTH_DIGITS-rectArea.width)/2;
-  nbgl_frontDrawImage(&rectArea,(uint8_t*)C_backspace32px.bitmap,NO_TRANSFORMATION,BLACK);
+  nbgl_frontDrawImage(&rectArea,(uint8_t*)C_backspace32px.bitmap,NO_TRANSFORMATION,BLACK,0);
 
   // 4th row
   rectArea.x0 = (SWITCH_KEY_WIDTH-nbgl_getTextWidth(BAGL_FONT_INTER_REGULAR_24px_1bpp,"ABC"))/2;
@@ -436,7 +436,7 @@ static void keyboardDrawDigits(nbgl_keyboard_t *keyboard) {
   nbgl_drawText(&rectArea, "ABC", 3, BAGL_FONT_INTER_REGULAR_24px_1bpp, BLACK);
 
   rectArea.x0 = SWITCH_KEY_WIDTH+(SPACE_KEY_WIDTH-C_space32px.width)/2;
-  nbgl_frontDrawImage(&rectArea,(uint8_t*)C_space32px.bitmap, NO_TRANSFORMATION, (keyboard->keyMask&(1<<SPACE_KEY_INDEX))? WHITE:BLACK);
+  nbgl_frontDrawImage(&rectArea,(uint8_t*)C_space32px.bitmap, NO_TRANSFORMATION, (keyboard->keyMask&(1<<SPACE_KEY_INDEX))? WHITE:BLACK,0);
 }
 
 static void keyboardDraw(nbgl_keyboard_t *keyboard) {

@@ -333,7 +333,7 @@ static void draw_button(nbgl_button_t* obj, nbgl_obj_t *prevObj, bool computePos
     rectArea.width = obj->icon->width;
     rectArea.height = obj->icon->height;
     rectArea.bpp = NBGL_BPP_1;
-    nbgl_frontDrawImage(&rectArea,(uint8_t*)obj->icon->bitmap,NO_TRANSFORMATION, obj->foregroundColor);
+    nbgl_frontDrawImage(&rectArea,(uint8_t*)obj->icon->bitmap,NO_TRANSFORMATION, obj->foregroundColor, 0);
   }
 }
 
@@ -429,7 +429,7 @@ static void draw_image(nbgl_image_t* obj, nbgl_obj_t *prevObj, bool computePosit
     colorMap = obj->foregroundColor;
   }
   if (!iconDetails->isFile) {
-    nbgl_frontDrawImage((nbgl_area_t*)obj, (uint8_t*)iconDetails->bitmap, NO_TRANSFORMATION, colorMap);
+    nbgl_frontDrawImage((nbgl_area_t*)obj, (uint8_t*)iconDetails->bitmap, NO_TRANSFORMATION, colorMap, 0);
   }
   else {
     nbgl_frontDrawImageFile((nbgl_area_t*)obj, (uint8_t*)iconDetails->bitmap, colorMap, ramBuffer);
@@ -460,11 +460,11 @@ static void draw_switch(nbgl_switch_t* obj, nbgl_obj_t *prevObj, bool computePos
   rectArea.backgroundColor = obj->obj.area.backgroundColor;
   rectArea.bpp = NBGL_BPP_1;
   if (obj->state == OFF_STATE) {
-    nbgl_frontDrawImage(&rectArea,(uint8_t*)C_switch_60_40.bitmap,NO_TRANSFORMATION,obj->offColor);
+    nbgl_frontDrawImage(&rectArea,(uint8_t*)C_switch_60_40.bitmap,NO_TRANSFORMATION,obj->offColor, 0);
   }
   else {
     nbgl_frontDrawImage(&rectArea,
-                          (uint8_t*)C_switch_60_40.bitmap,VERTICAL_MIRROR,obj->onColor);
+                          (uint8_t*)C_switch_60_40.bitmap,VERTICAL_MIRROR,obj->onColor, 0);
   }
 }
 
@@ -492,10 +492,10 @@ static void draw_radioButton(nbgl_radio_t* obj, nbgl_obj_t *prevObj, bool comput
   rectArea.backgroundColor = obj->obj.area.backgroundColor;
   rectArea.bpp = NBGL_BPP_1;
   if (obj->state == OFF_STATE) {
-    nbgl_frontDrawImage(&rectArea,(uint8_t*)C_radio_inactive_32px.bitmap,NO_TRANSFORMATION,obj->borderColor);
+    nbgl_frontDrawImage(&rectArea,(uint8_t*)C_radio_inactive_32px.bitmap,NO_TRANSFORMATION,obj->borderColor, 0);
   }
   else {
-    nbgl_frontDrawImage(&rectArea,(uint8_t*)C_radio_active_32px.bitmap,NO_TRANSFORMATION,obj->activeColor);
+    nbgl_frontDrawImage(&rectArea,(uint8_t*)C_radio_active_32px.bitmap,NO_TRANSFORMATION,obj->activeColor, 0);
   }
 }
 

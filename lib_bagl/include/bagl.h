@@ -321,7 +321,7 @@ void bagl_set_glyph_array(const bagl_glyph_array_entry_t* array, unsigned int co
 
 // --------------------------------------------------------------------------------------
 // start drawing a bitmap in the given area
-void bagl_hal_draw_bitmap_within_rect(int x, int y, unsigned int width, unsigned int height, unsigned int color_count, const unsigned int * colors, unsigned int bit_per_pixel, const unsigned char* bitmap, unsigned int bitmap_length_bits);
+void bagl_hal_draw_bitmap_within_rect(int x, int y, unsigned int width, unsigned int height, unsigned int color_count, const unsigned int * colors, unsigned int bit_per_pixel, const unsigned char* bitmap, unsigned int bitmap_length_bits, uint32_t character);
 // continue drawing the bitmap in the previously setup area, take care to use the same bpp
 void bagl_hal_draw_bitmap_continue(unsigned int bit_per_pixel, const unsigned char* bitmap, unsigned int bitmap_length_bits);
 
