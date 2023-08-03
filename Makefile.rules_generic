@@ -89,7 +89,9 @@ $(OBJ_DIR)/%.o: %.S $(BUILD_DEPENDENCIES) prepare
 	$(L)$(call as_cmdline,$(INCLUDES_PATH), $(DEFINES),$<,$@)
 
 ifeq ($(SCRIPT_LD),)
-SCRIPT_LD:=$(BOLOS_SDK)/target/$(TARGET)/script.ld
+MEMORY_LAYOUT:=$(BOLOS_SDK)/target/$(TARGET)/layout.ld
+SCRIPT_LD:=$(BOLOS_SDK)/target/script.ld
+LDFLAGS  += -T$(MEMORY_LAYOUT)
 else
 $(info Using custom link script: $(SCRIPT_LD))
 endif

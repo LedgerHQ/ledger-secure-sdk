@@ -14,50 +14,32 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
 ********************************************************************************/
-
-/**
- * Global chip memory layout and constants
- *
- */
-
-MEMORY
-{
+MEMORY {
   DISCARD (rwx) : ORIGIN = 0xd0000000, LENGTH = 1M
-
-  FLASH   (rx)  : ORIGIN = 0xc0de0000, LENGTH = 400K
-  DATA    (r)   : ORIGIN = 0xc0de0000, LENGTH = 400K
-  SRAM    (rwx) : ORIGIN = 0xda7a0000, LENGTH = 30K
 }
 
-PAGE_SIZE  = 512;
-STACK_SIZE = 1500;
 END_STACK  = ORIGIN(SRAM) + LENGTH(SRAM);
 
 ENTRY(main);
 
 SECTIONS
 {
-  /****************************************************************/
-  /* This section locates the code in FLASH                       */
-  /****************************************************************/
-
-  /** put text in Flash memory, VMA will be equal to LMA */
   .text :
   {
-    /* provide start code symbol, shall be zero */
     _text = .;
     _nvram_start = .;
 
-    /* ensure main is always @ 0xC0D00000 */
+    /* ensure __stack_chk_init is always @ 0xC0D00000 */
+    KEEP(*(.boot.ssp_init))
+    /* ensure main directly follows __stack_chk_init */
     *(.boot*)
 
     /* place the other code and rodata defined BUT nvram variables that are displaced in a r/w area */
     _code = .;
     *(.text*)
     _ecode = .;
-
     *(.rodata)
-    *(.rodata.[^N]*) /*.data.rel.ro* not here to detect invalid PIC usage */
+    *(.rodata.[^N]*)
     *(.rodata.N[^_]*)
 
     . = ALIGN(4);
@@ -69,7 +51,8 @@ SECTIONS
 
     _nvram_data = .;
 
-    /* NVM data (ex-filesystem) */
+    /* Static variables beginning with `N_` are explicitly placed in the
+    read-write part of the allocated flash */
     *(.bss.N_* .rodata.N_*)
 
     . = ALIGN(PAGE_SIZE);
@@ -77,37 +60,32 @@ SECTIONS
 
     _install_parameters = .;
     _nvram_end = .;
-  } > FLASH = 0x00
+  } > FLASH
 
   .data (NOLOAD):
   {
     . = ALIGN(4);
-
-    /**
-     * Place RAM initialized variables
-     */
     _data = .;
-
     *(vtable)
     *(.data*)
-
     _edata = .;
+  } > DISCARD
 
-  } > DISCARD /*> SRAM AT>FLASH = 0x00 */
+  /* The .init_array is initialized with functions with the constructor
+   * attribute. Discard this section since there's no loader. */
+  /DISCARD/ : {
+    *(.init_array)
+  }
 
   .bss :
   {
-    /**
-     * Place RAM uninitialized variables
-     */
     _bss = .;
+    KEEP(*(.bss.__stack_chk_guard))
     *(.bss*)
     _ebss = .;
 
-
-    /**
-     * Reserve stack size
-     */
+    /* On some OS versions, going beyond this limit (below _stack) will make
+    the OS hang on purpose. Until this limit is removed, keep a virtual limit */
     . = ALIGN(4);
     app_stack_canary = .;
     PROVIDE(app_stack_canary = .);
@@ -118,15 +96,14 @@ SECTIONS
     PROVIDE( _stack = ABSOLUTE(END_STACK) - STACK_SIZE);
     _estack = ABSOLUTE(END_STACK);
     PROVIDE( _estack = ABSOLUTE(END_STACK) );
-
-  } > SRAM = 0x00
+  } > SRAM
 
   /****************************************************************/
   /* DEBUG                                                        */
   /****************************************************************/
 
   /* remove the debugging information from the standard libraries */
-  DEBUG (NOLOAD) :
+  /DISCARD/ :
   {
     libc.a ( * )
     libm.a ( * )
