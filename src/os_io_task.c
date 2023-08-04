@@ -3,6 +3,7 @@
 #include "os_io_seproxyhal.h"
 #include "os_task.h"
 #include "os_types.h"
+#include "errors.h"
 
 #include <string.h>
 
