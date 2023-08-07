@@ -1264,9 +1264,10 @@ void nbgl_redrawObject(nbgl_obj_t *obj, nbgl_obj_t *prevObj, bool computePositio
   extendRefreshArea(obj);
 #ifdef HAVE_SERIALIZED_NBGL
   io_seproxyhal_send_nbgl_serialized(NBGL_DRAW_OBJ, obj);
-#else // HAVE_SERIALIZED_NBGL
-  nbgl_drawObject(obj);
 #endif // HAVE_SERIALIZED_NBGL
+#if !defined(HAVE_SERIALIZED_NBGL) || defined(HAVE_BOTH_DRAW_AND_SERIALIZED_NBGL)
+  nbgl_drawObject(obj);
+#endif /* #if !defined(HAVE_SERIALIZED_NBGL) or defined(HAVE_BOTH_DRAW_AND_SERIALIZED_NBGL) */
 
   if ((obj->type == SCREEN) ||
       (obj->type == CONTAINER)) {
