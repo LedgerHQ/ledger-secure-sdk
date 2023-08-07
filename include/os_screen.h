@@ -18,10 +18,13 @@ SYSCALL void screen_clear(void);
  */
 SYSCALL void screen_update(void);
 
+#ifdef HAVE_BRIGHTNESS_SYSCALL
 /**
  * Set screen brightness
  */
 SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void screen_set_brightness(unsigned int percent);
+#endif // HAVE_BRIGHTNESS_SYSCALL
+
 /**
  * Require a specific zone not to be cleared/drawn by any graphic HAL to implement screen overlay
  */
