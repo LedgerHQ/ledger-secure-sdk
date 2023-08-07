@@ -46,8 +46,10 @@ static uint8_t getObjId(nbgl_obj_t *obj) {
 
 // serialize a nbgl_obj_t structure (including nbgl_area_t)
 static void nbgl_serializeObj(nbgl_obj_t *obj, uint8_t *out, size_t *w_cnt, size_t max_len) {
-    // at first serialize an id
+    // at first serialize the id
     nbgl_appendU8(getObjId(obj), out, w_cnt, max_len);
+    // then serialize the parent id
+    nbgl_appendU8(getObjId(obj->parent), out, w_cnt, max_len);
     // the only field to be serialized is the object type
     nbgl_appendU8((uint8_t) obj->type, out, w_cnt, max_len);
     // then serialize the area
