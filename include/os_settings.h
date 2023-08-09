@@ -92,6 +92,9 @@ typedef enum os_setting_e {
 #ifdef HAVE_AUTOBOOT_APP
   OS_SETTING_AUTOBOOT_APP,
 #endif
+#ifdef HAVE_PINLESS_MODE
+  OS_SETTING_PINLESS_MODE,
+#endif
   // before that value, all settings are only making use of the length value with a null buffer to be set, and are returned through the return value with a maxlength = 0 in the get.
   OS_SETTING_LAST_INT,
 
