@@ -28,6 +28,10 @@ SYSCALL                                         bolos_bool_t os_global_pin_is_va
 SYSCALL PERMISSION(APPLICATION_FLAG_GLOBAL_PIN) bolos_bool_t os_global_pin_check(unsigned char* pin_buffer PLENGTH(pin_length), unsigned char pin_length);
     SYSCALL PERMISSION(APPLICATION_FLAG_GLOBAL_PIN) void         os_global_pin_invalidate(void);
 SYSCALL PERMISSION(APPLICATION_FLAG_GLOBAL_PIN) unsigned int os_global_pin_retries(void);
+#ifdef HAVE_PINLESS_MODE
+SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) bolos_bool_t os_global_enter_pinless(void);
+SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_global_leave_pinless(void);
+#endif
 
 /**
  * This function checks whether a PIN is present

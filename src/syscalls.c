@@ -1211,6 +1211,22 @@ unsigned int os_global_pin_retries ( void ) {
   return (unsigned int) SVC_Call(SYSCALL_os_global_pin_retries_ID, parameters);
 }
 
+#ifdef HAVE_PINLESS_MODE
+bolos_bool_t os_global_enter_pinless(void)
+{
+  unsigned int parameters[2];
+  parameters[1] = 0;
+  return (bolos_bool_t) SVC_Call(SYSCALL_os_global_enter_pinless_ID, parameters);
+}
+
+bolos_bool_t os_global_leave_pinless(void)
+{
+  unsigned int parameters[2];
+  parameters[1] = 0;
+  return (bolos_bool_t) SVC_Call(SYSCALL_os_global_leave_pinless_ID, parameters);
+}
+#endif
+
 unsigned int os_registry_count ( void ) {
   unsigned int parameters[2];
   parameters[1] = 0;

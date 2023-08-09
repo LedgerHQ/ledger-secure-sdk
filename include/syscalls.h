@@ -313,3 +313,8 @@
 #endif
 
 #endif // HAVE_SE_TOUCH
+
+#ifdef HAVE_PINLESS_MODE
+#define SYSCALL_os_global_enter_pinless_ID                      0x000000a1
+#define SYSCALL_os_global_leave_pinless_ID                      0x000000a2
+#endif

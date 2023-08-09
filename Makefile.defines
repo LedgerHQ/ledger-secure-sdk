@@ -215,6 +215,8 @@ DEFINES       += HAVE_FONTS
 DEFINES       += HAVE_BATTERY
 endif
 
+DEFINES       += HAVE_PINLESS_MODE
+
 # include builtin CX libs options
 -include $(BOLOS_SDK)/Makefile.conf.cx
 
