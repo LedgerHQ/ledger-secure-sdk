@@ -34,7 +34,7 @@ typedef struct application_s {
   // address of the main address, must be set according to BLX spec ( ORed with 1 when jumping into Thumb code
   appmain_t       main;
 
-#ifdef HAVE_BACKGROUND_IMG
+#if defined(HAVE_BACKGROUND_IMG) || defined (HAVE_PINLESS_MODE)
   // special flags for this application
   uint64_t  flags;
 #else
