@@ -3,7 +3,6 @@
 #include "bolos_target.h"
 #include "decorators.h"
 
-#ifdef HAVE_BAGL
 #ifdef HAVE_SE_SCREEN
 //SYSCALL void screen_write_frame(unsigned char* framebuffer PLENGTH(BAGL_WIDTH*BAGL_HEIGHT/8));
 /**
@@ -19,10 +18,13 @@ SYSCALL void screen_clear(void);
  */
 SYSCALL void screen_update(void);
 
+#ifdef HAVE_BRIGHTNESS_SYSCALL
 /**
  * Set screen brightness
  */
 SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void screen_set_brightness(unsigned int percent);
+#endif // HAVE_BRIGHTNESS_SYSCALL
+
 /**
  * Require a specific zone not to be cleared/drawn by any graphic HAL to implement screen overlay
  */
@@ -36,4 +38,3 @@ SYSCALL void bagl_hal_draw_bitmap_within_rect(int x, int y, unsigned int width, 
  */
 SYSCALL void bagl_hal_draw_rect(unsigned int color, int x, int y, unsigned int width, unsigned int height);
 #endif // HAVE_SE_SCREEN
-#endif // HAVE_BAGL
