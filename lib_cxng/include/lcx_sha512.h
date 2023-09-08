@@ -58,7 +58,7 @@ typedef struct cx_sha512_s cx_sha512_t;
  * @return          Error code:
  *                  - CX_OK on success
  */
-cx_err_t cx_sha384_init_no_throw(cx_sha512_t *hash);
+WARN_UNUSED_RESULT cx_err_t cx_sha384_init_no_throw(cx_sha512_t *hash);
 
 /**
  * @brief   Initializes a SHA-384 context.
@@ -68,7 +68,7 @@ cx_err_t cx_sha384_init_no_throw(cx_sha512_t *hash);
  *
  * @return          SHA384 identifier.
  */
-static inline int cx_sha384_init ( cx_sha512_t * hash )
+WARN_UNUSED_RESULT static inline int cx_sha384_init ( cx_sha512_t * hash )
 {
   cx_sha384_init_no_throw(hash);
   return CX_SHA384;
@@ -83,7 +83,7 @@ static inline int cx_sha384_init ( cx_sha512_t * hash )
  * @return          Error code:
  *                  - CX_OK on success
  */
-cx_err_t cx_sha512_init_no_throw(cx_sha512_t *hash);
+WARN_UNUSED_RESULT cx_err_t cx_sha512_init_no_throw(cx_sha512_t *hash);
 
 /**
  * @brief   Initializes a SHA-512 context.
@@ -93,7 +93,7 @@ cx_err_t cx_sha512_init_no_throw(cx_sha512_t *hash);
  *
  * @return          SHA512 identifier.
  */
-static inline int cx_sha512_init ( cx_sha512_t * hash )
+WARN_UNUSED_RESULT static inline int cx_sha512_init ( cx_sha512_t * hash )
 {
   cx_sha512_init_no_throw(hash);
   return CX_SHA512;

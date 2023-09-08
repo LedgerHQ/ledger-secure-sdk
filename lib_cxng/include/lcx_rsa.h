@@ -152,7 +152,7 @@ typedef struct cx_rsa_4096_private_key_s cx_rsa_4096_private_key_t;
  *                          - CX_OK on success
  *                          - CX_INVALID_PARAMETER
  */
-cx_err_t cx_rsa_init_public_key_no_throw(const uint8_t *      exponent,
+WARN_UNUSED_RESULT cx_err_t cx_rsa_init_public_key_no_throw(const uint8_t *      exponent,
                                 size_t               exponent_len,
                                 const uint8_t *      modulus,
                                 size_t               modulus_len,
@@ -191,7 +191,7 @@ DEPRECATED static inline int cx_rsa_init_public_key ( const unsigned char * expo
  *                          - CX_OK on success
  *                          - CX_INVALID_PARAMETER
  */
-cx_err_t cx_rsa_init_private_key_no_throw(const uint8_t *       exponent,
+WARN_UNUSED_RESULT cx_err_t cx_rsa_init_private_key_no_throw(const uint8_t *       exponent,
                                  size_t                exponent_len,
                                  const uint8_t *       modulus,
                                  size_t                modulus_len,
@@ -242,7 +242,7 @@ DEPRECATED static inline int cx_rsa_init_private_key ( const unsigned char * exp
  *                          - CX_INTERNAL_ERROR
  *                          - CX_OVERFLOW
  */
-cx_err_t cx_rsa_generate_pair_no_throw(size_t       modulus_len,
+WARN_UNUSED_RESULT cx_err_t cx_rsa_generate_pair_no_throw(size_t       modulus_len,
                               cx_rsa_public_key_t * public_key,
                               cx_rsa_private_key_t *private_key,
                               const uint8_t *       pub_exponent,
@@ -298,7 +298,7 @@ DEPRECATED static inline int cx_rsa_generate_pair ( unsigned int modulus_len, cx
  *                     - CX_MEMORY_FULL
  *                     - CX_NOT_LOCKED
  */
-cx_err_t cx_rsa_sign_with_salt_len(const cx_rsa_private_key_t *key,
+WARN_UNUSED_RESULT cx_err_t cx_rsa_sign_with_salt_len(const cx_rsa_private_key_t *key,
                                    uint32_t                    mode,
                                    cx_md_t                     hashID,
                                    const uint8_t *             hash,
@@ -345,7 +345,7 @@ cx_err_t cx_rsa_sign_with_salt_len(const cx_rsa_private_key_t *key,
  *                     - CX_MEMORY_FULL
  *                     - CX_NOT_LOCKED
  */
-cx_err_t cx_rsa_sign_no_throw(const cx_rsa_private_key_t *key,
+WARN_UNUSED_RESULT cx_err_t cx_rsa_sign_no_throw(const cx_rsa_private_key_t *key,
                      uint32_t                    mode,
                      cx_md_t                     hashID,
                      const uint8_t *             hash,
@@ -396,7 +396,7 @@ DEPRECATED static inline int cx_rsa_sign ( const cx_rsa_private_key_t * key, int
  *
  * @return             1 if the signature is verified, 0 otherwise.
  */
-bool cx_rsa_verify_with_salt_len(const cx_rsa_public_key_t *key,
+WARN_UNUSED_RESULT bool cx_rsa_verify_with_salt_len(const cx_rsa_public_key_t *key,
                                  uint32_t                   mode,
                                  cx_md_t                    hashID,
                                  const uint8_t *            hash,
@@ -440,7 +440,7 @@ bool cx_rsa_verify_with_salt_len(const cx_rsa_public_key_t *key,
  * @return             1 if the signature is verified, 0 otherwise.
  *
  */
-  bool cx_rsa_verify(const cx_rsa_public_key_t *key,
+WARN_UNUSED_RESULT   bool cx_rsa_verify(const cx_rsa_public_key_t *key,
                               uint32_t                   mode,
                               cx_md_t                    hashID,
                               const uint8_t *            hash,
@@ -480,7 +480,7 @@ bool cx_rsa_verify_with_salt_len(const cx_rsa_public_key_t *key,
  *                     - CX_MEMORY_FULL
  *                     - CX_NOT_LOCKED
  */
-cx_err_t cx_rsa_encrypt_no_throw(const cx_rsa_public_key_t *key,
+WARN_UNUSED_RESULT cx_err_t cx_rsa_encrypt_no_throw(const cx_rsa_public_key_t *key,
                         uint32_t                   mode,
                         cx_md_t                    hashID,
                         const uint8_t *            mesg,
@@ -530,7 +530,7 @@ DEPRECATED static inline int cx_rsa_encrypt ( const cx_rsa_public_key_t * key, i
  *                     - CX_MEMORY_FULL
  *                     - CX_NOT_LOCKED
  */
-cx_err_t cx_rsa_decrypt_no_throw(const cx_rsa_private_key_t *key,
+WARN_UNUSED_RESULT cx_err_t cx_rsa_decrypt_no_throw(const cx_rsa_private_key_t *key,
                         uint32_t                    mode,
                         cx_md_t                     hashID,
                         const uint8_t *             mesg,

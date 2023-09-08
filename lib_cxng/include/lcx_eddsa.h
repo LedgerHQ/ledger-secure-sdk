@@ -71,7 +71,7 @@
  *                      - CX_INTERNAL_ERROR
  *                      - CX_INVALID_PARAMETER_VALUE
  */
-cx_err_t cx_eddsa_sign_no_throw(const cx_ecfp_private_key_t *pvkey,
+WARN_UNUSED_RESULT cx_err_t cx_eddsa_sign_no_throw(const cx_ecfp_private_key_t *pvkey,
                        cx_md_t                      hashID,
                        const uint8_t *              hash,
                        size_t                       hash_len,
@@ -122,7 +122,7 @@ DEPRECATED static inline size_t cx_eddsa_sign ( const cx_ecfp_private_key_t * pv
  *
  * @return              1 if the signature is verified, otherwise 0.
  */
-bool cx_eddsa_verify_no_throw(const cx_ecfp_public_key_t *pukey,
+WARN_UNUSED_RESULT bool cx_eddsa_verify_no_throw(const cx_ecfp_public_key_t *pukey,
                      cx_md_t                     hashID,
                      const uint8_t *             hash,
                      size_t                      hash_len,
@@ -162,7 +162,7 @@ bool cx_eddsa_verify_no_throw(const cx_ecfp_public_key_t *pukey,
  *
  * @return              1 if the signature is verified, otherwise 0.
  */
-static inline int cx_eddsa_verify ( const cx_ecfp_public_key_t * pukey, int mode, cx_md_t hashID, const unsigned char * hash, unsigned int hash_len, const unsigned char * ctx, unsigned int ctx_len, const unsigned char * sig, unsigned int sig_len )
+WARN_UNUSED_RESULT static inline int cx_eddsa_verify ( const cx_ecfp_public_key_t * pukey, int mode, cx_md_t hashID, const unsigned char * hash, unsigned int hash_len, const unsigned char * ctx, unsigned int ctx_len, const unsigned char * sig, unsigned int sig_len )
 {
   UNUSED(mode);
   UNUSED(ctx);

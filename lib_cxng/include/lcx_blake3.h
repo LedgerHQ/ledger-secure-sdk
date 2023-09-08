@@ -101,7 +101,7 @@ typedef struct {
  *
  * @return                Error code.
  */
-cx_err_t cx_blake3_init(cx_blake3_t *hash, uint8_t mode, const unsigned char *key,
+WARN_UNUSED_RESULT cx_err_t cx_blake3_init(cx_blake3_t *hash, uint8_t mode, const unsigned char *key,
                         const void *context, unsigned int context_len);
 
 /**
@@ -121,7 +121,7 @@ cx_err_t cx_blake3_init(cx_blake3_t *hash, uint8_t mode, const unsigned char *ke
  *
  * @return               Error code
  */
-cx_err_t cx_blake3(cx_blake3_t *hash, uint8_t mode, const void *input,
+WARN_UNUSED_RESULT cx_err_t cx_blake3(cx_blake3_t *hash, uint8_t mode, const void *input,
                    size_t input_len, uint8_t *out, size_t out_len);
 
 /**
@@ -135,7 +135,7 @@ cx_err_t cx_blake3(cx_blake3_t *hash, uint8_t mode, const void *input,
  *
  * @return              Error code.
  */
-cx_err_t cx_blake3_update(cx_blake3_t *hash, const void *input, size_t input_len);
+WARN_UNUSED_RESULT cx_err_t cx_blake3_update(cx_blake3_t *hash, const void *input, size_t input_len);
 
 /**
  * @brief Finalizes the hash.
@@ -148,7 +148,7 @@ cx_err_t cx_blake3_update(cx_blake3_t *hash, const void *input, size_t input_len
  *
  * @return             Error code.
  */
-cx_err_t cx_blake3_final(cx_blake3_t *hash, uint8_t *output, size_t out_len);
+WARN_UNUSED_RESULT cx_err_t cx_blake3_final(cx_blake3_t *hash, uint8_t *output, size_t out_len);
 
 #endif // LCX_BLAKE3_H
 #endif // HAVE_BLAKE3

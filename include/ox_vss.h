@@ -68,7 +68,7 @@ SYSCALL cx_err_t cx_vss_generate_shares(cx_vss_share_t *shares PLENGTH(shares_nu
  * @param[in]  threshold  Threshold of the secret sharing.
  * @return Error code
  */
-SYSCALL cx_err_t cx_vss_combine_shares(uint8_t *secret PLENGTH(secret_len),
+WARN_UNUSED_RESULT SYSCALL cx_err_t cx_vss_combine_shares(uint8_t *secret PLENGTH(secret_len),
                                        size_t secret_len,
                                        cx_vss_share_t *shares PLENGTH(sizeof(cx_vss_share_t)),
                                        uint8_t threshold);
@@ -85,7 +85,7 @@ SYSCALL cx_err_t cx_vss_combine_shares(uint8_t *secret PLENGTH(secret_len),
  * @param[out] verified         The commitments match.
  * @return Error code.
  */
-SYSCALL cx_err_t cx_vss_verify_commits(cx_vss_commitment_t *commitments,
+WARN_UNUSED_RESULT SYSCALL cx_err_t cx_vss_verify_commits(cx_vss_commitment_t *commitments,
                                        uint8_t threshold,
                                        cx_vss_commitment_t *share_commitment,
                                        uint32_t share_index,

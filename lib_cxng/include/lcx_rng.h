@@ -144,7 +144,7 @@ static inline uint32_t cx_rng_u32_range(uint32_t a, uint32_t b) {
  *                      - CX_OK on success
  *                      - CX_INVALID_PARAMETER
  */
-cx_err_t cx_rng_rfc6979(cx_md_t hash_id,
+WARN_UNUSED_RESULT cx_err_t cx_rng_rfc6979(cx_md_t hash_id,
                         const uint8_t *x, size_t x_len,
                         const uint8_t *h1, size_t h1_len,
                         const uint8_t *q, size_t q_len,

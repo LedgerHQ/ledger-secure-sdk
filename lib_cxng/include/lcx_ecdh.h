@@ -72,7 +72,7 @@
  *                          - CX_INVALID_PARAMETER_SIZE
  *                          - CX_EC_INFINITE_POINT
  */
-cx_err_t cx_ecdh_no_throw(const cx_ecfp_private_key_t *pvkey,
+WARN_UNUSED_RESULT cx_err_t cx_ecdh_no_throw(const cx_ecfp_private_key_t *pvkey,
                  uint32_t                     mode,
                  const uint8_t *              P,
                  size_t                       P_len,
