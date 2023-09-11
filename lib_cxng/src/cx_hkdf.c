@@ -31,7 +31,7 @@ void cx_hkdf_extract(const cx_md_t hash_id, const unsigned char* ikm, unsigned i
 
 }
 
-void cx_hkdf_expand(const cx_md_t hash_id, const unsigned char *prk, unsigned int prk_len, unsigned char *info,
+void cx_hkdf_expand(const cx_md_t hash_id, const unsigned char *prk, unsigned int prk_len, const unsigned char *info,
                    unsigned int info_len, unsigned char *okm, unsigned int okm_len) {
   unsigned char         i;
   unsigned int          offset = 0;
