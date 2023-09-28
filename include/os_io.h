@@ -1,104 +1,78 @@
+/* @BANNER@ */
+
 #pragma once
+
+/* Includes ------------------------------------------------------------------*/
 #include <stdbool.h>
 #include <stdint.h>
-#include "bolos_target.h"
-#include "os_math.h"
 #include "decorators.h"
-/* ----------------------------------------------------------------------- */
-/* -                            GLOBALS                                  - */
-/* ----------------------------------------------------------------------- */
+#include "os_io_legacy.h"
 
-// the global apdu buffer
-#ifdef HAVE_IO_U2F
-#define IMPL_IO_APDU_BUFFER_SIZE (3 + 32 + 32 + 15 + 255)
-#else
-#define IMPL_IO_APDU_BUFFER_SIZE (5 + 255)
-#endif
-#ifdef CUSTOM_IO_APDU_BUFFER_SIZE
-#define IO_APDU_BUFFER_SIZE MAX(IMPL_IO_APDU_BUFFER_SIZE, CUSTOM_IO_APDU_BUFFER_SIZE)
-#else
-#define IO_APDU_BUFFER_SIZE IMPL_IO_APDU_BUFFER_SIZE
-#endif
+#ifdef HAVE_IO_USB
+#include "usbd_ledger.h"
+#endif  // HAVE_IO_USB
 
-typedef struct apdu_buffer_s {
-    uint8_t *buf;
-    uint16_t len;
-} apdu_buffer_t;
+#ifdef HAVE_BLE
+#include "ble_ledger.h"
+#endif  // HAVE_BLE
 
-extern unsigned char G_io_apdu_buffer[IO_APDU_BUFFER_SIZE];
-
-// send tx_len bytes (atr or rapdu) and retrieve the length of the next command apdu (over the
-// requested channel)
-#define CHANNEL_APDU           0
-#define CHANNEL_KEYBOARD       1
-#define CHANNEL_SPI            2
-#define IO_RESET_AFTER_REPLIED 0x80
-#define IO_RECEIVE_DATA        0x40
-#define IO_RETURN_AFTER_TX     0x20
-#define IO_ASYNCH_REPLY        0x10  // avoid apdu state reset if tx_len == 0 when we're expected to reply
-#define IO_FINISHED            0x08  // inter task communication value
-#define IO_FLAGS               0xF8
-unsigned short io_exchange(unsigned char channel_and_flags, unsigned short tx_len);
-
+/* Exported enumerations -----------------------------------------------------*/
 typedef enum {
-    IO_APDU_MEDIA_NONE    = 0,  // not correctly in an apdu exchange
-    IO_APDU_MEDIA_USB_HID = 1,
-    IO_APDU_MEDIA_BLE,
-    IO_APDU_MEDIA_NFC,
-    IO_APDU_MEDIA_USB_CCID,
-    IO_APDU_MEDIA_USB_WEBUSB,
-    IO_APDU_MEDIA_RAW,
-    IO_APDU_MEDIA_U2F,
-} io_apdu_media_t;
+    OS_IO_PACKET_TYPE_INVALID         = 0x00,
+    OS_IO_PACKET_TYPE_SEPH            = 0x10,
+    OS_IO_PACKET_TYPE_SE_EVT          = 0x20,
+    OS_IO_PACKET_TYPE_RAW_APDU        = 0x30,
+    OS_IO_PACKET_TYPE_USB_HID_APDU    = 0x40,
+    OS_IO_PACKET_TYPE_USB_WEBUSB_APDU = 0x41,
+    OS_IO_PACKET_TYPE_USB_CDC_RAW     = 0x52,
+    OS_IO_PACKET_TYPE_BLE_APDU        = 0x60,
+    OS_IO_PACKET_TYPE_NFC_APDU        = 0x70,
+} os_io_packet_type_t;
 
-#ifndef USB_SEGMENT_SIZE
-#ifdef IO_HID_EP_LENGTH
-#define USB_SEGMENT_SIZE IO_HID_EP_LENGTH
-#else
-#error IO_HID_EP_LENGTH and USB_SEGMENT_SIZE not defined
-#endif
-#endif
-#ifndef BLE_SEGMENT_SIZE
-#define BLE_SEGMENT_SIZE USB_SEGMENT_SIZE
-#endif
-// common usb endpoint buffer
-extern unsigned char G_io_usb_ep_buffer[MAX(USB_SEGMENT_SIZE, BLE_SEGMENT_SIZE)];
+/* Exported types, structures, unions ----------------------------------------*/
+typedef struct {
+    uint16_t pid;
+    uint16_t vid;
+    char    *name;
+    uint16_t class_mask;  // usbd_ledger_product_e
+} os_io_init_usb_t;
 
-/**
- * Return 1 when the event has been processed, 0 else
- */
-// io callback in the application called when an interrupt based channel has received data to be
-// processed
-unsigned char io_event(unsigned char channel);
+typedef struct {
+    uint16_t profile_mask;  // ble_ledger_profile_mask_e
+} os_io_init_ble_t;
 
-#ifdef HAVE_SE_TOUCH
-typedef struct io_touch_info_s {
-    uint16_t x;
-    uint16_t y;
-    uint8_t  state;
-    uint8_t  w;
-    uint8_t  h;
-} io_touch_info_t;
+typedef struct {
+    os_io_init_usb_t usb;
+    os_io_init_ble_t ble;
+} os_io_init_t;
 
-typedef enum io_touch_debug_mode_e {
-    TOUCH_DEBUG_END            = 0,
-    TOUCH_DEBUG_READ_RAW_DATA  = 1,
-    TOUCH_DEBUG_READ_DIFF_DATA = 2,
-} io_touch_debug_mode_t;
+/* Exported defines   --------------------------------------------------------*/
 
-// bitfield for exclusion borders, for touch_exclude_borders() (if a bit is set, means that pixels
-// on this border are not taken into account)
-#define LEFT_BORDER   1
-#define RIGHT_BORDER  2
-#define TOP_BORDER    4
-#define BOTTOM_BORDER 8
+/* Exported macros------------------------------------------------------------*/
 
-#ifdef HAVE_SE_TOUCH
-SYSCALL void    touch_get_last_info(io_touch_info_t *info);
-SYSCALL void    touch_set_state(bool enable);
-SYSCALL uint8_t touch_exclude_borders(uint8_t excluded_borders);
-#ifdef HAVE_TOUCH_READ_DEBUG_DATA_SYSCALL
-SYSCALL uint8_t touch_switch_debug_mode_and_read(io_touch_debug_mode_t mode, uint8_t *read_buffer);
-#endif
-#endif
-#endif  // HAVE_SE_TOUCH
+/* Exported variables --------------------------------------------------------*/
+extern unsigned char G_io_apdu_rx_buffer[IO_APDU_BUFFER_SIZE];
+extern unsigned char G_io_apdu_tx_buffer[IO_APDU_BUFFER_SIZE];
+
+extern uint16_t      G_io_seph_rx_buffer_length;
+extern unsigned char G_io_seph_rx_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B + 1];
+
+/* Exported functions prototypes--------------------------------------------- */
+int32_t os_io_init(void);
+int32_t os_io_start(os_io_init_t *init);
+int32_t os_io_de_init(void);
+int32_t os_io_stop(void);
+
+int32_t     os_io_rx_evt(uint32_t *timeout);
+SYSCALL int os_io_tx_cmd(const unsigned char *buffer PLENGTH(length),
+                         unsigned short              length,
+                         unsigned int               *timeout_ms);
+
+SYSCALL int io_seph_tx(const unsigned char *buffer PLENGTH(length),
+                       unsigned short              length,
+                       unsigned int               *timeout_ms);
+SYSCALL int io_seph_se_rx_event(unsigned char *buffer PLENGTH(length),
+                                unsigned short        max_length,
+                                unsigned int         *timeout_ms,
+                                bool                  check_se_event,
+                                unsigned int          flags);

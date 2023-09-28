@@ -3,6 +3,7 @@
 
 #include "stdint.h"
 #include "errors.h"
+#include <stdbool.h>
 
 /*********************
  *      DEFINES
@@ -113,4 +114,16 @@ uint16_t os_get_uri_header(uint8_t uri_id, char *uri_header);
 uint8_t  os_parse_ndef(uint8_t *in_buffer, ndef_struct_t *parsed);
 uint16_t os_ndef_to_string(ndef_struct_t *ndef_message, char *out_string);
 
-#endif
+#ifdef HAVE_NFC
+#ifdef HAVE_NDEF_SUPPORT
+void io_seproxyhal_nfc_init(uint8_t       *out_buffer,
+                            size_t         out_buffer_max_length,
+                            ndef_struct_t *ndef_message,
+                            bool           async,
+                            bool           forceInit);
+#else   // ! HAVE_NDEF_SUPPORT
+void io_seproxyhal_nfc_init(bool forceInit);
+#endif  // ! HAVE_NDEF_SUPPORT
+#endif // HAVE_NFC
+
+#endif // NFC_H

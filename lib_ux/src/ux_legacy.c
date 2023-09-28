@@ -20,7 +20,7 @@
 #include "os_helpers.h"
 #include "os_pic.h"
 #include "os_pin.h"
-#include "os_io_seproxyhal.h"
+#include "os_io_seph_ux.h"
 #include <string.h>
 
 #ifdef HAVE_UX_LEGACY
@@ -439,35 +439,30 @@ const bagl_element_t printf_element = {
 void debug_wait_displayed(void)
 {
     // wait next event (probably a ticker, if not, too bad... this is debug !!)
-    io_seproxyhal_spi_recv(G_io_seproxyhal_spi_buffer, sizeof(G_io_seproxyhal_spi_buffer), 0);
+    io_seph_se_rx_event(G_io_seph_rx_buffer, sizeof(G_io_seph_rx_buffer), NULL, false, 0);
 }
 
-#if defined(HAVE_DEBUG) || defined(BOLOS_DEBUG)
+/*#if defined(HAVE_DEBUG) || defined(BOLOS_DEBUG)
 #include "string.h"
 
-void debug_printf(void *buffer)
-{
+void debug_printf(void* buffer) {
 #ifdef TARGET_NANOS
-    io_seproxyhal_display_default(&clear_element);
-    debug_wait_displayed();
-#endif  // TARGET_NANOS
-    memmove(&G_ux.tmp_element, &printf_element, sizeof(bagl_element_t));
-    G_ux.tmp_element.text = buffer;
-    io_seproxyhal_display_default(&G_ux.tmp_element);
-    debug_wait_displayed();
-    // // ask to replicate mcu buffer to the screen
-    // io_seproxyhal_general_status();
-    // // wait up the display processed
-    // io_seproxyhal_spi_recv(G_io_seproxyhal_spi_buffer, sizeof(G_io_seproxyhal_spi_buffer), 0);
-    // wait until a button event
-    while (G_io_seproxyhal_spi_buffer[0] != SEPROXYHAL_TAG_BUTTON_PUSH_EVENT
-           // not marked as released
-           || G_io_seproxyhal_spi_buffer[3] != 0) {
-        io_seproxyhal_general_status();
-        io_seproxyhal_spi_recv(G_io_seproxyhal_spi_buffer, sizeof(G_io_seproxyhal_spi_buffer), 0);
-    }
+  os_io_seph_ux_display_bagl_element(&clear_element);
+  debug_wait_displayed();
+#endif // TARGET_NANOS
+  memmove(&G_ux.tmp_element, &printf_element, sizeof(bagl_element_t));
+  G_ux.tmp_element.text = buffer;
+  os_io_seph_ux_display_bagl_element(&G_ux.tmp_element);
+  debug_wait_displayed();
+  // wait until a button event
+  while (G_io_seph_rx_buffer[0] != SEPROXYHAL_TAG_BUTTON_PUSH_EVENT
+    // not marked as released
+    || G_io_seph_rx_buffer[3] != 0) {
+    io_seproxyhal_general_status();
+    io_seproxyhal_spi_recv(G_io_seph_rx_buffer, sizeof(G_io_seph_rx_buffer), 0);
+  }
 }
-#endif  // defined(HAVE_DEBUG) || defined(BOLOS_DEBUG)
+#endif // defined(HAVE_DEBUG) || defined(BOLOS_DEBUG)*/
 
 #ifdef HAVE_DEBUG
 #define L(x) debug_printf(x)

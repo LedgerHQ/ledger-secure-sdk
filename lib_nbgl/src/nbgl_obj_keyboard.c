@@ -17,7 +17,7 @@
 #include "nbgl_fonts.h"
 #include "nbgl_touch.h"
 #include "glyphs.h"
-#include "os_io.h"
+#include "os_io_seph_ux.h"
 
 /*********************
  *      DEFINES
@@ -703,6 +703,6 @@ void nbgl_objDrawKeyboard(nbgl_keyboard_t *kbd)
 
     // If a keyboard in the screen, exclude only top border from touch, to avoid missing touch on
     // left keys
-    touch_exclude_borders(TOP_BORDER);
+    touch_exclude_borders(OS_IO_TOUCH_AREA_TOP_BORDER);
 }
 #endif  // NBGL_KEYBOARD

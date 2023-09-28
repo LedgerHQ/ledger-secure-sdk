@@ -148,19 +148,6 @@ typedef unsigned int (*button_push_callback_t)(unsigned int button_mask,
 void io_seproxyhal_button_push(button_push_callback_t button_push_callback,
                                unsigned int           new_button_mask);
 
-// hal point (if application has to reprocess elements)
-void io_seproxyhal_display(const bagl_element_t *element);
-
-// Helper function that give a realistic timing of scrolling for label with text larger than screen
-unsigned int bagl_label_roundtrip_duration_ms(const bagl_element_t *e,
-                                              unsigned int          average_char_width);
-unsigned int bagl_label_roundtrip_duration_ms_buf(const bagl_element_t *e,
-                                                  const char           *str,
-                                                  unsigned int          average_char_width);
-
-// default version to be called by ::io_seproxyhal_display if nothing to be done by the application
-void io_seproxyhal_display_default(const bagl_element_t *element);
-
 #ifndef UX_STACK_SLOT_COUNT
 #define UX_STACK_SLOT_COUNT 1
 #endif  // UX_STACK_SLOT_COUNT
@@ -387,7 +374,7 @@ extern bolos_ux_params_t G_ux_params;
                                    .element_arrays[0]                                             \
                                    .element_array[G_ux.stack[0].element_index];                   \
                 }                                                                                 \
-                io_seproxyhal_display(element);                                                   \
+                os_io_seph_ux_display_bagl_element(element);                                      \
             }                                                                                     \
             G_ux.stack[0].element_index++;                                                        \
         }                                                                                         \
@@ -395,11 +382,10 @@ extern bolos_ux_params_t G_ux_params;
             screen_update();                                                                      \
         }                                                                                         \
     }
-#else  // HAVE_SE_SCREEN
+#else  // !HAVE_SE_SCREEN
 #define UX_DISPLAY_NEXT_ELEMENT()                                                                  \
     while (G_ux.stack[0].element_arrays[0].element_array                                           \
            && G_ux.stack[0].element_index < G_ux.stack[0].element_arrays[0].element_array_count    \
-           && !io_seproxyhal_spi_is_status_sent()                                                  \
            && (os_perso_isonboarded() != BOLOS_UX_OK                                               \
                || os_global_pin_is_validated() == BOLOS_UX_OK)) {                                  \
         const bagl_element_t *element                                                              \
@@ -411,7 +397,7 @@ extern bolos_ux_params_t G_ux_params;
                 element                                                                            \
                     = &G_ux.stack[0].element_arrays[0].element_array[G_ux.stack[0].element_index]; \
             }                                                                                      \
-            io_seproxyhal_display(element);                                                        \
+            os_io_seph_ux_display_bagl_element(element);                                           \
         }                                                                                          \
         G_ux.stack[0].element_index++;                                                             \
     }
@@ -491,16 +477,14 @@ extern bolos_ux_params_t G_ux_params;
  * Redisplay request (no immediate display status sent)
  */
 #define UX_REDISPLAY_REQUEST()   \
-    io_seproxyhal_init_ux();     \
-    io_seproxyhal_init_button(); \
+    os_io_seph_ux_init_button(); \
     G_ux.stack[0].element_index = 0;
 
 /**
  * Force redisplay of the screen from the given index in the screen's element array
  */
 #define UX_REDISPLAY_IDX(index)                                                                \
-    io_seproxyhal_init_ux();                                                                   \
-    io_seproxyhal_init_button(); /*ensure to avoid release of a button from a nother screen to \
+    os_io_seph_ux_init_button(); /*ensure to avoid release of a button from a nother screen to \
                                     mess up with the redisplayed screen */                     \
     G_ux.stack[0].element_index = index;                                                       \
     /* REDRAW is redisplay already, use os_ux return value to check */                         \
@@ -555,12 +539,11 @@ extern bolos_ux_params_t G_ux_params;
                               UX_REDISPLAY(),               \
                               ignoring_app_if_ux_busy);
 
-#define UX_CONTINUE_DISPLAY_APP(displayed_callback)                                        \
-    UX_DISPLAY_NEXT_ELEMENT();                                                             \
-    /* all items have been displayed */                                                    \
-    if (G_ux.stack[0].element_index >= G_ux.stack[0].element_arrays[0].element_array_count \
-        && !io_seproxyhal_spi_is_status_sent()) {                                          \
-        displayed_callback                                                                 \
+#define UX_CONTINUE_DISPLAY_APP(displayed_callback)                                           \
+    UX_DISPLAY_NEXT_ELEMENT();                                                                \
+    /* all items have been displayed */                                                       \
+    if (G_ux.stack[0].element_index >= G_ux.stack[0].element_arrays[0].element_array_count) { \
+        displayed_callback                                                                    \
     }
 
 /**
@@ -579,20 +562,20 @@ extern bolos_ux_params_t G_ux_params;
  * Macro to process sequentially display a screen. The call finishes when the UX is completely
  * displayed, and the state of the MCU <-> SE exchanges is the same as before this macro call.
  */
-#define UX_WAIT_DISPLAYED()                                                                        \
-    while (!UX_DISPLAYED()) {                                                                      \
-        /* We wait for the MCU event (should indicate display processed for a bagl element) */     \
-        io_seproxyhal_spi_recv(G_io_seproxyhal_spi_buffer, sizeof(G_io_seproxyhal_spi_buffer), 0); \
-        io_seproxyhal_handle_event();                                                              \
-        UX_DISPLAY_NEXT_ELEMENT();                                                                 \
-    }                                                                                              \
-    io_seproxyhal_spi_recv(G_io_seproxyhal_spi_buffer, sizeof(G_io_seproxyhal_spi_buffer), 0);     \
-    io_seproxyhal_handle_event();                                                                  \
-    /* We send a general status which indicates to the MCU that he can process any pending action  \
-     * (i.e. here, display the whole screen) */                                                    \
-    io_seproxyhal_general_status();                                                                \
-    /* We wait for an ack of the MCU. */                                                           \
-    io_seproxyhal_spi_recv(G_io_seproxyhal_spi_buffer, sizeof(G_io_seproxyhal_spi_buffer), 0);
+#define UX_WAIT_DISPLAYED()                                                                       \
+    while (!UX_DISPLAYED()) {                                                                     \
+        /* We wait for the MCU event (should indicate display processed for a bagl element) */    \
+        io_seproxyhal_spi_recv(G_io_seph_rx_buffer, sizeof(G_io_seph_rx_buffer), 0);              \
+        io_seproxyhal_handle_event();                                                             \
+        UX_DISPLAY_NEXT_ELEMENT();                                                                \
+    }                                                                                             \
+    io_seproxyhal_spi_recv(G_io_seph_rx_buffer, sizeof(G_io_seph_rx_buffer), 0);                  \
+    io_seproxyhal_handle_event();                                                                 \
+    /* We send a general status which indicates to the MCU that he can process any pending action \
+     * (i.e. here, display the whole screen) */                                                   \
+    io_seproxyhal_general_status();                                                               \
+    /* We wait for an ack of the MCU. */                                                          \
+    io_seproxyhal_spi_recv(G_io_seph_rx_buffer, sizeof(G_io_seph_rx_buffer), 0);
 
 /**
  * Process button push events. Application's button event handler is called only if the ux app does
@@ -657,9 +640,9 @@ extern bolos_ux_params_t G_ux_params;
  * Setup the TICKER_EVENT interval. Application shall not use this entry point as it's the main
  * ticking source. Use the ::UX_SET_INTERVAL_MS instead.
  */
-void io_seproxyhal_setup_ticker(unsigned int interval_ms);
+// void io_seproxyhal_setup_ticker(unsigned int interval_ms);
 
-void io_seproxyhal_request_mcu_status(void);
+// void io_seproxyhal_request_mcu_status(void);
 
 /**
  * Helper function to order the MCU to display the given bitmap with the given color index, a table
@@ -673,20 +656,11 @@ void io_seproxyhal_display_bitmap(int            x,
                                   unsigned int   bit_per_pixel,
                                   unsigned char *bitmap);
 
-void io_seproxyhal_power_off(bool criticalBattery);
-
 void io_seproxyhal_se_reset(void);
 
-void io_seproxyhal_disable_io(void);
+// void io_seproxyhal_disable_io(void);
 
 void io_seproxyhal_backlight(unsigned int flags, unsigned int backlight_percentage);
-
-/**
- * Helper function to send the given bitmap splitting into multiple DISPLAY_RAW packet as the bitmap
- * is not meant to fit in a single SEPROXYHAL packet.
- */
-void io_seproxyhal_display_icon(const bagl_component_t    *icon_component,
-                                const bagl_icon_details_t *icon_details);
 
 /**
  * Helper method on the Blue to output icon header to the MCU and allow for bitmap transformation

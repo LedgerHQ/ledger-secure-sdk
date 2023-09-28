@@ -22,7 +22,6 @@
 #include "checks.h"
 #include "os_helpers.h"
 #include "os_pin.h"
-#include "os_io_seproxyhal.h"
 #include "os_screen.h"
 #include "ux.h"
 
@@ -125,8 +124,7 @@ void ui_audited_deinit(void)
     // for
     // further displays at the moment) and reinitialize the UX and buttons.
     ux_stack_pop();
-    io_seproxyhal_init_ux();
-    io_seproxyhal_init_button();
+    os_io_seph_ux_init_button();
 }
 #endif  // HAVE_BAGL
 
@@ -191,8 +189,7 @@ void check_audited_app(void)
         // events in the meantime. This callback will be wiped within the actual
         // 'ui_audited_elements_button' function, as soon as the user presses both buttons.
         do {
-            io_seproxyhal_spi_recv(
-                G_io_seproxyhal_spi_buffer, sizeof(G_io_seproxyhal_spi_buffer), 0);
+            io_seproxyhal_spi_recv(G_io_seph_rx_buffer, sizeof(G_io_seph_rx_buffer), 0);
             io_seproxyhal_handle_event();
             io_seproxyhal_general_status();
         } while (!ui_audited_done());
@@ -200,7 +197,7 @@ void check_audited_app(void)
         ui_audited_deinit();
 
         // Now we can wait for the next MCU status and exit.
-        io_seproxyhal_spi_recv(G_io_seproxyhal_spi_buffer, sizeof(G_io_seproxyhal_spi_buffer), 0);
+        io_seproxyhal_spi_recv(G_io_seph_rx_buffer, sizeof(G_io_seph_rx_buffer), 0);
     }
 }
 

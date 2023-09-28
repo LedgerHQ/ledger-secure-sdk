@@ -17,7 +17,7 @@
 #include "nbgl_fonts.h"
 #include "nbgl_touch.h"
 #include "glyphs.h"
-#include "os_io_seproxyhal.h"
+#include "os_io_seph_cmd.h"
 #include "lcx_rng.h"
 
 /*********************

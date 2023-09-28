@@ -26,8 +26,11 @@
 
 #ifndef HAVE_LOCAL_APDU_BUFFER
 // apdu buffer must hold a complete apdu to avoid troubles
-unsigned char G_io_apdu_buffer[IO_APDU_BUFFER_SIZE];
+unsigned char G_io_apdu_rx_buffer[IO_APDU_BUFFER_SIZE];
+unsigned char G_io_apdu_tx_buffer[IO_APDU_BUFFER_SIZE];
 #endif
+
+bolos_ux_asynch_callback_t G_io_asynch_ux_callback;
 
 #ifndef BOLOS_OS_UPGRADER_APP
 void os_boot(void)

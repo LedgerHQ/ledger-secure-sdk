@@ -15,7 +15,7 @@
 #include "os_print.h"
 #include "glyphs.h"
 #ifdef HAVE_SERIALIZED_NBGL
-#include "os_io_seproxyhal.h"
+#include "os_io_seph_ux.h"
 #endif
 
 /*********************

@@ -15,7 +15,7 @@
 #include "os_registry.h"
 #include "os_ux.h"
 #ifdef HAVE_SE_TOUCH
-#include "os_io.h"
+#include "os_io_seph_ux.h"
 #endif  // HAVE_SE_TOUCH
 #include "ox_ec.h"
 #include "ox_bn.h"
@@ -1738,6 +1738,39 @@ unsigned short io_seph_recv(unsigned char *buffer, unsigned short maxlength, uns
     return (unsigned short) SVC_Call(SYSCALL_io_seph_recv_ID, parameters);
 }
 
+int io_seph_tx(const unsigned char *buffer, unsigned short length, unsigned int *timeout_ms)
+{
+    unsigned int parameters[3];
+    parameters[0] = (unsigned int) buffer;
+    parameters[1] = (unsigned int) length;
+    parameters[2] = (unsigned int) timeout_ms;
+    return (int) SVC_Call(SYSCALL_io_seph_tx_ID, parameters);
+}
+
+int io_seph_se_rx_event(unsigned char *buffer,
+                        unsigned short max_length,
+                        unsigned int  *timeout_ms,
+                        bool           check_se_event,
+                        unsigned int   flags)
+{
+    unsigned int parameters[5];
+    parameters[0] = (unsigned int) buffer;
+    parameters[1] = (unsigned int) max_length;
+    parameters[2] = (unsigned int) timeout_ms;
+    parameters[3] = (unsigned int) check_se_event;
+    parameters[4] = (unsigned int) flags;
+    return (int) SVC_Call(SYSCALL_io_seph_se_rx_event_ID, parameters);
+}
+
+int os_io_tx_cmd(const unsigned char *buffer, unsigned short length, unsigned int *timeout_ms)
+{
+    unsigned int parameters[3];
+    parameters[0] = (unsigned int) buffer;
+    parameters[1] = (unsigned int) length;
+    parameters[2] = (unsigned int) timeout_ms;
+    return (int) SVC_Call(SYSCALL_os_io_tx_cmd_ID, parameters);
+}
+
 void nvm_write_page(unsigned int page_adr, bool force)
 {
     unsigned int parameters[2];
@@ -2149,7 +2182,7 @@ uint8_t touch_exclude_borders(uint8_t excluded_borders)
 }
 
 #ifdef HAVE_TOUCH_READ_DEBUG_DATA_SYSCALL
-uint8_t touch_switch_debug_mode_and_read(io_touch_debug_mode_t mode, uint8_t *read_buffer)
+uint8_t touch_switch_debug_mode_and_read(os_io_touch_debug_mode_t mode, uint8_t *read_buffer)
 {
     unsigned int parameters[2];
     parameters[0] = (unsigned int) mode;

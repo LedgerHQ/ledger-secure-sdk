@@ -14,7 +14,7 @@ extern "C" {
 #include "nbgl_obj.h"
 #include "nbgl_screen.h"
 #include "nbgl_types.h"
-#include "os_io_seproxyhal.h"
+#include "os_io_seph_cmd.h"
 
 /*********************
  *      INCLUDES

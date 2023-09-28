@@ -18,6 +18,10 @@
 
 #pragma once
 
+#if defined(HAVE_BOLOS)
+#include "bolos_privileged_ux.h"
+#endif  // HAVE_BOLOS
+
 #include "os_math.h"
 #include "os_ux.h"
 #include "os_task.h"
@@ -126,9 +130,6 @@ bolos_err_t delete_background_img(void);
 #endif
 
 extern ux_seph_os_and_app_t G_ux_os;
-
-void io_seproxyhal_request_mcu_status(void);
-void io_seproxyhal_power_off(bool criticalBattery);
 
 #if defined(HAVE_LANGUAGE_PACK)
 const char *get_ux_loc_string(UX_LOC_STRINGS_INDEX index);
