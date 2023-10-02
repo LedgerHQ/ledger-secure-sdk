@@ -41,6 +41,8 @@ void BLE_LEDGER_init(void);
 void BLE_LEDGER_start(uint16_t profile_mask);  // mask forged with ble_ledger_profile_mask_e
 void BLE_LEDGER_enable_advertising(uint8_t enable);
 void BLE_LEDGER_reset_pairings(void);
+void BLE_LEDGER_accept_pairing(uint8_t status);
+void BLE_LEDGER_name_changed(void);
 
 // Rx
 int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
@@ -53,3 +55,7 @@ uint32_t BLE_LEDGER_send(uint8_t *packet, uint16_t packet_length, uint32_t timeo
 
 // Check APDU
 int32_t BLE_LEDGER_data_ready(uint8_t *buffer, uint16_t max_length);
+
+// Setting
+void BLE_LEDGER_setting(uint32_t profile_id, uint32_t setting_id,
+                        uint8_t *buffer, uint16_t length);

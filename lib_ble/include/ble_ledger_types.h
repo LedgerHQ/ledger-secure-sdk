@@ -57,6 +57,8 @@ typedef uint8_t (*ble_profile_send_packet_t)(uint8_t *packet, uint16_t length, v
 
 typedef int32_t (*ble_profile_data_ready_t)(uint8_t *buffer, uint16_t max_length, void *cookie);
 
+typedef void (*ble_profile_setting_t)(uint32_t id, uint8_t *buffer, uint16_t length, void *cookie);
+
 typedef struct ble_profile_info_t_ {
     uint8_t type;  // ble_ledger_profile_mask_e
 
@@ -80,6 +82,8 @@ typedef struct ble_profile_info_t_ {
     ble_profile_send_packet_t send_packet;
 
     ble_profile_data_ready_t data_ready;
+
+    ble_profile_setting_t setting;
 
     void *cookie;
 } ble_profile_info_t;

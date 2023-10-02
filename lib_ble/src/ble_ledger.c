@@ -69,6 +69,7 @@ typedef struct {
     uint8_t             nb_of_profile;
     ble_profile_info_t *profile[2];
     uint16_t            profiles;
+    uint8_t             ble_ready;
 
     // Init
     ble_init_step_t init_step;
@@ -76,6 +77,8 @@ typedef struct {
     // Advertising configuration
     ble_config_adv_step_t adv_step;
     uint8_t               adv_enable;
+    uint8_t               enabling_advertising;
+    uint8_t               disabling_advertising;
 
     // HCI
     ble_cmd_data_t cmd_data;
@@ -95,6 +98,9 @@ typedef struct {
     // APDU
     uint16_t apdu_buffer_length;
     uint8_t  apdu_buffer[IO_APDU_BUFFER_SIZE];
+
+    // Name
+    uint8_t name_changed;
 
 } ble_ledger_data_t;
 
@@ -277,7 +283,7 @@ static void init_mngr(uint8_t *hci_buffer, uint16_t length)
                 ble_aci_gap_forge_cmd_clear_security_db(&ble_ledger_data.cmd_data);
                 send_hci_packet(0);
             }
-            G_io_app.ble_ready    = 1;
+            ble_ledger_data.ble_ready    = 1;
             ble_ledger_data.state = BLE_STATE_INITIALIZED;
             break;
 
@@ -409,10 +415,10 @@ static void advertising_enable(uint8_t enable)
 
 static void start_advertising(void)
 {
-    if (G_io_app.name_changed) {
-        G_io_app.name_changed    = 0;
-        ble_ledger_data.state    = BLE_STATE_CONFIGURE_ADVERTISING;
-        ble_ledger_data.adv_step = BLE_CONFIG_ADV_STEP_IDLE;
+    if (ble_ledger_data.name_changed) {
+        ble_ledger_data.name_changed = 0;
+        ble_ledger_data.state        = BLE_STATE_CONFIGURE_ADVERTISING;
+        ble_ledger_data.adv_step     = BLE_CONFIG_ADV_STEP_IDLE;
     }
     else {
         ble_ledger_data.state    = BLE_STATE_CONFIGURE_ADVERTISING;
@@ -427,15 +433,13 @@ static void ask_user_pairing_numeric_comparison(uint32_t code)
 {
     bolos_ux_params_t ux_params;
 
-    SPRINTF(ux_params.u.pairing_request.pairing_info, "%06d", (unsigned int) code);
-
     ux_params.u.pairing_request.type             = BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST_NUMCOMP;
     ux_params.u.pairing_request.pairing_info_len = 6;
     ux_params.ux_id                              = BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST;
     ux_params.len                                = sizeof(ux_params.u.pairing_request);
+    ble_ledger_data.pairing_in_progress          = 1;
 
-    G_io_asynch_ux_callback.asynchmodal_end_callback = rsp_user_pairing_numeric_comparison;
-    ble_ledger_data.pairing_in_progress              = 1;
+    SPRINTF(ux_params.u.pairing_request.pairing_info, "%06d", (unsigned int) code);
 
     os_ux(&ux_params);
 }
@@ -458,16 +462,15 @@ static void ask_user_pairing_passkey(void)
 {
     bolos_ux_params_t ux_params;
 
-    ble_ledger_data.pairing_code = cx_rng_u32_range_func(0, 1000000, cx_rng_u32);
-    SPRINTF(ux_params.u.pairing_request.pairing_info, "%06d", ble_ledger_data.pairing_code);
 
     ux_params.u.pairing_request.type             = BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST_PASSKEY;
     ux_params.u.pairing_request.pairing_info_len = 6;
     ux_params.ux_id                              = BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST;
     ux_params.len                                = sizeof(ux_params.u.pairing_request);
+    ble_ledger_data.pairing_in_progress          = 2;
+    ble_ledger_data.pairing_code                 = cx_rng_u32_range_func(0, 1000000, cx_rng_u32);
 
-    G_io_asynch_ux_callback.asynchmodal_end_callback = rsp_user_pairing_passkey;
-    ble_ledger_data.pairing_in_progress              = 1;
+    SPRINTF(ux_params.u.pairing_request.pairing_info, "%06d", ble_ledger_data.pairing_code);
 
     os_ux(&ux_params);
 }
@@ -492,7 +495,6 @@ static void end_pairing_ux(void)
     if (ble_ledger_data.pairing_in_progress) {
         ux_params.ux_id = BOLOS_UX_ASYNCHMODAL_PAIRING_CANCEL;
         ux_params.len   = 0;
-        // G_io_asynch_ux_callback.asynchmodal_end_callback = NULL;
         ble_ledger_data.pairing_in_progress = 0;
         os_ux(&ux_params);
     }
@@ -540,25 +542,28 @@ static void hci_evt_cmd_complete(uint8_t *buffer, uint16_t length)
              || (opcode == ACI_GAP_SET_DISCOVERABLE_CMD_CODE)) {
         DEBUG("HCI_LE_SET_ADVERTISE_ENABLE %04X %d %d\n",
               ble_ledger_data.connection.connection_handle,
-              G_io_app.disabling_advertising,
-              G_io_app.enabling_advertising);
+              ble_ledger_data.disabling_advertising,
+              ble_ledger_data.enabling_advertising);
         if (ble_ledger_data.connection.connection_handle != 0xFFFF) {
-            if (G_io_app.disabling_advertising) {
+            if (ble_ledger_data.disabling_advertising) {
                 // Connected & ordered to disable ble, force disconnection
                 BLE_LEDGER_init();  // BLE_TODO
             }
         }
-        else if (G_io_app.disabling_advertising) {
+        else if (ble_ledger_data.disabling_advertising) {
             ble_ledger_data.advertising_enabled = 0;
+            if (ble_ledger_data.name_changed) {
+                start_advertising();
+            }
         }
-        else if (G_io_app.enabling_advertising) {
+        else if (ble_ledger_data.enabling_advertising) {
             ble_ledger_data.advertising_enabled = 1;
         }
         else {
             ble_ledger_data.advertising_enabled = 1;
         }
-        G_io_app.disabling_advertising = 0;
-        G_io_app.enabling_advertising  = 0;
+        ble_ledger_data.disabling_advertising = 0;
+        ble_ledger_data.enabling_advertising  = 0;
     }
     else if (opcode == ACI_GAP_NUMERIC_COMPARISON_VALUE_CONFIRM_YESNO_CMD_CODE) {
         DEBUG("ACI_GAP_NUMERIC_COMPARISON_VALUE_CONFIRM_YESNO\n");
@@ -831,14 +836,18 @@ void BLE_LEDGER_start(uint16_t profile_mask)
 
 void BLE_LEDGER_enable_advertising(uint8_t enable)
 {
-    if (G_io_app.ble_ready) {
+    if ((ble_ledger_data.name_changed) && (ble_ledger_data.ble_ready) && (!enable)
+        && (ble_ledger_data.connection.connection_handle != 0xFFFF)) {
+        ble_ledger_data.name_changed = 0;
+    }
+    else if (ble_ledger_data.ble_ready) {
         if (enable) {
-            G_io_app.enabling_advertising  = 1;
-            G_io_app.disabling_advertising = 0;
+            ble_ledger_data.enabling_advertising  = 1;
+            ble_ledger_data.disabling_advertising = 0;
         }
         else {
-            G_io_app.enabling_advertising  = 0;
-            G_io_app.disabling_advertising = 1;
+            ble_ledger_data.enabling_advertising  = 0;
+            ble_ledger_data.disabling_advertising = 1;
         }
         advertising_enable(enable);
     }
@@ -846,7 +855,7 @@ void BLE_LEDGER_enable_advertising(uint8_t enable)
 
 void BLE_LEDGER_reset_pairings(void)
 {
-    if (G_io_app.ble_ready) {
+    if (ble_ledger_data.ble_ready) {
         if (ble_ledger_data.connection.connection_handle != 0xFFFF) {
             // Connected => force disconnection before clearing
             ble_ledger_data.clear_pairing = 0xC1;
@@ -857,6 +866,22 @@ void BLE_LEDGER_reset_pairings(void)
             send_hci_packet(0);
         }
     }
+}
+
+void BLE_LEDGER_accept_pairing(uint8_t status)
+{
+    if (ble_ledger_data.pairing_in_progress == 1) {
+        rsp_user_pairing_numeric_comparison(status);
+    }
+    else if (ble_ledger_data.pairing_in_progress == 2) {
+        rsp_user_pairing_passkey(status);
+    }
+}
+
+void BLE_LEDGER_name_changed(void)
+{
+	ble_ledger_data.name_changed = 1;
+	BLE_LEDGER_enable_advertising(0);
 }
 
 int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
@@ -997,4 +1022,21 @@ int32_t BLE_LEDGER_data_ready(uint8_t *buffer, uint16_t max_length)
     }
 
     return status;
+}
+
+void BLE_LEDGER_setting(uint32_t profile_id, uint32_t setting_id,
+                        uint8_t *buffer, uint16_t length)
+{
+    uint8_t index  = 0;
+
+    ble_profile_info_t *profile_info = NULL;
+    for (index = 0; index < ble_ledger_data.nb_of_profile; index++) {
+        profile_info = ble_ledger_data.profile[index];
+        if (  (profile_info->type == profile_id)
+            &&(profile_info->setting)
+           ) {
+            ((ble_profile_setting_t) PIC(profile_info->setting))(
+                setting_id, buffer, length, profile_info->cookie);
+        }
+    }
 }

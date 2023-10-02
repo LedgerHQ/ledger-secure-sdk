@@ -8,6 +8,9 @@
 #include "ble_ledger_types.h"
 
 /* Exported enumerations -----------------------------------------------------*/
+typedef enum {
+    BLE_LEDGER_PROFILE_APDU_SETTING_ID_TRANSFER_MODE = 1,
+} ble_ledger_profile_apdu_setting_id_e;
 
 /* Exported defines   --------------------------------------------------------*/
 
@@ -39,3 +42,5 @@ uint8_t BLE_LEDGER_PROFILE_apdu_update_char_value_ack(void *cookie);
 uint8_t BLE_LEDGER_PROFILE_apdu_send_packet(uint8_t *packet, uint16_t length, void *cookie);
 
 int32_t BLE_LEDGER_PROFILE_apdu_data_ready(uint8_t *buffer, uint16_t max_length, void *cookie);
+
+void BLE_LEDGER_PROFILE_apdu_setting(uint32_t id, uint8_t *buffer, uint16_t length, void *cookie);

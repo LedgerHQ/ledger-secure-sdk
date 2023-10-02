@@ -407,11 +407,6 @@ uint8_t USBD_LEDGER_CDC_data_out(USBD_HandleTypeDef *pdev,
     UNUSED(packet);
     UNUSED(packet_length);
 
-    memcpy(G_io_apdu_buffer, "\xE0\x01\x00\x00\x01", 5);
-    G_io_apdu_buffer[5] = packet_length;
-    memcpy(&G_io_apdu_buffer[6], packet, packet_length);
-    G_io_app.apdu_length = 5;  // TODO
-
     if (ep_num == LEDGER_CDC_DATA_EPOUT_ADDR) {
         USBD_LL_PrepareReceive(pdev, LEDGER_CDC_DATA_EPOUT_ADDR, NULL, LEDGER_CDC_DATA_EPOUT_SIZE);
     }

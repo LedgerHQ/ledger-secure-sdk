@@ -118,8 +118,7 @@ int os_io_tx_cmd(const unsigned char *buffer PLENGTH(length),
                                      0);
         if (status >= 0) {
             G_io_seph_rx_buffer_length = status;
-            status                     = io_seph_tx(
-                buffer, length, (unsigned int *) timeout_ms);  // TODO : process the rx packet?
+            status                     = io_seph_tx(buffer, length, NULL);  // TODO : process the rx packet?
         }
     }
     return status;
@@ -131,7 +130,7 @@ int32_t os_io_init(void)
     G_io_app.apdu_media = IO_APDU_MEDIA_NONE;
 
 #ifdef HAVE_BAGL
-    os_io_seph_ux_init_button();
+    io_seph_ux_init_button();
 #endif
 
 #if !defined(HAVE_BOLOS)

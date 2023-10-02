@@ -124,7 +124,7 @@ void ui_audited_deinit(void)
     // for
     // further displays at the moment) and reinitialize the UX and buttons.
     ux_stack_pop();
-    os_io_seph_ux_init_button();
+    io_seph_ux_init_button();
 }
 #endif  // HAVE_BAGL
 

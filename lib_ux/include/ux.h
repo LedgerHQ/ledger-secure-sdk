@@ -286,10 +286,6 @@ struct ux_state_s {
     unsigned char       stack_count;  // initialized @0 by the bolos ux initialize
     bolos_task_status_t exit_code;
 
-#ifdef HAVE_BLE
-    asynchmodal_end_callback_t asynchmodal_end_callback;
-#endif  // HAVE_BLE
-
 #ifdef HAVE_UX_FLOW
     // global context, therefore, don't allow for multiple paging overlaid in a graphic stack
     ux_layout_paging_state_t layout_paging;
@@ -403,65 +399,6 @@ extern bolos_ux_params_t G_ux_params;
     }
 #endif  // HAVE_SE_SCREEN
 
-#ifdef HAVE_BLE
-/**
- * internal bolos ux event processing with callback in case event is to be processed by the
- * application
- */
-#define UX_FORWARD_EVENT_REDRAWCB(bypasspincheck,                                               \
-                                  G_ux_params,                                                  \
-                                  G_ux,                                                         \
-                                  os_ux,                                                        \
-                                  os_sched_last_status,                                         \
-                                  callback,                                                     \
-                                  redraw_cb,                                                    \
-                                  ignoring_app_if_ux_busy)                                      \
-    G_ux_params.ux_id = BOLOS_UX_EVENT;                                                         \
-    G_ux_params.len   = 0;                                                                      \
-    os_ux(&G_ux_params);                                                                        \
-    G_ux_params.len = os_sched_last_status(TASK_BOLOS_UX);                                      \
-    if (G_ux.asynchmodal_end_callback                                                           \
-        && os_ux_get_status(BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST) != 0) {                       \
-        asynchmodal_end_callback_t cb = G_ux.asynchmodal_end_callback;                          \
-        G_ux.asynchmodal_end_callback = NULL;                                                   \
-        cb(os_ux_get_status(BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST));                             \
-        G_ux_params.len = BOLOS_UX_REDRAW;                                                      \
-    }                                                                                           \
-    if (G_ux_params.len == BOLOS_UX_REDRAW) {                                                   \
-        redraw_cb;                                                                              \
-    }                                                                                           \
-    else if (!ignoring_app_if_ux_busy                                                           \
-             || (G_ux_params.len != BOLOS_UX_IGNORE && G_ux_params.len != BOLOS_UX_CONTINUE)) { \
-        callback;                                                                               \
-    }
-
-#else  // HAVE_BLE
-
-/**
- * internal bolos ux event processing with callback in case event is to be processed by the
- * application
- */
-#define UX_FORWARD_EVENT_REDRAWCB(bypasspincheck,                                               \
-                                  G_ux_params,                                                  \
-                                  G_ux,                                                         \
-                                  os_ux,                                                        \
-                                  os_sched_last_status,                                         \
-                                  callback,                                                     \
-                                  redraw_cb,                                                    \
-                                  ignoring_app_if_ux_busy)                                      \
-    G_ux_params.ux_id = BOLOS_UX_EVENT;                                                         \
-    G_ux_params.len   = 0;                                                                      \
-    os_ux(&G_ux_params);                                                                        \
-    G_ux_params.len = os_sched_last_status(TASK_BOLOS_UX);                                      \
-    if (G_ux_params.len == BOLOS_UX_REDRAW) {                                                   \
-        redraw_cb;                                                                              \
-    }                                                                                           \
-    else if (!ignoring_app_if_ux_busy                                                           \
-             || (G_ux_params.len != BOLOS_UX_IGNORE && G_ux_params.len != BOLOS_UX_CONTINUE)) { \
-        callback;                                                                               \
-    }
-#endif  // HAVE_BLE
-
 /**
  * Request a wake up of the device (backlight, pin lock screen, ...) to display a new interface to
  * the user. Wake up prevent both autolock and power off features. Therefore, security wise, this
@@ -477,14 +414,14 @@ extern bolos_ux_params_t G_ux_params;
  * Redisplay request (no immediate display status sent)
  */
 #define UX_REDISPLAY_REQUEST()   \
-    os_io_seph_ux_init_button(); \
+    io_seph_ux_init_button(); \
     G_ux.stack[0].element_index = 0;
 
 /**
  * Force redisplay of the screen from the given index in the screen's element array
  */
 #define UX_REDISPLAY_IDX(index)                                                                \
-    os_io_seph_ux_init_button(); /*ensure to avoid release of a button from a nother screen to \
+    io_seph_ux_init_button(); /*ensure to avoid release of a button from a nother screen to \
                                     mess up with the redisplayed screen */                     \
     G_ux.stack[0].element_index = index;                                                       \
     /* REDRAW is redisplay already, use os_ux return value to check */                         \
@@ -530,14 +467,17 @@ extern bolos_ux_params_t G_ux_params;
  * application
  */
 #define UX_FORWARD_EVENT(callback, ignoring_app_if_ux_busy) \
-    UX_FORWARD_EVENT_REDRAWCB(0,                            \
-                              G_ux_params,                  \
-                              G_io_asynch_ux_callback,      \
-                              os_ux,                        \
-                              os_sched_last_status,         \
-                              callback,                     \
-                              UX_REDISPLAY(),               \
-                              ignoring_app_if_ux_busy);
+    G_ux_params.ux_id = BOLOS_UX_EVENT;                                                         \
+    G_ux_params.len   = 0;                                                                      \
+    os_ux(&G_ux_params);                                                                        \
+    G_ux_params.len = os_sched_last_status(TASK_BOLOS_UX);                                      \
+    if (G_ux_params.len == BOLOS_UX_REDRAW) {                                                   \
+        UX_REDISPLAY();                                                                         \
+    }                                                                                           \
+    else if (!ignoring_app_if_ux_busy                                                           \
+             || (G_ux_params.len != BOLOS_UX_IGNORE && G_ux_params.len != BOLOS_UX_CONTINUE)) { \
+        callback;                                                                               \
+    }
 
 #define UX_CONTINUE_DISPLAY_APP(displayed_callback)                                           \
     UX_DISPLAY_NEXT_ELEMENT();                                                                \

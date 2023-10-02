@@ -56,6 +56,7 @@ typedef struct {
     ble_cmd_data_t *cmd_data;
 
     // TRANSFER MODE
+    uint8_t transfer_mode_wanted_enabled;
     uint8_t transfer_mode_enabled;
     uint8_t resp_length;
     uint8_t resp[2];
@@ -66,82 +67,36 @@ typedef struct {
 
 /* Private functions prototypes ----------------------------------------------*/
 static void notify_chunk(ledger_ble_profile_apdu_handle_t *handle);
-static void check_transfer_mode(ledger_ble_profile_apdu_handle_t *handle, uint8_t enable);
+static void check_transfer_mode(ledger_ble_profile_apdu_handle_t *handle);
 
 /* Private variables ---------------------------------------------------------*/
 static ledger_ble_profile_apdu_handle_t ledger_apdu_profile_handle;
 static uint8_t                          ledger_protocol_chunk_buffer[BLE_ATT_MAX_MTU_SIZE];
 
-const uint8_t charUuidTX[16]  = {0x72,
-                                 0x65,
-                                 0x67,
-                                 0x64,
-                                 0x65,
-                                 0x4c,
-                                 0x01,
-                                 0x00,
-                                 0x04,
-                                 0x00,
-                                 0x97,
-                                 0x2C,
-                                 0x00,
-                                 0x34,
-                                 0xD6,
-                                 0x13};
-const uint8_t charUuidRX[16]  = {0x72,
-                                 0x65,
-                                 0x67,
-                                 0x64,
-                                 0x65,
-                                 0x4c,
-                                 0x02,
-                                 0x00,
-                                 0x04,
-                                 0x00,
-                                 0x97,
-                                 0x2C,
-                                 0x00,
-                                 0x34,
-                                 0xD6,
-                                 0x13};
-const uint8_t charUuidRX2[16] = {0x72,
-                                 0x65,
-                                 0x67,
-                                 0x64,
-                                 0x65,
-                                 0x4c,
-                                 0x03,
-                                 0x00,
-                                 0x04,
-                                 0x00,
-                                 0x97,
-                                 0x2C,
-                                 0x00,
-                                 0x34,
-                                 0xD6,
-                                 0x13};
+// clang-format off
+#ifdef TARGET_STAX
+const uint8_t charUuidTX[16]   = {0x72,0x65,0x67,0x64,0x65,0x4c,0x01,0x00,0x04,0x60,0x97,0x2C,0x00,0x34,0xD6,0x13};
+const uint8_t charUuidRX[16]   = {0x72,0x65,0x67,0x64,0x65,0x4c,0x02,0x00,0x04,0x60,0x97,0x2C,0x00,0x34,0xD6,0x13};
+const uint8_t charUuidRX2[16]  = {0x72,0x65,0x67,0x64,0x65,0x4c,0x03,0x00,0x04,0x60,0x97,0x2C,0x00,0x34,0xD6,0x13};
+#else // ! TARGET_STAX
+const uint8_t charUuidTX[16]   = {0x72,0x65,0x67,0x64,0x65,0x4c,0x01,0x00,0x04,0x00,0x97,0x2C,0x00,0x34,0xD6,0x13};
+const uint8_t charUuidRX[16]   = {0x72,0x65,0x67,0x64,0x65,0x4c,0x02,0x00,0x04,0x00,0x97,0x2C,0x00,0x34,0xD6,0x13};
+const uint8_t charUuidRX2[16]  = {0x72,0x65,0x67,0x64,0x65,0x4c,0x03,0x00,0x04,0x00,0x97,0x2C,0x00,0x34,0xD6,0x13};
+#endif // ! TARGET_STAX
+// clang-format on
 
 /* Exported variables --------------------------------------------------------*/
 const ble_profile_info_t BLE_LEDGER_PROFILE_apdu_info = {
     .type = BLE_LEDGER_PROFILE_APDU,
 
     .service_uuid = {.type  = BLE_GATT_UUID_TYPE_128,
-                     .value = {0x72,
-                               0x65,
-                               0x67,
-                               0x64,
-                               0x65,
-                               0x4c,
-                               0x00,
-                               0x00,
-                               0x04,
-                               0x00,
-                               0x97,
-                               0x2C,
-                               0x00,
-                               0x34,
-                               0xD6,
-                               0x13}},
+// clang-format off
+#ifdef TARGET_STAX
+                     .value = {0x72,0x65,0x67,0x64,0x65,0x4c,0x00,0x00,0x04,0x60,0x97,0x2C,0x00,0x34,0xD6,0x13}},
+#else // ! TARGET_STAX
+                     .value = {0x72,0x65,0x67,0x64,0x65,0x4c,0x00,0x00,0x04,0x00,0x97,0x2C,0x00,0x34,0xD6,0x13}},
+#endif // ! TARGET_STAX
+// clang-format on
 
     .init            = BLE_LEDGER_PROFILE_apdu_init,
     .create_db       = BLE_LEDGER_PROFILE_apdu_create_db,
@@ -162,6 +117,8 @@ const ble_profile_info_t BLE_LEDGER_PROFILE_apdu_info = {
 
     .data_ready = BLE_LEDGER_PROFILE_apdu_data_ready,
 
+    .setting = BLE_LEDGER_PROFILE_apdu_setting,
+
     .cookie = &ledger_apdu_profile_handle,
 };
 
@@ -178,18 +135,18 @@ static void notify_chunk(ledger_ble_profile_apdu_handle_t *handle)
     }
 }
 
-static void check_transfer_mode(ledger_ble_profile_apdu_handle_t *handle, uint8_t enable)
+static void check_transfer_mode(ledger_ble_profile_apdu_handle_t *handle)
 {
-    if (handle->transfer_mode_enabled != enable) {
-        DEBUG("LEDGER_BLE_set_transfer_mode %d\n", enable);
+    if (handle->transfer_mode_enabled != handle->transfer_mode_wanted_enabled) {
+        DEBUG("LEDGER_BLE_set_transfer_mode %d\n", handle->transfer_mode_wanted_enabled);
     }
 
-    if ((handle->transfer_mode_enabled == 0) && (enable != 0)) {
+    if ((handle->transfer_mode_enabled == 0) && (handle->transfer_mode_wanted_enabled != 0)) {
         handle->resp_length = 2;
         U2BE_ENCODE(handle->resp, 0, SWO_SUCCESS);
     }
 
-    handle->transfer_mode_enabled = enable;
+    handle->transfer_mode_enabled = handle->transfer_mode_wanted_enabled;
 }
 
 /* Exported functions --------------------------------------------------------*/
@@ -419,12 +376,12 @@ uint8_t BLE_LEDGER_PROFILE_apdu_att_modified(uint8_t *hci_buffer, uint16_t lengt
         LEDGER_PROTOCOL_rx(&handle->protocol_data, &hci_buffer[8], length - 8);
 
         if (handle->protocol_data.rx_apdu_status == APDU_STATUS_COMPLETE) {
-            check_transfer_mode(handle, G_io_app.transfer_mode);
+            check_transfer_mode(handle);
             if (handle->transfer_mode_enabled) {
                 if (U2BE(handle->resp, 0) != SWO_SUCCESS) {
                     DEBUG("Transfer failed 0x%04x\n", U2BE(handle->resp, 0));
-                    G_io_app.transfer_mode = 0;
-                    check_transfer_mode(handle, G_io_app.transfer_mode);
+                    handle->transfer_mode_wanted_enabled = 0;
+                    check_transfer_mode(handle);
                 }
                 else if (handle->resp_length) {
                     LEDGER_PROTOCOL_tx(&handle->protocol_data, handle->resp, handle->resp_length);
@@ -620,4 +577,15 @@ int32_t BLE_LEDGER_PROFILE_apdu_data_ready(uint8_t *buffer, uint16_t max_length,
     }
 
     return status;
+}
+
+void BLE_LEDGER_PROFILE_apdu_setting(uint32_t id, uint8_t *buffer, uint16_t length, void *cookie)
+{
+    if (  (id == BLE_LEDGER_PROFILE_APDU_SETTING_ID_TRANSFER_MODE)
+        &&(buffer)
+        &&(length == 1) 
+       ) {
+        ledger_ble_profile_apdu_handle_t *handle = (ledger_ble_profile_apdu_handle_t *) PIC(cookie);
+        handle->transfer_mode_wanted_enabled = buffer[0];
+    }
 }

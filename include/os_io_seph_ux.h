@@ -43,7 +43,8 @@ typedef struct io_touch_info_s {
 /* Exported variables --------------------------------------------------------*/
 
 /* Exported functions prototypes--------------------------------------------- */
-void         os_io_seph_ux_init_button(void);
+void         io_seph_ux_init_button(void);
+void         io_process_event(uint8_t *buffer_in, size_t buffer_in_length);
 unsigned int os_ux_blocking(bolos_ux_params_t *params);
 
 #ifdef HAVE_BAGL

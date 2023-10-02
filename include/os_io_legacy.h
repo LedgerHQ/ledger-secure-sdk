@@ -41,16 +41,6 @@ typedef struct {
     unsigned short  apdu_length;  // total length to be received
     unsigned short  io_flags;     // flags to be set when calling io_exchange
     io_apdu_media_t apdu_media;
-
-#ifdef HAVE_BLE
-    // cached here to avoid unavailable zone deref within IO task
-    unsigned char ble_ready;
-    unsigned char name_changed;
-    unsigned char enabling_advertising;
-    unsigned char disabling_advertising;
-#endif  // HAVE_BLE
-
-    unsigned char transfer_mode;
 } io_seph_app_t;
 
 /* Exported defines   --------------------------------------------------------*/
@@ -78,7 +68,6 @@ typedef struct {
 #define IO_CACHE 1
 
 /* Exported macros------------------------------------------------------------*/
-#define G_io_apdu_buffer G_io_apdu_rx_buffer
 
 /* Exported variables --------------------------------------------------------*/
 extern io_seph_app_t G_io_app;

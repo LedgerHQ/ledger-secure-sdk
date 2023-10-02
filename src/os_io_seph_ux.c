@@ -100,18 +100,62 @@ static void os_io_seph_ux_display_bagl_icon(const bagl_component_t    *icon_comp
 #endif  // HAVE_BAGL
 
 /* Exported functions --------------------------------------------------------*/
-void os_io_seph_ux_init_button(void)
+void io_seph_ux_init_button(void)
 {
     G_ux_os.button_mask              = 0;
     G_ux_os.button_same_mask_counter = 0;
 }
 
+void io_process_event(uint8_t *buffer_in, size_t buffer_in_length)
+{
+    UNUSED(buffer_in_length);
+
+    if (  (buffer_in[0] == SEPROXYHAL_TAG_TICKER_EVENT)
+        ||(buffer_in[0] == SEPROXYHAL_TAG_BUTTON_PUSH_EVENT)
+        ||(buffer_in[0] == SEPROXYHAL_TAG_STATUS_EVENT)
+        ||(buffer_in[0] == SEPROXYHAL_TAG_FINGER_EVENT)
+        ||(buffer_in[0] == SEPROXYHAL_TAG_POWER_BUTTON_EVENT)
+       ) {
+        G_ux_params.ux_id = BOLOS_UX_EVENT;
+        G_ux_params.len   = 0;
+        os_ux(&G_ux_params);
+    }
+    else if (buffer_in[0] == SEPROXYHAL_TAG_UX_EVENT) {
+        switch (buffer_in[3]) {
+#ifdef HAVE_BLE
+            case SEPROXYHAL_TAG_UX_CMD_BLE_DISABLE_ADV:
+                BLE_LEDGER_enable_advertising(0);
+                break;
+
+            case SEPROXYHAL_TAG_UX_CMD_BLE_ENABLE_ADV:
+                BLE_LEDGER_enable_advertising(1);
+                break;
+
+            case SEPROXYHAL_TAG_UX_CMD_BLE_RESET_PAIRINGS:
+                BLE_LEDGER_reset_pairings();
+                break;
+
+            case SEPROXYHAL_TAG_UX_CMD_BLE_NAME_CHANGED:
+                // Restart advertising
+                BLE_LEDGER_name_changed();
+                break;
+
+            case SEPROXYHAL_TAG_UX_CMD_ACCEPT_PAIRING:
+                BLE_LEDGER_accept_pairing(buffer_in[4]);
+                break;
+#endif  // HAVE_BLE
+
+            default:
+                break;
+        }
+    }
+}
+
 #if !defined(APP_UX)
 unsigned int os_ux_blocking(bolos_ux_params_t *params)
 {
-    unsigned int      ret;
-    bolos_ux_params_t ux_params;
-    bolos_err_t       err = SWO_APD_STA_01;
+    unsigned int ret;
+    bolos_err_t  err = SWO_APD_STA_01;
 
     os_ux(params);
     ret = os_sched_last_status(TASK_BOLOS_UX);
@@ -123,14 +167,10 @@ unsigned int os_ux_blocking(bolos_ux_params_t *params)
             switch (G_io_seph_rx_buffer[0]) {
                 case OS_IO_PACKET_TYPE_SE_EVT:
                 case OS_IO_PACKET_TYPE_SEPH:
-                    UX_FORWARD_EVENT_REDRAWCB(1,
-                                              ux_params,
-                                              G_io_asynch_ux_callback,
-                                              os_ux,
-                                              os_sched_last_status,
-                                              {},
-                                              {},
-                                              0);
+                    io_process_event(&G_io_seph_rx_buffer[1], status - 1);
+                    /*G_ux_params.ux_id = BOLOS_UX_EVENT;
+                    G_ux_params.len   = 0;
+                    os_ux(&G_ux_params);*/
                     break;
 
                 case OS_IO_PACKET_TYPE_USB_HID_APDU:
