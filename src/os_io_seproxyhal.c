@@ -238,6 +238,14 @@ void io_seproxyhal_handle_capdu_event(void)
         // copy apdu to apdu buffer
         memcpy(G_io_apdu_buffer, G_io_seproxyhal_spi_buffer + 3, G_io_app.apdu_length);
     }
+    else {
+        // Refuse APDU, send error reply
+        G_io_seproxyhal_spi_buffer[0] = SEPROXYHAL_TAG_RAPDU;
+        G_io_seproxyhal_spi_buffer[1] = 0;
+        G_io_seproxyhal_spi_buffer[2] = 2;
+        U2BE_ENCODE(G_io_seproxyhal_spi_buffer, 3, SWO_IOL_STA_02);
+        io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 5);
+    }
 }
 
 unsigned int io_seproxyhal_handle_event(void)
@@ -1393,8 +1401,9 @@ reply_apdu:
                             io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 3);
                             io_seproxyhal_spi_send(G_io_apdu_buffer, tx_len);
 
-                            // isngle packet reply, mark immediate idle
+                            // single packet reply, mark immediate idle
                             G_io_app.apdu_state = APDU_IDLE;
+                            G_io_app.apdu_media = IO_APDU_MEDIA_NONE;
                             // finished, no chunking
                             goto break_send;
 

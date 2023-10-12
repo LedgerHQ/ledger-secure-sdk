@@ -238,6 +238,45 @@ apdu_reset:
     return IO_USB_APDU_RESET;
 }
 
+bool io_usb_hid_discard(unsigned char *buffer, unsigned short l)
+{
+    static unsigned int seq_number       = 0;
+    static unsigned int remaining_length = 0;
+
+    if (buffer[2] != 0x05) {
+        return false;
+    }
+
+    // ensure sequence idx is 0 for the first chunk
+    if ((unsigned int) U2BE(buffer, 3) != (unsigned int) seq_number) {
+        // ignore packet
+        seq_number       = 0;
+        remaining_length = 0;
+        return false;
+    }
+
+    // cid, tag, seq
+    l -= 2 + 1 + 2;
+
+    if (seq_number == 0) {
+        // total apdu size to receive
+        remaining_length = U2BE(buffer, 5);
+        l -= 2;
+    }
+    if (l > remaining_length) {
+        l = remaining_length;
+    }
+    remaining_length -= l;
+    seq_number++;
+
+    // Full apdu received, reset sequence number for next time
+    if (remaining_length == 0) {
+        seq_number = 0;
+        return true;
+    }
+    return false;
+}
+
 void io_usb_hid_init(void)
 {
     G_io_usb_hid_sequence_number  = 0;
@@ -293,7 +332,9 @@ void io_usb_hid_sent(io_send_t sndfct)
         io_usb_hid_init();
 
         // we sent the whole response
-        G_io_app.apdu_state = APDU_IDLE;
+        if (G_io_app.apdu_state == APDU_USB_HID || G_io_app.apdu_state == APDU_USB_WEBUSB) {
+            G_io_app.apdu_state = APDU_IDLE;
+        }
     }
 }
 
