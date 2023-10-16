@@ -58,58 +58,41 @@ const usbd_end_point_info_t LEDGER_HID_end_point_info = {
     .ep_type     = USBD_EP_TYPE_INTR,
 };
 
+// clang-format off
 const uint8_t LEDGER_HID_report_descriptor[34] = {
-    0x06,
-    0xA0,
-    0xFF,  // Usage page      : vendor defined
-    0x09,
-    0x01,  // Usage ID        : vendor defined
-    0xA1,
-    0x01,  // Collection      : application
+    0x06, 0xA0, 0xFF,            // Usage page      : vendor defined
+    0x09, 0x01,                  // Usage ID        : vendor defined
+    0xA1, 0x01,                  // Collection      : application
 
     // The Input report
-    0x09,
-    0x03,  // Usage ID        : vendor defined
-    0x15,
-    0x00,  // Logical Minimum : 0
-    0x26,
-    0xFF,
-    0x00,  // Logical Maximum : 255
-    0x75,
-    0x08,  // Report Size     : 8 bits
-    0x95,
-    LEDGER_HID_EPIN_SIZE,  // Report Count    : 64 fields
-    0x81,
-    0x08,  // Input           : Data, Array, Absolute, Wrap
+    0x09, 0x03,                  // Usage ID        : vendor defined
+    0x15, 0x00,                  // Logical Minimum : 0
+    0x26, 0xFF, 0x00,            // Logical Maximum : 255
+    0x75, 0x08,                  // Report Size     : 8 bits
+    0x95, LEDGER_HID_EPIN_SIZE,  // Report Count    : 64 fields
+    0x81, 0x08,                  // Input           : Data, Array, Absolute, Wrap
 
     // The Output report
-    0x09,
-    0x04,  // Usage ID        : vendor defined
-    0x15,
-    0x00,  // Logical Minimum : 0
-    0x26,
-    0xFF,
-    0x00,  // Logical Maximum : 255
-    0x75,
-    0x08,  // Report Size     : 8 bits
-    0x95,
-    LEDGER_HID_EPOUT_SIZE,  // Report Count    : 64 fields
-    0x91,
-    0x08,  // Output          : Data, Array, Absolute, Wrap
-    0xC0   // Collection      : end
+    0x09, 0x04,                   // Usage ID        : vendor defined
+    0x15, 0x00,                   // Logical Minimum : 0
+    0x26, 0xFF, 0x00,             // Logical Maximum : 255
+    0x75, 0x08,                   // Report Size     : 8 bits
+    0x95, LEDGER_HID_EPOUT_SIZE,  // Report Count    : 64 fields
+    0x91, 0x08,                   // Output          : Data, Array, Absolute, Wrap
+    0xC0                          // Collection      : end
 };
 
 const uint8_t LEDGER_HID_descriptors[32] = {
     /************** Interface descriptor ******************************/
-    USB_LEN_IF_DESC,          // bLength
-    USB_DESC_TYPE_INTERFACE,  // bDescriptorType    : interface
-    0x00,                     // bInterfaceNumber   : 0 (dynamic)
-    0x00,                     // bAlternateSetting  : 0
-    0x02,                     // bNumEndpoints      : 2
-    0x03,                     // bInterfaceClass    : HID
-    0x00,                     // bInterfaceSubClass : none
-    0x00,                     // bInterfaceProtocol : none
-    USBD_IDX_PRODUCT_STR,     // iInterface         :
+    USB_LEN_IF_DESC,                       // bLength
+    USB_DESC_TYPE_INTERFACE,               // bDescriptorType    : interface
+    0x00,                                  // bInterfaceNumber   : 0 (dynamic)
+    0x00,                                  // bAlternateSetting  : 0
+    0x02,                                  // bNumEndpoints      : 2
+    0x03,                                  // bInterfaceClass    : HID
+    0x00,                                  // bInterfaceSubClass : none
+    0x00,                                  // bInterfaceProtocol : none
+    USBD_IDX_PRODUCT_STR,                  // iInterface         :
 
     /************** HID descriptor ************************************/
     0x09,                                  // bLength
@@ -123,23 +106,24 @@ const uint8_t LEDGER_HID_descriptors[32] = {
     0x00,
 
     /************** Endpoint descriptor *******************************/
-    USB_LEN_EP_DESC,         // bLength
-    USB_DESC_TYPE_ENDPOINT,  // bDescriptorType
-    LEDGER_HID_EPIN_ADDR,    // bEndpointAddress
-    USBD_EP_TYPE_INTR,       // bmAttributes
-    LEDGER_HID_EPIN_SIZE,    // wMaxPacketSize
-    0x00,                    // wMaxPacketSize
-    0x01,                    // bInterval
+    USB_LEN_EP_DESC,                       // bLength
+    USB_DESC_TYPE_ENDPOINT,                // bDescriptorType
+    LEDGER_HID_EPIN_ADDR,                  // bEndpointAddress
+    USBD_EP_TYPE_INTR,                     // bmAttributes
+    LEDGER_HID_EPIN_SIZE,                  // wMaxPacketSize
+    0x00,                                  // wMaxPacketSize
+    0x01,                                  // bInterval
 
     /************** Endpoint descriptor *******************************/
-    USB_LEN_EP_DESC,         // bLength
-    USB_DESC_TYPE_ENDPOINT,  // bDescriptorType
-    LEDGER_HID_EPOUT_ADDR,   // bEndpointAddress
-    USBD_EP_TYPE_INTR,       // bmAttributes
-    LEDGER_HID_EPOUT_SIZE,   // wMaxPacketSize
-    0x00,                    // wMaxPacketSize
-    0x01,                    // bInterval
+    USB_LEN_EP_DESC,                       // bLength
+    USB_DESC_TYPE_ENDPOINT,                // bDescriptorType
+    LEDGER_HID_EPOUT_ADDR,                 // bEndpointAddress
+    USBD_EP_TYPE_INTR,                     // bmAttributes
+    LEDGER_HID_EPOUT_SIZE,                 // wMaxPacketSize
+    0x00,                                  // wMaxPacketSize
+    0x01,                                  // bInterval
 };
+// clang-format on
 
 const usbd_class_info_t USBD_LEDGER_HID_class_info = {
     .type = USBD_LEDGER_CLASS_HID,
@@ -190,7 +174,7 @@ uint8_t USBD_LEDGER_HID_init(USBD_HandleTypeDef *pdev, void *cookie)
     handle->protocol_data.tx_chunk_buffer_size = sizeof(ledger_protocol_chunk_buffer);
     handle->protocol_data.mtu                  = sizeof(ledger_protocol_chunk_buffer);
 
-    LEDGER_PROTOCOL_init(&handle->protocol_data);
+    LEDGER_PROTOCOL_init(&handle->protocol_data, OS_IO_PACKET_TYPE_USB_HID_APDU);
 
     USBD_LL_PrepareReceive(pdev, LEDGER_HID_EPOUT_ADDR, NULL, LEDGER_HID_EPOUT_SIZE);
 
@@ -363,7 +347,7 @@ uint8_t USBD_LEDGER_HID_data_out(USBD_HandleTypeDef *pdev,
 
 uint8_t USBD_LEDGER_HID_send_packet(USBD_HandleTypeDef *pdev,
                                     void               *cookie,
-                                    uint8_t            *packet,
+                                    const uint8_t      *packet,
                                     uint16_t            packet_length,
                                     uint32_t            timeout_ms)
 {
@@ -416,15 +400,13 @@ int32_t USBD_LEDGER_HID_data_ready(USBD_HandleTypeDef *pdev,
     ledger_hid_handle_t *handle = (ledger_hid_handle_t *) PIC(cookie);
 
     if (handle->protocol_data.rx_apdu_status == APDU_STATUS_COMPLETE) {
-        if (max_length < handle->protocol_data.rx_apdu_length + 1) {
+        if (max_length < handle->protocol_data.rx_apdu_length) {
             status = -1;
         }
         else {
-            buffer[0] = OS_IO_PACKET_TYPE_USB_HID_APDU;
-            memcpy(&buffer[1],
-                   handle->protocol_data.rx_apdu_buffer,
-                   handle->protocol_data.rx_apdu_length);
-            status = handle->protocol_data.rx_apdu_length + 1;
+            memmove(
+                buffer, handle->protocol_data.rx_apdu_buffer, handle->protocol_data.rx_apdu_length);
+            status = handle->protocol_data.rx_apdu_length;
         }
         handle->protocol_data.rx_apdu_status = APDU_STATUS_WAITING;
     }

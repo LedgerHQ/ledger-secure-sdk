@@ -240,8 +240,8 @@ void io_seproxyhal_nfc_init(uint8_t       *out_buffer,
     if (total_length) {
         hdr[1] = ((total_length + 2) & 0xFF00) >> 8;
         hdr[2] = (total_length + 2) & 0x00FF;
-        os_io_tx_cmd(hdr, 5, NULL);
-        os_io_tx_cmd(out_buffer, total_length, NULL);
+        os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, hdr, 5, NULL);
+        os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, out_buffer, total_length, NULL);
     }
 }
 #else   // ! HAVE_NDEF_SUPPORT
@@ -256,7 +256,7 @@ void io_seproxyhal_nfc_init(bool forceInit)
     buffer[1] = 0;
     buffer[2] = 1;
     buffer[3] = is_nfc_enabled;
-    os_io_tx_cmd(buffer, 4, NULL);
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 4, NULL);
 }
 #endif  // ! HAVE_NDEF_SUPPORT
 #endif  // HAVE_NFC

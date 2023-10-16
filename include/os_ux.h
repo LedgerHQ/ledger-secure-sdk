@@ -26,7 +26,7 @@ typedef enum bolos_ux_e {
     BOLOS_UX_VALIDATE_PIN,
     BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST,  // ask the ux to display a modal to accept/reject the
                                            // current pairing request
-    BOLOS_UX_ASYNCHMODAL_PAIRING_CANCEL,
+    BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS,
     BOLOS_UX_LAST_ID,
 } bolos_ux_t;
 
@@ -75,7 +75,7 @@ typedef struct bolos_ux_params_s {
                 BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_FAILED,
                 BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_CANCELLED_FROM_REMOTE,
             } pairing_ok;
-        } pairing_status;  // sent in BOLOS_UX_ASYNCHMODAL_PAIRING_CANCEL message
+        } pairing_status;  // sent in BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS message
 #endif                     // HAVE_BLE
     } u;
 #endif  // defined(HAVE_BLE) || defined(HAVE_KEYBOARD_UX)

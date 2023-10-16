@@ -34,7 +34,7 @@ uint8_t USBD_LEDGER_WEBUSB_data_out(USBD_HandleTypeDef *pdev,
 
 uint8_t USBD_LEDGER_WEBUSB_send_packet(USBD_HandleTypeDef *pdev,
                                        void               *cookie,
-                                       uint8_t            *packet,
+                                       const uint8_t      *packet,
                                        uint16_t            packet_length,
                                        uint32_t            timeout_ms);
 

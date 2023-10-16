@@ -256,7 +256,7 @@ void ux_stack_display_elements(ux_stack_slot_t *slot)
                     if ((unsigned int) el != 1) {
                         element = el;
                     }
-                    os_io_seph_ux_display_bagl_element(element);
+                    io_seph_ux_display_bagl_element(element);
                 }
                 elem_idx++;
             }
@@ -311,7 +311,7 @@ void ux_stack_al_display_next_element(unsigned int stack_slot)
                                    .element_arrays[0]
                                    .element_array[G_ux.stack[stack_slot].element_index];
                 }
-                os_io_seph_ux_display_bagl_element(element);
+                io_seph_ux_display_bagl_element(element);
             }
             G_ux.stack[stack_slot].element_index++;
         }

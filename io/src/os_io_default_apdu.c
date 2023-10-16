@@ -5,12 +5,14 @@
 #include "exceptions.h"
 #include "lcx_hash.h"
 #include "lcx_sha512.h"
-#include "os_errors.h"
+// #include "os_errors.h"
 #include "os_utils.h"
 #include "os_apdu.h"
 #include "os_debug.h"
 #include "os_pin.h"
 #include "os_seed.h"
+#include "os_app.h"
+#include "os_registry.h"
 #include "os_io_default_apdu.h"
 
 /* Private enumerations ------------------------------------------------------*/
@@ -141,7 +143,7 @@ os_io_apdu_post_action_t os_io_handle_default_apdu(uint8_t *buffer_in,
                     get_version(buffer_out, buffer_out_length);
                 }
                 else {
-                    U2BE_ENCODE(buffer_out, 0, SWO_APD_HDR_0D);
+                    U2BE_ENCODE(buffer_out, 0, 0x6E00);
                     *buffer_out_length = 2;
                 }
                 break;
@@ -152,7 +154,7 @@ os_io_apdu_post_action_t os_io_handle_default_apdu(uint8_t *buffer_in,
                     get_seed_cookie(buffer_out, buffer_out_length);
                 }
                 else {
-                    U2BE_ENCODE(buffer_out, 0, SWO_APD_HDR_0D);
+                    U2BE_ENCODE(buffer_out, 0, 0x6E00);
                     *buffer_out_length = 2;
                 }
                 break;
@@ -164,7 +166,7 @@ os_io_apdu_post_action_t os_io_handle_default_apdu(uint8_t *buffer_in,
                     get_stack_consumption(buffer_in[APDU_OFF_P1], buffer_out, buffer_out_length);
                 }
                 else {
-                    U2BE_ENCODE(buffer_out, 0, SWO_APD_HDR_0D);
+                    U2BE_ENCODE(buffer_out, 0, 0x6E00);
                     *buffer_out_length = 2;
                 }
                 break;
@@ -179,12 +181,14 @@ os_io_apdu_post_action_t os_io_handle_default_apdu(uint8_t *buffer_in,
 #endif  // !HAVE_BOLOS
                 }
                 else {
+                    U2BE_ENCODE(buffer_out, 0, 0x6E00);
+                    *buffer_out_length = 2;
                 }
-                U2BE_ENCODE(buffer_out, 0, SWO_APD_HDR_0D);
-                *buffer_out_length = 2;
                 break;
 
             default:
+                    U2BE_ENCODE(buffer_out, 0, 0x6E01);
+                    *buffer_out_length = 2;
                 break;
         }
     }

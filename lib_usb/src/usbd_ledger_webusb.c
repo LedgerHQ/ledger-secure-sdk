@@ -49,61 +49,32 @@ const usbd_end_point_info_t LEDGER_WEBUSB_end_point_info = {
     .ep_type     = USBD_EP_TYPE_INTR,
 };
 
+// clang-format off
 const uint8_t LEDGER_WEBUSB_bos_descriptor[] = {
     // Webusb device capability descriptor
-    0x18,  // bLength
-    0x10,  // bDescriptorType       : Device Capability
-    0x05,  // bDevCapabilityType    : Platform
-    0x00,  // bReserved
-    0x38,
-    0xB6,
-    0x08,
-    0x34,  // PlatformCapablityUUID : WebUSB Platform Capability UUID
-           // (3408B638-09A9-47A0-8BFD-A0768815B665)
-    0xA9,
-    0x09,
-    0xA0,
-    0x47,  // PlatformCapablityUUID
-    0x8B,
-    0xFD,
-    0xA0,
-    0x76,  // PlatformCapablityUUID
-    0x88,
-    0x15,
-    0xB6,
-    0x65,                        // PlatformCapablityUUID
+    0x18,                        // bLength
+    0x10,                        // bDescriptorType       : Device Capability
+    0x05,                        // bDevCapabilityType    : Platform
+    0x00,                        // bReserved
+    0x38, 0xB6, 0x08, 0x34,      // PlatformCapablityUUID : WebUSB Platform Capability UUID (3408B638-09A9-47A0-8BFD-A0768815B665)
+    0xA9, 0x09, 0xA0, 0x47,      // PlatformCapablityUUID
+    0x8B, 0xFD, 0xA0, 0x76,      // PlatformCapablityUUID
+    0x88, 0x15, 0xB6, 0x65,      // PlatformCapablityUUID
     0x00,                        // bcdVersion            : WebUSB version 1.0
     0x01,                        // bcdVersion
     USB_REQ_WEBUSB_VENDOR_CODE,  // bVendorCode
     0x00,                        // iLandingPage
 
     // Microsoft OS 2.0 Platform Capability Descriptor
-    0x1C,  // bLength
-    0x10,  // bDescriptorType       : Device Capability
-    0x05,  // bDevCapabilityType    : Platform
-    0x00,  // bReserved
-    0xDF,
-    0x60,
-    0xDD,
-    0xD8,  // PlatformCapablityUUID : Microsoft OS 2.0 Platform Capability UUID
-           // (D8DD60DF-4589-4CC7-9CD2-659D9E648A9F)
-    0x89,
-    0x45,
-    0xC7,
-    0x4C,  // PlatformCapablityUUID
-    0x9C,
-    0xD2,
-    0x65,
-    0x9D,  // PlatformCapablityUUID
-    0x9E,
-    0x64,
-    0x8A,
-    0x9F,  // PlatformCapablityUUID
-
-    0x00,
-    0x00,
-    0x03,
-    0x06,                        // dwWindowsVersion      : minimum 8.1 (0x06030000)
+    0x1C,                        // bLength
+    0x10,                        // bDescriptorType       : Device Capability
+    0x05,                        // bDevCapabilityType    : Platform
+    0x00,                        // bReserved
+    0xDF, 0x60, 0xDD, 0xD8,      // PlatformCapablityUUID : Microsoft OS 2.0 Platform Capability UUID (D8DD60DF-4589-4CC7-9CD2-659D9E648A9F)
+    0x89, 0x45, 0xC7, 0x4C,      // PlatformCapablityUUID
+    0x9C, 0xD2, 0x65, 0x9D,      // PlatformCapablityUUID
+    0x9E, 0x64, 0x8A, 0x9F,      // PlatformCapablityUUID
+    0x00, 0x00, 0x03, 0x06,      // dwWindowsVersion      : minimum 8.1 (0x06030000)
     0xb2,                        // wMSOSDescriptorSetTotalLength : TODO
     0x00,                        // wMSOSDescriptorSetTotalLength
     USB_REQ_WINUSB_VENDOR_CODE,  // bVendorCode
@@ -112,24 +83,24 @@ const uint8_t LEDGER_WEBUSB_bos_descriptor[] = {
 
 const uint8_t LEDGER_WEBUSB_descriptors[23] = {
     /************** Interface descriptor ******************************/
-    USB_LEN_IF_DESC,          // bLength
-    USB_DESC_TYPE_INTERFACE,  // bDescriptorType    : interface
-    0x00,                     // bInterfaceNumber   : 0 (dynamic)
-    0x00,                     // bAlternateSetting  : 0
-    0x02,                     // bNumEndpoints      : 2
-    0xFF,                     // bInterfaceClass    : Vendor
-    0xFF,                     // bInterfaceSubClass : Vendor
-    0xFF,                     // bInterfaceProtocol : Vendor
-    USBD_IDX_PRODUCT_STR,     // iInterface         : no string
+    USB_LEN_IF_DESC,           // bLength
+    USB_DESC_TYPE_INTERFACE,   // bDescriptorType    : interface
+    0x00,                      // bInterfaceNumber   : 0 (dynamic)
+    0x00,                      // bAlternateSetting  : 0
+    0x02,                      // bNumEndpoints      : 2
+    0xFF,                      // bInterfaceClass    : Vendor
+    0xFF,                      // bInterfaceSubClass : Vendor
+    0xFF,                      // bInterfaceProtocol : Vendor
+    USBD_IDX_PRODUCT_STR,      // iInterface         : no string
 
     /************** Endpoint descriptor *******************************/
-    USB_LEN_EP_DESC,          // bLength
-    USB_DESC_TYPE_ENDPOINT,   // bDescriptorType
-    LEDGER_WEBUSB_EPIN_ADDR,  // bEndpointAddress
-    USBD_EP_TYPE_INTR,        // bmAttributes
-    LEDGER_WEBUSB_EPIN_SIZE,  // wMaxPacketSize
-    0x00,                     // wMaxPacketSize
-    0x01,                     // bInterval
+    USB_LEN_EP_DESC,           // bLength
+    USB_DESC_TYPE_ENDPOINT,    // bDescriptorType
+    LEDGER_WEBUSB_EPIN_ADDR,   // bEndpointAddress
+    USBD_EP_TYPE_INTR,         // bmAttributes
+    LEDGER_WEBUSB_EPIN_SIZE,   // wMaxPacketSize
+    0x00,                      // wMaxPacketSize
+    0x01,                      // bInterval
 
     /************** Endpoint descriptor *******************************/
     USB_LEN_EP_DESC,           // bLength
@@ -142,24 +113,11 @@ const uint8_t LEDGER_WEBUSB_descriptors[23] = {
 };
 
 const uint8_t USBD_LEDGER_WINUSB_string_descriptor[] = {
-    0x12,                  // bLength
-    USB_DESC_TYPE_STRING,  // bDescriptorType
-    'M',
-    0x00,
-    'S',
-    0x00,
-    'F',
-    0x00,
-    'T',
-    0x00,  // wData : MSFT100<VENDOR_CODE>
-    '1',
-    0x00,
-    '0',
-    0x00,
-    '0',
-    0x00,  //
-    USB_REQ_WINUSB_VENDOR_CODE,
-    0x00  //
+    0x12,                                        // bLength
+    USB_DESC_TYPE_STRING,                        // bDescriptorType
+    'M', 0x00, 'S', 0x00, 'F', 0x00, 'T', 0x00,  // wData : MSFT100<VENDOR_CODE>
+    '1', 0x00, '0', 0x00, '0', 0x00,             //
+    USB_REQ_WINUSB_VENDOR_CODE, 0x00             //
 };
 
 const uint8_t USBD_LEDGER_WINUSB_compat_id_feature_descriptor[] = {
@@ -169,248 +127,96 @@ const uint8_t USBD_LEDGER_WINUSB_compat_id_feature_descriptor[] = {
     0x01,                                      // bNumSections
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // reserved
 
-    0x01,                                            // bInterfaceNumber (dynamic) // TODO
-    0x01,                                            // bReserved
-    'W',  'I',  'N',  'U',  'S',  'B',  0x00, 0x00,  // Compatible ID String
-    0x00, 0x00, 0x00, 0x00,                          // Sub-compatible ID String
-    0x00, 0x00, 0x00, 0x00,                          //
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00,              // reserved
+    0x01,                                      // bInterfaceNumber (dynamic) // TODO
+    0x01,                                      // bReserved
+    'W', 'I', 'N', 'U', 'S', 'B', 0x00, 0x00,  // Compatible ID String
+    0x00, 0x00, 0x00, 0x00,                    // Sub-compatible ID String
+    0x00, 0x00, 0x00, 0x00,                    //
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00,        // reserved
 };
 
 const uint8_t USBD_LEDGER_WINUSB_extended_properties_feature_descriptor[] = {
+    0x92, 0x00, 0x00, 0x00,                      // dwLength
+    0x00, 0x01,                                  // bcdVersion
+    0x05, 0x00,                                  // wIndex
+    0x01, 0x00,                                  // wNumFeatures
 
-    0x92, 0x00, 0x00, 0x00,  // dwLength
-    0x00, 0x01,              // bcdVersion
-    0x05, 0x00,              // wIndex
-    0x01, 0x00,              // wNumFeatures
-
-    0x88, 0x00, 0x00, 0x00,  // dwLength:
-    0x07, 0x00, 0x00, 0x00,  // dwPropertyDataType: Multiple NULL-terminated Unicode strings
-                             // (REG_MULTI_SZ)
-    0x2a, 0x00,              // wPropertyNameLength
-    'D',  0x00, 'e',  0x00, 'v',
-    0x00, 'i',  0x00,  // PropertyName 'DeviceInterfaceGUIDs'
-    'c',  0x00, 'e',  0x00, 'I',
-    0x00, 'n',  0x00,  //
-    't',  0x00, 'e',  0x00, 'r',
-    0x00, 'f',  0x00,  //
-    'a',  0x00, 'c',  0x00, 'e',
-    0x00, 'G',  0x00,  //
-    'U',  0x00, 'I',  0x00, 'D',
-    0x00, 's',  0x00,  //
-    0x00, 0x00,        //
-    0x50, 0x00,        // wPropertyDataLength
-    '{',  0x00, '1',  0x00, '3',
-    0x00, 'd',  0x00,  // PropertyData : '{13d63400-2C97-0004-0000-4c6564676572}'
-    '6',  0x00, '3',  0x00, '4',
-    0x00, '0',  0x00,  //
-    '0',  0x00, '-',  0x00, '2',
-    0x00, 'C',  0x00,  //
-    '9',  0x00, '7',  0x00, '-',
-    0x00, '0',  0x00,  //
-    '0',  0x00, '0',  0x00, '4',
-    0x00, '-',  0x00,  //
-    '0',  0x00, '0',  0x00, '0',
-    0x00, '0',  0x00,  //
-    '-',  0x00, '4',  0x00, 'c',
-    0x00, '6',  0x00,  //
-    '5',  0x00, '6',  0x00, '4',
-    0x00, '6',  0x00,  //
-    '7',  0x00, '6',  0x00, '5',
-    0x00, '7',  0x00,        //
-    '2',  0x00, '}',  0x00,  //
-    0x00, 0x00, 0x00, 0x00   //
+    0x88, 0x00, 0x00, 0x00,                      // dwLength:
+    0x07, 0x00, 0x00, 0x00,                      // dwPropertyDataType: Multiple NULL-terminated Unicode strings (REG_MULTI_SZ)
+    0x2a, 0x00,                                  // wPropertyNameLength
+    'D', 0x00, 'e', 0x00, 'v', 0x00, 'i', 0x00,  // PropertyName 'DeviceInterfaceGUIDs'
+    'c', 0x00, 'e', 0x00, 'I', 0x00, 'n', 0x00,  //
+    't', 0x00, 'e', 0x00, 'r', 0x00, 'f', 0x00,  //
+    'a', 0x00, 'c', 0x00, 'e', 0x00, 'G', 0x00,  //
+    'U', 0x00, 'I', 0x00, 'D', 0x00, 's', 0x00,  //
+    0x00, 0x00,                                  //
+    0x50, 0x00,                                  // wPropertyDataLength
+    '{', 0x00, '1', 0x00, '3', 0x00, 'd', 0x00,  // PropertyData : '{13d63400-2C97-0004-0000-4c6564676572}'
+    '6', 0x00, '3', 0x00, '4', 0x00, '0', 0x00,  //
+    '0', 0x00, '-', 0x00, '2', 0x00, 'C', 0x00,  //
+    '9', 0x00, '7', 0x00, '-', 0x00, '0', 0x00,  //
+    '0', 0x00, '0', 0x00, '4', 0x00, '-', 0x00,  //
+    '0', 0x00, '0', 0x00, '0', 0x00, '0', 0x00,  //
+    '-', 0x00, '4', 0x00, 'c', 0x00, '6', 0x00,  //
+    '5', 0x00, '6', 0x00, '4', 0x00, '6', 0x00,  //
+    '7', 0x00, '6', 0x00, '5', 0x00, '7', 0x00,  //
+    '2', 0x00, '}', 0x00,                        //
+    0x00, 0x00, 0x00, 0x00                       //
 };
 
 const uint8_t USBD_LEDGER_WINUSB_ms_os_20_descriptor_set[] = {
     // Microsoft OS 2.0 descriptor set header
-    0x0a,
-    0x00,  // wLength
-    0x00,
-    0x00,  // wDescriptorType  : MSOS20_SET_HEADER_DESCRIPTOR
-    0x00,
-    0x00,
-    0x03,
-    0x06,  // dwWindowsVersion : minimum 8.1 (0x06030000)
-    0xb2,
-    0x00,  // wTotalLength     : The size of entire MS OS 2.0 descriptor set
+    0x0a, 0x00,                                  // wLength
+    0x00, 0x00,                                  // wDescriptorType  : MSOS20_SET_HEADER_DESCRIPTOR
+    0x00, 0x00, 0x03, 0x06,                      // dwWindowsVersion : minimum 8.1 (0x06030000)
+    0xb2, 0x00,                                  // wTotalLength     : The size of entire MS OS 2.0 descriptor set
 
     // Microsoft OS 2.0 configuration subset header
-    0x08,
-    0x00,  // wLength
-    0x01,
-    0x00,  // wDescriptorType : MS_OS_20_SUBSET_HEADER_CONFIGURATION
-    0x00,  // bConfigurationValue
-    0x00,  // bReserved
-    0xa8,
-    0x00,  // wTotalLength
+    0x08, 0x00,                                  // wLength
+    0x01, 0x00,                                  // wDescriptorType : MS_OS_20_SUBSET_HEADER_CONFIGURATION
+    0x00,                                        // bConfigurationValue
+    0x00,                                        // bReserved
+    0xa8, 0x00,                                  // wTotalLength
 
     // Microsoft OS 2.0 function subset header
-    0x08,
-    0x00,  // wLength
-    0x02,
-    0x00,  // wDescriptorType : MS_OS_20_SUBSET_HEADER_FUNCTION
-    0x01,  // bFirstInterface (dynamic) // TODO
-    0x00,  // bReserved
-    0xa0,
-    0x00,  // wSubsetLength
+    0x08, 0x00,                                  // wLength
+    0x02, 0x00,                                  // wDescriptorType : MS_OS_20_SUBSET_HEADER_FUNCTION
+    0x01,                                        // bFirstInterface (dynamic) // TODO
+    0x00,                                        // bReserved
+    0xa0, 0x00,                                  // wSubsetLength
 
     // Microsoft OS 2.0 compatible ID descriptor
-    0x14,
-    0x00,  // wLength
-    0x03,
-    0x00,  // MS_OS_20_FEATURE_COMPATIBLE_ID
-    'W',
-    'I',
-    'N',
-    'U',
-    'S',
-    'B',
-    0x00,
-    0x00,  // Compatible ID String
-    0x00,
-    0x00,
-    0x00,
-    0x00,  // Sub-compatible ID String
-    0x00,
-    0x00,
-    0x00,
-    0x00,  //
+    0x14, 0x00,                                  // wLength
+    0x03, 0x00,                                  // MS_OS_20_FEATURE_COMPATIBLE_ID
+    'W', 'I', 'N', 'U', 'S', 'B', 0x00, 0x00,    // Compatible ID String
+    0x00, 0x00, 0x00, 0x00,                      // Sub-compatible ID String
+    0x00, 0x00, 0x00, 0x00,                      //
 
     // Microsoft OS 2.0 registry property descriptor
-    0x84,
-    0x00,  // wLength:
-    0x04,
-    0x00,  // wDescriptorType: MS_OS_20_FEATURE_REG_PROPERTY
-    0x07,
-    0x00,  // wPropertyDataType: Multiple NULL-terminated Unicode strings (REG_MULTI_SZ)
-    0x2a,
-    0x00,  // wPropertyNameLength
-    'D',
-    0x00,
-    'e',
-    0x00,
-    'v',
-    0x00,
-    'i',
-    0x00,  // PropertyName 'DeviceInterfaceGUIDs'
-    'c',
-    0x00,
-    'e',
-    0x00,
-    'I',
-    0x00,
-    'n',
-    0x00,  //
-    't',
-    0x00,
-    'e',
-    0x00,
-    'r',
-    0x00,
-    'f',
-    0x00,  //
-    'a',
-    0x00,
-    'c',
-    0x00,
-    'e',
-    0x00,
-    'G',
-    0x00,  //
-    'U',
-    0x00,
-    'I',
-    0x00,
-    'D',
-    0x00,
-    's',
-    0x00,  //
-    0x00,
-    0x00,  //
-    0x50,
-    0x00,  // wPropertyDataLength
-    '{',
-    0x00,
-    'C',
-    0x00,
-    'E',
-    0x00,
-    '8',
-    0x00,  // PropertyData : '{CE809264-4B24-4E81-A8B2-57ED01D580E1}'
-    '0',
-    0x00,
-    '9',
-    0x00,
-    '2',
-    0x00,
-    '6',
-    0x00,  //
-    '4',
-    0x00,
-    '-',
-    0x00,
-    '4',
-    0x00,
-    'B',
-    0x00,  //
-    '2',
-    0x00,
-    '4',
-    0x00,
-    '-',
-    0x00,
-    '4',
-    0x00,  //
-    'E',
-    0x00,
-    '8',
-    0x00,
-    '1',
-    0x00,
-    '-',
-    0x00,  //
-    'A',
-    0x00,
-    '8',
-    0x00,
-    'B',
-    0x00,
-    '2',
-    0x00,  //
-    '-',
-    0x00,
-    '5',
-    0x00,
-    '7',
-    0x00,
-    'E',
-    0x00,  //
-    'D',
-    0x00,
-    '0',
-    0x00,
-    '1',
-    0x00,
-    'D',
-    0x00,  //
-    '5',
-    0x00,
-    '8',
-    0x00,
-    '0',
-    0x00,
-    'E',
-    0x00,  //
-    '1',
-    0x00,
-    '}',
-    0x00,  //
-    0x00,
-    0x00,
-    0x00,
-    0x00  //
+    0x84, 0x00,                                  // wLength:
+    0x04, 0x00,                                  // wDescriptorType: MS_OS_20_FEATURE_REG_PROPERTY
+    0x07, 0x00,                                  // wPropertyDataType: Multiple NULL-terminated Unicode strings (REG_MULTI_SZ)
+    0x2a, 0x00,                                  // wPropertyNameLength
+    'D', 0x00, 'e', 0x00, 'v', 0x00, 'i', 0x00,  // PropertyName 'DeviceInterfaceGUIDs'
+    'c', 0x00, 'e', 0x00, 'I', 0x00, 'n', 0x00,  //
+    't', 0x00, 'e', 0x00, 'r', 0x00, 'f', 0x00,  //
+    'a', 0x00, 'c', 0x00, 'e', 0x00, 'G', 0x00,  //
+    'U', 0x00, 'I', 0x00, 'D', 0x00, 's', 0x00,  //
+    0x00, 0x00,                                  //
+    0x50, 0x00,                                  // wPropertyDataLength
+    '{', 0x00, 'C', 0x00, 'E', 0x00, '8', 0x00,  // PropertyData : '{CE809264-4B24-4E81-A8B2-57ED01D580E1}'
+    '0', 0x00, '9', 0x00, '2', 0x00, '6', 0x00,  //
+    '4', 0x00, '-', 0x00, '4', 0x00, 'B', 0x00,  //
+    '2', 0x00, '4', 0x00, '-', 0x00, '4', 0x00,  //
+    'E', 0x00, '8', 0x00, '1', 0x00, '-', 0x00,  //
+    'A', 0x00, '8', 0x00, 'B', 0x00, '2', 0x00,  //
+    '-', 0x00, '5', 0x00, '7', 0x00, 'E', 0x00,  //
+    'D', 0x00, '0', 0x00, '1', 0x00, 'D', 0x00,  //
+    '5', 0x00, '8', 0x00, '0', 0x00, 'E', 0x00,  //
+    '1', 0x00, '}', 0x00,                        //
+    0x00, 0x00, 0x00, 0x00                       //
 };
+// clang-format on
 
 const usbd_class_info_t USBD_LEDGER_WEBUSB_class_info = {
     .type = USBD_LEDGER_CLASS_WEBUSB,
@@ -461,7 +267,7 @@ uint8_t USBD_LEDGER_WEBUSB_init(USBD_HandleTypeDef *pdev, void *cookie)
     handle->protocol_data.tx_chunk_buffer_size = sizeof(ledger_protocol_chunk_buffer);
     handle->protocol_data.mtu                  = sizeof(ledger_protocol_chunk_buffer);
 
-    LEDGER_PROTOCOL_init(&handle->protocol_data);
+    LEDGER_PROTOCOL_init(&handle->protocol_data, OS_IO_PACKET_TYPE_USB_WEBUSB_APDU);
 
     USBD_LL_PrepareReceive(pdev, LEDGER_WEBUSB_EPOUT_ADDR, NULL, LEDGER_WEBUSB_EPOUT_SIZE);
 
@@ -585,7 +391,7 @@ uint8_t USBD_LEDGER_WEBUSB_data_out(USBD_HandleTypeDef *pdev,
 
 uint8_t USBD_LEDGER_WEBUSB_send_packet(USBD_HandleTypeDef *pdev,
                                        void               *cookie,
-                                       uint8_t            *packet,
+                                       const uint8_t      *packet,
                                        uint16_t            packet_length,
                                        uint32_t            timeout_ms)
 {
@@ -638,15 +444,13 @@ int32_t USBD_LEDGER_WEBUSB_data_ready(USBD_HandleTypeDef *pdev,
     ledger_webusb_handle_t *handle = (ledger_webusb_handle_t *) PIC(cookie);
 
     if (handle->protocol_data.rx_apdu_status == APDU_STATUS_COMPLETE) {
-        if (max_length < handle->protocol_data.rx_apdu_length + 1) {
+        if (max_length < handle->protocol_data.rx_apdu_length) {
             status = -1;
         }
         else {
-            buffer[0] = OS_IO_PACKET_TYPE_USB_WEBUSB_APDU;
-            memcpy(&buffer[1],
-                   handle->protocol_data.rx_apdu_buffer,
-                   handle->protocol_data.rx_apdu_length);
-            status = handle->protocol_data.rx_apdu_length + 1;
+            memmove(
+                buffer, handle->protocol_data.rx_apdu_buffer, handle->protocol_data.rx_apdu_length);
+            status = handle->protocol_data.rx_apdu_length;
         }
         handle->protocol_data.rx_apdu_status = APDU_STATUS_WAITING;
     }

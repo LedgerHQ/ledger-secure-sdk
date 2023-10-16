@@ -370,7 +370,7 @@ extern bolos_ux_params_t G_ux_params;
                                    .element_arrays[0]                                             \
                                    .element_array[G_ux.stack[0].element_index];                   \
                 }                                                                                 \
-                os_io_seph_ux_display_bagl_element(element);                                      \
+                io_seph_ux_display_bagl_element(element);                                      \
             }                                                                                     \
             G_ux.stack[0].element_index++;                                                        \
         }                                                                                         \
@@ -393,7 +393,7 @@ extern bolos_ux_params_t G_ux_params;
                 element                                                                            \
                     = &G_ux.stack[0].element_arrays[0].element_array[G_ux.stack[0].element_index]; \
             }                                                                                      \
-            os_io_seph_ux_display_bagl_element(element);                                           \
+            io_seph_ux_display_bagl_element(element);                                           \
         }                                                                                          \
         G_ux.stack[0].element_index++;                                                             \
     }

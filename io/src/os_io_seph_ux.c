@@ -3,6 +3,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "os.h"
 #include "os_io.h"
+#include "ux.h"
 #include "os_io_seph_ux.h"
 #include "seproxyhal_protocol.h"
 
@@ -86,12 +87,15 @@ static void os_io_seph_ux_display_bagl_icon(const bagl_component_t    *icon_comp
 #endif  // HAVE_SE_SCREEN && HAVE_PRINTF
         seph_buffer[1] = length >> 8;
         seph_buffer[2] = length;
-        os_io_tx_cmd(seph_buffer, 3, NULL);
-        os_io_tx_cmd((const uint8_t *) icon_component, sizeof(bagl_component_t), NULL);
+        os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, seph_buffer, 3, NULL);
+        os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH,
+                     (const uint8_t *) icon_component,
+                     sizeof(bagl_component_t),
+                     NULL);
         seph_buffer[0] = icon_details->bpp;
-        os_io_tx_cmd(seph_buffer, 1, NULL);
-        os_io_tx_cmd((const uint8_t *) PIC(icon_details->colors), h, NULL);
-        os_io_tx_cmd((const uint8_t *) PIC(icon_details->bitmap), w, NULL);
+        os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, seph_buffer, 1, NULL);
+        os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, (const uint8_t *) PIC(icon_details->colors), h, NULL);
+        os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, (const uint8_t *) PIC(icon_details->bitmap), w, NULL);
 #else   // !HAVE_SE_SCREEN || (HAVE_SE_SCREEN && HAVE_PRINTF)
         (void) icon_component;
 #endif  // !HAVE_SE_SCREEN || (HAVE_SE_SCREEN && HAVE_PRINTF)
@@ -106,48 +110,71 @@ void io_seph_ux_init_button(void)
     G_ux_os.button_same_mask_counter = 0;
 }
 
+void io_process_ux_event(uint8_t *buffer_in, size_t buffer_in_length)
+{
+    UNUSED(buffer_in_length);
+
+    switch (buffer_in[3]) {
+        case SEPROXYHAL_TAG_UX_CMD_OS_UX:
+            G_ux_params.ux_id = U4BE(buffer_in, 4);
+            G_ux_params.len   = U2BE(buffer_in, 1);
+            memcpy(&G_ux_params.u, &buffer_in[8], G_ux_params.len);
+            os_ux(&G_ux_params);
+            break;
+
+        case SEPROXYHAL_TAG_UX_CMD_BLE_UX_PAIRING_ASK:
+            G_ux_params.ux_id = BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST;
+            G_ux_params.len   = sizeof(G_ux_params.u.pairing_request);
+            memset(&G_ux_params.u.pairing_request, 0, sizeof(G_ux_params.u.pairing_request));
+            G_ux_params.u.pairing_request.type             = buffer_in[4];
+            G_ux_params.u.pairing_request.pairing_info_len = U2BE(buffer_in, 1) - 2;
+            memcpy(G_ux_params.u.pairing_request.pairing_info,
+                   &buffer_in[5],
+                   G_ux_params.u.pairing_request.pairing_info_len);
+            os_ux(&G_ux_params);
+            break;
+
+        case SEPROXYHAL_TAG_UX_CMD_BLE_UX_PAIRING_STATUS:
+            G_ux_params.ux_id                       = BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS;
+            G_ux_params.len                         = sizeof(G_ux_params.u.pairing_status);
+            G_ux_params.u.pairing_status.pairing_ok = buffer_in[4];
+            os_ux(&G_ux_params);
+            break;
+
+#if !defined(HAVE_BOLOS) && defined(HAVE_BAGL)
+        case SEPROXYHAL_TAG_UX_CMD_REDISPLAY:
+            PRINTF("ux_stack_redisplay\n");
+            ux_stack_redisplay();
+            break;
+#endif  // HAVE_BOLOS && HAVE_BAGL
+#if !defined(HAVE_BOLOS) && defined(HAVE_NBGL)
+        case SEPROXYHAL_TAG_UX_CMD_REDISPLAY:
+            nbgl_objAllowDrawing(true);
+            nbgl_screenRedraw();
+            nbgl_refresh();
+            break;
+#endif  // HAVE_BOLOS && HAVE_NBGL
+
+        default:
+            break;
+    }
+}
+
 void io_process_event(uint8_t *buffer_in, size_t buffer_in_length)
 {
     UNUSED(buffer_in_length);
 
-    if (  (buffer_in[0] == SEPROXYHAL_TAG_TICKER_EVENT)
-        ||(buffer_in[0] == SEPROXYHAL_TAG_BUTTON_PUSH_EVENT)
-        ||(buffer_in[0] == SEPROXYHAL_TAG_STATUS_EVENT)
-        ||(buffer_in[0] == SEPROXYHAL_TAG_FINGER_EVENT)
-        ||(buffer_in[0] == SEPROXYHAL_TAG_POWER_BUTTON_EVENT)
-       ) {
+    if ((buffer_in[0] == SEPROXYHAL_TAG_TICKER_EVENT)
+        || (buffer_in[0] == SEPROXYHAL_TAG_BUTTON_PUSH_EVENT)
+        || (buffer_in[0] == SEPROXYHAL_TAG_STATUS_EVENT)
+        || (buffer_in[0] == SEPROXYHAL_TAG_FINGER_EVENT)
+        || (buffer_in[0] == SEPROXYHAL_TAG_POWER_BUTTON_EVENT)) {
         G_ux_params.ux_id = BOLOS_UX_EVENT;
         G_ux_params.len   = 0;
         os_ux(&G_ux_params);
     }
     else if (buffer_in[0] == SEPROXYHAL_TAG_UX_EVENT) {
-        switch (buffer_in[3]) {
-#ifdef HAVE_BLE
-            case SEPROXYHAL_TAG_UX_CMD_BLE_DISABLE_ADV:
-                BLE_LEDGER_enable_advertising(0);
-                break;
-
-            case SEPROXYHAL_TAG_UX_CMD_BLE_ENABLE_ADV:
-                BLE_LEDGER_enable_advertising(1);
-                break;
-
-            case SEPROXYHAL_TAG_UX_CMD_BLE_RESET_PAIRINGS:
-                BLE_LEDGER_reset_pairings();
-                break;
-
-            case SEPROXYHAL_TAG_UX_CMD_BLE_NAME_CHANGED:
-                // Restart advertising
-                BLE_LEDGER_name_changed();
-                break;
-
-            case SEPROXYHAL_TAG_UX_CMD_ACCEPT_PAIRING:
-                BLE_LEDGER_accept_pairing(buffer_in[4]);
-                break;
-#endif  // HAVE_BLE
-
-            default:
-                break;
-        }
+        io_process_ux_event(buffer_in, buffer_in_length);
     }
 }
 
@@ -155,29 +182,30 @@ void io_process_event(uint8_t *buffer_in, size_t buffer_in_length)
 unsigned int os_ux_blocking(bolos_ux_params_t *params)
 {
     unsigned int ret;
-    bolos_err_t  err = SWO_APD_STA_01;
+    uint16_t     err = 0x6601;
 
     os_ux(params);
     ret = os_sched_last_status(TASK_BOLOS_UX);
     while (ret == BOLOS_UX_IGNORE || ret == BOLOS_UX_CONTINUE) {
-        int status             = os_io_rx_evt(NULL);
-        G_io_apdu_tx_buffer[0] = err >> 8;
-        G_io_apdu_tx_buffer[1] = err;
+        int           status = os_io_rx_evt(G_io_tx_buffer, sizeof(G_io_tx_buffer), NULL);
+        unsigned char err_buffer[2];
+        err_buffer[0] = err >> 8;
+        err_buffer[1] = err;
         if (status > 0) {
-            switch (G_io_seph_rx_buffer[0]) {
+            switch (G_io_tx_buffer[0]) {
                 case OS_IO_PACKET_TYPE_SE_EVT:
                 case OS_IO_PACKET_TYPE_SEPH:
-                    io_process_event(&G_io_seph_rx_buffer[1], status - 1);
+                    io_process_event(&G_io_tx_buffer[1], status - 1);
                     /*G_ux_params.ux_id = BOLOS_UX_EVENT;
                     G_ux_params.len   = 0;
                     os_ux(&G_ux_params);*/
                     break;
 
                 case OS_IO_PACKET_TYPE_USB_HID_APDU:
-                    USBD_LEDGER_send(USBD_LEDGER_CLASS_HID, G_io_apdu_tx_buffer, 2, 0);
+                    USBD_LEDGER_send(USBD_LEDGER_CLASS_HID, err_buffer, 2, 0);
                     break;
                 case OS_IO_PACKET_TYPE_USB_WEBUSB_APDU:
-                    USBD_LEDGER_send(USBD_LEDGER_CLASS_WEBUSB, G_io_apdu_tx_buffer, 2, 0);
+                    USBD_LEDGER_send(USBD_LEDGER_CLASS_WEBUSB, err_buffer, 2, 0);
                     break;
                 case OS_IO_PACKET_TYPE_USB_CDC_RAW:
                     break;
@@ -198,7 +226,7 @@ unsigned int os_ux_blocking(bolos_ux_params_t *params)
 #endif  // !APP_UX
 
 #ifdef HAVE_BAGL
-void os_io_seph_ux_display_bagl_element(const bagl_element_t *element)
+void io_seph_ux_display_bagl_element(const bagl_element_t *element)
 {
     const bagl_element_t *el = (const bagl_element_t *) PIC(element);
     const char           *txt;
@@ -214,8 +242,6 @@ void os_io_seph_ux_display_bagl_element(const bagl_element_t *element)
     {
         txt = (const char *) PIC(el->text);
     }
-
-    uint8_t seph_buffer[3];
 
     if (type != BAGL_NONE) {
         if (txt != NULL) {
@@ -245,22 +271,27 @@ void os_io_seph_ux_display_bagl_element(const bagl_element_t *element)
                 if (length > (IO_SEPROXYHAL_BUFFER_SIZE_B - 3)) {
 #if defined(HAVE_PRINTF)
                     PRINTF(
-                        "ERROR: Inside os_io_seph_ux_display_bagl_element, length (%d) is too big "
+                        "ERROR: Inside io_seph_ux_display_bagl_element, length (%d) is too big "
                         "for seph buffer(%d)!\n",
                         length + 3,
                         IO_SEPROXYHAL_BUFFER_SIZE_B);
 #endif  // defined(HAVE_PRINTF)
                     return;
                 }
+                uint8_t seph_buffer[3];
                 seph_buffer[0] = SEPROXYHAL_TAG_SCREEN_DISPLAY_STATUS;
 #if defined(HAVE_SE_SCREEN) && defined(HAVE_PRINTF)
                 seph_buffer[0] = SEPROXYHAL_TAG_DBG_SCREEN_DISPLAY_STATUS;
 #endif  // HAVE_SE_SCREEN && HAVE_PRINTF
                 seph_buffer[1] = length >> 8;
                 seph_buffer[2] = length;
-                os_io_tx_cmd(seph_buffer, 3, NULL);
-                os_io_tx_cmd((const uint8_t *) &el->component, sizeof(bagl_component_t), NULL);
-                os_io_tx_cmd((const uint8_t *) txt_buffer, strlen(txt_buffer), NULL);
+                os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, seph_buffer, 3, NULL);
+                os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH,
+                             (const uint8_t *) &el->component,
+                             sizeof(bagl_component_t),
+                             NULL);
+                os_io_tx_cmd(
+                    OS_IO_PACKET_TYPE_SEPH, (const uint8_t *) txt_buffer, strlen(txt_buffer), NULL);
 #endif  // !HAVE_SE_SCREEN || (HAVE_SE_SCREEN && HAVE_PRINTF)
             }
         }
@@ -269,17 +300,21 @@ void os_io_seph_ux_display_bagl_element(const bagl_element_t *element)
             bagl_draw_with_context(&el->component, NULL, 0, 0);
 #endif  // HAVE_SE_SCREEN
 #if !defined(HAVE_SE_SCREEN) || (defined(HAVE_SE_SCREEN) && defined(HAVE_PRINTF))
-            // LNS case (MCU screen) or SE screen device willing to send bagl packet for automated
-            // testing
+            // LNS case (MCU screen) or SE screen device willing to send bagl packet for
+            // automated testing
             unsigned short length = sizeof(bagl_component_t);
-            seph_buffer[0]        = SEPROXYHAL_TAG_SCREEN_DISPLAY_STATUS;
+            uint8_t        seph_buffer[3];
+            seph_buffer[0] = SEPROXYHAL_TAG_SCREEN_DISPLAY_STATUS;
 #if defined(HAVE_SE_SCREEN) && defined(HAVE_PRINTF)
             seph_buffer[0] = SEPROXYHAL_TAG_DBG_SCREEN_DISPLAY_STATUS;
 #endif  // HAVE_SE_SCREEN && HAVE_PRINTF
             seph_buffer[1] = length >> 8;
             seph_buffer[2] = length;
-            os_io_tx_cmd(seph_buffer, 3, NULL);
-            os_io_tx_cmd((const uint8_t *) &el->component, sizeof(bagl_component_t), NULL);
+            os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, seph_buffer, 3, NULL);
+            os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH,
+                         (const uint8_t *) &el->component,
+                         sizeof(bagl_component_t),
+                         NULL);
 #endif  // !HAVE_SE_SCREEN || (HAVE_SE_SCREEN && HAVE_PRINTF)
         }
     }
@@ -341,7 +376,7 @@ void io_seproxyhal_button_push(button_push_callback_t button_callback, unsigned 
 #endif  // HAVE_BAGL
 
 #ifdef HAVE_SERIALIZED_NBGL
-void io_seproxyhal_send_nbgl_serialized(nbgl_serialized_event_type_e event, nbgl_obj_t *obj)
+void io_seph_ux__send_nbgl_serialized(nbgl_serialized_event_type_e event, nbgl_obj_t *obj)
 {
     // Serialize object
     size_t  len    = 0;

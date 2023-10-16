@@ -5,6 +5,8 @@
 #include "ux.h"
 #include "os_settings.h"
 #include "seproxyhal_protocol.h"
+#include "os_io.h"
+#include "os_io_seph_cmd.h"
 
 #include <string.h>
 
@@ -95,10 +97,6 @@ typedef struct {
     // PAIRING
     uint8_t clear_pairing;
 
-    // APDU
-    uint16_t apdu_buffer_length;
-    uint8_t  apdu_buffer[IO_APDU_BUFFER_SIZE];
-
     // Name
     uint8_t name_changed;
 
@@ -138,7 +136,7 @@ static void hci_evt_vendor(uint8_t *buffer, uint16_t length);
 static uint32_t send_hci_packet(uint32_t timeout_ms);
 
 /* Exported variables --------------------------------------------------------*/
-uint8_t BLE_LEDGER_apdu_buffer[IO_APDU_BUFFER_SIZE];
+uint8_t BLE_LEDGER_apdu_buffer[IO_APDU_BUFFER_SIZE + 1];
 
 /* Private variables ---------------------------------------------------------*/
 static ble_ledger_data_t ble_ledger_data;
@@ -283,8 +281,8 @@ static void init_mngr(uint8_t *hci_buffer, uint16_t length)
                 ble_aci_gap_forge_cmd_clear_security_db(&ble_ledger_data.cmd_data);
                 send_hci_packet(0);
             }
-            ble_ledger_data.ble_ready    = 1;
-            ble_ledger_data.state = BLE_STATE_INITIALIZED;
+            ble_ledger_data.ble_ready = 1;
+            ble_ledger_data.state     = BLE_STATE_INITIALIZED;
             break;
 
         default:
@@ -441,7 +439,8 @@ static void ask_user_pairing_numeric_comparison(uint32_t code)
 
     SPRINTF(ux_params.u.pairing_request.pairing_info, "%06d", (unsigned int) code);
 
-    os_ux(&ux_params);
+    io_seph_cmd_ble_pairing_request(&ux_params);
+    // os_ux(&ux_params);
 }
 
 static void rsp_user_pairing_numeric_comparison(unsigned int status)
@@ -462,7 +461,6 @@ static void ask_user_pairing_passkey(void)
 {
     bolos_ux_params_t ux_params;
 
-
     ux_params.u.pairing_request.type             = BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST_PASSKEY;
     ux_params.u.pairing_request.pairing_info_len = 6;
     ux_params.ux_id                              = BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST;
@@ -472,13 +470,13 @@ static void ask_user_pairing_passkey(void)
 
     SPRINTF(ux_params.u.pairing_request.pairing_info, "%06d", ble_ledger_data.pairing_code);
 
-    os_ux(&ux_params);
+    io_seph_cmd_ble_pairing_request(&ux_params);
+    // os_ux(&ux_params);
 }
 
 static void rsp_user_pairing_passkey(unsigned int status)
 {
     end_pairing_ux();
-
     if (status != BOLOS_UX_OK) {  // BLE_TODO
         ble_ledger_data.pairing_code = cx_rng_u32_range_func(0, 1000000, cx_rng_u32);
     }
@@ -493,10 +491,12 @@ static void end_pairing_ux(void)
     bolos_ux_params_t ux_params;
 
     if (ble_ledger_data.pairing_in_progress) {
-        ux_params.ux_id = BOLOS_UX_ASYNCHMODAL_PAIRING_CANCEL;
-        ux_params.len   = 0;
-        ble_ledger_data.pairing_in_progress = 0;
-        os_ux(&ux_params);
+        ux_params.ux_id                       = BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS;
+        ux_params.len                         = sizeof(ux_params.u.pairing_status);
+        ux_params.u.pairing_status.pairing_ok = BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_SUCCESS;
+        ble_ledger_data.pairing_in_progress   = 0;
+        io_seph_cmd_ble_pairing_status(&ux_params);
+        // os_ux(&ux_params);
     }
 }
 
@@ -787,8 +787,9 @@ static uint32_t send_hci_packet(uint32_t timeout_ms)
 
     hdr[0] = SEPROXYHAL_TAG_BLE_SEND;
     U2BE_ENCODE(hdr, 1, ble_ledger_data.cmd_data.hci_cmd_buffer_length);
-    os_io_tx_cmd(hdr, 3, NULL);
-    os_io_tx_cmd(ble_ledger_data.cmd_data.hci_cmd_buffer,
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, hdr, 3, NULL);
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH,
+                 ble_ledger_data.cmd_data.hci_cmd_buffer,
                  ble_ledger_data.cmd_data.hci_cmd_buffer_length,
                  NULL);
 
@@ -809,13 +810,13 @@ void BLE_LEDGER_init(void)
 
 void BLE_LEDGER_start(uint16_t profile_mask)
 {
-    LEDGER_BLE_get_mac_address(ble_ledger_data.random_address);
-    ble_ledger_data.cmd_data.hci_cmd_opcode = 0xFFFF;
-    ble_ledger_data.state                   = BLE_STATE_INITIALIZING;
-    ble_ledger_data.init_step               = BLE_INIT_STEP_IDLE;
-
     DEBUG("BLE_LEDGER_start");
     if (ble_ledger_data.profiles != profile_mask) {
+        LEDGER_BLE_get_mac_address(ble_ledger_data.random_address);
+        ble_ledger_data.cmd_data.hci_cmd_opcode = 0xFFFF;
+        ble_ledger_data.state                   = BLE_STATE_INITIALIZING;
+        ble_ledger_data.init_step               = BLE_INIT_STEP_IDLE;
+
         if (profile_mask & BLE_LEDGER_PROFILE_APDU) {
             DEBUG("APDU ");
             ble_ledger_data.profile[ble_ledger_data.nb_of_profile++]
@@ -829,9 +830,9 @@ void BLE_LEDGER_start(uint16_t profile_mask)
         }
         DEBUG("\n");
 #endif  // HAVE_IO_U2F
+        ble_ledger_data.profiles = profile_mask;
         init_mngr(NULL, 0);
     }
-    ble_ledger_data.profiles = profile_mask;
 }
 
 void BLE_LEDGER_enable_advertising(uint8_t enable)
@@ -880,8 +881,8 @@ void BLE_LEDGER_accept_pairing(uint8_t status)
 
 void BLE_LEDGER_name_changed(void)
 {
-	ble_ledger_data.name_changed = 1;
-	BLE_LEDGER_enable_advertising(0);
+    ble_ledger_data.name_changed = 1;
+    BLE_LEDGER_enable_advertising(0);
 }
 
 int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
@@ -889,17 +890,17 @@ int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
                            uint8_t *apdu_buffer,
                            uint16_t apdu_buffer_max_length)
 {
-    uint32_t status = SWO_SUCCESS;
+    uint32_t status = 0;
 
     if (seph_buffer_length < 5) {
-        return INVALID_PARAMETER;
+        return -1;
     }
 
     if (seph_buffer[4] == HCI_EVENT_PKT_TYPE) {
         switch (seph_buffer[5]) {
             case HCI_DISCONNECTION_COMPLETE_EVT_CODE:
                 if (seph_buffer_length < 10) {
-                    status = INVALID_PARAMETER;
+                    status = -1;
                 }
                 else {
                     DEBUG("HCI DISCONNECTION COMPLETE code %02X\n", seph_buffer[9]);
@@ -912,7 +913,7 @@ int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
 
             case HCI_ENCRYPTION_CHANGE_EVT_CODE:
                 if (seph_buffer_length < 10) {
-                    status = INVALID_PARAMETER;
+                    status = -1;
                 }
                 else if (U2LE(seph_buffer, 8) == ble_ledger_data.connection.connection_handle) {
                     if (seph_buffer[10]) {
@@ -939,7 +940,7 @@ int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
 
             case HCI_COMMAND_COMPLETE_EVT_CODE:
                 if (seph_buffer_length < 8) {
-                    status = INVALID_PARAMETER;
+                    status = -1;
                 }
                 else {
                     hci_evt_cmd_complete(&seph_buffer[7], seph_buffer[6]);
@@ -956,7 +957,7 @@ int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
 
             case HCI_LE_META_EVT_CODE:
                 if (seph_buffer_length < 8) {
-                    status = INVALID_PARAMETER;
+                    status = -1;
                 }
                 else {
                     hci_evt_le_meta_evt(&seph_buffer[7], seph_buffer[6]);
@@ -965,14 +966,11 @@ int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
 
             case HCI_VENDOR_SPECIFIC_DEBUG_EVT_CODE:
                 if (seph_buffer_length < 8) {
-                    status = INVALID_PARAMETER;
+                    status = -1;
                 }
                 else {
                     hci_evt_vendor(&seph_buffer[7], seph_buffer[6]);
                     status = BLE_LEDGER_data_ready(apdu_buffer, apdu_buffer_max_length);
-                    if (status > 0) {
-                        seph_buffer[0] = apdu_buffer[0];
-                    }
                 }
                 break;
 
@@ -984,7 +982,7 @@ int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
     return status;
 }
 
-uint32_t BLE_LEDGER_send(uint8_t *packet, uint16_t packet_length, uint32_t timeout_ms)
+uint32_t BLE_LEDGER_send(const uint8_t *packet, uint16_t packet_length, uint32_t timeout_ms)
 {
     uint32_t            status       = SWO_SUCCESS;
     uint8_t             ble_status   = BLE_PROFILE_STATUS_OK;
@@ -1024,17 +1022,14 @@ int32_t BLE_LEDGER_data_ready(uint8_t *buffer, uint16_t max_length)
     return status;
 }
 
-void BLE_LEDGER_setting(uint32_t profile_id, uint32_t setting_id,
-                        uint8_t *buffer, uint16_t length)
+void BLE_LEDGER_setting(uint32_t profile_id, uint32_t setting_id, uint8_t *buffer, uint16_t length)
 {
-    uint8_t index  = 0;
+    uint8_t index = 0;
 
     ble_profile_info_t *profile_info = NULL;
     for (index = 0; index < ble_ledger_data.nb_of_profile; index++) {
         profile_info = ble_ledger_data.profile[index];
-        if (  (profile_info->type == profile_id)
-            &&(profile_info->setting)
-           ) {
+        if ((profile_info->type == profile_id) && (profile_info->setting)) {
             ((ble_profile_setting_t) PIC(profile_info->setting))(
                 setting_id, buffer, length, profile_info->cookie);
         }

@@ -5,6 +5,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stdint.h"
 #include "seproxyhal_protocol.h"
+#include "ux.h"
+
 
 /* Exported enumerations -----------------------------------------------------*/
 typedef enum {
@@ -49,9 +51,7 @@ int io_seph_ux_redisplay(void);
 
 int io_seph_cmd_mcu_go_to_bootloader(void);
 int io_seph_cmd_mcu_lock(void);
-#if (!defined(HAVE_BOLOS) && defined(HAVE_MCU_PROTECT))
 int io_seph_cmd_mcu_protect(void);
-#endif  // (!defined(HAVE_BOLOS) && defined(HAVE_MCU_PROTECT))
 
 int io_seph_cmd_set_ship_mode(void);
 
@@ -85,3 +85,8 @@ void io_seph_ble_name_changed(void);
 void io_seph_ux_accept_pairing(uint8_t status);
 
 void io_seproxyhal_io_heartbeat(void);
+
+void io_seph_cmd_os_ux(uint32_t ux_id, uint32_t len, uint8_t *data);
+
+void io_seph_cmd_ble_pairing_request(bolos_ux_params_t *ux_params);
+void io_seph_cmd_ble_pairing_status(bolos_ux_params_t *ux_params);

@@ -4,8 +4,8 @@
 
 exclude: |
     (?x)^(
-        lib_blewbxx/.*|
-        lib_stusb/.*|
+        lib_ble/.*|
+        lib_usb/.*|
         lib_nbgl/include/.*.json|
         lib_bagl/include/.*.json|
     )$

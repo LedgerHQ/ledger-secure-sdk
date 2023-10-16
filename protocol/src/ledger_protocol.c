@@ -54,8 +54,9 @@ static void process_apdu_chunk(ledger_protocol_t *handle, uint8_t *buffer, uint1
 
     if (handle->rx_apdu_sequence_number == 0) {
         // First chunk
-        handle->rx_apdu_status = APDU_STATUS_NEED_MORE_DATA;
-        handle->rx_apdu_length = (uint16_t) U2BE(buffer, 2);
+        handle->rx_apdu_buffer[0] = handle->type;
+        handle->rx_apdu_status    = APDU_STATUS_NEED_MORE_DATA;
+        handle->rx_apdu_length    = (uint16_t) U2BE(buffer, 2);
         // Check if we have enough space to store the apdu
         if (handle->rx_apdu_length > handle->rx_apdu_buffer_size) {
             DEBUG("APDU WAITING - %d\n", handle->rx_apdu_length);
@@ -77,10 +78,11 @@ static void process_apdu_chunk(ledger_protocol_t *handle, uint8_t *buffer, uint1
         length = handle->rx_apdu_length - handle->rx_apdu_offset;
     }
 
-    memcpy(&handle->rx_apdu_buffer[handle->rx_apdu_offset], buffer, length);
+    memcpy(&handle->rx_apdu_buffer[1 + handle->rx_apdu_offset], buffer, length);
     handle->rx_apdu_offset += length;
 
     if (handle->rx_apdu_offset == handle->rx_apdu_length) {
+        handle->rx_apdu_length++; // include the type
         handle->rx_apdu_sequence_number = 0;
         handle->rx_apdu_status          = APDU_STATUS_COMPLETE;
         DEBUG("APDU COMPLETE\n");
@@ -93,7 +95,7 @@ static void process_apdu_chunk(ledger_protocol_t *handle, uint8_t *buffer, uint1
 }
 
 /* Exported functions --------------------------------------------------------*/
-void LEDGER_PROTOCOL_init(ledger_protocol_t *handle)
+void LEDGER_PROTOCOL_init(ledger_protocol_t *handle, uint8_t type)
 {
     if (!handle) {
         return;
@@ -101,6 +103,7 @@ void LEDGER_PROTOCOL_init(ledger_protocol_t *handle)
 
     handle->rx_apdu_status          = APDU_STATUS_WAITING;
     handle->rx_apdu_sequence_number = 0;
+    handle->type                    = type;
 }
 
 void LEDGER_PROTOCOL_rx(ledger_protocol_t *handle, uint8_t *buffer, uint16_t length)
@@ -157,7 +160,7 @@ void LEDGER_PROTOCOL_rx(ledger_protocol_t *handle, uint8_t *buffer, uint16_t len
     }
 }
 
-void LEDGER_PROTOCOL_tx(ledger_protocol_t *handle, uint8_t *buffer, uint16_t length)
+void LEDGER_PROTOCOL_tx(ledger_protocol_t *handle, const uint8_t *buffer, uint16_t length)
 {
     if (!handle || (!buffer && !handle->tx_apdu_buffer)) {
         return;

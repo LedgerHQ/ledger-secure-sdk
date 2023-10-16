@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 #include "ux.h"
-#include "os_io_seproxyhal.h"
+#include "os_io.h"
 
 #include "buffer.h"
 #include "macros.h"
@@ -37,9 +37,7 @@ WEAK void app_ticker_event_callback(void);
  * @return 1 if success, 0 otherwise.
  *
  */
-WEAK uint8_t io_event(uint8_t channel __attribute__((unused)));
-
-WEAK uint16_t io_exchange_al(uint8_t channel, uint16_t tx_len);
+WEAK uint8_t io_event(uint8_t *buffer_in, size_t buffer_in_length);
 
 /**
  * Initialize the APDU I/O state.

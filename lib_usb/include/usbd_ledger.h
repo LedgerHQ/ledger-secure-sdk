@@ -35,7 +35,7 @@ typedef enum {
 /* Exported macros------------------------------------------------------------*/
 
 /* Exported variables --------------------------------------------------------*/
-extern uint8_t USBD_LEDGER_apdu_buffer[IO_APDU_BUFFER_SIZE];
+extern uint8_t USBD_LEDGER_apdu_buffer[IO_APDU_BUFFER_SIZE+1];
 
 /* Exported functions prototypes--------------------------------------------- */
 void USBD_LEDGER_init(void);
@@ -59,10 +59,10 @@ void USBD_LEDGER_rx_evt_data_in(uint8_t ep_num, uint8_t *buffer);
 void USBD_LEDGER_rx_evt_data_out(uint8_t ep_num, uint8_t *buffer, uint16_t length);
 
 // Tx
-uint32_t USBD_LEDGER_send(uint8_t  class_type,
-                          uint8_t *packet,
-                          uint16_t packet_length,
-                          uint32_t timeout_ms);
+uint32_t USBD_LEDGER_send(uint8_t        class_type,
+                          const uint8_t *packet,
+                          uint16_t       packet_length,
+                          uint32_t       timeout_ms);
 
 // Check APDU
 int32_t USBD_LEDGER_data_ready(uint8_t *buffer, uint16_t max_length);

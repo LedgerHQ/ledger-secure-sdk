@@ -14,6 +14,7 @@
 #include "os_memory.h"
 #include "os_registry.h"
 #include "os_ux.h"
+#include "os_io.h"
 #ifdef HAVE_SE_TOUCH
 #include "os_io_seph_ux.h"
 #endif  // HAVE_SE_TOUCH
@@ -1738,7 +1739,7 @@ unsigned short io_seph_recv(unsigned char *buffer, unsigned short maxlength, uns
     return (unsigned short) SVC_Call(SYSCALL_io_seph_recv_ID, parameters);
 }
 
-int io_seph_tx(const unsigned char *buffer, unsigned short length, unsigned int *timeout_ms)
+int os_io_seph_tx(const unsigned char *buffer, unsigned short length, unsigned int *timeout_ms)
 {
     unsigned int parameters[3];
     parameters[0] = (unsigned int) buffer;
@@ -1747,11 +1748,11 @@ int io_seph_tx(const unsigned char *buffer, unsigned short length, unsigned int 
     return (int) SVC_Call(SYSCALL_io_seph_tx_ID, parameters);
 }
 
-int io_seph_se_rx_event(unsigned char *buffer,
-                        unsigned short max_length,
-                        unsigned int  *timeout_ms,
-                        bool           check_se_event,
-                        unsigned int   flags)
+int os_io_seph_se_rx_event(unsigned char *buffer,
+                           unsigned short max_length,
+                           unsigned int  *timeout_ms,
+                           bool           check_se_event,
+                           unsigned int   flags)
 {
     unsigned int parameters[5];
     parameters[0] = (unsigned int) buffer;
@@ -1762,13 +1763,35 @@ int io_seph_se_rx_event(unsigned char *buffer,
     return (int) SVC_Call(SYSCALL_io_seph_se_rx_event_ID, parameters);
 }
 
-int os_io_tx_cmd(const unsigned char *buffer, unsigned short length, unsigned int *timeout_ms)
+__attribute((weak)) int os_io_start(os_io_init_t *init)
+{
+    unsigned int parameters[1];
+    parameters[0] = (unsigned int) init;
+    return (int) SVC_Call(SYSCALL_os_io_start_ID, parameters);
+}
+
+__attribute((weak)) int os_io_tx_cmd(unsigned char        type,
+                                     const unsigned char *buffer,
+                                     unsigned short       length,
+                                     unsigned int        *timeout_ms)
+{
+    unsigned int parameters[4];
+    parameters[0] = (unsigned int) type;
+    parameters[1] = (unsigned int) buffer;
+    parameters[2] = (unsigned int) length;
+    parameters[3] = (unsigned int) timeout_ms;
+    return (int) SVC_Call(SYSCALL_os_io_tx_cmd_ID, parameters);
+}
+
+__attribute((weak)) int os_io_rx_evt(unsigned char *buffer,
+                                     unsigned short buffer_max_length,
+                                     unsigned int  *timeout_ms)
 {
     unsigned int parameters[3];
     parameters[0] = (unsigned int) buffer;
-    parameters[1] = (unsigned int) length;
+    parameters[1] = (unsigned int) buffer_max_length;
     parameters[2] = (unsigned int) timeout_ms;
-    return (int) SVC_Call(SYSCALL_os_io_tx_cmd_ID, parameters);
+    return (int) SVC_Call(SYSCALL_os_io_rx_evt_ID, parameters);
 }
 
 void nvm_write_page(unsigned int page_adr, bool force)

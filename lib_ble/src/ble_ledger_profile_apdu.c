@@ -168,7 +168,7 @@ void BLE_LEDGER_PROFILE_apdu_init(ble_cmd_data_t *cmd_data, void *cookie)
     handle->protocol_data.tx_chunk_buffer_size = sizeof(ledger_protocol_chunk_buffer);
     handle->protocol_data.mtu                  = BLE_ATT_DEFAULT_MTU - 1;
 
-    LEDGER_PROTOCOL_init(&handle->protocol_data);
+    LEDGER_PROTOCOL_init(&handle->protocol_data, OS_IO_PACKET_TYPE_BLE_APDU);
 
     handle->gatt_service_handle                     = BLE_GATT_INVALID_HANDLE;
     handle->gatt_notification_characteristic_handle = BLE_GATT_INVALID_HANDLE;
@@ -513,7 +513,7 @@ uint8_t BLE_LEDGER_PROFILE_apdu_update_char_value_ack(void *cookie)
     return status;
 }
 
-uint8_t BLE_LEDGER_PROFILE_apdu_send_packet(uint8_t *packet, uint16_t length, void *cookie)
+uint8_t BLE_LEDGER_PROFILE_apdu_send_packet(const uint8_t *packet, uint16_t length, void *cookie)
 {
     if (!packet || !cookie) {
         return BLE_PROFILE_STATUS_BAD_PARAMETERS;
@@ -562,15 +562,14 @@ int32_t BLE_LEDGER_PROFILE_apdu_data_ready(uint8_t *buffer, uint16_t max_length,
 
     PRINTF("BLE_LEDGER_PROFILE_apdu_data_ready %d\n", handle->protocol_data.rx_apdu_status);
     if (handle->protocol_data.rx_apdu_status == APDU_STATUS_COMPLETE) {
-        if (max_length < handle->protocol_data.rx_apdu_length + 1) {
+        if (max_length < handle->protocol_data.rx_apdu_length) {
             status = -1;
         }
         else {
-            buffer[0] = OS_IO_PACKET_TYPE_BLE_APDU;
-            memcpy(&buffer[1],
-                   handle->protocol_data.rx_apdu_buffer,
-                   handle->protocol_data.rx_apdu_length);
-            status = handle->protocol_data.rx_apdu_length + 1;
+            memmove(buffer,
+                    handle->protocol_data.rx_apdu_buffer,
+                    handle->protocol_data.rx_apdu_length);
+            status = handle->protocol_data.rx_apdu_length;
         }
         handle->protocol_data.rx_apdu_status = APDU_STATUS_WAITING;
         handle->protocol_data.rx_apdu_length = 0;

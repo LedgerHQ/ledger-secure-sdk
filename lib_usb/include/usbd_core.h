@@ -65,7 +65,7 @@ USBD_StatusTypeDef USBD_LL_SetUSBAddress(USBD_HandleTypeDef *pdev, uint8_t dev_a
 
 USBD_StatusTypeDef USBD_LL_Transmit(USBD_HandleTypeDef *pdev,
                                     uint8_t             ep_addr,
-                                    uint8_t            *pbuf,
+                                    const uint8_t      *pbuf,
                                     uint32_t            size,
                                     uint32_t            timeout_ms);
 

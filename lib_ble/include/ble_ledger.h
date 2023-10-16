@@ -34,7 +34,7 @@ typedef enum {
 /* Exported macros------------------------------------------------------------*/
 
 /* Exported variables --------------------------------------------------------*/
-extern uint8_t BLE_LEDGER_apdu_buffer[IO_APDU_BUFFER_SIZE];
+extern uint8_t BLE_LEDGER_apdu_buffer[IO_APDU_BUFFER_SIZE+1];
 
 /* Exported functions prototypes--------------------------------------------- */
 void BLE_LEDGER_init(void);
@@ -51,7 +51,7 @@ int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
                            uint16_t apdu_buffer_max_length);
 
 // Tx
-uint32_t BLE_LEDGER_send(uint8_t *packet, uint16_t packet_length, uint32_t timeout_ms);
+uint32_t BLE_LEDGER_send(const uint8_t *packet, uint16_t packet_length, uint32_t timeout_ms);
 
 // Check APDU
 int32_t BLE_LEDGER_data_ready(uint8_t *buffer, uint16_t max_length);

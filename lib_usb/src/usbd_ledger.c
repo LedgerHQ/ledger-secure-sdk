@@ -14,7 +14,6 @@
 #include "seproxyhal_protocol.h"
 
 #pragma GCC diagnostic ignored "-Wcast-qual"
-#pragma GCC diagnostic ignored "-Wdiscarded-qualifiers"
 
 /* Private enumerations ------------------------------------------------------*/
 
@@ -60,7 +59,7 @@ static void forge_configuration_descriptor(void);
 static void forge_bos_descriptor(void);
 
 /* Exported variables --------------------------------------------------------*/
-uint8_t USBD_LEDGER_apdu_buffer[IO_APDU_BUFFER_SIZE];
+uint8_t USBD_LEDGER_apdu_buffer[IO_APDU_BUFFER_SIZE + 1];
 
 /* Private variables ---------------------------------------------------------*/
 static const USBD_ClassTypeDef USBD_LEDGER_CLASS = {
@@ -132,7 +131,7 @@ static uint8_t init(USBD_HandleTypeDef *pdev, uint8_t cfg_idx)
     for (index = 0; index < usbd_ledger_data.nb_of_class; index++) {
         class_info = usbd_ledger_data.class[index];
         if (class_info) {
-            end_point_info = PIC(class_info->end_point);
+            end_point_info = (usbd_end_point_info_t *) PIC(class_info->end_point);
 
             // Open EP IN
             if (end_point_info->ep_in_addr != 0xFF) {
@@ -174,7 +173,7 @@ static uint8_t de_init(USBD_HandleTypeDef *pdev, uint8_t cfg_idx)
     for (index = 0; index < usbd_ledger_data.nb_of_class; index++) {
         class_info = usbd_ledger_data.class[index];
         if (class_info) {
-            end_point_info = PIC(class_info->end_point);
+            end_point_info = (usbd_end_point_info_t *) PIC(class_info->end_point);
 
             // Close EP IN
             if (end_point_info->ep_in_addr != 0xFF) {
@@ -226,7 +225,7 @@ static uint8_t data_in(USBD_HandleTypeDef *pdev, uint8_t ep_num)
     usbd_end_point_info_t *end_point_info = NULL;
     for (index = 0; index < usbd_ledger_data.nb_of_class; index++) {
         class_info     = usbd_ledger_data.class[index];
-        end_point_info = PIC(class_info->end_point);
+        end_point_info = (usbd_end_point_info_t *) PIC(class_info->end_point);
         if (((end_point_info->ep_in_addr & 0x7F) == (ep_num & 0x7F)) && (class_info->data_in)) {
             ret = ((usbd_class_data_in_t) PIC(class_info->data_in))(
                 pdev, class_info->cookie, ep_num);
@@ -245,7 +244,7 @@ static uint8_t data_out(USBD_HandleTypeDef *pdev, uint8_t ep_num)
     usbd_end_point_info_t *end_point_info = NULL;
     for (index = 0; index < usbd_ledger_data.nb_of_class; index++) {
         class_info     = usbd_ledger_data.class[index];
-        end_point_info = PIC(class_info->end_point);
+        end_point_info = (usbd_end_point_info_t *) PIC(class_info->end_point);
         if (((end_point_info->ep_out_addr & 0x7F) == (ep_num & 0x7F)) && (class_info->data_out)) {
             ret = ((usbd_class_data_out_t) PIC(class_info->data_out))(
                 pdev,
@@ -365,24 +364,33 @@ void USBD_LEDGER_init(void)
 
 void USBD_LEDGER_start(uint16_t pid, uint16_t vid, char *name, uint16_t class_mask)
 {
-    usbd_ledger_data.product = USBD_LEDGER_PRODUCT_BLUE;
-#if defined(TARGET_NANOS)
-    usbd_ledger_data.product = USBD_LEDGER_PRODUCT_NANOS;
-#endif  // TARGET_NANOS
-#if defined(TARGET_NANOX)
-    usbd_ledger_data.product = USBD_LEDGER_PRODUCT_NANOX;
-#endif  // TARGET_NANOX
-#if defined(TARGET_NANOS2)
-    usbd_ledger_data.product = USBD_LEDGER_PRODUCT_NANOS_PLUS;
-#endif  // TARGET_NANOX
-#if defined(TARGET_FATSTACKS) || defined(TARGET_STAX)
-    usbd_ledger_data.product = USBD_LEDGER_PRODUCT_STAX;
-#endif  // TARGET_FATSTACKS || TARGET_STAX
-
-    if ((usbd_ledger_data.classes != class_mask) || (usbd_ledger_data.pid != pid)
-        || (usbd_ledger_data.vid != vid) || (name && strcmp(usbd_ledger_data.name, name))) {
+    if ((usbd_ledger_data.classes != class_mask) || (pid && (usbd_ledger_data.pid != pid))
+        || (vid && (usbd_ledger_data.vid != vid))
+        || (name && strcmp(usbd_ledger_data.name, name))) {
         uint8_t bcdusb   = 0x00;
         uint8_t usbd_iad = 0;
+
+        USBD_LEDGER_init();
+
+        usbd_ledger_data.product = USBD_LEDGER_PRODUCT_BLUE;
+        strlcpy(usbd_ledger_data.name, USBD_BLUE_PRODUCT_STRING, sizeof(usbd_ledger_data.name));
+#if defined(TARGET_NANOS)
+        usbd_ledger_data.product = USBD_LEDGER_PRODUCT_NANOS;
+        strlcpy(usbd_ledger_data.name, USBD_NANOS_PRODUCT_STRING, sizeof(usbd_ledger_data.name));
+#endif  // TARGET_NANOS
+#if defined(TARGET_NANOX)
+        usbd_ledger_data.product = USBD_LEDGER_PRODUCT_NANOX;
+        strlcpy(usbd_ledger_data.name, USBD_NANOX_PRODUCT_STRING, sizeof(usbd_ledger_data.name));
+#endif  // TARGET_NANOX
+#if defined(TARGET_NANOS2)
+        usbd_ledger_data.product = USBD_LEDGER_PRODUCT_NANOS_PLUS;
+        strlcpy(
+            usbd_ledger_data.name, USBD_NANOS_PLUS_PRODUCT_STRING, sizeof(usbd_ledger_data.name));
+#endif  // TARGET_NANOX
+#if defined(TARGET_FATSTACKS) || defined(TARGET_STAX)
+        usbd_ledger_data.product = USBD_LEDGER_PRODUCT_STAX;
+        strlcpy(usbd_ledger_data.name, USBD_STAX_PRODUCT_STRING, sizeof(usbd_ledger_data.name));
+#endif  // TARGET_FATSTACKS || TARGET_STAX
 
         if (vid) {
             usbd_ledger_data.vid = vid;
@@ -400,39 +408,6 @@ void USBD_LEDGER_start(uint16_t pid, uint16_t vid, char *name, uint16_t class_ma
 
         if (name && !strlen(usbd_ledger_data.name)) {
             strlcpy(usbd_ledger_data.name, name, sizeof(usbd_ledger_data.name));
-        }
-        else {
-            switch (usbd_ledger_data.product) {
-                case USBD_LEDGER_PRODUCT_NANOS:
-                    strlcpy(usbd_ledger_data.name,
-                            USBD_NANOS_PRODUCT_STRING,
-                            sizeof(usbd_ledger_data.name));
-                    break;
-
-                case USBD_LEDGER_PRODUCT_NANOX:
-                    strlcpy(usbd_ledger_data.name,
-                            USBD_NANOX_PRODUCT_STRING,
-                            sizeof(usbd_ledger_data.name));
-                    break;
-
-                case USBD_LEDGER_PRODUCT_NANOS_PLUS:
-                    strlcpy(usbd_ledger_data.name,
-                            USBD_NANOS_PLUS_PRODUCT_STRING,
-                            sizeof(usbd_ledger_data.name));
-                    break;
-
-                case USBD_LEDGER_PRODUCT_STAX:
-                    strlcpy(usbd_ledger_data.name,
-                            USBD_STAX_PRODUCT_STRING,
-                            sizeof(usbd_ledger_data.name));
-                    break;
-
-                default:
-                    strlcpy(usbd_ledger_data.name,
-                            USBD_BLUE_PRODUCT_STRING,
-                            sizeof(usbd_ledger_data.name));
-                    break;
-            }
         }
 
         if (class_mask & USBD_LEDGER_CLASS_HID) {
@@ -462,6 +437,7 @@ void USBD_LEDGER_start(uint16_t pid, uint16_t vid, char *name, uint16_t class_ma
                 = (usbd_class_info_t *) PIC(&USBD_LEDGER_WEBUSB_class_info);
         }
 #endif  // HAVE_WEBUSB
+#ifdef HAVE_CDCUSB
         if (class_mask & USBD_LEDGER_CLASS_CDC) {
             usbd_ledger_data.class[usbd_ledger_data.nb_of_class++]
                 = (usbd_class_info_t *) PIC(&USBD_LEDGER_CDC_Control_class_info);
@@ -469,6 +445,7 @@ void USBD_LEDGER_start(uint16_t pid, uint16_t vid, char *name, uint16_t class_ma
                 = (usbd_class_info_t *) PIC(&USBD_LEDGER_CDC_Data_class_info);
             usbd_iad = 1;
         }
+#endif  // HAVE_CDCUSB
 
         USBD_DESC_init(usbd_ledger_data.name,
                        usbd_ledger_data.vid,
@@ -479,12 +456,11 @@ void USBD_LEDGER_start(uint16_t pid, uint16_t vid, char *name, uint16_t class_ma
         USBD_Init(&usbd_ledger_data.usbd_handle, (USBD_DescriptorsTypeDef *) &LEDGER_Desc, 0);
         USBD_RegisterClass(&usbd_ledger_data.usbd_handle, (USBD_ClassTypeDef *) &USBD_LEDGER_CLASS);
         USBD_Start(&usbd_ledger_data.usbd_handle);
+        usbd_ledger_data.classes = class_mask;
     }
-    usbd_ledger_data.classes = class_mask;
-    usbd_ledger_data.pid     = pid;
 }
 
-void USB_power(unsigned char enabled)
+/*void USB_power(unsigned char enabled)
 {
     if (usbd_ledger_data.usbd_handle.pClass) {
         USBD_Stop(&usbd_ledger_data.usbd_handle);
@@ -504,7 +480,7 @@ void USB_power(unsigned char enabled)
         USBD_LEDGER_init();
         USBD_LEDGER_start(0, 0, NULL, class_mask);
     }
-}
+}*/
 
 void USBD_LEDGER_rx_evt_reset(void)
 {
@@ -544,10 +520,10 @@ void USBD_LEDGER_rx_evt_data_out(uint8_t ep_num, uint8_t *buffer, uint16_t lengt
     USBD_LL_DataOutStage(&usbd_ledger_data.usbd_handle, ep_num, buffer);
 }
 
-uint32_t USBD_LEDGER_send(uint8_t  class_type,
-                          uint8_t *packet,
-                          uint16_t packet_length,
-                          uint32_t timeout_ms)
+uint32_t USBD_LEDGER_send(uint8_t        class_type,
+                          const uint8_t *packet,
+                          uint16_t       packet_length,
+                          uint32_t       timeout_ms)
 {
     uint32_t status     = INVALID_PARAMETER;
     uint8_t  usb_status = USBD_OK;
@@ -649,9 +625,6 @@ int USBD_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
                 if (epnum < IO_USB_MAX_ENDPOINTS) {
                     USBD_LEDGER_rx_evt_data_out(epnum, &seph_buffer[7], length);
                     status = USBD_LEDGER_data_ready(apdu_buffer, apdu_buffer_max_length);
-                    if (status > 0) {
-                        seph_buffer[0] = apdu_buffer[0];
-                    }
                 }
                 else {
                     status = -1;

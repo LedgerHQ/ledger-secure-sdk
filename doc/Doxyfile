@@ -837,18 +837,17 @@ INPUT                  = \
                          lib_nbgl/doc \
                          lib_nbgl/include \
                          lib_nbgl/src \
-                         lib_blewbxx_impl/doc \
-                         lib_blewbxx_impl/include \
-                         lib_blewbxx_impl/src \
+                         lib_ble/doc \
+                         lib_ble/include \
+                         lib_ble/src \
                          lib_nfc/doc \
                          lib_nfc/include \
                          lib_nfc/src \
                          lib_standard_app/doc \
                          lib_standard_app \
-                         lib_stusb/doc \
-                         lib_stusb \
-                         lib_stusb_impl/doc \
-                         lib_stusb_impl \
+                         lib_usb/doc \
+                         lib_usb/include \
+                         lib_usb/src \
                          lib_u2f/doc \
                          lib_u2f/include \
                          lib_u2f/src \

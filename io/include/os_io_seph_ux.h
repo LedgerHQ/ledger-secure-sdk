@@ -44,15 +44,16 @@ typedef struct io_touch_info_s {
 
 /* Exported functions prototypes--------------------------------------------- */
 void         io_seph_ux_init_button(void);
+void         io_process_ux_event(uint8_t *buffer_in, size_t buffer_in_length);
 void         io_process_event(uint8_t *buffer_in, size_t buffer_in_length);
 unsigned int os_ux_blocking(bolos_ux_params_t *params);
 
 #ifdef HAVE_BAGL
-void os_io_seph_ux_display_bagl_element(const bagl_element_t *element);
+void io_seph_ux_display_bagl_element(const bagl_element_t *element);
 #endif  // HAVE_BAGL
 
 #ifdef HAVE_SERIALIZED_NBGL
-void io_seproxyhal_send_nbgl_serialized(nbgl_serialized_event_type_e event, nbgl_obj_t *obj);
+void io_seph_ux__send_nbgl_serialized(nbgl_serialized_event_type_e event, nbgl_obj_t *obj);
 #endif  // HAVE_SERIALIZED_NBGL
 
 #ifdef HAVE_SE_TOUCH

@@ -36,7 +36,7 @@ typedef uint8_t (*usbd_class_data_out_t)(USBD_HandleTypeDef *pdev,
 
 typedef uint8_t (*usbd_send_packet_t)(USBD_HandleTypeDef *pdev,
                                       void               *cookie,
-                                      uint8_t            *packet,
+                                      const uint8_t      *packet,
                                       uint16_t            packet_length,
                                       uint32_t            timeout_ms);
 

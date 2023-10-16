@@ -46,7 +46,7 @@ USBD_StatusTypeDef USBD_LL_DeInit(USBD_HandleTypeDef *pdev)
     buffer[1] = 0;
     buffer[2] = 1;
     buffer[3] = SEPROXYHAL_TAG_USB_CONFIG_DISCONNECT;
-    io_seph_tx(buffer, 4, 0);
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 4, NULL);
 
     return USBD_OK;
 }
@@ -62,13 +62,13 @@ USBD_StatusTypeDef USBD_LL_Start(USBD_HandleTypeDef *pdev)
     buffer[2] = 2;
     buffer[3] = SEPROXYHAL_TAG_USB_CONFIG_ADDR;
     buffer[4] = 0;
-    io_seph_tx(buffer, 5, 0);
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 5, NULL);
 
     buffer[0] = SEPROXYHAL_TAG_USB_CONFIG;
     buffer[1] = 0;
     buffer[2] = 1;
     buffer[3] = SEPROXYHAL_TAG_USB_CONFIG_CONNECT;
-    io_seph_tx(buffer, 4, 0);
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 4, NULL);
 
     return USBD_OK;
 }
@@ -83,7 +83,7 @@ USBD_StatusTypeDef USBD_LL_Stop(USBD_HandleTypeDef *pdev)
     buffer[1] = 0;
     buffer[2] = 1;
     buffer[3] = SEPROXYHAL_TAG_USB_CONFIG_DISCONNECT;
-    io_seph_tx(buffer, 4, 0);
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 4, NULL);
 
     return USBD_OK;
 }
@@ -135,7 +135,7 @@ USBD_StatusTypeDef USBD_LL_OpenEP(USBD_HandleTypeDef *pdev,
     }
 
     buffer[7] = ep_mps;
-    io_seph_tx(buffer, 8, 0);
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 8, NULL);
 
     return USBD_OK;
 }
@@ -158,7 +158,7 @@ USBD_StatusTypeDef USBD_LL_CloseEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
     buffer[5] = ep_addr;
     buffer[6] = SEPROXYHAL_TAG_USB_CONFIG_TYPE_DISABLED;
     buffer[7] = 0;
-    io_seph_tx(buffer, 8, 0);
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 8, NULL);
 
     return USBD_OK;
 }
@@ -197,7 +197,7 @@ USBD_StatusTypeDef USBD_LL_StallEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
     buffer[3] = ep_addr;
     buffer[4] = SEPROXYHAL_TAG_USB_EP_PREPARE_DIR_STALL;
     buffer[5] = 0;
-    io_seph_tx(buffer, 6, 0);
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 6, NULL);
 
     return USBD_OK;
 }
@@ -225,7 +225,7 @@ USBD_StatusTypeDef USBD_LL_ClearStallEP(USBD_HandleTypeDef *pdev, uint8_t ep_add
     buffer[3] = ep_addr;
     buffer[4] = SEPROXYHAL_TAG_USB_EP_PREPARE_DIR_UNSTALL;
     buffer[5] = 0;
-    io_seph_tx(buffer, 6, 0);
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 6, NULL);
 
     return USBD_OK;
 }
@@ -257,14 +257,14 @@ USBD_StatusTypeDef USBD_LL_SetUSBAddress(USBD_HandleTypeDef *pdev, uint8_t dev_a
     buffer[2] = 2;
     buffer[3] = SEPROXYHAL_TAG_USB_CONFIG_ADDR;
     buffer[4] = dev_addr;
-    io_seph_tx(buffer, 5, 0);
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 5, 0);
 
     return USBD_OK;
 }
 
 USBD_StatusTypeDef USBD_LL_Transmit(USBD_HandleTypeDef *pdev,
                                     uint8_t             ep_addr,
-                                    uint8_t            *pbuf,
+                                    const uint8_t      *pbuf,
                                     uint32_t            size,
                                     uint32_t            timeout_ms)
 {
@@ -284,16 +284,16 @@ USBD_StatusTypeDef USBD_LL_Transmit(USBD_HandleTypeDef *pdev,
     buffer[4] = SEPROXYHAL_TAG_USB_EP_PREPARE_DIR_IN;
     buffer[5] = size;
     if (timeout_ms) {
-        if (io_seph_tx(buffer, 6, (unsigned int *) &timeout_ms) != TIMEOUT) {
-            io_seph_tx(pbuf, size, NULL);
+        if (os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 6, (unsigned int *) &timeout_ms) != TIMEOUT) {
+            os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, pbuf, size, NULL);
         }
         else {
             status = USBD_TIMEOUT;
         }
     }
     else {
-        io_seph_tx(buffer, 6, NULL);
-        io_seph_tx(pbuf, size, NULL);
+        os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 6, NULL);
+        os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, pbuf, size, NULL);
     }
 
     return status;
@@ -319,7 +319,7 @@ USBD_StatusTypeDef USBD_LL_PrepareReceive(USBD_HandleTypeDef *pdev,
     buffer[3] = ep_addr;
     buffer[4] = SEPROXYHAL_TAG_USB_EP_PREPARE_DIR_OUT;
     buffer[5] = size;
-    io_seph_tx(buffer, 6, 0);
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 6, NULL);
 
     return USBD_OK;
 }

@@ -5,6 +5,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdbool.h>
 #include <stdint.h>
+#include "os_math.h"
 #include "decorators.h"
 
 /* Exported enumerations -----------------------------------------------------*/
@@ -51,9 +52,10 @@ typedef struct {
 #endif  // !HAVE_IO_U2F
 
 #ifdef CUSTOM_IO_APDU_BUFFER_SIZE
-#define IO_APDU_BUFFER_SIZE MAX(IMPL_IO_APDU_BUFFER_SIZE, CUSTOM_IO_APDU_BUFFER_SIZE)
+#define IO_APDU_BUFFER_SIZE \
+    MAX(MAX(IMPL_IO_APDU_BUFFER_SIZE, CUSTOM_IO_APDU_BUFFER_SIZE), IO_SEPROXYHAL_BUFFER_SIZE_B)
 #else  // !CUSTOM_IO_APDU_BUFFER_SIZE
-#define IO_APDU_BUFFER_SIZE IMPL_IO_APDU_BUFFER_SIZE
+#define IO_APDU_BUFFER_SIZE MAX(IMPL_IO_APDU_BUFFER_SIZE, IO_SEPROXYHAL_BUFFER_SIZE_B)
 #endif  // !CUSTOM_IO_APDU_BUFFER_SIZE
 
 #define CHANNEL_APDU           0

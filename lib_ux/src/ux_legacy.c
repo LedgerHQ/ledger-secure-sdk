@@ -439,7 +439,7 @@ const bagl_element_t printf_element = {
 void debug_wait_displayed(void)
 {
     // wait next event (probably a ticker, if not, too bad... this is debug !!)
-    io_seph_se_rx_event(G_io_seph_rx_buffer, sizeof(G_io_seph_rx_buffer), NULL, false, 0);
+    //os_io_seph_se_rx_event(G_io_seph_rx_buffer, sizeof(G_io_seph_rx_buffer), NULL, false, 0);
 }
 
 /*#if defined(HAVE_DEBUG) || defined(BOLOS_DEBUG)
@@ -447,12 +447,12 @@ void debug_wait_displayed(void)
 
 void debug_printf(void* buffer) {
 #ifdef TARGET_NANOS
-  os_io_seph_ux_display_bagl_element(&clear_element);
+  io_seph_ux_display_bagl_element(&clear_element);
   debug_wait_displayed();
 #endif // TARGET_NANOS
   memmove(&G_ux.tmp_element, &printf_element, sizeof(bagl_element_t));
   G_ux.tmp_element.text = buffer;
-  os_io_seph_ux_display_bagl_element(&G_ux.tmp_element);
+  io_seph_ux_display_bagl_element(&G_ux.tmp_element);
   debug_wait_displayed();
   // wait until a button event
   while (G_io_seph_rx_buffer[0] != SEPROXYHAL_TAG_BUTTON_PUSH_EVENT
