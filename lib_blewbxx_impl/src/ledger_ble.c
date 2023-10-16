@@ -517,7 +517,8 @@ static void hci_evt_cmd_complete(const uint8_t *buffer, uint16_t length)
         if (ledger_ble_data.transfer_mode_enable) {
             if ((ledger_protocol_data.rx_apdu_length)
                 && (ledger_protocol_data.rx_apdu_status == APDU_STATUS_COMPLETE)) {
-                if (G_io_app.apdu_state == APDU_IDLE) {
+                if (G_io_app.apdu_state == APDU_IDLE
+                    && io_apdu_is_media_accepted(IO_APDU_MEDIA_BLE)) {
                     copy_apdu_to_app(false);
                 }
                 else {
@@ -892,7 +893,8 @@ static void attribute_modified(const uint8_t *buffer, uint16_t length)
                     LOG_BLE("Transfer failed 0x%04x\n", U2BE(ledger_ble_data.resp, 0));
                     G_io_app.transfer_mode = 0;
                     check_transfer_mode(G_io_app.transfer_mode);
-                    if (G_io_app.apdu_state == APDU_IDLE) {
+                    if (G_io_app.apdu_state == APDU_IDLE
+                        && io_apdu_is_media_accepted(IO_APDU_MEDIA_BLE)) {
                         copy_apdu_to_app(true);
                     }
                     else {
@@ -914,7 +916,8 @@ static void attribute_modified(const uint8_t *buffer, uint16_t length)
             }
             else {
                 // Nominal case for apdu reception
-                if (G_io_app.apdu_state == APDU_IDLE) {
+                if (G_io_app.apdu_state == APDU_IDLE
+                    && io_apdu_is_media_accepted(IO_APDU_MEDIA_BLE)) {
                     copy_apdu_to_app(true);
                 }
                 else {
@@ -961,7 +964,7 @@ static void write_permit_request(const uint8_t *buffer, uint16_t length)
                             data_length,
                             &buffer[3]);
         if (ledger_protocol_data.rx_apdu_status == APDU_STATUS_COMPLETE) {
-            if (G_io_app.apdu_state == APDU_IDLE) {
+            if (G_io_app.apdu_state == APDU_IDLE && io_apdu_is_media_accepted(IO_APDU_MEDIA_BLE)) {
                 copy_apdu_to_app(true);
             }
             else {

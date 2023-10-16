@@ -228,7 +228,7 @@ void io_usb_send_apdu_data_ep0x83(unsigned char *buffer, unsigned short length)
 
 void io_seproxyhal_handle_capdu_event(void)
 {
-    if (G_io_app.apdu_state == APDU_IDLE) {
+    if (G_io_app.apdu_state == APDU_IDLE && io_apdu_is_media_accepted(IO_APDU_MEDIA_RAW)) {
         size_t max  = MIN(sizeof(G_io_apdu_buffer) - 3, sizeof(G_io_seproxyhal_spi_buffer) - 3);
         size_t size = U2BE(G_io_seproxyhal_spi_buffer, 1);
 
@@ -446,9 +446,10 @@ void io_seproxyhal_init(void)
     G_io_app.plane_mode = plane;
 #endif  // HAVE_BLE
 
-    G_io_app.apdu_state  = APDU_IDLE;
-    G_io_app.apdu_length = 0;
-    G_io_app.apdu_media  = IO_APDU_MEDIA_NONE;
+    G_io_app.apdu_state      = APDU_IDLE;
+    G_io_app.apdu_length     = 0;
+    G_io_app.apdu_media      = IO_APDU_MEDIA_NONE;
+    G_io_app.apdu_media_lock = IO_APDU_MEDIA_NONE;
 
     G_io_app.ms = 0;
 
@@ -473,6 +474,22 @@ void io_seproxyhal_init(void)
 #if !defined(HAVE_BOLOS) && defined(HAVE_PENDING_REVIEW_SCREEN)
     check_audited_app();
 #endif  // !defined(HAVE_BOLOS) && defined(HAVE_PENDING_REVIEW_SCREEN)
+}
+
+void io_apdu_media_lock(io_apdu_media_t media)
+{
+    G_io_app.apdu_media_lock = media;
+}
+void io_apdu_media_unlock(void)
+{
+    G_io_app.apdu_media_lock = IO_APDU_MEDIA_NONE;
+}
+bool io_apdu_is_media_accepted(io_apdu_media_t media)
+{
+    if (G_io_app.apdu_media_lock == IO_APDU_MEDIA_NONE) {
+        return true;
+    }
+    return (G_io_app.apdu_media_lock == media);
 }
 
 #ifdef HAVE_PIEZO_SOUND

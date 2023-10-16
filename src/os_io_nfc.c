@@ -67,7 +67,7 @@ void io_nfc_recv_event(void)
 
     // Full apdu is received, copy it to global apdu buffer
     if (ledger_protocol_data.rx_apdu_status == APDU_STATUS_COMPLETE) {
-        if (G_io_app.apdu_state == APDU_IDLE) {
+        if (G_io_app.apdu_state == APDU_IDLE && io_apdu_is_media_accepted(IO_APDU_MEDIA_NFC)) {
             memcpy(ledger_protocol_data.rx_dst_buffer,
                    ledger_protocol_data.rx_apdu_buffer,
                    ledger_protocol_data.rx_apdu_length);

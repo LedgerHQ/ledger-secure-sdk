@@ -1074,7 +1074,8 @@ uint8_t USBD_HID_DataOut_impl(USBD_HandleTypeDef *pdev,
 
 #ifndef HAVE_USB_HIDKBD
             // avoid troubles when an apdu has not been replied yet
-            if (G_io_app.apdu_state == APDU_IDLE) {
+            if (G_io_app.apdu_state == APDU_IDLE
+                && io_apdu_is_media_accepted(IO_APDU_MEDIA_USB_HID)) {
                 // add to the hid transport
                 switch (io_usb_hid_receive(io_usb_send_apdu_data,
                                            buffer,
@@ -1162,7 +1163,8 @@ uint8_t USBD_WEBUSB_DataOut(USBD_HandleTypeDef *pdev,
             USBD_LL_PrepareReceive(pdev, WEBUSB_EPOUT_ADDR, WEBUSB_EPOUT_SIZE);
 
             // avoid troubles when an apdu has not been replied yet
-            if (G_io_app.apdu_state == APDU_IDLE) {
+            if (G_io_app.apdu_state == APDU_IDLE
+                && io_apdu_is_media_accepted(IO_APDU_MEDIA_USB_WEBUSB)) {
                 // add to the hid transport
                 switch (io_usb_hid_receive(io_usb_send_apdu_data_ep0x83,
                                            buffer,
