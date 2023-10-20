@@ -20,6 +20,7 @@
 #include "ux.h"
 #include "nbgl_touch.h"
 #include "os_io.h"
+#include "os_io_seph_ux.h"
 #ifndef HAVE_BOLOS
 // number of 100ms ticks since the start-up of the app
 static uint32_t nbTicks;

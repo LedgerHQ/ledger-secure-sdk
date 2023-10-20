@@ -7,6 +7,8 @@
 #include <stdint.h>
 #include "os_math.h"
 #include "decorators.h"
+#include "os_io_seph_cmd.h"
+#include "os_io_seph_ux.h"
 
 /* Exported enumerations -----------------------------------------------------*/
 typedef enum {
@@ -42,21 +44,13 @@ typedef struct {
     unsigned short  apdu_length;  // total length to be received
     unsigned short  io_flags;     // flags to be set when calling io_exchange
     io_apdu_media_t apdu_media;
+#ifdef HAVE_BLE
+    unsigned int  plane_mode;
+#endif  // HAVE_BLE
 } io_seph_app_t;
 
 /* Exported defines   --------------------------------------------------------*/
-#ifdef HAVE_IO_U2F
-#define IMPL_IO_APDU_BUFFER_SIZE (3 + 32 + 32 + 15 + 255)
-#else  // !HAVE_IO_U2F
-#define IMPL_IO_APDU_BUFFER_SIZE (5 + 255)
-#endif  // !HAVE_IO_U2F
 
-#ifdef CUSTOM_IO_APDU_BUFFER_SIZE
-#define IO_APDU_BUFFER_SIZE \
-    MAX(MAX(IMPL_IO_APDU_BUFFER_SIZE, CUSTOM_IO_APDU_BUFFER_SIZE), IO_SEPROXYHAL_BUFFER_SIZE_B)
-#else  // !CUSTOM_IO_APDU_BUFFER_SIZE
-#define IO_APDU_BUFFER_SIZE MAX(IMPL_IO_APDU_BUFFER_SIZE, IO_SEPROXYHAL_BUFFER_SIZE_B)
-#endif  // !CUSTOM_IO_APDU_BUFFER_SIZE
 
 #define CHANNEL_APDU           0
 #define CHANNEL_KEYBOARD       1
@@ -69,18 +63,48 @@ typedef struct {
 
 #define IO_CACHE 1
 
+#define G_io_apdu_buffer G_io_rx_buffer
+
+// deprecated
+#define G_io_apdu_media G_io_app.apdu_media
+// deprecated
+#define G_io_apdu_state G_io_app.apdu_state
+
 /* Exported macros------------------------------------------------------------*/
 
 /* Exported variables --------------------------------------------------------*/
 extern io_seph_app_t G_io_app;
+extern unsigned char G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
 
 /* Exported functions prototypes--------------------------------------------- */
-SYSCALL void io_seph_send(const unsigned char *buffer PLENGTH(length), unsigned short length);
 SYSCALL unsigned int   io_seph_is_status_sent(void);
 SYSCALL unsigned short io_seph_recv(unsigned char *buffer PLENGTH(maxlength),
                                     unsigned short        maxlength,
                                     unsigned int          flags);
 
-#define io_seproxyhal_spi_send           io_seph_send
+#define io_seproxyhal_spi_send           (void)
 #define io_seproxyhal_spi_is_status_sent io_seph_is_status_sent
 #define io_seproxyhal_spi_recv           io_seph_recv
+
+
+void io_seproxyhal_general_status(void);
+void io_seproxyhal_se_reset(void);
+void io_seproxyhal_disable_io(void);
+void io_seproxyhal_io_heartbeat(void);
+
+#ifdef HAVE_BAGL
+void io_seproxyhal_display_default(const bagl_element_t *element);
+#endif  // HAVE_BAGL
+
+#ifdef HAVE_PIEZO_SOUND
+void io_seproxyhal_play_tune(tune_index_e tune_index);
+#endif  // HAVE_PIEZO_SOUND
+
+unsigned int io_seph_is_status_sent(void);
+
+unsigned short io_exchange(unsigned char channel_and_flags, unsigned short tx_len);
+void io_seproxyhal_init(void);
+void USB_power(unsigned char enabled);
+#ifdef HAVE_BLE
+void BLE_power(unsigned char powered, const char *discovered_name);
+#endif  // HAVE_BLE

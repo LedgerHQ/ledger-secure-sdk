@@ -458,7 +458,7 @@ void debug_printf(void* buffer) {
   while (G_io_seph_rx_buffer[0] != SEPROXYHAL_TAG_BUTTON_PUSH_EVENT
     // not marked as released
     || G_io_seph_rx_buffer[3] != 0) {
-    io_seproxyhal_general_status();
+    os_io_seph_cmd_general_status();
     io_seproxyhal_spi_recv(G_io_seph_rx_buffer, sizeof(G_io_seph_rx_buffer), 0);
   }
 }

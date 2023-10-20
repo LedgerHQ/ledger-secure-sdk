@@ -11,6 +11,10 @@
 #include "bagl.h"
 #endif  // HAVE_BAGL
 
+#ifdef HAVE_IO_USB
+#include "usbd_ledger.h"
+#endif  // HAVE_IO_USB
+
 /* Private enumerations ------------------------------------------------------*/
 
 /* Private types, structures, unions -----------------------------------------*/
@@ -110,19 +114,13 @@ void io_seph_ux_init_button(void)
     G_ux_os.button_same_mask_counter = 0;
 }
 
-void io_process_ux_event(uint8_t *buffer_in, size_t buffer_in_length)
+void io_process_itc_ux_event(uint8_t *buffer_in, size_t buffer_in_length)
 {
     UNUSED(buffer_in_length);
 
     switch (buffer_in[3]) {
-        case SEPROXYHAL_TAG_UX_CMD_OS_UX:
-            G_ux_params.ux_id = U4BE(buffer_in, 4);
-            G_ux_params.len   = U2BE(buffer_in, 1);
-            memcpy(&G_ux_params.u, &buffer_in[8], G_ux_params.len);
-            os_ux(&G_ux_params);
-            break;
-
-        case SEPROXYHAL_TAG_UX_CMD_BLE_UX_PAIRING_ASK:
+#ifdef HAVE_BLE
+        case ITC_UX_ASK_BLE_PAIRING:
             G_ux_params.ux_id = BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST;
             G_ux_params.len   = sizeof(G_ux_params.u.pairing_request);
             memset(&G_ux_params.u.pairing_request, 0, sizeof(G_ux_params.u.pairing_request));
@@ -134,21 +132,21 @@ void io_process_ux_event(uint8_t *buffer_in, size_t buffer_in_length)
             os_ux(&G_ux_params);
             break;
 
-        case SEPROXYHAL_TAG_UX_CMD_BLE_UX_PAIRING_STATUS:
+        case ITC_UX_BLE_PAIRING_STATUS:
             G_ux_params.ux_id                       = BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS;
             G_ux_params.len                         = sizeof(G_ux_params.u.pairing_status);
             G_ux_params.u.pairing_status.pairing_ok = buffer_in[4];
             os_ux(&G_ux_params);
             break;
+#endif  // HAVE_BLE
 
 #if !defined(HAVE_BOLOS) && defined(HAVE_BAGL)
-        case SEPROXYHAL_TAG_UX_CMD_REDISPLAY:
-            PRINTF("ux_stack_redisplay\n");
+        case ITC_UX_REDISPLAY:
             ux_stack_redisplay();
             break;
 #endif  // HAVE_BOLOS && HAVE_BAGL
 #if !defined(HAVE_BOLOS) && defined(HAVE_NBGL)
-        case SEPROXYHAL_TAG_UX_CMD_REDISPLAY:
+        case ITC_UX_REDISPLAY:
             nbgl_objAllowDrawing(true);
             nbgl_screenRedraw();
             nbgl_refresh();
@@ -173,8 +171,8 @@ void io_process_event(uint8_t *buffer_in, size_t buffer_in_length)
         G_ux_params.len   = 0;
         os_ux(&G_ux_params);
     }
-    else if (buffer_in[0] == SEPROXYHAL_TAG_UX_EVENT) {
-        io_process_ux_event(buffer_in, buffer_in_length);
+    else if (buffer_in[0] == SEPROXYHAL_TAG_ITC_EVENT) {
+        io_process_itc_ux_event(buffer_in, buffer_in_length);
     }
 }
 
@@ -376,7 +374,7 @@ void io_seproxyhal_button_push(button_push_callback_t button_callback, unsigned 
 #endif  // HAVE_BAGL
 
 #ifdef HAVE_SERIALIZED_NBGL
-void io_seph_ux__send_nbgl_serialized(nbgl_serialized_event_type_e event, nbgl_obj_t *obj)
+void io_seph_ux_send_nbgl_serialized(nbgl_serialized_event_type_e event, nbgl_obj_t *obj)
 {
     // Serialize object
     size_t  len    = 0;
@@ -385,7 +383,7 @@ void io_seph_ux__send_nbgl_serialized(nbgl_serialized_event_type_e event, nbgl_o
 
     // Encode and send
     if (status == NBGL_SERIALIZE_OK) {
-        io_seph_cmd_serialized_nbgl(nbgl_serialize_buffer, len);
+        os_io_seph_cmd_serialized_nbgl(nbgl_serialize_buffer, len);
     }
 }
 #endif  // HAVE_SERIALIZED_NBGL

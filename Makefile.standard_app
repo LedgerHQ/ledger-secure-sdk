@@ -74,6 +74,7 @@ endif
 #####################################################################
 #                          STANDARD DEFINES                         #
 #####################################################################
+DEFINES += USE_STANDARD_APP_LIB
 DEFINES += $(DEFINES_LIB)
 # Added directly as a CFLAG because it might contain spaces
 CFLAGS += -DAPPNAME=\"$(APPNAME)\"
@@ -81,10 +82,11 @@ DEFINES += APPVERSION=\"$(APPVERSION)\"
 DEFINES += MAJOR_VERSION=$(APPVERSION_M) MINOR_VERSION=$(APPVERSION_N) PATCH_VERSION=$(APPVERSION_P)
 DEFINES += IO_HID_EP_LENGTH=64
 
-ifeq ($(TUTUT), 1)
-    DEFINES += TUTU
+ifeq ($(USE_OS_IO_STACK), 1)
+    DEFINES += USE_OS_IO_STACK
 endif
 
+SDK_SOURCE_PATH += io_legacy
 SDK_SOURCE_PATH += io
 SDK_SOURCE_PATH += protocol
 

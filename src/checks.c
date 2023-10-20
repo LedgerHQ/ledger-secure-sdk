@@ -183,7 +183,7 @@ void check_audited_app(void)
     // to the expected one.
     if ((length) && (CHECK_NOT_AUDITED_TLV_VAL == data)) {
         ui_audited_init();
-        io_seproxyhal_general_status();
+        os_io_seph_cmd_general_status();
 
         // We wait for the button callback pointer to be wiped, and we process the incoming MCU
         // events in the meantime. This callback will be wiped within the actual
@@ -191,7 +191,7 @@ void check_audited_app(void)
         do {
             io_seproxyhal_spi_recv(G_io_seph_rx_buffer, sizeof(G_io_seph_rx_buffer), 0);
             io_seproxyhal_handle_event();
-            io_seproxyhal_general_status();
+            os_io_seph_cmd_general_status();
         } while (!ui_audited_done());
 
         ui_audited_deinit();

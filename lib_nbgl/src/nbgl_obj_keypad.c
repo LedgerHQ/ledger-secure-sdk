@@ -293,7 +293,7 @@ void nbgl_keypadTouchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
             keypad->callback(GET_DIGIT_INDEX(keypad, firstIndex) + 0x30);
         }
         else {
-            io_seproxyhal_play_tune(TUNE_TAP_CASUAL);
+            os_io_seph_cmd_piezo_play_tune(TUNE_TAP_CASUAL);
         }
     }
     if ((firstIndex == BACKSPACE_KEY_INDEX) && (keypad->enableBackspace)) {  // backspace
@@ -303,7 +303,7 @@ void nbgl_keypadTouchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
             keypad->callback(BACKSPACE_KEY);
         }
         else {
-            io_seproxyhal_play_tune(TUNE_TAP_CASUAL);
+            os_io_seph_cmd_piezo_play_tune(TUNE_TAP_CASUAL);
         }
     }
     else if ((firstIndex == VALIDATE_KEY_INDEX) && (keypad->enableValidate)) {  // validate

@@ -5,29 +5,47 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdbool.h>
 #include <stdint.h>
+#include "os_math.h"
 #include "decorators.h"
-#include "os_io_legacy.h"
-
-#ifdef HAVE_IO_USB
-#include "usbd_ledger.h"
-#endif  // HAVE_IO_USB
-
-#ifdef HAVE_BLE
-#include "ble_ledger.h"
-#endif  // HAVE_BLE
 
 /* Exported enumerations -----------------------------------------------------*/
 typedef enum {
-    OS_IO_PACKET_TYPE_INVALID         = 0x00,
-    OS_IO_PACKET_TYPE_SEPH            = 0x10,
-    OS_IO_PACKET_TYPE_SE_EVT          = 0x20,
-    OS_IO_PACKET_TYPE_RAW_APDU        = 0x30,
-    OS_IO_PACKET_TYPE_USB_HID_APDU    = 0x40,
-    OS_IO_PACKET_TYPE_USB_WEBUSB_APDU = 0x41,
-    OS_IO_PACKET_TYPE_USB_CDC_RAW     = 0x52,
-    OS_IO_PACKET_TYPE_BLE_APDU        = 0x60,
-    OS_IO_PACKET_TYPE_NFC_APDU        = 0x70,
+    OS_IO_PACKET_TYPE_NONE            = 0x00,
+    OS_IO_PACKET_TYPE_SEPH            = 0x01,
+    OS_IO_PACKET_TYPE_SE_EVT          = 0x02,
+    OS_IO_PACKET_TYPE_RAW_APDU        = 0x10,
+    OS_IO_PACKET_TYPE_USB_HID_APDU    = 0x11,
+    OS_IO_PACKET_TYPE_USB_WEBUSB_APDU = 0x12,
+    OS_IO_PACKET_TYPE_USB_CCID_APDU   = 0x13,
+    OS_IO_PACKET_TYPE_USB_U2F_APDU    = 0x14,
+    OS_IO_PACKET_TYPE_BLE_APDU        = 0x15,
+    OS_IO_PACKET_TYPE_NFC_APDU        = 0x16,
+    OS_IO_PACKET_TYPE_USB_CDC_RAW     = 0x20,
 } os_io_packet_type_t;
+
+typedef enum {
+    APDU_TYPE_NONE       = OS_IO_PACKET_TYPE_NONE,
+    APDU_TYPE_RAW        = OS_IO_PACKET_TYPE_RAW_APDU,
+    APDU_TYPE_USB_HID    = OS_IO_PACKET_TYPE_USB_HID_APDU,
+    APDU_TYPE_USB_WEBUSB = OS_IO_PACKET_TYPE_USB_WEBUSB_APDU,
+    APDU_TYPE_USB_CCID   = OS_IO_PACKET_TYPE_USB_CCID_APDU,
+    APDU_TYPE_USB_U2F    = OS_IO_PACKET_TYPE_USB_U2F_APDU,
+    APDU_TYPE_BLE        = OS_IO_PACKET_TYPE_BLE_APDU,
+    APDU_TYPE_NFC        = OS_IO_PACKET_TYPE_NFC_APDU,
+} apdu_type_t;
+
+typedef enum {
+    // IO
+    ITC_IO_BLE_DISABLE_ADV      = 0x00,
+    ITC_IO_BLE_ENABLE_ADV       = 0x01,
+    ITC_IO_BLE_RESET_PAIRINGS   = 0x02,
+    ITC_IO_BLE_BLE_NAME_CHANGED = 0x03,
+    // UX
+    ITC_UX_REDISPLAY          = 0x10,
+    ITC_UX_ACCEPT_BLE_PAIRING = 0x11,
+    ITC_UX_ASK_BLE_PAIRING    = 0x12,
+    ITC_UX_BLE_PAIRING_STATUS = 0x13,
+} itc_type_t;
 
 /* Exported types, structures, unions ----------------------------------------*/
 typedef struct {
@@ -48,6 +66,20 @@ typedef struct {
 } os_io_init_t;
 
 /* Exported defines   --------------------------------------------------------*/
+#ifdef HAVE_IO_U2F
+#define IMPL_IO_APDU_BUFFER_SIZE (3 + 32 + 32 + 15 + 255)
+#else  // !HAVE_IO_U2F
+#define IMPL_IO_APDU_BUFFER_SIZE (5 + 255)
+#endif  // !HAVE_IO_U2F
+
+#ifdef CUSTOM_IO_APDU_BUFFER_SIZE
+#define IO_APDU_BUFFER_SIZE \
+    MAX(MAX(IMPL_IO_APDU_BUFFER_SIZE, CUSTOM_IO_APDU_BUFFER_SIZE), IO_SEPROXYHAL_BUFFER_SIZE_B)
+#else  // !CUSTOM_IO_APDU_BUFFER_SIZE
+#define IO_APDU_BUFFER_SIZE MAX(IMPL_IO_APDU_BUFFER_SIZE, IO_SEPROXYHAL_BUFFER_SIZE_B)
+#endif  // !CUSTOM_IO_APDU_BUFFER_SIZE
+
+#define OS_IO_FLAG_CACHE 1
 
 /* Exported macros------------------------------------------------------------*/
 

@@ -513,7 +513,7 @@ extern bolos_ux_params_t G_ux_params;
     io_seproxyhal_handle_event();                                                                 \
     /* We send a general status which indicates to the MCU that he can process any pending action \
      * (i.e. here, display the whole screen) */                                                   \
-    io_seproxyhal_general_status();                                                               \
+    os_io_seph_cmd_general_status();                                                                 \
     /* We wait for an ack of the MCU. */                                                          \
     io_seproxyhal_spi_recv(G_io_seph_rx_buffer, sizeof(G_io_seph_rx_buffer), 0);
 
@@ -577,14 +577,6 @@ extern bolos_ux_params_t G_ux_params;
     G_ux_params.len = os_sched_last_status(TASK_BOLOS_UX);
 
 /**
- * Setup the TICKER_EVENT interval. Application shall not use this entry point as it's the main
- * ticking source. Use the ::UX_SET_INTERVAL_MS instead.
- */
-// void io_seproxyhal_setup_ticker(unsigned int interval_ms);
-
-// void io_seproxyhal_request_mcu_status(void);
-
-/**
  * Helper function to order the MCU to display the given bitmap with the given color index, a table
  * of size: (1<<bit_per_pixel) with little endian encoded colors. Deprecated
  */
@@ -596,9 +588,6 @@ void io_seproxyhal_display_bitmap(int            x,
                                   unsigned int   bit_per_pixel,
                                   unsigned char *bitmap);
 
-void io_seproxyhal_se_reset(void);
-
-// void io_seproxyhal_disable_io(void);
 
 void io_seproxyhal_backlight(unsigned int flags, unsigned int backlight_percentage);
 

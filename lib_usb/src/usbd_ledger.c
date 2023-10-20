@@ -11,6 +11,7 @@
 // #include "usbd_ledger_hid_u2f.h"
 #include "usbd_ledger_webusb.h"
 #include "usbd_ledger_cdc.h"
+#include "os_io_seph_cmd.h"
 #include "seproxyhal_protocol.h"
 
 #pragma GCC diagnostic ignored "-Wcast-qual"
@@ -359,6 +360,7 @@ static void forge_bos_descriptor(void)
 /* Exported functions --------------------------------------------------------*/
 void USBD_LEDGER_init(void)
 {
+    os_io_seph_cmd_usb_disconnect();
     memset(&usbd_ledger_data, 0, sizeof(usbd_ledger_data));
 }
 

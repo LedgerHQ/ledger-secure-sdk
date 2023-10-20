@@ -6,6 +6,14 @@
 #include "os_io_seph_ux.h"
 #include "seproxyhal_protocol.h"
 
+#ifdef HAVE_IO_USB
+#include "usbd_ledger.h"
+#endif  // HAVE_IO_USB
+
+#ifdef HAVE_BLE
+#include "ble_ledger.h"
+#endif  // HAVE_BLE
+
 #define CALVA_LOG(...) snprintf(((char *) 0xF0000000), 0x1000, __VA_ARGS__);
 /* Private enumerations ------------------------------------------------------*/
 
@@ -16,6 +24,9 @@
 /* Private macros-------------------------------------------------------------*/
 
 /* Private functions prototypes ----------------------------------------------*/
+#if defined(HAVE_BLE) && !defined(USE_OS_IO_STACK)
+static int process_itc_ble_event(uint8_t *buffer_in, size_t buffer_in_length);
+#endif  // HAVE_BLE && !USE_OS_IO_STACK
 
 /* Exported variables --------------------------------------------------------*/
 #ifndef HAVE_LOCAL_APDU_BUFFER
@@ -27,41 +38,39 @@ unsigned char G_io_tx_buffer[IO_APDU_BUFFER_SIZE + 1];
 unsigned char G_io_seph_rx_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B + 1];
 uint16_t      G_io_seph_rx_buffer_length;
 
-io_seph_app_t G_io_app;
-
 uint8_t G_io_syscall_flag;
 
 /* Private variables ---------------------------------------------------------*/
 
 /* Private functions ---------------------------------------------------------*/
-#ifdef HAVE_BLE
-static int process_ux_ble_event(uint8_t *buffer_in, size_t buffer_in_length)
+#if defined(HAVE_BLE) && !defined(USE_OS_IO_STACK)
+static int process_itc_ble_event(uint8_t *buffer_in, size_t buffer_in_length)
 {
     int status = buffer_in_length;
 
     switch (buffer_in[3]) {
-        case SEPROXYHAL_TAG_UX_CMD_BLE_DISABLE_ADV:
+        case ITC_IO_BLE_DISABLE_ADV:
             BLE_LEDGER_enable_advertising(0);
             status = 0;
             break;
 
-        case SEPROXYHAL_TAG_UX_CMD_BLE_ENABLE_ADV:
+        case ITC_IO_BLE_ENABLE_ADV:
             BLE_LEDGER_enable_advertising(1);
             status = 0;
             break;
 
-        case SEPROXYHAL_TAG_UX_CMD_BLE_RESET_PAIRINGS:
+        case ITC_IO_BLE_RESET_PAIRINGS:
             BLE_LEDGER_reset_pairings();
             status = 0;
             break;
 
-        case SEPROXYHAL_TAG_UX_CMD_BLE_NAME_CHANGED:
+        case ITC_IO_BLE_BLE_NAME_CHANGED:
             // Restart advertising
             BLE_LEDGER_name_changed();
             status = 0;
             break;
 
-        case SEPROXYHAL_TAG_UX_CMD_ACCEPT_PAIRING:
+        case ITC_UX_ACCEPT_BLE_PAIRING:
             BLE_LEDGER_accept_pairing(buffer_in[4]);
             status = 0;
             break;
@@ -72,20 +81,17 @@ static int process_ux_ble_event(uint8_t *buffer_in, size_t buffer_in_length)
 
     return status;
 }
-#endif  // HAVE_BLE
+#endif  // HAVE_BLE && !USE_OS_IO_STACK
 
 /* Exported functions --------------------------------------------------------*/
 int32_t os_io_init(uint8_t full)
 {
-    memset(&G_io_app, 0, sizeof(G_io_app));
-    G_io_app.apdu_media = IO_APDU_MEDIA_NONE;
-
 #ifdef HAVE_BAGL
     io_seph_ux_init_button();
 #endif
 
 #if (!defined(HAVE_BOLOS) && defined(HAVE_MCU_PROTECT))
-    io_seph_cmd_mcu_protect();
+    os_io_seph_cmd_mcu_protect();
 #endif  // (!HAVE_BOLOS && HAVE_MCU_PROTECT)
 
 #if !defined(HAVE_BOLOS) && defined(HAVE_PENDING_REVIEW_SCREEN)
@@ -102,11 +108,11 @@ int32_t os_io_init(uint8_t full)
 #endif  // HAVE_BLE
     }
 #ifdef HAVE_NFC
-    // TODO
+    // TODO_IO
 #endif  // HAVE_NFC
 
 #if !defined(HAVE_BOLOS) && defined(HAVE_PENDING_REVIEW_SCREEN)
-    // check_audited_app(); // TODO
+    // check_audited_app(); // TODO_IO
 #endif  // !defined(HAVE_BOLOS) && defined(HAVE_PENDING_REVIEW_SCREEN)
 
     return 0;
@@ -122,7 +128,7 @@ int32_t os_io_stop(void)
     return 0;
 }
 
-#ifndef TUTU
+#ifndef USE_OS_IO_STACK
 int os_io_start(os_io_init_t *init)
 {
     if (!init) {
@@ -130,7 +136,6 @@ int os_io_start(os_io_init_t *init)
     }
 
     if (G_io_syscall_flag == init->syscall) {
-        io_seproxyhal_disable_io();
         os_io_init(1);
     }
     else {
@@ -159,7 +164,7 @@ int os_io_rx_evt(unsigned char *buffer, unsigned short buffer_max_length, unsign
             G_io_seph_rx_buffer, sizeof(G_io_seph_rx_buffer), (unsigned int *) timeout_ms, true, 0);
 
         if (status == -1) {
-            status = io_seph_cmd_general_status();
+            status = os_io_seph_cmd_general_status();
             if (status < 0) {
                 return status;
             }
@@ -172,10 +177,12 @@ int os_io_rx_evt(unsigned char *buffer, unsigned short buffer_max_length, unsign
         if (status < 0) {
             return status;
         }
+#if defined(HAVE_BLE) && !defined(USE_OS_IO_STACK)
         if ((G_io_seph_rx_buffer[0] == OS_IO_PACKET_TYPE_SEPH)
-            && (G_io_seph_rx_buffer[1] == SEPROXYHAL_TAG_UX_EVENT)) {
-            status = process_ux_ble_event(&G_io_seph_rx_buffer[1], status - 1) + 1;
+            && (G_io_seph_rx_buffer[1] == SEPROXYHAL_TAG_ITC_EVENT)) {
+            status = process_itc_ble_event(&G_io_seph_rx_buffer[1], status - 1) + 1;
         }
+#endif  // HAVE_BLE && !USE_OS_IO_STACK
         if (status > 0) {
             length = (uint16_t) status;
         }
@@ -238,7 +245,7 @@ int os_io_tx_cmd(uint8_t                     type,
     int status = 0;
     switch (type) {
 #ifdef HAVE_IO_USB
-        case OS_IO_PACKET_TYPE_USB_HID_APDU:  // TODO test error code
+        case OS_IO_PACKET_TYPE_USB_HID_APDU:  // TODO_IO test error code
             USBD_LEDGER_send(USBD_LEDGER_CLASS_HID, buffer, length, 0);
             break;
 #ifdef HAVE_WEBUSB
@@ -255,7 +262,7 @@ int os_io_tx_cmd(uint8_t                     type,
 #endif  // HAVE_BLE
 
         case OS_IO_PACKET_TYPE_RAW_APDU:
-            io_seph_cmd_raw_apdu((const uint8_t *) buffer, length);
+            os_io_seph_cmd_raw_apdu((const uint8_t *) buffer, length);
             break;
 
         case OS_IO_PACKET_TYPE_SEPH:
@@ -267,7 +274,7 @@ int os_io_tx_cmd(uint8_t                     type,
                                                 false,
                                                 0);
                 if (status >= 0) {
-                    G_io_seph_rx_buffer_length = status;  // TODO : process the rx packet?
+                    G_io_seph_rx_buffer_length = status;
                     status                     = os_io_seph_tx(buffer, length, NULL);
                 }
             }
@@ -279,4 +286,4 @@ int os_io_tx_cmd(uint8_t                     type,
 
     return status;
 }
-#endif  // TUTU
+#endif  // USE_OS_IO_STACK

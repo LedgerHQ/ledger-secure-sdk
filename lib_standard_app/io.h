@@ -8,14 +8,8 @@
 #include "buffer.h"
 #include "macros.h"
 
-/**
- * Enumeration for the status of IO.
- */
-typedef enum {
-    READY,     /// ready for new event
-    RECEIVED,  /// data received
-    WAITING    /// waiting
-} io_state_e;
+
+#define G_io_apdu_buffer G_io_rx_buffer
 
 #ifdef HAVE_BAGL
 WEAK void io_seproxyhal_display(const bagl_element_t *element);

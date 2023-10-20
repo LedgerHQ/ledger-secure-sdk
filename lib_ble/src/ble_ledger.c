@@ -2,7 +2,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "os.h"
-#include "ux.h"
 #include "os_settings.h"
 #include "seproxyhal_protocol.h"
 #include "os_io.h"
@@ -54,11 +53,6 @@ typedef enum {
 } ble_config_adv_step_t;
 
 /* Private defines------------------------------------------------------------*/
-#define BLE_SLAVE_CONN_INTERVAL_MIN 12  // 15ms
-#define BLE_SLAVE_CONN_INTERVAL_MAX 24  // 30ms
-
-#define BLE_ADVERTISING_INTERVAL_MIN 48  // 30ms
-#define BLE_ADVERTISING_INTERVAL_MAX 96  // 60ms
 
 /* Private types, structures, unions -----------------------------------------*/
 
@@ -121,12 +115,14 @@ static void configure_advertising_mngr(uint16_t opcode);
 static void advertising_enable(uint8_t enable);
 static void start_advertising(void);
 
+#ifdef HAVE_INAPP_BLE_PAIRING
 // Pairing UX
 static void ask_user_pairing_numeric_comparison(uint32_t code);
 static void rsp_user_pairing_numeric_comparison(unsigned int status);
 static void ask_user_pairing_passkey(void);
 static void rsp_user_pairing_passkey(unsigned int status);
-static void end_pairing_ux(void);
+static void end_pairing_ux(uint8_t pairing_ok);
+#endif  // HAVE_INAPP_BLE_PAIRING
 
 // HCI
 static void hci_evt_cmd_complete(uint8_t *buffer, uint16_t length);
@@ -262,8 +258,12 @@ static void init_mngr(uint8_t *hci_buffer, uint16_t length)
 
         case BLE_INIT_STEP_SET_TX_POWER_LEVEL:
             ble_aci_hal_forge_cmd_set_tx_power_level(&ble_ledger_data.cmd_data,
-                                                     1,   // High power
-                                                     7);  // -14.1 dBm
+                                                     1,  // High power
+#ifdef TARGET_STAX
+                                                     0x19);  // 0 dBm
+#else                                                        // !TARGET_STAX
+                                                     0x07);  // -14.1 dBm
+#endif                                                       // !TARGET_STAX
             send_hci_packet(0);
             break;
 
@@ -401,8 +401,8 @@ static void advertising_enable(uint8_t enable)
         data.local_name                = buffer;
         data.service_uuid_length       = 0;
         data.service_uuid_list         = NULL;
-        data.slave_conn_interval_min   = BLE_SLAVE_CONN_INTERVAL_MIN;
-        data.slave_conn_interval_max   = BLE_SLAVE_CONN_INTERVAL_MAX;
+        data.slave_conn_interval_min   = 0;
+        data.slave_conn_interval_max   = 0;
         ble_aci_gap_forge_cmd_set_discoverable(&ble_ledger_data.cmd_data, &data);
     }
     else {
@@ -427,6 +427,7 @@ static void start_advertising(void)
     configure_advertising_mngr(0);
 }
 
+#ifdef HAVE_INAPP_BLE_PAIRING
 static void ask_user_pairing_numeric_comparison(uint32_t code)
 {
     bolos_ux_params_t ux_params;
@@ -439,18 +440,23 @@ static void ask_user_pairing_numeric_comparison(uint32_t code)
 
     SPRINTF(ux_params.u.pairing_request.pairing_info, "%06d", (unsigned int) code);
 
-    io_seph_cmd_ble_pairing_request(&ux_params);
-    // os_ux(&ux_params);
+    os_io_ux_cmd_ble_pairing_request(&ux_params);
 }
 
 static void rsp_user_pairing_numeric_comparison(unsigned int status)
 {
-    end_pairing_ux();
     if (status == BOLOS_UX_OK) {
+        end_pairing_ux(BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_CONFIRM_CODE_YES);
         ble_aci_gap_forge_cmd_numeric_comparison_value_confirm_yesno(
             &ble_ledger_data.cmd_data, ble_ledger_data.connection.connection_handle, 1);
     }
+    else if (status == BOLOS_UX_IGNORE) {
+        ble_ledger_data.pairing_in_progress = 0;
+        ble_aci_gap_forge_cmd_numeric_comparison_value_confirm_yesno(
+            &ble_ledger_data.cmd_data, ble_ledger_data.connection.connection_handle, 0);
+    }
     else {
+        end_pairing_ux(BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_CONFIRM_CODE_NO);
         ble_aci_gap_forge_cmd_numeric_comparison_value_confirm_yesno(
             &ble_ledger_data.cmd_data, ble_ledger_data.connection.connection_handle, 0);
     }
@@ -470,35 +476,40 @@ static void ask_user_pairing_passkey(void)
 
     SPRINTF(ux_params.u.pairing_request.pairing_info, "%06d", ble_ledger_data.pairing_code);
 
-    io_seph_cmd_ble_pairing_request(&ux_params);
-    // os_ux(&ux_params);
+    os_io_ux_cmd_ble_pairing_request(&ux_params);
 }
 
 static void rsp_user_pairing_passkey(unsigned int status)
 {
-    end_pairing_ux();
-    if (status != BOLOS_UX_OK) {  // BLE_TODO
+    if (status == BOLOS_UX_OK) {
+        end_pairing_ux(BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_ACCEPT_PASSKEY);
         ble_ledger_data.pairing_code = cx_rng_u32_range_func(0, 1000000, cx_rng_u32);
+        ble_aci_gap_forge_cmd_pass_key_resp(&ble_ledger_data.cmd_data,
+                                            ble_ledger_data.connection.connection_handle,
+                                            ble_ledger_data.pairing_code);
+        send_hci_packet(0);
     }
-    ble_aci_gap_forge_cmd_pass_key_resp(&ble_ledger_data.cmd_data,
-                                        ble_ledger_data.connection.connection_handle,
-                                        ble_ledger_data.pairing_code);
-    send_hci_packet(0);
+    else if (status == BOLOS_UX_IGNORE) {
+        ble_ledger_data.pairing_in_progress = 0;
+    }
+    else {
+        end_pairing_ux(BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_CANCEL_PASSKEY);
+    }
 }
 
-static void end_pairing_ux(void)
+static void end_pairing_ux(uint8_t pairing_ok)
 {
     bolos_ux_params_t ux_params;
 
+    DEBUG("end_pairing_ux : %d (%d)\n", pairing_ok, ble_ledger_data.pairing_in_progress);
     if (ble_ledger_data.pairing_in_progress) {
         ux_params.ux_id                       = BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS;
         ux_params.len                         = sizeof(ux_params.u.pairing_status);
-        ux_params.u.pairing_status.pairing_ok = BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_SUCCESS;
-        ble_ledger_data.pairing_in_progress   = 0;
-        io_seph_cmd_ble_pairing_status(&ux_params);
-        // os_ux(&ux_params);
+        ux_params.u.pairing_status.pairing_ok = pairing_ok;
+        os_io_ux_cmd_ble_pairing_status(&ux_params);
     }
 }
+#endif  // HAVE_INAPP_BLE_PAIRING
 
 static void hci_evt_cmd_complete(uint8_t *buffer, uint16_t length)
 {
@@ -547,6 +558,9 @@ static void hci_evt_cmd_complete(uint8_t *buffer, uint16_t length)
         if (ble_ledger_data.connection.connection_handle != 0xFFFF) {
             if (ble_ledger_data.disabling_advertising) {
                 // Connected & ordered to disable ble, force disconnection
+#ifdef HAVE_INAPP_BLE_PAIRING
+                end_pairing_ux(BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_FAILED);
+#endif                              // HAVE_INAPP_BLE_PAIRING
                 BLE_LEDGER_init();  // BLE_TODO
             }
         }
@@ -673,25 +687,35 @@ static void hci_evt_vendor(uint8_t *buffer, uint16_t length)
     }
 
     switch (opcode) {
+#ifdef HAVE_INAPP_BLE_PAIRING
         case ACI_GAP_PAIRING_COMPLETE_VSEVT_CODE:
             DEBUG("PAIRING");
-            end_pairing_ux();
             switch (buffer[4]) {
                 case SMP_PAIRING_STATUS_SUCCESS:
                     DEBUG(" SUCCESS\n");
+                    end_pairing_ux(BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_SUCCESS);
                     break;
 
                 case SMP_PAIRING_STATUS_SMP_TIMEOUT:
                     DEBUG(" TIMEOUT\n");
+                    end_pairing_ux(BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_TIMEOUT);
                     break;
 
                 case SMP_PAIRING_STATUS_PAIRING_FAILED:
                     DEBUG(" FAILED : %02X\n", buffer[5]);
+                    if (buffer[5] == 0x08) {  // UNSPECIFIED_REASON
+                        end_pairing_ux(BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_CANCELLED_FROM_REMOTE);
+                    }
+                    else {
+                        end_pairing_ux(BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_FAILED);
+                    }
                     break;
 
                 default:
+                    end_pairing_ux(BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_FAILED);
                     break;
             }
+            ble_ledger_data.pairing_in_progress = 0;
             break;
 
         case ACI_GAP_PASS_KEY_REQ_VSEVT_CODE:
@@ -703,10 +727,12 @@ static void hci_evt_vendor(uint8_t *buffer, uint16_t length)
             DEBUG("NUMERIC COMP : %d\n", U4LE(buffer, 4));
             ask_user_pairing_numeric_comparison(U4LE(buffer, 4));
             break;
+#endif  // HAVE_INAPP_BLE_PAIRING
 
-        case ACI_L2CAP_CONNECTION_UPDATE_RESP_VSEVT_CODE:
+        case ACI_L2CAP_CONNECTION_UPDATE_RESP_VSEVT_CODE: {
             DEBUG("CONNECTION UPATE RESP %d\n", buffer[4]);
             break;
+        }
 
         case ACI_GATT_ATTRIBUTE_MODIFIED_VSEVT_CODE:
         case ACI_GATT_WRITE_PERMIT_REQ_VSEVT_CODE: {
@@ -770,6 +796,9 @@ static void hci_evt_vendor(uint8_t *buffer, uint16_t length)
 
         case ACI_GATT_PROC_TIMEOUT_VSEVT_CODE:
             DEBUG("PROCEDURE TIMEOUT\n");
+#ifdef HAVE_INAPP_BLE_PAIRING
+            end_pairing_ux(BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_FAILED);
+#endif                          // HAVE_INAPP_BLE_PAIRING
             BLE_LEDGER_init();  // BLE_TODO
             break;
 
@@ -907,6 +936,9 @@ int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
                     ble_ledger_data.connection.connection_handle = 0xFFFF;
                     ble_ledger_data.advertising_enabled          = 0;
                     ble_ledger_data.connection.encrypted         = 0;
+#ifdef HAVE_INAPP_BLE_PAIRING
+                    end_pairing_ux(BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_FAILED);
+#endif  // HAVE_INAPP_BLE_PAIRING
                     start_advertising();
                 }
                 break;
@@ -948,7 +980,10 @@ int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
                 break;
 
             case HCI_COMMAND_STATUS_EVT_CODE:
-                DEBUG("HCI COMMAND_STATUS\n");
+                DEBUG("HCI COMMAND_STATUS %d - num %d - op %04X\n",
+                      seph_buffer[7],
+                      seph_buffer[8],
+                      U2LE(seph_buffer, 9));
                 break;
 
             case HCI_ENCRYPTION_KEY_REFRESH_COMPLETE_EVT_CODE:

@@ -102,7 +102,7 @@ void mcu_usb_printf(const char *format, ...)
         //
         // Write this portion of the string.
         //
-        io_seph_cmd_printf(format, ulIdx);
+        os_io_seph_cmd_printf(format, ulIdx);
 
         //
         // Skip the portion of the string that was written.
@@ -185,7 +185,7 @@ void mcu_usb_printf(const char *format, ...)
                     //
                     // Print out the character.
                     //
-                    io_seph_cmd_printf((char *) &ulValue, 1);
+                    os_io_seph_cmd_printf((char *) &ulValue, 1);
 
                     //
                     // This command has been handled.
@@ -320,7 +320,7 @@ void mcu_usb_printf(const char *format, ...)
                             if (pcStr[0] == '\0') {
                                 // pad with ulStrlen white spaces
                                 do {
-                                    io_seph_cmd_printf(" ", 1);
+                                    os_io_seph_cmd_printf(" ", 1);
                                 } while (ulStrlen-- > 0);
 
                                 goto s_pad;
@@ -337,7 +337,7 @@ void mcu_usb_printf(const char *format, ...)
                     //
                     switch (ulBase) {
                         default:
-                            io_seph_cmd_printf(pcStr, ulIdx);
+                            os_io_seph_cmd_printf(pcStr, ulIdx);
                             break;
                         case 16: {
                             unsigned char nibble1, nibble2;
@@ -356,12 +356,12 @@ void mcu_usb_printf(const char *format, ...)
                                         break;
                                 }
                                 if (idx + 1 >= sizeof(pcBuf)) {
-                                    io_seph_cmd_printf(pcBuf, idx);
+                                    os_io_seph_cmd_printf(pcBuf, idx);
                                     idx = 0;
                                 }
                             }
                             if (idx != 0) {
-                                io_seph_cmd_printf(pcBuf, idx);
+                                os_io_seph_cmd_printf(pcBuf, idx);
                             }
                             break;
                         }
@@ -374,7 +374,7 @@ void mcu_usb_printf(const char *format, ...)
                     if (ulCount > ulIdx) {
                         ulCount -= ulIdx;
                         while (ulCount--) {
-                            io_seph_cmd_printf(" ", 1);
+                            os_io_seph_cmd_printf(" ", 1);
                         }
                     }
                     //
@@ -517,7 +517,7 @@ void mcu_usb_printf(const char *format, ...)
                     //
                     // Write the string.
                     //
-                    io_seph_cmd_printf(pcBuf, ulPos);
+                    os_io_seph_cmd_printf(pcBuf, ulPos);
 
                     //
                     // This command has been handled.
@@ -532,7 +532,7 @@ void mcu_usb_printf(const char *format, ...)
                     //
                     // Simply write a single %.
                     //
-                    io_seph_cmd_printf(format - 1, 1);
+                    os_io_seph_cmd_printf(format - 1, 1);
 
                     //
                     // This command has been handled.
@@ -548,7 +548,7 @@ void mcu_usb_printf(const char *format, ...)
                     //
                     // Indicate an error.
                     //
-                    io_seph_cmd_printf("ERROR", 5);
+                    os_io_seph_cmd_printf("ERROR", 5);
 
                     //
                     // This command has been handled.

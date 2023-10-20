@@ -28,7 +28,7 @@
 
 #ifdef HAVE_SWAP
 #include "swap.h"
-#endif
+#endif  // HAVE_SWAP
 
 // TODO: Temporary workaround, at some point all status words should be defined by the SDK and
 // removed from the application
@@ -36,7 +36,7 @@
 #define SW_WRONG_RESPONSE_LENGTH 0xB000
 
 /**
- * Variable containing the length of the APDU response to send back.
+ * Variable containing the type of the APDU response to send back.
  */
 static os_io_packet_type_t G_rx_packet_type;
 
@@ -75,8 +75,8 @@ WEAK uint8_t io_event(uint8_t *buffer_in, size_t buffer_in_length)
             app_ticker_event_callback();
             UX_TICKER_EVENT(buffer_in, {});
             break;
-        case SEPROXYHAL_TAG_UX_EVENT:
-            io_process_ux_event(buffer_in, buffer_in_length);
+        case SEPROXYHAL_TAG_ITC_EVENT:
+            io_process_itc_ux_event(buffer_in, buffer_in_length);
             break;
 
         default:
@@ -85,7 +85,7 @@ WEAK uint8_t io_event(uint8_t *buffer_in, size_t buffer_in_length)
     }
 
     if (G_io_rx_buffer[0] == OS_IO_PACKET_TYPE_SEPH) {
-        io_seph_cmd_general_status();
+        os_io_seph_cmd_general_status();
     }
 
     return 1;
@@ -95,43 +95,43 @@ WEAK void io_init() {}
 
 WEAK int io_recv_command()
 {
-    int status = os_io_rx_evt(G_io_rx_buffer, sizeof(G_io_rx_buffer), NULL);
+    int status = 0;
 
-    if (status > 0) {
-        G_rx_packet_type = G_io_rx_buffer[0];
-        switch (G_rx_packet_type) {
-            case OS_IO_PACKET_TYPE_SE_EVT:
-            case OS_IO_PACKET_TYPE_SEPH:
-                io_event(&G_io_rx_buffer[1], status - 1);
-                status = 0;
-                break;
+    while (!status) {
+        status = os_io_rx_evt(G_io_rx_buffer, sizeof(G_io_rx_buffer), NULL);
 
-            case OS_IO_PACKET_TYPE_RAW_APDU:
-            case OS_IO_PACKET_TYPE_USB_HID_APDU:
-            case OS_IO_PACKET_TYPE_USB_WEBUSB_APDU:
-            case OS_IO_PACKET_TYPE_USB_CDC_RAW:
-            case OS_IO_PACKET_TYPE_BLE_APDU:
-                if (G_io_rx_buffer[OFFSET_CLA + 1] == DEFAULT_APDU_CLA) {
-                    size_t buffer_out_length = sizeof(G_io_tx_buffer);
-                    os_io_handle_default_apdu(
-                        &G_io_rx_buffer[1], status - 1, G_io_tx_buffer, &buffer_out_length);
-                    os_io_tx_cmd(G_rx_packet_type, G_io_tx_buffer, buffer_out_length, 0);
+        if (status > 0) {
+            G_rx_packet_type = G_io_rx_buffer[0];
+            switch (G_rx_packet_type) {
+                case OS_IO_PACKET_TYPE_SE_EVT:
+                case OS_IO_PACKET_TYPE_SEPH:
+                    io_event(&G_io_rx_buffer[1], status - 1);
                     status = 0;
-                }
-                break;
+                    break;
 
-            default:
-                status = 0;
-                break;
+                case OS_IO_PACKET_TYPE_RAW_APDU:
+                case OS_IO_PACKET_TYPE_USB_HID_APDU:
+                case OS_IO_PACKET_TYPE_USB_WEBUSB_APDU:
+                case OS_IO_PACKET_TYPE_USB_CDC_RAW:
+                case OS_IO_PACKET_TYPE_BLE_APDU:
+                    if (G_io_rx_buffer[OFFSET_CLA + 1] == DEFAULT_APDU_CLA) {
+                        size_t buffer_out_length = sizeof(G_io_tx_buffer);
+                        os_io_handle_default_apdu(
+                            &G_io_rx_buffer[1], status - 1, G_io_tx_buffer, &buffer_out_length);
+                        os_io_tx_cmd(G_rx_packet_type, G_io_tx_buffer, buffer_out_length, 0);
+                        status = 0;
+                    }
+                    break;
+
+                default:
+                    status = 0;
+                    break;
+            }
+        }
+        else if (status < 0) {
+            status = -1;
         }
     }
-    else if (status < 0) {
-        status = -1;
-    }
-
-	if (status > 0) {
-		PRINTF("STATUS %d\n", status);
-	}
 
     return status;
 }

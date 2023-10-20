@@ -29,6 +29,12 @@ typedef enum {
         address[5]       = 0xDE;                       \
     }
 
+#define BLE_SLAVE_CONN_INTERVAL_MIN 12  // 15ms
+#define BLE_SLAVE_CONN_INTERVAL_MAX 24  // 30ms
+
+#define BLE_ADVERTISING_INTERVAL_MIN 48  // 30ms
+#define BLE_ADVERTISING_INTERVAL_MAX 96  // 60ms
+
 /* Exported types, structures, unions ----------------------------------------*/
 
 /* Exported macros------------------------------------------------------------*/

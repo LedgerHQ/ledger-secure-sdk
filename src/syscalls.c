@@ -1714,38 +1714,13 @@ void os_sched_kill(unsigned int taskidx)
     return;
 }
 
-void io_seph_send(const unsigned char *buffer, unsigned short length)
-{
-    unsigned int parameters[2];
-    parameters[0] = (unsigned int) buffer;
-    parameters[1] = (unsigned int) length;
-    SVC_Call(SYSCALL_io_seph_send_ID, parameters);
-    return;
-}
-
-unsigned int io_seph_is_status_sent(void)
-{
-    unsigned int parameters[2];
-    parameters[1] = 0;
-    return (unsigned int) SVC_Call(SYSCALL_io_seph_is_status_sent_ID, parameters);
-}
-
-unsigned short io_seph_recv(unsigned char *buffer, unsigned short maxlength, unsigned int flags)
-{
-    unsigned int parameters[3];
-    parameters[0] = (unsigned int) buffer;
-    parameters[1] = (unsigned int) maxlength;
-    parameters[2] = (unsigned int) flags;
-    return (unsigned short) SVC_Call(SYSCALL_io_seph_recv_ID, parameters);
-}
-
 int os_io_seph_tx(const unsigned char *buffer, unsigned short length, unsigned int *timeout_ms)
 {
     unsigned int parameters[3];
     parameters[0] = (unsigned int) buffer;
     parameters[1] = (unsigned int) length;
     parameters[2] = (unsigned int) timeout_ms;
-    return (int) SVC_Call(SYSCALL_io_seph_tx_ID, parameters);
+    return (int) SVC_Call(SYSCALL_os_io_seph_tx_ID, parameters);
 }
 
 int os_io_seph_se_rx_event(unsigned char *buffer,
@@ -1760,7 +1735,7 @@ int os_io_seph_se_rx_event(unsigned char *buffer,
     parameters[2] = (unsigned int) timeout_ms;
     parameters[3] = (unsigned int) check_se_event;
     parameters[4] = (unsigned int) flags;
-    return (int) SVC_Call(SYSCALL_io_seph_se_rx_event_ID, parameters);
+    return (int) SVC_Call(SYSCALL_os_io_seph_se_rx_event_ID, parameters);
 }
 
 __attribute((weak)) int os_io_start(os_io_init_t *init)
