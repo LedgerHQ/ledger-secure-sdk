@@ -158,6 +158,7 @@
 #define SYSCALL_os_flags_ID                                  0x0000006a
 #define SYSCALL_os_version_ID                                0x0200006b
 #define SYSCALL_os_serial_ID                                 0x0200006c
+#define SYSCALL_os_factory_hash_ID                           0x02000075
 #define SYSCALL_os_seph_features_ID                          0x0000006e
 #define SYSCALL_os_seph_version_ID                           0x0200006f
 #define SYSCALL_os_bootloader_version_ID                     0x02000073
