@@ -58,8 +58,15 @@ typedef struct {
     const char *text1;  ///< first text (can be null)
     const char *text2;  ///< second text (can be null)
 #ifdef HAVE_SE_TOUCH
-    const char *text3;                      ///< third text (can be null)
+    const char *text3;  ///< third text (can be null)
+#endif                  // HAVE_SE_TOUCH
+#ifdef BUILD_SCREENSHOTS
+    uint16_t textId1;  ///< first text ID (can be 0)
+    uint16_t textId2;  ///< second text ID (can be 0)
+#ifdef HAVE_SE_TOUCH
+    uint16_t textId3;                       ///< third text ID (can be 0)
 #endif                                      // HAVE_SE_TOUCH
+#endif                                      // BUILD_SCREENSHOTS
     const nbgl_icon_details_t      *icon;   ///< a buffer containing the 1BPP icon
     bool                            onTop;  ///< if set to true, align only horizontally
     nbgl_contentCenteredInfoStyle_t style;  ///< style to apply to this info

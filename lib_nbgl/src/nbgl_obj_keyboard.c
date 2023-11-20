@@ -403,7 +403,7 @@ static void keyboardDrawLetters(nbgl_keyboard_t *keyboard)
 
     // 4th row, only in Full mode
     if (!keyboard->lettersOnly) {
-        rectArea.x0 = (SWITCH_KEY_WIDTH - nbgl_getTextWidth(SMALL_REGULAR_1BPP_FONT, ".?123")) / 2;
+        rectArea.x0 = (SWITCH_KEY_WIDTH - nbgl_getTextWidth(SMALL_REGULAR_1BPP_FONT, ".?123", NULL)) / 2;
         rectArea.y0 = keyboard->obj.area.y0 + KEYBOARD_KEY_HEIGHT * 3 + LETTER_OFFSET_Y;
         nbgl_drawText(&rectArea, ".?123", 5, SMALL_REGULAR_1BPP_FONT, BLACK);
 
@@ -463,13 +463,13 @@ static void keyboardDrawDigits(nbgl_keyboard_t *keyboard)
     // draw "#+=" key
     if (keyboard->mode == MODE_DIGITS) {
         rectArea.x0
-            = (SPECIAL_CHARS_KEY_WIDTH - nbgl_getTextWidth(SMALL_REGULAR_1BPP_FONT, "#+=")) / 2;
+            = (SPECIAL_CHARS_KEY_WIDTH - nbgl_getTextWidth(SMALL_REGULAR_1BPP_FONT, "#+=", NULL)) / 2;
         rectArea.y0 = keyboard->obj.area.y0 + KEYBOARD_KEY_HEIGHT * 2 + LETTER_OFFSET_Y;
         nbgl_drawText(&rectArea, "#+=", 3, SMALL_REGULAR_1BPP_FONT, BLACK);
     }
     else {
         rectArea.x0
-            = (SPECIAL_CHARS_KEY_WIDTH - nbgl_getTextWidth(SMALL_REGULAR_1BPP_FONT, "123")) / 2;
+            = (SPECIAL_CHARS_KEY_WIDTH - nbgl_getTextWidth(SMALL_REGULAR_1BPP_FONT, "123", NULL)) / 2;
         rectArea.y0 = keyboard->obj.area.y0 + KEYBOARD_KEY_HEIGHT * 2 + LETTER_OFFSET_Y;
         nbgl_drawText(&rectArea, "123", 3, SMALL_REGULAR_1BPP_FONT, BLACK);
     }
@@ -495,7 +495,7 @@ static void keyboardDrawDigits(nbgl_keyboard_t *keyboard)
     nbgl_drawIcon(&rectArea, NO_TRANSFORMATION, BLACK, &BACKSPACE_ICON);
 
     // 4th row
-    rectArea.x0 = (SWITCH_KEY_WIDTH - nbgl_getTextWidth(SMALL_REGULAR_1BPP_FONT, "ABC")) / 2;
+    rectArea.x0 = (SWITCH_KEY_WIDTH - nbgl_getTextWidth(SMALL_REGULAR_1BPP_FONT, "ABC", NULL)) / 2;
     rectArea.y0 = keyboard->obj.area.y0 + KEYBOARD_KEY_HEIGHT * 3 + LETTER_OFFSET_Y;
     nbgl_drawText(&rectArea, "ABC", 3, SMALL_REGULAR_1BPP_FONT, BLACK);
 

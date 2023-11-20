@@ -38,6 +38,14 @@
  **********************/
 
 /**********************
+ *  PROTOTYPES
+ **********************/
+
+// #ifdef BUILD_SCREENSHOTS
+extern const char *get_ux_loc_string(uint32_t index);
+// #endif  // BUILD_SCREENSHOTS
+
+/**********************
  *   GLOBAL FUNCTIONS
  **********************/
 
@@ -48,33 +56,37 @@
  *
  * @param layout the current layout
  * @param callback function called when any of the key is touched
- * @param text text to use as title for the keypad
+ * @param textId ID of the text to use as title for the keypad
  * @param shuffled if set to true, digits are shuffled in keypad
  * @return the index of keypad in layout, to use in @ref nbgl_layoutUpdateKeypad()
  */
-int nbgl_layoutAddKeypad(nbgl_layout_t     *layout,
-                         keyboardCallback_t callback,
-                         const char        *text,
-                         bool               shuffled)
+int nbgl_layoutAddKeypad(nbgl_layout_t       *layout,
+                         keyboardCallback_t   callback,
+                         UX_LOC_STRINGS_INDEX textId,
+                         bool                 shuffled)
 {
     nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
     nbgl_keypad_t         *keypad;
     nbgl_text_area_t      *textArea;
+    const char            *text = get_ux_loc_string(textId);
 
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddKeypad():\n");
     if (layout == NULL) {
         return -1;
     }
 
-    textArea                  = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-    textArea->textColor       = WHITE;
-    textArea->text            = PIC(text);
-    textArea->textAlignment   = CENTER;
-    textArea->fontId          = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
-    textArea->obj.area.width  = AVAILABLE_WIDTH;
-    textArea->obj.area.height = 12;
-    textArea->wrapping        = false;
-    textArea->obj.alignment   = TOP_MIDDLE;
+    textArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+    textArea->textColor = WHITE;
+    textArea->text      = PIC(text);
+#if (defined(HAVE_LANGUAGE_PACK) || defined(BUILD_SCREENSHOTS))
+    textArea->textId = textId;
+#endif  //(defined(HAVE_LANGUAGE_PACK)||defined(BUILD_SCREENSHOTS))
+    textArea->textAlignment        = CENTER;
+    textArea->fontId               = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
+    textArea->obj.area.width       = AVAILABLE_WIDTH;
+    textArea->obj.area.height      = 12;
+    textArea->wrapping             = false;
+    textArea->obj.alignment        = TOP_MIDDLE;
     textArea->obj.alignmentMarginY = 3;
     // set this new obj as child of main container
     layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);

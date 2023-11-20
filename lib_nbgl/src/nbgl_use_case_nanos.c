@@ -126,9 +126,13 @@ static void drawStep(nbgl_stepPosition_t        pos,
     }
     else {
         nbgl_layoutCenteredInfo_t info;
-        info.icon       = icon;
-        info.text1      = txt;
-        info.text2      = subTxt;
+        info.icon  = icon;
+        info.text1 = txt;
+        info.text2 = subTxt;
+#ifdef BUILD_SCREENSHOTS
+        info.textId1 = 0xFFFF;  // There is no valid string ID, here
+        info.textId2 = 0xFFFF;
+#endif  // BUILD_SCREENSHOTS
         info.onTop      = false;
         info.style      = BOLD_TEXT1_INFO;
         context.stepCtx = nbgl_stepDrawCenteredInfo(pos, buttonCallback, NULL, &info, false);

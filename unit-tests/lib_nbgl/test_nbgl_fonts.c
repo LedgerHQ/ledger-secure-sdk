@@ -19,7 +19,7 @@ static void test_get_length(void **state __attribute__((unused)))
     char *str_without_unicode = "toto";
     fetch_language_packs();
 
-    uint16_t width = nbgl_getTextWidth(BAGL_FONT_INTER_REGULAR_24px, str_without_unicode);
+    uint16_t width = nbgl_getTextWidth(BAGL_FONT_INTER_REGULAR_24px, str_without_unicode, NULL);
     assert_int_equal(width, 46);
     uint16_t len = nbgl_getTextLength(str_without_unicode);
 
@@ -28,7 +28,7 @@ static void test_get_length(void **state __attribute__((unused)))
     assert_int_equal(len, 5);
     assert_int_equal(strlen(str_with_unicode), 5);
 
-    width = nbgl_getTextWidth(BAGL_FONT_INTER_REGULAR_24px, str_with_unicode);
+    width = nbgl_getTextWidth(BAGL_FONT_INTER_REGULAR_24px, str_with_unicode, NULL);
     assert_int_equal(width, 50);
 
     char myChar = 0x30;
@@ -52,8 +52,8 @@ static void test_get_length(void **state __attribute__((unused)))
     assert_int_equal(len, 4);
     assert_int_equal(width, 46);
 
-    assert_int_equal(nbgl_getTextWidth(BAGL_FONT_INTER_REGULAR_24px, "au revoir"), 100);
-    assert_int_equal(nbgl_getTextWidth(BAGL_FONT_INTER_REGULAR_24px, "totoour"), 83);
+    assert_int_equal(nbgl_getTextWidth(BAGL_FONT_INTER_REGULAR_24px, "au revoir", NULL), 100);
+    assert_int_equal(nbgl_getTextWidth(BAGL_FONT_INTER_REGULAR_24px, "totoour", NULL), 83);
     assert_int_equal(strlen("totoour\nau revoir"), 17);
     nbgl_getTextMaxLenAndWidth(
         BAGL_FONT_INTER_REGULAR_24px, "totoour\nau revoir", 100, &len, &width, false);
@@ -120,12 +120,12 @@ static void test_get_length(void **state __attribute__((unused)))
     uint16_t width;
     fetch_language_packs();
 
-    width = nbgl_getTextWidth(BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp,
-                              "justement ca tombe bienheureux");
+    width = nbgl_getTextWidth(
+        BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp, "justement ca tombe bienheureux", NULL);
     assert_int_equal(width, 0xAC);
-    width = nbgl_getTextWidth(BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp, "Setup as a");
+    width = nbgl_getTextWidth(BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp, "Setup as a", NULL);
     assert_int_equal(width, 0x35);
-    width = nbgl_getTextWidth(BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp, "new device");
+    width = nbgl_getTextWidth(BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp, "new device", NULL);
     assert_int_equal(width, 0x3A);
 
     nbgl_getTextMaxLenAndWidth(
@@ -157,8 +157,8 @@ static void test_get_length(void **state __attribute__((unused)))
                                 true);
     assert_int_equal(len, strlen("toto\nbonjour au revoir a demain\njustement ca tombe "));
 
-    width = nbgl_getTextWidth(BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp,
-                              "Pressing both buttons allows you");
+    width = nbgl_getTextWidth(
+        BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp, "Pressing both buttons allows you", NULL);
     assert_int_equal(width, 0xAE);
 
     assert_int_equal(
@@ -194,7 +194,7 @@ static void test_get_length(void **state __attribute__((unused)))
                                 true);
     assert_int_equal(len, strlen("Follow the instructions in Live to set up your Nano"));
 
-    width = nbgl_getTextWidth(BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp, "FCC Rules. Operation");
+    width = nbgl_getTextWidth(BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp, "FCC Rules. Operation", NULL);
     assert_int_equal(width, 0x6E);
     nbgl_getTextMaxLenInNbLines(BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp,
                                 "\bFCC Notes\b\nThis device complies with Part 15 of the FCC "

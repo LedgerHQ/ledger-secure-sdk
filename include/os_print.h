@@ -3,6 +3,9 @@
 #include <stdio.h>
 
 // avoid typing the size each time
+#ifdef SPRINTF
+#undef SPRINTF
+#endif  // SPRINTF
 #define SPRINTF(strbuf, ...) snprintf(strbuf, sizeof(strbuf), __VA_ARGS__)
 
 #ifdef HAVE_PRINTF

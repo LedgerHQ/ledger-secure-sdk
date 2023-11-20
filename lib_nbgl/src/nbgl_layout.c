@@ -111,6 +111,26 @@ static nbgl_layoutInternal_t gLayout[NB_MAX_LAYOUTS] = {0};
 // numbers of touchable controls for the whole page
 static uint8_t nbTouchableControls = 0;
 
+#ifdef BUILD_SCREENSHOTS
+// Contains the last string index used
+extern UX_LOC_STRINGS_INDEX last_string_id;
+
+// Variables used to store important values (nb lines, bold state etc)
+extern uint16_t last_nb_lines;
+extern uint16_t last_nb_pages;
+extern bool     last_bold_state;
+
+/**********************
+ *  PROTOTYPES
+ **********************/
+void  store_string_infos(uint16_t string_id,
+                         char    *text,
+                         uint16_t nb_lines,
+                         uint16_t nb_pages_,
+                         bool     bold);
+char *get_printable_string(char *string);
+#endif  // BUILD_SCREENSHOTS
+
 /**********************
  *  STATIC PROTOTYPES
  **********************/
@@ -1204,9 +1224,9 @@ int nbgl_layoutAddRadioChoice(nbgl_layout_t *layout, const nbgl_layoutRadioChoic
         // init text area for this choice
         if (choices->localized == true) {
             textArea->localized = true;
-#if defined(HAVE_LANGUAGE_PACK)
+#if (defined(HAVE_LANGUAGE_PACK) || defined(BUILD_SCREENSHOTS))
             textArea->textId = choices->nameIds[i];
-#endif  // defined(HAVE_LANGUAGE_PACK)
+#endif  //(defined(HAVE_LANGUAGE_PACK)||defined(BUILD_SCREENSHOTS))
         }
         else {
             textArea->text = PIC(choices->names[i]);
@@ -1295,9 +1315,12 @@ int nbgl_layoutAddCenteredInfo(nbgl_layout_t *layout, const nbgl_layoutCenteredI
         }
     }
     if (info->text1 != NULL) {
-        textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-        textArea->textColor     = BLACK;
-        textArea->text          = PIC(info->text1);
+        textArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+        textArea->textColor = BLACK;
+        textArea->text      = PIC(info->text1);
+#ifdef BUILD_SCREENSHOTS
+        textArea->textId = PIC(info->textId1);
+#endif  // BUILD_SCREENSHOTS
         textArea->textAlignment = CENTER;
         if (info->style != NORMAL_INFO) {
             textArea->fontId = LARGE_MEDIUM_FONT;
@@ -1334,6 +1357,9 @@ int nbgl_layoutAddCenteredInfo(nbgl_layout_t *layout, const nbgl_layoutCenteredI
         textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
         textArea->textColor     = (info->style == NORMAL_INFO) ? DARK_GRAY : BLACK;
         textArea->text          = PIC(info->text2);
+#ifdef BUILD_SCREENSHOTS
+        textArea->textId        = PIC(info->textId2);
+#endif  // BUILD_SCREENSHOTS
         textArea->textAlignment = CENTER;
         textArea->fontId
             = (info->style != LARGE_CASE_BOLD_INFO) ? SMALL_REGULAR_FONT : SMALL_BOLD_FONT;
@@ -1398,6 +1424,9 @@ int nbgl_layoutAddCenteredInfo(nbgl_layout_t *layout, const nbgl_layoutCenteredI
         textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
         textArea->textColor     = (info->style == LARGE_CASE_GRAY_INFO) ? DARK_GRAY : BLACK;
         textArea->text          = PIC(info->text3);
+#ifdef BUILD_SCREENSHOTS
+        textArea->textId        = PIC(info->textId3);
+#endif  // BUILD_SCREENSHOTS
         textArea->textAlignment = CENTER;
         textArea->fontId        = SMALL_REGULAR_FONT;
         textArea->wrapping      = true;
@@ -1737,7 +1766,7 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
         else {
             // we assume that value is single line
             valueTextArea->obj.area.width
-                = nbgl_getTextWidth(valueTextArea->fontId, valueTextArea->text);
+                = nbgl_getTextWidth(valueTextArea->fontId, valueTextArea->text, NULL);
         }
 
         // handle the nbMaxLinesForValue parameter, used to automatically keep only
@@ -1962,7 +1991,7 @@ int nbgl_layoutAddButton(nbgl_layout_t *layout, const nbgl_layoutButton_t *butto
     button->fontId = SMALL_BOLD_FONT;
     button->icon   = PIC(buttonInfo->icon);
     if (buttonInfo->fittingContent == true) {
-        button->obj.area.width = nbgl_getTextWidth(button->fontId, button->text)
+        button->obj.area.width = nbgl_getTextWidth(button->fontId, button->text, NULL)
                                  + SMALL_BUTTON_HEIGHT
                                  + ((button->icon) ? (button->icon->width + 8) : 0);
         button->obj.area.height = SMALL_BUTTON_HEIGHT;
