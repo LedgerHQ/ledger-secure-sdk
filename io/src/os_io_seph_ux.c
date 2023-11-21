@@ -69,13 +69,13 @@ static void os_io_seph_ux_display_bagl_icon(const bagl_component_t    *icon_comp
         unsigned short length = sizeof(bagl_component_t) + 1  // bpp
                                 + h                           // color index
                                 + w;                          // image bitmap size
-        if (length > (IO_SEPROXYHAL_BUFFER_SIZE_B - 4)) {
+        if (length > (OS_IO_SEPH_BUFFER_SIZE - 4)) {
 #if defined(HAVE_PRINTF)
             PRINTF(
                 "ERROR: Inside os_io_seph_ux_display_bagl_icon, icon size (%d) is too big for the "
                 "buffer (%d-4)! (bitmap=0x%x, width=%d, height=%d, bpp=%d)\n",
                 length,
-                IO_SEPROXYHAL_BUFFER_SIZE_B,
+                OS_IO_SEPH_BUFFER_SIZE,
                 icon_details->bitmap,
                 icon_details->width,
                 icon_details->height,
@@ -199,16 +199,30 @@ unsigned int os_ux_blocking(bolos_ux_params_t *params)
                     os_ux(&G_ux_params);*/
                     break;
 
+#ifdef HAVE_IO_USB
                 case OS_IO_PACKET_TYPE_USB_HID_APDU:
-                    USBD_LEDGER_send(USBD_LEDGER_CLASS_HID, err_buffer, 2, 0);
+                    USBD_LEDGER_send(USBD_LEDGER_CLASS_HID, G_io_tx_buffer[0], err_buffer, 2, 0);
                     break;
+#ifdef HAVE_WEBUSB
                 case OS_IO_PACKET_TYPE_USB_WEBUSB_APDU:
-                    USBD_LEDGER_send(USBD_LEDGER_CLASS_WEBUSB, err_buffer, 2, 0);
+                    USBD_LEDGER_send(USBD_LEDGER_CLASS_WEBUSB, G_io_tx_buffer[0], err_buffer, 2, 0);
                     break;
+#endif  // HAVE_WEBUSB
+#ifdef HAVE_IO_U2F
+                case OS_IO_PACKET_TYPE_USB_U2F_HID_APDU:
+                    USBD_LEDGER_send(USBD_LEDGER_CLASS_HID_U2F, G_io_tx_buffer[0], err_buffer, 2, 0); // TODO change error
+                    break;
+#endif  // HAVE_IO_U2F
+#ifdef HAVE_CDCUSB
                 case OS_IO_PACKET_TYPE_USB_CDC_RAW:
                     break;
+#endif // HAVE_CDCUSB
+#endif  // HAVE_IO_USB
+
+#ifdef HAVE_BLE
                 case OS_IO_PACKET_TYPE_BLE_APDU:
                     break;
+#endif  // HAVE_BLE
 
                 default:
                     break;
@@ -266,13 +280,13 @@ void io_seph_ux_display_bagl_element(const bagl_element_t *element)
                 const char *txt_buffer = txt;
 #endif  // HAVE_LANGUAGE_PACK
                 unsigned short length = sizeof(bagl_component_t) + strlen(txt_buffer);
-                if (length > (IO_SEPROXYHAL_BUFFER_SIZE_B - 3)) {
+                if (length > (OS_IO_SEPH_BUFFER_SIZE - 3)) {
 #if defined(HAVE_PRINTF)
                     PRINTF(
                         "ERROR: Inside io_seph_ux_display_bagl_element, length (%d) is too big "
                         "for seph buffer(%d)!\n",
                         length + 3,
-                        IO_SEPROXYHAL_BUFFER_SIZE_B);
+                        OS_IO_SEPH_BUFFER_SIZE);
 #endif  // defined(HAVE_PRINTF)
                     return;
                 }

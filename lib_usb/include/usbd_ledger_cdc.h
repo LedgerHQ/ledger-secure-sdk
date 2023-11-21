@@ -7,7 +7,6 @@
 #include <stdint.h>
 #include "usbd_def.h"
 #include "usbd_ledger_types.h"
-#include "ledger_protocol.h"
 
 /* Exported enumerations -----------------------------------------------------*/
 
@@ -36,6 +35,7 @@ uint8_t USBD_LEDGER_CDC_data_out(USBD_HandleTypeDef *pdev,
 
 uint8_t USBD_LEDGER_CDC_send_packet(USBD_HandleTypeDef *pdev,
                                     void               *cookie,
+                                    uint8_t             packet_type,
                                     const uint8_t      *packet,
                                     uint16_t            packet_length,
                                     uint32_t            timeout_ms);

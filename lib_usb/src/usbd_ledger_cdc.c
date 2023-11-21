@@ -109,6 +109,8 @@ const usbd_class_info_t USBD_LEDGER_CDC_Data_class_info = {
 
     .data_ready = NULL,
 
+    .setting = NULL,
+
     .interface_descriptor      = LEDGER_CDC_Data_descriptors,
     .interface_descriptor_size = sizeof(LEDGER_CDC_Data_descriptors),
 
@@ -204,6 +206,8 @@ const usbd_class_info_t USBD_LEDGER_CDC_Control_class_info = {
     .send_packet = USBD_LEDGER_CDC_send_packet,
 
     .data_ready = NULL,
+
+    .setting = NULL,
 
     .interface_descriptor      = LEDGER_CDC_Control_descriptors,
     .interface_descriptor_size = sizeof(LEDGER_CDC_Control_descriptors),
@@ -416,6 +420,7 @@ uint8_t USBD_LEDGER_CDC_data_out(USBD_HandleTypeDef *pdev,
 
 uint8_t USBD_LEDGER_CDC_send_packet(USBD_HandleTypeDef *pdev,
                                     void               *cookie,
+                                    uint8_t             packet_type,
                                     const uint8_t      *packet,
                                     uint16_t            packet_length,
                                     uint32_t            timeout_ms)
@@ -423,6 +428,8 @@ uint8_t USBD_LEDGER_CDC_send_packet(USBD_HandleTypeDef *pdev,
     if (!pdev || !cookie || !packet) {
         return USBD_FAIL;
     }
+
+    UNUSED(packet_type);
 
     uint8_t              ret    = USBD_OK;
     ledger_cdc_handle_t *handle = (ledger_cdc_handle_t *) PIC(cookie);

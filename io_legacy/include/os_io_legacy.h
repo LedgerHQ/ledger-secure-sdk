@@ -50,7 +50,10 @@ typedef struct {
 } io_seph_app_t;
 
 /* Exported defines   --------------------------------------------------------*/
-
+#ifdef IO_SEPROXYHAL_BUFFER_SIZE_B
+#undef IO_SEPROXYHAL_BUFFER_SIZE_B
+#endif // IO_SEPROXYHAL_BUFFER_SIZE_B
+#define IO_SEPROXYHAL_BUFFER_SIZE_B OS_IO_SEPH_BUFFER_SIZE
 
 #define CHANNEL_APDU           0
 #define CHANNEL_KEYBOARD       1
@@ -74,7 +77,12 @@ typedef struct {
 
 /* Exported variables --------------------------------------------------------*/
 extern io_seph_app_t G_io_app;
-extern unsigned char G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
+extern unsigned char G_io_seproxyhal_spi_buffer[OS_IO_SEPH_BUFFER_SIZE];
+
+#ifdef HAVE_IO_U2F
+#include "u2f_service.h"
+extern u2f_service_t G_io_u2f;
+#endif  // HAVE_IO_U2F
 
 /* Exported functions prototypes--------------------------------------------- */
 SYSCALL unsigned int   io_seph_is_status_sent(void);
@@ -108,3 +116,5 @@ void USB_power(unsigned char enabled);
 #ifdef HAVE_BLE
 void BLE_power(unsigned char powered, const char *discovered_name);
 #endif  // HAVE_BLE
+
+void io_seproxyhal_request_mcu_status(void);

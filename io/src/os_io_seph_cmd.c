@@ -331,3 +331,15 @@ void os_io_ux_cmd_ble_pairing_status(bolos_ux_params_t *ux_params)
     os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 5, NULL);
 }
 #endif  // HAVE_BLE
+
+
+void os_io_ux_cmd_button_state(uint8_t state)
+{
+    uint8_t buffer[5];
+    buffer[0] = SEPROXYHAL_TAG_ITC_CMD;
+    buffer[1] = 0;
+    buffer[2] = 2;
+    buffer[3] = ITC_BUTTON_STATE;
+    buffer[4] = state;
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 5, NULL);
+}

@@ -118,7 +118,8 @@ unsigned short io_exchange(unsigned char channel_and_flags, unsigned short tx_le
     }
 
     if (tx_len && !(channel_and_flags & IO_ASYNCH_REPLY)) {
-        status                 = os_io_tx_cmd(io_os_legacy_apdu_type, G_io_apdu_buffer, tx_len, 0);
+        memmove(G_io_tx_buffer, G_io_apdu_buffer, tx_len);
+        status                 = os_io_tx_cmd(io_os_legacy_apdu_type, G_io_tx_buffer, tx_len, 0);
         G_io_app.apdu_media    = IO_APDU_MEDIA_NONE;
         io_os_legacy_apdu_type = APDU_TYPE_NONE;
         if (channel_and_flags & IO_RETURN_AFTER_TX) {
@@ -153,7 +154,6 @@ unsigned short io_exchange(unsigned char channel_and_flags, unsigned short tx_le
                 case OS_IO_PACKET_TYPE_RAW_APDU:
                 case OS_IO_PACKET_TYPE_USB_HID_APDU:
                 case OS_IO_PACKET_TYPE_USB_WEBUSB_APDU:
-                case OS_IO_PACKET_TYPE_USB_CDC_RAW:
                 case OS_IO_PACKET_TYPE_BLE_APDU:
                     io_os_legacy_apdu_type = G_io_rx_buffer[0];
                     if (G_io_rx_buffer[APDU_OFF_CLA + 1] == DEFAULT_APDU_CLA) {
@@ -170,6 +170,16 @@ unsigned short io_exchange(unsigned char channel_and_flags, unsigned short tx_le
                         memmove(G_io_rx_buffer, &G_io_rx_buffer[1], G_io_app.apdu_length);
                     }
                     break;
+
+#ifdef HAVE_IO_U2F
+                case OS_IO_PACKET_TYPE_USB_U2F_HID_APDU:
+                    io_os_legacy_apdu_type = G_io_rx_buffer[0];
+                    G_io_app.apdu_media    = get_media_from_apdu_type(io_os_legacy_apdu_type);
+                    G_io_u2f.media         = U2F_MEDIA_USB;
+                    G_io_app.apdu_length   = status - 1;
+                    memmove(G_io_rx_buffer, &G_io_rx_buffer[1], G_io_app.apdu_length);
+                    break;
+#endif // HAVE_IO_U2F
 
                 default:
                     status = 0;
@@ -193,16 +203,28 @@ void io_seproxyhal_init(void)
     init_io.usb.pid        = 0;
     init_io.usb.vid        = 0;
     init_io.usb.name       = 0;
+    init_io.usb.class_mask = 0;
 #ifdef HAVE_IO_USB
-    init_io.usb.class_mask = USBD_LEDGER_CLASS_HID | USBD_LEDGER_CLASS_WEBUSB;
-#else   // HAVE_IO_USB
-    init_io.usb.class_mask   = 0;
+    init_io.usb.class_mask |= USBD_LEDGER_CLASS_HID;
+#ifdef HAVE_WEBUSB
+    init_io.usb.class_mask |= USBD_LEDGER_CLASS_WEBUSB;
+#endif  // HAVE_WEBUSB
+#ifdef HAVE_IO_U2F
+    init_io.usb.class_mask |= USBD_LEDGER_CLASS_HID_U2F;
+
+    init_io.u2f_settings.protocol_version            = 2;
+    init_io.u2f_settings.major_device_version_number = 0;
+    init_io.u2f_settings.minor_device_version_number = 1;
+    init_io.u2f_settings.build_device_version_number = 0;
+    init_io.u2f_settings.capabilities_flag           = 0;
+#endif  // HAVE_IO_U2F
 #endif  // !HAVE_IO_USB
 
+    init_io.ble.profile_mask = 0;
 #ifdef HAVE_BLE
     init_io.ble.profile_mask = BLE_LEDGER_PROFILE_APDU;
-#else   // HAVE_BLE
-    init_io.ble.profile_mask = 0;
+#ifdef HAVE_IO_U2F
+#endif  // HAVE_IO_U2F
 #endif  // !HAVE_BLE
 
     os_io_start(&init_io);
@@ -220,3 +242,5 @@ void BLE_power(unsigned char powered, const char *discovered_name)
     UNUSED(discovered_name);
 }
 #endif  // HAVE_BLE
+
+void io_seproxyhal_request_mcu_status(void) {}

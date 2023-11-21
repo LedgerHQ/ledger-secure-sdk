@@ -61,17 +61,6 @@ else
 endif
 
 #####################################################################
-#                        IO SEPROXY BUFFER SIZE                     #
-#####################################################################
-ifneq ($(DISABLE_DEFAULT_IO_SEPROXY_BUFFER_SIZE), 1)
-    ifeq ($(TARGET_NAME), TARGET_NANOS)
-        DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=128
-    else
-        DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=330
-    endif
-endif
-
-#####################################################################
 #                          STANDARD DEFINES                         #
 #####################################################################
 DEFINES += USE_STANDARD_APP_LIB

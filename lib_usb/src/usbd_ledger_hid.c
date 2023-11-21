@@ -1,10 +1,10 @@
 /* @BANNER@ */
 
 /* Includes ------------------------------------------------------------------*/
+#include "ledger_protocol.h"
 #include "usbd_ioreq.h"
 #include "usbd_ledger.h"
 #include "usbd_ledger_hid.h"
-#include "ledger_protocol.h"
 
 #pragma GCC diagnostic ignored "-Wcast-qual"
 
@@ -79,6 +79,7 @@ const uint8_t LEDGER_HID_report_descriptor[34] = {
     0x75, 0x08,                   // Report Size     : 8 bits
     0x95, LEDGER_HID_EPOUT_SIZE,  // Report Count    : 64 fields
     0x91, 0x08,                   // Output          : Data, Array, Absolute, Wrap
+
     0xC0                          // Collection      : end
 };
 
@@ -168,8 +169,8 @@ uint8_t USBD_LEDGER_HID_init(USBD_HandleTypeDef *pdev, void *cookie)
     memset(handle, 0, sizeof(ledger_hid_handle_t));
 
     memset(&handle->protocol_data, 0, sizeof(handle->protocol_data));
-    handle->protocol_data.rx_apdu_buffer       = USBD_LEDGER_apdu_buffer;
-    handle->protocol_data.rx_apdu_buffer_size  = sizeof(USBD_LEDGER_apdu_buffer);
+    handle->protocol_data.rx_apdu_buffer       = USBD_LEDGER_io_buffer;
+    handle->protocol_data.rx_apdu_buffer_size  = sizeof(USBD_LEDGER_io_buffer);
     handle->protocol_data.tx_chunk_buffer      = ledger_protocol_chunk_buffer;
     handle->protocol_data.tx_chunk_buffer_size = sizeof(ledger_protocol_chunk_buffer);
     handle->protocol_data.mtu                  = sizeof(ledger_protocol_chunk_buffer);
@@ -347,6 +348,7 @@ uint8_t USBD_LEDGER_HID_data_out(USBD_HandleTypeDef *pdev,
 
 uint8_t USBD_LEDGER_HID_send_packet(USBD_HandleTypeDef *pdev,
                                     void               *cookie,
+                                    uint8_t             packet_type,
                                     const uint8_t      *packet,
                                     uint16_t            packet_length,
                                     uint32_t            timeout_ms)
@@ -354,6 +356,8 @@ uint8_t USBD_LEDGER_HID_send_packet(USBD_HandleTypeDef *pdev,
     if (!pdev || !cookie || !packet) {
         return USBD_FAIL;
     }
+
+    UNUSED(packet_type);
 
     uint8_t              ret    = USBD_OK;
     ledger_hid_handle_t *handle = (ledger_hid_handle_t *) PIC(cookie);

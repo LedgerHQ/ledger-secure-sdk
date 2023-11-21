@@ -203,6 +203,8 @@ endif
 endif
 endif
 
+DEFINES += OS_IO_SEPH_BUFFER_SIZE=350
+
 ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOX TARGET_NANOS2))
 # Screen is directly connected to the SE
 DEFINES       += HAVE_SE_SCREEN

@@ -1,6 +1,7 @@
 /* @BANNER@ */
 
 /* Includes ------------------------------------------------------------------*/
+#include "ledger_protocol.h"
 #include "usbd_ioreq.h"
 #include "usbd_ledger.h"
 #include "usbd_ledger_webusb.h"
@@ -233,6 +234,8 @@ const usbd_class_info_t USBD_LEDGER_WEBUSB_class_info = {
 
     .data_ready = USBD_LEDGER_WEBUSB_data_ready,
 
+    .setting = NULL,
+
     .interface_descriptor      = LEDGER_WEBUSB_descriptors,
     .interface_descriptor_size = sizeof(LEDGER_WEBUSB_descriptors),
 
@@ -261,8 +264,8 @@ uint8_t USBD_LEDGER_WEBUSB_init(USBD_HandleTypeDef *pdev, void *cookie)
     memset(handle, 0, sizeof(ledger_webusb_handle_t));
 
     memset(&handle->protocol_data, 0, sizeof(handle->protocol_data));
-    handle->protocol_data.rx_apdu_buffer       = USBD_LEDGER_apdu_buffer;
-    handle->protocol_data.rx_apdu_buffer_size  = sizeof(USBD_LEDGER_apdu_buffer);
+    handle->protocol_data.rx_apdu_buffer       = USBD_LEDGER_io_buffer;
+    handle->protocol_data.rx_apdu_buffer_size  = sizeof(USBD_LEDGER_io_buffer);
     handle->protocol_data.tx_chunk_buffer      = ledger_protocol_chunk_buffer;
     handle->protocol_data.tx_chunk_buffer_size = sizeof(ledger_protocol_chunk_buffer);
     handle->protocol_data.mtu                  = sizeof(ledger_protocol_chunk_buffer);
@@ -391,6 +394,7 @@ uint8_t USBD_LEDGER_WEBUSB_data_out(USBD_HandleTypeDef *pdev,
 
 uint8_t USBD_LEDGER_WEBUSB_send_packet(USBD_HandleTypeDef *pdev,
                                        void               *cookie,
+                                       uint8_t             packet_type,
                                        const uint8_t      *packet,
                                        uint16_t            packet_length,
                                        uint32_t            timeout_ms)
@@ -398,6 +402,8 @@ uint8_t USBD_LEDGER_WEBUSB_send_packet(USBD_HandleTypeDef *pdev,
     if (!pdev || !cookie || !packet) {
         return USBD_FAIL;
     }
+
+    UNUSED(packet_type);
 
     uint8_t                 ret    = USBD_OK;
     ledger_webusb_handle_t *handle = (ledger_webusb_handle_t *) PIC(cookie);

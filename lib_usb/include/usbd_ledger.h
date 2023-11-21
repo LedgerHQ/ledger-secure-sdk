@@ -20,7 +20,7 @@ typedef enum {
 typedef enum {
     USBD_LEDGER_CLASS_HID         = 0x0001,
     USBD_LEDGER_CLASS_HID_KBD     = 0x0002,
-    USBD_LEDGER_CLASS_U2F         = 0x0004,
+    USBD_LEDGER_CLASS_HID_U2F     = 0x0004,
     USBD_LEDGER_CLASS_CCID        = 0x0008,
     USBD_LEDGER_CLASS_WEBUSB      = 0x0010,
     USBD_LEDGER_CLASS_CDC_CONTROL = 0x0020,
@@ -35,7 +35,7 @@ typedef enum {
 /* Exported macros------------------------------------------------------------*/
 
 /* Exported variables --------------------------------------------------------*/
-extern uint8_t USBD_LEDGER_apdu_buffer[IO_APDU_BUFFER_SIZE+1];
+extern uint8_t USBD_LEDGER_io_buffer[OS_IO_BUFFER_SIZE + 1];
 
 /* Exported functions prototypes--------------------------------------------- */
 void USBD_LEDGER_init(void);
@@ -60,11 +60,15 @@ void USBD_LEDGER_rx_evt_data_out(uint8_t ep_num, uint8_t *buffer, uint16_t lengt
 
 // Tx
 uint32_t USBD_LEDGER_send(uint8_t        class_type,
+                          uint8_t        packet_type,
                           const uint8_t *packet,
                           uint16_t       packet_length,
                           uint32_t       timeout_ms);
 
 // Check APDU
 int32_t USBD_LEDGER_data_ready(uint8_t *buffer, uint16_t max_length);
+
+// Setting
+void USBD_LEDGER_setting(uint32_t class_id, uint32_t setting_id, uint8_t *buffer, uint16_t length);
 
 #endif  // USBD_LEDGER_H

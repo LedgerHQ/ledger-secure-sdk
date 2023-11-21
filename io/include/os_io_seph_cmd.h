@@ -75,3 +75,5 @@ int  os_io_ux_cmd_redisplay(void);
 void os_io_ux_cmd_ble_pairing_request(bolos_ux_params_t *ux_params);
 void os_io_ux_cmd_ble_pairing_status(bolos_ux_params_t *ux_params);
 #endif  // HAVE_BLE
+
+void os_io_ux_cmd_button_state(uint8_t state);

@@ -132,7 +132,7 @@ static void hci_evt_vendor(uint8_t *buffer, uint16_t length);
 static uint32_t send_hci_packet(uint32_t timeout_ms);
 
 /* Exported variables --------------------------------------------------------*/
-uint8_t BLE_LEDGER_apdu_buffer[IO_APDU_BUFFER_SIZE + 1];
+uint8_t BLE_LEDGER_apdu_buffer[OS_IO_BUFFER_SIZE + 1];
 
 /* Private variables ---------------------------------------------------------*/
 static ble_ledger_data_t ble_ledger_data;
@@ -839,8 +839,12 @@ void BLE_LEDGER_init(void)
 
 void BLE_LEDGER_start(uint16_t profile_mask)
 {
-    DEBUG("BLE_LEDGER_start");
-    if (ble_ledger_data.profiles != profile_mask) {
+    DEBUG("BLE_LEDGER_start\n");
+    if (!profile_mask) {
+        advertising_enable(0);
+        ble_ledger_data.profiles = profile_mask;
+    }
+    else if (ble_ledger_data.profiles != profile_mask) {
         LEDGER_BLE_get_mac_address(ble_ledger_data.random_address);
         ble_ledger_data.cmd_data.hci_cmd_opcode = 0xFFFF;
         ble_ledger_data.state                   = BLE_STATE_INITIALIZING;
@@ -852,7 +856,7 @@ void BLE_LEDGER_start(uint16_t profile_mask)
                 = (ble_profile_info_t *) PIC(&BLE_LEDGER_PROFILE_apdu_info);
         }
 #ifdef HAVE_IO_U2F
-        if (profile_mask & BLE_LEDGER_PROFILE_U2F) {
+        else if (profile_mask & BLE_LEDGER_PROFILE_U2F) {
             DEBUG("U2F ");
             // ble_ledger_data.profile[ble_ledger_data.nb_of_profile++] =
             // (ble_profile_info_t*)PIC(&BLE_LEDGER_PROFILE_u2f_info);

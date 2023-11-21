@@ -35,6 +35,7 @@ uint8_t USBD_LEDGER_HID_KBD_data_out(USBD_HandleTypeDef *pdev,
 
 uint8_t USBD_LEDGER_HID_KBD_send_packet(USBD_HandleTypeDef *pdev,
                                         void               *cookie,
+                                        uint8_t             packet_type,
                                         const uint8_t      *packet,
                                         uint16_t            packet_length,
                                         uint32_t            timeout_ms);

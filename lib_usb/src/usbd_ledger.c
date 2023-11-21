@@ -8,7 +8,7 @@
 #include "usbd_ledger_types.h"
 #include "usbd_ledger_hid.h"
 #include "usbd_ledger_hid_kbd.h"
-// #include "usbd_ledger_hid_u2f.h"
+#include "usbd_ledger_hid_u2f.h"
 #include "usbd_ledger_webusb.h"
 #include "usbd_ledger_cdc.h"
 #include "os_io_seph_cmd.h"
@@ -60,7 +60,7 @@ static void forge_configuration_descriptor(void);
 static void forge_bos_descriptor(void);
 
 /* Exported variables --------------------------------------------------------*/
-uint8_t USBD_LEDGER_apdu_buffer[IO_APDU_BUFFER_SIZE + 1];
+uint8_t USBD_LEDGER_io_buffer[OS_IO_BUFFER_SIZE + 1];
 
 /* Private variables ---------------------------------------------------------*/
 static const USBD_ClassTypeDef USBD_LEDGER_CLASS = {
@@ -201,16 +201,15 @@ static uint8_t de_init(USBD_HandleTypeDef *pdev, uint8_t cfg_idx)
 
 static uint8_t setup(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
 {
-    uint8_t ret   = USBD_FAIL;
-    uint8_t index = 0;
+    uint8_t  ret   = USBD_FAIL;
+    uint16_t index = req->wIndex;
 
-    while ((index < usbd_ledger_data.nb_of_class) && (ret == USBD_FAIL)) {
+    if (index < usbd_ledger_data.nb_of_class) {
         usbd_class_info_t *class_info = usbd_ledger_data.class[index];
         ret = ((usbd_class_setup_t) PIC(class_info->setup))(pdev, class_info->cookie, req);
-        index++;
     }
-
-    if (ret == USBD_FAIL) {
+    else {
+        ret = USBD_FAIL;
         USBD_CtlError(pdev, req);
     }
 
@@ -423,8 +422,9 @@ void USBD_LEDGER_start(uint16_t pid, uint16_t vid, char *name, uint16_t class_ma
         }
 #endif  // HAVE_USB_HIDKBD
 #ifdef HAVE_IO_U2F
-        if (class_mask & USBD_LEDGER_CLASS_U2F) {
-            // usbd_ledger_data.class[usbd_ledger_data.nb_of_class++] = NULL;
+        if (class_mask & USBD_LEDGER_CLASS_HID_U2F) {
+            usbd_ledger_data.class[usbd_ledger_data.nb_of_class++]
+                = (usbd_class_info_t *) PIC(&USBD_LEDGER_HID_U2F_class_info);
         }
 #endif  // HAVE_IO_U2F
 #ifdef HAVE_USB_CLASS_CCID
@@ -461,28 +461,6 @@ void USBD_LEDGER_start(uint16_t pid, uint16_t vid, char *name, uint16_t class_ma
         usbd_ledger_data.classes = class_mask;
     }
 }
-
-/*void USB_power(unsigned char enabled)
-{
-    if (usbd_ledger_data.usbd_handle.pClass) {
-        USBD_Stop(&usbd_ledger_data.usbd_handle);
-        USBD_DeInit(&usbd_ledger_data.usbd_handle);
-    }
-    else if (enabled) {
-        uint16_t class_mask = 0;
-#ifndef HAVE_USB_HIDKBD
-        class_mask = USBD_LEDGER_CLASS_HID;
-#else   // HAVE_USB_HIDKBD
-        class_mask = USBD_LEDGER_CLASS_HID_KBD;
-#endif  // HAVE_USB_HIDKBD
-#ifdef HAVE_WEBUSB
-        class_mask |= USBD_LEDGER_CLASS_WEBUSB;
-#endif  // HAVE_WEBUSB
-        // class_mask |= USBD_LEDGER_CLASS_CDC;
-        USBD_LEDGER_init();
-        USBD_LEDGER_start(0, 0, NULL, class_mask);
-    }
-}*/
 
 void USBD_LEDGER_rx_evt_reset(void)
 {
@@ -523,6 +501,7 @@ void USBD_LEDGER_rx_evt_data_out(uint8_t ep_num, uint8_t *buffer, uint16_t lengt
 }
 
 uint32_t USBD_LEDGER_send(uint8_t        class_type,
+                          uint8_t        packet_type,
                           const uint8_t *packet,
                           uint16_t       packet_length,
                           uint32_t       timeout_ms)
@@ -538,6 +517,7 @@ uint32_t USBD_LEDGER_send(uint8_t        class_type,
             usb_status
                 = ((usbd_send_packet_t) PIC(class_info->send_packet))(&usbd_ledger_data.usbd_handle,
                                                                       class_info->cookie,
+                                                                      packet_type,
                                                                       packet,
                                                                       packet_length,
                                                                       timeout_ms);
@@ -573,6 +553,20 @@ int32_t USBD_LEDGER_data_ready(uint8_t *buffer, uint16_t max_length)
     }
 
     return 0;
+}
+
+void USBD_LEDGER_setting(uint32_t class_id, uint32_t setting_id, uint8_t *buffer, uint16_t length)
+{
+    uint8_t index = 0;
+
+    usbd_class_info_t *class_info = NULL;
+    for (index = 0; index < usbd_ledger_data.nb_of_class; index++) {
+        class_info = usbd_ledger_data.class[index];
+        if ((class_info->type == class_id) && (class_info->setting)) {
+            ((usbd_setting_t) PIC(class_info->setting))(
+                setting_id, buffer, length, class_info->cookie);
+        }
+    }
 }
 
 int USBD_LEDGER_rx_seph_evt(uint8_t *seph_buffer,

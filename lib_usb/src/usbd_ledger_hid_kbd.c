@@ -147,6 +147,8 @@ const usbd_class_info_t USBD_LEDGER_HID_KBD_class_info = {
 
     .data_ready = NULL,
 
+    .setting = NULL,
+
     .interface_descriptor      = LEDGER_HID_KBD_descriptors,
     .interface_descriptor_size = sizeof(LEDGER_HID_KBD_descriptors),
 
@@ -330,6 +332,7 @@ uint8_t USBD_LEDGER_HID_KBD_data_out(USBD_HandleTypeDef *pdev,
 
 uint8_t USBD_LEDGER_HID_KBD_send_packet(USBD_HandleTypeDef *pdev,
                                         void               *cookie,
+                                        uint8_t             packet_type,
                                         const uint8_t      *packet,
                                         uint16_t            packet_length,
                                         uint32_t            timeout_ms)
@@ -338,6 +341,7 @@ uint8_t USBD_LEDGER_HID_KBD_send_packet(USBD_HandleTypeDef *pdev,
         return USBD_FAIL;
     }
 
+    UNUSED(packet_type);
     UNUSED(packet_length);
 
     uint8_t                  ret    = USBD_OK;

@@ -8,11 +8,16 @@
 
 #ifdef HAVE_IO_USB
 #include "usbd_ledger.h"
+#include "usbd_ledger_hid_u2f.h"
 #endif  // HAVE_IO_USB
 
 #ifdef HAVE_BLE
 #include "ble_ledger.h"
 #endif  // HAVE_BLE
+
+#ifdef HAVE_IO_U2F
+#include "lcx_rng.h"
+#endif  // HAVE_IO_U2F
 
 #define CALVA_LOG(...) snprintf(((char *) 0xF0000000), 0x1000, __VA_ARGS__);
 /* Private enumerations ------------------------------------------------------*/
@@ -31,14 +36,17 @@ static int process_itc_ble_event(uint8_t *buffer_in, size_t buffer_in_length);
 /* Exported variables --------------------------------------------------------*/
 #ifndef HAVE_LOCAL_APDU_BUFFER
 // apdu buffer must hold a complete apdu to avoid troubles
-unsigned char G_io_rx_buffer[IO_APDU_BUFFER_SIZE + 1];
-unsigned char G_io_tx_buffer[IO_APDU_BUFFER_SIZE + 1];
+unsigned char G_io_rx_buffer[OS_IO_BUFFER_SIZE + 1];
+unsigned char G_io_tx_buffer[OS_IO_BUFFER_SIZE + 1];
 #endif
 
-unsigned char G_io_seph_rx_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B + 1];
+unsigned char G_io_seph_rx_buffer[OS_IO_SEPH_BUFFER_SIZE + 1];
 uint16_t      G_io_seph_rx_buffer_length;
 
 uint8_t G_io_syscall_flag;
+#ifdef HAVE_IO_U2F
+uint32_t G_io_u2f_free_cid;
+#endif  // HAVE_IO_U2F
 
 /* Private variables ---------------------------------------------------------*/
 
@@ -74,6 +82,17 @@ static int process_itc_ble_event(uint8_t *buffer_in, size_t buffer_in_length)
             BLE_LEDGER_accept_pairing(buffer_in[4]);
             status = 0;
             break;
+
+        case ITC_BUTTON_STATE: {
+            uint8_t tx_buff[4];
+            tx_buff[0] = SEPROXYHAL_TAG_BUTTON_PUSH_EVENT;
+            tx_buff[1] = 0;
+            tx_buff[2] = 1;
+            tx_buff[3] = buffer_in[4];
+            os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, tx_buff, 4, NULL);
+            status = 0;
+            break;
+        }
 
         default:
             break;
@@ -145,6 +164,26 @@ int os_io_start(os_io_init_t *init)
 
 #ifdef HAVE_IO_USB
     USBD_LEDGER_start(init->usb.pid, init->usb.vid, init->usb.name, init->usb.class_mask);
+#ifdef HAVE_IO_U2F
+    if (!G_io_syscall_flag) {
+        cx_rng((uint8_t *) &G_io_u2f_free_cid, sizeof(G_io_u2f_free_cid));
+    }
+    if (init->usb.class_mask & USBD_LEDGER_CLASS_HID_U2F) {
+        uint8_t buffer[4];
+        buffer[0] = init->u2f_settings.protocol_version;
+        buffer[1] = init->u2f_settings.major_device_version_number;
+        buffer[2] = init->u2f_settings.minor_device_version_number;
+        buffer[3] = init->u2f_settings.build_device_version_number;
+        USBD_LEDGER_setting(
+            USBD_LEDGER_CLASS_HID_U2F, USBD_LEDGER_HID_U2F_SETTING_ID_VERSIONS, buffer, 4);
+        buffer[0] = init->u2f_settings.capabilities_flag;
+        USBD_LEDGER_setting(
+            USBD_LEDGER_CLASS_HID_U2F, USBD_LEDGER_HID_U2F_SETTING_ID_CAPABILITIES_FLAG, buffer, 1);
+        U4BE_ENCODE(buffer, 0, G_io_u2f_free_cid);
+        USBD_LEDGER_setting(
+            USBD_LEDGER_CLASS_HID_U2F, USBD_LEDGER_HID_U2F_SETTING_ID_FREE_CID, buffer, 4);
+    }
+#endif  // HAVE_IO_U2F
 #endif  // HAVE_IO_USB
 
 #ifdef HAVE_BLE
@@ -246,13 +285,19 @@ int os_io_tx_cmd(uint8_t                     type,
     switch (type) {
 #ifdef HAVE_IO_USB
         case OS_IO_PACKET_TYPE_USB_HID_APDU:  // TODO_IO test error code
-            USBD_LEDGER_send(USBD_LEDGER_CLASS_HID, buffer, length, 0);
+            USBD_LEDGER_send(USBD_LEDGER_CLASS_HID, type, buffer, length, 0);
             break;
 #ifdef HAVE_WEBUSB
         case OS_IO_PACKET_TYPE_USB_WEBUSB_APDU:
-            USBD_LEDGER_send(USBD_LEDGER_CLASS_WEBUSB, buffer, length, 0);
+            USBD_LEDGER_send(USBD_LEDGER_CLASS_WEBUSB, type, buffer, length, 0);
             break;
 #endif  // HAVE_WEBUSB
+#ifdef HAVE_IO_U2F
+        case OS_IO_PACKET_TYPE_USB_U2F_HID_APDU:
+        case OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR:
+            USBD_LEDGER_send(USBD_LEDGER_CLASS_HID_U2F, type, buffer, length, 0);
+            break;
+#endif  // HAVE_IO_U2F
 #endif  // HAVE_IO_USB
 
 #ifdef HAVE_BLE

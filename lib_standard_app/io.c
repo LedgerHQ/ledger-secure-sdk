@@ -112,7 +112,6 @@ WEAK int io_recv_command()
                 case OS_IO_PACKET_TYPE_RAW_APDU:
                 case OS_IO_PACKET_TYPE_USB_HID_APDU:
                 case OS_IO_PACKET_TYPE_USB_WEBUSB_APDU:
-                case OS_IO_PACKET_TYPE_USB_CDC_RAW:
                 case OS_IO_PACKET_TYPE_BLE_APDU:
                     if (G_io_rx_buffer[OFFSET_CLA + 1] == DEFAULT_APDU_CLA) {
                         size_t buffer_out_length = sizeof(G_io_tx_buffer);

@@ -36,6 +36,7 @@ typedef uint8_t (*usbd_class_data_out_t)(USBD_HandleTypeDef *pdev,
 
 typedef uint8_t (*usbd_send_packet_t)(USBD_HandleTypeDef *pdev,
                                       void               *cookie,
+                                      uint8_t             packet_type,
                                       const uint8_t      *packet,
                                       uint16_t            packet_length,
                                       uint32_t            timeout_ms);
@@ -44,6 +45,8 @@ typedef int32_t (*usbd_data_ready_t)(USBD_HandleTypeDef *pdev,
                                      void               *cookie,
                                      uint8_t            *buffer,
                                      uint16_t            max_length);
+
+typedef void (*usbd_setting_t)(uint32_t class_id, uint8_t *buffer, uint16_t length, void *cookie);
 
 typedef struct usbd_class_info_t_ {
     uint8_t type;  // usbd_ledger_class_mask_e
@@ -60,6 +63,8 @@ typedef struct usbd_class_info_t_ {
     usbd_send_packet_t send_packet;
 
     usbd_data_ready_t data_ready;
+
+    usbd_setting_t setting;
 
     uint8_t        interface_descriptor_size;
     const uint8_t *interface_descriptor;
