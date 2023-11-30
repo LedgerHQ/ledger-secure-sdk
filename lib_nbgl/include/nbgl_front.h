@@ -46,6 +46,8 @@ void nbgl_frontRefreshArea(const nbgl_area_t  *area,
                            nbgl_refresh_mode_t mode,
                            nbgl_post_refresh_t post_refresh);
 
+void nbgl_frontSetPipeline(bool enable);
+
 /**********************
  *      MACROS
  **********************/

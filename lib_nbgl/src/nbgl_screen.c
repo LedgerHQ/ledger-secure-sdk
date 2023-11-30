@@ -8,6 +8,7 @@
  *********************/
 #include "nbgl_screen.h"
 #include "nbgl_debug.h"
+#include "nbgl_front.h"
 #include "os_pic.h"
 #include "os_io.h"
 
@@ -72,6 +73,8 @@ void nbgl_screenRedraw(void)
     touch_exclude_borders(TOP_BORDER | LEFT_BORDER);
 #endif  // HAVE_SE_TOUCH
 
+    // be sure to disable pipeline when doing a full screen redraw
+    nbgl_frontSetPipeline(false);
     nbgl_screen_reinit();
     nbgl_redrawObject((nbgl_obj_t *) topOfStack, NULL, true);
 }

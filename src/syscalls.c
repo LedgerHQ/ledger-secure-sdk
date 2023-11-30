@@ -128,6 +128,14 @@ void nbgl_frontRefreshArea(nbgl_area_t        *area,
     return;
 }
 
+void nbgl_frontSetPipeline(bool enable)
+{
+    unsigned int parameters[1];
+    parameters[0] = (unsigned int) enable;
+    SVC_Call(SYSCALL_nbgl_front_set_pipeline_ID, parameters);
+    return;
+}
+
 void nbgl_sideDrawRect(nbgl_area_t *area)
 {
     unsigned int parameters[1];
