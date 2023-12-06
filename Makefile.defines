@@ -52,6 +52,13 @@ endif
 # APPNAME exposed to the app as a CFLAG because it might contain spaces
 CFLAGS += -DAPPNAME=\"$(APPNAME)\"
 
+# Stack canary enabled by default
+ifeq (,$(filter $(DEFINES),BOLOS_OS_UPGRADER_APP))
+ifndef DISABLE_BOLOS_APP_STACK_CANARY
+DEFINES += HAVE_BOLOS_APP_STACK_CANARY
+endif
+endif
+
 # API_LEVEL exposed to the app as an integer
 DEFINES += API_LEVEL=$(API_LEVEL)
 
