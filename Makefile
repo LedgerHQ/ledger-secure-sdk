@@ -24,3 +24,4 @@ doc: | $(BUILD_DIR)
 
 $(BUILD_DIR):
 	@mkdir -p $@
+
