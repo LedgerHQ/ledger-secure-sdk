@@ -24,6 +24,8 @@
 
 bool apdu_parser(command_t *cmd, uint8_t *buf, size_t buf_len)
 {
+    buf++;
+    buf_len--;
     // Check minimum length, CLA / INS / P1 and P2 are mandatory
     if (buf_len < OFFSET_LC) {
         return false;

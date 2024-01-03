@@ -22,8 +22,8 @@
 #include "checks.h"
 #include "os_helpers.h"
 #include "os_pin.h"
-#include "os_io_seproxyhal.h"
 #include "os_screen.h"
+#include "os_io.h"
 #include "ux.h"
 
 // This label ultimately comes from the application link.
@@ -126,8 +126,7 @@ void ui_audited_deinit(void)
     // for
     // further displays at the moment) and reinitialize the UX and buttons.
     ux_stack_pop();
-    io_seproxyhal_init_ux();
-    io_seproxyhal_init_button();
+    io_seph_ux_init_button();
 }
 #endif  // HAVE_BAGL
 
@@ -188,22 +187,24 @@ void check_audited_app(void)
     // to the expected one.
     if ((length) && (CHECK_NOT_AUDITED_TLV_VAL == data)) {
         ui_audited_init();
-        io_seproxyhal_general_status();
 
-        // We wait for the button callback pointer to be wiped, and we process the incoming MCU
-        // events in the meantime. This callback will be wiped within the actual
-        // 'ui_audited_elements_button' function, as soon as the user presses both buttons.
         do {
-            io_seproxyhal_spi_recv(
-                G_io_seproxyhal_spi_buffer, sizeof(G_io_seproxyhal_spi_buffer), 0);
-            io_seproxyhal_handle_event();
-            io_seproxyhal_general_status();
+            int status = os_io_rx_evt(G_io_rx_buffer, sizeof(G_io_rx_buffer), NULL);
+            if (status >= 0) {
+                switch (G_io_rx_buffer[0]) {
+                    case OS_IO_PACKET_TYPE_SE_EVT:
+                    case OS_IO_PACKET_TYPE_SEPH:
+                        io_event(&G_io_rx_buffer[1], status - 1);
+                        status = 0;
+                        break;
+
+                    default:
+                        break;
+                }
+            }
         } while (!ui_audited_done());
 
         ui_audited_deinit();
-
-        // Now we can wait for the next MCU status and exit.
-        io_seproxyhal_spi_recv(G_io_seproxyhal_spi_buffer, sizeof(G_io_seproxyhal_spi_buffer), 0);
     }
 }
 

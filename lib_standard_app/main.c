@@ -23,11 +23,19 @@
 
 #ifdef HAVE_SWAP
 #include "swap.h"
+#endif  // HAVE_SWAP
+
+#ifdef HAVE_IO_USB
+#include "usbd_ledger.h"
+#endif  // HAVE_IO_USB
+
+#ifdef HAVE_BLE
+#include "ble_ledger.h"
+#endif  // HAVE_BLE
 
 #ifdef HAVE_NBGL
 #include "nbgl_use_case.h"
 #endif  // HAVE_NBGL
-#endif  // HAVE_SWAP
 
 ux_state_t        G_ux;
 bolos_ux_params_t G_ux_params;
@@ -44,15 +52,25 @@ static void common_app_init(void)
 {
     UX_INIT();
 
-    io_seproxyhal_init();
+    os_io_init_t init_io;
 
-    USB_power(0);
-    USB_power(1);
+    init_io.syscall  = G_io_syscall_flag;
+    init_io.usb.pid  = 0;
+    init_io.usb.vid  = 0;
+    init_io.usb.name = 0;
+#ifdef HAVE_IO_USB
+    init_io.usb.class_mask = USBD_LEDGER_CLASS_HID | USBD_LEDGER_CLASS_WEBUSB;
+#else   // HAVE_IO_USB
+    init_io.usb.class_mask   = 0;
+#endif  // !HAVE_IO_USB
 
 #ifdef HAVE_BLE
-    BLE_power(0, NULL);
-    BLE_power(1, NULL);
-#endif  // HAVE_BLE
+    init_io.ble.profile_mask = BLE_LEDGER_PROFILE_APDU;
+#else   // HAVE_BLE
+    init_io.ble.profile_mask = 0;
+#endif  // !HAVE_BLE
+
+    os_io_start(&init_io);
 }
 
 static void standalone_app_main(void)
@@ -83,9 +101,9 @@ static void standalone_app_main(void)
             // - the NanoX goes on battery power and display the lock screen
             // - the user plug the NanoX instead of entering its pin
             // - the device is frozen, battery should be removed
-            USB_power(0);
+            // USB_power(0); // TODO_IO
 #ifdef HAVE_BLE
-            BLE_power(0, NULL);
+            // BLE_power(0, NULL);
 #endif
             // Display crash info on screen for debug purpose
             assert_display_exit();

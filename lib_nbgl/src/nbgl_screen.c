@@ -9,7 +9,7 @@
 #include "nbgl_screen.h"
 #include "nbgl_debug.h"
 #include "os_pic.h"
-#include "os_io.h"
+#include "os_io_seph_ux.h"
 
 /*********************
  *      DEFINES
@@ -69,7 +69,7 @@ void nbgl_screenRedraw(void)
 #ifdef HAVE_SE_TOUCH
     // by default, exclude left & top borders from touch
     // if any sub-object is a keyboard, this will be modified when drawing it
-    touch_exclude_borders(TOP_BORDER | LEFT_BORDER);
+    touch_exclude_borders(OS_IO_TOUCH_AREA_TOP_BORDER | OS_IO_TOUCH_AREA_LEFT_BORDER);
 #endif  // HAVE_SE_TOUCH
 
     nbgl_screen_reinit();

@@ -23,7 +23,7 @@ ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOX TARGET_STAX))
     HAVE_APPLICATION_FLAG_BOLOS_SETTINGS = 1
     DEFINES += HAVE_BLE BLE_COMMAND_TIMEOUT_MS=2000 HAVE_BLE_APDU
     DEFINES += BLE_SEGMENT_SIZE=32
-    SDK_SOURCE_PATH += lib_blewbxx lib_blewbxx_impl
+    SDK_SOURCE_PATH += lib_ble
 endif
 endif
 
@@ -68,29 +68,26 @@ else
 endif
 
 #####################################################################
-#                        IO SEPROXY BUFFER SIZE                     #
-#####################################################################
-ifneq ($(DISABLE_DEFAULT_IO_SEPROXY_BUFFER_SIZE), 1)
-    ifeq ($(TARGET_NAME), TARGET_NANOS)
-        DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=128
-    else
-        DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=300
-    endif
-endif
-
-#####################################################################
 #                          STANDARD DEFINES                         #
 #####################################################################
 DEFINES += $(DEFINES_LIB)
 DEFINES += MAJOR_VERSION=$(APPVERSION_M) MINOR_VERSION=$(APPVERSION_N) PATCH_VERSION=$(APPVERSION_P)
 DEFINES += IO_HID_EP_LENGTH=64
+DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=OS_IO_SEPH_BUFFER_SIZE
+
+ifeq ($(USE_OS_IO_STACK), 1)
+    DEFINES += USE_OS_IO_STACK
+endif
+
+SDK_SOURCE_PATH += io_legacy
+SDK_SOURCE_PATH += io
+SDK_SOURCE_PATH += protocol
 
 ifeq ($(DISABLE_STANDARD_APP_DEFINES), 1)
     DISABLE_STANDARD_SNPRINTF = 1
     DISABLE_STANDARD_USB = 1
     DISABLE_STANDARD_WEBUSB = 1
     DISABLE_STANDARD_BAGL_UX_FLOW = 1
-    DISABLE_STANDARD_SEPROXYHAL = 1
 endif
 
 ifneq ($(DISABLE_STANDARD_SNPRINTF), 1)
@@ -100,7 +97,7 @@ endif
 ifneq ($(DISABLE_STANDARD_USB), 1)
     DEFINES += HAVE_IO_USB HAVE_L4_USBLIB IO_USB_MAX_ENDPOINTS=4 HAVE_USB_APDU
     DEFINES += USB_SEGMENT_SIZE=64
-    SDK_SOURCE_PATH += lib_stusb lib_stusb_impl
+    SDK_SOURCE_PATH += lib_usb
 endif
 
 ifneq ($(DISABLE_STANDARD_WEBUSB), 1)

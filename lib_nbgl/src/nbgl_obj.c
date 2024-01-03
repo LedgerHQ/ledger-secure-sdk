@@ -13,9 +13,9 @@
 #include "nbgl_debug.h"
 #include "os_print.h"
 #include "glyphs.h"
+#include "os_io_seph_ux.h"
 #ifdef HAVE_SERIALIZED_NBGL
 #include "nbgl_serialize.h"
-#include "os_io_seproxyhal.h"
 #endif
 
 /*********************
@@ -53,7 +53,7 @@ uint8_t ramBuffer[GZLIB_UNCOMPRESSED_CHUNK];
 /**********************
  *  STATIC PROTOTYPES
  **********************/
-extern const char *get_ux_loc_string(uint32_t index);
+extern const char *get_ux_loc_string(UX_LOC_STRINGS_INDEX index);
 
 /**********************
  *   GLOBAL FUNCTIONS
@@ -1368,7 +1368,7 @@ draw_object(nbgl_obj_t *obj, nbgl_obj_t *prevObj, bool computePosition)
     }
 
 #ifdef HAVE_SERIALIZED_NBGL
-    io_seproxyhal_send_nbgl_serialized(NBGL_DRAW_OBJ, obj);
+    io_seph_ux_send_nbgl_serialized(NBGL_DRAW_OBJ, obj);
 #endif
     if (!objDrawingDisabled) {
         extendRefreshArea(obj);
@@ -1490,7 +1490,7 @@ void nbgl_refreshSpecial(nbgl_refresh_mode_t mode)
     }
 
 #ifdef HAVE_SERIALIZED_NBGL
-    io_seproxyhal_send_nbgl_serialized(NBGL_REFRESH_AREA, (nbgl_obj_t *) &refreshArea);
+    io_seph_ux_send_nbgl_serialized(NBGL_REFRESH_AREA, (nbgl_obj_t *) &refreshArea);
 #endif
     nbgl_frontRefreshArea(&refreshArea, mode, POST_REFRESH_FORCE_POWER_OFF);
     LOG_DEBUG(OBJ_LOGGER,
@@ -1509,7 +1509,7 @@ void nbgl_refreshSpecialWithPostRefresh(nbgl_refresh_mode_t mode, nbgl_post_refr
     }
 
 #ifdef HAVE_SERIALIZED_NBGL
-    io_seproxyhal_send_nbgl_serialized(NBGL_REFRESH_AREA, (nbgl_obj_t *) &refreshArea);
+    io_seph_ux_send_nbgl_serialized(NBGL_REFRESH_AREA, (nbgl_obj_t *) &refreshArea);
 #endif
     nbgl_frontRefreshArea(&refreshArea, mode, post_refresh);
     LOG_DEBUG(OBJ_LOGGER,

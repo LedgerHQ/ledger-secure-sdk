@@ -175,9 +175,11 @@
 #define SYSCALL_os_sched_is_running_ID                        0x0100009b
 #define SYSCALL_os_sched_create_ID                            0x0700011b
 #define SYSCALL_os_sched_kill_ID                              0x01000078
-#define SYSCALL_io_seph_send_ID                               0x02000083
-#define SYSCALL_io_seph_is_status_sent_ID                     0x00000084
-#define SYSCALL_io_seph_recv_ID                               0x03000085
+#define SYSCALL_os_io_seph_tx_ID                              0x03000083
+#define SYSCALL_os_io_seph_se_rx_event_ID                     0x05000085
+#define SYSCALL_os_io_start_ID                                0x01000089
+#define SYSCALL_os_io_tx_cmd_ID                               0x04000086
+#define SYSCALL_os_io_rx_evt_ID                               0x03000088
 #define SYSCALL_nvm_write_page_ID                             0x0100010a
 #define SYSCALL_nvm_erase_page_ID                             0x01000136
 #define SYSCALL_try_context_get_ID                            0x00000087

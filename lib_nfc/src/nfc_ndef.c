@@ -1,8 +1,11 @@
 #ifdef HAVE_NFC
-#ifdef HAVE_NDEF_SUPPORT
 #include "nfc_ndef.h"
 #include "string.h"
 #include "os_apdu.h"
+#include "os_settings.h"
+#include "os_io.h"
+#include "seproxyhal_protocol.h"
+#ifdef HAVE_NDEF_SUPPORT
 
 /**********************
  *   GLOBAL FUNCTIONS
@@ -197,5 +200,63 @@ uint16_t os_ndef_to_string(ndef_struct_t *ndef_message, char *out_string)
     }
     return tot_length;
 }
-#endif  // HAVE_NDEF_SUPPORT
+
+/**
+ * @brief Send a SEPH message to MCU to init NFC
+ *
+ * @param ndef_message NDEF message to program into tag, can be NULL (ie no message in tag)
+ * @param async set to true, if nfc_init is performed while an NFC transfer is ongoing, set to false
+ * otherwise
+ * @param forceInit set to true, to force NFC init even if NFC is de-activated in settings, false
+ * otherwise
+ */
+void io_seproxyhal_nfc_init(uint8_t       *out_buffer,
+                            size_t         out_buffer_max_length,
+                            ndef_struct_t *ndef_message,
+                            bool           async,
+                            bool           forceInit)
+{
+    uint8_t  hdr[5];
+    uint16_t total_length = 0;
+    uint8_t  is_nfc_enabled
+        = forceInit
+              ? 1
+              : (os_setting_get(OS_SETTING_FEATURES, NULL, 0) & OS_SETTING_FEATURES_NFC_ENABLED);
+
+    hdr[0] = SEPROXYHAL_TAG_NFC_INIT;
+    // Fill length offsets 1 and 2 later when text length is known
+    hdr[3] = is_nfc_enabled;
+    hdr[4] = (uint8_t) async;
+    if (ndef_message != NULL) {
+        if (out_buffer_max_length >= sizeof(ndef_struct_t)) {
+            memcpy(out_buffer, ndef_message, sizeof(ndef_struct_t));
+            total_length += sizeof(ndef_struct_t);
+        }
+    }
+    else {
+        total_length
+            += os_setting_get(OS_SETTING_NFC_TAG_CONTENT, out_buffer, out_buffer_max_length);
+    }
+    if (total_length) {
+        hdr[1] = ((total_length + 2) & 0xFF00) >> 8;
+        hdr[2] = (total_length + 2) & 0x00FF;
+        os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, hdr, 5, NULL);
+        os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, out_buffer, total_length, NULL);
+    }
+}
+#else   // ! HAVE_NDEF_SUPPORT
+void io_seproxyhal_nfc_init(bool forceInit)
+{
+    uint8_t buffer[4];
+    uint8_t is_nfc_enabled
+        = forceInit
+              ? 1
+              : (os_setting_get(OS_SETTING_FEATURES, NULL, 0) & OS_SETTING_FEATURES_NFC_ENABLED);
+    buffer[0] = SEPROXYHAL_TAG_NFC_INIT;
+    buffer[1] = 0;
+    buffer[2] = 1;
+    buffer[3] = is_nfc_enabled;
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 4, NULL);
+}
+#endif  // ! HAVE_NDEF_SUPPORT
 #endif  // HAVE_NFC

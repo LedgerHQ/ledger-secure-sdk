@@ -89,7 +89,7 @@ static uint8_t objPointersPoolLayers[OBJ_CONTAINER_POOL_LEN];
 // This is the number of graphic objects currently used from the objContainerPool
 static uint8_t nbUsedObjsInContainerPool = 0;
 
-static bool initialized;
+static bool initialized = false;
 
 /**********************
  *      MACROS

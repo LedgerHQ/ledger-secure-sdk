@@ -14,8 +14,9 @@
 #include "os_memory.h"
 #include "os_registry.h"
 #include "os_ux.h"
-#ifdef HAVE_SE_TOUCH
 #include "os_io.h"
+#ifdef HAVE_SE_TOUCH
+#include "os_io_seph_ux.h"
 #endif  // HAVE_SE_TOUCH
 #include "ox_ec.h"
 #include "ox_bn.h"
@@ -1733,29 +1734,59 @@ void os_sched_kill(unsigned int taskidx)
     return;
 }
 
-void io_seph_send(const unsigned char *buffer, unsigned short length)
-{
-    unsigned int parameters[2];
-    parameters[0] = (unsigned int) buffer;
-    parameters[1] = (unsigned int) length;
-    SVC_Call(SYSCALL_io_seph_send_ID, parameters);
-    return;
-}
-
-unsigned int io_seph_is_status_sent(void)
-{
-    unsigned int parameters[2];
-    parameters[1] = 0;
-    return (unsigned int) SVC_Call(SYSCALL_io_seph_is_status_sent_ID, parameters);
-}
-
-unsigned short io_seph_recv(unsigned char *buffer, unsigned short maxlength, unsigned int flags)
+int os_io_seph_tx(const unsigned char *buffer, unsigned short length, unsigned int *timeout_ms)
 {
     unsigned int parameters[3];
     parameters[0] = (unsigned int) buffer;
-    parameters[1] = (unsigned int) maxlength;
-    parameters[2] = (unsigned int) flags;
-    return (unsigned short) SVC_Call(SYSCALL_io_seph_recv_ID, parameters);
+    parameters[1] = (unsigned int) length;
+    parameters[2] = (unsigned int) timeout_ms;
+    return (int) SVC_Call(SYSCALL_os_io_seph_tx_ID, parameters);
+}
+
+int os_io_seph_se_rx_event(unsigned char *buffer,
+                           unsigned short max_length,
+                           unsigned int  *timeout_ms,
+                           bool           check_se_event,
+                           unsigned int   flags)
+{
+    unsigned int parameters[5];
+    parameters[0] = (unsigned int) buffer;
+    parameters[1] = (unsigned int) max_length;
+    parameters[2] = (unsigned int) timeout_ms;
+    parameters[3] = (unsigned int) check_se_event;
+    parameters[4] = (unsigned int) flags;
+    return (int) SVC_Call(SYSCALL_os_io_seph_se_rx_event_ID, parameters);
+}
+
+__attribute((weak)) int os_io_start(os_io_init_t *init)
+{
+    unsigned int parameters[1];
+    parameters[0] = (unsigned int) init;
+    return (int) SVC_Call(SYSCALL_os_io_start_ID, parameters);
+}
+
+__attribute((weak)) int os_io_tx_cmd(unsigned char        type,
+                                     const unsigned char *buffer,
+                                     unsigned short       length,
+                                     unsigned int        *timeout_ms)
+{
+    unsigned int parameters[4];
+    parameters[0] = (unsigned int) type;
+    parameters[1] = (unsigned int) buffer;
+    parameters[2] = (unsigned int) length;
+    parameters[3] = (unsigned int) timeout_ms;
+    return (int) SVC_Call(SYSCALL_os_io_tx_cmd_ID, parameters);
+}
+
+__attribute((weak)) int os_io_rx_evt(unsigned char *buffer,
+                                     unsigned short buffer_max_length,
+                                     unsigned int  *timeout_ms)
+{
+    unsigned int parameters[3];
+    parameters[0] = (unsigned int) buffer;
+    parameters[1] = (unsigned int) buffer_max_length;
+    parameters[2] = (unsigned int) timeout_ms;
+    return (int) SVC_Call(SYSCALL_os_io_rx_evt_ID, parameters);
 }
 
 void nvm_write_page(unsigned int page_adr, bool force)
@@ -2168,7 +2199,7 @@ uint8_t touch_exclude_borders(uint8_t excluded_borders)
 }
 
 #ifdef HAVE_TOUCH_READ_DEBUG_DATA_SYSCALL
-uint8_t touch_switch_debug_mode_and_read(io_touch_debug_mode_t mode, uint8_t *read_buffer)
+uint8_t touch_switch_debug_mode_and_read(os_io_touch_debug_mode_t mode, uint8_t *read_buffer)
 {
     unsigned int parameters[2];
     parameters[0] = (unsigned int) mode;
