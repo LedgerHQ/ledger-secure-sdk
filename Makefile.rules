@@ -24,6 +24,8 @@ ifeq ($(DISABLE_UI),0)
     endif
 endif
 
+SDK_SOURCE_PATH += io io_legacy protocol
+
 # adding the correct target header to sources
 SDK_SOURCE_PATH += target/$(TARGET)/include
 
@@ -37,7 +39,7 @@ endif
 
 SOURCE_PATH   += $(BOLOS_SDK)/src $(foreach libdir, $(SDK_SOURCE_PATH), $(dir $(shell find $(BOLOS_SDK)/$(libdir) -name '*.[csS]'))) $(dir $(shell find $(APP_SOURCE_PATH) -name '*.[csS]'))
 SOURCE_FILES  += $(shell find $(SOURCE_PATH) -name '*.[csS]') $(GLYPH_DESTC) $(APP_SOURCE_FILES)
-INCLUDES_PATH += $(dir $(foreach libdir, $(SDK_SOURCE_PATH), $(dir $(shell find $(BOLOS_SDK)/$(libdir) -name '*.h')))) include $(BOLOS_SDK)/include $(BOLOS_SDK)/include/arm $(dir $(shell find $(APP_SOURCE_PATH) -name '*.h')) $(GLYPH_SRC_DIR)
+INCLUDES_PATH += $(dir $(foreach libdir, $(SDK_SOURCE_PATH), $(dir $(shell find $(BOLOS_SDK)/$(libdir) -name '*.h')))) include $(BOLOS_SDK)/include $(dir $(shell find $(APP_SOURCE_PATH) -name '*.h')) $(GLYPH_SRC_DIR)
 
 VPATH += $(dir $(SOURCE_FILES))
 OBJECT_FILES += $(sort $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(basename $(notdir $(SOURCE_FILES))))))
