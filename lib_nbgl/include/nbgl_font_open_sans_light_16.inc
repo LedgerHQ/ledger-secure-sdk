@@ -45,7 +45,7 @@ __attribute__ ((section("._nbgl_fonts_"))) const unsigned char bitmapOPEN_SANS_L
   0x28, 0x31, 0x81, 0x11, 0xA2, 0xA2, 0xA1, 0x11,
   0x81, 0x38, 0x60,
 //ascii 0x0031
-  0xCC, 0x11, 0xC1, 0x10,
+  0x0C, 0x11, 0xC1, 0x50,
 //ascii 0x0032
   0xB1, 0x15, 0x52, 0x51, 0x42, 0x61, 0x32, 0x71,
   0x22, 0x81, 0x11, 0x11, 0x82, 0x40,
@@ -253,7 +253,7 @@ __attribute__ ((section("._nbgl_fonts_"))) const unsigned char bitmapOPEN_SANS_L
 //ascii 0x007B
   0x01, 0xD1, 0x11, 0xD1, 0x26, 0x16, 0x91, 0xF1,
 //ascii 0x007C
-  0xF0, 0x8F, 0x02,
+  0x3F, 0x02, 0x40,
 //ascii 0x007D
   0x71, 0xF1, 0xA5, 0x15, 0x32, 0xB2, 0x11, 0xD1,
   0x10,
@@ -279,7 +279,7 @@ __attribute__ ((section("._nbgl_fonts_"))) const unsigned char bitmapOPEN_SANS_L
   {   113, 1,  6,3, 12, 1, 4 }, //asciii 0x002E
   {   115, 1,  8,2, 4, 1, 4 }, //asciii 0x002F
   {   121, 1, 11,3, 4, 1, 4 }, //asciii 0x0030
-  {   132, 1, 11,4, 4, 3, 4 }, //asciii 0x0031
+  {   132, 1, 11,4, 4, 4, 4 }, //asciii 0x0031
   {   136, 1, 11,3, 4, 1, 4 }, //asciii 0x0032
   {   150, 1, 11,3, 4, 1, 4 }, //asciii 0x0033
   {   168, 1, 11,2, 4, 0, 4 }, //asciii 0x0034
@@ -354,7 +354,7 @@ __attribute__ ((section("._nbgl_fonts_"))) const unsigned char bitmapOPEN_SANS_L
   {   952, 1, 10,2, 4, 1, 0 }, //asciii 0x0079
   {   965, 1,  9,3, 4, 1, 4 }, //asciii 0x007A
   {   979, 1,  8,2, 4, 1, 0 }, //asciii 0x007B
-  {   987, 1,  8,3, 0, 3, 0 }, //asciii 0x007C
+  {   987, 1,  8,3, 0, 4, 0 }, //asciii 0x007C
   {   990, 1,  8,3, 4, 0, 0 }, //asciii 0x007D
   {   999, 1, 11,3, 8, 1, 8 }, //asciii 0x007E
 };

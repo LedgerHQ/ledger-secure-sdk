@@ -932,7 +932,13 @@ class TTF2INC:
             "BAGL_FONT_INTER_MEDIUM_32px_1bpp": 5,
             "BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp": 8,
             "BAGL_FONT_OPEN_SANS_LIGHT_16px_1bpp": 9,
-            "BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp": 10
+            "BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp": 10,
+            "BAGL_FONT_INTER_REGULAR_28px": 11,
+            "BAGL_FONT_INTER_SEMIBOLD_28px": 12,
+            "BAGL_FONT_INTER_MEDIUM_36px": 13,
+            "BAGL_FONT_INTER_REGULAR_28px_1bpp": 14,
+            "BAGL_FONT_INTER_SEMIBOLD_28px_1bpp": 15,
+            "BAGL_FONT_INTER_MEDIUM_36px_1bpp": 16
         }
         font_ids = nbgl_font_ids
         font_id = 0        # BAGL_FONT_INTER_REGULAR_24px by default
