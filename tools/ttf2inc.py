@@ -47,7 +47,6 @@ class TTF2INC:
     def __init__(self, args):
         super().__init__()
         # Default values:
-        self.nbgl = False
         self.rle = False
         self.crop = True
         self.unicode_needed = False
@@ -70,7 +69,6 @@ class TTF2INC:
         self.loaded_baseline = 0
         self.baseline_offset = 0
         self.bpp = 1
-        self.kerning = 0
         self.char_info = {}
         self.ttf_info_dictionary = {}
         # Be sure there are at least some mandatory characters
@@ -166,7 +164,6 @@ class TTF2INC:
             self.kerning = config.getint('kerning',0)
             self.rle = config.getboolean('rle', True)
             self.bpp = config.getint('bpp', 1)
-            self.nbgl = config.getboolean('nbgl', False)
         # Otherwise, use command line parameters (or default values)
         else:
             self.font_name = self.args.font_name
@@ -175,10 +172,7 @@ class TTF2INC:
             self.last_character = self.args.last_character
             self.font_size = self.args.font_size
 
-        if self.nbgl:
-            self.font_prefix = "nbgl_font_"
-        else:
-            self.font_prefix = "bagl_font_"
+        self.font_prefix = "nbgl_font_"
 
         # Be sure there is a file at self.font_name
         self.find_font()
@@ -224,7 +218,7 @@ class TTF2INC:
             os.path.basename(self.font_name))[0]
         self.basename = self.basename.replace("-", "_")
         self.basename += f"_{self.font_size}px"
-        if self.nbgl and self.bpp != 4:
+        if self.bpp != 4:
             self.basename += f"_{self.bpp}bpp"
         if self.unicode_needed:
             self.basename += "_unicode"
@@ -244,10 +238,9 @@ class TTF2INC:
         Handle Stax constraint on Y (should be modulo 4), top side.
         (decrease Y until it is modulo 4)
         """
-        if self.nbgl:
-            remaining = top % 4
-            if remaining:
-                top -= remaining
+        remaining = top % 4
+        if remaining:
+            top -= remaining
 
         return top
 
@@ -257,10 +250,9 @@ class TTF2INC:
         Handle Stax constraint on Y (should be modulo 4), bottom side.
         (increase Y until it is modulo 4)
         """
-        if self.nbgl:
-            remaining = bottom % 4
-            if remaining:
-                bottom += 4 - remaining
+        remaining = bottom % 4
+        if remaining:
+            bottom += 4 - remaining
 
         return bottom
 
@@ -314,30 +306,15 @@ class TTF2INC:
                                  f"top= {top:2}, bottom={bottom}\n")
 
         # Compute value of max_x_max_offset, depending of allowed bits
-        if self.nbgl:
-            if self.unicode_needed:
-                max_bits = 5
-            else:
-                max_bits = 2
+        if self.unicode_needed:
+            max_bits = 5
         else:
-            if self.unicode_needed:
-                max_bits = 5
-            else:
-                max_bits = 4
+            max_bits = 4
         self.max_x_max_offset = pow(2, max_bits) - 1
 
         # Compute value of max_y_min_offset, depending of allowed bits
-        if self.nbgl:
-            if self.unicode_needed:
-                max_bits = 4
-            else:
-                max_bits = 3
-        else:
-            if self.unicode_needed:
-                max_bits = 6
-            else:
-                max_bits = 5
-        self.max_y_min_offset = 4 * (pow(2, max_bits) - 1)
+        max_bits = 6
+        self.max_y_min_offset = pow(2, max_bits) - 1
 
         # Some fonts display some characters at y < 0
         # => Be sure we are aware of that and already compensated it
@@ -367,9 +344,8 @@ class TTF2INC:
         mode = "1"
         if self.bpp != 1:
             mode = "L"
-            if self.nbgl:
-                background_color = 'white'
-                text_color = 'black'
+            background_color = 'white'
+            text_color = 'black'
         img = Image.new(mode, (width, height), color=background_color)
 
         return img, text_color
@@ -496,47 +472,27 @@ class TTF2INC:
         current_bit = 0
         image_data = []
 
-        if self.nbgl:
-            nb_colors = pow(2, self.bpp)
-            base_threshold = int(256 / nb_colors)
-            half_threshold = int(base_threshold / 2)
-            # Rotate & revert X axes on Stax
-            for coord_x in reversed(range(left, right)):
-                for coord_y in range(top, bottom):
-                    color_index = img.getpixel((coord_x, coord_y))
-                    color_index = \
-                        int((color_index + half_threshold) / base_threshold)
-
-                    if color_index >= nb_colors:
-                        color_index = nb_colors - 1
-
-                    # le encoded
-                    current_byte += color_index << ((8-self.bpp)-current_bit)
-                    current_bit += self.bpp
-
-                    if current_bit >= 8:
-                        image_data.append(current_byte & 0xFF)
-                        current_bit = 0
-                        current_byte = 0
-        else:
-            # bottom is actually Y2+1 => perfect for range scan
+        nb_colors = pow(2, self.bpp)
+        base_threshold = int(256 / nb_colors)
+        half_threshold = int(base_threshold / 2)
+        # Rotate & revert X axes on Stax
+        for coord_x in reversed(range(left, right)):
             for coord_y in range(top, bottom):
-                # right is actually X2+1 => perfect for range scan
-                for coord_x in range(left, right):
-                    color_index = img.getpixel((coord_x, coord_y))
-                    if color_index >= 128:
-                        color_index = 1
-                    else:
-                        color_index = 0
+                color_index = img.getpixel((coord_x, coord_y))
+                color_index = \
+                    int((color_index + half_threshold) / base_threshold)
 
-                    # le encoded
-                    current_byte += color_index << current_bit
-                    current_bit += 1
+                if color_index >= nb_colors:
+                    color_index = nb_colors - 1
 
-                    if current_bit >= 8:
-                        image_data.append(current_byte & 0xFF)
-                        current_bit = 0
-                        current_byte = 0
+                # le encoded
+                current_byte += color_index << ((8-self.bpp)-current_bit)
+                current_bit += self.bpp
+
+                if current_bit >= 8:
+                    image_data.append(current_byte & 0xFF)
+                    current_bit = 0
+                    current_byte = 0
 
         # Handle last byte if any
         if current_bit > 0:
@@ -544,7 +500,7 @@ class TTF2INC:
 
         # Remove final transparent pixels, if any
         background_color = 0
-        if self.nbgl and self.bpp != 1:
+        if self.bpp != 1:
             background_color = 0xFF
 
         while len(image_data) != 0 and image_data[-1] == background_color:
@@ -575,7 +531,7 @@ class TTF2INC:
         bottom = 0
         # Find transparent color (not 0 on Stax with 4BPP)
         background_color = 0
-        if self.nbgl and self.bpp != 1:
+        if self.bpp != 1:
             background_color = 0xFF
 
         # Find left, top, right and bottom values for existing pixels
@@ -628,9 +584,6 @@ class TTF2INC:
         else:
             if self.crop:
                 left, top, right, bottom = box
-                if False and not self.nbgl:
-                    # Don't modify right on BAGL (char spacing)
-                    right = info['right']
             else:
                 left = 0
                 top = 0
@@ -770,13 +723,13 @@ class TTF2INC:
         check that the values do not exceed the boundaries of each fieds.
         Structure defined in public_sdk/lib_nbgl/include/nbgl_fonts.h
         typedef struct {
-          uint32_t encoding:1;        ///< method used to encode bitmap data
-          uint32_t bitmap_offset:14;  ///< offset of this character in chars buffer
-          uint32_t width:6;           ///< width of character in pixels
-          uint32_t x_min_offset:3;    ///< x_min = x_min_offset
-          uint32_t y_min_offset:3;    ///< y_min = (y_min + y_min_offset) * 4
-          uint32_t x_max_offset:2;    ///< x_max = width - x_max_offset
-          uint32_t y_max_offset:3;    ///< y_max = (height - y_max_offset) * 4
+          uint32_t bitmap_offset;  ///< offset of this character in chars buffer
+          uint32_t encoding : 1;        ///< method used to encode bitmap data
+          uint32_t width : 6;           ///< width of character in pixels
+          uint32_t x_min_offset : 4;    ///< x_min = x_min_offset
+          uint32_t y_min_offset : 6;    ///< y_min = (y_min + y_min_offset)
+          uint32_t x_max_offset : 4;    ///< x_max = width - x_max_offset
+          uint32_t y_max_offset : 6;    ///< y_max = (height - y_max_offset)
         } nbgl_font_character_t;
         """
         encoding = info["encoding"]
@@ -794,11 +747,11 @@ class TTF2INC:
         else:
             x_min_offset = info["left"]
             y_min_offset = info["top"] - self.char_topmost_y
-            y_min_offset = y_min_offset // 4
+            y_min_offset = (y_min_offset // 4) * 4
 
             x_max_offset = width - info["right"]
             y_max_offset = self.height - info["bottom"]
-            y_max_offset = y_max_offset // 4
+            y_max_offset = (y_max_offset // 4) * 4
 
         # When crop is False, we may have some bytes to skip at beginning
         if not self.crop:
@@ -810,15 +763,15 @@ class TTF2INC:
 
         # Check values does not exceed bitfield capabilities
         self.check_max_bits(encoding, 1, char, "encoding")
-        self.check_max_bits(bitmap_offset, 14, char, "bitmap_offset")
+        self.check_max_bits(bitmap_offset, 15, char, "bitmap_offset")
         self.check_max_bits(width, 6, char, "width")
-        self.check_max_bits(x_min_offset, 3, char, "x_min_offset")
-        self.check_max_bits(y_min_offset, 3, char, "y_min_offset")
+        self.check_max_bits(x_min_offset, 4, char, "x_min_offset")
+        self.check_max_bits(y_min_offset, 6, char, "y_min_offset")
         # Next one should never occur, thanks to max_x_max_offset check
-        self.check_max_bits(x_max_offset, 2, char, "x_max_offset")
-        self.check_max_bits(y_max_offset, 3, char, "y_max_offset")
+        self.check_max_bits(x_max_offset, 4, char, "x_max_offset")
+        self.check_max_bits(y_max_offset, 6, char, "y_max_offset")
 
-        inc.write(f"  {{ {encoding:1}, {bitmap_offset:5}, {width:2},"
+        inc.write(f"  {{ {bitmap_offset:5}, {encoding:1}, {width:2},"
                   f"{x_min_offset}, {y_min_offset}, "
                   f"{x_max_offset}, {y_max_offset} }},"
                   f" //asciii 0x{ord(char):04X}\n")
@@ -877,15 +830,14 @@ class TTF2INC:
         check that the values do not exceed the boundaries of each fieds.
         Structure defined in public_sdk/lib_nbgl/include/nbgl_fonts.h
         typedef struct {
-          uint32_t  char_unicode;     ///< unicode = plane value from 0 to 16 then 16-bit code.
-          uint16_t  bitmap_byte_count;///< number of bytes used in chars buffer for this character
-          uint16_t  bitmap_offset;    ///< offset of this character in chars buffer
-          uint8_t   width;            ///< width of character in pixels
-          uint8_t   x_min_offset;     ///< x_min = x_min_offset
-          uint8_t   y_min_offset;     ///< y_min = (y_min + y_min_offset) * 4
-          uint8_t   x_max_offset;     ///< x_max = width - x_max_offset
-          uint8_t   y_max_offset;     ///< y_max = (height - y_max_offset) * 4
-          uint8_t   encoding;         ///< method used to encode bitmap data
+            uint32_t char_unicode : 21;   ///< plane value from 0 to 16 then 16-bit code.
+            uint32_t encoding : 1;        ///< method used to encode bitmap data
+            uint32_t width : 6;           ///< width of character in pixels
+            uint32_t x_min_offset : 4;    ///< x_min = x_min_offset
+            uint32_t y_min_offset : 6;    ///< y_min = (y_min + y_min_offset)
+            uint32_t x_max_offset : 4;    ///< x_max = width - x_max_offset
+            uint32_t y_max_offset : 6;    ///< y_max = (height - y_max_offset)
+            uint32_t bitmap_offset : 16;  ///< offset of this character in chars buffer
         } nbgl_font_unicode_character_t;
         """
         char_unicode = ord(char)
@@ -904,11 +856,11 @@ class TTF2INC:
         else:
             x_min_offset = info["left"]
             y_min_offset = info["top"] - self.char_topmost_y
-            y_min_offset = y_min_offset // 4
+            y_min_offset = (y_min_offset // 4) * 4
 
             x_max_offset = width - info["right"]
             y_max_offset = self.height - info["bottom"]
-            y_max_offset = y_max_offset // 4
+            y_max_offset = (y_max_offset // 4) * 4
 
         # When crop is False, we may have some bytes to skip at beginning
         if not self.crop:
@@ -945,190 +897,10 @@ class TTF2INC:
             "char": ord(char),
         })
         inc.write(f"  {{ 0x{ord(char):06X}, {bitmap_byte_count:3},"
-                  f" {bitmap_offset:5}, {width:2},"
+                  f" {bitmap_offset:5}, {encoding}, {width:2},"
                   f" {x_min_offset:2}, {y_min_offset:2},"
-                  f" {x_max_offset:2}, {y_max_offset:2}, {encoding} }}, "
+                  f" {x_max_offset:2}, {y_max_offset:2}}}, "
                   f"//unicode {unicode}\n")
-
-    # -------------------------------------------------------------------------
-    def save_bagl_font(self, inc, suffix, first_char, last_char):
-        """
-        Save the bagl_font_t info into the .inc file.
-        Structure defined in public_sdk/lib_bagl/include/bagl.h
-        typedef struct {
-          uint16_t bitmap_len;      // Size in bytes of all characters bitmaps
-          uint8_t font_id;          // to allow for sparse font embedding with a linear enum
-          uint8_t bpp;              // for antialiased fonts (blue?)
-          uint8_t height;           // Does already contain the nb of skipped lines
-          uint8_t baseline;         // Does already contain the nb of skipped lines
-          uint8_t first_char;
-          uint8_t last_char;
-          const bagl_font_character_t * const characters;
-          unsigned char const * bitmap; // single bitmap for all chars of a font
-        } bagl_font_t;
-        """
-        height = self.height - self.char_topmost_y
-        baseline = self.baseline - self.char_topmost_y
-        inc.write(
-            f"\nconst bagl_font_t font{self.basename.upper()}{suffix}"
-            f" = {{\n"
-            f"  {self.bitmap_len}, // bitmap len\n"
-            f"  {self.font_id_name}, // font id\n"
-            f"  {self.bpp}, // bpp => 1 for B&W\n"
-            f"  {height}, // height (does already contain the nb of skipped "
-            "lines)\n"
-            f"  {baseline}, // baseline (does already contain the nb of "
-            "skipped lines)\n"
-            f"  0x{first_char:X}, // first character\n"
-            f"  0x{last_char:X}, // last character\n")
-        if not suffix:
-            inc.write(f"  characters{self.basename.upper()},\n")
-            inc.write(f"  bitmap{self.basename.upper()}\n")
-
-    # -------------------------------------------------------------------------
-    def save_bagl_font_character(self, inc, char, info):
-        """
-        Save the bagl_font_character_t info into the .inc file, but first
-        check that the values do not exceed the boundaries of each fieds.
-        Structure defined in public_sdk/lib_bagl/include/bagl.h
-        typedef struct {
-          uint32_t encoding:2;
-          uint32_t bitmap_offset:12;
-          uint32_t width:5;
-          uint32_t x_min_offset:4;
-          uint32_t y_min_offset:5;
-          uint32_t x_max_offset:4;
-        } bagl_font_character_t;
-        """
-        width = info["width"]
-
-        # If it's an empty box, just put everything at 0
-        if info["bitmap"] is None or len(info["bitmap"]) == 0:
-            x_min_offset = 0
-            y_min_offset = 0
-            x_max_offset = 0
-            y_max_offset = 0
-        else:
-            x_min_offset = info["left"]
-            x_max_offset = width - info["right"]
-            y_min_offset = info["top"] - self.char_topmost_y
-            y_max_offset = self.height - info["bottom"]
-
-        offset = info["offset"]
-        encoding = info["encoding"]
-
-        # Check maximum values
-        self.check_max_bits(encoding, 2, char, "encoding")
-        self.check_max_bits(offset, 12, char, "bitmap_offset")
-        self.check_max_bits(width, 5, char, "width")
-        self.check_max_bits(x_min_offset, 4, char, "x_min_offset")
-        self.check_max_bits(y_min_offset, 5, char, "y_min_offset")
-        self.check_max_bits(x_max_offset, 4, char, "x_max_offset")
-
-        inc.write(f"  {{ {encoding:1}, {offset:5}, {width:2},"
-                  f"{x_min_offset}, {y_min_offset}, {x_max_offset} }},"
-                  f" //asciii 0x{ord(char):04X}\n")
-
-        self.ttf_info_dictionary["bagl_font_character"].append({
-            "encoding": encoding,
-            "bitmap_offset": offset,
-            "width": width,
-            "x_min_offset": x_min_offset,
-            "y_min_offset": y_min_offset,
-            "x_max_offset": x_max_offset,
-            "y_max_offset": y_max_offset,
-            # Additional fields used for speculos OCR
-            "char": ord(char),
-            "bitmap_byte_count": info["size"]
-        })
-
-    # -------------------------------------------------------------------------
-    def save_bagl_font_unicode(self, inc, suffix):
-        """
-        Save the bagl_font_unicode_t info into the .inc file.
-        Structure defined in public_sdk/lib_bagl/include/bagl.h
-        typedef struct {
-          uint16_t  bitmap_len;       // Size in bytes of all characters bitmaps
-          uint8_t   font_id;
-          uint8_t   baseline;         // Does already contain the nb of skipped lines
-        #if !defined(HAVE_LANGUAGE_PACK)
-          // When using language packs, those 2 pointers does not exists
-          const bagl_font_unicode_character_t * const characters;
-          unsigned char const * bitmap; // single bitmap for all chars of a font
-        #endif //!defined(HAVE_LANGUAGE_PACK)
-        } bagl_font_unicode_t;
-        """
-        baseline = self.baseline - self.char_topmost_y
-        inc.write(
-            f"\nconst bagl_font_unicode_t font{self.basename.upper()}{suffix}"
-            f" = {{\n"
-            f"  {self.bitmap_len}, // bitmap len\n"
-            f"  {self.font_id_name}, // font id\n"
-            f"  {baseline}, // baseline (does already contain the nb of "
-            "skipped lines)\n")
-        if not suffix:
-            inc.write(f"  characters{self.basename.upper()},\n")
-            inc.write(f"  bitmap{self.basename.upper()}\n")
-
-    # -------------------------------------------------------------------------
-    def save_bagl_font_unicode_character(self, inc, char, info):
-        """
-        Save the bagl_font_character_t info into the .inc file, but first
-        check that the values do not exceed the boundaries of each fieds.
-        Structure defined in public_sdk/lib_bagl/include/bagl.h
-        typedef struct {
-          uint32_t  char_unicode:21;  // plane value from 0 to 16 then 16-bit code.
-          uint32_t  width:6;
-          uint32_t  x_min_offset:5;   //  x_min = x_min_offset
-          uint32_t  y_min_offset:6;   //  Does already contain the nb of skipped lines
-          uint32_t  x_max_offset:5;   //  x_max = width - x_max_offset
-          uint32_t  encoding:2;       //  method used to encode bitmap data
-          uint32_t  bitmap_offset:19;
-        } bagl_font_unicode_character_t;
-        """
-        width = info["width"]
-
-        # If it's an empty box, just put everything at 0
-        if info["bitmap"] is None or len(info["bitmap"]) == 0:
-            x_min_offset = 0
-            y_min_offset = 0
-            x_max_offset = 0
-        else:
-            x_min_offset = info["left"]
-            x_max_offset = width - info["right"]
-            y_min_offset = info["top"] - self.char_topmost_y
-
-        offset = info["offset"]
-        encoding = info["encoding"]
-
-        # Check maximum values
-        val = ord(char)
-        self.check_max_bits(val, 21, char, "char_unicode")
-        self.check_max_bits(width, 6, char, "width")
-        self.check_max_bits(x_min_offset, 5, char, "x_min_offset")
-        self.check_max_bits(y_min_offset, 6, char, "y_min_offset")
-        self.check_max_bits(x_max_offset, 5, char, "x_max_offset")
-        self.check_max_bits(encoding, 2, char, "encoding")
-        self.check_max_bits(offset, 19, char, "bitmap_offset")
-
-        unicode = f"0x{ord(char):06X}"
-        self.ttf_info_dictionary["bagl_font_unicode_character"].append({
-            "char_unicode": ord(char),
-            "width": width,
-            "x_min_offset": x_min_offset,
-            "x_max_offset": x_max_offset,
-            "y_min_offset": y_min_offset,
-            "encoding": encoding,
-            "bitmap_offset": offset,
-            # Additional fields used for speculos OCR
-            "char": ord(char),
-            "bitmap_byte_count": info["size"]
-        })
-
-        inc.write(f"  {{ 0x{ord(char):06X}, {width:3}, "\
-                  f"{x_min_offset:2}, {y_min_offset:2},"\
-                  f"{x_max_offset:2}, {encoding:1}, "\
-                  f"{offset:5} }}, //unicode {unicode}\n")
 
     # -------------------------------------------------------------------------
     @staticmethod
@@ -1150,25 +922,6 @@ class TTF2INC:
         """
         Return the font id.
         """
-        # Those ids are defined in bagl.h file, in bagl_font_id_e enums.
-        bagl_font_ids={
-            "BAGL_FONT_LUCIDA_CONSOLE_8PX": 0,
-            "BAGL_FONT_OPEN_SANS_LIGHT_16_22PX": 1,
-            "BAGL_FONT_OPEN_SANS_REGULAR_8_11PX": 2,
-            "BAGL_FONT_OPEN_SANS_REGULAR_10_13PX": 3,
-            "BAGL_FONT_OPEN_SANS_REGULAR_11_14PX": 4,
-            "BAGL_FONT_OPEN_SANS_REGULAR_13_18PX": 5,
-            "BAGL_FONT_OPEN_SANS_REGULAR_22_30PX": 6,
-            "BAGL_FONT_OPEN_SANS_SEMIBOLD_8_11PX": 7,
-            "BAGL_FONT_OPEN_SANS_EXTRABOLD_11px": 8,
-            "BAGL_FONT_OPEN_SANS_LIGHT_16px": 9,
-            "BAGL_FONT_OPEN_SANS_REGULAR_11px": 10,
-            "BAGL_FONT_OPEN_SANS_SEMIBOLD_10_13PX": 11,
-            "BAGL_FONT_OPEN_SANS_SEMIBOLD_11_16PX": 12,
-            "BAGL_FONT_OPEN_SANS_SEMIBOLD_13_18PX": 13,
-            "BAGL_FONT_SYMBOLS_0": 14,
-            "BAGL_FONT_SYMBOLS_1": 15
-        }
         # Those ids are defined in nbgl_fonts.h file, in nbgl_font_id_e enums.
         nbgl_font_ids={
             "BAGL_FONT_INTER_REGULAR_24px": 0,
@@ -1181,12 +934,8 @@ class TTF2INC:
             "BAGL_FONT_OPEN_SANS_LIGHT_16px_1bpp": 9,
             "BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp": 10
         }
-        if self.nbgl:
-            font_ids = nbgl_font_ids
-            font_id = 0        # BAGL_FONT_INTER_REGULAR_24px by default
-        else:
-            font_ids = bagl_font_ids
-            font_id = 10        # BAGL_FONT_OPEN_SANS_REGULAR_11px by default
+        font_ids = nbgl_font_ids
+        font_id = 0        # BAGL_FONT_INTER_REGULAR_24px by default
 
         if self.font_id_name in font_ids.keys():
             font_id = font_ids[self.font_id_name]
@@ -1336,9 +1085,6 @@ if __name__ == "__main__":
             # (the .inc file will be stored in src directory)
             if args.output_name:
                 inc_filename = args.output_name
-            else:
-                filename = f"{ttf.font_prefix}{ttf.basename}.inc"
-                inc_filename = os.path.join("../../../public_sdk/lib_bagl/src/", filename)
 
             # Force .inc extension for inc_filename
             inc_filename = change_ext(inc_filename, ".inc")
@@ -1371,16 +1117,11 @@ if __name__ == "__main__":
                 if not args.output_name:
                     inc.write("/* @BANNER@ */\n\n")
                 # Write the array containing all bitmaps:
-                if ttf.nbgl:
-                    inc.write('#include "nbgl_fonts.h"\n\n')
-                    inc.write(
-                        f"__attribute__ ((section(\"._nbgl_fonts_\"))) "
-                        f"const unsigned char bitmap{ttf.basename.upper()}"
-                        f"{suffix}[] = {{\n")
-                else:
-                    inc.write(
-                        f"const unsigned char bitmap{ttf.basename.upper()}"
-                        f"{suffix}[] = {{\n")
+                inc.write('#include "nbgl_fonts.h"\n\n')
+                inc.write(
+                    f"__attribute__ ((section(\"._nbgl_fonts_\"))) "
+                    f"const unsigned char bitmap{ttf.basename.upper()}"
+                    f"{suffix}[] = {{\n")
                 offset = 0
                 first_char = None
                 ttf.ttf_info_dictionary["bitmap"] = bytes()
@@ -1424,8 +1165,7 @@ if __name__ == "__main__":
                     ttf.ttf_info_dictionary[f"{ttf.font_prefix}character"]= []
 
                 inc.write("\n")
-                if ttf.nbgl:
-                    inc.write(" __attribute__ ((section(\"._nbgl_fonts_\"))) ")
+                inc.write(" __attribute__ ((section(\"._nbgl_fonts_\"))) ")
                 inc.write(
                     f"const {typedef} characters{ttf.basename.upper()}"
                     f"{suffix}[{len(ttf.char_info)}] = {{\n")
@@ -1434,19 +1174,11 @@ if __name__ == "__main__":
                 for char, info in sorted(ttf.char_info.items()):
 
                     if ttf.unicode_needed:
-                        if ttf.nbgl:
-                            ttf.save_nbgl_font_unicode_character(
-                                inc, char, info)
-                        else:
-                            ttf.save_bagl_font_unicode_character(
-                                inc, char, info)
+                        ttf.save_nbgl_font_unicode_character(
+                            inc, char, info)
                     else:
-                        if ttf.nbgl:
-                            ttf.save_nbgl_font_character(
-                                inc, char, info)
-                        else:
-                            ttf.save_bagl_font_character(
-                                inc, char, info)
+                        ttf.save_nbgl_font_character(
+                            inc, char, info)
 
                 inc.write("};\n")
 
@@ -1470,19 +1202,11 @@ if __name__ == "__main__":
                     typedef = f"{ttf.font_prefix}t"
 
                 if ttf.unicode_needed:
-                    if ttf.nbgl:
-                        ttf.save_nbgl_font_unicode(
-                            inc, crop, suffix)
-                    else:
-                        ttf.save_bagl_font_unicode(
-                            inc, suffix)
+                    ttf.save_nbgl_font_unicode(
+                        inc, crop, suffix)
                 else:
-                    if ttf.nbgl:
-                        ttf.save_nbgl_font(
-                            inc, crop, suffix, first_char, last_char)
-                    else:
-                        ttf.save_bagl_font(
-                            inc, suffix, first_char, last_char)
+                    ttf.save_nbgl_font(
+                        inc, crop, suffix, first_char, last_char)
 
                 inc.write("};\n")
 
