@@ -24,7 +24,11 @@
 #include "os_io_seproxyhal.h"
 
 #ifdef HAVE_NBGL
+#ifdef TARGET_STAX
 #include "nbgl_use_case.h"
+#else  // TARGET_STAX
+#include "nbgl_flow.h"
+#endif  // TARGET_STAX
 #endif
 
 #ifndef ASSERT_BUFFER_LEN
@@ -127,6 +131,18 @@ UX_STEP_CB(ux_error,
            });
 UX_FLOW(ux_error_flow, &ux_error);
 #endif
+#ifdef HAVE_NBGL
+#ifndef TARGET_STAX
+static void assert_exit_true(void)
+{
+    assert_exit(true);
+}
+
+static const nbgl_stepDesc_t error_flow[] = {
+    {.text = "\bApp error", .subText = assert_buffer, .callback = assert_exit_true}
+};
+#endif  // TARGET_STAX
+#endif
 
 void __attribute__((noreturn)) assert_display_exit(void)
 {
@@ -135,8 +151,12 @@ void __attribute__((noreturn)) assert_display_exit(void)
 #endif
 
 #ifdef HAVE_NBGL
+#ifdef TARGET_STAX
     nbgl_useCaseChoice(
         &C_round_warning_64px, "App error", assert_buffer, "Exit app", "Exit app", assert_exit);
+#else   // TARGET_STAX
+    nbgl_flowDraw(error_flow, 1, 0, false, false);
+#endif  // TARGET_STAX
 #endif
 
     // Block until the user approve and the app is quit
