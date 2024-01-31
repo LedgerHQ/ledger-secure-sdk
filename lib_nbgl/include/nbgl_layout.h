@@ -189,6 +189,8 @@ typedef struct {
     uint8_t nbChoices;   ///< number of choices
     uint8_t initChoice;  ///< index of the current choice
     uint8_t token;       ///< the token that will be used as argument of the callback
+    bool    smallBars;   ///< use smaller choice bars instead of normal one (for situations where a
+                         ///< lot of choices are available).
 #ifdef HAVE_PIEZO_SOUND
     tune_index_e
         tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played when selecting a radio button)

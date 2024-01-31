@@ -1389,8 +1389,13 @@ int nbgl_layoutAddRadioChoice(nbgl_layout_t *layout, const nbgl_layoutRadioChoic
         button->state                = OFF_STATE;
         container->children[1]       = (nbgl_obj_t *) button;
 
-        container->obj.area.width       = SCREEN_WIDTH - 2 * BORDER_MARGIN;
-        container->obj.area.height      = 32;
+        container->obj.area.width = SCREEN_WIDTH - 2 * BORDER_MARGIN;
+        if (choices->smallBars) {
+            container->obj.area.height = 32 / 2;
+        }
+        else {
+            container->obj.area.height = 32;
+        }
         container->obj.alignment        = NO_ALIGNMENT;
         container->obj.alignmentMarginX = BORDER_MARGIN;
         container->obj.alignmentMarginY = BORDER_MARGIN;
