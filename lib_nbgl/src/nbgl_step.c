@@ -514,7 +514,10 @@ nbgl_step_t nbgl_stepDrawMenuList(nbgl_stepMenuListCallback_t       onActionCall
     ctx->menuListContext.list.nbChoices      = list->nbChoices;
     ctx->menuListContext.list.selectedChoice = list->selectedChoice;
     ctx->menuListContext.list.callback       = list->callback;
-    ctx->menuListContext.selectedCallback    = onActionCallback;
+#ifdef BUILD_SCREENSHOTS
+    ctx->menuListContext.list.getStringID = list->getStringID;
+#endif  // BUILD_SCREENSHOTS
+    ctx->menuListContext.selectedCallback = onActionCallback;
 
     displayMenuList(ctx);
 
