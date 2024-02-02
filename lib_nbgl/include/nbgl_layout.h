@@ -218,9 +218,13 @@ typedef const char *(*nbgl_menuListCallback_t)(uint8_t choiceIndex);
  * a description (names array)
  */
 typedef struct {
-    nbgl_menuListCallback_t callback;        ///< function to call to retrieve a menu list item text
-    uint8_t                 nbChoices;       ///< total number of choices in the menu list
-    uint8_t                 selectedChoice;  ///< index of the selected choice (centered, in bold)
+    nbgl_menuListCallback_t callback;  ///< function to call to retrieve a menu list item text
+#ifdef BUILD_SCREENSHOTS
+    const uint16_t (*getStringID)(uint8_t choiceIndex);  ///< return the string ID of choice
+#endif                                                   // BUILD_SCREENSHOTS
+    uint8_t nbChoices;       ///< total number of choices in the menu list
+    uint8_t selectedChoice;  ///< index of the selected choice (centered, in bold)
+
 } nbgl_layoutMenuList_t;
 
 /**
