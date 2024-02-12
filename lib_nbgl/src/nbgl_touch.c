@@ -198,15 +198,17 @@ void nbgl_touchHandler(nbgl_touchStatePosition_t *touchStatePosition, uint32_t c
     // save last received currentTime
     lastCurrentTime = currentTime;
 
+#if 1
     if (lastState == RELEASED) {
         // filter out not realistic cases (successive RELEASE events)
         if (RELEASED == touchStatePosition->state) {
             lastState = touchStatePosition->state;
-            return;
+            // return;
         }
         // memorize first touched position
         memcpy(&firstTouchedPosition, touchStatePosition, sizeof(nbgl_touchStatePosition_t));
     }
+#endif
     // LOG_DEBUG(TOUCH_LOGGER,"state = %s, x = %d, y=%d\n",(touchStatePosition->state ==
     // RELEASED)?"RELEASED":"PRESSED",touchStatePosition->x,touchStatePosition->y);
 

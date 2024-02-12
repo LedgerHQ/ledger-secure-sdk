@@ -4319,7 +4319,7 @@ int nbgl_layoutAddKeypad(nbgl_layout_t *layout, keyboardCallback_t callback, boo
     keypad->borderColor          = LIGHT_GRAY;
     keypad->callback             = PIC(callback);
     keypad->enableDigits         = true;
-    keypad->enableBackspace      = false;
+    keypad->enableBackspace      = true;
     keypad->enableValidate       = false;
     keypad->shuffled             = shuffled;
     // set this new keypad as child of the container

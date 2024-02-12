@@ -277,6 +277,7 @@ void nbgl_keypadTouchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
     if ((eventType != TOUCHED) && (eventType != TOUCH_PRESSED)) {
         return;
     }
+
     if (nbgl_touchGetTouchedPosition(obj, &firstPosition, &lastPosition) == false) {
         return;
     }
@@ -375,7 +376,8 @@ bool nbgl_keypadGetPosition(nbgl_keypad_t *kpd, char index, uint16_t *x, uint16_
  */
 void nbgl_objDrawKeypad(nbgl_keypad_t *kpd)
 {
-    kpd->obj.touchMask = (1 << TOUCHED) | (1 << TOUCH_PRESSED);
+    // kpd->obj.touchMask = (1 << TOUCHED) | (1 << TOUCH_PRESSED);
+    kpd->obj.touchMask = (1 << TOUCHED);
     kpd->obj.touchId   = KEYPAD_ID;
 
     // if the object has not been already used, prepare indexes of digits
