@@ -449,15 +449,15 @@ nbgl_page_t *nbgl_pageDrawGenericContentExt(nbgl_layoutTouchCallback_t       onA
     layout = nbgl_layoutGet(&layoutDescription);
     if (nav != NULL) {
         if (nav->navType == NAV_WITH_TAP) {
-            if (nav->navWithTap.skipText == NULL) {
+            if (nav->skipText == NULL) {
                 nbgl_layoutAddFooter(layout, nav->navWithTap.quitText, nav->quitToken, nav->tuneId);
             }
             else {
                 nbgl_layoutAddSplitFooter(layout,
                                           nav->navWithTap.quitText,
                                           nav->quitToken,
-                                          nav->navWithTap.skipText,
-                                          nav->navWithTap.skipToken,
+                                          nav->skipText,
+                                          nav->skipToken,
                                           nav->tuneId);
             }
             if (nav->progressIndicator) {

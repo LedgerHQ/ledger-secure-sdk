@@ -39,6 +39,13 @@ enum {
     ADDR_NEXT_TOKEN
 };
 
+enum {
+    REVIEW_NAV = 0,
+    SETTINGS_NAV,
+    DETAILS_NAV,
+    ADDRESS_NAV
+};
+
 typedef struct DetailsContext_s {
     uint8_t     nbPages;
     uint8_t     currentPage;
@@ -99,11 +106,11 @@ static nbgl_page_t *modalPageContext;
 
 // context for settings pages
 static const char *settingsTitle;
-static bool        touchableTitle;
 
 // context for navigation use case
 static nbgl_pageNavigationInfo_t navInfo;
 static bool                      forwardNavOnly;
+static uint8_t                   navType;
 
 static DetailsContext_t detailsContext;
 
@@ -161,6 +168,7 @@ static void pageModalCallback(int token, uint8_t index)
             // redraw the background layer
             nbgl_screenRedraw();
             nbgl_refresh();
+            navType = REVIEW_NAV;
         }
         else {
             displayDetailsPage(index, false);
@@ -265,7 +273,20 @@ static void pageCallback(int token, uint8_t index)
             }
         }
         else {
-            displaySettingsPage(index, false);
+            if (navType == REVIEW_NAV) {
+                if (onNav != NULL) {
+                    displayReviewPage(index, false);
+                }
+                else {
+                    displayStaticReviewPage(index, false);
+                }
+            }
+            else if (navType == ADDRESS_NAV) {
+                displayAddressPage(index, true);
+            }
+            else {
+                displaySettingsPage(index, false);
+            }
         }
     }
     else if (token == NEXT_TOKEN) {
@@ -292,7 +313,7 @@ static void pageCallback(int token, uint8_t index)
         displayAddressPage(navInfo.activePage - 1, true);
     }
     else if (token == ADDR_NEXT_TOKEN) {
-        displayAddressPage(navInfo.activePage + 1, false);
+        displayAddressPage(navInfo.activePage + 1, true);
     }
     else {  // probably a control provided by caller
         if (onControls != NULL) {
@@ -321,7 +342,7 @@ static void displaySettingsPage(uint8_t page, bool forceFullRefresh)
 
     // override some fields
     content.title            = settingsTitle;
-    content.isTouchableTitle = touchableTitle;
+    content.isTouchableTitle = true;
     content.titleToken       = QUIT_TOKEN;
     content.tuneId           = TUNE_TAP_CASUAL;
 
@@ -360,15 +381,23 @@ static void displayReviewPage(uint8_t page, bool forceFullRefresh)
     }
 
     if (content.type == INFO_LONG_PRESS) {  // last page
-        navInfo.navWithTap.nextPageText      = NULL;
+#ifdef TARGET_STAX
+        navInfo.navWithTap.nextPageText = NULL;
+#else   // TARGET_STAX
+        navInfo.nbPages                           = navInfo.activePage + 1;
+#endif  // TARGET_STAX
         content.infoLongPress.longPressToken = CONFIRM_TOKEN;
         if (forwardNavOnly) {
             // remove the "Skip" button in Footer
-            navInfo.navWithTap.skipText = NULL;
+#ifdef TARGET_STAX
+            navInfo.skipText = NULL;
+#endif  // TARGET_STAX
         }
     }
     else {
+#ifdef TARGET_STAX
         navInfo.navWithTap.nextPageText = "Tap to continue";
+#endif  // TARGET_STAX
     }
 
     // override smallCaseForValue for tag/value types to false
@@ -383,8 +412,10 @@ static void displayReviewPage(uint8_t page, bool forceFullRefresh)
     }
     else if (content.type == TAG_VALUE_CONFIRM) {
         content.tagValueConfirm.tagValueList.smallCaseForValue = false;
+#ifdef TARGET_STAX
         // no next because confirmation is always the last page
         navInfo.navWithTap.nextPageText = NULL;
+#endif  // TARGET_STAX
         // use confirm token for black button
         content.tagValueConfirm.confirmationToken = CONFIRM_TOKEN;
     }
@@ -482,6 +513,7 @@ static void displayStaticReviewPage(uint8_t page, bool forceFullRefresh)
     content.title            = NULL;
     content.isTouchableTitle = false;
 
+#ifdef TARGET_STAX
     navInfo.navWithTap.backButton = (navInfo.activePage == 0) ? false : true;
 
     if (navInfo.activePage == (navInfo.nbPages - 1)) {
@@ -490,6 +522,7 @@ static void displayStaticReviewPage(uint8_t page, bool forceFullRefresh)
     else {
         navInfo.navWithTap.nextPageText = "Tap to continue";
     }
+#endif  // TARGET_STAX
 
     pageContext = nbgl_pageDrawGenericContent(&pageCallback, &navInfo, &content);
 
@@ -542,6 +575,7 @@ static void displayDetailsPage(uint8_t detailsPage, bool forceFullRefresh)
                                             .tagValueList.smallCaseForValue = true,
                                             .tagValueList.wrapping = detailsContext.wrapping};
 
+    navType = DETAILS_NAV;
     if (modalPageContext != NULL) {
         nbgl_pageRelease(modalPageContext);
     }
@@ -615,8 +649,18 @@ static void displayAddressPage(uint8_t page, bool forceFullRefresh)
     content.isTouchableTitle = false;
     if (page == 0) {
 #ifdef NBGL_QRCODE
-        content.tagValueConfirm.detailsButtonIcon  = &C_QRcode32px;
-        content.tagValueConfirm.detailsButtonText  = "Show as QR";
+        content.tagValueConfirm.detailsButtonIcon = &C_QRcode32px;
+#ifndef TARGET_STAX
+        // On Europa, only use "Show as QR" when it's not the last page
+        if (navInfo.nbPages > 1) {
+#endif  // TARGET_STAX
+            content.tagValueConfirm.detailsButtonText = "Show as QR";
+#ifndef TARGET_STAX
+        }
+        else {
+            content.tagValueConfirm.detailsButtonText = NULL;
+        }
+#endif  // TARGET_STAX
         content.tagValueConfirm.detailsButtonToken = BUTTON_TOKEN;
 #else   // NBGL_QRCODE
         content.tagValueConfirm.detailsButtonText = NULL;
@@ -631,7 +675,9 @@ static void displayAddressPage(uint8_t page, bool forceFullRefresh)
         // if it's an extended address verif, it takes 2 pages, so display a "Tap to continue", and
         // no confirmation button
         if (navInfo.nbPages > 1) {
-            navInfo.navWithTap.nextPageText          = "Tap to continue";
+#ifdef TARGET_STAX
+            navInfo.navWithTap.nextPageText = "Tap to continue";
+#endif  // TARGET_STAX
             content.tagValueConfirm.confirmationText = NULL;
         }
         else {
@@ -658,8 +704,10 @@ static void displayAddressPage(uint8_t page, bool forceFullRefresh)
         content.tagValueConfirm.tagValueList.wrapping
             = addressConfirmationContext.tagValueList->wrapping;
 
+#ifdef TARGET_STAX
         // no next page
         navInfo.navWithTap.nextPageText = NULL;
+#endif  // TARGET_STAX
     }
     // fill navigation structure
     navInfo.activePage = page;
@@ -954,7 +1002,7 @@ void nbgl_useCaseHomeExt(const char                *appName,
                                        .centeredInfo.text1   = appName,
                                        .centeredInfo.text3   = NULL,
                                        .centeredInfo.style   = LARGE_CASE_INFO,
-                                       .centeredInfo.offsetY = 0,
+                                       .centeredInfo.offsetY = -16,
                                        .footerText           = NULL,
                                        .bottomButtonStyle    = QUIT_APP_TEXT,
                                        .tapActionText        = NULL,
@@ -1084,7 +1132,8 @@ void nbgl_useCasePlugInHome(const char                *plugInName,
  * @param title string to set in touchable (or not) title
  * @param initPage page on which to start [0->(nbPages-1)]
  * @param nbPages number of pages
- * @param touchable if true, the title is used to quit and quitCallback is called
+ * @param touchable if true, the title is used to quit and quitCallback is called (unused, it is
+ * always on)
  * @param quitCallback callback called when quit button (or title) is pressed
  * @param navCallback callback called when navigation arrows are pressed
  * @param controlsCallback callback called when any controls in the settings (radios, switches) is
@@ -1098,27 +1147,23 @@ void nbgl_useCaseSettings(const char                *title,
                           nbgl_navCallback_t         navCallback,
                           nbgl_layoutTouchCallback_t controlsCallback)
 {
+    UNUSED(touchable);
     reset_callbacks();
     memset(&navInfo, 0, sizeof(navInfo));
 
     // memorize context
-    onQuit         = quitCallback;
-    onNav          = navCallback;
-    onControls     = controlsCallback;
-    settingsTitle  = title;
-    touchableTitle = touchable;
+    onQuit        = quitCallback;
+    onNav         = navCallback;
+    onControls    = controlsCallback;
+    settingsTitle = title;
+    navType       = SETTINGS_NAV;
 
     // fill navigation structure
-    navInfo.activePage              = initPage;
-    navInfo.navType                 = NAV_WITH_BUTTONS;
-    navInfo.navWithButtons.navToken = NAV_TOKEN;
-    if (!touchableTitle) {
-        navInfo.navWithButtons.quitButton = true;
-        navInfo.quitToken                 = QUIT_TOKEN;
-    }
-    else {
-        navInfo.navWithButtons.quitButton = false;
-    }
+    navInfo.activePage                = initPage;
+    navInfo.navType                   = NAV_WITH_BUTTONS;
+    navInfo.navWithButtons.navToken   = NAV_TOKEN;
+    navInfo.navWithButtons.quitButton = false;
+
     navInfo.nbPages           = nbPages;
     navInfo.progressIndicator = false;
     navInfo.tuneId            = TUNE_TAP_CASUAL;
@@ -1268,21 +1313,29 @@ void nbgl_useCaseReviewStart(const nbgl_icon_details_t *icon,
 {
     reset_callbacks();
 
-    nbgl_pageInfoDescription_t info = {.centeredInfo.icon    = icon,
-                                       .centeredInfo.text1   = reviewTitle,
-                                       .centeredInfo.text2   = reviewSubTitle,
-                                       .centeredInfo.text3   = NULL,
+    nbgl_pageInfoDescription_t info = {.centeredInfo.icon  = icon,
+                                       .centeredInfo.text1 = reviewTitle,
+                                       .centeredInfo.text2 = reviewSubTitle,
+#ifdef TARGET_STAX
+                                       .centeredInfo.text3 = NULL,
+#else   // TARGET_STAX
+                                       .centeredInfo.text3 = "Swipe to review",
+#endif  // TARGET_STAX
                                        .centeredInfo.style   = LARGE_CASE_INFO,
                                        .centeredInfo.offsetY = 0,
                                        .footerText           = rejectText,
                                        .footerToken          = QUIT_TOKEN,
-                                       .tapActionText        = "Tap to continue",
-                                       .tapActionToken       = CONTINUE_TOKEN,
-                                       .topRightStyle        = NO_BUTTON_STYLE,
-                                       .actionButtonText     = NULL,
-                                       .tuneId               = TUNE_TAP_CASUAL};
-    onQuit                          = rejectCallback;
-    onContinue                      = continueCallback;
+#ifdef TARGET_STAX
+                                       .tapActionText = "Tap to continue",
+#else   // TARGET_STAX
+                                       .tapActionText      = NULL,
+#endif  // TARGET_STAX
+                                       .tapActionToken   = CONTINUE_TOKEN,
+                                       .topRightStyle    = NO_BUTTON_STYLE,
+                                       .actionButtonText = NULL,
+                                       .tuneId           = TUNE_TAP_CASUAL};
+    onQuit     = rejectCallback;
+    onContinue = continueCallback;
 
 #ifdef HAVE_PIEZO_SOUND
     // Play notification sound
@@ -1321,17 +1374,26 @@ void nbgl_useCaseRegularReview(uint8_t                    initPage,
     onNav          = navCallback;
     onControls     = buttonCallback;
     forwardNavOnly = false;
+    navType        = REVIEW_NAV;
 
     // fill navigation structure
-    navInfo.nbPages                  = nbPages;
+    navInfo.nbPages   = nbPages;
+    navInfo.quitToken = REJECT_TOKEN;
+#ifdef TARGET_STAX
     navInfo.navType                  = NAV_WITH_TAP;
-    navInfo.quitToken                = REJECT_TOKEN;
     navInfo.navWithTap.nextPageToken = NEXT_TOKEN;
     navInfo.navWithTap.quitText      = rejectText;
     navInfo.navWithTap.backToken     = BACK_TOKEN;
-    navInfo.navWithTap.skipText      = NULL;
-    navInfo.progressIndicator        = true;
-    navInfo.tuneId                   = TUNE_TAP_CASUAL;
+#else   // TARGET_STAX
+    UNUSED(rejectText);
+    navInfo.navType                   = NAV_WITH_BUTTONS;
+    navInfo.navWithButtons.quitText   = "Reject";
+    navInfo.navWithButtons.navToken   = NAV_TOKEN;
+    navInfo.navWithButtons.quitButton = false;
+    navInfo.navWithButtons.backButton = true;
+#endif  // TARGET_STAX
+    navInfo.progressIndicator = true;
+    navInfo.tuneId            = TUNE_TAP_CASUAL;
 
     displayReviewPage(initPage, true);
 }
@@ -1365,21 +1427,32 @@ void nbgl_useCaseForwardOnlyReview(const char                *rejectText,
     onNav          = navCallback;
     onControls     = buttonCallback;
     forwardNavOnly = true;
+    navType        = REVIEW_NAV;
 
     // fill navigation structure
-    navInfo.nbPages                  = 0;
+    navInfo.nbPages   = 255;  // set to max
+    navInfo.quitToken = REJECT_TOKEN;
+#ifdef TARGET_STAX
     navInfo.navType                  = NAV_WITH_TAP;
-    navInfo.quitToken                = QUIT_TOKEN;
     navInfo.navWithTap.nextPageToken = NEXT_TOKEN;
     navInfo.navWithTap.quitText      = rejectText;
-    navInfo.navWithTap.backToken     = BACK_TOKEN;
-    navInfo.navWithTap.skipText      = "Skip >>";
-    navInfo.navWithTap.skipToken     = SKIP_TOKEN;
     navInfo.navWithTap.backButton    = false;
     navInfo.progressIndicator        = true;
-    navInfo.tuneId                   = TUNE_TAP_CASUAL;
+    navInfo.skipText                 = "Skip >>";
+#else   // TARGET_STAX
+    UNUSED(rejectText);
+    navInfo.navType                   = NAV_WITH_BUTTONS;
+    navInfo.navWithButtons.quitText   = "Reject";
+    navInfo.navWithButtons.navToken   = NAV_TOKEN;
+    navInfo.navWithButtons.quitButton = false;
+    navInfo.navWithButtons.backButton = false;
+    navInfo.progressIndicator         = false;
+    navInfo.skipText                  = "Skip";
+#endif  // TARGET_STAX
+    navInfo.skipToken = SKIP_TOKEN;
+    navInfo.tuneId    = TUNE_TAP_CASUAL;
 
-    displayReviewPage(0, false);
+    displayReviewPage(0, true);
 }
 
 /**
@@ -1411,18 +1484,28 @@ void nbgl_useCaseForwardOnlyReviewNoSkip(const char                *rejectText,
     onNav          = navCallback;
     onControls     = buttonCallback;
     forwardNavOnly = true;
+    navType        = REVIEW_NAV;
 
     // fill navigation structure
-    navInfo.nbPages                  = 0;
+    navInfo.quitToken = REJECT_TOKEN;
+#ifdef TARGET_STAX
     navInfo.navType                  = NAV_WITH_TAP;
-    navInfo.quitToken                = REJECT_TOKEN;
     navInfo.navWithTap.nextPageToken = NEXT_TOKEN;
     navInfo.navWithTap.quitText      = rejectText;
     navInfo.navWithTap.backToken     = BACK_TOKEN;
     navInfo.navWithTap.backButton    = false;
-    navInfo.navWithTap.skipText      = NULL;
     navInfo.progressIndicator        = true;
-    navInfo.tuneId                   = TUNE_TAP_CASUAL;
+#else   // TARGET_STAX
+    UNUSED(rejectText);
+    navInfo.nbPages                   = 255;  // set to max
+    navInfo.navType                   = NAV_WITH_BUTTONS;
+    navInfo.navWithButtons.quitText   = "Reject";
+    navInfo.navWithButtons.navToken   = NAV_TOKEN;
+    navInfo.navWithButtons.quitButton = false;
+    navInfo.navWithButtons.backButton = false;
+    navInfo.progressIndicator         = false;
+#endif  // TARGET_STAX
+    navInfo.tuneId = TUNE_TAP_CASUAL;
 
     displayReviewPage(0, false);
 }
@@ -1452,6 +1535,7 @@ void nbgl_useCaseStaticReview(const nbgl_layoutTagValueList_t *tagValueList,
     onChoice       = callback;
     onNav          = NULL;
     forwardNavOnly = false;
+    navType        = REVIEW_NAV;
 
     staticReviewContext.withLongPress = true;
     memcpy(&staticReviewContext.tagValueList, tagValueList, sizeof(nbgl_layoutTagValueList_t));
@@ -1460,16 +1544,23 @@ void nbgl_useCaseStaticReview(const nbgl_layoutTagValueList_t *tagValueList,
     staticReviewContext.nbPairsInCurrentPage = 0;
 
     // compute number of pages & fill navigation structure
-    navInfo.nbPages                  = nbgl_useCaseGetNbPagesForTagValueList(tagValueList) + 1;
-    navInfo.activePage               = 0;
+    navInfo.nbPages = nbgl_useCaseGetNbPagesForTagValueList(tagValueList) + 1;
+#ifdef TARGET_STAX
     navInfo.navType                  = NAV_WITH_TAP;
-    navInfo.quitToken                = REJECT_TOKEN;
     navInfo.navWithTap.nextPageToken = NEXT_TOKEN;
     navInfo.navWithTap.quitText      = rejectText;
     navInfo.navWithTap.backToken     = BACK_TOKEN;
-    navInfo.navWithTap.skipText      = NULL;
-    navInfo.progressIndicator        = true;
-    navInfo.tuneId                   = TUNE_TAP_CASUAL;
+#else   // TARGET_STAX
+    UNUSED(rejectText);
+    navInfo.navType                   = NAV_WITH_BUTTONS;
+    navInfo.navWithButtons.quitText   = "Reject";
+    navInfo.navWithButtons.navToken   = NAV_TOKEN;
+    navInfo.navWithButtons.quitButton = false;
+    navInfo.navWithButtons.backButton = true;
+#endif  // TARGET_STAX
+    navInfo.quitToken         = REJECT_TOKEN;
+    navInfo.progressIndicator = true;
+    navInfo.tuneId            = TUNE_TAP_CASUAL;
 
     displayStaticReviewPage(0, true);
 }
@@ -1500,6 +1591,7 @@ void nbgl_useCaseStaticReviewLight(const nbgl_layoutTagValueList_t *tagValueList
     onChoice       = callback;
     onNav          = NULL;
     forwardNavOnly = false;
+    navType        = REVIEW_NAV;
 
     staticReviewContext.withLongPress = false;
     memcpy(&staticReviewContext.tagValueList, tagValueList, sizeof(nbgl_layoutTagValueList_t));
@@ -1515,7 +1607,6 @@ void nbgl_useCaseStaticReviewLight(const nbgl_layoutTagValueList_t *tagValueList
     navInfo.navWithTap.nextPageToken = NEXT_TOKEN;
     navInfo.navWithTap.quitText      = rejectText;
     navInfo.navWithTap.backToken     = BACK_TOKEN;
-    navInfo.navWithTap.skipText      = NULL;
     navInfo.progressIndicator        = true;
     navInfo.tuneId                   = TUNE_TAP_CASUAL;
 
@@ -1601,17 +1692,24 @@ void nbgl_useCaseAddressConfirmationExt(const char                      *address
     addressConfirmationContext.tagValueList = tagValueList;
 
     // fill navigation structure, common to all pages
+    navType                   = ADDRESS_NAV;
+    navInfo.nbPages           = (tagValueList == NULL) ? 0 : 2;
+    navInfo.progressIndicator = true;
+    navInfo.tuneId            = TUNE_TAP_CASUAL;
+#ifdef TARGET_STAX
     navInfo.navType                  = NAV_WITH_TAP;
-    navInfo.nbPages                  = (tagValueList == NULL) ? 0 : 2;
-    navInfo.progressIndicator        = true;
-    navInfo.tuneId                   = TUNE_TAP_CASUAL;
     navInfo.navWithTap.backButton    = (tagValueList != NULL);
-    navInfo.navWithTap.quitText      = "Cancel";
     navInfo.navWithTap.nextPageToken = ADDR_NEXT_TOKEN;
-    navInfo.navWithTap.nextPageText  = NULL;
+    navInfo.navWithTap.quitText      = "Cancel";
     navInfo.navWithTap.backToken     = ADDR_BACK_TOKEN;
-    navInfo.navWithTap.skipText      = NULL;
-    navInfo.quitToken                = REJECT_TOKEN;
+#else   // TARGET_STAX
+    navInfo.navType                   = NAV_WITH_BUTTONS;
+    navInfo.navWithButtons.quitText   = "Reject";
+    navInfo.navWithButtons.navToken   = NAV_TOKEN;
+    navInfo.navWithButtons.quitButton = false;
+    navInfo.navWithButtons.backButton = (tagValueList != NULL);
+#endif  // TARGET_STAX
+    navInfo.quitToken = REJECT_TOKEN;
 
     displayAddressPage(0, true);
 }
