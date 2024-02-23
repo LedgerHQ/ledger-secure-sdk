@@ -452,10 +452,11 @@ static void init_mngr(uint16_t opcode, const uint8_t *buffer, uint16_t length)
             ledger_ble_data.hci_cmd_opcode = 0xfc0f;
             aci_hal_set_tx_power_level(1,  // High power (ignored)
 #ifdef TARGET_STAX
-                                       0x19);  // 0 dBm
-#else                                          // !TARGET_STAX
-                                       0x07);  // -14.1 dBm
-#endif                                         // !TARGET_STAX
+                                       0x19  // 0 dBm
+#else                                        // !TARGET_STAX
+                                       0x07  // -14.1 dBm
+#endif                                       // !TARGET_STAX
+            );
             break;
 
         case BLE_INIT_STEP_CONFIGURE_ADVERTISING:
@@ -510,7 +511,19 @@ static void hci_evt_cmd_complete(const uint8_t *buffer, uint16_t length)
         if (ledger_ble_data.transfer_mode_enable) {
             if ((ledger_protocol_data.rx_apdu_length)
                 && (ledger_protocol_data.rx_apdu_status == APDU_STATUS_COMPLETE)) {
-                copy_apdu_to_app(false);
+                if (G_io_app.apdu_state == APDU_IDLE
+                    && io_apdu_is_media_accepted(IO_APDU_MEDIA_BLE)) {
+                    copy_apdu_to_app(false);
+                }
+                else {
+                    // Discard received APDU and respond with error
+                    ledger_protocol_data.rx_apdu_length = 0;
+                    ledger_protocol_data.rx_apdu_status = APDU_STATUS_WAITING;
+                    uint8_t resp[2];
+                    U2BE_ENCODE(resp, 0, SWO_IOL_STA_02);
+                    LEDGER_PROTOCOL_tx(resp, 2);
+                    notify_chunk();
+                }
             }
         }
         else {
@@ -521,7 +534,9 @@ static void hci_evt_cmd_complete(const uint8_t *buffer, uint16_t length)
             if (!ledger_protocol_data.tx_apdu_buffer) {
                 ledger_protocol_data.tx_chunk_length = 0;
                 G_io_app.ble_xfer_timeout            = 0;
-                G_io_app.apdu_state                  = APDU_IDLE;
+                if (G_io_app.apdu_state == APDU_BLE) {
+                    G_io_app.apdu_state = APDU_IDLE;
+                }
                 if ((!ledger_ble_data.connection_updated)
                     && (ledger_ble_data.connection.conn_interval > BLE_SLAVE_CONN_INTERVAL_MIN)) {
                     ledger_ble_data.connection_updated = 1;
@@ -872,7 +887,19 @@ static void attribute_modified(const uint8_t *buffer, uint16_t length)
                     LOG_BLE("Transfer failed 0x%04x\n", U2BE(ledger_ble_data.resp, 0));
                     G_io_app.transfer_mode = 0;
                     check_transfer_mode(G_io_app.transfer_mode);
-                    copy_apdu_to_app(true);
+                    if (G_io_app.apdu_state == APDU_IDLE
+                        && io_apdu_is_media_accepted(IO_APDU_MEDIA_BLE)) {
+                        copy_apdu_to_app(true);
+                    }
+                    else {
+                        // Discard received APDU and respond with error
+                        ledger_protocol_data.rx_apdu_length = 0;
+                        ledger_protocol_data.rx_apdu_status = APDU_STATUS_WAITING;
+                        uint8_t resp[2];
+                        U2BE_ENCODE(resp, 0, SWO_IOL_STA_02);
+                        LEDGER_PROTOCOL_tx(resp, 2);
+                        notify_chunk();
+                    }
                 }
                 else if (ledger_ble_data.resp_length) {
                     LEDGER_PROTOCOL_tx(ledger_ble_data.resp, ledger_ble_data.resp_length);
@@ -881,13 +908,26 @@ static void attribute_modified(const uint8_t *buffer, uint16_t length)
                 }
             }
             else {
-                copy_apdu_to_app(true);
+                // Nominal case for apdu reception
+                if (G_io_app.apdu_state == APDU_IDLE
+                    && io_apdu_is_media_accepted(IO_APDU_MEDIA_BLE)) {
+                    copy_apdu_to_app(true);
+                }
+                else {
+                    // Discard received APDU and respond with error
+                    ledger_protocol_data.rx_apdu_length = 0;
+                    ledger_protocol_data.rx_apdu_status = APDU_STATUS_WAITING;
+                    uint8_t resp[2];
+                    U2BE_ENCODE(resp, 0, SWO_IOL_STA_02);
+                    LEDGER_PROTOCOL_tx(resp, 2);
+                    notify_chunk();
+                }
             }
         }
         else if (ledger_protocol_data.tx_chunk_length >= 2) {
+            // apdu not complete yet
             G_io_app.ble_xfer_timeout = 2000;
             notify_chunk();
-            G_io_app.apdu_state = APDU_BLE;
         }
     }
     else {
@@ -917,7 +957,18 @@ static void write_permit_request(const uint8_t *buffer, uint16_t length)
                             data_length,
                             &buffer[3]);
         if (ledger_protocol_data.rx_apdu_status == APDU_STATUS_COMPLETE) {
-            copy_apdu_to_app(true);
+            if (G_io_app.apdu_state == APDU_IDLE && io_apdu_is_media_accepted(IO_APDU_MEDIA_BLE)) {
+                copy_apdu_to_app(true);
+            }
+            else {
+                // Discard received APDU and respond with error
+                ledger_protocol_data.rx_apdu_length = 0;
+                ledger_protocol_data.rx_apdu_status = APDU_STATUS_WAITING;
+                uint8_t resp[2];
+                U2BE_ENCODE(resp, 0, SWO_IOL_STA_02);
+                LEDGER_PROTOCOL_tx(resp, 2);
+                notify_chunk();
+            }
         }
     }
     else {
@@ -1040,7 +1091,9 @@ void LEDGER_BLE_set_recv_buffer(uint8_t *buffer, uint16_t buffer_length)
 void LEDGER_BLE_send(const uint8_t *packet, uint16_t packet_length)
 {
     if ((ledger_ble_data.transfer_mode_enable != 0) && (packet_length == 2)) {
-        G_io_app.apdu_state         = APDU_IDLE;
+        if (G_io_app.apdu_state == APDU_BLE) {
+            G_io_app.apdu_state = APDU_IDLE;
+        }
         ledger_ble_data.resp_length = 2;
         ledger_ble_data.resp[0]     = packet[0];
         ledger_ble_data.resp[1]     = packet[1];
