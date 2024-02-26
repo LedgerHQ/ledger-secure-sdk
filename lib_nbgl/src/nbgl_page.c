@@ -262,11 +262,13 @@ nbgl_page_t *nbgl_pageDrawSpinner(nbgl_layoutTouchCallback_t onActionCallback, c
  * @param onActionCallback common callback for all actions on this page
  * @param ticker ticker configuration, set to NULL to disable it
  * @param info structure describing the centered info and other controls of this page
+ * @param topIcon buffer containing the 1BPP icon for top button
  * @return the page context (or NULL if error)
  */
-nbgl_page_t *nbgl_pageDrawInfo(nbgl_layoutTouchCallback_t              onActionCallback,
-                               const nbgl_screenTickerConfiguration_t *ticker,
-                               const nbgl_pageInfoDescription_t       *info)
+nbgl_page_t *nbgl_pageDrawInfoIcon(nbgl_layoutTouchCallback_t              onActionCallback,
+                                   const nbgl_screenTickerConfiguration_t *ticker,
+                                   const nbgl_pageInfoDescription_t       *info,
+                                   const nbgl_icon_details_t              *topIcon)
 {
     nbgl_layoutDescription_t layoutDescription;
     nbgl_layout_t           *layout;
@@ -330,7 +332,7 @@ nbgl_page_t *nbgl_pageDrawInfo(nbgl_layoutTouchCallback_t              onActionC
                                                       .token      = info->bottomButtonsToken,
                                                       .style      = BOTH_ROUNDED_STYLE,
                                                       .tuneId     = info->tuneId};
-            nbgl_layoutAddChoiceButtons(layout, &buttonsInfo);
+            nbgl_layoutAddChoiceButtonsIcon(layout, &buttonsInfo, topIcon);
         }
         else {
             nbgl_layoutButton_t buttonInfo = {.fittingContent = false,
@@ -363,6 +365,22 @@ nbgl_page_t *nbgl_pageDrawInfo(nbgl_layoutTouchCallback_t              onActionC
     nbgl_layoutDraw(layout);
 
     return (nbgl_page_t *) layout;
+}
+
+/**
+ * @brief draw a page with a centered info (icon and/or texts) with a touchable footer,
+ * in a potential "tapable" area, with an optional top-right button, with an optional bottom button
+ *
+ * @param onActionCallback common callback for all actions on this page
+ * @param ticker ticker configuration, set to NULL to disable it
+ * @param info structure describing the centered info and other controls of this page
+ * @return the page context (or NULL if error)
+ */
+nbgl_page_t *nbgl_pageDrawInfo(nbgl_layoutTouchCallback_t              onActionCallback,
+                               const nbgl_screenTickerConfiguration_t *ticker,
+                               const nbgl_pageInfoDescription_t       *info)
+{
+    return (nbgl_page_t *) nbgl_pageDrawInfoIcon(onActionCallback, ticker, info, NULL);
 }
 
 /**

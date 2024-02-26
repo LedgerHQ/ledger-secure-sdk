@@ -203,6 +203,10 @@ nbgl_page_t *nbgl_pageDrawSpinner(nbgl_layoutTouchCallback_t onActionCallback, c
 nbgl_page_t *nbgl_pageDrawInfo(nbgl_layoutTouchCallback_t              onActionCallback,
                                const nbgl_screenTickerConfiguration_t *ticker,
                                const nbgl_pageInfoDescription_t       *info);
+nbgl_page_t *nbgl_pageDrawInfoIcon(nbgl_layoutTouchCallback_t              onActionCallback,
+                                   const nbgl_screenTickerConfiguration_t *ticker,
+                                   const nbgl_pageInfoDescription_t       *info,
+                                   const nbgl_icon_details_t              *topIcon);
 nbgl_page_t *nbgl_pageDrawConfirmation(nbgl_layoutTouchCallback_t                onActionCallback,
                                        const nbgl_pageConfirmationDescription_t *info);
 nbgl_page_t *nbgl_pageDrawGenericContentExt(nbgl_layoutTouchCallback_t       onActionCallback,
