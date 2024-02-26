@@ -1834,13 +1834,17 @@ int nbgl_layoutAddCenteredInfo(nbgl_layout_t *layout, const nbgl_layoutCenteredI
  *
  * @param layout the current layout
  * @param info structure giving the description of buttons (texts, icons, layout)
+ * @param icon icon between QR code and text line(s)
  * @return >= 0 if OK
  */
-int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info)
+int nbgl_layoutAddQRCodeIcon(nbgl_layout_t             *layout,
+                             const nbgl_layoutQRCode_t *info,
+                             const nbgl_icon_details_t *icon)
 {
     nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
     nbgl_container_t      *container;
     nbgl_text_area_t      *textArea = NULL;
+    nbgl_image_t          *image    = NULL;
     nbgl_qrcode_t         *qrcode;
     uint16_t               fullHeight = 0;
 
@@ -1851,13 +1855,14 @@ int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info)
 
     container = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
 
-    // get container children (max 2 (QRCode + text1/text2))
-    container->children   = nbgl_containerPoolGet(2, layoutInt->layer);
+    // get container children (max 4: QRCode + icon + text1 + text2)
+    container->children   = nbgl_containerPoolGet(4, layoutInt->layer);
     container->nbChildren = 0;
 
     qrcode = (nbgl_qrcode_t *) nbgl_objPoolGet(QR_CODE, layoutInt->layer);
     // version is forced to V10 if url is longer than 62 characters
-    if (strlen(PIC(info->url)) > 62) {
+    if ((strlen(PIC(info->url)) > 62)
+        || ((icon != NULL) && (info->text1 != NULL) && (info->text2 != NULL))) {
         qrcode->version = QRCODE_V10;
     }
     else {
@@ -1878,6 +1883,19 @@ int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info)
     container->children[container->nbChildren] = (nbgl_obj_t *) qrcode;
     container->nbChildren++;
 
+    if (icon != NULL) {
+        image                       = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
+        image->foregroundColor      = BLACK;
+        image->buffer               = PIC(icon);
+        image->obj.area.bpp         = NBGL_BPP_1;
+        image->obj.alignment        = BOTTOM_MIDDLE;
+        image->obj.alignTo          = (nbgl_obj_t *) container->children[container->nbChildren - 1];
+        image->obj.alignmentMarginY = 16;
+
+        fullHeight += image->buffer->height;
+        container->children[container->nbChildren] = (nbgl_obj_t *) image;
+        container->nbChildren++;
+    }
     if (info->text1 != NULL) {
         textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
         textArea->textColor     = BLACK;
@@ -1890,14 +1908,18 @@ int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info)
             textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
         textArea->obj.alignment = BOTTOM_MIDDLE;
         textArea->obj.alignTo   = (nbgl_obj_t *) container->children[container->nbChildren - 1];
-        textArea->obj.alignmentMarginY = 40;
-
+        if (icon == NULL) {
+            textArea->obj.alignmentMarginY = 40;
+        }
+        else {
+            textArea->obj.alignmentMarginY = 12;
+        }
         fullHeight += textArea->obj.area.height;
 
         container->children[container->nbChildren] = (nbgl_obj_t *) textArea;
         container->nbChildren++;
     }
-    else if (info->text2 != NULL) {
+    if (info->text2 != NULL) {
         textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
         textArea->textColor     = DARK_GRAY;
         textArea->text          = PIC(info->text2);
@@ -1909,7 +1931,12 @@ int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info)
             textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
         textArea->obj.alignment = BOTTOM_MIDDLE;
         textArea->obj.alignTo   = (nbgl_obj_t *) container->children[container->nbChildren - 1];
-        textArea->obj.alignmentMarginY = 40;
+        if (icon == NULL) {
+            textArea->obj.alignmentMarginY = 40;
+        }
+        else {
+            textArea->obj.alignmentMarginY = 12;
+        }
 
         fullHeight += textArea->obj.area.height;
 
@@ -1935,6 +1962,18 @@ int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info)
     addObjectToLayout(layoutInt, (nbgl_obj_t *) container);
 
     return 0;
+}
+/**
+ * @brief Creates an area on the center of the main panel, with a QRCode,
+ * a possible text in black (bold) under it, and a possible text in black under it
+ *
+ * @param layout the current layout
+ * @param info structure giving the description of buttons (texts, icons, layout)
+ * @return >= 0 if OK
+ */
+int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info)
+{
+    return nbgl_layoutAddQRCodeIcon(layout, info, NULL);
 }
 #endif  // NBGL_QRCODE
 

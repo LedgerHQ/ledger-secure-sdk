@@ -319,6 +319,9 @@ int nbgl_layoutAddSwitch(nbgl_layout_t *layout, const nbgl_layoutSwitch_t *switc
 int nbgl_layoutAddText(nbgl_layout_t *layout, const char *text, const char *subText);
 int nbgl_layoutAddRadioChoice(nbgl_layout_t *layout, const nbgl_layoutRadioChoice_t *choices);
 int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info);
+int nbgl_layoutAddQRCodeIcon(nbgl_layout_t             *layout,
+                             const nbgl_layoutQRCode_t *info,
+                             const nbgl_icon_details_t *icon);
 int nbgl_layoutAddChoiceButtons(nbgl_layout_t *layout, const nbgl_layoutChoiceButtons_t *info);
 int nbgl_layoutAddChoiceButtonsIcon(nbgl_layout_t                    *layout,
                                     const nbgl_layoutChoiceButtons_t *info,
