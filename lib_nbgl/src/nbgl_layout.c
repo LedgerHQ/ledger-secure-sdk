@@ -1944,9 +1944,12 @@ int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info)
  *
  * @param layout the current layout
  * @param info structure giving the description of buttons (texts, icons, layout)
+ * @param topIcon buffer containing the 1BPP icon for top button
  * @return >= 0 if OK
  */
-int nbgl_layoutAddChoiceButtons(nbgl_layout_t *layout, const nbgl_layoutChoiceButtons_t *info)
+int nbgl_layoutAddChoiceButtonsIcon(nbgl_layout_t                    *layout,
+                                    const nbgl_layoutChoiceButtons_t *info,
+                                    const nbgl_icon_details_t        *topIcon)
 {
     layoutObj_t           *obj;
     nbgl_button_t         *topButton, *bottomButton;
@@ -2007,6 +2010,7 @@ int nbgl_layoutAddChoiceButtons(nbgl_layout_t *layout, const nbgl_layoutChoiceBu
     else {
         topButton->obj.alignmentMarginY = 4;  // 4 pixels from bottom button
     }
+    topButton->icon            = PIC(topIcon);
     topButton->innerColor      = BLACK;
     topButton->borderColor     = BLACK;
     topButton->foregroundColor = WHITE;
@@ -2021,6 +2025,18 @@ int nbgl_layoutAddChoiceButtons(nbgl_layout_t *layout, const nbgl_layoutChoiceBu
     addObjectToLayout(layoutInt, (nbgl_obj_t *) topButton);
 
     return 0;
+}
+
+/**
+ * @brief Creates two buttons to make a choice. Both buttons are mandatory
+ *
+ * @param layout the current layout
+ * @param info structure giving the description of buttons (texts, icons, layout)
+ * @return >= 0 if OK
+ */
+int nbgl_layoutAddChoiceButtons(nbgl_layout_t *layout, const nbgl_layoutChoiceButtons_t *info)
+{
+    return nbgl_layoutAddChoiceButtonsIcon(layout, info, NULL);
 }
 
 /**

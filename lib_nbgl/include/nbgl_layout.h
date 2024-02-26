@@ -320,6 +320,9 @@ int nbgl_layoutAddText(nbgl_layout_t *layout, const char *text, const char *subT
 int nbgl_layoutAddRadioChoice(nbgl_layout_t *layout, const nbgl_layoutRadioChoice_t *choices);
 int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info);
 int nbgl_layoutAddChoiceButtons(nbgl_layout_t *layout, const nbgl_layoutChoiceButtons_t *info);
+int nbgl_layoutAddChoiceButtonsIcon(nbgl_layout_t                    *layout,
+                                    const nbgl_layoutChoiceButtons_t *info,
+                                    const nbgl_icon_details_t        *topIcon);
 int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueList_t *list);
 int nbgl_layoutAddLargeCaseText(nbgl_layout_t *layout, const char *text);
 int nbgl_layoutAddSeparationLine(nbgl_layout_t *layout);
