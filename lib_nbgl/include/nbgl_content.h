@@ -242,6 +242,19 @@ typedef struct {
 } nbgl_contentBarsList_t;
 
 /**
+ * @brief This structure contains data to build a @ref BARS_LIST_ICONS content
+ */
+typedef struct nbgl_contentBarsListIcons_s {
+    const char *const *barTexts;  ///< array of texts for each bar (nbBars items, in black/bold)
+    const nbgl_icon_details_t *const *barIcons;  ///< a buffer containing the 1BPP icons
+    const uint8_t                    *tokens;  ///< array of tokens, one for each bar (nbBars items)
+    uint8_t                           nbBars;  ///< number of elements in barTexts and tokens array
+#ifdef HAVE_PIEZO_SOUND
+    tune_index_e tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played when a bar is touched
+#endif                    // HAVE_PIEZO_SOUND
+} nbgl_contentBarsListIcons_t;
+
+/**
  * @brief The different types of predefined contents
  *
  */
@@ -255,11 +268,15 @@ typedef enum {
     SWITCHES_LIST,      ///< list of switches with descriptions
     INFOS_LIST,         ///< list of infos with titles
     CHOICES_LIST,       ///< list of choices through radio buttons
-    BARS_LIST           ///< list of touchable bars (with > on the right to go to sub-pages)
+    BARS_LIST,          ///< list of touchable bars (with > on the right to go to sub-pages)
+    BARS_LIST_ICONS     ///< list of touchable bars (with > on the right and icon on the left)
 } nbgl_contentType_t;
 
 /**
  * @brief Union of the different type of contents
+ *
+ * @note This union is duplicated in nbgl_page.h: @ref nbgl_pageContent_t
+ *
  */
 typedef union {
     nbgl_contentCenteredInfo_t    centeredInfo;     ///< @ref CENTERED_INFO type
@@ -272,6 +289,7 @@ typedef union {
     nbgl_contentInfoList_t        infosList;        ///< @ref INFOS_LIST type
     nbgl_contentRadioChoice_t     choicesList;      ///< @ref CHOICES_LIST type
     nbgl_contentBarsList_t        barsList;         ///< @ref BARS_LIST type
+    nbgl_contentBarsListIcons_t   barsListIcons;    ///< @ref BARS_LIST_ICONS type
 } nbgl_content_u;
 
 /**

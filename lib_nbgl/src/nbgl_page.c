@@ -176,6 +176,22 @@ static void addContent(nbgl_pageContent_t *content, nbgl_layout_t *layout)
             }
             break;
         }
+        case BARS_LIST_ICONS: {
+            uint8_t i;
+            for (i = 0; i < content->barsListIcons.nbBars; i++) {
+                nbgl_layoutBar_t bar;
+                bar.text      = content->barsListIcons.barTexts[i];
+                bar.subText   = NULL;
+                bar.iconRight = &C_Next32px;
+                bar.iconLeft  = content->barsListIcons.barIcons[i];
+                bar.token     = content->barsListIcons.tokens[i];
+                bar.centered  = false;
+                bar.tuneId    = content->barsListIcons.tuneId;
+                nbgl_layoutAddTouchableBar(layout, &bar);
+                nbgl_layoutAddSeparationLine(layout);
+            }
+            break;
+        }
     }
 }
 
