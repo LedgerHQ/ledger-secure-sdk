@@ -98,77 +98,79 @@ DEPRECATED static inline int cx_blake2b_init(cx_blake2b_t *hash, unsigned int ou
 }
 
 /**
- * @brief   Computes a standalone one shot BLAKE2B_256 digest.
+ * @brief   Computes a standalone one shot BLAKE2B digest.
  *
  * @param[in]  iovec     Input data in the form of an array of cx_iovec_t.
  *
  * @param[in]  iovec_len Length of the iovec array.
+ *
+ * @param[in]  key       (Optional) Pointer to the key if not NULL.
+ *
+ * @param[in]  key_len   Key length at most 64 bytes
+ *
+ * @param[in]  salt      (Optional) Pointer to the salt if not NULL.
+ *
+ * @param[in]  salt_len  Salt length: 16 bytes if salt is not NULL, otherwise 0.
+ *
+ * @param[in]  perso     (Optional) Pointer to the personalization string if not NULL.
+ *
+ * @param[in]  perso_len Personalization length: 16 bytes if perso is not NULL, otherwise 0.
  *
  * @param[out] digest    Buffer where to store the digest.
  *
  * @return               Error code:
  *                       - CX_OK on success
  */
-cx_err_t cx_blake2b_256_hash_iovec(const cx_iovec_t *iovec,
-                                   size_t            iovec_len,
-                                   uint8_t           digest[static CX_BLAKE2B_256_SIZE]);
+cx_err_t cx_blake2b_hash_iovec(const cx_iovec_t *iovec,
+                               size_t            iovec_len,
+                               uint8_t          *key,
+                               size_t            key_len,
+                               uint8_t          *salt,
+                               size_t            salt_len,
+                               uint8_t          *perso,
+                               size_t            perso_len,
+                               uint8_t          *digest,
+                               size_t            digest_len);
 
 /**
- * @brief   Computes a standalone one shot BLAKE2B_256 digest.
+ * @brief   Computes a standalone one shot BLAKE2B digest.
  *
- * @param[in]  in      Input data.
+ * @param[in]  in        Input data.
  *
- * @param[in]  len     Length of the input data.
+ * @param[in]  len       Length of the input data.
  *
- * @param[out] digest  Buffer where to store the digest.
+ * @param[in]  key       (Optional) Pointer to the key is not NULL.
  *
- * @return             Error code:
- *                     - CX_OK on success
- */
-static inline cx_err_t cx_blake2b_256_hash(const uint8_t *in,
-                                           size_t         in_len,
-                                           uint8_t        digest[static CX_BLAKE2B_256_SIZE])
-{
-    const cx_iovec_t iovec = {.iov_base = in, .iov_len = in_len};
-
-    return cx_blake2b_256_hash_iovec(&iovec, 1, digest);
-}
-
-/**
- * @brief   Computes a standalone one shot BLAKE2B_512 digest.
+ * @param[in]  key_len   Key length at most 64 bytes if key is not NULL otherwise 0.
  *
- * @param[in]  iovec     Input data in the form of an array of cx_iovec_t.
+ * @param[in]  salt      (Optional) Pointer to the salt is not NULL.
  *
- * @param[in]  iovec_len Length of the iovec array.
+ * @param[in]  salt_len  Salt length: 16 bytes if salt is not NULL, otherwise 0.
+ *
+ * @param[in]  perso     (Optional) Pointer to the personalization string is not NULL.
+ *
+ * @param[in]  perso_len Personalization length: 16 bytes if perso is not NULL, otherwise 0.
  *
  * @param[out] digest    Buffer where to store the digest.
  *
  * @return               Error code:
  *                       - CX_OK on success
  */
-cx_err_t cx_blake2b_512_hash_iovec(const cx_iovec_t *iovec,
-                                   size_t            iovec_len,
-                                   uint8_t           digest[static CX_BLAKE2B_512_SIZE]);
-
-/**
- * @brief   Computes a standalone one shot BLAKE2B_512 digest.
- *
- * @param[in]  in      Input data.
- *
- * @param[in]  len     Length of the input data.
- *
- * @param[out] digest  Buffer where to store the digest.
- *
- * @return             Error code:
- *                     - CX_OK on success
- */
-static inline cx_err_t cx_blake2b_512_hash(const uint8_t *in,
-                                           size_t         in_len,
-                                           uint8_t        digest[static CX_BLAKE2B_512_SIZE])
+static inline cx_err_t cx_blake2b_hash(const uint8_t *in,
+                                       size_t         in_len,
+                                       uint8_t       *key,
+                                       size_t         key_len,
+                                       uint8_t       *salt,
+                                       size_t         salt_len,
+                                       uint8_t       *perso,
+                                       size_t         perso_len,
+                                       uint8_t       *digest,
+                                       size_t         digest_len)
 {
     const cx_iovec_t iovec = {.iov_base = in, .iov_len = in_len};
 
-    return cx_blake2b_512_hash_iovec(&iovec, 1, digest);
+    return cx_blake2b_hash_iovec(
+        &iovec, 1, key, key_len, salt, salt_len, perso, perso_len, digest, digest_len);
 }
 
 /**
@@ -198,6 +200,20 @@ WARN_UNUSED_RESULT cx_err_t cx_blake2b_init2_no_throw(cx_blake2b_t *hash,
                                                       size_t        salt_len,
                                                       uint8_t      *perso,
                                                       size_t        perso_len);
+
+/**
+ * @brief Initializes Blake2b key for keyed-hashing.
+ *
+ * @param[in] hash    Pointer to the BLAKE2b context to initialize.
+ *
+ * @param[in] key     Pointer to the key if not NULL.
+ *
+ * @param[in] key_len Key length if the key is not NULL otherwise 0.
+ *
+ * @return            Error code:
+ *                    -CX_OK on success
+ */
+WARN_UNUSED_RESULT cx_err_t cx_blake2b_init_key(cx_blake2b_t *hash, uint8_t *key, size_t key_len);
 
 /**
  * @deprecated

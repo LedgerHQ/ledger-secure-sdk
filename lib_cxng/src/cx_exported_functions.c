@@ -51,6 +51,7 @@ unsigned long __attribute((section("._cx_exported_functions"))) cx_exported_func
     [_NR_cx_blake2b_get_output_size]         = (unsigned long) cx_blake2b_get_output_size,
     [_NR_cx_blake2b_init2_no_throw]          = (unsigned long) cx_blake2b_init2_no_throw,
     [_NR_cx_blake2b_init_no_throw]           = (unsigned long) cx_blake2b_init_no_throw,
+    [_NR_cx_blake2b_init_key]                = (unsigned long) cx_blake2b_init_key,
     [_NR_cx_blake2b_update]                  = (unsigned long) cx_blake2b_update,
     [_NR_cx_cipher_enc_dec]                  = (unsigned long) cx_cipher_enc_dec,
     [_NR_cx_cipher_finish]                   = (unsigned long) cx_cipher_finish,
