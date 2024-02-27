@@ -940,15 +940,17 @@ void nbgl_useCaseHome(const char                *appName,
  * NULL)
  * @param topRightCallback callback called when top-right button is touched
  * @param quitCallback callback called when quit button is touched
+ * @param icon buffer containing the 1BPP icon for action button
  */
-void nbgl_useCaseHomeExt(const char                *appName,
-                         const nbgl_icon_details_t *appIcon,
-                         const char                *tagline,
-                         bool                       withSettings,
-                         const char                *actionButtonText,
-                         nbgl_callback_t            actionCallback,
-                         nbgl_callback_t            topRightCallback,
-                         nbgl_callback_t            quitCallback)
+void nbgl_useCaseHomeExtIcon(const char                *appName,
+                             const nbgl_icon_details_t *appIcon,
+                             const char                *tagline,
+                             bool                       withSettings,
+                             const char                *actionButtonText,
+                             nbgl_callback_t            actionCallback,
+                             nbgl_callback_t            topRightCallback,
+                             nbgl_callback_t            quitCallback,
+                             const nbgl_icon_details_t *icon)
 {
     reset_callbacks();
 
@@ -1011,8 +1013,46 @@ void nbgl_useCaseHomeExt(const char                *appName,
     if (actionButtonText != NULL) {
         info.centeredInfo.offsetY -= 40;
     }
-    pageContext = nbgl_pageDrawInfo(&pageCallback, NULL, &info);
+    pageContext = nbgl_pageDrawInfoIcon(&pageCallback, NULL, &info, icon);
     nbgl_refreshSpecial(FULL_COLOR_CLEAN_REFRESH);
+}
+
+/**
+ * @brief draws the extended version of home page of an app (page on which we land when launching it
+ * from dashboard)
+ * @note it enables to use an action button (black)
+ *
+ * @param appName app name
+ * @param appIcon app icon
+ * @param tagline text under app name (if NULL, it will be "This app enables signing transactions on
+ * the <appName> network.")
+ * @param withSettings if true, use a "settings" (wheel) icon in bottom button, otherwise a "info"
+ * (i)
+ * @param actionButtonText if not NULL, text used for an action button (in black, on top of "Quit
+ * App" button)
+ * @param actionCallback callback called when action button is touched (if actionButtonText is not
+ * NULL)
+ * @param topRightCallback callback called when top-right button is touched
+ * @param quitCallback callback called when quit button is touched
+ */
+void nbgl_useCaseHomeExt(const char                *appName,
+                         const nbgl_icon_details_t *appIcon,
+                         const char                *tagline,
+                         bool                       withSettings,
+                         const char                *actionButtonText,
+                         nbgl_callback_t            actionCallback,
+                         nbgl_callback_t            topRightCallback,
+                         nbgl_callback_t            quitCallback)
+{
+    nbgl_useCaseHomeExtIcon(appName,
+                            appIcon,
+                            tagline,
+                            withSettings,
+                            actionButtonText,
+                            actionCallback,
+                            topRightCallback,
+                            quitCallback,
+                            NULL);
 }
 
 /**

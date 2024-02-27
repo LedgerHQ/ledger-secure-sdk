@@ -48,6 +48,9 @@ typedef nbgl_contentInfoLongPress_t nbgl_pageInfoLongPress_t;
 /**
  * @brief This structure contains data to build a page in multi-pages mode (@ref
  * nbgl_pageDrawGenericContent)
+ *
+ * @note This union is duplicated in nbgl_content.h: @ref nbgl_content_u
+ *
  */
 typedef struct nbgl_pageContent_s {
     const char *title;             ///< text for the title of the page (if NULL, no title)
@@ -67,6 +70,7 @@ typedef struct nbgl_pageContent_s {
         nbgl_contentInfoList_t        infosList;        ///< @ref INFOS_LIST type
         nbgl_contentRadioChoice_t     choicesList;      ///< @ref CHOICES_LIST type
         nbgl_contentBarsList_t        barsList;         ///< @ref BARS_LIST type
+        nbgl_contentBarsListIcons_t   barsListIcons;    ///< @ref BARS_LIST_ICONS type
     };
 } nbgl_pageContent_t;
 
@@ -203,6 +207,10 @@ nbgl_page_t *nbgl_pageDrawSpinner(nbgl_layoutTouchCallback_t onActionCallback, c
 nbgl_page_t *nbgl_pageDrawInfo(nbgl_layoutTouchCallback_t              onActionCallback,
                                const nbgl_screenTickerConfiguration_t *ticker,
                                const nbgl_pageInfoDescription_t       *info);
+nbgl_page_t *nbgl_pageDrawInfoIcon(nbgl_layoutTouchCallback_t              onActionCallback,
+                                   const nbgl_screenTickerConfiguration_t *ticker,
+                                   const nbgl_pageInfoDescription_t       *info,
+                                   const nbgl_icon_details_t              *topIcon);
 nbgl_page_t *nbgl_pageDrawConfirmation(nbgl_layoutTouchCallback_t                onActionCallback,
                                        const nbgl_pageConfirmationDescription_t *info);
 nbgl_page_t *nbgl_pageDrawGenericContentExt(nbgl_layoutTouchCallback_t       onActionCallback,
