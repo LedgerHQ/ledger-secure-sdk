@@ -360,3 +360,9 @@ jobs:
         run: |
           [ -n '${{ env.build_path }}' ] && cd ${{ env.build_path }}
           TARGET=stax BOLOS_SDK=$GITHUB_WORKSPACE/sdk make
+
+      - name: Build Europa
+        if: ${{ env.build_for_stax == 'true' }}
+        run: |
+          [ -n '${{ env.build_path }}' ] && cd ${{ env.build_path }}
+          TARGET=europa BOLOS_SDK=$GITHUB_WORKSPACE/sdk make
