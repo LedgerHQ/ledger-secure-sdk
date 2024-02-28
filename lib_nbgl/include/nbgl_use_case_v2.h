@@ -7,20 +7,38 @@
  * - then a INFO_LONG_PRESS
  */
 
+/**
+ * @brief prototype of content navigation callback function
+ * @param contentIndex content index (0->(nbContents-1)) that is needed by the lib
+ * @param content content to fill
+ */
 typedef void (*nbgl_contentCallback_t)(uint8_t contentIndex, nbgl_content_t *content);
 
 typedef struct {
-    const nbgl_content_t      *contentsList; ///< array of nbgl_content_t (nbContents items). If NULL, callback is used instead
-    nbgl_contentCallback_t     contentGetterCallback;  ///< function to call to retrieve a given content
-    uint8_t                    nbContents;  ///< number of contents
+    bool callback_call_needed;  ///< indicates whether contents should be retrieved using
+                                ///< contentsList or contentGetterCallback
+    union {
+        const nbgl_content_t *contentsList;  ///< array of nbgl_content_t (nbContents items).
+        nbgl_contentCallback_t
+            contentGetterCallback;  ///< function to call to retrieve a given content
+    };
+    uint8_t nbContents;  ///< number of contents
 } nbgl_genericContents_t;
+
+/**
+ * @brief prototype of content navigation callback function
+ * @param contentsIndex contents index (0->(nbContents-1)) that is needed by the lib
+ * @param contents content to fill
+ * @return true if the page content is valid, false if no more page
+ */
+typedef bool (*nbgl_genericContentsCallback_t)(uint8_t contentsIndex, nbgl_genericContents_t *contents);
 
 
 /*
  * Generic Nav, should be used only in non-nominal cases (for example sub-settings levels)
  */
 
-// API to polish, but main idea is to specify an array of contents and a navigation configuration
+// TODO: API to polish, but main idea is to specify an array of contents and a navigation configuration
 // like touchable, progressIndicator and all...
 // this should be used in apps:
 // - that were previously using nbgl_useCaseSettings for that
@@ -37,22 +55,40 @@ void nbgl_useCaseGenericNav(const char                   *title,
  * Home and settings
  */
 
-// TODO add something to be able to restart the useCase at a specific page (for example after a switch confirmation page)
-// Probably an initPage params, taking an arbitrary value that would have been given in the switch callback.
+void nbgl_useCaseGenericSettings(const char                   *appName,
+                                 uint8_t                       initPage,
+                                 const nbgl_genericContents_t *settingContents,
+                                 const nbgl_contentInfoList_t *infosList,
+                                 nbgl_callback_t               quitCallback);
+
 void nbgl_useCaseHomeAndSettings(const char                   *appName,
                                  const nbgl_icon_details_t    *appIcon,
                                  const char                   *tagline,
+                                 const uint8_t                *initSettingPage, // Set to NULL if settings shouldn't be displayed right away
                                  const nbgl_contentInfoList_t *infosList,
                                  const nbgl_genericContents_t *settingContents,
-                                 nbgl_callback_t               quitCallback)
+                                 nbgl_callback_t               quitCallback);
 
-// TODO add support for plugin and HomeExt use cases.
+void nbgl_useCaseHomeExtAndSettings(const char                   *appName,
+                                    const nbgl_icon_details_t    *appIcon,
+                                    const char                   *tagline,
+                                    const uint8_t                *initSettingPage, // Set to NULL if settings shouldn't be displayed right away
+                                    const nbgl_contentInfoList_t *infosList,
+                                    const nbgl_genericContents_t *settingContents,
+                                    nbgl_callback_t               quitCallback,
+                                    const char                   *actionText, // Set to NULL if no additional action
+                                    nbgl_callback_t               actionCallback); // Set to NULL if no additional action
+
+// Note no specific support for plugin right now, this is so specific it should probably be handled in app side using nbgl_useCaseGenericNav?
 
 /*
  * TX review, exist in three variants "transaction", "message" and "operation"
  * Then all wording are handled by the SDK and not exposed to the user.
  * This bundles nbgl_useCaseReviewStart / nbgl_useCaseStaticReview and nbgl_useCaseConfirm
  */
+
+// Note, maybe at some point an additional API could be proposed to take a nbgl_genericContents_t instead of a tagValueList
+// Could be an *Ext version..
 
 void nbgl_useCaseTransactionReview(
     const nbgl_layoutTagValueList_t *tagValueList,
@@ -78,9 +114,38 @@ void nbgl_useCaseOperationReview(
     const char *finish_page_text, /* unused on Nano */
     nbgl_choiceCallback_t choice_callback);
 
-// TODO add an API supporting streaming
-// TODO add an API supporting Skip
-// TODO add an API supporting ReviewLight???
+
+/* Streaming API, the idea is to:
+1/ first call nbgl_useCaseTransactionReviewStreamingInit
+2/ once choice_callback is called either stop ir confirm==false, or request more
+   data then call nbgl_useCaseTransactionReviewStreamingContinue
+3/ Repeat 2/ as long as there is additional data
+4/ Once there is no more data call nbgl_useCaseTransactionReviewStreamingFinish
+5/ At this point, if choice_callback is called with True, then the review is finished
+
+Note that app side, it's probably safer not to use the same function for the choice_callback
+for nbgl_useCaseTransactionReviewStreamingFinish as the behavior when receiving confirm==true
+should not be the same
+*/
+void nbgl_useCaseTransactionReviewStreamingInit(
+    const nbgl_icon_details_t *icon,
+    const char *reviewTitle,
+    const char *reviewSubTitle, /* Most often this is empty, but sometimes indicates a path / index */
+    nbgl_choiceCallback_t choice_callback);
+
+void nbgl_useCaseTransactionReviewStreamingContinue(
+    const nbgl_layoutTagValueList_t *tagValueList,
+    nbgl_choiceCallback_t choice_callback);
+
+void nbgl_useCaseTransactionReviewStreamingFinish(
+    const nbgl_icon_details_t *icon,
+    const char *finish_page_text, /* unused on Nano */
+    nbgl_choiceCallback_t choice_callback);
+
+
+
+// TODO add an API supporting Skip??? Or not and let the app do it by itself with nbgl_useCaseGenericNav
+// TODO add an API supporting ReviewLight??? Or not and let the app do it by itself with nbgl_useCaseGenericNav
 
 /*
  * Address verification
@@ -94,7 +159,15 @@ void nbgl_useCaseAddressReview(
     const char *reviewSubTitle,
     nbgl_choiceCallback_t choice_callback);
 
-// TODO add an API supporting additional tagValueList
+void nbgl_useCaseAddressReviewExt(
+    const char *address,
+    const nbgl_icon_details_t *icon,
+    const char *reviewTitle,
+    const char *reviewSubTitle,
+    nbgl_choiceCallback_t choice_callback,
+    const nbgl_layoutTagValueList_t *tagValueList);
+
+// Note, maybe at some point an additional API could be proposed to take a nbgl_genericContents_t instead of a tagValueList
 
 
 /*
