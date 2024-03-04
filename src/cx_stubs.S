@@ -43,6 +43,7 @@ CX_TRAMPOLINE _NR_cx_blake2b_final                         cx_blake2b_final
 CX_TRAMPOLINE _NR_cx_blake2b_get_output_size               cx_blake2b_get_output_size
 CX_TRAMPOLINE _NR_cx_blake2b_init2_no_throw                cx_blake2b_init2_no_throw
 CX_TRAMPOLINE _NR_cx_blake2b_init_no_throw                 cx_blake2b_init_no_throw
+CX_TRAMPOLINE _NR_cx_blake2b_init_key                      cx_blake2b_init_key
 CX_TRAMPOLINE _NR_cx_blake2b_update                        cx_blake2b_update
 CX_TRAMPOLINE _NR_cx_cipher_enc_dec                        cx_cipher_enc_dec
 CX_TRAMPOLINE _NR_cx_cipher_finish                         cx_cipher_finish
@@ -58,7 +59,7 @@ CX_TRAMPOLINE _NR_cx_crc16                                 cx_crc16
 CX_TRAMPOLINE _NR_cx_crc16_update                          cx_crc16_update
 // Disable lib CX CRC32 until it get fixed in the OS.
 // Meanwhile, it's implemented in cx_wrappers.c
-//CX_TRAMPOLINE _NR_cx_crc32                                 cx_crc32
+//CX_TRAMPOLINE _NR_cx_crc32                               cx_crc32
 CX_TRAMPOLINE _NR_cx_decode_coord                          cx_decode_coord
 CX_TRAMPOLINE _NR_cx_ecdh_no_throw                         cx_ecdh_no_throw
 CX_TRAMPOLINE _NR_cx_ecdsa_sign_no_throw                   cx_ecdsa_sign_no_throw

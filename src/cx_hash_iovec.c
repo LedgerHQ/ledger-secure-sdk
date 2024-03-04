@@ -203,9 +203,16 @@ cx_err_t cx_shake256_hash_iovec(const cx_iovec_t *iovec,
 #endif
 
 #ifdef HAVE_BLAKE2
-cx_err_t cx_blake2b_256_hash_iovec(const cx_iovec_t *iovec,
-                                   size_t            iovec_len,
-                                   uint8_t           digest[static CX_BLAKE2B_256_SIZE])
+cx_err_t cx_blake2b_hash_iovec(const cx_iovec_t *iovec,
+                               size_t            iovec_len,
+                               uint8_t          *key,
+                               size_t            key_len,
+                               uint8_t          *salt,
+                               size_t            salt_len,
+                               uint8_t          *perso,
+                               size_t            perso_len,
+                               uint8_t          *digest,
+                               size_t            digest_len)
 {
 #ifdef TARGET_NANOS
     cx_blake2b_t *hash = &G_cx.blake.blake2b;
@@ -214,32 +221,18 @@ cx_err_t cx_blake2b_256_hash_iovec(const cx_iovec_t *iovec,
     cx_blake2b_t   *hash = &blake;
 #endif
 
-    return hash_iovec_ex(&hash->header,
-                         sizeof(cx_blake2b_t),
-                         CX_BLAKE2B,
-                         CX_BLAKE2B_256_SIZE,
-                         iovec,
-                         iovec_len,
-                         digest);
-}
+    cx_err_t error;
 
-cx_err_t cx_blake2b_512_hash_iovec(const cx_iovec_t *iovec,
-                                   size_t            iovec_len,
-                                   uint8_t           digest[static CX_BLAKE2B_512_SIZE])
-{
-#ifdef TARGET_NANOS
-    cx_blake2b_t *hash = &G_cx.blake.blake2b;
-#else
-    cx_blake2b_t    blake;
-    cx_blake2b_t   *hash = &blake;
-#endif
+    CX_CHECK(cx_blake2b_init2_no_throw(hash, digest_len * 8, salt, salt_len, perso, perso_len));
+    CX_CHECK(cx_blake2b_init_key(hash, key, key_len));
+    for (size_t i = 0; i < iovec_len; i++) {
+        CX_CHECK(cx_hash_update(&hash->header, iovec[i].iov_base, iovec[i].iov_len));
+    }
+    CX_CHECK(cx_hash_final(&hash->header, digest));
 
-    return hash_iovec_ex(&hash->header,
-                         sizeof(cx_blake2b_t),
-                         CX_BLAKE2B,
-                         CX_BLAKE2B_512_SIZE,
-                         iovec,
-                         iovec_len,
-                         digest);
+end:
+    explicit_bzero(hash, sizeof(cx_blake2b_t));
+
+    return error;
 }
 #endif

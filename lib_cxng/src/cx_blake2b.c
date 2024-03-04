@@ -31,6 +31,9 @@
 #endif
 #endif
 
+/** Salt and Perso are 16-byte long for BLAKE2B */
+#define CX_BLAKE2B_SALT_PERSO_LEN (16)
+
 const cx_hash_info_t cx_blake2b_info
     = {CX_BLAKE2B,
        0,
@@ -60,7 +63,7 @@ cx_err_t cx_blake2b_init2_no_throw(cx_blake2b_t *hash,
     if (perso == NULL && perso_len != 0) {
         goto err;
     }
-    if (salt_len > 16 || perso_len > 16) {
+    if (salt_len > CX_BLAKE2B_SALT_PERSO_LEN || perso_len > CX_BLAKE2B_SALT_PERSO_LEN) {
         goto err;
     }
     if (size % 8 != 0 || size < 8 || size > 512) {
@@ -79,6 +82,14 @@ cx_err_t cx_blake2b_init2_no_throw(cx_blake2b_t *hash,
 
 err:
     return CX_INVALID_PARAMETER;
+}
+
+cx_err_t cx_blake2b_init_key(cx_blake2b_t *hash, uint8_t *key, size_t key_len)
+{
+    if ((NULL == key) && (0 == key_len)) {
+        return CX_OK;
+    }
+    return blake2b_init_key(&hash->ctx, hash->output_size, key, key_len);
 }
 
 cx_err_t cx_blake2b_update(cx_blake2b_t *ctx, const uint8_t *data, size_t len)
