@@ -2884,8 +2884,8 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
                 button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layoutInt->layer);
                 obj    = addCallbackObj(layoutInt,
                                      (nbgl_obj_t *) button,
-                                     headerDesc->backAndText.token,
-                                     headerDesc->backAndText.tuneId);
+                                     headerDesc->progressAndBack.token,
+                                     headerDesc->progressAndBack.tuneId);
                 if (obj == NULL) {
                     return -1;
                 }
