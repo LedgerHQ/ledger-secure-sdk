@@ -503,10 +503,8 @@ static void displayReviewPage(uint8_t page, bool forceFullRefresh)
 #endif  // TARGET_STAX
         content.infoLongPress.longPressToken = CONFIRM_TOKEN;
         if (forwardNavOnly) {
-            // remove the "Skip" button in Footer
-#ifdef TARGET_STAX
+            // remove the "Skip" button
             navInfo.skipText = NULL;
-#endif  // TARGET_STAX
         }
     }
     else {
