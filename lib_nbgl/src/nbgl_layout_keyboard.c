@@ -546,7 +546,7 @@ int nbgl_layoutAddEnteredText(nbgl_layout_t *layout,
 #ifdef TARGET_STAX
         textArea->obj.alignmentMarginY = 12;
 #else   // TARGET_STAX
-        textArea->obj.alignmentMarginY = 9;
+        textArea->obj.alignmentMarginY = 16;
 #endif  // TARGET_STAX
         textArea->obj.alignTo   = (nbgl_obj_t *) line;
         textArea->obj.alignment = TOP_LEFT;
@@ -569,7 +569,7 @@ int nbgl_layoutAddEnteredText(nbgl_layout_t *layout,
 #ifdef TARGET_STAX
     textArea->obj.alignmentMarginY = 12;
 #else   // TARGET_STAX
-    textArea->obj.alignmentMarginY = 9;
+    textArea->obj.alignmentMarginY = 16;
 #endif  // TARGET_STAX
     textArea->obj.alignTo    = (nbgl_obj_t *) line;
     textArea->obj.alignment  = TOP_LEFT;
@@ -686,7 +686,7 @@ int nbgl_layoutAddConfirmationButton(nbgl_layout_t *layout,
 #ifdef TARGET_STAX
     button->obj.alignmentMarginY = BOTTOM_BORDER_MARGIN;
 #else   // TARGET_STAX
-    button->obj.alignmentMarginY = 12;
+    button->obj.alignmentMarginY = 24;
 #endif  // TARGET_STAX
     button->obj.alignment   = TOP_MIDDLE;
     button->foregroundColor = WHITE;
