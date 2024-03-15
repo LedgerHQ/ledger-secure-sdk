@@ -289,6 +289,7 @@ typedef enum {
     FULL_COLOR_CLEAN_REFRESH,  ///< to be used for lock screen display (cleaner but longer refresh)
     BLACK_AND_WHITE_REFRESH,   ///< to be used for pure B&W area, when contrast is important
     BLACK_AND_WHITE_FAST_REFRESH,  ///< to be used for pure B&W area, when contrast is not priority
+    INIT_REFRESH,                  ///< to be used to fully clear the screen in white
     NB_REFRESH_MODES
 } nbgl_refresh_mode_t;
 
