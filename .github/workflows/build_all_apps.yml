@@ -10,6 +10,10 @@ on:
   pull_request:
 
 
+env:
+  BLACKLIST: "app-avalanche" # Add the names of the repositories to exclude here, separated by commas
+
+
 jobs:
   prepare-matrix:
     runs-on: ubuntu-latest
@@ -39,7 +43,11 @@ jobs:
             # add filtered repos to the list
             for repo in $(echo "$repos" | jq -r '.[] | select((.name | startswith("app-")) and (.archived == false) and (.private == false)) | .name'); do
               default_branch=$(echo "$repos" | jq -r --arg repo "$repo" '.[] | select(.name == $repo) | .default_branch')
-              result+=("$repo,$default_branch")
+              if [[ ! " ${BLACKLIST//,/ } " =~ " $repo " ]]; then
+                result+=("$repo,$default_branch")
+              else
+                echo "Skipping blacklisted repository: $repo"
+              fi
             done
 
             ((page++))
