@@ -1248,8 +1248,8 @@ class TTF2INC:
 
             # Parse all strings contained in txt fields of json_data
             for category in json_data:
-                # Skip Smartling related part of the JSON file
-                if category.lower() == "smartling":
+                # Skip Smartling & branch related parts of the JSON file
+                if category.lower() == "smartling" or category.lower() == "branch":
                     continue
 
                 # Parse all "text" strings and add the unicode characters
