@@ -150,6 +150,19 @@ bool buffer_read_bip32_path(buffer_t *buffer, uint32_t *out, size_t out_len)
     return true;
 }
 
+bool buffer_read_nu8(buffer_t *buffer, uint8_t *out, size_t read_len)
+{
+    if (!buffer_can_read(buffer, read_len)) {
+        return false;
+    }
+
+    memmove(out, buffer->ptr + buffer->offset, read_len);
+
+    buffer_seek_cur(buffer, read_len);
+
+    return true;
+}
+
 bool buffer_copy(const buffer_t *buffer, uint8_t *out, size_t out_len)
 {
     if (buffer->size - buffer->offset > out_len) {

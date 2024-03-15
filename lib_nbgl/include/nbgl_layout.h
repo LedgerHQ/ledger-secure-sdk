@@ -250,9 +250,11 @@ typedef struct {
  */
 typedef enum {
     ROUNDED_AND_FOOTER_STYLE
-        = 0,            ///< A rounded black background full width button on top of a footer
-    BOTH_ROUNDED_STYLE  ///< A rounded black background full width button on top of a rounded white
-                        ///< background full width button
+        = 0,             ///< A rounded black background full width button on top of a footer
+    BOTH_ROUNDED_STYLE,  ///< A rounded black background full width button on top of a rounded white
+                         ///< background full width button
+    BOTH_ROUNDED_WITH_ICON_STYLE  ///< A rounded black background full width button on top of a
+                                  ///< rounded white background full width button, with icons
 } nbgl_layoutChoiceButtonsStyle_t;
 
 /**
@@ -263,7 +265,11 @@ typedef enum {
 typedef struct {
     const char *topText;     ///< up-button text (index 0)
     const char *bottomText;  ///< bottom-button text (index 1)
-    uint8_t     token;       ///< the token that will be used as argument of the callback
+    const nbgl_icon_details_t *
+        topIcon;  ///< icon for top button (only used if style is @ref BOTH_ROUNDED_WITH_ICON_STYLE)
+    const nbgl_icon_details_t *bottomIcon;  ///< icon for bottom button (only used if style is @ref
+                                            ///< BOTH_ROUNDED_WITH_ICON_STYLE)
+    uint8_t token;  ///< the token that will be used as argument of the callback
     nbgl_layoutChoiceButtonsStyle_t style;  ///< the style of the pair
 #ifdef HAVE_PIEZO_SOUND
     tune_index_e tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played
@@ -321,10 +327,10 @@ typedef struct {
 typedef enum {
     HEADER_EMPTY = 0,      ///< empty space, to have a better vertical centering of centered info
     HEADER_BACK_AND_TEXT,  ///< back key and optional text
-    HEADER_BACK_AND_PROGRESS,  ///< optional back key and progress indicator (only on Stax)
-    HEADER_TITLE,              ///< simple centered text
-    HEADER_EXTENDED_BACK,      ///< back key, centered text and touchable key on the right
-    HEADER_RIGHT_TEXT,         ///< touchable text on the right, with a vertical separation line
+    HEADER_BACK_TEXT_AND_ACTION,  ///< back key, optional text and right icon acting as action key
+    HEADER_BACK_AND_PROGRESS,     ///< optional back key and progress indicator (only on Stax)
+    HEADER_TITLE,                 ///< simple centered text
+    HEADER_RIGHT_TEXT,            ///< touchable text on the right, with a vertical separation line
     NB_HEADER_TYPES
 } nbgl_layoutHeaderType_t;
 
@@ -345,6 +351,14 @@ typedef struct {
             tune_index_e tuneId;  ///< when back key is pressed
         } backAndText;            ///< if type is @ref HEADER_BACK_AND_TEXT
         struct {
+            const char                *text;        ///< centered text, can be NULL if no text
+            const nbgl_icon_details_t *actionIcon;  ///< right button icon
+            uint8_t                    backToken;   ///< when back key is pressed
+            uint8_t      actionToken;  ///< when action key is pressed (not active (grayed) if 0xFF)
+            uint8_t      textToken;    ///< when texy is taped (not active if 0xFF)
+            tune_index_e tuneId;       ///< when back key is pressed
+        } backTextAndAction;           ///< if type is @ref HEADER_BACK_TEXT_AND_ACTION
+        struct {
             uint8_t      activePage;
             uint8_t      nbPages;
             bool         withBack;
@@ -354,13 +368,6 @@ typedef struct {
         struct {
             const char *text;
         } title;  ///< if type is @ref HEADER_TITLE
-        struct {
-            const nbgl_icon_details_t *actionIcon;   ///< right button icon
-            const char                *text;         ///< centered text (can be NULL if no text)
-            uint8_t                    backToken;    ///< when back key is pressed
-            uint8_t                    actionToken;  ///< when right key is pressed
-            tune_index_e               tuneId;       ///< when back key is pressed
-        } extendedBack;                              ///< if type is @ref HEADER_EXTENDED_BACK
         struct {
             const char  *text;    ///< touchable text on the right
             uint8_t      token;   ///< when text is pressed
@@ -467,6 +474,12 @@ int nbgl_layoutAddTopRightButton(nbgl_layout_t             *layout,
 int nbgl_layoutAddTouchableBar(nbgl_layout_t *layout, const nbgl_layoutBar_t *barLayout);
 int nbgl_layoutAddSwitch(nbgl_layout_t *layout, const nbgl_layoutSwitch_t *switchLayout);
 int nbgl_layoutAddText(nbgl_layout_t *layout, const char *text, const char *subText);
+int nbgl_layoutAddTouchableText(nbgl_layout_t *layout,
+                                const char    *text,
+                                uint8_t        token,
+                                uint8_t        nbMaxLines,
+                                bool           smallFont,
+                                tune_index_e   tuneId);
 int nbgl_layoutAddRadioChoice(nbgl_layout_t *layout, const nbgl_layoutRadioChoice_t *choices);
 int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info);
 int nbgl_layoutAddChoiceButtons(nbgl_layout_t *layout, const nbgl_layoutChoiceButtons_t *info);

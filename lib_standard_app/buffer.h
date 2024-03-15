@@ -162,6 +162,21 @@ bool buffer_read_varint(buffer_t *buffer, uint64_t *value);
 bool buffer_read_bip32_path(buffer_t *buffer, uint32_t *out, size_t out_len);
 
 /**
+ * Read read_len bytes from buffer.
+ *
+ * @param[in,out]  buffer
+ *   Pointer to input buffer struct.
+ * @param[out]     out
+ *   Pointer to output 32-bit integer buffer.
+ * @param[in]      read_len
+ *   Number of u8 to read in the output buffer.
+ *
+ * @return true if success, false otherwise.
+ *
+ */
+bool buffer_read_nu8(buffer_t *buffer, uint8_t *out, size_t read_len);
+
+/**
  * Copy bytes from buffer without moving offset.
  *
  * @param[in]  buffer

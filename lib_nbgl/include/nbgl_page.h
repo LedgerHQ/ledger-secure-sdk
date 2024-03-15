@@ -192,6 +192,7 @@ typedef struct nbgl_pageInfoDescription_s {
                              ///< when tapped or swiped
     const char
         *actionButtonText;  ///< if not NULL a black "action" button is set under the centered info
+    const nbgl_icon_details_t *actionButtonIcon;  ///< if not NULL, use it in "action" button
     tune_index_e
         tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played when button/footer is pressed
 } nbgl_pageInfoDescription_t;
