@@ -162,7 +162,7 @@ bool keyboardSwipeCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
         if (i < (uint32_t) nbActiveButtons) {
             if (updateSuggestionButtons(container, eventType, i)) {
                 nbgl_redrawObject((nbgl_obj_t *) container, NULL, false);
-                nbgl_refresh();
+                nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
             }
 
             return true;
