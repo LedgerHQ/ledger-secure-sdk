@@ -16,6 +16,10 @@
  *  limitations under the License.
  ********************************************************************************/
 
+#ifdef OSU
+#include "osu_defines.h"
+#endif
+
 #include "exceptions.h"
 #include "lcx_rng.h"
 #include "os_helpers.h"

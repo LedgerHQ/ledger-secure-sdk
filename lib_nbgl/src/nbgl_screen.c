@@ -6,6 +6,10 @@
 /*********************
  *      INCLUDES
  *********************/
+#ifdef OSU
+#include "osu_defines.h"
+#endif
+
 #include "nbgl_front.h"
 #include "nbgl_screen.h"
 #include "nbgl_debug.h"

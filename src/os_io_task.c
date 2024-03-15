@@ -1,3 +1,7 @@
+#ifdef OSU
+#include "osu_defines.h"
+#endif
+
 #include "decorators.h"
 #include "exceptions.h"
 #include "os_io_seproxyhal.h"
