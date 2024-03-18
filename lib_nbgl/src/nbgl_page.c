@@ -49,7 +49,7 @@ static void addContent(nbgl_pageContent_t *content,
             centeredInfo.text2   = NULL;
             centeredInfo.text3   = NULL;
             centeredInfo.style   = LARGE_CASE_INFO;
-            centeredInfo.offsetY = -32;
+            centeredInfo.offsetY = -LONG_PRESS_BUTTON_HEIGHT / 2;
             centeredInfo.onTop   = false;
             nbgl_layoutAddCenteredInfo(layout, &centeredInfo);
             nbgl_layoutAddLongPressButton(layout,
@@ -82,6 +82,11 @@ static void addContent(nbgl_pageContent_t *content,
             break;
         }
         case CENTERED_INFO:
+            if (!headerAdded) {
+                nbgl_layoutHeader_t headerDesc
+                    = {.type = HEADER_EMPTY, .separationLine = false, .emptySpace.height = 40};
+                nbgl_layoutAddHeader(layout, &headerDesc);
+            }
             nbgl_layoutAddCenteredInfo(layout, &content->centeredInfo);
             break;
         case TAG_VALUE_LIST:
@@ -462,6 +467,9 @@ nbgl_page_t *nbgl_pageDrawConfirmation(nbgl_layoutTouchCallback_t               
                                                   .topText    = PIC(info->confirmationText),
                                                   .style      = ROUNDED_AND_FOOTER_STYLE,
                                                   .tuneId     = info->tuneId};
+        nbgl_layoutHeader_t        headerDesc
+            = {.type = HEADER_EMPTY, .separationLine = false, .emptySpace.height = 64};
+        nbgl_layoutAddHeader(layout, &headerDesc);
         nbgl_layoutAddChoiceButtons(layout, &buttonsInfo);
     }
     nbgl_layoutAddCenteredInfo(layout, &info->centeredInfo);
