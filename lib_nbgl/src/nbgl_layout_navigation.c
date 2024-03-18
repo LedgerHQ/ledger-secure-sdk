@@ -245,7 +245,8 @@ void layoutNavigationPopulate(nbgl_container_t *navContainer,
 
     // potentially create page indicator (with a text area)
 #ifndef TARGET_STAX
-    if (withPageIndicator && withBackKey && (nbPages > 1)) {
+    if (withPageIndicator && withBackKey
+        && (nbPages > 1 && nbPages != NBGL_NO_PROGRESS_INDICATOR)) {
         nbgl_text_area_t *textArea = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layer);
 
         SPRINTF(navText, "%d of %d", activePage + 1, nbPages);
