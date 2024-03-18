@@ -1602,7 +1602,9 @@ void nbgl_useCaseGenericSettings(const char                   *appName,
     pageTitle = appName;
     navType   = GENERIC_NAV;
 
-    memcpy(&genericContext.genericContents, settingContents, sizeof(nbgl_genericContents_t));
+    if (settingContents != NULL) {
+        memcpy(&genericContext.genericContents, settingContents, sizeof(nbgl_genericContents_t));
+    }
     if (infosList != NULL) {
         genericContext.hasFinishingContent = true;
         memset(&FINISHING_CONTENT, 0, sizeof(nbgl_content_t));
@@ -2434,7 +2436,7 @@ void nbgl_useCaseAddressReview(const char                      *address,
 #ifdef TARGET_STAX
     centeredInfo->text3 = NULL;
 #else   // TARGET_STAX
-    centeredInfo->text3               = "Swipe to review";
+    centeredInfo->text3               = "Swipe to continue";
 #endif  // TARGET_STAX
     centeredInfo->style   = LARGE_CASE_GRAY_INFO;
     centeredInfo->offsetY = 0;
