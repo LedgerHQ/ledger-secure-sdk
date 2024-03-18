@@ -26,8 +26,9 @@ extern "C" {
 /*********************
  *      DEFINES
  *********************/
-#define NO_MORE_OBJ_ERROR -3
-#define NBGL_NO_TUNE      NB_TUNES
+#define NO_MORE_OBJ_ERROR          -3
+#define NBGL_NO_TUNE               NB_TUNES
+#define NBGL_NO_PROGRESS_INDICATOR 0xFF
 
 #define NB_MAX_SUGGESTION_BUTTONS 4
 
