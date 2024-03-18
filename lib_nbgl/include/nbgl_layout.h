@@ -26,7 +26,8 @@ extern "C" {
 /*********************
  *      DEFINES
  *********************/
-#define NBGL_NO_TUNE NB_TUNES
+#define NBGL_NO_TUNE               NB_TUNES
+#define NBGL_NO_PROGRESS_INDICATOR 0xFF
 
 #ifdef HAVE_SE_TOUCH
 ///< special code used as index of action callback to inform when Exit key (X) is
