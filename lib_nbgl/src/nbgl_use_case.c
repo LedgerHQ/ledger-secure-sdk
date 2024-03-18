@@ -286,7 +286,7 @@ static const nbgl_content_t *getContentAtIdx(const nbgl_genericContents_t *gener
                                              nbgl_content_t               *content)
 {
     if (contentIdx < 0 || contentIdx >= genericContents->nbContents) {
-        PRINTF("No content available at %d\n", contentIdx);
+        LOG_DEBUG(USE_CASE_LOGGER, "No content available at %d\n", contentIdx);
         return NULL;
     }
 
@@ -605,7 +605,7 @@ static const nbgl_content_t *genericContextComputeNextPageParams(uint8_t        
         p_content = getContentAtIdx(&genericContext.genericContents, nextContentIdx, content);
 
         if (p_content == NULL) {
-            PRINTF("Fail to retrieve content\n");
+            LOG_DEBUG(USE_CASE_LOGGER, "Fail to retrieve content\n");
             return NULL;
         }
     }
@@ -631,9 +631,10 @@ static const nbgl_content_t *genericContextComputeNextPageParams(uint8_t        
 
     // Sanity check
     if ((nextElementIdx < 0) || (nextElementIdx >= genericContext.currentContentElementNb)) {
-        PRINTF("Invalid element index %d / %d\n",
-               nextElementIdx,
-               genericContext.currentContentElementNb);
+        LOG_DEBUG(USE_CASE_LOGGER,
+                  "Invalid element index %d / %d\n",
+                  nextElementIdx,
+                  genericContext.currentContentElementNb);
         return NULL;
     }
 
@@ -762,7 +763,7 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
             pageContent->barsList.tuneId = p_content->content.barsList.tuneId;
             break;
         default:
-            PRINTF("Unsupported type %d\n", pageContent->type);
+            LOG_DEBUG(USE_CASE_LOGGER, "Unsupported type %d\n", pageContent->type);
             return false;
     }
 
@@ -792,7 +793,7 @@ static void displayGenericContextPage(uint8_t pageIdx, bool forceFullRefresh)
     else {
         if (pageIdx - navInfo.activePage > 1) {
             // We don't support going more than one step backward as it doesn't occurs for now?
-            PRINTF("Unsupported navigation\n");
+            LOG_DEBUG(USE_CASE_LOGGER, "Unsupported navigation\n");
             return;
         }
         p_content
