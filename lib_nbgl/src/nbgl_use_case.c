@@ -152,7 +152,6 @@ static nbgl_page_t *modalPageContext;
 
 // context for pages
 static const char *pageTitle;
-static bool        touchableTitle;
 
 // context for navigation use case
 static nbgl_pageNavigationInfo_t navInfo;
@@ -683,7 +682,7 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
     uint8_t nextElementIdx = genericContext.currentElementIdx;
 
     pageContent->title            = pageTitle;
-    pageContent->isTouchableTitle = touchableTitle;
+    pageContent->isTouchableTitle = false;
     pageContent->titleToken       = QUIT_TOKEN;
     pageContent->tuneId           = TUNE_TAP_CASUAL;
 
@@ -1629,7 +1628,6 @@ void nbgl_useCaseGenericSettings(const char                   *appName,
         FINISHING_CONTENT.type = INFOS_LIST;
         memcpy(&FINISHING_CONTENT.content, infosList, sizeof(nbgl_content_u));
     }
-    touchableTitle = false;
 
     // fill navigation structure
     uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
@@ -2039,10 +2037,9 @@ void nbgl_useCaseStaticReview(const nbgl_layoutTagValueList_t *tagValueList,
     memset(&genericContext, 0, sizeof(genericContext));
 
     // memorize context
-    onChoice       = callback;
-    navType        = GENERIC_NAV;
-    touchableTitle = false;
-    pageTitle      = NULL;
+    onChoice  = callback;
+    navType   = GENERIC_NAV;
+    pageTitle = NULL;
 
     genericContext.genericContents.contentsList = localContentsList;
     genericContext.genericContents.nbContents   = 2;
@@ -2088,10 +2085,9 @@ void nbgl_useCaseStaticReviewLight(const nbgl_layoutTagValueList_t *tagValueList
     memset(&genericContext, 0, sizeof(genericContext));
 
     // memorize context
-    onChoice       = callback;
-    navType        = GENERIC_NAV;
-    touchableTitle = false;
-    pageTitle      = NULL;
+    onChoice  = callback;
+    navType   = GENERIC_NAV;
+    pageTitle = NULL;
 
     genericContext.genericContents.contentsList = localContentsList;
     genericContext.genericContents.nbContents   = 2;
@@ -2149,10 +2145,9 @@ void nbgl_useCaseReview(nbgl_operationType_t             operationType,
     bundleNavContext.review.choiceCallback = choiceCallback;
 
     // memorize context
-    onChoice       = bundleNavReviewChoice;
-    navType        = GENERIC_NAV;
-    touchableTitle = false;
-    pageTitle      = NULL;
+    onChoice  = bundleNavReviewChoice;
+    navType   = GENERIC_NAV;
+    pageTitle = NULL;
 
     genericContext.genericContents.contentsList = localContentsList;
     genericContext.genericContents.nbContents   = 3;
@@ -2280,10 +2275,9 @@ void nbgl_useCaseAddressConfirmationExt(const char                      *address
     memset(&addressConfirmationContext, 0, sizeof(addressConfirmationContext));
 
     // save context
-    onChoice       = callback;
-    navType        = GENERIC_NAV;
-    touchableTitle = false;
-    pageTitle      = NULL;
+    onChoice  = callback;
+    navType   = GENERIC_NAV;
+    pageTitle = NULL;
 
     genericContext.genericContents.contentsList = localContentsList;
     genericContext.genericContents.nbContents   = (tagValueList == NULL) ? 1 : 2;
@@ -2335,10 +2329,9 @@ void nbgl_useCaseAddressReview(const char                      *address,
     memset(&addressConfirmationContext, 0, sizeof(addressConfirmationContext));
 
     // save context
-    onChoice       = choiceCallback;
-    navType        = GENERIC_NAV;
-    touchableTitle = false;
-    pageTitle      = NULL;
+    onChoice  = choiceCallback;
+    navType   = GENERIC_NAV;
+    pageTitle = NULL;
 
     genericContext.genericContents.contentsList = localContentsList;
     genericContext.genericContents.nbContents   = (additionalTagValueList == NULL) ? 2 : 3;
