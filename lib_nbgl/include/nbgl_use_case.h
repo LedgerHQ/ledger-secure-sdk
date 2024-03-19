@@ -211,6 +211,18 @@ void nbgl_useCaseAddressReview(
 void nbgl_useCaseReviewStatus(nbgl_reviewStatusType_t reviewStatusType,
                               nbgl_callback_t         quitCallback);
 
+void nbgl_useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
+                                      const nbgl_icon_details_t *icon,
+                                      const char                *reviewTitle,
+                                      const char                *reviewSubTitle,
+                                      nbgl_choiceCallback_t      choiceCallback);
+
+void nbgl_useCaseReviewStreamingContinue(const nbgl_layoutTagValueList_t *tagValueList,
+                                         nbgl_choiceCallback_t            choiceCallback);
+
+void nbgl_useCaseReviewStreamingFinish(const char           *finishTitle,
+                                       nbgl_choiceCallback_t choiceCallback);
+
 #ifdef HAVE_SE_TOUCH
 // utils
 uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                          nbPairs,
