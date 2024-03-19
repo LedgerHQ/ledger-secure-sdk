@@ -63,7 +63,8 @@ enum {
 typedef enum {
     REVIEW_NAV = 0,
     SETTINGS_NAV,
-    GENERIC_NAV
+    GENERIC_NAV,
+    STREAMING_NAV
 } NavType_t;
 
 typedef struct DetailsContext_s {
@@ -120,9 +121,17 @@ typedef struct {
     nbgl_choiceCallback_t choiceCallback;
 } nbgl_reviewContext_t;
 
+typedef struct {
+    nbgl_operationType_t       operationType;
+    nbgl_choiceCallback_t      choiceCallback;
+    const nbgl_icon_details_t *icon;
+    uint8_t                    stepPageNb;
+} nbgl_reviewStreamingContext_t;
+
 typedef union {
     nbgl_homeAndSettingsContext_t homeAndSettings;
     nbgl_reviewContext_t          review;
+    nbgl_reviewStreamingContext_t reviewStreaming;
 } nbgl_BundleNavContext_t;
 
 /**********************
@@ -219,6 +228,8 @@ static void displaySkipWarning(void);
 static void bundleNavStartHome(void);
 static void bundleNavStartSettingsAtPage(uint8_t initSettingPage);
 static void bundleNavStartSettings(void);
+
+static void bundleNavReviewStreamingChoice(bool confirm);
 
 static void reset_callbacks(void)
 {
@@ -330,6 +341,51 @@ static void prepareNavInfo(bool isReview, uint8_t nbPages, const char *rejectTex
     }
 }
 
+static void prepareReviewFirstPage(nbgl_contentCenteredInfo_t *centeredInfo,
+                                   const nbgl_icon_details_t  *icon,
+                                   const char                 *reviewTitle,
+                                   const char                 *reviewSubTitle)
+{
+    centeredInfo->icon  = icon;
+    centeredInfo->text1 = reviewTitle;
+    centeredInfo->text2 = reviewSubTitle;
+#ifdef TARGET_STAX
+    centeredInfo->text3 = NULL;
+#else   // TARGET_STAX
+    centeredInfo->text3 = "Swipe to continue";
+#endif  // TARGET_STAX
+    centeredInfo->style   = LARGE_CASE_INFO;
+    centeredInfo->offsetY = 0;
+}
+
+static void prepareReviewLastPage(nbgl_contentInfoLongPress_t *infoLongPress,
+                                  const nbgl_icon_details_t   *icon,
+                                  const char                  *finishTitle)
+{
+    infoLongPress->text           = finishTitle;
+    infoLongPress->icon           = icon;
+    infoLongPress->longPressText  = "Hold to sign";
+    infoLongPress->longPressToken = CONFIRM_TOKEN;
+}
+
+static const char *getRejectReviewText(nbgl_operationType_t operationType)
+{
+#ifdef TARGET_STAX
+    if (operationType == TYPE_TRANSACTION) {
+        return "Reject transaction";
+    }
+    else if (operationType == TYPE_MESSAGE) {
+        return "Reject message";
+    }
+    else {
+        return "Reject operation";
+    }
+#else
+    UNUSED(operationType);
+    return "Reject";
+#endif
+}
+
 // function called when navigating (or exiting) modal details pages
 // or when skip choice is displayed
 static void pageModalCallback(int token, uint8_t index)
@@ -422,7 +478,7 @@ static void pageCallback(int token, uint8_t index)
             }
         }
         else {
-            if (navType == GENERIC_NAV) {
+            if (navType == GENERIC_NAV || navType == STREAMING_NAV) {
                 displayGenericContextPage(index, false);
             }
             else if (navType == REVIEW_NAV) {
@@ -527,7 +583,7 @@ static void displayReviewPage(uint8_t page, bool forceFullRefresh)
 #else   // TARGET_STAX
         // for forward only review without known length...
         // if we don't do that we cannot remove the '>' in the navigation bar at the last page
-        navInfo.nbPages                   = navInfo.activePage + 1;
+        navInfo.nbPages = navInfo.activePage + 1;
 #endif  // TARGET_STAX
         content.infoLongPress.longPressToken = CONFIRM_TOKEN;
         if (forwardNavOnly) {
@@ -805,6 +861,10 @@ static void displayGenericContextPage(uint8_t pageIdx, bool forceFullRefresh)
     uint8_t               nbElementsInPage;
     bool                  flag;
     const nbgl_content_t *p_content = NULL;
+
+    if ((navType == STREAMING_NAV) && (pageIdx >= bundleNavContext.reviewStreaming.stepPageNb)) {
+        return bundleNavReviewStreamingChoice(true);
+    }
 
     if (navInfo.activePage == pageIdx) {
         p_content
@@ -1242,16 +1302,17 @@ static void bundleNavReviewConfirmRejection(void)
     bundleNavContext.review.choiceCallback(false);
 }
 
-static void bundleNavReviewAskRejectionConfirmation(void)
+static void bundleNavReviewAskRejectionConfirmation(nbgl_operationType_t operationType,
+                                                    nbgl_callback_t      callback)
 {
     const char *title;
     const char *confirmText;
 
-    if (bundleNavContext.review.operationType == TYPE_TRANSACTION) {
+    if (operationType == TYPE_TRANSACTION) {
         title       = "Reject transaction?";
         confirmText = "Go back to transaction";
     }
-    else if (bundleNavContext.review.operationType == TYPE_MESSAGE) {
+    else if (operationType == TYPE_MESSAGE) {
         title       = "Reject message?";
         confirmText = "Go back to message";
     }
@@ -1261,7 +1322,7 @@ static void bundleNavReviewAskRejectionConfirmation(void)
     }
 
     // display a choice to confirm/cancel rejection
-    nbgl_useCaseConfirm(title, NULL, "Yes, Reject", confirmText, bundleNavReviewConfirmRejection);
+    nbgl_useCaseConfirm(title, NULL, "Yes, Reject", confirmText, callback);
 }
 
 static void bundleNavReviewChoice(bool confirm)
@@ -1270,7 +1331,28 @@ static void bundleNavReviewChoice(bool confirm)
         bundleNavContext.review.choiceCallback(true);
     }
     else {
-        bundleNavReviewAskRejectionConfirmation();
+        bundleNavReviewAskRejectionConfirmation(bundleNavContext.review.operationType,
+                                                bundleNavReviewConfirmRejection);
+    }
+}
+
+static void bundleNavReviewStreamingConfirmRejection(void)
+{
+    bundleNavContext.reviewStreaming.choiceCallback(false);
+}
+
+static void bundleNavReviewStreamingChoice(bool confirm)
+{
+    if (confirm) {
+        // Display a spinner if it wasn't the finish step
+        if (navInfo.nbPages == NBGL_NO_PROGRESS_INDICATOR) {
+            nbgl_useCaseSpinner("Processing");
+        }
+        bundleNavContext.reviewStreaming.choiceCallback(true);
+    }
+    else {
+        bundleNavReviewAskRejectionConfirmation(bundleNavContext.reviewStreaming.operationType,
+                                                bundleNavReviewStreamingConfirmRejection);
     }
 }
 
@@ -1856,27 +1938,18 @@ void nbgl_useCaseReviewStart(const nbgl_icon_details_t *icon,
 {
     reset_callbacks();
 
-    nbgl_pageInfoDescription_t info = {.centeredInfo.icon  = icon,
-                                       .centeredInfo.text1 = reviewTitle,
-                                       .centeredInfo.text2 = reviewSubTitle,
-#ifdef TARGET_STAX
-                                       .centeredInfo.text3 = NULL,
-#else   // TARGET_STAX
-                                       .centeredInfo.text3 = "Swipe to review",
-#endif  // TARGET_STAX
-                                       .centeredInfo.style   = LARGE_CASE_INFO,
-                                       .centeredInfo.offsetY = 0,
-                                       .footerText           = rejectText,
-                                       .footerToken          = QUIT_TOKEN,
+    nbgl_pageInfoDescription_t info = {.footerText  = rejectText,
+                                       .footerToken = QUIT_TOKEN,
 #ifdef TARGET_STAX
                                        .tapActionText = "Tap to continue",
 #else   // TARGET_STAX
-                                       .tapActionText      = NULL,
+                                       .tapActionText = NULL,
 #endif  // TARGET_STAX
                                        .tapActionToken   = CONTINUE_TOKEN,
                                        .topRightStyle    = NO_BUTTON_STYLE,
                                        .actionButtonText = NULL,
                                        .tuneId           = TUNE_TAP_CASUAL};
+    prepareReviewFirstPage(&info.centeredInfo, icon, reviewTitle, reviewSubTitle);
     onQuit     = rejectCallback;
     onContinue = continueCallback;
 
@@ -2114,7 +2187,7 @@ void nbgl_useCaseStaticReviewLight(const nbgl_layoutTagValueList_t *tagValueList
  * @param reviewTitle string used in the first review page
  * @param reviewSubTitle string to set under reviewTitle (can be NULL)
  * @param finishTitle string used in the last review page
- * @param choiceCallback callback called when transaction is accepted (param is true) or rejected
+ * @param choiceCallback callback called when operation is accepted (param is true) or rejected
  * (param is false)
  */
 void nbgl_useCaseReview(nbgl_operationType_t             operationType,
@@ -2125,9 +2198,6 @@ void nbgl_useCaseReview(nbgl_operationType_t             operationType,
                         const char                      *finishTitle,
                         nbgl_choiceCallback_t            choiceCallback)
 {
-    nbgl_contentCenteredInfo_t  *centeredInfo;
-    nbgl_contentInfoLongPress_t *infoLongPress;
-
     reset_callbacks();
     memset(&genericContext, 0, sizeof(genericContext));
 
@@ -2145,17 +2215,8 @@ void nbgl_useCaseReview(nbgl_operationType_t             operationType,
 
     // First a centered info
     localContentsList[0].type = CENTERED_INFO;
-    centeredInfo              = &localContentsList[0].content.centeredInfo;
-    centeredInfo->icon        = icon;
-    centeredInfo->text1       = reviewTitle;
-    centeredInfo->text2       = reviewSubTitle;
-#ifdef TARGET_STAX
-    centeredInfo->text3 = NULL;
-#else   // TARGET_STAX
-    centeredInfo->text3       = "Swipe to review";
-#endif  // TARGET_STAX
-    centeredInfo->style   = LARGE_CASE_INFO;
-    centeredInfo->offsetY = 0;
+    prepareReviewFirstPage(
+        &localContentsList[0].content.centeredInfo, icon, reviewTitle, reviewSubTitle);
 
     // Then the tag/value pairs
     localContentsList[1].type = TAG_VALUE_LIST;
@@ -2164,33 +2225,144 @@ void nbgl_useCaseReview(nbgl_operationType_t             operationType,
            sizeof(nbgl_layoutTagValueList_t));
 
     // Eventually the long press page
-    localContentsList[2].type     = INFO_LONG_PRESS;
-    infoLongPress                 = &localContentsList[2].content.infoLongPress;
-    infoLongPress->text           = finishTitle;
-    infoLongPress->icon           = icon;
-    infoLongPress->longPressText  = "Hold to sign";
-    infoLongPress->longPressToken = CONFIRM_TOKEN;
+    localContentsList[2].type = INFO_LONG_PRESS;
+    prepareReviewLastPage(&localContentsList[2].content.infoLongPress, icon, finishTitle);
 
     // compute number of pages & fill navigation structure
     uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
-
-#ifdef TARGET_STAX
-    if (operationType == TYPE_TRANSACTION) {
-        prepareNavInfo(true, nbPages, "Reject transaction");
-    }
-    else if (operationType == TYPE_MESSAGE) {
-        prepareNavInfo(true, nbPages, "Reject message");
-    }
-    else {
-        prepareNavInfo(true, nbPages, "Reject operation");
-    }
-#else
-    prepareNavInfo(true, nbPages, "Reject");
-#endif
+    prepareNavInfo(true, nbPages, getRejectReviewText(operationType));
 
     displayGenericContextPage(0, true);
 }
 
+/**
+ * @brief Start drawing the flow of pages of a review.
+ * @note  This should be followed by calls to nbgl_useCaseReviewStreamingContinue and finally to
+ *        nbgl_useCaseReviewStreamingFinish.
+ *
+ * @param operationType type of operation (Operation, Transaction, Message)
+ * @param icon icon used on first and last review page
+ * @param reviewTitle string used in the first review page
+ * @param reviewSubTitle string to set under reviewTitle (can be NULL)
+ * @param choiceCallback callback called when more operation data are needed (param is true) or
+ * operation is rejected (param is false)
+ */
+void nbgl_useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
+                                      const nbgl_icon_details_t *icon,
+                                      const char                *reviewTitle,
+                                      const char                *reviewSubTitle,
+                                      nbgl_choiceCallback_t      choiceCallback)
+{
+    reset_callbacks();
+    memset(&genericContext, 0, sizeof(genericContext));
+
+    bundleNavContext.reviewStreaming.operationType  = operationType;
+    bundleNavContext.reviewStreaming.choiceCallback = choiceCallback;
+    bundleNavContext.reviewStreaming.icon           = icon;
+
+    // memorize context
+    onChoice  = bundleNavReviewStreamingChoice;
+    navType   = STREAMING_NAV;
+    pageTitle = NULL;
+
+    genericContext.genericContents.contentsList = localContentsList;
+    genericContext.genericContents.nbContents   = 1;
+    memset(localContentsList, 0, 1 * sizeof(nbgl_content_t));
+
+    // First a centered info
+    localContentsList[0].type = CENTERED_INFO;
+    prepareReviewFirstPage(
+        &localContentsList[0].content.centeredInfo, icon, reviewTitle, reviewSubTitle);
+
+    // compute number of pages & fill navigation structure
+    bundleNavContext.reviewStreaming.stepPageNb
+        = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
+    prepareNavInfo(true, NBGL_NO_PROGRESS_INDICATOR, getRejectReviewText(operationType));
+
+    displayGenericContextPage(0, true);
+}
+
+/**
+ * @brief Continue drawing the flow of pages of a review.
+ * @note  This should be called after a call to nbgl_useCaseReviewStreamingStart and can be followed
+ *        by others calls to nbgl_useCaseReviewStreamingContinue and finally to
+ *        nbgl_useCaseReviewStreamingFinish.
+ *
+ * @param tagValueList list of tag/value pairs
+ * @param choiceCallback callback called when more operation data are needed (param is true) or
+ * operation is rejected (param is false)
+ */
+void nbgl_useCaseReviewStreamingContinue(const nbgl_layoutTagValueList_t *tagValueList,
+                                         nbgl_choiceCallback_t            choiceCallback)
+{
+    // Should follow a call to nbgl_useCaseReviewStreamingStart
+    memset(&genericContext, 0, sizeof(genericContext));
+
+    bundleNavContext.reviewStreaming.choiceCallback = choiceCallback;
+
+    // memorize context
+    onChoice  = bundleNavReviewStreamingChoice;
+    navType   = STREAMING_NAV;
+    pageTitle = NULL;
+
+    genericContext.genericContents.contentsList = localContentsList;
+    genericContext.genericContents.nbContents   = 1;
+    memset(localContentsList, 0, 1 * sizeof(nbgl_content_t));
+
+    // Then the tag/value pairs
+    localContentsList[0].type = TAG_VALUE_LIST;
+    memcpy(&localContentsList[0].content.tagValueList,
+           tagValueList,
+           sizeof(nbgl_layoutTagValueList_t));
+
+    // compute number of pages & fill navigation structure
+    bundleNavContext.reviewStreaming.stepPageNb
+        = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
+    prepareNavInfo(true,
+                   NBGL_NO_PROGRESS_INDICATOR,
+                   getRejectReviewText(bundleNavContext.reviewStreaming.operationType));
+
+    displayGenericContextPage(0, true);
+}
+
+/**
+ * @brief finish drawing the flow of pages of a review.
+ * @note  This should be called after a call to nbgl_useCaseReviewStreamingContinue.
+ *
+ * @param finishTitle string used in the last review page
+ * @param choiceCallback callback called when more operation is approved (param is true) or is
+ * rejected (param is false)
+ */
+void nbgl_useCaseReviewStreamingFinish(const char           *finishTitle,
+                                       nbgl_choiceCallback_t choiceCallback)
+{
+    // Should follow a call to nbgl_useCaseReviewStreamingContinue
+    memset(&genericContext, 0, sizeof(genericContext));
+
+    bundleNavContext.reviewStreaming.choiceCallback = choiceCallback;
+
+    // memorize context
+    onChoice  = bundleNavReviewStreamingChoice;
+    navType   = STREAMING_NAV;
+    pageTitle = NULL;
+
+    genericContext.genericContents.contentsList = localContentsList;
+    genericContext.genericContents.nbContents   = 1;
+    memset(localContentsList, 0, 1 * sizeof(nbgl_content_t));
+
+    // Eventually the long press page
+    localContentsList[0].type = INFO_LONG_PRESS;
+    prepareReviewLastPage(&localContentsList[0].content.infoLongPress,
+                          bundleNavContext.reviewStreaming.icon,
+                          finishTitle);
+
+    // compute number of pages & fill navigation structure
+    bundleNavContext.reviewStreaming.stepPageNb
+        = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
+    prepareNavInfo(true, 1, getRejectReviewText(bundleNavContext.reviewStreaming.operationType));
+
+    displayGenericContextPage(0, true);
+}
 /**
  * @brief Draws a flow of pages to view details on a given tag/value pair that doesn't fit in a
  * single page
@@ -2312,8 +2484,6 @@ void nbgl_useCaseAddressReview(const char                      *address,
                                const char                      *reviewSubTitle,
                                nbgl_choiceCallback_t            choiceCallback)
 {
-    nbgl_contentCenteredInfo_t *centeredInfo;
-
     reset_callbacks();
     memset(&genericContext, 0, sizeof(genericContext));
     memset(&addressConfirmationContext, 0, sizeof(addressConfirmationContext));
@@ -2329,17 +2499,8 @@ void nbgl_useCaseAddressReview(const char                      *address,
 
     // First a centered info
     localContentsList[0].type = CENTERED_INFO;
-    centeredInfo              = &localContentsList[0].content.centeredInfo;
-    centeredInfo->icon        = icon;
-    centeredInfo->text1       = reviewTitle;
-    centeredInfo->text2       = reviewSubTitle;
-#ifdef TARGET_STAX
-    centeredInfo->text3 = NULL;
-#else   // TARGET_STAX
-    centeredInfo->text3 = "Swipe to review";
-#endif  // TARGET_STAX
-    centeredInfo->style   = LARGE_CASE_INFO;
-    centeredInfo->offsetY = 0;
+    prepareReviewFirstPage(
+        &localContentsList[0].content.centeredInfo, icon, reviewTitle, reviewSubTitle);
 
     // Then the address confirmation pages
     prepareAddressConfirmationPages(
