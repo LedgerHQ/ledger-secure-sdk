@@ -32,7 +32,7 @@ jobs:
           page=1
           result=()
           while true; do
-            repos=$(curl -s "https://api.github.com/orgs/LedgerHQ/repos?page=$page&per_page=200")
+            repos=$(curl -s "https://api.github.com/orgs/LedgerHQ/repos?page=$page&per_page=200&type=public")
 
             if ! echo "$repos" | jq -e '.[].name' >/dev/null; then
               # all repos have been listed
@@ -41,7 +41,7 @@ jobs:
             fi
 
             # add filtered repos to the list
-            for repo in $(echo "$repos" | jq -r '.[] | select((.name | startswith("app-")) and (.archived == false) and (.private == false)) | .name'); do
+            for repo in $(echo "$repos" | jq -r '.[] | select((.name | startswith("app-")) and (.archived == false)) | .name'); do
               default_branch=$(echo "$repos" | jq -r --arg repo "$repo" '.[] | select(.name == $repo) | .default_branch')
               if [[ ! " ${BLACKLIST//,/ } " =~ " $repo " ]]; then
                 result+=("$repo,$default_branch")
@@ -64,7 +64,7 @@ jobs:
             default_branch=$(echo "$repo" | cut -d ',' -f 2)
             toml_content=$(curl -s "https://raw.githubusercontent.com/LedgerHQ/$repo_name/$default_branch/ledger_app.toml")
             # check if the toml file is present in the repo and if the repo is not for a rust app
-            if [[ ! $toml_content =~ "404: Not Found" ]] && [[ ! $toml_content =~ "rust-app" ]]; then
+            if [[ ! $toml_content =~ "404: Not Found" ]]; then
 
               # read toml file attributes
               build_directory=$(echo "$toml_content" | tomlq -r '.app.build_directory')
