@@ -254,9 +254,12 @@ def compute_regular_icon_data(no_comp: bool, im: Image, bpp, reverse) -> Tuple[b
 # glyphs.c/.h chunk files generators
 
 
-def print_glyphfile_top(add_include: bool):
+def print_glyphfile_top(add_include: bool, apps: bool):
     if add_include:
-        print("#include \"glyphs.h\"")
+        if apps:
+            print("#include \"apps_glyphs.h\"")
+        else:
+            print("#include \"glyphs.h\"")
     print(
         """\
 #ifdef HAVE_NBGL
@@ -311,11 +314,12 @@ def main():
     parser.add_argument('--glyphcheader', action='store_true')
     parser.add_argument('--glyphcfile', action='store_true')
     parser.add_argument('--reverse', help="Reverse B&W for 1BPP icons", action='store_true')
+    parser.add_argument('--apps', help="to set to generate apps glyphs", action='store_true')
     args = parser.parse_args()
 
     # Print C header
     if args.glyphcfile or args.glyphcheader:
-        print_glyphfile_top(args.glyphcfile)
+        print_glyphfile_top(args.glyphcfile, args.apps)
 
     processed_image_names = []
     for file in args.image_file:

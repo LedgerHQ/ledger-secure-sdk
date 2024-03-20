@@ -1979,7 +1979,7 @@ int nbgl_layoutAddButton(nbgl_layout_t *layout, const nbgl_layoutButton_t *butto
     }
     button->obj.alignTo   = NULL;
     button->obj.touchMask = (1 << TOUCHED);
-    button->obj.touchId   = SINGLE_BUTTON_ID;
+    button->obj.touchId   = (buttonInfo->fittingContent) ? EXTRA_BUTTON_ID : SINGLE_BUTTON_ID;
     // set this new button as child of the container
     layoutAddObject(layoutInt, (nbgl_obj_t *) button);
 
@@ -2020,7 +2020,7 @@ int nbgl_layoutAddLongPressButton(nbgl_layout_t *layout,
     }
 
     container->obj.area.width  = SCREEN_WIDTH;
-    container->obj.area.height = 128;
+    container->obj.area.height = LONG_PRESS_BUTTON_HEIGHT;
     container->layout          = VERTICAL;
     container->nbChildren      = 4;  // progress-bar + text + line + button
     container->children
@@ -2073,7 +2073,7 @@ int nbgl_layoutAddLongPressButton(nbgl_layout_t *layout,
     // set this new container as child of the main container
     layoutAddObject(layoutInt, (nbgl_obj_t *) container);
 
-    return 0;
+    return container->obj.area.height;
 }
 
 /**
