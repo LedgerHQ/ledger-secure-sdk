@@ -107,8 +107,8 @@ typedef struct {
 #ifdef SCREEN_SIZE_WALLET
     const nbgl_icon_details_t *valueIcon;  ///< a buffer containing the 32px 1BPP icon for icon on
                                            ///< right of value (can be NULL)
-    int8_t force_page_start : 1;  ///< if set to 1, the tag will be displayed at the top of a new
-                                  ///< review page
+    int8_t forcePageStart : 1;  ///< if set to 1, the tag will be displayed at the top of a new
+                                ///< review page
 #endif
 } nbgl_contentTagValue_t;
 
