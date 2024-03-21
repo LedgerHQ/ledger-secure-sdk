@@ -16,6 +16,7 @@
  *  limitations under the License.
  ********************************************************************************/
 
+#include "app_config.h"
 #include "exceptions.h"
 #include "lcx_rng.h"
 #include "os_helpers.h"

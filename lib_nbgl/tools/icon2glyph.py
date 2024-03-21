@@ -255,6 +255,7 @@ def compute_regular_icon_data(no_comp: bool, im: Image, bpp, reverse) -> Tuple[b
 
 
 def print_glyphfile_top(add_include: bool, apps: bool):
+    print("#include \"app_config.h\"")
     if add_include:
         if apps:
             print("#include \"apps_glyphs.h\"")

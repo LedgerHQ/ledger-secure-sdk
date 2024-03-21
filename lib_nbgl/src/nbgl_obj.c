@@ -7,6 +7,8 @@
  *      INCLUDES
  *********************/
 #include <string.h>
+
+#include "app_config.h"
 #include "nbgl_obj.h"
 #include "nbgl_draw.h"
 #include "nbgl_front.h"
