@@ -223,7 +223,7 @@ void nbgl_useCaseReviewStreamingFinish(const char           *finishTitle,
 uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                          nbPairs,
                                          const nbgl_layoutTagValueList_t *tagValueList,
                                          uint8_t                          startIndex,
-                                         bool                            *tooLongToFit);
+                                         bool                            *requireSpecificDisplay);
 uint8_t nbgl_useCaseGetNbPagesForTagValueList(const nbgl_layoutTagValueList_t *tagValueList);
 
 // use case drawing
