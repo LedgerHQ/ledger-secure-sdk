@@ -179,34 +179,29 @@ typedef enum {
  * GLOBAL PROTOTYPES
  **********************/
 
-void nbgl_useCaseHomeAndSettings(
-    const char                *appName,
-    const nbgl_icon_details_t *appIcon,
-    const char                *tagline,
-    const uint8_t
-        initSettingPage,  // if not INIT_HOME_PAGE, start directly the corresponding setting page
-    const nbgl_genericContents_t *settingContents,
-    const nbgl_contentInfoList_t *infosList,
-    const nbgl_homeAction_t      *action,  // Set to NULL if no additional action
-    nbgl_callback_t               quitCallback);
+void nbgl_useCaseHomeAndSettings(const char                   *appName,
+                                 const nbgl_icon_details_t    *appIcon,
+                                 const char                   *tagline,
+                                 const uint8_t                 initSettingPage,
+                                 const nbgl_genericContents_t *settingContents,
+                                 const nbgl_contentInfoList_t *infosList,
+                                 const nbgl_homeAction_t      *action,
+                                 nbgl_callback_t               quitCallback);
 
 void nbgl_useCaseReview(nbgl_operationType_t             operationType,
                         const nbgl_layoutTagValueList_t *tagValueList,
                         const nbgl_icon_details_t       *icon,
                         const char                      *reviewTitle,
-                        const char *reviewSubTitle, /* Most often this is empty, but sometimes
-                                                       indicates a path / index */
-                        const char           *finishTitle, /* unused on Nano */
-                        nbgl_choiceCallback_t choiceCallback);
+                        const char                      *reviewSubTitle,
+                        const char                      *finishTitle,
+                        nbgl_choiceCallback_t            choiceCallback);
 
-void nbgl_useCaseAddressReview(
-    const char *address,
-    const nbgl_layoutTagValueList_t
-        *additionalTagValueList,  // Set to NULL if there are no additional info to display
-    const nbgl_icon_details_t *icon,
-    const char                *reviewTitle,
-    const char                *reviewSubTitle,
-    nbgl_choiceCallback_t      choiceCallback);
+void nbgl_useCaseAddressReview(const char                      *address,
+                               const nbgl_layoutTagValueList_t *additionalTagValueList,
+                               const nbgl_icon_details_t       *icon,
+                               const char                      *reviewTitle,
+                               const char                      *reviewSubTitle,
+                               nbgl_choiceCallback_t            choiceCallback);
 
 void nbgl_useCaseReviewStatus(nbgl_reviewStatusType_t reviewStatusType,
                               nbgl_callback_t         quitCallback);
