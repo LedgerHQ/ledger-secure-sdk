@@ -9,11 +9,11 @@ on:
 
 jobs:
   scan_build:
-    name: Clang Static Analyzer for NanoS, X, S+, and Stax
+    name: Clang Static Analyzer for all devices
     strategy:
       fail-fast: false
       matrix:
-        target: [nanos, nanox, nanos2, stax]
+        target: [nanos, nanox, nanos2, stax, europa]
         debug: [0, 1]
     runs-on: ubuntu-latest
     container:
