@@ -1395,7 +1395,7 @@ uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                          nbPair
             pair = tagValueList->callback(startIndex + nbPairsInPage);
         }
 
-        if (pair->force_page_start && nbPairsInPage > 0) {
+        if (pair->forcePageStart && nbPairsInPage > 0) {
             // This pair must be at the top of a page
             break;
         }
