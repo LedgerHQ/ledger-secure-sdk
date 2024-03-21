@@ -107,6 +107,7 @@ typedef struct {
                                            ///< right of value (can be NULL)
     int8_t forcePageStart : 1;  ///< if set to 1, the tag will be displayed at the top of a new
                                 ///< review page
+    int8_t centeredInfo : 1;    ///< if set to 1, the tag will be displayed as a centered info
 #endif
 } nbgl_contentTagValue_t;
 
