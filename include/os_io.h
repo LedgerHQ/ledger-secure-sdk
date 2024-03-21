@@ -1,6 +1,7 @@
 #pragma once
 #include <stdbool.h>
 #include <stdint.h>
+#include "app_config.h"
 #include "bolos_target.h"
 #include "os_math.h"
 #include "decorators.h"

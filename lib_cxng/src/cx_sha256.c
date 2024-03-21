@@ -16,6 +16,8 @@
  *  limitations under the License.
  ********************************************************************************/
 
+#include "app_config.h"
+
 #if defined(HAVE_SHA256) || defined(HAVE_SHA224)
 
 #include "cx_sha256.h"

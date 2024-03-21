@@ -1,4 +1,3 @@
-
 /**
  * @file nbgl_fonts.c
  * Implementation of fonts array
@@ -8,6 +7,7 @@
  *      INCLUDES
  *********************/
 #include <string.h>
+#include "app_config.h"
 #include "nbgl_debug.h"
 #include "nbgl_draw.h"
 #include "nbgl_fonts.h"
