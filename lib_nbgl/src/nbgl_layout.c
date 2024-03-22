@@ -2241,7 +2241,8 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
             }
 
             // add progress indicator
-            if (headerDesc->progressAndBack.nbPages > 1) {
+            if (headerDesc->progressAndBack.nbPages > 1
+                && headerDesc->progressAndBack.nbPages != NBGL_NO_PROGRESS_INDICATOR) {
                 nbgl_page_indicator_t *progress;
 
                 progress
