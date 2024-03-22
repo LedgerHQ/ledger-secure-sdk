@@ -765,15 +765,10 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
             nbgl_contentTagValueList_t *p_tagValueList = &pageContent->tagValueList;
 
             if (flag) {
-                // if the pair is too long to fit, we use a TAG_VALUE_DETAILS content
-                pageContent->type                               = TAG_VALUE_DETAILS;
-                pageContent->tagValueDetails.detailsButtonText  = "More";
-                pageContent->tagValueDetails.detailsButtonIcon  = NULL;
-                pageContent->tagValueDetails.detailsButtonToken = DETAILS_BUTTON_TOKEN;
+                // Flag can be set if the pair is too long to fit or because it needs
+                // to be displayed as centered info.
 
-                p_tagValueList = &pageContent->tagValueDetails.tagValueList;
-
-                // Backup pair info for easy data access upon click on button
+                // First retrieve the pair
                 const nbgl_layoutTagValue_t *pair;
 
                 if (p_content->content.tagValueList.pairs != NULL) {
@@ -784,23 +779,45 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
                         genericContext.currentElementIdx);
                 }
 
-                genericContext.detailsItem     = pair->item;
-                genericContext.detailsvalue    = pair->value;
-                genericContext.detailsWrapping = p_content->content.tagValueList.wrapping;
+                if (pair->centeredInfo) {
+                    pageContent->type = CENTERED_INFO;
+                    prepareReviewFirstPage(
+                        &pageContent->centeredInfo, pair->valueIcon, pair->item, pair->value);
+
+                    // Skip population of nbgl_contentTagValueList_t structure
+                    p_tagValueList = NULL;
+                }
+                else {
+                    // if the pair is too long to fit, we use a TAG_VALUE_DETAILS content
+                    pageContent->type                               = TAG_VALUE_DETAILS;
+                    pageContent->tagValueDetails.detailsButtonText  = "More";
+                    pageContent->tagValueDetails.detailsButtonIcon  = NULL;
+                    pageContent->tagValueDetails.detailsButtonToken = DETAILS_BUTTON_TOKEN;
+
+                    p_tagValueList = &pageContent->tagValueDetails.tagValueList;
+
+                    // Backup pair info for easy data access upon click on button
+                    genericContext.detailsItem     = pair->item;
+                    genericContext.detailsvalue    = pair->value;
+                    genericContext.detailsWrapping = p_content->content.tagValueList.wrapping;
+                }
             }
 
-            p_tagValueList->nbPairs = nbElementsInPage;
-            if (p_content->content.tagValueList.pairs != NULL) {
-                p_tagValueList->pairs = PIC(&p_content->content.tagValueList.pairs[nextElementIdx]);
+            if (p_tagValueList != NULL) {
+                p_tagValueList->nbPairs = nbElementsInPage;
+                if (p_content->content.tagValueList.pairs != NULL) {
+                    p_tagValueList->pairs
+                        = PIC(&p_content->content.tagValueList.pairs[nextElementIdx]);
+                }
+                else {
+                    p_tagValueList->pairs      = NULL;
+                    p_tagValueList->callback   = p_content->content.tagValueList.callback;
+                    p_tagValueList->startIndex = nextElementIdx;
+                }
+                p_tagValueList->smallCaseForValue  = false;
+                p_tagValueList->nbMaxLinesForValue = NB_MAX_LINES_IN_REVIEW;
+                p_tagValueList->wrapping           = p_content->content.tagValueList.wrapping;
             }
-            else {
-                p_tagValueList->pairs      = NULL;
-                p_tagValueList->callback   = p_content->content.tagValueList.callback;
-                p_tagValueList->startIndex = nextElementIdx;
-            }
-            p_tagValueList->smallCaseForValue  = false;
-            p_tagValueList->nbMaxLinesForValue = NB_MAX_LINES_IN_REVIEW;
-            p_tagValueList->wrapping           = p_content->content.tagValueList.wrapping;
 
             break;
         }
@@ -1374,18 +1391,20 @@ static void bundleNavReviewStreamingChoice(bool confirm)
  * @param nbPairs number of tag/value pairs to use in \b tagValueList
  * @param tagValueList list of tag/value pairs
  * @param startIndex first index to consider in \b tagValueList
- * @param tooLongToFit (output) set to true if even a single tag/value pair doesn't fit in a page
+ * @param requireSpecificDisplay (output) set to true if the tag/value needs a specific display:
+ *        - centeredInfo flag is enabled
+ *        - the tag/value doesn't fit in a page
  * @return the number of tag/value pairs fitting in a page
  */
 uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                          nbPairs,
                                          const nbgl_layoutTagValueList_t *tagValueList,
                                          uint8_t                          startIndex,
-                                         bool                            *tooLongToFit)
+                                         bool                            *requireSpecificDisplay)
 {
     uint8_t  nbPairsInPage = 0;
     uint16_t currentHeight = 12;  // upper margin
 
-    *tooLongToFit = false;
+    *requireSpecificDisplay = false;
     while (nbPairsInPage < nbPairs) {
         const nbgl_layoutTagValue_t *pair;
         nbgl_font_id_e               value_font;
@@ -1402,9 +1421,22 @@ uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                          nbPair
             pair = tagValueList->callback(startIndex + nbPairsInPage);
         }
 
-        if (pair->force_page_start && nbPairsInPage > 0) {
+        if (pair->forcePageStart && nbPairsInPage > 0) {
             // This pair must be at the top of a page
             break;
+        }
+
+        if (pair->centeredInfo) {
+            if (nbPairsInPage > 0) {
+                // This pair must be at the top of a page
+                break;
+            }
+            else {
+                // This pair is the only one of the page and has a specific display behavior
+                nbPairsInPage           = 1;
+                *requireSpecificDisplay = true;
+                break;
+            }
         }
 
         // tag height
@@ -1423,13 +1455,15 @@ uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                          nbPair
         currentHeight += nbgl_getTextHeightInWidth(
             value_font, pair->value, AVAILABLE_WIDTH, tagValueList->wrapping);
         if (currentHeight >= TAG_VALUE_AREA_HEIGHT) {
+            if (nbPairsInPage == 0) {
+                // Pair too long to fit in a single screen
+                // It will be the only one of the page and has a specific display behavior
+                nbPairsInPage           = 1;
+                *requireSpecificDisplay = true;
+            }
             break;
         }
         nbPairsInPage++;
-    }
-    if ((nbPairsInPage == 0) && (currentHeight >= TAG_VALUE_AREA_HEIGHT)) {
-        *tooLongToFit = true;
-        nbPairsInPage = 1;
     }
     return nbPairsInPage;
 }
@@ -1446,11 +1480,11 @@ uint8_t nbgl_useCaseGetNbPagesForTagValueList(const nbgl_layoutTagValueList_t *t
     uint8_t nbPairs = tagValueList->nbPairs;
     uint8_t nbPairsInPage;
     uint8_t i = 0;
-    bool    tooLongToFit;
+    bool    flag;
 
     while (i < tagValueList->nbPairs) {
         // upper margin
-        nbPairsInPage = nbgl_useCaseGetNbTagValuesInPage(nbPairs, tagValueList, i, &tooLongToFit);
+        nbPairsInPage = nbgl_useCaseGetNbTagValuesInPage(nbPairs, tagValueList, i, &flag);
         i += nbPairsInPage;
         nbPairs -= nbPairsInPage;
         nbPages++;
