@@ -60,6 +60,29 @@ extern "C" {
 #define BUTTON_DIAMETER 80
 #endif  // HAVE_SE_TOUCH
 
+// For forward compatibility
+#define C_Warning_64px          C_warning64px
+#define C_Important_Circle_64px C_round_warning_64px
+#define C_Check_Circle_64px     C_round_check_64px
+#define C_Review_64px           C_Message_64px
+#define C_Back_32px             C_leftArrow32px
+#define C_Next_32px             C_Next32px
+#define C_Denied_Circle_64px    C_round_cross_64px
+#define SPACE_ICON              C_Space_32px
+#define BACKSPACE_ICON          C_Erase_32px
+#define SHIFT_ICON              C_Maj_32px
+#define SHIFT_LOCKED_ICON       C_Maj_Lock_32px
+#define VALIDATE_ICON           C_Check_32px
+#define RADIO_OFF_ICON          C_radio_inactive_32px
+#define RADIO_ON_ICON           C_radio_active_32px
+#define PUSH_ICON               C_Chevron_32px
+#define LEFT_ARROW_ICON         C_Back_32px
+#define RIGHT_ARROW_ICON        C_Next_32px
+#define CLOSE_ICON              C_Close_32px
+#define WHEEL_ICON              C_Settings_32px
+#define INFO_I_ICON             C_Info_32px
+#define QRCODE_ICON             C_QRCode_32px
+
 /**********************
  *      TYPEDEFS
  **********************/
