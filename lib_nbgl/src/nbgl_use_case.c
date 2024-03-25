@@ -39,12 +39,12 @@ enum {
     ADDR_NEXT_TOKEN
 };
 
-enum {
+typedef enum {
     REVIEW_NAV = 0,
     SETTINGS_NAV,
     DETAILS_NAV,
     ADDRESS_NAV
-};
+} NavType_t;
 
 typedef struct DetailsContext_s {
     uint8_t     nbPages;
@@ -110,7 +110,7 @@ static const char *settingsTitle;
 // context for navigation use case
 static nbgl_pageNavigationInfo_t navInfo;
 static bool                      forwardNavOnly;
-static uint8_t                   navType;
+static NavType_t                 navType;
 
 static DetailsContext_t detailsContext;
 
