@@ -360,7 +360,7 @@ static void pageCallback(int token, uint8_t index)
         nbgl_layoutAddQRCode(addressConfirmationContext.modalLayout, &qrCode);
 
         nbgl_layoutAddBottomButton(
-            addressConfirmationContext.modalLayout, &C_cross32px, 0, true, TUNE_TAP_CASUAL);
+            addressConfirmationContext.modalLayout, &C_cross32px, 0, false, TUNE_TAP_CASUAL);
         nbgl_layoutDraw(addressConfirmationContext.modalLayout);
         nbgl_refresh();
 #endif  // NBGL_QRCODE
