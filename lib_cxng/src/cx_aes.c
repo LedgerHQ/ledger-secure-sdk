@@ -1,5 +1,7 @@
 /* @BANNER@ */
 
+#include "app_config.h"
+
 #ifdef HAVE_AES
 
 #include "cx_cipher.h"
