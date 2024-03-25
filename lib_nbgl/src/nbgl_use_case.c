@@ -1592,7 +1592,9 @@ void nbgl_useCaseGenericSettings(const char                   *appName,
     pageTitle = appName;
     navType   = GENERIC_NAV;
 
-    memcpy(&genericContext.genericContents, settingContents, sizeof(nbgl_genericContents_t));
+    if (settingContents != NULL) {
+        memcpy(&genericContext.genericContents, settingContents, sizeof(nbgl_genericContents_t));
+    }
     if (infosList != NULL) {
         genericContext.hasFinishingContent = true;
         memset(&FINISHING_CONTENT, 0, sizeof(nbgl_content_t));
