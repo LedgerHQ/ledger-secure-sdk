@@ -772,11 +772,12 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
                 const nbgl_layoutTagValue_t *pair;
 
                 if (p_content->content.tagValueList.pairs != NULL) {
-                    pair = &p_content->content.tagValueList.pairs[genericContext.currentElementIdx];
+                    pair = PIC(
+                        &p_content->content.tagValueList.pairs[genericContext.currentElementIdx]);
                 }
                 else {
-                    pair = p_content->content.tagValueList.callback(
-                        genericContext.currentElementIdx);
+                    pair = PIC(
+                        p_content->content.tagValueList.callback(genericContext.currentElementIdx));
                 }
 
                 if (pair->centeredInfo) {
@@ -1408,10 +1409,10 @@ uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                          nbPair
         }
         // fetch tag/value pair strings.
         if (tagValueList->pairs != NULL) {
-            pair = &tagValueList->pairs[startIndex + nbPairsInPage];
+            pair = PIC(&tagValueList->pairs[startIndex + nbPairsInPage]);
         }
         else {
-            pair = tagValueList->callback(startIndex + nbPairsInPage);
+            pair = PIC(tagValueList->callback(startIndex + nbPairsInPage));
         }
 
         if (pair->forcePageStart && nbPairsInPage > 0) {
