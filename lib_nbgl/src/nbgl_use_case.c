@@ -2140,6 +2140,8 @@ void nbgl_useCaseStaticReview(const nbgl_layoutTagValueList_t *tagValueList,
                               const char                      *rejectText,
                               nbgl_choiceCallback_t            callback)
 {
+    uint8_t offset = 0;
+
     reset_callbacks();
     memset(&genericContext, 0, sizeof(genericContext));
 
@@ -2149,19 +2151,24 @@ void nbgl_useCaseStaticReview(const nbgl_layoutTagValueList_t *tagValueList,
     pageTitle = NULL;
 
     genericContext.genericContents.contentsList = localContentsList;
-    genericContext.genericContents.nbContents   = 2;
     memset(localContentsList, 0, 2 * sizeof(nbgl_content_t));
 
-    localContentsList[0].type = TAG_VALUE_LIST;
-    memcpy(&localContentsList[0].content.tagValueList,
-           tagValueList,
-           sizeof(nbgl_layoutTagValueList_t));
+    if (tagValueList != NULL && tagValueList->nbPairs != 0) {
+        localContentsList[offset].type = TAG_VALUE_LIST;
+        memcpy(&localContentsList[offset].content.tagValueList,
+               tagValueList,
+               sizeof(nbgl_layoutTagValueList_t));
+        offset++;
+    }
 
-    localContentsList[1].type = INFO_LONG_PRESS;
-    memcpy(&localContentsList[1].content.infoLongPress,
+    localContentsList[offset].type = INFO_LONG_PRESS;
+    memcpy(&localContentsList[offset].content.infoLongPress,
            infoLongPress,
            sizeof(nbgl_pageInfoLongPress_t));
-    localContentsList[1].content.infoLongPress.longPressToken = CONFIRM_TOKEN;
+    localContentsList[offset].content.infoLongPress.longPressToken = CONFIRM_TOKEN;
+    offset++;
+
+    genericContext.genericContents.nbContents = offset;
 
     // compute number of pages & fill navigation structure
     uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
@@ -2188,6 +2195,8 @@ void nbgl_useCaseStaticReviewLight(const nbgl_layoutTagValueList_t *tagValueList
                                    const char                      *rejectText,
                                    nbgl_choiceCallback_t            callback)
 {
+    uint8_t offset = 0;
+
     reset_callbacks();
     memset(&genericContext, 0, sizeof(genericContext));
 
@@ -2197,20 +2206,25 @@ void nbgl_useCaseStaticReviewLight(const nbgl_layoutTagValueList_t *tagValueList
     pageTitle = NULL;
 
     genericContext.genericContents.contentsList = localContentsList;
-    genericContext.genericContents.nbContents   = 2;
     memset(localContentsList, 0, 2 * sizeof(nbgl_content_t));
 
-    localContentsList[0].type = TAG_VALUE_LIST;
-    memcpy(&localContentsList[0].content.tagValueList,
-           tagValueList,
-           sizeof(nbgl_layoutTagValueList_t));
+    if (tagValueList != NULL && tagValueList->nbPairs != 0) {
+        localContentsList[offset].type = TAG_VALUE_LIST;
+        memcpy(&localContentsList[offset].content.tagValueList,
+               tagValueList,
+               sizeof(nbgl_layoutTagValueList_t));
+        offset++;
+    }
 
-    localContentsList[1].type                           = INFO_BUTTON;
-    localContentsList[1].content.infoButton.text        = infoLongPress->text;
-    localContentsList[1].content.infoButton.icon        = infoLongPress->icon;
-    localContentsList[1].content.infoButton.buttonText  = infoLongPress->longPressText;
-    localContentsList[1].content.infoButton.buttonToken = CONFIRM_TOKEN;
-    localContentsList[1].content.infoButton.tuneId      = TUNE_TAP_CASUAL;
+    localContentsList[offset].type                           = INFO_BUTTON;
+    localContentsList[offset].content.infoButton.text        = infoLongPress->text;
+    localContentsList[offset].content.infoButton.icon        = infoLongPress->icon;
+    localContentsList[offset].content.infoButton.buttonText  = infoLongPress->longPressText;
+    localContentsList[offset].content.infoButton.buttonToken = CONFIRM_TOKEN;
+    localContentsList[offset].content.infoButton.tuneId      = TUNE_TAP_CASUAL;
+    offset++;
+
+    genericContext.genericContents.nbContents = offset;
 
     // compute number of pages & fill navigation structure
     uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
