@@ -95,29 +95,13 @@ extern USBD_HandleTypeDef USBD_Device;
 #include "nbgl_serialize.h"
 #endif
 
+#if !defined(HAVE_BOLOS_NO_DEFAULT_APDU)
+#include "sdk_apdu_commands.h"
+#endif  // !HAVE_BOLOS_NO_DEFAULT_APDU
+
 #if defined(HAVE_LEDGER_PKI)
 #include "os_pki.h"
 #endif  // HAVE_LEDGER_PKI
-
-#if !defined(HAVE_BOLOS_NO_DEFAULT_APDU)
-#define DEFAULT_APDU_CLA             0xB0
-#define DEFAULT_APDU_INS_GET_VERSION 0x01
-
-#if defined(HAVE_SEED_COOKIE)
-#define DEFAULT_APDU_INS_GET_SEED_COOKIE 0x02
-#endif
-
-#if defined(DEBUG_OS_STACK_CONSUMPTION)
-#define DEFAULT_APDU_INS_STACK_CONSUMPTION 0x57
-#endif  // DEBUG_OS_STACK_CONSUMPTION
-
-#define DEFAULT_APDU_INS_APP_EXIT 0xA7
-
-#if defined(HAVE_LEDGER_PKI)
-#define DEFAULT_APDU_INS_LOAD_CERTIFICATE 0x06
-#endif  // HAVE_LEDGER_PKI
-
-#endif  // !HAVE_BOLOS_NO_DEFAULT_APDU
 
 void io_seproxyhal_handle_ble_event(void);
 

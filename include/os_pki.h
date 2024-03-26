@@ -7,36 +7,44 @@
 #include <stdint.h>
 #include <stddef.h>
 
+/** Certificate field with a variable length */
 #define CERTIFICATE_FIELD_VAR_LEN              (0xFF)
+/** Certificate field with a non predefined value */
 #define CERTIFICATE_FIELD_UNKNOWN_VALUE        (0xFFFFFFFF)
+/** Certificate validity index minimum value */
 #define CERTIFICATE_VALIDITY_INDEX             (0x00000001)
+/** Certificate structure type */
 #define CERTIFICATE_STRUCTURE_TYPE_CERTIFICATE (0x01)
+/** Maximum certificate trusted name length */
 #define CERTIFICATE_TRUSTED_NAME_MAXLEN        (32)
 
+/** Certificate tags associated to each certificate field */
 typedef enum {
-    CERTIFICATE_TAG_STRUCTURE_TYPE        = 0x01,
-    CERTIFICATE_TAG_VERSION               = 0x02,
-    CERTIFICATE_TAG_VALIDITY              = 0x10,
-    CERTIFICATE_TAG_VALIDITY_INDEX        = 0x11,
-    CERTIFICATE_TAG_CHALLENGE             = 0x12,
-    CERTIFICATE_TAG_SIGNER_KEY_ID         = 0x13,
-    CERTIFICATE_TAG_SIGN_ALGO_ID          = 0x14,
-    CERTIFICATE_TAG_SIGNATURE             = 0x15,
-    CERTIFICATE_TAG_TIME_VALIDITY         = 0x16,
-    CERTIFICATE_TAG_TRUSTED_NAME          = 0x20,
-    CERTIFICATE_TAG_PUBLIC_KEY_ID         = 0x30,
-    CERTIFICATE_TAG_PUBLIC_KEY_USAGE      = 0x31,
-    CERTIFICATE_TAG_PUBLIC_KEY_CURVE_ID   = 0x32,
-    CERTIFICATE_TAG_COMPRESSED_PUBLIC_KEY = 0x33,
-    CERTIFICATE_TAG_PK_SIGN_ALGO_ID       = 0x34,
-    CERTIFICATE_TAG_TARGET_DEVICE         = 0x35
+    CERTIFICATE_TAG_STRUCTURE_TYPE        = 0x01,  ///< Structure type
+    CERTIFICATE_TAG_VERSION               = 0x02,  ///< Certificate version
+    CERTIFICATE_TAG_VALIDITY              = 0x10,  ///< Certificate validity
+    CERTIFICATE_TAG_VALIDITY_INDEX        = 0x11,  ///< Certificate validity index
+    CERTIFICATE_TAG_CHALLENGE             = 0x12,  ///< Challenge value
+    CERTIFICATE_TAG_SIGNER_KEY_ID         = 0x13,  ///< Signer key ID
+    CERTIFICATE_TAG_SIGN_ALGO_ID          = 0x14,  ///< Signature algorithm with the signer key
+    CERTIFICATE_TAG_SIGNATURE             = 0x15,  ///< Signature
+    CERTIFICATE_TAG_TIME_VALIDITY         = 0x16,  ///< Time validity
+    CERTIFICATE_TAG_TRUSTED_NAME          = 0x20,  ///< Trusted name
+    CERTIFICATE_TAG_PUBLIC_KEY_ID         = 0x30,  ///< Public key ID
+    CERTIFICATE_TAG_PUBLIC_KEY_USAGE      = 0x31,  ///< Public key usage
+    CERTIFICATE_TAG_PUBLIC_KEY_CURVE_ID   = 0x32,  ///< Curve ID on which the public key is defined
+    CERTIFICATE_TAG_COMPRESSED_PUBLIC_KEY = 0x33,  ///< Public key in compressed form
+    CERTIFICATE_TAG_PK_SIGN_ALGO_ID       = 0x34,  ///< Signature algorithm with the public key
+    CERTIFICATE_TAG_TARGET_DEVICE         = 0x35   ///< Target device
 } os_pki_tag_t;
 
+/** Certificate version possible values */
 enum {
-    CERTIFICATE_VERSION_02 = 0x02,
+    CERTIFICATE_VERSION_02 = 0x02,  ///< Certificate version 2
     CERTIFICATE_VERSION_UNKNOWN
 };
 
+/** Certificate key ID possible values */
 enum {
     CERTIFICATE_KEY_ID_TEST = 0x0000,
     CERTIFICATE_KEY_ID_PERSOV2,
@@ -49,6 +57,7 @@ enum {
     CERTIFICATE_KEY_ID_UNKNOWN
 };
 
+/** Signature algorithm possible values */
 enum {
     CERTIFICATE_SIGN_ALGO_ID_ECDSA_SHA256 = 0x00,
     CERTIFICATE_SIGN_ALGO_ID_ECDSA_SHA3,
@@ -60,6 +69,7 @@ enum {
     CERTIFICATE_SIGN_ALGO_ID_UNKNOWN
 };
 
+/** Public key usages possible values */
 enum {
     CERTIFICATE_PUBLIC_KEY_USAGE_GENUINE_CHECK = 0x01,
     CERTIFICATE_PUBLIC_KEY_USAGE_EXCHANGE_PAYLOAD,
@@ -73,6 +83,7 @@ enum {
     CERTIFICATE_PUBLIC_KEY_USAGE_UNKNOWN,
 };
 
+/** Target device possible values */
 enum {
     CERTIFICATE_TARGET_DEVICE_NANOS = 0x01,
     CERTIFICATE_TARGET_DEVICE_NANOX,
@@ -81,12 +92,14 @@ enum {
     CERTIFICATE_TARGET_DEVICE_UNKNOWN
 };
 
+/** Structure to store field length and field maximum value */
 typedef struct {
     uint32_t value;
     uint8_t  field_len;
 } os_pki_certificate_tag_info_t;
 
 // clang-format off
+/** Array of field length and field maximum value corresponding to each tag */
 static const os_pki_certificate_tag_info_t C_os_pki_certificate_tag_info[] = {
     [CERTIFICATE_TAG_STRUCTURE_TYPE]        = {CERTIFICATE_STRUCTURE_TYPE_CERTIFICATE, 0x01                     },
     [CERTIFICATE_TAG_VERSION]               = {CERTIFICATE_VERSION_UNKNOWN,            0x01                     },
@@ -107,6 +120,36 @@ static const os_pki_certificate_tag_info_t C_os_pki_certificate_tag_info[] = {
 };
 // clang-format on
 
+/**
+ * @brief Load a certificate and initialize the public key on success.
+ *
+ * @param[in]  expected_key_usage Key verification role.
+ * @param[in]  certificate_len    Certificate length.
+ * @param[in]  certificate_len    Certificate
+ * @param[out] trusted_name       Trusted name from the certificate
+ * @param[out] trusted_name_len   Trusted name length
+ * @param[out] public_key         Initialized public key from the certificate
+ *
+ * @return Error code
+ * @retval 0x0000 Success
+ * @retval 0x422F Incorrect structure type
+ * @retval 0x4230 Incorrect certificate version
+ * @retval 0x4231 Incorrect certificate validity
+ * @retval 0x4232 Incorrect certificate validity index
+ * @retval 0x4233 Unknown signer key ID
+ * @retval 0x4234 Unknown signature algorithm
+ * @retval 0x4235 Unknown public key ID
+ * @retval 0x4236 Unknown public key usage
+ * @retval 0x4237 Incorrect elliptic curve ID
+ * @retval 0x4238 Incorrect signature algorithm associated to the public key
+ * @retval 0x4239 Unknown target device
+ * @retval 0x422D Unknown certificate tag
+ * @retval 0x3301 Failed to hash data
+ * @retval 0x422E expected_key_usage doesn't match certificate key usage
+ * @retval 0x5720 Failed to verify signature
+ * @retval 0x4118 trusted_name buffer is too small to contain the trusted name
+ * @retval 0xFFFFFFxx Cryptography-related error
+ */
 SYSCALL bolos_err_t os_pki_load_certificate(uint8_t               expected_key_usage,
                                             uint8_t *certificate  PLENGTH(certificate_len),
                                             size_t                certificate_len,
@@ -114,6 +157,22 @@ SYSCALL bolos_err_t os_pki_load_certificate(uint8_t               expected_key_u
                                             size_t               *trusted_name_len,
                                             cx_ecfp_public_key_t *public_key);
 
+/**
+ * @brief Verify a descriptor signature with internal public key.
+ *
+ * @details The 'load certificate' command must be sent before this function
+ *          to initialize the internal public key.
+ *          The caller is responsible for computing the descriptor hash prior
+ *          to the verification.
+ *
+ * @param[in] descriptor_hash     Hash of a descriptor
+ * @param[in] descriptor_hash_len Length of the descriptor hash
+ * @param[in] signature           Signature over the descriptor
+ * @param[in] signature_len       Signature length
+ * @return bool
+ * @retval true Success
+ * @retval false Failed to verify
+ */
 SYSCALL bool os_pki_verify(uint8_t *descriptor_hash PLENGTH(descriptor_hash_len),
                            size_t                   descriptor_hash_len,
                            uint8_t *signature       PLENGTH(signature_len),
