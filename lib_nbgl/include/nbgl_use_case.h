@@ -218,6 +218,15 @@ void nbgl_useCaseReviewStreamingContinue(const nbgl_layoutTagValueList_t *tagVal
 void nbgl_useCaseReviewStreamingFinish(const char           *finishTitle,
                                        nbgl_choiceCallback_t choiceCallback);
 
+void nbgl_useCaseGenericReview(const nbgl_genericContents_t *contents,
+                               const char                   *rejectText,
+                               nbgl_callback_t               rejectCallback);
+
+void nbgl_useCaseGenericConfiguration(const char                   *title,
+                                      uint8_t                       initPage,
+                                      const nbgl_genericContents_t *contents,
+                                      nbgl_callback_t               quitCallback);
+
 #ifdef HAVE_SE_TOUCH
 // utils
 uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                          nbPairs,

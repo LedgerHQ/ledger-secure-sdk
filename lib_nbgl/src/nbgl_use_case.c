@@ -1751,6 +1751,25 @@ void nbgl_useCaseGenericSettings(const char                   *appName,
 }
 
 /**
+ * @brief Draws a set of pages with automatic pagination depending on content
+ *        to be displayed that is passed through contents.
+ *
+ * @param title string to use as title
+ * @param initPage page on which to start, can be != 0 if you want to display a specific page
+ * after a confirmation change or something. Then the value should be taken from the
+ * nbgl_contentActionCallback_t callback call.
+ * @param contents contents to be displayed
+ * @param quitCallback callback called when quit button (or title) is pressed
+ */
+void nbgl_useCaseGenericConfiguration(const char                   *title,
+                                      uint8_t                       initPage,
+                                      const nbgl_genericContents_t *contents,
+                                      nbgl_callback_t               quitCallback)
+{
+    return nbgl_useCaseGenericSettings(title, initPage, contents, NULL, quitCallback);
+}
+
+/**
  * @brief Draws the extended version of home page of an app (page on which we land when launching it
  *        from dashboard) with automatic support of setting display.
  * @note it enables to use an action button (black on Stax, white on Europa)
@@ -2285,6 +2304,36 @@ void nbgl_useCaseReview(nbgl_operationType_t             operationType,
 }
 
 /**
+ * @brief Draws a flow of pages of a review with automatic pagination depending on content
+ *        to be displayed that is passed through contents.
+ *
+ * @param contents contents to be displayed
+ * @param rejectText text to use in footer
+ * @param rejectCallback callback called when reject is pressed
+ */
+void nbgl_useCaseGenericReview(const nbgl_genericContents_t *contents,
+                               const char                   *rejectText,
+                               nbgl_callback_t               rejectCallback)
+{
+    reset_callbacks();
+    memset(&genericContext, 0, sizeof(genericContext));
+
+    // memorize context
+    onQuit    = rejectCallback;
+    navType   = GENERIC_NAV;
+    pageTitle = NULL;
+
+    memcpy(&genericContext.genericContents, contents, sizeof(nbgl_genericContents_t));
+
+    // compute number of pages & fill navigation structure
+    uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
+    prepareNavInfo(true, nbPages, rejectText);
+    navInfo.quitToken = QUIT_TOKEN;
+
+    displayGenericContextPage(0, true);
+}
+
+/**
  * @brief Start drawing the flow of pages of a review.
  * @note  This should be followed by calls to nbgl_useCaseReviewStreamingContinue and finally to
  *        nbgl_useCaseReviewStreamingFinish.
@@ -2412,6 +2461,7 @@ void nbgl_useCaseReviewStreamingFinish(const char           *finishTitle,
 
     displayGenericContextPage(0, true);
 }
+
 /**
  * @brief Draws a flow of pages to view details on a given tag/value pair that doesn't fit in a
  * single page
