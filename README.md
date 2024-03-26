@@ -73,8 +73,10 @@ OS release candidates are only kept in the list when a corresponding OS release 
 | 12      | nanox_2.3.0-rc2 <br/> nanos+_1.2.0-rc2                              | :x:
 | 13      | stax_1.3.0                                                          | :x:
 | 14      | stax_1.4.0-rc1                                                      | :x:
-| 15      | stax_1.4.0-rc2                                                      | :heavy_check_mark:
-| 16      | europa_0.1.0-re1                                                    | :heavy_check_mark:
+| 15      | stax_1.4.0-rc2 <br/> stax_1.4.0-rc3                                 | :heavy_check_mark:
+| 16      | europa_0.1.0-re1                                                    | :x:
+| 17      | europa_0.1.0-re2                                                    | :x:
+| 18      | europa_0.1.0-re3 <br/> nanox_2.3.0-rc5 <br/> nanos+_1.2.0-rc5       | :heavy_check_mark:
 
 ### Cherry-picking process:
 
