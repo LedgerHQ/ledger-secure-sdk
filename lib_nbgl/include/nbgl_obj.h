@@ -27,17 +27,27 @@ extern "C" {
 #define VALIDATE_KEY  '\r'
 
 // for Keyboard
+#ifdef NBGL_KEYBOARD
 #ifdef HAVE_SE_TOUCH
 #ifdef TARGET_STAX
 #define KEYBOARD_KEY_HEIGHT 60
 #else  // TARGET_STAX
 #define KEYBOARD_KEY_HEIGHT 72
 #endif  // TARGET_STAX
-#else   // HAVE_SE_TOUCH
+
+// index of keys for keyMask field of nbgl_keyboard_t
+#define SHIFT_KEY_INDEX         26
+#define DIGITS_SWITCH_KEY_INDEX 27
+#define BACKSPACE_KEY_INDEX     28
+#define SPACE_KEY_INDEX         29
+#define SPECIAL_KEYS_INDEX      30
+
+#else  // HAVE_SE_TOUCH
 #define KEYBOARD_KEY_WIDTH  14
 #define KEYBOARD_KEY_HEIGHT 14
 #define KEYBOARD_WIDTH      (5 * KEYBOARD_KEY_WIDTH)
 #endif  // HAVE_SE_TOUCH
+#endif  // NBGL_KEYBOARD
 
 // for Keypad
 #ifdef HAVE_SE_TOUCH
