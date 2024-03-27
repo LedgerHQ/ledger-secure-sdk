@@ -458,13 +458,8 @@ void nbgl_getTextMaxLenAndWidth(nbgl_font_id_e fontId,
         uint16_t curTextLen = textLen;
 
         unicode = nbgl_popUnicodeChar((const uint8_t **) &text, &textLen, &is_unicode);
-        // if \f, exit loop
-        if (unicode == '\f') {
-            *len += curTextLen - textLen;
-            break;
-        }
-        // if \n, exit
-        else if (unicode == '\n') {
+        // if \f or \n, exit loop
+        if ((unicode == '\f') || (unicode == '\n')) {
             *len += curTextLen - textLen;
             return;
         }
@@ -490,6 +485,7 @@ void nbgl_getTextMaxLenAndWidth(nbgl_font_id_e fontId,
 
         char_width = getCharWidth(font, unicode, is_unicode);
         if (char_width == 0) {
+            *len += curTextLen - textLen;
             continue;
         }
 
