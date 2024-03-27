@@ -27,8 +27,8 @@
 #define KEY_WIDTH      (SCREEN_WIDTH / 3)
 #define DIGIT_OFFSET_Y (((KEYPAD_KEY_HEIGHT - 48) / 2) & 0xFFC)
 
-#define BACKSPACE_KEY_INDEX 10
-#define VALIDATE_KEY_INDEX  11
+#define BACKSPACE_KEY_IDX 10
+#define VALIDATE_KEY_IDX  11
 
 // to save RAM we use 5 uint8, and 4 bits per digit (MSBs for odd digits, LSBs for even ones)
 #define GET_DIGIT_INDEX(_keypad, _digit)                      \
@@ -74,13 +74,13 @@ static uint8_t getKeypadIndex(uint16_t x, uint16_t y)
     else if (y < (4 * KEYPAD_KEY_HEIGHT)) {
         // 4th line
         if (x < KEY_WIDTH) {
-            i = BACKSPACE_KEY_INDEX;
+            i = BACKSPACE_KEY_IDX;
         }
         else if (x < (2 * KEY_WIDTH)) {
             i = 0;
         }
         else {
-            i = VALIDATE_KEY_INDEX;
+            i = VALIDATE_KEY_IDX;
         }
     }
     return i;
@@ -283,11 +283,11 @@ void nbgl_keypadTouchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
 
     // use positions relative to keypad position
     firstIndex = getKeypadIndex(firstPosition->x - obj->area.x0, firstPosition->y - obj->area.y0);
-    if (firstIndex > VALIDATE_KEY_INDEX) {
+    if (firstIndex > VALIDATE_KEY_IDX) {
         return;
     }
     lastIndex = getKeypadIndex(lastPosition->x - obj->area.x0, lastPosition->y - obj->area.y0);
-    if (lastIndex > VALIDATE_KEY_INDEX) {
+    if (lastIndex > VALIDATE_KEY_IDX) {
         return;
     }
 
@@ -306,7 +306,7 @@ void nbgl_keypadTouchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
             io_seproxyhal_play_tune(TUNE_TAP_CASUAL);
         }
     }
-    if ((firstIndex == BACKSPACE_KEY_INDEX) && (keypad->enableBackspace)) {  // backspace
+    if ((firstIndex == BACKSPACE_KEY_IDX) && (keypad->enableBackspace)) {  // backspace
         // only call callback if event is TOUCHED, otherwise play tune on touch event (and not on
         // release)
         if (eventType == TOUCHED) {
@@ -316,7 +316,7 @@ void nbgl_keypadTouchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
             io_seproxyhal_play_tune(TUNE_TAP_CASUAL);
         }
     }
-    else if ((firstIndex == VALIDATE_KEY_INDEX) && (keypad->enableValidate)) {  // validate
+    else if ((firstIndex == VALIDATE_KEY_IDX) && (keypad->enableValidate)) {  // validate
         // only call callback if event is TOUCHED
         if (eventType == TOUCHED) {
             keypad->callback(VALIDATE_KEY);
