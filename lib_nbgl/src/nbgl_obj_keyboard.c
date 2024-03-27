@@ -38,11 +38,7 @@
 #define BACKSPACE_KEY_WIDTH_DIGITS       SPECIAL_CHARS_KEY_WIDTH
 #define BACKSPACE_KEY_WIDTH_LETTERS_ONLY (SCREEN_WIDTH - 7 * NORMAL_KEY_WIDTH)
 
-#define SHIFT_KEY_INDEX         26
-#define DIGITS_SWITCH_KEY_INDEX 27
-#define BACKSPACE_KEY_INDEX     28
-#define SPACE_KEY_INDEX         29
-#define SPECIAL_KEYS_INDEX      30
+#define IS_KEY_MASKED(_index) (keyboard->keyMask & (1 << _index))
 
 /**********************
  *      TYPEDEFS
@@ -301,11 +297,8 @@ static void keyboardDrawLetters(nbgl_keyboard_t *keyboard)
 
         rectArea.x0
             += (NORMAL_KEY_WIDTH - nbgl_getCharWidth(SMALL_REGULAR_1BPP_FONT, &keys[i])) / 2;
-        nbgl_drawText(&rectArea,
-                      &keys[i],
-                      1,
-                      SMALL_REGULAR_1BPP_FONT,
-                      (keyboard->keyMask & (1 << i)) ? WHITE : BLACK);
+        nbgl_drawText(
+            &rectArea, &keys[i], 1, SMALL_REGULAR_1BPP_FONT, (IS_KEY_MASKED(i)) ? WHITE : BLACK);
     }
     // Second row: 9 letters (asdfghjkl)
     rectArea.y0 += KEYBOARD_KEY_HEIGHT;
@@ -313,11 +306,8 @@ static void keyboardDrawLetters(nbgl_keyboard_t *keyboard)
         rectArea.x0 = keyboard->obj.area.x0 + SECOND_LINE_OFFSET + (i - 10) * NORMAL_KEY_WIDTH;
         rectArea.x0
             += (NORMAL_KEY_WIDTH - nbgl_getCharWidth(SMALL_REGULAR_1BPP_FONT, &keys[i])) / 2;
-        nbgl_drawText(&rectArea,
-                      &keys[i],
-                      1,
-                      SMALL_REGULAR_1BPP_FONT,
-                      (keyboard->keyMask & (1 << i)) ? WHITE : BLACK);
+        nbgl_drawText(
+            &rectArea, &keys[i], 1, SMALL_REGULAR_1BPP_FONT, (IS_KEY_MASKED(i)) ? WHITE : BLACK);
     }
     // Third row: Shift key, 7 letters (zxcvbnm) and backspace
     rectArea.y0 += KEYBOARD_KEY_HEIGHT;
@@ -345,14 +335,20 @@ static void keyboardDrawLetters(nbgl_keyboard_t *keyboard)
         rectArea.y0     = (keyboard->obj.area.y0 + KEYBOARD_KEY_HEIGHT * 2
                        + (KEYBOARD_KEY_HEIGHT - rectArea.height) / 2)
                       & 0xFFC;
-        rectArea.x0              = (SHIFT_KEY_WIDTH - rectArea.width) / 2;
-        rectArea.backgroundColor = (keyboard->casing != LOWER_CASE) ? BLACK : WHITE;
-        nbgl_drawIcon(
-            &rectArea,
-            (keyboard->casing != LOWER_CASE) ? WHITE : BLACK,
-            (keyboard->casing == LOCKED_UPPER_CASE) ? (&C_shift_lock32px) : (&C_shift32px));
-        rectArea.backgroundColor = WHITE;
-        offsetX                  = keyboard->obj.area.x0 + SHIFT_KEY_WIDTH;
+        rectArea.x0 = (SHIFT_KEY_WIDTH - rectArea.width) / 2;
+        if (IS_KEY_MASKED(SHIFT_KEY_INDEX)) {
+            rectArea.backgroundColor = WHITE;
+            nbgl_drawIcon(&rectArea, WHITE, &C_shift_lock32px);
+        }
+        else {
+            rectArea.backgroundColor = (keyboard->casing != LOWER_CASE) ? BLACK : WHITE;
+            nbgl_drawIcon(
+                &rectArea,
+                (keyboard->casing != LOWER_CASE) ? WHITE : BLACK,
+                (keyboard->casing == LOCKED_UPPER_CASE) ? (&C_shift_lock32px) : (&C_shift32px));
+            rectArea.backgroundColor = WHITE;
+        }
+        offsetX = keyboard->obj.area.x0 + SHIFT_KEY_WIDTH;
     }
     else {
         offsetX = 0;
@@ -362,11 +358,8 @@ static void keyboardDrawLetters(nbgl_keyboard_t *keyboard)
         rectArea.x0 = offsetX + (i - 19) * NORMAL_KEY_WIDTH;
         rectArea.x0
             += (NORMAL_KEY_WIDTH - nbgl_getCharWidth(SMALL_REGULAR_1BPP_FONT, &keys[i])) / 2;
-        nbgl_drawText(&rectArea,
-                      &keys[i],
-                      1,
-                      SMALL_REGULAR_1BPP_FONT,
-                      (keyboard->keyMask & (1 << i)) ? WHITE : BLACK);
+        nbgl_drawText(
+            &rectArea, &keys[i], 1, SMALL_REGULAR_1BPP_FONT, (IS_KEY_MASKED(i)) ? WHITE : BLACK);
     }
     // draw backspace
     rectArea.width  = C_backspace32px.width;
@@ -382,17 +375,21 @@ static void keyboardDrawLetters(nbgl_keyboard_t *keyboard)
     else {
         rectArea.x0 += (BACKSPACE_KEY_WIDTH_LETTERS_ONLY - rectArea.width) / 2;
     }
-    nbgl_drawIcon(&rectArea, (keyboard->keyMask & (1 << 26)) ? WHITE : BLACK, &C_backspace32px);
+    nbgl_drawIcon(
+        &rectArea, (IS_KEY_MASKED(BACKSPACE_KEY_INDEX)) ? WHITE : BLACK, &C_backspace32px);
 
     // 4th row, only in Full mode
     if (!keyboard->lettersOnly) {
         rectArea.x0 = (SWITCH_KEY_WIDTH - nbgl_getTextWidth(SMALL_REGULAR_1BPP_FONT, ".?123")) / 2;
         rectArea.y0 = keyboard->obj.area.y0 + KEYBOARD_KEY_HEIGHT * 3 + LETTER_OFFSET_Y;
-        nbgl_drawText(&rectArea, ".?123", 5, SMALL_REGULAR_1BPP_FONT, BLACK);
+        nbgl_drawText(&rectArea,
+                      ".?123",
+                      5,
+                      SMALL_REGULAR_1BPP_FONT,
+                      (IS_KEY_MASKED(DIGITS_SWITCH_KEY_INDEX)) ? WHITE : BLACK);
 
         rectArea.x0 = SWITCH_KEY_WIDTH + (SPACE_KEY_WIDTH - C_space32px.width) / 2;
-        nbgl_drawIcon(
-            &rectArea, (keyboard->keyMask & (1 << SPACE_KEY_INDEX)) ? WHITE : BLACK, &C_space32px);
+        nbgl_drawIcon(&rectArea, (IS_KEY_MASKED(SPACE_KEY_INDEX)) ? WHITE : BLACK, &C_space32px);
     }
 }
 
@@ -421,11 +418,8 @@ static void keyboardDrawDigits(nbgl_keyboard_t *keyboard)
         rectArea.x0 = keyboard->obj.area.x0 + i * NORMAL_KEY_WIDTH;
         rectArea.x0
             += (NORMAL_KEY_WIDTH - nbgl_getCharWidth(SMALL_REGULAR_1BPP_FONT, &keys[i])) / 2;
-        nbgl_drawText(&rectArea,
-                      &keys[i],
-                      1,
-                      SMALL_REGULAR_1BPP_FONT,
-                      (keyboard->keyMask & (1 << i)) ? WHITE : BLACK);
+        nbgl_drawText(
+            &rectArea, &keys[i], 1, SMALL_REGULAR_1BPP_FONT, (IS_KEY_MASKED(i)) ? WHITE : BLACK);
     }
     // Second row: 9 keys ()
     rectArea.y0 += KEYBOARD_KEY_HEIGHT;
@@ -433,11 +427,8 @@ static void keyboardDrawDigits(nbgl_keyboard_t *keyboard)
         rectArea.x0 = keyboard->obj.area.x0 + (i - 10) * NORMAL_KEY_WIDTH + SECOND_LINE_OFFSET;
         rectArea.x0
             += (NORMAL_KEY_WIDTH - nbgl_getCharWidth(SMALL_REGULAR_1BPP_FONT, &keys[i])) / 2;
-        nbgl_drawText(&rectArea,
-                      &keys[i],
-                      1,
-                      SMALL_REGULAR_1BPP_FONT,
-                      (keyboard->keyMask & (1 << i)) ? WHITE : BLACK);
+        nbgl_drawText(
+            &rectArea, &keys[i], 1, SMALL_REGULAR_1BPP_FONT, (IS_KEY_MASKED(i)) ? WHITE : BLACK);
     }
     // Third row: special key, 5 keys and backspace
 
@@ -459,11 +450,8 @@ static void keyboardDrawDigits(nbgl_keyboard_t *keyboard)
         rectArea.x0 = SPECIAL_CHARS_KEY_WIDTH + (i - 19) * NORMAL_KEY_WIDTH;
         rectArea.x0
             += (NORMAL_KEY_WIDTH - nbgl_getCharWidth(SMALL_REGULAR_1BPP_FONT, &keys[i])) / 2;
-        nbgl_drawText(&rectArea,
-                      &keys[i],
-                      1,
-                      SMALL_REGULAR_1BPP_FONT,
-                      (keyboard->keyMask & (1 << i)) ? WHITE : BLACK);
+        nbgl_drawText(
+            &rectArea, &keys[i], 1, SMALL_REGULAR_1BPP_FONT, (IS_KEY_MASKED(i)) ? WHITE : BLACK);
     }
     // draw backspace
     rectArea.width  = C_backspace32px.width;
@@ -481,8 +469,7 @@ static void keyboardDrawDigits(nbgl_keyboard_t *keyboard)
     nbgl_drawText(&rectArea, "ABC", 3, SMALL_REGULAR_1BPP_FONT, BLACK);
 
     rectArea.x0 = SWITCH_KEY_WIDTH + (SPACE_KEY_WIDTH - C_space32px.width) / 2;
-    nbgl_drawIcon(
-        &rectArea, (keyboard->keyMask & (1 << SPACE_KEY_INDEX)) ? WHITE : BLACK, &C_space32px);
+    nbgl_drawIcon(&rectArea, (IS_KEY_MASKED(SPACE_KEY_INDEX)) ? WHITE : BLACK, &C_space32px);
 }
 
 static void keyboardDraw(nbgl_keyboard_t *keyboard)
@@ -555,7 +542,7 @@ void nbgl_keyboardTouchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
             nbgl_redrawObject((nbgl_obj_t *) keyboard, NULL, false);
             keyboard->needsRefresh = true;
         }
-        if ((firstIndex < 26) && ((keyboard->keyMask & (1 << firstIndex)) == 0)) {
+        if ((firstIndex < 26) && ((IS_KEY_MASKED(firstIndex)) == 0)) {
             keyboard->callback((cur_casing != LOWER_CASE) ? kbd_chars_upper[firstIndex]
                                                           : kbd_chars[firstIndex]);
         }
@@ -578,8 +565,7 @@ void nbgl_keyboardTouchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
         else if (firstIndex == DIGITS_SWITCH_KEY_INDEX) {  // switch to digits
             keyboard->mode = MODE_DIGITS;
             nbgl_redrawObject((nbgl_obj_t *) keyboard, NULL, false);
-            nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_REFRESH,
-                                               POST_REFRESH_FORCE_POWER_ON);
+            nbgl_refreshSpecialWithPostRefresh(FULL_COLOR_REFRESH, POST_REFRESH_FORCE_POWER_ON);
         }
     }
     else if (keyboard->mode == MODE_DIGITS) {
@@ -595,8 +581,7 @@ void nbgl_keyboardTouchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
         else if (firstIndex == DIGITS_SWITCH_KEY_INDEX) {  // switch to letters
             keyboard->mode = MODE_LETTERS;
             nbgl_redrawObject((nbgl_obj_t *) keyboard, NULL, false);
-            nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_REFRESH,
-                                               POST_REFRESH_FORCE_POWER_ON);
+            nbgl_refreshSpecialWithPostRefresh(FULL_COLOR_REFRESH, POST_REFRESH_FORCE_POWER_ON);
         }
     }
     else if (keyboard->mode == MODE_SPECIAL) {
@@ -612,15 +597,13 @@ void nbgl_keyboardTouchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
         else if (firstIndex == DIGITS_SWITCH_KEY_INDEX) {  // switch to letters
             keyboard->mode = MODE_LETTERS;
             nbgl_redrawObject((nbgl_obj_t *) keyboard, NULL, false);
-            nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_REFRESH,
-                                               POST_REFRESH_FORCE_POWER_ON);
+            nbgl_refreshSpecialWithPostRefresh(FULL_COLOR_REFRESH, POST_REFRESH_FORCE_POWER_ON);
         }
     }
     if (firstIndex == BACKSPACE_KEY_INDEX) {  // backspace
         keyboard->callback(BACKSPACE_KEY);
     }
-    else if ((firstIndex == SPACE_KEY_INDEX)
-             && ((keyboard->keyMask & (1 << SPACE_KEY_INDEX)) == 0)) {  // space
+    else if ((firstIndex == SPACE_KEY_INDEX) && ((IS_KEY_MASKED(SPACE_KEY_INDEX)) == 0)) {  // space
         keyboard->callback(' ');
     }
 }
