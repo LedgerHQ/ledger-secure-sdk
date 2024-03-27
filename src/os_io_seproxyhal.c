@@ -1163,11 +1163,11 @@ unsigned int os_io_seproxyhal_pki_load_certificate(uint8_t *buffer,
                                                    size_t   buffer_len,
                                                    uint8_t  key_usage)
 {
-    uint32_t             error;
-    cx_ecfp_public_key_t public_key;
-    uint8_t              trusted_name[CERTIFICATE_TRUSTED_NAME_MAXLEN] = {0};
-    size_t               trusted_name_len = CERTIFICATE_TRUSTED_NAME_MAXLEN;
-    uint8_t              offset           = 0;
+    uint32_t                 error;
+    cx_ecfp_384_public_key_t public_key;
+    uint8_t                  trusted_name[CERTIFICATE_TRUSTED_NAME_MAXLEN] = {0};
+    size_t                   trusted_name_len = CERTIFICATE_TRUSTED_NAME_MAXLEN;
+    uint8_t                  offset           = 0;
 
     if ((error = os_pki_load_certificate(
              key_usage, buffer, buffer_len, trusted_name, &trusted_name_len, &public_key))) {

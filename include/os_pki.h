@@ -59,13 +59,13 @@ enum {
 
 /** Signature algorithm possible values */
 enum {
-    CERTIFICATE_SIGN_ALGO_ID_ECDSA_SHA256 = 0x00,
-    CERTIFICATE_SIGN_ALGO_ID_ECDSA_SHA3,
-    CERTIFICATE_SIGN_ALGO_ID_ECDSA_KECCAK,
-    CERTIFICATE_SIGN_ALGO_ID_ECDSA_RIPEMD160,
-    CERTIFICATE_SIGN_ALGO_ID_EDDSA_SHA512,
-    CERTIFICATE_SIGN_ALGO_ID_EDDSA_KECCAK,
-    CERTIFICATE_SIGN_ALGO_ID_EDDSA_SHA3,
+    CERTIFICATE_SIGN_ALGO_ID_ECDSA_SHA256     = 0x01,
+    CERTIFICATE_SIGN_ALGO_ID_ECDSA_SHA3_256   = 0x02,
+    CERTIFICATE_SIGN_ALGO_ID_ECDSA_KECCAK_256 = 0x03,
+    CERTIFICATE_SIGN_ALGO_ID_ECDSA_RIPEMD160  = 0x04,
+    CERTIFICATE_SIGN_ALGO_ID_EDDSA_SHA512     = 0x10,
+    CERTIFICATE_SIGN_ALGO_ID_EDDSA_KECCAK_256 = 0x11,
+    CERTIFICATE_SIGN_ALGO_ID_EDDSA_SHA3_256   = 0x12,
     CERTIFICATE_SIGN_ALGO_ID_UNKNOWN
 };
 
@@ -118,6 +118,16 @@ static const os_pki_certificate_tag_info_t C_os_pki_certificate_tag_info[] = {
     [CERTIFICATE_TAG_TARGET_DEVICE]         = {CERTIFICATE_TARGET_DEVICE_UNKNOWN,      0x01                     },
     [CERTIFICATE_TAG_SIGNATURE]             = {CERTIFICATE_FIELD_UNKNOWN_VALUE,        CERTIFICATE_FIELD_VAR_LEN},
 };
+
+static const cx_md_t C_os_sign_algo_hash_info[] = {
+    [CERTIFICATE_SIGN_ALGO_ID_ECDSA_SHA256] = CX_SHA256,
+    [CERTIFICATE_SIGN_ALGO_ID_ECDSA_SHA3_256] = CX_SHA3_256,
+    [CERTIFICATE_SIGN_ALGO_ID_ECDSA_KECCAK_256] = CX_KECCAK,
+    [CERTIFICATE_SIGN_ALGO_ID_ECDSA_RIPEMD160] = CX_RIPEMD160,
+    [CERTIFICATE_SIGN_ALGO_ID_EDDSA_SHA512] = CX_SHA512,
+    [CERTIFICATE_SIGN_ALGO_ID_EDDSA_KECCAK_256] = CX_KECCAK,
+    [CERTIFICATE_SIGN_ALGO_ID_EDDSA_SHA3_256] = CX_SHA3_256
+};
 // clang-format on
 
 /**
@@ -150,12 +160,12 @@ static const os_pki_certificate_tag_info_t C_os_pki_certificate_tag_info[] = {
  * @retval 0x4118 trusted_name buffer is too small to contain the trusted name
  * @retval 0xFFFFFFxx Cryptography-related error
  */
-SYSCALL bolos_err_t os_pki_load_certificate(uint8_t               expected_key_usage,
-                                            uint8_t *certificate  PLENGTH(certificate_len),
-                                            size_t                certificate_len,
-                                            uint8_t              *trusted_name,
-                                            size_t               *trusted_name_len,
-                                            cx_ecfp_public_key_t *public_key);
+SYSCALL bolos_err_t os_pki_load_certificate(uint8_t                   expected_key_usage,
+                                            uint8_t *certificate      PLENGTH(certificate_len),
+                                            size_t                    certificate_len,
+                                            uint8_t                  *trusted_name,
+                                            size_t                   *trusted_name_len,
+                                            cx_ecfp_384_public_key_t *public_key);
 
 /**
  * @brief Verify a descriptor signature with internal public key.
