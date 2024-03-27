@@ -2089,7 +2089,7 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
         valueTextArea->text          = PIC(pair->value);
         valueTextArea->textAlignment = MID_LEFT;
         if (list->smallCaseForValue) {
-            valueTextArea->fontId = SMALL_REGULAR_FONT;
+            valueTextArea->fontId = SMALL_BOLD_FONT;
         }
         else {
             valueTextArea->fontId = LARGE_MEDIUM_FONT;
@@ -2645,7 +2645,7 @@ int nbgl_layoutAddProgressIndicator(nbgl_layout_t *layout,
     container->obj.alignment = TOP_MIDDLE;
     container->obj.alignTo   = NULL;
 
-    if (nbPages > 1) {
+    if (nbPages > 1 && nbPages != NBGL_NO_PROGRESS_INDICATOR) {
         nbgl_page_indicator_t *navigationBar;
 
         navigationBar = (nbgl_page_indicator_t *) nbgl_objPoolGet(PAGE_INDICATOR, layoutInt->layer);
