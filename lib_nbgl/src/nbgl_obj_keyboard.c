@@ -599,8 +599,7 @@ void nbgl_keyboardTouchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
         else if (firstIndex == DIGITS_SWITCH_KEY_INDEX) {  // switch to digits
             keyboard->mode = MODE_DIGITS;
             nbgl_redrawObject((nbgl_obj_t *) keyboard, NULL, false);
-            nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_REFRESH,
-                                               POST_REFRESH_FORCE_POWER_ON);
+            nbgl_refreshSpecialWithPostRefresh(FULL_COLOR_REFRESH, POST_REFRESH_FORCE_POWER_ON);
         }
     }
     else if (keyboard->mode == MODE_DIGITS) {
@@ -616,8 +615,7 @@ void nbgl_keyboardTouchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
         else if (firstIndex == DIGITS_SWITCH_KEY_INDEX) {  // switch to letters
             keyboard->mode = MODE_LETTERS;
             nbgl_redrawObject((nbgl_obj_t *) keyboard, NULL, false);
-            nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_REFRESH,
-                                               POST_REFRESH_FORCE_POWER_ON);
+            nbgl_refreshSpecialWithPostRefresh(FULL_COLOR_REFRESH, POST_REFRESH_FORCE_POWER_ON);
         }
     }
     else if (keyboard->mode == MODE_SPECIAL) {
@@ -633,8 +631,7 @@ void nbgl_keyboardTouchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
         else if (firstIndex == DIGITS_SWITCH_KEY_INDEX) {  // switch to letters
             keyboard->mode = MODE_LETTERS;
             nbgl_redrawObject((nbgl_obj_t *) keyboard, NULL, false);
-            nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_REFRESH,
-                                               POST_REFRESH_FORCE_POWER_ON);
+            nbgl_refreshSpecialWithPostRefresh(FULL_COLOR_REFRESH, POST_REFRESH_FORCE_POWER_ON);
         }
     }
     if (firstIndex == BACKSPACE_KEY_INDEX) {  // backspace
