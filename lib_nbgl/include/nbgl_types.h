@@ -199,7 +199,6 @@ typedef enum {
     PRESSED,   ///< the finger is currently pressing the screen
 } nbgl_touchState_t;
 
-#ifdef HAVE_HW_TOUCH_SWIPE
 /**
  * @brief Hardware powered detected swipe states
  */
@@ -210,7 +209,6 @@ typedef enum {
     HARDWARE_SWIPE_LEFT,
     NO_HARDWARE_SWIPE,
 } nbgl_hardwareSwipe_t;
-#endif  // HAVE_HW_TOUCH_SWIPE
 
 /**
  * @brief The different types of Touchscreen events
