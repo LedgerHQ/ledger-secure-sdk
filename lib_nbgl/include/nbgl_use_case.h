@@ -316,14 +316,44 @@ void nbgl_useCaseAddressConfirmationExt(const char                      *address
                                         nbgl_choiceCallback_t            callback,
                                         const nbgl_layoutTagValueList_t *tagValueList);
 #ifdef NBGL_KEYPAD
-void nbgl_useCaseKeypad(const char                *title,
-                        uint8_t                    minDigits,
-                        uint8_t                    maxDigits,
-                        uint8_t                    backToken,
-                        bool                       shuffled,
-                        tune_index_e               tuneId,
-                        nbgl_pinValidCallback_t    validatePinCallback,
-                        nbgl_layoutTouchCallback_t actionCallback);
+void nbgl_useCaseKeypadDigits(const char                *title,
+                              uint8_t                    minDigits,
+                              uint8_t                    maxDigits,
+                              uint8_t                    backToken,
+                              bool                       shuffled,
+                              tune_index_e               tuneId,
+                              nbgl_pinValidCallback_t    validatePinCallback,
+                              nbgl_layoutTouchCallback_t actionCallback);
+void nbgl_useCaseKeypadPIN(const char                *title,
+                           uint8_t                    minDigits,
+                           uint8_t                    maxDigits,
+                           uint8_t                    backToken,
+                           bool                       shuffled,
+                           tune_index_e               tuneId,
+                           nbgl_pinValidCallback_t    validatePinCallback,
+                           nbgl_layoutTouchCallback_t actionCallback);
+/**
+ * @deprecated
+ * See #nbgl_useCaseKeypadPIN
+ */
+DEPRECATED static inline void nbgl_useCaseKeypad(const char                *title,
+                                                 uint8_t                    minDigits,
+                                                 uint8_t                    maxDigits,
+                                                 uint8_t                    backToken,
+                                                 bool                       shuffled,
+                                                 tune_index_e               tuneId,
+                                                 nbgl_pinValidCallback_t    validatePinCallback,
+                                                 nbgl_layoutTouchCallback_t actionCallback)
+{
+    nbgl_useCaseKeypadPIN(title,
+                          minDigits,
+                          maxDigits,
+                          backToken,
+                          shuffled,
+                          tuneId,
+                          validatePinCallback,
+                          actionCallback);
+}
 #endif
 #else   // HAVE_SE_TOUCH
 void nbgl_useCaseHome(const char                *appName,
