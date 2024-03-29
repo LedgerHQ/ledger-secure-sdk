@@ -123,7 +123,7 @@ static uint8_t nbTouchableControls = 0;
 // This duration must be higher than the screen refresh duration.
 #define HOLD_TO_APPROVE_STEP_DURATION_MS (150)
 #else
-#define HOLD_TO_APPROVE_STEP_PERCENT     (17)
+#define HOLD_TO_APPROVE_STEP_PERCENT     (25)
 #define HOLD_TO_APPROVE_STEP_DURATION_MS (400)
 #endif  // HAVE_DISPLAY_FAST_MODE
 
