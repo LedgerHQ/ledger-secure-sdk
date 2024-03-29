@@ -336,10 +336,11 @@ typedef struct PACKED__ nbgl_switch_s {
  * @note if withBorder, the stroke of the border is fixed (3 pixels)
  */
 typedef struct PACKED__ nbgl_progress_bar_s {
-    nbgl_obj_t obj;              // common part
-    bool       withBorder;       ///< if set to true, a border in black surround the whole object
-    uint8_t    state;            ///< state of the progress, in % (from 0 to 100).
-    uint8_t    previousState;    ///< previous state of the progress, in % (from 0 to 100).
+    nbgl_obj_t obj;            // common part
+    bool       withBorder;     ///< if set to true, a border in black surround the whole object
+    uint8_t    state;          ///< state of the progress, in % (from 0 to 100).
+    uint8_t    previousState;  ///< previous state of the progress, in % (from 0 to 100).
+    uint16_t   previousWidth;
     color_t    foregroundColor;  ///< color of the inner progress bar and border (if applicable)
 } nbgl_progress_bar_t;
 
