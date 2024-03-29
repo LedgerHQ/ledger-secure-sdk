@@ -1241,7 +1241,7 @@ static void prepareAddressConfirmationPages(const char                      *add
 #ifdef NBGL_QRCODE
     tagValueConfirm->detailsButtonIcon = &QRCODE_ICON;
 #ifndef TARGET_STAX
-    // On Europa, only use "Show as QR" when it's not the last page
+    // On Flex, only use "Show as QR" when it's not the last page
     if (tagValueList != NULL) {
 #endif  // TARGET_STAX
         tagValueConfirm->detailsButtonText = "Show as QR";
@@ -1519,7 +1519,7 @@ void nbgl_useCaseHome(const char                *appName,
 /**
  * @brief draws the extended version of home page of an app (page on which we land when launching it
  * from dashboard)
- * @note it enables to use an action button (black on Stax, white on Europa)
+ * @note it enables to use an action button (black on Stax, white on Flex)
  *
  * @param appName app name
  * @param appIcon app icon
@@ -1779,7 +1779,7 @@ void nbgl_useCaseGenericConfiguration(const char                   *title,
 /**
  * @brief Draws the extended version of home page of an app (page on which we land when launching it
  *        from dashboard) with automatic support of setting display.
- * @note it enables to use an action button (black on Stax, white on Europa)
+ * @note it enables to use an action button (black on Stax, white on Flex)
  *
  * @param appName app name
  * @param appIcon app icon

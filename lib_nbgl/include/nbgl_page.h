@@ -111,7 +111,7 @@ typedef struct nbgl_pageNavWithButtons_s {
     uint8_t navToken;    ///< the token used as argument of the actionCallback when the nav buttons
                          ///< are pressed (index param gives the page)
     const char
-        *quitText;  ///< the text displayed in footer (on the left), used to quit (only on Europa)
+        *quitText;  ///< the text displayed in footer (on the left), used to quit (only on Flex)
 } nbgl_pageNavWithButtons_t;
 
 /**

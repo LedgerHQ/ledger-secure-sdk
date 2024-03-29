@@ -1,7 +1,7 @@
 /**
  * @file nbgl_layout.c
  * @brief Implementation of predefined layouts management for Applications
- * @note This file applies only to wallet size products (Stax, Europa...)
+ * @note This file applies only to wallet size products (Stax, Flex...)
  */
 
 #ifdef HAVE_SE_TOUCH
@@ -58,7 +58,7 @@
 #ifdef TARGET_STAX
 #define FIRST_BUTTON_INDEX 0
 #else   // TARGET_STAX
-// for suggestion buttons, on Europa there are other objects than buttons
+// for suggestion buttons, on Flex there are other objects than buttons
 enum {
     PAGE_INDICATOR_INDEX = 0,
     LEFT_HALF_INDEX,   // half disc displayed on the bottom left
@@ -1783,7 +1783,7 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
 #ifdef TARGET_STAX
         container->obj.alignmentMarginY = 12;
 #else   // TARGET_STAX
-        // On Europa, 24 px between each tag/value pair
+        // On Flex, 24 px between each tag/value pair
         if (i > 0) {
             container->obj.alignmentMarginY = 24;
         }
@@ -2663,7 +2663,7 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
                 button->borderColor = LIGHT_GRAY;
 #else   // TARGET_STAX
                 button->obj.alignmentMarginY = 4;      // 4 pixels from screen bottom
-                button->borderColor          = WHITE;  // not a real round button on Europa
+                button->borderColor          = WHITE;  // not a real round button on Flex
 #endif  // TARGET_STAX
             }
             button->innerColor      = WHITE;

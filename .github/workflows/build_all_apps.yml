@@ -141,8 +141,8 @@ jobs:
           [ -n '${{ matrix.repo_info.build_directory }}' ] && cd ${{ matrix.repo_info.build_directory }}
           TARGET=stax BOLOS_SDK=$GITHUB_WORKSPACE/sdk make
 
-      - name: Build Europa
-        if: "contains(matrix.repo_info.devices, 'europa')"
+      - name: Build Flex
+        if: "contains(matrix.repo_info.devices, 'flex')"
         run: |
           [ -n '${{ matrix.repo_info.build_directory }}' ] && cd ${{ matrix.repo_info.build_directory }}
-          TARGET=europa BOLOS_SDK=$GITHUB_WORKSPACE/sdk make
+          TARGET=flex BOLOS_SDK=$GITHUB_WORKSPACE/sdk make
