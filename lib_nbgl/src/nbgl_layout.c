@@ -117,11 +117,11 @@ static uint8_t nbTouchableControls = 0;
 
 #ifdef HAVE_DISPLAY_FAST_MODE
 // Unit step in % of touchable progress bar
-#define HOLD_TO_APPROVE_STEP_PERCENT     (10)
+#define HOLD_TO_APPROVE_STEP_PERCENT     (7)
 // Duration in ms the user must hold the progress bar
 // to make it progress HOLD_TO_APPROVE_STEP_PERCENT %.
 // This duration must be higher than the screen refresh duration.
-#define HOLD_TO_APPROVE_STEP_DURATION_MS (150)
+#define HOLD_TO_APPROVE_STEP_DURATION_MS (100)
 #else
 #define HOLD_TO_APPROVE_STEP_PERCENT     (25)
 #define HOLD_TO_APPROVE_STEP_DURATION_MS (400)
@@ -323,11 +323,12 @@ static void longTouchCallback(nbgl_obj_t            *obj,
         if (new_state != progressBar->state) {
             progressBar->previousState = progressBar->state;
             progressBar->state         = new_state;
+
             nbgl_redrawObject((nbgl_obj_t *) progressBar, false, false);
             // Ensure progress bar is fully drawn
             // before calling the callback.
             nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_FAST_REFRESH,
-                                               POST_REFRESH_FORCE_POWER_ON);
+                                               POST_REFRESH_FORCE_POWER_ON_WITH_PIPELINE);
         }
 
         if (trigger_callback) {
@@ -339,6 +340,7 @@ static void longTouchCallback(nbgl_obj_t            *obj,
     }
     // case of releasing a long press button (or getting out of it)
     else if ((eventType == TOUCH_RELEASED) || (eventType == OUT_OF_TOUCH)) {
+        nbgl_wait_pipeline();
         progressBar->state = 0;
         nbgl_redrawObject((nbgl_obj_t *) progressBar, false, false);
         nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_REFRESH, POST_REFRESH_FORCE_POWER_OFF);
