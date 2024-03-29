@@ -45,7 +45,7 @@ extern "C" {
 #define SMALL_CENTERING_HEADER            24
 #define LONG_PRESS_BUTTON_HEIGHT          128
 #else  // TARGET_STAX
-// only 2 buttons are visible at the same time on Europa
+// only 2 buttons are visible at the same time on Flex
 #define NB_MAX_VISIBLE_SUGGESTION_BUTTONS 2
 #define TOUCHABLE_HEADER_BAR_HEIGHT       96
 #define TOUCHABLE_MAIN_BAR_HEIGHT         100
@@ -381,7 +381,7 @@ typedef enum {
     FOOTER_SIMPLE_TEXT,  ///< simple touchable text in bold
     FOOTER_DOUBLE_TEXT,  ///< 2 touchable texts in bold, separated by a vertical line (only on Stax)
     FOOTER_TEXT_AND_NAV,   ///< touchable text in bold on the left, navigation on the right (only on
-                           ///< Europa)
+                           ///< Flex)
     FOOTER_NAV,            ///< navigation bar
     FOOTER_SIMPLE_BUTTON,  ///< simple black or white button (see @ref nbgl_layoutButtonStyle_t)
     FOOTER_CHOICE_BUTTONS,  ///< double buttons (see @ref nbgl_layoutChoiceButtonsStyle_t)

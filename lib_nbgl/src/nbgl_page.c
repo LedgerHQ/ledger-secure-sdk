@@ -152,7 +152,7 @@ static void addContent(nbgl_pageContent_t *content,
             }
             else if ((content->tagValueConfirm.detailsButtonIcon != NULL)
                      && (content->tagValueConfirm.confirmationText != NULL)) {
-                // On Europa, a small button with only the icon is displayed on the left
+                // On Flex, a small button with only the icon is displayed on the left
                 // of "Confirm"
                 nbgl_layoutHorizontalButtons_t choice
                     = {.leftIcon   = content->tagValueConfirm.detailsButtonIcon,
