@@ -582,7 +582,8 @@ int nbgl_layoutUpdateKeypad(nbgl_layout_t *layout,
                             bool           enableDigits);
 int nbgl_layoutAddHiddenDigits(nbgl_layout_t *layout, uint8_t nbDigits);
 int nbgl_layoutUpdateHiddenDigits(nbgl_layout_t *layout, uint8_t index, uint8_t nbActive);
-
+int nbgl_layoutAddEnteredDigits(nbgl_layout_t *layout, const char *text, int offsetY);
+int nbgl_layoutUpdateEnteredDigits(nbgl_layout_t *layout, uint8_t index, const char *text);
 #else   // HAVE_SE_TOUCH
 /* layout objects for pages with keypad (nanos) */
 int nbgl_layoutAddKeypad(nbgl_layout_t     *layout,

@@ -298,5 +298,98 @@ int nbgl_layoutUpdateHiddenDigits(nbgl_layout_t *layout, uint8_t index, uint8_t 
 
     return 0;
 }
+/**
+ * @brief Adds a "digits entry" area under the previously entered object. A horizontal gray line
+ * is placed under the text. This text is vertically placed in the screen with offsetY
+ *
+ * @param layout the current layout
+ * @param text string to display in the area
+ * @param offsetY vertical offset from the top of the page
+ * @return >= 0 if OK
+ */
+int nbgl_layoutAddEnteredDigits(nbgl_layout_t *layout, const char *text, int offsetY)
+{
+    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
+    nbgl_text_area_t      *textArea;
+    nbgl_line_t           *line;
+
+    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddEnteredDigits():\n");
+    if (layout == NULL) {
+        return -1;
+    }
+
+    // create gray line
+    line                       = (nbgl_line_t *) nbgl_objPoolGet(LINE, layoutInt->layer);
+    line->lineColor            = LIGHT_GRAY;
+    line->obj.alignmentMarginY = offsetY;
+    line->obj.alignTo     = layoutInt->container->children[layoutInt->container->nbChildren - 1];
+    line->obj.alignment   = TOP_MIDDLE;
+    line->obj.area.width  = SCREEN_WIDTH - 2 * 32;
+    line->obj.area.height = 4;
+    line->direction       = HORIZONTAL;
+    line->thickness       = 2;
+    line->offset          = 2;
+    // set this new line as child of the main container
+    layoutAddObject(layoutInt, (nbgl_obj_t *) line);
+
+    // create text area
+    textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+    textArea->textColor     = BLACK;
+    textArea->text          = text;
+    textArea->textAlignment = MID_LEFT;
+    textArea->fontId        = LARGE_MEDIUM_1BPP_FONT;
+#ifdef TARGET_STAX
+    textArea->obj.alignmentMarginY = 12;
+#else   // TARGET_STAX
+    textArea->obj.alignmentMarginY = 16;
+#endif  // TARGET_STAX
+    textArea->obj.alignTo      = (nbgl_obj_t *) line;
+    textArea->obj.alignment    = TOP_LEFT;
+    textArea->obj.area.width   = line->obj.area.width;
+    textArea->obj.area.height  = nbgl_getFontLineHeight(textArea->fontId);
+    textArea->autoHideLongLine = true;
+
+    // set this new text area as child of the container
+    layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
+
+    // return index of text area to be modified later on
+    return (layoutInt->container->nbChildren - 1);
+}
+
+/**
+ * @brief Updates an existing "digits entry" area, created with @ref nbgl_layoutAddEnteredDigits()
+ *
+ * @param layout the current layout
+ * @param index index of the text (return value of @ref nbgl_layoutAddEnteredDigits())
+ * @param text string to display in the area
+ * @return <0 if error, 0 if OK with text fitting the area, 1 of 0K with text
+ * not fitting the area
+ */
+int nbgl_layoutUpdateEnteredDigits(nbgl_layout_t *layout, uint8_t index, const char *text)
+{
+    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
+    nbgl_text_area_t      *textArea;
+
+    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutUpdateEnteredDigits():\n");
+    if (layout == NULL) {
+        return -1;
+    }
+
+    // update main text area
+    textArea = (nbgl_text_area_t *) layoutInt->container->children[index];
+    if ((textArea == NULL) || (textArea->obj.type != TEXT_AREA)) {
+        return -1;
+    }
+    textArea->text          = text;
+    textArea->textColor     = BLACK;
+    textArea->textAlignment = MID_LEFT;
+    nbgl_redrawObject((nbgl_obj_t *) textArea, NULL, false);
+
+    // if the text doesn't fit, indicate it by returning 1 instead of 0, for different refresh
+    if (nbgl_getSingleLineTextWidth(textArea->fontId, text) > textArea->obj.area.width) {
+        return 1;
+    }
+    return 0;
+}
 #endif  // NBGL_KEYPAD
 #endif  // HAVE_SE_TOUCH
