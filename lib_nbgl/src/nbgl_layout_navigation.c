@@ -245,13 +245,14 @@ void layoutNavigationPopulate(nbgl_container_t *navContainer,
 
     // potentially create page indicator (with a text area)
 #ifndef TARGET_STAX
-    if (withPageIndicator && withBackKey && (nbPages > 1)) {
+    if (withPageIndicator && withBackKey
+        && (nbPages > 1 && nbPages != NBGL_NO_PROGRESS_INDICATOR)) {
         nbgl_text_area_t *textArea = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layer);
 
         SPRINTF(navText, "%d of %d", activePage + 1, nbPages);
 
         textArea->obj.alignment                      = BOTTOM_RIGHT;
-        textArea->textColor                          = BLACK;
+        textArea->textColor                          = DARK_GRAY;
         textArea->obj.area.width                     = 109;
         textArea->text                               = navText;
         textArea->fontId                             = SMALL_REGULAR_FONT;
@@ -261,7 +262,7 @@ void layoutNavigationPopulate(nbgl_container_t *navContainer,
         textArea->obj.alignmentMarginX               = NAV_BUTTON_WIDTH - 15;
         navContainer->children[PAGE_INDICATOR_INDEX] = (nbgl_obj_t *) textArea;
         if (withBackKey) {
-            navContainer->children[PREVIOUS_PAGE_INDEX]->alignmentMarginX += 84;
+            navContainer->children[PREVIOUS_PAGE_INDEX]->alignmentMarginX += 79;
         }
     }
 #endif  // TARGET_STAX

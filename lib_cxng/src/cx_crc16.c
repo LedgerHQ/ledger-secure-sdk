@@ -16,6 +16,8 @@
  *  limitations under the License.
  ********************************************************************************/
 
+#include "app_config.h"
+
 #ifdef HAVE_CRC
 
 #include "lcx_crc.h"

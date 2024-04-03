@@ -1,7 +1,7 @@
 /**
  * @file nbgl_layout.c
  * @brief Implementation of predefined layouts management for Applications
- * @note This file applies only to wallet size products (Stax, Europa...)
+ * @note This file applies only to wallet size products (Stax, Flex...)
  */
 
 #ifdef HAVE_SE_TOUCH
@@ -58,7 +58,7 @@
 #ifdef TARGET_STAX
 #define FIRST_BUTTON_INDEX 0
 #else   // TARGET_STAX
-// for suggestion buttons, on Europa there are other objects than buttons
+// for suggestion buttons, on Flex there are other objects than buttons
 enum {
     PAGE_INDICATOR_INDEX = 0,
     LEFT_HALF_INDEX,   // half disc displayed on the bottom left
@@ -123,7 +123,7 @@ static uint8_t nbTouchableControls = 0;
 // This duration must be higher than the screen refresh duration.
 #define HOLD_TO_APPROVE_STEP_DURATION_MS (150)
 #else
-#define HOLD_TO_APPROVE_STEP_PERCENT     (17)
+#define HOLD_TO_APPROVE_STEP_PERCENT     (25)
 #define HOLD_TO_APPROVE_STEP_DURATION_MS (400)
 #endif  // HAVE_DISPLAY_FAST_MODE
 
@@ -1783,7 +1783,7 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
 #ifdef TARGET_STAX
         container->obj.alignmentMarginY = 12;
 #else   // TARGET_STAX
-        // On Europa, 24 px between each tag/value pair
+        // On Flex, 24 px between each tag/value pair
         if (i > 0) {
             container->obj.alignmentMarginY = 24;
         }
@@ -1979,7 +1979,7 @@ int nbgl_layoutAddButton(nbgl_layout_t *layout, const nbgl_layoutButton_t *butto
     }
     button->obj.alignTo   = NULL;
     button->obj.touchMask = (1 << TOUCHED);
-    button->obj.touchId   = SINGLE_BUTTON_ID;
+    button->obj.touchId   = (buttonInfo->fittingContent) ? EXTRA_BUTTON_ID : SINGLE_BUTTON_ID;
     // set this new button as child of the container
     layoutAddObject(layoutInt, (nbgl_obj_t *) button);
 
@@ -2020,7 +2020,7 @@ int nbgl_layoutAddLongPressButton(nbgl_layout_t *layout,
     }
 
     container->obj.area.width  = SCREEN_WIDTH;
-    container->obj.area.height = 128;
+    container->obj.area.height = LONG_PRESS_BUTTON_HEIGHT;
     container->layout          = VERTICAL;
     container->nbChildren      = 4;  // progress-bar + text + line + button
     container->children
@@ -2073,7 +2073,7 @@ int nbgl_layoutAddLongPressButton(nbgl_layout_t *layout,
     // set this new container as child of the main container
     layoutAddObject(layoutInt, (nbgl_obj_t *) container);
 
-    return 0;
+    return container->obj.area.height;
 }
 
 /**
@@ -2241,7 +2241,8 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
             }
 
             // add progress indicator
-            if (headerDesc->progressAndBack.nbPages > 1) {
+            if (headerDesc->progressAndBack.nbPages > 1
+                && headerDesc->progressAndBack.nbPages != NBGL_NO_PROGRESS_INDICATOR) {
                 nbgl_page_indicator_t *progress;
 
                 progress
@@ -2662,7 +2663,7 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
                 button->borderColor = LIGHT_GRAY;
 #else   // TARGET_STAX
                 button->obj.alignmentMarginY = 4;      // 4 pixels from screen bottom
-                button->borderColor          = WHITE;  // not a real round button on Europa
+                button->borderColor          = WHITE;  // not a real round button on Flex
 #endif  // TARGET_STAX
             }
             button->innerColor      = WHITE;

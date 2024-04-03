@@ -17,7 +17,7 @@
 
 # TARGET should be set as an environment variable otherwise it will be read from a `.target`
 # file in the SDK root repository
-TARGETS := nanos nanox nanos2 stax europa
+TARGETS := nanos nanox nanos2 stax flex
 ifeq ($(TARGET),)
 ifeq ("$(wildcard $(BOLOS_SDK)/.target)","")
 $(error No TARGET specified and no .target file in SDK repository $(BOLOS_SDK))
@@ -153,7 +153,7 @@ LDFLAGS  += -L$(BOLOS_SDK)/arch/st33/lib/
 AFLAGS   += -mcpu=cortex-m0plus -mtune=cortex-m0plus -mthumb
 endif
 
-ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_STAX TARGET_EUROPA TARGET_NANOS2))
+ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_STAX TARGET_FLEX TARGET_NANOS2))
 CFLAGS   += -mno-movt -frwpi --target=armv8m-none-eabi -mcpu=cortex-m35p+nodsp -mthumb -msoft-float -mtune=cortex-m35p+nodsp
 LDFLAGS  += -momit-leaf-frame-pointer
 LDFLAGS  += --target=armv8m-none-eabi
@@ -179,8 +179,8 @@ DEFINES += NBGL_USE_CASE
 DEFINES += SCREEN_SIZE_WALLET
 endif # TARGET_STAX
 
-ifeq ($(TARGET_NAME),TARGET_EUROPA)
-# For Europa NBGL must be used
+ifeq ($(TARGET_NAME),TARGET_FLEX)
+# For Flex NBGL must be used
 USE_NBGL = 1
 DEFINES += HAVE_BAGL_FONT_INTER_REGULAR_28PX
 DEFINES += HAVE_BAGL_FONT_INTER_SEMIBOLD_28PX
@@ -194,7 +194,7 @@ DEFINES += NBGL_PAGE
 DEFINES += NBGL_USE_CASE
 DEFINES += SCREEN_SIZE_WALLET
 DEFINES += HAVE_DISPLAY_FAST_MODE
-endif # TARGET_EUROPA
+endif # TARGET_FLEX
 
 # For other devices, by default NBGL is not used
 USE_NBGL ?= 0

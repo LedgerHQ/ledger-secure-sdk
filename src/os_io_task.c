@@ -1,3 +1,4 @@
+#include "app_config.h"
 #include "decorators.h"
 #include "exceptions.h"
 #include "os_io_seproxyhal.h"

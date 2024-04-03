@@ -18,6 +18,7 @@
 
 #include <stdarg.h>
 #include <string.h>
+#include "app_config.h"
 #include "decorators.h"
 #include "os_math.h"
 

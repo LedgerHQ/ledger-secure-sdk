@@ -199,7 +199,6 @@ typedef enum {
     PRESSED,   ///< the finger is currently pressing the screen
 } nbgl_touchState_t;
 
-#ifdef HAVE_HW_TOUCH_SWIPE
 /**
  * @brief Hardware powered detected swipe states
  */
@@ -210,7 +209,6 @@ typedef enum {
     HARDWARE_SWIPE_LEFT,
     NO_HARDWARE_SWIPE,
 } nbgl_hardwareSwipe_t;
-#endif  // HAVE_HW_TOUCH_SWIPE
 
 /**
  * @brief The different types of Touchscreen events
@@ -289,6 +287,7 @@ typedef enum {
     FULL_COLOR_CLEAN_REFRESH,  ///< to be used for lock screen display (cleaner but longer refresh)
     BLACK_AND_WHITE_REFRESH,   ///< to be used for pure B&W area, when contrast is important
     BLACK_AND_WHITE_FAST_REFRESH,  ///< to be used for pure B&W area, when contrast is not priority
+    INIT_REFRESH,                  ///< to be used to fully clear the screen in white
     NB_REFRESH_MODES
 } nbgl_refresh_mode_t;
 

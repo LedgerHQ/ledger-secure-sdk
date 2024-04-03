@@ -26,7 +26,8 @@ extern "C" {
 /*********************
  *      DEFINES
  *********************/
-#define NBGL_NO_TUNE NB_TUNES
+#define NBGL_NO_TUNE               NB_TUNES
+#define NBGL_NO_PROGRESS_INDICATOR 0xFF
 
 #ifdef HAVE_SE_TOUCH
 ///< special code used as index of action callback to inform when Exit key (X) is
@@ -42,8 +43,9 @@ extern "C" {
 #define TOUCHABLE_DETAILLED_BAR_HEIGHT    88
 #define SIMPLE_FOOTER_HEIGHT              128
 #define SMALL_CENTERING_HEADER            24
+#define LONG_PRESS_BUTTON_HEIGHT          128
 #else  // TARGET_STAX
-// only 2 buttons are visible at the same time on Europa
+// only 2 buttons are visible at the same time on Flex
 #define NB_MAX_VISIBLE_SUGGESTION_BUTTONS 2
 #define TOUCHABLE_HEADER_BAR_HEIGHT       96
 #define TOUCHABLE_MAIN_BAR_HEIGHT         100
@@ -51,6 +53,7 @@ extern "C" {
 #define TOUCHABLE_DETAILLED_BAR_HEIGHT    140
 #define SIMPLE_FOOTER_HEIGHT              96
 #define SMALL_CENTERING_HEADER            40
+#define LONG_PRESS_BUTTON_HEIGHT          152
 #endif  // TARGET_STAX
 
 #define AVAILABLE_WIDTH (SCREEN_WIDTH - 2 * BORDER_MARGIN)
@@ -378,7 +381,7 @@ typedef enum {
     FOOTER_SIMPLE_TEXT,  ///< simple touchable text in bold
     FOOTER_DOUBLE_TEXT,  ///< 2 touchable texts in bold, separated by a vertical line (only on Stax)
     FOOTER_TEXT_AND_NAV,   ///< touchable text in bold on the left, navigation on the right (only on
-                           ///< Europa)
+                           ///< Flex)
     FOOTER_NAV,            ///< navigation bar
     FOOTER_SIMPLE_BUTTON,  ///< simple black or white button (see @ref nbgl_layoutButtonStyle_t)
     FOOTER_CHOICE_BUTTONS,  ///< double buttons (see @ref nbgl_layoutChoiceButtonsStyle_t)

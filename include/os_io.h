@@ -1,6 +1,7 @@
 #pragma once
 #include <stdbool.h>
 #include <stdint.h>
+#include "app_config.h"
 #include "bolos_target.h"
 #include "os_math.h"
 #include "decorators.h"
@@ -80,9 +81,7 @@ typedef struct io_touch_info_s {
     uint8_t  state;
     uint8_t  w;
     uint8_t  h;
-#ifdef HAVE_HW_TOUCH_SWIPE
-    uint8_t swipe;
-#endif  // HAVE_HW_TOUCH_SWIPE
+    uint8_t  swipe;
 } io_touch_info_t;
 
 // bitfield for exclusion borders, for touch_exclude_borders() (if a bit is set, means that pixels

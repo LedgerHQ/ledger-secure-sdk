@@ -6,6 +6,7 @@
 /*********************
  *      INCLUDES
  *********************/
+#include "app_config.h"
 #include "nbgl_front.h"
 #include "nbgl_screen.h"
 #include "nbgl_debug.h"

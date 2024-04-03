@@ -1354,7 +1354,8 @@ reply_apdu:
                             break;
 #ifdef HAVE_NFC
                         case APDU_NFC:
-                            if (tx_len > sizeof(G_io_apdu_buffer)) {
+                            if ((tx_len > sizeof(G_io_apdu_buffer))
+                                || (tx_len > NFC_APDU_MAX_SIZE)) {
                                 THROW(INVALID_PARAMETER);
                             }
                             // reply the NFC APDU over SEPROXYHAL protocol
