@@ -1,7 +1,7 @@
 /**
  * @file nbgl_layout_keyboard.c
  * @brief Implementation of predefined keyboard related layouts management
- * @note This file applies only to wallet size products (Stax, Europa...)
+ * @note This file applies only to wallet size products (Stax, Flex...)
  */
 
 #ifdef HAVE_SE_TOUCH
@@ -29,7 +29,7 @@
 #ifdef TARGET_STAX
 #define FIRST_BUTTON_INDEX 0
 #else   // TARGET_STAX
-// for suggestion buttons, on Europa there are other objects than buttons
+// for suggestion buttons, on Flex there are other objects than buttons
 enum {
     PAGE_INDICATOR_INDEX = 0,
     LEFT_HALF_INDEX,   // half disc displayed on the bottom left
@@ -62,7 +62,7 @@ static nbgl_image_t *partialButtonImages[2];
  **********************/
 
 #ifndef TARGET_STAX
-// function used on Europa to display (or not) beginning of next button and/or end of
+// function used on Flex to display (or not) beginning of next button and/or end of
 // previous button, and update buttons when swipping
 static bool updateSuggestionButtons(nbgl_container_t *container,
                                     nbgl_touchType_t  eventType,
@@ -110,7 +110,7 @@ static bool updateSuggestionButtons(nbgl_container_t *container,
             = container->children[FIRST_BUTTON_INDEX];
     }
 
-    // on Europa, the first child is used by the progress indicator, displayed if more that 2
+    // on Flex, the first child is used by the progress indicator, displayed if more that 2
     // buttons
     nbgl_page_indicator_t *indicator
         = (nbgl_page_indicator_t *) container->children[PAGE_INDICATOR_INDEX];
@@ -320,12 +320,12 @@ int nbgl_layoutAddSuggestionButtons(nbgl_layout_t *layout,
 #else   // TARGET_STAX
     // 1 row of buttons + 24px + page indicator
     container->obj.area.height = SMALL_BUTTON_HEIGHT + 28;
-    // on Europa, the first child is used by the progress indicator, if more that 2 buttons
+    // on Flex, the first child is used by the progress indicator, if more that 2 buttons
     container->nbChildren = nbUsedButtons + FIRST_BUTTON_INDEX;
     container->children   = (nbgl_obj_t **) nbgl_containerPoolGet(
         NB_MAX_VISIBLE_SUGGESTION_BUTTONS + 1, layoutInt->layer);
 
-    // the container is swipable on Europa
+    // the container is swipable on Flex
     container->obj.touchMask = (1 << SWIPED_LEFT) | (1 << SWIPED_RIGHT);
     container->obj.touchId   = CONTROLS_ID;  // TODO: change this value
     obj = layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) container, 0, NBGL_NO_TUNE);
@@ -384,7 +384,7 @@ int nbgl_layoutAddSuggestionButtons(nbgl_layout_t *layout,
         }
     }
 #ifndef TARGET_STAX
-    // on Europa, the first child is used by the progress indicator, if more that 2 buttons
+    // on Flex, the first child is used by the progress indicator, if more that 2 buttons
     nbgl_page_indicator_t *indicator
         = (nbgl_page_indicator_t *) nbgl_objPoolGet(PAGE_INDICATOR, layoutInt->layer);
     indicator->activePage                     = 0;
@@ -474,7 +474,7 @@ int nbgl_layoutUpdateSuggestionButtons(nbgl_layout_t *layout,
     }
     container->forceClean = true;
 #ifndef TARGET_STAX
-    // on Europa, the first child is used by the progress indicator, if more that 2 buttons
+    // on Flex, the first child is used by the progress indicator, if more that 2 buttons
     nbgl_page_indicator_t *indicator
         = (nbgl_page_indicator_t *) container->children[PAGE_INDICATOR_INDEX];
     indicator->nbPages    = (nbUsedButtons + 1) / 2;

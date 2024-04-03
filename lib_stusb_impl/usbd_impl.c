@@ -225,7 +225,7 @@ static uint8_t const USBD_PRODUCT_FS_STRING[] = {
   'a', 0,
   'x', 0,
 };
-#elif defined(TARGET_EUROPA)
+#elif defined(TARGET_FLEX)
 #ifndef HAVE_LEGACY_PID
 #define USBD_PID                      0x7000
 #else // HAVE_LEGACY_PID

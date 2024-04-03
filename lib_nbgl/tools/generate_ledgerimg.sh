@@ -4,7 +4,7 @@
 #
 # where:
 #  - <FILE_TO_COMPRESS> is the path to the input image file
-#  - <PRODUCT> can be --europa (--stax is the default)
+#  - <PRODUCT> can be --flex (--stax is the default)
 #
 # Example for Stax:
 #
@@ -13,16 +13,16 @@
 # Write /home/abonnaudet/Downloads/cryptopunk.bmp
 # Write /home/abonnaudet/Downloads/cryptopunk.ledgerimg
 # ```
-# Example for Europa:
+# Example for Flex:
 #
 # ```
-# sh tools/generate_ledgerimg.sh ~/Downloads/cryptopunk.png --europa
+# sh tools/generate_ledgerimg.sh ~/Downloads/cryptopunk.png --flex
 # Write /home/abonnaudet/Downloads/cryptopunk.bmp
 # Write /home/abonnaudet/Downloads/cryptopunk.ledgerimg
 # ```
 
 ## Product detection for screen height & width
-if [ "$2" = "--europa" ]
+if [ "$2" = "--flex" ]
 then
 	FRONT_SCREEN_WIDTH=480
 	FRONT_SCREEN_HEIGHT=600

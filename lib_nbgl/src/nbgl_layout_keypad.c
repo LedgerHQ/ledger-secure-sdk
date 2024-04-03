@@ -1,7 +1,7 @@
 /**
  * @file nbgl_layout_kbd.c
  * @brief Implementation of keypad management of predefined layouts management for Applications
- * @note This file applies only to wallet size products (Stax, Europa...)
+ * @note This file applies only to wallet size products (Stax, Flex...)
  */
 
 #ifdef HAVE_SE_TOUCH
