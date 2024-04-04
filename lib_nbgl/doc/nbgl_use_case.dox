@@ -61,7 +61,8 @@ A few APIs are available to draw typical Use-Cases, such as:
  - @ref nbgl_useCaseAddressConfirmation() to draw an address confirmation page, with a possibility to see it as QR Code (see @subpage use_case_addr_confirm)
  - @ref nbgl_useCaseAddressConfirmationExt() to draw an address confirmation page, with a possibility to see it as QR Code and some extra tag/value pairs (see @subpage use_case_addr_confirm_ext)
 - for keypad:
- - @ref nbgl_useCaseKeypad() to draw a default keypad implementation (see @subpage use_case_keypad)
+ - @ref nbgl_useCaseKeypadPIN() to draw a default keypad implementation with hidden digits (see @subpage use_case_keypad)
+ - @ref nbgl_useCaseKeypadDigits() to draw a default keypad implementation, showing digits (see @subpage use_case_keypad)
 
 @subsection use_case_home Home screen Use Case
 
@@ -872,21 +873,27 @@ The @ref nbgl_useCaseSpinner() function enables to create such a page, with the 
 
 \image{inline} html UseCase-Keypad.png "caption" height=350
 
-When a pincode is requested, a default keypad can be displayed. As show on the image above, it consists of:
+We have here 2 different variants, allowing to show or hide the entered digits.
+
+When a pincode is requested, a default keypad can be displayed, with hidden digits.
+As shown on the image above, it consists of:
 
 - a navigation bar at the top
 - a title area, specifying the type of pin code or operation requested
 - a hidden Digits area (the max nb of supported digits is 12)
 - the keypad at the bottom
 
-The @ref nbgl_useCaseKeypad() function enables to create such page, with the following parameters:
+The @ref nbgl_useCaseKeypadPIN() function enables to create such page, with the following parameters:
 
 - the title
-- min and max pin code length
+- min and max pin code lengths
 - a token for the navigation callback (if not provided, no navigation bar will appear)
 - a boolean to request a shuffled keypad
 - a tune value
 - callbacks for navigation and pin validation
+
+The other variant, where digits don't need to be hidden is @ref nbgl_useCaseKeypadDigits();
+it takes the same parameters.
 
 @note The \em backspace and \em validate buttons will be shown or hidden automatically.
 
@@ -907,7 +914,7 @@ static void pinentry_cb(int token, uint8_t index) {
 
 void ui_menu_pinentry_display(unsigned int value) {
     // Draw the keypad
-    nbgl_useCaseKeypad("Enter User PIN",
+    nbgl_useCaseKeypadPIN("Enter User PIN",
                        6,
                        12,
                        TOKEN_PIN_ENTRY_BACK,
