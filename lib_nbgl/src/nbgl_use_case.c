@@ -87,8 +87,6 @@ typedef struct KeypadContext_s {
     uint8_t        pinLen;
     uint8_t        pinMinDigits;
     uint8_t        pinMaxDigits;
-    uint32_t       keypadIndex;
-    uint32_t       digitsIndex;
     nbgl_layout_t *layoutCtx;
     bool           hidden;
 } KeypadContext_t;
@@ -884,7 +882,8 @@ static void displayGenericContextPage(uint8_t pageIdx, bool forceFullRefresh)
     const nbgl_content_t *p_content = NULL;
 
     if ((navType == STREAMING_NAV) && (pageIdx >= bundleNavContext.reviewStreaming.stepPageNb)) {
-        return bundleNavReviewStreamingChoice(true);
+        bundleNavReviewStreamingChoice(true);
+        return;
     }
 
     if (navInfo.activePage == pageIdx) {
@@ -1126,20 +1125,15 @@ static void updateKeyPad(bool add)
         }
     }
     if (keypadContext.hidden == true) {
-        nbgl_layoutUpdateHiddenDigits(
-            keypadContext.layoutCtx, keypadContext.digitsIndex, keypadContext.pinLen);
+        nbgl_layoutUpdateKeypadContent(keypadContext.layoutCtx, true, keypadContext.pinLen, NULL);
     }
     else {
-        nbgl_layoutUpdateEnteredDigits(keypadContext.layoutCtx,
-                                       keypadContext.digitsIndex,
-                                       (const char *) keypadContext.pinEntry);
+        nbgl_layoutUpdateKeypadContent(
+            keypadContext.layoutCtx, false, 0, (const char *) keypadContext.pinEntry);
     }
     if (redrawKeypad) {
-        nbgl_layoutUpdateKeypad(keypadContext.layoutCtx,
-                                keypadContext.keypadIndex,
-                                enableValidate,
-                                enableBackspace,
-                                enableDigits);
+        nbgl_layoutUpdateKeypad(
+            keypadContext.layoutCtx, 0, enableValidate, enableBackspace, enableDigits);
     }
 
     if ((!add) && (keypadContext.pinLen == 0)) {
@@ -1163,8 +1157,7 @@ static void keypadCallback(char touchedKey)
 
         case VALIDATE_KEY:
             // Gray out keyboard / buttons as a first user feedback
-            nbgl_layoutUpdateKeypad(
-                keypadContext.layoutCtx, keypadContext.keypadIndex, false, false, true);
+            nbgl_layoutUpdateKeypad(keypadContext.layoutCtx, 0, false, false, true);
             nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_FAST_REFRESH,
                                                POST_REFRESH_FORCE_POWER_ON);
 
@@ -1194,9 +1187,13 @@ static void keypadGenericUseCase(const char                *title,
                                  nbgl_pinValidCallback_t    validatePinCallback,
                                  nbgl_layoutTouchCallback_t actionCallback)
 {
-    nbgl_layoutDescription_t  layoutDescription = {0};
-    nbgl_layoutCenteredInfo_t centeredInfo      = {0};
-    int                       status            = -1;
+    nbgl_layoutDescription_t layoutDescription = {0};
+    nbgl_layoutHeader_t      headerDesc        = {.type               = HEADER_BACK_AND_TEXT,
+                                                  .separationLine     = true,
+                                                  .backAndText.token  = backToken,
+                                                  .backAndText.tuneId = tuneId,
+                                                  .backAndText.text   = NULL};
+    int                      status            = -1;
 
     if ((minDigits > KEYPAD_MAX_DIGITS) || (maxDigits > KEYPAD_MAX_DIGITS)) {
         return;
@@ -1213,34 +1210,21 @@ static void keypadGenericUseCase(const char                *title,
     keypadContext.layoutCtx            = nbgl_layoutGet(&layoutDescription);
     keypadContext.hidden               = hidden;
 
-    // set navigation bar
-    nbgl_layoutAddProgressIndicator(
-        keypadContext.layoutCtx, 0, 0, (backToken != 0), backToken, tuneId);
-
-    // add text description
-    centeredInfo.text1 = title;
-    centeredInfo.style = LARGE_CASE_INFO;
-    centeredInfo.onTop = true;
-    nbgl_layoutAddCenteredInfo(keypadContext.layoutCtx, &centeredInfo);
+    // set back key in header
+    nbgl_layoutAddHeader(keypadContext.layoutCtx, &headerDesc);
 
     // add keypad
     status = nbgl_layoutAddKeypad(keypadContext.layoutCtx, keypadCallback, shuffled);
     if (status < 0) {
         return;
     }
-    keypadContext.keypadIndex = (unsigned int) status;
+    // add keypad content
+    status = nbgl_layoutAddKeypadContent(
+        keypadContext.layoutCtx, title, keypadContext.hidden, maxDigits, "");
 
-    // add digits entry
-    if (keypadContext.hidden == true) {
-        status = nbgl_layoutAddHiddenDigits(keypadContext.layoutCtx, maxDigits);
-    }
-    else {
-        status = nbgl_layoutAddEnteredDigits(keypadContext.layoutCtx, "", 0);
-    }
     if (status < 0) {
         return;
     }
-    keypadContext.digitsIndex = (unsigned int) status;
 
     // validation pin callback
     onValidatePin = validatePinCallback;
@@ -1852,7 +1836,7 @@ void nbgl_useCaseGenericConfiguration(const char                   *title,
                                       const nbgl_genericContents_t *contents,
                                       nbgl_callback_t               quitCallback)
 {
-    return nbgl_useCaseGenericSettings(title, initPage, contents, NULL, quitCallback);
+    nbgl_useCaseGenericSettings(title, initPage, contents, NULL, quitCallback);
 }
 
 /**
@@ -1961,24 +1945,45 @@ void nbgl_useCaseStatus(const char *message, bool isSuccess, nbgl_callback_t qui
 void nbgl_useCaseReviewStatus(nbgl_reviewStatusType_t reviewStatusType,
                               nbgl_callback_t         quitCallback)
 {
+    const char *msg;
+    bool        isSuccess;
     switch (reviewStatusType) {
         case STATUS_TYPE_OPERATION_SIGNED:
-            return nbgl_useCaseStatus("Operation signed", true, quitCallback);
+            msg       = "Operation signed";
+            isSuccess = true;
+            break;
         case STATUS_TYPE_OPERATION_REJECTED:
-            return nbgl_useCaseStatus("Operation rejected", false, quitCallback);
+            msg       = "Operation rejected";
+            isSuccess = false;
+            break;
         case STATUS_TYPE_TRANSACTION_SIGNED:
-            return nbgl_useCaseStatus("Transaction signed", true, quitCallback);
+            msg       = "Transaction signed";
+            isSuccess = true;
+            break;
         case STATUS_TYPE_TRANSACTION_REJECTED:
-            return nbgl_useCaseStatus("Transaction rejected", false, quitCallback);
+            msg       = "Transaction rejected";
+            isSuccess = false;
+            break;
         case STATUS_TYPE_MESSAGE_SIGNED:
-            return nbgl_useCaseStatus("Message signed", true, quitCallback);
+            msg       = "Message signed";
+            isSuccess = true;
+            break;
         case STATUS_TYPE_MESSAGE_REJECTED:
-            return nbgl_useCaseStatus("Message rejected", false, quitCallback);
+            msg       = "Message rejected";
+            isSuccess = false;
+            break;
         case STATUS_TYPE_ADDRESS_VERIFIED:
-            return nbgl_useCaseStatus("Address verified", true, quitCallback);
+            msg       = "Address verified";
+            isSuccess = true;
+            break;
         case STATUS_TYPE_ADDRESS_REJECTED:
-            return nbgl_useCaseStatus("Address verification\ncancelled", false, quitCallback);
+            msg       = "Address verification\ncancelled";
+            isSuccess = false;
+            break;
+        default:
+            return;
     }
+    nbgl_useCaseStatus(msg, isSuccess, quitCallback);
 }
 
 /**
