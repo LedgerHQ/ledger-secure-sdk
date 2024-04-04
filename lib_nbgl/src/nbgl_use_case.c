@@ -417,7 +417,9 @@ static void pageModalCallback(int token, uint8_t index)
     }
     else if (token == CHOICE_TOKEN) {
         if (index == 0) {
-            onModalConfirm();
+            if (onModalConfirm != NULL) {
+                onModalConfirm();
+            }
         }
         else {
             // display background, which should be the page where skip has been touched
