@@ -18,7 +18,7 @@
 
 #ifdef HAVE_CRC
 
-#include "cx_crc.h"
+#include "lcx_crc.h"
 #include "cx_ram.h"
 
 static uint32_t reverse_32_bits(uint32_t value)
