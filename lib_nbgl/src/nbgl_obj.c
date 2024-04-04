@@ -1036,13 +1036,7 @@ static void draw_qrCode(nbgl_qrcode_t *obj, nbgl_obj_t *prevObj, bool computePos
  */
 static void draw_keyboard(nbgl_keyboard_t *obj, nbgl_obj_t *prevObj, bool computePosition)
 {
-#ifdef HAVE_SE_TOUCH
-    obj->obj.area.width  = SCREEN_WIDTH;
-    obj->obj.area.height = 3 * KEYBOARD_KEY_HEIGHT;
-    if (!obj->lettersOnly) {
-        obj->obj.area.height += KEYBOARD_KEY_HEIGHT;
-    }
-#else   // HAVE_SE_TOUCH
+#ifndef HAVE_SE_TOUCH
     obj->obj.area.width  = KEYBOARD_WIDTH;
     obj->obj.area.height = KEYBOARD_KEY_HEIGHT;
 #endif  // HAVE_SE_TOUCH
@@ -1073,10 +1067,7 @@ static void draw_keyboard(nbgl_keyboard_t *obj, nbgl_obj_t *prevObj, bool comput
  */
 static void draw_keypad(nbgl_keypad_t *obj, nbgl_obj_t *prevObj, bool computePosition)
 {
-#ifdef HAVE_SE_TOUCH
-    obj->obj.area.width  = SCREEN_WIDTH;
-    obj->obj.area.height = 4 * KEYPAD_KEY_HEIGHT;
-#else   // HAVE_SE_TOUCH
+#ifndef HAVE_SE_TOUCH
     obj->obj.area.height = KEYPAD_HEIGHT;
     obj->obj.area.width  = KEYPAD_WIDTH;
 #endif  // HAVE_SE_TOUCH

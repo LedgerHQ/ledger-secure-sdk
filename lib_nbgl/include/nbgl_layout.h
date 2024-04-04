@@ -318,6 +318,59 @@ typedef struct {
 } nbgl_layoutButton_t;
 
 /**
+ * @brief The different types of keyboard contents
+ *
+ */
+typedef enum {
+    KEYBOARD_WITH_SUGGESTIONS,  ///< text entry area + suggestion buttons
+    KEYBOARD_WITH_BUTTON,       ///< text entry area + confirmation button
+    NB_KEYBOARD_CONTENT_TYPES
+} nbgl_layoutKeyboardContentType_t;
+
+/**
+ * @brief This structure contains info to build suggestion buttons
+ */
+typedef struct {
+    const char **buttons;  ///< array of 4 strings for buttons (last ones can be NULL)
+    int firstButtonToken;  ///< first token used for buttons, provided in onActionCallback (the next
+                           ///< 3 values will be used for other buttons)
+    uint8_t nbUsedButtons;  ///< the number of actually used buttons
+} nbgl_layoutSuggestionButtons_t;
+
+/**
+ * @brief This structure contains info to build a confirmation button
+ */
+typedef struct {
+    const char *text;    ///< text of the button
+    int         token;   ///< token of the button
+    bool        active;  ///< if true, button is active, otherwise inactive (grayed-out)
+} nbgl_layoutConfirmationButton_t;
+
+/**
+ * @brief This structure contains info to build a keyboard content (controls that are linked to
+ * keyboard)
+ */
+typedef struct {
+    nbgl_layoutKeyboardContentType_t type;   ///< type of content
+    const char                      *title;  ///< centered title explaining the screen
+    const char                      *text;   ///< already entered text
+    bool    numbered;   ///< if set to true, the text is preceded on the left by 'number.'
+    uint8_t number;     ///< if numbered is true, number used to build 'number.' text
+    bool    grayedOut;  ///< if true, the text is grayed out (but not the potential number)
+    int     textToken;  ///< the token that will be used as argument of the callback when text is
+                        ///< touched
+    union {
+        nbgl_layoutSuggestionButtons_t
+            suggestionButtons;  /// used if type is @ref KEYBOARD_WITH_SUGGESTIONS
+        nbgl_layoutConfirmationButton_t
+            confirmationButton;  /// used if type is @ref KEYBOARD_WITH_BUTTON
+    };
+#ifdef HAVE_PIEZO_SOUND
+    tune_index_e tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played
+#endif                    // HAVE_PIEZO_SOUND
+} nbgl_layoutKeyboardContent_t;
+
+/**
  * @brief The different types of extended header
  *
  */
@@ -527,43 +580,46 @@ int nbgl_layoutAddMenuList(nbgl_layout_t *layout, nbgl_layoutMenuList_t *list);
 /* layout objects for page with keyboard */
 int nbgl_layoutAddKeyboard(nbgl_layout_t *layout, const nbgl_layoutKbd_t *kbdInfo);
 #ifdef HAVE_SE_TOUCH
-int  nbgl_layoutUpdateKeyboard(nbgl_layout_t *layout,
-                               uint8_t        index,
-                               uint32_t       keyMask,
-                               bool           updateCasing,
-                               keyboardCase_t casing);
-bool nbgl_layoutKeyboardNeedsRefresh(nbgl_layout_t *layout, uint8_t index);
-int  nbgl_layoutAddSuggestionButtons(nbgl_layout_t *layout,
-                                     uint8_t        nbUsedButtons,
-                                     const char    *buttonTexts[NB_MAX_SUGGESTION_BUTTONS],
-                                     int            firstButtonToken,
-                                     tune_index_e   tuneId);
-int  nbgl_layoutUpdateSuggestionButtons(nbgl_layout_t *layout,
-                                        uint8_t        index,
-                                        uint8_t        nbUsedButtons,
-                                        const char    *buttonTexts[NB_MAX_SUGGESTION_BUTTONS]);
-int  nbgl_layoutAddEnteredText(nbgl_layout_t *layout,
-                               bool           numbered,
-                               uint8_t        number,
-                               const char    *text,
-                               bool           grayedOut,
-                               int            offsetY,
-                               int            token);
-int  nbgl_layoutUpdateEnteredText(nbgl_layout_t *layout,
-                                  uint8_t        index,
-                                  bool           numbered,
-                                  uint8_t        number,
-                                  const char    *text,
-                                  bool           grayedOut);
-int  nbgl_layoutAddConfirmationButton(nbgl_layout_t *layout,
-                                      bool           active,
-                                      const char    *text,
-                                      int            token,
-                                      tune_index_e   tuneId);
-int  nbgl_layoutUpdateConfirmationButton(nbgl_layout_t *layout,
+int            nbgl_layoutUpdateKeyboard(nbgl_layout_t *layout,
                                          uint8_t        index,
-                                         bool           active,
-                                         const char    *text);
+                                         uint32_t       keyMask,
+                                         bool           updateCasing,
+                                         keyboardCase_t casing);
+bool           nbgl_layoutKeyboardNeedsRefresh(nbgl_layout_t *layout, uint8_t index);
+DEPRECATED int nbgl_layoutAddSuggestionButtons(nbgl_layout_t *layout,
+                                               uint8_t        nbUsedButtons,
+                                               const char  *buttonTexts[NB_MAX_SUGGESTION_BUTTONS],
+                                               int          firstButtonToken,
+                                               tune_index_e tuneId);
+DEPRECATED int nbgl_layoutUpdateSuggestionButtons(
+    nbgl_layout_t *layout,
+    uint8_t        index,
+    uint8_t        nbUsedButtons,
+    const char    *buttonTexts[NB_MAX_SUGGESTION_BUTTONS]);
+DEPRECATED int nbgl_layoutAddEnteredText(nbgl_layout_t *layout,
+                                         bool           numbered,
+                                         uint8_t        number,
+                                         const char    *text,
+                                         bool           grayedOut,
+                                         int            offsetY,
+                                         int            token);
+DEPRECATED int nbgl_layoutUpdateEnteredText(nbgl_layout_t *layout,
+                                            uint8_t        index,
+                                            bool           numbered,
+                                            uint8_t        number,
+                                            const char    *text,
+                                            bool           grayedOut);
+DEPRECATED int nbgl_layoutAddConfirmationButton(nbgl_layout_t *layout,
+                                                bool           active,
+                                                const char    *text,
+                                                int            token,
+                                                tune_index_e   tuneId);
+DEPRECATED int nbgl_layoutUpdateConfirmationButton(nbgl_layout_t *layout,
+                                                   uint8_t        index,
+                                                   bool           active,
+                                                   const char    *text);
+int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardContent_t *content);
+int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardContent_t *content);
 #else   // HAVE_SE_TOUCH
 int nbgl_layoutUpdateKeyboard(nbgl_layout_t *layout, uint8_t index, uint32_t keyMask);
 int nbgl_layoutAddEnteredText(nbgl_layout_t *layout, const char *text, bool lettersOnly);
@@ -580,10 +636,20 @@ int nbgl_layoutUpdateKeypad(nbgl_layout_t *layout,
                             bool           enableValidate,
                             bool           enableBackspace,
                             bool           enableDigits);
-int nbgl_layoutAddHiddenDigits(nbgl_layout_t *layout, uint8_t nbDigits);
-int nbgl_layoutUpdateHiddenDigits(nbgl_layout_t *layout, uint8_t index, uint8_t nbActive);
-int nbgl_layoutAddEnteredDigits(nbgl_layout_t *layout, const char *text, int offsetY);
-int nbgl_layoutUpdateEnteredDigits(nbgl_layout_t *layout, uint8_t index, const char *text);
+DEPRECATED int nbgl_layoutAddHiddenDigits(nbgl_layout_t *layout, uint8_t nbDigits);
+DEPRECATED int nbgl_layoutUpdateHiddenDigits(nbgl_layout_t *layout,
+                                             uint8_t        index,
+                                             uint8_t        nbActive);
+int            nbgl_layoutAddKeypadContent(nbgl_layout_t *layout,
+                                           const char    *title,
+                                           bool           hidden,
+                                           uint8_t        nbDigits,
+                                           const char    *text);
+int            nbgl_layoutUpdateKeypadContent(nbgl_layout_t *layout,
+                                              bool           hidden,
+                                              uint8_t        nbActiveDigits,
+                                              const char    *text);
+
 #else   // HAVE_SE_TOUCH
 /* layout objects for pages with keypad (nanos) */
 int nbgl_layoutAddKeypad(nbgl_layout_t     *layout,
