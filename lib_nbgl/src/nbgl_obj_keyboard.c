@@ -536,7 +536,8 @@ void nbgl_keyboardTouchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
     if (keyboard->mode == MODE_LETTERS) {
         keyboardCase_t cur_casing = keyboard->casing;
         // if the casing mode was upper (not-locked), go back to lower case
-        if ((keyboard->casing == UPPER_CASE) && (firstIndex != SHIFT_KEY_INDEX)) {
+        if ((keyboard->casing == UPPER_CASE) && (firstIndex != SHIFT_KEY_INDEX)
+            && ((IS_KEY_MASKED(firstIndex)) == 0)) {
             keyboard->casing = LOWER_CASE;
             // just redraw, refresh will be done by client (user of keyboard)
             nbgl_redrawObject((nbgl_obj_t *) keyboard, NULL, false);

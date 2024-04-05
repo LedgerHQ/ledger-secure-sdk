@@ -387,6 +387,12 @@ int nbgl_screenPop(uint8_t screenIndex)
     // release used objects and containers
     nbgl_objPoolRelease(screenIndex);
     nbgl_containerPoolRelease(screenIndex);
+
+    // special case when we pop the only modal and no real background is under it
+    if ((nbScreensOnStack == 1) && (screenStack[0].container.nbChildren == 0)) {
+        nbScreensOnStack = 0;
+        topOfStack       = NULL;
+    }
     return 0;
 }
 
@@ -406,6 +412,8 @@ int nbgl_screenReset(void)
             nbgl_objPoolRelease(screenIndex);
             nbgl_containerPoolRelease(screenIndex);
         }
+        screenStack[screenIndex].container.children   = NULL;
+        screenStack[screenIndex].container.nbChildren = 0;
     }
     nbScreensOnStack = 0;
     topOfStack       = NULL;
