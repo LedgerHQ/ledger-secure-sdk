@@ -211,7 +211,8 @@ static void touchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
         if (layout->swipeUsage == SWIPE_USAGE_CUSTOM) {
             layoutObj->index = eventType;
         }
-        else if (layout->swipeUsage == SWIPE_USAGE_NAVIGATION) {
+        else if ((layout->swipeUsage == SWIPE_USAGE_NAVIGATION)
+                 && ((nbgl_obj_t *) layout->container == obj)) {
             nbgl_container_t *navContainer;
             if (layout->footerType == FOOTER_NAV) {
                 navContainer = (nbgl_container_t *) layout->footerContainer;
@@ -339,7 +340,8 @@ static void longTouchCallback(nbgl_obj_t            *obj,
         }
     }
     // case of releasing a long press button (or getting out of it)
-    else if ((eventType == TOUCH_RELEASED) || (eventType == OUT_OF_TOUCH)) {
+    else if ((eventType == TOUCH_RELEASED) || (eventType == OUT_OF_TOUCH)
+             || (eventType == SWIPED_LEFT) || (eventType == SWIPED_RIGHT)) {
         nbgl_wait_pipeline();
         progressBar->state = 0;
         nbgl_redrawObject((nbgl_obj_t *) progressBar, false, false);
@@ -2029,7 +2031,8 @@ int nbgl_layoutAddLongPressButton(nbgl_layout_t *layout,
         = (nbgl_obj_t **) nbgl_containerPoolGet(container->nbChildren, layoutInt->layer);
     container->obj.alignment = BOTTOM_MIDDLE;
     container->obj.touchId   = LONG_PRESS_BUTTON_ID;
-    container->obj.touchMask = ((1 << TOUCHING) | (1 << TOUCH_RELEASED) | (1 << OUT_OF_TOUCH));
+    container->obj.touchMask = ((1 << TOUCHING) | (1 << TOUCH_RELEASED) | (1 << OUT_OF_TOUCH)
+                                | (1 << SWIPED_LEFT) | (1 << SWIPED_RIGHT));
 
     button                       = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layoutInt->layer);
     button->obj.alignmentMarginX = BORDER_MARGIN;
