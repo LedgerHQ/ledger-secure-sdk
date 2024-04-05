@@ -127,13 +127,23 @@ static nbgl_obj_t *getTouchedObject(nbgl_obj_t *obj, nbgl_touchStatePosition_t *
 }
 
 /**
- * @brief Find first swipeable container object from screen
- *
+ * @brief Get the deepest container that matches with input position and swipe
+ * @param obj Root object
+ * @param pos Position we are looking the container at
+ * @param detectedSwipe Swipe gesture we are looking for
+ * @return Pointer to obj if object exists, NULL otherwise
  */
-
-static nbgl_obj_t *getSwipableObject(nbgl_obj_t *obj, nbgl_touchType_t detectedSwipe)
+static nbgl_obj_t *getSwipableObjectAtPos(nbgl_obj_t                *obj,
+                                          nbgl_touchStatePosition_t *pos,
+                                          nbgl_touchType_t           detectedSwipe)
 {
     if (obj == NULL) {
+        return NULL;
+    }
+
+    // Check if pos position belongs to obj
+    if ((pos->x < obj->area.x0) || (pos->x >= (obj->area.x0 + obj->area.width))
+        || (pos->y < obj->area.y0) || (pos->y >= (obj->area.y0 + obj->area.height))) {
         return NULL;
     }
 
@@ -142,7 +152,7 @@ static nbgl_obj_t *getSwipableObject(nbgl_obj_t *obj, nbgl_touchType_t detectedS
         for (uint8_t i = 0; i < container->nbChildren; i++) {
             nbgl_obj_t *current = container->children[i];
             if (current != NULL) {
-                nbgl_obj_t *child = getSwipableObject(current, detectedSwipe);
+                nbgl_obj_t *child = getSwipableObjectAtPos(current, pos, detectedSwipe);
                 if (child) {
                     return child;
                 }
@@ -152,6 +162,45 @@ static nbgl_obj_t *getSwipableObject(nbgl_obj_t *obj, nbgl_touchType_t detectedS
     if (obj->touchMask & (1 << detectedSwipe)) {
         return obj;
     }
+    return NULL;
+}
+
+/**
+ * @brief Get the deepest container that matches with a swipe
+ *
+ * The returned container matches with:
+ * - First position in the swipe move
+ * - Last position in the swipe move
+ * - Detected swipe gesture
+ *
+ * @param first First position in the swipe move
+ * @param last Last position in the swipe move
+ * @param detectedSwipe Detected swipe gesture
+ * @return Pointer to obj if object exists, NULL otherwise
+ */
+
+static nbgl_obj_t *getSwipableObject(nbgl_obj_t                *obj,
+                                     nbgl_touchStatePosition_t *first,
+                                     nbgl_touchStatePosition_t *last,
+                                     nbgl_touchType_t           detectedSwipe)
+{
+    if (obj == NULL) {
+        return NULL;
+    }
+
+    nbgl_obj_t *first_obj = getSwipableObjectAtPos(obj, first, detectedSwipe);
+
+    if (first_obj == NULL) {
+        return NULL;
+    }
+
+    nbgl_obj_t *last_obj = getSwipableObjectAtPos(obj, last, detectedSwipe);
+
+    // Swipable objects match
+    if (first_obj == last_obj) {
+        return first_obj;
+    }
+
     return NULL;
 }
 
@@ -259,7 +308,8 @@ void nbgl_touchHandler(nbgl_touchStatePosition_t *touchStatePosition, uint32_t c
 
         if (swipe != NB_TOUCH_TYPES) {
             // Swipe detected
-            nbgl_obj_t *swipedObj = getSwipableObject(nbgl_screenGetTop(), swipe);
+            nbgl_obj_t *swipedObj = getSwipableObject(
+                nbgl_screenGetTop(), &firstTouchedPosition, &lastTouchedPosition, swipe);
             // if a swipable object has been found
             if (swipedObj) {
                 applytouchStatePosition(swipedObj, swipe);
