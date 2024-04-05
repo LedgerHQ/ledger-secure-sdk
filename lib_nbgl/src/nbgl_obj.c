@@ -600,8 +600,7 @@ static void draw_radioButton(nbgl_radio_t *obj, nbgl_obj_t *prevObj, bool comput
 static void draw_progressBar(nbgl_progress_bar_t *obj, nbgl_obj_t *prevObj, bool computePosition)
 {
 #ifdef HAVE_SE_TOUCH
-    uint8_t  stroke = 3;  // 3 pixels for border
-    uint16_t levelWidth;
+    uint8_t stroke = 3;  // 3 pixels for border
 
     if (computePosition) {
         compute_position((nbgl_obj_t *) obj, prevObj);
@@ -618,7 +617,6 @@ static void draw_progressBar(nbgl_progress_bar_t *obj, nbgl_obj_t *prevObj, bool
     // inherit background from parent
     obj->obj.area.backgroundColor = obj->obj.parent->area.backgroundColor;
 
-    levelWidth = MIN(obj->obj.area.width * obj->state / 100, obj->obj.area.width);
     // if previous state is not nul, we will just draw the small added part
     if (obj->previousState == 0) {
         // draw external part if necessary
@@ -633,31 +631,43 @@ static void draw_progressBar(nbgl_progress_bar_t *obj, nbgl_obj_t *prevObj, bool
             nbgl_drawRoundedRect(
                 (nbgl_area_t *) obj, RADIUS_0_PIXELS, obj->obj.area.backgroundColor);
         }
-        // draw level
-        if (levelWidth > 0) {
-            uint16_t tmp_width  = obj->obj.area.width;
-            obj->obj.area.width = levelWidth;
-            nbgl_drawRoundedRect((nbgl_area_t *) obj, RADIUS_0_PIXELS, obj->foregroundColor);
-            obj->obj.area.width = tmp_width;
-        }
+    }
+    else if (obj->previousState == 255) {
+        obj->state = 0;
+    }
+
+    // Setup bar draw
+    nbgl_area_t barArea;
+    uint16_t    barWidth    = ((obj->state * obj->obj.area.width)) / 100;
+    int         barDiffWith = barWidth - obj->previousWidth;
+    color_t     barColor;
+    memcpy(&barArea, &obj->obj.area, sizeof(nbgl_area_t));
+
+    if (barDiffWith >= 0) {
+        // Drawing "forward"
+        barArea.x0    = obj->obj.area.x0 + obj->previousWidth;
+        barArea.width = barDiffWith;
+        barColor      = obj->foregroundColor;
     }
     else {
-        uint16_t previousLevelWidth
-            = MIN(obj->obj.area.width * obj->previousState / 100, obj->obj.area.width);
-        nbgl_area_t area;
-        memcpy(&area, &obj->obj.area, sizeof(nbgl_area_t));
-        // draw added level
-        area.width = levelWidth - previousLevelWidth;
-        if (area.width > 0) {
-            area.x0 += previousLevelWidth;
-            nbgl_drawRoundedRect((nbgl_area_t *) &area, RADIUS_0_PIXELS, obj->foregroundColor);
-        }
-        // reset previous state to be sure that in case of full redraw of the screen we redraw the
-        // full bar
-        obj->previousState = 0;
-        extendRefreshArea(&area);
-        objRefreshAreaDone = true;
+        // Drawing "backward"
+        barArea.x0    = obj->obj.area.x0 + obj->previousWidth + barDiffWith;
+        barArea.width = -barDiffWith;
+        barColor      = obj->obj.area.backgroundColor;
     }
+
+    if (barDiffWith != 0) {
+        nbgl_drawRoundedRect((nbgl_area_t *) &barArea, RADIUS_0_PIXELS, barColor);
+    }
+
+    // reset previous state to be sure that in case of full redraw of the screen we redraw the
+    // full bar
+    if (obj->previousState) {
+        obj->previousState = 255;
+    }
+    obj->previousWidth = barWidth;
+    extendRefreshArea(&barArea);
+    objRefreshAreaDone = true;
 #else   // HAVE_SE_TOUCH
     uint8_t  stroke = 1;  // 1 pixels for border
     uint16_t levelWidth;
