@@ -110,8 +110,12 @@ static void onSettingsAction(void)
 
 static void drawStep(nbgl_stepPosition_t        pos,
                      const nbgl_icon_details_t *icon,
-                     const char                *txt,
-                     const char                *subTxt)
+#ifdef BUILD_SCREENSHOTS
+                     uint16_t txtId,
+                     uint16_t subTxtId,
+#endif  // BUILD_SCREENSHOTS
+                     const char *txt,
+                     const char *subTxt)
 {
     if (context.nbPages > 1) {
         pos |= NEITHER_FIRST_NOR_LAST_STEP;
@@ -121,14 +125,27 @@ static void drawStep(nbgl_stepPosition_t        pos,
     }
 
     if (icon == NULL) {
-        context.stepCtx
-            = nbgl_stepDrawText(pos, buttonCallback, NULL, txt, subTxt, BOLD_TEXT1_INFO, false);
+        context.stepCtx = nbgl_stepDrawText(pos,
+                                            buttonCallback,
+                                            NULL,
+#ifdef BUILD_SCREENSHOTS
+                                            txtId,
+                                            subTxtId,
+#endif  // BUILD_SCREENSHOTS
+                                            txt,
+                                            subTxt,
+                                            BOLD_TEXT1_INFO,
+                                            false);
     }
     else {
         nbgl_layoutCenteredInfo_t info;
-        info.icon       = icon;
-        info.text1      = txt;
-        info.text2      = subTxt;
+        info.icon  = icon;
+        info.text1 = txt;
+        info.text2 = subTxt;
+#ifdef BUILD_SCREENSHOTS
+        info.textId1 = 0xFFFF;  // There is no valid string ID, here
+        info.textId2 = 0xFFFF;
+#endif  // BUILD_SCREENSHOTS
         info.onTop      = false;
         info.style      = BOLD_TEXT1_INFO;
         context.stepCtx = nbgl_stepDrawCenteredInfo(pos, buttonCallback, NULL, &info, false);
@@ -236,7 +253,14 @@ static void displayReviewPage(nbgl_stepPosition_t pos)
     if (context.step.init != NULL) {
         context.step.init();
     }
-    drawStep(pos, context.step.icon, txt, context.step.subText);
+    drawStep(pos,
+             context.step.icon,
+#ifdef BUILD_SCREENSHOTS
+             context.step.textId,
+             context.step.subTextId,
+#endif  // BUILD_SCREENSHOTS
+             txt,
+             context.step.subText);
     nbgl_refresh();
 }
 
@@ -275,7 +299,14 @@ static void displayHomePage(nbgl_stepPosition_t pos)
     if (context.step.init != NULL) {
         context.step.init();
     }
-    drawStep(pos, context.step.icon, txt, context.step.subText);
+    drawStep(pos,
+             context.step.icon,
+#ifdef BUILD_SCREENSHOTS
+             context.step.textId,
+             context.step.subTextId,
+#endif  // BUILD_SCREENSHOTS
+             txt,
+             context.step.subText);
     nbgl_refresh();
 }
 

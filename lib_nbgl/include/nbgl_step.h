@@ -88,10 +88,14 @@ typedef uint8_t nbgl_stepPosition_t;
 nbgl_step_t nbgl_stepDrawText(nbgl_stepPosition_t               pos,
                               nbgl_stepButtonCallback_t         onActionCallback,
                               nbgl_screenTickerConfiguration_t *ticker,
-                              const char                       *text,
-                              const char                       *subText,
-                              nbgl_contentCenteredInfoStyle_t   style,
-                              bool                              modal);
+#ifdef BUILD_SCREENSHOTS
+                              uint16_t txtId,
+                              uint16_t subTxtId,
+#endif  // BUILD_SCREENSHOTS
+                              const char                     *text,
+                              const char                     *subText,
+                              nbgl_contentCenteredInfoStyle_t style,
+                              bool                            modal);
 nbgl_step_t nbgl_stepDrawCenteredInfo(nbgl_stepPosition_t               pos,
                                       nbgl_stepButtonCallback_t         onActionCallback,
                                       nbgl_screenTickerConfiguration_t *ticker,

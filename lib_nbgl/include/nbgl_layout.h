@@ -660,10 +660,10 @@ int            nbgl_layoutUpdateKeypadContent(nbgl_layout_t *layout,
 
 #else   // HAVE_SE_TOUCH
 /* layout objects for pages with keypad (nanos) */
-int nbgl_layoutAddKeypad(nbgl_layout_t     *layout,
-                         keyboardCallback_t callback,
-                         const char        *text,
-                         bool               shuffled);
+int nbgl_layoutAddKeypad(nbgl_layout_t       *layout,
+                         keyboardCallback_t   callback,
+                         UX_LOC_STRINGS_INDEX textId,
+                         bool                 shuffled);
 int nbgl_layoutUpdateKeypad(nbgl_layout_t *layout,
                             uint8_t        index,
                             bool           enableValidate,
