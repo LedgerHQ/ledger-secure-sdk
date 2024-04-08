@@ -92,6 +92,13 @@ const unsigned int C_unicode_characters_count
 #endif  //! defined(HAVE_LANGUAGE_PACK)
 #endif  // HAVE_BOLOS
 
+#ifdef BUILD_SCREENSHOTS
+// Variables used to store important values (nb lines, bold state etc)
+uint16_t last_nb_lines   = 0;
+uint16_t last_nb_pages   = 0;
+bool     last_bold_state = false;
+#endif  // BUILD_SCREENSHOTS
+
 /**********************
  *  STATIC PROTOTYPES
  **********************/
@@ -186,7 +193,7 @@ uint32_t nbgl_popUnicodeChar(const uint8_t **text, uint16_t *textLen, bool *is_u
 /**
  * @brief return the width in pixels of the given char (unicode or not).
  *
- * @param fontId font ID
+ * @param font pointer on current nbgl_font_t structure
  * @param unicode character
  * @param is_unicode if true, is unicode
  * @return the width in pixels of the char
@@ -231,10 +238,18 @@ static uint16_t getTextWidth(nbgl_font_id_e fontId,
                              bool           breakOnLineEnd,
                              uint16_t       maxLen)
 {
+#ifdef BUILD_SCREENSHOTS
+    uint16_t nb_lines = 0;
+#endif  // BUILD_SCREENSHOTS
     uint16_t           line_width = 0;
     uint16_t           max_width  = 0;
     const nbgl_font_t *font       = nbgl_getFont(fontId);
     uint16_t           textLen    = MIN(strlen(text), maxLen);
+
+#ifdef BUILD_SCREENSHOTS
+    last_bold_state      = fontId == BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;  // True if Bold
+    bool next_bold_state = last_bold_state;
+#endif  // BUILD_SCREENSHOTS
 
 #ifdef HAVE_UNICODE_SUPPORT
     nbgl_getUnicodeFont(fontId);
@@ -262,6 +277,9 @@ static uint16_t getTextWidth(nbgl_font_id_e fontId,
                 nbgl_getUnicodeFont(fontId);
 #endif  // HAVE_UNICODE_SUPPORT
                 font = nbgl_getFont(fontId);
+#ifdef BUILD_SCREENSHOTS
+                next_bold_state = true;
+#endif  // BUILD_SCREENSHOTS
             }
             else if (fontId == BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp) {  // switch to regular
                 fontId = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
@@ -269,17 +287,32 @@ static uint16_t getTextWidth(nbgl_font_id_e fontId,
                 nbgl_getUnicodeFont(fontId);
 #endif  // HAVE_UNICODE_SUPPORT
                 font = nbgl_getFont(fontId);
+#ifdef BUILD_SCREENSHOTS
+                next_bold_state = false;
+#endif  // BUILD_SCREENSHOTS
             }
             continue;
         }
         char_width = getCharWidth(font, unicode, is_unicode);
-
+#ifdef BUILD_SCREENSHOTS
+        if (char_width != 0) {
+            // Update last 'displayed' char with current bold status
+            last_bold_state = next_bold_state;
+        }
+#endif  // BUILD_SCREENSHOTS
         line_width += char_width;
         // memorize max line width if greater than current
         if (line_width > max_width) {
             max_width = line_width;
         }
     }
+#ifdef BUILD_SCREENSHOTS
+    if (line_width != 0) {
+        ++nb_lines;
+    }
+    last_nb_lines = nb_lines;
+#endif  // BUILD_SCREENSHOTS
+
     return max_width;
 }
 
@@ -314,6 +347,8 @@ uint16_t nbgl_getSingleLineTextWidthInLen(nbgl_font_id_e fontId, const char *tex
  *
  * @param fontId font ID
  * @param text text in UTF8
+ * @param nb_lines_ptr pointer to a variable that will contain the number of lines used (or NULL if
+ * we don't care)
  * @return the width in pixels of the text
  */
 uint16_t nbgl_getTextWidth(nbgl_font_id_e fontId, const char *text)
@@ -680,11 +715,18 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
 {
     const nbgl_font_t *font               = nbgl_getFont(fontId);
     uint16_t           width              = 0;
-    uint16_t           nbLines            = 1;
+    uint16_t           nbLines            = 0;
     uint16_t           textLen            = strlen(text);
     const char        *lastDelimiter      = NULL;
     uint32_t           lenAtLastDelimiter = 0;
     const char        *prevText           = NULL;
+
+#ifdef BUILD_SCREENSHOTS
+    last_nb_lines        = 0;
+    last_nb_pages        = 1;
+    last_bold_state      = fontId == BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;  // True if Bold
+    bool next_bold_state = last_bold_state;
+#endif  // BUILD_SCREENSHOTS
 
 #ifdef HAVE_UNICODE_SUPPORT
     nbgl_getUnicodeFont(fontId);
@@ -706,12 +748,35 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
         }
         // if \f, exit loop
         if (unicode == '\f') {
+#ifdef BUILD_SCREENSHOTS
+            // Continue parsing the string, to find the real nb_lines & nb_pages!
+            ++last_nb_pages;
+            if (width != 0) {
+                ++nbLines;
+            }
+            if (last_nb_lines < nbLines) {
+                last_nb_lines = nbLines;
+            }
+            nbLines = 0;
+            width   = 0;
+            continue;
+#else   // BUILD_SCREENSHOTS
             break;
+#endif  // BUILD_SCREENSHOTS
         }
         // if \n, increment the number of lines
         else if (unicode == '\n') {
             if (width != 0) {
                 nbLines++;
+#ifdef BUILD_SCREENSHOTS
+                if (last_nb_lines < nbLines) {
+                    last_nb_lines = nbLines;
+                }
+                if (nbLines == 4) {
+                    ++last_nb_pages;
+                    nbLines = 0;
+                }
+#endif  // BUILD_SCREENSHOTS
             }
             width         = 0;
             lastDelimiter = NULL;
@@ -725,6 +790,9 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
                 nbgl_getUnicodeFont(fontId);
 #endif  // HAVE_UNICODE_SUPPORT
                 font = nbgl_getFont(fontId);
+#ifdef BUILD_SCREENSHOTS
+                next_bold_state = true;
+#endif  // BUILD_SCREENSHOTS
             }
             else if (fontId == BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp) {  // switch to regular
                 fontId = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
@@ -732,6 +800,9 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
                 nbgl_getUnicodeFont(fontId);
 #endif  // HAVE_UNICODE_SUPPORT
                 font = nbgl_getFont(fontId);
+#ifdef BUILD_SCREENSHOTS
+                next_bold_state = false;
+#endif  // BUILD_SCREENSHOTS
             }
             continue;
         }
@@ -740,6 +811,10 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
         if (char_width == 0) {
             continue;
         }
+#ifdef BUILD_SCREENSHOTS
+        // Update last 'displayed' char with current bold status
+        last_bold_state = next_bold_state;
+#endif  // BUILD_SCREENSHOTS
 
         // if about to reach max len, increment the number of lines
         if ((width + char_width) > maxWidth) {
@@ -753,6 +828,15 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
                 width = char_width;
             }
             nbLines++;
+#ifdef BUILD_SCREENSHOTS
+            if (last_nb_lines < nbLines) {
+                last_nb_lines = nbLines;
+            }
+            if (nbLines == 4) {
+                ++last_nb_pages;
+                nbLines = 0;
+            }
+#endif  // BUILD_SCREENSHOTS
         }
         else {
             width += char_width;
@@ -761,6 +845,11 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
     if (width != 0) {
         ++nbLines;
     }
+#ifdef BUILD_SCREENSHOTS
+    if (last_nb_lines < nbLines) {
+        last_nb_lines = nbLines;
+    }
+#endif  // BUILD_SCREENSHOTS
     return nbLines;
 }
 
@@ -788,6 +877,12 @@ uint8_t nbgl_getTextNbPagesInWidth(nbgl_font_id_e fontId,
     uint32_t           lenAtLastDelimiter = 0;
     const char        *prevText           = NULL;
 
+#ifdef BUILD_SCREENSHOTS
+    last_nb_lines        = nbLines;
+    last_nb_pages        = nbPages;
+    last_bold_state      = fontId == BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;  // True if Bold
+    bool next_bold_state = last_bold_state;
+#endif  // BUILD_SCREENSHOTS
 #ifdef HAVE_UNICODE_SUPPORT
     nbgl_getUnicodeFont(fontId);
 #endif  // HAVE_UNICODE_SUPPORT
@@ -809,6 +904,14 @@ uint8_t nbgl_getTextNbPagesInWidth(nbgl_font_id_e fontId,
         // if \f, updates page number
         if (unicode == '\f') {
             nbPages++;
+#ifdef BUILD_SCREENSHOTS
+            if (width != 0) {
+                ++nbLines;
+            }
+            if (last_nb_lines < nbLines) {
+                last_nb_lines = nbLines;
+            }
+#endif  // BUILD_SCREENSHOTS
             nbLines = 0;
             width   = 0;
             continue;
@@ -817,12 +920,16 @@ uint8_t nbgl_getTextNbPagesInWidth(nbgl_font_id_e fontId,
         else if (unicode == '\n') {
             if (width != 0) {
                 nbLines++;
+#ifdef BUILD_SCREENSHOTS
+                if (last_nb_lines < nbLines) {
+                    last_nb_lines = nbLines;
+                }
+#endif  // BUILD_SCREENSHOTS
                 if (nbLines == nbLinesPerPage && textLen) {
                     nbPages++;
                     nbLines = 0;
                 }
             }
-
             width         = 0;
             lastDelimiter = NULL;
             continue;
@@ -835,6 +942,9 @@ uint8_t nbgl_getTextNbPagesInWidth(nbgl_font_id_e fontId,
                 nbgl_getUnicodeFont(fontId);
 #endif  // HAVE_UNICODE_SUPPORT
                 font = nbgl_getFont(fontId);
+#ifdef BUILD_SCREENSHOTS
+                next_bold_state = true;
+#endif  // BUILD_SCREENSHOTS
             }
             else if (fontId == BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp) {  // switch to regular
                 fontId = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
@@ -842,6 +952,9 @@ uint8_t nbgl_getTextNbPagesInWidth(nbgl_font_id_e fontId,
                 nbgl_getUnicodeFont(fontId);
 #endif  // HAVE_UNICODE_SUPPORT
                 font = nbgl_getFont(fontId);
+#ifdef BUILD_SCREENSHOTS
+                next_bold_state = false;
+#endif  // BUILD_SCREENSHOTS
             }
             continue;
         }
@@ -850,6 +963,11 @@ uint8_t nbgl_getTextNbPagesInWidth(nbgl_font_id_e fontId,
         if (char_width == 0) {
             continue;
         }
+
+#ifdef BUILD_SCREENSHOTS
+        // Update last 'displayed' char with current bold status
+        last_bold_state = next_bold_state;
+#endif  // BUILD_SCREENSHOTS
 
         // if about to reach max len, increment the number of lines/pages
         if ((width + char_width) > maxWidth) {
@@ -863,6 +981,11 @@ uint8_t nbgl_getTextNbPagesInWidth(nbgl_font_id_e fontId,
                 width = char_width;
             }
             nbLines++;
+#ifdef BUILD_SCREENSHOTS
+            if (last_nb_lines < nbLines) {
+                last_nb_lines = nbLines;
+            }
+#endif  // BUILD_SCREENSHOTS
             if (nbLines == nbLinesPerPage) {
                 nbPages++;
                 nbLines = 0;
@@ -872,6 +995,15 @@ uint8_t nbgl_getTextNbPagesInWidth(nbgl_font_id_e fontId,
             width += char_width;
         }
     }
+#ifdef BUILD_SCREENSHOTS
+    if (width != 0) {
+        ++nbLines;
+    }
+    if (last_nb_lines < nbLines) {
+        last_nb_lines = nbLines;
+    }
+    last_nb_pages = nbPages;
+#endif  // BUILD_SCREENSHOTS
     return nbPages;
 }
 
@@ -1024,7 +1156,7 @@ nbgl_unicode_ctx_t *nbgl_getUnicodeFont(nbgl_font_id_e fontId)
 
 /**
  * @brief Get the unicode character object matching the given unicode (a unicode character is
- encoded on max of 3 chars)
+ encoded on max of 4 bytes)
  * in the current language
  *
  * @param unicode the unicode value of the character
