@@ -232,14 +232,12 @@ static uint8_t const USBD_PRODUCT_FS_STRING[] = {
 #define USBD_PID                      0x0007
 #endif // HAVE_LEGACY_PID
 static uint8_t const USBD_PRODUCT_FS_STRING[] = {
-  6*2+2,
+  4*2+2,
   USB_DESC_TYPE_STRING,
-  'E', 0,
-  'u', 0,
-  'r', 0,
-  'o', 0,
-  'p', 0,
-  'a', 0,
+  'F', 0,
+  'l', 0,
+  'e', 0,
+  'x', 0,
 };
 #else
 #error unknown TARGET_NAME
