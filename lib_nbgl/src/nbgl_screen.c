@@ -66,11 +66,11 @@ void nbgl_screenRedraw(void)
         return;
     }
     LOG_DEBUG(SCREEN_LOGGER, "nbgl_screenRedraw(): nbScreensOnStack = %d\n", nbScreensOnStack);
-#ifdef HAVE_SE_TOUCH
-    // by default, exclude left & top borders from touch
+#ifdef TARGET_STAX
+    // by default, exclude only left border from touch
     // if any sub-object is a keyboard, this will be modified when drawing it
-    touch_exclude_borders(TOP_BORDER | LEFT_BORDER);
-#endif  // HAVE_SE_TOUCH
+    touch_exclude_borders(LEFT_BORDER);
+#endif  // TARGET_STAX
 
     nbgl_screen_reinit();
     nbgl_redrawObject((nbgl_obj_t *) topOfStack, NULL, true);

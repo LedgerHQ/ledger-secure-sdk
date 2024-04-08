@@ -675,9 +675,11 @@ void nbgl_objDrawKeyboard(nbgl_keyboard_t *kbd)
 
     keyboardDraw(kbd);
 
-    // If a keyboard in the screen, exclude only top border from touch, to avoid missing touch on
+#ifdef TARGET_STAX
+    // If a keyboard in the screen, exclude nothing from touch, to avoid missing touch on
     // left keys
-    touch_exclude_borders(TOP_BORDER);
+    touch_exclude_borders(0);
+#endif  // TARGET_STAX
 }
 #endif  // HAVE_SE_TOUCH
 #endif  // NBGL_KEYBOARD
