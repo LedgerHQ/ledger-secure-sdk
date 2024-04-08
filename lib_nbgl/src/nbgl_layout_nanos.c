@@ -415,9 +415,18 @@ int nbgl_layoutAddCenteredInfo(nbgl_layout_t *layout, const nbgl_layoutCenteredI
         textArea->wrapping       = true;
         uint16_t nbLines
             = nbgl_getTextNbLinesInWidth(textArea->fontId, textArea->text, AVAILABLE_WIDTH, true);
+#ifdef BUILD_SCREENSHOTS
+        /*
+        store_string_infos(textArea->textId, textArea->text, last_nb_lines, (last_nb_lines + 3)/4,
+        last_bold_state); fprintf(stdout, "Calling store_string_infos from
+        nbgl_layoutAddCenteredInfo, text1 =>%s<= (id=%d), nb_lines=%d\n",
+                get_printable_string(textArea->text),
+                textArea->textId,
+                last_nb_lines);
+        */
+#endif  // BUILD_SCREENSHOTS
         // if more than available lines on screen
         if (nbLines > NB_MAX_LINES) {
-            // TODO this should generate an ERROR at run time!
             uint16_t len;
             nbLines              = NB_MAX_LINES;
             textArea->nbMaxLines = NB_MAX_LINES;
@@ -459,10 +468,18 @@ int nbgl_layoutAddCenteredInfo(nbgl_layout_t *layout, const nbgl_layoutCenteredI
         textArea->obj.area.width = AVAILABLE_WIDTH;
         uint16_t nbLines
             = nbgl_getTextNbLinesInWidth(textArea->fontId, textArea->text, AVAILABLE_WIDTH, true);
+#ifdef BUILD_SCREENSHOTS
+        /*
+        store_string_infos(textArea->textId, textArea->text, last_nb_lines, (last_nb_lines + 3)/4,
+        last_bold_state); fprintf(stdout, "Calling store_string_infos from
+        nbgl_layoutAddCenteredInfo, text2 =>%s<= (id=%d), nb_lines=%d\n",
+                get_printable_string(textArea->text),
+                textArea->textId,
+                last_nb_lines);
+        */
+#endif  // BUILD_SCREENSHOTS
         // if more than available lines on screen
-        // TODO check what happen when info->text1 is on more than 1 line
         if (nbLines > (NB_MAX_LINES - 1)) {
-            // TODO this should generate an ERROR at run time!
             uint16_t len;
             nbLines              = NB_MAX_LINES - 1;
             textArea->nbMaxLines = nbLines;
