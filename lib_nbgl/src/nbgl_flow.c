@@ -38,6 +38,10 @@ typedef struct FlowContext_s {
 static FlowContext_t contexts[NB_MAX_LAYERS];
 
 /**********************
+ *      VARIABLES
+ **********************/
+
+/**********************
  *  STATIC PROTOTYPES
  **********************/
 static void actionCallback(nbgl_step_t stepCtx, nbgl_buttonEvent_t event);
@@ -94,8 +98,12 @@ static void drawStep(FlowContext_t             *ctx,
                      nbgl_stepPosition_t        pos,
                      bool                       modal,
                      const nbgl_icon_details_t *icon,
-                     const char                *txt,
-                     const char                *subTxt)
+#ifdef BUILD_SCREENSHOTS
+                     uint16_t txtId,
+                     uint16_t subTxtId,
+#endif  // BUILD_SCREENSHOTS
+                     const char *txt,
+                     const char *subTxt)
 {
     nbgl_layoutCenteredInfo_t info;
     if ((ctx->loop) && (ctx->nbSteps > 1)) {
@@ -106,13 +114,26 @@ static void drawStep(FlowContext_t             *ctx,
     }
 
     if (icon == NULL) {
-        ctx->stepCtx
-            = nbgl_stepDrawText(pos, actionCallback, NULL, txt, subTxt, REGULAR_INFO, modal);
+        ctx->stepCtx = nbgl_stepDrawText(pos,
+                                         actionCallback,
+                                         NULL,
+#ifdef BUILD_SCREENSHOTS
+                                         txtId,
+                                         subTxtId,
+#endif  // BUILD_SCREENSHOTS
+                                         txt,
+                                         subTxt,
+                                         REGULAR_INFO,
+                                         modal);
     }
     else {
-        info.icon    = icon;
-        info.text1   = txt;
-        info.text2   = subTxt;
+        info.icon  = icon;
+        info.text1 = txt;
+        info.text2 = subTxt;
+#ifdef BUILD_SCREENSHOTS
+        info.textId1 = txtId;
+        info.textId2 = subTxtId;
+#endif  // BUILD_SCREENSHOTS
         info.onTop   = false;
         info.style   = REGULAR_INFO;
         ctx->stepCtx = nbgl_stepDrawCenteredInfo(pos, actionCallback, NULL, &info, modal);
@@ -163,7 +184,16 @@ static void actionCallback(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
     if (step->init != NULL) {
         step->init();
     }
-    drawStep(ctx, pos, ctx->modal, step->icon, txt, step->subText);
+    drawStep(ctx,
+             pos,
+             ctx->modal,
+             step->icon,
+#ifdef BUILD_SCREENSHOTS
+             step->textId,
+             step->subTextId,
+#endif  // BUILD_SCREENSHOTS
+             txt,
+             step->subText);
     nbgl_refresh();
 }
 
@@ -210,7 +240,16 @@ nbgl_flow_t nbgl_flowDraw(const nbgl_stepDesc_t *steps,
         step->init();
     }
 
-    drawStep(ctx, pos, ctx->modal, step->icon, txt, step->subText);
+    drawStep(ctx,
+             pos,
+             ctx->modal,
+             step->icon,
+#ifdef BUILD_SCREENSHOTS
+             step->textId,
+             step->subTextId,
+#endif  // BUILD_SCREENSHOTS
+             txt,
+             step->subText);
     nbgl_refresh();
     return (nbgl_flow_t) ctx;
 }
