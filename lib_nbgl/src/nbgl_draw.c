@@ -695,7 +695,9 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
 }
 
 #ifdef NBGL_QRCODE
-static void nbgl_frontDrawQrInternal(const nbgl_area_t *area, color_t foregroundColor)
+static void nbgl_frontDrawQrInternal(const nbgl_area_t    *area,
+                                     color_t               foregroundColor,
+                                     nbgl_qrcode_version_t version)
 {
     int      size = qrcodegen_getSize(qrcode);
     uint16_t idx  = 0;
@@ -705,7 +707,7 @@ static void nbgl_frontDrawQrInternal(const nbgl_area_t *area, color_t foreground
                           .backgroundColor = area->backgroundColor,
                           // QR codes are 1 BPP only
                           .bpp = NBGL_BPP_1};
-    if (size == QR_V4_NB_PIX_SIZE) {
+    if (version == QRCODE_V4) {
         // for each point of the V4 QR code, paint 64 pixels in image (8 in width, 8 in height)
         qrArea.width  = 2;
         qrArea.height = QR_PIXEL_WIDTH_HEIGHT * 2 * size;
@@ -728,7 +730,7 @@ static void nbgl_frontDrawQrInternal(const nbgl_area_t *area, color_t foreground
             qrArea.x0 += 2;
         }
     }
-    else {
+    else {  // V4 small or V10
         // for each point of the V10 QR code, paint 16 pixels in image (4 in width, 4 in height)
         qrArea.width  = QR_PIXEL_WIDTH_HEIGHT * size;
         qrArea.height = QR_PIXEL_WIDTH_HEIGHT;
@@ -753,23 +755,31 @@ static void nbgl_frontDrawQrInternal(const nbgl_area_t *area, color_t foreground
  * bitmap.
  *
  * @param area position, size and color of the QR code to draw
- * @param version version of QR Code (4, 10, ...)
+ * @param version version of QR Code
  * @param text text to encode
  * @param foregroundColor color to be applied to the 1's in QR code
  */
-void nbgl_drawQrCode(const nbgl_area_t *area,
-                     uint8_t            version,
-                     const char        *text,
-                     color_t            foregroundColor)
+void nbgl_drawQrCode(const nbgl_area_t    *area,
+                     nbgl_qrcode_version_t version,
+                     const char           *text,
+                     color_t               foregroundColor)
 {
-    bool ok = qrcodegen_encodeText(
-        text, tempBuffer, qrcode, qrcodegen_Ecc_LOW, version, version, qrcodegen_Mask_AUTO, true);
+    uint8_t versionNum = (version == QRCODE_V10) ? 10 : 4;
+    bool    ok         = qrcodegen_encodeText(text,
+                                   tempBuffer,
+                                   qrcode,
+                                   qrcodegen_Ecc_LOW,
+                                   versionNum,
+                                   versionNum,
+                                   qrcodegen_Mask_AUTO,
+                                   true);
 
     if (ok) {
-        nbgl_frontDrawQrInternal(area, foregroundColor);
+        nbgl_frontDrawQrInternal(area, foregroundColor, version);
     }
     else {
-        LOG_WARN(DRAW_LOGGER, "Impossible to draw QRCode text %s with version %d\n", text, version);
+        LOG_WARN(
+            DRAW_LOGGER, "Impossible to draw QRCode text %s with version %d\n", text, versionNum);
     }
 }
 #endif  // NBGL_QRCODE

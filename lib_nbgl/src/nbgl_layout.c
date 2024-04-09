@@ -1456,7 +1456,7 @@ int nbgl_layoutAddCenteredInfo(nbgl_layout_t *layout, const nbgl_layoutCenteredI
  *
  * @param layout the current layout
  * @param info structure giving the description of buttons (texts, icons, layout)
- * @return >= 0 if OK
+ * @return height of the control if OK
  */
 int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info)
 {
@@ -1545,6 +1545,15 @@ int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info)
         container->children[container->nbChildren] = (nbgl_obj_t *) textArea;
         container->nbChildren++;
     }
+    // ensure that fullHeight is fitting in main container height (with 16 px margin)
+    if ((fullHeight >= (layoutInt->container->obj.area.height - 16))
+        && (qrcode->version == QRCODE_V4)) {
+        qrcode->version = QRCODE_V4_SMALL;
+        // in QR V4 small, we use 4*4 screen pixels for one QR pixel
+        qrcode->obj.area.width  = QR_V4_NB_PIX_SIZE * 4;
+        qrcode->obj.area.height = qrcode->obj.area.width;
+        fullHeight -= QR_V4_NB_PIX_SIZE * 4;
+    }
     container->obj.area.height = fullHeight;
     container->layout          = VERTICAL;
     if (info->centered) {
@@ -1562,7 +1571,7 @@ int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info)
     // set this new container as child of main container
     layoutAddObject(layoutInt, (nbgl_obj_t *) container);
 
-    return 0;
+    return fullHeight;
 }
 #endif  // NBGL_QRCODE
 

@@ -1031,8 +1031,7 @@ static void draw_qrCode(nbgl_qrcode_t *obj, nbgl_obj_t *prevObj, bool computePos
     rectArea.width           = obj->obj.area.width;
     rectArea.height          = obj->obj.area.height;
     rectArea.backgroundColor = obj->obj.area.backgroundColor;
-    nbgl_drawQrCode(
-        &rectArea, (obj->version == QRCODE_V4) ? 4 : 10, obj->text, obj->foregroundColor);
+    nbgl_drawQrCode(&rectArea, obj->version, obj->text, obj->foregroundColor);
 }
 #endif  // NBGL_QRCODE
 

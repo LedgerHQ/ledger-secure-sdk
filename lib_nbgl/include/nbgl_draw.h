@@ -47,10 +47,10 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
                              uint16_t           textLen,
                              nbgl_font_id_e     fontId,
                              color_t            fontColor);
-void           nbgl_drawQrCode(const nbgl_area_t *area,
-                               uint8_t            version,
-                               const char        *text,
-                               color_t            backgroundColor);
+void           nbgl_drawQrCode(const nbgl_area_t    *area,
+                               nbgl_qrcode_version_t version,
+                               const char           *text,
+                               color_t               backgroundColor);
 
 /**********************
  *      MACROS
