@@ -186,8 +186,9 @@ typedef enum {
  *
  */
 typedef enum {
-    QRCODE_V4 = 0,  ///< QRCode V4, can encode text len up to 114 chars
-    QRCODE_V10      ///< QRCode V10, can encode text len up to 1500 chars
+    QRCODE_V4 = 0,   ///< QRCode V4, can encode text len up to 62 chars, display size = 264*264
+    QRCODE_V10,      ///< QRCode V10, can encode text len up to 1500 chars, display size = 228*228
+    QRCODE_V4_SMALL  ///< QRCode V4, can encode text len up to 1500 chars, display size = 132*132
 } nbgl_qrcode_version_t;
 
 /**
