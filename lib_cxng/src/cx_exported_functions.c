@@ -157,4 +157,11 @@ unsigned long __attribute((section("._cx_exported_functions"))) cx_exported_func
     [_NR_cx_swap_uint64]                  = (unsigned long) cx_swap_uint64,
     [_NR_cx_x25519]                       = (unsigned long) cx_x25519,
     [_NR_cx_x448]                         = (unsigned long) cx_x448,
+    [_NR_cx_eddsa_final_hash]             = (unsigned long) cx_eddsa_final_hash,
+    [_NR_cx_eddsa_sign_init_first_hash]   = (unsigned long) cx_eddsa_sign_init_first_hash,
+    [_NR_cx_eddsa_sign_init_second_hash]  = (unsigned long) cx_eddsa_sign_init_second_hash,
+    [_NR_cx_eddsa_sign_hash]              = (unsigned long) cx_eddsa_sign_hash,
+    [_NR_cx_eddsa_update_hash]            = (unsigned long) cx_eddsa_update_hash,
+    [_NR_cx_eddsa_verify_init_hash]       = (unsigned long) cx_eddsa_verify_init_hash,
+    [_NR_cx_eddsa_verify_hash]            = (unsigned long) cx_eddsa_verify_hash,
 };
