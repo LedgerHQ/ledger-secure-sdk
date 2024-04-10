@@ -195,6 +195,7 @@
 #if defined(HAVE_LEDGER_PKI)
 #define SYSCALL_os_pki_load_certificate_ID 0x060000aa
 #define SYSCALL_os_pki_verify_ID           0x040000ab
+#define SYSCALL_os_pki_get_info_ID         0x040000ac
 #endif  // HAVE_LEDGER_PKI
 
 #ifdef HAVE_CUSTOM_CA_DETAILS_IN_SETTINGS

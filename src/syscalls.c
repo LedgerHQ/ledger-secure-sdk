@@ -1392,6 +1392,19 @@ bool os_pki_verify(uint8_t *descriptor_hash,
     parameters[3] = (unsigned int) signature_len;
     return (bool) SVC_Call(SYSCALL_os_pki_verify_ID, parameters);
 }
+
+bolos_err_t os_pki_get_info(uint8_t                  *key_usage,
+                            uint8_t                  *trusted_name,
+                            size_t                   *trusted_name_len,
+                            cx_ecfp_384_public_key_t *public_key)
+{
+    unsigned int parameters[4];
+    parameters[0] = (unsigned int) key_usage;
+    parameters[1] = (unsigned int) trusted_name;
+    parameters[2] = (unsigned int) trusted_name_len;
+    parameters[3] = (unsigned int) public_key;
+    return (bolos_err_t) SVC_Call(SYSCALL_os_pki_get_info_ID, parameters);
+}
 #endif  // HAVE_LEDGER_PKI
 
 unsigned int os_endorsement_get_code_hash(unsigned char *buffer)

@@ -183,4 +183,23 @@ SYSCALL bool os_pki_verify(uint8_t *descriptor_hash PLENGTH(descriptor_hash_len)
                            size_t                   descriptor_hash_len,
                            uint8_t *signature       PLENGTH(signature_len),
                            size_t                   signature_len);
+
+/**
+ * @brief Get information from the last validated certificate.
+ *
+ * @param[out] key_usage        Certificate role (expected key usage)
+ * @param[out] trusted_name     Buffer for the trusted name.
+ *                              The size of the buffer must be less than
+ *                              #CERTIFICATE_TRUSTED_NAME_MAXLEN
+ * @param[out] trusted_name_len Trusted name length
+ * @param[out] public_key       Certificate public key
+ * @return Error code
+ * @retval 0x0000 Success
+ * @retval 0x4119 trusted_name buffer is too small to contain the trusted name
+ * @retval 0x3202 Failed to initialize public key
+ */
+SYSCALL bolos_err_t os_pki_get_info(uint8_t                  *key_usage,
+                                    uint8_t                  *trusted_name,
+                                    size_t                   *trusted_name_len,
+                                    cx_ecfp_384_public_key_t *public_key);
 #endif  // HAVE_LEDGER_PKI

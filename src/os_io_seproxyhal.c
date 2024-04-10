@@ -1163,28 +1163,16 @@ unsigned int os_io_seproxyhal_pki_load_certificate(uint8_t *buffer,
                                                    size_t   buffer_len,
                                                    uint8_t  key_usage)
 {
-    uint32_t                 error;
+    uint32_t                 sw;
     cx_ecfp_384_public_key_t public_key;
-    uint8_t                  trusted_name[CERTIFICATE_TRUSTED_NAME_MAXLEN] = {0};
-    size_t                   trusted_name_len = CERTIFICATE_TRUSTED_NAME_MAXLEN;
-    uint8_t                  offset           = 0;
 
-    if ((error = os_pki_load_certificate(
-             key_usage, buffer, buffer_len, trusted_name, &trusted_name_len, &public_key))) {
-        U2BE_ENCODE(G_io_apdu_buffer, 0, error);
-        offset = 2;
+    sw = os_pki_load_certificate(key_usage, buffer, buffer_len, NULL, NULL, &public_key);
+    if (0 == sw) {
+        sw = SWO_SUCCESS;
     }
-    else {
-        G_io_apdu_buffer[0] = trusted_name_len;
-        offset++;
-        memcpy(G_io_apdu_buffer + offset, trusted_name, trusted_name_len);
-        offset += trusted_name_len;
-        memcpy(G_io_apdu_buffer + offset, public_key.W, public_key.W_len);
-        offset += public_key.W_len;
-        U2BE_ENCODE(G_io_apdu_buffer + offset, 0, SWO_SUCCESS);
-        offset += 2;
-    }
-    return offset;
+    explicit_bzero(&public_key, sizeof(cx_ecfp_384_public_key_t));
+    U2BE_ENCODE(G_io_apdu_buffer, 0, sw);
+    return 2;
 }
 #endif  // HAVE_LEDGER_PKI
 
