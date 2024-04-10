@@ -206,8 +206,11 @@ endif
 ifeq ($(TARGET_NAME), TARGET_NANOS2)
 ICONNAME ?= $(ICON_NANOSP)
 endif
-ifeq ($(TARGET_NAME),TARGET_STAX)
+ifeq ($(TARGET_NAME), TARGET_STAX)
 ICONNAME ?= $(ICON_STAX)
+endif
+ifeq ($(TARGET_NAME), TARGET_FLEX)
+ICONNAME ?= $(ICON_FLEX)
 endif
 
 include $(BOLOS_SDK)/Makefile.glyphs
