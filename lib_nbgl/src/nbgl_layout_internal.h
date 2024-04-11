@@ -31,6 +31,9 @@ extern "C" {
  */
 #define LAYOUT_OBJ_POOL_LEN 10
 
+#define KEYBOARD_FOOTER_TYPE 99
+#define KEYPAD_FOOTER_TYPE   98
+
 /**********************
  *      TYPEDEFS
  **********************/
@@ -44,6 +47,7 @@ typedef struct {
 typedef enum {
     SWIPE_USAGE_NAVIGATION,
     SWIPE_USAGE_CUSTOM,
+    SWIPE_USAGE_SUGGESTIONS,  // for suggestion buttons
     NB_SWIPE_USAGE
 } nbgl_swipe_usage_t;
 

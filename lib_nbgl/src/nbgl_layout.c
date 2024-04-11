@@ -203,7 +203,8 @@ static void touchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
          || (eventType == SWIPED_RIGHT))
         && (obj->type == CONTAINER)) {
 #if (!defined(TARGET_STAX) && defined(NBGL_KEYBOARD))
-        if (keyboardSwipeCallback(obj, eventType)) {
+        if ((layout->swipeUsage == SWIPE_USAGE_SUGGESTIONS)
+            && keyboardSwipeCallback(obj, eventType)) {
             // if this swipe event is consumed, return here
             return;
         }
