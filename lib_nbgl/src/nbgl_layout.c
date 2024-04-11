@@ -2214,7 +2214,7 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
             if (headerDesc->backAndText.text != NULL) {
                 textArea = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
                 if ((headerDesc->type == HEADER_EXTENDED_BACK)
-                    && (headerDesc->extendedBack.textToken != 0xFF)) {
+                    && (headerDesc->extendedBack.textToken != NBGL_INVALID_TOKEN)) {
                     obj = layoutAddCallbackObj(layoutInt,
                                                (nbgl_obj_t *) textArea,
                                                headerDesc->extendedBack.textToken,
@@ -2600,7 +2600,7 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
             separationLine->thickness            = 1;
             separationLine->obj.alignment        = MID_LEFT;
             separationLine->obj.alignTo          = (nbgl_obj_t *) navContainer;
-            separationLine->obj.alignmentMarginY = -1;
+            separationLine->obj.alignmentMarginX = -1;
 
             layoutInt->activePage = footerDesc->textAndNav.navigation.activePage;
             layoutInt->nbPages    = footerDesc->textAndNav.navigation.nbPages;
