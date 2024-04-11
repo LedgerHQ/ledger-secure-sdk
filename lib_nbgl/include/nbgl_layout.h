@@ -29,6 +29,9 @@ extern "C" {
 #define NBGL_NO_TUNE               NB_TUNES
 #define NBGL_NO_PROGRESS_INDICATOR 0xFF
 
+///< To be used when a control token shall not be used
+#define NBGL_INVALID_TOKEN 0xFF
+
 #ifdef HAVE_SE_TOUCH
 ///< special code used as index of action callback to inform when Exit key (X) is
 ///< pressed in the navigation bar
@@ -413,6 +416,7 @@ typedef struct {
         struct {
             const nbgl_icon_details_t *actionIcon;   ///< right button icon
             const char                *text;         ///< centered text (can be NULL if no text)
+            uint8_t                    textToken;    ///< when text is touched
             uint8_t                    backToken;    ///< when back key is pressed
             uint8_t                    actionToken;  ///< when right key is pressed
             tune_index_e               tuneId;       ///< when back key is pressed
