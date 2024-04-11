@@ -554,14 +554,16 @@ bool nbgl_getTextMaxLenInNbLines(nbgl_font_id_e fontId,
 
         // if \n, reset width
         if (unicode == '\n') {
-            maxNbLines--;
+            if (width != 0) {
+                maxNbLines--;
+            }
             width = 0;
             continue;
         }
         // if \f, exit
         else if (unicode == '\f') {
             maxNbLines = 0;
-            continue;
+            break;
         }
         // if \b, switch fontId
         else if (unicode == '\b') {
@@ -599,9 +601,6 @@ bool nbgl_getTextMaxLenInNbLines(nbgl_font_id_e fontId,
             }
             width = 0;
             maxNbLines--;
-            if (maxNbLines == 0) {
-                break;
-            }
             continue;
         }
         width += char_width;
@@ -711,7 +710,9 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
         }
         // if \n, increment the number of lines
         else if (unicode == '\n') {
-            nbLines++;
+            if (width != 0) {
+                nbLines++;
+            }
             width         = 0;
             lastDelimiter = NULL;
             continue;
@@ -756,6 +757,9 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
         else {
             width += char_width;
         }
+    }
+    if (width != 0) {
+        ++nbLines;
     }
     return nbLines;
 }
@@ -811,10 +815,12 @@ uint8_t nbgl_getTextNbPagesInWidth(nbgl_font_id_e fontId,
         }
         // if \n, increment the number of lines
         else if (unicode == '\n') {
-            nbLines++;
-            if (nbLines == nbLinesPerPage) {
-                nbPages++;
-                nbLines = 0;
+            if (width != 0) {
+                nbLines++;
+                if (nbLines == nbLinesPerPage && textLen) {
+                    nbPages++;
+                    nbLines = 0;
+                }
             }
 
             width         = 0;
@@ -924,8 +930,10 @@ void nbgl_textWrapOnNbLines(nbgl_font_id_e fontId, char *text, uint16_t maxWidth
         unicode      = nbgl_popUnicodeChar((const uint8_t **) &text, &textLen, &is_unicode);
         // if \n, reset width
         if (unicode == '\n') {
-            width = 0;
-            currentNbLines++;
+            if (width != 0) {
+                currentNbLines++;
+            }
+            width         = 0;
             lastDelimiter = NULL;
             continue;
         }
