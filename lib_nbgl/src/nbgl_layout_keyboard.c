@@ -145,25 +145,32 @@ void keyboardInit(void)
     nbActiveButtons = 0;
 }
 
-#ifndef TARGET_STAX
+#ifdef TARGET_FLEX
 bool keyboardSwipeCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
 {
-    // try if suggestions buttons
     nbgl_container_t *container = (nbgl_container_t *) obj;
+    nbgl_container_t *suggestionsContainer;
+
+    if ((container->nbChildren < 2) || (container->children[1]->type != CONTAINER)) {
+        return false;
+    }
+    suggestionsContainer = (nbgl_container_t *) container->children[1];
+    // try if suggestions buttons
     if (((eventType == SWIPED_LEFT) || (eventType == SWIPED_RIGHT))
-        && (container->nbChildren == (nbActiveButtons + FIRST_BUTTON_INDEX))
+        && (suggestionsContainer->nbChildren == (nbActiveButtons + FIRST_BUTTON_INDEX))
         && (nbActiveButtons > 2)) {
         uint32_t i = 0;
         while (i < (uint32_t) nbActiveButtons) {
-            if (container->children[FIRST_BUTTON_INDEX] == (nbgl_obj_t *) choiceButtons[i]) {
+            if (suggestionsContainer->children[FIRST_BUTTON_INDEX]
+                == (nbgl_obj_t *) choiceButtons[i]) {
                 break;
             }
             i++;
         }
 
         if (i < (uint32_t) nbActiveButtons) {
-            if (updateSuggestionButtons(container, eventType, i)) {
-                nbgl_redrawObject((nbgl_obj_t *) container, NULL, false);
+            if (updateSuggestionButtons(suggestionsContainer, eventType, i)) {
+                nbgl_redrawObject((nbgl_obj_t *) suggestionsContainer, NULL, false);
                 nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
             }
 
@@ -172,7 +179,7 @@ bool keyboardSwipeCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
     }
     return false;
 }
-#endif  // TARGET_STAX
+#endif  // TARGET_FLEX
 
 static nbgl_container_t *addTextEntry(nbgl_layoutInternal_t *layoutInt,
                                       const char            *title,
@@ -310,7 +317,7 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
     suggestionsContainer->nbChildren      = nbActiveButtons;
     suggestionsContainer->children        = (nbgl_obj_t **) nbgl_containerPoolGet(
         NB_MAX_VISIBLE_SUGGESTION_BUTTONS, layoutInt->layer);
-#else   // TARGET_STAX
+#else  // TARGET_STAX
     // 1 row of buttons + 24px + page indicator
     suggestionsContainer->obj.area.height = SMALL_BUTTON_HEIGHT + 28;
     // on Flex, the first child is used by the progress indicator, if more that 2 buttons
@@ -318,13 +325,6 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
     suggestionsContainer->children   = (nbgl_obj_t **) nbgl_containerPoolGet(
         NB_MAX_VISIBLE_SUGGESTION_BUTTONS + 1, layoutInt->layer);
 
-    // the suggestionsContainer is swipable on Flex
-    suggestionsContainer->obj.touchMask = (1 << SWIPED_LEFT) | (1 << SWIPED_RIGHT);
-    suggestionsContainer->obj.touchId   = CONTROLS_ID;  // TODO: change this value
-    obj = layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) suggestionsContainer, 0, NBGL_NO_TUNE);
-    if (obj == NULL) {
-        return NULL;
-    }
 #endif  // TARGET_STAX
     // put suggestionsContainer at 24px of the bottom of main container
     suggestionsContainer->obj.alignmentMarginY = compactMode ? 12 : 24;
@@ -508,7 +508,7 @@ int nbgl_layoutAddKeyboard(nbgl_layout_t *layout, const nbgl_layoutKbd_t *kbdInf
     layoutAddObject(layoutInt, (nbgl_obj_t *) NULL);
     layoutAddObject(layoutInt, (nbgl_obj_t *) NULL);
 
-    layoutInt->footerType = 0xFF;
+    layoutInt->footerType = KEYBOARD_FOOTER_TYPE;
 
     return layoutInt->footerContainer->obj.area.height;
 }
@@ -621,6 +621,16 @@ int nbgl_layoutAddSuggestionButtons(nbgl_layout_t *layout,
             ->obj.alignmentMarginY
             -= (container->obj.area.height + container->obj.alignmentMarginY + 20) / 2;
     }
+#ifdef TARGET_FLEX
+    // the main container is swipable on Flex
+    if (layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) layoutInt->container, 0, NBGL_NO_TUNE)
+        == NULL) {
+        return -1;
+    }
+    layoutInt->container->obj.touchMask = (1 << SWIPED_LEFT) | (1 << SWIPED_RIGHT);
+    layoutInt->container->obj.touchId   = CONTROLS_ID;
+    layoutInt->swipeUsage               = SWIPE_USAGE_SUGGESTIONS;
+#endif  // TARGET_FLEX
     // set this new container as child of the main container
     layoutAddObject(layoutInt, (nbgl_obj_t *) container);
 
@@ -967,6 +977,16 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
                                    compactMode);
         // set this container as second child of the main layout container
         layoutInt->container->children[1] = (nbgl_obj_t *) suggestionsContainer;
+#ifdef TARGET_FLEX
+        // the main container is swipable on Flex
+        if (layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) layoutInt->container, 0, NBGL_NO_TUNE)
+            == NULL) {
+            return -1;
+        }
+        layoutInt->container->obj.touchMask = (1 << SWIPED_LEFT) | (1 << SWIPED_RIGHT);
+        layoutInt->container->obj.touchId   = CONTROLS_ID;
+        layoutInt->swipeUsage               = SWIPE_USAGE_SUGGESTIONS;
+#endif  // TARGET_FLEX
         container->obj.alignmentMarginY
             -= (suggestionsContainer->obj.area.height + suggestionsContainer->obj.alignmentMarginY
                 + (compactMode ? 12 : 20))

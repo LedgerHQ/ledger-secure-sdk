@@ -108,7 +108,7 @@ int nbgl_layoutAddKeypad(nbgl_layout_t *layout, keyboardCallback_t callback, boo
     // subtract footer height from main container height
     layoutInt->container->obj.area.height -= layoutInt->footerContainer->obj.area.height;
 
-    layoutInt->footerType = 0xFF;
+    layoutInt->footerType = KEYPAD_FOOTER_TYPE;
 
     return layoutInt->footerContainer->obj.area.height;
 }
