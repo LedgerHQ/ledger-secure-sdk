@@ -203,7 +203,8 @@ static void touchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
          || (eventType == SWIPED_RIGHT))
         && (obj->type == CONTAINER)) {
 #if (!defined(TARGET_STAX) && defined(NBGL_KEYBOARD))
-        if (keyboardSwipeCallback(obj, eventType)) {
+        if ((layout->swipeUsage == SWIPE_USAGE_SUGGESTIONS)
+            && keyboardSwipeCallback(obj, eventType)) {
             // if this swipe event is consumed, return here
             return;
         }
@@ -1456,7 +1457,7 @@ int nbgl_layoutAddCenteredInfo(nbgl_layout_t *layout, const nbgl_layoutCenteredI
  *
  * @param layout the current layout
  * @param info structure giving the description of buttons (texts, icons, layout)
- * @return >= 0 if OK
+ * @return height of the control if OK
  */
 int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info)
 {
@@ -1545,6 +1546,15 @@ int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info)
         container->children[container->nbChildren] = (nbgl_obj_t *) textArea;
         container->nbChildren++;
     }
+    // ensure that fullHeight is fitting in main container height (with 16 px margin)
+    if ((fullHeight >= (layoutInt->container->obj.area.height - 16))
+        && (qrcode->version == QRCODE_V4)) {
+        qrcode->version = QRCODE_V4_SMALL;
+        // in QR V4 small, we use 4*4 screen pixels for one QR pixel
+        qrcode->obj.area.width  = QR_V4_NB_PIX_SIZE * 4;
+        qrcode->obj.area.height = qrcode->obj.area.width;
+        fullHeight -= QR_V4_NB_PIX_SIZE * 4;
+    }
     container->obj.area.height = fullHeight;
     container->layout          = VERTICAL;
     if (info->centered) {
@@ -1562,7 +1572,7 @@ int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info)
     // set this new container as child of main container
     layoutAddObject(layoutInt, (nbgl_obj_t *) container);
 
-    return 0;
+    return fullHeight;
 }
 #endif  // NBGL_QRCODE
 
@@ -2172,13 +2182,17 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
             layoutInt->headerContainer->obj.area.height = headerDesc->emptySpace.height;
             break;
         }
-        case HEADER_BACK_AND_TEXT: {
+        case HEADER_BACK_AND_TEXT:
+        case HEADER_EXTENDED_BACK: {
             // add back button
             button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layoutInt->layer);
-            obj    = layoutAddCallbackObj(layoutInt,
-                                       (nbgl_obj_t *) button,
-                                       headerDesc->backAndText.token,
-                                       headerDesc->backAndText.tuneId);
+            obj    = layoutAddCallbackObj(
+                layoutInt,
+                (nbgl_obj_t *) button,
+                (headerDesc->type == HEADER_EXTENDED_BACK) ? headerDesc->extendedBack.backToken
+                                                              : headerDesc->backAndText.token,
+                (headerDesc->type == HEADER_EXTENDED_BACK) ? headerDesc->extendedBack.tuneId
+                                                              : headerDesc->backAndText.tuneId);
             if (obj == NULL) {
                 return -1;
             }
@@ -2200,16 +2214,61 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
             // add optional text if needed
             if (headerDesc->backAndText.text != NULL) {
                 textArea = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+                if ((headerDesc->type == HEADER_EXTENDED_BACK)
+                    && (headerDesc->extendedBack.textToken != NBGL_INVALID_TOKEN)) {
+                    obj = layoutAddCallbackObj(layoutInt,
+                                               (nbgl_obj_t *) textArea,
+                                               headerDesc->extendedBack.textToken,
+                                               headerDesc->extendedBack.tuneId);
+                    if (obj == NULL) {
+                        return -1;
+                    }
+                    textArea->obj.touchMask = (1 << TOUCHED);
+                }
                 textArea->obj.alignment = CENTER;
                 textArea->textColor     = BLACK;
                 textArea->obj.area.width
                     = layoutInt->headerContainer->obj.area.width - 2 * BACK_KEY_WIDTH;
-                textArea->text          = PIC(headerDesc->backAndText.text);
-                textArea->fontId        = SMALL_BOLD_FONT;
-                textArea->textAlignment = CENTER;
-                textArea->wrapping      = true;
+                textArea->obj.area.height = TOUCHABLE_HEADER_BAR_HEIGHT;
+                textArea->text            = (headerDesc->type == HEADER_EXTENDED_BACK)
+                                                ? PIC(headerDesc->extendedBack.text)
+                                                : PIC(headerDesc->backAndText.text);
+                textArea->fontId          = SMALL_BOLD_FONT;
+                textArea->textAlignment   = CENTER;
+                textArea->wrapping        = true;
                 layoutInt->headerContainer->children[layoutInt->headerContainer->nbChildren]
                     = (nbgl_obj_t *) textArea;
+                layoutInt->headerContainer->nbChildren++;
+            }
+            // add action key if the type is HEADER_EXTENDED_BACK
+            if ((headerDesc->type == HEADER_EXTENDED_BACK)
+                && (headerDesc->extendedBack.actionIcon)) {
+                button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layoutInt->layer);
+                // if token is valid
+                if (headerDesc->extendedBack.actionToken != NBGL_INVALID_TOKEN) {
+                    obj = layoutAddCallbackObj(layoutInt,
+                                               (nbgl_obj_t *) button,
+                                               headerDesc->extendedBack.actionToken,
+                                               headerDesc->extendedBack.tuneId);
+                    if (obj == NULL) {
+                        return -1;
+                    }
+                    button->obj.touchMask = (1 << TOUCHED);
+                }
+
+                button->obj.alignment = MID_RIGHT;
+                button->innerColor    = WHITE;
+                button->foregroundColor
+                    = (headerDesc->extendedBack.actionToken != NBGL_INVALID_TOKEN) ? BLACK
+                                                                                   : LIGHT_GRAY;
+                button->borderColor     = WHITE;
+                button->obj.area.width  = BACK_KEY_WIDTH;
+                button->obj.area.height = TOUCHABLE_HEADER_BAR_HEIGHT;
+                button->text            = NULL;
+                button->icon            = PIC(headerDesc->extendedBack.actionIcon);
+                button->obj.touchId     = EXTRA_BUTTON_ID;
+                layoutInt->headerContainer->children[layoutInt->headerContainer->nbChildren]
+                    = (nbgl_obj_t *) button;
                 layoutInt->headerContainer->nbChildren++;
             }
 
@@ -2542,7 +2601,7 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
             separationLine->thickness            = 1;
             separationLine->obj.alignment        = MID_LEFT;
             separationLine->obj.alignTo          = (nbgl_obj_t *) navContainer;
-            separationLine->obj.alignmentMarginY = -1;
+            separationLine->obj.alignmentMarginX = -1;
 
             layoutInt->activePage = footerDesc->textAndNav.navigation.activePage;
             layoutInt->nbPages    = footerDesc->textAndNav.navigation.nbPages;
