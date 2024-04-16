@@ -211,6 +211,135 @@ void cx_encode_coord(uint8_t *coord, int len, int sign);
  */
 int cx_decode_coord(uint8_t *coord, int len);
 
+/**
+ * @brief Computes the first hash for edDSA signature: H(dom || prefix).
+ *
+ * @details This function must be followed by one or several calls to #cx_eddsa_update_hash
+ *          to hash the message and by a call to #cx_eddsa_final_hash to get the digest
+ *          H(dom || prefix || PH(M)).
+ *
+ * @param[in] hash_context Pointer to the hash context.
+ * @param[in] private_key  Pointer to the private key structure.
+ *                         The private key is used to compute the prefix.
+ * @param[in] hash_id      Hash identifier.
+ * @return Error code
+ */
+cx_err_t cx_eddsa_sign_init_first_hash(cx_hash_t                   *hash_context,
+                                       const cx_ecfp_private_key_t *private_key,
+                                       cx_md_t                      hash_id);
+
+/**
+ * @brief Computes the second hash for edDSA signature: H(dom || R || A).
+ *
+ * @details This function must be followed by one or several calls to #cx_eddsa_update_hash
+ *          to hash the message and by a call to #cx_eddsa_final_hash to get the digest
+ *          H(dom || R || A || PH(M)).
+ *
+ * @param[in]  hash_context Pointer to the hash context.
+ * @param[in]  private_key  Pointer to the private key structure.
+ *                          The private key is used to compute the secret scalar
+ *                          and the prefix.
+ * @param[in]  hash_id      Hash identifier.
+ * @param[in]  hash         Pointer to hash returned by #cx_eddsa_final_hash.
+ * @param[in]  hash_len     Digest length.
+ * @param[out] sig          Pointer to the signature buffer.
+ * @param[in]  sig_len      Signature length.
+ * @return Error code
+ */
+cx_err_t cx_eddsa_sign_init_second_hash(cx_hash_t                   *hash_context,
+                                        const cx_ecfp_private_key_t *private_key,
+                                        cx_md_t                      hash_id,
+                                        uint8_t                     *hash,
+                                        size_t                       hash_len,
+                                        uint8_t                     *sig,
+                                        size_t                       sig_len);
+
+/**
+ * @brief Computes the edDSA signature given the previously computed hash.
+ *
+ * @param[in]  pv_key   Pointer to the private key structure.
+ * @param[in]  hash_id  Hash identifier.
+ * @param[in]  hash     Pointer to hash returned by #cx_eddsa_final_hash.
+ * @param[in]  hash_len Hash length.
+ * @param[out] sig      Pointer to the signature buffer.
+ * @param[in]  sig_len  Signature length.
+ * @return Error code
+ */
+cx_err_t cx_eddsa_sign_hash(const cx_ecfp_private_key_t *pv_key,
+                            cx_md_t                      hash_id,
+                            const uint8_t               *hash,
+                            size_t                       hash_len,
+                            uint8_t                     *sig,
+                            size_t                       sig_len);
+
+/**
+ * @brief Computes the hash for edDSA verification: H(dom || R || A)
+ *
+ * @details This function must be followed by one or several calls to #cx_eddsa_update_hash
+ *          to hash the message and by a call to #cx_eddsa_final_hash to get the digest
+ *          H(dom || R || A || PH(M)).
+ *
+ * @param[in] hash_context Pointer to the hash context.
+ * @param[in] public_key   Pointer to the public key structure.
+ * @param[in] hash_id      Hash identifier.
+ * @param[in] sig_r        Pointer to the first half (r value) of the signature
+ * @param[in] sig_r_len    Length of sig_r (should be half of the signature length)
+ * @return Error code
+ */
+cx_err_t cx_eddsa_verify_init_hash(cx_hash_t                  *hash_context,
+                                   const cx_ecfp_public_key_t *public_key,
+                                   cx_md_t                     hash_id,
+                                   const uint8_t              *sig_r,
+                                   size_t                      sig_r_len);
+
+/**
+ * @brief Updates the hash context with given message.
+ *
+ * @details This function can be called several times to hash more message. It must
+ *          be followed by #cx_eddsa_final_hash to get the digest. #cx_eddsa_sign_init_first_hash,
+ *          #cx_eddsa_sign_init_second_hash or #cx_eddsa_verify_init_hash must be called
+ *          before this function.
+ *          The input of this function can be the result of the pre-hash function over the message
+ *          for HashEdDSA variants.
+ *
+ * @param[in] hash_context Pointer to the hash context.
+ * @param[in] msg          Pointer to the message to hash.
+ * @param[in] msg_len      Message length.
+ * @return Error code
+ */
+cx_err_t cx_eddsa_update_hash(cx_hash_t *hash_context, const uint8_t *msg, size_t msg_len);
+
+/**
+ * @brief Returns the result hash for edDSA signature or verification.
+ *
+ * @details This function must be called after #cx_eddsa_update_hash when no more
+ *          messages need to be hashed.
+ *
+ * @param[in]  hash_context Pointer to the hash context.
+ * @param[out] hash         Pointer to the digest.
+ * @param[in]  hash_len     Digest length
+ * @return Error code
+ */
+cx_err_t cx_eddsa_final_hash(cx_hash_t *hash_context, uint8_t *hash, size_t hash_len);
+
+/**
+ * @brief Verifies an edDSA signature given the previously computed hash.
+ *
+ * @param[in] public_key    Pointer to the public key structure.
+ * @param[in] hash          Pointer to the hash returned by #cx_eddsa_final_hash.
+ * @param[in] hash_len      Digest length
+ * @param[in] signature     Pointer to the signature
+ * @param[in] signature_len Signature length
+ * @return bool
+ * @retval true  Signature verification succeeds
+ * @retval false Signature verification fails
+ */
+bool cx_eddsa_verify_hash(const cx_ecfp_public_key_t *public_key,
+                          uint8_t                    *hash,
+                          size_t                      hash_len,
+                          const uint8_t              *signature,
+                          size_t                      signature_len);
+
 #endif  // HAVE_EDDSA
 
 #endif  // LCX_EDDSA_H

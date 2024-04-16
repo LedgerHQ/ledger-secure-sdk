@@ -148,6 +148,13 @@ CX_TRAMPOLINE _NR_cx_swap_uint32                           cx_swap_uint32
 CX_TRAMPOLINE _NR_cx_swap_uint64                           cx_swap_uint64
 CX_TRAMPOLINE _NR_cx_x25519                                cx_x25519
 CX_TRAMPOLINE _NR_cx_x448                                  cx_x448
+CX_TRAMPOLINE _NR_cx_eddsa_final_hash                      cx_eddsa_final_hash
+CX_TRAMPOLINE _NR_cx_eddsa_sign_init_first_hash            cx_eddsa_sign_init_first_hash
+CX_TRAMPOLINE _NR_cx_eddsa_sign_init_second_hash           cx_eddsa_sign_init_second_hash
+CX_TRAMPOLINE _NR_cx_eddsa_sign_hash                       cx_eddsa_sign_hash
+CX_TRAMPOLINE _NR_cx_eddsa_update_hash                     cx_eddsa_update_hash
+CX_TRAMPOLINE _NR_cx_eddsa_verify_init_hash                cx_eddsa_verify_init_hash
+CX_TRAMPOLINE _NR_cx_eddsa_verify_hash                     cx_eddsa_verify_hash
 
 .thumb_func
 cx_trampoline_helper:

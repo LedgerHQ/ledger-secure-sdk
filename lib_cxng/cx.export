@@ -136,3 +136,10 @@ cx_swap_uint32
 cx_swap_uint64
 cx_x25519
 cx_x448
+cx_eddsa_final_hash
+cx_eddsa_sign_init_first_hash
+cx_eddsa_sign_init_second_hash
+cx_eddsa_sign_hash
+cx_eddsa_update_hash
+cx_eddsa_verify_init_hash
+cx_eddsa_verify_hash

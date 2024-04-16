@@ -133,3 +133,10 @@
 #define _NR_cx_swap_uint64                       0x81
 #define _NR_cx_x25519                            0x82
 #define _NR_cx_x448                              0x83
+#define _NR_cx_eddsa_final_hash                  0x84
+#define _NR_cx_eddsa_sign_init_first_hash        0x85
+#define _NR_cx_eddsa_sign_init_second_hash       0x86
+#define _NR_cx_eddsa_sign_hash                   0x87
+#define _NR_cx_eddsa_update_hash                 0x88
+#define _NR_cx_eddsa_verify_init_hash            0x89
+#define _NR_cx_eddsa_verify_hash                 0x8a

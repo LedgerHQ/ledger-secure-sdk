@@ -27,6 +27,8 @@
 
 #include <string.h>
 
+#define EDDSA_ED448_DOMAIN_LEN (57)
+
 static void cx_encode_int(uint8_t *v, int len)
 {
     uint8_t t;
@@ -178,7 +180,7 @@ cx_err_t cx_eddsa_get_public_key_no_throw(const cx_ecfp_private_key_t *pv_key,
                                           uint8_t                     *h,
                                           size_t                       h_len)
 {
-    uint8_t  scal[114];
+    uint8_t  scal[EDDSA_ED448_DOMAIN_LEN * 2];
     size_t   size;
     cx_err_t error;
 
@@ -195,40 +197,16 @@ end:
 
 static uint8_t const C_cx_siged448[] = {'S', 'i', 'g', 'E', 'd', '4', '4', '8'};
 
-/* ----------------------------------------------------------------------- */
-/*                                                                         */
-/* ----------------------------------------------------------------------- */
-cx_err_t cx_eddsa_sign_no_throw(const cx_ecfp_private_key_t *pv_key,
-                                cx_md_t                      hashID,
-                                const uint8_t               *hash,
-                                size_t                       hash_len,
-                                uint8_t                     *sig,
-                                size_t                       sig_len)
+static cx_err_t cx_eddsa_check_params(cx_curve_t curve, size_t domain_len, cx_md_t hash_id)
 {
-    size_t       size, hsize;
-    cx_bn_t      bn_h, bn_a, bn_r, bn_s, bn_n;
-    cx_ecpoint_t Q;
-    cx_err_t     error;
-
-    uint32_t sign;
-    uint8_t  a[57];  // a
-    uint8_t  r[57];  // r
-    uint8_t  scal[114];
-
-    CX_CHECK(cx_ecdomain_parameters_length(pv_key->curve, &size));
-
-    if (!CX_CURVE_RANGE(pv_key->curve, TWISTED_EDWARDS)) {
-        return CX_INVALID_PARAMETER;
-    }
-    if (!((pv_key->d_len == size) || (pv_key->d_len == 2 * size))) {
-        return CX_INVALID_PARAMETER;
-    }
-    if (sig_len < 2 * size) {
+    if (!CX_CURVE_RANGE(curve, TWISTED_EDWARDS)) {
         return CX_INVALID_PARAMETER;
     }
 
-    // check hashID as H function
-    switch (hashID) {
+    // The hash digest must be 2 * domain_len bytes
+    // Typically SHA512 for Ed25519 and SHAKE-256
+    // with 114 bytes for Ed448
+    switch (hash_id) {
 #if (defined(HAVE_SHA512) || defined(HAVE_SHA3))
 #if defined(HAVE_SHA512)
         case CX_SHA512:
@@ -238,7 +216,7 @@ cx_err_t cx_eddsa_sign_no_throw(const cx_ecfp_private_key_t *pv_key,
         case CX_KECCAK:
         case CX_SHA3:
 #endif  // HAVE_SHA3
-            if (size * 2 != 512 / 8) {
+            if (domain_len * 2 != 512 / 8) {
                 return INVALID_PARAMETER;
             }
             break;
@@ -258,96 +236,364 @@ cx_err_t cx_eddsa_sign_no_throw(const cx_ecfp_private_key_t *pv_key,
         default:
             return INVALID_PARAMETER;
     }
-    hsize = 2 * size;
 
-    CX_CHECK(cx_bn_lock(size, 0));
-    CX_CHECK(cx_ecpoint_alloc(&Q, pv_key->curve));
-    CX_CHECK(cx_bn_alloc(&bn_n, size));
-    CX_CHECK(cx_ecdomain_parameter_bn(pv_key->curve, CX_CURVE_PARAM_Order, bn_n));
+    return CX_OK;
+}
 
-    // retrieve private scalar a, and private prefix h (stored in r)
-    CX_CHECK(
-        cx_eddsa_get_public_key_internal(pv_key, hashID, NULL, a, sizeof(a), r, sizeof(r), scal));
+/* ----------------------------------------------------------------------- */
+/*                                                                         */
+/* ----------------------------------------------------------------------- */
 
-    // compute r
-    // - last size (32/57) bytes of H(sk), h,  as big endian bytes ordered. stored in r
-    // - r = H(h,M) as little endian
-    CX_CHECK(cx_hash_init_ex(&G_cx.hash_ctx, hashID, hsize));
+cx_err_t cx_eddsa_sign_init_first_hash(cx_hash_t                   *hash_context,
+                                       const cx_ecfp_private_key_t *private_key,
+                                       cx_md_t                      hash_id)
+{
+    size_t   domain_len, hash_len;
+    cx_err_t error;
+    uint8_t  prefix[EDDSA_ED448_DOMAIN_LEN];
+    uint8_t  private_hash[EDDSA_ED448_DOMAIN_LEN * 2];
 
-    if (pv_key->curve == CX_CURVE_Ed448) {
-        CX_CHECK(cx_hash_update(&G_cx.hash_ctx, C_cx_siged448, sizeof(C_cx_siged448)));
-        scal[0] = 0;  // no ph
-        scal[1] = 0;  // no ctx
-        CX_CHECK(cx_hash_update(&G_cx.hash_ctx, scal, 2));
+    CX_CHECK(cx_ecdomain_parameters_length(private_key->curve, &domain_len));
+    CX_CHECK(cx_eddsa_check_params(private_key->curve, domain_len, hash_id));
+
+    if (!((private_key->d_len == domain_len) || (private_key->d_len == 2 * domain_len))) {
+        return CX_INVALID_PARAMETER;
     }
-    CX_CHECK(cx_hash_update(&G_cx.hash_ctx, r, size));
-    CX_CHECK(cx_hash_update(&G_cx.hash_ctx, hash, hash_len));
-    CX_CHECK(cx_hash_final(&G_cx.hash_ctx, scal));
-    cx_hash_destroy(&G_cx.hash_ctx);
-    cx_encode_int(scal, hsize);
 
-    CX_CHECK(cx_bn_alloc_init(&bn_h, hsize, scal, hsize));
-    CX_CHECK(cx_bn_alloc(&bn_r, size));
+    hash_len = 2 * domain_len;
+
+    // retrieve the prefix from private key hash
+    CX_CHECK(cx_eddsa_get_public_key_internal(
+        private_key, hash_id, NULL, NULL, 0, prefix, sizeof(prefix), private_hash));
+
+    CX_CHECK(cx_hash_init_ex(hash_context, hash_id, hash_len));
+
+    // Hash dom4 for Ed448
+    if (private_key->curve == CX_CURVE_Ed448) {
+        CX_CHECK(cx_hash_update(hash_context, C_cx_siged448, sizeof(C_cx_siged448)));
+        private_hash[0] = 0;
+        private_hash[1] = 0;
+        CX_CHECK(cx_hash_update(hash_context, private_hash, 2));
+    }
+    // Hash the prefix
+    CX_CHECK(cx_hash_update(hash_context, prefix, domain_len));
+
+end:
+    return error;
+}
+
+cx_err_t cx_eddsa_sign_init_second_hash(cx_hash_t                   *hash_context,
+                                        const cx_ecfp_private_key_t *private_key,
+                                        cx_md_t                      hash_id,
+                                        uint8_t                     *hash,
+                                        size_t                       hash_len,
+                                        uint8_t                     *sig,
+                                        size_t                       sig_len)
+{
+    size_t       domain_len;
+    cx_bn_t      bn_h, bn_r, bn_n;
+    cx_ecpoint_t Q;
+    cx_err_t     error;
+    uint8_t      secret_scalar[EDDSA_ED448_DOMAIN_LEN];
+    uint8_t      private_hash[EDDSA_ED448_DOMAIN_LEN * 2];
+    uint32_t     sign;
+
+    CX_CHECK(cx_ecdomain_parameters_length(private_key->curve, &domain_len));
+
+    if (sig_len < 2 * domain_len) {
+        return CX_INVALID_PARAMETER;
+    }
+
+    // Retrieve the secret scalar from the private key hash
+    CX_CHECK(cx_eddsa_get_public_key_internal(
+        private_key, hash_id, NULL, secret_scalar, sizeof(secret_scalar), NULL, 0, private_hash));
+    // Encode the digest as little-endian
+    cx_encode_int(hash, hash_len);
+
+    CX_CHECK(cx_bn_lock(domain_len, 0));
+    CX_CHECK(cx_bn_alloc_init(&bn_h, hash_len, hash, hash_len));
+    CX_CHECK(cx_bn_alloc(&bn_r, domain_len));
+    CX_CHECK(cx_bn_alloc(&bn_n, domain_len));
+    CX_CHECK(cx_ecpoint_alloc(&Q, private_key->curve));
+    CX_CHECK(cx_ecdomain_parameter_bn(private_key->curve, CX_CURVE_PARAM_Order, bn_n));
     CX_CHECK(cx_bn_reduce(bn_r, bn_h, bn_n));
-    CX_CHECK(cx_bn_export(bn_r, r, size));
     CX_CHECK(cx_bn_destroy(&bn_h));
 
-    // compute R = r.B
-    CX_CHECK(cx_ecdomain_generator_bn(pv_key->curve, &Q));
-    // Scalar multiplication with random projective coordinates and additive splitting
-    CX_CHECK(cx_ecpoint_rnd_scalarmul(&Q, r, size));
-    CX_CHECK(cx_ecpoint_compress(&Q, sig, size, &sign));
-    cx_encode_coord(sig, size, sign);
+    // Compute A = a.B (B group generator)
+    CX_CHECK(cx_ecdomain_generator_bn(private_key->curve, &Q));
+    CX_CHECK(cx_ecpoint_rnd_scalarmul(&Q, secret_scalar, domain_len));
+    CX_CHECK(cx_ecpoint_compress(&Q, sig + domain_len, domain_len, &sign));
+    // Temporary store compressed A into sig + domain_len
+    cx_encode_coord(sig + domain_len, domain_len, sign);
 
-    // compute S = r+H(R,A,M).a
-    // - compute and compress public_key A
-    CX_CHECK(cx_ecdomain_generator_bn(pv_key->curve, &Q));
-    // Scalar multiplication with random projective coordinates and additive splitting
-    CX_CHECK(cx_ecpoint_rnd_scalarmul(&Q, a, size));
-    CX_CHECK(cx_ecpoint_compress(&Q, sig + size, size, &sign));
-    cx_encode_coord(sig + size, size, sign);
+    // Compute R = r.B
+    // Use secret_scalar to temporary store r = hash mod n
+    CX_CHECK(cx_bn_export(bn_r, secret_scalar, domain_len));
+    CX_CHECK(cx_ecdomain_generator_bn(private_key->curve, &Q));
+    CX_CHECK(cx_ecpoint_rnd_scalarmul(&Q, secret_scalar, domain_len));
+    // Temporary store compressed R into sig
+    CX_CHECK(cx_ecpoint_compress(&Q, sig, domain_len, &sign));
+    cx_encode_coord(sig, domain_len, sign);
 
-    // - compute H(R,A,M)
-    CX_CHECK(cx_hash_init_ex(&G_cx.hash_ctx, hashID, hsize));
-    if (pv_key->curve == CX_CURVE_Ed448) {
-        CX_CHECK(cx_hash_update(&G_cx.hash_ctx, C_cx_siged448, sizeof(C_cx_siged448)));
-        scal[0] = 0;  // no ph
-        scal[1] = 0;  // no ctx
-        CX_CHECK(cx_hash_update(&G_cx.hash_ctx, scal, 2));
+    // Compute H(dom || R || A) and update the message M to the hash context later
+    CX_CHECK(cx_hash_init_ex(hash_context, hash_id, hash_len));
+    // Ed448 dom4
+    if (private_key->curve == CX_CURVE_Ed448) {
+        CX_CHECK(cx_hash_update(hash_context, C_cx_siged448, sizeof(C_cx_siged448)));
+        private_hash[0] = 0;
+        private_hash[1] = 0;
+        CX_CHECK(cx_hash_update(hash_context, private_hash, 2));
     }
-    CX_CHECK(cx_hash_update(&G_cx.hash_ctx, sig, size));
-    CX_CHECK(cx_hash_update(&G_cx.hash_ctx, sig + size, size));
-    CX_CHECK(cx_hash_update(&G_cx.hash_ctx, hash, hash_len));
-    CX_CHECK(cx_hash_final(&G_cx.hash_ctx, scal));
-    cx_hash_destroy(&G_cx.hash_ctx);
-    cx_encode_int(scal, hsize);
+    CX_CHECK(cx_hash_update(hash_context, sig, domain_len));
+    CX_CHECK(cx_hash_update(hash_context, sig + domain_len, domain_len));
 
-    // - compute S = r+H(.)a
-
-    //-- H(R,A,M).a
-    CX_CHECK(cx_bn_alloc(&bn_s, size));
-    CX_CHECK(cx_bn_alloc_init(&bn_h, hsize, scal, hsize));
-    CX_CHECK(cx_bn_reduce(bn_r, bn_h, bn_n));
-    CX_CHECK(cx_bn_alloc_init(&bn_a, size, a, size));
-    CX_CHECK(cx_bn_mod_mul(bn_s, bn_r, bn_a, bn_n));
-    //-- r +
-    CX_CHECK(cx_bn_init(bn_r, r, size));
-    CX_CHECK(cx_bn_mod_add(bn_s, bn_s, bn_r, bn_n));
-    CX_CHECK(cx_bn_set_u32(bn_r, 0));
-    CX_CHECK(cx_bn_mod_sub(bn_s, bn_s, bn_r, bn_n));
-
-    //- encode
-    CX_CHECK(cx_bn_export(bn_s, sig + size, size));
-    cx_encode_int(sig + size, size);
+    // Temporary store r into sig + domain_len
+    memcpy(sig + domain_len, secret_scalar, domain_len);
 
 end:
     cx_bn_unlock();
     return error;
 }
 
+cx_err_t cx_eddsa_sign_hash(const cx_ecfp_private_key_t *pv_key,
+                            cx_md_t                      hash_id,
+                            const uint8_t               *hash,
+                            size_t                       hash_len,
+                            uint8_t                     *sig,
+                            size_t                       sig_len)
+{
+    size_t   domain_len;
+    uint8_t  secret_scalar[EDDSA_ED448_DOMAIN_LEN];
+    uint8_t  hash_in[EDDSA_ED448_DOMAIN_LEN * 2];
+    cx_bn_t  bn_h, bn_a, bn_r, bn_s, bn_n;
+    cx_err_t error;
+
+    CX_CHECK(cx_ecdomain_parameters_length(pv_key->curve, &domain_len));
+
+    if (sig_len < 2 * domain_len) {
+        return CX_INVALID_PARAMETER;
+    }
+
+    if (hash_len > EDDSA_ED448_DOMAIN_LEN * 2) {
+        return CX_INVALID_PARAMETER;
+    }
+    memcpy(hash_in, hash, hash_len);
+    // Encode the digest as little-endian
+    cx_encode_int(hash_in, hash_len);
+
+    CX_CHECK(cx_bn_lock(domain_len, 0));
+    CX_CHECK(cx_bn_alloc(&bn_s, domain_len));
+    CX_CHECK(cx_bn_alloc_init(&bn_h, hash_len, hash_in, hash_len));
+    CX_CHECK(cx_bn_alloc(&bn_n, domain_len));
+    CX_CHECK(cx_bn_alloc(&bn_r, domain_len));
+    CX_CHECK(cx_ecdomain_parameter_bn(pv_key->curve, CX_CURVE_PARAM_Order, bn_n));
+    CX_CHECK(cx_bn_reduce(bn_r, bn_h, bn_n));
+    CX_CHECK(cx_eddsa_get_public_key_internal(
+        pv_key, hash_id, NULL, secret_scalar, sizeof(secret_scalar), NULL, 0, hash_in));
+    CX_CHECK(cx_bn_alloc_init(&bn_a, domain_len, secret_scalar, domain_len));
+    // k * s mod n
+    CX_CHECK(cx_bn_mod_mul(bn_s, bn_r, bn_a, bn_n));
+    // Get previously computed r from sig buffer
+    CX_CHECK(cx_bn_init(bn_r, sig + domain_len, domain_len));
+    // S = r + k *s mod n
+    CX_CHECK(cx_bn_mod_add(bn_s, bn_s, bn_r, bn_n));
+    CX_CHECK(cx_bn_set_u32(bn_r, 0));
+    CX_CHECK(cx_bn_mod_sub(bn_s, bn_s, bn_r, bn_n));
+    CX_CHECK(cx_bn_export(bn_s, sig + domain_len, domain_len));
+    cx_encode_int(sig + domain_len, domain_len);
+
+end:
+    cx_bn_unlock();
+    return error;
+}
+
+cx_err_t cx_eddsa_sign_no_throw(const cx_ecfp_private_key_t *pv_key,
+                                cx_md_t                      hashID,
+                                const uint8_t               *hash,
+                                size_t                       hash_len,
+                                uint8_t                     *sig,
+                                size_t                       sig_len)
+{
+    uint8_t    out_hash[EDDSA_ED448_DOMAIN_LEN * 2] = {0};
+    size_t     out_hash_len                         = 0;
+    cx_err_t   error;
+    cx_hash_t *hash_context = &G_cx.hash_ctx;
+
+    CX_CHECK(cx_eddsa_sign_init_first_hash(hash_context, pv_key, hashID));
+    CX_CHECK(cx_eddsa_update_hash(hash_context, hash, hash_len));
+    out_hash_len = cx_hash_get_size(hash_context);
+    CX_CHECK(cx_eddsa_final_hash(hash_context, out_hash, out_hash_len));
+    explicit_bzero(hash_context, sizeof(cx_hash_t));
+    CX_CHECK(cx_eddsa_sign_init_second_hash(
+        hash_context, pv_key, hashID, out_hash, out_hash_len, sig, sig_len));
+    CX_CHECK(cx_eddsa_update_hash(hash_context, hash, hash_len));
+    CX_CHECK(cx_eddsa_final_hash(hash_context, out_hash, out_hash_len));
+    CX_CHECK(cx_eddsa_sign_hash(pv_key, hashID, out_hash, out_hash_len, sig, sig_len));
+
+end:
+    return error;
+}
+
 /* ----------------------------------------------------------------------- */
 /*                                                                         */
 /* ----------------------------------------------------------------------- */
+
+cx_err_t cx_eddsa_verify_init_hash(cx_hash_t                  *hash_context,
+                                   const cx_ecfp_public_key_t *public_key,
+                                   cx_md_t                     hash_id,
+                                   const uint8_t              *sig_r,
+                                   size_t                      sig_r_len)
+{
+    size_t       domain_len, hash_len;
+    uint8_t      scal[EDDSA_ED448_DOMAIN_LEN] = {0};
+    uint32_t     sign;
+    cx_ecpoint_t P;
+    cx_err_t     error;
+
+    CX_CHECK(cx_ecdomain_parameters_length(public_key->curve, &domain_len));
+
+    CX_CHECK(cx_eddsa_check_params(public_key->curve, domain_len, hash_id));
+
+    if (!((public_key->W_len == 1 + domain_len) || (public_key->W_len == 1 + 2 * domain_len))) {
+        return CX_INVALID_PARAMETER;
+    }
+
+    if (sig_r_len != domain_len) {
+        return CX_INVALID_PARAMETER;
+    }
+
+    hash_len = 2 * domain_len;
+
+    CX_CHECK(cx_bn_lock(domain_len, 0));
+    CX_CHECK(cx_ecpoint_alloc(&P, public_key->curve));
+    CX_CHECK(cx_hash_init_ex(hash_context, hash_id, hash_len));
+    if (CX_CURVE_Ed448 == public_key->curve) {
+        CX_CHECK(cx_hash_update(hash_context, C_cx_siged448, sizeof(C_cx_siged448)));
+        scal[0] = 0;
+        scal[1] = 0;
+        CX_CHECK(cx_hash_update(hash_context, scal, 2));
+    }
+    CX_CHECK(cx_hash_update(hash_context, sig_r, sig_r_len));
+    if (public_key->W[0] == 0x04) {
+        CX_CHECK(cx_ecpoint_init(
+            &P, &public_key->W[1], domain_len, &public_key->W[1 + domain_len], domain_len));
+        CX_CHECK(cx_ecpoint_compress(&P, scal, domain_len, &sign));
+        cx_encode_coord(scal, domain_len, sign);
+    }
+    else {
+        memmove(scal, &public_key->W[1], domain_len);
+    }
+    CX_CHECK(cx_hash_update(hash_context, scal, domain_len));
+
+end:
+    cx_bn_unlock();
+    return error;
+}
+
+cx_err_t cx_eddsa_update_hash(cx_hash_t *hash_context, const uint8_t *msg, size_t msg_len)
+{
+    return cx_hash_update(hash_context, msg, msg_len);
+}
+
+cx_err_t cx_eddsa_final_hash(cx_hash_t *hash_context, uint8_t *hash, size_t hash_len)
+{
+    if (hash_len != cx_hash_get_size(hash_context)) {
+        return CX_INVALID_PARAMETER;
+    }
+    return cx_hash_final(hash_context, hash);
+}
+
+bool cx_eddsa_verify_hash(const cx_ecfp_public_key_t *public_key,
+                          uint8_t                    *hash,
+                          size_t                      hash_len,
+                          const uint8_t              *signature,
+                          size_t                      signature_len)
+{
+    size_t       domain_len;
+    uint8_t      scal[EDDSA_ED448_DOMAIN_LEN];
+    uint8_t      scal_left[EDDSA_ED448_DOMAIN_LEN];
+    int          diff;
+    bool         are_equal, verified;
+    uint32_t     sign;
+    cx_bn_t      bn_h, bn_rs, bn_n;
+    cx_bn_t      bn_p, bn_y;
+    cx_ecpoint_t P, R, right_point, left_point;
+    cx_err_t     error;
+
+    CX_CHECK(cx_ecdomain_parameters_length(public_key->curve, &domain_len));
+
+    if (signature_len != 2 * domain_len) {
+        return false;
+    }
+
+    cx_encode_int(hash, hash_len);
+
+    CX_CHECK(cx_bn_lock(domain_len, 0));
+    CX_CHECK(cx_bn_alloc(&bn_n, domain_len));
+    CX_CHECK(cx_ecdomain_parameter_bn(public_key->curve, CX_CURVE_PARAM_Order, bn_n));
+    CX_CHECK(cx_bn_alloc(&bn_rs, domain_len));
+    CX_CHECK(cx_bn_alloc_init(&bn_h, hash_len, hash, hash_len));
+    CX_CHECK(cx_bn_reduce(bn_rs, bn_h, bn_n));
+    CX_CHECK(cx_bn_export(bn_rs, scal, domain_len));
+    CX_CHECK(cx_ecpoint_alloc(&P, public_key->curve));
+    CX_CHECK(cx_ecpoint_init(
+        &P, &public_key->W[1], domain_len, &public_key->W[1 + domain_len], domain_len));
+    CX_CHECK(cx_ecpoint_neg(&P));
+
+    memmove(scal_left, signature + domain_len, domain_len);
+    cx_decode_int(scal_left, domain_len);
+
+    // The second half of the signature s must be in range 0 <= s < L to prevent
+    // signature malleability.
+    CX_CHECK(cx_bn_alloc_init(&bn_rs, domain_len, scal_left, domain_len));
+    CX_CHECK(cx_bn_cmp(bn_rs, bn_n, &diff));
+    if (diff >= 0) {
+        goto end;
+    }
+
+    CX_CHECK(cx_ecpoint_alloc(&left_point, public_key->curve));
+    CX_CHECK(cx_ecdomain_generator_bn(public_key->curve, &left_point));
+    CX_CHECK(cx_ecpoint_alloc(&right_point, public_key->curve));
+    CX_CHECK(cx_ecpoint_cmp(&left_point, &P, &are_equal));
+
+    if (are_equal) {
+        CX_CHECK(cx_ecpoint_scalarmul(&left_point, scal_left, domain_len));
+        CX_CHECK(cx_ecpoint_scalarmul(&P, scal, domain_len));
+        CX_CHECK(cx_ecpoint_add(&right_point, &left_point, &P));
+    }
+    else {
+        CX_CHECK(cx_ecpoint_double_scalarmul(
+            &right_point, &left_point, &P, scal_left, domain_len, scal, domain_len));
+    }
+
+    CX_CHECK(cx_ecpoint_alloc(&R, public_key->curve));
+    memmove(scal, signature, domain_len);
+    sign = cx_decode_coord(scal, domain_len);
+
+    CX_CHECK(cx_bn_alloc(&bn_p, domain_len));
+    CX_CHECK(cx_ecdomain_parameter_bn(public_key->curve, CX_CURVE_PARAM_Field, bn_p));
+
+    // If the y coordinate is >= p then the decoding fails
+    CX_CHECK(cx_bn_alloc(&bn_y, domain_len));
+    CX_CHECK(cx_bn_init(bn_y, scal, domain_len));
+
+    CX_CHECK(cx_bn_cmp(bn_y, bn_p, &diff));
+    if (diff >= 0) {
+        goto end;
+    }
+
+    CX_CHECK(cx_ecpoint_decompress(&R, scal, domain_len, sign));
+    CX_CHECK(cx_ecpoint_destroy(&left_point));
+    CX_CHECK(cx_ecpoint_destroy(&P));
+
+    // Check the signature
+    CX_CHECK(cx_ecpoint_cmp(&R, &right_point, &verified));
+
+end:
+    cx_bn_unlock();
+    return error == CX_OK && verified;
+}
+
 bool cx_eddsa_verify_no_throw(const cx_ecfp_public_key_t *pu_key,
                               cx_md_t                     hashID,
                               const uint8_t              *hash,
@@ -355,177 +601,21 @@ bool cx_eddsa_verify_no_throw(const cx_ecfp_public_key_t *pu_key,
                               const uint8_t              *sig,
                               size_t                      sig_len)
 {
-    size_t  size, hsize;
-    uint8_t left[115];
-    uint8_t scal[57];
-    // Second scalar for double scalar multiplication
-    uint8_t scal_left[57];
-    bool    verified, are_equal;
+    uint8_t    out_hash[EDDSA_ED448_DOMAIN_LEN * 2] = {0};
+    size_t     out_hash_len                         = 0;
+    cx_hash_t *hash_context                         = &G_cx.hash_ctx;
+    bool       verified                             = false;
+    cx_err_t   error                                = CX_INTERNAL_ERROR;
 
-    uint32_t     sign;
-    cx_bn_t      bn_h, bn_rs, bn_n;
-    cx_bn_t      bn_p, bn_y;
-    cx_ecpoint_t Q, R, Right, Left;
-    cx_err_t     error;
-    int          diff;
-
-    CX_CHECK(cx_ecdomain_parameters_length(pu_key->curve, &size));
-
-    if (!CX_CURVE_RANGE(pu_key->curve, TWISTED_EDWARDS)) {
-        error = CX_INVALID_PARAMETER;
-        goto end;
-    }
-    if (!((pu_key->W_len == 1 + size) || (pu_key->W_len == 1 + 2 * size))) {
-        error = CX_INVALID_PARAMETER;
-        goto end;
-    }
-    if (sig_len != 2 * size) {
-        error = CX_INVALID_PARAMETER;
-        goto end;
-    }
-
-    switch (hashID) {
-#if (defined(HAVE_SHA512) || defined(HAVE_SHA3))
-#if defined(HAVE_SHA512)
-        case CX_SHA512:
-#endif  // HAVE_SHA512
-
-#if defined(HAVE_SHA3)
-        case CX_KECCAK:
-        case CX_SHA3:
-#endif  // HAVE_SHA3
-            if (size * 2 != 512 / 8) {
-                error = CX_INVALID_PARAMETER;
-                goto end;
-            }
-            break;
-#endif  // (defined(HAVE_SHA512) || defined(HAVE_SHA3))
-
-#if (defined(HAVE_SHA3) || defined(HAVE_BLAKE2))
-#if defined(HAVE_SHA3)
-        case CX_SHAKE256:
-#endif  // HAVE_SHA3
-
-#if defined(HAVE_BLAKE2)
-        case CX_BLAKE2B:
-#endif  // HAVE_BLAKE2
-            break;
-#endif  // (defined(HAVE_SHA3) || defined(HAVE_BLAKE2))
-
-        default:
-            error = CX_INVALID_PARAMETER;
-            goto end;
-    }
-
-    verified = 0;
-
-    hsize = 2 * size;
-    memset(left, 0, sizeof(left));
-    memset(scal, 0, sizeof(scal));
-    // set scal_left
-    memset(scal_left, 0, sizeof(scal_left));
-
-    CX_CHECK(cx_bn_lock(size, 0));
-    CX_CHECK(cx_ecpoint_alloc(&Q, pu_key->curve));
-
-    // Compute H(R || A || M),
-    CX_CHECK(cx_hash_init_ex(&G_cx.hash_ctx, hashID, hsize));
-    // -prefix for Ed448
-    if (pu_key->curve == CX_CURVE_Ed448) {
-        CX_CHECK(cx_hash_update(&G_cx.hash_ctx, C_cx_siged448, sizeof(C_cx_siged448)));
-        scal[0] = 0;  // no ph
-        scal[1] = 0;  // no ctx
-        CX_CHECK(cx_hash_update(&G_cx.hash_ctx, scal, 2));
-    }
-    // -R
-    CX_CHECK(cx_hash_update(&G_cx.hash_ctx, sig, size));
-    // -A, compress public key
-    if (pu_key->W[0] == 0x04) {
-        CX_CHECK(cx_ecpoint_init(&Q, &pu_key->W[1], size, &pu_key->W[1 + size], size));
-        CX_CHECK(cx_ecpoint_compress(&Q, scal, size, &sign));
-        cx_encode_coord(scal, size, sign);
-    }
-    else {
-        memmove(scal, &pu_key->W[1], size);
-    }
-    CX_CHECK(cx_hash_update(&G_cx.hash_ctx, scal, size));
-    // -M
-    CX_CHECK(cx_hash_update(&G_cx.hash_ctx, hash, hash_len));
-    CX_CHECK(cx_hash_final(&G_cx.hash_ctx, left));
-    cx_hash_destroy(&G_cx.hash_ctx);
-    cx_encode_int(left, hsize);
-
-    CX_CHECK(cx_bn_alloc(&bn_n, size));
-    CX_CHECK(cx_ecdomain_parameter_bn(pu_key->curve, CX_CURVE_PARAM_Order, bn_n));
-    CX_CHECK(cx_bn_alloc(&bn_rs, size));
-
-    // Use double scalar multiplication and check that R = sB - H(...).A
-
-    // Init the first component of the double scalar: - H(...).A
-    CX_CHECK(cx_bn_alloc_init(&bn_h, hsize, left, hsize));
-    CX_CHECK(cx_bn_reduce(bn_rs, bn_h, bn_n));
-    CX_CHECK(cx_bn_export(bn_rs, scal, size));
-    CX_CHECK(cx_ecpoint_init(&Q, &pu_key->W[1], size, &pu_key->W[1 + size], size));
-    CX_CHECK(cx_ecpoint_neg(&Q));
-
-    // Init the second component of the double scalar:  s.B
-    // -> decode s
-    memmove(scal_left, sig + size, size);
-    cx_decode_int(scal_left, size);
-
-    // The second half of the signature s must be in range 0 <= s < L to prevent
-    // signature malleability.
-    CX_CHECK(cx_bn_alloc_init(&bn_rs, size, scal_left, size));
-    CX_CHECK(cx_bn_cmp(bn_rs, bn_n, &diff));
-    if (diff >= 0) {
-        goto end;
-    }
-
-    CX_CHECK(cx_ecpoint_alloc(&Left, pu_key->curve));
-    CX_CHECK(cx_ecdomain_generator_bn(pu_key->curve, &Left));
-
-    CX_CHECK(cx_ecpoint_alloc(&Right, pu_key->curve));
-
-    // P = Q
-    CX_CHECK(cx_ecpoint_cmp(&Left, &Q, &are_equal));
-    if (are_equal) {
-        CX_CHECK(cx_ecpoint_scalarmul(&Left, scal_left, size));
-        CX_CHECK(cx_ecpoint_scalarmul(&Q, scal, size));
-        CX_CHECK(cx_ecpoint_add(&Right, &Left, &Q));
-    }
-    else {
-        // double scalar multiplication sB - H(...)A iff P != +/-Q
-        CX_CHECK(cx_ecpoint_double_scalarmul(&Right, &Left, &Q, scal_left, size, scal, size));
-    }
-
-    // -> decompress R
-    CX_CHECK(cx_ecpoint_alloc(&R, pu_key->curve));
-    memmove(scal, sig, size);
-    sign = cx_decode_coord(scal, size);
-
-    // field characteristic
-    CX_CHECK(cx_bn_alloc(&bn_p, size));
-    CX_CHECK(cx_ecdomain_parameter_bn(pu_key->curve, CX_CURVE_PARAM_Field, bn_p));
-
-    // If the y coordinate is >= p then the decoding fails
-    CX_CHECK(cx_bn_alloc(&bn_y, size));
-    CX_CHECK(cx_bn_init(bn_y, scal, size));
-
-    CX_CHECK(cx_bn_cmp(bn_y, bn_p, &diff));
-    if (diff >= 0) {
-        goto end;
-    }
-
-    CX_CHECK(cx_ecpoint_decompress(&R, scal, size, sign));
-    CX_CHECK(cx_ecpoint_destroy(&Left));
-    CX_CHECK(cx_ecpoint_destroy(&Q));
-
-    // Check the signature
-    CX_CHECK(cx_ecpoint_cmp(&R, &Right, &verified));
+    CX_CHECK(cx_eddsa_verify_init_hash(hash_context, pu_key, hashID, sig, sig_len / 2));
+    out_hash_len = cx_hash_get_size(hash_context);
+    CX_CHECK(cx_eddsa_update_hash(hash_context, hash, hash_len));
+    CX_CHECK(cx_eddsa_final_hash(hash_context, out_hash, out_hash_len));
+    verified = cx_eddsa_verify_hash(pu_key, out_hash, out_hash_len, sig, sig_len);
 
 end:
-    cx_bn_unlock();
-    return error == CX_OK && verified;
+    explicit_bzero(&G_cx.hash_ctx, sizeof(G_cx.hash_ctx));
+    return verified;
 }
 
 #endif  // HAVE_EDDSA
