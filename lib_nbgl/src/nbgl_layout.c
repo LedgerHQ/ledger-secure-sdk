@@ -4,6 +4,8 @@
  * @note This file applies only to wallet size products (Stax, Flex...)
  */
 
+#include "app_config.h"
+
 #ifdef HAVE_SE_TOUCH
 /*********************
  *      INCLUDES

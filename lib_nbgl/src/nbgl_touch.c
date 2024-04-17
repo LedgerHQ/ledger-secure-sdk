@@ -3,6 +3,8 @@
  * Implementation of touchscreen management in new BAGL
  */
 
+#include "app_config.h"
+
 #ifdef HAVE_SE_TOUCH
 /*********************
  *      INCLUDES
