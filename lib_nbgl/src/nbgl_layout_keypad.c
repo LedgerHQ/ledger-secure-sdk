@@ -515,12 +515,12 @@ int nbgl_layoutUpdateKeypadContent(nbgl_layout_t *layout,
                 if (nbActiveDigits == container->nbChildren) {
                     return 0;
                 }
-                // deactivate the next digit
+                // deactivate the next digit by turning it to white
                 image                  = (nbgl_image_t *) container->children[nbActiveDigits];
                 image->foregroundColor = WHITE;
             }
             else {
-                image->buffer          = &DIGIT_ICON;
+                // activate it the last digit by turning it to black
                 image->foregroundColor = BLACK;
             }
         }

@@ -33,7 +33,9 @@ enum {
     PAGE_INDICATOR_INDEX = 0,
     LEFT_HALF_INDEX,   // half disc displayed on the bottom left
     RIGHT_HALF_INDEX,  // half disc displayed on the bottom right
-    FIRST_BUTTON_INDEX
+    FIRST_BUTTON_INDEX,
+    SECOND_BUTTON_INDEX,
+    NB_SUGGESTION_CHILDREN
 };
 #endif  // TARGET_STAX
 
@@ -322,8 +324,8 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
     suggestionsContainer->obj.area.height = SMALL_BUTTON_HEIGHT + 28;
     // on Flex, the first child is used by the progress indicator, if more that 2 buttons
     suggestionsContainer->nbChildren = nbActiveButtons + FIRST_BUTTON_INDEX;
-    suggestionsContainer->children   = (nbgl_obj_t **) nbgl_containerPoolGet(
-        NB_MAX_VISIBLE_SUGGESTION_BUTTONS + 1, layoutInt->layer);
+    suggestionsContainer->children
+        = (nbgl_obj_t **) nbgl_containerPoolGet(NB_SUGGESTION_CHILDREN, layoutInt->layer);
 
 #endif  // TARGET_STAX
     // put suggestionsContainer at 24px of the bottom of main container
@@ -331,7 +333,8 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
     suggestionsContainer->obj.alignment        = BOTTOM_MIDDLE;
 
     // create all possible suggestion buttons, even if not displayed at first
-    nbgl_objPoolGetArray(BUTTON, NB_MAX_SUGGESTION_BUTTONS, 0, (nbgl_obj_t **) &choiceButtons);
+    nbgl_objPoolGetArray(
+        BUTTON, NB_MAX_SUGGESTION_BUTTONS, layoutInt->layer, (nbgl_obj_t **) &choiceButtons);
     for (int i = 0; i < NB_MAX_SUGGESTION_BUTTONS; i++) {
         obj = layoutAddCallbackObj(
             layoutInt, (nbgl_obj_t *) choiceButtons[i], firstButtonToken + i, tuneId);
@@ -388,7 +391,7 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
     suggestionsContainer->children[PAGE_INDICATOR_INDEX] = (nbgl_obj_t *) indicator;
     // also allocate the semi disc that may be displayed on the left or right of the full
     // buttons
-    nbgl_objPoolGetArray(IMAGE, 2, 0, (nbgl_obj_t **) &partialButtonImages);
+    nbgl_objPoolGetArray(IMAGE, 2, layoutInt->layer, (nbgl_obj_t **) &partialButtonImages);
     partialButtonImages[0]->buffer          = &C_left_half_64px;
     partialButtonImages[0]->obj.alignment   = TOP_LEFT;
     partialButtonImages[0]->foregroundColor = BLACK;
