@@ -161,6 +161,7 @@ class TTF2INC:
             self.last_character = int(config.get('lastChar', '0x7E'), 16)
             self.font_size = config.getint('fontSize')
             self.line_size = config.getint('lineSize')
+            self.bottom_offset = config.getint('bottom_offset',0)
             self.crop = config.getboolean('crop', False)
             self.kerning = config.getint('kerning',0)
             self.rle = config.getboolean('rle', True)
@@ -240,26 +241,22 @@ class TTF2INC:
     # -------------------------------------------------------------------------
     def align_top(self, top):
         """
-        Handle Stax constraint on Y (should be modulo 4), top side.
+        Handle Stax/Flex constraint on Y (should be modulo 4), top side.
         (decrease Y until it is modulo 4)
         """
         if self.nbgl:
-            remaining = top % 4
-            if remaining:
-                top -= remaining
+            top = top & 0xFC
 
         return top
 
     # -------------------------------------------------------------------------
     def align_bottom(self, bottom):
         """
-        Handle Stax constraint on Y (should be modulo 4), bottom side.
+        Handle Stax/Flex constraint on Y (should be modulo 4), bottom side.
         (increase Y until it is modulo 4)
         """
         if self.nbgl:
-            remaining = bottom % 4
-            if remaining:
-                bottom += 4 - remaining
+            bottom = (bottom+3) & 0xFC
 
         return bottom
 
@@ -314,10 +311,7 @@ class TTF2INC:
 
         # Compute value of max_x_max_offset, depending of allowed bits
         if self.nbgl:
-            if self.unicode_needed:
-                max_bits = 5
-            else:
-                max_bits = 4
+            max_bits = 4
         else:
             if self.unicode_needed:
                 max_bits = 5
@@ -413,7 +407,7 @@ class TTF2INC:
             # (no pixel should be displayed outside of [width, height])
             offset_x = 0 - info['left_offset']
             offset_y = self.baseline_offset
-            offset_y += self.font_height - self.font.font.height
+            offset_y += self.font_height - self.font.font.height - self.bottom_offset
 
             # Draw the character
             draw.text((offset_x, offset_y), char, font=self.font,
@@ -596,7 +590,7 @@ class TTF2INC:
         if right <= left or bottom <= top:
             return None
 
-        # Handle Stax constraint on Y (should be modulo 4)
+        # Handle Stax/Flex constraint on Y (should be modulo 4)
         top = self.align_top(top)
         bottom = self.align_bottom(bottom)
 
@@ -919,11 +913,11 @@ class TTF2INC:
         self.check_max_bits(bitmap_byte_count, 16, char, "bitmap_byte_count")
         self.check_max_bits(bitmap_offset, 16, char, "bitmap_offset")
         self.check_max_bits(width, 8, char, "width")
-        self.check_max_bits(x_min_offset, 8, char, "x_min_offset")
-        self.check_max_bits(y_min_offset, 8, char, "y_min_offset")
+        self.check_max_bits(x_min_offset, 4, char, "x_min_offset")
+        self.check_max_bits(y_min_offset, 6, char, "y_min_offset")
         # Next one should never occur, thanks to max_x_max_offset check
-        self.check_max_bits(x_max_offset, 8, char, "x_max_offset")
-        self.check_max_bits(y_max_offset, 8, char, "y_max_offset")
+        self.check_max_bits(x_max_offset, 4, char, "x_max_offset")
+        self.check_max_bits(y_max_offset, 6, char, "y_max_offset")
         self.check_max_bits(encoding, 1, char, "encoding")
 
         unicode = f"0x{ord(char):06X}"
