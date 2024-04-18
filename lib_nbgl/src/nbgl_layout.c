@@ -206,6 +206,7 @@ static void touchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
         if ((layout->swipeUsage == SWIPE_USAGE_SUGGESTIONS)
             && keyboardSwipeCallback(obj, eventType)) {
             // if this swipe event is consumed, return here
+            io_seproxyhal_play_tune(TUNE_TAP_CASUAL);
             return;
         }
 #endif  // TARGET_STAX
