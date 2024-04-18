@@ -142,11 +142,6 @@ static bool updateSuggestionButtons(nbgl_container_t *container,
  *   GLOBAL INTERNAL FUNCTIONS
  **********************/
 
-void keyboardInit(void)
-{
-    nbActiveButtons = 0;
-}
-
 #ifdef TARGET_FLEX
 bool keyboardSwipeCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
 {
@@ -172,6 +167,7 @@ bool keyboardSwipeCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
 
         if (i < (uint32_t) nbActiveButtons) {
             if (updateSuggestionButtons(suggestionsContainer, eventType, i)) {
+                io_seproxyhal_play_tune(TUNE_TAP_CASUAL);
                 nbgl_redrawObject((nbgl_obj_t *) suggestionsContainer, NULL, false);
                 nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
             }
