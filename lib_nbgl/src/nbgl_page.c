@@ -90,29 +90,18 @@ static void addContent(nbgl_pageContent_t *content, nbgl_layout_t *layout)
             nbgl_layoutAddTagValueList(layout, &content->tagValueList);
             break;
         case TAG_VALUE_DETAILS: {
-            uint16_t nbLines = nbgl_getTextNbLinesInWidth(
-                content->tagValueDetails.tagValueList.smallCaseForValue ? SMALL_BOLD_FONT
-                                                                        : LARGE_MEDIUM_FONT,
-                content->tagValueDetails.tagValueList.pairs[0].value,
-                SCREEN_WIDTH - 2 * BORDER_MARGIN,
-                content->tagValueDetails.tagValueList.wrapping);
-            // automatically display a button if content is longer that nbMaxLinesForValue
-            if (nbLines > (content->tagValueDetails.tagValueList.nbMaxLinesForValue)) {
-                nbgl_layoutButton_t buttonInfo;
-                content->tagValueDetails.tagValueList.nbMaxLinesForValue -= 3;
-                nbgl_layoutAddTagValueList(layout, &content->tagValueDetails.tagValueList);
-                buttonInfo.fittingContent = true;
-                buttonInfo.icon           = content->tagValueDetails.detailsButtonIcon;
-                buttonInfo.style          = WHITE_BACKGROUND;
-                buttonInfo.text           = content->tagValueDetails.detailsButtonText;
-                buttonInfo.token          = content->tagValueDetails.detailsButtonToken;
-                buttonInfo.tuneId         = content->tagValueDetails.tuneId;
-                buttonInfo.onBottom       = false;
-                nbgl_layoutAddButton(layout, &buttonInfo);
-            }
-            else {
-                nbgl_layoutAddTagValueList(layout, &content->tagValueDetails.tagValueList);
-            }
+            // display a button under tag/value
+            nbgl_layoutButton_t buttonInfo;
+            content->tagValueDetails.tagValueList.nbMaxLinesForValue -= 3;
+            nbgl_layoutAddTagValueList(layout, &content->tagValueDetails.tagValueList);
+            buttonInfo.fittingContent = true;
+            buttonInfo.icon           = content->tagValueDetails.detailsButtonIcon;
+            buttonInfo.style          = WHITE_BACKGROUND;
+            buttonInfo.text           = content->tagValueDetails.detailsButtonText;
+            buttonInfo.token          = content->tagValueDetails.detailsButtonToken;
+            buttonInfo.tuneId         = content->tagValueDetails.tuneId;
+            buttonInfo.onBottom       = false;
+            nbgl_layoutAddButton(layout, &buttonInfo);
             break;
         }
         case TAG_VALUE_CONFIRM: {
