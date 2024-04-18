@@ -368,6 +368,16 @@ static void prepareReviewLastPage(nbgl_contentInfoLongPress_t *infoLongPress,
     infoLongPress->longPressToken = CONFIRM_TOKEN;
 }
 
+static void prepareReviewLightLastPage(nbgl_contentInfoButton_t  *infoButton,
+                                       const nbgl_icon_details_t *icon,
+                                       const char                *finishTitle)
+{
+    infoButton->text        = finishTitle;
+    infoButton->icon        = icon;
+    infoButton->buttonText  = "Approve";
+    infoButton->buttonToken = CONFIRM_TOKEN;
+}
+
 static const char *getRejectReviewText(nbgl_operationType_t operationType)
 {
 #ifdef TARGET_STAX
@@ -2389,6 +2399,63 @@ void nbgl_useCaseReview(nbgl_operationType_t             operationType,
     // Eventually the long press page
     localContentsList[2].type = INFO_LONG_PRESS;
     prepareReviewLastPage(&localContentsList[2].content.infoLongPress, icon, finishTitle);
+
+    // compute number of pages & fill navigation structure
+    uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
+    prepareNavInfo(true, nbPages, getRejectReviewText(operationType));
+
+    displayGenericContextPage(0, true);
+}
+
+/**
+ * @brief Draws a flow of pages of a light review. A back key is available on top-left of the
+ * screen, except in first page It is possible to go to next page thanks to "tap to continue".
+ * @note  All tag/value pairs are provided in the API and the number of pages is automatically
+ * computed, the last page being a short press one
+ *
+ * @param operationType type of operation (Operation, Transaction, Message)
+ * @param tagValueList list of tag/value pairs
+ * @param icon icon used on first and last review page
+ * @param reviewTitle string used in the first review page
+ * @param reviewSubTitle string to set under reviewTitle (can be NULL)
+ * @param finishTitle string used in the last review page
+ * @param choiceCallback callback called when operation is accepted (param is true) or rejected
+ * (param is false)
+ */
+void nbgl_useCaseReviewLight(nbgl_operationType_t             operationType,
+                             const nbgl_layoutTagValueList_t *tagValueList,
+                             const nbgl_icon_details_t       *icon,
+                             const char                      *reviewTitle,
+                             const char                      *reviewSubTitle,
+                             const char                      *finishTitle,
+                             nbgl_choiceCallback_t            choiceCallback)
+{
+    reset_callbacks();
+    memset(&genericContext, 0, sizeof(genericContext));
+
+    // memorize context
+    onChoice  = choiceCallback;
+    navType   = GENERIC_NAV;
+    pageTitle = NULL;
+
+    genericContext.genericContents.contentsList = localContentsList;
+    genericContext.genericContents.nbContents   = 3;
+    memset(localContentsList, 0, 3 * sizeof(nbgl_content_t));
+
+    // First a centered info
+    localContentsList[0].type = CENTERED_INFO;
+    prepareReviewFirstPage(
+        &localContentsList[0].content.centeredInfo, icon, reviewTitle, reviewSubTitle);
+
+    // Then the tag/value pairs
+    localContentsList[1].type = TAG_VALUE_LIST;
+    memcpy(&localContentsList[1].content.tagValueList,
+           tagValueList,
+           sizeof(nbgl_layoutTagValueList_t));
+
+    // Eventually the long press page
+    localContentsList[2].type = INFO_BUTTON;
+    prepareReviewLightLastPage(&localContentsList[2].content.infoButton, icon, finishTitle);
 
     // compute number of pages & fill navigation structure
     uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);

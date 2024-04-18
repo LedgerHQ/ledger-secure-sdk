@@ -196,6 +196,14 @@ void nbgl_useCaseReview(nbgl_operationType_t             operationType,
                         const char                      *finishTitle,
                         nbgl_choiceCallback_t            choiceCallback);
 
+void nbgl_useCaseReviewLight(nbgl_operationType_t             operationType,
+                             const nbgl_layoutTagValueList_t *tagValueList,
+                             const nbgl_icon_details_t       *icon,
+                             const char                      *reviewTitle,
+                             const char                      *reviewSubTitle,
+                             const char                      *finishTitle,
+                             nbgl_choiceCallback_t            choiceCallback);
+
 void nbgl_useCaseAddressReview(const char                      *address,
                                const nbgl_layoutTagValueList_t *additionalTagValueList,
                                const nbgl_icon_details_t       *icon,
