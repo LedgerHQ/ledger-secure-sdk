@@ -24,6 +24,7 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
+#include "app_config.h"
 #include "qrcodegen.h"
 #include "os_task.h"
 

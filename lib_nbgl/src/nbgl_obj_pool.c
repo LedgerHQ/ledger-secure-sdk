@@ -9,6 +9,7 @@
 /*********************
  *      INCLUDES
  *********************/
+#include "app_config.h"
 #include "nbgl_obj.h"
 #include "nbgl_debug.h"
 #include <string.h>

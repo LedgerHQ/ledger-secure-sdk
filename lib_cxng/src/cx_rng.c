@@ -16,6 +16,8 @@
  *  limitations under the License.
  ********************************************************************************/
 
+#include "app_config.h"
+
 #ifdef HAVE_RNG
 
 #include "cx_ram.h"
