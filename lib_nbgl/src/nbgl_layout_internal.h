@@ -86,7 +86,6 @@ typedef struct nbgl_layoutInternal_s {
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
-void         keyboardInit(void);
 bool         keyboardSwipeCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType);
 void         layoutAddObject(nbgl_layoutInternal_t *layout, nbgl_obj_t *obj);
 layoutObj_t *layoutAddCallbackObj(nbgl_layoutInternal_t *layout,

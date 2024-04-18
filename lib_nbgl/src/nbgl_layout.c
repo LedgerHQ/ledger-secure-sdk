@@ -203,9 +203,8 @@ static void touchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
          || (eventType == SWIPED_RIGHT))
         && (obj->type == CONTAINER)) {
 #if (!defined(TARGET_STAX) && defined(NBGL_KEYBOARD))
-        if ((layout->swipeUsage == SWIPE_USAGE_SUGGESTIONS)
-            && keyboardSwipeCallback(obj, eventType)) {
-            // if this swipe event is consumed, return here
+        if (layout->swipeUsage == SWIPE_USAGE_SUGGESTIONS) {
+            keyboardSwipeCallback(obj, eventType);
             return;
         }
 #endif  // TARGET_STAX
@@ -728,9 +727,6 @@ nbgl_layout_t *nbgl_layoutGet(const nbgl_layoutDescription_t *description)
     memset(layout, 0, sizeof(nbgl_layoutInternal_t));
 
     nbTouchableControls = 0;
-#ifdef NBGL_KEYBOARD
-    keyboardInit();
-#endif  // NBGL_KEYBOARD
 
     layout->callback       = (nbgl_layoutTouchCallback_t) PIC(description->onActionCallback);
     layout->modal          = description->modal;
