@@ -407,6 +407,19 @@ end:
     return error;
 }
 
+cx_err_t cx_eddsa_update_hash(cx_hash_t *hash_context, const uint8_t *msg, size_t msg_len)
+{
+    return cx_hash_update(hash_context, msg, msg_len);
+}
+
+cx_err_t cx_eddsa_final_hash(cx_hash_t *hash_context, uint8_t *hash, size_t hash_len)
+{
+    if (hash_len != cx_hash_get_size(hash_context)) {
+        return CX_INVALID_PARAMETER;
+    }
+    return cx_hash_final(hash_context, hash);
+}
+
 cx_err_t cx_eddsa_sign_no_throw(const cx_ecfp_private_key_t *pv_key,
                                 cx_md_t                      hashID,
                                 const uint8_t               *hash,
@@ -431,6 +444,7 @@ cx_err_t cx_eddsa_sign_no_throw(const cx_ecfp_private_key_t *pv_key,
     CX_CHECK(cx_eddsa_sign_hash(pv_key, hashID, out_hash, out_hash_len, sig, sig_len));
 
 end:
+    explicit_bzero(hash_context, sizeof(cx_hash_t));
     return error;
 }
 
@@ -490,19 +504,6 @@ end:
     return error;
 }
 
-cx_err_t cx_eddsa_update_hash(cx_hash_t *hash_context, const uint8_t *msg, size_t msg_len)
-{
-    return cx_hash_update(hash_context, msg, msg_len);
-}
-
-cx_err_t cx_eddsa_final_hash(cx_hash_t *hash_context, uint8_t *hash, size_t hash_len)
-{
-    if (hash_len != cx_hash_get_size(hash_context)) {
-        return CX_INVALID_PARAMETER;
-    }
-    return cx_hash_final(hash_context, hash);
-}
-
 bool cx_eddsa_verify_hash(const cx_ecfp_public_key_t *public_key,
                           uint8_t                    *hash,
                           size_t                      hash_len,
@@ -513,7 +514,8 @@ bool cx_eddsa_verify_hash(const cx_ecfp_public_key_t *public_key,
     uint8_t      scal[EDDSA_ED448_DOMAIN_LEN];
     uint8_t      scal_left[EDDSA_ED448_DOMAIN_LEN];
     int          diff;
-    bool         are_equal, verified;
+    bool         are_equal = false;
+    bool         verified  = false;
     uint32_t     sign;
     cx_bn_t      bn_h, bn_rs, bn_n;
     cx_bn_t      bn_p, bn_y;
