@@ -455,7 +455,8 @@ def test_json_deserialize_image():
                 'width':36,
                 'bpp':2,
                 'isFile':1,
-                'foreground_color': 'WHITE'
+                'foreground_color': 'WHITE',
+                'id':0
             }
         },
         'id':1
@@ -475,7 +476,8 @@ def test_json_deserialize_image():
                 width=36,
                 bpp=2,
                 isFile=1,
-                foreground_color=NbglColor.WHITE
+                foreground_color=NbglColor.WHITE,
+                id=0
             ),
             id=1
         )

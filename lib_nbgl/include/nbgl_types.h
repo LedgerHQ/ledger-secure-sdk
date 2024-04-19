@@ -357,10 +357,13 @@ typedef uint8_t nbgl_color_map_t;
  *
  */
 typedef struct PACKED__ nbgl_icon_details_s {
-    uint16_t       width;   ///< width of the icon, in pixels
-    uint16_t       height;  ///< height of the icon, in pixels
-    nbgl_bpp_t     bpp;     ///< bits per pixel for this area
-    bool           isFile;  ///< if true, the bitmap buffer contains an image file
+    uint16_t   width;   ///< width of the icon, in pixels
+    uint16_t   height;  ///< height of the icon, in pixels
+    nbgl_bpp_t bpp;     ///< bits per pixel for this area
+    bool       isFile;  ///< if true, the bitmap buffer contains an image file
+#ifdef USE_IMAGE_ID
+    uint16_t id;            ///< unique id of the icon
+#endif                      // USE_IMAGE_ID
     const uint8_t *bitmap;  ///< buffer containing pixel values
 } nbgl_icon_details_t;
 

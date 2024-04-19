@@ -6,25 +6,31 @@ import pytest
 def data_test():
     with open("data_test.txt", "r") as data_test_file:
         data_test = data_test_file.readlines()
+        serialize_param = NbglSerializeParam()
         # first line is giving the HW: stax or nano
         if data_test[0] == 'stax\n':
-            is_stax = True
+            serialize_param.is_stax = True
         else:
-            is_stax = False
-        data_test = list(map(lambda s: s.rstrip().split(','), data_test[1:]))
+            serialize_param.is_stax = False
+        # first line is giving the image id config
+        if data_test[1] == 'use_image_id\n':
+            serialize_param.use_image_id = True
+        else:
+            serialize_param.use_image_id = False
+        data_test = list(map(lambda s: s.rstrip().split(','), data_test[2:]))
         data_test = {el[0]: el[1] for el in data_test}
-    return (is_stax,data_test)
+    return (serialize_param,data_test)
 
 
-def run_deserialize_nbgl(is_stax: bool, hex_str: str):
+def run_deserialize_nbgl(serialize_param: NbglSerializeParam, hex_str: str):
     bytes_in = bytes.fromhex(hex_str)
-    return deserialize_nbgl_bytes(is_stax, bytes_in)
+    return deserialize_nbgl_bytes(serialize_param, bytes_in)
 
 
 def test_draw_nbgl_screen(data_test):
-    is_stax = data_test[0]
+    serialize_param = data_test[0]
     serialized = data_test[1]["test_draw_nbgl_screen"]
-    deserialized = run_deserialize_nbgl(is_stax, serialized)
+    deserialized = run_deserialize_nbgl(serialize_param, serialized)
     expected = \
         NbglDrawObjectEvent(
             obj=NbglScreen(
@@ -44,9 +50,9 @@ def test_draw_nbgl_screen(data_test):
 
 
 def test_draw_nbgl_container(data_test):
-    is_stax = data_test[0]
+    serialize_param = data_test[0]
     serialized = data_test[1]["test_draw_nbgl_container"]
-    deserialized = run_deserialize_nbgl(is_stax, serialized)
+    deserialized = run_deserialize_nbgl(serialize_param, serialized)
     expected = \
         NbglDrawObjectEvent(
             obj=NbglContainer(
@@ -69,9 +75,9 @@ def test_draw_nbgl_container(data_test):
 
 
 def test_draw_nbgl_text_area(data_test):
-    is_stax = data_test[0]
+    serialize_param = data_test[0]
     serialized = data_test[1]["test_draw_nbgl_text_area"]
-    deserialized = run_deserialize_nbgl(is_stax, serialized)
+    deserialized = run_deserialize_nbgl(serialize_param, serialized)
     excepted = \
         NbglDrawObjectEvent(
             obj=NbglTextArea(
@@ -99,10 +105,10 @@ def test_draw_nbgl_text_area(data_test):
 
 
 def test_draw_nbgl_line(data_test):
-    is_stax = data_test[0]
-    if is_stax:
+    serialize_param = data_test[0]
+    if serialize_param.is_stax:
         serialized = data_test[1]["test_draw_nbgl_line"]
-        deserialized = run_deserialize_nbgl(is_stax, serialized)
+        deserialized = run_deserialize_nbgl(serialize_param, serialized)
         expected = \
             NbglDrawObjectEvent(
                 obj=NbglLine(
@@ -126,10 +132,10 @@ def test_draw_nbgl_line(data_test):
 
 
 def test_draw_nbgl_qr_code(data_test):
-    is_stax = data_test[0]
-    if is_stax:
+    serialize_param = data_test[0]
+    if serialize_param.is_stax:
         serialized = data_test[1]["test_draw_nbgl_qr_code"]
-        deserialized = run_deserialize_nbgl(is_stax, serialized)
+        deserialized = run_deserialize_nbgl(serialize_param, serialized)
         expected = \
             NbglDrawObjectEvent(
                 obj=NbglQrCode(
@@ -152,10 +158,10 @@ def test_draw_nbgl_qr_code(data_test):
 
 
 def test_draw_nbgl_radio(data_test):
-    is_stax = data_test[0]
-    if is_stax:
+    serialize_param = data_test[0]
+    if serialize_param.is_stax:
         serialized = data_test[1]["test_draw_nbgl_radio"]
-        deserialized = run_deserialize_nbgl(is_stax, serialized)
+        deserialized = run_deserialize_nbgl(serialize_param, serialized)
         expected = \
             NbglDrawObjectEvent(
                 obj=NbglRadioButton(
@@ -178,10 +184,10 @@ def test_draw_nbgl_radio(data_test):
 
 
 def test_draw_nbgl_switch(data_test):
-    is_stax = data_test[0]
-    if is_stax:
+    serialize_param = data_test[0]
+    if serialize_param.is_stax:
         serialized = data_test[1]["test_draw_nbgl_switch"]
-        deserialized = run_deserialize_nbgl(is_stax, serialized)
+        deserialized = run_deserialize_nbgl(serialize_param, serialized)
         expected = \
             NbglDrawObjectEvent(
                 obj=NbglSwitch(
@@ -204,9 +210,9 @@ def test_draw_nbgl_switch(data_test):
 
 
 def test_draw_nbgl_progress_bar(data_test):
-    is_stax = data_test[0]
+    serialize_param = data_test[0]
     serialized = data_test[1]["test_draw_nbgl_progress_bar"]
-    deserialized = run_deserialize_nbgl(is_stax, serialized)
+    deserialized = run_deserialize_nbgl(serialize_param, serialized)
     expected = \
         NbglDrawObjectEvent(
             obj=NbglProgressBar(
@@ -227,10 +233,10 @@ def test_draw_nbgl_progress_bar(data_test):
 
 
 def test_draw_nbgl_page_indicator(data_test):
-    is_stax = data_test[0]
-    if is_stax:
+    serialize_param = data_test[0]
+    if serialize_param.is_stax:
         serialized = data_test[1]["test_draw_nbgl_page_indicator"]
-        deserialized = run_deserialize_nbgl(is_stax, serialized)
+        deserialized = run_deserialize_nbgl(serialize_param, serialized)
         expected = \
             NbglDrawObjectEvent(
                 obj=NbglPageIndicator(
@@ -252,10 +258,10 @@ def test_draw_nbgl_page_indicator(data_test):
 
 
 def test_draw_nbgl_button(data_test):
-    is_stax = data_test[0]
-    if is_stax:
+    serialize_param = data_test[0]
+    if serialize_param.is_stax:
         serialized = data_test[1]["test_draw_nbgl_button"]
-        deserialized = run_deserialize_nbgl(is_stax, serialized)
+        deserialized = run_deserialize_nbgl(serialize_param, serialized)
         expected = \
             NbglDrawObjectEvent(
                 obj=NbglButton(
@@ -282,9 +288,9 @@ def test_draw_nbgl_button(data_test):
 
 
 def test_draw_nbgl_image(data_test):
-    is_stax = data_test[0]
+    serialize_param = data_test[0]
     serialized = data_test[1]["test_draw_nbgl_image"]
-    deserialized = run_deserialize_nbgl(is_stax, serialized)
+    deserialized = run_deserialize_nbgl(serialize_param, serialized)
     expected = \
         NbglDrawObjectEvent(
             obj=NbglImage(
@@ -300,7 +306,8 @@ def test_draw_nbgl_image(data_test):
                 width=32,
                 bpp=0,
                 isFile=1,
-                foreground_color=NbglColor.DARK_GRAY
+                foreground_color=NbglColor.DARK_GRAY,
+                id=0
             ),
             id=1
         )
@@ -308,9 +315,9 @@ def test_draw_nbgl_image(data_test):
 
 
 def test_draw_nbgl_keyboard(data_test):
-    is_stax = data_test[0]
+    serialize_param = data_test[0]
     serialized = data_test[1]["test_draw_nbgl_keyboard"]
-    deserialized = run_deserialize_nbgl(is_stax, serialized)
+    deserialized = run_deserialize_nbgl(serialize_param, serialized)
     expected = \
         NbglDrawObjectEvent(
             obj=NbglKeyboard(
@@ -336,9 +343,9 @@ def test_draw_nbgl_keyboard(data_test):
 
 
 def test_draw_nbgl_keypad(data_test):
-    is_stax = data_test[0]
+    serialize_param = data_test[0]
     serialized = data_test[1]["test_draw_nbgl_keypad"]
-    deserialized = run_deserialize_nbgl(is_stax, serialized)
+    deserialized = run_deserialize_nbgl(serialize_param, serialized)
     expected = \
         NbglDrawObjectEvent(
             obj=NbglKeypad(
@@ -364,10 +371,10 @@ def test_draw_nbgl_keypad(data_test):
 
 
 def test_draw_nbgl_spinner(data_test):
-    is_stax = data_test[0]
-    if is_stax:
+    serialize_param = data_test[0]
+    if serialize_param.is_stax:
         serialized = data_test[1]["test_draw_nbgl_spinner"]
-        deserialized = run_deserialize_nbgl(is_stax, serialized)
+        deserialized = run_deserialize_nbgl(serialize_param, serialized)
         expected = \
             NbglDrawObjectEvent(
                 obj=NbglSpinner(
@@ -388,9 +395,9 @@ def test_draw_nbgl_spinner(data_test):
 
 
 def test_draw_nbgl_image_file(data_test):
-    is_stax = data_test[0]
+    serialize_param = data_test[0]
     serialized = data_test[1]["test_draw_nbgl_image_file"]
-    deserialized = run_deserialize_nbgl(is_stax, serialized)
+    deserialized = run_deserialize_nbgl(serialize_param, serialized)
     expected = \
         NbglDrawObjectEvent(
             obj=NbglImageFile(
@@ -409,9 +416,9 @@ def test_draw_nbgl_image_file(data_test):
 
 
 def test_refresh_area(data_test):
-    is_stax = data_test[0]
+    serialize_param = data_test[0]
     serialized = data_test[1]["test_refresh_area"]
-    deserialized = run_deserialize_nbgl(is_stax, serialized)
+    deserialized = run_deserialize_nbgl(serialize_param, serialized)
     expected = \
         NbglRefreshAreaEvent(
             area=NbglArea(

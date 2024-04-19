@@ -263,11 +263,7 @@ def print_glyphfile_top(add_include: bool, apps: bool):
             print("#include \"glyphs.h\"")
     print(
         """\
-#ifdef HAVE_NBGL
 #include \"nbgl_types.h\"
-#else
-#include <stdint.h>
-#endif
 """)
 
 
@@ -277,29 +273,29 @@ def print_glyphcfile_data(image_name, bpp, image_data):
         print("  " + ", ".join("0x{0:02x}".format(c)
                                for c in image_data[i:i+16]) + ",")
     print("};")
-    print("""#ifdef HAVE_NBGL
+    print("""#ifdef USE_IMAGE_ID
+const nbgl_icon_details_t C_{0} = {{ GLYPH_{0}_WIDTH, GLYPH_{0}_HEIGHT, NBGL_BPP_{1}, GLYPH_{0}_ISFILE, GLYPH_{0}_ID, C_{0}_bitmap }};
+#else // USE_IMAGE_ID
 const nbgl_icon_details_t C_{0} = {{ GLYPH_{0}_WIDTH, GLYPH_{0}_HEIGHT, NBGL_BPP_{1}, GLYPH_{0}_ISFILE, C_{0}_bitmap }};
-#endif // HAVE_NBGL
+#endif // USE_IMAGE_ID
 """.format(image_name, bpp))
 
 
-def print_glyphcheader_data(image_name, bpp, width, height, is_file, image_data):
+def print_glyphcheader_data(image_name, bpp, width, height, is_file, image_data, id_counter):
     if is_file:
         is_file = 'true'
     else:
         is_file = 'false'
 
-    print("""#ifndef GLYPH_{0}_BPP
+    print("""
     #define GLYPH_{0}_WIDTH {1}
     #define GLYPH_{0}_HEIGHT {2}
     #define GLYPH_{0}_ISFILE {3}
-    #define GLYPH_{0}_BPP {4}""".format(image_name, width, height, is_file, bpp))
+    #define GLYPH_{0}_BPP {4}
+    #define GLYPH_{0}_ID {5}""".format(image_name, width, height, is_file, bpp, id_counter))
     print("  extern uint8_t const C_{0}_bitmap[{1:d}];".format(
         image_name, len(image_data)))
-    print("""  #ifdef HAVE_NBGL
-    extern const nbgl_icon_details_t C_{0};
-  #endif // HAVE_NBGL
-#endif // GLYPH_{0}_BPP
+    print("""  extern const nbgl_icon_details_t C_{0};
 """.format(image_name))
 
 
@@ -323,6 +319,11 @@ def main():
         print_glyphfile_top(args.glyphcfile, args.apps)
 
     processed_image_names = []
+    # for unique icon id
+    if args.apps:
+        id_counter = 0x8000
+    else:
+        id_counter = 0
     for file in args.image_file:
         try:
             # Get image name
@@ -362,7 +363,8 @@ def main():
 
                 if args.glyphcheader:
                     print_glyphcheader_data(
-                        image_name, bpp, width, height, is_file, image_data)
+                        image_name, bpp, width, height, is_file, image_data, id_counter)
+            id_counter += 1
 
         except Exception as e:
             sys.stderr.write(

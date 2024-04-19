@@ -108,6 +108,9 @@ class NbglStyle(IntEnum):
     NO_STYLE = 0,
     INVERTED_COLORS = 1
 
+class NbglSerializeParam():
+    is_stax: bool
+    use_image_id: bool
 
 def parse_str(data: bytes) -> str:
     """
@@ -157,7 +160,7 @@ class NbglGenericJsonSerializable(ABC):
         return cls(**fields)
 
     @abstractclassmethod
-    def from_bytes(cls, is_stax : bool, data: bytes):
+    def from_bytes(cls, serialize_param: NbglSerializeParam, data: bytes):
         """
         Get an instance of the class, from raw bytes.
         """
@@ -180,7 +183,7 @@ class NbglArea(NbglObj):
     bpp: NbglBpp
 
     @classmethod
-    def from_bytes(cls, is_stax : bool, data: bytes):
+    def from_bytes(cls, serialize_param: NbglSerializeParam, data: bytes):
         x0, y0, width, height, color_n, bpp_n = struct.unpack('>HHHHBB', data[:10])
         color = NbglColor(color_n)
         bpp = NbglBpp(bpp_n)
@@ -196,8 +199,8 @@ class NbglScreen(NbglObj):
     area: NbglArea
 
     @classmethod
-    def from_bytes(cls, is_stax : bool, data: bytes):
-        area = NbglArea.from_bytes(is_stax, data[0:NbglArea.size()])
+    def from_bytes(cls, serialize_param: NbglSerializeParam, data: bytes):
+        area = NbglArea.from_bytes(serialize_param, data[0:NbglArea.size()])
         return cls(
             area=area
         )
@@ -211,8 +214,8 @@ class NbglContainer(NbglObj):
     force_clean: bool
 
     @classmethod
-    def from_bytes(cls, is_stax : bool, data: bytes):
-        area = NbglArea.from_bytes(is_stax, data[0:NbglArea.size()])
+    def from_bytes(cls, serialize_param: NbglSerializeParam, data: bytes):
+        area = NbglArea.from_bytes(serialize_param, data[0:NbglArea.size()])
         layout, nb_children, force_clean = struct.unpack(
             '>BB?', data[NbglArea.size():])
         return cls(
@@ -232,8 +235,8 @@ class NbglLine(NbglObj):
     offset: int
 
     @classmethod
-    def from_bytes(cls, is_stax : bool, data: bytes):
-        area = NbglArea.from_bytes(is_stax, data[0:NbglArea.size()])
+    def from_bytes(cls, serialize_param: NbglSerializeParam, data: bytes):
+        area = NbglArea.from_bytes(serialize_param, data[0:NbglArea.size()])
         direction, line_color, thickness, offset = struct.unpack(
             '>BBBB', data[NbglArea.size():])
         return cls(
@@ -252,8 +255,8 @@ class NbglRadioButton(NbglObj):
     state: NbglState
 
     @classmethod
-    def from_bytes(cls, is_stax : bool, data):
-        area = NbglArea.from_bytes(is_stax, data[0:NbglArea.size()])
+    def from_bytes(cls, serialize_param: NbglSerializeParam, data):
+        area = NbglArea.from_bytes(serialize_param, data[0:NbglArea.size()])
         active_color, border_color, state = struct.unpack(
             '>BBB', data[NbglArea.size():])
         return cls(
@@ -272,8 +275,8 @@ class NbglSwitch(NbglObj):
     state: NbglState
 
     @classmethod
-    def from_bytes(cls, is_stax : bool, data):
-        area = NbglArea.from_bytes(is_stax, data[0:NbglArea.size()])
+    def from_bytes(cls, serialize_param: NbglSerializeParam, data):
+        area = NbglArea.from_bytes(serialize_param, data[0:NbglArea.size()])
         on_color, off_color, state = struct.unpack(
             '>BBB', data[NbglArea.size():])
         return cls(
@@ -291,8 +294,8 @@ class NbglProgressBar(NbglObj):
     state: int
 
     @classmethod
-    def from_bytes(cls, is_stax : bool, data):
-        area = NbglArea.from_bytes(is_stax, data[0:NbglArea.size()])
+    def from_bytes(cls, serialize_param: NbglSerializeParam, data):
+        area = NbglArea.from_bytes(serialize_param, data[0:NbglArea.size()])
         with_border, state = struct.unpack(
             '>?B', data[NbglArea.size():])
         return cls(
@@ -309,8 +312,8 @@ class NbglPageIndicator(NbglObj):
     nb_pages: int
 
     @classmethod
-    def from_bytes(cls, is_stax : bool, data):
-        area = NbglArea.from_bytes(is_stax, data[0:NbglArea.size()])
+    def from_bytes(cls, serialize_param: NbglSerializeParam, data):
+        area = NbglArea.from_bytes(serialize_param, data[0:NbglArea.size()])
         active_page, nb_pages = \
             struct.unpack('>BB', data[NbglArea.size():])
         return cls(
@@ -332,9 +335,9 @@ class NbglButton(NbglObj):
     text: str
 
     @classmethod
-    def from_bytes(cls, is_stax : bool, data):
+    def from_bytes(cls, serialize_param: NbglSerializeParam, data):
         cnt = NbglArea.size()
-        area = NbglArea.from_bytes(is_stax, data[0:cnt])
+        area = NbglArea.from_bytes(serialize_param, data[0:cnt])
         params_template = '>BBBBB?'
         params_size = struct.calcsize(params_template)
         inner_color, border_color, \
@@ -369,9 +372,9 @@ class NbglTextArea(NbglObj):
     text: str
 
     @classmethod
-    def from_bytes(cls, is_stax : bool, data: bytes):
+    def from_bytes(cls, serialize_param: NbglSerializeParam, data: bytes):
         # Parse area
-        area = NbglArea.from_bytes(is_stax, data[0:NbglArea.size()])
+        area = NbglArea.from_bytes(serialize_param, data[0:NbglArea.size()])
         cnt = NbglArea.size()
 
         # Parse pattern
@@ -403,8 +406,8 @@ class NbglSpinner(NbglObj):
     position: int
 
     @classmethod
-    def from_bytes(cls, is_stax : bool, data: bytes):
-        area = NbglArea.from_bytes(is_stax, data[0:NbglArea.size()])
+    def from_bytes(cls, serialize_param: NbglSerializeParam, data: bytes):
+        area = NbglArea.from_bytes(serialize_param, data[0:NbglArea.size()])
         position, = struct.unpack(
             '>B', data[NbglArea.size():]
         )
@@ -422,20 +425,27 @@ class NbglImage(NbglObj):
     bpp: int
     isFile: int
     foreground_color: NbglColor
+    id: int
 
     @classmethod
-    def from_bytes(cls, is_stax : bool, data):
+    def from_bytes(cls, serialize_param: NbglSerializeParam, data):
 
-        area = NbglArea.from_bytes(is_stax, data[0:NbglArea.size()])
+        area = NbglArea.from_bytes(serialize_param, data[0:NbglArea.size()])
 
-        width,height,bpp,isFile,size, = struct.unpack('>HHBBI', data[NbglArea.size():NbglArea.size()+10])
-        foreground_color, = struct.unpack('>B', data[NbglArea.size()+10:])
+        if serialize_param.use_image_id:
+            width,height,id,bpp,isFile,size, = struct.unpack('>HHHBBI', data[NbglArea.size():NbglArea.size()+12])
+            foreground_color, = struct.unpack('>B', data[NbglArea.size()+12:])
+        else:
+            width,height,bpp,isFile,size, = struct.unpack('>HHBBI', data[NbglArea.size():NbglArea.size()+10])
+            id = 0
+            foreground_color, = struct.unpack('>B', data[NbglArea.size()+10:])
         return cls(
             area=area,
             width=width,
             height=height,
             bpp=bpp,
             isFile=isFile,
+            id=id,
             foreground_color=NbglColor(foreground_color)
         )
 
@@ -445,8 +455,8 @@ class NbglImageFile(NbglObj):
     area: NbglArea
 
     @classmethod
-    def from_bytes(cls, is_stax : bool, data: bytes):
-        area = NbglArea.from_bytes(is_stax, data[0:])
+    def from_bytes(cls, serialize_param: NbglSerializeParam, data: bytes):
+        area = NbglArea.from_bytes(serialize_param, data[0:])
         return cls(area)
 
 
@@ -458,9 +468,9 @@ class NbglQrCode(NbglObj):
     text: str
 
     @classmethod
-    def from_bytes(cls, is_stax : bool, data: bytes):
+    def from_bytes(cls, serialize_param: NbglSerializeParam, data: bytes):
         # Parse area
-        area = NbglArea.from_bytes(is_stax, data[0:NbglArea.size()])
+        area = NbglArea.from_bytes(serialize_param, data[0:NbglArea.size()])
         cnt = NbglArea.size()
 
         # Parse QR code color and version
@@ -490,9 +500,9 @@ class NbglKeyboard(NbglObj):
     selected_char_index: int
 
     @classmethod
-    def from_bytes(cls, is_stax : bool, data: bytes):
-        area = NbglArea.from_bytes(is_stax, data[0:NbglArea.size()])
-        if is_stax:
+    def from_bytes(cls, serialize_param: NbglSerializeParam, data: bytes):
+        area = NbglArea.from_bytes(serialize_param, data[0:NbglArea.size()])
+        if serialize_param.is_stax:
             selected_char_index = 0
             text_color, border_color, letters_only, upper_case, mode, key_mask = struct.unpack(
                 '>BBBBBI', data[NbglArea.size():])
@@ -525,9 +535,9 @@ class NbglKeypad(NbglObj):
     selectedKey: int
 
     @classmethod
-    def from_bytes(cls, is_stax : bool, data: bytes):
-        area = NbglArea.from_bytes(is_stax, data[0:NbglArea.size()])
-        if is_stax:
+    def from_bytes(cls, serialize_param: NbglSerializeParam, data: bytes):
+        area = NbglArea.from_bytes(serialize_param, data[0:NbglArea.size()])
+        if serialize_param.is_stax:
             text_color, border_color, enable_backspace, enable_validate, enable_digits, shuffled = \
                 struct.unpack('>BBBBBB', data[NbglArea.size():NbglArea.size()+6])
             selectedKey = 0 # unused on Stax
@@ -584,9 +594,9 @@ class NbglRefreshAreaEvent(NbglGenericJsonSerializable):
     area: NbglArea
 
     @classmethod
-    def from_bytes(cls, is_stax : bool, data: bytes):
+    def from_bytes(cls, serialize_param: NbglSerializeParam, data: bytes):
         return cls(
-            area=NbglArea.from_bytes(is_stax, data)
+            area=NbglArea.from_bytes(serialize_param, data)
         )
 
 
@@ -596,7 +606,7 @@ class NbglDrawObjectEvent(NbglGenericJsonSerializable):
     id: int
 
     @classmethod
-    def from_bytes(cls, is_stax: bool, data: bytes):
+    def from_bytes(cls, serialize_param: NbglSerializeParam, data: bytes):
         # the first byte is the object id
         # the second one is the object type
         id = int(data[0])
@@ -604,7 +614,7 @@ class NbglDrawObjectEvent(NbglGenericJsonSerializable):
         class_type = NBGL_OBJ_TYPES[obj_type]
 
         return cls(
-            obj=class_type.from_bytes(is_stax, data[2:]),
+            obj=class_type.from_bytes(serialize_param, data[2:]),
             id=id
         )
 
@@ -641,7 +651,7 @@ NbglEvent = Union[
 ]
 
 
-def deserialize_nbgl_bytes(is_stax: bool, data: bytes) -> NbglEvent:
+def deserialize_nbgl_bytes(serialize_param: NbglSerializeParam, data: bytes) -> NbglEvent:
     """
     Return a NbglRefreshAreaEvent or a NbglDrawObjectEvent,
     from input bytes.
@@ -649,9 +659,9 @@ def deserialize_nbgl_bytes(is_stax: bool, data: bytes) -> NbglEvent:
     event_type = NbglEventType(int(data[0]))
 
     if event_type == NbglEventType.NBGL_DRAW_OBJ:
-        return NbglDrawObjectEvent.from_bytes(is_stax, data[1:])
+        return NbglDrawObjectEvent.from_bytes(serialize_param, data[1:])
     elif event_type == NbglEventType.NBGL_REFRESH_AREA:
-        return NbglRefreshAreaEvent.from_bytes(is_stax, data[1:])
+        return NbglRefreshAreaEvent.from_bytes(serialize_param, data[1:])
 
 
 def deserialize_nbgl_json(data: Dict) -> NbglEvent:

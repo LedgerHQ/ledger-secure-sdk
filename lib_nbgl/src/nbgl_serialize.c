@@ -162,12 +162,18 @@ static void nbgl_serializeIcon(const nbgl_icon_details_t *icon,
     if (icon == NULL) {
         nbgl_appendU16(0, out, w_cnt, max_len);
         nbgl_appendU16(0, out, w_cnt, max_len);
+#ifdef USE_IMAGE_ID
+        nbgl_appendU16(0, out, w_cnt, max_len);
+#endif  // USE_IMAGE_ID
         nbgl_appendU8(0, out, w_cnt, max_len);
         nbgl_appendU8(0, out, w_cnt, max_len);
     }
     else {
         nbgl_appendU16(icon->width, out, w_cnt, max_len);
         nbgl_appendU16(icon->height, out, w_cnt, max_len);
+#ifdef USE_IMAGE_ID
+        nbgl_appendU16(icon->id, out, w_cnt, max_len);
+#endif  // USE_IMAGE_ID
         nbgl_appendU8(icon->bpp, out, w_cnt, max_len);
         nbgl_appendU8(icon->isFile, out, w_cnt, max_len);
         if (!icon->isFile) {
@@ -179,11 +185,14 @@ static void nbgl_serializeIcon(const nbgl_icon_details_t *icon,
         }
     }
     nbgl_appendU32(size, out, w_cnt, max_len);
-#ifdef SERIALIZE_DATA
-    for (int32_t i = 0; i < size; i++) {
-        nbgl_appendU8(icon->bitmap[i], out, w_cnt, max_len);
+#ifdef USE_IMAGE_ID
+    // only send data if id == 0xFFFF (streamed icon)
+    if ((icon != NULL) && (icon->id == 0xFFFF)) {
+        for (int32_t i = 0; i < size; i++) {
+            nbgl_appendU8(icon->bitmap[i], out, w_cnt, max_len);
+        }
     }
-#endif  // SERIALIZE_DATA
+#endif  // USE_IMAGE_ID
 }
 
 static void nbgl_serializeTextArea(nbgl_text_area_t *obj,
