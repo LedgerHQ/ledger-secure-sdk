@@ -543,13 +543,14 @@ nbgl_page_t *nbgl_pageDrawGenericContentExt(nbgl_layoutTouchCallback_t       onA
             footerDesc.separationLine = true;
             if (nav->nbPages > 1) {
                 if (nav->navWithButtons.quitText == NULL) {
-                    footerDesc.type                   = FOOTER_NAV;
-                    footerDesc.navigation.activePage  = nav->activePage;
-                    footerDesc.navigation.nbPages     = nav->nbPages;
-                    footerDesc.navigation.withExitKey = nav->navWithButtons.quitButton;
-                    footerDesc.navigation.withBackKey = nav->navWithButtons.backButton;
-                    footerDesc.navigation.token       = nav->navWithButtons.navToken;
-                    footerDesc.navigation.tuneId      = nav->tuneId;
+                    footerDesc.type                         = FOOTER_NAV;
+                    footerDesc.navigation.activePage        = nav->activePage;
+                    footerDesc.navigation.nbPages           = nav->nbPages;
+                    footerDesc.navigation.withExitKey       = nav->navWithButtons.quitButton;
+                    footerDesc.navigation.withBackKey       = nav->navWithButtons.backButton;
+                    footerDesc.navigation.withPageIndicator = false;
+                    footerDesc.navigation.token             = nav->navWithButtons.navToken;
+                    footerDesc.navigation.tuneId            = nav->tuneId;
                 }
                 else {
                     footerDesc.type                              = FOOTER_TEXT_AND_NAV;
@@ -560,8 +561,11 @@ nbgl_page_t *nbgl_pageDrawGenericContentExt(nbgl_layoutTouchCallback_t       onA
                     footerDesc.textAndNav.navigation.nbPages     = nav->nbPages;
                     footerDesc.textAndNav.navigation.withExitKey = false;
                     footerDesc.textAndNav.navigation.withBackKey = nav->navWithButtons.backButton;
-                    footerDesc.textAndNav.navigation.token       = nav->navWithButtons.navToken;
-                    footerDesc.textAndNav.navigation.tuneId      = nav->tuneId;
+                    footerDesc.textAndNav.navigation.visibleIndicator
+                        = nav->navWithButtons.visiblePageIndicator;
+                    footerDesc.textAndNav.navigation.withPageIndicator = true;
+                    footerDesc.textAndNav.navigation.token  = nav->navWithButtons.navToken;
+                    footerDesc.textAndNav.navigation.tuneId = nav->tuneId;
                 }
             }
             else if (nav->navWithButtons.quitText != NULL) {

@@ -104,10 +104,15 @@ typedef struct {
     uint8_t token;               ///< the token that will be used as argument of the callback
     uint8_t nbPages;             ///< number of pages. (if 0, no navigation)
     uint8_t activePage;          ///< index of active page (from 0 to nbPages-1).
-    bool    withExitKey;         ///< if set to true, an exit button is drawn
+    bool    withExitKey;         ///< if set to true, an exit button is drawn (X on the left)
     bool    withBackKey;         ///< if set to true, the "back" key is drawn
     bool    withSeparationLine;  ///< if set to true, an horizontal line is drawn on top of bar in
                                  ///< light gray
+    bool withPageIndicator;  ///< on Flex, a "page on nb_pages" text can be added between back and
+                             ///< forward keys
+    bool visibleIndicator;   ///< on Flex, the page indicator can be visible or not.
+                             ///< if withPageIndicator is true and this boolean false, the back key
+                             ///< is placed as if there was an indicator
 #ifdef HAVE_PIEZO_SOUND
     tune_index_e tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played when pressing keys)
 #endif                    // HAVE_PIEZO_SOUND
