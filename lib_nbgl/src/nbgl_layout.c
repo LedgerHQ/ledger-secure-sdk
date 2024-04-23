@@ -203,9 +203,8 @@ static void touchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
          || (eventType == SWIPED_RIGHT))
         && (obj->type == CONTAINER)) {
 #if (!defined(TARGET_STAX) && defined(NBGL_KEYBOARD))
-        if ((layout->swipeUsage == SWIPE_USAGE_SUGGESTIONS)
-            && keyboardSwipeCallback(obj, eventType)) {
-            // if this swipe event is consumed, return here
+        if (layout->swipeUsage == SWIPE_USAGE_SUGGESTIONS) {
+            keyboardSwipeCallback(obj, eventType);
             return;
         }
 #endif  // TARGET_STAX
@@ -728,9 +727,6 @@ nbgl_layout_t *nbgl_layoutGet(const nbgl_layoutDescription_t *description)
     memset(layout, 0, sizeof(nbgl_layoutInternal_t));
 
     nbTouchableControls = 0;
-#ifdef NBGL_KEYBOARD
-    keyboardInit();
-#endif  // NBGL_KEYBOARD
 
     layout->callback       = (nbgl_layoutTouchCallback_t) PIC(description->onActionCallback);
     layout->modal          = description->modal;
@@ -891,14 +887,15 @@ int nbgl_layoutAddTopRightButton(nbgl_layout_t             *layout,
 int nbgl_layoutAddNavigationBar(nbgl_layout_t *layout, const nbgl_layoutNavigationBar_t *info)
 {
     nbgl_layoutFooter_t footerDesc;
-    footerDesc.type                   = FOOTER_NAV;
-    footerDesc.separationLine         = info->withSeparationLine;
-    footerDesc.navigation.activePage  = info->activePage;
-    footerDesc.navigation.nbPages     = info->nbPages;
-    footerDesc.navigation.withExitKey = info->withExitKey;
-    footerDesc.navigation.withBackKey = info->withBackKey;
-    footerDesc.navigation.token       = info->token;
-    footerDesc.navigation.tuneId      = info->tuneId;
+    footerDesc.type                         = FOOTER_NAV;
+    footerDesc.separationLine               = info->withSeparationLine;
+    footerDesc.navigation.activePage        = info->activePage;
+    footerDesc.navigation.nbPages           = info->nbPages;
+    footerDesc.navigation.withExitKey       = info->withExitKey;
+    footerDesc.navigation.withBackKey       = info->withBackKey;
+    footerDesc.navigation.withPageIndicator = false;
+    footerDesc.navigation.token             = info->token;
+    footerDesc.navigation.tuneId            = info->tuneId;
     return nbgl_layoutAddExtendedFooter(layout, &footerDesc);
 }
 
@@ -2577,13 +2574,7 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
             navContainer->obj.alignment   = BOTTOM_RIGHT;
             navContainer->obj.area.width  = SCREEN_WIDTH - textArea->obj.area.width;
             navContainer->obj.area.height = SIMPLE_FOOTER_HEIGHT;
-            layoutNavigationPopulate(navContainer,
-                                     footerDesc->textAndNav.navigation.nbPages,
-                                     footerDesc->textAndNav.navigation.activePage,
-                                     footerDesc->textAndNav.navigation.withExitKey,
-                                     footerDesc->textAndNav.navigation.withBackKey,
-                                     true,
-                                     layoutInt->layer);
+            layoutNavigationPopulate(navContainer, &footerDesc->navigation, layoutInt->layer);
             obj = layoutAddCallbackObj(layoutInt,
                                        (nbgl_obj_t *) navContainer,
                                        footerDesc->textAndNav.navigation.token,
@@ -2617,13 +2608,8 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
             layoutInt->footerContainer->obj.area.width = SCREEN_WIDTH;
 #endif  // TARGET_STAX
             layoutInt->footerContainer->obj.area.height = SIMPLE_FOOTER_HEIGHT;
-            layoutNavigationPopulate(layoutInt->footerContainer,
-                                     footerDesc->navigation.nbPages,
-                                     footerDesc->navigation.activePage,
-                                     footerDesc->navigation.withExitKey,
-                                     footerDesc->navigation.withBackKey,
-                                     false,
-                                     layoutInt->layer);
+            layoutNavigationPopulate(
+                layoutInt->footerContainer, &footerDesc->navigation, layoutInt->layer);
             layoutInt->footerContainer->nbChildren = 4;
             obj                                    = layoutAddCallbackObj(layoutInt,
                                        (nbgl_obj_t *) layoutInt->footerContainer,

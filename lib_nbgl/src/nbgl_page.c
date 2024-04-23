@@ -105,29 +105,18 @@ static void addContent(nbgl_pageContent_t *content,
                     = {.type = HEADER_EMPTY, .separationLine = false, .emptySpace.height = 40};
                 nbgl_layoutAddHeader(layout, &headerDesc);
             }
-            uint16_t nbLines = nbgl_getTextNbLinesInWidth(
-                content->tagValueDetails.tagValueList.smallCaseForValue ? SMALL_BOLD_FONT
-                                                                        : LARGE_MEDIUM_FONT,
-                content->tagValueDetails.tagValueList.pairs[0].value,
-                SCREEN_WIDTH - 2 * BORDER_MARGIN,
-                content->tagValueDetails.tagValueList.wrapping);
-            // automatically display a button if content is longer that nbMaxLinesForValue
-            if (nbLines > (content->tagValueDetails.tagValueList.nbMaxLinesForValue)) {
-                nbgl_layoutButton_t buttonInfo;
-                content->tagValueDetails.tagValueList.nbMaxLinesForValue -= 3;
-                nbgl_layoutAddTagValueList(layout, &content->tagValueDetails.tagValueList);
-                buttonInfo.fittingContent = true;
-                buttonInfo.icon           = content->tagValueDetails.detailsButtonIcon;
-                buttonInfo.style          = WHITE_BACKGROUND;
-                buttonInfo.text           = content->tagValueDetails.detailsButtonText;
-                buttonInfo.token          = content->tagValueDetails.detailsButtonToken;
-                buttonInfo.tuneId         = content->tagValueDetails.tuneId;
-                buttonInfo.onBottom       = false;
-                nbgl_layoutAddButton(layout, &buttonInfo);
-            }
-            else {
-                nbgl_layoutAddTagValueList(layout, &content->tagValueDetails.tagValueList);
-            }
+            // display a button under tag/value
+            nbgl_layoutButton_t buttonInfo;
+            content->tagValueDetails.tagValueList.nbMaxLinesForValue -= 3;
+            nbgl_layoutAddTagValueList(layout, &content->tagValueDetails.tagValueList);
+            buttonInfo.fittingContent = true;
+            buttonInfo.icon           = content->tagValueDetails.detailsButtonIcon;
+            buttonInfo.style          = WHITE_BACKGROUND;
+            buttonInfo.text           = content->tagValueDetails.detailsButtonText;
+            buttonInfo.token          = content->tagValueDetails.detailsButtonToken;
+            buttonInfo.tuneId         = content->tagValueDetails.tuneId;
+            buttonInfo.onBottom       = false;
+            nbgl_layoutAddButton(layout, &buttonInfo);
             break;
         }
         case TAG_VALUE_CONFIRM: {
@@ -554,13 +543,14 @@ nbgl_page_t *nbgl_pageDrawGenericContentExt(nbgl_layoutTouchCallback_t       onA
             footerDesc.separationLine = true;
             if (nav->nbPages > 1) {
                 if (nav->navWithButtons.quitText == NULL) {
-                    footerDesc.type                   = FOOTER_NAV;
-                    footerDesc.navigation.activePage  = nav->activePage;
-                    footerDesc.navigation.nbPages     = nav->nbPages;
-                    footerDesc.navigation.withExitKey = nav->navWithButtons.quitButton;
-                    footerDesc.navigation.withBackKey = nav->navWithButtons.backButton;
-                    footerDesc.navigation.token       = nav->navWithButtons.navToken;
-                    footerDesc.navigation.tuneId      = nav->tuneId;
+                    footerDesc.type                         = FOOTER_NAV;
+                    footerDesc.navigation.activePage        = nav->activePage;
+                    footerDesc.navigation.nbPages           = nav->nbPages;
+                    footerDesc.navigation.withExitKey       = nav->navWithButtons.quitButton;
+                    footerDesc.navigation.withBackKey       = nav->navWithButtons.backButton;
+                    footerDesc.navigation.withPageIndicator = false;
+                    footerDesc.navigation.token             = nav->navWithButtons.navToken;
+                    footerDesc.navigation.tuneId            = nav->tuneId;
                 }
                 else {
                     footerDesc.type                              = FOOTER_TEXT_AND_NAV;
@@ -571,8 +561,11 @@ nbgl_page_t *nbgl_pageDrawGenericContentExt(nbgl_layoutTouchCallback_t       onA
                     footerDesc.textAndNav.navigation.nbPages     = nav->nbPages;
                     footerDesc.textAndNav.navigation.withExitKey = false;
                     footerDesc.textAndNav.navigation.withBackKey = nav->navWithButtons.backButton;
-                    footerDesc.textAndNav.navigation.token       = nav->navWithButtons.navToken;
-                    footerDesc.textAndNav.navigation.tuneId      = nav->tuneId;
+                    footerDesc.textAndNav.navigation.visibleIndicator
+                        = nav->navWithButtons.visiblePageIndicator;
+                    footerDesc.textAndNav.navigation.withPageIndicator = true;
+                    footerDesc.textAndNav.navigation.token  = nav->navWithButtons.navToken;
+                    footerDesc.textAndNav.navigation.tuneId = nav->tuneId;
                 }
             }
             else if (nav->navWithButtons.quitText != NULL) {

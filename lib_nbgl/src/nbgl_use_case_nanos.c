@@ -28,7 +28,7 @@
 typedef struct ReviewContext_s {
     nbgl_navCallback_t         onNav;
     nbgl_choiceCallback_t      onChoice;
-    nbgl_layoutTagValueList_t  tagValueList;
+    nbgl_contentTagValueList_t tagValueList;
     const nbgl_icon_details_t *icon;
     const char                *reviewTitle;
     const char                *address;  // for address confirmation review
@@ -406,19 +406,19 @@ void nbgl_useCaseForwardOnlyReview(nbgl_navCallback_t navCallback)
  * @param callback callback called when transaction is accepted (param is true) or rejected (param
  * is false)
  */
-void nbgl_useCaseStaticReview(nbgl_layoutTagValueList_t *tagValueList,
-                              const nbgl_icon_details_t *icon,
-                              const char                *reviewTitle,
-                              const char                *acceptText,
-                              const char                *rejectText,
-                              nbgl_choiceCallback_t      callback)
+void nbgl_useCaseStaticReview(nbgl_contentTagValueList_t *tagValueList,
+                              const nbgl_icon_details_t  *icon,
+                              const char                 *reviewTitle,
+                              const char                 *acceptText,
+                              const char                 *rejectText,
+                              nbgl_choiceCallback_t       callback)
 {
     // memorize context
     memset(&context, 0, sizeof(UseCaseContext_t));
     context.review.forwardNavOnly = false;
     context.type                  = REVIEW_USE_CASE;
 
-    memcpy(&context.review.tagValueList, tagValueList, sizeof(nbgl_layoutTagValueList_t));
+    memcpy(&context.review.tagValueList, tagValueList, sizeof(nbgl_contentTagValueList_t));
 
     context.review.reviewTitle = reviewTitle;
     context.review.icon        = icon;
@@ -460,11 +460,11 @@ void nbgl_useCaseAddressConfirmation(const nbgl_icon_details_t *icon,
  * @param callback callback called when either confirm or reject page is double pressed
  * @param tagValueList list of tag/value pairs (must be persistent because no copy)
  */
-void nbgl_useCaseAddressConfirmationExt(const nbgl_icon_details_t       *icon,
-                                        const char                      *title,
-                                        const char                      *address,
-                                        nbgl_choiceCallback_t            callback,
-                                        const nbgl_layoutTagValueList_t *tagValueList)
+void nbgl_useCaseAddressConfirmationExt(const nbgl_icon_details_t        *icon,
+                                        const char                       *title,
+                                        const char                       *address,
+                                        nbgl_choiceCallback_t             callback,
+                                        const nbgl_contentTagValueList_t *tagValueList)
 {
     // memorize context
     memset(&context, 0, sizeof(UseCaseContext_t));
@@ -472,7 +472,7 @@ void nbgl_useCaseAddressConfirmationExt(const nbgl_icon_details_t       *icon,
     context.type                  = REVIEW_USE_CASE;
 
     if (tagValueList) {
-        memcpy(&context.review.tagValueList, tagValueList, sizeof(nbgl_layoutTagValueList_t));
+        memcpy(&context.review.tagValueList, tagValueList, sizeof(nbgl_contentTagValueList_t));
     }
 
     context.review.address     = address;
