@@ -560,7 +560,7 @@ Here is the code to display something similar to example picture:
 // 4 pairs of tag/value to display
 static nbgl_layoutTagValue_t pairs[4];
 
-static nbgl_layoutTagValueList_t pairList = {
+static nbgl_contentTagValueList_t pairList = {
   .nbMaxLinesForValue = 0,
   .nbPairs = 4,
   .pairs = (nbgl_layoutTagValue_t*)pairs
@@ -604,7 +604,7 @@ static nbgl_layoutTagValue_t pair;
 
 static nbgl_layoutTagValue_t* getPair(uint8_t index);
 
-static nbgl_layoutTagValueList_t pairList = {
+static nbgl_contentTagValueList_t pairList = {
   .nbMaxLinesForValue = 0,
   .nbPairs = 4,
   .pairs = NULL, // to indicate that callback should be used
@@ -831,7 +831,7 @@ Here is the code to display something similar to example picture:
 // 2 pairs of tag/value to display in second page
 static nbgl_layoutTagValue_t pairs[2];
 
-static nbgl_layoutTagValueList_t pairList = {
+static nbgl_contentTagValueList_t pairList = {
   .nbMaxLinesForValue = 0,
   .nbPairs = 2,
   .pairs = (nbgl_layoutTagValue_t*)pairs
