@@ -66,11 +66,11 @@ void nbgl_screenRedraw(void)
         return;
     }
     LOG_DEBUG(SCREEN_LOGGER, "nbgl_screenRedraw(): nbScreensOnStack = %d\n", nbScreensOnStack);
-#ifdef HAVE_SE_TOUCH
-    // by default, exclude left & top borders from touch
+#ifdef TARGET_STAX
+    // by default, exclude only left border from touch
     // if any sub-object is a keyboard, this will be modified when drawing it
-    touch_exclude_borders(TOP_BORDER | LEFT_BORDER);
-#endif  // HAVE_SE_TOUCH
+    touch_exclude_borders(LEFT_BORDER);
+#endif  // TARGET_STAX
 
     nbgl_screen_reinit();
     nbgl_redrawObject((nbgl_obj_t *) topOfStack, NULL, true);
@@ -387,6 +387,12 @@ int nbgl_screenPop(uint8_t screenIndex)
     // release used objects and containers
     nbgl_objPoolRelease(screenIndex);
     nbgl_containerPoolRelease(screenIndex);
+
+    // special case when we pop the only modal and no real background is under it
+    if ((nbScreensOnStack == 1) && (screenStack[0].container.nbChildren == 0)) {
+        nbScreensOnStack = 0;
+        topOfStack       = NULL;
+    }
     return 0;
 }
 
@@ -406,6 +412,8 @@ int nbgl_screenReset(void)
             nbgl_objPoolRelease(screenIndex);
             nbgl_containerPoolRelease(screenIndex);
         }
+        screenStack[screenIndex].container.children   = NULL;
+        screenStack[screenIndex].container.nbChildren = 0;
     }
     nbScreensOnStack = 0;
     topOfStack       = NULL;

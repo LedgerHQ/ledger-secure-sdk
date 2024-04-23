@@ -368,6 +368,16 @@ static void prepareReviewLastPage(nbgl_contentInfoLongPress_t *infoLongPress,
     infoLongPress->longPressToken = CONFIRM_TOKEN;
 }
 
+static void prepareReviewLightLastPage(nbgl_contentInfoButton_t  *infoButton,
+                                       const nbgl_icon_details_t *icon,
+                                       const char                *finishTitle)
+{
+    infoButton->text        = finishTitle;
+    infoButton->icon        = icon;
+    infoButton->buttonText  = "Approve";
+    infoButton->buttonToken = CONFIRM_TOKEN;
+}
+
 static const char *getRejectReviewText(nbgl_operationType_t operationType)
 {
 #ifdef TARGET_STAX
@@ -1219,10 +1229,10 @@ static uint8_t nbgl_useCaseGetNbPagesForGenericContents(
     return nbPages;
 }
 
-static void prepareAddressConfirmationPages(const char                      *address,
-                                            const nbgl_layoutTagValueList_t *tagValueList,
-                                            nbgl_content_t                  *firstPageContent,
-                                            nbgl_content_t                  *secondPageContent)
+static void prepareAddressConfirmationPages(const char                       *address,
+                                            const nbgl_contentTagValueList_t *tagValueList,
+                                            nbgl_content_t                   *firstPageContent,
+                                            nbgl_content_t                   *secondPageContent)
 {
     nbgl_contentTagValueConfirm_t *tagValueConfirm;
 
@@ -1278,7 +1288,7 @@ static void prepareAddressConfirmationPages(const char                      *add
         tagValueConfirm->detailsButtonText = NULL;
         tagValueConfirm->detailsButtonIcon = NULL;
         tagValueConfirm->tuneId            = TUNE_TAP_CASUAL;
-        memcpy(&tagValueConfirm->tagValueList, tagValueList, sizeof(nbgl_layoutTagValueList_t));
+        memcpy(&tagValueConfirm->tagValueList, tagValueList, sizeof(nbgl_contentTagValueList_t));
 
 #ifdef TARGET_STAX
         // no next page
@@ -1392,10 +1402,10 @@ static void bundleNavReviewStreamingChoice(bool confirm)
  *        - the tag/value doesn't fit in a page
  * @return the number of tag/value pairs fitting in a page
  */
-uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                          nbPairs,
-                                         const nbgl_layoutTagValueList_t *tagValueList,
-                                         uint8_t                          startIndex,
-                                         bool                            *requireSpecificDisplay)
+uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPairs,
+                                         const nbgl_contentTagValueList_t *tagValueList,
+                                         uint8_t                           startIndex,
+                                         bool                             *requireSpecificDisplay)
 {
     uint8_t  nbPairsInPage = 0;
     uint16_t currentHeight = 12;  // upper margin
@@ -1470,7 +1480,7 @@ uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                          nbPair
  * @param tagValueList list of tag/value pairs
  * @return the number of pages necessary to display the given list of tag/value pairs
  */
-uint8_t nbgl_useCaseGetNbPagesForTagValueList(const nbgl_layoutTagValueList_t *tagValueList)
+uint8_t nbgl_useCaseGetNbPagesForTagValueList(const nbgl_contentTagValueList_t *tagValueList)
 {
     uint8_t nbPages = 0;
     uint8_t nbPairs = tagValueList->nbPairs;
@@ -2147,10 +2157,10 @@ void nbgl_useCaseForwardOnlyReviewNoSkip(const char                *rejectText,
  * @param callback callback called when transaction is accepted (param is true) or rejected (param
  * is false)
  */
-void nbgl_useCaseStaticReview(const nbgl_layoutTagValueList_t *tagValueList,
-                              const nbgl_pageInfoLongPress_t  *infoLongPress,
-                              const char                      *rejectText,
-                              nbgl_choiceCallback_t            callback)
+void nbgl_useCaseStaticReview(const nbgl_contentTagValueList_t *tagValueList,
+                              const nbgl_pageInfoLongPress_t   *infoLongPress,
+                              const char                       *rejectText,
+                              nbgl_choiceCallback_t             callback)
 {
     uint8_t offset = 0;
 
@@ -2169,7 +2179,7 @@ void nbgl_useCaseStaticReview(const nbgl_layoutTagValueList_t *tagValueList,
         localContentsList[offset].type = TAG_VALUE_LIST;
         memcpy(&localContentsList[offset].content.tagValueList,
                tagValueList,
-               sizeof(nbgl_layoutTagValueList_t));
+               sizeof(nbgl_contentTagValueList_t));
         offset++;
     }
 
@@ -2202,10 +2212,10 @@ void nbgl_useCaseStaticReview(const nbgl_layoutTagValueList_t *tagValueList,
  * @param callback callback called when transaction is accepted (param is true) or rejected (param
  * is false)
  */
-void nbgl_useCaseStaticReviewLight(const nbgl_layoutTagValueList_t *tagValueList,
-                                   const nbgl_pageInfoLongPress_t  *infoLongPress,
-                                   const char                      *rejectText,
-                                   nbgl_choiceCallback_t            callback)
+void nbgl_useCaseStaticReviewLight(const nbgl_contentTagValueList_t *tagValueList,
+                                   const nbgl_pageInfoLongPress_t   *infoLongPress,
+                                   const char                       *rejectText,
+                                   nbgl_choiceCallback_t             callback)
 {
     uint8_t offset = 0;
 
@@ -2224,7 +2234,7 @@ void nbgl_useCaseStaticReviewLight(const nbgl_layoutTagValueList_t *tagValueList
         localContentsList[offset].type = TAG_VALUE_LIST;
         memcpy(&localContentsList[offset].content.tagValueList,
                tagValueList,
-               sizeof(nbgl_layoutTagValueList_t));
+               sizeof(nbgl_contentTagValueList_t));
         offset++;
     }
 
@@ -2260,13 +2270,13 @@ void nbgl_useCaseStaticReviewLight(const nbgl_layoutTagValueList_t *tagValueList
  * @param choiceCallback callback called when operation is accepted (param is true) or rejected
  * (param is false)
  */
-void nbgl_useCaseReview(nbgl_operationType_t             operationType,
-                        const nbgl_layoutTagValueList_t *tagValueList,
-                        const nbgl_icon_details_t       *icon,
-                        const char                      *reviewTitle,
-                        const char                      *reviewSubTitle,
-                        const char                      *finishTitle,
-                        nbgl_choiceCallback_t            choiceCallback)
+void nbgl_useCaseReview(nbgl_operationType_t              operationType,
+                        const nbgl_contentTagValueList_t *tagValueList,
+                        const nbgl_icon_details_t        *icon,
+                        const char                       *reviewTitle,
+                        const char                       *reviewSubTitle,
+                        const char                       *finishTitle,
+                        nbgl_choiceCallback_t             choiceCallback)
 {
     reset_callbacks();
     memset(&genericContext, 0, sizeof(genericContext));
@@ -2292,11 +2302,68 @@ void nbgl_useCaseReview(nbgl_operationType_t             operationType,
     localContentsList[1].type = TAG_VALUE_LIST;
     memcpy(&localContentsList[1].content.tagValueList,
            tagValueList,
-           sizeof(nbgl_layoutTagValueList_t));
+           sizeof(nbgl_contentTagValueList_t));
 
     // Eventually the long press page
     localContentsList[2].type = INFO_LONG_PRESS;
     prepareReviewLastPage(&localContentsList[2].content.infoLongPress, icon, finishTitle);
+
+    // compute number of pages & fill navigation structure
+    uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
+    prepareNavInfo(true, nbPages, getRejectReviewText(operationType));
+
+    displayGenericContextPage(0, true);
+}
+
+/**
+ * @brief Draws a flow of pages of a light review. A back key is available on top-left of the
+ * screen, except in first page It is possible to go to next page thanks to "tap to continue".
+ * @note  All tag/value pairs are provided in the API and the number of pages is automatically
+ * computed, the last page being a short press one
+ *
+ * @param operationType type of operation (Operation, Transaction, Message)
+ * @param tagValueList list of tag/value pairs
+ * @param icon icon used on first and last review page
+ * @param reviewTitle string used in the first review page
+ * @param reviewSubTitle string to set under reviewTitle (can be NULL)
+ * @param finishTitle string used in the last review page
+ * @param choiceCallback callback called when operation is accepted (param is true) or rejected
+ * (param is false)
+ */
+void nbgl_useCaseReviewLight(nbgl_operationType_t              operationType,
+                             const nbgl_contentTagValueList_t *tagValueList,
+                             const nbgl_icon_details_t        *icon,
+                             const char                       *reviewTitle,
+                             const char                       *reviewSubTitle,
+                             const char                       *finishTitle,
+                             nbgl_choiceCallback_t             choiceCallback)
+{
+    reset_callbacks();
+    memset(&genericContext, 0, sizeof(genericContext));
+
+    // memorize context
+    onChoice  = choiceCallback;
+    navType   = GENERIC_NAV;
+    pageTitle = NULL;
+
+    genericContext.genericContents.contentsList = localContentsList;
+    genericContext.genericContents.nbContents   = 3;
+    memset(localContentsList, 0, 3 * sizeof(nbgl_content_t));
+
+    // First a centered info
+    localContentsList[0].type = CENTERED_INFO;
+    prepareReviewFirstPage(
+        &localContentsList[0].content.centeredInfo, icon, reviewTitle, reviewSubTitle);
+
+    // Then the tag/value pairs
+    localContentsList[1].type = TAG_VALUE_LIST;
+    memcpy(&localContentsList[1].content.tagValueList,
+           tagValueList,
+           sizeof(nbgl_contentTagValueList_t));
+
+    // Eventually the long press page
+    localContentsList[2].type = INFO_BUTTON;
+    prepareReviewLightLastPage(&localContentsList[2].content.infoButton, icon, finishTitle);
 
     // compute number of pages & fill navigation structure
     uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
@@ -2392,8 +2459,8 @@ void nbgl_useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
  * @param choiceCallback callback called when more operation data are needed (param is true) or
  * operation is rejected (param is false)
  */
-void nbgl_useCaseReviewStreamingContinue(const nbgl_layoutTagValueList_t *tagValueList,
-                                         nbgl_choiceCallback_t            choiceCallback)
+void nbgl_useCaseReviewStreamingContinue(const nbgl_contentTagValueList_t *tagValueList,
+                                         nbgl_choiceCallback_t             choiceCallback)
 {
     // Should follow a call to nbgl_useCaseReviewStreamingStart
     memset(&genericContext, 0, sizeof(genericContext));
@@ -2413,7 +2480,7 @@ void nbgl_useCaseReviewStreamingContinue(const nbgl_layoutTagValueList_t *tagVal
     localContentsList[0].type = TAG_VALUE_LIST;
     memcpy(&localContentsList[0].content.tagValueList,
            tagValueList,
-           sizeof(nbgl_layoutTagValueList_t));
+           sizeof(nbgl_contentTagValueList_t));
 
     // compute number of pages & fill navigation structure
     bundleNavContext.reviewStreaming.stepPageNb
@@ -2529,9 +2596,9 @@ void nbgl_useCaseAddressConfirmation(const char *address, nbgl_choiceCallback_t 
  * @param tagValueList list of tag/value pairs (must fit in a single page, and be persistent because
  * no copy)
  */
-void nbgl_useCaseAddressConfirmationExt(const char                      *address,
-                                        nbgl_choiceCallback_t            callback,
-                                        const nbgl_layoutTagValueList_t *tagValueList)
+void nbgl_useCaseAddressConfirmationExt(const char                       *address,
+                                        nbgl_choiceCallback_t             callback,
+                                        const nbgl_contentTagValueList_t *tagValueList)
 {
     reset_callbacks();
     memset(&genericContext, 0, sizeof(genericContext));
@@ -2578,12 +2645,12 @@ void nbgl_useCaseAddressConfirmationExt(const char                      *address
  * @param choiceCallback callback called when transaction is accepted (param is true) or rejected
  * (param is false)
  */
-void nbgl_useCaseAddressReview(const char                      *address,
-                               const nbgl_layoutTagValueList_t *additionalTagValueList,
-                               const nbgl_icon_details_t       *icon,
-                               const char                      *reviewTitle,
-                               const char                      *reviewSubTitle,
-                               nbgl_choiceCallback_t            choiceCallback)
+void nbgl_useCaseAddressReview(const char                       *address,
+                               const nbgl_contentTagValueList_t *additionalTagValueList,
+                               const nbgl_icon_details_t        *icon,
+                               const char                       *reviewTitle,
+                               const char                       *reviewSubTitle,
+                               nbgl_choiceCallback_t             choiceCallback)
 {
     reset_callbacks();
     memset(&genericContext, 0, sizeof(genericContext));
