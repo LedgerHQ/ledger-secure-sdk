@@ -106,10 +106,12 @@ typedef struct nbgl_pageNavWithTap_s {
  *
  */
 typedef struct nbgl_pageNavWithButtons_s {
-    bool    quitButton;  ///< if set to true, a quit button (X) is displayed in the nav bar
-    bool    backButton;  ///< if set to true, a back button (<-) is displayed in the nav bar
-    uint8_t navToken;    ///< the token used as argument of the actionCallback when the nav buttons
-                         ///< are pressed (index param gives the page)
+    bool quitButton;  ///< if set to true, a quit button (X) is displayed in the nav bar
+    bool backButton;  ///< if set to true, a back button (<-) is displayed in the nav bar
+    bool
+        visiblePageIndicator;  ///< if set to true, the page indicator will be visible in navigation
+    uint8_t navToken;  ///< the token used as argument of the actionCallback when the nav buttons
+                       ///< are pressed (index param gives the page)
     const char
         *quitText;  ///< the text displayed in footer (on the left), used to quit (only on Flex)
 } nbgl_pageNavWithButtons_t;

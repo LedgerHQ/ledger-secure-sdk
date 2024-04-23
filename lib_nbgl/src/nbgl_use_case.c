@@ -333,10 +333,12 @@ static void prepareNavInfo(bool isReview, uint8_t nbPages, const char *rejectTex
         navInfo.navWithTap.backToken     = BACK_TOKEN;
 #else   // TARGET_STAX
         UNUSED(rejectText);
-        navInfo.navType                   = NAV_WITH_BUTTONS;
-        navInfo.navWithButtons.quitText   = "Reject";
-        navInfo.navWithButtons.navToken   = NAV_TOKEN;
-        navInfo.navWithButtons.backButton = true;
+        navInfo.navType                 = NAV_WITH_BUTTONS;
+        navInfo.navWithButtons.quitText = "Reject";
+        navInfo.navWithButtons.navToken = NAV_TOKEN;
+        navInfo.navWithButtons.backButton
+            = ((navType == STREAMING_NAV) && (nbPages < 2)) ? false : true;
+        navInfo.navWithButtons.visiblePageIndicator = (navType != STREAMING_NAV);
 #endif  // TARGET_STAX
     }
 }
@@ -352,7 +354,7 @@ static void prepareReviewFirstPage(nbgl_contentCenteredInfo_t *centeredInfo,
 #ifdef TARGET_STAX
     centeredInfo->text3 = NULL;
 #else   // TARGET_STAX
-    centeredInfo->text3 = "Swipe to continue";
+    centeredInfo->text3 = "Swipe to review";
 #endif  // TARGET_STAX
     centeredInfo->style   = LARGE_CASE_GRAY_INFO;
     centeredInfo->offsetY = 0;
@@ -795,6 +797,10 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
                     pageContent->type = CENTERED_INFO;
                     prepareReviewFirstPage(
                         &pageContent->centeredInfo, pair->valueIcon, pair->item, pair->value);
+#ifdef TARGET_FLEX
+                    // use "Swipe to continue" instead of "Swipe to review" for intermediate pages
+                    pageContent->centeredInfo.text3 = "Swipe to continue";
+#endif  // TARGET_FLEX
 
                     // Skip population of nbgl_contentTagValueList_t structure
                     p_tagValueList = NULL;
@@ -1443,7 +1449,7 @@ static void bundleNavReviewStreamingChoice(bool confirm)
 {
     if (confirm) {
         // Display a spinner if it wasn't the finish step
-        if (navInfo.nbPages == NBGL_NO_PROGRESS_INDICATOR) {
+        if (localContentsList[0].type != INFO_LONG_PRESS) {
             nbgl_useCaseSpinner("Processing");
         }
         bundleNavContext.reviewStreaming.choiceCallback(true);
@@ -2537,6 +2543,10 @@ void nbgl_useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
     bundleNavContext.reviewStreaming.stepPageNb
         = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
     prepareNavInfo(true, NBGL_NO_PROGRESS_INDICATOR, getRejectReviewText(operationType));
+#ifdef TARGET_FLEX
+    // no back button on first page
+    navInfo.navWithButtons.backButton = false;
+#endif  // TARGET_STAX
 
     displayGenericContextPage(0, true);
 }

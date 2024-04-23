@@ -142,30 +142,17 @@ bool layoutNavigationCallback(nbgl_obj_t      *obj,
  * container
  *
  * @param navContainer container used for the objects of the navigation
- * @param nbPages max number of pages for navigation (if < 2, no navigation keys)
- * @param activePage active page at start-up in [0-(nbPages-1)]
- * @param withExitKey if set to true, an exit key is added on the left
- * @param withBackKey if set to false, the back key is not drawn
- * @param withPageIndicator if set to true, "<activePage+1> on <nbPages>" is added between
- * navigation arrows (if more than 1 page)
+ * @param navConfig configuration to create the navigation bar, at the bottom of the screen
  * @param layer layer (screen) to create the navigation bar in
  *
  */
-void layoutNavigationPopulate(nbgl_container_t *navContainer,
-                              uint8_t           nbPages,
-                              uint8_t           activePage,
-                              bool              withExitKey,
-                              bool              withBackKey,
-                              bool              withPageIndicator,
-                              uint8_t           layer)
+void layoutNavigationPopulate(nbgl_container_t                 *navContainer,
+                              const nbgl_layoutNavigationBar_t *navConfig,
+                              uint8_t                           layer)
 {
     nbgl_button_t *button;
 
-#ifdef TARGET_STAX
-    UNUSED(withPageIndicator);
-#endif  // TARGET_STAX
-
-    if (withExitKey) {
+    if (navConfig->withExitKey) {
         button                  = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layer);
         button->innerColor      = WHITE;
         button->borderColor     = BORDER_COLOR;
@@ -173,21 +160,21 @@ void layoutNavigationPopulate(nbgl_container_t *navContainer,
         button->obj.area.height = BUTTON_DIAMETER;
         button->radius          = BUTTON_RADIUS;
         button->icon            = &CLOSE_ICON;
-#ifndef TARGET_STAX
-        button->obj.alignmentMarginX = (nbPages > 1) ? 8 : 0;
-#endif  // TARGET_STAX
+#ifdef TARGET_FLEX
+        button->obj.alignmentMarginX = (navConfig->nbPages > 1) ? 8 : 0;
+#endif  // TARGET_FLEX
 
-        button->obj.alignment                     = (nbPages > 1) ? MID_LEFT : CENTER;
+        button->obj.alignment                     = (navConfig->nbPages > 1) ? MID_LEFT : CENTER;
         button->obj.touchMask                     = (1 << TOUCHED);
         button->obj.touchId                       = BOTTOM_BUTTON_ID;
         navContainer->children[EXIT_BUTTON_INDEX] = (nbgl_obj_t *) button;
     }
     // create previous page button (back)
-    if (withBackKey) {
+    if (navConfig->withBackKey) {
         button              = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layer);
         button->innerColor  = WHITE;
         button->borderColor = BORDER_COLOR;
-        if (withExitKey) {
+        if (navConfig->withExitKey) {
             button->obj.area.width = NAV_BUTTON_WIDTH;
         }
         else {
@@ -198,7 +185,7 @@ void layoutNavigationPopulate(nbgl_container_t *navContainer,
 #ifdef TARGET_STAX
         button->icon = &LEFT_ARROW_ICON;
         // align either on the right of Exit key, or on the inner left of the container
-        if (withExitKey) {
+        if (navConfig->withExitKey) {
             button->obj.alignmentMarginX = INTERNAL_SMALL_MARGIN;
             button->obj.alignment        = MID_RIGHT;
             button->obj.alignTo          = navContainer->children[EXIT_BUTTON_INDEX];
@@ -222,7 +209,7 @@ void layoutNavigationPopulate(nbgl_container_t *navContainer,
     button->innerColor      = WHITE;
     button->borderColor     = BORDER_COLOR;
     button->foregroundColor = BLACK;
-    if (withExitKey) {
+    if (navConfig->withExitKey) {
         button->obj.area.width = NAV_BUTTON_WIDTH;
     }
     else {
@@ -243,32 +230,33 @@ void layoutNavigationPopulate(nbgl_container_t *navContainer,
     button->obj.touchId                     = RIGHT_BUTTON_ID;
     navContainer->children[NEXT_PAGE_INDEX] = (nbgl_obj_t *) button;
 
-    // potentially create page indicator (with a text area)
-#ifndef TARGET_STAX
-    if (withPageIndicator && withBackKey
-        && (nbPages > 1 && nbPages != NBGL_NO_PROGRESS_INDICATOR)) {
-        nbgl_text_area_t *textArea = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layer);
+#ifdef TARGET_FLEX
+    // potentially create page indicator (with a text area, and "page of nb_page")
+    if (navConfig->withPageIndicator) {
+        if (navConfig->visibleIndicator) {
+            nbgl_text_area_t *textArea = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layer);
 
-        SPRINTF(navText, "%d of %d", activePage + 1, nbPages);
+            SPRINTF(navText, "%d of %d", navConfig->activePage + 1, navConfig->nbPages);
 
-        textArea->obj.alignment                      = BOTTOM_RIGHT;
-        textArea->textColor                          = DARK_GRAY;
-        textArea->obj.area.width                     = 109;
-        textArea->text                               = navText;
-        textArea->fontId                             = SMALL_REGULAR_FONT;
-        textArea->obj.area.height                    = NAV_BUTTON_HEIGHT;
-        textArea->textAlignment                      = CENTER;
-        textArea->obj.alignment                      = MID_RIGHT;
-        textArea->obj.alignmentMarginX               = NAV_BUTTON_WIDTH - 15;
-        navContainer->children[PAGE_INDICATOR_INDEX] = (nbgl_obj_t *) textArea;
-        if (withBackKey) {
+            textArea->obj.alignment                      = BOTTOM_RIGHT;
+            textArea->textColor                          = DARK_GRAY;
+            textArea->obj.area.width                     = 109;
+            textArea->text                               = navText;
+            textArea->fontId                             = SMALL_REGULAR_FONT;
+            textArea->obj.area.height                    = NAV_BUTTON_HEIGHT;
+            textArea->textAlignment                      = CENTER;
+            textArea->obj.alignment                      = MID_RIGHT;
+            textArea->obj.alignmentMarginX               = NAV_BUTTON_WIDTH - 15;
+            navContainer->children[PAGE_INDICATOR_INDEX] = (nbgl_obj_t *) textArea;
+        }
+        if (navConfig->withBackKey) {
             navContainer->children[PREVIOUS_PAGE_INDEX]->alignmentMarginX += 79;
         }
     }
-#endif  // TARGET_STAX
+#endif  // TARGET_FLEX
 
     // configure enabling/disabling of button
-    configButtons(navContainer, nbPages, activePage);
+    configButtons(navContainer, navConfig->nbPages, navConfig->activePage);
 
     return;
 }
