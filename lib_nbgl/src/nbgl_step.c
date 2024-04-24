@@ -39,11 +39,16 @@ typedef enum {
  * definition of context for a @ref TEXT_STEP or @ref CENTERED_INFO_STEP step
  */
 typedef struct TextContext_s {
-    uint8_t             nbPages;        ///< number of pages for this text step
-    uint8_t             currentPage;    ///< current page for this text step
-    const char         *txtStart;       ///< pointer on the start point of text (first page)
-    const char         *nextPageStart;  ///< pointer on the start point of text at the next page
-    const char         *subTxtStart;    ///< pointer on the start point of sub-text (first page)
+    uint8_t     nbPages;        ///< number of pages for this text step
+    uint8_t     currentPage;    ///< current page for this text step
+    const char *txtStart;       ///< pointer on the start point of text (first page)
+    const char *nextPageStart;  ///< pointer on the start point of text at the next page
+    const char *subTxtStart;    ///< pointer on the start point of sub-text (first page)
+#ifdef BUILD_SCREENSHOTS
+    uint16_t txtId;     ///< text ID (can be 0)
+    uint16_t subTxtId;  ///< subtext ID (can be 0)
+#endif                  // BUILD_SCREENSHOTS
+
     nbgl_stepPosition_t pos;  ///< position of the step within a flow (used for navigation arrows)
     nbgl_stepButtonCallback_t onActionCallback;  ///< function called when key actions done on this
                                                  ///< step (other than internal navigation)
@@ -79,6 +84,29 @@ typedef struct StepContext_s {
  **********************/
 ///< array of step contexts. Index 0 is reserved for background
 static StepContext_t contexts[NB_MAX_LAYERS];
+
+/**********************
+ *  VARIABLES
+ **********************/
+#ifdef BUILD_SCREENSHOTS
+// Contains the last string index used
+extern UX_LOC_STRINGS_INDEX last_string_id;
+
+// Variables used to store important values (nb lines, bold state etc)
+extern uint16_t last_nb_lines;
+extern uint16_t last_nb_pages;
+extern bool     last_bold_state;
+
+/**********************
+ *  PROTOTYPES
+ **********************/
+void store_string_infos(uint16_t string_id,
+                        char    *text,
+                        uint16_t nb_lines,
+                        uint16_t nb_pages_,
+                        bool     bold);
+
+#endif  // BUILD_SCREENSHOTS
 
 /**********************
  *  STATIC PROTOTYPES
@@ -209,6 +237,11 @@ static nbgl_layoutNavIndication_t getNavigationInfo(nbgl_stepPosition_t pos,
 static void displayTextPage(StepContext_t *ctx, uint8_t textPage)
 {
     const char *txt;
+
+#ifdef BUILD_SCREENSHOTS
+    // We already took care of updating those strings info
+    last_string_id = 0;
+#endif  // BUILD_SCREENSHOTS
 
     // if move backward or first page
     if (textPage <= ctx->textContext.currentPage) {
@@ -386,10 +419,14 @@ static void menuListActionCallback(nbgl_layout_t *layout, nbgl_buttonEvent_t eve
 nbgl_step_t nbgl_stepDrawText(nbgl_stepPosition_t               pos,
                               nbgl_stepButtonCallback_t         onActionCallback,
                               nbgl_screenTickerConfiguration_t *ticker,
-                              const char                       *text,
-                              const char                       *subText,
-                              nbgl_contentCenteredInfoStyle_t   style,
-                              bool                              modal)
+#ifdef BUILD_SCREENSHOTS
+                              uint16_t txtId,
+                              uint16_t subTxtId,
+#endif  // BUILD_SCREENSHOTS
+                              const char                     *text,
+                              const char                     *subText,
+                              nbgl_contentCenteredInfoStyle_t style,
+                              bool                            modal)
 {
     StepContext_t *ctx = getFreeContext(TEXT_STEP, modal);
     if (!ctx) {
@@ -407,11 +444,24 @@ nbgl_step_t nbgl_stepDrawText(nbgl_stepPosition_t               pos,
     if (subText == NULL) {
         ctx->textContext.nbPages = nbgl_getTextNbPagesInWidth(
             BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp, text, NB_MAX_LINES, AVAILABLE_WIDTH);
+#ifdef BUILD_SCREENSHOTS
+        store_string_infos(txtId, text, last_nb_lines, last_nb_pages, last_bold_state);
+#endif  // BUILD_SCREENSHOTS
     }
     else {
+#ifdef BUILD_SCREENSHOTS
+        // Call this function to get correct nb_lines/nb_pages for text field.
+        nbgl_getTextNbPagesInWidth(
+            BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp, text, NB_MAX_LINES, AVAILABLE_WIDTH);
+        store_string_infos(txtId, text, last_nb_lines, last_nb_pages, last_bold_state);
+#endif  // BUILD_SCREENSHOTS
         // NB_MAX_LINES-1 because first line is for main text
         ctx->textContext.nbPages = nbgl_getTextNbPagesInWidth(
             BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp, subText, NB_MAX_LINES - 1, AVAILABLE_WIDTH);
+#ifdef BUILD_SCREENSHOTS
+        // If subTxtid is not valid, we'll use txtId for nb_lines/nb_pages values
+        store_string_infos(subTxtId, subText, last_nb_lines, last_nb_pages, last_bold_state);
+#endif  // BUILD_SCREENSHOTS
     }
     LOG_DEBUG(STEP_LOGGER,
               "nbgl_stepDrawText: ctx = %p, nbPages = %d, pos = 0x%X\n",
@@ -424,6 +474,10 @@ nbgl_step_t nbgl_stepDrawText(nbgl_stepPosition_t               pos,
     }
     ctx->textContext.txtStart    = text;
     ctx->textContext.subTxtStart = subText;
+#ifdef BUILD_SCREENSHOTS
+    ctx->textContext.txtId    = txtId;
+    ctx->textContext.subTxtId = subTxtId;
+#endif  // BUILD_SCREENSHOTS
     // keep only direction part of position
     ctx->textContext.pos   = pos & (RIGHT_ARROW | LEFT_ARROW);
     ctx->textContext.style = style;
@@ -514,7 +568,10 @@ nbgl_step_t nbgl_stepDrawMenuList(nbgl_stepMenuListCallback_t       onActionCall
     ctx->menuListContext.list.nbChoices      = list->nbChoices;
     ctx->menuListContext.list.selectedChoice = list->selectedChoice;
     ctx->menuListContext.list.callback       = list->callback;
-    ctx->menuListContext.selectedCallback    = onActionCallback;
+#ifdef BUILD_SCREENSHOTS
+    ctx->menuListContext.list.getStringID = list->getStringID;
+#endif  // BUILD_SCREENSHOTS
+    ctx->menuListContext.selectedCallback = onActionCallback;
 
     displayMenuList(ctx);
 

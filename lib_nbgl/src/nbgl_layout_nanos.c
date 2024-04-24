@@ -331,7 +331,15 @@ int nbgl_layoutAddMenuList(nbgl_layout_t *layout, nbgl_layoutMenuList_t *list)
         textArea = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
 
         // init text area for this choice
-        textArea->text                 = list->callback(i);
+        textArea->text = list->callback(i);
+#ifdef BUILD_SCREENSHOTS
+        if (list->getStringID) {
+            textArea->textId = list->getStringID(i);
+        }
+        else {
+            textArea->textId = 0xFFFF;
+        }
+#endif  // BUILD_SCREENSHOTS
         textArea->textAlignment        = CENTER;
         textArea->obj.area.width       = AVAILABLE_WIDTH;
         textArea->obj.area.height      = 12;
@@ -394,9 +402,12 @@ int nbgl_layoutAddCenteredInfo(nbgl_layout_t *layout, const nbgl_layoutCenteredI
         container->nbChildren++;
     }
     if (info->text1 != NULL) {
-        textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-        textArea->textColor     = WHITE;
-        textArea->text          = PIC(info->text1);
+        textArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+        textArea->textColor = WHITE;
+        textArea->text      = PIC(info->text1);
+#ifdef BUILD_SCREENSHOTS
+        textArea->textId = PIC(info->textId1);
+#endif  // BUILD_SCREENSHOTS
         textArea->textAlignment = CENTER;
         textArea->fontId = (info->style == REGULAR_INFO) ? BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp
                                                          : BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
@@ -404,6 +415,16 @@ int nbgl_layoutAddCenteredInfo(nbgl_layout_t *layout, const nbgl_layoutCenteredI
         textArea->wrapping       = true;
         uint16_t nbLines
             = nbgl_getTextNbLinesInWidth(textArea->fontId, textArea->text, AVAILABLE_WIDTH, true);
+#ifdef BUILD_SCREENSHOTS
+        /*
+        store_string_infos(textArea->textId, textArea->text, last_nb_lines, (last_nb_lines + 3)/4,
+        last_bold_state); fprintf(stdout, "Calling store_string_infos from
+        nbgl_layoutAddCenteredInfo, text1 =>%s<= (id=%d), nb_lines=%d\n",
+                get_printable_string(textArea->text),
+                textArea->textId,
+                last_nb_lines);
+        */
+#endif  // BUILD_SCREENSHOTS
         // if more than available lines on screen
         if (nbLines > NB_MAX_LINES) {
             uint16_t len;
@@ -436,14 +457,27 @@ int nbgl_layoutAddCenteredInfo(nbgl_layout_t *layout, const nbgl_layoutCenteredI
         container->nbChildren++;
     }
     if (info->text2 != NULL) {
-        textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-        textArea->textColor     = WHITE;
-        textArea->text          = PIC(info->text2);
-        textArea->textAlignment = CENTER;
-        textArea->fontId        = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
+        textArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+        textArea->textColor = WHITE;
+        textArea->text      = PIC(info->text2);
+#ifdef BUILD_SCREENSHOTS
+        textArea->textId = PIC(info->textId2);
+#endif  // BUILD_SCREENSHOTS
+        textArea->textAlignment  = CENTER;
+        textArea->fontId         = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
         textArea->obj.area.width = AVAILABLE_WIDTH;
         uint16_t nbLines
             = nbgl_getTextNbLinesInWidth(textArea->fontId, textArea->text, AVAILABLE_WIDTH, true);
+#ifdef BUILD_SCREENSHOTS
+        /*
+        store_string_infos(textArea->textId, textArea->text, last_nb_lines, (last_nb_lines + 3)/4,
+        last_bold_state); fprintf(stdout, "Calling store_string_infos from
+        nbgl_layoutAddCenteredInfo, text2 =>%s<= (id=%d), nb_lines=%d\n",
+                get_printable_string(textArea->text),
+                textArea->textId,
+                last_nb_lines);
+        */
+#endif  // BUILD_SCREENSHOTS
         // if more than available lines on screen
         if (nbLines > (NB_MAX_LINES - 1)) {
             uint16_t len;

@@ -59,10 +59,28 @@ static bool objRefreshAreaDone;
 // buffer used either for image file uncompression and side screen string drawing
 uint8_t ramBuffer[GZLIB_UNCOMPRESSED_CHUNK];
 
+#ifdef BUILD_SCREENSHOTS
+// Contains the last string index used
+extern UX_LOC_STRINGS_INDEX last_string_id;
+
+// Variables used to store important values (nb lines, bold state etc)
+extern uint16_t last_nb_lines, last_nb_pages;
+extern bool     last_bold_state, verbose;
+#endif  // BUILD_SCREENSHOTS
+
 /**********************
  *  STATIC PROTOTYPES
  **********************/
 extern const char *get_ux_loc_string(uint32_t index);
+
+#ifdef BUILD_SCREENSHOTS
+char *get_printable_string(char *string);
+void  store_string_infos(uint16_t string_id,
+                         char    *text,
+                         uint16_t nb_lines,
+                         uint16_t nb_pages,
+                         bool     bold);
+#endif  // BUILD_SCREENSHOTS
 
 /**********************
  *   GLOBAL FUNCTIONS
@@ -362,6 +380,10 @@ static void draw_button(nbgl_button_t *obj, nbgl_obj_t *prevObj, bool computePos
     // get the text of the button from the callback if not NULL
     if (obj->onDrawCallback != NULL) {
         obj->text = obj->onDrawCallback(obj->token);
+#ifdef BUILD_SCREENSHOTS
+        // Store  the last string index used
+        obj->textId = last_string_id;
+#endif  // BUILD_SCREENSHOTS
     }
     else {
         if (obj->localized == true) {
@@ -382,6 +404,18 @@ static void draw_button(nbgl_button_t *obj, nbgl_obj_t *prevObj, bool computePos
         else {
             rectArea.x0 = obj->obj.area.x0 + (obj->obj.area.width - textWidth) / 2;
         }
+#ifdef BUILD_SCREENSHOTS
+        store_string_infos(
+            obj->textId, text, last_nb_lines, (last_nb_lines + 3) / 4, last_bold_state);
+        if (verbose) {
+            fprintf(stdout,
+                    "Inside draw_button(), text =>%s<= (id=%d), textWidth=%d, nb_lines=%d\n",
+                    get_printable_string(text),
+                    obj->textId,
+                    textWidth,
+                    last_nb_lines);
+        }
+#endif  // BUILD_SCREENSHOTS
         LOG_DEBUG(OBJ_LOGGER, "draw_button(), text = %s\n", text);
         rectArea.y0
             = obj->obj.area.y0 + (obj->obj.area.height - nbgl_getFontHeight(obj->fontId)) / 2;
@@ -846,6 +880,10 @@ static void draw_textArea(nbgl_text_area_t *obj, nbgl_obj_t *prevObj, bool compu
     // get the text of the button from the callback if not NULL
     if (obj->onDrawCallback != NULL) {
         obj->text = obj->onDrawCallback(obj->token);
+#ifdef BUILD_SCREENSHOTS
+        // Store  the last string index used
+        obj->textId = last_string_id;
+#endif  // BUILD_SCREENSHOTS
     }
     else {
         if (obj->localized == true) {
@@ -853,11 +891,38 @@ static void draw_textArea(nbgl_text_area_t *obj, nbgl_obj_t *prevObj, bool compu
             obj->text = get_ux_loc_string(obj->textId);
 #endif  // HAVE_LANGUAGE_PACK
         }
+#ifdef BUILD_SCREENSHOTS
+        else {
+            if (!obj->textId) {
+                // Store  the last string index used
+                obj->textId = last_string_id;
+            }
+        }
+#endif  // BUILD_SCREENSHOTS
     }
     text = obj->text;
     if (text == NULL) {
         return;
     }
+
+#ifdef BUILD_SCREENSHOTS
+    if (verbose) {
+        fprintf(stdout,
+                "Inside draw_textArea(), wrapping=%d, autoHideLongLine = %d, nbMaxLines = %d, "
+                "nb_lines=%d, x0=%d, y0=%d, width=%d, height=%d,\ntext =>%s<= "
+                "(ID=%d)\n",
+                obj->wrapping,
+                obj->autoHideLongLine,
+                obj->nbMaxLines,
+                nbgl_getTextNbLinesInWidth(fontId, text, obj->obj.area.width, obj->wrapping),
+                obj->obj.area.x0,
+                obj->obj.area.y0,
+                obj->obj.area.width,
+                obj->obj.area.height,
+                get_printable_string(text),
+                obj->textId);
+    }
+#endif  // BUILD_SCREENSHOTS
 
     LOG_DEBUG(
         OBJ_LOGGER,
@@ -904,12 +969,15 @@ static void draw_textArea(nbgl_text_area_t *obj, nbgl_obj_t *prevObj, bool compu
     // special case of autoHideLongLine, when the text is too long for a line, draw '...' at the
     // beginning
     if (obj->autoHideLongLine == true) {
+#ifdef BUILD_SCREENSHOTS
+        nbgl_getTextNbLinesInWidth(fontId, text, obj->obj.area.width, obj->wrapping);
+        store_string_infos(obj->textId, text, last_nb_lines, last_nb_pages, last_bold_state);
+#endif  // BUILD_SCREENSHOTS
         textWidth = nbgl_getSingleLineTextWidth(fontId, text);
         if (textWidth > obj->obj.area.width) {
             uint16_t lineWidth, lineLen;
             uint16_t dotsWidth;
 
-            // at first draw "..." at beginning
             dotsWidth      = nbgl_getTextWidth(fontId, "...");
             rectArea.x0    = obj->obj.area.x0;
             rectArea.y0    = obj->obj.area.y0 + (obj->obj.area.height - fontHeight) / 2;
@@ -931,6 +999,9 @@ static void draw_textArea(nbgl_text_area_t *obj, nbgl_obj_t *prevObj, bool compu
 
     // get nb lines in the given width (depending of wrapping)
     nbLines = nbgl_getTextNbLinesInWidth(fontId, text, obj->obj.area.width, obj->wrapping);
+#ifdef BUILD_SCREENSHOTS
+    store_string_infos(obj->textId, text, last_nb_lines, last_nb_pages, last_bold_state);
+#endif  // BUILD_SCREENSHOTS
     // saturate nb lines if nbMaxLines is greater than 0
     if ((obj->nbMaxLines > 0) && (obj->nbMaxLines < nbLines)) {
         nbLines = obj->nbMaxLines;
