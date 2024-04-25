@@ -668,11 +668,14 @@ int            nbgl_layoutUpdateKeypadContent(nbgl_layout_t *layout,
                                               uint8_t        nbActiveDigits,
                                               const char    *text);
 
-#else   // HAVE_SE_TOUCH
+#else  // HAVE_SE_TOUCH
 /* layout objects for pages with keypad (nanos) */
 int nbgl_layoutAddKeypad(nbgl_layout_t       *layout,
                          keyboardCallback_t   callback,
+                         const char          *text,
+#ifdef BUILD_SCREENSHOTS
                          UX_LOC_STRINGS_INDEX textId,
+#endif  // BUILD_SCREENSHOTS
                          bool                 shuffled);
 int nbgl_layoutUpdateKeypad(nbgl_layout_t *layout,
                             uint8_t        index,

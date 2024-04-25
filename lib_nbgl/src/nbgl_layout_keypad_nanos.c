@@ -41,9 +41,9 @@
  *  PROTOTYPES
  **********************/
 
-// #ifdef BUILD_SCREENSHOTS
+#ifdef BUILD_SCREENSHOTS
 extern const char *get_ux_loc_string(uint32_t index);
-// #endif  // BUILD_SCREENSHOTS
+#endif  // BUILD_SCREENSHOTS
 
 /**********************
  *   GLOBAL FUNCTIONS
@@ -56,19 +56,22 @@ extern const char *get_ux_loc_string(uint32_t index);
  *
  * @param layout the current layout
  * @param callback function called when any of the key is touched
+ * @param text text to use as title for the keypad
  * @param textId ID of the text to use as title for the keypad
  * @param shuffled if set to true, digits are shuffled in keypad
  * @return the index of keypad in layout, to use in @ref nbgl_layoutUpdateKeypad()
  */
-int nbgl_layoutAddKeypad(nbgl_layout_t       *layout,
-                         keyboardCallback_t   callback,
+int nbgl_layoutAddKeypad(nbgl_layout_t     *layout,
+                         keyboardCallback_t callback,
+                         const char        *text,
+#ifdef BUILD_SCREENSHOTS
                          UX_LOC_STRINGS_INDEX textId,
-                         bool                 shuffled)
+#endif  // BUILD_SCREENSHOTS
+                         bool shuffled)
 {
     nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
     nbgl_keypad_t         *keypad;
     nbgl_text_area_t      *textArea;
-    const char            *text = get_ux_loc_string(textId);
 
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddKeypad():\n");
     if (layout == NULL) {
@@ -78,9 +81,9 @@ int nbgl_layoutAddKeypad(nbgl_layout_t       *layout,
     textArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
     textArea->textColor = WHITE;
     textArea->text      = PIC(text);
-#if (defined(HAVE_LANGUAGE_PACK) || defined(BUILD_SCREENSHOTS))
+#ifdef BUILD_SCREENSHOTS
     textArea->textId = textId;
-#endif  //(defined(HAVE_LANGUAGE_PACK)||defined(BUILD_SCREENSHOTS))
+#endif  // BUILD_SCREENSHOTS
     textArea->textAlignment        = CENTER;
     textArea->fontId               = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
     textArea->obj.area.width       = AVAILABLE_WIDTH;
