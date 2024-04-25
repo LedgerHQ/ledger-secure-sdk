@@ -131,7 +131,11 @@ static uint8_t nbTouchableControls = 0;
 
 static inline uint8_t get_hold_to_approve_percent(uint32_t touch_duration)
 {
+#ifdef HAVE_DISPLAY_FAST_MODE
+    uint8_t current_step_nb = (touch_duration / HOLD_TO_APPROVE_STEP_DURATION_MS);
+#else
     uint8_t current_step_nb = (touch_duration / HOLD_TO_APPROVE_STEP_DURATION_MS) + 1;
+#endif
     return (current_step_nb * HOLD_TO_APPROVE_STEP_PERCENT);
 }
 
