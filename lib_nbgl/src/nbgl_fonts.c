@@ -589,9 +589,7 @@ bool nbgl_getTextMaxLenInNbLines(nbgl_font_id_e fontId,
 
         // if \n, reset width
         if (unicode == '\n') {
-            if (width != 0) {
-                maxNbLines--;
-            }
+            maxNbLines--;
             width = 0;
             continue;
         }
@@ -713,13 +711,17 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
                                     uint16_t       maxWidth,
                                     bool           wrapping)
 {
-    const nbgl_font_t *font               = nbgl_getFont(fontId);
-    uint16_t           width              = 0;
-    uint16_t           nbLines            = 0;
-    uint16_t           textLen            = strlen(text);
-    const char        *lastDelimiter      = NULL;
-    uint32_t           lenAtLastDelimiter = 0;
-    const char        *prevText           = NULL;
+    const nbgl_font_t *font  = nbgl_getFont(fontId);
+    uint16_t           width = 0;
+#ifdef SCREEN_SIZE_NANO
+    uint16_t nbLines = 0;
+#else   // SCREEN_SIZE_NANO
+    uint16_t nbLines = 1;
+#endif  // SCREEN_SIZE_NANO
+    uint16_t    textLen            = strlen(text);
+    const char *lastDelimiter      = NULL;
+    uint32_t    lenAtLastDelimiter = 0;
+    const char *prevText           = NULL;
 
 #ifdef BUILD_SCREENSHOTS
     last_nb_lines        = 0;
@@ -751,9 +753,13 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
 #ifdef BUILD_SCREENSHOTS
             // Continue parsing the string, to find the real nb_lines & nb_pages!
             ++last_nb_pages;
+#ifdef SCREEN_SIZE_NANO
             if (width != 0) {
+#endif  // SCREEN_SIZE_NANO
                 ++nbLines;
+#ifdef SCREEN_SIZE_NANO
             }
+#endif  // SCREEN_SIZE_NANO
             if (last_nb_lines < nbLines) {
                 last_nb_lines = nbLines;
             }
@@ -766,18 +772,18 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
         }
         // if \n, increment the number of lines
         else if (unicode == '\n') {
-            if (width != 0) {
-                nbLines++;
+            nbLines++;
 #ifdef BUILD_SCREENSHOTS
-                if (last_nb_lines < nbLines) {
-                    last_nb_lines = nbLines;
-                }
-                if (nbLines == 4) {
-                    ++last_nb_pages;
-                    nbLines = 0;
-                }
-#endif  // BUILD_SCREENSHOTS
+            if (last_nb_lines < nbLines) {
+                last_nb_lines = nbLines;
             }
+#ifdef SCREEN_SIZE_NANO
+            if (nbLines == 4) {
+                ++last_nb_pages;
+                nbLines = 0;
+            }
+#endif  // SCREEN_SIZE_NANO
+#endif  // BUILD_SCREENSHOTS
             width         = 0;
             lastDelimiter = NULL;
             continue;
@@ -832,16 +838,19 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
             if (last_nb_lines < nbLines) {
                 last_nb_lines = nbLines;
             }
+#ifdef SCREEN_SIZE_NANO
             if (nbLines == 4) {
                 ++last_nb_pages;
                 nbLines = 0;
             }
+#endif  // SCREEN_SIZE_NANO
 #endif  // BUILD_SCREENSHOTS
         }
         else {
             width += char_width;
         }
     }
+#ifdef SCREEN_SIZE_NANO
     if (width != 0) {
         ++nbLines;
     }
@@ -850,6 +859,7 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
         last_nb_lines = nbLines;
     }
 #endif  // BUILD_SCREENSHOTS
+#endif  // SCREEN_SIZE_NANO
     return nbLines;
 }
 
@@ -905,9 +915,13 @@ uint8_t nbgl_getTextNbPagesInWidth(nbgl_font_id_e fontId,
         if (unicode == '\f') {
             nbPages++;
 #ifdef BUILD_SCREENSHOTS
+#ifdef SCREEN_SIZE_NANO
             if (width != 0) {
+#endif  // SCREEN_SIZE_NANO
                 ++nbLines;
+#ifdef SCREEN_SIZE_NANO
             }
+#endif  // SCREEN_SIZE_NANO
             if (last_nb_lines < nbLines) {
                 last_nb_lines = nbLines;
             }
@@ -918,18 +932,17 @@ uint8_t nbgl_getTextNbPagesInWidth(nbgl_font_id_e fontId,
         }
         // if \n, increment the number of lines
         else if (unicode == '\n') {
-            if (width != 0) {
-                nbLines++;
+            nbLines++;
 #ifdef BUILD_SCREENSHOTS
-                if (last_nb_lines < nbLines) {
-                    last_nb_lines = nbLines;
-                }
-#endif  // BUILD_SCREENSHOTS
-                if (nbLines == nbLinesPerPage && textLen) {
-                    nbPages++;
-                    nbLines = 0;
-                }
+            if (last_nb_lines < nbLines) {
+                last_nb_lines = nbLines;
             }
+#endif  // BUILD_SCREENSHOTS
+            if (nbLines == nbLinesPerPage && textLen) {
+                nbPages++;
+                nbLines = 0;
+            }
+
             width         = 0;
             lastDelimiter = NULL;
             continue;
@@ -996,9 +1009,11 @@ uint8_t nbgl_getTextNbPagesInWidth(nbgl_font_id_e fontId,
         }
     }
 #ifdef BUILD_SCREENSHOTS
+#ifdef SCREEN_SIZE_NANO
     if (width != 0) {
         ++nbLines;
     }
+#endif  // SCREEN_SIZE_NANO
     if (last_nb_lines < nbLines) {
         last_nb_lines = nbLines;
     }
@@ -1062,10 +1077,8 @@ void nbgl_textWrapOnNbLines(nbgl_font_id_e fontId, char *text, uint16_t maxWidth
         unicode      = nbgl_popUnicodeChar((const uint8_t **) &text, &textLen, &is_unicode);
         // if \n, reset width
         if (unicode == '\n') {
-            if (width != 0) {
-                currentNbLines++;
-            }
-            width         = 0;
+            width = 0;
+            currentNbLines++;
             lastDelimiter = NULL;
             continue;
         }
