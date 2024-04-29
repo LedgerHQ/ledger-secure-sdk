@@ -2782,10 +2782,8 @@ void nbgl_useCaseAddressConfirmationExt(const char                       *addres
  * computed, the last page being a long press one
  *
  * @param address address to confirm (NULL terminated string)
- * @param additionalTagValueList list of tag/value pairs (can be NULL) (must fit in a single page,
- * and be persistent because no copy)
- * @param callback callback called when button or footer is touched (if true, button, if false
- * footer)
+ * @param additionalTagValueList list of tag/value pairs (can be NULL) (must be persistent because
+ * no copy)
  * @param icon icon used on the first review page
  * @param reviewTitle string used in the first review page
  * @param reviewSubTitle string to set under reviewTitle (can be NULL)
