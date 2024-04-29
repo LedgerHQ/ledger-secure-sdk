@@ -173,7 +173,7 @@ typedef enum {
     BUTTON_RIGHT_PRESSED,             ///< Send when Right button is released
     BUTTON_LEFT_CONTINUOUS_PRESSED,   ///< Send when Left button is continuouly pressed (sent every
                                       ///< 300ms after the first 800ms)
-    BUTTON_RIGHT_CONTINUOUS_PRESSED,  ///< Send when Left button is continuouly pressed (sent every
+    BUTTON_RIGHT_CONTINUOUS_PRESSED,  ///< Send when Right button is continuouly pressed (sent every
                                       ///< 300ms after the first 800ms)
     BUTTON_BOTH_PRESSED,              ///< Sent when both buttons are released
     BUTTON_BOTH_TOUCHED,              ///< Sent when both buttons are touched
