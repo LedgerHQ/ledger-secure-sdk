@@ -268,9 +268,11 @@ typedef struct {
  */
 typedef enum {
     ROUNDED_AND_FOOTER_STYLE
-        = 0,            ///< A rounded black background full width button on top of a footer
-    BOTH_ROUNDED_STYLE  ///< A rounded black background full width button on top of a rounded white
-                        ///< background full width button
+        = 0,             ///< A rounded black background full width button on top of a footer
+    BOTH_ROUNDED_STYLE,  ///< A rounded black background full width button on top of a rounded white
+                         ///< background full width button
+    BOTH_ROUNDED_WITH_ICON_STYLE  ///< A rounded black background full width button on top of a
+                                  ///< rounded white background full width button, with icons
 } nbgl_layoutChoiceButtonsStyle_t;
 
 /**
@@ -281,7 +283,11 @@ typedef enum {
 typedef struct {
     const char *topText;     ///< up-button text (index 0)
     const char *bottomText;  ///< bottom-button text (index 1)
-    uint8_t     token;       ///< the token that will be used as argument of the callback
+    const nbgl_icon_details_t *
+        topIcon;  ///< icon for top button (only used if style is @ref BOTH_ROUNDED_WITH_ICON_STYLE)
+    const nbgl_icon_details_t *bottomIcon;  ///< icon for bottom button (only used if style is @ref
+                                            ///< BOTH_ROUNDED_WITH_ICON_STYLE)
+    uint8_t token;  ///< the token that will be used as argument of the callback
     nbgl_layoutChoiceButtonsStyle_t style;  ///< the style of the pair
 #ifdef HAVE_PIEZO_SOUND
     tune_index_e tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played
@@ -539,6 +545,12 @@ int nbgl_layoutAddTopRightButton(nbgl_layout_t             *layout,
 int nbgl_layoutAddTouchableBar(nbgl_layout_t *layout, const nbgl_layoutBar_t *barLayout);
 int nbgl_layoutAddSwitch(nbgl_layout_t *layout, const nbgl_layoutSwitch_t *switchLayout);
 int nbgl_layoutAddText(nbgl_layout_t *layout, const char *text, const char *subText);
+int nbgl_layoutAddTouchableText(nbgl_layout_t *layout,
+                                const char    *text,
+                                uint8_t        token,
+                                uint8_t        nbMaxLines,
+                                bool           smallFont,
+                                tune_index_e   tuneId);
 int nbgl_layoutAddRadioChoice(nbgl_layout_t *layout, const nbgl_layoutRadioChoice_t *choices);
 int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info);
 int nbgl_layoutAddChoiceButtons(nbgl_layout_t *layout, const nbgl_layoutChoiceButtons_t *info);

@@ -1115,6 +1115,73 @@ int nbgl_layoutAddText(nbgl_layout_t *layout, const char *text, const char *subT
 }
 
 /**
+ * @brief Creates an area with given text, that can be touched.
+ *        nbMaxLines are displayed
+ *
+ * @param layout the current layout
+ * @param text text to display
+ * @param token the token that will be used as argument of the callback
+ * @param nbMaxLines if > 0, set the max number of lines for text. And the last line is ended with
+ * "..." instead of the 3 last chars
+ * @param smallFont if true, use SMALL_FONT
+ * @param tuneId if not @ref NBGL_NO_TUNE, a tune will be played when text is touched
+ * @return height of the control if OK
+ */
+int nbgl_layoutAddTouchableText(nbgl_layout_t *layout,
+                                const char    *text,
+                                uint8_t        token,
+                                uint8_t        nbMaxLines,
+                                bool           smallFont,
+                                tune_index_e   tuneId)
+{
+    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
+    nbgl_text_area_t      *textArea;
+    layoutObj_t           *obj;
+
+    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddTouchableText():\n");
+    if (layout == NULL) {
+        return -1;
+    }
+
+    textArea = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+    obj      = layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) textArea, token, tuneId);
+    if (obj == NULL) {
+        return -1;
+    }
+
+    textArea->textColor            = BLACK;
+    textArea->text                 = PIC(text);
+    textArea->textAlignment        = MID_LEFT;
+    textArea->fontId               = smallFont ? SMALL_REGULAR_FONT : LARGE_MEDIUM_FONT;
+    textArea->style                = NO_STYLE;
+    textArea->wrapping             = true;
+    textArea->obj.alignment        = NO_ALIGNMENT;
+    textArea->obj.alignmentMarginX = BORDER_MARGIN;
+#ifdef TARGET_STAX
+    textArea->obj.alignmentMarginY = BORDER_MARGIN;
+#else   // TARGET_STAX
+    textArea->obj.alignmentMarginY = 28;
+#endif  // TARGET_STAX
+    textArea->obj.area.width = AVAILABLE_WIDTH;
+    // handle the nbMaxLines parameter, used to automatically keep only
+    // nbMaxLines lines
+    uint16_t nbLines = nbgl_getTextNbLinesInWidth(
+        textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
+    // use this nbMaxLines parameter only if >0
+    if ((nbMaxLines > 0) && (nbLines > nbMaxLines)) {
+        nbLines              = nbMaxLines;
+        textArea->nbMaxLines = nbMaxLines;
+    }
+    const nbgl_font_t *font   = nbgl_getFont(textArea->fontId);
+    textArea->obj.area.height = nbLines * font->line_height;
+    textArea->obj.touchMask   = (1 << TOUCHED);
+    // set this new obj as child of main container
+    layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
+
+    return textArea->obj.area.height;
+}
+
+/**
  * @brief Creates an area with given text in 32px font (in Black)
  *
  * @param layout the current layout
@@ -1602,8 +1669,10 @@ int nbgl_layoutAddChoiceButtons(nbgl_layout_t *layout, const nbgl_layoutChoiceBu
     footerDesc.type                     = FOOTER_CHOICE_BUTTONS;
     footerDesc.separationLine           = false;
     footerDesc.choiceButtons.bottomText = info->bottomText;
+    footerDesc.choiceButtons.bottomIcon = info->bottomIcon;
     footerDesc.choiceButtons.token      = info->token;
     footerDesc.choiceButtons.topText    = info->topText;
+    footerDesc.choiceButtons.topIcon    = info->topIcon;
     footerDesc.choiceButtons.style      = info->style;
     footerDesc.choiceButtons.tuneId     = info->tuneId;
     return nbgl_layoutAddExtendedFooter(layout, &footerDesc);
@@ -2716,30 +2785,21 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
             // associate with with index 1
             obj->index = 1;
             // put at the bottom of the container
-            button->obj.alignment = BOTTOM_MIDDLE;
-            if (footerDesc->choiceButtons.style == ROUNDED_AND_FOOTER_STYLE) {
-                button->obj.alignmentMarginY = 4;  // 4 pixels from screen bottom
-                button->borderColor          = WHITE;
-            }
-            else if (footerDesc->choiceButtons.style == BOTH_ROUNDED_STYLE) {
-#ifdef TARGET_STAX
-                button->obj.alignmentMarginY
-                    = BOTTOM_BORDER_MARGIN;  // 24 pixels from screen bottom
-                button->borderColor = LIGHT_GRAY;
-#else   // TARGET_STAX
-                button->obj.alignmentMarginY = 4;      // 4 pixels from screen bottom
-                button->borderColor          = WHITE;  // not a real round button on Flex
-#endif  // TARGET_STAX
-            }
-            button->innerColor      = WHITE;
-            button->foregroundColor = BLACK;
-            button->obj.area.width  = AVAILABLE_WIDTH;
-            button->obj.area.height = BUTTON_DIAMETER;
-            button->radius          = BUTTON_RADIUS;
-            button->text            = PIC(footerDesc->choiceButtons.bottomText);
-            button->fontId          = SMALL_BOLD_FONT;
-            button->obj.touchMask   = (1 << TOUCHED);
-            button->obj.touchId     = CHOICE_2_ID;
+            button->obj.alignment        = BOTTOM_MIDDLE;
+            button->obj.alignmentMarginY = 4;  // 4 pixels from screen bottom
+            button->borderColor          = WHITE;
+            button->innerColor           = WHITE;
+            button->foregroundColor      = BLACK;
+            button->obj.area.width       = AVAILABLE_WIDTH;
+            button->obj.area.height      = BUTTON_DIAMETER;
+            button->radius               = BUTTON_RADIUS;
+            button->text                 = PIC(footerDesc->choiceButtons.bottomText);
+            button->icon   = (footerDesc->choiceButtons.style == BOTH_ROUNDED_WITH_ICON_STYLE)
+                                 ? PIC(footerDesc->choiceButtons.bottomIcon)
+                                 : NULL;
+            button->fontId = SMALL_BOLD_FONT;
+            button->obj.touchMask = (1 << TOUCHED);
+            button->obj.touchId   = CHOICE_2_ID;
             // add to bottom container
             layoutInt->footerContainer->children[layoutInt->footerContainer->nbChildren]
                 = (nbgl_obj_t *) button;
@@ -2747,7 +2807,8 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
 
 #ifndef TARGET_STAX
             // add line if needed
-            if (footerDesc->choiceButtons.style == BOTH_ROUNDED_STYLE) {
+            if ((footerDesc->choiceButtons.style == BOTH_ROUNDED_STYLE)
+                || (footerDesc->choiceButtons.style == BOTH_ROUNDED_WITH_ICON_STYLE)) {
                 line                       = createHorizontalLine(layoutInt->layer);
                 line->obj.alignment        = TOP_MIDDLE;
                 line->obj.alignmentMarginY = 4;
@@ -2768,47 +2829,42 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
                 return -1;
             }
             // associate with with index 0
-            obj->index            = 0;
-            button->obj.alignment = TOP_MIDDLE;
-#ifdef TARGET_STAX
-            button->innerColor      = BLACK;
-            button->borderColor     = BLACK;
-            button->foregroundColor = WHITE;
-#else   // TARGET_STAX
-            button->obj.alignmentMarginY = 24;         // 12 pixels from bottom button
-            if (footerDesc->choiceButtons.style == BOTH_ROUNDED_STYLE) {
-                button->innerColor      = WHITE;
-                button->borderColor     = LIGHT_GRAY;
-                button->foregroundColor = BLACK;
-            }
-            else {
-                button->innerColor      = BLACK;
-                button->borderColor     = BLACK;
-                button->foregroundColor = WHITE;
-            }
-#endif  // TARGET_STAX
-            button->obj.area.width  = AVAILABLE_WIDTH;
-            button->obj.area.height = BUTTON_DIAMETER;
-            button->radius          = BUTTON_RADIUS;
-            button->text            = PIC(footerDesc->choiceButtons.topText);
-            button->fontId          = SMALL_BOLD_FONT;
-            button->obj.touchMask   = (1 << TOUCHED);
-            button->obj.touchId     = CHOICE_1_ID;
+            obj->index                   = 0;
+            button->obj.alignment        = TOP_MIDDLE;
+            button->innerColor           = BLACK;
+            button->borderColor          = BLACK;
+            button->foregroundColor      = WHITE;
+            button->obj.alignmentMarginY = 24;  // 24 pixels from top of the container
+            button->obj.area.width       = AVAILABLE_WIDTH;
+            button->obj.area.height      = BUTTON_DIAMETER;
+            button->radius               = BUTTON_RADIUS;
+            button->text                 = PIC(footerDesc->choiceButtons.topText);
+            button->icon   = (footerDesc->choiceButtons.style == BOTH_ROUNDED_WITH_ICON_STYLE)
+                                 ? PIC(footerDesc->choiceButtons.topIcon)
+                                 : NULL;
+            button->fontId = SMALL_BOLD_FONT;
+            button->obj.touchMask = (1 << TOUCHED);
+            button->obj.touchId   = CHOICE_1_ID;
             // add to bottom container
             layoutInt->footerContainer->children[layoutInt->footerContainer->nbChildren]
                 = (nbgl_obj_t *) button;
             layoutInt->footerContainer->nbChildren++;
 
+            if ((footerDesc->choiceButtons.style == BOTH_ROUNDED_STYLE)
+                || (footerDesc->choiceButtons.style == BOTH_ROUNDED_WITH_ICON_STYLE)) {
 #ifdef TARGET_STAX
-            layoutInt->footerContainer->obj.area.height = 168;
+                layoutInt->footerContainer->obj.area.height = 216;
 #else   // TARGET_STAX
-            if (footerDesc->choiceButtons.style == BOTH_ROUNDED_STYLE) {
                 layoutInt->footerContainer->obj.area.height = 232;
+#endif  // TARGET_STAX
             }
             else {
+#ifdef TARGET_STAX
+                layoutInt->footerContainer->obj.area.height = 192;
+#else   // TARGET_STAX
                 layoutInt->footerContainer->obj.area.height = 208;
-            }
 #endif  // TARGET_STAX
+            }
 
             break;
         }

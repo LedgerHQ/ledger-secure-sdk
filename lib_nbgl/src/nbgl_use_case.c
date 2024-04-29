@@ -111,6 +111,7 @@ typedef struct {
     const nbgl_genericContents_t *settingContents;
     const nbgl_contentInfoList_t *infosList;
     const char                   *actionText;
+    const nbgl_icon_details_t    *actionIcon;
     nbgl_callback_t               actionCallback;
     nbgl_callback_t               quitCallback;
 } nbgl_homeAndSettingsContext_t;
@@ -1375,14 +1376,15 @@ static void bundleNavStartHome(void)
 {
     nbgl_homeAndSettingsContext_t *context = &bundleNavContext.homeAndSettings;
 
-    nbgl_useCaseHomeExt(context->appName,
-                        context->appIcon,
-                        context->tagline,
-                        context->settingContents != NULL ? true : false,
-                        context->actionText,
-                        context->actionCallback,
-                        bundleNavStartSettings,
-                        context->quitCallback);
+    nbgl_useCaseHomeExt2(context->appName,
+                         context->appIcon,
+                         context->tagline,
+                         context->settingContents != NULL ? true : false,
+                         context->actionText,
+                         context->actionIcon,
+                         context->actionCallback,
+                         bundleNavStartSettings,
+                         context->quitCallback);
 }
 
 static void bundleNavStartSettingsAtPage(uint8_t initSettingPage)
@@ -1622,6 +1624,47 @@ void nbgl_useCaseHomeExt(const char                *appName,
                          nbgl_callback_t            topRightCallback,
                          nbgl_callback_t            quitCallback)
 {
+    nbgl_useCaseHomeExt2(appName,
+                         appIcon,
+                         tagline,
+                         withSettings,
+                         actionButtonText,
+                         NULL,
+                         actionCallback,
+                         topRightCallback,
+                         quitCallback);
+}
+
+/**
+ * @brief draws the extended version of home page of an app (page on which we land when launching it
+ * from dashboard)
+ * @note it enables to use an action button (black on Stax, white on Europa)
+ *
+ * @param appName app name
+ * @param appIcon app icon
+ * @param tagline text under app name (if NULL, it will be "This app enables signing transactions on
+ * the <appName> network.")
+ * @param withSettings if true, use a "settings" (wheel) icon in bottom button, otherwise a "info"
+ * (i)
+ * @param actionButtonText if not NULL, text used for an action button (on top of "Quit
+ * App" button/footer)
+ * @param actionButtonIcon if not NULL, icon used for an action button (on top of "Quit
+ * App" button/footer)
+ * @param actionCallback callback called when action button is touched (if actionButtonText is not
+ * NULL)
+ * @param topRightCallback callback called when top-right button is touched
+ * @param quitCallback callback called when quit button is touched
+ */
+void nbgl_useCaseHomeExt2(const char                *appName,
+                          const nbgl_icon_details_t *appIcon,
+                          const char                *tagline,
+                          bool                       withSettings,
+                          const char                *actionButtonText,
+                          const nbgl_icon_details_t *actionButtonIcon,
+                          nbgl_callback_t            actionCallback,
+                          nbgl_callback_t            topRightCallback,
+                          nbgl_callback_t            quitCallback)
+{
     reset_callbacks();
 
     nbgl_pageInfoDescription_t info = {.centeredInfo.icon    = appIcon,
@@ -1635,6 +1678,7 @@ void nbgl_useCaseHomeExt(const char                *appName,
                                        .topRightStyle    = withSettings ? SETTINGS_ICON : INFO_ICON,
                                        .topRightToken    = CONTINUE_TOKEN,
                                        .actionButtonText = actionButtonText,
+                                       .actionButtonIcon = actionButtonIcon,
                                        .tuneId           = TUNE_TAP_CASUAL};
     if (actionButtonText != NULL) {
         // trick to use ACTION_BUTTON_TOKEN for action and quit, with index used to distinguish
@@ -1677,11 +1721,8 @@ void nbgl_useCaseHomeExt(const char                *appName,
         info.centeredInfo.text2 = tagline;
     }
 
-    onContinue = topRightCallback;
-    onQuit     = quitCallback;
-    if (actionButtonText != NULL) {
-        info.centeredInfo.offsetY -= 40;
-    }
+    onContinue  = topRightCallback;
+    onQuit      = quitCallback;
     pageContext = nbgl_pageDrawInfo(&pageCallback, NULL, &info);
     nbgl_refreshSpecial(FULL_COLOR_CLEAN_REFRESH);
 }
@@ -1892,6 +1933,7 @@ void nbgl_useCaseHomeAndSettings(
     if (action != NULL) {
         context->actionText     = action->text;
         context->actionCallback = action->callback;
+        context->actionIcon     = action->icon;
     }
     else {
         context->actionText     = NULL;
