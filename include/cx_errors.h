@@ -12,12 +12,13 @@
  * Check the error code of a function.
  * @hideinitializer
  */
-#define CX_CHECK(call) \
-    do {               \
-        error = call;  \
-        if (error) {   \
-            goto end;  \
-        }              \
+#define CX_CHECK(call)                                           \
+    do {                                                         \
+        error = call;                                            \
+        if (error) {                                             \
+            PRINTF("[CX_CHECK] - %s: %d\n", __FILE__, __LINE__); \
+            goto end;                                            \
+        }                                                        \
     } while (0)
 
 /**
