@@ -20,6 +20,8 @@ __MAKEFILE_DEFINES__ := 1
 
 include $(BOLOS_SDK)/Makefile.target
 
+API_LEVEL := 18
+
 # APPNAME exposed to the app as a CFLAG because it might contain spaces
 CFLAGS += -DAPPNAME=\"$(APPNAME)\"
 
