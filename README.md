@@ -72,10 +72,8 @@ OS release candidates are only kept in the list when a corresponding OS release 
 | 11      | stax_1.2.0 <br/> stax_1.2.1                                                                               | :x:
 | 12      | nanox_2.3.0-rc2 <br/> nanos+_1.2.0-rc2                                                                    | :x:
 | 13      | stax_1.3.0                                                                                                | :x:
-| 14      | only rc releases                                                                                         | :x:
-
-| 15      |  stax_1.4.0                              | :heavy_check_mark:
-
+| 14      | only rc releases                                                                                          | :x:
+| 15      | stax_1.4.0                                                                                                | :heavy_check_mark:
 | 16      | europa_0.1.0-re1                                                                                          | :x:
 | 17      | europa_0.1.0-re2                                                                                          | :x:
 | 18      | europa_0.1.0-re3 <br/> flex_0.2.0-rc1 <br /> flex_0.2.0-rc2 <br /> nanox_2.3.0-rc5 <br/> nanos+_1.2.0-rc5 | :heavy_check_mark:
