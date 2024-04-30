@@ -164,4 +164,5 @@ unsigned long __attribute((section("._cx_exported_functions"))) cx_exported_func
     [_NR_cx_eddsa_update_hash]            = (unsigned long) cx_eddsa_update_hash,
     [_NR_cx_eddsa_verify_init_hash]       = (unsigned long) cx_eddsa_verify_init_hash,
     [_NR_cx_eddsa_verify_hash]            = (unsigned long) cx_eddsa_verify_hash,
+    [_NR_cx_aes_siv_update_mac]           = (unsigned long) cx_aes_siv_update_mac,
 };

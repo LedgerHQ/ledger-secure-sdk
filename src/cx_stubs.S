@@ -155,6 +155,7 @@ CX_TRAMPOLINE _NR_cx_eddsa_sign_hash                       cx_eddsa_sign_hash
 CX_TRAMPOLINE _NR_cx_eddsa_update_hash                     cx_eddsa_update_hash
 CX_TRAMPOLINE _NR_cx_eddsa_verify_init_hash                cx_eddsa_verify_init_hash
 CX_TRAMPOLINE _NR_cx_eddsa_verify_hash                     cx_eddsa_verify_hash
+CX_TRAMPOLINE _NR_cx_aes_siv_update_mac                    cx_aes_siv_update_mac
 
 .thumb_func
 cx_trampoline_helper:

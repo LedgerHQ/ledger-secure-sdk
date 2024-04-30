@@ -68,19 +68,26 @@ cx_err_t cx_aes_siv_update_aad(cx_aes_siv_context_t *ctx, const uint8_t *aad, si
     uint8_t  tmp[CX_AES_BLOCK_SIZE] = {0};
     cx_err_t error;
 
+    CX_CHECK(cx_cipher_setup(ctx->cipher_ctx, ctx->cipher_type, CX_CHAIN_ECB));
+    CX_CHECK(cx_cmac_start(ctx->cipher_ctx, ctx->key1, ctx->key_len));
+
     if (NULL == aad) {
         return CX_OK;
     }
 
-    CX_CHECK(cx_cipher_setup(ctx->cipher_ctx, ctx->cipher_type, CX_CHAIN_ECB));
     CX_CHECK(cx_cmac_shift_and_xor(tmp, ctx->tag_state, CX_AES_BLOCK_SIZE));
-    CX_CHECK(cx_cmac_start(ctx->cipher_ctx, ctx->key1, ctx->key_len));
     CX_CHECK(cx_cmac_update(ctx->cipher_ctx, aad, aad_len));
     CX_CHECK(cx_cmac_finish(ctx->cipher_ctx, ctx->tag_state));
     cx_memxor(ctx->tag_state, tmp, CX_AES_BLOCK_SIZE);
+    CX_CHECK(cx_cmac_start(ctx->cipher_ctx, ctx->key1, ctx->key_len));
 
 end:
     return error;
+}
+
+cx_err_t cx_aes_siv_update_mac(cx_aes_siv_context_t *ctx, const uint8_t *input, size_t in_len)
+{
+    return cx_cmac_update(ctx->cipher_ctx, input, in_len);
 }
 
 cx_err_t cx_aes_siv_update(cx_aes_siv_context_t *ctx,
@@ -91,7 +98,6 @@ cx_err_t cx_aes_siv_update(cx_aes_siv_context_t *ctx,
     size_t   out_len = len;
     cx_err_t error;
     CX_CHECK(cx_cipher_update(ctx->cipher_ctx, input, len, output, &out_len));
-    cx_cipher_reset(ctx->cipher_ctx);
 
 end:
     return error;
@@ -112,19 +118,16 @@ cx_err_t cx_aes_siv_finish(cx_aes_siv_context_t *ctx,
     uint8_t  tmp[CX_AES_BLOCK_SIZE] = {0};
     cx_err_t error;
 
-    CX_CHECK(cx_cipher_setup(ctx->cipher_ctx, ctx->cipher_type, CX_CHAIN_ECB));
     if (in_len < CX_AES_BLOCK_SIZE) {
         CX_CHECK(cx_cmac_shift_and_xor(tmp, ctx->tag_state, CX_AES_BLOCK_SIZE));
         memset(ctx->tag_state, 0, CX_AES_BLOCK_SIZE);
         memcpy(ctx->tag_state, input, in_len);
         add_one_and_zeros_padding(ctx->tag_state, CX_AES_BLOCK_SIZE, in_len);
         cx_memxor(tmp, ctx->tag_state, CX_AES_BLOCK_SIZE);
-        CX_CHECK(cx_cmac_start(ctx->cipher_ctx, ctx->key1, ctx->key_len));
         CX_CHECK(cx_cmac_update(ctx->cipher_ctx, tmp, CX_AES_BLOCK_SIZE));
         CX_CHECK(cx_cmac_finish(ctx->cipher_ctx, ctx->tag_state));
     }
     else {
-        CX_CHECK(cx_cmac_start(ctx->cipher_ctx, ctx->key1, ctx->key_len));
         CX_CHECK(cx_cmac_update(ctx->cipher_ctx, input, in_len - CX_AES_BLOCK_SIZE));
         cx_memxor(ctx->tag_state, input + in_len - CX_AES_BLOCK_SIZE, CX_AES_BLOCK_SIZE);
         CX_CHECK(cx_cmac_update(ctx->cipher_ctx, ctx->tag_state, CX_AES_BLOCK_SIZE));
@@ -172,6 +175,7 @@ cx_err_t cx_aes_siv_decrypt(cx_aes_siv_context_t *ctx,
     cx_err_t error;
     CX_CHECK(cx_aes_siv_start(ctx, CX_DECRYPT, tag, CX_AES_BLOCK_SIZE));
     CX_CHECK(cx_aes_siv_update(ctx, input, output, in_len));
+    cx_cipher_reset(ctx->cipher_ctx);
     CX_CHECK(cx_aes_siv_update_aad(ctx, aad, aad_len));
     CX_CHECK(cx_aes_siv_finish(ctx, output, in_len, tag));
 
