@@ -12,6 +12,15 @@
  * Checks the error code of a function.
  * @hideinitializer
  */
+#ifdef HAVE_BOLOS
+#define CX_CHECK(call) \
+    do {               \
+        error = call;  \
+        if (error) {   \
+            goto end;  \
+        }              \
+    } while (0)
+#else
 #define CX_CHECK(call)                                           \
     do {                                                         \
         error = call;                                            \
@@ -20,6 +29,7 @@
             goto end;                                            \
         }                                                        \
     } while (0)
+#endif
 
 /**
  * Checks the error code of a function and ignore
