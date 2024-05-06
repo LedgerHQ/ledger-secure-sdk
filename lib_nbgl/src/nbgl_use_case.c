@@ -2410,6 +2410,11 @@ void nbgl_useCaseReview(nbgl_operationType_t              operationType,
     uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
     prepareNavInfo(true, nbPages, getRejectReviewText(operationType));
 
+#ifdef HAVE_PIEZO_SOUND
+    // Play notification sound
+    io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
+#endif  // HAVE_PIEZO_SOUND
+
     displayGenericContextPage(0, true);
 }
 
@@ -2466,6 +2471,11 @@ void nbgl_useCaseReviewLight(nbgl_operationType_t              operationType,
     // compute number of pages & fill navigation structure
     uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
     prepareNavInfo(true, nbPages, getRejectReviewText(operationType));
+
+#ifdef HAVE_PIEZO_SOUND
+    // Play notification sound
+    io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
+#endif  // HAVE_PIEZO_SOUND
 
     displayGenericContextPage(0, true);
 }
@@ -2547,6 +2557,11 @@ void nbgl_useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
     // no back button on first page
     navInfo.navWithButtons.backButton = false;
 #endif  // TARGET_STAX
+
+#ifdef HAVE_PIEZO_SOUND
+    // Play notification sound
+    io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
+#endif  // HAVE_PIEZO_SOUND
 
     displayGenericContextPage(0, true);
 }
@@ -2782,6 +2797,11 @@ void nbgl_useCaseAddressReview(const char                       *address,
 #else   // TARGET_STAX
     prepareNavInfo(true, nbPages, "Reject");
 #endif  // TARGET_STAX
+
+#ifdef HAVE_PIEZO_SOUND
+    // Play notification sound
+    io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
+#endif  // HAVE_PIEZO_SOUND
 
     displayGenericContextPage(0, true);
 }
