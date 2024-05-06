@@ -24,7 +24,7 @@ ifeq ($(DISABLE_UI),0)
     endif
 endif
 
-SDK_SOURCE_PATH += io io_legacy protocol
+SDK_SOURCE_PATH += io io_legacy protocol lib_u2f_legacy
 
 # adding the correct target header to sources
 SDK_SOURCE_PATH += target/$(TARGET)/include

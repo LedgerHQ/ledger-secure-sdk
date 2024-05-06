@@ -372,6 +372,8 @@ uint8_t USBD_LEDGER_HID_U2F_data_out(USBD_HandleTypeDef *pdev,
 
     UNUSED(ep_num);
 
+    PRINTF("USBD_LEDGER_HID_U2F_data_out");
+
     ledger_hid_u2f_handle_t *handle = (ledger_hid_u2f_handle_t *) PIC(cookie);
 
     U2F_TRANSPORT_rx(&handle->transport_data, packet, packet_length);
@@ -404,11 +406,13 @@ uint8_t USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
             cmd = U2F_COMMAND_MSG;
             if ((message_length == 2) && (message[0] == 0x69) && (message[1] == 0x85)) {
                 handle->user_presence = LEDGER_HID_U2F_USER_PRESENCE_ASKING;
+                PRINTF("LEDGER_HID_U2F_USER_PRESENCE_ASKING");
             }
             else if (handle->user_presence == LEDGER_HID_U2F_USER_PRESENCE_ASKING) {
                 handle->user_presence         = LEDGER_HID_U2F_USER_PRESENCE_CONFIRMED;
                 handle->backup_message        = (uint8_t *) message;
                 handle->backup_message_length = message_length;
+                PRINTF("LEDGER_HID_U2F_USER_PRESENCE_CONFIRMED");
                 return USBD_OK;
             }
             break;
@@ -462,7 +466,10 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
 {
     int32_t status = 0;
 
+    PRINTF("USBD_LEDGER_HID_U2F_data_ready");
+
     UNUSED(pdev);
+    UNUSED(max_length);
 
     if (!cookie || !buffer) {
         return -1;
@@ -621,7 +628,6 @@ void USBD_LEDGER_HID_U2F_setting(uint32_t id, uint8_t *buffer, uint16_t length, 
     if (!cookie || !buffer) {
         return;
     }
-    ledger_hid_u2f_handle_t *handle = (ledger_hid_u2f_handle_t *) PIC(cookie);
 
     if ((id == USBD_LEDGER_HID_U2F_SETTING_ID_VERSIONS) && (buffer) && (length == 4)) {
         ledger_hid_u2f_settings.protocol_version            = buffer[0];

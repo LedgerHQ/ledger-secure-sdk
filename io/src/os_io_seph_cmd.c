@@ -334,13 +334,19 @@ void os_io_ux_cmd_ble_pairing_status(bolos_ux_params_t *ux_params)
 
 void os_io_ux_cmd_button_state(uint8_t state)
 {
-    uint8_t buffer[5];
+    /*uint8_t buffer[5];
     buffer[0] = SEPROXYHAL_TAG_ITC_CMD;
     buffer[1] = 0;
     buffer[2] = 2;
     buffer[3] = ITC_BUTTON_STATE;
     buffer[4] = state;
-    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 5, NULL);
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 5, NULL);*/
+    uint8_t tx_buff[4];
+    tx_buff[0] = SEPROXYHAL_TAG_BUTTON_PUSH_EVENT;
+    tx_buff[1] = 0;
+    tx_buff[2] = 1;
+    tx_buff[3] = state;
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, tx_buff, 4, NULL);
 }
 
 void os_io_ux_cmd_touch_state(uint8_t state, uint16_t x, uint16_t y, uint8_t w, uint8_t h)

@@ -42,7 +42,6 @@ unsigned char G_io_tx_buffer[OS_IO_BUFFER_SIZE + 1];
 
 #ifndef USE_OS_IO_STACK
 unsigned char G_io_seph_buffer[OS_IO_SEPH_BUFFER_SIZE + 1];
-uint16_t      G_io_seph_buffer_length;
 #endif  // !USE_OS_IO_STACK
 
 uint8_t G_io_syscall_flag;
@@ -212,33 +211,27 @@ int os_io_rx_evt(unsigned char *buffer, unsigned short buffer_max_length, unsign
     int      status = 0;
     uint16_t length = 0;
 
-    if (!G_io_seph_buffer_length) {
-        status = os_io_seph_se_rx_event(
-            G_io_seph_buffer, sizeof(G_io_seph_buffer), (unsigned int *) timeout_ms, true, 0);
-        if (status == -1) {
-            status = os_io_seph_cmd_general_status();
-            if (status < 0) {
-                return status;
-            }
-            status = os_io_seph_se_rx_event(
-                G_io_seph_buffer, sizeof(G_io_seph_buffer), (unsigned int *) timeout_ms, true, 0);
-        }
+    status = os_io_seph_se_rx_event(
+        G_io_seph_buffer, sizeof(G_io_seph_buffer), (unsigned int *) timeout_ms, true, 0);
+    if (status == -1) {
+        status = os_io_seph_cmd_general_status();
         if (status < 0) {
             return status;
         }
-#ifndef USE_OS_IO_STACK
-        if ((G_io_seph_buffer[0] == OS_IO_PACKET_TYPE_SEPH)
-            && (G_io_seph_buffer[1] == SEPROXYHAL_TAG_ITC_EVENT)) {
-            status = process_itc_event(&G_io_seph_buffer[1], status - 1) + 1;
-        }
-#endif  // !USE_OS_IO_STACK
-        if (status > 0) {
-            length = (uint16_t) status;
-        }
+        status = os_io_seph_se_rx_event(
+            G_io_seph_buffer, sizeof(G_io_seph_buffer), (unsigned int *) timeout_ms, true, 0);
     }
-    else {
-        length                  = G_io_seph_buffer_length;
-        G_io_seph_buffer_length = 0;
+    if (status < 0) {
+        return status;
+    }
+#ifndef USE_OS_IO_STACK
+    if ((G_io_seph_buffer[0] == OS_IO_PACKET_TYPE_SEPH)
+        && (G_io_seph_buffer[1] == SEPROXYHAL_TAG_ITC_EVENT)) {
+        status = process_itc_event(&G_io_seph_buffer[1], status - 1) + 1;
+    }
+#endif  // !USE_OS_IO_STACK
+    if (status > 0) {
+        length = (uint16_t) status;
     }
 
     switch (G_io_seph_buffer[1]) {
@@ -304,6 +297,7 @@ int os_io_tx_cmd(uint8_t                     type,
 #ifdef HAVE_IO_U2F
         case OS_IO_PACKET_TYPE_USB_U2F_HID_APDU:
         case OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR:
+            PRINTF("OS_IO_PACKET_TYPE_USB_U2F_HID_APDU");
             USBD_LEDGER_send(USBD_LEDGER_CLASS_HID_U2F, type, buffer, length, 0);
             break;
 #endif  // HAVE_IO_U2F
@@ -326,10 +320,9 @@ int os_io_tx_cmd(uint8_t                     type,
                                                 sizeof(G_io_seph_buffer),
                                                 (unsigned int *) timeout_ms,
                                                 false,
-                                                0);
+                                                OS_IO_FLAG_TOTO);
                 if (status >= 0) {
-                    G_io_seph_buffer_length = status;
-                    status                  = os_io_seph_tx(buffer, length, NULL);
+                    status = os_io_seph_tx(buffer, length, NULL);
                 }
             }
             break;

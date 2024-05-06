@@ -80,6 +80,7 @@ typedef struct {
 
 /* Exported defines   --------------------------------------------------------*/
 #define OS_IO_FLAG_CACHE 1
+#define OS_IO_FLAG_TOTO  2
 
 #ifdef CUSTOM_IO_APDU_BUFFER_SIZE
 #define OS_IO_BUFFER_SIZE CUSTOM_IO_APDU_BUFFER_SIZE

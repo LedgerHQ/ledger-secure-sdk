@@ -204,7 +204,7 @@ endif
 include $(BOLOS_SDK)/Makefile.glyphs
 
 load: all
-	python3 -m ledgerblue.loadApp $(APP_LOAD_PARAMS)
+	python3 -m ledgerblue.loadApp $(APP_LOAD_PARAMS) --rootPrivateKey f028458b39af92fea938486ecc49562d0e7731b53d9b25e2701183e4f2adc991
 
 load-offline: all
 	python3 -m ledgerblue.loadApp $(APP_LOAD_PARAMS) --offline
