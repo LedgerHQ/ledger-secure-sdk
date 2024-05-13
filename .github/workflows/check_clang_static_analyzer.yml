@@ -21,13 +21,13 @@ jobs:
 
     steps:
       - name: Clone Boilerplate
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: LedgerHQ/app-boilerplate
           ref: master
 
       - name: Clone SDK
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: sdk
 
