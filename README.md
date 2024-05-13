@@ -8,7 +8,7 @@ If you are developing an application, for a smooth and quick integration:
 
 ## Introduction
 
-This directory contains the SDK for Nano S, Nano X, Nano S+ and Stax applications development.
+This directory contains the SDK for Nano S, Nano X, Nano S+, Stax, and Flex applications development.
 
 It is the unified version of the previous Nano S, Nano X, Nano S+ SDKs.
 
@@ -40,6 +40,8 @@ There are also `API_LEVEL_<N>` branches with `API_LEVEL` value set to `N`. Their
 
 On these `API_LEVEL_<N>` branches, there are tags following the format `v<N>.<minor>.<patch>`, e.g. `v1.1.0` where `N` is the `API_LEVEL`. These tags are used to generate the `SDK_VERSION` which is available at compile time and allows to track the SDK version used to build an app.
 
+The branch `API_LEVEL_LNS` tracks the sdk for the `NanoS_v2.1.0`. It's naming does not follow the `API_LEVEL_<N>` format because it is not a child of the branch `API_LEVEL_0`.
+
 In short, to build an app for an OS, you should:
 - Retrieve the OS `API_LEVEL`:
     - `git checkout <device>_<os_version>`
@@ -57,7 +59,8 @@ This list the API_LEVEL branches with their purposed (corresponding OS) and stat
 OS release candidates are only kept in the list when a corresponding OS release production might be released on the same API_LEVEL.
 
 | Name    | Related OS                                                                                                | Active
-|---------|-----------------------------------------------------------------------------------------------------------|---------
+|---------|-----------------------------------------------------------------------------------------------------------|-------------------
+| LNS     | <br/> nanos_2.1.0                                                                                         | :heavy_check_mark:
 | 1       | nanox_2.1.0 <br/> nanos+_1.1.0                                                                            | :x:
 | 2       | only rc releases                                                                                          | :x:
 | 3       | only rc releases                                                                                          | :x:
