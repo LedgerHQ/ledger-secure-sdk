@@ -1,0 +1,233 @@
+#*******************************************************************************
+#   Ledger SDK
+#   (c) 2022 Ledger
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#*******************************************************************************
+
+#####################################################################
+#                            BLUETOOTH                              #
+#####################################################################
+ifeq ($(ENABLE_BLUETOOTH), 1)
+ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOX TARGET_STAX))
+    HAVE_APPLICATION_FLAG_BOLOS_SETTINGS = 1
+    DEFINES += HAVE_BLE BLE_COMMAND_TIMEOUT_MS=2000 HAVE_BLE_APDU
+    DEFINES += BLE_SEGMENT_SIZE=32
+    SDK_SOURCE_PATH += lib_blewbxx lib_blewbxx_impl
+endif
+endif
+
+#####################################################################
+#                               NFC                                 #
+#####################################################################
+ifeq ($(ENABLE_NFC), 1)
+ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME), TARGET_STAX))
+    STANDARD_APP_FLAGS = 0x200  # APPLICATION_FLAG_BOLOS_SETTINGS
+    DEFINES += HAVE_NFC
+    SDK_SOURCE_PATH += lib_nfc
+endif
+endif
+
+#####################################################################
+#                               SWAP                                #
+#####################################################################
+ifeq ($(ENABLE_SWAP), 1)
+    HAVE_APPLICATION_FLAG_LIBRARY = 1
+    DEFINES += HAVE_SWAP
+endif
+
+#####################################################################
+#                               DEBUG                               #
+#####################################################################
+ifneq ($(DEBUG), 0)
+    DEFINES += HAVE_PRINTF
+    ifeq ($(TARGET_NAME),TARGET_NANOS)
+        DEFINES += PRINTF=screen_printf
+    else
+        DEFINES += PRINTF=mcu_usb_printf
+    endif
+    ifneq ($(DISABLE_DEBUG_LEDGER_ASSERT), 1)
+        DEFINES += HAVE_LEDGER_ASSERT_DISPLAY
+        DEFINES += LEDGER_ASSERT_CONFIG_FILE_INFO
+    endif
+    ifneq ($(DISABLE_DEBUG_THROW), 1)
+        DEFINES += HAVE_DEBUG_THROWS
+    endif
+else
+        DEFINES += PRINTF\(...\)=
+endif
+
+#####################################################################
+#                        IO SEPROXY BUFFER SIZE                     #
+#####################################################################
+ifneq ($(DISABLE_DEFAULT_IO_SEPROXY_BUFFER_SIZE), 1)
+    ifeq ($(TARGET_NAME), TARGET_NANOS)
+        DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=128
+    else
+        DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=300
+    endif
+endif
+
+#####################################################################
+#                          STANDARD DEFINES                         #
+#####################################################################
+DEFINES += $(DEFINES_LIB)
+DEFINES += MAJOR_VERSION=$(APPVERSION_M) MINOR_VERSION=$(APPVERSION_N) PATCH_VERSION=$(APPVERSION_P)
+DEFINES += IO_HID_EP_LENGTH=64
+
+ifeq ($(DISABLE_STANDARD_APP_DEFINES), 1)
+    DISABLE_STANDARD_SNPRINTF = 1
+    DISABLE_STANDARD_USB = 1
+    DISABLE_STANDARD_WEBUSB = 1
+    DISABLE_STANDARD_BAGL_UX_FLOW = 1
+    DISABLE_STANDARD_SEPROXYHAL = 1
+endif
+
+ifneq ($(DISABLE_STANDARD_SNPRINTF), 1)
+    DEFINES += HAVE_SPRINTF HAVE_SNPRINTF_FORMAT_U
+endif
+
+ifneq ($(DISABLE_STANDARD_USB), 1)
+    DEFINES += HAVE_IO_USB HAVE_L4_USBLIB IO_USB_MAX_ENDPOINTS=4 HAVE_USB_APDU
+    DEFINES += USB_SEGMENT_SIZE=64
+    SDK_SOURCE_PATH += lib_stusb lib_stusb_impl
+endif
+
+ifneq ($(DISABLE_STANDARD_WEBUSB), 1)
+    APP_WEBUSB_URL ?= ""
+    WEBUSB_URL_SIZE_B = $(shell echo -n $(APP_WEBUSB_URL) | wc -c)
+    WEBUSB_URL=$(shell echo -n $(APP_WEBUSB_URL) | sed -e "s/./\\\'\0\\\',/g")
+    DEFINES += HAVE_WEBUSB WEBUSB_URL_SIZE_B=$(WEBUSB_URL_SIZE_B) WEBUSB_URL=$(WEBUSB_URL)
+endif
+
+ifneq ($(DISABLE_STANDARD_BAGL_UX_FLOW), 1)
+ifneq ($(TARGET_NAME), TARGET_STAX)
+    DEFINES += HAVE_UX_FLOW
+endif
+endif
+
+ifneq ($(DISABLE_STANDARD_SEPROXYHAL), 1)
+    DEFINES += OS_IO_SEPROXYHAL
+endif
+
+ifneq ($(DISABLE_STANDARD_APP_FILES), 1)
+SDK_SOURCE_PATH += lib_standard_app
+endif
+
+#####################################################################
+#                              NBGL                                 #
+#####################################################################
+ifeq ($(ENABLE_NBGL_QRCODE), 1)
+ifeq ($(TARGET_NAME), TARGET_STAX)
+    DEFINES += NBGL_QRCODE
+    SDK_SOURCE_PATH += qrcode
+endif
+endif
+
+ifeq ($(ENABLE_NBGL_KEYBOARD), 1)
+ifeq ($(TARGET_NAME), TARGET_STAX)
+    DEFINES += NBGL_KEYBOARD
+endif
+endif
+
+ifeq ($(ENABLE_NBGL_KEYPAD), 1)
+ifeq ($(TARGET_NAME), TARGET_STAX)
+    DEFINES += NBGL_KEYPAD
+endif
+endif
+
+#####################################################################
+#                          APP_LOAD_PARAMS                          #
+#####################################################################
+CUSTOM_APP_FLAGS ?= 0x000 # Can be personalized by the application
+
+STANDARD_APP_FLAGS = 0x000
+
+# Following flags enables app permissions.
+# See SDK include/appflags.h for the purpose of each permission
+ifeq ($(HAVE_APPLICATION_FLAG_DERIVE_MASTER), 1)
+# APPLICATION_FLAG_DERIVE_MASTER 0x010
+STANDARD_APP_FLAGS := $(shell echo $$(($(STANDARD_APP_FLAGS) + 0x010)))
+endif
+ifeq ($(HAVE_APPLICATION_FLAG_GLOBAL_PIN), 1)
+# APPLICATION_FLAG_GLOBAL_PIN 0x040
+STANDARD_APP_FLAGS := $(shell echo $$(($(STANDARD_APP_FLAGS) + 0x040)))
+endif
+ifeq ($(HAVE_APPLICATION_FLAG_BOLOS_SETTINGS), 1)
+# APPLICATION_FLAG_BOLOS_SETTINGS 0x200
+STANDARD_APP_FLAGS := $(shell echo $$(($(STANDARD_APP_FLAGS) + 0x200)))
+endif
+ifeq ($(HAVE_APPLICATION_FLAG_LIBRARY), 1)
+# APPLICATION_FLAG_LIBRARY 0x800
+STANDARD_APP_FLAGS := $(shell echo $$(($(STANDARD_APP_FLAGS) + 0x800)))
+endif
+
+# Pending review flag
+ifeq ($(ENABLE_PENDING_REVIEW_SCREEN), 1)
+    TLVRAW_APP_LOAD_PARAMS += 9F:01
+    DEFINES += HAVE_PENDING_REVIEW_SCREEN
+endif
+
+APP_FLAGS_APP_LOAD_PARAMS = $(shell printf '0x%x' $$(( $(STANDARD_APP_FLAGS) + $(CUSTOM_APP_FLAGS) )) )
+
+#####################################################################
+#                         COMPILER SETTINGS                         #
+#####################################################################
+CC      := $(CLANGPATH)clang
+AS      := $(GCCPATH)arm-none-eabi-gcc
+LD      := $(GCCPATH)arm-none-eabi-gcc
+LDLIBS  += -lm -lgcc -lc
+
+#####################################################################
+#                               MISC                                #
+#####################################################################
+ifeq ($(TARGET_NAME), TARGET_NANOS)
+ICONNAME ?= $(ICON_NANOS)
+endif
+ifeq ($(TARGET_NAME), TARGET_NANOX)
+ICONNAME ?= $(ICON_NANOX)
+endif
+ifeq ($(TARGET_NAME), TARGET_NANOS2)
+ICONNAME ?= $(ICON_NANOSP)
+endif
+ifeq ($(TARGET_NAME),TARGET_STAX)
+ICONNAME ?= $(ICON_STAX)
+endif
+
+include $(BOLOS_SDK)/Makefile.glyphs
+
+load: all
+	python3 -m ledgerblue.loadApp $(APP_LOAD_PARAMS)
+
+load-offline: all
+	python3 -m ledgerblue.loadApp $(APP_LOAD_PARAMS) --offline
+
+delete:
+	python3 -m ledgerblue.deleteApp $(COMMON_DELETE_PARAMS)
+
+include $(BOLOS_SDK)/Makefile.rules
+
+# Prepare `listvariants` mandatory target.
+# This target output must contains:
+# - `VARIANTS` which is used as a marker for the tools parsing the output.
+# - <VARIANT_PARAM> which is the name of the parameter which should be set
+#   to specify the variant that should be build.
+# - <VARIANT_VALUES> a list of variant that can be build using this app code.
+#   * It must at least contains one value.
+#   * Values can be the app ticker or anything else but should be unique.
+#
+# Deployment scripts will use this Makefile target to retrieve the list of
+# available variants and then call `make -j <VARIANT_PARAM>=<VALUE>` for each
+# <VALUE> in <VARIANT_VALUES>.
+listvariants:
+	@echo VARIANTS $(VARIANT_PARAM) $(VARIANT_VALUES)

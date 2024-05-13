@@ -1,0 +1,209 @@
+#*******************************************************************************
+#   Ledger SDK
+#   (c) 2017 Ledger
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#*******************************************************************************
+
+# Include Makefile.app_params here so that it is:
+# - included on all apps Makefile, without changing them
+# - included after apps Makefile changes on APP_LOAD_PARAMS
+include $(BOLOS_SDK)/Makefile.app_params
+
+# consider every intermediate target as final to avoid deleting intermediate files
+.SECONDARY:
+
+# disable builtin rules that overload the build process (and the debug log !!)
+.SUFFIXES:
+MAKEFLAGS += -r
+
+SHELL =       /bin/bash
+
+#default building rules
+.SECONDEXPANSION:
+
+ifeq ($(shell $(CC) -v 2>&1 | grep clang),)
+$(error Compiler is not CLANG)
+endif
+
+ifeq ($(TARGET_NAME),TARGET_NANOX)
+ifeq ($(shell $(LD) -v 2>&1 | grep clang),)
+LD := $(CC)
+ifneq ($(shell [ `$(CC) -v 2>&1 | grep "version " | cut -f3 -d' ' | cut -f1 -d'.'` -ge 7 ] && echo ok),ok)
+$(error Requires at least CLANG 7 to link correctly with -fropi -frwpi)
+endif
+$(info Linker changed to CLANG)
+endif
+endif
+
+ifeq ($(filter clean,$(MAKECMDGOALS)),)
+-include $(DEPEND_FILES)
+endif
+
+listinfo:
+	@echo TARGET=$(TARGET)
+	@echo TARGET_NAME=$(TARGET_NAME)
+	@echo TARGET_ID=$(TARGET_ID)
+	@echo TARGET_VERSION=$(TARGET_VERSION)
+	@echo APPNAME=$(APPNAME)
+	@echo APPVERSION=$(APPVERSION)
+	@echo SDK_NAME=$(SDK_NAME)
+	@echo SDK_VERSION=$(SDK_VERSION)
+	@echo SDK_HASH=$(SDK_HASH)
+
+clean:
+	rm -fr $(BUILD_DIR) bin debug
+
+clean_target:
+	rm -fr $(TARGET_BUILD_DIR)
+
+BUILD_DEPENDENCIES  = $(GLYPH_DESTH) $(GLYPH_DESTC) Makefile
+BUILD_DEPENDENCIES += $(APP_CUSTOM_BUILD_DEPENDENCIES)
+
+prepare:
+	$(L)echo Prepare directories
+	@mkdir -p $(BIN_DIR) $(OBJ_DIR) $(OBJECTS_DIR) $(DBG_DIR) $(DEP_DIR) $(DEPEND_DIR) $(GEN_SRC_DIR) bin debug
+
+$(BUILD_DEPENDENCIES): prepare
+
+BIN_TARGETS := bin/app.elf bin/app.apdu bin/app.sha256 bin/app.hex
+DBG_TARGETS := debug/app.map debug/app.asm
+
+default: $(BIN_TARGETS) $(DBG_TARGETS)
+
+# Glyphs target
+$(GEN_SRC_DIR)/%.o: $(GEN_SRC_DIR)/%.c $(BUILD_DEPENDENCIES) prepare
+	@echo "[CC]   $@"
+	$(L)$(call cc_cmdline,$(INCLUDES_PATH), $(DEFINES),$<,$@)
+
+# App files targets
+$(OBJ_DIR)/app/%.o: $(APP_DIR)/%.c $(BUILD_DEPENDENCIES) prepare
+	@echo "[CC]   $@"
+	$(L)$(call cc_cmdline,$(INCLUDES_PATH), $(DEFINES),$<,$@)
+
+$(OBJ_DIR)/app/%.o: $(APP_DIR)/%.s $(BUILD_DEPENDENCIES) prepare
+	@echo "[AS]   $@"
+	$(L)$(call as_cmdline,$(INCLUDES_PATH), $(DEFINES),$<,$@)
+
+$(OBJ_DIR)/app/%.o: $(APP_DIR)/%.S $(BUILD_DEPENDENCIES) prepare
+	@echo "[AS]   $@"
+	$(L)$(call as_cmdline,$(INCLUDES_PATH), $(DEFINES),$<,$@)
+
+# SDK files targets
+$(OBJ_DIR)/sdk/%.o: $(BOLOS_SDK)/%.c $(BUILD_DEPENDENCIES) prepare
+	@echo "[CC]   $@"
+	$(L)$(call cc_cmdline,$(INCLUDES_PATH), $(DEFINES),$<,$@)
+
+$(OBJ_DIR)/sdk/%.o: $(BOLOS_SDK)/%.s $(BUILD_DEPENDENCIES) prepare
+	@echo "[AS]   $@"
+	$(L)$(call as_cmdline,$(INCLUDES_PATH), $(DEFINES),$<,$@)
+
+$(OBJ_DIR)/sdk/%.o: $(BOLOS_SDK)/%.S $(BUILD_DEPENDENCIES) prepare
+	@echo "[AS]   $@"
+	$(L)$(call as_cmdline,$(INCLUDES_PATH), $(DEFINES),$<,$@)
+
+# Generic targets
+$(OBJ_DIR)/%.o: %.c $(BUILD_DEPENDENCIES) prepare
+	@echo "[CC]   $@"
+	$(L)$(call cc_cmdline,$(INCLUDES_PATH), $(DEFINES),$<,$@)
+
+$(OBJ_DIR)/%.o: %.s $(BUILD_DEPENDENCIES) prepare
+	@echo "[AS]   $@"
+	$(L)$(call as_cmdline,$(INCLUDES_PATH), $(DEFINES),$<,$@)
+
+$(OBJ_DIR)/%.o: %.S $(BUILD_DEPENDENCIES) prepare
+	@echo "[AS]   $@"
+	$(L)$(call as_cmdline,$(INCLUDES_PATH), $(DEFINES),$<,$@)
+
+ifeq (,$(filter $(DEFINES),BOLOS_OS_UPGRADER_APP))
+ifneq ($(SCRIPT_LD),)
+ifneq ($(ENABLE_SDK_WERROR),0)
+$(error Deprecated SCRIPT_LD setting)
+else
+$(warning Deprecated SCRIPT_LD setting)
+endif
+endif
+ifeq ($(IS_PLUGIN),)
+SCRIPT_LD := $(BOLOS_SDK)/script.ld
+else
+SCRIPT_LD := $(BOLOS_SDK)/plugin_script.ld
+$(info Using plugin link script: $(SCRIPT_LD))
+endif
+endif
+LDFLAGS  += -T$(SCRIPT_LD)
+
+$(LINK_DEPENDENCIES): prepare
+
+LINK_DEPENDENCIES  = $(OBJECT_FILES) $(SCRIPT_LD) Makefile
+LINK_DEPENDENCIES += $(APP_CUSTOM_LINK_DEPENDENCIES)
+
+$(BIN_DIR)/app.elf: $(LINK_DEPENDENCIES)
+	@echo "[LINK] $(BIN_DIR)/app.elf"
+	$(L)$(call link_cmdline,$(OBJECT_FILES) $(LDLIBS),$(BIN_DIR)/app.elf)
+	$(L)$(GCCPATH)arm-none-eabi-objcopy -O ihex -S $(BIN_DIR)/app.elf $(BIN_DIR)/app.hex
+	$(L)$(GCCPATH)arm-none-eabi-objdump -S -d $(BIN_DIR)/app.elf > $(DBG_DIR)/app.asm
+
+# This targets are generated along $(OBJ_DIR)/app.elf but we can't make them co-target
+# otherwise building with `make -j` fails due to multiple threads running simultaneously
+# this target while it needs to be run only once.
+$(BIN_DIR)/app.hex $(DBG_DIR)/app.map $(DBG_DIR)/app.asm: $(BIN_DIR)/app.elf
+
+$(BIN_DIR)/app.apdu: bin/app.hex debug/app.map
+	$(L)python3 -m ledgerblue.loadApp $(APP_LOAD_PARAMS) --offline $(BIN_DIR)/app.apdu | grep "Application" | cut -f5 -d' ' > $(BIN_DIR)/app.sha256
+
+# This target is generated along $(BIN_DIR)/app.apdu but we can't make them co-target
+# otherwise building with `make -j` ends up with multiple threads running simultaneously
+# this target while it needs to be run only once.
+$(BIN_DIR)/app.sha256: $(BIN_DIR)/app.apdu
+
+# Set PHONY to force the copy to bin in case we rebuild a previous TARGET
+.PHONY: bin/app.elf bin/app.hex bin/app.apdu bin/app.sha256
+bin/app.elf bin/app.hex bin/app.apdu bin/app.sha256: bin/app.%: $(BIN_DIR)/app.%
+	@echo "[CP] $< => $@"
+	$(L)cp $< $@
+
+# Set PHONY to force the copy to debug in case we rebuild a previous TARGET
+.PHONY: debug/app.map debug/app.asm
+debug/app.map debug/app.asm: debug/app.%: $(DBG_DIR)/app.%
+	@echo "[CP] $< => $@"
+	$(L)cp $< $@
+
+### BEGIN GCC COMPILER RULES
+
+# link_cmdline(objects,dest)		Macro that is used to format arguments for the linker
+link_cmdline = $(LD) $(LDFLAGS) -o $(2) $(1)
+ifneq ($(APP_STACK_SIZE),)
+ifneq ($(ENABLE_SDK_WERROR),0)
+$(error Deprecated APP_STACK_SIZE define, use APP_STACK_MIN_SIZE if really needed)
+else
+$(warning Deprecated APP_STACK_SIZE define, use APP_STACK_MIN_SIZE if really needed)
+endif
+endif
+ifneq ($(APP_STACK_MIN_SIZE),)
+link_cmdline += -Wl,--defsym=stack_min_size=$(APP_STACK_MIN_SIZE)
+endif
+
+# cc_cmdline(include,defines,src,dest)	Macro that is used to format arguments for the compiler
+# dependency files are generated along the object file
+cc_cmdline = $(CC) -c $(CFLAGS) -MMD -MT $(4) -MF $(subst $(OBJ_DIR), $(DEP_DIR), $(addsuffix .d, $(basename $(4)))) $(addprefix -D,$(2)) $(addprefix -I,$(1)) -o $(4) $(3)
+
+as_cmdline = $(AS) -c $(AFLAGS) $(addprefix -D,$(2)) $(addprefix -I,$(1)) -o $(4) $(3)
+
+### END GCC COMPILER RULES
+
+# Run Clang Static Analyzer
+SCAN_BUILD ?= scan-build
+SCAN_BUILD_OUTPUT ?= $(CURDIR)/output-scan-build
+.PHONY: scan-build
+scan-build:
+	$(SCAN_BUILD) --use-cc=$(CC) -analyze-headers -enable-checker security -enable-checker unix -enable-checker valist --status-bugs -o $(SCAN_BUILD_OUTPUT) $(MAKE)

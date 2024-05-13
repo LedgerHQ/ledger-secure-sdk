@@ -1,0 +1,175 @@
+#*******************************************************************************
+#   Ledger SDK
+#   (c) 2017 Ledger
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#*******************************************************************************
+
+#extract TARGET_NAME/TARGET_ID from the SDK to allow for makefile choices
+TARGET := nanos
+TARGET_ID:=$(shell cat $(BOLOS_SDK)/include/bolos_target.h | grep TARGET_ID | cut -f3 -d' ')
+TARGET_NAME:=$(shell cat $(BOLOS_SDK)/include/bolos_target.h | grep TARGET_ | grep -v TARGET_ID | cut -f2 -d' ')
+TARGET_VERSION:=$(shell cat $(BOLOS_SDK)/include/bolos_version.h | grep define | cut -f2 -d'"')
+SDK_NAME    := "nanos-secure-sdk"
+SDK_VERSION := $(shell git -C $(BOLOS_SDK) describe --tags --exact-match  --match "v[0-9]*" --dirty)
+SDK_HASH    := $(shell git -C $(BOLOS_SDK) describe --always --dirty --exclude '*' --abbrev=40)
+ifeq ($(SDK_VERSION),)
+SDK_VERSION := "None"
+endif
+ifeq ($(SDK_HASH),)
+SDK_HASH := "None"
+endif
+
+$(info TARGET_NAME=$(TARGET_NAME) TARGET_ID=$(TARGET_ID) TARGET_VERSION=$(TARGET_VERSION))
+
+# APPNAME exposed to the app as a CFLAG because it might contain spaces
+CFLAGS += -DAPPNAME=\"$(APPNAME)\"
+
+# Define list of other items to be exposed to the app as strings
+# TARGET_ID is not in this list: it is already defined in bolos_target.h.
+APP_METADATA_LIST := TARGET TARGET_NAME APPVERSION SDK_NAME SDK_VERSION SDK_HASH
+DEFINES += $(foreach item,$(APP_METADATA_LIST), $(item)=\"$($(item))\")
+DEFINES += TARGET_VERSION=$(TARGET_VERSION)
+
+BUILD_DIR := build
+TARGET_BUILD_DIR := $(BUILD_DIR)/$(TARGET)
+BIN_DIR := $(TARGET_BUILD_DIR)/bin
+OBJ_DIR := $(TARGET_BUILD_DIR)/obj
+DBG_DIR := $(TARGET_BUILD_DIR)/dbg
+DEP_DIR := $(TARGET_BUILD_DIR)/dep
+GEN_SRC_DIR := $(TARGET_BUILD_DIR)/gen_src
+
+### platform definitions
+DEFINES += gcc __IO=volatile
+
+# no assert by default
+DEFINES += NDEBUG
+
+# Debug mode disabled by default
+DEBUG:=0
+
+# default is not to display make commands
+log = $(if $(strip $(VERBOSE)),$1,@$1) # kept for retrocompat
+L = $(if $(strip $(VERBOSE)),,@)
+
+ifeq ($(CC),)
+CC        = clang
+endif
+
+SYSROOT = $(shell $(GCCPATH)arm-none-eabi-gcc -print-sysroot)
+ifeq ($(SYSROOT),)
+CFLAGS   += -I/usr/include
+else
+CFLAGS   += --sysroot="$(SYSROOT)"
+endif
+
+# optimization and debug levels
+ifneq ($(DEBUG),0)
+OPTI_LVL  = -Og
+OPTI_ALVL = $(OPTI_LVL)
+DBG_LVL   = -g3
+else
+OPTI_LVL  = -Oz
+OPTI_ALVL = -Os # assembler does not handle -Oz, use -Os instead
+DBG_LVL   = -g0
+endif
+
+CFLAGS   += $(OPTI_LVL) $(DBG_LVL)
+CFLAGS   += -fomit-frame-pointer -momit-leaf-frame-pointer
+CFLAGS   += -mcpu=cortex-m0plus -mthumb
+CFLAGS   += -fno-common -mtune=cortex-m0plus -mlittle-endian
+CFLAGS   += -std=gnu99
+
+CFLAGS   += -Wall -Wextra
+CFLAGS   += -Wno-main
+CFLAGS   += -Werror=int-to-pointer-cast
+
+# Additional Clang warnings
+CFLAGS   += -Wno-error=int-conversion -Wimplicit-fallthrough
+CFLAGS   += -Wvla -Wundef -Wshadow -Wformat=2 -Wformat-security -Wwrite-strings
+
+ENABLE_SDK_WERROR ?= 0
+ifneq ($(ENABLE_SDK_WERROR),0)
+    CFLAGS   += -Werror
+endif
+
+CFLAGS   += -fdata-sections -ffunction-sections -funsigned-char -fshort-enums
+CFLAGS   += -mno-unaligned-access
+CFLAGS   +=  --target=armv6m-none-eabi
+CFLAGS   += -fropi
+CFLAGS   += -fno-jump-tables # avoid jump tables for switch to avoid problems with invalid PIC access
+CFLAGS   += -nostdlib -nodefaultlibs
+
+AFLAGS   += $(OPTI_ALVL) $(DBG_LVL) -mcpu=cortex-m0plus -fno-common -mtune=cortex-m0plus
+
+LDFLAGS  += $(OPTI_LVL) $(DBG_LVL)
+LDFLAGS  += -fomit-frame-pointer
+LDFLAGS  += -Wall
+LDFLAGS  += -mcpu=cortex-m0plus -mthumb
+LDFLAGS  += -fno-common -ffunction-sections -fdata-sections -fwhole-program
+LDFLAGS  += -mno-unaligned-access
+LDFLAGS  += -Wl,--gc-sections -Wl,-Map,$(DBG_DIR)/app.map
+LDFLAGS  += --specs=nano.specs
+
+ifeq ($(TARGET_NAME),TARGET_NANOX)
+CFLAGS   += -frwpi
+LDFLAGS  += -momit-leaf-frame-pointer
+LDFLAGS  += --target=armv6m-none-eabi
+LDFLAGS  += -mtune=cortex-m0plus -mlittle-endian
+LDFLAGS  += -nostdlib -nodefaultlibs #-nostartfiles
+LDFLAGS  += -mno-movt
+LDFLAGS  += -L$(BOLOS_SDK)/lib/
+else
+LDFLAGS  += -nostartfiles
+endif
+
+DISABLE_UI ?= 0
+ifeq ($(DISABLE_UI), 0)
+ifeq ($(TARGET_NAME),TARGET_NANOS)
+DEFINES += HAVE_BAGL
+DEFINES += BAGL_WIDTH=128 BAGL_HEIGHT=32
+endif
+endif
+
+ifeq ($(TARGET_NAME),TARGET_NANOX)
+# Screen is directly connected to the SE
+DEFINES       += HAVE_SE_SCREEN
+# Button is directly connected to the SE
+DEFINES       += HAVE_SE_BUTTON
+# MCU serial is stored on board of the SE
+DEFINES       += HAVE_MCU_SERIAL_STORAGE
+DEFINES       += HAVE_FONTS
+# already defined within apps
+# DEFINES       += HAVE_BLE
+DEFINES       += HAVE_BATTERY
+endif
+
+# include builtin CX libs options
+-include $(BOLOS_SDK)/Makefile.conf.cx
+
+ifneq ($(BOLOS_ENV),)
+$(info BOLOS_ENV=$(BOLOS_ENV))
+CLANGPATH := $(BOLOS_ENV)/clang-arm-fropi/bin/
+GCCPATH := $(BOLOS_ENV)/gcc-arm-none-eabi-5_3-2016q1/bin/
+else
+$(info BOLOS_ENV is not set: falling back to CLANGPATH and GCCPATH)
+endif
+ifeq ($(CLANGPATH),)
+$(info CLANGPATH is not set: clang will be used from PATH)
+endif
+ifeq ($(GCCPATH),)
+$(info GCCPATH is not set: arm-none-eabi-* will be used from PATH)
+endif
+
+# define the default makefile target (high in include to avoid glyph.h or what not specific target to be the default one when no target passed on the make command line)
+all: default
