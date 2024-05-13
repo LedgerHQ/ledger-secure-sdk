@@ -204,7 +204,7 @@ static const uint8_t nbMaxElementsPerContentType[] = {
     1,  // TAG_VALUE_DETAILS
     1,  // TAG_VALUE_CONFIRM
     2,  // SWITCHES_LIST
-    3,  // INFOS_LIST
+    2,  // INFOS_LIST
     4,  // CHOICES_LIST
     4,  // BARS_LIST
 #endif  // TARGET_STAX
