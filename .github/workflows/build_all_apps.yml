@@ -21,7 +21,7 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install tomlq
         run: |
@@ -105,14 +105,14 @@ jobs:
 
     steps:
       - name: Clone App
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: LedgerHQ/${{ matrix.repo_info.repo_name }}
           ref: ${{ matrix.repo_info.default_branch }}
           submodules: true
 
       - name: Clone SDK
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: sdk
           ref: ${{ inputs.sdk_branch }}
