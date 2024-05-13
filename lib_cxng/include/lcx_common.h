@@ -73,7 +73,7 @@ typedef struct {
  * @brief   Cryptography flags
  * @details Some functions take **logical or** of various flags.
  *          The following flags are globally defined:
- * 
+ *
  * | Bits position  | Values            | Flags                         | Meaning                                    | Algorithms            |
  * |----------------|-------------------|-------------------------------|--------------------------------------------|-----------------------|
  * | 15             | 1000000000000000  | CX_NO_REINIT                  | Do not reinitialize the context on CX_LAST |                       |

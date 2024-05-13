@@ -45,4 +45,3 @@
 #include "bagl_font_open_sans_semibold_13_18px.inc"
 
 #include "bagl_font_symbols.inc"
-

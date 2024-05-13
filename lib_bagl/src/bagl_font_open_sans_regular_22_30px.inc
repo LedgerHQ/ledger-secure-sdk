@@ -421,6 +421,6 @@ const bagl_font_t fontOPEN_SANS_REGULAR_22_30PX = {
    0, /* kerning */
    0x002E, /* first character */
    0x0039, /* last character  */
-   charactersOPEN_SANS_REGULAR_22_30PX 
+   charactersOPEN_SANS_REGULAR_22_30PX
   ,bitmapOPEN_SANS_REGULAR_22_30PX
 };

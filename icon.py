@@ -69,7 +69,7 @@ try:
 				sys.stderr.write("Error: " + filename + " does not exists !\n")
 				sys.exit(2)
 			widthmax = int(sys.argv[1])
-			heightmax = int(sys.argv[2])		
+			heightmax = int(sys.argv[2])
 		else:
 			forcedBPP = int(sys.argv[2])
 			if (sys.argv[3] == "hexbitmaponly"):
@@ -90,7 +90,7 @@ try:
 			sys.stderr.write("Error: " + filename + " does not exists !\n")
 			sys.exit(2)
 		widthmax = int(sys.argv[1])
-		heightmax = int(sys.argv[2])		
+		heightmax = int(sys.argv[2])
 
 		if (sys.argv[4] == "hexbitmaponly"):
 			hexbitmaponly = True
@@ -109,7 +109,7 @@ try:
 			sys.stderr.write("Error: " + filename + " does not exists !\n")
 			sys.exit(2)
 		widthmax = int(sys.argv[1])
-		heightmax = int(sys.argv[2])		
+		heightmax = int(sys.argv[2])
 		forcedBPP = int(sys.argv[4])
 		if (sys.argv[5] == "hexbitmaponly"):
 			hexbitmaponly = True
@@ -185,7 +185,7 @@ try:
 	i = 0
 	palette_remapping = {}
 	new_palette = []
-	for lum, values in opalette.items(): 
+	for lum, values in opalette.items():
 		# old index to new index
 		for v in values:
 			palette_remapping[v[0]] = i
@@ -221,7 +221,7 @@ try:
 """)
 		if glyphcheader:
 			sys.stdout.write("""extern
-""")		
+""")
 		sys.stdout.write("""unsigned int const C_""" + bname + """_colors[]
 """);
 		if glyphcheader:
@@ -237,8 +237,8 @@ try:
 			sys.stdout.write("""};
 """)
 		if glyphcheader:
-			sys.stdout.write("""extern""")	
-		sys.stdout.write("""	
+			sys.stdout.write("""extern""")
+		sys.stdout.write("""
 unsigned char const C_""" + bname + """_bitmap[]""");
 		if glyphcheader:
 			sys.stdout.write(""";
@@ -291,7 +291,7 @@ unsigned char const C_""" + bname + """_bitmap[]""");
 						sys.stdout.write(hexbyte(current_byte))
 					current_bit = 0
 					current_byte = 0
-				
+
 		# print last byte if any
 		if (current_bit > 0):
 			if not hexbitmaponly:
@@ -317,13 +317,13 @@ unsigned char const C_""" + bname + """_bitmap[]""");
 		else:
 			sys.stdout.write("""#ifdef OS_IO_SEPROXYHAL
 #include \"os_io_seproxyhal.h\"
-""")	
+""")
 			if glyphcheader:
 						sys.stdout.write("""extern
-""")	
+""")
 			sys.stdout.write("""const bagl_icon_details_t C_""" + bname)
 
-			if glyphcheader: 
+			if glyphcheader:
 				sys.stdout.write(""";
 """)
 				sys.stdout.write("""#endif // GLYPH_""" + bname + """_BPP

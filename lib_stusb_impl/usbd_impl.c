@@ -196,17 +196,17 @@ static uint8_t const USBD_PRODUCT_FS_STRING[] = {
 #endif
 
 /* USB Standard Device Descriptor */
-static uint8_t const USBD_LangIDDesc[]= 
+static uint8_t const USBD_LangIDDesc[]=
 {
-  USB_LEN_LANGID_STR_DESC,         
-  USB_DESC_TYPE_STRING,       
+  USB_LEN_LANGID_STR_DESC,
+  USB_DESC_TYPE_STRING,
   LOBYTE(USBD_LANGID_STRING),
-  HIBYTE(USBD_LANGID_STRING), 
+  HIBYTE(USBD_LANGID_STRING),
 };
 
 static uint8_t const USB_SERIAL_STRING[] =
 {
-  4*2+2,      
+  4*2+2,
   USB_DESC_TYPE_STRING,
   '0', 0,
   '0', 0,
@@ -509,58 +509,58 @@ static __ALIGN_BEGIN uint8_t const USBD_CfgDesc[] __ALIGN_END =
   0x21,   /* bDescriptorType: Functional Descriptor type. */
   0x10,   /* bcdCCID(LSB): CCID Class Spec release number (1.00) */
   0x01,   /* bcdCCID(MSB) */
-  
+
   0x00,   /* bMaxSlotIndex :highest available slot on this device */
   0x03,   /* bVoltageSupport: bit Wise OR for 01h-5.0V 02h-3.0V
                                     04h 1.8V*/
-  
+
   0x01,0x00,0x00,0x00,  /* dwProtocols: 0001h = Protocol T=0 */
-  0x10,0x0E,0x00,0x00,  /* dwDefaultClock: 3.6Mhz = 3600kHz = 0x0E10, 
-                             for 4 Mhz the value is (0x00000FA0) : 
+  0x10,0x0E,0x00,0x00,  /* dwDefaultClock: 3.6Mhz = 3600kHz = 0x0E10,
+                             for 4 Mhz the value is (0x00000FA0) :
                             This is used in ETU and waiting time calculations*/
-  0x10,0x0E,0x00,0x00,  /* dwMaximumClock: Maximum supported ICC clock frequency 
-                             in KHz. So, 3.6Mhz = 3600kHz = 0x0E10, 
+  0x10,0x0E,0x00,0x00,  /* dwMaximumClock: Maximum supported ICC clock frequency
+                             in KHz. So, 3.6Mhz = 3600kHz = 0x0E10,
                                            4 Mhz (0x00000FA0) : */
-  0x00,     /* bNumClockSupported : no setting from PC 
-                             If the value is 00h, the 
-                            supported clock frequencies are assumed to be the 
-                            default clock frequency defined by dwDefaultClock 
-                            and the maximum clock frequency defined by 
+  0x00,     /* bNumClockSupported : no setting from PC
+                             If the value is 00h, the
+                            supported clock frequencies are assumed to be the
+                            default clock frequency defined by dwDefaultClock
+                            and the maximum clock frequency defined by
                             dwMaximumClock */
-  
+
   0xCD,0x25,0x00,0x00,  /* dwDataRate: Default ICC I/O data rate in bps
-                            9677 bps = 0x25CD 
+                            9677 bps = 0x25CD
                             for example 10752 bps (0x00002A00) */
-                             
-  0xCD,0x25,0x00,0x00,  /* dwMaxDataRate: Maximum supported ICC I/O data 
+
+  0xCD,0x25,0x00,0x00,  /* dwMaxDataRate: Maximum supported ICC I/O data
                             rate in bps */
   0x00,                 /* bNumDataRatesSupported :
                          The number of data rates that are supported by the CCID
-                         If the value is 00h, all data rates between the default 
-                         data rate dwDataRate and the maximum data rate 
+                         If the value is 00h, all data rates between the default
+                         data rate dwDataRate and the maximum data rate
                          dwMaxDataRate are supported.
                          Dont support GET_CLOCK_FREQUENCIES
-                        */     
-  //46   
+                        */
+  //46
   0x00,0x00,0x00,0x00,   /* dwMaxIFSD: 0 (T=0 only)   */
   0x00,0x00,0x00,0x00,   /* dwSynchProtocols  */
   0x00,0x00,0x00,0x00,   /* dwMechanical: no special characteristics */
-  
+
   0xBA, 0x06, 0x02, 0x00,
-  //0x38,0x00,EXCHANGE_LEVEL_FEATURE,0x00,   
+  //0x38,0x00,EXCHANGE_LEVEL_FEATURE,0x00,
                          /* dwFeatures: clk, baud rate, voltage : automatic */
-                         /* 00000008h Automatic ICC voltage selection 
+                         /* 00000008h Automatic ICC voltage selection
                          00000010h Automatic ICC clock frequency change
-                         00000020h Automatic baud rate change according to 
-                         active parameters provided by the Host or self 
-                         determined 00000100h CCID can set 
-                         ICC in clock stop mode      
-                         
-                         Only one of the following values may be present to 
+                         00000020h Automatic baud rate change according to
+                         active parameters provided by the Host or self
+                         determined 00000100h CCID can set
+                         ICC in clock stop mode
+
+                         Only one of the following values may be present to
                          select a level of exchange:
                          00010000h TPDU level exchanges with CCID
                          00020000h Short APDU level exchange with CCID
-                         00040000h Short and Extended APDU level exchange 
+                         00040000h Short and Extended APDU level exchange
                          If none of those values : character level of exchange*/
   0x0F,0x01,0x00,0x00,  /* dwMaxCCIDMessageLength: Maximum block size + header*/
                         /* 261 + 10   */
@@ -579,7 +579,7 @@ static __ALIGN_BEGIN uint8_t const USBD_CfgDesc[] __ALIGN_END =
   LOBYTE(CCID_BULK_EPIN_SIZE),
   HIBYTE(CCID_BULK_EPIN_SIZE),
   0x00,   /*Polling interval in milliseconds */
-  
+
   0x07,   /*Endpoint descriptor length = 7 */
   0x05,   /*Endpoint descriptor type */
   CCID_BULK_OUT_EP,   /*Endpoint address (OUT, address 1) */
@@ -654,7 +654,7 @@ __ALIGN_BEGIN uint8_t const USBD_HID_Desc[] __ALIGN_END =
   sizeof(HID_ReportDesc),/*wItemLength: Total length of Report descriptor*/
   0x00,
 };
-#else 
+#else
 /* USB HID device Configuration Descriptor */
 __ALIGN_BEGIN uint8_t const USBD_HID_Desc_kbd[] __ALIGN_END =
 {
@@ -705,13 +705,13 @@ static uint8_t const USBD_DeviceDesc[]= {
 #if defined(HAVE_VID_PID_PROBER) || defined(HAVE_LEGACY_PID)
   LOBYTE(USBD_PID),           /* idProduct */
 #else  // HAVE_VID_PID_PROBER || defined(HAVE_LEGACY_PID)
-  LOBYTE(USBD_PID 
+  LOBYTE(USBD_PID
 #ifndef HAVE_USB_HIDKBD
     | 0x01
 #else
     | 0x02
 #endif
-#ifdef HAVE_IO_U2F    
+#ifdef HAVE_IO_U2F
     | 0x04
 #endif // HAVE_IO_U2F
 #ifdef HAVE_USB_CLASS_CCID
@@ -720,12 +720,12 @@ static uint8_t const USBD_DeviceDesc[]= {
 #ifdef HAVE_WEBUSB
     | 0x10
 #endif // HAVE_WEBUSB
-  ),                       
-#endif // HAVE_VID_PID_PROBER || HAVE_LEGACY_PID        
+  ),
+#endif // HAVE_VID_PID_PROBER || HAVE_LEGACY_PID
   HIBYTE(USBD_PID),           /* idProduct */
 
 
-  // Change this ID to make windows WINUSB/WEBUSB reenumerate when the 
+  // Change this ID to make windows WINUSB/WEBUSB reenumerate when the
   // descriptor changes and the PID/VID are not changed.
   0x01,                       /* bcdDevice rel. 2.01 */
   0x02,
