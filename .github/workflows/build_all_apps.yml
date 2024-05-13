@@ -9,11 +9,6 @@ on:
         default: ''
   pull_request:
 
-
-env:
-  BLACKLIST: "app-avalanche" # Add the names of the repositories to exclude here, separated by commas
-
-
 jobs:
   prepare-matrix:
     runs-on: ubuntu-latest
@@ -43,11 +38,7 @@ jobs:
             # add filtered repos to the list
             for repo in $(echo "$repos" | jq -r '.[] | select((.name | startswith("app-")) and (.archived == false)) | .name'); do
               default_branch=$(echo "$repos" | jq -r --arg repo "$repo" '.[] | select(.name == $repo) | .default_branch')
-              if [[ ! " ${BLACKLIST//,/ } " =~ " $repo " ]]; then
-                result+=("$repo,$default_branch")
-              else
-                echo "Skipping blacklisted repository: $repo"
-              fi
+              result+=("$repo,$default_branch")
             done
 
             ((page++))
@@ -122,27 +113,3 @@ jobs:
         run: |
           [ -n '${{ matrix.repo_info.build_directory }}' ] && cd ${{ matrix.repo_info.build_directory }}
           TARGET=nanos BOLOS_SDK=$GITHUB_WORKSPACE/sdk make
-
-      - name: Build NanoX
-        if: "contains(matrix.repo_info.devices, 'nanox')"
-        run: |
-          [ -n '${{ matrix.repo_info.build_directory }}' ] && cd ${{ matrix.repo_info.build_directory }}
-          TARGET=nanox BOLOS_SDK=$GITHUB_WORKSPACE/sdk make
-
-      - name: Build NanoS2
-        if: "contains(matrix.repo_info.devices, 'nanos+')"
-        run: |
-          [ -n '${{ matrix.repo_info.build_directory }}' ] && cd ${{ matrix.repo_info.build_directory }}
-          TARGET=nanos2 BOLOS_SDK=$GITHUB_WORKSPACE/sdk make
-
-      - name: Build Stax
-        if: "contains(matrix.repo_info.devices, 'stax')"
-        run: |
-          [ -n '${{ matrix.repo_info.build_directory }}' ] && cd ${{ matrix.repo_info.build_directory }}
-          TARGET=stax BOLOS_SDK=$GITHUB_WORKSPACE/sdk make
-
-      - name: Build Flex
-        if: "contains(matrix.repo_info.devices, 'flex')"
-        run: |
-          [ -n '${{ matrix.repo_info.build_directory }}' ] && cd ${{ matrix.repo_info.build_directory }}
-          TARGET=flex BOLOS_SDK=$GITHUB_WORKSPACE/sdk make
