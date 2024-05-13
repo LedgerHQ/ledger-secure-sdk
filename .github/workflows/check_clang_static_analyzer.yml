@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [nanos, nanox, nanos2, stax]
+        target: [nanox, nanos2, stax]
         debug: [0, 1]
     runs-on: ubuntu-latest
     container:
