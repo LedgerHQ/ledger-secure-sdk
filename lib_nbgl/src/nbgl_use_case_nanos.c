@@ -343,7 +343,7 @@ static void homeCallback(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
     displayHomePage(pos);
 }
 
-static void choiceCallback(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
+static void genericChoiceCallback(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
 {
     UNUSED(stepCtx);
     nbgl_stepPosition_t pos;
@@ -700,7 +700,7 @@ static void displayChoicePage(nbgl_stepPosition_t pos)
         context.stepCallback = onChoiceReject;
     }
 
-    drawStep(pos, icon, text, subText, choiceCallback);
+    drawStep(pos, icon, text, subText, genericChoiceCallback);
     nbgl_refresh();
 }
 
