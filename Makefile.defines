@@ -30,6 +30,9 @@ ifeq ($(SDK_HASH),)
 SDK_HASH := "None"
 endif
 
+# Legacy API level for LNS build
+API_LEVEL := LNS
+
 $(info TARGET_NAME=$(TARGET_NAME) TARGET_ID=$(TARGET_ID) TARGET_VERSION=$(TARGET_VERSION))
 
 # APPNAME exposed to the app as a CFLAG because it might contain spaces
