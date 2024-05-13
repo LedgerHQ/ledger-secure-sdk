@@ -955,13 +955,13 @@ const bagl_font_character_t charactersOPEN_SANS_SEMIBOLD_8_11PX[96] = {
 };
 
 const bagl_font_t fontOPEN_SANS_SEMIBOLD_8_11PX = {
-   BAGL_FONT_OPEN_SANS_SEMIBOLD_8_11PX, /* font id (sparse font array) */ 
+   BAGL_FONT_OPEN_SANS_SEMIBOLD_8_11PX, /* font id (sparse font array) */
    4, /* font bit per pixels */
    11,  /* font height in pixels   */
    8 ,  /* font ascent (baseline) in pixels  */
    0, /* kerning */
    0x0020, /* first character */
    0x007F, /* last character  */
-   charactersOPEN_SANS_SEMIBOLD_8_11PX 
+   charactersOPEN_SANS_SEMIBOLD_8_11PX
   ,bitmapOPEN_SANS_SEMIBOLD_8_11PX
 };

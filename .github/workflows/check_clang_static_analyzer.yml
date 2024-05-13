@@ -1,0 +1,45 @@
+name: Run Clang Static Analyzer
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  scan_build:
+    name: Clang Static Analyzer for all devices
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [nanos]
+        debug: [0, 1]
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-lite:latest
+
+    steps:
+      - name: Clone Boilerplate
+        uses: actions/checkout@v3
+        with:
+          repository: LedgerHQ/app-boilerplate
+          ref: master
+
+      - name: Clone SDK
+        uses: actions/checkout@v3
+        with:
+          path: sdk
+
+      - name: Build with Clang Static Analyzer
+        run: |
+          TARGET=${{ matrix.target }} \
+          BOLOS_SDK=sdk \
+          make scan-build -j ENABLE_SDK_WERROR=1 DEBUG=${{ matrix.debug }}
+
+      - name: Upload scan result
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: scan-build
+          path: scan-build
