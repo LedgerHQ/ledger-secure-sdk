@@ -97,6 +97,7 @@ const unsigned int C_unicode_characters_count
 uint16_t last_nb_lines   = 0;
 uint16_t last_nb_pages   = 0;
 bool     last_bold_state = false;
+void     store_string_infos(char *text, uint16_t nb_lines, uint16_t nb_pages, bool bold);
 #endif  // BUILD_SCREENSHOTS
 
 /**********************

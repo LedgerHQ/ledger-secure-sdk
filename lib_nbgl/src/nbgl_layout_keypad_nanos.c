@@ -41,10 +41,6 @@
  *  PROTOTYPES
  **********************/
 
-#ifdef BUILD_SCREENSHOTS
-extern const char *get_ux_loc_string(uint32_t index);
-#endif  // BUILD_SCREENSHOTS
-
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
@@ -64,10 +60,7 @@ extern const char *get_ux_loc_string(uint32_t index);
 int nbgl_layoutAddKeypad(nbgl_layout_t     *layout,
                          keyboardCallback_t callback,
                          const char        *text,
-#ifdef BUILD_SCREENSHOTS
-                         UX_LOC_STRINGS_INDEX textId,
-#endif  // BUILD_SCREENSHOTS
-                         bool shuffled)
+                         bool               shuffled)
 {
     nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
     nbgl_keypad_t         *keypad;
@@ -78,18 +71,15 @@ int nbgl_layoutAddKeypad(nbgl_layout_t     *layout,
         return -1;
     }
 
-    textArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-    textArea->textColor = WHITE;
-    textArea->text      = PIC(text);
-#ifdef BUILD_SCREENSHOTS
-    textArea->textId = textId;
-#endif  // BUILD_SCREENSHOTS
-    textArea->textAlignment        = CENTER;
-    textArea->fontId               = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
-    textArea->obj.area.width       = AVAILABLE_WIDTH;
-    textArea->obj.area.height      = 12;
-    textArea->wrapping             = false;
-    textArea->obj.alignment        = TOP_MIDDLE;
+    textArea                  = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+    textArea->textColor       = WHITE;
+    textArea->text            = PIC(text);
+    textArea->textAlignment   = CENTER;
+    textArea->fontId          = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
+    textArea->obj.area.width  = AVAILABLE_WIDTH;
+    textArea->obj.area.height = 12;
+    textArea->wrapping        = false;
+    textArea->obj.alignment   = TOP_MIDDLE;
     textArea->obj.alignmentMarginY = 3;
     // set this new obj as child of main container
     layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
