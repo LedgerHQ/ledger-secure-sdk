@@ -141,3 +141,7 @@
 #define _NR_cx_eddsa_verify_init_hash            0x89
 #define _NR_cx_eddsa_verify_hash                 0x8a
 #define _NR_cx_aes_siv_update_mac                0x8b
+#define _NR_cx_cipher_reset                      0x8c
+#define _NR_cx_cmac_start                        0x8d
+#define _NR_cx_cmac_update                       0x8e
+#define _NR_cx_cmac_finish                       0x8f
