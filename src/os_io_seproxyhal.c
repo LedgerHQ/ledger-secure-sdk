@@ -109,7 +109,7 @@ unsigned int os_io_seph_recv_and_process(unsigned int dont_process_ux_events);
 io_seph_app_t G_io_app;
 #endif  // ! HAVE_BOLOS
 
-#if defined(HAVE_BAGL) || defined(HAVE_NBGL)
+#if defined(HAVE_BAGL)
 ux_seph_os_and_app_t G_ux_os;
 #endif
 
@@ -377,8 +377,10 @@ void io_seproxyhal_init(void)
     io_usb_hid_init();
 #endif  // HAVE_USB_APDU
 
+#ifdef HAVE_BAGL
     io_seproxyhal_init_ux();
     io_seproxyhal_init_button();
+#endif  // HAVE_BAGL
 
 #if !defined(HAVE_BOLOS) && defined(HAVE_PENDING_REVIEW_SCREEN)
     check_audited_app();
@@ -401,215 +403,6 @@ void io_seproxyhal_init_button(void)
     G_ux_os.button_mask              = 0;
     G_ux_os.button_same_mask_counter = 0;
 }
-
-#ifdef TARGET_BLUE
-unsigned int io_seproxyhal_touch_out(const bagl_element_t   *element,
-                                     bagl_element_callback_t before_display)
-{
-    const bagl_element_t *el;
-    if (element->out != NULL) {
-        el = (const bagl_element_t *) PIC(((bagl_element_callback_t) PIC(element->out))(element));
-        // backward compatible with samples and such
-        if (!el) {
-            return 0;
-        }
-        if ((unsigned int) el != 1) {
-            element = el;
-        }
-    }
-
-    // out function might have triggered a draw of its own during a display callback
-    if (before_display) {
-        el = before_display(element);
-        if (!el) {
-            return 0;
-        }
-        if ((unsigned int) el != 1) {
-            element = el;
-        }
-    }
-
-    io_seproxyhal_display(element);
-    return 1;
-}
-
-unsigned int io_seproxyhal_touch_over(const bagl_element_t   *element,
-                                      bagl_element_callback_t before_display)
-{
-    bagl_element_t        e;
-    const bagl_element_t *el;
-    if (element->over != NULL) {
-        el = (const bagl_element_t *) PIC(((bagl_element_callback_t) PIC(element->over))(element));
-        // backward compatible with samples and such
-        if (!el) {
-            return 0;
-        }
-        if ((unsigned int) el != 1) {
-            element = el;
-        }
-    }
-
-    // over function might have triggered a draw of its own during a display callback
-    if (before_display) {
-        el      = before_display(element);
-        element = &e;
-        if (!el) {
-            return 0;
-        }
-        // problem for default screen_before_before_display where we return the given element, it
-        // have could been modified. but we don't know here
-        if ((unsigned int) el != 1) {
-            element = el;
-        }
-    }
-
-    // swap colors
-    memcpy(&e, (void *) element, sizeof(bagl_element_t));
-    e.component.fgcolor = element->overfgcolor;
-    e.component.bgcolor = element->overbgcolor;
-
-    io_seproxyhal_display(&e);
-    return 1;
-}
-
-unsigned int io_seproxyhal_touch_tap(const bagl_element_t   *element,
-                                     bagl_element_callback_t before_display)
-{
-    const bagl_element_t *el;
-    if (element->tap != NULL) {
-        el = (const bagl_element_t *) PIC(((bagl_element_callback_t) PIC(element->tap))(element));
-        // backward compatible with samples and such
-        if (!el) {
-            return 0;
-        }
-        if ((unsigned int) el != 1) {
-            element = el;
-        }
-    }
-
-    // tap function might have triggered a draw of its own during a display callback
-    if (before_display) {
-        el = before_display(element);
-        if (!el) {
-            return 0;
-        }
-        if ((unsigned int) el != 1) {
-            element = el;
-        }
-    }
-    io_seproxyhal_display(element);
-    return 1;
-}
-
-void io_seproxyhal_touch(const bagl_element_t *elements,
-                         unsigned short        element_count,
-                         unsigned short        x,
-                         unsigned short        y,
-                         unsigned char         event_kind)
-{
-    io_seproxyhal_touch_element_callback(elements, element_count, x, y, event_kind, NULL);
-}
-
-// browse all elements and until an element has changed state, continue browsing
-// return if processed or not
-void io_seproxyhal_touch_element_callback(const bagl_element_t   *elements,
-                                          unsigned short          element_count,
-                                          unsigned short          x,
-                                          unsigned short          y,
-                                          unsigned char           event_kind,
-                                          bagl_element_callback_t before_display)
-{
-    unsigned char comp_idx;
-    unsigned char last_touched_not_released_component_was_in_current_array = 0;
-
-    // find the first empty entry
-    for (comp_idx = 0; comp_idx < element_count; comp_idx++) {
-        // process all components matching the x/y/w/h (no break) => fishy for the released out of
-        // zone continue processing only if a status has not been sent
-        if (io_seproxyhal_spi_is_status_sent()) {
-            // continue instead of return to process all elemnts and therefore discard last touched
-            // element
-            break;
-        }
-
-        // only perform out callback when element was in the current array, else, leave it be
-        if (&elements[comp_idx] == G_ux_os.last_touched_not_released_component) {
-            last_touched_not_released_component_was_in_current_array = 1;
-        }
-
-        // the first component drawn with a
-        if ((elements[comp_idx].component.type & BAGL_FLAG_TOUCHABLE)
-            && elements[comp_idx].component.x - elements[comp_idx].touch_area_brim <= x
-            && x < elements[comp_idx].component.x + elements[comp_idx].component.width
-                       + elements[comp_idx].touch_area_brim
-            && elements[comp_idx].component.y - elements[comp_idx].touch_area_brim <= y
-            && y < elements[comp_idx].component.y + elements[comp_idx].component.height
-                       + elements[comp_idx].touch_area_brim) {
-            // outing the previous over'ed component
-            if (&elements[comp_idx] != G_ux_os.last_touched_not_released_component
-                && G_ux_os.last_touched_not_released_component != NULL) {
-                // only out the previous element if the newly matching will be displayed
-                if (!before_display || before_display(&elements[comp_idx])) {
-                    if (io_seproxyhal_touch_out(G_ux_os.last_touched_not_released_component,
-                                                before_display)) {
-                        // previous component is considered released
-                        G_ux_os.last_touched_not_released_component = NULL;
-                        // a display has been issued, avoid double display, wait for another touch
-                        // event (20ms)
-                        return;
-                    }
-                }
-                // avoid a non displayed new element to pop out of the blue
-                continue;
-            }
-
-            /*
-            if (io_seproxyhal_spi_is_status_sent()) {
-              // continue instead of return to process all elements and therefore discard last
-            touched element continue;
-            }
-            */
-
-            // callback the hal to notify the component impacted by the user input
-            else if (event_kind == SEPROXYHAL_TAG_FINGER_EVENT_RELEASE) {
-                if (io_seproxyhal_touch_tap(&elements[comp_idx], before_display)) {
-                    // unmark the last component, we've been notified TOUCH
-                    G_ux_os.last_touched_not_released_component = NULL;
-                    return;
-                }
-            }
-            else if (event_kind == SEPROXYHAL_TAG_FINGER_EVENT_TOUCH) {
-                // ask for overing
-                if (io_seproxyhal_touch_over(&elements[comp_idx], before_display)) {
-                    // remember the last touched component
-                    G_ux_os.last_touched_not_released_component
-                        = (bagl_element_t *) &elements[comp_idx];
-                    return;
-                }
-            }
-        }
-    }
-
-    // if overing out of component or over another component, the out event is sent after the over
-    // event of the previous component
-    if (last_touched_not_released_component_was_in_current_array
-        && G_ux_os.last_touched_not_released_component != NULL) {
-        // we won't be able to notify the out, don't do it, in case a diplay refused the dra of the
-        // relased element and the position matched another element of the array (in autocomplete
-        // for example)
-        if (io_seproxyhal_spi_is_status_sent()) {
-            return;
-        }
-
-        if (io_seproxyhal_touch_out(G_ux_os.last_touched_not_released_component, before_display)) {
-            // ok component out has been emitted
-            G_ux_os.last_touched_not_released_component = NULL;
-        }
-    }
-
-    // not processed
-}
-#endif  // TARGET_BLUE
 
 void io_seproxyhal_display_bitmap(int            x,
                                   int            y,
@@ -660,77 +453,12 @@ void io_seproxyhal_display_bitmap(int            x,
         */
     }
 }
+#endif  // HAVE_BAGL
 
-#ifdef SEPROXYHAL_TAG_SCREEN_DISPLAY_RAW_STATUS
-unsigned int io_seproxyhal_display_icon_header_and_colors(bagl_component_t    *icon_component,
-                                                          bagl_icon_details_t *icon_details,
-                                                          unsigned int        *icon_len)
-{
-    unsigned int len;
+#if defined(HAVE_BAGL) || defined(HAVE_NBGL)
 
-    struct display_raw_s {
-        struct {
-            struct {
-                unsigned char tag;
-                unsigned char len[2];
-            } seph;
-            unsigned char type;
-        } header;
-        union {
-            short val;
-            char  b[2];
-        } x;
-        union {
-            short val;
-            char  b[2];
-        } y;
-        union {
-            unsigned short val;
-            char           b[2];
-        } w;
-        union {
-            unsigned short val;
-            char           b[2];
-        } h;
-        unsigned char bpp;
-    } __attribute__((packed)) raw;
-
-    raw.header.seph.tag = SEPROXYHAL_TAG_SCREEN_DISPLAY_RAW_STATUS;
-    raw.header.type     = SEPROXYHAL_TAG_SCREEN_DISPLAY_RAW_STATUS_START;
-    raw.x.val           = icon_component->x;
-    raw.y.val           = icon_component->y;
-    raw.w.val           = icon_component->width;
-    raw.h.val           = icon_component->height;
-    raw.bpp             = icon_details->bpp;
-
-    *icon_len
-        = raw.w.val * raw.h.val * raw.bpp / 8 + (((raw.w.val * raw.h.val * raw.bpp) % 8) ? 1 : 0);
-
-    // optional, don't send too much on a single packet for MCU to receive it. when stream mode will
-    // be on, this will be useless min of remaining space in the packet vs. total icon size + color
-    // index size
-    len = MIN(sizeof(G_io_seproxyhal_spi_buffer) - sizeof(raw), *icon_len + (1 << raw.bpp) * 4);
-
-    // sizeof packet
-    raw.header.seph.len[0] = (len + sizeof(raw) - sizeof(raw.header.seph)) >> 8;
-    raw.header.seph.len[1] = (len + sizeof(raw) - sizeof(raw.header.seph));
-
-    // swap endianess of coordinates (make it big endian)
-    SWAP(raw.x.b[0], raw.x.b[1]);
-    SWAP(raw.y.b[0], raw.y.b[1]);
-    SWAP(raw.w.b[0], raw.w.b[1]);
-    SWAP(raw.h.b[0], raw.h.b[1]);
-
-    io_seproxyhal_spi_send((unsigned char *) &raw, sizeof(raw));
-    io_seproxyhal_spi_send((unsigned char *) (PIC(icon_details->colors)), (1 << raw.bpp) * 4);
-    len -= (1 << raw.bpp) * 4;
-
-    // remaining length of bitmap bits to be displayed
-    return len;
-}
-#endif  // SEPROXYHAL_TAG_SCREEN_DISPLAY_RAW_STATUS
-
-void io_seproxyhal_display_icon(bagl_component_t *icon_component, bagl_icon_details_t *icon_det)
+void io_seproxyhal_display_icon(const bagl_component_t    *icon_component,
+                                const bagl_icon_details_t *icon_det)
 {
     bagl_component_t           icon_component_mod;
     const bagl_icon_details_t *icon_details = (bagl_icon_details_t *) PIC(icon_det);
@@ -742,41 +470,6 @@ void io_seproxyhal_display_icon(bagl_component_t *icon_component, bagl_icon_deta
         icon_component_mod.height = icon_details->height;
         icon_component            = &icon_component_mod;
 
-#ifdef SEPROXYHAL_TAG_SCREEN_DISPLAY_RAW_STATUS
-        unsigned int len;
-        unsigned int icon_len;
-        unsigned int icon_off = 0;
-
-        len = io_seproxyhal_display_icon_header_and_colors(
-            icon_component, (bagl_icon_details_t *) icon_details, &icon_len);
-        io_seproxyhal_spi_send(PIC(icon_details->bitmap), len);
-        // advance in the bitmap to be transmitted
-        icon_len -= len;
-        icon_off += len;
-
-        // still some bitmap data to transmit
-        while (icon_len) {
-            // wait displayed event
-            io_seproxyhal_spi_recv(
-                G_io_seproxyhal_spi_buffer, sizeof(G_io_seproxyhal_spi_buffer), 0);
-
-            G_io_seproxyhal_spi_buffer[0] = SEPROXYHAL_TAG_SCREEN_DISPLAY_RAW_STATUS;
-            G_io_seproxyhal_spi_buffer[3] = SEPROXYHAL_TAG_SCREEN_DISPLAY_RAW_STATUS_CONT;
-
-            len                           = MIN((sizeof(G_io_seproxyhal_spi_buffer) - 4), icon_len);
-            G_io_seproxyhal_spi_buffer[1] = (len + 1) >> 8;
-            G_io_seproxyhal_spi_buffer[2] = (len + 1);
-            io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 4);
-            io_seproxyhal_spi_send(PIC(icon_details->bitmap) + icon_off, len);
-
-            icon_len -= len;
-            icon_off += len;
-        }
-#else  // !SEPROXYHAL_TAG_SCREEN_DISPLAY_RAW_STATUS
-#ifdef HAVE_SE_SCREEN
-        bagl_draw_glyph(&icon_component_mod, icon_details);
-#endif  // HAVE_SE_SCREEN
-#if !defined(HAVE_SE_SCREEN) || (defined(HAVE_SE_SCREEN) && defined(HAVE_PRINTF))
         if (io_seproxyhal_spi_is_status_sent()) {
             return;
         }
@@ -790,9 +483,6 @@ void io_seproxyhal_display_icon(bagl_component_t *icon_component, bagl_icon_deta
                                 + h                          /* color index */
                                 + w;                         /* image bitmap size */
         G_io_seproxyhal_spi_buffer[0] = SEPROXYHAL_TAG_SCREEN_DISPLAY_STATUS;
-#if defined(HAVE_SE_SCREEN) && defined(HAVE_PRINTF)
-        G_io_seproxyhal_spi_buffer[0] = SEPROXYHAL_TAG_DBG_SCREEN_DISPLAY_STATUS;
-#endif  // HAVE_SE_SCREEN && HAVE_PRINTF
         G_io_seproxyhal_spi_buffer[1] = length >> 8;
         G_io_seproxyhal_spi_buffer[2] = length;
         io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 3);
@@ -801,8 +491,6 @@ void io_seproxyhal_display_icon(bagl_component_t *icon_component, bagl_icon_deta
         io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 1);
         io_seproxyhal_spi_send((unsigned char *) PIC(icon_details->colors), h);
         io_seproxyhal_spi_send((unsigned char *) PIC(icon_details->bitmap), w);
-#endif  // !HAVE_SE_SCREEN || (HAVE_SE_SCREEN && HAVE_PRINTF)
-#endif  // !SEPROXYHAL_TAG_SCREEN_DISPLAY_RAW_STATUS
     }
 }
 
@@ -825,48 +513,34 @@ void io_seproxyhal_display_default(const bagl_element_t *element)
                                            (bagl_icon_details_t *) txt);
             }
             else {
-#ifdef HAVE_SE_SCREEN
-                bagl_draw_with_context(&el->component, txt, strlen(txt), BAGL_ENCODING_LATIN1);
-#endif  // HAVE_SE_SCREEN
-#if !defined(HAVE_SE_SCREEN) || (defined(HAVE_SE_SCREEN) && defined(HAVE_PRINTF))
                 if (io_seproxyhal_spi_is_status_sent()) {
                     return;
                 }
                 unsigned short length = sizeof(bagl_component_t) + strlen((const char *) txt);
                 G_io_seproxyhal_spi_buffer[0] = SEPROXYHAL_TAG_SCREEN_DISPLAY_STATUS;
-#if defined(HAVE_SE_SCREEN) && defined(HAVE_PRINTF)
-                G_io_seproxyhal_spi_buffer[0] = SEPROXYHAL_TAG_DBG_SCREEN_DISPLAY_STATUS;
-#endif  // HAVE_SE_SCREEN && HAVE_PRINTF
                 G_io_seproxyhal_spi_buffer[1] = length >> 8;
                 G_io_seproxyhal_spi_buffer[2] = length;
                 io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 3);
                 io_seproxyhal_spi_send((unsigned char *) &el->component, sizeof(bagl_component_t));
                 io_seproxyhal_spi_send((unsigned char *) txt, length - sizeof(bagl_component_t));
-#endif  // !HAVE_SE_SCREEN || (HAVE_SE_SCREEN && HAVE_PRINTF)
             }
         }
         else {
-#ifdef HAVE_SE_SCREEN
-            bagl_draw_with_context(&el->component, NULL, 0, 0);
-#endif  // HAVE_SE_SCREEN
-#if !defined(HAVE_SE_SCREEN) || (defined(HAVE_SE_SCREEN) && defined(HAVE_PRINTF))
             if (io_seproxyhal_spi_is_status_sent()) {
                 return;
             }
             unsigned short length         = sizeof(bagl_component_t);
             G_io_seproxyhal_spi_buffer[0] = SEPROXYHAL_TAG_SCREEN_DISPLAY_STATUS;
-#if defined(HAVE_SE_SCREEN) && defined(HAVE_PRINTF)
-            G_io_seproxyhal_spi_buffer[0] = SEPROXYHAL_TAG_DBG_SCREEN_DISPLAY_STATUS;
-#endif  // HAVE_SE_SCREEN && HAVE_PRINTF
             G_io_seproxyhal_spi_buffer[1] = length >> 8;
             G_io_seproxyhal_spi_buffer[2] = length;
             io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 3);
             io_seproxyhal_spi_send((unsigned char *) &el->component, sizeof(bagl_component_t));
-#endif  // !HAVE_SE_SCREEN || (HAVE_SE_SCREEN && HAVE_PRINTF)
         }
     }
 }
+#endif  // HAVE_BAGL || HAVE_NBGL
 
+#ifdef HAVE_BAGL
 unsigned int bagl_label_roundtrip_duration_ms(const bagl_element_t *e,
                                               unsigned int          average_char_width)
 {
@@ -1412,48 +1086,46 @@ reply_apdu:
                 }
             }
 
-            if (!(channel & IO_ASYNCH_REPLY)) {
-                // already received the data of the apdu when received the whole apdu
-                if ((channel & (CHANNEL_APDU | IO_RECEIVE_DATA))
-                    == (CHANNEL_APDU | IO_RECEIVE_DATA)) {
-                    // return apdu data - header
-                    return G_io_app.apdu_length - 5;
+            // When IO_CONTINUE_RX is used we don't reset potentially already received APDU.
+            // Instead we directly process them.
+            // Use case is:
+            // - First APDU received (call to io_exchange())
+            // - UX waiting for user approval
+            // - First APDU response sent (call to io_exchange() with flag IO_RETURN_AFTER_TX)
+            // - UX with transient message like ("Transaction signed")
+            //   This need to loop on os_io_seph_recv_and_process() to process tick and UX
+            //   events, but a second APDU can be received here too.
+            // - Then a call to io_exchange() with flag IO_CONTINUE_RX will allow processing
+            //   the APDU now that the app is ready.
+            //
+            // Note that a received APDU will be cleared out (reset of G_io_app.apdu_state /
+            // G_io_app.apdu_media / G_io_app.apdu_length) during the APDU response sending.
+            // Therefore there is no risk to process an APDU twice.
+            if (!(channel & IO_CONTINUE_RX)) {
+                if (!(channel & IO_ASYNCH_REPLY)) {
+                    // already received the data of the apdu when received the whole apdu
+                    if ((channel & (CHANNEL_APDU | IO_RECEIVE_DATA))
+                        == (CHANNEL_APDU | IO_RECEIVE_DATA)) {
+                        // return apdu data - header
+                        return G_io_app.apdu_length - 5;
+                    }
+
+                    // reply has ended, proceed to next apdu reception (reset status only after
+                    // asynch reply)
+                    G_io_app.apdu_state = APDU_IDLE;
+                    G_io_app.apdu_media = IO_APDU_MEDIA_NONE;
                 }
 
-                // reply has ended, proceed to next apdu reception (reset status only after asynch
-                // reply)
-                G_io_app.apdu_state = APDU_IDLE;
-                G_io_app.apdu_media = IO_APDU_MEDIA_NONE;
+                // reset the received apdu length
+                G_io_app.apdu_length = 0;
             }
-
-            // reset the received apdu length
-            G_io_app.apdu_length = 0;
 
             // ensure ready to receive an event (after an apdu processing with asynch flag, it may
             // occur if the channel is not correctly managed)
 
             // until a new whole CAPDU is received
             for (;;) {
-                io_seproxyhal_general_status();
-                // wait until a SPI packet is available
-                // NOTE: on ST31, dual wait ISO & RF (ISO instead of SPI)
-                rx_len = io_seproxyhal_spi_recv(
-                    G_io_seproxyhal_spi_buffer, sizeof(G_io_seproxyhal_spi_buffer), 0);
-
-                // can't process split TLV, continue
-                if (rx_len < 3
-                    || rx_len
-                           != U2(G_io_seproxyhal_spi_buffer[1], G_io_seproxyhal_spi_buffer[2])
-                                  + 3U) {
-                    LOG("invalid TLV format\n");
-                    G_io_app.apdu_state  = APDU_IDLE;
-                    G_io_app.apdu_length = 0;
-                    continue;
-                }
-
-                io_seproxyhal_handle_event();
-
-                // An apdu has been received asynchroneously.
+                // An apdu has been received asynchronously.
                 if (G_io_app.apdu_state != APDU_IDLE && G_io_app.apdu_length > 0) {
                     if (os_perso_isonboarded() == BOLOS_TRUE
                         && os_global_pin_is_validated() != BOLOS_TRUE) {
@@ -1473,6 +1145,25 @@ reply_apdu:
 
                     return G_io_app.apdu_length;
                 }
+
+                io_seproxyhal_general_status();
+                // wait until a SPI packet is available
+                // NOTE: on ST31, dual wait ISO & RF (ISO instead of SPI)
+                rx_len = io_seproxyhal_spi_recv(
+                    G_io_seproxyhal_spi_buffer, sizeof(G_io_seproxyhal_spi_buffer), 0);
+
+                // can't process split TLV, continue
+                if (rx_len < 3
+                    || rx_len
+                           != U2(G_io_seproxyhal_spi_buffer[1], G_io_seproxyhal_spi_buffer[2])
+                                  + 3U) {
+                    LOG("invalid TLV format\n");
+                    G_io_app.apdu_state  = APDU_IDLE;
+                    G_io_app.apdu_length = 0;
+                    continue;
+                }
+
+                io_seproxyhal_handle_event();
             }
             break;
 

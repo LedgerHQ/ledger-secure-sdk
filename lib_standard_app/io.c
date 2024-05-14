@@ -58,9 +58,7 @@ WEAK uint8_t io_event(uint8_t channel)
 
     switch (G_io_seproxyhal_spi_buffer[0]) {
         case SEPROXYHAL_TAG_BUTTON_PUSH_EVENT:
-#ifdef HAVE_BAGL
             UX_BUTTON_PUSH_EVENT(G_io_seproxyhal_spi_buffer);
-#endif  // HAVE_BAGL
             break;
         case SEPROXYHAL_TAG_STATUS_EVENT:
             if (G_io_apdu_media == IO_APDU_MEDIA_USB_HID &&  //
@@ -70,18 +68,8 @@ WEAK uint8_t io_event(uint8_t channel)
             }
             __attribute__((fallthrough));
         case SEPROXYHAL_TAG_DISPLAY_PROCESSED_EVENT:
-#ifdef HAVE_BAGL
             UX_DISPLAYED_EVENT({});
-#endif  // HAVE_BAGL
-#ifdef HAVE_NBGL
-            UX_DEFAULT_EVENT();
-#endif  // HAVE_NBGL
             break;
-#ifdef HAVE_NBGL
-        case SEPROXYHAL_TAG_FINGER_EVENT:
-            UX_FINGER_EVENT(G_io_seproxyhal_spi_buffer);
-            break;
-#endif  // HAVE_NBGL
         case SEPROXYHAL_TAG_TICKER_EVENT:
             app_ticker_event_callback();
             UX_TICKER_EVENT(G_io_seproxyhal_spi_buffer, {});
@@ -136,8 +124,8 @@ WEAK int io_recv_command()
 
     switch (G_io_state) {
         case READY:
+            ret        = io_exchange(CHANNEL_APDU | IO_CONTINUE_RX, G_output_len);
             G_io_state = RECEIVED;
-            ret        = io_exchange(CHANNEL_APDU, G_output_len);
             break;
         case RECEIVED:
             G_io_state = WAITING;
@@ -200,9 +188,17 @@ WEAK int io_send_response_buffers(const buffer_t *rdatalist, size_t count, uint1
             ret = -1;
             break;
         case RECEIVED:
+#ifdef STANDARD_APP_SYNC_RAPDU
+            // Send synchronously the APDU response.
+            // This is needed to send the response before displaying synchronous
+            // status message on the screen.
+            // This is not always done to spare the RAM (stack) on LNS.
+            __attribute__((fallthrough));
+#else
             G_io_state = READY;
             ret        = 0;
             break;
+#endif
         case WAITING:
             ret          = io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, G_output_len);
             G_output_len = 0;
@@ -212,3 +208,20 @@ WEAK int io_send_response_buffers(const buffer_t *rdatalist, size_t count, uint1
 
     return ret;
 }
+
+#ifdef STANDARD_APP_SYNC_RAPDU
+WEAK bool io_recv_and_process_event(void)
+{
+    int apdu_state = G_io_app.apdu_state;
+
+    os_io_seph_recv_and_process(0);
+
+    // If an APDU was received in previous os_io_seph_recv_and_process call and
+    // is waiting to be processed, return true
+    if (apdu_state == APDU_IDLE && G_io_app.apdu_state != APDU_IDLE) {
+        return true;
+    }
+
+    return false;
+}
+#endif
