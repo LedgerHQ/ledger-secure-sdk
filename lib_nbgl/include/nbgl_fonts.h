@@ -196,6 +196,12 @@ bool     nbgl_getTextMaxLenInNbLines(nbgl_font_id_e fontId,
                                      uint16_t      *len,
                                      bool           wrapping);
 void nbgl_textWrapOnNbLines(nbgl_font_id_e fontId, char *text, uint16_t maxWidth, uint8_t nbLines);
+void nbgl_textReduceOnNbLines(nbgl_font_id_e fontId,
+                              const char    *origText,
+                              uint16_t       maxWidth,
+                              uint8_t        nbLines,
+                              char          *reducedText,
+                              uint16_t       reducedTextLen);
 uint8_t nbgl_getTextNbPagesInWidth(nbgl_font_id_e fontId,
                                    const char    *text,
                                    uint8_t        nbLinesPerPage,

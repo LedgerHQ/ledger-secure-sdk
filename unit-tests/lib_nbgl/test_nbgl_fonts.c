@@ -12,6 +12,13 @@
 
 void fetch_language_packs(void);
 
+static bool fatal_reached = false;
+
+void mainExit(int exitCode)
+{
+    fatal_reached = true;
+}
+
 #ifdef HAVE_SE_TOUCH
 static void test_get_length(void **state __attribute__((unused)))
 {
@@ -93,7 +100,7 @@ static void test_get_length(void **state __attribute__((unused)))
     assert_int_equal(len, 5);
     assert_int_equal(width, 45);
 
-    char textToWrap[32] = "toto";
+    char textToWrap[128] = "toto";
     nbgl_textWrapOnNbLines(BAGL_FONT_INTER_SEMIBOLD_24px, textToWrap, 156, 2);
     assert_string_equal(textToWrap, "toto");
 
@@ -104,6 +111,17 @@ static void test_get_length(void **state __attribute__((unused)))
     strcpy(textToWrap, "bonjourtuaimestr les mois");
     nbgl_textWrapOnNbLines(BAGL_FONT_INTER_SEMIBOLD_24px, textToWrap, 156, 2);
     assert_string_equal(textToWrap, "bonjourtuaimestr les...");
+
+    nbgl_textReduceOnNbLines(BAGL_FONT_INTER_SEMIBOLD_24px,
+                             "bc1pkdcufjh6dxjaEZFZEFZFGGEaa05hudxqgfffggghhhhhhffffffff5fhspfmZAFEZ"
+                             "Fwmp8g92gq8ZEGFZEcv4g",
+                             416,
+                             3,
+                             textToWrap,
+                             128);
+    assert_string_equal(
+        textToWrap,
+        "bc1pkdcufjh6dxjaEZFZEFZFGGEaa05hudxqgfffg...hffffffff5fhspfmZAFEZFwmp8g92gq8ZEGFZEcv4g");
 
     nbLines
         = nbgl_getTextNbLinesInWidth(BAGL_FONT_INTER_MEDIUM_32px, "AB WWWWWWWW WWW W", 200, true);
