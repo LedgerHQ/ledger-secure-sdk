@@ -42,6 +42,11 @@
 #define STARTING_CONTENT  localContentsList[0]
 #define FINISHING_CONTENT localContentsList[1]
 
+/* max number of lines for address under QR Code */
+#define QRCODE_NB_MAX_LINES     3
+/* max number of char for reduced QR Code address */
+#define QRCODE_REDUCED_ADDR_LEN 128
+
 /**********************
  *      TYPEDEFS
  **********************/
@@ -209,6 +214,11 @@ static const uint8_t nbMaxElementsPerContentType[] = {
     4,  // BARS_LIST
 #endif  // TARGET_STAX
 };
+
+#ifdef NBGL_QRCODE
+/* buffer to store reduced address under QR Code */
+static char reducedAddress[QRCODE_REDUCED_ADDR_LEN];
+#endif  // NBGL_QRCODE
 
 /**********************
  *  STATIC FUNCTIONS
@@ -1055,14 +1065,34 @@ static void displayAddressQRCode(void)
                                                   .withLeftBorder   = true,
                                                   .onActionCallback = &addressLayoutTouchCallbackQR,
                                                   .tapActionText    = NULL};
+    nbgl_layoutHeader_t      headerDesc
+        = {.type = HEADER_EMPTY, .separationLine = false, .emptySpace.height = 40};
+    nbgl_layoutQRCode_t qrCode = {.url      = addressConfirmationContext.tagValuePair.value,
+                                  .text1    = NULL,
+                                  .centered = true,
+                                  .offsetY  = 0};
 
     addressConfirmationContext.modalLayout = nbgl_layoutGet(&layoutDescription);
-    nbgl_layoutQRCode_t qrCode
-        = {.url      = addressConfirmationContext.tagValuePair.value,
-           .text1    = NULL,
-           .text2    = addressConfirmationContext.tagValuePair.value,  // display as gray text
-           .centered = true,
-           .offsetY  = 0};
+    // add empty header for better look
+    nbgl_layoutAddHeader(addressConfirmationContext.modalLayout, &headerDesc);
+    // compute nb lines to check whether it shall be shorten (max is 3 lines)
+    uint16_t nbLines = nbgl_getTextNbLinesInWidth(
+        SMALL_REGULAR_FONT, addressConfirmationContext.tagValuePair.value, AVAILABLE_WIDTH, false);
+
+    if (nbLines <= QRCODE_NB_MAX_LINES) {
+        qrCode.text2 = addressConfirmationContext.tagValuePair.value;  // in gray
+    }
+    else {
+        // only keep beginning and end of text, and add ... in the middle
+        nbgl_textReduceOnNbLines(SMALL_REGULAR_FONT,
+                                 addressConfirmationContext.tagValuePair.value,
+                                 AVAILABLE_WIDTH,
+                                 QRCODE_NB_MAX_LINES,
+                                 reducedAddress,
+                                 QRCODE_REDUCED_ADDR_LEN);
+        qrCode.text2 = reducedAddress;  // in gray
+    }
+
     nbgl_layoutAddQRCode(addressConfirmationContext.modalLayout, &qrCode);
 
 #ifdef TARGET_STAX

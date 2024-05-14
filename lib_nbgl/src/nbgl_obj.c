@@ -1043,6 +1043,8 @@ static void draw_qrCode(nbgl_qrcode_t *obj, nbgl_obj_t *prevObj, bool computePos
     if (objDrawingDisabled) {
         return;
     }
+    // be sure to align vertical position on multiple of 4
+    obj->obj.area.y0 &= ~0x3;
     LOG_DEBUG(OBJ_LOGGER,
               "draw_qrCode(), x0 = %d, y0 = %d, width = %d, height = %d, text = %s\n",
               obj->obj.area.x0,
@@ -1460,19 +1462,23 @@ static void extendRefreshArea(nbgl_area_t *area)
 
     // if obj top-left is on left of current top-left corner, move top-left corner
     if (area->x0 < refreshArea.x0) {
-        refreshArea.x0 = area->x0;
+        // No negative coordinates
+        refreshArea.x0 = MAX(0, area->x0);
     }
     // if obj bottom-right is on right of current bottom-right corner, move bottom-right corner
     if (((area->x0 + area->width) > x1) || (refreshArea.width == 0)) {
-        x1 = area->x0 + area->width;
+        // Not beyond width
+        x1 = MIN(SCREEN_WIDTH, area->x0 + area->width);
     }
     // if obj top-left is on top of current top-left corner, move top-left corner
     if (area->y0 < refreshArea.y0) {
-        refreshArea.y0 = area->y0;
+        // No negative coordinates
+        refreshArea.y0 = MAX(0, area->y0);
     }
     // if obj bottom-right is on bottom of current bottom-right corner, move bottom-right corner
     if (((area->y0 + area->height) > y1) || (refreshArea.height == 0)) {
-        y1 = area->y0 + area->height;
+        // Not beyond height
+        y1 = MIN(SCREEN_HEIGHT, area->y0 + area->height);
     }
 
     // sanity check
