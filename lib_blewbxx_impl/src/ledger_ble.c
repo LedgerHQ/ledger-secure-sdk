@@ -522,7 +522,7 @@ static void hci_evt_cmd_complete(const uint8_t *buffer, uint16_t length)
         }
         else {
             if (ledger_protocol_data.tx_apdu_buffer) {
-                LEDGER_PROTOCOL_tx(NULL, 0);
+                LEDGER_PROTOCOL_tx(&ledger_protocol_data, NULL, 0);
                 notify_chunk();
             }
             if (!ledger_protocol_data.tx_apdu_buffer) {
@@ -870,7 +870,7 @@ static void attribute_modified(const uint8_t *buffer, uint16_t length)
              && (ledger_ble_data.notifications_enabled) && (ledger_ble_data.connection.encrypted)
              && (att_data_length)) {
         LOG_BLE("WRITE CMD %d\n", length - 4);
-        LEDGER_PROTOCOL_rx(&buffer[4], length - 4);
+        LEDGER_PROTOCOL_rx(&ledger_protocol_data, &buffer[4], length - 4);
 
         if (ledger_protocol_data.rx_apdu_status == APDU_STATUS_COMPLETE) {
             check_transfer_mode(G_io_app.transfer_mode);
@@ -882,7 +882,7 @@ static void attribute_modified(const uint8_t *buffer, uint16_t length)
                     copy_apdu_to_app(true);
                 }
                 else if (ledger_ble_data.resp_length) {
-                    LEDGER_PROTOCOL_tx(ledger_ble_data.resp, ledger_ble_data.resp_length);
+                    LEDGER_PROTOCOL_tx(&ledger_protocol_data, ledger_ble_data.resp, ledger_ble_data.resp_length);
                     ledger_ble_data.resp_length = 0;
                     notify_chunk();
                 }
@@ -916,7 +916,7 @@ static void write_permit_request(const uint8_t *buffer, uint16_t length)
     if ((att_handle == ledger_ble_data.ledger_gatt_write_characteristic_handle + 1)
         && (ledger_ble_data.notifications_enabled) && (ledger_ble_data.connection.encrypted)
         && (data_length)) {
-        LEDGER_PROTOCOL_rx(&buffer[1], length - 1);
+        LEDGER_PROTOCOL_rx(&ledger_protocol_data, &buffer[1], length - 1);
         aci_gatt_write_resp(ledger_ble_data.connection.connection_handle,
                             att_handle,
                             0,
@@ -1052,16 +1052,16 @@ void LEDGER_BLE_send(const uint8_t *packet, uint16_t packet_length)
         ledger_ble_data.resp[0]     = packet[0];
         ledger_ble_data.resp[1]     = packet[1];
         if (ledger_protocol_data.rx_apdu_length) {
-            LEDGER_PROTOCOL_tx(packet, packet_length);
+            LEDGER_PROTOCOL_tx(&ledger_protocol_data, packet, packet_length);
             notify_chunk();
         }
     }
     else {
         if ((ledger_ble_data.resp_length != 0) && (U2BE(ledger_ble_data.resp, 0) != SWO_SUCCESS)) {
-            LEDGER_PROTOCOL_tx(ledger_ble_data.resp, ledger_ble_data.resp_length);
+            LEDGER_PROTOCOL_tx(&ledger_protocol_data, ledger_ble_data.resp, ledger_ble_data.resp_length);
         }
         else {
-            LEDGER_PROTOCOL_tx(packet, packet_length);
+            LEDGER_PROTOCOL_tx(&ledger_protocol_data, packet, packet_length);
         }
         ledger_ble_data.resp_length = 0;
 
