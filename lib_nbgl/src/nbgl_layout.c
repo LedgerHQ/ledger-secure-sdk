@@ -2187,6 +2187,9 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
         }
         case HEADER_BACK_AND_TEXT:
         case HEADER_EXTENDED_BACK: {
+            const char *text = (headerDesc->type == HEADER_EXTENDED_BACK)
+                                   ? PIC(headerDesc->extendedBack.text)
+                                   : PIC(headerDesc->backAndText.text);
             // add back button
             button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layoutInt->layer);
             obj    = layoutAddCallbackObj(
@@ -2215,7 +2218,7 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
             layoutInt->headerContainer->nbChildren++;
 
             // add optional text if needed
-            if (headerDesc->backAndText.text != NULL) {
+            if (text != NULL) {
                 textArea = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
                 if ((headerDesc->type == HEADER_EXTENDED_BACK)
                     && (headerDesc->extendedBack.textToken != NBGL_INVALID_TOKEN)) {
@@ -2233,12 +2236,20 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
                 textArea->obj.area.width
                     = layoutInt->headerContainer->obj.area.width - 2 * BACK_KEY_WIDTH;
                 textArea->obj.area.height = TOUCHABLE_HEADER_BAR_HEIGHT;
-                textArea->text            = (headerDesc->type == HEADER_EXTENDED_BACK)
-                                                ? PIC(headerDesc->extendedBack.text)
-                                                : PIC(headerDesc->backAndText.text);
+                textArea->text            = text;
                 textArea->fontId          = SMALL_BOLD_FONT;
                 textArea->textAlignment   = CENTER;
                 textArea->wrapping        = true;
+                // ensure that text fits on 2 lines maximum
+                if (nbgl_getTextNbLinesInWidth(textArea->fontId,
+                                               textArea->text,
+                                               textArea->obj.area.width,
+                                               textArea->wrapping)
+                    > 2) {
+                    LOG_WARN(LAYOUT_LOGGER,
+                             "nbgl_layoutAddHeader: text [%s] is too long for header\n",
+                             text);
+                }
                 layoutInt->headerContainer->children[layoutInt->headerContainer->nbChildren]
                     = (nbgl_obj_t *) textArea;
                 layoutInt->headerContainer->nbChildren++;
@@ -2863,13 +2874,15 @@ int nbgl_layoutAddProgressIndicator(nbgl_layout_t *layout,
                                     uint8_t        backToken,
                                     tune_index_e   tuneId)
 {
-    nbgl_layoutHeader_t headerDesc = {.type                       = HEADER_BACK_AND_PROGRESS,
-                                      .separationLine             = false,
-                                      .progressAndBack.activePage = activePage,
-                                      .progressAndBack.nbPages    = nbPages,
-                                      .progressAndBack.token      = backToken,
-                                      .progressAndBack.tuneId     = tuneId,
-                                      .progressAndBack.withBack   = withBack};
+    nbgl_layoutHeader_t headerDesc = {.type                        = HEADER_BACK_AND_PROGRESS,
+                                      .separationLine              = false,
+                                      .progressAndBack.activePage  = activePage,
+                                      .progressAndBack.nbPages     = nbPages,
+                                      .progressAndBack.token       = backToken,
+                                      .progressAndBack.tuneId      = tuneId,
+                                      .progressAndBack.withBack    = withBack,
+                                      .progressAndBack.actionIcon  = NULL,
+                                      .progressAndBack.actionToken = NBGL_INVALID_TOKEN};
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddProgressIndicator():\n");
 
     return nbgl_layoutAddHeader(layout, &headerDesc);

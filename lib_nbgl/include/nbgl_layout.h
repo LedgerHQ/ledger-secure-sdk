@@ -413,12 +413,14 @@ typedef struct {
             tune_index_e tuneId;  ///< when back key is pressed
         } backAndText;            ///< if type is @ref HEADER_BACK_AND_TEXT
         struct {
-            uint8_t      activePage;
-            uint8_t      nbPages;
-            bool         withBack;
-            uint8_t      token;   ///< when optional back key is pressed
-            tune_index_e tuneId;  ///< when optional back key is pressed
-        } progressAndBack;        ///< if type is @ref HEADER_BACK_AND_PROGRESS
+            const nbgl_icon_details_t *actionIcon;  ///< right button icon
+            uint8_t                    activePage;
+            uint8_t                    nbPages;
+            bool                       withBack;
+            uint8_t                    token;        ///< when optional back key is pressed
+            uint8_t                    actionToken;  ///< when optional right button is pressed
+            tune_index_e               tuneId;       ///< when optional back key is pressed
+        } progressAndBack;                           ///< if type is @ref HEADER_BACK_AND_PROGRESS
         struct {
             const char *text;
         } title;  ///< if type is @ref HEADER_TITLE
