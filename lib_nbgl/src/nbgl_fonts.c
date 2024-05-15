@@ -1115,6 +1115,88 @@ void nbgl_textWrapOnNbLines(nbgl_font_id_e fontId, char *text, uint16_t maxWidth
     }
 }
 
+/**
+ * @brief Create a reduced version of given ASCII text to wrap it on the given max width (in
+ * pixels), in the given nbLines.
+ *
+ * @note the number of line must be odd
+ *
+ * @param fontId font ID
+ * @param text (input) ASCII string, must be single line
+ * @param maxWidth maximum width in pixels
+ * @param nbLines (input) number of lines to reduce the text to. The middle of the text is replaced
+ * by ...
+ * @param reducedText (output) reduced text
+ * @param reducedTextLen (input) max size of reduced text
+ *
+ */
+void nbgl_textReduceOnNbLines(nbgl_font_id_e fontId,
+                              const char    *origText,
+                              uint16_t       maxWidth,
+                              uint8_t        nbLines,
+                              char          *reducedText,
+                              uint16_t       reducedTextLen)
+{
+    const nbgl_font_t *font           = nbgl_getFont(fontId);
+    uint16_t           textLen        = strlen(origText);
+    uint16_t           width          = 0;
+    uint8_t            currentNbLines = 1;
+    uint32_t           i = 0, j = 0;
+    const uint16_t     halfWidth = (maxWidth - nbgl_getTextWidth(fontId, " ... ")) / 2;
+
+    if ((nbLines & 0x1) == 0) {
+        LOG_FATAL(MISC_LOGGER, "nbgl_textReduceOnNbLines: the number of line must be odd\n");
+        return;
+    }
+    while ((i < textLen) && (j < reducedTextLen)) {
+        uint8_t char_width;
+        char    curChar;
+
+        curChar = origText[i];
+
+        char_width = getCharWidth(font, curChar, false);
+        if (char_width == 0) {
+            reducedText[j] = curChar;
+            j++;
+            i++;
+            continue;
+        }
+
+        // if the width is about to exceed maxWidth, increment number of lines
+        if ((width + char_width) > maxWidth) {
+            currentNbLines++;
+            // reset width for next line
+            width = 0;
+            continue;
+        }
+        else if ((currentNbLines == ((nbLines / 2) + 1)) && ((width + char_width) > halfWidth)) {
+            uint32_t halfFullWidth = (nbLines / 2) * maxWidth + halfWidth;
+            uint32_t countDown     = textLen;
+            // if this if the central line, we have to insert the '...' in the middle of it
+            reducedText[j - 1] = '.';
+            reducedText[j]     = '.';
+            reducedText[j + 1] = '.';
+            // then start from the end
+            width = 0;
+            while (width < halfFullWidth) {
+                countDown--;
+                curChar    = origText[countDown];
+                char_width = getCharWidth(font, curChar, false);
+                width += char_width;
+            }
+            memcpy(&reducedText[j + 2], &origText[countDown + 1], textLen - countDown + 1);
+            return;
+        }
+        else {
+            reducedText[j] = curChar;
+            j++;
+            i++;
+        }
+        width += char_width;
+    }
+    reducedText[j] = '\0';
+}
+
 #ifdef HAVE_UNICODE_SUPPORT
 /**
  * @brief Get the font entry for the given font id (sparse font array support)

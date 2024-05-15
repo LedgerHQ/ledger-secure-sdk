@@ -21,7 +21,7 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install tomlq
         run: |
@@ -105,23 +105,17 @@ jobs:
 
     steps:
       - name: Clone App
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: LedgerHQ/${{ matrix.repo_info.repo_name }}
           ref: ${{ matrix.repo_info.default_branch }}
           submodules: true
 
       - name: Clone SDK
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: sdk
           ref: ${{ inputs.sdk_branch }}
-
-      - name: Build NanoS
-        if: "startsWith(matrix.repo_info.devices, 'nanos,')"
-        run: |
-          [ -n '${{ matrix.repo_info.build_directory }}' ] && cd ${{ matrix.repo_info.build_directory }}
-          TARGET=nanos BOLOS_SDK=$GITHUB_WORKSPACE/sdk make
 
       - name: Build NanoX
         if: "contains(matrix.repo_info.devices, 'nanox')"
