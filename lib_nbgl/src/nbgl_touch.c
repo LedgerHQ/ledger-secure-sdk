@@ -209,7 +209,7 @@ static nbgl_obj_t *getSwipableObject(nbgl_obj_t                *obj,
 // Swipe detection
 
 #ifndef HAVE_HW_TOUCH_SWIPE
-#define SWIPE_THRESHOLD_X 10
+#define SWIPE_THRESHOLD_X 20
 #define SWIPE_THRESHOLD_Y 20
 #else
 // Mapping between nbgl_hardwareSwipe_t and nbgl_touchEvent_t
@@ -237,9 +237,11 @@ static nbgl_touchType_t nbgl_detectSwipe(nbgl_touchStatePosition_t *last,
     nbgl_touchType_t detected_swipe = NB_TOUCH_TYPES;
     if ((last->x - first->x) >= SWIPE_THRESHOLD_X) {
         detected_swipe = SWIPED_RIGHT;
+        // printf("swipe right\n");
     }
     else if ((first->x - last->x) >= SWIPE_THRESHOLD_X) {
         detected_swipe = SWIPED_LEFT;
+        // printf("swipe left\n");
     }
     else if ((last->y - first->y) >= SWIPE_THRESHOLD_Y) {
         detected_swipe = SWIPED_DOWN;
@@ -256,6 +258,12 @@ static nbgl_touchType_t nbgl_detectSwipe(nbgl_touchStatePosition_t *last,
  *   GLOBAL FUNCTIONS
  **********************/
 
+typedef enum nbgl_swipe_detection_state_t {
+    SWIPE_DETECTION_STATE_INIT,
+    SWIPE_DETECTED_ON_OBJ,
+    SWIPE_DETECTED_WITHOUT_OBJ
+} nbgl_swipe_detection_state_e;
+
 /**
  * @brief Function to be called periodically to check touchscreen state
  * and coordinates
@@ -264,8 +272,13 @@ static nbgl_touchType_t nbgl_detectSwipe(nbgl_touchStatePosition_t *last,
  */
 void nbgl_touchHandler(nbgl_touchStatePosition_t *touchStatePosition, uint32_t currentTime)
 {
-    static nbgl_touchState_t lastState = RELEASED;
-    nbgl_obj_t              *foundObj;
+    // printf("touch handler %d %d %d\n",
+    //        touchStatePosition->x,
+    //        touchStatePosition->y,
+    //        touchStatePosition->state);
+    static nbgl_touchState_t            lastState = RELEASED;
+    nbgl_obj_t                         *foundObj;
+    static nbgl_swipe_detection_state_e swipe_detection_state = SWIPE_DETECTION_STATE_INIT;
 
     // save last received currentTime
     lastCurrentTime = currentTime;
@@ -305,20 +318,28 @@ void nbgl_touchHandler(nbgl_touchStatePosition_t *touchStatePosition, uint32_t c
     memcpy(&lastTouchedPosition, touchStatePosition, sizeof(nbgl_touchStatePosition_t));
 
     if (touchStatePosition->state == RELEASED) {
-        nbgl_touchType_t swipe    = nbgl_detectSwipe(touchStatePosition, &firstTouchedPosition);
-        bool             consumed = false;
+        bool consumed = false;
 
-        if (swipe != NB_TOUCH_TYPES) {
-            // Swipe detected
-            nbgl_obj_t *swipedObj = getSwipableObject(
-                nbgl_screenGetTop(), &firstTouchedPosition, &lastTouchedPosition, swipe);
-            // if a swipable object has been found
-            if (swipedObj) {
-                applytouchStatePosition(swipedObj, swipe);
-                consumed = true;
+        if (swipe_detection_state == SWIPE_DETECTION_STATE_INIT) {
+            nbgl_touchType_t swipe = nbgl_detectSwipe(touchStatePosition, &firstTouchedPosition);
+            if (swipe != NB_TOUCH_TYPES) {
+                // Swipe detected
+                nbgl_obj_t *swipedObj = getSwipableObject(
+                    nbgl_screenGetTop(), &firstTouchedPosition, &lastTouchedPosition, swipe);
+                // if a swipable object has been found
+                if (swipedObj) {
+                    applytouchStatePosition(swipedObj, swipe);
+                    consumed              = true;
+                    swipe_detection_state = SWIPE_DETECTED_ON_OBJ;
+                }
+                else {
+                    swipe_detection_state = SWIPE_DETECTED_WITHOUT_OBJ;
+                }
             }
         }
-        if (!consumed && (lastPressedObj != NULL)
+
+        if ((swipe_detection_state == SWIPE_DETECTION_STATE_INIT) && !consumed
+            && (lastPressedObj != NULL)
             && ((foundObj == lastPressedObj) || (nbgl_screenContainsObj(lastPressedObj)))) {
             // very strange if lastPressedObj != foundObj, let's consider that it's a normal release
             // on lastPressedObj make sure lastPressedObj still belongs to current screen before
@@ -331,11 +352,34 @@ void nbgl_touchHandler(nbgl_touchStatePosition_t *touchStatePosition, uint32_t c
                 applytouchStatePosition(lastPressedObj, TOUCHED);
             }
         }
+
         // Released event has been handled, forget lastPressedObj
-        lastPressedObj = NULL;
+        swipe_detection_state = SWIPE_DETECTION_STATE_INIT;
+        lastPressedObj        = NULL;
     }
     else {  // PRESSED
-        if ((lastState == PRESSED) && (lastPressedObj != NULL)) {
+        bool consumed = false;
+
+        if (swipe_detection_state == SWIPE_DETECTION_STATE_INIT) {
+            nbgl_touchType_t swipe = nbgl_detectSwipe(touchStatePosition, &firstTouchedPosition);
+
+            if (swipe != NB_TOUCH_TYPES) {
+                // Swipe detected
+                nbgl_obj_t *swipedObj = getSwipableObject(
+                    nbgl_screenGetTop(), &firstTouchedPosition, &lastTouchedPosition, swipe);
+                // if a swipable object has been found
+                if (swipedObj) {
+                    applytouchStatePosition(swipedObj, swipe);
+                    consumed              = true;
+                    swipe_detection_state = SWIPE_DETECTED_ON_OBJ;
+                }
+                else {
+                    swipe_detection_state = SWIPE_DETECTED_WITHOUT_OBJ;
+                }
+            }
+        }
+
+        if (!consumed && (lastState == PRESSED) && (lastPressedObj != NULL)) {
             if (foundObj != lastPressedObj) {
                 // finger has moved out of an object
                 // make sure lastPressedObj still belongs to current screen before warning it
