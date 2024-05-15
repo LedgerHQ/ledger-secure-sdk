@@ -882,7 +882,8 @@ static void attribute_modified(const uint8_t *buffer, uint16_t length)
                     copy_apdu_to_app(true);
                 }
                 else if (ledger_ble_data.resp_length) {
-                    LEDGER_PROTOCOL_tx(&ledger_protocol_data, ledger_ble_data.resp, ledger_ble_data.resp_length);
+                    LEDGER_PROTOCOL_tx(
+                        &ledger_protocol_data, ledger_ble_data.resp, ledger_ble_data.resp_length);
                     ledger_ble_data.resp_length = 0;
                     notify_chunk();
                 }
@@ -1058,7 +1059,8 @@ void LEDGER_BLE_send(const uint8_t *packet, uint16_t packet_length)
     }
     else {
         if ((ledger_ble_data.resp_length != 0) && (U2BE(ledger_ble_data.resp, 0) != SWO_SUCCESS)) {
-            LEDGER_PROTOCOL_tx(&ledger_protocol_data, ledger_ble_data.resp, ledger_ble_data.resp_length);
+            LEDGER_PROTOCOL_tx(
+                &ledger_protocol_data, ledger_ble_data.resp, ledger_ble_data.resp_length);
         }
         else {
             LEDGER_PROTOCOL_tx(&ledger_protocol_data, packet, packet_length);

@@ -87,6 +87,10 @@ extern USBD_HandleTypeDef USBD_Device;
 #endif
 #include "os.h"
 
+#ifdef HAVE_NFC
+#include "os_io_nfc.h"
+#endif
+
 #ifdef HAVE_SERIALIZED_NBGL
 #include "nbgl_serialize.h"
 #endif
@@ -243,21 +247,6 @@ void io_seproxyhal_handle_capdu_event(void)
     }
 }
 
-#ifdef HAVE_NFC
-void io_seproxyhal_handle_nfc_recv_event(void)
-{
-    if (G_io_app.apdu_state == APDU_IDLE) {
-        size_t max  = MIN(sizeof(G_io_apdu_buffer), sizeof(G_io_seproxyhal_spi_buffer) - 3);
-        size_t size = U2BE(G_io_seproxyhal_spi_buffer, 1);
-
-        G_io_app.apdu_media  = IO_APDU_MEDIA_NFC;
-        G_io_app.apdu_state  = APDU_NFC;
-        G_io_app.apdu_length = MIN(size, max);
-
-        memcpy(G_io_apdu_buffer, &G_io_seproxyhal_spi_buffer[3], G_io_app.apdu_length);
-    }
-}
-#endif
 unsigned int io_seproxyhal_handle_event(void)
 {
 #ifdef HAVE_IO_USB
@@ -290,7 +279,7 @@ unsigned int io_seproxyhal_handle_event(void)
 
 #ifdef HAVE_NFC
         case SEPROXYHAL_TAG_NFC_APDU_EVENT:
-            io_seproxyhal_handle_nfc_recv_event();
+            io_nfc_recv_event();
             return 1;
 #endif
 
@@ -461,6 +450,10 @@ void io_seproxyhal_init(void)
 #ifdef HAVE_USB_APDU
     io_usb_hid_init();
 #endif  // HAVE_USB_APDU
+
+#ifdef HAVE_NFC
+    io_nfc_init();
+#endif  // HAVE_NFC
 
 #ifdef HAVE_BAGL
 
@@ -1358,14 +1351,7 @@ reply_apdu:
                                 || (tx_len > NFC_APDU_MAX_SIZE)) {
                                 THROW(INVALID_PARAMETER);
                             }
-                            // reply the NFC APDU over SEPROXYHAL protocol
-                            G_io_seproxyhal_spi_buffer[0] = SEPROXYHAL_TAG_NFC_RAPDU;
-                            G_io_seproxyhal_spi_buffer[1] = (tx_len) >> 8;
-                            G_io_seproxyhal_spi_buffer[2] = (tx_len);
-                            io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 3);
-                            io_seproxyhal_spi_send(G_io_apdu_buffer, tx_len);
-
-                            // isngle packet reply, mark immediate idle
+                            io_nfc_send_response(G_io_apdu_buffer, tx_len);
                             G_io_app.apdu_state = APDU_IDLE;
                             G_io_app.apdu_media = IO_APDU_MEDIA_NONE;
                             goto break_send;

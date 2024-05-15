@@ -72,6 +72,7 @@ static void process_apdu_chunk(ledger_protocol_t *ctx, const uint8_t *buffer, ui
         // First chunk
         ctx->rx_apdu_status = APDU_STATUS_NEED_MORE_DATA;
         ctx->rx_apdu_length = (uint16_t) U2BE(buffer, 2);
+        ctx->rx_apdu_offset = 0;
         // Check if we have enough space to store the apdu
         if (ctx->rx_apdu_length > ctx->rx_apdu_buffer_max_length) {
             LOG_BLE_PROTOCOL("APDU WAITING - %d\n", ctx->rx_apdu_length);
@@ -79,8 +80,7 @@ static void process_apdu_chunk(ledger_protocol_t *ctx, const uint8_t *buffer, ui
             ctx->rx_apdu_status = APDU_STATUS_WAITING;
             return;
         }
-        ctx->rx_apdu_offset = 0;
-        buffer                          = &buffer[4];
+        buffer = &buffer[4];
         length -= 4;
     }
     else {
@@ -131,11 +131,9 @@ void LEDGER_PROTOCOL_rx(ledger_protocol_t *ctx, const uint8_t *buffer, uint16_t 
     switch (buffer[2]) {
         case TAG_GET_PROTOCOL_VERSION:
             LOG_BLE_PROTOCOL("TAG_GET_PROTOCOL_VERSION\n");
-            ctx->tx_chunk[2] = TAG_GET_PROTOCOL_VERSION;
-            ctx->tx_chunk_length
-                = MIN(sizeof(protocol_version), (sizeof(ctx->tx_chunk) - 3));
-            memcpy(
-                &ctx->tx_chunk[3], protocol_version, ctx->tx_chunk_length);
+            ctx->tx_chunk[2]     = TAG_GET_PROTOCOL_VERSION;
+            ctx->tx_chunk_length = MIN(sizeof(protocol_version), (sizeof(ctx->tx_chunk) - 3));
+            memcpy(&ctx->tx_chunk[3], protocol_version, ctx->tx_chunk_length);
             ctx->tx_chunk_length += 3;
             break;
 
@@ -194,16 +192,14 @@ void LEDGER_PROTOCOL_tx(ledger_protocol_t *ctx, const uint8_t *buffer, uint16_t 
 
     ctx->tx_chunk[tx_chunk_offset++] = TAG_APDU;
 
-    U2BE_ENCODE(
-        ctx->tx_chunk, tx_chunk_offset, ctx->tx_apdu_sequence_number);
+    U2BE_ENCODE(ctx->tx_chunk, tx_chunk_offset, ctx->tx_apdu_sequence_number);
     tx_chunk_offset += 2;
 
     if (ctx->tx_apdu_sequence_number == 0) {
         U2BE_ENCODE(ctx->tx_chunk, tx_chunk_offset, ctx->tx_apdu_length);
         tx_chunk_offset += 2;
     }
-    if ((ctx->tx_apdu_length + tx_chunk_offset)
-        >= (ctx->mtu + ctx->tx_apdu_offset)) {
+    if ((ctx->tx_apdu_length + tx_chunk_offset) >= (ctx->mtu + ctx->tx_apdu_offset)) {
         // Remaining buffer length doesn't fit the chunk
         memcpy(&ctx->tx_chunk[tx_chunk_offset],
                &ctx->tx_apdu_buffer[ctx->tx_apdu_offset],

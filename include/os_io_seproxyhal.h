@@ -136,7 +136,7 @@ void io_set_timeout(unsigned int timeout);
 
 #ifdef HAVE_NFC
 // Needs to be aligned with RFAL_FEATURE_ISO_DEP_IBLOCK_MAX_LEN defined on mcu side in platform.h
-#define NFC_APDU_MAX_SIZE 256
+#define NFC_APDU_MAX_SIZE 1024
 void io_seproxyhal_nfc_power(bool forceInit);
 #endif
 
