@@ -104,6 +104,8 @@ WARN_UNUSED_RESULT cx_err_t cx_aes_siv_update_aad(cx_aes_siv_context_t *ctx,
                                                   const uint8_t        *aad,
                                                   size_t                aad_len);
 
+cx_err_t cx_aes_siv_update_mac(cx_aes_siv_context_t *ctx, const uint8_t *input, size_t in_len);
+
 /**
  * @brief Processes plaintext or ciphertext with AES-CTR.
  *

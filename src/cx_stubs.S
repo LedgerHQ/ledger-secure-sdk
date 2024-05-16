@@ -155,6 +155,11 @@ CX_TRAMPOLINE _NR_cx_eddsa_sign_hash                       cx_eddsa_sign_hash
 CX_TRAMPOLINE _NR_cx_eddsa_update_hash                     cx_eddsa_update_hash
 CX_TRAMPOLINE _NR_cx_eddsa_verify_init_hash                cx_eddsa_verify_init_hash
 CX_TRAMPOLINE _NR_cx_eddsa_verify_hash                     cx_eddsa_verify_hash
+CX_TRAMPOLINE _NR_cx_aes_siv_update_mac                    cx_aes_siv_update_mac
+CX_TRAMPOLINE _NR_cx_cipher_reset                          cx_cipher_reset
+CX_TRAMPOLINE _NR_cx_cmac_start                            cx_cmac_start
+CX_TRAMPOLINE _NR_cx_cmac_update                           cx_cmac_update
+CX_TRAMPOLINE _NR_cx_cmac_finish                           cx_cmac_finish
 
 .thumb_func
 cx_trampoline_helper:
