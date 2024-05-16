@@ -220,12 +220,9 @@ typedef const char *(*nbgl_menuListCallback_t)(uint8_t choiceIndex);
  * a description (names array)
  */
 typedef struct {
-    nbgl_menuListCallback_t callback;  ///< function to call to retrieve a menu list item text
-#ifdef BUILD_SCREENSHOTS
-    const uint16_t (*getStringID)(uint8_t choiceIndex);  ///< return the string ID of choice
-#endif                                                   // BUILD_SCREENSHOTS
-    uint8_t nbChoices;       ///< total number of choices in the menu list
-    uint8_t selectedChoice;  ///< index of the selected choice (centered, in bold)
+    nbgl_menuListCallback_t callback;        ///< function to call to retrieve a menu list item text
+    uint8_t                 nbChoices;       ///< total number of choices in the menu list
+    uint8_t                 selectedChoice;  ///< index of the selected choice (centered, in bold)
 
 } nbgl_layoutMenuList_t;
 
@@ -670,10 +667,10 @@ int            nbgl_layoutUpdateKeypadContent(nbgl_layout_t *layout,
 
 #else   // HAVE_SE_TOUCH
 /* layout objects for pages with keypad (nanos) */
-int nbgl_layoutAddKeypad(nbgl_layout_t       *layout,
-                         keyboardCallback_t   callback,
-                         UX_LOC_STRINGS_INDEX textId,
-                         bool                 shuffled);
+int nbgl_layoutAddKeypad(nbgl_layout_t     *layout,
+                         keyboardCallback_t callback,
+                         const char        *text,
+                         bool               shuffled);
 int nbgl_layoutUpdateKeypad(nbgl_layout_t *layout,
                             uint8_t        index,
                             bool           enableValidate,

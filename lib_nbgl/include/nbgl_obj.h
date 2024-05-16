@@ -173,7 +173,7 @@ typedef enum {
     BUTTON_RIGHT_PRESSED,             ///< Send when Right button is released
     BUTTON_LEFT_CONTINUOUS_PRESSED,   ///< Send when Left button is continuouly pressed (sent every
                                       ///< 300ms after the first 800ms)
-    BUTTON_RIGHT_CONTINUOUS_PRESSED,  ///< Send when Left button is continuouly pressed (sent every
+    BUTTON_RIGHT_CONTINUOUS_PRESSED,  ///< Send when Right button is continuouly pressed (sent every
                                       ///< 300ms after the first 800ms)
     BUTTON_BOTH_PRESSED,              ///< Sent when both buttons are released
     BUTTON_BOTH_TOUCHED,              ///< Sent when both buttons are touched
@@ -391,7 +391,7 @@ typedef struct PACKED__ nbgl_button_s {
     nbgl_font_id_e fontId;       ///< id of the font to use, if any
     bool        localized;  ///< if set to true, means the following 'text' field is considered as a
     const char *text;       ///< single line UTF-8 text (NULL terminated)
-#if (defined(HAVE_LANGUAGE_PACK) || defined(BUILD_SCREENSHOTS))
+#ifdef HAVE_LANGUAGE_PACK
     UX_LOC_STRINGS_INDEX textId;          ///< id of the text single line UTF-8 text
 #endif                                    // HAVE_LANGUAGE_PACK
     onTextDrawCallback_t onDrawCallback;  ///< function called if not NULL, with above token as
@@ -418,7 +418,7 @@ typedef struct PACKED__ nbgl_text_area_s {
                          ///< stop display here
     const char *text;    ///< ASCII text to draw (NULL terminated). Can be NULL.
     uint16_t    len;     ///< number of bytes to write (if 0, max number of chars or strlen is used)
-#if (defined(HAVE_LANGUAGE_PACK) || defined(BUILD_SCREENSHOTS))
+#ifdef HAVE_LANGUAGE_PACK
     UX_LOC_STRINGS_INDEX textId;  ///< id of the  UTF-8 text
 #endif                            // HAVE_LANGUAGE_PACK
     onTextDrawCallback_t

@@ -44,10 +44,6 @@ typedef struct TextContext_s {
     const char *txtStart;       ///< pointer on the start point of text (first page)
     const char *nextPageStart;  ///< pointer on the start point of text at the next page
     const char *subTxtStart;    ///< pointer on the start point of sub-text (first page)
-#ifdef BUILD_SCREENSHOTS
-    uint16_t txtId;     ///< text ID (can be 0)
-    uint16_t subTxtId;  ///< subtext ID (can be 0)
-#endif                  // BUILD_SCREENSHOTS
 
     nbgl_stepPosition_t pos;  ///< position of the step within a flow (used for navigation arrows)
     nbgl_stepButtonCallback_t onActionCallback;  ///< function called when key actions done on this
@@ -100,11 +96,7 @@ extern bool     last_bold_state;
 /**********************
  *  PROTOTYPES
  **********************/
-void store_string_infos(uint16_t string_id,
-                        char    *text,
-                        uint16_t nb_lines,
-                        uint16_t nb_pages_,
-                        bool     bold);
+void store_string_infos(char *text, uint16_t nb_lines, uint16_t nb_pages_, bool bold);
 
 #endif  // BUILD_SCREENSHOTS
 
@@ -419,14 +411,10 @@ static void menuListActionCallback(nbgl_layout_t *layout, nbgl_buttonEvent_t eve
 nbgl_step_t nbgl_stepDrawText(nbgl_stepPosition_t               pos,
                               nbgl_stepButtonCallback_t         onActionCallback,
                               nbgl_screenTickerConfiguration_t *ticker,
-#ifdef BUILD_SCREENSHOTS
-                              uint16_t txtId,
-                              uint16_t subTxtId,
-#endif  // BUILD_SCREENSHOTS
-                              const char                     *text,
-                              const char                     *subText,
-                              nbgl_contentCenteredInfoStyle_t style,
-                              bool                            modal)
+                              const char                       *text,
+                              const char                       *subText,
+                              nbgl_contentCenteredInfoStyle_t   style,
+                              bool                              modal)
 {
     StepContext_t *ctx = getFreeContext(TEXT_STEP, modal);
     if (!ctx) {
@@ -445,7 +433,7 @@ nbgl_step_t nbgl_stepDrawText(nbgl_stepPosition_t               pos,
         ctx->textContext.nbPages = nbgl_getTextNbPagesInWidth(
             BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp, text, NB_MAX_LINES, AVAILABLE_WIDTH);
 #ifdef BUILD_SCREENSHOTS
-        store_string_infos(txtId, text, last_nb_lines, last_nb_pages, last_bold_state);
+        store_string_infos(text, last_nb_lines, last_nb_pages, last_bold_state);
 #endif  // BUILD_SCREENSHOTS
     }
     else {
@@ -453,14 +441,14 @@ nbgl_step_t nbgl_stepDrawText(nbgl_stepPosition_t               pos,
         // Call this function to get correct nb_lines/nb_pages for text field.
         nbgl_getTextNbPagesInWidth(
             BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp, text, NB_MAX_LINES, AVAILABLE_WIDTH);
-        store_string_infos(txtId, text, last_nb_lines, last_nb_pages, last_bold_state);
+        store_string_infos(text, last_nb_lines, last_nb_pages, last_bold_state);
 #endif  // BUILD_SCREENSHOTS
         // NB_MAX_LINES-1 because first line is for main text
         ctx->textContext.nbPages = nbgl_getTextNbPagesInWidth(
             BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp, subText, NB_MAX_LINES - 1, AVAILABLE_WIDTH);
 #ifdef BUILD_SCREENSHOTS
         // If subTxtid is not valid, we'll use txtId for nb_lines/nb_pages values
-        store_string_infos(subTxtId, subText, last_nb_lines, last_nb_pages, last_bold_state);
+        store_string_infos(subText, last_nb_lines, last_nb_pages, last_bold_state);
 #endif  // BUILD_SCREENSHOTS
     }
     LOG_DEBUG(STEP_LOGGER,
@@ -474,10 +462,6 @@ nbgl_step_t nbgl_stepDrawText(nbgl_stepPosition_t               pos,
     }
     ctx->textContext.txtStart    = text;
     ctx->textContext.subTxtStart = subText;
-#ifdef BUILD_SCREENSHOTS
-    ctx->textContext.txtId    = txtId;
-    ctx->textContext.subTxtId = subTxtId;
-#endif  // BUILD_SCREENSHOTS
     // keep only direction part of position
     ctx->textContext.pos   = pos & (RIGHT_ARROW | LEFT_ARROW);
     ctx->textContext.style = style;
@@ -568,10 +552,7 @@ nbgl_step_t nbgl_stepDrawMenuList(nbgl_stepMenuListCallback_t       onActionCall
     ctx->menuListContext.list.nbChoices      = list->nbChoices;
     ctx->menuListContext.list.selectedChoice = list->selectedChoice;
     ctx->menuListContext.list.callback       = list->callback;
-#ifdef BUILD_SCREENSHOTS
-    ctx->menuListContext.list.getStringID = list->getStringID;
-#endif  // BUILD_SCREENSHOTS
-    ctx->menuListContext.selectedCallback = onActionCallback;
+    ctx->menuListContext.selectedCallback    = onActionCallback;
 
     displayMenuList(ctx);
 
