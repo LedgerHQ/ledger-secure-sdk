@@ -223,8 +223,6 @@ int nbgl_layoutAddText(nbgl_layout_t                  *layout,
     nbgl_text_area_t      *textArea;
     uint16_t               fullHeight = 0;
 
-    UNUSED(subText);
-
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddText():\n");
     if (layout == NULL) {
         return -1;

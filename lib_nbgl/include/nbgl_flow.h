@@ -47,9 +47,8 @@ typedef struct nbgl_stepDesc_s {
     const char         *subText;   ///< sub-text to display in step (NULL most of the time)
     const nbgl_icon_details_t *icon;  ///< icon to display in step (text must be single-page)
 #ifdef HAVE_LANGUAGE_PACK
-    UX_LOC_STRINGS_INDEX textId;     ///< text Id to display in step
-    UX_LOC_STRINGS_INDEX subTextId;  ///< subText Id to display in step (NULL most of the time)
-#endif                               // HAVE_LANGUAGE_PACK
+    UX_LOC_STRINGS_INDEX textId;  ///< text Id to display in step
+#endif                            // HAVE_LANGUAGE_PACK
 } nbgl_stepDesc_t;
 
 typedef nbgl_stepDesc_t nbgl_pageContent_t;

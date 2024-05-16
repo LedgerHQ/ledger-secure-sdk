@@ -752,24 +752,12 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
         // if \f, exit loop
         if (unicode == '\f') {
 #ifdef BUILD_SCREENSHOTS
-            // Continue parsing the string, to find the real nb_lines & nb_pages!
             ++last_nb_pages;
-#ifdef SCREEN_SIZE_NANO
-            if (width != 0) {
-#endif  // SCREEN_SIZE_NANO
-                ++nbLines;
-#ifdef SCREEN_SIZE_NANO
-            }
-#endif  // SCREEN_SIZE_NANO
             if (last_nb_lines < nbLines) {
                 last_nb_lines = nbLines;
             }
-            nbLines = 0;
-            width   = 0;
-            continue;
-#else   // BUILD_SCREENSHOTS
-            break;
 #endif  // BUILD_SCREENSHOTS
+            break;
         }
         // if \n, increment the number of lines
         else if (unicode == '\n') {
