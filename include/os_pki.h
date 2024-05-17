@@ -35,7 +35,8 @@ typedef enum {
     CERTIFICATE_TAG_PUBLIC_KEY_CURVE_ID   = 0x32,  ///< Curve ID on which the public key is defined
     CERTIFICATE_TAG_COMPRESSED_PUBLIC_KEY = 0x33,  ///< Public key in compressed form
     CERTIFICATE_TAG_PK_SIGN_ALGO_ID       = 0x34,  ///< Signature algorithm with the public key
-    CERTIFICATE_TAG_TARGET_DEVICE         = 0x35   ///< Target device
+    CERTIFICATE_TAG_TARGET_DEVICE         = 0x35,  ///< Target device
+    CERTIFICATE_TAG_DEPTH                 = 0x36   ///< Certificate depth
 } os_pki_tag_t;
 
 /** Certificate version possible values */
@@ -115,6 +116,7 @@ static const os_pki_certificate_tag_info_t C_os_pki_certificate_tag_info[] = {
     [CERTIFICATE_TAG_PK_SIGN_ALGO_ID]       = {CERTIFICATE_SIGN_ALGO_ID_UNKNOWN,       0x01                     },
     [CERTIFICATE_TAG_TARGET_DEVICE]         = {CERTIFICATE_TARGET_DEVICE_UNKNOWN,      0x01                     },
     [CERTIFICATE_TAG_SIGNATURE]             = {CERTIFICATE_FIELD_UNKNOWN_VALUE,        CERTIFICATE_FIELD_VAR_LEN},
+    [CERTIFICATE_TAG_DEPTH]                 = {CERTIFICATE_FIELD_UNKNOWN_VALUE,        0x01                     },
 };
 
 static const cx_md_t C_os_sign_algo_hash_info[] = {
