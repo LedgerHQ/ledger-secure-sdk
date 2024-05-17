@@ -553,7 +553,7 @@ nbgl_page_t *nbgl_pageDrawGenericContentExt(nbgl_layoutTouchCallback_t       onA
                     footerDesc.navigation.tuneId            = nav->tuneId;
                 }
                 else {
-                    footerDesc.type                              = FOOTER_TEXT_AND_NAV;
+                    footerDesc.type                              = FOOTER_NAV;
                     footerDesc.textAndNav.text                   = nav->navWithButtons.quitText;
                     footerDesc.textAndNav.tuneId                 = nav->tuneId;
                     footerDesc.textAndNav.token                  = nav->quitToken;

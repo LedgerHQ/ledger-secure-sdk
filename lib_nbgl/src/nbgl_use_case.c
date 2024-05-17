@@ -336,12 +336,13 @@ static void prepareNavInfo(bool isReview, uint8_t nbPages, const char *rejectTex
     }
     else {
         navInfo.quitToken = REJECT_TOKEN;
-#ifdef TARGET_STAX
+        // #ifdef TARGET_STAX
+#if 0
         navInfo.navType                  = NAV_WITH_TAP;
         navInfo.navWithTap.nextPageToken = NEXT_TOKEN;
         navInfo.navWithTap.quitText      = rejectText;
         navInfo.navWithTap.backToken     = BACK_TOKEN;
-#else   // TARGET_STAX
+#else  // TARGET_STAX
         UNUSED(rejectText);
         navInfo.navType                 = NAV_WITH_BUTTONS;
         navInfo.navWithButtons.quitText = "Reject";

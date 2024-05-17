@@ -2817,7 +2817,7 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
         default:
             return -2;
     }
-#ifndef TARGET_STAX
+#if 1
     // add swipable feature for navigation
     if ((footerDesc->type == FOOTER_NAV) || (footerDesc->type == FOOTER_TEXT_AND_NAV)) {
         addSwipeInternal(layoutInt,
