@@ -96,7 +96,7 @@ extern bool     last_bold_state;
 /**********************
  *  PROTOTYPES
  **********************/
-void store_string_infos(char *text, uint16_t nb_lines, uint16_t nb_pages_, bool bold);
+void store_string_infos(const char *text, uint16_t nb_lines, uint16_t nb_pages_, bool bold);
 
 #endif  // BUILD_SCREENSHOTS
 
@@ -229,11 +229,6 @@ static nbgl_layoutNavIndication_t getNavigationInfo(nbgl_stepPosition_t pos,
 static void displayTextPage(StepContext_t *ctx, uint8_t textPage)
 {
     const char *txt;
-
-#ifdef BUILD_SCREENSHOTS
-    // We already took care of updating those strings info
-    last_string_id = 0;
-#endif  // BUILD_SCREENSHOTS
 
     // if move backward or first page
     if (textPage <= ctx->textContext.currentPage) {

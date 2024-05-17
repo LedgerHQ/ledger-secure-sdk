@@ -75,7 +75,7 @@ extern const char *get_ux_loc_string(uint32_t index);
 
 #ifdef BUILD_SCREENSHOTS
 char *get_printable_string(char *string);
-void  store_string_infos(char *text, uint16_t nb_lines, uint16_t nb_pages, bool bold);
+void  store_string_infos(const char *text, uint16_t nb_lines, uint16_t nb_pages, bool bold);
 #endif  // BUILD_SCREENSHOTS
 
 /**********************
