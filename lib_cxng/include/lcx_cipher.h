@@ -46,8 +46,8 @@ typedef enum {
 
 /** Generic key structure */
 typedef struct {
-    unsigned int  size;
-    unsigned char keys[32];
+    uint32_t size;
+    uint8_t  keys[32];
 } cipher_key_t;
 
 /** Base cipher information */
