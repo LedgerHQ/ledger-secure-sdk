@@ -5,7 +5,6 @@
 #include "usbd_desc.h"
 #include "usbd_ctlreq.h"
 #include "usbd_ledger.h"
-#include "usbd_ledger_types.h"
 #include "usbd_ledger_hid.h"
 #include "usbd_ledger_hid_kbd.h"
 #include "usbd_ledger_hid_u2f.h"
@@ -31,7 +30,10 @@ typedef struct {
     uint16_t              vid;
     uint16_t              pid;
     char                  name[20];
-    uint8_t               nb_of_class;
+    uint8_t               bcdusb;
+    uint8_t               usbd_iad;
+
+    uint8_t nb_of_class;
     usbd_class_info_t *class[USBD_MAX_NUM_INTERFACES];
     uint16_t classes;
 
@@ -41,6 +43,13 @@ typedef struct {
     uint16_t usb_ep_xfer_len[IO_USB_MAX_ENDPOINTS];
     uint8_t *usb_ep_xfer_buffer[IO_USB_MAX_ENDPOINTS];
 } usbd_ledger_data_t;
+
+#ifdef HAVE_PRINTF
+#define DEBUG PRINTF
+// #define DEBUG(...)
+#else  // !HAVE_PRINTF
+#define DEBUG(...)
+#endif  // !HAVE_PRINTF
 
 /* Private macros-------------------------------------------------------------*/
 
@@ -365,11 +374,12 @@ void USBD_LEDGER_init(void)
 
 void USBD_LEDGER_start(uint16_t pid, uint16_t vid, char *name, uint16_t class_mask)
 {
+    DEBUG("USBD_LEDGER_start %04X:%04X %s %04X\n", pid, vid, name, class_mask);
     if ((usbd_ledger_data.classes != class_mask) || (pid && (usbd_ledger_data.pid != pid))
         || (vid && (usbd_ledger_data.vid != vid))
         || (name && strcmp(usbd_ledger_data.name, name))) {
-        uint8_t bcdusb   = 0x00;
-        uint8_t usbd_iad = 0;
+        usbd_ledger_data.bcdusb   = 0x00;
+        usbd_ledger_data.usbd_iad = 0;
 
         USBD_LEDGER_init();
 
@@ -434,7 +444,7 @@ void USBD_LEDGER_start(uint16_t pid, uint16_t vid, char *name, uint16_t class_ma
 #endif  // HAVE_USB_CLASS_CCID
 #ifdef HAVE_WEBUSB
         if (class_mask & USBD_LEDGER_CLASS_WEBUSB) {
-            bcdusb = 0x10;
+            usbd_ledger_data.bcdusb = 0x10;
             usbd_ledger_data.class[usbd_ledger_data.nb_of_class++]
                 = (usbd_class_info_t *) PIC(&USBD_LEDGER_WEBUSB_class_info);
         }
@@ -445,21 +455,37 @@ void USBD_LEDGER_start(uint16_t pid, uint16_t vid, char *name, uint16_t class_ma
                 = (usbd_class_info_t *) PIC(&USBD_LEDGER_CDC_Control_class_info);
             usbd_ledger_data.class[usbd_ledger_data.nb_of_class++]
                 = (usbd_class_info_t *) PIC(&USBD_LEDGER_CDC_Data_class_info);
-            usbd_iad = 1;
+            usbd_ledger_data.usbd_iad = 1;
         }
 #endif  // HAVE_CDCUSB
 
         USBD_DESC_init(usbd_ledger_data.name,
                        usbd_ledger_data.vid,
                        usbd_ledger_data.pid,
-                       bcdusb,
-                       usbd_iad,
+                       usbd_ledger_data.bcdusb,
+                       usbd_ledger_data.usbd_iad,
                        get_bos_desc);
         USBD_Init(&usbd_ledger_data.usbd_handle, (USBD_DescriptorsTypeDef *) &LEDGER_Desc, 0);
         USBD_RegisterClass(&usbd_ledger_data.usbd_handle, (USBD_ClassTypeDef *) &USBD_LEDGER_CLASS);
         USBD_Start(&usbd_ledger_data.usbd_handle);
         usbd_ledger_data.classes = class_mask;
     }
+}
+
+void USBD_LEDGER_add_profile(const usbd_class_info_t *class_info, uint8_t bcdusb, uint8_t usbd_iad)
+{
+    usbd_ledger_data.class[usbd_ledger_data.nb_of_class++] = (usbd_class_info_t *) PIC(class_info);
+    usbd_ledger_data.bcdusb |= bcdusb;
+    if (usbd_iad) {
+        usbd_ledger_data.usbd_iad = usbd_iad;
+    }
+
+    USBD_DESC_init(usbd_ledger_data.name,
+                   usbd_ledger_data.vid,
+                   usbd_ledger_data.pid,
+                   usbd_ledger_data.bcdusb,
+                   usbd_ledger_data.usbd_iad,
+                   get_bos_desc);
 }
 
 void USBD_LEDGER_rx_evt_reset(void)

@@ -7,6 +7,8 @@
 #include <stdint.h>
 #include "os_io.h"
 
+#include "usbd_ledger_types.h"
+
 /* Exported enumerations -----------------------------------------------------*/
 typedef enum {
     USBD_LEDGER_PRODUCT_BLUE       = 0x0000,
@@ -43,6 +45,8 @@ void USBD_LEDGER_start(uint16_t pid,
                        uint16_t vid,
                        char    *name,
                        uint16_t class_mask);  // mask forged with usbd_ledger_class_mask_e
+
+void USBD_LEDGER_add_profile(const usbd_class_info_t *class_info, uint8_t bcdusb, uint8_t usbd_iad);
 
 // Rx
 int USBD_LEDGER_rx_seph_evt(uint8_t *seph_buffer,

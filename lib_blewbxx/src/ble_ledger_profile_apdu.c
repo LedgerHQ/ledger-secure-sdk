@@ -11,6 +11,7 @@
 
 #ifdef HAVE_PRINTF
 #define DEBUG PRINTF
+//#define DEBUG(...)
 #else  // !HAVE_PRINTF
 #define DEBUG(...)
 #endif  // !HAVE_PRINTF

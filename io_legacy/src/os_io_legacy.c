@@ -121,7 +121,6 @@ unsigned short io_exchange(unsigned char channel_and_flags, unsigned short tx_le
 
     if (tx_len && !(channel_and_flags & IO_ASYNCH_REPLY)) {
         memmove(G_io_tx_buffer, G_io_apdu_buffer, tx_len);
-        PRINTF("io_os_legacy_apdu_type %d\n", io_os_legacy_apdu_type);
         status                 = os_io_tx_cmd(io_os_legacy_apdu_type, G_io_tx_buffer, tx_len, 0);
         G_io_app.apdu_media    = IO_APDU_MEDIA_NONE;
         io_os_legacy_apdu_type = APDU_TYPE_NONE;
@@ -138,7 +137,7 @@ unsigned short io_exchange(unsigned char channel_and_flags, unsigned short tx_le
     G_io_app.apdu_length = 0;
 
     status = 0;
-    while (!status) {
+    while (!G_io_app.apdu_length) {
         status = os_io_rx_evt(G_io_rx_buffer, sizeof(G_io_rx_buffer), NULL);
         if (status > 0) {
             switch (G_io_rx_buffer[0]) {
@@ -151,7 +150,6 @@ unsigned short io_exchange(unsigned char channel_and_flags, unsigned short tx_le
                         memcpy(G_io_seproxyhal_spi_buffer, &G_io_rx_buffer[1], status - 1);
                         io_event(CHANNEL_APDU);
                     }
-                    status = 0;
                     break;
 
                 case OS_IO_PACKET_TYPE_RAW_APDU:
@@ -165,7 +163,6 @@ unsigned short io_exchange(unsigned char channel_and_flags, unsigned short tx_le
                             &G_io_rx_buffer[1], status - 1, G_io_tx_buffer, &buffer_out_length);
                         os_io_tx_cmd(io_os_legacy_apdu_type, G_io_tx_buffer, buffer_out_length, 0);
                         io_os_legacy_apdu_type = APDU_TYPE_NONE;
-                        status                 = 0;
                     }
                     else {
                         G_io_app.apdu_media  = get_media_from_apdu_type(io_os_legacy_apdu_type);
@@ -185,7 +182,6 @@ unsigned short io_exchange(unsigned char channel_and_flags, unsigned short tx_le
 #endif  // HAVE_IO_U2F
 
                 default:
-                    status = 0;
                     break;
             }
         }

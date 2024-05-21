@@ -79,8 +79,8 @@ typedef struct {
 } os_io_init_t;
 
 /* Exported defines   --------------------------------------------------------*/
-#define OS_IO_FLAG_CACHE 1
-#define OS_IO_FLAG_TOTO  2
+#define OS_IO_FLAG_CACHE  1
+#define OS_IO_FLAG_NO_ITC 2
 
 #ifdef CUSTOM_IO_APDU_BUFFER_SIZE
 #define OS_IO_BUFFER_SIZE CUSTOM_IO_APDU_BUFFER_SIZE

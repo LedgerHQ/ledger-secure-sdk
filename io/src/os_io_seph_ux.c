@@ -12,6 +12,13 @@
 #include "usbd_ledger.h"
 #endif  // HAVE_IO_USB
 
+#ifdef HAVE_PRINTF
+#define DEBUG PRINTF
+// #define DEBUG(...)
+#else  // !HAVE_PRINTF
+#define DEBUG(...)
+#endif  // !HAVE_PRINTF
+
 /* Private enumerations ------------------------------------------------------*/
 
 /* Private types, structures, unions -----------------------------------------*/

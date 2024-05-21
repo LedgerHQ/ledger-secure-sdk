@@ -20,6 +20,13 @@
 #include "lcx_rng.h"
 #endif  // HAVE_IO_U2F
 
+#ifdef HAVE_PRINTF
+#define DEBUG PRINTF
+// #define DEBUG(...)
+#else  // !HAVE_PRINTF
+#define DEBUG(...)
+#endif  // !HAVE_PRINTF
+
 /* Private enumerations ------------------------------------------------------*/
 
 /* Private types, structures, unions -----------------------------------------*/
@@ -42,6 +49,7 @@ unsigned char G_io_tx_buffer[OS_IO_BUFFER_SIZE + 1];
 
 #ifndef USE_OS_IO_STACK
 unsigned char G_io_seph_buffer[OS_IO_SEPH_BUFFER_SIZE + 1];
+size_t        G_io_seph_buffer_size;
 #endif  // !USE_OS_IO_STACK
 
 uint8_t G_io_syscall_flag;
@@ -85,6 +93,7 @@ static int process_itc_event(uint8_t *buffer_in, size_t buffer_in_length)
             status = 0;
             break;
 #endif  // HAVE_BLE
+
 #ifdef HAVE_SE_BUTTON
         case ITC_BUTTON_STATE: {
             uint8_t tx_buff[4];
@@ -113,6 +122,47 @@ static int process_itc_event(uint8_t *buffer_in, size_t buffer_in_length)
 
         default:
             break;
+    }
+
+    if (!G_io_syscall_flag) {
+        switch (buffer_in[3]) {
+#if defined(HAVE_BOLOS) && defined(HAVE_BLE)
+            case ITC_UX_ASK_BLE_PAIRING:
+                G_ux_params.ux_id = BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST;
+                G_ux_params.len   = sizeof(G_ux_params.u.pairing_request);
+                memset(&G_ux_params.u.pairing_request, 0, sizeof(G_ux_params.u.pairing_request));
+                G_ux_params.u.pairing_request.type             = buffer_in[4];
+                G_ux_params.u.pairing_request.pairing_info_len = U2BE(buffer_in, 1) - 2;
+                memcpy(G_ux_params.u.pairing_request.pairing_info,
+                       &buffer_in[5],
+                       G_ux_params.u.pairing_request.pairing_info_len);
+                os_ux(&G_ux_params);
+                status = 0;
+                break;
+
+            case ITC_UX_BLE_PAIRING_STATUS:
+                G_ux_params.ux_id                       = BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS;
+                G_ux_params.len                         = sizeof(G_ux_params.u.pairing_status);
+                G_ux_params.u.pairing_status.pairing_ok = buffer_in[4];
+                os_ux(&G_ux_params);
+                status = 0;
+                break;
+#endif  // HAVE_BOLOS && HAVE_BLE
+#if !defined(HAVE_BOLOS) && defined(HAVE_BAGL)
+            case ITC_UX_REDISPLAY:
+                ux_stack_redisplay();
+                break;
+#endif  // HAVE_BOLOS && HAVE_BAGL
+#if !defined(HAVE_BOLOS) && defined(HAVE_NBGL)
+            case ITC_UX_REDISPLAY:
+                nbgl_objAllowDrawing(true);
+                nbgl_screenRedraw();
+                nbgl_refresh();
+                break;
+#endif  // HAVE_BOLOS && HAVE_NBGL
+            default:
+                break;
+        }
     }
 
     return status;
@@ -146,6 +196,10 @@ int32_t os_io_init(uint8_t full)
 #ifdef HAVE_NFC
     // TODO_IO
 #endif  // HAVE_NFC
+
+#ifndef USE_OS_IO_STACK
+    G_io_seph_buffer_size = 0;
+#endif  // USE_OS_IO_STACK
 
     return 0;
 }
@@ -211,9 +265,17 @@ int os_io_rx_evt(unsigned char *buffer, unsigned short buffer_max_length, unsign
     int      status = 0;
     uint16_t length = 0;
 
-    status = os_io_seph_se_rx_event(
-        G_io_seph_buffer, sizeof(G_io_seph_buffer), (unsigned int *) timeout_ms, true, 0);
+    if (!G_io_seph_buffer_size) {
+        status = os_io_seph_se_rx_event(
+            G_io_seph_buffer, sizeof(G_io_seph_buffer), (unsigned int *) timeout_ms, true, 0);
+    }
+    else {
+        // Cached rx event
+        status                = G_io_seph_buffer_size;
+        G_io_seph_buffer_size = 0;
+    }
     if (status == -1) {
+        // Wrong state, send cmd to MCU
         status = os_io_seph_cmd_general_status();
         if (status < 0) {
             return status;
@@ -224,16 +286,12 @@ int os_io_rx_evt(unsigned char *buffer, unsigned short buffer_max_length, unsign
     if (status < 0) {
         return status;
     }
-#ifndef USE_OS_IO_STACK
-    if ((G_io_seph_buffer[0] == OS_IO_PACKET_TYPE_SEPH)
-        && (G_io_seph_buffer[1] == SEPROXYHAL_TAG_ITC_EVENT)) {
-        status = process_itc_event(&G_io_seph_buffer[1], status - 1) + 1;
-    }
-#endif  // !USE_OS_IO_STACK
     if (status > 0) {
         length = (uint16_t) status;
     }
 
+    uint8_t toto[5];
+    memcpy(toto, G_io_seph_buffer, sizeof(toto));
     switch (G_io_seph_buffer[1]) {
 #ifdef HAVE_IO_USB
         case SEPROXYHAL_TAG_USB_EVENT:
@@ -265,6 +323,17 @@ int os_io_rx_evt(unsigned char *buffer, unsigned short buffer_max_length, unsign
             buffer[0] = OS_IO_PACKET_TYPE_RAW_APDU;
             memmove(&buffer[1], &G_io_seph_buffer[4], length);
             status = length - 3;
+            break;
+
+        case SEPROXYHAL_TAG_ITC_EVENT:
+            if (length >= buffer_max_length - 1) {
+                length = buffer_max_length - 1;
+            }
+            memmove(buffer, G_io_seph_buffer, length);
+            status = process_itc_event(&G_io_seph_buffer[1], status - 1);
+            if (status > 0) {
+                status = length;
+            }
             break;
 
         default:
@@ -316,13 +385,15 @@ int os_io_tx_cmd(uint8_t                     type,
         case OS_IO_PACKET_TYPE_SEPH:
             status = os_io_seph_tx(buffer, length, (unsigned int *) timeout_ms);
             if (status == -1) {
+                // Wrong state, wait for an event from the MCU
                 status = os_io_seph_se_rx_event(G_io_seph_buffer,
                                                 sizeof(G_io_seph_buffer),
                                                 (unsigned int *) timeout_ms,
                                                 false,
-                                                OS_IO_FLAG_TOTO);
+                                                OS_IO_FLAG_NO_ITC);
                 if (status >= 0) {
-                    status = os_io_seph_tx(buffer, length, NULL);
+                    G_io_seph_buffer_size = status;
+                    status                = os_io_seph_tx(buffer, length, NULL);
                 }
             }
             break;

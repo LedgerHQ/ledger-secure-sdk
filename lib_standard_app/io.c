@@ -30,6 +30,13 @@
 #include "swap.h"
 #endif  // HAVE_SWAP
 
+#ifdef HAVE_PRINTF
+#define DEBUG PRINTF
+// #define DEBUG(...)
+#else  // !HAVE_PRINTF
+#define DEBUG(...)
+#endif  // !HAVE_PRINTF
+
 // TODO: Temporary workaround, at some point all status words should be defined by the SDK and
 // removed from the application
 #define SW_OK                    0x9000
