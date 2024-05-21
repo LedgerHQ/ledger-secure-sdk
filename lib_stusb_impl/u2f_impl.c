@@ -280,6 +280,18 @@ int u2f_get_cmd_msg_data_length(const uint8_t *buffer, uint16_t length)
         return 0;
     }
 
+    if (length == APDU_MIN_HEADER + 2) {
+        // Short encoding, with either:
+        //  - both Lc (==0) and Le, or
+        //  - Lc == 1 and 1B of data, no Le
+        if (buffer[4] == 0 || buffer[4] == 1) {
+            return buffer[4];
+        }
+        else {
+            return -1;
+        }
+    }
+
     if (length < APDU_MIN_HEADER + 3) {
         // Short encoding or bad length
         // We don't support short encoding
