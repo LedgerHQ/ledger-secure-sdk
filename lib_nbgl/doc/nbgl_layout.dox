@@ -17,7 +17,7 @@ Moreover, positions of objects in the page are mostly hidden and automatic.
 
 @subsection example_1 Example 1
 
-\image{inline} html layout1.png "caption" height=300
+\image{inline} html stax_layout1.png "caption" height=300
 
 In this example, 3 "objects" are used and added to the page with dedicated APIs:
 
@@ -27,7 +27,7 @@ In this example, 3 "objects" are used and added to the page with dedicated APIs:
 
 @subsection example_2 Example 2
 
-\image{inline} html layout9.png "caption" height=300
+\image{inline} html stax_layout9.png "caption" height=300
 
 In this more complex example, a "tapable" container is used for the whole screen, except the footer area and the progress indicator.
 
@@ -88,7 +88,7 @@ Otherwise objects are all added in the whole page.
 
 @subsection top_right_button Top-right button
 
-\image{inline} html layout1.png "caption" height=300
+\image{inline} html stax_layout1.png "caption" height=300
 
 This object is made of a single round button, on top right of the screen.
 
@@ -103,7 +103,7 @@ The API to insert such an object is @ref nbgl_layoutAddTopRightButton()
 
 @subsection bottom_button Bottom centered button
 
-\image{inline} html layout1.png "caption" height=300
+\image{inline} html stax_layout1.png "caption" height=300
 
 This object is made of a single round button, on middle bottom of the screen.
 
@@ -158,7 +158,7 @@ A thin vertical separation is drawn between both text areas.
 
 @subsection centered_info Centered info area
 
-\image{inline} html layout1.png "caption" height=300
+\image{inline} html stax_layout1.png "caption" height=300
 
 This object is made of:
 
@@ -197,7 +197,7 @@ The API to insert such an object is @ref nbgl_layoutAddChoiceButtons(), with @re
 
 @subsection single_button Single button
 
-\image{inline} html layout6.png "caption" height=300
+\image{inline} html stax_layout6.png "caption" height=300
 
 This object is made of a single button, in @ref BLACK. The text and optional icon are in @ref WHITE
 
@@ -245,7 +245,7 @@ The API to insert such an object is @ref nbgl_layoutAddTagValueList(), with @ref
 
 @subsection touchable_bar Touchable bar
 
-\image{inline} html layout8.png "caption" height=300
+\image{inline} html stax_layout8.png "caption" height=300
 
 This horizontal bar object is made of:
 
@@ -268,7 +268,7 @@ The API to insert such an object is @ref nbgl_layoutAddTouchableBar(), with @ref
 
 @subsection switch Switch
 
-\image{inline} html layout15.png "caption" height=300
+\image{inline} html stax_layout15.png "caption" height=300
 
 This object is made of:
 
@@ -284,7 +284,7 @@ The API to insert such an object is @ref nbgl_layoutAddSwitch(), with @ref nbgl_
 
 @subsection radio_choices Radio button choices
 
-\image{inline} html layout11.png "caption" height=300
+\image{inline} html stax_layout11.png "caption" height=300
 
 This object is made of a vertical list of *nbChoices* items made of:
 
@@ -337,7 +337,7 @@ The API to insert such an object is @ref nbgl_layoutAddProgressIndicator().
 
 @subsection qr_code QR Code
 
-\image{inline} html layout13.png "caption" height=300
+\image{inline} html stax_layout13.png "caption" height=300
 
 This object, centered in the main container, is made of a dynamically drawned QR Code (not a picture) and description texts under it.
 
@@ -388,62 +388,34 @@ used to modify the mask of an existing keyboard.
 - And so on in "qwertyuiopasdfghjklzxcvbnm" string.
 - "space" key has index 29.
 
-@subsubsection keyboard_sub_section_2 Adding/Updating confirmation button
+@subsubsection keyboard_sub_section_2 Adding/Updating Keyboard Content
 
-This object, on top of an already added keyboard (the order in function calls is important) consists in a
-black background and white text button.
+This container object, which is a complement to a keyboard consists in:
 
-The parameters to configure this object are:
+- An optional title on top of the container
+- A entered text area (one line)
+- Either a single confirmation button or several suggestion buttons
 
-- The \b text to display in button
-- A boolean to indicate whether to activate/deactivate the button (when deactivated, it is grayed-out)
-- A \b token used with the action callback when the button is touched
+The buttons are all with black background and white text.
+
+The parameters to configure this object (@ref nbgl_layoutKeyboardContent_t structure) are:
+
+- The type of content (with suggestions or confirmation)
+- The optional text for title (if NULL, no title)
+- The entered text to display
+- A boolean to indicate whether to display a number at the beginning of the line of the entered text
+- A number to display at the beginning of the line of the entered text (if \b numbered is true)
+- A boolean to indicate whether to display the entered text in gray or not.
+- The token that will be used as argument of the callback when text is touched
+- Either:
+   - The description of the suggestions buttons
+   - Or the description of the confirmation button
 - The tune ID to play when any button is pressed
 
-The API to insert such an object is @ref nbgl_layoutAddConfirmationButton().
+The API to insert such an object is @ref nbgl_layoutAddKeyboardContent().
 
-This function returns a positive integer (if successful) to be used as an index in @ref nbgl_layoutUpdateConfirmationButton() function,
-used to modify the text or the state of the button (active/inactive).
-
-\warning This object is incompatible with suggestion buttons.
-
-@subsubsection keyboard_sub_section_3 Adding/Updating suggestion buttons
-
-This set of objects, on top of an already added keyboard (the order in function calls is important) consists in 0 to 4
-black background and white text buttons (2 rows x 2 columns).
-
-The parameters to configure this set are:
-
-- The number of actually used (=displayed) buttons
-- An array of 4 strings for buttons (not used can be NULL)
-- An integer for first token used for buttons, provided in onActionCallback (the next 3 integers will be used for other buttons)
-- The tune ID to play when any button is pressed
-
-The API to insert such an object is @ref nbgl_layoutAddSuggestionButtons().
-
-This function returns a positive integer (if successful) to be used as an index in @ref nbgl_layoutUpdateSuggestionButtons() function,
-used to modify the texts or the number of used buttons.
-
-\warning This object is incompatible with confirmation button.
-
-@subsubsection keyboard_sub_section_4 Adding/Updating entered text
-
-This object, displayed under a potential text (or under the back key) consists in a potential number, followed by a centered text
-representing the text entered with the keyboard. A thin gray line is also displayed under the text
-
-If text is too long to be displayed, the beginning is replaced by "..."
-
-The parameters to configure this object are:
-
-- The \b text to display
-- A boolean to indicate whether to displayed a number at the beginning of the line
-- A number to display at the beginning of the line (if \b numbered is true)
-- A boolean to indicate whether to display the text in gray or not.
-
-The API to insert such an object is @ref nbgl_layoutAddEnteredText().
-
-This function returns a positive integer (if successful) to be used as an index in @ref nbgl_layoutUpdateEnteredText() function,
-used to modify the text or the number preceding it.
+This function returns a positive integer if successful.
+This object can be modified with @ref nbgl_layoutUpdateKeyboardContent()
 
 @subsubsection keyboard_example_1 Example 1
 
@@ -460,7 +432,6 @@ enum {
 
 static char textToEnter[48];
 static nbgl_layout_t *layout;
-static int textIndex;
 
 // function called when back or continue button is touched
 static void layoutTouchCallback(int token, uint8_t index) {
@@ -483,6 +454,18 @@ static void layoutTouchCallback(int token, uint8_t index) {
 
 // function called when a key of keyboard is touched
 static void keyboardCallback(char touchedKey) {
+  nbgl_layoutKeyboardContent_t kbdContent = {
+    .title                     = NULL,
+    .type                      = KEYBOARD_WITH_BUTTON,
+    .numbered                  = false,
+    .text                      = textToEnter,
+    .grayedOut                 = true,
+    .textToken                 = KBD_TEXT_TOKEN,
+    .tuneId                    = TUNE_TAP_CASUAL,
+    .confirmationButton.active = false,
+    .confirmationButton.text   = "Continue",
+    .confirmationButton.token  = CONFIRM_BUTTON_TOKEN
+  };
   // if not Backspace
   if (touchedKey != BACKSPACE_KEY) {
     int textLen = strlen(textToEnter);
@@ -496,7 +479,7 @@ static void keyboardCallback(char touchedKey) {
     textToEnter[textLen-1] = '\0';
   }
   // be sure to redraw the text
-  nbgl_layoutUpdateEnteredText(layout,textIndex,false,0,textToEnter,false);
+  nbgl_layoutUpdateKeyboardContent(layout,textIndex,false,0,textToEnter,false);
 }
 
 void app_keyboard(void) {
@@ -511,34 +494,32 @@ void app_keyboard(void) {
       .mode = MODE_LETTERS, // start in letters mode
       .upperCase = false    // start with lower case letters
     };
-    nbgl_layoutCenteredInfo_t centeredInfo = {
-      .text1 = NULL,
-      .text2 = "Enter passphrase:", // to use as "header"
-      .text3 = NULL,
-      .style = LARGE_CASE_INFO,
-      .icon = NULL,
-      .offsetY = 0,
-      .onTop = true
+    nbgl_layoutKeyboardContent_t kbdContent = {
+      .title                     = NULL,
+      .type                      = KEYBOARD_WITH_BUTTON,
+      .numbered                  = false,
+      .text                      = textToEnter,
+      .grayedOut                 = true,
+      .textToken                 = KBD_TEXT_TOKEN,
+      .tuneId                    = TUNE_TAP_CASUAL,
+      .confirmationButton.active = false,
+      .confirmationButton.text   = "Continue",
+      .confirmationButton.token  = CONFIRM_BUTTON_TOKEN
     };
+    nbgl_layoutHeader_t headerDesc = {.type               = HEADER_BACK_AND_TEXT,
+                                      .separationLine     = false,
+                                      .backAndText.token  = BACK_BUTTON_TOKEN,
+                                      .backAndText.tuneId = TUNE_TAP_CASUAL,
+                                      .backAndText.text   = NULL};
+
     // get layout
     layout = nbgl_layoutGet(&layoutDescription);
     // add back key
-    nbgl_layoutAddProgressIndicator(layout, 0, 0, true, BACK_BUTTON_TOKEN, TUNE_TAP_CASUAL);
-    // add header
-    nbgl_layoutAddCenteredInfo(layout, &centeredInfo);
+    nbgl_layoutAddHeader(layout, &headerDesc);
     // add keyboard
     nbgl_layoutAddKeyboard(layout, &kbdInfo);
-    // add confirmation button
-    nbgl_layoutAddConfirmationButton(layout, "Continue", CONTINUE_BUTTON_TOKEN, TUNE_TAP_CASUAL);
-    // add entered text field and memorize index
-    strcpy(textToEnter,"Yellow23@");
-    textIndex = nbgl_layoutAddEnteredText(layout,
-                                          false,       // not numbered
-                                          0,           // not used
-                                          textToEnter, // text to display
-                                          false,       // not grayed-out
-                                          32,          // vertical margin from the button
-                                          KBD_TEXT_TOKEN); // token used when this area is touched
+    // add keyboard content
+    nbgl_layoutAddKeyboardContent(layout, &kbdContent);
 
     // draw layout
     nbgl_layoutDraw(layout);
@@ -562,7 +543,6 @@ static nbgl_layout_t *layout;
 static char textToEnter[20];
 static char headerText[48];
 static nbgl_layout_t *layout;
-static int textIndex, suggestionIndex, keyboardIndex;
 static int wordNum;
 static char *buttonTexts[NB_MAX_SUGGESTION_BUTTONS] = {0};
 
@@ -585,6 +565,19 @@ static void layoutTouchCallback(int token, uint8_t index) {
 
 // function called when a key of keyboard is touched
 static void keyboardCallback(char touchedKey) {
+  nbgl_layoutKbdContent_t kbdContent = {
+    .title                              = headerText,
+    .type                               = KEYBOARD_WITH_SUGGESTIONS,
+    .numbered                           = true,
+    .number                             = G_bolos_ux_context.onboarding_step + 1,
+    .text                               = "",
+    .grayedOut                          = false,
+    .textToken                          = KBD_TEXT_TOKEN,
+    .tuneId                             = TUNE_TAP_CASUAL,
+    .suggestionButtons.buttons          = (const char **) buttonTexts,
+    .suggestionButtons.firstButtonToken = FIRST_SUGGESTION_TOKEN,
+    .suggestionButtons.nbUsedButtons    = 0
+  };
   // if not Backspace
   if (touchedKey != BACKSPACE_KEY) {
     int textLen = strlen(textToEnter);
@@ -599,7 +592,7 @@ static void keyboardCallback(char touchedKey) {
   }
   if (textLen == 0) {
     // remove any suggestion buttons because empty string
-    nbgl_layoutUpdateSuggestionButtons(layout,suggestionIndex,0,buttonTexts);
+    bdContent.suggestionButtons.nbUsedButtons    = 0;
     // clear keyboard mask
     nbgl_layoutUpdateKeyboard(layout,keyboardIndex, 0x0, LOWER_CASE);
   }
@@ -607,14 +600,14 @@ static void keyboardCallback(char touchedKey) {
     // find up to NB_MAX_SUGGESTION_BUTTONS words beginning with textToEnter
     int nbMatchingWords = getWordsBeginningWith(textToEnter, buttonTexts, NB_MAX_SUGGESTION_BUTTONS);
     // use them for buttons
-    nbgl_layoutUpdateSuggestionButtons(layout,suggestionIndex,nbMatchingWords,buttonTexts);
+    kbdContent.suggestionButtons.nbUsedButtons    = nbMatchingWords
     // get keys to mask on keyboard for possible next letters
     uint32_t mask = getKeyboardMask(textToEnter);
     // use it for keyboard
     nbgl_layoutUpdateKeyboard(layout,keyboardIndex, mask, LOWER_CASE);
   }
-  // be sure to redraw the text
-  nbgl_layoutUpdateEnteredText(layout,textIndex,false,0,textToEnter,false);
+  // update keyboard content
+  nbgl_layoutUpdateKeyboardContent(&kbdContent);
 
   // and refresh screen
   nbgl_refresh();
@@ -632,40 +625,36 @@ void app_keyboard(void) {
       .mode = MODE_LETTERS, // start in letters mode
       .upperCase = false    // start with lower case letters
     };
-    nbgl_layoutCenteredInfo_t centeredInfo = {
-      .text1 = NULL,
-      .text2 = headerText, // to use as "header"
-      .text3 = NULL,
-      .style = LARGE_CASE_INFO,
-      .icon = NULL,
-      .offsetY = 0,
-      .onTop = true
+    nbgl_layoutKbdContent_t kbdContent = {
+      .title                              = headerText,
+      .type                               = KEYBOARD_WITH_SUGGESTIONS,
+      .numbered                           = true,
+      .number                             = G_bolos_ux_context.onboarding_step + 1,
+      .text                               = "",
+      .grayedOut                          = false,
+      .textToken                          = KBD_TEXT_TOKEN,
+      .tuneId                             = TUNE_TAP_CASUAL,
+      .suggestionButtons.buttons          = (const char **) buttonTexts,
+      .suggestionButtons.firstButtonToken = FIRST_SUGGESTION_TOKEN,
+      .suggestionButtons.nbUsedButtons    = 0
     };
+    nbgl_layoutHeader_t headerDesc = {.type               = HEADER_BACK_AND_TEXT,
+                                      .separationLine     = false,
+                                      .backAndText.token  = BACK_BUTTON_TOKEN,
+                                      .backAndText.tuneId = TUNE_TAP_CASUAL,
+                                      .backAndText.text   = NULL};
+
     // get layout
     layout = nbgl_layoutGet(&layoutDescription);
     // add back key
-    nbgl_layoutAddProgressIndicator(layout, 0, 0, true, BACK_BUTTON_TOKEN, TUNE_TAP_CASUAL);
-    // add header
+    nbgl_layoutAddHeader(layout, &headerDesc);
+    // add keyboard
+    nbgl_layoutAddKeyboard(layout, &kbdInfo);
+    //add keyboard content (will be removed later)
     wordNum = 1;
-    sprintf("Enter word no.%d from your Recovery Sheet",wordNum);
-    nbgl_layoutAddCenteredInfo(layout, &centeredInfo);
-    // add keyboard and memorize index
-    keyboardIndex = nbgl_layoutAddKeyboard(layout, &kbdInfo);
-    // add suggestion words (will be removed later) and memorize index
-    suggestionIndex = nbgl_layoutAddSuggestionButtons(layout,
-                                                      0, // no used buttons at start-up
-                                                      buttonTexts,
-                                                      FIRST_SUGGESTION_TOKEN,
-                                                      TUNE_TAP_CASUAL);
-    // add entered text field and memorize index
+    sprintf(headerText, "Enter word no.%d from your Recovery Sheet",wordNum);
     strcpy(textToEnter,"");
-    textIndex = nbgl_layoutAddEnteredText(layout,
-                                          true,        // numbered
-                                          wordNum,     // number to use
-                                          textToEnter, // text to display
-                                          false,       // not grayed-out
-                                          32,          // vertical margin from the buttons
-                                          KBD_TEXT_TOKEN);
+    nbgl_layoutAddKeyboardContent(layout, &kbdContent);
     // draw layout
     nbgl_layoutDraw(layout);
 }
@@ -697,20 +686,26 @@ The API to insert such an object is @ref nbgl_layoutAddKeypad().
 This function returns a positive integer (if successful) to be used as an index in @ref nbgl_layoutUpdateKeypad() function,
 used to modify the mask (active keys) of an existing keypad.
 
-@subsubsection keypad_sub_section_2 Adding/Updating hidden digits area
+@subsubsection keypad_sub_section_2 Adding/Updating keypad content
 
-This object, displayed under a potential text (or under the back key) consists in up to 8 discs (invisible or visible) corresponding to
-hidden entered/not entered digits.
+This object consists in:
+- an optional title
+- either:
+  - up to 12 discs (invisible or visible) corresponding to hidden entered/not entered digits.
+  - or up to 12 digits if not hidden
 
 The parameters to configure this object are:
 
+- The optional title (NULL if not used)
+- A boolean to indicate whether digits are hidden or not
 - The number of total digits to be displayed (all digits are considered as "not entered")
+- The digits to be displayed if not hidden
 
-The API to insert such an object is @ref nbgl_layoutAddHiddenDigits().
+The API to insert such an object is @ref nbgl_layoutAddKeypadContent().
 
-This function returns a positive integer (if successful) to be used as an index in @ref nbgl_layoutUpdateHiddenDigits() function,
-used to modify the number of entered digits.
+This function returns a positive integer (if successful).
 
+The @ref nbgl_layoutUpdateKeypadContent() function can be used to modify the number of entered digits or the digits.
 
 @section refresh_layout Refreshing screen
 

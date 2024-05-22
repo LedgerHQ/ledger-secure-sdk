@@ -348,8 +348,6 @@ uint16_t nbgl_getSingleLineTextWidthInLen(nbgl_font_id_e fontId, const char *tex
  *
  * @param fontId font ID
  * @param text text in UTF8
- * @param nb_lines_ptr pointer to a variable that will contain the number of lines used (or NULL if
- * we don't care)
  * @return the width in pixels of the text
  */
 uint16_t nbgl_getTextWidth(nbgl_font_id_e fontId, const char *text)
@@ -1124,7 +1122,7 @@ void nbgl_textWrapOnNbLines(nbgl_font_id_e fontId, char *text, uint16_t maxWidth
  * @note the number of line must be odd
  *
  * @param fontId font ID
- * @param text (input) ASCII string, must be single line
+ * @param origText (input) ASCII string, must be single line
  * @param maxWidth maximum width in pixels
  * @param nbLines (input) number of lines to reduce the text to. The middle of the text is replaced
  * by ...

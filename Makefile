@@ -8,11 +8,13 @@ TARGET ?= stax
 NBGL_DEFINES_stax := \
                      HAVE_SE_TOUCH \
                      NBGL_PAGE \
-					 NBGL_QRCODE
+					 NBGL_QRCODE \
+					 SCREEN_SIZE_WALLET
 
 NBGL_DEFINES_nano := \
                      NBGL_STEP \
-					 NBGL_FLOW
+					 NBGL_FLOW \
+					 SCREEN_SIZE_NANO
 
 NBGL_DEFINES := $(NBGL_DEFINES_$(TARGET))
 

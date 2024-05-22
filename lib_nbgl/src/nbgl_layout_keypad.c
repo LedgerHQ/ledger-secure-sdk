@@ -161,7 +161,7 @@ int nbgl_layoutUpdateKeypad(nbgl_layout_t *layout,
  * @brief Adds a placeholder for hidden digits on top of a keypad, to represent the entered digits,
  * as full circles The placeholder is "underligned" with a thin horizontal line of the expected full
  * length
- * @deprecated Use @ref nbgl_layouAddKeypadContent instead
+ * @deprecated Use @ref nbgl_layoutAddKeypadContent instead
  *
  * @note It must be the last added object, after potential back key, title, and keypad. Vertical
  * positions of title and hidden digits will be computed here

@@ -471,7 +471,7 @@ nbgl_step_t nbgl_stepDrawText(nbgl_stepPosition_t               pos,
  * @param pos position of this step in the flow (first, last, single, not_first_nor_last)
  * @param onActionCallback common callback for all actions on this page
  * @param ticker ticker configuration, set to NULL to disable it
- * @param info all information about the cenetered info to be displayed
+ * @param info all information about the centered info to be displayed
  * @param modal if true, means this step shall be displayed on top of existing one
  * @return the step context (or NULL if error)
  */
