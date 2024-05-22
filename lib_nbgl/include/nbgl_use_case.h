@@ -145,9 +145,9 @@ typedef struct {
 } nbgl_genericContents_t;
 
 typedef struct {
-    const char                *text;
-    const nbgl_icon_details_t *icon;
-    nbgl_callback_t            callback;
+    const char                *text;  ///< text to use in action button in Home page
+    const nbgl_icon_details_t *icon;  ///< icon to use in action button in Home page
+    nbgl_callback_t callback;  ///< function to call when action button is touched in Home page
 } nbgl_homeAction_t;
 
 /**
@@ -155,10 +155,33 @@ typedef struct {
  *
  */
 typedef enum {
-    TYPE_TRANSACTION = 0,  // For operations transferring a coin or taken from an account to another
-    TYPE_MESSAGE,  // For operations signing a message that will not be broadcast on the blockchain
-    TYPE_OPERATION,  // For other types of operation (generic type)
-} nbgl_operationType_t;
+    TYPE_TRANSACTION
+        = 0,        ///< For operations transferring a coin or taken from an account to another
+    TYPE_MESSAGE,   ///< For operations signing a message that will not be broadcast on the
+                    ///< blockchain
+    TYPE_OPERATION  ///< For other types of operation (generic type)
+} nbgl_opType_t;
+
+/**
+ * @brief This is to use in @ref nbgl_operationType_t when the operation is skippable.
+ * This is used
+ *
+ */
+#define SKIPPABLE_OPERATION (1 << 4)
+
+/**
+ * @brief This is to use in @ref nbgl_operationType_t when the operation is "blind"
+ * This is used to indicate a warning with a top-right button in review first & last page
+ *
+ */
+#define BLIND_OPERATION (1 << 5)
+
+/**
+ * @brief This mask is used to describe the type of operation to review with additional options
+ * It is a mask of @ref nbgl_opType_t [| @ref SKIPPABLE_OPERATION] [| @ref BLIND_OPERATION]
+ *
+ */
+typedef uint32_t nbgl_operationType_t;
 
 /**
  * @brief The different types of review status
@@ -219,6 +242,10 @@ void nbgl_useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
                                       const char                *reviewTitle,
                                       const char                *reviewSubTitle,
                                       nbgl_choiceCallback_t      choiceCallback);
+
+void nbgl_useCaseReviewStreamingContinueExt(const nbgl_contentTagValueList_t *tagValueList,
+                                            nbgl_choiceCallback_t             choiceCallback,
+                                            nbgl_callback_t                   skipCallback);
 
 void nbgl_useCaseReviewStreamingContinue(const nbgl_contentTagValueList_t *tagValueList,
                                          nbgl_choiceCallback_t             choiceCallback);

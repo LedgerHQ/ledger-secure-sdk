@@ -972,9 +972,23 @@ void nbgl_useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
     displayStreamingReviewPage(FORWARD_DIRECTION);
 }
 
-void nbgl_useCaseReviewStreamingContinue(const nbgl_contentTagValueList_t *tagValueList,
-                                         nbgl_choiceCallback_t             choiceCallback)
+/**
+ * @brief Continue drawing the flow of pages of a review.
+ * @note  This should be called after a call to nbgl_useCaseReviewStreamingStart and can be followed
+ *        by others calls to nbgl_useCaseReviewStreamingContinue and finally to
+ *        nbgl_useCaseReviewStreamingFinish.
+ *
+ * @param tagValueList list of tag/value pairs
+ * @param choiceCallback callback called when more operation data are needed (param is true) or
+ * operation is rejected (param is false)
+ * @param skipCallback unused yet on Nano.
+ */
+void nbgl_useCaseReviewStreamingContinueExt(const nbgl_contentTagValueList_t *tagValueList,
+                                            nbgl_choiceCallback_t             choiceCallback,
+                                            nbgl_callback_t                   skipCallback)
 {
+    UNUSED(skipCallback);
+
     memset(&context, 0, sizeof(UseCaseContext_t));
     context.type                = STREAMING_CONTINUE_REVIEW_USE_CASE;
     context.review.tagValueList = tagValueList;
@@ -983,6 +997,22 @@ void nbgl_useCaseReviewStreamingContinue(const nbgl_contentTagValueList_t *tagVa
     context.nbPages             = tagValueList->nbPairs + 1;  // data + trick for review continue
 
     displayStreamingReviewPage(FORWARD_DIRECTION);
+}
+
+/**
+ * @brief Continue drawing the flow of pages of a review.
+ * @note  This should be called after a call to nbgl_useCaseReviewStreamingStart and can be followed
+ *        by others calls to nbgl_useCaseReviewStreamingContinue and finally to
+ *        nbgl_useCaseReviewStreamingFinish.
+ *
+ * @param tagValueList list of tag/value pairs
+ * @param choiceCallback callback called when more operation data are needed (param is true) or
+ * operation is rejected (param is false)
+ */
+void nbgl_useCaseReviewStreamingContinue(const nbgl_contentTagValueList_t *tagValueList,
+                                         nbgl_choiceCallback_t             choiceCallback)
+{
+    nbgl_useCaseReviewStreamingContinueExt(tagValueList, choiceCallback, NULL);
 }
 
 void nbgl_useCaseReviewStreamingFinish(const char           *finishTitle,

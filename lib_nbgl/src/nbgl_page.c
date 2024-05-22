@@ -533,7 +533,7 @@ nbgl_page_t *nbgl_pageDrawGenericContentExt(nbgl_layoutTouchCallback_t       onA
 
             if (nav->skipText != NULL) {
                 nbgl_layoutHeader_t headerDesc = {.type             = HEADER_RIGHT_TEXT,
-                                                  .separationLine   = true,
+                                                  .separationLine   = false,
                                                   .rightText.text   = nav->skipText,
                                                   .rightText.token  = nav->skipToken,
                                                   .rightText.tuneId = nav->tuneId};
