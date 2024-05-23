@@ -4,6 +4,7 @@
  * @note This file applies only to wallet size products (Stax, Flex...)
  */
 
+#include "nbgl_fonts.h"
 #ifdef HAVE_SE_TOUCH
 #ifdef NBGL_KEYBOARD
 /*********************
@@ -244,8 +245,9 @@ static nbgl_container_t *addTextEntry(nbgl_layoutInternal_t *layoutInt,
     }
 
     // create text area for entered text
-    textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-    textArea->textColor     = grayedOut ? LIGHT_GRAY : BLACK;
+    textArea = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+    // textArea->textColor     = grayedOut ? LIGHT_GRAY : BLACK;
+    textArea->textColor     = BLACK;
     textArea->text          = text;
     textArea->textAlignment = MID_LEFT;
     textArea->fontId        = LARGE_MEDIUM_1BPP_FONT;
@@ -1008,6 +1010,92 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
     return layoutInt->container->obj.area.height;
 }
 
+void nbgl_keyboardAddLetter(nbgl_layout_t *layout, const char *text, bool add)
+{
+    UNUSED(add);
+    // printf("Add letter\n");
+    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
+    nbgl_container_t      *container;
+    nbgl_text_area_t      *textArea;
+
+    // get top container from main container (it shall be the 1st object)
+    container      = (nbgl_container_t *) layoutInt->container->children[0];
+    textArea       = (nbgl_text_area_t *) container->children[2];
+    textArea->text = text;
+
+    // Calculate current text width
+    char     dummyText[2]   = {text[textArea->len], 0};
+    uint16_t addedCharWidth = nbgl_getSingleLineTextWidth(textArea->fontId, dummyText);
+    uint16_t totalTextWidth = nbgl_getSingleLineTextWidth(textArea->fontId, text);
+    uint16_t currentWidth   = totalTextWidth - addedCharWidth;
+
+    // printf("addedChar: %s totalTextWidth: %d current width: %d added char width : %d\n",
+    //        dummyText,
+    //        totalTextWidth,
+    //        currentWidth,
+    //        addedCharWidth);
+
+    // Redraw
+    nbgl_text_area_t tmpText;
+    memcpy(&tmpText, textArea, sizeof(tmpText));
+
+    tmpText.obj.area.x0 += currentWidth;
+    tmpText.obj.area.width = addedCharWidth;
+    tmpText.text           = textArea->text + textArea->len;
+    textArea->len++;
+    nbgl_redrawObject((nbgl_obj_t *) &tmpText, NULL, false);
+    // printf("draw text\n");
+}
+
+#if 0
+static void nbgl_redrawTextDiff(nbgl_text_area_t *currentText,
+                                color_t           newColor,
+                                const char       *newText)
+{
+    printf("nbgl redraw text diff\n%s\n%s\n", currentText->text, newText);
+    if ((currentText->textColor != newColor)) {
+        // Full redraw
+    }
+
+    uint8_t state;
+    char    current = currentText->text[0];
+    char new        = newText[0];
+    uint32_t i      = 0;
+
+    // First: check same
+    while (current == new) {
+        if ((current == 0) || (new == 0)) {
+            // Finish
+            break;
+        }
+
+        i++;
+        current = currentText->text[i];
+        new     = newText[i];
+    }
+
+    if ((current == 0) && (new == 0)) {
+        state = NEW_EQUALS_OLD;
+        return;
+    }
+    else if (new == 0) {
+        state = OLD_BIGGER_THAN_NEW;
+    }
+    else {
+        state = NEW_BIGGER_THAN_OLD;
+    }
+
+    // Then: print diff
+    if (state == NEW_BIGGER_THAN_OLD) {
+        const char *textDiff = newText + i;
+        printf("text diff : %s\n", textDiff);
+    }
+    else if (state == OLD_BIGGER_THAN_NEW) {
+        printf("old bigger than new\n");
+    }
+}
+#endif
+
 /**
  * @brief Updates an area containing a potential title, a text entry and either confirmation
  * or suggestion buttons, on top of the keyboard
@@ -1095,6 +1183,7 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
         nbgl_redrawObject((nbgl_obj_t *) suggestionsContainer, NULL, false);
     }
     else if (content->type == KEYBOARD_WITH_BUTTON) {
+#if 0
         // update main text area
         nbgl_button_t *button = (nbgl_button_t *) layoutInt->container->children[1];
         if ((button == NULL) || (button->obj.type != BUTTON)) {
@@ -1112,7 +1201,33 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
             button->borderColor = LIGHT_GRAY;
             button->innerColor  = LIGHT_GRAY;
         }
+
         nbgl_redrawObject((nbgl_obj_t *) button, NULL, false);
+#else
+        nbgl_button_t *button = (nbgl_button_t *) layoutInt->container->children[1];
+        nbgl_button_t  tmp;
+        memcpy(&tmp, button, sizeof(nbgl_button_t));
+
+        // Set tmp with new content
+        tmp.text = content->confirmationButton.text;
+        if (content->confirmationButton.active) {
+            tmp.innerColor    = BLACK;
+            tmp.borderColor   = BLACK;
+            tmp.obj.touchMask = (1 << TOUCHED);
+            tmp.obj.touchId   = BOTTOM_BUTTON_ID;
+        }
+        else {
+            tmp.borderColor = LIGHT_GRAY;
+            tmp.innerColor  = LIGHT_GRAY;
+        }
+
+        if (memcmp(&tmp, button, sizeof(nbgl_button_t)) != 0) {
+            // tmp and button differ: update button and redraw it
+            memcpy(button, &tmp, sizeof(nbgl_button_t));
+            nbgl_redrawObject((nbgl_obj_t *) button, NULL, false);
+        }
+
+#endif
     }
 
     // if the entered text doesn't fit, indicate it by returning 1 instead of 0, for different

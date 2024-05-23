@@ -601,6 +601,7 @@ int            nbgl_layoutUpdateKeyboard(nbgl_layout_t *layout,
                                          bool           updateCasing,
                                          keyboardCase_t casing);
 bool           nbgl_layoutKeyboardNeedsRefresh(nbgl_layout_t *layout, uint8_t index);
+void           nbgl_keyboardAddLetter(nbgl_layout_t *layout, const char *text, bool add);
 DEPRECATED int nbgl_layoutAddSuggestionButtons(nbgl_layout_t *layout,
                                                uint8_t        nbUsedButtons,
                                                const char  *buttonTexts[NB_MAX_SUGGESTION_BUTTONS],
