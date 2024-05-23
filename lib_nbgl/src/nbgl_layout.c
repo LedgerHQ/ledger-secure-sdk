@@ -2378,18 +2378,6 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
                 = (nbgl_obj_t *) textArea;
             layoutInt->headerContainer->nbChildren++;
             layoutInt->headerContainer->obj.area.height = textArea->obj.area.height;
-
-            // create vertical line separating texts
-            separationLine            = (nbgl_line_t *) nbgl_objPoolGet(LINE, layoutInt->layer);
-            separationLine->lineColor = LIGHT_GRAY;
-            separationLine->obj.area.width       = 1;
-            separationLine->obj.area.height      = layoutInt->headerContainer->obj.area.height;
-            separationLine->direction            = VERTICAL;
-            separationLine->thickness            = 1;
-            separationLine->obj.alignment        = MID_LEFT;
-            separationLine->obj.alignTo          = (nbgl_obj_t *) textArea;
-            separationLine->obj.alignmentMarginX = -1;
-            layoutInt->headerContainer->obj.area.height = textArea->obj.area.height;
             break;
         }
         default:
@@ -2550,7 +2538,7 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
             separationLine->thickness            = 1;
             separationLine->obj.alignment        = MID_LEFT;
             separationLine->obj.alignTo          = (nbgl_obj_t *) textArea;
-            separationLine->obj.alignmentMarginY = -1;
+            separationLine->obj.alignmentMarginX = -1;
             break;
         }
         case FOOTER_TEXT_AND_NAV: {

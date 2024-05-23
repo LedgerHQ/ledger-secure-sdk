@@ -128,6 +128,7 @@ typedef struct {
 typedef struct {
     nbgl_operationType_t       operationType;
     nbgl_choiceCallback_t      choiceCallback;
+    nbgl_callback_t            skipCallback;
     const nbgl_icon_details_t *icon;
     uint8_t                    stepPageNb;
 } nbgl_reviewStreamingContext_t;
@@ -393,6 +394,8 @@ static void prepareReviewLightLastPage(nbgl_contentInfoButton_t  *infoButton,
 static const char *getRejectReviewText(nbgl_operationType_t operationType)
 {
 #ifdef TARGET_STAX
+    // clear skip and blind bits
+    operationType &= ~(SKIPPABLE_OPERATION | BLIND_OPERATION);
     if (operationType == TYPE_TRANSACTION) {
         return "Reject transaction";
     }
@@ -427,7 +430,7 @@ static void pageModalCallback(int token, uint8_t index)
     else if (token == SKIP_TOKEN) {
         if (index == 0) {
             // display the last forward only review page, whatever it is
-            displayReviewPage(LAST_PAGE_FOR_REVIEW, true);
+            displayGenericContextPage(LAST_PAGE_FOR_REVIEW, true);
         }
         else {
             // display background, which should be the page where skip has been touched
@@ -907,9 +910,17 @@ static void displayGenericContextPage(uint8_t pageIdx, bool forceFullRefresh)
     bool                  flag;
     const nbgl_content_t *p_content = NULL;
 
-    if ((navType == STREAMING_NAV) && (pageIdx >= bundleNavContext.reviewStreaming.stepPageNb)) {
-        bundleNavReviewStreamingChoice(true);
-        return;
+    if (navType == STREAMING_NAV) {
+        if (pageIdx == LAST_PAGE_FOR_REVIEW) {
+            if (bundleNavContext.reviewStreaming.skipCallback != NULL) {
+                bundleNavContext.reviewStreaming.skipCallback();
+            }
+            return;
+        }
+        else if (pageIdx >= bundleNavContext.reviewStreaming.stepPageNb) {
+            bundleNavReviewStreamingChoice(true);
+            return;
+        }
     }
 
     if (navInfo.activePage == pageIdx) {
@@ -1441,7 +1452,8 @@ static void bundleNavReviewAskRejectionConfirmation(nbgl_operationType_t operati
 {
     const char *title;
     const char *confirmText;
-
+    // clear skip and blind bits
+    operationType &= ~(SKIPPABLE_OPERATION | BLIND_OPERATION);
     if (operationType == TYPE_TRANSACTION) {
         title       = "Reject transaction?";
         confirmText = "Go back to transaction";
@@ -2605,14 +2617,19 @@ void nbgl_useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
  * @param tagValueList list of tag/value pairs
  * @param choiceCallback callback called when more operation data are needed (param is true) or
  * operation is rejected (param is false)
+ * @param skipCallback callback called when skip button is pressed (if operationType has the @ref
+ * SKIPPABLE_OPERATION in @ref nbgl_useCaseReviewStreamingStart)
+ * @ref nbgl_useCaseReviewStreamingFinish shall then be called.
  */
-void nbgl_useCaseReviewStreamingContinue(const nbgl_contentTagValueList_t *tagValueList,
-                                         nbgl_choiceCallback_t             choiceCallback)
+void nbgl_useCaseReviewStreamingContinueExt(const nbgl_contentTagValueList_t *tagValueList,
+                                            nbgl_choiceCallback_t             choiceCallback,
+                                            nbgl_callback_t                   skipCallback)
 {
     // Should follow a call to nbgl_useCaseReviewStreamingStart
     memset(&genericContext, 0, sizeof(genericContext));
 
     bundleNavContext.reviewStreaming.choiceCallback = choiceCallback;
+    bundleNavContext.reviewStreaming.skipCallback   = skipCallback;
 
     // memorize context
     onChoice  = bundleNavReviewStreamingChoice;
@@ -2635,8 +2652,35 @@ void nbgl_useCaseReviewStreamingContinue(const nbgl_contentTagValueList_t *tagVa
     prepareNavInfo(true,
                    NBGL_NO_PROGRESS_INDICATOR,
                    getRejectReviewText(bundleNavContext.reviewStreaming.operationType));
+    // if the operation is skippable
+    if (bundleNavContext.reviewStreaming.operationType & SKIPPABLE_OPERATION) {
+#ifdef TARGET_STAX
+        navInfo.skipText            = "Skip >>";
+        navInfo.navWithTap.quitText = "Reject";
+#else
+        navInfo.progressIndicator = false;
+        navInfo.skipText          = "Skip";
+#endif
+        navInfo.skipToken = SKIP_TOKEN;
+    }
 
     displayGenericContextPage(0, true);
+}
+
+/**
+ * @brief Continue drawing the flow of pages of a review.
+ * @note  This should be called after a call to nbgl_useCaseReviewStreamingStart and can be followed
+ *        by others calls to nbgl_useCaseReviewStreamingContinue and finally to
+ *        nbgl_useCaseReviewStreamingFinish.
+ *
+ * @param tagValueList list of tag/value pairs
+ * @param choiceCallback callback called when more operation data are needed (param is true) or
+ * operation is rejected (param is false)
+ */
+void nbgl_useCaseReviewStreamingContinue(const nbgl_contentTagValueList_t *tagValueList,
+                                         nbgl_choiceCallback_t             choiceCallback)
+{
+    nbgl_useCaseReviewStreamingContinueExt(tagValueList, choiceCallback, NULL);
 }
 
 /**
