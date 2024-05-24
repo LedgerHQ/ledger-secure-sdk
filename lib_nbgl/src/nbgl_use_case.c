@@ -62,7 +62,8 @@ enum {
     CHOICE_TOKEN,
     DETAILS_BUTTON_TOKEN,
     CONFIRM_TOKEN,
-    REJECT_TOKEN
+    REJECT_TOKEN,
+    VALUE_ALIAS_TOKEN
 };
 
 typedef enum {
@@ -107,6 +108,12 @@ typedef struct {
     const char            *detailsItem;
     const char            *detailsvalue;
     bool                   detailsWrapping;
+    const nbgl_contentTagValue_t
+        *currentPairs;  // to be used to retrieve the pairs with value alias
+    nbgl_contentTagValueCallback_t
+        currentCallback;  // to be used to retrieve the pairs with value alias
+
+    nbgl_layout_t modalLayout;
 } GenericContext_t;
 
 typedef struct {
@@ -226,6 +233,7 @@ static char reducedAddress[QRCODE_REDUCED_ADDR_LEN];
  **********************/
 static void displayReviewPage(uint8_t page, bool forceFullRefresh);
 static void displayDetailsPage(uint8_t page, bool forceFullRefresh);
+static void displayFullValuePage(const nbgl_contentTagValue_t *pair);
 static void displaySettingsPage(uint8_t page, bool forceFullRefresh);
 static void displayGenericContextPage(uint8_t pageIdx, bool forceFullRefresh);
 static void pageCallback(int token, uint8_t index);
@@ -233,6 +241,7 @@ static void pageCallback(int token, uint8_t index);
 static void displayAddressQRCode(void);
 static void addressLayoutTouchCallbackQR(int token, uint8_t index);
 #endif  // NBGL_QRCODE
+static void modalLayoutTouchCallback(int token, uint8_t index);
 static void displaySkipWarning(void);
 
 static void bundleNavStartHome(void);
@@ -543,6 +552,17 @@ static void pageCallback(int token, uint8_t index)
         // display a modal warning to confirm skip
         displaySkipWarning();
     }
+    else if (token == VALUE_ALIAS_TOKEN) {
+        // the icon next to value alias has been touched
+        const nbgl_contentTagValue_t *pair;
+        if (genericContext.currentPairs != NULL) {
+            pair = &genericContext.currentPairs[genericContext.currentElementIdx + index];
+        }
+        else {
+            pair = genericContext.currentCallback(genericContext.currentElementIdx + index);
+        }
+        displayFullValuePage(pair);
+    }
     else {  // probably a control provided by caller
         if (onContentAction != NULL) {
             onContentAction(token, index, navInfo.activePage);
@@ -797,6 +817,10 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
         case TAG_VALUE_LIST: {
             nbgl_contentTagValueList_t *p_tagValueList = &pageContent->tagValueList;
 
+            // memorize pairs (or callback) for usage when alias is used
+            genericContext.currentPairs    = p_content->content.tagValueList.pairs;
+            genericContext.currentCallback = p_content->content.tagValueList.callback;
+
             if (flag) {
                 // Flag can be set if the pair is too long to fit or because it needs
                 // to be displayed as centered info.
@@ -805,12 +829,10 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
                 const nbgl_layoutTagValue_t *pair;
 
                 if (p_content->content.tagValueList.pairs != NULL) {
-                    pair = PIC(
-                        &p_content->content.tagValueList.pairs[genericContext.currentElementIdx]);
+                    pair = PIC(&p_content->content.tagValueList.pairs[nextElementIdx]);
                 }
                 else {
-                    pair = PIC(
-                        p_content->content.tagValueList.callback(genericContext.currentElementIdx));
+                    pair = PIC(p_content->content.tagValueList.callback(nextElementIdx));
                 }
 
                 if (pair->centeredInfo) {
@@ -843,14 +865,31 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
 
             if (p_tagValueList != NULL) {
                 p_tagValueList->nbPairs = nbElementsInPage;
+                p_tagValueList->token   = p_content->content.tagValueList.token;
                 if (p_content->content.tagValueList.pairs != NULL) {
                     p_tagValueList->pairs
                         = PIC(&p_content->content.tagValueList.pairs[nextElementIdx]);
+                    // parse pairs to check if any contains an alias for value
+                    for (uint8_t i = 0; i < nbElementsInPage; i++) {
+                        if (p_tagValueList->pairs[i].aliasValue) {
+                            p_tagValueList->token = VALUE_ALIAS_TOKEN;
+                            break;
+                        }
+                    }
                 }
                 else {
                     p_tagValueList->pairs      = NULL;
                     p_tagValueList->callback   = p_content->content.tagValueList.callback;
                     p_tagValueList->startIndex = nextElementIdx;
+                    // parse pairs to check if any contains an alias for value
+                    for (uint8_t i = 0; i < nbElementsInPage; i++) {
+                        const nbgl_layoutTagValue_t *pair
+                            = PIC(p_content->content.tagValueList.callback(nextElementIdx + i));
+                        if (pair->aliasValue) {
+                            p_tagValueList->token = VALUE_ALIAS_TOKEN;
+                            break;
+                        }
+                    }
                 }
                 p_tagValueList->smallCaseForValue  = false;
                 p_tagValueList->nbMaxLinesForValue = NB_MAX_LINES_IN_REVIEW;
@@ -1080,6 +1119,45 @@ static void displayDetailsPage(uint8_t detailsPage, bool forceFullRefresh)
     }
 }
 
+// function used to display the content of a full value, when touching an alias of a tag/value pair
+static void displayFullValuePage(const nbgl_contentTagValue_t *pair)
+{
+    nbgl_layoutDescription_t layoutDescription = {.modal            = true,
+                                                  .withLeftBorder   = true,
+                                                  .onActionCallback = &modalLayoutTouchCallback,
+                                                  .tapActionText    = NULL};
+    nbgl_layoutHeader_t      headerDesc        = {.type               = HEADER_BACK_AND_TEXT,
+                                                  .separationLine     = false,
+                                                  .backAndText.token  = 0,
+                                                  .backAndText.tuneId = TUNE_TAP_CASUAL,
+                                                  .backAndText.text   = PIC(pair->item)};
+    const char              *info;
+    genericContext.modalLayout = nbgl_layoutGet(&layoutDescription);
+    // add header with the tag part of the pair, to go back
+    nbgl_layoutAddHeader(genericContext.modalLayout, &headerDesc);
+    // add full value text
+    if (pair->extension->explanation == NULL) {
+        if (pair->extension->aliasType == ENS_ALIAS) {
+            info = "ENS names are resolved by Ledger backend.";
+        }
+        else if (pair->extension->aliasType == ADDRESS_BOOK_ALIAS) {
+            info = "This account label comes from your Address Book in Ledger Live.";
+        }
+        else {
+            info = "";
+        }
+    }
+    else {
+        info = pair->extension->explanation;
+    }
+    nbgl_layoutAddTextContent(
+        genericContext.modalLayout, pair->value, pair->extension->fullValue, info);
+
+    // draw & refresh
+    nbgl_layoutDraw(genericContext.modalLayout);
+    nbgl_refresh();
+}
+
 #ifdef NBGL_QRCODE
 static void displayAddressQRCode(void)
 {
@@ -1140,6 +1218,18 @@ static void addressLayoutTouchCallbackQR(int token, uint8_t index)
     nbgl_refresh();
 }
 #endif  // NBGL_QRCODE
+
+// called when header is touched on modal page, to dismiss it
+static void modalLayoutTouchCallback(int token, uint8_t index)
+{
+    UNUSED(token);
+    UNUSED(index);
+
+    // dismiss modal
+    nbgl_layoutRelease(genericContext.modalLayout);
+    nbgl_screenRedraw();
+    nbgl_refresh();
+}
 
 // called when skip button is touched in footer, during forward only review
 static void displaySkipWarning(void)
@@ -1503,7 +1593,7 @@ static void bundleNavReviewStreamingChoice(bool confirm)
 {
     if (confirm) {
         // Display a spinner if it wasn't the finish step
-        if (localContentsList[0].type != INFO_LONG_PRESS) {
+        if (STARTING_CONTENT.type != INFO_LONG_PRESS) {
             nbgl_useCaseSpinner("Processing");
         }
         bundleNavContext.reviewStreaming.choiceCallback(true);
@@ -2446,15 +2536,16 @@ void nbgl_useCaseReview(nbgl_operationType_t              operationType,
     memset(localContentsList, 0, 3 * sizeof(nbgl_content_t));
 
     // First a centered info
-    localContentsList[0].type = CENTERED_INFO;
+    STARTING_CONTENT.type = CENTERED_INFO;
     prepareReviewFirstPage(
-        &localContentsList[0].content.centeredInfo, icon, reviewTitle, reviewSubTitle);
+        &STARTING_CONTENT.content.centeredInfo, icon, reviewTitle, reviewSubTitle);
 
     // Then the tag/value pairs
     localContentsList[1].type = TAG_VALUE_LIST;
     memcpy(&localContentsList[1].content.tagValueList,
            tagValueList,
            sizeof(nbgl_contentTagValueList_t));
+    localContentsList[1].contentActionCallback = tagValueList->actionCallback;
 
     // Eventually the long press page
     localContentsList[2].type = INFO_LONG_PRESS;
@@ -2508,9 +2599,9 @@ void nbgl_useCaseReviewLight(nbgl_operationType_t              operationType,
     memset(localContentsList, 0, 3 * sizeof(nbgl_content_t));
 
     // First a centered info
-    localContentsList[0].type = CENTERED_INFO;
+    STARTING_CONTENT.type = CENTERED_INFO;
     prepareReviewFirstPage(
-        &localContentsList[0].content.centeredInfo, icon, reviewTitle, reviewSubTitle);
+        &STARTING_CONTENT.content.centeredInfo, icon, reviewTitle, reviewSubTitle);
 
     // Then the tag/value pairs
     localContentsList[1].type = TAG_VALUE_LIST;
@@ -2599,9 +2690,9 @@ void nbgl_useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
     memset(localContentsList, 0, 1 * sizeof(nbgl_content_t));
 
     // First a centered info
-    localContentsList[0].type = CENTERED_INFO;
+    STARTING_CONTENT.type = CENTERED_INFO;
     prepareReviewFirstPage(
-        &localContentsList[0].content.centeredInfo, icon, reviewTitle, reviewSubTitle);
+        &STARTING_CONTENT.content.centeredInfo, icon, reviewTitle, reviewSubTitle);
 
     // compute number of pages & fill navigation structure
     bundleNavContext.reviewStreaming.stepPageNb
@@ -2653,10 +2744,9 @@ void nbgl_useCaseReviewStreamingContinueExt(const nbgl_contentTagValueList_t *ta
     memset(localContentsList, 0, 1 * sizeof(nbgl_content_t));
 
     // Then the tag/value pairs
-    localContentsList[0].type = TAG_VALUE_LIST;
-    memcpy(&localContentsList[0].content.tagValueList,
-           tagValueList,
-           sizeof(nbgl_contentTagValueList_t));
+    STARTING_CONTENT.type = TAG_VALUE_LIST;
+    memcpy(
+        &STARTING_CONTENT.content.tagValueList, tagValueList, sizeof(nbgl_contentTagValueList_t));
 
     // compute number of pages & fill navigation structure
     bundleNavContext.reviewStreaming.stepPageNb
@@ -2721,8 +2811,8 @@ void nbgl_useCaseReviewStreamingFinish(const char           *finishTitle,
     memset(localContentsList, 0, 1 * sizeof(nbgl_content_t));
 
     // Eventually the long press page
-    localContentsList[0].type = INFO_LONG_PRESS;
-    prepareReviewLastPage(&localContentsList[0].content.infoLongPress,
+    STARTING_CONTENT.type = INFO_LONG_PRESS;
+    prepareReviewLastPage(&STARTING_CONTENT.content.infoLongPress,
                           bundleNavContext.reviewStreaming.icon,
                           finishTitle);
 
@@ -2816,7 +2906,7 @@ void nbgl_useCaseAddressConfirmationExt(const char                       *addres
     genericContext.genericContents.nbContents   = (tagValueList == NULL) ? 1 : 2;
     memset(localContentsList, 0, 2 * sizeof(nbgl_content_t));
     prepareAddressConfirmationPages(
-        address, tagValueList, &localContentsList[0], &localContentsList[1]);
+        address, tagValueList, &STARTING_CONTENT, &localContentsList[1]);
 
     // fill navigation structure, common to all pages
     uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
@@ -2867,9 +2957,9 @@ void nbgl_useCaseAddressReview(const char                       *address,
     memset(localContentsList, 0, 3 * sizeof(nbgl_content_t));
 
     // First a centered info
-    localContentsList[0].type = CENTERED_INFO;
+    STARTING_CONTENT.type = CENTERED_INFO;
     prepareReviewFirstPage(
-        &localContentsList[0].content.centeredInfo, icon, reviewTitle, reviewSubTitle);
+        &STARTING_CONTENT.content.centeredInfo, icon, reviewTitle, reviewSubTitle);
 
     // Then the address confirmation pages
     prepareAddressConfirmationPages(

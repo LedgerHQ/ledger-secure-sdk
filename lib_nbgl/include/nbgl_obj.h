@@ -123,6 +123,8 @@ extern "C" {
 #define WHEEL_ICON        C_Settings_32px
 #define INFO_I_ICON       C_Info_32px
 #define QRCODE_ICON       C_QRCode_32px
+#define MINI_PUSH_ICON    C_Mini_Push_32px
+#define WARNING_ICON      C_Warning_32px
 #else  // TARGET_STAX
 #define SPACE_ICON        C_Space_40px
 #define BACKSPACE_ICON    C_Erase_40px
@@ -138,6 +140,8 @@ extern "C" {
 #define WHEEL_ICON        C_Settings_40px
 #define INFO_I_ICON       C_Info_40px
 #define QRCODE_ICON       C_QRCode_40px
+#define MINI_PUSH_ICON    C_Mini_Push_40px
+#define WARNING_ICON      C_Warning_40px
 #endif  // TARGET_STAX
 
 // For backward compatibility, to be remove later
@@ -545,6 +549,9 @@ enum {
     KEYPAD_ID,
     KEYBOARD_ID,
     ENTERED_TEXT_ID,
+    VALUE_BUTTON_1_ID,
+    VALUE_BUTTON_2_ID,
+    VALUE_BUTTON_3_ID,
     LONG_PRESS_BUTTON_ID,
     CONTROLS_ID,  // when multiple controls in the same pages (buttons, switches, radios)
     NB_CONTROL_IDS
