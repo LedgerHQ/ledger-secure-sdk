@@ -415,6 +415,7 @@ static const char *getRejectReviewText(nbgl_operationType_t operationType)
 // or when skip choice is displayed
 static void pageModalCallback(int token, uint8_t index)
 {
+    LOG_DEBUG(USE_CASE_LOGGER, "pageModalCallback, token = %d, index = %d\n", token, index);
     nbgl_pageRelease(modalPageContext);
     modalPageContext = NULL;
     if (token == NAV_TOKEN) {
@@ -426,6 +427,11 @@ static void pageModalCallback(int token, uint8_t index)
         else {
             displayDetailsPage(index, false);
         }
+    }
+    if (token == QUIT_TOKEN) {
+        // redraw the background layer
+        nbgl_screenRedraw();
+        nbgl_refresh();
     }
     else if (token == SKIP_TOKEN) {
         if (index == 0) {
@@ -455,6 +461,7 @@ static void pageModalCallback(int token, uint8_t index)
 // generic callback for all pages except modal
 static void pageCallback(int token, uint8_t index)
 {
+    LOG_DEBUG(USE_CASE_LOGGER, "pageCallback, token = %d, index = %d\n", token, index);
     if (token == QUIT_TOKEN) {
         if (onQuit != NULL) {
             onQuit();
@@ -1009,6 +1016,7 @@ static void displayDetailsPage(uint8_t detailsPage, bool forceFullRefresh)
     nbgl_pageNavigationInfo_t    info    = {.activePage                = detailsPage,
                                             .nbPages                   = detailsContext.nbPages,
                                             .navType                   = NAV_WITH_BUTTONS,
+                                            .quitToken                 = QUIT_TOKEN,
                                             .navWithButtons.navToken   = NAV_TOKEN,
                                             .navWithButtons.quitButton = true,
                                             .navWithButtons.backButton = true,
@@ -1057,6 +1065,10 @@ static void displayDetailsPage(uint8_t detailsPage, bool forceFullRefresh)
     else {
         detailsContext.nextPageStart            = NULL;
         content.tagValueList.nbMaxLinesForValue = 0;
+    }
+    if (info.nbPages == 1) {
+        // if only one page, no navigation bar, and use a footer instead
+        info.navWithButtons.quitText = "Close";
     }
     modalPageContext = nbgl_pageDrawGenericContentExt(&pageModalCallback, &info, &content, true);
 
