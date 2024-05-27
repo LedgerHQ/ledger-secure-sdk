@@ -63,7 +63,8 @@ enum {
     DETAILS_BUTTON_TOKEN,
     CONFIRM_TOKEN,
     REJECT_TOKEN,
-    VALUE_ALIAS_TOKEN
+    VALUE_ALIAS_TOKEN,
+    BLIND_WARNING_TOKEN
 };
 
 typedef enum {
@@ -234,6 +235,7 @@ static char reducedAddress[QRCODE_REDUCED_ADDR_LEN];
 static void displayReviewPage(uint8_t page, bool forceFullRefresh);
 static void displayDetailsPage(uint8_t page, bool forceFullRefresh);
 static void displayFullValuePage(const nbgl_contentTagValue_t *pair);
+static void displayBlindWarning(nbgl_opType_t opType);
 static void displaySettingsPage(uint8_t page, bool forceFullRefresh);
 static void displayGenericContextPage(uint8_t pageIdx, bool forceFullRefresh);
 static void pageCallback(int token, uint8_t index);
@@ -562,6 +564,16 @@ static void pageCallback(int token, uint8_t index)
             pair = genericContext.currentCallback(genericContext.currentElementIdx + index);
         }
         displayFullValuePage(pair);
+    }
+    else if (token == BLIND_WARNING_TOKEN) {
+        if (navType == STREAMING_NAV) {
+            displayBlindWarning(bundleNavContext.reviewStreaming.operationType
+                                & ~(SKIPPABLE_OPERATION | BLIND_OPERATION));
+        }
+        else {
+            displayBlindWarning(bundleNavContext.review.operationType
+                                & ~(SKIPPABLE_OPERATION | BLIND_OPERATION));
+        }
     }
     else {  // probably a control provided by caller
         if (onContentAction != NULL) {
@@ -943,6 +955,15 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
             LOG_DEBUG(USE_CASE_LOGGER, "Unsupported type %d\n", pageContent->type);
             return false;
     }
+    // if first or last page of review and blind operation, add the top-right button
+    if (((p_content == &STARTING_CONTENT) || (p_content->type == INFO_LONG_PRESS))
+        && (((navType == STREAMING_NAV)
+             && (bundleNavContext.reviewStreaming.operationType & BLIND_OPERATION))
+            || ((navType == GENERIC_NAV)
+                && (bundleNavContext.review.operationType & BLIND_OPERATION)))) {
+        pageContent->topRightIcon  = &WARNING_ICON;
+        pageContent->topRightToken = BLIND_WARNING_TOKEN;
+    }
 
     return true;
 }
@@ -1063,6 +1084,7 @@ static void displayDetailsPage(uint8_t detailsPage, bool forceFullRefresh)
                                             .progressIndicator         = true,
                                             .tuneId                    = TUNE_TAP_CASUAL};
     nbgl_pageContent_t           content = {.type                           = TAG_VALUE_LIST,
+                                            .topRightIcon                   = NULL,
                                             .tagValueList.nbPairs           = 1,
                                             .tagValueList.pairs             = &currentPair,
                                             .tagValueList.smallCaseForValue = true,
@@ -1152,6 +1174,46 @@ static void displayFullValuePage(const nbgl_contentTagValue_t *pair)
     }
     nbgl_layoutAddTextContent(
         genericContext.modalLayout, pair->value, pair->extension->fullValue, info);
+
+    // draw & refresh
+    nbgl_layoutDraw(genericContext.modalLayout);
+    nbgl_refresh();
+}
+
+// function used to display the modal warning when touching the alert symbol of a blind review
+static void displayBlindWarning(nbgl_opType_t opType)
+{
+    nbgl_layoutDescription_t  layoutDescription = {.modal            = true,
+                                                   .withLeftBorder   = true,
+                                                   .onActionCallback = &modalLayoutTouchCallback,
+                                                   .tapActionText    = NULL};
+    nbgl_layoutHeader_t       headerDesc        = {.type               = HEADER_BACK_AND_TEXT,
+                                                   .separationLine     = false,
+                                                   .backAndText.token  = 0,
+                                                   .backAndText.tuneId = TUNE_TAP_CASUAL,
+                                                   .backAndText.text   = NULL};
+    nbgl_layoutCenteredInfo_t centeredInfo
+        = {.icon = NULL, .text3 = NULL, .style = LARGE_CASE_INFO, .offsetY = 0, .onTop = false};
+    if (opType == TYPE_TRANSACTION) {
+        centeredInfo.text1 = "This transaction cannot be trusted";
+        centeredInfo.text2
+            = "Your Ledger cannot decode this transaction. If you sign it, you could be "
+              "authorizing "
+              "malicious actions that can drain your wallet.\n\n"
+              "Learn more: ledger.com/e8";
+    }
+    else {
+        centeredInfo.text1 = "This message cannot be trusted";
+        centeredInfo.text2
+            = "Your Ledger cannot decode this message. If you sign it, you could be authorizing "
+              "malicious actions that can drain your wallet.\n\n"
+              "Learn more: ledger.com/e8";
+    }
+    genericContext.modalLayout = nbgl_layoutGet(&layoutDescription);
+    // add header with the tag part of the pair, to go back
+    nbgl_layoutAddHeader(genericContext.modalLayout, &headerDesc);
+    // add full value text
+    nbgl_layoutAddCenteredInfo(genericContext.modalLayout, &centeredInfo);
 
     // draw & refresh
     nbgl_layoutDraw(genericContext.modalLayout);

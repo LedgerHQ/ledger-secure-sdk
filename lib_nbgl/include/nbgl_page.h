@@ -55,7 +55,10 @@ typedef struct nbgl_pageContent_s {
     uint8_t titleToken;   ///< if isTouchableTitle set to true, this is the token used when touching
                           ///< title
     tune_index_e tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played when title is touched
-    nbgl_contentType_t type;  ///< type of page content in the following union
+    uint8_t      topRightToken;  ///< token used when top-right button (if not NULL) is touched
+    const nbgl_icon_details_t *topRightIcon;  ///< a buffer containing the 32px/40px icon for icon
+                                              ///< on top-right of screen (no button if NULL)
+    nbgl_contentType_t type;                  ///< type of page content in the following union
     union {
         nbgl_contentCenteredInfo_t    centeredInfo;     ///< @ref CENTERED_INFO type
         nbgl_contentInfoLongPress_t   infoLongPress;    ///< @ref INFO_LONG_PRESS type

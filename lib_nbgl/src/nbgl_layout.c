@@ -37,9 +37,6 @@
 // used by container
 #define NB_MAX_CONTAINER_CHILDREN 20
 
-// used by screen
-#define NB_MAX_SCREEN_CHILDREN 7
-
 #define TAG_VALUE_ICON_WIDTH 32
 
 #ifdef TARGET_STAX
@@ -755,9 +752,11 @@ nbgl_layout_t *nbgl_layoutGet(const nbgl_layoutDescription_t *description)
     layout->container->obj.area.height = SCREEN_HEIGHT;
     layout->container->layout          = VERTICAL;
     layout->container->children = nbgl_containerPoolGet(NB_MAX_CONTAINER_CHILDREN, layout->layer);
+    // by default, if no header, main container is aligned on top-left
+    layout->container->obj.alignment = TOP_LEFT;
     // main container is always the second object, leaving space for header
-    layout->children[1] = (nbgl_obj_t *) layout->container;
-    layout->nbChildren  = 2;
+    layout->children[MAIN_CONTAINER_INDEX] = (nbgl_obj_t *) layout->container;
+    layout->nbChildren                     = NB_MAX_SCREEN_CHILDREN;
 
     // if a tap text is defined, make the container tapable and display this text in gray
     if (description->tapActionText != NULL) {
@@ -877,8 +876,7 @@ int nbgl_layoutAddTopRightButton(nbgl_layout_t             *layout,
     button->obj.alignment        = TOP_RIGHT;
 
     // add to screen
-    layoutInt->children[layoutInt->nbChildren] = (nbgl_obj_t *) button;
-    layoutInt->nbChildren++;
+    layoutInt->children[TOP_RIGHT_BUTTON_INDEX] = (nbgl_obj_t *) button;
 
     return 0;
 }
@@ -2486,10 +2484,12 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
         layoutInt->headerContainer->nbChildren++;
     }
     // header must be the first child
-    layoutInt->children[0] = (nbgl_obj_t *) layoutInt->headerContainer;
+    layoutInt->children[HEADER_INDEX] = (nbgl_obj_t *) layoutInt->headerContainer;
 
     // subtract header height from main container height
     layoutInt->container->obj.area.height -= layoutInt->headerContainer->obj.area.height;
+    layoutInt->container->obj.alignTo   = (nbgl_obj_t *) layoutInt->headerContainer;
+    layoutInt->container->obj.alignment = BOTTOM_LEFT;
 
     layoutInt->headerType = headerDesc->type;
 
@@ -2920,8 +2920,7 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
         layoutInt->footerContainer->nbChildren++;
     }
 
-    layoutInt->children[layoutInt->nbChildren] = (nbgl_obj_t *) layoutInt->footerContainer;
-    layoutInt->nbChildren++;
+    layoutInt->children[FOOTER_INDEX] = (nbgl_obj_t *) layoutInt->footerContainer;
 
     // subtract footer height from main container height
     layoutInt->container->obj.area.height -= layoutInt->footerContainer->obj.area.height;
@@ -3054,9 +3053,8 @@ int nbgl_layoutDraw(nbgl_layout_t *layoutParam)
     }
     if (layout->withLeftBorder == true) {
         // draw now the line
-        nbgl_line_t *line                    = createLeftVerticalLine(layout->layer);
-        layout->children[layout->nbChildren] = (nbgl_obj_t *) line;
-        layout->nbChildren++;
+        nbgl_line_t *line                   = createLeftVerticalLine(layout->layer);
+        layout->children[LEFT_BORDER_INDEX] = (nbgl_obj_t *) line;
     }
     nbgl_screenRedraw();
 
