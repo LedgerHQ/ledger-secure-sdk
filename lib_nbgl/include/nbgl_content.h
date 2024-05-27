@@ -99,17 +99,43 @@ typedef struct {
 } nbgl_contentInfoButton_t;
 
 /**
+ * @brief possible types of value alias
+ *
+ */
+typedef enum {
+    ENS_ALIAS = 0,      ///< alias comes from ENS
+    ADDRESS_BOOK_ALIAS  ///< alias comes from Address Book
+} nbgl_contentValueAliasType_t;
+
+/**
+ * @brief This structure contains additions to a tag/value pair,
+ *        to be able to build a screen to display these additions (for alias)
+ */
+typedef struct {
+    const char *fullValue;    ///< full string of the value when used as an alias
+    const char *explanation;  ///< string displayed in gray, explaing where the alias comes from
+                              ///< if NULL, a default explanation is provided, depending of the type
+    nbgl_contentValueAliasType_t aliasType;  ///< type of alias
+} nbgl_contentValueExt_t;
+
+/**
  * @brief This structure contains a [tag,value] pair
  */
 typedef struct {
     const char *item;   ///< string giving the tag name
     const char *value;  ///< string giving the value name
 #ifdef SCREEN_SIZE_WALLET
-    const nbgl_icon_details_t *valueIcon;  ///< a buffer containing the 32px 1BPP icon for icon on
-                                           ///< right of value (can be NULL)
+    union {
+        const nbgl_icon_details_t *valueIcon;  ///< a buffer containing the 32px 1BPP icon for icon
+                                               ///< on right of value (can be NULL)
+        const nbgl_contentValueExt_t
+            *extension;  ///< if not NULL, gives additional info on value field
+    };
     int8_t forcePageStart : 1;  ///< if set to 1, the tag will be displayed at the top of a new
                                 ///< review page
     int8_t centeredInfo : 1;    ///< if set to 1, the tag will be displayed as a centered info
+    int8_t aliasValue : 1;  ///< if set to 1, the value represents an alias and an icon enables to
+                            ///< view the full value
 #endif
 } nbgl_contentTagValue_t;
 
@@ -119,6 +145,15 @@ typedef struct {
  * @return a pointer on a static tag/value pair
  */
 typedef nbgl_contentTagValue_t *(*nbgl_contentTagValueCallback_t)(uint8_t pairIndex);
+
+/**
+ * @brief prototype of function to be called when an action on a content object occurs
+ * @param token integer passed at content object initialization
+ * @param index when the object touched is a list of radio buttons, gives the index of the activated
+ * @param page index of the current page, can be used to restart the use_case directly at the right
+ * page button
+ */
+typedef void (*nbgl_contentActionCallback_t)(int token, uint8_t index, int page);
 
 /**
  * @brief This structure contains a list of [tag,value] pairs
@@ -137,6 +172,8 @@ typedef struct {
     bool smallCaseForValue;  ///< if set to true, a 24px font is used for value text, otherwise a
                              ///< 32px font is used
     bool wrapping;  ///< if set to true, value text will be wrapped on ' ' to avoid cutting words
+    nbgl_contentActionCallback_t
+        actionCallback;  ///< called when a valueIcon is touched on a given pair
 } nbgl_contentTagValueList_t;
 
 /**
@@ -276,15 +313,6 @@ typedef union {
     nbgl_contentRadioChoice_t     choicesList;      ///< @ref CHOICES_LIST type
     nbgl_contentBarsList_t        barsList;         ///< @ref BARS_LIST type
 } nbgl_content_u;
-
-/**
- * @brief prototype of function to be called when an action on a content object occurs
- * @param token integer passed at content object initialization
- * @param index when the object touched is a list of radio buttons, gives the index of the activated
- * @param page index of the current page, can be used to restart the use_case directly at the right
- * page button
- */
-typedef void (*nbgl_contentActionCallback_t)(int token, uint8_t index, int page);
 
 /**
  * @brief This structure contains data to build a content

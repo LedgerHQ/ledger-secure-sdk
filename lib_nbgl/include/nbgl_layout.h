@@ -545,6 +545,10 @@ int nbgl_layoutAddHorizontalButtons(nbgl_layout_t                        *layout
                                     const nbgl_layoutHorizontalButtons_t *info);
 int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueList_t *list);
 int nbgl_layoutAddLargeCaseText(nbgl_layout_t *layout, const char *text);
+int nbgl_layoutAddTextContent(nbgl_layout_t *layout,
+                              const char    *title,
+                              const char    *description,
+                              const char    *info);
 int nbgl_layoutAddSeparationLine(nbgl_layout_t *layout);
 
 int nbgl_layoutAddButton(nbgl_layout_t *layout, const nbgl_layoutButton_t *buttonInfo);
