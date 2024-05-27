@@ -41,6 +41,10 @@ static void addContent(nbgl_pageContent_t *content,
                                           .backAndText.text   = content->title};
         nbgl_layoutAddHeader(layout, &headerDesc);
     }
+    if (content->topRightIcon != NULL) {
+        nbgl_layoutAddTopRightButton(
+            layout, content->topRightIcon, content->topRightToken, content->tuneId);
+    }
     switch (content->type) {
         case INFO_LONG_PRESS: {
             nbgl_layoutCenteredInfo_t centeredInfo;

@@ -51,6 +51,16 @@ typedef enum {
     NB_SWIPE_USAGE
 } nbgl_swipe_usage_t;
 
+// used by screen (top level)
+enum {
+    HEADER_INDEX = 0,  // For header container
+    TOP_RIGHT_BUTTON_INDEX,
+    MAIN_CONTAINER_INDEX,
+    LEFT_BORDER_INDEX,
+    FOOTER_INDEX,
+    NB_MAX_SCREEN_CHILDREN
+};
+
 /**
  * @brief Structure containing all information about the current layout.
  * @note It shall not be used externally
