@@ -443,10 +443,17 @@ nbgl_step_t nbgl_stepDrawText(nbgl_stepPosition_t               pos,
     }
     else {
 #ifdef BUILD_SCREENSHOTS
+        uint16_t nb_lines_title;
         // Call this function to get correct nb_lines/nb_pages for text field.
         nbgl_getTextNbPagesInWidth(
             BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp, text, NB_MAX_LINES, AVAILABLE_WIDTH);
-        area.height = nbgl_getFontLineHeight(BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp);
+        nb_lines_title = last_nb_lines;
+        // There is a sub text, so no more than 3 lines for title...
+        if (nb_lines_title > 3) {
+            nb_lines_title = 3;
+        }
+        area.height
+            = nb_lines_title * nbgl_getFontLineHeight(BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp);
         store_string_infos(text,
                            BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp,
                            &area,
@@ -459,8 +466,8 @@ nbgl_step_t nbgl_stepDrawText(nbgl_stepPosition_t               pos,
         ctx->textContext.nbPages = nbgl_getTextNbPagesInWidth(
             BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp, subText, NB_MAX_LINES - 1, AVAILABLE_WIDTH);
 #ifdef BUILD_SCREENSHOTS
-        area.height
-            = (NB_MAX_LINES - 1) * nbgl_getFontLineHeight(BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp);
+        area.height = (NB_MAX_LINES - nb_lines_title)
+                      * nbgl_getFontLineHeight(BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp);
         // If subTxtid is not valid, we'll use txtId for nb_lines/nb_pages values
         store_string_infos(subText,
                            BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp,
