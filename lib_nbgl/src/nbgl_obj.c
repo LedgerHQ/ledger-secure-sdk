@@ -19,6 +19,9 @@
 #include "nbgl_serialize.h"
 #include "os_io_seproxyhal.h"
 #endif
+#ifdef BUILD_SCREENSHOTS
+#include "json_scenario.h"
+#endif  // BUILD_SCREENSHOTS
 
 /*********************
  *      DEFINES
@@ -72,11 +75,6 @@ extern bool     last_bold_state, verbose;
  *  STATIC PROTOTYPES
  **********************/
 extern const char *get_ux_loc_string(uint32_t index);
-
-#ifdef BUILD_SCREENSHOTS
-char *get_printable_string(char *string);
-void  store_string_infos(const char *text, uint16_t nb_lines, uint16_t nb_pages, bool bold);
-#endif  // BUILD_SCREENSHOTS
 
 /**********************
  *   GLOBAL FUNCTIONS
@@ -920,7 +918,13 @@ static void draw_textArea(nbgl_text_area_t *obj, nbgl_obj_t *prevObj, bool compu
     if (obj->autoHideLongLine == true) {
 #ifdef BUILD_SCREENSHOTS
         nbgl_getTextNbLinesInWidth(fontId, text, obj->obj.area.width, obj->wrapping);
-        store_string_infos(text, last_nb_lines, last_nb_pages, last_bold_state);
+        store_string_infos(text,
+                           fontId,
+                           &obj->obj.area,
+                           obj->wrapping,
+                           last_nb_lines,
+                           last_nb_pages,
+                           last_bold_state);
 #endif  // BUILD_SCREENSHOTS
         textWidth = nbgl_getSingleLineTextWidth(fontId, text);
         if (textWidth > obj->obj.area.width) {
@@ -949,7 +953,8 @@ static void draw_textArea(nbgl_text_area_t *obj, nbgl_obj_t *prevObj, bool compu
     // get nb lines in the given width (depending of wrapping)
     nbLines = nbgl_getTextNbLinesInWidth(fontId, text, obj->obj.area.width, obj->wrapping);
 #ifdef BUILD_SCREENSHOTS
-    store_string_infos(text, last_nb_lines, last_nb_pages, last_bold_state);
+    store_string_infos(
+        text, fontId, &obj->obj.area, obj->wrapping, last_nb_lines, last_nb_pages, last_bold_state);
 #endif  // BUILD_SCREENSHOTS
     // saturate nb lines if nbMaxLines is greater than 0
     if ((obj->nbMaxLines > 0) && (obj->nbMaxLines < nbLines)) {
