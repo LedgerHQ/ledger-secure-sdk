@@ -97,7 +97,7 @@ const unsigned int C_unicode_characters_count
 uint16_t last_nb_lines   = 0;
 uint16_t last_nb_pages   = 0;
 bool     last_bold_state = false;
-void     store_string_infos(char *text, uint16_t nb_lines, uint16_t nb_pages, bool bold);
+bool     hard_caesura    = false;
 #endif  // BUILD_SCREENSHOTS
 
 /**********************
@@ -723,6 +723,7 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
     const char *prevText           = NULL;
 
 #ifdef BUILD_SCREENSHOTS
+    hard_caesura         = false;
     last_nb_lines        = 0;
     last_nb_pages        = 1;
     last_bold_state      = fontId == BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;  // True if Bold
@@ -818,6 +819,9 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
                 width         = 0;
             }
             else {
+#ifdef BUILD_SCREENSHOTS
+                hard_caesura = true;
+#endif  // BUILD_SCREENSHOTS
                 width = char_width;
             }
             nbLines++;
