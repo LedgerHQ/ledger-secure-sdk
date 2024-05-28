@@ -40,7 +40,7 @@ WEAK void __attribute__((noreturn)) app_exit(void)
     os_sched_exit(-1);
 }
 
-static void common_app_init(void)
+WEAK void common_app_init(void)
 {
     UX_INIT();
 
@@ -55,7 +55,7 @@ static void common_app_init(void)
 #endif  // HAVE_BLE
 }
 
-static void standalone_app_main(void)
+WEAK void standalone_app_main(void)
 {
 #ifdef HAVE_SWAP
     G_called_from_swap    = false;
@@ -102,7 +102,7 @@ static void standalone_app_main(void)
 }
 
 #ifdef HAVE_SWAP
-static void library_app_main(libargs_t *args)
+WEAK void library_app_main(libargs_t *args)
 {
     BEGIN_TRY
     {
@@ -152,7 +152,7 @@ static void library_app_main(libargs_t *args)
 }
 #endif  // HAVE_SWAP
 
-__attribute__((section(".boot"))) int main(int arg0)
+WEAK __attribute__((section(".boot"))) int main(int arg0)
 {
     // exit critical section
     __asm volatile("cpsie i");
