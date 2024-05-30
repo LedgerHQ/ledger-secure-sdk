@@ -76,33 +76,32 @@ void io_nfc_recv_event(void)
     }
 }
 
+static void nfc_send_rapdu(const uint8_t *packet, uint16_t packet_length)
+{
+    if ((size_t) (packet_length + 3) > sizeof(G_io_seproxyhal_spi_buffer)) {
+        return;
+    }
+
+    G_io_seproxyhal_spi_buffer[0] = SEPROXYHAL_TAG_NFC_RAPDU;
+    G_io_seproxyhal_spi_buffer[1] = (packet_length & 0xff00) >> 8;
+    G_io_seproxyhal_spi_buffer[2] = packet_length & 0xff;
+    memcpy(G_io_seproxyhal_spi_buffer + 3, packet, packet_length);
+    io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer, 3 + packet_length);
+}
+
 void io_nfc_send_response(const uint8_t *packet, uint16_t packet_length)
 {
     LEDGER_PROTOCOL_tx(&ledger_protocol_data, packet, packet_length);
     if (ledger_protocol_data.tx_chunk_length >= 2) {
-        // reply the NFC APDU over SEPROXYHAL protocol
-        G_io_seproxyhal_spi_buffer[0] = SEPROXYHAL_TAG_NFC_RAPDU;
-        G_io_seproxyhal_spi_buffer[1] = (ledger_protocol_data.tx_chunk_length) >> 8;
-        G_io_seproxyhal_spi_buffer[2] = (ledger_protocol_data.tx_chunk_length);
-        memcpy(G_io_seproxyhal_spi_buffer + 3,
-               ledger_protocol_data.tx_chunk,
-               ledger_protocol_data.tx_chunk_length);
-        io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer,
-                               3 + ledger_protocol_data.tx_chunk_length);
+        // send the NFC APDU chunk
+        nfc_send_rapdu(ledger_protocol_data.tx_chunk, ledger_protocol_data.tx_chunk_length);
     }
 
     while (ledger_protocol_data.tx_apdu_buffer) {
         LEDGER_PROTOCOL_tx(&ledger_protocol_data, NULL, 0);
         if (ledger_protocol_data.tx_chunk_length >= 2) {
-            // reply the NFC APDU over SEPROXYHAL protocol
-            G_io_seproxyhal_spi_buffer[0] = SEPROXYHAL_TAG_NFC_RAPDU;
-            G_io_seproxyhal_spi_buffer[1] = (ledger_protocol_data.tx_chunk_length) >> 8;
-            G_io_seproxyhal_spi_buffer[2] = (ledger_protocol_data.tx_chunk_length);
-            memcpy(G_io_seproxyhal_spi_buffer + 3,
-                   ledger_protocol_data.tx_chunk,
-                   ledger_protocol_data.tx_chunk_length);
-            io_seproxyhal_spi_send(G_io_seproxyhal_spi_buffer,
-                                   3 + ledger_protocol_data.tx_chunk_length);
+            // send the NFC APDU chunk
+            nfc_send_rapdu(ledger_protocol_data.tx_chunk, ledger_protocol_data.tx_chunk_length);
         }
     }
 }
