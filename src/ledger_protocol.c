@@ -47,42 +47,40 @@
 /* Private macros-------------------------------------------------------------*/
 
 /* Private functions prototypes ----------------------------------------------*/
-static void process_apdu_chunk(const uint8_t *buffer, uint16_t length);
+static void process_apdu_chunk(ledger_protocol_t *ctx, const uint8_t *buffer, uint16_t length);
 
 /* Exported variables --------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
 static const uint8_t protocol_version[4] = {0x00, 0x00, 0x00, 0x00};
 
-static ledger_protocol_t *ledger_protocol;
-
 /* Private functions ---------------------------------------------------------*/
-static void process_apdu_chunk(const uint8_t *buffer, uint16_t length)
+static void process_apdu_chunk(ledger_protocol_t *ctx, const uint8_t *buffer, uint16_t length)
 {
     // Check the sequence number
-    if ((length < 2) || ((uint16_t) U2BE(buffer, 0) != ledger_protocol->rx_apdu_sequence_number)) {
-        ledger_protocol->rx_apdu_status = APDU_STATUS_WAITING;
+    if ((length < 2) || ((uint16_t) U2BE(buffer, 0) != ctx->rx_apdu_sequence_number)) {
+        ctx->rx_apdu_status = APDU_STATUS_WAITING;
         return;
     }
     // Check total length presence
-    if ((length < 4) && (ledger_protocol->rx_apdu_sequence_number == 0)) {
-        ledger_protocol->rx_apdu_status = APDU_STATUS_WAITING;
+    if ((length < 4) && (ctx->rx_apdu_sequence_number == 0)) {
+        ctx->rx_apdu_status = APDU_STATUS_WAITING;
         return;
     }
 
-    if (ledger_protocol->rx_apdu_sequence_number == 0) {
+    if (ctx->rx_apdu_sequence_number == 0) {
         // First chunk
-        ledger_protocol->rx_apdu_status = APDU_STATUS_NEED_MORE_DATA;
-        ledger_protocol->rx_apdu_length = (uint16_t) U2BE(buffer, 2);
+        ctx->rx_apdu_status = APDU_STATUS_NEED_MORE_DATA;
+        ctx->rx_apdu_length = (uint16_t) U2BE(buffer, 2);
+        ctx->rx_apdu_offset = 0;
         // Check if we have enough space to store the apdu
-        if (ledger_protocol->rx_apdu_length > ledger_protocol->rx_apdu_buffer_max_length) {
-            LOG_BLE_PROTOCOL("APDU WAITING - %d\n", ledger_protocol->rx_apdu_length);
-            ledger_protocol->rx_apdu_length = 0;
-            ledger_protocol->rx_apdu_status = APDU_STATUS_WAITING;
+        if (ctx->rx_apdu_length > ctx->rx_apdu_buffer_max_length) {
+            LOG_BLE_PROTOCOL("APDU WAITING - %d\n", ctx->rx_apdu_length);
+            ctx->rx_apdu_length = 0;
+            ctx->rx_apdu_status = APDU_STATUS_WAITING;
             return;
         }
-        ledger_protocol->rx_apdu_offset = 0;
-        buffer                          = &buffer[4];
+        buffer = &buffer[4];
         length -= 4;
     }
     else {
@@ -91,83 +89,80 @@ static void process_apdu_chunk(const uint8_t *buffer, uint16_t length)
         length -= 2;
     }
 
-    if ((ledger_protocol->rx_apdu_offset + length) > ledger_protocol->rx_apdu_length) {
-        length = ledger_protocol->rx_apdu_length - ledger_protocol->rx_apdu_offset;
+    if ((ctx->rx_apdu_offset + length) > ctx->rx_apdu_length) {
+        length = ctx->rx_apdu_length - ctx->rx_apdu_offset;
     }
 
-    memcpy(&ledger_protocol->rx_apdu_buffer[ledger_protocol->rx_apdu_offset], buffer, length);
-    ledger_protocol->rx_apdu_offset += length;
+    memcpy(&ctx->rx_apdu_buffer[ctx->rx_apdu_offset], buffer, length);
+    ctx->rx_apdu_offset += length;
 
-    if (ledger_protocol->rx_apdu_offset == ledger_protocol->rx_apdu_length) {
-        ledger_protocol->rx_apdu_sequence_number = 0;
-        ledger_protocol->rx_apdu_status          = APDU_STATUS_COMPLETE;
+    if (ctx->rx_apdu_offset == ctx->rx_apdu_length) {
+        ctx->rx_apdu_sequence_number = 0;
+        ctx->rx_apdu_status          = APDU_STATUS_COMPLETE;
         LOG_BLE_PROTOCOL("APDU COMPLETE\n");
     }
     else {
-        ledger_protocol->rx_apdu_sequence_number++;
-        ledger_protocol->rx_apdu_status = APDU_STATUS_NEED_MORE_DATA;
+        ctx->rx_apdu_sequence_number++;
+        ctx->rx_apdu_status = APDU_STATUS_NEED_MORE_DATA;
         LOG_BLE_PROTOCOL("APDU NEED MORE DATA\n");
     }
 }
 
 /* Exported functions --------------------------------------------------------*/
-void LEDGER_PROTOCOL_init(ledger_protocol_t *data)
+void LEDGER_PROTOCOL_init(ledger_protocol_t *ctx)
 {
-    ledger_protocol                          = data;
-    ledger_protocol->rx_apdu_status          = APDU_STATUS_WAITING;
-    ledger_protocol->rx_apdu_sequence_number = 0;
+    ctx->rx_apdu_status          = APDU_STATUS_WAITING;
+    ctx->rx_apdu_sequence_number = 0;
 }
 
-void LEDGER_PROTOCOL_rx(const uint8_t *buffer, uint16_t length)
+void LEDGER_PROTOCOL_rx(ledger_protocol_t *ctx, const uint8_t *buffer, uint16_t length)
 {
-    if (!buffer || length < 3) {
+    if (!ctx || !buffer || length < 3) {
         return;
     }
 
-    memset(ledger_protocol->tx_chunk, 0, sizeof(ledger_protocol->tx_chunk));
+    memset(ctx->tx_chunk, 0, sizeof(ctx->tx_chunk));
 
     // For all calls to this function, the buffer was pre-initialized to the same constant
     // In order for the input buffer to be 'const', this constant is forced directly here
-    ledger_protocol->tx_chunk[0] = 0xDE;
-    ledger_protocol->tx_chunk[1] = 0xF1;
+    ctx->tx_chunk[0] = 0xDE;
+    ctx->tx_chunk[1] = 0xF1;
 
     switch (buffer[2]) {
         case TAG_GET_PROTOCOL_VERSION:
             LOG_BLE_PROTOCOL("TAG_GET_PROTOCOL_VERSION\n");
-            ledger_protocol->tx_chunk[2] = TAG_GET_PROTOCOL_VERSION;
-            ledger_protocol->tx_chunk_length
-                = MIN(sizeof(protocol_version), (sizeof(ledger_protocol->tx_chunk) - 3));
-            memcpy(
-                &ledger_protocol->tx_chunk[3], protocol_version, ledger_protocol->tx_chunk_length);
-            ledger_protocol->tx_chunk_length += 3;
+            ctx->tx_chunk[2]     = TAG_GET_PROTOCOL_VERSION;
+            ctx->tx_chunk_length = MIN(sizeof(protocol_version), (sizeof(ctx->tx_chunk) - 3));
+            memcpy(&ctx->tx_chunk[3], protocol_version, ctx->tx_chunk_length);
+            ctx->tx_chunk_length += 3;
             break;
 
         case TAG_ALLOCATE_CHANNEL:
             LOG_BLE_PROTOCOL("TAG_ALLOCATE_CHANNEL\n");
-            ledger_protocol->tx_chunk[2]     = TAG_ALLOCATE_CHANNEL;
-            ledger_protocol->tx_chunk_length = 3;
+            ctx->tx_chunk[2]     = TAG_ALLOCATE_CHANNEL;
+            ctx->tx_chunk_length = 3;
             break;
 
         case TAG_PING:
             LOG_BLE_PROTOCOL("TAG_PING\n");
-            ledger_protocol->tx_chunk_length = MIN(sizeof(ledger_protocol->tx_chunk), length);
-            memcpy(ledger_protocol->tx_chunk, buffer, ledger_protocol->tx_chunk_length);
+            ctx->tx_chunk_length = MIN(sizeof(ctx->tx_chunk), length);
+            memcpy(ctx->tx_chunk, buffer, ctx->tx_chunk_length);
             break;
 
         case TAG_APDU:
             LOG_BLE_PROTOCOL("TAG_APDU\n");
-            process_apdu_chunk(&buffer[3], length - 3);
+            process_apdu_chunk(ctx, &buffer[3], length - 3);
             break;
 
         case TAG_MTU:
             LOG_BLE_PROTOCOL("TAG_MTU\n");
-            ledger_protocol->tx_chunk[2]     = TAG_MTU;
-            ledger_protocol->tx_chunk[3]     = 0x00;
-            ledger_protocol->tx_chunk[4]     = 0x00;
-            ledger_protocol->tx_chunk[5]     = 0x00;
-            ledger_protocol->tx_chunk[6]     = 0x01;
-            ledger_protocol->tx_chunk[7]     = ledger_protocol->mtu - 2;
-            ledger_protocol->tx_chunk_length = 8;
+            ctx->tx_chunk[2]     = TAG_MTU;
+            ctx->tx_chunk[3]     = 0x00;
+            ctx->tx_chunk[4]     = 0x00;
+            ctx->tx_chunk[5]     = 0x00;
+            ctx->tx_chunk[6]     = 0x01;
+            ctx->tx_chunk[7]     = ctx->mtu - 2;
+            ctx->tx_chunk_length = 8;
             break;
 
         default:
@@ -176,18 +171,18 @@ void LEDGER_PROTOCOL_rx(const uint8_t *buffer, uint16_t length)
     }
 }
 
-void LEDGER_PROTOCOL_tx(const uint8_t *buffer, uint16_t length)
+void LEDGER_PROTOCOL_tx(ledger_protocol_t *ctx, const uint8_t *buffer, uint16_t length)
 {
-    if (!buffer && !ledger_protocol->tx_apdu_buffer) {
+    if (!ctx || (!buffer && !ctx->tx_apdu_buffer)) {
         return;
     }
     if (buffer) {
         LOG_BLE_PROTOCOL("FIRST CHUNK");
-        ledger_protocol->tx_apdu_buffer          = buffer;
-        ledger_protocol->tx_apdu_length          = length;
-        ledger_protocol->tx_apdu_sequence_number = 0;
-        ledger_protocol->tx_apdu_offset          = 0;
-        memset(ledger_protocol->tx_chunk, 0, sizeof(ledger_protocol->tx_chunk));
+        ctx->tx_apdu_buffer          = buffer;
+        ctx->tx_apdu_length          = length;
+        ctx->tx_apdu_sequence_number = 0;
+        ctx->tx_apdu_offset          = 0;
+        memset(ctx->tx_chunk, 0, sizeof(ctx->tx_chunk));
     }
     else {
         LOG_BLE_PROTOCOL("NEXT CHUNK");
@@ -195,35 +190,33 @@ void LEDGER_PROTOCOL_tx(const uint8_t *buffer, uint16_t length)
 
     uint16_t tx_chunk_offset = 2;  // Because channel id has been already filled beforehand
 
-    ledger_protocol->tx_chunk[tx_chunk_offset++] = TAG_APDU;
+    ctx->tx_chunk[tx_chunk_offset++] = TAG_APDU;
 
-    U2BE_ENCODE(
-        ledger_protocol->tx_chunk, tx_chunk_offset, ledger_protocol->tx_apdu_sequence_number);
+    U2BE_ENCODE(ctx->tx_chunk, tx_chunk_offset, ctx->tx_apdu_sequence_number);
     tx_chunk_offset += 2;
 
-    if (ledger_protocol->tx_apdu_sequence_number == 0) {
-        U2BE_ENCODE(ledger_protocol->tx_chunk, tx_chunk_offset, ledger_protocol->tx_apdu_length);
+    if (ctx->tx_apdu_sequence_number == 0) {
+        U2BE_ENCODE(ctx->tx_chunk, tx_chunk_offset, ctx->tx_apdu_length);
         tx_chunk_offset += 2;
     }
-    if ((ledger_protocol->tx_apdu_length + tx_chunk_offset)
-        >= (ledger_protocol->mtu + ledger_protocol->tx_apdu_offset)) {
+    if ((ctx->tx_apdu_length + tx_chunk_offset) >= (ctx->mtu + ctx->tx_apdu_offset)) {
         // Remaining buffer length doesn't fit the chunk
-        memcpy(&ledger_protocol->tx_chunk[tx_chunk_offset],
-               &ledger_protocol->tx_apdu_buffer[ledger_protocol->tx_apdu_offset],
-               ledger_protocol->mtu - tx_chunk_offset);
-        ledger_protocol->tx_apdu_offset += ledger_protocol->mtu - tx_chunk_offset;
-        ledger_protocol->tx_apdu_sequence_number++;
-        tx_chunk_offset = ledger_protocol->mtu;
+        memcpy(&ctx->tx_chunk[tx_chunk_offset],
+               &ctx->tx_apdu_buffer[ctx->tx_apdu_offset],
+               ctx->mtu - tx_chunk_offset);
+        ctx->tx_apdu_offset += ctx->mtu - tx_chunk_offset;
+        ctx->tx_apdu_sequence_number++;
+        tx_chunk_offset = ctx->mtu;
     }
     else {
         // Remaining buffer fits the chunk TODO pad for usb
-        memcpy(&ledger_protocol->tx_chunk[tx_chunk_offset],
-               &ledger_protocol->tx_apdu_buffer[ledger_protocol->tx_apdu_offset],
-               ledger_protocol->tx_apdu_length - ledger_protocol->tx_apdu_offset);
-        tx_chunk_offset += (ledger_protocol->tx_apdu_length - ledger_protocol->tx_apdu_offset);
-        ledger_protocol->tx_apdu_offset = ledger_protocol->tx_apdu_length;
-        ledger_protocol->tx_apdu_buffer = NULL;
+        memcpy(&ctx->tx_chunk[tx_chunk_offset],
+               &ctx->tx_apdu_buffer[ctx->tx_apdu_offset],
+               ctx->tx_apdu_length - ctx->tx_apdu_offset);
+        tx_chunk_offset += (ctx->tx_apdu_length - ctx->tx_apdu_offset);
+        ctx->tx_apdu_offset = ctx->tx_apdu_length;
+        ctx->tx_apdu_buffer = NULL;
     }
-    ledger_protocol->tx_chunk_length = tx_chunk_offset;
-    LOG_BLE_PROTOCOL(" %d\n", ledger_protocol->tx_chunk_length);
+    ctx->tx_chunk_length = tx_chunk_offset;
+    LOG_BLE_PROTOCOL(" %d\n", ctx->tx_chunk_length);
 }
