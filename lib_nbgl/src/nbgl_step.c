@@ -13,6 +13,9 @@
 #include "glyphs.h"
 #include "os_pic.h"
 #include "os_print.h"
+#ifdef BUILD_SCREENSHOTS
+#include "json_scenario.h"
+#endif  // BUILD_SCREENSHOTS
 
 /*********************
  *      DEFINES
@@ -92,12 +95,6 @@ extern UX_LOC_STRINGS_INDEX last_string_id;
 extern uint16_t last_nb_lines;
 extern uint16_t last_nb_pages;
 extern bool     last_bold_state;
-
-/**********************
- *  PROTOTYPES
- **********************/
-void store_string_infos(const char *text, uint16_t nb_lines, uint16_t nb_pages_, bool bold);
-
 #endif  // BUILD_SCREENSHOTS
 
 /**********************
@@ -411,6 +408,13 @@ nbgl_step_t nbgl_stepDrawText(nbgl_stepPosition_t               pos,
                               nbgl_contentCenteredInfoStyle_t   style,
                               bool                              modal)
 {
+#ifdef BUILD_SCREENSHOTS
+    // Initialize a default area
+    nbgl_area_t area;
+    area.x0 = area.y0 = 0;
+    area.width        = AVAILABLE_WIDTH;
+    area.height = NB_MAX_LINES * nbgl_getFontLineHeight(BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp);
+#endif  // BUILD_SCREENSHOTS
     StepContext_t *ctx = getFreeContext(TEXT_STEP, modal);
     if (!ctx) {
         return NULL;
@@ -428,22 +432,50 @@ nbgl_step_t nbgl_stepDrawText(nbgl_stepPosition_t               pos,
         ctx->textContext.nbPages = nbgl_getTextNbPagesInWidth(
             BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp, text, NB_MAX_LINES, AVAILABLE_WIDTH);
 #ifdef BUILD_SCREENSHOTS
-        store_string_infos(text, last_nb_lines, last_nb_pages, last_bold_state);
+        store_string_infos(text,
+                           BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp,
+                           &area,
+                           true,
+                           last_nb_lines,
+                           last_nb_pages,
+                           last_bold_state);
 #endif  // BUILD_SCREENSHOTS
     }
     else {
 #ifdef BUILD_SCREENSHOTS
+        uint16_t nb_lines_title;
         // Call this function to get correct nb_lines/nb_pages for text field.
         nbgl_getTextNbPagesInWidth(
             BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp, text, NB_MAX_LINES, AVAILABLE_WIDTH);
-        store_string_infos(text, last_nb_lines, last_nb_pages, last_bold_state);
+        nb_lines_title = last_nb_lines;
+        // There is a sub text, so no more than 3 lines for title...
+        if (nb_lines_title > 3) {
+            nb_lines_title = 3;
+        }
+        area.height
+            = nb_lines_title * nbgl_getFontLineHeight(BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp);
+        store_string_infos(text,
+                           BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp,
+                           &area,
+                           true,
+                           last_nb_lines,
+                           last_nb_pages,
+                           last_bold_state);
 #endif  // BUILD_SCREENSHOTS
         // NB_MAX_LINES-1 because first line is for main text
         ctx->textContext.nbPages = nbgl_getTextNbPagesInWidth(
             BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp, subText, NB_MAX_LINES - 1, AVAILABLE_WIDTH);
 #ifdef BUILD_SCREENSHOTS
+        area.height = (NB_MAX_LINES - nb_lines_title)
+                      * nbgl_getFontLineHeight(BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp);
         // If subTxtid is not valid, we'll use txtId for nb_lines/nb_pages values
-        store_string_infos(subText, last_nb_lines, last_nb_pages, last_bold_state);
+        store_string_infos(subText,
+                           BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp,
+                           &area,
+                           true,
+                           last_nb_lines,
+                           last_nb_pages,
+                           last_bold_state);
 #endif  // BUILD_SCREENSHOTS
     }
     LOG_DEBUG(STEP_LOGGER,

@@ -19,6 +19,9 @@
 #include "nbgl_serialize.h"
 #include "os_io_seproxyhal.h"
 #endif
+#ifdef BUILD_SCREENSHOTS
+#include "json_scenario.h"
+#endif  // BUILD_SCREENSHOTS
 
 /*********************
  *      DEFINES
@@ -72,11 +75,6 @@ extern bool     last_bold_state, verbose;
  *  STATIC PROTOTYPES
  **********************/
 extern const char *get_ux_loc_string(uint32_t index);
-
-#ifdef BUILD_SCREENSHOTS
-char *get_printable_string(char *string);
-void  store_string_infos(const char *text, uint16_t nb_lines, uint16_t nb_pages, bool bold);
-#endif  // BUILD_SCREENSHOTS
 
 /**********************
  *   GLOBAL FUNCTIONS
@@ -388,21 +386,32 @@ static void draw_button(nbgl_button_t *obj, nbgl_obj_t *prevObj, bool computePos
     // draw the text (right of the icon, with 8 pixels between them)
     if (text != NULL) {
         nbgl_area_t rectArea;
-        textWidth = nbgl_getTextWidth(obj->fontId, text);
+        // Compute available with & height to display the text
+        rectArea.x0 = obj->obj.area.x0;
+        rectArea.y0 = obj->obj.area.y0;
+        // Only one line of text
+        rectArea.height = nbgl_getFontHeight(obj->fontId);
+        rectArea.y0 += (obj->obj.area.height - rectArea.height) / 2;
+        rectArea.width = obj->obj.area.width;
         if (obj->icon != NULL) {
-            rectArea.x0 = obj->obj.area.x0 + obj->obj.area.width / 2
-                          - (textWidth + obj->icon->width + 8) / 2 + obj->icon->width + 8;
+            rectArea.x0 += obj->icon->width + 8;
+            rectArea.width -= obj->icon->width + 8;
         }
-        else {
-            rectArea.x0 = obj->obj.area.x0 + (obj->obj.area.width - textWidth) / 2;
+        // Compute the width & number of characters displayed on first line
+        uint16_t textLen;
+        nbgl_getTextMaxLenAndWidth(obj->fontId, text, rectArea.width, &textLen, &textWidth, true);
+
+#ifdef BUILD_SCREENSHOTS
+        store_string_infos(text, obj->fontId, &rectArea, true, 1, 1, false);
+#endif  // BUILD_SCREENSHOTS
+
+        // Center the text, horizontally
+        if (textWidth < rectArea.width) {
+            rectArea.x0 += (rectArea.width - textWidth) / 2;
         }
         LOG_DEBUG(OBJ_LOGGER, "draw_button(), text = %s\n", text);
-        rectArea.y0
-            = obj->obj.area.y0 + (obj->obj.area.height - nbgl_getFontHeight(obj->fontId)) / 2;
-        rectArea.width           = textWidth;
-        rectArea.height          = nbgl_getFontHeight(obj->fontId);
         rectArea.backgroundColor = obj->innerColor;
-        nbgl_drawText(&rectArea, text, nbgl_getTextLength(text), obj->fontId, obj->foregroundColor);
+        nbgl_drawText(&rectArea, text, textLen, obj->fontId, obj->foregroundColor);
     }
     // draw the icon, if any
     if (obj->icon != NULL) {
@@ -920,7 +929,13 @@ static void draw_textArea(nbgl_text_area_t *obj, nbgl_obj_t *prevObj, bool compu
     if (obj->autoHideLongLine == true) {
 #ifdef BUILD_SCREENSHOTS
         nbgl_getTextNbLinesInWidth(fontId, text, obj->obj.area.width, obj->wrapping);
-        store_string_infos(text, last_nb_lines, last_nb_pages, last_bold_state);
+        store_string_infos(text,
+                           fontId,
+                           &obj->obj.area,
+                           obj->wrapping,
+                           last_nb_lines,
+                           last_nb_pages,
+                           last_bold_state);
 #endif  // BUILD_SCREENSHOTS
         textWidth = nbgl_getSingleLineTextWidth(fontId, text);
         if (textWidth > obj->obj.area.width) {
@@ -949,7 +964,8 @@ static void draw_textArea(nbgl_text_area_t *obj, nbgl_obj_t *prevObj, bool compu
     // get nb lines in the given width (depending of wrapping)
     nbLines = nbgl_getTextNbLinesInWidth(fontId, text, obj->obj.area.width, obj->wrapping);
 #ifdef BUILD_SCREENSHOTS
-    store_string_infos(text, last_nb_lines, last_nb_pages, last_bold_state);
+    store_string_infos(
+        text, fontId, &obj->obj.area, obj->wrapping, last_nb_lines, last_nb_pages, last_bold_state);
 #endif  // BUILD_SCREENSHOTS
     // saturate nb lines if nbMaxLines is greater than 0
     if ((obj->nbMaxLines > 0) && (obj->nbMaxLines < nbLines)) {
