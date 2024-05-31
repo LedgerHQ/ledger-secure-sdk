@@ -97,7 +97,9 @@ const unsigned int C_unicode_characters_count
 uint16_t last_nb_lines   = 0;
 uint16_t last_nb_pages   = 0;
 bool     last_bold_state = false;
-bool     hard_caesura    = false;
+
+// Used to detect when a hyphenation (caesura) has been forced.
+bool hard_caesura = false;
 #endif  // BUILD_SCREENSHOTS
 
 /**********************
@@ -820,6 +822,7 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
             }
             else {
 #ifdef BUILD_SCREENSHOTS
+                // An hyphenation (caesura) has been forced.
                 hard_caesura = true;
 #endif  // BUILD_SCREENSHOTS
                 width = char_width;

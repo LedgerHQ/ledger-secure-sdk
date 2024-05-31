@@ -100,9 +100,6 @@ typedef struct {
 /**********************
  *      VARIABLES
  **********************/
-#ifdef BUILD_SCREENSHOTS
-extern bool verbose;
-#endif  // BUILD_SCREENSHOTS
 
 /**
  * @brief array of layouts, if used by modal
@@ -2330,18 +2327,15 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
                 textArea->textAlignment   = CENTER;
                 textArea->wrapping        = true;
                 // ensure that text fits on 2 lines maximum
-#ifdef BUILD_SCREENSHOTS
-                if (verbose)
-#endif  // BUILD_SCREENSHOTS
-                    if (nbgl_getTextNbLinesInWidth(textArea->fontId,
-                                                   textArea->text,
-                                                   textArea->obj.area.width,
-                                                   textArea->wrapping)
-                        > 2) {
-                        LOG_WARN(LAYOUT_LOGGER,
-                                 "nbgl_layoutAddHeader: text [%s] is too long for header\n",
-                                 text);
-                    }
+                if (nbgl_getTextNbLinesInWidth(textArea->fontId,
+                                               textArea->text,
+                                               textArea->obj.area.width,
+                                               textArea->wrapping)
+                    > 2) {
+                    LOG_WARN(LAYOUT_LOGGER,
+                             "nbgl_layoutAddHeader: text [%s] is too long for header\n",
+                             text);
+                }
                 layoutInt->headerContainer->children[layoutInt->headerContainer->nbChildren]
                     = (nbgl_obj_t *) textArea;
                 layoutInt->headerContainer->nbChildren++;
