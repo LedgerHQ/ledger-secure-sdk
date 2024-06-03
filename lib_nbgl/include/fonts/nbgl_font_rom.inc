@@ -45,6 +45,14 @@
     #include "bolos_pack_fr_glyphes.inc"
   #elif (OS_LANGUAGE==LANG_SPANISH)
     #include "bolos_pack_es_glyphes.inc"
+  #elif (OS_LANGUAGE==LANG_BRAZILIAN)
+    #include "bolos_pack_br_glyphes.inc"
+  #elif (OS_LANGUAGE==LANG_GERMAN)
+    #include "bolos_pack_de_glyphes.inc"
+  #elif (OS_LANGUAGE==LANG_RUSSIAN)
+    #include "bolos_pack_ru_glyphes.inc"
+  #elif (OS_LANGUAGE==LANG_TURKISH)
+    #include "bolos_pack_tr_glyphes.inc"
   #else //OS_LANGUAGE
     #error No default language defined!
   #endif //OS_LANGUAGE
