@@ -5,7 +5,8 @@
  */
 #ifdef HAVE_APP_NVRAM
 #include <string.h>
-#include "nvram_struct.h"
+
+#include "app_storage.h"
 #include "os_nvm.h"
 #include "os_pic.h"
 
