@@ -10,6 +10,10 @@
 #include <stddef.h>
 #include <string.h>
 
+#ifdef BOLOS_OS_UPGRADER_APP
+extern union cx_u G_cx;
+#endif
+
 cx_err_t cx_aes_init_key_no_throw(const uint8_t *raw_key, size_t key_len, cx_aes_key_t *key)
 {
     memset(key, 0, sizeof(cx_aes_key_t));

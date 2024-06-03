@@ -112,6 +112,11 @@ union cx_u {
     cx_cmac_context_t cmac;
 #endif  // HAVE_CMAC
 };
+
+#ifndef BOLOS_OS_UPGRADER_APP
 extern union cx_u G_cx;
+#else
+// union cx_u G_cx;
+#endif
 
 #endif

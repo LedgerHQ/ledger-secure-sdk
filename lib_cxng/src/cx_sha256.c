@@ -278,6 +278,7 @@ cx_err_t cx_sha256_final(cx_sha256_t *ctx, uint8_t *digest)
     return CX_OK;
 }
 
+#ifndef BOLOS_OS_UPGRADER_APP
 size_t cx_hash_sha256(const uint8_t *in, size_t in_len, uint8_t *out, size_t out_len)
 {
     if (out_len < CX_SHA256_SIZE) {
@@ -291,5 +292,6 @@ size_t cx_hash_sha256(const uint8_t *in, size_t in_len, uint8_t *out, size_t out
     explicit_bzero(&G_cx.sha256, sizeof(cx_sha256_t));
     return CX_SHA256_SIZE;
 }
+#endif
 
 #endif  // defined(HAVE_SHA255) || defined(HAVE_SHA224)
