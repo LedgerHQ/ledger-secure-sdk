@@ -753,9 +753,8 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
         // if \f, exit loop
         if (unicode == '\f') {
 #ifdef BUILD_SCREENSHOTS
-            ++last_nb_pages;
-            if (last_nb_lines < nbLines) {
-                last_nb_lines = nbLines;
+            if (textLen) {
+                ++last_nb_pages;
             }
 #endif  // BUILD_SCREENSHOTS
             break;
@@ -763,17 +762,13 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
         // if \n, increment the number of lines
         else if (unicode == '\n') {
             nbLines++;
-#ifdef BUILD_SCREENSHOTS
-            if (last_nb_lines < nbLines) {
-                last_nb_lines = nbLines;
+#if defined(BUILD_SCREENSHOTS) && defined(SCREEN_SIZE_NANO)
+            if (!(nbLines % 4)) {
+                if (textLen) {
+                    ++last_nb_pages;
+                }
             }
-#ifdef SCREEN_SIZE_NANO
-            if (nbLines == 4) {
-                ++last_nb_pages;
-                nbLines = 0;
-            }
-#endif  // SCREEN_SIZE_NANO
-#endif  // BUILD_SCREENSHOTS
+#endif  // defined(BUILD_SCREENSHOTS) && defined(SCREEN_SIZE_NANO)
             width         = 0;
             lastDelimiter = NULL;
             continue;
@@ -828,17 +823,13 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
                 width = char_width;
             }
             nbLines++;
-#ifdef BUILD_SCREENSHOTS
-            if (last_nb_lines < nbLines) {
-                last_nb_lines = nbLines;
+#if defined(BUILD_SCREENSHOTS) && defined(SCREEN_SIZE_NANO)
+            if (!(nbLines % 4)) {
+                if (textLen) {
+                    ++last_nb_pages;
+                }
             }
-#ifdef SCREEN_SIZE_NANO
-            if (nbLines == 4) {
-                ++last_nb_pages;
-                nbLines = 0;
-            }
-#endif  // SCREEN_SIZE_NANO
-#endif  // BUILD_SCREENSHOTS
+#endif  // defined(BUILD_SCREENSHOTS) && defined(SCREEN_SIZE_NANO)
         }
         else {
             width += char_width;
@@ -848,12 +839,10 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
     if (width != 0) {
         ++nbLines;
     }
-#ifdef BUILD_SCREENSHOTS
-    if (last_nb_lines < nbLines) {
-        last_nb_lines = nbLines;
-    }
-#endif  // BUILD_SCREENSHOTS
 #endif  // SCREEN_SIZE_NANO
+#ifdef BUILD_SCREENSHOTS
+    last_nb_lines = nbLines;
+#endif  // BUILD_SCREENSHOTS
     return nbLines;
 }
 
