@@ -80,7 +80,7 @@ OS release candidates are only kept in the list when a corresponding OS release 
 | 16      | europa_0.1.0-re1                                                                                          | :x:
 | 17      | europa_0.1.0-re2                                                                                          | :x:
 | 18      | europa_0.1.0-re3 <br/> flex_0.2.0-rc1 <br /> flex_0.2.0-rc2 <br /> nanox_2.3.0-rc5 <br/> nanos+_1.2.0-rc5 | :heavy_check_mark:
-| 19      | flex_1.0.0-rc1                                                                                            | :heavy_check_mark:
+| 19      | flex_1.0.0-rc1 <br/> flex_1.0.0-rc2 <br/> flex_1.0.0 <br/> flex_1.0.1 <br/>                               | :heavy_check_mark:
 
 
 ### Cherry-picking process:
