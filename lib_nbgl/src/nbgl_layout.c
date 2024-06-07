@@ -114,7 +114,7 @@ static uint8_t nbTouchableControls = 0;
  *  STATIC PROTOTYPES
  **********************/
 
-#ifdef HAVE_DISPLAY_FAST_MODE
+#ifdef HAVE_FAST_HOLD_TO_APPROVE
 // Unit step in % of touchable progress bar
 #define HOLD_TO_APPROVE_STEP_PERCENT     (7)
 // Duration in ms the user must hold the progress bar
@@ -124,11 +124,11 @@ static uint8_t nbTouchableControls = 0;
 #else
 #define HOLD_TO_APPROVE_STEP_PERCENT     (25)
 #define HOLD_TO_APPROVE_STEP_DURATION_MS (400)
-#endif  // HAVE_DISPLAY_FAST_MODE
+#endif  // HAVE_FAST_HOLD_TO_APPROVE
 
 static inline uint8_t get_hold_to_approve_percent(uint32_t touch_duration)
 {
-#ifdef HAVE_DISPLAY_FAST_MODE
+#ifdef HAVE_FAST_HOLD_TO_APPROVE
     uint8_t current_step_nb = (touch_duration / HOLD_TO_APPROVE_STEP_DURATION_MS);
 #else
     uint8_t current_step_nb = (touch_duration / HOLD_TO_APPROVE_STEP_DURATION_MS) + 1;
