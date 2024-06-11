@@ -232,8 +232,15 @@ static uint8_t const USBD_PRODUCT_FS_STRING[] = {
 #define USBD_PID                      0x0007
 #endif // HAVE_LEGACY_PID
 static uint8_t const USBD_PRODUCT_FS_STRING[] = {
-  4*2+2,
+  11*2+2,
   USB_DESC_TYPE_STRING,
+  'L', 0,
+  'e', 0,
+  'd', 0,
+  'g', 0,
+  'e', 0,
+  'r', 0,
+  ' ', 0,
   'F', 0,
   'l', 0,
   'e', 0,
@@ -263,6 +270,15 @@ static uint8_t const USB_SERIAL_STRING[] =
   '1', 0,
 };
 
+#if defined(TARGET_STAX) || defined(TARGET_FLEX)
+// For Stax and Flex, manufacturer string is included in official product name ("Ledger Stax" / "Ledger Flex").
+// Manufacturer string is empty in order to avoid the situations where
+// only "Stax" or "Flex" is returned (for example with WebHID).
+static uint8_t const USBD_MANUFACTURER_STRING[] = {
+  0*2+2,
+  USB_DESC_TYPE_STRING,
+};
+#else
 static uint8_t const USBD_MANUFACTURER_STRING[] = {
   6*2+2,
   USB_DESC_TYPE_STRING,
@@ -273,6 +289,7 @@ static uint8_t const USBD_MANUFACTURER_STRING[] = {
   'e', 0,
   'r', 0,
 };
+#endif
 
 #define USBD_INTERFACE_FS_STRING USBD_PRODUCT_FS_STRING
 #define USBD_CONFIGURATION_FS_STRING USBD_PRODUCT_FS_STRING
