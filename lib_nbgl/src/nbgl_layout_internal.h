@@ -29,7 +29,7 @@ extern "C" {
  * @brief Max number of complex objects with callback retrievable from pool
  *
  */
-#define LAYOUT_OBJ_POOL_LEN 10
+#define LAYOUT_OBJ_POOL_LEN 16
 
 #define KEYBOARD_FOOTER_TYPE 99
 #define KEYPAD_FOOTER_TYPE   98
@@ -56,8 +56,8 @@ enum {
     HEADER_INDEX = 0,  // For header container
     TOP_RIGHT_BUTTON_INDEX,
     MAIN_CONTAINER_INDEX,
-    LEFT_BORDER_INDEX,
     FOOTER_INDEX,
+    LEFT_BORDER_INDEX,
     NB_MAX_SCREEN_CHILDREN
 };
 

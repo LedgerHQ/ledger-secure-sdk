@@ -61,7 +61,7 @@ extern "C" {
 /**
  *  @brief height available for tag/value pairs display
  */
-#define TAG_VALUE_AREA_HEIGHT 400
+#define TAG_VALUE_AREA_HEIGHT (SCREEN_HEIGHT - SMALL_CENTERING_HEADER - SIMPLE_FOOTER_HEIGHT)
 
 /**
  *  @brief Default strings used in the Home tagline

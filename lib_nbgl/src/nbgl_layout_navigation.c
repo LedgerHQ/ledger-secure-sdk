@@ -23,18 +23,15 @@
  *********************/
 #define INTERNAL_SMALL_MARGIN 8
 
+#define BORDER_COLOR WHITE
 #ifdef TARGET_STAX
-#define BORDER_COLOR                  LIGHT_GRAY
-#define NAVIGATION_HEIGHT             (BUTTON_DIAMETER + 2 * BORDER_MARGIN)
-#define NAV_BUTTON_HEIGHT             BUTTON_DIAMETER
-#define NAV_BUTTON_WIDTH              128
-#define NAV_BUTTON_WIDTH_WITHOUT_EXIT 172
+#define NAVIGATION_HEIGHT 92
+#define NAV_BUTTON_HEIGHT 80
+#define NAV_BUTTON_WIDTH  80
 #else  // TARGET_STAX
-#define BORDER_COLOR                  WHITE
-#define NAVIGATION_HEIGHT             96
-#define NAV_BUTTON_HEIGHT             NAVIGATION_HEIGHT
-#define NAV_BUTTON_WIDTH              104
-#define NAV_BUTTON_WIDTH_WITHOUT_EXIT NAV_BUTTON_WIDTH
+#define NAVIGATION_HEIGHT 96
+#define NAV_BUTTON_HEIGHT NAVIGATION_HEIGHT
+#define NAV_BUTTON_WIDTH  104
 #endif  // TARGET_STAX
 
 /**********************
@@ -51,9 +48,7 @@ enum {
 /**********************
  *  STATIC VARIABLES
  **********************/
-#ifndef TARGET_STAX
 static char navText[11];  // worst case is "ccc of nnn"
-#endif                    // TARGET_STAX
 
 /**********************
  *      VARIABLES
@@ -153,16 +148,14 @@ void layoutNavigationPopulate(nbgl_container_t                 *navContainer,
     nbgl_button_t *button;
 
     if (navConfig->withExitKey) {
-        button                  = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layer);
-        button->innerColor      = WHITE;
-        button->borderColor     = BORDER_COLOR;
-        button->obj.area.width  = BUTTON_DIAMETER;
-        button->obj.area.height = BUTTON_DIAMETER;
-        button->radius          = BUTTON_RADIUS;
-        button->icon            = &CLOSE_ICON;
-#ifdef TARGET_FLEX
+        button                       = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layer);
+        button->innerColor           = WHITE;
+        button->borderColor          = BORDER_COLOR;
+        button->obj.area.width       = BUTTON_DIAMETER;
+        button->obj.area.height      = BUTTON_DIAMETER;
+        button->radius               = BUTTON_RADIUS;
+        button->icon                 = &CLOSE_ICON;
         button->obj.alignmentMarginX = (navConfig->nbPages > 1) ? 8 : 0;
-#endif  // TARGET_FLEX
 
         button->obj.alignment                     = (navConfig->nbPages > 1) ? MID_LEFT : CENTER;
         button->obj.touchMask                     = (1 << TOUCHED);
@@ -171,66 +164,35 @@ void layoutNavigationPopulate(nbgl_container_t                 *navContainer,
     }
     // create previous page button (back)
     if (navConfig->withBackKey) {
-        button              = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layer);
-        button->innerColor  = WHITE;
-        button->borderColor = BORDER_COLOR;
-        if (navConfig->withExitKey) {
-            button->obj.area.width = NAV_BUTTON_WIDTH;
-        }
-        else {
-            button->obj.area.width = NAV_BUTTON_WIDTH_WITHOUT_EXIT;
-        }
+        button                  = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layer);
+        button->innerColor      = WHITE;
+        button->borderColor     = BORDER_COLOR;
+        button->obj.area.width  = NAV_BUTTON_WIDTH;
         button->obj.area.height = NAV_BUTTON_HEIGHT;
         button->radius          = BUTTON_RADIUS;
-#ifdef TARGET_STAX
-        button->icon = &LEFT_ARROW_ICON;
-        // align either on the right of Exit key, or on the inner left of the container
-        if (navConfig->withExitKey) {
-            button->obj.alignmentMarginX = INTERNAL_SMALL_MARGIN;
-            button->obj.alignment        = MID_RIGHT;
-            button->obj.alignTo          = navContainer->children[EXIT_BUTTON_INDEX];
-        }
-        else {
-            button->obj.alignment = MID_LEFT;
-        }
-#else   // TARGET_STAX
-        button->icon = &C_Chevron_Back_40px;
+        button->icon            = &CHEVRON_BACK_ICON;
         // align on the right of the container, leaving space for "Next" button
-        button->obj.alignment        = MID_RIGHT;
-        button->obj.alignmentMarginX = NAV_BUTTON_WIDTH;
-#endif  // TARGET_STAX
+        button->obj.alignment                       = MID_RIGHT;
+        button->obj.alignmentMarginX                = NAV_BUTTON_WIDTH;
         button->obj.touchMask                       = (1 << TOUCHED);
         button->obj.touchId                         = LEFT_BUTTON_ID;
         navContainer->children[PREVIOUS_PAGE_INDEX] = (nbgl_obj_t *) button;
     }
 
     // create next page button
-    button                  = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layer);
-    button->innerColor      = WHITE;
-    button->borderColor     = BORDER_COLOR;
-    button->foregroundColor = BLACK;
-    if (navConfig->withExitKey) {
-        button->obj.area.width = NAV_BUTTON_WIDTH;
-    }
-    else {
-        button->obj.area.width = NAV_BUTTON_WIDTH_WITHOUT_EXIT;
-    }
-    button->obj.area.height = NAV_BUTTON_HEIGHT;
-    button->radius          = BUTTON_RADIUS;
-#ifdef TARGET_STAX
-    button->icon = &RIGHT_ARROW_ICON;
-    // on Stax, align next button on the right of left one
-    button->obj.alignmentMarginX = INTERNAL_SMALL_MARGIN;
-    button->obj.alignTo          = navContainer->children[PREVIOUS_PAGE_INDEX];
-#else   // TARGET_STAX
-    button->icon = &C_Chevron_Next_40px;
-#endif  // TARGET_STAX
+    button                                  = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layer);
+    button->innerColor                      = WHITE;
+    button->borderColor                     = BORDER_COLOR;
+    button->foregroundColor                 = BLACK;
+    button->obj.area.width                  = NAV_BUTTON_WIDTH;
+    button->obj.area.height                 = NAV_BUTTON_HEIGHT;
+    button->radius                          = BUTTON_RADIUS;
+    button->icon                            = &CHEVRON_NEXT_ICON;
     button->obj.alignment                   = MID_RIGHT;
     button->obj.touchMask                   = (1 << TOUCHED);
     button->obj.touchId                     = RIGHT_BUTTON_ID;
     navContainer->children[NEXT_PAGE_INDEX] = (nbgl_obj_t *) button;
 
-#ifdef TARGET_FLEX
     // potentially create page indicator (with a text area, and "page of nb_page")
     if (navConfig->withPageIndicator) {
         if (navConfig->visibleIndicator) {
@@ -238,9 +200,13 @@ void layoutNavigationPopulate(nbgl_container_t                 *navContainer,
 
             SPRINTF(navText, "%d of %d", navConfig->activePage + 1, navConfig->nbPages);
 
-            textArea->obj.alignment                      = BOTTOM_RIGHT;
-            textArea->textColor                          = DARK_GRAY;
-            textArea->obj.area.width                     = 109;
+            textArea->obj.alignment = BOTTOM_RIGHT;
+            textArea->textColor     = DARK_GRAY;
+#ifdef TARGET_STAX
+            textArea->obj.area.width = 109;
+#else   // TARGET_STAX
+            textArea->obj.area.width = 89;
+#endif  // TARGET_STAX
             textArea->text                               = navText;
             textArea->fontId                             = SMALL_REGULAR_FONT;
             textArea->obj.area.height                    = NAV_BUTTON_HEIGHT;
@@ -253,7 +219,6 @@ void layoutNavigationPopulate(nbgl_container_t                 *navContainer,
             navContainer->children[PREVIOUS_PAGE_INDEX]->alignmentMarginX += 79;
         }
     }
-#endif  // TARGET_FLEX
 
     // configure enabling/disabling of button
     configButtons(navContainer, navConfig->nbPages, navConfig->activePage);

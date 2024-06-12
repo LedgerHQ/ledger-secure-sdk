@@ -25,19 +25,21 @@
 /*********************
  *      DEFINES
  *********************/
-#ifdef TARGET_STAX
-#define FIRST_BUTTON_INDEX 0
-#else   // TARGET_STAX
 // for suggestion buttons, on Flex there are other objects than buttons
 enum {
     PAGE_INDICATOR_INDEX = 0,
+#ifndef TARGET_STAX
     LEFT_HALF_INDEX,   // half disc displayed on the bottom left
     RIGHT_HALF_INDEX,  // half disc displayed on the bottom right
+#endif                 // TARGET_STAX
     FIRST_BUTTON_INDEX,
     SECOND_BUTTON_INDEX,
+#ifdef TARGET_STAX
+    THIRD_BUTTON_INDEX,
+    FOURTH_BUTTON_INDEX,
+#endif  // TARGET_STAX
     NB_SUGGESTION_CHILDREN
 };
-#endif  // TARGET_STAX
 
 #define TEXT_ENTRY_NORMAL_HEIGHT  64
 #define TEXT_ENTRY_COMPACT_HEIGHT 56
@@ -65,61 +67,89 @@ static nbgl_image_t *partialButtonImages[2];
  *  STATIC PROTOTYPES
  **********************/
 
-#ifndef TARGET_STAX
 // function used on Flex to display (or not) beginning of next button and/or end of
 // previous button, and update buttons when swipping
 static bool updateSuggestionButtons(nbgl_container_t *container,
                                     nbgl_touchType_t  eventType,
                                     uint8_t           currentLeftButtonIndex)
 {
-    bool    needRefresh = false;
-    uint8_t page        = 0;
-    if ((eventType == SWIPED_LEFT) && (currentLeftButtonIndex < (uint32_t) (nbActiveButtons - 2))) {
-        // shift all buttons on the left if there are still at least 2 buttons to display
-        currentLeftButtonIndex += 2;
+    bool     needRefresh = false;
+    uint8_t  page        = 0;
+    uint32_t i;
+
+    if ((eventType == SWIPED_LEFT)
+        && (currentLeftButtonIndex
+            < (uint32_t) (nbActiveButtons - NB_MAX_VISIBLE_SUGGESTION_BUTTONS))) {
+        // shift all buttons on the left if there are still at least
+        // NB_MAX_VISIBLE_SUGGESTION_BUTTONS buttons to display
+        currentLeftButtonIndex += NB_MAX_VISIBLE_SUGGESTION_BUTTONS;
         container->children[FIRST_BUTTON_INDEX]
             = (nbgl_obj_t *) choiceButtons[currentLeftButtonIndex];
-        if (currentLeftButtonIndex < (uint32_t) (nbActiveButtons - 1)) {
-            container->children[FIRST_BUTTON_INDEX + 1]
-                = (nbgl_obj_t *) choiceButtons[currentLeftButtonIndex + 1];
+
+        for (i = 1; i < NB_MAX_VISIBLE_SUGGESTION_BUTTONS; i++) {
+            if (currentLeftButtonIndex < (uint32_t) (nbActiveButtons - i)) {
+                container->children[FIRST_BUTTON_INDEX + i]
+                    = (nbgl_obj_t *) choiceButtons[currentLeftButtonIndex + i];
+            }
+            else {
+                container->children[FIRST_BUTTON_INDEX + i] = NULL;
+            }
         }
-        else {
-            container->children[FIRST_BUTTON_INDEX + 1] = NULL;
-        }
-        page        = currentLeftButtonIndex / 2;
+        page        = currentLeftButtonIndex / NB_MAX_VISIBLE_SUGGESTION_BUTTONS;
         needRefresh = true;
     }
-    else if ((eventType == SWIPED_RIGHT) && (currentLeftButtonIndex > 1)) {
-        // shift all buttons on the left if we are not already displaying the 2 first ones
-        currentLeftButtonIndex -= 2;
-        container->children[FIRST_BUTTON_INDEX]
-            = (nbgl_obj_t *) choiceButtons[currentLeftButtonIndex];
-        container->children[FIRST_BUTTON_INDEX + 1]
-            = (nbgl_obj_t *) choiceButtons[currentLeftButtonIndex + 1];
-        page        = currentLeftButtonIndex / 2;
+    else if ((eventType == SWIPED_RIGHT)
+             && (currentLeftButtonIndex > (NB_MAX_VISIBLE_SUGGESTION_BUTTONS - 1))) {
+        // shift all buttons on the left if we are not already displaying the
+        // NB_MAX_VISIBLE_SUGGESTION_BUTTONS first ones
+        currentLeftButtonIndex -= NB_MAX_VISIBLE_SUGGESTION_BUTTONS;
+        for (i = 0; i < NB_MAX_VISIBLE_SUGGESTION_BUTTONS; i++) {
+            container->children[FIRST_BUTTON_INDEX + i]
+                = (nbgl_obj_t *) choiceButtons[currentLeftButtonIndex + i];
+        }
+        page        = currentLeftButtonIndex / NB_MAX_VISIBLE_SUGGESTION_BUTTONS;
         needRefresh = true;
     }
-    // align left button on the left
-    if (nbActiveButtons > 0) {
+    // align top-left button on the left
+    if (container->children[FIRST_BUTTON_INDEX] != NULL) {
         container->children[FIRST_BUTTON_INDEX]->alignmentMarginX = BORDER_MARGIN;
+        container->children[FIRST_BUTTON_INDEX]->alignmentMarginY = 0;
         container->children[FIRST_BUTTON_INDEX]->alignment        = TOP_LEFT;
         container->children[FIRST_BUTTON_INDEX]->alignTo          = (nbgl_obj_t *) container;
     }
 
-    // align right button on left one
-    if (container->children[FIRST_BUTTON_INDEX + 1] != NULL) {
-        container->children[FIRST_BUTTON_INDEX + 1]->alignmentMarginX = INTERNAL_MARGIN;
-        container->children[FIRST_BUTTON_INDEX + 1]->alignment        = MID_RIGHT;
-        container->children[FIRST_BUTTON_INDEX + 1]->alignTo
-            = container->children[FIRST_BUTTON_INDEX];
+    // align top-right button on top-left one
+    if (container->children[SECOND_BUTTON_INDEX] != NULL) {
+        container->children[SECOND_BUTTON_INDEX]->alignmentMarginX = INTERNAL_MARGIN;
+        container->children[SECOND_BUTTON_INDEX]->alignmentMarginY = 0;
+        container->children[SECOND_BUTTON_INDEX]->alignment        = MID_RIGHT;
+        container->children[SECOND_BUTTON_INDEX]->alignTo = container->children[FIRST_BUTTON_INDEX];
+    }
+#ifdef TARGET_STAX
+    // align bottom-left button on top_left one
+    if (container->children[THIRD_BUTTON_INDEX] != NULL) {
+        container->children[THIRD_BUTTON_INDEX]->alignmentMarginX = 0;
+        container->children[THIRD_BUTTON_INDEX]->alignmentMarginY = INTERNAL_MARGIN;
+        container->children[THIRD_BUTTON_INDEX]->alignment        = BOTTOM_MIDDLE;
+        container->children[THIRD_BUTTON_INDEX]->alignTo = container->children[FIRST_BUTTON_INDEX];
     }
 
-    // on Flex, the first child is used by the progress indicator, displayed if more that 2
-    // buttons
+    // align bottom-right button on bottom-left one
+    if (container->children[FOURTH_BUTTON_INDEX] != NULL) {
+        container->children[FOURTH_BUTTON_INDEX]->alignmentMarginX = INTERNAL_MARGIN;
+        container->children[FOURTH_BUTTON_INDEX]->alignmentMarginY = 0;
+        container->children[FOURTH_BUTTON_INDEX]->alignment        = MID_RIGHT;
+        container->children[FOURTH_BUTTON_INDEX]->alignTo = container->children[THIRD_BUTTON_INDEX];
+    }
+#endif  // TARGET_STAX
+
+    // the first child is used by the progress indicator, displayed if more that
+    // NB_MAX_VISIBLE_SUGGESTION_BUTTONS buttons
     nbgl_page_indicator_t *indicator
         = (nbgl_page_indicator_t *) container->children[PAGE_INDICATOR_INDEX];
     indicator->activePage = page;
 
+#ifndef TARGET_STAX
     // if not on the first button, display end of previous button
     if (currentLeftButtonIndex > 0) {
         container->children[LEFT_HALF_INDEX] = (nbgl_obj_t *) partialButtonImages[0];
@@ -128,21 +158,20 @@ static bool updateSuggestionButtons(nbgl_container_t *container,
         container->children[LEFT_HALF_INDEX] = NULL;
     }
     // if not on the last button, display beginning of next button
-    if (currentLeftButtonIndex < (nbActiveButtons - 2)) {
+    if (currentLeftButtonIndex < (nbActiveButtons - NB_MAX_VISIBLE_SUGGESTION_BUTTONS)) {
         container->children[RIGHT_HALF_INDEX] = (nbgl_obj_t *) partialButtonImages[1];
     }
     else {
         container->children[RIGHT_HALF_INDEX] = NULL;
     }
+#endif  // TARGET_STAX
     return needRefresh;
 }
-#endif  // TARGET_STAX
 
 /**********************
  *   GLOBAL INTERNAL FUNCTIONS
  **********************/
 
-#ifdef TARGET_FLEX
 bool keyboardSwipeCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
 {
     nbgl_container_t *container = (nbgl_container_t *) obj;
@@ -152,10 +181,10 @@ bool keyboardSwipeCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
         return false;
     }
     suggestionsContainer = (nbgl_container_t *) container->children[1];
-    // try if suggestions buttons
+    // try if suggestions buttons (more than NB_MAX_VISIBLE_SUGGESTION_BUTTONS)
     if (((eventType == SWIPED_LEFT) || (eventType == SWIPED_RIGHT))
         && (suggestionsContainer->nbChildren == (nbActiveButtons + FIRST_BUTTON_INDEX))
-        && (nbActiveButtons > 2)) {
+        && (nbActiveButtons > NB_MAX_VISIBLE_SUGGESTION_BUTTONS)) {
         uint32_t i = 0;
         while (i < (uint32_t) nbActiveButtons) {
             if (suggestionsContainer->children[FIRST_BUTTON_INDEX]
@@ -177,7 +206,6 @@ bool keyboardSwipeCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
     }
     return false;
 }
-#endif  // TARGET_FLEX
 
 static nbgl_container_t *addTextEntry(nbgl_layoutInternal_t *layoutInt,
                                       const char            *title,
@@ -311,19 +339,15 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
     suggestionsContainer->obj.area.width = SCREEN_WIDTH;
 #ifdef TARGET_STAX
     // 2 rows of buttons with radius=32, and a intervale of 8px
-    suggestionsContainer->obj.area.height = 2 * SMALL_BUTTON_HEIGHT + INTERNAL_MARGIN;
-    suggestionsContainer->nbChildren      = nbActiveButtons;
-    suggestionsContainer->children        = (nbgl_obj_t **) nbgl_containerPoolGet(
-        NB_MAX_VISIBLE_SUGGESTION_BUTTONS, layoutInt->layer);
-#else  // TARGET_STAX
+    suggestionsContainer->obj.area.height = 2 * SMALL_BUTTON_HEIGHT + INTERNAL_MARGIN + 28;
+#else   // TARGET_STAX
     // 1 row of buttons + 24px + page indicator
     suggestionsContainer->obj.area.height = SMALL_BUTTON_HEIGHT + 28;
-    // on Flex, the first child is used by the progress indicator, if more that 2 buttons
+#endif  // TARGET_STAX
     suggestionsContainer->nbChildren = nbActiveButtons + FIRST_BUTTON_INDEX;
     suggestionsContainer->children
         = (nbgl_obj_t **) nbgl_containerPoolGet(NB_SUGGESTION_CHILDREN, layoutInt->layer);
 
-#endif  // TARGET_STAX
     // put suggestionsContainer at 24px of the bottom of main container
     suggestionsContainer->obj.alignmentMarginY = compactMode ? 12 : 24;
     suggestionsContainer->obj.alignment        = BOTTOM_MIDDLE;
@@ -341,50 +365,31 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
         choiceButtons[i]->innerColor      = BLACK;
         choiceButtons[i]->borderColor     = BLACK;
         choiceButtons[i]->foregroundColor = WHITE;
-        choiceButtons[i]->obj.area.width = (SCREEN_WIDTH - 2 * BORDER_MARGIN - INTERNAL_MARGIN) / 2;
+        choiceButtons[i]->obj.area.width  = (AVAILABLE_WIDTH - INTERNAL_MARGIN) / 2;
         choiceButtons[i]->obj.area.height = SMALL_BUTTON_HEIGHT;
         choiceButtons[i]->radius          = RADIUS_32_PIXELS;
         choiceButtons[i]->fontId          = SMALL_BOLD_1BPP_FONT;
-        choiceButtons[i]->icon            = NULL;
-        if ((i % 2) == 0) {
-#ifdef TARGET_STAX
-            choiceButtons[i]->obj.alignmentMarginX = BORDER_MARGIN;
-            // second row 8px under the first one
-            if (i != 0) {
-                choiceButtons[i]->obj.alignmentMarginY = INTERNAL_MARGIN;
-            }
-            choiceButtons[i]->obj.alignment = NO_ALIGNMENT;
-#else   // TARGET_STAX
-            choiceButtons[i]->obj.alignmentMarginX = BORDER_MARGIN + INTERNAL_MARGIN;
-            if (i == 0) {
-                choiceButtons[i]->obj.alignment = TOP_LEFT;
-            }
-#endif  // TARGET_STAX
-        }
-        else {
-            choiceButtons[i]->obj.alignmentMarginX = INTERNAL_MARGIN;
-            choiceButtons[i]->obj.alignment        = MID_RIGHT;
-            choiceButtons[i]->obj.alignTo          = (nbgl_obj_t *) choiceButtons[i - 1];
-        }
-        choiceButtons[i]->text          = buttonTexts[i];
-        choiceButtons[i]->obj.touchMask = (1 << TOUCHED);
-        choiceButtons[i]->obj.touchId   = CONTROLS_ID + i;
+        choiceButtons[i]->text            = buttonTexts[i];
+        choiceButtons[i]->obj.touchMask   = (1 << TOUCHED);
+        choiceButtons[i]->obj.touchId     = CONTROLS_ID + i;
         // some buttons may not be visible
         if (i < MIN(NB_MAX_VISIBLE_SUGGESTION_BUTTONS, nbActiveButtons)) {
             suggestionsContainer->children[i + FIRST_BUTTON_INDEX]
                 = (nbgl_obj_t *) choiceButtons[i];
         }
     }
-#ifdef TARGET_FLEX
-    // on Flex, the first child is used by the progress indicator, if more that 2 buttons
+    // The first child is used by the progress indicator, if more that
+    // NB_MAX_VISIBLE_SUGGESTION_BUTTONS buttons
     nbgl_page_indicator_t *indicator
         = (nbgl_page_indicator_t *) nbgl_objPoolGet(PAGE_INDICATOR, layoutInt->layer);
-    indicator->activePage                                = 0;
-    indicator->nbPages                                   = (nbActiveButtons + 1) / 2;
+    indicator->activePage = 0;
+    indicator->nbPages    = (nbActiveButtons + NB_MAX_VISIBLE_SUGGESTION_BUTTONS - 1)
+                         / NB_MAX_VISIBLE_SUGGESTION_BUTTONS;
     indicator->obj.area.width                            = 184;
     indicator->obj.alignment                             = BOTTOM_MIDDLE;
     indicator->style                                     = CURRENT_INDICATOR;
     suggestionsContainer->children[PAGE_INDICATOR_INDEX] = (nbgl_obj_t *) indicator;
+#ifdef TARGET_FLEX
     // also allocate the semi disc that may be displayed on the left or right of the full
     // buttons
     nbgl_objPoolGetArray(IMAGE, 2, layoutInt->layer, (nbgl_obj_t **) &partialButtonImages);
@@ -474,7 +479,7 @@ int nbgl_layoutAddKeyboard(nbgl_layout_t *layout, const nbgl_layoutKbd_t *kbdInf
         keyboard->obj.area.height += KEYBOARD_KEY_HEIGHT;
     }
 #ifdef TARGET_STAX
-    keyboard->obj.alignmentMarginY = 64;
+    keyboard->obj.alignmentMarginY = 56;
 #endif  // TARGET_STAX
     keyboard->obj.alignment = BOTTOM_MIDDLE;
     keyboard->borderColor   = LIGHT_GRAY;
@@ -975,7 +980,6 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
                                    compactMode);
         // set this container as second child of the main layout container
         layoutInt->container->children[1] = (nbgl_obj_t *) suggestionsContainer;
-#ifdef TARGET_FLEX
         // the main container is swipable on Flex
         if (layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) layoutInt->container, 0, NBGL_NO_TUNE)
             == NULL) {
@@ -984,7 +988,6 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
         layoutInt->container->obj.touchMask = (1 << SWIPED_LEFT) | (1 << SWIPED_RIGHT);
         layoutInt->container->obj.touchId   = CONTROLS_ID;
         layoutInt->swipeUsage               = SWIPE_USAGE_SUGGESTIONS;
-#endif  // TARGET_FLEX
         container->obj.alignmentMarginY
             -= (suggestionsContainer->obj.area.height + suggestionsContainer->obj.alignmentMarginY
                 + (compactMode ? 12 : 20))
@@ -1055,25 +1058,6 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
             choiceButtons[i]->text = content->suggestionButtons.buttons[i];
             // some buttons may not be visible
             if (i < MIN(NB_MAX_VISIBLE_SUGGESTION_BUTTONS, nbActiveButtons)) {
-                if ((i % 2) == 0) {
-                    choiceButtons[i]->obj.alignmentMarginX = BORDER_MARGIN;
-#ifdef TARGET_STAX
-                    // second row 8px under the first one
-                    if (i != 0) {
-                        choiceButtons[i]->obj.alignmentMarginY = INTERNAL_MARGIN;
-                    }
-                    choiceButtons[i]->obj.alignment = NO_ALIGNMENT;
-#else   // TARGET_STAX
-                    if (i == 0) {
-                        choiceButtons[i]->obj.alignment = TOP_LEFT;
-                    }
-#endif  // TARGET_STAX
-                }
-                else {
-                    choiceButtons[i]->obj.alignmentMarginX = INTERNAL_MARGIN;
-                    choiceButtons[i]->obj.alignment        = MID_RIGHT;
-                    choiceButtons[i]->obj.alignTo          = (nbgl_obj_t *) choiceButtons[i - 1];
-                }
                 suggestionsContainer->children[i + FIRST_BUTTON_INDEX]
                     = (nbgl_obj_t *) choiceButtons[i];
             }
@@ -1082,14 +1066,14 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
             }
         }
         suggestionsContainer->forceClean = true;
-#ifndef TARGET_STAX
-        // on Flex, the first child is used by the progress indicator, if more that 2 buttons
+        // the first child is used by the progress indicator, if more than
+        // NB_MAX_VISIBLE_SUGGESTION_BUTTONS buttons
         nbgl_page_indicator_t *indicator
             = (nbgl_page_indicator_t *) suggestionsContainer->children[PAGE_INDICATOR_INDEX];
-        indicator->nbPages    = (nbActiveButtons + 1) / 2;
+        indicator->nbPages = (nbActiveButtons + NB_MAX_VISIBLE_SUGGESTION_BUTTONS - 1)
+                             / NB_MAX_VISIBLE_SUGGESTION_BUTTONS;
         indicator->activePage = 0;
         updateSuggestionButtons(suggestionsContainer, 0, 0);
-#endif  // TARGET_STAX
 
         nbgl_redrawObject((nbgl_obj_t *) suggestionsContainer, NULL, false);
     }

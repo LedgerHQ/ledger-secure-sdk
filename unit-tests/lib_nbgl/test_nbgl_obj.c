@@ -324,13 +324,13 @@ static void test_draw_obj(void **state __attribute__((unused)))
     assert_int_equal(indicator->obj.area.y0, 188);
 
     assert_int_equal(progress->obj.area.x0, 0);
-    assert_int_equal(progress->obj.area.y0, 192);
+    assert_int_equal(progress->obj.area.y0, 220);
 
     assert_int_equal(radio->obj.area.x0, 0);
-    assert_int_equal(radio->obj.area.y0, 224);
+    assert_int_equal(radio->obj.area.y0, 252);
 
     assert_int_equal(spinner->obj.area.x0, 0);
-    assert_int_equal(spinner->obj.area.y0, 256);
+    assert_int_equal(spinner->obj.area.y0, 284);
 }
 #else   // HAVE_SE_TOUCH
 

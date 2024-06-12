@@ -334,6 +334,7 @@ as a slash in @ref BLACK, the page indicator will indicate *"<current_page> of <
 The API to insert such an object is @ref nbgl_layoutAddProgressIndicator().
 
 \warning This object is incompatible with top-right button and page selector.
+\warning This object is deprecated.
 
 @subsection qr_code QR Code
 

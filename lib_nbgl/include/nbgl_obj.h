@@ -119,6 +119,8 @@ extern "C" {
 #define PUSH_ICON         C_Chevron_32px
 #define LEFT_ARROW_ICON   C_Back_32px
 #define RIGHT_ARROW_ICON  C_Next_32px
+#define CHEVRON_BACK_ICON C_Chevron_Back_32px
+#define CHEVRON_NEXT_ICON C_Chevron_Next_32px
 #define CLOSE_ICON        C_Close_32px
 #define WHEEL_ICON        C_Settings_32px
 #define INFO_I_ICON       C_Info_32px
@@ -131,11 +133,13 @@ extern "C" {
 #define SHIFT_ICON        C_Maj_40px
 #define SHIFT_LOCKED_ICON C_Maj_Lock_40px
 #define VALIDATE_ICON     C_Check_40px
-#define RADIO_OFF_ICON    C_radio_inactive_40
-#define RADIO_ON_ICON     C_radio_active_40
+#define RADIO_OFF_ICON    C_radio_inactive_40px
+#define RADIO_ON_ICON     C_radio_active_40px
 #define PUSH_ICON         C_Chevron_40px
 #define LEFT_ARROW_ICON   C_Back_40px
 #define RIGHT_ARROW_ICON  C_Next_40px
+#define CHEVRON_BACK_ICON C_Chevron_Back_40px
+#define CHEVRON_NEXT_ICON C_Chevron_Next_40px
 #define CLOSE_ICON        C_Close_40px
 #define WHEEL_ICON        C_Settings_40px
 #define INFO_I_ICON       C_Info_40px
@@ -152,6 +156,9 @@ extern "C" {
 #define C_leftArrow32px      _Pragma("GCC warning \"Deprecated constant!\"") C_Back_32px
 #define C_Next32px           _Pragma("GCC warning \"Deprecated constant!\"") C_Next_32px
 #define C_round_cross_64px   _Pragma("GCC warning \"Deprecated constant!\"") C_Denied_Circle_64px
+
+// max number of pages when nbgl_page_indicator_t uses dashes (above, it uses n / nb_pages)
+#define NB_MAX_PAGES_WITH_DASHES 6
 
 /**********************
  *      TYPEDEFS
