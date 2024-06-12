@@ -59,7 +59,6 @@ ifneq (,$(wildcard $(ICONNAME)))
 GLYPH_FILES += $(ICONNAME)
 endif
 ICON_SCRIPT = $(BOLOS_SDK)/lib_nbgl/tools/icon2glyph.py
-GENERATE_GLYPHS_CMD = python3 $(ICON_SCRIPT) $(GLYPH_OPT) --glyphcfile $(GLYPH_FILES)
 
 else # USE_NBGL
 
@@ -70,15 +69,21 @@ ICON_SCRIPT = $(BOLOS_SDK)/icon3.py
 GENERATE_GLYPHS_CMD = python3 $(ICON_SCRIPT) --factorize --glyphcfile $(GLYPH_FILES)
 endif# USE_NBGL
 
+.DELETE_ON_ERROR:
+
 $(GLYPH_DESTH): $(GLYPH_FILES) $(ICON_SCRIPT)
 	$(L)echo "[GLYPH] Compiling..."
 	$(L)-mkdir -p $(GLYPH_SRC_DIR)
+ifneq ($(USE_NBGL),0)
+	$(L)python3 $(ICON_SCRIPT) $(GLYPH_OPT) --glyphcheader $(GLYPH_DESTH) --glyphcfile $(GLYPH_DESTC) $(GLYPH_FILES)
+else
 	$(L)rm -f $(GLYPH_DESTC) $(GLYPH_DESTH)
 	@# Use temporary files to prevent issues when build is interrupted
 	$(L)python3 $(ICON_SCRIPT) $(GLYPH_OPT) --glyphcheader $(GLYPH_FILES) > $(GLYPH_DESTH)_tmp
 	$(L)$(GENERATE_GLYPHS_CMD) > $(GLYPH_DESTC)_tmp
 	$(L)mv $(GLYPH_DESTC)_tmp $(GLYPH_DESTC)
 	$(L)mv $(GLYPH_DESTH)_tmp $(GLYPH_DESTH)
+endif
 
 #add dependency for generation
 $(GLYPH_DESTC): $(GLYPH_DESTH)

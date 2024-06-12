@@ -18,11 +18,12 @@
 # Command to print ICONNAME hexadecimal bitmap on stdout according to the
 # hardware target.
 ifneq ($(TARGET),nanos)
+ICON_HEX_FILE=icon.hex
 #inverse B&W for non Stax
 ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOX TARGET_NANOS2))
-ICONHEX_CMD=python3 $(BOLOS_SDK)/lib_nbgl/tools/icon2glyph.py --reverse --hexbitmaponly $(ICONNAME)
+ICONHEX_CMD=python3 $(BOLOS_SDK)/lib_nbgl/tools/icon2glyph.py --reverse --hexbitmap $(ICON_HEX_FILE) $(ICONNAME)
 else
-ICONHEX_CMD=python3 $(BOLOS_SDK)/lib_nbgl/tools/icon2glyph.py --hexbitmaponly $(ICONNAME)
+ICONHEX_CMD=python3 $(BOLOS_SDK)/lib_nbgl/tools/icon2glyph.py --hexbitmap $(ICON_HEX_FILE) $(ICONNAME)
 endif
 else
 ICONHEX_CMD=python3 $(BOLOS_SDK)/icon3.py --hexbitmaponly $(ICONNAME)
@@ -76,9 +77,16 @@ endif
 # Consider only one path_slip21 can be added, whereas LedgerBlue seems to
 # support multiple, but has the path can hold a " " in it, it mess with the
 # foreach, so we choose to restrict to only one path_slip21.
+
 APP_INSTALL_PARAMS = --appName $(APPNAME)
 APP_INSTALL_PARAMS += --appVersion $(APPVERSION)
-APP_INSTALL_PARAMS += `ICONHEX=\`$(ICONHEX_CMD)  2>/dev/null\` ; [ ! -z "$$ICONHEX" ] && echo "--icon $$ICONHEX"`
+ifneq ($(TARGET),nanos)
+# icon2glyph outputs its result in a file that needs to be deleted after usage
+ICONHEX := $(shell $(ICONHEX_CMD) && cat $(ICON_HEX_FILE) && rm -f $(ICON_HEX_FILE))
+else
+ICONHEX := $(shell $(ICONHEX_CMD))
+endif
+APP_INSTALL_PARAMS += --icon $(ICONHEX)
 APP_INSTALL_PARAMS += $(foreach curve, $(CURVE_APP_LOAD_PARAMS), --curve $(curve))
 APP_INSTALL_PARAMS += $(foreach path, $(PATH_APP_LOAD_PARAMS), --path $(path))
 ifneq ($(PATH_SLIP21_APP_LOAD_PARAMS),)
