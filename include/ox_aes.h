@@ -77,8 +77,8 @@
  * changed at all. Only 16-byte key (AES128) is supported .
  */
 struct cx_aes_key_s {
-    size_t  size;      ///< key size
-    uint8_t keys[32];  ///< key value
+    uint32_t size;      ///< key size
+    uint8_t  keys[32];  ///< key value
 };
 /** Convenience type. See #cx_aes_key_s. */
 typedef struct cx_aes_key_s cx_aes_key_t;
