@@ -50,6 +50,28 @@ static ux_sync_ret_t ux_sync_wait(bool exitOnApdu)
 }
 
 /**
+ * @brief Sets the return code of synchronous UX calls. Can be used by content action callbacks
+ * defined by application code.
+ *
+ * @param ret return code to set.
+ */
+void ux_sync_setReturnCode(ux_sync_ret_t ret)
+{
+    g_ret = ret;
+}
+
+/**
+ * @brief Sets the ended flag of synchronous UX calls. Can be used by content action callbacks
+ * defined by application code to end the UX flow.
+ *
+ * @param ended flag to set.
+ */
+void ux_sync_setEnded(bool ended)
+{
+    g_ended = ended;
+}
+
+/**
  * @brief Draws the extended version of home page of an app (page on which we land when launching it
  *        from dashboard) with automatic support of setting display.
  * @note it enables to use an action button (black on Stax, white on Flex)
