@@ -10,6 +10,10 @@ typedef enum {
     UX_SYNC_RET_ERROR
 } ux_sync_ret_t;
 
+void ux_sync_setReturnCode(ux_sync_ret_t ret);
+
+void ux_sync_setEnded(bool ended);
+
 ux_sync_ret_t ux_sync_homeAndSettings(const char                   *appName,
                                       const nbgl_icon_details_t    *appIcon,
                                       const char                   *tagline,
