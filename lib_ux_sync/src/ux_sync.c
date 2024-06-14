@@ -1,9 +1,23 @@
 #ifdef HAVE_NBGL
 
 #include "ux_sync.h"
+#include "os_helpers.h"
 
 static ux_sync_ret_t g_ret;
 static bool          g_ended;
+
+void generic_content_action_callback(int token, uint8_t index, int page)
+{
+    UNUSED(index);
+    UNUSED(page);
+    if (token == FIRST_USER_TOKEN) {
+        g_ret = UX_SYNC_RET_APPROVED;
+    }
+    else if (token == FIRST_USER_TOKEN + 1) {
+        g_ret = UX_SYNC_RET_REJECTED;
+    }
+    g_ended = true;
+}
 
 static void choice_callback(bool confirm)
 {

@@ -10,6 +10,8 @@ typedef enum {
     UX_SYNC_RET_ERROR
 } ux_sync_ret_t;
 
+void generic_content_action_callback(int token, uint8_t index, int page);
+
 ux_sync_ret_t ux_sync_homeAndSettings(const char                   *appName,
                                       const nbgl_icon_details_t    *appIcon,
                                       const char                   *tagline,
