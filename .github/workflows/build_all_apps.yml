@@ -11,7 +11,7 @@ on:
 
 
 env:
-  BLACKLIST: "app-avalanche" # Add the names of the repositories to exclude here, separated by commas
+  BLACKLIST: "app-foo" # Add the names of the repositories to exclude here, separated by commas
 
 
 jobs:
