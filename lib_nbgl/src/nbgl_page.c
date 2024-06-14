@@ -28,6 +28,13 @@
 /**********************
  *  STATIC PROTOTYPES
  **********************/
+static void addEmptyHeader(nbgl_layout_t *layout, uint16_t height)
+{
+    nbgl_layoutHeader_t headerDesc
+        = {.type = HEADER_EMPTY, .separationLine = false, .emptySpace.height = height};
+    nbgl_layoutAddHeader(layout, &headerDesc);
+}
+
 static void addContent(nbgl_pageContent_t *content,
                        nbgl_layout_t      *layout,
                        uint16_t            availableHeight,
@@ -87,27 +94,21 @@ static void addContent(nbgl_pageContent_t *content,
         }
         case CENTERED_INFO:
             if (!headerAdded) {
-                nbgl_layoutHeader_t headerDesc
-                    = {.type = HEADER_EMPTY, .separationLine = false, .emptySpace.height = 40};
-                nbgl_layoutAddHeader(layout, &headerDesc);
+                addEmptyHeader(layout, SMALL_CENTERING_HEADER);
             }
             nbgl_layoutAddCenteredInfo(layout, &content->centeredInfo);
             break;
         case TAG_VALUE_LIST:
-            // add a space of 40px if no header already add
+            // add a space of 32/40px if no header already added
             if (!headerAdded) {
-                nbgl_layoutHeader_t headerDesc
-                    = {.type = HEADER_EMPTY, .separationLine = false, .emptySpace.height = 40};
-                nbgl_layoutAddHeader(layout, &headerDesc);
+                addEmptyHeader(layout, SMALL_CENTERING_HEADER);
             }
             nbgl_layoutAddTagValueList(layout, &content->tagValueList);
             break;
         case TAG_VALUE_DETAILS: {
-            // add a space of 40px if no header already add
+            // add a space of 32/40px if no header already added
             if (!headerAdded) {
-                nbgl_layoutHeader_t headerDesc
-                    = {.type = HEADER_EMPTY, .separationLine = false, .emptySpace.height = 40};
-                nbgl_layoutAddHeader(layout, &headerDesc);
+                addEmptyHeader(layout, SMALL_CENTERING_HEADER);
             }
             // display a button under tag/value
             nbgl_layoutButton_t buttonInfo;
@@ -126,12 +127,10 @@ static void addContent(nbgl_pageContent_t *content,
         case TAG_VALUE_CONFIRM: {
             nbgl_layoutButton_t buttonInfo;
             if (!headerAdded) {
-                nbgl_layoutHeader_t headerDesc
-                    = {.type = HEADER_EMPTY, .separationLine = false, .emptySpace.height = 40};
-                nbgl_layoutAddHeader(layout, &headerDesc);
+                addEmptyHeader(layout, SMALL_CENTERING_HEADER);
             }
             nbgl_layoutAddTagValueList(layout, &content->tagValueConfirm.tagValueList);
-            // on Stax, always display the details button as a normal button (full width),
+            // Always display the details button as a normal button (full width),
             // even if "Confirm" button is on the same page
             if (content->tagValueConfirm.detailsButtonText != NULL) {
                 buttonInfo.fittingContent = true;
@@ -257,6 +256,7 @@ nbgl_page_t *nbgl_pageDrawLedgerInfo(nbgl_layoutTouchCallback_t              onA
     layoutDescription.ticker.tickerValue     = ticker->tickerValue;
     layout                                   = nbgl_layoutGet(&layoutDescription);
 
+    addEmptyHeader(layout, SIMPLE_FOOTER_HEIGHT);
     nbgl_layoutAddCenteredInfo(layout, &centeredInfo);
 
     nbgl_layoutDraw(layout);
@@ -337,9 +337,7 @@ nbgl_page_t *nbgl_pageDrawInfo(nbgl_layoutTouchCallback_t              onActionC
     }
     // add an empty header if a top-right button is used
     if (info->topRightStyle != NO_BUTTON_STYLE) {
-        nbgl_layoutHeader_t headerDesc
-            = {.type = HEADER_EMPTY, .separationLine = false, .emptySpace.height = 40};
-        nbgl_layoutAddHeader(layout, &headerDesc);
+        addEmptyHeader(layout, SMALL_CENTERING_HEADER);
     }
     nbgl_layoutAddCenteredInfo(layout, &info->centeredInfo);
 
@@ -385,18 +383,7 @@ nbgl_page_t *nbgl_pageDrawInfo(nbgl_layoutTouchCallback_t              onActionC
             nbgl_layoutAddChoiceButtons(layout, &buttonsInfo);
         }
         else {
-#ifdef TARGET_STAX
-            nbgl_layoutButton_t buttonInfo = {.fittingContent = false,
-                                              .icon           = NULL,
-                                              .onBottom       = true,
-                                              .style          = WHITE_BACKGROUND,
-                                              .text           = "Quit app",
-                                              .token          = info->bottomButtonsToken,
-                                              .tuneId         = info->tuneId};
-            nbgl_layoutAddButton(layout, &buttonInfo);
-#else   // TARGET_STAX
             nbgl_layoutAddFooter(layout, "Quit app", info->bottomButtonsToken, info->tuneId);
-#endif  // TARGET_STAX
         }
     }
     else if (info->bottomButtonStyle != NO_BUTTON_STYLE) {
@@ -460,9 +447,7 @@ nbgl_page_t *nbgl_pageDrawConfirmation(nbgl_layoutTouchCallback_t               
                                                   .topText    = PIC(info->confirmationText),
                                                   .style      = ROUNDED_AND_FOOTER_STYLE,
                                                   .tuneId     = info->tuneId};
-        nbgl_layoutHeader_t        headerDesc
-            = {.type = HEADER_EMPTY, .separationLine = false, .emptySpace.height = 64};
-        nbgl_layoutAddHeader(layout, &headerDesc);
+        addEmptyHeader(layout, MEDIUM_CENTERING_HEADER);
         nbgl_layoutAddChoiceButtons(layout, &buttonsInfo);
     }
     nbgl_layoutAddCenteredInfo(layout, &info->centeredInfo);
@@ -574,10 +559,11 @@ nbgl_page_t *nbgl_pageDrawGenericContentExt(nbgl_layoutTouchCallback_t       onA
             }
             else if (nav->navWithButtons.quitText != NULL) {
                 // simple footer
-                footerDesc.type              = FOOTER_SIMPLE_TEXT;
-                footerDesc.simpleText.text   = nav->navWithButtons.quitText;
-                footerDesc.simpleText.token  = nav->quitToken;
-                footerDesc.simpleText.tuneId = nav->tuneId;
+                footerDesc.type                = FOOTER_SIMPLE_TEXT;
+                footerDesc.simpleText.text     = nav->navWithButtons.quitText;
+                footerDesc.simpleText.mutedOut = false;
+                footerDesc.simpleText.token    = nav->quitToken;
+                footerDesc.simpleText.tuneId   = nav->tuneId;
             }
             else {
                 drawFooter = false;

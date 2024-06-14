@@ -377,7 +377,11 @@ int nbgl_layoutAddKeypadContent(nbgl_layout_t *layout,
             space = 4;
         }
         else {
+#ifdef TARGET_STAX
+            space = 10;
+#else   // TARGET_STAX
             space = 12;
+#endif  // TARGET_STAX
         }
 
         // create digits container, to store "discs"
@@ -387,12 +391,8 @@ int nbgl_layoutAddKeypadContent(nbgl_layout_t *layout,
             = nbgl_containerPoolGet(digitsContainer->nbChildren, layoutInt->layer);
         // <space> pixels between each icon (knowing that the effective round are 18px large and the
         // icon 24px)
-        digitsContainer->obj.area.width = nbDigits * DIGIT_ICON.width + (nbDigits - 1) * space;
-#ifdef TARGET_STAX
-        digitsContainer->obj.area.height = 50;
-#else   // TARGET_STAX
+        digitsContainer->obj.area.width  = nbDigits * DIGIT_ICON.width + (nbDigits - 1) * space;
         digitsContainer->obj.area.height = 64;
-#endif  // TARGET_STAX
         // align at the bottom of title
         digitsContainer->obj.alignTo   = container->children[0];
         digitsContainer->obj.alignment = BOTTOM_MIDDLE;
@@ -441,9 +441,9 @@ int nbgl_layoutAddKeypadContent(nbgl_layout_t *layout,
     line                       = (nbgl_line_t *) nbgl_objPoolGet(LINE, layoutInt->layer);
     line->lineColor            = LIGHT_GRAY;
     line->obj.alignmentMarginY = 0;
-    line->obj.alignTo          = NULL;
+    line->obj.alignTo          = container->children[1];
     line->obj.alignment        = BOTTOM_MIDDLE;
-    line->obj.area.width       = container->obj.area.width;
+    line->obj.area.width       = 288;
     line->obj.area.height      = 4;
     line->direction            = HORIZONTAL;
     line->thickness            = 2;

@@ -26,12 +26,6 @@
 /*********************
  *      DEFINES
  *********************/
-#ifdef TARGET_STAX
-#define NB_MAX_PAGES_WITH_DASHES 10
-#else  // TARGET_STAX
-#define NB_MAX_PAGES_WITH_DASHES 6
-#endif  // TARGET_STAX
-
 // max number of letters in TEXT_ENTRY
 #define NB_MAX_LETTERS 9
 
@@ -255,10 +249,6 @@ static void compute_relativePosition(nbgl_obj_t *obj, nbgl_obj_t *prevObj)
             }
         }
     }
-#ifdef TARGET_STAX
-    // align on multiples of 4
-    obj->rel_y0 &= ~0x3;
-#endif  // TARGET_STAX
 }
 
 static void compute_position(nbgl_obj_t *obj, nbgl_obj_t *prevObj)
@@ -346,6 +336,7 @@ static void draw_button(nbgl_button_t *obj, nbgl_obj_t *prevObj, bool computePos
 {
     uint16_t    textWidth = 0;
     const char *text      = NULL;
+#define ICON_TEXT_SPACE 12
 
     if (computePosition) {
         compute_position((nbgl_obj_t *) obj, prevObj);
@@ -394,8 +385,8 @@ static void draw_button(nbgl_button_t *obj, nbgl_obj_t *prevObj, bool computePos
         rectArea.y0 += (obj->obj.area.height - rectArea.height) / 2;
         rectArea.width = obj->obj.area.width;
         if (obj->icon != NULL) {
-            rectArea.x0 += obj->icon->width + 8;
-            rectArea.width -= obj->icon->width + 8;
+            rectArea.x0 += obj->icon->width + ICON_TEXT_SPACE;
+            rectArea.width -= obj->icon->width + ICON_TEXT_SPACE;
         }
         // Compute the width & number of characters displayed on first line
         uint16_t textLen;
@@ -419,8 +410,8 @@ static void draw_button(nbgl_button_t *obj, nbgl_obj_t *prevObj, bool computePos
         nbgl_area_t rectArea;
 
         if (text != NULL) {
-            iconX0
-                = obj->obj.area.x0 + (obj->obj.area.width - (textWidth + obj->icon->width + 8)) / 2;
+            iconX0 = obj->obj.area.x0
+                     + (obj->obj.area.width - (textWidth + obj->icon->width + ICON_TEXT_SPACE)) / 2;
         }
         else {
             iconX0 = obj->obj.area.x0 + (obj->obj.area.width - obj->icon->width) / 2;

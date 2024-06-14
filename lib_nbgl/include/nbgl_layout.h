@@ -38,14 +38,16 @@ extern "C" {
 #define EXIT_PAGE 0xFF
 
 #ifdef TARGET_STAX
-#define NB_MAX_SUGGESTION_BUTTONS         4
-#define NB_MAX_VISIBLE_SUGGESTION_BUTTONS NB_MAX_SUGGESTION_BUTTONS
+#define NB_MAX_SUGGESTION_BUTTONS         12
+// only 4 buttons are visible at the same time on Stax
+#define NB_MAX_VISIBLE_SUGGESTION_BUTTONS 4
 #define TOUCHABLE_HEADER_BAR_HEIGHT       88
-#define TOUCHABLE_MAIN_BAR_HEIGHT         88
-#define TOUCHABLE_BAR_HEIGHT              88
-#define TOUCHABLE_DETAILLED_BAR_HEIGHT    88
-#define SIMPLE_FOOTER_HEIGHT              128
-#define SMALL_CENTERING_HEADER            24
+#define TOUCHABLE_MAIN_BAR_HEIGHT         96
+#define TOUCHABLE_BAR_HEIGHT              96
+#define SMALL_FOOTER_HEIGHT               88
+#define SIMPLE_FOOTER_HEIGHT              92
+#define SMALL_CENTERING_HEADER            32
+#define MEDIUM_CENTERING_HEADER           56
 #define LONG_PRESS_BUTTON_HEIGHT          128
 #else  // TARGET_STAX
 #define NB_MAX_SUGGESTION_BUTTONS         6
@@ -54,9 +56,10 @@ extern "C" {
 #define TOUCHABLE_HEADER_BAR_HEIGHT       96
 #define TOUCHABLE_MAIN_BAR_HEIGHT         100
 #define TOUCHABLE_BAR_HEIGHT              92
-#define TOUCHABLE_DETAILLED_BAR_HEIGHT    140
+#define SMALL_FOOTER_HEIGHT               96
 #define SIMPLE_FOOTER_HEIGHT              96
 #define SMALL_CENTERING_HEADER            40
+#define MEDIUM_CENTERING_HEADER           64
 #define LONG_PRESS_BUTTON_HEIGHT          152
 #endif  // TARGET_STAX
 
@@ -469,6 +472,7 @@ typedef struct {
         } emptySpace;  ///< if type is @ref FOOTER_EMPTY
         struct {
             const char  *text;
+            bool         mutedOut;  ///< if true, text is displayed in gray
             uint8_t      token;
             tune_index_e tuneId;
         } simpleText;  ///< if type is @ref FOOTER_SIMPLE_TEXT
