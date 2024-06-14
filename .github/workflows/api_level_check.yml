@@ -1,0 +1,53 @@
+name: Api level check
+
+on:
+  workflow_dispatch:
+    inputs:
+      sdk_branch:
+        type: string
+        required: false
+        default: ''
+  pull_request:
+    branches:
+      - 'API_LEVEL_*'
+
+jobs:
+  test-build:
+    name: Build and test Boilerplate app
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
+
+    steps:
+      - name: Clone App
+        uses: actions/checkout@v4
+        with:
+          repository: LedgerHQ/app-boilerplate
+          ref: master
+
+      - name: Clone SDK
+        uses: actions/checkout@v4
+        with:
+          path: sdk
+          ref: ${{ inputs.sdk_branch }}
+
+      - name: Build NanoX
+        run: |
+          TARGET=nanox BOLOS_SDK=$GITHUB_WORKSPACE/sdk make
+
+      - name: Build NanoS2
+        run: |
+          TARGET=nanos2 BOLOS_SDK=$GITHUB_WORKSPACE/sdk make
+
+      - name: Build Stax
+        run: |
+          TARGET=stax BOLOS_SDK=$GITHUB_WORKSPACE/sdk make
+
+      - name: Build Flex
+        run: |
+          TARGET=flex BOLOS_SDK=$GITHUB_WORKSPACE/sdk make
+
+  ragger-tests:
+    name: Run ragger tests using the reusable workflow
+    uses: LedgerHQ/ledger-app-workflows/.github/workflows/reusable_ragger_tests.yml@v1
+    needs: test-build
