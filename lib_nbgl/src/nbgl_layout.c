@@ -2553,12 +2553,13 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
             }
 
             textArea->obj.alignment  = BOTTOM_MIDDLE;
-            textArea->textColor      = (footerDesc->simpleText.mutedOut) ? LIGHT_GRAY : BLACK;
+            textArea->textColor      = (footerDesc->simpleText.mutedOut) ? DARK_GRAY : BLACK;
             textArea->obj.area.width = AVAILABLE_WIDTH;
             textArea->obj.area.height
                 = (footerDesc->simpleText.mutedOut) ? SMALL_FOOTER_HEIGHT : SIMPLE_FOOTER_HEIGHT;
-            textArea->text          = PIC(footerDesc->simpleText.text);
-            textArea->fontId        = SMALL_BOLD_FONT;
+            textArea->text = PIC(footerDesc->simpleText.text);
+            textArea->fontId
+                = (footerDesc->simpleText.mutedOut) ? SMALL_REGULAR_FONT : SMALL_BOLD_FONT;
             textArea->textAlignment = CENTER;
             textArea->obj.touchMask = (1 << TOUCHED);
             textArea->obj.touchId   = BOTTOM_BUTTON_ID;
