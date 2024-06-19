@@ -47,6 +47,7 @@ static void addContent(nbgl_pageContent_t *content,
                                           .backAndText.tuneId = content->tuneId,
                                           .backAndText.text   = content->title};
         nbgl_layoutAddHeader(layout, &headerDesc);
+        headerAdded = true;
     }
     if (content->topRightIcon != NULL) {
         nbgl_layoutAddTopRightButton(

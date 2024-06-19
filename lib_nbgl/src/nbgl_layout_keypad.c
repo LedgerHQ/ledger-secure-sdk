@@ -31,6 +31,13 @@
 #define DIGIT_ICON C_pin_24
 #endif  // TARGET_STAX
 
+enum {
+    TITLE_INDEX = 0,
+    INPUT_INDEX,
+    LINE_INDEX,
+    NB_CHILDREN
+};
+
 /**********************
  *      MACROS
  **********************/
@@ -342,14 +349,12 @@ int nbgl_layoutAddKeypadContent(nbgl_layout_t *layout,
         return -1;
     }
     // create a container, to store both title and "digits" (and line on Stax)
-    container             = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
-    container->nbChildren = 2;
-#ifdef TARGET_STAX
-    container->nbChildren++;  // +1 for the line
-#endif                        // TARGET_STAX
+    container                 = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
+    container->nbChildren     = NB_CHILDREN;
     container->children       = nbgl_containerPoolGet(container->nbChildren, layoutInt->layer);
     container->obj.area.width = AVAILABLE_WIDTH;
-    container->obj.alignment  = CENTER;
+    container->obj.alignment  = TOP_MIDDLE;
+    container->obj.alignmentMarginY = 8;
 
     // create text area for title
     textArea                  = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
@@ -362,7 +367,7 @@ int nbgl_layoutAddKeypadContent(nbgl_layout_t *layout,
     textArea->obj.area.width  = AVAILABLE_WIDTH;
     textArea->obj.area.height = nbgl_getTextHeightInWidth(
         textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
-    container->children[0] = (nbgl_obj_t *) textArea;
+    container->children[TITLE_INDEX] = (nbgl_obj_t *) textArea;
     container->obj.area.height += textArea->obj.area.height;
 
     if (hidden) {
@@ -391,12 +396,19 @@ int nbgl_layoutAddKeypadContent(nbgl_layout_t *layout,
             = nbgl_containerPoolGet(digitsContainer->nbChildren, layoutInt->layer);
         // <space> pixels between each icon (knowing that the effective round are 18px large and the
         // icon 24px)
-        digitsContainer->obj.area.width  = nbDigits * DIGIT_ICON.width + (nbDigits - 1) * space;
+        digitsContainer->obj.area.width = nbDigits * DIGIT_ICON.width + (nbDigits - 1) * space;
+#ifdef TARGET_STAX
+        digitsContainer->obj.area.height = 44;
+#else   // TARGET_STAX
         digitsContainer->obj.area.height = 64;
+#endif  // TARGET_STAX
         // align at the bottom of title
         digitsContainer->obj.alignTo   = container->children[0];
         digitsContainer->obj.alignment = BOTTOM_MIDDLE;
-        container->children[1]         = (nbgl_obj_t *) digitsContainer;
+#ifdef TARGET_STAX
+        digitsContainer->obj.alignmentMarginY = 28;
+#endif  // TARGET_STAX
+        container->children[INPUT_INDEX] = (nbgl_obj_t *) digitsContainer;
         container->obj.area.height += digitsContainer->obj.area.height;
 
         // create children of the container, as images (empty circles)
@@ -427,9 +439,12 @@ int nbgl_layoutAddKeypadContent(nbgl_layout_t *layout,
         textArea->obj.area.height  = nbgl_getFontLineHeight(textArea->fontId);
         textArea->autoHideLongLine = true;
         // align at the bottom of title
-        textArea->obj.alignTo   = container->children[0];
+        textArea->obj.alignTo   = container->children[TITLE_INDEX];
         textArea->obj.alignment = BOTTOM_MIDDLE;
-        container->children[1]  = (nbgl_obj_t *) textArea;
+#ifdef TARGET_STAX
+        textArea->obj.alignmentMarginY = 24;
+#endif  // TARGET_STAX
+        container->children[INPUT_INDEX] = (nbgl_obj_t *) textArea;
         container->obj.area.height += textArea->obj.area.height;
     }
 
@@ -438,17 +453,16 @@ int nbgl_layoutAddKeypadContent(nbgl_layout_t *layout,
 #ifdef TARGET_STAX
     nbgl_line_t *line;
     // create gray line
-    line                       = (nbgl_line_t *) nbgl_objPoolGet(LINE, layoutInt->layer);
-    line->lineColor            = LIGHT_GRAY;
-    line->obj.alignmentMarginY = 0;
-    line->obj.alignTo          = container->children[1];
-    line->obj.alignment        = BOTTOM_MIDDLE;
-    line->obj.area.width       = 288;
-    line->obj.area.height      = 4;
-    line->direction            = HORIZONTAL;
-    line->thickness            = 2;
-    line->offset               = 2;
-    container->children[2]     = (nbgl_obj_t *) line;
+    line                            = (nbgl_line_t *) nbgl_objPoolGet(LINE, layoutInt->layer);
+    line->lineColor                 = LIGHT_GRAY;
+    line->obj.alignTo               = container->children[INPUT_INDEX];
+    line->obj.alignment             = BOTTOM_MIDDLE;
+    line->obj.area.width            = 288;
+    line->obj.area.height           = 4;
+    line->direction                 = HORIZONTAL;
+    line->thickness                 = 2;
+    line->offset                    = 2;
+    container->children[LINE_INDEX] = (nbgl_obj_t *) line;
 #endif  // TARGET_STAX
 
     // return height of the area

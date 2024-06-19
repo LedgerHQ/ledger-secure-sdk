@@ -808,8 +808,6 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
                     pageContent->type = CENTERED_INFO;
                     prepareReviewFirstPage(
                         &pageContent->centeredInfo, pair->valueIcon, pair->item, pair->value);
-                    // use "Swipe to continue" instead of "Swipe to review" for intermediate pages
-                    pageContent->centeredInfo.text3 = "Swipe to continue";
 
                     // Skip population of nbgl_contentTagValueList_t structure
                     p_tagValueList = NULL;
@@ -2924,9 +2922,10 @@ void nbgl_useCaseAddressReview(const char                       *address,
     memset(&addressConfirmationContext, 0, sizeof(addressConfirmationContext));
 
     // save context
-    onChoice  = choiceCallback;
-    navType   = GENERIC_NAV;
-    pageTitle = NULL;
+    onChoice                              = choiceCallback;
+    navType                               = GENERIC_NAV;
+    pageTitle                             = NULL;
+    bundleNavContext.review.operationType = TYPE_OPERATION;
 
     genericContext.genericContents.contentsList = localContentsList;
     genericContext.genericContents.nbContents   = (additionalTagValueList == NULL) ? 2 : 3;
@@ -2936,6 +2935,7 @@ void nbgl_useCaseAddressReview(const char                       *address,
     STARTING_CONTENT.type = CENTERED_INFO;
     prepareReviewFirstPage(
         &STARTING_CONTENT.content.centeredInfo, icon, reviewTitle, reviewSubTitle);
+    STARTING_CONTENT.content.centeredInfo.text3 = "Swipe to continue";
 
     // Then the address confirmation pages
     prepareAddressConfirmationPages(

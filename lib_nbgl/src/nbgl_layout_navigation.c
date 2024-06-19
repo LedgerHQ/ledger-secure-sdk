@@ -148,14 +148,16 @@ void layoutNavigationPopulate(nbgl_container_t                 *navContainer,
     nbgl_button_t *button;
 
     if (navConfig->withExitKey) {
-        button                       = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layer);
-        button->innerColor           = WHITE;
-        button->borderColor          = BORDER_COLOR;
-        button->obj.area.width       = BUTTON_DIAMETER;
-        button->obj.area.height      = BUTTON_DIAMETER;
-        button->radius               = BUTTON_RADIUS;
-        button->icon                 = &CLOSE_ICON;
+        button                  = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layer);
+        button->innerColor      = WHITE;
+        button->borderColor     = BORDER_COLOR;
+        button->obj.area.width  = BUTTON_DIAMETER;
+        button->obj.area.height = BUTTON_DIAMETER;
+        button->radius          = BUTTON_RADIUS;
+        button->icon            = &CLOSE_ICON;
+#ifdef TARGET_FLEX
         button->obj.alignmentMarginX = (navConfig->nbPages > 1) ? 8 : 0;
+#endif  // TARGET_FLEX
 
         button->obj.alignment                     = (navConfig->nbPages > 1) ? MID_LEFT : CENTER;
         button->obj.touchMask                     = (1 << TOUCHED);
