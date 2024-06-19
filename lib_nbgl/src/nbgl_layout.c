@@ -1109,6 +1109,47 @@ int nbgl_layoutAddText(nbgl_layout_t *layout, const char *text, const char *subT
 }
 
 /**
+ * @brief Creates an area with given text in small regular font, under the header
+ *
+ * @param layout the current layout
+ * @param text main text in small regular font
+ * @return height of the control if OK
+ */
+int nbgl_layoutAddSubHeaderText(nbgl_layout_t *layout, const char *text)
+{
+    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
+    nbgl_text_area_t      *textArea;
+
+    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddSubHeaderText():\n");
+    if (layout == NULL) {
+        return -1;
+    }
+    textArea = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+
+    textArea->textColor            = BLACK;
+    textArea->text                 = PIC(text);
+    textArea->textAlignment        = MID_LEFT;
+    textArea->fontId               = SMALL_REGULAR_FONT;
+    textArea->style                = NO_STYLE;
+    textArea->wrapping             = true;
+    textArea->obj.alignment        = NO_ALIGNMENT;
+    textArea->obj.alignmentMarginX = BORDER_MARGIN;
+    textArea->obj.area.width       = AVAILABLE_WIDTH;
+    textArea->obj.area.height      = nbgl_getTextHeightInWidth(
+        textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
+#ifdef TARGET_STAX
+    textArea->obj.area.height += 2 * 24;
+#else   // TARGET_STAX
+    textArea->obj.area.height += 2 * 28;
+#endif  // TARGET_STAX
+
+    // set this new obj as child of main container
+    layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
+
+    return textArea->obj.area.height;
+}
+
+/**
  * @brief Creates an area with given text in 32px font (in Black)
  *
  * @param layout the current layout
@@ -1280,11 +1321,8 @@ int nbgl_layoutAddRadioChoice(nbgl_layout_t *layout, const nbgl_layoutRadioChoic
         container->obj.alignTo          = (nbgl_obj_t *) NULL;
 
         // init button for this choice
-        button->activeColor = BLACK;
-        button->borderColor = LIGHT_GRAY;
-#ifdef TARGET_STAX
-        button->obj.alignmentMarginX = 4;
-#endif  // TARGET_STAX
+        button->activeColor    = BLACK;
+        button->borderColor    = LIGHT_GRAY;
         button->obj.alignTo    = (nbgl_obj_t *) container;
         button->obj.alignment  = MID_RIGHT;
         button->state          = OFF_STATE;
@@ -1300,16 +1338,12 @@ int nbgl_layoutAddRadioChoice(nbgl_layout_t *layout, const nbgl_layoutRadioChoic
         else {
             textArea->text = PIC(choices->names[i]);
         }
-        textArea->textAlignment = MID_LEFT;
-#ifdef TARGET_STAX
-        textArea->obj.area.width = container->obj.area.width - 40 - 16;
-#else   // TARGET_STAX
-        textArea->obj.area.width = container->obj.area.width - 40;
-#endif  // TARGET_STAX
-        textArea->style         = NO_STYLE;
-        textArea->obj.alignment = MID_LEFT;
-        textArea->obj.alignTo   = (nbgl_obj_t *) container;
-        container->children[0]  = (nbgl_obj_t *) textArea;
+        textArea->textAlignment  = MID_LEFT;
+        textArea->obj.area.width = container->obj.area.width - RADIO_WIDTH;
+        textArea->style          = NO_STYLE;
+        textArea->obj.alignment  = MID_LEFT;
+        textArea->obj.alignTo    = (nbgl_obj_t *) container;
+        container->children[0]   = (nbgl_obj_t *) textArea;
 
         // whole container should be touchable
         container->obj.touchMask = (1 << TOUCHED);
