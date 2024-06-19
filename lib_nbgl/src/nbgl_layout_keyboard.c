@@ -41,8 +41,29 @@ enum {
     NB_SUGGESTION_CHILDREN
 };
 
+#ifdef TARGET_STAX
 #define TEXT_ENTRY_NORMAL_HEIGHT  64
+#define TEXT_ENTRY_COMPACT_HEIGHT 64
+#define BOTTOM_NORMAL_MARGIN      24
+#define BOTTOM_COMPACT_MARGIN     24
+#define TOP_NORMAL_MARGIN         20
+#define TOP_COMPACT_MARGIN        20
+#else  // TARGET_STAX
+#define TEXT_ENTRY_NORMAL_HEIGHT  72
 #define TEXT_ENTRY_COMPACT_HEIGHT 56
+#define BOTTOM_NORMAL_MARGIN      24
+#define BOTTOM_COMPACT_MARGIN     12
+#define TOP_NORMAL_MARGIN         20
+#define TOP_COMPACT_MARGIN        12
+#endif  // TARGET_STAX
+
+// a horizontal line, even if displayed on 2 pixels, takes 4 pixels
+#define LINE_REAL_HEIGHT 4
+
+#define NUMBER_WIDTH 56
+
+// space between number and text
+#define NUMBER_TEXT_SPACE 8
 
 /**********************
  *      MACROS
@@ -219,8 +240,7 @@ static nbgl_container_t *addTextEntry(nbgl_layoutInternal_t *layoutInt,
     nbgl_container_t *container;
     nbgl_text_area_t *textArea;
     layoutObj_t      *obj;
-    uint16_t          textEntryHeight
-        = (compactMode ? TEXT_ENTRY_COMPACT_HEIGHT : TEXT_ENTRY_NORMAL_HEIGHT) - 8;
+    uint16_t textEntryHeight = (compactMode ? TEXT_ENTRY_COMPACT_HEIGHT : TEXT_ENTRY_NORMAL_HEIGHT);
 
     // create a container, to store title, entered text and underline
     container                 = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
@@ -242,7 +262,7 @@ static nbgl_container_t *addTextEntry(nbgl_layoutInternal_t *layoutInt,
         textArea->obj.area.height = nbgl_getTextHeightInWidth(
             textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
         container->children[0]     = (nbgl_obj_t *) textArea;
-        container->obj.area.height = textArea->obj.area.height;
+        container->obj.area.height = textArea->obj.area.height + 4;
     }
 
     if (numbered) {
@@ -250,23 +270,20 @@ static nbgl_container_t *addTextEntry(nbgl_layoutInternal_t *layoutInt,
         textArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
         textArea->textColor = BLACK;
         snprintf(numText, sizeof(numText), "%d.", number);
-        textArea->text          = numText;
-        textArea->textAlignment = CENTER;
-        textArea->fontId        = LARGE_MEDIUM_1BPP_FONT;
-#ifdef TARGET_STAX
-        textArea->obj.area.width = 50;
-#else   // TARGET_STAX
-        textArea->obj.area.width       = 66;
-#endif  // TARGET_STAX
+        textArea->text           = numText;
+        textArea->textAlignment  = CENTER;
+        textArea->fontId         = LARGE_MEDIUM_1BPP_FONT;
+        textArea->obj.area.width = NUMBER_WIDTH;
         if (title != NULL) {
-            textArea->obj.alignmentMarginY = 8;
+            textArea->obj.alignmentMarginY = 4 + LINE_REAL_HEIGHT;
             textArea->obj.alignTo          = container->children[0];
             textArea->obj.alignment        = BOTTOM_LEFT;
         }
         else {
-            textArea->obj.alignment = TOP_LEFT;
+            textArea->obj.alignmentMarginY = LINE_REAL_HEIGHT;
+            textArea->obj.alignment        = TOP_LEFT;
         }
-        textArea->obj.area.height = textEntryHeight;
+        textArea->obj.area.height = textEntryHeight - 2 * LINE_REAL_HEIGHT;
         // set this text area as child of the container
         container->children[1] = (nbgl_obj_t *) textArea;
     }
@@ -278,23 +295,20 @@ static nbgl_container_t *addTextEntry(nbgl_layoutInternal_t *layoutInt,
     textArea->textAlignment = MID_LEFT;
     textArea->fontId        = LARGE_MEDIUM_1BPP_FONT;
     if (title != NULL) {
-        textArea->obj.alignmentMarginY = 8;
+        textArea->obj.alignmentMarginY = 4 + LINE_REAL_HEIGHT;
         textArea->obj.alignTo          = container->children[0];
         textArea->obj.alignment        = BOTTOM_LEFT;
     }
     else {
-        textArea->obj.alignment = TOP_LEFT;
+        textArea->obj.alignmentMarginY = LINE_REAL_HEIGHT;
+        textArea->obj.alignment        = TOP_LEFT;
     }
     textArea->obj.area.width = AVAILABLE_WIDTH;
     if (numbered) {
-#ifdef TARGET_STAX
-        textArea->obj.alignmentMarginX = 50;
-#else   // TARGET_STAX
-        textArea->obj.alignmentMarginX = 66;
-#endif  // TARGET_STAX
+        textArea->obj.alignmentMarginX = NUMBER_WIDTH + NUMBER_TEXT_SPACE;
         textArea->obj.area.width -= textArea->obj.alignmentMarginX;
     }
-    textArea->obj.area.height  = textEntryHeight;
+    textArea->obj.area.height  = textEntryHeight - 2 * LINE_REAL_HEIGHT;
     textArea->autoHideLongLine = true;
 
     obj = layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) textArea, textToken, NBGL_NO_TUNE);
@@ -304,16 +318,15 @@ static nbgl_container_t *addTextEntry(nbgl_layoutInternal_t *layoutInt,
     textArea->obj.touchMask = (1 << TOUCHED);
     textArea->obj.touchId   = ENTERED_TEXT_ID;
     container->children[2]  = (nbgl_obj_t *) textArea;
-    container->obj.area.height
-        += textArea->obj.area.height + textArea->obj.alignmentMarginY + ((title != NULL) ? 4 : 8);
+    container->obj.area.height += textEntryHeight;
 
     // create gray line
     nbgl_line_t *line = (nbgl_line_t *) nbgl_objPoolGet(LINE, layoutInt->layer);
     line->lineColor   = LIGHT_GRAY;
     // align on bottom of the container
     line->obj.alignment   = BOTTOM_MIDDLE;
-    line->obj.area.width  = SCREEN_WIDTH - 2 * 32;
-    line->obj.area.height = 4;
+    line->obj.area.width  = AVAILABLE_WIDTH;
+    line->obj.area.height = LINE_REAL_HEIGHT;
     line->direction       = HORIZONTAL;
     line->thickness       = 2;
     line->offset          = 2;
@@ -349,8 +362,9 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
         = (nbgl_obj_t **) nbgl_containerPoolGet(NB_SUGGESTION_CHILDREN, layoutInt->layer);
 
     // put suggestionsContainer at 24px of the bottom of main container
-    suggestionsContainer->obj.alignmentMarginY = compactMode ? 12 : 24;
-    suggestionsContainer->obj.alignment        = BOTTOM_MIDDLE;
+    suggestionsContainer->obj.alignmentMarginY
+        = compactMode ? BOTTOM_COMPACT_MARGIN : BOTTOM_NORMAL_MARGIN;
+    suggestionsContainer->obj.alignment = BOTTOM_MIDDLE;
 
     // create all possible suggestion buttons, even if not displayed at first
     nbgl_objPoolGetArray(
@@ -423,8 +437,8 @@ static nbgl_button_t *addConfirmationButton(nbgl_layoutInternal_t *layoutInt,
         return NULL;
     }
 
-    // put button at 24px of the bottom of main container
-    button->obj.alignmentMarginY = compactMode ? 12 : 24;
+    // put button at 24px/12px of the keyboard
+    button->obj.alignmentMarginY = compactMode ? BOTTOM_COMPACT_MARGIN : BOTTOM_NORMAL_MARGIN;
     button->obj.alignment        = BOTTOM_MIDDLE;
     button->foregroundColor      = WHITE;
     if (active) {
@@ -479,7 +493,7 @@ int nbgl_layoutAddKeyboard(nbgl_layout_t *layout, const nbgl_layoutKbd_t *kbdInf
         keyboard->obj.area.height += KEYBOARD_KEY_HEIGHT;
     }
 #ifdef TARGET_STAX
-    keyboard->obj.alignmentMarginY = 56;
+    keyboard->obj.alignmentMarginY = 58;
 #endif  // TARGET_STAX
     keyboard->obj.alignment = BOTTOM_MIDDLE;
     keyboard->borderColor   = LIGHT_GRAY;
@@ -769,7 +783,7 @@ int nbgl_layoutAddEnteredText(nbgl_layout_t *layout,
                 = (nbgl_button_t *) layoutInt->container->children[enteredTextIndex + 1];
             container->obj.alignmentMarginY
                 -= (button->obj.area.height + button->obj.alignmentMarginY
-                    + (compactMode ? 12 : 20))
+                    + (compactMode ? TOP_COMPACT_MARGIN : TOP_NORMAL_MARGIN))
                    / 2;
         }
         else if (layoutInt->container->children[enteredTextIndex + 1]->type == CONTAINER) {
@@ -777,7 +791,7 @@ int nbgl_layoutAddEnteredText(nbgl_layout_t *layout,
                 = (nbgl_container_t *) layoutInt->container->children[enteredTextIndex + 1];
             container->obj.alignmentMarginY
                 -= (suggestionContainer->obj.area.height + suggestionContainer->obj.alignmentMarginY
-                    + (compactMode ? 12 : 20))
+                    + (compactMode ? TOP_COMPACT_MARGIN : TOP_NORMAL_MARGIN))
                    / 2;
         }
     }
@@ -884,7 +898,8 @@ int nbgl_layoutAddConfirmationButton(nbgl_layout_t *layout,
     if (layoutInt->container->children[enteredTextIndex] != NULL) {
         ((nbgl_container_t *) layoutInt->container->children[enteredTextIndex])
             ->obj.alignmentMarginY
-            -= (button->obj.area.height + button->obj.alignmentMarginY + (compactMode ? 12 : 20))
+            -= (button->obj.area.height + button->obj.alignmentMarginY
+                + (compactMode ? TOP_COMPACT_MARGIN : TOP_NORMAL_MARGIN))
                / 2;
     }
     // return 0
@@ -990,7 +1005,7 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
         layoutInt->swipeUsage               = SWIPE_USAGE_SUGGESTIONS;
         container->obj.alignmentMarginY
             -= (suggestionsContainer->obj.area.height + suggestionsContainer->obj.alignmentMarginY
-                + (compactMode ? 12 : 20))
+                + (compactMode ? TOP_COMPACT_MARGIN : TOP_NORMAL_MARGIN))
                / 2;
     }
     else if (content->type == KEYBOARD_WITH_BUTTON) {
@@ -1003,7 +1018,8 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
         // set this button as second child of the main layout container
         layoutInt->container->children[1] = (nbgl_obj_t *) button;
         container->obj.alignmentMarginY
-            -= (button->obj.area.height + button->obj.alignmentMarginY + (compactMode ? 12 : 20))
+            -= (button->obj.area.height + button->obj.alignmentMarginY
+                + (compactMode ? TOP_COMPACT_MARGIN : TOP_NORMAL_MARGIN))
                / 2;
     }
 
