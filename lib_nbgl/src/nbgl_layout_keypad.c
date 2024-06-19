@@ -455,7 +455,7 @@ int nbgl_layoutAddKeypadContent(nbgl_layout_t *layout,
     // create gray line
     line                            = (nbgl_line_t *) nbgl_objPoolGet(LINE, layoutInt->layer);
     line->lineColor                 = LIGHT_GRAY;
-    line->obj.alignTo               = container->children[1];
+    line->obj.alignTo               = container->children[INPUT_INDEX];
     line->obj.alignment             = BOTTOM_MIDDLE;
     line->obj.area.width            = 288;
     line->obj.area.height           = 4;

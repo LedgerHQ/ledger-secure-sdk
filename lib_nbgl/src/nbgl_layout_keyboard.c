@@ -493,7 +493,7 @@ int nbgl_layoutAddKeyboard(nbgl_layout_t *layout, const nbgl_layoutKbd_t *kbdInf
         keyboard->obj.area.height += KEYBOARD_KEY_HEIGHT;
     }
 #ifdef TARGET_STAX
-    keyboard->obj.alignmentMarginY = 58;
+    keyboard->obj.alignmentMarginY = 56;
 #endif  // TARGET_STAX
     keyboard->obj.alignment = BOTTOM_MIDDLE;
     keyboard->borderColor   = LIGHT_GRAY;
