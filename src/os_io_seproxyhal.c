@@ -96,19 +96,12 @@ extern USBD_HandleTypeDef USBD_Device;
 #endif
 
 #if !defined(HAVE_BOLOS_NO_DEFAULT_APDU)
-#define DEFAULT_APDU_CLA             0xB0
-#define DEFAULT_APDU_INS_GET_VERSION 0x01
-
-#if defined(HAVE_SEED_COOKIE)
-#define DEFAULT_APDU_INS_GET_SEED_COOKIE 0x02
-#endif
-
-#if defined(DEBUG_OS_STACK_CONSUMPTION)
-#define DEFAULT_APDU_INS_STACK_CONSUMPTION 0x57
-#endif  // DEBUG_OS_STACK_CONSUMPTION
-
-#define DEFAULT_APDU_INS_APP_EXIT 0xA7
+#include "sdk_apdu_commands.h"
 #endif  // !HAVE_BOLOS_NO_DEFAULT_APDU
+
+#if defined(HAVE_LEDGER_PKI)
+#include "os_pki.h"
+#endif  // HAVE_LEDGER_PKI
 
 void io_seproxyhal_handle_ble_event(void);
 
@@ -1165,6 +1158,24 @@ unsigned int os_io_seproxyhal_get_app_name_and_version(void)
     return tx_len;
 }
 
+#if defined(HAVE_LEDGER_PKI)
+unsigned int os_io_seproxyhal_pki_load_certificate(uint8_t *buffer,
+                                                   size_t   buffer_len,
+                                                   uint8_t  key_usage)
+{
+    uint32_t                 sw;
+    cx_ecfp_384_public_key_t public_key;
+
+    sw = os_pki_load_certificate(key_usage, buffer, buffer_len, NULL, NULL, &public_key);
+    if (0 == sw) {
+        sw = SWO_SUCCESS;
+    }
+    explicit_bzero(&public_key, sizeof(cx_ecfp_384_public_key_t));
+    U2BE_ENCODE(G_io_apdu_buffer, 0, sw);
+    return 2;
+}
+#endif  // HAVE_LEDGER_PKI
+
 #if !defined(HAVE_BOLOS_NO_DEFAULT_APDU)
 // This function is used to process the default APDU commands.
 static bolos_bool_t io_process_default_apdus(unsigned char *channel, unsigned short *tx_len)
@@ -1265,6 +1276,16 @@ static bolos_bool_t io_process_default_apdus(unsigned char *channel, unsigned sh
                 processed = BOLOS_TRUE;
                 break;
 #endif  // DEBUG_OS_STACK_CONSUMPTION
+
+#if defined(HAVE_LEDGER_PKI)
+            case DEFAULT_APDU_INS_LOAD_CERTIFICATE:
+                *tx_len = os_io_seproxyhal_pki_load_certificate(G_io_apdu_buffer + APDU_OFF_LC + 1,
+                                                                G_io_apdu_buffer[APDU_OFF_LC],
+                                                                G_io_apdu_buffer[APDU_OFF_P1]);
+                *channel &= ~IO_FLAGS;
+                processed = BOLOS_TRUE;
+                break;
+#endif  // HAVE_LEDGER_PKI
 
             default:
                 // 'processed' is already initialized.
