@@ -1749,17 +1749,21 @@ int nbgl_layoutAddHorizontalButtons(nbgl_layout_t                        *layout
     obj->index                   = 1;
     button->obj.alignment        = BOTTOM_LEFT;
     button->obj.alignmentMarginX = BORDER_MARGIN;
+#ifdef TARGET_STAX
+    button->obj.alignmentMarginY = 20;  // 20 pixels from screen bottom
+#else                                   // TARGET_STAX
     button->obj.alignmentMarginY = 24;  // 24 pixels from screen bottom
-    button->borderColor          = LIGHT_GRAY;
-    button->innerColor           = WHITE;
-    button->foregroundColor      = BLACK;
-    button->obj.area.width       = BUTTON_DIAMETER;
-    button->obj.area.height      = BUTTON_DIAMETER;
-    button->radius               = BUTTON_RADIUS;
-    button->icon                 = PIC(info->leftIcon);
-    button->fontId               = SMALL_BOLD_FONT;
-    button->obj.touchMask        = (1 << TOUCHED);
-    button->obj.touchId          = CHOICE_2_ID;
+#endif                                  // TARGET_STAX
+    button->borderColor     = LIGHT_GRAY;
+    button->innerColor      = WHITE;
+    button->foregroundColor = BLACK;
+    button->obj.area.width  = BUTTON_DIAMETER;
+    button->obj.area.height = BUTTON_DIAMETER;
+    button->radius          = BUTTON_RADIUS;
+    button->icon            = PIC(info->leftIcon);
+    button->fontId          = SMALL_BOLD_FONT;
+    button->obj.touchMask   = (1 << TOUCHED);
+    button->obj.touchId     = CHOICE_2_ID;
     // set this new button as child of the container
     layoutAddObject(layoutInt, (nbgl_obj_t *) button);
 
@@ -2494,15 +2498,16 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
             if (obj == NULL) {
                 return -1;
             }
-            textArea->obj.alignment   = MID_RIGHT;
-            textArea->textColor       = BLACK;
-            textArea->obj.area.width  = AVAILABLE_WIDTH;
-            textArea->obj.area.height = TOUCHABLE_HEADER_BAR_HEIGHT;
-            textArea->text            = PIC(headerDesc->rightText.text);
-            textArea->fontId          = SMALL_BOLD_FONT;
-            textArea->textAlignment   = MID_RIGHT;
-            textArea->obj.touchMask   = (1 << TOUCHED);
-            textArea->obj.touchId     = TOP_RIGHT_BUTTON_ID;
+            textArea->obj.alignment        = MID_RIGHT;
+            textArea->obj.alignmentMarginX = BORDER_MARGIN;
+            textArea->textColor            = BLACK;
+            textArea->obj.area.width       = AVAILABLE_WIDTH;
+            textArea->obj.area.height      = TOUCHABLE_HEADER_BAR_HEIGHT;
+            textArea->text                 = PIC(headerDesc->rightText.text);
+            textArea->fontId               = SMALL_BOLD_FONT;
+            textArea->textAlignment        = MID_RIGHT;
+            textArea->obj.touchMask        = (1 << TOUCHED);
+            textArea->obj.touchId          = TOP_RIGHT_BUTTON_ID;
             // add to bottom container
             layoutInt->headerContainer->children[layoutInt->headerContainer->nbChildren]
                 = (nbgl_obj_t *) textArea;

@@ -347,9 +347,8 @@ static void prepareNavInfo(bool isReview, uint8_t nbPages, const char *rejectTex
         navInfo.navWithButtons.backButton = true;
     }
     else {
-        navInfo.quitToken = REJECT_TOKEN;
-        UNUSED(rejectText);
-        navInfo.navWithButtons.quitText = "Reject";
+        navInfo.quitToken               = REJECT_TOKEN;
+        navInfo.navWithButtons.quitText = rejectText;
         navInfo.navWithButtons.navToken = NAV_TOKEN;
         navInfo.navWithButtons.backButton
             = ((navType == STREAMING_NAV) && (nbPages < 2)) ? false : true;
@@ -1232,12 +1231,12 @@ static void displaySkipWarning(void)
 {
     nbgl_pageConfirmationDescription_t info = {
         .cancelText         = "Go back to review",
-        .centeredInfo.text1 = "Skip message review?",
+        .centeredInfo.text1 = "Skip review?",
         .centeredInfo.text2
-        = "Skip only if you trust the\nsource. If you skip, you won't\nbe able to review it again.",
+        = "If you're sure you don't need to review all fields, you can skip straight to signing.",
         .centeredInfo.text3   = NULL,
         .centeredInfo.style   = LARGE_CASE_INFO,
-        .centeredInfo.icon    = &C_Warning_64px,
+        .centeredInfo.icon    = &C_Important_Circle_64px,
         .centeredInfo.offsetY = 0,
         .confirmationText     = "Yes, skip",
         .confirmationToken    = SKIP_TOKEN,
@@ -1557,7 +1556,7 @@ static void bundleNavReviewAskRejectionConfirmation(nbgl_operationType_t operati
     }
 
     // display a choice to confirm/cancel rejection
-    nbgl_useCaseConfirm(title, NULL, "Yes, Reject", confirmText, callback);
+    nbgl_useCaseConfirm(title, NULL, "Yes, reject", confirmText, callback);
 }
 
 static void bundleNavReviewChoice(bool confirm)
@@ -2889,7 +2888,7 @@ void nbgl_useCaseAddressConfirmationExt(const char                       *addres
     // fill navigation structure, common to all pages
     uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
 
-    prepareNavInfo(true, nbPages, "Reject");
+    prepareNavInfo(true, nbPages, "Cancel");
 
     displayGenericContextPage(0, true);
 }
@@ -2944,7 +2943,7 @@ void nbgl_useCaseAddressReview(const char                       *address,
     // fill navigation structure, common to all pages
     uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
 
-    prepareNavInfo(true, nbPages, "Reject");
+    prepareNavInfo(true, nbPages, "Cancel");
 
 #ifdef HAVE_PIEZO_SOUND
     // Play notification sound

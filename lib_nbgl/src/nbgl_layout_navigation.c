@@ -202,8 +202,7 @@ void layoutNavigationPopulate(nbgl_container_t                 *navContainer,
 
             SPRINTF(navText, "%d of %d", navConfig->activePage + 1, navConfig->nbPages);
 
-            textArea->obj.alignment = BOTTOM_RIGHT;
-            textArea->textColor     = DARK_GRAY;
+            textArea->textColor = DARK_GRAY;
 #ifdef TARGET_STAX
             textArea->obj.area.width = 109;
 #else   // TARGET_STAX
@@ -213,8 +212,7 @@ void layoutNavigationPopulate(nbgl_container_t                 *navContainer,
             textArea->fontId                             = SMALL_REGULAR_FONT;
             textArea->obj.area.height                    = NAV_BUTTON_HEIGHT;
             textArea->textAlignment                      = CENTER;
-            textArea->obj.alignment                      = MID_RIGHT;
-            textArea->obj.alignmentMarginX               = NAV_BUTTON_WIDTH - 15;
+            textArea->obj.alignment                      = CENTER;
             navContainer->children[PAGE_INDICATOR_INDEX] = (nbgl_obj_t *) textArea;
         }
         if (navConfig->withBackKey) {
