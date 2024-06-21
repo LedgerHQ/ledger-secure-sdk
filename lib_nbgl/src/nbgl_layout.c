@@ -696,6 +696,178 @@ static nbgl_container_t *addListItem(nbgl_layoutInternal_t *layoutInt, const lis
     return container;
 }
 
+/**
+ * @brief Creates a container on the center of the main panel, with a possible icon,
+ * and possible texts under it
+ *
+ * @param layout the current layout
+ * @param info structure giving the description of the Content Center
+ * @return the created container
+ */
+static nbgl_container_t *addContentCenter(nbgl_layoutInternal_t      *layoutInt,
+                                          const nbgl_contentCenter_t *info)
+{
+    nbgl_container_t *container;
+    nbgl_text_area_t *textArea   = NULL;
+    nbgl_image_t     *image      = NULL;
+    uint16_t          fullHeight = 0;
+
+    container = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
+
+    // get container children
+    container->nbChildren = 0;
+    container->children   = nbgl_containerPoolGet(5, layoutInt->layer);
+
+    // add icon if present
+    if (info->icon != NULL) {
+        image                       = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
+        image->foregroundColor      = BLACK;
+        image->buffer               = PIC(info->icon);
+        image->obj.alignment        = TOP_MIDDLE;
+        image->obj.alignmentMarginY = info->iconHug;
+
+        fullHeight += image->buffer->height + info->iconHug;
+        container->children[container->nbChildren] = (nbgl_obj_t *) image;
+        container->nbChildren++;
+    }
+    // add title if present
+    if (info->title != NULL) {
+        textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+        textArea->textColor     = BLACK;
+        textArea->text          = PIC(info->title);
+        textArea->textAlignment = CENTER;
+        textArea->fontId        = LARGE_MEDIUM_FONT;
+        textArea->wrapping      = true;
+        textArea->obj.area.width  = AVAILABLE_WIDTH;
+        textArea->obj.area.height = nbgl_getTextHeightInWidth(
+            textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
+
+        // if not the first child, put on bottom of the previous, with a margin
+        if (container->nbChildren > 0) {
+            textArea->obj.alignment = BOTTOM_MIDDLE;
+            textArea->obj.alignTo   = (nbgl_obj_t *) container->children[container->nbChildren - 1];
+            textArea->obj.alignmentMarginY = BOTTOM_BORDER_MARGIN + info->iconHug;
+        }
+        else {
+            textArea->obj.alignment = TOP_MIDDLE;
+        }
+
+        fullHeight += textArea->obj.area.height + textArea->obj.alignmentMarginY;
+
+        container->children[container->nbChildren] = (nbgl_obj_t *) textArea;
+        container->nbChildren++;
+    }
+    // add small title if present
+    if (info->smallTitle != NULL) {
+        textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+        textArea->textColor     = BLACK;
+        textArea->text          = PIC(info->smallTitle);
+        textArea->textAlignment = CENTER;
+        textArea->fontId        = SMALL_BOLD_FONT;
+        textArea->wrapping      = true;
+        textArea->obj.area.width  = AVAILABLE_WIDTH;
+        textArea->obj.area.height = nbgl_getTextHeightInWidth(
+            textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
+
+        // if not the first child, put on bottom of the previous, with a margin
+        if (container->nbChildren > 0) {
+            textArea->obj.alignment = BOTTOM_MIDDLE;
+            textArea->obj.alignTo   = (nbgl_obj_t *) container->children[container->nbChildren - 1];
+            textArea->obj.alignmentMarginY = BOTTOM_BORDER_MARGIN;
+            if (container->children[container->nbChildren - 1]->type == IMAGE) {
+                textArea->obj.alignmentMarginY = BOTTOM_BORDER_MARGIN + info->iconHug;
+            }
+            else {
+                textArea->obj.alignmentMarginY = 16;
+            }
+        }
+        else {
+            textArea->obj.alignment = TOP_MIDDLE;
+        }
+
+        fullHeight += textArea->obj.area.height + textArea->obj.alignmentMarginY;
+
+        container->children[container->nbChildren] = (nbgl_obj_t *) textArea;
+        container->nbChildren++;
+    }
+    // add description if present
+    if (info->description != NULL) {
+        textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+        textArea->textColor     = BLACK;
+        textArea->text          = PIC(info->description);
+        textArea->textAlignment = CENTER;
+        textArea->fontId        = SMALL_REGULAR_FONT;
+        textArea->wrapping      = true;
+        textArea->obj.area.width  = AVAILABLE_WIDTH;
+        textArea->obj.area.height = nbgl_getTextHeightInWidth(
+            textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
+
+        // if not the first child, put on bottom of the previous, with a margin
+        if (container->nbChildren > 0) {
+            textArea->obj.alignment = BOTTOM_MIDDLE;
+            textArea->obj.alignTo   = (nbgl_obj_t *) container->children[container->nbChildren - 1];
+            if (container->children[container->nbChildren - 1]->type == TEXT_AREA) {
+                // if previous element is text, only space of 16 px
+                textArea->obj.alignmentMarginY = 16;
+            }
+            else {
+                textArea->obj.alignmentMarginY = BOTTOM_BORDER_MARGIN + info->iconHug;
+            }
+        }
+        else {
+            textArea->obj.alignment = TOP_MIDDLE;
+        }
+
+        fullHeight += textArea->obj.area.height + textArea->obj.alignmentMarginY;
+
+        container->children[container->nbChildren] = (nbgl_obj_t *) textArea;
+        container->nbChildren++;
+    }
+    // add sub-text if present
+    if (info->subText != NULL) {
+        textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+        textArea->textColor     = DARK_GRAY;
+        textArea->text          = PIC(info->subText);
+        textArea->textAlignment = CENTER;
+        textArea->fontId        = SMALL_REGULAR_FONT;
+        textArea->wrapping      = true;
+        textArea->obj.area.width  = AVAILABLE_WIDTH;
+        textArea->obj.area.height = nbgl_getTextHeightInWidth(
+            textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
+        // sub-text is included in a hug of 8px
+        textArea->obj.area.height += 2 * 8;
+        // if not the first child, put on bottom of the previous, with a margin
+        if (container->nbChildren > 0) {
+            textArea->obj.alignment = BOTTOM_MIDDLE;
+            textArea->obj.alignTo   = (nbgl_obj_t *) container->children[container->nbChildren - 1];
+            textArea->obj.alignmentMarginY = 16;
+            if (container->children[container->nbChildren - 1]->type == IMAGE) {
+                textArea->obj.alignmentMarginY += info->iconHug;
+            }
+        }
+        else {
+            textArea->obj.alignment = TOP_MIDDLE;
+        }
+
+        fullHeight += textArea->obj.area.height + textArea->obj.alignmentMarginY;
+
+        container->children[container->nbChildren] = (nbgl_obj_t *) textArea;
+        container->nbChildren++;
+    }
+    container->layout          = VERTICAL;
+    container->obj.alignment   = CENTER;
+    container->obj.area.width  = AVAILABLE_WIDTH;
+    container->obj.area.height = fullHeight;
+    if (info->padding) {
+        container->obj.area.height += 40;
+    }
+
+    // set this new container as child of main container
+    layoutAddObject(layoutInt, (nbgl_obj_t *) container);
+
+    return container;
+}
+
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
@@ -1387,165 +1559,45 @@ int nbgl_layoutAddCenteredInfo(nbgl_layout_t *layout, const nbgl_layoutCenteredI
 {
     nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
     nbgl_container_t      *container;
-    nbgl_text_area_t      *textArea   = NULL;
-    nbgl_image_t          *image      = NULL;
-    uint16_t               fullHeight = 0;
+    nbgl_contentCenter_t   centeredInfo = {.icon        = info->icon,
+                                           .title       = NULL,
+                                           .smallTitle  = NULL,
+                                           .description = NULL,
+                                           .subText     = NULL,
+                                           .iconHug     = 0,
+                                           .padding     = false};
 
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddCenteredInfo():\n");
     if (layout == NULL) {
         return -1;
     }
 
-    container = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
-
-    // get container children (max 5 if PLUGIN_INFO)
-    container->children
-        = nbgl_containerPoolGet((info->style == PLUGIN_INFO) ? 5 : 4, layoutInt->layer);
-    container->nbChildren = 0;
-
-    if (info->icon != NULL) {
-        image                  = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
-        image->foregroundColor = BLACK;
-        image->buffer          = PIC(info->icon);
-        image->obj.area.bpp    = NBGL_BPP_1;
-        image->obj.alignment   = TOP_MIDDLE;
-        image->obj.alignTo     = NULL;
-
-        fullHeight += image->buffer->height;
-        if ((info->style != PLUGIN_INFO)) {
-            container->children[container->nbChildren] = (nbgl_obj_t *) image;
-            container->nbChildren++;
-        }
-    }
     if (info->text1 != NULL) {
-        textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-        textArea->textColor     = BLACK;
-        textArea->text          = PIC(info->text1);
-        textArea->textAlignment = CENTER;
         if (info->style != NORMAL_INFO) {
-            textArea->fontId = LARGE_MEDIUM_FONT;
+            centeredInfo.title = info->text1;
         }
         else {
-            textArea->fontId = SMALL_BOLD_FONT;
+            centeredInfo.smallTitle = info->text1;
         }
-        textArea->wrapping        = true;
-        textArea->obj.area.width  = AVAILABLE_WIDTH;
-        textArea->obj.area.height = nbgl_getTextHeightInWidth(
-            textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
-
-        textArea->style = NO_STYLE;
-        if (container->nbChildren > 0) {
-            textArea->obj.alignment = BOTTOM_MIDDLE;
-            textArea->obj.alignTo   = (nbgl_obj_t *) container->children[container->nbChildren - 1];
-#ifdef TARGET_STAX
-            textArea->obj.alignmentMarginY = BORDER_MARGIN;
-#else   // TARGET_STAX
-            textArea->obj.alignmentMarginY = BOTTOM_BORDER_MARGIN;
-#endif  // TARGET_STAX
-        }
-        else {
-            textArea->obj.alignment = TOP_MIDDLE;
-            textArea->obj.alignTo   = NULL;
-        }
-
-        fullHeight += textArea->obj.area.height + textArea->obj.alignmentMarginY;
-
-        container->children[container->nbChildren] = (nbgl_obj_t *) textArea;
-        container->nbChildren++;
     }
     if (info->text2 != NULL) {
-        textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-        textArea->textColor     = (info->style == NORMAL_INFO) ? DARK_GRAY : BLACK;
-        textArea->text          = PIC(info->text2);
-        textArea->textAlignment = CENTER;
-        textArea->fontId
-            = (info->style != LARGE_CASE_BOLD_INFO) ? SMALL_REGULAR_FONT : SMALL_BOLD_FONT;
-        textArea->wrapping        = true;
-        textArea->obj.area.width  = AVAILABLE_WIDTH;
-        textArea->obj.area.height = nbgl_getTextHeightInWidth(
-            textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
-
-        textArea->style = NO_STYLE;
-        if (container->nbChildren > 0) {
-            textArea->obj.alignment = BOTTOM_MIDDLE;
-            textArea->obj.alignTo   = (nbgl_obj_t *) container->children[container->nbChildren - 1];
-            if (info->text1 != NULL) {
-                // if previous element is text1, only space of 16 px
-                textArea->obj.alignmentMarginY = 16;
-            }
-            else {
-#ifdef TARGET_STAX
-                // else if icon, space of 28 px
-                textArea->obj.alignmentMarginY = 28;
-#else   // TARGET_STAX
-                textArea->obj.alignmentMarginY = 24;
-#endif  // TARGET_STAX
-            }
+        if (info->style != LARGE_CASE_BOLD_INFO) {
+            centeredInfo.description = info->text2;
         }
         else {
-            textArea->obj.alignment = TOP_MIDDLE;
-        }
-
-        fullHeight += textArea->obj.area.height + textArea->obj.alignmentMarginY;
-
-        container->children[container->nbChildren] = (nbgl_obj_t *) textArea;
-        container->nbChildren++;
-    }
-    // draw small horizontal line if PLUGIN_INFO
-    if (info->style == PLUGIN_INFO) {
-        nbgl_line_t *line          = createHorizontalLine(layoutInt->layer);
-        line->obj.area.width       = 120;
-        line->obj.alignmentMarginY = 32;
-        line->obj.alignmentMarginX = 0;
-        line->obj.alignment        = BOTTOM_MIDDLE;
-        line->obj.alignTo          = (nbgl_obj_t *) container->children[container->nbChildren - 1];
-        fullHeight += 32;
-
-        container->children[container->nbChildren] = (nbgl_obj_t *) line;
-        container->nbChildren++;
-        if (image) {
-            // add icon here, under line
-            image->obj.alignmentMarginY = 32;
-            image->obj.alignment        = BOTTOM_MIDDLE;
-            image->obj.alignTo = (nbgl_obj_t *) container->children[container->nbChildren - 1];
-            container->children[container->nbChildren] = (nbgl_obj_t *) image;
-            container->nbChildren++;
-            fullHeight += 32;
+            centeredInfo.smallTitle = info->text2;
         }
     }
     if (info->text3 != NULL) {
-        textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-        textArea->textColor     = (info->style == LARGE_CASE_GRAY_INFO) ? DARK_GRAY : BLACK;
-        textArea->text          = PIC(info->text3);
-        textArea->textAlignment = CENTER;
-        textArea->fontId        = SMALL_REGULAR_FONT;
-        textArea->wrapping      = true;
-        textArea->obj.area.width  = AVAILABLE_WIDTH;
-        textArea->obj.area.height = nbgl_getTextHeightInWidth(
-            textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
-        textArea->style = NO_STYLE;
-        if (container->nbChildren > 0) {
-            textArea->obj.alignment = BOTTOM_MIDDLE;
-            textArea->obj.alignTo   = (nbgl_obj_t *) container->children[container->nbChildren - 1];
-#ifdef TARGET_STAX
-            textArea->obj.alignmentMarginY
-                = (info->style == LARGE_CASE_BOLD_INFO) ? 16 : BORDER_MARGIN;
-#else   // TARGET_STAX
-            textArea->obj.alignmentMarginY = (info->style == LARGE_CASE_BOLD_INFO) ? 16 : 28;
-#endif  // TARGET_STAX
+        if (info->style == LARGE_CASE_GRAY_INFO) {
+            centeredInfo.subText = info->text3;
         }
         else {
-            textArea->obj.alignment = TOP_MIDDLE;
-            textArea->obj.alignTo   = NULL;
+            centeredInfo.description = info->text3;
         }
-
-        fullHeight += textArea->obj.area.height + textArea->obj.alignmentMarginY;
-
-        container->children[container->nbChildren] = (nbgl_obj_t *) textArea;
-        container->nbChildren++;
     }
-    container->obj.area.height = fullHeight;
-    container->layout          = VERTICAL;
+    container = addContentCenter(layoutInt, &centeredInfo);
+
     if (info->onTop) {
         container->obj.alignmentMarginX = BORDER_MARGIN;
         container->obj.alignmentMarginY = BORDER_MARGIN + info->offsetY;
@@ -1553,15 +1605,32 @@ int nbgl_layoutAddCenteredInfo(nbgl_layout_t *layout, const nbgl_layoutCenteredI
     }
     else {
         container->obj.alignmentMarginY = info->offsetY;
-        container->obj.alignment        = CENTER;
     }
 
-    container->obj.area.width = AVAILABLE_WIDTH;
+    return container->obj.area.height;
+}
 
-    // set this new container as child of main container
-    layoutAddObject(layoutInt, (nbgl_obj_t *) container);
+/**
+ * @brief Creates an area on the center of the main panel, with a possible icon,
+ * and possible texts under it
+ *
+ * @param layout the current layout
+ * @param info structure giving the description of the Content Center
+ * @return the size of the area if OK
+ */
+int nbgl_layoutAddContentCenter(nbgl_layout_t *layout, const nbgl_contentCenter_t *info)
+{
+    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
+    nbgl_container_t      *container;
 
-    return 0;
+    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddContentCenter():\n");
+    if (layout == NULL) {
+        return -1;
+    }
+
+    container = addContentCenter(layoutInt, info);
+
+    return container->obj.area.height;
 }
 
 #ifdef NBGL_QRCODE
@@ -1752,7 +1821,7 @@ int nbgl_layoutAddHorizontalButtons(nbgl_layout_t                        *layout
 #ifdef TARGET_STAX
     button->obj.alignmentMarginY = 20;  // 20 pixels from screen bottom
 #else                                   // TARGET_STAX
-    button->obj.alignmentMarginY = 24;  // 24 pixels from screen bottom
+    button->obj.alignmentMarginY   = 24;  // 24 pixels from screen bottom
 #endif                                  // TARGET_STAX
     button->borderColor     = LIGHT_GRAY;
     button->innerColor      = WHITE;
