@@ -2625,9 +2625,10 @@ void nbgl_useCaseGenericReview(const nbgl_genericContents_t *contents,
     memset(&genericContext, 0, sizeof(genericContext));
 
     // memorize context
-    onQuit    = rejectCallback;
-    navType   = GENERIC_NAV;
-    pageTitle = NULL;
+    onQuit                                = rejectCallback;
+    navType                               = GENERIC_NAV;
+    pageTitle                             = NULL;
+    bundleNavContext.review.operationType = TYPE_OPERATION;
 
     memcpy(&genericContext.genericContents, contents, sizeof(nbgl_genericContents_t));
 

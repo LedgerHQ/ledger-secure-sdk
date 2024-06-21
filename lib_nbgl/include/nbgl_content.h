@@ -69,6 +69,26 @@ typedef struct {
 } nbgl_contentCenteredInfo_t;
 
 /**
+ * @brief This structure contains info to build a centered (vertically and horizontally) area, with
+ * many fields (if NULL, not used):
+ *  - an icon (with a possible hug)
+ *  - a title in black large case
+ *  - a sub-title in black small bold case
+ *  - a description in black small regular case
+ *  - a sub-text in dark gray regular small case
+ *  - a padding on the bottom
+ */
+typedef struct {
+    const nbgl_icon_details_t *icon;        ///< the icon (can be null)
+    const char                *title;       ///< title in black large (can be null)
+    const char                *smallTitle;  ///< sub-title in black small bold case (can be null)
+    const char *description;  ///< description in black small regular case (can be null)
+    const char *subText;      ///< sub-text in dark gray regular small case
+    uint16_t    iconHug;      ///< vertical margin to apply on top and bottom of the icon
+    bool        padding;      ///< if true, apply a padding of 40px at the bottom
+} nbgl_contentCenter_t;
+
+/**
  * @brief This structure contains data to build a centered info + long press button content
  */
 typedef struct {
