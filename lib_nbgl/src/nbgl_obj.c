@@ -1365,6 +1365,26 @@ static void draw_image_file(nbgl_image_file_t *obj, nbgl_obj_t *prevObj, bool co
     nbgl_frontDrawImageFile((nbgl_area_t *) obj, obj->buffer, BLACK, ramBuffer);
 }
 
+#ifdef NBGL_MASKING
+static void draw_mask_control(nbgl_mask_control_t *obj, nbgl_obj_t *prevObj, bool computePosition)
+{
+    if (computePosition) {
+        compute_position((nbgl_obj_t *) obj, prevObj);
+    }
+
+    if (objDrawingDisabled) {
+        return;
+    }
+
+    if (obj->enableMasking) {
+        nbgl_frontControlAreaMasking(obj->maskIndex, &obj->obj.area);
+    }
+    else {
+        nbgl_frontControlAreaMasking(obj->maskIndex, NULL);
+    }
+}
+#endif  // NBGL_MASKING
+
 /**
  * @brief internal function used to draw an object of any type
  *
@@ -1447,6 +1467,11 @@ draw_object(nbgl_obj_t *obj, nbgl_obj_t *prevObj, bool computePosition)
             draw_textEntry((nbgl_text_entry_t *) obj, prevObj, computePosition);
             break;
 #endif  // HAVE_SE_TOUCH
+#ifdef NBGL_MASKING
+        case MASK_CONTROL:
+            draw_mask_control((nbgl_mask_control_t *) obj, prevObj, computePosition);
+            break;
+#endif  // NBGL_MASKING
         default:
             LOG_DEBUG(OBJ_LOGGER, "Not existing object type\n");
             break;
