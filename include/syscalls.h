@@ -304,6 +304,7 @@
 #define SYSCALL_nbgl_get_font_ID                   0x01fa000c
 #define SYSCALL_nbgl_screen_reinit_ID              0x00fa000d
 #define SYSCALL_nbgl_front_draw_img_rle_ID         0x05fa0010
+#define SYSCALL_nbgl_front_control_area_masking_ID 0x03fa0012
 
 #ifdef HAVE_SE_EINK_DISPLAY
 #define SYSCALL_nbgl_wait_pipeline_ID 0x00fa0011
