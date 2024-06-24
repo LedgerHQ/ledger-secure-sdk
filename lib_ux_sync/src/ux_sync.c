@@ -49,6 +49,16 @@ static ux_sync_ret_t ux_sync_wait(bool exitOnApdu)
     return g_ret;
 }
 
+void ux_sync_set_return_code(ux_sync_ret_t ret)
+{
+    g_ret = ret;
+}
+
+void ux_sync_set_ended(bool ended)
+{
+    g_ended = ended;
+}
+
 /**
  * @brief Draws the extended version of home page of an app (page on which we land when launching it
  *        from dashboard) with automatic support of setting display.
