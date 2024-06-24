@@ -448,6 +448,12 @@ typedef struct PACKED__ nbgl_text_entry_s {
     const char    *text;     ///< text to display (up to nbChars chars).
 } nbgl_text_entry_t;
 
+typedef struct PACKED__ nbgl_mask_control_s {
+    nbgl_obj_t obj;            ///< common part
+    bool       enableMasking;  ///< true: Enable masking of area / false: Disable masking of area
+    uint8_t    maskIndex;      ///< index of mask
+} nbgl_mask_control_t;
+
 /**
  * @brief struct to represent a "spinner", represented by the Ledger corners, in gray, with one of
  * the corners in black (@ref SPINNER type)
