@@ -1590,6 +1590,64 @@ static void bundleNavReviewStreamingChoice(bool confirm)
     }
 }
 
+static void useCaseReview(nbgl_operationType_t              operationType,
+                          const nbgl_contentTagValueList_t *tagValueList,
+                          const nbgl_icon_details_t        *icon,
+                          const char                       *reviewTitle,
+                          const char                       *reviewSubTitle,
+                          const char                       *finishTitle,
+                          nbgl_choiceCallback_t             choiceCallback,
+                          bool                              isLight)
+{
+    reset_callbacks();
+    memset(&genericContext, 0, sizeof(genericContext));
+
+    bundleNavContext.review.operationType  = operationType;
+    bundleNavContext.review.choiceCallback = choiceCallback;
+
+    // memorize context
+    onChoice  = bundleNavReviewChoice;
+    navType   = GENERIC_NAV;
+    pageTitle = NULL;
+
+    genericContext.genericContents.contentsList = localContentsList;
+    genericContext.genericContents.nbContents   = 3;
+    memset(localContentsList, 0, 3 * sizeof(nbgl_content_t));
+
+    // First a centered info
+    STARTING_CONTENT.type = CENTERED_INFO;
+    prepareReviewFirstPage(
+        &STARTING_CONTENT.content.centeredInfo, icon, reviewTitle, reviewSubTitle);
+
+    // Then the tag/value pairs
+    localContentsList[1].type = TAG_VALUE_LIST;
+    memcpy(&localContentsList[1].content.tagValueList,
+           tagValueList,
+           sizeof(nbgl_contentTagValueList_t));
+    localContentsList[1].contentActionCallback = tagValueList->actionCallback;
+
+    // The last page
+    if (isLight) {
+        localContentsList[2].type = INFO_BUTTON;
+        prepareReviewLightLastPage(&localContentsList[2].content.infoButton, icon, finishTitle);
+    }
+    else {
+        localContentsList[2].type = INFO_LONG_PRESS;
+        prepareReviewLastPage(&localContentsList[2].content.infoLongPress, icon, finishTitle);
+    }
+
+    // compute number of pages & fill navigation structure
+    uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
+    prepareNavInfo(true, nbPages, getRejectReviewText(operationType));
+
+#ifdef HAVE_PIEZO_SOUND
+    // Play notification sound
+    io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
+#endif  // HAVE_PIEZO_SOUND
+
+    displayGenericContextPage(0, true);
+}
+
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
@@ -1894,11 +1952,10 @@ void nbgl_useCasePlugInHome(const char                *plugInName,
  *        For each page, the given navCallback will be called to get the content. Only 'type' and
  * union has to be set in this content
  *
- * @param title string to set in touchable (or not) title
+ * @param title string to set in touchable title
  * @param initPage page on which to start [0->(nbPages-1)]
  * @param nbPages number of pages
- * @param touchable if true, the title is used to quit and quitCallback is called (unused, it is
- * always on)
+ * @param touchable unused, it is always on
  * @param quitCallback callback called when quit button (or title) is pressed
  * @param navCallback callback called when navigation arrows are pressed
  * @param controlsCallback callback called when any controls in the settings (radios, switches) is
@@ -2290,7 +2347,8 @@ void nbgl_useCaseRegularReview(uint8_t                    initPage,
     navType        = REVIEW_NAV;
 
     // fill navigation structure
-    prepareNavInfo(true, nbPages, rejectText);
+    UNUSED(rejectText);
+    prepareNavInfo(true, nbPages, getRejectReviewText(TYPE_OPERATION));
 
     displayReviewPage(initPage, true);
 }
@@ -2326,7 +2384,8 @@ void nbgl_useCaseForwardOnlyReview(const char                *rejectText,
     navType        = REVIEW_NAV;
 
     // fill navigation structure
-    prepareNavInfo(true, NBGL_NO_PROGRESS_INDICATOR, rejectText);
+    UNUSED(rejectText);
+    prepareNavInfo(true, NBGL_NO_PROGRESS_INDICATOR, getRejectReviewText(TYPE_OPERATION));
 
     navInfo.progressIndicator = false;
     navInfo.skipText          = "Skip";
@@ -2366,7 +2425,8 @@ void nbgl_useCaseForwardOnlyReviewNoSkip(const char                *rejectText,
     navType        = REVIEW_NAV;
 
     // fill navigation structure
-    prepareNavInfo(true, NBGL_NO_PROGRESS_INDICATOR, rejectText);
+    UNUSED(rejectText);
+    prepareNavInfo(true, NBGL_NO_PROGRESS_INDICATOR, getRejectReviewText(TYPE_OPERATION));
     navInfo.progressIndicator = false;
     displayReviewPage(0, false);
 }
@@ -2420,7 +2480,8 @@ void nbgl_useCaseStaticReview(const nbgl_contentTagValueList_t *tagValueList,
 
     // compute number of pages & fill navigation structure
     uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
-    prepareNavInfo(true, nbPages, rejectText);
+    UNUSED(rejectText);
+    prepareNavInfo(true, nbPages, getRejectReviewText(TYPE_OPERATION));
 
     displayGenericContextPage(0, true);
 }
@@ -2476,14 +2537,16 @@ void nbgl_useCaseStaticReviewLight(const nbgl_contentTagValueList_t *tagValueLis
 
     // compute number of pages & fill navigation structure
     uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
-    prepareNavInfo(true, nbPages, rejectText);
+    UNUSED(rejectText);
+    prepareNavInfo(true, nbPages, getRejectReviewText(TYPE_OPERATION));
 
     displayGenericContextPage(0, true);
 }
 
 /**
- * @brief Draws a flow of pages of a review. A back key is available on top-left of the screen,
- * except in first page It is possible to go to next page thanks to "tap to continue".
+ * @brief Draws a flow of pages of a review. Navigation operates with either swipe or navigation
+ * keys at bottom right. The last page contains a long-press button with the given finishTitle and
+ * the given icon.
  * @note  All tag/value pairs are provided in the API and the number of pages is automatically
  * computed, the last page being a long press one
  *
@@ -2504,52 +2567,20 @@ void nbgl_useCaseReview(nbgl_operationType_t              operationType,
                         const char                       *finishTitle,
                         nbgl_choiceCallback_t             choiceCallback)
 {
-    reset_callbacks();
-    memset(&genericContext, 0, sizeof(genericContext));
-
-    bundleNavContext.review.operationType  = operationType;
-    bundleNavContext.review.choiceCallback = choiceCallback;
-
-    // memorize context
-    onChoice  = bundleNavReviewChoice;
-    navType   = GENERIC_NAV;
-    pageTitle = NULL;
-
-    genericContext.genericContents.contentsList = localContentsList;
-    genericContext.genericContents.nbContents   = 3;
-    memset(localContentsList, 0, 3 * sizeof(nbgl_content_t));
-
-    // First a centered info
-    STARTING_CONTENT.type = CENTERED_INFO;
-    prepareReviewFirstPage(
-        &STARTING_CONTENT.content.centeredInfo, icon, reviewTitle, reviewSubTitle);
-
-    // Then the tag/value pairs
-    localContentsList[1].type = TAG_VALUE_LIST;
-    memcpy(&localContentsList[1].content.tagValueList,
-           tagValueList,
-           sizeof(nbgl_contentTagValueList_t));
-    localContentsList[1].contentActionCallback = tagValueList->actionCallback;
-
-    // Eventually the long press page
-    localContentsList[2].type = INFO_LONG_PRESS;
-    prepareReviewLastPage(&localContentsList[2].content.infoLongPress, icon, finishTitle);
-
-    // compute number of pages & fill navigation structure
-    uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
-    prepareNavInfo(true, nbPages, getRejectReviewText(operationType));
-
-#ifdef HAVE_PIEZO_SOUND
-    // Play notification sound
-    io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
-#endif  // HAVE_PIEZO_SOUND
-
-    displayGenericContextPage(0, true);
+    useCaseReview(operationType,
+                  tagValueList,
+                  icon,
+                  reviewTitle,
+                  reviewSubTitle,
+                  finishTitle,
+                  choiceCallback,
+                  false);
 }
 
 /**
- * @brief Draws a flow of pages of a light review. A back key is available on top-left of the
- * screen, except in first page It is possible to go to next page thanks to "tap to continue".
+ * @brief Draws a flow of pages of a light review. Navigation operates with either swipe or
+ * navigation keys at bottom right. The last page contains a button/footer with the given
+ * finishTitle and the given icon.
  * @note  All tag/value pairs are provided in the API and the number of pages is automatically
  * computed, the last page being a short press one
  *
@@ -2570,43 +2601,14 @@ void nbgl_useCaseReviewLight(nbgl_operationType_t              operationType,
                              const char                       *finishTitle,
                              nbgl_choiceCallback_t             choiceCallback)
 {
-    reset_callbacks();
-    memset(&genericContext, 0, sizeof(genericContext));
-
-    // memorize context
-    onChoice  = choiceCallback;
-    navType   = GENERIC_NAV;
-    pageTitle = NULL;
-
-    genericContext.genericContents.contentsList = localContentsList;
-    genericContext.genericContents.nbContents   = 3;
-    memset(localContentsList, 0, 3 * sizeof(nbgl_content_t));
-
-    // First a centered info
-    STARTING_CONTENT.type = CENTERED_INFO;
-    prepareReviewFirstPage(
-        &STARTING_CONTENT.content.centeredInfo, icon, reviewTitle, reviewSubTitle);
-
-    // Then the tag/value pairs
-    localContentsList[1].type = TAG_VALUE_LIST;
-    memcpy(&localContentsList[1].content.tagValueList,
-           tagValueList,
-           sizeof(nbgl_contentTagValueList_t));
-
-    // Eventually the long press page
-    localContentsList[2].type = INFO_BUTTON;
-    prepareReviewLightLastPage(&localContentsList[2].content.infoButton, icon, finishTitle);
-
-    // compute number of pages & fill navigation structure
-    uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
-    prepareNavInfo(true, nbPages, getRejectReviewText(operationType));
-
-#ifdef HAVE_PIEZO_SOUND
-    // Play notification sound
-    io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
-#endif  // HAVE_PIEZO_SOUND
-
-    displayGenericContextPage(0, true);
+    useCaseReview(operationType,
+                  tagValueList,
+                  icon,
+                  reviewTitle,
+                  reviewSubTitle,
+                  finishTitle,
+                  choiceCallback,
+                  true);
 }
 
 /**
@@ -2636,6 +2638,11 @@ void nbgl_useCaseGenericReview(const nbgl_genericContents_t *contents,
     uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
     prepareNavInfo(true, nbPages, rejectText);
     navInfo.quitToken = QUIT_TOKEN;
+
+#ifdef HAVE_PIEZO_SOUND
+    // Play notification sound
+    io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
+#endif  // HAVE_PIEZO_SOUND
 
     displayGenericContextPage(0, true);
 }
@@ -2890,6 +2897,11 @@ void nbgl_useCaseAddressConfirmationExt(const char                       *addres
     uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
 
     prepareNavInfo(true, nbPages, "Cancel");
+
+#ifdef HAVE_PIEZO_SOUND
+    // Play notification sound
+    io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
+#endif  // HAVE_PIEZO_SOUND
 
     displayGenericContextPage(0, true);
 }
