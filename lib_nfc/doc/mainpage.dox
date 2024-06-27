@@ -1,6 +1,6 @@
 /** @page nfc_mainpage NFC API
 
-@section mainpage_intro Introduction
+@section nfc_mainpage_intro Introduction
 
 This page describes the API of NFC (Near-Field Communication) Stack (only available on \b Stax product).
 

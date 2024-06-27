@@ -1,6 +1,6 @@
 /**
  ******************************************************************************
- * @file    usbd_hid.c
+ * @file    usbd_impl.c
  * @author  MCD Application Team
  * @version V2.2.0
  * @date    13-June-2014

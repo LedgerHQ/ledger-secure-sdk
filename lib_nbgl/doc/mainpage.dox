@@ -1,7 +1,7 @@
 #ifdef HAVE_SE_TOUCH
 /** @page nbgl_mainpage New BOLOS Graphic API for Stax
 
-@section mainpage_intro Introduction
+@section nbgl_mainpage_intro Introduction
 
 This documentation describes the different interfaces of <b>NBGL</b>, the library that
 is targeted to be integrated in Stax product.
