@@ -1,6 +1,6 @@
 /** @page ble_mainpage BlueTooth Low-Energy Stack
 
-@section mainpage_intro Introduction
+@section ble_mainpage_intro Introduction
 
 This page describes the API of BLE (BlueTooth Low-Energy) Stack provided in \b NanoX and \b Stax products.
 

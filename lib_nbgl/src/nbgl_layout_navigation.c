@@ -1,6 +1,6 @@
 
 /**
- * @file nbgl_navigation.c
+ * @file nbgl_layout_navigation.c
  * @brief The construction of a navigation bar with buttons super-object
  *
  */

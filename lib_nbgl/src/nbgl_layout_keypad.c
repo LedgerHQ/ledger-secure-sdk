@@ -1,5 +1,5 @@
 /**
- * @file nbgl_layout_kbd.c
+ * @file nbgl_layout_keypad.c
  * @brief Implementation of keypad management of predefined layouts management for Applications
  * @note This file applies only to wallet size products (Stax, Flex...)
  */
