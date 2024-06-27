@@ -48,7 +48,7 @@ A few APIs are available to draw typical Use-Cases, such as:
  - @ref nbgl_useCaseSpinner() to draw an infinite spinner page (see @subpage use_case_spinner)
 - for most used reviews:
  - @ref nbgl_useCaseReview() to draw the pages of a regular coin transaction review, when all info are available from the beginning (see @subpage use_case_review)
- - @ref nbgl_useCaseReviewLight() to draw the pages of a regular coin transaction review, when all info are available from the beginning (see @subpage use_case_review_light)
+ - @ref nbgl_useCaseReviewLight() to draw the pages of a transaction review with a simple button confirmation, when all info are available from the beginning (see @subpage use_case_review_light)
  - @ref nbgl_useCaseReviewStreamingStart() to draw the pages of a regular coin transaction review, when all info are not available from the beginning (see @subpage use_case_review_streaming)
 - for address verification:
  - @ref nbgl_useCaseAddressConfirmation() to draw an address confirmation page, with a possibility to see it as QR Code (see @subpage use_case_addr_confirm)
@@ -109,7 +109,24 @@ static const char *infoTypes[]    = {"Version", "Developer"};
 static const char *infoContents[] = {"1.9.18", "Ledger"};
 
 // function called in case of action on switches
-static void controlsCallback(int token, uint8_t index, int page);
+static void controlsCallback(int token, uint8_t index, int page) {
+  if (token == SWITCH1_TOKEN) {
+    if (index == 0) {
+      // deactivate something related with ENS
+    }
+    else {
+      // activate something related with ENS
+    }
+  }
+  else if (token == SWITCH2_TOKEN) {
+    if (index == 0) {
+      // deactivate something related with EIP712
+    }
+    else {
+      // activate something related with EIP712
+    }
+  }
+}
 
 static nbgl_content_t contentsList = {
   .content.switchesList.nbSwitches = 2,
@@ -218,7 +235,7 @@ The @ref nbgl_useCaseReviewStatus() function enables to create such a page, with
 
 If it's a success status, a "success" tune will be automatically played.
 
-@subsection use_case_review Regular static review Use Case
+@subsection use_case_review Review Use Case
 
 \image{inline} html UseCase-Review.png "caption" height=300
 
@@ -338,7 +355,7 @@ void staticReview(void) {
 }
 @endcode
 
-@subsection use_case_review_light Light Static Review Use Case
+@subsection use_case_review_light Light review Use Case
 
 In some cases, the developer may want to display a review but with a less intense confirmation than a long-press button. A simple button is used in this
 case.
@@ -379,7 +396,7 @@ As long as there are new tag/value pairs to send, the API to call is either @ref
 - the list of tag/value pairs (or a callback to get them one by one)
 - a callback with one boolean parameter.
   - If this parameter is *false*, it means that the transaction is rejected.
-  - If this parameter is *true*, it means that NBGL is waiting for new data, sent with @ref nbgl_useCaseReviewStreamingContinue() or @ref nbgl_useCaseReviewStreamingContinueExt()
+  - If this parameter is *true*, it means that NBGL is waiting for new data, to be sent with @ref nbgl_useCaseReviewStreamingContinue() or @ref nbgl_useCaseReviewStreamingContinueExt()
 
 When there is no more data to senf, the API to call is either @ref nbgl_useCaseReviewStreamingFinish(), providing:
 
