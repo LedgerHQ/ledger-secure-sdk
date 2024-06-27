@@ -1,0 +1,39 @@
+<map id="lib_cxng/include/libcxng.h" name="lib_cxng/include/libcxng.h">
+<area shape="rect" id="node1" title="Include cryptography files." alt="" coords="1633,5,1823,32"/>
+<area shape="rect" id="node2" title=" " alt="" coords="116,80,167,107"/>
+<area shape="rect" id="node3" href="$lcx__common_8h.html" title="Cryptography flags." alt="" coords="5,155,123,181"/>
+<area shape="rect" id="node6" href="$lcx__hash_8h.html" title="Hash functions." alt="" coords="588,80,679,107"/>
+<area shape="rect" id="node7" href="$lcx__ripemd160_8h.html" title="RIPEMD&#45;160 hash function." alt="" coords="703,80,833,107"/>
+<area shape="rect" id="node8" href="$lcx__sha256_8h.html" title="SHA&#45;2 (Secure Hash Algorithm 2)" alt="" coords="857,80,964,107"/>
+<area shape="rect" id="node9" href="$lcx__sha512_8h.html" title="SHA&#45;2 (Secure Hash Algorithm 2)" alt="" coords="988,80,1095,107"/>
+<area shape="rect" id="node10" href="$lcx__sha3_8h.html" title="SHA&#45;3 (Secure Hash Algorithm 3)" alt="" coords="1119,80,1209,107"/>
+<area shape="rect" id="node11" href="$lcx__blake2_8h.html" title="BLAKE2 crypographic hash function." alt="" coords="1234,80,1337,107"/>
+<area shape="rect" id="node12" href="$lcx__groestl_8h.html" title="GROESTL hash function." alt="" coords="1361,80,1466,107"/>
+<area shape="rect" id="node13" href="$lcx__blake3_8h.html" title="BLAKE3 hash function." alt="" coords="1490,80,1593,107"/>
+<area shape="rect" id="node14" href="$lcx__hmac_8h.html" title="HMAC (Keyed&#45;Hash Message Authentication Code)" alt="" coords="1617,80,1713,107"/>
+<area shape="rect" id="node15" href="$lcx__pbkdf2_8h.html" title="PBKDF2 (Password&#45;Based Key Derivation Function)" alt="" coords="1738,80,1843,107"/>
+<area shape="rect" id="node16" href="$lcx__rng_8h.html" title="Random Number Generation." alt="" coords="1867,80,1949,107"/>
+<area shape="rect" id="node17" href="$lcx__math_8h.html" title="Basic arithmetic." alt="" coords="1973,80,2067,107"/>
+<area shape="rect" id="node18" href="$lcx__chacha_8h.html" title="Chacha cipher." alt="" coords="2092,80,2199,107"/>
+<area shape="rect" id="node19" href="$lcx__cipher_8h.html" title="API for block ciphers." alt="" coords="241,80,340,107"/>
+<area shape="rect" id="node24" href="$lcx__aes_8h.html" title="AES (Advanced Encryption Standard)." alt="" coords="317,155,400,181"/>
+<area shape="rect" id="node25" href="$lcx__cmac_8h.html" title="CMAC (Cipher&#45;based Message Authentication Code)." alt="" coords="2223,80,2318,107"/>
+<area shape="rect" id="node26" href="$lcx__aes__gcm_8h.html" title="AES in Galois/Counter Mode (AES&#45;GCM)" alt="" coords="2342,80,2461,107"/>
+<area shape="rect" id="node27" href="$lcx__aes__siv_8h.html" title="Advanced Encryption Standard with Synthetic Initialization Vector (AES&#45;SIV)." alt="" coords="2485,80,2593,107"/>
+<area shape="rect" id="node28" href="$lcx__aead_8h.html" title="Authenticated Encryption with Associated Data (AEAD)" alt="" coords="2617,80,2709,107"/>
+<area shape="rect" id="node29" href="$lcx__poly1305_8h.html" title="POLY1305 Message Authentication Code." alt="" coords="2733,80,2853,107"/>
+<area shape="rect" id="node30" href="$lcx__chacha__poly_8h.html" title="CHACHA20_POLY1305 Authenticated Encryption with Additional Data (AEAD)" alt="" coords="2877,80,3016,107"/>
+<area shape="rect" id="node31" href="$lcx__rsa_8h.html" title="RSA algorithm." alt="" coords="3040,80,3120,107"/>
+<area shape="rect" id="node32" href="$lcx__ecfp_8h.html" title="Key pair generation based on elliptic curves." alt="" coords="568,155,656,181"/>
+<area shape="rect" id="node33" href="$lcx__ecdsa_8h.html" title="ECDSA (Elliptic Curve Digital Signature Algorithm)." alt="" coords="3144,80,3243,107"/>
+<area shape="rect" id="node34" href="$lcx__eddsa_8h.html" title="EDDSA (Edwards Curve Digital Signature Algorithm)" alt="" coords="415,80,513,107"/>
+<area shape="rect" id="node35" href="$lcx__ecschnorr_8h.html" title="ECSDSA (Elliptic Curve&#45;based Schnorr Digital Signature Algorithm)." alt="" coords="3267,80,3389,107"/>
+<area shape="rect" id="node36" href="$lcx__ecdh_8h.html" title="ECDH (Elliptic Curve Diffie Hellman) key exchange." alt="" coords="3413,80,3504,107"/>
+<area shape="rect" id="node37" href="$lcx__crc_8h.html" title="CRC (Cyclic Redundancy Check)." alt="" coords="3529,80,3607,107"/>
+<area shape="rect" id="node4" title=" " alt="" coords="27,229,98,256"/>
+<area shape="rect" id="node5" title=" " alt="" coords="123,229,197,256"/>
+<area shape="rect" id="node20" title=" " alt="" coords="198,155,293,181"/>
+<area shape="rect" id="node21" href="$lcx__wrappers_8h.html" title=" " alt="" coords="424,155,544,181"/>
+<area shape="rect" id="node22" title=" " alt="" coords="366,229,471,256"/>
+<area shape="rect" id="node23" title=" " alt="" coords="496,229,600,256"/>
+</map>

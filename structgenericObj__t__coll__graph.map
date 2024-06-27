@@ -1,0 +1,17 @@
+<map id="genericObj_t" name="genericObj_t">
+<area shape="rect" id="node1" title=" " alt="" coords="704,357,808,384"/>
+<area shape="rect" id="node2" href="$structnbgl__navigation__bar__s.html" title="struct to represent a navigation bar (PAGE_INDICATOR type) There can be up to 5 page indicators,..." alt="" coords="383,104,551,131"/>
+<area shape="rect" id="node3" href="$structnbgl__obj__s.html" title="Common structure for all graphical objects." alt="" coords="187,357,277,384"/>
+<area shape="rect" id="node5" href="$structnbgl__spinner__s.html" title="struct to represent a &quot;spinner&quot;, represented by the Ledger corners, in gray, with one of the corners ..." alt="" coords="407,155,526,181"/>
+<area shape="rect" id="node6" href="$structnbgl__container__s.html" title="struct to represent a container (CONTAINER type)" alt="" coords="401,205,533,232"/>
+<area shape="rect" id="node7" href="$structnbgl__text__area__s.html" title="struct to represent a text area (TEXT_AREA type)" alt="" coords="400,256,533,283"/>
+<area shape="rect" id="node8" href="$structnbgl__keyboard__s.html" title="struct to represent a keyboard (KEYBOARD type)" alt="" coords="401,307,532,333"/>
+<area shape="rect" id="node9" href="$structnbgl__button__s.html" title="struct to represent a button (BUTTON type) that can contain a text and/or an icon" alt="" coords="410,357,523,384"/>
+<area shape="rect" id="node10" href="$structnbgl__line__s.html" title="struct to represent a vertical or horizontal line" alt="" coords="419,408,514,435"/>
+<area shape="rect" id="node11" href="$structnbgl__radio__s.html" title="struct to represent a radio button (RADIO_BUTTON type)" alt="" coords="415,459,519,485"/>
+<area shape="rect" id="node12" href="$structnbgl__keypad__s.html" title="struct to represent a keypad (KEYPAD type)" alt="" coords="407,509,526,536"/>
+<area shape="rect" id="node13" href="$structnbgl__image__s.html" title="struct to represent an image (IMAGE type)" alt="" coords="411,560,523,587"/>
+<area shape="rect" id="node14" href="$structnbgl__progress__bar__s.html" title="struct to represent a progress bar (PROGRESS_BAR type)" alt="" coords="389,611,544,637"/>
+<area shape="rect" id="node15" href="$structnbgl__switch__s.html" title="struct to represent a switch (size is fixed) (SWITCH type)" alt="" coords="410,661,523,688"/>
+<area shape="rect" id="node4" href="$structnbgl__area__s.html" title="Represents a rectangle area of the screen." alt="" coords="5,357,105,384"/>
+</map>

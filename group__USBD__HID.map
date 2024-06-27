@@ -1,0 +1,10 @@
+<map id="USBD_HID" name="USBD_HID">
+<area shape="rect" id="node1" href="$group__STM32__USB__DEVICE__LIBRARY.html" title=" " alt="" coords="5,133,221,159"/>
+<area shape="rect" id="node2" title="usbd core module" alt="" coords="269,133,360,159"/>
+<area shape="rect" id="node3" href="$group__USBD__HID__Private__Variables.html" title=" " alt="" coords="431,5,642,31"/>
+<area shape="rect" id="node4" href="$group__USBD__HID__Private__Functions.html" title=" " alt="" coords="431,55,643,80"/>
+<area shape="rect" id="node5" href="$group__USBD__HID__Private__Defines.html" title=" " alt="" coords="437,104,636,129"/>
+<area shape="rect" id="node6" href="$group__USBD__HID__Private__FunctionPrototypes.html" title=" " alt="" coords="434,154,639,194"/>
+<area shape="rect" id="node7" href="$group__USBD__HID__Private__Macros.html" title=" " alt="" coords="438,219,635,244"/>
+<area shape="rect" id="node8" href="$group__USBD__HID__Private__TypesDefinitions.html" title=" " alt="" coords="408,268,665,293"/>
+</map>

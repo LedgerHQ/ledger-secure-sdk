@@ -1,0 +1,11 @@
+<map id="lib_nbgl/include/nbgl_front.h" name="lib_nbgl/include/nbgl_front.h">
+<area shape="rect" id="node1" title="Font screen low&#45;Level driver API, to draw elementary forms." alt="" coords="725,5,881,47"/>
+<area shape="rect" id="node2" href="$nbgl__draw_8c.html" title="Implementation of middle&#45;level API to draw rich forms like rounded rectangle." alt="" coords="5,102,183,129"/>
+<area shape="rect" id="node3" href="$nbgl__layout_8c.html" title="Implementation of predefined layouts management for Applications." alt="" coords="207,102,394,129"/>
+<area shape="rect" id="node4" href="$nbgl__layout__keyboard_8c.html" title="Implementation of predefined keyboard related layouts management." alt="" coords="418,95,594,136"/>
+<area shape="rect" id="node5" href="$nbgl__layout__keypad_8c.html" title="Implementation of keypad management of predefined layouts management for Applications." alt="" coords="618,95,794,136"/>
+<area shape="rect" id="node6" href="$nbgl__obj_8c.html" title="Implementation of API to draw all basic graphic objects." alt="" coords="819,102,985,129"/>
+<area shape="rect" id="node7" href="$nbgl__obj__keyboard_8c.html" title="The construction and touch management of a keyboard object." alt="" coords="1010,95,1165,136"/>
+<area shape="rect" id="node8" href="$nbgl__obj__keypad_8c.html" title="The construction and touch management of a keypad object." alt="" coords="1189,95,1343,136"/>
+<area shape="rect" id="node9" href="$nbgl__screen_8c.html" title="Implementation of screens management API." alt="" coords="1367,102,1557,129"/>
+</map>

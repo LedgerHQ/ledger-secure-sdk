@@ -1,0 +1,16 @@
+<map id="lib_nbgl/include/nbgl_debug.h" name="lib_nbgl/include/nbgl_debug.h">
+<area shape="rect" id="node1" title="debug traces management" alt="" coords="1227,5,1383,47"/>
+<area shape="rect" id="node2" href="$nbgl__draw_8c.html" title="Implementation of middle&#45;level API to draw rich forms like rounded rectangle." alt="" coords="5,102,183,129"/>
+<area shape="rect" id="node3" href="$nbgl__fonts_8c.html" title=" " alt="" coords="207,102,386,129"/>
+<area shape="rect" id="node4" href="$nbgl__layout_8c.html" title="Implementation of predefined layouts management for Applications." alt="" coords="410,102,597,129"/>
+<area shape="rect" id="node5" href="$nbgl__layout__keyboard_8c.html" title="Implementation of predefined keyboard related layouts management." alt="" coords="621,95,797,136"/>
+<area shape="rect" id="node6" href="$nbgl__layout__keypad_8c.html" title="Implementation of keypad management of predefined layouts management for Applications." alt="" coords="821,95,997,136"/>
+<area shape="rect" id="node7" href="$nbgl__layout__navigation_8c.html" title="The construction of a navigation bar with buttons super&#45;object." alt="" coords="1021,95,1197,136"/>
+<area shape="rect" id="node8" href="$nbgl__obj_8c.html" title="Implementation of API to draw all basic graphic objects." alt="" coords="1221,102,1388,129"/>
+<area shape="rect" id="node9" href="$nbgl__obj__keyboard_8c.html" title="The construction and touch management of a keyboard object." alt="" coords="1413,95,1567,136"/>
+<area shape="rect" id="node10" href="$nbgl__obj__keypad_8c.html" title="The construction and touch management of a keypad object." alt="" coords="1591,95,1746,136"/>
+<area shape="rect" id="node11" href="$nbgl__obj__pool_8c.html" title="Implementation of a graphical objects pool, to be used by any page, or by predefined layout managemen..." alt="" coords="1770,95,1925,136"/>
+<area shape="rect" id="node12" href="$nbgl__page_8c.html" title="Implementation of predefined pages management for Applications." alt="" coords="1949,102,2127,129"/>
+<area shape="rect" id="node13" href="$nbgl__screen_8c.html" title="Implementation of screens management API." alt="" coords="2151,102,2341,129"/>
+<area shape="rect" id="node14" href="$nbgl__touch_8c.html" title=" " alt="" coords="2365,102,2548,129"/>
+</map>

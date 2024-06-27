@@ -1,0 +1,17 @@
+<map id="nbgl_content_t" name="nbgl_content_t">
+<area shape="rect" id="node1" title="This structure contains data to build a content." alt="" coords="1523,253,1641,280"/>
+<area shape="rect" id="node2" href="$unionnbgl__content__u.html" title="Union of the different type of contents." alt="" coords="1300,253,1421,280"/>
+<area shape="rect" id="node3" href="$structnbgl__contentInfoList__t.html" title="This structure contains data to build a INFOS_LIST content." alt="" coords="942,16,1109,43"/>
+<area shape="rect" id="node4" href="$structnbgl__contentInfoLongPress__t.html" title="This structure contains data to build a centered info + long press button content." alt="" coords="921,67,1130,93"/>
+<area shape="rect" id="node5" href="$structnbgl__contentBarsList__t.html" title="This structure contains data to build a BARS_LIST content." alt="" coords="940,117,1111,144"/>
+<area shape="rect" id="node6" href="$structnbgl__contentTagValueList__t.html" title="This structure contains a list of [tag,value] pairs." alt="" coords="580,231,779,257"/>
+<area shape="rect" id="node9" href="$structnbgl__contentTagValueConfirm__t.html" title="This structure contains [item,value] pair(s) and info about a potential &quot;details&quot; button,..." alt="" coords="912,231,1139,257"/>
+<area shape="rect" id="node15" href="$structnbgl__contentTagValueDetails__t.html" title="This structure contains a [item,value] pair and info about &quot;details&quot; button." alt="" coords="914,281,1137,308"/>
+<area shape="rect" id="node7" href="$structnbgl__contentTagValue__t.html" title="This structure contains a [tag,value] pair." alt="" coords="297,231,473,257"/>
+<area shape="rect" id="node8" href="$structnbgl__contentValueExt__t.html" title="This structure contains additions to a tag/value pair, to be able to build a screen to display these ..." alt="" coords="5,231,180,257"/>
+<area shape="rect" id="node10" href="$structnbgl__contentCenteredInfo__t.html" title="This structure contains info to build a centered (vertically and horizontally) area,..." alt="" coords="924,332,1127,359"/>
+<area shape="rect" id="node11" href="$structnbgl__contentInfoButton__t.html" title="This structure contains data to build a centered info + simple black button content." alt="" coords="932,383,1119,409"/>
+<area shape="rect" id="node12" href="$structnbgl__contentRadioChoice__t.html" title="This structure contains a list of names to build a list of radio buttons (on the right part of screen..." alt="" coords="926,433,1125,460"/>
+<area shape="rect" id="node13" href="$structnbgl__pageSwitchesList__s.html" title="This structure contains data to build a SWITCHES_LIST content." alt="" coords="933,484,1117,511"/>
+<area shape="rect" id="node14" href="$structnbgl__contentSwitch__t.html" title="This structure contains info to build a switch (on the right) with a description (on the left),..." alt="" coords="599,484,760,511"/>
+</map>

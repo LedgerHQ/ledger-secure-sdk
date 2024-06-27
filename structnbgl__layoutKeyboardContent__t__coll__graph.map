@@ -1,0 +1,5 @@
+<map id="nbgl_layoutKeyboardContent_t" name="nbgl_layoutKeyboardContent_t">
+<area shape="rect" id="node1" title="This structure contains info to build a keyboard content (controls that are linked to keyboard)" alt="" coords="142,95,365,121"/>
+<area shape="rect" id="node2" href="$structnbgl__layoutConfirmationButton__t.html" title="This structure contains info to build a confirmation button." alt="" coords="5,5,243,32"/>
+<area shape="rect" id="node3" href="$structnbgl__layoutSuggestionButtons__t.html" title="This structure contains info to build suggestion buttons." alt="" coords="267,5,499,32"/>
+</map>

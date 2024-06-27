@@ -1,0 +1,5 @@
+<map id="nbgl_container_s" name="nbgl_container_s">
+<area shape="rect" id="node1" title="struct to represent a container (CONTAINER type)" alt="" coords="5,201,137,228"/>
+<area shape="rect" id="node2" href="$structnbgl__obj__s.html" title="Common structure for all graphical objects." alt="" coords="26,96,117,123"/>
+<area shape="rect" id="node3" href="$structnbgl__area__s.html" title="Represents a rectangle area of the screen." alt="" coords="21,5,121,32"/>
+</map>

@@ -1,0 +1,14 @@
+<map id="lib_nbgl/src/nbgl_obj_pool.c" name="lib_nbgl/src/nbgl_obj_pool.c">
+<area shape="rect" id="node1" title="Implementation of a graphical objects pool, to be used by any page, or by predefined layout managemen..." alt="" coords="220,5,375,47"/>
+<area shape="rect" id="node2" title=" " alt="" coords="63,95,167,121"/>
+<area shape="rect" id="node3" href="$nbgl__obj_8h.html" title="API to draw all basic graphic objects." alt="" coords="191,95,281,121"/>
+<area shape="rect" id="node11" href="$nbgl__debug_8h.html" title="debug traces management" alt="" coords="305,95,415,121"/>
+<area shape="rect" id="node12" title=" " alt="" coords="439,95,510,121"/>
+<area shape="rect" id="node4" href="$nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="138,244,243,271"/>
+<area shape="rect" id="node9" href="$nbgl__fonts_8h.html" title=" " alt="" coords="185,169,287,196"/>
+<area shape="rect" id="node10" title=" " alt="" coords="311,169,387,196"/>
+<area shape="rect" id="node5" title=" " alt="" coords="5,319,80,345"/>
+<area shape="rect" id="node6" title=" " alt="" coords="105,319,175,345"/>
+<area shape="rect" id="node7" title=" " alt="" coords="200,319,283,345"/>
+<area shape="rect" id="node8" title=" " alt="" coords="307,319,421,345"/>
+</map>

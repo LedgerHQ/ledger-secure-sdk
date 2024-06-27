@@ -1,0 +1,7 @@
+<map id="lib_cxng/include/lcx_ecfp.h" name="lib_cxng/include/lcx_ecfp.h">
+<area shape="rect" id="node1" title="Key pair generation based on elliptic curves." alt="" coords="119,5,269,47"/>
+<area shape="rect" id="node2" href="$lcx__eddsa_8h.html" title="EDDSA (Edwards Curve Digital Signature Algorithm)" alt="" coords="5,95,156,136"/>
+<area shape="rect" id="node3" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="41,184,232,211"/>
+<area shape="rect" id="node5" href="$ux__bagl_8h.html" title=" " alt="" coords="231,102,410,129"/>
+<area shape="rect" id="node4" href="$cx__exported__functions_8c.html" title=" " alt="" coords="45,259,228,300"/>
+</map>

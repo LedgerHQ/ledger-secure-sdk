@@ -1,0 +1,5 @@
+<map id="nbgl_button_s" name="nbgl_button_s">
+<area shape="rect" id="node1" title="struct to represent a button (BUTTON type) that can contain a text and/or an icon" alt="" coords="5,187,119,213"/>
+<area shape="rect" id="node2" href="$structnbgl__obj__s.html" title="Common structure for all graphical objects." alt="" coords="17,96,107,123"/>
+<area shape="rect" id="node3" href="$structnbgl__area__s.html" title="Represents a rectangle area of the screen." alt="" coords="12,5,112,32"/>
+</map>

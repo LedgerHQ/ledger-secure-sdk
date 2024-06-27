@@ -1,0 +1,7 @@
+<map id="nbgl_screen_s" name="nbgl_screen_s">
+<area shape="rect" id="node1" title="struct to represent a screen (SCREEN type)" alt="" coords="119,292,234,319"/>
+<area shape="rect" id="node2" href="$structnbgl__container__s.html" title="struct to represent a container (CONTAINER type)" alt="" coords="5,201,137,228"/>
+<area shape="rect" id="node3" href="$structnbgl__obj__s.html" title="Common structure for all graphical objects." alt="" coords="26,96,117,123"/>
+<area shape="rect" id="node4" href="$structnbgl__area__s.html" title="Represents a rectangle area of the screen." alt="" coords="21,5,121,32"/>
+<area shape="rect" id="node5" href="$structnbgl__screenTickerConfiguration__s.html" title="struct to configure a screen layer" alt="" coords="162,201,402,228"/>
+</map>

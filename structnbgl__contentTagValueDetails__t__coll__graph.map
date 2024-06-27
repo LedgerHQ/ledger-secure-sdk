@@ -1,0 +1,6 @@
+<map id="nbgl_contentTagValueDetails_t" name="nbgl_contentTagValueDetails_t">
+<area shape="rect" id="node1" title="This structure contains a [item,value] pair and info about &quot;details&quot; button." alt="" coords="5,288,228,315"/>
+<area shape="rect" id="node2" href="$structnbgl__contentTagValueList__t.html" title="This structure contains a list of [tag,value] pairs." alt="" coords="17,199,216,225"/>
+<area shape="rect" id="node3" href="$structnbgl__contentTagValue__t.html" title="This structure contains a [tag,value] pair." alt="" coords="29,95,205,121"/>
+<area shape="rect" id="node4" href="$structnbgl__contentValueExt__t.html" title="This structure contains additions to a tag/value pair, to be able to build a screen to display these ..." alt="" coords="29,5,204,32"/>
+</map>

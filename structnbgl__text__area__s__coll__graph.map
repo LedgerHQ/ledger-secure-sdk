@@ -1,0 +1,5 @@
+<map id="nbgl_text_area_s" name="nbgl_text_area_s">
+<area shape="rect" id="node1" title="struct to represent a text area (TEXT_AREA type)" alt="" coords="5,187,139,213"/>
+<area shape="rect" id="node2" href="$structnbgl__obj__s.html" title="Common structure for all graphical objects." alt="" coords="27,96,117,123"/>
+<area shape="rect" id="node3" href="$structnbgl__area__s.html" title="Represents a rectangle area of the screen." alt="" coords="22,5,122,32"/>
+</map>

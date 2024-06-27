@@ -1,0 +1,11 @@
+<map id="lib_nbgl/include/nbgl_touch.h" name="lib_nbgl/include/nbgl_touch.h">
+<area shape="rect" id="node1" title=" " alt="" coords="705,5,861,47"/>
+<area shape="rect" id="node2" href="$nbgl__layout_8c.html" title="Implementation of predefined layouts management for Applications." alt="" coords="5,102,192,129"/>
+<area shape="rect" id="node3" href="$nbgl__layout__keyboard_8c.html" title="Implementation of predefined keyboard related layouts management." alt="" coords="216,95,392,136"/>
+<area shape="rect" id="node4" href="$nbgl__layout__keypad_8c.html" title="Implementation of keypad management of predefined layouts management for Applications." alt="" coords="416,95,592,136"/>
+<area shape="rect" id="node5" href="$nbgl__obj__keyboard_8c.html" title="The construction and touch management of a keyboard object." alt="" coords="616,95,771,136"/>
+<area shape="rect" id="node6" href="$nbgl__obj__keypad_8c.html" title="The construction and touch management of a keypad object." alt="" coords="795,95,949,136"/>
+<area shape="rect" id="node7" href="$nbgl__touch_8c.html" title=" " alt="" coords="974,102,1157,129"/>
+<area shape="rect" id="node8" href="$ux_8c.html" title=" " alt="" coords="1181,102,1307,129"/>
+<area shape="rect" id="node9" href="$ux__nbgl_8h.html" title=" " alt="" coords="1332,102,1495,129"/>
+</map>

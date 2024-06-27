@@ -1,0 +1,11 @@
+<map id="lib_nbgl/include/nbgl_content.h" name="lib_nbgl/include/nbgl_content.h">
+<area shape="rect" id="node1" title="common content for Graphical Library" alt="" coords="81,5,237,47"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,319,76,345"/>
+<area shape="rect" id="node3" title=" " alt="" coords="359,319,442,345"/>
+<area shape="rect" id="node4" href="$nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="88,244,193,271"/>
+<area shape="rect" id="node7" href="$nbgl__obj_8h.html" title="API to draw all basic graphic objects." alt="" coords="157,95,247,121"/>
+<area shape="rect" id="node5" title=" " alt="" coords="102,319,177,345"/>
+<area shape="rect" id="node6" title=" " alt="" coords="201,319,315,345"/>
+<area shape="rect" id="node8" href="$nbgl__fonts_8h.html" title=" " alt="" coords="179,169,281,196"/>
+<area shape="rect" id="node9" title=" " alt="" coords="305,169,381,196"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="nbgl_image_file_s" name="nbgl_image_file_s">
+<area shape="rect" id="node1" title="struct to represent an image file object (IMAGE_FILE type) The source of the data is an image file wi..." alt="" coords="5,187,144,213"/>
+<area shape="rect" id="node2" href="$structnbgl__obj__s.html" title="Common structure for all graphical objects." alt="" coords="29,96,120,123"/>
+<area shape="rect" id="node3" href="$structnbgl__area__s.html" title="Represents a rectangle area of the screen." alt="" coords="25,5,125,32"/>
+</map>

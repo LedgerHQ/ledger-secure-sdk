@@ -1,0 +1,15 @@
+<map id="lib_nbgl/include/nbgl_content.h" name="lib_nbgl/include/nbgl_content.h">
+<area shape="rect" id="node1" title="common content for Graphical Library" alt="" coords="1008,5,1164,47"/>
+<area shape="rect" id="node2" href="$nbgl__layout_8h.html" title="API of the Advanced BOLOS Graphical Library, for predefined layouts." alt="" coords="607,95,763,136"/>
+<area shape="rect" id="node3" href="$nbgl__page_8h.html" title="API of the Advanced BOLOS Graphical Library, for predefined pages." alt="" coords="1008,184,1164,225"/>
+<area shape="rect" id="node4" href="$nbgl__use__case_8h.html" title="API of the Advanced BOLOS Graphical Library, for typical application use&#45;cases." alt="" coords="1200,273,1356,315"/>
+<area shape="rect" id="node6" href="$nbgl__step_8h.html" title="Step construction API of NBGL." alt="" coords="111,184,267,225"/>
+<area shape="rect" id="node8" href="$nbgl__layout__internal_8h.html" title="Internal functions/constants of NBGL layout layer." alt="" coords="597,184,773,225"/>
+<area shape="rect" id="node13" href="$nbgl__layout__internal__nanos_8h.html" title="Internal functions/constants of NBGL layout layer." alt="" coords="397,184,573,225"/>
+<area shape="rect" id="node5" href="$nbgl__page_8c.html" title="Implementation of predefined pages management for Applications." alt="" coords="997,281,1175,307"/>
+<area shape="rect" id="node7" href="$nbgl__flow_8h.html" title="Flow construction API of NBGL." alt="" coords="5,273,161,315"/>
+<area shape="rect" id="node9" href="$nbgl__layout_8c.html" title="Implementation of predefined layouts management for Applications." alt="" coords="386,281,573,307"/>
+<area shape="rect" id="node10" href="$nbgl__layout__keyboard_8c.html" title="Implementation of predefined keyboard related layouts management." alt="" coords="597,273,773,315"/>
+<area shape="rect" id="node11" href="$nbgl__layout__keypad_8c.html" title="Implementation of keypad management of predefined layouts management for Applications." alt="" coords="797,273,973,315"/>
+<area shape="rect" id="node12" href="$nbgl__layout__navigation_8c.html" title="The construction of a navigation bar with buttons super&#45;object." alt="" coords="186,273,362,315"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="nbgl_pageConfirmationDescription_s" name="nbgl_pageConfirmationDescription_s">
+<area shape="rect" id="node1" title="Structure containing all specific information when creating a confirmation page." alt="" coords="5,95,267,121"/>
+<area shape="rect" id="node2" href="$structnbgl__contentCenteredInfo__t.html" title="This structure contains info to build a centered (vertically and horizontally) area,..." alt="" coords="35,5,237,32"/>
+</map>

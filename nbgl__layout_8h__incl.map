@@ -1,0 +1,13 @@
+<map id="lib_nbgl/include/nbgl_layout.h" name="lib_nbgl/include/nbgl_layout.h">
+<area shape="rect" id="node1" title="API of the Advanced BOLOS Graphical Library, for predefined layouts." alt="" coords="86,5,242,47"/>
+<area shape="rect" id="node2" href="$nbgl__obj_8h.html" title="API to draw all basic graphic objects." alt="" coords="166,169,255,196"/>
+<area shape="rect" id="node3" href="$nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="181,319,286,345"/>
+<area shape="rect" id="node10" href="$nbgl__screen_8h.html" title="API to manage screens." alt="" coords="61,95,173,121"/>
+<area shape="rect" id="node11" href="$nbgl__content_8h.html" title="common content for Graphical Library" alt="" coords="291,95,410,121"/>
+<area shape="rect" id="node8" href="$nbgl__fonts_8h.html" title=" " alt="" coords="159,244,262,271"/>
+<area shape="rect" id="node9" title=" " alt="" coords="59,244,135,271"/>
+<area shape="rect" id="node4" title=" " alt="" coords="77,393,152,420"/>
+<area shape="rect" id="node5" title=" " alt="" coords="315,393,386,420"/>
+<area shape="rect" id="node6" title=" " alt="" coords="411,393,493,420"/>
+<area shape="rect" id="node7" title=" " alt="" coords="176,393,291,420"/>
+</map>

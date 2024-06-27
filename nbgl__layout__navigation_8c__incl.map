@@ -1,0 +1,20 @@
+<map id="lib_nbgl/src/nbgl_layout_navigation.c" name="lib_nbgl/src/nbgl_layout_navigation.c">
+<area shape="rect" id="node1" title="The construction of a navigation bar with buttons super&#45;object." alt="" coords="236,5,412,47"/>
+<area shape="rect" id="node2" href="$nbgl__debug_8h.html" title="debug traces management" alt="" coords="5,95,115,121"/>
+<area shape="rect" id="node3" href="$nbgl__draw_8h.html" title="Middle Level API of the new BOLOS Graphical Library." alt="" coords="91,319,191,345"/>
+<area shape="rect" id="node10" href="$nbgl__obj_8h.html" title="API to draw all basic graphic objects." alt="" coords="215,319,305,345"/>
+<area shape="rect" id="node12" href="$nbgl__layout__internal_8h.html" title="Internal functions/constants of NBGL layout layer." alt="" coords="241,95,407,121"/>
+<area shape="rect" id="node16" title=" " alt="" coords="431,95,518,121"/>
+<area shape="rect" id="node17" title=" " alt="" coords="543,95,647,121"/>
+<area shape="rect" id="node18" title=" " alt="" coords="671,95,748,121"/>
+<area shape="rect" id="node4" href="$nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="333,468,438,495"/>
+<area shape="rect" id="node9" href="$nbgl__fonts_8h.html" title=" " alt="" coords="97,393,199,420"/>
+<area shape="rect" id="node5" title=" " alt="" coords="228,543,303,569"/>
+<area shape="rect" id="node6" title=" " alt="" coords="466,543,537,569"/>
+<area shape="rect" id="node7" title=" " alt="" coords="561,543,644,569"/>
+<area shape="rect" id="node8" title=" " alt="" coords="327,543,441,569"/>
+<area shape="rect" id="node11" title=" " alt="" coords="275,393,351,420"/>
+<area shape="rect" id="node13" href="$nbgl__layout_8h.html" title="API of the Advanced BOLOS Graphical Library, for predefined layouts." alt="" coords="291,169,402,196"/>
+<area shape="rect" id="node14" href="$nbgl__screen_8h.html" title="API to manage screens." alt="" coords="291,244,403,271"/>
+<area shape="rect" id="node15" href="$nbgl__content_8h.html" title="common content for Graphical Library" alt="" coords="478,244,597,271"/>
+</map>

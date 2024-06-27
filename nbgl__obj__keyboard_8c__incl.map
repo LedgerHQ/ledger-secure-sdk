@@ -1,0 +1,17 @@
+<map id="lib_nbgl/src/nbgl_obj_keyboard.c" name="lib_nbgl/src/nbgl_obj_keyboard.c">
+<area shape="rect" id="node1" title="The construction and touch management of a keyboard object." alt="" coords="215,5,370,47"/>
+<area shape="rect" id="node2" href="$nbgl__debug_8h.html" title="debug traces management" alt="" coords="19,95,129,121"/>
+<area shape="rect" id="node3" href="$nbgl__front_8h.html" title="Font screen low&#45;Level driver API, to draw elementary forms." alt="" coords="5,169,105,196"/>
+<area shape="rect" id="node9" href="$nbgl__draw_8h.html" title="Middle Level API of the new BOLOS Graphical Library." alt="" coords="129,169,229,196"/>
+<area shape="rect" id="node10" href="$nbgl__fonts_8h.html" title=" " alt="" coords="192,244,295,271"/>
+<area shape="rect" id="node11" href="$nbgl__obj_8h.html" title="API to draw all basic graphic objects." alt="" coords="305,169,395,196"/>
+<area shape="rect" id="node13" href="$nbgl__touch_8h.html" title=" " alt="" coords="356,95,461,121"/>
+<area shape="rect" id="node14" title=" " alt="" coords="485,95,562,121"/>
+<area shape="rect" id="node15" title=" " alt="" coords="587,95,655,121"/>
+<area shape="rect" id="node4" href="$nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="191,319,296,345"/>
+<area shape="rect" id="node5" title=" " alt="" coords="58,393,133,420"/>
+<area shape="rect" id="node6" title=" " alt="" coords="157,393,228,420"/>
+<area shape="rect" id="node7" title=" " alt="" coords="253,393,335,420"/>
+<area shape="rect" id="node8" title=" " alt="" coords="359,393,474,420"/>
+<area shape="rect" id="node12" title=" " alt="" coords="371,244,447,271"/>
+</map>

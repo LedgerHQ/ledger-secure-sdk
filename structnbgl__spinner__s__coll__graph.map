@@ -1,0 +1,5 @@
+<map id="nbgl_spinner_s" name="nbgl_spinner_s">
+<area shape="rect" id="node1" title="struct to represent a &quot;spinner&quot;, represented by the Ledger corners, in gray, with one of the corners ..." alt="" coords="5,187,124,213"/>
+<area shape="rect" id="node2" href="$structnbgl__obj__s.html" title="Common structure for all graphical objects." alt="" coords="19,96,110,123"/>
+<area shape="rect" id="node3" href="$structnbgl__area__s.html" title="Represents a rectangle area of the screen." alt="" coords="15,5,115,32"/>
+</map>

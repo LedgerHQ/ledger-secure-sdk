@@ -1,0 +1,19 @@
+<map id="lib_nbgl/src/nbgl_page.c" name="lib_nbgl/src/nbgl_page.c">
+<area shape="rect" id="node1" title="Implementation of predefined pages management for Applications." alt="" coords="195,5,374,32"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,80,76,107"/>
+<area shape="rect" id="node3" href="$nbgl__debug_8h.html" title="debug traces management" alt="" coords="101,80,210,107"/>
+<area shape="rect" id="node4" href="$nbgl__page_8h.html" title="API of the Advanced BOLOS Graphical Library, for predefined pages." alt="" coords="234,80,335,107"/>
+<area shape="rect" id="node16" title=" " alt="" coords="359,80,437,107"/>
+<area shape="rect" id="node17" title=" " alt="" coords="461,80,535,107"/>
+<area shape="rect" id="node5" href="$nbgl__layout_8h.html" title="API of the Advanced BOLOS Graphical Library, for predefined layouts." alt="" coords="183,155,293,181"/>
+<area shape="rect" id="node6" href="$nbgl__obj_8h.html" title="API to draw all basic graphic objects." alt="" coords="236,304,325,331"/>
+<area shape="rect" id="node7" href="$nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="156,453,261,480"/>
+<area shape="rect" id="node15" href="$nbgl__content_8h.html" title="common content for Graphical Library" alt="" coords="392,229,511,256"/>
+<area shape="rect" id="node14" href="$nbgl__screen_8h.html" title="API to manage screens." alt="" coords="131,229,243,256"/>
+<area shape="rect" id="node12" href="$nbgl__fonts_8h.html" title=" " alt="" coords="333,379,436,405"/>
+<area shape="rect" id="node13" title=" " alt="" coords="233,379,309,405"/>
+<area shape="rect" id="node8" title=" " alt="" coords="113,528,187,555"/>
+<area shape="rect" id="node9" title=" " alt="" coords="401,528,472,555"/>
+<area shape="rect" id="node10" title=" " alt="" coords="522,528,605,555"/>
+<area shape="rect" id="node11" title=" " alt="" coords="211,528,326,555"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="nbgl_line_s" name="nbgl_line_s">
+<area shape="rect" id="node1" title="struct to represent a vertical or horizontal line" alt="" coords="8,187,103,213"/>
+<area shape="rect" id="node2" href="$structnbgl__obj__s.html" title="Common structure for all graphical objects." alt="" coords="10,96,101,123"/>
+<area shape="rect" id="node3" href="$structnbgl__area__s.html" title="Represents a rectangle area of the screen." alt="" coords="5,5,105,32"/>
+</map>

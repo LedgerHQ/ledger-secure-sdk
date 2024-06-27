@@ -1,0 +1,4 @@
+<map id="nbgl_obj_s" name="nbgl_obj_s">
+<area shape="rect" id="node1" title="Common structure for all graphical objects." alt="" coords="10,96,101,123"/>
+<area shape="rect" id="node2" href="$structnbgl__area__s.html" title="Represents a rectangle area of the screen." alt="" coords="5,5,105,32"/>
+</map>

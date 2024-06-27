@@ -1,0 +1,6 @@
+<map id="nbgl_layoutFooter_t" name="nbgl_layoutFooter_t">
+<area shape="rect" id="node1" title="This structure contains info to build an extended footer." alt="" coords="259,95,410,121"/>
+<area shape="rect" id="node2" href="$structnbgl__layoutNavigationBar__t.html" title="This structure contains info to build a navigation bar at the bottom of the screen." alt="" coords="5,5,208,32"/>
+<area shape="rect" id="node3" href="$structnbgl__layoutChoiceButtons__t.html" title="This structure contains info to build a pair of buttons, one on top of the other." alt="" coords="233,5,437,32"/>
+<area shape="rect" id="node4" href="$structnbgl__layoutButton__t.html" title="This structure contains info to build a single button." alt="" coords="461,5,614,32"/>
+</map>
