@@ -97,13 +97,9 @@
  * |DATA  |CERT_LEN|CERT      |Certificate        |
  *
  * - Response APDU
- * |DATA             |LENGTH           | DESCRIPTION                     |
- * |-----------------|-----------------|---------------------------------|
- * |TRUSTED_NAME_LEN |0x01             | Certificate trusted name length |
- * |TRUSTED_NAME     |TRUSTED_NAME_LEN | Certificate trusted name        |
- * |PUBLIC_KEY_LEN   |0x01             | Certificate public key length   |
- * |PUBLIC_KEY       |PUBLIC_KEY_LEN   | Certificate public key          |
- * |STATUS_WORD      |0x02             | 0x9000 on success               |
+ * |DATA             |LENGTH           | DESCRIPTION       |
+ * |-----------------|-----------------|-------------------|
+ * |STATUS_WORD      |0x02             | 0x9000 on success |
  */
 #define DEFAULT_APDU_INS_LOAD_CERTIFICATE 0x06
 #endif  // HAVE_LEDGER_PKI
