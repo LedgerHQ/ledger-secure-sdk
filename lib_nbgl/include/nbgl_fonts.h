@@ -15,12 +15,19 @@ extern "C" {
  *      INCLUDES
  *********************/
 #include "nbgl_types.h"
+#ifdef HAVE_LANGUAGE_PACK
+#include "ux_loc_nbgl.h"
+#endif  // HAVE_LANGUAGE_PACK
 
 /*********************
  *      DEFINES
  *********************/
 #define PIC_CHAR(x) ((const nbgl_font_character_t *) PIC(x))
 #define PIC_BMP(x)  ((uint8_t const *) PIC(x))
+
+#ifndef HAVE_LANGUAGE_PACK
+#define LANGUAGE_PACK void
+#endif  // HAVE_LANGUAGE_PACK
 
 /**
  * @brief fonts nicknames to be used for various wallet size targets (non-Nano)
@@ -212,10 +219,9 @@ uint32_t nbgl_popUnicodeChar(const uint8_t **text, uint16_t *text_length, bool *
 nbgl_unicode_ctx_t                  *nbgl_getUnicodeFont(nbgl_font_id_e font_id);
 const nbgl_font_unicode_character_t *nbgl_getUnicodeFontCharacter(uint32_t unicode);
 uint32_t                             nbgl_getUnicodeFontCharacterByteCount(void);
-#ifdef HAVE_LANGUAGE_PACK
-void nbgl_refreshUnicodeFont(void);
-#endif
 #endif  // HAVE_UNICODE_SUPPORT
+void nbgl_setLanguagePack(const LANGUAGE_PACK *lp);
+void nbgl_refreshUnicodeFont(void);
 
 /**********************
  *      MACROS

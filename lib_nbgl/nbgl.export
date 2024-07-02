@@ -1,0 +1,45 @@
+# This file contains the functions exported by nbgllib. It is used by nbglsdk.py to
+# generate asm stubs for the SDK and the NBGL functions table in nbgllib.
+#
+# Making changes to this file (ie. removal, addition, ordering) require apps to
+# be re-built since the ID of the exported functions will likely be different.
+
+nbgl_redrawObject
+nbgl_refresh
+nbgl_refreshSpecial
+nbgl_refreshSpecialWithPostRefresh
+nbgl_refreshIsNeeded
+nbgl_refreshReset
+nbgl_objInit
+nbgl_objAllowDrawing
+nbgl_screenSet
+nbgl_screenPush
+nbgl_screenRedraw
+nbgl_screenPop
+nbgl_screenGetElements
+nbgl_screenGetCurrentStackSize
+nbgl_screenGetAt
+nbgl_screenUpdateTicker
+nbgl_screenUpdateBackgroundColor
+nbgl_screenReset
+nbgl_screenHandler
+nbgl_objPoolGet
+nbgl_objPoolGetArray
+nbgl_containerPoolGet
+nbgl_getFont
+nbgl_getFontHeight
+nbgl_getFontLineHeight
+nbgl_getSingleLineTextWidth
+nbgl_getTextHeight
+nbgl_getTextHeightInWidth
+nbgl_getTextNbLinesInWidth
+nbgl_getTextWidth
+nbgl_getTextMaxLenInNbLines
+nbgl_textReduceOnNbLines
+nbgl_textWrapOnNbLines
+nbgl_refreshUnicodeFont
+nbgl_setLanguagePack
+nbgl_touchHandler
+nbgl_touchGetTouchDuration
+nbgl_touchGetTouchedPosition
+nbgl_drawText

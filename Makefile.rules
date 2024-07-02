@@ -64,8 +64,22 @@ APP_SRC_PROTOC = $(filter %.pb.c, $(APP_SOURCE_FILES) $(SOURCE_FILES)) $(shell f
 # Filter remaining real source files from App (proto filtered globally hereafter)
 APP_SRC_FILTER = $(filter-out $(APP_SRC_FROM_SDK) $(APP_SRC_GEN), $(APP_SOURCE_FILES))
 
+NBGL_SOURCE_PATH := $(BOLOS_SDK)/lib_nbgl/src
+NBGL_LIB_FILES   :=  $(NBGL_SOURCE_PATH)/nbgl_obj.c \
+                     $(NBGL_SOURCE_PATH)/nbgl_obj_keyboard.c \
+                     $(NBGL_SOURCE_PATH)/nbgl_obj_keypad.c \
+                     $(NBGL_SOURCE_PATH)/nbgl_obj_pool.c \
+                     $(NBGL_SOURCE_PATH)/nbgl_draw.c \
+                     $(NBGL_SOURCE_PATH)/nbgl_fonts.c \
+                     $(NBGL_SOURCE_PATH)/nbgl_screen.c \
+                     $(NBGL_SOURCE_PATH)/nbgl_touch.c \
+                     $(NBGL_SOURCE_PATH)/nbgl_exported_functions.c \
+                     $(NBGL_SOURCE_PATH)/nbgl_trampoline.s
+
 # Separate SDK and APP and GEN sources
-SOURCES_SDK += $(foreach libdir, src $(SDK_SOURCE_PATH), $(shell find $(BOLOS_SDK)/$(libdir) -name '*.[csS]')) $(APP_SRC_FROM_SDK)
+SOURCES_SDK1 += $(foreach libdir, src $(SDK_SOURCE_PATH), $(shell find $(BOLOS_SDK)/$(libdir) -name '*.[csS]')) $(APP_SRC_FROM_SDK)
+SOURCES_SDK = $(filter-out $(NBGL_LIB_FILES), $(SOURCES_SDK1))
+
 SOURCES_APP += $(filter-out %.pb.c, $(abspath $(SOURCE_FILES) $(foreach libdir, $(SOURCE_PATH) $(APP_SOURCE_PATH), $(shell find $(libdir) -name '*.[csS]')) $(APP_SRC_FILTER)))
 SOURCES_GEN += $(GLYPH_DESTC) $(APP_SRC_GEN)
 VPATH += $(call uniq, $(dir $(SOURCES_SDK) $(SOURCES_APP) $(GLYPH_DESTC)))
