@@ -160,6 +160,44 @@ CX_TRAMPOLINE _NR_cx_cipher_reset                          cx_cipher_reset
 CX_TRAMPOLINE _NR_cx_cmac_start                            cx_cmac_start
 CX_TRAMPOLINE _NR_cx_cmac_update                           cx_cmac_update
 CX_TRAMPOLINE _NR_cx_cmac_finish                           cx_cmac_finish
+CX_TRAMPOLINE _NR_nbgl_redrawObject                        nbgl_redrawObject
+CX_TRAMPOLINE _NR_nbgl_refresh                             nbgl_refresh
+CX_TRAMPOLINE _NR_nbgl_refreshSpecial                      nbgl_refreshSpecial
+CX_TRAMPOLINE _NR_nbgl_refreshSpecialWithPostRefresh       nbgl_refreshSpecialWithPostRefresh
+CX_TRAMPOLINE _NR_nbgl_refreshIsNeeded                     nbgl_refreshIsNeeded
+CX_TRAMPOLINE _NR_nbgl_refreshReset                        nbgl_refreshReset
+CX_TRAMPOLINE _NR_nbgl_objInit                             nbgl_objInit
+CX_TRAMPOLINE _NR_nbgl_objAllowDrawing                     nbgl_objAllowDrawing
+CX_TRAMPOLINE _NR_nbgl_screenSet                           nbgl_screenSet
+CX_TRAMPOLINE _NR_nbgl_screenPush                          nbgl_screenPush
+CX_TRAMPOLINE _NR_nbgl_screenRedraw                        nbgl_screenRedraw
+CX_TRAMPOLINE _NR_nbgl_screenPop                           nbgl_screenPop
+CX_TRAMPOLINE _NR_nbgl_screenGetElements                   nbgl_screenGetElements
+CX_TRAMPOLINE _NR_nbgl_screenGetCurrentStackSize           nbgl_screenGetCurrentStackSize
+CX_TRAMPOLINE _NR_nbgl_screenGetAt                         nbgl_screenGetAt
+CX_TRAMPOLINE _NR_nbgl_screenUpdateTicker                  nbgl_screenUpdateTicker
+CX_TRAMPOLINE _NR_nbgl_screenUpdateBackgroundColor         nbgl_screenUpdateBackgroundColor
+CX_TRAMPOLINE _NR_nbgl_screenReset                         nbgl_screenReset
+CX_TRAMPOLINE _NR_nbgl_screenHandler                       nbgl_screenHandler
+CX_TRAMPOLINE _NR_nbgl_objPoolGet                          nbgl_objPoolGet
+CX_TRAMPOLINE _NR_nbgl_objPoolGetArray                     nbgl_objPoolGetArray
+CX_TRAMPOLINE _NR_nbgl_containerPoolGet                    nbgl_containerPoolGet
+CX_TRAMPOLINE _NR_nbgl_getFont                             nbgl_getFont
+CX_TRAMPOLINE _NR_nbgl_getFontHeight                       nbgl_getFontHeight
+CX_TRAMPOLINE _NR_nbgl_getFontLineHeight                   nbgl_getFontLineHeight
+CX_TRAMPOLINE _NR_nbgl_getSingleLineTextWidth              nbgl_getSingleLineTextWidth
+CX_TRAMPOLINE _NR_nbgl_getTextHeight                       nbgl_getTextHeight
+CX_TRAMPOLINE _NR_nbgl_getTextHeightInWidth                nbgl_getTextHeightInWidth
+CX_TRAMPOLINE _NR_nbgl_getTextNbLinesInWidth               nbgl_getTextNbLinesInWidth
+CX_TRAMPOLINE _NR_nbgl_getTextWidth                        nbgl_getTextWidth
+CX_TRAMPOLINE _NR_nbgl_getTextMaxLenInNbLines              nbgl_getTextMaxLenInNbLines
+CX_TRAMPOLINE _NR_nbgl_textReduceOnNbLines                 nbgl_textReduceOnNbLines
+CX_TRAMPOLINE _NR_nbgl_textWrapOnNbLines                   nbgl_textWrapOnNbLines
+CX_TRAMPOLINE _NR_nbgl_refreshUnicodeFont                  nbgl_refreshUnicodeFont
+CX_TRAMPOLINE _NR_nbgl_touchHandler                        nbgl_touchHandler
+CX_TRAMPOLINE _NR_nbgl_touchGetTouchDuration               nbgl_touchGetTouchDuration
+CX_TRAMPOLINE _NR_nbgl_touchGetTouchedPosition             nbgl_touchGetTouchedPosition
+CX_TRAMPOLINE _NR_nbgl_drawText                            nbgl_drawText
 
 .thumb_func
 cx_trampoline_helper:
