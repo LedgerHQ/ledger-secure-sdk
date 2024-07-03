@@ -40,9 +40,9 @@ static nbgl_unicode_ctx_t unicodeCtx = {0};
  *      VARIABLES
  **********************/
 
-#if defined(HAVE_LANGUAGE_PACK)
-extern const LANGUAGE_PACK *language_pack;
-#endif  // defined(HAVE_LANGUAGE_PACK)
+#ifdef HAVE_LANGUAGE_PACK
+static const LANGUAGE_PACK *language_pack;
+#endif  // HAVE_LANGUAGE_PACK
 
 #if defined(BOLOS_OS_UPGRADER_APP)
 #ifdef SCREEN_SIZE_WALLET
@@ -1295,9 +1295,11 @@ uint32_t nbgl_getUnicodeFontCharacterByteCount(void)
  * to be sure that the current unicodeCtx variable will be set again at next @ref
  * nbgl_getUnicodeFont() call
  *
+ * @param lp new language pack to apply
  */
-void nbgl_refreshUnicodeFont(void)
+void nbgl_refreshUnicodeFont(const LANGUAGE_PACK *lp)
 {
+    language_pack         = lp;
     unicodeCtx.font       = NULL;
     unicodeCtx.characters = NULL;
 }
