@@ -47,9 +47,9 @@ The @subpage u2f_mainpage page contains all information necessary to use the U2F
 The @subpage ux_mainpage page contains all information necessary to user the User eXperience (and partially Graphical Library) for
 \b Nanos applications development (using \b BAGL).
 
-@subsection ux_stax_presentation User eXperience on Applications using \b NBGL
+@subsection ux_nbgl_presentation User eXperience on Applications using \b NBGL
 
-The @subpage ux_stax_mainpage page contains all information necessary to user the User eXperience for
+The @subpage ux_nbgl_mainpage page contains all information necessary to user the User eXperience for
 \b Stax, \b NanoX and \b NanoS+ applications development using \b NBGL (most recent ones).
 
 

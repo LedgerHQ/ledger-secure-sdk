@@ -17,6 +17,8 @@
 #define CERTIFICATE_STRUCTURE_TYPE_CERTIFICATE (0x01)
 /** Maximum certificate trusted name length */
 #define CERTIFICATE_TRUSTED_NAME_MAXLEN        (32)
+/** Certificate depth maximum value */
+#define CERTIFICATE_DEPTH_MAX_VALUE            (0xFF)
 
 /** Certificate tags associated to each certificate field */
 typedef enum {
@@ -88,6 +90,7 @@ enum {
     CERTIFICATE_TARGET_DEVICE_NANOX,
     CERTIFICATE_TARGET_DEVICE_NANOSP,
     CERTIFICATE_TARGET_DEVICE_STAX,
+    CERTIFICATE_TARGET_DEVICE_FLEX,
     CERTIFICATE_TARGET_DEVICE_UNKNOWN
 };
 
@@ -137,7 +140,7 @@ static const os_pki_certificate_tag_info_t C_os_pki_certificate_tag_info[] = {
     [CERTIFICATE_INFO_INDEX_PK_SIGN_ALGO_ID]       = {CERTIFICATE_SIGN_ALGO_ID_UNKNOWN,         0x01                     },
     [CERTIFICATE_INFO_INDEX_TARGET_DEVICE]         = {CERTIFICATE_TARGET_DEVICE_UNKNOWN,        0x01                     },
     [CERTIFICATE_INFO_INDEX_SIGNATURE]             = {CERTIFICATE_FIELD_UNKNOWN_VALUE,          CERTIFICATE_FIELD_VAR_LEN},
-    [CERTIFICATE_INFO_INDEX_DEPTH]                 = {CERTIFICATE_FIELD_UNKNOWN_VALUE,          0x01                     },
+    [CERTIFICATE_INFO_INDEX_DEPTH]                 = {CERTIFICATE_DEPTH_MAX_VALUE,              0x01                     },
 };
 
 static const cx_md_t C_os_sign_algo_hash_info[] = {

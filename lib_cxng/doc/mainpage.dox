@@ -1,6 +1,6 @@
 /** @page cxng_mainpage Cryptographic Library
 
-@section mainpage_intro Introduction
+@section cxng_mainpage_intro Introduction
 
 This documentation describes the different interfaces of Bolos Cryptographic Library.
 
