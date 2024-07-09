@@ -216,15 +216,19 @@ def convert_to_image_file(image_data: bytes, width: int, height: int,
     return bytes(bytearray(result))
 
 
-def compute_app_icon_data(im: Image, bpp, reverse) -> Tuple[bool, bytes]:
+def compute_app_icon_data(no_comp: bool, im: Image, bpp, reverse) -> Tuple[bool, bytes]:
     """
     Process image as app icon:
     - App icon are always image file
     - Compression is not limited to 64x64
     """
-    compression, image_data = compress(im, bpp, reverse)
-    is_file = True
     width, height = im.size
+    is_file = True
+    if not no_comp:
+        compression, image_data = compress(im, bpp, reverse)
+    else:
+        image_data = image_to_packed_buffer(im, bpp, reverse)
+        compression = NbglFileCompression.NoCompression
     image_data = convert_to_image_file(
         image_data, width, height, bpp, compression)
     return is_file, image_data
@@ -370,7 +374,12 @@ def main():
             im, bpp = opened
 
             # Prepare and print app icon data
-            _, image_data = compute_app_icon_data(im, bpp, args.reverse)
+            # for Nano icons, do not compress
+            if args.reverse:
+                no_comp = True
+            else:
+                no_comp = False
+            _, image_data = compute_app_icon_data(no_comp, im, bpp, args.reverse)
             with open(args.hexbitmap, 'w') as out_file:
                 out_file.write(binascii.hexlify(image_data).decode('utf-8'))
             #print(binascii.hexlify(image_data).decode('utf-8'))
