@@ -145,7 +145,7 @@
 #define _NR_cx_cmac_start                        0x8d
 #define _NR_cx_cmac_update                       0x8e
 #define _NR_cx_cmac_finish                       0x8f
-#define _NR_nbgl_redrawObject                    0x90
+#define _NR_nbgl_objDraw                         0x90
 #define _NR_nbgl_refresh                         0x91
 #define _NR_nbgl_refreshSpecial                  0x92
 #define _NR_nbgl_refreshSpecialWithPostRefresh   0x93

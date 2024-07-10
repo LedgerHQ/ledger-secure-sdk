@@ -160,7 +160,7 @@ CX_TRAMPOLINE _NR_cx_cipher_reset                          cx_cipher_reset
 CX_TRAMPOLINE _NR_cx_cmac_start                            cx_cmac_start
 CX_TRAMPOLINE _NR_cx_cmac_update                           cx_cmac_update
 CX_TRAMPOLINE _NR_cx_cmac_finish                           cx_cmac_finish
-CX_TRAMPOLINE _NR_nbgl_redrawObject                        nbgl_redrawObject
+CX_TRAMPOLINE _NR_nbgl_objDraw                             nbgl_objDraw
 CX_TRAMPOLINE _NR_nbgl_refresh                             nbgl_refresh
 CX_TRAMPOLINE _NR_nbgl_refreshSpecial                      nbgl_refreshSpecial
 CX_TRAMPOLINE _NR_nbgl_refreshSpecialWithPostRefresh       nbgl_refreshSpecialWithPostRefresh

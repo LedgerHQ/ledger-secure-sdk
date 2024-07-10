@@ -148,7 +148,7 @@ cx_cipher_reset
 cx_cmac_start
 cx_cmac_update
 cx_cmac_finish
-nbgl_redrawObject
+nbgl_objDraw
 nbgl_refresh
 nbgl_refreshSpecial
 nbgl_refreshSpecialWithPostRefresh

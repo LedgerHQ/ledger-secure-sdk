@@ -174,7 +174,7 @@ unsigned long __attribute((section("._cx_exported_functions"))) cx_exported_func
     [_NR_cx_cmac_start]                      = (unsigned long) cx_cmac_start,
     [_NR_cx_cmac_update]                     = (unsigned long) cx_cmac_update,
     [_NR_cx_cmac_finish]                     = (unsigned long) cx_cmac_finish,
-    [_NR_nbgl_redrawObject]                  = (unsigned long) nbgl_redrawObject,
+    [_NR_nbgl_objDraw]                       = (unsigned long) nbgl_objDraw,
     [_NR_nbgl_refresh]                       = (unsigned long) nbgl_refresh,
     [_NR_nbgl_refreshSpecial]                = (unsigned long) nbgl_refreshSpecial,
     [_NR_nbgl_refreshSpecialWithPostRefresh] = (unsigned long) nbgl_refreshSpecialWithPostRefresh,
