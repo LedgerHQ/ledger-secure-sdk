@@ -174,6 +174,7 @@ CX_TRAMPOLINE _NR_nbgl_screenRedraw                        nbgl_screenRedraw
 CX_TRAMPOLINE _NR_nbgl_screenPop                           nbgl_screenPop
 CX_TRAMPOLINE _NR_nbgl_screenGetElements                   nbgl_screenGetElements
 CX_TRAMPOLINE _NR_nbgl_screenGetCurrentStackSize           nbgl_screenGetCurrentStackSize
+CX_TRAMPOLINE _NR_nbgl_screenGetUxStackSize                nbgl_screenGetUxStackSize
 CX_TRAMPOLINE _NR_nbgl_screenGetAt                         nbgl_screenGetAt
 CX_TRAMPOLINE _NR_nbgl_screenUpdateTicker                  nbgl_screenUpdateTicker
 CX_TRAMPOLINE _NR_nbgl_screenUpdateBackgroundColor         nbgl_screenUpdateBackgroundColor
@@ -198,6 +199,8 @@ CX_TRAMPOLINE _NR_nbgl_touchHandler                        nbgl_touchHandler
 CX_TRAMPOLINE _NR_nbgl_touchGetTouchDuration               nbgl_touchGetTouchDuration
 CX_TRAMPOLINE _NR_nbgl_touchGetTouchedPosition             nbgl_touchGetTouchedPosition
 CX_TRAMPOLINE _NR_nbgl_drawText                            nbgl_drawText
+CX_TRAMPOLINE _NR_shared_pic                               shared_pic
+CX_TRAMPOLINE _NR_init_pic                                 init_pic
 
 .thumb_func
 cx_trampoline_helper:

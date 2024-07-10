@@ -12,6 +12,7 @@
 #include "nbgl_debug.h"
 #include "os_pic.h"
 #include "os_io.h"
+#include "os_task.h"
 
 /*********************
  *      DEFINES
@@ -120,6 +121,27 @@ uint8_t nbgl_screenGetCurrentStackSize(void)
 }
 
 /**
+ * @brief Returns the number of used UX screens on stack
+ * @return the number of used UX screens on stack
+ */
+uint8_t nbgl_screenGetUxStackSize(void)
+{
+    uint8_t        nbUxScreens = 0;
+    nbgl_screen_t *screen      = (nbgl_screen_t *) topOfStack;
+
+    if ((nbScreensOnStack == 1) && (screenStack[0].container.nbChildren == 0)) {
+        return 0;
+    }
+    while (screen != NULL) {
+        if (screen->isUxScreen) {
+            nbUxScreens++;
+        }
+        screen = screen->previous;
+    }
+    return nbUxScreens;
+}
+
+/**
  * @brief Set the children of the screen with the given array of nbgl_obj_t*
  * It will replace the current children array.
  * A @ref nbgl_screenRedraw() can be called after that to draw all the given objects (and their
@@ -181,6 +203,7 @@ static int nbgl_screenSetAt(uint8_t                                 screenIndex,
     else {
         screenStack[screenIndex].ticker.tickerCallback = NULL;
     }
+    screenStack[screenIndex].isUxScreen = (os_sched_current_task() == TASK_BOLOS_UX);
     return 0;
 }
 

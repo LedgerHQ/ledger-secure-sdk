@@ -20,6 +20,7 @@
 #include "os.h"
 #include "io.h"
 #include "ledger_assert.h"
+#include "os_pic.h"
 
 #ifdef HAVE_SWAP
 #include "swap.h"
@@ -32,6 +33,12 @@
 ux_state_t        G_ux;
 bolos_ux_params_t G_ux_params;
 
+// variables set by linker
+extern void _nvram_start;
+extern void _nvram_end;
+extern void _bss;
+extern void _estack;
+
 /**
  * Exit the application and go back to the dashboard.
  */
@@ -42,6 +49,14 @@ WEAK void __attribute__((noreturn)) app_exit(void)
 
 WEAK void common_app_init(void)
 {
+    // initialize shared library PIC
+    init_pic(get_flash_reloc_addr(),
+             get_flash_reloc_end(),
+             get_ram_reloc_addr(),
+             get_ram_reloc_end(),
+             PIC(get_flash_reloc_addr()),
+             PIC(get_ram_reloc_addr()));
+
     UX_INIT();
 
     io_seproxyhal_init();

@@ -64,6 +64,7 @@ typedef struct PACKED__ nbgl_screen_s {
     struct nbgl_screen_s *previous;  ///< pointer to screen on bottom of this one (or NULL is this
                                      ///< screen is bottom of stack)
     uint8_t index;                   ///< index in screenStack array
+    bool    isUxScreen;              ///< set to TRUE if allocated by Bolos-UX
 } nbgl_screen_t;
 
 /**********************
@@ -84,6 +85,7 @@ void        nbgl_screenRedraw(void);
 nbgl_obj_t *nbgl_screenGetAt(uint8_t screenIndex);
 nbgl_obj_t *nbgl_screenGetTop(void);
 uint8_t     nbgl_screenGetCurrentStackSize(void);
+uint8_t     nbgl_screenGetUxStackSize(void);
 bool        nbgl_screenContainsObj(nbgl_obj_t *obj);
 nbgl_obj_t *nbgl_screenContainsObjType(nbgl_screen_t *screen, nbgl_obj_type_t type);
 
