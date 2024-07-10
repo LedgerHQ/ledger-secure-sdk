@@ -115,12 +115,11 @@ void ux_process_ticker_event(void)
 
     // enable/disable drawing according to UX decision
     nbgl_objAllowDrawing(displayEnabled);
-    // update ticker in NBGL
-    nbgl_screenHandler(100);
-
     if (!displayEnabled) {
         return;
     }
+    // update ticker in NBGL, if no
+    nbgl_screenHandler(100);
 
 #ifdef HAVE_SE_TOUCH
     // handle touch only if detected as pressed in last touch message

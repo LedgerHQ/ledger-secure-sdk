@@ -162,6 +162,7 @@ nbgl_screenRedraw
 nbgl_screenPop
 nbgl_screenGetElements
 nbgl_screenGetCurrentStackSize
+nbgl_screenGetUxStackSize
 nbgl_screenGetAt
 nbgl_screenUpdateTicker
 nbgl_screenUpdateBackgroundColor
@@ -186,3 +187,5 @@ nbgl_touchHandler
 nbgl_touchGetTouchDuration
 nbgl_touchGetTouchedPosition
 nbgl_drawText
+shared_pic
+init_pic

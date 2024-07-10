@@ -26,6 +26,7 @@
 #include "nbgl_screen.h"
 #include "nbgl_touch.h"
 #include "nbgl_draw.h"
+#include "os_pic.h"
 
 unsigned long __attribute((section("._cx_exported_functions"))) cx_exported_functions[] = {
     [_NR_cx_aes_dec_block]                   = (unsigned long) cx_aes_dec_block,
@@ -187,6 +188,7 @@ unsigned long __attribute((section("._cx_exported_functions"))) cx_exported_func
     [_NR_nbgl_screenPop]                     = (unsigned long) nbgl_screenPop,
     [_NR_nbgl_screenGetElements]             = (unsigned long) nbgl_screenGetElements,
     [_NR_nbgl_screenGetCurrentStackSize]     = (unsigned long) nbgl_screenGetCurrentStackSize,
+    [_NR_nbgl_screenGetUxStackSize]          = (unsigned long) nbgl_screenGetUxStackSize,
     [_NR_nbgl_screenGetAt]                   = (unsigned long) nbgl_screenGetAt,
     [_NR_nbgl_screenUpdateTicker]            = (unsigned long) nbgl_screenUpdateTicker,
     [_NR_nbgl_screenUpdateBackgroundColor]   = (unsigned long) nbgl_screenUpdateBackgroundColor,
@@ -211,4 +213,6 @@ unsigned long __attribute((section("._cx_exported_functions"))) cx_exported_func
     [_NR_nbgl_touchGetTouchDuration]         = (unsigned long) nbgl_touchGetTouchDuration,
     [_NR_nbgl_touchGetTouchedPosition]       = (unsigned long) nbgl_touchGetTouchedPosition,
     [_NR_nbgl_drawText]                      = (unsigned long) nbgl_drawText,
+    [_NR_shared_pic]                         = (unsigned long) shared_pic,
+    [_NR_init_pic]                           = (unsigned long) init_pic,
 };
