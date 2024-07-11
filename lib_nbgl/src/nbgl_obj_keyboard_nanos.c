@@ -103,14 +103,14 @@ static void keyboardDrawChar(int16_t x0, int8_t y0, bool inverted, const char *c
     nbgl_area_t rectArea;
 
     rectArea.backgroundColor = inverted ? WHITE : BLACK;
-    rectArea.width           = nbgl_getCharWidth(BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp, charPtr);
+    rectArea.width           = nbgl_getCharWidth(BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp, charPtr);
     rectArea.height          = 12;
     rectArea.bpp             = NBGL_BPP_1;
     // center
     rectArea.x0 = x0 + (KEYBOARD_KEY_WIDTH - rectArea.width) / 2;
     rectArea.y0 = y0 + (KEYBOARD_KEY_HEIGHT - rectArea.height) / 2 - 3;
     nbgl_drawText(
-        &rectArea, charPtr, 1, BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp, inverted ? BLACK : WHITE);
+        &rectArea, charPtr, 1, BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp, inverted ? BLACK : WHITE);
 }
 
 static void keyboardDrawCommon(nbgl_keyboard_t *keyboard)
