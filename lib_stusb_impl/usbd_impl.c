@@ -758,11 +758,7 @@ static uint8_t const USBD_DeviceDesc[]= {
   USB_MAX_EP0_SIZE,           /* bMaxPacketSize */
   LOBYTE(USBD_VID),           /* idVendor */
   HIBYTE(USBD_VID),           /* idVendor */
-#if defined(HAVE_VID_PID_PROBER) || defined(HAVE_LEGACY_PID)
   LOBYTE(USBD_PID),           /* idProduct */
-#else  // HAVE_VID_PID_PROBER || defined(HAVE_LEGACY_PID)
-  LOBYTE(USBD_PID),
-#endif // HAVE_VID_PID_PROBER || HAVE_LEGACY_PID
   HIBYTE(USBD_PID),           /* idProduct */
 
   // Change this ID to make windows WINUSB/WEBUSB reenumerate when the
