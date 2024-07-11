@@ -418,7 +418,15 @@ void io_seproxyhal_init(void)
     // Warn UX layer of io reset to avoid unwanted pin lock
     memset(&G_ux_params, 0, sizeof(G_ux_params));
     G_ux_params.ux_id = BOLOS_UX_IO_RESET;
-    os_ux(&G_ux_params);
+
+    // If the app has just been booted from the UX, multiple os_ux calls may be necessary
+    // to ensure UX layer has take the BOLOS_UX_IO_RESET instruction into account.
+    for (uint8_t i = 0; i < 2; i++) {
+        os_ux(&G_ux_params);
+        if (os_sched_last_status(TASK_BOLOS_UX) == BOLOS_UX_OK) {
+            break;
+        }
+    }
 #endif
 
     // wipe the io structure before it's used
