@@ -940,15 +940,6 @@ uint8_t *USBD_HID_GetReportDescriptor_impl(uint16_t *len)
     switch (USBD_Device.request.wIndex & 0xFF) {
 #ifdef HAVE_IO_U2F
         case U2F_INTF:
-
-            // very dirty work due to lack of callback when USB_HID_Init is called
-            USBD_LL_OpenEP(&USBD_Device, U2F_EPIN_ADDR, USBD_EP_TYPE_INTR, U2F_EPIN_SIZE);
-
-            USBD_LL_OpenEP(&USBD_Device, U2F_EPOUT_ADDR, USBD_EP_TYPE_INTR, U2F_EPOUT_SIZE);
-
-            /* Prepare Out endpoint to receive 1st packet */
-            USBD_LL_PrepareReceive(&USBD_Device, U2F_EPOUT_ADDR, U2F_EPOUT_SIZE);
-
             *len = sizeof(HID_ReportDesc_fido);
             return (uint8_t *) HID_ReportDesc_fido;
 #endif  // HAVE_IO_U2F
