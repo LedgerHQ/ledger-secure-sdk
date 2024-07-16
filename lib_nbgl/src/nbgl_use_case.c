@@ -199,18 +199,6 @@ static nbgl_BundleNavContext_t bundleNavContext;
 
 // indexed by nbgl_contentType_t
 static const uint8_t nbMaxElementsPerContentType[] = {
-#ifdef TARGET_STAX
-    1,  // CENTERED_INFO
-    1,  // INFO_LONG_PRESS
-    1,  // INFO_BUTTON
-    1,  // TAG_VALUE_LIST (computed dynamically)
-    1,  // TAG_VALUE_DETAILS
-    1,  // TAG_VALUE_CONFIRM
-    3,  // SWITCHES_LIST
-    3,  // INFOS_LIST
-    5,  // CHOICES_LIST
-    5,  // BARS_LIST
-#else   // TARGET_STAX
     1,  // CENTERED_INFO
     1,  // INFO_LONG_PRESS
     1,  // INFO_BUTTON
@@ -221,7 +209,6 @@ static const uint8_t nbMaxElementsPerContentType[] = {
     2,  // INFOS_LIST
     4,  // CHOICES_LIST
     4,  // BARS_LIST
-#endif  // TARGET_STAX
 };
 
 #ifdef NBGL_QRCODE
