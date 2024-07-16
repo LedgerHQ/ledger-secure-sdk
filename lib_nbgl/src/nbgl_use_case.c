@@ -64,7 +64,8 @@ enum {
     CONFIRM_TOKEN,
     REJECT_TOKEN,
     VALUE_ALIAS_TOKEN,
-    BLIND_WARNING_TOKEN
+    BLIND_WARNING_TOKEN,
+    TIP_BOX_TOKEN
 };
 
 typedef enum {
@@ -175,6 +176,10 @@ static nbgl_page_t *modalPageContext;
 // context for pages
 static const char *pageTitle;
 
+// context for tip-box
+static const char            *tipBoxModalTitle;
+static nbgl_contentInfoList_t tipBoxInfoList;
+
 // context for navigation use case
 static nbgl_pageNavigationInfo_t navInfo;
 static bool                      forwardNavOnly;
@@ -201,6 +206,7 @@ static nbgl_BundleNavContext_t bundleNavContext;
 static const uint8_t nbMaxElementsPerContentType[] = {
 #ifdef TARGET_STAX
     1,  // CENTERED_INFO
+    1,  // EXTENDED_CENTER
     1,  // INFO_LONG_PRESS
     1,  // INFO_BUTTON
     1,  // TAG_VALUE_LIST (computed dynamically)
@@ -212,6 +218,7 @@ static const uint8_t nbMaxElementsPerContentType[] = {
     5,  // BARS_LIST
 #else   // TARGET_STAX
     1,  // CENTERED_INFO
+    1,  // EXTENDED_CENTER
     1,  // INFO_LONG_PRESS
     1,  // INFO_BUTTON
     1,  // TAG_VALUE_LIST (computed dynamically)
@@ -236,6 +243,7 @@ static void displayReviewPage(uint8_t page, bool forceFullRefresh);
 static void displayDetailsPage(uint8_t page, bool forceFullRefresh);
 static void displayFullValuePage(const nbgl_contentTagValue_t *pair);
 static void displayBlindWarning(nbgl_opType_t opType);
+static void displayTipBoxModal(void);
 static void displaySettingsPage(uint8_t page, bool forceFullRefresh);
 static void displayGenericContextPage(uint8_t pageIdx, bool forceFullRefresh);
 static void pageCallback(int token, uint8_t index);
@@ -356,17 +364,18 @@ static void prepareNavInfo(bool isReview, uint8_t nbPages, const char *rejectTex
     }
 }
 
-static void prepareReviewFirstPage(nbgl_contentCenteredInfo_t *centeredInfo,
-                                   const nbgl_icon_details_t  *icon,
-                                   const char                 *reviewTitle,
-                                   const char                 *reviewSubTitle)
+static void prepareReviewFirstPage(nbgl_contentCenter_t      *contentCenter,
+                                   const nbgl_icon_details_t *icon,
+                                   const char                *reviewTitle,
+                                   const char                *reviewSubTitle)
 {
-    centeredInfo->icon    = icon;
-    centeredInfo->text1   = reviewTitle;
-    centeredInfo->text2   = reviewSubTitle;
-    centeredInfo->text3   = "Swipe to review";
-    centeredInfo->style   = LARGE_CASE_GRAY_INFO;
-    centeredInfo->offsetY = 0;
+    contentCenter->icon        = icon;
+    contentCenter->title       = reviewTitle;
+    contentCenter->description = reviewSubTitle;
+    contentCenter->subText     = "Swipe to review";
+    contentCenter->smallTitle  = NULL;
+    contentCenter->iconHug     = 0;
+    contentCenter->padding     = false;
 }
 
 static void prepareReviewLastPage(nbgl_contentInfoLongPress_t *infoLongPress,
@@ -547,6 +556,9 @@ static void pageCallback(int token, uint8_t index)
             displayBlindWarning(bundleNavContext.review.operationType
                                 & ~(SKIPPABLE_OPERATION | BLIND_OPERATION));
         }
+    }
+    else if (token == TIP_BOX_TOKEN) {
+        displayTipBoxModal();
     }
     else {  // probably a control provided by caller
         if (onContentAction != NULL) {
@@ -770,6 +782,11 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
                    &p_content->content.centeredInfo,
                    sizeof(pageContent->centeredInfo));
             break;
+        case EXTENDED_CENTER:
+            memcpy(&pageContent->extendedCenter,
+                   &p_content->content.extendedCenter,
+                   sizeof(pageContent->extendedCenter));
+            break;
         case INFO_LONG_PRESS:
             memcpy(&pageContent->infoLongPress,
                    &p_content->content.infoLongPress,
@@ -804,9 +821,11 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
                 }
 
                 if (pair->centeredInfo) {
-                    pageContent->type = CENTERED_INFO;
-                    prepareReviewFirstPage(
-                        &pageContent->centeredInfo, pair->valueIcon, pair->item, pair->value);
+                    pageContent->type = EXTENDED_CENTER;
+                    prepareReviewFirstPage(&pageContent->extendedCenter.contentCenter,
+                                           pair->valueIcon,
+                                           pair->item,
+                                           pair->value);
 
                     // Skip population of nbgl_contentTagValueList_t structure
                     p_tagValueList = NULL;
@@ -1159,6 +1178,35 @@ static void displayBlindWarning(nbgl_opType_t opType)
     // draw & refresh
     nbgl_layoutDraw(genericContext.modalLayout);
     nbgl_refresh();
+}
+
+// function used to display the modal containing tip-box infos
+static void displayTipBoxModal(void)
+{
+    nbgl_pageNavigationInfo_t info    = {.activePage                = 0,
+                                         .nbPages                   = 1,
+                                         .navType                   = NAV_WITH_BUTTONS,
+                                         .quitToken                 = QUIT_TOKEN,
+                                         .navWithButtons.navToken   = NAV_TOKEN,
+                                         .navWithButtons.quitButton = false,
+                                         .navWithButtons.backButton = true,
+                                         .navWithButtons.quitText   = NULL,
+                                         .progressIndicator         = false,
+                                         .tuneId                    = TUNE_TAP_CASUAL};
+    nbgl_pageContent_t        content = {.type                   = INFOS_LIST,
+                                         .topRightIcon           = NULL,
+                                         .infosList.nbInfos      = tipBoxInfoList.nbInfos,
+                                         .infosList.infoTypes    = tipBoxInfoList.infoTypes,
+                                         .infosList.infoContents = tipBoxInfoList.infoContents,
+                                         .title                  = tipBoxModalTitle,
+                                         .titleToken             = QUIT_TOKEN};
+
+    if (modalPageContext != NULL) {
+        nbgl_pageRelease(modalPageContext);
+    }
+    modalPageContext = nbgl_pageDrawGenericContentExt(&pageModalCallback, &info, &content, true);
+
+    nbgl_refreshSpecial(FULL_COLOR_CLEAN_REFRESH);
 }
 
 #ifdef NBGL_QRCODE
@@ -1599,6 +1647,7 @@ static void useCaseReview(nbgl_operationType_t              operationType,
                           const char                       *reviewTitle,
                           const char                       *reviewSubTitle,
                           const char                       *finishTitle,
+                          const nbgl_tipBox_t              *tipBox,
                           nbgl_choiceCallback_t             choiceCallback,
                           bool                              isLight)
 {
@@ -1618,9 +1667,20 @@ static void useCaseReview(nbgl_operationType_t              operationType,
     memset(localContentsList, 0, 3 * sizeof(nbgl_content_t));
 
     // First a centered info
-    STARTING_CONTENT.type = CENTERED_INFO;
+    STARTING_CONTENT.type = EXTENDED_CENTER;
     prepareReviewFirstPage(
-        &STARTING_CONTENT.content.centeredInfo, icon, reviewTitle, reviewSubTitle);
+        &STARTING_CONTENT.content.extendedCenter.contentCenter, icon, reviewTitle, reviewSubTitle);
+    if (tipBox != NULL) {
+        STARTING_CONTENT.content.extendedCenter.tipBox.icon   = tipBox->icon;
+        STARTING_CONTENT.content.extendedCenter.tipBox.text   = tipBox->text;
+        STARTING_CONTENT.content.extendedCenter.tipBox.token  = TIP_BOX_TOKEN;
+        STARTING_CONTENT.content.extendedCenter.tipBox.tuneId = TUNE_TAP_CASUAL;
+        tipBoxModalTitle                                      = tipBox->modalTitle;
+        // the only supported type yet is @ref INFOS_LIST
+        if (tipBox->type == INFOS_LIST) {
+            memcpy(&tipBoxInfoList, &tipBox->infos, sizeof(nbgl_contentInfoList_t));
+        }
+    }
 
     // Then the tag/value pairs
     localContentsList[1].type = TAG_VALUE_LIST;
@@ -2307,9 +2367,14 @@ void nbgl_useCaseReviewStart(const nbgl_icon_details_t *icon,
                                        .topRightStyle    = NO_BUTTON_STYLE,
                                        .actionButtonText = NULL,
                                        .tuneId           = TUNE_TAP_CASUAL};
-    prepareReviewFirstPage(&info.centeredInfo, icon, reviewTitle, reviewSubTitle);
-    onQuit     = rejectCallback;
-    onContinue = continueCallback;
+    info.centeredInfo.icon          = icon;
+    info.centeredInfo.text1         = reviewTitle;
+    info.centeredInfo.text2         = reviewSubTitle;
+    info.centeredInfo.text3         = "Swipe to review";
+    info.centeredInfo.style         = LARGE_CASE_GRAY_INFO;
+    info.centeredInfo.offsetY       = 0;
+    onQuit                          = rejectCallback;
+    onContinue                      = continueCallback;
 
 #ifdef HAVE_PIEZO_SOUND
     // Play notification sound
@@ -2577,6 +2642,44 @@ void nbgl_useCaseReview(nbgl_operationType_t              operationType,
                   reviewTitle,
                   reviewSubTitle,
                   finishTitle,
+                  NULL,
+                  choiceCallback,
+                  false);
+}
+
+/**
+ * @brief Draws a flow of pages of a review. Navigation operates with either swipe or navigation
+ * keys at bottom right. The last page contains a long-press button with the given finishTitle and
+ * the given icon.
+ * @note  All tag/value pairs are provided in the API and the number of pages is automatically
+ * computed, the last page being a long press one
+ *
+ * @param operationType type of operation (Operation, Transaction, Message)
+ * @param tagValueList list of tag/value pairs
+ * @param icon icon used on first and last review page
+ * @param reviewTitle string used in the first review page
+ * @param reviewSubTitle string to set under reviewTitle (can be NULL)
+ * @param finishTitle string used in the last review page
+ * @param tipBox parameter to build a tip-box and necessary modal (can be NULL)
+ * @param choiceCallback callback called when operation is accepted (param is true) or rejected
+ * (param is false)
+ */
+void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
+                                const nbgl_contentTagValueList_t *tagValueList,
+                                const nbgl_icon_details_t        *icon,
+                                const char                       *reviewTitle,
+                                const char                       *reviewSubTitle,
+                                const char                       *finishTitle,
+                                const nbgl_tipBox_t              *tipBox,
+                                nbgl_choiceCallback_t             choiceCallback)
+{
+    useCaseReview(operationType,
+                  tagValueList,
+                  icon,
+                  reviewTitle,
+                  reviewSubTitle,
+                  finishTitle,
+                  tipBox,
                   choiceCallback,
                   false);
 }
@@ -2611,6 +2714,7 @@ void nbgl_useCaseReviewLight(nbgl_operationType_t              operationType,
                   reviewTitle,
                   reviewSubTitle,
                   finishTitle,
+                  NULL,
                   choiceCallback,
                   true);
 }
@@ -2686,9 +2790,9 @@ void nbgl_useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
     memset(localContentsList, 0, 1 * sizeof(nbgl_content_t));
 
     // First a centered info
-    STARTING_CONTENT.type = CENTERED_INFO;
+    STARTING_CONTENT.type = EXTENDED_CENTER;
     prepareReviewFirstPage(
-        &STARTING_CONTENT.content.centeredInfo, icon, reviewTitle, reviewSubTitle);
+        &STARTING_CONTENT.content.extendedCenter.contentCenter, icon, reviewTitle, reviewSubTitle);
 
     // compute number of pages & fill navigation structure
     bundleNavContext.reviewStreaming.stepPageNb
@@ -2948,10 +3052,10 @@ void nbgl_useCaseAddressReview(const char                       *address,
     memset(localContentsList, 0, 3 * sizeof(nbgl_content_t));
 
     // First a centered info
-    STARTING_CONTENT.type = CENTERED_INFO;
+    STARTING_CONTENT.type = EXTENDED_CENTER;
     prepareReviewFirstPage(
-        &STARTING_CONTENT.content.centeredInfo, icon, reviewTitle, reviewSubTitle);
-    STARTING_CONTENT.content.centeredInfo.text3 = "Swipe to continue";
+        &STARTING_CONTENT.content.extendedCenter.contentCenter, icon, reviewTitle, reviewSubTitle);
+    STARTING_CONTENT.content.extendedCenter.contentCenter.subText = "Swipe to continue";
 
     // Then the address confirmation pages
     prepareAddressConfirmationPages(

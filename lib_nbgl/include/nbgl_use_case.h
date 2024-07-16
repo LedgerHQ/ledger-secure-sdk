@@ -151,6 +151,21 @@ typedef struct {
 } nbgl_homeAction_t;
 
 /**
+ * @brief The necessary parameters to build a tip-box in first review page and
+ * the modal if this tip box is touched
+ *
+ */
+typedef struct {
+    const char                *text;  ///< text of the tip-box
+    const nbgl_icon_details_t *icon;  ///< icon of the tip-box
+    const char *modalTitle;   ///< title given to modal window displayed when tip-box is touched
+    nbgl_contentType_t type;  ///< type of page content in the following union
+    union {
+        const nbgl_contentInfoList_t infos;  ///< infos pairs displayed in modal.
+    };
+} nbgl_tipBox_t;
+
+/**
  * @brief The different types of operation to review
  *
  */
@@ -218,6 +233,15 @@ void nbgl_useCaseReview(nbgl_operationType_t              operationType,
                         const char                       *reviewSubTitle,
                         const char                       *finishTitle,
                         nbgl_choiceCallback_t             choiceCallback);
+
+void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
+                                const nbgl_contentTagValueList_t *tagValueList,
+                                const nbgl_icon_details_t        *icon,
+                                const char                       *reviewTitle,
+                                const char                       *reviewSubTitle,
+                                const char                       *finishTitle,
+                                const nbgl_tipBox_t              *tipBox,
+                                nbgl_choiceCallback_t             choiceCallback);
 
 void nbgl_useCaseReviewLight(nbgl_operationType_t              operationType,
                              const nbgl_contentTagValueList_t *tagValueList,
