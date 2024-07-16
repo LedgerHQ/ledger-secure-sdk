@@ -315,11 +315,20 @@ typedef struct {
 } nbgl_contentTipBox_t;
 
 /**
+ * @brief This structure contains data to build a @ref EXTENDED_CENTER content
+ */
+typedef struct {
+    nbgl_contentCenter_t contentCenter;  ///< centered content (icon + text(s))
+    nbgl_contentTipBox_t tipBox;         ///< if text field is NULL, no tip-box
+} nbgl_contentExtendedCenter_t;
+
+/**
  * @brief The different types of predefined contents
  *
  */
 typedef enum {
     CENTERED_INFO = 0,  ///< a centered info
+    EXTENDED_CENTER,    ///< a centered content and a possible tip-box
     INFO_LONG_PRESS,    ///< a centered info and a long press button
     INFO_BUTTON,        ///< a centered info and a simple black button
     TAG_VALUE_LIST,     ///< list of tag/value pairs
@@ -336,6 +345,7 @@ typedef enum {
  */
 typedef union {
     nbgl_contentCenteredInfo_t    centeredInfo;     ///< @ref CENTERED_INFO type
+    nbgl_contentExtendedCenter_t  extendedCenter;   ///< @ref EXTENDED_CENTER type
     nbgl_contentInfoLongPress_t   infoLongPress;    ///< @ref INFO_LONG_PRESS type
     nbgl_contentInfoButton_t      infoButton;       ///< @ref INFO_BUTTON type
     nbgl_contentTagValueList_t    tagValueList;     ///< @ref TAG_VALUE_LIST type
