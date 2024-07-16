@@ -560,6 +560,7 @@ enum {
     VALUE_BUTTON_2_ID,
     VALUE_BUTTON_3_ID,
     LONG_PRESS_BUTTON_ID,
+    TIP_BOX_ID,
     CONTROLS_ID,  // when multiple controls in the same pages (buttons, switches, radios)
     NB_CONTROL_IDS
 };

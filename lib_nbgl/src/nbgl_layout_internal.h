@@ -57,6 +57,7 @@ enum {
     TOP_RIGHT_BUTTON_INDEX,
     MAIN_CONTAINER_INDEX,
     FOOTER_INDEX,
+    UP_FOOTER_INDEX,
     LEFT_BORDER_INDEX,
     NB_MAX_SCREEN_CHILDREN
 };
@@ -75,14 +76,17 @@ typedef struct nbgl_layoutInternal_s {
     uint8_t      nbChildren;  ///< number of children in above array
     nbgl_obj_t **children;    ///< children for main screen
 
-    uint8_t                 nbPages;     ///< number of pages for navigation bar
-    uint8_t                 activePage;  ///< index of active page for navigation bar
-    nbgl_layoutHeaderType_t headerType;  ///< type of header
-    nbgl_layoutFooterType_t footerType;  ///< type of footer
+    uint8_t                   nbPages;       ///< number of pages for navigation bar
+    uint8_t                   activePage;    ///< index of active page for navigation bar
+    nbgl_layoutHeaderType_t   headerType;    ///< type of header
+    nbgl_layoutFooterType_t   footerType;    ///< type of footer
+    nbgl_layoutUpFooterType_t upFooterType;  ///< type of up-footer
     nbgl_container_t
-        *headerContainer;  // container used to store header (progress, back, empty space...)
-    nbgl_container_t *footerContainer;  // container used to store footer (buttons, nav....)
-    nbgl_text_area_t *tapText;
+        *headerContainer;  ///< container used to store header (progress, back, empty space...)
+    nbgl_container_t *footerContainer;    ///< container used to store footer (buttons, nav....)
+    nbgl_container_t *upFooterContainer;  ///< container used on top on footer to store special
+                                          ///< contents like tip-box or long-press button
+    nbgl_text_area_t          *tapText;
     nbgl_layoutTouchCallback_t callback;  // user callback for all controls
     // This is the pool of callback objects, potentially used by this layout
     layoutObj_t callbackObjPool[LAYOUT_OBJ_POOL_LEN];
