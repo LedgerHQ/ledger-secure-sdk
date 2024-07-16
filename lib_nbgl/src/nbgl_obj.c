@@ -573,7 +573,9 @@ static void draw_switch(nbgl_switch_t *obj, nbgl_obj_t *prevObj, bool computePos
 
 static void draw_radioButton(nbgl_radio_t *obj, nbgl_obj_t *prevObj, bool computePosition)
 {
-    nbgl_area_t rectArea;
+    nbgl_area_t                rectArea;
+    const nbgl_icon_details_t *icon;
+    nbgl_color_map_t           color_map;
 
     // force dimensions
     obj->obj.area.width  = RADIO_WIDTH;
@@ -593,18 +595,21 @@ static void draw_radioButton(nbgl_radio_t *obj, nbgl_obj_t *prevObj, bool comput
     // inherit background from parent
     obj->obj.area.backgroundColor = obj->obj.parent->area.backgroundColor;
 
+    if (obj->state == OFF_STATE) {
+        icon      = &RADIO_OFF_ICON;
+        color_map = obj->borderColor;
+    }
+    else {
+        icon      = &RADIO_ON_ICON;
+        color_map = obj->activeColor;
+    }
     rectArea.x0              = obj->obj.area.x0;
     rectArea.y0              = obj->obj.area.y0;
     rectArea.width           = obj->obj.area.width;
     rectArea.height          = obj->obj.area.height;
     rectArea.backgroundColor = obj->obj.area.backgroundColor;
-    rectArea.bpp             = NBGL_BPP_1;
-    if (obj->state == OFF_STATE) {
-        nbgl_drawIcon(&rectArea, NO_TRANSFORMATION, obj->borderColor, &RADIO_OFF_ICON);
-    }
-    else {
-        nbgl_drawIcon(&rectArea, NO_TRANSFORMATION, obj->activeColor, &RADIO_ON_ICON);
-    }
+    rectArea.bpp             = icon->bpp;
+    nbgl_drawIcon(&rectArea, NO_TRANSFORMATION, color_map, icon);
 }
 #endif  // HAVE_SE_TOUCH
 
