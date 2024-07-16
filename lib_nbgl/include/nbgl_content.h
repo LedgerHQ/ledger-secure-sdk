@@ -302,6 +302,19 @@ typedef struct {
 } nbgl_contentBarsList_t;
 
 /**
+ * @brief This structure contains data to build a tip-box, on top of a footer,
+ * on bottom of a content center
+ */
+typedef struct {
+    const char                *text;   ///< text of the tip-box
+    const nbgl_icon_details_t *icon;   ///< icon of the tip-box
+    uint8_t                    token;  ///< token used when tip-box is tapped
+#ifdef HAVE_PIEZO_SOUND
+    tune_index_e tuneId;  ///< tune played when tip-box is tapped
+#endif                    // HAVE_PIEZO_SOUND
+} nbgl_contentTipBox_t;
+
+/**
  * @brief The different types of predefined contents
  *
  */

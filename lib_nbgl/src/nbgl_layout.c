@@ -40,15 +40,19 @@
 #define TAG_VALUE_ICON_WIDTH 32
 
 #ifdef TARGET_STAX
-#define RADIO_CHOICE_HEIGHT 96
-#define FOOTER_HEIGHT       80
-#define BAR_INTERVALE       12
-#define BACK_KEY_WIDTH      88
+#define RADIO_CHOICE_HEIGHT     96
+#define FOOTER_HEIGHT           80
+#define BAR_INTERVALE           12
+#define BACK_KEY_WIDTH          88
+#define FOOTER_BUTTON_HEIGHT    128
+#define UP_FOOTER_BUTTON_HEIGHT 120
 #else  // TARGET_STAX
-#define RADIO_CHOICE_HEIGHT 92
-#define FOOTER_HEIGHT       80
-#define BAR_INTERVALE       16
-#define BACK_KEY_WIDTH      104
+#define RADIO_CHOICE_HEIGHT     92
+#define FOOTER_HEIGHT           80
+#define BAR_INTERVALE           16
+#define BACK_KEY_WIDTH          104
+#define FOOTER_BUTTON_HEIGHT    136
+#define UP_FOOTER_BUTTON_HEIGHT 136
 #endif  // TARGET_STAX
 
 // refresh period of the spinner, in ms
@@ -1794,73 +1798,15 @@ int nbgl_layoutAddChoiceButtons(nbgl_layout_t *layout, const nbgl_layoutChoiceBu
 int nbgl_layoutAddHorizontalButtons(nbgl_layout_t                        *layout,
                                     const nbgl_layoutHorizontalButtons_t *info)
 {
-    layoutObj_t           *obj;
-    nbgl_button_t         *button;
-    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
+    nbgl_layoutUpFooter_t upFooterDesc = {.type = UP_FOOTER_HORIZONTAL_BUTTONS,
+                                          .horizontalButtons.leftIcon   = info->leftIcon,
+                                          .horizontalButtons.leftToken  = info->leftToken,
+                                          .horizontalButtons.rightText  = info->rightText,
+                                          .horizontalButtons.rightToken = info->rightToken,
+                                          .horizontalButtons.tuneId     = info->tuneId};
 
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddHorizontalButtons():\n");
-    if (layout == NULL) {
-        return -1;
-    }
-
-    // icon & text cannot be NULL
-    if ((info->leftIcon == NULL) || (info->rightText == NULL)) {
-        return -1;
-    }
-
-    // create left button (in white) at first
-    button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layoutInt->layer);
-    obj    = layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) button, info->leftToken, info->tuneId);
-    if (obj == NULL) {
-        return -1;
-    }
-    // associate with with index 1
-    obj->index                   = 1;
-    button->obj.alignment        = BOTTOM_LEFT;
-    button->obj.alignmentMarginX = BORDER_MARGIN;
-#ifdef TARGET_STAX
-    button->obj.alignmentMarginY = 20;  // 20 pixels from screen bottom
-#else                                   // TARGET_STAX
-    button->obj.alignmentMarginY   = 24;  // 24 pixels from screen bottom
-#endif                                  // TARGET_STAX
-    button->borderColor     = LIGHT_GRAY;
-    button->innerColor      = WHITE;
-    button->foregroundColor = BLACK;
-    button->obj.area.width  = BUTTON_DIAMETER;
-    button->obj.area.height = BUTTON_DIAMETER;
-    button->radius          = BUTTON_RADIUS;
-    button->icon            = PIC(info->leftIcon);
-    button->fontId          = SMALL_BOLD_FONT;
-    button->obj.touchMask   = (1 << TOUCHED);
-    button->obj.touchId     = CHOICE_2_ID;
-    // set this new button as child of the container
-    layoutAddObject(layoutInt, (nbgl_obj_t *) button);
-
-    // then black button, on right
-    button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layoutInt->layer);
-    obj    = layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) button, info->rightToken, info->tuneId);
-    if (obj == NULL) {
-        return -1;
-    }
-    // associate with with index 0
-    obj->index                   = 0;
-    button->obj.alignment        = BOTTOM_RIGHT;
-    button->obj.alignmentMarginX = BORDER_MARGIN;
-    button->obj.alignmentMarginY = 24;  // 24 pixels from screen bottom
-    button->innerColor           = BLACK;
-    button->borderColor          = BLACK;
-    button->foregroundColor      = WHITE;
-    button->obj.area.width       = AVAILABLE_WIDTH - BUTTON_DIAMETER - 16;
-    button->obj.area.height      = BUTTON_DIAMETER;
-    button->radius               = BUTTON_RADIUS;
-    button->text                 = PIC(info->rightText);
-    button->fontId               = SMALL_BOLD_FONT;
-    button->obj.touchMask        = (1 << TOUCHED);
-    button->obj.touchId          = CHOICE_1_ID;
-    // set this new button as child of the container
-    layoutAddObject(layoutInt, (nbgl_obj_t *) button);
-
-    return 0;
+    return nbgl_layoutAddUpFooter(layout, &upFooterDesc);
 }
 
 /**
@@ -2125,17 +2071,28 @@ int nbgl_layoutAddButton(nbgl_layout_t *layout, const nbgl_layoutButton_t *butto
     }
 
     // Add in footer if matching
-    if ((buttonInfo->onBottom) && (!buttonInfo->fittingContent)
-        && (layoutInt->footerContainer == NULL)) {
-        nbgl_layoutFooter_t footerDesc;
-        footerDesc.type           = FOOTER_SIMPLE_BUTTON;
-        footerDesc.separationLine = false;
-        footerDesc.button.text    = buttonInfo->text;
-        footerDesc.button.token   = buttonInfo->token;
-        footerDesc.button.tuneId  = buttonInfo->tuneId;
-        footerDesc.button.icon    = buttonInfo->icon;
-        footerDesc.button.style   = buttonInfo->style;
-        return nbgl_layoutAddExtendedFooter(layout, &footerDesc);
+    if ((buttonInfo->onBottom) && (!buttonInfo->fittingContent)) {
+        if (layoutInt->footerContainer == NULL) {
+            nbgl_layoutFooter_t footerDesc;
+            footerDesc.type           = FOOTER_SIMPLE_BUTTON;
+            footerDesc.separationLine = false;
+            footerDesc.button.text    = buttonInfo->text;
+            footerDesc.button.token   = buttonInfo->token;
+            footerDesc.button.tuneId  = buttonInfo->tuneId;
+            footerDesc.button.icon    = buttonInfo->icon;
+            footerDesc.button.style   = buttonInfo->style;
+            return nbgl_layoutAddExtendedFooter(layout, &footerDesc);
+        }
+        else {
+            nbgl_layoutUpFooter_t upFooterDesc;
+            upFooterDesc.type          = UP_FOOTER_BUTTON;
+            upFooterDesc.button.text   = buttonInfo->text;
+            upFooterDesc.button.token  = buttonInfo->token;
+            upFooterDesc.button.tuneId = buttonInfo->tuneId;
+            upFooterDesc.button.icon   = buttonInfo->icon;
+            upFooterDesc.button.style  = buttonInfo->style;
+            return nbgl_layoutAddUpFooter(layout, &upFooterDesc);
+        }
     }
 
     button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layoutInt->layer);
@@ -2145,19 +2102,9 @@ int nbgl_layoutAddButton(nbgl_layout_t *layout, const nbgl_layoutButton_t *butto
         return -1;
     }
 
-    if (buttonInfo->onBottom != true) {
-        button->obj.alignmentMarginX = BORDER_MARGIN;
-        button->obj.alignmentMarginY = 12;
-        button->obj.alignment        = NO_ALIGNMENT;
-    }
-    else {
-        button->obj.alignment = BOTTOM_MIDDLE;
-#ifdef TARGET_STAX
-        button->obj.alignmentMarginY = 20;
-#else   // TARGET_STAX
-        button->obj.alignmentMarginY = 24;
-#endif  // TARGET_STAX
-    }
+    button->obj.alignmentMarginX = BORDER_MARGIN;
+    button->obj.alignmentMarginY = 12;
+    button->obj.alignment        = NO_ALIGNMENT;
     if (buttonInfo->style == BLACK_BACKGROUND) {
         button->innerColor      = BLACK;
         button->foregroundColor = WHITE;
@@ -2219,81 +2166,17 @@ int nbgl_layoutAddLongPressButton(nbgl_layout_t *layout,
                                   uint8_t        token,
                                   tune_index_e   tuneId)
 {
-    layoutObj_t           *obj;
-    nbgl_button_t         *button;
-    nbgl_text_area_t      *textArea;
-    nbgl_progress_bar_t   *progressBar;
-    nbgl_container_t      *container;
-    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
-    nbgl_line_t           *line;
+    nbgl_layoutUpFooter_t upFooterDesc = {.type             = UP_FOOTER_LONG_PRESS,
+                                          .longPress.text   = text,
+                                          .longPress.token  = token,
+                                          .longPress.tuneId = tuneId};
 
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddLongPressButton():\n");
     if (layout == NULL) {
         return -1;
     }
 
-    container = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
-    obj       = layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) container, token, tuneId);
-    if (obj == NULL) {
-        return -1;
-    }
-
-    container->obj.area.width  = SCREEN_WIDTH;
-    container->obj.area.height = LONG_PRESS_BUTTON_HEIGHT;
-    container->layout          = VERTICAL;
-    container->nbChildren      = 4;  // progress-bar + text + line + button
-    container->children
-        = (nbgl_obj_t **) nbgl_containerPoolGet(container->nbChildren, layoutInt->layer);
-    container->obj.alignment = BOTTOM_MIDDLE;
-    container->obj.touchId   = LONG_PRESS_BUTTON_ID;
-    container->obj.touchMask = ((1 << TOUCHING) | (1 << TOUCH_RELEASED) | (1 << OUT_OF_TOUCH)
-                                | (1 << SWIPED_LEFT) | (1 << SWIPED_RIGHT));
-
-    button                       = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layoutInt->layer);
-    button->obj.alignmentMarginX = BORDER_MARGIN;
-    button->obj.alignment        = MID_RIGHT;
-    button->innerColor           = BLACK;
-    button->foregroundColor      = WHITE;
-    button->borderColor          = BLACK;
-    button->obj.area.width       = BUTTON_DIAMETER;
-    button->obj.area.height      = BUTTON_DIAMETER;
-    button->radius               = BUTTON_RADIUS;
-    button->icon                 = PIC(&VALIDATE_ICON);
-    container->children[0]       = (nbgl_obj_t *) button;
-
-    textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-    textArea->textColor     = BLACK;
-    textArea->text          = PIC(text);
-    textArea->textAlignment = MID_LEFT;
-    textArea->fontId        = LARGE_MEDIUM_FONT;
-    textArea->wrapping      = true;
-    textArea->obj.area.width
-        = container->obj.area.width - 3 * BORDER_MARGIN - button->obj.area.width;
-    textArea->obj.area.height = nbgl_getTextHeightInWidth(
-        textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
-    textArea->style                = NO_STYLE;
-    textArea->obj.alignment        = MID_LEFT;
-    textArea->obj.alignmentMarginX = BORDER_MARGIN;
-    container->children[1]         = (nbgl_obj_t *) textArea;
-
-    line                   = createHorizontalLine(layoutInt->layer);
-    line->offset           = 3;
-    line->obj.alignment    = TOP_MIDDLE;
-    container->children[2] = (nbgl_obj_t *) line;
-
-    progressBar = (nbgl_progress_bar_t *) nbgl_objPoolGet(PROGRESS_BAR, layoutInt->layer);
-    progressBar->withBorder           = false;
-    progressBar->obj.area.width       = container->obj.area.width;
-    progressBar->obj.area.height      = 8;
-    progressBar->obj.alignment        = TOP_MIDDLE;
-    progressBar->obj.alignmentMarginY = 4;
-    progressBar->obj.alignTo          = NULL;
-    container->children[3]            = (nbgl_obj_t *) progressBar;
-
-    // set this new container as child of the main container
-    layoutAddObject(layoutInt, (nbgl_obj_t *) container);
-
-    return container->obj.area.height;
+    return nbgl_layoutAddUpFooter(layout, &upFooterDesc);
 }
 
 /**
@@ -2754,7 +2637,7 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
 #ifdef TARGET_STAX
             textArea->obj.area.width = 160;
 #else   // TARGET_STAX
-            textArea->obj.area.width                    = 192;
+            textArea->obj.area.width = 192;
 #endif  // TARGET_STAX
             textArea->obj.area.height = SIMPLE_FOOTER_HEIGHT;
             textArea->text            = PIC(footerDesc->textAndNav.text);
@@ -2855,16 +2738,12 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
                     button->borderColor = LIGHT_GRAY;
                 }
             }
-            button->text            = PIC(footerDesc->button.text);
-            button->fontId          = SMALL_BOLD_FONT;
-            button->icon            = PIC(footerDesc->button.icon);
-            button->radius          = BUTTON_RADIUS;
-            button->obj.area.height = BUTTON_DIAMETER;
-#ifdef TARGET_STAX
-            layoutInt->footerContainer->obj.area.height = 128;
-#else   // TARGET_STAX
-            layoutInt->footerContainer->obj.area.height = 136;
-#endif  // TARGET_STAX
+            button->text                                = PIC(footerDesc->button.text);
+            button->fontId                              = SMALL_BOLD_FONT;
+            button->icon                                = PIC(footerDesc->button.icon);
+            button->radius                              = BUTTON_RADIUS;
+            button->obj.area.height                     = BUTTON_DIAMETER;
+            layoutInt->footerContainer->obj.area.height = FOOTER_BUTTON_HEIGHT;
             if (footerDesc->button.text == NULL) {
                 button->obj.area.width = BUTTON_DIAMETER;
             }
@@ -3022,6 +2901,275 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
     layoutInt->footerType = footerDesc->type;
 
     return layoutInt->footerContainer->obj.area.height;
+}
+
+/**
+ * @brief Creates a touchable area on top of the footer of the screen, containing various controls,
+ * described in the given structure. This up-footer is not part of the main container
+ *
+ * @param layout the current layout
+ * @param upFooterDesc description of the up-footer
+ * @return height of the control if OK
+ */
+int nbgl_layoutAddUpFooter(nbgl_layout_t *layout, const nbgl_layoutUpFooter_t *upFooterDesc)
+{
+    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
+    layoutObj_t           *obj;
+    nbgl_text_area_t      *textArea;
+    nbgl_line_t           *line;
+    nbgl_button_t         *button;
+
+    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddUpFooter():\n");
+    if (layout == NULL) {
+        return -1;
+    }
+    if ((upFooterDesc == NULL) || (upFooterDesc->type >= NB_UP_FOOTER_TYPES)) {
+        return -2;
+    }
+
+    layoutInt->upFooterContainer
+        = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
+    layoutInt->upFooterContainer->obj.area.width = SCREEN_WIDTH;
+    layoutInt->upFooterContainer->layout         = VERTICAL;
+    // maximum 4 children for long press button
+    layoutInt->upFooterContainer->children
+        = (nbgl_obj_t **) nbgl_containerPoolGet(4, layoutInt->layer);
+    layoutInt->upFooterContainer->obj.alignTo   = (nbgl_obj_t *) layoutInt->container;
+    layoutInt->upFooterContainer->obj.alignment = BOTTOM_MIDDLE;
+
+    switch (upFooterDesc->type) {
+        case UP_FOOTER_LONG_PRESS: {
+            nbgl_progress_bar_t *progressBar;
+
+            obj = layoutAddCallbackObj(layoutInt,
+                                       (nbgl_obj_t *) layoutInt->upFooterContainer,
+                                       upFooterDesc->longPress.token,
+                                       upFooterDesc->longPress.tuneId);
+            if (obj == NULL) {
+                return -1;
+            }
+            layoutInt->upFooterContainer->nbChildren      = 4;
+            layoutInt->upFooterContainer->obj.area.height = LONG_PRESS_BUTTON_HEIGHT;
+            layoutInt->upFooterContainer->obj.touchId     = LONG_PRESS_BUTTON_ID;
+            layoutInt->upFooterContainer->obj.touchMask
+                = ((1 << TOUCHING) | (1 << TOUCH_RELEASED) | (1 << OUT_OF_TOUCH)
+                   | (1 << SWIPED_LEFT) | (1 << SWIPED_RIGHT));
+
+            button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layoutInt->layer);
+            button->obj.alignmentMarginX              = BORDER_MARGIN;
+            button->obj.alignment                     = MID_RIGHT;
+            button->innerColor                        = BLACK;
+            button->foregroundColor                   = WHITE;
+            button->borderColor                       = BLACK;
+            button->obj.area.width                    = BUTTON_DIAMETER;
+            button->obj.area.height                   = BUTTON_DIAMETER;
+            button->radius                            = BUTTON_RADIUS;
+            button->icon                              = PIC(&VALIDATE_ICON);
+            layoutInt->upFooterContainer->children[0] = (nbgl_obj_t *) button;
+
+            textArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+            textArea->textColor = BLACK;
+            textArea->text      = PIC(upFooterDesc->longPress.text);
+            textArea->textAlignment   = MID_LEFT;
+            textArea->fontId          = LARGE_MEDIUM_FONT;
+            textArea->wrapping        = true;
+            textArea->obj.area.width  = SCREEN_WIDTH - 3 * BORDER_MARGIN - button->obj.area.width;
+            textArea->obj.area.height = nbgl_getTextHeightInWidth(
+                textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
+            textArea->style                           = NO_STYLE;
+            textArea->obj.alignment                   = MID_LEFT;
+            textArea->obj.alignmentMarginX            = BORDER_MARGIN;
+            layoutInt->upFooterContainer->children[1] = (nbgl_obj_t *) textArea;
+
+            line                                      = createHorizontalLine(layoutInt->layer);
+            line->offset                              = 3;
+            line->obj.alignment                       = TOP_MIDDLE;
+            layoutInt->upFooterContainer->children[2] = (nbgl_obj_t *) line;
+
+            progressBar = (nbgl_progress_bar_t *) nbgl_objPoolGet(PROGRESS_BAR, layoutInt->layer);
+            progressBar->withBorder                   = false;
+            progressBar->obj.area.width               = SCREEN_WIDTH;
+            progressBar->obj.area.height              = 8;
+            progressBar->obj.alignment                = TOP_MIDDLE;
+            progressBar->obj.alignmentMarginY         = 4;
+            progressBar->obj.alignTo                  = NULL;
+            layoutInt->upFooterContainer->children[3] = (nbgl_obj_t *) progressBar;
+            break;
+        }
+        case UP_FOOTER_BUTTON: {
+            button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layoutInt->layer);
+            obj    = layoutAddCallbackObj(layoutInt,
+                                       (nbgl_obj_t *) button,
+                                       upFooterDesc->button.token,
+                                       upFooterDesc->button.tuneId);
+            if (obj == NULL) {
+                return -1;
+            }
+
+            layoutInt->upFooterContainer->nbChildren      = 1;
+            layoutInt->upFooterContainer->obj.area.height = UP_FOOTER_BUTTON_HEIGHT;
+            button->obj.alignment                         = CENTER;
+
+            if (upFooterDesc->button.style == BLACK_BACKGROUND) {
+                button->innerColor      = BLACK;
+                button->foregroundColor = WHITE;
+            }
+            else {
+                button->innerColor      = WHITE;
+                button->foregroundColor = BLACK;
+            }
+            if (upFooterDesc->button.style == NO_BORDER) {
+                button->borderColor = WHITE;
+            }
+            else {
+                if (upFooterDesc->button.style == BLACK_BACKGROUND) {
+                    button->borderColor = BLACK;
+                }
+                else {
+                    button->borderColor = LIGHT_GRAY;
+                }
+            }
+            button->text            = PIC(upFooterDesc->button.text);
+            button->fontId          = SMALL_BOLD_FONT;
+            button->icon            = PIC(upFooterDesc->button.icon);
+            button->obj.area.width  = AVAILABLE_WIDTH;
+            button->obj.area.height = BUTTON_DIAMETER;
+            button->radius          = BUTTON_RADIUS;
+
+            button->obj.alignTo                       = NULL;
+            button->obj.touchMask                     = (1 << TOUCHED);
+            button->obj.touchId                       = SINGLE_BUTTON_ID;
+            layoutInt->upFooterContainer->children[0] = (nbgl_obj_t *) button;
+            break;
+        }
+        case UP_FOOTER_HORIZONTAL_BUTTONS: {
+            // icon & text cannot be NULL
+            if ((upFooterDesc->horizontalButtons.leftIcon == NULL)
+                || (upFooterDesc->horizontalButtons.rightText == NULL)) {
+                return -1;
+            }
+
+            layoutInt->upFooterContainer->nbChildren      = 2;
+            layoutInt->upFooterContainer->obj.area.height = UP_FOOTER_BUTTON_HEIGHT;
+
+            // create left button (in white) at first
+            button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layoutInt->layer);
+            obj    = layoutAddCallbackObj(layoutInt,
+                                       (nbgl_obj_t *) button,
+                                       upFooterDesc->horizontalButtons.leftToken,
+                                       upFooterDesc->horizontalButtons.tuneId);
+            if (obj == NULL) {
+                return -1;
+            }
+            // associate with with index 1
+            obj->index                   = 1;
+            button->obj.alignment        = MID_LEFT;
+            button->obj.alignmentMarginX = BORDER_MARGIN;
+            button->borderColor          = LIGHT_GRAY;
+            button->innerColor           = WHITE;
+            button->foregroundColor      = BLACK;
+            button->obj.area.width       = BUTTON_DIAMETER;
+            button->obj.area.height      = BUTTON_DIAMETER;
+            button->radius               = BUTTON_RADIUS;
+            button->icon                 = PIC(upFooterDesc->horizontalButtons.leftIcon);
+            button->fontId               = SMALL_BOLD_FONT;
+            button->obj.touchMask        = (1 << TOUCHED);
+            button->obj.touchId          = CHOICE_2_ID;
+            layoutInt->upFooterContainer->children[0] = (nbgl_obj_t *) button;
+
+            // then black button, on right
+            button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layoutInt->layer);
+            obj    = layoutAddCallbackObj(layoutInt,
+                                       (nbgl_obj_t *) button,
+                                       upFooterDesc->horizontalButtons.rightToken,
+                                       upFooterDesc->horizontalButtons.tuneId);
+            if (obj == NULL) {
+                return -1;
+            }
+            // associate with with index 0
+            obj->index                   = 0;
+            button->obj.alignment        = MID_RIGHT;
+            button->obj.alignmentMarginX = BORDER_MARGIN;
+            button->innerColor           = BLACK;
+            button->borderColor          = BLACK;
+            button->foregroundColor      = WHITE;
+            button->obj.area.width       = AVAILABLE_WIDTH - BUTTON_DIAMETER - 16;
+            button->obj.area.height      = BUTTON_DIAMETER;
+            button->radius               = BUTTON_RADIUS;
+            button->text                 = PIC(upFooterDesc->horizontalButtons.rightText);
+            button->fontId               = SMALL_BOLD_FONT;
+            button->obj.touchMask        = (1 << TOUCHED);
+            button->obj.touchId          = CHOICE_1_ID;
+            layoutInt->upFooterContainer->children[1] = (nbgl_obj_t *) button;
+            break;
+        }
+        case UP_FOOTER_TIP_BOX: {
+            // text cannot be NULL
+            if (upFooterDesc->tipBox.text == NULL) {
+                return -1;
+            }
+            obj = layoutAddCallbackObj(layoutInt,
+                                       (nbgl_obj_t *) layoutInt->upFooterContainer,
+                                       upFooterDesc->tipBox.token,
+                                       upFooterDesc->tipBox.tuneId);
+            if (obj == NULL) {
+                return -1;
+            }
+            layoutInt->upFooterContainer->nbChildren    = 3;
+            layoutInt->upFooterContainer->obj.touchId   = TIP_BOX_ID;
+            layoutInt->upFooterContainer->obj.touchMask = (1 << TOUCHED);
+
+            textArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+            textArea->textColor = BLACK;
+            textArea->text      = PIC(upFooterDesc->tipBox.text);
+            textArea->textAlignment  = MID_LEFT;
+            textArea->fontId         = SMALL_REGULAR_FONT;
+            textArea->wrapping       = true;
+            textArea->obj.area.width = AVAILABLE_WIDTH;
+            if (upFooterDesc->tipBox.icon != NULL) {
+                textArea->obj.area.width
+                    -= ((nbgl_icon_details_t *) PIC(upFooterDesc->tipBox.icon))->width
+                       + BORDER_MARGIN;
+            }
+            textArea->obj.area.height = nbgl_getTextHeightInWidth(
+                textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
+            textArea->obj.alignment                       = MID_LEFT;
+            textArea->obj.alignmentMarginX                = BORDER_MARGIN;
+            layoutInt->upFooterContainer->children[0]     = (nbgl_obj_t *) textArea;
+            layoutInt->upFooterContainer->obj.area.height = textArea->obj.area.height;
+
+            line                                      = createHorizontalLine(layoutInt->layer);
+            line->offset                              = 3;
+            line->obj.alignment                       = TOP_MIDDLE;
+            layoutInt->upFooterContainer->children[1] = (nbgl_obj_t *) line;
+
+            if (upFooterDesc->tipBox.icon != NULL) {
+                nbgl_image_t *image = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
+                image->obj.alignmentMarginX               = BORDER_MARGIN;
+                image->obj.alignment                      = MID_RIGHT;
+                image->foregroundColor                    = BLACK;
+                image->buffer                             = PIC(upFooterDesc->tipBox.icon);
+                layoutInt->upFooterContainer->children[2] = (nbgl_obj_t *) image;
+                if (layoutInt->upFooterContainer->obj.area.height < image->buffer->height) {
+                    layoutInt->upFooterContainer->obj.area.height = image->buffer->height;
+                }
+            }
+            layoutInt->upFooterContainer->obj.area.height += 2 * BOTTOM_BORDER_MARGIN;
+
+            break;
+        }
+        default:
+            return -2;
+    }
+
+    // subtract up footer height from main container height
+    layoutInt->container->obj.area.height -= layoutInt->upFooterContainer->obj.area.height;
+
+    layoutInt->children[UP_FOOTER_INDEX] = (nbgl_obj_t *) layoutInt->upFooterContainer;
+
+    layoutInt->upFooterType = upFooterDesc->type;
+
+    return layoutInt->upFooterContainer->obj.area.height;
 }
 
 /**
