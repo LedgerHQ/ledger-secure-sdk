@@ -204,7 +204,6 @@ static nbgl_BundleNavContext_t bundleNavContext;
 
 // indexed by nbgl_contentType_t
 static const uint8_t nbMaxElementsPerContentType[] = {
-#ifdef TARGET_STAX
     1,  // CENTERED_INFO
     1,  // EXTENDED_CENTER
     1,  // INFO_LONG_PRESS
@@ -212,23 +211,10 @@ static const uint8_t nbMaxElementsPerContentType[] = {
     1,  // TAG_VALUE_LIST (computed dynamically)
     1,  // TAG_VALUE_DETAILS
     1,  // TAG_VALUE_CONFIRM
-    3,  // SWITCHES_LIST
-    3,  // INFOS_LIST
-    5,  // CHOICES_LIST
-    5,  // BARS_LIST
-#else   // TARGET_STAX
-    1,  // CENTERED_INFO
-    1,  // EXTENDED_CENTER
-    1,  // INFO_LONG_PRESS
-    1,  // INFO_BUTTON
-    1,  // TAG_VALUE_LIST (computed dynamically)
-    1,  // TAG_VALUE_DETAILS
-    1,  // TAG_VALUE_CONFIRM
-    2,  // SWITCHES_LIST
-    2,  // INFOS_LIST
-    4,  // CHOICES_LIST
-    4,  // BARS_LIST
-#endif  // TARGET_STAX
+    3,  // SWITCHES_LIST (computed dynamically)
+    3,  // INFOS_LIST (computed dynamically)
+    5,  // CHOICES_LIST (computed dynamically)
+    5,  // BARS_LIST (computed dynamically)
 };
 
 #ifdef NBGL_QRCODE
@@ -905,9 +891,9 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
             pageContent->choicesList.nbChoices = nbElementsInPage;
             pageContent->choicesList.names
                 = PIC(&p_content->content.choicesList.names[nextElementIdx]);
-            if ((p_content->content.choicesList.initChoice > nextElementIdx)
+            if ((p_content->content.choicesList.initChoice >= nextElementIdx)
                 && (p_content->content.choicesList.initChoice
-                    <= nextElementIdx + nbElementsInPage)) {
+                    < nextElementIdx + nbElementsInPage)) {
                 pageContent->choicesList.initChoice
                     = p_content->content.choicesList.initChoice - nextElementIdx;
             }
@@ -1444,7 +1430,9 @@ static void keypadGenericUseCase(const char                *title,
 }
 #endif
 
-static uint8_t nbgl_useCaseGetNbPagesForContent(const nbgl_content_t *content, uint8_t pageIdxStart)
+static uint8_t nbgl_useCaseGetNbPagesForContent(const nbgl_content_t *content,
+                                                uint8_t               pageIdxStart,
+                                                bool                  isLast)
 {
     uint8_t nbElements = 0;
     uint8_t nbPages    = 0;
@@ -1455,15 +1443,31 @@ static uint8_t nbgl_useCaseGetNbPagesForContent(const nbgl_content_t *content, u
     nbElements = getContentNbElement(content);
 
     while (nbElements > 0) {
+        flag = 0;
+        // if the current page is not the first one (or last), a navigation bar exists
+        bool hasNav = !isLast || (pageIdxStart > 0) || (elemIdx > 0);
         if (content->type == TAG_VALUE_LIST) {
             nbElementsInPage = nbgl_useCaseGetNbTagValuesInPage(
                 nbElements, &content->content.tagValueList, elemIdx, &flag);
         }
+        else if (content->type == INFOS_LIST) {
+            nbElementsInPage = nbgl_useCaseGetNbInfosInPage(
+                nbElements, &content->content.infosList, elemIdx, hasNav);
+        }
+        else if (content->type == SWITCHES_LIST) {
+            nbElementsInPage = nbgl_useCaseGetNbSwitchesInPage(
+                nbElements, &content->content.switchesList, elemIdx, hasNav);
+        }
+        else if (content->type == BARS_LIST) {
+            nbElementsInPage = nbgl_useCaseGetNbBarsInPage(
+                nbElements, &content->content.barsList, elemIdx, hasNav);
+        }
+        else if (content->type == CHOICES_LIST) {
+            nbElementsInPage = nbgl_useCaseGetNbChoicesInPage(
+                nbElements, &content->content.choicesList, elemIdx, hasNav);
+        }
         else {
-            nbElementsInPage = MIN(
-                nbMaxElementsPerContentType[content->type],
-                nbElements);  // TODO hardcoded to 3 for now but should be dynamically computed
-            flag = 0;
+            nbElementsInPage = MIN(nbMaxElementsPerContentType[content->type], nbElements);
         }
 
         elemIdx += nbElementsInPage;
@@ -1488,7 +1492,8 @@ static uint8_t nbgl_useCaseGetNbPagesForGenericContents(
         if (p_content == NULL) {
             return 0;
         }
-        nbPages += nbgl_useCaseGetNbPagesForContent(p_content, pageIdxStart + nbPages);
+        nbPages += nbgl_useCaseGetNbPagesForContent(
+            p_content, pageIdxStart + nbPages, (i == (genericContents->nbContents - 1)));
     }
 
     return nbPages;
@@ -1811,6 +1816,191 @@ uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPai
 }
 
 /**
+ * @brief computes the number of infos displayable in a page, with the given list of
+ * infos
+ *
+ * @param nbInfos number of infos to use in \b infosList
+ * @param infosList list of infos
+ * @param startIndex first index to consider in \b infosList
+ * @return the number of infos fitting in a page
+ */
+uint8_t nbgl_useCaseGetNbInfosInPage(uint8_t                       nbInfos,
+                                     const nbgl_contentInfoList_t *infosList,
+                                     uint8_t                       startIndex,
+                                     bool                          withNav)
+{
+    uint8_t  nbInfosInPage = 0;
+    uint16_t currentHeight = 0;
+    uint16_t previousHeight;
+    uint16_t navHeight = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
+
+    while (nbInfosInPage < nbInfos) {
+        // margin between infos
+        currentHeight += PRE_TEXT_MARGIN;
+
+        // type height
+        currentHeight += nbgl_getTextHeightInWidth(SMALL_BOLD_FONT,
+                                                   infosList->infoTypes[startIndex + nbInfosInPage],
+                                                   AVAILABLE_WIDTH,
+                                                   true);
+        // space between type and content
+        currentHeight += TEXT_SUBTEXT_MARGIN;
+
+        // content height
+        currentHeight
+            += nbgl_getTextHeightInWidth(SMALL_REGULAR_FONT,
+                                         infosList->infoContents[startIndex + nbInfosInPage],
+                                         AVAILABLE_WIDTH,
+                                         true);
+        currentHeight += POST_SUBTEXT_MARGIN;  // under the content
+        // if height is over the limit
+        if (currentHeight >= (INFOS_AREA_HEIGHT - navHeight)) {
+            // if there was no nav, now there will be, so it can be necessary to remove the last
+            // item
+            if (!withNav && (previousHeight >= (INFOS_AREA_HEIGHT - SIMPLE_FOOTER_HEIGHT))) {
+                nbInfosInPage--;
+            }
+            break;
+        }
+        previousHeight = currentHeight;
+        nbInfosInPage++;
+    }
+    return nbInfosInPage;
+}
+
+/**
+ * @brief computes the number of switches displayable in a page, with the given list of
+ * switches
+ *
+ * @param nbSwitches number of switches to use in \b switchesList
+ * @param switchesList list of switches
+ * @param startIndex first index to consider in \b switchesList
+ * @return the number of switches fitting in a page
+ */
+uint8_t nbgl_useCaseGetNbSwitchesInPage(uint8_t                           nbSwitches,
+                                        const nbgl_contentSwitchesList_t *switchesList,
+                                        uint8_t                           startIndex,
+                                        bool                              withNav)
+{
+    uint8_t  nbSwitchesInPage = 0;
+    uint16_t currentHeight    = 0;
+    uint16_t previousHeight;
+    uint16_t navHeight = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
+
+    while (nbSwitchesInPage < nbSwitches) {
+        // margin between switches
+        currentHeight += PRE_TEXT_MARGIN;
+
+        // text height
+        currentHeight
+            += nbgl_getTextHeightInWidth(SMALL_BOLD_FONT,
+                                         switchesList->switches[startIndex + nbSwitchesInPage].text,
+                                         AVAILABLE_WIDTH,
+                                         true);
+        // space between text and sub-text
+        currentHeight += TEXT_SUBTEXT_MARGIN;
+
+        // sub-text height
+        currentHeight += nbgl_getTextHeightInWidth(
+            SMALL_REGULAR_FONT,
+            switchesList->switches[startIndex + nbSwitchesInPage].subText,
+            AVAILABLE_WIDTH,
+            true);
+        currentHeight += POST_SUBTEXT_MARGIN;  // under the sub-text
+        // if height is over the limit
+        if (currentHeight >= (INFOS_AREA_HEIGHT - navHeight)) {
+            // if there was no nav, now there will be, so it can be necessary to remove the last
+            // item
+            if (!withNav && (previousHeight >= (INFOS_AREA_HEIGHT - SIMPLE_FOOTER_HEIGHT))) {
+                nbSwitchesInPage--;
+            }
+            break;
+        }
+        previousHeight = currentHeight;
+        nbSwitchesInPage++;
+    }
+    return nbSwitchesInPage;
+}
+
+/**
+ * @brief computes the number of bars displayable in a page, with the given list of
+ * bars
+ *
+ * @param nbBars number of bars to use in \b barsList
+ * @param barsList list of bars
+ * @param startIndex first index to consider in \b barsList
+ * @return the number of bars fitting in a page
+ */
+uint8_t nbgl_useCaseGetNbBarsInPage(uint8_t                       nbBars,
+                                    const nbgl_contentBarsList_t *barsList,
+                                    uint8_t                       startIndex,
+                                    bool                          withNav)
+{
+    uint8_t  nbBarsInPage  = 0;
+    uint16_t currentHeight = 0;
+    uint16_t previousHeight;
+    uint16_t navHeight = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
+
+    UNUSED(barsList);
+    UNUSED(startIndex);
+
+    while (nbBarsInPage < nbBars) {
+        currentHeight += TOUCHABLE_BAR_HEIGHT;
+        // if height is over the limit
+        if (currentHeight >= (INFOS_AREA_HEIGHT - navHeight)) {
+            // if there was no nav, now there will be, so it can be necessary to remove the last
+            // item
+            if (!withNav && (previousHeight >= (INFOS_AREA_HEIGHT - SIMPLE_FOOTER_HEIGHT))) {
+                nbBarsInPage--;
+            }
+            break;
+        }
+        previousHeight = currentHeight;
+        nbBarsInPage++;
+    }
+    return nbBarsInPage;
+}
+
+/**
+ * @brief computes the number of radio choices displayable in a page, with the given list of
+ * choices
+ *
+ * @param nbChoices number of radio choices to use in \b choicesList
+ * @param choicesList list of choices
+ * @param startIndex first index to consider in \b choicesList
+ * @return the number of radio choices fitting in a page
+ */
+uint8_t nbgl_useCaseGetNbChoicesInPage(uint8_t                          nbChoices,
+                                       const nbgl_contentRadioChoice_t *choicesList,
+                                       uint8_t                          startIndex,
+                                       bool                             withNav)
+{
+    uint8_t  nbChoicesInPage = 0;
+    uint16_t currentHeight   = 0;
+    uint16_t previousHeight;
+    uint16_t navHeight = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
+
+    UNUSED(choicesList);
+    UNUSED(startIndex);
+
+    while (nbChoicesInPage < nbChoices) {
+        currentHeight += TOUCHABLE_BAR_HEIGHT;
+        // if height is over the limit
+        if (currentHeight >= (INFOS_AREA_HEIGHT - navHeight)) {
+            // if there was no nav, now there will be, so it can be necessary to remove the last
+            // item
+            if (!withNav && (previousHeight >= (INFOS_AREA_HEIGHT - SIMPLE_FOOTER_HEIGHT))) {
+                nbChoicesInPage--;
+            }
+            break;
+        }
+        previousHeight = currentHeight;
+        nbChoicesInPage++;
+    }
+    return nbChoicesInPage;
+}
+
+/**
  * @brief  computes the number of pages necessary to display the given list of tag/value pairs
  *
  * @param tagValueList list of tag/value pairs
@@ -2089,7 +2279,7 @@ void nbgl_useCaseGenericSettings(const char                   *appName,
     // fill navigation structure
     uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
     if (infosList != NULL) {
-        nbPages += nbgl_useCaseGetNbPagesForContent(&FINISHING_CONTENT, nbPages);
+        nbPages += nbgl_useCaseGetNbPagesForContent(&FINISHING_CONTENT, nbPages, true);
     }
 
     prepareNavInfo(false, nbPages, NULL);
