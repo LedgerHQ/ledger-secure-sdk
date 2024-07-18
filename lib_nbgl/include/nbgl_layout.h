@@ -50,7 +50,7 @@ extern "C" {
 #define MEDIUM_CENTERING_HEADER           56
 #define LONG_PRESS_BUTTON_HEIGHT          128
 #else  // TARGET_STAX
-#define NB_MAX_SUGGESTION_BUTTONS         6
+#define NB_MAX_SUGGESTION_BUTTONS         8
 // only 2 buttons are visible at the same time on Flex
 #define NB_MAX_VISIBLE_SUGGESTION_BUTTONS 2
 #define TOUCHABLE_HEADER_BAR_HEIGHT       96
