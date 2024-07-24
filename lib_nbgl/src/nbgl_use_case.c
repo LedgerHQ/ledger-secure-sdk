@@ -907,12 +907,17 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
             LOG_DEBUG(USE_CASE_LOGGER, "Unsupported type %d\n", pageContent->type);
             return false;
     }
-    // if first or last page of review and blind operation, add the top-right button
-    if (((p_content == &STARTING_CONTENT) || (p_content->type == INFO_LONG_PRESS))
-        && (((navType == STREAMING_NAV)
-             && (bundleNavContext.reviewStreaming.operationType & BLIND_OPERATION))
-            || ((navType == GENERIC_NAV)
-                && (bundleNavContext.review.operationType & BLIND_OPERATION)))) {
+
+    bool isFirstOrLastPage
+        = (p_content->type == CENTERED_INFO) || (p_content->type == INFO_LONG_PRESS);
+    bool isStreamingNavAndBlindOperation
+        = (navType == STREAMING_NAV)
+          && (bundleNavContext.reviewStreaming.operationType & BLIND_OPERATION);
+    bool isGenericNavAndBlindOperation
+        = (navType == GENERIC_NAV) && (bundleNavContext.review.operationType & BLIND_OPERATION);
+
+    // if first or last page of review and blind operation, add the warning top-right button
+    if (isFirstOrLastPage && (isStreamingNavAndBlindOperation || isGenericNavAndBlindOperation)) {
         pageContent->topRightIcon  = &WARNING_ICON;
         pageContent->topRightToken = BLIND_WARNING_TOKEN;
     }
