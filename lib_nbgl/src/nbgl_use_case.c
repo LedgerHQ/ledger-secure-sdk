@@ -2454,9 +2454,10 @@ void nbgl_useCaseStaticReview(const nbgl_contentTagValueList_t *tagValueList,
     memset(&genericContext, 0, sizeof(genericContext));
 
     // memorize context
-    onChoice  = callback;
-    navType   = GENERIC_NAV;
-    pageTitle = NULL;
+    onChoice                              = callback;
+    navType                               = GENERIC_NAV;
+    pageTitle                             = NULL;
+    bundleNavContext.review.operationType = TYPE_OPERATION;
 
     genericContext.genericContents.contentsList = localContentsList;
     memset(localContentsList, 0, 2 * sizeof(nbgl_content_t));
