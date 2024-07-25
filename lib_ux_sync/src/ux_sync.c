@@ -243,6 +243,32 @@ ux_sync_ret_t ux_sync_status(const char *message, bool isSuccess)
 }
 
 /**
+ * @brief Draws a generic choice page, described in a centered info (with configurable icon), thanks
+ * to a button and a footer at the bottom of the page. The given callback is called with true as
+ * argument if the button is touched, false if footer is touched
+ *
+ * @param icon icon to set in center of page
+ * @param message string to set in center of page (32px)
+ * @param subMessage string to set under message (24px) (can be NULL)
+ * @param confirmText string to set in button, to confirm (cannot be NULL)
+ * @param cancelText string to set in footer, to reject (cannot be NULL)
+ *
+ * @return ret code:
+ *         - UX_SYNC_RET_APPROVED
+ *         - UX_SYNC_RET_REJECTED
+ */
+ux_sync_ret_t ux_sync_choice(const nbgl_icon_details_t *icon,
+                             const char                *message,
+                             const char                *subMessage,
+                             const char                *confirmText,
+                             const char                *cancelText)
+{
+    ux_sync_init();
+    nbgl_useCaseChoice(icon, message, subMessage, confirmText, cancelText, choice_callback);
+    return ux_sync_wait(false);
+}
+
+/**
  * @brief Start drawing the flow of pages of a review.
  * @note  This should be followed by calls to nbgl_useCaseReviewStreamingContinue and finally to
  *        nbgl_useCaseReviewStreamingFinish.
