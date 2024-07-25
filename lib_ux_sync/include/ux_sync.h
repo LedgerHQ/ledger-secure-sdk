@@ -46,6 +46,12 @@ ux_sync_ret_t ux_sync_reviewStatus(nbgl_reviewStatusType_t reviewStatusType);
 
 ux_sync_ret_t ux_sync_status(const char *message, bool isSuccess);
 
+ux_sync_ret_t ux_sync_choice(const nbgl_icon_details_t *icon,
+                             const char                *message,
+                             const char                *subMessage,
+                             const char                *confirmText,
+                             const char                *cancelText);
+
 ux_sync_ret_t ux_sync_reviewStreamingStart(nbgl_operationType_t       operationType,
                                            const nbgl_icon_details_t *icon,
                                            const char                *reviewTitle,
