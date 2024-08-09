@@ -134,6 +134,9 @@ Macros</h2></td></tr>
 <tr class="memitem:ab31f847bb29d4cc4f976f4d005a21d48"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#ab31f847bb29d4cc4f976f4d005a21d48">TAG_VALUE_AREA_HEIGHT</a>&#160;&#160;&#160;(<a class="el" href="nbgl__types_8h.html#a6974d08a74da681b3957b2fead2608b8">SCREEN_HEIGHT</a> - <a class="el" href="nbgl__layout_8h.html#ac8a603881f7a23a84a1e92640458abcb">SMALL_CENTERING_HEADER</a> - <a class="el" href="nbgl__layout_8h.html#a02c100619c79129f503a4aa7b7dec123">SIMPLE_FOOTER_HEIGHT</a>)</td></tr>
 <tr class="memdesc:ab31f847bb29d4cc4f976f4d005a21d48"><td class="mdescLeft">&#160;</td><td class="mdescRight">height available for tag/value pairs display  <a href="nbgl__use__case_8h.html#ab31f847bb29d4cc4f976f4d005a21d48">More...</a><br /></td></tr>
 <tr class="separator:ab31f847bb29d4cc4f976f4d005a21d48"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a59c8a687689195cb0daf30be8e809999"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a59c8a687689195cb0daf30be8e809999">INFOS_AREA_HEIGHT</a>&#160;&#160;&#160;(<a class="el" href="nbgl__types_8h.html#a6974d08a74da681b3957b2fead2608b8">SCREEN_HEIGHT</a> - <a class="el" href="nbgl__layout_8h.html#afbc424f14d969e1ff384375756708c8d">TOUCHABLE_HEADER_BAR_HEIGHT</a>)</td></tr>
+<tr class="memdesc:a59c8a687689195cb0daf30be8e809999"><td class="mdescLeft">&#160;</td><td class="mdescRight">height available for infos pairs display  <a href="nbgl__use__case_8h.html#a59c8a687689195cb0daf30be8e809999">More...</a><br /></td></tr>
+<tr class="separator:a59c8a687689195cb0daf30be8e809999"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab71789eb49cda02a662fa20c14cbeb9f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#ab71789eb49cda02a662fa20c14cbeb9f">TAGLINE_PART1</a>&#160;&#160;&#160;&quot;This app enables signing\ntransactions on the&quot;</td></tr>
 <tr class="memdesc:ab71789eb49cda02a662fa20c14cbeb9f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default strings used in the Home tagline.  <a href="nbgl__use__case_8h.html#ab71789eb49cda02a662fa20c14cbeb9f">More...</a><br /></td></tr>
 <tr class="separator:ab71789eb49cda02a662fa20c14cbeb9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -236,6 +239,14 @@ Functions</h2></td></tr>
 <tr class="separator:a6c70e8409832531cb83c75c5c376ee18"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a39ff695a99f591d12201c2de890f6a93"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a39ff695a99f591d12201c2de890f6a93">nbgl_useCaseGetNbTagValuesInPage</a> (<a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbPairs, const <a class="el" href="structnbgl__contentTagValueList__t.html">nbgl_contentTagValueList_t</a> *tagValueList, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> startIndex, bool *requireSpecificDisplay)</td></tr>
 <tr class="separator:a39ff695a99f591d12201c2de890f6a93"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a536c62dee20723eca3f16a833e7918bc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a536c62dee20723eca3f16a833e7918bc">nbgl_useCaseGetNbInfosInPage</a> (<a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbInfos, const <a class="el" href="structnbgl__contentInfoList__t.html">nbgl_contentInfoList_t</a> *infosList, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> startIndex, bool withNav)</td></tr>
+<tr class="separator:a536c62dee20723eca3f16a833e7918bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:affbdb8a0bd3ce51c15271fd5c36926a2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#affbdb8a0bd3ce51c15271fd5c36926a2">nbgl_useCaseGetNbSwitchesInPage</a> (<a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbSwitches, const <a class="el" href="nbgl__content_8h.html#a1e9fa82698f1cb79be7824591c133f41">nbgl_contentSwitchesList_t</a> *switchesList, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> startIndex, bool withNav)</td></tr>
+<tr class="separator:affbdb8a0bd3ce51c15271fd5c36926a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a58b87db5b94fd3468033ce60a6a7b482"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a58b87db5b94fd3468033ce60a6a7b482">nbgl_useCaseGetNbBarsInPage</a> (<a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbBars, const <a class="el" href="structnbgl__contentBarsList__t.html">nbgl_contentBarsList_t</a> *barsList, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> startIndex, bool withNav)</td></tr>
+<tr class="separator:a58b87db5b94fd3468033ce60a6a7b482"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adbac3f93e56398d52ec66b39ddaeb230"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#adbac3f93e56398d52ec66b39ddaeb230">nbgl_useCaseGetNbChoicesInPage</a> (<a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbChoices, const <a class="el" href="structnbgl__contentRadioChoice__t.html">nbgl_contentRadioChoice_t</a> *choicesList, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> startIndex, bool withNav)</td></tr>
+<tr class="separator:adbac3f93e56398d52ec66b39ddaeb230"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3b62619ecd9513f022143c5ac80b5208"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a3b62619ecd9513f022143c5ac80b5208">nbgl_useCaseGetNbPagesForTagValueList</a> (const <a class="el" href="structnbgl__contentTagValueList__t.html">nbgl_contentTagValueList_t</a> *tagValueList)</td></tr>
 <tr class="separator:a3b62619ecd9513f022143c5ac80b5208"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab213de81e58dd8ca6b9460277415fcdc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#ab213de81e58dd8ca6b9460277415fcdc">nbgl_useCaseHome</a> (const char *appName, const <a class="el" href="nbgl__types_8h.html#a7724587bc3e14c498ed49c3e70c365d6">nbgl_icon_details_t</a> *appIcon, const char *tagline, bool withSettings, <a class="el" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a> topRightCallback, <a class="el" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a> quitCallback)</td></tr>
@@ -292,7 +303,7 @@ Functions</h2></td></tr>
 
 <p>Length of buffer used for the default Home tagline. </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00075">75</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00080">80</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -310,7 +321,7 @@ Functions</h2></td></tr>
 
 <p>This is to use in <a class="el" href="nbgl__use__case_8h.html#a2a61232bd0b7a090272a1fd43f3b9f26">nbgl_operationType_t</a> when the operation is "blind" This is used to indicate a warning with a top-right button in review first &amp; last page. </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00192">192</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00197">197</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -332,6 +343,24 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a59c8a687689195cb0daf30be8e809999"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a59c8a687689195cb0daf30be8e809999">&#9670;&nbsp;</a></span>INFOS_AREA_HEIGHT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define INFOS_AREA_HEIGHT&#160;&#160;&#160;(<a class="el" href="nbgl__types_8h.html#a6974d08a74da681b3957b2fead2608b8">SCREEN_HEIGHT</a> - <a class="el" href="nbgl__layout_8h.html#afbc424f14d969e1ff384375756708c8d">TOUCHABLE_HEADER_BAR_HEIGHT</a>)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>height available for infos pairs display </p>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00069">69</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+
+</div>
+</div>
 <a id="a9cd8c314ebe1bb0c9ebb1a230a61fcb9"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9cd8c314ebe1bb0c9ebb1a230a61fcb9">&#9670;&nbsp;</a></span>INIT_HOME_PAGE</h2>
 
@@ -346,7 +375,7 @@ Functions</h2></td></tr>
 
 <p>Value to pass to <a class="el" href="nbgl__use__case_8h.html#a438078d9be71706e0ad6a05f56658255">nbgl_useCaseHomeAndSettings()</a> initSettingPage parameter to initialize the use case on the Home page and not on a specific setting page. </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00088">88</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00093">93</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -382,7 +411,7 @@ Functions</h2></td></tr>
 
 <p>Max supported length of appName used for the default Home tagline. </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00080">80</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00085">85</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -454,7 +483,7 @@ Functions</h2></td></tr>
 
 <p>This is to use in <a class="el" href="nbgl__use__case_8h.html#a2a61232bd0b7a090272a1fd43f3b9f26">nbgl_operationType_t</a> when the operation is skippable. This is used. </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00185">185</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00190">190</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -490,7 +519,7 @@ Functions</h2></td></tr>
 
 <p>Default strings used in the Home tagline. </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00069">69</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00074">74</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -506,7 +535,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00070">70</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00075">75</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -531,7 +560,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00120">120</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00125">125</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -549,7 +578,7 @@ Functions</h2></td></tr>
 
 <p>prototype of generic callback function </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00100">100</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00105">105</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -573,7 +602,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00114">114</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00119">119</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -598,7 +627,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00134">134</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00139">139</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -624,7 +653,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the page content is valid, false if no more page </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00108">108</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00113">113</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -642,7 +671,7 @@ Functions</h2></td></tr>
 
 <p>This mask is used to describe the type of operation to review with additional options It is a mask of <a class="el" href="nbgl__use__case_8h.html#afa09e6097a8248ecbdc81d2fb1bfc317">nbgl_opType_t</a> [| <a class="el" href="nbgl__use__case_8h.html#a200676cdf5bfc30c4184d2bd650b6f14">SKIPPABLE_OPERATION</a>] [| <a class="el" href="nbgl__use__case_8h.html#ab65c98f1761ae5a746bb0c968ecd2f69">BLIND_OPERATION</a>]. </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00199">199</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00204">204</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -667,7 +696,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00127">127</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00132">132</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -694,7 +723,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00172">172</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00177">177</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -722,7 +751,7 @@ Functions</h2></td></tr>
 <tr><td class="fieldname"><a id="aecc6f4750a49ca97c084e3fd5600d5dea421fe70db5ac9ff90611b7d1a57af340"></a>STATUS_TYPE_ADDRESS_REJECTED&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00205">205</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00210">210</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -1203,6 +1232,126 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a58b87db5b94fd3468033ce60a6a7b482"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a58b87db5b94fd3468033ce60a6a7b482">&#9670;&nbsp;</a></span>nbgl_useCaseGetNbBarsInPage()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbgl_useCaseGetNbBarsInPage </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td>
+          <td class="paramname"><em>nbBars</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structnbgl__contentBarsList__t.html">nbgl_contentBarsList_t</a> *&#160;</td>
+          <td class="paramname"><em>barsList</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td>
+          <td class="paramname"><em>startIndex</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>withNav</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="adbac3f93e56398d52ec66b39ddaeb230"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adbac3f93e56398d52ec66b39ddaeb230">&#9670;&nbsp;</a></span>nbgl_useCaseGetNbChoicesInPage()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbgl_useCaseGetNbChoicesInPage </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td>
+          <td class="paramname"><em>nbChoices</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structnbgl__contentRadioChoice__t.html">nbgl_contentRadioChoice_t</a> *&#160;</td>
+          <td class="paramname"><em>choicesList</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td>
+          <td class="paramname"><em>startIndex</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>withNav</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a536c62dee20723eca3f16a833e7918bc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a536c62dee20723eca3f16a833e7918bc">&#9670;&nbsp;</a></span>nbgl_useCaseGetNbInfosInPage()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbgl_useCaseGetNbInfosInPage </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td>
+          <td class="paramname"><em>nbInfos</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structnbgl__contentInfoList__t.html">nbgl_contentInfoList_t</a> *&#160;</td>
+          <td class="paramname"><em>infosList</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td>
+          <td class="paramname"><em>startIndex</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>withNav</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a3b62619ecd9513f022143c5ac80b5208"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3b62619ecd9513f022143c5ac80b5208">&#9670;&nbsp;</a></span>nbgl_useCaseGetNbPagesForTagValueList()</h2>
 
@@ -1215,6 +1364,46 @@ Functions</h2></td></tr>
           <td class="paramtype">const <a class="el" href="structnbgl__contentTagValueList__t.html">nbgl_contentTagValueList_t</a> *&#160;</td>
           <td class="paramname"><em>tagValueList</em></td><td>)</td>
           <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="affbdb8a0bd3ce51c15271fd5c36926a2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#affbdb8a0bd3ce51c15271fd5c36926a2">&#9670;&nbsp;</a></span>nbgl_useCaseGetNbSwitchesInPage()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbgl_useCaseGetNbSwitchesInPage </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td>
+          <td class="paramname"><em>nbSwitches</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="nbgl__content_8h.html#a1e9fa82698f1cb79be7824591c133f41">nbgl_contentSwitchesList_t</a> *&#160;</td>
+          <td class="paramname"><em>switchesList</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td>
+          <td class="paramname"><em>startIndex</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>withNav</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
