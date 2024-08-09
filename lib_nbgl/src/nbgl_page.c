@@ -55,15 +55,15 @@ static void addContent(nbgl_pageContent_t *content,
     }
     switch (content->type) {
         case INFO_LONG_PRESS: {
-            nbgl_layoutCenteredInfo_t centeredInfo;
-            centeredInfo.icon    = content->infoLongPress.icon;
-            centeredInfo.text1   = content->infoLongPress.text;
-            centeredInfo.text2   = NULL;
-            centeredInfo.text3   = NULL;
-            centeredInfo.style   = LARGE_CASE_INFO;
-            centeredInfo.offsetY = -LONG_PRESS_BUTTON_HEIGHT / 2;
-            centeredInfo.onTop   = false;
-            nbgl_layoutAddCenteredInfo(layout, &centeredInfo);
+            nbgl_contentCenter_t centeredInfo;
+            centeredInfo.icon        = content->infoLongPress.icon;
+            centeredInfo.title       = content->infoLongPress.text;
+            centeredInfo.smallTitle  = NULL;
+            centeredInfo.description = NULL;
+            centeredInfo.iconHug     = 0;
+            centeredInfo.subText     = NULL;
+            centeredInfo.padding     = false;
+            nbgl_layoutAddContentCenter(layout, &centeredInfo);
             nbgl_layoutAddLongPressButton(layout,
                                           content->infoLongPress.longPressText,
                                           content->infoLongPress.longPressToken,
@@ -71,17 +71,17 @@ static void addContent(nbgl_pageContent_t *content,
             break;
         }
         case INFO_BUTTON: {
-            nbgl_layoutCenteredInfo_t centeredInfo;
-            nbgl_layoutButton_t       buttonInfo;
+            nbgl_contentCenter_t centeredInfo;
+            nbgl_layoutButton_t  buttonInfo;
 
-            centeredInfo.icon    = content->infoButton.icon;
-            centeredInfo.text1   = content->infoButton.text;
-            centeredInfo.text2   = NULL;
-            centeredInfo.text3   = NULL;
-            centeredInfo.style   = LARGE_CASE_INFO;
-            centeredInfo.offsetY = -40;
-            centeredInfo.onTop   = false;
-            nbgl_layoutAddCenteredInfo(layout, &centeredInfo);
+            centeredInfo.icon        = content->infoButton.icon;
+            centeredInfo.title       = content->infoButton.text;
+            centeredInfo.smallTitle  = NULL;
+            centeredInfo.description = NULL;
+            centeredInfo.iconHug     = 0;
+            centeredInfo.subText     = NULL;
+            centeredInfo.padding     = false;
+            nbgl_layoutAddContentCenter(layout, &centeredInfo);
 
             buttonInfo.fittingContent = false;
             buttonInfo.icon           = NULL;
@@ -99,6 +99,23 @@ static void addContent(nbgl_pageContent_t *content,
             }
             nbgl_layoutAddCenteredInfo(layout, &content->centeredInfo);
             break;
+
+        case EXTENDED_CENTER:
+            if ((!headerAdded) && (content->extendedCenter.tipBox.text == NULL)) {
+                addEmptyHeader(layout, SMALL_CENTERING_HEADER);
+            }
+            nbgl_layoutAddContentCenter(layout, &content->extendedCenter.contentCenter);
+            if (content->extendedCenter.tipBox.text != NULL) {
+                nbgl_layoutUpFooter_t upFooterDesc
+                    = {.type          = UP_FOOTER_TIP_BOX,
+                       .tipBox.text   = content->extendedCenter.tipBox.text,
+                       .tipBox.icon   = content->extendedCenter.tipBox.icon,
+                       .tipBox.token  = content->extendedCenter.tipBox.token,
+                       .tipBox.tuneId = content->extendedCenter.tipBox.tuneId};
+                nbgl_layoutAddUpFooter(layout, &upFooterDesc);
+            }
+            break;
+
         case TAG_VALUE_LIST:
             // add a space of 32/40px if no header already added
             if (!headerAdded) {
@@ -420,8 +437,14 @@ nbgl_page_t *nbgl_pageDrawInfo(nbgl_layoutTouchCallback_t              onActionC
 nbgl_page_t *nbgl_pageDrawConfirmation(nbgl_layoutTouchCallback_t                onActionCallback,
                                        const nbgl_pageConfirmationDescription_t *info)
 {
-    nbgl_layoutDescription_t layoutDescription;
-    nbgl_layout_t           *layout;
+    nbgl_layoutDescription_t   layoutDescription;
+    nbgl_layout_t             *layout;
+    nbgl_layoutChoiceButtons_t buttonsInfo
+        = {.bottomText = (info->cancelText != NULL) ? PIC(info->cancelText) : "Cancel",
+           .token      = info->confirmationToken,
+           .topText    = PIC(info->confirmationText),
+           .style      = ROUNDED_AND_FOOTER_STYLE,
+           .tuneId     = info->tuneId};
 
     layoutDescription.modal          = info->modal;
     layoutDescription.withLeftBorder = true;
@@ -431,26 +454,10 @@ nbgl_page_t *nbgl_pageDrawConfirmation(nbgl_layoutTouchCallback_t               
 
     layoutDescription.ticker.tickerCallback = NULL;
     layout                                  = nbgl_layoutGet(&layoutDescription);
-    if (info->cancelText == NULL) {
-        nbgl_layoutButton_t buttonInfo = {.style          = BLACK_BACKGROUND,
-                                          .text           = info->confirmationText,
-                                          .icon           = NULL,
-                                          .token          = info->confirmationToken,
-                                          .fittingContent = false,
-                                          .tuneId         = info->tuneId,
-                                          .onBottom       = true};
-        nbgl_layoutAddBottomButton(layout, PIC(&CLOSE_ICON), info->cancelToken, true, info->tuneId);
-        nbgl_layoutAddButton(layout, &buttonInfo);
-    }
-    else {
-        nbgl_layoutChoiceButtons_t buttonsInfo = {.bottomText = PIC(info->cancelText),
-                                                  .token      = info->confirmationToken,
-                                                  .topText    = PIC(info->confirmationText),
-                                                  .style      = ROUNDED_AND_FOOTER_STYLE,
-                                                  .tuneId     = info->tuneId};
-        addEmptyHeader(layout, MEDIUM_CENTERING_HEADER);
-        nbgl_layoutAddChoiceButtons(layout, &buttonsInfo);
-    }
+
+    addEmptyHeader(layout, MEDIUM_CENTERING_HEADER);
+    nbgl_layoutAddChoiceButtons(layout, &buttonsInfo);
+
     nbgl_layoutAddCenteredInfo(layout, &info->centeredInfo);
 
     nbgl_layoutDraw(layout);
