@@ -1212,20 +1212,16 @@ int nbgl_layoutAddText(nbgl_layout_t *layout, const char *text, const char *subT
     if (text != NULL) {
         textArea = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
 
-        textArea->textColor     = BLACK;
-        textArea->text          = PIC(text);
-        textArea->textAlignment = MID_LEFT;
-        textArea->fontId        = SMALL_BOLD_FONT;
-        textArea->style         = NO_STYLE;
-        textArea->wrapping      = true;
-        textArea->obj.alignment = NO_ALIGNMENT;
-#ifdef TARGET_STAX
-        textArea->obj.alignmentMarginY = 32;
-#else   // TARGET_STAX
-        textArea->obj.alignmentMarginY           = 28;
-#endif  // TARGET_STAX
-        textArea->obj.area.width  = container->obj.area.width;
-        textArea->obj.area.height = nbgl_getTextHeightInWidth(
+        textArea->textColor            = BLACK;
+        textArea->text                 = PIC(text);
+        textArea->textAlignment        = MID_LEFT;
+        textArea->fontId               = SMALL_BOLD_FONT;
+        textArea->style                = NO_STYLE;
+        textArea->wrapping             = true;
+        textArea->obj.alignment        = NO_ALIGNMENT;
+        textArea->obj.alignmentMarginY = PRE_TEXT_MARGIN;
+        textArea->obj.area.width       = container->obj.area.width;
+        textArea->obj.area.height      = nbgl_getTextHeightInWidth(
             textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
         fullHeight += textArea->obj.area.height + textArea->obj.alignmentMarginY;
         container->children[container->nbChildren] = (nbgl_obj_t *) textArea;
@@ -1246,13 +1242,8 @@ int nbgl_layoutAddText(nbgl_layout_t *layout, const char *text, const char *subT
         subTextArea->textAlignment   = MID_LEFT;
         subTextArea->obj.alignment   = NO_ALIGNMENT;
         if (text != NULL) {
-#ifdef TARGET_STAX
-            subTextArea->obj.alignmentMarginY = 16;
-            fullHeight += 28;  // under the subText
-#else                          // TARGET_STAX
-            subTextArea->obj.alignmentMarginY = 14;
-            fullHeight += 26;  // under the subText
-#endif                         // TARGET_STAX
+            subTextArea->obj.alignmentMarginY = TEXT_SUBTEXT_MARGIN;
+            fullHeight += POST_SUBTEXT_MARGIN;  // under the subText
         }
         else {
 #ifdef TARGET_STAX
@@ -1268,11 +1259,7 @@ int nbgl_layoutAddText(nbgl_layout_t *layout, const char *text, const char *subT
         fullHeight += subTextArea->obj.area.height + subTextArea->obj.alignmentMarginY;
     }
     else {
-#ifdef TARGET_STAX
-        fullHeight += 32;
-#else   // TARGET_STAX
-        fullHeight += 28;
-#endif  // TARGET_STAX
+        fullHeight += PRE_TEXT_MARGIN;
     }
     container->obj.area.height      = fullHeight;
     container->layout               = VERTICAL;

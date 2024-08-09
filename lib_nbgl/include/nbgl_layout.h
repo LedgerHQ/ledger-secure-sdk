@@ -67,6 +67,16 @@ extern "C" {
 
 #define NB_MAX_LINES NB_MAX_LINES_IN_DETAILS
 
+#ifdef TARGET_STAX
+#define PRE_TEXT_MARGIN     32
+#define TEXT_SUBTEXT_MARGIN 16
+#define POST_SUBTEXT_MARGIN 28
+#else  // TARGET_STAX
+#define PRE_TEXT_MARGIN     28
+#define TEXT_SUBTEXT_MARGIN 14
+#define POST_SUBTEXT_MARGIN 26
+#endif  // TARGET_STAX
+
 #else  // HAVE_SE_TOUCH
 // 7 pixels on each side
 #define AVAILABLE_WIDTH (SCREEN_WIDTH - 2 * 7)
