@@ -1,10 +1,10 @@
 var searchData=
 [
-  ['main_5fcontainer_5findex_3688',['MAIN_CONTAINER_INDEX',['../nbgl__layout__internal_8h.html#a0ed680fdb405e7195d9f14032851eebbad80324e7f2a40f6d0e43c744895646bf',1,'nbgl_layout_internal.h']]],
-  ['mid_5fleft_3689',['MID_LEFT',['../nbgl__types_8h.html#a82db45397671e5a06f32c857ed8980c6aad5cc8adf8a022e34c30f0cd7d6b2323',1,'nbgl_types.h']]],
-  ['mid_5fright_3690',['MID_RIGHT',['../nbgl__types_8h.html#a82db45397671e5a06f32c857ed8980c6a8c86316489d5c767f93417b035256ab9',1,'nbgl_types.h']]],
-  ['misc_5flogger_3691',['MISC_LOGGER',['../nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06cad4fa1132179cb4c7d82614846a005ddf',1,'nbgl_debug.h']]],
-  ['mode_5fdigits_3692',['MODE_DIGITS',['../nbgl__obj_8h.html#aa61b9adfb699753b7ee4beb6fcf9c915a4077e7af64636b993f07d614c965bf73',1,'nbgl_obj.h']]],
-  ['mode_5fletters_3693',['MODE_LETTERS',['../nbgl__obj_8h.html#aa61b9adfb699753b7ee4beb6fcf9c915a567e2801898f0fa88d0f5bce58badf86',1,'nbgl_obj.h']]],
-  ['mode_5fspecial_3694',['MODE_SPECIAL',['../nbgl__obj_8h.html#aa61b9adfb699753b7ee4beb6fcf9c915a14c61aebe060fb7e701e8eaaa743364c',1,'nbgl_obj.h']]]
+  ['main_5fcontainer_5findex_3731',['MAIN_CONTAINER_INDEX',['../nbgl__layout__internal_8h.html#ab48899087cc647f0f791ed0c459adc53ad80324e7f2a40f6d0e43c744895646bf',1,'nbgl_layout_internal.h']]],
+  ['mid_5fleft_3732',['MID_LEFT',['../nbgl__types_8h.html#a82db45397671e5a06f32c857ed8980c6aad5cc8adf8a022e34c30f0cd7d6b2323',1,'nbgl_types.h']]],
+  ['mid_5fright_3733',['MID_RIGHT',['../nbgl__types_8h.html#a82db45397671e5a06f32c857ed8980c6a8c86316489d5c767f93417b035256ab9',1,'nbgl_types.h']]],
+  ['misc_5flogger_3734',['MISC_LOGGER',['../nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06cad4fa1132179cb4c7d82614846a005ddf',1,'nbgl_debug.h']]],
+  ['mode_5fdigits_3735',['MODE_DIGITS',['../nbgl__obj_8h.html#aa61b9adfb699753b7ee4beb6fcf9c915a4077e7af64636b993f07d614c965bf73',1,'nbgl_obj.h']]],
+  ['mode_5fletters_3736',['MODE_LETTERS',['../nbgl__obj_8h.html#aa61b9adfb699753b7ee4beb6fcf9c915a567e2801898f0fa88d0f5bce58badf86',1,'nbgl_obj.h']]],
+  ['mode_5fspecial_3737',['MODE_SPECIAL',['../nbgl__obj_8h.html#aa61b9adfb699753b7ee4beb6fcf9c915a14c61aebe060fb7e701e8eaaa743364c',1,'nbgl_obj.h']]]
 ];
