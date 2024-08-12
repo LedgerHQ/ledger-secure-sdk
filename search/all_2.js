@@ -1,7 +1,7 @@
 var searchData=
 [
   ['back_5fbutton_5fheader_5fheight_47',['BACK_BUTTON_HEADER_HEIGHT',['../nbgl__obj_8h.html#ab0fa96dca048b9c26a5bc008c9e4b332',1,'nbgl_obj.h']]],
-  ['back_5fbutton_5fid_48',['BACK_BUTTON_ID',['../nbgl__obj_8h.html#a94798fdadfbf49a7c658ace669a1d310ac6d3dbc7d804537b62adb9b0cc15e088',1,'nbgl_obj.h']]],
+  ['back_5fbutton_5fid_48',['BACK_BUTTON_ID',['../nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18ac6d3dbc7d804537b62adb9b0cc15e088',1,'nbgl_obj.h']]],
   ['back_5fkey_5fwidth_49',['BACK_KEY_WIDTH',['../nbgl__layout_8c.html#ac9f4de7a6aad1ea2056df173d3b515b0',1,'nbgl_layout.c']]],
   ['backandtext_50',['backAndText',['../structnbgl__layoutHeader__t.html#a440a09ecb61b4c01752302e16e95e48e',1,'nbgl_layoutHeader_t']]],
   ['backbutton_51',['backButton',['../structnbgl__pageNavWithTap__s.html#adadf298cd351541f0fc636d1a82ea16d',1,'nbgl_pageNavWithTap_s::backButton()'],['../structnbgl__pageNavWithButtons__s.html#ad6b02e65af308527c29729a31ef42a44',1,'nbgl_pageNavWithButtons_s::backButton()']]],
@@ -116,7 +116,7 @@ var searchData=
   ['both_5fbuttons_160',['BOTH_BUTTONS',['../nbgl__obj_8h.html#a95021bc82ba4136d9e82e479ccab7e40',1,'nbgl_obj.h']]],
   ['both_5frounded_5fstyle_161',['BOTH_ROUNDED_STYLE',['../nbgl__layout_8h.html#aab86a9d202df5a9f485ac2c164e294e4a71eac65e61a10292920fa57106af1fe3',1,'nbgl_layout.h']]],
   ['bottom_5fborder_5fmargin_162',['BOTTOM_BORDER_MARGIN',['../nbgl__obj_8h.html#ab311be0b1596e647de8c6f77f1668fde',1,'nbgl_obj.h']]],
-  ['bottom_5fbutton_5fid_163',['BOTTOM_BUTTON_ID',['../nbgl__obj_8h.html#a94798fdadfbf49a7c658ace669a1d310aaf2038e37ba82d284ec75ac12cbc250d',1,'nbgl_obj.h']]],
+  ['bottom_5fbutton_5fid_163',['BOTTOM_BUTTON_ID',['../nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18aaf2038e37ba82d284ec75ac12cbc250d',1,'nbgl_obj.h']]],
   ['bottom_5fcompact_5fmargin_164',['BOTTOM_COMPACT_MARGIN',['../nbgl__layout__keyboard_8c.html#a141249b793508d7bda5e2cbbfaa4a3f9',1,'nbgl_layout_keyboard.c']]],
   ['bottom_5fleft_165',['BOTTOM_LEFT',['../nbgl__types_8h.html#a82db45397671e5a06f32c857ed8980c6a6f6b2705d50f7af47405ee7becaabbdb',1,'nbgl_types.h']]],
   ['bottom_5fmiddle_166',['BOTTOM_MIDDLE',['../nbgl__types_8h.html#a82db45397671e5a06f32c857ed8980c6ac4b33d3bd4d4779e8b72c75cd5d85711',1,'nbgl_types.h']]],
