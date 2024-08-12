@@ -949,14 +949,12 @@ nbgl_layout_t *nbgl_layoutGet(const nbgl_layoutDescription_t *description)
         layout->container->obj.touchMask = (1 << TOUCHED);
         layout->container->obj.touchId   = WHOLE_SCREEN_ID;
 
-        nbgl_layoutFooter_t footerDesc;
-        footerDesc.type                = FOOTER_SIMPLE_TEXT;
-        footerDesc.separationLine      = false;
-        footerDesc.simpleText.text     = PIC(description->tapActionText);
-        footerDesc.simpleText.mutedOut = true;
-        footerDesc.simpleText.token    = description->tapActionToken;
-        footerDesc.simpleText.tuneId   = description->tapTuneId;
-        nbgl_layoutAddExtendedFooter((nbgl_layout_t *) layout, &footerDesc);
+        nbgl_layoutUpFooter_t footerDesc;
+        footerDesc.type        = UP_FOOTER_TEXT;
+        footerDesc.text.text   = PIC(description->tapActionText);
+        footerDesc.text.token  = description->tapActionToken;
+        footerDesc.text.tuneId = description->tapTuneId;
+        nbgl_layoutAddUpFooter((nbgl_layout_t *) layout, &footerDesc);
     }
 
     return (nbgl_layout_t *) layout;
@@ -3143,6 +3141,32 @@ int nbgl_layoutAddUpFooter(nbgl_layout_t *layout, const nbgl_layoutUpFooter_t *u
             }
             layoutInt->upFooterContainer->obj.area.height += 2 * BOTTOM_BORDER_MARGIN;
 
+            break;
+        }
+        case UP_FOOTER_TEXT: {
+            obj = layoutAddCallbackObj(layoutInt,
+                                       (nbgl_obj_t *) layoutInt->upFooterContainer,
+                                       upFooterDesc->text.token,
+                                       upFooterDesc->text.tuneId);
+            if (obj == NULL) {
+                return -1;
+            }
+            layoutInt->upFooterContainer->nbChildren      = 1;
+            layoutInt->upFooterContainer->obj.area.height = SMALL_FOOTER_HEIGHT;
+            layoutInt->upFooterContainer->obj.touchId     = WHOLE_SCREEN_ID;
+            layoutInt->upFooterContainer->obj.touchMask   = (1 << TOUCHED);
+
+            textArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+            textArea->textColor = DARK_GRAY;
+            textArea->text      = PIC(upFooterDesc->text.text);
+            textArea->textAlignment   = CENTER;
+            textArea->fontId          = SMALL_REGULAR_FONT;
+            textArea->wrapping        = true;
+            textArea->obj.area.width  = AVAILABLE_WIDTH;
+            textArea->obj.area.height = nbgl_getTextHeightInWidth(
+                textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
+            textArea->obj.alignment                   = CENTER;
+            layoutInt->upFooterContainer->children[0] = (nbgl_obj_t *) textArea;
             break;
         }
         default:

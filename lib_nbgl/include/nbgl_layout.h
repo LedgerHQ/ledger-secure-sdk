@@ -514,6 +514,7 @@ typedef enum {
     UP_FOOTER_BUTTON,              ///< simple button
     UP_FOOTER_HORIZONTAL_BUTTONS,  ///< 2 buttons, on the same line
     UP_FOOTER_TIP_BOX,             ///< Tip-box
+    UP_FOOTER_TEXT,                ///< grayed-out text, for example "Tap to continue"
     NB_UP_FOOTER_TYPES
 } nbgl_layoutUpFooterType_t;
 
@@ -533,6 +534,11 @@ typedef struct {
         nbgl_layoutHorizontalButtons_t
                              horizontalButtons;  ///< if type is @ref UP_FOOTER_HORIZONTAL_BUTTONS
         nbgl_contentTipBox_t tipBox;             ///< if type is @ref UP_FOOTER_TIP_BOX
+        struct {
+            const char  *text;    ///< text
+            uint8_t      token;   ///< token used when text is touched
+            tune_index_e tuneId;  ///< tune played when text is touched
+        } text;                   ///< if type is @ref UP_FOOTER_TEXT
     };
 } nbgl_layoutUpFooter_t;
 #endif  // HAVE_SE_TOUCH
