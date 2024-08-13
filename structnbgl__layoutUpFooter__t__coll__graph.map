@@ -1,6 +1,0 @@
-<map id="nbgl_layoutUpFooter_t" name="nbgl_layoutUpFooter_t">
-<area shape="rect" id="node1" title="This structure contains info to build an up&#45;footer (area on top of footer)." alt="" coords="221,95,390,121"/>
-<area shape="rect" id="node2" href="$structnbgl__contentTipBox__t.html" title="This structure contains data to build a tip&#45;box, on top of a footer, on bottom of a content center." alt="" coords="5,5,168,32"/>
-<area shape="rect" id="node3" href="$structnbgl__layoutHorizontalButtons__t.html" title="This structure contains info to build a pair of buttons, the small one, with icon,..." alt="" coords="192,5,419,32"/>
-<area shape="rect" id="node4" href="$structnbgl__layoutButton__t.html" title="This structure contains info to build a single button." alt="" coords="443,5,597,32"/>
-</map>
