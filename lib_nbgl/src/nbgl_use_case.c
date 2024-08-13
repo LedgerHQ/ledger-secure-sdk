@@ -1142,18 +1142,16 @@ static void displayBlindWarning(nbgl_opType_t opType)
                                                    .backAndText.text   = NULL};
     nbgl_layoutCenteredInfo_t centeredInfo
         = {.icon = NULL, .text3 = NULL, .style = LARGE_CASE_INFO, .offsetY = 0, .onTop = false};
+    centeredInfo.text1 = "Security risk detected";
     if (opType == TYPE_TRANSACTION) {
-        centeredInfo.text1 = "This transaction cannot be trusted";
         centeredInfo.text2
-            = "Your Ledger cannot decode this transaction. If you sign it, you could be "
-              "authorizing "
+            = "This transaction cannot be fully decoded. If you sign it, you could be authorizing "
               "malicious actions that can drain your wallet.\n\n"
               "Learn more: ledger.com/e8";
     }
     else {
-        centeredInfo.text1 = "This message cannot be trusted";
         centeredInfo.text2
-            = "Your Ledger cannot decode this message. If you sign it, you could be authorizing "
+            = "This message cannot be fully decoded. If you sign it, you could be authorizing "
               "malicious actions that can drain your wallet.\n\n"
               "Learn more: ledger.com/e8";
     }
