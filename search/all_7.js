@@ -24,7 +24,7 @@ var searchData=
   ['get_5fprintable_5famount_644',['get_printable_amount',['../structlibargs__s.html#a7ed258cea1cb0000fc6f101567950cc6',1,'libargs_s']]],
   ['get_5fprintable_5famount_5fparameters_5fs_645',['get_printable_amount_parameters_s',['../structget__printable__amount__parameters__s.html',1,'']]],
   ['get_5fprintable_5famount_5fparameters_5ft_646',['get_printable_amount_parameters_t',['../swap__lib__calls_8h.html#a36af800bd16616fd12d49b085c6676d7',1,'swap_lib_calls.h']]],
-  ['get_5fux_5floc_5fstring_647',['get_ux_loc_string',['../nbgl__obj_8c.html#a89649b2e7bc11a9e91451a586f5a6b9d',1,'nbgl_obj.c']]],
+  ['get_5fux_5floc_5fstring_647',['get_ux_loc_string',['../nbgl__layout_8c.html#a89649b2e7bc11a9e91451a586f5a6b9d',1,'get_ux_loc_string(uint32_t index):&#160;nbgl_layout.c'],['../nbgl__obj_8c.html#a89649b2e7bc11a9e91451a586f5a6b9d',1,'get_ux_loc_string(uint32_t index):&#160;nbgl_obj.c']]],
   ['glogger_648',['gLogger',['../nbgl__debug_8h.html#a1c4c999c90f14a32c65dd4ef82ead9cf',1,'nbgl_debug.h']]],
   ['grayedout_649',['grayedOut',['../structnbgl__layoutKeyboardContent__t.html#afa889e376078dc29ef04306f2c335512',1,'nbgl_layoutKeyboardContent_t']]],
   ['gzlib_5funcompressed_5fchunk_650',['GZLIB_UNCOMPRESSED_CHUNK',['../nbgl__types_8h.html#a808a311dc872fc2ed54ae995ebba0c30',1,'nbgl_types.h']]]
