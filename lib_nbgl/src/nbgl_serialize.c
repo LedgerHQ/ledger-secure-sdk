@@ -197,7 +197,7 @@ static void nbgl_serializeTextArea(nbgl_text_area_t *obj,
     nbgl_appendU8((uint8_t) obj->textAlignment, out, w_cnt, max_len);
     nbgl_appendU8((uint8_t) obj->style, out, w_cnt, max_len);
     nbgl_appendU8((uint8_t) obj->fontId, out, w_cnt, max_len);
-    nbgl_appendU8((uint8_t) obj->localized, out, w_cnt, max_len);
+    nbgl_appendU8(0, out, w_cnt, max_len);
     nbgl_appendU8((uint8_t) obj->autoHideLongLine, out, w_cnt, max_len);
     nbgl_appendU16((uint16_t) obj->len, out, w_cnt, max_len);
 
@@ -272,7 +272,7 @@ static void nbgl_serializeButton(nbgl_button_t *obj, uint8_t *out, size_t *w_cnt
     nbgl_appendU8((uint8_t) obj->foregroundColor, out, w_cnt, max_len);
     nbgl_appendU8((uint8_t) obj->radius, out, w_cnt, max_len);
     nbgl_appendU8((uint8_t) obj->fontId, out, w_cnt, max_len);
-    nbgl_appendU8((uint8_t) obj->localized, out, w_cnt, max_len);
+    nbgl_appendU8(0, out, w_cnt, max_len);
     nbgl_serializeText(PIC(obj->text), 0, out, w_cnt, max_len);
     nbgl_serializeIcon(PIC(obj->icon), out, w_cnt, max_len);
 }

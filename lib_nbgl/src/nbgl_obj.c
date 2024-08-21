@@ -366,13 +366,6 @@ static void draw_button(nbgl_button_t *obj, nbgl_obj_t *prevObj, bool computePos
     if (obj->onDrawCallback != NULL) {
         obj->text = obj->onDrawCallback(obj->token);
     }
-    else {
-        if (obj->localized == true) {
-#if defined(HAVE_LANGUAGE_PACK)
-            obj->text = get_ux_loc_string(obj->textId);
-#endif  // HAVE_LANGUAGE_PACK
-        }
-    }
     text = obj->text;
     // draw the text (right of the icon, with 8 pixels between them)
     if (text != NULL) {
@@ -865,13 +858,6 @@ static void draw_textArea(nbgl_text_area_t *obj, nbgl_obj_t *prevObj, bool compu
     // get the text of the button from the callback if not NULL
     if (obj->onDrawCallback != NULL) {
         obj->text = obj->onDrawCallback(obj->token);
-    }
-    else {
-        if (obj->localized == true) {
-#if defined(HAVE_LANGUAGE_PACK)
-            obj->text = get_ux_loc_string(obj->textId);
-#endif  // HAVE_LANGUAGE_PACK
-        }
     }
     text = obj->text;
     if (text == NULL) {

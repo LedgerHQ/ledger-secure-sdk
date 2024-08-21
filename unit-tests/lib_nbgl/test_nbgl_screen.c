@@ -15,6 +15,11 @@
 
 unsigned long gLogger = 0;
 
+void *pic(void *addr)
+{
+    return addr;
+}
+
 void mainExit(int exitCode)
 {
     exit(exitCode);

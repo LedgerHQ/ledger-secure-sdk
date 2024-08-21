@@ -546,6 +546,9 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
     int16_t            x = area->x0;
     nbgl_area_t        rectArea;
     const nbgl_font_t *font = nbgl_getFont(fontId);
+#ifdef HAVE_UNICODE_SUPPORT
+    nbgl_unicode_ctx_t *unicode_ctx = NULL;
+#endif  // HAVE_UNICODE_SUPPORT
 
     LOG_DEBUG(DRAW_LOGGER,
               "nbgl_drawText: x0 = %d, y0 = %d, w = %d, h = %d, fontColor = %d, "
@@ -557,10 +560,6 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
               fontColor,
               area->backgroundColor,
               text);
-
-#ifdef HAVE_UNICODE_SUPPORT
-    nbgl_unicode_ctx_t *unicode_ctx = nbgl_getUnicodeFont(fontId);
-#endif  // HAVE_UNICODE_SUPPORT
 
     rectArea.backgroundColor = area->backgroundColor;
     rectArea.bpp             = (nbgl_bpp_t) font->bpp;
@@ -583,6 +582,9 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
 
         if (is_unicode) {
 #ifdef HAVE_UNICODE_SUPPORT
+            if (unicode_ctx == NULL) {
+                unicode_ctx = nbgl_getUnicodeFont(fontId);
+            }
             const nbgl_font_unicode_character_t *unicodeCharacter
                 = nbgl_getUnicodeFontCharacter(unicode);
             // if not supported char, go to next one
