@@ -50,6 +50,7 @@ void fetch_language_packs(void)
         fclose(fptr);
 
         language_pack = (LANGUAGE_PACK *) source;
+        nbgl_refreshUnicodeFont(language_pack);
     }
 }
 

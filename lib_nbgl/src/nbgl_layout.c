@@ -117,6 +117,7 @@ static uint8_t nbTouchableControls = 0;
 /**********************
  *  STATIC PROTOTYPES
  **********************/
+extern const char *get_ux_loc_string(uint32_t index);
 
 #ifdef HAVE_FAST_HOLD_TO_APPROVE
 // Unit step in % of touchable progress bar
@@ -987,7 +988,6 @@ int nbgl_layoutAddSwipe(nbgl_layout_t *layout,
     if (text) {
         // create 'tap to continue' text area
         layoutInt->tapText                  = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, 0);
-        layoutInt->tapText->localized       = false;
         layoutInt->tapText->text            = PIC(text);
         layoutInt->tapText->textColor       = DARK_GRAY;
         layoutInt->tapText->fontId          = SMALL_REGULAR_FONT;
@@ -1491,9 +1491,8 @@ int nbgl_layoutAddRadioChoice(nbgl_layout_t *layout, const nbgl_layoutRadioChoic
 
         // init text area for this choice
         if (choices->localized == true) {
-            textArea->localized = true;
 #ifdef HAVE_LANGUAGE_PACK
-            textArea->textId = choices->nameIds[i];
+            textArea->text = get_ux_loc_string(choices->nameIds[i]);
 #endif  // HAVE_LANGUAGE_PACK
         }
         else {
