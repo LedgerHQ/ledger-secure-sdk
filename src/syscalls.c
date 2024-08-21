@@ -103,6 +103,17 @@ void nbgl_frontDrawImageRle(nbgl_area_t *area,
     return;
 }
 
+#ifdef NBGL_MASKING
+void nbgl_frontControlAreaMasking(uint8_t mask_index, nbgl_area_t *masked_area_or_null)
+{
+    unsigned int parameters[2];
+    parameters[0] = (unsigned int) mask_index;
+    parameters[1] = (unsigned int) masked_area_or_null;
+    SVC_Call(SYSCALL_nbgl_front_control_area_masking_ID, parameters);
+    return;
+}
+#endif  // NBGL_MASKING
+
 void nbgl_frontDrawImageFile(nbgl_area_t     *area,
                              uint8_t         *buffer,
                              nbgl_color_map_t colorMap,

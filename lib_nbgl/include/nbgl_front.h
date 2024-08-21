@@ -45,6 +45,7 @@ void nbgl_frontDrawImageRle(const nbgl_area_t *area,
 void nbgl_frontRefreshArea(const nbgl_area_t  *area,
                            nbgl_refresh_mode_t mode,
                            nbgl_post_refresh_t post_refresh);
+void nbgl_frontControlAreaMasking(uint8_t mask_index, nbgl_area_t *masked_area_or_null);
 
 /**********************
  *      MACROS
