@@ -393,18 +393,15 @@ typedef char *(*onTextDrawCallback_t)(uint8_t token);
  *
  */
 typedef struct PACKED__ nbgl_button_s {
-    nbgl_obj_t obj;              ///< common part
-    color_t    innerColor;       ///< color set inside of the button
-    color_t    borderColor;      ///< color set to button's border
-    color_t    foregroundColor;  ///< color set to '1' bits in icon, and text. '0' are set to
-                                 ///< innerColor color.
-    nbgl_radius_t  radius;       ///< radius of the corners, must be a multiple of 4.
-    nbgl_font_id_e fontId;       ///< id of the font to use, if any
-    bool        localized;  ///< if set to true, means the following 'text' field is considered as a
-    const char *text;       ///< single line UTF-8 text (NULL terminated)
-#ifdef HAVE_LANGUAGE_PACK
-    UX_LOC_STRINGS_INDEX textId;          ///< id of the text single line UTF-8 text
-#endif                                    // HAVE_LANGUAGE_PACK
+    nbgl_obj_t obj;                  ///< common part
+    color_t    innerColor;           ///< color set inside of the button
+    color_t    borderColor;          ///< color set to button's border
+    color_t    foregroundColor;      ///< color set to '1' bits in icon, and text. '0' are set to
+                                     ///< innerColor color.
+    nbgl_radius_t        radius;     ///< radius of the corners, must be a multiple of 4.
+    nbgl_font_id_e       fontId;     ///< id of the font to use, if any
+    bool                 localized;  ///< unused, kept for compatibility
+    const char          *text;       ///< single line UTF-8 text (NULL terminated)
     onTextDrawCallback_t onDrawCallback;  ///< function called if not NULL, with above token as
                                           ///< parameter to get the text of the button
     uint8_t                    token;     ///< token to use as param of onDrawCallback
@@ -421,7 +418,6 @@ typedef struct PACKED__ nbgl_text_area_s {
     nbgl_aligment_t textAlignment;  ///< alignment of text within the area
     nbgl_style_t    style;          ///< to define the style of border
     nbgl_font_id_e  fontId;         ///< id of the font to use
-    bool            localized;      ///< if set to true, use textId instead of text
     bool autoHideLongLine;  ///< if set to true, replace beginning of line by ... to keep it single
                             ///< line
     bool    wrapping;       ///< if set to true, break lines on ' ' when possible
@@ -429,9 +425,6 @@ typedef struct PACKED__ nbgl_text_area_s {
                          ///< stop display here
     const char *text;    ///< ASCII text to draw (NULL terminated). Can be NULL.
     uint16_t    len;     ///< number of bytes to write (if 0, max number of chars or strlen is used)
-#ifdef HAVE_LANGUAGE_PACK
-    UX_LOC_STRINGS_INDEX textId;  ///< id of the  UTF-8 text
-#endif                            // HAVE_LANGUAGE_PACK
     onTextDrawCallback_t
             onDrawCallback;  ///< function called if not NULL to get the text of the text area
     uint8_t token;           ///< token to use as param of onDrawCallback
