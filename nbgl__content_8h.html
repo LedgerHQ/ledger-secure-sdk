@@ -164,6 +164,12 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__contentBarsList__t.html">nbgl_contentBarsList_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This structure contains data to build a <a class="el" href="nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203ad7c24dba039a29d3a48a1178f59199d0">BARS_LIST</a> content.  <a href="structnbgl__contentBarsList__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__contentTipBox__t.html">nbgl_contentTipBox_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This structure contains data to build a tip-box, on top of a footer, on bottom of a content center.  <a href="structnbgl__contentTipBox__t.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__contentExtendedCenter__t.html">nbgl_contentExtendedCenter_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This structure contains data to build a <a class="el" href="nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203a5e78a0d46931a4344b90d5a3c3f49819">EXTENDED_CENTER</a> content.  <a href="structnbgl__contentExtendedCenter__t.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">union &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionnbgl__content__u.html">nbgl_content_u</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Union of the different type of contents.  <a href="unionnbgl__content__u.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -203,16 +209,17 @@ Enumerations</h2></td></tr>
 <tr class="separator:aa4402a878699462ea2897df1048f16eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9010d75a386dacb48d7a31667d7cf203"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203">nbgl_contentType_t</a> { <br />
 &#160;&#160;<a class="el" href="nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203a9d1cb6345b68a3b110bf826fd702dcc1">CENTERED_INFO</a> = 0
+, <a class="el" href="nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203a5e78a0d46931a4344b90d5a3c3f49819">EXTENDED_CENTER</a>
 , <a class="el" href="nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203a2b62aad3b320b6e0073e7be25da19a72">INFO_LONG_PRESS</a>
 , <a class="el" href="nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203af4924e029416352949b8726ad12153e1">INFO_BUTTON</a>
-, <a class="el" href="nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203ad4992814ce29d2a2b131464f0b72523c">TAG_VALUE_LIST</a>
 , <br />
-&#160;&#160;<a class="el" href="nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203abb05cc39dd23d667f6ad41643f0d8986">TAG_VALUE_DETAILS</a>
+&#160;&#160;<a class="el" href="nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203ad4992814ce29d2a2b131464f0b72523c">TAG_VALUE_LIST</a>
+, <a class="el" href="nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203abb05cc39dd23d667f6ad41643f0d8986">TAG_VALUE_DETAILS</a>
 , <a class="el" href="nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203ad419fc4ece093d828de4b8295ccb0164">TAG_VALUE_CONFIRM</a>
 , <a class="el" href="nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203aaa3b4a61cc5be5e90bd2c1ab32f13373">SWITCHES_LIST</a>
-, <a class="el" href="nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203ad372699e9303e56cf4622a00eea34032">INFOS_LIST</a>
 , <br />
-&#160;&#160;<a class="el" href="nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203a9688daa58ea35451ae316f87bb10d705">CHOICES_LIST</a>
+&#160;&#160;<a class="el" href="nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203ad372699e9303e56cf4622a00eea34032">INFOS_LIST</a>
+, <a class="el" href="nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203a9688daa58ea35451ae316f87bb10d705">CHOICES_LIST</a>
 , <a class="el" href="nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203ad7c24dba039a29d3a48a1178f59199d0">BARS_LIST</a>
 <br />
  }</td></tr>
@@ -338,6 +345,8 @@ Enumerations</h2></td></tr>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a9010d75a386dacb48d7a31667d7cf203a9d1cb6345b68a3b110bf826fd702dcc1"></a>CENTERED_INFO&#160;</td><td class="fielddoc"><p>a centered info </p>
 </td></tr>
+<tr><td class="fieldname"><a id="a9010d75a386dacb48d7a31667d7cf203a5e78a0d46931a4344b90d5a3c3f49819"></a>EXTENDED_CENTER&#160;</td><td class="fielddoc"><p>a centered content and a possible tip-box </p>
+</td></tr>
 <tr><td class="fieldname"><a id="a9010d75a386dacb48d7a31667d7cf203a2b62aad3b320b6e0073e7be25da19a72"></a>INFO_LONG_PRESS&#160;</td><td class="fielddoc"><p>a centered info and a long press button </p>
 </td></tr>
 <tr><td class="fieldname"><a id="a9010d75a386dacb48d7a31667d7cf203af4924e029416352949b8726ad12153e1"></a>INFO_BUTTON&#160;</td><td class="fielddoc"><p>a centered info and a simple black button </p>
@@ -358,7 +367,7 @@ Enumerations</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00308">308</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00329">329</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
 
 </div>
 </div>

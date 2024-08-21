@@ -178,6 +178,8 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__text__entry__s.html">nbgl_text_entry_s</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">struct to represent a text entry area (<a class="el" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7a479e1ff8c87d4f64ef1ca7a259c0aa38">TEXT_ENTRY</a> type)  <a href="structnbgl__text__entry__s.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__mask__control__s.html">nbgl_mask_control_s</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__spinner__s.html">nbgl_spinner_s</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">struct to represent a "spinner", represented by the Ledger corners, in gray, with one of the corners in black (<a class="el" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7a67f109c354a3e519b67ddd09801cfbf4">SPINNER</a> type)  <a href="structnbgl__spinner__s.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -351,6 +353,8 @@ Typedefs</h2></td></tr>
 <tr class="memitem:a5a9d83d3d99a0accdb3328020aea332a"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="nbgl__types_8h.html#ad747f7e4cc6b92c71882be70b907ba64">PACKED__</a> <a class="el" href="structnbgl__text__entry__s.html">nbgl_text_entry_s</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj_8h.html#a5a9d83d3d99a0accdb3328020aea332a">nbgl_text_entry_t</a></td></tr>
 <tr class="memdesc:a5a9d83d3d99a0accdb3328020aea332a"><td class="mdescLeft">&#160;</td><td class="mdescRight">struct to represent a text entry area (<a class="el" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7a479e1ff8c87d4f64ef1ca7a259c0aa38">TEXT_ENTRY</a> type)  <a href="nbgl__obj_8h.html#a5a9d83d3d99a0accdb3328020aea332a">More...</a><br /></td></tr>
 <tr class="separator:a5a9d83d3d99a0accdb3328020aea332a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a47aa84d6387804721f44086ea7ed9fa0"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="nbgl__types_8h.html#ad747f7e4cc6b92c71882be70b907ba64">PACKED__</a> <a class="el" href="structnbgl__mask__control__s.html">nbgl_mask_control_s</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj_8h.html#a47aa84d6387804721f44086ea7ed9fa0">nbgl_mask_control_t</a></td></tr>
+<tr class="separator:a47aa84d6387804721f44086ea7ed9fa0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af94984d18f070342257f3ecd803d48b4"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="nbgl__types_8h.html#ad747f7e4cc6b92c71882be70b907ba64">PACKED__</a> <a class="el" href="structnbgl__spinner__s.html">nbgl_spinner_s</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj_8h.html#af94984d18f070342257f3ecd803d48b4">nbgl_spinner_t</a></td></tr>
 <tr class="memdesc:af94984d18f070342257f3ecd803d48b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">struct to represent a "spinner", represented by the Ledger corners, in gray, with one of the corners in black (<a class="el" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7a67f109c354a3e519b67ddd09801cfbf4">SPINNER</a> type)  <a href="nbgl__obj_8h.html#af94984d18f070342257f3ecd803d48b4">More...</a><br /></td></tr>
 <tr class="separator:af94984d18f070342257f3ecd803d48b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -395,34 +399,35 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:a526042c25a10ab7633bf29bd1cca44ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Letters casing in which to open/set the keyboard.  <a href="nbgl__obj_8h.html#a526042c25a10ab7633bf29bd1cca44ce">More...</a><br /></td></tr>
 <tr class="separator:a526042c25a10ab7633bf29bd1cca44ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aae05225933a42f81e7c4a9fb286596f9"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <br />
-&#160;&#160;<a class="el" href="nbgl__obj_8h.html#aae05225933a42f81e7c4a9fb286596f9aaf2038e37ba82d284ec75ac12cbc250d">BOTTOM_BUTTON_ID</a> = 1
-, <a class="el" href="nbgl__obj_8h.html#aae05225933a42f81e7c4a9fb286596f9a48370268b9dd11502a22ed3df89be745">LEFT_BUTTON_ID</a>
-, <a class="el" href="nbgl__obj_8h.html#aae05225933a42f81e7c4a9fb286596f9a9fa8ba74d72e9d38aae7b28fd6c3df26">RIGHT_BUTTON_ID</a>
-, <a class="el" href="nbgl__obj_8h.html#aae05225933a42f81e7c4a9fb286596f9aab29e23e3b1a0afcb2753c9c5631d343">WHOLE_SCREEN_ID</a>
+<tr class="memitem:ae4d5251432e1a9e6803c0240cc492e18"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <br />
+&#160;&#160;<a class="el" href="nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18aaf2038e37ba82d284ec75ac12cbc250d">BOTTOM_BUTTON_ID</a> = 1
+, <a class="el" href="nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18a48370268b9dd11502a22ed3df89be745">LEFT_BUTTON_ID</a>
+, <a class="el" href="nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18a9fa8ba74d72e9d38aae7b28fd6c3df26">RIGHT_BUTTON_ID</a>
+, <a class="el" href="nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18aab29e23e3b1a0afcb2753c9c5631d343">WHOLE_SCREEN_ID</a>
 , <br />
-&#160;&#160;<a class="el" href="nbgl__obj_8h.html#aae05225933a42f81e7c4a9fb286596f9a0ea27f91018f98ecaba0b841b64389c6">TOP_RIGHT_BUTTON_ID</a>
-, <a class="el" href="nbgl__obj_8h.html#aae05225933a42f81e7c4a9fb286596f9ac6d3dbc7d804537b62adb9b0cc15e088">BACK_BUTTON_ID</a>
-, <a class="el" href="nbgl__obj_8h.html#aae05225933a42f81e7c4a9fb286596f9abdb8eed39a0f4853bdc55470dfe6c168">SINGLE_BUTTON_ID</a>
-, <a class="el" href="nbgl__obj_8h.html#aae05225933a42f81e7c4a9fb286596f9af038a7c65cdf565e75dc5dd30fcb82c3">EXTRA_BUTTON_ID</a>
+&#160;&#160;<a class="el" href="nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18a0ea27f91018f98ecaba0b841b64389c6">TOP_RIGHT_BUTTON_ID</a>
+, <a class="el" href="nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18ac6d3dbc7d804537b62adb9b0cc15e088">BACK_BUTTON_ID</a>
+, <a class="el" href="nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18abdb8eed39a0f4853bdc55470dfe6c168">SINGLE_BUTTON_ID</a>
+, <a class="el" href="nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18af038a7c65cdf565e75dc5dd30fcb82c3">EXTRA_BUTTON_ID</a>
 , <br />
-&#160;&#160;<a class="el" href="nbgl__obj_8h.html#aae05225933a42f81e7c4a9fb286596f9a0061b6f13540a928afc512c2d610af4f">CHOICE_1_ID</a>
-, <a class="el" href="nbgl__obj_8h.html#aae05225933a42f81e7c4a9fb286596f9af8642ef2f34bf330d78ff9fa6119e9b4">CHOICE_2_ID</a>
-, <a class="el" href="nbgl__obj_8h.html#aae05225933a42f81e7c4a9fb286596f9ad6eb789221f4209542dad920605d6fb1">KEYPAD_ID</a>
-, <a class="el" href="nbgl__obj_8h.html#aae05225933a42f81e7c4a9fb286596f9aec831fa10fa26d36792eb28d0e911c38">KEYBOARD_ID</a>
+&#160;&#160;<a class="el" href="nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18a0061b6f13540a928afc512c2d610af4f">CHOICE_1_ID</a>
+, <a class="el" href="nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18af8642ef2f34bf330d78ff9fa6119e9b4">CHOICE_2_ID</a>
+, <a class="el" href="nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18ad6eb789221f4209542dad920605d6fb1">KEYPAD_ID</a>
+, <a class="el" href="nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18aec831fa10fa26d36792eb28d0e911c38">KEYBOARD_ID</a>
 , <br />
-&#160;&#160;<a class="el" href="nbgl__obj_8h.html#aae05225933a42f81e7c4a9fb286596f9a455896730275acbd21dc1048c56f7e02">ENTERED_TEXT_ID</a>
-, <a class="el" href="nbgl__obj_8h.html#aae05225933a42f81e7c4a9fb286596f9acb275d0d6185189a269cc0191e752cce">VALUE_BUTTON_1_ID</a>
-, <a class="el" href="nbgl__obj_8h.html#aae05225933a42f81e7c4a9fb286596f9a6b143b9d9c8c47393d47077752b0ca4c">VALUE_BUTTON_2_ID</a>
-, <a class="el" href="nbgl__obj_8h.html#aae05225933a42f81e7c4a9fb286596f9a70902015d2319d17309bac559d4af408">VALUE_BUTTON_3_ID</a>
+&#160;&#160;<a class="el" href="nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18a455896730275acbd21dc1048c56f7e02">ENTERED_TEXT_ID</a>
+, <a class="el" href="nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18acb275d0d6185189a269cc0191e752cce">VALUE_BUTTON_1_ID</a>
+, <a class="el" href="nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18a6b143b9d9c8c47393d47077752b0ca4c">VALUE_BUTTON_2_ID</a>
+, <a class="el" href="nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18a70902015d2319d17309bac559d4af408">VALUE_BUTTON_3_ID</a>
 , <br />
-&#160;&#160;<a class="el" href="nbgl__obj_8h.html#aae05225933a42f81e7c4a9fb286596f9a3d957242431dd0689030cdbc443922a1">LONG_PRESS_BUTTON_ID</a>
-, <a class="el" href="nbgl__obj_8h.html#aae05225933a42f81e7c4a9fb286596f9a3de33f0b17f1ff406ed1a7e4d9ca6a64">CONTROLS_ID</a>
-, <a class="el" href="nbgl__obj_8h.html#aae05225933a42f81e7c4a9fb286596f9ad91b12a1011761eaf1b1fa87c1223dd4">NB_CONTROL_IDS</a>
+&#160;&#160;<a class="el" href="nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18a3d957242431dd0689030cdbc443922a1">LONG_PRESS_BUTTON_ID</a>
+, <a class="el" href="nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18adaa287107e59ca8308b1a4889db09777">TIP_BOX_ID</a>
+, <a class="el" href="nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18a3de33f0b17f1ff406ed1a7e4d9ca6a64">CONTROLS_ID</a>
+, <a class="el" href="nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18ad91b12a1011761eaf1b1fa87c1223dd4">NB_CONTROL_IDS</a>
 <br />
  }</td></tr>
-<tr class="memdesc:aae05225933a42f81e7c4a9fb286596f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">ids of touchable objects, for external stimulus (by Testing environment)  <a href="nbgl__obj_8h.html#aae05225933a42f81e7c4a9fb286596f9">More...</a><br /></td></tr>
-<tr class="separator:aae05225933a42f81e7c4a9fb286596f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memdesc:ae4d5251432e1a9e6803c0240cc492e18"><td class="mdescLeft">&#160;</td><td class="mdescRight">ids of touchable objects, for external stimulus (by Testing environment)  <a href="nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18">More...</a><br /></td></tr>
+<tr class="separator:ae4d5251432e1a9e6803c0240cc492e18"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -1349,7 +1354,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8h_source.html#l00467">467</a> of file <a class="el" href="nbgl__obj_8h_source.html">nbgl_obj.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8h_source.html#l00473">473</a> of file <a class="el" href="nbgl__obj_8h_source.html">nbgl_obj.h</a>.</p>
 
 </div>
 </div>
@@ -1489,6 +1494,20 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>struct to represent a vertical or horizontal line </p>
+
+</div>
+</div>
+<a id="a47aa84d6387804721f44086ea7ed9fa0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a47aa84d6387804721f44086ea7ed9fa0">&#9670;&nbsp;</a></span>nbgl_mask_control_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="nbgl__types_8h.html#ad747f7e4cc6b92c71882be70b907ba64">PACKED__</a> <a class="el" href="structnbgl__mask__control__s.html">nbgl_mask_control_s</a> <a class="el" href="nbgl__obj_8h.html#a47aa84d6387804721f44086ea7ed9fa0">nbgl_mask_control_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>
@@ -1716,8 +1735,8 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
-<a id="aae05225933a42f81e7c4a9fb286596f9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aae05225933a42f81e7c4a9fb286596f9">&#9670;&nbsp;</a></span>anonymous enum</h2>
+<a id="ae4d5251432e1a9e6803c0240cc492e18"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae4d5251432e1a9e6803c0240cc492e18">&#9670;&nbsp;</a></span>anonymous enum</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1730,28 +1749,29 @@ Functions</h2></td></tr>
 
 <p>ids of touchable objects, for external stimulus (by Testing environment) </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="aae05225933a42f81e7c4a9fb286596f9aaf2038e37ba82d284ec75ac12cbc250d"></a>BOTTOM_BUTTON_ID&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="aae05225933a42f81e7c4a9fb286596f9a48370268b9dd11502a22ed3df89be745"></a>LEFT_BUTTON_ID&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="aae05225933a42f81e7c4a9fb286596f9a9fa8ba74d72e9d38aae7b28fd6c3df26"></a>RIGHT_BUTTON_ID&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="aae05225933a42f81e7c4a9fb286596f9aab29e23e3b1a0afcb2753c9c5631d343"></a>WHOLE_SCREEN_ID&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="aae05225933a42f81e7c4a9fb286596f9a0ea27f91018f98ecaba0b841b64389c6"></a>TOP_RIGHT_BUTTON_ID&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="aae05225933a42f81e7c4a9fb286596f9ac6d3dbc7d804537b62adb9b0cc15e088"></a>BACK_BUTTON_ID&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="aae05225933a42f81e7c4a9fb286596f9abdb8eed39a0f4853bdc55470dfe6c168"></a>SINGLE_BUTTON_ID&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="aae05225933a42f81e7c4a9fb286596f9af038a7c65cdf565e75dc5dd30fcb82c3"></a>EXTRA_BUTTON_ID&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="aae05225933a42f81e7c4a9fb286596f9a0061b6f13540a928afc512c2d610af4f"></a>CHOICE_1_ID&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="aae05225933a42f81e7c4a9fb286596f9af8642ef2f34bf330d78ff9fa6119e9b4"></a>CHOICE_2_ID&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="aae05225933a42f81e7c4a9fb286596f9ad6eb789221f4209542dad920605d6fb1"></a>KEYPAD_ID&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="aae05225933a42f81e7c4a9fb286596f9aec831fa10fa26d36792eb28d0e911c38"></a>KEYBOARD_ID&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="aae05225933a42f81e7c4a9fb286596f9a455896730275acbd21dc1048c56f7e02"></a>ENTERED_TEXT_ID&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="aae05225933a42f81e7c4a9fb286596f9acb275d0d6185189a269cc0191e752cce"></a>VALUE_BUTTON_1_ID&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="aae05225933a42f81e7c4a9fb286596f9a6b143b9d9c8c47393d47077752b0ca4c"></a>VALUE_BUTTON_2_ID&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="aae05225933a42f81e7c4a9fb286596f9a70902015d2319d17309bac559d4af408"></a>VALUE_BUTTON_3_ID&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="aae05225933a42f81e7c4a9fb286596f9a3d957242431dd0689030cdbc443922a1"></a>LONG_PRESS_BUTTON_ID&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="aae05225933a42f81e7c4a9fb286596f9a3de33f0b17f1ff406ed1a7e4d9ca6a64"></a>CONTROLS_ID&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="aae05225933a42f81e7c4a9fb286596f9ad91b12a1011761eaf1b1fa87c1223dd4"></a>NB_CONTROL_IDS&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ae4d5251432e1a9e6803c0240cc492e18aaf2038e37ba82d284ec75ac12cbc250d"></a>BOTTOM_BUTTON_ID&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ae4d5251432e1a9e6803c0240cc492e18a48370268b9dd11502a22ed3df89be745"></a>LEFT_BUTTON_ID&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ae4d5251432e1a9e6803c0240cc492e18a9fa8ba74d72e9d38aae7b28fd6c3df26"></a>RIGHT_BUTTON_ID&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ae4d5251432e1a9e6803c0240cc492e18aab29e23e3b1a0afcb2753c9c5631d343"></a>WHOLE_SCREEN_ID&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ae4d5251432e1a9e6803c0240cc492e18a0ea27f91018f98ecaba0b841b64389c6"></a>TOP_RIGHT_BUTTON_ID&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ae4d5251432e1a9e6803c0240cc492e18ac6d3dbc7d804537b62adb9b0cc15e088"></a>BACK_BUTTON_ID&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ae4d5251432e1a9e6803c0240cc492e18abdb8eed39a0f4853bdc55470dfe6c168"></a>SINGLE_BUTTON_ID&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ae4d5251432e1a9e6803c0240cc492e18af038a7c65cdf565e75dc5dd30fcb82c3"></a>EXTRA_BUTTON_ID&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ae4d5251432e1a9e6803c0240cc492e18a0061b6f13540a928afc512c2d610af4f"></a>CHOICE_1_ID&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ae4d5251432e1a9e6803c0240cc492e18af8642ef2f34bf330d78ff9fa6119e9b4"></a>CHOICE_2_ID&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ae4d5251432e1a9e6803c0240cc492e18ad6eb789221f4209542dad920605d6fb1"></a>KEYPAD_ID&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ae4d5251432e1a9e6803c0240cc492e18aec831fa10fa26d36792eb28d0e911c38"></a>KEYBOARD_ID&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ae4d5251432e1a9e6803c0240cc492e18a455896730275acbd21dc1048c56f7e02"></a>ENTERED_TEXT_ID&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ae4d5251432e1a9e6803c0240cc492e18acb275d0d6185189a269cc0191e752cce"></a>VALUE_BUTTON_1_ID&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ae4d5251432e1a9e6803c0240cc492e18a6b143b9d9c8c47393d47077752b0ca4c"></a>VALUE_BUTTON_2_ID&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ae4d5251432e1a9e6803c0240cc492e18a70902015d2319d17309bac559d4af408"></a>VALUE_BUTTON_3_ID&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ae4d5251432e1a9e6803c0240cc492e18a3d957242431dd0689030cdbc443922a1"></a>LONG_PRESS_BUTTON_ID&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ae4d5251432e1a9e6803c0240cc492e18adaa287107e59ca8308b1a4889db09777"></a>TIP_BOX_ID&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ae4d5251432e1a9e6803c0240cc492e18a3de33f0b17f1ff406ed1a7e4d9ca6a64"></a>CONTROLS_ID&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ae4d5251432e1a9e6803c0240cc492e18ad91b12a1011761eaf1b1fa87c1223dd4"></a>NB_CONTROL_IDS&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8h_source.html#l00545">545</a> of file <a class="el" href="nbgl__obj_8h_source.html">nbgl_obj.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8h_source.html#l00551">551</a> of file <a class="el" href="nbgl__obj_8h_source.html">nbgl_obj.h</a>.</p>
 
 </div>
 </div>
@@ -1777,7 +1797,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8h_source.html#l00490">490</a> of file <a class="el" href="nbgl__obj_8h_source.html">nbgl_obj.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8h_source.html#l00496">496</a> of file <a class="el" href="nbgl__obj_8h_source.html">nbgl_obj.h</a>.</p>
 
 </div>
 </div>
@@ -1803,7 +1823,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8h_source.html#l00473">473</a> of file <a class="el" href="nbgl__obj_8h_source.html">nbgl_obj.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8h_source.html#l00479">479</a> of file <a class="el" href="nbgl__obj_8h_source.html">nbgl_obj.h</a>.</p>
 
 </div>
 </div>
@@ -2164,7 +2184,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01650">1650</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01675">1675</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
@@ -2243,7 +2263,7 @@ Functions</h2></td></tr>
 
 <p>This functions inits all internal of nbgl objects layer. </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01639">1639</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01664">1664</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
@@ -2501,7 +2521,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01532">1532</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01557">1557</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
@@ -2523,7 +2543,7 @@ Functions</h2></td></tr>
 
 <p>This functions refreshes the actual screen on display with what has changed since the last refresh. </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01565">1565</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01590">1590</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
@@ -2546,7 +2566,7 @@ Functions</h2></td></tr>
 <p>This functions returns true if there is something to refresh. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if there is something to refresh </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01611">1611</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01636">1636</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
@@ -2568,7 +2588,7 @@ Functions</h2></td></tr>
 
 <p>This functions resets all changes since the last refresh. </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01623">1623</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01648">1648</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
@@ -2596,7 +2616,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01575">1575</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01600">1600</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
@@ -2626,7 +2646,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01591">1591</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01616">1616</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
