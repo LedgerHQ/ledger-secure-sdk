@@ -14,6 +14,8 @@
 #include "nbgl_front.h"
 #include "nbgl_debug.h"
 #include "os_print.h"
+#include "os_helpers.h"
+#include "os_pic.h"
 #include "glyphs.h"
 #ifdef HAVE_SERIALIZED_NBGL
 #include "nbgl_serialize.h"
@@ -32,10 +34,42 @@
 /**********************
  *      TYPEDEFS
  **********************/
+typedef void (*draw_function_t)(nbgl_obj_t *obj, nbgl_obj_t *prevObj, bool computePosition);
 
 /**********************
  *  STATIC PROTOTYPES
  **********************/
+static void draw_screen(nbgl_container_t *obj, nbgl_obj_t *prevObj, bool computePosition);
+static void draw_container(nbgl_container_t *obj, nbgl_obj_t *prevObj, bool computePosition);
+static void draw_image(nbgl_image_t *obj, nbgl_obj_t *prevObj, bool computePosition);
+#ifdef HAVE_SE_TOUCH
+static void draw_button(nbgl_button_t *obj, nbgl_obj_t *prevObj, bool computePosition);
+static void draw_line(nbgl_line_t *obj, nbgl_obj_t *prevObj, bool computePosition);
+static void draw_switch(nbgl_switch_t *obj, nbgl_obj_t *prevObj, bool computePosition);
+static void draw_radioButton(nbgl_radio_t *obj, nbgl_obj_t *prevObj, bool computePosition);
+static void draw_pageIndicator(nbgl_page_indicator_t *obj,
+                               nbgl_obj_t            *prevObj,
+                               bool                   computePosition);
+static void draw_spinner(nbgl_spinner_t *obj, nbgl_obj_t *prevObj, bool computePosition);
+#else   // HAVE_SE_TOUCH
+static void draw_textEntry(nbgl_text_entry_t *obj, nbgl_obj_t *prevObj, bool computePosition),
+#endif  // HAVE_SE_TOUCH
+static void draw_progressBar(nbgl_progress_bar_t *obj, nbgl_obj_t *prevObj, bool computePosition);
+static void draw_textArea(nbgl_text_area_t *obj, nbgl_obj_t *prevObj, bool computePosition);
+#ifdef NBGL_QRCODE
+static void draw_qrCode(nbgl_qrcode_t *obj, nbgl_obj_t *prevObj, bool computePosition);
+#endif  // NBGL_QRCODE
+#ifdef NBGL_KEYBOARD
+static void draw_keyboard(nbgl_keyboard_t *obj, nbgl_obj_t *prevObj, bool computePosition);
+#endif  // NBGL_KEYBOARD
+#ifdef NBGL_KEYPAD
+static void draw_keypad(nbgl_keypad_t *obj, nbgl_obj_t *prevObj, bool computePosition);
+#endif  // NBGL_KEYPAD
+static void draw_image_file(nbgl_image_file_t *obj, nbgl_obj_t *prevObj, bool computePosition);
+#ifdef NBGL_MASKING
+static void draw_mask_control(nbgl_mask_control_t *obj, nbgl_obj_t *prevObj, bool computePosition);
+#endif  // NBGL_MASKING
+
 static void extendRefreshArea(nbgl_area_t *obj);
 
 /**********************
@@ -44,12 +78,44 @@ static void extendRefreshArea(nbgl_area_t *obj);
 // area to resfresh
 static nbgl_area_t refreshArea;
 
-// boolean used to enable/forbid drawing/refresh
+// boolean used to enable/forbid drawing/refresh by Application
 static bool objDrawingDisabled;
 
 // boolean used to indicate a manual refresh area extension
 static bool objRefreshAreaDone;
 
+// indexed by nbgl_obj_type_t
+static const draw_function_t draw_functions[NB_OBJ_TYPES] = {
+    [SCREEN]    = (draw_function_t) draw_screen,
+    [CONTAINER] = (draw_function_t) draw_container,
+    [IMAGE]     = (draw_function_t) draw_image,
+    [TEXT_AREA] = (draw_function_t) draw_textArea,
+#ifdef HAVE_SE_TOUCH
+    [LINE]           = (draw_function_t) draw_line,
+    [BUTTON]         = (draw_function_t) draw_button,
+    [SWITCH]         = (draw_function_t) draw_switch,
+    [PAGE_INDICATOR] = (draw_function_t) draw_pageIndicator,
+    [RADIO_BUTTON]   = (draw_function_t) draw_radioButton,
+#ifdef NBGL_QRCODE
+    [QR_CODE] = (draw_function_t) draw_qrCode,
+#endif  // NBGL_QRCODE
+    [SPINNER] = (draw_function_t) draw_spinner,
+#endif  // HAVE_SE_TOUCH
+    [PROGRESS_BAR] = (draw_function_t) draw_progressBar,
+#ifdef NBGL_KEYBOARD
+    [KEYBOARD] = (draw_function_t) draw_keyboard,
+#endif  // NBGL_KEYBOARD
+#ifdef NBGL_KEYPAD
+    [KEYPAD] = (draw_function_t) draw_keypad,
+#endif  // NBGL_KEYPAD
+    [IMAGE_FILE] = (draw_function_t) draw_image_file,
+#ifndef HAVE_SE_TOUCH
+    [TEXT_ENTRY] = (draw_function_t) draw_textEntry,
+#endif  // HAVE_SE_TOUCH
+#ifdef NBGL_MASKING
+    [MASK_CONTROL] = (draw_function_t) draw_mask_control,
+#endif  // NBGL_MASKING
+};
 /**********************
  *      VARIABLES
  **********************/
@@ -287,13 +353,16 @@ static void compute_position(nbgl_obj_t *obj, nbgl_obj_t *prevObj)
 #endif  // HAVE_SE_TOUCH
 }
 
-static void draw_screen(nbgl_container_t *obj)
+static void draw_screen(nbgl_container_t *obj, nbgl_obj_t *prevObj, bool computePosition)
 {
     nbgl_area_t rectArea;
 
     if (objDrawingDisabled) {
         return;
     }
+    UNUSED(prevObj);
+    UNUSED(computePosition);
+
     rectArea.backgroundColor = obj->obj.area.backgroundColor;
     rectArea.x0              = obj->obj.area.x0;
     rectArea.y0              = obj->obj.area.y0;
@@ -1378,89 +1447,17 @@ static void draw_mask_control(nbgl_mask_control_t *obj, nbgl_obj_t *prevObj, boo
  * @param prevObj the previous object drawned in the same container, with the default layout
  * @param computePosition if TRUE, force to compute the object position
  */
-#ifdef __GNUC__
-#ifndef __clang__
-__attribute__((optimize("O0")))
-#endif
-#endif
-static void
-draw_object(nbgl_obj_t *obj, nbgl_obj_t *prevObj, bool computePosition)
+static void draw_object(nbgl_obj_t *obj, nbgl_obj_t *prevObj, bool computePosition)
 {
     LOG_DEBUG(OBJ_LOGGER, "draw_object() obj->type = %d, prevObj = %p\n", obj->type, prevObj);
     objRefreshAreaDone = false;
-    switch (obj->type) {
-        case SCREEN:
-            draw_screen((nbgl_container_t *) obj);
-            break;
-        case CONTAINER:
-            draw_container((nbgl_container_t *) obj, prevObj, computePosition);
-            break;
-#ifdef HAVE_SE_TOUCH
-        case BUTTON:
-            draw_button((nbgl_button_t *) obj, prevObj, computePosition);
-            break;
-        case LINE:
-            draw_line((nbgl_line_t *) obj, prevObj, computePosition);
-            break;
-#endif  // HAVE_SE_TOUCH
-        case IMAGE:
-            draw_image((nbgl_image_t *) obj, prevObj, computePosition);
-            break;
-#ifdef HAVE_SE_TOUCH
-        case SWITCH:
-            draw_switch((nbgl_switch_t *) obj, prevObj, computePosition);
-            break;
-        case RADIO_BUTTON:
-            draw_radioButton((nbgl_radio_t *) obj, prevObj, computePosition);
-            break;
-#endif  // HAVE_SE_TOUCH
-        case PROGRESS_BAR:
-            draw_progressBar((nbgl_progress_bar_t *) obj, prevObj, computePosition);
-            break;
-#ifdef HAVE_SE_TOUCH
-        case PAGE_INDICATOR:
-            draw_pageIndicator((nbgl_page_indicator_t *) obj, prevObj, computePosition);
-            break;
-#endif  // HAVE_SE_TOUCH
-        case TEXT_AREA:
-            draw_textArea((nbgl_text_area_t *) obj, prevObj, computePosition);
-            break;
-#ifdef NBGL_QRCODE
-        case QR_CODE:
-            draw_qrCode((nbgl_qrcode_t *) obj, prevObj, computePosition);
-            break;
-#endif  // NBGL_QRCODE
-#ifdef NBGL_KEYBOARD
-        case KEYBOARD:
-            draw_keyboard((nbgl_keyboard_t *) obj, prevObj, computePosition);
-            break;
-#endif  // NBGL_KEYBOARD
-#ifdef NBGL_KEYPAD
-        case KEYPAD:
-            draw_keypad((nbgl_keypad_t *) obj, prevObj, computePosition);
-            break;
-#endif  // NBGL_KEYPAD
-#ifdef HAVE_SE_TOUCH
-        case SPINNER:
-            draw_spinner((nbgl_spinner_t *) obj, prevObj, computePosition);
-            break;
-#endif  // HAVE_SE_TOUCH
-        case IMAGE_FILE:
-            draw_image_file((nbgl_image_file_t *) obj, prevObj, computePosition);
-            break;
-#ifndef HAVE_SE_TOUCH
-        case TEXT_ENTRY:
-            draw_textEntry((nbgl_text_entry_t *) obj, prevObj, computePosition);
-            break;
-#endif  // HAVE_SE_TOUCH
-#ifdef NBGL_MASKING
-        case MASK_CONTROL:
-            draw_mask_control((nbgl_mask_control_t *) obj, prevObj, computePosition);
-            break;
-#endif  // NBGL_MASKING
-        default:
-            LOG_DEBUG(OBJ_LOGGER, "Not existing object type\n");
-            break;
+    if ((obj->type < NB_OBJ_TYPES) && (draw_functions[obj->type] != NULL)) {
+        draw_function_t func = (draw_function_t) PIC(draw_functions[obj->type]);
+        func(obj, prevObj, computePosition);
+    }
+    else {
+        LOG_DEBUG(OBJ_LOGGER, "Not existing object type\n");
+        return;
     }
 
 #ifdef HAVE_SERIALIZED_NBGL
