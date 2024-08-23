@@ -13,6 +13,7 @@
 #include "nbgl_draw.h"
 #include "nbgl_front.h"
 #include "nbgl_debug.h"
+#include "nbgl_screen.h"
 #include "os_print.h"
 #include "os_helpers.h"
 #include "os_pic.h"
@@ -52,7 +53,7 @@ static void draw_pageIndicator(nbgl_page_indicator_t *obj,
                                bool                   computePosition);
 static void draw_spinner(nbgl_spinner_t *obj, nbgl_obj_t *prevObj, bool computePosition);
 #else   // HAVE_SE_TOUCH
-static void draw_textEntry(nbgl_text_entry_t *obj, nbgl_obj_t *prevObj, bool computePosition),
+static void draw_textEntry(nbgl_text_entry_t *obj, nbgl_obj_t *prevObj, bool computePosition);
 #endif  // HAVE_SE_TOUCH
 static void draw_progressBar(nbgl_progress_bar_t *obj, nbgl_obj_t *prevObj, bool computePosition);
 static void draw_textArea(nbgl_text_area_t *obj, nbgl_obj_t *prevObj, bool computePosition);
@@ -357,9 +358,6 @@ static void draw_screen(nbgl_container_t *obj, nbgl_obj_t *prevObj, bool compute
 {
     nbgl_area_t rectArea;
 
-    if (objDrawingDisabled) {
-        return;
-    }
     UNUSED(prevObj);
     UNUSED(computePosition);
 
@@ -375,9 +373,6 @@ static void draw_container(nbgl_container_t *obj, nbgl_obj_t *prevObj, bool comp
 {
     if (computePosition) {
         compute_position((nbgl_obj_t *) obj, prevObj);
-    }
-    if (objDrawingDisabled) {
-        return;
     }
     LOG_DEBUG(OBJ_LOGGER,
               "draw_container(), x0 = %d, y0 = %d, width = %d, height = %d\n",
@@ -409,9 +404,6 @@ static void draw_button(nbgl_button_t *obj, nbgl_obj_t *prevObj, bool computePos
 
     if (computePosition) {
         compute_position((nbgl_obj_t *) obj, prevObj);
-    }
-    if (objDrawingDisabled) {
-        return;
     }
     LOG_DEBUG(OBJ_LOGGER,
               "draw_button(), x0 = %d, y0 = %d, width = %d, height = %d\n",
@@ -509,9 +501,6 @@ static void draw_line(nbgl_line_t *obj, nbgl_obj_t *prevObj, bool computePositio
     if (computePosition) {
         compute_position((nbgl_obj_t *) obj, prevObj);
     }
-    if (objDrawingDisabled) {
-        return;
-    }
     LOG_DEBUG(OBJ_LOGGER, "draw_line(), x0 = %d, y0 = %d\n", obj->obj.area.x0, obj->obj.area.y0);
     // inherit background from parent
     obj->obj.area.backgroundColor = obj->obj.parent->area.backgroundColor;
@@ -581,9 +570,6 @@ static void draw_image(nbgl_image_t *obj, nbgl_obj_t *prevObj, bool computePosit
     if (computePosition) {
         compute_position((nbgl_obj_t *) obj, prevObj);
     }
-    if (objDrawingDisabled) {
-        return;
-    }
     LOG_DEBUG(OBJ_LOGGER, "draw_image(), x0 = %d, y0 = %d\n", obj->obj.area.x0, obj->obj.area.y0);
     // inherit background from parent
     obj->obj.area.backgroundColor = obj->obj.parent->area.backgroundColor;
@@ -610,9 +596,6 @@ static void draw_switch(nbgl_switch_t *obj, nbgl_obj_t *prevObj, bool computePos
     obj->obj.area.height = C_switch_60_40.height;
     if (computePosition) {
         compute_position((nbgl_obj_t *) obj, prevObj);
-    }
-    if (objDrawingDisabled) {
-        return;
     }
     LOG_DEBUG(OBJ_LOGGER, "draw_switch(), x0 = %d, y0 = %d\n", obj->obj.area.x0, obj->obj.area.y0);
 
@@ -644,9 +627,6 @@ static void draw_radioButton(nbgl_radio_t *obj, nbgl_obj_t *prevObj, bool comput
     obj->obj.area.height = RADIO_HEIGHT;
     if (computePosition) {
         compute_position((nbgl_obj_t *) obj, prevObj);
-    }
-    if (objDrawingDisabled) {
-        return;
     }
     LOG_DEBUG(OBJ_LOGGER,
               "draw_radioButton(), x0 = %d, y0 = %d, state = %d\n",
@@ -689,9 +669,6 @@ static void draw_progressBar(nbgl_progress_bar_t *obj, nbgl_obj_t *prevObj, bool
 
     if (computePosition) {
         compute_position((nbgl_obj_t *) obj, prevObj);
-    }
-    if (objDrawingDisabled) {
-        return;
     }
     LOG_DEBUG(OBJ_LOGGER,
               "draw_progressBar(), x0 = %d, y0 = %d, level = %d %%\n",
@@ -830,9 +807,6 @@ static void draw_pageIndicator(nbgl_page_indicator_t *obj,
         if (computePosition) {
             compute_position((nbgl_obj_t *) obj, prevObj);
         }
-        if (objDrawingDisabled) {
-            return;
-        }
         LOG_DEBUG(OBJ_LOGGER,
                   "draw_pageIndicator(), x0 = %d, y0 = %d, page = %d/%d\n",
                   obj->obj.area.x0,
@@ -877,9 +851,6 @@ static void draw_pageIndicator(nbgl_page_indicator_t *obj,
         if (computePosition) {
             compute_position((nbgl_obj_t *) obj, prevObj);
         }
-        if (objDrawingDisabled) {
-            return;
-        }
         LOG_DEBUG(OBJ_LOGGER,
                   "draw_pageIndicator(), x0 = %d, y0 = %d, page = %d/%d\n",
                   obj->obj.area.x0,
@@ -920,9 +891,6 @@ static void draw_textArea(nbgl_text_area_t *obj, nbgl_obj_t *prevObj, bool compu
 
     if (computePosition) {
         compute_position((nbgl_obj_t *) obj, prevObj);
-    }
-    if (objDrawingDisabled) {
-        return;
     }
     // get the text of the button from the callback if not NULL
     if (obj->onDrawCallback != NULL) {
@@ -1107,9 +1075,6 @@ static void draw_qrCode(nbgl_qrcode_t *obj, nbgl_obj_t *prevObj, bool computePos
     if (computePosition) {
         compute_position((nbgl_obj_t *) obj, prevObj);
     }
-    if (objDrawingDisabled) {
-        return;
-    }
     // be sure to align vertical position on multiple of 4
     obj->obj.area.y0 &= ~0x3;
     LOG_DEBUG(OBJ_LOGGER,
@@ -1150,9 +1115,6 @@ static void draw_keyboard(nbgl_keyboard_t *obj, nbgl_obj_t *prevObj, bool comput
     if (computePosition) {
         compute_position((nbgl_obj_t *) obj, prevObj);
     }
-    if (objDrawingDisabled) {
-        return;
-    }
     LOG_DEBUG(
         OBJ_LOGGER, "draw_keyboard(), x0 = %d, y0 = %d\n", obj->obj.area.x0, obj->obj.area.y0);
 
@@ -1182,9 +1144,6 @@ static void draw_keypad(nbgl_keypad_t *obj, nbgl_obj_t *prevObj, bool computePos
         compute_position((nbgl_obj_t *) obj, prevObj);
     }
     obj->obj.area.y0 &= ~0x3;
-    if (objDrawingDisabled) {
-        return;
-    }
     LOG_DEBUG(OBJ_LOGGER, "draw_keypad(), x0 = %d, y0 = %d\n", obj->obj.area.x0, obj->obj.area.y0);
 
     // inherit background from parent
@@ -1214,9 +1173,6 @@ static void draw_spinner(nbgl_spinner_t *obj, nbgl_obj_t *prevObj, bool computeP
         compute_position((nbgl_obj_t *) obj, prevObj);
     }
     obj->obj.area.y0 &= ~0x3;
-    if (objDrawingDisabled) {
-        return;
-    }
     LOG_DEBUG(OBJ_LOGGER, "draw_spinner(), x0 = %d, y0 = %d\n", obj->obj.area.x0, obj->obj.area.y0);
 
     // inherit background from parent
@@ -1410,9 +1366,6 @@ static void draw_image_file(nbgl_image_file_t *obj, nbgl_obj_t *prevObj, bool co
     if (computePosition) {
         compute_position((nbgl_obj_t *) obj, prevObj);
     }
-    if (objDrawingDisabled) {
-        return;
-    }
 
     LOG_DEBUG(
         OBJ_LOGGER, "draw_image_file(), x0 = %d, y0 = %d\n", obj->obj.area.x0, obj->obj.area.y0);
@@ -1425,10 +1378,6 @@ static void draw_mask_control(nbgl_mask_control_t *obj, nbgl_obj_t *prevObj, boo
 {
     if (computePosition) {
         compute_position((nbgl_obj_t *) obj, prevObj);
-    }
-
-    if (objDrawingDisabled) {
-        return;
     }
 
     if (obj->enableMasking) {
@@ -1463,8 +1412,45 @@ static void draw_object(nbgl_obj_t *obj, nbgl_obj_t *prevObj, bool computePositi
 #ifdef HAVE_SERIALIZED_NBGL
     io_seproxyhal_send_nbgl_serialized(NBGL_DRAW_OBJ, obj);
 #endif
-    if ((!objDrawingDisabled) && (!objRefreshAreaDone)) {
+    if (!objRefreshAreaDone) {
         extendRefreshArea(&obj->area);
+    }
+}
+
+/**
+ * @brief This function redraws the given object and its children (recursive version)
+ *
+ * @param obj the object to redraw
+ * @param prevObj the previous child of this object in the parent's children array (may be NULL for
+ * first element of the array)
+ * @param computePosition if set to true, means that the position of the object will be recomputed
+ * (needs prevObj if alignment on this object)
+ */
+static void draw_obj_and_chidren(nbgl_obj_t *obj, nbgl_obj_t *prevObj, bool computePosition)
+{
+    uint8_t i = 0;
+    LOG_DEBUG(OBJ_LOGGER, "draw_obj_and_chidren(): obj = %p\n", obj);
+    // draw the object itself
+    draw_object(obj, prevObj, computePosition);
+
+    if ((obj->type == SCREEN) || (obj->type == CONTAINER)) {
+        nbgl_container_t *container = (nbgl_container_t *) obj;
+        nbgl_obj_t       *prev      = NULL;
+        LOG_DEBUG(
+            OBJ_LOGGER, "draw_obj_and_chidren(): container->children = %p\n", container->children);
+        // draw the children, if any
+        if (container->children != NULL) {
+            for (i = 0; i < container->nbChildren; i++) {
+                nbgl_obj_t *current = container->children[i];
+                if (current != NULL) {
+                    current->parent = (nbgl_obj_t *) container;
+                    draw_obj_and_chidren(current, prev, true);
+                    if (current->alignTo == NULL) {
+                        prev = current;
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -1529,40 +1515,42 @@ static void extendRefreshArea(nbgl_area_t *area)
 }
 
 /**
- * @brief This function redraws the given object and its children (recursive version)
+ * @brief This function draws or redraws the given object and its children (recursive version)
  *
  * @param obj the object to redraw
- * @param prevObj the previous child of this object in the parent's children array (may be NULL for
- * first element of the array)
- * @param computePosition if set to true, means that the position of the object will be recomputed
- * (needs prevObj if alignment on this object)
  */
-void nbgl_redrawObject(nbgl_obj_t *obj, nbgl_obj_t *prevObj, bool computePosition)
+void nbgl_objDraw(nbgl_obj_t *obj)
 {
-    uint8_t i = 0;
-    LOG_DEBUG(OBJ_LOGGER, "nbgl_redrawObject(): obj = %p\n", obj);
-    // draw the object itself
-    draw_object(obj, prevObj, computePosition);
+    bool computePosition = false;
+    bool fromApp;
 
-    if ((obj->type == SCREEN) || (obj->type == CONTAINER)) {
-        nbgl_container_t *container = (nbgl_container_t *) obj;
-        nbgl_obj_t       *prev      = NULL;
-        LOG_DEBUG(
-            OBJ_LOGGER, "nbgl_redrawObject(): container->children = %p\n", container->children);
-        // draw the children, if any
-        if (container->children != NULL) {
-            for (i = 0; i < container->nbChildren; i++) {
-                nbgl_obj_t *current = container->children[i];
-                if (current != NULL) {
-                    current->parent = (nbgl_obj_t *) container;
-                    nbgl_redrawObject(current, prev, true);
-                    if (current->alignTo == NULL) {
-                        prev = current;
-                    }
-                }
-            }
+    LOG_DEBUG(OBJ_LOGGER, "nbgl_objDraw(): obj = %p\n", obj);
+    // check whether it's necessary to compute position, and if this object belongs to
+    // an Application screen
+    if (obj->type == SCREEN) {
+        // always compute position for screen and all sub-objects
+        computePosition = true;
+        fromApp         = !(((nbgl_screen_t *) obj)->isUxScreen);
+    }
+    else {
+        nbgl_obj_t *parent = obj;
+        // search screen in parenthood
+        while (parent->parent != NULL) {
+            parent = parent->parent;
+        }
+        if (parent->type == SCREEN) {
+            fromApp = !(((nbgl_screen_t *) parent)->isUxScreen);
+        }
+        else {
+            // should never happen
+            fromApp = false;
         }
     }
+    // actually draw the object and its children, if it is allowed
+    if (objDrawingDisabled && fromApp) {
+        return;
+    }
+    draw_obj_and_chidren(obj, NULL, computePosition);
 }
 
 /**
