@@ -1827,29 +1827,28 @@ uint8_t nbgl_useCaseGetNbInfosInPage(uint8_t                       nbInfos,
                                      uint8_t                       startIndex,
                                      bool                          withNav)
 {
-    uint8_t  nbInfosInPage = 0;
-    uint16_t currentHeight = 0;
-    uint16_t previousHeight;
-    uint16_t navHeight = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
+    uint8_t            nbInfosInPage = 0;
+    uint16_t           currentHeight = 0;
+    uint16_t           previousHeight;
+    uint16_t           navHeight    = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
+    const char *const *infoTypes    = PIC(infosList->infoTypes);
+    const char *const *infoContents = PIC(infosList->infoContents);
 
     while (nbInfosInPage < nbInfos) {
         // margin between infos
         currentHeight += PRE_TEXT_MARGIN;
 
         // type height
-        currentHeight += nbgl_getTextHeightInWidth(SMALL_BOLD_FONT,
-                                                   infosList->infoTypes[startIndex + nbInfosInPage],
-                                                   AVAILABLE_WIDTH,
-                                                   true);
+        currentHeight += nbgl_getTextHeightInWidth(
+            SMALL_BOLD_FONT, PIC(infoTypes[startIndex + nbInfosInPage]), AVAILABLE_WIDTH, true);
         // space between type and content
         currentHeight += TEXT_SUBTEXT_MARGIN;
 
         // content height
-        currentHeight
-            += nbgl_getTextHeightInWidth(SMALL_REGULAR_FONT,
-                                         infosList->infoContents[startIndex + nbInfosInPage],
-                                         AVAILABLE_WIDTH,
-                                         true);
+        currentHeight += nbgl_getTextHeightInWidth(SMALL_REGULAR_FONT,
+                                                   PIC(infoContents[startIndex + nbInfosInPage]),
+                                                   AVAILABLE_WIDTH,
+                                                   true);
         currentHeight += POST_SUBTEXT_MARGIN;  // under the content
         // if height is over the limit
         if (currentHeight >= (INFOS_AREA_HEIGHT - navHeight)) {
@@ -1880,30 +1879,30 @@ uint8_t nbgl_useCaseGetNbSwitchesInPage(uint8_t                           nbSwit
                                         uint8_t                           startIndex,
                                         bool                              withNav)
 {
-    uint8_t  nbSwitchesInPage = 0;
-    uint16_t currentHeight    = 0;
-    uint16_t previousHeight;
-    uint16_t navHeight = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
+    uint8_t               nbSwitchesInPage = 0;
+    uint16_t              currentHeight    = 0;
+    uint16_t              previousHeight;
+    uint16_t              navHeight   = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
+    nbgl_contentSwitch_t *switchArray = (nbgl_contentSwitch_t *) PIC(switchesList->switches);
 
     while (nbSwitchesInPage < nbSwitches) {
         // margin between switches
         currentHeight += PRE_TEXT_MARGIN;
 
         // text height
-        currentHeight
-            += nbgl_getTextHeightInWidth(SMALL_BOLD_FONT,
-                                         switchesList->switches[startIndex + nbSwitchesInPage].text,
-                                         AVAILABLE_WIDTH,
-                                         true);
+        currentHeight += nbgl_getTextHeightInWidth(SMALL_BOLD_FONT,
+                                                   switchArray[startIndex + nbSwitchesInPage].text,
+                                                   AVAILABLE_WIDTH,
+                                                   true);
         // space between text and sub-text
         currentHeight += TEXT_SUBTEXT_MARGIN;
 
         // sub-text height
-        currentHeight += nbgl_getTextHeightInWidth(
-            SMALL_REGULAR_FONT,
-            switchesList->switches[startIndex + nbSwitchesInPage].subText,
-            AVAILABLE_WIDTH,
-            true);
+        currentHeight
+            += nbgl_getTextHeightInWidth(SMALL_REGULAR_FONT,
+                                         switchArray[startIndex + nbSwitchesInPage].subText,
+                                         AVAILABLE_WIDTH,
+                                         true);
         currentHeight += POST_SUBTEXT_MARGIN;  // under the sub-text
         // if height is over the limit
         if (currentHeight >= (INFOS_AREA_HEIGHT - navHeight)) {

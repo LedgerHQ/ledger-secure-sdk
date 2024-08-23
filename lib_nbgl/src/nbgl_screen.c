@@ -12,6 +12,7 @@
 #include "nbgl_debug.h"
 #include "os_pic.h"
 #include "os_io.h"
+#include "os_task.h"
 
 /*********************
  *      DEFINES
@@ -75,7 +76,7 @@ void nbgl_screenRedraw(void)
 #endif  // TARGET_STAX
 
     nbgl_screen_reinit();
-    nbgl_redrawObject((nbgl_obj_t *) topOfStack, NULL, true);
+    nbgl_objDraw((nbgl_obj_t *) topOfStack);
 }
 
 /**
@@ -117,6 +118,27 @@ uint8_t nbgl_screenGetCurrentStackSize(void)
         return 0;
     }
     return nbScreensOnStack;
+}
+
+/**
+ * @brief Returns the number of used UX screens on stack
+ * @return the number of used UX screens on stack
+ */
+uint8_t nbgl_screenGetUxStackSize(void)
+{
+    uint8_t        nbUxScreens = 0;
+    nbgl_screen_t *screen      = (nbgl_screen_t *) topOfStack;
+
+    if (nbgl_screenGetCurrentStackSize() == 0) {
+        return 0;
+    }
+    while (screen != NULL) {
+        if (screen->isUxScreen) {
+            nbUxScreens++;
+        }
+        screen = screen->previous;
+    }
+    return nbUxScreens;
 }
 
 /**
@@ -181,6 +203,7 @@ static int nbgl_screenSetAt(uint8_t                                 screenIndex,
     else {
         screenStack[screenIndex].ticker.tickerCallback = NULL;
     }
+    screenStack[screenIndex].isUxScreen = (os_sched_current_task() == TASK_BOLOS_UX);
     return 0;
 }
 

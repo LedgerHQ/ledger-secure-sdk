@@ -130,6 +130,7 @@ typedef enum {
     IMAGE_FILE,      ///< Image file (with Ledger compression)
     TEXT_ENTRY,      ///< area for entered text, only for Nanos
     MASK_CONTROL,    ///< OS-specific object to enable/disable masked area
+    NB_OBJ_TYPES
 } nbgl_obj_type_t;
 
 /**

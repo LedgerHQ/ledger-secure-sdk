@@ -262,7 +262,7 @@ static void touchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
         && (((nbgl_container_t *) obj)->children[1]->type == SWITCH)) {
         nbgl_switch_t *lSwitch = (nbgl_switch_t *) ((nbgl_container_t *) obj)->children[1];
         lSwitch->state         = (lSwitch->state == ON_STATE) ? OFF_STATE : ON_STATE;
-        nbgl_redrawObject((nbgl_obj_t *) lSwitch, false, false);
+        nbgl_objDraw((nbgl_obj_t *) lSwitch);
         // refresh will be done after tune playback
         needRefresh = true;
         // index is used for state
@@ -333,7 +333,7 @@ static void longTouchCallback(nbgl_obj_t            *obj,
             progressBar->previousState = progressBar->state;
             progressBar->state         = new_state;
 
-            nbgl_redrawObject((nbgl_obj_t *) progressBar, false, false);
+            nbgl_objDraw((nbgl_obj_t *) progressBar);
             // Ensure progress bar is fully drawn
             // before calling the callback.
             nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_FAST_REFRESH,
@@ -352,7 +352,7 @@ static void longTouchCallback(nbgl_obj_t            *obj,
              || (eventType == SWIPED_LEFT) || (eventType == SWIPED_RIGHT)) {
         nbgl_wait_pipeline();
         progressBar->state = 0;
-        nbgl_redrawObject((nbgl_obj_t *) progressBar, false, false);
+        nbgl_objDraw((nbgl_obj_t *) progressBar);
         nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_REFRESH, POST_REFRESH_FORCE_POWER_OFF);
     }
 }
@@ -387,7 +387,7 @@ static void radioTouchCallback(nbgl_obj_t            *obj,
             // ensure that radio button is ON
             radio->state = ON_STATE;
             // redraw container
-            nbgl_redrawObject((nbgl_obj_t *) obj, NULL, false);
+            nbgl_objDraw((nbgl_obj_t *) obj);
         }
         else if ((layout->callbackObjPool[i].obj->type == CONTAINER)
                  && (((nbgl_container_t *) layout->callbackObjPool[i].obj)->nbChildren == 2)
@@ -407,7 +407,7 @@ static void radioTouchCallback(nbgl_obj_t            *obj,
                 textArea->textColor = DARK_GRAY;
                 textArea->fontId    = SMALL_REGULAR_FONT;
                 // redraw container
-                nbgl_redrawObject((nbgl_obj_t *) layout->callbackObjPool[i].obj, NULL, false);
+                nbgl_objDraw((nbgl_obj_t *) layout->callbackObjPool[i].obj);
             }
         }
         i++;
@@ -447,7 +447,7 @@ static void spinnerTickerCallback(void)
             spinner = (nbgl_spinner_t *) layout->container->children[i];
             spinner->position++;
             spinner->position &= 3;  // modulo 4
-            nbgl_redrawObject((nbgl_obj_t *) spinner, NULL, false);
+            nbgl_objDraw((nbgl_obj_t *) spinner);
             nbgl_refreshSpecial(BLACK_AND_WHITE_FAST_REFRESH);
             return;
         }
