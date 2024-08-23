@@ -20,5 +20,6 @@ var searchData=
   ['digits_5fswitch_5fkey_5findex_474',['DIGITS_SWITCH_KEY_INDEX',['../nbgl__obj_8h.html#a748bf01c5392e285be14f86b6a8a3f6f',1,'nbgl_obj.h']]],
   ['direction_475',['direction',['../structnbgl__layoutNavigation__t.html#a214dcdf6f75e7c4859969d4edaf16f2a',1,'nbgl_layoutNavigation_t::direction()'],['../structnbgl__line__s.html#a09d4c73f9500e6f29f07c041099e64b8',1,'nbgl_line_s::direction()']]],
   ['doubletext_476',['doubleText',['../structnbgl__layoutFooter__t.html#ae9906f79f168eae0693d9972154fcc65',1,'nbgl_layoutFooter_t']]],
-  ['draw_5flogger_477',['DRAW_LOGGER',['../nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06caafd23e6baab3e2bec15a53a0297ba019',1,'nbgl_debug.h']]]
+  ['draw_5ffunction_5ft_477',['draw_function_t',['../nbgl__obj_8c.html#a6a1227f0b134cb3d2bdd036f4b67f50b',1,'nbgl_obj.c']]],
+  ['draw_5flogger_478',['DRAW_LOGGER',['../nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06caafd23e6baab3e2bec15a53a0297ba019',1,'nbgl_debug.h']]]
 ];
