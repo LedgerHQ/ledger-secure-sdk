@@ -325,7 +325,7 @@ void nbgl_keyboardCallback(nbgl_obj_t *obj, nbgl_buttonEvent_t buttonEvent)
                     keyboard->mode = MODE_NONE;
                     // reset the selected index
                     keyboard->selectedCharIndex = 0;
-                    nbgl_redrawObject((nbgl_obj_t *) keyboard, NULL, false);
+                    nbgl_objDraw((nbgl_obj_t *) keyboard);
                     nbgl_refresh();
                 }
                 else if (key == '\n') {
@@ -364,7 +364,7 @@ void nbgl_keyboardCallback(nbgl_obj_t *obj, nbgl_buttonEvent_t buttonEvent)
     else {
         return;
     }
-    nbgl_redrawObject((nbgl_obj_t *) keyboard, NULL, false);
+    nbgl_objDraw((nbgl_obj_t *) keyboard);
     nbgl_refresh();
 }
 

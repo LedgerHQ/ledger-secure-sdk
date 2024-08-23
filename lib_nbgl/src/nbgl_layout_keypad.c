@@ -158,7 +158,7 @@ int nbgl_layoutUpdateKeypad(nbgl_layout_t *layout,
     keypad->enableBackspace = enableBackspace;
     keypad->enableDigits    = enableDigits;
 
-    nbgl_redrawObject((nbgl_obj_t *) keypad, NULL, false);
+    nbgl_objDraw((nbgl_obj_t *) keypad);
 
     return 0;
 }
@@ -313,7 +313,7 @@ int nbgl_layoutUpdateHiddenDigits(nbgl_layout_t *layout, uint8_t index, uint8_t 
         }
     }
 
-    nbgl_redrawObject((nbgl_obj_t *) image, NULL, false);
+    nbgl_objDraw((nbgl_obj_t *) image);
 
     return 0;
 }
@@ -538,7 +538,7 @@ int nbgl_layoutUpdateKeypadContent(nbgl_layout_t *layout,
             }
         }
 
-        nbgl_redrawObject((nbgl_obj_t *) image, NULL, false);
+        nbgl_objDraw((nbgl_obj_t *) image);
     }
     else {
         // update main text area (second child of the main container)
@@ -551,7 +551,7 @@ int nbgl_layoutUpdateKeypadContent(nbgl_layout_t *layout,
         textArea->text          = text;
         textArea->textColor     = BLACK;
         textArea->textAlignment = MID_LEFT;
-        nbgl_redrawObject((nbgl_obj_t *) textArea, NULL, false);
+        nbgl_objDraw((nbgl_obj_t *) textArea);
 
         // if the text doesn't fit, indicate it by returning 1 instead of 0, for different refresh
         if (nbgl_getSingleLineTextWidth(textArea->fontId, text) > textArea->obj.area.width) {

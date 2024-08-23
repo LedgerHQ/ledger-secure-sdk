@@ -562,7 +562,7 @@ void nbgl_keyboardTouchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
             && ((IS_KEY_MASKED(firstIndex)) == 0)) {
             keyboard->casing = LOWER_CASE;
             // just redraw, refresh will be done by client (user of keyboard)
-            nbgl_redrawObject((nbgl_obj_t *) keyboard, NULL, false);
+            nbgl_objDraw((nbgl_obj_t *) keyboard);
             keyboard->needsRefresh = true;
         }
         if ((firstIndex < 26) && ((IS_KEY_MASKED(firstIndex)) == 0)) {
@@ -581,13 +581,13 @@ void nbgl_keyboardTouchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
                     keyboard->casing = LOWER_CASE;
                     break;
             }
-            nbgl_redrawObject((nbgl_obj_t *) keyboard, NULL, false);
+            nbgl_objDraw((nbgl_obj_t *) keyboard);
             nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_REFRESH,
                                                POST_REFRESH_FORCE_POWER_ON);
         }
         else if (firstIndex == DIGITS_SWITCH_KEY_INDEX) {  // switch to digits
             keyboard->mode = MODE_DIGITS;
-            nbgl_redrawObject((nbgl_obj_t *) keyboard, NULL, false);
+            nbgl_objDraw((nbgl_obj_t *) keyboard);
             nbgl_refreshSpecialWithPostRefresh(FULL_COLOR_REFRESH, POST_REFRESH_FORCE_POWER_ON);
         }
     }
@@ -597,13 +597,13 @@ void nbgl_keyboardTouchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
         }
         else if (firstIndex == SPECIAL_KEYS_INDEX) {
             keyboard->mode = MODE_SPECIAL;
-            nbgl_redrawObject((nbgl_obj_t *) keyboard, NULL, false);
+            nbgl_objDraw((nbgl_obj_t *) keyboard);
             nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_REFRESH,
                                                POST_REFRESH_FORCE_POWER_ON);
         }
         else if (firstIndex == DIGITS_SWITCH_KEY_INDEX) {  // switch to letters
             keyboard->mode = MODE_LETTERS;
-            nbgl_redrawObject((nbgl_obj_t *) keyboard, NULL, false);
+            nbgl_objDraw((nbgl_obj_t *) keyboard);
             nbgl_refreshSpecialWithPostRefresh(FULL_COLOR_REFRESH, POST_REFRESH_FORCE_POWER_ON);
         }
     }
@@ -613,13 +613,13 @@ void nbgl_keyboardTouchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
         }
         else if (firstIndex == SPECIAL_KEYS_INDEX) {
             keyboard->mode = MODE_DIGITS;
-            nbgl_redrawObject((nbgl_obj_t *) keyboard, NULL, false);
+            nbgl_objDraw((nbgl_obj_t *) keyboard);
             nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_REFRESH,
                                                POST_REFRESH_FORCE_POWER_ON);
         }
         else if (firstIndex == DIGITS_SWITCH_KEY_INDEX) {  // switch to letters
             keyboard->mode = MODE_LETTERS;
-            nbgl_redrawObject((nbgl_obj_t *) keyboard, NULL, false);
+            nbgl_objDraw((nbgl_obj_t *) keyboard);
             nbgl_refreshSpecialWithPostRefresh(FULL_COLOR_REFRESH, POST_REFRESH_FORCE_POWER_ON);
         }
     }
