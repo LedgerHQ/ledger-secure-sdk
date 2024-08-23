@@ -725,9 +725,10 @@ static void draw_progressBar(nbgl_progress_bar_t *obj, nbgl_obj_t *prevObj, bool
     // reset previous state to be sure that in case of full redraw of the screen we redraw the
     // full bar
     if (obj->previousState) {
-        obj->previousState = 255;
+        obj->previousState = UNTRACKED_PREVIOUS_STATE;
+        obj->previousWidth = barWidth;
     }
-    obj->previousWidth = barWidth;
+
     extendRefreshArea(&barArea);
     objRefreshAreaDone = true;
 #else   // HAVE_SE_TOUCH
