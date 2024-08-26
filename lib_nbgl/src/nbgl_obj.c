@@ -665,6 +665,9 @@ static void draw_radioButton(nbgl_radio_t *obj, nbgl_obj_t *prevObj, bool comput
 static void draw_progressBar(nbgl_progress_bar_t *obj, nbgl_obj_t *prevObj, bool computePosition)
 {
 #ifdef HAVE_SE_TOUCH
+
+#define UNTRACKED_PREVIOUS_STATE 255
+
     uint8_t stroke = 3;  // 3 pixels for border
 
     if (computePosition) {
@@ -679,9 +682,14 @@ static void draw_progressBar(nbgl_progress_bar_t *obj, nbgl_obj_t *prevObj, bool
     // inherit background from parent
     obj->obj.area.backgroundColor = obj->obj.parent->area.backgroundColor;
 
-    // if previous state is not nul, we will just draw the small added part
+    // `obj->previousState` variable allows to control whether if
+    // - The progress bar is fully redrawn whatever the progress bar state (`obj->previousState ==
+    // 0`).
+    // - The progress bar is partially drawn from previous draw
+    // (`obj->previousState > 0 and <= 100`). `obj->previousState` is set by the caller before each
+    // progress bar redraw. The progress bar state is reset otherwise.
     if (obj->previousState == 0) {
-        // draw external part if necessary
+        // Case of progress bar full draw
         if (obj->withBorder) {
             nbgl_drawRoundedBorderedRect((nbgl_area_t *) obj,
                                          RADIUS_0_PIXELS,
@@ -694,7 +702,7 @@ static void draw_progressBar(nbgl_progress_bar_t *obj, nbgl_obj_t *prevObj, bool
                 (nbgl_area_t *) obj, RADIUS_0_PIXELS, obj->obj.area.backgroundColor);
         }
     }
-    else if (obj->previousState == 255) {
+    else if (obj->previousState == UNTRACKED_PREVIOUS_STATE) {
         obj->state = 0;
     }
 
@@ -725,9 +733,10 @@ static void draw_progressBar(nbgl_progress_bar_t *obj, nbgl_obj_t *prevObj, bool
     // reset previous state to be sure that in case of full redraw of the screen we redraw the
     // full bar
     if (obj->previousState) {
-        obj->previousState = 255;
+        obj->previousState = UNTRACKED_PREVIOUS_STATE;
+        obj->previousWidth = barWidth;
     }
-    obj->previousWidth = barWidth;
+
     extendRefreshArea(&barArea);
     objRefreshAreaDone = true;
 #else   // HAVE_SE_TOUCH
