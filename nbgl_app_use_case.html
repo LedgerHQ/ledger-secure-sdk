@@ -201,16 +201,16 @@ Home &amp; Settings screen Use Case</h2>
 <div class="line">  }</div>
 <div class="line">}</div>
 <div class="line"> </div>
-<div class="line"><span class="keyword">static</span> <a class="code" href="structnbgl__content__t.html">nbgl_content_t</a> contentsList = {</div>
+<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <a class="code" href="structnbgl__content__t.html">nbgl_content_t</a> contentsList = {</div>
 <div class="line">  .<a class="code" href="structnbgl__content__t.html#a1ac1044cc537f7fe43b304cbc0202061">content</a>.<a class="code" href="unionnbgl__content__u.html#abc36dfa9d42e152185ac985e42b69bde">switchesList</a>.<a class="code" href="structnbgl__pageSwitchesList__s.html#a1036d245c6954223009c4706a15a0ef0">nbSwitches</a> = 2,</div>
 <div class="line">  .content.switchesList.switches = switches,</div>
 <div class="line">  .type = <a class="code" href="nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203aaa3b4a61cc5be5e90bd2c1ab32f13373">SWITCHES_LIST</a>,</div>
 <div class="line">  .contentActionCallback = controlsCallback</div>
 <div class="line">};</div>
 <div class="line"> </div>
-<div class="line"><a class="code" href="structnbgl__genericContents__t.html">nbgl_genericContents_t</a> eth_settingContents</div>
+<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <a class="code" href="structnbgl__genericContents__t.html">nbgl_genericContents_t</a> eth_settingContents</div>
 <div class="line">    = {.<a class="code" href="structnbgl__genericContents__t.html#a5cca760808bb3ea7c33585b5a44f7e56">contentsList</a> = &amp;contentsList, .nbContents = 1};</div>
-<div class="line"><a class="code" href="structnbgl__contentInfoList__t.html">nbgl_contentInfoList_t</a> eth_infosList</div>
+<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <a class="code" href="structnbgl__contentInfoList__t.html">nbgl_contentInfoList_t</a> eth_infosList</div>
 <div class="line">    = {.<a class="code" href="structnbgl__contentInfoList__t.html#a793d32bf132778456d9d34c77f24fce8">nbInfos</a> = 2, .infoTypes = infoTypes, .infoContents = infoContents};</div>
 <div class="line"> </div>
 <div class="line"><span class="keywordtype">void</span> onQuit(<span class="keywordtype">void</span>) {</div>
@@ -319,7 +319,7 @@ Review Use Case</h2>
 <div class="fragment"><div class="line"><span class="comment">// 4 pairs of tag/value to display</span></div>
 <div class="line"><span class="keyword">static</span> <a class="code" href="structnbgl__contentTagValue__t.html">nbgl_layoutTagValue_t</a> pairs[4];</div>
 <div class="line"> </div>
-<div class="line"><span class="keyword">static</span> <a class="code" href="structnbgl__contentTagValueList__t.html">nbgl_contentTagValueList_t</a> pairList = {</div>
+<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <a class="code" href="structnbgl__contentTagValueList__t.html">nbgl_contentTagValueList_t</a> pairList = {</div>
 <div class="line">  .<a class="code" href="structnbgl__contentTagValueList__t.html#af7465bb412cd1d9fd14bc526d0ea77d8">nbMaxLinesForValue</a> = 0,</div>
 <div class="line">  .nbPairs = 4,</div>
 <div class="line">  .pairs = (<a class="code" href="structnbgl__contentTagValue__t.html">nbgl_layoutTagValue_t</a>*)pairs</div>
@@ -360,7 +360,7 @@ Review Use Case</h2>
 <div class="line"> </div>
 <div class="line"><span class="keyword">static</span> <a class="code" href="structnbgl__contentTagValue__t.html">nbgl_layoutTagValue_t</a>* getPair(<a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> index);</div>
 <div class="line"> </div>
-<div class="line"><span class="keyword">static</span> <a class="code" href="structnbgl__contentTagValueList__t.html">nbgl_contentTagValueList_t</a> pairList = {</div>
+<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <a class="code" href="structnbgl__contentTagValueList__t.html">nbgl_contentTagValueList_t</a> pairList = {</div>
 <div class="line">  .<a class="code" href="structnbgl__contentTagValueList__t.html#af7465bb412cd1d9fd14bc526d0ea77d8">nbMaxLinesForValue</a> = 0,</div>
 <div class="line">  .nbPairs = 4,</div>
 <div class="line">  .pairs = NULL, <span class="comment">// to indicate that callback should be used</span></div>
@@ -543,7 +543,7 @@ Extended Address Confirmation Use Case</h2>
 <div class="fragment"><div class="line"><span class="comment">// 2 pairs of tag/value to display in second page</span></div>
 <div class="line"><span class="keyword">static</span> <a class="code" href="structnbgl__contentTagValue__t.html">nbgl_layoutTagValue_t</a> pairs[2];</div>
 <div class="line"> </div>
-<div class="line"><span class="keyword">static</span> <a class="code" href="structnbgl__contentTagValueList__t.html">nbgl_contentTagValueList_t</a> pairList = {</div>
+<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <a class="code" href="structnbgl__contentTagValueList__t.html">nbgl_contentTagValueList_t</a> pairList = {</div>
 <div class="line">  .<a class="code" href="structnbgl__contentTagValueList__t.html#af7465bb412cd1d9fd14bc526d0ea77d8">nbMaxLinesForValue</a> = 0,</div>
 <div class="line">  .nbPairs = 2,</div>
 <div class="line">  .pairs = (<a class="code" href="structnbgl__contentTagValue__t.html">nbgl_layoutTagValue_t</a>*)pairs</div>
