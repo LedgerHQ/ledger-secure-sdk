@@ -128,16 +128,16 @@ static void controlsCallback(int token, uint8_t index, int page) {
   }
 }
 
-static nbgl_content_t contentsList = {
+static const nbgl_content_t contentsList = {
   .content.switchesList.nbSwitches = 2,
   .content.switchesList.switches = switches,
   .type = SWITCHES_LIST,
   .contentActionCallback = controlsCallback
 };
 
-nbgl_genericContents_t eth_settingContents
+static const nbgl_genericContents_t eth_settingContents
     = {.contentsList = &contentsList, .nbContents = 1};
-nbgl_contentInfoList_t eth_infosList
+static const nbgl_contentInfoList_t eth_infosList
     = {.nbInfos = 2, .infoTypes = infoTypes, .infoContents = infoContents};
 
 void onQuit(void) {
@@ -264,7 +264,7 @@ Here is the code to display something similar to example picture:
 // 4 pairs of tag/value to display
 static nbgl_layoutTagValue_t pairs[4];
 
-static nbgl_contentTagValueList_t pairList = {
+static const nbgl_contentTagValueList_t pairList = {
   .nbMaxLinesForValue = 0,
   .nbPairs = 4,
   .pairs = (nbgl_layoutTagValue_t*)pairs
@@ -301,7 +301,7 @@ static nbgl_layoutTagValue_t pair;
 
 static nbgl_layoutTagValue_t* getPair(uint8_t index);
 
-static nbgl_contentTagValueList_t pairList = {
+static const nbgl_contentTagValueList_t pairList = {
   .nbMaxLinesForValue = 0,
   .nbPairs = 4,
   .pairs = NULL, // to indicate that callback should be used
@@ -506,7 +506,7 @@ Here is the code to display something similar to example picture:
 // 2 pairs of tag/value to display in second page
 static nbgl_layoutTagValue_t pairs[2];
 
-static nbgl_contentTagValueList_t pairList = {
+static const nbgl_contentTagValueList_t pairList = {
   .nbMaxLinesForValue = 0,
   .nbPairs = 2,
   .pairs = (nbgl_layoutTagValue_t*)pairs
