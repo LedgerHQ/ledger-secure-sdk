@@ -1,4 +1,4 @@
-# This file contains the functions exported by cxlib. It is used by cxsdk.py to
+# This file contains the functions exported by cxlib. It is used by shared_export.py to
 # generate asm stubs for the SDK and the CX functions table in cxlib.
 #
 # Making changes to this file (ie. removal, addition, ordering) require apps to
