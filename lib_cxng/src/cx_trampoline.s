@@ -2,13 +2,13 @@
 .text
 .thumb
 
-.section .text._cx_trampoline
+.section .text._shared_trampoline
 .thumb_func
-.global _cx_trampoline
-_cx_trampoline:
-  // r12 = cx_exported_functions[i]
+.global _shared_trampoline
+_shared_trampoline:
+  // r12 = shared_exported_functions[i]
   lsls r0, #2
-  ldr  r1, =cx_exported_functions
+  ldr  r1, =shared_exported_functions
   ldr  r1, [r1, r0]
   mov  r12, r1
   // jump to function

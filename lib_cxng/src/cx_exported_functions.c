@@ -23,7 +23,7 @@
 #include "cx_sha3.h"
 #include "cx_blake2b.h"
 
-unsigned long __attribute((section("._cx_exported_functions"))) cx_exported_functions[] = {
+unsigned long __attribute((section("._shared_exported_functions"))) shared_exported_functions[] = {
     [_NR_cx_aes_dec_block]                   = (unsigned long) cx_aes_dec_block,
     [_NR_cx_aes_enc_block]                   = (unsigned long) cx_aes_enc_block,
     [_NR_cx_aes_gcm_check_tag]               = (unsigned long) cx_aes_gcm_check_tag,
