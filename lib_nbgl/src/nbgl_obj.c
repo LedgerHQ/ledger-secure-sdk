@@ -1646,3 +1646,13 @@ void nbgl_objAllowDrawing(bool enable)
 {
     objDrawingDisabled = !enable;
 }
+
+/**
+ * @brief This function is used to get the all purpose RAM buffer
+ *
+ * @param enable if true, enables drawing/refresh, otherwise disables
+ */
+uint8_t *nbgl_objGetRAMBuffer(void)
+{
+    return ramBuffer;
+}
