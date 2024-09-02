@@ -9,5 +9,5 @@
 #ifndef PIC
 #define PIC(x) pic((void *) x)
 void *pic(void *linked_address);
-void *pic_internal(void *link_address);
 #endif
+void pic_init(void *pic_flash_start, void *pic_ram_start);
