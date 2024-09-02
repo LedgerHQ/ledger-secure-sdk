@@ -19,7 +19,11 @@
 ifeq ($(USE_NBGL),0)
     SDK_SOURCE_PATH += lib_bagl lib_ux
 else
-    SDK_SOURCE_PATH += lib_nbgl lib_ux_nbgl lib_ux_sync
+    SDK_SOURCE_PATH += lib_ux_nbgl lib_ux_sync
+    NBGL_SOURCES := $(shell find $(BOLOS_SDK)/lib_nbgl/src -name 'nbgl_layout*.[csS]')
+    NBGL_SOURCES += $(shell find $(BOLOS_SDK)/lib_nbgl/src -name 'nbgl_page*.[csS]')
+    NBGL_SOURCES += $(shell find $(BOLOS_SDK)/lib_nbgl/src -name 'nbgl_use_case*.[csS]')
+    NBGL_INCLUDE_PATH := lib_nbgl
 endif
 
 define uniq =
@@ -65,7 +69,7 @@ APP_SRC_PROTOC = $(filter %.pb.c, $(APP_SOURCE_FILES) $(SOURCE_FILES)) $(shell f
 APP_SRC_FILTER = $(filter-out $(APP_SRC_FROM_SDK) $(APP_SRC_GEN), $(APP_SOURCE_FILES))
 
 # Separate SDK and APP and GEN sources
-SOURCES_SDK += $(foreach libdir, src $(SDK_SOURCE_PATH), $(shell find $(BOLOS_SDK)/$(libdir) -name '*.[csS]')) $(APP_SRC_FROM_SDK)
+SOURCES_SDK += $(foreach libdir, src $(SDK_SOURCE_PATH), $(shell find $(BOLOS_SDK)/$(libdir) -name '*.[csS]')) $(APP_SRC_FROM_SDK) $(NBGL_SOURCES)
 SOURCES_APP += $(filter-out %.pb.c, $(abspath $(SOURCE_FILES) $(foreach libdir, $(SOURCE_PATH) $(APP_SOURCE_PATH), $(shell find $(libdir) -name '*.[csS]')) $(APP_SRC_FILTER)))
 SOURCES_GEN += $(GLYPH_DESTC) $(APP_SRC_GEN)
 VPATH += $(call uniq, $(dir $(SOURCES_SDK) $(SOURCES_APP) $(GLYPH_DESTC)))
@@ -75,7 +79,7 @@ INCLUDES_APP += $(shell find $(APP_SOURCE_PATH) -name '*.h')
 # Warn if a same header filename is found in both APP and SDK
 $(call check_duplicate, $(INCLUDES_APP), $(BOLOS_SDK))
 # Compute header directories list
-INCLUDES_PATH += $(call uniq, $(dir $(foreach libdir, $(SDK_SOURCE_PATH), $(dir $(shell find $(BOLOS_SDK)/$(libdir) -name '*.h')))) include $(BOLOS_SDK)/include $(BOLOS_SDK)/include/arm $(dir $(INCLUDES_APP)) $(GLYPH_SRC_DIR))
+INCLUDES_PATH += $(call uniq, $(dir $(foreach libdir, $(SDK_SOURCE_PATH) $(NBGL_INCLUDE_PATH), $(dir $(shell find $(BOLOS_SDK)/$(libdir) -name '*.h')))) include $(BOLOS_SDK)/include $(BOLOS_SDK)/include/arm $(dir $(INCLUDES_APP)) $(GLYPH_SRC_DIR))
 
 # Separate object files from SDK and APP to avoid name conflicts
 OBJECTS_SDK += $(sort $(subst $(BOLOS_SDK), $(OBJ_DIR)/sdk, $(addsuffix .o, $(basename $(SOURCES_SDK)))))
