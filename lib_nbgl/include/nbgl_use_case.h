@@ -281,6 +281,12 @@ void nbgl_useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
                                       const char                *reviewSubTitle,
                                       nbgl_choiceCallback_t      choiceCallback);
 
+void nbgl_useCaseReviewStreamingBlindSigningStart(nbgl_operationType_t       operationType,
+                                                  const nbgl_icon_details_t *icon,
+                                                  const char                *reviewTitle,
+                                                  const char                *reviewSubTitle,
+                                                  nbgl_choiceCallback_t      choiceCallback);
+
 void nbgl_useCaseReviewStreamingContinueExt(const nbgl_contentTagValueList_t *tagValueList,
                                             nbgl_choiceCallback_t             choiceCallback,
                                             nbgl_callback_t                   skipCallback);
