@@ -1070,6 +1070,9 @@ void nbgl_textWrapOnNbLines(nbgl_font_id_e fontId, char *text, uint16_t maxWidth
     char              *lastDelimiter      = NULL;
     uint32_t           lenAtLastDelimiter = 0;
     char              *prevText           = NULL;
+    char              *prevPrevText       = NULL;
+    uint16_t           prevWidth          = 0;
+
 #ifdef HAVE_UNICODE_SUPPORT
     nbgl_unicode_ctx_t *unicode_ctx = NULL;
 #endif  // HAVE_UNICODE_SUPPORT
@@ -1078,12 +1081,13 @@ void nbgl_textWrapOnNbLines(nbgl_font_id_e fontId, char *text, uint16_t maxWidth
         uint8_t  char_width;
         uint32_t unicode;
         bool     is_unicode;
-        char    *prevPrevText;
+        char    *prevPrevPrevText;
 
-        // memorize the two last chars
-        prevPrevText = prevText;
-        prevText     = text;
-        unicode      = nbgl_popUnicodeChar((const uint8_t **) &text, &textLen, &is_unicode);
+        // memorize the three last chars
+        prevPrevPrevText = prevPrevText;
+        prevPrevText     = prevText;
+        prevText         = text;
+        unicode          = nbgl_popUnicodeChar((const uint8_t **) &text, &textLen, &is_unicode);
         // if \n, reset width
         if (unicode == '\n') {
             width = 0;
@@ -1117,7 +1121,7 @@ void nbgl_textWrapOnNbLines(nbgl_font_id_e fontId, char *text, uint16_t maxWidth
                     *lastDelimiter++ = '\n';
                     text             = lastDelimiter;
                     lastDelimiter    = NULL;
-                    textLen          = lenAtLastDelimiter;
+                    textLen          = lenAtLastDelimiter - 1;
                 }
                 else {
                     textLen += text - prevText;
@@ -1125,18 +1129,30 @@ void nbgl_textWrapOnNbLines(nbgl_font_id_e fontId, char *text, uint16_t maxWidth
                 }
                 // reset width for next line
                 width = 0;
+                continue;
             }
             else {
-                // replace the 2 last chars by '...' (should be same width)
+                // replace the 2 or 3 last chars by '...'
+                // try at first with 2, if it fits
                 if (prevPrevText != NULL) {
-                    *prevPrevText++ = '.';
-                    *prevPrevText++ = '.';
-                    *prevPrevText++ = '.';
-                    *prevPrevText   = '\0';
+                    if ((prevWidth + (3 * getCharWidth(font, '.', false))) <= maxWidth) {
+                        *prevPrevText++ = '.';
+                        *prevPrevText++ = '.';
+                        *prevPrevText++ = '.';
+                        *prevPrevText   = '\0';
+                    }
+                    else if (prevPrevPrevText != NULL) {
+                        *prevPrevPrevText++ = '.';
+                        *prevPrevPrevText++ = '.';
+                        *prevPrevPrevText++ = '.';
+                        *prevPrevPrevText   = '\0';
+                    }
                 }
                 return;
             }
         }
+        // memorize the last width
+        prevWidth = width;
         width += char_width;
     }
 }
