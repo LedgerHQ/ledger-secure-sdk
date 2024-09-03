@@ -1121,8 +1121,8 @@ $(function() {
 <div class="line"><a name="l01053"></a><span class="lineno"> 1053</span>&#160;        currentPair.<a class="code" href="structnbgl__contentTagValue__t.html#ac54d64394fafb3edc3f5c751214e3a50">value</a> = detailsContext.nextPageStart;</div>
 <div class="line"><a name="l01054"></a><span class="lineno"> 1054</span>&#160;    }</div>
 <div class="line"><a name="l01055"></a><span class="lineno"> 1055</span>&#160;    detailsContext.currentPage = detailsPage;</div>
-<div class="line"><a name="l01056"></a><span class="lineno"> 1056</span>&#160;    <a class="code" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> nbLines</div>
-<div class="line"><a name="l01057"></a><span class="lineno"> 1057</span>&#160;        = <a class="code" href="nbgl__fonts_8h.html#ad2394ff1ddf81b6df31a0d42df0e42e3">nbgl_getTextNbLinesInWidth</a>(SMALL_BOLD_FONT, currentPair.<a class="code" href="structnbgl__contentTagValue__t.html#ac54d64394fafb3edc3f5c751214e3a50">value</a>, <a class="code" href="nbgl__layout_8h.html#a7cbe9f98ad52749210b99e1ed27ac2b9">AVAILABLE_WIDTH</a>, <span class="keyword">false</span>);</div>
+<div class="line"><a name="l01056"></a><span class="lineno"> 1056</span>&#160;    <a class="code" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> nbLines           = <a class="code" href="nbgl__fonts_8h.html#ad2394ff1ddf81b6df31a0d42df0e42e3">nbgl_getTextNbLinesInWidth</a>(</div>
+<div class="line"><a name="l01057"></a><span class="lineno"> 1057</span>&#160;        SMALL_BOLD_FONT, currentPair.<a class="code" href="structnbgl__contentTagValue__t.html#ac54d64394fafb3edc3f5c751214e3a50">value</a>, <a class="code" href="nbgl__layout_8h.html#a7cbe9f98ad52749210b99e1ed27ac2b9">AVAILABLE_WIDTH</a>, detailsContext.wrapping);</div>
 <div class="line"><a name="l01058"></a><span class="lineno"> 1058</span>&#160; </div>
 <div class="line"><a name="l01059"></a><span class="lineno"> 1059</span>&#160;    <span class="keywordflow">if</span> (nbLines &gt; <a class="code" href="nbgl__use__case_8h.html#a708736c30009736c3563001be5d5a7b5">NB_MAX_LINES_IN_DETAILS</a>) {</div>
 <div class="line"><a name="l01060"></a><span class="lineno"> 1060</span>&#160;        <a class="code" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> len;</div>
@@ -1131,7 +1131,7 @@ $(function() {
 <div class="line"><a name="l01063"></a><span class="lineno"> 1063</span>&#160;                                    <a class="code" href="nbgl__layout_8h.html#a7cbe9f98ad52749210b99e1ed27ac2b9">AVAILABLE_WIDTH</a>,</div>
 <div class="line"><a name="l01064"></a><span class="lineno"> 1064</span>&#160;                                    <a class="code" href="nbgl__use__case_8h.html#a708736c30009736c3563001be5d5a7b5">NB_MAX_LINES_IN_DETAILS</a>,</div>
 <div class="line"><a name="l01065"></a><span class="lineno"> 1065</span>&#160;                                    &amp;len,</div>
-<div class="line"><a name="l01066"></a><span class="lineno"> 1066</span>&#160;                                    <span class="keyword">false</span>);</div>
+<div class="line"><a name="l01066"></a><span class="lineno"> 1066</span>&#160;                                    detailsContext.wrapping);</div>
 <div class="line"><a name="l01067"></a><span class="lineno"> 1067</span>&#160;        len -= 3;</div>
 <div class="line"><a name="l01068"></a><span class="lineno"> 1068</span>&#160;        <span class="comment">// memorize next position to save processing</span></div>
 <div class="line"><a name="l01069"></a><span class="lineno"> 1069</span>&#160;        detailsContext.nextPageStart = currentPair.<a class="code" href="structnbgl__contentTagValue__t.html#ac54d64394fafb3edc3f5c751214e3a50">value</a> + len;</div>
