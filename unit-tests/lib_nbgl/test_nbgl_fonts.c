@@ -104,13 +104,18 @@ static void test_get_length(void **state __attribute__((unused)))
     nbgl_textWrapOnNbLines(BAGL_FONT_INTER_SEMIBOLD_24px, textToWrap, 156, 2);
     assert_string_equal(textToWrap, "toto");
 
-    strcpy(textToWrap, "bonjour tu aimes les mois");
+    width = nbgl_getTextWidth(BAGL_FONT_INTER_SEMIBOLD_24px, "aimesllesn...");
+    assert_int_equal(width, 146);
+    width = nbgl_getTextWidth(BAGL_FONT_INTER_SEMIBOLD_24px, "aimesllesno");
+    assert_int_equal(width, 140);
+
+    strcpy(textToWrap, "bonjour tu aimesllesnois");
     nbgl_textWrapOnNbLines(BAGL_FONT_INTER_SEMIBOLD_24px, textToWrap, 156, 2);
-    assert_string_equal(textToWrap, "bonjour tu\naimes les...");
+    assert_string_equal(textToWrap, "bonjour tu\naimesllesn...");
 
     strcpy(textToWrap, "bonjourtuaimestr les mois");
     nbgl_textWrapOnNbLines(BAGL_FONT_INTER_SEMIBOLD_24px, textToWrap, 156, 2);
-    assert_string_equal(textToWrap, "bonjourtuaimestr les...");
+    assert_string_equal(textToWrap, "bonjourtuaimestr les ...");
 
     nbgl_textReduceOnNbLines(BAGL_FONT_INTER_SEMIBOLD_24px,
                              "bc1pkdcufjh6dxjaEZFZEFZFGGEaa05hudxqgfffggghhhhhhffffffff5fhspfmZAFEZ"
@@ -224,6 +229,14 @@ static void test_get_length(void **state __attribute__((unused)))
     assert_int_equal(
         len,
         strlen("\bFCC Notes\b\nThis device complies with Part 15 of the FCC Rules. Operation "));
+
+    nbgl_getTextMaxLenInNbLines(BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp,
+                                "DED80D16B34ED27A0A92E6554FEAD680B40238BFFCB44FA5185D8B4BF9C45696",
+                                114,
+                                3,
+                                &len,
+                                true);
+    assert_int_equal(len, 51);
 
     uint8_t nbPages = nbgl_getTextNbPagesInWidth(
         BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp,
