@@ -239,6 +239,15 @@ void nbgl_useCaseReview(nbgl_operationType_t              operationType,
                         const char                       *finishTitle,
                         nbgl_choiceCallback_t             choiceCallback);
 
+void nbgl_useCaseReviewBlindSigning(nbgl_operationType_t              operationType,
+                                    const nbgl_contentTagValueList_t *tagValueList,
+                                    const nbgl_icon_details_t        *icon,
+                                    const char                       *reviewTitle,
+                                    const char                       *reviewSubTitle,
+                                    const char                       *finishTitle,
+                                    const nbgl_tipBox_t              *tipBox,
+                                    nbgl_choiceCallback_t             choiceCallback);
+
 void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
                                 const nbgl_contentTagValueList_t *tagValueList,
                                 const nbgl_icon_details_t        *icon,
