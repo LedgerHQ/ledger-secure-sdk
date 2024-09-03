@@ -1053,8 +1053,8 @@ static void displayDetailsPage(uint8_t detailsPage, bool forceFullRefresh)
         currentPair.value = detailsContext.nextPageStart;
     }
     detailsContext.currentPage = detailsPage;
-    uint16_t nbLines
-        = nbgl_getTextNbLinesInWidth(SMALL_BOLD_FONT, currentPair.value, AVAILABLE_WIDTH, false);
+    uint16_t nbLines           = nbgl_getTextNbLinesInWidth(
+        SMALL_BOLD_FONT, currentPair.value, AVAILABLE_WIDTH, detailsContext.wrapping);
 
     if (nbLines > NB_MAX_LINES_IN_DETAILS) {
         uint16_t len;
@@ -1063,7 +1063,7 @@ static void displayDetailsPage(uint8_t detailsPage, bool forceFullRefresh)
                                     AVAILABLE_WIDTH,
                                     NB_MAX_LINES_IN_DETAILS,
                                     &len,
-                                    false);
+                                    detailsContext.wrapping);
         len -= 3;
         // memorize next position to save processing
         detailsContext.nextPageStart = currentPair.value + len;
