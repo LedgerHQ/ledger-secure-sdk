@@ -1888,6 +1888,7 @@ uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPai
     while (nbPairsInPage < nbPairs) {
         const nbgl_layoutTagValue_t *pair;
         nbgl_font_id_e               value_font;
+        uint16_t                     nbLines;
 
         // margin between pairs
         // 12 or 24 px between each tag/value pair
@@ -1939,7 +1940,10 @@ uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPai
         // value height
         currentHeight += nbgl_getTextHeightInWidth(
             value_font, pair->value, AVAILABLE_WIDTH, tagValueList->wrapping);
-        if (currentHeight >= TAG_VALUE_AREA_HEIGHT) {
+        // nb lines for value
+        nbLines = nbgl_getTextNbLinesInWidth(
+            value_font, pair->value, AVAILABLE_WIDTH, tagValueList->wrapping);
+        if ((currentHeight >= TAG_VALUE_AREA_HEIGHT) || (nbLines > NB_MAX_LINES_IN_REVIEW)) {
             if (nbPairsInPage == 0) {
                 // Pair too long to fit in a single screen
                 // It will be the only one of the page and has a specific display behavior
