@@ -47,6 +47,11 @@
 /* max number of char for reduced QR Code address */
 #define QRCODE_REDUCED_ADDR_LEN 128
 
+// macros to ease access to shared contexts
+#define keypadContext              sharedContext.keypad
+#define addressConfirmationContext sharedContext.addressConfirmation
+#define blindSigningContext        sharedContext.blindSigning
+
 /**********************
  *      TYPEDEFS
  **********************/
@@ -99,6 +104,29 @@ typedef struct KeypadContext_s {
     bool           hidden;
 } KeypadContext_t;
 #endif
+
+typedef struct BlindSigningContext_s {
+    bool                              isStreaming;
+    nbgl_operationType_t              operationType;
+    const nbgl_contentTagValueList_t *tagValueList;
+    const nbgl_icon_details_t        *icon;
+    const char                       *reviewTitle;
+    const char                       *reviewSubTitle;
+    const char                       *finishTitle;
+    const nbgl_tipBox_t              *tipBox;
+    nbgl_choiceCallback_t             choiceCallback;
+    nbgl_layout_t                    *layoutCtx;
+} BlindSigningContext_t;
+
+// this union is intended to save RAM for context storage
+// indeed, these three contexts cannot happen simultaneously
+typedef union {
+#ifdef NBGL_KEYPAD
+    KeypadContext_t keypad;
+#endif
+    AddressConfirmationContext_t addressConfirmation;
+    BlindSigningContext_t        blindSigning;
+} SharedContext_t;
 
 typedef struct {
     nbgl_genericContents_t genericContents;
@@ -187,11 +215,8 @@ static NavType_t                 navType;
 
 static DetailsContext_t detailsContext;
 
-static AddressConfirmationContext_t addressConfirmationContext;
-
-#ifdef NBGL_KEYPAD
-static KeypadContext_t keypadContext;
-#endif
+// multi-purpose context shared for non-concurrent usages
+static SharedContext_t sharedContext;
 
 // contexts for generic navigation
 static GenericContext_t genericContext;
@@ -245,6 +270,23 @@ static void bundleNavStartSettingsAtPage(uint8_t initSettingPage);
 static void bundleNavStartSettings(void);
 
 static void bundleNavReviewStreamingChoice(bool confirm);
+static void blindSigningWarning(void);
+static void useCaseReview(nbgl_operationType_t              operationType,
+                          const nbgl_contentTagValueList_t *tagValueList,
+                          const nbgl_icon_details_t        *icon,
+                          const char                       *reviewTitle,
+                          const char                       *reviewSubTitle,
+                          const char                       *finishTitle,
+                          const nbgl_tipBox_t              *tipBox,
+                          nbgl_choiceCallback_t             choiceCallback,
+                          bool                              isLight,
+                          bool                              playNotifSound);
+static void useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
+                                        const nbgl_icon_details_t *icon,
+                                        const char                *reviewTitle,
+                                        const char                *reviewSubTitle,
+                                        nbgl_choiceCallback_t      choiceCallback,
+                                        bool                       playNotifSound);
 
 static void reset_callbacks(void)
 {
@@ -914,7 +956,8 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
     }
 
     bool isFirstOrLastPage
-        = (p_content->type == CENTERED_INFO) || (p_content->type == INFO_LONG_PRESS);
+        = ((p_content->type == CENTERED_INFO) || (p_content->type == EXTENDED_CENTER))
+          || (p_content->type == INFO_LONG_PRESS);
     bool isStreamingNavAndBlindOperation
         = (navType == STREAMING_NAV)
           && (bundleNavContext.reviewStreaming.operationType & BLIND_OPERATION);
@@ -1646,6 +1689,54 @@ static void bundleNavReviewStreamingChoice(bool confirm)
     }
 }
 
+// function called when the warning page of Blind Signing review buttons are pressed
+static void blindSigningWarningCallback(bool confirm)
+{
+    if (confirm) {  // top button to exit
+        blindSigningContext.choiceCallback(false);
+    }
+    else {  // bottom button to continue to review
+        if (blindSigningContext.isStreaming) {
+            useCaseReviewStreamingStart(blindSigningContext.operationType,
+                                        blindSigningContext.icon,
+                                        blindSigningContext.reviewTitle,
+                                        blindSigningContext.reviewSubTitle,
+                                        blindSigningContext.choiceCallback,
+                                        false);
+        }
+        else {
+            useCaseReview(blindSigningContext.operationType,
+                          blindSigningContext.tagValueList,
+                          blindSigningContext.icon,
+                          blindSigningContext.reviewTitle,
+                          blindSigningContext.reviewSubTitle,
+                          blindSigningContext.finishTitle,
+                          blindSigningContext.tipBox,
+                          blindSigningContext.choiceCallback,
+                          false,
+                          false);
+        }
+    }
+}
+
+// function used to display the warning page when starting a Bling Signing review
+static void blindSigningWarning(void)
+{
+    // Play notification sound
+#ifdef HAVE_PIEZO_SOUND
+    io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
+#endif  // HAVE_PIEZO_SOUND
+    nbgl_useCaseChoice(
+        &C_Warning_64px,
+        "Blind signing ahead",
+        "This transaction's details are not fully verifiable. If you sign it, you could lose all "
+        "your assets.",
+        "Back to safety",
+        "Continue anyway",
+        blindSigningWarningCallback);
+}
+
+// function to factorize code for all simple reviews
 static void useCaseReview(nbgl_operationType_t              operationType,
                           const nbgl_contentTagValueList_t *tagValueList,
                           const nbgl_icon_details_t        *icon,
@@ -1654,7 +1745,8 @@ static void useCaseReview(nbgl_operationType_t              operationType,
                           const char                       *finishTitle,
                           const nbgl_tipBox_t              *tipBox,
                           nbgl_choiceCallback_t             choiceCallback,
-                          bool                              isLight)
+                          bool                              isLight,
+                          bool                              playNotifSound)
 {
     reset_callbacks();
     memset(&genericContext, 0, sizeof(genericContext));
@@ -1708,10 +1800,58 @@ static void useCaseReview(nbgl_operationType_t              operationType,
     uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
     prepareNavInfo(true, nbPages, getRejectReviewText(operationType));
 
+    // Play notification sound if required
+    if (playNotifSound) {
 #ifdef HAVE_PIEZO_SOUND
-    // Play notification sound
-    io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
+        io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
 #endif  // HAVE_PIEZO_SOUND
+    }
+
+    displayGenericContextPage(0, true);
+}
+
+// function to factorize code for all streaming reviews
+static void useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
+                                        const nbgl_icon_details_t *icon,
+                                        const char                *reviewTitle,
+                                        const char                *reviewSubTitle,
+                                        nbgl_choiceCallback_t      choiceCallback,
+                                        bool                       playNotifSound)
+{
+    reset_callbacks();
+    memset(&genericContext, 0, sizeof(genericContext));
+
+    bundleNavContext.reviewStreaming.operationType  = operationType;
+    bundleNavContext.reviewStreaming.choiceCallback = choiceCallback;
+    bundleNavContext.reviewStreaming.icon           = icon;
+
+    // memorize context
+    onChoice  = bundleNavReviewStreamingChoice;
+    navType   = STREAMING_NAV;
+    pageTitle = NULL;
+
+    genericContext.genericContents.contentsList = localContentsList;
+    genericContext.genericContents.nbContents   = 1;
+    memset(localContentsList, 0, 1 * sizeof(nbgl_content_t));
+
+    // First a centered info
+    STARTING_CONTENT.type = EXTENDED_CENTER;
+    prepareReviewFirstPage(
+        &STARTING_CONTENT.content.extendedCenter.contentCenter, icon, reviewTitle, reviewSubTitle);
+
+    // compute number of pages & fill navigation structure
+    bundleNavContext.reviewStreaming.stepPageNb
+        = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
+    prepareNavInfo(true, NBGL_NO_PROGRESS_INDICATOR, getRejectReviewText(operationType));
+    // no back button on first page
+    navInfo.navWithButtons.backButton = false;
+
+    // Play notification sound if required
+    if (playNotifSound) {
+#ifdef HAVE_PIEZO_SOUND
+        io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
+#endif  // HAVE_PIEZO_SOUND
+    }
 
     displayGenericContextPage(0, true);
 }
@@ -2833,7 +2973,8 @@ void nbgl_useCaseReview(nbgl_operationType_t              operationType,
                   finishTitle,
                   NULL,
                   choiceCallback,
-                  false);
+                  false,
+                  true);
 }
 
 /**
@@ -2870,9 +3011,52 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
                   finishTitle,
                   tipBox,
                   choiceCallback,
-                  false);
+                  false,
+                  true);
 }
 
+/**
+ * @brief Draws a flow of pages of a blind-signing review. The review is preceded by a warning page
+ *
+ * Navigation operates with either swipe or navigation
+ * keys at bottom right. The last page contains a long-press button with the given finishTitle and
+ * the given icon.
+ * @note  All tag/value pairs are provided in the API and the number of pages is automatically
+ * computed, the last page being a long press one
+ *
+ * @param operationType type of operation (Operation, Transaction, Message)
+ * @param tagValueList list of tag/value pairs
+ * @param icon icon used on first and last review page
+ * @param reviewTitle string used in the first review page
+ * @param reviewSubTitle string to set under reviewTitle (can be NULL)
+ * @param finishTitle string used in the last review page
+ * @param tipBox parameter to build a tip-box and necessary modal (can be NULL)
+ * @param choiceCallback callback called when operation is accepted (param is true) or rejected
+ * (param is false)
+ */
+void nbgl_useCaseReviewBlindSigning(nbgl_operationType_t              operationType,
+                                    const nbgl_contentTagValueList_t *tagValueList,
+                                    const nbgl_icon_details_t        *icon,
+                                    const char                       *reviewTitle,
+                                    const char                       *reviewSubTitle,
+                                    const char                       *finishTitle,
+                                    const nbgl_tipBox_t              *tipBox,
+                                    nbgl_choiceCallback_t             choiceCallback)
+{
+    memset(&blindSigningContext, 0, sizeof(blindSigningContext));
+
+    blindSigningContext.isStreaming    = false;
+    blindSigningContext.operationType  = operationType | BLIND_OPERATION;
+    blindSigningContext.tagValueList   = tagValueList;
+    blindSigningContext.icon           = icon;
+    blindSigningContext.reviewTitle    = reviewTitle;
+    blindSigningContext.reviewSubTitle = reviewSubTitle;
+    blindSigningContext.finishTitle    = finishTitle;
+    blindSigningContext.tipBox         = tipBox;
+    blindSigningContext.choiceCallback = choiceCallback;
+
+    blindSigningWarning();
+}
 /**
  * @brief Draws a flow of pages of a light review. Navigation operates with either swipe or
  * navigation keys at bottom right. The last page contains a button/footer with the given
@@ -2905,6 +3089,7 @@ void nbgl_useCaseReviewLight(nbgl_operationType_t              operationType,
                   finishTitle,
                   NULL,
                   choiceCallback,
+                  true,
                   true);
 }
 
@@ -2962,40 +3147,39 @@ void nbgl_useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
                                       const char                *reviewSubTitle,
                                       nbgl_choiceCallback_t      choiceCallback)
 {
-    reset_callbacks();
-    memset(&genericContext, 0, sizeof(genericContext));
+    useCaseReviewStreamingStart(
+        operationType, icon, reviewTitle, reviewSubTitle, choiceCallback, true);
+}
 
-    bundleNavContext.reviewStreaming.operationType  = operationType;
-    bundleNavContext.reviewStreaming.choiceCallback = choiceCallback;
-    bundleNavContext.reviewStreaming.icon           = icon;
+/**
+ * @brief Start drawing the flow of pages of a blind-signing review. The review is preceded by a
+ * warning page
+ * @note  This should be followed by calls to nbgl_useCaseReviewStreamingContinue and finally to
+ *        nbgl_useCaseReviewStreamingFinish.
+ *
+ * @param operationType type of operation (Operation, Transaction, Message)
+ * @param icon icon used on first and last review page
+ * @param reviewTitle string used in the first review page
+ * @param reviewSubTitle string to set under reviewTitle (can be NULL)
+ * @param choiceCallback callback called when more operation data are needed (param is true) or
+ * operation is rejected (param is false)
+ */
+void nbgl_useCaseReviewStreamingBlindSigningStart(nbgl_operationType_t       operationType,
+                                                  const nbgl_icon_details_t *icon,
+                                                  const char                *reviewTitle,
+                                                  const char                *reviewSubTitle,
+                                                  nbgl_choiceCallback_t      choiceCallback)
+{
+    memset(&blindSigningContext, 0, sizeof(blindSigningContext));
 
-    // memorize context
-    onChoice  = bundleNavReviewStreamingChoice;
-    navType   = STREAMING_NAV;
-    pageTitle = NULL;
+    blindSigningContext.isStreaming    = true;
+    blindSigningContext.operationType  = operationType | BLIND_OPERATION;
+    blindSigningContext.icon           = icon;
+    blindSigningContext.reviewTitle    = reviewTitle;
+    blindSigningContext.reviewSubTitle = reviewSubTitle;
+    blindSigningContext.choiceCallback = choiceCallback;
 
-    genericContext.genericContents.contentsList = localContentsList;
-    genericContext.genericContents.nbContents   = 1;
-    memset(localContentsList, 0, 1 * sizeof(nbgl_content_t));
-
-    // First a centered info
-    STARTING_CONTENT.type = EXTENDED_CENTER;
-    prepareReviewFirstPage(
-        &STARTING_CONTENT.content.extendedCenter.contentCenter, icon, reviewTitle, reviewSubTitle);
-
-    // compute number of pages & fill navigation structure
-    bundleNavContext.reviewStreaming.stepPageNb
-        = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
-    prepareNavInfo(true, NBGL_NO_PROGRESS_INDICATOR, getRejectReviewText(operationType));
-    // no back button on first page
-    navInfo.navWithButtons.backButton = false;
-
-#ifdef HAVE_PIEZO_SOUND
-    // Play notification sound
-    io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
-#endif  // HAVE_PIEZO_SOUND
-
-    displayGenericContextPage(0, true);
+    blindSigningWarning();
 }
 
 /**
