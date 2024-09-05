@@ -550,7 +550,9 @@ static void pageCallback(int token, uint8_t index)
     }
     else {  // probably a control provided by caller
         if (onContentAction != NULL) {
+            PRINTF("Callback onContentAction start\n");
             onContentAction(token, index, navInfo.activePage);
+            PRINTF("Callback onContentAction end\n");
         }
         if (onControls != NULL) {
             onControls(token, index);

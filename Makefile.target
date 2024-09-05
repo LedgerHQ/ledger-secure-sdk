@@ -56,7 +56,7 @@ DEP_DIR := $(TARGET_BUILD_DIR)/dep
 GEN_SRC_DIR := $(TARGET_BUILD_DIR)/gen_src
 
 # Debug mode disabled by default
-DEBUG:=0
+DEBUG:=1
 
 # define the default makefile target (high in include to avoid glyph.h or what not specific target to be the default one when no target passed on the make command line)
 all: default
