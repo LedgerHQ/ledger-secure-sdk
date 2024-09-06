@@ -81,6 +81,11 @@
 #define APPLICATION_FLAG_BACKGROUND_IMG 0x10000
 
 /**
+ * Application was not yet audited by ledger
+ */
+#define APPLICATION_FLAG_NOT_REVIEWED 0x20000
+
+/**
  *  Custom AEM flag to test AEM capabilities without standard UX permissions
  */
 #if defined(BOLOS_DEBUG_UX_PERMISSION_FLAG)
