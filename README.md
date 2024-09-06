@@ -58,31 +58,31 @@ In short, to build an app for an OS, you should:
 This list the API_LEVEL branches with their purposed (corresponding OS) and state if they should still be patched or not (OS not “active” anymore).
 OS release candidates are only kept in the list when a corresponding OS release production might be released on the same API_LEVEL.
 
-| Name    | Related OS                                                                                                | Active
-|---------|-----------------------------------------------------------------------------------------------------------|-------------------
-| LNS     | <br/> nanos_2.1.0                                                                                         | :heavy_check_mark:
-| 1       | nanox_2.1.0 <br/> nanos+_1.1.0                                                                            | :x:
-| 2       | only rc releases                                                                                          | :x:
-| 3       | only rc releases                                                                                          | :x:
-| 4       | only rc releases                                                                                          | :x:
-| 5       | nanox_2.2.{0, 1, 2, 3} <br/> nanos+ 1.1.1                                                                 | :heavy_check_mark:
-| 6       | only rc releases                                                                                          | :x:
-| 7 / 7.1 | only rc releases                                                                                          | :x:
-| 7.2     | only rc releases<br/> (not compatible due <br/> to font update)                                           | :x:
-| 8       | stax_1.0.0                                                                                                | :x:
-| 9       | only rc releases                                                                                          | :x:
-| 10      | stax_1.1.0                                                                                                | :x:
-| 11      | stax_1.2.0 <br/> stax_1.2.1                                                                               | :x:
-| 12      | nanox_2.3.0-rc2 <br/> nanos+_1.2.0-rc2                                                                    | :x:
-| 13      | stax_1.3.0                                                                                                | :x:
-| 14      | only rc releases                                                                                          | :x:
-| 15      | stax_1.4.0                                                                                                | :heavy_check_mark:
-| 16      | europa_0.1.0-re1                                                                                          | :x:
-| 17      | europa_0.1.0-re2                                                                                          | :x:
-| 18      | europa_0.1.0-re3 <br/> flex_0.2.0-rc1 <br /> flex_0.2.0-rc2 <br /> nanox_2.3.0-rc5 <br/> nanos+_1.2.0-rc5 | :heavy_check_mark:
-| 19      | flex_1.0.0-rc1 <br/> flex_1.0.0-rc2 <br/> flex_1.0.0 <br/> flex_1.0.1 <br/>                               | :x:
-| 20      | stax_1.5.0-rc1 <br/> flex_1.1.0-rc1                                                                       | :heavy_check_mark:
-| 21      | stax_1.5.0-rc2                                                                                            | :heavy_check_mark:
+| Name    | Related OS                                                                                                                    | Active
+|---------|-------------------------------------------------------------------------------------------------------------------------------|-------------------
+| LNS     | <br/> nanos_2.1.0                                                                                                             | :heavy_check_mark:
+| 1       | nanox_2.1.0 <br/> nanos+_1.1.0                                                                                                | :x:
+| 2       | only rc releases                                                                                                              | :x:
+| 3       | only rc releases                                                                                                              | :x:
+| 4       | only rc releases                                                                                                              | :x:
+| 5       | nanox_2.2.{0, 1, 2, 3} <br/> nanos+ 1.1.1                                                                                     | :heavy_check_mark:
+| 6       | only rc releases                                                                                                              | :x:
+| 7 / 7.1 | only rc releases                                                                                                              | :x:
+| 7.2     | only rc releases<br/> (not compatible due <br/> to font update)                                                               | :x:
+| 8       | stax_1.0.0                                                                                                                    | :x:
+| 9       | only rc releases                                                                                                              | :x:
+| 10      | stax_1.1.0                                                                                                                    | :x:
+| 11      | stax_1.2.0 <br/> stax_1.2.1                                                                                                   | :x:
+| 12      | nanox_2.3.0-rc2 <br/> nanos+_1.2.0-rc2                                                                                        | :x:
+| 13      | stax_1.3.0                                                                                                                    | :x:
+| 14      | only rc releases                                                                                                              | :x:
+| 15      | stax_1.4.0                                                                                                                    | :heavy_check_mark:
+| 16      | europa_0.1.0-re1                                                                                                              | :x:
+| 17      | europa_0.1.0-re2                                                                                                              | :x:
+| 18      | europa_0.1.0-re3 <br/> flex_0.2.0-rc1 <br /> flex_0.2.0-rc2 <br /> nanox_2.3.0-rc5 <br/> nanos+_1.2.0-rc5  <br/> nanos+_1.2.0 | :heavy_check_mark:
+| 19      | flex_1.0.0-rc1 <br/> flex_1.0.0-rc2 <br/> flex_1.0.0 <br/> flex_1.0.1 <br/>                                                   | :x:
+| 20      | stax_1.5.0-rc1 <br/> flex_1.1.0-rc1                                                                                           | :x:
+| 21      | stax_1.5.0-rc2 <br/> flex_1.1.0-rc2 <br/> stax_1.5.0 <br/> flex_1.1.0 <br/> flex_1.1.1 <br/>                                  | :heavy_check_mark:
 
 ### Cherry-picking process:
 

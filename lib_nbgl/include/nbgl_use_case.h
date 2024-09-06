@@ -49,7 +49,11 @@ extern "C" {
 /**
  *  @brief maximum number of lines for value field in review pages
  */
-#define NB_MAX_LINES_IN_REVIEW 9
+#ifdef TARGET_STAX
+#define NB_MAX_LINES_IN_REVIEW 11
+#else  // TARGET_STAX
+#define NB_MAX_LINES_IN_REVIEW 10
+#endif  // TARGET_STAX
 
 /**
  *  @brief maximum number of simultaneously displayed pairs in review pages.
@@ -62,6 +66,11 @@ extern "C" {
  *  @brief height available for tag/value pairs display
  */
 #define TAG_VALUE_AREA_HEIGHT (SCREEN_HEIGHT - SMALL_CENTERING_HEADER - SIMPLE_FOOTER_HEIGHT)
+
+/**
+ *  @brief height available for infos pairs display
+ */
+#define INFOS_AREA_HEIGHT (SCREEN_HEIGHT - TOUCHABLE_HEADER_BAR_HEIGHT)
 
 /**
  *  @brief Default strings used in the Home tagline
@@ -151,6 +160,21 @@ typedef struct {
 } nbgl_homeAction_t;
 
 /**
+ * @brief The necessary parameters to build a tip-box in first review page and
+ * the modal if this tip box is touched
+ *
+ */
+typedef struct {
+    const char                *text;  ///< text of the tip-box
+    const nbgl_icon_details_t *icon;  ///< icon of the tip-box
+    const char *modalTitle;   ///< title given to modal window displayed when tip-box is touched
+    nbgl_contentType_t type;  ///< type of page content in the following union
+    union {
+        const nbgl_contentInfoList_t infos;  ///< infos pairs displayed in modal.
+    };
+} nbgl_tipBox_t;
+
+/**
  * @brief The different types of operation to review
  *
  */
@@ -219,6 +243,24 @@ void nbgl_useCaseReview(nbgl_operationType_t              operationType,
                         const char                       *finishTitle,
                         nbgl_choiceCallback_t             choiceCallback);
 
+void nbgl_useCaseReviewBlindSigning(nbgl_operationType_t              operationType,
+                                    const nbgl_contentTagValueList_t *tagValueList,
+                                    const nbgl_icon_details_t        *icon,
+                                    const char                       *reviewTitle,
+                                    const char                       *reviewSubTitle,
+                                    const char                       *finishTitle,
+                                    const nbgl_tipBox_t              *tipBox,
+                                    nbgl_choiceCallback_t             choiceCallback);
+
+void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
+                                const nbgl_contentTagValueList_t *tagValueList,
+                                const nbgl_icon_details_t        *icon,
+                                const char                       *reviewTitle,
+                                const char                       *reviewSubTitle,
+                                const char                       *finishTitle,
+                                const nbgl_tipBox_t              *tipBox,
+                                nbgl_choiceCallback_t             choiceCallback);
+
 void nbgl_useCaseReviewLight(nbgl_operationType_t              operationType,
                              const nbgl_contentTagValueList_t *tagValueList,
                              const nbgl_icon_details_t        *icon,
@@ -242,6 +284,12 @@ void nbgl_useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
                                       const char                *reviewTitle,
                                       const char                *reviewSubTitle,
                                       nbgl_choiceCallback_t      choiceCallback);
+
+void nbgl_useCaseReviewStreamingBlindSigningStart(nbgl_operationType_t       operationType,
+                                                  const nbgl_icon_details_t *icon,
+                                                  const char                *reviewTitle,
+                                                  const char                *reviewSubTitle,
+                                                  nbgl_choiceCallback_t      choiceCallback);
 
 void nbgl_useCaseReviewStreamingContinueExt(const nbgl_contentTagValueList_t *tagValueList,
                                             nbgl_choiceCallback_t             choiceCallback,
@@ -279,6 +327,22 @@ uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPai
                                          const nbgl_contentTagValueList_t *tagValueList,
                                          uint8_t                           startIndex,
                                          bool                             *requireSpecificDisplay);
+uint8_t nbgl_useCaseGetNbInfosInPage(uint8_t                       nbInfos,
+                                     const nbgl_contentInfoList_t *infosList,
+                                     uint8_t                       startIndex,
+                                     bool                          withNav);
+uint8_t nbgl_useCaseGetNbSwitchesInPage(uint8_t                           nbSwitches,
+                                        const nbgl_contentSwitchesList_t *switchesList,
+                                        uint8_t                           startIndex,
+                                        bool                              withNav);
+uint8_t nbgl_useCaseGetNbBarsInPage(uint8_t                       nbBars,
+                                    const nbgl_contentBarsList_t *barsList,
+                                    uint8_t                       startIndex,
+                                    bool                          withNav);
+uint8_t nbgl_useCaseGetNbChoicesInPage(uint8_t                          nbChoices,
+                                       const nbgl_contentRadioChoice_t *choicesList,
+                                       uint8_t                          startIndex,
+                                       bool                             withNav);
 uint8_t nbgl_useCaseGetNbPagesForTagValueList(const nbgl_contentTagValueList_t *tagValueList);
 
 // use case drawing

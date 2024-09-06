@@ -10,10 +10,21 @@
 #include "nbgl_screen.h"
 #include "nbgl_debug.h"
 #include "ux_loc.h"
+#include "os_task.h"
 
 #define UNUSED(x) (void) x
 
 unsigned long gLogger = 0;
+
+void *pic(void *addr)
+{
+    return addr;
+}
+
+unsigned int os_sched_current_task(void)
+{
+    return TASK_BOLOS_UX;
+}
 
 void mainExit(int exitCode)
 {
@@ -30,11 +41,9 @@ void nbgl_screen_reinit(void)
     return;
 }
 
-void nbgl_redrawObject(nbgl_obj_t *obj, nbgl_obj_t *prevObj, bool computePosition)
+void nbgl_objDraw(nbgl_obj_t *obj)
 {
     UNUSED(obj);
-    UNUSED(prevObj);
-    UNUSED(computePosition);
 }
 
 static void test_push_pop(void **state __attribute__((unused)))

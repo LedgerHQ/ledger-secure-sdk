@@ -151,11 +151,11 @@ Once defined and set as children (or sub-children) of the main @ref SCREEN, all 
 with a simple call to @ref nbgl_screenRedraw().
 
 But if only a given object has been modified since the last redraw, for example by changing its text or its color, it can be redrawn
-(with all of its children and sub-children, if any) with a call to @ref nbgl_redrawObject().
+(with all of its children and sub-children, if any) with a call to @ref nbgl_objDraw().
 
 The only properties that should not have changed for this object are its dimensions and position.
 
-Except in some specific cases, the previousObj parameter of @ref nbgl_redrawObject() can be set to NULL and computeDimensions set to false.
+Except in some specific cases, the previousObj parameter of @ref nbgl_objDraw() can be set to NULL and computeDimensions set to false.
 
 @subsection refresh Refreshing screen
 

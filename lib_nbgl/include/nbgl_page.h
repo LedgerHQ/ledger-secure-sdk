@@ -61,6 +61,7 @@ typedef struct nbgl_pageContent_s {
     nbgl_contentType_t type;                  ///< type of page content in the following union
     union {
         nbgl_contentCenteredInfo_t    centeredInfo;     ///< @ref CENTERED_INFO type
+        nbgl_contentExtendedCenter_t  extendedCenter;   ///< @ref EXTENDED_CENTER type
         nbgl_contentInfoLongPress_t   infoLongPress;    ///< @ref INFO_LONG_PRESS type
         nbgl_contentInfoButton_t      infoButton;       ///< @ref INFO_BUTTON type
         nbgl_contentTagValueList_t    tagValueList;     ///< @ref TAG_VALUE_LIST type

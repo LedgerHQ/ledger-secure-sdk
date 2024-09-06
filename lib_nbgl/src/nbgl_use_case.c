@@ -47,6 +47,11 @@
 /* max number of char for reduced QR Code address */
 #define QRCODE_REDUCED_ADDR_LEN 128
 
+// macros to ease access to shared contexts
+#define keypadContext              sharedContext.keypad
+#define addressConfirmationContext sharedContext.addressConfirmation
+#define blindSigningContext        sharedContext.blindSigning
+
 /**********************
  *      TYPEDEFS
  **********************/
@@ -64,7 +69,8 @@ enum {
     CONFIRM_TOKEN,
     REJECT_TOKEN,
     VALUE_ALIAS_TOKEN,
-    BLIND_WARNING_TOKEN
+    BLIND_WARNING_TOKEN,
+    TIP_BOX_TOKEN
 };
 
 typedef enum {
@@ -98,6 +104,29 @@ typedef struct KeypadContext_s {
     bool           hidden;
 } KeypadContext_t;
 #endif
+
+typedef struct BlindSigningContext_s {
+    bool                              isStreaming;
+    nbgl_operationType_t              operationType;
+    const nbgl_contentTagValueList_t *tagValueList;
+    const nbgl_icon_details_t        *icon;
+    const char                       *reviewTitle;
+    const char                       *reviewSubTitle;
+    const char                       *finishTitle;
+    const nbgl_tipBox_t              *tipBox;
+    nbgl_choiceCallback_t             choiceCallback;
+    nbgl_layout_t                    *layoutCtx;
+} BlindSigningContext_t;
+
+// this union is intended to save RAM for context storage
+// indeed, these three contexts cannot happen simultaneously
+typedef union {
+#ifdef NBGL_KEYPAD
+    KeypadContext_t keypad;
+#endif
+    AddressConfirmationContext_t addressConfirmation;
+    BlindSigningContext_t        blindSigning;
+} SharedContext_t;
 
 typedef struct {
     nbgl_genericContents_t genericContents;
@@ -175,6 +204,10 @@ static nbgl_page_t *modalPageContext;
 // context for pages
 static const char *pageTitle;
 
+// context for tip-box
+static const char            *tipBoxModalTitle;
+static nbgl_contentInfoList_t tipBoxInfoList;
+
 // context for navigation use case
 static nbgl_pageNavigationInfo_t navInfo;
 static bool                      forwardNavOnly;
@@ -182,11 +215,8 @@ static NavType_t                 navType;
 
 static DetailsContext_t detailsContext;
 
-static AddressConfirmationContext_t addressConfirmationContext;
-
-#ifdef NBGL_KEYPAD
-static KeypadContext_t keypadContext;
-#endif
+// multi-purpose context shared for non-concurrent usages
+static SharedContext_t sharedContext;
 
 // contexts for generic navigation
 static GenericContext_t genericContext;
@@ -199,29 +229,17 @@ static nbgl_BundleNavContext_t bundleNavContext;
 
 // indexed by nbgl_contentType_t
 static const uint8_t nbMaxElementsPerContentType[] = {
-#ifdef TARGET_STAX
     1,  // CENTERED_INFO
+    1,  // EXTENDED_CENTER
     1,  // INFO_LONG_PRESS
     1,  // INFO_BUTTON
     1,  // TAG_VALUE_LIST (computed dynamically)
     1,  // TAG_VALUE_DETAILS
     1,  // TAG_VALUE_CONFIRM
-    3,  // SWITCHES_LIST
-    3,  // INFOS_LIST
-    5,  // CHOICES_LIST
-    5,  // BARS_LIST
-#else   // TARGET_STAX
-    1,  // CENTERED_INFO
-    1,  // INFO_LONG_PRESS
-    1,  // INFO_BUTTON
-    1,  // TAG_VALUE_LIST (computed dynamically)
-    1,  // TAG_VALUE_DETAILS
-    1,  // TAG_VALUE_CONFIRM
-    2,  // SWITCHES_LIST
-    2,  // INFOS_LIST
-    4,  // CHOICES_LIST
-    4,  // BARS_LIST
-#endif  // TARGET_STAX
+    3,  // SWITCHES_LIST (computed dynamically)
+    3,  // INFOS_LIST (computed dynamically)
+    5,  // CHOICES_LIST (computed dynamically)
+    5,  // BARS_LIST (computed dynamically)
 };
 
 #ifdef NBGL_QRCODE
@@ -236,6 +254,7 @@ static void displayReviewPage(uint8_t page, bool forceFullRefresh);
 static void displayDetailsPage(uint8_t page, bool forceFullRefresh);
 static void displayFullValuePage(const nbgl_contentTagValue_t *pair);
 static void displayBlindWarning(nbgl_opType_t opType);
+static void displayTipBoxModal(void);
 static void displaySettingsPage(uint8_t page, bool forceFullRefresh);
 static void displayGenericContextPage(uint8_t pageIdx, bool forceFullRefresh);
 static void pageCallback(int token, uint8_t index);
@@ -251,6 +270,23 @@ static void bundleNavStartSettingsAtPage(uint8_t initSettingPage);
 static void bundleNavStartSettings(void);
 
 static void bundleNavReviewStreamingChoice(bool confirm);
+static void blindSigningWarning(void);
+static void useCaseReview(nbgl_operationType_t              operationType,
+                          const nbgl_contentTagValueList_t *tagValueList,
+                          const nbgl_icon_details_t        *icon,
+                          const char                       *reviewTitle,
+                          const char                       *reviewSubTitle,
+                          const char                       *finishTitle,
+                          const nbgl_tipBox_t              *tipBox,
+                          nbgl_choiceCallback_t             choiceCallback,
+                          bool                              isLight,
+                          bool                              playNotifSound);
+static void useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
+                                        const nbgl_icon_details_t *icon,
+                                        const char                *reviewTitle,
+                                        const char                *reviewSubTitle,
+                                        nbgl_choiceCallback_t      choiceCallback,
+                                        bool                       playNotifSound);
 
 static void reset_callbacks(void)
 {
@@ -356,17 +392,18 @@ static void prepareNavInfo(bool isReview, uint8_t nbPages, const char *rejectTex
     }
 }
 
-static void prepareReviewFirstPage(nbgl_contentCenteredInfo_t *centeredInfo,
-                                   const nbgl_icon_details_t  *icon,
-                                   const char                 *reviewTitle,
-                                   const char                 *reviewSubTitle)
+static void prepareReviewFirstPage(nbgl_contentCenter_t      *contentCenter,
+                                   const nbgl_icon_details_t *icon,
+                                   const char                *reviewTitle,
+                                   const char                *reviewSubTitle)
 {
-    centeredInfo->icon    = icon;
-    centeredInfo->text1   = reviewTitle;
-    centeredInfo->text2   = reviewSubTitle;
-    centeredInfo->text3   = "Swipe to review";
-    centeredInfo->style   = LARGE_CASE_GRAY_INFO;
-    centeredInfo->offsetY = 0;
+    contentCenter->icon        = icon;
+    contentCenter->title       = reviewTitle;
+    contentCenter->description = reviewSubTitle;
+    contentCenter->subText     = "Swipe to review";
+    contentCenter->smallTitle  = NULL;
+    contentCenter->iconHug     = 0;
+    contentCenter->padding     = false;
 }
 
 static void prepareReviewLastPage(nbgl_contentInfoLongPress_t *infoLongPress,
@@ -547,6 +584,9 @@ static void pageCallback(int token, uint8_t index)
             displayBlindWarning(bundleNavContext.review.operationType
                                 & ~(SKIPPABLE_OPERATION | BLIND_OPERATION));
         }
+    }
+    else if (token == TIP_BOX_TOKEN) {
+        displayTipBoxModal();
     }
     else {  // probably a control provided by caller
         if (onContentAction != NULL) {
@@ -770,6 +810,11 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
                    &p_content->content.centeredInfo,
                    sizeof(pageContent->centeredInfo));
             break;
+        case EXTENDED_CENTER:
+            memcpy(&pageContent->extendedCenter,
+                   &p_content->content.extendedCenter,
+                   sizeof(pageContent->extendedCenter));
+            break;
         case INFO_LONG_PRESS:
             memcpy(&pageContent->infoLongPress,
                    &p_content->content.infoLongPress,
@@ -804,9 +849,11 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
                 }
 
                 if (pair->centeredInfo) {
-                    pageContent->type = CENTERED_INFO;
-                    prepareReviewFirstPage(
-                        &pageContent->centeredInfo, pair->valueIcon, pair->item, pair->value);
+                    pageContent->type = EXTENDED_CENTER;
+                    prepareReviewFirstPage(&pageContent->extendedCenter.contentCenter,
+                                           pair->valueIcon,
+                                           pair->item,
+                                           pair->value);
 
                     // Skip population of nbgl_contentTagValueList_t structure
                     p_tagValueList = NULL;
@@ -886,9 +933,9 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
             pageContent->choicesList.nbChoices = nbElementsInPage;
             pageContent->choicesList.names
                 = PIC(&p_content->content.choicesList.names[nextElementIdx]);
-            if ((p_content->content.choicesList.initChoice > nextElementIdx)
+            if ((p_content->content.choicesList.initChoice >= nextElementIdx)
                 && (p_content->content.choicesList.initChoice
-                    <= nextElementIdx + nbElementsInPage)) {
+                    < nextElementIdx + nbElementsInPage)) {
                 pageContent->choicesList.initChoice
                     = p_content->content.choicesList.initChoice - nextElementIdx;
             }
@@ -909,7 +956,8 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
     }
 
     bool isFirstOrLastPage
-        = (p_content->type == CENTERED_INFO) || (p_content->type == INFO_LONG_PRESS);
+        = ((p_content->type == CENTERED_INFO) || (p_content->type == EXTENDED_CENTER))
+          || (p_content->type == INFO_LONG_PRESS);
     bool isStreamingNavAndBlindOperation
         = (navType == STREAMING_NAV)
           && (bundleNavContext.reviewStreaming.operationType & BLIND_OPERATION);
@@ -1048,8 +1096,8 @@ static void displayDetailsPage(uint8_t detailsPage, bool forceFullRefresh)
         currentPair.value = detailsContext.nextPageStart;
     }
     detailsContext.currentPage = detailsPage;
-    uint16_t nbLines
-        = nbgl_getTextNbLinesInWidth(SMALL_BOLD_FONT, currentPair.value, AVAILABLE_WIDTH, false);
+    uint16_t nbLines           = nbgl_getTextNbLinesInWidth(
+        SMALL_BOLD_FONT, currentPair.value, AVAILABLE_WIDTH, detailsContext.wrapping);
 
     if (nbLines > NB_MAX_LINES_IN_DETAILS) {
         uint16_t len;
@@ -1058,7 +1106,7 @@ static void displayDetailsPage(uint8_t detailsPage, bool forceFullRefresh)
                                     AVAILABLE_WIDTH,
                                     NB_MAX_LINES_IN_DETAILS,
                                     &len,
-                                    false);
+                                    detailsContext.wrapping);
         len -= 3;
         // memorize next position to save processing
         detailsContext.nextPageStart = currentPair.value + len;
@@ -1159,6 +1207,35 @@ static void displayBlindWarning(nbgl_opType_t opType)
     // draw & refresh
     nbgl_layoutDraw(genericContext.modalLayout);
     nbgl_refresh();
+}
+
+// function used to display the modal containing tip-box infos
+static void displayTipBoxModal(void)
+{
+    nbgl_pageNavigationInfo_t info    = {.activePage                = 0,
+                                         .nbPages                   = 1,
+                                         .navType                   = NAV_WITH_BUTTONS,
+                                         .quitToken                 = QUIT_TOKEN,
+                                         .navWithButtons.navToken   = NAV_TOKEN,
+                                         .navWithButtons.quitButton = false,
+                                         .navWithButtons.backButton = true,
+                                         .navWithButtons.quitText   = NULL,
+                                         .progressIndicator         = false,
+                                         .tuneId                    = TUNE_TAP_CASUAL};
+    nbgl_pageContent_t        content = {.type                   = INFOS_LIST,
+                                         .topRightIcon           = NULL,
+                                         .infosList.nbInfos      = tipBoxInfoList.nbInfos,
+                                         .infosList.infoTypes    = tipBoxInfoList.infoTypes,
+                                         .infosList.infoContents = tipBoxInfoList.infoContents,
+                                         .title                  = tipBoxModalTitle,
+                                         .titleToken             = QUIT_TOKEN};
+
+    if (modalPageContext != NULL) {
+        nbgl_pageRelease(modalPageContext);
+    }
+    modalPageContext = nbgl_pageDrawGenericContentExt(&pageModalCallback, &info, &content, true);
+
+    nbgl_refreshSpecial(FULL_COLOR_CLEAN_REFRESH);
 }
 
 #ifdef NBGL_QRCODE
@@ -1394,7 +1471,9 @@ static void keypadGenericUseCase(const char                *title,
 }
 #endif
 
-static uint8_t nbgl_useCaseGetNbPagesForContent(const nbgl_content_t *content, uint8_t pageIdxStart)
+static uint8_t nbgl_useCaseGetNbPagesForContent(const nbgl_content_t *content,
+                                                uint8_t               pageIdxStart,
+                                                bool                  isLast)
 {
     uint8_t nbElements = 0;
     uint8_t nbPages    = 0;
@@ -1405,15 +1484,31 @@ static uint8_t nbgl_useCaseGetNbPagesForContent(const nbgl_content_t *content, u
     nbElements = getContentNbElement(content);
 
     while (nbElements > 0) {
+        flag = 0;
+        // if the current page is not the first one (or last), a navigation bar exists
+        bool hasNav = !isLast || (pageIdxStart > 0) || (elemIdx > 0);
         if (content->type == TAG_VALUE_LIST) {
             nbElementsInPage = nbgl_useCaseGetNbTagValuesInPage(
                 nbElements, &content->content.tagValueList, elemIdx, &flag);
         }
+        else if (content->type == INFOS_LIST) {
+            nbElementsInPage = nbgl_useCaseGetNbInfosInPage(
+                nbElements, &content->content.infosList, elemIdx, hasNav);
+        }
+        else if (content->type == SWITCHES_LIST) {
+            nbElementsInPage = nbgl_useCaseGetNbSwitchesInPage(
+                nbElements, &content->content.switchesList, elemIdx, hasNav);
+        }
+        else if (content->type == BARS_LIST) {
+            nbElementsInPage = nbgl_useCaseGetNbBarsInPage(
+                nbElements, &content->content.barsList, elemIdx, hasNav);
+        }
+        else if (content->type == CHOICES_LIST) {
+            nbElementsInPage = nbgl_useCaseGetNbChoicesInPage(
+                nbElements, &content->content.choicesList, elemIdx, hasNav);
+        }
         else {
-            nbElementsInPage = MIN(
-                nbMaxElementsPerContentType[content->type],
-                nbElements);  // TODO hardcoded to 3 for now but should be dynamically computed
-            flag = 0;
+            nbElementsInPage = MIN(nbMaxElementsPerContentType[content->type], nbElements);
         }
 
         elemIdx += nbElementsInPage;
@@ -1438,7 +1533,8 @@ static uint8_t nbgl_useCaseGetNbPagesForGenericContents(
         if (p_content == NULL) {
             return 0;
         }
-        nbPages += nbgl_useCaseGetNbPagesForContent(p_content, pageIdxStart + nbPages);
+        nbPages += nbgl_useCaseGetNbPagesForContent(
+            p_content, pageIdxStart + nbPages, (i == (genericContents->nbContents - 1)));
     }
 
     return nbPages;
@@ -1593,14 +1689,64 @@ static void bundleNavReviewStreamingChoice(bool confirm)
     }
 }
 
+// function called when the warning page of Blind Signing review buttons are pressed
+static void blindSigningWarningCallback(bool confirm)
+{
+    if (confirm) {  // top button to exit
+        blindSigningContext.choiceCallback(false);
+    }
+    else {  // bottom button to continue to review
+        if (blindSigningContext.isStreaming) {
+            useCaseReviewStreamingStart(blindSigningContext.operationType,
+                                        blindSigningContext.icon,
+                                        blindSigningContext.reviewTitle,
+                                        blindSigningContext.reviewSubTitle,
+                                        blindSigningContext.choiceCallback,
+                                        false);
+        }
+        else {
+            useCaseReview(blindSigningContext.operationType,
+                          blindSigningContext.tagValueList,
+                          blindSigningContext.icon,
+                          blindSigningContext.reviewTitle,
+                          blindSigningContext.reviewSubTitle,
+                          blindSigningContext.finishTitle,
+                          blindSigningContext.tipBox,
+                          blindSigningContext.choiceCallback,
+                          false,
+                          false);
+        }
+    }
+}
+
+// function used to display the warning page when starting a Bling Signing review
+static void blindSigningWarning(void)
+{
+    // Play notification sound
+#ifdef HAVE_PIEZO_SOUND
+    io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
+#endif  // HAVE_PIEZO_SOUND
+    nbgl_useCaseChoice(
+        &C_Warning_64px,
+        "Blind signing ahead",
+        "This transaction's details are not fully verifiable. If you sign it, you could lose all "
+        "your assets.",
+        "Back to safety",
+        "Continue anyway",
+        blindSigningWarningCallback);
+}
+
+// function to factorize code for all simple reviews
 static void useCaseReview(nbgl_operationType_t              operationType,
                           const nbgl_contentTagValueList_t *tagValueList,
                           const nbgl_icon_details_t        *icon,
                           const char                       *reviewTitle,
                           const char                       *reviewSubTitle,
                           const char                       *finishTitle,
+                          const nbgl_tipBox_t              *tipBox,
                           nbgl_choiceCallback_t             choiceCallback,
-                          bool                              isLight)
+                          bool                              isLight,
+                          bool                              playNotifSound)
 {
     reset_callbacks();
     memset(&genericContext, 0, sizeof(genericContext));
@@ -1618,9 +1764,20 @@ static void useCaseReview(nbgl_operationType_t              operationType,
     memset(localContentsList, 0, 3 * sizeof(nbgl_content_t));
 
     // First a centered info
-    STARTING_CONTENT.type = CENTERED_INFO;
+    STARTING_CONTENT.type = EXTENDED_CENTER;
     prepareReviewFirstPage(
-        &STARTING_CONTENT.content.centeredInfo, icon, reviewTitle, reviewSubTitle);
+        &STARTING_CONTENT.content.extendedCenter.contentCenter, icon, reviewTitle, reviewSubTitle);
+    if (tipBox != NULL) {
+        STARTING_CONTENT.content.extendedCenter.tipBox.icon   = tipBox->icon;
+        STARTING_CONTENT.content.extendedCenter.tipBox.text   = tipBox->text;
+        STARTING_CONTENT.content.extendedCenter.tipBox.token  = TIP_BOX_TOKEN;
+        STARTING_CONTENT.content.extendedCenter.tipBox.tuneId = TUNE_TAP_CASUAL;
+        tipBoxModalTitle                                      = tipBox->modalTitle;
+        // the only supported type yet is @ref INFOS_LIST
+        if (tipBox->type == INFOS_LIST) {
+            memcpy(&tipBoxInfoList, &tipBox->infos, sizeof(nbgl_contentInfoList_t));
+        }
+    }
 
     // Then the tag/value pairs
     localContentsList[1].type = TAG_VALUE_LIST;
@@ -1643,10 +1800,58 @@ static void useCaseReview(nbgl_operationType_t              operationType,
     uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
     prepareNavInfo(true, nbPages, getRejectReviewText(operationType));
 
+    // Play notification sound if required
+    if (playNotifSound) {
 #ifdef HAVE_PIEZO_SOUND
-    // Play notification sound
-    io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
+        io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
 #endif  // HAVE_PIEZO_SOUND
+    }
+
+    displayGenericContextPage(0, true);
+}
+
+// function to factorize code for all streaming reviews
+static void useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
+                                        const nbgl_icon_details_t *icon,
+                                        const char                *reviewTitle,
+                                        const char                *reviewSubTitle,
+                                        nbgl_choiceCallback_t      choiceCallback,
+                                        bool                       playNotifSound)
+{
+    reset_callbacks();
+    memset(&genericContext, 0, sizeof(genericContext));
+
+    bundleNavContext.reviewStreaming.operationType  = operationType;
+    bundleNavContext.reviewStreaming.choiceCallback = choiceCallback;
+    bundleNavContext.reviewStreaming.icon           = icon;
+
+    // memorize context
+    onChoice  = bundleNavReviewStreamingChoice;
+    navType   = STREAMING_NAV;
+    pageTitle = NULL;
+
+    genericContext.genericContents.contentsList = localContentsList;
+    genericContext.genericContents.nbContents   = 1;
+    memset(localContentsList, 0, 1 * sizeof(nbgl_content_t));
+
+    // First a centered info
+    STARTING_CONTENT.type = EXTENDED_CENTER;
+    prepareReviewFirstPage(
+        &STARTING_CONTENT.content.extendedCenter.contentCenter, icon, reviewTitle, reviewSubTitle);
+
+    // compute number of pages & fill navigation structure
+    bundleNavContext.reviewStreaming.stepPageNb
+        = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
+    prepareNavInfo(true, NBGL_NO_PROGRESS_INDICATOR, getRejectReviewText(operationType));
+    // no back button on first page
+    navInfo.navWithButtons.backButton = false;
+
+    // Play notification sound if required
+    if (playNotifSound) {
+#ifdef HAVE_PIEZO_SOUND
+        io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
+#endif  // HAVE_PIEZO_SOUND
+    }
 
     displayGenericContextPage(0, true);
 }
@@ -1683,6 +1888,7 @@ uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPai
     while (nbPairsInPage < nbPairs) {
         const nbgl_layoutTagValue_t *pair;
         nbgl_font_id_e               value_font;
+        uint16_t                     nbLines;
 
         // margin between pairs
         // 12 or 24 px between each tag/value pair
@@ -1734,7 +1940,10 @@ uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPai
         // value height
         currentHeight += nbgl_getTextHeightInWidth(
             value_font, pair->value, AVAILABLE_WIDTH, tagValueList->wrapping);
-        if (currentHeight >= TAG_VALUE_AREA_HEIGHT) {
+        // nb lines for value
+        nbLines = nbgl_getTextNbLinesInWidth(
+            value_font, pair->value, AVAILABLE_WIDTH, tagValueList->wrapping);
+        if ((currentHeight >= TAG_VALUE_AREA_HEIGHT) || (nbLines > NB_MAX_LINES_IN_REVIEW)) {
             if (nbPairsInPage == 0) {
                 // Pair too long to fit in a single screen
                 // It will be the only one of the page and has a specific display behavior
@@ -1746,6 +1955,190 @@ uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPai
         nbPairsInPage++;
     }
     return nbPairsInPage;
+}
+
+/**
+ * @brief computes the number of infos displayable in a page, with the given list of
+ * infos
+ *
+ * @param nbInfos number of infos to use in \b infosList
+ * @param infosList list of infos
+ * @param startIndex first index to consider in \b infosList
+ * @return the number of infos fitting in a page
+ */
+uint8_t nbgl_useCaseGetNbInfosInPage(uint8_t                       nbInfos,
+                                     const nbgl_contentInfoList_t *infosList,
+                                     uint8_t                       startIndex,
+                                     bool                          withNav)
+{
+    uint8_t            nbInfosInPage = 0;
+    uint16_t           currentHeight = 0;
+    uint16_t           previousHeight;
+    uint16_t           navHeight    = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
+    const char *const *infoTypes    = PIC(infosList->infoTypes);
+    const char *const *infoContents = PIC(infosList->infoContents);
+
+    while (nbInfosInPage < nbInfos) {
+        // margin between infos
+        currentHeight += PRE_TEXT_MARGIN;
+
+        // type height
+        currentHeight += nbgl_getTextHeightInWidth(
+            SMALL_BOLD_FONT, PIC(infoTypes[startIndex + nbInfosInPage]), AVAILABLE_WIDTH, true);
+        // space between type and content
+        currentHeight += TEXT_SUBTEXT_MARGIN;
+
+        // content height
+        currentHeight += nbgl_getTextHeightInWidth(SMALL_REGULAR_FONT,
+                                                   PIC(infoContents[startIndex + nbInfosInPage]),
+                                                   AVAILABLE_WIDTH,
+                                                   true);
+        currentHeight += POST_SUBTEXT_MARGIN;  // under the content
+        // if height is over the limit
+        if (currentHeight >= (INFOS_AREA_HEIGHT - navHeight)) {
+            // if there was no nav, now there will be, so it can be necessary to remove the last
+            // item
+            if (!withNav && (previousHeight >= (INFOS_AREA_HEIGHT - SIMPLE_FOOTER_HEIGHT))) {
+                nbInfosInPage--;
+            }
+            break;
+        }
+        previousHeight = currentHeight;
+        nbInfosInPage++;
+    }
+    return nbInfosInPage;
+}
+
+/**
+ * @brief computes the number of switches displayable in a page, with the given list of
+ * switches
+ *
+ * @param nbSwitches number of switches to use in \b switchesList
+ * @param switchesList list of switches
+ * @param startIndex first index to consider in \b switchesList
+ * @return the number of switches fitting in a page
+ */
+uint8_t nbgl_useCaseGetNbSwitchesInPage(uint8_t                           nbSwitches,
+                                        const nbgl_contentSwitchesList_t *switchesList,
+                                        uint8_t                           startIndex,
+                                        bool                              withNav)
+{
+    uint8_t               nbSwitchesInPage = 0;
+    uint16_t              currentHeight    = 0;
+    uint16_t              previousHeight;
+    uint16_t              navHeight   = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
+    nbgl_contentSwitch_t *switchArray = (nbgl_contentSwitch_t *) PIC(switchesList->switches);
+
+    while (nbSwitchesInPage < nbSwitches) {
+        // margin between switches
+        currentHeight += PRE_TEXT_MARGIN;
+
+        // text height
+        currentHeight += nbgl_getTextHeightInWidth(SMALL_BOLD_FONT,
+                                                   switchArray[startIndex + nbSwitchesInPage].text,
+                                                   AVAILABLE_WIDTH,
+                                                   true);
+        // space between text and sub-text
+        currentHeight += TEXT_SUBTEXT_MARGIN;
+
+        // sub-text height
+        currentHeight
+            += nbgl_getTextHeightInWidth(SMALL_REGULAR_FONT,
+                                         switchArray[startIndex + nbSwitchesInPage].subText,
+                                         AVAILABLE_WIDTH,
+                                         true);
+        currentHeight += POST_SUBTEXT_MARGIN;  // under the sub-text
+        // if height is over the limit
+        if (currentHeight >= (INFOS_AREA_HEIGHT - navHeight)) {
+            // if there was no nav, now there will be, so it can be necessary to remove the last
+            // item
+            if (!withNav && (previousHeight >= (INFOS_AREA_HEIGHT - SIMPLE_FOOTER_HEIGHT))) {
+                nbSwitchesInPage--;
+            }
+            break;
+        }
+        previousHeight = currentHeight;
+        nbSwitchesInPage++;
+    }
+    return nbSwitchesInPage;
+}
+
+/**
+ * @brief computes the number of bars displayable in a page, with the given list of
+ * bars
+ *
+ * @param nbBars number of bars to use in \b barsList
+ * @param barsList list of bars
+ * @param startIndex first index to consider in \b barsList
+ * @return the number of bars fitting in a page
+ */
+uint8_t nbgl_useCaseGetNbBarsInPage(uint8_t                       nbBars,
+                                    const nbgl_contentBarsList_t *barsList,
+                                    uint8_t                       startIndex,
+                                    bool                          withNav)
+{
+    uint8_t  nbBarsInPage  = 0;
+    uint16_t currentHeight = 0;
+    uint16_t previousHeight;
+    uint16_t navHeight = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
+
+    UNUSED(barsList);
+    UNUSED(startIndex);
+
+    while (nbBarsInPage < nbBars) {
+        currentHeight += TOUCHABLE_BAR_HEIGHT;
+        // if height is over the limit
+        if (currentHeight >= (INFOS_AREA_HEIGHT - navHeight)) {
+            // if there was no nav, now there will be, so it can be necessary to remove the last
+            // item
+            if (!withNav && (previousHeight >= (INFOS_AREA_HEIGHT - SIMPLE_FOOTER_HEIGHT))) {
+                nbBarsInPage--;
+            }
+            break;
+        }
+        previousHeight = currentHeight;
+        nbBarsInPage++;
+    }
+    return nbBarsInPage;
+}
+
+/**
+ * @brief computes the number of radio choices displayable in a page, with the given list of
+ * choices
+ *
+ * @param nbChoices number of radio choices to use in \b choicesList
+ * @param choicesList list of choices
+ * @param startIndex first index to consider in \b choicesList
+ * @return the number of radio choices fitting in a page
+ */
+uint8_t nbgl_useCaseGetNbChoicesInPage(uint8_t                          nbChoices,
+                                       const nbgl_contentRadioChoice_t *choicesList,
+                                       uint8_t                          startIndex,
+                                       bool                             withNav)
+{
+    uint8_t  nbChoicesInPage = 0;
+    uint16_t currentHeight   = 0;
+    uint16_t previousHeight;
+    uint16_t navHeight = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
+
+    UNUSED(choicesList);
+    UNUSED(startIndex);
+
+    while (nbChoicesInPage < nbChoices) {
+        currentHeight += TOUCHABLE_BAR_HEIGHT;
+        // if height is over the limit
+        if (currentHeight >= (INFOS_AREA_HEIGHT - navHeight)) {
+            // if there was no nav, now there will be, so it can be necessary to remove the last
+            // item
+            if (!withNav && (previousHeight >= (INFOS_AREA_HEIGHT - SIMPLE_FOOTER_HEIGHT))) {
+                nbChoicesInPage--;
+            }
+            break;
+        }
+        previousHeight = currentHeight;
+        nbChoicesInPage++;
+    }
+    return nbChoicesInPage;
 }
 
 /**
@@ -2027,7 +2420,7 @@ void nbgl_useCaseGenericSettings(const char                   *appName,
     // fill navigation structure
     uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
     if (infosList != NULL) {
-        nbPages += nbgl_useCaseGetNbPagesForContent(&FINISHING_CONTENT, nbPages);
+        nbPages += nbgl_useCaseGetNbPagesForContent(&FINISHING_CONTENT, nbPages, true);
     }
 
     prepareNavInfo(false, nbPages, NULL);
@@ -2307,9 +2700,14 @@ void nbgl_useCaseReviewStart(const nbgl_icon_details_t *icon,
                                        .topRightStyle    = NO_BUTTON_STYLE,
                                        .actionButtonText = NULL,
                                        .tuneId           = TUNE_TAP_CASUAL};
-    prepareReviewFirstPage(&info.centeredInfo, icon, reviewTitle, reviewSubTitle);
-    onQuit     = rejectCallback;
-    onContinue = continueCallback;
+    info.centeredInfo.icon          = icon;
+    info.centeredInfo.text1         = reviewTitle;
+    info.centeredInfo.text2         = reviewSubTitle;
+    info.centeredInfo.text3         = "Swipe to review";
+    info.centeredInfo.style         = LARGE_CASE_GRAY_INFO;
+    info.centeredInfo.offsetY       = 0;
+    onQuit                          = rejectCallback;
+    onContinue                      = continueCallback;
 
 #ifdef HAVE_PIEZO_SOUND
     // Play notification sound
@@ -2577,10 +2975,92 @@ void nbgl_useCaseReview(nbgl_operationType_t              operationType,
                   reviewTitle,
                   reviewSubTitle,
                   finishTitle,
+                  NULL,
                   choiceCallback,
-                  false);
+                  false,
+                  true);
 }
 
+/**
+ * @brief Draws a flow of pages of a review. Navigation operates with either swipe or navigation
+ * keys at bottom right. The last page contains a long-press button with the given finishTitle and
+ * the given icon.
+ * @note  All tag/value pairs are provided in the API and the number of pages is automatically
+ * computed, the last page being a long press one
+ *
+ * @param operationType type of operation (Operation, Transaction, Message)
+ * @param tagValueList list of tag/value pairs
+ * @param icon icon used on first and last review page
+ * @param reviewTitle string used in the first review page
+ * @param reviewSubTitle string to set under reviewTitle (can be NULL)
+ * @param finishTitle string used in the last review page
+ * @param tipBox parameter to build a tip-box and necessary modal (can be NULL)
+ * @param choiceCallback callback called when operation is accepted (param is true) or rejected
+ * (param is false)
+ */
+void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
+                                const nbgl_contentTagValueList_t *tagValueList,
+                                const nbgl_icon_details_t        *icon,
+                                const char                       *reviewTitle,
+                                const char                       *reviewSubTitle,
+                                const char                       *finishTitle,
+                                const nbgl_tipBox_t              *tipBox,
+                                nbgl_choiceCallback_t             choiceCallback)
+{
+    useCaseReview(operationType,
+                  tagValueList,
+                  icon,
+                  reviewTitle,
+                  reviewSubTitle,
+                  finishTitle,
+                  tipBox,
+                  choiceCallback,
+                  false,
+                  true);
+}
+
+/**
+ * @brief Draws a flow of pages of a blind-signing review. The review is preceded by a warning page
+ *
+ * Navigation operates with either swipe or navigation
+ * keys at bottom right. The last page contains a long-press button with the given finishTitle and
+ * the given icon.
+ * @note  All tag/value pairs are provided in the API and the number of pages is automatically
+ * computed, the last page being a long press one
+ *
+ * @param operationType type of operation (Operation, Transaction, Message)
+ * @param tagValueList list of tag/value pairs
+ * @param icon icon used on first and last review page
+ * @param reviewTitle string used in the first review page
+ * @param reviewSubTitle string to set under reviewTitle (can be NULL)
+ * @param finishTitle string used in the last review page
+ * @param tipBox parameter to build a tip-box and necessary modal (can be NULL)
+ * @param choiceCallback callback called when operation is accepted (param is true) or rejected
+ * (param is false)
+ */
+void nbgl_useCaseReviewBlindSigning(nbgl_operationType_t              operationType,
+                                    const nbgl_contentTagValueList_t *tagValueList,
+                                    const nbgl_icon_details_t        *icon,
+                                    const char                       *reviewTitle,
+                                    const char                       *reviewSubTitle,
+                                    const char                       *finishTitle,
+                                    const nbgl_tipBox_t              *tipBox,
+                                    nbgl_choiceCallback_t             choiceCallback)
+{
+    memset(&blindSigningContext, 0, sizeof(blindSigningContext));
+
+    blindSigningContext.isStreaming    = false;
+    blindSigningContext.operationType  = operationType | BLIND_OPERATION;
+    blindSigningContext.tagValueList   = tagValueList;
+    blindSigningContext.icon           = icon;
+    blindSigningContext.reviewTitle    = reviewTitle;
+    blindSigningContext.reviewSubTitle = reviewSubTitle;
+    blindSigningContext.finishTitle    = finishTitle;
+    blindSigningContext.tipBox         = tipBox;
+    blindSigningContext.choiceCallback = choiceCallback;
+
+    blindSigningWarning();
+}
 /**
  * @brief Draws a flow of pages of a light review. Navigation operates with either swipe or
  * navigation keys at bottom right. The last page contains a button/footer with the given
@@ -2611,7 +3091,9 @@ void nbgl_useCaseReviewLight(nbgl_operationType_t              operationType,
                   reviewTitle,
                   reviewSubTitle,
                   finishTitle,
+                  NULL,
                   choiceCallback,
+                  true,
                   true);
 }
 
@@ -2669,40 +3151,39 @@ void nbgl_useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
                                       const char                *reviewSubTitle,
                                       nbgl_choiceCallback_t      choiceCallback)
 {
-    reset_callbacks();
-    memset(&genericContext, 0, sizeof(genericContext));
+    useCaseReviewStreamingStart(
+        operationType, icon, reviewTitle, reviewSubTitle, choiceCallback, true);
+}
 
-    bundleNavContext.reviewStreaming.operationType  = operationType;
-    bundleNavContext.reviewStreaming.choiceCallback = choiceCallback;
-    bundleNavContext.reviewStreaming.icon           = icon;
+/**
+ * @brief Start drawing the flow of pages of a blind-signing review. The review is preceded by a
+ * warning page
+ * @note  This should be followed by calls to nbgl_useCaseReviewStreamingContinue and finally to
+ *        nbgl_useCaseReviewStreamingFinish.
+ *
+ * @param operationType type of operation (Operation, Transaction, Message)
+ * @param icon icon used on first and last review page
+ * @param reviewTitle string used in the first review page
+ * @param reviewSubTitle string to set under reviewTitle (can be NULL)
+ * @param choiceCallback callback called when more operation data are needed (param is true) or
+ * operation is rejected (param is false)
+ */
+void nbgl_useCaseReviewStreamingBlindSigningStart(nbgl_operationType_t       operationType,
+                                                  const nbgl_icon_details_t *icon,
+                                                  const char                *reviewTitle,
+                                                  const char                *reviewSubTitle,
+                                                  nbgl_choiceCallback_t      choiceCallback)
+{
+    memset(&blindSigningContext, 0, sizeof(blindSigningContext));
 
-    // memorize context
-    onChoice  = bundleNavReviewStreamingChoice;
-    navType   = STREAMING_NAV;
-    pageTitle = NULL;
+    blindSigningContext.isStreaming    = true;
+    blindSigningContext.operationType  = operationType | BLIND_OPERATION;
+    blindSigningContext.icon           = icon;
+    blindSigningContext.reviewTitle    = reviewTitle;
+    blindSigningContext.reviewSubTitle = reviewSubTitle;
+    blindSigningContext.choiceCallback = choiceCallback;
 
-    genericContext.genericContents.contentsList = localContentsList;
-    genericContext.genericContents.nbContents   = 1;
-    memset(localContentsList, 0, 1 * sizeof(nbgl_content_t));
-
-    // First a centered info
-    STARTING_CONTENT.type = CENTERED_INFO;
-    prepareReviewFirstPage(
-        &STARTING_CONTENT.content.centeredInfo, icon, reviewTitle, reviewSubTitle);
-
-    // compute number of pages & fill navigation structure
-    bundleNavContext.reviewStreaming.stepPageNb
-        = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
-    prepareNavInfo(true, NBGL_NO_PROGRESS_INDICATOR, getRejectReviewText(operationType));
-    // no back button on first page
-    navInfo.navWithButtons.backButton = false;
-
-#ifdef HAVE_PIEZO_SOUND
-    // Play notification sound
-    io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
-#endif  // HAVE_PIEZO_SOUND
-
-    displayGenericContextPage(0, true);
+    blindSigningWarning();
 }
 
 /**
@@ -2948,10 +3429,10 @@ void nbgl_useCaseAddressReview(const char                       *address,
     memset(localContentsList, 0, 3 * sizeof(nbgl_content_t));
 
     // First a centered info
-    STARTING_CONTENT.type = CENTERED_INFO;
+    STARTING_CONTENT.type = EXTENDED_CENTER;
     prepareReviewFirstPage(
-        &STARTING_CONTENT.content.centeredInfo, icon, reviewTitle, reviewSubTitle);
-    STARTING_CONTENT.content.centeredInfo.text3 = "Swipe to continue";
+        &STARTING_CONTENT.content.extendedCenter.contentCenter, icon, reviewTitle, reviewSubTitle);
+    STARTING_CONTENT.content.extendedCenter.contentCenter.subText = "Swipe to continue";
 
     // Then the address confirmation pages
     prepareAddressConfirmationPages(

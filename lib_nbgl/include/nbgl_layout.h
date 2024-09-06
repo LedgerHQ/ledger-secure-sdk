@@ -67,6 +67,16 @@ extern "C" {
 
 #define NB_MAX_LINES NB_MAX_LINES_IN_DETAILS
 
+#ifdef TARGET_STAX
+#define PRE_TEXT_MARGIN     32
+#define TEXT_SUBTEXT_MARGIN 16
+#define POST_SUBTEXT_MARGIN 28
+#else  // TARGET_STAX
+#define PRE_TEXT_MARGIN     28
+#define TEXT_SUBTEXT_MARGIN 14
+#define POST_SUBTEXT_MARGIN 26
+#endif  // TARGET_STAX
+
 #else  // HAVE_SE_TOUCH
 // 7 pixels on each side
 #define AVAILABLE_WIDTH (SCREEN_WIDTH - 2 * 7)
@@ -494,6 +504,43 @@ typedef struct {
         nbgl_layoutChoiceButtons_t choiceButtons;  ///< if type is @ref FOOTER_SIMPLE_BUTTON
     };
 } nbgl_layoutFooter_t;
+
+/**
+ * @brief The different types of area on top of footer
+ *
+ */
+typedef enum {
+    UP_FOOTER_LONG_PRESS = 0,      ///< long-press button
+    UP_FOOTER_BUTTON,              ///< simple button
+    UP_FOOTER_HORIZONTAL_BUTTONS,  ///< 2 buttons, on the same line
+    UP_FOOTER_TIP_BOX,             ///< Tip-box
+    UP_FOOTER_TEXT,                ///< grayed-out text, for example "Tap to continue"
+    NB_UP_FOOTER_TYPES
+} nbgl_layoutUpFooterType_t;
+
+/**
+ * @brief This structure contains info to build an up-footer (area on top of footer).
+ *
+ */
+typedef struct {
+    nbgl_layoutUpFooterType_t type;  ///< type of up-footer
+    union {
+        struct {
+            const char  *text;       ///< text in the long-press button
+            uint8_t      token;      ///< token used when button is long-pressed
+            tune_index_e tuneId;     ///< tune played when button is long-pressed
+        } longPress;                 ///< if type is @ref UP_FOOTER_LONG_PRESS
+        nbgl_layoutButton_t button;  ///< if type is @ref UP_FOOTER_BUTTON
+        nbgl_layoutHorizontalButtons_t
+                             horizontalButtons;  ///< if type is @ref UP_FOOTER_HORIZONTAL_BUTTONS
+        nbgl_contentTipBox_t tipBox;             ///< if type is @ref UP_FOOTER_TIP_BOX
+        struct {
+            const char  *text;    ///< text
+            uint8_t      token;   ///< token used when text is touched
+            tune_index_e tuneId;  ///< tune played when text is touched
+        } text;                   ///< if type is @ref UP_FOOTER_TEXT
+    };
+} nbgl_layoutUpFooter_t;
 #endif  // HAVE_SE_TOUCH
 
 /**
@@ -574,6 +621,7 @@ int nbgl_layoutAddSplitFooter(nbgl_layout_t *layout,
                               tune_index_e   tuneId);
 int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *headerDesc);
 int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_t *footerDesc);
+int nbgl_layoutAddUpFooter(nbgl_layout_t *layout, const nbgl_layoutUpFooter_t *upFooterDesc);
 int nbgl_layoutAddNavigationBar(nbgl_layout_t *layout, const nbgl_layoutNavigationBar_t *info);
 int nbgl_layoutAddBottomButton(nbgl_layout_t             *layout,
                                const nbgl_icon_details_t *icon,

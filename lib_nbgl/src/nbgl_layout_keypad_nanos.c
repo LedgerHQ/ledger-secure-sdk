@@ -143,7 +143,7 @@ int nbgl_layoutUpdateKeypad(nbgl_layout_t *layout,
     keypad->enableValidate  = enableValidate;
     keypad->enableBackspace = enableBackspace;
 
-    nbgl_redrawObject((nbgl_obj_t *) keypad, NULL, false);
+    nbgl_objDraw((nbgl_obj_t *) keypad);
 
     return 0;
 }
@@ -260,7 +260,7 @@ int nbgl_layoutUpdateHiddenDigits(nbgl_layout_t *layout, uint8_t index, uint8_t 
         }
     }
 
-    nbgl_redrawObject((nbgl_obj_t *) image, NULL, false);
+    nbgl_objDraw((nbgl_obj_t *) image);
 
     return 0;
 }

@@ -218,7 +218,7 @@ bool keyboardSwipeCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
         if (i < (uint32_t) nbActiveButtons) {
             if (updateSuggestionButtons(suggestionsContainer, eventType, i)) {
                 io_seproxyhal_play_tune(TUNE_TAP_CASUAL);
-                nbgl_redrawObject((nbgl_obj_t *) suggestionsContainer, NULL, false);
+                nbgl_objDraw((nbgl_obj_t *) suggestionsContainer);
                 nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
             }
 
@@ -565,7 +565,7 @@ int nbgl_layoutUpdateKeyboard(nbgl_layout_t *layout,
         keyboard->casing = casing;
     }
 
-    nbgl_redrawObject((nbgl_obj_t *) keyboard, NULL, false);
+    nbgl_objDraw((nbgl_obj_t *) keyboard);
 
     return 0;
 }
@@ -728,7 +728,7 @@ int nbgl_layoutUpdateSuggestionButtons(nbgl_layout_t *layout,
     updateSuggestionButtons(container, 0, 0);
 #endif  // TARGET_STAX
 
-    nbgl_redrawObject((nbgl_obj_t *) container, NULL, false);
+    nbgl_objDraw((nbgl_obj_t *) container);
 
     return 0;
 }
@@ -848,7 +848,7 @@ int nbgl_layoutUpdateEnteredText(nbgl_layout_t *layout,
     textArea->text          = text;
     textArea->textColor     = grayedOut ? LIGHT_GRAY : BLACK;
     textArea->textAlignment = MID_LEFT;
-    nbgl_redrawObject((nbgl_obj_t *) textArea, NULL, false);
+    nbgl_objDraw((nbgl_obj_t *) textArea);
 
     // update number text area
     if (numbered) {
@@ -856,7 +856,7 @@ int nbgl_layoutUpdateEnteredText(nbgl_layout_t *layout,
         textArea = (nbgl_text_area_t *) layoutInt->container->children[1];
         snprintf(numText, sizeof(numText), "%d.", number);
         textArea->text = numText;
-        nbgl_redrawObject((nbgl_obj_t *) textArea, NULL, false);
+        nbgl_objDraw((nbgl_obj_t *) textArea);
     }
     // if the text doesn't fit, indicate it by returning 1 instead of 0, for different refresh
     if (nbgl_getSingleLineTextWidth(textArea->fontId, text) > textArea->obj.area.width) {
@@ -950,7 +950,7 @@ int nbgl_layoutUpdateConfirmationButton(nbgl_layout_t *layout,
         button->borderColor = LIGHT_GRAY;
         button->innerColor  = LIGHT_GRAY;
     }
-    nbgl_redrawObject((nbgl_obj_t *) button, NULL, false);
+    nbgl_objDraw((nbgl_obj_t *) button);
     return 0;
 }
 
@@ -1054,14 +1054,14 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
         // get Word number typed text
         textArea = (nbgl_text_area_t *) container->children[1];
         snprintf(numText, sizeof(numText), "%d.", content->number);
-        nbgl_redrawObject((nbgl_obj_t *) textArea, NULL, false);
+        nbgl_objDraw((nbgl_obj_t *) textArea);
     }
 
     // get text area for entered text
     textArea            = (nbgl_text_area_t *) container->children[2];
     textArea->textColor = content->grayedOut ? LIGHT_GRAY : BLACK;
     textArea->text      = content->text;
-    nbgl_redrawObject((nbgl_obj_t *) textArea, NULL, false);
+    nbgl_objDraw((nbgl_obj_t *) textArea);
 
     if (content->type == KEYBOARD_WITH_SUGGESTIONS) {
         nbActiveButtons = content->suggestionButtons.nbUsedButtons;
@@ -1091,7 +1091,7 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
         indicator->activePage = 0;
         updateSuggestionButtons(suggestionsContainer, 0, 0);
 
-        nbgl_redrawObject((nbgl_obj_t *) suggestionsContainer, NULL, false);
+        nbgl_objDraw((nbgl_obj_t *) suggestionsContainer);
     }
     else if (content->type == KEYBOARD_WITH_BUTTON) {
         // update main text area
@@ -1111,7 +1111,7 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
             button->borderColor = LIGHT_GRAY;
             button->innerColor  = LIGHT_GRAY;
         }
-        nbgl_redrawObject((nbgl_obj_t *) button, NULL, false);
+        nbgl_objDraw((nbgl_obj_t *) button);
     }
 
     // if the entered text doesn't fit, indicate it by returning 1 instead of 0, for different

@@ -9,10 +9,16 @@
 #include <stdlib.h>
 #include "nbgl_fonts.h"
 #include "ux_loc.h"
+#include "os_task.h"
 
 void fetch_language_packs(void);
 
 const LANGUAGE_PACK *language_pack = NULL;
+
+unsigned int os_sched_current_task(void)
+{
+    return TASK_BOLOS_UX;
+}
 
 void *pic(void *addr)
 {
@@ -50,6 +56,7 @@ void fetch_language_packs(void)
         fclose(fptr);
 
         language_pack = (LANGUAGE_PACK *) source;
+        nbgl_refreshUnicodeFont(language_pack);
     }
 }
 

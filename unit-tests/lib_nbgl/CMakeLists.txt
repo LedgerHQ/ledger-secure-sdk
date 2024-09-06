@@ -77,8 +77,8 @@ add_library(nbgl_screen SHARED ../../lib_nbgl/src/nbgl_screen.c)
 add_library(nbgl_obj SHARED ../../lib_nbgl/src/nbgl_obj.c)
 
 target_link_libraries(test_nbgl_fonts PUBLIC cmocka gcov nbgl_fonts nbgl_stubs)
-target_link_libraries(test_nbgl_obj_pool PUBLIC cmocka gcov nbgl_obj_pool nbgl_stubs)
-target_link_libraries(test_nbgl_screen PUBLIC cmocka gcov nbgl_screen nbgl_obj_pool nbgl_stubs)
+target_link_libraries(test_nbgl_obj_pool PUBLIC cmocka gcov nbgl_obj_pool)
+target_link_libraries(test_nbgl_screen PUBLIC cmocka gcov nbgl_screen nbgl_obj_pool)
 target_link_libraries(test_nbgl_obj PUBLIC cmocka gcov nbgl_obj nbgl_screen nbgl_obj_pool nbgl_fonts nbgl_stubs)
 
 add_test(test_nbgl_fonts test_nbgl_fonts)

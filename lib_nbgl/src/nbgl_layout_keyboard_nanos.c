@@ -114,7 +114,7 @@ int nbgl_layoutUpdateKeyboard(nbgl_layout_t *layout, uint8_t index, uint32_t key
         }
     }
 
-    nbgl_redrawObject((nbgl_obj_t *) keyboard, NULL, false);
+    nbgl_objDraw((nbgl_obj_t *) keyboard);
 
     return 0;
 }
@@ -182,7 +182,7 @@ int nbgl_layoutUpdateEnteredText(nbgl_layout_t *layout, uint8_t index, const cha
         return -1;
     }
     textEntry->text = text;
-    nbgl_redrawObject((nbgl_obj_t *) textEntry, NULL, false);
+    nbgl_objDraw((nbgl_obj_t *) textEntry);
 
     return 0;
 }
