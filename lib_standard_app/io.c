@@ -25,6 +25,10 @@
 #include "swap.h"
 #endif
 
+#ifdef HAVE_NFC_READER
+#include "os_io_nfc.h"
+#endif  // HAVE_NFC_READER
+
 // TODO: Temporary workaround, at some point all status words should be defined by the SDK and
 // removed from the application
 #define SW_OK                    0x9000
@@ -83,6 +87,9 @@ WEAK uint8_t io_event(uint8_t channel)
         case SEPROXYHAL_TAG_TICKER_EVENT:
             app_ticker_event_callback();
             UX_TICKER_EVENT(G_io_seproxyhal_spi_buffer, {});
+#ifdef HAVE_NFC_READER
+            io_nfc_ticker();
+#endif  // HAVE_NFC_READER
             break;
         default:
             UX_DEFAULT_EVENT();

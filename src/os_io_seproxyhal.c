@@ -274,7 +274,12 @@ unsigned int io_seproxyhal_handle_event(void)
         case SEPROXYHAL_TAG_NFC_APDU_EVENT:
             io_nfc_recv_event();
             return 1;
-#endif
+#ifdef HAVE_NFC_READER
+        case SEPROXYHAL_TAG_NFC_EVENT:
+            io_nfc_event();
+            return 1;
+#endif  // HAVE_NFC_READER
+#endif  // HAVE_NFC
 
         case SEPROXYHAL_TAG_UX_EVENT:
             switch (G_io_seproxyhal_spi_buffer[3]) {
@@ -364,6 +369,9 @@ unsigned int io_seproxyhal_handle_event(void)
                 }
             }
 #endif  // HAVE_BLE_APDU
+#ifdef HAVE_NFC_READER
+            io_nfc_ticker();
+#endif
             FALL_THROUGH;
             // no break is intentional
         default:
@@ -502,9 +510,10 @@ void io_seproxyhal_nfc_power(bool forceInit)
 {
     uint8_t buffer[4];
     uint8_t power
-        = forceInit
-              ? 1
-              : (os_setting_get(OS_SETTING_FEATURES, NULL, 0) & OS_SETTING_FEATURES_NFC_ENABLED);
+        = (forceInit
+           || (os_setting_get(OS_SETTING_FEATURES, NULL, 0) & OS_SETTING_FEATURES_NFC_ENABLED))
+              ? SEPROXYHAL_TAG_NFC_POWER_ON_CE
+              : SEPROXYHAL_TAG_NFC_POWER_OFF;
     buffer[0] = SEPROXYHAL_TAG_NFC_POWER;
     buffer[1] = 0;
     buffer[2] = 1;
@@ -1351,6 +1360,9 @@ reply_apdu:
                         G_io_seproxyhal_spi_buffer, sizeof(G_io_seproxyhal_spi_buffer), 0);
                     // process without sending status on tickers etc, to ensure keeping the hand
                     os_io_seph_recv_and_process(1);
+#if (!defined(HAVE_BOLOS) && defined(HAVE_NFC_READER))
+                    nfc_process_events();
+#endif  // !HAVE_BOLOS && HAVE_NFC_READER
                 }
 
                 // reinit sending timeout for APDU replied within io_exchange
@@ -1447,6 +1459,9 @@ reply_apdu:
                                     }
                                     // avoid a general status to be replied
                                     io_seproxyhal_handle_event();
+#if (!defined(HAVE_BOLOS) && defined(HAVE_NFC_READER))
+                                    nfc_process_events();
+#endif  // !HAVE_BOLOS && HAVE_NFC_READER
                                 } while (io_seproxyhal_spi_is_status_sent());
                             }
 #ifdef U2F_PROXY_MAGIC
@@ -1493,6 +1508,9 @@ reply_apdu:
                             }
                             // avoid a general status to be replied
                             io_seproxyhal_handle_event();
+#if (!defined(HAVE_BOLOS) && defined(HAVE_NFC_READER))
+                            nfc_process_events();
+#endif  // !HAVE_BOLOS && HAVE_NFC_READER
                         } while (io_seproxyhal_spi_is_status_sent());
                     }
                     // reset apdu state
@@ -1599,6 +1617,9 @@ reply_apdu:
                 }
 
                 io_seproxyhal_handle_event();
+#if (!defined(HAVE_BOLOS) && defined(HAVE_NFC_READER))
+                nfc_process_events();
+#endif  // !HAVE_BOLOS && HAVE_NFC_READER
             }
             break;
 
