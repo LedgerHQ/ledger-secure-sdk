@@ -50,9 +50,9 @@ extern "C" {
  *  @brief maximum number of lines for value field in review pages
  */
 #ifdef TARGET_STAX
-#define NB_MAX_LINES_IN_REVIEW 11
-#else  // TARGET_STAX
 #define NB_MAX_LINES_IN_REVIEW 10
+#else  // TARGET_STAX
+#define NB_MAX_LINES_IN_REVIEW 9
 #endif  // TARGET_STAX
 
 /**

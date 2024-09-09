@@ -608,6 +608,10 @@ bool nbgl_getTextMaxLenInNbLines(nbgl_font_id_e fontId,
         // if \n, reset width
         if (unicode == '\n') {
             maxNbLines--;
+            // if last line is reached, let's rewind before carriage return
+            if (maxNbLines == 0) {
+                text--;
+            }
             width = 0;
             continue;
         }
