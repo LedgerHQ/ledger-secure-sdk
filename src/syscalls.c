@@ -181,13 +181,6 @@ void nbgl_sideRefreshArea(nbgl_area_t *area, nbgl_post_refresh_t post_refresh)
     return;
 }
 
-const nbgl_font_t *nbgl_font_getFont(unsigned int fontId)
-{
-    unsigned int parameters[1];
-    parameters[0] = (unsigned int) fontId;
-    return (const nbgl_font_t *) SVC_Call(SYSCALL_nbgl_get_font_ID, parameters);
-}
-
 void nbgl_screen_reinit(void)
 {
     unsigned int parameters[1];
