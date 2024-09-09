@@ -1051,7 +1051,7 @@ static const char *getDetailsPageAt(uint8_t detailsPage)
                                         AVAILABLE_WIDTH,
                                         NB_MAX_LINES_IN_DETAILS,
                                         &len,
-                                        false);
+                                        detailsContext.wrapping);
             len -= 3;
             currentChar = currentChar + len;
         }
