@@ -15,7 +15,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  ********************************************************************************/
-#include "bolos_target.h"
+
+#include "os.h"
+#include "os_settings.h"
+#include "os_io_seproxyhal.h"
+
 #include "errors.h"
 #include "exceptions.h"
 #ifdef HAVE_NFC
@@ -25,17 +29,11 @@
 #endif  // DEBUG_OS_STACK_CONSUMPTION
 
 #include "os_io.h"
+#include "os_io_nfc.h"
 #include "os_utils.h"
 #include "os_io_seproxyhal.h"
 #include <string.h>
 
-#ifdef DEBUG
-#define LOG printf
-#else
-#define LOG(...)
-#endif
-
-#include "os.h"
 #include "ledger_protocol.h"
 
 static uint8_t           rx_apdu_buffer[IO_APDU_BUFFER_SIZE];
@@ -55,6 +53,9 @@ void io_nfc_init(void)
     ledger_protocol_data.rx_dst_buffer = G_io_apdu_buffer;
 #endif
     LEDGER_PROTOCOL_init(&ledger_protocol_data);
+#ifdef HAVE_NFC_READER
+    memset((void *) &G_io_reader_ctx, 0, sizeof(G_io_reader_ctx));
+#endif  // HAVE_NFC_READER
 }
 
 void io_nfc_recv_event(void)
@@ -65,6 +66,13 @@ void io_nfc_recv_event(void)
 
     // Full apdu is received, copy it to global apdu buffer
     if (ledger_protocol_data.rx_apdu_status == APDU_STATUS_COMPLETE) {
+#ifdef HAVE_NFC_READER
+        if (G_io_reader_ctx.reader_mode) {
+            G_io_reader_ctx.response_received = true;
+            return;
+        }
+#endif  // HAVE_NFC_READER
+
         memcpy(ledger_protocol_data.rx_dst_buffer,
                ledger_protocol_data.rx_apdu_buffer,
                ledger_protocol_data.rx_apdu_length);
@@ -105,5 +113,141 @@ void io_nfc_send_response(const uint8_t *packet, uint16_t packet_length)
         }
     }
 }
+
+#ifdef HAVE_NFC_READER
+
+void io_nfc_event(void)
+{
+    size_t size = U2BE(G_io_seproxyhal_spi_buffer, 1);
+
+    if (size >= 1) {
+        switch (G_io_seproxyhal_spi_buffer[3]) {
+            case SEPROXYHAL_TAG_NFC_EVENT_CARD_DETECTED: {
+                G_io_reader_ctx.event_happened = true;
+                G_io_reader_ctx.last_event     = CARD_DETECTED;
+                G_io_reader_ctx.card.tech
+                    = (G_io_seproxyhal_spi_buffer[4] == SEPROXYHAL_TAG_NFC_EVENT_CARD_DETECTED_A)
+                          ? NFC_A
+                          : NFC_B;
+                G_io_reader_ctx.card.nfcid_len = MIN(size - 2, sizeof(G_io_reader_ctx.card.nfcid));
+                memcpy((void *) G_io_reader_ctx.card.nfcid,
+                       G_io_seproxyhal_spi_buffer + 5,
+                       G_io_reader_ctx.card.nfcid_len);
+            } break;
+
+            case SEPROXYHAL_TAG_NFC_EVENT_CARD_LOST:
+                if (G_io_reader_ctx.evt_callback != NULL) {
+                    G_io_reader_ctx.event_happened = true;
+                    G_io_reader_ctx.last_event     = CARD_REMOVED;
+                }
+                break;
+        }
+    }
+}
+
+void io_nfc_process_events(void)
+{
+    if (G_io_reader_ctx.response_received) {
+        G_io_reader_ctx.response_received = false;
+        if (G_io_reader_ctx.resp_callback != NULL) {
+            nfc_resp_callback_t resp_cb   = G_io_reader_ctx.resp_callback;
+            G_io_reader_ctx.resp_callback = NULL;
+            resp_cb(false,
+                    false,
+                    ledger_protocol_data.rx_apdu_buffer,
+                    ledger_protocol_data.rx_apdu_length);
+        }
+        memset(ledger_protocol_data.rx_apdu_buffer, 0, ledger_protocol_data.rx_apdu_length);
+    }
+
+    if (G_io_reader_ctx.resp_callback != NULL && G_io_reader_ctx.remaining_ms == 0) {
+        nfc_resp_callback_t resp_cb   = G_io_reader_ctx.resp_callback;
+        G_io_reader_ctx.resp_callback = NULL;
+        resp_cb(false, true, NULL, 0);
+    }
+
+    if (G_io_reader_ctx.event_happened) {
+        G_io_reader_ctx.event_happened = 0;
+
+        // If card is removed during an APDU processing, call the resp_callback with an error
+        if (G_io_reader_ctx.resp_callback != NULL && G_io_reader_ctx.last_event == CARD_REMOVED) {
+            nfc_resp_callback_t resp_cb   = G_io_reader_ctx.resp_callback;
+            G_io_reader_ctx.resp_callback = NULL;
+            resp_cb(true, false, NULL, 0);
+        }
+
+        if (G_io_reader_ctx.evt_callback != NULL) {
+            G_io_reader_ctx.evt_callback(G_io_reader_ctx.last_event,
+                                         (struct card_info *) &G_io_reader_ctx.card);
+        }
+        if (G_io_reader_ctx.last_event == CARD_REMOVED) {
+            memset((void *) &G_io_reader_ctx.card, 0, sizeof(G_io_reader_ctx.card));
+        }
+    }
+}
+
+void io_nfc_ticker(void)
+{
+    if (G_io_reader_ctx.resp_callback != NULL) {
+        if (G_io_reader_ctx.remaining_ms <= 100) {
+            G_io_reader_ctx.remaining_ms = 0;
+        }
+        else {
+            G_io_reader_ctx.remaining_ms -= 100;
+        }
+    }
+}
+
+bool io_nfc_reader_send(const uint8_t      *cmd_data,
+                        size_t              cmd_len,
+                        nfc_resp_callback_t callback,
+                        int                 timeout_ms)
+{
+    G_io_reader_ctx.resp_callback = PIC(callback);
+    io_nfc_send_response(PIC(cmd_data), cmd_len);
+
+    G_io_reader_ctx.response_received = false;
+    G_io_reader_ctx.remaining_ms      = timeout_ms;
+
+    return true;
+}
+
+void io_nfc_reader_power(void)
+{
+    uint8_t buffer[4];
+    buffer[0] = SEPROXYHAL_TAG_NFC_POWER;
+    buffer[1] = 0;
+    buffer[2] = 1;
+    buffer[3] = SEPROXYHAL_TAG_NFC_POWER_ON_READER;
+    io_seproxyhal_spi_send(buffer, 4);
+}
+
+bool io_nfc_reader_start(nfc_evt_callback_t callback)
+{
+    G_io_reader_ctx.evt_callback      = PIC(callback);
+    G_io_reader_ctx.reader_mode       = true;
+    G_io_reader_ctx.event_happened    = false;
+    G_io_reader_ctx.resp_callback     = NULL;
+    G_io_reader_ctx.response_received = false;
+    io_nfc_reader_power();
+    return true;
+}
+
+void io_nfc_reader_stop()
+{
+    G_io_reader_ctx.evt_callback      = NULL;
+    G_io_reader_ctx.reader_mode       = false;
+    G_io_reader_ctx.event_happened    = false;
+    G_io_reader_ctx.resp_callback     = NULL;
+    G_io_reader_ctx.response_received = false;
+    io_seproxyhal_nfc_power(false);
+}
+
+bool io_nfc_is_reader(void)
+{
+    return G_io_reader_ctx.reader_mode;
+}
+
+#endif  // HAVE_NFC_READER
 
 #endif  // HAVE_NFC

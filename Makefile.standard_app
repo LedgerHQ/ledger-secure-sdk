@@ -39,6 +39,12 @@ ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME), TARGET_STAX TARGET_FLEX))
 endif
 endif
 
+ifeq ($(ENABLE_NFC_READER), 1)
+ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME), TARGET_STAX TARGET_FLEX))
+    DEFINES += HAVE_NFC_READER
+endif
+endif
+
 #####################################################################
 #                               SWAP                                #
 #####################################################################
