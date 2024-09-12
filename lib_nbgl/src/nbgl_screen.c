@@ -368,7 +368,7 @@ int nbgl_screenPush(nbgl_obj_t                           ***elements,
                 nbgl_touchStatePosition_t touchStatePosition = {.state = RELEASED, .x = 0, .y = 0};
                 // make a fake touch release for the current top-of-stack to avoid issue
                 // (for example in long-touch press)
-                nbgl_touchHandler(&touchStatePosition, 0);
+                nbgl_touchHandler(topOfStack->isUxScreen, &touchStatePosition, 0);
 #endif  // HAVE_SE_TOUCH
         // new top of stack
                 topOfStack       = &screenStack[screenIndex];
