@@ -59,33 +59,3 @@ void fetch_language_packs(void)
         nbgl_refreshUnicodeFont(language_pack);
     }
 }
-
-#include "nbgl_fonts.h"
-#include "nbgl_font_inter_regular_24.inc"
-#include "nbgl_font_inter_semibold_24.inc"
-#include "nbgl_font_inter_medium_32.inc"
-#include "nbgl_font_inter_regular_24_1bpp.inc"
-#include "nbgl_font_inter_semibold_24_1bpp.inc"
-#include "nbgl_font_inter_medium_32_1bpp.inc"
-#include "nbgl_font_open_sans_extrabold_11.inc"
-#include "nbgl_font_open_sans_regular_11.inc"
-#include "nbgl_font_open_sans_light_16.inc"
-
-static const nbgl_font_t *const C_nbgl_fonts[] = {
-#include "nbgl_font_rom_struct.inc"
-};
-static const unsigned int C_nbgl_fonts_count = sizeof(C_nbgl_fonts) / sizeof(C_nbgl_fonts[0]);
-
-const nbgl_font_t *nbgl_font_getFont(unsigned int fontId)
-{
-    unsigned int i = C_nbgl_fonts_count;
-    while (i--) {
-        // font id match this entry (non indexed array)
-        if (C_nbgl_fonts[i]->font_id == fontId) {
-            return C_nbgl_fonts[i];
-        }
-    }
-
-    // id not found
-    return NULL;
-}

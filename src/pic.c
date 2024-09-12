@@ -93,12 +93,12 @@ static void *ram_real_addr;
 void *pic_shared(const void *link_address)
 {
     // check if in the LINKED TEXT zone
-    if ((link_address > APP_FLASH_RELOC_ADDR) && (link_address <= APP_FLASH_RELOC_END)) {
+    if ((link_address >= APP_FLASH_RELOC_ADDR) && (link_address < APP_FLASH_RELOC_END)) {
         link_address = link_address - APP_FLASH_RELOC_ADDR + flash_real_addr;
     }
 
     // check if in the LINKED RAM zone
-    if ((link_address >= APP_DATA_RELOC_ADDR) && (link_address <= APP_DATA_RELOC_END)) {
+    if ((link_address >= APP_DATA_RELOC_ADDR) && (link_address < APP_DATA_RELOC_END)) {
         link_address = link_address - APP_DATA_RELOC_ADDR + ram_real_addr;
     }
 

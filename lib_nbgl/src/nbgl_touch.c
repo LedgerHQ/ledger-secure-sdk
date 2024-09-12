@@ -20,10 +20,23 @@
 /*********************
  *      DEFINES
  *********************/
+enum {
+    UX_CTX = 0,
+    APP_CTX,
+    NB_CTXS
+};
 
 /**********************
  *      TYPEDEFS
  **********************/
+typedef struct nbgl_touchCtx_s {
+    nbgl_touchState_t         lastState;
+    uint32_t                  lastPressedTime;
+    uint32_t                  lastCurrentTime;
+    nbgl_obj_t               *lastPressedObj;
+    nbgl_touchStatePosition_t firstTouchedPosition;
+    nbgl_touchStatePosition_t lastTouchedPosition;
+} nbgl_touchCtx_t;
 
 /**********************
  *  STATIC PROTOTYPES
@@ -32,10 +45,7 @@
 /**********************
  *  STATIC VARIABLES
  **********************/
-static uint32_t                  lastPressedTime = 0;
-static uint32_t                  lastCurrentTime = 0;
-static nbgl_obj_t               *lastPressedObj  = NULL;
-static nbgl_touchStatePosition_t firstTouchedPosition, lastTouchedPosition;
+static nbgl_touchCtx_t touchCtxs[NB_CTXS];
 
 /**********************
  *      VARIABLES
@@ -255,29 +265,41 @@ static nbgl_touchType_t nbgl_detectSwipe(nbgl_touchStatePosition_t *last,
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
+/**
+ * @brief Function to initialize the touch context
+ * @param fromUx if true, means to initialize the UX context, otherwise App one
+ */
+void nbgl_touchInit(bool fromUx)
+{
+    nbgl_touchCtx_t *ctx = fromUx ? &touchCtxs[UX_CTX] : &touchCtxs[APP_CTX];
+    memset(ctx, 0, sizeof(nbgl_touchCtx_t));
+}
 
 /**
  * @brief Function to be called periodically to check touchscreen state
  * and coordinates
+ * @param fromUx if true, means this is called from the UX, not the App
  * @param touchStatePosition state and position read from touch screen
  * @param currentTime current time in ms
  */
-void nbgl_touchHandler(nbgl_touchStatePosition_t *touchStatePosition, uint32_t currentTime)
+void nbgl_touchHandler(bool                       fromUx,
+                       nbgl_touchStatePosition_t *touchStatePosition,
+                       uint32_t                   currentTime)
 {
-    static nbgl_touchState_t lastState = RELEASED;
-    nbgl_obj_t              *foundObj;
+    nbgl_obj_t      *foundObj;
+    nbgl_touchCtx_t *ctx = fromUx ? &touchCtxs[UX_CTX] : &touchCtxs[APP_CTX];
 
     // save last received currentTime
-    lastCurrentTime = currentTime;
+    ctx->lastCurrentTime = currentTime;
 
-    if (lastState == RELEASED) {
+    if (ctx->lastState == RELEASED) {
         // filter out not realistic cases (successive RELEASE events)
         if (RELEASED == touchStatePosition->state) {
-            lastState = touchStatePosition->state;
+            ctx->lastState = touchStatePosition->state;
             return;
         }
         // memorize first touched position
-        memcpy(&firstTouchedPosition, touchStatePosition, sizeof(nbgl_touchStatePosition_t));
+        memcpy(&ctx->firstTouchedPosition, touchStatePosition, sizeof(nbgl_touchStatePosition_t));
     }
     // LOG_DEBUG(TOUCH_LOGGER,"state = %s, x = %d, y=%d\n",(touchStatePosition->state ==
     // RELEASED)?"RELEASED":"PRESSED",touchStatePosition->x,touchStatePosition->y);
@@ -289,86 +311,88 @@ void nbgl_touchHandler(nbgl_touchStatePosition_t *touchStatePosition, uint32_t c
     // foundObj->type);
     if (foundObj == NULL) {
         LOG_DEBUG(TOUCH_LOGGER, "nbgl_touchHandler: no found obj\n");
-        if ((touchStatePosition->state == PRESSED) && (lastState == PRESSED)
-            && (lastPressedObj != NULL)) {
+        if ((touchStatePosition->state == PRESSED) && (ctx->lastState == PRESSED)
+            && (ctx->lastPressedObj != NULL)) {
             // finger has moved out of an object
             // make sure lastPressedObj still belongs to current screen before warning it
-            if (nbgl_screenContainsObj(lastPressedObj)) {
-                applytouchStatePosition(lastPressedObj, OUT_OF_TOUCH);
+            if (nbgl_screenContainsObj(ctx->lastPressedObj)) {
+                applytouchStatePosition(ctx->lastPressedObj, OUT_OF_TOUCH);
             }
         }
         // Released event has been handled, forget lastPressedObj
-        lastPressedObj = NULL;
+        ctx->lastPressedObj = NULL;
     }
 
     // memorize last touched position
-    memcpy(&lastTouchedPosition, touchStatePosition, sizeof(nbgl_touchStatePosition_t));
+    memcpy(&ctx->lastTouchedPosition, touchStatePosition, sizeof(nbgl_touchStatePosition_t));
 
     if (touchStatePosition->state == RELEASED) {
-        nbgl_touchType_t swipe    = nbgl_detectSwipe(touchStatePosition, &firstTouchedPosition);
+        nbgl_touchType_t swipe = nbgl_detectSwipe(touchStatePosition, &ctx->firstTouchedPosition);
         bool             consumed = false;
 
         if (swipe != NB_TOUCH_TYPES) {
             // Swipe detected
             nbgl_obj_t *swipedObj = getSwipableObject(
-                nbgl_screenGetTop(), &firstTouchedPosition, &lastTouchedPosition, swipe);
+                nbgl_screenGetTop(), &ctx->firstTouchedPosition, &ctx->lastTouchedPosition, swipe);
             // if a swipable object has been found
             if (swipedObj) {
                 applytouchStatePosition(swipedObj, swipe);
                 consumed = true;
             }
         }
-        if (!consumed && (lastPressedObj != NULL)
-            && ((foundObj == lastPressedObj) || (nbgl_screenContainsObj(lastPressedObj)))) {
+        if (!consumed && (ctx->lastPressedObj != NULL)
+            && ((foundObj == ctx->lastPressedObj)
+                || (nbgl_screenContainsObj(ctx->lastPressedObj)))) {
             // very strange if lastPressedObj != foundObj, let's consider that it's a normal release
             // on lastPressedObj make sure lastPressedObj still belongs to current screen before
             // "releasing" it
-            applytouchStatePosition(lastPressedObj, TOUCH_RELEASED);
-            if (currentTime >= (lastPressedTime + LONG_TOUCH_DURATION)) {
-                applytouchStatePosition(lastPressedObj, LONG_TOUCHED);
+            applytouchStatePosition(ctx->lastPressedObj, TOUCH_RELEASED);
+            if (currentTime >= (ctx->lastPressedTime + LONG_TOUCH_DURATION)) {
+                applytouchStatePosition(ctx->lastPressedObj, LONG_TOUCHED);
             }
-            else if (currentTime >= (lastPressedTime + SHORT_TOUCH_DURATION)) {
-                applytouchStatePosition(lastPressedObj, TOUCHED);
+            else if (currentTime >= (ctx->lastPressedTime + SHORT_TOUCH_DURATION)) {
+                applytouchStatePosition(ctx->lastPressedObj, TOUCHED);
             }
         }
         // Released event has been handled, forget lastPressedObj
-        lastPressedObj = NULL;
+        ctx->lastPressedObj = NULL;
     }
     else {  // PRESSED
-        if ((lastState == PRESSED) && (lastPressedObj != NULL)) {
-            if (foundObj != lastPressedObj) {
+        if ((ctx->lastState == PRESSED) && (ctx->lastPressedObj != NULL)) {
+            if (foundObj != ctx->lastPressedObj) {
                 // finger has moved out of an object
                 // make sure lastPressedObj still belongs to current screen before warning it
-                if (nbgl_screenContainsObj(lastPressedObj)) {
-                    applytouchStatePosition(lastPressedObj, OUT_OF_TOUCH);
+                if (nbgl_screenContainsObj(ctx->lastPressedObj)) {
+                    applytouchStatePosition(ctx->lastPressedObj, OUT_OF_TOUCH);
                 }
-                lastPressedObj = NULL;
+                ctx->lastPressedObj = NULL;
             }
             else {
                 // warn the concerned object that it is still touched
                 applytouchStatePosition(foundObj, TOUCHING);
             }
         }
-        else if (lastState == RELEASED) {
+        else if (ctx->lastState == RELEASED) {
             // newly touched object
-            lastPressedObj  = foundObj;
-            lastPressedTime = currentTime;
+            ctx->lastPressedObj  = foundObj;
+            ctx->lastPressedTime = currentTime;
             applytouchStatePosition(foundObj, TOUCH_PRESSED);
             applytouchStatePosition(foundObj, TOUCHING);
         }
     }
 
-    lastState = touchStatePosition->state;
+    ctx->lastState = touchStatePosition->state;
 }
 
 bool nbgl_touchGetTouchedPosition(nbgl_obj_t                 *obj,
                                   nbgl_touchStatePosition_t **firstPos,
                                   nbgl_touchStatePosition_t **lastPos)
 {
-    LOG_DEBUG(TOUCH_LOGGER, "nbgl_touchGetTouchedPosition: %p %p\n", obj, lastPressedObj);
-    if (obj == lastPressedObj) {
-        *firstPos = &firstTouchedPosition;
-        *lastPos  = &lastTouchedPosition;
+    nbgl_touchCtx_t *ctx = nbgl_objIsUx(obj) ? &touchCtxs[UX_CTX] : &touchCtxs[APP_CTX];
+    LOG_DEBUG(TOUCH_LOGGER, "nbgl_touchGetTouchedPosition: %p %p\n", obj, ctx->lastPressedObj);
+    if (obj == ctx->lastPressedObj) {
+        *firstPos = &ctx->firstTouchedPosition;
+        *lastPos  = &ctx->lastTouchedPosition;
         return true;
     }
     return false;
@@ -376,8 +400,9 @@ bool nbgl_touchGetTouchedPosition(nbgl_obj_t                 *obj,
 
 uint32_t nbgl_touchGetTouchDuration(nbgl_obj_t *obj)
 {
-    if (obj == lastPressedObj) {
-        return (lastCurrentTime - lastPressedTime);
+    nbgl_touchCtx_t *ctx = nbgl_objIsUx(obj) ? &touchCtxs[UX_CTX] : &touchCtxs[APP_CTX];
+    if (obj == ctx->lastPressedObj) {
+        return (ctx->lastCurrentTime - ctx->lastPressedTime);
     }
     return 0;
 }

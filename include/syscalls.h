@@ -303,7 +303,6 @@
 #define SYSCALL_nbgl_side_draw_horizontal_line_ID  0x03fa0006
 #define SYSCALL_nbgl_side_draw_img_ID              0x04fa0007
 #define SYSCALL_nbgl_side_refresh_area_ID          0x02fa0008
-#define SYSCALL_nbgl_get_font_ID                   0x01fa000c
 #define SYSCALL_nbgl_screen_reinit_ID              0x00fa000d
 #define SYSCALL_nbgl_front_draw_img_rle_ID         0x05fa0010
 #define SYSCALL_nbgl_front_control_area_masking_ID 0x03fa0012
