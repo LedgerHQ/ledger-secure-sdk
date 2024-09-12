@@ -80,438 +80,418 @@ $(function() {
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="nbgl__debug_8h.html">nbgl_debug.h</a>&quot;</span></div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#include &quot;os_pic.h&quot;</span></div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor">#include &quot;os_io.h&quot;</span></div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#include &quot;os_task.h&quot;</span></div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="comment">/*********************</span></div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="comment"> *      DEFINES</span></div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="comment"> *********************/</span></div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
-<div class="line"><a name="l00038"></a><span class="lineno"><a class="line" href="nbgl__screen_8c.html#a02f3304cdd3446798f8ecd004b6fbb5b">   38</a></span>&#160;<span class="preprocessor">#define SCREEN_STACK_SIZE 4</span></div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160; </div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">/**********************</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment"> *      TYPEDEFS</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment"> **********************/</span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment">/**********************</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment"> *      VARIABLES</span></div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="comment"> **********************/</span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="keyword">static</span> <a class="code" href="nbgl__screen_8h.html#a6a0725e5007ff0b4cdc64183c6862fd6">nbgl_screen_t</a> screenStack[<a class="code" href="nbgl__screen_8c.html#a02f3304cdd3446798f8ecd004b6fbb5b">SCREEN_STACK_SIZE</a>];</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="comment">// number of screens in the stack</span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="keyword">static</span> <a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbScreensOnStack = 0;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment">// this is a pointer of the current top of stack screen</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="keyword">static</span> <a class="code" href="nbgl__screen_8h.html#a6a0725e5007ff0b4cdc64183c6862fd6">nbgl_screen_t</a> *topOfStack;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160; </div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="comment">/**********************</span></div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="comment"> *  STATIC PROTOTYPES</span></div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment"> **********************/</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160; </div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment">/**********************</span></div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment"> *   GLOBAL FUNCTIONS</span></div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="comment"> **********************/</span></div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160; </div>
-<div class="line"><a name="l00065"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#ad6821d8742004d473146aa1ca12fbbcb">   65</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="nbgl__screen_8c.html#ad6821d8742004d473146aa1ca12fbbcb">nbgl_screenRedraw</a>(<span class="keywordtype">void</span>)</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;{</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <span class="keywordflow">if</span> (nbScreensOnStack == 0) {</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;        <a class="code" href="nbgl__debug_8h.html#a0cc05ccd60a4255a70bf44771005dbca">LOG_WARN</a>(<a class="code" href="nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06ca065d7a318551c3444c9e8203aa29a27c">SCREEN_LOGGER</a>, <span class="stringliteral">&quot;nbgl_screenRedraw(): no screen to redraw\n&quot;</span>);</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;        <span class="keywordflow">return</span>;</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    }</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <a class="code" href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a>(<a class="code" href="nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06ca065d7a318551c3444c9e8203aa29a27c">SCREEN_LOGGER</a>, <span class="stringliteral">&quot;nbgl_screenRedraw(): nbScreensOnStack = %d\n&quot;</span>, nbScreensOnStack);</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="preprocessor">#ifdef TARGET_STAX</span></div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="comment">// by default, exclude only left border from touch</span></div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="comment">// if any sub-object is a keyboard, this will be modified when drawing it</span></div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    touch_exclude_borders(LEFT_BORDER);</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">// TARGET_STAX</span></div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160; </div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <a class="code" href="nbgl__screen_8h.html#afed92d72ccab2e1b3c4be89c4816b503">nbgl_screen_reinit</a>();</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <a class="code" href="nbgl__obj_8h.html#a2ab8e03ef462a1e39312659f3b2d419f">nbgl_objDraw</a>((<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *) topOfStack);</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;}</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160; </div>
-<div class="line"><a name="l00087"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#ab80ad79c178bf8a2cb3a2033ded75659">   87</a></span>&#160;<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *<a class="code" href="nbgl__screen_8c.html#ab80ad79c178bf8a2cb3a2033ded75659">nbgl_screenGetAt</a>(<a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> screenIndex)</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;{</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <span class="keywordflow">if</span> (screenIndex &lt; nbScreensOnStack) {</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;        <span class="keywordflow">return</span> (<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *) &amp;screenStack[screenIndex];</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    }</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;        <span class="keywordflow">return</span> NULL;</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    }</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;}</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160; </div>
-<div class="line"><a name="l00101"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#a0a713cc3cf02f9d7f023275703da4f3b">  101</a></span>&#160;<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *<a class="code" href="nbgl__screen_8c.html#a0a713cc3cf02f9d7f023275703da4f3b">nbgl_screenGetTop</a>(<span class="keywordtype">void</span>)</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;{</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    <span class="keywordflow">if</span> (nbScreensOnStack &gt; 0) {</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;        <span class="keywordflow">return</span> (<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *) topOfStack;</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    }</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;        <span class="keywordflow">return</span> NULL;</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    }</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;}</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160; </div>
-<div class="line"><a name="l00115"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#a97c04d45453ccfcb7947c7efa1ea6e3a">  115</a></span>&#160;<a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> <a class="code" href="nbgl__screen_8c.html#a97c04d45453ccfcb7947c7efa1ea6e3a">nbgl_screenGetCurrentStackSize</a>(<span class="keywordtype">void</span>)</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;{</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;    <span class="keywordflow">if</span> ((nbScreensOnStack == 1) &amp;&amp; (screenStack[0].container.nbChildren == 0)) {</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;        <span class="keywordflow">return</span> 0;</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;    }</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;    <span class="keywordflow">return</span> nbScreensOnStack;</div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;}</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160; </div>
-<div class="line"><a name="l00127"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#a8b2a47f335f9beaa78f828c513071532">  127</a></span>&#160;<a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> <a class="code" href="nbgl__screen_8c.html#a8b2a47f335f9beaa78f828c513071532">nbgl_screenGetUxStackSize</a>(<span class="keywordtype">void</span>)</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;{</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;    <a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>        nbUxScreens = 0;</div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;    <a class="code" href="nbgl__screen_8h.html#a6a0725e5007ff0b4cdc64183c6862fd6">nbgl_screen_t</a> *screen      = (<a class="code" href="nbgl__screen_8h.html#a6a0725e5007ff0b4cdc64183c6862fd6">nbgl_screen_t</a> *) topOfStack;</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160; </div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    <span class="keywordflow">if</span> (<a class="code" href="nbgl__screen_8c.html#a97c04d45453ccfcb7947c7efa1ea6e3a">nbgl_screenGetCurrentStackSize</a>() == 0) {</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;        <span class="keywordflow">return</span> 0;</div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;    }</div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;    <span class="keywordflow">while</span> (screen != NULL) {</div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;        <span class="keywordflow">if</span> (screen-&gt;isUxScreen) {</div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;            nbUxScreens++;</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;        }</div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;        screen = screen-&gt;previous;</div>
-<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;    }</div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;    <span class="keywordflow">return</span> nbUxScreens;</div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;}</div>
-<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160; </div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;<span class="keyword">static</span> <span class="keywordtype">int</span> nbgl_screenSetAt(<a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>                                 screenIndex,</div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;                            <a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a>                           ***children,</div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;                            <a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>                                 nbChildren,</div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;                            <span class="keyword">const</span> <a class="code" href="nbgl__screen_8h.html#aab884939652843460a551908d88105aa">nbgl_screenTickerConfiguration_t</a> *ticker,</div>
-<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;#ifdef HAVE_SE_TOUCH</div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;                            <a class="code" href="nbgl__obj_8h.html#a1b7acc68e9b5c497870cf8e597761d8f">nbgl_touchCallback_t</a> callback)</div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;{</div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;<span class="preprocessor">#else   </span><span class="comment">// HAVE_SE_TOUCH</span></div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;                            <a class="code" href="nbgl__obj_8h.html#aa4b1eaa53fe9b9a543dcca0b48635799">nbgl_buttonCallback_t</a> callback)</div>
-<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;{</div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">// HAVE_SE_TOUCH</span></div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    <span class="keywordflow">if</span> (screenIndex &gt;= <a class="code" href="nbgl__screen_8c.html#a02f3304cdd3446798f8ecd004b6fbb5b">SCREEN_STACK_SIZE</a>) {</div>
-<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;        <a class="code" href="nbgl__debug_8h.html#a0cc05ccd60a4255a70bf44771005dbca">LOG_WARN</a>(<a class="code" href="nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06ca065d7a318551c3444c9e8203aa29a27c">SCREEN_LOGGER</a>, <span class="stringliteral">&quot;nbgl_screenSetAt(): forbidden screenIndex (%d)\n&quot;</span>, screenIndex);</div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;        <span class="keywordflow">return</span> -1;</div>
-<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;    }</div>
-<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    *children                                   = <a class="code" href="nbgl__obj_8h.html#a429a47fa3698c0db865bbd72cfc4ed41">nbgl_containerPoolGet</a>(nbChildren, screenIndex);</div>
-<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;    screenStack[screenIndex].container.obj.type = <a class="code" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7af2a9da294a4a62d55f04725d7efbb6ac">SCREEN</a>;</div>
-<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;<span class="preprocessor">#ifdef HAVE_SE_TOUCH</span></div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;    screenStack[screenIndex].container.obj.area.backgroundColor = <a class="code" href="nbgl__types_8h.html#a0a8ef1b5e1941b7257e545cc33405ff1a283fc479650da98250635b9c3c0e7e50">WHITE</a>;</div>
-<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;<span class="preprocessor">#else   </span><span class="comment">// HAVE_SE_TOUCH</span></div>
-<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;    screenStack[screenIndex].container.obj.area.backgroundColor = <a class="code" href="nbgl__types_8h.html#a0a8ef1b5e1941b7257e545cc33405ff1af77fb67151d0c18d397069ad8c271ba3">BLACK</a>;</div>
-<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">// HAVE_SE_TOUCH</span></div>
-<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;    screenStack[screenIndex].container.obj.area.height = <a class="code" href="nbgl__types_8h.html#a6974d08a74da681b3957b2fead2608b8">SCREEN_HEIGHT</a>;</div>
-<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;    screenStack[screenIndex].container.obj.area.width  = <a class="code" href="nbgl__types_8h.html#a2cd109632a6dcccaa80b43561b1ab700">SCREEN_WIDTH</a>;</div>
-<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;    screenStack[screenIndex].container.obj.area.x0     = 0;</div>
-<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;    screenStack[screenIndex].container.obj.area.y0     = 0;</div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;    screenStack[screenIndex].container.obj.rel_x0      = 0;</div>
-<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;    screenStack[screenIndex].container.obj.rel_y0      = 0;</div>
-<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;    screenStack[screenIndex].index                     = screenIndex;</div>
-<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;    screenStack[screenIndex].container.layout          = <a class="code" href="nbgl__types_8h.html#a45c8941c6bef8b2e44b38f1c66c1a5d8a1a88641fcd39f2ed3e58a18526e97138">VERTICAL</a>;</div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;    screenStack[screenIndex].container.children        = *children;</div>
-<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;    screenStack[screenIndex].container.nbChildren      = nbChildren;</div>
-<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;<span class="preprocessor">#ifdef HAVE_SE_TOUCH</span></div>
-<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;    screenStack[screenIndex].touchCallback = callback;</div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;<span class="preprocessor">#else   </span><span class="comment">// HAVE_SE_TOUCH</span></div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;    screenStack[screenIndex].buttonCallback                     = callback;</div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">// HAVE_SE_TOUCH</span></div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;    <span class="keywordflow">if</span> (ticker != NULL) {</div>
-<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;        screenStack[screenIndex].ticker.tickerCallback</div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;            = (<a class="code" href="nbgl__screen_8h.html#a7c8c4b5af67fe50c2a9669a371be70c0">nbgl_tickerCallback_t</a>) PIC(ticker-&gt;tickerCallback);</div>
-<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;        screenStack[screenIndex].ticker.tickerIntervale = ticker-&gt;tickerIntervale;</div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;        screenStack[screenIndex].ticker.tickerValue     = ticker-&gt;tickerValue;</div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;    }</div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;    <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;        screenStack[screenIndex].ticker.tickerCallback = NULL;</div>
-<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;    }</div>
-<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;    screenStack[screenIndex].isUxScreen = (os_sched_current_task() == TASK_BOLOS_UX);</div>
-<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;    <span class="keywordflow">return</span> 0;</div>
-<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;}</div>
-<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160; </div>
-<div class="line"><a name="l00224"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#a099925e24b43d3f259d61e4761346507">  224</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="nbgl__screen_8c.html#a200cf6c689a755f45047d084f2e08102">nbgl_screenSet</a>(<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a>                           ***elements,</div>
-<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;                   <a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>                                 nbElements,</div>
-<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;                   <span class="keyword">const</span> <a class="code" href="nbgl__screen_8h.html#aab884939652843460a551908d88105aa">nbgl_screenTickerConfiguration_t</a> *ticker,</div>
-<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;#ifdef HAVE_SE_TOUCH</div>
-<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;                   <a class="code" href="nbgl__obj_8h.html#a1b7acc68e9b5c497870cf8e597761d8f">nbgl_touchCallback_t</a> callback)</div>
-<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;{</div>
-<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;<span class="preprocessor">#else   </span><span class="comment">// HAVE_SE_TOUCH</span></div>
-<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;                   <a class="code" href="nbgl__obj_8h.html#aa4b1eaa53fe9b9a543dcca0b48635799">nbgl_buttonCallback_t</a> callback)</div>
-<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;{</div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">// HAVE_SE_TOUCH</span></div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;    <span class="comment">// if no screen, consider it as a first fake push</span></div>
-<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;    <span class="keywordflow">if</span> (nbScreensOnStack == 0) {</div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;        nbScreensOnStack++;</div>
-<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;        topOfStack = &amp;screenStack[0];</div>
-<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;    }</div>
-<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;    <span class="comment">// release used objects and containers</span></div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;    <a class="code" href="nbgl__obj_8h.html#ae7704eb0c272efa1b69204327fe7be7d">nbgl_objPoolRelease</a>(0);</div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;    <a class="code" href="nbgl__obj_8h.html#a759fce316adba848fb6a6c8d09c51a80">nbgl_containerPoolRelease</a>(0);</div>
-<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;    <span class="comment">// always use the first layer (background) for user application</span></div>
-<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;    <span class="keywordflow">return</span> nbgl_screenSetAt(0, elements, nbElements, ticker, callback);</div>
-<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;}</div>
-<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160; </div>
-<div class="line"><a name="l00256"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#a5db4e20e622f06114f718cbb138e7261">  256</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="nbgl__screen_8c.html#a5db4e20e622f06114f718cbb138e7261">nbgl_screenUpdateNbElements</a>(<a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> screenIndex, <a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbElements)</div>
-<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;{</div>
-<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;    screenStack[screenIndex].container.nbChildren = nbElements;</div>
-<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;    <span class="keywordflow">return</span> 0;</div>
-<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;}</div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160; </div>
-<div class="line"><a name="l00272"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#ac0881cdb12d5c0fac710542c9b9784b7">  272</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="nbgl__screen_8c.html#ac0881cdb12d5c0fac710542c9b9784b7">nbgl_screenUpdateBackgroundColor</a>(<a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> screenIndex, <a class="code" href="nbgl__types_8h.html#a0a8ef1b5e1941b7257e545cc33405ff1">color_t</a> color)</div>
-<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;{</div>
-<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;    screenStack[screenIndex].container.obj.area.backgroundColor = color;</div>
-<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;    <span class="keywordflow">return</span> 0;</div>
-<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;}</div>
-<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160; </div>
-<div class="line"><a name="l00288"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#a615c6f3aaef0571e15541789b1a975d0">  288</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="nbgl__screen_8c.html#a615c6f3aaef0571e15541789b1a975d0">nbgl_screenUpdateTicker</a>(<a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> screenIndex, <span class="keyword">const</span> <a class="code" href="nbgl__screen_8h.html#aab884939652843460a551908d88105aa">nbgl_screenTickerConfiguration_t</a> *ticker)</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160; </div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="comment">/*********************</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="comment"> *      DEFINES</span></div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="comment"> *********************/</span></div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160; </div>
+<div class="line"><a name="l00037"></a><span class="lineno"><a class="line" href="nbgl__screen_8c.html#a02f3304cdd3446798f8ecd004b6fbb5b">   37</a></span>&#160;<span class="preprocessor">#define SCREEN_STACK_SIZE 4</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160; </div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment">/**********************</span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment"> *      TYPEDEFS</span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment"> **********************/</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160; </div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment">/**********************</span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment"> *      VARIABLES</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment"> **********************/</span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="keyword">static</span> <a class="code" href="nbgl__screen_8h.html#a6a0725e5007ff0b4cdc64183c6862fd6">nbgl_screen_t</a> screenStack[<a class="code" href="nbgl__screen_8c.html#a02f3304cdd3446798f8ecd004b6fbb5b">SCREEN_STACK_SIZE</a>];</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="comment">// number of screens in the stack</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="keyword">static</span> <a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbScreensOnStack = 0;</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="comment">// this is a pointer of the current top of stack screen</span></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="keyword">static</span> <a class="code" href="nbgl__screen_8h.html#a6a0725e5007ff0b4cdc64183c6862fd6">nbgl_screen_t</a> *topOfStack;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160; </div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="comment">/**********************</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="comment"> *  STATIC PROTOTYPES</span></div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="comment"> **********************/</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160; </div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="comment">/**********************</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment"> *   GLOBAL FUNCTIONS</span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment"> **********************/</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
+<div class="line"><a name="l00064"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#ad6821d8742004d473146aa1ca12fbbcb">   64</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="nbgl__screen_8c.html#ad6821d8742004d473146aa1ca12fbbcb">nbgl_screenRedraw</a>(<span class="keywordtype">void</span>)</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;{</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keywordflow">if</span> (nbScreensOnStack == 0) {</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;        <a class="code" href="nbgl__debug_8h.html#a0cc05ccd60a4255a70bf44771005dbca">LOG_WARN</a>(<a class="code" href="nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06ca065d7a318551c3444c9e8203aa29a27c">SCREEN_LOGGER</a>, <span class="stringliteral">&quot;nbgl_screenRedraw(): no screen to redraw\n&quot;</span>);</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;        <span class="keywordflow">return</span>;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    }</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <a class="code" href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a>(<a class="code" href="nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06ca065d7a318551c3444c9e8203aa29a27c">SCREEN_LOGGER</a>, <span class="stringliteral">&quot;nbgl_screenRedraw(): nbScreensOnStack = %d\n&quot;</span>, nbScreensOnStack);</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="preprocessor">#ifdef TARGET_STAX</span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="comment">// by default, exclude only left border from touch</span></div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="comment">// if any sub-object is a keyboard, this will be modified when drawing it</span></div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    touch_exclude_borders(LEFT_BORDER);</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">// TARGET_STAX</span></div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160; </div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <a class="code" href="nbgl__screen_8h.html#afed92d72ccab2e1b3c4be89c4816b503">nbgl_screen_reinit</a>();</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <a class="code" href="nbgl__obj_8h.html#af92d98c95cf13cf21a60a10569b2c79d">nbgl_redrawObject</a>((<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *) topOfStack, NULL, <span class="keyword">true</span>);</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;}</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160; </div>
+<div class="line"><a name="l00086"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#ab80ad79c178bf8a2cb3a2033ded75659">   86</a></span>&#160;<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *<a class="code" href="nbgl__screen_8c.html#ab80ad79c178bf8a2cb3a2033ded75659">nbgl_screenGetAt</a>(<a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> screenIndex)</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;{</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <span class="keywordflow">if</span> (screenIndex &lt; nbScreensOnStack) {</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;        <span class="keywordflow">return</span> (<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *) &amp;screenStack[screenIndex];</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    }</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;        <span class="keywordflow">return</span> NULL;</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    }</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;}</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160; </div>
+<div class="line"><a name="l00100"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#a0a713cc3cf02f9d7f023275703da4f3b">  100</a></span>&#160;<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *<a class="code" href="nbgl__screen_8c.html#a0a713cc3cf02f9d7f023275703da4f3b">nbgl_screenGetTop</a>(<span class="keywordtype">void</span>)</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;{</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    <span class="keywordflow">if</span> (nbScreensOnStack &gt; 0) {</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;        <span class="keywordflow">return</span> (<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *) topOfStack;</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    }</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;        <span class="keywordflow">return</span> NULL;</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    }</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;}</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160; </div>
+<div class="line"><a name="l00114"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#a97c04d45453ccfcb7947c7efa1ea6e3a">  114</a></span>&#160;<a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> <a class="code" href="nbgl__screen_8c.html#a97c04d45453ccfcb7947c7efa1ea6e3a">nbgl_screenGetCurrentStackSize</a>(<span class="keywordtype">void</span>)</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;{</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    <span class="keywordflow">if</span> ((nbScreensOnStack == 1) &amp;&amp; (screenStack[0].container.nbChildren == 0)) {</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;        <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    }</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;    <span class="keywordflow">return</span> nbScreensOnStack;</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;}</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160; </div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;<span class="keyword">static</span> <span class="keywordtype">int</span> nbgl_screenSetAt(<a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>                                 screenIndex,</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;                            <a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a>                           ***children,</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;                            <a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>                                 nbChildren,</div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;                            <span class="keyword">const</span> <a class="code" href="nbgl__screen_8h.html#aab884939652843460a551908d88105aa">nbgl_screenTickerConfiguration_t</a> *ticker,</div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;#ifdef HAVE_SE_TOUCH</div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;                            <a class="code" href="nbgl__obj_8h.html#a1b7acc68e9b5c497870cf8e597761d8f">nbgl_touchCallback_t</a> callback)</div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;{</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;<span class="preprocessor">#else   </span><span class="comment">// HAVE_SE_TOUCH</span></div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;                            <a class="code" href="nbgl__obj_8h.html#aa4b1eaa53fe9b9a543dcca0b48635799">nbgl_buttonCallback_t</a> callback)</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;{</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">// HAVE_SE_TOUCH</span></div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    <span class="keywordflow">if</span> (screenIndex &gt;= <a class="code" href="nbgl__screen_8c.html#a02f3304cdd3446798f8ecd004b6fbb5b">SCREEN_STACK_SIZE</a>) {</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;        <a class="code" href="nbgl__debug_8h.html#a0cc05ccd60a4255a70bf44771005dbca">LOG_WARN</a>(<a class="code" href="nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06ca065d7a318551c3444c9e8203aa29a27c">SCREEN_LOGGER</a>, <span class="stringliteral">&quot;nbgl_screenSetAt(): forbidden screenIndex (%d)\n&quot;</span>, screenIndex);</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;        <span class="keywordflow">return</span> -1;</div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;    }</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;    *children                                   = <a class="code" href="nbgl__obj_8h.html#a429a47fa3698c0db865bbd72cfc4ed41">nbgl_containerPoolGet</a>(nbChildren, screenIndex);</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    screenStack[screenIndex].container.obj.type = <a class="code" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7af2a9da294a4a62d55f04725d7efbb6ac">SCREEN</a>;</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;<span class="preprocessor">#ifdef HAVE_SE_TOUCH</span></div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;    screenStack[screenIndex].container.obj.area.backgroundColor = <a class="code" href="nbgl__types_8h.html#a0a8ef1b5e1941b7257e545cc33405ff1a283fc479650da98250635b9c3c0e7e50">WHITE</a>;</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;<span class="preprocessor">#else   </span><span class="comment">// HAVE_SE_TOUCH</span></div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;    screenStack[screenIndex].container.obj.area.backgroundColor = <a class="code" href="nbgl__types_8h.html#a0a8ef1b5e1941b7257e545cc33405ff1af77fb67151d0c18d397069ad8c271ba3">BLACK</a>;</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">// HAVE_SE_TOUCH</span></div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    screenStack[screenIndex].container.obj.area.height = <a class="code" href="nbgl__types_8h.html#a6974d08a74da681b3957b2fead2608b8">SCREEN_HEIGHT</a>;</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;    screenStack[screenIndex].container.obj.area.width  = <a class="code" href="nbgl__types_8h.html#a2cd109632a6dcccaa80b43561b1ab700">SCREEN_WIDTH</a>;</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    screenStack[screenIndex].container.obj.area.x0     = 0;</div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;    screenStack[screenIndex].container.obj.area.y0     = 0;</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;    screenStack[screenIndex].container.obj.rel_x0      = 0;</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;    screenStack[screenIndex].container.obj.rel_y0      = 0;</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;    screenStack[screenIndex].index                     = screenIndex;</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;    screenStack[screenIndex].container.layout          = <a class="code" href="nbgl__types_8h.html#a45c8941c6bef8b2e44b38f1c66c1a5d8a1a88641fcd39f2ed3e58a18526e97138">VERTICAL</a>;</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    screenStack[screenIndex].container.children        = *children;</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    screenStack[screenIndex].container.nbChildren      = nbChildren;</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;<span class="preprocessor">#ifdef HAVE_SE_TOUCH</span></div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    screenStack[screenIndex].touchCallback = callback;</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;<span class="preprocessor">#else   </span><span class="comment">// HAVE_SE_TOUCH</span></div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;    screenStack[screenIndex].buttonCallback                     = callback;</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">// HAVE_SE_TOUCH</span></div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    <span class="keywordflow">if</span> (ticker != NULL) {</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;        screenStack[screenIndex].ticker.tickerCallback</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;            = (<a class="code" href="nbgl__screen_8h.html#a7c8c4b5af67fe50c2a9669a371be70c0">nbgl_tickerCallback_t</a>) PIC(ticker-&gt;tickerCallback);</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;        screenStack[screenIndex].ticker.tickerIntervale = ticker-&gt;tickerIntervale;</div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;        screenStack[screenIndex].ticker.tickerValue     = ticker-&gt;tickerValue;</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;    }</div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;    <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;        screenStack[screenIndex].ticker.tickerCallback = NULL;</div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;    }</div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;    <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;}</div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160; </div>
+<div class="line"><a name="l00201"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#a099925e24b43d3f259d61e4761346507">  201</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="nbgl__screen_8c.html#a200cf6c689a755f45047d084f2e08102">nbgl_screenSet</a>(<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a>                           ***elements,</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;                   <a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>                                 nbElements,</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;                   <span class="keyword">const</span> <a class="code" href="nbgl__screen_8h.html#aab884939652843460a551908d88105aa">nbgl_screenTickerConfiguration_t</a> *ticker,</div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;#ifdef HAVE_SE_TOUCH</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;                   <a class="code" href="nbgl__obj_8h.html#a1b7acc68e9b5c497870cf8e597761d8f">nbgl_touchCallback_t</a> callback)</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;{</div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;<span class="preprocessor">#else   </span><span class="comment">// HAVE_SE_TOUCH</span></div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;                   <a class="code" href="nbgl__obj_8h.html#aa4b1eaa53fe9b9a543dcca0b48635799">nbgl_buttonCallback_t</a> callback)</div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;{</div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">// HAVE_SE_TOUCH</span></div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;    <span class="comment">// if no screen, consider it as a first fake push</span></div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;    <span class="keywordflow">if</span> (nbScreensOnStack == 0) {</div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;        nbScreensOnStack++;</div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;        topOfStack = &amp;screenStack[0];</div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;    }</div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;    <span class="comment">// release used objects and containers</span></div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;    <a class="code" href="nbgl__obj_8h.html#ae7704eb0c272efa1b69204327fe7be7d">nbgl_objPoolRelease</a>(0);</div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    <a class="code" href="nbgl__obj_8h.html#a759fce316adba848fb6a6c8d09c51a80">nbgl_containerPoolRelease</a>(0);</div>
+<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;    <span class="comment">// always use the first layer (background) for user application</span></div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    <span class="keywordflow">return</span> nbgl_screenSetAt(0, elements, nbElements, ticker, callback);</div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;}</div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160; </div>
+<div class="line"><a name="l00233"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#a5db4e20e622f06114f718cbb138e7261">  233</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="nbgl__screen_8c.html#a5db4e20e622f06114f718cbb138e7261">nbgl_screenUpdateNbElements</a>(<a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> screenIndex, <a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbElements)</div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;{</div>
+<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;    screenStack[screenIndex].container.nbChildren = nbElements;</div>
+<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;    <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;}</div>
+<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160; </div>
+<div class="line"><a name="l00249"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#ac0881cdb12d5c0fac710542c9b9784b7">  249</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="nbgl__screen_8c.html#ac0881cdb12d5c0fac710542c9b9784b7">nbgl_screenUpdateBackgroundColor</a>(<a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> screenIndex, <a class="code" href="nbgl__types_8h.html#a0a8ef1b5e1941b7257e545cc33405ff1">color_t</a> color)</div>
+<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;{</div>
+<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;    screenStack[screenIndex].container.obj.area.backgroundColor = color;</div>
+<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;    <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;}</div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160; </div>
+<div class="line"><a name="l00265"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#a615c6f3aaef0571e15541789b1a975d0">  265</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="nbgl__screen_8c.html#a615c6f3aaef0571e15541789b1a975d0">nbgl_screenUpdateTicker</a>(<a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> screenIndex, <span class="keyword">const</span> <a class="code" href="nbgl__screen_8h.html#aab884939652843460a551908d88105aa">nbgl_screenTickerConfiguration_t</a> *ticker)</div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;{</div>
+<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;    <span class="keywordflow">if</span> (ticker != NULL) {</div>
+<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;        screenStack[screenIndex].ticker.tickerCallback</div>
+<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;            = (<a class="code" href="nbgl__screen_8h.html#a7c8c4b5af67fe50c2a9669a371be70c0">nbgl_tickerCallback_t</a>) PIC(ticker-&gt;tickerCallback);</div>
+<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;        screenStack[screenIndex].ticker.tickerIntervale = ticker-&gt;tickerIntervale;</div>
+<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;        screenStack[screenIndex].ticker.tickerValue     = ticker-&gt;tickerValue;</div>
+<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;    }</div>
+<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;    <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;        screenStack[screenIndex].ticker.tickerCallback = NULL;</div>
+<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;    }</div>
+<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;    <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;}</div>
+<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160; </div>
+<div class="line"><a name="l00288"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#a766eaf220deaa33bdcd544b5596aeb74">  288</a></span>&#160;<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> **<a class="code" href="nbgl__screen_8c.html#a766eaf220deaa33bdcd544b5596aeb74">nbgl_screenGetElements</a>(<a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> screenIndex)</div>
 <div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;{</div>
-<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;    <span class="keywordflow">if</span> (ticker != NULL) {</div>
-<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;        screenStack[screenIndex].ticker.tickerCallback</div>
-<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;            = (<a class="code" href="nbgl__screen_8h.html#a7c8c4b5af67fe50c2a9669a371be70c0">nbgl_tickerCallback_t</a>) PIC(ticker-&gt;tickerCallback);</div>
-<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;        screenStack[screenIndex].ticker.tickerIntervale = ticker-&gt;tickerIntervale;</div>
-<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;        screenStack[screenIndex].ticker.tickerValue     = ticker-&gt;tickerValue;</div>
-<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;    }</div>
-<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;    <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;        screenStack[screenIndex].ticker.tickerCallback = NULL;</div>
-<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;    }</div>
-<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;    <span class="keywordflow">return</span> 0;</div>
-<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;}</div>
-<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160; </div>
-<div class="line"><a name="l00311"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#a766eaf220deaa33bdcd544b5596aeb74">  311</a></span>&#160;<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> **<a class="code" href="nbgl__screen_8c.html#a766eaf220deaa33bdcd544b5596aeb74">nbgl_screenGetElements</a>(<a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> screenIndex)</div>
-<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;{</div>
-<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;    <span class="keywordflow">return</span> screenStack[screenIndex].container.children;</div>
-<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;}</div>
-<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160; </div>
-<div class="line"><a name="l00329"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#a0e468f89cce352ae660d47511ceb4936">  329</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="nbgl__screen_8c.html#a4133e082be8b399c9f4e519f95d3dbda">nbgl_screenPush</a>(<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a>                           ***elements,</div>
-<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;                    <a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>                                 nbElements,</div>
-<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;                    <span class="keyword">const</span> <a class="code" href="nbgl__screen_8h.html#aab884939652843460a551908d88105aa">nbgl_screenTickerConfiguration_t</a> *ticker,</div>
-<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;#ifdef HAVE_SE_TOUCH</div>
-<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;                    <a class="code" href="nbgl__obj_8h.html#a1b7acc68e9b5c497870cf8e597761d8f">nbgl_touchCallback_t</a> callback)</div>
-<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;{</div>
-<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;<span class="preprocessor">#else   </span><span class="comment">// HAVE_SE_TOUCH</span></div>
-<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;                    <a class="code" href="nbgl__obj_8h.html#aa4b1eaa53fe9b9a543dcca0b48635799">nbgl_buttonCallback_t</a> callback)</div>
-<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;{</div>
-<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">// HAVE_SE_TOUCH</span></div>
-<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;    <a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> screenIndex;</div>
-<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;    <span class="keywordflow">if</span> (nbScreensOnStack &gt;= <a class="code" href="nbgl__screen_8c.html#a02f3304cdd3446798f8ecd004b6fbb5b">SCREEN_STACK_SIZE</a>) {</div>
-<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;        <a class="code" href="nbgl__debug_8h.html#a0cc05ccd60a4255a70bf44771005dbca">LOG_WARN</a>(<a class="code" href="nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06ca065d7a318551c3444c9e8203aa29a27c">SCREEN_LOGGER</a>,</div>
-<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;                 <span class="stringliteral">&quot;nbgl_screenPush(): already in highest index in the stack(%d)\n&quot;</span>,</div>
-<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;                 nbScreensOnStack - 1);</div>
-<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;        <span class="keywordflow">return</span> -1;</div>
-<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;    }</div>
-<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;    <span class="comment">// if no screen, consider it as a first fake push</span></div>
-<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;    <span class="keywordflow">if</span> (nbScreensOnStack == 0) {</div>
-<div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160;        screenIndex      = 1;  <span class="comment">// push at position 1 because 0 is reserved for background</span></div>
-<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;        topOfStack       = &amp;screenStack[screenIndex];</div>
-<div class="line"><a name="l00350"></a><span class="lineno">  350</span>&#160;        topOfStack-&gt;next = NULL;</div>
-<div class="line"><a name="l00351"></a><span class="lineno">  351</span>&#160;        <span class="comment">// link top of stack to background (even if empty)</span></div>
-<div class="line"><a name="l00352"></a><span class="lineno">  352</span>&#160;        topOfStack-&gt;previous                = &amp;screenStack[0];</div>
-<div class="line"><a name="l00353"></a><span class="lineno">  353</span>&#160;        screenStack[0].next                 = topOfStack;</div>
-<div class="line"><a name="l00354"></a><span class="lineno">  354</span>&#160;        screenStack[0].container.nbChildren = 0;</div>
-<div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;        <span class="comment">// count empty background as an active screen</span></div>
-<div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;        nbScreensOnStack++;</div>
-<div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;    }</div>
-<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;    <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;        <span class="comment">// find a non used screen in the array</span></div>
-<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;        <span class="keywordflow">for</span> (screenIndex = 1; screenIndex &lt; <a class="code" href="nbgl__screen_8c.html#a02f3304cdd3446798f8ecd004b6fbb5b">SCREEN_STACK_SIZE</a>; screenIndex++) {</div>
-<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;            <span class="keywordflow">if</span> (screenStack[screenIndex].previous == NULL) {</div>
-<div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;                <span class="comment">// if no previous, means unused, so take it</span></div>
-<div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160;                <span class="comment">// update previous topOfStack</span></div>
-<div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160;                topOfStack-&gt;next                  = &amp;screenStack[screenIndex];</div>
-<div class="line"><a name="l00365"></a><span class="lineno">  365</span>&#160;                screenStack[screenIndex].previous = topOfStack;</div>
-<div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160;                <span class="comment">// new top of stack</span></div>
-<div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;                topOfStack       = &amp;screenStack[screenIndex];</div>
-<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;                topOfStack-&gt;next = NULL;</div>
-<div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;                <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;            }</div>
-<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;        }</div>
-<div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;        <span class="keywordflow">if</span> (screenIndex == <a class="code" href="nbgl__screen_8c.html#a02f3304cdd3446798f8ecd004b6fbb5b">SCREEN_STACK_SIZE</a>) {</div>
-<div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;            <span class="comment">// should never happen</span></div>
-<div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;            <a class="code" href="nbgl__debug_8h.html#a0cc05ccd60a4255a70bf44771005dbca">LOG_WARN</a>(<a class="code" href="nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06ca065d7a318551c3444c9e8203aa29a27c">SCREEN_LOGGER</a>, <span class="stringliteral">&quot;nbgl_screenPush(): corruption in stack\n&quot;</span>);</div>
-<div class="line"><a name="l00375"></a><span class="lineno">  375</span>&#160;        }</div>
-<div class="line"><a name="l00376"></a><span class="lineno">  376</span>&#160;    }</div>
-<div class="line"><a name="l00377"></a><span class="lineno">  377</span>&#160;    <span class="keywordflow">if</span> (nbgl_screenSetAt(screenIndex, elements, nbElements, ticker, callback) &gt;= 0) {</div>
-<div class="line"><a name="l00378"></a><span class="lineno">  378</span>&#160;        nbScreensOnStack++;</div>
-<div class="line"><a name="l00379"></a><span class="lineno">  379</span>&#160;        <a class="code" href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a>(<a class="code" href="nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06ca065d7a318551c3444c9e8203aa29a27c">SCREEN_LOGGER</a>, <span class="stringliteral">&quot;nbgl_screenPush(): screen %d is now top of stack\n&quot;</span>, screenIndex);</div>
-<div class="line"><a name="l00380"></a><span class="lineno">  380</span>&#160;        <span class="keywordflow">return</span> screenIndex;</div>
-<div class="line"><a name="l00381"></a><span class="lineno">  381</span>&#160;    }</div>
-<div class="line"><a name="l00382"></a><span class="lineno">  382</span>&#160;    <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00383"></a><span class="lineno">  383</span>&#160;        <span class="keywordflow">return</span> -1;</div>
-<div class="line"><a name="l00384"></a><span class="lineno">  384</span>&#160;    }</div>
-<div class="line"><a name="l00385"></a><span class="lineno">  385</span>&#160;}</div>
-<div class="line"><a name="l00386"></a><span class="lineno">  386</span>&#160; </div>
-<div class="line"><a name="l00396"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#a93d1ccd6c8af6fc0c205e8c2c283282b">  396</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="nbgl__screen_8c.html#a93d1ccd6c8af6fc0c205e8c2c283282b">nbgl_screenPop</a>(<a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> screenIndex)</div>
-<div class="line"><a name="l00397"></a><span class="lineno">  397</span>&#160;{</div>
-<div class="line"><a name="l00398"></a><span class="lineno">  398</span>&#160;    <span class="keywordflow">if</span> (nbScreensOnStack == 0) {</div>
-<div class="line"><a name="l00399"></a><span class="lineno">  399</span>&#160;        <a class="code" href="nbgl__debug_8h.html#a0cc05ccd60a4255a70bf44771005dbca">LOG_WARN</a>(<a class="code" href="nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06ca065d7a318551c3444c9e8203aa29a27c">SCREEN_LOGGER</a>, <span class="stringliteral">&quot;nbgl_screenPop(): already in lowest index in the stack\n&quot;</span>);</div>
-<div class="line"><a name="l00400"></a><span class="lineno">  400</span>&#160;        <span class="keywordflow">return</span> -1;</div>
-<div class="line"><a name="l00401"></a><span class="lineno">  401</span>&#160;    }</div>
-<div class="line"><a name="l00402"></a><span class="lineno">  402</span>&#160;    <a class="code" href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a>(<a class="code" href="nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06ca065d7a318551c3444c9e8203aa29a27c">SCREEN_LOGGER</a>, <span class="stringliteral">&quot;nbgl_screenPop(): at index %d\n&quot;</span>, screenIndex);</div>
-<div class="line"><a name="l00403"></a><span class="lineno">  403</span>&#160;    nbScreensOnStack--;</div>
-<div class="line"><a name="l00404"></a><span class="lineno">  404</span>&#160;    <span class="comment">// move top of stack if needed</span></div>
-<div class="line"><a name="l00405"></a><span class="lineno">  405</span>&#160;    <span class="keywordflow">if</span> (&amp;screenStack[screenIndex] == topOfStack) {</div>
-<div class="line"><a name="l00406"></a><span class="lineno">  406</span>&#160;        <span class="keywordflow">if</span> (nbScreensOnStack == 0) {</div>
-<div class="line"><a name="l00407"></a><span class="lineno">  407</span>&#160;            topOfStack = NULL;</div>
-<div class="line"><a name="l00408"></a><span class="lineno">  408</span>&#160;        }</div>
-<div class="line"><a name="l00409"></a><span class="lineno">  409</span>&#160;        <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00410"></a><span class="lineno">  410</span>&#160;            topOfStack = topOfStack-&gt;previous;</div>
-<div class="line"><a name="l00411"></a><span class="lineno">  411</span>&#160;        }</div>
+<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;    <span class="keywordflow">return</span> screenStack[screenIndex].container.children;</div>
+<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;}</div>
+<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160; </div>
+<div class="line"><a name="l00306"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#a0e468f89cce352ae660d47511ceb4936">  306</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="nbgl__screen_8c.html#a4133e082be8b399c9f4e519f95d3dbda">nbgl_screenPush</a>(<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a>                           ***elements,</div>
+<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;                    <a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>                                 nbElements,</div>
+<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;                    <span class="keyword">const</span> <a class="code" href="nbgl__screen_8h.html#aab884939652843460a551908d88105aa">nbgl_screenTickerConfiguration_t</a> *ticker,</div>
+<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;#ifdef HAVE_SE_TOUCH</div>
+<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;                    <a class="code" href="nbgl__obj_8h.html#a1b7acc68e9b5c497870cf8e597761d8f">nbgl_touchCallback_t</a> callback)</div>
+<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;{</div>
+<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;<span class="preprocessor">#else   </span><span class="comment">// HAVE_SE_TOUCH</span></div>
+<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;                    <a class="code" href="nbgl__obj_8h.html#aa4b1eaa53fe9b9a543dcca0b48635799">nbgl_buttonCallback_t</a> callback)</div>
+<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;{</div>
+<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">// HAVE_SE_TOUCH</span></div>
+<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;    <a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> screenIndex;</div>
+<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;    <span class="keywordflow">if</span> (nbScreensOnStack &gt;= <a class="code" href="nbgl__screen_8c.html#a02f3304cdd3446798f8ecd004b6fbb5b">SCREEN_STACK_SIZE</a>) {</div>
+<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;        <a class="code" href="nbgl__debug_8h.html#a0cc05ccd60a4255a70bf44771005dbca">LOG_WARN</a>(<a class="code" href="nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06ca065d7a318551c3444c9e8203aa29a27c">SCREEN_LOGGER</a>,</div>
+<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;                 <span class="stringliteral">&quot;nbgl_screenPush(): already in highest index in the stack(%d)\n&quot;</span>,</div>
+<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;                 nbScreensOnStack - 1);</div>
+<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;        <span class="keywordflow">return</span> -1;</div>
+<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;    }</div>
+<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;    <span class="comment">// if no screen, consider it as a first fake push</span></div>
+<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;    <span class="keywordflow">if</span> (nbScreensOnStack == 0) {</div>
+<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;        screenIndex      = 1;  <span class="comment">// push at position 1 because 0 is reserved for background</span></div>
+<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;        topOfStack       = &amp;screenStack[screenIndex];</div>
+<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;        topOfStack-&gt;next = NULL;</div>
+<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;        <span class="comment">// link top of stack to background (even if empty)</span></div>
+<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;        topOfStack-&gt;previous                = &amp;screenStack[0];</div>
+<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;        screenStack[0].next                 = topOfStack;</div>
+<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;        screenStack[0].container.nbChildren = 0;</div>
+<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;        <span class="comment">// count empty background as an active screen</span></div>
+<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;        nbScreensOnStack++;</div>
+<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;    }</div>
+<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;    <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;        <span class="comment">// find a non used screen in the array</span></div>
+<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;        <span class="keywordflow">for</span> (screenIndex = 1; screenIndex &lt; <a class="code" href="nbgl__screen_8c.html#a02f3304cdd3446798f8ecd004b6fbb5b">SCREEN_STACK_SIZE</a>; screenIndex++) {</div>
+<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;            <span class="keywordflow">if</span> (screenStack[screenIndex].previous == NULL) {</div>
+<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;                <span class="comment">// if no previous, means unused, so take it</span></div>
+<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;                <span class="comment">// update previous topOfStack</span></div>
+<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;                topOfStack-&gt;next                  = &amp;screenStack[screenIndex];</div>
+<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;                screenStack[screenIndex].previous = topOfStack;</div>
+<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;                <span class="comment">// new top of stack</span></div>
+<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;                topOfStack       = &amp;screenStack[screenIndex];</div>
+<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;                topOfStack-&gt;next = NULL;</div>
+<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;                <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;            }</div>
+<div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160;        }</div>
+<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;        <span class="keywordflow">if</span> (screenIndex == <a class="code" href="nbgl__screen_8c.html#a02f3304cdd3446798f8ecd004b6fbb5b">SCREEN_STACK_SIZE</a>) {</div>
+<div class="line"><a name="l00350"></a><span class="lineno">  350</span>&#160;            <span class="comment">// should never happen</span></div>
+<div class="line"><a name="l00351"></a><span class="lineno">  351</span>&#160;            <a class="code" href="nbgl__debug_8h.html#a0cc05ccd60a4255a70bf44771005dbca">LOG_WARN</a>(<a class="code" href="nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06ca065d7a318551c3444c9e8203aa29a27c">SCREEN_LOGGER</a>, <span class="stringliteral">&quot;nbgl_screenPush(): corruption in stack\n&quot;</span>);</div>
+<div class="line"><a name="l00352"></a><span class="lineno">  352</span>&#160;        }</div>
+<div class="line"><a name="l00353"></a><span class="lineno">  353</span>&#160;    }</div>
+<div class="line"><a name="l00354"></a><span class="lineno">  354</span>&#160;    <span class="keywordflow">if</span> (nbgl_screenSetAt(screenIndex, elements, nbElements, ticker, callback) &gt;= 0) {</div>
+<div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;        nbScreensOnStack++;</div>
+<div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;        <a class="code" href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a>(<a class="code" href="nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06ca065d7a318551c3444c9e8203aa29a27c">SCREEN_LOGGER</a>, <span class="stringliteral">&quot;nbgl_screenPush(): screen %d is now top of stack\n&quot;</span>, screenIndex);</div>
+<div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;        <span class="keywordflow">return</span> screenIndex;</div>
+<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;    }</div>
+<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;    <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;        <span class="keywordflow">return</span> -1;</div>
+<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;    }</div>
+<div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;}</div>
+<div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160; </div>
+<div class="line"><a name="l00373"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#a93d1ccd6c8af6fc0c205e8c2c283282b">  373</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="nbgl__screen_8c.html#a93d1ccd6c8af6fc0c205e8c2c283282b">nbgl_screenPop</a>(<a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> screenIndex)</div>
+<div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;{</div>
+<div class="line"><a name="l00375"></a><span class="lineno">  375</span>&#160;    <span class="keywordflow">if</span> (nbScreensOnStack == 0) {</div>
+<div class="line"><a name="l00376"></a><span class="lineno">  376</span>&#160;        <a class="code" href="nbgl__debug_8h.html#a0cc05ccd60a4255a70bf44771005dbca">LOG_WARN</a>(<a class="code" href="nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06ca065d7a318551c3444c9e8203aa29a27c">SCREEN_LOGGER</a>, <span class="stringliteral">&quot;nbgl_screenPop(): already in lowest index in the stack\n&quot;</span>);</div>
+<div class="line"><a name="l00377"></a><span class="lineno">  377</span>&#160;        <span class="keywordflow">return</span> -1;</div>
+<div class="line"><a name="l00378"></a><span class="lineno">  378</span>&#160;    }</div>
+<div class="line"><a name="l00379"></a><span class="lineno">  379</span>&#160;    <a class="code" href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a>(<a class="code" href="nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06ca065d7a318551c3444c9e8203aa29a27c">SCREEN_LOGGER</a>, <span class="stringliteral">&quot;nbgl_screenPop(): at index %d\n&quot;</span>, screenIndex);</div>
+<div class="line"><a name="l00380"></a><span class="lineno">  380</span>&#160;    nbScreensOnStack--;</div>
+<div class="line"><a name="l00381"></a><span class="lineno">  381</span>&#160;    <span class="comment">// move top of stack if needed</span></div>
+<div class="line"><a name="l00382"></a><span class="lineno">  382</span>&#160;    <span class="keywordflow">if</span> (&amp;screenStack[screenIndex] == topOfStack) {</div>
+<div class="line"><a name="l00383"></a><span class="lineno">  383</span>&#160;        <span class="keywordflow">if</span> (nbScreensOnStack == 0) {</div>
+<div class="line"><a name="l00384"></a><span class="lineno">  384</span>&#160;            topOfStack = NULL;</div>
+<div class="line"><a name="l00385"></a><span class="lineno">  385</span>&#160;        }</div>
+<div class="line"><a name="l00386"></a><span class="lineno">  386</span>&#160;        <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00387"></a><span class="lineno">  387</span>&#160;            topOfStack = topOfStack-&gt;previous;</div>
+<div class="line"><a name="l00388"></a><span class="lineno">  388</span>&#160;        }</div>
+<div class="line"><a name="l00389"></a><span class="lineno">  389</span>&#160;    }</div>
+<div class="line"><a name="l00390"></a><span class="lineno">  390</span>&#160;    <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00391"></a><span class="lineno">  391</span>&#160;        <span class="comment">// connect previous to next</span></div>
+<div class="line"><a name="l00392"></a><span class="lineno">  392</span>&#160;        <span class="keywordflow">if</span> (screenStack[screenIndex].previous != NULL) {</div>
+<div class="line"><a name="l00393"></a><span class="lineno">  393</span>&#160;            screenStack[screenIndex].previous-&gt;next = screenStack[screenIndex].next;</div>
+<div class="line"><a name="l00394"></a><span class="lineno">  394</span>&#160;        }</div>
+<div class="line"><a name="l00395"></a><span class="lineno">  395</span>&#160;        <span class="keywordflow">if</span> (screenStack[screenIndex].next != NULL) {</div>
+<div class="line"><a name="l00396"></a><span class="lineno">  396</span>&#160;            screenStack[screenIndex].next-&gt;previous = screenStack[screenIndex].previous;</div>
+<div class="line"><a name="l00397"></a><span class="lineno">  397</span>&#160;        }</div>
+<div class="line"><a name="l00398"></a><span class="lineno">  398</span>&#160;    }</div>
+<div class="line"><a name="l00399"></a><span class="lineno">  399</span>&#160;    <span class="comment">// free slot</span></div>
+<div class="line"><a name="l00400"></a><span class="lineno">  400</span>&#160;    screenStack[screenIndex].previous             = NULL;</div>
+<div class="line"><a name="l00401"></a><span class="lineno">  401</span>&#160;    screenStack[screenIndex].next                 = NULL;</div>
+<div class="line"><a name="l00402"></a><span class="lineno">  402</span>&#160;    screenStack[screenIndex].container.nbChildren = 0;</div>
+<div class="line"><a name="l00403"></a><span class="lineno">  403</span>&#160;    screenStack[screenIndex].container.children   = NULL;</div>
+<div class="line"><a name="l00404"></a><span class="lineno">  404</span>&#160;    <span class="comment">// release used objects and containers</span></div>
+<div class="line"><a name="l00405"></a><span class="lineno">  405</span>&#160;    <a class="code" href="nbgl__obj_8h.html#ae7704eb0c272efa1b69204327fe7be7d">nbgl_objPoolRelease</a>(screenIndex);</div>
+<div class="line"><a name="l00406"></a><span class="lineno">  406</span>&#160;    <a class="code" href="nbgl__obj_8h.html#a759fce316adba848fb6a6c8d09c51a80">nbgl_containerPoolRelease</a>(screenIndex);</div>
+<div class="line"><a name="l00407"></a><span class="lineno">  407</span>&#160; </div>
+<div class="line"><a name="l00408"></a><span class="lineno">  408</span>&#160;    <span class="comment">// special case when we pop the only modal and no real background is under it</span></div>
+<div class="line"><a name="l00409"></a><span class="lineno">  409</span>&#160;    <span class="keywordflow">if</span> ((nbScreensOnStack == 1) &amp;&amp; (screenStack[0].container.nbChildren == 0)) {</div>
+<div class="line"><a name="l00410"></a><span class="lineno">  410</span>&#160;        nbScreensOnStack = 0;</div>
+<div class="line"><a name="l00411"></a><span class="lineno">  411</span>&#160;        topOfStack       = NULL;</div>
 <div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160;    }</div>
-<div class="line"><a name="l00413"></a><span class="lineno">  413</span>&#160;    <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00414"></a><span class="lineno">  414</span>&#160;        <span class="comment">// connect previous to next</span></div>
-<div class="line"><a name="l00415"></a><span class="lineno">  415</span>&#160;        <span class="keywordflow">if</span> (screenStack[screenIndex].previous != NULL) {</div>
-<div class="line"><a name="l00416"></a><span class="lineno">  416</span>&#160;            screenStack[screenIndex].previous-&gt;next = screenStack[screenIndex].next;</div>
-<div class="line"><a name="l00417"></a><span class="lineno">  417</span>&#160;        }</div>
-<div class="line"><a name="l00418"></a><span class="lineno">  418</span>&#160;        <span class="keywordflow">if</span> (screenStack[screenIndex].next != NULL) {</div>
-<div class="line"><a name="l00419"></a><span class="lineno">  419</span>&#160;            screenStack[screenIndex].next-&gt;previous = screenStack[screenIndex].previous;</div>
-<div class="line"><a name="l00420"></a><span class="lineno">  420</span>&#160;        }</div>
-<div class="line"><a name="l00421"></a><span class="lineno">  421</span>&#160;    }</div>
-<div class="line"><a name="l00422"></a><span class="lineno">  422</span>&#160;    <span class="comment">// free slot</span></div>
-<div class="line"><a name="l00423"></a><span class="lineno">  423</span>&#160;    screenStack[screenIndex].previous             = NULL;</div>
-<div class="line"><a name="l00424"></a><span class="lineno">  424</span>&#160;    screenStack[screenIndex].next                 = NULL;</div>
-<div class="line"><a name="l00425"></a><span class="lineno">  425</span>&#160;    screenStack[screenIndex].container.nbChildren = 0;</div>
-<div class="line"><a name="l00426"></a><span class="lineno">  426</span>&#160;    screenStack[screenIndex].container.children   = NULL;</div>
-<div class="line"><a name="l00427"></a><span class="lineno">  427</span>&#160;    <span class="comment">// release used objects and containers</span></div>
-<div class="line"><a name="l00428"></a><span class="lineno">  428</span>&#160;    <a class="code" href="nbgl__obj_8h.html#ae7704eb0c272efa1b69204327fe7be7d">nbgl_objPoolRelease</a>(screenIndex);</div>
-<div class="line"><a name="l00429"></a><span class="lineno">  429</span>&#160;    <a class="code" href="nbgl__obj_8h.html#a759fce316adba848fb6a6c8d09c51a80">nbgl_containerPoolRelease</a>(screenIndex);</div>
-<div class="line"><a name="l00430"></a><span class="lineno">  430</span>&#160; </div>
-<div class="line"><a name="l00431"></a><span class="lineno">  431</span>&#160;    <span class="comment">// special case when we pop the only modal and no real background is under it</span></div>
-<div class="line"><a name="l00432"></a><span class="lineno">  432</span>&#160;    <span class="keywordflow">if</span> ((nbScreensOnStack == 1) &amp;&amp; (screenStack[0].container.nbChildren == 0)) {</div>
-<div class="line"><a name="l00433"></a><span class="lineno">  433</span>&#160;        nbScreensOnStack = 0;</div>
-<div class="line"><a name="l00434"></a><span class="lineno">  434</span>&#160;        topOfStack       = NULL;</div>
-<div class="line"><a name="l00435"></a><span class="lineno">  435</span>&#160;    }</div>
-<div class="line"><a name="l00436"></a><span class="lineno">  436</span>&#160;    <span class="keywordflow">return</span> 0;</div>
-<div class="line"><a name="l00437"></a><span class="lineno">  437</span>&#160;}</div>
-<div class="line"><a name="l00438"></a><span class="lineno">  438</span>&#160; </div>
-<div class="line"><a name="l00445"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#a6e8213c7657f8a819e601ad37cccecb4">  445</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="nbgl__screen_8c.html#a6e8213c7657f8a819e601ad37cccecb4">nbgl_screenReset</a>(<span class="keywordtype">void</span>)</div>
+<div class="line"><a name="l00413"></a><span class="lineno">  413</span>&#160;    <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a name="l00414"></a><span class="lineno">  414</span>&#160;}</div>
+<div class="line"><a name="l00415"></a><span class="lineno">  415</span>&#160; </div>
+<div class="line"><a name="l00422"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#a6e8213c7657f8a819e601ad37cccecb4">  422</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="nbgl__screen_8c.html#a6e8213c7657f8a819e601ad37cccecb4">nbgl_screenReset</a>(<span class="keywordtype">void</span>)</div>
+<div class="line"><a name="l00423"></a><span class="lineno">  423</span>&#160;{</div>
+<div class="line"><a name="l00424"></a><span class="lineno">  424</span>&#160;    <a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> screenIndex;</div>
+<div class="line"><a name="l00425"></a><span class="lineno">  425</span>&#160;    <span class="keywordflow">for</span> (screenIndex = 0; screenIndex &lt; <a class="code" href="nbgl__screen_8c.html#a02f3304cdd3446798f8ecd004b6fbb5b">SCREEN_STACK_SIZE</a>; screenIndex++) {</div>
+<div class="line"><a name="l00426"></a><span class="lineno">  426</span>&#160;        <span class="keywordflow">if</span> ((screenStack[screenIndex].previous != NULL)</div>
+<div class="line"><a name="l00427"></a><span class="lineno">  427</span>&#160;            || (screenStack[screenIndex].next != NULL)) {</div>
+<div class="line"><a name="l00428"></a><span class="lineno">  428</span>&#160;            <span class="comment">// release used objects and containers</span></div>
+<div class="line"><a name="l00429"></a><span class="lineno">  429</span>&#160;            <a class="code" href="nbgl__obj_8h.html#ae7704eb0c272efa1b69204327fe7be7d">nbgl_objPoolRelease</a>(screenIndex);</div>
+<div class="line"><a name="l00430"></a><span class="lineno">  430</span>&#160;            <a class="code" href="nbgl__obj_8h.html#a759fce316adba848fb6a6c8d09c51a80">nbgl_containerPoolRelease</a>(screenIndex);</div>
+<div class="line"><a name="l00431"></a><span class="lineno">  431</span>&#160;        }</div>
+<div class="line"><a name="l00432"></a><span class="lineno">  432</span>&#160;        screenStack[screenIndex].container.children   = NULL;</div>
+<div class="line"><a name="l00433"></a><span class="lineno">  433</span>&#160;        screenStack[screenIndex].container.nbChildren = 0;</div>
+<div class="line"><a name="l00434"></a><span class="lineno">  434</span>&#160;    }</div>
+<div class="line"><a name="l00435"></a><span class="lineno">  435</span>&#160;    nbScreensOnStack = 0;</div>
+<div class="line"><a name="l00436"></a><span class="lineno">  436</span>&#160;    topOfStack       = NULL;</div>
+<div class="line"><a name="l00437"></a><span class="lineno">  437</span>&#160;    <span class="keywordflow">return</span> 1;</div>
+<div class="line"><a name="l00438"></a><span class="lineno">  438</span>&#160;}</div>
+<div class="line"><a name="l00439"></a><span class="lineno">  439</span>&#160; </div>
+<div class="line"><a name="l00445"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#ae8867b5a5b1167895f4dd34d8fe35f83">  445</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="nbgl__screen_8c.html#ae8867b5a5b1167895f4dd34d8fe35f83">nbgl_screenHandler</a>(uint32_t intervaleMs)</div>
 <div class="line"><a name="l00446"></a><span class="lineno">  446</span>&#160;{</div>
-<div class="line"><a name="l00447"></a><span class="lineno">  447</span>&#160;    <a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> screenIndex;</div>
-<div class="line"><a name="l00448"></a><span class="lineno">  448</span>&#160;    <span class="keywordflow">for</span> (screenIndex = 0; screenIndex &lt; <a class="code" href="nbgl__screen_8c.html#a02f3304cdd3446798f8ecd004b6fbb5b">SCREEN_STACK_SIZE</a>; screenIndex++) {</div>
-<div class="line"><a name="l00449"></a><span class="lineno">  449</span>&#160;        <span class="keywordflow">if</span> ((screenStack[screenIndex].previous != NULL)</div>
-<div class="line"><a name="l00450"></a><span class="lineno">  450</span>&#160;            || (screenStack[screenIndex].next != NULL)) {</div>
-<div class="line"><a name="l00451"></a><span class="lineno">  451</span>&#160;            <span class="comment">// release used objects and containers</span></div>
-<div class="line"><a name="l00452"></a><span class="lineno">  452</span>&#160;            <a class="code" href="nbgl__obj_8h.html#ae7704eb0c272efa1b69204327fe7be7d">nbgl_objPoolRelease</a>(screenIndex);</div>
-<div class="line"><a name="l00453"></a><span class="lineno">  453</span>&#160;            <a class="code" href="nbgl__obj_8h.html#a759fce316adba848fb6a6c8d09c51a80">nbgl_containerPoolRelease</a>(screenIndex);</div>
-<div class="line"><a name="l00454"></a><span class="lineno">  454</span>&#160;        }</div>
-<div class="line"><a name="l00455"></a><span class="lineno">  455</span>&#160;        screenStack[screenIndex].container.children   = NULL;</div>
-<div class="line"><a name="l00456"></a><span class="lineno">  456</span>&#160;        screenStack[screenIndex].container.nbChildren = 0;</div>
-<div class="line"><a name="l00457"></a><span class="lineno">  457</span>&#160;    }</div>
-<div class="line"><a name="l00458"></a><span class="lineno">  458</span>&#160;    nbScreensOnStack = 0;</div>
-<div class="line"><a name="l00459"></a><span class="lineno">  459</span>&#160;    topOfStack       = NULL;</div>
-<div class="line"><a name="l00460"></a><span class="lineno">  460</span>&#160;    <span class="keywordflow">return</span> 1;</div>
-<div class="line"><a name="l00461"></a><span class="lineno">  461</span>&#160;}</div>
-<div class="line"><a name="l00462"></a><span class="lineno">  462</span>&#160; </div>
-<div class="line"><a name="l00468"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#ae8867b5a5b1167895f4dd34d8fe35f83">  468</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="nbgl__screen_8c.html#ae8867b5a5b1167895f4dd34d8fe35f83">nbgl_screenHandler</a>(uint32_t intervaleMs)</div>
-<div class="line"><a name="l00469"></a><span class="lineno">  469</span>&#160;{</div>
-<div class="line"><a name="l00470"></a><span class="lineno">  470</span>&#160;    <span class="comment">// ensure a screen exists</span></div>
-<div class="line"><a name="l00471"></a><span class="lineno">  471</span>&#160;    <span class="keywordflow">if</span> (nbScreensOnStack == 0) {</div>
-<div class="line"><a name="l00472"></a><span class="lineno">  472</span>&#160;        <span class="keywordflow">return</span>;</div>
-<div class="line"><a name="l00473"></a><span class="lineno">  473</span>&#160;    }</div>
-<div class="line"><a name="l00474"></a><span class="lineno">  474</span>&#160;    <span class="comment">// call ticker callback of top of stack if active and not expired yet (for a non periodic)</span></div>
-<div class="line"><a name="l00475"></a><span class="lineno">  475</span>&#160;    <span class="keywordflow">if</span> ((topOfStack-&gt;ticker.tickerCallback != NULL) &amp;&amp; (topOfStack-&gt;ticker.tickerValue != 0)) {</div>
-<div class="line"><a name="l00476"></a><span class="lineno">  476</span>&#160;        topOfStack-&gt;ticker.tickerValue -= <a class="code" href="nbgl__types_8h.html#a74e75242132eaabbc1c512488a135926">MIN</a>(topOfStack-&gt;ticker.tickerValue, intervaleMs);</div>
-<div class="line"><a name="l00477"></a><span class="lineno">  477</span>&#160;        <span class="keywordflow">if</span> (topOfStack-&gt;ticker.tickerValue == 0) {</div>
-<div class="line"><a name="l00478"></a><span class="lineno">  478</span>&#160;            <span class="comment">// rearm if intervale is not null, and call the registered function</span></div>
-<div class="line"><a name="l00479"></a><span class="lineno">  479</span>&#160;            topOfStack-&gt;ticker.tickerValue = topOfStack-&gt;ticker.tickerIntervale;</div>
-<div class="line"><a name="l00480"></a><span class="lineno">  480</span>&#160;            topOfStack-&gt;ticker.tickerCallback();</div>
-<div class="line"><a name="l00481"></a><span class="lineno">  481</span>&#160;        }</div>
-<div class="line"><a name="l00482"></a><span class="lineno">  482</span>&#160;    }</div>
-<div class="line"><a name="l00483"></a><span class="lineno">  483</span>&#160;}</div>
-<div class="line"><a name="l00484"></a><span class="lineno">  484</span>&#160; </div>
-<div class="line"><a name="l00492"></a><span class="lineno">  492</span>&#160;<span class="keyword">static</span> <span class="keywordtype">bool</span> objIsIn(<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *refObj, <a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *obj)</div>
-<div class="line"><a name="l00493"></a><span class="lineno">  493</span>&#160;{</div>
-<div class="line"><a name="l00494"></a><span class="lineno">  494</span>&#160;    <a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> i;</div>
-<div class="line"><a name="l00495"></a><span class="lineno">  495</span>&#160; </div>
-<div class="line"><a name="l00496"></a><span class="lineno">  496</span>&#160;    <span class="keywordflow">if</span> (obj == NULL) {</div>
-<div class="line"><a name="l00497"></a><span class="lineno">  497</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00498"></a><span class="lineno">  498</span>&#160;    }</div>
-<div class="line"><a name="l00499"></a><span class="lineno">  499</span>&#160;    <span class="keywordflow">if</span> ((<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *) refObj == obj) {</div>
-<div class="line"><a name="l00500"></a><span class="lineno">  500</span>&#160;        <a class="code" href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a>(<a class="code" href="nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06ca065d7a318551c3444c9e8203aa29a27c">SCREEN_LOGGER</a>, <span class="stringliteral">&quot;nbgl_screenContainsObj(): yes\n&quot;</span>);</div>
-<div class="line"><a name="l00501"></a><span class="lineno">  501</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00502"></a><span class="lineno">  502</span>&#160;    }</div>
-<div class="line"><a name="l00503"></a><span class="lineno">  503</span>&#160; </div>
-<div class="line"><a name="l00504"></a><span class="lineno">  504</span>&#160;    <span class="keywordflow">if</span> ((refObj-&gt;type == <a class="code" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7af2a9da294a4a62d55f04725d7efbb6ac">SCREEN</a>) || (refObj-&gt;type == <a class="code" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7ae167e6a4547c44c68eb321881de789bd">CONTAINER</a>)) {</div>
-<div class="line"><a name="l00505"></a><span class="lineno">  505</span>&#160;        <a class="code" href="nbgl__obj_8h.html#accca85b3f89995e3b9e1261a30d68972">nbgl_container_t</a> *container = (<a class="code" href="nbgl__obj_8h.html#accca85b3f89995e3b9e1261a30d68972">nbgl_container_t</a> *) refObj;</div>
-<div class="line"><a name="l00506"></a><span class="lineno">  506</span>&#160;        <span class="comment">// draw the children, if any</span></div>
-<div class="line"><a name="l00507"></a><span class="lineno">  507</span>&#160;        <span class="keywordflow">if</span> (container-&gt;children != NULL) {</div>
-<div class="line"><a name="l00508"></a><span class="lineno">  508</span>&#160;            <span class="keywordflow">for</span> (i = 0; i &lt; container-&gt;nbChildren; i++) {</div>
-<div class="line"><a name="l00509"></a><span class="lineno">  509</span>&#160;                <a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *current = container-&gt;children[i];</div>
-<div class="line"><a name="l00510"></a><span class="lineno">  510</span>&#160;                <span class="keywordflow">if</span> (current != NULL) {</div>
-<div class="line"><a name="l00511"></a><span class="lineno">  511</span>&#160;                    <span class="keywordflow">if</span> (objIsIn(current, obj) == <span class="keyword">true</span>) {</div>
-<div class="line"><a name="l00512"></a><span class="lineno">  512</span>&#160;                        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00513"></a><span class="lineno">  513</span>&#160;                    }</div>
-<div class="line"><a name="l00514"></a><span class="lineno">  514</span>&#160;                }</div>
-<div class="line"><a name="l00515"></a><span class="lineno">  515</span>&#160;            }</div>
-<div class="line"><a name="l00516"></a><span class="lineno">  516</span>&#160;        }</div>
-<div class="line"><a name="l00517"></a><span class="lineno">  517</span>&#160;    }</div>
-<div class="line"><a name="l00518"></a><span class="lineno">  518</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00519"></a><span class="lineno">  519</span>&#160;}</div>
-<div class="line"><a name="l00520"></a><span class="lineno">  520</span>&#160; </div>
-<div class="line"><a name="l00528"></a><span class="lineno">  528</span>&#160;<span class="keyword">static</span> <a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *objIsOfType(<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *refObj, <a class="code" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7">nbgl_obj_type_t</a> type)</div>
-<div class="line"><a name="l00529"></a><span class="lineno">  529</span>&#160;{</div>
-<div class="line"><a name="l00530"></a><span class="lineno">  530</span>&#160;    <a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> i;</div>
+<div class="line"><a name="l00447"></a><span class="lineno">  447</span>&#160;    <span class="comment">// ensure a screen exists</span></div>
+<div class="line"><a name="l00448"></a><span class="lineno">  448</span>&#160;    <span class="keywordflow">if</span> (nbScreensOnStack == 0) {</div>
+<div class="line"><a name="l00449"></a><span class="lineno">  449</span>&#160;        <span class="keywordflow">return</span>;</div>
+<div class="line"><a name="l00450"></a><span class="lineno">  450</span>&#160;    }</div>
+<div class="line"><a name="l00451"></a><span class="lineno">  451</span>&#160;    <span class="comment">// call ticker callback of top of stack if active and not expired yet (for a non periodic)</span></div>
+<div class="line"><a name="l00452"></a><span class="lineno">  452</span>&#160;    <span class="keywordflow">if</span> ((topOfStack-&gt;ticker.tickerCallback != NULL) &amp;&amp; (topOfStack-&gt;ticker.tickerValue != 0)) {</div>
+<div class="line"><a name="l00453"></a><span class="lineno">  453</span>&#160;        topOfStack-&gt;ticker.tickerValue -= <a class="code" href="nbgl__types_8h.html#a74e75242132eaabbc1c512488a135926">MIN</a>(topOfStack-&gt;ticker.tickerValue, intervaleMs);</div>
+<div class="line"><a name="l00454"></a><span class="lineno">  454</span>&#160;        <span class="keywordflow">if</span> (topOfStack-&gt;ticker.tickerValue == 0) {</div>
+<div class="line"><a name="l00455"></a><span class="lineno">  455</span>&#160;            <span class="comment">// rearm if intervale is not null, and call the registered function</span></div>
+<div class="line"><a name="l00456"></a><span class="lineno">  456</span>&#160;            topOfStack-&gt;ticker.tickerValue = topOfStack-&gt;ticker.tickerIntervale;</div>
+<div class="line"><a name="l00457"></a><span class="lineno">  457</span>&#160;            topOfStack-&gt;ticker.tickerCallback();</div>
+<div class="line"><a name="l00458"></a><span class="lineno">  458</span>&#160;        }</div>
+<div class="line"><a name="l00459"></a><span class="lineno">  459</span>&#160;    }</div>
+<div class="line"><a name="l00460"></a><span class="lineno">  460</span>&#160;}</div>
+<div class="line"><a name="l00461"></a><span class="lineno">  461</span>&#160; </div>
+<div class="line"><a name="l00469"></a><span class="lineno">  469</span>&#160;<span class="keyword">static</span> <span class="keywordtype">bool</span> objIsIn(<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *refObj, <a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *obj)</div>
+<div class="line"><a name="l00470"></a><span class="lineno">  470</span>&#160;{</div>
+<div class="line"><a name="l00471"></a><span class="lineno">  471</span>&#160;    <a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> i;</div>
+<div class="line"><a name="l00472"></a><span class="lineno">  472</span>&#160; </div>
+<div class="line"><a name="l00473"></a><span class="lineno">  473</span>&#160;    <span class="keywordflow">if</span> (obj == NULL) {</div>
+<div class="line"><a name="l00474"></a><span class="lineno">  474</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00475"></a><span class="lineno">  475</span>&#160;    }</div>
+<div class="line"><a name="l00476"></a><span class="lineno">  476</span>&#160;    <span class="keywordflow">if</span> ((<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *) refObj == obj) {</div>
+<div class="line"><a name="l00477"></a><span class="lineno">  477</span>&#160;        <a class="code" href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a>(<a class="code" href="nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06ca065d7a318551c3444c9e8203aa29a27c">SCREEN_LOGGER</a>, <span class="stringliteral">&quot;nbgl_screenContainsObj(): yes\n&quot;</span>);</div>
+<div class="line"><a name="l00478"></a><span class="lineno">  478</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00479"></a><span class="lineno">  479</span>&#160;    }</div>
+<div class="line"><a name="l00480"></a><span class="lineno">  480</span>&#160; </div>
+<div class="line"><a name="l00481"></a><span class="lineno">  481</span>&#160;    <span class="keywordflow">if</span> ((refObj-&gt;type == <a class="code" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7af2a9da294a4a62d55f04725d7efbb6ac">SCREEN</a>) || (refObj-&gt;type == <a class="code" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7ae167e6a4547c44c68eb321881de789bd">CONTAINER</a>)) {</div>
+<div class="line"><a name="l00482"></a><span class="lineno">  482</span>&#160;        <a class="code" href="nbgl__obj_8h.html#accca85b3f89995e3b9e1261a30d68972">nbgl_container_t</a> *container = (<a class="code" href="nbgl__obj_8h.html#accca85b3f89995e3b9e1261a30d68972">nbgl_container_t</a> *) refObj;</div>
+<div class="line"><a name="l00483"></a><span class="lineno">  483</span>&#160;        <span class="comment">// draw the children, if any</span></div>
+<div class="line"><a name="l00484"></a><span class="lineno">  484</span>&#160;        <span class="keywordflow">if</span> (container-&gt;children != NULL) {</div>
+<div class="line"><a name="l00485"></a><span class="lineno">  485</span>&#160;            <span class="keywordflow">for</span> (i = 0; i &lt; container-&gt;nbChildren; i++) {</div>
+<div class="line"><a name="l00486"></a><span class="lineno">  486</span>&#160;                <a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *current = container-&gt;children[i];</div>
+<div class="line"><a name="l00487"></a><span class="lineno">  487</span>&#160;                <span class="keywordflow">if</span> (current != NULL) {</div>
+<div class="line"><a name="l00488"></a><span class="lineno">  488</span>&#160;                    <span class="keywordflow">if</span> (objIsIn(current, obj) == <span class="keyword">true</span>) {</div>
+<div class="line"><a name="l00489"></a><span class="lineno">  489</span>&#160;                        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00490"></a><span class="lineno">  490</span>&#160;                    }</div>
+<div class="line"><a name="l00491"></a><span class="lineno">  491</span>&#160;                }</div>
+<div class="line"><a name="l00492"></a><span class="lineno">  492</span>&#160;            }</div>
+<div class="line"><a name="l00493"></a><span class="lineno">  493</span>&#160;        }</div>
+<div class="line"><a name="l00494"></a><span class="lineno">  494</span>&#160;    }</div>
+<div class="line"><a name="l00495"></a><span class="lineno">  495</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00496"></a><span class="lineno">  496</span>&#160;}</div>
+<div class="line"><a name="l00497"></a><span class="lineno">  497</span>&#160; </div>
+<div class="line"><a name="l00505"></a><span class="lineno">  505</span>&#160;<span class="keyword">static</span> <a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *objIsOfType(<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *refObj, <a class="code" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7">nbgl_obj_type_t</a> type)</div>
+<div class="line"><a name="l00506"></a><span class="lineno">  506</span>&#160;{</div>
+<div class="line"><a name="l00507"></a><span class="lineno">  507</span>&#160;    <a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> i;</div>
+<div class="line"><a name="l00508"></a><span class="lineno">  508</span>&#160; </div>
+<div class="line"><a name="l00509"></a><span class="lineno">  509</span>&#160;    <span class="keywordflow">if</span> (refObj-&gt;type == type) {</div>
+<div class="line"><a name="l00510"></a><span class="lineno">  510</span>&#160;        <a class="code" href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a>(<a class="code" href="nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06ca065d7a318551c3444c9e8203aa29a27c">SCREEN_LOGGER</a>, <span class="stringliteral">&quot;objIsOfType(): yes\n&quot;</span>);</div>
+<div class="line"><a name="l00511"></a><span class="lineno">  511</span>&#160;        <span class="keywordflow">return</span> refObj;</div>
+<div class="line"><a name="l00512"></a><span class="lineno">  512</span>&#160;    }</div>
+<div class="line"><a name="l00513"></a><span class="lineno">  513</span>&#160; </div>
+<div class="line"><a name="l00514"></a><span class="lineno">  514</span>&#160;    <span class="keywordflow">if</span> ((refObj-&gt;type == <a class="code" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7af2a9da294a4a62d55f04725d7efbb6ac">SCREEN</a>) || (refObj-&gt;type == <a class="code" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7ae167e6a4547c44c68eb321881de789bd">CONTAINER</a>)) {</div>
+<div class="line"><a name="l00515"></a><span class="lineno">  515</span>&#160;        <a class="code" href="nbgl__obj_8h.html#accca85b3f89995e3b9e1261a30d68972">nbgl_container_t</a> *container = (<a class="code" href="nbgl__obj_8h.html#accca85b3f89995e3b9e1261a30d68972">nbgl_container_t</a> *) refObj;</div>
+<div class="line"><a name="l00516"></a><span class="lineno">  516</span>&#160;        <span class="comment">// draw the children, if any</span></div>
+<div class="line"><a name="l00517"></a><span class="lineno">  517</span>&#160;        <span class="keywordflow">if</span> (container-&gt;children != NULL) {</div>
+<div class="line"><a name="l00518"></a><span class="lineno">  518</span>&#160;            <span class="keywordflow">for</span> (i = 0; i &lt; container-&gt;nbChildren; i++) {</div>
+<div class="line"><a name="l00519"></a><span class="lineno">  519</span>&#160;                <a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *current = container-&gt;children[i];</div>
+<div class="line"><a name="l00520"></a><span class="lineno">  520</span>&#160;                <span class="keywordflow">if</span> (current != NULL) {</div>
+<div class="line"><a name="l00521"></a><span class="lineno">  521</span>&#160;                    <a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *found = objIsOfType(current, type);</div>
+<div class="line"><a name="l00522"></a><span class="lineno">  522</span>&#160;                    <span class="keywordflow">if</span> (found) {</div>
+<div class="line"><a name="l00523"></a><span class="lineno">  523</span>&#160;                        <span class="keywordflow">return</span> found;</div>
+<div class="line"><a name="l00524"></a><span class="lineno">  524</span>&#160;                    }</div>
+<div class="line"><a name="l00525"></a><span class="lineno">  525</span>&#160;                }</div>
+<div class="line"><a name="l00526"></a><span class="lineno">  526</span>&#160;            }</div>
+<div class="line"><a name="l00527"></a><span class="lineno">  527</span>&#160;        }</div>
+<div class="line"><a name="l00528"></a><span class="lineno">  528</span>&#160;    }</div>
+<div class="line"><a name="l00529"></a><span class="lineno">  529</span>&#160;    <span class="keywordflow">return</span> NULL;</div>
+<div class="line"><a name="l00530"></a><span class="lineno">  530</span>&#160;}</div>
 <div class="line"><a name="l00531"></a><span class="lineno">  531</span>&#160; </div>
-<div class="line"><a name="l00532"></a><span class="lineno">  532</span>&#160;    <span class="keywordflow">if</span> (refObj-&gt;type == type) {</div>
-<div class="line"><a name="l00533"></a><span class="lineno">  533</span>&#160;        <a class="code" href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a>(<a class="code" href="nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06ca065d7a318551c3444c9e8203aa29a27c">SCREEN_LOGGER</a>, <span class="stringliteral">&quot;objIsOfType(): yes\n&quot;</span>);</div>
-<div class="line"><a name="l00534"></a><span class="lineno">  534</span>&#160;        <span class="keywordflow">return</span> refObj;</div>
-<div class="line"><a name="l00535"></a><span class="lineno">  535</span>&#160;    }</div>
-<div class="line"><a name="l00536"></a><span class="lineno">  536</span>&#160; </div>
-<div class="line"><a name="l00537"></a><span class="lineno">  537</span>&#160;    <span class="keywordflow">if</span> ((refObj-&gt;type == <a class="code" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7af2a9da294a4a62d55f04725d7efbb6ac">SCREEN</a>) || (refObj-&gt;type == <a class="code" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7ae167e6a4547c44c68eb321881de789bd">CONTAINER</a>)) {</div>
-<div class="line"><a name="l00538"></a><span class="lineno">  538</span>&#160;        <a class="code" href="nbgl__obj_8h.html#accca85b3f89995e3b9e1261a30d68972">nbgl_container_t</a> *container = (<a class="code" href="nbgl__obj_8h.html#accca85b3f89995e3b9e1261a30d68972">nbgl_container_t</a> *) refObj;</div>
-<div class="line"><a name="l00539"></a><span class="lineno">  539</span>&#160;        <span class="comment">// draw the children, if any</span></div>
-<div class="line"><a name="l00540"></a><span class="lineno">  540</span>&#160;        <span class="keywordflow">if</span> (container-&gt;children != NULL) {</div>
-<div class="line"><a name="l00541"></a><span class="lineno">  541</span>&#160;            <span class="keywordflow">for</span> (i = 0; i &lt; container-&gt;nbChildren; i++) {</div>
-<div class="line"><a name="l00542"></a><span class="lineno">  542</span>&#160;                <a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *current = container-&gt;children[i];</div>
-<div class="line"><a name="l00543"></a><span class="lineno">  543</span>&#160;                <span class="keywordflow">if</span> (current != NULL) {</div>
-<div class="line"><a name="l00544"></a><span class="lineno">  544</span>&#160;                    <a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *found = objIsOfType(current, type);</div>
-<div class="line"><a name="l00545"></a><span class="lineno">  545</span>&#160;                    <span class="keywordflow">if</span> (found) {</div>
-<div class="line"><a name="l00546"></a><span class="lineno">  546</span>&#160;                        <span class="keywordflow">return</span> found;</div>
-<div class="line"><a name="l00547"></a><span class="lineno">  547</span>&#160;                    }</div>
-<div class="line"><a name="l00548"></a><span class="lineno">  548</span>&#160;                }</div>
-<div class="line"><a name="l00549"></a><span class="lineno">  549</span>&#160;            }</div>
-<div class="line"><a name="l00550"></a><span class="lineno">  550</span>&#160;        }</div>
-<div class="line"><a name="l00551"></a><span class="lineno">  551</span>&#160;    }</div>
-<div class="line"><a name="l00552"></a><span class="lineno">  552</span>&#160;    <span class="keywordflow">return</span> NULL;</div>
-<div class="line"><a name="l00553"></a><span class="lineno">  553</span>&#160;}</div>
-<div class="line"><a name="l00554"></a><span class="lineno">  554</span>&#160; </div>
-<div class="line"><a name="l00561"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#a69a6f7aa1911af30ea0d80644199453c">  561</a></span>&#160;<span class="keywordtype">bool</span> <a class="code" href="nbgl__screen_8c.html#a69a6f7aa1911af30ea0d80644199453c">nbgl_screenContainsObj</a>(<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *obj)</div>
-<div class="line"><a name="l00562"></a><span class="lineno">  562</span>&#160;{</div>
-<div class="line"><a name="l00563"></a><span class="lineno">  563</span>&#160;    <span class="keywordflow">if</span> (nbScreensOnStack == 0) {</div>
-<div class="line"><a name="l00564"></a><span class="lineno">  564</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00565"></a><span class="lineno">  565</span>&#160;    }</div>
-<div class="line"><a name="l00566"></a><span class="lineno">  566</span>&#160;    <span class="keywordflow">return</span> objIsIn((<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *) topOfStack, obj);</div>
-<div class="line"><a name="l00567"></a><span class="lineno">  567</span>&#160;}</div>
-<div class="line"><a name="l00568"></a><span class="lineno">  568</span>&#160; </div>
-<div class="line"><a name="l00576"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#aa2a140885633946fc4a452d82edadc6f">  576</a></span>&#160;<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *<a class="code" href="nbgl__screen_8c.html#aa2a140885633946fc4a452d82edadc6f">nbgl_screenContainsObjType</a>(<a class="code" href="nbgl__screen_8h.html#a6a0725e5007ff0b4cdc64183c6862fd6">nbgl_screen_t</a> *screen, <a class="code" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7">nbgl_obj_type_t</a> type)</div>
-<div class="line"><a name="l00577"></a><span class="lineno">  577</span>&#160;{</div>
-<div class="line"><a name="l00578"></a><span class="lineno">  578</span>&#160;    <span class="keywordflow">if</span> (nbScreensOnStack == 0) {</div>
-<div class="line"><a name="l00579"></a><span class="lineno">  579</span>&#160;        <span class="keywordflow">return</span> NULL;</div>
-<div class="line"><a name="l00580"></a><span class="lineno">  580</span>&#160;    }</div>
-<div class="line"><a name="l00581"></a><span class="lineno">  581</span>&#160; </div>
-<div class="line"><a name="l00582"></a><span class="lineno">  582</span>&#160;    <span class="keywordflow">return</span> objIsOfType((<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *) screen, type);</div>
-<div class="line"><a name="l00583"></a><span class="lineno">  583</span>&#160;}</div>
+<div class="line"><a name="l00538"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#a69a6f7aa1911af30ea0d80644199453c">  538</a></span>&#160;<span class="keywordtype">bool</span> <a class="code" href="nbgl__screen_8c.html#a69a6f7aa1911af30ea0d80644199453c">nbgl_screenContainsObj</a>(<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *obj)</div>
+<div class="line"><a name="l00539"></a><span class="lineno">  539</span>&#160;{</div>
+<div class="line"><a name="l00540"></a><span class="lineno">  540</span>&#160;    <span class="keywordflow">if</span> (nbScreensOnStack == 0) {</div>
+<div class="line"><a name="l00541"></a><span class="lineno">  541</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00542"></a><span class="lineno">  542</span>&#160;    }</div>
+<div class="line"><a name="l00543"></a><span class="lineno">  543</span>&#160;    <span class="keywordflow">return</span> objIsIn((<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *) topOfStack, obj);</div>
+<div class="line"><a name="l00544"></a><span class="lineno">  544</span>&#160;}</div>
+<div class="line"><a name="l00545"></a><span class="lineno">  545</span>&#160; </div>
+<div class="line"><a name="l00553"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#aa2a140885633946fc4a452d82edadc6f">  553</a></span>&#160;<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *<a class="code" href="nbgl__screen_8c.html#aa2a140885633946fc4a452d82edadc6f">nbgl_screenContainsObjType</a>(<a class="code" href="nbgl__screen_8h.html#a6a0725e5007ff0b4cdc64183c6862fd6">nbgl_screen_t</a> *screen, <a class="code" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7">nbgl_obj_type_t</a> type)</div>
+<div class="line"><a name="l00554"></a><span class="lineno">  554</span>&#160;{</div>
+<div class="line"><a name="l00555"></a><span class="lineno">  555</span>&#160;    <span class="keywordflow">if</span> (nbScreensOnStack == 0) {</div>
+<div class="line"><a name="l00556"></a><span class="lineno">  556</span>&#160;        <span class="keywordflow">return</span> NULL;</div>
+<div class="line"><a name="l00557"></a><span class="lineno">  557</span>&#160;    }</div>
+<div class="line"><a name="l00558"></a><span class="lineno">  558</span>&#160; </div>
+<div class="line"><a name="l00559"></a><span class="lineno">  559</span>&#160;    <span class="keywordflow">return</span> objIsOfType((<a class="code" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *) screen, type);</div>
+<div class="line"><a name="l00560"></a><span class="lineno">  560</span>&#160;}</div>
 <div class="ttc" id="anbgl__debug_8h_html"><div class="ttname"><a href="nbgl__debug_8h.html">nbgl_debug.h</a></div><div class="ttdoc">debug traces management</div></div>
 <div class="ttc" id="anbgl__debug_8h_html_a0cc05ccd60a4255a70bf44771005dbca"><div class="ttname"><a href="nbgl__debug_8h.html#a0cc05ccd60a4255a70bf44771005dbca">LOG_WARN</a></div><div class="ttdeci">#define LOG_WARN(__logger,...)</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__debug_8h_source.html#l00087">nbgl_debug.h:87</a></div></div>
 <div class="ttc" id="anbgl__debug_8h_html_a61645b47e5d1c89f5b9a5d3dff58b74c"><div class="ttname"><a href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a></div><div class="ttdeci">#define LOG_DEBUG(__logger,...)</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__debug_8h_source.html#l00086">nbgl_debug.h:86</a></div></div>
 <div class="ttc" id="anbgl__debug_8h_html_adc29c2ff13d900c2f185ee95427fb06ca065d7a318551c3444c9e8203aa29a27c"><div class="ttname"><a href="nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06ca065d7a318551c3444c9e8203aa29a27c">SCREEN_LOGGER</a></div><div class="ttdeci">@ SCREEN_LOGGER</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__debug_8h_source.html#l00032">nbgl_debug.h:32</a></div></div>
 <div class="ttc" id="anbgl__front_8h_html"><div class="ttname"><a href="nbgl__front_8h.html">nbgl_front.h</a></div><div class="ttdoc">Font screen low-Level driver API, to draw elementary forms.</div></div>
 <div class="ttc" id="anbgl__obj_8h_html_a1b7acc68e9b5c497870cf8e597761d8f"><div class="ttname"><a href="nbgl__obj_8h.html#a1b7acc68e9b5c497870cf8e597761d8f">nbgl_touchCallback_t</a></div><div class="ttdeci">void(* nbgl_touchCallback_t)(void *obj, nbgl_touchType_t eventType)</div><div class="ttdoc">prototype of function to be called when a touch event is received by an object</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__obj_8h_source.html#l00221">nbgl_obj.h:221</a></div></div>
-<div class="ttc" id="anbgl__obj_8h_html_a2ab8e03ef462a1e39312659f3b2d419f"><div class="ttname"><a href="nbgl__obj_8h.html#a2ab8e03ef462a1e39312659f3b2d419f">nbgl_objDraw</a></div><div class="ttdeci">void nbgl_objDraw(nbgl_obj_t *obj)</div><div class="ttdoc">This function draws or redraws the given object and its children (recursive version)</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__obj_8c_source.html#l01531">nbgl_obj.c:1531</a></div></div>
 <div class="ttc" id="anbgl__obj_8h_html_a429a47fa3698c0db865bbd72cfc4ed41"><div class="ttname"><a href="nbgl__obj_8h.html#a429a47fa3698c0db865bbd72cfc4ed41">nbgl_containerPoolGet</a></div><div class="ttdeci">nbgl_obj_t ** nbgl_containerPoolGet(uint8_t nbObjs, uint8_t layer)</div><div class="ttdoc">Gets a new container from the pool, with the given number of obj pointers.</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__obj__pool_8c_source.html#l00290">nbgl_obj_pool.c:290</a></div></div>
 <div class="ttc" id="anbgl__obj_8h_html_a759fce316adba848fb6a6c8d09c51a80"><div class="ttname"><a href="nbgl__obj_8h.html#a759fce316adba848fb6a6c8d09c51a80">nbgl_containerPoolRelease</a></div><div class="ttdeci">void nbgl_containerPoolRelease(uint8_t layer)</div><div class="ttdoc">Release the objects pointers from the pool for the given layer.</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__obj__pool_8c_source.html#l00265">nbgl_obj_pool.c:265</a></div></div>
 <div class="ttc" id="anbgl__obj_8h_html_aa4b1eaa53fe9b9a543dcca0b48635799"><div class="ttname"><a href="nbgl__obj_8h.html#aa4b1eaa53fe9b9a543dcca0b48635799">nbgl_buttonCallback_t</a></div><div class="ttdeci">void(* nbgl_buttonCallback_t)(void *obj, nbgl_buttonEvent_t buttonEvent)</div><div class="ttdoc">prototype of function to be called when a button event is received by an object (TODO: change to scre...</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__obj_8h_source.html#l00200">nbgl_obj.h:200</a></div></div>
 <div class="ttc" id="anbgl__obj_8h_html_accca85b3f89995e3b9e1261a30d68972"><div class="ttname"><a href="nbgl__obj_8h.html#accca85b3f89995e3b9e1261a30d68972">nbgl_container_t</a></div><div class="ttdeci">struct PACKED__ nbgl_container_s nbgl_container_t</div><div class="ttdoc">struct to represent a container (CONTAINER type)</div></div>
 <div class="ttc" id="anbgl__obj_8h_html_ae7704eb0c272efa1b69204327fe7be7d"><div class="ttname"><a href="nbgl__obj_8h.html#ae7704eb0c272efa1b69204327fe7be7d">nbgl_objPoolRelease</a></div><div class="ttdeci">void nbgl_objPoolRelease(uint8_t layer)</div><div class="ttdoc">Release the objects from the pool for the given layer.</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__obj__pool_8c_source.html#l00126">nbgl_obj_pool.c:126</a></div></div>
 <div class="ttc" id="anbgl__obj_8h_html_af579f3c2ec9b53d8a3046dcf213d856a"><div class="ttname"><a href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a></div><div class="ttdeci">struct PACKED__ nbgl_obj_s nbgl_obj_t</div><div class="ttdoc">Common structure for all graphical objects.</div></div>
-<div class="ttc" id="anbgl__screen_8c_html_a02f3304cdd3446798f8ecd004b6fbb5b"><div class="ttname"><a href="nbgl__screen_8c.html#a02f3304cdd3446798f8ecd004b6fbb5b">SCREEN_STACK_SIZE</a></div><div class="ttdeci">#define SCREEN_STACK_SIZE</div><div class="ttdoc">Max number of stackable screens.</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00038">nbgl_screen.c:38</a></div></div>
-<div class="ttc" id="anbgl__screen_8c_html_a0a713cc3cf02f9d7f023275703da4f3b"><div class="ttname"><a href="nbgl__screen_8c.html#a0a713cc3cf02f9d7f023275703da4f3b">nbgl_screenGetTop</a></div><div class="ttdeci">nbgl_obj_t * nbgl_screenGetTop(void)</div><div class="ttdoc">Returns the screen on top layer, as a generic object.</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00101">nbgl_screen.c:101</a></div></div>
-<div class="ttc" id="anbgl__screen_8c_html_a200cf6c689a755f45047d084f2e08102"><div class="ttname"><a href="nbgl__screen_8c.html#a200cf6c689a755f45047d084f2e08102">nbgl_screenSet</a></div><div class="ttdeci">int nbgl_screenSet(nbgl_obj_t ***elements, uint8_t nbElements, const nbgl_screenTickerConfiguration_t *ticker, nbgl_touchCallback_t callback)</div><div class="ttdoc">Configures the lowest layer screen. To be used by applications A nbgl_screenRedraw() can be called af...</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00224">nbgl_screen.c:224</a></div></div>
-<div class="ttc" id="anbgl__screen_8c_html_a4133e082be8b399c9f4e519f95d3dbda"><div class="ttname"><a href="nbgl__screen_8c.html#a4133e082be8b399c9f4e519f95d3dbda">nbgl_screenPush</a></div><div class="ttdeci">int nbgl_screenPush(nbgl_obj_t ***elements, uint8_t nbElements, const nbgl_screenTickerConfiguration_t *ticker, nbgl_touchCallback_t callback)</div><div class="ttdoc">Pushes a screen on top of the stack, with the given number of elements, if possible....</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00329">nbgl_screen.c:329</a></div></div>
-<div class="ttc" id="anbgl__screen_8c_html_a5db4e20e622f06114f718cbb138e7261"><div class="ttname"><a href="nbgl__screen_8c.html#a5db4e20e622f06114f718cbb138e7261">nbgl_screenUpdateNbElements</a></div><div class="ttdeci">int nbgl_screenUpdateNbElements(uint8_t screenIndex, uint8_t nbElements)</div><div class="ttdoc">Updates the number of children on given layer. can only be smaller than the number given in nbgl_scre...</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00256">nbgl_screen.c:256</a></div></div>
-<div class="ttc" id="anbgl__screen_8c_html_a615c6f3aaef0571e15541789b1a975d0"><div class="ttname"><a href="nbgl__screen_8c.html#a615c6f3aaef0571e15541789b1a975d0">nbgl_screenUpdateTicker</a></div><div class="ttdeci">int nbgl_screenUpdateTicker(uint8_t screenIndex, const nbgl_screenTickerConfiguration_t *ticker)</div><div class="ttdoc">Updates the ticker configuration of the screen at the given screenIndex, always set at WHITE in.</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00288">nbgl_screen.c:288</a></div></div>
-<div class="ttc" id="anbgl__screen_8c_html_a69a6f7aa1911af30ea0d80644199453c"><div class="ttname"><a href="nbgl__screen_8c.html#a69a6f7aa1911af30ea0d80644199453c">nbgl_screenContainsObj</a></div><div class="ttdeci">bool nbgl_screenContainsObj(nbgl_obj_t *obj)</div><div class="ttdoc">return true if the given obj can be found in refObj or any of its children</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00561">nbgl_screen.c:561</a></div></div>
-<div class="ttc" id="anbgl__screen_8c_html_a6e8213c7657f8a819e601ad37cccecb4"><div class="ttname"><a href="nbgl__screen_8c.html#a6e8213c7657f8a819e601ad37cccecb4">nbgl_screenReset</a></div><div class="ttdeci">int nbgl_screenReset(void)</div><div class="ttdoc">Releases all screens and objects and resets the screen stack. It is supposed to be called before runn...</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00445">nbgl_screen.c:445</a></div></div>
-<div class="ttc" id="anbgl__screen_8c_html_a766eaf220deaa33bdcd544b5596aeb74"><div class="ttname"><a href="nbgl__screen_8c.html#a766eaf220deaa33bdcd544b5596aeb74">nbgl_screenGetElements</a></div><div class="ttdeci">nbgl_obj_t ** nbgl_screenGetElements(uint8_t screenIndex)</div><div class="ttdoc">Returns the array of elements (children) of the screen at the given index (return value of nbgl_scree...</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00311">nbgl_screen.c:311</a></div></div>
-<div class="ttc" id="anbgl__screen_8c_html_a8b2a47f335f9beaa78f828c513071532"><div class="ttname"><a href="nbgl__screen_8c.html#a8b2a47f335f9beaa78f828c513071532">nbgl_screenGetUxStackSize</a></div><div class="ttdeci">uint8_t nbgl_screenGetUxStackSize(void)</div><div class="ttdoc">Returns the number of used UX screens on stack.</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00127">nbgl_screen.c:127</a></div></div>
-<div class="ttc" id="anbgl__screen_8c_html_a93d1ccd6c8af6fc0c205e8c2c283282b"><div class="ttname"><a href="nbgl__screen_8c.html#a93d1ccd6c8af6fc0c205e8c2c283282b">nbgl_screenPop</a></div><div class="ttdeci">int nbgl_screenPop(uint8_t screenIndex)</div><div class="ttdoc">Release the screen at the given index in screen array (index returned by nbgl_screenPush())....</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00396">nbgl_screen.c:396</a></div></div>
-<div class="ttc" id="anbgl__screen_8c_html_a97c04d45453ccfcb7947c7efa1ea6e3a"><div class="ttname"><a href="nbgl__screen_8c.html#a97c04d45453ccfcb7947c7efa1ea6e3a">nbgl_screenGetCurrentStackSize</a></div><div class="ttdeci">uint8_t nbgl_screenGetCurrentStackSize(void)</div><div class="ttdoc">Returns the number of used screens on stack.</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00115">nbgl_screen.c:115</a></div></div>
-<div class="ttc" id="anbgl__screen_8c_html_aa2a140885633946fc4a452d82edadc6f"><div class="ttname"><a href="nbgl__screen_8c.html#aa2a140885633946fc4a452d82edadc6f">nbgl_screenContainsObjType</a></div><div class="ttdeci">nbgl_obj_t * nbgl_screenContainsObjType(nbgl_screen_t *screen, nbgl_obj_type_t type)</div><div class="ttdoc">return an object of the given type in the given screen</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00576">nbgl_screen.c:576</a></div></div>
-<div class="ttc" id="anbgl__screen_8c_html_ab80ad79c178bf8a2cb3a2033ded75659"><div class="ttname"><a href="nbgl__screen_8c.html#ab80ad79c178bf8a2cb3a2033ded75659">nbgl_screenGetAt</a></div><div class="ttdeci">nbgl_obj_t * nbgl_screenGetAt(uint8_t screenIndex)</div><div class="ttdoc">Returns the screen on the given layer index, as a generic object.</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00087">nbgl_screen.c:87</a></div></div>
-<div class="ttc" id="anbgl__screen_8c_html_ac0881cdb12d5c0fac710542c9b9784b7"><div class="ttname"><a href="nbgl__screen_8c.html#ac0881cdb12d5c0fac710542c9b9784b7">nbgl_screenUpdateBackgroundColor</a></div><div class="ttdeci">int nbgl_screenUpdateBackgroundColor(uint8_t screenIndex, color_t color)</div><div class="ttdoc">Updates the background color of the screen at the given screenIndex, always set at WHITE in.</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00272">nbgl_screen.c:272</a></div></div>
-<div class="ttc" id="anbgl__screen_8c_html_ad6821d8742004d473146aa1ca12fbbcb"><div class="ttname"><a href="nbgl__screen_8c.html#ad6821d8742004d473146aa1ca12fbbcb">nbgl_screenRedraw</a></div><div class="ttdeci">void nbgl_screenRedraw(void)</div><div class="ttdoc">This function redraws the whole screen on top of stack and its children.</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00065">nbgl_screen.c:65</a></div></div>
-<div class="ttc" id="anbgl__screen_8c_html_ae8867b5a5b1167895f4dd34d8fe35f83"><div class="ttname"><a href="nbgl__screen_8c.html#ae8867b5a5b1167895f4dd34d8fe35f83">nbgl_screenHandler</a></div><div class="ttdeci">void nbgl_screenHandler(uint32_t intervaleMs)</div><div class="ttdoc">Function to be called periodically by system to enable using ticker.</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00468">nbgl_screen.c:468</a></div></div>
+<div class="ttc" id="anbgl__obj_8h_html_af92d98c95cf13cf21a60a10569b2c79d"><div class="ttname"><a href="nbgl__obj_8h.html#af92d98c95cf13cf21a60a10569b2c79d">nbgl_redrawObject</a></div><div class="ttdeci">void nbgl_redrawObject(nbgl_obj_t *obj, nbgl_obj_t *prevObj, bool computePosition)</div><div class="ttdoc">This function redraws the given object and its children (recursive version)</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__obj_8c_source.html#l01532">nbgl_obj.c:1532</a></div></div>
+<div class="ttc" id="anbgl__screen_8c_html_a02f3304cdd3446798f8ecd004b6fbb5b"><div class="ttname"><a href="nbgl__screen_8c.html#a02f3304cdd3446798f8ecd004b6fbb5b">SCREEN_STACK_SIZE</a></div><div class="ttdeci">#define SCREEN_STACK_SIZE</div><div class="ttdoc">Max number of stackable screens.</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00037">nbgl_screen.c:37</a></div></div>
+<div class="ttc" id="anbgl__screen_8c_html_a0a713cc3cf02f9d7f023275703da4f3b"><div class="ttname"><a href="nbgl__screen_8c.html#a0a713cc3cf02f9d7f023275703da4f3b">nbgl_screenGetTop</a></div><div class="ttdeci">nbgl_obj_t * nbgl_screenGetTop(void)</div><div class="ttdoc">Returns the screen on top layer, as a generic object.</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00100">nbgl_screen.c:100</a></div></div>
+<div class="ttc" id="anbgl__screen_8c_html_a200cf6c689a755f45047d084f2e08102"><div class="ttname"><a href="nbgl__screen_8c.html#a200cf6c689a755f45047d084f2e08102">nbgl_screenSet</a></div><div class="ttdeci">int nbgl_screenSet(nbgl_obj_t ***elements, uint8_t nbElements, const nbgl_screenTickerConfiguration_t *ticker, nbgl_touchCallback_t callback)</div><div class="ttdoc">Configures the lowest layer screen. To be used by applications A nbgl_screenRedraw() can be called af...</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00201">nbgl_screen.c:201</a></div></div>
+<div class="ttc" id="anbgl__screen_8c_html_a4133e082be8b399c9f4e519f95d3dbda"><div class="ttname"><a href="nbgl__screen_8c.html#a4133e082be8b399c9f4e519f95d3dbda">nbgl_screenPush</a></div><div class="ttdeci">int nbgl_screenPush(nbgl_obj_t ***elements, uint8_t nbElements, const nbgl_screenTickerConfiguration_t *ticker, nbgl_touchCallback_t callback)</div><div class="ttdoc">Pushes a screen on top of the stack, with the given number of elements, if possible....</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00306">nbgl_screen.c:306</a></div></div>
+<div class="ttc" id="anbgl__screen_8c_html_a5db4e20e622f06114f718cbb138e7261"><div class="ttname"><a href="nbgl__screen_8c.html#a5db4e20e622f06114f718cbb138e7261">nbgl_screenUpdateNbElements</a></div><div class="ttdeci">int nbgl_screenUpdateNbElements(uint8_t screenIndex, uint8_t nbElements)</div><div class="ttdoc">Updates the number of children on given layer. can only be smaller than the number given in nbgl_scre...</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00233">nbgl_screen.c:233</a></div></div>
+<div class="ttc" id="anbgl__screen_8c_html_a615c6f3aaef0571e15541789b1a975d0"><div class="ttname"><a href="nbgl__screen_8c.html#a615c6f3aaef0571e15541789b1a975d0">nbgl_screenUpdateTicker</a></div><div class="ttdeci">int nbgl_screenUpdateTicker(uint8_t screenIndex, const nbgl_screenTickerConfiguration_t *ticker)</div><div class="ttdoc">Updates the ticker configuration of the screen at the given screenIndex, always set at WHITE in.</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00265">nbgl_screen.c:265</a></div></div>
+<div class="ttc" id="anbgl__screen_8c_html_a69a6f7aa1911af30ea0d80644199453c"><div class="ttname"><a href="nbgl__screen_8c.html#a69a6f7aa1911af30ea0d80644199453c">nbgl_screenContainsObj</a></div><div class="ttdeci">bool nbgl_screenContainsObj(nbgl_obj_t *obj)</div><div class="ttdoc">return true if the given obj can be found in refObj or any of its children</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00538">nbgl_screen.c:538</a></div></div>
+<div class="ttc" id="anbgl__screen_8c_html_a6e8213c7657f8a819e601ad37cccecb4"><div class="ttname"><a href="nbgl__screen_8c.html#a6e8213c7657f8a819e601ad37cccecb4">nbgl_screenReset</a></div><div class="ttdeci">int nbgl_screenReset(void)</div><div class="ttdoc">Releases all screens and objects and resets the screen stack. It is supposed to be called before runn...</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00422">nbgl_screen.c:422</a></div></div>
+<div class="ttc" id="anbgl__screen_8c_html_a766eaf220deaa33bdcd544b5596aeb74"><div class="ttname"><a href="nbgl__screen_8c.html#a766eaf220deaa33bdcd544b5596aeb74">nbgl_screenGetElements</a></div><div class="ttdeci">nbgl_obj_t ** nbgl_screenGetElements(uint8_t screenIndex)</div><div class="ttdoc">Returns the array of elements (children) of the screen at the given index (return value of nbgl_scree...</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00288">nbgl_screen.c:288</a></div></div>
+<div class="ttc" id="anbgl__screen_8c_html_a93d1ccd6c8af6fc0c205e8c2c283282b"><div class="ttname"><a href="nbgl__screen_8c.html#a93d1ccd6c8af6fc0c205e8c2c283282b">nbgl_screenPop</a></div><div class="ttdeci">int nbgl_screenPop(uint8_t screenIndex)</div><div class="ttdoc">Release the screen at the given index in screen array (index returned by nbgl_screenPush())....</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00373">nbgl_screen.c:373</a></div></div>
+<div class="ttc" id="anbgl__screen_8c_html_a97c04d45453ccfcb7947c7efa1ea6e3a"><div class="ttname"><a href="nbgl__screen_8c.html#a97c04d45453ccfcb7947c7efa1ea6e3a">nbgl_screenGetCurrentStackSize</a></div><div class="ttdeci">uint8_t nbgl_screenGetCurrentStackSize(void)</div><div class="ttdoc">Returns the number of used screens on stack.</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00114">nbgl_screen.c:114</a></div></div>
+<div class="ttc" id="anbgl__screen_8c_html_aa2a140885633946fc4a452d82edadc6f"><div class="ttname"><a href="nbgl__screen_8c.html#aa2a140885633946fc4a452d82edadc6f">nbgl_screenContainsObjType</a></div><div class="ttdeci">nbgl_obj_t * nbgl_screenContainsObjType(nbgl_screen_t *screen, nbgl_obj_type_t type)</div><div class="ttdoc">return an object of the given type in the given screen</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00553">nbgl_screen.c:553</a></div></div>
+<div class="ttc" id="anbgl__screen_8c_html_ab80ad79c178bf8a2cb3a2033ded75659"><div class="ttname"><a href="nbgl__screen_8c.html#ab80ad79c178bf8a2cb3a2033ded75659">nbgl_screenGetAt</a></div><div class="ttdeci">nbgl_obj_t * nbgl_screenGetAt(uint8_t screenIndex)</div><div class="ttdoc">Returns the screen on the given layer index, as a generic object.</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00086">nbgl_screen.c:86</a></div></div>
+<div class="ttc" id="anbgl__screen_8c_html_ac0881cdb12d5c0fac710542c9b9784b7"><div class="ttname"><a href="nbgl__screen_8c.html#ac0881cdb12d5c0fac710542c9b9784b7">nbgl_screenUpdateBackgroundColor</a></div><div class="ttdeci">int nbgl_screenUpdateBackgroundColor(uint8_t screenIndex, color_t color)</div><div class="ttdoc">Updates the background color of the screen at the given screenIndex, always set at WHITE in.</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00249">nbgl_screen.c:249</a></div></div>
+<div class="ttc" id="anbgl__screen_8c_html_ad6821d8742004d473146aa1ca12fbbcb"><div class="ttname"><a href="nbgl__screen_8c.html#ad6821d8742004d473146aa1ca12fbbcb">nbgl_screenRedraw</a></div><div class="ttdeci">void nbgl_screenRedraw(void)</div><div class="ttdoc">This function redraws the whole screen on top of stack and its children.</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00064">nbgl_screen.c:64</a></div></div>
+<div class="ttc" id="anbgl__screen_8c_html_ae8867b5a5b1167895f4dd34d8fe35f83"><div class="ttname"><a href="nbgl__screen_8c.html#ae8867b5a5b1167895f4dd34d8fe35f83">nbgl_screenHandler</a></div><div class="ttdeci">void nbgl_screenHandler(uint32_t intervaleMs)</div><div class="ttdoc">Function to be called periodically by system to enable using ticker.</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8c_source.html#l00445">nbgl_screen.c:445</a></div></div>
 <div class="ttc" id="anbgl__screen_8h_html"><div class="ttname"><a href="nbgl__screen_8h.html">nbgl_screen.h</a></div><div class="ttdoc">API to manage screens.</div></div>
 <div class="ttc" id="anbgl__screen_8h_html_a6a0725e5007ff0b4cdc64183c6862fd6"><div class="ttname"><a href="nbgl__screen_8h.html#a6a0725e5007ff0b4cdc64183c6862fd6">nbgl_screen_t</a></div><div class="ttdeci">struct PACKED__ nbgl_screen_s nbgl_screen_t</div><div class="ttdoc">struct to represent a screen (SCREEN type)</div></div>
 <div class="ttc" id="anbgl__screen_8h_html_a7c8c4b5af67fe50c2a9669a371be70c0"><div class="ttname"><a href="nbgl__screen_8h.html#a7c8c4b5af67fe50c2a9669a371be70c0">nbgl_tickerCallback_t</a></div><div class="ttdeci">void(* nbgl_tickerCallback_t)(void)</div><div class="ttdoc">prototype of function to be called when a timer on screen is fired</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__screen_8h_source.html#l00032">nbgl_screen.h:32</a></div></div>
@@ -521,7 +501,7 @@ $(function() {
 <div class="ttc" id="anbgl__types_8h_html_a0a8ef1b5e1941b7257e545cc33405ff1a283fc479650da98250635b9c3c0e7e50"><div class="ttname"><a href="nbgl__types_8h.html#a0a8ef1b5e1941b7257e545cc33405ff1a283fc479650da98250635b9c3c0e7e50">WHITE</a></div><div class="ttdeci">@ WHITE</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__types_8h_source.html#l00105">nbgl_types.h:105</a></div></div>
 <div class="ttc" id="anbgl__types_8h_html_a0a8ef1b5e1941b7257e545cc33405ff1af77fb67151d0c18d397069ad8c271ba3"><div class="ttname"><a href="nbgl__types_8h.html#a0a8ef1b5e1941b7257e545cc33405ff1af77fb67151d0c18d397069ad8c271ba3">BLACK</a></div><div class="ttdeci">@ BLACK</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__types_8h_source.html#l00102">nbgl_types.h:102</a></div></div>
 <div class="ttc" id="anbgl__types_8h_html_a2cd109632a6dcccaa80b43561b1ab700"><div class="ttname"><a href="nbgl__types_8h.html#a2cd109632a6dcccaa80b43561b1ab700">SCREEN_WIDTH</a></div><div class="ttdeci">#define SCREEN_WIDTH</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__types_8h_source.html#l00032">nbgl_types.h:32</a></div></div>
-<div class="ttc" id="anbgl__types_8h_html_a45c8941c6bef8b2e44b38f1c66c1a5d8a1a88641fcd39f2ed3e58a18526e97138"><div class="ttname"><a href="nbgl__types_8h.html#a45c8941c6bef8b2e44b38f1c66c1a5d8a1a88641fcd39f2ed3e58a18526e97138">VERTICAL</a></div><div class="ttdeci">@ VERTICAL</div><div class="ttdoc">from top to bottom</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__types_8h_source.html#l00170">nbgl_types.h:170</a></div></div>
+<div class="ttc" id="anbgl__types_8h_html_a45c8941c6bef8b2e44b38f1c66c1a5d8a1a88641fcd39f2ed3e58a18526e97138"><div class="ttname"><a href="nbgl__types_8h.html#a45c8941c6bef8b2e44b38f1c66c1a5d8a1a88641fcd39f2ed3e58a18526e97138">VERTICAL</a></div><div class="ttdeci">@ VERTICAL</div><div class="ttdoc">from top to bottom</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__types_8h_source.html#l00168">nbgl_types.h:168</a></div></div>
 <div class="ttc" id="anbgl__types_8h_html_a6974d08a74da681b3957b2fead2608b8"><div class="ttname"><a href="nbgl__types_8h.html#a6974d08a74da681b3957b2fead2608b8">SCREEN_HEIGHT</a></div><div class="ttdeci">#define SCREEN_HEIGHT</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__types_8h_source.html#l00045">nbgl_types.h:45</a></div></div>
 <div class="ttc" id="anbgl__types_8h_html_a74e75242132eaabbc1c512488a135926"><div class="ttname"><a href="nbgl__types_8h.html#a74e75242132eaabbc1c512488a135926">MIN</a></div><div class="ttdeci">#define MIN(x, y)</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__types_8h_source.html#l00079">nbgl_types.h:79</a></div></div>
 <div class="ttc" id="anbgl__types_8h_html_aabda6232106281a9b84f3464fb43f8a7"><div class="ttname"><a href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7">nbgl_obj_type_t</a></div><div class="ttdeci">nbgl_obj_type_t</div><div class="ttdoc">All types of graphical objects.</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__types_8h_source.html#l00115">nbgl_types.h:115</a></div></div>

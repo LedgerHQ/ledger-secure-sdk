@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['get_5fprintable_5famount_5fparameters_5ft_3468',['get_printable_amount_parameters_t',['../swap__lib__calls_8h.html#a36af800bd16616fd12d49b085c6676d7',1,'swap_lib_calls.h']]]
+  ['int16_5ft_3392',['int16_t',['../usbd__conf_8h.html#a269259c924dce846340ddbb810db2e3c',1,'usbd_conf.h']]],
+  ['int8_5ft_3393',['int8_t',['../usbd__conf_8h.html#aef44329758059c91c76d334e8fc09700',1,'usbd_conf.h']]]
 ];

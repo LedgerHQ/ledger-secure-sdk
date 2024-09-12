@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['int16_5ft_3469',['int16_t',['../usbd__conf_8h.html#a269259c924dce846340ddbb810db2e3c',1,'usbd_conf.h']]],
-  ['int8_5ft_3470',['int8_t',['../usbd__conf_8h.html#aef44329758059c91c76d334e8fc09700',1,'usbd_conf.h']]]
+  ['keyboardcallback_5ft_3394',['keyboardCallback_t',['../nbgl__obj_8h.html#ac0df014fc4f9f0ea28437f3a752d51f5',1,'nbgl_obj.h']]]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['debug_5fwait_5fdisplayed_2662',['debug_wait_displayed',['../ux__legacy_8c.html#ab0a06af3cc345526bec260fcdab3d506',1,'ux_legacy.c']]]
+  ['debug_5fwait_5fdisplayed_2608',['debug_wait_displayed',['../ux__legacy_8c.html#ab0a06af3cc345526bec260fcdab3d506',1,'ux_legacy.c']]]
 ];

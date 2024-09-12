@@ -1,12 +1,11 @@
 <map id="lib_nbgl/src/nbgl_screen.c" name="lib_nbgl/src/nbgl_screen.c">
-<area shape="rect" id="node1" title="Implementation of screens management API." alt="" coords="280,5,469,32"/>
+<area shape="rect" id="node1" title="Implementation of screens management API." alt="" coords="212,5,401,32"/>
 <area shape="rect" id="node2" title=" " alt="" coords="5,80,109,107"/>
 <area shape="rect" id="node3" href="$nbgl__front_8h.html" title="Font screen low&#45;Level driver API, to draw elementary forms." alt="" coords="97,155,197,181"/>
 <area shape="rect" id="node9" href="$nbgl__screen_8h.html" title="API to manage screens." alt="" coords="184,80,296,107"/>
 <area shape="rect" id="node13" href="$nbgl__debug_8h.html" title="debug traces management" alt="" coords="320,80,429,107"/>
 <area shape="rect" id="node14" title=" " alt="" coords="453,80,528,107"/>
 <area shape="rect" id="node15" title=" " alt="" coords="553,80,621,107"/>
-<area shape="rect" id="node16" title=" " alt="" coords="645,80,729,107"/>
 <area shape="rect" id="node4" href="$nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="207,304,313,331"/>
 <area shape="rect" id="node5" title=" " alt="" coords="75,379,149,405"/>
 <area shape="rect" id="node6" title=" " alt="" coords="174,379,245,405"/>

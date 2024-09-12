@@ -68,7 +68,6 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#define-members">Macros</a> &#124;
-<a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
@@ -84,35 +83,29 @@ $(function() {
 <code>#include &quot;<a class="el" href="nbgl__draw_8h_source.html">nbgl_draw.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="nbgl__front_8h_source.html">nbgl_front.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="nbgl__debug_8h_source.html">nbgl_debug.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="nbgl__screen_8h_source.html">nbgl_screen.h</a>&quot;</code><br />
 <code>#include &quot;os_print.h&quot;</code><br />
-<code>#include &quot;os_helpers.h&quot;</code><br />
-<code>#include &quot;os_pic.h&quot;</code><br />
 <code>#include &quot;glyphs.h&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for nbgl_obj.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="nbgl__obj_8c__incl.png" border="0" usemap="#alib__nbgl_2src_2nbgl__obj_8c" alt=""/></div>
 <map name="alib__nbgl_2src_2nbgl__obj_8c" id="alib__nbgl_2src_2nbgl__obj_8c">
-<area shape="rect" title="Implementation of API to draw all basic graphic objects." alt="" coords="396,5,563,32"/>
+<area shape="rect" title="Implementation of API to draw all basic graphic objects." alt="" coords="353,5,520,32"/>
 <area shape="rect" title=" " alt="" coords="5,80,76,107"/>
 <area shape="rect" title=" " alt="" coords="101,80,205,107"/>
-<area shape="rect" href="nbgl__obj_8h.html" title="API to draw all basic graphic objects." alt="" coords="248,155,337,181"/>
-<area shape="rect" href="nbgl__draw_8h.html" title="Middle Level API of the new BOLOS Graphical Library." alt="" coords="112,155,212,181"/>
-<area shape="rect" href="nbgl__front_8h.html" title="Font screen low&#45;Level driver API, to draw elementary forms." alt="" coords="440,155,540,181"/>
-<area shape="rect" href="nbgl__debug_8h.html" title="debug traces management" alt="" coords="517,80,626,107"/>
-<area shape="rect" href="nbgl__screen_8h.html" title="API to manage screens." alt="" coords="330,80,442,107"/>
-<area shape="rect" title=" " alt="" coords="651,80,737,107"/>
-<area shape="rect" title=" " alt="" coords="762,80,866,107"/>
-<area shape="rect" title=" " alt="" coords="890,80,965,107"/>
-<area shape="rect" title=" " alt="" coords="989,80,1066,107"/>
-<area shape="rect" href="nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="299,304,404,331"/>
-<area shape="rect" href="nbgl__fonts_8h.html" title=" " alt="" coords="111,229,213,256"/>
-<area shape="rect" title=" " alt="" coords="237,229,313,256"/>
-<area shape="rect" title=" " alt="" coords="166,379,241,405"/>
-<area shape="rect" title=" " alt="" coords="265,379,336,405"/>
-<area shape="rect" title=" " alt="" coords="361,379,443,405"/>
-<area shape="rect" title=" " alt="" coords="467,379,582,405"/>
+<area shape="rect" href="nbgl__obj_8h.html" title="API to draw all basic graphic objects." alt="" coords="229,80,319,107"/>
+<area shape="rect" href="nbgl__draw_8h.html" title="Middle Level API of the new BOLOS Graphical Library." alt="" coords="343,80,443,107"/>
+<area shape="rect" href="nbgl__front_8h.html" title="Font screen low&#45;Level driver API, to draw elementary forms." alt="" coords="472,155,572,181"/>
+<area shape="rect" href="nbgl__debug_8h.html" title="debug traces management" alt="" coords="518,80,627,107"/>
+<area shape="rect" title=" " alt="" coords="652,80,739,107"/>
+<area shape="rect" title=" " alt="" coords="763,80,841,107"/>
+<area shape="rect" href="nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="336,229,441,256"/>
+<area shape="rect" href="nbgl__fonts_8h.html" title=" " alt="" coords="293,155,396,181"/>
+<area shape="rect" title=" " alt="" coords="193,155,269,181"/>
+<area shape="rect" title=" " alt="" coords="203,304,278,331"/>
+<area shape="rect" title=" " alt="" coords="303,304,373,331"/>
+<area shape="rect" title=" " alt="" coords="398,304,481,331"/>
+<area shape="rect" title=" " alt="" coords="505,304,619,331"/>
 </map>
 </div>
 </div>
@@ -124,23 +117,16 @@ Macros</h2></td></tr>
 <tr class="separator:a2085a6482b78c61b0f14dbe49b680efc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a13f945ef1ad7b3aee04ecd57d1f87e08"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj_8c.html#a13f945ef1ad7b3aee04ecd57d1f87e08">ICON_TEXT_SPACE</a>&#160;&#160;&#160;12</td></tr>
 <tr class="separator:a13f945ef1ad7b3aee04ecd57d1f87e08"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acfe6a46b89e90207e22ad3d9085db15c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj_8c.html#acfe6a46b89e90207e22ad3d9085db15c">UNTRACKED_PREVIOUS_STATE</a>&#160;&#160;&#160;255</td></tr>
-<tr class="separator:acfe6a46b89e90207e22ad3d9085db15c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa28a3a9ca1c1f7882e8a2348be710a57"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj_8c.html#aa28a3a9ca1c1f7882e8a2348be710a57">INTER_DASHES</a>&#160;&#160;&#160;8</td></tr>
 <tr class="separator:aa28a3a9ca1c1f7882e8a2348be710a57"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
-Typedefs</h2></td></tr>
-<tr class="memitem:a6a1227f0b134cb3d2bdd036f4b67f50b"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj_8c.html#a6a1227f0b134cb3d2bdd036f4b67f50b">draw_function_t</a>) (<a class="el" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *obj, <a class="el" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *prevObj, bool computePosition)</td></tr>
-<tr class="separator:a6a1227f0b134cb3d2bdd036f4b67f50b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a89649b2e7bc11a9e91451a586f5a6b9d"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj_8c.html#a89649b2e7bc11a9e91451a586f5a6b9d">get_ux_loc_string</a> (uint32_t index)</td></tr>
 <tr class="separator:a89649b2e7bc11a9e91451a586f5a6b9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2ab8e03ef462a1e39312659f3b2d419f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj_8c.html#a2ab8e03ef462a1e39312659f3b2d419f">nbgl_objDraw</a> (<a class="el" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *obj)</td></tr>
-<tr class="memdesc:a2ab8e03ef462a1e39312659f3b2d419f"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function draws or redraws the given object and its children (recursive version)  <a href="nbgl__obj_8c.html#a2ab8e03ef462a1e39312659f3b2d419f">More...</a><br /></td></tr>
-<tr class="separator:a2ab8e03ef462a1e39312659f3b2d419f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af92d98c95cf13cf21a60a10569b2c79d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj_8c.html#af92d98c95cf13cf21a60a10569b2c79d">nbgl_redrawObject</a> (<a class="el" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *obj, <a class="el" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *prevObj, bool computePosition)</td></tr>
+<tr class="memdesc:af92d98c95cf13cf21a60a10569b2c79d"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function redraws the given object and its children (recursive version)  <a href="nbgl__obj_8c.html#af92d98c95cf13cf21a60a10569b2c79d">More...</a><br /></td></tr>
+<tr class="separator:af92d98c95cf13cf21a60a10569b2c79d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2c321e01f64784c5249e594b795bf252"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj_8c.html#a2c321e01f64784c5249e594b795bf252">nbgl_refresh</a> (void)</td></tr>
 <tr class="memdesc:a2c321e01f64784c5249e594b795bf252"><td class="mdescLeft">&#160;</td><td class="mdescRight">This functions refreshes the actual screen on display with what has changed since the last refresh.  <a href="nbgl__obj_8c.html#a2c321e01f64784c5249e594b795bf252">More...</a><br /></td></tr>
 <tr class="separator:a2c321e01f64784c5249e594b795bf252"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -212,38 +198,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l00033">33</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
-
-</div>
-</div>
-<a id="acfe6a46b89e90207e22ad3d9085db15c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acfe6a46b89e90207e22ad3d9085db15c">&#9670;&nbsp;</a></span>UNTRACKED_PREVIOUS_STATE</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define UNTRACKED_PREVIOUS_STATE&#160;&#160;&#160;255</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<h2 class="groupheader">Typedef Documentation</h2>
-<a id="a6a1227f0b134cb3d2bdd036f4b67f50b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6a1227f0b134cb3d2bdd036f4b67f50b">&#9670;&nbsp;</a></span>draw_function_t</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef void(* draw_function_t) (<a class="el" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *obj, <a class="el" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *prevObj, bool computePosition)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l00038">38</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l00030">30</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
@@ -290,35 +245,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01655">1655</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
-
-</div>
-</div>
-<a id="a2ab8e03ef462a1e39312659f3b2d419f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2ab8e03ef462a1e39312659f3b2d419f">&#9670;&nbsp;</a></span>nbgl_objDraw()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void nbgl_objDraw </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *&#160;</td>
-          <td class="paramname"><em>obj</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>This function draws or redraws the given object and its children (recursive version) </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">obj</td><td>the object to redraw </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01531">1531</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01650">1650</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
@@ -340,7 +267,53 @@ Variables</h2></td></tr>
 
 <p>This functions inits all internal of nbgl objects layer. </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01644">1644</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01639">1639</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+
+</div>
+</div>
+<a id="af92d98c95cf13cf21a60a10569b2c79d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af92d98c95cf13cf21a60a10569b2c79d">&#9670;&nbsp;</a></span>nbgl_redrawObject()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nbgl_redrawObject </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *&#160;</td>
+          <td class="paramname"><em>obj</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *&#160;</td>
+          <td class="paramname"><em>prevObj</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>computePosition</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>This function redraws the given object and its children (recursive version) </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">obj</td><td>the object to redraw </td></tr>
+    <tr><td class="paramname">prevObj</td><td>the previous child of this object in the parent's children array (may be NULL for first element of the array) </td></tr>
+    <tr><td class="paramname">computePosition</td><td>if set to true, means that the position of the object will be recomputed (needs prevObj if alignment on this object) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01532">1532</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
@@ -362,7 +335,7 @@ Variables</h2></td></tr>
 
 <p>This functions refreshes the actual screen on display with what has changed since the last refresh. </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01570">1570</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01565">1565</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
@@ -385,7 +358,7 @@ Variables</h2></td></tr>
 <p>This functions returns true if there is something to refresh. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if there is something to refresh </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01616">1616</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01611">1611</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
@@ -407,7 +380,7 @@ Variables</h2></td></tr>
 
 <p>This functions resets all changes since the last refresh. </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01628">1628</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01623">1623</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
@@ -435,7 +408,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01580">1580</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01575">1575</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
@@ -465,7 +438,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01596">1596</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01591">1591</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
@@ -482,7 +455,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l00124">124</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l00057">57</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
