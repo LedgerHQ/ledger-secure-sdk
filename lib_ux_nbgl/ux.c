@@ -75,7 +75,7 @@ void ux_process_finger_event(uint8_t seph_packet[])
 #ifdef HAVE_HW_TOUCH_SWIPE
         pos.swipe = seph_packet[10];
 #endif  // HAVE_HW_TOUCH_SWIPE
-        nbgl_touchHandler(&pos, nbTicks * 100);
+        nbgl_touchHandler(false, &pos, nbTicks * 100);
         nbgl_refresh();
     }
 }
@@ -115,12 +115,15 @@ void ux_process_ticker_event(void)
 
     // enable/disable drawing according to UX decision
     nbgl_objAllowDrawing(displayEnabled);
-    // update ticker in NBGL
-    nbgl_screenHandler(100);
 
+    // do not do any action on screens if display is disabled, because
+    // UX has the hand
     if (!displayEnabled) {
         return;
     }
+
+    // update ticker in NBGL
+    nbgl_screenHandler(100);
 
 #ifdef HAVE_SE_TOUCH
     // handle touch only if detected as pressed in last touch message
@@ -131,7 +134,7 @@ void ux_process_ticker_event(void)
         pos.x     = touch_info.x;
         pos.y     = touch_info.y;
         // Send current touch position to nbgl
-        nbgl_touchHandler(&pos, nbTicks * 100);
+        nbgl_touchHandler(false, &pos, nbTicks * 100);
     }
 #endif  // HAVE_SE_TOUCH
     nbgl_refresh();
