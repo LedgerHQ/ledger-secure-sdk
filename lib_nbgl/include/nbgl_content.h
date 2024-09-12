@@ -20,7 +20,6 @@ extern "C" {
 #include "nbgl_types.h"
 #include "nbgl_obj.h"
 #ifdef HAVE_PIEZO_SOUND
-#include "os_io_seproxyhal.h"
 #endif
 
 /**********************

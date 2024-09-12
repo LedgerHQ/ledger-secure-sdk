@@ -15,7 +15,6 @@
 #include "nbgl_touch.h"
 #include "nbgl_screen.h"
 #include "os_pic.h"
-#include "os_io_seproxyhal.h"
 
 /*********************
  *      DEFINES

@@ -26,7 +26,6 @@
 
 #include "os_io.h"
 #include "os_utils.h"
-#include "os_io_seproxyhal.h"
 #include <string.h>
 
 #ifdef DEBUG

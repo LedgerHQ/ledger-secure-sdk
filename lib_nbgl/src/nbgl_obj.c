@@ -20,7 +20,6 @@
 #include "glyphs.h"
 #ifdef HAVE_SERIALIZED_NBGL
 #include "nbgl_serialize.h"
-#include "os_io_seproxyhal.h"
 #endif
 #ifdef BUILD_SCREENSHOTS
 #include "json_scenario.h"

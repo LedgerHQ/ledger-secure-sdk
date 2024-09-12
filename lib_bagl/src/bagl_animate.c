@@ -1,4 +1,3 @@
-#ifdef HAVE_SE_SCREEN
 
 #include <string.h>
 #include <stdio.h>
@@ -348,4 +347,3 @@ void bagl_animation_step(bagl_anim_t *anim)
     };
 }
 
-#endif /* HAVE_SE_SCREEN */

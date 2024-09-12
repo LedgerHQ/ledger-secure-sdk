@@ -3,7 +3,6 @@
 #include <stdint.h>
 
 #include "ux.h"
-#include "os_io_seproxyhal.h"
 
 #include "buffer.h"
 #include "macros.h"

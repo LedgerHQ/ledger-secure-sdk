@@ -176,9 +176,11 @@
 #define SYSCALL_os_sched_is_running_ID                        0x0100009b
 #define SYSCALL_os_sched_create_ID                            0x0700011b
 #define SYSCALL_os_sched_kill_ID                              0x01000078
-#define SYSCALL_io_seph_send_ID                               0x02000083
-#define SYSCALL_io_seph_is_status_sent_ID                     0x00000084
-#define SYSCALL_io_seph_recv_ID                               0x03000085
+#define SYSCALL_os_io_seph_tx_ID                              0x03000083
+#define SYSCALL_os_io_seph_se_rx_event_ID                     0x05000085
+#define SYSCALL_os_io_start_ID                                0x01000089
+#define SYSCALL_os_io_tx_cmd_ID                               0x04000086
+#define SYSCALL_os_io_rx_evt_ID                               0x03000088
 #define SYSCALL_nvm_write_page_ID                             0x0100010a
 #define SYSCALL_nvm_erase_page_ID                             0x01000136
 #define SYSCALL_try_context_get_ID                            0x00000087
@@ -246,7 +248,7 @@
 #endif  // HAVE_BRIGHTNESS_SYSCALL
 #define SYSCALL_bagl_hal_draw_bitmap_within_rect_ID 0x0900007c
 #define SYSCALL_bagl_hal_draw_rect_ID               0x0500007d
-#endif
+#endif // HAVE_SE_SCREEN
 
 #ifdef HAVE_BLE
 #define SYSCALL_os_ux_set_status_ID_IN 0x02000134
@@ -267,18 +269,6 @@
 #define SYSCALL_list_language_packs_ID 0x01000153
 #define SYSCALL_get_language_pack_ID   0x01000154
 #endif  // defined(HAVE_LANGUAGE_PACK)
-
-#ifdef HAVE_IO_I2C
-#define SYSCALL_io_i2c_setmode_ID 0x02000095
-#define SYSCALL_io_i2c_prepare_ID 0x01000096
-#define SYSCALL_io_i2c_xfer_ID    0x03000097
-#ifndef BOLOS_RELEASE
-#ifdef BOLOS_DEBUG
-#define SYSCALL_io_i2c_dumpstate_ID 0x00000098
-#define SYSCALL_io_debug_ID         0x020000a9
-#endif  // BOLOS_DEBUG
-#endif  // BOLOS_RELEASE
-#endif  // HAVE_IO_I2C
 
 #ifdef DEBUG_OS_STACK_CONSUMPTION
 #define SYSCALL_os_stack_operations_ID 0x01000199

@@ -99,7 +99,6 @@ typedef struct bagl_anim_s {
     };
 } bagl_anim_t;
 
-#ifdef HAVE_SE_SCREEN
 
 /**
  * Initialize a label animation.
@@ -113,7 +112,5 @@ void bagl_animation_init(bagl_anim_t         *anim,
  * Has to be called for each step of the animation.
  */
 void bagl_animation_step(bagl_anim_t *anim);
-
-#endif /* HAVE_SE_SCREEN */
 
 #endif /* !BAGL_ANIMATE_H_ */
