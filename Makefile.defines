@@ -59,7 +59,7 @@ endif
 ifneq ($(DEBUG),0)
 OPTI_LVL  = -Og
 OPTI_ALVL = $(OPTI_LVL)
-DBG_LVL   = -g3
+DBG_LVL   = -g1
 else
 OPTI_LVL  = -Oz
 OPTI_ALVL = -Os # assembler does not handle -Oz, use -Os instead
