@@ -38,13 +38,8 @@ typedef struct application_s {
     // into Thumb code
     appmain_t main;
 
-#ifdef HAVE_BACKGROUND_IMG
     // special flags for this application
     uint64_t flags;
-#else
-    // special flags for this application
-    uint32_t flags;
-#endif
 
     // Memory organization: [ code (RX) |alignpage| data (RW) |alignpage| install params (R) ]
 
