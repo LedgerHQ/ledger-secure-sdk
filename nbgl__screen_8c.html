@@ -82,18 +82,20 @@ $(function() {
 <code>#include &quot;<a class="el" href="nbgl__debug_8h_source.html">nbgl_debug.h</a>&quot;</code><br />
 <code>#include &quot;os_pic.h&quot;</code><br />
 <code>#include &quot;os_io.h&quot;</code><br />
+<code>#include &quot;os_task.h&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for nbgl_screen.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="nbgl__screen_8c__incl.png" border="0" usemap="#alib__nbgl_2src_2nbgl__screen_8c" alt=""/></div>
 <map name="alib__nbgl_2src_2nbgl__screen_8c" id="alib__nbgl_2src_2nbgl__screen_8c">
-<area shape="rect" title="Implementation of screens management API." alt="" coords="212,5,401,32"/>
+<area shape="rect" title="Implementation of screens management API." alt="" coords="280,5,469,32"/>
 <area shape="rect" title=" " alt="" coords="5,80,109,107"/>
 <area shape="rect" href="nbgl__front_8h.html" title="Font screen low&#45;Level driver API, to draw elementary forms." alt="" coords="97,155,197,181"/>
 <area shape="rect" href="nbgl__screen_8h.html" title="API to manage screens." alt="" coords="184,80,296,107"/>
 <area shape="rect" href="nbgl__debug_8h.html" title="debug traces management" alt="" coords="320,80,429,107"/>
 <area shape="rect" title=" " alt="" coords="453,80,528,107"/>
 <area shape="rect" title=" " alt="" coords="553,80,621,107"/>
+<area shape="rect" title=" " alt="" coords="645,80,729,107"/>
 <area shape="rect" href="nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="207,304,313,331"/>
 <area shape="rect" title=" " alt="" coords="75,379,149,405"/>
 <area shape="rect" title=" " alt="" coords="174,379,245,405"/>
@@ -127,6 +129,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a97c04d45453ccfcb7947c7efa1ea6e3a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__screen_8c.html#a97c04d45453ccfcb7947c7efa1ea6e3a">nbgl_screenGetCurrentStackSize</a> (void)</td></tr>
 <tr class="memdesc:a97c04d45453ccfcb7947c7efa1ea6e3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of used screens on stack.  <a href="nbgl__screen_8c.html#a97c04d45453ccfcb7947c7efa1ea6e3a">More...</a><br /></td></tr>
 <tr class="separator:a97c04d45453ccfcb7947c7efa1ea6e3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b2a47f335f9beaa78f828c513071532"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__screen_8c.html#a8b2a47f335f9beaa78f828c513071532">nbgl_screenGetUxStackSize</a> (void)</td></tr>
+<tr class="memdesc:a8b2a47f335f9beaa78f828c513071532"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of used UX screens on stack.  <a href="nbgl__screen_8c.html#a8b2a47f335f9beaa78f828c513071532">More...</a><br /></td></tr>
+<tr class="separator:a8b2a47f335f9beaa78f828c513071532"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a200cf6c689a755f45047d084f2e08102"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__screen_8c.html#a200cf6c689a755f45047d084f2e08102">nbgl_screenSet</a> (<a class="el" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> ***elements, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbElements, const <a class="el" href="nbgl__screen_8h.html#aab884939652843460a551908d88105aa">nbgl_screenTickerConfiguration_t</a> *ticker, <a class="el" href="nbgl__obj_8h.html#a1b7acc68e9b5c497870cf8e597761d8f">nbgl_touchCallback_t</a> callback)</td></tr>
 <tr class="memdesc:a200cf6c689a755f45047d084f2e08102"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configures the lowest layer screen. To be used by applications A <a class="el" href="nbgl__screen_8h.html#ad6821d8742004d473146aa1ca12fbbcb">nbgl_screenRedraw()</a> can be called after that to draw all the given objects (and their children)  <a href="nbgl__screen_8c.html#a200cf6c689a755f45047d084f2e08102">More...</a><br /></td></tr>
 <tr class="separator:a200cf6c689a755f45047d084f2e08102"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -190,7 +195,7 @@ BLE Pairing</h2>
 Control Center</h2>
 <p>Dashboard </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00037">37</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00038">38</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
 
 </div>
 </div>
@@ -220,7 +225,7 @@ Control Center</h2>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if belongs, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00538">538</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00561">561</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
 
 </div>
 </div>
@@ -260,7 +265,7 @@ Control Center</h2>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the found object of given type </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00553">553</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00576">576</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
 
 </div>
 </div>
@@ -289,7 +294,7 @@ Control Center</h2>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the screen on the given layer, or NULL if no screen in stack </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00086">86</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00087">87</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
 
 </div>
 </div>
@@ -312,7 +317,7 @@ Control Center</h2>
 <p>Returns the number of used screens on stack. </p>
 <dl class="section return"><dt>Returns</dt><dd>the number of used screens on stack </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00114">114</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00115">115</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
 
 </div>
 </div>
@@ -341,7 +346,7 @@ Control Center</h2>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>array of elements (children) of the screen </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00288">288</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00311">311</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
 
 </div>
 </div>
@@ -364,7 +369,30 @@ Control Center</h2>
 <p>Returns the screen on top layer, as a generic object. </p>
 <dl class="section return"><dt>Returns</dt><dd>the screen on top layer, or NULL if no screen in stack </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00100">100</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00101">101</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
+
+</div>
+</div>
+<a id="a8b2a47f335f9beaa78f828c513071532"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8b2a47f335f9beaa78f828c513071532">&#9670;&nbsp;</a></span>nbgl_screenGetUxStackSize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbgl_screenGetUxStackSize </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the number of used UX screens on stack. </p>
+<dl class="section return"><dt>Returns</dt><dd>the number of used UX screens on stack </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00127">127</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
 
 </div>
 </div>
@@ -392,7 +420,7 @@ Control Center</h2>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00445">445</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00468">468</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
 
 </div>
 </div>
@@ -421,7 +449,7 @@ Control Center</h2>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the index of screen on top of stack (if -1, the stack is empty) </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00373">373</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00396">396</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
 
 </div>
 </div>
@@ -475,7 +503,7 @@ Control Center</h2>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>current screen index, or &lt; 0 if error </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00306">306</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00329">329</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
 
 </div>
 </div>
@@ -497,7 +525,7 @@ Control Center</h2>
 
 <p>This function redraws the whole screen on top of stack and its children. </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00064">64</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00065">65</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
 
 </div>
 </div>
@@ -520,7 +548,7 @@ Control Center</h2>
 <p>Releases all screens and objects and resets the screen stack. It is supposed to be called before running an app. </p>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00422">422</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00445">445</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
 
 </div>
 </div>
@@ -574,7 +602,7 @@ Control Center</h2>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00201">201</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00224">224</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
 
 </div>
 </div>
@@ -614,7 +642,7 @@ Control Center</h2>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00249">249</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00272">272</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
 
 </div>
 </div>
@@ -654,7 +682,7 @@ Control Center</h2>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00233">233</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00256">256</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
 
 </div>
 </div>
@@ -694,7 +722,7 @@ Control Center</h2>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00265">265</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__screen_8c_source.html#l00288">288</a> of file <a class="el" href="nbgl__screen_8c_source.html">nbgl_screen.c</a>.</p>
 
 </div>
 </div>

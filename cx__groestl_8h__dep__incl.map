@@ -1,6 +1,5 @@
 <map id="lib_cxng/src/cx_groestl.h" name="lib_cxng/src/cx_groestl.h">
-<area shape="rect" id="node1" title=" " alt="" coords="104,5,287,32"/>
-<area shape="rect" id="node2" href="$cx__ram_8h.html" title=" " alt="" coords="114,80,277,107"/>
-<area shape="rect" id="node3" href="$cx__exported__functions_8c.html" title=" " alt="" coords="5,155,188,196"/>
-<area shape="rect" id="node4" href="$cx__ram_8c.html" title=" " alt="" coords="213,162,375,189"/>
+<area shape="rect" id="node1" title=" " alt="" coords="5,5,188,32"/>
+<area shape="rect" id="node2" href="$cx__ram_8h.html" title=" " alt="" coords="15,80,178,107"/>
+<area shape="rect" id="node3" href="$cx__ram_8c.html" title=" " alt="" coords="15,155,178,181"/>
 </map>
