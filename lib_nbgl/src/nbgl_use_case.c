@@ -152,8 +152,7 @@ typedef struct {
     const char                   *tagline;
     const nbgl_genericContents_t *settingContents;
     const nbgl_contentInfoList_t *infosList;
-    const char                   *actionText;
-    nbgl_callback_t               actionCallback;
+    nbgl_homeAction_t             homeAction;
     nbgl_callback_t               quitCallback;
 } nbgl_homeAndSettingsContext_t;
 
@@ -287,6 +286,13 @@ static void useCaseReviewStreamingStart(nbgl_operationType_t       operationType
                                         const char                *reviewSubTitle,
                                         nbgl_choiceCallback_t      choiceCallback,
                                         bool                       playNotifSound);
+static void useCaseHomeExt(const char                *appName,
+                           const nbgl_icon_details_t *appIcon,
+                           const char                *tagline,
+                           bool                       withSettings,
+                           nbgl_homeAction_t         *homeAction,
+                           nbgl_callback_t            topRightCallback,
+                           nbgl_callback_t            quitCallback);
 
 static void reset_callbacks(void)
 {
@@ -1603,14 +1609,13 @@ static void bundleNavStartHome(void)
 {
     nbgl_homeAndSettingsContext_t *context = &bundleNavContext.homeAndSettings;
 
-    nbgl_useCaseHomeExt(context->appName,
-                        context->appIcon,
-                        context->tagline,
-                        context->settingContents != NULL ? true : false,
-                        context->actionText,
-                        context->actionCallback,
-                        bundleNavStartSettings,
-                        context->quitCallback);
+    useCaseHomeExt(context->appName,
+                   context->appIcon,
+                   context->tagline,
+                   context->settingContents != NULL ? true : false,
+                   &context->homeAction,
+                   bundleNavStartSettings,
+                   context->quitCallback);
 }
 
 static void bundleNavStartSettingsAtPage(uint8_t initSettingPage)
@@ -1854,6 +1859,97 @@ static void useCaseReviewStreamingStart(nbgl_operationType_t       operationType
     }
 
     displayGenericContextPage(0, true);
+}
+
+/**
+ * @brief draws the extended version of home page of an app (page on which we land when launching it
+ * from dashboard)
+ * @note it enables to use an action button (black on Stax, white on Flex)
+ *
+ * @param appName app name
+ * @param appIcon app icon
+ * @param tagline text under app name (if NULL, it will be "This app enables signing transactions on
+ * the <appName> network.")
+ * @param withSettings if true, use a "settings" (wheel) icon in bottom button, otherwise a "info"
+ * (i)
+ * @param homeAction if not NULL, structure used for an action button (on top of "Quit
+ * App" button/footer)
+ * @param topRightCallback callback called when top-right button is touched
+ * @param quitCallback callback called when quit button is touched
+ */
+static void useCaseHomeExt(const char                *appName,
+                           const nbgl_icon_details_t *appIcon,
+                           const char                *tagline,
+                           bool                       withSettings,
+                           nbgl_homeAction_t         *homeAction,
+                           nbgl_callback_t            topRightCallback,
+                           nbgl_callback_t            quitCallback)
+{
+    reset_callbacks();
+
+    nbgl_pageInfoDescription_t info = {.centeredInfo.icon    = appIcon,
+                                       .centeredInfo.text1   = appName,
+                                       .centeredInfo.text3   = NULL,
+                                       .centeredInfo.style   = LARGE_CASE_INFO,
+                                       .centeredInfo.offsetY = 0,
+                                       .footerText           = NULL,
+                                       .bottomButtonStyle    = QUIT_APP_TEXT,
+                                       .tapActionText        = NULL,
+                                       .topRightStyle = withSettings ? SETTINGS_ICON : INFO_ICON,
+                                       .topRightToken = CONTINUE_TOKEN,
+                                       .tuneId        = TUNE_TAP_CASUAL};
+    if ((homeAction->text != NULL) || (homeAction->icon != NULL)) {
+        // trick to use ACTION_BUTTON_TOKEN for action and quit, with index used to distinguish
+        info.bottomButtonsToken = ACTION_BUTTON_TOKEN;
+        onAction                = homeAction->callback;
+        info.actionButtonText   = homeAction->text;
+        info.actionButtonIcon   = homeAction->icon;
+        info.actionButtonStyle
+            = (homeAction->style == STRONG_HOME_ACTION) ? BLACK_BACKGROUND : WHITE_BACKGROUND;
+    }
+    else {
+        info.bottomButtonsToken = QUIT_TOKEN;
+        onAction                = NULL;
+        info.actionButtonText   = NULL;
+        info.actionButtonIcon   = NULL;
+    }
+    if (tagline == NULL) {
+        if (strlen(appName) > MAX_APP_NAME_FOR_SDK_TAGLINE) {
+            snprintf(appDescription,
+                     APP_DESCRIPTION_MAX_LEN,
+                     "This app enables signing\ntransactions on its network.");
+        }
+        else {
+            snprintf(appDescription,
+                     APP_DESCRIPTION_MAX_LEN,
+                     "%s %s\n%s",
+                     TAGLINE_PART1,
+                     appName,
+                     TAGLINE_PART2);
+        }
+
+        // If there is more than 3 lines, it means the appName was split, so we put it on the next
+        // line
+        if (nbgl_getTextNbLinesInWidth(SMALL_REGULAR_FONT, appDescription, AVAILABLE_WIDTH, false)
+            > 3) {
+            snprintf(appDescription,
+                     APP_DESCRIPTION_MAX_LEN,
+                     "%s\n%s %s",
+                     TAGLINE_PART1,
+                     appName,
+                     TAGLINE_PART2);
+        }
+        info.centeredInfo.text2 = appDescription;
+    }
+    else {
+        info.centeredInfo.text2 = tagline;
+    }
+
+    onContinue = topRightCallback;
+    onQuit     = quitCallback;
+
+    pageContext = nbgl_pageDrawInfo(&pageCallback, NULL, &info);
+    nbgl_refreshSpecial(FULL_COLOR_CLEAN_REFRESH);
 }
 
 /**********************
@@ -2215,68 +2311,13 @@ void nbgl_useCaseHomeExt(const char                *appName,
                          nbgl_callback_t            topRightCallback,
                          nbgl_callback_t            quitCallback)
 {
-    reset_callbacks();
+    nbgl_homeAction_t homeAction = {.callback = actionCallback,
+                                    .icon     = NULL,
+                                    .style    = STRONG_HOME_ACTION,
+                                    .text     = actionButtonText};
 
-    nbgl_pageInfoDescription_t info = {.centeredInfo.icon    = appIcon,
-                                       .centeredInfo.text1   = appName,
-                                       .centeredInfo.text3   = NULL,
-                                       .centeredInfo.style   = LARGE_CASE_INFO,
-                                       .centeredInfo.offsetY = 0,
-                                       .footerText           = NULL,
-                                       .bottomButtonStyle    = QUIT_APP_TEXT,
-                                       .tapActionText        = NULL,
-                                       .topRightStyle    = withSettings ? SETTINGS_ICON : INFO_ICON,
-                                       .topRightToken    = CONTINUE_TOKEN,
-                                       .actionButtonText = actionButtonText,
-                                       .tuneId           = TUNE_TAP_CASUAL};
-    if (actionButtonText != NULL) {
-        // trick to use ACTION_BUTTON_TOKEN for action and quit, with index used to distinguish
-        info.bottomButtonsToken = ACTION_BUTTON_TOKEN;
-        onAction                = actionCallback;
-    }
-    else {
-        info.bottomButtonsToken = QUIT_TOKEN;
-        onAction                = actionCallback;
-    }
-    if (tagline == NULL) {
-        if (strlen(appName) > MAX_APP_NAME_FOR_SDK_TAGLINE) {
-            snprintf(appDescription,
-                     APP_DESCRIPTION_MAX_LEN,
-                     "This app enables signing\ntransactions on its network.");
-        }
-        else {
-            snprintf(appDescription,
-                     APP_DESCRIPTION_MAX_LEN,
-                     "%s %s\n%s",
-                     TAGLINE_PART1,
-                     appName,
-                     TAGLINE_PART2);
-        }
-
-        // If there is more than 3 lines, it means the appName was split, so we put it on the next
-        // line
-        if (nbgl_getTextNbLinesInWidth(SMALL_REGULAR_FONT, appDescription, AVAILABLE_WIDTH, false)
-            > 3) {
-            snprintf(appDescription,
-                     APP_DESCRIPTION_MAX_LEN,
-                     "%s\n%s %s",
-                     TAGLINE_PART1,
-                     appName,
-                     TAGLINE_PART2);
-        }
-        info.centeredInfo.text2 = appDescription;
-    }
-    else {
-        info.centeredInfo.text2 = tagline;
-    }
-
-    onContinue = topRightCallback;
-    onQuit     = quitCallback;
-    if (actionButtonText != NULL) {
-        info.centeredInfo.offsetY -= 40;
-    }
-    pageContext = nbgl_pageDrawInfo(&pageCallback, NULL, &info);
-    nbgl_refreshSpecial(FULL_COLOR_CLEAN_REFRESH);
+    useCaseHomeExt(
+        appName, appIcon, tagline, withSettings, &homeAction, topRightCallback, quitCallback);
 }
 
 /**
@@ -2482,12 +2523,10 @@ void nbgl_useCaseHomeAndSettings(
     context->settingContents = settingContents;
     context->infosList       = infosList;
     if (action != NULL) {
-        context->actionText     = action->text;
-        context->actionCallback = action->callback;
+        memcpy(&context->homeAction, action, sizeof(nbgl_homeAction_t));
     }
     else {
-        context->actionText     = NULL;
-        context->actionCallback = NULL;
+        memset(&context->homeAction, 0, sizeof(nbgl_homeAction_t));
     }
     context->quitCallback = quitCallback;
 
