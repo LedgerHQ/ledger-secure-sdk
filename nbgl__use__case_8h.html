@@ -109,6 +109,7 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__genericContents__t.html">nbgl_genericContents_t</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__homeAction__t.html">nbgl_homeAction_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structure describing the action button in Home Screen.  <a href="structnbgl__homeAction__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__tipBox__t.html">nbgl_tipBox_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The necessary parameters to build a tip-box in first review page and the modal if this tip box is touched.  <a href="structnbgl__tipBox__t.html#details">More...</a><br /></td></tr>
@@ -184,6 +185,11 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
+<tr class="memitem:a5ad554fa007e5b84e7f3e97bd8070db9"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a5ad554fa007e5b84e7f3e97bd8070db9">nbgl_homeActionStyle_t</a> { <a class="el" href="nbgl__use__case_8h.html#a5ad554fa007e5b84e7f3e97bd8070db9ac3e69ff9c29e546ba92ae5aefc96d80f">STRONG_HOME_ACTION</a> = 0
+, <a class="el" href="nbgl__use__case_8h.html#a5ad554fa007e5b84e7f3e97bd8070db9a8c3eb2b05d809d549847bb46318fc27e">SOFT_HOME_ACTION</a>
+ }</td></tr>
+<tr class="memdesc:a5ad554fa007e5b84e7f3e97bd8070db9"><td class="mdescLeft">&#160;</td><td class="mdescRight">The different types of action button in Home Screen.  <a href="nbgl__use__case_8h.html#a5ad554fa007e5b84e7f3e97bd8070db9">More...</a><br /></td></tr>
+<tr class="separator:a5ad554fa007e5b84e7f3e97bd8070db9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afa09e6097a8248ecbdc81d2fb1bfc317"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#afa09e6097a8248ecbdc81d2fb1bfc317">nbgl_opType_t</a> { <a class="el" href="nbgl__use__case_8h.html#afa09e6097a8248ecbdc81d2fb1bfc317a58ebdf125d0fe120e74ebe9e00f86205">TYPE_TRANSACTION</a> = 0
 , <a class="el" href="nbgl__use__case_8h.html#afa09e6097a8248ecbdc81d2fb1bfc317a2cbb8dddd761b8bfba754d933a979c1b">TYPE_MESSAGE</a>
 , <a class="el" href="nbgl__use__case_8h.html#afa09e6097a8248ecbdc81d2fb1bfc317aea632eebb1481f4a91934a601db6c0d8">TYPE_OPERATION</a>
@@ -325,7 +331,7 @@ Functions</h2></td></tr>
 
 <p>This is to use in <a class="el" href="nbgl__use__case_8h.html#a2a61232bd0b7a090272a1fd43f3b9f26">nbgl_operationType_t</a> when the operation is "blind" This is used to indicate a warning with a top-right button in review first &amp; last page. </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00201">201</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00215">215</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -487,7 +493,7 @@ Functions</h2></td></tr>
 
 <p>This is to use in <a class="el" href="nbgl__use__case_8h.html#a2a61232bd0b7a090272a1fd43f3b9f26">nbgl_operationType_t</a> when the operation is skippable. This is used. </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00194">194</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00208">208</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -675,7 +681,7 @@ Functions</h2></td></tr>
 
 <p>This mask is used to describe the type of operation to review with additional options It is a mask of <a class="el" href="nbgl__use__case_8h.html#afa09e6097a8248ecbdc81d2fb1bfc317">nbgl_opType_t</a> [| <a class="el" href="nbgl__use__case_8h.html#a200676cdf5bfc30c4184d2bd650b6f14">SKIPPABLE_OPERATION</a>] [| <a class="el" href="nbgl__use__case_8h.html#ab65c98f1761ae5a746bb0c968ecd2f69">BLIND_OPERATION</a>]. </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00208">208</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00222">222</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -705,6 +711,30 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="a5ad554fa007e5b84e7f3e97bd8070db9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5ad554fa007e5b84e7f3e97bd8070db9">&#9670;&nbsp;</a></span>nbgl_homeActionStyle_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="nbgl__use__case_8h.html#a5ad554fa007e5b84e7f3e97bd8070db9">nbgl_homeActionStyle_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The different types of action button in Home Screen. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a5ad554fa007e5b84e7f3e97bd8070db9ac3e69ff9c29e546ba92ae5aefc96d80f"></a>STRONG_HOME_ACTION&#160;</td><td class="fielddoc"><p>Black button, implicating the main action of the App. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a5ad554fa007e5b84e7f3e97bd8070db9a8c3eb2b05d809d549847bb46318fc27e"></a>SOFT_HOME_ACTION&#160;</td><td class="fielddoc"><p>White button, more for extended features. </p>
+</td></tr>
+</table>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00160">160</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+
+</div>
+</div>
 <a id="afa09e6097a8248ecbdc81d2fb1bfc317"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#afa09e6097a8248ecbdc81d2fb1bfc317">&#9670;&nbsp;</a></span>nbgl_opType_t</h2>
 
@@ -727,7 +757,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00181">181</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00195">195</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -755,7 +785,7 @@ Functions</h2></td></tr>
 <tr><td class="fieldname"><a id="aecc6f4750a49ca97c084e3fd5600d5dea421fe70db5ac9ff90611b7d1a57af340"></a>STATUS_TYPE_ADDRESS_REJECTED&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00214">214</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00228">228</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>

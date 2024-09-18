@@ -62,7 +62,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="index.html">Embedded SDK</a></li><li class="navelem"><a class="el" href="nbgl_mainpage.html">New BOLOS Graphic API for Stax</a></li>  </ul>
+<li class="navelem"><a class="el" href="index.html">Embedded SDK</a></li><li class="navelem"><a class="el" href="nbgl_mainpage.html">New BOLOS Graphic API for Stax/Flex</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="PageDoc"><div class="header">
@@ -115,8 +115,7 @@ Use Cases</h1>
 </ul>
 </li>
 <li>for address verification:<ul>
-<li><a class="el" href="nbgl__use__case_8h.html#abb0d60831b55936803dd477cfffa226c">nbgl_useCaseAddressConfirmation()</a> to draw an address confirmation page, with a possibility to see it as QR Code (see <a class="el" href="nbgl_app_use_case.html#use_case_addr_confirm">Address Confirmation Use Case</a>)</li>
-<li><a class="el" href="nbgl__use__case_8h.html#a3a27863215e033cb33beca599dadb794">nbgl_useCaseAddressConfirmationExt()</a> to draw an address confirmation page, with a possibility to see it as QR Code and some extra tag/value pairs (see <a class="el" href="nbgl_app_use_case.html#use_case_addr_confirm_ext">Extended Address Confirmation Use Case</a>)</li>
+<li><a class="el" href="nbgl__use__case_8h.html#af488f6a96b0c702f31cca21ff5276663">nbgl_useCaseAddressReview()</a> to draw an address confirmation page, with a possibility to see it as QR Code and some extra tag/value pairs (see <a class="el" href="nbgl_app_use_case.html#use_case_addr_review">Address Review Use Case</a>)</li>
 </ul>
 </li>
 <li>for keypad:<ul>
@@ -141,6 +140,11 @@ Use Cases</h1>
 <li><a class="el" href="nbgl__use__case_8h.html#a728cc81c77011fb0e51a6e73d15a8e8b">nbgl_useCaseReviewStart()</a> to draw the cover page of a review (initial page, without data)</li>
 <li><a class="el" href="nbgl__use__case_8h.html#ac85bc83d4448aa62ec57eed4bf8d1bd0">nbgl_useCaseStaticReview()</a> to draw the data pages of a regular review, when all info are available from the beginning (all pages but the cover one)</li>
 <li><a class="el" href="nbgl__use__case_8h.html#ac092f1759210d1ea0fc23754043fcdf0">nbgl_useCaseRegularReview()</a> to draw the data pages of a regular review (all pages but the cover one)</li>
+</ul>
+</li>
+<li>for address verification:<ul>
+<li><a class="el" href="nbgl__use__case_8h.html#abb0d60831b55936803dd477cfffa226c">nbgl_useCaseAddressConfirmation()</a> to draw an address confirmation page, with a possibility to see it as QR Code</li>
+<li><a class="el" href="nbgl__use__case_8h.html#a3a27863215e033cb33beca599dadb794">nbgl_useCaseAddressConfirmationExt()</a> to draw an address confirmation page, with a possibility to see it as QR Code and some extra tag/value pairs</li>
 </ul>
 </li>
 <li>for rare reviews:<ul>
@@ -242,7 +246,21 @@ Home &amp; Settings screen Use Case</h2>
 <div class="ttc" id="astructnbgl__pageSwitchesList__s_html_a1036d245c6954223009c4706a15a0ef0"><div class="ttname"><a href="structnbgl__pageSwitchesList__s.html#a1036d245c6954223009c4706a15a0ef0">nbgl_pageSwitchesList_s::nbSwitches</a></div><div class="ttdeci">uint8_t nbSwitches</div><div class="ttdoc">number of elements in switches and tokens array</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__content_8h_source.html#l00258">nbgl_content.h:258</a></div></div>
 <div class="ttc" id="aunionnbgl__content__u_html_abc36dfa9d42e152185ac985e42b69bde"><div class="ttname"><a href="unionnbgl__content__u.html#abc36dfa9d42e152185ac985e42b69bde">nbgl_content_u::switchesList</a></div><div class="ttdeci">nbgl_contentSwitchesList_t switchesList</div><div class="ttdoc">SWITCHES_LIST type</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__content_8h_source.html#l00354">nbgl_content.h:354</a></div></div>
 <div class="ttc" id="ausbd__conf_8h_html_aba7bc1797add20fe3efdf37ced1182c5"><div class="ttname"><a href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a></div><div class="ttdeci">unsigned char uint8_t</div><div class="ttdef"><b>Definition:</b> <a href="usbd__conf_8h_source.html#l00053">usbd_conf.h:53</a></div></div>
-</div><!-- fragment --><h2><a class="anchor" id="use_case_confirm"></a>
+</div><!-- fragment --><h3><a class="anchor" id="use_case_home_settings_with_action"></a>
+Home &amp; Settings screen with action button Use Case</h3>
+<p><img src="UseCase-HomeAction.png" alt="" height="300" class="inline" title="caption"/></p>
+<p>For some rare applications, one may need an action button in the Home screen, to perform either:</p>
+<ul>
+<li>The main action of the Application</li>
+<li>Or an side-action, as to display an address</li>
+</ul>
+<p>The <b>action</b> argument of <a class="el" href="nbgl__use__case_8h.html#a438078d9be71706e0ad6a05f56658255">nbgl_useCaseHomeAndSettings()</a> can be used for that. This structure (<a class="el" href="structnbgl__homeAction__t.html">nbgl_homeAction_t</a>) enables to specify:</p>
+<ul>
+<li>A text &amp; an icon for the button</li>
+<li>A function to be called when the button is touched</li>
+<li>The type of button (either <a class="el" href="nbgl__use__case_8h.html#a5ad554fa007e5b84e7f3e97bd8070db9ac3e69ff9c29e546ba92ae5aefc96d80f">STRONG_HOME_ACTION</a> for main action, in black, or <a class="el" href="nbgl__use__case_8h.html#a5ad554fa007e5b84e7f3e97bd8070db9a8c3eb2b05d809d549847bb46318fc27e">SOFT_HOME_ACTION</a> for side action, in white)</li>
+</ul>
+<h2><a class="anchor" id="use_case_confirm"></a>
 Confirmation Use Case</h2>
 <p><img src="UseCase-Confirm.png" alt="" height="300" class="inline" title="caption"/></p>
 <p>A confirmation use-case consists in a single modal page containing a fixed icon, a configurable message, a black button and a footer to make the choice, with configuration texts. The <a class="el" href="nbgl__use__case_8h.html#a6f689a2dbefa1dd38cff6174bb214b72">nbgl_useCaseConfirm()</a> function enables to create such a page.</p>
@@ -348,9 +366,9 @@ Review Use Case</h2>
 <div class="line">}</div>
 <div class="ttc" id="anbgl__use__case_8h_html_a303e3242b26535f74695f94a51d8cb6a"><div class="ttname"><a href="nbgl__use__case_8h.html#a303e3242b26535f74695f94a51d8cb6a">nbgl_useCaseReview</a></div><div class="ttdeci">void nbgl_useCaseReview(nbgl_operationType_t operationType, const nbgl_contentTagValueList_t *tagValueList, const nbgl_icon_details_t *icon, const char *reviewTitle, const char *reviewSubTitle, const char *finishTitle, nbgl_choiceCallback_t choiceCallback)</div></div>
 <div class="ttc" id="anbgl__use__case_8h_html_ae32d39392a88d6aa2595b0d45661f0ab"><div class="ttname"><a href="nbgl__use__case_8h.html#ae32d39392a88d6aa2595b0d45661f0ab">nbgl_useCaseReviewStatus</a></div><div class="ttdeci">void nbgl_useCaseReviewStatus(nbgl_reviewStatusType_t reviewStatusType, nbgl_callback_t quitCallback)</div></div>
-<div class="ttc" id="anbgl__use__case_8h_html_aecc6f4750a49ca97c084e3fd5600d5dea39c63169fc1f2c1a4922cfd0b07bcf0a"><div class="ttname"><a href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea39c63169fc1f2c1a4922cfd0b07bcf0a">STATUS_TYPE_TRANSACTION_REJECTED</a></div><div class="ttdeci">@ STATUS_TYPE_TRANSACTION_REJECTED</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__use__case_8h_source.html#l00216">nbgl_use_case.h:216</a></div></div>
-<div class="ttc" id="anbgl__use__case_8h_html_aecc6f4750a49ca97c084e3fd5600d5dea699644fad9f83e97303c7422daca9e41"><div class="ttname"><a href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea699644fad9f83e97303c7422daca9e41">STATUS_TYPE_TRANSACTION_SIGNED</a></div><div class="ttdeci">@ STATUS_TYPE_TRANSACTION_SIGNED</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__use__case_8h_source.html#l00215">nbgl_use_case.h:215</a></div></div>
-<div class="ttc" id="anbgl__use__case_8h_html_afa09e6097a8248ecbdc81d2fb1bfc317a58ebdf125d0fe120e74ebe9e00f86205"><div class="ttname"><a href="nbgl__use__case_8h.html#afa09e6097a8248ecbdc81d2fb1bfc317a58ebdf125d0fe120e74ebe9e00f86205">TYPE_TRANSACTION</a></div><div class="ttdeci">@ TYPE_TRANSACTION</div><div class="ttdoc">For operations transferring a coin or taken from an account to another.</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__use__case_8h_source.html#l00183">nbgl_use_case.h:182</a></div></div>
+<div class="ttc" id="anbgl__use__case_8h_html_aecc6f4750a49ca97c084e3fd5600d5dea39c63169fc1f2c1a4922cfd0b07bcf0a"><div class="ttname"><a href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea39c63169fc1f2c1a4922cfd0b07bcf0a">STATUS_TYPE_TRANSACTION_REJECTED</a></div><div class="ttdeci">@ STATUS_TYPE_TRANSACTION_REJECTED</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__use__case_8h_source.html#l00230">nbgl_use_case.h:230</a></div></div>
+<div class="ttc" id="anbgl__use__case_8h_html_aecc6f4750a49ca97c084e3fd5600d5dea699644fad9f83e97303c7422daca9e41"><div class="ttname"><a href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea699644fad9f83e97303c7422daca9e41">STATUS_TYPE_TRANSACTION_SIGNED</a></div><div class="ttdeci">@ STATUS_TYPE_TRANSACTION_SIGNED</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__use__case_8h_source.html#l00229">nbgl_use_case.h:229</a></div></div>
+<div class="ttc" id="anbgl__use__case_8h_html_afa09e6097a8248ecbdc81d2fb1bfc317a58ebdf125d0fe120e74ebe9e00f86205"><div class="ttname"><a href="nbgl__use__case_8h.html#afa09e6097a8248ecbdc81d2fb1bfc317a58ebdf125d0fe120e74ebe9e00f86205">TYPE_TRANSACTION</a></div><div class="ttdeci">@ TYPE_TRANSACTION</div><div class="ttdoc">For operations transferring a coin or taken from an account to another.</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__use__case_8h_source.html#l00197">nbgl_use_case.h:196</a></div></div>
 <div class="ttc" id="astructnbgl__contentTagValueList__t_html"><div class="ttname"><a href="structnbgl__contentTagValueList__t.html">nbgl_contentTagValueList_t</a></div><div class="ttdoc">This structure contains a list of [tag,value] pairs.</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__content_8h_source.html#l00181">nbgl_content.h:181</a></div></div>
 <div class="ttc" id="astructnbgl__contentTagValueList__t_html_af7465bb412cd1d9fd14bc526d0ea77d8"><div class="ttname"><a href="structnbgl__contentTagValueList__t.html#af7465bb412cd1d9fd14bc526d0ea77d8">nbgl_contentTagValueList_t::nbMaxLinesForValue</a></div><div class="ttdeci">uint8_t nbMaxLinesForValue</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__content_8h_source.html#l00188">nbgl_content.h:188</a></div></div>
 <div class="ttc" id="astructnbgl__contentTagValue__t_html"><div class="ttname"><a href="structnbgl__contentTagValue__t.html">nbgl_contentTagValue_t</a></div><div class="ttdoc">This structure contains a [tag,value] pair.</div><div class="ttdef"><b>Definition:</b> <a href="nbgl__content_8h_source.html#l00144">nbgl_content.h:144</a></div></div>
@@ -497,43 +515,11 @@ and backward (only within a "stream" for backward).</p>
 <div class="ttc" id="anbgl__use__case_8h_html_a42b9838f8e87318f142b4bfa11cd8e1a"><div class="ttname"><a href="nbgl__use__case_8h.html#a42b9838f8e87318f142b4bfa11cd8e1a">nbgl_useCaseReviewStreamingStart</a></div><div class="ttdeci">void nbgl_useCaseReviewStreamingStart(nbgl_operationType_t operationType, const nbgl_icon_details_t *icon, const char *reviewTitle, const char *reviewSubTitle, nbgl_choiceCallback_t choiceCallback)</div></div>
 <div class="ttc" id="anbgl__use__case_8h_html_a5b355b1051720c70f6e8a35659eb66f2"><div class="ttname"><a href="nbgl__use__case_8h.html#a5b355b1051720c70f6e8a35659eb66f2">nbgl_useCaseReviewStreamingFinish</a></div><div class="ttdeci">void nbgl_useCaseReviewStreamingFinish(const char *finishTitle, nbgl_choiceCallback_t choiceCallback)</div></div>
 <div class="ttc" id="anbgl__use__case_8h_html_ad9d598fd702eb516d6c8dca231d4a08f"><div class="ttname"><a href="nbgl__use__case_8h.html#ad9d598fd702eb516d6c8dca231d4a08f">nbgl_useCaseReviewStreamingContinue</a></div><div class="ttdeci">void nbgl_useCaseReviewStreamingContinue(const nbgl_contentTagValueList_t *tagValueList, nbgl_choiceCallback_t choiceCallback)</div></div>
-</div><!-- fragment --><h2><a class="anchor" id="use_case_addr_confirm"></a>
-Address Confirmation Use Case</h2>
-<p><img src="UseCase-AddressConfirmation.png" alt="" height="300" class="inline" title="caption"/></p>
-<p>When an address needs to be confirmed, it can be displayed in a Address Confirmation Use Case, at first as simple page with the raw address (as text) and a black button/Footer pair to choose to confirm or reject the address.</p>
-<p>An extra button under the raw address enables to open a modal page to see the address as a QR code.</p>
-<p>The <a class="el" href="nbgl__use__case_8h.html#abb0d60831b55936803dd477cfffa226c">nbgl_useCaseAddressConfirmation()</a> function enables to create such a page, with the following parameters:</p>
-<ul>
-<li>the address to confirm (NULL terminated string)</li>
-<li>a callback called when button or footer is touched (if true, confirm, if false reject)</li>
-</ul>
-<p>Here is the code to display something similar to example picture:</p>
-<div class="fragment"><div class="line"><span class="comment">// called when either confirm button or reject token is called</span></div>
-<div class="line"><span class="keyword">static</span> <span class="keywordtype">void</span> displayAddressCallback(<span class="keywordtype">bool</span> confirm) {</div>
-<div class="line">  <span class="keywordflow">if</span> (confirm) {</div>
-<div class="line">    <a class="code" href="nbgl__use__case_8h.html#a8eebd5b1e53a4894c4c05ddae49c8ae8">nbgl_useCaseStatus</a>(<span class="stringliteral">&quot;Address\nVerified&quot;</span>,<span class="keyword">true</span>,app_fullEthereum);</div>
-<div class="line">  }</div>
-<div class="line">  <span class="keywordflow">else</span> {</div>
-<div class="line">    <a class="code" href="nbgl__use__case_8h.html#a8eebd5b1e53a4894c4c05ddae49c8ae8">nbgl_useCaseStatus</a>(<span class="stringliteral">&quot;Address rejected&quot;</span>,<span class="keyword">false</span>,app_fullEthereum);</div>
-<div class="line">  }</div>
-<div class="line">}</div>
-<div class="line"> </div>
-<div class="line"><span class="comment">// called when tapping on review start page to actually display address</span></div>
-<div class="line"><span class="keyword">static</span> <span class="keywordtype">void</span> displayAddr(<span class="keywordtype">void</span>) {</div>
-<div class="line">  <a class="code" href="nbgl__use__case_8h.html#abb0d60831b55936803dd477cfffa226c">nbgl_useCaseAddressConfirmation</a>(<span class="stringliteral">&quot;bc1pkdcufjh6dxjaaa05hudvxqg5fhspfmwmp8g92gq8cv4gwwnmgrfqfd4jlg&quot;</span>, &amp;displayAddressCallback);</div>
-<div class="line">}</div>
-<div class="line"> </div>
-<div class="line"><span class="keywordtype">void</span> app_ethereumVerifyAddress(<span class="keywordtype">void</span>) {</div>
-<div class="line">  <a class="code" href="nbgl__use__case_8h.html#a728cc81c77011fb0e51a6e73d15a8e8b">nbgl_useCaseReviewStart</a>(myAppIcon,<span class="stringliteral">&quot;Verify MyCoin\naddress&quot;</span>,NULL,<span class="stringliteral">&quot;Cancel&quot;</span>,</div>
-<div class="line">                          displayAddr, appMain);</div>
-<div class="line">}</div>
-<div class="ttc" id="anbgl__use__case_8h_html_a728cc81c77011fb0e51a6e73d15a8e8b"><div class="ttname"><a href="nbgl__use__case_8h.html#a728cc81c77011fb0e51a6e73d15a8e8b">nbgl_useCaseReviewStart</a></div><div class="ttdeci">void nbgl_useCaseReviewStart(const nbgl_icon_details_t *icon, const char *reviewTitle, const char *reviewSubTitle, const char *rejectText, nbgl_callback_t continueCallback, nbgl_callback_t rejectCallback)</div></div>
-<div class="ttc" id="anbgl__use__case_8h_html_abb0d60831b55936803dd477cfffa226c"><div class="ttname"><a href="nbgl__use__case_8h.html#abb0d60831b55936803dd477cfffa226c">nbgl_useCaseAddressConfirmation</a></div><div class="ttdeci">void nbgl_useCaseAddressConfirmation(const char *address, nbgl_choiceCallback_t callback)</div></div>
-</div><!-- fragment --><h2><a class="anchor" id="use_case_addr_confirm_ext"></a>
-Extended Address Confirmation Use Case</h2>
-<p><img src="UseCase-AddressConfirmationExt.png" alt="" height="500" class="inline" title="caption"/></p>
-<p>When an address needs to be confirmed, it can be displayed in a Address Confirmation Use Case, at first as simple page with the raw address (as text). An extra button under the raw address enables to open a modal page to see the address as a QR code. Moreover, if extra information need to be displayed, for example a derivation path, it is provided in a second page, also containing a black button/Footer pair to choose to confirm or reject the address.</p>
-<p>The <a class="el" href="nbgl__use__case_8h.html#a3a27863215e033cb33beca599dadb794">nbgl_useCaseAddressConfirmationExt()</a> function enables to create such a set of pages, with the following parameters:</p>
+</div><!-- fragment --><h2><a class="anchor" id="use_case_addr_review"></a>
+Address Review Use Case</h2>
+<p><img src="UseCase-AddressReview.png" alt="" height="500" class="inline" title="caption"/></p>
+<p>When an address needs to be confirmed, it can be displayed in a Address Review Use Case. After a title page, a second page is displayed with the raw address (as text). An extra button under the raw address enables to open a modal page to see the address as a QR code. Moreover, if extra information need to be displayed, for example a derivation path, it is provided in a second page, also containing a black button/Footer pair to choose to confirm or reject the address.</p>
+<p>The <a class="el" href="nbgl__use__case_8h.html#af488f6a96b0c702f31cca21ff5276663">nbgl_useCaseAddressReview()</a> function enables to create such a set of pages, with the following parameters:</p>
 <ul>
 <li>the address to confirm (NULL terminated string)</li>
 <li>a callback called when button or footer is touched (if true, confirm, if false reject)</li>
@@ -559,16 +545,15 @@ Extended Address Confirmation Use Case</h2>
 <div class="line">  }</div>
 <div class="line">}</div>
 <div class="line"> </div>
-<div class="line"><span class="comment">// called when tapping on review start page to actually display address</span></div>
-<div class="line"><span class="keyword">static</span> <span class="keywordtype">void</span> displayAddr(<span class="keywordtype">void</span>) {</div>
-<div class="line">  <a class="code" href="nbgl__use__case_8h.html#a3a27863215e033cb33beca599dadb794">nbgl_useCaseAddressConfirmationExt</a>(<span class="stringliteral">&quot;bc1pkdcufjh6dxjaaa05hudvxqg5fhspfmwmp8g92gq8cv4gwwnmgrfqfd4jlg&quot;</span>, &amp;displayAddressCallback, &amp;pairList);</div>
-<div class="line">}</div>
-<div class="line"> </div>
 <div class="line"><span class="keywordtype">void</span> app_ethereumVerifyAddress(<span class="keywordtype">void</span>) {</div>
-<div class="line">  <a class="code" href="nbgl__use__case_8h.html#a728cc81c77011fb0e51a6e73d15a8e8b">nbgl_useCaseReviewStart</a>(myAppIcon,<span class="stringliteral">&quot;Verify MyCoin\naddress&quot;</span>,NULL,<span class="stringliteral">&quot;Cancel&quot;</span>,</div>
-<div class="line">                          displayAddr, appMain);</div>
+<div class="line">  <a class="code" href="nbgl__use__case_8h.html#af488f6a96b0c702f31cca21ff5276663">nbgl_useCaseAddressReview</a>(<span class="stringliteral">&quot;bc1pkdcufjh6dxjaaa05hudvxqg5fhspfmwmp8g92gq8cv4gwwnmgrfqfd4jlg&quot;</span>,</div>
+<div class="line">                            &amp;pairList</div>
+<div class="line">                            myAppIcon,</div>
+<div class="line">                            <span class="stringliteral">&quot;Verify MyCoin\naddress&quot;</span>,</div>
+<div class="line">                            NULL,<span class="stringliteral">&quot;Cancel&quot;</span>,</div>
+<div class="line">                            appMain);</div>
 <div class="line">}</div>
-<div class="ttc" id="anbgl__use__case_8h_html_a3a27863215e033cb33beca599dadb794"><div class="ttname"><a href="nbgl__use__case_8h.html#a3a27863215e033cb33beca599dadb794">nbgl_useCaseAddressConfirmationExt</a></div><div class="ttdeci">void nbgl_useCaseAddressConfirmationExt(const char *address, nbgl_choiceCallback_t callback, const nbgl_contentTagValueList_t *tagValueList)</div></div>
+<div class="ttc" id="anbgl__use__case_8h_html_af488f6a96b0c702f31cca21ff5276663"><div class="ttname"><a href="nbgl__use__case_8h.html#af488f6a96b0c702f31cca21ff5276663">nbgl_useCaseAddressReview</a></div><div class="ttdeci">void nbgl_useCaseAddressReview(const char *address, const nbgl_contentTagValueList_t *additionalTagValueList, const nbgl_icon_details_t *icon, const char *reviewTitle, const char *reviewSubTitle, nbgl_choiceCallback_t choiceCallback)</div></div>
 </div><!-- fragment --><h2><a class="anchor" id="use_case_spinner"></a>
 Spinner Use Case</h2>
 <p><img src="UseCase-Spinner.png" alt="" height="300" class="inline" title="caption"/></p>
