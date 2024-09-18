@@ -362,9 +362,9 @@ nbgl_page_t *nbgl_pageDrawInfo(nbgl_layoutTouchCallback_t              onActionC
     // if action button but not QUIT_APP_TEXT bottom button, use a small black button
     if ((info->actionButtonText != NULL) && (info->bottomButtonStyle != QUIT_APP_TEXT)) {
         nbgl_layoutButton_t buttonInfo = {.fittingContent = true,
-                                          .icon           = NULL,
+                                          .icon           = info->actionButtonIcon,
                                           .onBottom       = false,
-                                          .style          = BLACK_BACKGROUND,
+                                          .style          = info->actionButtonStyle,
                                           .text           = info->actionButtonText,
                                           .token          = info->bottomButtonsToken,
                                           .tuneId         = info->tuneId};
@@ -397,7 +397,11 @@ nbgl_page_t *nbgl_pageDrawInfo(nbgl_layoutTouchCallback_t              onActionC
                                                       .bottomText = "Quit app",
                                                       .token      = info->bottomButtonsToken,
                                                       .style      = BOTH_ROUNDED_STYLE,
-                                                      .tuneId     = info->tuneId};
+                                                      .tuneId     = info->tuneId,
+                                                      .topIcon    = info->actionButtonIcon};
+            buttonsInfo.style                      = (info->actionButtonStyle == BLACK_BACKGROUND)
+                                                         ? STRONG_ACTION_AND_FOOTER_STYLE
+                                                         : SOFT_ACTION_AND_FOOTER_STYLE;
             nbgl_layoutAddChoiceButtons(layout, &buttonsInfo);
         }
         else {

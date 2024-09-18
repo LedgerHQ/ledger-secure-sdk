@@ -51,8 +51,7 @@ A few APIs are available to draw typical Use-Cases, such as:
  - @ref nbgl_useCaseReviewLight() to draw the pages of a transaction review with a simple button confirmation, when all info are available from the beginning (see @subpage use_case_review_light)
  - @ref nbgl_useCaseReviewStreamingStart() to draw the pages of a regular coin transaction review, when all info are not available from the beginning (see @subpage use_case_review_streaming)
 - for address verification:
- - @ref nbgl_useCaseAddressConfirmation() to draw an address confirmation page, with a possibility to see it as QR Code (see @subpage use_case_addr_confirm)
- - @ref nbgl_useCaseAddressConfirmationExt() to draw an address confirmation page, with a possibility to see it as QR Code and some extra tag/value pairs (see @subpage use_case_addr_confirm_ext)
+ - @ref nbgl_useCaseAddressReview() to draw an address confirmation page, with a possibility to see it as QR Code and some extra tag/value pairs (see @subpage use_case_addr_review)
 - for keypad:
  - @ref nbgl_useCaseKeypadPIN() to draw a default keypad implementation with hidden digits (see @subpage use_case_keypad)
  - @ref nbgl_useCaseKeypadDigits() to draw a default keypad implementation, showing digits (see @subpage use_case_keypad)
@@ -69,6 +68,9 @@ Some APIs have also been kept for backward compatibility, and for some rare case
  - @ref nbgl_useCaseReviewStart() to draw the cover page of a review (initial page, without data)
  - @ref nbgl_useCaseStaticReview() to draw the data pages of a regular review, when all info are available from the beginning (all pages but the cover one)
  - @ref nbgl_useCaseRegularReview() to draw the data pages of a regular review (all pages but the cover one)
+- for address verification:
+ - @ref nbgl_useCaseAddressConfirmation() to draw an address confirmation page, with a possibility to see it as QR Code
+ - @ref nbgl_useCaseAddressConfirmationExt() to draw an address confirmation page, with a possibility to see it as QR Code and some extra tag/value pairs
 - for rare reviews:
  - @ref nbgl_useCaseForwardOnlyReview() to draw the pages of a forward-only review (without back key)
  - @ref nbgl_useCaseViewDetails() to draw the pages displaying the full value of a given long data of a review
@@ -154,6 +156,22 @@ void appMain(void) {
                                 onQuit);               // when quitting
 }
 @endcode
+
+@subsubsection use_case_home_settings_with_action Home & Settings screen with action button Use Case
+
+\image{inline} html UseCase-HomeAction.png "caption" height=300
+
+For some rare applications, one may need an action button in the Home screen, to perform either:
+
+- The main action of the Application
+- Or an side-action, as to display an address
+
+The \b action argument of @ref nbgl_useCaseHomeAndSettings() can be used for that. This structure (@ref nbgl_homeAction_t)
+enables to specify:
+
+- A text & an icon for the button
+- A function to be called when the button is touched
+- The type of button (either @ref STRONG_HOME_ACTION for main action, in black, or @ref SOFT_HOME_ACTION for side action, in white)
 
 @subsection use_case_confirm Confirmation Use Case
 
@@ -447,54 +465,16 @@ void staticReview(void) {
 }
 @endcode
 
-@subsection use_case_addr_confirm Address Confirmation Use Case
+@subsection use_case_addr_review Address Review Use Case
 
-\image{inline} html UseCase-AddressConfirmation.png "caption" height=300
+\image{inline} html UseCase-AddressReview.png "caption" height=500
 
-When an address needs to be confirmed, it can be displayed in a Address Confirmation Use Case, at first as simple page with
-the raw address (as text) and a black button/Footer pair to choose to confirm or reject the address.
-
-An extra button under the raw address enables to open a modal page to see the address as a QR code.
-
-The @ref nbgl_useCaseAddressConfirmation() function enables to create such a page, with the following parameters:
-
-- the address to confirm (NULL terminated string)
-- a callback called when button or footer is touched (if true, confirm, if false reject)
-
-Here is the code to display something similar to example picture:
-
-@code
-// called when either confirm button or reject token is called
-static void displayAddressCallback(bool confirm) {
-  if (confirm) {
-    nbgl_useCaseStatus("Address\nVerified",true,app_fullEthereum);
-  }
-  else {
-    nbgl_useCaseStatus("Address rejected",false,app_fullEthereum);
-  }
-}
-
-// called when tapping on review start page to actually display address
-static void displayAddr(void) {
-  nbgl_useCaseAddressConfirmation("bc1pkdcufjh6dxjaaa05hudvxqg5fhspfmwmp8g92gq8cv4gwwnmgrfqfd4jlg", &displayAddressCallback);
-}
-
-void app_ethereumVerifyAddress(void) {
-  nbgl_useCaseReviewStart(myAppIcon,"Verify MyCoin\naddress",NULL,"Cancel",
-                          displayAddr, appMain);
-}
-@endcode
-
-@subsection use_case_addr_confirm_ext Extended Address Confirmation Use Case
-
-\image{inline} html UseCase-AddressConfirmationExt.png "caption" height=500
-
-When an address needs to be confirmed, it can be displayed in a Address Confirmation Use Case, at first as simple page with
-the raw address (as text). An extra button under the raw address enables to open a modal page to see the address as a QR code.
+When an address needs to be confirmed, it can be displayed in a Address Review Use Case.
+After a title page, a second page is displayed with the raw address (as text). An extra button under the raw address enables to open a modal page to see the address as a QR code.
 Moreover, if extra information need to be displayed, for example a derivation path, it is provided in a second page, also containing
 a black button/Footer pair to choose to confirm or reject the address.
 
-The @ref nbgl_useCaseAddressConfirmationExt() function enables to create such a set of pages, with the following parameters:
+The @ref nbgl_useCaseAddressReview() function enables to create such a set of pages, with the following parameters:
 
 - the address to confirm (NULL terminated string)
 - a callback called when button or footer is touched (if true, confirm, if false reject)
@@ -522,14 +502,13 @@ static void displayAddressCallback(bool confirm) {
   }
 }
 
-// called when tapping on review start page to actually display address
-static void displayAddr(void) {
-  nbgl_useCaseAddressConfirmationExt("bc1pkdcufjh6dxjaaa05hudvxqg5fhspfmwmp8g92gq8cv4gwwnmgrfqfd4jlg", &displayAddressCallback, &pairList);
-}
-
 void app_ethereumVerifyAddress(void) {
-  nbgl_useCaseReviewStart(myAppIcon,"Verify MyCoin\naddress",NULL,"Cancel",
-                          displayAddr, appMain);
+  nbgl_useCaseAddressReview("bc1pkdcufjh6dxjaaa05hudvxqg5fhspfmwmp8g92gq8cv4gwwnmgrfqfd4jlg",
+                            &pairList
+                            myAppIcon,
+                            "Verify MyCoin\naddress",
+                            NULL,"Cancel",
+                            appMain);
 }
 @endcode
 
