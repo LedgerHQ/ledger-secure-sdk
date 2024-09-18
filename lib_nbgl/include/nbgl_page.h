@@ -197,7 +197,9 @@ typedef struct nbgl_pageInfoDescription_s {
     uint8_t tapActionToken;  ///< the token that will be used as argument of the onActionCallback,
                              ///< when tapped or swiped
     const char
-        *actionButtonText;  ///< if not NULL a black "action" button is set under the centered info
+        *actionButtonText;  ///< if not NULL an "action" button is set under the centered info
+    const nbgl_icon_details_t *actionButtonIcon;   ///< potential icon of "action" button
+    nbgl_layoutButtonStyle_t   actionButtonStyle;  ///< style of "action" button
     tune_index_e
         tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played when button/footer is pressed
 } nbgl_pageInfoDescription_t;
