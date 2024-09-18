@@ -666,8 +666,6 @@ static void draw_progressBar(nbgl_progress_bar_t *obj, nbgl_obj_t *prevObj, bool
 {
 #ifdef HAVE_SE_TOUCH
 
-#define UNTRACKED_PREVIOUS_STATE 255
-
     uint8_t stroke = 3;  // 3 pixels for border
 
     if (computePosition) {
@@ -682,13 +680,7 @@ static void draw_progressBar(nbgl_progress_bar_t *obj, nbgl_obj_t *prevObj, bool
     // inherit background from parent
     obj->obj.area.backgroundColor = obj->obj.parent->area.backgroundColor;
 
-    // `obj->previousState` variable allows to control whether if
-    // - The progress bar is fully redrawn whatever the progress bar state (`obj->previousState ==
-    // 0`).
-    // - The progress bar is partially drawn from previous draw
-    // (`obj->previousState > 0 and <= 100`). `obj->previousState` is set by the caller before each
-    // progress bar redraw. The progress bar state is reset otherwise.
-    if (obj->previousState == 0) {
+    if (obj->partialRedraw == false) {
         // Case of progress bar full draw
         if (obj->withBorder) {
             nbgl_drawRoundedBorderedRect((nbgl_area_t *) obj,
@@ -701,11 +693,9 @@ static void draw_progressBar(nbgl_progress_bar_t *obj, nbgl_obj_t *prevObj, bool
             nbgl_drawRoundedRect(
                 (nbgl_area_t *) obj, RADIUS_0_PIXELS, obj->obj.area.backgroundColor);
         }
+        // also reset previous width to be sure to clean up everything
+        obj->previousWidth = 0;
     }
-    else if (obj->previousState == UNTRACKED_PREVIOUS_STATE) {
-        obj->state = 0;
-    }
-
     // Setup bar draw
     nbgl_area_t barArea;
     uint16_t    barWidth    = ((obj->state * obj->obj.area.width)) / 100;
@@ -730,12 +720,12 @@ static void draw_progressBar(nbgl_progress_bar_t *obj, nbgl_obj_t *prevObj, bool
         nbgl_drawRoundedRect((nbgl_area_t *) &barArea, RADIUS_0_PIXELS, barColor);
     }
 
-    // reset previous state to be sure that in case of full redraw of the screen we redraw the
+    // reset partialRedraw to be sure that in case of full redraw of the screen we redraw the
     // full bar
-    if (obj->previousState) {
-        obj->previousState = UNTRACKED_PREVIOUS_STATE;
-        obj->previousWidth = barWidth;
+    if (obj->partialRedraw == true) {
+        obj->partialRedraw = false;
     }
+    obj->previousWidth = barWidth;
 
     extendRefreshArea(&barArea);
     objRefreshAreaDone = true;

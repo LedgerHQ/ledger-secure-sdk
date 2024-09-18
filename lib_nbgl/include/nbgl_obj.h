@@ -350,7 +350,7 @@ typedef struct PACKED__ nbgl_progress_bar_s {
     nbgl_obj_t obj;            // common part
     bool       withBorder;     ///< if set to true, a border in black surround the whole object
     uint8_t    state;          ///< state of the progress, in % (from 0 to 100).
-    uint8_t    previousState;  ///< previous state of the progress, in % (from 0 to 100).
+    bool       partialRedraw;  ///< set to true to redraw only partially the object (update state).
     uint16_t   previousWidth;
     color_t    foregroundColor;  ///< color of the inner progress bar and border (if applicable)
 } nbgl_progress_bar_t;
