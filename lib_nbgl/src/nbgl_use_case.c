@@ -1729,7 +1729,7 @@ static void blindSigningWarning(void)
     nbgl_useCaseChoice(
         &C_Warning_64px,
         "Blind signing ahead",
-        "This transaction's details are not fully verifiable. If you sign it, you could lose all "
+        "These transaction's details are not fully verifiable. If you sign it, you could lose all "
         "your assets.",
         "Back to safety",
         "Continue anyway",
