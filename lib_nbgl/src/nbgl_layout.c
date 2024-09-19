@@ -334,7 +334,7 @@ static void longTouchCallback(nbgl_obj_t            *obj,
 
         // Update progress bar state
         if (new_state != progressBar->state) {
-            progressBar->previousState = progressBar->state;
+            progressBar->partialRedraw = true;
             progressBar->state         = new_state;
 
             nbgl_objDraw((nbgl_obj_t *) progressBar);
@@ -355,7 +355,8 @@ static void longTouchCallback(nbgl_obj_t            *obj,
     else if ((eventType == TOUCH_RELEASED) || (eventType == OUT_OF_TOUCH)
              || (eventType == SWIPED_LEFT) || (eventType == SWIPED_RIGHT)) {
         nbgl_wait_pipeline();
-        progressBar->state = 0;
+        progressBar->partialRedraw = true;
+        progressBar->state         = 0;
         nbgl_objDraw((nbgl_obj_t *) progressBar);
         nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_REFRESH, POST_REFRESH_FORCE_POWER_OFF);
     }
