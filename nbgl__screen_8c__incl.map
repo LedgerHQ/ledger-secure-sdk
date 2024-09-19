@@ -1,18 +1,19 @@
 <map id="lib_nbgl/src/nbgl_screen.c" name="lib_nbgl/src/nbgl_screen.c">
-<area shape="rect" id="node1" title="Implementation of screens management API." alt="" coords="280,5,469,32"/>
+<area shape="rect" id="node1" title="Implementation of screens management API." alt="" coords="345,5,535,32"/>
 <area shape="rect" id="node2" title=" " alt="" coords="5,80,109,107"/>
 <area shape="rect" id="node3" href="$nbgl__front_8h.html" title="Font screen low&#45;Level driver API, to draw elementary forms." alt="" coords="97,155,197,181"/>
 <area shape="rect" id="node9" href="$nbgl__screen_8h.html" title="API to manage screens." alt="" coords="184,80,296,107"/>
 <area shape="rect" id="node13" href="$nbgl__debug_8h.html" title="debug traces management" alt="" coords="320,80,429,107"/>
-<area shape="rect" id="node14" title=" " alt="" coords="453,80,528,107"/>
-<area shape="rect" id="node15" title=" " alt="" coords="553,80,621,107"/>
-<area shape="rect" id="node16" title=" " alt="" coords="645,80,729,107"/>
-<area shape="rect" id="node4" href="$nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="207,304,313,331"/>
-<area shape="rect" id="node5" title=" " alt="" coords="75,379,149,405"/>
-<area shape="rect" id="node6" title=" " alt="" coords="174,379,245,405"/>
-<area shape="rect" id="node7" title=" " alt="" coords="269,379,352,405"/>
-<area shape="rect" id="node8" title=" " alt="" coords="376,379,491,405"/>
-<area shape="rect" id="node10" href="$nbgl__obj_8h.html" title="API to draw all basic graphic objects." alt="" coords="301,155,390,181"/>
+<area shape="rect" id="node14" href="$nbgl__touch_8h.html" title=" " alt="" coords="454,80,559,107"/>
+<area shape="rect" id="node15" title=" " alt="" coords="583,80,657,107"/>
+<area shape="rect" id="node16" title=" " alt="" coords="682,80,750,107"/>
+<area shape="rect" id="node17" title=" " alt="" coords="774,80,858,107"/>
+<area shape="rect" id="node4" href="$nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="233,304,338,331"/>
+<area shape="rect" id="node5" title=" " alt="" coords="100,379,175,405"/>
+<area shape="rect" id="node6" title=" " alt="" coords="199,379,270,405"/>
+<area shape="rect" id="node7" title=" " alt="" coords="295,379,377,405"/>
+<area shape="rect" id="node8" title=" " alt="" coords="401,379,516,405"/>
+<area shape="rect" id="node10" href="$nbgl__obj_8h.html" title="API to draw all basic graphic objects." alt="" coords="330,155,419,181"/>
 <area shape="rect" id="node11" href="$nbgl__fonts_8h.html" title=" " alt="" coords="323,229,426,256"/>
 <area shape="rect" id="node12" title=" " alt="" coords="450,229,526,256"/>
 </map>

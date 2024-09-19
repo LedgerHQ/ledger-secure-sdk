@@ -95,9 +95,9 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:ae771bdfcfe279b375049e308195b5ba1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__progress__bar__s.html#ae771bdfcfe279b375049e308195b5ba1">state</a></td></tr>
 <tr class="memdesc:ae771bdfcfe279b375049e308195b5ba1"><td class="mdescLeft">&#160;</td><td class="mdescRight">state of the progress, in % (from 0 to 100).  <a href="structnbgl__progress__bar__s.html#ae771bdfcfe279b375049e308195b5ba1">More...</a><br /></td></tr>
 <tr class="separator:ae771bdfcfe279b375049e308195b5ba1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa88aa449bbc485db4697a9b4b31efb7a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__progress__bar__s.html#aa88aa449bbc485db4697a9b4b31efb7a">previousState</a></td></tr>
-<tr class="memdesc:aa88aa449bbc485db4697a9b4b31efb7a"><td class="mdescLeft">&#160;</td><td class="mdescRight">previous state of the progress, in % (from 0 to 100).  <a href="structnbgl__progress__bar__s.html#aa88aa449bbc485db4697a9b4b31efb7a">More...</a><br /></td></tr>
-<tr class="separator:aa88aa449bbc485db4697a9b4b31efb7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8875e445f9f6a5323a7a54f453da1b68"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__progress__bar__s.html#a8875e445f9f6a5323a7a54f453da1b68">partialRedraw</a></td></tr>
+<tr class="memdesc:a8875e445f9f6a5323a7a54f453da1b68"><td class="mdescLeft">&#160;</td><td class="mdescRight">set to true to redraw only partially the object (update state).  <a href="structnbgl__progress__bar__s.html#a8875e445f9f6a5323a7a54f453da1b68">More...</a><br /></td></tr>
+<tr class="separator:a8875e445f9f6a5323a7a54f453da1b68"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac3d18a413d7cbdbe6a0d069bed870336"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__progress__bar__s.html#ac3d18a413d7cbdbe6a0d069bed870336">previousWidth</a></td></tr>
 <tr class="separator:ac3d18a413d7cbdbe6a0d069bed870336"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6267bb088bf53af4a5d0a7d4aea91235"><td class="memItemLeft" align="right" valign="top"><a class="el" href="nbgl__types_8h.html#a0a8ef1b5e1941b7257e545cc33405ff1">color_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__progress__bar__s.html#a6267bb088bf53af4a5d0a7d4aea91235">foregroundColor</a></td></tr>
@@ -144,19 +144,19 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="aa88aa449bbc485db4697a9b4b31efb7a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa88aa449bbc485db4697a9b4b31efb7a">&#9670;&nbsp;</a></span>previousState</h2>
+<a id="a8875e445f9f6a5323a7a54f453da1b68"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8875e445f9f6a5323a7a54f453da1b68">&#9670;&nbsp;</a></span>partialRedraw</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbgl_progress_bar_s::previousState</td>
+          <td class="memname">bool nbgl_progress_bar_s::partialRedraw</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>previous state of the progress, in % (from 0 to 100). </p>
+<p>set to true to redraw only partially the object (update state). </p>
 
 <p class="definition">Definition at line <a class="el" href="nbgl__obj_8h_source.html#l00353">353</a> of file <a class="el" href="nbgl__obj_8h_source.html">nbgl_obj.h</a>.</p>
 
