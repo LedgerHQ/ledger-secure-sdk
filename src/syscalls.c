@@ -204,7 +204,7 @@ void nbgl_wait_pipeline(void)
 }
 #endif  // HAVE_SE_EINK_DISPLAY
 
-#ifdef HAVE_DISPLAY_FAST_MODE
+#ifdef HAVE_STAX_DISPLAY_FAST_MODE
 void nbgl_screen_update_temperature(uint8_t temp_degrees)
 {
     unsigned int parameters[1];
@@ -212,16 +212,16 @@ void nbgl_screen_update_temperature(uint8_t temp_degrees)
     SVC_Call(SYSCALL_nbgl_screen_update_temperature_ID, parameters);
     return;
 }
-#endif  // HAVE_DISPLAY_FAST_MODE
+#endif  // HAVE_STAX_DISPLAY_FAST_MODE
 
-#ifdef HAVE_CONFIGURABLE_DISPLAY_FAST_MODE
+#ifdef HAVE_STAX_CONFIG_DISPLAY_FAST_MODE
 void nbgl_screen_config_fast_mode(uint8_t fast_mode_setting)
 {
     unsigned int parameters[1];
     parameters[0] = (unsigned int) fast_mode_setting;
     SVC_Call(SYSCALL_nbgl_screen_config_fast_mode_ID, parameters);
 }
-#endif  // HAVE_CONFIGURABLE_DISPLAY_FAST_MODE
+#endif  // HAVE_STAX_CONFIG_DISPLAY_FAST_MODE
 
 #endif
 
