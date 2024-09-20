@@ -1577,6 +1577,14 @@ unsigned int os_ux(bolos_ux_params_t *params)
 }
 #endif  // !defined(APP_UX)
 
+void os_dashboard_mbx(uint32_t cmd, uint32_t param)
+{
+    unsigned int parameters[2];
+    parameters[0] = (unsigned int) cmd;
+    parameters[1] = (unsigned int) param;
+    SVC_Call(SYSCALL_os_dashboard_mbx_ID, parameters);
+}
+
 void os_lib_call(unsigned int *call_parameters)
 {
     unsigned int parameters[2];
