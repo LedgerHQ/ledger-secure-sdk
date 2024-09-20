@@ -199,15 +199,15 @@ void layoutNavigationPopulate(nbgl_container_t                 *navContainer,
     if (navConfig->withPageIndicator) {
         if (navConfig->visibleIndicator) {
             nbgl_text_area_t *textArea = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layer);
+            uint16_t          marginX  = (NAV_BUTTON_WIDTH - CHEVRON_NEXT_ICON.width) / 2;
 
             SPRINTF(navText, "%d of %d", navConfig->activePage + 1, navConfig->nbPages);
 
             textArea->textColor = DARK_GRAY;
-#ifdef TARGET_STAX
-            textArea->obj.area.width = 109;
-#else   // TARGET_STAX
-            textArea->obj.area.width = 89;
-#endif  // TARGET_STAX
+            // the max width is the width of the whole container, but not overriding the < and >
+            // icons
+            textArea->obj.area.width
+                = navContainer->obj.area.width - (2 * (marginX + CHEVRON_NEXT_ICON.width));
             textArea->text                               = navText;
             textArea->fontId                             = SMALL_REGULAR_FONT;
             textArea->obj.area.height                    = NAV_BUTTON_HEIGHT;
