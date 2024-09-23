@@ -268,31 +268,36 @@ static void bundleNavStartHome(void);
 static void bundleNavStartSettingsAtPage(uint8_t initSettingPage);
 static void bundleNavStartSettings(void);
 
-static void bundleNavReviewStreamingChoice(bool confirm);
-static void blindSigningWarning(void);
-static void useCaseReview(nbgl_operationType_t              operationType,
-                          const nbgl_contentTagValueList_t *tagValueList,
-                          const nbgl_icon_details_t        *icon,
-                          const char                       *reviewTitle,
-                          const char                       *reviewSubTitle,
-                          const char                       *finishTitle,
-                          const nbgl_tipBox_t              *tipBox,
-                          nbgl_choiceCallback_t             choiceCallback,
-                          bool                              isLight,
-                          bool                              playNotifSound);
-static void useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
-                                        const nbgl_icon_details_t *icon,
-                                        const char                *reviewTitle,
-                                        const char                *reviewSubTitle,
-                                        nbgl_choiceCallback_t      choiceCallback,
-                                        bool                       playNotifSound);
-static void useCaseHomeExt(const char                *appName,
-                           const nbgl_icon_details_t *appIcon,
-                           const char                *tagline,
-                           bool                       withSettings,
-                           nbgl_homeAction_t         *homeAction,
-                           nbgl_callback_t            topRightCallback,
-                           nbgl_callback_t            quitCallback);
+static void    bundleNavReviewStreamingChoice(bool confirm);
+static void    blindSigningWarning(void);
+static void    useCaseReview(nbgl_operationType_t              operationType,
+                             const nbgl_contentTagValueList_t *tagValueList,
+                             const nbgl_icon_details_t        *icon,
+                             const char                       *reviewTitle,
+                             const char                       *reviewSubTitle,
+                             const char                       *finishTitle,
+                             const nbgl_tipBox_t              *tipBox,
+                             nbgl_choiceCallback_t             choiceCallback,
+                             bool                              isLight,
+                             bool                              playNotifSound);
+static void    useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
+                                           const nbgl_icon_details_t *icon,
+                                           const char                *reviewTitle,
+                                           const char                *reviewSubTitle,
+                                           nbgl_choiceCallback_t      choiceCallback,
+                                           bool                       playNotifSound);
+static void    useCaseHomeExt(const char                *appName,
+                              const nbgl_icon_details_t *appIcon,
+                              const char                *tagline,
+                              bool                       withSettings,
+                              nbgl_homeAction_t         *homeAction,
+                              nbgl_callback_t            topRightCallback,
+                              nbgl_callback_t            quitCallback);
+static uint8_t useCaseGetNbTagValuesInPage(uint8_t                           nbPairs,
+                                           const nbgl_contentTagValueList_t *tagValueList,
+                                           uint8_t                           startIndex,
+                                           bool                              isSkippable,
+                                           bool *requireSpecificDisplay);
 
 static void reset_callbacks(void)
 {
@@ -1295,6 +1300,7 @@ static void addressLayoutTouchCallbackQR(int token, uint8_t index)
 
     // dismiss modal
     nbgl_layoutRelease(addressConfirmationContext.modalLayout);
+    addressConfirmationContext.modalLayout = NULL;
     nbgl_screenRedraw();
     nbgl_refresh();
 }
@@ -1308,6 +1314,7 @@ static void modalLayoutTouchCallback(int token, uint8_t index)
 
     // dismiss modal
     nbgl_layoutRelease(genericContext.modalLayout);
+    genericContext.modalLayout = NULL;
     nbgl_screenRedraw();
     nbgl_refresh();
 }
@@ -1328,6 +1335,9 @@ static void displaySkipWarning(void)
         .confirmationToken    = SKIP_TOKEN,
         .tuneId               = TUNE_TAP_CASUAL,
         .modal                = true};
+    if (modalPageContext != NULL) {
+        nbgl_pageRelease(modalPageContext);
+    }
     modalPageContext = nbgl_pageDrawConfirmation(&pageModalCallback, &info);
     nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
 }
@@ -1479,7 +1489,8 @@ static void keypadGenericUseCase(const char                *title,
 
 static uint8_t nbgl_useCaseGetNbPagesForContent(const nbgl_content_t *content,
                                                 uint8_t               pageIdxStart,
-                                                bool                  isLast)
+                                                bool                  isLast,
+                                                bool                  isSkippable)
 {
     uint8_t nbElements = 0;
     uint8_t nbPages    = 0;
@@ -1494,8 +1505,8 @@ static uint8_t nbgl_useCaseGetNbPagesForContent(const nbgl_content_t *content,
         // if the current page is not the first one (or last), a navigation bar exists
         bool hasNav = !isLast || (pageIdxStart > 0) || (elemIdx > 0);
         if (content->type == TAG_VALUE_LIST) {
-            nbElementsInPage = nbgl_useCaseGetNbTagValuesInPage(
-                nbElements, &content->content.tagValueList, elemIdx, &flag);
+            nbElementsInPage = useCaseGetNbTagValuesInPage(
+                nbElements, &content->content.tagValueList, elemIdx, isSkippable, &flag);
         }
         else if (content->type == INFOS_LIST) {
             nbElementsInPage = nbgl_useCaseGetNbInfosInPage(
@@ -1526,9 +1537,9 @@ static uint8_t nbgl_useCaseGetNbPagesForContent(const nbgl_content_t *content,
     return nbPages;
 }
 
-static uint8_t nbgl_useCaseGetNbPagesForGenericContents(
-    const nbgl_genericContents_t *genericContents,
-    uint8_t                       pageIdxStart)
+static uint8_t getNbPagesForGenericContents(const nbgl_genericContents_t *genericContents,
+                                            uint8_t                       pageIdxStart,
+                                            bool                          isSkippable)
 {
     uint8_t               nbPages = 0;
     nbgl_content_t        content;
@@ -1539,8 +1550,10 @@ static uint8_t nbgl_useCaseGetNbPagesForGenericContents(
         if (p_content == NULL) {
             return 0;
         }
-        nbPages += nbgl_useCaseGetNbPagesForContent(
-            p_content, pageIdxStart + nbPages, (i == (genericContents->nbContents - 1)));
+        nbPages += nbgl_useCaseGetNbPagesForContent(p_content,
+                                                    pageIdxStart + nbPages,
+                                                    (i == (genericContents->nbContents - 1)),
+                                                    isSkippable);
     }
 
     return nbPages;
@@ -1802,7 +1815,8 @@ static void useCaseReview(nbgl_operationType_t              operationType,
     }
 
     // compute number of pages & fill navigation structure
-    uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
+    uint8_t nbPages = getNbPagesForGenericContents(
+        &genericContext.genericContents, 0, (operationType & SKIPPABLE_OPERATION));
     prepareNavInfo(true, nbPages, getRejectReviewText(operationType));
 
     // Play notification sound if required
@@ -1845,8 +1859,8 @@ static void useCaseReviewStreamingStart(nbgl_operationType_t       operationType
         &STARTING_CONTENT.content.extendedCenter.contentCenter, icon, reviewTitle, reviewSubTitle);
 
     // compute number of pages & fill navigation structure
-    bundleNavContext.reviewStreaming.stepPageNb
-        = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
+    bundleNavContext.reviewStreaming.stepPageNb = getNbPagesForGenericContents(
+        &genericContext.genericContents, 0, (operationType & SKIPPABLE_OPERATION));
     prepareNavInfo(true, NBGL_NO_PROGRESS_INDICATOR, getRejectReviewText(operationType));
     // no back button on first page
     navInfo.navWithButtons.backButton = false;
@@ -1952,26 +1966,11 @@ static void useCaseHomeExt(const char                *appName,
     nbgl_refreshSpecial(FULL_COLOR_CLEAN_REFRESH);
 }
 
-/**********************
- *   GLOBAL FUNCTIONS
- **********************/
-
-/**
- * @brief computes the number of tag/values pairs displayable in a page, with the given list of
- * tag/value pairs
- *
- * @param nbPairs number of tag/value pairs to use in \b tagValueList
- * @param tagValueList list of tag/value pairs
- * @param startIndex first index to consider in \b tagValueList
- * @param requireSpecificDisplay (output) set to true if the tag/value needs a specific display:
- *        - centeredInfo flag is enabled
- *        - the tag/value doesn't fit in a page
- * @return the number of tag/value pairs fitting in a page
- */
-uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPairs,
-                                         const nbgl_contentTagValueList_t *tagValueList,
-                                         uint8_t                           startIndex,
-                                         bool                             *requireSpecificDisplay)
+static uint8_t useCaseGetNbTagValuesInPage(uint8_t                           nbPairs,
+                                           const nbgl_contentTagValueList_t *tagValueList,
+                                           uint8_t                           startIndex,
+                                           bool                              isSkippable,
+                                           bool                             *requireSpecificDisplay)
 {
     uint8_t nbPairsInPage = 0;
 #ifdef TARGET_STAX
@@ -1979,6 +1978,13 @@ uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPai
 #else                             // TARGET_STAX
     uint16_t currentHeight             = 0;  // upper margin
 #endif                            // TARGET_STAX
+    uint16_t maxUsableHeight = TAG_VALUE_AREA_HEIGHT;
+
+    // if the review is skippable, it means that there is less height for tag/value pairs
+    // the small centering header becomes a touchable header
+    if (isSkippable) {
+        maxUsableHeight -= TOUCHABLE_HEADER_BAR_HEIGHT - SMALL_CENTERING_HEADER;
+    }
 
     *requireSpecificDisplay = false;
     while (nbPairsInPage < nbPairs) {
@@ -2039,7 +2045,7 @@ uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPai
         // nb lines for value
         nbLines = nbgl_getTextNbLinesInWidth(
             value_font, pair->value, AVAILABLE_WIDTH, tagValueList->wrapping);
-        if ((currentHeight >= TAG_VALUE_AREA_HEIGHT) || (nbLines > NB_MAX_LINES_IN_REVIEW)) {
+        if ((currentHeight >= maxUsableHeight) || (nbLines > NB_MAX_LINES_IN_REVIEW)) {
             if (nbPairsInPage == 0) {
                 // Pair too long to fit in a single screen
                 // It will be the only one of the page and has a specific display behavior
@@ -2051,6 +2057,31 @@ uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPai
         nbPairsInPage++;
     }
     return nbPairsInPage;
+}
+
+/**********************
+ *   GLOBAL FUNCTIONS
+ **********************/
+
+/**
+ * @brief computes the number of tag/values pairs displayable in a page, with the given list of
+ * tag/value pairs
+ *
+ * @param nbPairs number of tag/value pairs to use in \b tagValueList
+ * @param tagValueList list of tag/value pairs
+ * @param startIndex first index to consider in \b tagValueList
+ * @param requireSpecificDisplay (output) set to true if the tag/value needs a specific display:
+ *        - centeredInfo flag is enabled
+ *        - the tag/value doesn't fit in a page
+ * @return the number of tag/value pairs fitting in a page
+ */
+uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPairs,
+                                         const nbgl_contentTagValueList_t *tagValueList,
+                                         uint8_t                           startIndex,
+                                         bool                             *requireSpecificDisplay)
+{
+    return useCaseGetNbTagValuesInPage(
+        nbPairs, tagValueList, startIndex, false, requireSpecificDisplay);
 }
 
 /**
@@ -2185,15 +2216,15 @@ uint8_t nbgl_useCaseGetNbBarsInPage(uint8_t                       nbBars,
         currentHeight += TOUCHABLE_BAR_HEIGHT;
         // if height is over the limit
         if (currentHeight >= (INFOS_AREA_HEIGHT - navHeight)) {
-            // if there was no nav, now there will be, so it can be necessary to remove the last
-            // item
-            if (!withNav && (previousHeight >= (INFOS_AREA_HEIGHT - SIMPLE_FOOTER_HEIGHT))) {
-                nbBarsInPage--;
-            }
             break;
         }
         previousHeight = currentHeight;
         nbBarsInPage++;
+    }
+    // if there was no nav, now there may will be, so it can be necessary to remove the last
+    // item
+    if (!withNav && (previousHeight >= (INFOS_AREA_HEIGHT - SIMPLE_FOOTER_HEIGHT))) {
+        nbBarsInPage--;
     }
     return nbBarsInPage;
 }
@@ -2253,7 +2284,7 @@ uint8_t nbgl_useCaseGetNbPagesForTagValueList(const nbgl_contentTagValueList_t *
 
     while (i < tagValueList->nbPairs) {
         // upper margin
-        nbPairsInPage = nbgl_useCaseGetNbTagValuesInPage(nbPairs, tagValueList, i, &flag);
+        nbPairsInPage = useCaseGetNbTagValuesInPage(nbPairs, tagValueList, i, false, &flag);
         i += nbPairsInPage;
         nbPairs -= nbPairsInPage;
         nbPages++;
@@ -2459,9 +2490,9 @@ void nbgl_useCaseGenericSettings(const char                   *appName,
     }
 
     // fill navigation structure
-    uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
+    uint8_t nbPages = getNbPagesForGenericContents(&genericContext.genericContents, 0, false);
     if (infosList != NULL) {
-        nbPages += nbgl_useCaseGetNbPagesForContent(&FINISHING_CONTENT, nbPages, true);
+        nbPages += nbgl_useCaseGetNbPagesForContent(&FINISHING_CONTENT, nbPages, true, false);
     }
 
     prepareNavInfo(false, nbPages, NULL);
@@ -2707,7 +2738,10 @@ void nbgl_useCaseConfirm(const char     *message,
                                                .tuneId               = TUNE_TAP_CASUAL,
                                                .modal                = true};
     onModalConfirm                          = callback;
-    modalPageContext                        = nbgl_pageDrawConfirmation(&pageModalCallback, &info);
+    if (modalPageContext != NULL) {
+        nbgl_pageRelease(modalPageContext);
+    }
+    modalPageContext = nbgl_pageDrawConfirmation(&pageModalCallback, &info);
     nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
 }
 
@@ -2920,7 +2954,7 @@ void nbgl_useCaseStaticReview(const nbgl_contentTagValueList_t *tagValueList,
     genericContext.genericContents.nbContents = offset;
 
     // compute number of pages & fill navigation structure
-    uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
+    uint8_t nbPages = getNbPagesForGenericContents(&genericContext.genericContents, 0, false);
     UNUSED(rejectText);
     prepareNavInfo(true, nbPages, getRejectReviewText(TYPE_OPERATION));
 
@@ -2977,7 +3011,7 @@ void nbgl_useCaseStaticReviewLight(const nbgl_contentTagValueList_t *tagValueLis
     genericContext.genericContents.nbContents = offset;
 
     // compute number of pages & fill navigation structure
-    uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
+    uint8_t nbPages = getNbPagesForGenericContents(&genericContext.genericContents, 0, false);
     UNUSED(rejectText);
     prepareNavInfo(true, nbPages, getRejectReviewText(TYPE_OPERATION));
 
@@ -3160,7 +3194,7 @@ void nbgl_useCaseGenericReview(const nbgl_genericContents_t *contents,
     memcpy(&genericContext.genericContents, contents, sizeof(nbgl_genericContents_t));
 
     // compute number of pages & fill navigation structure
-    uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
+    uint8_t nbPages = getNbPagesForGenericContents(&genericContext.genericContents, 0, false);
     prepareNavInfo(true, nbPages, rejectText);
     navInfo.quitToken = QUIT_TOKEN;
 
@@ -3263,8 +3297,10 @@ void nbgl_useCaseReviewStreamingContinueExt(const nbgl_contentTagValueList_t *ta
         &STARTING_CONTENT.content.tagValueList, tagValueList, sizeof(nbgl_contentTagValueList_t));
 
     // compute number of pages & fill navigation structure
-    bundleNavContext.reviewStreaming.stepPageNb
-        = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
+    bundleNavContext.reviewStreaming.stepPageNb = getNbPagesForGenericContents(
+        &genericContext.genericContents,
+        0,
+        (bundleNavContext.reviewStreaming.operationType & SKIPPABLE_OPERATION));
     prepareNavInfo(true,
                    NBGL_NO_PROGRESS_INDICATOR,
                    getRejectReviewText(bundleNavContext.reviewStreaming.operationType));
@@ -3326,8 +3362,10 @@ void nbgl_useCaseReviewStreamingFinish(const char           *finishTitle,
                           finishTitle);
 
     // compute number of pages & fill navigation structure
-    bundleNavContext.reviewStreaming.stepPageNb
-        = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
+    bundleNavContext.reviewStreaming.stepPageNb = getNbPagesForGenericContents(
+        &genericContext.genericContents,
+        0,
+        (bundleNavContext.reviewStreaming.operationType & SKIPPABLE_OPERATION));
     prepareNavInfo(true, 1, getRejectReviewText(bundleNavContext.reviewStreaming.operationType));
 
     displayGenericContextPage(0, true);
@@ -3418,7 +3456,7 @@ void nbgl_useCaseAddressConfirmationExt(const char                       *addres
         address, tagValueList, &STARTING_CONTENT, &localContentsList[1]);
 
     // fill navigation structure, common to all pages
-    uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
+    uint8_t nbPages = getNbPagesForGenericContents(&genericContext.genericContents, 0, false);
 
     prepareNavInfo(true, nbPages, "Cancel");
 
@@ -3455,6 +3493,10 @@ void nbgl_useCaseAddressReview(const char                       *address,
 {
     reset_callbacks();
     memset(&genericContext, 0, sizeof(genericContext));
+    // release a potential modal
+    if (addressConfirmationContext.modalLayout) {
+        nbgl_layoutRelease(addressConfirmationContext.modalLayout);
+    }
     memset(&addressConfirmationContext, 0, sizeof(addressConfirmationContext));
 
     // save context
@@ -3478,7 +3520,7 @@ void nbgl_useCaseAddressReview(const char                       *address,
         address, additionalTagValueList, &localContentsList[1], &localContentsList[2]);
 
     // fill navigation structure, common to all pages
-    uint8_t nbPages = nbgl_useCaseGetNbPagesForGenericContents(&genericContext.genericContents, 0);
+    uint8_t nbPages = getNbPagesForGenericContents(&genericContext.genericContents, 0, false);
 
     prepareNavInfo(true, nbPages, "Cancel");
 
