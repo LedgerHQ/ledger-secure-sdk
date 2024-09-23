@@ -23,7 +23,7 @@ SYSCALL void nvm_erase(void *dst_adr PLENGTH(len), unsigned int len);
 SUDOCALL void nvm_write_page(unsigned int page_adr, bool force);
 
 // erase a nvm page at given address, only callable by the privileged APIs
-SUDOCALL void nvm_erase_page(unsigned int page_adr);
+SUDOCALL unsigned int nvm_erase_page(unsigned int page_adr);
 
 // any application can wipe the global pin, global seed, user's keys
 // disabled for security reasons // SYSCALL                                       void
