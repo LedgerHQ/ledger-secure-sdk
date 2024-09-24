@@ -1073,9 +1073,8 @@ void nbgl_textWrapOnNbLines(nbgl_font_id_e fontId, char *text, uint16_t maxWidth
     uint8_t            currentNbLines     = 1;
     char              *lastDelimiter      = NULL;
     uint32_t           lenAtLastDelimiter = 0;
-    char              *prevText           = NULL;
-    char              *prevPrevText       = NULL;
-    uint16_t           prevWidth          = 0;
+    char              *prevText[4]        = {0};  // queue of last positions
+    uint16_t           prevWidth[2]       = {0};  // queue of last widths
 
 #ifdef HAVE_UNICODE_SUPPORT
     nbgl_unicode_ctx_t *unicode_ctx = NULL;
@@ -1085,13 +1084,14 @@ void nbgl_textWrapOnNbLines(nbgl_font_id_e fontId, char *text, uint16_t maxWidth
         uint8_t  char_width;
         uint32_t unicode;
         bool     is_unicode;
-        char    *prevPrevPrevText;
 
-        // memorize the three last chars
-        prevPrevPrevText = prevPrevText;
-        prevPrevText     = prevText;
-        prevText         = text;
-        unicode          = nbgl_popUnicodeChar((const uint8_t **) &text, &textLen, &is_unicode);
+        // memorize the last positions in the queue
+        // the oldest is at the highest index
+        prevText[3] = prevText[2];
+        prevText[2] = prevText[1];
+        prevText[1] = prevText[0];
+        prevText[0] = text;
+        unicode     = nbgl_popUnicodeChar((const uint8_t **) &text, &textLen, &is_unicode);
         // if \n, reset width
         if (unicode == '\n') {
             width = 0;
@@ -1111,7 +1111,7 @@ void nbgl_textWrapOnNbLines(nbgl_font_id_e fontId, char *text, uint16_t maxWidth
 
         // memorize cursors at last found space
         if (IS_WORD_DELIM(unicode)) {
-            lastDelimiter      = prevText;
+            lastDelimiter      = prevText[0];
             lenAtLastDelimiter = textLen + 1;
         }
         // if the width is about to overpass maxWidth, do something
@@ -1128,35 +1128,33 @@ void nbgl_textWrapOnNbLines(nbgl_font_id_e fontId, char *text, uint16_t maxWidth
                     textLen          = lenAtLastDelimiter - 1;
                 }
                 else {
-                    textLen += text - prevText;
-                    text = prevText;
+                    textLen += text - prevText[0];
+                    text = prevText[0];
                 }
                 // reset width for next line
                 width = 0;
                 continue;
             }
             else {
-                // replace the 2 or 3 last chars by '...'
-                // try at first with 2, if it fits
-                if (prevPrevText != NULL) {
-                    if ((prevWidth + (3 * getCharWidth(font, '.', false))) <= maxWidth) {
-                        *prevPrevText++ = '.';
-                        *prevPrevText++ = '.';
-                        *prevPrevText++ = '.';
-                        *prevPrevText   = '\0';
+                uint32_t i;
+                // replace the 1, 2 or 3 last chars by '...'
+                // try at first with 1, then with 2, if it fits
+                for (i = 0; i < 2; i++) {
+                    if ((prevText[i + 1] != NULL)
+                        && ((prevWidth[i] + (3 * getCharWidth(font, '.', false))) <= maxWidth)) {
+                        break;
                     }
-                    else if (prevPrevPrevText != NULL) {
-                        *prevPrevPrevText++ = '.';
-                        *prevPrevPrevText++ = '.';
-                        *prevPrevPrevText++ = '.';
-                        *prevPrevPrevText   = '\0';
-                    }
+                }
+                // at worth we are sure it works by replacing the 3 last chars (if i ==2)
+                if (prevText[i + 1] != NULL) {
+                    memcpy(prevText[i + 1], "...", 4);
                 }
                 return;
             }
         }
-        // memorize the last width
-        prevWidth = width;
+        // memorize the 2 last widths in a queue
+        prevWidth[1] = prevWidth[0];
+        prevWidth[0] = width;
         width += char_width;
     }
 }

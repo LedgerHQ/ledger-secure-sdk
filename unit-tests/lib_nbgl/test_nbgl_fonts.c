@@ -117,6 +117,10 @@ static void test_get_length(void **state __attribute__((unused)))
     nbgl_textWrapOnNbLines(BAGL_FONT_INTER_SEMIBOLD_24px, textToWrap, 156, 2);
     assert_string_equal(textToWrap, "bonjourtuaimestr les ...");
 
+    strcpy(textToWrap, "that will overflow the screen size multiple times");
+    nbgl_textWrapOnNbLines(BAGL_FONT_INTER_REGULAR_24px, textToWrap, 352, 1);
+    assert_string_equal(textToWrap, "that will overflow the screen...");
+
     nbgl_textReduceOnNbLines(BAGL_FONT_INTER_SEMIBOLD_24px,
                              "bc1pkdcufjh6dxjaEZFZEFZFGGEaa05hudxqgfffggghhhhhhffffffff5fhspfmZAFEZ"
                              "Fwmp8g92gq8ZEGFZEcv4g",
