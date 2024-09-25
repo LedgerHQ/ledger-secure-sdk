@@ -252,7 +252,7 @@ static char reducedAddress[QRCODE_REDUCED_ADDR_LEN];
 static void displayReviewPage(uint8_t page, bool forceFullRefresh);
 static void displayDetailsPage(uint8_t page, bool forceFullRefresh);
 static void displayFullValuePage(const nbgl_contentTagValue_t *pair);
-static void displayBlindWarning(nbgl_opType_t opType);
+static void displayBlindWarning(void);
 static void displayTipBoxModal(void);
 static void displaySettingsPage(uint8_t page, bool forceFullRefresh);
 static void displayGenericContextPage(uint8_t pageIdx, bool forceFullRefresh);
@@ -587,14 +587,7 @@ static void pageCallback(int token, uint8_t index)
         displayFullValuePage(pair);
     }
     else if (token == BLIND_WARNING_TOKEN) {
-        if (navType == STREAMING_NAV) {
-            displayBlindWarning(bundleNavContext.reviewStreaming.operationType
-                                & ~(SKIPPABLE_OPERATION | BLIND_OPERATION));
-        }
-        else {
-            displayBlindWarning(bundleNavContext.review.operationType
-                                & ~(SKIPPABLE_OPERATION | BLIND_OPERATION));
-        }
+        displayBlindWarning();
     }
     else if (token == TIP_BOX_TOKEN) {
         displayTipBoxModal();
@@ -1183,7 +1176,7 @@ static void displayFullValuePage(const nbgl_contentTagValue_t *pair)
 }
 
 // function used to display the modal warning when touching the alert symbol of a blind review
-static void displayBlindWarning(nbgl_opType_t opType)
+static void displayBlindWarning(void)
 {
     nbgl_layoutDescription_t  layoutDescription = {.modal            = true,
                                                    .withLeftBorder   = true,
@@ -1197,18 +1190,11 @@ static void displayBlindWarning(nbgl_opType_t opType)
     nbgl_layoutCenteredInfo_t centeredInfo
         = {.icon = NULL, .text3 = NULL, .style = LARGE_CASE_INFO, .offsetY = 0, .onTop = false};
     centeredInfo.text1 = "Security risk detected";
-    if (opType == TYPE_TRANSACTION) {
-        centeredInfo.text2
-            = "This transaction cannot be fully decoded. If you sign it, you could be authorizing "
-              "malicious actions that can drain your wallet.\n\n"
-              "Learn more: ledger.com/e8";
-    }
-    else {
-        centeredInfo.text2
-            = "This message cannot be fully decoded. If you sign it, you could be authorizing "
-              "malicious actions that can drain your wallet.\n\n"
-              "Learn more: ledger.com/e8";
-    }
+    centeredInfo.text2
+        = "This transaction or message cannot be decoded fully. If you choose to sign, you could "
+          "be authorizing malicious actions that can drain your wallet.\n\n"
+          "Learn more: ledger.com/e8";
+
     genericContext.modalLayout = nbgl_layoutGet(&layoutDescription);
     // add header with the tag part of the pair, to go back
     nbgl_layoutAddHeader(genericContext.modalLayout, &headerDesc);
@@ -1744,14 +1730,14 @@ static void blindSigningWarning(void)
 #ifdef HAVE_PIEZO_SOUND
     io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
 #endif  // HAVE_PIEZO_SOUND
-    nbgl_useCaseChoice(
-        &C_Warning_64px,
-        "Blind signing ahead",
-        "This transaction's details are not fully verifiable. If you sign it, you could lose all "
-        "your assets.",
-        "Back to safety",
-        "Continue anyway",
-        blindSigningWarningCallback);
+    nbgl_useCaseChoice(&C_Warning_64px,
+                       "Blind signing ahead",
+                       "The details of this transaction or message are not fully verifiable. If "
+                       "you sign it, you could lose all "
+                       "your assets.",
+                       "Back to safety",
+                       "Continue anyway",
+                       blindSigningWarningCallback);
 }
 
 // function to factorize code for all simple reviews
