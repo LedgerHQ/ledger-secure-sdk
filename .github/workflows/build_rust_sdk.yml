@@ -19,13 +19,13 @@ jobs:
               with:
                 path: c_sdk
                 ref: master
-            - name: Clone
+            - name: Clone Rust SDK
               uses: actions/checkout@v4
               with:
                   repository: LedgerHQ/ledger-device-rust-sdk
                   ref: master
                   path: rust_sdk
-            - name: Cargo build
+            - name: Build Rust SDK
               working-directory: rust_sdk/ledger_device_sdk
               run: |
                   export LEDGER_SDK_PATH=$GITHUB_WORKSPACE/c_sdk
