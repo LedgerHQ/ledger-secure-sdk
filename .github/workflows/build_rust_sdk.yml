@@ -28,4 +28,5 @@ jobs:
             - name: Cargo build
               working-directory: rust_sdk/ledger_device_sdk
               run: |
-                  cargo +$RUST_NIGHTLY build --target ${{ matrix.target }} --config=env.LEDGER_SDK_PATH="../../c_sdk"
+                  export LEDGER_SDK_PATH=$GITHUB_WORKSPACE/c_sdk
+                  cargo +$RUST_NIGHTLY build --target ${{ matrix.target }}
