@@ -59,6 +59,9 @@ ux_sync_ret_t ux_sync_reviewStreamingStart(nbgl_operationType_t       operationT
 
 ux_sync_ret_t ux_sync_reviewStreamingContinue(const nbgl_contentTagValueList_t *tagValueList);
 
+ux_sync_ret_t ux_sync_reviewStreamingContinueExt(const nbgl_contentTagValueList_t *tagValueList,
+                                                 const char                       *finishTitle);
+
 ux_sync_ret_t ux_sync_reviewStreamingFinish(const char *finishTitle);
 
 ux_sync_ret_t ux_sync_genericReview(const nbgl_genericContents_t *contents, const char *rejectText);

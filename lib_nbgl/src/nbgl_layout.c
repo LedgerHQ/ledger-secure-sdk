@@ -40,19 +40,23 @@
 #define TAG_VALUE_ICON_WIDTH 32
 
 #ifdef TARGET_STAX
-#define RADIO_CHOICE_HEIGHT     96
-#define FOOTER_HEIGHT           80
-#define BAR_INTERVALE           12
-#define BACK_KEY_WIDTH          88
-#define FOOTER_BUTTON_HEIGHT    128
-#define UP_FOOTER_BUTTON_HEIGHT 120
+#define RADIO_CHOICE_HEIGHT              96
+#define FOOTER_HEIGHT                    80
+#define BAR_INTERVALE                    12
+#define BACK_KEY_WIDTH                   88
+#define FOOTER_BUTTON_HEIGHT             128
+#define UP_FOOTER_BUTTON_HEIGHT          120
+#define ROUNDED_AND_FOOTER_FOOTER_HEIGHT 192
+#define ACTION_AND_FOOTER_FOOTER_HEIGHT  216
 #else  // TARGET_STAX
-#define RADIO_CHOICE_HEIGHT     92
-#define FOOTER_HEIGHT           80
-#define BAR_INTERVALE           16
-#define BACK_KEY_WIDTH          104
-#define FOOTER_BUTTON_HEIGHT    136
-#define UP_FOOTER_BUTTON_HEIGHT 136
+#define RADIO_CHOICE_HEIGHT              92
+#define FOOTER_HEIGHT                    80
+#define BAR_INTERVALE                    16
+#define BACK_KEY_WIDTH                   104
+#define FOOTER_BUTTON_HEIGHT             136
+#define UP_FOOTER_BUTTON_HEIGHT          136
+#define ROUNDED_AND_FOOTER_FOOTER_HEIGHT 208
+#define ACTION_AND_FOOTER_FOOTER_HEIGHT  232
 #endif  // TARGET_STAX
 
 // refresh period of the spinner, in ms
@@ -330,7 +334,7 @@ static void longTouchCallback(nbgl_obj_t            *obj,
 
         // Update progress bar state
         if (new_state != progressBar->state) {
-            progressBar->previousState = progressBar->state;
+            progressBar->partialRedraw = true;
             progressBar->state         = new_state;
 
             nbgl_objDraw((nbgl_obj_t *) progressBar);
@@ -351,7 +355,8 @@ static void longTouchCallback(nbgl_obj_t            *obj,
     else if ((eventType == TOUCH_RELEASED) || (eventType == OUT_OF_TOUCH)
              || (eventType == SWIPED_LEFT) || (eventType == SWIPED_RIGHT)) {
         nbgl_wait_pipeline();
-        progressBar->state = 0;
+        progressBar->partialRedraw = true;
+        progressBar->state         = 0;
         nbgl_objDraw((nbgl_obj_t *) progressBar);
         nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_REFRESH, POST_REFRESH_FORCE_POWER_OFF);
     }
@@ -1765,6 +1770,7 @@ int nbgl_layoutAddChoiceButtons(nbgl_layout_t *layout, const nbgl_layoutChoiceBu
     footerDesc.choiceButtons.bottomText = info->bottomText;
     footerDesc.choiceButtons.token      = info->token;
     footerDesc.choiceButtons.topText    = info->topText;
+    footerDesc.choiceButtons.topIcon    = info->topIcon;
     footerDesc.choiceButtons.style      = info->style;
     footerDesc.choiceButtons.tuneId     = info->tuneId;
     return nbgl_layoutAddExtendedFooter(layout, &footerDesc);
@@ -2749,7 +2755,7 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
                 return -1;
             }
 
-            // create bottomButton (in white) at first
+            // create bottom button (footer) at first
             button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layoutInt->layer);
             obj    = layoutAddCallbackObj(layoutInt,
                                        (nbgl_obj_t *) button,
@@ -2761,31 +2767,25 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
             // associate with with index 1
             obj->index = 1;
             // put at the bottom of the container
-            button->obj.alignment = BOTTOM_MIDDLE;
-            if (footerDesc->choiceButtons.style == ROUNDED_AND_FOOTER_STYLE) {
-                button->obj.alignmentMarginY = 4;  // 4 pixels from screen bottom
-                button->borderColor          = WHITE;
-            }
-            else if (footerDesc->choiceButtons.style == BOTH_ROUNDED_STYLE) {
-                button->obj.alignmentMarginY = 4;      // 4 pixels from screen bottom
-                button->borderColor          = WHITE;  // not a real round button on Flex
-            }
-            button->innerColor      = WHITE;
-            button->foregroundColor = BLACK;
-            button->obj.area.width  = AVAILABLE_WIDTH;
-            button->obj.area.height = BUTTON_DIAMETER;
-            button->radius          = BUTTON_RADIUS;
-            button->text            = PIC(footerDesc->choiceButtons.bottomText);
-            button->fontId          = SMALL_BOLD_FONT;
-            button->obj.touchMask   = (1 << TOUCHED);
-            button->obj.touchId     = CHOICE_2_ID;
+            button->obj.alignment        = BOTTOM_MIDDLE;
+            button->obj.alignmentMarginY = 4;  // 4 pixels from screen bottom
+            button->borderColor          = WHITE;
+            button->innerColor           = WHITE;
+            button->foregroundColor      = BLACK;
+            button->obj.area.width       = AVAILABLE_WIDTH;
+            button->obj.area.height      = BUTTON_DIAMETER;
+            button->radius               = BUTTON_RADIUS;
+            button->text                 = PIC(footerDesc->choiceButtons.bottomText);
+            button->fontId               = SMALL_BOLD_FONT;
+            button->obj.touchMask        = (1 << TOUCHED);
+            button->obj.touchId          = CHOICE_2_ID;
             // add to bottom container
             layoutInt->footerContainer->children[layoutInt->footerContainer->nbChildren]
                 = (nbgl_obj_t *) button;
             layoutInt->footerContainer->nbChildren++;
 
             // add line if needed
-            if (footerDesc->choiceButtons.style == BOTH_ROUNDED_STYLE) {
+            if (footerDesc->choiceButtons.style != ROUNDED_AND_FOOTER_STYLE) {
                 line                       = createHorizontalLine(layoutInt->layer);
                 line->obj.alignment        = TOP_MIDDLE;
                 line->obj.alignmentMarginY = 4;
@@ -2795,7 +2795,7 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
                 layoutInt->footerContainer->nbChildren++;
             }
 
-            // then black button, on top of it
+            // then top button, on top of it
             button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layoutInt->layer);
             obj    = layoutAddCallbackObj(layoutInt,
                                        (nbgl_obj_t *) button,
@@ -2807,8 +2807,8 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
             // associate with with index 0
             obj->index                   = 0;
             button->obj.alignment        = TOP_MIDDLE;
-            button->obj.alignmentMarginY = 24;  // 12 pixels from bottom button
-            if (footerDesc->choiceButtons.style == BOTH_ROUNDED_STYLE) {
+            button->obj.alignmentMarginY = BOTTOM_BORDER_MARGIN;  // 24 pixels from top of container
+            if (footerDesc->choiceButtons.style == SOFT_ACTION_AND_FOOTER_STYLE) {
                 button->innerColor      = WHITE;
                 button->borderColor     = LIGHT_GRAY;
                 button->foregroundColor = BLACK;
@@ -2822,6 +2822,9 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
             button->obj.area.height = BUTTON_DIAMETER;
             button->radius          = BUTTON_RADIUS;
             button->text            = PIC(footerDesc->choiceButtons.topText);
+            button->icon            = (footerDesc->choiceButtons.style != ROUNDED_AND_FOOTER_STYLE)
+                                          ? PIC(footerDesc->choiceButtons.topIcon)
+                                          : NULL;
             button->fontId          = SMALL_BOLD_FONT;
             button->obj.touchMask   = (1 << TOUCHED);
             button->obj.touchId     = CHOICE_1_ID;
@@ -2830,21 +2833,12 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
                 = (nbgl_obj_t *) button;
             layoutInt->footerContainer->nbChildren++;
 
-#ifdef TARGET_STAX
-            if (footerDesc->choiceButtons.style == BOTH_ROUNDED_STYLE) {
-                layoutInt->footerContainer->obj.area.height = 232;
+            if (footerDesc->choiceButtons.style != ROUNDED_AND_FOOTER_STYLE) {
+                layoutInt->footerContainer->obj.area.height = ACTION_AND_FOOTER_FOOTER_HEIGHT;
             }
             else {
-                layoutInt->footerContainer->obj.area.height = 192;
+                layoutInt->footerContainer->obj.area.height = ROUNDED_AND_FOOTER_FOOTER_HEIGHT;
             }
-#else   // TARGET_STAX
-            if (footerDesc->choiceButtons.style == BOTH_ROUNDED_STYLE) {
-                layoutInt->footerContainer->obj.area.height = 232;
-            }
-            else {
-                layoutInt->footerContainer->obj.area.height = 208;
-            }
-#endif  // TARGET_STAX
 
             break;
         }

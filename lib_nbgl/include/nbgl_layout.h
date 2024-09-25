@@ -277,11 +277,13 @@ typedef struct {
  *
  */
 typedef enum {
-    ROUNDED_AND_FOOTER_STYLE
-        = 0,            ///< A rounded black background full width button on top of a footer
-    BOTH_ROUNDED_STYLE  ///< A rounded black background full width button on top of a rounded white
-                        ///< background full width button
+    ROUNDED_AND_FOOTER_STYLE = 0,    ///< A black background button on top of a footer
+    STRONG_ACTION_AND_FOOTER_STYLE,  ///< A black button on top of a footer, with a separation line
+    SOFT_ACTION_AND_FOOTER_STYLE     ///< A white button on top of a footer, with a separation line
 } nbgl_layoutChoiceButtonsStyle_t;
+
+// for backward compatibility
+#define BOTH_ROUNDED_STYLE SOFT_ACTION_AND_FOOTER_STYLE
 
 /**
  * @brief This structure contains info to build a pair of buttons, one on top of the other.
@@ -289,9 +291,10 @@ typedef enum {
  * @note the pair of button is automatically put on bottom of screen, in the footer
  */
 typedef struct {
-    const char *topText;     ///< up-button text (index 0)
-    const char *bottomText;  ///< bottom-button text (index 1)
-    uint8_t     token;       ///< the token that will be used as argument of the callback
+    const char                *topText;     ///< up-button text (index 0)
+    const char                *bottomText;  ///< bottom-button text (index 1)
+    const nbgl_icon_details_t *topIcon;     ///< icon of top button
+    uint8_t                    token;  ///< the token that will be used as argument of the callback
     nbgl_layoutChoiceButtonsStyle_t style;  ///< the style of the pair
 #ifdef HAVE_PIEZO_SOUND
     tune_index_e tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played
@@ -501,7 +504,7 @@ typedef struct {
         } textAndNav;                              ///< if type is @ref FOOTER_TEXT_AND_NAV
         nbgl_layoutNavigationBar_t navigation;     ///< if type is @ref FOOTER_NAV
         nbgl_layoutButton_t        button;         ///< if type is @ref FOOTER_SIMPLE_BUTTON
-        nbgl_layoutChoiceButtons_t choiceButtons;  ///< if type is @ref FOOTER_SIMPLE_BUTTON
+        nbgl_layoutChoiceButtons_t choiceButtons;  ///< if type is @ref FOOTER_CHOICE_BUTTONS
     };
 } nbgl_layoutFooter_t;
 

@@ -310,13 +310,13 @@
 #define SYSCALL_nbgl_wait_pipeline_ID 0x00fa0011
 #endif
 
-#ifdef HAVE_DISPLAY_FAST_MODE
+#ifdef HAVE_STAX_DISPLAY_FAST_MODE
 #define SYSCALL_nbgl_screen_update_temperature_ID 0x01fa0011
-#endif  // HAVE_DISPLAY_FAST_MODE
+#endif  // HAVE_STAX_DISPLAY_FAST_MODE
 
-#ifdef HAVE_CONFIGURABLE_DISPLAY_FAST_MODE
+#ifdef HAVE_STAX_CONFIG_DISPLAY_FAST_MODE
 #define SYSCALL_nbgl_screen_config_fast_mode_ID 0x00fa0012
-#endif  // HAVE_CONFIGURABLE_DISPLAY_FAST_MODE
+#endif  // HAVE_STAX_CONFIG_DISPLAY_FAST_MODE
 #endif  // HAVE_NBGL
 
 #ifdef HAVE_BACKGROUND_IMG

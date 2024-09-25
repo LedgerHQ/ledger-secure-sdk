@@ -4,6 +4,7 @@
 
 static ux_sync_ret_t g_ret;
 static bool          g_ended;
+static const char   *g_finish_title;
 
 static void choice_callback(bool confirm)
 {
@@ -15,6 +16,11 @@ static void choice_callback(bool confirm)
     }
 
     g_ended = true;
+}
+
+static void skip_callback(void)
+{
+    nbgl_useCaseReviewStreamingFinish(g_finish_title, choice_callback);
 }
 
 static void quit_callback(void)
@@ -309,8 +315,30 @@ ux_sync_ret_t ux_sync_reviewStreamingStart(nbgl_operationType_t       operationT
 ux_sync_ret_t ux_sync_reviewStreamingContinue(const nbgl_contentTagValueList_t *tagValueList)
 
 {
+    return ux_sync_reviewStreamingContinueExt(tagValueList, NULL);
+}
+
+/**
+ * @brief Continue drawing the flow of pages of a review.
+ * @note  This should be called after a call to nbgl_useCaseReviewStreamingStart with @ref
+ * SKIPPABLE_OPERATION and can be followed by others calls to nbgl_useCaseReviewStreamingContinue
+ * and finally to nbgl_useCaseReviewStreamingFinish. If "Skip" is touched, a choice will be offered
+ * to go directly to last page, using the given finish title.
+ *
+ * @param tagValueList list of tag/value pairs
+ * @param finishTitle string used in the last review page if "skip" is used
+ *
+ * @return ret code:
+ *         - UX_SYNC_RET_APPROVED
+ *         - UX_SYNC_RET_REJECTED
+ */
+ux_sync_ret_t ux_sync_reviewStreamingContinueExt(const nbgl_contentTagValueList_t *tagValueList,
+                                                 const char                       *finishTitle)
+
+{
     ux_sync_init();
-    nbgl_useCaseReviewStreamingContinue(tagValueList, choice_callback);
+    g_finish_title = finishTitle;
+    nbgl_useCaseReviewStreamingContinueExt(tagValueList, choice_callback, skip_callback);
     return ux_sync_wait(false);
 }
 

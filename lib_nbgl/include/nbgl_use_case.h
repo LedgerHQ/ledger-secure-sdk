@@ -153,10 +153,24 @@ typedef struct {
     uint8_t nbContents;  ///< number of contents
 } nbgl_genericContents_t;
 
+/**
+ * @brief The different types of action button in Home Screen
+ *
+ */
+typedef enum {
+    STRONG_HOME_ACTION = 0,  ///< Black button, implicating the main action of the App
+    SOFT_HOME_ACTION         ///< White button, more for extended features
+} nbgl_homeActionStyle_t;
+
+/**
+ * @brief Structure describing the action button in Home Screen
+ *
+ */
 typedef struct {
     const char                *text;  ///< text to use in action button in Home page
     const nbgl_icon_details_t *icon;  ///< icon to use in action button in Home page
-    nbgl_callback_t callback;  ///< function to call when action button is touched in Home page
+    nbgl_callback_t callback;      ///< function to call when action button is touched in Home page
+    nbgl_homeActionStyle_t style;  ///< style of action button
 } nbgl_homeAction_t;
 
 /**

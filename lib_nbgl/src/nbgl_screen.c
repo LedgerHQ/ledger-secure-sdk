@@ -10,6 +10,7 @@
 #include "nbgl_front.h"
 #include "nbgl_screen.h"
 #include "nbgl_debug.h"
+#include "nbgl_touch.h"
 #include "os_pic.h"
 #include "os_io.h"
 #include "os_task.h"
@@ -363,7 +364,13 @@ int nbgl_screenPush(nbgl_obj_t                           ***elements,
                 // update previous topOfStack
                 topOfStack->next                  = &screenStack[screenIndex];
                 screenStack[screenIndex].previous = topOfStack;
-                // new top of stack
+#ifdef HAVE_SE_TOUCH
+                nbgl_touchStatePosition_t touchStatePosition = {.state = RELEASED, .x = 0, .y = 0};
+                // make a fake touch release for the current top-of-stack to avoid issue
+                // (for example in long-touch press)
+                nbgl_touchHandler(&touchStatePosition, 0);
+#endif  // HAVE_SE_TOUCH
+        // new top of stack
                 topOfStack       = &screenStack[screenIndex];
                 topOfStack->next = NULL;
                 break;
