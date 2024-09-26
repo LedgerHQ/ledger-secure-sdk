@@ -61,7 +61,6 @@ Some APIs have also been kept for backward compatibility, and for some rare case
 - for Home Screen:
  - @ref nbgl_useCaseHome() to draw the home screen of an application.
  - @ref nbgl_useCaseHomeExt() to draw an extended version of home screen of an application (with action button)
- - @ref nbgl_useCasePlugInHome() to draw the home screen of a Plug-In application
 - for Settings:
  - @ref nbgl_useCaseSettings() to draw a level of settings pages
 - for most used reviews:
@@ -71,9 +70,6 @@ Some APIs have also been kept for backward compatibility, and for some rare case
 - for address verification:
  - @ref nbgl_useCaseAddressConfirmation() to draw an address confirmation page, with a possibility to see it as QR Code
  - @ref nbgl_useCaseAddressConfirmationExt() to draw an address confirmation page, with a possibility to see it as QR Code and some extra tag/value pairs
-- for rare reviews:
- - @ref nbgl_useCaseForwardOnlyReview() to draw the pages of a forward-only review (without back key)
- - @ref nbgl_useCaseViewDetails() to draw the pages displaying the full value of a given long data of a review
 
 @subsection use_case_home_settings Home & Settings screen Use Case
 
