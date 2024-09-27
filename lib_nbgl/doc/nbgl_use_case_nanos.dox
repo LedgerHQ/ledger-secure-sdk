@@ -46,9 +46,6 @@ A few APIs are available to draw typical Use-Cases, such as:
 - for most used reviews:
  - @ref nbgl_useCaseStaticReview() to draw the pages of a regular review, when all info are available from the beginning (see @subpage use_case_static_review)
  - @ref nbgl_useCaseRegularReview() to draw the pages of a regular review (all pages but the cover one) (see @subpage use_case_regular_review)
-- for address verification:
- - @ref nbgl_useCaseAddressConfirmation() to draw an address confirmation page (see @subpage use_case_addr_confirm)
- - @ref nbgl_useCaseAddressConfirmationExt() to draw an address confirmation page, with some extra tag/value pairs (see @subpage use_case_addr_confirm_ext)
 
 @subsection use_case_home Home screen Use Case
 
