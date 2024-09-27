@@ -67,9 +67,6 @@ Some APIs have also been kept for backward compatibility, and for some rare case
  - @ref nbgl_useCaseReviewStart() to draw the cover page of a review (initial page, without data)
  - @ref nbgl_useCaseStaticReview() to draw the data pages of a regular review, when all info are available from the beginning (all pages but the cover one)
  - @ref nbgl_useCaseRegularReview() to draw the data pages of a regular review (all pages but the cover one)
-- for address verification:
- - @ref nbgl_useCaseAddressConfirmation() to draw an address confirmation page, with a possibility to see it as QR Code
- - @ref nbgl_useCaseAddressConfirmationExt() to draw an address confirmation page, with a possibility to see it as QR Code and some extra tag/value pairs
 
 @subsection use_case_home_settings Home & Settings screen Use Case
 

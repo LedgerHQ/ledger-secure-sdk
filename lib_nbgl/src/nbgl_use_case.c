@@ -16,6 +16,7 @@
 #include "os_pic.h"
 #include "os_print.h"
 #include "os_helpers.h"
+#include "decorators.h"
 
 /*********************
  *      DEFINES
@@ -2326,54 +2327,32 @@ uint8_t nbgl_useCaseGetNbPagesForTagValueList(const nbgl_contentTagValueList_t *
 }
 
 /**
- * @brief draws the home page of an app (page on which we land when launching it from dashboard)
- *
- * @param appName app name
- * @param appIcon app icon
- * @param tagline text under app name (if NULL, it will be "This app enables signing transactions on
- * the <appName> network.")
- * @param withSettings if true, use a "settings" (wheel) icon in bottom button, otherwise a "info"
- * (i)
- * @param topRightCallback callback called when top-right button is touched
- * @param quitCallback callback called when quit button is touched
+ * @deprecated
+ * See #nbgl_useCaseHomeAndSettings
  */
-void nbgl_useCaseHome(const char                *appName,
-                      const nbgl_icon_details_t *appIcon,
-                      const char                *tagline,
-                      bool                       withSettings,
-                      nbgl_callback_t            topRightCallback,
-                      nbgl_callback_t            quitCallback)
+DEPRECATED void nbgl_useCaseHome(const char                *appName,
+                                 const nbgl_icon_details_t *appIcon,
+                                 const char                *tagline,
+                                 bool                       withSettings,
+                                 nbgl_callback_t            topRightCallback,
+                                 nbgl_callback_t            quitCallback)
 {
     nbgl_useCaseHomeExt(
         appName, appIcon, tagline, withSettings, NULL, NULL, topRightCallback, quitCallback);
 }
 
 /**
- * @brief draws the extended version of home page of an app (page on which we land when launching it
- * from dashboard)
- * @note it enables to use an action button (black on Stax, white on Flex)
- *
- * @param appName app name
- * @param appIcon app icon
- * @param tagline text under app name (if NULL, it will be "This app enables signing transactions on
- * the <appName> network.")
- * @param withSettings if true, use a "settings" (wheel) icon in bottom button, otherwise a "info"
- * (i)
- * @param actionButtonText if not NULL, text used for an action button (on top of "Quit
- * App" button/footer)
- * @param actionCallback callback called when action button is touched (if actionButtonText is not
- * NULL)
- * @param topRightCallback callback called when top-right button is touched
- * @param quitCallback callback called when quit button is touched
+ * @deprecated
+ * See #nbgl_useCaseHomeAndSettings
  */
-void nbgl_useCaseHomeExt(const char                *appName,
-                         const nbgl_icon_details_t *appIcon,
-                         const char                *tagline,
-                         bool                       withSettings,
-                         const char                *actionButtonText,
-                         nbgl_callback_t            actionCallback,
-                         nbgl_callback_t            topRightCallback,
-                         nbgl_callback_t            quitCallback)
+DEPRECATED void nbgl_useCaseHomeExt(const char                *appName,
+                                    const nbgl_icon_details_t *appIcon,
+                                    const char                *tagline,
+                                    bool                       withSettings,
+                                    const char                *actionButtonText,
+                                    nbgl_callback_t            actionCallback,
+                                    nbgl_callback_t            topRightCallback,
+                                    nbgl_callback_t            quitCallback)
 {
     nbgl_homeAction_t homeAction = {.callback = actionCallback,
                                     .icon     = NULL,
@@ -3300,34 +3279,21 @@ void nbgl_useCaseReviewStreamingFinish(const char           *finishTitle,
 }
 
 /**
- * @brief draws an address confirmation page. This page contains the given address in a tag/value
- * layout, with a button to open a modal to see address as a QR Code, and at the bottom a button to
- * confirm and a footer to cancel
- *
- * @param address address to confirm (NULL terminated string)
- * @param callback callback called when button or footer is touched (if true, button, if false
- * footer)
+ * @deprecated
+ * See #nbgl_useCaseAddressReview
  */
-void nbgl_useCaseAddressConfirmation(const char *address, nbgl_choiceCallback_t callback)
+DEPRECATED void nbgl_useCaseAddressConfirmation(const char *address, nbgl_choiceCallback_t callback)
 {
     nbgl_useCaseAddressConfirmationExt(address, callback, NULL);
 }
 
 /**
- * @brief draws an extended address verification page. This page contains the given address in a
- * tag/value layout, with a button to open a modal to see address as a QR Code. A "tap to continue"
- * enables to open a second review page to display the other given tag/value pairs, with a button to
- * confirm and a footer to cancel
- *
- * @param address address to confirm (NULL terminated string)
- * @param callback callback called when button or footer is touched (if true, button, if false
- * footer)
- * @param tagValueList list of tag/value pairs (must fit in a single page, and be persistent because
- * no copy)
+ * @deprecated
+ * See #nbgl_useCaseAddressReview
  */
-void nbgl_useCaseAddressConfirmationExt(const char                       *address,
-                                        nbgl_choiceCallback_t             callback,
-                                        const nbgl_contentTagValueList_t *tagValueList)
+DEPRECATED void nbgl_useCaseAddressConfirmationExt(const char                       *address,
+                                                   nbgl_choiceCallback_t             callback,
+                                                   const nbgl_contentTagValueList_t *tagValueList)
 {
     reset_callbacks();
     memset(&genericContext, 0, sizeof(genericContext));
