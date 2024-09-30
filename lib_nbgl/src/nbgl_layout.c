@@ -201,11 +201,13 @@ static void touchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
     if (getLayoutAndLayoutObj(obj, &layout, &layoutObj) == false) {
         // try with parent, if existing
         if (getLayoutAndLayoutObj(obj->parent, &layout, &layoutObj) == false) {
+#ifndef BUILD_SCREENSHOTS
             LOG_WARN(
                 LAYOUT_LOGGER,
                 "touchCallback(): eventType = %d, obj = %p, no active layout or obj not found\n",
                 eventType,
                 obj);
+#endif  // BUILD_SCREENSHOTS
             return;
         }
     }
