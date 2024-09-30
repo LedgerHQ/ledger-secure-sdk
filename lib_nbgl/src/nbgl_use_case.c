@@ -268,36 +268,31 @@ static void bundleNavStartHome(void);
 static void bundleNavStartSettingsAtPage(uint8_t initSettingPage);
 static void bundleNavStartSettings(void);
 
-static void    bundleNavReviewStreamingChoice(bool confirm);
-static void    blindSigningWarning(void);
-static void    useCaseReview(nbgl_operationType_t              operationType,
-                             const nbgl_contentTagValueList_t *tagValueList,
-                             const nbgl_icon_details_t        *icon,
-                             const char                       *reviewTitle,
-                             const char                       *reviewSubTitle,
-                             const char                       *finishTitle,
-                             const nbgl_tipBox_t              *tipBox,
-                             nbgl_choiceCallback_t             choiceCallback,
-                             bool                              isLight,
-                             bool                              playNotifSound);
-static void    useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
-                                           const nbgl_icon_details_t *icon,
-                                           const char                *reviewTitle,
-                                           const char                *reviewSubTitle,
-                                           nbgl_choiceCallback_t      choiceCallback,
-                                           bool                       playNotifSound);
-static void    useCaseHomeExt(const char                *appName,
-                              const nbgl_icon_details_t *appIcon,
-                              const char                *tagline,
-                              bool                       withSettings,
-                              nbgl_homeAction_t         *homeAction,
-                              nbgl_callback_t            topRightCallback,
-                              nbgl_callback_t            quitCallback);
-static uint8_t useCaseGetNbTagValuesInPage(uint8_t                           nbPairs,
-                                           const nbgl_contentTagValueList_t *tagValueList,
-                                           uint8_t                           startIndex,
-                                           bool                              isSkippable,
-                                           bool *requireSpecificDisplay);
+static void bundleNavReviewStreamingChoice(bool confirm);
+static void blindSigningWarning(void);
+static void useCaseReview(nbgl_operationType_t              operationType,
+                          const nbgl_contentTagValueList_t *tagValueList,
+                          const nbgl_icon_details_t        *icon,
+                          const char                       *reviewTitle,
+                          const char                       *reviewSubTitle,
+                          const char                       *finishTitle,
+                          const nbgl_tipBox_t              *tipBox,
+                          nbgl_choiceCallback_t             choiceCallback,
+                          bool                              isLight,
+                          bool                              playNotifSound);
+static void useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
+                                        const nbgl_icon_details_t *icon,
+                                        const char                *reviewTitle,
+                                        const char                *reviewSubTitle,
+                                        nbgl_choiceCallback_t      choiceCallback,
+                                        bool                       playNotifSound);
+static void useCaseHomeExt(const char                *appName,
+                           const nbgl_icon_details_t *appIcon,
+                           const char                *tagline,
+                           bool                       withSettings,
+                           nbgl_homeAction_t         *homeAction,
+                           nbgl_callback_t            topRightCallback,
+                           nbgl_callback_t            quitCallback);
 
 static void reset_callbacks(void)
 {
@@ -1491,7 +1486,7 @@ static uint8_t nbgl_useCaseGetNbPagesForContent(const nbgl_content_t *content,
         // if the current page is not the first one (or last), a navigation bar exists
         bool hasNav = !isLast || (pageIdxStart > 0) || (elemIdx > 0);
         if (content->type == TAG_VALUE_LIST) {
-            nbElementsInPage = useCaseGetNbTagValuesInPage(
+            nbElementsInPage = nbgl_useCaseGetNbTagValuesInPageExt(
                 nbElements, &content->content.tagValueList, elemIdx, isSkippable, &flag);
         }
         else if (content->type == INFOS_LIST) {
@@ -1952,11 +1947,49 @@ static void useCaseHomeExt(const char                *appName,
     nbgl_refreshSpecial(FULL_COLOR_CLEAN_REFRESH);
 }
 
-static uint8_t useCaseGetNbTagValuesInPage(uint8_t                           nbPairs,
-                                           const nbgl_contentTagValueList_t *tagValueList,
-                                           uint8_t                           startIndex,
-                                           bool                              isSkippable,
-                                           bool                             *requireSpecificDisplay)
+/**********************
+ *   GLOBAL FUNCTIONS
+ **********************/
+
+/**
+ * @brief computes the number of tag/values pairs displayable in a page, with the given list of
+ * tag/value pairs
+ *
+ * @param nbPairs number of tag/value pairs to use in \b tagValueList
+ * @param tagValueList list of tag/value pairs
+ * @param startIndex first index to consider in \b tagValueList
+ * @param requireSpecificDisplay (output) set to true if the tag/value needs a specific display:
+ *        - centeredInfo flag is enabled
+ *        - the tag/value doesn't fit in a page
+ * @return the number of tag/value pairs fitting in a page
+ */
+uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPairs,
+                                         const nbgl_contentTagValueList_t *tagValueList,
+                                         uint8_t                           startIndex,
+                                         bool                             *requireSpecificDisplay)
+{
+    return nbgl_useCaseGetNbTagValuesInPageExt(
+        nbPairs, tagValueList, startIndex, false, requireSpecificDisplay);
+}
+
+/**
+ * @brief computes the number of tag/values pairs displayable in a page, with the given list of
+ * tag/value pairs
+ *
+ * @param nbPairs number of tag/value pairs to use in \b tagValueList
+ * @param tagValueList list of tag/value pairs
+ * @param startIndex first index to consider in \b tagValueList
+ * @param isSkippable if true, a skip header is added
+ * @param requireSpecificDisplay (output) set to true if the tag/value needs a specific display:
+ *        - centeredInfo flag is enabled
+ *        - the tag/value doesn't fit in a page
+ * @return the number of tag/value pairs fitting in a page
+ */
+uint8_t nbgl_useCaseGetNbTagValuesInPageExt(uint8_t                           nbPairs,
+                                            const nbgl_contentTagValueList_t *tagValueList,
+                                            uint8_t                           startIndex,
+                                            bool                              isSkippable,
+                                            bool *requireSpecificDisplay)
 {
     uint8_t nbPairsInPage = 0;
 #ifdef TARGET_STAX
@@ -2043,31 +2076,6 @@ static uint8_t useCaseGetNbTagValuesInPage(uint8_t                           nbP
         nbPairsInPage++;
     }
     return nbPairsInPage;
-}
-
-/**********************
- *   GLOBAL FUNCTIONS
- **********************/
-
-/**
- * @brief computes the number of tag/values pairs displayable in a page, with the given list of
- * tag/value pairs
- *
- * @param nbPairs number of tag/value pairs to use in \b tagValueList
- * @param tagValueList list of tag/value pairs
- * @param startIndex first index to consider in \b tagValueList
- * @param requireSpecificDisplay (output) set to true if the tag/value needs a specific display:
- *        - centeredInfo flag is enabled
- *        - the tag/value doesn't fit in a page
- * @return the number of tag/value pairs fitting in a page
- */
-uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPairs,
-                                         const nbgl_contentTagValueList_t *tagValueList,
-                                         uint8_t                           startIndex,
-                                         bool                             *requireSpecificDisplay)
-{
-    return useCaseGetNbTagValuesInPage(
-        nbPairs, tagValueList, startIndex, false, requireSpecificDisplay);
 }
 
 /**
@@ -2270,7 +2278,7 @@ uint8_t nbgl_useCaseGetNbPagesForTagValueList(const nbgl_contentTagValueList_t *
 
     while (i < tagValueList->nbPairs) {
         // upper margin
-        nbPairsInPage = useCaseGetNbTagValuesInPage(nbPairs, tagValueList, i, false, &flag);
+        nbPairsInPage = nbgl_useCaseGetNbTagValuesInPageExt(nbPairs, tagValueList, i, false, &flag);
         i += nbPairsInPage;
         nbPairs -= nbPairsInPage;
         nbPages++;
