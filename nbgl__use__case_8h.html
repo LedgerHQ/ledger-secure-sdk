@@ -249,6 +249,8 @@ Functions</h2></td></tr>
 <tr class="separator:a6c70e8409832531cb83c75c5c376ee18"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a39ff695a99f591d12201c2de890f6a93"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a39ff695a99f591d12201c2de890f6a93">nbgl_useCaseGetNbTagValuesInPage</a> (<a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbPairs, const <a class="el" href="structnbgl__contentTagValueList__t.html">nbgl_contentTagValueList_t</a> *tagValueList, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> startIndex, bool *requireSpecificDisplay)</td></tr>
 <tr class="separator:a39ff695a99f591d12201c2de890f6a93"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a6f78e52904afd53ca90e90ca1d6202"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a0a6f78e52904afd53ca90e90ca1d6202">nbgl_useCaseGetNbTagValuesInPageExt</a> (<a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbPairs, const <a class="el" href="structnbgl__contentTagValueList__t.html">nbgl_contentTagValueList_t</a> *tagValueList, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> startIndex, bool isSkippable, bool *requireSpecificDisplay)</td></tr>
+<tr class="separator:a0a6f78e52904afd53ca90e90ca1d6202"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a536c62dee20723eca3f16a833e7918bc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a536c62dee20723eca3f16a833e7918bc">nbgl_useCaseGetNbInfosInPage</a> (<a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbInfos, const <a class="el" href="structnbgl__contentInfoList__t.html">nbgl_contentInfoList_t</a> *infosList, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> startIndex, bool withNav)</td></tr>
 <tr class="separator:a536c62dee20723eca3f16a833e7918bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:affbdb8a0bd3ce51c15271fd5c36926a2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#affbdb8a0bd3ce51c15271fd5c36926a2">nbgl_useCaseGetNbSwitchesInPage</a> (<a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbSwitches, const <a class="el" href="nbgl__content_8h.html#a1e9fa82698f1cb79be7824591c133f41">nbgl_contentSwitchesList_t</a> *switchesList, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> startIndex, bool withNav)</td></tr>
@@ -1467,6 +1469,52 @@ Functions</h2></td></tr>
           <td></td>
           <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td>
           <td class="paramname"><em>startIndex</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool *&#160;</td>
+          <td class="paramname"><em>requireSpecificDisplay</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a0a6f78e52904afd53ca90e90ca1d6202"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0a6f78e52904afd53ca90e90ca1d6202">&#9670;&nbsp;</a></span>nbgl_useCaseGetNbTagValuesInPageExt()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbgl_useCaseGetNbTagValuesInPageExt </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td>
+          <td class="paramname"><em>nbPairs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structnbgl__contentTagValueList__t.html">nbgl_contentTagValueList_t</a> *&#160;</td>
+          <td class="paramname"><em>tagValueList</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td>
+          <td class="paramname"><em>startIndex</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>isSkippable</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
