@@ -379,14 +379,6 @@ void nbgl_useCaseHomeExt(const char                *appName,
                          nbgl_callback_t            actionCallback,
                          nbgl_callback_t            topRightCallback,
                          nbgl_callback_t            quitCallback);
-void nbgl_useCasePlugInHome(const char                *plugInName,
-                            const char                *appName,
-                            const nbgl_icon_details_t *appIcon,
-                            const char                *tagline,
-                            const char                *subTagline,
-                            bool                       withSettings,
-                            nbgl_callback_t            topRightCallback,
-                            nbgl_callback_t            quitCallback);
 void nbgl_useCaseSettings(const char                *settingsTitle,
                           uint8_t                    initPage,
                           uint8_t                    nbPages,
@@ -416,14 +408,6 @@ void nbgl_useCaseRegularReview(uint8_t                    initPage,
                                nbgl_layoutTouchCallback_t buttonCallback,
                                nbgl_navCallback_t         navCallback,
                                nbgl_choiceCallback_t      choiceCallback);
-void nbgl_useCaseForwardOnlyReview(const char                *rejectText,
-                                   nbgl_layoutTouchCallback_t buttonCallback,
-                                   nbgl_navCallback_t         navCallback,
-                                   nbgl_choiceCallback_t      choiceCallback);
-void nbgl_useCaseForwardOnlyReviewNoSkip(const char                *rejectText,
-                                         nbgl_layoutTouchCallback_t buttonCallback,
-                                         nbgl_navCallback_t         navCallback,
-                                         nbgl_choiceCallback_t      choiceCallback);
 void nbgl_useCaseStaticReview(const nbgl_contentTagValueList_t *tagValueList,
                               const nbgl_pageInfoLongPress_t   *infoLongPress,
                               const char                       *rejectText,
@@ -432,7 +416,6 @@ void nbgl_useCaseStaticReviewLight(const nbgl_contentTagValueList_t *tagValueLis
                                    const nbgl_pageInfoLongPress_t   *infoLongPress,
                                    const char                       *rejectText,
                                    nbgl_choiceCallback_t             callback);
-void nbgl_useCaseViewDetails(const char *tag, const char *value, bool wrapping);
 void nbgl_useCaseAddressConfirmation(const char *address, nbgl_choiceCallback_t callback);
 void nbgl_useCaseAddressConfirmationExt(const char                       *address,
                                         nbgl_choiceCallback_t             callback,
@@ -454,28 +437,6 @@ void nbgl_useCaseKeypadPIN(const char                *title,
                            tune_index_e               tuneId,
                            nbgl_pinValidCallback_t    validatePinCallback,
                            nbgl_layoutTouchCallback_t actionCallback);
-/**
- * @deprecated
- * See #nbgl_useCaseKeypadPIN
- */
-DEPRECATED static inline void nbgl_useCaseKeypad(const char                *title,
-                                                 uint8_t                    minDigits,
-                                                 uint8_t                    maxDigits,
-                                                 uint8_t                    backToken,
-                                                 bool                       shuffled,
-                                                 tune_index_e               tuneId,
-                                                 nbgl_pinValidCallback_t    validatePinCallback,
-                                                 nbgl_layoutTouchCallback_t actionCallback)
-{
-    nbgl_useCaseKeypadPIN(title,
-                          minDigits,
-                          maxDigits,
-                          backToken,
-                          shuffled,
-                          tuneId,
-                          validatePinCallback,
-                          actionCallback);
-}
 #endif  // NBGL_KEYPAD
 #endif  // HAVE_SE_TOUCH
 

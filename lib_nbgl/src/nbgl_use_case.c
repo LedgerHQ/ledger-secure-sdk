@@ -16,6 +16,7 @@
 #include "os_pic.h"
 #include "os_print.h"
 #include "os_helpers.h"
+#include "decorators.h"
 
 /*********************
  *      DEFINES
@@ -181,7 +182,6 @@ typedef union {
 
 // char buffers to build some strings
 static char appDescription[APP_DESCRIPTION_MAX_LEN];
-static char plugInDescription[APP_DESCRIPTION_MAX_LEN];
 
 // multi-purposes callbacks
 static nbgl_callback_t              onQuit;
@@ -293,6 +293,7 @@ static void useCaseHomeExt(const char                *appName,
                            nbgl_homeAction_t         *homeAction,
                            nbgl_callback_t            topRightCallback,
                            nbgl_callback_t            quitCallback);
+static void displayDetails(const char *tag, const char *value, bool wrapping);
 
 static void reset_callbacks(void)
 {
@@ -528,9 +529,9 @@ static void pageCallback(int token, uint8_t index)
         }
     }
     else if (token == DETAILS_BUTTON_TOKEN) {
-        nbgl_useCaseViewDetails(genericContext.detailsItem,
-                                genericContext.detailsvalue,
-                                genericContext.detailsWrapping);
+        displayDetails(genericContext.detailsItem,
+                       genericContext.detailsvalue,
+                       genericContext.detailsWrapping);
     }
     else if (token == NAV_TOKEN) {
         if (index == EXIT_PAGE) {
@@ -1947,6 +1948,45 @@ static void useCaseHomeExt(const char                *appName,
     nbgl_refreshSpecial(FULL_COLOR_CLEAN_REFRESH);
 }
 
+/**
+ * @brief Draws a flow of pages to view details on a given tag/value pair that doesn't fit in a
+ * single page
+ *
+ * @param tag tag name (in gray)
+ * @param value full value string, that will be split in multiple pages
+ * @param wrapping if set to true, value text is wrapped on ' ' characters
+ */
+static void displayDetails(const char *tag, const char *value, bool wrapping)
+{
+    memset(&detailsContext, 0, sizeof(detailsContext));
+
+    uint16_t nbLines
+        = nbgl_getTextNbLinesInWidth(SMALL_REGULAR_FONT, value, AVAILABLE_WIDTH, wrapping);
+
+    // initialize context
+    detailsContext.tag         = tag;
+    detailsContext.value       = value;
+    detailsContext.nbPages     = (nbLines + NB_MAX_LINES_IN_DETAILS - 1) / NB_MAX_LINES_IN_DETAILS;
+    detailsContext.currentPage = 0;
+    detailsContext.wrapping    = wrapping;
+    // add some spare for room lost with "..." substitution
+    if (detailsContext.nbPages > 1) {
+        uint16_t nbLostChars = (detailsContext.nbPages - 1) * 3;
+        uint16_t nbLostLines = (nbLostChars + ((AVAILABLE_WIDTH) / 16) - 1)
+                               / ((AVAILABLE_WIDTH) / 16);  // 16 for average char width
+        uint8_t nbLinesInLastPage
+            = nbLines - ((detailsContext.nbPages - 1) * NB_MAX_LINES_IN_DETAILS);
+
+        detailsContext.nbPages += nbLostLines / NB_MAX_LINES_IN_DETAILS;
+        if ((nbLinesInLastPage + (nbLostLines % NB_MAX_LINES_IN_DETAILS))
+            > NB_MAX_LINES_IN_DETAILS) {
+            detailsContext.nbPages++;
+        }
+    }
+
+    displayDetailsPage(0, true);
+}
+
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
@@ -2287,54 +2327,32 @@ uint8_t nbgl_useCaseGetNbPagesForTagValueList(const nbgl_contentTagValueList_t *
 }
 
 /**
- * @brief draws the home page of an app (page on which we land when launching it from dashboard)
- *
- * @param appName app name
- * @param appIcon app icon
- * @param tagline text under app name (if NULL, it will be "This app enables signing transactions on
- * the <appName> network.")
- * @param withSettings if true, use a "settings" (wheel) icon in bottom button, otherwise a "info"
- * (i)
- * @param topRightCallback callback called when top-right button is touched
- * @param quitCallback callback called when quit button is touched
+ * @deprecated
+ * See #nbgl_useCaseHomeAndSettings
  */
-void nbgl_useCaseHome(const char                *appName,
-                      const nbgl_icon_details_t *appIcon,
-                      const char                *tagline,
-                      bool                       withSettings,
-                      nbgl_callback_t            topRightCallback,
-                      nbgl_callback_t            quitCallback)
+DEPRECATED void nbgl_useCaseHome(const char                *appName,
+                                 const nbgl_icon_details_t *appIcon,
+                                 const char                *tagline,
+                                 bool                       withSettings,
+                                 nbgl_callback_t            topRightCallback,
+                                 nbgl_callback_t            quitCallback)
 {
     nbgl_useCaseHomeExt(
         appName, appIcon, tagline, withSettings, NULL, NULL, topRightCallback, quitCallback);
 }
 
 /**
- * @brief draws the extended version of home page of an app (page on which we land when launching it
- * from dashboard)
- * @note it enables to use an action button (black on Stax, white on Flex)
- *
- * @param appName app name
- * @param appIcon app icon
- * @param tagline text under app name (if NULL, it will be "This app enables signing transactions on
- * the <appName> network.")
- * @param withSettings if true, use a "settings" (wheel) icon in bottom button, otherwise a "info"
- * (i)
- * @param actionButtonText if not NULL, text used for an action button (on top of "Quit
- * App" button/footer)
- * @param actionCallback callback called when action button is touched (if actionButtonText is not
- * NULL)
- * @param topRightCallback callback called when top-right button is touched
- * @param quitCallback callback called when quit button is touched
+ * @deprecated
+ * See #nbgl_useCaseHomeAndSettings
  */
-void nbgl_useCaseHomeExt(const char                *appName,
-                         const nbgl_icon_details_t *appIcon,
-                         const char                *tagline,
-                         bool                       withSettings,
-                         const char                *actionButtonText,
-                         nbgl_callback_t            actionCallback,
-                         nbgl_callback_t            topRightCallback,
-                         nbgl_callback_t            quitCallback)
+DEPRECATED void nbgl_useCaseHomeExt(const char                *appName,
+                                    const nbgl_icon_details_t *appIcon,
+                                    const char                *tagline,
+                                    bool                       withSettings,
+                                    const char                *actionButtonText,
+                                    nbgl_callback_t            actionCallback,
+                                    nbgl_callback_t            topRightCallback,
+                                    nbgl_callback_t            quitCallback)
 {
     nbgl_homeAction_t homeAction = {.callback = actionCallback,
                                     .icon     = NULL,
@@ -2343,70 +2361,6 @@ void nbgl_useCaseHomeExt(const char                *appName,
 
     useCaseHomeExt(
         appName, appIcon, tagline, withSettings, &homeAction, topRightCallback, quitCallback);
-}
-
-/**
- * @brief draws the home page of a plug-in app (page on which we land when launching it from
- * dashboard)
- *
- * @param plugInName plug-in app name
- * @param appName master app name (app used by plug-in)
- * @param appIcon master app icon
- * @param tagline text under plug-in name (if NULL, it will be "This app confirms actions
- * for\n<plugInName>.")
- * @param subTagline text under master app icon (if NULL, it will be "This app relies
- * on\n<appName>")
- * @param withSettings if true, use a "settings" (wheel) icon in bottom button, otherwise a "info"
- * (i)
- * @param topRightCallback callback called when top-right button is touched
- * @param quitCallback callback called when quit button is touched
- */
-void nbgl_useCasePlugInHome(const char                *plugInName,
-                            const char                *appName,
-                            const nbgl_icon_details_t *appIcon,
-                            const char                *tagline,
-                            const char                *subTagline,
-                            bool                       withSettings,
-                            nbgl_callback_t            topRightCallback,
-                            nbgl_callback_t            quitCallback)
-{
-    reset_callbacks();
-
-    nbgl_pageInfoDescription_t info = {.centeredInfo.icon    = appIcon,
-                                       .centeredInfo.text1   = plugInName,
-                                       .centeredInfo.style   = PLUGIN_INFO,
-                                       .centeredInfo.offsetY = -16,
-                                       .footerText           = NULL,
-                                       .bottomButtonStyle    = QUIT_APP_TEXT,
-                                       .tapActionText        = NULL,
-                                       .topRightStyle    = withSettings ? SETTINGS_ICON : INFO_ICON,
-                                       .topRightToken    = CONTINUE_TOKEN,
-                                       .actionButtonText = NULL,
-                                       .tuneId           = TUNE_TAP_CASUAL};
-    info.bottomButtonsToken         = QUIT_TOKEN;
-    onAction                        = NULL;
-    if (tagline == NULL) {
-        snprintf(appDescription,
-                 APP_DESCRIPTION_MAX_LEN,
-                 "This app confirms actions for\n%s.",
-                 plugInName);
-        info.centeredInfo.text2 = appDescription;
-    }
-    else {
-        info.centeredInfo.text2 = tagline;
-    }
-    if (subTagline == NULL) {
-        snprintf(plugInDescription, APP_DESCRIPTION_MAX_LEN, "This app relies on\n%s", appName);
-        info.centeredInfo.text3 = plugInDescription;
-    }
-    else {
-        info.centeredInfo.text3 = subTagline;
-    }
-
-    onContinue  = topRightCallback;
-    onQuit      = quitCallback;
-    pageContext = nbgl_pageDrawInfo(&pageCallback, NULL, &info);
-    nbgl_refresh();
 }
 
 /**
@@ -2819,84 +2773,6 @@ void nbgl_useCaseRegularReview(uint8_t                    initPage,
     prepareNavInfo(true, nbPages, getRejectReviewText(TYPE_OPERATION));
 
     displayReviewPage(initPage, true);
-}
-
-/**
- * @brief Draws a flow of pages of a review, without back key.
- *        It is possible to go to next page thanks to "tap to continue".
- *        For each page, the given navCallback will be called to get the content. Only 'type' and
- *        union has to be set in this content.
- *        Note that this is not a standard use case, it should only be used on very specific
- *        situations.
- *
- * @param rejectText text to use in footer
- * @param buttonCallback callback called when a potential button (details or long press) in the
- * content is touched
- * @param navCallback callback called when navigation "tap to continue" is touched, to get the
- * content of next page
- * @param choiceCallback callback called when either long_press or footer is called (param is true
- * for long press)
- */
-void nbgl_useCaseForwardOnlyReview(const char                *rejectText,
-                                   nbgl_layoutTouchCallback_t buttonCallback,
-                                   nbgl_navCallback_t         navCallback,
-                                   nbgl_choiceCallback_t      choiceCallback)
-{
-    reset_callbacks();
-
-    // memorize context
-    onChoice       = choiceCallback;
-    onNav          = navCallback;
-    onControls     = buttonCallback;
-    forwardNavOnly = true;
-    navType        = REVIEW_NAV;
-
-    // fill navigation structure
-    UNUSED(rejectText);
-    prepareNavInfo(true, NBGL_NO_PROGRESS_INDICATOR, getRejectReviewText(TYPE_OPERATION));
-
-    navInfo.progressIndicator = false;
-    navInfo.skipText          = "Skip";
-    navInfo.skipToken         = SKIP_TOKEN;
-
-    displayReviewPage(0, true);
-}
-
-/**
- * @brief Draws a flow of pages of a review, without back key.
- *        It is possible to go to next page thanks to "tap to continue".
- *        For each page, the given navCallback will be called to get the content. Only 'type' and
- *        union has to be set in this content.
- *        Note that this is not a standard use case, it should only be used on very specific
- *        situations.
- *
- * @param rejectText text to use in footer
- * @param buttonCallback callback called when a potential button (details or long press) in the
- * content is touched
- * @param navCallback callback called when navigation "tap to continue" is touched, to get the
- * content of next page
- * @param choiceCallback callback called when either long_press or footer is called (param is true
- * for long press)
- */
-void nbgl_useCaseForwardOnlyReviewNoSkip(const char                *rejectText,
-                                         nbgl_layoutTouchCallback_t buttonCallback,
-                                         nbgl_navCallback_t         navCallback,
-                                         nbgl_choiceCallback_t      choiceCallback)
-{
-    reset_callbacks();
-
-    // memorize context
-    onChoice       = choiceCallback;
-    onNav          = navCallback;
-    onControls     = buttonCallback;
-    forwardNavOnly = true;
-    navType        = REVIEW_NAV;
-
-    // fill navigation structure
-    UNUSED(rejectText);
-    prepareNavInfo(true, NBGL_NO_PROGRESS_INDICATOR, getRejectReviewText(TYPE_OPERATION));
-    navInfo.progressIndicator = false;
-    displayReviewPage(0, false);
 }
 
 /**
@@ -3366,73 +3242,21 @@ void nbgl_useCaseReviewStreamingFinish(const char           *finishTitle,
 }
 
 /**
- * @brief Draws a flow of pages to view details on a given tag/value pair that doesn't fit in a
- * single page
- *
- * @param tag tag name (in gray)
- * @param value full value string, that will be split in multiple pages
- * @param wrapping if set to true, value text is wrapped on ' ' characters
+ * @deprecated
+ * See #nbgl_useCaseAddressReview
  */
-void nbgl_useCaseViewDetails(const char *tag, const char *value, bool wrapping)
-{
-    memset(&detailsContext, 0, sizeof(detailsContext));
-
-    uint16_t nbLines
-        = nbgl_getTextNbLinesInWidth(SMALL_REGULAR_FONT, value, AVAILABLE_WIDTH, wrapping);
-
-    // initialize context
-    detailsContext.tag         = tag;
-    detailsContext.value       = value;
-    detailsContext.nbPages     = (nbLines + NB_MAX_LINES_IN_DETAILS - 1) / NB_MAX_LINES_IN_DETAILS;
-    detailsContext.currentPage = 0;
-    detailsContext.wrapping    = wrapping;
-    // add some spare for room lost with "..." substitution
-    if (detailsContext.nbPages > 1) {
-        uint16_t nbLostChars = (detailsContext.nbPages - 1) * 3;
-        uint16_t nbLostLines = (nbLostChars + ((AVAILABLE_WIDTH) / 16) - 1)
-                               / ((AVAILABLE_WIDTH) / 16);  // 16 for average char width
-        uint8_t nbLinesInLastPage
-            = nbLines - ((detailsContext.nbPages - 1) * NB_MAX_LINES_IN_DETAILS);
-
-        detailsContext.nbPages += nbLostLines / NB_MAX_LINES_IN_DETAILS;
-        if ((nbLinesInLastPage + (nbLostLines % NB_MAX_LINES_IN_DETAILS))
-            > NB_MAX_LINES_IN_DETAILS) {
-            detailsContext.nbPages++;
-        }
-    }
-
-    displayDetailsPage(0, true);
-}
-
-/**
- * @brief draws an address confirmation page. This page contains the given address in a tag/value
- * layout, with a button to open a modal to see address as a QR Code, and at the bottom a button to
- * confirm and a footer to cancel
- *
- * @param address address to confirm (NULL terminated string)
- * @param callback callback called when button or footer is touched (if true, button, if false
- * footer)
- */
-void nbgl_useCaseAddressConfirmation(const char *address, nbgl_choiceCallback_t callback)
+DEPRECATED void nbgl_useCaseAddressConfirmation(const char *address, nbgl_choiceCallback_t callback)
 {
     nbgl_useCaseAddressConfirmationExt(address, callback, NULL);
 }
 
 /**
- * @brief draws an extended address verification page. This page contains the given address in a
- * tag/value layout, with a button to open a modal to see address as a QR Code. A "tap to continue"
- * enables to open a second review page to display the other given tag/value pairs, with a button to
- * confirm and a footer to cancel
- *
- * @param address address to confirm (NULL terminated string)
- * @param callback callback called when button or footer is touched (if true, button, if false
- * footer)
- * @param tagValueList list of tag/value pairs (must fit in a single page, and be persistent because
- * no copy)
+ * @deprecated
+ * See #nbgl_useCaseAddressReview
  */
-void nbgl_useCaseAddressConfirmationExt(const char                       *address,
-                                        nbgl_choiceCallback_t             callback,
-                                        const nbgl_contentTagValueList_t *tagValueList)
+DEPRECATED void nbgl_useCaseAddressConfirmationExt(const char                       *address,
+                                                   nbgl_choiceCallback_t             callback,
+                                                   const nbgl_contentTagValueList_t *tagValueList)
 {
     reset_callbacks();
     memset(&genericContext, 0, sizeof(genericContext));
