@@ -341,6 +341,11 @@ uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPai
                                          const nbgl_contentTagValueList_t *tagValueList,
                                          uint8_t                           startIndex,
                                          bool                             *requireSpecificDisplay);
+uint8_t nbgl_useCaseGetNbTagValuesInPageExt(uint8_t                           nbPairs,
+                                            const nbgl_contentTagValueList_t *tagValueList,
+                                            uint8_t                           startIndex,
+                                            bool                              isSkippable,
+                                            bool *requireSpecificDisplay);
 uint8_t nbgl_useCaseGetNbInfosInPage(uint8_t                       nbInfos,
                                      const nbgl_contentInfoList_t *infosList,
                                      uint8_t                       startIndex,
