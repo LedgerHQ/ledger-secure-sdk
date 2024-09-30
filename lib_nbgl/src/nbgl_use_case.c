@@ -2811,43 +2811,6 @@ void nbgl_useCaseRegularReview(uint8_t                    initPage,
 }
 
 /**
- * @brief Draws a flow of pages of a review, without back key.
- *        It is possible to go to next page thanks to "tap to continue".
- *        For each page, the given navCallback will be called to get the content. Only 'type' and
- *        union has to be set in this content.
- *        Note that this is not a standard use case, it should only be used on very specific
- *        situations.
- *
- * @param rejectText text to use in footer
- * @param buttonCallback callback called when a potential button (details or long press) in the
- * content is touched
- * @param navCallback callback called when navigation "tap to continue" is touched, to get the
- * content of next page
- * @param choiceCallback callback called when either long_press or footer is called (param is true
- * for long press)
- */
-void nbgl_useCaseForwardOnlyReviewNoSkip(const char                *rejectText,
-                                         nbgl_layoutTouchCallback_t buttonCallback,
-                                         nbgl_navCallback_t         navCallback,
-                                         nbgl_choiceCallback_t      choiceCallback)
-{
-    reset_callbacks();
-
-    // memorize context
-    onChoice       = choiceCallback;
-    onNav          = navCallback;
-    onControls     = buttonCallback;
-    forwardNavOnly = true;
-    navType        = REVIEW_NAV;
-
-    // fill navigation structure
-    UNUSED(rejectText);
-    prepareNavInfo(true, NBGL_NO_PROGRESS_INDICATOR, getRejectReviewText(TYPE_OPERATION));
-    navInfo.progressIndicator = false;
-    displayReviewPage(0, false);
-}
-
-/**
  * @brief Draws a flow of pages of a review. A back key is available on top-left of the screen,
  * except in first page It is possible to go to next page thanks to "tap to continue".
  * @note  All tag/value pairs are provided in the API and the number of pages is automatically

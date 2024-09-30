@@ -58,9 +58,6 @@ A few APIs are available to draw typical Use-Cases, such as:
 
 Some APIs have also been kept for backward compatibility, and for some rare cases:
 
-- for Home Screen:
- - @ref nbgl_useCaseHome() to draw the home screen of an application.
- - @ref nbgl_useCaseHomeExt() to draw an extended version of home screen of an application (with action button)
 - for Settings:
  - @ref nbgl_useCaseSettings() to draw a level of settings pages
 - for most used reviews:
