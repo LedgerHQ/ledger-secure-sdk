@@ -25,7 +25,8 @@ typedef enum {
 /* Exported variables --------------------------------------------------------*/
 
 /* Exported functions prototypes--------------------------------------------- */
-os_io_apdu_post_action_t os_io_handle_default_apdu(uint8_t *buffer_in,
-                                                   size_t   buffer_in_length,
-                                                   uint8_t *buffer_out,
-                                                   size_t  *buffer_out_length);
+bolos_err_t os_io_handle_default_apdu(uint8_t                  *buffer_in,
+                                      size_t                    buffer_in_length,
+                                      uint8_t                  *buffer_out,
+                                      size_t                   *buffer_out_length,
+                                      os_io_apdu_post_action_t *post_action);

@@ -7,8 +7,8 @@
 #include <stdint.h>
 #include "os_math.h"
 #include "decorators.h"
-//#include "os_io_seph_cmd.h"
-//#include "os_io_seph_ux.h"
+#include "os_io_seph_cmd.h"
+#include "os_io_seph_ux.h"
 
 /* Exported enumerations -----------------------------------------------------*/
 typedef enum {

@@ -125,15 +125,19 @@ static void get_stack_consumption(uint8_t mode, uint8_t *buffer_out, size_t *buf
 #endif  // DEBUG_OS_STACK_CONSUMPTION
 
 /* Exported functions --------------------------------------------------------*/
-os_io_apdu_post_action_t os_io_handle_default_apdu(uint8_t *buffer_in,
-                                                   size_t   buffer_in_length,
-                                                   uint8_t *buffer_out,
-                                                   size_t  *buffer_out_length)
+bolos_err_t os_io_handle_default_apdu(uint8_t                  *buffer_in,
+                                      size_t                    buffer_in_length,
+                                      uint8_t                  *buffer_out,
+                                      size_t                   *buffer_out_length,
+                                      os_io_apdu_post_action_t *post_action)
 {
-    os_io_apdu_post_action_t post_action = OS_IO_APDU_POST_ACTION_NONE;
+    bolos_err_t err = SWO_SUCCESS;
 
     if (!buffer_in || !buffer_in_length || !buffer_out || !buffer_out_length) {
-        return post_action;
+        return *post_action;
+    }
+    if (post_action) {
+        *post_action = OS_IO_APDU_POST_ACTION_NONE;
     }
 
     if (DEFAULT_APDU_CLA == buffer_in[APDU_OFF_CLA]) {
@@ -143,8 +147,8 @@ os_io_apdu_post_action_t os_io_handle_default_apdu(uint8_t *buffer_in,
                     get_version(buffer_out, buffer_out_length);
                 }
                 else {
-                    U2BE_ENCODE(buffer_out, 0, 0x6E00);
-                    *buffer_out_length = 2;
+                    err = 0x6e00;
+                    goto end;
                 }
                 break;
 
@@ -154,8 +158,8 @@ os_io_apdu_post_action_t os_io_handle_default_apdu(uint8_t *buffer_in,
                     get_seed_cookie(buffer_out, buffer_out_length);
                 }
                 else {
-                    U2BE_ENCODE(buffer_out, 0, 0x6E00);
-                    *buffer_out_length = 2;
+                    err = 0x6e00;
+                    goto end;
                 }
                 break;
 #endif  // HAVE_SEED_COOKIE
@@ -166,8 +170,8 @@ os_io_apdu_post_action_t os_io_handle_default_apdu(uint8_t *buffer_in,
                     get_stack_consumption(buffer_in[APDU_OFF_P1], buffer_out, buffer_out_length);
                 }
                 else {
-                    U2BE_ENCODE(buffer_out, 0, 0x6E00);
-                    *buffer_out_length = 2;
+                    err = 0x6e00;
+                    goto end;
                 }
                 break;
 #endif  // DEBUG_OS_STACK_CONSUMPTION
@@ -177,21 +181,24 @@ os_io_apdu_post_action_t os_io_handle_default_apdu(uint8_t *buffer_in,
                     U2BE_ENCODE(buffer_out, 0, SWO_SUCCESS);
                     *buffer_out_length = 2;
 #if !defined(HAVE_BOLOS)
-                    post_action = OS_IO_APDU_POST_ACTION_EXIT;
+                    if (post_action) {
+                        *post_action = OS_IO_APDU_POST_ACTION_EXIT;
+                    }
 #endif  // !HAVE_BOLOS
                 }
                 else {
-                    U2BE_ENCODE(buffer_out, 0, 0x6E00);
-                    *buffer_out_length = 2;
+                    err = 0x6e00;
+                    goto end;
                 }
                 break;
 
             default:
-                U2BE_ENCODE(buffer_out, 0, 0x6E01);
-                *buffer_out_length = 2;
+                err = 0x6e01;
+                goto end;
                 break;
         }
     }
 
-    return post_action;
+end:
+    return err;
 }

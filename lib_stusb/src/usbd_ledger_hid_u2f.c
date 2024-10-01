@@ -9,7 +9,7 @@
 #include "u2f_types.h"
 #include "usbd_ledger_hid_u2f.h"
 
-// #pragma GCC diagnostic ignored "-Wcast-qual"
+#pragma GCC diagnostic ignored "-Wcast-qual"
 
 /* Private enumerations ------------------------------------------------------*/
 enum ledger_hid_u2f_state_t {

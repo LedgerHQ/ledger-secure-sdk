@@ -229,6 +229,10 @@ int os_io_start(os_io_init_t *init)
     }
     G_io_syscall_flag = init->syscall;
 
+#ifdef HAVE_BLE
+    BLE_LEDGER_start(init->ble.profile_mask);
+#endif  // HAVE_BLE
+
 #ifdef HAVE_IO_USB
     USBD_LEDGER_start(init->usb.pid, init->usb.vid, init->usb.name, init->usb.class_mask);
 #ifdef HAVE_IO_U2F
@@ -252,10 +256,6 @@ int os_io_start(os_io_init_t *init)
     }
 #endif  // HAVE_IO_U2F
 #endif  // HAVE_IO_USB
-
-#ifdef HAVE_BLE
-    BLE_LEDGER_start(init->ble.profile_mask);
-#endif  // HAVE_BLE
 
     return 0;
 }
@@ -290,8 +290,6 @@ int os_io_rx_evt(unsigned char *buffer, unsigned short buffer_max_length, unsign
         length = (uint16_t) status;
     }
 
-    uint8_t toto[5];
-    memcpy(toto, G_io_seph_buffer, sizeof(toto));
     switch (G_io_seph_buffer[1]) {
 #ifdef HAVE_IO_USB
         case SEPROXYHAL_TAG_USB_EVENT:

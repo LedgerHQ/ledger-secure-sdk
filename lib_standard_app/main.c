@@ -23,11 +23,11 @@
 
 #ifdef HAVE_SWAP
 #include "swap.h"
+#endif  // HAVE_SWAP
 
 #ifdef HAVE_NBGL
 #include "nbgl_use_case.h"
 #endif  // HAVE_NBGL
-#endif  // HAVE_SWAP
 
 ux_state_t        G_ux;
 bolos_ux_params_t G_ux_params;
@@ -40,23 +40,14 @@ WEAK void __attribute__((noreturn)) app_exit(void)
     os_sched_exit(-1);
 }
 
-WEAK void common_app_init(void)
+static void common_app_init(void)
 {
     UX_INIT();
-
-    io_seproxyhal_init();
-
-    USB_power(0);
-    USB_power(1);
-
-#ifdef HAVE_BLE
-    BLE_power(0, NULL);
-    BLE_power(1, NULL);
-#endif  // HAVE_BLE
 }
 
-WEAK void standalone_app_main(void)
+static void standalone_app_main(void)
 {
+    PRINTF("standalone_app_main");
 #ifdef HAVE_SWAP
     G_called_from_swap    = false;
     G_swap_response_ready = false;
@@ -83,9 +74,9 @@ WEAK void standalone_app_main(void)
             // - the NanoX goes on battery power and display the lock screen
             // - the user plug the NanoX instead of entering its pin
             // - the device is frozen, battery should be removed
-            USB_power(0);
+            // USB_power(0); // TODO_IO
 #ifdef HAVE_BLE
-            BLE_power(0, NULL);
+            // BLE_power(0, NULL);
 #endif
             // Display crash info on screen for debug purpose
             assert_display_exit();
@@ -102,7 +93,7 @@ WEAK void standalone_app_main(void)
 }
 
 #ifdef HAVE_SWAP
-WEAK void library_app_main(libargs_t *args)
+static void library_app_main(libargs_t *args)
 {
     BEGIN_TRY
     {
@@ -152,7 +143,7 @@ WEAK void library_app_main(libargs_t *args)
 }
 #endif  // HAVE_SWAP
 
-WEAK __attribute__((section(".boot"))) int main(int arg0)
+__attribute__((section(".boot"))) int main(int arg0)
 {
     // exit critical section
     __asm volatile("cpsie i");

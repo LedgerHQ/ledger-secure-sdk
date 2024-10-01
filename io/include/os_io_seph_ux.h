@@ -6,7 +6,7 @@
 #include "ux.h"
 
 #ifdef HAVE_BAGL
-#include "bagl.h"
+#include "ux_bagl.h"
 #endif  // HAVE_BAGL
 
 #ifdef HAVE_SERIALIZED_NBGL

@@ -20,6 +20,7 @@
 #include "os_helpers.h"
 #include "os_pic.h"
 #include "os_pin.h"
+#include "os_io_seph_ux.h"
 #include <string.h>
 
 #ifdef HAVE_UX_LEGACY
