@@ -16,7 +16,6 @@
 #include "os_pic.h"
 #include "os_print.h"
 #include "os_helpers.h"
-#include "decorators.h"
 
 /*********************
  *      DEFINES
@@ -2330,29 +2329,30 @@ uint8_t nbgl_useCaseGetNbPagesForTagValueList(const nbgl_contentTagValueList_t *
  * @deprecated
  * See #nbgl_useCaseHomeAndSettings
  */
-DEPRECATED void nbgl_useCaseHome(const char                *appName,
-                                 const nbgl_icon_details_t *appIcon,
-                                 const char                *tagline,
-                                 bool                       withSettings,
-                                 nbgl_callback_t            topRightCallback,
-                                 nbgl_callback_t            quitCallback)
+void nbgl_useCaseHome(const char                *appName,
+                      const nbgl_icon_details_t *appIcon,
+                      const char                *tagline,
+                      bool                       withSettings,
+                      nbgl_callback_t            topRightCallback,
+                      nbgl_callback_t            quitCallback)
 {
-    nbgl_useCaseHomeExt(
-        appName, appIcon, tagline, withSettings, NULL, NULL, topRightCallback, quitCallback);
+    nbgl_homeAction_t homeAction = {0};
+    useCaseHomeExt(
+        appName, appIcon, tagline, withSettings, &homeAction, topRightCallback, quitCallback);
 }
 
 /**
  * @deprecated
  * See #nbgl_useCaseHomeAndSettings
  */
-DEPRECATED void nbgl_useCaseHomeExt(const char                *appName,
-                                    const nbgl_icon_details_t *appIcon,
-                                    const char                *tagline,
-                                    bool                       withSettings,
-                                    const char                *actionButtonText,
-                                    nbgl_callback_t            actionCallback,
-                                    nbgl_callback_t            topRightCallback,
-                                    nbgl_callback_t            quitCallback)
+void nbgl_useCaseHomeExt(const char                *appName,
+                         const nbgl_icon_details_t *appIcon,
+                         const char                *tagline,
+                         bool                       withSettings,
+                         const char                *actionButtonText,
+                         nbgl_callback_t            actionCallback,
+                         nbgl_callback_t            topRightCallback,
+                         nbgl_callback_t            quitCallback)
 {
     nbgl_homeAction_t homeAction = {.callback = actionCallback,
                                     .icon     = NULL,
@@ -2364,28 +2364,25 @@ DEPRECATED void nbgl_useCaseHomeExt(const char                *appName,
 }
 
 /**
- * @brief Draws the settings pages of an app with as many pages as given
- *        For each page, the given navCallback will be called to get the content. Only 'type' and
- * union has to be set in this content
+ * @brief Initiates the drawing a set of pages of generic content, with a touchable header (usually
+ * to go back or to an upper level) For each page (including the first one), the given 'navCallback'
+ * will be called to get the content. Only 'type' and union has to be set in this content.
  *
- * @param title string to set in touchable title
+ * @param title string to set in touchable title (header)
  * @param initPage page on which to start [0->(nbPages-1)]
  * @param nbPages number of pages
- * @param touchable unused, it is always on
- * @param quitCallback callback called when quit button (or title) is pressed
+ * @param quitCallback callback called title is pressed
  * @param navCallback callback called when navigation arrows are pressed
  * @param controlsCallback callback called when any controls in the settings (radios, switches) is
  * called (the tokens must be >= @ref FIRST_USER_TOKEN)
  */
-void nbgl_useCaseSettings(const char                *title,
-                          uint8_t                    initPage,
-                          uint8_t                    nbPages,
-                          bool                       touchable,
-                          nbgl_callback_t            quitCallback,
-                          nbgl_navCallback_t         navCallback,
-                          nbgl_layoutTouchCallback_t controlsCallback)
+void nbgl_useCaseNavigableContent(const char                *title,
+                                  uint8_t                    initPage,
+                                  uint8_t                    nbPages,
+                                  nbgl_callback_t            quitCallback,
+                                  nbgl_navCallback_t         navCallback,
+                                  nbgl_layoutTouchCallback_t controlsCallback)
 {
-    UNUSED(touchable);
     reset_callbacks();
 
     // memorize context
@@ -2399,6 +2396,24 @@ void nbgl_useCaseSettings(const char                *title,
     prepareNavInfo(false, nbPages, NULL);
 
     displaySettingsPage(initPage, true);
+}
+
+/**
+ * @deprecated
+ * See #nbgl_useCaseHomeAndSettings if used in a 'Settings' context, or nbgl_useCaseNavigableContent
+ * otherwise
+ */
+void nbgl_useCaseSettings(const char                *title,
+                          uint8_t                    initPage,
+                          uint8_t                    nbPages,
+                          bool                       touchable,
+                          nbgl_callback_t            quitCallback,
+                          nbgl_navCallback_t         navCallback,
+                          nbgl_layoutTouchCallback_t controlsCallback)
+{
+    UNUSED(touchable);
+    nbgl_useCaseNavigableContent(
+        title, initPage, nbPages, quitCallback, navCallback, controlsCallback);
 }
 
 /**
@@ -3245,18 +3260,9 @@ void nbgl_useCaseReviewStreamingFinish(const char           *finishTitle,
  * @deprecated
  * See #nbgl_useCaseAddressReview
  */
-DEPRECATED void nbgl_useCaseAddressConfirmation(const char *address, nbgl_choiceCallback_t callback)
-{
-    nbgl_useCaseAddressConfirmationExt(address, callback, NULL);
-}
-
-/**
- * @deprecated
- * See #nbgl_useCaseAddressReview
- */
-DEPRECATED void nbgl_useCaseAddressConfirmationExt(const char                       *address,
-                                                   nbgl_choiceCallback_t             callback,
-                                                   const nbgl_contentTagValueList_t *tagValueList)
+void nbgl_useCaseAddressConfirmationExt(const char                       *address,
+                                        nbgl_choiceCallback_t             callback,
+                                        const nbgl_contentTagValueList_t *tagValueList)
 {
     reset_callbacks();
     memset(&genericContext, 0, sizeof(genericContext));

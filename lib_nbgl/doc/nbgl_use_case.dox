@@ -55,11 +55,11 @@ A few APIs are available to draw typical Use-Cases, such as:
 - for keypad:
  - @ref nbgl_useCaseKeypadPIN() to draw a default keypad implementation with hidden digits (see @subpage use_case_keypad)
  - @ref nbgl_useCaseKeypadDigits() to draw a default keypad implementation, showing digits (see @subpage use_case_keypad)
+- for generic navigable content:
+ - @ref nbgl_useCaseNavigableContent() to draw a level of generic content navigable pages
 
 Some APIs have also been kept for backward compatibility, and for some rare cases:
 
-- for Settings:
- - @ref nbgl_useCaseSettings() to draw a level of settings pages
 - for most used reviews:
  - @ref nbgl_useCaseReviewStart() to draw the cover page of a review (initial page, without data)
  - @ref nbgl_useCaseStaticReview() to draw the data pages of a regular review, when all info are available from the beginning (all pages but the cover one)
