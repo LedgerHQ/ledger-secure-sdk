@@ -198,6 +198,8 @@
 #define SYSCALL_os_pki_get_info_ID         0x040000ac
 #endif  // HAVE_LEDGER_PKI
 
+#define SYSCALL_os_dashboard_mbx_ID 0x02000150
+
 #ifdef HAVE_CUSTOM_CA_DETAILS_IN_SETTINGS
 #define SYSCALL_os_bolos_custom_ca_get_info_ID 0x01000CA0
 #define SYSCALL_os_bolos_custom_ca_revoke_ID   0x00000CA1
