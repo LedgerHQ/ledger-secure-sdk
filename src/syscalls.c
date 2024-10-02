@@ -1730,17 +1730,6 @@ void os_registry_delete_all_apps(void)
     return;
 }
 
-#ifdef HAVE_BOLOS_CUSTOMCA
-unsigned int os_customca_verify(unsigned char *hash, unsigned char *sign, unsigned int sign_length)
-{
-    unsigned int parameters[3];
-    parameters[0] = (unsigned int) hash;
-    parameters[1] = (unsigned int) sign;
-    parameters[2] = (unsigned int) sign_length;
-    return (unsigned int) SVC_Call(SYSCALL_os_customca_verify_ID, parameters);
-}
-#endif  // HAVE_BOLOS_CUSTOMCA
-
 void os_sched_exec(unsigned int app_idx)
 {
     unsigned int parameters[2];
@@ -1921,19 +1910,20 @@ unsigned int os_deny_protected_flash(void)
 }
 
 #ifdef HAVE_CUSTOM_CA_DETAILS_IN_SETTINGS
-bolos_bool_t os_bolos_custom_ca_get_info(customca_data_t *custom_ca)
+
+bolos_bool_t CERT_get(CERT_info_t *custom_ca)
 {
     unsigned int parameters[2];
     parameters[0]    = (unsigned int) custom_ca;
-    bolos_bool_t ret = (bolos_bool_t) SVC_Call(SYSCALL_os_bolos_custom_ca_get_info_ID, parameters);
+    bolos_bool_t ret = (bolos_bool_t) SVC_Call(SYSCALL_CERT_get_ID, parameters);
     return ret;
 }
 
-void os_bolos_custom_ca_revoke(void)
+void CERT_erase(void)
 {
     unsigned int parameters[1];
     parameters[0] = 0;
-    SVC_Call(SYSCALL_os_bolos_custom_ca_revoke_ID, parameters);
+    SVC_Call(SYSCALL_CERT_erase_ID, parameters);
     return;
 }
 #endif  // HAVE_CUSTOM_CA_DETAILS_IN_SETTINGS
