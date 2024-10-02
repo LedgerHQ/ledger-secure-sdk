@@ -201,15 +201,11 @@
 #define SYSCALL_os_dashboard_mbx_ID 0x02000150
 
 #ifdef HAVE_CUSTOM_CA_DETAILS_IN_SETTINGS
-#define SYSCALL_os_bolos_custom_ca_get_info_ID 0x01000CA0
-#define SYSCALL_os_bolos_custom_ca_revoke_ID   0x00000CA1
+#define SYSCALL_CERT_get_ID   0x01000CA0
+#define SYSCALL_CERT_erase_ID 0x00000CA1
 #endif  // HAVE_CUSTOM_CA_DETAILS_IN_SETTINGS
 
 #define SYSCALL_os_bolos_endorsement_revoke_ID 0x010001ED
-
-#ifdef HAVE_BOLOS_CUSTOMCA
-#define SYSCALL_os_customca_verify_ID 0x03000090
-#endif  // HAVE_BOLOS_CUSTOMCA
 
 #ifdef HAVE_AEM_PIN
 #define SYSCALL_os_aem_set_pin_ID             0x02000139
