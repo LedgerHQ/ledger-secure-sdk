@@ -107,6 +107,9 @@ enum seph_protocol_evt_status_flag_mask {
 // EVT : NFC APDU EVENT
 #define SEPROXYHAL_TAG_NFC_APDU_EVENT (0x1C)
 
+// EVT : QI FLASH CHECKSUM
+#define SEPROXYHAL_TAG_QI_FLASH_CHECKSUM_EVENT (0x1D)
+
 //////////////
 // COMMANDS //
 //////////////
@@ -199,10 +202,13 @@ enum seph_protocol_cmd_usb_prepare_type {
 #define SEPROXYHAL_TAG_PLAY_TUNE (0x56)
 
 // CMD : SET SHIP MODE
-#define SEPH_PROTOCOL_CMD_SET_SHIP_MODE (0x57)
+#define SEPROXYHAL_TAG_SET_SHIP_MODE (0x57)
+
+// CMD : QI FLASH
+#define SEPROXYHAL_TAG_QI_FLASH (0x58)
 
 // CMD : SET TOUCH_STATE
-#define SEPH_PROTOCOL_CMD_SET_TOUCH_STATE (0x5B)
+#define SEPROXYHAL_TAG_SET_TOUCH_STATE (0x5B)
 
 // CMD:  NBGL SERIALIZED
 #define SEPROXYHAL_TAG_NBGL_SERIALIZED (0x5C)

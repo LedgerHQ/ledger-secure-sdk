@@ -361,7 +361,7 @@ static void USBD_GetDescriptor(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *r
                     break;
 
                 case USBD_IDX_WINUSB_STR:
-                    // TODO
+                    // TODOO
                     break;
 
                 default:

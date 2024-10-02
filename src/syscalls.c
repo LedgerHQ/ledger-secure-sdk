@@ -2067,7 +2067,7 @@ void bagl_hal_draw_rect(unsigned int color, int x, int y, unsigned int width, un
     SVC_Call(SYSCALL_bagl_hal_draw_rect_ID, parameters);
     return;
 }
-#endif // HAVE_SE_SCREEN
+#endif  // HAVE_SE_SCREEN
 
 #ifdef HAVE_BLE
 void os_ux_set_status(unsigned int ux_id, unsigned int status)
@@ -2275,9 +2275,9 @@ uint8_t touch_exclude_borders(uint8_t excluded_borders)
 }
 
 #ifdef HAVE_TOUCH_READ_DEBUG_DATA_SYSCALL
-uint8_t touch_switch_debug_mode_and_read(io_touch_debug_mode_t mode,
-                                         uint8_t               buffer_type,
-                                         uint8_t              *read_buffer)
+uint8_t touch_switch_debug_mode_and_read(os_io_touch_debug_mode_t mode,
+                                         uint8_t                  buffer_type,
+                                         uint8_t                 *read_buffer)
 {
     unsigned int parameters[3];
     parameters[0] = (unsigned int) mode;

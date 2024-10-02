@@ -37,6 +37,7 @@ typedef struct io_touch_info_s {
     uint8_t  state;
     uint8_t  w;
     uint8_t  h;
+    uint8_t  swipe;
 } io_touch_info_t;
 #endif  // HAVE_SE_TOUCH
 

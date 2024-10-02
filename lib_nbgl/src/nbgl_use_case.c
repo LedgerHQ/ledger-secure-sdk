@@ -13,6 +13,7 @@
 #include "nbgl_debug.h"
 #include "nbgl_use_case.h"
 #include "glyphs.h"
+#include "os_io_seph_ux.h"
 #include "os_pic.h"
 #include "os_print.h"
 #include "os_helpers.h"

@@ -134,7 +134,7 @@ extern bool     last_bold_state, verbose;
 /**********************
  *  STATIC PROTOTYPES
  **********************/
-extern const char *get_ux_loc_string(uint32_t index);
+extern const char *get_ux_loc_string(UX_LOC_STRINGS_INDEX index);
 
 /**********************
  *   GLOBAL FUNCTIONS

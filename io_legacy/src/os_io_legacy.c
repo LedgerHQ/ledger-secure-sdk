@@ -134,7 +134,8 @@ unsigned short io_exchange(unsigned char channel_and_flags, unsigned short tx_le
         io_os_legacy_apdu_type = APDU_TYPE_NONE;
     }
 
-    G_io_app.apdu_length = 0;
+    G_io_app.apdu_length                 = 0;
+    os_io_apdu_post_action_t post_action = OS_IO_APDU_POST_ACTION_NONE;
 
     status = 0;
     while (!G_io_app.apdu_length) {
@@ -158,11 +159,23 @@ unsigned short io_exchange(unsigned char channel_and_flags, unsigned short tx_le
                 case OS_IO_PACKET_TYPE_BLE_APDU:
                     io_os_legacy_apdu_type = G_io_rx_buffer[0];
                     if (G_io_rx_buffer[APDU_OFF_CLA + 1] == DEFAULT_APDU_CLA) {
-                        size_t buffer_out_length = sizeof(G_io_rx_buffer);
-                        os_io_handle_default_apdu(
-                            &G_io_rx_buffer[1], status - 1, G_io_tx_buffer, &buffer_out_length);
-                        os_io_tx_cmd(io_os_legacy_apdu_type, G_io_tx_buffer, buffer_out_length, 0);
+                        size_t      buffer_out_length = sizeof(G_io_rx_buffer);
+                        bolos_err_t err = os_io_handle_default_apdu(&G_io_rx_buffer[1],
+                                                                    status - 1,
+                                                                    G_io_tx_buffer,
+                                                                    &buffer_out_length,
+                                                                    &post_action);
+                        if (err != SWO_SUCCESS) {
+                            buffer_out_length = 0;
+                        }
+                        G_io_tx_buffer[buffer_out_length++] = err >> 8;
+                        G_io_tx_buffer[buffer_out_length++] = err;
+                        status                              = os_io_tx_cmd(
+                            io_os_legacy_apdu_type, G_io_tx_buffer, buffer_out_length, 0);
                         io_os_legacy_apdu_type = APDU_TYPE_NONE;
+                        if (post_action == OS_IO_APDU_POST_ACTION_EXIT) {
+                            os_sched_exit(-1);
+                        }
                     }
                     else {
                         G_io_app.apdu_media  = get_media_from_apdu_type(io_os_legacy_apdu_type);

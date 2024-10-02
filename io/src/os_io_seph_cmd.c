@@ -74,7 +74,7 @@ static const unsigned char seph_io_mcu_protect[] = {
 
 #ifdef HAVE_SHIP_MODE
 static const unsigned char seph_io_cmd_set_ship_mode[] = {
-    SEPH_PROTOCOL_CMD_SET_SHIP_MODE,
+    SEPROXYHAL_TAG_SET_SHIP_MODE,
     0,
     0,
 };

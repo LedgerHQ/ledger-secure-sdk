@@ -144,19 +144,20 @@ WEAK int io_recv_command()
                 case OS_IO_PACKET_TYPE_BLE_APDU:
                     if (G_io_rx_buffer[OFFSET_CLA + 1] == DEFAULT_APDU_CLA) {
                         size_t      buffer_out_length = sizeof(G_io_tx_buffer);
-                        bolos_err_t err               = SWO_SUCCESS;
-                        err = os_io_handle_default_apdu(&G_io_rx_buffer[1],
-                                                        status - 1,
-                                                        G_io_tx_buffer,
-                                                        &buffer_out_length,
-                                                        &post_action);
+                        bolos_err_t err = os_io_handle_default_apdu(&G_io_rx_buffer[1],
+                                                                    status - 1,
+                                                                    G_io_tx_buffer,
+                                                                    &buffer_out_length,
+                                                                    &post_action);
                         if (err != SWO_SUCCESS) {
                             buffer_out_length = 0;
                         }
                         G_io_tx_buffer[buffer_out_length++] = err >> 8;
                         G_io_tx_buffer[buffer_out_length++] = err;
-                        os_io_tx_cmd(G_rx_packet_type, G_io_tx_buffer, buffer_out_length, 0);
-                        status = 0;
+                        status = os_io_tx_cmd(G_rx_packet_type, G_io_tx_buffer, buffer_out_length, 0);
+                        if (post_action == OS_IO_APDU_POST_ACTION_EXIT) {
+                            os_sched_exit(-1);
+                        }
                     }
                     break;
 
@@ -168,10 +169,6 @@ WEAK int io_recv_command()
         else if (status < 0) {
             status = -1;
         }
-    }
-
-    if ((status == 0) && (post_action == OS_IO_APDU_POST_ACTION_EXIT)) {
-        os_sched_exit(-1);
     }
 
     return status;

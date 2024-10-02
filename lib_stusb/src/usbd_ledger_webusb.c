@@ -76,7 +76,7 @@ const uint8_t LEDGER_WEBUSB_bos_descriptor[] = {
     0x9C, 0xD2, 0x65, 0x9D,      // PlatformCapablityUUID
     0x9E, 0x64, 0x8A, 0x9F,      // PlatformCapablityUUID
     0x00, 0x00, 0x03, 0x06,      // dwWindowsVersion      : minimum 8.1 (0x06030000)
-    0xb2,                        // wMSOSDescriptorSetTotalLength : TODO
+    0xb2,                        // wMSOSDescriptorSetTotalLength : TODOO
     0x00,                        // wMSOSDescriptorSetTotalLength
     USB_REQ_WINUSB_VENDOR_CODE,  // bVendorCode
     0x00,                        // bAltEnumCode : alternate enumeration not supported
@@ -128,7 +128,7 @@ const uint8_t USBD_LEDGER_WINUSB_compat_id_feature_descriptor[] = {
     0x01,                                      // bNumSections
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // reserved
 
-    0x01,                                      // bInterfaceNumber (dynamic) // TODO
+    0x01,                                      // bInterfaceNumber (dynamic) // TODOO
     0x01,                                      // bReserved
     'W', 'I', 'N', 'U', 'S', 'B', 0x00, 0x00,  // Compatible ID String
     0x00, 0x00, 0x00, 0x00,                    // Sub-compatible ID String
@@ -182,7 +182,7 @@ const uint8_t USBD_LEDGER_WINUSB_ms_os_20_descriptor_set[] = {
     // Microsoft OS 2.0 function subset header
     0x08, 0x00,                                  // wLength
     0x02, 0x00,                                  // wDescriptorType : MS_OS_20_SUBSET_HEADER_FUNCTION
-    0x01,                                        // bFirstInterface (dynamic) // TODO
+    0x01,                                        // bFirstInterface (dynamic) // TODOO
     0x00,                                        // bReserved
     0xa0, 0x00,                                  // wSubsetLength
 

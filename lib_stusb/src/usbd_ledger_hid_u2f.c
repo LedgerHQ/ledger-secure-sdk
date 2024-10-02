@@ -557,7 +557,7 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
                 }
                 else {
                     buffer[0] = OS_IO_PACKET_TYPE_USB_U2F_HID_APDU;
-                    // TODO : check max length
+                    // TODOO : check max length
                     memmove(&buffer[1],
                             &handle->transport_data.rx_message_buffer[3],
                             handle->transport_data.rx_message_length - 3);
@@ -578,7 +578,7 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
             }
             else {
                 buffer[0] = OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR;
-                // TODO : check max length
+                // TODOO : check max length
                 memmove(&buffer[1],
                         &handle->transport_data.rx_message_buffer[3],
                         handle->transport_data.rx_message_length - 3);
@@ -595,7 +595,7 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
                     pdev, cookie, OS_IO_PACKET_TYPE_USB_U2F_HID_RAW, error_msg, 2, 0);
             }
             else {
-                // TODO
+                // TODOO
                 handle->transport_data.state = U2F_STATE_IDLE;
             }
             break;
@@ -608,7 +608,7 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
                     pdev, cookie, OS_IO_PACKET_TYPE_USB_U2F_HID_RAW, error_msg, 2, 0);
             }
             else {
-                // TODO
+                // TODOO
                 handle->transport_data.state = U2F_STATE_IDLE;
             }
             break;
