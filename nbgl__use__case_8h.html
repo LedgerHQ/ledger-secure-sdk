@@ -158,6 +158,8 @@ Macros</h2></td></tr>
 <tr class="memitem:ab65c98f1761ae5a746bb0c968ecd2f69"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#ab65c98f1761ae5a746bb0c968ecd2f69">BLIND_OPERATION</a>&#160;&#160;&#160;(1 &lt;&lt; 5)</td></tr>
 <tr class="memdesc:ab65c98f1761ae5a746bb0c968ecd2f69"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is to use in <a class="el" href="nbgl__use__case_8h.html#a2a61232bd0b7a090272a1fd43f3b9f26">nbgl_operationType_t</a> when the operation is "blind" This is used to indicate a warning with a top-right button in review first &amp; last page.  <a href="nbgl__use__case_8h.html#ab65c98f1761ae5a746bb0c968ecd2f69">More...</a><br /></td></tr>
 <tr class="separator:ab65c98f1761ae5a746bb0c968ecd2f69"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1bb517c35291a19d4181fab96595e886"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a1bb517c35291a19d4181fab96595e886">nbgl_useCaseAddressConfirmation</a>(__address,  __callback)&#160;&#160;&#160;    <a class="el" href="nbgl__use__case_8h.html#a96f6cb7190a81c7bd62024dd833b13d5">nbgl_useCaseAddressConfirmationExt</a>(__address, __callback, NULL)</td></tr>
+<tr class="separator:a1bb517c35291a19d4181fab96595e886"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -261,12 +263,14 @@ Functions</h2></td></tr>
 <tr class="separator:adbac3f93e56398d52ec66b39ddaeb230"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3b62619ecd9513f022143c5ac80b5208"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a3b62619ecd9513f022143c5ac80b5208">nbgl_useCaseGetNbPagesForTagValueList</a> (const <a class="el" href="structnbgl__contentTagValueList__t.html">nbgl_contentTagValueList_t</a> *tagValueList)</td></tr>
 <tr class="separator:a3b62619ecd9513f022143c5ac80b5208"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab213de81e58dd8ca6b9460277415fcdc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#ab213de81e58dd8ca6b9460277415fcdc">nbgl_useCaseHome</a> (const char *appName, const <a class="el" href="nbgl__types_8h.html#a7724587bc3e14c498ed49c3e70c365d6">nbgl_icon_details_t</a> *appIcon, const char *tagline, bool withSettings, <a class="el" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a> topRightCallback, <a class="el" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a> quitCallback)</td></tr>
-<tr class="separator:ab213de81e58dd8ca6b9460277415fcdc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a284641028d7e0990b23a74cd3da719ef"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a284641028d7e0990b23a74cd3da719ef">nbgl_useCaseHomeExt</a> (const char *appName, const <a class="el" href="nbgl__types_8h.html#a7724587bc3e14c498ed49c3e70c365d6">nbgl_icon_details_t</a> *appIcon, const char *tagline, bool withSettings, const char *actionButtonText, <a class="el" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a> actionCallback, <a class="el" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a> topRightCallback, <a class="el" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a> quitCallback)</td></tr>
-<tr class="separator:a284641028d7e0990b23a74cd3da719ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5ad3d68b996bd57d99492bf5ec47ba01"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a5ad3d68b996bd57d99492bf5ec47ba01">nbgl_useCaseSettings</a> (const char *settingsTitle, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> initPage, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbPages, bool touchableTitle, <a class="el" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a> quitCallback, <a class="el" href="nbgl__use__case_8h.html#aecfac53e7297f0c1f4fb0341a552e693">nbgl_navCallback_t</a> navCallback, <a class="el" href="nbgl__layout_8h.html#a01348bb7cb5aebd69dcf87806ea58aa7">nbgl_layoutTouchCallback_t</a> controlsCallback)</td></tr>
-<tr class="separator:a5ad3d68b996bd57d99492bf5ec47ba01"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a00cc9c158dad69e47bbe1c960dd512a4"><td class="memItemLeft" align="right" valign="top">DEPRECATED void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a00cc9c158dad69e47bbe1c960dd512a4">nbgl_useCaseHome</a> (const char *appName, const <a class="el" href="nbgl__types_8h.html#a7724587bc3e14c498ed49c3e70c365d6">nbgl_icon_details_t</a> *appIcon, const char *tagline, bool withSettings, <a class="el" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a> topRightCallback, <a class="el" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a> quitCallback)</td></tr>
+<tr class="separator:a00cc9c158dad69e47bbe1c960dd512a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7314c676a299d158e5816d86fb322353"><td class="memItemLeft" align="right" valign="top">DEPRECATED void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a7314c676a299d158e5816d86fb322353">nbgl_useCaseHomeExt</a> (const char *appName, const <a class="el" href="nbgl__types_8h.html#a7724587bc3e14c498ed49c3e70c365d6">nbgl_icon_details_t</a> *appIcon, const char *tagline, bool withSettings, const char *actionButtonText, <a class="el" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a> actionCallback, <a class="el" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a> topRightCallback, <a class="el" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a> quitCallback)</td></tr>
+<tr class="separator:a7314c676a299d158e5816d86fb322353"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a59ad76a085182d27f1a15422a1598de0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a59ad76a085182d27f1a15422a1598de0">nbgl_useCaseNavigableContent</a> (const char *title, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> initPage, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbPages, <a class="el" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a> quitCallback, <a class="el" href="nbgl__use__case_8h.html#aecfac53e7297f0c1f4fb0341a552e693">nbgl_navCallback_t</a> navCallback, <a class="el" href="nbgl__layout_8h.html#a01348bb7cb5aebd69dcf87806ea58aa7">nbgl_layoutTouchCallback_t</a> controlsCallback)</td></tr>
+<tr class="separator:a59ad76a085182d27f1a15422a1598de0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a055de1185df215b4267998a0bc0c9166"><td class="memItemLeft" align="right" valign="top">DEPRECATED void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a055de1185df215b4267998a0bc0c9166">nbgl_useCaseSettings</a> (const char *settingsTitle, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> initPage, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbPages, bool touchableTitle, <a class="el" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a> quitCallback, <a class="el" href="nbgl__use__case_8h.html#aecfac53e7297f0c1f4fb0341a552e693">nbgl_navCallback_t</a> navCallback, <a class="el" href="nbgl__layout_8h.html#a01348bb7cb5aebd69dcf87806ea58aa7">nbgl_layoutTouchCallback_t</a> controlsCallback)</td></tr>
+<tr class="separator:a055de1185df215b4267998a0bc0c9166"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a292507f70703217edf15d694c7b507ac"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a292507f70703217edf15d694c7b507ac">nbgl_useCaseGenericSettings</a> (const char *appName, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> initPage, const <a class="el" href="structnbgl__genericContents__t.html">nbgl_genericContents_t</a> *settingContents, const <a class="el" href="structnbgl__contentInfoList__t.html">nbgl_contentInfoList_t</a> *infosList, <a class="el" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a> quitCallback)</td></tr>
 <tr class="separator:a292507f70703217edf15d694c7b507ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6f689a2dbefa1dd38cff6174bb214b72"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a6f689a2dbefa1dd38cff6174bb214b72">nbgl_useCaseConfirm</a> (const char *message, const char *subMessage, const char *confirmText, const char *rejectText, <a class="el" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a> callback)</td></tr>
@@ -279,10 +283,8 @@ Functions</h2></td></tr>
 <tr class="separator:ac85bc83d4448aa62ec57eed4bf8d1bd0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4a1a6c684a84162bbdff3018017e6d4d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a4a1a6c684a84162bbdff3018017e6d4d">nbgl_useCaseStaticReviewLight</a> (const <a class="el" href="structnbgl__contentTagValueList__t.html">nbgl_contentTagValueList_t</a> *tagValueList, const <a class="el" href="nbgl__page_8h.html#a6160a35cf21d1ddf18bb2638783bd7a5">nbgl_pageInfoLongPress_t</a> *infoLongPress, const char *rejectText, <a class="el" href="nbgl__use__case_8h.html#a57b5d44ce43db8edcc44ff2c7b5014a5">nbgl_choiceCallback_t</a> callback)</td></tr>
 <tr class="separator:a4a1a6c684a84162bbdff3018017e6d4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abb0d60831b55936803dd477cfffa226c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#abb0d60831b55936803dd477cfffa226c">nbgl_useCaseAddressConfirmation</a> (const char *address, <a class="el" href="nbgl__use__case_8h.html#a57b5d44ce43db8edcc44ff2c7b5014a5">nbgl_choiceCallback_t</a> callback)</td></tr>
-<tr class="separator:abb0d60831b55936803dd477cfffa226c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3a27863215e033cb33beca599dadb794"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a3a27863215e033cb33beca599dadb794">nbgl_useCaseAddressConfirmationExt</a> (const char *address, <a class="el" href="nbgl__use__case_8h.html#a57b5d44ce43db8edcc44ff2c7b5014a5">nbgl_choiceCallback_t</a> callback, const <a class="el" href="structnbgl__contentTagValueList__t.html">nbgl_contentTagValueList_t</a> *tagValueList)</td></tr>
-<tr class="separator:a3a27863215e033cb33beca599dadb794"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a96f6cb7190a81c7bd62024dd833b13d5"><td class="memItemLeft" align="right" valign="top">DEPRECATED void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a96f6cb7190a81c7bd62024dd833b13d5">nbgl_useCaseAddressConfirmationExt</a> (const char *address, <a class="el" href="nbgl__use__case_8h.html#a57b5d44ce43db8edcc44ff2c7b5014a5">nbgl_choiceCallback_t</a> callback, const <a class="el" href="structnbgl__contentTagValueList__t.html">nbgl_contentTagValueList_t</a> *tagValueList)</td></tr>
+<tr class="separator:a96f6cb7190a81c7bd62024dd833b13d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a89212f593a06326783ee901b62d21492"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a89212f593a06326783ee901b62d21492">nbgl_useCaseKeypadDigits</a> (const char *title, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> minDigits, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> maxDigits, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> backToken, bool shuffled, tune_index_e tuneId, <a class="el" href="nbgl__use__case_8h.html#afd2b439e2fb2c02ecf03f599ea9aae4a">nbgl_pinValidCallback_t</a> validatePinCallback, <a class="el" href="nbgl__layout_8h.html#a01348bb7cb5aebd69dcf87806ea58aa7">nbgl_layoutTouchCallback_t</a> actionCallback)</td></tr>
 <tr class="separator:a89212f593a06326783ee901b62d21492"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a29799c89a1e92963706ffc97ceee9d5a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a29799c89a1e92963706ffc97ceee9d5a">nbgl_useCaseKeypadPIN</a> (const char *title, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> minDigits, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> maxDigits, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> backToken, bool shuffled, tune_index_e tuneId, <a class="el" href="nbgl__use__case_8h.html#afd2b439e2fb2c02ecf03f599ea9aae4a">nbgl_pinValidCallback_t</a> validatePinCallback, <a class="el" href="nbgl__layout_8h.html#a01348bb7cb5aebd69dcf87806ea58aa7">nbgl_layoutTouchCallback_t</a> actionCallback)</td></tr>
@@ -470,6 +472,36 @@ Functions</h2></td></tr>
 <p>maximum number of lines for value field in review pages </p>
 
 <p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00055">55</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+
+</div>
+</div>
+<a id="a1bb517c35291a19d4181fab96595e886"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1bb517c35291a19d4181fab96595e886">&#9670;&nbsp;</a></span>nbgl_useCaseAddressConfirmation</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define nbgl_useCaseAddressConfirmation</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">__address, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">__callback&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td>&#160;&#160;&#160;    <a class="el" href="nbgl__use__case_8h.html#a96f6cb7190a81c7bd62024dd833b13d5">nbgl_useCaseAddressConfirmationExt</a>(__address, __callback, NULL)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00429">429</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -784,42 +816,14 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="abb0d60831b55936803dd477cfffa226c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abb0d60831b55936803dd477cfffa226c">&#9670;&nbsp;</a></span>nbgl_useCaseAddressConfirmation()</h2>
+<a id="a96f6cb7190a81c7bd62024dd833b13d5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a96f6cb7190a81c7bd62024dd833b13d5">&#9670;&nbsp;</a></span>nbgl_useCaseAddressConfirmationExt()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void nbgl_useCaseAddressConfirmation </td>
-          <td>(</td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>address</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="nbgl__use__case_8h.html#a57b5d44ce43db8edcc44ff2c7b5014a5">nbgl_choiceCallback_t</a>&#160;</td>
-          <td class="paramname"><em>callback</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a3a27863215e033cb33beca599dadb794"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3a27863215e033cb33beca599dadb794">&#9670;&nbsp;</a></span>nbgl_useCaseAddressConfirmationExt()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void nbgl_useCaseAddressConfirmationExt </td>
+          <td class="memname">DEPRECATED void nbgl_useCaseAddressConfirmationExt </td>
           <td>(</td>
           <td class="paramtype">const char *&#160;</td>
           <td class="paramname"><em>address</em>, </td>
@@ -1444,14 +1448,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ab213de81e58dd8ca6b9460277415fcdc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab213de81e58dd8ca6b9460277415fcdc">&#9670;&nbsp;</a></span>nbgl_useCaseHome()</h2>
+<a id="a00cc9c158dad69e47bbe1c960dd512a4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a00cc9c158dad69e47bbe1c960dd512a4">&#9670;&nbsp;</a></span>nbgl_useCaseHome()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void nbgl_useCaseHome </td>
+          <td class="memname">DEPRECATED void nbgl_useCaseHome </td>
           <td>(</td>
           <td class="paramtype">const char *&#160;</td>
           <td class="paramname"><em>appName</em>, </td>
@@ -1560,14 +1564,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a284641028d7e0990b23a74cd3da719ef"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a284641028d7e0990b23a74cd3da719ef">&#9670;&nbsp;</a></span>nbgl_useCaseHomeExt()</h2>
+<a id="a7314c676a299d158e5816d86fb322353"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7314c676a299d158e5816d86fb322353">&#9670;&nbsp;</a></span>nbgl_useCaseHomeExt()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void nbgl_useCaseHomeExt </td>
+          <td class="memname">DEPRECATED void nbgl_useCaseHomeExt </td>
           <td>(</td>
           <td class="paramtype">const char *&#160;</td>
           <td class="paramname"><em>appName</em>, </td>
@@ -1741,6 +1745,58 @@ Functions</h2></td></tr>
           <td></td>
           <td class="paramtype"><a class="el" href="nbgl__layout_8h.html#a01348bb7cb5aebd69dcf87806ea58aa7">nbgl_layoutTouchCallback_t</a>&#160;</td>
           <td class="paramname"><em>actionCallback</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a59ad76a085182d27f1a15422a1598de0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a59ad76a085182d27f1a15422a1598de0">&#9670;&nbsp;</a></span>nbgl_useCaseNavigableContent()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nbgl_useCaseNavigableContent </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>title</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td>
+          <td class="paramname"><em>initPage</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td>
+          <td class="paramname"><em>nbPages</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a>&#160;</td>
+          <td class="paramname"><em>quitCallback</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="nbgl__use__case_8h.html#aecfac53e7297f0c1f4fb0341a552e693">nbgl_navCallback_t</a>&#160;</td>
+          <td class="paramname"><em>navCallback</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="nbgl__layout_8h.html#a01348bb7cb5aebd69dcf87806ea58aa7">nbgl_layoutTouchCallback_t</a>&#160;</td>
+          <td class="paramname"><em>controlsCallback</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -2246,14 +2302,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a5ad3d68b996bd57d99492bf5ec47ba01"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5ad3d68b996bd57d99492bf5ec47ba01">&#9670;&nbsp;</a></span>nbgl_useCaseSettings()</h2>
+<a id="a055de1185df215b4267998a0bc0c9166"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a055de1185df215b4267998a0bc0c9166">&#9670;&nbsp;</a></span>nbgl_useCaseSettings()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void nbgl_useCaseSettings </td>
+          <td class="memname">DEPRECATED void nbgl_useCaseSettings </td>
           <td>(</td>
           <td class="paramtype">const char *&#160;</td>
           <td class="paramname"><em>settingsTitle</em>, </td>
