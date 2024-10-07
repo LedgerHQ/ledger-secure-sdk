@@ -145,3 +145,4 @@
 #define _NR_cx_cmac_start                        0x8d
 #define _NR_cx_cmac_update                       0x8e
 #define _NR_cx_cmac_finish                       0x8f
+#define _NR_cx_aes_siv_reset                     0x90

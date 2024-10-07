@@ -56,6 +56,17 @@ typedef struct _cx_aes_siv_context {
 WARN_UNUSED_RESULT cx_err_t cx_aes_siv_init(cx_aes_siv_context_t *ctx);
 
 /**
+ * @brief   Reset the AES-SIV context and HW used.
+ * @details The cipher context must be initialized beforehand.
+ *          This function must be called after calls to #cx_aes_siv_finish or
+ *          #cx_aes_siv_update.
+ *
+ * @param[in] ctx Pointer to the AES-SIV context.
+ * @return        Error code.
+ */
+WARN_UNUSED_RESULT cx_err_t cx_aes_siv_reset(cx_aes_siv_context_t *ctx);
+
+/**
  * @brief   Sets the key to compute AES-SIV.
  *
  * @details The size of the key is twice the size of
