@@ -1,0 +1,98 @@
+{
+    "LNS": [
+        "nanos_2.1.0"
+    ],
+    "1": [
+        "nanox_2.1.0",
+        "nanos+_1.1.0"
+    ],
+    "2": [
+        "only rc releases"
+    ],
+    "3": [
+        "only rc releases"
+    ],
+    "4": [
+        "only rc releases"
+    ],
+    "5": [
+        "nanox_2.2.0",
+        "nanox_2.2.1",
+        "nanox_2.2.2",
+        "nanox_2.2.3",
+        "nanos+_1.1.1"
+    ],
+    "6": [
+        "only rc releases"
+    ],
+    "7": [
+        "only rc releases"
+    ],
+    "7.1": [
+        "only rc releases"
+    ],
+    "7.2": [
+        "only rc releases"
+    ],
+    "8": [
+        "stax_1.0.0"
+    ],
+    "9": [
+        "only rc releases"
+    ],
+    "10": [
+        "stax_1.1.0"
+    ],
+    "11": [
+        "stax_1.2.0",
+        "stax_1.2.1"
+    ],
+    "12": [
+        "nanox_2.3.0-rc2",
+        "nanos+_1.2.0-rc2"
+    ],
+    "13": [
+        "stax_1.3.0"
+    ],
+    "14": [
+        "only rc releases"
+    ],
+    "15": [
+        "stax_1.4.0"
+    ],
+    "16": [
+        "europa_0.1.0-re1"
+    ],
+    "17": [
+        "europa_0.1.0-re2"
+    ],
+    "18": [
+        "europa_0.1.0-re3",
+        "flex_0.2.0-rc1",
+        "flex_0.2.0-rc2",
+        "nanox_2.3.0-rc5",
+        "nanos+_1.2.0-rc5",
+        "nanos+_1.2.0"
+    ],
+    "19": [
+        "flex_1.0.0-rc1",
+        "flex_1.0.0-rc2",
+        "flex_1.0.0",
+        "flex_1.0.1"
+    ],
+    "20": [
+        "stax_1.5.0-rc1",
+        "flex_1.1.0-rc1"
+    ],
+    "21": [
+        "stax_1.5.0-rc2",
+        "flex_1.1.0-rc2",
+        "stax_1.5.0",
+        "flex_1.1.0",
+        "flex_1.1.1",
+        "nanos+_1.3.0-rc1",
+        "nanox_2.4.0-rc1",
+        "stax_1.6.0-rc1",
+        "flex_1.2.0-rc1"
+    ]
+}
