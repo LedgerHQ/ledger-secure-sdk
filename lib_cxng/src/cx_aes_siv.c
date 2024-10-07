@@ -22,6 +22,19 @@ end:
     return error;
 }
 
+cx_err_t cx_aes_siv_reset(cx_aes_siv_context_t *ctx)
+{
+    cx_err_t error = CX_INVALID_PARAMETER_VALUE;
+    if (ctx->cipher_ctx == NULL) {
+        goto end;
+    }
+    CX_CHECK(ctx->cipher_ctx->cipher_info->base->ctx_reset());
+    cx_cipher_reset(ctx->cipher_ctx);
+
+end:
+    return error;
+}
+
 cx_err_t cx_aes_siv_set_key(cx_aes_siv_context_t *ctx, const uint8_t *key, size_t key_bitlen)
 {
     // AES SIV uses two keys of either 128, 192 or 256 bits each
@@ -156,12 +169,14 @@ cx_err_t cx_aes_siv_encrypt(cx_aes_siv_context_t *ctx,
                             uint8_t              *tag)
 {
     cx_err_t error;
+    cx_err_t err_reset = CX_INTERNAL_ERROR;
     CX_CHECK(cx_aes_siv_start(ctx, CX_ENCRYPT, NULL, 0));
     CX_CHECK(cx_aes_siv_update_aad(ctx, aad, aad_len));
     CX_CHECK(cx_aes_siv_finish(ctx, input, in_len, tag));
     CX_CHECK(cx_aes_siv_update(ctx, input, output, in_len));
 end:
-    return error;
+    err_reset = cx_aes_siv_reset(ctx);
+    return error == CX_OK ? err_reset : error;
 }
 
 cx_err_t cx_aes_siv_decrypt(cx_aes_siv_context_t *ctx,
@@ -173,14 +188,16 @@ cx_err_t cx_aes_siv_decrypt(cx_aes_siv_context_t *ctx,
                             uint8_t              *tag)
 {
     cx_err_t error;
+    cx_err_t err_reset = CX_INTERNAL_ERROR;
     CX_CHECK(cx_aes_siv_start(ctx, CX_DECRYPT, tag, CX_AES_BLOCK_SIZE));
     CX_CHECK(cx_aes_siv_update(ctx, input, output, in_len));
-    cx_cipher_reset(ctx->cipher_ctx);
+    CX_CHECK(cx_aes_siv_reset(ctx));
     CX_CHECK(cx_aes_siv_update_aad(ctx, aad, aad_len));
     CX_CHECK(cx_aes_siv_finish(ctx, output, in_len, tag));
 
 end:
-    return error;
+    err_reset = cx_aes_siv_reset(ctx);
+    return error == CX_OK ? err_reset : error;
 }
 
 #endif  // HAVE_AES && HAVE_CMAC

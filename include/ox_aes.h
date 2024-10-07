@@ -99,7 +99,7 @@ cx_aes_set_key_hw(const cx_aes_key_t *key PLENGTH(sizeof(cx_aes_key_t)), uint32_
 /**
  * @brief   Resets the AES context.
  */
-SYSCALL void cx_aes_reset_hw(void);
+SYSCALL cx_err_t cx_aes_reset_hw(void);
 
 /**
  * @brief   Encrypts or decrypts a block with AES.

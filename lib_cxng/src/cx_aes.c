@@ -28,21 +28,24 @@ cx_err_t cx_aes_init_key_no_throw(const uint8_t *raw_key, size_t key_len, cx_aes
 cx_err_t cx_aes_enc_block(const cx_aes_key_t *key, const uint8_t *inblock, uint8_t *outblock)
 {
     cx_err_t error;
+    cx_err_t err_reset = CX_INTERNAL_ERROR;
     CX_CHECK(cx_aes_set_key_hw(key, CX_ENCRYPT));
     CX_CHECK(cx_aes_block_hw(inblock, outblock));
-    cx_aes_reset_hw();
 end:
-    return error;
+    err_reset = cx_aes_reset_hw();
+    return error == CX_OK ? err_reset : error;
 }
 
 cx_err_t cx_aes_dec_block(const cx_aes_key_t *key, const uint8_t *inblock, uint8_t *outblock)
 {
     cx_err_t error;
+    cx_err_t err_reset = CX_INTERNAL_ERROR;
+    CX_CHECK(cx_aes_set_key_hw(key, CX_ENCRYPT));
     CX_CHECK(cx_aes_set_key_hw(key, CX_DECRYPT));
     CX_CHECK(cx_aes_block_hw(inblock, outblock));
-    cx_aes_reset_hw();
 end:
-    return error;
+    err_reset = cx_aes_reset_hw();
+    return error == CX_OK ? err_reset : error;
 }
 
 cx_err_t cx_aes_iv_no_throw(const cx_aes_key_t *key,
