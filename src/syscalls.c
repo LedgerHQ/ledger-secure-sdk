@@ -1835,13 +1835,12 @@ void nvm_write_page(unsigned int page_adr, bool force)
     return;
 }
 
-void nvm_erase_page(unsigned int page_adr)
+unsigned int nvm_erase_page(unsigned int page_adr)
 {
     unsigned int parameters[2];
     parameters[0] = (unsigned int) page_adr;
     parameters[1] = 0;
-    SVC_Call(SYSCALL_nvm_erase_page_ID, parameters);
-    return;
+    return (unsigned int) SVC_Call(SYSCALL_nvm_erase_page_ID, parameters);
 }
 
 try_context_t *try_context_get(void)
