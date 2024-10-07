@@ -246,6 +246,7 @@ typedef struct io_seph_s {
     unsigned short  apdu_length;  // total length to be received
     unsigned short  io_flags;     // flags to be set when calling io_exchange
     io_apdu_media_t apdu_media;
+    io_apdu_media_t apdu_media_lock;
 
     unsigned int ms;
 
@@ -285,10 +286,28 @@ extern io_seph_app_t G_io_app;
  */
 void io_task(void);
 /**
- * IO task initializez
+ * IO task initialize
  */
 void io_start(void);
 #endif  // HAVE_IO_TASK
+
+/**
+ * Lock apdu source to a media
+ * After this function is called, all subsequent apdus
+ * that come from any other media will be refused
+ */
+void io_apdu_media_lock(io_apdu_media_t media);
+/**
+ * Unlock apdu source.
+ * After this function is called, apdus any media will be processed
+ */
+void io_apdu_media_unlock(void);
+/**
+ * Check if an Apdu media shall be accepted.
+ * Return true if source media is not locked or if the media corresponds to the current lock
+ * Return false if media doesn't correspond to the current lock
+ */
+bool io_apdu_is_media_accepted(io_apdu_media_t media);
 
 void io_seproxyhal_setup_ticker(unsigned int interval_ms);
 void io_seproxyhal_power_off(bool criticalBattery);

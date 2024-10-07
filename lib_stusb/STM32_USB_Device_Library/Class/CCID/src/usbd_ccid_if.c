@@ -138,7 +138,9 @@ void CCID_BulkMessage_In (USBD_HandleTypeDef  *pdev,
         // not timeout compliant // USBD_LL_PrepareReceive(pdev, CCID_BULK_OUT_EP, CCID_BULK_EPOUT_SIZE);
 
         // mark transfer as completed
-        G_io_app.apdu_state = APDU_IDLE;
+        if (G_io_app.apdu_state == APDU_USB_CCID){
+          G_io_app.apdu_state = APDU_IDLE;
+        }
       }
 
       // if remaining length is < EPIN_SIZE: send packet and prepare to receive a new command
