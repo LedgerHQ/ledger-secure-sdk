@@ -188,8 +188,9 @@ void nbgl_screen_reinit(void)
 {
     return;
 }
-
 #ifdef HAVE_SE_TOUCH
+void nbgl_touchInit(void) {}
+
 static void test_draw_obj(void **state __attribute__((unused)))
 {
     nbgl_image_t          *image;
