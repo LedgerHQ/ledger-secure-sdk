@@ -179,7 +179,7 @@ int os_io_seph_cmd_set_ship_mode(void)
 #endif  // HAVE_SHIP_MODE
 
 #ifdef HAVE_PRINTF
-void os_io_seph_cmd_printf(const char *str, unsigned int charcount)
+void os_io_seph_cmd_printf(const char *str, uint16_t charcount)
 {
     unsigned char hdr[3];
     hdr[0] = SEPROXYHAL_TAG_PRINTF;
@@ -189,6 +189,19 @@ void os_io_seph_cmd_printf(const char *str, unsigned int charcount)
     os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, (const uint8_t *) str, charcount, NULL);
 }
 #endif  // HAVE_PRINTF
+
+#ifdef HAVE_SE_TOUCH
+int os_io_seph_cmd_set_touch_state(uint8_t enable)
+{
+    uint8_t buffer[4];
+    buffer[0] = SEPROXYHAL_TAG_SET_TOUCH_STATE;
+    buffer[1] = 0;
+    buffer[2] = 1;
+    buffer[3] = (enable ? 0x00 : 0x01);
+
+    return os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 4, NULL);
+}
+#endif  // HAVE_SE_TOUCH
 
 #ifdef HAVE_PIEZO_SOUND
 int os_io_seph_cmd_piezo_play_tune(tune_index_e tune_index)
@@ -260,7 +273,7 @@ int os_io_seph_cmd_ble_start_factory_test(void)
     buffer[3] = SEPROXYHAL_TAG_BLE_RADIO_POWER_FACTORY_TEST;
     return os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 4, NULL);
 }
-int os_io_ble_cmd_enable(unsigned char enable)
+int os_io_ble_cmd_enable(uint8_t enable)
 {
     uint8_t buffer[4];
     buffer[0] = SEPROXYHAL_TAG_ITC_CMD;

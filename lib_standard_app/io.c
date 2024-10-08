@@ -154,7 +154,8 @@ WEAK int io_recv_command()
                         }
                         G_io_tx_buffer[buffer_out_length++] = err >> 8;
                         G_io_tx_buffer[buffer_out_length++] = err;
-                        status = os_io_tx_cmd(G_rx_packet_type, G_io_tx_buffer, buffer_out_length, 0);
+                        status
+                            = os_io_tx_cmd(G_rx_packet_type, G_io_tx_buffer, buffer_out_length, 0);
                         if (post_action == OS_IO_APDU_POST_ACTION_EXIT) {
                             os_sched_exit(-1);
                         }

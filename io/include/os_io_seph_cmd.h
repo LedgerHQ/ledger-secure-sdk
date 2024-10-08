@@ -50,8 +50,12 @@ int os_io_seph_cmd_set_ship_mode(void);
 #endif  // HAVE_SHIP_MODE
 
 #ifdef HAVE_PRINTF
-void os_io_seph_cmd_printf(const char *str, unsigned int charcount);
+void os_io_seph_cmd_printf(const char *str, uint16_t charcount);
 #endif  // HAVE_PRINTF
+
+#ifdef HAVE_SE_TOUCH
+int os_io_seph_cmd_set_touch_state(uint8_t enable);
+#endif  // HAVE_SE_TOUCH
 
 #ifdef HAVE_PIEZO_SOUND
 int os_io_seph_cmd_piezo_play_tune(tune_index_e tune_index);
@@ -67,7 +71,7 @@ void os_io_seph_cmd_spi_cs(uint8_t select);
 
 #ifdef HAVE_BLE
 int  os_io_seph_cmd_ble_start_factory_test(void);
-int  os_io_ble_cmd_enable(unsigned char enable);
+int  os_io_ble_cmd_enable(uint8_t enable);
 int  os_io_ble_cmd_clear_bond_db(void);
 int  os_io_ble_cmd_name_changed(void);
 int  os_io_ux_cmd_ble_accept_pairing(uint8_t status);

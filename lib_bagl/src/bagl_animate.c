@@ -346,4 +346,3 @@ void bagl_animation_step(bagl_anim_t *anim)
             break;
     };
 }
-

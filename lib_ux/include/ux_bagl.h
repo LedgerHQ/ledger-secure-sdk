@@ -208,7 +208,7 @@ void ux_stack_al_display_next_element(unsigned int stack_slot);
 void ux_stack_redisplay(void);
 
 const bagl_element_t *ux_stack_display_element_callback(const bagl_element_t *element);
-void ux_stack_display_elements(ux_stack_slot_t *slot);
+void                  ux_stack_display_elements(ux_stack_slot_t *slot);
 
 #ifdef HAVE_UX_LEGACY
 // a menu callback is called with a given userid provided within the menu entry to allow for fast

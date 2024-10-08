@@ -99,7 +99,6 @@ typedef struct bagl_anim_s {
     };
 } bagl_anim_t;
 
-
 /**
  * Initialize a label animation.
  */

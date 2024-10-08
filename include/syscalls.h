@@ -248,7 +248,7 @@
 #endif  // HAVE_BRIGHTNESS_SYSCALL
 #define SYSCALL_bagl_hal_draw_bitmap_within_rect_ID 0x0900007c
 #define SYSCALL_bagl_hal_draw_rect_ID               0x0500007d
-#endif // HAVE_SE_SCREEN
+#endif  // HAVE_SE_SCREEN
 
 #ifdef HAVE_BLE
 #define SYSCALL_os_ux_set_status_ID_IN 0x02000134
