@@ -3,7 +3,7 @@
 #pragma once
 
 /* Includes ------------------------------------------------------------------*/
-#include "ux.h"
+#include "decorators.h"
 
 #ifdef HAVE_BAGL
 #include "ux_bagl.h"
@@ -30,7 +30,7 @@ typedef enum {
 } os_io_touch_debug_mode_t;
 
 /* Exported types, structures, unions ----------------------------------------*/
-#ifdef HAVE_SE_TOUCH
+
 typedef struct io_touch_info_s {
     uint16_t x;
     uint16_t y;
@@ -39,7 +39,6 @@ typedef struct io_touch_info_s {
     uint8_t  h;
     uint8_t  swipe;
 } io_touch_info_t;
-#endif  // HAVE_SE_TOUCH
 
 /* Exported defines   --------------------------------------------------------*/
 #define SERIALIZED_NBGL_MAX_LEN (100)
@@ -49,10 +48,9 @@ typedef struct io_touch_info_s {
 /* Exported variables --------------------------------------------------------*/
 
 /* Exported functions prototypes--------------------------------------------- */
-void         io_seph_ux_init_button(void);
-void         io_process_itc_ux_event(uint8_t *buffer_in, size_t buffer_in_length);
-void         io_process_event(uint8_t *buffer_in, size_t buffer_in_length);
-unsigned int os_ux_blocking(bolos_ux_params_t *params);
+void io_seph_ux_init_button(void);
+void io_process_itc_ux_event(uint8_t *buffer_in, size_t buffer_in_length);
+void io_process_event(uint8_t *buffer_in, size_t buffer_in_length);
 
 #ifdef HAVE_BAGL
 void io_seph_ux_display_bagl_element(const bagl_element_t *element);

@@ -177,7 +177,6 @@ static void init_mngr(uint8_t *hci_buffer, uint16_t length)
         }
     }
 
-
     ble_ledger_data.init_step++;
 
     switch (ble_ledger_data.init_step) {

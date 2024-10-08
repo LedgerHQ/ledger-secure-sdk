@@ -12,6 +12,7 @@
 #include "usbd_ledger_cdc.h"
 #include "os_io_seph_cmd.h"
 #include "seproxyhal_protocol.h"
+#include "hal_timers.h"
 
 #pragma GCC diagnostic ignored "-Wcast-qual"
 
@@ -474,6 +475,7 @@ void USBD_LEDGER_start(uint16_t pid, uint16_t vid, char *name, uint16_t class_ma
         USBD_Init(&usbd_ledger_data.usbd_handle, (USBD_DescriptorsTypeDef *) &LEDGER_Desc, 0);
         USBD_RegisterClass(&usbd_ledger_data.usbd_handle, (USBD_ClassTypeDef *) &USBD_LEDGER_CLASS);
         USBD_Start(&usbd_ledger_data.usbd_handle);
+        os_delay_ms(400);
         usbd_ledger_data.classes = class_mask;
     }
 }

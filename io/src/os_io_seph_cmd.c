@@ -197,7 +197,7 @@ int os_io_seph_cmd_set_touch_state(uint8_t enable)
     buffer[0] = SEPROXYHAL_TAG_SET_TOUCH_STATE;
     buffer[1] = 0;
     buffer[2] = 1;
-    buffer[3] = (enable ? 0x00 : 0x01);
+    buffer[3] = (enable ? 0x01 : 0x00);
 
     return os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 4, NULL);
 }

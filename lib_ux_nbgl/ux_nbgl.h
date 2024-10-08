@@ -27,11 +27,12 @@
 #include "os_task.h"
 #include "nbgl_screen.h"
 #include "nbgl_touch.h"
+#include "seproxyhal_protocol.h"
 
 #include <string.h>
 
-#define BUTTON_LEFT  1
-#define BUTTON_RIGHT 2
+#define BUTTON_LEFT  SEPROXYHAL_TAG_BUTTON_PUSH_EVENT_LEFT
+#define BUTTON_RIGHT SEPROXYHAL_TAG_BUTTON_PUSH_EVENT_RIGHT
 
 /**
  * Common structure for applications to perform asynchronous UX aside IO operations

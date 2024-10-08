@@ -122,7 +122,7 @@ static uint8_t nbTouchableControls = 0;
 /**********************
  *  STATIC PROTOTYPES
  **********************/
-extern const char *get_ux_loc_string(UX_LOC_STRINGS_INDEX index);
+// extern const char *get_ux_loc_string(UX_LOC_STRINGS_INDEX index);
 
 #ifdef HAVE_FAST_HOLD_TO_APPROVE
 // Unit step in % of touchable progress bar

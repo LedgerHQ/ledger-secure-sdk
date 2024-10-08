@@ -88,7 +88,7 @@ static u2f_error_t process_packet(u2f_transport_t *handle, uint8_t *buffer, uint
             goto end;
         }
 
-        // Check packet will fit in the rx buffer
+        // Check if packet will fit in the rx buffer
         handle->rx_message_length = (uint16_t) U2BE(buffer, 1) + 3;
         if (handle->rx_message_length > handle->rx_message_buffer_size) {
             error = CTAP1_ERR_OTHER;
