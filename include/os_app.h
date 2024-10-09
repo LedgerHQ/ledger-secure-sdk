@@ -28,6 +28,9 @@ typedef void (*appmain_t)(void);
 
 // application slot description
 typedef struct application_s {
+    // special flags for this application
+    uint64_t flags;
+
     // nvram start address for this application (to check overlap when loading, and mpu lock)
     unsigned char *nvram_begin;
     // nvram stop address (exclusive) for this application (to check overlap when loading, and mpu
@@ -37,9 +40,6 @@ typedef struct application_s {
     // address of the main address, must be set according to BLX spec ( ORed with 1 when jumping
     // into Thumb code
     appmain_t main;
-
-    // special flags for this application
-    uint64_t flags;
 
     // Memory organization: [ code (RX) |alignpage| data (RW) |alignpage| install params (R) ]
 
