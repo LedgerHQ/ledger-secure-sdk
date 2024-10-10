@@ -218,8 +218,11 @@ APP_FLAGS_APP_LOAD_PARAMS = $(shell printf '0x%x' $$(( $(STANDARD_APP_FLAGS) + $
 #                         COMPILER SETTINGS                         #
 #####################################################################
 CC      := $(CLANGPATH)clang
-AS      := $(GCCPATH)arm-none-eabi-gcc
-LD      := $(GCCPATH)arm-none-eabi-gcc
+AS      := $(CLANGPATH)clang
+LD      := $(CLANGPATH)clang
+ifeq ($(AS),$(CLANGPATH)clang)
+    AFLAGS  += --target=arm-arm-none-eabi -Wno-unused-command-line-argument
+endif
 LDLIBS  += -lm -lgcc -lc
 
 #####################################################################

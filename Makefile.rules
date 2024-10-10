@@ -89,4 +89,25 @@ OBJECTS_DIR += $(sort $(dir $(OBJECT_FILES)))
 DEPEND_FILES = $(subst $(OBJ_DIR), $(DEP_DIR), $(addsuffix .d, $(basename $(OBJECT_FILES))))
 DEPEND_DIR += $(sort $(dir $(DEPEND_FILES)))
 
+# optimization and debug levels
+# this should be in Makefile.defines, but $(AS) is not yet defined at that point
+ifneq ($(DEBUG),0)
+    OPTI_LVL  = -Og
+    OPTI_ALVL = $(OPTI_LVL)
+    DBG_LVL   = -g3
+else
+    OPTI_LVL  = -Oz
+    ifeq ($(AS),$(CLANGPATH)clang)
+        OPTI_ALVL = $(OPTI_LVL)
+    else
+        # GCC assembler does not handle -Oz
+        OPTI_ALVL = -Os
+    endif
+    DBG_LVL   = -g0
+endif
+# at the beginning so they can be overridden by apps
+CFLAGS   := $(OPTI_LVL) $(DBG_LVL) $(CFLAGS)
+AFLAGS   := $(OPTI_ALVL) $(DBG_LVL) $(AFLAGS)
+LDFLAGS  := $(OPTI_LVL) $(DBG_LVL) $(LDFLAGS)
+
 include $(BOLOS_SDK)/Makefile.rules_generic
