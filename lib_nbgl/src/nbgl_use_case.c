@@ -48,9 +48,8 @@
 #define QRCODE_REDUCED_ADDR_LEN 128
 
 // macros to ease access to shared contexts
-#define keypadContext              sharedContext.keypad
-#define addressConfirmationContext sharedContext.addressConfirmation
-#define blindSigningContext        sharedContext.blindSigning
+#define keypadContext       sharedContext.keypad
+#define blindSigningContext sharedContext.blindSigning
 
 /**********************
  *      TYPEDEFS
@@ -119,13 +118,12 @@ typedef struct BlindSigningContext_s {
 } BlindSigningContext_t;
 
 // this union is intended to save RAM for context storage
-// indeed, these three contexts cannot happen simultaneously
+// indeed, these 2 contexts cannot happen simultaneously
 typedef union {
 #ifdef NBGL_KEYPAD
     KeypadContext_t keypad;
 #endif
-    AddressConfirmationContext_t addressConfirmation;
-    BlindSigningContext_t        blindSigning;
+    BlindSigningContext_t blindSigning;
 } SharedContext_t;
 
 typedef struct {
@@ -215,6 +213,9 @@ static DetailsContext_t detailsContext;
 
 // multi-purpose context shared for non-concurrent usages
 static SharedContext_t sharedContext;
+
+// context for address review
+static AddressConfirmationContext_t addressConfirmationContext;
 
 // contexts for generic navigation
 static GenericContext_t genericContext;
@@ -713,7 +714,9 @@ static const nbgl_content_t *genericContextComputeNextPageParams(uint8_t        
 
         // Handle case where the content to be displayed is in the next content
         // In such case start at element index 0.
-        if (nextElementIdx >= genericContext.currentContentElementNb) {
+        // If currentContentElementNb == 0, means not initialized, so skip
+        if ((nextElementIdx >= genericContext.currentContentElementNb)
+            && (genericContext.currentContentElementNb > 0)) {
             nextContentIdx += 1;
             nextElementIdx = 0;
         }
