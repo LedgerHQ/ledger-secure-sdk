@@ -1926,11 +1926,11 @@ bolos_bool_t CERT_get(customca_data_t *custom_ca)
     return ret;
 }
 
-void CERT_revoke(void)
+void CERT_erase(void)
 {
     unsigned int parameters[1];
     parameters[0] = 0;
-    SVC_Call(SYSCALL_CERT_custom_ca_revoke_ID, parameters);
+    SVC_Call(SYSCALL_CERT_erase_ID, parameters);
     return;
 }
 #endif  // HAVE_CUSTOM_CA_DETAILS_IN_SETTINGS
