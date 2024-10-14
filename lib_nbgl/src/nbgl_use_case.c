@@ -1146,12 +1146,24 @@ static void displayFullValuePage(const nbgl_contentTagValue_t *pair)
                                                   .backAndText.token  = 0,
                                                   .backAndText.tuneId = TUNE_TAP_CASUAL,
                                                   .backAndText.text   = PIC(pair->item)};
-    const char              *info;
-    genericContext.modalLayout = nbgl_layoutGet(&layoutDescription);
+    genericContext.modalLayout                 = nbgl_layoutGet(&layoutDescription);
     // add header with the tag part of the pair, to go back
     nbgl_layoutAddHeader(genericContext.modalLayout, &headerDesc);
-    // add full value text
-    if (pair->extension->explanation == NULL) {
+    // add either QR Code or full value text
+    if (pair->extension->aliasType == QR_CODE_ALIAS) {
+#ifdef NBGL_QRCODE
+        nbgl_layoutQRCode_t qrCode = {.url      = pair->extension->fullValue,
+                                      .text1    = pair->extension->fullValue,
+                                      .text2    = pair->extension->explanation,
+                                      .centered = true,
+                                      .offsetY  = 0};
+
+        nbgl_layoutAddQRCode(genericContext.modalLayout, &qrCode);
+#endif  // NBGL_QRCODE
+    }
+    else {
+        const char *info;
+        // add full value text
         if (pair->extension->aliasType == ENS_ALIAS) {
             info = "ENS names are resolved by Ledger backend.";
         }
@@ -1159,15 +1171,11 @@ static void displayFullValuePage(const nbgl_contentTagValue_t *pair)
             info = "This account label comes from your Address Book in Ledger Live.";
         }
         else {
-            info = "";
+            info = pair->extension->explanation;
         }
+        nbgl_layoutAddTextContent(
+            genericContext.modalLayout, pair->value, pair->extension->fullValue, info);
     }
-    else {
-        info = pair->extension->explanation;
-    }
-    nbgl_layoutAddTextContent(
-        genericContext.modalLayout, pair->value, pair->extension->fullValue, info);
-
     // draw & refresh
     nbgl_layoutDraw(genericContext.modalLayout);
     nbgl_refresh();
