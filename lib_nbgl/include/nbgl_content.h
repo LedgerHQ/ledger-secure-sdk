@@ -123,8 +123,10 @@ typedef struct {
  *
  */
 typedef enum {
-    ENS_ALIAS = 0,      ///< alias comes from ENS
-    ADDRESS_BOOK_ALIAS  ///< alias comes from Address Book
+    NO_ALIAS_TYPE = 0,
+    ENS_ALIAS,           ///< alias comes from ENS
+    ADDRESS_BOOK_ALIAS,  ///< alias comes from Address Book
+    QR_CODE_ALIAS        ///< alias is an address to be displayed as a QR Code
 } nbgl_contentValueAliasType_t;
 
 /**
@@ -134,7 +136,7 @@ typedef enum {
 typedef struct {
     const char *fullValue;    ///< full string of the value when used as an alias
     const char *explanation;  ///< string displayed in gray, explaing where the alias comes from
-                              ///< if NULL, a default explanation is provided, depending of the type
+                              ///< only used if aliasType is @ref NO_ALIAS_TYPE
     nbgl_contentValueAliasType_t aliasType;  ///< type of alias
 } nbgl_contentValueExt_t;
 
