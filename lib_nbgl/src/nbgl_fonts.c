@@ -44,7 +44,6 @@ static nbgl_unicode_ctx_t unicodeCtx = {0};
 static const LANGUAGE_PACK *language_pack;
 #endif  // HAVE_LANGUAGE_PACK
 
-#if defined(BOLOS_OS_UPGRADER_APP)
 #ifdef SCREEN_SIZE_WALLET
 #ifdef TARGET_STAX
 #include "nbgl_font_inter_regular_24.inc"
@@ -67,14 +66,13 @@ static const LANGUAGE_PACK *language_pack;
 #include "nbgl_font_open_sans_light_16.inc"
 #endif  // SCREEN_SIZE_WALLET
 
-const nbgl_font_t *const C_nbgl_fonts[] = {
+__attribute__((section("._nbgl_fonts_"))) const nbgl_font_t *const C_nbgl_fonts[] = {
 
 #include "nbgl_font_rom_struct.inc"
 
 };
-const unsigned int C_nbgl_fonts_count = sizeof(C_nbgl_fonts) / sizeof(C_nbgl_fonts[0]);
-
-#endif
+__attribute__((section("._nbgl_fonts_"))) const unsigned int C_nbgl_fonts_count
+    = sizeof(C_nbgl_fonts) / sizeof(C_nbgl_fonts[0]);
 
 #if (defined(HAVE_BOLOS) && !defined(BOLOS_OS_UPGRADER_APP))
 #if !defined(HAVE_LANGUAGE_PACK)
@@ -116,7 +114,6 @@ bool hard_caesura = false;
  * @param fontId font ID
  * @return the found font or NULL
  */
-#if defined(BOLOS_OS_UPGRADER_APP)
 const nbgl_font_t *nbgl_getFont(nbgl_font_id_e fontId)
 {
     unsigned int i = C_nbgl_fonts_count;
@@ -132,12 +129,7 @@ const nbgl_font_t *nbgl_getFont(nbgl_font_id_e fontId)
     // id not found
     return NULL;
 }
-#else
-const nbgl_font_t *nbgl_getFont(nbgl_font_id_e fontId)
-{
-    return nbgl_font_getFont(fontId);
-}
-#endif  // BOLOS_OS_UPGRADER_APP
+
 /**
  * @brief Get the coming unicode value on the given UTF-8 string. If the value is a simple ASCII
  * character, is_unicode is set to false.

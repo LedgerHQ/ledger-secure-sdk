@@ -14,6 +14,7 @@
 #include "nbgl_front.h"
 #include "nbgl_debug.h"
 #include "nbgl_screen.h"
+#include "nbgl_touch.h"
 #include "os_print.h"
 #include "os_helpers.h"
 #include "os_pic.h"
@@ -1629,12 +1630,17 @@ void nbgl_refreshReset(void)
 
 /**
  * @brief This functions inits all internal of nbgl objects layer
+ * @note it is supposed to be called only from App
  *
  */
 void nbgl_objInit(void)
 {
     // init area to the smallest size
     nbgl_refreshReset();
+    objDrawingDisabled = false;
+#ifdef HAVE_SE_TOUCH
+    nbgl_touchInit(false);
+#endif
 }
 
 /**
@@ -1645,4 +1651,35 @@ void nbgl_objInit(void)
 void nbgl_objAllowDrawing(bool enable)
 {
     objDrawingDisabled = !enable;
+}
+
+/**
+ * @brief This function is used to get the all purpose RAM buffer
+ *
+ * @return a pointer to the all purpose RAM buffer
+ */
+uint8_t *nbgl_objGetRAMBuffer(void)
+{
+    return ramBuffer;
+}
+
+/**
+ * @brief This function returns true if the object belongs to a UxScreen
+ *
+ * @return true if the object belongs to a UxScreen
+ */
+bool nbgl_objIsUx(nbgl_obj_t *obj)
+{
+    nbgl_obj_t *parent = obj;
+    // search screen in parenthood
+    while (parent->parent != NULL) {
+        parent = parent->parent;
+    }
+    if (parent->type == SCREEN) {
+        return (((nbgl_screen_t *) parent)->isUxScreen);
+    }
+    else {
+        // should never happen
+        return true;
+    }
 }

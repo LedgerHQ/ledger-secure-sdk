@@ -13,6 +13,9 @@
 #include "glyphs.h"
 #include "os_pic.h"
 #include "ux.h"
+#ifdef HAVE_LANGUAGE_PACK
+#include "bolos_ux_loc_strings.h"
+#endif  // HAVE_LANGUAGE_PACK
 
 /*********************
  *      DEFINES
