@@ -1778,6 +1778,9 @@ static void useCaseReview(nbgl_operationType_t              operationType,
     prepareReviewFirstPage(
         &STARTING_CONTENT.content.extendedCenter.contentCenter, icon, reviewTitle, reviewSubTitle);
     if (tipBox != NULL) {
+        // do not display "Swipe to review" if a tip-box is displayed
+        STARTING_CONTENT.content.extendedCenter.contentCenter.subText = NULL;
+
         STARTING_CONTENT.content.extendedCenter.tipBox.icon   = tipBox->icon;
         STARTING_CONTENT.content.extendedCenter.tipBox.text   = tipBox->text;
         STARTING_CONTENT.content.extendedCenter.tipBox.token  = TIP_BOX_TOKEN;
@@ -1785,7 +1788,9 @@ static void useCaseReview(nbgl_operationType_t              operationType,
         tipBoxModalTitle                                      = tipBox->modalTitle;
         // the only supported type yet is @ref INFOS_LIST
         if (tipBox->type == INFOS_LIST) {
-            memcpy(&tipBoxInfoList, &tipBox->infos, sizeof(nbgl_contentInfoList_t));
+            tipBoxInfoList.nbInfos      = tipBox->infos.nbInfos;
+            tipBoxInfoList.infoTypes    = PIC(tipBox->infos.infoTypes);
+            tipBoxInfoList.infoContents = PIC(tipBox->infos.infoContents);
         }
     }
 
