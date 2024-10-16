@@ -593,6 +593,11 @@ int nbgl_layoutAddTopRightButton(nbgl_layout_t             *layout,
 int nbgl_layoutAddTouchableBar(nbgl_layout_t *layout, const nbgl_layoutBar_t *barLayout);
 int nbgl_layoutAddSwitch(nbgl_layout_t *layout, const nbgl_layoutSwitch_t *switchLayout);
 int nbgl_layoutAddText(nbgl_layout_t *layout, const char *text, const char *subText);
+int nbgl_layoutAddTextWithAlias(nbgl_layout_t *layout,
+                                const char    *text,
+                                const char    *subText,
+                                uint8_t        token,
+                                uint8_t        index);
 int nbgl_layoutAddSubHeaderText(nbgl_layout_t *layout, const char *text);
 int nbgl_layoutAddRadioChoice(nbgl_layout_t *layout, const nbgl_layoutRadioChoice_t *choices);
 int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info);

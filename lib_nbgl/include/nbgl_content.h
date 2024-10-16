@@ -266,7 +266,14 @@ typedef struct nbgl_pageSwitchesList_s {
 typedef struct {
     const char *const *infoTypes;     ///< array of types of infos (in black/bold)
     const char *const *infoContents;  ///< array of contents of infos (in black)
-    uint8_t            nbInfos;       ///< number of elements in infoTypes and infoContents array
+    const nbgl_contentValueExt_t
+        *infoExtensions;  ///< if not NULL, gives additional info on type field
+                          ///< any {0} element of this array is considered as invalid
+    uint8_t nbInfos;      ///< number of elements in infoTypes and infoContents array
+    uint8_t token;  ///< token to use with extensions, if withExtensions is true and infoExtensions
+                    ///< is not NULL
+    bool withExtensions;  /// if set to TRUE and if infoExtensions is not NULL, use this
+                          /// infoExtensions field
 } nbgl_contentInfoList_t;
 
 /**
