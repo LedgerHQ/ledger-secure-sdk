@@ -79,8 +79,6 @@ CFLAGS   += -fropi
 CFLAGS   += -fno-jump-tables # avoid jump tables for switch to avoid problems with invalid PIC access
 CFLAGS   += -nostdlib -nodefaultlibs
 
-AFLAGS   += -fno-common
-
 LDFLAGS  += -fomit-frame-pointer
 LDFLAGS  += -Wall
 LDFLAGS  += -fno-common -ffunction-sections -fdata-sections -fwhole-program
@@ -90,7 +88,7 @@ LDFLAGS  += -Wl,--gc-sections -Wl,-Map,$(DBG_DIR)/app.map
 ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOS))
 CFLAGS   += --target=armv6m-none-eabi -mthumb
 CFLAGS   += -mcpu=cortex-m0plus -mthumb  -mtune=cortex-m0plus
-AFLAGS   += -mcpu=cortex-m0plus -mtune=cortex-m0plus -mthumb
+AFLAGS   += -mcpu=cortex-m0plus -mthumb
 LDFLAGS  += -mcpu=cortex-m0plus -mthumb
 LDFLAGS  += -nostartfiles --specs=nano.specs
 endif
@@ -104,7 +102,7 @@ LDFLAGS  += -mtune=cortex-m0plus -mlittle-endian  -mcpu=cortex-m0plus
 LDFLAGS  += -nostdlib -nodefaultlibs #-nostartfiles
 LDFLAGS  += -mno-movt
 LDFLAGS  += -L$(BOLOS_SDK)/arch/st33/lib/
-AFLAGS   += -mcpu=cortex-m0plus -mtune=cortex-m0plus -mthumb
+AFLAGS   += -mcpu=cortex-m0plus -mthumb
 endif
 
 ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_STAX TARGET_FLEX TARGET_NANOS2))
