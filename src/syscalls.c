@@ -252,11 +252,11 @@ cx_err_t cx_aes_set_key_hw(const cx_aes_key_t *keys, uint32_t mode)
     return SVC_cx_call(SYSCALL_cx_aes_set_key_hw_ID, parameters);
 }
 
-void cx_aes_reset_hw(void)
+cx_err_t cx_aes_reset_hw(void)
 {
     unsigned int parameters[2];
     parameters[1] = 0;
-    SVC_cx_call(SYSCALL_cx_aes_reset_hw_ID, parameters);
+    return SVC_cx_call(SYSCALL_cx_aes_reset_hw_ID, parameters);
 }
 
 cx_err_t cx_aes_block_hw(const unsigned char *inblock, unsigned char *outblock)

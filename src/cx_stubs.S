@@ -160,6 +160,7 @@ CX_TRAMPOLINE _NR_cx_cipher_reset                          cx_cipher_reset
 CX_TRAMPOLINE _NR_cx_cmac_start                            cx_cmac_start
 CX_TRAMPOLINE _NR_cx_cmac_update                           cx_cmac_update
 CX_TRAMPOLINE _NR_cx_cmac_finish                           cx_cmac_finish
+CX_TRAMPOLINE _NR_cx_aes_siv_reset                         cx_aes_siv_reset
 
 .thumb_func
 cx_trampoline_helper:
