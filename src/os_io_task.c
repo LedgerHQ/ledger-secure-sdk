@@ -4,6 +4,7 @@
 #include "os_io_seproxyhal.h"
 #include "os_task.h"
 #include "os_types.h"
+#include "os_io_nfc.h"
 
 #include <string.h>
 
@@ -26,6 +27,12 @@ bolos_ux_asynch_callback_t G_io_asynch_ux_callback;
 #endif  // (IO_SEPROXYHAL_BUFFER_SIZE_B != 128) && (defined(BOLOS_RELEASE) ||
         // !defined(DEBUG_VARIABLE_SPI_SIZE))
 #endif  // !HAVE_BLE
+
+#ifdef HAVE_NFC_READER
+// For some reason the linker only works correctly
+// if the struct declaration is in this file
+struct nfc_reader_context G_io_reader_ctx;
+#endif
 
 // Buffer dedicated to the MCU <-> SE data transfer.
 unsigned char G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
