@@ -137,6 +137,8 @@ typedef struct {
     const char *fullValue;    ///< full string of the value when used as an alias
     const char *explanation;  ///< string displayed in gray, explaing where the alias comes from
                               ///< only used if aliasType is @ref NO_ALIAS_TYPE
+    const char *title;  ///< if not NULL and aliasType is @ref QR_CODE_ALIAS, is used as title of
+                        ///< the QR Code
     nbgl_contentValueAliasType_t aliasType;  ///< type of alias
 } nbgl_contentValueExt_t;
 
