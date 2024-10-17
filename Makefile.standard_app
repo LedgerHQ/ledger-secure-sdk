@@ -221,7 +221,7 @@ CC      := $(CLANGPATH)clang
 AS      := $(CLANGPATH)clang
 LD      := $(CLANGPATH)clang
 ifeq ($(AS),$(CLANGPATH)clang)
-    AFLAGS  += --target=arm-arm-none-eabi -Wno-unused-command-line-argument
+    AFLAGS  += --target=arm-arm-none-eabi
 endif
 LDLIBS  += -lm -lgcc -lc
 

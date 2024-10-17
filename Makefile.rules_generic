@@ -92,11 +92,11 @@ $(OBJ_DIR)/app/%.o: $(APP_DIR)/%.c $(BUILD_DEPENDENCIES) prepare
 
 $(OBJ_DIR)/app/%.o: $(APP_DIR)/%.s $(BUILD_DEPENDENCIES) prepare
 	@echo "[AS]   $@"
-	$(L)$(call as_cmdline,$(INCLUDES_PATH), $(DEFINES),$<,$@)
+	$(L)$(call as_cmdline,$(INCLUDES_PATH),$<,$@)
 
 $(OBJ_DIR)/app/%.o: $(APP_DIR)/%.S $(BUILD_DEPENDENCIES) prepare
 	@echo "[AS]   $@"
-	$(L)$(call as_cmdline,$(INCLUDES_PATH), $(DEFINES),$<,$@)
+	$(L)$(call as_cmdline,$(INCLUDES_PATH),$<,$@)
 
 # SDK files targets
 $(OBJ_DIR)/sdk/%.o: $(BOLOS_SDK)/%.c $(BUILD_DEPENDENCIES) prepare
@@ -105,11 +105,11 @@ $(OBJ_DIR)/sdk/%.o: $(BOLOS_SDK)/%.c $(BUILD_DEPENDENCIES) prepare
 
 $(OBJ_DIR)/sdk/%.o: $(BOLOS_SDK)/%.s $(BUILD_DEPENDENCIES) prepare
 	@echo "[AS]   $@"
-	$(L)$(call as_cmdline,$(INCLUDES_PATH), $(DEFINES),$<,$@)
+	$(L)$(call as_cmdline,$(INCLUDES_PATH),$<,$@)
 
 $(OBJ_DIR)/sdk/%.o: $(BOLOS_SDK)/%.S $(BUILD_DEPENDENCIES) prepare
 	@echo "[AS]   $@"
-	$(L)$(call as_cmdline,$(INCLUDES_PATH), $(DEFINES),$<,$@)
+	$(L)$(call as_cmdline,$(INCLUDES_PATH),$<,$@)
 
 # Generic targets
 $(OBJ_DIR)/%.o: %.c $(BUILD_DEPENDENCIES) prepare
@@ -118,11 +118,11 @@ $(OBJ_DIR)/%.o: %.c $(BUILD_DEPENDENCIES) prepare
 
 $(OBJ_DIR)/%.o: %.s $(BUILD_DEPENDENCIES) prepare
 	@echo "[AS]   $@"
-	$(L)$(call as_cmdline,$(INCLUDES_PATH), $(DEFINES),$<,$@)
+	$(L)$(call as_cmdline,$(INCLUDES_PATH),$<,$@)
 
 $(OBJ_DIR)/%.o: %.S $(BUILD_DEPENDENCIES) prepare
 	@echo "[AS]   $@"
-	$(L)$(call as_cmdline,$(INCLUDES_PATH), $(DEFINES),$<,$@)
+	$(L)$(call as_cmdline,$(INCLUDES_PATH),$<,$@)
 
 ifeq (,$(filter $(DEFINES),BOLOS_OS_UPGRADER_APP))
 ifneq ($(SCRIPT_LD),)
@@ -197,7 +197,7 @@ endif
 # dependency files are generated along the object file
 cc_cmdline = $(CC) -c $(CFLAGS) -MMD -MT $(4) -MF $(subst $(OBJ_DIR), $(DEP_DIR), $(addsuffix .d, $(basename $(4)))) $(addprefix -D,$(2)) $(addprefix -I,$(1)) -o $(4) $(3)
 
-as_cmdline = $(AS) -c $(AFLAGS) $(addprefix -D,$(2)) $(addprefix -I,$(1)) -o $(4) $(3)
+as_cmdline = $(AS) -c $(AFLAGS) $(addprefix -I,$(1)) -o $(3) $(2)
 
 ### END GCC COMPILER RULES
 
