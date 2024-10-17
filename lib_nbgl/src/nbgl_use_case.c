@@ -1165,11 +1165,12 @@ static void displayFullValuePage(const char                   *backText,
     // add either QR Code or full value text
     if (extension->aliasType == QR_CODE_ALIAS) {
 #ifdef NBGL_QRCODE
-        nbgl_layoutQRCode_t qrCode = {.url      = extension->fullValue,
-                                      .text1    = extension->fullValue,
-                                      .text2    = extension->explanation,
-                                      .centered = true,
-                                      .offsetY  = 0};
+        nbgl_layoutQRCode_t qrCode
+            = {.url      = extension->fullValue,
+               .text1    = (extension->title != NULL) ? extension->title : extension->fullValue,
+               .text2    = extension->explanation,
+               .centered = true,
+               .offsetY  = 0};
 
         nbgl_layoutAddQRCode(genericContext.modalLayout, &qrCode);
 #endif  // NBGL_QRCODE
