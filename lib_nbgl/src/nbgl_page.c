@@ -199,8 +199,22 @@ static void addContent(nbgl_pageContent_t *content,
         case INFOS_LIST: {
             uint8_t i;
             for (i = 0; i < content->infosList.nbInfos; i++) {
-                availableHeight -= nbgl_layoutAddText(
-                    layout, content->infosList.infoTypes[i], content->infosList.infoContents[i]);
+                // if the extension is valid for this index, use a Text with Alias
+                if ((content->infosList.withExtensions == true)
+                    && (content->infosList.infoExtensions != NULL)
+                    && (content->infosList.infoExtensions[i].fullValue != NULL)) {
+                    availableHeight
+                        -= nbgl_layoutAddTextWithAlias(layout,
+                                                       content->infosList.infoTypes[i],
+                                                       content->infosList.infoContents[i],
+                                                       content->infosList.token,
+                                                       i);
+                }
+                else {
+                    availableHeight -= nbgl_layoutAddText(layout,
+                                                          content->infosList.infoTypes[i],
+                                                          content->infosList.infoContents[i]);
+                }
                 // do not draw a separation line if too low in the container
                 if (availableHeight > 10) {
                     nbgl_layoutAddSeparationLine(layout);

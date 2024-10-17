@@ -878,6 +878,109 @@ static nbgl_container_t *addContentCenter(nbgl_layoutInternal_t      *layoutInt,
     return container;
 }
 
+static int addText(nbgl_layout_t *layout,
+                   const char    *text,
+                   const char    *subText,
+                   uint8_t        token,
+                   uint8_t        index,
+                   bool           withAlias)
+{
+    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
+    nbgl_container_t      *container;
+    nbgl_text_area_t      *textArea;
+    nbgl_text_area_t      *subTextArea;
+    uint16_t               fullHeight = 0;
+
+    if (layout == NULL) {
+        return -1;
+    }
+    container = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
+
+    // get container children
+    container->children       = nbgl_containerPoolGet(withAlias ? 3 : 2, layoutInt->layer);
+    container->obj.area.width = AVAILABLE_WIDTH;
+
+    if (text != NULL) {
+        textArea = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+
+        textArea->textColor            = BLACK;
+        textArea->text                 = PIC(text);
+        textArea->textAlignment        = MID_LEFT;
+        textArea->fontId               = SMALL_BOLD_FONT;
+        textArea->style                = NO_STYLE;
+        textArea->wrapping             = true;
+        textArea->obj.alignment        = NO_ALIGNMENT;
+        textArea->obj.alignmentMarginY = PRE_TEXT_MARGIN;
+        textArea->obj.area.width       = container->obj.area.width;
+        if (withAlias == true) {
+            textArea->obj.area.width -= 12 + MINI_PUSH_ICON.width;
+        }
+        textArea->obj.area.height = nbgl_getTextHeightInWidth(
+            textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
+        fullHeight += textArea->obj.area.height + textArea->obj.alignmentMarginY;
+        container->children[container->nbChildren] = (nbgl_obj_t *) textArea;
+        container->nbChildren++;
+        if (withAlias == true) {
+            nbgl_image_t *image = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
+            layoutObj_t  *obj
+                = layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) image, token, TUNE_TAP_CASUAL);
+            obj->index                  = index;
+            image->foregroundColor      = BLACK;
+            image->buffer               = &MINI_PUSH_ICON;
+            image->obj.alignment        = RIGHT_TOP;
+            image->obj.alignmentMarginX = 12;
+            image->obj.alignTo          = (nbgl_obj_t *) textArea;
+            image->obj.touchMask        = (1 << TOUCHED);
+            image->obj.touchId          = VALUE_BUTTON_1_ID + index;
+
+            container->children[container->nbChildren] = (nbgl_obj_t *) image;
+            container->nbChildren++;
+        }
+    }
+    if (subText != NULL) {
+        subTextArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+        subTextArea->textColor = BLACK;
+        subTextArea->text      = PIC(subText);
+        subTextArea->fontId    = SMALL_REGULAR_FONT;
+        subTextArea->style     = NO_STYLE;
+        subTextArea->wrapping  = true;
+        subTextArea->obj.area.width  = container->obj.area.width;
+        subTextArea->obj.area.height = nbgl_getTextHeightInWidth(subTextArea->fontId,
+                                                                 subTextArea->text,
+                                                                 subTextArea->obj.area.width,
+                                                                 subTextArea->wrapping);
+        subTextArea->textAlignment   = MID_LEFT;
+        subTextArea->obj.alignment   = NO_ALIGNMENT;
+        if (text != NULL) {
+            subTextArea->obj.alignmentMarginY = TEXT_SUBTEXT_MARGIN;
+            fullHeight += POST_SUBTEXT_MARGIN;  // under the subText
+        }
+        else {
+#ifdef TARGET_STAX
+            subTextArea->obj.alignmentMarginY = BORDER_MARGIN;
+            fullHeight += BORDER_MARGIN;
+#else   // TARGET_STAX
+            subTextArea->obj.alignmentMarginY = 26;
+            fullHeight += 26;  // under the subText
+#endif  // TARGET_STAX
+        }
+        container->children[container->nbChildren] = (nbgl_obj_t *) subTextArea;
+        container->nbChildren++;
+        fullHeight += subTextArea->obj.area.height + subTextArea->obj.alignmentMarginY;
+    }
+    else {
+        fullHeight += PRE_TEXT_MARGIN;
+    }
+    container->obj.area.height      = fullHeight;
+    container->layout               = VERTICAL;
+    container->obj.alignmentMarginX = BORDER_MARGIN;
+    container->obj.alignment        = NO_ALIGNMENT;
+    // set this new obj as child of main container
+    layoutAddObject(layoutInt, (nbgl_obj_t *) container);
+
+    return container->obj.area.height;
+}
+
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
@@ -1187,7 +1290,7 @@ int nbgl_layoutAddSwitch(nbgl_layout_t *layout, const nbgl_layoutSwitch_t *switc
 }
 
 /**
- * @brief Creates an area with given text and sub text (in gray)
+ * @brief Creates an area with given text (in bold) and sub text (in regular)
  *
  * @param layout the current layout
  * @param text main text (in small bold font), optional
@@ -1196,82 +1299,29 @@ int nbgl_layoutAddSwitch(nbgl_layout_t *layout, const nbgl_layoutSwitch_t *switc
  */
 int nbgl_layoutAddText(nbgl_layout_t *layout, const char *text, const char *subText)
 {
-    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
-    nbgl_container_t      *container;
-    nbgl_text_area_t      *textArea;
-    nbgl_text_area_t      *subTextArea;
-    uint16_t               fullHeight = 0;
-
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddText():\n");
-    if (layout == NULL) {
-        return -1;
-    }
-    container = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
+    return addText(layout, text, subText, 0, 0, false);
+}
 
-    // get container children
-    container->children       = nbgl_containerPoolGet(2, layoutInt->layer);
-    container->obj.area.width = AVAILABLE_WIDTH;
-
-    if (text != NULL) {
-        textArea = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-
-        textArea->textColor            = BLACK;
-        textArea->text                 = PIC(text);
-        textArea->textAlignment        = MID_LEFT;
-        textArea->fontId               = SMALL_BOLD_FONT;
-        textArea->style                = NO_STYLE;
-        textArea->wrapping             = true;
-        textArea->obj.alignment        = NO_ALIGNMENT;
-        textArea->obj.alignmentMarginY = PRE_TEXT_MARGIN;
-        textArea->obj.area.width       = container->obj.area.width;
-        textArea->obj.area.height      = nbgl_getTextHeightInWidth(
-            textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
-        fullHeight += textArea->obj.area.height + textArea->obj.alignmentMarginY;
-        container->children[container->nbChildren] = (nbgl_obj_t *) textArea;
-        container->nbChildren++;
-    }
-    if (subText != NULL) {
-        subTextArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-        subTextArea->textColor = BLACK;
-        subTextArea->text      = PIC(subText);
-        subTextArea->fontId    = SMALL_REGULAR_FONT;
-        subTextArea->style     = NO_STYLE;
-        subTextArea->wrapping  = true;
-        subTextArea->obj.area.width  = container->obj.area.width;
-        subTextArea->obj.area.height = nbgl_getTextHeightInWidth(subTextArea->fontId,
-                                                                 subTextArea->text,
-                                                                 subTextArea->obj.area.width,
-                                                                 subTextArea->wrapping);
-        subTextArea->textAlignment   = MID_LEFT;
-        subTextArea->obj.alignment   = NO_ALIGNMENT;
-        if (text != NULL) {
-            subTextArea->obj.alignmentMarginY = TEXT_SUBTEXT_MARGIN;
-            fullHeight += POST_SUBTEXT_MARGIN;  // under the subText
-        }
-        else {
-#ifdef TARGET_STAX
-            subTextArea->obj.alignmentMarginY = BORDER_MARGIN;
-            fullHeight += BORDER_MARGIN;
-#else   // TARGET_STAX
-            subTextArea->obj.alignmentMarginY = 26;
-            fullHeight += 26;  // under the subText
-#endif  // TARGET_STAX
-        }
-        container->children[container->nbChildren] = (nbgl_obj_t *) subTextArea;
-        container->nbChildren++;
-        fullHeight += subTextArea->obj.area.height + subTextArea->obj.alignmentMarginY;
-    }
-    else {
-        fullHeight += PRE_TEXT_MARGIN;
-    }
-    container->obj.area.height      = fullHeight;
-    container->layout               = VERTICAL;
-    container->obj.alignmentMarginX = BORDER_MARGIN;
-    container->obj.alignment        = NO_ALIGNMENT;
-    // set this new obj as child of main container
-    layoutAddObject(layoutInt, (nbgl_obj_t *) container);
-
-    return container->obj.area.height;
+/**
+ * @brief Creates an area with given text (in bold) and sub text (in regular), with a
+ * > icon on right of text to activate an action when touched, with the given token
+ *
+ * @param layout the current layout
+ * @param text main text (in small bold font), optional
+ * @param subText description under main text (in small regular font), optional
+ * @param token token to use in callback when > icon is touched
+ * @param index index to use in callback when > icon is touched
+ * @return height of the control if OK
+ */
+int nbgl_layoutAddTextWithAlias(nbgl_layout_t *layout,
+                                const char    *text,
+                                const char    *subText,
+                                uint8_t        token,
+                                uint8_t        index)
+{
+    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddTextWithAlias():\n");
+    return addText(layout, text, subText, token, index, true);
 }
 
 /**
