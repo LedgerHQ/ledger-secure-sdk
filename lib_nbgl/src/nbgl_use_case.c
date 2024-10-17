@@ -68,6 +68,7 @@ enum {
     CONFIRM_TOKEN,
     REJECT_TOKEN,
     VALUE_ALIAS_TOKEN,
+    INFO_ALIAS_TOKEN,
     BLIND_WARNING_TOKEN,
     TIP_BOX_TOKEN
 };
@@ -252,7 +253,9 @@ static char reducedAddress[QRCODE_REDUCED_ADDR_LEN];
  **********************/
 static void displayReviewPage(uint8_t page, bool forceFullRefresh);
 static void displayDetailsPage(uint8_t page, bool forceFullRefresh);
-static void displayFullValuePage(const nbgl_contentTagValue_t *pair);
+static void displayFullValuePage(const char                   *backText,
+                                 const char                   *aliasText,
+                                 const nbgl_contentValueExt_t *extension);
 static void displayBlindWarning(void);
 static void displayTipBoxModal(void);
 static void displaySettingsPage(uint8_t page, bool forceFullRefresh);
@@ -444,6 +447,14 @@ static const char *getRejectReviewText(nbgl_operationType_t operationType)
 static void pageModalCallback(int token, uint8_t index)
 {
     LOG_DEBUG(USE_CASE_LOGGER, "pageModalCallback, token = %d, index = %d\n", token, index);
+
+    if (token == INFO_ALIAS_TOKEN) {
+        // the icon next to info type alias has been touched
+        displayFullValuePage(tipBoxInfoList.infoTypes[index],
+                             tipBoxInfoList.infoContents[index],
+                             &tipBoxInfoList.infoExtensions[index]);
+        return;
+    }
     nbgl_pageRelease(modalPageContext);
     modalPageContext = NULL;
     if (token == NAV_TOKEN) {
@@ -580,7 +591,7 @@ static void pageCallback(int token, uint8_t index)
         else {
             pair = genericContext.currentCallback(genericContext.currentElementIdx + index);
         }
-        displayFullValuePage(pair);
+        displayFullValuePage(pair->item, pair->value, pair->extension);
     }
     else if (token == BLIND_WARNING_TOKEN) {
         displayBlindWarning();
@@ -1135,7 +1146,9 @@ static void displayDetailsPage(uint8_t detailsPage, bool forceFullRefresh)
 }
 
 // function used to display the content of a full value, when touching an alias of a tag/value pair
-static void displayFullValuePage(const nbgl_contentTagValue_t *pair)
+static void displayFullValuePage(const char                   *backText,
+                                 const char                   *aliasText,
+                                 const nbgl_contentValueExt_t *extension)
 {
     nbgl_layoutDescription_t layoutDescription = {.modal            = true,
                                                   .withLeftBorder   = true,
@@ -1145,29 +1158,38 @@ static void displayFullValuePage(const nbgl_contentTagValue_t *pair)
                                                   .separationLine     = false,
                                                   .backAndText.token  = 0,
                                                   .backAndText.tuneId = TUNE_TAP_CASUAL,
-                                                  .backAndText.text   = PIC(pair->item)};
-    const char              *info;
-    genericContext.modalLayout = nbgl_layoutGet(&layoutDescription);
+                                                  .backAndText.text   = PIC(backText)};
+    genericContext.modalLayout                 = nbgl_layoutGet(&layoutDescription);
     // add header with the tag part of the pair, to go back
     nbgl_layoutAddHeader(genericContext.modalLayout, &headerDesc);
-    // add full value text
-    if (pair->extension->explanation == NULL) {
-        if (pair->extension->aliasType == ENS_ALIAS) {
+    // add either QR Code or full value text
+    if (extension->aliasType == QR_CODE_ALIAS) {
+#ifdef NBGL_QRCODE
+        nbgl_layoutQRCode_t qrCode
+            = {.url      = extension->fullValue,
+               .text1    = (extension->title != NULL) ? extension->title : extension->fullValue,
+               .text2    = extension->explanation,
+               .centered = true,
+               .offsetY  = 0};
+
+        nbgl_layoutAddQRCode(genericContext.modalLayout, &qrCode);
+#endif  // NBGL_QRCODE
+    }
+    else {
+        const char *info;
+        // add full value text
+        if (extension->aliasType == ENS_ALIAS) {
             info = "ENS names are resolved by Ledger backend.";
         }
-        else if (pair->extension->aliasType == ADDRESS_BOOK_ALIAS) {
+        else if (extension->aliasType == ADDRESS_BOOK_ALIAS) {
             info = "This account label comes from your Address Book in Ledger Live.";
         }
         else {
-            info = "";
+            info = extension->explanation;
         }
+        nbgl_layoutAddTextContent(
+            genericContext.modalLayout, aliasText, extension->fullValue, info);
     }
-    else {
-        info = pair->extension->explanation;
-    }
-    nbgl_layoutAddTextContent(
-        genericContext.modalLayout, pair->value, pair->extension->fullValue, info);
-
     // draw & refresh
     nbgl_layoutDraw(genericContext.modalLayout);
     nbgl_refresh();
@@ -1217,13 +1239,16 @@ static void displayTipBoxModal(void)
                                          .navWithButtons.quitText   = NULL,
                                          .progressIndicator         = false,
                                          .tuneId                    = TUNE_TAP_CASUAL};
-    nbgl_pageContent_t        content = {.type                   = INFOS_LIST,
-                                         .topRightIcon           = NULL,
-                                         .infosList.nbInfos      = tipBoxInfoList.nbInfos,
-                                         .infosList.infoTypes    = tipBoxInfoList.infoTypes,
-                                         .infosList.infoContents = tipBoxInfoList.infoContents,
-                                         .title                  = tipBoxModalTitle,
-                                         .titleToken             = QUIT_TOKEN};
+    nbgl_pageContent_t        content = {.type                     = INFOS_LIST,
+                                         .topRightIcon             = NULL,
+                                         .infosList.nbInfos        = tipBoxInfoList.nbInfos,
+                                         .infosList.withExtensions = tipBoxInfoList.withExtensions,
+                                         .infosList.infoTypes      = tipBoxInfoList.infoTypes,
+                                         .infosList.infoContents   = tipBoxInfoList.infoContents,
+                                         .infosList.infoExtensions = tipBoxInfoList.infoExtensions,
+                                         .infosList.token          = INFO_ALIAS_TOKEN,
+                                         .title                    = tipBoxModalTitle,
+                                         .titleToken               = QUIT_TOKEN};
 
     if (modalPageContext != NULL) {
         nbgl_pageRelease(modalPageContext);
@@ -1770,6 +1795,9 @@ static void useCaseReview(nbgl_operationType_t              operationType,
     prepareReviewFirstPage(
         &STARTING_CONTENT.content.extendedCenter.contentCenter, icon, reviewTitle, reviewSubTitle);
     if (tipBox != NULL) {
+        // do not display "Swipe to review" if a tip-box is displayed
+        STARTING_CONTENT.content.extendedCenter.contentCenter.subText = NULL;
+
         STARTING_CONTENT.content.extendedCenter.tipBox.icon   = tipBox->icon;
         STARTING_CONTENT.content.extendedCenter.tipBox.text   = tipBox->text;
         STARTING_CONTENT.content.extendedCenter.tipBox.token  = TIP_BOX_TOKEN;
@@ -1777,7 +1805,11 @@ static void useCaseReview(nbgl_operationType_t              operationType,
         tipBoxModalTitle                                      = tipBox->modalTitle;
         // the only supported type yet is @ref INFOS_LIST
         if (tipBox->type == INFOS_LIST) {
-            memcpy(&tipBoxInfoList, &tipBox->infos, sizeof(nbgl_contentInfoList_t));
+            tipBoxInfoList.nbInfos        = tipBox->infos.nbInfos;
+            tipBoxInfoList.withExtensions = tipBox->infos.withExtensions;
+            tipBoxInfoList.infoTypes      = PIC(tipBox->infos.infoTypes);
+            tipBoxInfoList.infoContents   = PIC(tipBox->infos.infoContents);
+            tipBoxInfoList.infoExtensions = PIC(tipBox->infos.infoExtensions);
         }
     }
 
