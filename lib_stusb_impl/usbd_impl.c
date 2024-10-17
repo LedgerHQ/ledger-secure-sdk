@@ -1074,7 +1074,8 @@ uint8_t USBD_HID_DataOut_impl(USBD_HandleTypeDef *pdev,
 
 #ifndef HAVE_USB_HIDKBD
             // avoid troubles when an apdu has not been replied yet
-            if (G_io_app.apdu_media == IO_APDU_MEDIA_NONE) {
+            if (G_io_app.apdu_state == APDU_IDLE
+                && io_apdu_is_media_accepted(IO_APDU_MEDIA_USB_HID)) {
                 // add to the hid transport
                 switch (io_usb_hid_receive(io_usb_send_apdu_data,
                                            buffer,
@@ -1088,6 +1089,14 @@ uint8_t USBD_HID_DataOut_impl(USBD_HandleTypeDef *pdev,
                         G_io_app.apdu_state  = APDU_USB_HID;  // for next call to io_exchange
                         G_io_app.apdu_length = G_io_usb_hid_total_length;
                         break;
+                }
+            }
+            else {
+                if (io_usb_hid_discard(buffer, io_seproxyhal_get_ep_rx_size(HID_EPOUT_ADDR))) {
+                    // Discarded new APDU, send error response
+                    unsigned char resp_apdu[2] = {};
+                    U2BE_ENCODE(resp_apdu, 0, SWO_IOL_STA_02);
+                    io_usb_hid_send(io_usb_send_apdu_data, 2, resp_apdu);
                 }
             }
 #endif  // HAVE_USB_HIDKBD
@@ -1154,7 +1163,8 @@ uint8_t USBD_WEBUSB_DataOut(USBD_HandleTypeDef *pdev,
             USBD_LL_PrepareReceive(pdev, WEBUSB_EPOUT_ADDR, WEBUSB_EPOUT_SIZE);
 
             // avoid troubles when an apdu has not been replied yet
-            if (G_io_app.apdu_media == IO_APDU_MEDIA_NONE) {
+            if (G_io_app.apdu_state == APDU_IDLE
+                && io_apdu_is_media_accepted(IO_APDU_MEDIA_USB_WEBUSB)) {
                 // add to the hid transport
                 switch (io_usb_hid_receive(io_usb_send_apdu_data_ep0x83,
                                            buffer,
@@ -1168,6 +1178,14 @@ uint8_t USBD_WEBUSB_DataOut(USBD_HandleTypeDef *pdev,
                         G_io_app.apdu_state  = APDU_USB_WEBUSB;  // for next call to io_exchange
                         G_io_app.apdu_length = G_io_usb_hid_total_length;
                         break;
+                }
+            }
+            else {
+                if (io_usb_hid_discard(buffer, io_seproxyhal_get_ep_rx_size(WEBUSB_EPOUT_ADDR))) {
+                    // Discarded new APDU, send error response
+                    unsigned char resp_apdu[2] = {};
+                    U2BE_ENCODE(resp_apdu, 0, SWO_IOL_STA_02);
+                    io_usb_hid_send(io_usb_send_apdu_data_ep0x83, 2, resp_apdu);
                 }
             }
             break;
