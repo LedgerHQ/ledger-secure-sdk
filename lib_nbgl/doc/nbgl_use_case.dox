@@ -55,25 +55,15 @@ A few APIs are available to draw typical Use-Cases, such as:
 - for keypad:
  - @ref nbgl_useCaseKeypadPIN() to draw a default keypad implementation with hidden digits (see @subpage use_case_keypad)
  - @ref nbgl_useCaseKeypadDigits() to draw a default keypad implementation, showing digits (see @subpage use_case_keypad)
+- for generic navigable content:
+ - @ref nbgl_useCaseNavigableContent() to draw a level of generic content navigable pages
 
 Some APIs have also been kept for backward compatibility, and for some rare cases:
 
-- for Home Screen:
- - @ref nbgl_useCaseHome() to draw the home screen of an application.
- - @ref nbgl_useCaseHomeExt() to draw an extended version of home screen of an application (with action button)
- - @ref nbgl_useCasePlugInHome() to draw the home screen of a Plug-In application
-- for Settings:
- - @ref nbgl_useCaseSettings() to draw a level of settings pages
 - for most used reviews:
  - @ref nbgl_useCaseReviewStart() to draw the cover page of a review (initial page, without data)
  - @ref nbgl_useCaseStaticReview() to draw the data pages of a regular review, when all info are available from the beginning (all pages but the cover one)
  - @ref nbgl_useCaseRegularReview() to draw the data pages of a regular review (all pages but the cover one)
-- for address verification:
- - @ref nbgl_useCaseAddressConfirmation() to draw an address confirmation page, with a possibility to see it as QR Code
- - @ref nbgl_useCaseAddressConfirmationExt() to draw an address confirmation page, with a possibility to see it as QR Code and some extra tag/value pairs
-- for rare reviews:
- - @ref nbgl_useCaseForwardOnlyReview() to draw the pages of a forward-only review (without back key)
- - @ref nbgl_useCaseViewDetails() to draw the pages displaying the full value of a given long data of a review
 
 @subsection use_case_home_settings Home & Settings screen Use Case
 
