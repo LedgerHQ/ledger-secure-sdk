@@ -308,6 +308,7 @@ void nbgl_touchHandler(nbgl_touchStatePosition_t *touchStatePosition, uint32_t c
         nbgl_touchType_t swipe    = nbgl_detectSwipe(touchStatePosition, &firstTouchedPosition);
         bool             consumed = false;
 
+        lastState = touchStatePosition->state;
         if (swipe != NB_TOUCH_TYPES) {
             // Swipe detected
             nbgl_obj_t *swipedObj = getSwipableObject(
@@ -336,6 +337,7 @@ void nbgl_touchHandler(nbgl_touchStatePosition_t *touchStatePosition, uint32_t c
     }
     else {  // PRESSED
         if ((lastState == PRESSED) && (lastPressedObj != NULL)) {
+            lastState = touchStatePosition->state;
             if (foundObj != lastPressedObj) {
                 // finger has moved out of an object
                 // make sure lastPressedObj still belongs to current screen before warning it
@@ -350,6 +352,7 @@ void nbgl_touchHandler(nbgl_touchStatePosition_t *touchStatePosition, uint32_t c
             }
         }
         else if (lastState == RELEASED) {
+            lastState = touchStatePosition->state;
             // newly touched object
             lastPressedObj  = foundObj;
             lastPressedTime = currentTime;
@@ -357,8 +360,6 @@ void nbgl_touchHandler(nbgl_touchStatePosition_t *touchStatePosition, uint32_t c
             applytouchStatePosition(foundObj, TOUCHING);
         }
     }
-
-    lastState = touchStatePosition->state;
 }
 
 bool nbgl_touchGetTouchedPosition(nbgl_obj_t                 *obj,
