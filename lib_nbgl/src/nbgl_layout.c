@@ -1367,13 +1367,14 @@ int nbgl_layoutAddSubHeaderText(nbgl_layout_t *layout, const char *text)
 }
 
 /**
- * @brief Creates an area with given text in 32px font (in Black)
+ * @brief Creates an area with given text in 32px font (in Black or Light Gray)
  *
  * @param layout the current layout
  * @param text text to be displayed (auto-wrap)
+ * @param grayedOut if true, use light-gray instead of black
  * @return >= 0 if OK
  */
-int nbgl_layoutAddLargeCaseText(nbgl_layout_t *layout, const char *text)
+int nbgl_layoutAddLargeCaseText(nbgl_layout_t *layout, const char *text, bool grayedOut)
 {
     nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
     nbgl_text_area_t      *textArea;
@@ -1384,7 +1385,7 @@ int nbgl_layoutAddLargeCaseText(nbgl_layout_t *layout, const char *text)
     }
     textArea = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
 
-    textArea->textColor       = BLACK;
+    textArea->textColor       = grayedOut ? LIGHT_GRAY : BLACK;
     textArea->text            = PIC(text);
     textArea->textAlignment   = MID_LEFT;
     textArea->fontId          = LARGE_MEDIUM_FONT;
@@ -1395,12 +1396,19 @@ int nbgl_layoutAddLargeCaseText(nbgl_layout_t *layout, const char *text)
     textArea->style                = NO_STYLE;
     textArea->obj.alignment        = NO_ALIGNMENT;
     textArea->obj.alignmentMarginX = BORDER_MARGIN;
-#ifdef TARGET_STAX
-    // if first object of container, increase the margin from top
     if (layoutInt->container->nbChildren == 0) {
+#ifdef TARGET_STAX
+        // if first object of container, increase the margin from top
         textArea->obj.alignmentMarginY += BORDER_MARGIN;
-    }
 #endif  // TARGET_STAX
+    }
+    else {
+#ifdef TARGET_STAX
+        textArea->obj.alignmentMarginY = 40;  // 40px between paragraphs
+#else                                         // TARGET_STAX
+        textArea->obj.alignmentMarginY = 24;  // 24px between paragraphs
+#endif                                        // TARGET_STAX
+    }
 
     // set this new obj as child of main container
     layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);

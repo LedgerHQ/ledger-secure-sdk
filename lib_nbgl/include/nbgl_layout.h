@@ -617,7 +617,7 @@ int nbgl_layoutAddChoiceButtons(nbgl_layout_t *layout, const nbgl_layoutChoiceBu
 int nbgl_layoutAddHorizontalButtons(nbgl_layout_t                        *layout,
                                     const nbgl_layoutHorizontalButtons_t *info);
 int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueList_t *list);
-int nbgl_layoutAddLargeCaseText(nbgl_layout_t *layout, const char *text);
+int nbgl_layoutAddLargeCaseText(nbgl_layout_t *layout, const char *text, bool grayedOut);
 int nbgl_layoutAddTextContent(nbgl_layout_t *layout,
                               const char    *title,
                               const char    *description,
