@@ -1677,6 +1677,98 @@ int nbgl_layoutAddContentCenter(nbgl_layout_t *layout, const nbgl_contentCenter_
     return container->obj.area.height;
 }
 
+/**
+ * @brief Creates an area with a title, and rows of icon + text, left aligned
+ *
+ * @param layout the current layout
+ * @param info structure giving the description of rows (number of rows, title, icons, texts)
+ * @return >= 0 if OK
+ */
+int nbgl_layoutAddLeftContent(nbgl_layout_t *layout, const nbgl_layoutLeftContent_t *info)
+{
+    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
+    nbgl_container_t      *container;
+    nbgl_text_area_t      *textArea;
+    uint8_t                row;
+
+    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddLeftContent():\n");
+    if (layout == NULL) {
+        return -1;
+    }
+    container = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
+
+    // get container children
+    container->nbChildren     = info->nbRows + 1;
+    container->children       = nbgl_containerPoolGet(container->nbChildren, layoutInt->layer);
+    container->layout         = VERTICAL;
+    container->obj.area.width = AVAILABLE_WIDTH;
+    container->obj.alignmentMarginX = BORDER_MARGIN;
+
+    // create title
+    textArea                  = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+    textArea->textColor       = BLACK;
+    textArea->text            = PIC(info->title);
+    textArea->textAlignment   = MID_LEFT;
+    textArea->fontId          = LARGE_MEDIUM_FONT;
+    textArea->wrapping        = true;
+    textArea->obj.area.width  = AVAILABLE_WIDTH;
+    textArea->obj.area.height = nbgl_getTextHeightInWidth(
+        textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
+
+    container->obj.area.height += textArea->obj.area.height;
+
+    container->children[0] = (nbgl_obj_t *) textArea;
+
+    for (row = 0; row < info->nbRows; row++) {
+        nbgl_container_t *rowContainer;
+        nbgl_image_t     *image;
+
+        // create a grid with 1 icon on the left column and 1 text on the right one
+        rowContainer                 = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, 0);
+        rowContainer->nbChildren     = 2;  // 1 icon +  1 text
+        rowContainer->children       = nbgl_containerPoolGet(rowContainer->nbChildren, 0);
+        rowContainer->obj.area.width = AVAILABLE_WIDTH;
+
+        image                     = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, 0);
+        image->foregroundColor    = BLACK;
+        image->buffer             = info->rowIcons[row];
+        rowContainer->children[0] = (nbgl_obj_t *) image;
+
+        textArea                       = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, 0);
+        textArea->textColor            = BLACK;
+        textArea->text                 = info->rowTexts[row];
+        textArea->textAlignment        = MID_LEFT;
+        textArea->fontId               = SMALL_REGULAR_FONT;
+        textArea->wrapping             = true;
+        textArea->obj.alignmentMarginX = 16;
+        textArea->obj.area.width
+            = AVAILABLE_WIDTH - image->buffer->width - textArea->obj.alignmentMarginX;
+        textArea->obj.area.height = nbgl_getTextHeightInWidth(
+            textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
+        textArea->obj.alignment       = RIGHT_TOP;
+        textArea->obj.alignTo         = (nbgl_obj_t *) image;
+        rowContainer->children[1]     = (nbgl_obj_t *) textArea;
+        rowContainer->obj.area.height = MAX(image->buffer->height, textArea->obj.area.height);
+
+        if (row == 0) {
+            rowContainer->obj.alignmentMarginY = 32;
+        }
+        else {
+#ifdef TARGET_STAX
+            rowContainer->obj.alignmentMarginY = 16;
+#else   // TARGET_STAX
+            rowContainer->obj.alignmentMarginY = 26;
+#endif  // TARGET_STAX
+        }
+        container->children[1 + row] = (nbgl_obj_t *) rowContainer;
+        container->obj.area.height
+            += rowContainer->obj.area.height + rowContainer->obj.alignmentMarginY;
+    }
+    layoutAddObject(layoutInt, (nbgl_obj_t *) container);
+
+    return container->obj.area.height;
+}
+
 #ifdef NBGL_QRCODE
 /**
  * @brief Creates an area on the center of the main panel, with a QRCode,
