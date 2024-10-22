@@ -922,16 +922,17 @@ static int addText(nbgl_layout_t *layout,
         container->nbChildren++;
         if (withAlias == true) {
             nbgl_image_t *image = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
-            layoutObj_t  *obj
-                = layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) image, token, TUNE_TAP_CASUAL);
+            // the whole container is touchable
+            layoutObj_t *obj
+                = layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) container, token, TUNE_TAP_CASUAL);
             obj->index                  = index;
             image->foregroundColor      = BLACK;
-            image->buffer               = &MINI_PUSH_ICON;
+            image->buffer               = &PUSH_ICON;
             image->obj.alignment        = RIGHT_TOP;
             image->obj.alignmentMarginX = 12;
             image->obj.alignTo          = (nbgl_obj_t *) textArea;
-            image->obj.touchMask        = (1 << TOUCHED);
-            image->obj.touchId          = VALUE_BUTTON_1_ID + index;
+            container->obj.touchMask    = (1 << TOUCHED);
+            container->obj.touchId      = VALUE_BUTTON_1_ID + index;
 
             container->children[container->nbChildren] = (nbgl_obj_t *) image;
             container->nbChildren++;
