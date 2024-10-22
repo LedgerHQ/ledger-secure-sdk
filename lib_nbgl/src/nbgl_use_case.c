@@ -1248,7 +1248,8 @@ static void displayTipBoxModal(void)
                                          .infosList.infoExtensions = tipBoxInfoList.infoExtensions,
                                          .infosList.token          = INFO_ALIAS_TOKEN,
                                          .title                    = tipBoxModalTitle,
-                                         .titleToken               = QUIT_TOKEN};
+                                         .titleToken               = QUIT_TOKEN,
+                                         .tuneId                   = TUNE_TAP_CASUAL};
 
     if (modalPageContext != NULL) {
         nbgl_pageRelease(modalPageContext);
