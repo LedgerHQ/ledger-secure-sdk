@@ -18,9 +18,6 @@ extern "C" {
 #include "nbgl_layout.h"
 #include "nbgl_obj.h"
 #include "nbgl_types.h"
-#ifdef HAVE_LANGUAGE_PACK
-#include "bolos_ux_loc_strings.h"
-#endif  // HAVE_LANGUAGE_PACK
 
 /*********************
  *      DEFINES
