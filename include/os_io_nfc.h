@@ -74,6 +74,9 @@ struct nfc_reader_context {
     unsigned int        remaining_ms;
     enum nfc_event      last_event;
     struct card_info    card;
+    uint8_t            *apdu_rx;
+    size_t              apdu_rx_len;       // Used length
+    size_t              apdu_rx_max_size;  // Max size of buffer
 };
 
 extern struct nfc_reader_context G_io_reader_ctx;

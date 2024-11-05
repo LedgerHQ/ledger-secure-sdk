@@ -55,6 +55,8 @@ void io_nfc_init(void)
     LEDGER_PROTOCOL_init(&ledger_protocol_data);
 #ifdef HAVE_NFC_READER
     memset((void *) &G_io_reader_ctx, 0, sizeof(G_io_reader_ctx));
+    G_io_reader_ctx.apdu_rx          = rx_apdu_buffer;
+    G_io_reader_ctx.apdu_rx_max_size = sizeof(rx_apdu_buffer);
 #endif  // HAVE_NFC_READER
 }
 
@@ -69,6 +71,7 @@ void io_nfc_recv_event(void)
 #ifdef HAVE_NFC_READER
         if (G_io_reader_ctx.reader_mode) {
             G_io_reader_ctx.response_received = true;
+            G_io_reader_ctx.apdu_rx_len       = ledger_protocol_data.rx_apdu_length;
             return;
         }
 #endif  // HAVE_NFC_READER
@@ -152,12 +155,8 @@ void io_nfc_process_events(void)
         if (G_io_reader_ctx.resp_callback != NULL) {
             nfc_resp_callback_t resp_cb   = G_io_reader_ctx.resp_callback;
             G_io_reader_ctx.resp_callback = NULL;
-            resp_cb(false,
-                    false,
-                    ledger_protocol_data.rx_apdu_buffer,
-                    ledger_protocol_data.rx_apdu_length);
+            resp_cb(false, false, G_io_reader_ctx.apdu_rx, G_io_reader_ctx.apdu_rx_len);
         }
-        memset(ledger_protocol_data.rx_apdu_buffer, 0, ledger_protocol_data.rx_apdu_length);
     }
 
     if (G_io_reader_ctx.resp_callback != NULL && G_io_reader_ctx.remaining_ms == 0) {
