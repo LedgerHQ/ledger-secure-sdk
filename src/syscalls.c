@@ -2,6 +2,8 @@
 
 #if defined(HAVE_BOLOS)
 #include "bolos_privileged_ux.h"
+#include "cert_privileged.h"
+#include "endorsement_privileged.h"
 #endif  // HAVE_BOLOS
 
 #include "bolos_target.h"
@@ -1928,13 +1930,15 @@ void CERT_erase(void)
 }
 #endif  // HAVE_CUSTOM_CA_DETAILS_IN_SETTINGS
 
-bolos_bool_t os_bolos_endorsement_revoke(uint8_t slot)
+#ifdef HAVE_BOLOS
+bolos_bool_t ENDORSEMENT_revoke_slot(ENDORSEMENT_revoke_id_t revoke_id)
 {
     unsigned int parameters[1];
-    parameters[0]    = (unsigned int) slot;
-    bolos_bool_t ret = SVC_Call(SYSCALL_os_bolos_endorsement_revoke_ID, parameters);
+    parameters[0]    = (unsigned int) revoke_id;
+    bolos_bool_t ret = SVC_Call(SYSCALL_ENDORSEMENT_revoke_slot_ID, parameters);
     return ret;
 }
+#endif  // HAVE_BOLOS
 
 #ifdef HAVE_MCU_SERIAL_STORAGE
 unsigned int os_seph_serial(unsigned char *serial, unsigned int maxlength)
