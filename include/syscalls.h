@@ -205,7 +205,7 @@
 #define SYSCALL_CERT_erase_ID 0x00000CA1
 #endif  // HAVE_CUSTOM_CA_DETAILS_IN_SETTINGS
 
-#define SYSCALL_os_bolos_endorsement_revoke_ID 0x010001ED
+#define SYSCALL_ENDORSEMENT_revoke_slot_ID 0x010001ED
 
 #ifdef HAVE_AEM_PIN
 #define SYSCALL_os_aem_set_pin_ID             0x02000139
