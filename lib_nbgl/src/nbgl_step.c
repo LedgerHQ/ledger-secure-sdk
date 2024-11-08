@@ -526,9 +526,12 @@ nbgl_step_t nbgl_stepDrawCenteredInfo(nbgl_stepPosition_t               pos,
     // initialize context (already set to 0 by getFreeContext())
     ctx->textContext.onActionCallback = onActionCallback;
     if (ticker) {
-        ctx->ticker.tickerCallback  = ticker->tickerCallback;
-        ctx->ticker.tickerIntervale = ticker->tickerIntervale;
-        ctx->ticker.tickerValue     = ticker->tickerValue;
+        ctx->ticker.tickerCallback               = ticker->tickerCallback;
+        ctx->ticker.tickerIntervale              = ticker->tickerIntervale;
+        ctx->ticker.tickerValue                  = ticker->tickerValue;
+        layoutDescription.ticker.tickerCallback  = ticker->tickerCallback;
+        layoutDescription.ticker.tickerIntervale = ticker->tickerIntervale;
+        layoutDescription.ticker.tickerValue     = ticker->tickerValue;
     }
 
     ctx->textContext.nbPages = 1;
