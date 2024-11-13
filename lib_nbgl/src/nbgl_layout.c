@@ -448,13 +448,79 @@ static void spinnerTickerCallback(void)
 
     // get index of obj
     while (i < layout->container->nbChildren) {
-        if (layout->container->children[i]->type == SPINNER) {
-            spinner = (nbgl_spinner_t *) layout->container->children[i];
-            spinner->position++;
-            spinner->position &= 3;  // modulo 4
-            nbgl_objDraw((nbgl_obj_t *) spinner);
-            nbgl_refreshSpecial(BLACK_AND_WHITE_FAST_REFRESH);
-            return;
+        if (layout->container->children[i]->type == CONTAINER) {
+            nbgl_container_t *container = (nbgl_container_t *) layout->container->children[i];
+            if (container->children[0]->type == SPINNER) {
+                spinner = (nbgl_spinner_t *) container->children[0];
+                spinner->position++;
+                spinner->position &= 3;  // modulo 4
+                nbgl_objDraw((nbgl_obj_t *) spinner);
+                nbgl_refreshSpecial(BLACK_AND_WHITE_FAST_REFRESH);
+                return;
+            }
+        }
+        i++;
+    }
+}
+
+// callback for animation ticker
+static void animTickerCallback(void)
+{
+    nbgl_image_t          *image;
+    uint8_t                i = 0;
+    nbgl_layoutInternal_t *layout;
+
+    // gLayout[1] is on top of gLayout[0] so if gLayout[1] is active, it must catch the event
+    if (gLayout[1].nbChildren > 0) {
+        layout = &gLayout[1];
+    }
+    else {
+        layout = &gLayout[0];
+    }
+
+    if (layout->animation == NULL) {
+        return;
+    }
+
+    // get index of image obj
+    while (i < layout->container->nbChildren) {
+        if (layout->container->children[i]->type == CONTAINER) {
+            nbgl_container_t *container = (nbgl_container_t *) layout->container->children[i];
+            if (container->children[1]->type == IMAGE) {
+                image = (nbgl_image_t *) container->children[1];
+                if (layout->animation->parsing == LOOP_PARSING) {
+                    if (layout->iconIdxInAnim == (layout->animation->nbIcons - 1)) {
+                        layout->iconIdxInAnim = 0;
+                    }
+                    else {
+                        layout->iconIdxInAnim++;
+                    }
+                }
+                else {
+                    if (layout->incrementAnim) {
+                        if (layout->iconIdxInAnim == (layout->animation->nbIcons - 1)) {
+                            layout->iconIdxInAnim = (layout->animation->nbIcons - 2);
+                            layout->incrementAnim = false;
+                        }
+                        else {
+                            layout->iconIdxInAnim++;
+                        }
+                    }
+                    else {
+                        if (layout->iconIdxInAnim == 0) {
+                            layout->incrementAnim = true;
+                            layout->iconIdxInAnim = 1;
+                        }
+                        else {
+                            layout->iconIdxInAnim--;
+                        }
+                    }
+                }
+                image->buffer = layout->animation->icons[layout->iconIdxInAnim];
+                nbgl_objDraw((nbgl_obj_t *) image);
+                nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
+                return;
+            }
         }
         i++;
     }
@@ -726,9 +792,9 @@ static nbgl_container_t *addContentCenter(nbgl_layoutInternal_t      *layoutInt,
 
     // get container children
     container->nbChildren = 0;
-    container->children   = nbgl_containerPoolGet(5, layoutInt->layer);
+    container->children   = nbgl_containerPoolGet(6, layoutInt->layer);
 
-    // add icon if present
+    // add icon or animation if present
     if (info->icon != NULL) {
         image                       = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
         image->foregroundColor      = BLACK;
@@ -739,6 +805,31 @@ static nbgl_container_t *addContentCenter(nbgl_layoutInternal_t      *layoutInt,
         fullHeight += image->buffer->height + info->iconHug;
         container->children[container->nbChildren] = (nbgl_obj_t *) image;
         container->nbChildren++;
+
+        if (info->illustrType == ANIM_ILLUSTRATION) {
+            nbgl_image_t *anim;
+            anim                       = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
+            anim->foregroundColor      = BLACK;
+            anim->buffer               = PIC(info->animation->icons[0]);
+            anim->obj.alignment        = TOP_MIDDLE;
+            anim->obj.alignmentMarginY = info->iconHug + info->animOffsetY;
+            anim->obj.alignmentMarginX = info->animOffsetX;
+
+            container->children[container->nbChildren] = (nbgl_obj_t *) anim;
+            container->nbChildren++;
+
+            layoutInt->animation     = info->animation;
+            layoutInt->incrementAnim = true;
+            layoutInt->iconIdxInAnim = 0;
+
+            // update ticker to update the animation periodically
+            nbgl_screenTickerConfiguration_t tickerCfg;
+
+            tickerCfg.tickerIntervale = info->animation->delayMs;  // ms
+            tickerCfg.tickerValue     = info->animation->delayMs;  // ms
+            tickerCfg.tickerCallback  = &animTickerCallback;
+            nbgl_screenUpdateTicker(layoutInt->layer, &tickerCfg);
+        }
     }
     // add title if present
     if (info->title != NULL) {
@@ -754,8 +845,8 @@ static nbgl_container_t *addContentCenter(nbgl_layoutInternal_t      *layoutInt,
 
         // if not the first child, put on bottom of the previous, with a margin
         if (container->nbChildren > 0) {
-            textArea->obj.alignment = BOTTOM_MIDDLE;
-            textArea->obj.alignTo   = (nbgl_obj_t *) container->children[container->nbChildren - 1];
+            textArea->obj.alignment        = BOTTOM_MIDDLE;
+            textArea->obj.alignTo          = (nbgl_obj_t *) image;
             textArea->obj.alignmentMarginY = BOTTOM_BORDER_MARGIN + info->iconHug;
         }
         else {
@@ -1611,18 +1702,15 @@ int nbgl_layoutAddCenteredInfo(nbgl_layout_t *layout, const nbgl_layoutCenteredI
 {
     nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
     nbgl_container_t      *container;
-    nbgl_contentCenter_t   centeredInfo = {.icon        = info->icon,
-                                           .title       = NULL,
-                                           .smallTitle  = NULL,
-                                           .description = NULL,
-                                           .subText     = NULL,
-                                           .iconHug     = 0,
-                                           .padding     = false};
+    nbgl_contentCenter_t   centeredInfo = {0};
 
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddCenteredInfo():\n");
     if (layout == NULL) {
         return -1;
     }
+
+    centeredInfo.icon        = info->icon;
+    centeredInfo.illustrType = ICON_ILLUSTRATION;
 
     if (info->text1 != NULL) {
         if (info->style != NORMAL_INFO) {
@@ -2389,8 +2477,8 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
     layoutObj_t           *obj;
     nbgl_text_area_t      *textArea;
     nbgl_line_t           *line, *separationLine = NULL;
-    ;
-    nbgl_button_t *button;
+    nbgl_image_t          *image = NULL;
+    nbgl_button_t         *button;
 
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddHeader():\n");
     if (layout == NULL) {
@@ -2413,6 +2501,7 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
             break;
         }
         case HEADER_BACK_AND_TEXT:
+        case HEADER_BACK_ICON_AND_TEXT:
         case HEADER_EXTENDED_BACK: {
             const char *text = (headerDesc->type == HEADER_EXTENDED_BACK)
                                    ? PIC(headerDesc->extendedBack.text)
@@ -2446,6 +2535,16 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
 
             // add optional text if needed
             if (text != NULL) {
+                // add optional icon if type is HEADER_BACK_ICON_AND_TEXT
+                if (headerDesc->type == HEADER_BACK_ICON_AND_TEXT) {
+                    image         = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
+                    image->buffer = PIC(headerDesc->backAndText.icon);
+                    image->foregroundColor = BLACK;
+                    image->obj.alignment   = CENTER;
+                    layoutInt->headerContainer->children[layoutInt->headerContainer->nbChildren]
+                        = (nbgl_obj_t *) image;
+                    layoutInt->headerContainer->nbChildren++;
+                }
                 textArea = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
                 if ((headerDesc->type == HEADER_EXTENDED_BACK)
                     && (headerDesc->extendedBack.textToken != NBGL_INVALID_TOKEN)) {
@@ -2462,24 +2561,37 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
                 textArea->textColor     = BLACK;
                 textArea->obj.area.width
                     = layoutInt->headerContainer->obj.area.width - 2 * BACK_KEY_WIDTH;
+                // if icon, reduce to 1 line and fit text width
+                if (headerDesc->type == HEADER_BACK_ICON_AND_TEXT) {
+                    textArea->obj.area.width -= 16 + image->buffer->width;
+                }
                 textArea->obj.area.height = TOUCHABLE_HEADER_BAR_HEIGHT;
                 textArea->text            = text;
                 textArea->fontId          = SMALL_BOLD_FONT;
                 textArea->textAlignment   = CENTER;
                 textArea->wrapping        = true;
+                uint8_t nbMaxLines        = (headerDesc->type == HEADER_BACK_ICON_AND_TEXT) ? 1 : 2;
                 // ensure that text fits on 2 lines maximum
                 if (nbgl_getTextNbLinesInWidth(textArea->fontId,
                                                textArea->text,
                                                textArea->obj.area.width,
                                                textArea->wrapping)
-                    > 2) {
+                    > nbMaxLines) {
                     LOG_WARN(LAYOUT_LOGGER,
                              "nbgl_layoutAddHeader: text [%s] is too long for header\n",
                              text);
                 }
+                if (headerDesc->type == HEADER_BACK_ICON_AND_TEXT) {
+                    textArea->obj.area.width = nbgl_getTextWidth(textArea->fontId, textArea->text);
+                }
                 layoutInt->headerContainer->children[layoutInt->headerContainer->nbChildren]
                     = (nbgl_obj_t *) textArea;
                 layoutInt->headerContainer->nbChildren++;
+                // if icon, realign icon & text
+                if (headerDesc->type == HEADER_BACK_ICON_AND_TEXT) {
+                    textArea->obj.alignmentMarginX = 8 + image->buffer->width / 2;
+                    image->obj.alignmentMarginX    = -8 - textArea->obj.area.width / 2;
+                }
             }
             // add action key if the type is HEADER_EXTENDED_BACK
             if ((headerDesc->type == HEADER_EXTENDED_BACK)
@@ -2918,25 +3030,33 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
             // associate with with index 1
             obj->index = 1;
             // put at the bottom of the container
-            button->obj.alignment        = BOTTOM_MIDDLE;
-            button->obj.alignmentMarginY = 4;  // 4 pixels from screen bottom
-            button->borderColor          = WHITE;
-            button->innerColor           = WHITE;
-            button->foregroundColor      = BLACK;
-            button->obj.area.width       = AVAILABLE_WIDTH;
-            button->obj.area.height      = BUTTON_DIAMETER;
-            button->radius               = BUTTON_RADIUS;
-            button->text                 = PIC(footerDesc->choiceButtons.bottomText);
-            button->fontId               = SMALL_BOLD_FONT;
-            button->obj.touchMask        = (1 << TOUCHED);
-            button->obj.touchId          = CHOICE_2_ID;
+            button->obj.alignment = BOTTOM_MIDDLE;
+            button->innerColor    = WHITE;
+            if (footerDesc->choiceButtons.style == BOTH_ROUNDED_STYLE) {
+                button->obj.alignmentMarginY
+                    = BOTTOM_BORDER_MARGIN;  // 24 pixels from bottom of container
+                button->borderColor = LIGHT_GRAY;
+            }
+            else {
+                button->obj.alignmentMarginY = 4;  // 4 pixels from screen bottom
+                button->borderColor          = WHITE;
+            }
+            button->foregroundColor = BLACK;
+            button->obj.area.width  = AVAILABLE_WIDTH;
+            button->obj.area.height = BUTTON_DIAMETER;
+            button->radius          = BUTTON_RADIUS;
+            button->text            = PIC(footerDesc->choiceButtons.bottomText);
+            button->fontId          = SMALL_BOLD_FONT;
+            button->obj.touchMask   = (1 << TOUCHED);
+            button->obj.touchId     = CHOICE_2_ID;
             // add to bottom container
             layoutInt->footerContainer->children[layoutInt->footerContainer->nbChildren]
                 = (nbgl_obj_t *) button;
             layoutInt->footerContainer->nbChildren++;
 
             // add line if needed
-            if (footerDesc->choiceButtons.style != ROUNDED_AND_FOOTER_STYLE) {
+            if ((footerDesc->choiceButtons.style != ROUNDED_AND_FOOTER_STYLE)
+                && (footerDesc->choiceButtons.style != BOTH_ROUNDED_STYLE)) {
                 line                       = createHorizontalLine(layoutInt->layer);
                 line->obj.alignment        = TOP_MIDDLE;
                 line->obj.alignmentMarginY = 4;
@@ -3366,12 +3486,14 @@ int nbgl_layoutAddProgressIndicator(nbgl_layout_t *layout,
  *
  * @param layout the current layout
  * @param text text to draw under the spinner
+ * @param subText text to draw under the text (can be NULL)
  * @param fixed if set to true, the spinner won't spin and be entirely black
  * @return >= 0 if OK
  */
-int nbgl_layoutAddSpinner(nbgl_layout_t *layout, const char *text, bool fixed)
+int nbgl_layoutAddSpinner(nbgl_layout_t *layout, const char *text, const char *subText, bool fixed)
 {
     nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
+    nbgl_container_t      *container;
     nbgl_text_area_t      *textArea;
     nbgl_spinner_t        *spinner;
 
@@ -3380,21 +3502,31 @@ int nbgl_layoutAddSpinner(nbgl_layout_t *layout, const char *text, bool fixed)
         return -1;
     }
 
+    container = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
+    // spinner + text + subText
+    container->nbChildren = 3;
+    container->children   = nbgl_containerPoolGet(container->nbChildren, layoutInt->layer);
+
+    container->obj.area.width = AVAILABLE_WIDTH;
+    container->layout         = VERTICAL;
+    container->obj.alignment  = CENTER;
+
     // create spinner
-    spinner                       = (nbgl_spinner_t *) nbgl_objPoolGet(SPINNER, layoutInt->layer);
-    spinner->position             = fixed ? 0xFF : 0;
-    spinner->obj.alignmentMarginY = -20;
-    spinner->obj.alignTo          = NULL;
-    spinner->obj.alignment        = CENTER;
+    spinner                = (nbgl_spinner_t *) nbgl_objPoolGet(SPINNER, layoutInt->layer);
+    spinner->position      = fixed ? 0xFF : 0;
+    spinner->obj.alignment = TOP_MIDDLE;
     // set this new spinner as child of the container
-    layoutAddObject(layoutInt, (nbgl_obj_t *) spinner);
+    container->children[0] = (nbgl_obj_t *) spinner;
+
+    // update container height
+    container->obj.area.height += SPINNER_HEIGHT;
 
     // create text area
     textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
     textArea->textColor     = BLACK;
     textArea->text          = PIC(text);
     textArea->textAlignment = CENTER;
-    textArea->fontId        = SMALL_REGULAR_FONT;
+    textArea->fontId        = (subText != NULL) ? LARGE_MEDIUM_FONT : SMALL_REGULAR_FONT;
     textArea->wrapping      = true;
 #ifdef TARGET_STAX
     textArea->obj.alignmentMarginY = 20;
@@ -3408,12 +3540,43 @@ int nbgl_layoutAddSpinner(nbgl_layout_t *layout, const char *text, bool fixed)
         textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
     textArea->style = NO_STYLE;
 
-    // center spinner + text vertically
-    spinner->obj.alignmentMarginY
-        = -(textArea->obj.alignmentMarginY + textArea->obj.area.height) / 2;
+    // update container height
+    container->obj.area.height += textArea->obj.alignmentMarginY + textArea->obj.area.height;
 
-    // set this new spinner as child of the container
-    layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
+    // set this text as child of the container
+    container->children[1] = (nbgl_obj_t *) textArea;
+
+    if (subText != NULL) {
+        nbgl_text_area_t *subTextArea;
+        // create sub-text area
+        subTextArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+        subTextArea->textColor = BLACK;
+        subTextArea->text      = PIC(subText);
+        subTextArea->textAlignment = CENTER;
+        subTextArea->fontId        = SMALL_REGULAR_FONT;
+        subTextArea->wrapping      = true;
+#ifdef TARGET_STAX
+        subTextArea->obj.alignmentMarginY = 20;
+#else   // TARGET_STAX
+        subTextArea->obj.alignmentMarginY = 16;
+#endif  // TARGET_STAX
+        subTextArea->obj.alignTo     = (nbgl_obj_t *) textArea;
+        subTextArea->obj.alignment   = BOTTOM_MIDDLE;
+        subTextArea->obj.area.width  = AVAILABLE_WIDTH;
+        subTextArea->obj.area.height = nbgl_getTextHeightInWidth(subTextArea->fontId,
+                                                                 subTextArea->text,
+                                                                 subTextArea->obj.area.width,
+                                                                 subTextArea->wrapping);
+        subTextArea->style           = NO_STYLE;
+
+        // update container height
+        container->obj.area.height
+            += subTextArea->obj.alignmentMarginY + subTextArea->obj.area.height;
+
+        // set thissub-text as child of the container
+        container->children[2] = (nbgl_obj_t *) subTextArea;
+    }
+    layoutAddObject(layoutInt, (nbgl_obj_t *) container);
 
     if (!fixed) {
         // update ticker to update the spinner periodically

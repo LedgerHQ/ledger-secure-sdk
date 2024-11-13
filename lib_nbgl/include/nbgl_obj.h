@@ -523,8 +523,8 @@ typedef struct PACKED__ nbgl_keyboard_s {
 typedef struct PACKED__ nbgl_keypad_s {
     nbgl_obj_t obj;  ///< common part
 #ifdef HAVE_SE_TOUCH
-    color_t textColor;                   ///< color set to digits.
     color_t borderColor;                 ///< color set to key borders
+    bool    softValidation;              ///< if true, the "check icon" is replaced by an arrow
     bool    enableDigits;                ///< if true, Digit keys are enabled
     bool    partial;                     ///< if true, means that only some keys have changed
     uint8_t digitIndexes[5];             ///< array of digits indexes, 4 bits per digit
@@ -552,6 +552,7 @@ enum {
     EXTRA_BUTTON_ID,
     CHOICE_1_ID,
     CHOICE_2_ID,
+    CHOICE_3_ID,
     KEYPAD_ID,
     KEYBOARD_ID,
     ENTERED_TEXT_ID,
