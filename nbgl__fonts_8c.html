@@ -80,24 +80,38 @@ $(function() {
 <code>#include &quot;<a class="el" href="nbgl__fonts_8h_source.html">nbgl_fonts.h</a>&quot;</code><br />
 <code>#include &quot;os_helpers.h&quot;</code><br />
 <code>#include &quot;os_pic.h&quot;</code><br />
+<code>#include &quot;nbgl_font_inter_regular_28.inc&quot;</code><br />
+<code>#include &quot;nbgl_font_inter_semibold_28.inc&quot;</code><br />
+<code>#include &quot;nbgl_font_inter_medium_36.inc&quot;</code><br />
+<code>#include &quot;nbgl_font_inter_regular_28_1bpp.inc&quot;</code><br />
+<code>#include &quot;nbgl_font_inter_semibold_28_1bpp.inc&quot;</code><br />
+<code>#include &quot;nbgl_font_inter_medium_36_1bpp.inc&quot;</code><br />
+<code>#include &quot;nbgl_font_rom_struct.inc&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for nbgl_fonts.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="nbgl__fonts_8c__incl.png" border="0" usemap="#alib__nbgl_2src_2nbgl__fonts_8c" alt=""/></div>
 <map name="alib__nbgl_2src_2nbgl__fonts_8c" id="alib__nbgl_2src_2nbgl__fonts_8c">
-<area shape="rect" title=" " alt="" coords="323,5,502,32"/>
-<area shape="rect" title=" " alt="" coords="5,80,76,107"/>
-<area shape="rect" title=" " alt="" coords="101,80,205,107"/>
-<area shape="rect" href="nbgl__debug_8h.html" title="debug traces management" alt="" coords="229,80,338,107"/>
-<area shape="rect" href="nbgl__draw_8h.html" title="Middle Level API of the new BOLOS Graphical Library." alt="" coords="363,80,463,107"/>
-<area shape="rect" href="nbgl__fonts_8h.html" title=" " alt="" coords="449,155,552,181"/>
-<area shape="rect" title=" " alt="" coords="538,80,642,107"/>
-<area shape="rect" title=" " alt="" coords="666,80,741,107"/>
-<area shape="rect" href="nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="403,229,508,256"/>
-<area shape="rect" title=" " alt="" coords="270,304,345,331"/>
-<area shape="rect" title=" " alt="" coords="369,304,440,331"/>
-<area shape="rect" title=" " alt="" coords="465,304,547,331"/>
-<area shape="rect" title=" " alt="" coords="571,304,686,331"/>
+<area shape="rect" title=" " alt="" coords="687,5,866,32"/>
+<area shape="rect" title=" " alt="" coords="5,87,76,114"/>
+<area shape="rect" title=" " alt="" coords="101,87,205,114"/>
+<area shape="rect" href="nbgl__debug_8h.html" title="debug traces management" alt="" coords="229,87,338,114"/>
+<area shape="rect" href="nbgl__draw_8h.html" title="Middle Level API of the new BOLOS Graphical Library." alt="" coords="363,87,463,114"/>
+<area shape="rect" href="nbgl__fonts_8h.html" title=" " alt="" coords="449,169,552,196"/>
+<area shape="rect" title=" " alt="" coords="538,87,642,114"/>
+<area shape="rect" title=" " alt="" coords="666,87,741,114"/>
+<area shape="rect" title=" " alt="" coords="765,80,938,121"/>
+<area shape="rect" title=" " alt="" coords="962,80,1149,121"/>
+<area shape="rect" title=" " alt="" coords="1173,80,1354,121"/>
+<area shape="rect" title=" " alt="" coords="1378,80,1551,121"/>
+<area shape="rect" title=" " alt="" coords="1575,80,1762,121"/>
+<area shape="rect" title=" " alt="" coords="1786,80,1967,121"/>
+<area shape="rect" title=" " alt="" coords="1992,87,2175,114"/>
+<area shape="rect" href="nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="403,244,508,271"/>
+<area shape="rect" title=" " alt="" coords="270,319,345,345"/>
+<area shape="rect" title=" " alt="" coords="369,319,440,345"/>
+<area shape="rect" title=" " alt="" coords="465,319,547,345"/>
+<area shape="rect" title=" " alt="" coords="571,319,686,345"/>
 </map>
 </div>
 </div>
@@ -114,9 +128,9 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ad9111edd4388d172e1ac4c73a41f9034"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structnbgl__font__t.html">nbgl_font_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8c.html#ad9111edd4388d172e1ac4c73a41f9034">nbgl_getFont</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId)</td></tr>
-<tr class="memdesc:ad9111edd4388d172e1ac4c73a41f9034"><td class="mdescLeft">&#160;</td><td class="mdescRight">return the non-unicode font corresponding to the given font ID  <a href="nbgl__fonts_8c.html#ad9111edd4388d172e1ac4c73a41f9034">More...</a><br /></td></tr>
-<tr class="separator:ad9111edd4388d172e1ac4c73a41f9034"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af64d6b2f3814b25984291ea1aad3ad4c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8c.html#af64d6b2f3814b25984291ea1aad3ad4c">__attribute__</a> ((section(&quot;._nbgl_fonts_&quot;))) const</td></tr>
+<tr class="memdesc:af64d6b2f3814b25984291ea1aad3ad4c"><td class="mdescLeft">&#160;</td><td class="mdescRight">return the non-unicode font corresponding to the given font ID  <a href="nbgl__fonts_8c.html#af64d6b2f3814b25984291ea1aad3ad4c">More...</a><br /></td></tr>
+<tr class="separator:af64d6b2f3814b25984291ea1aad3ad4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab956854ae9a95d3320c81ed5acfd9742"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8c.html#ab956854ae9a95d3320c81ed5acfd9742">nbgl_popUnicodeChar</a> (const <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> **text, <a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> *textLen, bool *is_unicode)</td></tr>
 <tr class="memdesc:ab956854ae9a95d3320c81ed5acfd9742"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the coming unicode value on the given UTF-8 string. If the value is a simple ASCII character, is_unicode is set to false.  <a href="nbgl__fonts_8c.html#ab956854ae9a95d3320c81ed5acfd9742">More...</a><br /></td></tr>
 <tr class="separator:ab956854ae9a95d3320c81ed5acfd9742"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -238,6 +252,35 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="af64d6b2f3814b25984291ea1aad3ad4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af64d6b2f3814b25984291ea1aad3ad4c">&#9670;&nbsp;</a></span>__attribute__()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">__attribute__ </td>
+          <td>(</td>
+          <td class="paramtype">(section(&quot;._nbgl_fonts_&quot;))&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>return the non-unicode font corresponding to the given font ID </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">fontId</td><td>font ID </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the found font or NULL </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00069">69</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
+
+</div>
+</div>
 <a id="a6ba04cbe83073baf45f6cbd6c54ffcf7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6ba04cbe83073baf45f6cbd6c54ffcf7">&#9670;&nbsp;</a></span>nbgl_getCharWidth()</h2>
 
@@ -274,36 +317,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the width in pixels of the character </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00372">372</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
-
-</div>
-</div>
-<a id="ad9111edd4388d172e1ac4c73a41f9034"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad9111edd4388d172e1ac4c73a41f9034">&#9670;&nbsp;</a></span>nbgl_getFont()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="structnbgl__font__t.html">nbgl_font_t</a>* nbgl_getFont </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a>&#160;</td>
-          <td class="paramname"><em>fontId</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>return the non-unicode font corresponding to the given font ID </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">fontId</td><td>font ID </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the found font or NULL </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00136">136</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00364">364</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
 
 </div>
 </div>
@@ -332,7 +346,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the height in pixels </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00398">398</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00390">390</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
 
 </div>
 </div>
@@ -361,7 +375,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the height in pixels </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00410">410</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00402">402</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
 
 </div>
 </div>
@@ -402,7 +416,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the width in pixels of the text </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00334">334</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00326">326</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
 
 </div>
 </div>
@@ -450,7 +464,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the width in pixels of the text </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00348">348</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00340">340</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
 
 </div>
 </div>
@@ -490,7 +504,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the height in pixels </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00441">441</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00433">433</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
 
 </div>
 </div>
@@ -545,7 +559,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the height in pixels </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l01048">1048</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l01040">1040</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
 
 </div>
 </div>
@@ -577,7 +591,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the number of bytes in the given text </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00454">454</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00446">446</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
 
 </div>
 </div>
@@ -647,7 +661,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if maxWidth is reached, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00482">482</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00474">474</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
 
 </div>
 </div>
@@ -709,7 +723,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if maxWidth is reached, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00681">681</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00673">673</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
 
 </div>
 </div>
@@ -778,7 +792,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if maxNbLines is reached, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00572">572</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00564">564</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
 
 </div>
 </div>
@@ -808,7 +822,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the number of lines in the given text </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00422">422</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00414">414</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
 
 </div>
 </div>
@@ -863,7 +877,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the number of lines in the given text </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00731">731</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00723">723</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
 
 </div>
 </div>
@@ -917,7 +931,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the number of pages in the given text </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00885">885</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00877">877</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
 
 </div>
 </div>
@@ -957,7 +971,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the width in pixels of the text </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00360">360</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00352">352</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
 
 </div>
 </div>
@@ -1005,7 +1019,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>unicode (or ascii-7) value of the found character </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00150">150</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l00142">142</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
 
 </div>
 </div>
@@ -1073,7 +1087,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l01177">1177</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l01169">1169</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
 
 </div>
 </div>
@@ -1126,7 +1140,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l01068">1068</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__fonts_8c_source.html#l01060">1060</a> of file <a class="el" href="nbgl__fonts_8c_source.html">nbgl_fonts.c</a>.</p>
 
 </div>
 </div>
