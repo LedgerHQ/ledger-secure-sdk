@@ -255,6 +255,17 @@ typedef nbgl_contentTagValueList_t nbgl_layoutTagValueList_t;
  */
 typedef nbgl_contentCenteredInfo_t nbgl_layoutCenteredInfo_t;
 
+/**
+ * @brief This structure contains info to build a left content area.
+ *
+ */
+typedef struct {
+    uint8_t                     nbRows;    ///< number of rows in the area
+    const char                 *title;     ///< title of area in bold
+    const char                **rowTexts;  ///< array of nbRows texts (displayed in regular)
+    const nbgl_icon_details_t **rowIcons;  ///< array of nbRows icon
+} nbgl_layoutLeftContent_t;
+
 #ifdef HAVE_SE_TOUCH
 
 /**
@@ -583,6 +594,7 @@ typedef struct {
 nbgl_layout_t *nbgl_layoutGet(const nbgl_layoutDescription_t *description);
 int nbgl_layoutAddCenteredInfo(nbgl_layout_t *layout, const nbgl_layoutCenteredInfo_t *info);
 int nbgl_layoutAddContentCenter(nbgl_layout_t *layout, const nbgl_contentCenter_t *info);
+int nbgl_layoutAddLeftContent(nbgl_layout_t *layout, const nbgl_layoutLeftContent_t *info);
 int nbgl_layoutAddProgressBar(nbgl_layout_t *layout, const nbgl_layoutProgressBar_t *barLayout);
 
 #ifdef HAVE_SE_TOUCH
@@ -605,7 +617,7 @@ int nbgl_layoutAddChoiceButtons(nbgl_layout_t *layout, const nbgl_layoutChoiceBu
 int nbgl_layoutAddHorizontalButtons(nbgl_layout_t                        *layout,
                                     const nbgl_layoutHorizontalButtons_t *info);
 int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueList_t *list);
-int nbgl_layoutAddLargeCaseText(nbgl_layout_t *layout, const char *text);
+int nbgl_layoutAddLargeCaseText(nbgl_layout_t *layout, const char *text, bool grayedOut);
 int nbgl_layoutAddTextContent(nbgl_layout_t *layout,
                               const char    *title,
                               const char    *description,
