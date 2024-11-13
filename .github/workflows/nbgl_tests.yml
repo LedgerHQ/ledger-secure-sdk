@@ -1,0 +1,24 @@
+name: Run NBGL tests
+
+on:
+  push:
+    branches:
+      - master
+      - main
+      - develop
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  run_NBGL_tests:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.CI_BOT_TOKEN }}
+    steps:
+      - name: Trigger the NBGL tests
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            https://api.github.com/repos/LedgerHQ/app-nbgl-tests/dispatches \
+            -d '{"event_type":"trigger-workflow","client_payload":{"inputs":{"golden_run":"Open a PR"}}}'
