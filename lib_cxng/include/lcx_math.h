@@ -568,13 +568,11 @@ DEPRECATED static inline void cx_math_next_prime(uint8_t *r, uint32_t len)
  */
 static inline bool cx_math_is_zero(const uint8_t *a, size_t len)
 {
-    uint32_t i;
-    for (i = 0; i < len; i++) {
-        if (a[i] != 0) {
-            return 0;
-        }
+    uint8_t acc = 0;  // accumulate all the bytes in order to run in constant time
+    for (size_t i = 0; i < len; i++) {
+        acc |= a[i];
     }
-    return 1;
+    return acc == 0;
 }
 
 #endif  // HAVE_MATH
