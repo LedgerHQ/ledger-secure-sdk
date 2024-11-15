@@ -309,7 +309,9 @@ static void actionCallback(nbgl_layout_t *layout, nbgl_buttonEvent_t event)
         }
         else if ((ctx->textContext.pos == LAST_STEP)
                  || (ctx->textContext.pos == NEITHER_FIRST_NOR_LAST_STEP)) {
-            ctx->textContext.onActionCallback((nbgl_step_t) ctx, event);
+            if (ctx->textContext.onActionCallback != NULL) {
+                ctx->textContext.onActionCallback((nbgl_step_t) ctx, event);
+            }
         }
     }
     else if (event == BUTTON_RIGHT_PRESSED) {
@@ -319,11 +321,15 @@ static void actionCallback(nbgl_layout_t *layout, nbgl_buttonEvent_t event)
         }
         else if ((ctx->textContext.pos == FIRST_STEP)
                  || (ctx->textContext.pos == NEITHER_FIRST_NOR_LAST_STEP)) {
-            ctx->textContext.onActionCallback((nbgl_step_t) ctx, event);
+            if (ctx->textContext.onActionCallback != NULL) {
+                ctx->textContext.onActionCallback((nbgl_step_t) ctx, event);
+            }
         }
     }
     else if (event == BUTTON_BOTH_PRESSED) {
-        ctx->textContext.onActionCallback((nbgl_step_t) ctx, event);
+        if (ctx->textContext.onActionCallback != NULL) {
+            ctx->textContext.onActionCallback((nbgl_step_t) ctx, event);
+        }
     }
 }
 
