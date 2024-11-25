@@ -448,13 +448,16 @@ static void spinnerTickerCallback(void)
 
     // get index of obj
     while (i < layout->container->nbChildren) {
-        if (layout->container->children[i]->type == SPINNER) {
-            spinner = (nbgl_spinner_t *) layout->container->children[i];
-            spinner->position++;
-            spinner->position &= 3;  // modulo 4
-            nbgl_objDraw((nbgl_obj_t *) spinner);
-            nbgl_refreshSpecial(BLACK_AND_WHITE_FAST_REFRESH);
-            return;
+        if (layout->container->children[i]->type == CONTAINER) {
+            nbgl_container_t *container = (nbgl_container_t *) layout->container->children[i];
+            if (container->children[0]->type == SPINNER) {
+                spinner = (nbgl_spinner_t *) container->children[0];
+                spinner->position++;
+                spinner->position &= 3;  // modulo 4
+                nbgl_objDraw((nbgl_obj_t *) spinner);
+                nbgl_refreshSpecial(BLACK_AND_WHITE_FAST_REFRESH);
+                return;
+            }
         }
         i++;
     }
@@ -2474,7 +2477,7 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
     layoutObj_t           *obj;
     nbgl_text_area_t      *textArea;
     nbgl_line_t           *line, *separationLine = NULL;
-    nbgl_image_t          *image;
+    nbgl_image_t          *image = NULL;
     nbgl_button_t         *button;
 
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddHeader():\n");
@@ -3483,12 +3486,14 @@ int nbgl_layoutAddProgressIndicator(nbgl_layout_t *layout,
  *
  * @param layout the current layout
  * @param text text to draw under the spinner
+ * @param subText text to draw under the text (can be NULL)
  * @param fixed if set to true, the spinner won't spin and be entirely black
  * @return >= 0 if OK
  */
-int nbgl_layoutAddSpinner(nbgl_layout_t *layout, const char *text, bool fixed)
+int nbgl_layoutAddSpinner(nbgl_layout_t *layout, const char *text, const char *subText, bool fixed)
 {
     nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
+    nbgl_container_t      *container;
     nbgl_text_area_t      *textArea;
     nbgl_spinner_t        *spinner;
 
@@ -3497,21 +3502,31 @@ int nbgl_layoutAddSpinner(nbgl_layout_t *layout, const char *text, bool fixed)
         return -1;
     }
 
+    container = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
+    // spinner + text + subText
+    container->nbChildren = 3;
+    container->children   = nbgl_containerPoolGet(container->nbChildren, layoutInt->layer);
+
+    container->obj.area.width = AVAILABLE_WIDTH;
+    container->layout         = VERTICAL;
+    container->obj.alignment  = CENTER;
+
     // create spinner
-    spinner                       = (nbgl_spinner_t *) nbgl_objPoolGet(SPINNER, layoutInt->layer);
-    spinner->position             = fixed ? 0xFF : 0;
-    spinner->obj.alignmentMarginY = -20;
-    spinner->obj.alignTo          = NULL;
-    spinner->obj.alignment        = CENTER;
+    spinner                = (nbgl_spinner_t *) nbgl_objPoolGet(SPINNER, layoutInt->layer);
+    spinner->position      = fixed ? 0xFF : 0;
+    spinner->obj.alignment = TOP_MIDDLE;
     // set this new spinner as child of the container
-    layoutAddObject(layoutInt, (nbgl_obj_t *) spinner);
+    container->children[0] = (nbgl_obj_t *) spinner;
+
+    // update container height
+    container->obj.area.height += SPINNER_HEIGHT;
 
     // create text area
     textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
     textArea->textColor     = BLACK;
     textArea->text          = PIC(text);
     textArea->textAlignment = CENTER;
-    textArea->fontId        = SMALL_REGULAR_FONT;
+    textArea->fontId        = (subText != NULL) ? LARGE_MEDIUM_FONT : SMALL_REGULAR_FONT;
     textArea->wrapping      = true;
 #ifdef TARGET_STAX
     textArea->obj.alignmentMarginY = 20;
@@ -3525,12 +3540,43 @@ int nbgl_layoutAddSpinner(nbgl_layout_t *layout, const char *text, bool fixed)
         textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
     textArea->style = NO_STYLE;
 
-    // center spinner + text vertically
-    spinner->obj.alignmentMarginY
-        = -(textArea->obj.alignmentMarginY + textArea->obj.area.height) / 2;
+    // update container height
+    container->obj.area.height += textArea->obj.alignmentMarginY + textArea->obj.area.height;
 
-    // set this new spinner as child of the container
-    layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
+    // set this text as child of the container
+    container->children[1] = (nbgl_obj_t *) textArea;
+
+    if (subText != NULL) {
+        nbgl_text_area_t *subTextArea;
+        // create sub-text area
+        subTextArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+        subTextArea->textColor = BLACK;
+        subTextArea->text      = PIC(subText);
+        subTextArea->textAlignment = CENTER;
+        subTextArea->fontId        = SMALL_REGULAR_FONT;
+        subTextArea->wrapping      = true;
+#ifdef TARGET_STAX
+        subTextArea->obj.alignmentMarginY = 20;
+#else   // TARGET_STAX
+        subTextArea->obj.alignmentMarginY = 16;
+#endif  // TARGET_STAX
+        subTextArea->obj.alignTo     = (nbgl_obj_t *) textArea;
+        subTextArea->obj.alignment   = BOTTOM_MIDDLE;
+        subTextArea->obj.area.width  = AVAILABLE_WIDTH;
+        subTextArea->obj.area.height = nbgl_getTextHeightInWidth(subTextArea->fontId,
+                                                                 subTextArea->text,
+                                                                 subTextArea->obj.area.width,
+                                                                 subTextArea->wrapping);
+        subTextArea->style           = NO_STYLE;
+
+        // update container height
+        container->obj.area.height
+            += subTextArea->obj.alignmentMarginY + subTextArea->obj.area.height;
+
+        // set thissub-text as child of the container
+        container->children[2] = (nbgl_obj_t *) subTextArea;
+    }
+    layoutAddObject(layoutInt, (nbgl_obj_t *) container);
 
     if (!fixed) {
         // update ticker to update the spinner periodically

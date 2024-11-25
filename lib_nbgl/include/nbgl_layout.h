@@ -655,7 +655,7 @@ int nbgl_layoutAddProgressIndicator(nbgl_layout_t *layout,
                                     bool           withBack,
                                     uint8_t        backToken,
                                     tune_index_e   tuneId);
-int nbgl_layoutAddSpinner(nbgl_layout_t *layout, const char *text, bool fixed);
+int nbgl_layoutAddSpinner(nbgl_layout_t *layout, const char *text, const char *subText, bool fixed);
 int nbgl_layoutAddSwipe(nbgl_layout_t *layout,
                         uint16_t       swipesMask,
                         const char    *text,
