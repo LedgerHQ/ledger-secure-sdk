@@ -792,7 +792,8 @@ static nbgl_container_t *addContentCenter(nbgl_layoutInternal_t      *layoutInt,
 
     // get container children
     container->nbChildren = 0;
-    container->children   = nbgl_containerPoolGet(6, layoutInt->layer);
+    // the max number is: icon + anim + title + small title + description + sub-text
+    container->children = nbgl_containerPoolGet(6, layoutInt->layer);
 
     // add icon or animation if present
     if (info->icon != NULL) {

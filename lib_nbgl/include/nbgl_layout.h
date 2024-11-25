@@ -730,6 +730,7 @@ int nbgl_layoutUpdateKeypad(nbgl_layout_t *layout,
                             bool           enableValidate,
                             bool           enableBackspace,
                             bool           enableDigits);
+int nbgl_layoutUpdateKeypadValidation(nbgl_layout_t *layout, bool softValidation);
 DEPRECATED int nbgl_layoutAddHiddenDigits(nbgl_layout_t *layout, uint8_t nbDigits);
 DEPRECATED int nbgl_layoutUpdateHiddenDigits(nbgl_layout_t *layout,
                                              uint8_t        index,

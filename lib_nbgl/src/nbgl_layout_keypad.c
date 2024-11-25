@@ -164,6 +164,35 @@ int nbgl_layoutUpdateKeypad(nbgl_layout_t *layout,
 }
 
 /**
+ * @brief Updates an existing keypad on bottom of the screen, with the given configuration, without
+ * redraw
+ *
+ * @param layout the current layout
+ * @param softValidation if true, the "check icon" is replaced by an arrow
+ * @return >=0 if OK
+ */
+int nbgl_layoutUpdateKeypadValidation(nbgl_layout_t *layout, bool softValidation)
+{
+    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
+    nbgl_keypad_t         *keypad;
+
+    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutUpdateKeypad(): softValidation = %d,\n", softValidation);
+    if (layout == NULL) {
+        return -1;
+    }
+    UNUSED(index);
+
+    // get existing keypad (in the footer container)
+    keypad = (nbgl_keypad_t *) layoutInt->footerContainer->children[0];
+    if ((keypad == NULL) || (keypad->obj.type != KEYPAD)) {
+        return -1;
+    }
+    keypad->softValidation = softValidation;
+
+    return 0;
+}
+
+/**
  * @brief Adds a placeholder for hidden digits on top of a keypad, to represent the entered digits,
  * as full circles The placeholder is "underligned" with a thin horizontal line of the expected full
  * length

@@ -221,6 +221,14 @@ static void keypadDrawDigits(nbgl_keypad_t *keypad)
         nbgl_frontDrawRect(&rectArea);  // 1st full line, on the left
     }
     else {
+        const nbgl_icon_details_t *icon;
+
+        if (keypad->softValidation) {
+            icon = &RIGHT_ARROW_ICON;
+        }
+        else {
+            icon = &VALIDATE_ICON;
+        }
         // if enabled, draw icon in white on a black background
         rectArea.backgroundColor = BLACK;
         rectArea.x0              = keypad->obj.area.x0 + 2 * KEY_WIDTH;
@@ -228,18 +236,17 @@ static void keypadDrawDigits(nbgl_keypad_t *keypad)
         rectArea.width           = KEY_WIDTH;
         rectArea.height          = KEYPAD_KEY_HEIGHT;
         nbgl_frontDrawRect(&rectArea);
-        rectArea.width  = VALIDATE_ICON.width;
-        rectArea.height = VALIDATE_ICON.height;
+        rectArea.width  = icon->width;
+        rectArea.height = icon->height;
         rectArea.bpp    = NBGL_BPP_1;
         rectArea.x0     = keypad->obj.area.x0 + 2 * KEY_WIDTH + (KEY_WIDTH - rectArea.width) / 2;
         rectArea.y0     = keypad->obj.area.y0 + KEYPAD_KEY_HEIGHT * 3
                       + (KEYPAD_KEY_HEIGHT - rectArea.height) / 2;
-        if (VALIDATE_ICON.isFile) {
-            nbgl_frontDrawImageFile(&rectArea, (uint8_t *) VALIDATE_ICON.bitmap, WHITE, ramBuffer);
+        if (icon->isFile) {
+            nbgl_frontDrawImageFile(&rectArea, (uint8_t *) icon->bitmap, WHITE, ramBuffer);
         }
         else {
-            nbgl_frontDrawImage(
-                &rectArea, (uint8_t *) VALIDATE_ICON.bitmap, NO_TRANSFORMATION, WHITE);
+            nbgl_frontDrawImage(&rectArea, (uint8_t *) icon->bitmap, NO_TRANSFORMATION, WHITE);
         }
     }
 }
