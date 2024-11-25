@@ -55,14 +55,10 @@ static void addContent(nbgl_pageContent_t *content,
     }
     switch (content->type) {
         case INFO_LONG_PRESS: {
-            nbgl_contentCenter_t centeredInfo;
-            centeredInfo.icon        = content->infoLongPress.icon;
-            centeredInfo.title       = content->infoLongPress.text;
-            centeredInfo.smallTitle  = NULL;
-            centeredInfo.description = NULL;
-            centeredInfo.iconHug     = 0;
-            centeredInfo.subText     = NULL;
-            centeredInfo.padding     = false;
+            nbgl_contentCenter_t centeredInfo = {0};
+            centeredInfo.icon                 = content->infoLongPress.icon;
+            centeredInfo.title                = content->infoLongPress.text;
+            centeredInfo.illustrType          = ICON_ILLUSTRATION;
             nbgl_layoutAddContentCenter(layout, &centeredInfo);
             nbgl_layoutAddLongPressButton(layout,
                                           content->infoLongPress.longPressText,
@@ -71,16 +67,12 @@ static void addContent(nbgl_pageContent_t *content,
             break;
         }
         case INFO_BUTTON: {
-            nbgl_contentCenter_t centeredInfo;
+            nbgl_contentCenter_t centeredInfo = {0};
             nbgl_layoutButton_t  buttonInfo;
 
             centeredInfo.icon        = content->infoButton.icon;
             centeredInfo.title       = content->infoButton.text;
-            centeredInfo.smallTitle  = NULL;
-            centeredInfo.description = NULL;
-            centeredInfo.iconHug     = 0;
-            centeredInfo.subText     = NULL;
-            centeredInfo.padding     = false;
+            centeredInfo.illustrType = ICON_ILLUSTRATION;
             nbgl_layoutAddContentCenter(layout, &centeredInfo);
 
             buttonInfo.fittingContent = false;
@@ -410,7 +402,6 @@ nbgl_page_t *nbgl_pageDrawInfo(nbgl_layoutTouchCallback_t              onActionC
             nbgl_layoutChoiceButtons_t buttonsInfo = {.topText    = info->actionButtonText,
                                                       .bottomText = "Quit app",
                                                       .token      = info->bottomButtonsToken,
-                                                      .style      = BOTH_ROUNDED_STYLE,
                                                       .tuneId     = info->tuneId,
                                                       .topIcon    = info->actionButtonIcon};
             buttonsInfo.style                      = (info->actionButtonStyle == BLACK_BACKGROUND)

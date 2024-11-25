@@ -552,6 +552,7 @@ enum {
     EXTRA_BUTTON_ID,
     CHOICE_1_ID,
     CHOICE_2_ID,
+    CHOICE_3_ID,
     KEYPAD_ID,
     KEYBOARD_ID,
     ENTERED_TEXT_ID,

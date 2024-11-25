@@ -69,6 +69,15 @@ typedef struct {
 } nbgl_contentCenteredInfo_t;
 
 /**
+ * @brief possible types of illustration, for example in @ref nbgl_contentCenter_t
+ *
+ */
+typedef enum {
+    ICON_ILLUSTRATION,  ///< simple icon
+    ANIM_ILLUSTRATION,  ///< animation
+} nbgl_contentIllustrationType_t;
+
+/**
  * @brief This structure contains info to build a centered (vertically and horizontally) area, with
  * many fields (if NULL, not used):
  *  - an icon (with a possible hug)
@@ -79,9 +88,14 @@ typedef struct {
  *  - a padding on the bottom
  */
 typedef struct {
-    const nbgl_icon_details_t *icon;        ///< the icon (can be null)
-    const char                *title;       ///< title in black large (can be null)
-    const char                *smallTitle;  ///< sub-title in black small bold case (can be null)
+    nbgl_contentIllustrationType_t illustrType;
+    const nbgl_icon_details_t     *icon;  ///< the icon (can be null)
+    const nbgl_animation_t
+        *animation;  ///< the animation (can be null), used if illustrType is @ref ANIM_ILLUSTRATION
+    uint16_t animOffsetX;  ///< horizontal offset of animation in icon if integrated (but usually 0)
+    uint16_t animOffsetY;  ///< vertical offset of animation in icon if integrated (but usually 0)
+    const char *title;     ///< title in black large (can be null)
+    const char *smallTitle;   ///< sub-title in black small bold case (can be null)
     const char *description;  ///< description in black small regular case (can be null)
     const char *subText;      ///< sub-text in dark gray regular small case
     uint16_t    iconHug;      ///< vertical margin to apply on top and bottom of the icon

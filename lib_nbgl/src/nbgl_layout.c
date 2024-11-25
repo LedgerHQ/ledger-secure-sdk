@@ -460,6 +460,69 @@ static void spinnerTickerCallback(void)
     }
 }
 
+// callback for animation ticker
+static void animTickerCallback(void)
+{
+    nbgl_image_t          *image;
+    uint8_t                i = 0;
+    nbgl_layoutInternal_t *layout;
+
+    // gLayout[1] is on top of gLayout[0] so if gLayout[1] is active, it must catch the event
+    if (gLayout[1].nbChildren > 0) {
+        layout = &gLayout[1];
+    }
+    else {
+        layout = &gLayout[0];
+    }
+
+    if (layout->animation == NULL) {
+        return;
+    }
+
+    // get index of image obj
+    while (i < layout->container->nbChildren) {
+        if (layout->container->children[i]->type == CONTAINER) {
+            nbgl_container_t *container = (nbgl_container_t *) layout->container->children[i];
+            if (container->children[1]->type == IMAGE) {
+                image = (nbgl_image_t *) container->children[1];
+                if (layout->animation->parsing == LOOP_PARSING) {
+                    if (layout->iconIdxInAnim == (layout->animation->nbIcons - 1)) {
+                        layout->iconIdxInAnim = 0;
+                    }
+                    else {
+                        layout->iconIdxInAnim++;
+                    }
+                }
+                else {
+                    if (layout->incrementAnim) {
+                        if (layout->iconIdxInAnim == (layout->animation->nbIcons - 1)) {
+                            layout->iconIdxInAnim = (layout->animation->nbIcons - 2);
+                            layout->incrementAnim = false;
+                        }
+                        else {
+                            layout->iconIdxInAnim++;
+                        }
+                    }
+                    else {
+                        if (layout->iconIdxInAnim == 0) {
+                            layout->incrementAnim = true;
+                            layout->iconIdxInAnim = 1;
+                        }
+                        else {
+                            layout->iconIdxInAnim--;
+                        }
+                    }
+                }
+                image->buffer = layout->animation->icons[layout->iconIdxInAnim];
+                nbgl_objDraw((nbgl_obj_t *) image);
+                nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
+                return;
+            }
+        }
+        i++;
+    }
+}
+
 static nbgl_line_t *createHorizontalLine(uint8_t layer)
 {
     nbgl_line_t *line;
@@ -726,9 +789,9 @@ static nbgl_container_t *addContentCenter(nbgl_layoutInternal_t      *layoutInt,
 
     // get container children
     container->nbChildren = 0;
-    container->children   = nbgl_containerPoolGet(5, layoutInt->layer);
+    container->children   = nbgl_containerPoolGet(6, layoutInt->layer);
 
-    // add icon if present
+    // add icon or animation if present
     if (info->icon != NULL) {
         image                       = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
         image->foregroundColor      = BLACK;
@@ -739,6 +802,31 @@ static nbgl_container_t *addContentCenter(nbgl_layoutInternal_t      *layoutInt,
         fullHeight += image->buffer->height + info->iconHug;
         container->children[container->nbChildren] = (nbgl_obj_t *) image;
         container->nbChildren++;
+
+        if (info->illustrType == ANIM_ILLUSTRATION) {
+            nbgl_image_t *anim;
+            anim                       = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
+            anim->foregroundColor      = BLACK;
+            anim->buffer               = PIC(info->animation->icons[0]);
+            anim->obj.alignment        = TOP_MIDDLE;
+            anim->obj.alignmentMarginY = info->iconHug + info->animOffsetY;
+            anim->obj.alignmentMarginX = info->animOffsetX;
+
+            container->children[container->nbChildren] = (nbgl_obj_t *) anim;
+            container->nbChildren++;
+
+            layoutInt->animation     = info->animation;
+            layoutInt->incrementAnim = true;
+            layoutInt->iconIdxInAnim = 0;
+
+            // update ticker to update the animation periodically
+            nbgl_screenTickerConfiguration_t tickerCfg;
+
+            tickerCfg.tickerIntervale = info->animation->delayMs;  // ms
+            tickerCfg.tickerValue     = info->animation->delayMs;  // ms
+            tickerCfg.tickerCallback  = &animTickerCallback;
+            nbgl_screenUpdateTicker(layoutInt->layer, &tickerCfg);
+        }
     }
     // add title if present
     if (info->title != NULL) {
@@ -754,8 +842,8 @@ static nbgl_container_t *addContentCenter(nbgl_layoutInternal_t      *layoutInt,
 
         // if not the first child, put on bottom of the previous, with a margin
         if (container->nbChildren > 0) {
-            textArea->obj.alignment = BOTTOM_MIDDLE;
-            textArea->obj.alignTo   = (nbgl_obj_t *) container->children[container->nbChildren - 1];
+            textArea->obj.alignment        = BOTTOM_MIDDLE;
+            textArea->obj.alignTo          = (nbgl_obj_t *) image;
             textArea->obj.alignmentMarginY = BOTTOM_BORDER_MARGIN + info->iconHug;
         }
         else {
@@ -1611,18 +1699,15 @@ int nbgl_layoutAddCenteredInfo(nbgl_layout_t *layout, const nbgl_layoutCenteredI
 {
     nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
     nbgl_container_t      *container;
-    nbgl_contentCenter_t   centeredInfo = {.icon        = info->icon,
-                                           .title       = NULL,
-                                           .smallTitle  = NULL,
-                                           .description = NULL,
-                                           .subText     = NULL,
-                                           .iconHug     = 0,
-                                           .padding     = false};
+    nbgl_contentCenter_t   centeredInfo = {0};
 
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddCenteredInfo():\n");
     if (layout == NULL) {
         return -1;
     }
+
+    centeredInfo.icon        = info->icon;
+    centeredInfo.illustrType = ICON_ILLUSTRATION;
 
     if (info->text1 != NULL) {
         if (info->style != NORMAL_INFO) {
