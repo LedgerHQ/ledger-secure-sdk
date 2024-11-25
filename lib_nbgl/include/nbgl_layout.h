@@ -290,11 +290,9 @@ typedef struct {
 typedef enum {
     ROUNDED_AND_FOOTER_STYLE = 0,    ///< A black background button on top of a footer
     STRONG_ACTION_AND_FOOTER_STYLE,  ///< A black button on top of a footer, with a separation line
-    SOFT_ACTION_AND_FOOTER_STYLE     ///< A white button on top of a footer, with a separation line
+    SOFT_ACTION_AND_FOOTER_STYLE,    ///< A white button on top of a footer, with a separation line
+    BOTH_ROUNDED_STYLE               ///< A black button on top of a white button
 } nbgl_layoutChoiceButtonsStyle_t;
-
-// for backward compatibility
-#define BOTH_ROUNDED_STYLE SOFT_ACTION_AND_FOOTER_STYLE
 
 /**
  * @brief This structure contains info to build a pair of buttons, one on top of the other.

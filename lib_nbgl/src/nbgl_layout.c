@@ -3003,25 +3003,33 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
             // associate with with index 1
             obj->index = 1;
             // put at the bottom of the container
-            button->obj.alignment        = BOTTOM_MIDDLE;
-            button->obj.alignmentMarginY = 4;  // 4 pixels from screen bottom
-            button->borderColor          = WHITE;
-            button->innerColor           = WHITE;
-            button->foregroundColor      = BLACK;
-            button->obj.area.width       = AVAILABLE_WIDTH;
-            button->obj.area.height      = BUTTON_DIAMETER;
-            button->radius               = BUTTON_RADIUS;
-            button->text                 = PIC(footerDesc->choiceButtons.bottomText);
-            button->fontId               = SMALL_BOLD_FONT;
-            button->obj.touchMask        = (1 << TOUCHED);
-            button->obj.touchId          = CHOICE_2_ID;
+            button->obj.alignment = BOTTOM_MIDDLE;
+            button->innerColor    = WHITE;
+            if (footerDesc->choiceButtons.style == BOTH_ROUNDED_STYLE) {
+                button->obj.alignmentMarginY
+                    = BOTTOM_BORDER_MARGIN;  // 24 pixels from bottom of container
+                button->borderColor = LIGHT_GRAY;
+            }
+            else {
+                button->obj.alignmentMarginY = 4;  // 4 pixels from screen bottom
+                button->borderColor          = WHITE;
+            }
+            button->foregroundColor = BLACK;
+            button->obj.area.width  = AVAILABLE_WIDTH;
+            button->obj.area.height = BUTTON_DIAMETER;
+            button->radius          = BUTTON_RADIUS;
+            button->text            = PIC(footerDesc->choiceButtons.bottomText);
+            button->fontId          = SMALL_BOLD_FONT;
+            button->obj.touchMask   = (1 << TOUCHED);
+            button->obj.touchId     = CHOICE_2_ID;
             // add to bottom container
             layoutInt->footerContainer->children[layoutInt->footerContainer->nbChildren]
                 = (nbgl_obj_t *) button;
             layoutInt->footerContainer->nbChildren++;
 
             // add line if needed
-            if (footerDesc->choiceButtons.style != ROUNDED_AND_FOOTER_STYLE) {
+            if ((footerDesc->choiceButtons.style != ROUNDED_AND_FOOTER_STYLE)
+                && (footerDesc->choiceButtons.style != BOTH_ROUNDED_STYLE)) {
                 line                       = createHorizontalLine(layoutInt->layer);
                 line->obj.alignment        = TOP_MIDDLE;
                 line->obj.alignmentMarginY = 4;
