@@ -414,10 +414,11 @@ typedef struct {
 typedef enum {
     HEADER_EMPTY = 0,      ///< empty space, to have a better vertical centering of centered info
     HEADER_BACK_AND_TEXT,  ///< back key and optional text
-    HEADER_BACK_AND_PROGRESS,  ///< optional back key and progress indicator (only on Stax)
-    HEADER_TITLE,              ///< simple centered text
-    HEADER_EXTENDED_BACK,      ///< back key, centered text and touchable key on the right
-    HEADER_RIGHT_TEXT,         ///< touchable text on the right, with a vertical separation line
+    HEADER_BACK_ICON_AND_TEXT,  ///< back key and optional icon and text
+    HEADER_BACK_AND_PROGRESS,   ///< optional back key and progress indicator (only on Stax)
+    HEADER_TITLE,               ///< simple centered text
+    HEADER_EXTENDED_BACK,       ///< back key, centered text and touchable key on the right
+    HEADER_RIGHT_TEXT,          ///< touchable text on the right, with a vertical separation line
     NB_HEADER_TYPES
 } nbgl_layoutHeaderType_t;
 
@@ -433,10 +434,12 @@ typedef struct {
             uint16_t height;
         } emptySpace;  ///< if type is @ref HEADER_EMPTY
         struct {
+            const nbgl_icon_details_t
+                        *icon;    ///< icon on left of text (only if @ref HEADER_BACK_ICON_AND_TEXT)
             const char  *text;    ///< can be NULL if no text
             uint8_t      token;   ///< when back key is pressed
             tune_index_e tuneId;  ///< when back key is pressed
-        } backAndText;            ///< if type is @ref HEADER_BACK_AND_TEXT
+        } backAndText;  ///< if type is @ref HEADER_BACK_ICON_AND_TEXT or @ref HEADER_BACK_AND_TEXT
         struct {
             const nbgl_icon_details_t *actionIcon;  ///< right button icon
             uint8_t                    activePage;

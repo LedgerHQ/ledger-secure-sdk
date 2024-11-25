@@ -2474,8 +2474,8 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
     layoutObj_t           *obj;
     nbgl_text_area_t      *textArea;
     nbgl_line_t           *line, *separationLine = NULL;
-    ;
-    nbgl_button_t *button;
+    nbgl_image_t          *image;
+    nbgl_button_t         *button;
 
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddHeader():\n");
     if (layout == NULL) {
@@ -2498,6 +2498,7 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
             break;
         }
         case HEADER_BACK_AND_TEXT:
+        case HEADER_BACK_ICON_AND_TEXT:
         case HEADER_EXTENDED_BACK: {
             const char *text = (headerDesc->type == HEADER_EXTENDED_BACK)
                                    ? PIC(headerDesc->extendedBack.text)
@@ -2531,6 +2532,16 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
 
             // add optional text if needed
             if (text != NULL) {
+                // add optional icon if type is HEADER_BACK_ICON_AND_TEXT
+                if (headerDesc->type == HEADER_BACK_ICON_AND_TEXT) {
+                    image         = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
+                    image->buffer = PIC(headerDesc->backAndText.icon);
+                    image->foregroundColor = BLACK;
+                    image->obj.alignment   = CENTER;
+                    layoutInt->headerContainer->children[layoutInt->headerContainer->nbChildren]
+                        = (nbgl_obj_t *) image;
+                    layoutInt->headerContainer->nbChildren++;
+                }
                 textArea = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
                 if ((headerDesc->type == HEADER_EXTENDED_BACK)
                     && (headerDesc->extendedBack.textToken != NBGL_INVALID_TOKEN)) {
@@ -2547,24 +2558,37 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
                 textArea->textColor     = BLACK;
                 textArea->obj.area.width
                     = layoutInt->headerContainer->obj.area.width - 2 * BACK_KEY_WIDTH;
+                // if icon, reduce to 1 line and fit text width
+                if (headerDesc->type == HEADER_BACK_ICON_AND_TEXT) {
+                    textArea->obj.area.width -= 16 + image->buffer->width;
+                }
                 textArea->obj.area.height = TOUCHABLE_HEADER_BAR_HEIGHT;
                 textArea->text            = text;
                 textArea->fontId          = SMALL_BOLD_FONT;
                 textArea->textAlignment   = CENTER;
                 textArea->wrapping        = true;
+                uint8_t nbMaxLines        = (headerDesc->type == HEADER_BACK_ICON_AND_TEXT) ? 1 : 2;
                 // ensure that text fits on 2 lines maximum
                 if (nbgl_getTextNbLinesInWidth(textArea->fontId,
                                                textArea->text,
                                                textArea->obj.area.width,
                                                textArea->wrapping)
-                    > 2) {
+                    > nbMaxLines) {
                     LOG_WARN(LAYOUT_LOGGER,
                              "nbgl_layoutAddHeader: text [%s] is too long for header\n",
                              text);
                 }
+                if (headerDesc->type == HEADER_BACK_ICON_AND_TEXT) {
+                    textArea->obj.area.width = nbgl_getTextWidth(textArea->fontId, textArea->text);
+                }
                 layoutInt->headerContainer->children[layoutInt->headerContainer->nbChildren]
                     = (nbgl_obj_t *) textArea;
                 layoutInt->headerContainer->nbChildren++;
+                // if icon, realign icon & text
+                if (headerDesc->type == HEADER_BACK_ICON_AND_TEXT) {
+                    textArea->obj.alignmentMarginX = 8 + image->buffer->width / 2;
+                    image->obj.alignmentMarginX    = -8 - textArea->obj.area.width / 2;
+                }
             }
             // add action key if the type is HEADER_EXTENDED_BACK
             if ((headerDesc->type == HEADER_EXTENDED_BACK)
