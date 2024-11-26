@@ -184,7 +184,7 @@ typedef struct {
     const char *modalTitle;   ///< title given to modal window displayed when tip-box is touched
     nbgl_contentType_t type;  ///< type of page content in the following union
     union {
-        const nbgl_contentInfoList_t infos;  ///< infos pairs displayed in modal.
+        nbgl_contentInfoList_t infos;  ///< infos pairs displayed in modal.
     };
 } nbgl_tipBox_t;
 
