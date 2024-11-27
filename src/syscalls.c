@@ -1567,7 +1567,7 @@ unsigned int os_registry_count(void)
     return (unsigned int) SVC_Call(SYSCALL_os_registry_count_ID, parameters);
 }
 
-void os_registry_get(unsigned int app_idx, application_t *out_application_entry)
+void os_registry_get(uint8_t app_idx, application_t *out_application_entry)
 {
     unsigned int parameters[2];
     parameters[0] = (unsigned int) app_idx;

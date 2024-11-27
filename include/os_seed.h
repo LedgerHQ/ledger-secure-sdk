@@ -18,6 +18,7 @@
 #define BOLOS_VAULT_RECOVERY_WORK_BUFFER_SIZE             64
 #endif  // HAVE_VAULT_RECOVERY_ALGO
 #define BOLOS_MASTER_SEED_LEN (32)
+#define BOLOS_WORDS_LEN       (255)
 
 typedef enum {
     SET_SEED = 0,

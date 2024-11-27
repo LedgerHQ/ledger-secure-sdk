@@ -29,9 +29,3 @@ SUDOCALL unsigned int nvm_erase_page(unsigned int page_adr);
 // disabled for security reasons // SYSCALL                                       void
 // os_perso_wipe(void); erase seed, settings AND applications
 SYSCALL void os_perso_erase_all(void);
-
-#ifndef BOLOS_OS_UPGRADER_APP
-// Wipe all data from N_application_registry.applications,
-// except language packs / background img
-void erase_all_except_user_config_apps(void);
-#endif  //(defined(HAVE_LANGUAGE_PACK) && !defined(BOLOS_OS_UPGRADER_APP))

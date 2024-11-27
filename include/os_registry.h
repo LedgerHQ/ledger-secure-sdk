@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include "appflags.h"
 #include "decorators.h"
 #include "os_app.h"
@@ -61,7 +62,9 @@ SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_registry_delete_all_apps(v
 
 SYSCALL      PERMISSION(APPLICATION_FLAG_BOLOS_UX)
 unsigned int os_registry_count(void);
+bool         os_registry_is_app_valid(uint8_t app_idx);
+
 // return any entry, activated or not, enabled or not, empty or not. to enable full control
 SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_registry_get(
-    unsigned int                         app_idx,
+    uint8_t                              app_idx,
     application_t *out_application_entry PLENGTH(sizeof(application_t)));
