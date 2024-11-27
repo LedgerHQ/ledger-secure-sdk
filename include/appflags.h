@@ -57,12 +57,10 @@
  */
 #define APPLICATION_FLAG_NO_RUN 0x1000
 
-#if defined(HAVE_LANGUAGE_PACK)
 /**
  * This application is in fact a Language pack!
  */
 #define APPLICATION_FLAG_LANGUAGE_PACK 0x2000
-#endif  // defined(HAVE_LANGUAGE_PACK)
 
 /**
  * Application has been loaded using a secure channel opened using the bootloader's issuer
