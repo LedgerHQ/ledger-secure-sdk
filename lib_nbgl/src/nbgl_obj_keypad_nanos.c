@@ -18,7 +18,6 @@
 #include "nbgl_fonts.h"
 #include "nbgl_screen.h"
 #include "glyphs.h"
-#include "os_io_seproxyhal.h"
 #include "lcx_rng.h"
 
 /*********************
