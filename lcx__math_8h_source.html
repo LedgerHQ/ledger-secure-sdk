@@ -256,18 +256,16 @@ $(function() {
 <div class="line"><a name="l00559"></a><span class="lineno">  559</span>&#160; </div>
 <div class="line"><a name="l00569"></a><span class="lineno">  569</span>&#160;<span class="keyword">static</span> <span class="keyword">inline</span> <span class="keywordtype">bool</span> cx_math_is_zero(<span class="keyword">const</span> <a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *a, <span class="keywordtype">size_t</span> len)</div>
 <div class="line"><a name="l00570"></a><span class="lineno">  570</span>&#160;{</div>
-<div class="line"><a name="l00571"></a><span class="lineno">  571</span>&#160;    uint32_t i;</div>
-<div class="line"><a name="l00572"></a><span class="lineno">  572</span>&#160;    <span class="keywordflow">for</span> (i = 0; i &lt; len; i++) {</div>
-<div class="line"><a name="l00573"></a><span class="lineno">  573</span>&#160;        <span class="keywordflow">if</span> (a[i] != 0) {</div>
-<div class="line"><a name="l00574"></a><span class="lineno">  574</span>&#160;            <span class="keywordflow">return</span> 0;</div>
-<div class="line"><a name="l00575"></a><span class="lineno">  575</span>&#160;        }</div>
-<div class="line"><a name="l00576"></a><span class="lineno">  576</span>&#160;    }</div>
-<div class="line"><a name="l00577"></a><span class="lineno">  577</span>&#160;    <span class="keywordflow">return</span> 1;</div>
-<div class="line"><a name="l00578"></a><span class="lineno">  578</span>&#160;}</div>
+<div class="line"><a name="l00571"></a><span class="lineno">  571</span>&#160;    <a class="code" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> acc = 0;  <span class="comment">// accumulate all the bytes in order to run in constant time</span></div>
+<div class="line"><a name="l00572"></a><span class="lineno">  572</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; len; i++) {</div>
+<div class="line"><a name="l00573"></a><span class="lineno">  573</span>&#160;        acc |= a[i];</div>
+<div class="line"><a name="l00574"></a><span class="lineno">  574</span>&#160;    }</div>
+<div class="line"><a name="l00575"></a><span class="lineno">  575</span>&#160;    <span class="keywordflow">return</span> acc == 0;</div>
+<div class="line"><a name="l00576"></a><span class="lineno">  576</span>&#160;}</div>
+<div class="line"><a name="l00577"></a><span class="lineno">  577</span>&#160; </div>
+<div class="line"><a name="l00578"></a><span class="lineno">  578</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">// HAVE_MATH</span></div>
 <div class="line"><a name="l00579"></a><span class="lineno">  579</span>&#160; </div>
-<div class="line"><a name="l00580"></a><span class="lineno">  580</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">// HAVE_MATH</span></div>
-<div class="line"><a name="l00581"></a><span class="lineno">  581</span>&#160; </div>
-<div class="line"><a name="l00582"></a><span class="lineno">  582</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">// LCX_MATH_H</span></div>
+<div class="line"><a name="l00580"></a><span class="lineno">  580</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">// LCX_MATH_H</span></div>
 <div class="ttc" id="alcx__wrappers_8h_html"><div class="ttname"><a href="lcx__wrappers_8h.html">lcx_wrappers.h</a></div></div>
 <div class="ttc" id="alcx__wrappers_8h_html_a3f138a371c5202063cbd27fd41379cab"><div class="ttname"><a href="lcx__wrappers_8h.html#a3f138a371c5202063cbd27fd41379cab">CX_THROW</a></div><div class="ttdeci">#define CX_THROW(call)</div><div class="ttdef"><b>Definition:</b> <a href="lcx__wrappers_8h_source.html#l00015">lcx_wrappers.h:15</a></div></div>
 <div class="ttc" id="ausbd__conf_8h_html_aba7bc1797add20fe3efdf37ced1182c5"><div class="ttname"><a href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a></div><div class="ttdeci">unsigned char uint8_t</div><div class="ttdef"><b>Definition:</b> <a href="usbd__conf_8h_source.html#l00053">usbd_conf.h:53</a></div></div>
