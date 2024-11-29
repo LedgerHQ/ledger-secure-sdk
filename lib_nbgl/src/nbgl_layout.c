@@ -497,28 +497,27 @@ static void animTickerCallback(void)
                     }
                 }
                 else {
+                    // Flip incrementAnim when reaching upper or lower limit
+                    if ((layout->incrementAnim)
+                        && (layout->iconIdxInAnim >= layout->animation->nbIcons - 1)) {
+                        layout->incrementAnim = false;
+                    }
+                    else if (layout->iconIdxInAnim == 0) {
+                        layout->incrementAnim = true;
+                    }
+
+                    // Increase / Decrease index according to incrementAnim
                     if (layout->incrementAnim) {
-                        if (layout->iconIdxInAnim == (layout->animation->nbIcons - 1)) {
-                            layout->iconIdxInAnim = (layout->animation->nbIcons - 2);
-                            layout->incrementAnim = false;
-                        }
-                        else {
-                            layout->iconIdxInAnim++;
-                        }
+                        layout->iconIdxInAnim++;
                     }
                     else {
-                        if (layout->iconIdxInAnim == 0) {
-                            layout->incrementAnim = true;
-                            layout->iconIdxInAnim = 1;
-                        }
-                        else {
-                            layout->iconIdxInAnim--;
-                        }
+                        layout->iconIdxInAnim--;
                     }
                 }
                 image->buffer = layout->animation->icons[layout->iconIdxInAnim];
                 nbgl_objDraw((nbgl_obj_t *) image);
-                nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
+                nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_FAST_REFRESH,
+                                                   POST_REFRESH_FORCE_POWER_ON);
                 return;
             }
         }
