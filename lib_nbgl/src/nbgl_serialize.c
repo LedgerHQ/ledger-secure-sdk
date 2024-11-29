@@ -314,7 +314,7 @@ static void nbgl_serializeKeypad(nbgl_keypad_t *obj, uint8_t *out, size_t *w_cnt
     nbgl_serializeObj((nbgl_obj_t *) &obj->obj, out, w_cnt, max_len);
 
 #ifdef HAVE_SE_TOUCH
-    nbgl_appendU8((uint8_t) obj->textColor, out, w_cnt, max_len);
+    nbgl_appendU8((uint8_t) obj->softValidation, out, w_cnt, max_len);
     nbgl_appendU8((uint8_t) obj->borderColor, out, w_cnt, max_len);
 #endif  // HAVE_SE_TOUCH
     nbgl_appendU8((uint8_t) obj->enableBackspace, out, w_cnt, max_len);

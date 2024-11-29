@@ -414,6 +414,7 @@ static void prepareReviewFirstPage(nbgl_contentCenter_t      *contentCenter,
     contentCenter->smallTitle  = NULL;
     contentCenter->iconHug     = 0;
     contentCenter->padding     = false;
+    contentCenter->illustrType = ICON_ILLUSTRATION;
 }
 
 static void prepareReviewLastPage(nbgl_contentInfoLongPress_t *infoLongPress,

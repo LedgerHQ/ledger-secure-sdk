@@ -366,6 +366,26 @@ typedef struct PACKED__ nbgl_icon_details_s {
     const uint8_t *bitmap;  ///< buffer containing pixel values
 } nbgl_icon_details_t;
 
+/**
+ * @brief possible parsings of icons to create animation
+ *
+ */
+typedef enum {
+    LOOP_PARSING,           ///< 0, 1, 2, 0, 1, 2, ...
+    BACK_AND_FORTH_PARSING  ///< 0, 1, 2, 1, 2, 0, ...
+} nbgl_parsingType_t;
+
+/**
+ * @brief Represents all information about an animation (succession of icons)
+ *
+ */
+typedef struct nbgl_animation_s {
+    const nbgl_icon_details_t **icons;    ///< array of nbIcons pointers on icons
+    uint8_t                     nbIcons;  ///< number of icons in icons array
+    nbgl_parsingType_t          parsing;  // type of parsing of icons
+    uint16_t                    delayMs;  ///< delay between 2 drawings
+} nbgl_animation_t;
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

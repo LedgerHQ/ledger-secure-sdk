@@ -290,11 +290,9 @@ typedef struct {
 typedef enum {
     ROUNDED_AND_FOOTER_STYLE = 0,    ///< A black background button on top of a footer
     STRONG_ACTION_AND_FOOTER_STYLE,  ///< A black button on top of a footer, with a separation line
-    SOFT_ACTION_AND_FOOTER_STYLE     ///< A white button on top of a footer, with a separation line
+    SOFT_ACTION_AND_FOOTER_STYLE,    ///< A white button on top of a footer, with a separation line
+    BOTH_ROUNDED_STYLE               ///< A black button on top of a white button
 } nbgl_layoutChoiceButtonsStyle_t;
-
-// for backward compatibility
-#define BOTH_ROUNDED_STYLE SOFT_ACTION_AND_FOOTER_STYLE
 
 /**
  * @brief This structure contains info to build a pair of buttons, one on top of the other.
@@ -416,10 +414,11 @@ typedef struct {
 typedef enum {
     HEADER_EMPTY = 0,      ///< empty space, to have a better vertical centering of centered info
     HEADER_BACK_AND_TEXT,  ///< back key and optional text
-    HEADER_BACK_AND_PROGRESS,  ///< optional back key and progress indicator (only on Stax)
-    HEADER_TITLE,              ///< simple centered text
-    HEADER_EXTENDED_BACK,      ///< back key, centered text and touchable key on the right
-    HEADER_RIGHT_TEXT,         ///< touchable text on the right, with a vertical separation line
+    HEADER_BACK_ICON_AND_TEXT,  ///< back key and optional icon and text
+    HEADER_BACK_AND_PROGRESS,   ///< optional back key and progress indicator (only on Stax)
+    HEADER_TITLE,               ///< simple centered text
+    HEADER_EXTENDED_BACK,       ///< back key, centered text and touchable key on the right
+    HEADER_RIGHT_TEXT,          ///< touchable text on the right, with a vertical separation line
     NB_HEADER_TYPES
 } nbgl_layoutHeaderType_t;
 
@@ -435,10 +434,12 @@ typedef struct {
             uint16_t height;
         } emptySpace;  ///< if type is @ref HEADER_EMPTY
         struct {
+            const nbgl_icon_details_t
+                        *icon;    ///< icon on left of text (only if @ref HEADER_BACK_ICON_AND_TEXT)
             const char  *text;    ///< can be NULL if no text
             uint8_t      token;   ///< when back key is pressed
             tune_index_e tuneId;  ///< when back key is pressed
-        } backAndText;            ///< if type is @ref HEADER_BACK_AND_TEXT
+        } backAndText;  ///< if type is @ref HEADER_BACK_ICON_AND_TEXT or @ref HEADER_BACK_AND_TEXT
         struct {
             const nbgl_icon_details_t *actionIcon;  ///< right button icon
             uint8_t                    activePage;
@@ -654,7 +655,7 @@ int nbgl_layoutAddProgressIndicator(nbgl_layout_t *layout,
                                     bool           withBack,
                                     uint8_t        backToken,
                                     tune_index_e   tuneId);
-int nbgl_layoutAddSpinner(nbgl_layout_t *layout, const char *text, bool fixed);
+int nbgl_layoutAddSpinner(nbgl_layout_t *layout, const char *text, const char *subText, bool fixed);
 int nbgl_layoutAddSwipe(nbgl_layout_t *layout,
                         uint16_t       swipesMask,
                         const char    *text,
@@ -729,6 +730,7 @@ int nbgl_layoutUpdateKeypad(nbgl_layout_t *layout,
                             bool           enableValidate,
                             bool           enableBackspace,
                             bool           enableDigits);
+int nbgl_layoutUpdateKeypadValidation(nbgl_layout_t *layout, bool softValidation);
 DEPRECATED int nbgl_layoutAddHiddenDigits(nbgl_layout_t *layout, uint8_t nbDigits);
 DEPRECATED int nbgl_layoutUpdateHiddenDigits(nbgl_layout_t *layout,
                                              uint8_t        index,
