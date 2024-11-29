@@ -1931,7 +1931,7 @@ void CERT_erase(void)
 #endif  // HAVE_CUSTOM_CA_DETAILS_IN_SETTINGS
 
 #ifdef HAVE_BOLOS
-bolos_bool_t ENDORSEMENT_revoke_slot(ENDORSEMENT_revoke_id_t revoke_id)
+bolos_err_t ENDORSEMENT_revoke_slot(ENDORSEMENT_revoke_id_t revoke_id)
 {
     unsigned int parameters[1];
     parameters[0]    = (unsigned int) revoke_id;
