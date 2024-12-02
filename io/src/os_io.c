@@ -122,43 +122,8 @@ static int process_itc_event(uint8_t *buffer_in, size_t buffer_in_length)
     }
 
     if (!G_io_syscall_flag) {
-        switch (buffer_in[3]) {
-#if defined(HAVE_BOLOS) && defined(HAVE_BLE)
-            case ITC_UX_ASK_BLE_PAIRING:
-                G_ux_params.ux_id = BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST;
-                G_ux_params.len   = sizeof(G_ux_params.u.pairing_request);
-                memset(&G_ux_params.u.pairing_request, 0, sizeof(G_ux_params.u.pairing_request));
-                G_ux_params.u.pairing_request.type             = buffer_in[4];
-                G_ux_params.u.pairing_request.pairing_info_len = U2BE(buffer_in, 1) - 2;
-                memcpy(G_ux_params.u.pairing_request.pairing_info,
-                       &buffer_in[5],
-                       G_ux_params.u.pairing_request.pairing_info_len);
-                os_ux(&G_ux_params);
-                status = 0;
-                break;
-
-            case ITC_UX_BLE_PAIRING_STATUS:
-                G_ux_params.ux_id                       = BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS;
-                G_ux_params.len                         = sizeof(G_ux_params.u.pairing_status);
-                G_ux_params.u.pairing_status.pairing_ok = buffer_in[4];
-                os_ux(&G_ux_params);
-                status = 0;
-                break;
-#endif  // HAVE_BOLOS && HAVE_BLE
-#if !defined(HAVE_BOLOS) && defined(HAVE_BAGL)
-            case ITC_UX_REDISPLAY:
-                ux_stack_redisplay();
-                break;
-#endif  // HAVE_BOLOS && HAVE_BAGL
-#if !defined(HAVE_BOLOS) && defined(HAVE_NBGL)
-            case ITC_UX_REDISPLAY:
-                nbgl_objAllowDrawing(true);
-                nbgl_screenRedraw();
-                nbgl_refresh();
-                break;
-#endif  // HAVE_BOLOS && HAVE_NBGL
-            default:
-                break;
+        if (status) {
+            status = io_process_itc_ux_event(buffer_in, buffer_in_length);
         }
     }
 
@@ -335,7 +300,8 @@ int os_io_tx_cmd(uint8_t                     type,
     int status = 0;
     switch (type) {
 #ifdef HAVE_IO_USB
-        case OS_IO_PACKET_TYPE_USB_HID_APDU:  // TODO_IO test error code
+        case OS_IO_PACKET_TYPE_USB_HID_APDU:
+            // TODO_IO test error code
             USBD_LEDGER_send(USBD_LEDGER_CLASS_HID, type, buffer, length, 0);
             break;
 #ifdef HAVE_WEBUSB
@@ -390,3 +356,36 @@ int os_io_tx_cmd(uint8_t                     type,
     return status;
 }
 #endif  // !USE_OS_IO_STACK
+
+unsigned int os_io_handle_ux_event_reject_apdu(void)
+{
+    uint16_t      err = 0x6601;
+    unsigned char err_buffer[2];
+    int           status = os_io_rx_evt(G_io_tx_buffer, sizeof(G_io_tx_buffer), NULL);
+
+    err_buffer[0] = err >> 8;
+    err_buffer[1] = err;
+
+    if (status > 0) {
+        switch (G_io_tx_buffer[0]) {
+            case OS_IO_PACKET_TYPE_SE_EVT:
+            case OS_IO_PACKET_TYPE_SEPH:
+                io_process_ux_event(&G_io_tx_buffer[1], status - 1);
+                break;
+
+            case OS_IO_PACKET_TYPE_RAW_APDU:
+            case OS_IO_PACKET_TYPE_USB_HID_APDU:
+            case OS_IO_PACKET_TYPE_USB_WEBUSB_APDU:
+            case OS_IO_PACKET_TYPE_USB_U2F_HID_APDU:
+            case OS_IO_PACKET_TYPE_BLE_APDU:
+            case OS_IO_PACKET_TYPE_NFC_APDU:
+                os_io_tx_cmd(G_io_tx_buffer[0], err_buffer, sizeof(err_buffer), 0);
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    return status;
+}

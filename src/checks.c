@@ -23,6 +23,7 @@
 #include "os_helpers.h"
 #include "os_pin.h"
 #include "os_screen.h"
+#include "os_io.h"
 #include "ux.h"
 
 // This label ultimately comes from the application link.
@@ -188,19 +189,7 @@ void check_audited_app(void)
         ui_audited_init();
 
         do {
-            int status = os_io_rx_evt(G_io_rx_buffer, sizeof(G_io_rx_buffer), NULL);
-            if (status >= 0) {
-                switch (G_io_rx_buffer[0]) {
-                    case OS_IO_PACKET_TYPE_SE_EVT:
-                    case OS_IO_PACKET_TYPE_SEPH:
-                        io_process_event(&G_io_rx_buffer[1], status - 1);
-                        status = 0;
-                        break;
-
-                    default:
-                        break;
-                }
-            }
+            os_io_handle_ux_event_reject_apdu();
         } while (!ui_audited_done());
 
         ui_audited_deinit();

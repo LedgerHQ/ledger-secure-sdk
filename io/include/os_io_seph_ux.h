@@ -49,8 +49,8 @@ typedef struct io_touch_info_s {
 
 /* Exported functions prototypes--------------------------------------------- */
 void io_seph_ux_init_button(void);
-void io_process_itc_ux_event(uint8_t *buffer_in, size_t buffer_in_length);
-void io_process_event(uint8_t *buffer_in, size_t buffer_in_length);
+int  io_process_itc_ux_event(uint8_t *buffer_in, size_t buffer_in_length);
+void io_process_ux_event(uint8_t *buffer_in, size_t buffer_in_length);
 
 #ifdef HAVE_BAGL
 void io_seph_ux_display_bagl_element(const bagl_element_t *element);

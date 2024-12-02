@@ -208,7 +208,7 @@ uint8_t USBD_LEDGER_CCID_setup(USBD_HandleTypeDef *pdev, void *cookie, USBD_Setu
                 if ((req->bmRequest & 0x80U) == 0U) {
                     uint8_t bSlot = (uint8_t) req->wValue;
                     uint8_t bSeq  = (uint8_t) (req->wValue >> 8);
-                    // TODO_IO
+                    // TODO_IO : handle the abort
                 }
                 else {
                     USBD_CtlError(pdev, req);

@@ -106,6 +106,13 @@ ifeq ($(ENABLE_NBGL_KEYPAD), 1)
 endif
 
 #####################################################################
+#                          OS IO STACK USE                          #
+#####################################################################
+ifneq ($(DISABLE_OS_IO_STACK_USE), 1)
+DEFINES += USE_OS_IO_STACK
+endif
+
+#####################################################################
 #                          STANDARD DEFINES                         #
 #####################################################################
 DEFINES += $(DEFINES_LIB)
@@ -113,7 +120,6 @@ DEFINES += MAJOR_VERSION=$(APPVERSION_M) MINOR_VERSION=$(APPVERSION_N) PATCH_VER
 DEFINES += IO_HID_EP_LENGTH=64
 DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=OS_IO_SEPH_BUFFER_SIZE
 
-DEFINES += USE_OS_IO_STACK
 
 SDK_SOURCE_PATH += io
 SDK_SOURCE_PATH += protocol

@@ -71,4 +71,7 @@ void           USB_power(unsigned char enabled);
 void BLE_power(unsigned char powered, const char *discovered_name);
 #endif  // HAVE_BLE
 
-void io_seproxyhal_request_mcu_status(void);
+unsigned char io_event(unsigned char channel);
+
+int io_legacy_apdu_rx(void);
+int io_legacy_apdu_tx(const unsigned char *buffer, unsigned short length);

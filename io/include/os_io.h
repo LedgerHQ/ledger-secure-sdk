@@ -124,3 +124,5 @@ SYSCALL int os_io_seph_se_rx_event(unsigned char *buffer PLENGTH(length),
                                    unsigned int         *timeout_ms,
                                    bool                  check_se_event,
                                    unsigned int          flags);
+
+unsigned int os_io_handle_ux_event_reject_apdu(void);

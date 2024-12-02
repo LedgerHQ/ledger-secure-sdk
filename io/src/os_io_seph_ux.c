@@ -110,9 +110,9 @@ void io_seph_ux_init_button(void)
     G_ux_os.button_same_mask_counter = 0;
 }
 
-void io_process_itc_ux_event(uint8_t *buffer_in, size_t buffer_in_length)
+int io_process_itc_ux_event(uint8_t *buffer_in, size_t buffer_in_length)
 {
-    UNUSED(buffer_in_length);
+    int status = buffer_in_length;
 
     switch (buffer_in[3]) {
 #ifdef HAVE_BLE
@@ -126,6 +126,7 @@ void io_process_itc_ux_event(uint8_t *buffer_in, size_t buffer_in_length)
                    &buffer_in[5],
                    G_ux_params.u.pairing_request.pairing_info_len);
             os_ux(&G_ux_params);
+            status = 0;
             break;
 
         case ITC_UX_BLE_PAIRING_STATUS:
@@ -133,6 +134,7 @@ void io_process_itc_ux_event(uint8_t *buffer_in, size_t buffer_in_length)
             G_ux_params.len                         = sizeof(G_ux_params.u.pairing_status);
             G_ux_params.u.pairing_status.pairing_ok = buffer_in[4];
             os_ux(&G_ux_params);
+            status = 0;
             break;
 #endif  // HAVE_BLE
 
@@ -152,9 +154,11 @@ void io_process_itc_ux_event(uint8_t *buffer_in, size_t buffer_in_length)
         default:
             break;
     }
+
+    return status;
 }
 
-void io_process_event(uint8_t *buffer_in, size_t buffer_in_length)
+void io_process_ux_event(uint8_t *buffer_in, size_t buffer_in_length)
 {
     UNUSED(buffer_in_length);
 
@@ -176,56 +180,11 @@ void io_process_event(uint8_t *buffer_in, size_t buffer_in_length)
 unsigned int os_ux_blocking(bolos_ux_params_t *params)
 {
     unsigned int ret;
-    uint16_t     err = 0x6601;
 
     os_ux(params);
     ret = os_sched_last_status(TASK_BOLOS_UX);
     while (ret == BOLOS_UX_IGNORE || ret == BOLOS_UX_CONTINUE) {
-        int           status = os_io_rx_evt(G_io_tx_buffer, sizeof(G_io_tx_buffer), NULL);
-        unsigned char err_buffer[2];
-        err_buffer[0] = err >> 8;
-        err_buffer[1] = err;
-        if (status > 0) {
-            switch (G_io_tx_buffer[0]) {
-                case OS_IO_PACKET_TYPE_SE_EVT:
-                case OS_IO_PACKET_TYPE_SEPH:
-                    io_process_event(&G_io_tx_buffer[1], status - 1);
-                    break;
-
-#ifdef HAVE_IO_USB
-                case OS_IO_PACKET_TYPE_USB_HID_APDU:
-                    USBD_LEDGER_send(USBD_LEDGER_CLASS_HID, G_io_tx_buffer[0], err_buffer, 2, 0);
-                    break;
-#ifdef HAVE_WEBUSB
-                case OS_IO_PACKET_TYPE_USB_WEBUSB_APDU:
-                    USBD_LEDGER_send(USBD_LEDGER_CLASS_WEBUSB, G_io_tx_buffer[0], err_buffer, 2, 0);
-                    break;
-#endif  // HAVE_WEBUSB
-#ifdef HAVE_IO_U2F
-                case OS_IO_PACKET_TYPE_USB_U2F_HID_APDU:
-                    USBD_LEDGER_send(USBD_LEDGER_CLASS_HID_U2F,
-                                     G_io_tx_buffer[0],
-                                     err_buffer,
-                                     2,
-                                     0);  // TODO change error
-                    break;
-#endif  // HAVE_IO_U2F
-#ifdef HAVE_CDCUSB
-                case OS_IO_PACKET_TYPE_USB_CDC_RAW:
-                    break;
-#endif  // HAVE_CDCUSB
-#endif  // HAVE_IO_USB
-
-#ifdef HAVE_BLE
-                case OS_IO_PACKET_TYPE_BLE_APDU:
-                    break;
-#endif  // HAVE_BLE
-
-                default:
-                    break;
-            }
-        }
-
+        os_io_handle_ux_event_reject_apdu();
         // only retrieve the current UX state
         ret = os_sched_last_status(TASK_BOLOS_UX);
     }

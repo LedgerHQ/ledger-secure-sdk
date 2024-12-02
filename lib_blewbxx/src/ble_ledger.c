@@ -875,6 +875,7 @@ void BLE_LEDGER_init(os_io_init_ble_t *init, uint8_t force_restart)
         // First time BLE is started or forced to restart
         memset(&ble_ledger_data, 0, sizeof(ble_ledger_data));
         ble_ledger_data.state = BLE_STATE_IDLE;
+        LEDGER_BLE_get_mac_address(ble_ledger_data.random_address);
         DEBUG("BLE_LEDGER_init deep\n");
     }
     else {
@@ -892,7 +893,6 @@ void BLE_LEDGER_start(void)
         || (ble_ledger_data.profiles != ble_ledger_init_data.profile_mask)) {
         // BLE is not initialized
         // or wanted classes have changed
-        LEDGER_BLE_get_mac_address(ble_ledger_data.random_address);
         ble_ledger_data.cmd_data.hci_cmd_opcode      = 0xFFFF;
         ble_ledger_data.state                        = BLE_STATE_INITIALIZING;
         ble_ledger_data.init_step                    = BLE_INIT_STEP_IDLE;
