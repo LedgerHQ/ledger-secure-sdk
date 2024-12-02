@@ -41,6 +41,8 @@
 static uint8_t           rx_apdu_buffer[IO_APDU_BUFFER_SIZE];
 static ledger_protocol_t ledger_protocol_data;
 
+static void nfc_send_rapdu(const uint8_t *packet, uint16_t packet_length);
+
 void io_nfc_init(void)
 {
     memset(&rx_apdu_buffer, 0, sizeof(rx_apdu_buffer));
@@ -65,14 +67,24 @@ void io_nfc_recv_event(void)
 
     // Full apdu is received, copy it to global apdu buffer
     if (ledger_protocol_data.rx_apdu_status == APDU_STATUS_COMPLETE) {
-        memcpy(ledger_protocol_data.rx_dst_buffer,
-               ledger_protocol_data.rx_apdu_buffer,
-               ledger_protocol_data.rx_apdu_length);
-        G_io_app.apdu_length                = ledger_protocol_data.rx_apdu_length;
-        G_io_app.apdu_state                 = APDU_NFC;
-        G_io_app.apdu_media                 = IO_APDU_MEDIA_NFC;
-        ledger_protocol_data.rx_apdu_length = 0;
-        ledger_protocol_data.rx_apdu_status = APDU_STATUS_WAITING;
+        if (G_io_app.apdu_state == APDU_IDLE && io_apdu_is_media_accepted(IO_APDU_MEDIA_NFC)) {
+            memcpy(ledger_protocol_data.rx_dst_buffer,
+                   ledger_protocol_data.rx_apdu_buffer,
+                   ledger_protocol_data.rx_apdu_length);
+            G_io_app.apdu_length                = ledger_protocol_data.rx_apdu_length;
+            G_io_app.apdu_state                 = APDU_NFC;
+            G_io_app.apdu_media                 = IO_APDU_MEDIA_NFC;
+            ledger_protocol_data.rx_apdu_length = 0;
+            ledger_protocol_data.rx_apdu_status = APDU_STATUS_WAITING;
+        }
+        else {
+            ledger_protocol_data.rx_apdu_length = 0;
+            ledger_protocol_data.rx_apdu_status = APDU_STATUS_WAITING;
+            // Refuse APDU, send error reply
+            uint8_t response[2] = {};
+            U2BE_ENCODE(response, 0, SWO_IOL_STA_02);
+            nfc_send_rapdu(response, sizeof(response));
+        }
     }
 }
 

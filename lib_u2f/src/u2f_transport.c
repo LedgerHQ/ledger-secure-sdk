@@ -154,7 +154,9 @@ void u2f_transport_sent(u2f_service_t *service, u2f_transport_media_t media)
         u2f_transport_reset(service);
         // we sent the whole response (even if we haven't yet received the ack for the last sent usb
         // in packet)
-        G_io_app.apdu_state = APDU_IDLE;
+        if (G_io_app.apdu_state == APDU_U2F) {
+            G_io_app.apdu_state = APDU_IDLE;
+        }
     }
 }
 

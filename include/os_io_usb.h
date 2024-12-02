@@ -51,6 +51,13 @@ io_usb_hid_receive_status_t io_usb_hid_receive(io_send_t      sndfct,
                                                apdu_buffer_t *apdu_buffer);
 
 /**
+ * Read next HID transport packet, keep track of received APDU but discard content.
+ * Return true when an apdu is fully received (and discarded)
+ * To be called typically upon USB OUT event while an other apdu is being processed
+ */
+bool io_usb_hid_discard(unsigned char *buffer, unsigned short l);
+
+/**
  * Mark the last chunk transmitted as sent.
  * To be called typically upon USB IN ACK event
  */
