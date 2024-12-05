@@ -35,6 +35,7 @@
 #endif  // HAVE_VSS
 #include "os_seed.h"
 #include "ox_crc.h"
+#include "os_endorsement.h"
 #include <string.h>
 
 unsigned int SVC_Call(unsigned int syscall_id, void *parameters);
@@ -1413,77 +1414,90 @@ bolos_err_t os_pki_get_info(uint8_t                  *key_usage,
 }
 #endif  // HAVE_LEDGER_PKI
 
-unsigned int os_endorsement_get_code_hash(unsigned char *buffer)
+bolos_err_t ENDORSEMENT_get_code_hash(uint8_t *out_hash)
 {
-    unsigned int parameters[2];
-    parameters[0] = (unsigned int) buffer;
-    parameters[1] = 0;
-    return (unsigned int) SVC_Call(SYSCALL_os_endorsement_get_code_hash_ID, parameters);
+    unsigned int parameters[1];
+    parameters[0] = (unsigned int) out_hash;
+    return (unsigned int) SVC_Call(SYSCALL_ENDORSEMENT_get_code_hash_ID, parameters);
 }
 
-unsigned int os_endorsement_get_public_key(unsigned char  index,
-                                           unsigned char *buffer,
-                                           unsigned char *length)
+bolos_err_t ENDORSEMENT_get_public_key(ENDORSEMENT_slot_t slot,
+                                       uint8_t           *out_public_key,
+                                       uint8_t           *out_public_key_length)
 {
     unsigned int parameters[3];
-    parameters[0] = (unsigned int) index;
-    parameters[1] = (unsigned int) buffer;
-    parameters[2] = (unsigned int) length;
-    return (unsigned int) SVC_Call(SYSCALL_os_endorsement_get_public_key_ID, parameters);
+    parameters[0] = (unsigned int) slot;
+    parameters[1] = (unsigned int) out_public_key;
+    parameters[2] = (unsigned int) out_public_key_length;
+    return (unsigned int) SVC_Call(SYSCALL_ENDORSEMENT_get_public_key_ID, parameters);
 }
 
-unsigned int os_endorsement_get_public_key_certificate(unsigned char  index,
-                                                       unsigned char *buffer,
-                                                       unsigned char *length)
+bolos_err_t ENDORSEMENT_get_public_key_certificate(ENDORSEMENT_slot_t slot,
+                                                   uint8_t           *out_buffer,
+                                                   uint8_t           *out_length)
 {
     unsigned int parameters[3];
-    parameters[0] = (unsigned int) index;
-    parameters[1] = (unsigned int) buffer;
-    parameters[2] = (unsigned int) length;
-    return (unsigned int) SVC_Call(SYSCALL_os_endorsement_get_public_key_certificate_ID,
-                                   parameters);
+    parameters[0] = (unsigned int) slot;
+    parameters[1] = (unsigned int) out_buffer;
+    parameters[2] = (unsigned int) out_length;
+    return (unsigned int) SVC_Call(SYSCALL_ENDORSEMENT_get_public_key_certificate_ID, parameters);
 }
 
-unsigned int os_endorsement_key1_get_app_secret(unsigned char *buffer)
+bolos_err_t ENDORSEMENT_key1_get_app_secret(uint8_t *out_secret)
 {
-    unsigned int parameters[2];
-    parameters[0] = (unsigned int) buffer;
-    parameters[1] = 0;
-    return (unsigned int) SVC_Call(SYSCALL_os_endorsement_key1_get_app_secret_ID, parameters);
+    unsigned int parameters[1];
+    parameters[0] = (unsigned int) out_secret;
+    return (unsigned int) SVC_Call(SYSCALL_ENDORSEMENT_key1_get_app_secret_ID, parameters);
 }
 
-unsigned int os_endorsement_key1_sign_data(unsigned char *src,
-                                           unsigned int   srcLength,
-                                           unsigned char *signature)
+bolos_err_t ENDORSEMENT_key1_sign_data(uint8_t  *data,
+                                       uint32_t  data_length,
+                                       uint8_t  *out_signature,
+                                       uint32_t *out_signature_length)
+{
+    unsigned int parameters[4];
+    parameters[0] = (unsigned int) data;
+    parameters[1] = data_length;
+    parameters[2] = (unsigned int) out_signature;
+    parameters[3] = (unsigned int) out_signature_length;
+    return (unsigned int) SVC_Call(SYSCALL_ENDORSEMENT_key1_sign_data_ID, parameters);
+}
+
+bolos_err_t ENDORSEMENT_key1_sign_without_code_hash(uint8_t  *data,
+                                                    uint32_t  data_length,
+                                                    uint8_t  *out_signature,
+                                                    uint32_t *out_signature_length)
+{
+    unsigned int parameters[4];
+    parameters[0] = (unsigned int) data;
+    parameters[1] = data_length;
+    parameters[2] = (unsigned int) out_signature;
+    parameters[3] = (unsigned int) out_signature_length;
+    return (unsigned int) SVC_Call(SYSCALL_ENDORSEMENT_key1_sign_without_code_hash_ID, parameters);
+}
+
+bolos_err_t ENDORSEMENT_key2_derive_and_sign_data(uint8_t  *data,
+                                                  uint32_t  data_length,
+                                                  uint8_t  *out_signature,
+                                                  uint32_t *out_signature_length)
+{
+    unsigned int parameters[4];
+    parameters[0] = (unsigned int) data;
+    parameters[1] = (unsigned int) data_length;
+    parameters[2] = (unsigned int) out_signature;
+    parameters[3] = (unsigned int) out_signature_length;
+    return (unsigned int) SVC_Call(SYSCALL_ENDORSEMENT_key2_derive_and_sign_data_ID, parameters);
+}
+
+bolos_err_t ENDORSEMENT_get_metadata(ENDORSEMENT_slot_t slot,
+                                     uint8_t           *out_metadata,
+                                     uint8_t           *out_metadata_length)
 {
     unsigned int parameters[3];
-    parameters[0] = (unsigned int) src;
-    parameters[1] = (unsigned int) srcLength;
-    parameters[2] = (unsigned int) signature;
-    return (unsigned int) SVC_Call(SYSCALL_os_endorsement_key1_sign_data_ID, parameters);
-}
-
-unsigned int os_endorsement_key1_sign_without_code_hash(unsigned char *src,
-                                                        unsigned int   srcLength,
-                                                        unsigned char *signature)
-{
-    unsigned int parameters[3];
-    parameters[0] = (unsigned int) src;
-    parameters[1] = (unsigned int) srcLength;
-    parameters[2] = (unsigned int) signature;
-    return (unsigned int) SVC_Call(SYSCALL_os_endorsement_key1_sign_without_code_hash_ID,
-                                   parameters);
-}
-
-unsigned int os_endorsement_key2_derive_sign_data(unsigned char *src,
-                                                  unsigned int   srcLength,
-                                                  unsigned char *signature)
-{
-    unsigned int parameters[3];
-    parameters[0] = (unsigned int) src;
-    parameters[1] = (unsigned int) srcLength;
-    parameters[2] = (unsigned int) signature;
-    return (unsigned int) SVC_Call(SYSCALL_os_endorsement_key2_derive_sign_data_ID, parameters);
+    parameters[0] = (unsigned int) slot;
+    parameters[1] = (unsigned int) out_metadata;
+    parameters[2] = (unsigned int) out_metadata_length;
+    return (bolos_err_t) SVC_Call(SYSCALL_ENDORSEMENT_get_metadata_ID, parameters);
 }
 
 void os_perso_set_pin(unsigned int         identity,
@@ -2051,14 +2065,6 @@ unsigned int io_button_read(void)
     return (unsigned int) SVC_Call(SYSCALL_io_button_read_ID, parameters);
 }
 #endif  // HAVE_SE_BUTTON
-
-unsigned int os_endorsement_get_metadata(unsigned char index, unsigned char *buffer)
-{
-    unsigned int parameters[2];
-    parameters[0] = (unsigned int) index;
-    parameters[1] = (unsigned int) buffer;
-    return (unsigned int) SVC_Call(SYSCALL_os_endorsement_get_metadata_ID, parameters);
-}
 
 #if defined(HAVE_LANGUAGE_PACK)
 void list_language_packs(UX_LOC_LANGUAGE_PACK_INFO *packs)
