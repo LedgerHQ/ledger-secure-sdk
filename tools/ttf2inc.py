@@ -357,13 +357,46 @@ class TTF2INC:
         text_color = 'white'
         mode = "1"
         if self.bpp != 1:
-            mode = "L"
+            #mode = "L"
+            mode = "1"
             if self.nbgl:
                 background_color = 'white'
                 text_color = 'black'
         img = Image.new(mode, (width, height), color=background_color)
 
         return img, text_color
+
+    # -----------------------------------------------------------------------------
+    def convert_1bpp_to_4bpp(self, img_1bpp):
+        """
+        The provided img contains grey level pixels, from 0 (black) to 1 (white)
+        Convert it to 4bpp, with pixels going from 0 (black) to 15 (white)
+        (using simple antialiasing)
+        """
+        # Create a new image with same dimension
+        img = Image.new('L', (img_1bpp.width, img_1bpp.height), color='black')
+
+        for y in range (0, img.height):
+            previous_pixel = img_1bpp.getpixel((0, y))
+            for x in range (0, img.width):
+
+                black_or_white = img_1bpp.getpixel((x, y))
+
+                if black_or_white == 255:
+                    if previous_pixel == 0:
+                        grey_level = 128
+                    else:
+                        grey_level = 255
+                else:
+                    if previous_pixel == 255:
+                        grey_level = 128
+                    else:
+                        grey_level = 0
+
+                img.putpixel((x, y), grey_level)
+                previous_pixel = black_or_white
+
+        return img
 
     # -------------------------------------------------------------------------
     def get_char_image(self, char):
@@ -386,7 +419,7 @@ class TTF2INC:
 
         info = self.char_info[char]
         # STEP 1: Generate the image if it doesn't exist
-        if not os.path.exists(image_name) or self.args.overwrite:
+        if True or not os.path.exists(image_name) or self.args.overwrite:
             # To keep compatibility with 'genuine' generated images, picture
             # will have the height of the font and use font.getbbox sizes
             # Build an image with font height & taking in account left_offset
@@ -412,6 +445,8 @@ class TTF2INC:
             # Draw the character
             draw.text((offset_x, offset_y), char, font=self.font,
                       fill=text_color)
+            # Now, convert that image to 4bpp
+            img = self.convert_1bpp_to_4bpp(img)
             # Save the picture if we asked to
             if self.args.save:
                 image_name = change_ext(image_name, ".png")
@@ -425,7 +460,8 @@ class TTF2INC:
             # Be sure it is a B&W or grey levels picture:
             mode = "1"
             if self.bpp != 1:
-                mode = "L"
+                #mode = "L"
+                mode = "1"
             if img.mode != mode:
                 # Convert the picture (ImageMagick may obtain a better quality)
                 img = img.convert(mode)
@@ -447,6 +483,9 @@ class TTF2INC:
                 offset_y += self.baseline_offset
                 new_img.paste(img, (0, offset_y))
                 img = new_img
+
+            # Now, convert that image to 4bpp
+            img = self.convert_1bpp_to_4bpp(img)
 
             # Save the picture if we asked to
             if self.args.save:
