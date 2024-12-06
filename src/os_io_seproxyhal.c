@@ -273,8 +273,19 @@ unsigned int io_seproxyhal_handle_event(void)
 #ifdef HAVE_NFC
         case SEPROXYHAL_TAG_NFC_APDU_EVENT:
             io_nfc_recv_event();
+#if defined(HAVE_NFC_READER) && !defined(HAVE_BOLOS)
+            io_nfc_process_events();
+#endif  // HAVE_NFC_READER && !HAVE_BOLOS
             return 1;
-#endif
+#ifdef HAVE_NFC_READER
+        case SEPROXYHAL_TAG_NFC_EVENT:
+            io_nfc_event();
+#ifndef HAVE_BOLOS
+            io_nfc_process_events();
+#endif  // !HAVE_BOLOS
+            return 1;
+#endif  // HAVE_NFC_READER
+#endif  // HAVE_NFC
 
         case SEPROXYHAL_TAG_UX_EVENT:
             switch (G_io_seproxyhal_spi_buffer[3]) {
@@ -502,9 +513,10 @@ void io_seproxyhal_nfc_power(bool forceInit)
 {
     uint8_t buffer[4];
     uint8_t power
-        = forceInit
-              ? 1
-              : (os_setting_get(OS_SETTING_FEATURES, NULL, 0) & OS_SETTING_FEATURES_NFC_ENABLED);
+        = (forceInit
+           || (os_setting_get(OS_SETTING_FEATURES, NULL, 0) & OS_SETTING_FEATURES_NFC_ENABLED))
+              ? SEPROXYHAL_TAG_NFC_POWER_ON_CE
+              : SEPROXYHAL_TAG_NFC_POWER_OFF;
     buffer[0] = SEPROXYHAL_TAG_NFC_POWER;
     buffer[1] = 0;
     buffer[2] = 1;
