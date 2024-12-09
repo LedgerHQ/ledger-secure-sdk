@@ -165,24 +165,8 @@ static void keypadInitSelected(nbgl_keypad_t *keypad)
         keypad->selectedKey = 1 + INIT_DIGIT_VALUE;
     }
     else {
-        uint8_t nbChoices = 10;
-        uint8_t random;
-        if (keypad->enableBackspace) {
-            nbChoices++;
-        }
-        if (keypad->enableValidate) {
-            nbChoices++;
-        }
-        random = cx_rng_u32_range(0, nbChoices);
-        if (random < 10) {
-            keypad->selectedKey = 1 + random;
-        }
-        else if (random == 10) {
-            keypad->selectedKey = 0;
-        }
-        else if (random == 11) {
-            keypad->selectedKey = 11;
-        }
+        // Exclude backspace and validate keys ([0,11]), shuffle only digits
+        keypad->selectedKey = cx_rng_u32_range(1, 11);
     }
 }
 

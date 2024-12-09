@@ -136,8 +136,8 @@ int nbgl_layoutUpdateKeypad(nbgl_layout_t *layout,
         // if validate key is enabled and was not, select it directly
         keypad->selectedKey = 11;
     }
-    else {
-        // otherwise let the draw function pick a new selected
+    // Shuffle if selected key was not backspace or if the last pin entry has been deleted
+    else if ((keypad->selectedKey != 0) || (keypad->enableBackspace && !enableBackspace)) {
         keypad->selectedKey = 0xFF;
     }
     keypad->enableValidate  = enableValidate;
