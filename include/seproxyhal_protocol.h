@@ -112,7 +112,12 @@
 #define SEPROXYHAL_TAG_BOOTLOADER_RAPDU_EVENT 0x19  // <RAPDU from the bootloader>
 #define SEPROXYHAL_TAG_UX_EVENT               0x1A  //
 #ifdef HAVE_NFC
-#define SEPROXYHAL_TAG_NFC_APDU_EVENT 0x1C
+#define SEPROXYHAL_TAG_NFC_APDU_EVENT            0x1C
+#define SEPROXYHAL_TAG_NFC_EVENT                 0x1E
+#define SEPROXYHAL_TAG_NFC_EVENT_CARD_DETECTED   0x01  // card_detected + type a/b + nfcid[max 7]
+#define SEPROXYHAL_TAG_NFC_EVENT_CARD_DETECTED_A 0x01
+#define SEPROXYHAL_TAG_NFC_EVENT_CARD_DETECTED_B 0x02
+#define SEPROXYHAL_TAG_NFC_EVENT_CARD_LOST       0x02  // card lost
 #endif
 
 #define SEPH_PROTOCOL_EVT_POWER_BUTTON_EVENT 0x1B
@@ -166,8 +171,11 @@
 // #define SEPROXYHAL_TAG_SCREEN_DISPLAY              0x4A // wait for display_event after sent
 
 #ifdef HAVE_NFC
-#define SEPROXYHAL_TAG_NFC_RAPDU 0x4A
-#define SEPROXYHAL_TAG_NFC_POWER 0x34
+#define SEPROXYHAL_TAG_NFC_RAPDU           0x4A
+#define SEPROXYHAL_TAG_NFC_POWER           0x34
+#define SEPROXYHAL_TAG_NFC_POWER_OFF       0x00
+#define SEPROXYHAL_TAG_NFC_POWER_ON_CE     0x01
+#define SEPROXYHAL_TAG_NFC_POWER_ON_READER 0x02
 #endif
 
 #define SEPROXYHAL_TAG_DEVICE_OFF            0x4B
