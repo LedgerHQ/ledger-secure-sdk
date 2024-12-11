@@ -207,24 +207,6 @@
 
 #define SYSCALL_os_bolos_endorsement_revoke_ID 0x010001ED
 
-#ifdef HAVE_AEM_PIN
-#define SYSCALL_os_aem_set_pin_ID             0x02000139
-#define SYSCALL_os_aem_unset_pin_ID           0x0000013a
-#define SYSCALL_os_aem_is_pin_set_ID          0x0000013b
-#define SYSCALL_os_aem_set_response_ID        0x0300013c
-#define SYSCALL_os_aem_activate_response_ID   0x0000013d
-#define SYSCALL_os_aem_deactivate_response_ID 0x0000013e
-#define SYSCALL_os_aem_is_response_active_ID  0x0000013f
-#define SYSCALL_os_aem_is_feature_active_ID   0x00000140
-#define SYSCALL_os_aem_get_response_length_ID 0x00000141
-#define SYSCALL_os_aem_get_response_format_ID 0x00000142
-#define SYSCALL_os_aem_get_response_ID        0x02000143
-#define SYSCALL_os_aem_check_pin_ID           0x02000144
-#define SYSCALL_os_aem_invalidate_pin_ID      0x00000145
-#define SYSCALL_os_aem_get_ptc_ID             0x00000146
-#define SYSCALL_os_aem_is_pin_validated_ID    0x00000147
-#endif  // HAVE_AEM_PIN
-
 #define SYSCALL_os_endorsement_get_metadata_ID 0x02000138
 
 #if defined(HAVE_VAULT_RECOVERY_ALGO)
