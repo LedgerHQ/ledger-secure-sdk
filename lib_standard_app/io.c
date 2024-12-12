@@ -25,12 +25,20 @@
 #include "swap.h"
 #endif
 
+#ifdef HAVE_NFC_READER
+#include "os_io_nfc.h"
+#endif  // HAVE_NFC_READER
+
 // TODO: Temporary workaround, at some point all status words should be defined by the SDK and
 // removed from the application
 #define SW_OK                    0x9000
 #define SW_WRONG_RESPONSE_LENGTH 0xB000
 
 uint8_t G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
+
+#ifdef HAVE_NFC_READER
+struct nfc_reader_context G_io_reader_ctx;
+#endif
 
 /**
  * Variable containing the length of the APDU response to send back.
@@ -83,6 +91,10 @@ WEAK uint8_t io_event(uint8_t channel)
         case SEPROXYHAL_TAG_TICKER_EVENT:
             app_ticker_event_callback();
             UX_TICKER_EVENT(G_io_seproxyhal_spi_buffer, {});
+#ifdef HAVE_NFC_READER
+            io_nfc_ticker();
+            io_nfc_process_events();
+#endif  // HAVE_NFC_READER
             break;
         default:
             UX_DEFAULT_EVENT();
