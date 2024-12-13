@@ -77,17 +77,17 @@ SYSCALL bolos_err_t ENDORSEMENT_get_public_key(ENDORSEMENT_slot_t slot,
  *
  * @param[in] slot Index of the slot from which the certificate public key is to be read.
  * @param[out] out_buffer Pointer where certificate content is written. Writing is performed only if
- * not NULL.
+ * not NULL. Size ENDORSEMENT_SIGNATURE_MAX_LENGTH.
  * @param[out] out_length Pointer where certificate length is written. Writing is performed only if
  * not NULL.
  *
  * @return bolos_err_t
  * @retval 0x5219: Endorsement not set or corrupted
- * @retval 0x420A: \p endorsement_slot is invalid
- * @retval 0x4104: \p endorsement_slot is not set
+ * @retval 0x420A: \p slot is invalid
+ * @retval 0x4104: \p slot is not set
  * @retval 0x0000: Success
  */
-SYSCALL bolos_err_t ENDORSEMENT_get_public_key_certificate(ENDORSEMENT_slot_t endorsement_slot,
+SYSCALL bolos_err_t ENDORSEMENT_get_public_key_certificate(ENDORSEMENT_slot_t slot,
                                                            uint8_t           *out_buffer,
                                                            uint8_t           *out_length);
 
