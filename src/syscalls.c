@@ -1594,6 +1594,15 @@ void os_dashboard_mbx(uint32_t cmd, uint32_t param)
     SVC_Call(SYSCALL_os_dashboard_mbx_ID, parameters);
 }
 
+void os_ux_set_global(uint8_t param_type, uint8_t *param, size_t param_len)
+{
+    unsigned int parameters[3];
+    parameters[0] = (unsigned int) param_type;
+    parameters[1] = (unsigned int) param;
+    parameters[2] = (unsigned int) param_len;
+    SVC_Call(SYSCALL_os_ux_set_global_ID, parameters);
+}
+
 void os_lib_call(unsigned int *call_parameters)
 {
     unsigned int parameters[2];
