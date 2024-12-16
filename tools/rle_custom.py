@@ -6,6 +6,9 @@ This module contain tools to test different custom RLE coding/decoding.
 """
 # -----------------------------------------------------------------------------
 import argparse
+import base64
+import json
+import os
 import sys
 
 # -----------------------------------------------------------------------------
@@ -238,7 +241,7 @@ class RLECustomBase:
             pair = (count, previous_value)
             output.append(pair)
 
-        if self.verbose:
+        if self.verbose and False:
             sys.stdout.write(f"Nb values on pass1: {len(output)}\n")
             for repeat, value in output:
                 sys.stdout.write(f"{repeat:3d} x 0x{value:02X}\n")
@@ -1561,12 +1564,11 @@ class RLECustomP (RLECustomBase):
         pairs = self.remove_duplicates(pairs)
 
         # Display pairs
-        sys.stdout.write("After decode_pass2, pairs are:\n")
-        if self.verbose:
+        if self.verbose and False:
+            sys.stdout.write("After decode_pass2, pairs are:\n")
             sys.stdout.write(f"Nb values on pass1: {len(pairs)}\n")
             for repeat, value in pairs:
                 sys.stdout.write(f"{repeat:3d} x 0x{value:02X}\n")
-
 
         return pairs
 
@@ -1600,6 +1602,80 @@ class RLECustomP (RLECustomBase):
 
         return bytes_needed
 
+# -------------------------------------------------------------------------
+def get_bitmap_characters(file):
+    """
+    Parse the provided JSON file(s) and return bitmap + characters info
+    """
+    if not os.path.exists(file):
+        sys.stderr.write(f"Can't open JSON file {file}\n")
+        sys.exit(2)
+
+    # Read the JSON file into json_data
+    json_file = open(file, "r")
+    json_data = json.load(json_file, strict=False)
+
+    if 'bitmap' in json_data[0]:
+            bitmap = base64.b64decode(json_data[0]['bitmap'])
+    else:
+        bitmap = None
+
+    if 'nbgl_font_character' in json_data[0]:
+            characters = json_data[0]['nbgl_font_character']
+    else:
+        characters = None
+
+    return bitmap, characters
+
+# -------------------------------------------------------------------------
+def get_data(bitmap, characters, character):
+    """
+    Return the data corresponding the character provided
+    """
+    data = bytearray()
+    for i in range (0, len(characters)):
+        if characters[i]['char'] == character:
+            offset = characters[i]['bitmap_offset']
+            if i == len(characters)-1:
+                size = len(bitmap) - offset
+            else:
+                size = characters[i+1]['bitmap_offset'] - offset
+            for j in range (0, size):
+                data.append(bitmap[offset+j])
+            return data
+    return None
+
+# -------------------------------------------------------------------------
+def compress_data(args, encoded_data):
+    """
+    Try to compress the provided data.
+    (We first need to uncompress it, to get original data)
+    """
+    # Uncompress the data, to get the uncompressed size & data
+    if encoded_data is None or len(encoded_data) == 0:
+        return 0, 0
+
+    rle = RLECustom3(args.bpp, args.verbose)
+    data = rle.decode(encoded_data)
+
+    ratio = 100 - (100 * len(encoded_data)) / len(data)
+    sys.stdout.write(f"Input size: {len(data)} bytes ({len(data)*2} pixels)\n")
+    sys.stdout.write(f"Encoded size: {len(encoded_data)} bytes "
+                     f"(ratio:{ratio:.2f}%)\n")
+
+    # Now, try the new algorithm
+    rle_new = RLECustomP(args.bpp, args.verbose)
+    compressed_data = rle_new.encode(data)
+    compressed_size = rle_new.get_encoded_size(compressed_data)
+
+    ratio = 100 - (100 * compressed_size) / len(data)
+
+    sys.stdout.write(f"New encoded size: {compressed_size} bytes "
+                     f"(ratio:{ratio:.2f}%)\n")
+
+    # No need to check if decoding is fine, already done when encoding
+    return len(encoded_data), compressed_size
+
 # -----------------------------------------------------------------------------
 # Program entry point:
 # -----------------------------------------------------------------------------
@@ -1609,32 +1685,24 @@ if __name__ == "__main__":
     def main(args):
         """
         Main method.
-        111RRRRR
-        110RRRRR
-        0RRRVVVV
 
         * 111RRRRR
           - RRRRR is repeat count - 1 of White (0xF) quartets (max=31+1)
-        * 110RRRRR
-          - RRRRR is repeat count - 1 of Black (0x0) quartets (max=31+1)
-        * 0RRRVVVV
-          - RRR: repeat count - 1 => allow to store 1 to 8 repeat counts
-          - VVVV: value of the 4BPP pixel
-        * 1000VVVV
-          - Simple pattern, from black to white: 0x0, V, 0xF
-        * 1001VVVV
-          - Simple pattern, from white to black: 0xF, V, 0x0
-        * 101XXXXX
-
-        Coder un pattern qui va de 0, X, X, X, F et à l'inverse
-                                de F, X, X, X, 0
-
-        11RRRRRR
-        10RRVVVV WWWWXXXX YYYYZZZZ QQQQ0000
-        0RRRVVVV
-        With:
-        * 11RRRRRR
-        - RRRRRRR is repeat count - 1 of White (0xF) quartets (max=63+1)
+        * 1100RRRR
+          - RRRR is repeat count - 1 of Black (0x0) quartets (max=15+1)
+        * 1101XXXX
+          - AVAILABLE
+        * 0110VVVV
+          - Simple Pattern Black to White: 0x0, V, 0xF
+        * 0111VVVV
+          - Simple Pattern White to Black: 0xF, V, 0x0
+        * 010XXXXX
+          - AVAILABLE
+        * 00RRVVVV
+          - RR: repeat count - 1 => allow to store 1 to 4 repeat counts
+          - VVVV: value of the 4BPP pixel (value is not 0x0 nor 0xF)
+            => 00XX0000 is AVAILABLE
+            => 00XX1111 is AVAILABLE
         * 10RRVVVV WWWWXXXX YYYYZZZZ QQQQ0000
         - RR is repeat count - 3 of quartets (max=3+3 => 6 quartets)
         - VVVV: value of 1st 4BPP pixel
@@ -1643,81 +1711,34 @@ if __name__ == "__main__":
         - YYYY: value of 4th 4BPP pixel
         - ZZZZ: value of 5th 4BPP pixel
         - QQQQ: value of 6th 4BPP pixel
-        * 0RRRVVVV
-        - RRR: repeat count - 1 => allow to store 1 to 8 repeat counts
-        - VVVV: value of the 4BPP pixel
         """
         # compressed ascii 0x0040 inter_medium_36.inc
-        encoded_data = bytes([
-  0xCE, 0x2E, 0xDB, 0x8D, 0x72, 0x60, 0x82, 0x7C,
-  0xD4, 0x0C, 0x05, 0x70, 0x40, 0x02, 0x0C, 0xD1,
-  0x07, 0x70, 0x70, 0x00, 0x0A, 0xCE, 0x0E, 0x02,
-  0x30, 0x92, 0x9C, 0xE0, 0xC1, 0x1E, 0x8C, 0xA7,
-  0x30, 0x0E, 0xCD, 0x02, 0x20, 0x02, 0x0D, 0xCB,
-  0x02, 0x10, 0x09, 0xCC, 0x05, 0x20, 0x07, 0xCD,
-  0x0A, 0x10, 0x05, 0xCB, 0x0A, 0x20, 0x09, 0xCE,
-  0x0C, 0x10, 0x05, 0xC4, 0x0E, 0xC5, 0x02, 0x10,
-  0x05, 0xCE, 0x0E, 0x02, 0x10, 0x05, 0xC2, 0x07,
-  0x12, 0xC4, 0x0A, 0x20, 0x0E, 0xC1, 0x09, 0x72,
-  0x32, 0x30, 0x09, 0xC2, 0x02, 0x10, 0x0D, 0xC3,
-  0x05, 0x10, 0x07, 0xC2, 0x09, 0x70, 0x60, 0x02,
-  0x0E, 0xC2, 0x05, 0x10, 0x09, 0xC3, 0x20, 0x0D,
-  0xC2, 0x09, 0x70, 0x50, 0x02, 0x0D, 0xC3, 0x09,
-  0x10, 0x05, 0xC2, 0x0D, 0x10, 0x02, 0xC3, 0x0E,
-  0x07, 0x20, 0x85, 0x9A, 0x1C, 0x09, 0x07, 0x20,
-  0x09, 0xC4, 0x0D, 0x10, 0x02, 0xC2, 0x0A, 0x10,
-  0x05, 0xC3, 0x0E, 0x20, 0x0A, 0xC6, 0x0E, 0x05,
-  0x10, 0x09, 0xC3, 0x0E, 0x20, 0xC2, 0x09, 0x10,
-  0x07, 0xC3, 0x07, 0x10, 0x05, 0xC8, 0x0E, 0x20,
-  0x0E, 0xC3, 0x20, 0xC2, 0x09, 0x10, 0x09, 0xC3,
-  0x02, 0x10, 0x0A, 0xC9, 0x05, 0x10, 0x09, 0xC3,
-  0x02, 0x10, 0x0E, 0xC1, 0x09, 0x10, 0x07, 0xC3,
-  0x02, 0x10, 0x0C, 0xC9, 0x07, 0x10, 0x07, 0xC3,
-  0x20, 0x0E, 0xC1, 0x09, 0x10, 0x07, 0xC3, 0x02,
-  0x10, 0x0A, 0xC9, 0x07, 0x10, 0x07, 0xC3, 0x20,
-  0xC2, 0x0A, 0x10, 0x05, 0xC3, 0x05, 0x10, 0x07,
-  0xC9, 0x02, 0x10, 0x09, 0xC2, 0x0E, 0x20, 0xC2,
-  0x0D, 0x10, 0x02, 0xC3, 0x0A, 0x20, 0x0D, 0xC7,
-  0x09, 0x20, 0x0C, 0xC2, 0x0A, 0x10, 0x02, 0xC3,
-  0x20, 0x0D, 0xC3, 0x02, 0x20, 0x09, 0xC4, 0x0E,
-  0x07, 0x20, 0x02, 0xC3, 0x07, 0x10, 0x05, 0xC3,
-  0x05, 0x10, 0x09, 0xC3, 0x0C, 0x40, 0x25, 0x02,
-  0x40, 0x0D, 0xC3, 0x02, 0x10, 0x09, 0xC3, 0x09,
-  0x20, 0xC4, 0x0A, 0x70, 0x30, 0x0C, 0xC3, 0x09,
-  0x20, 0x0E, 0xC4, 0x02, 0x10, 0x07, 0xC4, 0x0E,
-  0x05, 0x70, 0x07, 0x0E, 0xC4, 0x02, 0x10, 0x05,
-  0xC5, 0x09, 0x20, 0x0A, 0xC5, 0x8E, 0xA9, 0x17,
-  0x09, 0x0C, 0xC6, 0x05, 0x20, 0x0D, 0xC6, 0x02,
-  0x20, 0x0A, 0xD1, 0x07, 0x20, 0x05, 0xC7, 0x0D,
-  0x30, 0x07, 0xCE, 0x0E, 0x05, 0x20, 0x02, 0xC9,
-  0x0A, 0x30, 0x82, 0x9E, 0xC9, 0x0E, 0x07, 0x40,
-  0x0D, 0xCA, 0x0A, 0x50, 0x82, 0x79, 0x2A, 0x19,
-  0x05, 0x02, 0x40, 0x02, 0x0D, 0xCC, 0x0E, 0x02,
-  0x70, 0x70, 0x10, 0x05, 0xD0, 0x0C, 0x05, 0x70,
-  0x50, 0x05, 0x0D, 0xD3, 0x9D, 0x95, 0x20, 0x50,
-  0x92, 0x59, 0xE0, 0xDA, 0x2E, 0xC0,
-        ])
 
-        # Uncompress the data, to get the uncompressed size & data
-        rle = RLECustom3(args.bpp, args.verbose)
-        data = rle.decode(encoded_data)
+        # JSON files are at public_sdk/lib_nbgl/include/fonts/
+        # nbgl_font_inter_medium_36.json
+        # They contain characters from 0x20 to 0x7E
 
-        ratio = 100 - (100 * len(encoded_data)) / len(data)
-        sys.stdout.write(f"Input size: {len(data)} bytes ({len(data)*2} pixels)\n")
-        sys.stdout.write(f"Encoded size: {len(encoded_data)} bytes "
-                         f"(ratio:{ratio:.2f}%)\n")
+        bitmap, characters = get_bitmap_characters(args.json_filename)
 
-        # Now, try the new algorithm
-        rle_new = RLECustomP(args.bpp, args.verbose)
-        compressed_data = rle_new.encode(data)
-        compressed_size = rle_new.get_encoded_size(compressed_data)
+        total_old_size = 0
+        total_new_size = 0
 
-        ratio = 100 - (100 * compressed_size) / len(data)
+        if args.char != None:
+            encoded_data = get_data(bitmap, characters, args.char)
+            sys.stdout.write(f"Encoding character 0x{args.char:X} ({args.char:d})[{args.char:c}]\n")
+            old_size, new_size = compress_data(args, encoded_data)
+            total_old_size += old_size
+            total_new_size += new_size
+        else:
+            for character in characters:
+                char = character['char']
+                encoded_data = get_data(bitmap, characters, char)
+                sys.stdout.write(f"Encoding character 0x{char:X} ({char:d})[{char:c}]\n")
+                old_size, new_size = compress_data(args, encoded_data)
+                total_old_size += old_size
+                total_new_size += new_size
 
-        sys.stdout.write(f"New encoded size: {compressed_size} bytes "
-                         f"(ratio:{ratio:.2f}%)\n")
-
-        # No need to check if decoding is fine, already done when encoding
+        sys.stdout.write(f"Old size={total_old_size}, new_size={total_new_size}\n")
 
         return 0
 
@@ -1731,6 +1752,18 @@ if __name__ == "__main__":
         dest="bpp", type=int,
         default=4,
         help="Number of bits per pixel ('%(default)s' by default)")
+
+    parser.add_argument(
+        "-c", "--char",
+        dest="char", type=int,
+        default=None,
+        help="Character to encode ('%(default)s' by default)")
+
+    parser.add_argument(
+        "-j", "--json",
+        dest="json_filename", type=str,
+        default="lib_nbgl/include/fonts/nbgl_font_inter_medium_36.json",
+        help="Full path of JSON filename containing bitmap/characters info ('%(default)s' by default)")
 
     parser.add_argument(
         "-v", "--verbose",
