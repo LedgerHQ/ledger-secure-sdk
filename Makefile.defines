@@ -185,8 +185,6 @@ ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOX TARGET_NANOS2))
 DEFINES       += HAVE_SE_SCREEN
 # Button is directly connected to the SE
 DEFINES       += HAVE_SE_BUTTON
-# MCU serial is stored on board of the SE
-DEFINES       += HAVE_MCU_SERIAL_STORAGE
 DEFINES       += HAVE_FONTS
 DEFINES       += HAVE_INAPP_BLE_PAIRING
 DEFINES       += HAVE_BATTERY
