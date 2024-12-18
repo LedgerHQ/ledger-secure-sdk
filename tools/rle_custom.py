@@ -29,6 +29,9 @@ class RLECustomBase:
     CMD_TRIPLE_PATTERN_WHITE    = 8
     CMD_TRIPLE_PATTERN_BLACK    = 9
 
+    double_pattern_black = []
+    double_pattern_white = []
+
     # -------------------------------------------------------------------------
     def __init__(self, bpp=1, verbose=False):
         super().__init__()
@@ -1393,7 +1396,52 @@ class RLECustomP (RLECustomBase):
             sys.exit(1)
 
     # -------------------------------------------------------------------------
-    def encode_pass2(self, pairs, max_count=32):
+    def add_double_pattern_black(self, value1, value2):
+        """
+        Add a double pattern, from black to white, if it doesn't exist yet
+        black, value1, value2, white
+        """
+        pattern = (value1, value2)
+        for i in range (0, len(RLECustomBase.double_pattern_black)):
+            if pattern == RLECustomBase.double_pattern_black[i]:
+                return i
+
+        # that pattern was not found: add it!
+        RLECustomBase.double_pattern_black.append(pattern)
+
+        return len(RLECustomBase.double_pattern_black)-1
+
+    # -------------------------------------------------------------------------
+    def add_double_pattern_white(self, value1, value2):
+        """
+        Add a double pattern, from white to black, if it doesn't exist yet
+        white, value1, value2, black
+        """
+        pattern = (value1, value2)
+        for i in range (0, len(RLECustomBase.double_pattern_white)):
+            if pattern == RLECustomBase.double_pattern_white[i]:
+                return i
+
+        # that pattern was not found: add it!
+        RLECustomBase.double_pattern_white.append(pattern)
+
+        return len(RLECustomBase.double_pattern_white)-1
+
+    # -------------------------------------------------------------------------
+    def get_max_count(self, value):
+        """
+        Return the max_count allowed for provided value.
+        (typically, 0xF is allowed a bigger max_count than for example 3)
+        """
+        if value == 15:
+            return 32
+        elif value == 0:
+            return 32
+        else:
+            return 16
+
+    # -------------------------------------------------------------------------
+    def encode_pass2(self, pairs, max_count=64):
         """
         Encode tuples containing (repeat, val) into packed values.
         The generated packed values will contain:
@@ -1437,6 +1485,46 @@ class RLECustomP (RLECustomBase):
                 if repeat1 == 1:
                     i += 1
 
+        # Second, look for double patterns: black, value1, value2, white or white, value1, value2, black
+        if True:
+            for i in range (1, len(pairs)-2):
+                #sys.stdout.write(f"i={i}, pair-1={pairs[i-1]}, , pair={pairs[i]}, pair+1={pairs[i+1]}, pair+2={pairs[i+2]}\n")
+                # Check if we have a pattern 0x0, 1x value1, 1x value2, 0xF
+                repeat0, value0 = pairs[i-1]
+                repeat, value = pairs[i]
+                repeat1, value1 = pairs[i+1]
+                repeat2, value2 = pairs[i+2]
+                if repeat != 1 or repeat1 != 1 or repeat0 < 1 or repeat2 < 1:
+                    continue
+                # is previous value black and next white?
+                if value0 == 0x0 and value2 == 0xF:
+                    # Cool, we found a double black pattern!
+                    indice = self.add_double_pattern_black(value, value1)
+                    pairs[i] = (-3, indice) # -3 = CMD_DOUBLE_PATTERN_BLACK
+                    pairs[i+1] = (0, 0)     # That one is not needed anymore
+                    # Update previous (black) & next (white) pairs
+                    pairs[i-1] = (repeat0-1, value0)
+                    pairs[i+2] = (repeat2-1, value2)
+                    # Skip next 2 index
+                    i += 2
+                    # if next value repeat count is 0, skip it
+                    if repeat2 == 1:
+                        i += 1
+
+                # is previous value white and next black?
+                elif value0 == 0xF and value2 == 0x0:
+                    # Cool, we found a double white pattern!
+                    indice = self.add_double_pattern_white(value, value1)
+                    pairs[i] = (-4, indice) # -4 = CMD_DOUBLE_PATTERN_WHITE
+                    pairs[i+1] = (0, 0)     # That one is not needed anymore
+                    # Update previous (white) & next (black) pairs
+                    pairs[i-1] = (repeat0-1, value0)
+                    pairs[i+2] = (repeat2-1, value2)
+                    # Skip next 2 index
+                    i += 2
+                    # if next value repeat count is 0, skip it
+                    if repeat2 == 1:
+                        i += 1
         infos = []
         index = 0
         threshold = 2
@@ -1462,15 +1550,23 @@ class RLECustomP (RLECustomBase):
                     info = (self.CMD_SIMPLE_PATTERN_WHITE, 1, pixels)
                     infos.append(info)
                     repeat = 0
+                elif repeat == -3:
+                    info = (self.CMD_DOUBLE_PATTERN_BLACK, 1, pixels)
+                    infos.append(info)
+                    repeat = 0
+                elif repeat == -4:
+                    info = (self.CMD_DOUBLE_PATTERN_WHITE, 1, pixels)
+                    infos.append(info)
+                    repeat = 0
                 else:
-                    sys.stdout.write("repeat is < 0 but its neither -1 or -2!!\n")
+                    sys.stdout.write("repeat is < 0 but its neither -1, -2, -3 or -4!!\n")
                     sys.exit(1)
 
             # We can't store more than a repeat count of max_count
-            while repeat >= max_count:
-                info = (self.CMD_FILL, max_count, pixels)
+            while repeat >= self.get_max_count(value):
+                info = (self.CMD_FILL, self.get_max_count(value), pixels)
                 infos.append(info)
-                repeat -= max_count
+                repeat -= self.get_max_count(value)
 
             # Is it still interesting to use FILL commands?
             if repeat >= threshold:
@@ -1526,6 +1622,14 @@ class RLECustomP (RLECustomBase):
                 elif command == self.CMD_SIMPLE_PATTERN_WHITE:
                     value = pixels[0]
                     sys.stdout.write(f"SIMPLE_PATTERN_WHITE {repeat:3d} x (0xF, {value}, 0x0)\n")
+                elif command == self.CMD_DOUBLE_PATTERN_BLACK:
+                    indice = pixels[0]
+                    value1, value2 = self.double_pattern_black[indice]
+                    sys.stdout.write(f"DOUBLE_PATTERN_BLACK {repeat:3d} x (0x0, {value1}, {value2}, 0xF)\n")
+                elif command == self.CMD_DOUBLE_PATTERN_WHITE:
+                    indice = pixels[0]
+                    value1, value2 = self.double_pattern_white[indice]
+                    sys.stdout.write(f"DOUBLE_PATTERN_WHITE {repeat:3d} x (0xF, {value1}, {value2}, 0x0)\n")
                 else:
                     sys.stdout.write(f"COPY {repeat:3d} x {pixels}\n")
 
@@ -1555,6 +1659,20 @@ class RLECustomP (RLECustomBase):
                 pairs.append((1, 0xF))
                 pairs.append((1, value))
                 pairs.append((1, 0x0))
+            elif command == self.CMD_DOUBLE_PATTERN_BLACK:
+                indice = pixels[0]
+                value1, value2 = self.double_pattern_black[indice]
+                pairs.append((1, 0x0))
+                pairs.append((1, value1))
+                pairs.append((1, value2))
+                pairs.append((1, 0xF))
+            elif command == self.CMD_DOUBLE_PATTERN_WHITE:
+                indice = pixels[0]
+                value1, value2 = self.double_pattern_white[indice]
+                pairs.append((1, 0xF))
+                pairs.append((1, value1))
+                pairs.append((1, value2))
+                pairs.append((1, 0x0))
             else:
                 # Store pixel by pixel => duplicates will be merged later
                 for value in pixels:
@@ -1579,24 +1697,27 @@ class RLECustomP (RLECustomBase):
         """
         # Compute size needed
         total_pixels = 0
-        quartets_needed = 0
+        bytes_needed = 0
         for command, repeat, pixels in data:
             if command == self.CMD_FILL:
-                quartets_needed += 1 + 1
+                bytes_needed += 1
                 total_pixels += repeat
             elif command == self.CMD_SIMPLE_PATTERN_BLACK:
-                quartets_needed += 1 + 1
+                bytes_needed += 1
                 total_pixels += 1 + 1 + 1
             elif command == self.CMD_SIMPLE_PATTERN_WHITE:
-                quartets_needed += 1 + 1
+                bytes_needed += 1
                 total_pixels += 1 + 1 + 1
+            elif command == self.CMD_DOUBLE_PATTERN_BLACK:
+                bytes_needed += 1
+                total_pixels += 1 + 1 + 1 + 1
+            elif command == self.CMD_DOUBLE_PATTERN_WHITE:
+                bytes_needed += 1
+                total_pixels += 1 + 1 + 1 + 1
             else: # CMD_COPY
-                quartets_needed += 1 + repeat
+                # if repeat is 2, 4, 6, 8 etc, we loose 1 quartet...
+                bytes_needed += 1 + repeat // 2
                 total_pixels += repeat
-
-        bytes_needed = quartets_needed // 2
-        if quartets_needed & 1:
-            bytes_needed += 1
 
         sys.stdout.write(f"Nb pixels: {total_pixels}\n")
 
@@ -1619,11 +1740,19 @@ def get_bitmap_characters(file):
             bitmap = base64.b64decode(json_data[0]['bitmap'])
     else:
         bitmap = None
+        sys.stderr.write(f"Didn't found field 'bitmap' in JSON file {file}!\n")
+        sys.exit(3)
 
     if 'nbgl_font_character' in json_data[0]:
             characters = json_data[0]['nbgl_font_character']
+    elif 'bagl_font_unicode_character' in json_data[0]:
+            characters = json_data[0]['bagl_font_unicode_character']
+    elif 'nbgl_font_unicode_character' in json_data[0]:
+            characters = json_data[0]['nbgl_font_unicode_character']
     else:
         characters = None
+        sys.stderr.write(f"Didn't found field 'XX_font_character' in JSON file {file}!\n")
+        sys.exit(3)
 
     return bitmap, characters
 
@@ -1653,7 +1782,7 @@ def compress_data(args, encoded_data):
     """
     # Uncompress the data, to get the uncompressed size & data
     if encoded_data is None or len(encoded_data) == 0:
-        return 0, 0
+        return 0, 0, 0
 
     rle = RLECustom3(args.bpp, args.verbose)
     data = rle.decode(encoded_data)
@@ -1674,7 +1803,7 @@ def compress_data(args, encoded_data):
                      f"(ratio:{ratio:.2f}%)\n")
 
     # No need to check if decoding is fine, already done when encoding
-    return len(encoded_data), compressed_size
+    return len(data), len(encoded_data), compressed_size
 
 # -----------------------------------------------------------------------------
 # Program entry point:
@@ -1686,18 +1815,89 @@ if __name__ == "__main__":
         """
         Main method.
 
+        CMD + DATA:
+
+        1000 + VVVV => Simple Pattern Black to White: 0x0, VVVV, 0xF
+        1001 + VVVV => Simple Pattern White to Black: 0xF, VVVV, 0x0
+        1010 + VVVV + WWWW => Double Pattern Black to White: 0x0, VVVV, WWWW, 0xF
+        1011 + VVVV + WWWW => Double Pattern White to Black: 0xF, VVVV, WWWW, 0x0
+        (VVVV et VVVV+WWWW peuvent aussi être remplacés par IIII: indice dans un tableau)
+        (mais bon, 4 bits ce n'est pas suffisant pour un tel indice)
+        110R + RRRR => FILL Black (max=32)
+        111R + RRRR => FILL White (max=32)
+
+        00RR + VVVV + WWWW + XXXX + YYYY + ZZZZ + QQQQ => COPY Quartets
+        - RR is repeat count - 3 of quartets (max=3+3 => 6 quartets)
+        - VVVV: value of 1st 4BPP pixel
+        - WWWW: value of 2nd 4BPP pixel
+        - XXXX: value of 3rd 4BPP pixel
+        - YYYY: value of 4th 4BPP pixel
+        - ZZZZ: value of 5th 4BPP pixel
+        - QQQQ: value of 6th 4BPP pixel
+
+        0100 + VVVV + RRRR => FILL Value x Repeat+1 (max=16)
+        (avec VVVV = 0000 = AVAILABLE)
+        (avec VVVV = FFFF = AVAILABLE)
+
+        011R + VVVV => FILL Value x Repeat+1 (max=2)
+
+        0101 AVAILABLE
+
+        CMD:
+        FILL 64 white, 32 black 16 other colors
+        * 11WWWWWW :
+          - WWWWWW is repeat count - 1 of White (0xF) quartets (max=63+1)
+
+        * 101WWWWW :
+          - WWWWW is repeat count - 1 of White (0xF) quartets (max=31+1)
+        * 100BBBBB :
+          - BBBBB is repeat count - 1 of Black (0x0) quartets (max=31+1)
+
+        * 11RRVVVV WWWWXXXX YYYYZZZZ QQQQ0000
+        - RR is repeat count - 3 of quartets (max=3+3 => 6 quartets)
+        - VVVV: value of 1st 4BPP pixel
+        - WWWW: value of 2nd 4BPP pixel
+        - XXXX: value of 3rd 4BPP pixel
+        - YYYY: value of 4th 4BPP pixel
+        - ZZZZ: value of 5th 4BPP pixel
+        - QQQQ: value of 6th 4BPP pixel
+
+        * 1010VVVV
+          - Simple Pattern Black to White: 0x0, V, 0xF
+        * 1011VVVV
+          - Simple Pattern White to Black: 0xF, V, 0x0
+
+        * 0RRRVVVV :
+          - RRR: repeat count - 1 => allow to store 1 to 8 repeat counts
+          - VVVV: value of the 4BPP pixel (value is not 0x0 nor 0xF)
+            => 0XXX0000 is AVAILABLE
+            => 0XXX1111 is AVAILABLE
+
+        * 00RRVVVV WWWWXXXX YYYYZZZZ QQQQ0000
+        - RR is repeat count - 3 of quartets (max=3+3 => 6 quartets)
+        - VVVV: value of 1st 4BPP pixel
+        - WWWW: value of 2nd 4BPP pixel
+        - XXXX: value of 3rd 4BPP pixel
+        - YYYY: value of 4th 4BPP pixel
+        - ZZZZ: value of 5th 4BPP pixel
+        - QQQQ: value of 6th 4BPP pixel
+
+
         * 111RRRRR
           - RRRRR is repeat count - 1 of White (0xF) quartets (max=31+1)
         * 1100RRRR
           - RRRR is repeat count - 1 of Black (0x0) quartets (max=15+1)
         * 1101XXXX
           - AVAILABLE
+          - COPY3: 1101XXXX YYYYZZZZ => 3 quartets in 2 bytes
         * 0110VVVV
           - Simple Pattern Black to White: 0x0, V, 0xF
         * 0111VVVV
           - Simple Pattern White to Black: 0xF, V, 0x0
         * 010XXXXX
           - AVAILABLE
+          - 0101XXXX
+          - 0100XXXX
         * 00RRVVVV
           - RR: repeat count - 1 => allow to store 1 to 4 repeat counts
           - VVVV: value of the 4BPP pixel (value is not 0x0 nor 0xF)
@@ -1711,34 +1911,86 @@ if __name__ == "__main__":
         - YYYY: value of 4th 4BPP pixel
         - ZZZZ: value of 5th 4BPP pixel
         - QQQQ: value of 6th 4BPP pixel
+        =================
+        Besoins
+        RRRRR 5 bits: FILL White x 1->32
+        RRRRR 5 bits: FILL Black x 1->32
+        VVVV  4 bits: Simple Pattern Black to White: 0x0, V, 0xF
+        VVVV  4 bits: Simple Pattern White to Black: 0xF, V, 0x0
+        1 + RR + VVVV 6 bits: FILL Value x 1-4
+        1 + RRRR + VVVV 8 bits: FILL Value x 1-16
+        1 + VVVV + WWWW 8 bits: Double Pattern Black to White: 0x0, VVVV, WWWW, 0xF
+        1 + VVVV + WWWW 8 bits: Double Pattern White to Black: 0xF, VVVV, WWWW, 0x0
+        1 + RR VVVV 6 bits : COPY 3 to 6 quartets
         """
+        # Regular (ASCII) JSON files are at public_sdk/lib_nbgl/include/fonts/
+        # nbgl_font_inter_regular_28.json
+        # nbgl_font_inter_regular_28_1bpp.json
+        # nbgl_font_inter_medium_36.json
+        # nbgl_font_inter_medium_36_1bpp.json
+        # nbgl_font_inter_semibold_28.json
+        # nbgl_font_inter_semibold_28_1bpp.json
+        # bagl_font_Inter_Medium_36px.json
+        # bagl_font_Inter_Medium_36px_1bpp.json
+        # bagl_font_Inter_Regular_28px_unicode.json
+        # bagl_font_Inter_Regular_28px_1bpp_unicode.json
+        # bagl_font_Inter_SemiBold_28px_unicode.json
+        # bagl_font_Inter_SemiBold_28px_1bpp_unicode.json
+
+        # Chinese, RU & FR JSON files are at /home/dmorais/gitea/dmo-backup
+        # bagl_font_NotoSerifSC_Regular_28px_unicode.json
+        # bagl_font_NotoSerifSC_SemiBold_28px_unicode.json
+        # bagl_font_NotoSerifSC_Medium_36px_unicode.json
+        # bagl_font_NotoSerifSC_Regular_28px_1bpp_unicode.json
+        # bagl_font_NotoSerifSC_SemiBold_28px_1bpp_unicode.json
+        # bagl_font_NotoSerifSC_Medium_36px_1bpp_unicode.json
+        #
+        # nbgl_font_Inter_Medium_36px_fr.json
+        # nbgl_font_Inter_Regular_28px_fr.json
+        # nbgl_font_Inter_SemiBold_28px_fr.json
+        #
+        # nbgl_font_Inter_Medium_36px_ru.json
+        # nbgl_font_Inter_Regular_28px_ru.json
+        # nbgl_font_Inter_SemiBold_28px_ru.json
+
         # compressed ascii 0x0040 inter_medium_36.inc
 
-        # JSON files are at public_sdk/lib_nbgl/include/fonts/
         # nbgl_font_inter_medium_36.json
         # They contain characters from 0x20 to 0x7E
 
         bitmap, characters = get_bitmap_characters(args.json_filename)
 
+        total_raw_size = 0
         total_old_size = 0
         total_new_size = 0
 
         if args.char != None:
             encoded_data = get_data(bitmap, characters, args.char)
             sys.stdout.write(f"Encoding character 0x{args.char:X} ({args.char:d})[{args.char:c}]\n")
-            old_size, new_size = compress_data(args, encoded_data)
+            raw_size, old_size, new_size = compress_data(args, encoded_data)
+            total_raw_size += raw_size
             total_old_size += old_size
             total_new_size += new_size
         else:
             for character in characters:
                 char = character['char']
                 encoded_data = get_data(bitmap, characters, char)
-                sys.stdout.write(f"Encoding character 0x{char:X} ({char:d})[{char:c}]\n")
-                old_size, new_size = compress_data(args, encoded_data)
+                sys.stdout.write(f"\nEncoding character 0x{char:X} ({char:d})[{char:c}]\n")
+                raw_size, old_size, new_size = compress_data(args, encoded_data)
+                total_raw_size += raw_size
                 total_old_size += old_size
                 total_new_size += new_size
 
-        sys.stdout.write(f"Old size={total_old_size}, new_size={total_new_size}\n")
+        # Take in account the various dictionaries
+        sys.stdout.write(f"{len(RLECustomBase.double_pattern_black)} entries for double_pattern_black\n")
+        sys.stdout.write(f"{len(RLECustomBase.double_pattern_white)} entries for double_pattern_white\n")
+        total_new_size += len(RLECustomBase.double_pattern_black)
+        total_new_size += len(RLECustomBase.double_pattern_white)
+        old_ratio = 100 - (100 * total_old_size) / total_raw_size
+        new_ratio = 100 - (100 * total_new_size) / total_raw_size
+        sys.stdout.write(f"Original size = {total_raw_size} bytes\n")
+        sys.stdout.write(f"Old size={total_old_size}(ratio:{old_ratio:.2f}%), "
+                         f"new_size={total_new_size}(ratio:{new_ratio:.2f}%)\n")
 
         return 0
 
