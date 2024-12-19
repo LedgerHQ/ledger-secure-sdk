@@ -33,6 +33,7 @@
 
 /* Exported variables --------------------------------------------------------*/
 io_seph_app_t G_io_app;
+unsigned char G_io_asynch_ux_callback;
 
 /* Private variables ---------------------------------------------------------*/
 

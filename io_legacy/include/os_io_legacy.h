@@ -36,6 +36,8 @@
 // deprecated
 #define G_io_apdu_state G_io_app.apdu_state
 
+extern unsigned char G_io_asynch_ux_callback;
+
 /* Exported macros------------------------------------------------------------*/
 
 /* Exported variables --------------------------------------------------------*/
