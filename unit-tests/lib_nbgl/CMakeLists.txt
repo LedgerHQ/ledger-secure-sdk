@@ -64,6 +64,7 @@ include_directories(../../include)
 include_directories(../../lib_nbgl/include)
 include_directories(../../lib_nbgl/include/fonts)
 include_directories(../../lib_ux_nbgl)
+include_directories(../../io/include)
 
 add_executable(test_nbgl_fonts test_nbgl_fonts.c)
 add_executable(test_nbgl_obj_pool test_nbgl_obj_pool.c)
