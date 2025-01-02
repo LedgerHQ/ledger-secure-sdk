@@ -1,0 +1,48 @@
+name: Build and run functional tests of Ledger owned applications
+
+# This workflow will build Ledger owned applications and then run functional tests on them
+#
+# We sadly can't make this file itself reusable as it would hit the max depth of github runner
+# https://github.com/actions/runner/issues/1797
+# Todo when github removes this arbitrary limit
+#
+# We sadly have to split the file in several parts due to annoying arbitrary workflow limit
+# https://github.com/orgs/community/discussions/32192
+# Todo when github removes this arbitrary limit
+
+on:
+  workflow_dispatch:
+    inputs:
+      golden_run:
+        type: choice
+        required: true
+        default: 'Raise an error (default)'
+        description: CI behavior if the test snaphots are different than expected.
+        options:
+          - 'Raise an error (default)'
+          - 'Open a PR'
+
+jobs:
+  ethereum:
+    name: Ethereum
+    uses: LedgerHQ/app-ethereum/.github/workflows/reusable_build_and_functional_tests.yml@fbe/reusable_entry_point_for_CI
+    with:
+      regenerate_snapshots: ${{ inputs.golden_run == 'Open a PR' }}
+
+  bitcoin:
+    name: Bitcoin
+    uses: LedgerHQ/app-bitcoin-new/.github/workflows/reusable_build_and_functional_tests.yml@fbe/reusable_entry_point_for_CI
+    with:
+      regenerate_snapshots: ${{ inputs.golden_run == 'Open a PR' }}
+
+  exchange:
+    name: Exchange
+    uses: LedgerHQ/app-exchange/.github/workflows/reusable_swap_functional_tests.yml@develop
+    with:
+      regenerate_snapshots: ${{ inputs.golden_run == 'Open a PR' }}
+
+  nbgl_tests:
+    name: NBGL Tests
+    uses: LedgerHQ/app-bitcoin-new/.github/workflows/reusable_build_and_functional_tests.yml@fbe/reusable_entry_point_for_CI
+    with:
+      regenerate_snapshots: ${{ inputs.golden_run == 'Open a PR' }}
