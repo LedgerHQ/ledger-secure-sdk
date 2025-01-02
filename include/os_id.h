@@ -22,12 +22,10 @@ SYSCALL unsigned int os_flags(void);
 SYSCALL unsigned int os_version(unsigned char *version PLENGTH(maxlength), unsigned int maxlength);
 /* Grab the SE serial number */
 SYSCALL unsigned int os_serial(unsigned char *serial PLENGTH(maxlength), unsigned int maxlength);
-#ifdef HAVE_MCU_SERIAL_STORAGE
 /* Grab the SEPROXYHAL's MCU serial number */
 SYSCALL unsigned int os_seph_serial(unsigned char *serial PLENGTH(maxlength),
                                     unsigned int          maxlength);
-#endif  // HAVE_MCU_SERIAL_STORAGE
-        /* Grab the SEPROXYHAL's feature set */
+/* Grab the SEPROXYHAL's feature set */
 SYSCALL unsigned int os_seph_features(void);
 /* Grab the SEPROXYHAL's version */
 SYSCALL unsigned int os_seph_version(unsigned char *version PLENGTH(maxlength),

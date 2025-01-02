@@ -1954,7 +1954,6 @@ bolos_err_t ENDORSEMENT_revoke_slot(ENDORSEMENT_revoke_id_t revoke_id)
 }
 #endif  // HAVE_BOLOS
 
-#ifdef HAVE_MCU_SERIAL_STORAGE
 unsigned int os_seph_serial(unsigned char *serial, unsigned int maxlength)
 {
     unsigned int parameters[2];
@@ -1962,7 +1961,6 @@ unsigned int os_seph_serial(unsigned char *serial, unsigned int maxlength)
     parameters[1] = (unsigned int) maxlength;
     return (unsigned int) SVC_Call(SYSCALL_os_seph_serial_ID, parameters);
 }
-#endif
 
 #ifdef HAVE_SE_SCREEN
 void screen_clear(void)

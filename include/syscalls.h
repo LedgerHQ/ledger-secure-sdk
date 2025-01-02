@@ -237,9 +237,7 @@
 
 #define SYSCALL_os_standby_ID 0x0000d0d0
 
-#ifdef HAVE_MCU_SERIAL_STORAGE
 #define SYSCALL_os_seph_serial_ID 0x0200006d
-#endif  // HAVE_MCU_SERIAL_STORAGE
 
 #if defined(HAVE_LANGUAGE_PACK)
 #define SYSCALL_list_language_packs_ID 0x01000153
