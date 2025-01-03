@@ -10,6 +10,7 @@
  *********************/
 #include <string.h>
 #include <stdio.h>
+#include "nbgl_page.h"
 #include "nbgl_debug.h"
 #include "nbgl_use_case.h"
 #include "glyphs.h"
@@ -3056,6 +3057,7 @@ void nbgl_useCaseReviewBlindSigning(nbgl_operationType_t              operationT
 
     blindSigningWarning();
 }
+
 /**
  * @brief Draws a flow of pages of a light review. Navigation operates with either swipe or
  * navigation keys at bottom right. The last page contains a button/footer with the given
