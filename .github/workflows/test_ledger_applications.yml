@@ -1,14 +1,7 @@
 name: Build and run functional tests of Ledger owned applications
 
-# This workflow will build Ledger owned applications and then run functional tests on them
-#
-# We sadly can't make this file itself reusable as it would hit the max depth of github runner
-# https://github.com/actions/runner/issues/1797
-# Todo when github removes this arbitrary limit
-#
-# We sadly have to split the file in several parts due to annoying arbitrary workflow limit
-# https://github.com/orgs/community/discussions/32192
-# Todo when github removes this arbitrary limit
+env:
+  GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
 on:
   workflow_dispatch:
@@ -23,26 +16,87 @@ on:
           - 'Open a PR'
 
 jobs:
-  ethereum:
-    name: Ethereum
-    uses: LedgerHQ/app-ethereum/.github/workflows/reusable_build_and_functional_tests.yml@fbe/reusable_entry_point_for_CI
-    with:
-      regenerate_snapshots: ${{ inputs.golden_run == 'Open a PR' }}
+  dispatch:
+    name: Dispatch run workflow request
+    strategy:
+      fail-fast: false
+      matrix:
+        application:
+        - repo: app-boilerplate
+          branch: master
+          workflow: build_and_functional_tests.yml
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch
+        run: |
+          # Command line arguments
+          actions_url="https://api.github.com/repos/LedgerHQ/${{ matrix.application.repo }}/actions"
+          workflow_url="${actions_url}/workflows/${{ matrix.application.repo }}"
 
-  bitcoin:
-    name: Bitcoin
-    uses: LedgerHQ/app-bitcoin-new/.github/workflows/reusable_build_and_functional_tests.yml@fbe/reusable_entry_point_for_CI
-    with:
-      regenerate_snapshots: ${{ inputs.golden_run == 'Open a PR' }}
+          # Step 1: Trigger the workflow and capture the timestamp
+          TRIGGER_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          curl -X POST \
+               -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
+               -H "Accept: application/vnd.github.v3+json" \
+               "${workflow_url}/dispatches" \
+               -d "{
+                    \"ref\": \"${{ matrix.application.branch }}\",
+                    \"inputs\": {
+                      \"golden_run\": \"${{ inputs.golden_run }}\"
+                    }
+                  }"
 
-  exchange:
-    name: Exchange
-    uses: LedgerHQ/app-exchange/.github/workflows/reusable_swap_functional_tests.yml@develop
-    with:
-      regenerate_snapshots: ${{ inputs.golden_run == 'Open a PR' }}
+          # Step 2: Wait for GitHub to register the workflow run
+          echo "Waiting for workflow run to be registered..."
 
-  nbgl_tests:
-    name: NBGL Tests
-    uses: LedgerHQ/app-bitcoin-new/.github/workflows/reusable_build_and_functional_tests.yml@fbe/reusable_entry_point_for_CI
-    with:
-      regenerate_snapshots: ${{ inputs.golden_run == 'Open a PR' }}
+          RUN_ID=""
+          RETRIES=50
+          while [[ -z "$RUN_ID" ]] && [[ $RETRIES -gt 0 ]]; do
+              sleep 1
+
+              # Filter runs by creation time and workflow name
+              RUN_ID=$(curl -s -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
+                  -H "Accept: application/vnd.github.v3+json" \
+                  "${workflow_url}/runs?branch=${{ matrix.application.branch }}" \
+                  | jq -r ".workflow_runs[] | select(.created_at >= \"$TRIGGER_TIME\") | .id" | head -n 1)
+
+              if [[ -n "$RUN_ID" ]]; then
+                  echo "Workflow Run ID: $RUN_ID"
+                  break
+              fi
+
+              RETRIES=$((RETRIES - 1))
+              echo "Retrying... Remaining attempts: $RETRIES"
+          done
+
+          if [[ -z "$RUN_ID" ]]; then
+              echo "Error: Could not retrieve workflow run ID. Exiting."
+              exit 1
+          fi
+
+          # Step 3: Poll the workflow status
+          while true; do
+              sleep 10
+
+              STATUS=$(curl -s -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
+                  -H "Accept: application/vnd.github.v3+json" \
+                  "${actions_url}/runs/$RUN_ID" \
+                  | jq -r '.status')
+              echo "Current Status: $STATUS"
+              if [[ "$STATUS" == "completed" ]]; then
+                  break
+              fi
+          done
+
+          CONCLUSION=$(curl -s -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "${actions_url}/runs/$RUN_ID" \
+              | jq -r '.conclusion')
+
+          echo "Workflow Conclusion: $CONCLUSION"
+
+          if [[ "$CONCLUSION" == "success" ]]; then
+              exit 0
+          else
+              exit 1
+          fi
