@@ -8,7 +8,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "nbgl_fonts.h"
+#include "nbgl_touch.h"
 #include "ux_loc.h"
+#include "os_helpers.h"
 #include "os_task.h"
 
 void fetch_language_packs(void);
