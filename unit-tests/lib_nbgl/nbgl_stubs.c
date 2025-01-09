@@ -8,7 +8,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "nbgl_fonts.h"
+#include "nbgl_touch.h"
 #include "ux_loc.h"
+#include "os_helpers.h"
 #include "os_task.h"
 
 void fetch_language_packs(void);
@@ -58,4 +60,13 @@ void fetch_language_packs(void)
         language_pack = (LANGUAGE_PACK *) source;
         nbgl_refreshUnicodeFont(language_pack);
     }
+}
+
+void nbgl_touchHandler(bool                       fromUx,
+                       nbgl_touchStatePosition_t *touchStatePosition,
+                       uint32_t                   currentTime)
+{
+    UNUSED(fromUx);
+    UNUSED(touchStatePosition);
+    UNUSED(currentTime);
 }

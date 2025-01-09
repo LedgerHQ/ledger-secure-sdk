@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include "nbgl_screen.h"
 #include "nbgl_debug.h"
+#include "nbgl_touch.h"
 #include "ux_loc.h"
 #include "os_task.h"
 
@@ -44,6 +45,15 @@ void nbgl_screen_reinit(void)
 void nbgl_objDraw(nbgl_obj_t *obj)
 {
     UNUSED(obj);
+}
+
+void nbgl_touchHandler(bool                       fromUx,
+                       nbgl_touchStatePosition_t *touchStatePosition,
+                       uint32_t                   currentTime)
+{
+    UNUSED(fromUx);
+    UNUSED(touchStatePosition);
+    UNUSED(currentTime);
 }
 
 static void test_push_pop(void **state __attribute__((unused)))
