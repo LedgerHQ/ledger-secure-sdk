@@ -26,6 +26,9 @@ else
     NBGL_INCLUDE_PATH := lib_nbgl
 endif
 
+# include dynamic memory allocator, temporary
+SDK_SOURCE_PATH += lib_alloc
+
 define uniq =
   $(eval seen :=)
   $(foreach _,$1,$(if $(filter $_,${seen}),,$(eval seen += $_)))
