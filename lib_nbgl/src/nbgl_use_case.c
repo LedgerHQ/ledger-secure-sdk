@@ -51,6 +51,13 @@
 #define keypadContext     sharedContext.keypad
 #define reviewWithWarnCtx sharedContext.reviewWithWarning
 
+/**
+ * @brief This is to use in @ref nbgl_operationType_t when the operation is concerned by an internal
+ * warning This is used to indicate a warning with a top-right button in review first & last page
+ *
+ */
+#define RISKY_OPERATION (1 << 6)
+
 /**********************
  *      TYPEDEFS
  **********************/
@@ -69,6 +76,7 @@ enum {
     REJECT_TOKEN,
     VALUE_ALIAS_TOKEN,
     INFO_ALIAS_TOKEN,
+    BLIND_WARNING_TOKEN,
     WARNING_BUTTON_TOKEN,
     TIP_BOX_TOKEN,
     WARNING_CHOICE_TOKEN,
@@ -628,6 +636,11 @@ static void pageCallback(int token, uint8_t index)
         }
         displayFullValuePage(pair->item, pair->value, pair->extension);
     }
+    else if (token == BLIND_WARNING_TOKEN) {
+        reviewWithWarnCtx.isIntro = false;
+        reviewWithWarnCtx.warning = NULL;
+        displaySecurityReport(1 << BLIND_SIGNING_WARN);
+    }
     else if (token == WARNING_BUTTON_TOKEN) {
         // top-right button, display the security modal
         reviewWithWarnCtx.securityReportLevel = 1;
@@ -1020,16 +1033,16 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
     bool isFirstOrLastPage
         = ((p_content->type == CENTERED_INFO) || (p_content->type == EXTENDED_CENTER))
           || (p_content->type == INFO_LONG_PRESS);
-    bool isStreamingNavAndBlindOperation
+    nbgl_operationType_t operationType
         = (navType == STREAMING_NAV)
-          && (bundleNavContext.reviewStreaming.operationType & BLIND_OPERATION);
-    bool isGenericNavAndRiskyOperation
-        = (navType == GENERIC_NAV) && (bundleNavContext.review.operationType & BLIND_OPERATION);
+              ? bundleNavContext.reviewStreaming.operationType
+              : ((navType == GENERIC_NAV) ? bundleNavContext.review.operationType : 0);
 
-    // if first or last page of review and blind operation, add the warning top-right button
-    if (isFirstOrLastPage && (isStreamingNavAndBlindOperation || isGenericNavAndRiskyOperation)) {
-        pageContent->topRightIcon  = &WARNING_ICON;
-        pageContent->topRightToken = WARNING_BUTTON_TOKEN;
+    // if first or last page of review and blind/risky operation, add the warning top-right button
+    if (isFirstOrLastPage && (operationType & (BLIND_OPERATION | RISKY_OPERATION))) {
+        pageContent->topRightIcon = &WARNING_ICON;
+        pageContent->topRightToken
+            = (operationType & BLIND_OPERATION) ? BLIND_WARNING_TOKEN : WARNING_BUTTON_TOKEN;
     }
 
     return true;
@@ -1776,7 +1789,7 @@ static void bundleNavReviewAskRejectionConfirmation(nbgl_operationType_t operati
     const char *title;
     const char *confirmText;
     // clear skip and blind bits
-    operationType &= ~(SKIPPABLE_OPERATION | BLIND_OPERATION);
+    operationType &= ~(SKIPPABLE_OPERATION | BLIND_OPERATION | RISKY_OPERATION);
     if (operationType == TYPE_TRANSACTION) {
         title       = "Reject transaction?";
         confirmText = "Go back to transaction";
@@ -1845,12 +1858,12 @@ static void displaySecurityReport(uint32_t set)
     reviewWithWarnCtx.modalLayout = nbgl_layoutGet(&layoutDescription);
 
     for (i = 0; i < NB_WARNING_TYPES; i++) {
-        if (reviewWithWarnCtx.warning->predefinedSet & (1 << i)) {
+        if (set & (1 << i)) {
             nbWarnings++;
         }
     }
 
-    if ((reviewWithWarnCtx.securityReportLevel == 1) && (nbWarnings > 1)) {
+    if ((nbWarnings > 1) && (reviewWithWarnCtx.securityReportLevel == 1)) {
         // if more than one warning warning, so use a list of touchable bars
         for (i = 0; i < NB_WARNING_TYPES; i++) {
             if (reviewWithWarnCtx.warning->predefinedSet & (1 << i)) {
@@ -1961,8 +1974,6 @@ static void displaySecurityReport(uint32_t set)
             headerDesc.separationLine = false;
         }
     }
-    else {
-    }
     nbgl_layoutAddHeader(reviewWithWarnCtx.modalLayout, &headerDesc);
     nbgl_layoutDraw(reviewWithWarnCtx.modalLayout);
     nbgl_refresh();
@@ -2049,14 +2060,12 @@ static void displayInitialWarning(void)
 
     nbgl_layoutAddHeader(reviewWithWarnCtx.layoutCtx, &headerDesc);
     // do not display top-right icon if only Web3 Checks issue
-    if ((reviewWithWarnCtx.warning->predefinedSet != (1 << W3C_ISSUE_WARN))
-        && ((reviewWithWarnCtx.warning->predefinedSet != 0)
-            || (reviewWithWarnCtx.warning->introTopRightIcon != NULL))) {
+    if (reviewWithWarnCtx.warning->predefinedSet != (1 << W3C_ISSUE_WARN)) {
         if (reviewWithWarnCtx.warning->predefinedSet != 0) {
             nbgl_layoutAddTopRightButton(
                 reviewWithWarnCtx.layoutCtx, &PRIVACY_ICON, WARNING_BUTTON_TOKEN, TUNE_TAP_CASUAL);
         }
-        else {
+        else if (reviewWithWarnCtx.warning->introTopRightIcon != NULL) {
             nbgl_layoutAddTopRightButton(reviewWithWarnCtx.layoutCtx,
                                          reviewWithWarnCtx.warning->introTopRightIcon,
                                          WARNING_BUTTON_TOKEN,
@@ -3426,7 +3435,7 @@ void nbgl_useCaseReviewWithWarning(nbgl_operationType_t              operationTy
 {
     memset(&reviewWithWarnCtx, 0, sizeof(reviewWithWarnCtx));
     reviewWithWarnCtx.isStreaming    = false;
-    reviewWithWarnCtx.operationType  = operationType | BLIND_OPERATION;
+    reviewWithWarnCtx.operationType  = operationType | RISKY_OPERATION;
     reviewWithWarnCtx.tagValueList   = tagValueList;
     reviewWithWarnCtx.icon           = icon;
     reviewWithWarnCtx.reviewTitle    = reviewTitle;
@@ -3555,7 +3564,7 @@ void nbgl_useCaseReviewStreamingBlindSigningStart(nbgl_operationType_t       ope
     memset(&reviewWithWarnCtx, 0, sizeof(reviewWithWarnCtx));
 
     reviewWithWarnCtx.isStreaming    = true;
-    reviewWithWarnCtx.operationType  = operationType | BLIND_OPERATION;
+    reviewWithWarnCtx.operationType  = operationType | RISKY_OPERATION;
     reviewWithWarnCtx.icon           = icon;
     reviewWithWarnCtx.reviewTitle    = reviewTitle;
     reviewWithWarnCtx.reviewSubTitle = reviewSubTitle;
