@@ -208,7 +208,7 @@ typedef struct {
     const char *const *subTexts;  ///< array of texts for each bar (nbBars items, in black)
     const nbgl_icon_details_t **icons;  ///< array of icons for each bar (nbBars items)
     const struct nbgl_warningDetails_s
-        *details;  ///< array of nbBars structure giving what to deplay when each bar is touched.
+        *details;  ///< array of nbBars structures giving what to display when each bar is touched.
 } nbgl_warningBarList_t;
 
 /**
