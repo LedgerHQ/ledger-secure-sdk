@@ -50,10 +50,10 @@ endif
 
 SYSROOT = $(shell $(GCCPATH)arm-none-eabi-gcc -print-sysroot)
 ifeq ($(SYSROOT),)
-CFLAGS   += -I/usr/include
-else
-CFLAGS   += --sysroot="$(SYSROOT)"
+    # path for Debian-based systems
+    SYSROOT = /usr/lib/arm-none-eabi
 endif
+CFLAGS   += --sysroot="$(SYSROOT)"
 
 CFLAGS   += -fomit-frame-pointer -momit-leaf-frame-pointer
 
