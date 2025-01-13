@@ -50,18 +50,16 @@ ifeq ($(SYSROOT),)
 endif
 CFLAGS   += --sysroot="$(SYSROOT)"
 
-# optimization and debug levels
+# optimization and debugging levels
 ifneq ($(DEBUG),0)
-OPTI_LVL  = -Og
-OPTI_ALVL = $(OPTI_LVL)
-DBG_LVL   = -g3
+    OPTI_LVL  = g
+    DBG_LVL   = 3
 else
-OPTI_LVL  = -Oz
-OPTI_ALVL = -Os # assembler does not handle -Oz, use -Os instead
-DBG_LVL   = -g0
+    OPTI_LVL  = z
+    DBG_LVL   = 0
 endif
+CFLAGS   += -O$(OPTI_LVL) -g$(DBG_LVL)
 
-CFLAGS   += $(OPTI_LVL) $(DBG_LVL)
 CFLAGS   += -fomit-frame-pointer -momit-leaf-frame-pointer
 CFLAGS   += -mcpu=cortex-m0plus -mthumb
 CFLAGS   += -fno-common -mtune=cortex-m0plus -mlittle-endian
@@ -87,9 +85,8 @@ CFLAGS   += -fropi
 CFLAGS   += -fno-jump-tables # avoid jump tables for switch to avoid problems with invalid PIC access
 CFLAGS   += -nostdlib -nodefaultlibs
 
-AFLAGS   += $(OPTI_ALVL) $(DBG_LVL) -mcpu=cortex-m0plus -fno-common -mtune=cortex-m0plus
+AFLAGS   += -mcpu=cortex-m0plus -fno-common -mtune=cortex-m0plus
 
-LDFLAGS  += $(OPTI_LVL) $(DBG_LVL)
 LDFLAGS  += -fomit-frame-pointer
 LDFLAGS  += -Wall
 LDFLAGS  += -mcpu=cortex-m0plus -mthumb
