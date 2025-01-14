@@ -130,10 +130,10 @@ typedef void (*nbgl_actionCallback_t)(uint8_t page);
 
 /**
  * @brief prototype of pin validation callback function
- * @param content pin value
- * @param length pin length
+ * @param pin pin value
+ * @param pinLen pin length
  */
-typedef void (*nbgl_pinValidCallback_t)(const uint8_t *content, uint8_t page);
+typedef void (*nbgl_pinValidCallback_t)(const uint8_t *pin, uint8_t pinLen);
 
 /**
  * @brief prototype of content navigation callback function
