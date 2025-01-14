@@ -51,6 +51,7 @@ typedef void (*nbgl_stepMenuListCallback_t)(uint8_t choiceIndex);
 
 /**
  * @brief prototype of function to be called when buttons are touched on a screen
+ * @param stepCtx context returned by the nbgl_stepDrawXXX function
  * @param event type of button event
  */
 typedef void (*nbgl_stepButtonCallback_t)(nbgl_step_t stepCtx, nbgl_buttonEvent_t event);

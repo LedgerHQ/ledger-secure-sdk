@@ -1865,9 +1865,11 @@ static void displaySecurityReport(uint32_t set)
                                                   .backAndText.token  = DISMISS_WARNING_TOKEN};
     uint8_t                  i;
     uint8_t                  nbWarnings = 0;
+    const char              *provider;
 
     reviewWithWarnCtx.modalLayout = nbgl_layoutGet(&layoutDescription);
 
+    // count the number of warnings
     for (i = 0; i < NB_WARNING_TYPES; i++) {
         if (set & (1 << i)) {
             nbWarnings++;
@@ -1897,6 +1899,12 @@ static void displaySecurityReport(uint32_t set)
         nbgl_refresh();
         return;
     }
+    if (reviewWithWarnCtx.warning && reviewWithWarnCtx.warning->reportProvider) {
+        provider = reviewWithWarnCtx.warning->reportProvider;
+    }
+    else {
+        provider = "[unknown]";
+    }
     if (set & (1 << BLIND_SIGNING_WARN)) {
         if (reviewWithWarnCtx.isIntro) {
 #ifdef NBGL_QRCODE
@@ -1924,7 +1932,7 @@ static void displaySecurityReport(uint32_t set)
             headerDesc.separationLine = false;
         }
     }
-    if (set & (1 << W3C_ISSUE_WARN)) {
+    else if (set & (1 << W3C_ISSUE_WARN)) {
         // if W3 Checks issue, display a centered info
         nbgl_contentCenter_t info = {0};
         info.icon                 = &C_Important_Circle_64px;
@@ -1937,25 +1945,26 @@ static void displaySecurityReport(uint32_t set)
         if (reviewWithWarnCtx.isIntro) {
 #ifdef NBGL_QRCODE
             // display a QR Code if in intro
-            nbgl_layoutQRCode_t qrCode = {.url   = "url.com/od24xz",
-                                          .text1 = "url.com/od24xz",
-                                          .text2 = "Scan to view the threat report from Blockaid.",
+            nbgl_layoutQRCode_t qrCode = {.url      = "url.com/od24xz",
+                                          .text1    = "url.com/od24xz",
+                                          .text2    = tmpString,
                                           .centered = true,
                                           .offsetY  = 0};
+            snprintf(tmpString,
+                     W3C_DESCRIPTION_MAX_LEN,
+                     "Scan to view the threat report from %s.",
+                     provider);
             nbgl_layoutAddQRCode(reviewWithWarnCtx.modalLayout, &qrCode);
 #endif  // NBGL_QRCODE
             headerDesc.backAndText.text = "Web3 Checks threat report";
         }
         else {
             // display a centered if in review
-            nbgl_contentCenter_t info     = {0};
-            const char          *provider = reviewWithWarnCtx.warning->reportProvider
-                                                ? reviewWithWarnCtx.warning->reportProvider
-                                                : "[unknown]";
-            info.icon                     = &C_Warning_64px;
-            info.title                    = "Threat detected";
-            info.smallTitle               = "Known drainer contract";
-            info.description              = tmpString;
+            nbgl_contentCenter_t info = {0};
+            info.icon                 = &C_Warning_64px;
+            info.title                = "Threat detected";
+            info.smallTitle           = "Known drainer contract";
+            info.description          = tmpString;
             snprintf(tmpString,
                      W3C_DESCRIPTION_MAX_LEN,
                      "This transaction was scanned as malicious by Web3 Checks.\n\nView full %s "
@@ -1971,23 +1980,24 @@ static void displaySecurityReport(uint32_t set)
             // display a QR Code if in intro
             nbgl_layoutQRCode_t qrCode = {.url      = "url.com/od24xz",
                                           .text1    = "url.com/od24xz",
-                                          .text2    = "Scan to view the risk report from Blockaid.",
+                                          .text2    = tmpString,
                                           .centered = true,
                                           .offsetY  = 0};
+            snprintf(tmpString,
+                     W3C_DESCRIPTION_MAX_LEN,
+                     "Scan to view the risk report from %s.",
+                     provider);
             nbgl_layoutAddQRCode(reviewWithWarnCtx.modalLayout, &qrCode);
 #endif  // NBGL_QRCODE
             headerDesc.backAndText.text = "Web3 Checks risk report";
         }
         else {
             // display a centered if in review
-            nbgl_contentCenter_t info     = {0};
-            const char          *provider = reviewWithWarnCtx.warning->reportProvider
-                                                ? reviewWithWarnCtx.warning->reportProvider
-                                                : "[unknown]";
-            info.icon                     = &C_Warning_64px;
-            info.title                    = "Risk detected";
-            info.smallTitle               = "Losing swap";
-            info.description              = tmpString;
+            nbgl_contentCenter_t info = {0};
+            info.icon                 = &C_Warning_64px;
+            info.title                = "Risk detected";
+            info.smallTitle           = "Losing swap";
+            info.description          = tmpString;
             snprintf(tmpString,
                      W3C_DESCRIPTION_MAX_LEN,
                      "This transaction was scanned as risky by Web3 Checks.\n\n"
