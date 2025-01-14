@@ -51,6 +51,9 @@
 #define keypadContext     sharedContext.keypad
 #define reviewWithWarnCtx sharedContext.reviewWithWarning
 
+/* max length of the string displaying the description of the Web3 Checks report */
+#define W3C_DESCRIPTION_MAX_LEN 128
+
 /**
  * @brief This is to use in @ref nbgl_operationType_t when the operation is concerned by an internal
  * warning This is used to indicate a warning with a top-right button in review first & last page
@@ -202,7 +205,7 @@ typedef struct {
  **********************/
 
 // char buffers to build some strings
-static char appDescription[APP_DESCRIPTION_MAX_LEN];
+static char tmpString[W3C_DESCRIPTION_MAX_LEN];
 
 // multi-purposes callbacks
 static nbgl_callback_t              onQuit;
@@ -1040,7 +1043,15 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
 
     // if first or last page of review and blind/risky operation, add the warning top-right button
     if (isFirstOrLastPage && (operationType & (BLIND_OPERATION | RISKY_OPERATION))) {
-        pageContent->topRightIcon = &WARNING_ICON;
+        // if issue is only Web3Checks issue, use '!' icon
+        if ((operationType & RISKY_OPERATION)
+            && (reviewWithWarnCtx.warning->predefinedSet == (1 << W3C_ISSUE_WARN))) {
+            pageContent->topRightIcon = &EXCLAMATION_ICON;
+        }
+        else {
+            pageContent->topRightIcon = &WARNING_ICON;
+        }
+
         pageContent->topRightToken
             = (operationType & BLIND_OPERATION) ? BLIND_WARNING_TOKEN : WARNING_BUTTON_TOKEN;
     }
@@ -1937,13 +1948,19 @@ static void displaySecurityReport(uint32_t set)
         }
         else {
             // display a centered if in review
-            nbgl_contentCenter_t info = {0};
-            info.icon                 = &C_Warning_64px;
-            info.title                = "Threat detected";
-            info.smallTitle           = "Known drainer contract";
-            info.description
-                = "This transaction was scanned as malicious by Web3 Checks.\n\n"
-                  "View full Blockaid report:\nurl.com/od24xz";
+            nbgl_contentCenter_t info     = {0};
+            const char          *provider = reviewWithWarnCtx.warning->reportProvider
+                                                ? reviewWithWarnCtx.warning->reportProvider
+                                                : "[unknown]";
+            info.icon                     = &C_Warning_64px;
+            info.title                    = "Threat detected";
+            info.smallTitle               = "Known drainer contract";
+            info.description              = tmpString;
+            snprintf(tmpString,
+                     W3C_DESCRIPTION_MAX_LEN,
+                     "This transaction was scanned as malicious by Web3 Checks.\n\nView full %s "
+                     "report:\nurl.com/od24xz",
+                     provider);
             nbgl_layoutAddContentCenter(reviewWithWarnCtx.modalLayout, &info);
             headerDesc.separationLine = false;
         }
@@ -1963,13 +1980,19 @@ static void displaySecurityReport(uint32_t set)
         }
         else {
             // display a centered if in review
-            nbgl_contentCenter_t info = {0};
-            info.icon                 = &C_Warning_64px;
-            info.title                = "Risk detected";
-            info.smallTitle           = "Losing swap";
-            info.description
-                = "This transaction was scanned as risky by Web3 Checks.\n\n"
-                  "View full Blockaid report:\\nurl.com/od24xz";
+            nbgl_contentCenter_t info     = {0};
+            const char          *provider = reviewWithWarnCtx.warning->reportProvider
+                                                ? reviewWithWarnCtx.warning->reportProvider
+                                                : "[unknown]";
+            info.icon                     = &C_Warning_64px;
+            info.title                    = "Risk detected";
+            info.smallTitle               = "Losing swap";
+            info.description              = tmpString;
+            snprintf(tmpString,
+                     W3C_DESCRIPTION_MAX_LEN,
+                     "This transaction was scanned as risky by Web3 Checks.\n\n"
+                     "View full %s report:\\nurl.com/od24xz",
+                     provider);
             nbgl_layoutAddContentCenter(reviewWithWarnCtx.modalLayout, &info);
             headerDesc.separationLine = false;
         }
@@ -2295,12 +2318,12 @@ static void useCaseHomeExt(const char                *appName,
     }
     if (tagline == NULL) {
         if (strlen(appName) > MAX_APP_NAME_FOR_SDK_TAGLINE) {
-            snprintf(appDescription,
+            snprintf(tmpString,
                      APP_DESCRIPTION_MAX_LEN,
                      "This app enables signing\ntransactions on its network.");
         }
         else {
-            snprintf(appDescription,
+            snprintf(tmpString,
                      APP_DESCRIPTION_MAX_LEN,
                      "%s %s\n%s",
                      TAGLINE_PART1,
@@ -2310,16 +2333,15 @@ static void useCaseHomeExt(const char                *appName,
 
         // If there is more than 3 lines, it means the appName was split, so we put it on the next
         // line
-        if (nbgl_getTextNbLinesInWidth(SMALL_REGULAR_FONT, appDescription, AVAILABLE_WIDTH, false)
-            > 3) {
-            snprintf(appDescription,
+        if (nbgl_getTextNbLinesInWidth(SMALL_REGULAR_FONT, tmpString, AVAILABLE_WIDTH, false) > 3) {
+            snprintf(tmpString,
                      APP_DESCRIPTION_MAX_LEN,
                      "%s\n%s %s",
                      TAGLINE_PART1,
                      appName,
                      TAGLINE_PART2);
         }
-        info.centeredInfo.text2 = appDescription;
+        info.centeredInfo.text2 = tmpString;
     }
     else {
         info.centeredInfo.text2 = tagline;
@@ -3561,6 +3583,32 @@ void nbgl_useCaseReviewStreamingBlindSigningStart(nbgl_operationType_t       ope
                                                   const char                *reviewSubTitle,
                                                   nbgl_choiceCallback_t      choiceCallback)
 {
+    nbgl_useCaseReviewStreamingWithWarningStart(
+        operationType, icon, reviewTitle, reviewSubTitle, &blindSigningWarning, choiceCallback);
+}
+
+/**
+ * @brief Start drawing the flow of pages of a blind-signing review. The review is preceded by a
+ * warning page
+ * @note  This should be followed by calls to @ref nbgl_useCaseReviewStreamingContinue and finally
+ * to
+ *        @ref nbgl_useCaseReviewStreamingFinish.
+ *
+ * @param operationType type of operation (Operation, Transaction, Message)
+ * @param icon icon used on first and last review page
+ * @param reviewTitle string used in the first review page
+ * @param reviewSubTitle string to set under reviewTitle (can be NULL)
+ * @param warning structure to build the initial warning page (cannot be NULL)
+ * @param choiceCallback callback called when more operation data are needed (param is true) or
+ * operation is rejected (param is false)
+ */
+void nbgl_useCaseReviewStreamingWithWarningStart(nbgl_operationType_t       operationType,
+                                                 const nbgl_icon_details_t *icon,
+                                                 const char                *reviewTitle,
+                                                 const char                *reviewSubTitle,
+                                                 const nbgl_warning_t      *warning,
+                                                 nbgl_choiceCallback_t      choiceCallback)
+{
     memset(&reviewWithWarnCtx, 0, sizeof(reviewWithWarnCtx));
 
     reviewWithWarnCtx.isStreaming    = true;
@@ -3569,7 +3617,7 @@ void nbgl_useCaseReviewStreamingBlindSigningStart(nbgl_operationType_t       ope
     reviewWithWarnCtx.reviewTitle    = reviewTitle;
     reviewWithWarnCtx.reviewSubTitle = reviewSubTitle;
     reviewWithWarnCtx.choiceCallback = choiceCallback;
-    reviewWithWarnCtx.warning        = &blindSigningWarning;
+    reviewWithWarnCtx.warning        = warning;
 
     displayInitialWarning();
 }

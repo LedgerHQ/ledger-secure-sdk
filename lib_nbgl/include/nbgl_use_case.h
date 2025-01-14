@@ -254,6 +254,7 @@ typedef enum {
 typedef struct {
     uint32_t predefinedSet;  ///< bitfield of pre-defined warnings, to be taken in @ref
                              ///< nbgl_warningType_t set it to 0 if not using pre-defined warnings
+    const char *reportProvider;  ///< name of the security report provider, used in some strings
     const nbgl_warningDetails_t
         *introDetails;  ///< details displayed when top-right button is touched in intro page
                         ///< (before review) if using pre-defined configuration, set to NULL,
@@ -392,6 +393,13 @@ void nbgl_useCaseReviewStreamingBlindSigningStart(nbgl_operationType_t       ope
                                                   const char                *reviewTitle,
                                                   const char                *reviewSubTitle,
                                                   nbgl_choiceCallback_t      choiceCallback);
+
+void nbgl_useCaseReviewStreamingWithWarningStart(nbgl_operationType_t       operationType,
+                                                 const nbgl_icon_details_t *icon,
+                                                 const char                *reviewTitle,
+                                                 const char                *reviewSubTitle,
+                                                 const nbgl_warning_t      *warning,
+                                                 nbgl_choiceCallback_t      choiceCallback);
 
 void nbgl_useCaseReviewStreamingContinueExt(const nbgl_contentTagValueList_t *tagValueList,
                                             nbgl_choiceCallback_t             choiceCallback,
