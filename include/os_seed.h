@@ -58,11 +58,13 @@ SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_perso_set_words(const unsi
                                                                                    PLENGTH(length),
                                                                       unsigned int length);
 SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_perso_finalize(void);
-#if defined(HAVE_RECOVER)
+
 SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_perso_master_seed(uint8_t *master_seed
                                                                                     PLENGTH(length),
                                                                         size_t      length,
                                                                         os_action_t action);
+
+#if defined(HAVE_RECOVER)
 SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_perso_recover_state(uint8_t    *state,
                                                                           os_action_t action);
 #endif  // HAVE_RECOVER
