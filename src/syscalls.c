@@ -1244,7 +1244,6 @@ unsigned char os_perso_get_seed_algorithm(void)
 }
 #endif  // HAVE_VAULT_RECOVERY_ALGO
 
-#if defined(HAVE_RECOVER)
 void os_perso_master_seed(uint8_t *master_seed, size_t length, os_action_t action)
 {
     unsigned int parameters[3];
@@ -1255,6 +1254,7 @@ void os_perso_master_seed(uint8_t *master_seed, size_t length, os_action_t actio
     return;
 }
 
+#if defined(HAVE_RECOVER)
 void os_perso_recover_state(uint8_t *state, os_action_t action)
 {
     unsigned int parameters[2];
