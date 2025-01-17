@@ -529,32 +529,43 @@ static void displayReviewPage(nbgl_stepPosition_t pos)
 // function used to display the current page in review
 static void displayStreamingReviewPage(nbgl_stepPosition_t pos)
 {
-    uint8_t                    reviewPages  = 0;
-    const char                *text         = NULL;
-    const char                *subText      = NULL;
-    const nbgl_icon_details_t *icon         = NULL;
-    uint8_t                    currentIndex = 0;
-    uint8_t                    warnIndex    = 255;
-    uint8_t                    titleIndex   = 255;
-    uint8_t                    subIndex     = 255;
+    const char                *text        = NULL;
+    const char                *subText     = NULL;
+    const nbgl_icon_details_t *icon        = NULL;
+    uint8_t                    reviewPages = 0;
+    uint8_t                    warnIndex   = 255;
+    uint8_t                    titleIndex  = 255;
+    uint8_t                    subIndex    = 255;
 
     context.stepCallback = NULL;
 
-    if (context.type == STREAMING_BLIND_SIGN_START_REVIEW_USE_CASE) {
-        // warning page to display
-        warnIndex = currentIndex++;
-        // Title page to display
-        titleIndex = currentIndex++;
-        // Determine the 1st page to display tag/values
-        reviewPages = 1;  // 1st page is for warning
-        reviewPages++;    // 2nd page is for title
-        if (context.review.reviewSubTitle) {
-            // subtitle page to display
-            subIndex = currentIndex++;
-            reviewPages++;  // 3rd page is for subtitle
-        }
-        // Determine which page to display
-        if (context.currentPage < reviewPages) {
+    switch (context.type) {
+        case STREAMING_START_REVIEW_USE_CASE:
+        case STREAMING_BLIND_SIGN_START_REVIEW_USE_CASE:
+            if (context.type == STREAMING_START_REVIEW_USE_CASE) {
+                // Title page to display
+                titleIndex = reviewPages++;
+                if (context.review.reviewSubTitle) {
+                    // subtitle page to display
+                    subIndex = reviewPages++;
+                }
+            }
+            else {
+                // warning page to display
+                warnIndex = reviewPages++;
+                // Title page to display
+                titleIndex = reviewPages++;
+                if (context.review.reviewSubTitle) {
+                    // subtitle page to display
+                    subIndex = reviewPages++;
+                }
+            }
+            // Determine which page to display
+            if (context.currentPage >= reviewPages) {
+                nbgl_useCaseSpinner("Processing");
+                onReviewAccept();
+                return;
+            }
             // header page(s)
             if (context.currentPage == warnIndex) {
                 // warning page
@@ -570,67 +581,32 @@ static void displayStreamingReviewPage(nbgl_stepPosition_t pos)
                 // subtitle page
                 text = context.review.reviewSubTitle;
             }
-        }
-        else {
-            nbgl_useCaseSpinner("Processing");
-            onReviewAccept();
-            return;
-        }
-    }
-    else if (context.type == STREAMING_START_REVIEW_USE_CASE) {
-        // Title page to display
-        titleIndex = currentIndex++;
-        // Determine the 1st page to display tag/values
-        reviewPages = 1;  // 1st page is for title
-        if (context.review.reviewSubTitle) {
-            // subtitle page to display
-            subIndex = currentIndex++;
-            reviewPages++;  // 2nd page is for subtitle
-        }
-        // Determine which page to display
-        if (context.currentPage < reviewPages) {
-            // header page(s)
-            switch (context.currentPage) {
-                case titleIndex:
-                    // title page
-                    icon = context.review.icon;
-                    text = context.review.reviewTitle;
-                    break;
-                case subIndex:
-                    // subtitle page
-                    text = context.review.reviewSubTitle;
-                    break;
-                default:
-                    break;
+            break;
+
+        case STREAMING_CONTINUE_REVIEW_USE_CASE:
+            if (context.currentPage >= context.review.tagValueList->nbPairs) {
+                nbgl_useCaseSpinner("Processing");
+                onReviewAccept();
+                return;
             }
-        }
-        else {
-            nbgl_useCaseSpinner("Processing");
-            onReviewAccept();
-            return;
-        }
-    }
-    else if (context.type == STREAMING_CONTINUE_REVIEW_USE_CASE) {
-        if (context.currentPage < context.review.tagValueList->nbPairs) {
             getPairData(context.review.tagValueList, context.currentPage, &text, &subText);
-        }
-        else {
-            nbgl_useCaseSpinner("Processing");
-            onReviewAccept();
-            return;
-        }
-    }
-    else {
-        if (context.currentPage == 0) {  // accept page
-            icon                 = &C_icon_validate_14;
-            text                 = "Approve";
-            context.stepCallback = onReviewAccept;
-        }
-        else {  // reject page
-            icon                 = &C_icon_crossmark;
-            text                 = "Reject";
-            context.stepCallback = onReviewReject;
-        }
+            break;
+
+        case STREAMING_FINISH_REVIEW_USE_CASE:
+        default:
+            if (context.currentPage == 0) {
+                // accept page
+                icon                 = &C_icon_validate_14;
+                text                 = "Approve";
+                context.stepCallback = onReviewAccept;
+            }
+            else {
+                // reject page
+                icon                 = &C_icon_crossmark;
+                text                 = "Reject";
+                context.stepCallback = onReviewReject;
+            }
+            break;
     }
 
     drawStep(pos, icon, text, subText, streamingReviewCallback, false);
