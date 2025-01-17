@@ -528,16 +528,42 @@ static void displayReviewPage(nbgl_stepPosition_t pos)
 // function used to display the current page in review
 static void displayStreamingReviewPage(nbgl_stepPosition_t pos)
 {
-    const char                *text    = NULL;
-    const char                *subText = NULL;
-    const nbgl_icon_details_t *icon    = NULL;
+    uint8_t                    reviewPages  = 0;
+    const char                *text         = NULL;
+    const char                *subText      = NULL;
+    const nbgl_icon_details_t *icon         = NULL;
+    uint8_t                    currentIndex = 0;
+    uint8_t                    titleIndex   = 255;
+    uint8_t                    subIndex     = 255;
 
     context.stepCallback = NULL;
 
+    // Title page to display
+    titleIndex = currentIndex++;
     if (context.type == STREAMING_START_REVIEW_USE_CASE) {
-        if (context.currentPage == 0) {  // title page
-            icon = context.review.icon;
-            text = context.review.reviewTitle;
+        // Determine the 1st page to display tag/values
+        reviewPages = 1;  // 1st page is for title
+        if (context.review.reviewSubTitle) {
+            // subtitle page to display
+            subIndex = currentIndex++;
+            reviewPages++;  // 2nd page is for subtitle
+        }
+        // Determine which page to display
+        if (context.currentPage < reviewPages) {
+            // header page(s)
+            switch (context.currentPage) {
+                case titleIndex:
+                    // title page
+                    icon = context.review.icon;
+                    text = context.review.reviewTitle;
+                    break;
+                case subIndex:
+                    // subtitle page
+                    text = context.review.reviewSubTitle;
+                    break;
+                default:
+                    break;
+            }
         }
         else {
             nbgl_useCaseSpinner("Processing");
@@ -1408,16 +1434,16 @@ void nbgl_useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
                                       const char                *reviewSubTitle,
                                       nbgl_choiceCallback_t      choiceCallback)
 {
-    UNUSED(operationType);   // TODO adapt accept and reject text depending on this value?
-    UNUSED(reviewSubTitle);  // TODO dedicated screen for it?
+    UNUSED(operationType);  // TODO adapt accept and reject text depending on this value?
 
     memset(&context, 0, sizeof(UseCaseContext_t));
-    context.type               = STREAMING_START_REVIEW_USE_CASE;
-    context.review.reviewTitle = reviewTitle;
-    context.review.icon        = icon;
-    context.review.onChoice    = choiceCallback;
-    context.currentPage        = 0;
-    context.nbPages            = 1 + 1;  // Start page + trick for review continue
+    context.type                  = STREAMING_START_REVIEW_USE_CASE;
+    context.review.reviewTitle    = reviewTitle;
+    context.review.reviewSubTitle = reviewSubTitle;
+    context.review.icon           = icon;
+    context.review.onChoice       = choiceCallback;
+    context.currentPage           = 0;
+    context.nbPages               = 2;  // Start page + trick for review continue
 
     displayStreamingReviewPage(FORWARD_DIRECTION);
 }
