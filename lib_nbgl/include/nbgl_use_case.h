@@ -442,6 +442,13 @@ void nbgl_useCaseConfirm(const char     *message,
                          nbgl_callback_t callback);
 void nbgl_useCaseSpinner(const char *text);
 
+void nbgl_useCaseNavigableContent(const char                *title,
+                                  uint8_t                    initPage,
+                                  uint8_t                    nbPages,
+                                  nbgl_callback_t            quitCallback,
+                                  nbgl_navCallback_t         navCallback,
+                                  nbgl_layoutTouchCallback_t controlsCallback);
+
 // utils
 uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPairs,
                                          const nbgl_contentTagValueList_t *tagValueList,
@@ -486,12 +493,6 @@ DEPRECATED void nbgl_useCaseHomeExt(const char                *appName,
                                     nbgl_callback_t            actionCallback,
                                     nbgl_callback_t            topRightCallback,
                                     nbgl_callback_t            quitCallback);
-void            nbgl_useCaseNavigableContent(const char                *title,
-                                             uint8_t                    initPage,
-                                             uint8_t                    nbPages,
-                                             nbgl_callback_t            quitCallback,
-                                             nbgl_navCallback_t         navCallback,
-                                             nbgl_layoutTouchCallback_t controlsCallback);
 DEPRECATED void nbgl_useCaseSettings(const char                *settingsTitle,
                                      uint8_t                    initPage,
                                      uint8_t                    nbPages,
