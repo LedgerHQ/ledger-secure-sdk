@@ -58,6 +58,7 @@ typedef struct HomeContext_s {
     const char                   *tagline;
     const nbgl_genericContents_t *settingContents;
     const nbgl_contentInfoList_t *infosList;
+    const nbgl_homeAction_t      *homeAction;
     nbgl_callback_t               quitCallback;
 } HomeContext_t;
 
@@ -703,18 +704,37 @@ static void displaySettingsPage(nbgl_stepPosition_t pos, bool toogle_state)
 
 static void startUseCaseHome(void)
 {
-    if (context.type == SETTINGS_USE_CASE) {
-        context.currentPage = 1;
+    int8_t addPages = 0;
+    if (context.home.homeAction) {
+        // Action page index
+        addPages++;
     }
-    else if (context.type == INFO_USE_CASE) {
-        context.currentPage = 2;
+    switch (context.type) {
+        case SETTINGS_USE_CASE:
+            // Settings page index
+            context.currentPage = 1 + addPages;
+            break;
+        case INFO_USE_CASE:
+            // Info page index
+            context.currentPage = 2 + addPages;
+            break;
+        default:
+            // Home page index
+            context.currentPage = 0;
+            break;
     }
-    else {
-        context.currentPage = 0;
-    }
-    context.type    = HOME_USE_CASE;
-    context.nbPages = 4;
 
+    context.type    = HOME_USE_CASE;
+    context.nbPages = 2;  // Home + Quit
+    if (context.home.settingContents) {
+        context.nbPages++;
+    }
+    if (context.home.infosList) {
+        context.nbPages++;
+    }
+    if (context.home.homeAction) {
+        context.nbPages += addPages;
+    }
     displayHomePage(FORWARD_DIRECTION);
 }
 
@@ -754,64 +774,62 @@ static void startUseCaseSettings(void)
 // function used to display the current page in home
 static void displayHomePage(nbgl_stepPosition_t pos)
 {
-    const char                *text    = NULL;
-    const char                *subText = NULL;
-    const nbgl_icon_details_t *icon    = NULL;
+    const char                *text          = NULL;
+    const char                *subText       = NULL;
+    const nbgl_icon_details_t *icon          = NULL;
+    uint8_t                    currentIndex  = 0;
+    uint8_t                    homeIndex     = 255;
+    uint8_t                    actionIndex   = 255;
+    uint8_t                    settingsIndex = 255;
+    uint8_t                    infoIndex     = 255;
 
     context.stepCallback = NULL;
 
-    // Handle case where there is no settings
-    if (context.home.settingContents == NULL && context.currentPage == 1) {
-        if (pos & BACKWARD_DIRECTION) {
-            context.currentPage -= 1;
-        }
-        else {
-            context.currentPage += 1;
-            if (context.home.infosList == NULL) {
-                context.currentPage += 1;
-            }
-        }
+    // Determine which pages are present
+    homeIndex = currentIndex++;
+    if (context.home.homeAction) {
+        actionIndex = currentIndex++;
+    }
+    if (context.home.settingContents) {
+        settingsIndex = currentIndex++;
+    }
+    if (context.home.infosList) {
+        infoIndex = currentIndex++;
     }
 
-    // Handle case where there is no info
-    if (context.home.infosList == NULL && context.currentPage == 2) {
-        if (pos & BACKWARD_DIRECTION) {
-            context.currentPage -= 1;
-            if (context.home.settingContents == NULL) {
-                context.currentPage -= 1;
-            }
+    if (context.currentPage == homeIndex) {
+        // Home page
+        icon = context.home.appIcon;
+        if (context.home.tagline != NULL) {
+            text = context.home.tagline;
         }
         else {
-            context.currentPage += 1;
+            text    = context.home.appName;
+            subText = "is ready";
         }
     }
-
-    switch (context.currentPage) {
-        case 0:
-            icon = context.home.appIcon;
-            if (context.home.tagline != NULL) {
-                text = context.home.tagline;
-            }
-            else {
-                text    = context.home.appName;
-                subText = "is ready";
-            }
-            break;
-        case 1:
-            icon                 = &C_icon_coggle;
-            text                 = "Settings";
-            context.stepCallback = startUseCaseSettings;
-            break;
-        case 2:
-            icon                 = &C_icon_certificate;
-            text                 = "About";
-            context.stepCallback = startUseCaseInfo;
-            break;
-        default:
-            icon                 = &C_icon_dashboard_x;
-            text                 = "Quit";
-            context.stepCallback = context.home.quitCallback;
-            break;
+    else if (context.currentPage == actionIndex) {
+        // Action page
+        icon                 = context.home.homeAction->icon;
+        text                 = PIC(context.home.homeAction->text);
+        context.stepCallback = context.home.homeAction->callback;
+    }
+    else if (context.currentPage == settingsIndex) {
+        // Settings page
+        icon                 = &C_icon_coggle;
+        text                 = "Settings";
+        context.stepCallback = startUseCaseSettings;
+    }
+    else if (context.currentPage == infoIndex) {
+        // About page
+        icon                 = &C_icon_certificate;
+        text                 = "About";
+        context.stepCallback = startUseCaseInfo;
+    }
+    else {
+        icon                 = &C_icon_dashboard_x;
+        text                 = "Quit";
+        context.stepCallback = context.home.quitCallback;
     }
 
     drawStep(pos, icon, text, subText, homeCallback, false);
@@ -1110,14 +1128,13 @@ void nbgl_useCaseHomeAndSettings(const char                   *appName,
                                  const nbgl_homeAction_t      *action,
                                  nbgl_callback_t               quitCallback)
 {
-    UNUSED(action);  // TODO support it at some point?
-
     memset(&context, 0, sizeof(UseCaseContext_t));
     context.home.appName         = appName;
     context.home.appIcon         = appIcon;
     context.home.tagline         = tagline;
     context.home.settingContents = PIC(settingContents);
     context.home.infosList       = PIC(infosList);
+    context.home.homeAction      = action;
     context.home.quitCallback    = quitCallback;
 
     if (initSettingPage != INIT_HOME_PAGE) {
