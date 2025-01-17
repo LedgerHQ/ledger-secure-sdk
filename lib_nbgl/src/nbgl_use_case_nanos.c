@@ -53,6 +53,7 @@ typedef struct ConfirmContext_s {
 } ConfirmContext_t;
 
 typedef struct ContentContext_s {
+    const char                *title;  // For CHOICES_LIST
     nbgl_genericContents_t     genericContents;
     const char                *rejectText;
     nbgl_layoutTouchCallback_t controlsCallback;
@@ -135,12 +136,20 @@ static void statusTickerCallback(void);
 static uint8_t getContentNbElement(const nbgl_content_t *content)
 {
     switch (content->type) {
+        case CENTERED_INFO:
+            return 1;
+        case INFO_BUTTON:
+            return 1;
         case TAG_VALUE_LIST:
             return content->content.tagValueList.nbPairs;
         case SWITCHES_LIST:
             return content->content.switchesList.nbSwitches;
         case INFOS_LIST:
             return content->content.infosList.nbInfos;
+        case CHOICES_LIST:
+            return content->content.choicesList.nbChoices;
+        case BARS_LIST:
+            return content->content.barsList.nbBars;
         default:
             return 0;
     }
@@ -352,7 +361,12 @@ static void drawStep(nbgl_stepPosition_t        pos,
 
 static bool buttonGenericCallback(nbgl_buttonEvent_t event, nbgl_stepPosition_t *pos)
 {
-    uint8_t token = 0;
+    uint8_t               elemIdx;
+    uint8_t               token     = 0;
+    uint8_t               index     = 0;
+    const nbgl_content_t *p_content = NULL;
+    nbgl_content_t        content   = {0};
+
     if (event == BUTTON_LEFT_PRESSED) {
         if (context.currentPage > 0) {
             context.currentPage--;
@@ -380,16 +394,35 @@ static bool buttonGenericCallback(nbgl_buttonEvent_t event, nbgl_stepPosition_t 
             }
             else if ((context.type == CONTENT_USE_CASE)
                      || (context.type == GENERIC_REVIEW_USE_CASE)) {
-                if (context.content.controlsCallback != NULL) {
-                    switch (context.content.genericContents.contentsList->type) {
+                p_content = getContentElemAtIdx(context.currentPage, &elemIdx, &content);
+                if (p_content != NULL) {
+                    switch (p_content->type) {
+                        case CENTERED_INFO:
+                            // No associated callback
+                            return false;
+                        case INFO_BUTTON:
+                            token = p_content->content.infoButton.buttonToken;
+                            break;
                         case SWITCHES_LIST:
-                            token = context.content.genericContents.contentsList->content
-                                        .switchesList.switches->token;
+                            token = p_content->content.switchesList.switches->token;
+                            break;
+                        case BARS_LIST:
+                            token = p_content->content.barsList.tokens[context.currentPage];
+                            break;
+                        case CHOICES_LIST:
+                            token = p_content->content.choicesList.token;
+                            index = context.currentPage;
                             break;
                         default:
                             break;
                     }
-                    context.content.controlsCallback(token + context.currentPage, 0);
+
+                    if ((p_content) && (p_content->contentActionCallback != NULL)) {
+                        p_content->contentActionCallback(token, 0, context.currentPage);
+                    }
+                    else if (context.content.controlsCallback != NULL) {
+                        context.content.controlsCallback(token, index);
+                    }
                 }
             }
         }
@@ -728,6 +761,15 @@ static void getContentPage(bool                        toogle_state,
         return;
     }
     switch (p_content->type) {
+        case CENTERED_INFO:
+            *text    = PIC(p_content->content.centeredInfo.text1);
+            *subText = PIC(p_content->content.centeredInfo.text2);
+            break;
+        case INFO_BUTTON:
+            *icon    = PIC(p_content->content.infoButton.icon);
+            *text    = PIC(p_content->content.infoButton.text);
+            *subText = PIC(p_content->content.infoButton.buttonText);
+            break;
         case TAG_VALUE_LIST:
             getPairData(&p_content->content.tagValueList, elemIdx, text, subText);
             break;
@@ -752,6 +794,20 @@ static void getContentPage(bool                        toogle_state,
             *text = ((const char *const *) PIC(p_content->content.infosList.infoTypes))[elemIdx];
             *subText
                 = ((const char *const *) PIC(p_content->content.infosList.infoContents))[elemIdx];
+            break;
+        case CHOICES_LIST:
+            if (context.content.title != NULL) {
+                *text    = PIC(context.content.title);
+                *subText = PIC(p_content->content.choicesList.names[elemIdx]);
+            }
+            else {
+                contentChoices = (nbgl_contentRadioChoice_t *) PIC(&p_content->content.choicesList);
+                names          = (char **) PIC(contentChoices->names);
+                *text          = (const char *) PIC(names[elemIdx]);
+            }
+            break;
+        case BARS_LIST:
+            *text = PIC(p_content->content.barsList.barTexts[elemIdx]);
             break;
         default:
             break;
@@ -1281,6 +1337,12 @@ void nbgl_useCaseNavigableContent(const char                *title,
 
     contentsList.type = pageContent.type;
     switch (pageContent.type) {
+        case CENTERED_INFO:
+            contentsList.content.centeredInfo = pageContent.centeredInfo;
+            break;
+        case INFO_BUTTON:
+            contentsList.content.infoButton = pageContent.infoButton;
+            break;
         case TAG_VALUE_LIST:
             contentsList.content.tagValueList = pageContent.tagValueList;
             break;
@@ -1289,6 +1351,14 @@ void nbgl_useCaseNavigableContent(const char                *title,
             break;
         case INFOS_LIST:
             contentsList.content.infosList = pageContent.infosList;
+            break;
+        case CHOICES_LIST:
+            contentsList.content.choicesList = pageContent.choicesList;
+            context.content.title            = title;
+            context.currentPage              = pageContent.choicesList.initChoice;
+            break;
+        case BARS_LIST:
+            contentsList.content.barsList = pageContent.barsList;
             break;
         default:
             break;
