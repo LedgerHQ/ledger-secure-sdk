@@ -59,6 +59,7 @@ typedef enum {
     STREAMING_CONTINUE_REVIEW_USE_CASE,
     STREAMING_FINISH_REVIEW_USE_CASE,
     CHOICE_USE_CASE,
+    STATUS_USE_CASE,
     HOME_USE_CASE,
     INFO_USE_CASE,
     SETTINGS_USE_CASE,
@@ -97,6 +98,8 @@ static void startUseCaseHome(void);
 static void startUseCaseInfo(void);
 static void startUseCaseSettings(void);
 static void startUseCaseSettingsAtPage(uint8_t initSettingPage);
+
+static void statusTickerCallback(void);
 
 // Simple helper to get the number of elements inside a nbgl_content_t
 static uint8_t getContentNbElement(const nbgl_content_t *content)
@@ -237,10 +240,20 @@ static void drawStep(nbgl_stepPosition_t        pos,
                      const char                *subTxt,
                      nbgl_stepButtonCallback_t  onActionCallback)
 {
+    nbgl_screenTickerConfiguration_t *p_ticker = NULL;
+    nbgl_screenTickerConfiguration_t  ticker   = {
+           .tickerCallback  = PIC(statusTickerCallback),
+           .tickerIntervale = 0,    // not periodic
+           .tickerValue     = 3000  // 3 seconds
+    };
+
     pos |= GET_POS_OF_STEP(context.currentPage, context.nbPages);
 
+    if (context.type == STATUS_USE_CASE) {
+        p_ticker = &ticker;
+    }
     if (icon == NULL) {
-        nbgl_stepDrawText(pos, onActionCallback, NULL, txt, subTxt, BOLD_TEXT1_INFO, false);
+        nbgl_stepDrawText(pos, onActionCallback, p_ticker, txt, subTxt, BOLD_TEXT1_INFO, false);
     }
     else {
         nbgl_layoutCenteredInfo_t info;
@@ -249,7 +262,7 @@ static void drawStep(nbgl_stepPosition_t        pos,
         info.text2 = subTxt;
         info.onTop = false;
         info.style = BOLD_TEXT1_INFO;
-        nbgl_stepDrawCenteredInfo(pos, onActionCallback, NULL, &info, false);
+        nbgl_stepDrawCenteredInfo(pos, onActionCallback, p_ticker, &info, false);
     }
 }
 
@@ -1081,22 +1094,16 @@ void nbgl_useCaseAddressReview(const char                       *address,
  */
 void nbgl_useCaseStatus(const char *message, bool isSuccess, nbgl_callback_t quitCallback)
 {
-    UNUSED(isSuccess);  // TODO add icon depending on isSuccess?
+    const nbgl_icon_details_t *icon = NULL;
 
     memset(&context, 0, sizeof(UseCaseContext_t));
+    context.type         = STATUS_USE_CASE;
     context.stepCallback = quitCallback;
     context.currentPage  = 0;
     context.nbPages      = 1;
 
-    nbgl_screenTickerConfiguration_t ticker = {
-        .tickerCallback  = PIC(statusTickerCallback),
-        .tickerIntervale = 0,    // not periodic
-        .tickerValue     = 3000  // 3 seconds
-    };
-
-    nbgl_stepDrawText(
-        SINGLE_STEP, statusButtonCallback, &ticker, message, NULL, BOLD_TEXT1_INFO, false);
-    nbgl_refresh();
+    icon = isSuccess ? &C_icon_validate_14 : &C_icon_crossmark;
+    drawStep(SINGLE_STEP, icon, message, NULL, statusButtonCallback);
 }
 
 /**
