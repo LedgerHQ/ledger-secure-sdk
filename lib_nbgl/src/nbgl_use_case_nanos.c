@@ -158,6 +158,10 @@ static const nbgl_content_t *getContentAtIdx(const nbgl_genericContents_t *gener
     }
 
     if (genericContents->callbackCallNeeded) {
+        if (content == NULL) {
+            LOG_DEBUG(USE_CASE_LOGGER, "Invalid content variable\n");
+            return NULL;
+        }
         // Retrieve content through callback, but first memset the content.
         memset(content, 0, sizeof(nbgl_content_t));
         genericContents->contentGetterCallback(contentIdx, content);
@@ -171,15 +175,28 @@ static const nbgl_content_t *getContentAtIdx(const nbgl_genericContents_t *gener
 
 // Helper to retrieve the content inside a nbgl_genericContents_t using
 // either the contentsList or using the contentGetterCallback
-static const nbgl_content_t *getContentElemAtIdx(const nbgl_genericContents_t *genericContents,
-                                                 uint8_t                       elemIdx,
-                                                 uint8_t                      *elemContentIdx,
-                                                 nbgl_content_t               *content)
+static const nbgl_content_t *getContentElemAtIdx(uint8_t         elemIdx,
+                                                 uint8_t        *elemContentIdx,
+                                                 nbgl_content_t *content)
 {
-    const nbgl_content_t *p_content;
-    uint8_t               nbPages     = 0;
-    uint8_t               elemNbPages = 0;
+    const nbgl_genericContents_t *genericContents = NULL;
+    const nbgl_content_t         *p_content       = NULL;
+    uint8_t                       nbPages         = 0;
+    uint8_t                       elemNbPages     = 0;
 
+    switch (context.type) {
+        case SETTINGS_USE_CASE:
+        case HOME_USE_CASE:
+        case GENERIC_SETTINGS:
+            genericContents = context.home.settingContents;
+            break;
+        case CONTENT_USE_CASE:
+        case GENERIC_REVIEW_USE_CASE:
+            genericContents = &context.content.genericContents;
+            break;
+        default:
+            return NULL;
+    }
     for (int i = 0; i < genericContents->nbContents; i++) {
         p_content   = getContentAtIdx(genericContents, i, content);
         elemNbPages = getContentNbElement(p_content);
@@ -257,53 +274,38 @@ static void onConfirmReject(void)
     }
 }
 
-static void onSettingsAction(void)
+static void onSwitchAction(void)
 {
-    nbgl_content_t content;
-    uint8_t        elemIdx;
+    const nbgl_contentSwitch_t *contentSwitch = NULL;
+    const nbgl_content_t       *p_content     = NULL;
+    nbgl_content_t              content       = {0};
+    uint8_t                     elemIdx;
 
-    const nbgl_content_t *p_content = getContentElemAtIdx(
-        context.home.settingContents, context.currentPage, &elemIdx, &content);
-
-    switch (p_content->type) {
-        case SWITCHES_LIST: {
-            const nbgl_contentSwitch_t *contentSwitch = &((const nbgl_contentSwitch_t *) PIC(
-                p_content->content.switchesList.switches))[elemIdx];
-            nbgl_state_t state = (contentSwitch->initState == ON_STATE) ? OFF_STATE : ON_STATE;
+    p_content = getContentElemAtIdx(context.currentPage, &elemIdx, &content);
+    if ((p_content == NULL) || (p_content->type != SWITCHES_LIST)) {
+        return;
+    }
+    contentSwitch
+        = &((const nbgl_contentSwitch_t *) PIC(p_content->content.switchesList.switches))[elemIdx];
+    switch (context.type) {
+        case SETTINGS_USE_CASE:
+        case HOME_USE_CASE:
+        case GENERIC_SETTINGS:
             displaySettingsPage(FORWARD_DIRECTION, true);
-            if (p_content->contentActionCallback != NULL) {
-                nbgl_contentActionCallback_t actionCallback = PIC(p_content->contentActionCallback);
-                actionCallback(contentSwitch->token, state, context.currentPage);
-            }
             break;
-        }
+        case CONTENT_USE_CASE:
+        case GENERIC_REVIEW_USE_CASE:
+            displayContent(FORWARD_DIRECTION, true);
+            break;
         default:
             break;
     }
-}
-
-static void onContentAction(void)
-{
-    nbgl_content_t content;
-    uint8_t        elemIdx;
-
-    const nbgl_content_t *p_content = getContentElemAtIdx(
-        &context.content.genericContents, context.currentPage, &elemIdx, &content);
-
-    switch (p_content->type) {
-        case SWITCHES_LIST: {
-            const nbgl_contentSwitch_t *contentSwitch = &((const nbgl_contentSwitch_t *) PIC(
-                p_content->content.switchesList.switches))[elemIdx];
-            nbgl_state_t state = (contentSwitch->initState == ON_STATE) ? OFF_STATE : ON_STATE;
-            displayContent(FORWARD_DIRECTION, true);
-            if (p_content->contentActionCallback != NULL) {
-                nbgl_contentActionCallback_t actionCallback = PIC(p_content->contentActionCallback);
-                actionCallback(contentSwitch->token, state, context.currentPage);
-            }
-            break;
-        }
-        default:
-            break;
+    if (p_content->contentActionCallback != NULL) {
+        nbgl_contentActionCallback_t actionCallback = PIC(p_content->contentActionCallback);
+        actionCallback(contentSwitch->token, 0, context.currentPage);
+    }
+    else if (context.content.controlsCallback != NULL) {
+        context.content.controlsCallback(contentSwitch->token, 0);
     }
 }
 
@@ -706,6 +708,56 @@ static void displayInfoPage(nbgl_stepPosition_t pos)
     nbgl_refresh();
 }
 
+// function used to get the current page content
+static void getContentPage(bool                        toogle_state,
+                           const char                **text,
+                           const char                **subText,
+                           const nbgl_icon_details_t **icon)
+{
+    static char                fullText[75];
+    uint8_t                    elemIdx;
+    nbgl_state_t               state          = OFF_STATE;
+    const nbgl_content_t      *p_content      = NULL;
+    nbgl_content_t             content        = {0};
+    nbgl_contentSwitch_t      *contentSwitch  = NULL;
+    nbgl_contentRadioChoice_t *contentChoices = NULL;
+    char                     **names          = NULL;
+
+    p_content = getContentElemAtIdx(context.currentPage, &elemIdx, &content);
+    if (p_content == NULL) {
+        return;
+    }
+    switch (p_content->type) {
+        case TAG_VALUE_LIST:
+            getPairData(&p_content->content.tagValueList, elemIdx, text, subText);
+            break;
+        case SWITCHES_LIST:
+            contentSwitch = &(
+                (nbgl_contentSwitch_t *) PIC(p_content->content.switchesList.switches))[elemIdx];
+            *text = contentSwitch->text;
+            state = contentSwitch->initState;
+            if (toogle_state) {
+                state = (state == ON_STATE) ? OFF_STATE : ON_STATE;
+            }
+            if (state == ON_STATE) {
+                snprintf(fullText, sizeof(fullText), "%s\nEnabled", contentSwitch->subText);
+            }
+            else {
+                snprintf(fullText, sizeof(fullText), "%s\nDisabled", contentSwitch->subText);
+            }
+            context.stepCallback = onSwitchAction;
+            *subText             = fullText;
+            break;
+        case INFOS_LIST:
+            *text = ((const char *const *) PIC(p_content->content.infosList.infoTypes))[elemIdx];
+            *subText
+                = ((const char *const *) PIC(p_content->content.infosList.infoContents))[elemIdx];
+            break;
+        default:
+            break;
+    }
+}
+
 // function used to display the current page in settings
 static void displaySettingsPage(nbgl_stepPosition_t pos, bool toogle_state)
 {
@@ -716,43 +768,7 @@ static void displaySettingsPage(nbgl_stepPosition_t pos, bool toogle_state)
     context.stepCallback = NULL;
 
     if (context.currentPage < (context.nbPages - 1)) {
-        nbgl_content_t nbgl_content;
-        uint8_t        elemIdx;
-
-        const nbgl_content_t *p_nbgl_content = getContentElemAtIdx(
-            context.home.settingContents, context.currentPage, &elemIdx, &nbgl_content);
-
-        switch (p_nbgl_content->type) {
-            case TAG_VALUE_LIST:
-                getPairData(&p_nbgl_content->content.tagValueList, elemIdx, &text, &subText);
-                break;
-            case SWITCHES_LIST: {
-                const nbgl_contentSwitch_t *contentSwitch = &((const nbgl_contentSwitch_t *) PIC(
-                    p_nbgl_content->content.switchesList.switches))[elemIdx];
-                text                                      = contentSwitch->text;
-                // switch subtext is ignored
-                nbgl_state_t state = contentSwitch->initState;
-                if (toogle_state) {
-                    state = (state == ON_STATE) ? OFF_STATE : ON_STATE;
-                }
-                if (state == ON_STATE) {
-                    subText = "Enabled";
-                }
-                else {
-                    subText = "Disabled";
-                }
-                context.stepCallback = onSettingsAction;
-                break;
-            }
-            case INFOS_LIST:
-                text    = ((const char *const *) PIC(
-                    p_nbgl_content->content.infosList.infoTypes))[elemIdx];
-                subText = ((const char *const *) PIC(
-                    p_nbgl_content->content.infosList.infoContents))[elemIdx];
-                break;
-            default:
-                break;
-        }
+        getContentPage(toogle_state, &text, &subText, &icon);
     }
     else {  // last page is for quit
         icon = &C_icon_back_x;
@@ -816,8 +832,8 @@ static void startUseCaseInfo(void)
 
 static void startUseCaseSettingsAtPage(uint8_t initSettingPage)
 {
-    nbgl_content_t        content;
-    const nbgl_content_t *p_content;
+    nbgl_content_t        content   = {0};
+    const nbgl_content_t *p_content = NULL;
 
     if (context.type == 0) {
         // Not yet init, it is not a GENERIC_SETTINGS
@@ -1010,43 +1026,7 @@ static void displayContent(nbgl_stepPosition_t pos, bool toogle_state)
     context.stepCallback = NULL;
 
     if (context.currentPage < (context.nbPages - 1)) {
-        nbgl_content_t nbgl_content;
-        uint8_t        elemIdx;
-
-        const nbgl_content_t *p_nbgl_content = getContentElemAtIdx(
-            context.home.settingContents, context.currentPage, &elemIdx, &nbgl_content);
-
-        switch (p_nbgl_content->type) {
-            case TAG_VALUE_LIST:
-                getPairData(&p_nbgl_content->content.tagValueList, elemIdx, &text, &subText);
-                break;
-            case SWITCHES_LIST: {
-                const nbgl_contentSwitch_t *contentSwitch = &((const nbgl_contentSwitch_t *) PIC(
-                    p_nbgl_content->content.switchesList.switches))[elemIdx];
-                text                                      = contentSwitch->text;
-                // switch subtext is ignored
-                nbgl_state_t state = contentSwitch->initState;
-                if (toogle_state) {
-                    state = (state == ON_STATE) ? OFF_STATE : ON_STATE;
-                }
-                if (state == ON_STATE) {
-                    subText = "Enabled";
-                }
-                else {
-                    subText = "Disabled";
-                }
-                context.stepCallback = onContentAction;
-                break;
-            }
-            case INFOS_LIST:
-                text    = ((const char *const *) PIC(
-                    p_nbgl_content->content.infosList.infoTypes))[elemIdx];
-                subText = ((const char *const *) PIC(
-                    p_nbgl_content->content.infosList.infoContents))[elemIdx];
-                break;
-            default:
-                break;
-        }
+        getContentPage(toogle_state, &text, &subText, &icon);
     }
     else {  // last page is for quit
         if (context.content.rejectText) {
@@ -1063,6 +1043,7 @@ static void displayContent(nbgl_stepPosition_t pos, bool toogle_state)
         }
         context.stepCallback = context.content.quitCallback;
     }
+
     drawStep(pos, icon, text, subText, contentCallback, false);
     nbgl_refresh();
 }
