@@ -62,6 +62,7 @@ typedef enum {
     HOME_USE_CASE,
     INFO_USE_CASE,
     SETTINGS_USE_CASE,
+    GENERIC_SETTINGS,
 } ContextType_t;
 
 typedef struct UseCaseContext_s {
@@ -532,9 +533,14 @@ static void displaySettingsPage(nbgl_stepPosition_t pos, bool toogle_state)
         }
     }
     else {  // last page is for quit
-        icon                 = &C_icon_back_x;
-        text                 = "Back";
-        context.stepCallback = startUseCaseHome;
+        icon = &C_icon_back_x;
+        text = "Back";
+        if (context.type == GENERIC_SETTINGS) {
+            context.stepCallback = context.home.quitCallback;
+        }
+        else {
+            context.stepCallback = startUseCaseHome;
+        }
     }
 
     drawStep(pos, icon, text, subText, settingsCallback);
@@ -572,7 +578,10 @@ static void startUseCaseSettingsAtPage(uint8_t initSettingPage)
     nbgl_content_t        content;
     const nbgl_content_t *p_content;
 
-    context.type    = SETTINGS_USE_CASE;
+    if (context.type == 0) {
+        // Not yet init, it is not a GENERIC_SETTINGS
+        context.type = SETTINGS_USE_CASE;
+    }
     context.nbPages = 1;  // For back screen
     for (int i = 0; i < context.home.settingContents->nbContents; i++) {
         p_content = getContentAtIdx(context.home.settingContents, i, &content);
@@ -900,6 +909,53 @@ void nbgl_useCaseHomeAndSettings(const char                   *appName,
     else {
         startUseCaseHome();
     }
+}
+
+/**
+ * @brief Draws the settings pages of an app with automatic pagination depending on content
+ *        to be displayed that is passed through settingContents and infosList
+ *
+ * @param appName string to use as title
+ * @param initPage page on which to start, can be != 0 if you want to display a specific page
+ * after a setting confirmation change or something. Then the value should be taken from the
+ * nbgl_contentActionCallback_t callback call.
+ * @param settingContents contents to be displayed
+ * @param infosList infos to be displayed (version, license, developer, ...)
+ * @param quitCallback callback called when quit button (or title) is pressed
+ */
+void nbgl_useCaseGenericSettings(const char                   *appName,
+                                 uint8_t                       initPage,
+                                 const nbgl_genericContents_t *settingContents,
+                                 const nbgl_contentInfoList_t *infosList,
+                                 nbgl_callback_t               quitCallback)
+{
+    memset(&context, 0, sizeof(UseCaseContext_t));
+    context.type                 = GENERIC_SETTINGS;
+    context.home.appName         = appName;
+    context.home.settingContents = PIC(settingContents);
+    context.home.infosList       = PIC(infosList);
+    context.home.quitCallback    = quitCallback;
+
+    startUseCaseSettingsAtPage(initPage);
+}
+
+/**
+ * @brief Draws a set of pages with automatic pagination depending on content
+ *        to be displayed that is passed through contents.
+ *
+ * @param title string to use as title
+ * @param initPage page on which to start, can be != 0 if you want to display a specific page
+ * after a confirmation change or something. Then the value should be taken from the
+ * nbgl_contentActionCallback_t callback call.
+ * @param contents contents to be displayed
+ * @param quitCallback callback called when quit button (or title) is pressed
+ */
+void nbgl_useCaseGenericConfiguration(const char                   *title,
+                                      uint8_t                       initPage,
+                                      const nbgl_genericContents_t *contents,
+                                      nbgl_callback_t               quitCallback)
+{
+    nbgl_useCaseGenericSettings(title, initPage, contents, NULL, quitCallback);
 }
 
 /**
