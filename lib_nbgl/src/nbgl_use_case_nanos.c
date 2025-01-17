@@ -30,6 +30,7 @@ typedef struct ReviewContext_s {
     const nbgl_contentTagValueList_t *tagValueList;
     const nbgl_icon_details_t        *icon;
     const char                       *reviewTitle;
+    const char                       *reviewSubTitle;
     const char                       *address;  // for address confirmation review
 } ReviewContext_t;
 
@@ -63,6 +64,7 @@ typedef struct HomeContext_s {
 typedef enum {
     NONE_USE_CASE,
     REVIEW_USE_CASE,
+    REVIEW_BLIND_SIGN_USE_CASE,
     ADDRESS_REVIEW_USE_CASE,
     STREAMING_START_REVIEW_USE_CASE,
     STREAMING_CONTINUE_REVIEW_USE_CASE,
@@ -442,34 +444,80 @@ static void statusTickerCallback(void)
 // function used to display the current page in review
 static void displayReviewPage(nbgl_stepPosition_t pos)
 {
-    const char                *text    = NULL;
-    const char                *subText = NULL;
-    const nbgl_icon_details_t *icon    = NULL;
+    uint8_t                    reviewPages  = 0;
+    uint8_t                    finalPages   = 0;
+    uint8_t                    pairIndex    = 0;
+    const char                *text         = NULL;
+    const char                *subText      = NULL;
+    const nbgl_icon_details_t *icon         = NULL;
+    uint8_t                    currentIndex = 0;
+    uint8_t                    warnIndex    = 255;
+    uint8_t                    titleIndex   = 255;
+    uint8_t                    subIndex     = 255;
+    uint8_t                    approveIndex = 255;
+    uint8_t                    rejectIndex  = 255;
 
     context.stepCallback = NULL;
 
-    if (context.currentPage == 0) {  // title page
-        icon = context.review.icon;
-        text = context.review.reviewTitle;
+    // Determine the 1st page to display tag/values
+    if (context.type == REVIEW_BLIND_SIGN_USE_CASE) {
+        // Warning page to display
+        warnIndex = currentIndex++;
+        reviewPages++;
     }
-    else if (context.currentPage == (context.nbPages - 2)) {  // accept page
-        icon                 = &C_icon_validate_14;
-        text                 = "Approve";
-        context.stepCallback = onReviewAccept;
+    // Title page to display
+    titleIndex = currentIndex++;
+    reviewPages++;
+    if (context.review.reviewSubTitle) {
+        // subtitle page to display
+        subIndex = currentIndex++;
+        reviewPages++;
     }
-    else if (context.currentPage == (context.nbPages - 1)) {  // reject page
-        icon                 = &C_icon_crossmark;
-        text                 = "Reject";
-        context.stepCallback = onReviewReject;
+    approveIndex = context.nbPages - 2;
+    rejectIndex  = context.nbPages - 1;
+    finalPages   = approveIndex;
+
+    // Determine which page to display
+    if (context.currentPage >= finalPages) {
+        if (context.currentPage == approveIndex) {
+            // Approve page
+            icon                 = &C_icon_validate_14;
+            text                 = "Approve";
+            context.stepCallback = onReviewAccept;
+        }
+        else if (context.currentPage == rejectIndex) {
+            // Reject page
+            icon                 = &C_icon_crossmark;
+            text                 = "Reject";
+            context.stepCallback = onReviewReject;
+        }
     }
-    else if ((context.review.address != NULL)
-             && (context.currentPage == 1)) {  // address confirmation and 2nd page
+    else if (context.currentPage < reviewPages) {
+        if (context.currentPage == warnIndex) {
+            // Blind Signing Warning page
+            icon = &C_icon_warning;
+            text = "Blind\nsigning";
+        }
+        else if (context.currentPage == titleIndex) {
+            // Title page
+            icon = context.review.icon;
+            text = context.review.reviewTitle;
+        }
+        else if (context.currentPage == subIndex) {
+            // SubTitle page
+            text = context.review.reviewSubTitle;
+        }
+    }
+    else if ((context.review.address != NULL) && (context.currentPage == reviewPages)) {
+        // address confirmation and 2nd page
         text    = "Address";
         subText = context.review.address;
     }
     else {
-        uint8_t pairIndex = (context.review.address != NULL) ? (context.currentPage - 2)
-                                                             : (context.currentPage - 1);
+        pairIndex = context.currentPage - reviewPages;
+        if (context.review.address != NULL) {
+            pairIndex--;
+        }
         getPairData(context.review.tagValueList, pairIndex, &text, &subText);
     }
 
@@ -810,6 +858,37 @@ static void displayConfirm(nbgl_stepPosition_t pos)
     nbgl_refresh();
 }
 
+// function to factorize code for all simple reviews
+static void useCaseReview(ContextType_t                     type,
+                          const nbgl_contentTagValueList_t *tagValueList,
+                          const nbgl_icon_details_t        *icon,
+                          const char                       *reviewTitle,
+                          const char                       *reviewSubTitle,
+                          const char                       *finishTitle,
+                          nbgl_choiceCallback_t             choiceCallback)
+{
+    UNUSED(finishTitle);  // TODO dedicated screen for it?
+
+    memset(&context, 0, sizeof(UseCaseContext_t));
+    context.type                  = type;
+    context.review.tagValueList   = tagValueList;
+    context.review.reviewTitle    = reviewTitle;
+    context.review.reviewSubTitle = reviewSubTitle;
+    context.review.icon           = icon;
+    context.review.onChoice       = choiceCallback;
+    context.currentPage           = 0;
+    // 1 page for title and 2 pages at the end for accept/reject
+    context.nbPages = tagValueList->nbPairs + 3;
+    if (type == REVIEW_BLIND_SIGN_USE_CASE) {
+        context.nbPages++;  // 1 page for warning
+    }
+    if (reviewSubTitle) {
+        context.nbPages++;  // 1 page for subtitle page
+    }
+
+    displayReviewPage(FORWARD_DIRECTION);
+}
+
 /**********************
  *  GLOBAL FUNCTIONS
  **********************/
@@ -1077,21 +1156,93 @@ void nbgl_useCaseReview(nbgl_operationType_t              operationType,
                         const char                       *finishTitle,
                         nbgl_choiceCallback_t             choiceCallback)
 {
-    UNUSED(operationType);   // TODO adapt accept and reject text depending on this value?
-    UNUSED(reviewSubTitle);  // TODO dedicated screen for it?
-    UNUSED(finishTitle);     // TODO dedicated screen for it?
+    UNUSED(operationType);  // TODO adapt accept and reject text depending on this value?
 
-    memset(&context, 0, sizeof(UseCaseContext_t));
-    context.type                = REVIEW_USE_CASE;
-    context.review.tagValueList = tagValueList;
-    context.review.reviewTitle  = reviewTitle;
-    context.review.icon         = icon;
-    context.review.onChoice     = choiceCallback;
-    context.currentPage         = 0;
-    // + 3 because 1 page for title and 2 pages at the end for accept/reject
-    context.nbPages = tagValueList->nbPairs + 3;
+    useCaseReview(REVIEW_USE_CASE,
+                  tagValueList,
+                  icon,
+                  reviewTitle,
+                  reviewSubTitle,
+                  finishTitle,
+                  choiceCallback);
+}
 
-    displayReviewPage(FORWARD_DIRECTION);
+/**
+ * @brief Draws a flow of pages of a review. Navigation operates with either swipe or navigation
+ * keys at bottom right. The last page contains a long-press button with the given finishTitle and
+ * the given icon.
+ * @note  All tag/value pairs are provided in the API and the number of pages is automatically
+ * computed, the last page being a long press one
+ *
+ * @param operationType type of operation (Operation, Transaction, Message)
+ * @param tagValueList list of tag/value pairs
+ * @param icon icon used on first and last review page
+ * @param reviewTitle string used in the first review page
+ * @param reviewSubTitle string to set under reviewTitle (can be NULL)
+ * @param finishTitle string used in the last review page
+ * @param dummy inconsistent parameter on Nano devices (ignored)
+ * @param choiceCallback callback called when operation is accepted (param is true) or rejected
+ * (param is false)
+ */
+void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
+                                const nbgl_contentTagValueList_t *tagValueList,
+                                const nbgl_icon_details_t        *icon,
+                                const char                       *reviewTitle,
+                                const char                       *reviewSubTitle,
+                                const char                       *finishTitle,
+                                const nbgl_tipBox_t              *dummy,
+                                nbgl_choiceCallback_t             choiceCallback)
+{
+    UNUSED(operationType);  // TODO adapt accept and reject text depending on this value?
+    UNUSED(dummy);
+
+    useCaseReview(REVIEW_USE_CASE,
+                  tagValueList,
+                  icon,
+                  reviewTitle,
+                  reviewSubTitle,
+                  finishTitle,
+                  choiceCallback);
+}
+
+/**
+ * @brief Draws a flow of pages of a blind-signing review. The review is preceded by a warning page
+ *
+ * Navigation operates with either swipe or navigation
+ * keys at bottom right. The last page contains a long-press button with the given finishTitle and
+ * the given icon.
+ * @note  All tag/value pairs are provided in the API and the number of pages is automatically
+ * computed, the last page being a long press one
+ *
+ * @param operationType type of operation (Operation, Transaction, Message)
+ * @param tagValueList list of tag/value pairs
+ * @param icon icon used on first and last review page
+ * @param reviewTitle string used in the first review page
+ * @param reviewSubTitle string to set under reviewTitle (can be NULL)
+ * @param finishTitle string used in the last review page
+ * @param dummy inconsistent parameter on Nano devices (ignored)
+ * @param choiceCallback callback called when operation is accepted (param is true) or rejected
+ * (param is false)
+ */
+void nbgl_useCaseReviewBlindSigning(nbgl_operationType_t              operationType,
+                                    const nbgl_contentTagValueList_t *tagValueList,
+                                    const nbgl_icon_details_t        *icon,
+                                    const char                       *reviewTitle,
+                                    const char                       *reviewSubTitle,
+                                    const char                       *finishTitle,
+                                    const nbgl_tipBox_t              *dummy,
+                                    nbgl_choiceCallback_t             choiceCallback)
+{
+    UNUSED(operationType);  // TODO adapt accept and reject text depending on this value?
+    UNUSED(dummy);
+
+    useCaseReview(REVIEW_BLIND_SIGN_USE_CASE,
+                  tagValueList,
+                  icon,
+                  reviewTitle,
+                  reviewSubTitle,
+                  finishTitle,
+                  choiceCallback);
 }
 
 /**
@@ -1148,15 +1299,14 @@ void nbgl_useCaseAddressReview(const char                       *address,
                                const char                       *reviewSubTitle,
                                nbgl_choiceCallback_t             choiceCallback)
 {
-    UNUSED(reviewSubTitle);  // TODO dedicated screen for it?
-
     memset(&context, 0, sizeof(UseCaseContext_t));
-    context.type               = ADDRESS_REVIEW_USE_CASE;
-    context.review.address     = address;
-    context.review.reviewTitle = reviewTitle;
-    context.review.icon        = icon;
-    context.review.onChoice    = choiceCallback;
-    context.currentPage        = 0;
+    context.type                  = ADDRESS_REVIEW_USE_CASE;
+    context.review.address        = address;
+    context.review.reviewTitle    = reviewTitle;
+    context.review.reviewSubTitle = reviewSubTitle;
+    context.review.icon           = icon;
+    context.review.onChoice       = choiceCallback;
+    context.currentPage           = 0;
     // + 4 because 1 page for title, 1 for address and 2 pages at the end for approve/reject
     context.nbPages = 4;
     if (additionalTagValueList) {
