@@ -66,6 +66,7 @@ typedef enum {
     REVIEW_USE_CASE,
     REVIEW_BLIND_SIGN_USE_CASE,
     ADDRESS_REVIEW_USE_CASE,
+    STREAMING_BLIND_SIGN_START_REVIEW_USE_CASE,
     STREAMING_START_REVIEW_USE_CASE,
     STREAMING_CONTINUE_REVIEW_USE_CASE,
     STREAMING_FINISH_REVIEW_USE_CASE,
@@ -533,14 +534,52 @@ static void displayStreamingReviewPage(nbgl_stepPosition_t pos)
     const char                *subText      = NULL;
     const nbgl_icon_details_t *icon         = NULL;
     uint8_t                    currentIndex = 0;
+    uint8_t                    warnIndex    = 255;
     uint8_t                    titleIndex   = 255;
     uint8_t                    subIndex     = 255;
 
     context.stepCallback = NULL;
 
-    // Title page to display
-    titleIndex = currentIndex++;
-    if (context.type == STREAMING_START_REVIEW_USE_CASE) {
+    if (context.type == STREAMING_BLIND_SIGN_START_REVIEW_USE_CASE) {
+        // warning page to display
+        warnIndex = currentIndex++;
+        // Title page to display
+        titleIndex = currentIndex++;
+        // Determine the 1st page to display tag/values
+        reviewPages = 1;  // 1st page is for warning
+        reviewPages++;    // 2nd page is for title
+        if (context.review.reviewSubTitle) {
+            // subtitle page to display
+            subIndex = currentIndex++;
+            reviewPages++;  // 3rd page is for subtitle
+        }
+        // Determine which page to display
+        if (context.currentPage < reviewPages) {
+            // header page(s)
+            if (context.currentPage == warnIndex) {
+                // warning page
+                icon = &C_icon_warning;
+                text = "Blind\nsigning";
+            }
+            else if (context.currentPage == titleIndex) {
+                // title page
+                icon = context.review.icon;
+                text = context.review.reviewTitle;
+            }
+            else if (context.currentPage == subIndex) {
+                // subtitle page
+                text = context.review.reviewSubTitle;
+            }
+        }
+        else {
+            nbgl_useCaseSpinner("Processing");
+            onReviewAccept();
+            return;
+        }
+    }
+    else if (context.type == STREAMING_START_REVIEW_USE_CASE) {
+        // Title page to display
+        titleIndex = currentIndex++;
         // Determine the 1st page to display tag/values
         reviewPages = 1;  // 1st page is for title
         if (context.review.reviewSubTitle) {
@@ -1444,6 +1483,39 @@ void nbgl_useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
     context.review.onChoice       = choiceCallback;
     context.currentPage           = 0;
     context.nbPages               = 2;  // Start page + trick for review continue
+
+    displayStreamingReviewPage(FORWARD_DIRECTION);
+}
+
+/**
+ * @brief Start drawing the flow of pages of a blind-signing review. The review is preceded by a
+ * warning page
+ * @note  This should be followed by calls to nbgl_useCaseReviewStreamingContinue and finally to
+ *        nbgl_useCaseReviewStreamingFinish.
+ *
+ * @param operationType type of operation (Operation, Transaction, Message)
+ * @param icon icon used on first and last review page
+ * @param reviewTitle string used in the first review page
+ * @param reviewSubTitle string to set under reviewTitle (can be NULL)
+ * @param choiceCallback callback called when more operation data are needed (param is true) or
+ * operation is rejected (param is false)
+ */
+void nbgl_useCaseReviewStreamingBlindSigningStart(nbgl_operationType_t       operationType,
+                                                  const nbgl_icon_details_t *icon,
+                                                  const char                *reviewTitle,
+                                                  const char                *reviewSubTitle,
+                                                  nbgl_choiceCallback_t      choiceCallback)
+{
+    UNUSED(operationType);  // TODO adapt accept and reject text depending on this value?
+
+    memset(&context, 0, sizeof(UseCaseContext_t));
+    context.type                  = STREAMING_BLIND_SIGN_START_REVIEW_USE_CASE;
+    context.review.reviewTitle    = reviewTitle;
+    context.review.reviewSubTitle = reviewSubTitle;
+    context.review.icon           = icon;
+    context.review.onChoice       = choiceCallback;
+    context.currentPage           = 0;
+    context.nbPages               = 3;  // Warning + Start page + trick for review continue
 
     displayStreamingReviewPage(FORWARD_DIRECTION);
 }
