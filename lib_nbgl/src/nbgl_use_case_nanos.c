@@ -42,6 +42,15 @@ typedef struct ChoiceContext_s {
     nbgl_choiceCallback_t      onChoice;
 } ChoiceContext_t;
 
+typedef struct ConfirmContext_s {
+    const char     *message;
+    const char     *subMessage;
+    const char     *confirmText;
+    const char     *cancelText;
+    nbgl_callback_t onConfirm;
+    nbgl_step_t     currentStep;
+} ConfirmContext_t;
+
 typedef struct HomeContext_s {
     const char                   *appName;
     const nbgl_icon_details_t    *appIcon;
@@ -60,6 +69,7 @@ typedef enum {
     STREAMING_FINISH_REVIEW_USE_CASE,
     CHOICE_USE_CASE,
     STATUS_USE_CASE,
+    CONFIRM_USE_CASE,
     HOME_USE_CASE,
     INFO_USE_CASE,
     SETTINGS_USE_CASE,
@@ -73,9 +83,10 @@ typedef struct UseCaseContext_s {
     nbgl_stepCallback_t
         stepCallback;  ///< if not NULL, function to be called on "double-key" action
     union {
-        ReviewContext_t review;
-        ChoiceContext_t choice;
-        HomeContext_t   home;
+        ReviewContext_t  review;
+        ChoiceContext_t  choice;
+        ConfirmContext_t confirm;
+        HomeContext_t    home;
     };
 } UseCaseContext_t;
 
@@ -93,6 +104,7 @@ static void displayHomePage(nbgl_stepPosition_t pos);
 static void displayInfoPage(nbgl_stepPosition_t pos);
 static void displaySettingsPage(nbgl_stepPosition_t pos, bool toogle_state);
 static void displayChoicePage(nbgl_stepPosition_t pos);
+static void displayConfirm(nbgl_stepPosition_t pos);
 
 static void startUseCaseHome(void);
 static void startUseCaseInfo(void);
@@ -208,6 +220,25 @@ static void onChoiceReject(void)
     }
 }
 
+static void onConfirmAccept(void)
+{
+    if (context.confirm.currentStep) {
+        nbgl_stepRelease(context.confirm.currentStep);
+    }
+    if (context.confirm.onConfirm) {
+        context.confirm.onConfirm();
+    }
+}
+
+static void onConfirmReject(void)
+{
+    if (context.confirm.currentStep) {
+        nbgl_stepRelease(context.confirm.currentStep);
+        nbgl_screenRedraw();
+        nbgl_refresh();
+    }
+}
+
 static void onSettingsAction(void)
 {
     nbgl_content_t content;
@@ -238,8 +269,10 @@ static void drawStep(nbgl_stepPosition_t        pos,
                      const nbgl_icon_details_t *icon,
                      const char                *txt,
                      const char                *subTxt,
-                     nbgl_stepButtonCallback_t  onActionCallback)
+                     nbgl_stepButtonCallback_t  onActionCallback,
+                     bool                       modal)
 {
+    nbgl_step_t                       newStep  = NULL;
     nbgl_screenTickerConfiguration_t *p_ticker = NULL;
     nbgl_screenTickerConfiguration_t  ticker   = {
            .tickerCallback  = PIC(statusTickerCallback),
@@ -252,8 +285,12 @@ static void drawStep(nbgl_stepPosition_t        pos,
     if (context.type == STATUS_USE_CASE) {
         p_ticker = &ticker;
     }
+    if ((context.type == CONFIRM_USE_CASE) && (context.confirm.currentStep != NULL)) {
+        nbgl_stepRelease(context.confirm.currentStep);
+    }
     if (icon == NULL) {
-        nbgl_stepDrawText(pos, onActionCallback, p_ticker, txt, subTxt, BOLD_TEXT1_INFO, false);
+        newStep = nbgl_stepDrawText(
+            pos, onActionCallback, p_ticker, txt, subTxt, BOLD_TEXT1_INFO, modal);
     }
     else {
         nbgl_layoutCenteredInfo_t info;
@@ -262,7 +299,10 @@ static void drawStep(nbgl_stepPosition_t        pos,
         info.text2 = subTxt;
         info.onTop = false;
         info.style = BOLD_TEXT1_INFO;
-        nbgl_stepDrawCenteredInfo(pos, onActionCallback, p_ticker, &info, false);
+        newStep    = nbgl_stepDrawCenteredInfo(pos, onActionCallback, p_ticker, &info, modal);
+    }
+    if (context.type == CONFIRM_USE_CASE) {
+        context.confirm.currentStep = newStep;
     }
 }
 
@@ -369,6 +409,18 @@ static void genericChoiceCallback(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
     displayChoicePage(pos);
 }
 
+static void genericConfirmCallback(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
+{
+    UNUSED(stepCtx);
+    nbgl_stepPosition_t pos;
+
+    if (!buttonGenericCallback(event, &pos)) {
+        return;
+    }
+
+    displayConfirm(pos);
+}
+
 static void statusButtonCallback(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
 {
     UNUSED(stepCtx);
@@ -421,7 +473,7 @@ static void displayReviewPage(nbgl_stepPosition_t pos)
         getPairData(context.review.tagValueList, pairIndex, &text, &subText);
     }
 
-    drawStep(pos, icon, text, subText, reviewCallback);
+    drawStep(pos, icon, text, subText, reviewCallback, false);
     nbgl_refresh();
 }
 
@@ -468,7 +520,7 @@ static void displayStreamingReviewPage(nbgl_stepPosition_t pos)
         }
     }
 
-    drawStep(pos, icon, text, subText, streamingReviewCallback);
+    drawStep(pos, icon, text, subText, streamingReviewCallback, false);
     nbgl_refresh();
 }
 
@@ -493,7 +545,7 @@ static void displayInfoPage(nbgl_stepPosition_t pos)
         context.stepCallback = startUseCaseHome;
     }
 
-    drawStep(pos, icon, text, subText, infoCallback);
+    drawStep(pos, icon, text, subText, infoCallback, false);
     nbgl_refresh();
 }
 
@@ -556,7 +608,7 @@ static void displaySettingsPage(nbgl_stepPosition_t pos, bool toogle_state)
         }
     }
 
-    drawStep(pos, icon, text, subText, settingsCallback);
+    drawStep(pos, icon, text, subText, settingsCallback, false);
     nbgl_refresh();
 }
 
@@ -673,7 +725,7 @@ static void displayHomePage(nbgl_stepPosition_t pos)
             break;
     }
 
-    drawStep(pos, icon, text, subText, homeCallback);
+    drawStep(pos, icon, text, subText, homeCallback, false);
     nbgl_refresh();
 }
 
@@ -722,7 +774,39 @@ static void displayChoicePage(nbgl_stepPosition_t pos)
         context.stepCallback = onChoiceReject;
     }
 
-    drawStep(pos, icon, text, subText, genericChoiceCallback);
+    drawStep(pos, icon, text, subText, genericChoiceCallback, false);
+    nbgl_refresh();
+}
+
+// function used to display the Confirm page
+static void displayConfirm(nbgl_stepPosition_t pos)
+{
+    const char                *text    = NULL;
+    const char                *subText = NULL;
+    const nbgl_icon_details_t *icon    = NULL;
+
+    context.stepCallback = NULL;
+    switch (context.currentPage) {
+        case 0:
+            // title page
+            text    = context.confirm.message;
+            subText = context.confirm.subMessage;
+            break;
+        case 1:
+            // confirm page
+            icon                 = &C_icon_validate_14;
+            text                 = context.confirm.confirmText;
+            context.stepCallback = onConfirmAccept;
+            break;
+        case 2:
+            // cancel page
+            icon                 = &C_icon_crossmark;
+            text                 = context.confirm.cancelText;
+            context.stepCallback = onConfirmReject;
+            break;
+    }
+
+    drawStep(pos, icon, text, subText, genericConfirmCallback, true);
     nbgl_refresh();
 }
 
@@ -1103,7 +1187,7 @@ void nbgl_useCaseStatus(const char *message, bool isSuccess, nbgl_callback_t qui
     context.nbPages      = 1;
 
     icon = isSuccess ? &C_icon_validate_14 : &C_icon_crossmark;
-    drawStep(SINGLE_STEP, icon, message, NULL, statusButtonCallback);
+    drawStep(SINGLE_STEP, icon, message, NULL, statusButtonCallback, false);
 }
 
 /**
@@ -1252,7 +1336,7 @@ void nbgl_useCaseReviewStreamingFinish(const char           *finishTitle,
  */
 void nbgl_useCaseSpinner(const char *text)
 {
-    drawStep(SINGLE_STEP, &C_icon_processing, text, NULL, NULL);
+    drawStep(SINGLE_STEP, &C_icon_processing, text, NULL, NULL, false);
     nbgl_refresh();
 }
 
@@ -1276,6 +1360,38 @@ void nbgl_useCaseChoice(const nbgl_icon_details_t *icon,
 
     displayChoicePage(FORWARD_DIRECTION);
 };
+
+/**
+ * @brief Draws a page to confirm or not an action, described in a centered info (with info icon),
+ * thanks to a button and a footer at the bottom of the page. The given callback is called if the
+ * button is touched. If the footer is touched, the page is only "dismissed"
+ * @note This page is displayed as a modal (so the content of the previous page will be visible when
+ * dismissed).
+ *
+ * @param message string to set in center of page (32px)
+ * @param subMessage string to set under message (24px) (can be NULL)
+ * @param confirmText string to set in button, to confirm
+ * @param cancelText string to set in footer, to reject
+ * @param callback callback called when confirmation button is touched
+ */
+void nbgl_useCaseConfirm(const char     *message,
+                         const char     *subMessage,
+                         const char     *confirmText,
+                         const char     *cancelText,
+                         nbgl_callback_t callback)
+{
+    memset(&context, 0, sizeof(UseCaseContext_t));
+    context.type                = CONFIRM_USE_CASE;
+    context.confirm.message     = message;
+    context.confirm.subMessage  = subMessage;
+    context.confirm.confirmText = confirmText;
+    context.confirm.cancelText  = cancelText;
+    context.confirm.onConfirm   = callback;
+    context.currentPage         = 0;
+    context.nbPages             = 1 + 2;  // 2 pages at the end for confirm/cancel
+
+    displayConfirm(FORWARD_DIRECTION);
+}
 
 #endif  // HAVE_SE_TOUCH
 #endif  // NBGL_USE_CASE

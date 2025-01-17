@@ -435,6 +435,11 @@ void nbgl_useCaseChoice(const nbgl_icon_details_t *icon,
 
 void nbgl_useCaseStatus(const char *message, bool isSuccess, nbgl_callback_t quitCallback);
 
+void nbgl_useCaseConfirm(const char     *message,
+                         const char     *subMessage,
+                         const char     *confirmText,
+                         const char     *rejectText,
+                         nbgl_callback_t callback);
 void nbgl_useCaseSpinner(const char *text);
 
 // utils
@@ -494,11 +499,6 @@ DEPRECATED void nbgl_useCaseSettings(const char                *settingsTitle,
                                      nbgl_callback_t            quitCallback,
                                      nbgl_navCallback_t         navCallback,
                                      nbgl_layoutTouchCallback_t controlsCallback);
-void            nbgl_useCaseConfirm(const char     *message,
-                                    const char     *subMessage,
-                                    const char     *confirmText,
-                                    const char     *rejectText,
-                                    nbgl_callback_t callback);
 void            nbgl_useCaseReviewStart(const nbgl_icon_details_t *icon,
                                         const char                *reviewTitle,
                                         const char                *reviewSubTitle,
