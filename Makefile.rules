@@ -22,6 +22,7 @@ else
     SDK_SOURCE_PATH += lib_ux_nbgl lib_ux_sync
     NBGL_SOURCES := $(shell find $(BOLOS_SDK)/lib_nbgl/src -name 'nbgl_layout*.[csS]')
     NBGL_SOURCES += $(shell find $(BOLOS_SDK)/lib_nbgl/src -name 'nbgl_page*.[csS]')
+    NBGL_SOURCES += $(shell find $(BOLOS_SDK)/lib_nbgl/src -name 'nbgl_step*.[csS]')
     NBGL_SOURCES += $(shell find $(BOLOS_SDK)/lib_nbgl/src -name 'nbgl_use_case*.[csS]')
     NBGL_INCLUDE_PATH := lib_nbgl
 endif
