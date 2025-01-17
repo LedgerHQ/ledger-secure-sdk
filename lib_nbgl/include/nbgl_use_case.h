@@ -431,7 +431,6 @@ void nbgl_useCaseStatus(const char *message, bool isSuccess, nbgl_callback_t qui
 
 void nbgl_useCaseSpinner(const char *text);
 
-#ifdef HAVE_SE_TOUCH
 // utils
 uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPairs,
                                          const nbgl_contentTagValueList_t *tagValueList,
@@ -460,6 +459,7 @@ uint8_t nbgl_useCaseGetNbChoicesInPage(uint8_t                          nbChoice
                                        bool                             withNav);
 uint8_t nbgl_useCaseGetNbPagesForTagValueList(const nbgl_contentTagValueList_t *tagValueList);
 
+#ifdef HAVE_SE_TOUCH
 // use case drawing
 DEPRECATED void nbgl_useCaseHome(const char                *appName,
                                  const nbgl_icon_details_t *appIcon,

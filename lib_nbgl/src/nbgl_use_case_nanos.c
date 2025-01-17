@@ -709,6 +709,159 @@ static void displayChoicePage(nbgl_stepPosition_t pos)
  **********************/
 
 /**
+ * @brief with Nano Screen, only a single tag/value pair is displayable in a page
+ *
+ * @param nbPairs unused
+ * @param tagValueList unused
+ * @param startIndex unused
+ * @param requireSpecificDisplay (output) set to true if the tag/value needs a specific display:
+ *        - centeredInfo flag is enabled
+ *        - the tag/value doesn't fit in a page
+ * @return the number of tag/value pairs fitting in a page
+ */
+uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPairs,
+                                         const nbgl_contentTagValueList_t *tagValueList,
+                                         uint8_t                           startIndex,
+                                         bool                             *requireSpecificDisplay)
+{
+    UNUSED(nbPairs);
+    UNUSED(tagValueList);
+    UNUSED(startIndex);
+    *requireSpecificDisplay = true;
+    return 1;
+}
+
+/**
+ * @brief with Nano Screen, only a single tag/value pair is displayable in a page
+ *
+ * @param nbPairs unused
+ * @param tagValueList unused
+ * @param startIndex unused
+ * @param isSkippable unused
+ * @param requireSpecificDisplay (output) set to true if the tag/value needs a specific display:
+ *        - centeredInfo flag is enabled
+ *        - the tag/value doesn't fit in a page
+ * @return the number of tag/value pairs fitting in a page
+ */
+uint8_t nbgl_useCaseGetNbTagValuesInPageExt(uint8_t                           nbPairs,
+                                            const nbgl_contentTagValueList_t *tagValueList,
+                                            uint8_t                           startIndex,
+                                            bool                              isSkippable,
+                                            bool *requireSpecificDisplay)
+{
+    UNUSED(nbPairs);
+    UNUSED(tagValueList);
+    UNUSED(startIndex);
+    UNUSED(isSkippable);
+    *requireSpecificDisplay = true;
+    return 1;
+}
+
+/**
+ * @brief with Nano Screen, only a single info is displayable in a page
+ *
+ * @param nbInfos unused
+ * @param infosList unused
+ * @param startIndex unused
+ * @return the number of infos fitting in a page
+ */
+uint8_t nbgl_useCaseGetNbInfosInPage(uint8_t                       nbInfos,
+                                     const nbgl_contentInfoList_t *infosList,
+                                     uint8_t                       startIndex,
+                                     bool                          withNav)
+{
+    UNUSED(nbInfos);
+    UNUSED(infosList);
+    UNUSED(startIndex);
+    UNUSED(withNav);
+    return 1;
+}
+
+/**
+ * @brief with Nano Screen, only a single switch is displayable in a page
+ *
+ * @param nbSwitches unused
+ * @param switchesList unused
+ * @param startIndex unused
+ * @return the number of switches fitting in a page
+ */
+uint8_t nbgl_useCaseGetNbSwitchesInPage(uint8_t                           nbSwitches,
+                                        const nbgl_contentSwitchesList_t *switchesList,
+                                        uint8_t                           startIndex,
+                                        bool                              withNav)
+{
+    UNUSED(nbSwitches);
+    UNUSED(switchesList);
+    UNUSED(startIndex);
+    UNUSED(withNav);
+    return 1;
+}
+
+/**
+ * @brief with Nano Screen, only a single bar is displayable in a page
+ *
+ * @param nbBars unused
+ * @param barsList unused
+ * @param startIndex unused
+ * @return the number of bars fitting in a page
+ */
+uint8_t nbgl_useCaseGetNbBarsInPage(uint8_t                       nbBars,
+                                    const nbgl_contentBarsList_t *barsList,
+                                    uint8_t                       startIndex,
+                                    bool                          withNav)
+{
+    UNUSED(nbBars);
+    UNUSED(barsList);
+    UNUSED(startIndex);
+    UNUSED(withNav);
+    return 1;
+}
+
+/**
+ * @brief with Nano Screen, only a single radio choice displayable in a page
+ *
+ * @param nbChoices unused
+ * @param choicesList unused
+ * @param startIndex unused
+ * @return the number of radio choices fitting in a page
+ */
+uint8_t nbgl_useCaseGetNbChoicesInPage(uint8_t                          nbChoices,
+                                       const nbgl_contentRadioChoice_t *choicesList,
+                                       uint8_t                          startIndex,
+                                       bool                             withNav)
+{
+    UNUSED(nbChoices);
+    UNUSED(choicesList);
+    UNUSED(startIndex);
+    UNUSED(withNav);
+    return 1;
+}
+
+/**
+ * @brief  computes the number of pages necessary to display the given list of tag/value pairs
+ *
+ * @param tagValueList list of tag/value pairs
+ * @return the number of pages necessary to display the given list of tag/value pairs
+ */
+uint8_t nbgl_useCaseGetNbPagesForTagValueList(const nbgl_contentTagValueList_t *tagValueList)
+{
+    uint8_t nbPages = 0;
+    uint8_t nbPairs = tagValueList->nbPairs;
+    uint8_t nbPairsInPage;
+    uint8_t i = 0;
+    bool    flag;
+
+    while (i < tagValueList->nbPairs) {
+        // upper margin
+        nbPairsInPage = nbgl_useCaseGetNbTagValuesInPageExt(nbPairs, tagValueList, i, false, &flag);
+        i += nbPairsInPage;
+        nbPairs -= nbPairsInPage;
+        nbPages++;
+    }
+    return nbPages;
+}
+
+/**
  * @brief Draws the extended version of home page of an app (page on which we land when launching it
  *        from dashboard) with automatic support of setting display.
  *
