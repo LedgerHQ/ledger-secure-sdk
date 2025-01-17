@@ -72,6 +72,7 @@ typedef struct HomeContext_s {
 typedef enum {
     NONE_USE_CASE,
     REVIEW_USE_CASE,
+    GENERIC_REVIEW_USE_CASE,
     REVIEW_BLIND_SIGN_USE_CASE,
     ADDRESS_REVIEW_USE_CASE,
     STREAMING_BLIND_SIGN_START_REVIEW_USE_CASE,
@@ -373,7 +374,8 @@ static bool buttonGenericCallback(nbgl_buttonEvent_t event, nbgl_stepPosition_t 
             if (context.stepCallback != NULL) {
                 context.stepCallback();
             }
-            else if (context.type == CONTENT_USE_CASE) {
+            else if ((context.type == CONTENT_USE_CASE)
+                     || (context.type == GENERIC_REVIEW_USE_CASE)) {
                 if (context.content.controlsCallback != NULL) {
                     switch (context.content.genericContents.contentsList->type) {
                         case SWITCHES_LIST:
@@ -1045,12 +1047,17 @@ static void displayContent(nbgl_stepPosition_t pos, bool toogle_state)
         }
     }
     else {  // last page is for quit
-        icon = &C_icon_back_x;
         if (context.content.rejectText) {
             text = context.content.rejectText;
         }
         else {
             text = "Back";
+        }
+        if (context.type == GENERIC_REVIEW_USE_CASE) {
+            icon = &C_icon_crossmark;
+        }
+        else {
+            icon = &C_icon_back_x;
         }
         context.stepCallback = context.content.quitCallback;
     }
@@ -1572,6 +1579,34 @@ void nbgl_useCaseAddressReview(const char                       *address,
     }
 
     displayReviewPage(FORWARD_DIRECTION);
+}
+
+/**
+ * @brief Draws a flow of pages of a review with automatic pagination depending on content
+ *        to be displayed that is passed through contents.
+ *
+ * @param contents contents to be displayed
+ * @param rejectText text to use in footer
+ * @param rejectCallback callback called when reject is pressed
+ */
+void nbgl_useCaseGenericReview(const nbgl_genericContents_t *contents,
+                               const char                   *rejectText,
+                               nbgl_callback_t               rejectCallback)
+{
+    memset(&context, 0, sizeof(UseCaseContext_t));
+    context.type                                       = GENERIC_REVIEW_USE_CASE;
+    context.content.rejectText                         = rejectText;
+    context.content.quitCallback                       = rejectCallback;
+    context.content.genericContents.nbContents         = contents->nbContents;
+    context.content.genericContents.callbackCallNeeded = contents->callbackCallNeeded;
+    if (contents->callbackCallNeeded) {
+        context.content.genericContents.contentGetterCallback = contents->contentGetterCallback;
+    }
+    else {
+        context.content.genericContents.contentsList = PIC(contents->contentsList);
+    }
+
+    startUseCaseContent();
 }
 
 /**
