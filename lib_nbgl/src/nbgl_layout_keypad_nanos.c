@@ -161,46 +161,7 @@ int nbgl_layoutUpdateKeypad(nbgl_layout_t *layout,
  */
 int nbgl_layoutAddHiddenDigits(nbgl_layout_t *layout, uint8_t nbDigits)
 {
-    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
-    nbgl_container_t      *container;
-
-    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddHiddenDigits():\n");
-    if (layout == NULL) {
-        return -1;
-    }
-
-    // create a container, invisible or bordered
-    container             = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
-    container->nbChildren = nbDigits;
-    container->children   = nbgl_containerPoolGet(container->nbChildren, layoutInt->layer);
-    // 1 pixel between each icon (knowing that the effective bullets are 8px large)
-    container->obj.area.width  = nbDigits * C_pin_bullet_empty.width + (nbDigits - 1);
-    container->obj.area.height = C_pin_bullet_empty.height;
-    // distance from top to digits is fixed to 24 px
-    container->obj.alignmentMarginY = 24;
-    container->obj.alignTo          = NULL;
-    container->obj.alignment        = TOP_MIDDLE;
-
-    // set this new container as child of the main container
-    layoutAddObject(layoutInt, (nbgl_obj_t *) container);
-
-    // create children of the container, as images (empty circles)
-    nbgl_objPoolGetArray(IMAGE, nbDigits, layoutInt->layer, (nbgl_obj_t **) container->children);
-    for (int i = 0; i < nbDigits; i++) {
-        nbgl_image_t *image    = (nbgl_image_t *) container->children[i];
-        image->buffer          = &C_pin_bullet_empty;
-        image->foregroundColor = WHITE;
-        if (i > 0) {
-            image->obj.alignment        = MID_RIGHT;
-            image->obj.alignTo          = (nbgl_obj_t *) container->children[i - 1];
-            image->obj.alignmentMarginX = 1;
-        }
-        else {
-            image->obj.alignment = NO_ALIGNMENT;
-        }
-    }
-    // return index of container to be modified later on
-    return (layoutInt->nbChildren - 1);
+    return nbgl_layoutAddKeypadContent(layout, true, nbDigits, NULL);
 }
 
 /**
@@ -213,56 +174,174 @@ int nbgl_layoutAddHiddenDigits(nbgl_layout_t *layout, uint8_t nbDigits)
  */
 int nbgl_layoutUpdateHiddenDigits(nbgl_layout_t *layout, uint8_t index, uint8_t nbActive)
 {
+    UNUSED(index);
+    if (nbgl_layoutUpdateKeypadContent(layout, true, nbActive, NULL) < 0) {
+        return -1;
+    }
+    return 0;
+}
+
+/**
+ * @brief Adds an area with a title and a placeholder for hidden digits on top of a keypad, to
+ * represent the entered digits as small discs.
+ *
+ * @note It must be the only object added in the layout, after the keypad itself
+ *
+ * @param layout the current layout
+ * @param hidden if set to true, digits appear as discs, otherwise as visible digits (given in text
+ * param)
+ * @param nbDigits number of digits to be displayed (only used if hidden is true)
+ * @param text only used if hidden is false
+ * @return the height of this area, if no error, < 0 otherwise
+ */
+int nbgl_layoutAddKeypadContent(nbgl_layout_t *layout,
+                                bool           hidden,
+                                uint8_t        nbDigits,
+                                const char    *text)
+{
     nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
     nbgl_container_t      *container;
-    nbgl_image_t          *image;
+    nbgl_text_area_t      *textArea;
 
-    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutUpdateHiddenDigits(): nbActive = %d\n", nbActive);
+    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddKeypadContent():\n");
     if (layout == NULL) {
         return -1;
     }
 
-    // get container
-    container = (nbgl_container_t *) layoutInt->children[index];
-    // sanity check
-    if ((container == NULL) || (container->obj.type != CONTAINER)) {
-        return -1;
-    }
-    if (nbActive > container->nbChildren) {
-        return -1;
-    }
-    if (nbActive == 0) {
-        // deactivate the first digit
-        image = (nbgl_image_t *) container->children[0];
-        if ((image == NULL) || (image->obj.type != IMAGE)) {
-            return -1;
+    if (hidden) {
+        // create a container, invisible
+        container             = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
+        container->nbChildren = nbDigits;
+        container->children   = nbgl_containerPoolGet(container->nbChildren, layoutInt->layer);
+        // 1 pixel between each icon (knowing that the effective bullets are 8px large)
+        container->obj.area.width  = nbDigits * C_pin_bullet_empty.width + (nbDigits - 1);
+        container->obj.area.height = C_pin_bullet_empty.height;
+        // distance from top to digits is fixed to 24 px
+        container->obj.alignmentMarginY = 24;
+        container->obj.alignTo          = NULL;
+        container->obj.alignment        = TOP_MIDDLE;
+
+        // set this new container as child of the main container
+        layoutAddObject(layoutInt, (nbgl_obj_t *) container);
+
+        // create children of the container, as images (empty circles)
+        nbgl_objPoolGetArray(
+            IMAGE, nbDigits, layoutInt->layer, (nbgl_obj_t **) container->children);
+        for (int i = 0; i < nbDigits; i++) {
+            nbgl_image_t *image    = (nbgl_image_t *) container->children[i];
+            image->buffer          = &C_pin_bullet_empty;
+            image->foregroundColor = WHITE;
+            if (i > 0) {
+                image->obj.alignment        = MID_RIGHT;
+                image->obj.alignTo          = (nbgl_obj_t *) container->children[i - 1];
+                image->obj.alignmentMarginX = 1;
+            }
+            else {
+                image->obj.alignment = NO_ALIGNMENT;
+            }
         }
-        image->buffer = &C_pin_bullet_empty;
     }
     else {
-        image = (nbgl_image_t *) container->children[nbActive - 1];
-        if ((image == NULL) || (image->obj.type != IMAGE)) {
+        // create text area
+        textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+        textArea->textColor     = WHITE;
+        textArea->text          = text;
+        textArea->textAlignment = CENTER;
+        textArea->fontId        = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
+        textArea->obj.area.width   = AVAILABLE_WIDTH;
+        textArea->obj.area.height  = nbgl_getFontLineHeight(textArea->fontId);
+        textArea->autoHideLongLine = true;
+        // distance from top to digits is fixed to 20 px
+        textArea->obj.alignmentMarginY = 20;
+        textArea->obj.alignTo          = NULL;
+        textArea->obj.alignment        = TOP_MIDDLE;
+        // set this new text area as child of the main container
+        layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
+    }
+
+    // return 0
+    return 0;
+}
+
+/**
+ * @brief Updates an existing set of hidden digits, with the given configuration
+ *
+ * @param layout the current layout
+ * @param hidden if set to true, digits appear as discs, otherwise as visible digits (given in text
+ * param)
+ * @param nbActiveDigits number of "active" digits (represented by discs instead of circles) (only
+ * used if hidden is true)
+ * @param text only used if hidden is false
+ *
+ * @return >=0 if OK
+ */
+int nbgl_layoutUpdateKeypadContent(nbgl_layout_t *layout,
+                                   bool           hidden,
+                                   uint8_t        nbActiveDigits,
+                                   const char    *text)
+{
+    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
+    nbgl_container_t      *container;
+    nbgl_image_t          *image;
+
+    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutUpdateHiddenDigits(): nbActive = %d\n", nbActiveDigits);
+    if (layout == NULL) {
+        return -1;
+    }
+
+    if (hidden) {
+        // get container (3rd child of main container)
+        container = (nbgl_container_t *) layoutInt->children[2];
+        // sanity check
+        if ((container == NULL) || (container->obj.type != CONTAINER)) {
             return -1;
         }
-        // if the last "active" is already active, it means that we are decreasing the number of
-        // active otherwise we are increasing it
-        if (image->buffer == &C_pin_bullet_filled) {
-            // all digits are already active
-            if (nbActive == container->nbChildren) {
-                return 0;
+        if (nbActiveDigits > container->nbChildren) {
+            return -1;
+        }
+        if (nbActiveDigits == 0) {
+            // deactivate the first digit
+            image = (nbgl_image_t *) container->children[0];
+            if ((image == NULL) || (image->obj.type != IMAGE)) {
+                return -1;
             }
-            // deactivate the next digit
-            image         = (nbgl_image_t *) container->children[nbActive];
             image->buffer = &C_pin_bullet_empty;
         }
         else {
-            image->buffer = &C_pin_bullet_filled;
+            image = (nbgl_image_t *) container->children[nbActiveDigits - 1];
+            if ((image == NULL) || (image->obj.type != IMAGE)) {
+                return -1;
+            }
+            // if the last "active" is already active, it means that we are decreasing the number of
+            // active otherwise we are increasing it
+            if (image->buffer == &C_pin_bullet_filled) {
+                // all digits are already active
+                if (nbActiveDigits == container->nbChildren) {
+                    return 0;
+                }
+                // deactivate the next digit
+                image         = (nbgl_image_t *) container->children[nbActiveDigits];
+                image->buffer = &C_pin_bullet_empty;
+            }
+            else {
+                image->buffer = &C_pin_bullet_filled;
+            }
         }
-    }
 
-    nbgl_objDraw((nbgl_obj_t *) image);
+        nbgl_objDraw((nbgl_obj_t *) image);
+    }
+    else {
+        // update main text area (second child of the main container)
+        nbgl_text_area_t *textArea = (nbgl_text_area_t *) layoutInt->children[2];
+        if ((textArea == NULL) || (textArea->obj.type != TEXT_AREA)) {
+            return -1;
+        }
+        textArea->text = text;
+        nbgl_objDraw((nbgl_obj_t *) textArea);
+    }
 
     return 0;
 }
+
 #endif  // NBGL_KEYPAD
 #endif  // HAVE_SE_TOUCH
