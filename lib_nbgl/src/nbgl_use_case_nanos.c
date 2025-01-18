@@ -72,6 +72,20 @@ typedef struct HomeContext_s {
     nbgl_callback_t               quitCallback;
 } HomeContext_t;
 
+#ifdef NBGL_KEYPAD
+typedef struct KeypadContext_s {
+    uint8_t                 pinEntry[8];
+    uint8_t                 pinLen;
+    uint8_t                 pinMinDigits;
+    uint8_t                 pinMaxDigits;
+    nbgl_layout_t          *layoutCtx;
+    bool                    hidden;
+    uint8_t                 keypadIndex;
+    nbgl_pinValidCallback_t validatePin;
+    nbgl_callback_t         backCallback;
+} KeypadContext_t;
+#endif
+
 typedef enum {
     NONE_USE_CASE,
     SPINNER_USE_CASE,
@@ -86,6 +100,7 @@ typedef enum {
     CHOICE_USE_CASE,
     STATUS_USE_CASE,
     CONFIRM_USE_CASE,
+    KEYPAD_USE_CASE,
     HOME_USE_CASE,
     INFO_USE_CASE,
     SETTINGS_USE_CASE,
@@ -105,6 +120,9 @@ typedef struct UseCaseContext_s {
         ConfirmContext_t confirm;
         HomeContext_t    home;
         ContentContext_t content;
+#ifdef NBGL_KEYPAD
+        KeypadContext_t keypad;
+#endif
     };
 } UseCaseContext_t;
 
@@ -1261,6 +1279,103 @@ static void useCaseReview(ContextType_t                     type,
     displayReviewPage(FORWARD_DIRECTION);
 }
 
+#ifdef NBGL_KEYPAD
+static void setPinCodeText(void)
+{
+    bool enableValidate  = false;
+    bool enableBackspace = true;
+
+    // pin can be validated when min digits is entered
+    enableValidate = (context.keypad.pinLen >= context.keypad.pinMinDigits);
+    // backspace is disabled when no digit is entered and back vallback is not provided
+    enableBackspace = (context.keypad.pinLen > 0) || (context.keypad.backCallback != NULL);
+    nbgl_layoutUpdateKeypadContent(context.keypad.layoutCtx,
+                                   context.keypad.hidden,
+                                   context.keypad.pinLen,
+                                   (const char *) context.keypad.pinEntry);
+    nbgl_layoutUpdateKeypad(
+        context.keypad.layoutCtx, context.keypad.keypadIndex, enableValidate, enableBackspace);
+    nbgl_layoutDraw(context.keypad.layoutCtx);
+    nbgl_refresh();
+}
+
+// called when a key is touched on the keypad
+static void keypadCallback(char touchedKey)
+{
+    switch (touchedKey) {
+        case BACKSPACE_KEY:
+            if (context.keypad.pinLen > 0) {
+                context.keypad.pinLen--;
+                context.keypad.pinEntry[context.keypad.pinLen] = 0;
+            }
+            else if (context.keypad.backCallback != NULL) {
+                context.keypad.backCallback();
+                break;
+            }
+            setPinCodeText();
+            break;
+
+        case VALIDATE_KEY:
+            context.keypad.validatePin(context.keypad.pinEntry, context.keypad.pinLen);
+            break;
+
+        default:
+            if ((touchedKey >= 0x30) && (touchedKey < 0x40)) {
+                if (context.keypad.pinLen < context.keypad.pinMaxDigits) {
+                    context.keypad.pinEntry[context.keypad.pinLen] = touchedKey;
+                    context.keypad.pinLen++;
+                }
+                setPinCodeText();
+            }
+            break;
+    }
+}
+
+// called to create a keypad, with either hidden or visible digits
+static void keypadGenericUseCase(const char             *title,
+                                 uint8_t                 minDigits,
+                                 uint8_t                 maxDigits,
+                                 bool                    shuffled,
+                                 bool                    hidden,
+                                 nbgl_pinValidCallback_t validatePinCallback,
+                                 nbgl_callback_t         backCallback)
+{
+    nbgl_layoutDescription_t layoutDescription = {0};
+    int                      status            = -1;
+
+    // reset the keypad context
+    memset(&context, 0, sizeof(KeypadContext_t));
+    context.type                = KEYPAD_USE_CASE;
+    context.currentPage         = 0;
+    context.nbPages             = 1;
+    context.keypad.validatePin  = validatePinCallback;
+    context.keypad.backCallback = backCallback;
+    context.keypad.pinMinDigits = minDigits;
+    context.keypad.pinMaxDigits = maxDigits;
+    context.keypad.hidden       = hidden;
+    context.keypad.layoutCtx    = nbgl_layoutGet(&layoutDescription);
+
+    // add keypad
+    status = nbgl_layoutAddKeypad(context.keypad.layoutCtx, keypadCallback, title, shuffled);
+    if (status < 0) {
+        return;
+    }
+    context.keypad.keypadIndex = status;
+    // add digits
+    status = nbgl_layoutAddKeypadContent(context.keypad.layoutCtx, hidden, maxDigits, "");
+    if (status < 0) {
+        return;
+    }
+
+    nbgl_layoutDraw(context.keypad.layoutCtx);
+    if (context.keypad.backCallback != NULL) {
+        // force backspace to be visible at first digit, to be used as quit
+        nbgl_layoutUpdateKeypad(context.keypad.layoutCtx, context.keypad.keypadIndex, false, true);
+    }
+    nbgl_refresh();
+}
+#endif  // NBGL_KEYPAD
+
 /**********************
  *  GLOBAL FUNCTIONS
  **********************/
@@ -2047,6 +2162,65 @@ void nbgl_useCaseConfirm(const char     *message,
 
     displayConfirm(FORWARD_DIRECTION);
 }
+
+#ifdef NBGL_KEYPAD
+/**
+ * @brief draws a standard keypad modal page with visible digits. It contains
+ *        - a navigation bar at the top
+ *        - a title for the pin code
+ *        - a visible digit entry
+ *        - the keypad at the bottom
+ *
+ * @note callbacks allow to control the behavior.
+ *       backspace and validation button are shown/hidden automatically
+ *
+ * @param title string to set in pin code title
+ * @param minDigits pin minimum number of digits
+ * @param maxDigits maximum number of digits to be displayed
+ * @param shuffled if set to true, digits are shuffled in keypad
+ * @param validatePinCallback function calledto validate the pin code
+ * @param backCallback callback called on backspace is "pressed" in first digit
+ */
+void nbgl_useCaseKeypadDigits(const char             *title,
+                              uint8_t                 minDigits,
+                              uint8_t                 maxDigits,
+                              bool                    shuffled,
+                              nbgl_pinValidCallback_t validatePinCallback,
+                              nbgl_callback_t         backCallback)
+{
+    keypadGenericUseCase(
+        title, minDigits, maxDigits, shuffled, false, validatePinCallback, backCallback);
+}
+
+/**
+ * @brief draws a standard keypad modal page with hidden digits. It contains
+ *        - a navigation bar at the top
+ *        - a title for the pin code
+ *        - a hidden digit entry
+ *        - the keypad at the bottom
+ *
+ * @note callbacks allow to control the behavior.
+ *       backspace and validation button are shown/hidden automatically
+ *
+ * @param title string to set in pin code title
+ * @param minDigits pin minimum number of digits
+ * @param maxDigits maximum number of digits to be displayed
+ * @param backToken token used with actionCallback (0 if unused))
+ * @param shuffled if set to true, digits are shuffled in keypad
+ * @param validatePinCallback function calledto validate the pin code
+ * @param backCallback callback called on backspace is "pressed" in first digit
+ */
+void nbgl_useCaseKeypadPIN(const char             *title,
+                           uint8_t                 minDigits,
+                           uint8_t                 maxDigits,
+                           bool                    shuffled,
+                           nbgl_pinValidCallback_t validatePinCallback,
+                           nbgl_callback_t         backCallback)
+{
+    keypadGenericUseCase(
+        title, minDigits, maxDigits, shuffled, true, validatePinCallback, backCallback);
+}
+#endif  // NBGL_KEYPAD
 
 #endif  // HAVE_SE_TOUCH
 #endif  // NBGL_USE_CASE

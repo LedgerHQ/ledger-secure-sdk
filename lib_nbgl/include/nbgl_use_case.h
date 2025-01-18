@@ -545,6 +545,22 @@ void nbgl_useCaseKeypadPIN(const char                *title,
                            nbgl_pinValidCallback_t    validatePinCallback,
                            nbgl_layoutTouchCallback_t actionCallback);
 #endif  // NBGL_KEYPAD
+
+#else  // HAVE_SE_TOUCH
+#ifdef NBGL_KEYPAD
+void nbgl_useCaseKeypadDigits(const char             *title,
+                              uint8_t                 minDigits,
+                              uint8_t                 maxDigits,
+                              bool                    shuffled,
+                              nbgl_pinValidCallback_t validatePinCallback,
+                              nbgl_callback_t         backCallbackk);
+void nbgl_useCaseKeypadPIN(const char             *title,
+                           uint8_t                 minDigits,
+                           uint8_t                 maxDigits,
+                           bool                    shuffled,
+                           nbgl_pinValidCallback_t validatePinCallback,
+                           nbgl_callback_t         backCallback);
+#endif  // NBGL_KEYPAD
 #endif  // HAVE_SE_TOUCH
 
 #ifdef __cplusplus

@@ -56,11 +56,11 @@ extern "C" {
 #else
 #define KEYPAD_KEY_HEIGHT 104
 #endif
-#define KEYPAD_MAX_DIGITS 12
 #else  // HAVE_SE_TOUCH
 #define KEYPAD_WIDTH  114
 #define KEYPAD_HEIGHT 18
 #endif  // HAVE_SE_TOUCH
+#define KEYPAD_MAX_DIGITS 12
 
 #ifdef HAVE_SE_TOUCH
 // external margin in pixels
