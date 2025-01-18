@@ -1572,9 +1572,7 @@ void nbgl_useCaseAddressReview(const char                       *address,
     // + 4 because 1 page for title, 1 for address and 2 pages at the end for approve/reject
     context.nbPages = 4;
     if (additionalTagValueList) {
-        memcpy(&context.review.tagValueList,
-               additionalTagValueList,
-               sizeof(nbgl_contentTagValueList_t));
+        context.review.tagValueList = PIC(additionalTagValueList);
         context.nbPages += additionalTagValueList->nbPairs;
     }
 
@@ -1671,7 +1669,7 @@ void nbgl_useCaseReviewStatus(nbgl_reviewStatusType_t reviewStatusType,
             isSuccess = true;
             break;
         case STATUS_TYPE_ADDRESS_REJECTED:
-            msg       = "Verification\ncancelled";
+            msg       = "Address verification cancelled";
             isSuccess = false;
             break;
         default:
