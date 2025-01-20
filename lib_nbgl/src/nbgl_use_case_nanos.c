@@ -20,6 +20,8 @@
 /*********************
  *      DEFINES
  *********************/
+#define WITH_HORIZONTAL_CHOICES_LIST
+#define WITH_HORIZONTAL_BARS_LIST
 
 /**********************
  *      TYPEDEFS
@@ -53,7 +55,7 @@ typedef struct ConfirmContext_s {
 } ConfirmContext_t;
 
 typedef struct ContentContext_s {
-    const char                *title;  // For CHOICES_LIST
+    const char                *title;  // For CHOICES_LIST /BARS_LIST
     nbgl_genericContents_t     genericContents;
     const char                *rejectText;
     nbgl_layoutTouchCallback_t controlsCallback;
@@ -219,6 +221,80 @@ static const nbgl_content_t *getContentElemAtIdx(uint8_t         elemIdx,
     return p_content;
 }
 
+static const char *getChoiceName(uint8_t choiceIndex)
+{
+    uint8_t                    elemIdx;
+    uint8_t                    nbValues;
+    const nbgl_content_t      *p_content      = NULL;
+    nbgl_content_t             content        = {0};
+    nbgl_contentRadioChoice_t *contentChoices = NULL;
+    nbgl_contentBarsList_t    *contentBars    = NULL;
+    char                     **names          = NULL;
+
+    p_content = getContentElemAtIdx(context.currentPage, &elemIdx, &content);
+    if (p_content == NULL) {
+        return NULL;
+    }
+    switch (p_content->type) {
+        case CHOICES_LIST:
+            contentChoices = (nbgl_contentRadioChoice_t *) PIC(&p_content->content.choicesList);
+            names          = (char **) PIC(contentChoices->names);
+            nbValues       = contentChoices->nbChoices;
+            break;
+        case BARS_LIST:
+            contentBars = ((nbgl_contentBarsList_t *) PIC(&p_content->content.barsList));
+            names       = (char **) PIC(contentBars->barTexts);
+            nbValues    = contentBars->nbBars;
+            break;
+        default:
+            // Not supported as vertical MenuList
+            return NULL;
+    }
+    if (choiceIndex >= nbValues) {
+        // Last item is always "Back" button
+        return "Back";
+    }
+    return (const char *) PIC(names[choiceIndex]);
+}
+
+static void onChoiceSelected(uint8_t choiceIndex)
+{
+    uint8_t                    elemIdx;
+    uint8_t                    token          = 255;
+    const nbgl_content_t      *p_content      = NULL;
+    nbgl_content_t             content        = {0};
+    nbgl_contentRadioChoice_t *contentChoices = NULL;
+    nbgl_contentBarsList_t    *contentBars    = NULL;
+
+    p_content = getContentElemAtIdx(context.currentPage, &elemIdx, &content);
+    if (p_content == NULL) {
+        return;
+    }
+    switch (p_content->type) {
+        case CHOICES_LIST:
+            contentChoices = (nbgl_contentRadioChoice_t *) PIC(&p_content->content.choicesList);
+            if (choiceIndex < contentChoices->nbChoices) {
+                token = contentChoices->token;
+            }
+            break;
+        case BARS_LIST:
+            contentBars = ((nbgl_contentBarsList_t *) PIC(&p_content->content.barsList));
+            if (choiceIndex < contentBars->nbBars) {
+                token = contentBars->tokens[choiceIndex];
+            }
+            break;
+        default:
+            // Not supported as vertical MenuList
+            break;
+    }
+    if ((token != 255) && (context.content.controlsCallback != NULL)) {
+        context.content.controlsCallback(token, 0);
+    }
+    else if (context.content.quitCallback != NULL) {
+        context.content.quitCallback();
+    }
+}
+
 static void getPairData(const nbgl_contentTagValueList_t *tagValueList,
                         uint8_t                           index,
                         const char                      **item,
@@ -325,12 +401,18 @@ static void drawStep(nbgl_stepPosition_t        pos,
                      nbgl_stepButtonCallback_t  onActionCallback,
                      bool                       modal)
 {
-    nbgl_step_t                       newStep  = NULL;
-    nbgl_screenTickerConfiguration_t *p_ticker = NULL;
-    nbgl_screenTickerConfiguration_t  ticker   = {
-           .tickerCallback  = PIC(statusTickerCallback),
-           .tickerIntervale = 0,    // not periodic
-           .tickerValue     = 3000  // 3 seconds
+    uint8_t                           elemIdx;
+    nbgl_step_t                       newStep        = NULL;
+    const nbgl_content_t             *p_content      = NULL;
+    nbgl_content_t                    content        = {0};
+    nbgl_contentRadioChoice_t        *contentChoices = NULL;
+    nbgl_contentBarsList_t           *contentBars    = NULL;
+    nbgl_screenTickerConfiguration_t *p_ticker       = NULL;
+    nbgl_layoutMenuList_t             list           = {0};
+    nbgl_screenTickerConfiguration_t  ticker         = {
+                 .tickerCallback  = PIC(statusTickerCallback),
+                 .tickerIntervale = 0,    // not periodic
+                 .tickerValue     = 3000  // 3 seconds
     };
 
     pos |= GET_POS_OF_STEP(context.currentPage, context.nbPages);
@@ -341,7 +423,33 @@ static void drawStep(nbgl_stepPosition_t        pos,
     if ((context.type == CONFIRM_USE_CASE) && (context.confirm.currentStep != NULL)) {
         nbgl_stepRelease(context.confirm.currentStep);
     }
-    if (icon == NULL) {
+
+    if (txt == NULL) {
+        p_content = getContentElemAtIdx(context.currentPage, &elemIdx, &content);
+        if (p_content) {
+            switch (p_content->type) {
+                case CHOICES_LIST:
+                    contentChoices
+                        = ((nbgl_contentRadioChoice_t *) PIC(&p_content->content.choicesList));
+                    list.nbChoices      = contentChoices->nbChoices + 1;  // For Back button
+                    list.selectedChoice = contentChoices->initChoice;
+                    list.callback       = getChoiceName;
+                    newStep = nbgl_stepDrawMenuList(onChoiceSelected, p_ticker, &list, modal);
+                    break;
+                case BARS_LIST:
+                    contentBars    = ((nbgl_contentBarsList_t *) PIC(&p_content->content.barsList));
+                    list.nbChoices = contentBars->nbBars + 1;  // For Back button
+                    list.selectedChoice = 0;
+                    list.callback       = getChoiceName;
+                    newStep = nbgl_stepDrawMenuList(onChoiceSelected, p_ticker, &list, modal);
+                    break;
+                default:
+                    // Not supported as vertical MenuList
+                    break;
+            }
+        }
+    }
+    else if (icon == NULL) {
         newStep = nbgl_stepDrawText(
             pos, onActionCallback, p_ticker, txt, subTxt, BOLD_TEXT1_INFO, modal);
     }
@@ -747,14 +855,16 @@ static void getContentPage(bool                        toogle_state,
                            const char                **subText,
                            const nbgl_icon_details_t **icon)
 {
-    static char                fullText[75];
-    uint8_t                    elemIdx;
-    nbgl_state_t               state          = OFF_STATE;
-    const nbgl_content_t      *p_content      = NULL;
-    nbgl_content_t             content        = {0};
-    nbgl_contentSwitch_t      *contentSwitch  = NULL;
+    static char           fullText[75];
+    uint8_t               elemIdx;
+    nbgl_state_t          state         = OFF_STATE;
+    const nbgl_content_t *p_content     = NULL;
+    nbgl_content_t        content       = {0};
+    nbgl_contentSwitch_t *contentSwitch = NULL;
+#ifdef WITH_HORIZONTAL_CHOICES_LIST
     nbgl_contentRadioChoice_t *contentChoices = NULL;
     char                     **names          = NULL;
+#endif
 
     p_content = getContentElemAtIdx(context.currentPage, &elemIdx, &content);
     if (p_content == NULL) {
@@ -796,7 +906,8 @@ static void getContentPage(bool                        toogle_state,
                 = ((const char *const *) PIC(p_content->content.infosList.infoContents))[elemIdx];
             break;
         case CHOICES_LIST:
-            if (context.content.title != NULL) {
+#ifdef WITH_HORIZONTAL_CHOICES_LIST
+            if ((context.type == CONTENT_USE_CASE) && (context.content.title != NULL)) {
                 *text    = PIC(context.content.title);
                 *subText = PIC(p_content->content.choicesList.names[elemIdx]);
             }
@@ -805,9 +916,18 @@ static void getContentPage(bool                        toogle_state,
                 names          = (char **) PIC(contentChoices->names);
                 *text          = (const char *) PIC(names[elemIdx]);
             }
+#endif
             break;
         case BARS_LIST:
-            *text = PIC(p_content->content.barsList.barTexts[elemIdx]);
+#ifdef WITH_HORIZONTAL_BARS_LIST
+            if ((context.type == CONTENT_USE_CASE) && (context.content.title != NULL)) {
+                *text    = PIC(context.content.title);
+                *subText = PIC(p_content->content.barsList.barTexts[elemIdx]);
+            }
+            else {
+                *text = PIC(p_content->content.barsList.barTexts[elemIdx]);
+            }
+#endif
             break;
         default:
             break;
@@ -1359,6 +1479,7 @@ void nbgl_useCaseNavigableContent(const char                *title,
             break;
         case BARS_LIST:
             contentsList.content.barsList = pageContent.barsList;
+            context.content.title         = title;
             break;
         default:
             break;
