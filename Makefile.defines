@@ -58,7 +58,9 @@ CFLAGS   += --sysroot="$(SYSROOT)"
 # optimization and debugging levels
 ifneq ($(DEBUG),0)
     OPTI_LVL  = g
-    DBG_LVL   = 3
+    # any higher won't work with LLVM >= 14
+    # will be fixed in LLVM 20 : https://github.com/llvm/llvm-project/pull/116956
+    DBG_LVL   = 1
 else
     OPTI_LVL  = z
     DBG_LVL   = 0
