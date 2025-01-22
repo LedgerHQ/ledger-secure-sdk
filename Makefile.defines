@@ -50,10 +50,22 @@ endif
 
 SYSROOT = $(shell $(GCCPATH)arm-none-eabi-gcc -print-sysroot)
 ifeq ($(SYSROOT),)
-CFLAGS   += -I/usr/include
-else
-CFLAGS   += --sysroot="$(SYSROOT)"
+    # path for Debian-based systems
+    SYSROOT = /usr/lib/arm-none-eabi
 endif
+CFLAGS   += --sysroot="$(SYSROOT)"
+
+# optimization and debugging levels
+ifneq ($(DEBUG),0)
+    OPTI_LVL  = g
+    # any higher won't work with LLVM >= 14
+    # will be fixed in LLVM 20 : https://github.com/llvm/llvm-project/pull/116956
+    DBG_LVL   = 1
+else
+    OPTI_LVL  = z
+    DBG_LVL   = 0
+endif
+CFLAGS   += -O$(OPTI_LVL) -g$(DBG_LVL)
 
 CFLAGS   += -fomit-frame-pointer -momit-leaf-frame-pointer
 
