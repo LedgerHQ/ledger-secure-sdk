@@ -1,11 +1,20 @@
 <map id="lib_cxng/include/lcx_common.h" name="lib_cxng/include/lcx_common.h">
-<area shape="rect" id="node1" title="Cryptography flags." alt="" coords="209,5,360,47"/>
-<area shape="rect" id="node2" href="$lcx__cipher_8h.html" title="API for block ciphers." alt="" coords="209,95,360,136"/>
-<area shape="rect" id="node3" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="5,184,196,211"/>
-<area shape="rect" id="node8" href="$cx__utils_8h.html" title=" " alt="" coords="402,102,567,129"/>
-<area shape="rect" id="node4" href="$cx__cipher_8h.html" title=" " alt="" coords="221,184,397,211"/>
-<area shape="rect" id="node5" href="$cx__cipher_8c.html" title=" " alt="" coords="124,259,299,285"/>
-<area shape="rect" id="node6" href="$cx__ram_8h.html" title=" " alt="" coords="323,259,486,285"/>
-<area shape="rect" id="node7" href="$cx__ram_8c.html" title=" " alt="" coords="323,333,486,360"/>
-<area shape="rect" id="node9" href="$cx__utils_8c.html" title=" " alt="" coords="421,184,585,211"/>
+<area shape="rect" id="Node000001" title="Cryptography flags." alt="" coords="209,5,360,45"/>
+<area shape="rect" id="Node000002" href="$lcx__cipher_8h.html" title="API for block ciphers." alt="" coords="209,93,360,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="287,59,287,93,282,93,282,59"/>
+<area shape="rect" id="Node000003" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="5,181,196,207"/>
+<area shape="poly" id="edge7_Node000001_Node000003" title=" " alt="" coords="248,56,198,95,149,143,113,183,109,179,146,139,195,91,245,51"/>
+<area shape="rect" id="Node000008" href="$cx__utils_8h.html" title=" " alt="" coords="402,101,567,126"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="342,48,459,98,457,103,340,53"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="229,141,129,184,127,179,227,136"/>
+<area shape="rect" id="Node000004" href="$cx__cipher_8h.html" title=" " alt="" coords="221,181,397,207"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="297,146,308,180,303,182,292,147"/>
+<area shape="rect" id="Node000005" href="$cx__cipher_8c.html" title=" " alt="" coords="124,255,299,280"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="283,217,229,257,226,252,280,213"/>
+<area shape="rect" id="Node000006" href="$cx__ram_8h.html" title=" " alt="" coords="323,255,486,280"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="337,213,391,252,387,257,334,217"/>
+<area shape="rect" id="Node000007" href="$cx__ram_8c.html" title=" " alt="" coords="323,328,486,353"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="407,294,407,328,402,328,402,294"/>
+<area shape="rect" id="Node000009" href="$cx__utils_8c.html" title=" " alt="" coords="421,181,585,207"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="493,139,503,180,498,182,488,140"/>
 </map>

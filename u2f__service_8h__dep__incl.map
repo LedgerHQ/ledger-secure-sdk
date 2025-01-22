@@ -1,6 +1,9 @@
 <map id="lib_u2f/include/u2f_service.h" name="lib_u2f/include/u2f_service.h">
-<area shape="rect" id="node1" title=" " alt="" coords="203,5,346,47"/>
-<area shape="rect" id="node2" href="$u2f__io_8h.html" title=" " alt="" coords="5,102,179,129"/>
-<area shape="rect" id="node3" href="$u2f__processing_8h.html" title=" " alt="" coords="203,95,346,136"/>
-<area shape="rect" id="node4" href="$u2f__transport_8h.html" title=" " alt="" coords="370,95,513,136"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="203,5,346,45"/>
+<area shape="rect" id="Node000002" href="$u2f__io_8h.html" title=" " alt="" coords="5,101,179,126"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,54,117,103,115,98,221,49"/>
+<area shape="rect" id="Node000003" href="$u2f__processing_8h.html" title=" " alt="" coords="203,93,346,133"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="277,59,277,93,272,93,272,59"/>
+<area shape="rect" id="Node000004" href="$u2f__transport_8h.html" title=" " alt="" coords="370,93,513,133"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="324,49,406,91,404,96,322,54"/>
 </map>

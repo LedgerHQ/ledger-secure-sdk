@@ -1,6 +1,9 @@
 <map id="lib_cxng/src/cx_cipher.h" name="lib_cxng/src/cx_cipher.h">
-<area shape="rect" id="node1" title=" " alt="" coords="101,5,277,32"/>
-<area shape="rect" id="node2" href="$cx__cipher_8c.html" title=" " alt="" coords="5,80,180,107"/>
-<area shape="rect" id="node3" href="$cx__ram_8h.html" title=" " alt="" coords="205,80,367,107"/>
-<area shape="rect" id="node4" href="$cx__ram_8c.html" title=" " alt="" coords="205,155,367,181"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="101,5,277,31"/>
+<area shape="rect" id="Node000002" href="$cx__cipher_8c.html" title=" " alt="" coords="5,79,180,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="164,41,110,81,107,76,161,37"/>
+<area shape="rect" id="Node000003" href="$cx__ram_8h.html" title=" " alt="" coords="205,79,367,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="217,37,272,76,269,81,214,41"/>
+<area shape="rect" id="Node000004" href="$cx__ram_8c.html" title=" " alt="" coords="205,152,367,177"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="289,118,289,152,283,152,283,118"/>
 </map>

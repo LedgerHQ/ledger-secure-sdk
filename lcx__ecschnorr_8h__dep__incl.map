@@ -1,4 +1,5 @@
 <map id="lib_cxng/include/lcx_ecschnorr.h" name="lib_cxng/include/lcx_ecschnorr.h">
-<area shape="rect" id="node1" title="ECSDSA (Elliptic Curve&#45;based Schnorr Digital Signature Algorithm)." alt="" coords="25,5,176,47"/>
-<area shape="rect" id="node2" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="5,95,196,121"/>
+<area shape="rect" id="Node000001" title="ECSDSA (Elliptic Curve&#45;based Schnorr Digital Signature Algorithm)." alt="" coords="25,5,176,45"/>
+<area shape="rect" id="Node000002" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="5,93,196,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,59,103,93,98,93,98,59"/>
 </map>

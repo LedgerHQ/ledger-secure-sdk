@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['advanced_20bolos_20gl_20api_4594',['Advanced BOLOS GL API',['../nbgl_obj.html',1,'nbgl_mainpage']]]
+  ['2nd_20factor_20library_0',['Universal 2nd Factor library',['../u2f_mainpage.html',1,'index']]]
 ];

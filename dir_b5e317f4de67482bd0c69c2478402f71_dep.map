@@ -1,6 +1,7 @@
 <map id="lib_blewbxx_impl/include" name="lib_blewbxx_impl/include">
-<area shape="rect" id="node1" href="dir_b5e317f4de67482bd0c69c2478402f71.html" title="include" alt="" coords="48,52,120,100"/>
-<area shape="rect" id="node2" href="dir_f19cb56d6ecfeb72444413e62ae31a52.html" title="lib_cxng" alt="" coords="46,148,122,196"/>
-<area shape="rect" id="edge1-headlabel" href="dir_000021_000001.html" title="1" alt="" coords="88,122,97,137"/>
-<area shape="rect" id="clust1" href="dir_c4a37ac6fb66a90d51c724e3d332b1b6.html" title="lib_blewbxx_impl" alt="" coords="16,16,152,111"/>
+<area shape="rect" id="node1" href="dir_b5e317f4de67482bd0c69c2478402f71.html" title="include" alt="" coords="49,52,119,77"/>
+<area shape="rect" id="node2" href="dir_f19cb56d6ecfeb72444413e62ae31a52.html" title="lib_cxng" alt="" coords="46,125,122,151"/>
+<area shape="poly" id="edge1" href="dir_000011_000018.html" alt="" coords="87,78,87,112,81,112,81,78"/>
+<area shape="rect" id="edge1-headlabel" href="dir_000011_000018.html" title="1" alt="" coords="88,100,97,114"/>
+<area shape="rect" id="clust1" href="dir_c4a37ac6fb66a90d51c724e3d332b1b6.html" title="lib_blewbxx_impl" alt="" coords="16,16,152,88"/>
 </map>

@@ -1,4 +1,5 @@
 <map id="lib_stusb/usbd_conf.h" name="lib_stusb/usbd_conf.h">
-<area shape="rect" id="node1" title=": Header for usbd_conf file." alt="" coords="5,5,167,32"/>
-<area shape="rect" id="node2" href="$usbd__impl_8c.html" title="This file provides the HID core functions." alt="" coords="11,80,161,121"/>
+<area shape="rect" id="Node000001" title=": Header for usbd_conf file." alt="" coords="5,5,167,31"/>
+<area shape="rect" id="Node000002" href="$usbd__impl_8c.html" title="This file provides the HID core functions." alt="" coords="11,79,161,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="89,44,89,79,83,79,83,44"/>
 </map>

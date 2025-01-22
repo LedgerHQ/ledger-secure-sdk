@@ -1,6 +1,9 @@
 <map id="nbgl_contentTagValueConfirm_t" name="nbgl_contentTagValueConfirm_t">
-<area shape="rect" id="node1" title="This structure contains [item,value] pair(s) and info about a potential &quot;details&quot; button,..." alt="" coords="5,288,232,315"/>
-<area shape="rect" id="node2" href="$structnbgl__contentTagValueList__t.html" title="This structure contains a list of [tag,value] pairs." alt="" coords="19,199,218,225"/>
-<area shape="rect" id="node3" href="$structnbgl__contentTagValue__t.html" title="This structure contains a [tag,value] pair." alt="" coords="31,95,207,121"/>
-<area shape="rect" id="node4" href="$structnbgl__contentValueExt__t.html" title="This structure contains additions to a tag/value pair, to be able to build a screen to display these ..." alt="" coords="31,5,206,32"/>
+<area shape="rect" id="Node000001" title="This structure contains [item,value] pair(s) and info about a potential &quot;details&quot; button,..." alt="" coords="5,284,232,309"/>
+<area shape="rect" id="Node000002" href="$structnbgl__contentTagValueList__t.html" title="This structure contains a list of [tag,value] pairs." alt="" coords="19,196,218,221"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,235,121,283,116,283,116,235"/>
+<area shape="rect" id="Node000003" href="$structnbgl__contentTagValue__t.html" title="This structure contains a [tag,value] pair." alt="" coords="31,93,207,119"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="121,133,121,196,116,196,116,133"/>
+<area shape="rect" id="Node000004" href="$structnbgl__contentValueExt__t.html" title="This structure contains additions to a tag/value pair, to be able to build a screen to display these ..." alt="" coords="31,5,206,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="121,45,121,93,116,93,116,45"/>
 </map>

@@ -1,7 +1,27 @@
 var searchData=
 [
-  ['x_2306',['x',['../structnbgl__touchStatePosition__t.html#ab9c033c90bee58f832b3ec51fc7b5800',1,'nbgl_touchStatePosition_t']]],
-  ['x0_2307',['x0',['../structnbgl__area__s.html#aafeffb97068547f1d5532fca9e8b4420',1,'nbgl_area_s']]],
-  ['x_5fmax_5foffset_2308',['x_max_offset',['../structnbgl__font__character__t.html#aec6184a81346c3fded139805a392f054',1,'nbgl_font_character_t::x_max_offset()'],['../structnbgl__font__unicode__character__t.html#a8cc3d81be3c5356b386970bc51e169c8',1,'nbgl_font_unicode_character_t::x_max_offset()']]],
-  ['x_5fmin_5foffset_2309',['x_min_offset',['../structnbgl__font__character__t.html#ad241525a485e8e94e4256f23cb661f2c',1,'nbgl_font_character_t::x_min_offset()'],['../structnbgl__font__unicode__character__t.html#a40d3cef6d392debb3ff7216e172a9478',1,'nbgl_font_unicode_character_t::x_min_offset()']]]
+  ['validate_20pin_0',['Validate pin',['../nbgl__screen_8c.html#autotoc_md0',1,'']]],
+  ['validate_5fflow_1',['validate_flow',['../structux__flow__step__s.html#a8487a815cf740975339589a1643ed933',1,'ux_flow_step_s']]],
+  ['validate_5ficon_2',['VALIDATE_ICON',['../nbgl__obj_8h.html#a9a506486ad4fc3b98ab3da948e5aac85',1,'nbgl_obj.h']]],
+  ['validate_5fkey_3',['VALIDATE_KEY',['../nbgl__obj_8h.html#adbb223f91025b2a750f7f3e6d5ab98ee',1,'nbgl_obj.h']]],
+  ['validate_5fkey_5fidx_4',['VALIDATE_KEY_IDX',['../nbgl__obj__keypad_8c.html#a64ce9f5fe480b48758aa56f931298607',1,'nbgl_obj_keypad.c']]],
+  ['validate_5fpin_5ffrom_5fdashboard_5',['validate_pin_from_dashboard',['../structux__state__s.html#ae946ba8d2f18037a3f3674fc20f179b1',1,'ux_state_s']]],
+  ['value_6',['value',['../structnbgl__contentTagValue__t.html#ac54d64394fafb3edc3f5c751214e3a50',1,'nbgl_contentTagValue_t']]],
+  ['value_20list_7',['Tag/value list',['../nbgl_layout.html#item_values',1,'']]],
+  ['value_5fbutton_5f1_5fid_8',['VALUE_BUTTON_1_ID',['../nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18acb275d0d6185189a269cc0191e752cce',1,'nbgl_obj.h']]],
+  ['value_5fbutton_5f2_5fid_9',['VALUE_BUTTON_2_ID',['../nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18a6b143b9d9c8c47393d47077752b0ca4c',1,'nbgl_obj.h']]],
+  ['value_5fbutton_5f3_5fid_10',['VALUE_BUTTON_3_ID',['../nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18a70902015d2319d17309bac559d4af408',1,'nbgl_obj.h']]],
+  ['value_5fchanged_11',['VALUE_CHANGED',['../nbgl__types_8h.html#a3740adc715354911139e2117a3722ca8a6068a25be15a840b4e7dee17cca5dcd1',1,'nbgl_types.h']]],
+  ['valueicon_12',['valueIcon',['../structnbgl__contentTagValue__t.html#a5a36ae13b560177823db3f1c32977b1d',1,'nbgl_contentTagValue_t']]],
+  ['varint_2ec_13',['varint.c',['../varint_8c.html',1,'']]],
+  ['varint_2eh_14',['varint.h',['../varint_8h.html',1,'']]],
+  ['varint_5fread_15',['varint_read',['../varint_8c.html#ad872aac4118f1fc58f6662f21bb0c05c',1,'varint_read(const uint8_t *in, size_t in_len, uint64_t *value):&#160;varint.c'],['../varint_8h.html#ad872aac4118f1fc58f6662f21bb0c05c',1,'varint_read(const uint8_t *in, size_t in_len, uint64_t *value):&#160;varint.c']]],
+  ['varint_5fsize_16',['varint_size',['../varint_8c.html#a52730d041f2fe244437fcab66d5906d5',1,'varint_size(uint64_t value):&#160;varint.c'],['../varint_8h.html#a52730d041f2fe244437fcab66d5906d5',1,'varint_size(uint64_t value):&#160;varint.c']]],
+  ['varint_5fwrite_17',['varint_write',['../varint_8c.html#a8cc59bea79e3a1cd4072d36d2a32f426',1,'varint_write(uint8_t *out, size_t offset, uint64_t value):&#160;varint.c'],['../varint_8h.html#a8cc59bea79e3a1cd4072d36d2a32f426',1,'varint_write(uint8_t *out, size_t offset, uint64_t value):&#160;varint.c']]],
+  ['version_18',['version',['../structnbgl__qrcode__s.html#a0d9cd41daa8f88a102d0faebe118cdf2',1,'nbgl_qrcode_s']]],
+  ['vertical_19',['VERTICAL',['../nbgl__types_8h.html#a45c8941c6bef8b2e44b38f1c66c1a5d8a1a88641fcd39f2ed3e58a18526e97138',1,'nbgl_types.h']]],
+  ['vertical_5fmirror_20',['VERTICAL_MIRROR',['../nbgl__types_8h.html#a1d95708673f1032bbcc478d9c65667f1',1,'nbgl_types.h']]],
+  ['vertical_5fnav_21',['VERTICAL_NAV',['../nbgl__layout_8h.html#a2c0a3234a9015214367700ea41d45eeda3b606a2ede182f00280d396d1fdebd29',1,'nbgl_layout.h']]],
+  ['visibleindicator_22',['visibleIndicator',['../structnbgl__layoutNavigationBar__t.html#afd14da69c81acf92d72e3f8e07e57fba',1,'nbgl_layoutNavigationBar_t']]],
+  ['visiblepageindicator_23',['visiblePageIndicator',['../structnbgl__pageNavWithButtons__s.html#a21bcc04918a19a798b0b7aee057af6b6',1,'nbgl_pageNavWithButtons_s']]]
 ];

@@ -1,5 +1,7 @@
 <map id="lib_stusb_impl/u2f_impl.c" name="lib_stusb_impl/u2f_impl.c">
-<area shape="rect" id="node1" title=" " alt="" coords="17,5,158,47"/>
-<area shape="rect" id="node2" title=" " alt="" coords="5,95,76,121"/>
-<area shape="rect" id="node3" title=" " alt="" coords="100,95,171,121"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="17,5,158,45"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,93,76,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="78,47,57,83,52,80,74,44"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="100,93,171,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="101,44,123,80,119,83,97,47"/>
 </map>

@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['embedded_20sdk_4599',['Embedded SDK',['../index.html',1,'']]]
+  ['deprecated_20list_0',['Deprecated List',['../deprecated.html',1,'']]],
+  ['dynamic_20objects_20management_1',['Screens Stack and dynamic objects management',['../nbgl_screens_and_objs.html',1,'nbgl_mainpage']]]
 ];

@@ -1,6 +1,9 @@
 <map id="lib_cxng/include/lcx_chacha.h" name="lib_cxng/include/lcx_chacha.h">
-<area shape="rect" id="node1" title="Chacha cipher." alt="" coords="125,5,276,47"/>
-<area shape="rect" id="node2" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="5,95,196,121"/>
-<area shape="rect" id="node3" href="$cx__ram_8h.html" title=" " alt="" coords="221,95,383,121"/>
-<area shape="rect" id="node4" href="$cx__ram_8c.html" title=" " alt="" coords="221,169,383,196"/>
+<area shape="rect" id="Node000001" title="Chacha cipher." alt="" coords="125,5,276,45"/>
+<area shape="rect" id="Node000002" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="5,93,196,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="167,56,117,95,114,91,164,52"/>
+<area shape="rect" id="Node000003" href="$cx__ram_8h.html" title=" " alt="" coords="221,93,383,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="238,52,288,91,285,95,234,56"/>
+<area shape="rect" id="Node000004" href="$cx__ram_8c.html" title=" " alt="" coords="221,167,383,192"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="305,132,305,167,299,167,299,132"/>
 </map>

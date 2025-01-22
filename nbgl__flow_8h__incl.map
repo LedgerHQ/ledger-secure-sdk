@@ -1,15 +1,39 @@
 <map id="lib_nbgl/include/nbgl_flow.h" name="lib_nbgl/include/nbgl_flow.h">
-<area shape="rect" id="node1" title="Flow construction API of NBGL." alt="" coords="320,5,476,47"/>
-<area shape="rect" id="node2" href="$nbgl__step_8h.html" title="Step construction API of NBGL." alt="" coords="349,95,447,121"/>
-<area shape="rect" id="node4" href="$nbgl__obj_8h.html" title="API to draw all basic graphic objects." alt="" coords="233,319,323,345"/>
-<area shape="rect" id="node5" href="$nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="224,468,329,495"/>
-<area shape="rect" id="node3" href="$nbgl__layout_8h.html" title="API of the Advanced BOLOS Graphical Library, for predefined layouts." alt="" coords="343,169,453,196"/>
-<area shape="rect" id="node12" href="$nbgl__screen_8h.html" title="API to manage screens." alt="" coords="367,244,479,271"/>
-<area shape="rect" id="node13" href="$nbgl__content_8h.html" title="common content for Graphical Library" alt="" coords="72,244,191,271"/>
-<area shape="rect" id="node10" href="$nbgl__fonts_8h.html" title=" " alt="" coords="225,393,328,420"/>
-<area shape="rect" id="node11" title=" " alt="" coords="352,393,428,420"/>
-<area shape="rect" id="node6" title=" " alt="" coords="235,543,310,569"/>
-<area shape="rect" id="node7" title=" " alt="" coords="5,543,76,569"/>
-<area shape="rect" id="node8" title=" " alt="" coords="119,543,202,569"/>
-<area shape="rect" id="node9" title=" " alt="" coords="334,543,449,569"/>
+<area shape="rect" id="Node000001" title="Flow construction API of NBGL." alt="" coords="320,5,476,45"/>
+<area shape="rect" id="Node000002" href="$nbgl__step_8h.html" title="Step construction API of NBGL." alt="" coords="349,93,447,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="401,46,401,79,395,79,395,46"/>
+<area shape="rect" id="Node000004" href="$nbgl__obj_8h.html" title="API to draw all basic graphic objects." alt="" coords="233,313,323,339"/>
+<area shape="poly" id="edge23_Node000001_Node000004" title=" " alt="" coords="379,47,359,69,340,95,319,133,307,164,289,240,281,300,276,299,283,240,302,163,315,131,336,92,355,66,375,44"/>
+<area shape="rect" id="Node000005" href="$nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="224,460,329,485"/>
+<area shape="poly" id="edge24_Node000001_Node000005" title=" " alt="" coords="475,43,525,62,572,90,591,108,607,129,617,152,621,178,621,327,619,349,613,368,591,401,559,426,519,445,474,458,428,467,343,474,343,469,428,462,473,453,517,440,556,422,587,397,608,366,613,348,615,327,615,178,612,153,602,131,587,112,568,95,522,67,473,48"/>
+<area shape="rect" id="Node000003" href="$nbgl__layout_8h.html" title="API of the Advanced BOLOS Graphical Library, for predefined layouts." alt="" coords="343,167,453,192"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="401,119,401,153,395,153,395,119"/>
+<area shape="poly" id="edge21_Node000002_Node000004" title=" " alt="" coords="382,121,357,141,334,168,315,202,301,237,285,300,280,299,296,236,310,199,329,165,353,138,379,117"/>
+<area shape="poly" id="edge22_Node000002_Node000005" title=" " alt="" coords="433,116,475,135,520,164,539,182,555,202,566,225,570,251,570,328,564,362,546,392,521,415,488,433,452,447,415,458,343,470,342,464,414,453,451,442,486,429,517,411,542,388,559,361,565,327,565,252,561,227,551,205,536,185,517,168,473,140,431,121"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="390,194,298,304,294,301,386,191"/>
+<area shape="poly" id="edge15_Node000003_Node000005" title=" " alt="" coords="432,190,466,209,482,222,493,238,515,267,524,281,530,297,529,317,519,342,499,373,467,414,440,437,409,453,376,463,344,470,343,465,374,458,407,448,437,432,463,410,495,370,515,339,524,316,524,298,519,283,510,270,489,242,478,226,463,213,430,194"/>
+<area shape="rect" id="Node000012" href="$nbgl__screen_8h.html" title="API to manage screens." alt="" coords="367,240,479,265"/>
+<area shape="poly" id="edge12_Node000003_Node000012" title=" " alt="" coords="405,191,417,226,412,228,400,193"/>
+<area shape="rect" id="Node000013" href="$nbgl__content_8h.html" title="common content for Graphical Library" alt="" coords="72,240,191,265"/>
+<area shape="poly" id="edge16_Node000003_Node000013" title=" " alt="" coords="356,195,189,239,187,234,354,189"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="259,341,235,361,215,388,213,405,219,421,232,436,247,450,244,454,228,440,215,424,208,405,210,386,231,357,256,337"/>
+<area shape="rect" id="Node000010" href="$nbgl__fonts_8h.html" title=" " alt="" coords="225,387,328,412"/>
+<area shape="poly" id="edge9_Node000004_Node000010" title=" " alt="" coords="280,339,280,373,274,373,275,339"/>
+<area shape="rect" id="Node000011" title=" " alt="" coords="352,387,428,412"/>
+<area shape="poly" id="edge11_Node000004_Node000011" title=" " alt="" coords="297,336,361,377,358,381,295,341"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="235,533,310,559"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="279,486,277,520,271,520,273,486"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="5,533,76,559"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="240,488,90,533,88,528,238,483"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="119,533,202,559"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="259,488,193,528,190,524,257,483"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="334,533,449,559"/>
+<area shape="poly" id="edge8_Node000005_Node000009" title=" " alt="" coords="296,483,362,524,360,528,294,488"/>
+<area shape="poly" id="edge10_Node000010_Node000005" title=" " alt="" coords="279,412,279,446,274,446,274,412"/>
+<area shape="poly" id="edge14_Node000012_Node000004" title=" " alt="" coords="401,268,315,310,313,305,399,263"/>
+<area shape="poly" id="edge13_Node000012_Node000005" title=" " alt="" coords="432,265,444,293,455,332,457,374,452,395,443,414,423,435,398,450,371,461,343,468,342,463,369,456,395,446,419,431,438,410,447,393,452,374,450,333,439,295,427,267"/>
+<area shape="poly" id="edge20_Node000013_Node000004" title=" " alt="" coords="156,263,243,305,241,310,154,268"/>
+<area shape="poly" id="edge19_Node000013_Node000005" title=" " alt="" coords="137,265,161,330,181,371,207,410,227,432,249,450,246,454,223,436,203,414,177,374,156,332,132,267"/>
+<area shape="poly" id="edge17_Node000013_Node000007" title=" " alt="" coords="130,266,51,521,46,519,125,265"/>
+<area shape="poly" id="edge18_Node000013_Node000008" title=" " alt="" coords="135,265,161,519,155,520,130,266"/>
 </map>

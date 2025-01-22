@@ -1,8 +1,13 @@
 <map id="lib_nbgl/include/nbgl_side.h" name="lib_nbgl/include/nbgl_side.h">
-<area shape="rect" id="node1" title="Side screen low&#45;Level driver API, to draw elementary forms." alt="" coords="113,5,269,47"/>
-<area shape="rect" id="node2" href="$nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="138,95,243,121"/>
-<area shape="rect" id="node3" title=" " alt="" coords="5,169,80,196"/>
-<area shape="rect" id="node4" title=" " alt="" coords="105,169,175,196"/>
-<area shape="rect" id="node5" title=" " alt="" coords="200,169,283,196"/>
-<area shape="rect" id="node6" title=" " alt="" coords="307,169,421,196"/>
+<area shape="rect" id="Node000001" title="Side screen low&#45;Level driver API, to draw elementary forms." alt="" coords="113,5,269,45"/>
+<area shape="rect" id="Node000002" href="$nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="138,93,243,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="193,46,193,79,188,79,188,46"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,167,80,192"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="168,121,80,163,78,158,166,116"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="105,167,175,192"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="184,121,158,157,154,154,180,117"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="200,167,283,192"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="201,117,227,154,223,157,197,121"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="307,167,421,192"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="220,116,324,159,322,164,218,121"/>
 </map>
