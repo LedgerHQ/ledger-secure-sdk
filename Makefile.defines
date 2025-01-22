@@ -96,6 +96,7 @@ LDFLAGS  += -fno-common -ffunction-sections -fdata-sections -fwhole-program
 LDFLAGS  += -mno-unaligned-access
 LDFLAGS  += -Wl,--gc-sections -Wl,-Map,$(DBG_DIR)/app.map
 LDFLAGS  += --specs=nano.specs
+LDFLAGS  += -z noexecstack
 
 ifeq ($(TARGET_NAME),TARGET_NANOX)
 CFLAGS   += -frwpi
