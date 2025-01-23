@@ -52,7 +52,7 @@ jobs:
           genhtml coverage.info -o coverage
 
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: code-coverage
           path: unit-tests/lib_*/coverage
