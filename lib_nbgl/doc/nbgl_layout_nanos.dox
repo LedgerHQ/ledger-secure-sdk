@@ -40,9 +40,9 @@ For example:
 
 @code
     nbgl_layoutDescription_t layoutDescription = {
-      .modal = false, // not modal (so on plane 0)
-      .onActionCallback = &myActionCallback, // generic callback for all controls
-      .ticker.callback = NULL // no ticker
+      .modal            = false,              // not modal (so on plane 0)
+      .onActionCallback = &myActionCallback,  // generic callback for all controls
+      .ticker.callback  = NULL                // no ticker
     };
     // create layout
     nbgl_layout_t *layout = nbgl_layoutGet(&layoutDescription);
@@ -187,22 +187,22 @@ static void keyboardCallback(char touchedKey) {
 
 void app_keyboard(void) {
  nbgl_layoutDescription_t layoutDescription = {
-    .modal = false,
+    .modal            = false,
     .onActionCallback = NULL
   };
   nbgl_layoutKbd_t kbdInfo = {
-    .callback = keyboardCallback,
-    .keyMask = 1<<26, // no masked letter but masked backspace
-    .lettersOnly = true // only letters are allowed
+    .callback    = keyboardCallback,
+    .keyMask     = 1<<26,  // no masked letter but masked backspace
+    .lettersOnly = true    // only letters are allowed
   };
   nbgl_layoutCenteredInfo_t centeredInfo = {
     .text1 = descriptionTxt,
     .text2 = NULL,
-    .icon = NULL,
+    .icon  = NULL,
     .onTop = true
   };
   nbgl_layoutNavigation_t navInfo = {
-    .direction = HORIZONTAL_NAV,
+    .direction  = HORIZONTAL_NAV,
     .indication = LEFT_ARROW | RIGHT_ARROW
   };
   int status;
@@ -261,19 +261,26 @@ used to modify the active keys of an existing keypad (backspace and validate key
 
 @note at creation time, backspace and validate keys are inactive
 
-@subsubsection keypad_sub_section_2 Adding/Updating hidden digits area
+@subsubsection keypad_sub_section_2 Adding/Updating keypad content
 
-This object, displayed on top of the keypad, consists in up to 8 discs (plain or empty) corresponding to
-hidden entered/not entered digits.
+This object consists in:
+- an optional title
+- either:
+  - up to 12 discs (invisible or visible) corresponding to hidden entered/not entered digits.
+  - or up to 12 digits if not hidden
 
 The parameters to configure this object are:
 
+- The optional title (NULL if not used)
+- A boolean to indicate whether digits are hidden or not
 - The number of total digits to be displayed (all digits are considered as "not entered")
+- The digits to be displayed if not hidden
 
-The API to insert such an object is @ref nbgl_layoutAddHiddenDigits().
+The API to insert such an object is @ref nbgl_layoutAddKeypadContent().
 
-This function returns a positive integer (if successful) to be used as an index in @ref nbgl_layoutUpdateHiddenDigits() function,
-used to modify the number of entered digits.
+This function returns a positive integer (if successful).
+
+The @ref nbgl_layoutUpdateKeypadContent() function can be used to modify the number of entered digits or the digits.
 
 @section refresh_layout Refreshing screen
 
@@ -286,7 +293,7 @@ It will only refresh the rectangle part of the screen having changed (with objec
 
 @section callbacks Control actions management
 
-Some controls, like a touchable bar, or a choice by radio buttons, can be interacted with thanks to the Touchscreen.
+Some controls can be interacted with thanks to the buttons.
 
 The developer can subscribe to these events by providing an action callback in @ref nbgl_layoutGet(), with @ref nbgl_layoutTouchCallback_t prototype.
 
@@ -294,10 +301,10 @@ The first parameter (*token*) of this function is a token provided along with th
 
 The second parameter (*index*) is only used for some types of complex objects:
 
-- **Navigation bar**: in this case, *index* gives the index of the new active page, when navigating.
+- **Bar List choices**: in this case, *index* gives the index of the selected bar.
 - **Radio button choices**: in this case, *index* gives the index of the selected choice.
-- **Switches**: in this case, if *index* is 0 it means OFF, otherwise it means ON.
-- **Choice buttons**: in this case, if *index* is 0, it means top-button (choice 1), otherwise it means bottom-buttom (choice 2)
+- **Switches**: in this case, *index* is 0: it is up to the Apps to know what to do here.
+- **Info buttons**: in this case, *index* is 0 (useless)
 
 @subsection release Releasing a layout
 

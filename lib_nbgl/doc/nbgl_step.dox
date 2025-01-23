@@ -1,5 +1,5 @@
 #ifdef NBGL_STEP
-/** @page nbgl_step Step API
+/** @page nbgl_step Predefined Step API
 
 @section nbgl_step_intro Introduction
 This chapter describes briefly the high-level API of Advanced BOLOS Graphic Library.

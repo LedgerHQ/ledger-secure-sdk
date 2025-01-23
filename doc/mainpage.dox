@@ -3,7 +3,7 @@
 @section mainpage_intro Introduction
 
 This documentation describes the different interfaces of Embedded SDK,
-for \b Nano X, \b Nano S+ and \b Stax applications development.
+for \b Nano X, \b Nano S+ \b Stax and \b Flex applications development.
 
 @section ble_presentation BlueTooth Low-Energy Interface
 
@@ -16,7 +16,7 @@ The @subpage cxng_mainpage page contains all information necessary to understand
 @section nbgl_presentation Screen drawing API
 
 The @subpage nbgl_mainpage page contains all information necessary to understand the Graphical Library for
-\b Stax, \b NanoX and \b NanoS+ applications development.
+\b Stax, \b Flex, \b NanoX and \b NanoS+ applications development.
 
 @section nfc_presentation NFC Interface
 
@@ -50,7 +50,7 @@ The @subpage ux_mainpage page contains all information necessary to user the Use
 @subsection ux_nbgl_presentation User eXperience on Applications using \b NBGL
 
 The @subpage ux_nbgl_mainpage page contains all information necessary to user the User eXperience for
-\b Stax, \b NanoX and \b NanoS+ applications development using \b NBGL (most recent ones).
+\b Stax, \b Flex, \b NanoX and \b NanoS+ applications development using \b NBGL (most recent ones).
 
 
 */
