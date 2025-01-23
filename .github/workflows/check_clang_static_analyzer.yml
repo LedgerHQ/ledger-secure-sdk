@@ -38,7 +38,7 @@ jobs:
           make scan-build -j ENABLE_SDK_WERROR=1 DEBUG=${{ matrix.debug }}
 
       - name: Upload scan result
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: scan-build
