@@ -53,7 +53,6 @@
  * @param layout the current layout
  * @param callback function called when any of the key is touched
  * @param text text to use as title for the keypad
- * @param textId ID of the text to use as title for the keypad
  * @param shuffled if set to true, digits are shuffled in keypad
  * @return the index of keypad in layout, to use in @ref nbgl_layoutUpdateKeypad()
  */

@@ -201,7 +201,7 @@ typedef enum {
  * @brief prototype of function to be called when a button event is received by an object (TODO:
  * change to screen?)
  * @param obj the concerned object
- * @param buttonState event on buttons
+ * @param buttonEvent event on buttons
  */
 typedef void (*nbgl_buttonCallback_t)(void *obj, nbgl_buttonEvent_t buttonEvent);
 
