@@ -1863,9 +1863,11 @@ static void displaySecurityReport(uint32_t set)
                                                   .backAndText.icon   = NULL,
                                                   .backAndText.tuneId = TUNE_TAP_CASUAL,
                                                   .backAndText.token  = DISMISS_WARNING_TOKEN};
-    uint8_t                  i;
-    uint8_t                  nbWarnings = 0;
-    const char              *provider;
+    nbgl_layoutFooter_t      footerDesc
+        = {.type = FOOTER_EMPTY, .separationLine = false, .emptySpace.height = 0};
+    uint8_t     i;
+    uint8_t     nbWarnings = 0;
+    const char *provider;
 
     reviewWithWarnCtx.modalLayout = nbgl_layoutGet(&layoutDescription);
 
@@ -1916,6 +1918,7 @@ static void displaySecurityReport(uint32_t set)
                    .centered = true,
                    .offsetY  = 0};
             nbgl_layoutAddQRCode(reviewWithWarnCtx.modalLayout, &qrCode);
+            footerDesc.emptySpace.height = 24;
 #endif  // NBGL_QRCODE
             headerDesc.backAndText.text = "Blind signing report";
         }
@@ -1929,7 +1932,8 @@ static void displaySecurityReport(uint32_t set)
                   "lose all your assets.\n\n"
                   "Learn about blind signing:\nledger.com/e8";
             nbgl_layoutAddContentCenter(reviewWithWarnCtx.modalLayout, &info);
-            headerDesc.separationLine = false;
+            footerDesc.emptySpace.height = MEDIUM_CENTERING_HEADER;
+            headerDesc.separationLine    = false;
         }
     }
     else if (set & (1 << W3C_ISSUE_WARN)) {
@@ -1939,7 +1943,8 @@ static void displaySecurityReport(uint32_t set)
         info.title                = "Web3 Checks could not verify this message";
         info.description = "An issue prevented Web3 Checks from running.\nGet help: ledger.com/e11";
         nbgl_layoutAddContentCenter(reviewWithWarnCtx.modalLayout, &info);
-        headerDesc.separationLine = false;
+        footerDesc.emptySpace.height = MEDIUM_CENTERING_HEADER;
+        headerDesc.separationLine    = false;
     }
     else if (set & (1 << W3C_THREAT_DETECTED_WARN)) {
         if (reviewWithWarnCtx.isIntro) {
@@ -1955,6 +1960,7 @@ static void displaySecurityReport(uint32_t set)
                      "Scan to view the threat report from %s.",
                      provider);
             nbgl_layoutAddQRCode(reviewWithWarnCtx.modalLayout, &qrCode);
+            footerDesc.emptySpace.height = 24;
 #endif  // NBGL_QRCODE
             headerDesc.backAndText.text = "Web3 Checks threat report";
         }
@@ -1971,7 +1977,8 @@ static void displaySecurityReport(uint32_t set)
                      "report:\nurl.com/od24xz",
                      provider);
             nbgl_layoutAddContentCenter(reviewWithWarnCtx.modalLayout, &info);
-            headerDesc.separationLine = false;
+            footerDesc.emptySpace.height = MEDIUM_CENTERING_HEADER;
+            headerDesc.separationLine    = false;
         }
     }
     else if (set & (1 << W3C_LOSING_SWAP_WARN)) {
@@ -1988,6 +1995,7 @@ static void displaySecurityReport(uint32_t set)
                      "Scan to view the risk report from %s.",
                      provider);
             nbgl_layoutAddQRCode(reviewWithWarnCtx.modalLayout, &qrCode);
+            footerDesc.emptySpace.height = 24;
 #endif  // NBGL_QRCODE
             headerDesc.backAndText.text = "Web3 Checks risk report";
         }
@@ -2004,10 +2012,14 @@ static void displaySecurityReport(uint32_t set)
                      "View full %s report:\\nurl.com/od24xz",
                      provider);
             nbgl_layoutAddContentCenter(reviewWithWarnCtx.modalLayout, &info);
-            headerDesc.separationLine = false;
+            footerDesc.emptySpace.height = MEDIUM_CENTERING_HEADER;
+            headerDesc.separationLine    = false;
         }
     }
     nbgl_layoutAddHeader(reviewWithWarnCtx.modalLayout, &headerDesc);
+    if (footerDesc.emptySpace.height > 0) {
+        nbgl_layoutAddExtendedFooter(reviewWithWarnCtx.modalLayout, &footerDesc);
+    }
     nbgl_layoutDraw(reviewWithWarnCtx.modalLayout);
     nbgl_refresh();
 }
