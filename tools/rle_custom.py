@@ -57,11 +57,12 @@ class RLECustomBase:
         """
 
     # -------------------------------------------------------------------------
-    @staticmethod
-    def remove_duplicates(pairs):
+    def remove_duplicates(self, pairs):
         """
         Check if there are some duplicated pairs (same values) and merge them.
         """
+        self.bpp = self.bpp
+
         index = len(pairs) - 1
         while index >= 1:
             repeat1, value1 = pairs[index-1]
@@ -77,12 +78,13 @@ class RLECustomBase:
         return pairs
 
     # -------------------------------------------------------------------------
-    @staticmethod
-    def bpp4_to_values(data):
+    def bpp4_to_values(self, data):
         """
         Expand each bytes of data into 2 quartets.
         Return an array of values (from 0x00 to 0x0F)
         """
+        self.bpp = self.bpp
+
         output = []
         for byte in data:
             lsb_bpp4 = byte & 0x0F
@@ -93,12 +95,13 @@ class RLECustomBase:
         return output
 
     # -------------------------------------------------------------------------
-    @staticmethod
-    def values_to_bpp4(data):
+    def values_to_bpp4(self, data):
         """
         Takes values (assumed from 0x00 to 0x0F) in data and returns an array
         of bytes containing quartets with values concatenated.
         """
+        self.bpp = self.bpp
+
         output = bytes()
         remaining_values = len(data)
         index = 0
@@ -120,12 +123,13 @@ class RLECustomBase:
         return output
 
     # -------------------------------------------------------------------------
-    @staticmethod
-    def bpp1_to_values(data):
+    def bpp1_to_values(self, data):
         """
         Expand each bytes of data into 8 bits, each stored in a byte
         Return an array of values (containing bytes values 0 or 1)
         """
+        self.bpp = self.bpp
+
         output = []
         for byte in data:
             # first pixel is in bit 10000000
@@ -139,13 +143,14 @@ class RLECustomBase:
         return output
 
     # -------------------------------------------------------------------------
-    @staticmethod
-    def values_to_bpp1(data):
+    def values_to_bpp1(self, data):
         """
         Takes values (bytes containing 0 or 1) in data and returns an array
         of bytes containing bits concatenated.
         (first pixel is bit 10000000 of first byte)
         """
+        self.bpp = self.bpp
+
         output = bytes()
         remaining_values = len(data)
         index = 0
@@ -252,12 +257,13 @@ class RLECustomBase:
         return output
 
     # -------------------------------------------------------------------------
-    @staticmethod
-    def decode_pass1(data):
+    def decode_pass1(self, data):
         """
         Decode array of tuples containing (repeat, val).
         Return an array of values.
         """
+        self.bpp = self.bpp
+
         output = []
         for repeat, value in data:
             for _ in range(repeat):
@@ -554,7 +560,7 @@ class RLECustom3 (RLECustom2):
         self.bpp = self.bpp
 
         # First, generate data in 10RRRRRR/0RRRVVVV format
-        single_output = RLECustom2.encode_pass2(pairs, max_count)
+        single_output = super().encode_pass2(pairs, max_count)
 
         # Now, parse array to find consecutives singles (0000VVVV)
         output = bytes()
