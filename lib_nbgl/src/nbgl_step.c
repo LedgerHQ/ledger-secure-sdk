@@ -251,6 +251,10 @@ static void displayTextPage(StepContext_t *ctx, uint8_t textPage)
             BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp, txt, AVAILABLE_WIDTH, nbLines, &len, true);
         // memorize next position to save processing
         ctx->textContext.nextPageStart = txt + len;
+        // if the next char is '\n', skip it to avoid starting with an empty line
+        if (*ctx->textContext.nextPageStart == '\n') {
+            ctx->textContext.nextPageStart++;
+        }
     }
     else {
         ctx->textContext.nextPageStart = NULL;
