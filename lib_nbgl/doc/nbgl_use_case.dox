@@ -50,6 +50,9 @@ A few APIs are available to draw typical Use-Cases, such as:
  - @ref nbgl_useCaseReview() to draw the pages of a regular coin transaction review, when all info are available from the beginning (see @subpage use_case_review)
  - @ref nbgl_useCaseReviewLight() to draw the pages of a transaction review with a simple button confirmation, when all info are available from the beginning (see @subpage use_case_review_light)
  - @ref nbgl_useCaseReviewStreamingStart() to draw the pages of a regular coin transaction review, when all info are not available from the beginning (see @subpage use_case_review_streaming)
+- for reviews with a warning prolog:
+ - @ref nbgl_useCaseReviewWithWarning() to draw the pages of a regular coin transaction review, when all info are available from the beginning, but with an identified risk requiring a warning prolog (see @subpage use_case_review_with_warning)
+ - @ref nbgl_useCaseReviewStreamingWithWarningStart() to draw the pages of a regular coin transaction review, when all info are not available from the beginning, but with an identified risk requiring a warning prolog (see @subpage use_case_review_with_warning and @subpage use_case_review_streaming)
 - for address verification:
  - @ref nbgl_useCaseAddressReview() to draw an address confirmation page, with a possibility to see it as QR Code and some extra tag/value pairs (see @subpage use_case_addr_review)
 - for keypad:
@@ -452,6 +455,171 @@ void staticReview(void) {
                                     "Review transaction",   // title of the first page
                                     NULL,                   // sub-title of the first page
                                     onTransactionContinue); // callback to reject or ask more data
+}
+@endcode
+
+@subsection use_case_review_with_warning Review with warning Use Case
+
+\image{inline} html UseCase-Review-With-Warning.png "caption" height=500
+
+The review itself behaves like in @subpage use_case_review. The main differences are:
+
+- The review itself is preceded by a warning page offering the possibility to cancel the review ("Back to safety") or to start it ("Continue anyway")
+- In the first and last pages of the actual review, a top-right button offers the possibility to get more information about the warning
+
+The API to initiate the display of the series of pages is @ref nbgl_useCaseReviewWithWarning(), providing:
+
+- the type of operation to review (transaction, message or generic operation)
+- the list of tag/value pairs (or a callback to get them one by one)
+- the texts/icon to use in presentation page and in last page
+- the configuration to use for the warning (see @ref nbgl_warning_t structure)
+- a callback called when the long press button on last page or reject confirmation is used. The callback's param is *true* for confirmation, *false* for rejection.
+
+@note the recommended configuration for warning is the predefined one. In this case, one just has to fill the *predefinedSet* field of @ref nbgl_warning_t with the appropriate warning
+causes (bitfield) and the *reportProvider* field with the name of the 3rd party providing the Web3Checks report, if necessary.
+
+Here is the code to display something similar to example picture:
+
+@code
+// 4 pairs of tag/value to display
+static nbgl_layoutTagValue_t pairs[4];
+
+static const nbgl_contentTagValueList_t pairList = {
+  .nbMaxLinesForValue = 0,
+  .nbPairs = 4,
+  .pairs = (nbgl_layoutTagValue_t*)pairs
+};
+
+// warning description (cannot be in call stack)
+static nbgl_warning_t warningDesc;
+
+// called when long press button on 3rd page is long-touched or when reject footer is touched
+static void onReviewResult(bool confirm) {
+  // display a status page and go back to main
+  if (confirm) {
+    nbgl_useCaseReviewStatus(STATUS_TYPE_TRANSACTION_SIGNED, appMain);
+  }
+  else {
+    nbgl_useCaseReviewStatus(STATUS_TYPE_TRANSACTION_REJECTED, appMain);
+  }
+}
+
+void staticReview(void) {
+  warningDesc.predefinedSet = (1 << W3C_LOSING_SWAP_WARN) | (1 << BLIND_SIGNING_WARN);
+  warningDesc.reportProvider = "Blockaid";
+
+  // static review, providing the whole list of pairs
+  nbgl_useCaseReviewWithWarning(TYPE_TRANSACTION, // type of operation
+                                &pairList,       // list of tag/value pairs
+                                coinIcon,        // icon of the coin
+                                "Review transaction\nto send coin", // title of the first page
+                                NULL,                               // sub-title of the first page
+                                "Sign transaction to\nsend coin?",  // title of the last page
+                                NULL,                               // no tip-box in first page of review
+                                warningDesc,                        // description of warning causes
+                                onReviewResult);                    // callback on result of the review
+}
+@endcode
+
+Here is another version of the example code, not using predefined text:
+
+@code
+// 4 pairs of tag/value to display
+static nbgl_layoutTagValue_t pairs[4];
+
+static const nbgl_contentTagValueList_t pairList = {
+  .nbMaxLinesForValue = 0,
+  .nbPairs = 4,
+  .pairs = (nbgl_layoutTagValue_t*)pairs
+};
+
+// icons for first level warning details
+static const nbgl_icon_details_t *barListIcons[] = {&WARNING_ICON, &INFO_I_ICON};
+
+// first level warning details
+static const char *const                  barListTexts[]    = {"Blind signing", "Risk detected"};
+static const char *const                  barListSubTexts[] = {"This transaction cannot be fully decoded.", "Web3 Checks found a risk:\nLosing swap"};
+// second level warning details in prolog
+static const struct nbgl_warningDetails_s barListIntroDetails[]  = {
+    {.title  = "Back",
+     .type   = QRCODE_WARNING,
+     .qrCode = {.url = "ledger.com/e8", .text1 = "ledger.com/e8", .text2 = "Scan to learn about the risks of blind signing.", .centered = true}},
+    {.title        = "Back",
+     .type         = QRCODE_WARNING,
+     .qrCode = {.url = "url.com/od24xz", .text1 = "url.com/od24xz", .text2 = "Scan to view the risk report from Blockaid.", .centered = true}}
+};
+
+// second level warning details in review
+static const struct nbgl_warningDetails_s barListIntroDetails[]  = {
+    {.title  = "Back",
+     .type   = CENTERED_INFO_WARNING,
+     .centeredInfo = {.icon = &C_Warning_64px, .title = "Blind signing", .description = "This transaction’s details are not fully verifiable. If you sign it, you could lose all your assets.\n\nLearn about blind signing:
+ledger.com/e8"}},
+    {.title        = "Back",
+     .type         = CENTERED_INFO_WARNING,
+     .centeredInfo = {.icon = &C_Warning_64px, .title = "Risk detected", .description = "This transaction was scanned as risky by Web3 Checks.\n\nView full Blockaid report:url.com/od24xz"}}
+};
+
+// info in main warning page
+static const nbgl_contentCenter_t warningInfo = {
+  .icon          = &C_Warning_64px,
+  .title         = "Dangerous transaction",
+  .description   = "This transaction cannot be fully decoded, and was marked risky by Web3 Checks."
+};
+
+// first level warning details in prolog
+static const nbgl_warningDetails_t warningIntroDetails = {
+  .title                   = "Security report",
+  .type                    = BAR_LIST_WARNING,
+  .barList.nbBars          = 2,
+  .barList.icons           = barListIcons,
+  .texts                   = barListTexts,
+  .subTexts                = barListSubTexts,
+  .barList.details         = barListIntroDetails
+};
+
+// first level warning details in review (when pressing top-right from first and last pages)
+static const nbgl_warningDetails_t warningReviewDetails = {
+  .title                   = "Security report",
+  .type                    = BAR_LIST_WARNING,
+  .barList.nbBars          = 2,
+  .barList.icons           = barListIcons,
+  .texts                   = barListTexts,
+  .subTexts                = barListSubTexts,
+  .barList.details         = barListReviewDetails
+};
+
+// warning description (cannot be in call stack)
+static const nbgl_warning_t warningDesc = {
+  .info               = &warningInfo,
+  .introTopRightIcon  = &PRIVACY_ICON,
+  .reviewTopRightIcon = &WARNING_ICON,
+  .introDetails       = &warningIntroDetails,
+  .reviewDetails      = &warningReviewDetails
+};
+
+// called when long press button on 3rd page is long-touched or when reject footer is touched
+static void onReviewResult(bool confirm) {
+  // display a status page and go back to main
+  if (confirm) {
+    nbgl_useCaseReviewStatus(STATUS_TYPE_TRANSACTION_SIGNED, appMain);
+  }
+  else {
+    nbgl_useCaseReviewStatus(STATUS_TYPE_TRANSACTION_REJECTED, appMain);
+  }
+}
+
+void staticReview(void) {
+  // static review, providing the whole list of pairs
+  nbgl_useCaseReviewWithWarning(TYPE_TRANSACTION, // type of operation
+                                &pairList,       // list of tag/value pairs
+                                coinIcon,        // icon of the coin
+                                "Review transaction\nto send coin", // title of the first page
+                                NULL,                               // sub-title of the first page
+                                "Sign transaction to\nsend coin?",  // title of the last page
+                                NULL,                               // no tip-box in first page of review
+                                warningDesc,                        // description of warning causes
+                                onReviewResult);                    // callback on result of the review
 }
 @endcode
 

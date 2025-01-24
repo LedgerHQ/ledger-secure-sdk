@@ -48,8 +48,18 @@
 #define QRCODE_REDUCED_ADDR_LEN 128
 
 // macros to ease access to shared contexts
-#define keypadContext       sharedContext.keypad
-#define blindSigningContext sharedContext.blindSigning
+#define keypadContext     sharedContext.keypad
+#define reviewWithWarnCtx sharedContext.reviewWithWarning
+
+/* max length of the string displaying the description of the Web3 Checks report */
+#define W3C_DESCRIPTION_MAX_LEN 128
+
+/**
+ * @brief This is to use in @ref nbgl_operationType_t when the operation is concerned by an internal
+ * warning This is used to indicate a warning with a top-right button in review first & last page
+ *
+ */
+#define RISKY_OPERATION (1 << 6)
 
 /**********************
  *      TYPEDEFS
@@ -70,7 +80,13 @@ enum {
     VALUE_ALIAS_TOKEN,
     INFO_ALIAS_TOKEN,
     BLIND_WARNING_TOKEN,
-    TIP_BOX_TOKEN
+    WARNING_BUTTON_TOKEN,
+    TIP_BOX_TOKEN,
+    WARNING_CHOICE_TOKEN,
+    DISMISS_QR_TOKEN,
+    DISMISS_WARNING_TOKEN,
+    FIRST_WARN_BAR_TOKEN,
+    LAST_WARN_BAR_TOKEN = (FIRST_WARN_BAR_TOKEN + NB_WARNING_TYPES - 1),
 };
 
 typedef enum {
@@ -91,7 +107,7 @@ typedef struct DetailsContext_s {
 
 typedef struct AddressConfirmationContext_s {
     nbgl_layoutTagValue_t tagValuePair;
-    nbgl_layout_t         modalLayout;
+    nbgl_layout_t        *modalLayout;
 } AddressConfirmationContext_t;
 
 #ifdef NBGL_KEYPAD
@@ -114,9 +130,13 @@ typedef struct BlindSigningContext_s {
     const char                       *reviewSubTitle;
     const char                       *finishTitle;
     const nbgl_tipBox_t              *tipBox;
+    const nbgl_warning_t             *warning;
     nbgl_choiceCallback_t             choiceCallback;
     nbgl_layout_t                    *layoutCtx;
-} BlindSigningContext_t;
+    nbgl_layout_t                    *modalLayout;
+    uint8_t                           securityReportLevel;  // level 1 is the first level of menus
+    bool                              isIntro;  // set to true during intro (before actual review)
+} ReviewWithWarningContext_t;
 
 // this union is intended to save RAM for context storage
 // indeed, these 2 contexts cannot happen simultaneously
@@ -124,7 +144,7 @@ typedef union {
 #ifdef NBGL_KEYPAD
     KeypadContext_t keypad;
 #endif
-    BlindSigningContext_t blindSigning;
+    ReviewWithWarningContext_t reviewWithWarning;
 } SharedContext_t;
 
 typedef struct {
@@ -142,7 +162,7 @@ typedef struct {
     nbgl_contentTagValueCallback_t
         currentCallback;  // to be used to retrieve the pairs with value alias
 
-    nbgl_layout_t modalLayout;
+    nbgl_layout_t *modalLayout;
 } GenericContext_t;
 
 typedef struct {
@@ -174,12 +194,18 @@ typedef union {
     nbgl_reviewStreamingContext_t reviewStreaming;
 } nbgl_BundleNavContext_t;
 
+typedef struct {
+    const nbgl_icon_details_t *icon;
+    const char                *text;
+    const char                *subText;
+} SecurityReportItem_t;
+
 /**********************
  *  STATIC VARIABLES
  **********************/
 
 // char buffers to build some strings
-static char appDescription[APP_DESCRIPTION_MAX_LEN];
+static char tmpString[W3C_DESCRIPTION_MAX_LEN];
 
 // multi-purposes callbacks
 static nbgl_callback_t              onQuit;
@@ -242,6 +268,25 @@ static const uint8_t nbMaxElementsPerContentType[] = {
     5,  // BARS_LIST (computed dynamically)
 };
 
+static const SecurityReportItem_t securityReportItems[NB_WARNING_TYPES] = {
+    [BLIND_SIGNING_WARN]   = {.icon    = &WARNING_ICON,
+                              .text    = "Blind signing",
+                              .subText = "This transaction cannot be fully decoded."                },
+    [W3C_ISSUE_WARN]       = {.icon    = &ROUND_WARN_ICON,
+                              .text    = "Web3 Checks issue",
+                              .subText = "Web3 Checks could not verify this transaction."           },
+    [W3C_LOSING_SWAP_WARN] = {.icon    = &ROUND_WARN_ICON,
+                              .text    = "Risk detected",
+                              .subText = "Web3 Checks found a risk:\nLosing swap"                   },
+    [W3C_THREAT_DETECTED_WARN]
+    = {.icon    = &ROUND_WARN_ICON,
+                              .text    = "Threat detected",
+                              .subText = "This transaction was scanned as malicious by Web3 Checks."}
+};
+
+// configuration of warning when using @ref nbgl_useCaseReviewBlindSigning()
+static const nbgl_warning_t blindSigningWarning = {.predefinedSet = (1 << BLIND_SIGNING_WARN)};
+
 #ifdef NBGL_QRCODE
 /* buffer to store reduced address under QR Code */
 static char reducedAddress[QRCODE_REDUCED_ADDR_LEN];
@@ -255,14 +300,12 @@ static void displayDetailsPage(uint8_t page, bool forceFullRefresh);
 static void displayFullValuePage(const char                   *backText,
                                  const char                   *aliasText,
                                  const nbgl_contentValueExt_t *extension);
-static void displayBlindWarning(void);
 static void displayTipBoxModal(void);
 static void displaySettingsPage(uint8_t page, bool forceFullRefresh);
 static void displayGenericContextPage(uint8_t pageIdx, bool forceFullRefresh);
 static void pageCallback(int token, uint8_t index);
 #ifdef NBGL_QRCODE
 static void displayAddressQRCode(void);
-static void addressLayoutTouchCallbackQR(int token, uint8_t index);
 #endif  // NBGL_QRCODE
 static void modalLayoutTouchCallback(int token, uint8_t index);
 static void displaySkipWarning(void);
@@ -272,7 +315,9 @@ static void bundleNavStartSettingsAtPage(uint8_t initSettingPage);
 static void bundleNavStartSettings(void);
 
 static void bundleNavReviewStreamingChoice(bool confirm);
-static void blindSigningWarning(void);
+static void displaySecurityReport(uint32_t set);
+static void displayCustomizedSecurityReport(const nbgl_warningDetails_t *details);
+static void displayInitialWarning(void);
 static void useCaseReview(nbgl_operationType_t              operationType,
                           const nbgl_contentTagValueList_t *tagValueList,
                           const nbgl_icon_details_t        *icon,
@@ -595,7 +640,26 @@ static void pageCallback(int token, uint8_t index)
         displayFullValuePage(pair->item, pair->value, pair->extension);
     }
     else if (token == BLIND_WARNING_TOKEN) {
-        displayBlindWarning();
+        reviewWithWarnCtx.isIntro = false;
+        reviewWithWarnCtx.warning = NULL;
+        displaySecurityReport(1 << BLIND_SIGNING_WARN);
+    }
+    else if (token == WARNING_BUTTON_TOKEN) {
+        // top-right button, display the security modal
+        reviewWithWarnCtx.securityReportLevel = 1;
+        // if preset is used
+        if (reviewWithWarnCtx.warning->predefinedSet) {
+            displaySecurityReport(reviewWithWarnCtx.warning->predefinedSet);
+        }
+        else {
+            // use customized warning
+            if (reviewWithWarnCtx.isIntro) {
+                displayCustomizedSecurityReport(reviewWithWarnCtx.warning->introDetails);
+            }
+            else {
+                displayCustomizedSecurityReport(reviewWithWarnCtx.warning->reviewDetails);
+            }
+        }
     }
     else if (token == TIP_BOX_TOKEN) {
         displayTipBoxModal();
@@ -972,16 +1036,24 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
     bool isFirstOrLastPage
         = ((p_content->type == CENTERED_INFO) || (p_content->type == EXTENDED_CENTER))
           || (p_content->type == INFO_LONG_PRESS);
-    bool isStreamingNavAndBlindOperation
+    nbgl_operationType_t operationType
         = (navType == STREAMING_NAV)
-          && (bundleNavContext.reviewStreaming.operationType & BLIND_OPERATION);
-    bool isGenericNavAndBlindOperation
-        = (navType == GENERIC_NAV) && (bundleNavContext.review.operationType & BLIND_OPERATION);
+              ? bundleNavContext.reviewStreaming.operationType
+              : ((navType == GENERIC_NAV) ? bundleNavContext.review.operationType : 0);
 
-    // if first or last page of review and blind operation, add the warning top-right button
-    if (isFirstOrLastPage && (isStreamingNavAndBlindOperation || isGenericNavAndBlindOperation)) {
-        pageContent->topRightIcon  = &WARNING_ICON;
-        pageContent->topRightToken = BLIND_WARNING_TOKEN;
+    // if first or last page of review and blind/risky operation, add the warning top-right button
+    if (isFirstOrLastPage && (operationType & (BLIND_OPERATION | RISKY_OPERATION))) {
+        // if issue is only Web3Checks issue, use '!' icon
+        if ((operationType & RISKY_OPERATION)
+            && (reviewWithWarnCtx.warning->predefinedSet == (1 << W3C_ISSUE_WARN))) {
+            pageContent->topRightIcon = &EXCLAMATION_ICON;
+        }
+        else {
+            pageContent->topRightIcon = &WARNING_ICON;
+        }
+
+        pageContent->topRightToken
+            = (operationType & BLIND_OPERATION) ? BLIND_WARNING_TOKEN : WARNING_BUTTON_TOKEN;
     }
 
     return true;
@@ -1196,37 +1268,6 @@ static void displayFullValuePage(const char                   *backText,
     nbgl_refresh();
 }
 
-// function used to display the modal warning when touching the alert symbol of a blind review
-static void displayBlindWarning(void)
-{
-    nbgl_layoutDescription_t  layoutDescription = {.modal            = true,
-                                                   .withLeftBorder   = true,
-                                                   .onActionCallback = &modalLayoutTouchCallback,
-                                                   .tapActionText    = NULL};
-    nbgl_layoutHeader_t       headerDesc        = {.type               = HEADER_BACK_AND_TEXT,
-                                                   .separationLine     = false,
-                                                   .backAndText.token  = 0,
-                                                   .backAndText.tuneId = TUNE_TAP_CASUAL,
-                                                   .backAndText.text   = NULL};
-    nbgl_layoutCenteredInfo_t centeredInfo
-        = {.icon = NULL, .text3 = NULL, .style = LARGE_CASE_INFO, .offsetY = 0, .onTop = false};
-    centeredInfo.text1 = "Security risk detected";
-    centeredInfo.text2
-        = "This transaction or message cannot be decoded fully. If you choose to sign, you could "
-          "be authorizing malicious actions that can drain your wallet.\n\n"
-          "Learn more: ledger.com/e8";
-
-    genericContext.modalLayout = nbgl_layoutGet(&layoutDescription);
-    // add header with the tag part of the pair, to go back
-    nbgl_layoutAddHeader(genericContext.modalLayout, &headerDesc);
-    // add full value text
-    nbgl_layoutAddCenteredInfo(genericContext.modalLayout, &centeredInfo);
-
-    // draw & refresh
-    nbgl_layoutDraw(genericContext.modalLayout);
-    nbgl_refresh();
-}
-
 // function used to display the modal containing tip-box infos
 static void displayTipBoxModal(void)
 {
@@ -1266,7 +1307,7 @@ static void displayAddressQRCode(void)
     // display the address as QR Code
     nbgl_layoutDescription_t layoutDescription = {.modal            = true,
                                                   .withLeftBorder   = true,
-                                                  .onActionCallback = &addressLayoutTouchCallbackQR,
+                                                  .onActionCallback = &modalLayoutTouchCallback,
                                                   .tapActionText    = NULL};
     nbgl_layoutHeader_t      headerDesc        = {
                     .type = HEADER_EMPTY, .separationLine = false, .emptySpace.height = SMALL_CENTERING_HEADER};
@@ -1298,36 +1339,126 @@ static void displayAddressQRCode(void)
 
     nbgl_layoutAddQRCode(addressConfirmationContext.modalLayout, &qrCode);
 
-    nbgl_layoutAddFooter(addressConfirmationContext.modalLayout, "Close", 0, TUNE_TAP_CASUAL);
+    nbgl_layoutAddFooter(
+        addressConfirmationContext.modalLayout, "Close", DISMISS_QR_TOKEN, TUNE_TAP_CASUAL);
     nbgl_layoutDraw(addressConfirmationContext.modalLayout);
     nbgl_refresh();
 }
 
-// called when quit button is touched on Address verification page
-static void addressLayoutTouchCallbackQR(int token, uint8_t index)
-{
-    UNUSED(token);
-    UNUSED(index);
-
-    // dismiss modal
-    nbgl_layoutRelease(addressConfirmationContext.modalLayout);
-    addressConfirmationContext.modalLayout = NULL;
-    nbgl_screenRedraw();
-    nbgl_refresh();
-}
 #endif  // NBGL_QRCODE
 
 // called when header is touched on modal page, to dismiss it
 static void modalLayoutTouchCallback(int token, uint8_t index)
 {
-    UNUSED(token);
     UNUSED(index);
-
-    // dismiss modal
-    nbgl_layoutRelease(genericContext.modalLayout);
-    genericContext.modalLayout = NULL;
-    nbgl_screenRedraw();
+    if (token == DISMISS_QR_TOKEN) {
+        // dismiss modal
+        nbgl_layoutRelease(addressConfirmationContext.modalLayout);
+        addressConfirmationContext.modalLayout = NULL;
+        nbgl_screenRedraw();
+    }
+    else if (token == DISMISS_WARNING_TOKEN) {
+        // dismiss modal
+        nbgl_layoutRelease(reviewWithWarnCtx.modalLayout);
+        // if already at first level, simply redraw the background
+        if (reviewWithWarnCtx.securityReportLevel <= 1) {
+            reviewWithWarnCtx.modalLayout = NULL;
+            nbgl_screenRedraw();
+        }
+        else {
+            // We are at level 2 of warning modal, so re-display the level 1
+            reviewWithWarnCtx.securityReportLevel = 1;
+            // if preset is used
+            if (reviewWithWarnCtx.warning->predefinedSet) {
+                displaySecurityReport(reviewWithWarnCtx.warning->predefinedSet);
+            }
+            else {
+                // use customized warning
+                const nbgl_warningDetails_t *details
+                    = (reviewWithWarnCtx.isIntro) ? reviewWithWarnCtx.warning->introDetails
+                                                  : reviewWithWarnCtx.warning->reviewDetails;
+                displayCustomizedSecurityReport(details);
+            }
+            return;
+        }
+    }
+    else if ((token >= FIRST_WARN_BAR_TOKEN) && (token <= LAST_WARN_BAR_TOKEN)) {
+        // dismiss modal before creating a new one
+        nbgl_layoutRelease(reviewWithWarnCtx.modalLayout);
+        reviewWithWarnCtx.securityReportLevel = 2;
+        // if preset is used
+        if (reviewWithWarnCtx.warning->predefinedSet) {
+            displaySecurityReport(1 << (token - FIRST_WARN_BAR_TOKEN));
+        }
+        else {
+            // use customized warning
+            const nbgl_warningDetails_t *details = (reviewWithWarnCtx.isIntro)
+                                                       ? reviewWithWarnCtx.warning->introDetails
+                                                       : reviewWithWarnCtx.warning->reviewDetails;
+            if (details->type == BAR_LIST_WARNING) {
+                displayCustomizedSecurityReport(
+                    &details->barList.details[token - FIRST_WARN_BAR_TOKEN]);
+            }
+        }
+        return;
+    }
+    else {
+        // dismiss modal
+        nbgl_layoutRelease(genericContext.modalLayout);
+        genericContext.modalLayout = NULL;
+        nbgl_screenRedraw();
+    }
     nbgl_refresh();
+}
+
+// called when item are touched in layout
+static void layoutTouchCallback(int token, uint8_t index)
+{
+    // choice buttons in initial warning page
+    if (token == WARNING_CHOICE_TOKEN) {
+        if (index == 0) {  // top button to exit
+            reviewWithWarnCtx.choiceCallback(false);
+        }
+        else {  // bottom button to continue to review
+            reviewWithWarnCtx.isIntro = false;
+            if (reviewWithWarnCtx.isStreaming) {
+                useCaseReviewStreamingStart(reviewWithWarnCtx.operationType,
+                                            reviewWithWarnCtx.icon,
+                                            reviewWithWarnCtx.reviewTitle,
+                                            reviewWithWarnCtx.reviewSubTitle,
+                                            reviewWithWarnCtx.choiceCallback,
+                                            false);
+            }
+            else {
+                useCaseReview(reviewWithWarnCtx.operationType,
+                              reviewWithWarnCtx.tagValueList,
+                              reviewWithWarnCtx.icon,
+                              reviewWithWarnCtx.reviewTitle,
+                              reviewWithWarnCtx.reviewSubTitle,
+                              reviewWithWarnCtx.finishTitle,
+                              reviewWithWarnCtx.tipBox,
+                              reviewWithWarnCtx.choiceCallback,
+                              false,
+                              false);
+            }
+        }
+    }
+    // top-right button in initial warning page
+    else if (token == WARNING_BUTTON_TOKEN) {
+        // start at first level of security report
+        reviewWithWarnCtx.securityReportLevel = 1;
+        // if preset is used
+        if (reviewWithWarnCtx.warning->predefinedSet) {
+            displaySecurityReport(reviewWithWarnCtx.warning->predefinedSet);
+        }
+        else {
+            // use customized warning
+            const nbgl_warningDetails_t *details = (reviewWithWarnCtx.isIntro)
+                                                       ? reviewWithWarnCtx.warning->introDetails
+                                                       : reviewWithWarnCtx.warning->reviewDetails;
+            displayCustomizedSecurityReport(details);
+        }
+    }
 }
 
 // called when skip button is touched in footer, during forward only review
@@ -1669,7 +1800,7 @@ static void bundleNavReviewAskRejectionConfirmation(nbgl_operationType_t operati
     const char *title;
     const char *confirmText;
     // clear skip and blind bits
-    operationType &= ~(SKIPPABLE_OPERATION | BLIND_OPERATION);
+    operationType &= ~(SKIPPABLE_OPERATION | BLIND_OPERATION | RISKY_OPERATION);
     if (operationType == TYPE_TRANSACTION) {
         title       = "Reject transaction?";
         confirmText = "Go back to transaction";
@@ -1718,51 +1849,313 @@ static void bundleNavReviewStreamingChoice(bool confirm)
     }
 }
 
-// function called when the warning page of Blind Signing review buttons are pressed
-static void blindSigningWarningCallback(bool confirm)
+// function used to display the security level page in modal
+// it can be either a single page with text or QR code, or a list of touchable bars leading
+// to single pages
+static void displaySecurityReport(uint32_t set)
 {
-    if (confirm) {  // top button to exit
-        blindSigningContext.choiceCallback(false);
+    nbgl_layoutDescription_t layoutDescription = {.modal            = true,
+                                                  .withLeftBorder   = true,
+                                                  .onActionCallback = modalLayoutTouchCallback,
+                                                  .tapActionText    = NULL};
+    nbgl_layoutHeader_t      headerDesc        = {.type               = HEADER_BACK_AND_TEXT,
+                                                  .separationLine     = true,
+                                                  .backAndText.icon   = NULL,
+                                                  .backAndText.tuneId = TUNE_TAP_CASUAL,
+                                                  .backAndText.token  = DISMISS_WARNING_TOKEN};
+    nbgl_layoutFooter_t      footerDesc
+        = {.type = FOOTER_EMPTY, .separationLine = false, .emptySpace.height = 0};
+    uint8_t     i;
+    uint8_t     nbWarnings = 0;
+    const char *provider;
+
+    reviewWithWarnCtx.modalLayout = nbgl_layoutGet(&layoutDescription);
+
+    // count the number of warnings
+    for (i = 0; i < NB_WARNING_TYPES; i++) {
+        if (set & (1 << i)) {
+            nbWarnings++;
+        }
     }
-    else {  // bottom button to continue to review
-        if (blindSigningContext.isStreaming) {
-            useCaseReviewStreamingStart(blindSigningContext.operationType,
-                                        blindSigningContext.icon,
-                                        blindSigningContext.reviewTitle,
-                                        blindSigningContext.reviewSubTitle,
-                                        blindSigningContext.choiceCallback,
-                                        false);
+
+    if ((nbWarnings > 1) && (reviewWithWarnCtx.securityReportLevel == 1)) {
+        // if more than one warning warning, so use a list of touchable bars
+        for (i = 0; i < NB_WARNING_TYPES; i++) {
+            if (reviewWithWarnCtx.warning->predefinedSet & (1 << i)) {
+                nbgl_layoutBar_t bar;
+                bar.text      = securityReportItems[i].text;
+                bar.subText   = securityReportItems[i].subText;
+                bar.iconRight = &PUSH_ICON;
+                bar.iconLeft  = securityReportItems[i].icon;
+                bar.token     = FIRST_WARN_BAR_TOKEN + i;
+                bar.tuneId    = TUNE_TAP_CASUAL;
+                bar.large     = false;
+                bar.inactive  = false;
+                nbgl_layoutAddTouchableBar(reviewWithWarnCtx.modalLayout, &bar);
+                nbgl_layoutAddSeparationLine(reviewWithWarnCtx.modalLayout);
+            }
+        }
+        headerDesc.backAndText.text = "Security report";
+        nbgl_layoutAddHeader(reviewWithWarnCtx.modalLayout, &headerDesc);
+        nbgl_layoutDraw(reviewWithWarnCtx.modalLayout);
+        nbgl_refresh();
+        return;
+    }
+    if (reviewWithWarnCtx.warning && reviewWithWarnCtx.warning->reportProvider) {
+        provider = reviewWithWarnCtx.warning->reportProvider;
+    }
+    else {
+        provider = "[unknown]";
+    }
+    if (set & (1 << BLIND_SIGNING_WARN)) {
+        if (reviewWithWarnCtx.isIntro) {
+#ifdef NBGL_QRCODE
+            // display a QR Code if in intro
+            nbgl_layoutQRCode_t qrCode
+                = {.url      = "ledger.com/e8",
+                   .text1    = "ledger.com/e8",
+                   .text2    = "Scan to learn about the risks of blind signing.",
+                   .centered = true,
+                   .offsetY  = 0};
+            nbgl_layoutAddQRCode(reviewWithWarnCtx.modalLayout, &qrCode);
+            footerDesc.emptySpace.height = 24;
+#endif  // NBGL_QRCODE
+            headerDesc.backAndText.text = "Blind signing report";
         }
         else {
-            useCaseReview(blindSigningContext.operationType,
-                          blindSigningContext.tagValueList,
-                          blindSigningContext.icon,
-                          blindSigningContext.reviewTitle,
-                          blindSigningContext.reviewSubTitle,
-                          blindSigningContext.finishTitle,
-                          blindSigningContext.tipBox,
-                          blindSigningContext.choiceCallback,
-                          false,
-                          false);
+            // display a centered if in review
+            nbgl_contentCenter_t info = {0};
+            info.icon                 = &C_Warning_64px;
+            info.title                = "Blind Signing";
+            info.description
+                = "This transaction's details are not fully verifiable. If you sign it, you could "
+                  "lose all your assets.\n\n"
+                  "Learn about blind signing:\nledger.com/e8";
+            nbgl_layoutAddContentCenter(reviewWithWarnCtx.modalLayout, &info);
+            footerDesc.emptySpace.height = MEDIUM_CENTERING_HEADER;
+            headerDesc.separationLine    = false;
         }
     }
+    else if (set & (1 << W3C_ISSUE_WARN)) {
+        // if W3 Checks issue, display a centered info
+        nbgl_contentCenter_t info = {0};
+        info.icon                 = &C_Important_Circle_64px;
+        info.title                = "Web3 Checks could not verify this message";
+        info.description = "An issue prevented Web3 Checks from running.\nGet help: ledger.com/e11";
+        nbgl_layoutAddContentCenter(reviewWithWarnCtx.modalLayout, &info);
+        footerDesc.emptySpace.height = MEDIUM_CENTERING_HEADER;
+        headerDesc.separationLine    = false;
+    }
+    else if (set & (1 << W3C_THREAT_DETECTED_WARN)) {
+        if (reviewWithWarnCtx.isIntro) {
+#ifdef NBGL_QRCODE
+            // display a QR Code if in intro
+            nbgl_layoutQRCode_t qrCode = {.url      = "url.com/od24xz",
+                                          .text1    = "url.com/od24xz",
+                                          .text2    = tmpString,
+                                          .centered = true,
+                                          .offsetY  = 0};
+            snprintf(tmpString,
+                     W3C_DESCRIPTION_MAX_LEN,
+                     "Scan to view the threat report from %s.",
+                     provider);
+            nbgl_layoutAddQRCode(reviewWithWarnCtx.modalLayout, &qrCode);
+            footerDesc.emptySpace.height = 24;
+#endif  // NBGL_QRCODE
+            headerDesc.backAndText.text = "Web3 Checks threat report";
+        }
+        else {
+            // display a centered if in review
+            nbgl_contentCenter_t info = {0};
+            info.icon                 = &C_Warning_64px;
+            info.title                = "Threat detected";
+            info.smallTitle           = "Known drainer contract";
+            info.description          = tmpString;
+            snprintf(tmpString,
+                     W3C_DESCRIPTION_MAX_LEN,
+                     "This transaction was scanned as malicious by Web3 Checks.\n\nView full %s "
+                     "report:\nurl.com/od24xz",
+                     provider);
+            nbgl_layoutAddContentCenter(reviewWithWarnCtx.modalLayout, &info);
+            footerDesc.emptySpace.height = MEDIUM_CENTERING_HEADER;
+            headerDesc.separationLine    = false;
+        }
+    }
+    else if (set & (1 << W3C_LOSING_SWAP_WARN)) {
+        if (reviewWithWarnCtx.isIntro) {
+#ifdef NBGL_QRCODE
+            // display a QR Code if in intro
+            nbgl_layoutQRCode_t qrCode = {.url      = "url.com/od24xz",
+                                          .text1    = "url.com/od24xz",
+                                          .text2    = tmpString,
+                                          .centered = true,
+                                          .offsetY  = 0};
+            snprintf(tmpString,
+                     W3C_DESCRIPTION_MAX_LEN,
+                     "Scan to view the risk report from %s.",
+                     provider);
+            nbgl_layoutAddQRCode(reviewWithWarnCtx.modalLayout, &qrCode);
+            footerDesc.emptySpace.height = 24;
+#endif  // NBGL_QRCODE
+            headerDesc.backAndText.text = "Web3 Checks risk report";
+        }
+        else {
+            // display a centered if in review
+            nbgl_contentCenter_t info = {0};
+            info.icon                 = &C_Warning_64px;
+            info.title                = "Risk detected";
+            info.smallTitle           = "Losing swap";
+            info.description          = tmpString;
+            snprintf(tmpString,
+                     W3C_DESCRIPTION_MAX_LEN,
+                     "This transaction was scanned as risky by Web3 Checks.\n\n"
+                     "View full %s report:\\nurl.com/od24xz",
+                     provider);
+            nbgl_layoutAddContentCenter(reviewWithWarnCtx.modalLayout, &info);
+            footerDesc.emptySpace.height = MEDIUM_CENTERING_HEADER;
+            headerDesc.separationLine    = false;
+        }
+    }
+    nbgl_layoutAddHeader(reviewWithWarnCtx.modalLayout, &headerDesc);
+    if (footerDesc.emptySpace.height > 0) {
+        nbgl_layoutAddExtendedFooter(reviewWithWarnCtx.modalLayout, &footerDesc);
+    }
+    nbgl_layoutDraw(reviewWithWarnCtx.modalLayout);
+    nbgl_refresh();
 }
 
-// function used to display the warning page when starting a Bling Signing review
-static void blindSigningWarning(void)
+// function used to display the security level page in modal
+// it can be either a single page with text or QR code, or a list of touchable bars leading
+// to single pages
+static void displayCustomizedSecurityReport(const nbgl_warningDetails_t *details)
+{
+    nbgl_layoutDescription_t layoutDescription = {.modal            = true,
+                                                  .withLeftBorder   = true,
+                                                  .onActionCallback = modalLayoutTouchCallback,
+                                                  .tapActionText    = NULL};
+    nbgl_layoutHeader_t      headerDesc        = {.type               = HEADER_BACK_AND_TEXT,
+                                                  .separationLine     = true,
+                                                  .backAndText.icon   = NULL,
+                                                  .backAndText.tuneId = TUNE_TAP_CASUAL,
+                                                  .backAndText.token  = DISMISS_WARNING_TOKEN};
+    uint8_t                  i;
+
+    reviewWithWarnCtx.modalLayout = nbgl_layoutGet(&layoutDescription);
+    headerDesc.backAndText.text   = details->title;
+    nbgl_layoutAddHeader(reviewWithWarnCtx.modalLayout, &headerDesc);
+    if (details->type == BAR_LIST_WARNING) {
+        // if more than one warning warning, so use a list of touchable bars
+        for (i = 0; i < details->barList.nbBars; i++) {
+            nbgl_layoutBar_t bar;
+            bar.text      = details->barList.texts[i];
+            bar.subText   = details->barList.subTexts[i];
+            bar.iconRight = &PUSH_ICON;
+            bar.iconLeft  = details->barList.icons[i];
+            bar.token     = FIRST_WARN_BAR_TOKEN + i;
+            bar.tuneId    = TUNE_TAP_CASUAL;
+            bar.large     = false;
+            bar.inactive  = false;
+            nbgl_layoutAddTouchableBar(reviewWithWarnCtx.modalLayout, &bar);
+            nbgl_layoutAddSeparationLine(reviewWithWarnCtx.modalLayout);
+        }
+    }
+    else if (details->type == QRCODE_WARNING) {
+#ifdef NBGL_QRCODE
+        // display a QR Code
+        nbgl_layoutAddQRCode(reviewWithWarnCtx.modalLayout, &details->qrCode);
+#endif  // NBGL_QRCODE
+        headerDesc.backAndText.text = details->title;
+    }
+    else if (details->type == CENTERED_INFO_WARNING) {
+        // display a centered info
+        nbgl_layoutAddContentCenter(reviewWithWarnCtx.modalLayout, &details->centeredInfo);
+        headerDesc.separationLine = false;
+    }
+    nbgl_layoutDraw(reviewWithWarnCtx.modalLayout);
+    nbgl_refresh();
+}
+
+// function used to display the initial warning page when starting a "review with warning"
+static void displayInitialWarning(void)
 {
     // Play notification sound
 #ifdef HAVE_PIEZO_SOUND
     io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
 #endif  // HAVE_PIEZO_SOUND
-    nbgl_useCaseChoice(&C_Warning_64px,
-                       "Blind signing ahead",
-                       "The details of this transaction or message are not fully verifiable. If "
-                       "you sign it, you could lose all "
-                       "your assets.",
-                       "Back to safety",
-                       "Continue anyway",
-                       blindSigningWarningCallback);
+    nbgl_layoutDescription_t   layoutDescription;
+    nbgl_layoutChoiceButtons_t buttonsInfo = {.bottomText = "Continue anyway",
+                                              .token      = WARNING_CHOICE_TOKEN,
+                                              .topText    = "Back to safety",
+                                              .style      = ROUNDED_AND_FOOTER_STYLE,
+                                              .tuneId     = TUNE_TAP_CASUAL};
+    nbgl_layoutHeader_t        headerDesc  = {.type              = HEADER_EMPTY,
+                                              .separationLine    = false,
+                                              .emptySpace.height = MEDIUM_CENTERING_HEADER};
+
+    reviewWithWarnCtx.isIntro = true;
+
+    layoutDescription.modal          = false;
+    layoutDescription.withLeftBorder = true;
+
+    layoutDescription.onActionCallback = layoutTouchCallback;
+    layoutDescription.tapActionText    = NULL;
+
+    layoutDescription.ticker.tickerCallback = NULL;
+    reviewWithWarnCtx.layoutCtx             = nbgl_layoutGet(&layoutDescription);
+
+    nbgl_layoutAddHeader(reviewWithWarnCtx.layoutCtx, &headerDesc);
+    // do not display top-right icon if only Web3 Checks issue
+    if (reviewWithWarnCtx.warning->predefinedSet != (1 << W3C_ISSUE_WARN)) {
+        if (reviewWithWarnCtx.warning->predefinedSet != 0) {
+            nbgl_layoutAddTopRightButton(
+                reviewWithWarnCtx.layoutCtx, &PRIVACY_ICON, WARNING_BUTTON_TOKEN, TUNE_TAP_CASUAL);
+        }
+        else if (reviewWithWarnCtx.warning->introTopRightIcon != NULL) {
+            nbgl_layoutAddTopRightButton(reviewWithWarnCtx.layoutCtx,
+                                         reviewWithWarnCtx.warning->introTopRightIcon,
+                                         WARNING_BUTTON_TOKEN,
+                                         TUNE_TAP_CASUAL);
+        }
+    }
+    // add button and footer on bottom
+    nbgl_layoutAddChoiceButtons(reviewWithWarnCtx.layoutCtx, &buttonsInfo);
+    // add main content
+    // if predefined content is configured, use it preferably
+    if (reviewWithWarnCtx.warning->predefinedSet != 0) {
+        nbgl_contentCenter_t info = {0};
+        info.icon                 = &C_Warning_64px;
+        if (reviewWithWarnCtx.warning->predefinedSet == (1 << BLIND_SIGNING_WARN)) {
+            info.title = "Blind signing ahead";
+            info.description
+                = "The details of this transaction or message are not fully verifiable. If "
+                  "you sign it, you could lose all "
+                  "your assets.";
+        }
+        else if (reviewWithWarnCtx.warning->predefinedSet == (1 << W3C_ISSUE_WARN)) {
+            info.icon  = &C_Important_Circle_64px;
+            info.title = "Web3 Checks could not verify this message";
+            info.description
+                = "An issue prevented Web3 Checks from running.\nGet help: ledger.com/e11";
+        }
+        else if (reviewWithWarnCtx.warning->predefinedSet == (1 << W3C_THREAT_DETECTED_WARN)) {
+            info.title       = "Threat detected";
+            info.smallTitle  = "Known drainer contract";
+            info.description = "This transaction was scanned as malicious by Web3 Checks.";
+        }
+        else {
+            info.title = "Dangerous transaction";
+            info.description
+                = "This transaction cannot be fully decoded, and was not verified by Web3 Checks.";
+        }
+        nbgl_layoutAddContentCenter(reviewWithWarnCtx.layoutCtx, &info);
+    }
+    else if (reviewWithWarnCtx.warning->info != NULL) {
+        // if no predefined content, use custom one
+        nbgl_layoutAddContentCenter(reviewWithWarnCtx.layoutCtx, reviewWithWarnCtx.warning->info);
+    }
+
+    nbgl_layoutDraw(reviewWithWarnCtx.layoutCtx);
+    nbgl_refresh();
 }
 
 // function to factorize code for all simple reviews
@@ -1947,12 +2340,12 @@ static void useCaseHomeExt(const char                *appName,
     }
     if (tagline == NULL) {
         if (strlen(appName) > MAX_APP_NAME_FOR_SDK_TAGLINE) {
-            snprintf(appDescription,
+            snprintf(tmpString,
                      APP_DESCRIPTION_MAX_LEN,
                      "This app enables signing\ntransactions on its network.");
         }
         else {
-            snprintf(appDescription,
+            snprintf(tmpString,
                      APP_DESCRIPTION_MAX_LEN,
                      "%s %s\n%s",
                      TAGLINE_PART1,
@@ -1962,16 +2355,15 @@ static void useCaseHomeExt(const char                *appName,
 
         // If there is more than 3 lines, it means the appName was split, so we put it on the next
         // line
-        if (nbgl_getTextNbLinesInWidth(SMALL_REGULAR_FONT, appDescription, AVAILABLE_WIDTH, false)
-            > 3) {
-            snprintf(appDescription,
+        if (nbgl_getTextNbLinesInWidth(SMALL_REGULAR_FONT, tmpString, AVAILABLE_WIDTH, false) > 3) {
+            snprintf(tmpString,
                      APP_DESCRIPTION_MAX_LEN,
                      "%s\n%s %s",
                      TAGLINE_PART1,
                      appName,
                      TAGLINE_PART2);
         }
-        info.centeredInfo.text2 = appDescription;
+        info.centeredInfo.text2 = tmpString;
     }
     else {
         info.centeredInfo.text2 = tagline;
@@ -3042,20 +3434,64 @@ void nbgl_useCaseReviewBlindSigning(nbgl_operationType_t              operationT
                                     const nbgl_tipBox_t              *tipBox,
                                     nbgl_choiceCallback_t             choiceCallback)
 {
-    memset(&blindSigningContext, 0, sizeof(blindSigningContext));
-
-    blindSigningContext.isStreaming    = false;
-    blindSigningContext.operationType  = operationType | BLIND_OPERATION;
-    blindSigningContext.tagValueList   = tagValueList;
-    blindSigningContext.icon           = icon;
-    blindSigningContext.reviewTitle    = reviewTitle;
-    blindSigningContext.reviewSubTitle = reviewSubTitle;
-    blindSigningContext.finishTitle    = finishTitle;
-    blindSigningContext.tipBox         = tipBox;
-    blindSigningContext.choiceCallback = choiceCallback;
-
-    blindSigningWarning();
+    nbgl_useCaseReviewWithWarning(operationType,
+                                  tagValueList,
+                                  icon,
+                                  reviewTitle,
+                                  reviewSubTitle,
+                                  finishTitle,
+                                  tipBox,
+                                  &blindSigningWarning,
+                                  choiceCallback);
 }
+
+/**
+ * @brief Draws a flow of pages of a review requiring a warning page before the review.
+ * Moreover, the first and last pages of review display a top-right button, that displays more
+ * information about the warnings
+ *
+ * Navigation operates with either swipe or navigation
+ * keys at bottom right. The last page contains a long-press button with the given finishTitle and
+ * the given icon.
+ * @note  All tag/value pairs are provided in the API and the number of pages is automatically
+ * computed, the last page being a long press one
+ *
+ * @param operationType type of operation (Operation, Transaction, Message)
+ * @param tagValueList list of tag/value pairs
+ * @param icon icon used on first and last review page
+ * @param reviewTitle string used in the first review page
+ * @param reviewSubTitle string to set under reviewTitle (can be NULL)
+ * @param finishTitle string used in the last review page
+ * @param tipBox parameter to build a tip-box and necessary modal (can be NULL)
+ * @param warning structure to build the initial warning page (cannot be NULL)
+ * @param choiceCallback callback called when operation is accepted (param is true) or rejected
+ * (param is false)
+ */
+void nbgl_useCaseReviewWithWarning(nbgl_operationType_t              operationType,
+                                   const nbgl_contentTagValueList_t *tagValueList,
+                                   const nbgl_icon_details_t        *icon,
+                                   const char                       *reviewTitle,
+                                   const char                       *reviewSubTitle,
+                                   const char                       *finishTitle,
+                                   const nbgl_tipBox_t              *tipBox,
+                                   const nbgl_warning_t             *warning,
+                                   nbgl_choiceCallback_t             choiceCallback)
+{
+    memset(&reviewWithWarnCtx, 0, sizeof(reviewWithWarnCtx));
+    reviewWithWarnCtx.isStreaming    = false;
+    reviewWithWarnCtx.operationType  = operationType | RISKY_OPERATION;
+    reviewWithWarnCtx.tagValueList   = tagValueList;
+    reviewWithWarnCtx.icon           = icon;
+    reviewWithWarnCtx.reviewTitle    = reviewTitle;
+    reviewWithWarnCtx.reviewSubTitle = reviewSubTitle;
+    reviewWithWarnCtx.finishTitle    = finishTitle;
+    reviewWithWarnCtx.tipBox         = tipBox;
+    reviewWithWarnCtx.warning        = warning;
+    reviewWithWarnCtx.choiceCallback = choiceCallback;
+
+    displayInitialWarning();
+}
+
 /**
  * @brief Draws a flow of pages of a light review. Navigation operates with either swipe or
  * navigation keys at bottom right. The last page contains a button/footer with the given
@@ -3169,16 +3605,43 @@ void nbgl_useCaseReviewStreamingBlindSigningStart(nbgl_operationType_t       ope
                                                   const char                *reviewSubTitle,
                                                   nbgl_choiceCallback_t      choiceCallback)
 {
-    memset(&blindSigningContext, 0, sizeof(blindSigningContext));
+    nbgl_useCaseReviewStreamingWithWarningStart(
+        operationType, icon, reviewTitle, reviewSubTitle, &blindSigningWarning, choiceCallback);
+}
 
-    blindSigningContext.isStreaming    = true;
-    blindSigningContext.operationType  = operationType | BLIND_OPERATION;
-    blindSigningContext.icon           = icon;
-    blindSigningContext.reviewTitle    = reviewTitle;
-    blindSigningContext.reviewSubTitle = reviewSubTitle;
-    blindSigningContext.choiceCallback = choiceCallback;
+/**
+ * @brief Start drawing the flow of pages of a blind-signing review. The review is preceded by a
+ * warning page
+ * @note  This should be followed by calls to @ref nbgl_useCaseReviewStreamingContinue and finally
+ * to
+ *        @ref nbgl_useCaseReviewStreamingFinish.
+ *
+ * @param operationType type of operation (Operation, Transaction, Message)
+ * @param icon icon used on first and last review page
+ * @param reviewTitle string used in the first review page
+ * @param reviewSubTitle string to set under reviewTitle (can be NULL)
+ * @param warning structure to build the initial warning page (cannot be NULL)
+ * @param choiceCallback callback called when more operation data are needed (param is true) or
+ * operation is rejected (param is false)
+ */
+void nbgl_useCaseReviewStreamingWithWarningStart(nbgl_operationType_t       operationType,
+                                                 const nbgl_icon_details_t *icon,
+                                                 const char                *reviewTitle,
+                                                 const char                *reviewSubTitle,
+                                                 const nbgl_warning_t      *warning,
+                                                 nbgl_choiceCallback_t      choiceCallback)
+{
+    memset(&reviewWithWarnCtx, 0, sizeof(reviewWithWarnCtx));
 
-    blindSigningWarning();
+    reviewWithWarnCtx.isStreaming    = true;
+    reviewWithWarnCtx.operationType  = operationType | RISKY_OPERATION;
+    reviewWithWarnCtx.icon           = icon;
+    reviewWithWarnCtx.reviewTitle    = reviewTitle;
+    reviewWithWarnCtx.reviewSubTitle = reviewSubTitle;
+    reviewWithWarnCtx.choiceCallback = choiceCallback;
+    reviewWithWarnCtx.warning        = warning;
+
+    displayInitialWarning();
 }
 
 /**
