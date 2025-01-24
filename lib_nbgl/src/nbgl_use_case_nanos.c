@@ -71,6 +71,7 @@ typedef struct HomeContext_s {
 
 typedef enum {
     NONE_USE_CASE,
+    SPINNER_USE_CASE,
     REVIEW_USE_CASE,
     GENERIC_REVIEW_USE_CASE,
     REVIEW_BLIND_SIGN_USE_CASE,
@@ -120,6 +121,7 @@ static void displaySettingsPage(nbgl_stepPosition_t pos, bool toogle_state);
 static void displayChoicePage(nbgl_stepPosition_t pos);
 static void displayConfirm(nbgl_stepPosition_t pos);
 static void displayContent(nbgl_stepPosition_t pos, bool toogle_state);
+static void displaySpinner(const char *text);
 
 static void startUseCaseHome(void);
 static void startUseCaseInfo(void);
@@ -322,7 +324,7 @@ static void drawStep(nbgl_stepPosition_t        pos,
 
     pos |= GET_POS_OF_STEP(context.currentPage, context.nbPages);
 
-    if (context.type == STATUS_USE_CASE) {
+    if ((context.type == STATUS_USE_CASE) || (context.type == SPINNER_USE_CASE)) {
         p_ticker = &ticker;
     }
     if ((context.type == CONFIRM_USE_CASE) && (context.confirm.currentStep != NULL)) {
@@ -628,7 +630,7 @@ static void displayStreamingReviewPage(nbgl_stepPosition_t pos)
             }
             // Determine which page to display
             if (context.currentPage >= reviewPages) {
-                nbgl_useCaseSpinner("Processing");
+                displaySpinner("Processing");
                 onReviewAccept();
                 return;
             }
@@ -651,7 +653,7 @@ static void displayStreamingReviewPage(nbgl_stepPosition_t pos)
 
         case STREAMING_CONTINUE_REVIEW_USE_CASE:
             if (context.currentPage >= context.review.tagValueList->nbPairs) {
-                nbgl_useCaseSpinner("Processing");
+                displaySpinner("Processing");
                 onReviewAccept();
                 return;
             }
@@ -1062,6 +1064,12 @@ static void displayContent(nbgl_stepPosition_t pos, bool toogle_state)
         context.stepCallback = context.content.quitCallback;
     }
     drawStep(pos, icon, text, subText, contentCallback, false);
+    nbgl_refresh();
+}
+
+static void displaySpinner(const char *text)
+{
+    drawStep(SINGLE_STEP, &C_icon_processing, text, NULL, NULL, false);
     nbgl_refresh();
 }
 
@@ -1807,8 +1815,12 @@ void nbgl_useCaseReviewStreamingFinish(const char           *finishTitle,
  */
 void nbgl_useCaseSpinner(const char *text)
 {
-    drawStep(SINGLE_STEP, &C_icon_processing, text, NULL, NULL, false);
-    nbgl_refresh();
+    memset(&context, 0, sizeof(UseCaseContext_t));
+    context.type        = SPINNER_USE_CASE;
+    context.currentPage = 0;
+    context.nbPages     = 1;
+
+    displaySpinner(text);
 }
 
 void nbgl_useCaseChoice(const nbgl_icon_details_t *icon,
