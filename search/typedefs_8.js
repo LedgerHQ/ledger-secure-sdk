@@ -45,7 +45,7 @@ var searchData=
   ['nbgl_5fpagenavigationinfo_5ft_42',['nbgl_pageNavigationInfo_t',['../nbgl__page_8h.html#a8295ae1ca9b3d1e78c74f9d46fa4900a',1,'nbgl_page.h']]],
   ['nbgl_5fpagenavwithbuttons_5ft_43',['nbgl_pageNavWithButtons_t',['../nbgl__page_8h.html#a00defa4d525075e47413e75c640d1cc4',1,'nbgl_page.h']]],
   ['nbgl_5fpagenavwithtap_5ft_44',['nbgl_pageNavWithTap_t',['../nbgl__page_8h.html#a6d507b1f37dcaaad48f5bb75faead60a',1,'nbgl_page.h']]],
-  ['nbgl_5fpinvalidcallback_5ft_45',['nbgl_pinValidCallback_t',['../nbgl__use__case_8h.html#afd2b439e2fb2c02ecf03f599ea9aae4a',1,'nbgl_use_case.h']]],
+  ['nbgl_5fpinvalidcallback_5ft_45',['nbgl_pinValidCallback_t',['../nbgl__use__case_8h.html#a426673c300bd98628ce5ec8e8c14c2d8',1,'nbgl_use_case.h']]],
   ['nbgl_5fpost_5frefresh_5ft_46',['nbgl_post_refresh_t',['../nbgl__types_8h.html#a13f99b63954014624739c537a489944f',1,'nbgl_types.h']]],
   ['nbgl_5fprogress_5fbar_5ft_47',['nbgl_progress_bar_t',['../nbgl__obj_8h.html#a3516f92debfd78f0165b46dccb593d59',1,'nbgl_obj.h']]],
   ['nbgl_5fqrcode_5ft_48',['nbgl_qrcode_t',['../nbgl__obj_8h.html#aff4a32f469aa5712896a217b10c4c22c',1,'nbgl_obj.h']]],
@@ -67,5 +67,6 @@ var searchData=
   ['nbgl_5ftouchcallback_5ft_64',['nbgl_touchCallback_t',['../nbgl__obj_8h.html#a1b7acc68e9b5c497870cf8e597761d8f',1,'nbgl_obj.h']]],
   ['nbgl_5ftouchctx_5ft_65',['nbgl_touchCtx_t',['../nbgl__touch_8c.html#ac3dd7140b032f396b133cac26cadbeda',1,'nbgl_touch.c']]],
   ['nbgl_5ftransformation_5ft_66',['nbgl_transformation_t',['../nbgl__types_8h.html#a0d395d1171ca489a7449e77f463a1596',1,'nbgl_types.h']]],
-  ['nbgl_5funicode_5fctx_5ft_67',['nbgl_unicode_ctx_t',['../nbgl__fonts_8h.html#a0bb10eabc14057b053c238ea7cd4c8f5',1,'nbgl_fonts.h']]]
+  ['nbgl_5funicode_5fctx_5ft_67',['nbgl_unicode_ctx_t',['../nbgl__fonts_8h.html#a0bb10eabc14057b053c238ea7cd4c8f5',1,'nbgl_fonts.h']]],
+  ['nbgl_5fwarningdetails_5ft_68',['nbgl_warningDetails_t',['../nbgl__use__case_8h.html#a7618f5d5619fb28c256ce18183eacea1',1,'nbgl_use_case.h']]]
 ];

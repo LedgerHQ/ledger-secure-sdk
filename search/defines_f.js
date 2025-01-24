@@ -6,5 +6,6 @@ var searchData=
   ['pic_5ffont_3',['PIC_FONT',['../nbgl__fonts_8c.html#a9c273c8b135138abff8df69be805bf5a',1,'nbgl_fonts.c']]],
   ['post_5fsubtext_5fmargin_4',['POST_SUBTEXT_MARGIN',['../nbgl__layout_8h.html#abd3dd2d58678134c63204083e64e9633',1,'nbgl_layout.h']]],
   ['pre_5ftext_5fmargin_5',['PRE_TEXT_MARGIN',['../nbgl__layout_8h.html#a26601cb52ca49cdf5218b7f32d711796',1,'nbgl_layout.h']]],
-  ['push_5ficon_6',['PUSH_ICON',['../nbgl__obj_8h.html#a0cb5a99737d5ac2fc7b206ddd40fc9ac',1,'nbgl_obj.h']]]
+  ['privacy_5ficon_6',['PRIVACY_ICON',['../nbgl__obj_8h.html#acfa3b3d504d8402c230fc5e600b3ce9a',1,'nbgl_obj.h']]],
+  ['push_5ficon_7',['PUSH_ICON',['../nbgl__obj_8h.html#a0cb5a99737d5ac2fc7b206ddd40fc9ac',1,'nbgl_obj.h']]]
 ];

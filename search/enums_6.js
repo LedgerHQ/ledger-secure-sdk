@@ -36,5 +36,7 @@ var searchData=
   ['nbgl_5fstyle_5ft_33',['nbgl_style_t',['../nbgl__types_8h.html#acb93559ef3740ec23f4c1d3bd1a654ae',1,'nbgl_types.h']]],
   ['nbgl_5fswipe_5fusage_5ft_34',['nbgl_swipe_usage_t',['../nbgl__layout__internal_8h.html#a044857c998d4e1c86473304f3ffd83b3',1,'nbgl_layout_internal.h']]],
   ['nbgl_5ftouchstate_5ft_35',['nbgl_touchState_t',['../nbgl__types_8h.html#abef924ad7bd5b92ba15a19a0917aec80',1,'nbgl_types.h']]],
-  ['nbgl_5ftouchtype_5ft_36',['nbgl_touchType_t',['../nbgl__types_8h.html#a3740adc715354911139e2117a3722ca8',1,'nbgl_types.h']]]
+  ['nbgl_5ftouchtype_5ft_36',['nbgl_touchType_t',['../nbgl__types_8h.html#a3740adc715354911139e2117a3722ca8',1,'nbgl_types.h']]],
+  ['nbgl_5fwarningdetailstype_5ft_37',['nbgl_warningDetailsType_t',['../nbgl__use__case_8h.html#ae8733047730d71c4601798d7688434f7',1,'nbgl_use_case.h']]],
+  ['nbgl_5fwarningtype_5ft_38',['nbgl_warningType_t',['../nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3d',1,'nbgl_use_case.h']]]
 ];

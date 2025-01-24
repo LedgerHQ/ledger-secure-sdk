@@ -76,5 +76,8 @@ var searchData=
   ['nbgl_5ftipbox_5ft_73',['nbgl_tipBox_t',['../structnbgl__tipBox__t.html',1,'']]],
   ['nbgl_5ftouchctx_5fs_74',['nbgl_touchCtx_s',['../structnbgl__touchCtx__s.html',1,'']]],
   ['nbgl_5ftouchstateposition_5ft_75',['nbgl_touchStatePosition_t',['../structnbgl__touchStatePosition__t.html',1,'']]],
-  ['nbgl_5funicode_5fctx_5fs_76',['nbgl_unicode_ctx_s',['../structnbgl__unicode__ctx__s.html',1,'']]]
+  ['nbgl_5funicode_5fctx_5fs_76',['nbgl_unicode_ctx_s',['../structnbgl__unicode__ctx__s.html',1,'']]],
+  ['nbgl_5fwarning_5ft_77',['nbgl_warning_t',['../structnbgl__warning__t.html',1,'']]],
+  ['nbgl_5fwarningbarlist_5ft_78',['nbgl_warningBarList_t',['../structnbgl__warningBarList__t.html',1,'']]],
+  ['nbgl_5fwarningdetails_5fs_79',['nbgl_warningDetails_s',['../structnbgl__warningDetails__s.html',1,'']]]
 ];

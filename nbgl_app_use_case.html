@@ -121,6 +121,11 @@ Use Cases</h1>
 <li><a class="el" href="nbgl__use__case_8h.html#a42b9838f8e87318f142b4bfa11cd8e1a">nbgl_useCaseReviewStreamingStart()</a> to draw the pages of a regular coin transaction review, when all info are not available from the beginning (see <a class="el" href="nbgl_app_use_case.html#use_case_review_streaming">Streaming review Use Case</a>)</li>
 </ul>
 </li>
+<li>for reviews with a warning prolog:<ul>
+<li><a class="el" href="nbgl__use__case_8h.html#a601a5d576b095d81f398368feef37250">nbgl_useCaseReviewWithWarning()</a> to draw the pages of a regular coin transaction review, when all info are available from the beginning, but with an identified risk requiring a warning prolog (see <a class="el" href="nbgl_app_use_case.html#use_case_review_with_warning">Review with warning Use Case</a>)</li>
+<li><a class="el" href="nbgl__use__case_8h.html#a2a8d4a99d8d3c68e1cd72e65d2f3ffe8">nbgl_useCaseReviewStreamingWithWarningStart()</a> to draw the pages of a regular coin transaction review, when all info are not available from the beginning, but with an identified risk requiring a warning prolog (see <a class="el" href="nbgl_app_use_case.html#use_case_review_with_warning">Review with warning Use Case</a> and <a class="el" href="nbgl_app_use_case.html#use_case_review_streaming">Streaming review Use Case</a>)</li>
+</ul>
+</li>
 <li>for address verification:<ul>
 <li><a class="el" href="nbgl__use__case_8h.html#af488f6a96b0c702f31cca21ff5276663">nbgl_useCaseAddressReview()</a> to draw an address confirmation page, with a possibility to see it as QR Code and some extra tag/value pairs (see <a class="el" href="nbgl_app_use_case.html#use_case_addr_review">Address Review Use Case</a>)</li>
 </ul>
@@ -357,9 +362,9 @@ Review Use Case</h2>
 <div class="line">}</div>
 <div class="ttc" id="anbgl__use__case_8h_html_a303e3242b26535f74695f94a51d8cb6a"><div class="ttname"><a href="nbgl__use__case_8h.html#a303e3242b26535f74695f94a51d8cb6a">nbgl_useCaseReview</a></div><div class="ttdeci">void nbgl_useCaseReview(nbgl_operationType_t operationType, const nbgl_contentTagValueList_t *tagValueList, const nbgl_icon_details_t *icon, const char *reviewTitle, const char *reviewSubTitle, const char *finishTitle, nbgl_choiceCallback_t choiceCallback)</div></div>
 <div class="ttc" id="anbgl__use__case_8h_html_ae32d39392a88d6aa2595b0d45661f0ab"><div class="ttname"><a href="nbgl__use__case_8h.html#ae32d39392a88d6aa2595b0d45661f0ab">nbgl_useCaseReviewStatus</a></div><div class="ttdeci">void nbgl_useCaseReviewStatus(nbgl_reviewStatusType_t reviewStatusType, nbgl_callback_t quitCallback)</div></div>
-<div class="ttc" id="anbgl__use__case_8h_html_aecc6f4750a49ca97c084e3fd5600d5dea39c63169fc1f2c1a4922cfd0b07bcf0a"><div class="ttname"><a href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea39c63169fc1f2c1a4922cfd0b07bcf0a">STATUS_TYPE_TRANSACTION_REJECTED</a></div><div class="ttdeci">@ STATUS_TYPE_TRANSACTION_REJECTED</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00230">nbgl_use_case.h:230</a></div></div>
-<div class="ttc" id="anbgl__use__case_8h_html_aecc6f4750a49ca97c084e3fd5600d5dea699644fad9f83e97303c7422daca9e41"><div class="ttname"><a href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea699644fad9f83e97303c7422daca9e41">STATUS_TYPE_TRANSACTION_SIGNED</a></div><div class="ttdeci">@ STATUS_TYPE_TRANSACTION_SIGNED</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00229">nbgl_use_case.h:229</a></div></div>
-<div class="ttc" id="anbgl__use__case_8h_html_afa09e6097a8248ecbdc81d2fb1bfc317a58ebdf125d0fe120e74ebe9e00f86205"><div class="ttname"><a href="nbgl__use__case_8h.html#afa09e6097a8248ecbdc81d2fb1bfc317a58ebdf125d0fe120e74ebe9e00f86205">TYPE_TRANSACTION</a></div><div class="ttdeci">@ TYPE_TRANSACTION</div><div class="ttdoc">For operations transferring a coin or taken from an account to another.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00197">nbgl_use_case.h:196</a></div></div>
+<div class="ttc" id="anbgl__use__case_8h_html_aecc6f4750a49ca97c084e3fd5600d5dea39c63169fc1f2c1a4922cfd0b07bcf0a"><div class="ttname"><a href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea39c63169fc1f2c1a4922cfd0b07bcf0a">STATUS_TYPE_TRANSACTION_REJECTED</a></div><div class="ttdeci">@ STATUS_TYPE_TRANSACTION_REJECTED</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00311">nbgl_use_case.h:311</a></div></div>
+<div class="ttc" id="anbgl__use__case_8h_html_aecc6f4750a49ca97c084e3fd5600d5dea699644fad9f83e97303c7422daca9e41"><div class="ttname"><a href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea699644fad9f83e97303c7422daca9e41">STATUS_TYPE_TRANSACTION_SIGNED</a></div><div class="ttdeci">@ STATUS_TYPE_TRANSACTION_SIGNED</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00310">nbgl_use_case.h:310</a></div></div>
+<div class="ttc" id="anbgl__use__case_8h_html_afa09e6097a8248ecbdc81d2fb1bfc317a58ebdf125d0fe120e74ebe9e00f86205"><div class="ttname"><a href="nbgl__use__case_8h.html#afa09e6097a8248ecbdc81d2fb1bfc317a58ebdf125d0fe120e74ebe9e00f86205">TYPE_TRANSACTION</a></div><div class="ttdeci">@ TYPE_TRANSACTION</div><div class="ttdoc">For operations transferring a coin or taken from an account to another.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00278">nbgl_use_case.h:277</a></div></div>
 <div class="ttc" id="astructnbgl__contentTagValueList__t_html"><div class="ttname"><a href="structnbgl__contentTagValueList__t.html">nbgl_contentTagValueList_t</a></div><div class="ttdoc">This structure contains a list of [tag,value] pairs.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00199">nbgl_content.h:199</a></div></div>
 <div class="ttc" id="astructnbgl__contentTagValueList__t_html_af7465bb412cd1d9fd14bc526d0ea77d8"><div class="ttname"><a href="structnbgl__contentTagValueList__t.html#af7465bb412cd1d9fd14bc526d0ea77d8">nbgl_contentTagValueList_t::nbMaxLinesForValue</a></div><div class="ttdeci">uint8_t nbMaxLinesForValue</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00206">nbgl_content.h:206</a></div></div>
 <div class="ttc" id="astructnbgl__contentTagValue__t_html"><div class="ttname"><a href="structnbgl__contentTagValue__t.html">nbgl_contentTagValue_t</a></div><div class="ttdoc">This structure contains a [tag,value] pair.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00162">nbgl_content.h:162</a></div></div>
@@ -508,6 +513,172 @@ void staticReview(void) {
                                     "Review transaction",   // title of the first page
                                     NULL,                   // sub-title of the first page
                                     onTransactionContinue); // callback to reject or ask more data
+}
+@endcode
+
+@subsection use_case_review_with_warning Review with warning Use Case
+
+@image{inline} html UseCase-Review-With-Warning.png "caption" height=500
+
+The review itself behaves like in @subpage use_case_review. The main differences are:
+
+- The review itself is preceded by a warning page offering the possibility to cancel the review ("Back to safety") or to start it ("Continue anyway")
+- In the first and last pages of the actual review, a top-right button offers the possibility to get more information about the warning
+
+The API to initiate the display of the series of pages is @ref nbgl_useCaseReviewWithWarning(), providing:
+
+- the type of operation to review (transaction, message or generic operation)
+- the list of tag/value pairs (or a callback to get them one by one)
+- the texts/icon to use in presentation page and in last page
+- the configuration to use for the warning (see @ref nbgl_warning_t structure)
+- a callback called when the long press button on last page or reject confirmation is used. The callback's param is &lt;em&gt;true&lt;/em&gt; for confirmation, &lt;em&gt;false&lt;/em&gt; for rejection.
+
+@note the recommended configuration for warning is the predefined one. In this case, one just has to fill the &lt;em&gt;predefinedSet&lt;/em&gt; field of @ref nbgl_warning_t with the appropriate warning
+causes (bitfield) and the &lt;em&gt;reportProvider&lt;/em&gt; field with the name of the 3rd party providing the Web3Checks report, if necessary.
+
+Here is the code to display something similar to example picture:
+
+@code 
+// 4 pairs of tag/value to display
+static nbgl_layoutTagValue_t pairs[4];
+
+static const nbgl_contentTagValueList_t pairList = {
+  .nbMaxLinesForValue = 0,
+  .nbPairs = 4,
+  .pairs = (nbgl_layoutTagValue_t*)pairs
+};
+
+// warning description (cannot be in call stack)
+static nbgl_warning_t warningDesc;
+
+// called when long press button on 3rd page is long-touched or when reject footer is touched
+static void onReviewResult(bool confirm) {
+  // display a status page and go back to main
+  if (confirm) {
+    nbgl_useCaseReviewStatus(STATUS_TYPE_TRANSACTION_SIGNED, appMain);
+  }
+  else {
+    nbgl_useCaseReviewStatus(STATUS_TYPE_TRANSACTION_REJECTED, appMain);
+  }
+}
+
+void staticReview(void) {
+  warningDesc.predefinedSet = (1 &lt;&lt; W3C_LOSING_SWAP_WARN) | (1 &lt;&lt; BLIND_SIGNING_WARN);
+  warningDesc.reportProvider = "Blockaid";
+
+  // static review, providing the whole list of pairs
+  nbgl_useCaseReviewWithWarning(TYPE_TRANSACTION, // type of operation
+                                &amp;pairList,       // list of tag/value pairs
+                                coinIcon,        // icon of the coin
+                                "Review transaction\nto send coin", // title of the first page
+                                NULL,                               // sub-title of the first page
+                                "Sign transaction to\nsend coin?",  // title of the last page
+                                NULL,                               // no tip-box in first page of review
+                                warningDesc,                        // description of warning causes
+                                onReviewResult);                    // callback on result of the review
+}
+@endcode
+
+Here is another version of the example code, not using predefined text:
+
+@code 
+// 4 pairs of tag/value to display
+static nbgl_layoutTagValue_t pairs[4];
+
+static const nbgl_contentTagValueList_t pairList = {
+  .nbMaxLinesForValue = 0,
+  .nbPairs = 4,
+  .pairs = (nbgl_layoutTagValue_t*)pairs
+};
+
+// icons for first level warning details
+static const nbgl_icon_details_t *barListIcons[] = {&amp;WARNING_ICON, &amp;INFO_I_ICON};
+
+// first level warning details
+static const char *const                  barListTexts[]    = {"Blind signing", "Risk detected"};
+static const char *const                  barListSubTexts[] = {"This transaction cannot be fully decoded.", "Web3 Checks found a risk:\nLosing swap"};
+// second level warning details in prolog
+static const struct nbgl_warningDetails_s barListIntroDetails[]  = {
+    {.title  = "Back",
+     .type   = QRCODE_WARNING,
+     .qrCode = {.url = "ledger.com/e8", .text1 = "ledger.com/e8", .text2 = "Scan to learn about the risks of blind signing.", .centered = true}},
+    {.title        = "Back",
+     .type         = QRCODE_WARNING,
+     .qrCode = {.url = "url.com/od24xz", .text1 = "url.com/od24xz", .text2 = "Scan to view the risk report from Blockaid.", .centered = true}}
+};
+
+// second level warning details in review
+static const struct nbgl_warningDetails_s barListIntroDetails[]  = {
+    {.title  = "Back",
+     .type   = CENTERED_INFO_WARNING,
+     .centeredInfo = {.icon = &amp;C_Warning_64px, .title = "Blind signing", .description = "This transaction’s details are not fully verifiable. If you sign it, you could lose all your assets.<br  />
+\nLearn about blind signing: ledger.com/e8"}},
+    {.title        = "Back",
+     .type         = CENTERED_INFO_WARNING,
+     .centeredInfo = {.icon = &amp;C_Warning_64px, .title = "Risk detected", .description = "This transaction was scanned as risky by Web3 Checks.<br  />
+\nView full Blockaid report:url.com/od24xz"}}
+};
+
+// info in main warning page
+static const nbgl_contentCenter_t warningInfo = {
+  .icon          = &amp;C_Warning_64px,
+  .title         = "Dangerous transaction",
+  .description   = "This transaction cannot be fully decoded, and was marked risky by Web3 Checks."
+};
+
+// first level warning details in prolog
+static const nbgl_warningDetails_t warningIntroDetails = {
+  .title                   = "Security report",
+  .type                    = BAR_LIST_WARNING,
+  .barList.nbBars          = 2,
+  .barList.icons           = barListIcons,
+  .texts                   = barListTexts,
+  .subTexts                = barListSubTexts,
+  .barList.details         = barListIntroDetails
+};
+
+// first level warning details in review (when pressing top-right from first and last pages)
+static const nbgl_warningDetails_t warningReviewDetails = {
+  .title                   = "Security report",
+  .type                    = BAR_LIST_WARNING,
+  .barList.nbBars          = 2,
+  .barList.icons           = barListIcons,
+  .texts                   = barListTexts,
+  .subTexts                = barListSubTexts,
+  .barList.details         = barListReviewDetails
+};
+
+// warning description (cannot be in call stack)
+static const nbgl_warning_t warningDesc = {
+  .info               = &amp;warningInfo,
+  .introTopRightIcon  = &amp;PRIVACY_ICON,
+  .reviewTopRightIcon = &amp;WARNING_ICON,
+  .introDetails       = &amp;warningIntroDetails,
+  .reviewDetails      = &amp;warningReviewDetails
+};
+
+// called when long press button on 3rd page is long-touched or when reject footer is touched
+static void onReviewResult(bool confirm) {
+  // display a status page and go back to main
+  if (confirm) {
+    nbgl_useCaseReviewStatus(STATUS_TYPE_TRANSACTION_SIGNED, appMain);
+  }
+  else {
+    nbgl_useCaseReviewStatus(STATUS_TYPE_TRANSACTION_REJECTED, appMain);
+  }
+}
+
+void staticReview(void) {
+  // static review, providing the whole list of pairs
+  nbgl_useCaseReviewWithWarning(TYPE_TRANSACTION, // type of operation
+                                &amp;pairList,       // list of tag/value pairs
+                                coinIcon,        // icon of the coin
+                                "Review transaction\nto send coin", // title of the first page
+                                NULL,                               // sub-title of the first page
+                                "Sign transaction to\nsend coin?",  // title of the last page
+                                NULL,                               // no tip-box in first page of review
+                                warningDesc,                        // description of warning causes
+                                onReviewResult);                    // callback on result of the review
 }
 @endcode
 
