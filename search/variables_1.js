@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['backandtext_0',['backAndText',['../structnbgl__layoutHeader__t.html#a440a09ecb61b4c01752302e16e95e48e',1,'nbgl_layoutHeader_t']]],
+  ['backandtext_0',['backAndText',['../structnbgl__layoutHeader__t.html#a615a598be618b34837a4f127cdfc8e7e',1,'nbgl_layoutHeader_t']]],
   ['backbutton_1',['backbutton',['../structnbgl__pageNavWithTap__s.html#adadf298cd351541f0fc636d1a82ea16d',1,'nbgl_pageNavWithTap_s::backButton'],['../structnbgl__pageNavWithButtons__s.html#ad6b02e65af308527c29729a31ef42a44',1,'nbgl_pageNavWithButtons_s::backButton']]],
   ['backgroundcolor_2',['backgroundColor',['../structnbgl__area__s.html#a399ef7c2c6c16dea55badb21cf80948b',1,'nbgl_area_s']]],
   ['backtoken_3',['backtoken',['../structnbgl__layoutHeader__t.html#a14f29fbd1698da0f0b9f7e02359a8fc2',1,'nbgl_layoutHeader_t::backToken'],['../structnbgl__pageNavWithTap__s.html#aabf898b0dad0e72a135dc82718417607',1,'nbgl_pageNavWithTap_s::backToken']]],

@@ -9,7 +9,7 @@ var searchData=
   ['setkey_5ffunc_6',['setkey_func',['../structcx__cipher__base__t.html#abb71a7975dc6fca548b88c8c5bda6f40',1,'cx_cipher_base_t']]],
   ['shuffled_7',['shuffled',['../structnbgl__keypad__s.html#a4d114dc3b53633e016cd41cba1d3c3b2',1,'nbgl_keypad_s']]],
   ['sig_8',['sig',['../structcx__cipher__context__t.html#aec1750c08529e3603716d14d59ec74ab',1,'cx_cipher_context_t']]],
-  ['simpletext_9',['simpleText',['../structnbgl__layoutFooter__t.html#a4711e9089168e202ea4bb8fe087e6a0a',1,'nbgl_layoutFooter_t']]],
+  ['simpletext_9',['simpleText',['../structnbgl__layoutFooter__t.html#a2316691523a77685d48f2c12a8732756',1,'nbgl_layoutFooter_t']]],
   ['size_10',['size',['../structbuffer__t.html#a43d8b16bd7c446a8b35c940ea44e23f7',1,'buffer_t::size'],['../structcipher__key__t.html#a9ad535c2b16b1bf4c460b39768a640c5',1,'cipher_key_t::size']]],
   ['skiptext_11',['skipText',['../structnbgl__pageMultiScreensDescription__s.html#a44f079bb04dfc6bfb60bba01d422cfcb',1,'nbgl_pageMultiScreensDescription_s']]],
   ['skiptoken_12',['skipToken',['../structnbgl__pageMultiScreensDescription__s.html#a48cc448fc863756ba5142cf9e996b59d',1,'nbgl_pageMultiScreensDescription_s']]],

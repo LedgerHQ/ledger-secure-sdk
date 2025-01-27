@@ -14,5 +14,5 @@ var searchData=
   ['device_5fname_5flength_11',['device_name_length',['../structledger__ble__data__t.html#ad3cdbbb297c307eac85c4d97a015c3fa',1,'ledger_ble_data_t']]],
   ['digitindexes_12',['digitIndexes',['../structnbgl__keypad__s.html#acffdb7ec8716055b6a0d4923d79656e6',1,'nbgl_keypad_s']]],
   ['direction_13',['direction',['../structnbgl__layoutNavigation__t.html#a214dcdf6f75e7c4859969d4edaf16f2a',1,'nbgl_layoutNavigation_t::direction'],['../structnbgl__line__s.html#a09d4c73f9500e6f29f07c041099e64b8',1,'nbgl_line_s::direction']]],
-  ['doubletext_14',['doubleText',['../structnbgl__layoutFooter__t.html#ae9906f79f168eae0693d9972154fcc65',1,'nbgl_layoutFooter_t']]]
+  ['doubletext_14',['doubleText',['../structnbgl__layoutFooter__t.html#ae5fe92e787e0a01a083c9d584b5e0d1c',1,'nbgl_layoutFooter_t']]]
 ];

@@ -21,7 +21,7 @@ var searchData=
   ['previouswidth_18',['previousWidth',['../structnbgl__progress__bar__s.html#ac3d18a413d7cbdbe6a0d069bed870336',1,'nbgl_progress_bar_s']]],
   ['printable_5famount_19',['printable_amount',['../structget__printable__amount__parameters__s.html#a44d4142fbbd90d6d71b2c0e03bdf15b7',1,'get_printable_amount_parameters_s']]],
   ['printf_5felement_20',['printf_element',['../ux__legacy_8c.html#ac9644e28db227a101f55c72859da57c0',1,'ux_legacy.c']]],
-  ['progressandback_21',['progressAndBack',['../structnbgl__layoutHeader__t.html#a9dfe284694c893c68395088d88b78d22',1,'nbgl_layoutHeader_t']]],
+  ['progressandback_21',['progressAndBack',['../structnbgl__layoutHeader__t.html#a8f7c22e8623d7147a0215dd71ff5fb83',1,'nbgl_layoutHeader_t']]],
   ['progressbarobj_22',['progressBarObj',['../structgenericObj__t.html#afbfd3b65581ec27e93ff63ebe4074dff',1,'genericObj_t']]],
   ['progressindicator_23',['progressIndicator',['../structnbgl__pageMultiScreensDescription__s.html#ab5733fc8113f7ba5e9891cb97bf4a295',1,'nbgl_pageMultiScreensDescription_s']]],
   ['ptr_24',['ptr',['../structbuffer__t.html#a0477d73e0c041cc3cf557c4fdd091931',1,'buffer_t']]]

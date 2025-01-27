@@ -12,7 +12,7 @@ var searchData=
   ['wheel_5ficon_9',['WHEEL_ICON',['../nbgl__obj_8h.html#a994bacfc28d63570150a2a6ae1a6aeed',1,'nbgl_obj.h']]],
   ['white_10',['WHITE',['../nbgl__types_8h.html#a0a8ef1b5e1941b7257e545cc33405ff1a283fc479650da98250635b9c3c0e7e50',1,'nbgl_types.h']]],
   ['white_5fbackground_11',['WHITE_BACKGROUND',['../nbgl__layout_8h.html#a6c0826686d5821f00b3fad9cfd2c57e0a051b09fe800ab2c5c0edb5054c7aaa22',1,'nbgl_layout.h']]],
-  ['whole_5fscreen_5fid_12',['WHOLE_SCREEN_ID',['../nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18aab29e23e3b1a0afcb2753c9c5631d343',1,'nbgl_obj.h']]],
+  ['whole_5fscreen_5fid_12',['WHOLE_SCREEN_ID',['../nbgl__obj_8h.html#aabfcbcb5ac86a1edac4035264bc7d2b8aab29e23e3b1a0afcb2753c9c5631d343',1,'nbgl_obj.h']]],
   ['width_13',['width',['../structnbgl__icon__details__s.html#a28c42248b48d58dfd636cbc333c1f5cb',1,'nbgl_icon_details_s::width'],['../structnbgl__font__character__t.html#a28e18b36dfce7532e067accabbf7a843',1,'nbgl_font_character_t::width'],['../structnbgl__area__s.html#a66c8f5f67c4676e2e7dce7fe65ec1ec7',1,'nbgl_area_s::width'],['../structnbgl__font__unicode__character__t.html#a346a4299ea28cf6f16d114c7e51123b8',1,'nbgl_font_unicode_character_t::width']]],
   ['width_5foffset_14',['WIDTH_OFFSET',['../nbgl__image__utils_8h.html#a6a6dbe125418de8a9f11943d009ef9ae',1,'nbgl_image_utils.h']]],
   ['with_20action_20button_20use_20case_15',['Home &amp; Settings screen with action button Use Case',['../nbgl_app_use_case.html#use_case_home_settings_with_action',1,'']]],

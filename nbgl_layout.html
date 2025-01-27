@@ -114,10 +114,10 @@ Getting a new layout</h2>
 <p>The function to actually create the layout is <a class="el" href="nbgl__layout_8h.html#a9ff89401d84106e775567a11c40769b7">nbgl_layoutGet()</a></p>
 <p>For example 1:</p>
 <div class="fragment"><div class="line"><a class="code hl_struct" href="structnbgl__layoutDescription__s.html">nbgl_layoutDescription_t</a> layoutDescription = {</div>
-<div class="line">  .<a class="code hl_variable" href="structnbgl__layoutDescription__s.html#a0768b0863e64e44da3ebab04aca0ca6b">modal</a> = <span class="keyword">false</span>, <span class="comment">// not modal (so on plane 0)</span></div>
-<div class="line">  .onActionCallback = &amp;myActionCallback, <span class="comment">// generic callback for all controls</span></div>
-<div class="line">  .onTapText = NULL, <span class="comment">// no &quot;tapable&quot; main container</span></div>
-<div class="line">  .ticker.callback = NULL <span class="comment">// no ticker</span></div>
+<div class="line">  .<a class="code hl_variable" href="structnbgl__layoutDescription__s.html#a0768b0863e64e44da3ebab04aca0ca6b">modal</a>            = <span class="keyword">false</span>,              <span class="comment">// not modal (so on plane 0)</span></div>
+<div class="line">  .onActionCallback = &amp;myActionCallback,  <span class="comment">// generic callback for all controls</span></div>
+<div class="line">  .onTapText        = NULL,               <span class="comment">// no &quot;tapable&quot; main container</span></div>
+<div class="line">  .ticker.callback  = NULL                <span class="comment">// no ticker</span></div>
 <div class="line">};</div>
 <div class="line"><span class="comment">// create layout</span></div>
 <div class="line"><a class="code hl_typedef" href="nbgl__layout_8h.html#a8c06300795d2ce7f2a5c59b7c8fe4c01">nbgl_layout_t</a> *layout = <a class="code hl_function" href="nbgl__layout_8h.html#a9ff89401d84106e775567a11c40769b7">nbgl_layoutGet</a>(&amp;layoutDescription);</div>
@@ -127,11 +127,11 @@ Getting a new layout</h2>
 <div class="ttc" id="astructnbgl__layoutDescription__s_html_a0768b0863e64e44da3ebab04aca0ca6b"><div class="ttname"><a href="structnbgl__layoutDescription__s.html#a0768b0863e64e44da3ebab04aca0ca6b">nbgl_layoutDescription_s::modal</a></div><div class="ttdeci">bool modal</div><div class="ttdef"><b>Definition</b> <a href="nbgl__layout_8h_source.html#l00172">nbgl_layout.h:172</a></div></div>
 </div><!-- fragment --><p>For example 2:</p>
 <div class="fragment"><div class="line"><a class="code hl_struct" href="structnbgl__layoutDescription__s.html">nbgl_layoutDescription_t</a> layoutDescription = {</div>
-<div class="line">  .<a class="code hl_variable" href="structnbgl__layoutDescription__s.html#a0768b0863e64e44da3ebab04aca0ca6b">modal</a> = <span class="keyword">false</span>, <span class="comment">// not modal (so on plane 0)</span></div>
-<div class="line">  .onActionCallback = &amp;myActionCallback, <span class="comment">// generic callback for all controls</span></div>
-<div class="line">  .onTapText = <span class="stringliteral">&quot;Tap to continue&quot;</span>, <span class="comment">// A &quot;tapable&quot; main container is necessary, with this text</span></div>
-<div class="line">  .onTapToken = TAP_TOKEN, <span class="comment">// token to be used when main container is touched</span></div>
-<div class="line">  .ticker.callback = NULL <span class="comment">// no ticker</span></div>
+<div class="line">  .<a class="code hl_variable" href="structnbgl__layoutDescription__s.html#a0768b0863e64e44da3ebab04aca0ca6b">modal</a>            = <span class="keyword">false</span>,              <span class="comment">// not modal (so on plane 0)</span></div>
+<div class="line">  .onActionCallback = &amp;myActionCallback,  <span class="comment">// generic callback for all controls</span></div>
+<div class="line">  .onTapText        = <span class="stringliteral">&quot;Tap to continue&quot;</span>,  <span class="comment">// A &quot;tapable&quot; main container is necessary, with this text</span></div>
+<div class="line">  .onTapToken       = TAP_TOKEN,          <span class="comment">// token to be used when main container is touched</span></div>
+<div class="line">  .ticker.callback  = NULL                <span class="comment">// no ticker</span></div>
 <div class="line">};</div>
 <div class="line"><span class="comment">/* create layout */</span></div>
 <div class="line"><a class="code hl_typedef" href="nbgl__layout_8h.html#a8c06300795d2ce7f2a5c59b7c8fe4c01">nbgl_layout_t</a> *layout = <a class="code hl_function" href="nbgl__layout_8h.html#a9ff89401d84106e775567a11c40769b7">nbgl_layoutGet</a>(&amp;layoutDescription);</div>
@@ -642,7 +642,7 @@ Example 2</h3>
 </div><!-- fragment --><h2><a class="anchor" id="keypad_section"></a>
 Keypad-related objects</h2>
 <p>Some rare screens require displaying a keypad at the bottom of the page, to enter digits.</p>
-<p>The digits to enter are usually a PIN code, so enter or to confirm.</p>
+<p>The digits to enter are usually a PIN code, to enter or to confirm.</p>
 <p>Here are some example of these pages in Bolos UX:</p>
 <p><img src="keypad-usages.png" alt="" height="300" class="inline" title="caption"/></p>
 <p>To build such screens, some dedicated APIs are necessary, which will be detailed in the sub-chapters.</p>

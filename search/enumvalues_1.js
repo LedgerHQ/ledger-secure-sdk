@@ -1,7 +1,7 @@
 var searchData=
 [
   ['back_5fand_5fforth_5fparsing_0',['BACK_AND_FORTH_PARSING',['../nbgl__types_8h.html#a4993f801ab6965a1ed6efd650876ae62aa8cdd3f5538c7e9a342e17461b14abfa',1,'nbgl_types.h']]],
-  ['back_5fbutton_5fid_1',['BACK_BUTTON_ID',['../nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18ac6d3dbc7d804537b62adb9b0cc15e088',1,'nbgl_obj.h']]],
+  ['back_5fbutton_5fid_1',['BACK_BUTTON_ID',['../nbgl__obj_8h.html#aabfcbcb5ac86a1edac4035264bc7d2b8ac6d3dbc7d804537b62adb9b0cc15e088',1,'nbgl_obj.h']]],
   ['bagl_5ffill_5fcircle_5f0_5fpi2_2',['BAGL_FILL_CIRCLE_0_PI2',['../nbgl__draw_8c.html#a9542181e2c3e52f9888879d7c528e350a32cd5a2ec6942f6ecec4a06658b05736',1,'nbgl_draw.c']]],
   ['bagl_5ffill_5fcircle_5f3pi2_5f2pi_3',['BAGL_FILL_CIRCLE_3PI2_2PI',['../nbgl__draw_8c.html#a9542181e2c3e52f9888879d7c528e350a7fba61697244f57dd1ccd69eff18e426',1,'nbgl_draw.c']]],
   ['bagl_5ffill_5fcircle_5fpi2_5fpi_4',['BAGL_FILL_CIRCLE_PI2_PI',['../nbgl__draw_8c.html#a9542181e2c3e52f9888879d7c528e350a8ab554bfd59325a69ef2981b4649b93f',1,'nbgl_draw.c']]],
@@ -57,7 +57,7 @@ var searchData=
   ['ble_5fstate_5finitializing_54',['BLE_STATE_INITIALIZING',['../ledger__ble_8c.html#ab017ba8d7dc47a54f371b35998b1343ca52e6447c008779d48d7ea10e511c2f82',1,'ledger_ble.c']]],
   ['blind_5fsigning_5fwarn_55',['BLIND_SIGNING_WARN',['../nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3da1746cdd0d25523430492ebd999557c55',1,'nbgl_use_case.h']]],
   ['both_5frounded_5fstyle_56',['BOTH_ROUNDED_STYLE',['../nbgl__layout_8h.html#aab86a9d202df5a9f485ac2c164e294e4a71eac65e61a10292920fa57106af1fe3',1,'nbgl_layout.h']]],
-  ['bottom_5fbutton_5fid_57',['BOTTOM_BUTTON_ID',['../nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18aaf2038e37ba82d284ec75ac12cbc250d',1,'nbgl_obj.h']]],
+  ['bottom_5fbutton_5fid_57',['BOTTOM_BUTTON_ID',['../nbgl__obj_8h.html#aabfcbcb5ac86a1edac4035264bc7d2b8aaf2038e37ba82d284ec75ac12cbc250d',1,'nbgl_obj.h']]],
   ['bottom_5fleft_58',['BOTTOM_LEFT',['../nbgl__types_8h.html#a82db45397671e5a06f32c857ed8980c6a6f6b2705d50f7af47405ee7becaabbdb',1,'nbgl_types.h']]],
   ['bottom_5fmiddle_59',['BOTTOM_MIDDLE',['../nbgl__types_8h.html#a82db45397671e5a06f32c857ed8980c6ac4b33d3bd4d4779e8b72c75cd5d85711',1,'nbgl_types.h']]],
   ['bottom_5fright_60',['BOTTOM_RIGHT',['../nbgl__types_8h.html#a82db45397671e5a06f32c857ed8980c6a5bc569072880e473b667c10005c7aefd',1,'nbgl_types.h']]],
