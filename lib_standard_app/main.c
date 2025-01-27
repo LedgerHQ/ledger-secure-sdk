@@ -149,7 +149,7 @@ WEAK void library_app_main(libargs_t *args)
         }
         FINALLY
         {
-            os_lib_end();
+            swap_finalize_exchange_sign_transaction(LAST_CYCLE_EXCEPTION);
         }
     }
     END_TRY;
