@@ -420,6 +420,12 @@ void nbgl_useCaseGenericConfiguration(const char                   *title,
                                       const nbgl_genericContents_t *contents,
                                       nbgl_callback_t               quitCallback);
 
+void nbgl_useCaseGenericSettings(const char                   *appName,
+                                 uint8_t                       initPage,
+                                 const nbgl_genericContents_t *settingContents,
+                                 const nbgl_contentInfoList_t *infosList,
+                                 nbgl_callback_t               quitCallback);
+
 void nbgl_useCaseChoice(const nbgl_icon_details_t *icon,
                         const char                *message,
                         const char                *subMessage,
@@ -429,9 +435,20 @@ void nbgl_useCaseChoice(const nbgl_icon_details_t *icon,
 
 void nbgl_useCaseStatus(const char *message, bool isSuccess, nbgl_callback_t quitCallback);
 
+void nbgl_useCaseConfirm(const char     *message,
+                         const char     *subMessage,
+                         const char     *confirmText,
+                         const char     *rejectText,
+                         nbgl_callback_t callback);
 void nbgl_useCaseSpinner(const char *text);
 
-#ifdef HAVE_SE_TOUCH
+void nbgl_useCaseNavigableContent(const char                *title,
+                                  uint8_t                    initPage,
+                                  uint8_t                    nbPages,
+                                  nbgl_callback_t            quitCallback,
+                                  nbgl_navCallback_t         navCallback,
+                                  nbgl_layoutTouchCallback_t controlsCallback);
+
 // utils
 uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPairs,
                                          const nbgl_contentTagValueList_t *tagValueList,
@@ -460,6 +477,7 @@ uint8_t nbgl_useCaseGetNbChoicesInPage(uint8_t                          nbChoice
                                        bool                             withNav);
 uint8_t nbgl_useCaseGetNbPagesForTagValueList(const nbgl_contentTagValueList_t *tagValueList);
 
+#ifdef HAVE_SE_TOUCH
 // use case drawing
 DEPRECATED void nbgl_useCaseHome(const char                *appName,
                                  const nbgl_icon_details_t *appIcon,
@@ -475,12 +493,6 @@ DEPRECATED void nbgl_useCaseHomeExt(const char                *appName,
                                     nbgl_callback_t            actionCallback,
                                     nbgl_callback_t            topRightCallback,
                                     nbgl_callback_t            quitCallback);
-void            nbgl_useCaseNavigableContent(const char                *title,
-                                             uint8_t                    initPage,
-                                             uint8_t                    nbPages,
-                                             nbgl_callback_t            quitCallback,
-                                             nbgl_navCallback_t         navCallback,
-                                             nbgl_layoutTouchCallback_t controlsCallback);
 DEPRECATED void nbgl_useCaseSettings(const char                *settingsTitle,
                                      uint8_t                    initPage,
                                      uint8_t                    nbPages,
@@ -488,16 +500,6 @@ DEPRECATED void nbgl_useCaseSettings(const char                *settingsTitle,
                                      nbgl_callback_t            quitCallback,
                                      nbgl_navCallback_t         navCallback,
                                      nbgl_layoutTouchCallback_t controlsCallback);
-void            nbgl_useCaseGenericSettings(const char                   *appName,
-                                            uint8_t                       initPage,
-                                            const nbgl_genericContents_t *settingContents,
-                                            const nbgl_contentInfoList_t *infosList,
-                                            nbgl_callback_t               quitCallback);
-void            nbgl_useCaseConfirm(const char     *message,
-                                    const char     *subMessage,
-                                    const char     *confirmText,
-                                    const char     *rejectText,
-                                    nbgl_callback_t callback);
 void            nbgl_useCaseReviewStart(const nbgl_icon_details_t *icon,
                                         const char                *reviewTitle,
                                         const char                *reviewSubTitle,
@@ -542,6 +544,22 @@ void nbgl_useCaseKeypadPIN(const char                *title,
                            tune_index_e               tuneId,
                            nbgl_pinValidCallback_t    validatePinCallback,
                            nbgl_layoutTouchCallback_t actionCallback);
+#endif  // NBGL_KEYPAD
+
+#else  // HAVE_SE_TOUCH
+#ifdef NBGL_KEYPAD
+void nbgl_useCaseKeypadDigits(const char             *title,
+                              uint8_t                 minDigits,
+                              uint8_t                 maxDigits,
+                              bool                    shuffled,
+                              nbgl_pinValidCallback_t validatePinCallback,
+                              nbgl_callback_t         backCallbackk);
+void nbgl_useCaseKeypadPIN(const char             *title,
+                           uint8_t                 minDigits,
+                           uint8_t                 maxDigits,
+                           bool                    shuffled,
+                           nbgl_pinValidCallback_t validatePinCallback,
+                           nbgl_callback_t         backCallback);
 #endif  // NBGL_KEYPAD
 #endif  // HAVE_SE_TOUCH
 

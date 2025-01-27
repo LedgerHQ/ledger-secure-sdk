@@ -743,6 +743,14 @@ int nbgl_layoutUpdateKeypad(nbgl_layout_t *layout,
                             bool           enableBackspace);
 int nbgl_layoutAddHiddenDigits(nbgl_layout_t *layout, uint8_t nbDigits);
 int nbgl_layoutUpdateHiddenDigits(nbgl_layout_t *layout, uint8_t index, uint8_t nbActive);
+int nbgl_layoutAddKeypadContent(nbgl_layout_t *layout,
+                                bool           hidden,
+                                uint8_t        nbDigits,
+                                const char    *text);
+int nbgl_layoutUpdateKeypadContent(nbgl_layout_t *layout,
+                                   bool           hidden,
+                                   uint8_t        nbActiveDigits,
+                                   const char    *text);
 #endif  // HAVE_SE_TOUCH
 #endif  // NBGL_KEYPAD
 
