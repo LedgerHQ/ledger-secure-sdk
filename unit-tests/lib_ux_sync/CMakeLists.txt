@@ -47,6 +47,7 @@ include_directories(../../lib_nbgl/include)
 include_directories(../../lib_nbgl/include/fonts)
 include_directories(../../lib_ux_nbgl)
 include_directories(../../lib_ux_sync/include)
+include_directories(../../io/include)
 
 add_executable(test_ux_sync test_ux_sync.c)
 
