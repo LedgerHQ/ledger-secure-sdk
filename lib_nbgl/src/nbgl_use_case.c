@@ -1859,7 +1859,6 @@ static void displaySecurityReport(uint32_t set)
                                                   .tapActionText    = NULL};
     nbgl_layoutHeader_t      headerDesc        = {.type               = HEADER_BACK_AND_TEXT,
                                                   .separationLine     = true,
-                                                  .backAndText.icon   = NULL,
                                                   .backAndText.tuneId = TUNE_TAP_CASUAL,
                                                   .backAndText.token  = DISMISS_WARNING_TOKEN};
     nbgl_layoutFooter_t      footerDesc
@@ -2034,7 +2033,6 @@ static void displayCustomizedSecurityReport(const nbgl_warningDetails_t *details
                                                   .tapActionText    = NULL};
     nbgl_layoutHeader_t      headerDesc        = {.type               = HEADER_BACK_AND_TEXT,
                                                   .separationLine     = true,
-                                                  .backAndText.icon   = NULL,
                                                   .backAndText.tuneId = TUNE_TAP_CASUAL,
                                                   .backAndText.token  = DISMISS_WARNING_TOKEN};
     uint8_t                  i;
