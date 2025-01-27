@@ -127,6 +127,9 @@ extern "C" {
 #define QRCODE_ICON       C_QRCode_32px
 #define MINI_PUSH_ICON    C_Mini_Push_32px
 #define WARNING_ICON      C_Warning_32px
+#define ROUND_WARN_ICON   C_Important_Circle_32px
+#define PRIVACY_ICON      C_Privacy_32px
+#define EXCLAMATION_ICON  C_Exclamation_32px
 #else  // TARGET_STAX
 #define SPACE_ICON        C_Space_40px
 #define BACKSPACE_ICON    C_Erase_40px
@@ -146,6 +149,9 @@ extern "C" {
 #define QRCODE_ICON       C_QRCode_40px
 #define MINI_PUSH_ICON    C_Mini_Push_40px
 #define WARNING_ICON      C_Warning_40px
+#define ROUND_WARN_ICON   C_Important_Circle_40px
+#define PRIVACY_ICON      C_Privacy_40px
+#define EXCLAMATION_ICON  C_Exclamation_40px
 #endif  // TARGET_STAX
 
 // For backward compatibility, to be remove later

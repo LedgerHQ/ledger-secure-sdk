@@ -130,10 +130,10 @@ typedef void (*nbgl_actionCallback_t)(uint8_t page);
 
 /**
  * @brief prototype of pin validation callback function
- * @param content pin value
- * @param length pin length
+ * @param pin pin value
+ * @param pinLen pin length
  */
-typedef void (*nbgl_pinValidCallback_t)(const uint8_t *content, uint8_t page);
+typedef void (*nbgl_pinValidCallback_t)(const uint8_t *pin, uint8_t pinLen);
 
 /**
  * @brief prototype of content navigation callback function
@@ -187,6 +187,87 @@ typedef struct {
         nbgl_contentInfoList_t infos;  ///< infos pairs displayed in modal.
     };
 } nbgl_tipBox_t;
+
+/**
+ * @brief The different types of warning page contents
+ *
+ */
+typedef enum {
+    CENTERED_INFO_WARNING = 0,  ///< Centered info
+    QRCODE_WARNING,             ///< QR Code
+    BAR_LIST_WARNING            ///< list of touchable bars, to display sub-pages
+} nbgl_warningDetailsType_t;
+
+/**
+ * @brief The necessary parameters to build a list of touchable bars, to display sub-pages
+ *
+ */
+typedef struct {
+    uint8_t            nbBars;    ///< number of touchable bars
+    const char *const *texts;     ///< array of texts for each bar (nbBars items, in black/bold)
+    const char *const *subTexts;  ///< array of texts for each bar (nbBars items, in black)
+    const nbgl_icon_details_t **icons;  ///< array of icons for each bar (nbBars items)
+    const struct nbgl_warningDetails_s
+        *details;  ///< array of nbBars structures giving what to display when each bar is touched.
+} nbgl_warningBarList_t;
+
+/**
+ * @brief The necessary parameters to build the page(s) displayed when the top-right button is
+ * touched in intro page (before review)
+ *
+ */
+typedef struct nbgl_warningDetails_s {
+    const char *title;  ///< text of the page (used to go back)
+    nbgl_warningDetailsType_t
+        type;  ///< type of content in the page, determining what to use in the following union
+    union {
+        nbgl_contentCenter_t
+            centeredInfo;  ///< centered info, if type == @ref CENTERED_INFO_WARNING
+#ifdef NBGL_QRCODE
+        nbgl_layoutQRCode_t qrCode;     ///< QR code, if type == @ref QRCODE_WARNING
+#endif                                  // NBGL_QRCODE
+        nbgl_warningBarList_t barList;  ///< touchable bars list, if type == @ref BAR_LIST_WARNING
+    };
+} nbgl_warningDetails_t;
+
+/**
+ * @brief The different types of pre-defined warnings
+ *
+ */
+typedef enum {
+    BLIND_SIGNING_WARN = 0,    ///< Blind signing
+    W3C_ISSUE_WARN,            ///< Web3 Checks issue
+    W3C_LOSING_SWAP_WARN,      ///< Web3 Checks: Losing Swap risk
+    W3C_THREAT_DETECTED_WARN,  ///< Web3 Checks: Thread detexted, malicious (know drainer)
+    NB_WARNING_TYPES
+} nbgl_warningType_t;
+
+/**
+ * @brief The necessary parameters to build a warning page preceding a review.
+ * One can either use `predefinedSet` when the warnings are already supported in @ref
+ * nbgl_warningType_t list, or use `introDetails` or `reviewDetails` to configure manually the
+ * warning pages
+ * @note it's also used to build the modal pages displayed when touching the top-right button in the
+ * review's first page
+ *
+ */
+typedef struct {
+    uint32_t predefinedSet;  ///< bitfield of pre-defined warnings, to be taken in @ref
+                             ///< nbgl_warningType_t set it to 0 if not using pre-defined warnings
+    const char *reportProvider;  ///< name of the security report provider, used in some strings
+    const nbgl_warningDetails_t
+        *introDetails;  ///< details displayed when top-right button is touched in intro page
+                        ///< (before review) if using pre-defined configuration, set to NULL,
+    const nbgl_warningDetails_t
+        *reviewDetails;  ///< details displayed when top-right button is touched in first/last page
+                         ///< of review if using pre-defined configuration, set to NULL
+    const nbgl_contentCenter_t
+        *info;  ///< parameters to build the intro warning page, if not using pre-defined
+    const nbgl_icon_details_t
+        *introTopRightIcon;  ///< icon to use in the intro warning page, if not using pre-defined
+    const nbgl_icon_details_t *reviewTopRightIcon;  ///< icon to use in the first/last page of
+                                                    ///< review, if not using pre-defined
+} nbgl_warning_t;
 
 /**
  * @brief The different types of operation to review
@@ -265,7 +346,15 @@ void nbgl_useCaseReviewBlindSigning(nbgl_operationType_t              operationT
                                     const char                       *finishTitle,
                                     const nbgl_tipBox_t              *tipBox,
                                     nbgl_choiceCallback_t             choiceCallback);
-
+void nbgl_useCaseReviewWithWarning(nbgl_operationType_t              operationType,
+                                   const nbgl_contentTagValueList_t *tagValueList,
+                                   const nbgl_icon_details_t        *icon,
+                                   const char                       *reviewTitle,
+                                   const char                       *reviewSubTitle,
+                                   const char                       *finishTitle,
+                                   const nbgl_tipBox_t              *tipBox,
+                                   const nbgl_warning_t             *warning,
+                                   nbgl_choiceCallback_t             choiceCallback);
 void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
                                 const nbgl_contentTagValueList_t *tagValueList,
                                 const nbgl_icon_details_t        *icon,
@@ -304,6 +393,13 @@ void nbgl_useCaseReviewStreamingBlindSigningStart(nbgl_operationType_t       ope
                                                   const char                *reviewTitle,
                                                   const char                *reviewSubTitle,
                                                   nbgl_choiceCallback_t      choiceCallback);
+
+void nbgl_useCaseReviewStreamingWithWarningStart(nbgl_operationType_t       operationType,
+                                                 const nbgl_icon_details_t *icon,
+                                                 const char                *reviewTitle,
+                                                 const char                *reviewSubTitle,
+                                                 const nbgl_warning_t      *warning,
+                                                 nbgl_choiceCallback_t      choiceCallback);
 
 void nbgl_useCaseReviewStreamingContinueExt(const nbgl_contentTagValueList_t *tagValueList,
                                             nbgl_choiceCallback_t             choiceCallback,
