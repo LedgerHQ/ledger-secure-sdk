@@ -1,7 +1,7 @@
 #ifndef HAVE_SE_TOUCH
-/** @page nbgl_mainpage New BOLOS Graphic API for Nanos
+/** @page nbgl_mainpage New BOLOS Graphic API for Nano devices (Nano X and Nano S+)
 
-@section mainpage_intro Introduction
+@section nbgl_mainpage_intro Introduction
 
 This documentation describes the different interfaces of <b>NBGL</b>, the library that
 is targeted to be integrated in Nano products (Nano X and Nano S+).
@@ -23,15 +23,11 @@ This is the most preferred API level to write an embedded Application.
 The @subpage nbgl_app_use_case_nanos page contains all information necessary to understand
 and use \b NBGL Application Use cases API
 
-@subsection nbgl_flow_level_api_1 Flow API
-The @subpage nbgl_flow page contains all information necessary to understand
-and use \b NBGL Flow API, managing a scenario flow, made of one or several steps
-
-@subsection nbgl_step_level_api_1 Step API
+@subsection nbgl_step_level_api_1 High-Level API
 The @subpage nbgl_step page contains all information necessary to understand
-and use \b NBGL Step API, managing the page(s) of a scenario step
+and use \b NBGL High-Level API, using predefined steps
 
-@subsection nbgl_mid_level_api_1 Complex objects (layout) API
+@subsection nbgl_mid_level_api_1 Mid-Level API
 The @subpage nbgl_layout page contains all information necessary to understand
 and use \b NBGL Mid-Level API, using complex objects
 
@@ -48,6 +44,7 @@ In order to reduce the footprint (RAM+Flash), some features are only activated i
 
 Define        | Meaning       | Default state
 ------------- | ------------- | -------------
+\b NBGL_STEP     | Activate High-Level API  | Active in SDK, and in OS
 \b NBGL_USE_CASE | Activate Use Case API    | Active in SDK, not in OS
 \b NBGL_KEYBOARD | Activate Keyboard object | Active in OS, not in SDK
 \b NBGL_KEYPAD   | Activate Keypad object   | Active in OS, not in SDK

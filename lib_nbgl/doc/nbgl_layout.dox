@@ -50,10 +50,10 @@ For example 1:
 
 @code
     nbgl_layoutDescription_t layoutDescription = {
-      .modal = false, // not modal (so on plane 0)
-      .onActionCallback = &myActionCallback, // generic callback for all controls
-      .onTapText = NULL, // no "tapable" main container
-      .ticker.callback = NULL // no ticker
+      .modal            = false,              // not modal (so on plane 0)
+      .onActionCallback = &myActionCallback,  // generic callback for all controls
+      .onTapText        = NULL,               // no "tapable" main container
+      .ticker.callback  = NULL                // no ticker
     };
     // create layout
     nbgl_layout_t *layout = nbgl_layoutGet(&layoutDescription);
@@ -63,11 +63,11 @@ For example 2:
 
 @code
     nbgl_layoutDescription_t layoutDescription = {
-      .modal = false, // not modal (so on plane 0)
-      .onActionCallback = &myActionCallback, // generic callback for all controls
-      .onTapText = "Tap to continue", // A "tapable" main container is necessary, with this text
-      .onTapToken = TAP_TOKEN, // token to be used when main container is touched
-      .ticker.callback = NULL // no ticker
+      .modal            = false,              // not modal (so on plane 0)
+      .onActionCallback = &myActionCallback,  // generic callback for all controls
+      .onTapText        = "Tap to continue",  // A "tapable" main container is necessary, with this text
+      .onTapToken       = TAP_TOKEN,          // token to be used when main container is touched
+      .ticker.callback  = NULL                // no ticker
     };
     /* create layout */
     nbgl_layout_t *layout = nbgl_layoutGet(&layoutDescription);
@@ -665,7 +665,7 @@ void app_keyboard(void) {
 
 Some rare screens require displaying a keypad at the bottom of the page, to enter digits.
 
-The digits to enter are usually a PIN code, so enter or to confirm.
+The digits to enter are usually a PIN code, to enter or to confirm.
 
 Here are some example of these pages in Bolos UX:
 

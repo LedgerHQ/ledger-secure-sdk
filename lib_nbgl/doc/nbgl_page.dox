@@ -1,5 +1,5 @@
 #ifdef NBGL_PAGE
-/** @page nbgl_page Predefined pages API
+/** @page nbgl_page Predefined Pages API
 
 @section nbgl_page_intro Introduction
 This chapter describes briefly the high-level API of Advanced BOLOS Graphic Library.

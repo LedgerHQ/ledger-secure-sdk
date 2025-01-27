@@ -309,8 +309,6 @@ typedef enum {
  *   Same as POST_REFRESH_FORCE_POWER_ON, but with pipeline enabled.
  *   When using pipeline, refreshes are faster, but some constraints must be respected: successive
  *   draws & refreshes areas must not overlap.
- *   If overlapping is needed, the function @ref nbgl_driver_waitPipeline() must be called, in order
- *   to wait for pipelined operations to finish.
  */
 typedef enum nbgl_post_refresh_t {
     POST_REFRESH_FORCE_POWER_OFF,               ///< Force screen power off after refresh

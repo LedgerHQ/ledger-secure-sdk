@@ -182,11 +182,14 @@ Here is the code to display the example picture (and a status page for confirmat
 @code
 static void confirmationCallback(void) {
   // draw a status screen which continues by returning to appMain
-  nbgl_useCaseStatus("Transaction rejected",false,appMain);
+  nbgl_useCaseStatus("Transaction rejected", false, appMain);
 }
 
 void onRejectTransaction(void) {
-  nbgl_useCaseConfirm("Reject transaction?","Yes, Reject","Go back to transaction",confirmationCallback);
+  nbgl_useCaseConfirm("Reject transaction?",
+                      "Yes, Reject",
+                      "Go back to transaction",
+                      confirmationCallback);
 }
 @endcode
 
@@ -216,7 +219,8 @@ void onRejectTransaction(void) {
   nbgl_useCaseChoice(&C_key_64px,
                      "Delete all credentials?",
                      "This includes all saved\ncredentials from all websites\nand services.",
-                     "Yes, erase","No, don't erase",
+                     "Yes, erase",
+                     "No, don't erase",
                      onChoice);
 }
 @endcode
@@ -229,12 +233,12 @@ A status is a transient page, without control, to display during a short time, f
 The @ref nbgl_useCaseStatus() function enables to create such a page, with the following arguments:
 
 - a message string to set in middle of page
-- a boolean to indicate if true, that the message is drawn in a Ledger style (with corners)
-- a quit callback, called when quit timer times out (or the page is "tapped")
+- a boolean to indicate if true, that the message is drawn in a Ledger style (with corners) and select the icon
+- a quit callback, called when timer times out (or the page is "tapped")
 
-If it's a success status, a "success" tune will be automatically played.
+If it's a success status, a *success* tune will be automatically played.
 
-@subsection use_case_review_status Pre-defined status Use Case
+@subsection use_case_review_status Pre-defined review status Use Case
 
 \image{inline} html UseCase-Review-Status.png "caption" height=300
 
@@ -242,9 +246,9 @@ Similar as @subpage use_case_status, this is used to display transient page, wit
 The @ref nbgl_useCaseReviewStatus() function enables to create such a page, with the following arguments:
 
 - a type of status (with predefined message)
-- a quit callback, called when quit timer times out (or the page is "tapped")
+- a quit callback, called when timer times out (or the page is "tapped")
 
-If it's a success status, a "success" tune will be automatically played.
+If it's a success status, a *success* tune will be automatically played.
 
 @subsection use_case_review Review Use Case
 
@@ -252,13 +256,12 @@ If it's a success status, a "success" tune will be automatically played.
 
 In most cases, the developer may know all tag/value pairs of a transaction when it is submitted.
 
-In this case, what we call a "static" review can be used. The number of pages is computed automatically and pages can be navigated forward
-and backward.
+Thus, the number of pages is computed automatically and pages can be navigated forward and backward.
 
-In case of a tag/value pair too long to be fully displayed, the "more" button will be automatically drawn and its handling
+In case of a tag/value pair too long to be fully displayed, the *more* button will be automatically drawn and its handling
 automatically performed by NBGL by building a detailed modal view.
 
-When the user taps on "Reject" in any page, a confirmation page is automatically drawned to let user confirm that he rejects
+When the user taps on *Reject* in any page, a confirmation page is automatically drawned to let user confirm that he rejects
 the transaction. In this case, the given callback is called and it's up to app's developer to call @ref nbgl_useCaseReviewStatus(), as in
 case of long-press.
 
@@ -292,15 +295,15 @@ static void onReviewResult(bool confirm) {
   }
 }
 
-void staticReview(void) {
-  // static review, providing the whole list of pairs
+void startReview(void) {
+  // standard review, providing the whole list of pairs
   nbgl_useCaseReview(TYPE_TRANSACTION, // type of operation
-                      &pairList,       // list of tag/value pairs
-                      coinIcon,        // icon of the coin
-                      "Review transaction\nto send coin", // title of the first page
-                      NULL,                               // sub-title of the first page
-                      "Sign transaction to\nsend coin?",  // title of the last page
-                      onReviewResult);                    // callback on result of the review
+                     &pairList,       // list of tag/value pairs
+                     coinIcon,        // icon of the coin
+                     "Review transaction\nto send coin", // title of the first page
+                     NULL,                               // sub-title of the first page
+                     "Sign transaction to\nsend coin?",  // title of the last page
+                     onReviewResult);                    // callback on result of the review
 }
 @endcode
 
@@ -354,15 +357,15 @@ static nbgl_layoutTagValue_t* getPair(uint8_t index) {
   return &pair;
 }
 
-void staticReview(void) {
-  // static review, providing the whole list of pairs
+void startReview(void) {
+  // standard review, providing the whole list of pairs
   nbgl_useCaseReview(TYPE_TRANSACTION, // type of operation
-                      &pairList,       // list of tag/value pairs
-                      coinIcon,        // icon of the coin
-                      "Review transaction\nto send coin", // title of the first page
-                      NULL,                               // sub-title of the first page
-                      "Sign transaction to\nsend coin?",  // title of the last page
-                      onReviewResult);                    // callback on result of the review
+                     &pairList,       // list of tag/value pairs
+                     coinIcon,        // icon of the coin
+                     "Review transaction\nto send coin", // title of the first page
+                     NULL,                               // sub-title of the first page
+                     "Sign transaction to\nsend coin?",  // title of the last page
+                     onReviewResult);                    // callback on result of the review
 }
 @endcode
 
@@ -383,13 +386,13 @@ The API to initiate the display of the series of pages is @ref nbgl_useCaseRevie
 
 In some cases, the application cannot know all tag/value pairs of a transaction when the review is started.
 
-In this case, what we call a "streaming" review can be used. The pages to display for each "stream are computed automatically and pages can be navigated forward
-and backward (only within a "stream" for backward).
+In this case, what we call a *streaming* review can be used. The pages to display for each *stream* are computed automatically and pages can be navigated forward
+and backward (only within a *stream* for backward).
 
-In case of a tag/value pair too long to be fully displayed, the "more" button will be automatically drawn and its handling
+In case of a tag/value pair too long to be fully displayed, the *more* button will be automatically drawn and its handling
 automatically performed by NBGL by building a detailed modal view.
 
-When the user taps on "Reject" in any page, a confirmation page is automatically drawned to let user confirm that he rejects
+When the user taps on *Reject* in any page, a confirmation page is automatically drawned to let user confirm that he rejects
 the transaction. In this case, the given callback is called and it's up to app's developer to call @ref nbgl_useCaseReviewStatus(), as in
 case of long-press.
 
@@ -397,7 +400,7 @@ The API to initiate the display of the series of pages is @ref nbgl_useCaseRevie
 
 - the type of operation to review (transaction, message or generic operation)
 - the texts/icon to use in presentation page
-- a callback with one boolean parameter.
+- a callback with one boolean parameter:
   - If this parameter is *false*, it means that the transaction is rejected.
   - If this parameter is *true*, it means that NBGL is waiting for new data, sent with @ref nbgl_useCaseReviewStreamingContinue() or @ref nbgl_useCaseReviewStreamingContinueExt()
 
@@ -405,11 +408,11 @@ As long as there are new tag/value pairs to send, the API to call is either @ref
 @ref nbgl_useCaseReviewStreamingContinue(), providing:
 
 - the list of tag/value pairs (or a callback to get them one by one)
-- a callback with one boolean parameter.
+- a callback with one boolean parameter:
   - If this parameter is *false*, it means that the transaction is rejected.
   - If this parameter is *true*, it means that NBGL is waiting for new data, to be sent with @ref nbgl_useCaseReviewStreamingContinue() or @ref nbgl_useCaseReviewStreamingContinueExt()
 
-When there is no more data to senf, the API to call is either @ref nbgl_useCaseReviewStreamingFinish(), providing:
+When there is no more data to send, the API to call is @ref nbgl_useCaseReviewStreamingFinish(), providing:
 
 - the title to use for last page (with long-press button)
 - a callback called when the long press button on last page or reject confirmation is used. The callback's param is *true* for confirmation, *false* for rejection.
@@ -448,13 +451,13 @@ static void onTransactionContinue(bool askMore)
   }
 }
 
-void staticReview(void) {
+void startReview(void) {
   // initiate the streaming review
   nbgl_useCaseReviewStreamingStart(TYPE_TRANSACTION,
-                                    &C_ic_asset_cardano_64, // icon on first and last page
-                                    "Review transaction",   // title of the first page
-                                    NULL,                   // sub-title of the first page
-                                    onTransactionContinue); // callback to reject or ask more data
+                                   &C_ic_asset_cardano_64, // icon on first and last page
+                                   "Review transaction",   // title of the first page
+                                   NULL,                   // sub-title of the first page
+                                   onTransactionContinue); // callback to reject or ask more data
 }
 @endcode
 
@@ -653,10 +656,10 @@ static const nbgl_contentTagValueList_t pairList = {
 // called when either confirm button or reject token is called
 static void displayAddressCallback(bool confirm) {
   if (confirm) {
-    nbgl_useCaseStatus("ADDRESS\nVERIFIED",true,app_fullEthereum);
+    nbgl_useCaseReviewStatus(STATUS_TYPE_ADDRESS_VERIFIED, app_fullEthereum);
   }
   else {
-    nbgl_useCaseStatus("Address rejected",false,app_fullEthereum);
+    nbgl_useCaseReviewStatus(STATUS_TYPE_ADDRESS_REJECTED, app_fullEthereum);
   }
 }
 
@@ -665,7 +668,8 @@ void app_ethereumVerifyAddress(void) {
                             &pairList
                             myAppIcon,
                             "Verify MyCoin\naddress",
-                            NULL,"Cancel",
+                            NULL,
+                            "Cancel",
                             appMain);
 }
 @endcode
@@ -674,12 +678,9 @@ void app_ethereumVerifyAddress(void) {
 
 \image{inline} html UseCase-Spinner.png "caption" height=300
 
-When an address needs to be confirmed, it can be displayed in a Address Confirmation Use Case, at first as simple page with
-the raw address (as text) and a black button/Footer pair to choose to confirm or reject the address.
+This Use Case is simply to display a static *waiting page*
 
-An extra button under the raw address enables to open a modal page to see the address as a QR code.
-
-The @ref nbgl_useCaseSpinner() function enables to create such a page, with the following parameters:
+The @ref nbgl_useCaseSpinner() function enables to create such a page, without any parameters.
 
 @subsection use_case_keypad Keypad Use Case
 
@@ -727,13 +728,13 @@ static void pinentry_cb(int token, uint8_t index) {
 void ui_menu_pinentry_display(unsigned int value) {
     // Draw the keypad
     nbgl_useCaseKeypadPIN("Enter User PIN",
-                       6,
-                       12,
-                       TOKEN_PIN_ENTRY_BACK,
-                       false,
-                       TUNE_TAP_CASUAL,
-                       validate_pin,
-                       pinentry_cb);
+                          6,
+                          12,
+                          TOKEN_PIN_ENTRY_BACK,
+                          false,
+                          TUNE_TAP_CASUAL,
+                          validate_pin,
+                          pinentry_cb);
 }
 @endcode
 
@@ -741,7 +742,6 @@ void ui_menu_pinentry_display(unsigned int value) {
 
 After having drawn graphic objects in **framebuffer**, all functions of this API automatically refresh the screen.
 So no need to call @ref nbgl_refresh().
-
 
 */
 #endif // HAVE_SE_TOUCH
