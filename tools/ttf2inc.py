@@ -727,6 +727,13 @@ class TTF2INC:
         info = self.char_info[char]
         img_data = info['img_data']
         if img_data is not None:
+            if False and char == 'a':
+                sys.stdout.write(f"Original data (size={len(img_data)} bytes):\n")
+                for i in range(0, len(img_data), 8):
+                    sys.stdout.write("  " + ", ".join("0x{0:02X}".format(c) for c
+                                                      in img_data[i:i+8]) + ",")
+                    sys.stdout.write("\n")
+
             method, compressed_data = RLECustom.encode(img_data, self.bpp)
             # Is compressed size really better?
             # (for the moment, we enforce RLE even if it is a little bigger)
@@ -738,7 +745,6 @@ class TTF2INC:
             encoding = 0
             size = 0
 
-        info['img_data'] = img_data
         info['encoding'] = encoding
         info['bitmap'] = img_data
         info['size'] = size

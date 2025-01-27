@@ -1,10 +1,10 @@
 [
   {
-    "bitmap": "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",
+    "bitmap": "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",
     "nbgl_font_character": [
       {
         "encoding": 0,
-        "bitmap_offset": 0,
+        "bitmap_offset": 16,
         "width": 10,
         "x_min_offset": 0,
         "y_min_offset": 0,
@@ -15,1037 +15,1037 @@
       },
       {
         "encoding": 1,
-        "bitmap_offset": 0,
+        "bitmap_offset": 16,
         "width": 11,
         "x_min_offset": 2,
         "y_min_offset": 4,
         "x_max_offset": 3,
         "y_max_offset": 8,
         "char": 33,
-        "bitmap_byte_count": 52
+        "bitmap_byte_count": 40
       },
       {
         "encoding": 1,
-        "bitmap_offset": 52,
+        "bitmap_offset": 56,
         "width": 14,
         "x_min_offset": 2,
         "y_min_offset": 4,
         "x_max_offset": 1,
         "y_max_offset": 24,
         "char": 34,
-        "bitmap_byte_count": 38
+        "bitmap_byte_count": 27
       },
       {
         "encoding": 1,
-        "bitmap_offset": 90,
+        "bitmap_offset": 83,
         "width": 23,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 35,
-        "bitmap_byte_count": 170
+        "bitmap_byte_count": 149
       },
       {
         "encoding": 1,
-        "bitmap_offset": 260,
+        "bitmap_offset": 232,
         "width": 23,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 36,
-        "bitmap_byte_count": 207
+        "bitmap_byte_count": 192
       },
       {
         "encoding": 1,
-        "bitmap_offset": 467,
+        "bitmap_offset": 424,
         "width": 30,
         "x_min_offset": 3,
         "y_min_offset": 4,
         "x_max_offset": 3,
         "y_max_offset": 8,
         "char": 37,
-        "bitmap_byte_count": 233
+        "bitmap_byte_count": 192
       },
       {
         "encoding": 1,
-        "bitmap_offset": 700,
+        "bitmap_offset": 616,
         "width": 23,
         "x_min_offset": 1,
         "y_min_offset": 4,
         "x_max_offset": 0,
         "y_max_offset": 8,
         "char": 38,
-        "bitmap_byte_count": 204
+        "bitmap_byte_count": 177
       },
       {
         "encoding": 1,
-        "bitmap_offset": 904,
+        "bitmap_offset": 793,
         "width": 8,
         "x_min_offset": 2,
         "y_min_offset": 4,
         "x_max_offset": 2,
         "y_max_offset": 24,
         "char": 39,
-        "bitmap_byte_count": 19
+        "bitmap_byte_count": 14
       },
       {
         "encoding": 1,
-        "bitmap_offset": 923,
+        "bitmap_offset": 807,
         "width": 14,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 40,
-        "bitmap_byte_count": 79
+        "bitmap_byte_count": 71
       },
       {
         "encoding": 1,
-        "bitmap_offset": 1002,
+        "bitmap_offset": 878,
         "width": 14,
         "x_min_offset": 1,
         "y_min_offset": 0,
         "x_max_offset": 4,
         "y_max_offset": 0,
         "char": 41,
-        "bitmap_byte_count": 77
+        "bitmap_byte_count": 68
       },
       {
         "encoding": 1,
-        "bitmap_offset": 1079,
+        "bitmap_offset": 946,
         "width": 19,
         "x_min_offset": 2,
         "y_min_offset": 4,
         "x_max_offset": 2,
         "y_max_offset": 20,
         "char": 42,
-        "bitmap_byte_count": 96
+        "bitmap_byte_count": 80
       },
       {
         "encoding": 1,
-        "bitmap_offset": 1175,
+        "bitmap_offset": 1026,
         "width": 24,
         "x_min_offset": 3,
         "y_min_offset": 12,
         "x_max_offset": 3,
         "y_max_offset": 8,
         "char": 43,
-        "bitmap_byte_count": 64
+        "bitmap_byte_count": 63
       },
       {
         "encoding": 1,
-        "bitmap_offset": 1239,
+        "bitmap_offset": 1089,
         "width": 10,
         "x_min_offset": 2,
         "y_min_offset": 24,
         "x_max_offset": 2,
         "y_max_offset": 0,
         "char": 44,
-        "bitmap_byte_count": 28
+        "bitmap_byte_count": 26
       },
       {
         "encoding": 1,
-        "bitmap_offset": 1267,
+        "bitmap_offset": 1115,
         "width": 17,
         "x_min_offset": 2,
         "y_min_offset": 16,
         "x_max_offset": 2,
         "y_max_offset": 16,
         "char": 45,
-        "bitmap_byte_count": 50
+        "bitmap_byte_count": 39
       },
       {
         "encoding": 1,
-        "bitmap_offset": 1317,
+        "bitmap_offset": 1154,
         "width": 10,
         "x_min_offset": 2,
         "y_min_offset": 24,
         "x_max_offset": 2,
         "y_max_offset": 8,
         "char": 46,
-        "bitmap_byte_count": 22
+        "bitmap_byte_count": 20
       },
       {
         "encoding": 1,
-        "bitmap_offset": 1339,
+        "bitmap_offset": 1174,
         "width": 13,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 47,
-        "bitmap_byte_count": 72
+        "bitmap_byte_count": 68
       },
       {
         "encoding": 1,
-        "bitmap_offset": 1411,
+        "bitmap_offset": 1242,
         "width": 23,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 48,
-        "bitmap_byte_count": 156
+        "bitmap_byte_count": 136
       },
       {
         "encoding": 1,
-        "bitmap_offset": 1567,
+        "bitmap_offset": 1378,
         "width": 17,
         "x_min_offset": 2,
         "y_min_offset": 4,
         "x_max_offset": 4,
         "y_max_offset": 8,
         "char": 49,
-        "bitmap_byte_count": 55
+        "bitmap_byte_count": 42
       },
       {
         "encoding": 1,
-        "bitmap_offset": 1622,
+        "bitmap_offset": 1420,
         "width": 22,
         "x_min_offset": 2,
         "y_min_offset": 4,
         "x_max_offset": 2,
         "y_max_offset": 8,
         "char": 50,
-        "bitmap_byte_count": 169
+        "bitmap_byte_count": 146
       },
       {
         "encoding": 1,
-        "bitmap_offset": 1791,
+        "bitmap_offset": 1566,
         "width": 23,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 51,
-        "bitmap_byte_count": 188
+        "bitmap_byte_count": 171
       },
       {
         "encoding": 1,
-        "bitmap_offset": 1979,
+        "bitmap_offset": 1737,
         "width": 24,
         "x_min_offset": 1,
         "y_min_offset": 4,
         "x_max_offset": 2,
         "y_max_offset": 8,
         "char": 52,
-        "bitmap_byte_count": 136
+        "bitmap_byte_count": 101
       },
       {
         "encoding": 1,
-        "bitmap_offset": 2115,
+        "bitmap_offset": 1838,
         "width": 22,
         "x_min_offset": 2,
         "y_min_offset": 4,
         "x_max_offset": 1,
         "y_max_offset": 8,
         "char": 53,
-        "bitmap_byte_count": 182
+        "bitmap_byte_count": 162
       },
       {
         "encoding": 1,
-        "bitmap_offset": 2297,
+        "bitmap_offset": 2000,
         "width": 23,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 54,
-        "bitmap_byte_count": 201
+        "bitmap_byte_count": 177
       },
       {
         "encoding": 1,
-        "bitmap_offset": 2498,
+        "bitmap_offset": 2177,
         "width": 21,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 55,
-        "bitmap_byte_count": 133
+        "bitmap_byte_count": 115
       },
       {
         "encoding": 1,
-        "bitmap_offset": 2631,
+        "bitmap_offset": 2292,
         "width": 23,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 56,
-        "bitmap_byte_count": 212
+        "bitmap_byte_count": 186
       },
       {
         "encoding": 1,
-        "bitmap_offset": 2843,
+        "bitmap_offset": 2478,
         "width": 23,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 57,
-        "bitmap_byte_count": 203
+        "bitmap_byte_count": 175
       },
       {
         "encoding": 1,
-        "bitmap_offset": 3046,
+        "bitmap_offset": 2653,
         "width": 10,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 58,
-        "bitmap_byte_count": 43
+        "bitmap_byte_count": 44
       },
       {
         "encoding": 1,
-        "bitmap_offset": 3089,
+        "bitmap_offset": 2697,
         "width": 10,
         "x_min_offset": 2,
         "y_min_offset": 8,
         "x_max_offset": 1,
         "y_max_offset": 0,
         "char": 59,
-        "bitmap_byte_count": 50
+        "bitmap_byte_count": 48
       },
       {
         "encoding": 1,
-        "bitmap_offset": 3139,
+        "bitmap_offset": 2745,
         "width": 24,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 60,
-        "bitmap_byte_count": 125
+        "bitmap_byte_count": 116
       },
       {
         "encoding": 1,
-        "bitmap_offset": 3264,
+        "bitmap_offset": 2861,
         "width": 24,
         "x_min_offset": 3,
         "y_min_offset": 12,
         "x_max_offset": 3,
         "y_max_offset": 12,
         "char": 61,
-        "bitmap_byte_count": 120
+        "bitmap_byte_count": 106
       },
       {
         "encoding": 1,
-        "bitmap_offset": 3384,
+        "bitmap_offset": 2967,
         "width": 24,
         "x_min_offset": 3,
         "y_min_offset": 8,
         "x_max_offset": 3,
         "y_max_offset": 8,
         "char": 62,
-        "bitmap_byte_count": 116
+        "bitmap_byte_count": 111
       },
       {
         "encoding": 1,
-        "bitmap_offset": 3500,
+        "bitmap_offset": 3078,
         "width": 19,
         "x_min_offset": 1,
         "y_min_offset": 4,
         "x_max_offset": 1,
         "y_max_offset": 8,
         "char": 63,
-        "bitmap_byte_count": 125
+        "bitmap_byte_count": 106
       },
       {
         "encoding": 1,
-        "bitmap_offset": 3625,
+        "bitmap_offset": 3184,
         "width": 35,
         "x_min_offset": 1,
         "y_min_offset": 4,
         "x_max_offset": 1,
         "y_max_offset": 0,
         "char": 64,
-        "bitmap_byte_count": 374
+        "bitmap_byte_count": 312
       },
       {
         "encoding": 1,
-        "bitmap_offset": 3999,
+        "bitmap_offset": 3496,
         "width": 25,
         "x_min_offset": 0,
         "y_min_offset": 4,
         "x_max_offset": 0,
         "y_max_offset": 8,
         "char": 65,
-        "bitmap_byte_count": 143
+        "bitmap_byte_count": 125
       },
       {
         "encoding": 1,
-        "bitmap_offset": 4142,
+        "bitmap_offset": 3621,
         "width": 24,
         "x_min_offset": 2,
         "y_min_offset": 4,
         "x_max_offset": 2,
         "y_max_offset": 8,
         "char": 66,
-        "bitmap_byte_count": 194
+        "bitmap_byte_count": 155
       },
       {
         "encoding": 1,
-        "bitmap_offset": 4336,
+        "bitmap_offset": 3776,
         "width": 26,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 67,
-        "bitmap_byte_count": 181
+        "bitmap_byte_count": 166
       },
       {
         "encoding": 1,
-        "bitmap_offset": 4517,
+        "bitmap_offset": 3942,
         "width": 26,
         "x_min_offset": 2,
         "y_min_offset": 4,
         "x_max_offset": 2,
         "y_max_offset": 8,
         "char": 68,
-        "bitmap_byte_count": 161
+        "bitmap_byte_count": 129
       },
       {
         "encoding": 1,
-        "bitmap_offset": 4678,
+        "bitmap_offset": 4071,
         "width": 22,
         "x_min_offset": 2,
         "y_min_offset": 4,
         "x_max_offset": 2,
         "y_max_offset": 8,
         "char": 69,
-        "bitmap_byte_count": 167
+        "bitmap_byte_count": 136
       },
       {
         "encoding": 1,
-        "bitmap_offset": 4845,
+        "bitmap_offset": 4207,
         "width": 21,
         "x_min_offset": 2,
         "y_min_offset": 4,
         "x_max_offset": 1,
         "y_max_offset": 8,
         "char": 70,
-        "bitmap_byte_count": 128
+        "bitmap_byte_count": 109
       },
       {
         "encoding": 1,
-        "bitmap_offset": 4973,
+        "bitmap_offset": 4316,
         "width": 27,
         "x_min_offset": 2,
         "y_min_offset": 4,
         "x_max_offset": 2,
         "y_max_offset": 8,
         "char": 71,
-        "bitmap_byte_count": 206
+        "bitmap_byte_count": 180
       },
       {
         "encoding": 1,
-        "bitmap_offset": 5179,
+        "bitmap_offset": 4496,
         "width": 27,
         "x_min_offset": 2,
         "y_min_offset": 4,
         "x_max_offset": 3,
         "y_max_offset": 8,
         "char": 72,
-        "bitmap_byte_count": 112
+        "bitmap_byte_count": 78
       },
       {
         "encoding": 1,
-        "bitmap_offset": 5291,
+        "bitmap_offset": 4574,
         "width": 16,
         "x_min_offset": 1,
         "y_min_offset": 4,
         "x_max_offset": 1,
         "y_max_offset": 8,
         "char": 73,
-        "bitmap_byte_count": 95
+        "bitmap_byte_count": 76
       },
       {
         "encoding": 1,
-        "bitmap_offset": 5386,
+        "bitmap_offset": 4650,
         "width": 20,
         "x_min_offset": 1,
         "y_min_offset": 4,
         "x_max_offset": 3,
         "y_max_offset": 8,
         "char": 74,
-        "bitmap_byte_count": 76
+        "bitmap_byte_count": 65
       },
       {
         "encoding": 1,
-        "bitmap_offset": 5462,
+        "bitmap_offset": 4715,
         "width": 24,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 75,
-        "bitmap_byte_count": 143
+        "bitmap_byte_count": 123
       },
       {
         "encoding": 1,
-        "bitmap_offset": 5605,
+        "bitmap_offset": 4838,
         "width": 20,
         "x_min_offset": 2,
         "y_min_offset": 4,
         "x_max_offset": 1,
         "y_max_offset": 8,
         "char": 76,
-        "bitmap_byte_count": 66
+        "bitmap_byte_count": 56
       },
       {
         "encoding": 1,
-        "bitmap_offset": 5671,
+        "bitmap_offset": 4894,
         "width": 32,
         "x_min_offset": 2,
         "y_min_offset": 4,
         "x_max_offset": 2,
         "y_max_offset": 8,
         "char": 77,
-        "bitmap_byte_count": 160
+        "bitmap_byte_count": 123
       },
       {
         "encoding": 1,
-        "bitmap_offset": 5831,
+        "bitmap_offset": 5017,
         "width": 27,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 78,
-        "bitmap_byte_count": 122
+        "bitmap_byte_count": 96
       },
       {
         "encoding": 1,
-        "bitmap_offset": 5953,
+        "bitmap_offset": 5113,
         "width": 28,
         "x_min_offset": 2,
         "y_min_offset": 4,
         "x_max_offset": 2,
         "y_max_offset": 8,
         "char": 79,
-        "bitmap_byte_count": 187
+        "bitmap_byte_count": 159
       },
       {
         "encoding": 1,
-        "bitmap_offset": 6140,
+        "bitmap_offset": 5272,
         "width": 23,
         "x_min_offset": 2,
         "y_min_offset": 4,
         "x_max_offset": 1,
         "y_max_offset": 8,
         "char": 80,
-        "bitmap_byte_count": 136
+        "bitmap_byte_count": 114
       },
       {
         "encoding": 1,
-        "bitmap_offset": 6276,
+        "bitmap_offset": 5386,
         "width": 28,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 81,
-        "bitmap_byte_count": 223
+        "bitmap_byte_count": 195
       },
       {
         "encoding": 1,
-        "bitmap_offset": 6499,
+        "bitmap_offset": 5581,
         "width": 23,
         "x_min_offset": 2,
         "y_min_offset": 4,
         "x_max_offset": 0,
         "y_max_offset": 8,
         "char": 82,
-        "bitmap_byte_count": 166
+        "bitmap_byte_count": 143
       },
       {
         "encoding": 1,
-        "bitmap_offset": 6665,
+        "bitmap_offset": 5724,
         "width": 23,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 83,
-        "bitmap_byte_count": 204
+        "bitmap_byte_count": 194
       },
       {
         "encoding": 1,
-        "bitmap_offset": 6869,
+        "bitmap_offset": 5918,
         "width": 23,
         "x_min_offset": 1,
         "y_min_offset": 4,
         "x_max_offset": 1,
         "y_max_offset": 8,
         "char": 84,
-        "bitmap_byte_count": 92
+        "bitmap_byte_count": 82
       },
       {
         "encoding": 1,
-        "bitmap_offset": 6961,
+        "bitmap_offset": 6000,
         "width": 27,
         "x_min_offset": 2,
         "y_min_offset": 4,
         "x_max_offset": 3,
         "y_max_offset": 8,
         "char": 85,
-        "bitmap_byte_count": 112
+        "bitmap_byte_count": 95
       },
       {
         "encoding": 1,
-        "bitmap_offset": 7073,
+        "bitmap_offset": 6095,
         "width": 25,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 86,
-        "bitmap_byte_count": 122
+        "bitmap_byte_count": 115
       },
       {
         "encoding": 1,
-        "bitmap_offset": 7195,
+        "bitmap_offset": 6210,
         "width": 35,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 87,
-        "bitmap_byte_count": 203
+        "bitmap_byte_count": 176
       },
       {
         "encoding": 1,
-        "bitmap_offset": 7398,
+        "bitmap_offset": 6386,
         "width": 24,
         "x_min_offset": 1,
         "y_min_offset": 4,
         "x_max_offset": 1,
         "y_max_offset": 8,
         "char": 88,
-        "bitmap_byte_count": 183
+        "bitmap_byte_count": 132
       },
       {
         "encoding": 1,
-        "bitmap_offset": 7581,
+        "bitmap_offset": 6518,
         "width": 25,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 89,
-        "bitmap_byte_count": 115
+        "bitmap_byte_count": 94
       },
       {
         "encoding": 1,
-        "bitmap_offset": 7696,
+        "bitmap_offset": 6612,
         "width": 23,
         "x_min_offset": 2,
         "y_min_offset": 4,
         "x_max_offset": 2,
         "y_max_offset": 8,
         "char": 90,
-        "bitmap_byte_count": 179
+        "bitmap_byte_count": 145
       },
       {
         "encoding": 1,
-        "bitmap_offset": 7875,
+        "bitmap_offset": 6757,
         "width": 14,
         "x_min_offset": 4,
         "y_min_offset": 0,
         "x_max_offset": 1,
         "y_max_offset": 0,
         "char": 91,
-        "bitmap_byte_count": 70
+        "bitmap_byte_count": 56
       },
       {
         "encoding": 1,
-        "bitmap_offset": 7945,
+        "bitmap_offset": 6813,
         "width": 13,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 4,
         "char": 92,
-        "bitmap_byte_count": 72
+        "bitmap_byte_count": 65
       },
       {
         "encoding": 1,
-        "bitmap_offset": 8017,
+        "bitmap_offset": 6878,
         "width": 14,
         "x_min_offset": 1,
         "y_min_offset": 0,
         "x_max_offset": 4,
         "y_max_offset": 0,
         "char": 93,
-        "bitmap_byte_count": 72
+        "bitmap_byte_count": 57
       },
       {
         "encoding": 1,
-        "bitmap_offset": 8089,
+        "bitmap_offset": 6935,
         "width": 17,
         "x_min_offset": 1,
         "y_min_offset": 4,
         "x_max_offset": 1,
         "y_max_offset": 20,
         "char": 94,
-        "bitmap_byte_count": 73
+        "bitmap_byte_count": 63
       },
       {
         "encoding": 1,
-        "bitmap_offset": 8162,
+        "bitmap_offset": 6998,
         "width": 17,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 95,
-        "bitmap_byte_count": 52
+        "bitmap_byte_count": 68
       },
       {
         "encoding": 1,
-        "bitmap_offset": 8214,
+        "bitmap_offset": 7066,
         "width": 18,
         "x_min_offset": 5,
         "y_min_offset": 0,
         "x_max_offset": 5,
         "y_max_offset": 28,
         "char": 96,
-        "bitmap_byte_count": 26
+        "bitmap_byte_count": 22
       },
       {
         "encoding": 1,
-        "bitmap_offset": 8240,
+        "bitmap_offset": 7088,
         "width": 21,
         "x_min_offset": 1,
         "y_min_offset": 8,
         "x_max_offset": 3,
         "y_max_offset": 8,
         "char": 97,
-        "bitmap_byte_count": 160
+        "bitmap_byte_count": 130
       },
       {
         "encoding": 1,
-        "bitmap_offset": 8400,
+        "bitmap_offset": 7218,
         "width": 23,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 98,
-        "bitmap_byte_count": 140
+        "bitmap_byte_count": 117
       },
       {
         "encoding": 1,
-        "bitmap_offset": 8540,
+        "bitmap_offset": 7335,
         "width": 20,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 99,
-        "bitmap_byte_count": 133
+        "bitmap_byte_count": 119
       },
       {
         "encoding": 1,
-        "bitmap_offset": 8673,
+        "bitmap_offset": 7454,
         "width": 23,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 100,
-        "bitmap_byte_count": 147
+        "bitmap_byte_count": 121
       },
       {
         "encoding": 1,
-        "bitmap_offset": 8820,
+        "bitmap_offset": 7575,
         "width": 21,
         "x_min_offset": 1,
         "y_min_offset": 8,
         "x_max_offset": 1,
         "y_max_offset": 8,
         "char": 101,
-        "bitmap_byte_count": 182
+        "bitmap_byte_count": 144
       },
       {
         "encoding": 1,
-        "bitmap_offset": 9002,
+        "bitmap_offset": 7719,
         "width": 13,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 8,
         "char": 102,
-        "bitmap_byte_count": 77
+        "bitmap_byte_count": 65
       },
       {
         "encoding": 1,
-        "bitmap_offset": 9079,
+        "bitmap_offset": 7784,
         "width": 22,
         "x_min_offset": 1,
         "y_min_offset": 8,
         "x_max_offset": 2,
         "y_max_offset": 0,
         "char": 103,
-        "bitmap_byte_count": 196
+        "bitmap_byte_count": 162
       },
       {
         "encoding": 1,
-        "bitmap_offset": 9275,
+        "bitmap_offset": 7946,
         "width": 22,
         "x_min_offset": 2,
         "y_min_offset": 4,
         "x_max_offset": 2,
         "y_max_offset": 8,
         "char": 104,
-        "bitmap_byte_count": 90
+        "bitmap_byte_count": 67
       },
       {
         "encoding": 1,
-        "bitmap_offset": 9365,
+        "bitmap_offset": 8013,
         "width": 9,
         "x_min_offset": 2,
         "y_min_offset": 0,
         "x_max_offset": 2,
         "y_max_offset": 8,
         "char": 105,
-        "bitmap_byte_count": 48
+        "bitmap_byte_count": 35
       },
       {
         "encoding": 1,
-        "bitmap_offset": 9413,
+        "bitmap_offset": 8048,
         "width": 9,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 2,
         "y_max_offset": 0,
         "char": 106,
-        "bitmap_byte_count": 62
+        "bitmap_byte_count": 53
       },
       {
         "encoding": 1,
-        "bitmap_offset": 9475,
+        "bitmap_offset": 8101,
         "width": 20,
         "x_min_offset": 2,
         "y_min_offset": 4,
         "x_max_offset": 0,
         "y_max_offset": 8,
         "char": 107,
-        "bitmap_byte_count": 111
+        "bitmap_byte_count": 92
       },
       {
         "encoding": 1,
-        "bitmap_offset": 9586,
+        "bitmap_offset": 8193,
         "width": 10,
         "x_min_offset": 2,
         "y_min_offset": 4,
         "x_max_offset": 0,
         "y_max_offset": 8,
         "char": 108,
-        "bitmap_byte_count": 42
+        "bitmap_byte_count": 33
       },
       {
         "encoding": 1,
-        "bitmap_offset": 9628,
+        "bitmap_offset": 8226,
         "width": 32,
         "x_min_offset": 2,
         "y_min_offset": 8,
         "x_max_offset": 2,
         "y_max_offset": 8,
         "char": 109,
-        "bitmap_byte_count": 131
+        "bitmap_byte_count": 103
       },
       {
         "encoding": 1,
-        "bitmap_offset": 9759,
+        "bitmap_offset": 8329,
         "width": 22,
         "x_min_offset": 2,
         "y_min_offset": 8,
         "x_max_offset": 3,
         "y_max_offset": 8,
         "char": 110,
-        "bitmap_byte_count": 82
+        "bitmap_byte_count": 65
       },
       {
         "encoding": 1,
-        "bitmap_offset": 9841,
+        "bitmap_offset": 8394,
         "width": 22,
         "x_min_offset": 1,
         "y_min_offset": 8,
         "x_max_offset": 2,
         "y_max_offset": 8,
         "char": 111,
-        "bitmap_byte_count": 142
+        "bitmap_byte_count": 120
       },
       {
         "encoding": 1,
-        "bitmap_offset": 9983,
+        "bitmap_offset": 8514,
         "width": 22,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 112,
-        "bitmap_byte_count": 148
+        "bitmap_byte_count": 124
       },
       {
         "encoding": 1,
-        "bitmap_offset": 10131,
+        "bitmap_offset": 8638,
         "width": 22,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 113,
-        "bitmap_byte_count": 146
+        "bitmap_byte_count": 120
       },
       {
         "encoding": 1,
-        "bitmap_offset": 10277,
+        "bitmap_offset": 8758,
         "width": 14,
         "x_min_offset": 2,
         "y_min_offset": 8,
         "x_max_offset": 0,
         "y_max_offset": 8,
         "char": 114,
-        "bitmap_byte_count": 53
+        "bitmap_byte_count": 41
       },
       {
         "encoding": 1,
-        "bitmap_offset": 10330,
+        "bitmap_offset": 8799,
         "width": 19,
         "x_min_offset": 1,
         "y_min_offset": 8,
         "x_max_offset": 1,
         "y_max_offset": 8,
         "char": 115,
-        "bitmap_byte_count": 157
+        "bitmap_byte_count": 139
       },
       {
         "encoding": 1,
-        "bitmap_offset": 10487,
+        "bitmap_offset": 8938,
         "width": 13,
         "x_min_offset": 1,
         "y_min_offset": 4,
         "x_max_offset": 0,
         "y_max_offset": 8,
         "char": 116,
-        "bitmap_byte_count": 76
+        "bitmap_byte_count": 66
       },
       {
         "encoding": 1,
-        "bitmap_offset": 10563,
+        "bitmap_offset": 9004,
         "width": 21,
         "x_min_offset": 2,
         "y_min_offset": 8,
         "x_max_offset": 2,
         "y_max_offset": 8,
         "char": 117,
-        "bitmap_byte_count": 84
+        "bitmap_byte_count": 68
       },
       {
         "encoding": 1,
-        "bitmap_offset": 10647,
+        "bitmap_offset": 9072,
         "width": 20,
         "x_min_offset": 1,
         "y_min_offset": 8,
         "x_max_offset": 0,
         "y_max_offset": 8,
         "char": 118,
-        "bitmap_byte_count": 91
+        "bitmap_byte_count": 86
       },
       {
         "encoding": 1,
-        "bitmap_offset": 10738,
+        "bitmap_offset": 9158,
         "width": 30,
         "x_min_offset": 1,
         "y_min_offset": 8,
         "x_max_offset": 1,
         "y_max_offset": 8,
         "char": 119,
-        "bitmap_byte_count": 152
+        "bitmap_byte_count": 137
       },
       {
         "encoding": 1,
-        "bitmap_offset": 10890,
+        "bitmap_offset": 9295,
         "width": 20,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 120,
-        "bitmap_byte_count": 139
+        "bitmap_byte_count": 110
       },
       {
         "encoding": 1,
-        "bitmap_offset": 11029,
+        "bitmap_offset": 9405,
         "width": 20,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 121,
-        "bitmap_byte_count": 122
+        "bitmap_byte_count": 112
       },
       {
         "encoding": 1,
-        "bitmap_offset": 11151,
+        "bitmap_offset": 9517,
         "width": 20,
         "x_min_offset": 2,
         "y_min_offset": 8,
         "x_max_offset": 2,
         "y_max_offset": 8,
         "char": 122,
-        "bitmap_byte_count": 142
+        "bitmap_byte_count": 123
       },
       {
         "encoding": 1,
-        "bitmap_offset": 11293,
+        "bitmap_offset": 9640,
         "width": 14,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 123,
-        "bitmap_byte_count": 86
+        "bitmap_byte_count": 78
       },
       {
         "encoding": 1,
-        "bitmap_offset": 11379,
+        "bitmap_offset": 9718,
         "width": 12,
         "x_min_offset": 4,
         "y_min_offset": 0,
         "x_max_offset": 4,
         "y_max_offset": 0,
         "char": 124,
-        "bitmap_byte_count": 25
+        "bitmap_byte_count": 17
       },
       {
         "encoding": 1,
-        "bitmap_offset": 11404,
+        "bitmap_offset": 9735,
         "width": 14,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 125,
-        "bitmap_byte_count": 91
+        "bitmap_byte_count": 80
       },
       {
         "encoding": 1,
-        "bitmap_offset": 11495,
+        "bitmap_offset": 9815,
         "width": 24,
         "x_min_offset": 0,
         "y_min_offset": 0,
         "x_max_offset": 0,
         "y_max_offset": 0,
         "char": 126,
-        "bitmap_byte_count": 76
+        "bitmap_byte_count": 82
       }
     ]
   }

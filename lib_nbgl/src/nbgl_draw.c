@@ -593,7 +593,9 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
             }
             char_width = unicodeCharacter->width;
 #if defined(HAVE_LANGUAGE_PACK)
-            char_buffer = unicode_ctx->bitmap;
+            // RLECustom5 have an array with best patterns
+            rectArea.best_patterns = unicode_ctx->bitmap;
+            char_buffer            = unicode_ctx->bitmap;
             char_buffer += unicodeCharacter->bitmap_offset;
 
             char_x_max = char_width;
@@ -650,9 +652,11 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
             }
             character = (const nbgl_font_character_t *) PIC(
                 &font->characters[unicode - font->first_char]);
-            char_buffer = (const uint8_t *) PIC(&font->bitmap[character->bitmap_offset]);
-            char_width  = character->width;
-            encoding    = character->encoding;
+            // RLECustom5 have an array with best patterns
+            rectArea.best_patterns = PIC(font->bitmap);
+            char_buffer            = (const uint8_t *) PIC(&font->bitmap[character->bitmap_offset]);
+            char_width             = character->width;
+            encoding               = character->encoding;
 
             char_x_max = char_width;
             char_y_max = font->height;

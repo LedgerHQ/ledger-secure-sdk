@@ -270,6 +270,7 @@ typedef enum {
  *
  */
 typedef struct PACKED__ nbgl_area_s {
+    uint8_t const *best_patterns;  ///< RLECustom5 have an array with best patterns
     int16_t x0;  ///< horizontal position of the upper left point of the area (signed int allow for
                  ///< out of screen rendering)
     int16_t y0;  ///< vertical position of the upper left point of the area (signed int allow for
