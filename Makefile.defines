@@ -108,13 +108,13 @@ endif
 ifeq ($(TARGET_NAME),TARGET_NANOX)
 CFLAGS   += -frwpi
 LDFLAGS  += -momit-leaf-frame-pointer
-CFLAGS   += --target=armv6m-none-eabi -mthumb
-LDFLAGS  += --target=armv6m-none-eabi -mthumb
-LDFLAGS  += -mtune=cortex-m0plus -mlittle-endian  -mcpu=cortex-m0plus
+CFLAGS   += --target=armv7m-none-eabi -mcpu=cortex-m3 -mthumb
+LDFLAGS  += --target=armv7m-none-eabi -mcpu=cortex-m3 -mthumb
+LDFLAGS  += -mlittle-endian
 LDFLAGS  += -nostdlib -nodefaultlibs #-nostartfiles
 LDFLAGS  += -mno-movt
 LDFLAGS  += -L$(BOLOS_SDK)/arch/st33/lib/
-AFLAGS   += -mcpu=cortex-m0plus -mthumb
+AFLAGS   += -mcpu=cortex-m3 -mthumb
 endif
 
 ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_STAX TARGET_FLEX TARGET_NANOS2))
