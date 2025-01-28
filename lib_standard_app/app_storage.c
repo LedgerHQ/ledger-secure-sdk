@@ -82,7 +82,7 @@ uint16_t app_storage_get_properties(void)
 /**
  * @brief ensure app storage struct is initialized
  */
-bool app_storage_is_initalized(void)
+bool app_storage_is_initialized(void)
 {
     if (memcmp((void *) N_app_storage.header.tag, "NVRA", 4)) {
         return false;
