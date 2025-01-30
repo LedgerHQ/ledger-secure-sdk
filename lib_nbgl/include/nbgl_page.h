@@ -212,7 +212,7 @@ nbgl_page_t *nbgl_pageDrawLedgerInfo(nbgl_layoutTouchCallback_t              onA
                                      const nbgl_screenTickerConfiguration_t *ticker,
                                      const char                             *text,
                                      int                                     tapActionToken);
-nbgl_page_t *nbgl_pageDrawSpinner(nbgl_layoutTouchCallback_t onActionCallback, const char *text);
+nbgl_page_t *nbgl_pageDrawSpinner(const char *text, uint8_t initPosition);
 nbgl_page_t *nbgl_pageDrawInfo(nbgl_layoutTouchCallback_t              onActionCallback,
                                const nbgl_screenTickerConfiguration_t *ticker,
                                const nbgl_pageInfoDescription_t       *info);
