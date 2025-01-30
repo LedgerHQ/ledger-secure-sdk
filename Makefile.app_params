@@ -86,7 +86,11 @@ ICONHEX := $(shell $(ICONHEX_CMD) && cat $(ICON_HEX_FILE) && rm -f $(ICON_HEX_FI
 else
 ICONHEX := $(shell $(ICONHEX_CMD))
 endif
+
+ifneq ($(ICONHEX),)
 APP_INSTALL_PARAMS += --icon $(ICONHEX)
+endif
+
 APP_INSTALL_PARAMS += $(foreach curve, $(CURVE_APP_LOAD_PARAMS), --curve $(curve))
 APP_INSTALL_PARAMS += $(foreach path, $(PATH_APP_LOAD_PARAMS), --path $(path))
 ifneq ($(PATH_SLIP21_APP_LOAD_PARAMS),)
