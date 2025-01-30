@@ -16,5 +16,7 @@ var searchData=
   ['righttext_13',['righttext',['../structnbgl__layoutHorizontalButtons__t.html#ae310da419caa1dc4162e1b5dd25f00c3',1,'nbgl_layoutHorizontalButtons_t::rightText'],['../structnbgl__layoutHeader__t.html#ab84b05e0893ba0fcf88578ce375cebe9',1,'nbgl_layoutHeader_t::rightText'],['../structnbgl__layoutFooter__t.html#ada01e23267fae416fc04d34645fb923a',1,'nbgl_layoutFooter_t::rightText']]],
   ['righttoken_14',['righttoken',['../structnbgl__layoutHorizontalButtons__t.html#abb4d2d1a637e508b70ea2325d4dcf19d',1,'nbgl_layoutHorizontalButtons_t::rightToken'],['../structnbgl__layoutFooter__t.html#a75b7df5412a03eeb3e44d569d6c50163',1,'nbgl_layoutFooter_t::rightToken']]],
   ['role_5fslave_15',['role_slave',['../structble__connection__t.html#af370e9e24ab6002f56dc5646aa635d5b',1,'ble_connection_t']]],
-  ['rx_5fphy_16',['rx_phy',['../structble__connection__t.html#af5ba7f1af925afdcb9b0b2e26a89dc4a',1,'ble_connection_t']]]
+  ['rowicons_16',['rowIcons',['../structnbgl__layoutLeftContent__t.html#aa5c5b63e9ebd8d5142fe00fce1bc2dee',1,'nbgl_layoutLeftContent_t']]],
+  ['rowtexts_17',['rowTexts',['../structnbgl__layoutLeftContent__t.html#ae0fd68f22cb00d7691a9c99432381d44',1,'nbgl_layoutLeftContent_t']]],
+  ['rx_5fphy_18',['rx_phy',['../structble__connection__t.html#af5ba7f1af925afdcb9b0b2e26a89dc4a',1,'ble_connection_t']]]
 ];

@@ -22,5 +22,6 @@ var searchData=
   ['up_5ffooter_5ftip_5fbox_19',['UP_FOOTER_TIP_BOX',['../nbgl__layout_8h.html#a88a4bd82691a0a53afdca2dd2a173694a5ec6f9349ded662cc7a3d15cf00bb2cb',1,'nbgl_layout.h']]],
   ['upper_5fcase_20',['UPPER_CASE',['../nbgl__obj_8h.html#a526042c25a10ab7633bf29bd1cca44ceae1e489b6536e7429c92851b95854c6cf',1,'nbgl_obj.h']]],
   ['use_5fcase_5flogger_21',['USE_CASE_LOGGER',['../nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06ca2aba8ceddb55fc3eb020c5f2ac2f0bf5',1,'nbgl_debug.h']]],
-  ['ux_5flogger_22',['UX_LOGGER',['../nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06caaf3e0fa47a6383268a17905c3b8027a8',1,'nbgl_debug.h']]]
+  ['ux_5fctx_22',['UX_CTX',['../nbgl__touch_8c.html#a84627a72058502328269676b81780f89aae71184f80165ed57f017de11cf1db2f',1,'nbgl_touch.c']]],
+  ['ux_5flogger_23',['UX_LOGGER',['../nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06caaf3e0fa47a6383268a17905c3b8027a8',1,'nbgl_debug.h']]]
 ];
