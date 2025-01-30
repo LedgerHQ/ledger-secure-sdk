@@ -24,5 +24,6 @@ var searchData=
   ['progressandback_21',['progressAndBack',['../structnbgl__layoutHeader__t.html#a8f7c22e8623d7147a0215dd71ff5fb83',1,'nbgl_layoutHeader_t']]],
   ['progressbarobj_22',['progressBarObj',['../structgenericObj__t.html#afbfd3b65581ec27e93ff63ebe4074dff',1,'genericObj_t']]],
   ['progressindicator_23',['progressIndicator',['../structnbgl__pageMultiScreensDescription__s.html#ab5733fc8113f7ba5e9891cb97bf4a295',1,'nbgl_pageMultiScreensDescription_s']]],
-  ['ptr_24',['ptr',['../structbuffer__t.html#a0477d73e0c041cc3cf557c4fdd091931',1,'buffer_t']]]
+  ['providermessage_24',['providerMessage',['../structnbgl__warning__t.html#a5762c212a9013f5aad2fc9ecbe2b5944',1,'nbgl_warning_t']]],
+  ['ptr_25',['ptr',['../structbuffer__t.html#a0477d73e0c041cc3cf557c4fdd091931',1,'buffer_t']]]
 ];

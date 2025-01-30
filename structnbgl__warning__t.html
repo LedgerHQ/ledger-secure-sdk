@@ -109,6 +109,12 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a9ce33a503a54b1f5e42c56bf85bb94cb" id="r_a9ce33a503a54b1f5e42c56bf85bb94cb"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__warning__t.html#a9ce33a503a54b1f5e42c56bf85bb94cb">reportProvider</a></td></tr>
 <tr class="memdesc:a9ce33a503a54b1f5e42c56bf85bb94cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">name of the security report provider, used in some strings  <br /></td></tr>
 <tr class="separator:a9ce33a503a54b1f5e42c56bf85bb94cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ace9bbfcec5c19cab4f3597e1cd65f696" id="r_ace9bbfcec5c19cab4f3597e1cd65f696"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__warning__t.html#ace9bbfcec5c19cab4f3597e1cd65f696">reportUrl</a></td></tr>
+<tr class="memdesc:ace9bbfcec5c19cab4f3597e1cd65f696"><td class="mdescLeft">&#160;</td><td class="mdescRight">URL of the report, used in some strings.  <br /></td></tr>
+<tr class="separator:ace9bbfcec5c19cab4f3597e1cd65f696"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5762c212a9013f5aad2fc9ecbe2b5944" id="r_a5762c212a9013f5aad2fc9ecbe2b5944"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__warning__t.html#a5762c212a9013f5aad2fc9ecbe2b5944">providerMessage</a></td></tr>
+<tr class="memdesc:a5762c212a9013f5aad2fc9ecbe2b5944"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dedicated provider message. Default one will be used if NULL.  <br /></td></tr>
+<tr class="separator:a5762c212a9013f5aad2fc9ecbe2b5944"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a21e73b102445d144422506984ed9f5db" id="r_a21e73b102445d144422506984ed9f5db"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="nbgl__use__case_8h.html#a7618f5d5619fb28c256ce18183eacea1">nbgl_warningDetails_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__warning__t.html#a21e73b102445d144422506984ed9f5db">introDetails</a></td></tr>
 <tr class="separator:a21e73b102445d144422506984ed9f5db"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a41ba752e0b657a44cd01b6ffbf8805a3" id="r_a41ba752e0b657a44cd01b6ffbf8805a3"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="nbgl__use__case_8h.html#a7618f5d5619fb28c256ce18183eacea1">nbgl_warningDetails_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__warning__t.html#a41ba752e0b657a44cd01b6ffbf8805a3">reviewDetails</a></td></tr>
@@ -142,7 +148,7 @@ Public Attributes</h2></td></tr>
 
 <p>parameters to build the intro warning page, if not using pre-defined </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00265">265</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00267">267</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -159,7 +165,7 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>details displayed when top-right button is touched in intro page (before review) if using pre-defined configuration, set to NULL, </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00259">259</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00261">261</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -177,7 +183,7 @@ Public Attributes</h2></td></tr>
 
 <p>icon to use in the intro warning page, if not using pre-defined </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00267">267</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00269">269</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -195,6 +201,24 @@ Public Attributes</h2></td></tr>
 <p>bitfield of pre-defined warnings, to be taken in <a class="el" href="nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3d">nbgl_warningType_t</a> set it to 0 if not using pre-defined warnings </p>
 
 <p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00255">255</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+
+</div>
+</div>
+<a id="a5762c212a9013f5aad2fc9ecbe2b5944" name="a5762c212a9013f5aad2fc9ecbe2b5944"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5762c212a9013f5aad2fc9ecbe2b5944">&#9670;&#160;</a></span>providerMessage</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* nbgl_warning_t::providerMessage</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Dedicated provider message. Default one will be used if NULL. </p>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00259">259</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -216,6 +240,24 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="ace9bbfcec5c19cab4f3597e1cd65f696" name="ace9bbfcec5c19cab4f3597e1cd65f696"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ace9bbfcec5c19cab4f3597e1cd65f696">&#9670;&#160;</a></span>reportUrl</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* nbgl_warning_t::reportUrl</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>URL of the report, used in some strings. </p>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00258">258</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+
+</div>
+</div>
 <a id="a41ba752e0b657a44cd01b6ffbf8805a3" name="a41ba752e0b657a44cd01b6ffbf8805a3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a41ba752e0b657a44cd01b6ffbf8805a3">&#9670;&#160;</a></span>reviewDetails</h2>
 
@@ -229,7 +271,7 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>details displayed when top-right button is touched in first/last page of review if using pre-defined configuration, set to NULL </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00262">262</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00264">264</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -246,7 +288,7 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>icon to use in the first/last page of review, if not using pre-defined </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00268">268</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00270">270</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
