@@ -2512,12 +2512,8 @@ uint8_t nbgl_useCaseGetNbTagValuesInPageExt(uint8_t                           nb
                                             bool                              isSkippable,
                                             bool *requireSpecificDisplay)
 {
-    uint8_t nbPairsInPage = 0;
-#ifdef TARGET_STAX
-    uint16_t currentHeight = 24;  // upper margin
-#else                             // TARGET_STAX
-    uint16_t currentHeight             = 0;  // upper margin
-#endif                            // TARGET_STAX
+    uint8_t  nbPairsInPage   = 0;
+    uint16_t currentHeight   = PRE_TAG_VALUE_MARGIN;  // upper margin
     uint16_t maxUsableHeight = TAG_VALUE_AREA_HEIGHT;
 
     // if the review is skippable, it means that there is less height for tag/value pairs
@@ -2535,11 +2531,7 @@ uint8_t nbgl_useCaseGetNbTagValuesInPageExt(uint8_t                           nb
         // margin between pairs
         // 12 or 24 px between each tag/value pair
         if (nbPairsInPage > 0) {
-#ifdef TARGET_STAX
-            currentHeight += 12;
-#else   // TARGET_STAX
-            currentHeight += 24;
-#endif  // TARGET_STAX
+            currentHeight += INTER_TAG_VALUE_MARGIN;
         }
         // fetch tag/value pair strings.
         if (tagValueList->pairs != NULL) {

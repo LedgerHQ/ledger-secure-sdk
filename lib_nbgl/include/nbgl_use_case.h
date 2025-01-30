@@ -40,20 +40,20 @@ extern "C" {
 /**
  *  @brief maximum number of lines for value field in details pages
  */
-#ifdef TARGET_STAX
+#if defined(TARGET_STAX)
 #define NB_MAX_LINES_IN_DETAILS 12
-#else  // TARGET_STAX
+#elif defined(TARGET_FLEX)
 #define NB_MAX_LINES_IN_DETAILS 11
-#endif  // TARGET_STAX
+#endif  // TARGETS
 
 /**
  *  @brief maximum number of lines for value field in review pages
  */
-#ifdef TARGET_STAX
+#if defined(TARGET_STAX)
 #define NB_MAX_LINES_IN_REVIEW 10
-#else  // TARGET_STAX
+#elif defined(TARGET_FLEX)
 #define NB_MAX_LINES_IN_REVIEW 9
-#endif  // TARGET_STAX
+#endif  // TARGETS
 
 /**
  *  @brief maximum number of simultaneously displayed pairs in review pages.

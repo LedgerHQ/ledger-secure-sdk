@@ -33,6 +33,12 @@
 // max number of letters in TEXT_ENTRY
 #define NB_MAX_LETTERS 9
 
+#if defined(TARGET_STAX)
+#define INTER_DASHES 10  // pixels
+#elif defined(TARGET_FLEX)
+#define INTER_DASHES 8  // pixels
+#endif                  // TARGETS
+
 /**********************
  *      TYPEDEFS
  **********************/
@@ -793,11 +799,6 @@ static void draw_pageIndicator(nbgl_page_indicator_t *obj,
 
     if (obj->nbPages <= NB_MAX_PAGES_WITH_DASHES) {
         int i;
-#ifdef TARGET_STAX
-#define INTER_DASHES 10  // pixels
-#else                    // TARGET_STAX
-#define INTER_DASHES 8   // pixels
-#endif                   // TARGET_STAX
         // force height
         obj->obj.area.height = 4;
 

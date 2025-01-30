@@ -24,15 +24,15 @@
 #define INTERNAL_SMALL_MARGIN 8
 
 #define BORDER_COLOR WHITE
-#ifdef TARGET_STAX
+#if defined(TARGET_STAX)
 #define NAVIGATION_HEIGHT 92
 #define NAV_BUTTON_HEIGHT 80
 #define NAV_BUTTON_WIDTH  80
-#else  // TARGET_STAX
+#elif defined(TARGET_FLEX)
 #define NAVIGATION_HEIGHT 96
 #define NAV_BUTTON_HEIGHT NAVIGATION_HEIGHT
 #define NAV_BUTTON_WIDTH  104
-#endif  // TARGET_STAX
+#endif  // TARGETS
 
 /**********************
  *      TYPEDEFS

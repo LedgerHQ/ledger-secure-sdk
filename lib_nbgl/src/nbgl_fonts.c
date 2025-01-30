@@ -44,27 +44,25 @@ static nbgl_unicode_ctx_t unicodeCtx = {0};
 static const LANGUAGE_PACK *language_pack;
 #endif  // HAVE_LANGUAGE_PACK
 
-#ifdef SCREEN_SIZE_WALLET
-#ifdef TARGET_STAX
+#if SMALL_FONT_HEIGHT == 24
 #include "nbgl_font_inter_regular_24.inc"
 #include "nbgl_font_inter_semibold_24.inc"
 #include "nbgl_font_inter_medium_32.inc"
 #include "nbgl_font_inter_regular_24_1bpp.inc"
 #include "nbgl_font_inter_semibold_24_1bpp.inc"
 #include "nbgl_font_inter_medium_32_1bpp.inc"
-#else  // TARGET_STAX
+#elif SMALL_FONT_HEIGHT == 28
 #include "nbgl_font_inter_regular_28.inc"
 #include "nbgl_font_inter_semibold_28.inc"
 #include "nbgl_font_inter_medium_36.inc"
 #include "nbgl_font_inter_regular_28_1bpp.inc"
 #include "nbgl_font_inter_semibold_28_1bpp.inc"
 #include "nbgl_font_inter_medium_36_1bpp.inc"
-#endif  // TARGET_STAX
-#else   // SCREEN_SIZE_WALLET
+#elif SMALL_FONT_HEIGHT == 11
 #include "nbgl_font_open_sans_extrabold_11.inc"
 #include "nbgl_font_open_sans_regular_11.inc"
 #include "nbgl_font_open_sans_light_16.inc"
-#endif  // SCREEN_SIZE_WALLET
+#endif  // SMALL_FONT_HEIGHT
 
 __attribute__((section("._nbgl_fonts_"))) const nbgl_font_t *const C_nbgl_fonts[] = {
 
