@@ -508,8 +508,10 @@ static void onReviewResult(bool confirm) {
 }
 
 void staticReview(void) {
-  warningDesc.predefinedSet = (1 << W3C_LOSING_SWAP_WARN) | (1 << BLIND_SIGNING_WARN);
-  warningDesc.reportProvider = "Blockaid";
+  warningDesc.predefinedSet   = (1 << W3C_LOSING_SWAP_WARN) | (1 << BLIND_SIGNING_WARN);
+  warningDesc.reportProvider  = "Blockaid";
+  warningDesc.providerMessage = "Losing swap";
+  warningDesc.reportUrl       = "url.com/od24xz";
 
   // static review, providing the whole list of pairs
   nbgl_useCaseReviewWithWarning(TYPE_TRANSACTION, // type of operation
@@ -519,7 +521,7 @@ void staticReview(void) {
                                 NULL,                               // sub-title of the first page
                                 "Sign transaction to\nsend coin?",  // title of the last page
                                 NULL,                               // no tip-box in first page of review
-                                warningDesc,                        // description of warning causes
+                                &warningDesc,                       // description of warning causes
                                 onReviewResult);                    // callback on result of the review
 }
 @endcode
@@ -621,7 +623,7 @@ void staticReview(void) {
                                 NULL,                               // sub-title of the first page
                                 "Sign transaction to\nsend coin?",  // title of the last page
                                 NULL,                               // no tip-box in first page of review
-                                warningDesc,                        // description of warning causes
+                                &warningDesc,                       // description of warning causes
                                 onReviewResult);                    // callback on result of the review
 }
 @endcode
