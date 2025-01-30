@@ -292,25 +292,21 @@ nbgl_page_t *nbgl_pageDrawLedgerInfo(nbgl_layoutTouchCallback_t              onA
  * @brief draw a spinner page with the given parameters. The spinner will "rotate" automatically
  * every 800 ms
  *
- * @param onActionCallback common callback for all actions on this page (unused, so set to NULL)
  * @param text text to use under spinner
+ * @param initPosition if set to any value expect @ref SPINNER_FIXED, it will be used as the init
+ * position of the spinner
  * @return the page context (or NULL if error)
  */
-nbgl_page_t *nbgl_pageDrawSpinner(nbgl_layoutTouchCallback_t onActionCallback, const char *text)
+nbgl_page_t *nbgl_pageDrawSpinner(const char *text, uint8_t initPosition)
 {
-    nbgl_layoutDescription_t layoutDescription;
+    nbgl_layoutDescription_t layoutDescription = {0};
     nbgl_layout_t           *layout;
 
-    layoutDescription.modal          = false;
     layoutDescription.withLeftBorder = true;
 
-    layoutDescription.onActionCallback = onActionCallback;
-    layoutDescription.tapActionText    = NULL;
+    layout = nbgl_layoutGet(&layoutDescription);
 
-    layoutDescription.ticker.tickerCallback = NULL;
-    layout                                  = nbgl_layoutGet(&layoutDescription);
-
-    nbgl_layoutAddSpinner(layout, text, NULL, false);
+    nbgl_layoutAddSpinner(layout, text, NULL, initPosition);
 
     nbgl_layoutDraw(layout);
 

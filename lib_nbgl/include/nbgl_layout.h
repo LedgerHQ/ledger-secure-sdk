@@ -85,6 +85,8 @@ extern "C" {
 
 #endif  // HAVE_SE_TOUCH
 
+#define SPINNER_FIXED 0xFF  ///< position to use for a "fixed" spinner
+
 /**********************
  *      TYPEDEFS
  **********************/
@@ -655,7 +657,14 @@ int nbgl_layoutAddProgressIndicator(nbgl_layout_t *layout,
                                     bool           withBack,
                                     uint8_t        backToken,
                                     tune_index_e   tuneId);
-int nbgl_layoutAddSpinner(nbgl_layout_t *layout, const char *text, const char *subText, bool fixed);
+int nbgl_layoutAddSpinner(nbgl_layout_t *layout,
+                          const char    *text,
+                          const char    *subText,
+                          uint8_t        initPosition);
+int nbgl_layoutUpdateSpinner(nbgl_layout_t *layout,
+                             const char    *text,
+                             const char    *subText,
+                             uint8_t        position);
 int nbgl_layoutAddSwipe(nbgl_layout_t *layout,
                         uint16_t       swipesMask,
                         const char    *text,

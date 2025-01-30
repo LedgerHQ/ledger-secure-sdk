@@ -147,7 +147,14 @@ typedef union {
     ReviewWithWarningContext_t reviewWithWarning;
 } SharedContext_t;
 
+typedef enum {
+    USE_CASE_GENERIC = 0,
+    USE_CASE_SPINNER
+} GenericContextType_t;
+
 typedef struct {
+    GenericContextType_t   type;  // type of Generic context usage
+    uint8_t                spinnerPosition;
     nbgl_genericContents_t genericContents;
     int8_t                 currentContentIdx;
     uint8_t                currentContentElementNb;
@@ -160,9 +167,9 @@ typedef struct {
     const nbgl_contentTagValue_t
         *currentPairs;  // to be used to retrieve the pairs with value alias
     nbgl_contentTagValueCallback_t
-        currentCallback;  // to be used to retrieve the pairs with value alias
-
-    nbgl_layout_t *modalLayout;
+                  currentCallback;  // to be used to retrieve the pairs with value alias
+    nbgl_layout_t modalLayout;
+    nbgl_layout_t backgroundLayout;
 } GenericContext_t;
 
 typedef struct {
@@ -3859,13 +3866,45 @@ void nbgl_useCaseAddressReview(const char                       *address,
 /**
  * @brief draw a spinner page with the given parameters. The spinner will "turn" automatically every
  * 800 ms
+ * @note If called several time in a raw, it can be used to "turn" the corner, for example when
+ * used in a long mono-process, preventing the automatic update.
  *
  * @param text text to use under spinner
  */
 void nbgl_useCaseSpinner(const char *text)
 {
-    pageContext = nbgl_pageDrawSpinner(NULL, (const char *) text);
-    nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
+    // if the previous Use Case was not Spinner, fresh start
+    if (genericContext.type != USE_CASE_SPINNER) {
+        memset(&genericContext, 0, sizeof(genericContext));
+        genericContext.type                        = USE_CASE_SPINNER;
+        nbgl_layoutDescription_t layoutDescription = {0};
+
+        layoutDescription.withLeftBorder = true;
+
+        genericContext.backgroundLayout = nbgl_layoutGet(&layoutDescription);
+
+        nbgl_layoutAddSpinner(
+            genericContext.backgroundLayout, text, NULL, genericContext.spinnerPosition);
+
+        nbgl_layoutDraw(genericContext.backgroundLayout);
+        nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
+    }
+    else {
+        // otherwise increment spinner
+        genericContext.spinnerPosition++;
+        // there are only NB_SPINNER_POSITIONSpositions
+        if (genericContext.spinnerPosition == NB_SPINNER_POSITIONS) {
+            genericContext.spinnerPosition = 0;
+        }
+        int ret = nbgl_layoutUpdateSpinner(
+            genericContext.backgroundLayout, text, NULL, genericContext.spinnerPosition);
+        if (ret == 1) {
+            nbgl_refreshSpecial(BLACK_AND_WHITE_FAST_REFRESH);
+        }
+        else if (ret == 2) {
+            nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
+        }
+    }
 }
 
 #ifdef NBGL_KEYPAD

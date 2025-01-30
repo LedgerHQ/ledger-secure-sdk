@@ -166,6 +166,9 @@ extern "C" {
 // max number of pages when nbgl_page_indicator_t uses dashes (above, it uses n / nb_pages)
 #define NB_MAX_PAGES_WITH_DASHES 6
 
+// number of spinner positions
+#define NB_SPINNER_POSITIONS 4
+
 /**********************
  *      TYPEDEFS
  **********************/

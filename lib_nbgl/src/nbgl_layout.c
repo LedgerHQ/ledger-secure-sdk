@@ -450,10 +450,13 @@ static void spinnerTickerCallback(void)
     while (i < layout->container->nbChildren) {
         if (layout->container->children[i]->type == CONTAINER) {
             nbgl_container_t *container = (nbgl_container_t *) layout->container->children[i];
-            if (container->children[0]->type == SPINNER) {
+            if (container->nbChildren && (container->children[0]->type == SPINNER)) {
                 spinner = (nbgl_spinner_t *) container->children[0];
                 spinner->position++;
-                spinner->position &= 3;  // modulo 4
+                // there are only NB_SPINNER_POSITIONS positions
+                if (spinner->position == NB_SPINNER_POSITIONS) {
+                    spinner->position = 0;
+                }
                 nbgl_objDraw((nbgl_obj_t *) spinner);
                 nbgl_refreshSpecial(BLACK_AND_WHITE_FAST_REFRESH);
                 return;
@@ -3487,10 +3490,14 @@ int nbgl_layoutAddProgressIndicator(nbgl_layout_t *layout,
  * @param layout the current layout
  * @param text text to draw under the spinner
  * @param subText text to draw under the text (can be NULL)
- * @param fixed if set to true, the spinner won't spin and be entirely black
+ * @param initPosition if set to any value expect @ref SPINNER_FIXED, it will be used as the init
+ * position of the spinner
  * @return >= 0 if OK
  */
-int nbgl_layoutAddSpinner(nbgl_layout_t *layout, const char *text, const char *subText, bool fixed)
+int nbgl_layoutAddSpinner(nbgl_layout_t *layout,
+                          const char    *text,
+                          const char    *subText,
+                          uint8_t        initPosition)
 {
     nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
     nbgl_container_t      *container;
@@ -3513,7 +3520,7 @@ int nbgl_layoutAddSpinner(nbgl_layout_t *layout, const char *text, const char *s
 
     // create spinner
     spinner                = (nbgl_spinner_t *) nbgl_objPoolGet(SPINNER, layoutInt->layer);
-    spinner->position      = fixed ? 0xFF : 0;
+    spinner->position      = initPosition;
     spinner->obj.alignment = TOP_MIDDLE;
     // set this new spinner as child of the container
     container->children[0] = (nbgl_obj_t *) spinner;
@@ -3578,7 +3585,7 @@ int nbgl_layoutAddSpinner(nbgl_layout_t *layout, const char *text, const char *s
     }
     layoutAddObject(layoutInt, (nbgl_obj_t *) container);
 
-    if (!fixed) {
+    if (initPosition != SPINNER_FIXED) {
         // update ticker to update the spinner periodically
         nbgl_screenTickerConfiguration_t tickerCfg;
 
@@ -3589,6 +3596,87 @@ int nbgl_layoutAddSpinner(nbgl_layout_t *layout, const char *text, const char *s
     }
 
     return 0;
+}
+
+/**
+ * @brief Update an existing spinner (must be the only object of the layout)
+ *
+ * @param layout the current layout
+ * @param text text to draw under the spinner
+ * @param subText text to draw under the text (can be NULL)
+ * @param initPosition position of the spinner (cannot be fixed)
+ * @return - 0 if no refresh needed
+ *         - 1 if partial B&W refresh needed
+ *         - 2 if partial color refresh needed
+ */
+int nbgl_layoutUpdateSpinner(nbgl_layout_t *layout,
+                             const char    *text,
+                             const char    *subText,
+                             uint8_t        position)
+{
+    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
+    nbgl_container_t      *container;
+    nbgl_text_area_t      *textArea;
+    nbgl_spinner_t        *spinner;
+    int                    ret = 0;
+
+    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutUpdateSpinner():\n");
+    if ((layout == NULL) || (layoutInt->container->nbChildren == 0)) {
+        return -1;
+    }
+
+    container = (nbgl_container_t *) layoutInt->container->children[0];
+    if ((container->obj.type != CONTAINER) || (container->nbChildren < 2)) {
+        return -1;
+    }
+
+    spinner = (nbgl_spinner_t *) container->children[0];
+    if (spinner->obj.type != SPINNER) {
+        return -1;
+    }
+    // if position is different, redraw
+    if (spinner->position != position) {
+        spinner->position = position;
+        nbgl_objDraw((nbgl_obj_t *) spinner);
+        ret = 1;
+    }
+
+    // update text area if necessary
+    textArea = (nbgl_text_area_t *) container->children[1];
+    if (textArea->obj.type != TEXT_AREA) {
+        return -1;
+    }
+    const char *newText    = PIC(text);
+    size_t      newTextLen = strlen(newText);
+    // if text is different, redraw (don't use strcmp because it crashes with Rust SDK)
+    if ((newTextLen != strlen(textArea->text)) || memcmp(textArea->text, newText, newTextLen)) {
+        textArea->text = newText;
+        nbgl_objDraw((nbgl_obj_t *) textArea);
+        ret = 2;
+    }
+
+    if (subText != NULL) {
+        nbgl_text_area_t *subTextArea;
+
+        if (container->nbChildren != 3) {
+            return -1;
+        }
+        subTextArea = (nbgl_text_area_t *) container->children[2];
+        if (subTextArea->obj.type != TEXT_AREA) {
+            return -1;
+        }
+        const char *newSubText    = PIC(subText);
+        size_t      newSubTextLen = strlen(newSubText);
+        // if text is different, redraw
+        if ((newSubTextLen != strlen(subTextArea->text))
+            || memcmp(subTextArea->text, newSubText, newSubTextLen)) {
+            subTextArea->text = newSubText;
+            nbgl_objDraw((nbgl_obj_t *) subTextArea);
+            ret = 2;
+        }
+    }
+
+    return ret;
 }
 
 /**
