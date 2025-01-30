@@ -277,7 +277,7 @@ static const SecurityReportItem_t securityReportItems[NB_WARNING_TYPES] = {
                               .subText = "Web3 Checks could not verify this transaction."           },
     [W3C_LOSING_SWAP_WARN] = {.icon    = &ROUND_WARN_ICON,
                               .text    = "Risk detected",
-                              .subText = "Web3 Checks found a risk:\nLosing swap"                   },
+                              .subText = "This transaction was scanned as risky by Web3 Checks."    },
     [W3C_THREAT_DETECTED_WARN]
     = {.icon    = &ROUND_WARN_ICON,
                               .text    = "Threat detected",
@@ -1881,8 +1881,18 @@ static void displaySecurityReport(uint32_t set)
         for (i = 0; i < NB_WARNING_TYPES; i++) {
             if (reviewWithWarnCtx.warning->predefinedSet & (1 << i)) {
                 nbgl_layoutBar_t bar;
+                if ((i == BLIND_SIGNING_WARN)
+                    || (reviewWithWarnCtx.warning->providerMessage == NULL)) {
+                    bar.subText = securityReportItems[i].subText;
+                }
+                else {
+                    snprintf(tmpString,
+                             W3C_DESCRIPTION_MAX_LEN,
+                             "Web3 Checks found a risk:\n%s.",
+                             reviewWithWarnCtx.warning->providerMessage);
+                    bar.subText = tmpString;
+                }
                 bar.text      = securityReportItems[i].text;
-                bar.subText   = securityReportItems[i].subText;
                 bar.iconRight = &PUSH_ICON;
                 bar.iconLeft  = securityReportItems[i].icon;
                 bar.token     = FIRST_WARN_BAR_TOKEN + i;
@@ -1948,8 +1958,8 @@ static void displaySecurityReport(uint32_t set)
         if (reviewWithWarnCtx.isIntro) {
 #ifdef NBGL_QRCODE
             // display a QR Code if in intro
-            nbgl_layoutQRCode_t qrCode = {.url      = "url.com/od24xz",
-                                          .text1    = "url.com/od24xz",
+            nbgl_layoutQRCode_t qrCode = {.url      = reviewWithWarnCtx.warning->reportUrl,
+                                          .text1    = reviewWithWarnCtx.warning->reportUrl,
                                           .text2    = tmpString,
                                           .centered = true,
                                           .offsetY  = 0};
@@ -1967,13 +1977,19 @@ static void displaySecurityReport(uint32_t set)
             nbgl_contentCenter_t info = {0};
             info.icon                 = &C_Warning_64px;
             info.title                = "Threat detected";
-            info.smallTitle           = "Known drainer contract";
             info.description          = tmpString;
+            if (reviewWithWarnCtx.warning->providerMessage != NULL) {
+                info.smallTitle = reviewWithWarnCtx.warning->providerMessage;
+            }
+            else {
+                info.smallTitle = "Known drainer contract";
+            }
             snprintf(tmpString,
                      W3C_DESCRIPTION_MAX_LEN,
-                     "This transaction was scanned as malicious by Web3 Checks.\n\nView full %s "
-                     "report:\nurl.com/od24xz",
-                     provider);
+                     "This transaction was scanned as malicious by Web3 Checks.\n\n"
+                     "View full %s report:\n%s",
+                     provider,
+                     reviewWithWarnCtx.warning->reportUrl);
             nbgl_layoutAddContentCenter(reviewWithWarnCtx.modalLayout, &info);
             footerDesc.emptySpace.height = MEDIUM_CENTERING_HEADER;
             headerDesc.separationLine    = false;
@@ -1983,8 +1999,8 @@ static void displaySecurityReport(uint32_t set)
         if (reviewWithWarnCtx.isIntro) {
 #ifdef NBGL_QRCODE
             // display a QR Code if in intro
-            nbgl_layoutQRCode_t qrCode = {.url      = "url.com/od24xz",
-                                          .text1    = "url.com/od24xz",
+            nbgl_layoutQRCode_t qrCode = {.url      = reviewWithWarnCtx.warning->reportUrl,
+                                          .text1    = reviewWithWarnCtx.warning->reportUrl,
                                           .text2    = tmpString,
                                           .centered = true,
                                           .offsetY  = 0};
@@ -2002,13 +2018,19 @@ static void displaySecurityReport(uint32_t set)
             nbgl_contentCenter_t info = {0};
             info.icon                 = &C_Warning_64px;
             info.title                = "Risk detected";
-            info.smallTitle           = "Losing swap";
             info.description          = tmpString;
+            if (reviewWithWarnCtx.warning->providerMessage != NULL) {
+                info.smallTitle = reviewWithWarnCtx.warning->providerMessage;
+            }
+            else {
+                info.smallTitle = "Losing swap";
+            }
             snprintf(tmpString,
                      W3C_DESCRIPTION_MAX_LEN,
                      "This transaction was scanned as risky by Web3 Checks.\n\n"
-                     "View full %s report:\\nurl.com/od24xz",
-                     provider);
+                     "View full %s report:\n%s",
+                     provider,
+                     reviewWithWarnCtx.warning->reportUrl);
             nbgl_layoutAddContentCenter(reviewWithWarnCtx.modalLayout, &info);
             footerDesc.emptySpace.height = MEDIUM_CENTERING_HEADER;
             headerDesc.separationLine    = false;
@@ -2134,15 +2156,39 @@ static void displayInitialWarning(void)
             info.description
                 = "An issue prevented Web3 Checks from running.\nGet help: ledger.com/e11";
         }
+        else if (reviewWithWarnCtx.warning->predefinedSet == (1 << W3C_LOSING_SWAP_WARN)) {
+            info.title       = "Risk detected";
+            info.description = "This transaction was scanned as ricky by Web3 Checks.";
+            if (reviewWithWarnCtx.warning->providerMessage != NULL) {
+                info.smallTitle = reviewWithWarnCtx.warning->providerMessage;
+            }
+            else {
+                info.smallTitle = "Losing swap";
+            }
+        }
         else if (reviewWithWarnCtx.warning->predefinedSet == (1 << W3C_THREAT_DETECTED_WARN)) {
             info.title       = "Threat detected";
-            info.smallTitle  = "Known drainer contract";
             info.description = "This transaction was scanned as malicious by Web3 Checks.";
+            if (reviewWithWarnCtx.warning->providerMessage != NULL) {
+                info.smallTitle = reviewWithWarnCtx.warning->providerMessage;
+            }
+            else {
+                info.smallTitle = "Known drainer contract";
+            }
         }
         else {
+            // Case with Several warnings (e.g. Blind + W3C)
             info.title = "Dangerous transaction";
-            info.description
-                = "This transaction cannot be fully decoded, and was not verified by Web3 Checks.";
+            if (reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_ISSUE_WARN)) {
+                info.description
+                    = "This transaction cannot be fully decoded, and was not verified by Web3 "
+                      "Checks.";
+            }
+            else {
+                info.description
+                    = "This transaction cannot be fully decoded, and was marked as risky by Web3 "
+                      "Checks.";
+            }
         }
         nbgl_layoutAddContentCenter(reviewWithWarnCtx.layoutCtx, &info);
     }
