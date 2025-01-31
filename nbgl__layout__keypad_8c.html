@@ -186,6 +186,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a3f8928e8293f86039e73c1a937facf87" id="r_a3f8928e8293f86039e73c1a937facf87"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout__keypad_8c.html#a3f8928e8293f86039e73c1a937facf87">nbgl_layoutUpdateKeypad</a> (<a class="el" href="nbgl__layout_8h.html#a8c06300795d2ce7f2a5c59b7c8fe4c01">nbgl_layout_t</a> *layout, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> index, bool enableValidate, bool enableBackspace, bool enableDigits)</td></tr>
 <tr class="memdesc:a3f8928e8293f86039e73c1a937facf87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates an existing keypad on bottom of the screen, with the given configuration.  <br /></td></tr>
 <tr class="separator:a3f8928e8293f86039e73c1a937facf87"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b3ba49c628dcc37891547cc6a788a28" id="r_a5b3ba49c628dcc37891547cc6a788a28"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout__keypad_8c.html#a5b3ba49c628dcc37891547cc6a788a28">nbgl_layoutUpdateKeypadValidation</a> (<a class="el" href="nbgl__layout_8h.html#a8c06300795d2ce7f2a5c59b7c8fe4c01">nbgl_layout_t</a> *layout, bool softValidation)</td></tr>
+<tr class="memdesc:a5b3ba49c628dcc37891547cc6a788a28"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates an existing keypad on bottom of the screen, with the given configuration, without redraw.  <br /></td></tr>
+<tr class="separator:a5b3ba49c628dcc37891547cc6a788a28"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a27b56ef4524382edcb10e45a66bc1d37" id="r_a27b56ef4524382edcb10e45a66bc1d37"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout__keypad_8c.html#a27b56ef4524382edcb10e45a66bc1d37">nbgl_layoutAddHiddenDigits</a> (<a class="el" href="nbgl__layout_8h.html#a8c06300795d2ce7f2a5c59b7c8fe4c01">nbgl_layout_t</a> *layout, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbDigits)</td></tr>
 <tr class="memdesc:a27b56ef4524382edcb10e45a66bc1d37"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a placeholder for hidden digits on top of a keypad, to represent the entered digits, as full circles The placeholder is "underligned" with a thin horizontal line of the expected full length.  <br /></td></tr>
 <tr class="separator:a27b56ef4524382edcb10e45a66bc1d37"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -283,7 +286,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the index of digits set, to use in <a class="el" href="nbgl__layout_8h.html#a9a45bc9ad1fbb8a27be4a07093c28352">nbgl_layoutUpdateHiddenDigits()</a> </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout__keypad_8c_source.html#l00179">179</a> of file <a class="el" href="nbgl__layout__keypad_8c_source.html">nbgl_layout_keypad.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout__keypad_8c_source.html#l00208">208</a> of file <a class="el" href="nbgl__layout__keypad_8c_source.html">nbgl_layout_keypad.c</a>.</p>
 
 </div>
 </div>
@@ -393,7 +396,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the height of this area, if no error, &lt; 0 otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout__keypad_8c_source.html#l00337">337</a> of file <a class="el" href="nbgl__layout__keypad_8c_source.html">nbgl_layout_keypad.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout__keypad_8c_source.html#l00366">366</a> of file <a class="el" href="nbgl__layout__keypad_8c_source.html">nbgl_layout_keypad.c</a>.</p>
 
 </div>
 </div>
@@ -441,7 +444,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;=0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout__keypad_8c_source.html#l00266">266</a> of file <a class="el" href="nbgl__layout__keypad_8c_source.html">nbgl_layout_keypad.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout__keypad_8c_source.html#l00295">295</a> of file <a class="el" href="nbgl__layout__keypad_8c_source.html">nbgl_layout_keypad.c</a>.</p>
 
 </div>
 </div>
@@ -556,7 +559,47 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;=0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout__keypad_8c_source.html#l00484">484</a> of file <a class="el" href="nbgl__layout__keypad_8c_source.html">nbgl_layout_keypad.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout__keypad_8c_source.html#l00513">513</a> of file <a class="el" href="nbgl__layout__keypad_8c_source.html">nbgl_layout_keypad.c</a>.</p>
+
+</div>
+</div>
+<a id="a5b3ba49c628dcc37891547cc6a788a28" name="a5b3ba49c628dcc37891547cc6a788a28"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5b3ba49c628dcc37891547cc6a788a28">&#9670;&#160;</a></span>nbgl_layoutUpdateKeypadValidation()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int nbgl_layoutUpdateKeypadValidation </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="nbgl__layout_8h.html#a8c06300795d2ce7f2a5c59b7c8fe4c01">nbgl_layout_t</a> *&#160;</td>
+          <td class="paramname"><em>layout</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>softValidation</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Updates an existing keypad on bottom of the screen, with the given configuration, without redraw. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">layout</td><td>the current layout </td></tr>
+    <tr><td class="paramname">softValidation</td><td>if true, the "check icon" is replaced by an arrow </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>&gt;=0 if OK </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__layout__keypad_8c_source.html#l00174">174</a> of file <a class="el" href="nbgl__layout__keypad_8c_source.html">nbgl_layout_keypad.c</a>.</p>
 
 </div>
 </div>

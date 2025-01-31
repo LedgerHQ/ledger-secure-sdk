@@ -86,9 +86,11 @@ Collaboration diagram for nbgl_layoutInternal_s:</div>
 <div class="dyncontent">
 <div class="center"><img src="structnbgl__layoutInternal__s__coll__graph.png" border="0" usemap="#anbgl__layoutInternal__s_coll__map" alt="Collaboration graph"/></div>
 <map name="anbgl__layoutInternal__s_coll__map" id="anbgl__layoutInternal__s_coll__map">
-<area shape="rect" title="Structure containing all information about the current layout." alt="" coords="5,93,168,119"/>
-<area shape="rect" href="structlayoutObj__t.html" title=" " alt="" coords="38,5,135,31"/>
-<area shape="poly" title=" " alt="" coords="89,45,89,93,84,93,84,45"/>
+<area shape="rect" title="Structure containing all information about the current layout." alt="" coords="43,93,206,119"/>
+<area shape="rect" href="structlayoutObj__t.html" title=" " alt="" coords="5,5,103,31"/>
+<area shape="poly" title=" " alt="" coords="53,45,54,57,59,68,72,81,88,91,85,96,68,85,54,71,49,58,48,45"/>
+<area shape="rect" href="structnbgl__animation__s.html" title="Represents all information about an animation (succession of icons)" alt="" coords="127,5,264,31"/>
+<area shape="poly" title=" " alt="" coords="186,44,168,71,142,95,138,91,164,68,182,41"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -140,6 +142,15 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a0071d0a0306e26108b7261d5d8d6c521"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a527770f1174dc0ddd4ed8507f0da9c43" id="r_a527770f1174dc0ddd4ed8507f0da9c43"><td class="memItemLeft" align="right" valign="top"><a class="el" href="nbgl__obj_8h.html#accca85b3f89995e3b9e1261a30d68972">nbgl_container_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__layoutInternal__s.html#a527770f1174dc0ddd4ed8507f0da9c43">container</a></td></tr>
 <tr class="separator:a527770f1174dc0ddd4ed8507f0da9c43"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae14f8f32e61446f0e964b9f1eb3cf668" id="r_ae14f8f32e61446f0e964b9f1eb3cf668"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="nbgl__types_8h.html#a35301a85b739e03524982b5e334c1519">nbgl_animation_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__layoutInternal__s.html#ae14f8f32e61446f0e964b9f1eb3cf668">animation</a></td></tr>
+<tr class="memdesc:ae14f8f32e61446f0e964b9f1eb3cf668"><td class="mdescLeft">&#160;</td><td class="mdescRight">current animation (if not NULL)  <br /></td></tr>
+<tr class="separator:ae14f8f32e61446f0e964b9f1eb3cf668"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6babd05b1cfd2cd2182ab3a75267f5c3" id="r_a6babd05b1cfd2cd2182ab3a75267f5c3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__layoutInternal__s.html#a6babd05b1cfd2cd2182ab3a75267f5c3">iconIdxInAnim</a></td></tr>
+<tr class="memdesc:a6babd05b1cfd2cd2182ab3a75267f5c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">current icon index in animation  <br /></td></tr>
+<tr class="separator:a6babd05b1cfd2cd2182ab3a75267f5c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a04b414ce72a3367205a117f2b216df40" id="r_a04b414ce72a3367205a117f2b216df40"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__layoutInternal__s.html#a04b414ce72a3367205a117f2b216df40">incrementAnim</a></td></tr>
+<tr class="memdesc:a04b414ce72a3367205a117f2b216df40"><td class="mdescLeft">&#160;</td><td class="mdescRight">if true, means that animation index is currently incrementing  <br /></td></tr>
+<tr class="separator:a04b414ce72a3367205a117f2b216df40"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3d31b155f3f10a2f993b2b60fde0e134" id="r_a3d31b155f3f10a2f993b2b60fde0e134"><td class="memItemLeft" align="right" valign="top"><a class="el" href="nbgl__layout__internal_8h.html#a044857c998d4e1c86473304f3ffd83b3">nbgl_swipe_usage_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__layoutInternal__s.html#a3d31b155f3f10a2f993b2b60fde0e134">swipeUsage</a></td></tr>
 <tr class="separator:a3d31b155f3f10a2f993b2b60fde0e134"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5e08965da8180395f16cd0b72e17b979" id="r_a5e08965da8180395f16cd0b72e17b979"><td class="memItemLeft" align="right" valign="top"><a class="el" href="nbgl__layout_8h.html#ad67f907fcf21c0df4bc0b0274712f31f">nbgl_layoutButtonCallback_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__layoutInternal__s.html#a5e08965da8180395f16cd0b72e17b979">callback</a></td></tr>
@@ -166,6 +177,24 @@ Public Attributes</h2></td></tr>
 <p>index of active page for navigation bar </p>
 
 <p class="definition">Definition at line <a class="el" href="nbgl__layout__internal_8h_source.html#l00080">80</a> of file <a class="el" href="nbgl__layout__internal_8h_source.html">nbgl_layout_internal.h</a>.</p>
+
+</div>
+</div>
+<a id="ae14f8f32e61446f0e964b9f1eb3cf668" name="ae14f8f32e61446f0e964b9f1eb3cf668"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae14f8f32e61446f0e964b9f1eb3cf668">&#9670;&#160;</a></span>animation</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="nbgl__types_8h.html#a35301a85b739e03524982b5e334c1519">nbgl_animation_t</a>* nbgl_layoutInternal_s::animation</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>current animation (if not NULL) </p>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__layout__internal_8h_source.html#l00097">97</a> of file <a class="el" href="nbgl__layout__internal_8h_source.html">nbgl_layout_internal.h</a>.</p>
 
 </div>
 </div>
@@ -323,6 +352,42 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="a6babd05b1cfd2cd2182ab3a75267f5c3" name="a6babd05b1cfd2cd2182ab3a75267f5c3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6babd05b1cfd2cd2182ab3a75267f5c3">&#9670;&#160;</a></span>iconIdxInAnim</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbgl_layoutInternal_s::iconIdxInAnim</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>current icon index in animation </p>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__layout__internal_8h_source.html#l00098">98</a> of file <a class="el" href="nbgl__layout__internal_8h_source.html">nbgl_layout_internal.h</a>.</p>
+
+</div>
+</div>
+<a id="a04b414ce72a3367205a117f2b216df40" name="a04b414ce72a3367205a117f2b216df40"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a04b414ce72a3367205a117f2b216df40">&#9670;&#160;</a></span>incrementAnim</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool nbgl_layoutInternal_s::incrementAnim</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>if true, means that animation index is currently incrementing </p>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__layout__internal_8h_source.html#l00099">99</a> of file <a class="el" href="nbgl__layout__internal_8h_source.html">nbgl_layout_internal.h</a>.</p>
+
+</div>
+</div>
 <a id="a0c2882dd7b99d857cc319964cf8eafd7" name="a0c2882dd7b99d857cc319964cf8eafd7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0c2882dd7b99d857cc319964cf8eafd7">&#9670;&#160;</a></span>layer</h2>
 
@@ -422,7 +487,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout__internal_8h_source.html#l00097">97</a> of file <a class="el" href="nbgl__layout__internal_8h_source.html">nbgl_layout_internal.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout__internal_8h_source.html#l00100">100</a> of file <a class="el" href="nbgl__layout__internal_8h_source.html">nbgl_layout_internal.h</a>.</p>
 
 </div>
 </div>
