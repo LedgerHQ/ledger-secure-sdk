@@ -508,7 +508,7 @@ void            nbgl_useCaseReviewStart(const nbgl_icon_details_t *icon,
                                         const char                *rejectText,
                                         nbgl_callback_t            continueCallback,
                                         nbgl_callback_t            rejectCallback);
-void            nbgl_useCaseRegularReview(uint8_t                    initPage,
+DEPRECATED void nbgl_useCaseRegularReview(uint8_t                    initPage,
                                           uint8_t                    nbPages,
                                           const char                *rejectText,
                                           nbgl_layoutTouchCallback_t buttonCallback,
