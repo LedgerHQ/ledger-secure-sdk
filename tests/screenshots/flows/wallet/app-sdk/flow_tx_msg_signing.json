@@ -1,0 +1,366 @@
+{
+  "title": "tx_msg_signing",
+  "pages": [
+    {
+      "name": "Entry",
+      "targets": [
+          {
+          "app_event": "BTC_SIGN",
+          "page": "basic_tx-02"
+        }
+      ]
+    },
+    {
+      "name": "basic_tx-02",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "basic_tx-03",
+          "comment": "accept"
+        },
+        {
+          "object": "BOTTOM_BUTTON",
+          "page": "basic_tx-reject_confirm-01",
+          "comment": "reject"
+        }
+      ]
+    },
+    {
+      "name": "basic_tx-03",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "basic_tx-04"
+        }
+      ]
+    },
+    {
+      "name": "basic_tx-04",
+      "targets": [
+        {
+          "object": "LONG_PRESS_BUTTON",
+          "page": "basic_tx-05"
+        }
+      ]
+    },
+    {
+      "name": "basic_tx-05",
+      "targets": [
+        {
+          "object": "WHOLE_SCREEN",
+          "page": "basic_tx-05",
+          "comment": "trick to be sure we are in transcient page"
+        },
+        {
+          "object": "WHOLE_SCREEN",
+          "page": "without_settings-01"
+        }
+      ]
+    },
+    {
+      "name": "without_settings-01",
+      "targets": [
+        {
+          "app_event": "BTC_SIGN",
+          "page": "basic_tx-02"
+        },
+        {
+          "app_event": "CARDANO_SIGN",
+          "page": "streamed_tx-01"
+        }
+      ]
+    },
+    {
+      "name": "basic_tx-reject_confirm-01",
+      "targets": [
+        {
+          "object": "CHOICE_1",
+          "page": "basic_tx-reject_confirm-02"
+        }
+      ]
+    },
+    {
+      "name": "basic_tx-reject_confirm-02",
+      "targets": [
+        {
+          "object": "WHOLE_SCREEN",
+          "page": "without_settings-01"
+        }
+      ]
+    },
+    {
+      "name": "streamed_tx-01",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "streamed_tx-02"
+        }
+      ]
+    },
+    {
+      "name": "streamed_tx-02",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "streamed_tx-03",
+          "product": "flex"
+        },
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "streamed_tx-04",
+          "product": "stax"
+        }
+      ]
+    },
+    {
+      "name": "streamed_tx-03",
+      "product": "flex",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "streamed_tx-04"
+        }
+      ]
+    },
+    {
+      "name": "streamed_tx-04",
+      "targets": [
+        {
+          "app_event": "STELLAR_SIGN",
+          "page": "segmented_tx-01"
+        }
+      ]
+    },
+    {
+      "name": "segmented_tx-01",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "segmented_tx-02",
+          "comment": "accept"
+        }
+      ]
+    },
+    {
+      "name": "segmented_tx-02",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "segmented_tx-03",
+          "comment": "accept"
+        }
+      ]
+    },
+    {
+      "name": "segmented_tx-03",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "segmented_tx-04",
+          "comment": "accept"
+        }
+      ]
+    },
+    {
+      "name": "segmented_tx-04",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "segmented_tx-05",
+          "comment": "accept"
+        }
+      ]
+    },
+    {
+      "name": "segmented_tx-05",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "segmented_tx-06",
+          "comment": "accept"
+        }
+      ]
+    },
+    {
+      "name": "segmented_tx-06",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "segmented_tx-07",
+          "comment": "accept"
+        }
+      ]
+    },
+    {
+      "name": "segmented_tx-07",
+      "targets": [
+        {
+          "app_event": "STELLAR_STREAM_SIGN",
+          "page": "segmented_tx-streamed-01"
+        }
+      ]
+    },
+    {
+      "name": "segmented_tx-streamed-01",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "segmented_tx-streamed-02",
+          "comment": "accept"
+        }
+      ]
+    },
+    {
+      "name": "segmented_tx-streamed-02",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "segmented_tx-streamed-03",
+          "comment": "accept"
+        }
+      ]
+    },
+    {
+      "name": "segmented_tx-streamed-03",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "segmented_tx-streamed-04",
+          "comment": "accept"
+        }
+      ]
+    },
+    {
+      "name": "segmented_tx-streamed-04",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "segmented_tx-streamed-05",
+          "comment": "accept"
+        }
+      ]
+    },
+    {
+      "name": "segmented_tx-streamed-05",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "segmented_tx-streamed-06",
+          "comment": "accept"
+        }
+      ]
+    },
+    {
+      "name": "segmented_tx-streamed-06",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "segmented_tx-streamed-07"
+        }
+      ]
+    },
+    {
+      "name": "segmented_tx-streamed-07",
+      "targets": [
+        {
+          "app_event": "ETH_MESSAGE_SKIP",
+          "page": "op_skip-multiple_pages-00"
+        }
+      ]
+    },
+    {
+      "name": "op_skip-multiple_pages-00",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "op_skip-multiple_pages-01"
+        }
+      ]
+    },
+    {
+      "name": "op_skip-multiple_pages-01",
+      "targets": [
+        {
+          "object": "TOP_RIGHT_BUTTON",
+          "page": "op_skip-multiple_pages-skip_confirm"
+        },
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "op_skip-multiple_pages-02"
+        }
+      ]
+    },
+    {
+      "name": "op_skip-multiple_pages-skip_confirm",
+      "targets": [
+        {
+          "object": "CHOICE_2",
+          "page": "op_skip-multiple_pages-01"
+        }
+      ]
+    },
+    {
+      "name": "op_skip-multiple_pages-02",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "op_sign-message"
+        }
+      ]
+    },
+    {
+      "name": "op_sign-message",
+      "targets": [
+        {
+          "app_event": "ETH_SIGN",
+          "page": "eth_sign1"
+        }
+      ]
+    },
+    {
+      "name": "eth_sign1",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "op_fields-view_more-full_compact-01"
+        }
+      ]
+    },
+    {
+      "name": "op_fields-view_more-full_compact-01",
+      "targets": [
+        {
+          "object": "VALUE_BUTTON_3",
+          "page": "op_fields-view_more-full_compact-02"
+        },
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "op_fields-view_more-full_width-1"
+        }
+      ]
+    },
+    {
+      "name": "op_fields-view_more-full_compact-02",
+      "targets": [
+        {
+          "object": "BACK_BUTTON",
+          "page": "op_fields-view_more-full_compact-01"
+        }
+      ]
+    },
+    {
+      "name": "op_fields-view_more-full_width-1",
+      "targets": [
+        {
+          "object": "EXTRA_BUTTON",
+          "page": "op_fields-view_more-full_width-2"
+        }
+      ]
+    },
+    {
+      "name": "op_fields-view_more-full_width-2",
+      "targets": [
+      ]
+    }
+  ]
+}

@@ -1,0 +1,186 @@
+{
+  "title": "w3c_blind",
+  "pages": [
+    {
+      "name": "Entry",
+      "targets": [
+        {
+          "app_event": "DOGE_SIGN",
+          "param": "1",
+          "page": "w3c-disabled-blind-01",
+          "comments": "blind=1, dApp=0, w3c_enabled=0, w3c_issue=0, w3c_threat=0"
+        }
+      ]
+    },
+    {
+      "name": "w3c-disabled-blind-01",
+      "targets": [
+        {
+          "object": "CHOICE_2",
+          "page": "w3c-disabled-blind-02"
+        }
+      ]
+    },
+    {
+      "name": "w3c-disabled-blind-02",
+      "targets": [
+        {
+          "object": "TOP_RIGHT_BUTTON",
+          "page": "w3c-disabled-blind-03"
+        },
+        {
+          "app_event": "DOGE_SIGN",
+          "param": "5",
+          "page": "w3c-no-threat-blind-01",
+          "comments": "blind=1, dApp=0, w3c_enabled=1, w3c_issue=0, w3c_threat=0"
+        }
+      ]
+    },
+    {
+      "name": "w3c-disabled-blind-03",
+      "targets": [
+        {
+          "app_event": "BACK_BUTTON",
+          "page": "w3c-disabled-blind-02"
+        }
+      ]
+    },
+    {
+      "name": "w3c-no-threat-blind-01",
+      "targets": [
+        {
+          "object": "CHOICE_2",
+          "page": "w3c-no-threat-blind-02"
+        }
+      ]
+    },
+    {
+      "name": "w3c-no-threat-blind-02",
+      "targets": [
+        {
+          "object": "TOP_RIGHT_BUTTON",
+          "page": "w3c-no-threat-blind-03"
+        },
+        {
+          "app_event": "DOGE_SIGN",
+          "param": "21",
+          "page": "w3c-threat-blind-01",
+          "comments": "blind=1, dApp=0, w3c_enabled=1, w3c_issue=0, w3c_threat=1"
+        }
+      ]
+    },
+    {
+      "name": "w3c-no-threat-blind-03",
+      "targets": [
+        {
+          "app_event": "BACK_BUTTON",
+          "page": "w3c-no-threat-blind-02"
+        }
+      ]
+    },
+    {
+      "name": "w3c-threat-blind-01",
+      "targets": [
+        {
+          "object": "CHOICE_2",
+          "page": "w3c-threat-blind-02"
+        }
+      ]
+    },
+    {
+      "name": "w3c-threat-blind-02",
+      "targets": [
+        {
+          "object": "TOP_RIGHT_BUTTON",
+          "page": "w3c-threat-blind-03"
+        },
+        {
+          "app_event": "DOGE_SIGN",
+          "param": "13",
+          "page": "w3c-issue-blind-01",
+          "comments": "blind=1, dApp=0, w3c_enabled=1, w3c_issue=1, w3c_threat=0"
+        }
+      ]
+    },
+    {
+      "name": "w3c-threat-blind-03",
+      "targets": [
+        {
+          "object": "CONTROLS,1",
+          "page": "w3c-threat-blind-04"
+        },
+        {
+          "object": "CONTROLS,0",
+          "page": "w3c-threat-blind-05"
+        },
+        {
+          "app_event": "BACK_BUTTON",
+          "page": "w3c-threat-blind-02"
+        }
+      ]
+    },
+    {
+      "name": "w3c-threat-blind-04",
+      "targets": [
+        {
+          "app_event": "BACK_BUTTON",
+          "page": "w3c-threat-blind-03"
+        }
+      ]
+    },
+    {
+      "name": "w3c-threat-blind-05",
+      "targets": [
+        {
+          "app_event": "BACK_BUTTON",
+          "page": "w3c-threat-blind-03"
+        }
+      ]
+    },
+    {
+      "name": "w3c-issue-blind-01",
+      "targets": [
+        {
+          "object": "CHOICE_2",
+          "page": "w3c-issue-blind-02"
+        }
+      ]
+    },
+    {
+      "name": "w3c-issue-blind-02",
+      "targets": [
+        {
+          "object": "TOP_RIGHT_BUTTON",
+          "page": "w3c-issue-blind-03"
+        }
+      ]
+    },
+    {
+      "name": "w3c-issue-blind-03",
+      "targets": [
+        {
+          "object": "CONTROLS,1",
+          "page": "w3c-issue-blind-04"
+        },
+        {
+          "object": "CONTROLS,0",
+          "page": "w3c-issue-blind-05"
+        }
+      ]
+    },
+    {
+      "name": "w3c-issue-blind-04",
+      "targets": [
+        {
+          "app_event": "BACK_BUTTON",
+          "page": "w3c-issue-blind-03"
+        }
+      ]
+    },
+    {
+      "name": "w3c-issue-blind-05",
+      "targets": [
+      ]
+    }
+  ]
+}

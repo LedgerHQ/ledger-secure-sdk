@@ -1,0 +1,123 @@
+{
+  "title": "address_verif",
+  "pages": [
+    {
+      "name": "Entry",
+      "targets": [
+        {
+          "app_event": "BTC_VERIFY_ADDR",
+          "page": "classic-01"
+        }
+      ]
+    },
+    {
+      "name": "classic-01",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "classic-02",
+          "comment": "accept"
+        },
+        {
+          "object": "BOTTOM_BUTTON",
+          "page": "classic-cancelled",
+          "comment": "reject"
+        }
+      ]
+    },
+    {
+      "name": "classic-02",
+      "targets": [
+        {
+          "object": "CHOICE_2",
+          "page": "classic-qr_code",
+          "comment": "view QR"
+        },
+        {
+          "object": "CHOICE_1",
+          "page": "classic-verified",
+          "comment": "confirm"
+        }
+      ]
+    },
+    {
+      "name": "classic-qr_code",
+      "targets": [
+        {
+          "object": "BOTTOM_BUTTON",
+          "page": "classic-02"
+        }
+      ]
+    },
+    {
+      "name": "classic-verified",
+      "targets": [
+        {
+          "object": "WHOLE_SCREEN",
+          "page": "without_settings-01"
+        }
+      ]
+    },
+    {
+      "name": "classic-cancelled",
+      "targets": [
+        {
+          "object": "WHOLE_SCREEN",
+          "page": "without_settings-01"
+        }
+      ]
+    },
+    {
+      "name": "without_settings-01",
+      "targets": [
+        {
+          "app_event": "BTC_VERIFY_ADDR",
+          "page": "classic-01",
+          "comment": "2nd classic with reject"
+        },
+        {
+          "app_event": "CARDANO_VERIFY_ADDR",
+          "page": "long_address-01",
+          "comment": "veridy address+info"
+        }
+      ]
+    },
+    {
+      "name": "long_address-01",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "long_address-02"
+        }
+      ]
+    },
+    {
+      "name": "long_address-02",
+      "targets": [
+        {
+          "object": "EXTRA_BUTTON",
+          "page": "long_address-qr_code",
+          "comment": "view QR"
+        },
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "long_address-03"
+        }
+      ]
+    },
+    {
+      "name": "long_address-qr_code",
+      "targets": [
+        {
+          "object": "BOTTOM_BUTTON",
+          "page": "long_address-02"
+        }
+      ]
+    },
+    {
+      "name": "long_address-03",
+      "targets": [
+      ]
+    }
+  ]
+}

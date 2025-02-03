@@ -1,0 +1,108 @@
+{
+  "title": "app_home_settings",
+  "pages": [
+    {
+      "name": "Entry",
+      "targets": [
+        {
+          "app_event": "ETH_OPEN",
+          "page": "with_settings-01"
+        }
+      ]
+    },
+    {
+      "name": "with_settings-01",
+      "targets": [
+        {
+          "object": "TOP_RIGHT_BUTTON",
+          "page": "with_settings-02"
+        },
+        {
+          "app_event": "BTC_OPEN",
+          "page": "without_settings-01"
+        }
+      ]
+    },
+    {
+      "name": "with_settings-02",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "with_settings-03"
+        }
+      ]
+    },
+    {
+      "name": "with_settings-03",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "with_settings-04"
+        }
+      ]
+    },
+    {
+      "name": "with_settings-04",
+      "targets": [
+        {
+          "object": "BACK_BUTTON",
+          "page": "with_settings-01"
+        }
+      ]
+    },
+    {
+      "name": "without_settings-01",
+      "targets": [
+        {
+          "object": "TOP_RIGHT_BUTTON",
+          "page": "without_settings-02"
+        },
+        {
+          "app_event": "MONERO_OPEN",
+          "page": "advanced_settings-01"
+        }
+      ]
+    },
+    {
+      "name": "without_settings-02",
+      "targets": [
+        {
+          "object": "BACK_BUTTON",
+          "page": "without_settings-01"
+        }
+      ]
+    },
+    {
+      "name": "advanced_settings-01",
+      "targets": [
+        {
+          "object": "TOP_RIGHT_BUTTON",
+          "page": "advanced_settings-02"
+        }
+      ]
+    },
+    {
+      "name": "advanced_settings-02",
+      "targets": [
+        {
+          "object": "CONTROLS,0",
+          "page": "advanced_settings-03"
+        }
+      ]
+    },
+    {
+      "name": "advanced_settings-03",
+      "targets": [
+        {
+          "app_event": "RECOV_OPEN",
+          "page": "app-with-cta-action-01"
+        }
+      ]
+    },
+    {
+      "name": "app-with-cta-action-01",
+      "targets": [
+      ]
+    }
+  ]
+}
