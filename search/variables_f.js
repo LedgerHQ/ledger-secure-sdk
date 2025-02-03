@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['qrcode_0',['qrcode',['../structQrCodeBuffer__t.html#acfc814f2fa52c45e8af5213b53689811',1,'QrCodeBuffer_t::qrcode'],['../structnbgl__warningDetails__s.html#acec79f044a17152fc4ca3c42c495adc8',1,'nbgl_warningDetails_s::qrCode']]],
+  ['qrcode_0',['qrcode',['../structQrCodeBuffer__t.html#acfc814f2fa52c45e8af5213b53689811',1,'QrCodeBuffer_t']]],
   ['qrcodebuttontext_1',['qrCodeButtonText',['../structnbgl__pageAddressConfirmationDescription__s.html#adf64458f7b43b18c350e940cf457acd2',1,'nbgl_pageAddressConfirmationDescription_s']]],
   ['qrdrawbuffer_2',['QrDrawBuffer',['../structQrCodeBuffer__t.html#a35f265ac47e0e83380eeaa2d5f0721be',1,'QrCodeBuffer_t']]],
   ['quitbutton_3',['quitButton',['../structnbgl__pageNavWithButtons__s.html#a8a773903357755d52c7b683ecf29e02c',1,'nbgl_pageNavWithButtons_s']]],

@@ -10,8 +10,8 @@ var searchData=
   ['released_7',['RELEASED',['../nbgl__types_8h.html#abef924ad7bd5b92ba15a19a0917aec80aa38d18fe73a7fc82c112b6917d0b5cd0',1,'nbgl_types.h']]],
   ['right_5farrow_8',['RIGHT_ARROW',['../nbgl__layout_8h.html#a3b6b5b5431729fa60ae177c8abe731a2a67842bdd9404946ad33353a26fac6f32',1,'nbgl_layout.h']]],
   ['right_5fbottom_9',['RIGHT_BOTTOM',['../nbgl__types_8h.html#a82db45397671e5a06f32c857ed8980c6aee0189be1e9c2df7a06f26b9b145b8df',1,'nbgl_types.h']]],
-  ['right_5fbutton_5fid_10',['RIGHT_BUTTON_ID',['../nbgl__obj_8h.html#aabfcbcb5ac86a1edac4035264bc7d2b8a9fa8ba74d72e9d38aae7b28fd6c3df26',1,'nbgl_obj.h']]],
-  ['right_5fhalf_5findex_11',['right_half_index',['../nbgl__layout_8c.html#a16685eea158879e41b101ca3634de462a66c2ad754a985070ce2997f91fbc0f42',1,'RIGHT_HALF_INDEX:&#160;nbgl_layout.c'],['../nbgl__layout__keyboard_8c.html#afa231099d07583c3ed0981e0bb665f55a66c2ad754a985070ce2997f91fbc0f42',1,'RIGHT_HALF_INDEX:&#160;nbgl_layout_keyboard.c']]],
+  ['right_5fbutton_5fid_10',['RIGHT_BUTTON_ID',['../nbgl__obj_8h.html#ae4d5251432e1a9e6803c0240cc492e18a9fa8ba74d72e9d38aae7b28fd6c3df26',1,'nbgl_obj.h']]],
+  ['right_5fhalf_5findex_11',['right_half_index',['../nbgl__layout_8c.html#ab48899087cc647f0f791ed0c459adc53a66c2ad754a985070ce2997f91fbc0f42',1,'RIGHT_HALF_INDEX:&#160;nbgl_layout.c'],['../nbgl__layout__keyboard_8c.html#a1f9aebf1de3ebbf4283a4dcf73308562a66c2ad754a985070ce2997f91fbc0f42',1,'RIGHT_HALF_INDEX:&#160;nbgl_layout_keyboard.c']]],
   ['right_5ftop_12',['RIGHT_TOP',['../nbgl__types_8h.html#a82db45397671e5a06f32c857ed8980c6a9b2883e2bfd004a9f220d7a73baeccac',1,'nbgl_types.h']]],
   ['rounded_5fand_5ffooter_5fstyle_13',['ROUNDED_AND_FOOTER_STYLE',['../nbgl__layout_8h.html#aab86a9d202df5a9f485ac2c164e294e4ac86b4918c86ef6fedc9133ecd70d368e',1,'nbgl_layout.h']]]
 ];
