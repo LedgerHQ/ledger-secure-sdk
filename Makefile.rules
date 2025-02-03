@@ -19,7 +19,7 @@
 ifeq ($(USE_NBGL),0)
     SDK_SOURCE_PATH += lib_bagl lib_ux
 else
-    SDK_SOURCE_PATH += lib_ux_nbgl lib_ux_sync
+    SDK_SOURCE_PATH += lib_ux_nbgl
     NBGL_SOURCES := $(shell find $(BOLOS_SDK)/lib_nbgl/src -name 'nbgl_layout*.[csS]')
     NBGL_SOURCES += $(shell find $(BOLOS_SDK)/lib_nbgl/src -name 'nbgl_page*.[csS]')
     NBGL_SOURCES += $(shell find $(BOLOS_SDK)/lib_nbgl/src -name 'nbgl_step*.[csS]')

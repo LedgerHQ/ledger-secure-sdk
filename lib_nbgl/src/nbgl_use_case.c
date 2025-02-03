@@ -3235,19 +3235,10 @@ void nbgl_useCaseReviewStart(const nbgl_icon_details_t *icon,
     pageContext = nbgl_pageDrawInfo(&pageCallback, NULL, &info);
     nbgl_refresh();
 }
+
 /**
- * @brief Draws a flow of pages of a review. A back key is available on top-left of the screen,
- * except in first page It is possible to go to next page thanks to "tap to continue". For each
- * page, the given navCallback will be called to get the content. Only 'type' and union has to be
- * set in this content
- *
- * @param initPage page on which to start [0->(nbPages-1)]
- * @param nbPages number of pages. If 0, no progress indicator is used
- * @param rejectText text to use in footer
- * @param navCallback callback called when navigation (back or "tap to continue") is touched
- * @param buttonCallback callback called when a potential button (details) in the content is touched
- * @param choiceCallback callback called when either long_press or footer is called (param is true
- * for long press)
+ * @deprecated
+ * See #nbgl_useCaseReview
  */
 void nbgl_useCaseRegularReview(uint8_t                    initPage,
                                uint8_t                    nbPages,
