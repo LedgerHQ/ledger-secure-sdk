@@ -125,9 +125,6 @@ static const draw_function_t draw_functions[NB_OBJ_TYPES] = {
 uint8_t ramBuffer[GZLIB_UNCOMPRESSED_CHUNK];
 
 #ifdef BUILD_SCREENSHOTS
-// Contains the last string index used
-extern UX_LOC_STRINGS_INDEX last_string_id;
-
 // Variables used to store important values (nb lines, bold state etc)
 extern uint16_t last_nb_lines, last_nb_pages;
 extern bool     last_bold_state, verbose;
