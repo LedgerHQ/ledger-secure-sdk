@@ -75,7 +75,7 @@ uint32_t app_storage_get_size(void);
 uint16_t app_storage_get_struct_version(void);
 uint16_t app_storage_get_properties(void);
 uint32_t app_storage_get_data_version(void);
-bool     app_storage_is_initalized(void);
+bool     app_storage_is_initialized(void);
 void     app_storage_set_data_version(uint32_t data_version);
 
 #endif  // HAVE_BOLOS
