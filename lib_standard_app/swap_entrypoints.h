@@ -41,7 +41,15 @@ void swap_handle_get_printable_amount(get_printable_amount_parameters_t *params)
  * return false on error, true otherwise */
 bool swap_copy_transaction_parameters(create_transaction_parameters_t *sign_transaction_params);
 
+// Boolean like status + a special value
+typedef enum last_cycle_status_e {
+    LAST_CYCLE_ERROR     = 0,
+    LAST_CYCLE_SUCCESS   = 1,
+    LAST_CYCLE_EXCEPTION = 2,
+} last_cycle_status_t;
+
 /* Set create_transaction.result and call os_lib_end().
+ * parameter is a last_cycle_status_t
  *
  * Doesn't return */
 void __attribute__((noreturn)) swap_finalize_exchange_sign_transaction(bool is_success);
