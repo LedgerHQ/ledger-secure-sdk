@@ -97,7 +97,7 @@ LDFLAGS  += -mno-unaligned-access
 LDFLAGS  += -Wl,--gc-sections -Wl,-Map,$(DBG_DIR)/app.map
 LDFLAGS  += -nostdlib -nodefaultlibs
 
-ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOS))
+ifeq ($(TARGET_NAME),TARGET_NANOS)
     CPU       = cortex-m0plus
     LDFLAGS  += -nostartfiles --specs=nano.specs
 endif
@@ -119,7 +119,11 @@ endif
 CFLAGS   += --target=arm-none-eabi -mcpu=$(CPU) -mlittle-endian -mthumb
 # no --target in case arm-none-eabi-gcc is used
 AFLAGS   += -mcpu=$(CPU) -mlittle-endian -mthumb
-LDFLAGS  += --target=arm-none-eabi -mcpu=$(CPU) -mlittle-endian -mthumb
+ifneq ($(TARGET_NAME),TARGET_NANOS)
+    # in rules_generic for non-LNS targets, LD is set to $(CC) (clang)
+    LDFLAGS  += --target=arm-none-eabi
+endif
+LDFLAGS  += -mcpu=$(CPU) -mlittle-endian -mthumb
 
 ifeq ($(TARGET_NAME),TARGET_STAX)
 # For Stax NBGL must be used
