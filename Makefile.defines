@@ -69,7 +69,7 @@ CFLAGS   += -O$(OPTI_LVL) -g$(DBG_LVL)
 
 CFLAGS   += -fomit-frame-pointer -momit-leaf-frame-pointer
 
-CFLAGS   += -fno-common -mlittle-endian
+CFLAGS   += -fno-common
 CFLAGS   += -std=gnu99
 
 CFLAGS   += -Wall -Wextra
@@ -98,35 +98,35 @@ LDFLAGS  += -mno-unaligned-access
 LDFLAGS  += -Wl,--gc-sections -Wl,-Map,$(DBG_DIR)/app.map
 
 ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOS))
-CFLAGS   += --target=armv6m-none-eabi -mthumb
-CFLAGS   += -mcpu=cortex-m0plus -mthumb  -mtune=cortex-m0plus
-AFLAGS   += -mcpu=cortex-m0plus -mthumb
-LDFLAGS  += -mcpu=cortex-m0plus -mthumb
-LDFLAGS  += -nostartfiles --specs=nano.specs
+    CPU       = cortex-m0plus
+    LDFLAGS  += -nostartfiles --specs=nano.specs
 endif
 
 ifeq ($(TARGET_NAME),TARGET_NANOX)
-CFLAGS   += -frwpi
-LDFLAGS  += -momit-leaf-frame-pointer
-CFLAGS   += --target=armv6m-none-eabi -mthumb
-LDFLAGS  += --target=armv6m-none-eabi -mthumb
-LDFLAGS  += -mtune=cortex-m0plus -mlittle-endian  -mcpu=cortex-m0plus
-LDFLAGS  += -nostdlib -nodefaultlibs #-nostartfiles
-LDFLAGS  += -mno-movt
-LDFLAGS  += -L$(BOLOS_SDK)/arch/st33/lib/
-AFLAGS   += -mcpu=cortex-m0plus -mthumb
+    CPU       = cortex-m0plus
+    CFLAGS   += -frwpi
+    LDFLAGS  += -momit-leaf-frame-pointer
+    LDFLAGS  += -nostdlib -nodefaultlibs #-nostartfiles
+    LDFLAGS  += -mno-movt
+    LDFLAGS  += -L$(BOLOS_SDK)/arch/st33/lib/
 endif
 
 ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_STAX TARGET_FLEX TARGET_NANOS2))
-CFLAGS   += -mno-movt -frwpi --target=armv8m-none-eabi -mcpu=cortex-m35p+nodsp -mthumb -msoft-float -mtune=cortex-m35p+nodsp
-LDFLAGS  += -momit-leaf-frame-pointer
-LDFLAGS  += --target=armv8m-none-eabi
-LDFLAGS  += -mcpu=cortex-m35p+nodsp -mlittle-endian
-LDFLAGS  += -nostdlib -nodefaultlibs #-nostartfiles
-LDFLAGS  += -mno-movt
-LDFLAGS  += -L$(BOLOS_SDK)/arch/st33k1/lib/
-AFLAGS   += -mcpu=cortex-m35p+nodsp -mthumb
+    CPU       = cortex-m35p+nodsp
+    CFLAGS   += -msoft-float
+    CFLAGS   += -frwpi
+    CFLAGS   += -mno-movt
+    LDFLAGS  += -momit-leaf-frame-pointer
+    LDFLAGS  += -nostdlib -nodefaultlibs #-nostartfiles
+    LDFLAGS  += -mno-movt
+    LDFLAGS  += -L$(BOLOS_SDK)/arch/st33k1/lib/
 endif
+
+# Common to all targets
+CFLAGS   += --target=arm-none-eabi -mcpu=$(CPU) -mlittle-endian -mthumb
+# no --target in case arm-none-eabi-gcc is used
+AFLAGS   += -mcpu=$(CPU) -mlittle-endian -mthumb
+LDFLAGS  += --target=arm-none-eabi -mcpu=$(CPU) -mlittle-endian -mthumb
 
 ifeq ($(TARGET_NAME),TARGET_STAX)
 # For Stax NBGL must be used
