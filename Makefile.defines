@@ -106,7 +106,6 @@ ifeq ($(TARGET_NAME),TARGET_NANOX)
     CPU       = cortex-m0plus
     CFLAGS   += -frwpi
     LDFLAGS  += -nostdlib -nodefaultlibs #-nostartfiles
-    LDFLAGS  += -mno-movt
     LDFLAGS  += -L$(BOLOS_SDK)/arch/st33/lib/
 endif
 
@@ -114,9 +113,7 @@ ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_STAX TARGET_FLEX TARGET_NANO
     CPU       = cortex-m35p+nodsp
     CFLAGS   += -msoft-float
     CFLAGS   += -frwpi
-    CFLAGS   += -mno-movt
     LDFLAGS  += -nostdlib -nodefaultlibs #-nostartfiles
-    LDFLAGS  += -mno-movt
     LDFLAGS  += -L$(BOLOS_SDK)/arch/st33k1/lib/
 endif
 
