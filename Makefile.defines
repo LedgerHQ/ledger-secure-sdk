@@ -67,6 +67,7 @@ else
 endif
 CFLAGS   += -O$(OPTI_LVL) -g$(DBG_LVL)
 
+# Reduces code size
 CFLAGS   += -fomit-frame-pointer -momit-leaf-frame-pointer
 
 CFLAGS   += -fno-common
@@ -89,15 +90,14 @@ CFLAGS   += -fdata-sections -ffunction-sections -funsigned-char -fshort-enums
 CFLAGS   += -mno-unaligned-access
 CFLAGS   += -fropi
 CFLAGS   += -fno-jump-tables # avoid jump tables for switch to avoid problems with invalid PIC access
-CFLAGS   += -nostdlib -nodefaultlibs
 
-LDFLAGS  += -fomit-frame-pointer
 LDFLAGS  += -Wall
 LDFLAGS  += -fno-common -ffunction-sections -fdata-sections -fwhole-program
 LDFLAGS  += -mno-unaligned-access
 LDFLAGS  += -Wl,--gc-sections -Wl,-Map,$(DBG_DIR)/app.map
+LDFLAGS  += -nostdlib -nodefaultlibs
 
-ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOS))
+ifeq ($(TARGET_NAME),TARGET_NANOS)
     CPU       = cortex-m0plus
     LDFLAGS  += -nostartfiles --specs=nano.specs
 endif
@@ -105,9 +105,6 @@ endif
 ifeq ($(TARGET_NAME),TARGET_NANOX)
     CPU       = cortex-m0plus
     CFLAGS   += -frwpi
-    LDFLAGS  += -momit-leaf-frame-pointer
-    LDFLAGS  += -nostdlib -nodefaultlibs #-nostartfiles
-    LDFLAGS  += -mno-movt
     LDFLAGS  += -L$(BOLOS_SDK)/arch/st33/lib/
 endif
 
@@ -115,10 +112,6 @@ ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_STAX TARGET_FLEX TARGET_NANO
     CPU       = cortex-m35p+nodsp
     CFLAGS   += -msoft-float
     CFLAGS   += -frwpi
-    CFLAGS   += -mno-movt
-    LDFLAGS  += -momit-leaf-frame-pointer
-    LDFLAGS  += -nostdlib -nodefaultlibs #-nostartfiles
-    LDFLAGS  += -mno-movt
     LDFLAGS  += -L$(BOLOS_SDK)/arch/st33k1/lib/
 endif
 
@@ -126,7 +119,11 @@ endif
 CFLAGS   += --target=arm-none-eabi -mcpu=$(CPU) -mlittle-endian -mthumb
 # no --target in case arm-none-eabi-gcc is used
 AFLAGS   += -mcpu=$(CPU) -mlittle-endian -mthumb
-LDFLAGS  += --target=arm-none-eabi -mcpu=$(CPU) -mlittle-endian -mthumb
+ifneq ($(TARGET_NAME),TARGET_NANOS)
+    # in rules_generic for non-LNS targets, LD is set to $(CC) (clang)
+    LDFLAGS  += --target=arm-none-eabi
+endif
+LDFLAGS  += -mcpu=$(CPU) -mlittle-endian -mthumb
 
 ifeq ($(TARGET_NAME),TARGET_STAX)
 # For Stax NBGL must be used
