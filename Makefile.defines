@@ -67,6 +67,7 @@ else
 endif
 CFLAGS   += -O$(OPTI_LVL) -g$(DBG_LVL)
 
+# Reduces code size
 CFLAGS   += -fomit-frame-pointer -momit-leaf-frame-pointer
 
 CFLAGS   += -fno-common
@@ -91,7 +92,6 @@ CFLAGS   += -fropi
 CFLAGS   += -fno-jump-tables # avoid jump tables for switch to avoid problems with invalid PIC access
 CFLAGS   += -nostdlib -nodefaultlibs
 
-LDFLAGS  += -fomit-frame-pointer
 LDFLAGS  += -Wall
 LDFLAGS  += -fno-common -ffunction-sections -fdata-sections -fwhole-program
 LDFLAGS  += -mno-unaligned-access
@@ -105,7 +105,6 @@ endif
 ifeq ($(TARGET_NAME),TARGET_NANOX)
     CPU       = cortex-m0plus
     CFLAGS   += -frwpi
-    LDFLAGS  += -momit-leaf-frame-pointer
     LDFLAGS  += -nostdlib -nodefaultlibs #-nostartfiles
     LDFLAGS  += -mno-movt
     LDFLAGS  += -L$(BOLOS_SDK)/arch/st33/lib/
@@ -116,7 +115,6 @@ ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_STAX TARGET_FLEX TARGET_NANO
     CFLAGS   += -msoft-float
     CFLAGS   += -frwpi
     CFLAGS   += -mno-movt
-    LDFLAGS  += -momit-leaf-frame-pointer
     LDFLAGS  += -nostdlib -nodefaultlibs #-nostartfiles
     LDFLAGS  += -mno-movt
     LDFLAGS  += -L$(BOLOS_SDK)/arch/st33k1/lib/
