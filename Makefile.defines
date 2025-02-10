@@ -90,12 +90,12 @@ CFLAGS   += -fdata-sections -ffunction-sections -funsigned-char -fshort-enums
 CFLAGS   += -mno-unaligned-access
 CFLAGS   += -fropi
 CFLAGS   += -fno-jump-tables # avoid jump tables for switch to avoid problems with invalid PIC access
-CFLAGS   += -nostdlib -nodefaultlibs
 
 LDFLAGS  += -Wall
 LDFLAGS  += -fno-common -ffunction-sections -fdata-sections -fwhole-program
 LDFLAGS  += -mno-unaligned-access
 LDFLAGS  += -Wl,--gc-sections -Wl,-Map,$(DBG_DIR)/app.map
+LDFLAGS  += -nostdlib -nodefaultlibs
 
 ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOS))
     CPU       = cortex-m0plus
@@ -105,7 +105,6 @@ endif
 ifeq ($(TARGET_NAME),TARGET_NANOX)
     CPU       = cortex-m0plus
     CFLAGS   += -frwpi
-    LDFLAGS  += -nostdlib -nodefaultlibs #-nostartfiles
     LDFLAGS  += -L$(BOLOS_SDK)/arch/st33/lib/
 endif
 
@@ -113,7 +112,6 @@ ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_STAX TARGET_FLEX TARGET_NANO
     CPU       = cortex-m35p+nodsp
     CFLAGS   += -msoft-float
     CFLAGS   += -frwpi
-    LDFLAGS  += -nostdlib -nodefaultlibs #-nostartfiles
     LDFLAGS  += -L$(BOLOS_SDK)/arch/st33k1/lib/
 endif
 
