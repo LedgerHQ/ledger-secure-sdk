@@ -527,6 +527,310 @@ static uint16_t get_bitmap_byte_cnt(const nbgl_font_t *font, uint8_t charId)
 }
 
 /**
+ * @brief Uncompress a 1BPP RLE-encoded glyph and draw it in a RAM buffer
+ * (we handle transparency, meaning when resulting pixel is 0 we don't store it)
+ *
+ * 1BPP RLE Decoder:
+ *
+ * compressed bytes contains ZZZZOOOO nibbles, with
+ * - ZZZZ: number of consecutives zeros (from 0 to 15)
+ * - OOOO: number of consecutives ones (from 0 to 15)
+ *
+ * @param area area information about where to display the text
+ * @param buffer buffer of RLE-encoded data
+ * @param buffer_len length of buffer
+ * @param fore_color foreground color
+ * @param dst RAM buffer on which the glyph will be drawn
+ * @param area of the RAM buffer
+ */
+static void nbgl_draw1BPPImageRle(nbgl_area_t *area,
+                                  uint8_t     *buffer,
+                                  uint32_t     buffer_len,
+                                  color_t      foreColor,
+                                  nbgl_area_t *buf_area,
+                                  uint8_t     *dst)
+{
+    uint8_t pixels           = 0;
+    size_t  nb_pixels        = 0;
+    size_t  index            = 0;
+    size_t  nb_zeros         = 0;
+    size_t  nb_ones          = 0;
+    size_t  remaining_pixels = area->width * area->height;
+    size_t  remaining_width  = area->width;
+    size_t  dst_offset       = (buf_area->width + 7) / 8;
+    size_t  dst_index        = 0;
+
+    foreColor = foreColor;
+
+    while (remaining_pixels && (index < buffer_len || nb_zeros || nb_ones)) {
+        // Reload nb_zeros & nb_ones if needed
+        while (!nb_zeros && !nb_ones && index < buffer_len) {
+            uint8_t byte = buffer[index++];
+            nb_ones      = byte & 0x0F;
+            nb_zeros     = byte >> 4;
+        }
+        // Get next pixel
+        pixels <<= 1;
+        if (nb_zeros) {
+            --nb_zeros;
+            // Next line do nothing, just kept for clarity
+            pixels |= 0;  // Add a 0 in bit 0
+            nb_pixels += 1;
+        }
+        else if (nb_ones) {
+            --nb_ones;
+            pixels |= 1;  // Add a 1 in bit 0
+            nb_pixels += 1;
+        }
+        --remaining_pixels;
+
+        // Have we reached the end of the line?
+        if (nb_pixels >= remaining_width) {
+            // Used pixels must be MSB
+            pixels <<= (8 - remaining_width);
+            dst[dst_index] |= pixels;  // OR because we handle transparency
+            // Start next line
+            dst += dst_offset;
+            dst_index       = 0;
+            nb_pixels       = 0;
+            pixels          = 0;
+            remaining_width = area->width;
+        }
+        else if (nb_pixels >= 8) {
+            // Store those 8 pixels
+            dst[dst_index] |= pixels;  // OR because we handle transparency
+            remaining_width -= 8;
+            // Be ready for next 8 pixels
+            nb_pixels = 0;
+            pixels    = 0;
+            ++dst_index;
+        }
+    }
+    // Store remaining pixels
+    if (nb_pixels) {
+        // Used pixels must be MSB
+        pixels <<= (8 - nb_pixels);
+        dst[dst_index] |= pixels;  // OR because we handle transparency
+    }
+}
+
+typedef struct {
+    // Part containing the data to be decoded
+    uint32_t read_cnt;
+    uint32_t buffer_len;
+    uint8_t *buffer;
+    uint8_t  byte;
+    // Part containing the decoded pixels
+    uint8_t nb_pix;
+    uint8_t color;      // if color <= 15 it is a FILL, else a COPY
+    uint8_t pixels[6];  // Maximum 6 pixels (COPY)
+
+} Rle_context_t;
+
+// Get next pixel(s) and update Rle_context content
+static inline void get_next_pixels(Rle_context_t *context, size_t remaining_width)
+{
+    // Is there still remaining data to read?
+    if (context->read_cnt >= context->buffer_len) {
+        // Just return the number of pixels to skip
+        context->nb_pix = remaining_width;
+        context->color  = 0;  // Background color, which is considered as transparent
+        return;
+    }
+
+    // Uncompress next data
+    uint8_t byte = context->buffer[context->read_cnt++];
+
+    if (byte & 0x80) {
+        if (byte & 0x40) {
+            // CMD=11 + RRRRRR => FILL White (max=63+1)
+            context->nb_pix = (byte & 0x3F) + 1;
+            context->color  = 0x0F;
+        }
+        else {
+            // CMD=10 + RR + VVVV + WWWWXXXX + YYYYZZZZ + QQQQ0000 : COPY Quartets x Repeat+1
+            // - RR is repeat count - 3 of quartets (max=3+3 => 6 quartets)
+            // - VVVV: value of 1st 4BPP pixel
+            // - WWWW: value of 2nd 4BPP pixel
+            // - XXXX: value of 3rd 4BPP pixel
+            // - YYYY: value of 4th 4BPP pixel
+            // - ZZZZ: value of 5th 4BPP pixel
+            // - QQQQ: value of 6th 4BPP pixel
+            context->nb_pix = ((byte & 0x30) >> 4);
+            context->nb_pix += 3;
+            context->pixels[0] = byte & 0x0F;  // Store VVVV
+            byte               = context->buffer[context->read_cnt++];
+            context->pixels[1] = byte >> 4;    // Store WWWW
+            context->pixels[2] = byte & 0x0F;  // Store XXXX
+            if (context->nb_pix >= 4) {
+                byte               = context->buffer[context->read_cnt++];
+                context->pixels[3] = byte >> 4;    // Store YYYY
+                context->pixels[4] = byte & 0x0F;  // Store ZZZZ
+                if (context->nb_pix >= 6) {
+                    byte               = context->buffer[context->read_cnt++];
+                    context->pixels[5] = byte >> 4;  // Store QQQQ
+                }
+            }
+            context->color = 0x10;  // COPY command + pixels offset=0
+        }
+    }
+    else {
+        // CMD=0 + RRR + VVVV : FILL Value x Repeat+1 (max=7+1)
+        context->nb_pix = (byte & 0x70) >> 4;
+        context->nb_pix += 1;
+        context->color = byte & 0x0F;
+    }
+}
+
+/**
+ * @brief Uncompress a 4BPP RLE-encoded glyph and draw it in a RAM buffer
+ * (we handle transparency, meaning when resulting pixel is 0 we don't store it)
+ * 4BPP RLE Decoder - The provided bytes contains:
+ *
+ *   11RRRRRR
+ *   10RRVVVV WWWWXXXX YYYYZZZZ QQQQ0000
+ *   0RRRVVVV
+ *
+ *   With:
+ *   * 11RRRRRR
+ *       - RRRRRRR is repeat count - 1 of White (0xF) quartets (max=63+1)
+ *   * 10RRVVVV WWWWXXXX YYYYZZZZ QQQQ0000
+ *       - RR is repeat count - 3 of quartets (max=3+3 => 6 quartets)
+ *       - VVVV: value of 1st 4BPP pixel
+ *       - WWWW: value of 2nd 4BPP pixel
+ *       - XXXX: value of 3rd 4BPP pixel
+ *       - YYYY: value of 4th 4BPP pixel
+ *       - ZZZZ: value of 5th 4BPP pixel
+ *       - QQQQ: value of 6th 4BPP pixel
+ *   * 0RRRVVVV
+ *       - RRR: repeat count - 1 => allow to store 1 to 8 repeat counts
+ *       - VVVV: value of the 4BPP pixel
+ *
+ * @param area area information about where to display the text
+ * @param buffer buffer of RLE-encoded data
+ * @param buffer_len length of buffer
+ * @param fore_color foreground color
+ * @param dst RAM buffer on which the glyph will be drawn
+ * @param area of the RAM buffer
+ */
+static void nbgl_draw4BPPImageRle(nbgl_area_t *area,
+                                  uint8_t     *buffer,
+                                  uint32_t     buffer_len,
+                                  color_t      foreColor,
+                                  nbgl_area_t *buf_area,
+                                  uint8_t     *dst)
+{
+    size_t        remaining_pixels = area->width * area->height;
+    size_t        remaining_width  = area->width;
+    size_t        dst_offset       = (buf_area->width + 1) / 2;
+    size_t        dst_index        = 0;
+    uint8_t       dst_shift        = 4;  // Next pixel must be shift left 4 bit
+    Rle_context_t context          = {0};
+    foreColor                      = foreColor;
+
+    context.buffer     = buffer;
+    context.buffer_len = buffer_len;
+
+    while (remaining_pixels) {
+        uint8_t nb_pix;
+
+        // if the context is empty, let's fill it
+        if (context.nb_pix == 0) {
+            get_next_pixels(&context, remaining_width);
+        }
+        // Write those pixels in the RAM buffer
+        nb_pix = context.nb_pix;
+        if (nb_pix > remaining_width) {
+            nb_pix = remaining_width;
+        }
+
+        // if color <= 0x0F it is a FILL command, else it is a COPY
+        if (context.color <= 0x0F) {
+            // If color is 0, then consider there's transparent pixels to skip
+            if (context.color == 0x00) {
+                // Skip nb_pix pixels
+                dst_index += nb_pix / 2;
+                if (nb_pix & 1) {
+                    dst_shift ^= 4;
+                    if (dst_shift) {
+                        ++dst_index;
+                    }
+                }
+            }
+            else {
+                // FILL nb_pix pixels with context.color
+                for (uint8_t i = 0; i < nb_pix; i++) {
+                    dst[dst_index] |= context.color
+                                      << dst_shift;  // OR because we handle transparency
+                    dst_shift ^= 4;
+                    // Do we need to go to next byte?
+                    if (dst_shift) {
+                        ++dst_index;
+                    }
+                }
+            }
+        }
+        else {
+            uint8_t *pixels = context.pixels;
+            // LSB of context.color contains the offset of the pixels to copy
+            pixels += context.color & 0x0F;
+
+            // COPY nb_pix pixels from &pixels[i]
+            for (uint8_t i = 0; i < nb_pix; i++) {
+                dst[dst_index] |= pixels[i] << dst_shift;  // OR because we handle transparency
+                dst_shift ^= 4;
+                // Do we need to go to next byte?
+                if (dst_shift) {
+                    ++dst_index;
+                }
+            }
+            // Update offset of the pixels to copy
+            context.color += nb_pix;
+        }
+
+        // Take in account displayed pixels
+        context.nb_pix -= nb_pix;
+        remaining_pixels -= nb_pix;
+        remaining_width -= nb_pix;
+
+        // Have we reached the end of the line?
+        if (remaining_width == 0) {
+            // Start next line
+            dst += dst_offset;
+            dst_index       = 0;
+            dst_shift       = 4;
+            remaining_width = area->width;
+        }
+    }
+}
+
+/**
+ * @brief Uncompress a RLE-encoded glyph and draw it in a RAM buffer
+ *
+ * @param area area information about where to display the text
+ * @param buffer buffer of RLE-encoded data
+ * @param buffer_len length of buffer
+ * @param fore_color foreground color
+ * @param dst RAM buffer on which the glyph will be drawn
+ * @param area of the RAM buffer
+ */
+
+static void nbgl_drawImageRle(nbgl_area_t *text_area,
+                              uint8_t     *buffer,
+                              uint32_t     buffer_len,
+                              color_t      fore_color,
+                              nbgl_area_t *buf_area,
+                              uint8_t     *dst)
+{
+    if (text_area->bpp == NBGL_BPP_4) {
+        nbgl_draw4BPPImageRle(text_area, buffer, buffer_len, fore_color, buf_area, dst);
+    }
+    else if (text_area->bpp == NBGL_BPP_1) {
+        nbgl_draw1BPPImageRle(text_area, buffer, buffer_len, fore_color, buf_area, dst);
+    }
+}
+
+/**
  * @brief This function draws the given single-line text, with the given parameters.
  *
  * @param area position, size and background color to use for text
@@ -549,6 +853,19 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
 #ifdef HAVE_UNICODE_SUPPORT
     nbgl_unicode_ctx_t *unicode_ctx = NULL;
 #endif  // HAVE_UNICODE_SUPPORT
+    // Area representing the RAM buffer and in which the glyphs will be drawn
+    nbgl_area_t buf_area     = {0};
+    buf_area.backgroundColor = area->backgroundColor;
+    buf_area.height          = font->height;
+#define MAX_FONT_HEIGHT    48
+#define AVERAGE_CHAR_WIDTH 32
+    buf_area.width = 2 * AVERAGE_CHAR_WIDTH;
+    // ensure that the ramBuffer also used for image file decompression is big enough
+    // 4bpp: size of ram_buffer is (font->height * 2 * AVERAGE_CHAR_WIDTH) / 2
+    // 1bpp: size of ram_buffer is (font->height * 2 * AVERAGE_CHAR_WIDTH) / 8
+    CCASSERT(ram_buffer, (MAX_FONT_HEIGHT * AVERAGE_CHAR_WIDTH) <= GZLIB_UNCOMPRESSED_CHUNK);
+    // Fill RMA buffer with transparent color (0)
+    memset(ramBuffer, 0, font->height * AVERAGE_CHAR_WIDTH);
 
     LOG_DEBUG(DRAW_LOGGER,
               "nbgl_drawText: x0 = %d, y0 = %d, w = %d, h = %d, fontColor = %d, "
@@ -685,8 +1002,12 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
         // If char_byte_cnt = 0, call nbgl_frontDrawImageRle to let speculos notice
         // a space character was 'displayed'
         if (!char_byte_cnt || encoding == 1) {
-            nbgl_frontDrawImageRle(
-                &rectArea, char_buffer, char_byte_cnt, fontColor, nb_skipped_bytes);
+            // Draw that character in a RAM buffer
+            buf_area.width = (rectArea.width + 1) & 0xFFFE;
+            nbgl_drawImageRle(
+                &rectArea, char_buffer, char_byte_cnt, fontColor, &buf_area, ramBuffer);
+            // Now, draw this block into the real screen
+            nbgl_frontDrawImage(&rectArea, ramBuffer, NO_TRANSFORMATION, fontColor);
         }
         else {
             nbgl_frontDrawImage(&rectArea, char_buffer, NO_TRANSFORMATION, fontColor);
