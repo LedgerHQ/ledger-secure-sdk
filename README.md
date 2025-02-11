@@ -59,20 +59,20 @@ This list the main API_LEVEL branches with their purposed (corresponding OS) and
 
 The full mapping of API_LEVEL branches, including OS release candidates, is available [here](api_levels.json).
 
-| Name | Related OS                                         | Active             |
-| ---- | -------------------------------------------------- | ------------------ |
-| LNS  | <br/> nanos_2.1.0                                  | :heavy_check_mark: |
-| 1    | nanox_2.1.0 <br/> nanos+_1.1.0                     | :x:                |
-| 5    | nanox_2.2.{0, 1, 2, 3} <br/> nanos+ 1.1.1          | :heavy_check_mark: |
-| 8    | stax_1.0.0                                         | :x:                |
-| 10   | stax_1.1.0                                         | :x:                |
-| 11   | stax_1.2.0 <br/> stax_1.2.1                        | :x:                |
-| 13   | stax_1.3.0                                         | :x:                |
-| 15   | stax_1.4.0                                         | :x:                |
-| 18   | nanos+_1.2.0                                       | :heavy_check_mark: |
-| 19   | flex_1.0.0 <br/> flex_1.0.1 <br/>                  | :x:                |
-| 21   | stax_1.5.0 <br/> flex_1.1.0 <br/> flex_1.1.1 <br/> | :heavy_check_mark: |
-| 22   | stax_1.6.0 <br/> flex_1.2.0 <br/>                  | :heavy_check_mark: |
+| Name | Related OS                                                              | Active             |
+| ---- | ----------------------------------------------------------------------- | ------------------ |
+| LNS  | <br/> nanos_2.1.0                                                       | :heavy_check_mark: |
+| 1    | nanox_2.1.0 <br/> nanos+_1.1.0                                          | :x:                |
+| 5    | nanox_2.2.{0, 1, 2, 3} <br/> nanos+ 1.1.1                               | :x:                |
+| 8    | stax_1.0.0                                                              | :x:                |
+| 10   | stax_1.1.0                                                              | :x:                |
+| 11   | stax_1.2.0 <br/> stax_1.2.1                                             | :x:                |
+| 13   | stax_1.3.0                                                              | :x:                |
+| 15   | stax_1.4.0                                                              | :x:                |
+| 18   | nanos+_1.2.0                                                            | :x:                |
+| 19   | flex_1.0.0 <br/> flex_1.0.1 <br/>                                       | :x:                |
+| 21   | stax_1.5.0 <br/> flex_1.1.0 <br/> flex_1.1.1 <br/>                      | :x:                |
+| 22   | nanox_2.4.1 <br/> nanos+_1.3.1 <br/> stax_1.6.1 <br/> flex_1.2.1 <br/>  | :heavy_check_mark: |
 
 ### Cherry-picking process:
 
