@@ -25,37 +25,41 @@
 /*********************
  *      DEFINES
  *********************/
+#if defined(TARGET_FLEX)
+#define USE_PARTIAL_BUTTONS 1
+#endif  // TARGET_FLEX
+
 // for suggestion buttons, on Flex there are other objects than buttons
 enum {
     PAGE_INDICATOR_INDEX = 0,
-#ifndef TARGET_STAX
+#ifdef USE_PARTIAL_BUTTONS
     LEFT_HALF_INDEX,   // half disc displayed on the bottom left
     RIGHT_HALF_INDEX,  // half disc displayed on the bottom right
-#endif                 // TARGET_STAX
+#endif                 // USE_PARTIAL_BUTTONS
     FIRST_BUTTON_INDEX,
     SECOND_BUTTON_INDEX,
-#ifdef TARGET_STAX
+#ifndef USE_PARTIAL_BUTTONS
     THIRD_BUTTON_INDEX,
     FOURTH_BUTTON_INDEX,
-#endif  // TARGET_STAX
+#endif  // !USE_PARTIAL_BUTTONS
     NB_SUGGESTION_CHILDREN
 };
 
-#ifdef TARGET_STAX
+#if defined(TARGET_STAX)
 #define TEXT_ENTRY_NORMAL_HEIGHT  64
 #define TEXT_ENTRY_COMPACT_HEIGHT 64
 #define BOTTOM_NORMAL_MARGIN      24
 #define BOTTOM_COMPACT_MARGIN     24
 #define TOP_NORMAL_MARGIN         20
 #define TOP_COMPACT_MARGIN        20
-#else  // TARGET_STAX
+#elif defined(TARGET_FLEX)
 #define TEXT_ENTRY_NORMAL_HEIGHT  72
 #define TEXT_ENTRY_COMPACT_HEIGHT 56
 #define BOTTOM_NORMAL_MARGIN      24
 #define BOTTOM_COMPACT_MARGIN     12
 #define TOP_NORMAL_MARGIN         20
 #define TOP_COMPACT_MARGIN        12
-#endif  // TARGET_STAX
+#endif  // TARGETS
 
 // a horizontal line, even if displayed on 2 pixels, takes 4 pixels
 #define LINE_REAL_HEIGHT 4
@@ -80,9 +84,9 @@ enum {
 static nbgl_button_t *choiceButtons[NB_MAX_SUGGESTION_BUTTONS];
 static char           numText[5];
 static uint8_t        nbActiveButtons;
-#ifndef TARGET_STAX
+#ifdef USE_PARTIAL_BUTTONS
 static nbgl_image_t *partialButtonImages[2];
-#endif  // TARGET_STAX
+#endif  // USE_PARTIAL_BUTTONS
 
 /**********************
  *  STATIC PROTOTYPES
@@ -146,7 +150,7 @@ static bool updateSuggestionButtons(nbgl_container_t *container,
         container->children[SECOND_BUTTON_INDEX]->alignment        = MID_RIGHT;
         container->children[SECOND_BUTTON_INDEX]->alignTo = container->children[FIRST_BUTTON_INDEX];
     }
-#ifdef TARGET_STAX
+#ifndef USE_PARTIAL_BUTTONS
     // align bottom-left button on top_left one
     if (container->children[THIRD_BUTTON_INDEX] != NULL) {
         container->children[THIRD_BUTTON_INDEX]->alignmentMarginX = 0;
@@ -162,7 +166,7 @@ static bool updateSuggestionButtons(nbgl_container_t *container,
         container->children[FOURTH_BUTTON_INDEX]->alignment        = MID_RIGHT;
         container->children[FOURTH_BUTTON_INDEX]->alignTo = container->children[THIRD_BUTTON_INDEX];
     }
-#endif  // TARGET_STAX
+#endif  // !USE_PARTIAL_BUTTONS
 
     // the first child is used by the progress indicator, displayed if more that
     // NB_MAX_VISIBLE_SUGGESTION_BUTTONS buttons
@@ -170,7 +174,7 @@ static bool updateSuggestionButtons(nbgl_container_t *container,
         = (nbgl_page_indicator_t *) container->children[PAGE_INDICATOR_INDEX];
     indicator->activePage = page;
 
-#ifndef TARGET_STAX
+#ifdef USE_PARTIAL_BUTTONS
     // if not on the first button, display end of previous button
     if (currentLeftButtonIndex > 0) {
         container->children[LEFT_HALF_INDEX] = (nbgl_obj_t *) partialButtonImages[0];
@@ -185,7 +189,7 @@ static bool updateSuggestionButtons(nbgl_container_t *container,
     else {
         container->children[RIGHT_HALF_INDEX] = NULL;
     }
-#endif  // TARGET_STAX
+#endif  // USE_PARTIAL_BUTTONS
     return needRefresh;
 }
 
@@ -350,13 +354,13 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
     suggestionsContainer = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
     suggestionsContainer->layout         = VERTICAL;
     suggestionsContainer->obj.area.width = SCREEN_WIDTH;
-#ifdef TARGET_STAX
+#ifndef USE_PARTIAL_BUTTONS
     // 2 rows of buttons with radius=32, and a intervale of 8px
     suggestionsContainer->obj.area.height = 2 * SMALL_BUTTON_HEIGHT + INTERNAL_MARGIN + 28;
-#else   // TARGET_STAX
+#else   // USE_PARTIAL_BUTTONS
     // 1 row of buttons + 24px + page indicator
     suggestionsContainer->obj.area.height = SMALL_BUTTON_HEIGHT + 28;
-#endif  // TARGET_STAX
+#endif  // USE_PARTIAL_BUTTONS
     suggestionsContainer->nbChildren = nbActiveButtons + FIRST_BUTTON_INDEX;
     suggestionsContainer->children
         = (nbgl_obj_t **) nbgl_containerPoolGet(NB_SUGGESTION_CHILDREN, layoutInt->layer);
@@ -403,7 +407,7 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
     indicator->obj.alignment                             = BOTTOM_MIDDLE;
     indicator->style                                     = CURRENT_INDICATOR;
     suggestionsContainer->children[PAGE_INDICATOR_INDEX] = (nbgl_obj_t *) indicator;
-#ifdef TARGET_FLEX
+#ifdef USE_PARTIAL_BUTTONS
     // also allocate the semi disc that may be displayed on the left or right of the full
     // buttons
     nbgl_objPoolGetArray(IMAGE, 2, layoutInt->layer, (nbgl_obj_t **) &partialButtonImages);
@@ -416,7 +420,7 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
     partialButtonImages[1]->foregroundColor = BLACK;
     partialButtonImages[1]->transformation  = NO_TRANSFORMATION;
     updateSuggestionButtons(suggestionsContainer, 0, 0);
-#endif  // TARGET_STAX
+#endif  // USE_PARTIAL_BUTTONS
 
     return suggestionsContainer;
 }
@@ -638,7 +642,7 @@ int nbgl_layoutAddSuggestionButtons(nbgl_layout_t *layout,
             ->obj.alignmentMarginY
             -= (container->obj.area.height + container->obj.alignmentMarginY + 20) / 2;
     }
-#ifdef TARGET_FLEX
+#ifdef USE_PARTIAL_BUTTONS
     // the main container is swipable on Flex
     if (layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) layoutInt->container, 0, NBGL_NO_TUNE)
         == NULL) {
@@ -647,7 +651,7 @@ int nbgl_layoutAddSuggestionButtons(nbgl_layout_t *layout,
     layoutInt->container->obj.touchMask = (1 << SWIPED_LEFT) | (1 << SWIPED_RIGHT);
     layoutInt->container->obj.touchId   = CONTROLS_ID;
     layoutInt->swipeUsage               = SWIPE_USAGE_SUGGESTIONS;
-#endif  // TARGET_FLEX
+#endif  // USE_PARTIAL_BUTTONS
     // set this new container as child of the main container
     layoutAddObject(layoutInt, (nbgl_obj_t *) container);
 
@@ -695,17 +699,17 @@ int nbgl_layoutUpdateSuggestionButtons(nbgl_layout_t *layout,
         if (i < MIN(NB_MAX_VISIBLE_SUGGESTION_BUTTONS, nbUsedButtons)) {
             if ((i % 2) == 0) {
                 choiceButtons[i]->obj.alignmentMarginX = BORDER_MARGIN;
-#ifdef TARGET_STAX
+#ifndef USE_PARTIAL_BUTTONS
                 // second row 8px under the first one
                 if (i != 0) {
                     choiceButtons[i]->obj.alignmentMarginY = INTERNAL_MARGIN;
                 }
                 choiceButtons[i]->obj.alignment = NO_ALIGNMENT;
-#else   // TARGET_STAX
+#else   // USE_PARTIAL_BUTTONS
                 if (i == 0) {
                     choiceButtons[i]->obj.alignment = TOP_LEFT;
                 }
-#endif  // TARGET_STAX
+#endif  // USE_PARTIAL_BUTTONS
             }
             else {
                 choiceButtons[i]->obj.alignmentMarginX = INTERNAL_MARGIN;
@@ -719,14 +723,14 @@ int nbgl_layoutUpdateSuggestionButtons(nbgl_layout_t *layout,
         }
     }
     container->forceClean = true;
-#ifndef TARGET_STAX
+#ifdef USE_PARTIAL_BUTTONS
     // on Flex, the first child is used by the progress indicator, if more that 2 buttons
     nbgl_page_indicator_t *indicator
         = (nbgl_page_indicator_t *) container->children[PAGE_INDICATOR_INDEX];
     indicator->nbPages    = (nbUsedButtons + 1) / 2;
     indicator->activePage = 0;
     updateSuggestionButtons(container, 0, 0);
-#endif  // TARGET_STAX
+#endif  // USE_PARTIAL_BUTTONS
 
     nbgl_objDraw((nbgl_obj_t *) container);
 

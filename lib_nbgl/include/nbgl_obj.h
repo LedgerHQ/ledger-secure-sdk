@@ -28,12 +28,12 @@ extern "C" {
 
 // for Keyboard
 #ifdef NBGL_KEYBOARD
-#ifdef HAVE_SE_TOUCH
-#ifdef TARGET_STAX
+#ifdef SCREEN_SIZE_WALLET
+#if defined(TARGET_STAX)
 #define KEYBOARD_KEY_HEIGHT 60
-#else  // TARGET_STAX
+#elif defined(TARGET_FLEX)
 #define KEYBOARD_KEY_HEIGHT 72
-#endif  // TARGET_STAX
+#endif  // TARGETS
 
 // index of keys for keyMask field of nbgl_keyboard_t
 #define SHIFT_KEY_INDEX         26
@@ -42,73 +42,71 @@ extern "C" {
 #define SPACE_KEY_INDEX         29
 #define SPECIAL_KEYS_INDEX      30
 
-#else  // HAVE_SE_TOUCH
+#else  // SCREEN_SIZE_WALLET
 #define KEYBOARD_KEY_WIDTH  14
 #define KEYBOARD_KEY_HEIGHT 14
 #define KEYBOARD_WIDTH      (5 * KEYBOARD_KEY_WIDTH)
-#endif  // HAVE_SE_TOUCH
+#endif  // SCREEN_SIZE_WALLET
 #endif  // NBGL_KEYBOARD
 
 // for Keypad
-#ifdef HAVE_SE_TOUCH
-#if (SCREEN_HEIGHT == 600)
-#define KEYPAD_KEY_HEIGHT 88
-#else
+#ifdef SCREEN_SIZE_WALLET
+#if defined(TARGET_STAX)
 #define KEYPAD_KEY_HEIGHT 104
-#endif
-#else  // HAVE_SE_TOUCH
+#elif defined(TARGET_FLEX)
+#define KEYPAD_KEY_HEIGHT 88
+#endif  // TARGETS
+#else   // SCREEN_SIZE_WALLET
 #define KEYPAD_WIDTH  114
 #define KEYPAD_HEIGHT 18
-#endif  // HAVE_SE_TOUCH
+#endif  // SCREEN_SIZE_WALLET
 #define KEYPAD_MAX_DIGITS 12
 
-#ifdef HAVE_SE_TOUCH
+#ifdef SCREEN_SIZE_WALLET
 // external margin in pixels
-#ifdef TARGET_STAX
+#if defined(TARGET_STAX)
 #define BORDER_MARGIN        24
 #define BOTTOM_BORDER_MARGIN 24
-#else  // TARGET_STAX
+#elif defined(TARGET_FLEX)
 #define BORDER_MARGIN        32
 #define BOTTOM_BORDER_MARGIN 24
-#endif  // TARGET_STAX
+#endif  // TARGETS
 
 // Back button header height
-#ifdef TARGET_STAX
+#if defined(TARGET_STAX)
 #define BACK_BUTTON_HEADER_HEIGHT 88
-#else  // TARGET_STAX
+#elif defined(TARGET_FLEX)
 #define BACK_BUTTON_HEADER_HEIGHT 96
-#endif  // TARGET_STAX
+#endif  // TARGETS
 
 // common dimensions for buttons
-#ifdef TARGET_STAX
-#define BUTTON_RADIUS   RADIUS_40_PIXELS
-#define BUTTON_DIAMETER 80
-#else  // TARGET_STAX
-#define BUTTON_RADIUS   RADIUS_44_PIXELS
-#define BUTTON_DIAMETER 88
-#endif  // TARGET_STAX
-#endif  // HAVE_SE_TOUCH
+#if COMMON_RADIUS == 40
+#define BUTTON_RADIUS RADIUS_40_PIXELS
+#elif COMMON_RADIUS == 44
+#define BUTTON_RADIUS RADIUS_44_PIXELS
+#endif  // COMMON_RADIUS
+#define BUTTON_DIAMETER (COMMON_RADIUS * 2)
 
 // width & height for spinner
-#ifdef TARGET_STAX
+#if defined(TARGET_STAX)
 #define SPINNER_WIDTH  60
 #define SPINNER_HEIGHT 44
-#else  // TARGET_STAX
+#elif defined(TARGET_FLEX)
 #define SPINNER_WIDTH  64
 #define SPINNER_HEIGHT 48
-#endif  // TARGET_STAX
+#endif  // TARGETS
 
 // width & height for radio button
-#ifdef TARGET_STAX
+#if defined(TARGET_STAX)
 #define RADIO_WIDTH  32
 #define RADIO_HEIGHT 32
-#else  // TARGET_STAX
+#elif defined(TARGET_FLEX)
 #define RADIO_WIDTH  40
 #define RADIO_HEIGHT 40
-#endif  // TARGET_STAX
+#endif  // TARGETS
 
 // icons for some objects
-#ifdef TARGET_STAX
+#if SMALL_ICON_SIZE == 32
 #define SPACE_ICON        C_Space_32px
 #define BACKSPACE_ICON    C_Erase_32px
 #define SHIFT_ICON        C_Maj_32px
@@ -130,7 +128,8 @@ extern "C" {
 #define ROUND_WARN_ICON   C_Important_Circle_32px
 #define PRIVACY_ICON      C_Privacy_32px
 #define EXCLAMATION_ICON  C_Exclamation_32px
-#else  // TARGET_STAX
+#define DIGIT_ICON        C_round_24px
+#elif SMALL_ICON_SIZE == 40
 #define SPACE_ICON        C_Space_40px
 #define BACKSPACE_ICON    C_Erase_40px
 #define SHIFT_ICON        C_Maj_40px
@@ -152,7 +151,8 @@ extern "C" {
 #define ROUND_WARN_ICON   C_Important_Circle_40px
 #define PRIVACY_ICON      C_Privacy_40px
 #define EXCLAMATION_ICON  C_Exclamation_40px
-#endif  // TARGET_STAX
+#define DIGIT_ICON        C_pin_24
+#endif  // SMALL_ICON_SIZE
 
 // For backward compatibility, to be remove later
 #define C_warning64px        _Pragma("GCC warning \"Deprecated constant!\"") C_Warning_64px
@@ -168,6 +168,7 @@ extern "C" {
 
 // number of spinner positions
 #define NB_SPINNER_POSITIONS 4
+#endif  // SCREEN_SIZE_WALLET
 
 /**********************
  *      TYPEDEFS
@@ -510,14 +511,14 @@ typedef struct PACKED__ nbgl_keyboard_s {
     color_t    textColor;    ///< color set to letters.
     color_t    borderColor;  ///< color set to key borders
     bool       lettersOnly;  ///< if true, only display letter keys and Backspace
-#ifdef HAVE_SE_TOUCH
+#ifdef SCREEN_SIZE_WALLET
     bool needsRefresh;  ///< if true, means that the keyboard has been redrawn and needs a refresh
     keyboardCase_t casing;  ///< keyboard casing mode (lower, upper once or upper locked)
-#else                       // HAVE_SE_TOUCH
+#else                       // SCREEN_SIZE_WALLET
     bool    enableBackspace;   ///< if true, Backspace key is enabled
     bool    enableValidate;    ///< if true, Validate key is enabled
     uint8_t selectedCharIndex;
-#endif                      // HAVE_SE_TOUCH
+#endif                      // SCREEN_SIZE_WALLET
     keyboardMode_t mode;    ///< keyboard mode to start with
     uint32_t keyMask;  ///< mask used to disable some keys in letters only mod. The 26 LSB bits of
                        ///< mask are used, for the 26 letters of a QWERTY keyboard. Bit[0] for Q,
@@ -531,15 +532,15 @@ typedef struct PACKED__ nbgl_keyboard_s {
  */
 typedef struct PACKED__ nbgl_keypad_s {
     nbgl_obj_t obj;  ///< common part
-#ifdef HAVE_SE_TOUCH
+#ifdef SCREEN_SIZE_WALLET
     color_t borderColor;                 ///< color set to key borders
     bool    softValidation;              ///< if true, the "check icon" is replaced by an arrow
     bool    enableDigits;                ///< if true, Digit keys are enabled
     bool    partial;                     ///< if true, means that only some keys have changed
     uint8_t digitIndexes[5];             ///< array of digits indexes, 4 bits per digit
-#else                                    // HAVE_SE_TOUCH
+#else                                    // SCREEN_SIZE_WALLET
     uint8_t selectedKey;  ///< selected key position
-#endif                                   // HAVE_SE_TOUCH
+#endif                                   // SCREEN_SIZE_WALLET
     bool               enableBackspace;  ///< if true, Backspace key is enabled
     bool               enableValidate;   ///< if true, Validate key is enabled
     bool               shuffled;         ///< if true, Digit keys are shuffled

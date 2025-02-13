@@ -24,8 +24,12 @@
 /*********************
  *      DEFINES
  *********************/
-#define KEY_WIDTH      (SCREEN_WIDTH / 3)
+#define KEY_WIDTH (SCREEN_WIDTH / 3)
+#if defined(TARGET_STAX)
 #define DIGIT_OFFSET_Y (((KEYPAD_KEY_HEIGHT - 48) / 2) & 0xFFC)
+#elif defined(TARGET_FLEX)
+#define DIGIT_OFFSET_Y (((KEYPAD_KEY_HEIGHT - 48) / 2) & 0xFFC)
+#endif  // TARGETS
 
 #define BACKSPACE_KEY_IDX 10
 #define VALIDATE_KEY_IDX  11

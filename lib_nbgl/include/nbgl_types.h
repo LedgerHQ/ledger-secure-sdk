@@ -23,29 +23,33 @@ extern "C" {
  *      DEFINES
  *********************/
 /**
- * Width of the front screen in pixels
+ * Width, height of the front screen in pixels and common sizes of icons and fonts
  */
 #ifdef SCREEN_SIZE_WALLET
-#ifdef TARGET_STAX
-#define SCREEN_WIDTH 400
-#else  // TARGET_STAX
-#define SCREEN_WIDTH 480
-#endif  // TARGET_STAX
+#if defined(TARGET_STAX)
+#define SCREEN_WIDTH      400
+#define SCREEN_HEIGHT     672
+#define SMALL_ICON_SIZE   32
+#define LARGE_ICON_SIZE   64
+// height of the smallest used font
+#define SMALL_FONT_HEIGHT 24
+// radius of circle used for controls (buttons)
+#define COMMON_RADIUS     40
+#elif defined(TARGET_FLEX)
+#define SCREEN_WIDTH      480
+#define SCREEN_HEIGHT     600
+#define SMALL_ICON_SIZE   40
+#define LARGE_ICON_SIZE   64
+// height of the smallest used font
+#define SMALL_FONT_HEIGHT 28
+// radius of circle used for controls (buttons)
+#define COMMON_RADIUS     44
+#endif  // TARGETS
 #else   // SCREEN_SIZE_WALLET
-#define SCREEN_WIDTH 128
-#endif  // SCREEN_SIZE_WALLET
-
-/**
- * Height of the front screen in pixels
- */
-#ifdef SCREEN_SIZE_WALLET
-#ifdef TARGET_STAX
-#define SCREEN_HEIGHT 672
-#else  // TARGET_STAX
-#define SCREEN_HEIGHT 600
-#endif  // TARGET_STAX
-#else   // SCREEN_SIZE_WALLET
-#define SCREEN_HEIGHT 64
+#define SCREEN_WIDTH      128
+#define SCREEN_HEIGHT     64
+// height of the smallest used font
+#define SMALL_FONT_HEIGHT 11
 #endif  // SCREEN_SIZE_WALLET
 
 /**
@@ -324,13 +328,13 @@ typedef enum nbgl_post_refresh_t {
 typedef enum {
 #ifdef SCREEN_SIZE_WALLET
     RADIUS_32_PIXELS = 0,  ///< 32 pixels
-#ifdef TARGET_STAX
+#if defined(TARGET_STAX)
     RADIUS_40_PIXELS,  ///< 40 pixels
     RADIUS_MAX = RADIUS_40_PIXELS,
-#else                        // TARGET_STAX
+#elif defined(TARGET_FLEX)
     RADIUS_44_PIXELS,  ///< 44 pixels
     RADIUS_MAX = RADIUS_44_PIXELS,
-#endif                       // TARGET_STAX
+#endif                       // TARGETS
 #else                        // SCREEN_SIZE_WALLET
     RADIUS_1_PIXEL = 0,  ///< 1 pixel
     RADIUS_3_PIXELS,     ///< 3 pixels

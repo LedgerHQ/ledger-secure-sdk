@@ -25,11 +25,6 @@
 /*********************
  *      DEFINES
  *********************/
-#ifdef TARGET_STAX
-#define DIGIT_ICON C_round_24px
-#else  // TARGET_STAX
-#define DIGIT_ICON C_pin_24
-#endif  // TARGET_STAX
 
 enum {
     TITLE_INDEX = 0,
@@ -37,6 +32,16 @@ enum {
     LINE_INDEX,
     NB_CHILDREN
 };
+
+#if defined(TARGET_STAX)
+#define ENTRY_DIGITS_HEIGHT           50
+#define ENTRY_DIGITS_CONTAINER_HEIGHT 44
+#define INTER_ENTRY_DIGITS            10
+#elif defined(TARGET_FLEX)
+#define ENTRY_DIGITS_HEIGHT           64
+#define ENTRY_DIGITS_CONTAINER_HEIGHT 64
+#define INTER_ENTRY_DIGITS            12
+#endif  // TARGETS
 
 /**********************
  *      MACROS
@@ -234,12 +239,8 @@ int nbgl_layoutAddHiddenDigits(nbgl_layout_t *layout, uint8_t nbDigits)
     container->children = nbgl_containerPoolGet(container->nbChildren, layoutInt->layer);
     // <space> pixels between each icon (knowing that the effective round are 18px large and the
     // icon 24px)
-    container->obj.area.width = nbDigits * DIGIT_ICON.width + (nbDigits - 1) * space;
-#ifdef TARGET_STAX
-    container->obj.area.height = 50;
-#else   // TARGET_STAX
-    container->obj.area.height = 64;
-#endif  // TARGET_STAX
+    container->obj.area.width  = nbDigits * DIGIT_ICON.width + (nbDigits - 1) * space;
+    container->obj.area.height = ENTRY_DIGITS_HEIGHT;
 
     // item N-2 is the title
     container->obj.alignTo   = layoutInt->container->children[layoutInt->container->nbChildren - 2];
@@ -411,11 +412,7 @@ int nbgl_layoutAddKeypadContent(nbgl_layout_t *layout,
             space = 4;
         }
         else {
-#ifdef TARGET_STAX
-            space = 10;
-#else   // TARGET_STAX
-            space = 12;
-#endif  // TARGET_STAX
+            space = INTER_ENTRY_DIGITS;
         }
 
         // create digits container, to store "discs"
@@ -425,12 +422,8 @@ int nbgl_layoutAddKeypadContent(nbgl_layout_t *layout,
             = nbgl_containerPoolGet(digitsContainer->nbChildren, layoutInt->layer);
         // <space> pixels between each icon (knowing that the effective round are 18px large and the
         // icon 24px)
-        digitsContainer->obj.area.width = nbDigits * DIGIT_ICON.width + (nbDigits - 1) * space;
-#ifdef TARGET_STAX
-        digitsContainer->obj.area.height = 44;
-#else   // TARGET_STAX
-        digitsContainer->obj.area.height = 64;
-#endif  // TARGET_STAX
+        digitsContainer->obj.area.width  = nbDigits * DIGIT_ICON.width + (nbDigits - 1) * space;
+        digitsContainer->obj.area.height = ENTRY_DIGITS_CONTAINER_HEIGHT;
         // align at the bottom of title
         digitsContainer->obj.alignTo   = container->children[0];
         digitsContainer->obj.alignment = BOTTOM_MIDDLE;

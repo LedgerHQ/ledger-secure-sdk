@@ -39,7 +39,7 @@
 
 #define TAG_VALUE_ICON_WIDTH 32
 
-#ifdef TARGET_STAX
+#if defined(TARGET_STAX)
 #define RADIO_CHOICE_HEIGHT              96
 #define FOOTER_HEIGHT                    80
 #define BAR_INTERVALE                    12
@@ -48,7 +48,18 @@
 #define UP_FOOTER_BUTTON_HEIGHT          120
 #define ROUNDED_AND_FOOTER_FOOTER_HEIGHT 192
 #define ACTION_AND_FOOTER_FOOTER_HEIGHT  216
-#else  // TARGET_STAX
+#define FOOTER_TEXT_AND_NAV_HEIGHT       160
+#define TAP_TO_CONTINUE_MARGIN           24
+#define SUB_HEADER_MARGIN                (2 * 24)
+#define PRE_FIRST_TEXT_MARGIN            24
+#define INTER_PARAGRAPHS_MARGIN          40
+#define PRE_TITLE_MARGIN                 24
+#define PRE_DESCRIPTION_MARGIN           16
+#define INTER_ROWS_MARGIN                16
+#define QR_INTER_TEXTS_MARGIN            40
+#define SPINNER_TEXT_MARGIN              20
+#define SPINNER_INTER_TEXTS_MARGIN       20
+#elif defined(TARGET_FLEX)
 #define RADIO_CHOICE_HEIGHT              92
 #define FOOTER_HEIGHT                    80
 #define BAR_INTERVALE                    16
@@ -57,22 +68,23 @@
 #define UP_FOOTER_BUTTON_HEIGHT          136
 #define ROUNDED_AND_FOOTER_FOOTER_HEIGHT 208
 #define ACTION_AND_FOOTER_FOOTER_HEIGHT  232
-#endif  // TARGET_STAX
+#define FOOTER_TEXT_AND_NAV_HEIGHT       192
+#define TAP_TO_CONTINUE_MARGIN           30
+#define SUB_HEADER_MARGIN                (2 * 28)
+#define PRE_FIRST_TEXT_MARGIN            0
+#define INTER_PARAGRAPHS_MARGIN          24
+#define PRE_TITLE_MARGIN                 16
+#define PRE_DESCRIPTION_MARGIN           24
+#define INTER_ROWS_MARGIN                26
+#define QR_INTER_TEXTS_MARGIN            28
+#define SPINNER_TEXT_MARGIN              24
+#define SPINNER_INTER_TEXTS_MARGIN       16
+#else  // TARGETS
+#error Undefined target
+#endif  // TARGETS
 
 // refresh period of the spinner, in ms
 #define SPINNER_REFRESH_PERIOD 400
-
-#ifdef TARGET_STAX
-#define FIRST_BUTTON_INDEX 0
-#else   // TARGET_STAX
-// for suggestion buttons, on Flex there are other objects than buttons
-enum {
-    PAGE_INDICATOR_INDEX = 0,
-    LEFT_HALF_INDEX,   // half disc displayed on the bottom left
-    RIGHT_HALF_INDEX,  // half disc displayed on the bottom right
-    FIRST_BUTTON_INDEX
-};
-#endif  // TARGET_STAX
 
 /**********************
  *      MACROS
@@ -1048,17 +1060,11 @@ static int addText(nbgl_layout_t *layout,
         subTextArea->obj.alignment   = NO_ALIGNMENT;
         if (text != NULL) {
             subTextArea->obj.alignmentMarginY = TEXT_SUBTEXT_MARGIN;
-            fullHeight += POST_SUBTEXT_MARGIN;  // under the subText
         }
         else {
-#ifdef TARGET_STAX
-            subTextArea->obj.alignmentMarginY = BORDER_MARGIN;
-            fullHeight += BORDER_MARGIN;
-#else   // TARGET_STAX
-            subTextArea->obj.alignmentMarginY = 26;
-            fullHeight += 26;  // under the subText
-#endif  // TARGET_STAX
+            subTextArea->obj.alignmentMarginY = PRE_SUBTEXT_MARGIN;
         }
+        fullHeight += subTextArea->obj.alignmentMarginY;
         container->children[container->nbChildren] = (nbgl_obj_t *) subTextArea;
         container->nbChildren++;
         fullHeight += subTextArea->obj.area.height + subTextArea->obj.alignmentMarginY;
@@ -1197,12 +1203,8 @@ int nbgl_layoutAddSwipe(nbgl_layout_t *layout,
         layoutInt->tapText->obj.area.width  = AVAILABLE_WIDTH;
         layoutInt->tapText->obj.area.height = nbgl_getFontLineHeight(layoutInt->tapText->fontId);
         layoutInt->tapText->textAlignment   = CENTER;
-#ifdef TARGET_STAX
-        layoutInt->tapText->obj.alignmentMarginY = BORDER_MARGIN;
-#else   // TARGET_STAX
-        layoutInt->tapText->obj.alignmentMarginY = 30;
-#endif  // TARGET_STAX
-        layoutInt->tapText->obj.alignment = BOTTOM_MIDDLE;
+        layoutInt->tapText->obj.alignmentMarginY = TAP_TO_CONTINUE_MARGIN;
+        layoutInt->tapText->obj.alignment        = BOTTOM_MIDDLE;
     }
     return addSwipeInternal(layoutInt, swipesMask, SWIPE_USAGE_CUSTOM, token, tuneId);
 }
@@ -1448,11 +1450,7 @@ int nbgl_layoutAddSubHeaderText(nbgl_layout_t *layout, const char *text)
     textArea->obj.area.width       = AVAILABLE_WIDTH;
     textArea->obj.area.height      = nbgl_getTextHeightInWidth(
         textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
-#ifdef TARGET_STAX
-    textArea->obj.area.height += 2 * 24;
-#else   // TARGET_STAX
-    textArea->obj.area.height += 2 * 28;
-#endif  // TARGET_STAX
+    textArea->obj.area.height += SUB_HEADER_MARGIN;
 
     // set this new obj as child of main container
     layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
@@ -1491,17 +1489,11 @@ int nbgl_layoutAddLargeCaseText(nbgl_layout_t *layout, const char *text, bool gr
     textArea->obj.alignment        = NO_ALIGNMENT;
     textArea->obj.alignmentMarginX = BORDER_MARGIN;
     if (layoutInt->container->nbChildren == 0) {
-#ifdef TARGET_STAX
         // if first object of container, increase the margin from top
-        textArea->obj.alignmentMarginY += BORDER_MARGIN;
-#endif  // TARGET_STAX
+        textArea->obj.alignmentMarginY += PRE_FIRST_TEXT_MARGIN;
     }
     else {
-#ifdef TARGET_STAX
-        textArea->obj.alignmentMarginY = 40;  // 40px between paragraphs
-#else                                         // TARGET_STAX
-        textArea->obj.alignmentMarginY = 24;  // 24px between paragraphs
-#endif                                        // TARGET_STAX
+        textArea->obj.alignmentMarginY = INTER_PARAGRAPHS_MARGIN;  // between paragraphs
     }
 
     // set this new obj as child of main container
@@ -1545,13 +1537,9 @@ int nbgl_layoutAddTextContent(nbgl_layout_t *layout,
     textArea->wrapping      = true;
     textArea->obj.alignment = NO_ALIGNMENT;
     textArea->obj.alignmentMarginX = BORDER_MARGIN;
-#ifdef TARGET_STAX
-    textArea->obj.alignmentMarginY = 24;
-#else   // TARGET_STAX
-    textArea->obj.alignmentMarginY = 16;
-#endif  // TARGET_STAX
-    textArea->obj.area.width  = AVAILABLE_WIDTH;
-    textArea->obj.area.height = nbgl_getTextHeightInWidth(
+    textArea->obj.alignmentMarginY = PRE_TITLE_MARGIN;
+    textArea->obj.area.width       = AVAILABLE_WIDTH;
+    textArea->obj.area.height      = nbgl_getTextHeightInWidth(
         textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
     // set this new obj as child of main container
     layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
@@ -1569,11 +1557,7 @@ int nbgl_layoutAddTextContent(nbgl_layout_t *layout,
     textArea->textAlignment        = MID_LEFT;
     textArea->obj.alignment        = NO_ALIGNMENT;
     textArea->obj.alignmentMarginX = BORDER_MARGIN;
-#ifdef TARGET_STAX
-    textArea->obj.alignmentMarginY = 16;
-#else   // TARGET_STAX
-    textArea->obj.alignmentMarginY = 24;
-#endif  // TARGET_STAX
+    textArea->obj.alignmentMarginY = PRE_DESCRIPTION_MARGIN;
     // set this new obj as child of main container
     layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
 
@@ -1853,11 +1837,7 @@ int nbgl_layoutAddLeftContent(nbgl_layout_t *layout, const nbgl_layoutLeftConten
             rowContainer->obj.alignmentMarginY = 32;
         }
         else {
-#ifdef TARGET_STAX
-            rowContainer->obj.alignmentMarginY = 16;
-#else   // TARGET_STAX
-            rowContainer->obj.alignmentMarginY = 26;
-#endif  // TARGET_STAX
+            rowContainer->obj.alignmentMarginY = INTER_ROWS_MARGIN;
         }
         container->children[1 + row] = (nbgl_obj_t *) rowContainer;
         container->obj.area.height
@@ -1950,11 +1930,7 @@ int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info)
         textArea->obj.alignment = BOTTOM_MIDDLE;
         textArea->obj.alignTo   = (nbgl_obj_t *) container->children[container->nbChildren - 1];
         if (info->text1 != NULL) {
-#ifdef TARGET_STAX
-            textArea->obj.alignmentMarginY = 40;
-#else   // TARGET_STAX
-            textArea->obj.alignmentMarginY = 28;
-#endif  // TARGET_STAX
+            textArea->obj.alignmentMarginY = QR_INTER_TEXTS_MARGIN;
         }
         else {
             textArea->obj.alignmentMarginY = 32;
@@ -2170,20 +2146,12 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
         container->obj.area.height      = fullHeight;
         container->layout               = VERTICAL;
         container->obj.alignmentMarginX = BORDER_MARGIN;
-#ifdef TARGET_STAX
-        // On Stax, 12 px between each tag/value pair
         if (i > 0) {
-            container->obj.alignmentMarginY = 12;
+            container->obj.alignmentMarginY = PRE_TAG_VALUE_MARGIN;
         }
         else {
-            container->obj.alignmentMarginY = 24;
+            container->obj.alignmentMarginY = INTER_TAG_VALUE_MARGIN;
         }
-#else   // TARGET_STAX
-        // On Flex, 24 px between each tag/value pair
-        if (i > 0) {
-            container->obj.alignmentMarginY = 24;
-        }
-#endif  // TARGET_STAX
         container->obj.alignment = NO_ALIGNMENT;
 
         layoutAddObject(layoutInt, (nbgl_obj_t *) container);
@@ -2483,7 +2451,7 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
     nbgl_image_t          *image = NULL;
     nbgl_button_t         *button;
 
-    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddHeader():\n");
+    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddHeader(): type = %d\n", headerDesc->type);
     if (layout == NULL) {
         return -1;
     }
@@ -2888,13 +2856,9 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
             if (obj == NULL) {
                 return -1;
             }
-            textArea->obj.alignment = BOTTOM_LEFT;
-            textArea->textColor     = BLACK;
-#ifdef TARGET_STAX
-            textArea->obj.area.width = 160;
-#else   // TARGET_STAX
-            textArea->obj.area.width = 192;
-#endif  // TARGET_STAX
+            textArea->obj.alignment   = BOTTOM_LEFT;
+            textArea->textColor       = BLACK;
+            textArea->obj.area.width  = FOOTER_TEXT_AND_NAV_HEIGHT;
             textArea->obj.area.height = SIMPLE_FOOTER_HEIGHT;
             textArea->text            = PIC(footerDesc->textAndNav.text);
             textArea->fontId          = SMALL_BOLD_FONT;
@@ -3535,15 +3499,11 @@ int nbgl_layoutAddSpinner(nbgl_layout_t *layout,
     textArea->textAlignment = CENTER;
     textArea->fontId        = (subText != NULL) ? LARGE_MEDIUM_FONT : SMALL_REGULAR_FONT;
     textArea->wrapping      = true;
-#ifdef TARGET_STAX
-    textArea->obj.alignmentMarginY = 20;
-#else   // TARGET_STAX
-    textArea->obj.alignmentMarginY = 24;
-#endif  // TARGET_STAX
-    textArea->obj.alignTo     = (nbgl_obj_t *) spinner;
-    textArea->obj.alignment   = BOTTOM_MIDDLE;
-    textArea->obj.area.width  = AVAILABLE_WIDTH;
-    textArea->obj.area.height = nbgl_getTextHeightInWidth(
+    textArea->obj.alignmentMarginY = SPINNER_TEXT_MARGIN;
+    textArea->obj.alignTo          = (nbgl_obj_t *) spinner;
+    textArea->obj.alignment        = BOTTOM_MIDDLE;
+    textArea->obj.area.width       = AVAILABLE_WIDTH;
+    textArea->obj.area.height      = nbgl_getTextHeightInWidth(
         textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
     textArea->style = NO_STYLE;
 
@@ -3559,22 +3519,18 @@ int nbgl_layoutAddSpinner(nbgl_layout_t *layout,
         subTextArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
         subTextArea->textColor = BLACK;
         subTextArea->text      = PIC(subText);
-        subTextArea->textAlignment = CENTER;
-        subTextArea->fontId        = SMALL_REGULAR_FONT;
-        subTextArea->wrapping      = true;
-#ifdef TARGET_STAX
-        subTextArea->obj.alignmentMarginY = 20;
-#else   // TARGET_STAX
-        subTextArea->obj.alignmentMarginY = 16;
-#endif  // TARGET_STAX
-        subTextArea->obj.alignTo     = (nbgl_obj_t *) textArea;
-        subTextArea->obj.alignment   = BOTTOM_MIDDLE;
-        subTextArea->obj.area.width  = AVAILABLE_WIDTH;
-        subTextArea->obj.area.height = nbgl_getTextHeightInWidth(subTextArea->fontId,
+        subTextArea->textAlignment        = CENTER;
+        subTextArea->fontId               = SMALL_REGULAR_FONT;
+        subTextArea->wrapping             = true;
+        subTextArea->obj.alignmentMarginY = SPINNER_INTER_TEXTS_MARGIN;
+        subTextArea->obj.alignTo          = (nbgl_obj_t *) textArea;
+        subTextArea->obj.alignment        = BOTTOM_MIDDLE;
+        subTextArea->obj.area.width       = AVAILABLE_WIDTH;
+        subTextArea->obj.area.height      = nbgl_getTextHeightInWidth(subTextArea->fontId,
                                                                  subTextArea->text,
                                                                  subTextArea->obj.area.width,
                                                                  subTextArea->wrapping);
-        subTextArea->style           = NO_STYLE;
+        subTextArea->style                = NO_STYLE;
 
         // update container height
         container->obj.area.height

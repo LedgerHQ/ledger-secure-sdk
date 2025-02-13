@@ -71,11 +71,7 @@ static const uint8_t quarter_circle_3px_270_1bpp[] = {0x58, 0x00};
 static const uint8_t radiusValues[] = {
 #ifdef SCREEN_SIZE_WALLET
     32,
-#ifdef TARGET_STAX
-    40,
-#else   // TARGET_STAX
-    44
-#endif  // TARGET_STAX
+    COMMON_RADIUS
 #else   // SCREEN_SIZE_WALLET
     1,
     3
@@ -86,39 +82,39 @@ static const uint8_t radiusValues[] = {
 // indexed by nbgl_radius_t (except RADIUS_0_PIXELS)
 static const uint8_t *topQuarterDiscs[] = {
     C_quarter_disc_top_left_32px_1bpp_bitmap,
-#ifdef TARGET_STAX
+#if COMMON_RADIUS == 40
     C_quarter_disc_top_left_40px_1bpp_bitmap,
-#else   // TARGET_STAX
+#elif COMMON_RADIUS == 44
     C_quarter_disc_top_left_44px_1bpp_bitmap
-#endif  // TARGET_STAX
+#endif  // COMMON_RADIUS
 };
 
 static const uint8_t *bottomQuarterDiscs[] = {
     C_quarter_disc_bottom_left_32px_1bpp_bitmap,
-#ifdef TARGET_STAX
+#if COMMON_RADIUS == 40
     C_quarter_disc_bottom_left_40px_1bpp_bitmap,
-#else   // TARGET_STAX
+#elif COMMON_RADIUS == 44
     C_quarter_disc_bottom_left_44px_1bpp_bitmap
-#endif  // TARGET_STAX
+#endif  // COMMON_RADIUS
 };
 
 // indexed by nbgl_radius_t (except RADIUS_0_PIXELS)
 static const uint8_t *topQuarterCircles[] = {
     C_quarter_circle_top_left_32px_1bpp_bitmap,
-#ifdef TARGET_STAX
+#if COMMON_RADIUS == 40
     C_quarter_circle_top_left_40px_1bpp_bitmap,
-#else   // TARGET_STAX
+#elif COMMON_RADIUS == 44
     C_quarter_circle_top_left_44px_1bpp_bitmap
-#endif  // TARGET_STAX
+#endif  // COMMON_RADIUS
 };
 
 static const uint8_t *bottomQuarterCircles[] = {
     C_quarter_circle_bottom_left_32px_1bpp_bitmap,
-#ifdef TARGET_STAX
+#if COMMON_RADIUS == 40
     C_quarter_circle_bottom_left_40px_1bpp_bitmap,
-#else   // TARGET_STAX
+#elif COMMON_RADIUS == 44
     C_quarter_circle_bottom_left_44px_1bpp_bitmap
-#endif  // TARGET_STAX
+#endif  // COMMON_RADIUS
 };
 #endif  // SCREEN_SIZE_WALLET
 

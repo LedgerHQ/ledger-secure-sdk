@@ -37,7 +37,7 @@ extern "C" {
 ///< pressed in the navigation bar
 #define EXIT_PAGE 0xFF
 
-#ifdef TARGET_STAX
+#if defined(TARGET_STAX)
 #define NB_MAX_SUGGESTION_BUTTONS         12
 // only 4 buttons are visible at the same time on Stax
 #define NB_MAX_VISIBLE_SUGGESTION_BUTTONS 4
@@ -49,7 +49,15 @@ extern "C" {
 #define SMALL_CENTERING_HEADER            32
 #define MEDIUM_CENTERING_HEADER           56
 #define LONG_PRESS_BUTTON_HEIGHT          128
-#else  // TARGET_STAX
+
+#define PRE_TEXT_MARGIN     32
+#define TEXT_SUBTEXT_MARGIN 16
+#define PRE_SUBTEXT_MARGIN  24
+#define POST_SUBTEXT_MARGIN 28
+
+#define PRE_TAG_VALUE_MARGIN   24
+#define INTER_TAG_VALUE_MARGIN 12
+#elif defined(TARGET_FLEX)
 #define NB_MAX_SUGGESTION_BUTTONS         8
 // only 2 buttons are visible at the same time on Flex
 #define NB_MAX_VISIBLE_SUGGESTION_BUTTONS 2
@@ -61,21 +69,21 @@ extern "C" {
 #define SMALL_CENTERING_HEADER            40
 #define MEDIUM_CENTERING_HEADER           64
 #define LONG_PRESS_BUTTON_HEIGHT          152
-#endif  // TARGET_STAX
+
+#define PRE_TEXT_MARGIN     28
+#define TEXT_SUBTEXT_MARGIN 14
+#define PRE_SUBTEXT_MARGIN  26
+#define POST_SUBTEXT_MARGIN 26
+
+#define PRE_TAG_VALUE_MARGIN   0
+#define INTER_TAG_VALUE_MARGIN 24
+#else  // TARGETS
+#error Undefined target
+#endif  // TARGETS
 
 #define AVAILABLE_WIDTH (SCREEN_WIDTH - 2 * BORDER_MARGIN)
 
 #define NB_MAX_LINES NB_MAX_LINES_IN_DETAILS
-
-#ifdef TARGET_STAX
-#define PRE_TEXT_MARGIN     32
-#define TEXT_SUBTEXT_MARGIN 16
-#define POST_SUBTEXT_MARGIN 28
-#else  // TARGET_STAX
-#define PRE_TEXT_MARGIN     28
-#define TEXT_SUBTEXT_MARGIN 14
-#define POST_SUBTEXT_MARGIN 26
-#endif  // TARGET_STAX
 
 #else  // HAVE_SE_TOUCH
 // 7 pixels on each side
