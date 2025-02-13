@@ -146,15 +146,13 @@ Macros</h2></td></tr>
 <tr class="separator:aebfe88ceb8ca3bb687d189bbf0839ccd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af71cd8190c91bcdf431f58b031e71531" id="r_af71cd8190c91bcdf431f58b031e71531"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj__keyboard_8c.html#af71cd8190c91bcdf431f58b031e71531">NORMAL_KEY_WIDTH</a>&#160;&#160;&#160;48</td></tr>
 <tr class="separator:af71cd8190c91bcdf431f58b031e71531"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abc10ea1fa55f4e47c642d4c2de353511" id="r_abc10ea1fa55f4e47c642d4c2de353511"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj__keyboard_8c.html#abc10ea1fa55f4e47c642d4c2de353511">LETTER_OFFSET_Y</a>&#160;&#160;&#160;(((<a class="el" href="nbgl__obj_8h.html#aad6f1c3e8c6c1855dbeb71e2fa0545ea">KEYBOARD_KEY_HEIGHT</a> - 36) / 2) &amp; 0xFFC)</td></tr>
+<tr class="memitem:abc10ea1fa55f4e47c642d4c2de353511" id="r_abc10ea1fa55f4e47c642d4c2de353511"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj__keyboard_8c.html#abc10ea1fa55f4e47c642d4c2de353511">LETTER_OFFSET_Y</a>&#160;&#160;&#160;(((KEYBOARD_KEY_HEIGHT - 36) / 2) &amp; 0xFFC)</td></tr>
 <tr class="separator:abc10ea1fa55f4e47c642d4c2de353511"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab97b90639d60c74fd86efebb13991ae9" id="r_ab97b90639d60c74fd86efebb13991ae9"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj__keyboard_8c.html#ab97b90639d60c74fd86efebb13991ae9">SHIFT_KEY_WIDTH</a>&#160;&#160;&#160;(<a class="el" href="nbgl__obj__keyboard_8c.html#af71cd8190c91bcdf431f58b031e71531">NORMAL_KEY_WIDTH</a> + <a class="el" href="nbgl__obj__keyboard_8c.html#a8a9fdf5f11eb70e5fc32ba6968400e4e">SECOND_LINE_OFFSET</a>)</td></tr>
 <tr class="separator:ab97b90639d60c74fd86efebb13991ae9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8a9fdf5f11eb70e5fc32ba6968400e4e" id="r_a8a9fdf5f11eb70e5fc32ba6968400e4e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj__keyboard_8c.html#a8a9fdf5f11eb70e5fc32ba6968400e4e">SECOND_LINE_OFFSET</a>&#160;&#160;&#160;((<a class="el" href="nbgl__types_8h.html#a2cd109632a6dcccaa80b43561b1ab700">SCREEN_WIDTH</a> - (<a class="el" href="nbgl__obj__keyboard_8c.html#aebfe88ceb8ca3bb687d189bbf0839ccd">SECOND_LINE_CHAR_COUNT</a> * <a class="el" href="nbgl__obj__keyboard_8c.html#af71cd8190c91bcdf431f58b031e71531">NORMAL_KEY_WIDTH</a>)) / 2)</td></tr>
+<tr class="memitem:a8a9fdf5f11eb70e5fc32ba6968400e4e" id="r_a8a9fdf5f11eb70e5fc32ba6968400e4e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj__keyboard_8c.html#a8a9fdf5f11eb70e5fc32ba6968400e4e">SECOND_LINE_OFFSET</a>&#160;&#160;&#160;((SCREEN_WIDTH - (<a class="el" href="nbgl__obj__keyboard_8c.html#aebfe88ceb8ca3bb687d189bbf0839ccd">SECOND_LINE_CHAR_COUNT</a> * <a class="el" href="nbgl__obj__keyboard_8c.html#af71cd8190c91bcdf431f58b031e71531">NORMAL_KEY_WIDTH</a>)) / 2)</td></tr>
 <tr class="separator:a8a9fdf5f11eb70e5fc32ba6968400e4e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a485221c867ee8448627b73d1aa8bb699" id="r_a485221c867ee8448627b73d1aa8bb699"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj__keyboard_8c.html#a485221c867ee8448627b73d1aa8bb699">SPACE_KEY_WIDTH</a>&#160;&#160;&#160;336</td></tr>
-<tr class="separator:a485221c867ee8448627b73d1aa8bb699"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae1d60b51f534c2a1e1d8540d1cf23bae" id="r_ae1d60b51f534c2a1e1d8540d1cf23bae"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj__keyboard_8c.html#ae1d60b51f534c2a1e1d8540d1cf23bae">SWITCH_KEY_WIDTH</a>&#160;&#160;&#160;(<a class="el" href="nbgl__types_8h.html#a2cd109632a6dcccaa80b43561b1ab700">SCREEN_WIDTH</a> - <a class="el" href="nbgl__obj__keyboard_8c.html#a485221c867ee8448627b73d1aa8bb699">SPACE_KEY_WIDTH</a>)</td></tr>
+<tr class="memitem:ae1d60b51f534c2a1e1d8540d1cf23bae" id="r_ae1d60b51f534c2a1e1d8540d1cf23bae"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj__keyboard_8c.html#ae1d60b51f534c2a1e1d8540d1cf23bae">SWITCH_KEY_WIDTH</a>&#160;&#160;&#160;(SCREEN_WIDTH - SPACE_KEY_WIDTH)</td></tr>
 <tr class="separator:ae1d60b51f534c2a1e1d8540d1cf23bae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abafb3c9088a81622cb9753b0e0b1c7aa" id="r_abafb3c9088a81622cb9753b0e0b1c7aa"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj__keyboard_8c.html#abafb3c9088a81622cb9753b0e0b1c7aa">SPECIAL_CHARS_KEY_WIDTH</a>&#160;&#160;&#160;(<a class="el" href="nbgl__obj__keyboard_8c.html#af71cd8190c91bcdf431f58b031e71531">NORMAL_KEY_WIDTH</a> * 2 + <a class="el" href="nbgl__obj__keyboard_8c.html#a8a9fdf5f11eb70e5fc32ba6968400e4e">SECOND_LINE_OFFSET</a>)</td></tr>
 <tr class="separator:abafb3c9088a81622cb9753b0e0b1c7aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -162,7 +160,7 @@ Macros</h2></td></tr>
 <tr class="separator:ae9360f1d816961db3d247ff1e74a89b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3a535ec1ca5ee6dab1cd6055b38408d8" id="r_a3a535ec1ca5ee6dab1cd6055b38408d8"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj__keyboard_8c.html#a3a535ec1ca5ee6dab1cd6055b38408d8">BACKSPACE_KEY_WIDTH_DIGITS</a>&#160;&#160;&#160;<a class="el" href="nbgl__obj__keyboard_8c.html#abafb3c9088a81622cb9753b0e0b1c7aa">SPECIAL_CHARS_KEY_WIDTH</a></td></tr>
 <tr class="separator:a3a535ec1ca5ee6dab1cd6055b38408d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a111f45d9e361af5a4a52b185079be405" id="r_a111f45d9e361af5a4a52b185079be405"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj__keyboard_8c.html#a111f45d9e361af5a4a52b185079be405">BACKSPACE_KEY_WIDTH_LETTERS_ONLY</a>&#160;&#160;&#160;(<a class="el" href="nbgl__types_8h.html#a2cd109632a6dcccaa80b43561b1ab700">SCREEN_WIDTH</a> - 7 * <a class="el" href="nbgl__obj__keyboard_8c.html#af71cd8190c91bcdf431f58b031e71531">NORMAL_KEY_WIDTH</a>)</td></tr>
+<tr class="memitem:a111f45d9e361af5a4a52b185079be405" id="r_a111f45d9e361af5a4a52b185079be405"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj__keyboard_8c.html#a111f45d9e361af5a4a52b185079be405">BACKSPACE_KEY_WIDTH_LETTERS_ONLY</a>&#160;&#160;&#160;(SCREEN_WIDTH - 7 * <a class="el" href="nbgl__obj__keyboard_8c.html#af71cd8190c91bcdf431f58b031e71531">NORMAL_KEY_WIDTH</a>)</td></tr>
 <tr class="separator:a111f45d9e361af5a4a52b185079be405"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af8891b9b7d1c453bed48a667e09aa47f" id="r_af8891b9b7d1c453bed48a667e09aa47f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj__keyboard_8c.html#af8891b9b7d1c453bed48a667e09aa47f">IS_KEY_MASKED</a>(_index)&#160;&#160;&#160;(keyboard-&gt;keyMask &amp; (1 &lt;&lt; _index))</td></tr>
 <tr class="separator:af8891b9b7d1c453bed48a667e09aa47f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -228,7 +226,7 @@ Variables</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define BACKSPACE_KEY_WIDTH_LETTERS_ONLY&#160;&#160;&#160;(<a class="el" href="nbgl__types_8h.html#a2cd109632a6dcccaa80b43561b1ab700">SCREEN_WIDTH</a> - 7 * <a class="el" href="nbgl__obj__keyboard_8c.html#af71cd8190c91bcdf431f58b031e71531">NORMAL_KEY_WIDTH</a>)</td>
+          <td class="memname">#define BACKSPACE_KEY_WIDTH_LETTERS_ONLY&#160;&#160;&#160;(SCREEN_WIDTH - 7 * <a class="el" href="nbgl__obj__keyboard_8c.html#af71cd8190c91bcdf431f58b031e71531">NORMAL_KEY_WIDTH</a>)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -280,7 +278,7 @@ Variables</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define LETTER_OFFSET_Y&#160;&#160;&#160;(((<a class="el" href="nbgl__obj_8h.html#aad6f1c3e8c6c1855dbeb71e2fa0545ea">KEYBOARD_KEY_HEIGHT</a> - 36) / 2) &amp; 0xFFC)</td>
+          <td class="memname">#define LETTER_OFFSET_Y&#160;&#160;&#160;(((KEYBOARD_KEY_HEIGHT - 36) / 2) &amp; 0xFFC)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -328,7 +326,7 @@ Variables</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define SECOND_LINE_OFFSET&#160;&#160;&#160;((<a class="el" href="nbgl__types_8h.html#a2cd109632a6dcccaa80b43561b1ab700">SCREEN_WIDTH</a> - (<a class="el" href="nbgl__obj__keyboard_8c.html#aebfe88ceb8ca3bb687d189bbf0839ccd">SECOND_LINE_CHAR_COUNT</a> * <a class="el" href="nbgl__obj__keyboard_8c.html#af71cd8190c91bcdf431f58b031e71531">NORMAL_KEY_WIDTH</a>)) / 2)</td>
+          <td class="memname">#define SECOND_LINE_OFFSET&#160;&#160;&#160;((SCREEN_WIDTH - (<a class="el" href="nbgl__obj__keyboard_8c.html#aebfe88ceb8ca3bb687d189bbf0839ccd">SECOND_LINE_CHAR_COUNT</a> * <a class="el" href="nbgl__obj__keyboard_8c.html#af71cd8190c91bcdf431f58b031e71531">NORMAL_KEY_WIDTH</a>)) / 2)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -350,22 +348,6 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p class="definition">Definition at line <a class="el" href="nbgl__obj__keyboard_8c_source.html#l00037">37</a> of file <a class="el" href="nbgl__obj__keyboard_8c_source.html">nbgl_obj_keyboard.c</a>.</p>
-
-</div>
-</div>
-<a id="a485221c867ee8448627b73d1aa8bb699" name="a485221c867ee8448627b73d1aa8bb699"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a485221c867ee8448627b73d1aa8bb699">&#9670;&#160;</a></span>SPACE_KEY_WIDTH</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define SPACE_KEY_WIDTH&#160;&#160;&#160;336</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="nbgl__obj__keyboard_8c_source.html#l00042">42</a> of file <a class="el" href="nbgl__obj__keyboard_8c_source.html">nbgl_obj_keyboard.c</a>.</p>
 
 </div>
 </div>
@@ -392,7 +374,7 @@ Variables</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define SWITCH_KEY_WIDTH&#160;&#160;&#160;(<a class="el" href="nbgl__types_8h.html#a2cd109632a6dcccaa80b43561b1ab700">SCREEN_WIDTH</a> - <a class="el" href="nbgl__obj__keyboard_8c.html#a485221c867ee8448627b73d1aa8bb699">SPACE_KEY_WIDTH</a>)</td>
+          <td class="memname">#define SWITCH_KEY_WIDTH&#160;&#160;&#160;(SCREEN_WIDTH - SPACE_KEY_WIDTH)</td>
         </tr>
       </table>
 </div><div class="memdoc">

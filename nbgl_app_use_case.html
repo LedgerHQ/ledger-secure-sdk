@@ -590,7 +590,7 @@ Review with warning Use Case</h2>
 <div class="line">};</div>
 <div class="line"> </div>
 <div class="line"><span class="comment">// icons for first level warning details</span></div>
-<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <a class="code hl_typedef" href="nbgl__types_8h.html#a7724587bc3e14c498ed49c3e70c365d6">nbgl_icon_details_t</a> *barListIcons[] = {&amp;<a class="code hl_define" href="nbgl__obj_8h.html#a7ec76f4dbce88b0f70a7737abc699453">WARNING_ICON</a>, &amp;<a class="code hl_define" href="nbgl__obj_8h.html#a097e7f9ee563ad8f61c9b93a46229c10">INFO_I_ICON</a>};</div>
+<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <a class="code hl_typedef" href="nbgl__types_8h.html#a7724587bc3e14c498ed49c3e70c365d6">nbgl_icon_details_t</a> *barListIcons[] = {&amp;WARNING_ICON, &amp;INFO_I_ICON};</div>
 <div class="line"> </div>
 <div class="line"><span class="comment">// first level warning details</span></div>
 <div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<span class="keyword">const</span>                  barListTexts[]    = {<span class="stringliteral">&quot;Blind signing&quot;</span>, <span class="stringliteral">&quot;Risk detected&quot;</span>};</div>
@@ -648,8 +648,8 @@ Review with warning Use Case</h2>
 <div class="line"><span class="comment">// warning description (cannot be in call stack)</span></div>
 <div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__warning__t.html">nbgl_warning_t</a> warningDesc = {</div>
 <div class="line">  .<a class="code hl_variable" href="structnbgl__warning__t.html#ae67d2034ed6402a38e048fd0f74c9c9b">info</a>               = &amp;warningInfo,</div>
-<div class="line">  .introTopRightIcon  = &amp;<a class="code hl_define" href="nbgl__obj_8h.html#acfa3b3d504d8402c230fc5e600b3ce9a">PRIVACY_ICON</a>,</div>
-<div class="line">  .reviewTopRightIcon = &amp;<a class="code hl_define" href="nbgl__obj_8h.html#a7ec76f4dbce88b0f70a7737abc699453">WARNING_ICON</a>,</div>
+<div class="line">  .introTopRightIcon  = &amp;PRIVACY_ICON,</div>
+<div class="line">  .reviewTopRightIcon = &amp;WARNING_ICON,</div>
 <div class="line">  .introDetails       = &amp;warningIntroDetails,</div>
 <div class="line">  .reviewDetails      = &amp;warningReviewDetails</div>
 <div class="line">};</div>
@@ -677,9 +677,6 @@ Review with warning Use Case</h2>
 <div class="line">                                &amp;warningDesc,                       <span class="comment">// description of warning causes</span></div>
 <div class="line">                                onReviewResult);                    <span class="comment">// callback on result of the review</span></div>
 <div class="line">}</div>
-<div class="ttc" id="anbgl__obj_8h_html_a097e7f9ee563ad8f61c9b93a46229c10"><div class="ttname"><a href="nbgl__obj_8h.html#a097e7f9ee563ad8f61c9b93a46229c10">INFO_I_ICON</a></div><div class="ttdeci">#define INFO_I_ICON</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8h_source.html#l00148">nbgl_obj.h:148</a></div></div>
-<div class="ttc" id="anbgl__obj_8h_html_a7ec76f4dbce88b0f70a7737abc699453"><div class="ttname"><a href="nbgl__obj_8h.html#a7ec76f4dbce88b0f70a7737abc699453">WARNING_ICON</a></div><div class="ttdeci">#define WARNING_ICON</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8h_source.html#l00151">nbgl_obj.h:151</a></div></div>
-<div class="ttc" id="anbgl__obj_8h_html_acfa3b3d504d8402c230fc5e600b3ce9a"><div class="ttname"><a href="nbgl__obj_8h.html#acfa3b3d504d8402c230fc5e600b3ce9a">PRIVACY_ICON</a></div><div class="ttdeci">#define PRIVACY_ICON</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8h_source.html#l00153">nbgl_obj.h:153</a></div></div>
 <div class="ttc" id="anbgl__use__case_8h_html_ae8733047730d71c4601798d7688434f7a38f042c76573829aeb753399338ac9b6"><div class="ttname"><a href="nbgl__use__case_8h.html#ae8733047730d71c4601798d7688434f7a38f042c76573829aeb753399338ac9b6">CENTERED_INFO_WARNING</a></div><div class="ttdeci">@ CENTERED_INFO_WARNING</div><div class="ttdoc">Centered info.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00196">nbgl_use_case.h:196</a></div></div>
 <div class="ttc" id="anbgl__use__case_8h_html_ae8733047730d71c4601798d7688434f7a4a063b15c4b201a811dc606c075a72b6"><div class="ttname"><a href="nbgl__use__case_8h.html#ae8733047730d71c4601798d7688434f7a4a063b15c4b201a811dc606c075a72b6">QRCODE_WARNING</a></div><div class="ttdeci">@ QRCODE_WARNING</div><div class="ttdoc">QR Code.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00197">nbgl_use_case.h:197</a></div></div>
 <div class="ttc" id="anbgl__use__case_8h_html_ae8733047730d71c4601798d7688434f7a9d9aea494a173340576be278ef075936"><div class="ttname"><a href="nbgl__use__case_8h.html#ae8733047730d71c4601798d7688434f7a9d9aea494a173340576be278ef075936">BAR_LIST_WARNING</a></div><div class="ttdeci">@ BAR_LIST_WARNING</div><div class="ttdoc">list of touchable bars, to display sub-pages</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00199">nbgl_use_case.h:198</a></div></div>

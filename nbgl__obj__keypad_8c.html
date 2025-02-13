@@ -143,10 +143,8 @@ Include dependency graph for nbgl_obj_keypad.c:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:a26370e790f00a643109cba29ff6cdf56" id="r_a26370e790f00a643109cba29ff6cdf56"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj__keypad_8c.html#a26370e790f00a643109cba29ff6cdf56">KEY_WIDTH</a>&#160;&#160;&#160;(<a class="el" href="nbgl__types_8h.html#a2cd109632a6dcccaa80b43561b1ab700">SCREEN_WIDTH</a> / 3)</td></tr>
+<tr class="memitem:a26370e790f00a643109cba29ff6cdf56" id="r_a26370e790f00a643109cba29ff6cdf56"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj__keypad_8c.html#a26370e790f00a643109cba29ff6cdf56">KEY_WIDTH</a>&#160;&#160;&#160;(SCREEN_WIDTH / 3)</td></tr>
 <tr class="separator:a26370e790f00a643109cba29ff6cdf56"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9f04197ffd10fce19495d7ea3c0dd865" id="r_a9f04197ffd10fce19495d7ea3c0dd865"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj__keypad_8c.html#a9f04197ffd10fce19495d7ea3c0dd865">DIGIT_OFFSET_Y</a>&#160;&#160;&#160;(((<a class="el" href="nbgl__obj_8h.html#aeba6882be98e80aa7353d29bd7cd8715">KEYPAD_KEY_HEIGHT</a> - 48) / 2) &amp; 0xFFC)</td></tr>
-<tr class="separator:a9f04197ffd10fce19495d7ea3c0dd865"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4801003fbce9fd9bc18960b2d3dfafdf" id="r_a4801003fbce9fd9bc18960b2d3dfafdf"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj__keypad_8c.html#a4801003fbce9fd9bc18960b2d3dfafdf">BACKSPACE_KEY_IDX</a>&#160;&#160;&#160;10</td></tr>
 <tr class="separator:a4801003fbce9fd9bc18960b2d3dfafdf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a64ce9f5fe480b48758aa56f931298607" id="r_a64ce9f5fe480b48758aa56f931298607"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj__keypad_8c.html#a64ce9f5fe480b48758aa56f931298607">VALIDATE_KEY_IDX</a>&#160;&#160;&#160;11</td></tr>
@@ -190,23 +188,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj__keypad_8c_source.html#l00030">30</a> of file <a class="el" href="nbgl__obj__keypad_8c_source.html">nbgl_obj_keypad.c</a>.</p>
-
-</div>
-</div>
-<a id="a9f04197ffd10fce19495d7ea3c0dd865" name="a9f04197ffd10fce19495d7ea3c0dd865"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9f04197ffd10fce19495d7ea3c0dd865">&#9670;&#160;</a></span>DIGIT_OFFSET_Y</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define DIGIT_OFFSET_Y&#160;&#160;&#160;(((<a class="el" href="nbgl__obj_8h.html#aeba6882be98e80aa7353d29bd7cd8715">KEYPAD_KEY_HEIGHT</a> - 48) / 2) &amp; 0xFFC)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="nbgl__obj__keypad_8c_source.html#l00028">28</a> of file <a class="el" href="nbgl__obj__keypad_8c_source.html">nbgl_obj_keypad.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj__keypad_8c_source.html#l00034">34</a> of file <a class="el" href="nbgl__obj__keypad_8c_source.html">nbgl_obj_keypad.c</a>.</p>
 
 </div>
 </div>
@@ -238,7 +220,7 @@ Variables</h2></td></tr>
 <b>Value:</b><div class="fragment"><div class="line">    ((_digit &amp; 1) ? (_keypad-&gt;digitIndexes[_digit &gt;&gt; 1] &gt;&gt; 4) \</div>
 <div class="line">                  : (_keypad-&gt;digitIndexes[_digit &gt;&gt; 1] &amp; 0xF))</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="nbgl__obj__keypad_8c_source.html#l00034">34</a> of file <a class="el" href="nbgl__obj__keypad_8c_source.html">nbgl_obj_keypad.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj__keypad_8c_source.html#l00038">38</a> of file <a class="el" href="nbgl__obj__keypad_8c_source.html">nbgl_obj_keypad.c</a>.</p>
 
 </div>
 </div>
@@ -249,7 +231,7 @@ Variables</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define KEY_WIDTH&#160;&#160;&#160;(<a class="el" href="nbgl__types_8h.html#a2cd109632a6dcccaa80b43561b1ab700">SCREEN_WIDTH</a> / 3)</td>
+          <td class="memname">#define KEY_WIDTH&#160;&#160;&#160;(SCREEN_WIDTH / 3)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -290,7 +272,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj__keypad_8c_source.html#l00037">37</a> of file <a class="el" href="nbgl__obj__keypad_8c_source.html">nbgl_obj_keypad.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj__keypad_8c_source.html#l00041">41</a> of file <a class="el" href="nbgl__obj__keypad_8c_source.html">nbgl_obj_keypad.c</a>.</p>
 
 </div>
 </div>
@@ -306,7 +288,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj__keypad_8c_source.html#l00031">31</a> of file <a class="el" href="nbgl__obj__keypad_8c_source.html">nbgl_obj_keypad.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj__keypad_8c_source.html#l00035">35</a> of file <a class="el" href="nbgl__obj__keypad_8c_source.html">nbgl_obj_keypad.c</a>.</p>
 
 </div>
 </div>
@@ -361,7 +343,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if found, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj__keypad_8c_source.html#l00344">344</a> of file <a class="el" href="nbgl__obj__keypad_8c_source.html">nbgl_obj_keypad.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj__keypad_8c_source.html#l00348">348</a> of file <a class="el" href="nbgl__obj__keypad_8c_source.html">nbgl_obj_keypad.c</a>.</p>
 
 </div>
 </div>
@@ -401,7 +383,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>none </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj__keypad_8c_source.html#l00277">277</a> of file <a class="el" href="nbgl__obj__keypad_8c_source.html">nbgl_obj_keypad.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj__keypad_8c_source.html#l00281">281</a> of file <a class="el" href="nbgl__obj__keypad_8c_source.html">nbgl_obj_keypad.c</a>.</p>
 
 </div>
 </div>
@@ -430,7 +412,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the keypad keypad object </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj__keypad_8c_source.html#l00383">383</a> of file <a class="el" href="nbgl__obj__keypad_8c_source.html">nbgl_obj_keypad.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj__keypad_8c_source.html#l00387">387</a> of file <a class="el" href="nbgl__obj__keypad_8c_source.html">nbgl_obj_keypad.c</a>.</p>
 
 </div>
 </div>
@@ -455,7 +437,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l00125">125</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l00131">131</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
