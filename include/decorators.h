@@ -66,3 +66,9 @@
 #ifndef DEPRECATED
 #define DEPRECATED __attribute__((deprecated))
 #endif
+
+#ifndef UNIT_TESTING
+#define STATIC static
+#else
+#define STATIC
+#endif
