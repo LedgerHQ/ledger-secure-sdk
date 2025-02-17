@@ -196,7 +196,9 @@ WEAK int io_send_response_buffers(const buffer_t *rdatalist, size_t count, uint1
     if (G_called_from_swap && G_swap_response_ready) {
         PRINTF("Swap answer is processed. Send it\n");
         if (io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, G_output_len) == 0) {
-            swap_finalize_exchange_sign_transaction(sw == SW_OK);
+            PRINTF("Returning to Exchange with status %d\n", (sw == SW_OK));
+            *G_swap_signing_return_value_address = (sw == SW_OK);
+            os_lib_end();
         }
         else {
             PRINTF("Unrecoverable\n");
