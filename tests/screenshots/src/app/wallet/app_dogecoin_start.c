@@ -159,15 +159,15 @@ void app_dogecoinSignTransaction(bool blind,
     warning.dAppProvider = "Uniswap";
 
     // Start review
-    nbgl_useCaseReviewWithWarning(TYPE_TRANSACTION,
-                                  &pairList,
-                                  &C_ic_asset_doge_64,
-                                  "Review transaction\nto send Dogecoin",
-                                  NULL,
-                                  "Sign transaction to\nsend Dogecoin?",
-                                  tipBoxPtr,
-                                  &warning,
-                                  onTransactionAccept);
+    nbgl_useCaseAdvancedReview(TYPE_TRANSACTION,
+                               &pairList,
+                               &C_ic_asset_doge_64,
+                               "Review transaction\nto send Dogecoin",
+                               NULL,
+                               "Sign transaction to\nsend Dogecoin?",
+                               tipBoxPtr,
+                               &warning,
+                               onTransactionAccept);
 }
 
 /**

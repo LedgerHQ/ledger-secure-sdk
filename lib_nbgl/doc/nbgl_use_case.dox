@@ -51,8 +51,8 @@ A few APIs are available to draw typical Use-Cases, such as:
  - @ref nbgl_useCaseReviewLight() to draw the pages of a transaction review with a simple button confirmation, when all info are available from the beginning (see @subpage use_case_review_light)
  - @ref nbgl_useCaseReviewStreamingStart() to draw the pages of a regular coin transaction review, when all info are not available from the beginning (see @subpage use_case_review_streaming)
 - for reviews with a warning prolog:
- - @ref nbgl_useCaseReviewWithWarning() to draw the pages of a regular coin transaction review, when all info are available from the beginning, but with an identified risk requiring a warning prolog (see @subpage use_case_review_with_warning)
- - @ref nbgl_useCaseReviewStreamingWithWarningStart() to draw the pages of a regular coin transaction review, when all info are not available from the beginning, but with an identified risk requiring a warning prolog (see @subpage use_case_review_with_warning and @subpage use_case_review_streaming)
+ - @ref nbgl_useCaseAdvancedReview() to draw the pages of a regular coin transaction review, when all info are available from the beginning, but with an identified risk requiring a warning prolog (see @subpage use_case_review_with_warning)
+ - @ref nbgl_useCaseAdvancedReviewStreamingStart() to draw the pages of a regular coin transaction review, when all info are not available from the beginning, but with an identified risk requiring a warning prolog (see @subpage use_case_review_with_warning and @subpage use_case_review_streaming)
 - for address verification:
  - @ref nbgl_useCaseAddressReview() to draw an address confirmation page, with a possibility to see it as QR Code and some extra tag/value pairs (see @subpage use_case_addr_review)
 - for keypad:
@@ -469,7 +469,7 @@ The review itself behaves like in @subpage use_case_review. The main differences
 - The review itself is preceded by a warning page offering the possibility to cancel the review ("Back to safety") or to start it ("Continue anyway")
 - In the first and last pages of the actual review, a top-right button offers the possibility to get more information about the warning
 
-The API to initiate the display of the series of pages is @ref nbgl_useCaseReviewWithWarning(), providing:
+The API to initiate the display of the series of pages is @ref nbgl_useCaseAdvancedReview(), providing:
 
 - the type of operation to review (transaction, message or generic operation)
 - the list of tag/value pairs (or a callback to get them one by one)
@@ -513,7 +513,7 @@ void staticReview(void) {
   warningDesc.reportUrl       = "url.com/od24xz";
 
   // static review, providing the whole list of pairs
-  nbgl_useCaseReviewWithWarning(TYPE_TRANSACTION, // type of operation
+  nbgl_useCaseAdvancedReview(TYPE_TRANSACTION, // type of operation
                                 &pairList,       // list of tag/value pairs
                                 coinIcon,        // icon of the coin
                                 "Review transaction\nto send coin", // title of the first page
@@ -615,7 +615,7 @@ static void onReviewResult(bool confirm) {
 
 void staticReview(void) {
   // static review, providing the whole list of pairs
-  nbgl_useCaseReviewWithWarning(TYPE_TRANSACTION, // type of operation
+  nbgl_useCaseAdvancedReview(TYPE_TRANSACTION, // type of operation
                                 &pairList,       // list of tag/value pairs
                                 coinIcon,        // icon of the coin
                                 "Review transaction\nto send coin", // title of the first page
