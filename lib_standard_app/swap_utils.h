@@ -21,6 +21,8 @@
 
 extern volatile bool G_called_from_swap;
 extern volatile bool G_swap_response_ready;
+// Don't use in application, SDK only
+extern volatile uint8_t *G_swap_signing_return_value_address;
 
 bool swap_str_to_u64(const uint8_t *src, size_t length, uint64_t *result);
 bool swap_parse_config(const uint8_t *config,

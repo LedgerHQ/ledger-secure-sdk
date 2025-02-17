@@ -40,8 +40,3 @@ void swap_handle_get_printable_amount(get_printable_amount_parameters_t *params)
  *
  * return false on error, true otherwise */
 bool swap_copy_transaction_parameters(create_transaction_parameters_t *sign_transaction_params);
-
-/* Set create_transaction.result and call os_lib_end().
- *
- * Doesn't return */
-void __attribute__((noreturn)) swap_finalize_exchange_sign_transaction(bool is_success);
