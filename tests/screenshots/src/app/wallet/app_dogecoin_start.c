@@ -52,6 +52,19 @@ static const nbgl_contentInfoList_t infoContentsList
 
 static nbgl_warning_t warning = {0};
 
+static const char *dAppsInfoTypes[3] = {"Contract owner", "Contract", "Deployed on"};
+static const char *dAppsInfoValues[3]
+    = {"Uniswap Labs\nwww.uniswap.org", "Uniswap v3 Router 2", "2023-04-28"};
+static const nbgl_contentValueExt_t dAppsInfoExtensions[3] = {
+    {0},
+    {.aliasType   = QR_CODE_ALIAS,
+     .title       = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+     .fullValue   = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+     .explanation = "Scan to view on Etherscan"},
+    {0}
+};
+static nbgl_tipBox_t tipBox = {0};
+
 /**********************
  *      VARIABLES
  **********************/
@@ -110,7 +123,8 @@ void app_dogecoinSignTransaction(bool blind,
                                  bool w3c_issue,
                                  bool w3c_threat)
 {
-    warning.predefinedSet = 0;
+    nbgl_tipBox_t *tipBoxPtr = NULL;
+    warning.predefinedSet    = 0;
 
     if (blind) {
         warning.predefinedSet |= 1 << BLIND_SIGNING_WARN;
@@ -122,11 +136,27 @@ void app_dogecoinSignTransaction(bool blind,
         else if (w3c_threat) {
             warning.predefinedSet |= 1 << W3C_THREAT_DETECTED_WARN;
         }
+        else {
+            warning.predefinedSet |= 1 << W3C_NO_THREAT_WARN;
+        }
     }
-    UNUSED(dApp);
-    warning.reportProvider  = "Blockaid";
-    warning.providerMessage = "Losing swap";
-    warning.reportUrl       = "url.com/od24xz";
+    if (dApp) {
+        warning.predefinedSet |= 1 << VERIFIED_DAPP_WARN;
+        tipBoxPtr                   = &tipBox;
+        tipBox.text                 = "Interaction with official dApp: Uniswap";
+        tipBox.modalTitle           = "Smart contract details";
+        tipBox.infos.nbInfos        = 3;
+        tipBox.infos.infoTypes      = dAppsInfoTypes;
+        tipBox.infos.infoContents   = dAppsInfoValues;
+        tipBox.infos.infoExtensions = dAppsInfoExtensions;
+        tipBox.infos.withExtensions = true;
+        tipBox.type                 = INFOS_LIST;
+    }
+    warning.reportProvider = "Blockaid";
+    warning.providerMessage
+        = "The address is linked to a scammer. Your funds will be stolen if you continue.";
+    warning.reportUrl    = "url.com/od24xz";
+    warning.dAppProvider = "Uniswap";
 
     // Start review
     nbgl_useCaseReviewWithWarning(TYPE_TRANSACTION,
@@ -135,7 +165,7 @@ void app_dogecoinSignTransaction(bool blind,
                                   "Review transaction\nto send Dogecoin",
                                   NULL,
                                   "Sign transaction to\nsend Dogecoin?",
-                                  NULL,
+                                  tipBoxPtr,
                                   &warning,
                                   onTransactionAccept);
 }

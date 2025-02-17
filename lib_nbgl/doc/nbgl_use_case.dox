@@ -507,7 +507,7 @@ static void onReviewResult(bool confirm) {
 }
 
 void staticReview(void) {
-  warningDesc.predefinedSet   = (1 << W3C_LOSING_SWAP_WARN) | (1 << BLIND_SIGNING_WARN);
+  warningDesc.predefinedSet   = (1 << W3C_RISK_DETECTED_WARN) | (1 << BLIND_SIGNING_WARN);
   warningDesc.reportProvider  = "Blockaid";
   warningDesc.providerMessage = "Losing swap";
   warningDesc.reportUrl       = "url.com/od24xz";
