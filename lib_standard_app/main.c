@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   (c) 2020 Ledger SAS.
+ *   (c) 2020, 2025 Ledger SAS.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 #include <stdint.h>  // uint*_t
 #include <string.h>  // memset, explicit_bzero
 
+#include "app_storage_internal.h"
 #include "os.h"
 #include "io.h"
 #include "ledger_assert.h"
@@ -55,6 +56,11 @@ WEAK void common_app_init(void)
     BLE_power(0, NULL);
     BLE_power(1, NULL);
 #endif  // HAVE_BLE
+
+#ifdef HAVE_APP_STORAGE
+    /* Implicit app storage initialization */
+    app_storage_init();
+#endif  // #ifdef HAVE_APP_STORAGE
 }
 
 WEAK void standalone_app_main(void)

@@ -1,6 +1,6 @@
 /*******************************************************************************
 *   Ledger - Secure firmware
-*   (c) 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023 Ledger
+*   (c) 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -69,6 +69,9 @@ SECTIONS
     . = ALIGN(PAGE_SIZE);
 
     _nvram_data = .;
+
+    /* App storage */
+    *(.storage_section)
 
     /* NVM data (ex-filesystem) */
     *(.bss.N_* .rodata.N_*)
