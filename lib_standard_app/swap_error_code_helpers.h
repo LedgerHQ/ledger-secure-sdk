@@ -18,17 +18,18 @@ The first 2 bytes of the RAPDU data represent the error code. Format is 16 bits 
 
 The upper byte is common between all applications. It must be one of the following value:
 
-| Name                          | Value  | Description                          |
-| ----------------------------- | ------ | ------------------------------------ |
-| ERROR_INTERNAL                | 0x00 | Internal application error, forward to the firmware team for analysis. |
-| ERROR_WRONG_AMOUNT            | 0x01 | The amount does not match the one validated in Exchange. |
-| ERROR_WRONG_DESTINATION       | 0x02 | The destination address does not match the one validated in Exchange. |
-| ERROR_WRONG_FEES              | 0x03 | The fees are different from what was validated in Exchange. |
-| ERROR_WRONG_METHOD            | 0x04 | The method used is invalid in Exchange context. |
-| ERROR_CROSSCHAIN_WRONG_MODE   | 0x05 | The mode used for the cross-chain hash validation is not supported. |
-| ERROR_CROSSCHAIN_WRONG_METHOD | 0x06 | The method used is invalid in cross-chain Exchange context. |
-| ERROR_CROSSCHAIN_WRONG_HASH   | 0x07 | The hash for the cross-chain transaction does not match the validated value. |
-| ERROR_GENERIC                 | 0xFF | A generic or unspecified error not covered by the specific error codes above. Refer to the remaining bytes for further details on the error. |
+| Name                          | Value  | Description                                                                   |
+| ----------------------------- | ------ | ----------------------------------------------------------------------------- |
+| ERROR_INTERNAL                | 0x00   | Internal application error, forward to the firmware team for analysis.        |
+| ERROR_WRONG_AMOUNT            | 0x01   | The amount does not match the one validated in Exchange.                      |
+| ERROR_WRONG_DESTINATION       | 0x02   | The destination address does not match the one validated in Exchange.         |
+| ERROR_WRONG_FEES              | 0x03   | The fees are different from what was validated in Exchange.                   |
+| ERROR_WRONG_METHOD            | 0x04   | The method used is invalid in Exchange context.                               |
+| ERROR_CROSSCHAIN_WRONG_MODE   | 0x05   | The mode used for the cross-chain hash validation is not supported.           |
+| ERROR_CROSSCHAIN_WRONG_METHOD | 0x06   | The method used is invalid in cross-chain Exchange context.                   |
+| ERROR_CROSSCHAIN_WRONG_HASH   | 0x07   | The hash for the cross-chain transaction does not match the validated value.  |
+| ERROR_GENERIC                 | 0xFF   | A generic or unspecified error not covered by the specific error codes above. |
+|                               |        |     Refer to the remaining bytes for further details on the error.            |
 
 The lower byte can be set by the application to refine the error code returned
 
@@ -53,15 +54,36 @@ typedef enum swap_error_common_code_e {
     SWAP_EC_ERROR_GENERIC                 = 0xFF,
 } swap_error_common_code_t;
 
+/**
+ * Sends a basic swap error with no extra data.
+ * @param status_word RAPDU status word.
+ * @param common_error_code Common error code defined in swap_error_common_code_t.
+ * @param application_specific_error_code Application-specific error code.
+ */
 __attribute__((noreturn)) void send_swap_error_simple(uint16_t status_word,
                                                       uint8_t  common_error_code,
                                                       uint8_t  application_specific_error_code);
 
+/**
+ * Sends a swap error with one additional buffer data.
+ * @param status_word RAPDU status word.
+ * @param common_error_code Common error code.
+ * @param application_specific_error_code Application-specific error code.
+ * @param buffer_data Additional application-specific error details.
+ */
 __attribute__((noreturn)) void send_swap_error_with_buffer(uint16_t status_word,
                                                            uint8_t  common_error_code,
                                                            uint8_t  application_specific_error_code,
                                                            const buffer_t buffer_data);
 
+/**
+ * Sends a swap error with multiple buffers containing error details.
+ * @param status_word RAPDU status word.
+ * @param common_error_code Common error code.
+ * @param application_specific_error_code Application-specific error code.
+ * @param buffer_data Array of buffers with error details. SWAP_ERROR_HELPER_MAX_BUFFER_COUNT
+ * @param count Number of buffers provided.
+ */
 #define SWAP_ERROR_HELPER_MAX_BUFFER_COUNT 8
 __attribute__((noreturn)) void send_swap_error_with_buffers(uint16_t status_word,
                                                             uint8_t  common_error_code,
@@ -69,6 +91,15 @@ __attribute__((noreturn)) void send_swap_error_with_buffers(uint16_t status_word
                                                             const buffer_t *buffer_data,
                                                             size_t          count);
 
+/**
+ * Macro to send a swap error using a formatted string.
+ * Constructs a buffer from a formatted string and passes it to send_swap_error_with_buffers.
+ * @param status_word RAPDU status word.
+ * @param common_error_code Common error code.
+ * @param application_specific_error_code Application-specific error code.
+ * @param format printf-style format string.
+ * @param ... Additional arguments for formatting.
+ */
 // Immediately call snprintf here (no function wrapping it cleanly in a .c file).
 // This is because we don't have a vsnprintf implementation which would be needed if
 // we were to pass the va_args to an intermediate function.
