@@ -22,6 +22,9 @@
 
 volatile bool G_called_from_swap;
 volatile bool G_swap_response_ready;
+// Save the BSS address where we will write the return value when finished
+// Don't use in application, SDK only
+volatile uint8_t *G_swap_signing_return_value_address;
 
 bool swap_str_to_u64(const uint8_t *src, size_t length, uint64_t *result)
 {
