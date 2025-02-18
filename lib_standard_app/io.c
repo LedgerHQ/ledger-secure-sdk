@@ -198,6 +198,7 @@ WEAK int io_send_response_buffers(const buffer_t *rdatalist, size_t count, uint1
         if (io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, G_output_len) == 0) {
             PRINTF("Returning to Exchange with status %d\n", (sw == SW_OK));
             *G_swap_signing_return_value_address = (sw == SW_OK);
+            PRINTF("os_lib_end\n");
             os_lib_end();
         }
         else {
