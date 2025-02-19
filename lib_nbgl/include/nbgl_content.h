@@ -17,10 +17,11 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "os_io_seph_cmd.h"
+
 #include "nbgl_types.h"
 #include "nbgl_obj.h"
 #ifdef HAVE_PIEZO_SOUND
-#include "os_io_seproxyhal.h"
 #endif
 
 /**********************
