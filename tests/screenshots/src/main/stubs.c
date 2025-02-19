@@ -63,13 +63,10 @@
 #ifdef HAVE_SE_TOUCH
 nbgl_touchStatePosition_t gTouchStatePosition;
 #endif
-unsigned char G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
-extern bool   verbose;
+extern bool verbose;
 
 bool         globalError = false;
 extern char *dirName;
-
-unsigned char G_io_apdu_buffer[IO_APDU_BUFFER_SIZE];
 
 uint32_t G_interval_ms = 100;
 

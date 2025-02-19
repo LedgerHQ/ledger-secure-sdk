@@ -19,6 +19,8 @@
 #include "nbgl_screen.h"
 #include "nbgl_touch.h"
 #include "glyphs.h"
+#include "os_io_seph_cmd.h"
+#include "os_io_seph_ux.h"
 #include "os_pic.h"
 #include "os_helpers.h"
 
@@ -227,7 +229,7 @@ bool keyboardSwipeCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
 
         if (i < (uint32_t) nbActiveButtons) {
             if (updateSuggestionButtons(suggestionsContainer, eventType, i)) {
-                io_seproxyhal_play_tune(TUNE_TAP_CASUAL);
+                os_io_seph_cmd_piezo_play_tune(TUNE_TAP_CASUAL);
                 nbgl_objDraw((nbgl_obj_t *) suggestionsContainer);
                 nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
             }
