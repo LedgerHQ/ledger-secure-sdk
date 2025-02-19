@@ -19,6 +19,10 @@
 #ifndef CX_RNG_H
 #define CX_RNG_H
 
+#ifdef BOLOS_OS_UPGRADER_APP
+#include "osu_defines.h"
+#endif
+
 #ifdef HAVE_RNG
 
 #include <stdint.h>

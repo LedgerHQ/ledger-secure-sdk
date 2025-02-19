@@ -27,13 +27,12 @@
 #include "os_task.h"
 #include "nbgl_screen.h"
 #include "nbgl_touch.h"
+#include "seproxyhal_protocol.h"
 
 #include <string.h>
 
-#define BUTTON_LEFT  1
-#define BUTTON_RIGHT 2
-
-typedef void (*asynchmodal_end_callback_t)(unsigned int ux_status);
+#define BUTTON_LEFT  SEPROXYHAL_TAG_BUTTON_PUSH_EVENT_LEFT
+#define BUTTON_RIGHT SEPROXYHAL_TAG_BUTTON_PUSH_EVENT_RIGHT
 
 /**
  * Common structure for applications to perform asynchronous UX aside IO operations
@@ -44,8 +43,6 @@ struct ux_state_s {
     bolos_task_status_t exit_code;
     bool validate_pin_from_dashboard;  // set to true when BOLOS_UX_VALIDATE_PIN is received from
                                        // Dashboard task
-
-    asynchmodal_end_callback_t asynchmodal_end_callback;
 
     char string_buffer[128];
 };
@@ -62,28 +59,6 @@ extern void ux_process_default_event(void);
  * Initialize the user experience structure
  */
 #define UX_INIT() nbgl_objInit();
-
-#ifdef HAVE_BOLOS
-// to be used only by hal_io.c in BOLOS, for compatibility
-#define UX_FORWARD_EVENT_REDRAWCB(bypasspincheck,                         \
-                                  ux_params,                              \
-                                  ux,                                     \
-                                  os_ux,                                  \
-                                  os_sched_last_status,                   \
-                                  callback,                               \
-                                  redraw_cb,                              \
-                                  ignoring_app_if_ux_busy)                \
-    ux_params.ux_id = BOLOS_UX_EVENT;                                     \
-    ux_params.len   = 0;                                                  \
-    os_ux(&ux_params);                                                    \
-    ux_params.len = os_sched_last_status(TASK_BOLOS_UX);                  \
-    if (ux.asynchmodal_end_callback                                       \
-        && os_ux_get_status(BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST) != 0) { \
-        asynchmodal_end_callback_t cb = ux.asynchmodal_end_callback;      \
-        ux.asynchmodal_end_callback   = NULL;                             \
-        cb(os_ux_get_status(BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST));       \
-    }
-#endif  // HAVE_BOLOS
 
 /**
  * Request a wake up of the device (pin lock screen, ...) to display a new interface to the user.
@@ -146,9 +121,6 @@ bolos_err_t delete_background_img(void);
 #endif
 
 extern ux_seph_os_and_app_t G_ux_os;
-
-void io_seproxyhal_request_mcu_status(void);
-void io_seproxyhal_power_off(bool criticalBattery);
 
 #if defined(HAVE_LANGUAGE_PACK)
 const char *get_ux_loc_string(UX_LOC_STRINGS_INDEX index);
