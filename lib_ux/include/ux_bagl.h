@@ -171,7 +171,6 @@ void io_seproxyhal_display_default(const bagl_element_t *element);
 #endif  // UX_STACK_SLOT_ARRAY_COUNT
 
 typedef unsigned int (*callback_int_t)(unsigned int);
-typedef void (*asynchmodal_end_callback_t)(unsigned int ux_status);
 
 typedef struct ux_stack_slot_s ux_stack_slot_t;
 
@@ -209,9 +208,7 @@ void ux_stack_al_display_next_element(unsigned int stack_slot);
 void ux_stack_redisplay(void);
 
 const bagl_element_t *ux_stack_display_element_callback(const bagl_element_t *element);
-#ifdef HAVE_SE_SCREEN
-void ux_stack_display_elements(ux_stack_slot_t *slot);
-#endif  // HAVE_SE_SCREEN
+void                  ux_stack_display_elements(ux_stack_slot_t *slot);
 
 #ifdef HAVE_UX_LEGACY
 // a menu callback is called with a given userid provided within the menu entry to allow for fast
@@ -300,10 +297,6 @@ struct ux_state_s {
     unsigned char       stack_count;  // initialized @0 by the bolos ux initialize
     bolos_task_status_t exit_code;
 
-#ifdef HAVE_BLE
-    asynchmodal_end_callback_t asynchmodal_end_callback;
-#endif  // HAVE_BLE
-
 #ifdef HAVE_UX_FLOW
     // global context, therefore, don't allow for multiple paging overlaid in a graphic stack
     ux_layout_paging_state_t layout_paging;
@@ -368,7 +361,6 @@ extern bolos_ux_params_t G_ux_params;
  * Take into account if the next element is allowed/denied for display by the registered
  * preprocessor
  */
-#ifdef HAVE_SE_SCREEN
 #define UX_DISPLAY_NEXT_ELEMENT()                                                                 \
     if (G_ux.stack[0].element_arrays[0].element_array                                             \
         && G_ux.stack[0].element_index < G_ux.stack[0].element_arrays[0].element_array_count      \
@@ -386,7 +378,7 @@ extern bolos_ux_params_t G_ux_params;
                                    .element_arrays[0]                                             \
                                    .element_array[G_ux.stack[0].element_index];                   \
                 }                                                                                 \
-                io_seproxyhal_display(element);                                                   \
+                io_seph_ux_display_bagl_element(element);                                         \
             }                                                                                     \
             G_ux.stack[0].element_index++;                                                        \
         }                                                                                         \
@@ -394,86 +386,6 @@ extern bolos_ux_params_t G_ux_params;
             screen_update();                                                                      \
         }                                                                                         \
     }
-#else  // HAVE_SE_SCREEN
-#define UX_DISPLAY_NEXT_ELEMENT()                                                                  \
-    while (G_ux.stack[0].element_arrays[0].element_array                                           \
-           && G_ux.stack[0].element_index < G_ux.stack[0].element_arrays[0].element_array_count    \
-           && !io_seproxyhal_spi_is_status_sent()                                                  \
-           && (os_perso_isonboarded() != BOLOS_UX_OK                                               \
-               || os_global_pin_is_validated() == BOLOS_UX_OK)) {                                  \
-        const bagl_element_t *element                                                              \
-            = &G_ux.stack[0].element_arrays[0].element_array[G_ux.stack[0].element_index];         \
-        if (!G_ux.stack[0].screen_before_element_display_callback                                  \
-            || (element = G_ux.stack[0].screen_before_element_display_callback(element))) {        \
-            if ((unsigned int) element                                                             \
-                == 1) { /*backward compat with coding to avoid smashing everything*/               \
-                element                                                                            \
-                    = &G_ux.stack[0].element_arrays[0].element_array[G_ux.stack[0].element_index]; \
-            }                                                                                      \
-            io_seproxyhal_display(element);                                                        \
-        }                                                                                          \
-        G_ux.stack[0].element_index++;                                                             \
-    }
-#endif  // HAVE_SE_SCREEN
-
-#ifdef HAVE_BLE
-/**
- * internal bolos ux event processing with callback in case event is to be processed by the
- * application
- */
-#define UX_FORWARD_EVENT_REDRAWCB(bypasspincheck,                                               \
-                                  G_ux_params,                                                  \
-                                  G_ux,                                                         \
-                                  os_ux,                                                        \
-                                  os_sched_last_status,                                         \
-                                  callback,                                                     \
-                                  redraw_cb,                                                    \
-                                  ignoring_app_if_ux_busy)                                      \
-    G_ux_params.ux_id = BOLOS_UX_EVENT;                                                         \
-    G_ux_params.len   = 0;                                                                      \
-    os_ux(&G_ux_params);                                                                        \
-    G_ux_params.len = os_sched_last_status(TASK_BOLOS_UX);                                      \
-    if (G_ux.asynchmodal_end_callback                                                           \
-        && os_ux_get_status(BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST) != 0) {                       \
-        asynchmodal_end_callback_t cb = G_ux.asynchmodal_end_callback;                          \
-        G_ux.asynchmodal_end_callback = NULL;                                                   \
-        cb(os_ux_get_status(BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST));                             \
-        G_ux_params.len = BOLOS_UX_REDRAW;                                                      \
-    }                                                                                           \
-    if (G_ux_params.len == BOLOS_UX_REDRAW) {                                                   \
-        redraw_cb;                                                                              \
-    }                                                                                           \
-    else if (!ignoring_app_if_ux_busy                                                           \
-             || (G_ux_params.len != BOLOS_UX_IGNORE && G_ux_params.len != BOLOS_UX_CONTINUE)) { \
-        callback;                                                                               \
-    }
-
-#else  // HAVE_BLE
-
-/**
- * internal bolos ux event processing with callback in case event is to be processed by the
- * application
- */
-#define UX_FORWARD_EVENT_REDRAWCB(bypasspincheck,                                               \
-                                  G_ux_params,                                                  \
-                                  G_ux,                                                         \
-                                  os_ux,                                                        \
-                                  os_sched_last_status,                                         \
-                                  callback,                                                     \
-                                  redraw_cb,                                                    \
-                                  ignoring_app_if_ux_busy)                                      \
-    G_ux_params.ux_id = BOLOS_UX_EVENT;                                                         \
-    G_ux_params.len   = 0;                                                                      \
-    os_ux(&G_ux_params);                                                                        \
-    G_ux_params.len = os_sched_last_status(TASK_BOLOS_UX);                                      \
-    if (G_ux_params.len == BOLOS_UX_REDRAW) {                                                   \
-        redraw_cb;                                                                              \
-    }                                                                                           \
-    else if (!ignoring_app_if_ux_busy                                                           \
-             || (G_ux_params.len != BOLOS_UX_IGNORE && G_ux_params.len != BOLOS_UX_CONTINUE)) { \
-        callback;                                                                               \
-    }
-#endif  // HAVE_BLE
 
 /**
  * Request a wake up of the device (backlight, pin lock screen, ...) to display a new interface to
@@ -489,23 +401,21 @@ extern bolos_ux_params_t G_ux_params;
 /**
  * Redisplay request (no immediate display status sent)
  */
-#define UX_REDISPLAY_REQUEST()   \
-    io_seproxyhal_init_ux();     \
-    io_seproxyhal_init_button(); \
+#define UX_REDISPLAY_REQUEST() \
+    io_seph_ux_init_button();  \
     G_ux.stack[0].element_index = 0;
 
 /**
  * Force redisplay of the screen from the given index in the screen's element array
  */
-#define UX_REDISPLAY_IDX(index)                                                                \
-    io_seproxyhal_init_ux();                                                                   \
-    io_seproxyhal_init_button(); /*ensure to avoid release of a button from a nother screen to \
-                                    mess up with the redisplayed screen */                     \
-    G_ux.stack[0].element_index = index;                                                       \
-    /* REDRAW is redisplay already, use os_ux return value to check */                         \
-    G_ux_params.len = os_sched_last_status(TASK_BOLOS_UX);                                     \
-    if (G_ux_params.len != BOLOS_UX_IGNORE && G_ux_params.len != BOLOS_UX_CONTINUE) {          \
-        UX_DISPLAY_NEXT_ELEMENT();                                                             \
+#define UX_REDISPLAY_IDX(index)                                                             \
+    io_seph_ux_init_button(); /*ensure to avoid release of a button from a nother screen to \
+                                    mess up with the redisplayed screen */                  \
+    G_ux.stack[0].element_index = index;                                                    \
+    /* REDRAW is redisplay already, use os_ux return value to check */                      \
+    G_ux_params.len = os_sched_last_status(TASK_BOLOS_UX);                                  \
+    if (G_ux_params.len != BOLOS_UX_IGNORE && G_ux_params.len != BOLOS_UX_CONTINUE) {       \
+        UX_DISPLAY_NEXT_ELEMENT();                                                          \
     }
 
 /**
@@ -544,22 +454,24 @@ extern bolos_ux_params_t G_ux_params;
  * internal bolos ux event processing with callback in case event is to be processed by the
  * application
  */
-#define UX_FORWARD_EVENT(callback, ignoring_app_if_ux_busy) \
-    UX_FORWARD_EVENT_REDRAWCB(0,                            \
-                              G_ux_params,                  \
-                              G_io_asynch_ux_callback,      \
-                              os_ux,                        \
-                              os_sched_last_status,         \
-                              callback,                     \
-                              UX_REDISPLAY(),               \
-                              ignoring_app_if_ux_busy);
+#define UX_FORWARD_EVENT(callback, ignoring_app_if_ux_busy)                                     \
+    G_ux_params.ux_id = BOLOS_UX_EVENT;                                                         \
+    G_ux_params.len   = 0;                                                                      \
+    os_ux(&G_ux_params);                                                                        \
+    G_ux_params.len = os_sched_last_status(TASK_BOLOS_UX);                                      \
+    if (G_ux_params.len == BOLOS_UX_REDRAW) {                                                   \
+        UX_REDISPLAY();                                                                         \
+    }                                                                                           \
+    else if (!ignoring_app_if_ux_busy                                                           \
+             || (G_ux_params.len != BOLOS_UX_IGNORE && G_ux_params.len != BOLOS_UX_CONTINUE)) { \
+        callback;                                                                               \
+    }
 
-#define UX_CONTINUE_DISPLAY_APP(displayed_callback)                                        \
-    UX_DISPLAY_NEXT_ELEMENT();                                                             \
-    /* all items have been displayed */                                                    \
-    if (G_ux.stack[0].element_index >= G_ux.stack[0].element_arrays[0].element_array_count \
-        && !io_seproxyhal_spi_is_status_sent()) {                                          \
-        displayed_callback                                                                 \
+#define UX_CONTINUE_DISPLAY_APP(displayed_callback)                                           \
+    UX_DISPLAY_NEXT_ELEMENT();                                                                \
+    /* all items have been displayed */                                                       \
+    if (G_ux.stack[0].element_index >= G_ux.stack[0].element_arrays[0].element_array_count) { \
+        displayed_callback                                                                    \
     }
 
 /**
@@ -578,27 +490,10 @@ extern bolos_ux_params_t G_ux_params;
  * Macro to process sequentially display a screen. The call finishes when the UX is completely
  * displayed, and the state of the MCU <-> SE exchanges is the same as before this macro call.
  */
-#ifdef HAVE_SE_SCREEN
 #define UX_WAIT_DISPLAYED()        \
     while (!UX_DISPLAYED()) {      \
         UX_DISPLAY_NEXT_ELEMENT(); \
     }
-#else
-#define UX_WAIT_DISPLAYED()                                                                        \
-    while (!UX_DISPLAYED()) {                                                                      \
-        /* We wait for the MCU event (should indicate display processed for a bagl element) */     \
-        io_seproxyhal_spi_recv(G_io_seproxyhal_spi_buffer, sizeof(G_io_seproxyhal_spi_buffer), 0); \
-        io_seproxyhal_handle_event();                                                              \
-        UX_DISPLAY_NEXT_ELEMENT();                                                                 \
-    }                                                                                              \
-    io_seproxyhal_spi_recv(G_io_seproxyhal_spi_buffer, sizeof(G_io_seproxyhal_spi_buffer), 0);     \
-    io_seproxyhal_handle_event();                                                                  \
-    /* We send a general status which indicates to the MCU that he can process any pending action  \
-     * (i.e. here, display the whole screen) */                                                    \
-    io_seproxyhal_general_status();                                                                \
-    /* We wait for an ack of the MCU. */                                                           \
-    io_seproxyhal_spi_recv(G_io_seproxyhal_spi_buffer, sizeof(G_io_seproxyhal_spi_buffer), 0);
-#endif
 
 /**
  * Process button push events. Application's button event handler is called only if the ux app does
@@ -658,48 +553,6 @@ extern bolos_ux_params_t G_ux_params;
     G_ux_params.len   = 0;                 \
     os_ux(&G_ux_params);                   \
     G_ux_params.len = os_sched_last_status(TASK_BOLOS_UX);
-
-/**
- * Setup the TICKER_EVENT interval. Application shall not use this entry point as it's the main
- * ticking source. Use the ::UX_SET_INTERVAL_MS instead.
- */
-void io_seproxyhal_setup_ticker(unsigned int interval_ms);
-
-void io_seproxyhal_request_mcu_status(void);
-
-/**
- * Helper function to order the MCU to display the given bitmap with the given color index, a table
- * of size: (1<<bit_per_pixel) with little endian encoded colors. Deprecated
- */
-void io_seproxyhal_display_bitmap(int            x,
-                                  int            y,
-                                  unsigned int   w,
-                                  unsigned int   h,
-                                  unsigned int  *color_index,
-                                  unsigned int   bit_per_pixel,
-                                  unsigned char *bitmap);
-
-void io_seproxyhal_power_off(bool criticalBattery);
-
-void io_seproxyhal_se_reset(void);
-
-void io_seproxyhal_disable_io(void);
-
-void io_seproxyhal_backlight(unsigned int flags, unsigned int backlight_percentage);
-
-/**
- * Helper function to send the given bitmap splitting into multiple DISPLAY_RAW packet as the bitmap
- * is not meant to fit in a single SEPROXYHAL packet.
- */
-void io_seproxyhal_display_icon(const bagl_component_t    *icon_component,
-                                const bagl_icon_details_t *icon_details);
-
-/**
- * Helper method on the Blue to output icon header to the MCU and allow for bitmap transformation
- */
-unsigned int io_seproxyhal_display_icon_header_and_colors(const bagl_component_t    *icon_component,
-                                                          const bagl_icon_details_t *icon_details,
-                                                          unsigned int              *icon_len);
 
 // discriminated from io to allow for different memory placement
 typedef struct ux_seph_s {
