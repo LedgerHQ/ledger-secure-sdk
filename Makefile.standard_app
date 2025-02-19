@@ -25,7 +25,7 @@ ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOX TARGET_STAX TARGET_FLE
     HAVE_APPLICATION_FLAG_BOLOS_SETTINGS = 1
     DEFINES += HAVE_BLE BLE_COMMAND_TIMEOUT_MS=2000 HAVE_BLE_APDU
     DEFINES += BLE_SEGMENT_SIZE=32
-    SDK_SOURCE_PATH += lib_blewbxx lib_blewbxx_impl
+    SDK_SOURCE_PATH += lib_blewbxx
 endif
 endif
 
@@ -36,6 +36,7 @@ ifeq ($(ENABLE_NFC), 1)
 ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME), TARGET_STAX TARGET_FLEX))
     HAVE_APPLICATION_FLAG_BOLOS_SETTINGS = 1
     DEFINES += HAVE_NFC
+    SDK_SOURCE_PATH += lib_nfc
 endif
 endif
 
@@ -91,17 +92,6 @@ else
 endif
 
 #####################################################################
-#                        IO SEPROXY BUFFER SIZE                     #
-#####################################################################
-ifneq ($(DISABLE_DEFAULT_IO_SEPROXY_BUFFER_SIZE), 1)
-    ifeq ($(TARGET_NAME), TARGET_NANOS)
-        DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=128
-    else
-        DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=300
-    endif
-endif
-
-#####################################################################
 #                              NBGL                                 #
 #####################################################################
 ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOS TARGET_NANOX TARGET_NANOS2))
@@ -130,18 +120,29 @@ ifeq ($(ENABLE_NBGL_KEYPAD), 1)
 endif
 
 #####################################################################
+#                          OS IO STACK USE                          #
+#####################################################################
+ifneq ($(DISABLE_OS_IO_STACK_USE), 1)
+    DEFINES += USE_OS_IO_STACK
+endif
+
+#####################################################################
 #                          STANDARD DEFINES                         #
 #####################################################################
 DEFINES += $(DEFINES_LIB)
 DEFINES += MAJOR_VERSION=$(APPVERSION_M) MINOR_VERSION=$(APPVERSION_N) PATCH_VERSION=$(APPVERSION_P)
 DEFINES += IO_HID_EP_LENGTH=64
 
+
+SDK_SOURCE_PATH += io
+SDK_SOURCE_PATH += protocol
+
 ifeq ($(DISABLE_STANDARD_APP_DEFINES), 1)
     DISABLE_STANDARD_SNPRINTF = 1
     DISABLE_STANDARD_USB = 1
     DISABLE_STANDARD_WEBUSB = 1
+    DISABLE_STANDARD_U2F = 1
     DISABLE_STANDARD_BAGL_UX_FLOW = 1
-    DISABLE_STANDARD_SEPROXYHAL = 1
 endif
 
 ifneq ($(DISABLE_STANDARD_SNPRINTF), 1)
@@ -151,7 +152,8 @@ endif
 ifneq ($(DISABLE_STANDARD_USB), 1)
     DEFINES += HAVE_IO_USB HAVE_L4_USBLIB IO_USB_MAX_ENDPOINTS=4 HAVE_USB_APDU
     DEFINES += USB_SEGMENT_SIZE=64
-    SDK_SOURCE_PATH += lib_stusb lib_stusb_impl
+    SDK_SOURCE_PATH += lib_stusb
+    SDK_SOURCE_PATH += lib_stusb_impl
 endif
 
 ifneq ($(DISABLE_STANDARD_WEBUSB), 1)
@@ -161,8 +163,21 @@ ifneq ($(DISABLE_STANDARD_WEBUSB), 1)
     DEFINES += HAVE_WEBUSB WEBUSB_URL_SIZE_B=$(WEBUSB_URL_SIZE_B) WEBUSB_URL=$(WEBUSB_URL)
 endif
 
+ifneq ($(TARGET_NAME),$(filter $(TARGET_NAME), TARGET_NANOS2))
+ifneq ($(DISABLE_STANDARD_U2F), 1)
+    DEFINES += HAVE_IO_U2F
+    SDK_SOURCE_PATH += lib_u2f
+endif
+endif
+
+ifeq ($(ENABLE_USB_CCID), 1)
+    DEFINES += HAVE_CCID_USB
+    SDK_SOURCE_PATH += lib_ccid
+    SDK_SOURCE_PATH += lib_stusb_impl
+endif
+
 ifneq ($(DISABLE_STANDARD_BAGL_UX_FLOW), 1)
-ifneq ($(USE_NBGL), 1)
+ifndef USE_NBGL
     DEFINES += HAVE_UX_FLOW
 endif
 endif
@@ -267,7 +282,7 @@ include $(BOLOS_SDK)/Makefile.defines
 include $(BOLOS_SDK)/Makefile.glyphs
 
 load: all
-	python3 -m ledgerblue.loadApp $(APP_LOAD_PARAMS)
+	python3 -m ledgerblue.loadApp $(APP_LOAD_PARAMS) --rootPrivateKey f028458b39af92fea938486ecc49562d0e7731b53d9b25e2701183e4f2adc991
 
 load-offline: all
 	python3 -m ledgerblue.loadApp $(APP_LOAD_PARAMS) --offline
@@ -275,6 +290,7 @@ load-offline: all
 delete:
 	python3 -m ledgerblue.deleteApp $(COMMON_DELETE_PARAMS)
 
+IS_STANDARD_APP = 1
 include $(BOLOS_SDK)/Makefile.rules
 
 # Prepare `listvariants` mandatory target.

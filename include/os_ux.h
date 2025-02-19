@@ -6,13 +6,31 @@
 #include "os_utils.h"
 #include "os_ux_id.h"
 
+#if defined(HAVE_BOLOS)
+#include "bolos_privileged_ux.h"
+#endif  // HAVE_BOLOS
+
 /* ----------------------------------------------------------------------- */
 /* -                            UX DEFINITIONS                           - */
 /* ----------------------------------------------------------------------- */
 
 #if !defined(HAVE_BOLOS)
 
-typedef bolos_ux_public_t bolos_ux_t;
+// Enumeration of the UX events usable by the UX library.
+typedef enum bolos_ux_e {
+    BOLOS_UX_INITIALIZE = 0,
+    BOLOS_UX_EVENT,
+    BOLOS_UX_KEYBOARD,
+    BOLOS_UX_WAKE_UP,
+    BOLOS_UX_STATUS_BAR,
+
+    BOLOS_UX_VALIDATE_PIN,
+    BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST,  // ask the ux to display a modal to accept/reject the
+                                           // current pairing request
+    BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS,
+    BOLOS_UX_IO_RESET,
+    BOLOS_UX_LAST_ID,
+} bolos_ux_t;
 
 // Structure that defines the parameters to exchange with the BOLOS UX application
 typedef struct bolos_ux_params_s {
@@ -59,7 +77,7 @@ typedef struct bolos_ux_params_s {
                 BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_FAILED,
                 BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_CANCELLED_FROM_REMOTE,
             } pairing_ok;
-        } pairing_status;  // sent in BOLOS_UX_ASYNCHMODAL_PAIRING_CANCEL message
+        } pairing_status;  // sent in BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS message
 #endif                     // HAVE_BLE
         struct {           // for BOLOS_UX_DELAY_LOCK command
             uint32_t delay_ms;
