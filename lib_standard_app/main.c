@@ -60,8 +60,9 @@ WEAK void common_app_init(void)
 WEAK void standalone_app_main(void)
 {
 #ifdef HAVE_SWAP
-    G_called_from_swap    = false;
-    G_swap_response_ready = false;
+    G_called_from_swap                  = false;
+    G_swap_response_ready               = false;
+    G_swap_signing_return_value_address = NULL;
 #endif  // HAVE_SWAP
 
     BEGIN_TRY
@@ -122,6 +123,8 @@ WEAK void library_app_main(libargs_t *args)
                         // BSS was wiped, we can now init these globals
                         G_called_from_swap    = true;
                         G_swap_response_ready = false;
+                        // Keep the address at which we'll reply the signing status
+                        G_swap_signing_return_value_address = &args->create_transaction->result;
 
                         common_app_init();
 
