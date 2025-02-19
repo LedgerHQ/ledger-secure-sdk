@@ -20,6 +20,7 @@
 #include "nbgl_screen.h"
 #include "nbgl_touch.h"
 #include "glyphs.h"
+#include "os_io_seph_ux.h"
 #include "os_pic.h"
 #include "os_helpers.h"
 #include "lcx_rng.h"
@@ -145,7 +146,7 @@ static uint8_t nbTouchableControls = 0;
 /**********************
  *  STATIC PROTOTYPES
  **********************/
-extern const char *get_ux_loc_string(uint32_t index);
+// extern const char *get_ux_loc_string(UX_LOC_STRINGS_INDEX index);
 
 #ifdef HAVE_FAST_HOLD_TO_APPROVE
 // Unit step in % of touchable progress bar
