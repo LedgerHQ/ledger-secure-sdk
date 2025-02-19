@@ -19,9 +19,9 @@
 #include "os_helpers.h"
 #include "os_pic.h"
 #include "glyphs.h"
+#include "os_io_seph_ux.h"
 #ifdef HAVE_SERIALIZED_NBGL
 #include "nbgl_serialize.h"
-#include "os_io_seproxyhal.h"
 #endif
 #ifdef BUILD_SCREENSHOTS
 #include "json_scenario.h"
@@ -139,7 +139,6 @@ extern bool     last_bold_state, verbose;
 /**********************
  *  STATIC PROTOTYPES
  **********************/
-extern const char *get_ux_loc_string(uint32_t index);
 
 /**********************
  *   GLOBAL FUNCTIONS
@@ -1501,7 +1500,7 @@ static void draw_object(nbgl_obj_t *obj, nbgl_obj_t *prevObj, bool computePositi
     }
 
 #ifdef HAVE_SERIALIZED_NBGL
-    io_seproxyhal_send_nbgl_serialized(NBGL_DRAW_OBJ, obj);
+    io_seph_ux_send_nbgl_serialized(NBGL_DRAW_OBJ, obj);
 #endif
     if (!objRefreshAreaDone) {
         extendRefreshArea(&obj->area);
@@ -1712,7 +1711,7 @@ bool nbgl_refreshIsNeeded(void)
 void nbgl_refreshReset(void)
 {
 #ifdef HAVE_SERIALIZED_NBGL
-    io_seproxyhal_send_nbgl_serialized(NBGL_REFRESH_AREA, (nbgl_obj_t *) &refreshArea);
+    io_seph_ux_send_nbgl_serialized(NBGL_REFRESH_AREA, (nbgl_obj_t *) &refreshArea);
 #endif
     refreshArea.x0     = SCREEN_WIDTH - 1;
     refreshArea.width  = 0;
