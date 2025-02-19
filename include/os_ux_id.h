@@ -15,7 +15,7 @@ typedef enum bolos_ux_public_e {
     BOLOS_UX_VALIDATE_PIN,
     BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST,  // ask the ux to display a modal to accept/reject the
                                            // current pairing request
-    BOLOS_UX_ASYNCHMODAL_PAIRING_CANCEL,
+    BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS,
     BOLOS_UX_IO_RESET,
     BOLOS_UX_DELAY_LOCK,  // delay the power-off/lock timer
     NB_BOLOS_UX_IDS
