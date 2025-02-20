@@ -30,7 +30,7 @@
 #if (SCREEN_WIDTH == 400)
 #define NORMAL_KEY_WIDTH 40
 #define LETTER_OFFSET_Y  (((KEYBOARD_KEY_HEIGHT - 32) / 2) & 0xFFC)
-#else
+#elif (SCREEN_WIDTH == 480)
 #define NORMAL_KEY_WIDTH 48
 #define LETTER_OFFSET_Y  (((KEYBOARD_KEY_HEIGHT - 36) / 2) & 0xFFC)
 #endif
@@ -156,7 +156,7 @@ static void keyboardDrawCommonLines(nbgl_keyboard_t *keyboard)
     rectArea.x0              = keyboard->obj.area.x0;
     rectArea.y0              = keyboard->obj.area.y0;
     rectArea.width           = keyboard->obj.area.width;
-    rectArea.height          = 4;
+    rectArea.height          = VERTICAL_ALIGNMENT;
     nbgl_frontDrawHorizontalLine(&rectArea, 0x1, keyboard->borderColor);  // 1st line (top)
     rectArea.y0 += KEYBOARD_KEY_HEIGHT;
     nbgl_frontDrawHorizontalLine(&rectArea, 0x1, keyboard->borderColor);  // 2nd line
@@ -336,7 +336,7 @@ static void keyboardDrawLetters(nbgl_keyboard_t *keyboard)
         nbgl_frontDrawRect(&rectArea);
         // draw horizontal line
         rectArea.width           = SHIFT_KEY_WIDTH - 1;
-        rectArea.height          = 4;
+        rectArea.height          = VERTICAL_ALIGNMENT;
         rectArea.x0              = 1;
         rectArea.y0              = keyboard->obj.area.y0 + KEYBOARD_KEY_HEIGHT * 2;
         rectArea.backgroundColor = (keyboard->casing != LOWER_CASE) ? BLACK : WHITE;

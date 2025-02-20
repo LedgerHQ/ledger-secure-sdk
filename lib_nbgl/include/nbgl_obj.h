@@ -81,11 +81,12 @@ extern "C" {
 
 // common dimensions for buttons
 #if COMMON_RADIUS == 40
-#define BUTTON_RADIUS RADIUS_40_PIXELS
-#elif COMMON_RADIUS == 44
-#define BUTTON_RADIUS RADIUS_44_PIXELS
-#endif  // COMMON_RADIUS
+#define BUTTON_RADIUS   RADIUS_40_PIXELS
 #define BUTTON_DIAMETER (COMMON_RADIUS * 2)
+#elif COMMON_RADIUS == 44
+#define BUTTON_RADIUS   RADIUS_44_PIXELS
+#define BUTTON_DIAMETER (COMMON_RADIUS * 2)
+#endif  // COMMON_RADIUS
 
 // width & height for spinner
 #if defined(TARGET_STAX)
@@ -105,7 +106,7 @@ extern "C" {
 #define RADIO_HEIGHT 40
 #endif  // TARGETS
 
-// icons for some objects
+// common small icons
 #if SMALL_ICON_SIZE == 32
 #define SPACE_ICON        C_Space_32px
 #define BACKSPACE_ICON    C_Erase_32px
@@ -153,6 +154,16 @@ extern "C" {
 #define EXCLAMATION_ICON  C_Exclamation_40px
 #define DIGIT_ICON        C_pin_24
 #endif  // SMALL_ICON_SIZE
+
+// common large icons
+#if LARGE_ICON_SIZE == 64
+#define CHECK_CIRCLE_ICON     C_Check_Circle_64px
+#define DENIED_CIRCLE_ICON    C_Denied_Circle_64px
+#define IMPORTANT_CIRCLE_ICON C_Important_Circle_64px
+#define LARGE_WARNING_ICON    C_Warning_64px
+#else  // LARGE_ICON_SIZE
+#error Undefined LARGE_ICON_SIZE
+#endif  // LARGE_ICON_SIZE
 
 // For backward compatibility, to be remove later
 #define C_warning64px        _Pragma("GCC warning \"Deprecated constant!\"") C_Warning_64px

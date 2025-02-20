@@ -23,7 +23,12 @@ extern "C" {
 // internal margin, between sub-items
 #define INTERNAL_MARGIN 8
 
-#define SMALL_BUTTON_HEIGHT 64
+#ifdef SCREEN_SIZE_WALLET
+#if SMALL_BUTTON_RADIUS == 32
+#define SMALL_BUTTON_HEIGHT       64
+#define SMALL_BUTTON_RADIUS_INDEX RADIUS_32_PIXELS
+#endif  // SMALL_BUTTON_RADIUS
+#endif  // SCREEN_SIZE_WALLET
 
 /**
  * @brief Max number of complex objects with callback retrievable from pool
