@@ -42,7 +42,7 @@
  * @brief Structure defining the header of application storage header
  *
  */
-typedef struct app_storage_header_s {
+typedef struct __attribute__((packed)) app_storage_header_s {
     char     tag[APP_STORAGE_TAG_LEN];  ///< ['N','V','R','A'] array, when properly initialized
     uint32_t size;            ///< size in bytes of the data (app_storage_data_t structure)
     uint16_t struct_version;  ///< version of this structure (for OS)
@@ -59,13 +59,14 @@ uint32_t app_storage_get_size(void);
 uint16_t app_storage_get_properties(void);
 uint32_t app_storage_get_data_version(void);
 
-/* Getter for the application data */
-/* XXX: It is more practical finally to give the direct read access to the NVM for the app */
-const void *app_storage_get(void);
+/* Reads app storage data */
+int32_t app_storage_pread(void *buf, uint32_t nbyte, uint32_t offset);
+
+/* Writes app storage data */
+int32_t app_storage_pwrite(const void *buf, uint32_t nbyte, uint32_t offset);
 
 /* Setters */
-int32_t app_storage_pwrite(const void *buf, uint32_t nbyte, uint32_t offset);
-void    app_storage_set_data_version(uint32_t data_version);
-void    app_storage_increment_data_version(void);
+void app_storage_set_data_version(uint32_t data_version);
+void app_storage_increment_data_version(void);
 
 #endif  // #ifndef HAVE_BOLOS

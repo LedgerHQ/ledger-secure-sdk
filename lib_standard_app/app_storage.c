@@ -21,21 +21,20 @@
 #include "os_pic.h"
 
 /* The storage consists of the system and the app parts */
-const uint8_t app_storage_real[sizeof(app_storage_header_t) + APP_STORAGE_SIZE]
-    __attribute__((section(".storage_section")));
-#define app_storage_pic ((volatile uint8_t *) PIC(&app_storage_real))
+typedef struct __attribute__((packed)) app_storage_s {
+    app_storage_header_t header;
+    uint8_t              data[APP_STORAGE_SIZE];
+} app_storage_t;
+
+const app_storage_t app_storage_real __attribute__((section(".storage_section")));
+#define as (*(volatile app_storage_t *) PIC(&app_storage_real))
 
 /**
  * @brief checks if the app storage struct is initialized
  */
 static bool app_storage_is_initalized(void)
 {
-    if (memcmp((void *) &((app_storage_header_t *) app_storage_pic)->tag,
-               APP_STORAGE_TAG,
-               APP_STORAGE_TAG_LEN)) {
-        return false;
-    }
-    if (((app_storage_header_t *) app_storage_pic)->size == 0) {
+    if (memcmp((const void *) &as.header.tag, APP_STORAGE_TAG, APP_STORAGE_TAG_LEN)) {
         return false;
     }
     return true;
@@ -55,21 +54,14 @@ void app_storage_init(void)
         return;
     }
 
+    /* Starting with zero application data size */
     app_storage_header_t header = {0};
 
-    // TODO: should we erase all the area ?
-    // In any case erase must be page aligned for the length and on the app side we do not know the
-    // page size nvm_erase((void *) app_storage_pic, sizeof(app_storage_header_t) +
-    // APP_STORAGE_SIZE);
-
-    memcpy(header.tag, (void *) APP_STORAGE_TAG, APP_STORAGE_TAG_LEN);
-    // APP_STORAGE_DATA_STRUCT_VERSION and APP_STORAGE_PROPERTIES must be defined in
-    // app_storage_data.h
+    memcpy(&header.tag, (void *) APP_STORAGE_TAG, APP_STORAGE_TAG_LEN);
     header.struct_version = APP_STORAGE_HEADER_STRUCT_VERSION;
     header.data_version   = 1;
     header.properties = ((HAVE_APP_STORAGE_PROP_SETTINGS << 0) | (HAVE_APP_STORAGE_PROP_DATA << 1));
-    header.size       = 0;
-    nvm_write((void *) app_storage_pic, &header, sizeof(header));
+    nvm_write((void *) &as.header, &header, sizeof(header));
 }
 
 /**
@@ -77,7 +69,7 @@ void app_storage_init(void)
  */
 uint32_t app_storage_get_size(void)
 {
-    return ((app_storage_header_t *) app_storage_pic)->size;
+    return as.header.size;
 }
 
 /**
@@ -85,7 +77,7 @@ uint32_t app_storage_get_size(void)
  */
 uint32_t app_storage_get_data_version(void)
 {
-    return ((app_storage_header_t *) app_storage_pic)->data_version;
+    return as.header.data_version;
 }
 
 /**
@@ -93,7 +85,7 @@ uint32_t app_storage_get_data_version(void)
  */
 uint16_t app_storage_get_properties(void)
 {
-    return ((app_storage_header_t *) app_storage_pic)->properties;
+    return as.header.properties;
 }
 
 /**
@@ -101,21 +93,17 @@ uint16_t app_storage_get_properties(void)
  */
 void app_storage_increment_data_version(void)
 {
-    uint32_t data_version = ((app_storage_header_t *) app_storage_pic)->data_version;
+    uint32_t data_version = as.header.data_version;
     data_version++;
-    nvm_write((void *) &app_storage_pic[offsetof(app_storage_header_t, data_version)],
-              (void *) &data_version,
-              sizeof(data_version));
+    nvm_write((void *) &as.header.data_version, (void *) &data_version, sizeof(data_version));
 }
 
 /**
- * @brief sets the data_version field
+ * @brief writes application data to the storage
  */
 void app_storage_set_data_version(uint32_t data_version)
 {
-    nvm_write((void *) &app_storage_pic[offsetof(app_storage_header_t, data_version)],
-              (void *) &data_version,
-              sizeof(((app_storage_header_t *) app_storage_pic)->tag));
+    nvm_write((void *) &as.header.data_version, (void *) &data_version, sizeof(data_version));
 }
 
 /**
@@ -134,24 +122,34 @@ int32_t app_storage_pwrite(const void *buf, uint32_t nbyte, uint32_t offset)
     }
 
     /* Updating data */
-    nvm_write(
-        (void *) &app_storage_pic[sizeof(app_storage_header_t) + offset], (void *) buf, nbyte);
+    nvm_write((void *) &as.data[offset], (void *) buf, nbyte);
 
     /* Updating size if it increased */
-    if (((app_storage_header_t *) app_storage_pic)->size < size) {
-        nvm_write((void *) &app_storage_pic[offsetof(app_storage_header_t, size)],
-                  (void *) &size,
-                  sizeof(((app_storage_header_t *) app_storage_pic)->size));
+    if (as.header.size < size) {
+        nvm_write((void *) &as.header.size, (void *) &size, sizeof(size));
     }
     return nbyte;
 }
 
 /**
- * @brief returns the base address of the application storage
+ * @brief reads application data from the storage
  */
-const void *app_storage_get(void)
+int32_t app_storage_pread(void *buf, uint32_t nbyte, uint32_t offset)
 {
-    return (const void *) &app_storage_pic[sizeof(app_storage_header_t)];
+    /* Input parameters verification */
+    if (buf == NULL) {
+        return -1;
+    }
+
+    uint32_t size = offset + nbyte;
+    if (size >= as.header.size) {
+        return -1;
+    }
+
+    /* Reading data */
+    memcpy((void *) buf, (void *) &as.data[offset], nbyte);
+
+    return nbyte;
 }
 
 #endif  // HAVE_APP_STORAGE
