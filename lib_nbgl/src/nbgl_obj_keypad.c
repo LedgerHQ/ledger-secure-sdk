@@ -107,7 +107,7 @@ static void keypadDrawGrid(nbgl_keypad_t *keypad)
     rectArea.x0              = keypad->obj.area.x0;
     rectArea.y0              = keypad->obj.area.y0;
     rectArea.width           = keypad->obj.area.width;
-    rectArea.height          = 4;
+    rectArea.height          = VERTICAL_ALIGNMENT;
     nbgl_frontDrawHorizontalLine(&rectArea, 0x1, keypad->borderColor);  // 1st line (top)
     rectArea.y0 += KEYPAD_KEY_HEIGHT;
     nbgl_frontDrawHorizontalLine(&rectArea, 0x1, keypad->borderColor);  // 2nd line
@@ -214,7 +214,7 @@ static void keypadDrawDigits(nbgl_keypad_t *keypad)
         rectArea.x0              = keypad->obj.area.x0 + 2 * KEY_WIDTH;
         rectArea.y0              = keypad->obj.area.y0 + KEYPAD_KEY_HEIGHT * 3;
         rectArea.width           = KEY_WIDTH;
-        rectArea.height          = 4;
+        rectArea.height          = VERTICAL_ALIGNMENT;
         nbgl_frontDrawHorizontalLine(&rectArea, 0x1, keypad->borderColor);  // 1st line (top)
         /// then draw vertical line
         rectArea.backgroundColor = keypad->borderColor;

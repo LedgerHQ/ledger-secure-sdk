@@ -48,6 +48,14 @@ typedef struct {
 #define QrDrawBuffer ((QrCodeBuffer_t *) ramBuffer)->QrDrawBuffer
 #endif  // NBGL_QRCODE
 
+// icons to be used to draw circles or discs for a given radius
+typedef struct {
+    const uint8_t *topLeftDisc;
+    const uint8_t *bottomLeftDisc;
+    const uint8_t *topLeftCircle;
+    const uint8_t *bottomLeftCircle;
+} radiusIcons_t;
+
 /**********************
  *  STATIC PROTOTYPES
  **********************/
@@ -68,10 +76,12 @@ static const uint8_t quarter_circle_3px_270_1bpp[] = {0x58, 0x00};
 #endif  // SCREEN_SIZE_WALLET
 
 // indexed by nbgl_radius_t (except RADIUS_0_PIXELS)
-static const uint8_t radiusValues[] = {
+static const uint8_t radiusValues[RADIUS_MAX + 1] = {
 #ifdef SCREEN_SIZE_WALLET
+    8,
     32,
-    COMMON_RADIUS
+    40,
+    44
 #else   // SCREEN_SIZE_WALLET
     1,
     3
@@ -79,41 +89,47 @@ static const uint8_t radiusValues[] = {
 };
 
 #ifdef SCREEN_SIZE_WALLET
-// indexed by nbgl_radius_t (except RADIUS_0_PIXELS)
-static const uint8_t *topQuarterDiscs[] = {
-    C_quarter_disc_top_left_32px_1bpp_bitmap,
+
 #if COMMON_RADIUS == 40
+static const radiusIcons_t radiusIcons40px = {
     C_quarter_disc_top_left_40px_1bpp_bitmap,
-#elif COMMON_RADIUS == 44
-    C_quarter_disc_top_left_44px_1bpp_bitmap
-#endif  // COMMON_RADIUS
-};
-
-static const uint8_t *bottomQuarterDiscs[] = {
-    C_quarter_disc_bottom_left_32px_1bpp_bitmap,
-#if COMMON_RADIUS == 40
     C_quarter_disc_bottom_left_40px_1bpp_bitmap,
-#elif COMMON_RADIUS == 44
-    C_quarter_disc_bottom_left_44px_1bpp_bitmap
-#endif  // COMMON_RADIUS
+    C_quarter_circle_top_left_40px_1bpp_bitmap,
+    C_quarter_circle_bottom_left_40px_1bpp_bitmap,
 };
+#elif COMMON_RADIUS == 44
+static const radiusIcons_t radiusIcons44px = {
+    C_quarter_disc_top_left_44px_1bpp_bitmap,
+    C_quarter_disc_bottom_left_44px_1bpp_bitmap,
+    C_quarter_circle_top_left_44px_1bpp_bitmap,
+    C_quarter_circle_bottom_left_44px_1bpp_bitmap,
+};
+#endif
+#if SMALL_BUTTON_RADIUS == 32
+static const radiusIcons_t radiusIcons32px = {
+    C_quarter_disc_top_left_32px_1bpp_bitmap,
+    C_quarter_disc_bottom_left_32px_1bpp_bitmap,
+    C_quarter_circle_top_left_32px_1bpp_bitmap,
+    C_quarter_circle_bottom_left_32px_1bpp_bitmap,
+};
+#endif
 
 // indexed by nbgl_radius_t (except RADIUS_0_PIXELS)
-static const uint8_t *topQuarterCircles[] = {
-    C_quarter_circle_top_left_32px_1bpp_bitmap,
+static const radiusIcons_t *radiusIcons[RADIUS_MAX + 1] = {NULL,
+#if SMALL_BUTTON_RADIUS == 32
+                                                           &radiusIcons32px,
+#else
+                                                           NULL,
+#endif
 #if COMMON_RADIUS == 40
-    C_quarter_circle_top_left_40px_1bpp_bitmap,
-#elif COMMON_RADIUS == 44
-    C_quarter_circle_top_left_44px_1bpp_bitmap
-#endif  // COMMON_RADIUS
-};
-
-static const uint8_t *bottomQuarterCircles[] = {
-    C_quarter_circle_bottom_left_32px_1bpp_bitmap,
-#if COMMON_RADIUS == 40
-    C_quarter_circle_bottom_left_40px_1bpp_bitmap,
-#elif COMMON_RADIUS == 44
-    C_quarter_circle_bottom_left_44px_1bpp_bitmap
+                                                           &radiusIcons40px,
+#else
+                                                           NULL,
+#endif
+#if COMMON_RADIUS == 44
+                                                           &radiusIcons44px
+#else
+                                                           NULL
 #endif  // COMMON_RADIUS
 };
 #endif  // SCREEN_SIZE_WALLET
@@ -150,18 +166,18 @@ static void draw_circle_helper(int           x_center,
 #ifdef SCREEN_SIZE_WALLET
     if (borderColor == innerColor) {
         if (quarter < BAGL_FILL_CIRCLE_PI_3PI2) {
-            quarter_buffer = (const uint8_t *) PIC(topQuarterDiscs[radiusIndex]);
+            quarter_buffer = (const uint8_t *) PIC(radiusIcons[radiusIndex]->topLeftDisc);
         }
         else {
-            quarter_buffer = (const uint8_t *) PIC(bottomQuarterDiscs[radiusIndex]);
+            quarter_buffer = (const uint8_t *) PIC(radiusIcons[radiusIndex]->bottomLeftDisc);
         }
     }
     else {
         if (quarter < BAGL_FILL_CIRCLE_PI_3PI2) {
-            quarter_buffer = (const uint8_t *) PIC(topQuarterCircles[radiusIndex]);
+            quarter_buffer = (const uint8_t *) PIC(radiusIcons[radiusIndex]->topLeftCircle);
         }
         else {
-            quarter_buffer = (const uint8_t *) PIC(bottomQuarterCircles[radiusIndex]);
+            quarter_buffer = (const uint8_t *) PIC(radiusIcons[radiusIndex]->bottomLeftCircle);
         }
     }
     switch (quarter) {
@@ -254,10 +270,10 @@ void nbgl_drawRoundedRect(const nbgl_area_t *area, nbgl_radius_t radiusIndex, co
         return;
     }
 
-    // Draw main inner rectangle
-    rectArea.x0              = area->x0 + radius;
+    // Draw full rectangle
+    rectArea.x0              = area->x0;
     rectArea.y0              = area->y0;
-    rectArea.width           = area->width - (2 * radius);
+    rectArea.width           = area->width;
     rectArea.height          = area->height;
     rectArea.backgroundColor = innerColor;
     nbgl_frontDrawRect(&rectArea);
@@ -265,18 +281,6 @@ void nbgl_drawRoundedRect(const nbgl_area_t *area, nbgl_radius_t radiusIndex, co
     if (radiusIndex == RADIUS_0_PIXELS) {
         return;
     }
-    // Draw left inner rectangle
-    rectArea.x0     = area->x0;
-    rectArea.y0     = area->y0 + radius;
-    rectArea.width  = radius;
-    rectArea.height = area->height - (2 * radius);
-    nbgl_frontDrawRect(&rectArea);
-    // Draw right inner rectangle
-    rectArea.x0     = area->x0 + area->width - radius;
-    rectArea.y0     = area->y0 + radius;
-    rectArea.width  = radius;
-    rectArea.height = area->height - (2 * radius);
-    nbgl_frontDrawRect(&rectArea);
 
 #ifdef SCREEN_SIZE_NANO
     if (radiusIndex == RADIUS_1_PIXEL) {

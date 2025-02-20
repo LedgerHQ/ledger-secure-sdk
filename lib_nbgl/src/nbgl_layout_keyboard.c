@@ -61,6 +61,12 @@ enum {
 #define TOP_COMPACT_MARGIN        12
 #endif  // TARGETS
 
+#ifdef USE_PARTIAL_BUTTONS
+#if defined(TARGET_FLEX)
+#define LEFT_HALF_ICON C_left_half_64px
+#endif  // TARGETS
+#endif  // USE_PARTIAL_BUTTONS
+
 // a horizontal line, even if displayed on 2 pixels, takes 4 pixels
 #define LINE_REAL_HEIGHT 4
 
@@ -385,7 +391,7 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
         choiceButtons[i]->foregroundColor = WHITE;
         choiceButtons[i]->obj.area.width  = (AVAILABLE_WIDTH - INTERNAL_MARGIN) / 2;
         choiceButtons[i]->obj.area.height = SMALL_BUTTON_HEIGHT;
-        choiceButtons[i]->radius          = RADIUS_32_PIXELS;
+        choiceButtons[i]->radius          = SMALL_BUTTON_RADIUS_INDEX;
         choiceButtons[i]->fontId          = SMALL_BOLD_1BPP_FONT;
         choiceButtons[i]->text            = buttonTexts[i];
         choiceButtons[i]->obj.touchMask   = (1 << TOUCHED);
@@ -411,11 +417,11 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
     // also allocate the semi disc that may be displayed on the left or right of the full
     // buttons
     nbgl_objPoolGetArray(IMAGE, 2, layoutInt->layer, (nbgl_obj_t **) &partialButtonImages);
-    partialButtonImages[0]->buffer          = &C_left_half_64px;
+    partialButtonImages[0]->buffer          = &LEFT_HALF_ICON;
     partialButtonImages[0]->obj.alignment   = TOP_LEFT;
     partialButtonImages[0]->foregroundColor = BLACK;
     partialButtonImages[0]->transformation  = VERTICAL_MIRROR;
-    partialButtonImages[1]->buffer          = &C_left_half_64px;
+    partialButtonImages[1]->buffer          = &LEFT_HALF_ICON;
     partialButtonImages[1]->obj.alignment   = TOP_RIGHT;
     partialButtonImages[1]->foregroundColor = BLACK;
     partialButtonImages[1]->transformation  = NO_TRANSFORMATION;

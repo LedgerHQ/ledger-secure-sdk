@@ -48,7 +48,7 @@
 #define UP_FOOTER_BUTTON_HEIGHT          120
 #define ROUNDED_AND_FOOTER_FOOTER_HEIGHT 192
 #define ACTION_AND_FOOTER_FOOTER_HEIGHT  216
-#define FOOTER_TEXT_AND_NAV_HEIGHT       160
+#define FOOTER_TEXT_AND_NAV_WIDTH        160
 #define TAP_TO_CONTINUE_MARGIN           24
 #define SUB_HEADER_MARGIN                (2 * 24)
 #define PRE_FIRST_TEXT_MARGIN            24
@@ -68,7 +68,7 @@
 #define UP_FOOTER_BUTTON_HEIGHT          136
 #define ROUNDED_AND_FOOTER_FOOTER_HEIGHT 208
 #define ACTION_AND_FOOTER_FOOTER_HEIGHT  232
-#define FOOTER_TEXT_AND_NAV_HEIGHT       192
+#define FOOTER_TEXT_AND_NAV_WIDTH        192
 #define TAP_TO_CONTINUE_MARGIN           30
 #define SUB_HEADER_MARGIN                (2 * 28)
 #define PRE_FIRST_TEXT_MARGIN            0
@@ -2147,10 +2147,10 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
         container->layout               = VERTICAL;
         container->obj.alignmentMarginX = BORDER_MARGIN;
         if (i > 0) {
-            container->obj.alignmentMarginY = PRE_TAG_VALUE_MARGIN;
+            container->obj.alignmentMarginY = INTER_TAG_VALUE_MARGIN;
         }
         else {
-            container->obj.alignmentMarginY = INTER_TAG_VALUE_MARGIN;
+            container->obj.alignmentMarginY = PRE_TAG_VALUE_MARGIN;
         }
         container->obj.alignment = NO_ALIGNMENT;
 
@@ -2332,7 +2332,7 @@ int nbgl_layoutAddButton(nbgl_layout_t *layout, const nbgl_layoutButton_t *butto
                                  + SMALL_BUTTON_HEIGHT
                                  + ((button->icon) ? (button->icon->width + 12) : 0);
         button->obj.area.height = SMALL_BUTTON_HEIGHT;
-        button->radius          = RADIUS_32_PIXELS;
+        button->radius          = SMALL_BUTTON_RADIUS_INDEX;
         if (buttonInfo->onBottom != true) {
             button->obj.alignmentMarginX
                 += (SCREEN_WIDTH - 2 * BORDER_MARGIN - button->obj.area.width) / 2;
@@ -2858,7 +2858,7 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
             }
             textArea->obj.alignment   = BOTTOM_LEFT;
             textArea->textColor       = BLACK;
-            textArea->obj.area.width  = FOOTER_TEXT_AND_NAV_HEIGHT;
+            textArea->obj.area.width  = FOOTER_TEXT_AND_NAV_WIDTH;
             textArea->obj.area.height = SIMPLE_FOOTER_HEIGHT;
             textArea->text            = PIC(footerDesc->textAndNav.text);
             textArea->fontId          = SMALL_BOLD_FONT;

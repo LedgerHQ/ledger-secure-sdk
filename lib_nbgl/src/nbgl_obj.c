@@ -34,10 +34,10 @@
 #define NB_MAX_LETTERS 9
 
 #if defined(TARGET_STAX)
-#define INTER_DASHES 10  // pixels
+#define INTER_DASHES 10
 #elif defined(TARGET_FLEX)
-#define INTER_DASHES 8  // pixels
-#endif                  // TARGETS
+#define INTER_DASHES 8
+#endif  // TARGETS
 
 /**********************
  *      TYPEDEFS
@@ -539,7 +539,7 @@ static void draw_line(nbgl_line_t *obj, nbgl_obj_t *prevObj, bool computePositio
             return;
         }
         rectArea.width  = obj->obj.area.width;
-        rectArea.height = obj->obj.area.height = 4;
+        rectArea.height = obj->obj.area.height = VERTICAL_ALIGNMENT;
         rectArea.backgroundColor               = obj->obj.area.backgroundColor;
         nbgl_frontDrawHorizontalLine(&rectArea, mask, obj->lineColor);
     }

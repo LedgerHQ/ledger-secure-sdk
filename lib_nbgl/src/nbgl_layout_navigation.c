@@ -28,10 +28,12 @@
 #define NAVIGATION_HEIGHT 92
 #define NAV_BUTTON_HEIGHT 80
 #define NAV_BUTTON_WIDTH  80
+#define PAGE_NUMBER_WIDTH 79
 #elif defined(TARGET_FLEX)
 #define NAVIGATION_HEIGHT 96
 #define NAV_BUTTON_HEIGHT NAVIGATION_HEIGHT
 #define NAV_BUTTON_WIDTH  104
+#define PAGE_NUMBER_WIDTH 79
 #endif  // TARGETS
 
 /**********************
@@ -155,9 +157,9 @@ void layoutNavigationPopulate(nbgl_container_t                 *navContainer,
         button->obj.area.height = BUTTON_DIAMETER;
         button->radius          = BUTTON_RADIUS;
         button->icon            = &CLOSE_ICON;
-#ifdef TARGET_FLEX
+#ifndef TARGET_STAX
         button->obj.alignmentMarginX = (navConfig->nbPages > 1) ? 8 : 0;
-#endif  // TARGET_FLEX
+#endif  // TARGET_STAX
 
         button->obj.alignment                     = (navConfig->nbPages > 1) ? MID_LEFT : CENTER;
         button->obj.touchMask                     = (1 << TOUCHED);
@@ -216,7 +218,7 @@ void layoutNavigationPopulate(nbgl_container_t                 *navContainer,
             navContainer->children[PAGE_INDICATOR_INDEX] = (nbgl_obj_t *) textArea;
         }
         if (navConfig->withBackKey) {
-            navContainer->children[PREVIOUS_PAGE_INDEX]->alignmentMarginX += 79;
+            navContainer->children[PREVIOUS_PAGE_INDEX]->alignmentMarginX += PAGE_NUMBER_WIDTH;
         }
     }
 
