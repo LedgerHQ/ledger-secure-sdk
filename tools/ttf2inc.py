@@ -11,7 +11,6 @@ import json
 import base64
 import struct
 import configparser
-from fontTools.ttLib import TTFont
 from PIL import Image, ImageFont, ImageDraw
 from rle_custom import RLECustom
 
@@ -44,8 +43,6 @@ class TTF2INC:
     # Add Russian specific characters (not already included)
     STRING += "АаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя"
 
-    THAI = "กขฃคฅฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรฤลฦวศษสหฬอฮฯะัาำิีึืฺุู฿เแโใไๅๆ็่้๊๋์ํ๎๏๐๑๒๓๔๕๖๗๘๙๚๛"
-
     # -------------------------------------------------------------------------
     def __init__(self, args):
         super().__init__()
@@ -54,8 +51,6 @@ class TTF2INC:
         self.rle = False
         self.crop = True
         self.unicode_needed = False
-        self.font = None
-        self.ttfont = None
         self.font_name = None
         self.font_id_name = None
         self.basename = None
@@ -74,8 +69,7 @@ class TTF2INC:
         self.bitmap_len = 0
         self.loaded_baseline = 0
         self.baseline_offset = 0
-        self.bpp = args.bpp
-        self.font_index = 0
+        self.bpp = 1
         self.char_info = {}
         self.ttf_info_dictionary = {}
         # Be sure there are at least some mandatory characters
@@ -86,31 +80,12 @@ class TTF2INC:
         # Initialise config with provided values or default ones
         self.init_config()
         # Get font infos
-        self.fonts = []
-        self.ttfonts = []
-        self.fonts_names = []
-        self.baselines = []
+        try:
+            self.font = ImageFont.truetype(self.font_name, self.font_size)
+        except (BaseException, Exception) as error:
+            sys.stderr.write(f"Error with font {self.font_name}: {error}\n")
+            sys.exit(-1)
 
-        sys.stderr.write(f"self.font_name={self.font_name}\n")
-        for font_name in self.font_name:
-            if not os.path.exists(font_name):
-                sys.stderr.write(f"Can't open file {font_name}\n")
-                sys.exit(-2)
-            try:
-                font = ImageFont.truetype(font_name, self.font_size)
-                ascent, descent = font.getmetrics()
-                self.baselines.append(ascent)
-                sys.stderr.write(f"{font_name} metrics: ascent={ascent}, descent={descent}\n")
-                ttfont = TTFont(font_name)
-                self.fonts.append(font)
-                self.ttfonts.append(ttfont)
-                self.fonts_names.append(font_name)
-            except (BaseException, Exception) as error:
-                sys.stderr.write(f"Error with font {self.font_name}: {error}\n")
-                sys.exit(-1)
-
-        # Select font 0 by default and update all global info
-        self.update_font_info(0)
         # Get font metrics:
         # - ascent: distance from the baseline to the highest outline point.
         # - descent: distance from the baseline to the lowest outline point.
@@ -134,19 +109,6 @@ class TTF2INC:
         """
         Do all the necessary cleanup.
         """
-
-    # -------------------------------------------------------------------------
-    def update_font_info(self, index):
-        """
-        Update the font related variables according to index value.
-        """
-        self.font_index = index
-        self.font = self.fonts[index]
-        self.ttfont = self.ttfonts[index]
-        self.font_name = self.fonts_names[index]
-
-        # We now know everything on this font & used chars => build filenames
-        self.build_names()
 
     # -------------------------------------------------------------------------
     def get_font_id_name(self):
@@ -191,9 +153,7 @@ class TTF2INC:
             config_parser.read(self.args.init_file)
             print(self.args.init_file)
             config = config_parser['main']
-            self.font_name = config.get('font').split()
-            self.font_name = self.font_name[1]
-            self.font_name = self.font_name.replace("Maitree", "Kanit")
+            self.font_name = config.get('font')
             self.font_id_name = config.get('font_id_name')
             self.loaded_baseline = int(config.get('loaded_baseline', 0))
             self.baseline_offset = int(config.get('baseline_offset', 0))
@@ -209,61 +169,50 @@ class TTF2INC:
             self.nbgl = config.getboolean('nbgl', False)
         # Otherwise, use command line parameters (or default values)
         else:
-            self.font_name = self.args.font_name.split()
+            self.font_name = self.args.font_name
             self.font_id_name = self.get_font_id_name()
-
             self.first_character = self.args.first_character
             self.last_character = self.args.last_character
             self.font_size = self.args.font_size
-
-            self.line_size = 36
-            self.bottom_offset = 0
-            self.kerning = 0
 
         if self.nbgl:
             self.font_prefix = "nbgl_font_"
         else:
             self.font_prefix = "bagl_font_"
 
-        # Be sure filenames for fonts are correct, and update them if necessary
-        self.find_fonts()
+        # Be sure there is a file at self.font_name
+        self.find_font()
 
     # -------------------------------------------------------------------------
-    def find_fonts(self):
+    def find_font(self):
         """
-        Try to find where are located the fonts specified in self.font_name
+        Try to find where is located the font specified in self.font_name
         (in current directory, in the .ini directory or in the .py directory)
         """
-        # Make self.font_name a list with all font names
-        if not isinstance(self.font_name, list):
-            self.font_name = self.font_name.split()
+        # Check first in current directory
+        if os.path.exists(self.font_name):
+            # We found it!!
+            return
 
-        for index, font_name in enumerate(self.font_name):
-
-            # Check first in current directory
-            if os.path.exists(font_name):
-                # We found it!!
-                continue
-
-            # Check at .ini location
-            if self.args.init_file:
-                filename = os.path.dirname(self.args.init_file)
-                filename = os.path.join(filename, font_name)
-                if os.path.exists(filename):
-                    # We found it!!
-                    self.font_name[index] = filename
-                    continue
-
-            # Check at the location of the script
-            filename = os.path.dirname(__file__)
-            filename = os.path.join(filename, font_name)
+        # Check at .ini location
+        if self.args.init_file:
+            filename = os.path.dirname(self.args.init_file)
+            filename = os.path.join(filename, self.font_name)
             if os.path.exists(filename):
                 # We found it!!
-                self.font_name[index] = filename
-                continue
+                self.font_name = filename
+                return
 
-        # If we didn't found the specified font, let pillow search by itself
-        # (it looks in system directories too)
+        # Check at the location of the script
+        filename = os.path.dirname(__file__)
+        filename = os.path.join(filename, self.font_name)
+        if os.path.exists(filename):
+            # We found it!!
+            self.font_name = filename
+            return
+
+        # We didn't found the specified font... :(
+        # => let pillow search by itself (it looks in system directories too)
 
     # -------------------------------------------------------------------------
     def build_names(self):
@@ -312,41 +261,12 @@ class TTF2INC:
         return bottom
 
     # -------------------------------------------------------------------------
-    def char_is_in_font(self, char, ttfont):
-        """
-        Find if a char is the current font
-        Based on https://superuser.com/questions/876572/how-do-i-find-out-which-font-contains-a-certain-special-character/1452828#1452828
-        """
-        for cmap in ttfont['cmap'].tables:
-            if cmap.isUnicode():
-                if ord(char) in cmap.cmap:
-                    return True
-        return False
-
-    # -------------------------------------------------------------------------
     def check_unicode(self, char):
         """
         Check if unicode is needed to encode provided character.
         """
         if ord(char) > 0x7F:
             self.unicode_needed = True
-
-            # Is that character available in current font?
-            if not self.char_is_in_font(char, self.ttfont):
-                # Find the font having that character
-                for index, ttfont in enumerate(self.ttfonts):
-                    if self.char_is_in_font(char, ttfont):
-                        self.update_font_info(index)
-                        #sys.stderr.write(f"The character '{char}' (0x{ord(char):X}) was found in font #{index}!\n")
-                        return
-
-                # We didn't found that character => use font 0 by default
-                if ord(char) != 0xFFFD:
-                    sys.stderr.write(f"WARNING: The character '{char}' (0x{ord(char):X}) was not found in any font!\n")
-                self.update_font_info(0)
-        else:
-            # This is an ASCII character => use font 0
-            self.update_font_info(0)
 
     # -------------------------------------------------------------------------
     def find_string_dimension(self, string):
@@ -356,7 +276,7 @@ class TTF2INC:
         """
         for char in string:
 
-            # Update Unicode flag & font info
+            # Update Unicode flag
             self.check_unicode(char)
 
             # Get dimension using font.getbbox
@@ -377,7 +297,6 @@ class TTF2INC:
 
             # Store relevant information
             self.char_info[char] = {
-                "index" : self.font_index,
                 "left_offset": left_offset,
                 "left": left,
                 "top": top,
@@ -413,19 +332,21 @@ class TTF2INC:
 
         # Some fonts display some characters at y < 0
         # => Be sure we are aware of that and already compensated it
-        baseline = self.baseline_offset + self.baselines[self.font_index] - self.baseline
-        if (baseline + self.char_topmost_y) < 0:
+        if (self.baseline_offset + self.char_topmost_y) < 0:
             sys.stderr.write(f"WARNING: Font {self.font_name} ({self.bpp} BPP)"
                              f" display characters at y={self.char_topmost_y} "
                              f"=> 'baseline_offset' value should be set "
                              f"at least to {-(self.char_topmost_y)} !\n")
             # Increase font height accordingly
-            self.font_height -= baseline + self.char_topmost_y
+            self.font_height -= self.baseline_offset + self.char_topmost_y
         else:
-            self.font_height += baseline
+            self.font_height += self.baseline_offset
 
         # char_topmost_y will use the real information (from bitmap data)
         self.char_topmost_y = self.font_height
+
+        # We now know everything on this font & used chars => build filenames
+        self.build_names()
 
     # -------------------------------------------------------------------------
     def create_empty_image(self, width, height):
@@ -486,7 +407,6 @@ class TTF2INC:
             # (no pixel should be displayed outside of [width, height])
             offset_x = 0 - info['left_offset']
             offset_y = self.baseline_offset
-            offset_y += self.baselines[self.font_index] - self.baseline
             offset_y += self.font_height - self.font.font.height - self.bottom_offset
 
             # Draw the character
@@ -525,7 +445,6 @@ class TTF2INC:
                 else:
                     offset_y = 0
                 offset_y += self.baseline_offset
-                offset_y += self.baselines[self.font_index] - self.baseline
                 new_img.paste(img, (0, offset_y))
                 img = new_img
 
@@ -1374,12 +1293,10 @@ if __name__ == "__main__":
                     string += chr(value)
 
             # Find dimension used by specified characters with that font
-            # (also, find which font is really the one to use here)
             ttf.find_string_dimension(string)
 
             # Now, handle all characters from the string:
             for char in string:
-                ttf.update_font_info(ttf.char_info[char]['index'])
                 try:
                     # We could have done everything in one step, from .ttf to
                     # .inc, but to allow manual editing of generated images
@@ -1584,12 +1501,6 @@ if __name__ == "__main__":
         dest="font_name", type=str,
         default=TTF2INC.FONT_NAME,
         help="Font name ('%(default)s' by default)")
-
-    parser.add_argument(
-        "-b", "--bpp",
-        dest="bpp", type=int,
-        default=1,
-        help="Bits Per Point (bpp) to use ('%(default)s' by default)")
 
     parser.add_argument(
         "--font_id_name",
