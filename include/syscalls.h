@@ -130,8 +130,8 @@
 #define SYSCALL_os_perso_derive_node_with_seed_key_ID 0x080000a6
 #define SYSCALL_os_perso_derive_eip2333_ID            0x040000a7
 
+#define SYSCALL_os_perso_master_seed_ID 0x02000052
 #ifdef HAVE_RECOVER
-#define SYSCALL_os_perso_master_seed_ID   0x02000052
 #define SYSCALL_os_perso_recover_state_ID 0x02000054
 #endif  // HAVE_RECOVER
 
@@ -199,6 +199,7 @@
 #endif  // HAVE_LEDGER_PKI
 
 #define SYSCALL_os_dashboard_mbx_ID 0x02000150
+#define SYSCALL_os_ux_set_global_ID 0x03000151
 
 #ifdef HAVE_CUSTOM_CA_DETAILS_IN_SETTINGS
 #define SYSCALL_CERT_get_ID   0x01000CA0
