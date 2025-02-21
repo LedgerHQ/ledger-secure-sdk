@@ -36,9 +36,11 @@ class NbglQrCodeVersion(IntEnum):
 
 
 class NbglRadius(IntEnum):
-    RADIUS_32_PIXELS = 0
-    RADIUS_40_PIXELS = 1
-    RADIUS_1_PIXEL  = 0
+    RADIUS_8_PIXELS = 0
+    RADIUS_32_PIXELS = 1
+    RADIUS_40_PIXELS = 2
+    RADIUS_44_PIXELS = 3
+    RADIUS_1_PIXEL = 0
     RADIUS_3_PIXELS = 1
     RADIUS_0_PIXELS = 0xFF
 
