@@ -3419,44 +3419,6 @@ void nbgl_useCaseReview(nbgl_operationType_t              operationType,
 }
 
 /**
- * @brief Draws a flow of pages of a review. Navigation operates with either swipe or navigation
- * keys at bottom right. The last page contains a long-press button with the given finishTitle and
- * the given icon.
- * @note  All tag/value pairs are provided in the API and the number of pages is automatically
- * computed, the last page being a long press one
- *
- * @param operationType type of operation (Operation, Transaction, Message)
- * @param tagValueList list of tag/value pairs
- * @param icon icon used on first and last review page
- * @param reviewTitle string used in the first review page
- * @param reviewSubTitle string to set under reviewTitle (can be NULL)
- * @param finishTitle string used in the last review page
- * @param tipBox parameter to build a tip-box and necessary modal (can be NULL)
- * @param choiceCallback callback called when operation is accepted (param is true) or rejected
- * (param is false)
- */
-void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
-                                const nbgl_contentTagValueList_t *tagValueList,
-                                const nbgl_icon_details_t        *icon,
-                                const char                       *reviewTitle,
-                                const char                       *reviewSubTitle,
-                                const char                       *finishTitle,
-                                const nbgl_tipBox_t              *tipBox,
-                                nbgl_choiceCallback_t             choiceCallback)
-{
-    useCaseReview(operationType,
-                  tagValueList,
-                  icon,
-                  reviewTitle,
-                  reviewSubTitle,
-                  finishTitle,
-                  tipBox,
-                  choiceCallback,
-                  false,
-                  true);
-}
-
-/**
  * @brief Draws a flow of pages of a blind-signing review. The review is preceded by a warning page
  *
  * Navigation operates with either swipe or navigation
@@ -3484,15 +3446,15 @@ void nbgl_useCaseReviewBlindSigning(nbgl_operationType_t              operationT
                                     const nbgl_tipBox_t              *tipBox,
                                     nbgl_choiceCallback_t             choiceCallback)
 {
-    nbgl_useCaseReviewWithWarning(operationType,
-                                  tagValueList,
-                                  icon,
-                                  reviewTitle,
-                                  reviewSubTitle,
-                                  finishTitle,
-                                  tipBox,
-                                  &blindSigningWarning,
-                                  choiceCallback);
+    nbgl_useCaseAdvancedReview(operationType,
+                               tagValueList,
+                               icon,
+                               reviewTitle,
+                               reviewSubTitle,
+                               finishTitle,
+                               tipBox,
+                               &blindSigningWarning,
+                               choiceCallback);
 }
 
 /**
@@ -3517,15 +3479,15 @@ void nbgl_useCaseReviewBlindSigning(nbgl_operationType_t              operationT
  * @param choiceCallback callback called when operation is accepted (param is true) or rejected
  * (param is false)
  */
-void nbgl_useCaseReviewWithWarning(nbgl_operationType_t              operationType,
-                                   const nbgl_contentTagValueList_t *tagValueList,
-                                   const nbgl_icon_details_t        *icon,
-                                   const char                       *reviewTitle,
-                                   const char                       *reviewSubTitle,
-                                   const char                       *finishTitle,
-                                   const nbgl_tipBox_t              *tipBox,
-                                   const nbgl_warning_t             *warning,
-                                   nbgl_choiceCallback_t             choiceCallback)
+void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
+                                const nbgl_contentTagValueList_t *tagValueList,
+                                const nbgl_icon_details_t        *icon,
+                                const char                       *reviewTitle,
+                                const char                       *reviewSubTitle,
+                                const char                       *finishTitle,
+                                const nbgl_tipBox_t              *tipBox,
+                                const nbgl_warning_t             *warning,
+                                nbgl_choiceCallback_t             choiceCallback)
 {
     memset(&reviewWithWarnCtx, 0, sizeof(reviewWithWarnCtx));
     reviewWithWarnCtx.isStreaming    = false;
@@ -3655,7 +3617,7 @@ void nbgl_useCaseReviewStreamingBlindSigningStart(nbgl_operationType_t       ope
                                                   const char                *reviewSubTitle,
                                                   nbgl_choiceCallback_t      choiceCallback)
 {
-    nbgl_useCaseReviewStreamingWithWarningStart(
+    nbgl_useCaseAdvancedReviewStreamingStart(
         operationType, icon, reviewTitle, reviewSubTitle, &blindSigningWarning, choiceCallback);
 }
 
@@ -3674,12 +3636,12 @@ void nbgl_useCaseReviewStreamingBlindSigningStart(nbgl_operationType_t       ope
  * @param choiceCallback callback called when more operation data are needed (param is true) or
  * operation is rejected (param is false)
  */
-void nbgl_useCaseReviewStreamingWithWarningStart(nbgl_operationType_t       operationType,
-                                                 const nbgl_icon_details_t *icon,
-                                                 const char                *reviewTitle,
-                                                 const char                *reviewSubTitle,
-                                                 const nbgl_warning_t      *warning,
-                                                 nbgl_choiceCallback_t      choiceCallback)
+void nbgl_useCaseAdvancedReviewStreamingStart(nbgl_operationType_t       operationType,
+                                              const nbgl_icon_details_t *icon,
+                                              const char                *reviewTitle,
+                                              const char                *reviewSubTitle,
+                                              const nbgl_warning_t      *warning,
+                                              nbgl_choiceCallback_t      choiceCallback)
 {
     memset(&reviewWithWarnCtx, 0, sizeof(reviewWithWarnCtx));
 
