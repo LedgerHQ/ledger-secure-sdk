@@ -184,7 +184,8 @@ typedef struct {
     const char *modalTitle;   ///< title given to modal window displayed when tip-box is touched
     nbgl_contentType_t type;  ///< type of page content in the following union
     union {
-        nbgl_contentInfoList_t infos;  ///< infos pairs displayed in modal.
+        nbgl_contentInfoList_t
+            infos;  ///< infos pairs displayed in modal, if type is @ref INFOS_LIST.
     };
 } nbgl_tipBox_t;
 
@@ -235,10 +236,11 @@ typedef struct nbgl_warningDetails_s {
  *
  */
 typedef enum {
-    BLIND_SIGNING_WARN = 0,    ///< Blind signing
-    W3C_ISSUE_WARN,            ///< Web3 Checks issue
-    W3C_LOSING_SWAP_WARN,      ///< Web3 Checks: Losing Swap risk
-    W3C_THREAT_DETECTED_WARN,  ///< Web3 Checks: Thread detexted, malicious (know drainer)
+    W3C_ISSUE_WARN = 0,        ///< Web3 Checks issue (not available)
+    W3C_RISK_DETECTED_WARN,    ///< Web3 Checks: Risk detected (see reportRisk field)
+    W3C_THREAT_DETECTED_WARN,  ///< Web3 Checks: Threat detected (see reportRisk field)
+    W3C_NO_THREAT_WARN,        ///< Web3 Checks: No Threat detected
+    BLIND_SIGNING_WARN,        ///< Blind signing
     NB_WARNING_TYPES
 } nbgl_warningType_t;
 
@@ -252,10 +254,11 @@ typedef enum {
  *
  */
 typedef struct {
-    uint32_t predefinedSet;  ///< bitfield of pre-defined warnings, to be taken in @ref
-                             ///< nbgl_warningType_t set it to 0 if not using pre-defined warnings
+    uint32_t predefinedSet;    ///< bitfield of pre-defined warnings, to be taken in @ref
+                               ///< nbgl_warningType_t set it to 0 if not using pre-defined warnings
+    const char *dAppProvider;  ///< name of the dApp provider, used in some strings
+    const char *reportUrl;     ///< URL of the report, used in some strings
     const char *reportProvider;   ///< name of the security report provider, used in some strings
-    const char *reportUrl;        ///< URL of the report, used in some strings
     const char *providerMessage;  ///< Dedicated provider message. Default one will be used if NULL
     const nbgl_warningDetails_t
         *introDetails;  ///< details displayed when top-right button is touched in intro page
