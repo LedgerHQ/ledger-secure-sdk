@@ -40,6 +40,8 @@ WEAK void __attribute__((noreturn)) app_exit(void)
     os_sched_exit(-1);
 }
 
+extern void app_storage_init(void);
+
 WEAK void common_app_init(void)
 {
     UX_INIT();
@@ -55,6 +57,11 @@ WEAK void common_app_init(void)
     BLE_power(0, NULL);
     BLE_power(1, NULL);
 #endif  // HAVE_BLE
+
+#ifdef HAVE_APP_STORAGE
+    /* Implicit app storage initialization */
+    app_storage_init();
+#endif  // #ifdef HAVE_APP_STORAGE
 }
 
 WEAK void standalone_app_main(void)
