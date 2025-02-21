@@ -33,7 +33,10 @@ typedef struct ReviewContext_s {
     const nbgl_icon_details_t        *icon;
     const char                       *reviewTitle;
     const char                       *reviewSubTitle;
-    const char                       *address;  // for address confirmation review
+    const char                       *address;       // for address confirmation review
+    nbgl_callback_t                   skipCallback;  // callback provided by used
+    bool    dataDisplay;    // set to true if the current step is a tag/value pair
+    uint8_t dataDirection;  // used to know whether the skip page is reached from back or forward
 } ReviewContext_t;
 
 typedef struct ChoiceContext_s {
@@ -569,11 +572,63 @@ static void reviewCallback(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
     displayReviewPage(pos);
 }
 
-static void streamingReviewCallback(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
+// this is the callback used when button action on the "skip" page
+static void buttonSkipCallback(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
 {
     UNUSED(stepCtx);
     nbgl_stepPosition_t pos;
 
+    if (event == BUTTON_LEFT_PRESSED) {
+        if ((context.review.dataDirection == BACKWARD_DIRECTION) && (context.currentPage > 0)) {
+            context.currentPage--;
+        }
+        pos = BACKWARD_DIRECTION;
+    }
+    else if (event == BUTTON_RIGHT_PRESSED) {
+        if ((context.review.dataDirection == FORWARD_DIRECTION)
+            && (context.currentPage < (int) (context.nbPages - 1))) {
+            context.currentPage++;
+        }
+        pos = FORWARD_DIRECTION;
+    }
+    else if (event == BUTTON_BOTH_PRESSED) {
+        context.review.skipCallback();
+        return;
+    }
+    else {
+        return;
+    }
+    displayStreamingReviewPage(pos);
+}
+
+static void streamingReviewCallback(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
+{
+    nbgl_stepPosition_t pos;
+    UNUSED(stepCtx);
+
+    // if skippable, draw an intermediate page
+    if ((context.review.skipCallback != NULL) && (context.review.dataDisplay == true)) {
+        if (event == BUTTON_LEFT_PRESSED) {
+            context.review.dataDirection = BACKWARD_DIRECTION;
+        }
+        else if (event == BUTTON_RIGHT_PRESSED) {
+            context.review.dataDirection = FORWARD_DIRECTION;
+        }
+        else {
+            return;
+        }
+        // this is not a tag/value
+        context.review.dataDisplay = false;
+        nbgl_stepDrawText(FORWARD_DIRECTION | BACKWARD_DIRECTION | NEITHER_FIRST_NOR_LAST_STEP,
+                          buttonSkipCallback,
+                          NULL,
+                          "Press right to continue message.\nDouble-press to skip",
+                          NULL,
+                          REGULAR_INFO,
+                          false);
+        nbgl_refresh();
+        return;
+    }
     if (!buttonGenericCallback(event, &pos)) {
         return;
     }
@@ -766,8 +821,8 @@ static void displayStreamingReviewPage(nbgl_stepPosition_t pos)
     uint8_t                    titleIndex  = 255;
     uint8_t                    subIndex    = 255;
 
-    context.stepCallback = NULL;
-
+    context.stepCallback       = NULL;
+    context.review.dataDisplay = false;
     switch (context.type) {
         case STREAMING_START_REVIEW_USE_CASE:
         case STREAMING_BLIND_SIGN_START_REVIEW_USE_CASE:
@@ -818,6 +873,7 @@ static void displayStreamingReviewPage(nbgl_stepPosition_t pos)
                 onReviewAccept();
                 return;
             }
+            context.review.dataDisplay = true;
             getPairData(context.review.tagValueList, context.currentPage, &text, &subText);
             break;
 
@@ -2047,20 +2103,21 @@ void nbgl_useCaseReviewStreamingBlindSigningStart(nbgl_operationType_t       ope
  * @param tagValueList list of tag/value pairs
  * @param choiceCallback callback called when more operation data are needed (param is true) or
  * operation is rejected (param is false)
- * @param skipCallback unused yet on Nano.
+ * @param skipCallback callback called when skip button is pressed (if operationType has the @ref
+ * SKIPPABLE_OPERATION in @ref nbgl_useCaseReviewStreamingStart)
+ * @ref nbgl_useCaseReviewStreamingFinish shall then be called.
  */
 void nbgl_useCaseReviewStreamingContinueExt(const nbgl_contentTagValueList_t *tagValueList,
                                             nbgl_choiceCallback_t             choiceCallback,
                                             nbgl_callback_t                   skipCallback)
 {
-    UNUSED(skipCallback);
-
     memset(&context, 0, sizeof(UseCaseContext_t));
     context.type                = STREAMING_CONTINUE_REVIEW_USE_CASE;
     context.review.tagValueList = tagValueList;
     context.review.onChoice     = choiceCallback;
     context.currentPage         = 0;
     context.nbPages             = tagValueList->nbPairs + 1;  // data + trick for review continue
+    context.review.skipCallback = skipCallback;
 
     displayStreamingReviewPage(FORWARD_DIRECTION);
 }
