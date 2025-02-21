@@ -46,6 +46,11 @@ ifeq ($(ENABLE_SWAP), 1)
     HAVE_APPLICATION_FLAG_LIBRARY = 1
     DEFINES += HAVE_SWAP
 endif
+ifeq ($(ENABLE_TESTING_SWAP), 1)
+    # Partial SWAP implementation. Don't give lib permission on the device.
+    # Do note that HAVE_APPLICATION_FLAG_LIBRARY is not enabled.
+    DEFINES += HAVE_SWAP
+endif
 
 #####################################################################
 #                              APP STORAGE                          #
