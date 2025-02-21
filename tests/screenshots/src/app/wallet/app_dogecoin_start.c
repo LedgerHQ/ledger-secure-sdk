@@ -31,7 +31,11 @@ static nbgl_contentValueExt_t extension
        .explanation = NULL,
        .aliasType   = ENS_ALIAS};
 
+static nbgl_contentValueExt_t dAppExtension;
+static nbgl_contentInfoList_t dAppInfoList;
+
 static nbgl_contentTagValue_t pairs[] = {
+    {.item = "Interaction with", .value = "Uniswap"},
     {.item = "Amount", .value = "0.0001 BTC"},
     {.item = "To", .value = "toto.eth", .extension = &extension, .aliasValue = 1},
     {.item = "Fees", .value = "0.000000698 BTC"},
@@ -51,6 +55,18 @@ static const nbgl_contentInfoList_t infoContentsList
     = {.nbInfos = 3, .infoTypes = infoTypes, .infoContents = infoContents};
 
 static nbgl_warning_t warning = {0};
+
+static const char *dAppsInfoTypes[3] = {"Contract owner", "Contract", "Deployed on"};
+static const char *dAppsInfoValues[3]
+    = {"Uniswap Labs\nwww.uniswap.org", "Uniswap v3 Router 2", "2023-04-28"};
+static const nbgl_contentValueExt_t dAppsInfoExtensions[3] = {
+    {0},
+    {.aliasType   = QR_CODE_ALIAS,
+     .title       = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+     .fullValue   = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+     .explanation = "Scan to view on Etherscan"},
+    {0}
+};
 
 /**********************
  *      VARIABLES
@@ -122,22 +138,41 @@ void app_dogecoinSignTransaction(bool blind,
         else if (w3c_threat) {
             warning.predefinedSet |= 1 << W3C_THREAT_DETECTED_WARN;
         }
+        else {
+            warning.predefinedSet |= 1 << W3C_NO_THREAT_WARN;
+        }
     }
-    UNUSED(dApp);
-    warning.reportProvider  = "Blockaid";
-    warning.providerMessage = "Losing swap";
-    warning.reportUrl       = "url.com/od24xz";
+    if (dApp) {
+        pairList.pairs              = pairs;
+        pairs[0].aliasValue         = 1;
+        pairs[0].extension          = &dAppExtension;
+        dAppExtension.aliasType     = INFO_LIST_ALIAS;
+        dAppExtension.infolist      = &dAppInfoList;
+        dAppInfoList.nbInfos        = 3;
+        dAppInfoList.infoTypes      = dAppsInfoTypes;
+        dAppInfoList.infoContents   = dAppsInfoValues;
+        dAppInfoList.infoExtensions = dAppsInfoExtensions;
+        dAppInfoList.withExtensions = true;
+    }
+    else {
+        pairList.pairs = &pairs[1];
+    }
+    warning.reportProvider = "Blockaid";
+    warning.providerMessage
+        = "This transaction involves a malicious address. Your assets will most likely be stolen.";
+    warning.reportUrl    = "url.com/od24xz";
+    warning.dAppProvider = "Uniswap";
 
     // Start review
-    nbgl_useCaseReviewWithWarning(TYPE_TRANSACTION,
-                                  &pairList,
-                                  &C_ic_asset_doge_64,
-                                  "Review transaction\nto send Dogecoin",
-                                  NULL,
-                                  "Sign transaction to\nsend Dogecoin?",
-                                  NULL,
-                                  &warning,
-                                  onTransactionAccept);
+    nbgl_useCaseAdvancedReview(TYPE_TRANSACTION,
+                               &pairList,
+                               &C_ic_asset_eth_64,
+                               "Review transaction",
+                               NULL,
+                               "Sign transaction to\nsend Dogecoin?",
+                               NULL,
+                               &warning,
+                               onTransactionAccept);
 }
 
 /**

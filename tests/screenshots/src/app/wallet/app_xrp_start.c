@@ -167,6 +167,7 @@ void app_xrpSignMessage(void)
                                NULL,
                                "Sign transaction to\nsend Etherum?",
                                &tipBox,
+                               NULL,
                                onTransactionAccept);
 }
 

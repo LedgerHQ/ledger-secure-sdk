@@ -16,8 +16,21 @@
       "name": "w3c-disabled-blind-01",
       "targets": [
         {
+          "object": "TOP_RIGHT_BUTTON",
+          "page": "w3c-disabled-blind-04"
+        },
+        {
           "object": "CHOICE_2",
           "page": "w3c-disabled-blind-02"
+        }
+      ]
+    },
+    {
+      "name": "w3c-disabled-blind-04",
+      "targets": [
+        {
+          "app_event": "BACK_BUTTON",
+          "page": "w3c-disabled-blind-01"
         }
       ]
     },
@@ -27,6 +40,10 @@
         {
           "object": "TOP_RIGHT_BUTTON",
           "page": "w3c-disabled-blind-03"
+        },
+        {
+          "object": "TIP_BOX",
+          "page": "w3c-disabled-blind-03-bis"
         },
         {
           "app_event": "DOGE_SIGN",
@@ -40,8 +57,43 @@
       "name": "w3c-disabled-blind-03",
       "targets": [
         {
-          "app_event": "BACK_BUTTON",
+          "object": "CONTROLS,0",
+          "page": "w3c-disabled-blind-04-bis"
+        },
+        {
+          "object": "BACK_BUTTON",
           "page": "w3c-disabled-blind-02"
+        }
+      ]
+    },
+    {
+      "name": "w3c-disabled-blind-04-bis",
+      "targets": [
+        {
+          "object": "BACK_BUTTON",
+          "page": "w3c-disabled-blind-03"
+        }
+      ]
+    },
+    {
+      "name": "w3c-disabled-blind-03-bis",
+      "targets": [
+        {
+          "object": "CONTROLS,0",
+          "page": "w3c-disabled-blind-04-ter"
+        },
+        {
+          "object": "BACK_BUTTON",
+          "page": "w3c-disabled-blind-02"
+        }
+      ]
+    },
+    {
+      "name": "w3c-disabled-blind-04-ter",
+      "targets": [
+        {
+          "object": "BACK_BUTTON",
+          "page": "w3c-disabled-blind-03-bis"
         }
       ]
     },
@@ -49,8 +101,21 @@
       "name": "w3c-no-threat-blind-01",
       "targets": [
         {
+          "object": "TOP_RIGHT_BUTTON",
+          "page": "w3c-no-threat-blind-04"
+        },
+        {
           "object": "CHOICE_2",
           "page": "w3c-no-threat-blind-02"
+        }
+      ]
+    },
+    {
+      "name": "w3c-no-threat-blind-04",
+      "targets": [
+        {
+          "object": "BACK_BUTTON",
+          "page": "w3c-no-threat-blind-01"
         }
       ]
     },
@@ -60,6 +125,10 @@
         {
           "object": "TOP_RIGHT_BUTTON",
           "page": "w3c-no-threat-blind-03"
+        },
+        {
+          "object": "TIP_BOX",
+          "page": "w3c-no-threat-blind-03-bis"
         },
         {
           "app_event": "DOGE_SIGN",
@@ -73,8 +142,43 @@
       "name": "w3c-no-threat-blind-03",
       "targets": [
         {
-          "app_event": "BACK_BUTTON",
+          "object": "CONTROLS,1",
+          "page": "w3c-no-threat-blind-04-bis"
+        },
+        {
+          "object": "BACK_BUTTON",
           "page": "w3c-no-threat-blind-02"
+        }
+      ]
+    },
+    {
+      "name": "w3c-no-threat-blind-04-bis",
+      "targets": [
+        {
+          "object": "BACK_BUTTON",
+          "page": "w3c-no-threat-blind-03"
+        }
+      ]
+    },
+    {
+      "name": "w3c-no-threat-blind-03-bis",
+      "targets": [
+        {
+          "object": "CONTROLS,1",
+          "page": "w3c-no-threat-blind-04-ter"
+        },
+        {
+          "object": "BACK_BUTTON",
+          "page": "w3c-no-threat-blind-02"
+        }
+      ]
+    },
+    {
+      "name": "w3c-no-threat-blind-04-ter",
+      "targets": [
+        {
+          "object": "BACK_BUTTON",
+          "page": "w3c-no-threat-blind-03-bis"
         }
       ]
     },
@@ -82,8 +186,21 @@
       "name": "w3c-threat-blind-01",
       "targets": [
         {
+          "object": "TOP_RIGHT_BUTTON",
+          "page": "w3c-threat-blind-01-bis"
+        },
+        {
           "object": "CHOICE_2",
           "page": "w3c-threat-blind-02"
+        }
+      ]
+    },
+    {
+      "name": "w3c-threat-blind-01-bis",
+      "targets": [
+        {
+          "object": "BACK_BUTTON",
+          "page": "w3c-threat-blind-01"
         }
       ]
     },
@@ -106,15 +223,15 @@
       "name": "w3c-threat-blind-03",
       "targets": [
         {
-          "object": "CONTROLS,1",
+          "object": "CONTROLS,0",
           "page": "w3c-threat-blind-04"
         },
         {
-          "object": "CONTROLS,0",
+          "object": "CONTROLS,1",
           "page": "w3c-threat-blind-05"
         },
         {
-          "app_event": "BACK_BUTTON",
+          "object": "BACK_BUTTON",
           "page": "w3c-threat-blind-02"
         }
       ]
@@ -123,7 +240,7 @@
       "name": "w3c-threat-blind-04",
       "targets": [
         {
-          "app_event": "BACK_BUTTON",
+          "object": "BACK_BUTTON",
           "page": "w3c-threat-blind-03"
         }
       ]
@@ -132,7 +249,7 @@
       "name": "w3c-threat-blind-05",
       "targets": [
         {
-          "app_event": "BACK_BUTTON",
+          "object": "BACK_BUTTON",
           "page": "w3c-threat-blind-03"
         }
       ]
@@ -159,11 +276,11 @@
       "name": "w3c-issue-blind-03",
       "targets": [
         {
-          "object": "CONTROLS,1",
+          "object": "CONTROLS,0",
           "page": "w3c-issue-blind-04"
         },
         {
-          "object": "CONTROLS,0",
+          "object": "CONTROLS,1",
           "page": "w3c-issue-blind-05"
         }
       ]
@@ -172,7 +289,7 @@
       "name": "w3c-issue-blind-04",
       "targets": [
         {
-          "app_event": "BACK_BUTTON",
+          "object": "BACK_BUTTON",
           "page": "w3c-issue-blind-03"
         }
       ]
