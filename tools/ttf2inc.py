@@ -39,7 +39,7 @@ class TTF2INC:
     # Add Portuguese specific characters (not already included)
     STRING += "ÃÕãõ"
     # Add Turkish specific characters (not already included)
-    STRING += "İıĞğŞş₤"
+    STRING += "İıĞğŞş"
     # Add Russian specific characters (not already included)
     STRING += "АаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя"
 
