@@ -23,6 +23,7 @@
 
 #ifdef HAVE_SWAP
 #include "swap.h"
+#include "swap_error_code_helpers.h"
 
 #ifdef HAVE_NBGL
 #include "nbgl_use_case.h"
