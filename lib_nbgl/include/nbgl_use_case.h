@@ -348,15 +348,6 @@ void nbgl_useCaseReviewBlindSigning(nbgl_operationType_t              operationT
                                     const char                       *finishTitle,
                                     const nbgl_tipBox_t              *tipBox,
                                     nbgl_choiceCallback_t             choiceCallback);
-void nbgl_useCaseReviewWithWarning(nbgl_operationType_t              operationType,
-                                   const nbgl_contentTagValueList_t *tagValueList,
-                                   const nbgl_icon_details_t        *icon,
-                                   const char                       *reviewTitle,
-                                   const char                       *reviewSubTitle,
-                                   const char                       *finishTitle,
-                                   const nbgl_tipBox_t              *tipBox,
-                                   const nbgl_warning_t             *warning,
-                                   nbgl_choiceCallback_t             choiceCallback);
 void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
                                 const nbgl_contentTagValueList_t *tagValueList,
                                 const nbgl_icon_details_t        *icon,
@@ -364,6 +355,7 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
                                 const char                       *reviewSubTitle,
                                 const char                       *finishTitle,
                                 const nbgl_tipBox_t              *tipBox,
+                                const nbgl_warning_t             *warning,
                                 nbgl_choiceCallback_t             choiceCallback);
 
 void nbgl_useCaseReviewLight(nbgl_operationType_t              operationType,
@@ -396,12 +388,12 @@ void nbgl_useCaseReviewStreamingBlindSigningStart(nbgl_operationType_t       ope
                                                   const char                *reviewSubTitle,
                                                   nbgl_choiceCallback_t      choiceCallback);
 
-void nbgl_useCaseReviewStreamingWithWarningStart(nbgl_operationType_t       operationType,
-                                                 const nbgl_icon_details_t *icon,
-                                                 const char                *reviewTitle,
-                                                 const char                *reviewSubTitle,
-                                                 const nbgl_warning_t      *warning,
-                                                 nbgl_choiceCallback_t      choiceCallback);
+void nbgl_useCaseAdvancedReviewStreamingStart(nbgl_operationType_t       operationType,
+                                              const nbgl_icon_details_t *icon,
+                                              const char                *reviewTitle,
+                                              const char                *reviewSubTitle,
+                                              const nbgl_warning_t      *warning,
+                                              nbgl_choiceCallback_t      choiceCallback);
 
 void nbgl_useCaseReviewStreamingContinueExt(const nbgl_contentTagValueList_t *tagValueList,
                                             nbgl_choiceCallback_t             choiceCallback,
