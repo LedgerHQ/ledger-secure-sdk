@@ -35,7 +35,8 @@ typedef struct ReviewContext_s {
     const char                       *reviewSubTitle;
     const char                       *address;       // for address confirmation review
     nbgl_callback_t                   skipCallback;  // callback provided by used
-    bool    dataDisplay;    // set to true if the current step is a tag/value pair
+    uint8_t nbDataSets;     // number of sets of data received by StreamingContinue
+    bool    skipDisplay;    // if set to true, means that we are displaying the skip page
     uint8_t dataDirection;  // used to know whether the skip page is reached from back or forward
 } ReviewContext_t;
 
@@ -437,7 +438,12 @@ static void drawStep(nbgl_stepPosition_t        pos,
     };
 
     pos |= GET_POS_OF_STEP(context.currentPage, context.nbPages);
-
+    // if we are in streaming+skip case, enable going backward even for first tag/value of the set
+    // (except the first set) because the set starts with a "skip" page
+    if ((context.type == STREAMING_CONTINUE_REVIEW_USE_CASE)
+        && (context.review.skipCallback != NULL) && (context.review.nbDataSets > 1)) {
+        pos |= LAST_STEP;
+    }
     if ((context.type == STATUS_USE_CASE) || (context.type == SPINNER_USE_CASE)) {
         p_ticker = &ticker;
     }
@@ -500,7 +506,10 @@ static bool buttonGenericCallback(nbgl_buttonEvent_t event, nbgl_stepPosition_t 
         if (context.currentPage > 0) {
             context.currentPage--;
         }
-        else {
+        // in streaming+skip case, it is allowed to go backward at the first tag/value, except for
+        // the first set
+        else if ((context.type != STREAMING_CONTINUE_REVIEW_USE_CASE)
+                 || (context.review.skipCallback == NULL) || (context.review.nbDataSets == 1)) {
             // Drop the event
             return false;
         }
@@ -579,14 +588,16 @@ static void buttonSkipCallback(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
     nbgl_stepPosition_t pos;
 
     if (event == BUTTON_LEFT_PRESSED) {
-        if ((context.review.dataDirection == BACKWARD_DIRECTION) && (context.currentPage > 0)) {
+        // only decrement page if we are going backward but coming from forward (back & forth)
+        if ((context.review.dataDirection == FORWARD_DIRECTION) && (context.currentPage > 0)) {
             context.currentPage--;
         }
         pos = BACKWARD_DIRECTION;
     }
     else if (event == BUTTON_RIGHT_PRESSED) {
-        if ((context.review.dataDirection == FORWARD_DIRECTION)
-            && (context.currentPage < (int) (context.nbPages - 1))) {
+        // only increment page if we are going forward but coming from backward (back & forth)
+        if ((context.review.dataDirection == BACKWARD_DIRECTION)
+            && (context.currentPage < (int) (context.nbPages - 1)) && (context.currentPage > 0)) {
             context.currentPage++;
         }
         pos = FORWARD_DIRECTION;
@@ -606,31 +617,12 @@ static void streamingReviewCallback(nbgl_step_t stepCtx, nbgl_buttonEvent_t even
     nbgl_stepPosition_t pos;
     UNUSED(stepCtx);
 
-    // if skippable, draw an intermediate page
-    if ((context.review.skipCallback != NULL) && (context.review.dataDisplay == true)) {
-        if (event == BUTTON_LEFT_PRESSED) {
-            context.review.dataDirection = BACKWARD_DIRECTION;
-        }
-        else if (event == BUTTON_RIGHT_PRESSED) {
-            context.review.dataDirection = FORWARD_DIRECTION;
-        }
-        else {
-            return;
-        }
-        // this is not a tag/value
-        context.review.dataDisplay = false;
-        nbgl_stepDrawText(FORWARD_DIRECTION | BACKWARD_DIRECTION | NEITHER_FIRST_NOR_LAST_STEP,
-                          buttonSkipCallback,
-                          NULL,
-                          "Press right to continue message.\nDouble-press to skip",
-                          NULL,
-                          REGULAR_INFO,
-                          false);
-        nbgl_refresh();
-        return;
-    }
     if (!buttonGenericCallback(event, &pos)) {
         return;
+    }
+    else {
+        // memorize last direction
+        context.review.dataDirection = pos;
     }
 
     displayStreamingReviewPage(pos);
@@ -821,8 +813,7 @@ static void displayStreamingReviewPage(nbgl_stepPosition_t pos)
     uint8_t                    titleIndex  = 255;
     uint8_t                    subIndex    = 255;
 
-    context.stepCallback       = NULL;
-    context.review.dataDisplay = false;
+    context.stepCallback = NULL;
     switch (context.type) {
         case STREAMING_START_REVIEW_USE_CASE:
         case STREAMING_BLIND_SIGN_START_REVIEW_USE_CASE:
@@ -846,7 +837,6 @@ static void displayStreamingReviewPage(nbgl_stepPosition_t pos)
             }
             // Determine which page to display
             if (context.currentPage >= reviewPages) {
-                displaySpinner("Processing");
                 onReviewAccept();
                 return;
             }
@@ -869,11 +859,31 @@ static void displayStreamingReviewPage(nbgl_stepPosition_t pos)
 
         case STREAMING_CONTINUE_REVIEW_USE_CASE:
             if (context.currentPage >= context.review.tagValueList->nbPairs) {
-                displaySpinner("Processing");
                 onReviewAccept();
                 return;
             }
-            context.review.dataDisplay = true;
+            // if there is a skip, and we are not already displaying the "skip" page
+            // and we are not at the first tag/value of the first set of data (except if going
+            // backward) then display the "skip" page
+            if ((context.review.skipCallback != NULL) && (context.review.skipDisplay == false)
+                && ((context.review.nbDataSets > 1) || (context.currentPage > 0)
+                    || (context.review.dataDirection == BACKWARD_DIRECTION))) {
+                nbgl_stepPosition_t directions = (pos & BACKWARD_DIRECTION) | FIRST_STEP;
+                if ((context.review.nbDataSets == 1) || (context.currentPage > 0)) {
+                    directions |= LAST_STEP;
+                }
+                nbgl_stepDrawText(directions,
+                                  buttonSkipCallback,
+                                  NULL,
+                                  "Press right to continue message.\nDouble-press to skip",
+                                  NULL,
+                                  REGULAR_INFO,
+                                  false);
+                nbgl_refresh();
+                context.review.skipDisplay = true;
+                return;
+            }
+            context.review.skipDisplay = false;
             getPairData(context.review.tagValueList, context.currentPage, &text, &subText);
             break;
 
@@ -2111,6 +2121,8 @@ void nbgl_useCaseReviewStreamingContinueExt(const nbgl_contentTagValueList_t *ta
                                             nbgl_choiceCallback_t             choiceCallback,
                                             nbgl_callback_t                   skipCallback)
 {
+    uint8_t curNbDataSets = context.review.nbDataSets;
+
     memset(&context, 0, sizeof(UseCaseContext_t));
     context.type                = STREAMING_CONTINUE_REVIEW_USE_CASE;
     context.review.tagValueList = tagValueList;
@@ -2118,6 +2130,7 @@ void nbgl_useCaseReviewStreamingContinueExt(const nbgl_contentTagValueList_t *ta
     context.currentPage         = 0;
     context.nbPages             = tagValueList->nbPairs + 1;  // data + trick for review continue
     context.review.skipCallback = skipCallback;
+    context.review.nbDataSets   = curNbDataSets + 1;
 
     displayStreamingReviewPage(FORWARD_DIRECTION);
 }
