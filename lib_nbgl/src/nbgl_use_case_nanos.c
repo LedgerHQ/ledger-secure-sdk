@@ -1791,44 +1791,6 @@ void nbgl_useCaseReview(nbgl_operationType_t              operationType,
 }
 
 /**
- * @brief Draws a flow of pages of a review. Navigation operates with either swipe or navigation
- * keys at bottom right. The last page contains a long-press button with the given finishTitle and
- * the given icon.
- * @note  All tag/value pairs are provided in the API and the number of pages is automatically
- * computed, the last page being a long press one
- *
- * @param operationType type of operation (Operation, Transaction, Message)
- * @param tagValueList list of tag/value pairs
- * @param icon icon used on first and last review page
- * @param reviewTitle string used in the first review page
- * @param reviewSubTitle string to set under reviewTitle (can be NULL)
- * @param finishTitle string used in the last review page
- * @param dummy inconsistent parameter on Nano devices (ignored)
- * @param choiceCallback callback called when operation is accepted (param is true) or rejected
- * (param is false)
- */
-void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
-                                const nbgl_contentTagValueList_t *tagValueList,
-                                const nbgl_icon_details_t        *icon,
-                                const char                       *reviewTitle,
-                                const char                       *reviewSubTitle,
-                                const char                       *finishTitle,
-                                const nbgl_tipBox_t              *dummy,
-                                nbgl_choiceCallback_t             choiceCallback)
-{
-    UNUSED(operationType);  // TODO adapt accept and reject text depending on this value?
-    UNUSED(dummy);
-
-    useCaseReview(REVIEW_USE_CASE,
-                  tagValueList,
-                  icon,
-                  reviewTitle,
-                  reviewSubTitle,
-                  finishTitle,
-                  choiceCallback);
-}
-
-/**
  * @brief Draws a flow of pages of a blind-signing review. The review is preceded by a warning page
  *
  * Navigation operates with either swipe or navigation

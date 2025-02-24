@@ -140,7 +140,8 @@ typedef enum {
     NO_ALIAS_TYPE = 0,
     ENS_ALIAS,           ///< alias comes from ENS
     ADDRESS_BOOK_ALIAS,  ///< alias comes from Address Book
-    QR_CODE_ALIAS        ///< alias is an address to be displayed as a QR Code
+    QR_CODE_ALIAS,       ///< alias is an address to be displayed as a QR Code
+    INFO_LIST_ALIAS      ///< alias is list of infos
 } nbgl_contentValueAliasType_t;
 
 /**
@@ -153,7 +154,8 @@ typedef struct {
                               ///< only used if aliasType is @ref NO_ALIAS_TYPE
     const char *title;  ///< if not NULL and aliasType is @ref QR_CODE_ALIAS, is used as title of
                         ///< the QR Code
-    nbgl_contentValueAliasType_t aliasType;  ///< type of alias
+    const struct nbgl_contentInfoList_s *infolist;   ///< if aliasType is INFO_LIST_ALIAS
+    nbgl_contentValueAliasType_t         aliasType;  ///< type of alias
 } nbgl_contentValueExt_t;
 
 /**
@@ -172,8 +174,8 @@ typedef struct {
     int8_t forcePageStart : 1;  ///< if set to 1, the tag will be displayed at the top of a new
                                 ///< review page
     int8_t centeredInfo : 1;    ///< if set to 1, the tag will be displayed as a centered info
-    int8_t aliasValue : 1;  ///< if set to 1, the value represents an alias and an icon enables to
-                            ///< view the full value
+    int8_t aliasValue : 1;  ///< if set to 1, the value represents an alias and an > icon enables to
+                            ///< view the full value (extension field in union)
 #endif
 } nbgl_contentTagValue_t;
 
@@ -279,7 +281,7 @@ typedef struct nbgl_pageSwitchesList_s {
 /**
  * @brief This structure contains data to build a @ref INFOS_LIST content
  */
-typedef struct {
+typedef struct nbgl_contentInfoList_s {
     const char *const *infoTypes;     ///< array of types of infos (in black/bold)
     const char *const *infoContents;  ///< array of contents of infos (in black)
     const nbgl_contentValueExt_t
