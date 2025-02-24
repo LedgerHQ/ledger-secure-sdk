@@ -13,7 +13,7 @@ var searchData=
   ['nbchoices_10',['nbchoices',['../structnbgl__contentRadioChoice__t.html#aab21d39d11da7af49f2509a653105237',1,'nbgl_contentRadioChoice_t::nbChoices'],['../structnbgl__layoutMenuList__t.html#a1e59f769a871cae63b8c6dea1b7e450f',1,'nbgl_layoutMenuList_t::nbChoices']]],
   ['nbcontents_11',['nbContents',['../structnbgl__genericContents__t.html#a3e5838be4502eff97637a460aae2f7e0',1,'nbgl_genericContents_t']]],
   ['nbicons_12',['nbIcons',['../structnbgl__animation__s.html#ac6929b27a18edff4406f8e9c0943a995',1,'nbgl_animation_s']]],
-  ['nbinfos_13',['nbInfos',['../structnbgl__contentInfoList__t.html#a793d32bf132778456d9d34c77f24fce8',1,'nbgl_contentInfoList_t']]],
+  ['nbinfos_13',['nbInfos',['../structnbgl__contentInfoList__s.html#ac6d6eda91180a06b78b3265c1b284a6b',1,'nbgl_contentInfoList_s']]],
   ['nbmaxlines_14',['nbMaxLines',['../structnbgl__text__area__s.html#a9f809cf8b0b2581af4d95497ca848c38',1,'nbgl_text_area_s']]],
   ['nbmaxlinesforvalue_15',['nbMaxLinesForValue',['../structnbgl__contentTagValueList__t.html#af7465bb412cd1d9fd14bc526d0ea77d8',1,'nbgl_contentTagValueList_t']]],
   ['nbpages_16',['nbpages',['../structnbgl__layoutNavigationBar__t.html#ae849b5d02421160099745e4e6b2a43d4',1,'nbgl_layoutNavigationBar_t::nbPages'],['../structnbgl__layoutInternal__s.html#aa57c893d5cdb708e37a45190c9f8ba75',1,'nbgl_layoutInternal_s::nbPages'],['../structnbgl__pageMultiScreensDescription__s.html#a01d5d9458c2cc4524329e89683c5f3d1',1,'nbgl_pageMultiScreensDescription_s::nbPages'],['../structnbgl__layoutHeader__t.html#a300f1cf275d338f57c671832098cda9c',1,'nbgl_layoutHeader_t::nbPages'],['../structnbgl__navigation__bar__s.html#a9b475095601d896ceab35c9ac7ffac6c',1,'nbgl_navigation_bar_s::nbPages']]],

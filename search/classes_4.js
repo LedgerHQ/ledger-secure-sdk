@@ -11,7 +11,7 @@ var searchData=
   ['nbgl_5fcontentcenteredinfo_5ft_8',['nbgl_contentCenteredInfo_t',['../structnbgl__contentCenteredInfo__t.html',1,'']]],
   ['nbgl_5fcontentextendedcenter_5ft_9',['nbgl_contentExtendedCenter_t',['../structnbgl__contentExtendedCenter__t.html',1,'']]],
   ['nbgl_5fcontentinfobutton_5ft_10',['nbgl_contentInfoButton_t',['../structnbgl__contentInfoButton__t.html',1,'']]],
-  ['nbgl_5fcontentinfolist_5ft_11',['nbgl_contentInfoList_t',['../structnbgl__contentInfoList__t.html',1,'']]],
+  ['nbgl_5fcontentinfolist_5fs_11',['nbgl_contentInfoList_s',['../structnbgl__contentInfoList__s.html',1,'']]],
   ['nbgl_5fcontentinfolongpress_5ft_12',['nbgl_contentInfoLongPress_t',['../structnbgl__contentInfoLongPress__t.html',1,'']]],
   ['nbgl_5fcontentradiochoice_5ft_13',['nbgl_contentRadioChoice_t',['../structnbgl__contentRadioChoice__t.html',1,'']]],
   ['nbgl_5fcontentswitch_5ft_14',['nbgl_contentSwitch_t',['../structnbgl__contentSwitch__t.html',1,'']]],
