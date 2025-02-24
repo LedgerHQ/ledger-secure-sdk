@@ -287,7 +287,7 @@ static void touchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
         return;
     }
     LOG_DEBUG(LAYOUT_LOGGER, "touchCallback(): layout->callback = %p\n", layout->callback);
-    if (layout->callback != NULL) {
+    if ((layout->callback != NULL) && (layoutObj->token != NBGL_INVALID_TOKEN)) {
 #ifdef HAVE_PIEZO_SOUND
         if (layoutObj->tuneId < NBGL_NO_TUNE) {
             io_seproxyhal_play_tune(layoutObj->tuneId);

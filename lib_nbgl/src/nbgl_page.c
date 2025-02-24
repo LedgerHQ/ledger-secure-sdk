@@ -101,7 +101,7 @@ static void addContent(nbgl_pageContent_t *content,
             break;
 
         case EXTENDED_CENTER:
-            if ((!headerAdded) && (content->extendedCenter.tipBox.text == NULL)) {
+            if (!headerAdded) {
                 addEmptyHeader(layout, SMALL_CENTERING_HEADER);
             }
             nbgl_layoutAddContentCenter(layout, &content->extendedCenter.contentCenter);
