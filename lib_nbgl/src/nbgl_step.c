@@ -226,6 +226,8 @@ static nbgl_layoutNavIndication_t getNavigationInfo(nbgl_stepPosition_t pos,
 static void displayTextPage(StepContext_t *ctx, uint8_t textPage)
 {
     const char *txt;
+    char        intermediateString[36];  // a bit bigger but we know that one line cannot contain
+                                         // more than 23 chars
 
     // if move backward or first page
     if (textPage <= ctx->textContext.currentPage) {
@@ -279,11 +281,27 @@ static void displayTextPage(StepContext_t *ctx, uint8_t textPage)
     }
     else {
         if (ctx->textContext.nbPages == 1) {
-            nbgl_layoutAddText(ctx->layout, ctx->textContext.txtStart, txt, ctx->textContext.style);
+            // truncate title to fit in one line, if necessary
+            if (nbgl_getTextNbLinesInWidth(BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp,
+                                           ctx->textContext.txtStart,
+                                           AVAILABLE_WIDTH,
+                                           false)
+                > 1) {
+                nbgl_textReduceOnNbLines(BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp,
+                                         ctx->textContext.txtStart,
+                                         AVAILABLE_WIDTH,
+                                         1,
+                                         ctx->textContext.tmpString,
+                                         TMP_STRING_MAX_LEN);
+            }
+            else {
+                // simply copy
+                memcpy(
+                    ctx->textContext.tmpString, ctx->textContext.txtStart, TMP_STRING_MAX_LEN - 1);
+                ctx->textContext.tmpString[TMP_STRING_MAX_LEN - 1] = 0;
+            }
         }
         else {
-            char intermediateString[36];  // a bit bigger but we know that one line cannot contain
-                                          // more than 23 chars
             SPRINTF(intermediateString,
                     "%s (%d/%d)",
                     ctx->textContext.txtStart,
@@ -307,9 +325,8 @@ static void displayTextPage(StepContext_t *ctx, uint8_t textPage)
                 memcpy(ctx->textContext.tmpString, intermediateString, TMP_STRING_MAX_LEN - 1);
                 ctx->textContext.tmpString[TMP_STRING_MAX_LEN - 1] = 0;
             }
-            nbgl_layoutAddText(
-                ctx->layout, ctx->textContext.tmpString, txt, ctx->textContext.style);
         }
+        nbgl_layoutAddText(ctx->layout, ctx->textContext.tmpString, txt, ctx->textContext.style);
     }
     if (navInfo.indication != NO_ARROWS) {
         nbgl_layoutAddNavigation(ctx->layout, &navInfo);
