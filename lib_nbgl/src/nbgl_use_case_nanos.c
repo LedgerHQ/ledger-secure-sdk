@@ -1791,6 +1791,53 @@ void nbgl_useCaseReview(nbgl_operationType_t              operationType,
 }
 
 /**
+ * @brief Draws a flow of pages of a review requiring if necessary a warning page before the review.
+ * Moreover, the first and last pages of review display a top-right button, that displays more
+ * information about the warnings
+ *
+ * Navigation operates with either swipe or navigation
+ * keys at bottom right. The last page contains a long-press button with the given finishTitle and
+ * the given icon.
+ * @note  All tag/value pairs are provided in the API and the number of pages is automatically
+ * computed, the last page being a long press one
+ *
+ * @param operationType type of operation (Operation, Transaction, Message)
+ * @param tagValueList list of tag/value pairs
+ * @param icon icon used on first and last review page
+ * @param reviewTitle string used in the first review page
+ * @param reviewSubTitle string to set under reviewTitle (can be NULL)
+ * @param finishTitle string used in the last review page
+ * @param tipBox parameter to build a tip-box and necessary modal (can be NULL)
+ * @param warning structure to build the initial warning page (can be NULL)
+ * @param choiceCallback callback called when operation is accepted (param is true) or rejected
+ * (param is false)
+ */
+void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
+                                const nbgl_contentTagValueList_t *tagValueList,
+                                const nbgl_icon_details_t        *icon,
+                                const char                       *reviewTitle,
+                                const char                       *reviewSubTitle,
+                                const char                       *finishTitle,
+                                const nbgl_tipBox_t              *tipBox,
+                                const nbgl_warning_t             *warning,
+                                nbgl_choiceCallback_t             choiceCallback)
+{
+    UNUSED(tipBox);
+    ContextType_t type = NONE_USE_CASE;
+
+    if ((operationType & BLIND_OPERATION)
+        || (warning && warning->predefinedSet & (1 << BLIND_SIGNING_WARN))) {
+        type = REVIEW_BLIND_SIGN_USE_CASE;
+    }
+    else {
+        type = REVIEW_USE_CASE;
+    }
+
+    useCaseReview(
+        type, tagValueList, icon, reviewTitle, reviewSubTitle, finishTitle, choiceCallback);
+}
+
+/**
  * @brief Draws a flow of pages of a blind-signing review. The review is preceded by a warning page
  *
  * Navigation operates with either swipe or navigation
