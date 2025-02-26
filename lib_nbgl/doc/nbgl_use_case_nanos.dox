@@ -50,6 +50,8 @@ A few APIs are available to draw typical Use-Cases, such as:
  - @ref nbgl_useCaseReview() to draw the pages of a regular coin transaction review, when all info are available from the beginning (see @subpage use_case_review)
  - @ref nbgl_useCaseReviewLight() to draw the pages of a transaction review with a simple button confirmation, when all info are available from the beginning (see @subpage use_case_review_light)
  - @ref nbgl_useCaseReviewStreamingStart() to draw the pages of a regular coin transaction review, when all info are not available from the beginning (see @subpage use_case_review_streaming)
+- for reviews with a warning prolog:
+ - @ref nbgl_useCaseAdvancedReview() to draw the pages of a regular coin transaction review, when all info are available from the beginning, but with an identified risk requiring a warning prolog (see @subpage use_case_review_with_warning)
 - For address verification:
  - @ref nbgl_useCaseAddressReview() to draw an address confirmation page, with a possibility to see some extra tag/value pairs (see @subpage use_case_addr_review)
 - For keypad:
@@ -448,6 +450,65 @@ void startReview(void) {
                                    "Review transaction\nto send NBT",   // title of the first page
                                    NULL,                                // sub-title
                                    onTransactionContinue);              // callback to reject or ask more data
+}
+@endcode
+
+@subsection use_case_review_with_warning Review with warning Use Case
+
+The review itself behaves like in @subpage use_case_review. The main differences is:
+
+- The review itself is preceded by a warning page
+
+The API to initiate the display of the series of pages is @ref nbgl_useCaseAdvancedReview(), providing:
+
+- the type of operation to review (transaction, message or generic operation)
+- the list of tag/value pairs (or a callback to get them one by one)
+- the texts/icon to use in presentation page and in last page
+- the configuration to use for the warning (see @ref nbgl_warning_t structure)
+- a callback called when the long press button on last page or reject confirmation is used. The callback's param is *true* for confirmation, *false* for rejection.
+
+@note the recommended configuration for warning is the predefined one. In this case, one just has to fill the *predefinedSet* field of @ref nbgl_warning_t with the appropriate warning
+causes (bitfield) and the *reportProvider* field with the name of the 3rd party providing the Web3Checks report, if necessary.
+
+Here is a code sample:
+
+@code
+// 4 pairs of tag/value to display
+static nbgl_layoutTagValue_t pairs[4];
+
+static const nbgl_contentTagValueList_t pairList = {
+  .nbMaxLinesForValue = 0,
+  .nbPairs = 4,
+  .pairs = (nbgl_layoutTagValue_t*)pairs
+};
+
+// warning description (cannot be in call stack)
+static nbgl_warning_t warningDesc;
+
+// called when long press button on 3rd page is long-touched or when reject footer is touched
+static void onReviewResult(bool confirm) {
+  // display a status page and go back to main
+  if (confirm) {
+    nbgl_useCaseReviewStatus(STATUS_TYPE_TRANSACTION_SIGNED, appMain);
+  }
+  else {
+    nbgl_useCaseReviewStatus(STATUS_TYPE_TRANSACTION_REJECTED, appMain);
+  }
+}
+
+void staticReview(void) {
+  warningDesc.predefinedSet   = 1 << BLIND_SIGNING_WARN;
+
+  // static review, providing the whole list of pairs
+  nbgl_useCaseAdvancedReview(TYPE_TRANSACTION, // type of operation
+                                &pairList,       // list of tag/value pairs
+                                coinIcon,        // icon of the coin
+                                "Review transaction\nto send coin", // title of the first page
+                                NULL,                               // sub-title of the first page
+                                "Sign transaction to\nsend coin?",  // title of the last page
+                                NULL,                               // no tip-box in first page of review
+                                &warningDesc,                       // description of warning causes
+                                onReviewResult);                    // callback on result of the review
 }
 @endcode
 
