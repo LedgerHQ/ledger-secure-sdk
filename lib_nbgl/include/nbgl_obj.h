@@ -129,6 +129,7 @@ extern "C" {
 #define ROUND_WARN_ICON   C_Important_Circle_32px
 #define PRIVACY_ICON      C_Privacy_32px
 #define EXCLAMATION_ICON  C_Exclamation_32px
+#define QUESTION_ICON     C_Question_32px
 #define DIGIT_ICON        C_round_24px
 #elif SMALL_ICON_SIZE == 40
 #define SPACE_ICON        C_Space_40px
@@ -152,6 +153,7 @@ extern "C" {
 #define ROUND_WARN_ICON   C_Important_Circle_40px
 #define PRIVACY_ICON      C_Privacy_40px
 #define EXCLAMATION_ICON  C_Exclamation_40px
+#define QUESTION_ICON     C_Question_40px
 #define DIGIT_ICON        C_pin_24
 #endif  // SMALL_ICON_SIZE
 
