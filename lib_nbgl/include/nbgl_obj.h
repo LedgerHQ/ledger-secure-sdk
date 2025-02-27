@@ -130,6 +130,7 @@ extern "C" {
 #define ROUND_WARN_ICON   C_Important_Circle_32px
 #define PRIVACY_ICON      C_Privacy_32px
 #define EXCLAMATION_ICON  C_Exclamation_32px
+#define QUESTION_ICON     C_Question_32px
 #else  // TARGET_STAX
 #define SPACE_ICON        C_Space_40px
 #define BACKSPACE_ICON    C_Erase_40px
@@ -152,6 +153,7 @@ extern "C" {
 #define ROUND_WARN_ICON   C_Important_Circle_40px
 #define PRIVACY_ICON      C_Privacy_40px
 #define EXCLAMATION_ICON  C_Exclamation_40px
+#define QUESTION_ICON     C_Question_40px
 #endif  // TARGET_STAX
 
 // For backward compatibility, to be remove later
