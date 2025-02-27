@@ -34,7 +34,7 @@ const app_storage_t app_storage_real __attribute__((section(".storage_section"))
  */
 static bool app_storage_is_initalized(void)
 {
-    if (memcmp((const void *) &as.header.tag, APP_STORAGE_TAG, APP_STORAGE_TAG_LEN)) {
+    if (memcmp((const void *) &as.header.tag, APP_STORAGE_TAG, APP_STORAGE_TAG_LEN) != 0) {
         return false;
     }
     return true;
@@ -142,7 +142,7 @@ int32_t app_storage_pread(void *buf, uint32_t nbyte, uint32_t offset)
     }
 
     uint32_t size = offset + nbyte;
-    if (size >= as.header.size) {
+    if (size > as.header.size) {
         return -1;
     }
 
