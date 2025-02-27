@@ -5,5 +5,7 @@ var searchData=
   ['flow_5fbarrier_2',['FLOW_BARRIER',['../ux__flow__engine_8h.html#a4b091cf693ed2fcf32ad6b89ebd74acc',1,'ux_flow_engine.h']]],
   ['flow_5fend_5fstep_3',['FLOW_END_STEP',['../ux__flow__engine_8h.html#aff3885dd84fb312c7989bc91ef9e16b8',1,'ux_flow_engine.h']]],
   ['flow_5floop_4',['FLOW_LOOP',['../ux__flow__engine_8h.html#a161b342b5acf0fb0fa691beae718bb3d',1,'ux_flow_engine.h']]],
-  ['forward_5fdirection_5',['FORWARD_DIRECTION',['../nbgl__step_8h.html#ad6c2f2458a2794d1d475b37efc5b58a1',1,'nbgl_step.h']]]
+  ['footer_5fbutton_5fheight_5',['FOOTER_BUTTON_HEIGHT',['../nbgl__layout_8c.html#adb072ba6fba4c642c108818ea61ce933',1,'nbgl_layout.c']]],
+  ['footer_5fheight_6',['FOOTER_HEIGHT',['../nbgl__layout_8c.html#a5927acb48d7464cc38349e0ca2db193c',1,'nbgl_layout.c']]],
+  ['forward_5fdirection_7',['FORWARD_DIRECTION',['../nbgl__step_8h.html#ad6c2f2458a2794d1d475b37efc5b58a1',1,'nbgl_step.h']]]
 ];
