@@ -1739,12 +1739,12 @@ int nbgl_layoutAddLeftContent(nbgl_layout_t *layout, const nbgl_layoutLeftConten
 
         image                     = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, 0);
         image->foregroundColor    = BLACK;
-        image->buffer             = info->rowIcons[row];
+        image->buffer             = PIC(info->rowIcons[row]);
         rowContainer->children[0] = (nbgl_obj_t *) image;
 
         textArea                       = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, 0);
         textArea->textColor            = BLACK;
-        textArea->text                 = info->rowTexts[row];
+        textArea->text                 = PIC(info->rowTexts[row]);
         textArea->textAlignment        = MID_LEFT;
         textArea->fontId               = SMALL_REGULAR_FONT;
         textArea->wrapping             = true;
