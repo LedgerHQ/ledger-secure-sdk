@@ -284,25 +284,37 @@ static const uint8_t nbMaxElementsPerContentType[] = {
     5,  // BARS_LIST (computed dynamically)
 };
 
+// clang-format off
 static const SecurityReportItem_t securityReportItems[NB_WARNING_TYPES] = {
-    [BLIND_SIGNING_WARN] = {.icon    = &WARNING_ICON,
-                            .text    = "Blind signing required",
-                            .subText = "This transaction's details are not fully verifiable. If "
-                                       "you sign, you could lose all your assets."                                 },
-    [W3C_ISSUE_WARN]
-    = {.icon = &WARNING_ICON,       .text = "Transaction Check not available", .subText = NULL},
-    [W3C_RISK_DETECTED_WARN] = {.icon    = &ROUND_WARN_ICON,
-                            .text    = "Risk detected",
-                            .subText = "This transaction was scanned as risky by Web3 Checks."                     },
-    [W3C_THREAT_DETECTED_WARN]
-    = {.icon    = &WARNING_ICON,
-                            .text    = "Critical threat",
-                            .subText = "This transaction was scanned as malicious by Web3 Checks."                 },
-    [W3C_NO_THREAT_WARN] = {.icon    = NULL,
-                            .text    = "No threat detected",
-                            .subText = "Transaction Check didn't find any threat, but always "
-                                       "review transaction details carefully."                                     }
+    [BLIND_SIGNING_WARN] = {
+        .icon    = &WARNING_ICON,
+        .text    = "Blind signing required",
+        .subText = "This transaction's details are not fully verifiable. If "
+                   "you sign, you could lose all your assets."
+    },
+    [W3C_ISSUE_WARN] = {
+        .icon    = &WARNING_ICON,
+        .text    = "Transaction Check unavailable",
+        .subText = NULL
+    },
+    [W3C_RISK_DETECTED_WARN] = {
+        .icon    = &WARNING_ICON,
+        .text    = "Risk detected",
+        .subText = "This transaction was scanned as risky by Web3 Checks."
+    },
+    [W3C_THREAT_DETECTED_WARN] = {
+        .icon    = &WARNING_ICON,
+        .text    = "Critical threat",
+        .subText = "This transaction was scanned as malicious by Web3 Checks."
+    },
+    [W3C_NO_THREAT_WARN] = {
+        .icon    = NULL,
+        .text    = "No threat detected",
+        .subText = "Transaction Check didn't find any threat, but always "
+                    "review transaction details carefully."
+    }
 };
+// clang-format on
 
 // configuration of warning when using @ref nbgl_useCaseReviewBlindSigning()
 static const nbgl_warning_t blindSigningWarning = {.predefinedSet = (1 << BLIND_SIGNING_WARN)};
@@ -1980,20 +1992,7 @@ static void displaySecurityReport(uint32_t set)
     else {
         provider = "[unknown]";
     }
-    if (set & (1 << W3C_ISSUE_WARN)) {
-        // if W3 Checks issue, display a centered info
-        nbgl_contentCenter_t info = {0};
-        info.icon                 = &LARGE_WARNING_ICON;
-        info.title                = "Transaction Check not available";
-        info.description
-            = "If you're not using the\nLedger Live app, Transaction Check might not work. If your "
-              "are using Ledger Live, reject the transaction and try again.\n\nGet help at "
-              "ledger.com/e11";
-        nbgl_layoutAddContentCenter(reviewWithWarnCtx.modalLayout, &info);
-        footerDesc.emptySpace.height = MEDIUM_CENTERING_HEADER;
-        headerDesc.separationLine    = false;
-    }
-    else if ((set & (1 << W3C_THREAT_DETECTED_WARN)) || (set & (1 << W3C_RISK_DETECTED_WARN))) {
+    if ((set & (1 << W3C_THREAT_DETECTED_WARN)) || (set & (1 << W3C_RISK_DETECTED_WARN))) {
         size_t urlLen = 0;
         char  *destStr
             = tmpString
@@ -2027,6 +2026,19 @@ static void displaySecurityReport(uint32_t set)
             = "This transaction or message cannot be decoded fully. If you choose to sign, you "
               "could be authorizing malicious actions that can drain your wallet.\n\nLearn more: "
               "ledger.com/e8";
+        nbgl_layoutAddContentCenter(reviewWithWarnCtx.modalLayout, &info);
+        footerDesc.emptySpace.height = MEDIUM_CENTERING_HEADER;
+        headerDesc.separationLine    = false;
+    }
+    else if (set & (1 << W3C_ISSUE_WARN)) {
+        // if W3 Checks issue, display a centered info
+        nbgl_contentCenter_t info = {0};
+        info.icon                 = &LARGE_WARNING_ICON;
+        info.title                = "Transaction Check unavailable";
+        info.description
+            = "If you're not using the\nLedger Live app, Transaction Check might not work. If your "
+              "are using Ledger Live, reject the transaction and try again.\n\nGet help at "
+              "ledger.com/e11";
         nbgl_layoutAddContentCenter(reviewWithWarnCtx.modalLayout, &info);
         footerDesc.emptySpace.height = MEDIUM_CENTERING_HEADER;
         headerDesc.separationLine    = false;
@@ -2164,7 +2176,6 @@ static void displayInitialWarning(void)
             buttonsInfo.bottomText = "Continue anyway";
         }
         else if (set & (1 << W3C_RISK_DETECTED_WARN)) {
-            info.icon  = &IMPORTANT_CIRCLE_ICON;
             info.title = "Potential risk";
             if (reviewWithWarnCtx.warning->providerMessage == NULL) {
                 info.description = "Unidentified risk";
