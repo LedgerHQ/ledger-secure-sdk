@@ -59,8 +59,8 @@ typedef enum {
 // used by screen (top level)
 enum {
     HEADER_INDEX = 0,  // For header container
-    TOP_RIGHT_BUTTON_INDEX,
     MAIN_CONTAINER_INDEX,
+    TOP_RIGHT_BUTTON_INDEX,
     FOOTER_INDEX,
     UP_FOOTER_INDEX,
     LEFT_BORDER_INDEX,
