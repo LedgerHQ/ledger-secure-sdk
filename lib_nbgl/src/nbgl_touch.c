@@ -64,10 +64,10 @@ static nbgl_touchCtx_t touchCtxs[NB_CTXS];
 static void applytouchStatePosition(nbgl_obj_t *obj, nbgl_touchType_t eventType)
 {
     nbgl_screen_t *screen = (nbgl_screen_t *) nbgl_screenGetTop();
-    LOG_DEBUG(TOUCH_LOGGER, "Apply event %d on object of type %d\n", eventType, obj->type);
     if (!obj) {
         return;
     }
+    LOG_DEBUG(TOUCH_LOGGER, "Apply event %d on object of type %d\n", eventType, obj->type);
     /* the first action is the one provided by the application */
     if ((obj->touchMask & (1 << eventType)) != 0) {
         // for some specific objects, call directly a specific callback
@@ -116,8 +116,9 @@ static nbgl_obj_t *getTouchedObject(nbgl_obj_t *obj, nbgl_touchStatePosition_t *
         nbgl_container_t *container = (nbgl_container_t *) obj;
         // parse the children, if any
         if (container->children != NULL) {
-            uint8_t i;
-            for (i = 0; i < container->nbChildren; i++) {
+            int8_t i = container->nbChildren - 1;
+            // parse children from the latest, because they are drawn from the first
+            while (i >= 0) {
                 nbgl_obj_t *current = container->children[i];
                 if (current != NULL) {
                     current = getTouchedObject(current, event);
@@ -125,6 +126,7 @@ static nbgl_obj_t *getTouchedObject(nbgl_obj_t *obj, nbgl_touchStatePosition_t *
                         return current;
                     }
                 }
+                i--;
             }
         }
     }
