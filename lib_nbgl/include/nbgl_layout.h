@@ -88,6 +88,26 @@ extern "C" {
 #define PROGRESSBAR_WIDTH      120
 #define PROGRESSBAR_HEIGHT     12
 #define BACK_KEY_WIDTH         104
+#elif defined(TARGET_APEX)
+#define NB_MAX_SUGGESTION_BUTTONS         8
+// only 2 buttons are visible at the same time on Apex
+#define NB_MAX_VISIBLE_SUGGESTION_BUTTONS 2
+#define TOUCHABLE_HEADER_BAR_HEIGHT       60
+#define TOUCHABLE_MAIN_BAR_HEIGHT         64
+#define TOUCHABLE_BAR_HEIGHT              64
+#define SMALL_FOOTER_HEIGHT               64
+#define SIMPLE_FOOTER_HEIGHT              64
+#define SMALL_CENTERING_HEADER            24
+#define MEDIUM_CENTERING_HEADER           40
+#define LONG_PRESS_BUTTON_HEIGHT          100
+
+#define PRE_TEXT_MARGIN     20
+#define TEXT_SUBTEXT_MARGIN 10
+#define PRE_SUBTEXT_MARGIN  18
+#define POST_SUBTEXT_MARGIN 18
+
+#define PRE_TAG_VALUE_MARGIN   0
+#define INTER_TAG_VALUE_MARGIN 12
 #else  // TARGETS
 #error Undefined target
 #endif  // TARGETS

@@ -104,6 +104,8 @@ class NbglFontId(IntEnum):
     BAGL_FONT_INTER_REGULAR_28px_1bpp = 14
     BAGL_FONT_INTER_SEMIBOLD_28px_1bpp = 15
     BAGL_FONT_INTER_MEDIUM_36px_1bpp = 16
+    BAGL_FONT_INTER_MEDIUM_18px_1bpp = 17
+    BAGL_FONT_INTER_BOLD_18px_1bpp   = 18
 
 
 class NbglStyle(IntEnum):
