@@ -34,6 +34,11 @@
 #define NAV_BUTTON_HEIGHT NAVIGATION_HEIGHT
 #define NAV_BUTTON_WIDTH  104
 #define PAGE_NUMBER_WIDTH 79
+#elif defined(TARGET_APEX)
+#define NAVIGATION_HEIGHT 64
+#define NAV_BUTTON_HEIGHT 64
+#define NAV_BUTTON_WIDTH  64
+#define PAGE_NUMBER_WIDTH 60
 #endif  // TARGETS
 
 /**********************
