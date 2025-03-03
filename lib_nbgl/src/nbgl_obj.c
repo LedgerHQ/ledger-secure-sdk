@@ -1131,7 +1131,12 @@ static void draw_textArea(nbgl_text_area_t *obj, nbgl_obj_t *prevObj, bool compu
 
     textHeight = (nbLines - 1) * lineHeight + fontHeight;
 
-    midHeight = (obj->obj.area.height - textHeight) / 2;
+    if (obj->obj.area.height >= textHeight) {
+        midHeight = (obj->obj.area.height - textHeight) / 2;
+    }
+    else {
+        midHeight = 0;
+    }
 #ifdef SCREEN_SIZE_NANO
     if (obj->style == INVERTED_COLORS) {
         midHeight--;
