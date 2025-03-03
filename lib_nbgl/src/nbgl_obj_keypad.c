@@ -29,6 +29,8 @@
 #define DIGIT_OFFSET_Y (((KEYPAD_KEY_HEIGHT - 48) / 2) & 0xFFC)
 #elif defined(TARGET_FLEX)
 #define DIGIT_OFFSET_Y (((KEYPAD_KEY_HEIGHT - 48) / 2) & 0xFFC)
+#elif defined(TARGET_APEX)
+#define DIGIT_OFFSET_Y (((KEYPAD_KEY_HEIGHT - 32) / 2) & 0xFFC)
 #endif  // TARGETS
 
 #define BACKSPACE_KEY_IDX 10

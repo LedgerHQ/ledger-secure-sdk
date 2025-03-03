@@ -44,6 +44,8 @@ extern "C" {
 #define NB_MAX_LINES_IN_DETAILS 12
 #elif defined(TARGET_FLEX)
 #define NB_MAX_LINES_IN_DETAILS 11
+#elif defined(TARGET_APEX)
+#define NB_MAX_LINES_IN_DETAILS 11
 #endif  // TARGETS
 
 /**
@@ -52,6 +54,8 @@ extern "C" {
 #if defined(TARGET_STAX)
 #define NB_MAX_LINES_IN_REVIEW 10
 #elif defined(TARGET_FLEX)
+#define NB_MAX_LINES_IN_REVIEW 9
+#elif defined(TARGET_APEX)
 #define NB_MAX_LINES_IN_REVIEW 9
 #endif  // TARGETS
 
