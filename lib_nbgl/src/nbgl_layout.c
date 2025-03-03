@@ -87,6 +87,30 @@
 #define BAR_INTER_TEXTS_MARGIN           16
 #define PROGRESSBAR_ALIGNMENT_MARGIN_Y   32
 #define LEFT_CONTENT_TEXT_PADDING        4
+#elif defined(TARGET_APEX)
+#define RADIO_CHOICE_HEIGHT              60
+#define FOOTER_HEIGHT                    52
+#define BAR_INTERVALE                    16
+#define BACK_KEY_WIDTH                   68
+#define FOOTER_BUTTON_HEIGHT             100
+#define UP_FOOTER_BUTTON_HEIGHT          100
+#define ROUNDED_AND_FOOTER_FOOTER_HEIGHT 140
+#define ACTION_AND_FOOTER_FOOTER_HEIGHT  160
+#define FOOTER_TEXT_AND_NAV_WIDTH        120
+#define TAP_TO_CONTINUE_MARGIN           30
+#define SUB_HEADER_MARGIN                (2 * 28)
+#define PRE_FIRST_TEXT_MARGIN            0
+#define INTER_PARAGRAPHS_MARGIN          24
+#define PRE_TITLE_MARGIN                 16
+#define PRE_DESCRIPTION_MARGIN           24
+#define INTER_ROWS_MARGIN                26
+#define QR_INTER_TEXTS_MARGIN            28
+#define SPINNER_TEXT_MARGIN              24
+#define SPINNER_INTER_TEXTS_MARGIN       16
+#define BAR_TEXT_MARGIN                  24
+#define BAR_INTER_TEXTS_MARGIN           16
+#define PROGRESSBAR_ALIGNMENT_MARGIN_Y   32
+#define LEFT_CONTENT_TEXT_PADDING        4
 #else  // TARGETS
 #error Undefined target
 #endif  // TARGETS
@@ -565,6 +589,7 @@ static nbgl_line_t *createHorizontalLine(uint8_t layer)
     return line;
 }
 
+#ifdef TARGET_STAX
 static nbgl_line_t *createLeftVerticalLine(uint8_t layer)
 {
     nbgl_line_t *line;
@@ -578,6 +603,7 @@ static nbgl_line_t *createLeftVerticalLine(uint8_t layer)
     line->obj.alignment   = MID_LEFT;
     return line;
 }
+#endif  // TARGET_STAX
 
 // function adding a layout object in the callbackObjPool array for the given layout, and
 // configuring it
@@ -3791,11 +3817,13 @@ int nbgl_layoutDraw(nbgl_layout_t *layoutParam)
         // set this new container as child of main container
         layoutAddObject(layout, (nbgl_obj_t *) layout->tapText);
     }
+#ifdef TARGET_STAX
     if (layout->withLeftBorder == true) {
         // draw now the line
         nbgl_line_t *line                   = createLeftVerticalLine(layout->layer);
         layout->children[LEFT_BORDER_INDEX] = (nbgl_obj_t *) line;
     }
+#endif  // TARGET_STAX
     nbgl_screenRedraw();
 
     return 0;

@@ -33,6 +33,8 @@ extern "C" {
 #define KEYBOARD_KEY_HEIGHT 60
 #elif defined(TARGET_FLEX)
 #define KEYBOARD_KEY_HEIGHT 72
+#elif defined(TARGET_APEX)
+#define KEYBOARD_KEY_HEIGHT 40
 #endif  // TARGETS
 
 // index of keys for keyMask field of nbgl_keyboard_t
@@ -55,6 +57,8 @@ extern "C" {
 #define KEYPAD_KEY_HEIGHT 104
 #elif defined(TARGET_FLEX)
 #define KEYPAD_KEY_HEIGHT 88
+#elif defined(TARGET_APEX)
+#define KEYPAD_KEY_HEIGHT 64
 #endif  // TARGETS
 #else   // SCREEN_SIZE_WALLET
 #define KEYPAD_WIDTH  114
@@ -70,6 +74,9 @@ extern "C" {
 #elif defined(TARGET_FLEX)
 #define BORDER_MARGIN        32
 #define BOTTOM_BORDER_MARGIN 24
+#elif defined(TARGET_APEX)
+#define BORDER_MARGIN        24
+#define BOTTOM_BORDER_MARGIN 16
 #endif  // TARGETS
 
 // Back button header height
@@ -77,6 +84,8 @@ extern "C" {
 #define BACK_BUTTON_HEADER_HEIGHT 88
 #elif defined(TARGET_FLEX)
 #define BACK_BUTTON_HEADER_HEIGHT 96
+#elif defined(TARGET_APEX)
+#define BACK_BUTTON_HEADER_HEIGHT 64
 #endif  // TARGETS
 
 // common dimensions for buttons
@@ -86,6 +95,9 @@ extern "C" {
 #elif COMMON_RADIUS == 44
 #define BUTTON_RADIUS   RADIUS_44_PIXELS
 #define BUTTON_DIAMETER (COMMON_RADIUS * 2)
+#elif COMMON_RADIUS == 8
+#define BUTTON_RADIUS   RADIUS_8_PIXELS
+#define BUTTON_DIAMETER 56
 #endif  // COMMON_RADIUS
 
 // width & height for spinner
@@ -93,6 +105,9 @@ extern "C" {
 #define SPINNER_WIDTH  60
 #define SPINNER_HEIGHT 44
 #elif defined(TARGET_FLEX)
+#define SPINNER_WIDTH  64
+#define SPINNER_HEIGHT 48
+#elif defined(TARGET_APEX)
 #define SPINNER_WIDTH  64
 #define SPINNER_HEIGHT 48
 #endif  // TARGETS
@@ -104,6 +119,9 @@ extern "C" {
 #elif defined(TARGET_FLEX)
 #define RADIO_WIDTH  40
 #define RADIO_HEIGHT 40
+#elif defined(TARGET_APEX)
+#define RADIO_WIDTH  32
+#define RADIO_HEIGHT 32
 #endif  // TARGETS
 
 // common small icons
@@ -157,6 +175,32 @@ extern "C" {
 #define QUESTION_ICON        C_Question_40px
 #define DIGIT_ICON           C_pin_24
 #define QUESTION_CIRCLE_ICON C_Question_Mark_Circle_40px
+#elif SMALL_ICON_SIZE == 24
+#define SPACE_ICON           C_Space_24px
+#define BACKSPACE_ICON       C_Erase_24px
+#define SHIFT_ICON           C_Maj_24px
+#define SHIFT_LOCKED_ICON    C_Maj_Lock_24px
+#define VALIDATE_ICON        C_Check_24px
+#define RADIO_OFF_ICON       C_radio_inactive_24px
+#define RADIO_ON_ICON        C_radio_active_24px
+#define PUSH_ICON            C_Chevron_24px
+#define LEFT_ARROW_ICON      C_Back_24px
+#define RIGHT_ARROW_ICON     C_Next_24px
+#define CHEVRON_BACK_ICON    C_Chevron_Back_24px
+#define CHEVRON_NEXT_ICON    C_Chevron_Next_24px
+#define CLOSE_ICON           C_Close_24px
+#define WHEEL_ICON           C_Settings_24px
+#define INFO_I_ICON          C_Info_24px
+#define QRCODE_ICON          C_QRCode_24px
+#define MINI_PUSH_ICON       C_Mini_Push_24px
+#define WARNING_ICON         C_Warning_24px
+#define ROUND_WARN_ICON      C_Important_Circle_24px
+#define PRIVACY_ICON         C_Privacy_24px
+#define EXCLAMATION_ICON     C_Exclamation_24px
+#define DIGIT_ICON           C_round_24px
+#define QUESTION_CIRCLE_ICON C_Question_Mark_Circle_40px
+#else  // SMALL_ICON_SIZE
+#error Undefined SMALL_ICON_SIZE
 #endif  // SMALL_ICON_SIZE
 
 // common large icons
@@ -165,6 +209,11 @@ extern "C" {
 #define DENIED_CIRCLE_ICON    C_Denied_Circle_64px
 #define IMPORTANT_CIRCLE_ICON C_Important_Circle_64px
 #define LARGE_WARNING_ICON    C_Warning_64px
+#elif LARGE_ICON_SIZE == 48
+#define CHECK_CIRCLE_ICON     C_Check_Circle_48px
+#define DENIED_CIRCLE_ICON    C_Denied_Circle_48px
+#define IMPORTANT_CIRCLE_ICON C_Important_Circle_48px
+#define LARGE_WARNING_ICON    C_Warning_48px
 #else  // LARGE_ICON_SIZE
 #error Undefined LARGE_ICON_SIZE
 #endif  // LARGE_ICON_SIZE
@@ -292,8 +341,8 @@ typedef struct PACKED__ nbgl_line_s {
     color_t          lineColor;  ///< color of the line
     uint8_t thickness;  ///< thickness of the line in pixel, maybe different from height for
                         ///< horizontal line
-    uint8_t offset;  ///< the object height being always 4, with a y0 multiple of 4, this offset is
-                     ///< use to move the line within these 4 pixels
+    uint8_t offset;  ///< the object height being always 4 (or 8), with a y0 multiple of 4 (or 8),
+                     ///< this offset is use to move the line within these 4 (or 8) pixels
 } nbgl_line_t;
 
 /**
