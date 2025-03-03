@@ -109,7 +109,8 @@ typedef struct {
     uint32_t y_min_offset : 6;    ///< y_min = (y_min + y_min_offset)
     uint32_t x_max_offset : 4;    ///< x_max = width - x_max_offset
     uint32_t y_max_offset : 6;    ///< y_max = (height - y_max_offset)
-    uint32_t bitmap_offset : 16;  ///< offset of this character in chars buffer
+    uint32_t bitmap_offset : 15;  ///< offset of this character in chars buffer
+    uint32_t over_previous : 1;   ///< flag set to 1 when displayed over previous char
 } nbgl_font_unicode_character_t;
 /**
  * @brief structure defining a unicode font
@@ -167,12 +168,13 @@ uint16_t           nbgl_getSingleLineTextWidth(nbgl_font_id_e fontId, const char
 uint16_t nbgl_getSingleLineTextWidthInLen(nbgl_font_id_e fontId, const char *text, uint16_t maxLen);
 uint16_t nbgl_getTextWidth(nbgl_font_id_e fontId, const char *text);
 uint8_t  nbgl_getCharWidth(nbgl_font_id_e fontId, const char *text);
+uint8_t  nbgl_getFontYmin(nbgl_font_id_e fontId);
 uint8_t  nbgl_getFontHeight(nbgl_font_id_e fontId);
 uint8_t  nbgl_getFontLineHeight(nbgl_font_id_e fontId);
 uint16_t nbgl_getTextNbLines(const char *text);
 uint16_t nbgl_getTextHeight(nbgl_font_id_e fontId, const char *text);
 uint16_t nbgl_getTextLength(const char *text);
-void     nbgl_getTextMaxLenAndWidth(nbgl_font_id_e fontId,
+uint16_t nbgl_getTextMaxLenAndWidth(nbgl_font_id_e fontId,
                                     const char    *text,
                                     uint16_t       maxWidth,
                                     uint16_t      *len,

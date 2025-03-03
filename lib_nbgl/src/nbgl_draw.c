@@ -37,8 +37,8 @@ typedef enum {
 #define QR_PIXEL_WIDTH_HEIGHT 4
 
 #ifdef SCREEN_SIZE_WALLET
-#define MAX_FONT_HEIGHT    48
-#define AVERAGE_CHAR_WIDTH 32
+#define MAX_FONT_HEIGHT    54
+#define AVERAGE_CHAR_WIDTH 40
 #else  // SCREEN_SIZE_WALLET
 #define MAX_FONT_HEIGHT    24
 #define AVERAGE_CHAR_WIDTH 24
@@ -549,7 +549,7 @@ static void save_packed_picture(uint8_t *packed_buffer,
 {
     char     filename[32];
     uint8_t *buffer;
-    sprintf(filename, "toto_0x%X", unicode);
+    sprintf(filename, "toto_0x%X.png", unicode);
     if ((buffer = calloc(width * height, 1)) == NULL) {
         fprintf(stderr, "Can't allocate buffer!\n");
         return;
@@ -590,7 +590,7 @@ static void save_ultrapacked_picture(uint8_t *packed_buffer,
 {
     char     filename[32];
     uint8_t *buffer;
-    sprintf(filename, "roro_0x%X", unicode);
+    sprintf(filename, "roro_0x%X.png", unicode);
     if ((buffer = calloc(width * height, 1)) == NULL) {
         fprintf(stderr, "Can't allocate buffer!\n");
         return;
@@ -664,15 +664,31 @@ static void nbgl_draw1BPPImageRle(nbgl_area_t *area,
     size_t remaining_height = area->height;
     size_t remaining_width  = area->width;
 #endif  // SCREEN_SIZE_WALLET
-    size_t  dst_offset = (buf_area->width + 7) / 8;
-    size_t  dst_index  = 0;
+    size_t  dst_index = 0;
     uint8_t pixels;
     uint8_t white_pixel;
+    int16_t y, y_min, y_max;
+
+#ifdef BUILD_SCREENSHOTS
+    assert((buf_area->width & 7) == 0);
+    assert((buf_area->height & 7) == 0);
+#endif  // BUILD_SCREENSHOTS
 
     dst += buf_area->y0 * buf_area->width / 8;
     dst += buf_area->x0 / 8;
     white_pixel = 0x80 >> (buf_area->x0 & 7);
     pixels      = 0;
+
+#ifdef SCREEN_SIZE_WALLET
+    // Width & Height are rotated 90° on Flex/Stax
+    y     = buf_area->x0;
+    y_max = y;
+    y_min = y + buf_area->width;
+#else   // SCREEN_SIZE_WALLET
+    y                       = buf_area->y0;
+    y_max                   = y;
+    y_min                   = y + buf_area->height;
+#endif  // SCREEN_SIZE_WALLET
 
     while (remaining_height && (index < buffer_len || nb_zeros || nb_ones)) {
         // Reload nb_zeros & nb_ones if needed
@@ -693,6 +709,15 @@ static void nbgl_draw1BPPImageRle(nbgl_area_t *area,
         }
         white_pixel >>= 1;
         if (!white_pixel) {
+            // Update real y_min & y_max (y & height was adjusted modulo 4)
+            if (pixels) {
+                if (y < y_min) {
+                    y_min = y;
+                }
+                if (y > y_max) {
+                    y_max = y;
+                }
+            }
             white_pixel = 0x80;
             dst[dst_index++] |= pixels;  // OR because we handle transparency
             pixels = 0;
@@ -712,18 +737,28 @@ static void nbgl_draw1BPPImageRle(nbgl_area_t *area,
             dst[dst_index] |= pixels;  // OR because we handle transparency
 
             // Start next line
-            dst += dst_offset;
+            dst += buf_area->width / 8;
             dst_index   = 0;
             pixels      = 0;
             white_pixel = 0x80 >> (buf_area->x0 & 7);
 
             --remaining_height;
+            ++y;
         }
     }
     // Store remaining pixels
     if (pixels) {
         dst[dst_index] |= pixels;  // OR because we handle transparency
     }
+    // Update real y_min & y_max (y & height was adjusted modulo 4)
+    /*#ifdef SCREEN_SIZE_WALLET
+        // Width & Height are rotated 90° on Flex/Stax
+        area->real_y0 = y_min;
+        area->real_height = y_max - y_min;
+    #else   // SCREEN_SIZE_WALLET
+        area->real_y0 = y_min;
+        area->real_height = y_max - y_min;
+        #endif  // SCREEN_SIZE_WALLET*/
 }
 
 typedef struct {
@@ -841,15 +876,20 @@ static void nbgl_draw4BPPImageRle(nbgl_area_t *area,
     size_t remaining_height = area->height;
     size_t remaining_width  = area->width;
 #endif  // SCREEN_SIZE_WALLET
-    // size_t        dst_offset= (buf_area->width - area->width + 1) / 2;
     size_t        dst_index = 0;
     uint8_t       dst_shift = 4;  // Next pixel must be shift left 4 bit
     Rle_context_t context   = {0};
     uint8_t       dst_pixel;
+    int16_t       y, y_min, y_max;
 
     if (!buffer_len) {
         return;
     }
+
+#ifdef BUILD_SCREENSHOTS
+    assert((buf_area->width & 7) == 0);
+    assert((buf_area->height & 7) == 0);
+#endif  // BUILD_SCREENSHOTS
 
     context.buffer     = buffer;
     context.buffer_len = buffer_len;
@@ -867,6 +907,16 @@ static void nbgl_draw4BPPImageRle(nbgl_area_t *area,
     if (buf_area->x0 & 1) {
         dst_shift = 0;
     }
+#ifdef SCREEN_SIZE_WALLET
+    // Width & Height are rotated 90° on Flex/Stax
+    y     = buf_area->x0;
+    y_max = y;
+    y_min = y + buf_area->width;
+#else   // SCREEN_SIZE_WALLET
+    y                       = buf_area->y0;
+    y_max                   = y;
+    y_min                   = y + buf_area->height;
+#endif  // SCREEN_SIZE_WALLET
     while (remaining_height) {
         uint8_t nb_pix;
 
@@ -896,6 +946,13 @@ static void nbgl_draw4BPPImageRle(nbgl_area_t *area,
                 // FILL nb_pix pixels with context.color
             }
             else {
+                // Update real y_min & y_max (y & height was adjusted modulo 4)
+                if (y < y_min) {
+                    y_min = y;
+                }
+                if (y > y_max) {
+                    y_max = y;
+                }
                 for (uint8_t i = 0; i < nb_pix; i++) {
                     dst_pixel &= ~(0x0F << dst_shift);
                     dst_pixel |= context.color << dst_shift;
@@ -914,6 +971,14 @@ static void nbgl_draw4BPPImageRle(nbgl_area_t *area,
             // LSB of context.color contains the offset of the pixels to copy
             pixels += context.color & 0x0F;
 
+            // We can consider there is at least 1 used pixel, otherwise it would be a FILL!
+            // Update real y_min & y_max (y & height was adjusted modulo 4)
+            if (y < y_min) {
+                y_min = y;
+            }
+            if (y > y_max) {
+                y_max = y;
+            }
             // COPY nb_pix pixels from &context.pixels[i]
             for (uint8_t i = 0; i < nb_pix; i++) {
                 uint8_t color = pixels[i];
@@ -960,8 +1025,18 @@ static void nbgl_draw4BPPImageRle(nbgl_area_t *area,
                 dst_shift = 4;
             }
             --remaining_height;
+            ++y;
         }
     }
+    // Update real y_min & y_max (y & height was adjusted modulo 4)
+    /*#ifdef SCREEN_SIZE_WALLET
+        // Width & Height are rotated 90° on Flex/Stax
+        area->real_y0 = y_min;
+        area->real_height = y_max - y_min;
+    #else   // SCREEN_SIZE_WALLET
+        area->real_y0 = y_min;
+        area->real_height = y_max - y_min;
+        #endif  // SCREEN_SIZE_WALLET*/
 }
 
 /**
@@ -998,16 +1073,31 @@ static void pack_ram_buffer(nbgl_area_t *area, uint16_t width, uint16_t height, 
         uint16_t bytes_per_line;
         uint16_t skip;
 
-        area->x0 &= 0xFFFE;  // Make sure we are on a byte boundary
         src += area->y0 * area->width / 2;
         src += area->x0 / 2;
         bytes_per_line = (width + 1) / 2;
         skip           = (area->width + 1) / 2;
 
-        for (uint16_t y = 0; y < height; y++) {
-            memmove(dst, src, bytes_per_line);
-            dst += bytes_per_line;
-            src += skip;
+        // Do we need to copy quartet by quartet, or can we copy byte by byte?
+        if (area->x0 & 1) {
+            // We need to copy quartet by quartet
+            skip -= bytes_per_line;
+            for (uint16_t h = 0; h < height; h++) {
+                for (uint16_t w = 0; w < bytes_per_line; w++) {
+                    uint8_t byte = *src++ & 0x0F;  // 1st quartet
+                    byte <<= 4;
+                    byte |= *src >> 4;
+                    *dst++ = byte;
+                }
+                src += skip;
+            }
+        }
+        else {
+            for (uint16_t y = 0; y < height; y++) {
+                memmove(dst, src, bytes_per_line);
+                dst += bytes_per_line;
+                src += skip;
+            }
         }
     }
     else {
@@ -1048,6 +1138,211 @@ static void pack_ram_buffer(nbgl_area_t *area, uint16_t width, uint16_t height, 
     }
 }
 
+#define COMBINED_HEIGHT 9
+// #define COMBINED_HEIGHT 0
+
+static void display_ram_buffer(int16_t      x_min,
+                               int16_t      y_min,
+                               int16_t      x_max,
+                               int16_t      y_max,
+                               nbgl_area_t *area,
+                               nbgl_area_t *buf_area,
+                               nbgl_area_t *char_area,
+                               color_t      fontColor,
+                               // Debug Info
+                               char    *text,
+                               uint32_t previous,
+                               uint32_t current,
+                               uint32_t next)
+{
+    static uint8_t ultrasaved = 0;
+    current                   = current;
+    //  Move the data at the beginning of RAM buffer, in a packed way
+    buf_area->x0      = x_min;
+    buf_area->y0      = y_min;
+    char_area->height = ((x_max - x_min) + 3) & 0xFFFC;
+    char_area->width  = y_max - y_min;
+
+    // if (!strcmp(text, "แบตเตอรี่ต่ำจนวิกฤต")) {
+    if (!strcmp(text, "Réinitialisation")) {
+        fprintf(stdout,
+                "Calling pack_ram_buffer '%c'(0x%X) with x0=%d, y0=%d, w=%d, h=%d, width=%d, "
+                "height=%d\n",
+                previous,
+                previous,
+                buf_area->x0,
+                buf_area->y0,
+                buf_area->width,
+                buf_area->height,
+                char_area->height,
+                char_area->width);
+    }
+    pack_ram_buffer(buf_area, char_area->height, char_area->width, ramBuffer);
+
+    /*if (!strcmp(text, "แบตเตอรี่ต่ำจนวิกฤต")
+        && ((previous == 0x000E48 && current == 0x000E15)
+            || previous == 0x000E33)) {
+            ultrasaved = 1;*/
+    if (!strcmp(text, "Réinitialisation") && !ultrasaved) {
+        if (next == 't') {
+            ultrasaved = 1;
+        }
+        save_ultrapacked_picture(
+            ramBuffer, char_area->height, char_area->width, char_area->bpp, previous);
+    }
+    char_area->y0 = area->y0 + x_min - COMBINED_HEIGHT;
+
+    /*if (!strcmp(text, "แบตเตอรี่ต่ำจนวิกฤต")
+      && ((previous == 0x000E48 && current == 0x000E15) || previous == 0x000E33)) {*/
+    if (!strcmp(text, "Réinitialisation")) {
+        fprintf(stdout,
+                "Displaying RAM buffer '%c'(0x%X) at x0=%d, y0=%d, w=%d, h=%d\n",
+                previous,
+                previous,
+                char_area->x0,
+                char_area->y0,
+                char_area->height,
+                char_area->width);
+    }
+    nbgl_frontDrawImage(char_area, ramBuffer, NO_TRANSFORMATION, fontColor);
+}
+
+// Structure used to hold character information
+
+typedef struct character_info {
+    uint32_t       unicode;
+    const uint8_t *buffer;
+    uint16_t       byte_cnt;
+    int16_t        x_min;
+    int16_t        y_min;
+    int16_t        x_max;
+    int16_t        y_max;
+    uint16_t       width;
+    uint16_t       height;
+    int16_t        real_y_min;
+    uint16_t       real_height;
+    uint8_t        encoding;
+    uint8_t        nb_skipped_bytes;
+    bool           is_unicode;
+    bool           over_previous;
+
+} CHARACTER_INFO;
+
+static void update_char_info(CHARACTER_INFO     *char_info,
+                             const uint8_t     **text,
+                             uint16_t           *textLen,
+                             nbgl_unicode_ctx_t *unicode_ctx,
+                             const nbgl_font_t  *font)
+{
+    char_info->unicode = nbgl_popUnicodeChar(text, textLen, &char_info->is_unicode);
+
+    // Do we still have some characters to read?
+    if (!char_info->unicode) {
+        return;
+    }
+
+    // Retrieves information depending on whether it is an ASCII character or not.
+    if (char_info->is_unicode) {
+        const nbgl_font_unicode_character_t *unicodeCharacter
+            = nbgl_getUnicodeFontCharacter(char_info->unicode);
+        // if not supported char, go to next one (this should never happen!!)
+        if (unicodeCharacter == NULL) {
+#ifdef BUILD_SCREENSHOTS
+            fprintf(stdout,
+                    "Inside update_char_info, unicode (%c)[0x%X] is not supported!\n",
+                    char_info->unicode,
+                    char_info->unicode);
+#endif  // BUILD_SCREENSHOTS
+            update_char_info(char_info, text, textLen, unicode_ctx, font);
+            return;
+        }
+        char_info->width = unicodeCharacter->width;
+#if defined(HAVE_LANGUAGE_PACK)
+        char_info->buffer = unicode_ctx->bitmap;
+        char_info->buffer += unicodeCharacter->bitmap_offset;
+
+        char_info->x_max         = char_info->width;
+        char_info->y_max         = unicode_ctx->font->height;
+        char_info->over_previous = unicodeCharacter->over_previous;
+
+        if (!unicode_ctx->font->crop) {
+            // Take in account the skipped bytes, if any
+            char_info->nb_skipped_bytes = (unicodeCharacter->x_min_offset & 7) << 3;
+            char_info->nb_skipped_bytes |= unicodeCharacter->y_min_offset & 7;
+            char_info->x_min = 0;
+            char_info->y_min = 0;
+        }
+        else {
+            char_info->nb_skipped_bytes = 0;
+            char_info->y_min            = unicode_ctx->font->y_min;
+            char_info->y_min += (uint16_t) unicodeCharacter->y_min_offset;
+            char_info->y_max -= (uint16_t) unicodeCharacter->y_max_offset;
+
+            if (char_info->over_previous) {
+                // That character will be displayed over the previous one: get correct X coords
+                char_info->x_min = -(int16_t) unicodeCharacter->width;
+                char_info->width = 16 * (uint16_t) unicodeCharacter->x_min_offset;
+                char_info->width += (uint16_t) unicodeCharacter->x_max_offset;
+                char_info->x_max = char_info->x_min + char_info->width;
+            }
+            else {
+                char_info->x_min = (uint16_t) unicodeCharacter->x_min_offset;
+                char_info->x_max -= (uint16_t) unicodeCharacter->x_max_offset;
+            }
+        }
+        char_info->byte_cnt = nbgl_getUnicodeFontCharacterByteCount();
+        char_info->encoding = unicodeCharacter->encoding;
+        char_info->height   = char_info->y_max - char_info->y_min;
+#endif  // defined(HAVE_LANGUAGE_PACK)
+    }
+    else {
+        // Special character: nothing special to do here
+        if (char_info->unicode == '\f' || char_info->unicode == '\b') {
+            return;
+        }
+        // if not supported char, go to next one (this should never happen!!)
+        if ((char_info->unicode < font->first_char) || (char_info->unicode > font->last_char)) {
+#ifdef BUILD_SCREENSHOTS
+            fprintf(stdout,
+                    "Inside update_char_info, unicode (%c)[0x%X] is not supported!\n",
+                    char_info->unicode,
+                    char_info->unicode);
+#endif  // BUILD_SCREENSHOTS
+            update_char_info(char_info, text, textLen, unicode_ctx, font);
+            return;
+        }
+        const nbgl_font_character_t *character = (const nbgl_font_character_t *) PIC(
+            &font->characters[char_info->unicode - font->first_char]);
+
+        char_info->buffer        = (const uint8_t *) PIC(&font->bitmap[character->bitmap_offset]);
+        char_info->width         = character->width;
+        char_info->encoding      = character->encoding;
+        char_info->over_previous = 0;
+
+        char_info->x_max = char_info->width;
+        char_info->y_max = font->height;
+
+        if (!font->crop) {
+            // Take in account the skipped bytes, if any
+            char_info->nb_skipped_bytes = (character->x_min_offset & 7) << 3;
+            char_info->nb_skipped_bytes |= character->y_min_offset & 7;
+            char_info->x_min = 0;
+            char_info->y_min = 0;
+        }
+        else {
+            char_info->nb_skipped_bytes = 0;
+            char_info->x_min            = (uint16_t) character->x_min_offset;
+            char_info->y_min            = font->y_min;
+            char_info->y_min += (uint16_t) character->y_min_offset;
+            char_info->x_max -= (uint16_t) character->x_max_offset;
+            char_info->y_max -= (uint16_t) character->y_max_offset;
+        }
+
+        char_info->byte_cnt = get_bitmap_byte_cnt(font, char_info->unicode);
+        char_info->height   = char_info->y_max - char_info->y_min;
+    }
+}
+
 /**
  * @brief This function draws the given single-line text, with the given parameters.
  *
@@ -1065,24 +1360,36 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
 {
     // text is a series of characters, each character being a bitmap
     // we need to align bitmaps on width multiple of 4 limitation.
-    int16_t            x = area->x0;
-    nbgl_area_t        rectArea;
-    const nbgl_font_t *font = nbgl_getFont(fontId);
+    int16_t            x      = area->x0;
+    int16_t            next_x = x;
+    nbgl_area_t        current_area, previous_area;
+    int16_t            buf_x_min;
+    int16_t            buf_y_min;
+    int16_t            buf_x_max;
+    int16_t            buf_y_max;
+    CHARACTER_INFO     previous_char = {0};
+    CHARACTER_INFO     current_char  = {0};
+    CHARACTER_INFO     next_char     = {0};
+    const nbgl_font_t *font          = nbgl_getFont(fontId);
 #ifdef HAVE_UNICODE_SUPPORT
-    nbgl_unicode_ctx_t *unicode_ctx = NULL;
+    nbgl_unicode_ctx_t *unicode_ctx = nbgl_getUnicodeFont(fontId);
 #endif  // HAVE_UNICODE_SUPPORT
-    // Area representing the RAM buffer and in which the glyphs will be drawn
+    // Flag set to 1 when there is data to be drawn in RAM buffer
+    uint8_t redraw_buf_area = 0;
+
+    //  Area representing the RAM buffer and in which the glyphs will be drawn
     nbgl_area_t buf_area = {0};
     // ensure that the ramBuffer also used for image file decompression is big enough
-    // 4bpp: size of ram_buffer is (font->height * 2 * AVERAGE_CHAR_WIDTH) / 2
-    // 1bpp: size of ram_buffer is (font->height * 2 * AVERAGE_CHAR_WIDTH) / 8
-    CCASSERT(ram_buffer, (MAX_FONT_HEIGHT * AVERAGE_CHAR_WIDTH) <= GZLIB_UNCOMPRESSED_CHUNK);
+    // 4bpp: size of ram_buffer is (font->height * 3*AVERAGE_CHAR_WIDTH/2) / 2
+    // 1bpp: size of ram_buffer is (font->height * 3*AVERAGE_CHAR_WIDTH/2) / 8
+    CCASSERT(ram_buffer,
+             (MAX_FONT_HEIGHT * 3 * AVERAGE_CHAR_WIDTH / 4) <= GZLIB_UNCOMPRESSED_CHUNK);
     // TODO Investigate why area->bpp is not always initialized correctly
     buf_area.bpp = (nbgl_bpp_t) font->bpp;
 #ifdef SCREEN_SIZE_WALLET
     // Width & Height are rotated 90° on Flex/Stax
-    buf_area.width  = (font->line_height + 7) & 0xFFF8;  // Modulo 8 is better for 1BPP
-    buf_area.height = 2 * AVERAGE_CHAR_WIDTH;
+    buf_area.width  = (unicode_ctx->font->line_height + 7) & 0xFFF8;  // Modulo 8 is better for 1BPP
+    buf_area.height = ((3 * AVERAGE_CHAR_WIDTH / 2) + 7) & 0xFFF8;
     if (buf_area.bpp == NBGL_BPP_4) {
         buf_area.backgroundColor = 0xF;  // This will be the transparent color
     }
@@ -1093,18 +1400,24 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
     assert((buf_area.height * buf_area.width / 2) <= GZLIB_UNCOMPRESSED_CHUNK);
 #endif  // BUILD_SCREENSHOTS
 #else   // SCREEN_SIZE_WALLET
-    buf_area.width           = 2 * AVERAGE_CHAR_WIDTH;
-    buf_area.height          = font->line_height;
+    buf_area.width           = 3 * AVERAGE_CHAR_WIDTH / 2;
+    buf_area.height          = unicode_ctx->font->line_height;
     buf_area.backgroundColor = 0;  // This will be the transparent color
 #ifdef BUILD_SCREENSHOTS
     assert((buf_area.height * buf_area.width / 8) <= GZLIB_UNCOMPRESSED_CHUNK);
 #endif  // BUILD_SCREENSHOTS
 #endif  // SCREEN_SIZE_WALLET
 
+    // Those variables will be updated with current_char dimension
+    buf_x_min = AVERAGE_CHAR_WIDTH;
+    buf_y_min = MAX_FONT_HEIGHT;
+    buf_x_max = 0;
+    buf_y_max = 0;
+
+#define THE_STRING "ป๋าพื่กรอกรหัส PIN ของคุณ"
     // TMP Wip Stuff
     const char *original_text = text;
-    // if (!strcmp(text, "Continue setting up using the Ledger Live app")) {
-    if (!strcmp(text, "Wrong word")) {
+    if (!strcmp(original_text, THE_STRING)) {
         fprintf(stdout,
                 "nbgl_drawText: x0 = %d, y0 = %d, w = %d, h = %d, fontColor = %d, "
                 "backgroundColor=%d, fontId=%d, text = %s\n",
@@ -1129,211 +1442,407 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
               area->backgroundColor,
               text);
 
-    rectArea.backgroundColor = area->backgroundColor;
-    rectArea.bpp             = (nbgl_bpp_t) font->bpp;
+    current_area.backgroundColor = area->backgroundColor;
+    current_area.bpp             = (nbgl_bpp_t) font->bpp;
 
-    while (textLen > 0) {
-        const nbgl_font_character_t *character;
-        uint8_t                      char_width;
-        uint32_t                     unicode;
-        bool                         is_unicode;
-        const uint8_t               *char_buffer;
-        int16_t                      char_x_min;
-        int16_t                      char_y_min;
-        int16_t                      char_x_max;
-        int16_t                      char_y_max;
-        uint16_t                     char_byte_cnt;
-        uint8_t                      encoding;
-        uint8_t                      nb_skipped_bytes;
+    // Get the first character, that will go into 'current_char'
+    // (to correctly handle languages using 'combined characters', we need to
+    // know current, previous & next characters)
+    update_char_info(&next_char, (const uint8_t **) &text, &textLen, unicode_ctx, font);
 
-        unicode = nbgl_popUnicodeChar((const uint8_t **) &text, &textLen, &is_unicode);
+    while (textLen > 0 || next_char.unicode) {
+        // Get the character we already read
+        current_char = next_char;
+        // Get info for next character
+        update_char_info(&next_char, (const uint8_t **) &text, &textLen, unicode_ctx, font);
 
-        if (is_unicode) {
-#ifdef HAVE_UNICODE_SUPPORT
-            if (unicode_ctx == NULL) {
-                unicode_ctx = nbgl_getUnicodeFont(fontId);
-            }
-            const nbgl_font_unicode_character_t *unicodeCharacter
-                = nbgl_getUnicodeFontCharacter(unicode);
-            // if not supported char, go to next one
-            if (unicodeCharacter == NULL) {
-                continue;
-            }
-            char_width = unicodeCharacter->width;
-#if defined(HAVE_LANGUAGE_PACK)
-            char_buffer = unicode_ctx->bitmap;
-            char_buffer += unicodeCharacter->bitmap_offset;
-
-            char_x_max = char_width;
-            char_y_max = unicode_ctx->font->height;
-
-            if (!unicode_ctx->font->crop) {
-                // Take in account the skipped bytes, if any
-                nb_skipped_bytes = (unicodeCharacter->x_min_offset & 7) << 3;
-                nb_skipped_bytes |= unicodeCharacter->y_min_offset & 7;
-                char_x_min = 0;
-                char_y_min = 0;
-            }
-            else {
-                nb_skipped_bytes = 0;
-                char_x_min       = (uint16_t) unicodeCharacter->x_min_offset;
-                char_y_min       = unicode_ctx->font->y_min;
-                char_y_min += (uint16_t) unicodeCharacter->y_min_offset;
-                char_x_max -= (uint16_t) unicodeCharacter->x_max_offset;
-                char_y_max -= (uint16_t) unicodeCharacter->y_max_offset;
-            }
-
-            char_byte_cnt = nbgl_getUnicodeFontCharacterByteCount();
-            encoding      = unicodeCharacter->encoding;
-#endif  // defined(HAVE_LANGUAGE_PACK)
-#else   // HAVE_UNICODE_SUPPORT
-            continue;
-#endif  // HAVE_UNICODE_SUPPORT
-        }
-        else {
-            if (unicode == '\f') {
+#ifndef SCREEN_SIZE_WALLET
+        // Handle special characters (for LNX & LNS+ devices)
+        if (!current_char.is_unicode) {
+            // If '\f', that string si completed
+            if (current_char.unicode == '\f') {
                 break;
             }
             // if \b, switch fontId
-            else if (unicode == '\b') {
+            else if (current_char.unicode == '\b') {
                 if (fontId == BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp) {  // switch to bold
-                    fontId = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
-#ifdef HAVE_UNICODE_SUPPORT
+                    fontId      = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
                     unicode_ctx = nbgl_getUnicodeFont(fontId);
-#endif  // HAVE_UNICODE_SUPPORT
-                    font = (const nbgl_font_t *) nbgl_getFont(fontId);
+                    font        = (const nbgl_font_t *) nbgl_getFont(fontId);
                 }
                 else if (fontId == BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp) {  // switch to regular
-                    fontId = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
-#ifdef HAVE_UNICODE_SUPPORT
+                    fontId      = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
                     unicode_ctx = nbgl_getUnicodeFont(fontId);
-#endif  // HAVE_UNICODE_SUPPORT
-                    font = (const nbgl_font_t *) nbgl_getFont(fontId);
+                    font        = (const nbgl_font_t *) nbgl_getFont(fontId);
                 }
                 continue;
             }
-            // if not supported char, go to next one
-            if ((unicode < font->first_char) || (unicode > font->last_char)) {
-                continue;
-            }
-            character = (const nbgl_font_character_t *) PIC(
-                &font->characters[unicode - font->first_char]);
-            char_buffer = (const uint8_t *) PIC(&font->bitmap[character->bitmap_offset]);
-            char_width  = character->width;
-            encoding    = character->encoding;
-
-            char_x_max = char_width;
-            char_y_max = font->height;
-
-            if (!font->crop) {
-                // Take in account the skipped bytes, if any
-                nb_skipped_bytes = (character->x_min_offset & 7) << 3;
-                nb_skipped_bytes |= character->y_min_offset & 7;
-                char_x_min = 0;
-                char_y_min = 0;
-            }
-            else {
-                nb_skipped_bytes = 0;
-                char_x_min       = (uint16_t) character->x_min_offset;
-                char_y_min       = font->y_min;
-                char_y_min += (uint16_t) character->y_min_offset;
-                char_x_max -= (uint16_t) character->x_max_offset;
-                char_y_max -= (uint16_t) character->y_max_offset;
-            }
-
-            char_byte_cnt = get_bitmap_byte_cnt(font, unicode);
         }
+#endif  // SCREEN_SIZE_WALLET
 
-        // Render character
-        rectArea.x0     = x + char_x_min;
-        rectArea.y0     = area->y0 + char_y_min;
-        rectArea.height = (char_y_max - char_y_min);
-        rectArea.width  = (char_x_max - char_x_min);
+        // Render current character in current_area
+        if (!current_char.over_previous) {
+            // This character will not be displayed over previous one => update x
+            if (next_x > x) {
+                x = next_x;
+            }
+            current_area.x0 = x + current_char.x_min;
+        }
+        current_area.y0     = area->y0 + current_char.y_min;
+        current_area.height = (current_char.y_max - current_char.y_min);
+        current_area.width  = (current_char.x_max - current_char.x_min);
 
+        if (!strcmp(original_text, THE_STRING)) {
+            fprintf(stdout,
+                    "Will render '%c'(0x0%X) (x=%d, width=%d, next_x=%d) at x0=%d, y0=%d, W=%d, "
+                    "H=%d\n",
+                    current_char.unicode,
+                    current_char.unicode,
+                    x,
+                    current_char.width,
+                    next_x,
+                    current_area.x0,
+                    current_area.y0,
+                    current_area.width,
+                    current_area.height);
+            fprintf(stdout,
+                    "OP=%d, x_min=%d, x_max=%d, y_min=%d, y_max=%d\n",
+                    current_char.over_previous,
+                    current_char.x_min,
+                    current_char.x_max,
+                    current_char.y_min,
+                    current_char.y_max);
+        }
         // If char_byte_cnt = 0, call nbgl_frontDrawImageRle to let speculos notice
         // a space character was 'displayed'
-        if (!char_byte_cnt || encoding == 1) {
-            // if (!strcmp(original_text, "clock") && fontId == BAGL_FONT_INTER_SEMIBOLD_28px_1bpp)
-            // {
-            if (!strcmp(original_text, "Wrong word")) {
+        if (!current_char.byte_cnt || current_char.encoding == 1) {
+            // TMP Wip Stuff
+            static uint8_t saved      = 0;
+            static uint8_t ultrasaved = 0;
+
+            if (!strcmp(original_text, THE_STRING)) {
                 fprintf(stdout,
-                        "Rendering '%c' at X=%d, Y=%d, W=%d, H=%d, nb_skipped_bytes=%d\n",
-                        unicode,
-                        rectArea.x0,
-                        rectArea.y0,
-                        rectArea.width,
-                        rectArea.height,
-                        nb_skipped_bytes);
+                        "Rendering '%c'(0x%X) at X=%d, Y=%d, W=%d, H=%d, nb_skipped_bytes=%d\n",
+                        current_char.unicode,
+                        current_char.unicode,
+                        current_area.x0,
+                        current_area.y0,
+                        current_area.width,
+                        current_area.height,
+                        current_char.nb_skipped_bytes);
                 fprintf(stdout,
-                        "x_min=%d, x_max=%d, y_min=%d, y_max=%d\n",
-                        char_x_min,
-                        char_x_max,
-                        char_y_min,
-                        char_y_max);
+                        "OP=%d, x_min=%d, x_max=%d, y_min=%d, y_max=%d\n",
+                        current_char.over_previous,
+                        current_char.x_min,
+                        current_char.x_max,
+                        current_char.y_min,
+                        current_char.y_max);
             }
-            // To be able to handle transparency, ramBuffer must be filled with background color
-            // => Fill ramBuffer with background color (0x0F for 4bpp & 0 for 1bpp)
+            // if current character should not be displayed over previous one,
+            // send RAM buffer to display
+            if (!current_char.over_previous) {
+                // Send RAM buffer content (previous character) to display
+                if (redraw_buf_area) {
+                    display_ram_buffer(buf_x_min,
+                                       buf_y_min,
+                                       buf_x_max,
+                                       buf_y_max,
+                                       area,
+                                       &buf_area,
+                                       &previous_area,
+                                       fontColor,
+                                       // Debug Info
+                                       original_text,
+                                       previous_char.unicode,
+                                       current_char.unicode,
+                                       next_char.unicode);
+                    // Reset that flag
+                    redraw_buf_area = 0;
+                    buf_x_min       = AVERAGE_CHAR_WIDTH;
+                    buf_y_min       = MAX_FONT_HEIGHT;
+                    buf_x_max       = 0;
+                    buf_y_max       = 0;
+                }
 #ifdef SCREEN_SIZE_WALLET
-            if (buf_area.bpp == NBGL_BPP_4) {
-                memset(ramBuffer, 0xFF, (buf_area.height * buf_area.width / 2));
+                // To handle transparency, ramBuffer must be filled with background color
+                // => Fill ramBuffer with background color (0x0F for 4bpp & 0 for 1bpp)
+                if (buf_area.bpp == NBGL_BPP_4) {
+                    memset(ramBuffer, 0xFF, (buf_area.height * buf_area.width / 2));
+                }
+                else {
+                    memset(ramBuffer, 0x0, (buf_area.height * buf_area.width / 8));
+                }
+
+                // Update display coordinates of current char inside the RAM buffer
+                //(X & Y are rotated 90° on Stax/Flex)
+                buf_area.x0 = COMBINED_HEIGHT + current_char.y_min;
+                buf_area.y0 = (AVERAGE_CHAR_WIDTH / 2) + current_char.x_min;
+
+                buf_x_min = buf_area.x0;
+                buf_x_max = buf_x_min + current_area.height;
+                buf_y_min = buf_area.y0;
+                buf_y_max = buf_y_min + current_area.width;
+#else   // SCREEN_SIZE_WALLET
+        // To handle transparency, ramBuffer must be filled with background color
+        // => Fill ramBuffer with background color (0 for 1bpp)
+                memset(ramBuffer, 0, (buf_area.height * buf_area.width / 8));
+                // Update display coordinates of current char inside the RAM buffer
+                buf_area.x0 = AVERAGE_CHAR_WIDTH / 2;
+                buf_area.y0 = COMBINED_HEIGHT + current_char.y_min;
+                buf_x_min   = buf_area.x0;
+                buf_x_max   = buf_x_min + current_area.width;
+                buf_y_min   = buf_area.y0;
+                buf_y_max   = buf_y_min + current_area.height;
+#endif  // SCREEN_SIZE_WALLET
+        // Compute next x with current char width, to be ready to display next one
+                x += current_char.width - font->char_kerning;
+                if (!strcmp(original_text, THE_STRING)) {
+                    fprintf(stdout,
+                            "Increasing next_x from %d to %d (char_width=%d, kerning=%d, "
+                            "unicode='%c'(0x0%X))\n",
+                            next_x,
+                            x,
+                            current_char.width,
+                            font->char_kerning,
+                            current_char.unicode,
+                            current_char.unicode);
+                }
+                next_x = x;
             }
             else {
-                memset(ramBuffer, 0x0, (buf_area.height * buf_area.width / 8));
-            }
-            //(X & Y are rotated 90° on Stax/Flex)
-            buf_area.x0 = char_y_min;
-            buf_area.y0 = AVERAGE_CHAR_WIDTH / 2;
+                // Security check: first character can't be a composed one!
+                if (previous_char.unicode == 0) {
+#ifdef BUILD_SCREENSHOTS
+                    fprintf(stdout,
+                            "ERROR: First character '%c'(0x%X) is a composed one! (text=>%s<=)\n",
+                            current_char.unicode,
+                            current_char.unicode,
+                            original_text);
+#endif  // BUILD_SCREENSHOTS
+                    continue;
+                }
+                // current_area.x0 = x + current_char.x_min;
+                // previous_area.x0 = x + current_char.x_min;
+
+                // Update next_x if this character is larger than original one
+                // (except for vowel 0xE31 which is overflowing on purpose on right side)
+                if (current_char.unicode != 0x00E31
+                    && (x + current_char.x_min + current_char.width) > next_x) {
+                    if (!strcmp(original_text, THE_STRING)) {
+                        fprintf(stdout,
+                                "Increasing(2) next_x from %d to %d (char_width=%d, char_x_min=%d, "
+                                "unicode='%c'(0x0%X))\n",
+                                next_x,
+                                x + current_char.width + current_char.x_min,
+                                current_char.width,
+                                current_char.x_min,
+                                current_char.unicode,
+                                current_char.unicode);
+                    }
+                    next_x = x + current_char.x_min + current_char.width;
+                    // That character is a special one, as it is displayed on top of previous
+                    // character and also on its right => give space for next character
+                    if (current_char.unicode == 0x00E33) {
+                        next_x += 1;
+                    }
+                }
+                // Take in account current x_min (which is < 0)
+#ifdef SCREEN_SIZE_WALLET
+                buf_area.x0 = COMBINED_HEIGHT + current_char.y_min;
+                buf_area.y0 = (AVERAGE_CHAR_WIDTH / 2) - current_char.x_min - current_char.width;
+
+                // Thai rules for displaying characters on top of each others
+                // Order priority, from bottom to top
+                // 1 - consonnant
+                // 2 - vowel or sign 0x0E4D and 0x0E4E
+                // 3 - tone 0x0E48, 0x0E49, 0x0E4A and 0x0E4B or sign 0x0E4C
+                // => 0x0E48, 0x0E49, 0x0E4A, 0x0E4B & 0x0E4C MUST ALWAYS be displayed on top of
+                // other characters! WARNING: some vowels, signs or tone may have to be displayed
+                // left with some consonnant (0E1B, 0E1F etc)
+
+                if (current_char.unicode >= 0x0E48 && current_char.unicode <= 0x0E4C) {
+                    if (next_char.unicode == 0x00E33) {
+                        // Display current character up to next one
+                        buf_area.x0 = COMBINED_HEIGHT + 0;  // TODO should be next_area.ymin
+                        buf_area.x0 -= (current_char.y_max - current_char.y_min)
+                                       - 2;  // minus height of cur char
+                        // TMP
+                        /*if (current_char.unicode == 0x0E48) {
+                            buf_area.x0 += 2;
+                            }*/
+                    }
+                    else if (previous_char.unicode >= 0x0E31 && previous_char.unicode <= 0x0E37) {
+                        // Take in account the height of previous character
+                        // buf_area.x0 -= previous_area.height - 2;
+                        buf_area.x0 = buf_x_min - (current_char.y_max - current_char.y_min) - 1;
+                        // TMP
+                        /*if (current_char.unicode == 0x0E48) {
+                            buf_area.x0 += 4;
+                            }*/
+                    }
+                    else if (current_char.unicode == 0x0E4B && previous_char.unicode == 0x0E1B) {
+                        // We must shift 0x0E4B to the left or we will overwrite 0x0E1B
+                        buf_area.y0 -= current_char.x_min / 2;
+                    }
+                }
+                // Update RAM buffer x/y min/max
+                if (buf_area.x0 < buf_x_min) {
+                    buf_x_min = buf_area.x0;
+                }
+                if ((buf_area.x0 + current_area.height) > buf_x_max) {
+                    buf_x_max = buf_area.x0 + current_area.height;
+                }
+                if (buf_area.y0 < buf_y_min) {
+                    buf_y_min = buf_area.y0;
+                }
+                if ((buf_area.y0 + current_area.width) > buf_y_max) {
+                    buf_y_max = buf_area.y0 + current_area.width;
+                }
 #else   // SCREEN_SIZE_WALLET
-            memset(ramBuffer, 0, (buf_area.height * buf_area.width / 8));
-            buf_area.x0 = AVERAGE_CHAR_WIDTH / 2;
-            buf_area.y0 = char_y_min;
+                buf_area.x0 += previous_char.width - current_char.x_min;
+
+                // Thai rules for displaying characters on top of each others
+                // Order priority, from bottom to top
+                // 1 - consonnant
+                // 2 - vowel or sign 0x0E4D and 0x0E4E
+                // 3 - tone 0x0E48, 0x0E49, 0x0E4A and 0x0E4B or sign 0x0E4C
+                // => 0x0E48, 0x0E49, 0x0E4A, 0x0E4B & 0x0E4C MUST ALWAYS be displayed on top of
+                // other characters! WARNING: some vowels, signs or tone may have to be displayed
+                // left with some consonnant (0E1B, 0E1F etc)
+
+                if (current_char.unicode >= 0x0E48 && current_char.unicode <= 0x0E4C
+                    && previous_char.unicode >= 0x0E31 && previous_char.unicode <= 0x0E37) {
+                    // Take in account the height of previous character
+                    buf_area.x0 -= previous_area.height - 2;
+                }
+                // Update RAM buffer x/y min/max
+                if (buf_area.x0 < buf_x_min) {
+                    buf_x_min = buf_area.x0;
+                }
+                if ((buf_area.x0 + current_area.width) > buf_x_max) {
+                    buf_x_max = buf_area.x0 + current_area.width;
+                }
+                if (buf_area.y0 < buf_y_min) {
+                    buf_y_min = buf_area.y0;
+                }
+                if ((buf_area.y0 + current_area.height) > buf_y_max) {
+                    buf_y_max = buf_area.y0 + current_area.height;
+                }
 #endif  // SCREEN_SIZE_WALLET
+
+                // Update current_area if needed
+                /*
+                if ((area->y0 + current_char.y_min) < current_area.y0) {
+                    current_area.y0 = area->y0 + current_char.y_min;
+                }
+                if ((current_char.y_max - current_char.y_min) > current_area.height) {
+                    current_area.height = (current_char.y_max - current_char.y_min);
+                }
+                if ((current_char.x_max - current_char.x_min) > current_area.width) {
+                    current_area.width = (current_char.x_max - current_char.x_min);
+                    }*/
+            }
+            if (!strcmp(original_text, THE_STRING) && current_char.unicode >= 0x000E00
+                && current_char.unicode < 0x000E80) {
+                fprintf(stdout,
+                        "Drawing in RAM buffer '%c'(0x%X) at X=%d, Y=%d, W=%d, H=%d\n",
+                        current_char.unicode,
+                        current_char.unicode,
+                        current_area.x0,
+                        current_area.y0,
+                        current_area.width,
+                        current_area.height);
+                fprintf(stdout,
+                        "RAM buffer area: X=%d, Y=%d, W=%d, H=%d\n",
+                        buf_area.x0,
+                        buf_area.y0,
+                        buf_area.width,
+                        buf_area.height);
+                fprintf(stdout,
+                        "buf_x/y_min/max: buf_x_min=%d, buf_x_max=%d, buf_y_min=%d, buf_y_max=%d\n",
+                        buf_x_min,
+                        buf_x_max,
+                        buf_y_min,
+                        buf_y_max);
+            }
 #if 0
             nbgl_frontDrawImageRle(
-                &rectArea, char_buffer, char_byte_cnt, fontColor, nb_skipped_bytes);
+                &current_area, current_char.buffer, current_char.byte_cnt, fontColor, nb_skipped_bytes);
 #else
-            // Draw that character in a RAM buffer
-            nbgl_drawImageRle(
-                &rectArea, char_buffer, char_byte_cnt, &buf_area, ramBuffer, nb_skipped_bytes);
-            // TMP Wip Stuff
-            static int saved      = 0;
-            static int ultrasaved = 0;
-            if (!strcmp(original_text, "Wrong word") && unicode == 'W' && rectArea.bpp == NBGL_BPP_4
-                && !saved) {
+            // Draw that character in the RAM buffer, with transparency
+            nbgl_drawImageRle(&current_area,
+                              current_char.buffer,
+                              current_char.byte_cnt,
+                              &buf_area,
+                              ramBuffer,
+                              current_char.nb_skipped_bytes);
+            // WARNING: current_area was adjusted to height of what was really displayed!
+
+            // Set the flag telling that RAM buffer need to be displayed, if needed
+            if (current_char.byte_cnt) {
+                redraw_buf_area = 1;
+                previous_area   = current_area;
+            }
+
+            if (!strcmp(original_text, THE_STRING) && current_char.over_previous) {
+                // if (!strcmp(original_text, "Réinitialisation")) {
+                fprintf(stdout,
+                        "Real coords for '%c' (0x%X) : y0=%d, height=%d\n",
+                        current_char.unicode,
+                        current_char.unicode,
+                        current_char.real_y_min,
+                        current_char.real_height);
+            }
+            if (!strcmp(original_text, THE_STRING) && current_char.unicode == 0x000E4B
+                && next_char.unicode == 0x000E32 && previous_char.unicode == 0x000E1B) {
+                /*if (current_char.unicode == 0x000E14) {
+                    saved = 1;
+                    }*/
                 saved = 1;
                 fprintf(stdout,
-                        "Rendering '%c' at X=%d, Y=%d, W=%d, H=%d, nb_skipped_bytes=%d\n",
-                        unicode,
-                        rectArea.x0,
-                        rectArea.y0,
-                        rectArea.width,
-                        rectArea.height,
-                        nb_skipped_bytes);
+                        "Saving packed picture '%c' (0x%X) at X=%d, Y=%d, W=%d, H=%d, "
+                        "buf_x_min=%d, buf_y_min=%d, nb_skipped_bytes=%d\n",
+                        current_char.unicode,
+                        current_char.unicode,
+                        buf_area.x0,
+                        buf_area.y0,
+                        buf_area.width,
+                        buf_area.height,
+                        buf_x_min,
+                        buf_y_min,
+                        current_char.nb_skipped_bytes);
                 fprintf(
                     stdout, "ramBuffer: width=%d, height=%d\n", buf_area.width, buf_area.height);
                 fflush(stdout);
-                save_packed_picture(
-                    ramBuffer, buf_area.width, buf_area.height, rectArea.bpp, unicode);
-            }
-            // Now, draw this block into the real screen
-            if (char_byte_cnt) {
-                // Move the data at the beginning of RAM buffer, in a packed way
-                pack_ram_buffer(&buf_area, rectArea.height, rectArea.width, ramBuffer);
-                // TMP Wip Stuff
-                if (!strcmp(original_text, "Wrong word") && unicode == 'W'
-                    && rectArea.bpp == NBGL_BPP_4 && !ultrasaved) {
-                    ultrasaved = 1;
-                    save_ultrapacked_picture(
-                        ramBuffer, rectArea.height, rectArea.width, rectArea.bpp, unicode);
-                }
-                nbgl_frontDrawImage(&rectArea, ramBuffer, NO_TRANSFORMATION, fontColor);
+                save_packed_picture(ramBuffer,
+                                    buf_area.width,
+                                    buf_area.height,
+                                    current_area.bpp,
+                                    current_char.unicode);
             }
 #endif  // 0
         }
         else {
-            nbgl_frontDrawImage(&rectArea, char_buffer, NO_TRANSFORMATION, fontColor);
+            nbgl_frontDrawImage(&current_area, current_char.buffer, NO_TRANSFORMATION, fontColor);
         }
-        x += char_width - font->char_kerning;
+        previous_char = current_char;
+    }
+    // Do we need to send RAM buffer content (previous character) to display?
+    if (redraw_buf_area) {
+        // Move the data at the beginning of RAM buffer, in a packed way
+        display_ram_buffer(buf_x_min,
+                           buf_y_min,
+                           buf_x_max,
+                           buf_y_max,
+                           area,
+                           &buf_area,
+                           &previous_area,
+                           fontColor,
+                           // Debug Info
+                           original_text,
+                           previous_char.unicode,
+                           current_char.unicode,
+                           next_char.unicode);
     }
     return fontId;
 }
