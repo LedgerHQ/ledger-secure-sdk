@@ -90,7 +90,14 @@ static const uint8_t radiusValues[RADIUS_MAX + 1] = {
 
 #ifdef SCREEN_SIZE_WALLET
 
-#if COMMON_RADIUS == 40
+#if COMMON_RADIUS == 8
+static const radiusIcons_t radiusIcons8px = {
+    C_quarter_disc_top_left_8px_1bpp_bitmap,
+    C_quarter_disc_bottom_left_8px_1bpp_bitmap,
+    C_quarter_circle_top_left_8px_1bpp_bitmap,
+    C_quarter_circle_bottom_left_8px_1bpp_bitmap,
+};
+#elif COMMON_RADIUS == 40
 static const radiusIcons_t radiusIcons40px = {
     C_quarter_disc_top_left_40px_1bpp_bitmap,
     C_quarter_disc_bottom_left_40px_1bpp_bitmap,
@@ -115,21 +122,26 @@ static const radiusIcons_t radiusIcons32px = {
 #endif
 
 // indexed by nbgl_radius_t (except RADIUS_0_PIXELS)
-static const radiusIcons_t *radiusIcons[RADIUS_MAX + 1] = {NULL,
-#if SMALL_BUTTON_RADIUS == 32
-                                                           &radiusIcons32px,
+static const radiusIcons_t *radiusIcons[RADIUS_MAX + 1] = {
+#if COMMON_RADIUS == 8
+    &radiusIcons8px,
 #else
-                                                           NULL,
+    NULL,
+#endif
+#if SMALL_BUTTON_RADIUS == 32
+    &radiusIcons32px,
+#else
+    NULL,
 #endif
 #if COMMON_RADIUS == 40
-                                                           &radiusIcons40px,
+    &radiusIcons40px,
 #else
-                                                           NULL,
+    NULL,
 #endif
 #if COMMON_RADIUS == 44
-                                                           &radiusIcons44px
+    &radiusIcons44px
 #else
-                                                           NULL
+    NULL
 #endif  // COMMON_RADIUS
 };
 #endif  // SCREEN_SIZE_WALLET
@@ -394,19 +406,19 @@ void nbgl_drawRoundedBorderedRect(const nbgl_area_t *area,
     uint8_t maskTop, maskBottom;
     if (stroke == 1) {
         maskTop    = 0x1;
-        maskBottom = 0x8;
+        maskBottom = 0x1 << (VERTICAL_ALIGNMENT - 1);
     }
     else if (stroke == 2) {
         maskTop    = 0x3;
-        maskBottom = 0xC;
+        maskBottom = 0x3 << (VERTICAL_ALIGNMENT - 2);
     }
     else if (stroke == 3) {
         maskTop    = 0x7;
-        maskBottom = 0xE;
+        maskBottom = 0x7 << (VERTICAL_ALIGNMENT - 3);
     }
     else if (stroke == 4) {
         maskTop    = 0xF;
-        maskBottom = 0xF;
+        maskBottom = 0xF << (VERTICAL_ALIGNMENT - 4);
     }
     else {
         LOG_WARN(DRAW_LOGGER, "nbgl_drawRoundedBorderedRect forbidden stroke=%d\n", stroke);
@@ -415,10 +427,10 @@ void nbgl_drawRoundedBorderedRect(const nbgl_area_t *area,
     rectArea.x0     = area->x0 + radius;
     rectArea.y0     = area->y0;
     rectArea.width  = area->width - 2 * radius;
-    rectArea.height = 4;
+    rectArea.height = VERTICAL_ALIGNMENT;
     nbgl_frontDrawHorizontalLine(&rectArea, maskTop, borderColor);  // top
     rectArea.x0 = area->x0 + radius;
-    rectArea.y0 = area->y0 + area->height - 4;
+    rectArea.y0 = area->y0 + area->height - VERTICAL_ALIGNMENT;
     nbgl_frontDrawHorizontalLine(&rectArea, maskBottom, borderColor);  // bottom
 #else                                                                  // SCREEN_SIZE_WALLET
     rectArea.x0              = area->x0 + radius;
