@@ -25,7 +25,7 @@
 /*********************
  *      DEFINES
  *********************/
-#if defined(TARGET_FLEX)
+#if defined(TARGET_FLEX) || defined(TARGET_APEX)
 #define USE_PARTIAL_BUTTONS 1
 #endif  // TARGET_FLEX
 
@@ -59,11 +59,20 @@ enum {
 #define BOTTOM_COMPACT_MARGIN     12
 #define TOP_NORMAL_MARGIN         20
 #define TOP_COMPACT_MARGIN        12
+#elif defined(TARGET_APEX)
+#define TEXT_ENTRY_NORMAL_HEIGHT  64
+#define TEXT_ENTRY_COMPACT_HEIGHT 64
+#define BOTTOM_NORMAL_MARGIN      24
+#define BOTTOM_COMPACT_MARGIN     24
+#define TOP_NORMAL_MARGIN         20
+#define TOP_COMPACT_MARGIN        20
 #endif  // TARGETS
 
 #ifdef USE_PARTIAL_BUTTONS
 #if defined(TARGET_FLEX)
 #define LEFT_HALF_ICON C_left_half_64px
+#elif defined(TARGET_APEX)
+#define LEFT_HALF_ICON C_left_half_48px
 #endif  // TARGETS
 #endif  // USE_PARTIAL_BUTTONS
 

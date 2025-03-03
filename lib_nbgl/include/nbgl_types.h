@@ -57,6 +57,21 @@ extern "C" {
 #define VERTICAL_ALIGNMENT  4
 // Number of color bits
 #define NB_COLOR_BITS       4
+#elif defined(TARGET_APEX)
+#define SCREEN_WIDTH        300
+#define SCREEN_HEIGHT       400
+#define SMALL_ICON_SIZE     24
+#define LARGE_ICON_SIZE     48
+// height of the smallest used font
+#define SMALL_FONT_HEIGHT   18
+// radius of corners used for controls (buttons)
+#define COMMON_RADIUS       8
+// radius for small buttons
+#define SMALL_BUTTON_RADIUS 8
+// HW vertical alignment
+#define VERTICAL_ALIGNMENT  8
+// Number of color bits
+#define NB_COLOR_BITS       1
 #endif  // TARGETS
 #else   // SCREEN_SIZE_WALLET
 #define SCREEN_WIDTH       128

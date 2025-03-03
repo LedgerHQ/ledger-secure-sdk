@@ -21,7 +21,7 @@ include $(BOLOS_SDK)/Makefile.target
 #                            BLUETOOTH                              #
 #####################################################################
 ifeq ($(ENABLE_BLUETOOTH), 1)
-ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOX TARGET_STAX TARGET_FLEX))
+ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOX TARGET_STAX TARGET_FLEX TARGET_APEX_P))
     HAVE_APPLICATION_FLAG_BOLOS_SETTINGS = 1
     DEFINES += HAVE_BLE BLE_COMMAND_TIMEOUT_MS=2000 HAVE_BLE_APDU
     DEFINES += BLE_SEGMENT_SIZE=32
@@ -33,14 +33,14 @@ endif
 #                               NFC                                 #
 #####################################################################
 ifeq ($(ENABLE_NFC), 1)
-ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME), TARGET_STAX TARGET_FLEX))
+ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME), TARGET_STAX TARGET_FLEX TARGET_APEX_P))
     HAVE_APPLICATION_FLAG_BOLOS_SETTINGS = 1
     DEFINES += HAVE_NFC
 endif
 endif
 
 ifeq ($(ENABLE_NFC_READER), 1)
-ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME), TARGET_STAX TARGET_FLEX))
+ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME), TARGET_STAX TARGET_FLEX TARGET_APEX_P))
     DEFINES += HAVE_NFC_READER
 endif
 endif
@@ -120,7 +120,7 @@ USE_NBGL = 1
 endif
 
 ifeq ($(ENABLE_NBGL_QRCODE), 1)
-ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_STAX TARGET_FLEX))
+ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_STAX TARGET_FLEX TARGET_APEX_P TARGET_APEX_M))
     DEFINES += NBGL_QRCODE
     SDK_SOURCE_PATH += qrcode
 endif
@@ -265,6 +265,12 @@ ICONNAME ?= $(ICON_STAX)
 endif
 ifeq ($(TARGET_NAME), TARGET_FLEX)
 ICONNAME ?= $(ICON_FLEX)
+endif
+ifeq ($(TARGET_NAME), TARGET_APEX_P)
+ICONNAME ?= $(ICON_APEX_P)
+endif
+ifeq ($(TARGET_NAME), TARGET_APEX_M)
+ICONNAME ?= $(ICON_APEX_M)
 endif
 
 include $(BOLOS_SDK)/Makefile.defines
