@@ -17,6 +17,9 @@
 #ifdef NBGL_QRCODE
 #include "qrcodegen.h"
 #endif  // NBGL_QRCODE
+#ifdef BUILD_SCREENSHOTS
+#include <assert.h>
+#endif  // BUILD_SCREENSHOTS
 #include "glyphs.h"
 #include "os_pic.h"
 #include "os_utils.h"
@@ -32,6 +35,14 @@ typedef enum {
 } quarter_t;
 
 #define QR_PIXEL_WIDTH_HEIGHT 4
+
+#ifdef SCREEN_SIZE_WALLET
+#define MAX_FONT_HEIGHT    48
+#define AVERAGE_CHAR_WIDTH 32
+#else  // SCREEN_SIZE_WALLET
+#define MAX_FONT_HEIGHT    24
+#define AVERAGE_CHAR_WIDTH 24
+#endif  // SCREEN_SIZE_WALLET
 
 /**********************
  *      TYPEDEFS
@@ -526,6 +537,428 @@ static uint16_t get_bitmap_byte_cnt(const nbgl_font_t *font, uint8_t charId)
     return 0;
 }
 
+//=============================================================================
+
+/**
+ * @brief Uncompress a 1BPP RLE-encoded glyph and draw it in a RAM buffer
+ * (we handle transparency, meaning when resulting pixel is 0 we don't store it)
+ *
+ * 1BPP RLE Decoder:
+ *
+ * compressed bytes contains ZZZZOOOO nibbles, with
+ * - ZZZZ: number of consecutives zeros (from 0 to 15)
+ * - OOOO: number of consecutives ones (from 0 to 15)
+ *
+ * @param area area information about where to display the text
+ * @param buffer buffer of RLE-encoded data
+ * @param buffer_len length of buffer
+ * @param buf_area of the RAM buffer
+ * @param dst RAM buffer on which the glyph will be drawn
+ * @param nb_skipped_bytes number of bytes that was cropped
+ */
+static void nbgl_draw1BPPImageRle(nbgl_area_t *area,
+                                  uint8_t     *buffer,
+                                  uint32_t     buffer_len,
+                                  nbgl_area_t *buf_area,
+                                  uint8_t     *dst,
+                                  uint8_t      nb_skipped_bytes)
+{
+    size_t index = 0;
+    // Set the initial number of transparent pixels
+    size_t nb_zeros = (size_t) nb_skipped_bytes * 8;
+    size_t nb_ones  = 0;
+#ifdef SCREEN_SIZE_WALLET
+    // Width & Height are rotated 90° on Flex/Stax
+    size_t remaining_height = area->width;
+    size_t remaining_width  = area->height;
+#else   // SCREEN_SIZE_WALLET
+    size_t remaining_height = area->height;
+    size_t remaining_width  = area->width;
+#endif  // SCREEN_SIZE_WALLET
+    size_t  dst_offset = (buf_area->width + 7) / 8;
+    size_t  dst_index  = 0;
+    uint8_t pixels;
+    uint8_t white_pixel;
+
+    dst += buf_area->y0 * buf_area->width / 8;
+    dst += buf_area->x0 / 8;
+    white_pixel = 0x80 >> (buf_area->x0 & 7);
+    pixels      = 0;
+
+    while (remaining_height && (index < buffer_len || nb_zeros || nb_ones)) {
+        // Reload nb_zeros & nb_ones if needed
+        while (!nb_zeros && !nb_ones && index < buffer_len) {
+            uint8_t byte = buffer[index++];
+            nb_ones      = byte & 0x0F;
+            nb_zeros     = byte >> 4;
+        }
+        // Get next pixel
+        if (nb_zeros) {
+            --nb_zeros;
+            // Useless, but kept for clarity
+            pixels |= 0;
+        }
+        else if (nb_ones) {
+            --nb_ones;
+            pixels |= white_pixel;
+        }
+        white_pixel >>= 1;
+        if (!white_pixel) {
+            white_pixel = 0x80;
+            dst[dst_index++] |= pixels;  // OR because we handle transparency
+            pixels = 0;
+        }
+        --remaining_width;
+
+        // Have we reached the end of the line?
+        if (!remaining_width) {
+#ifdef SCREEN_SIZE_WALLET
+            // Width & Height are rotated 90° on Flex/Stax
+            remaining_width = area->height;
+#else   // SCREEN_SIZE_WALLET
+            remaining_width = area->width;
+#endif  // SCREEN_SIZE_WALLET
+
+            // Store current pixel content
+            dst[dst_index] |= pixels;  // OR because we handle transparency
+
+            // Start next line
+            dst += dst_offset;
+            dst_index   = 0;
+            pixels      = 0;
+            white_pixel = 0x80 >> (buf_area->x0 & 7);
+
+            --remaining_height;
+        }
+    }
+    // Store remaining pixels
+    if (pixels) {
+        dst[dst_index] |= pixels;  // OR because we handle transparency
+    }
+}
+
+typedef struct {
+    // Part containing the data to be decoded
+    uint32_t read_cnt;
+    uint32_t buffer_len;
+    uint8_t *buffer;
+    uint8_t  byte;
+    // Part containing the decoded pixels
+    uint8_t nb_pix;
+    uint8_t color;      // if color <= 15 it is a FILL, else a COPY
+    uint8_t pixels[6];  // Maximum 6 pixels (COPY)
+
+} Rle_context_t;
+
+// Get next pixel(s) and update Rle_context content
+static inline void get_next_pixels(Rle_context_t *context, size_t remaining_width)
+{
+    // Is there still remaining data to read?
+    if (context->read_cnt >= context->buffer_len) {
+        // Just return the number of pixels to skip
+        context->nb_pix = remaining_width;
+        context->color  = 0xF;  // Background color, which is considered as transparent
+        return;
+    }
+
+    // Uncompress next data
+    uint8_t byte = context->buffer[context->read_cnt++];
+
+    if (byte & 0x80) {
+        if (byte & 0x40) {
+            // CMD=11 + RRRRRR => FILL White (max=63+1)
+            context->nb_pix = (byte & 0x3F) + 1;
+            context->color  = 0x0F;
+        }
+        else {
+            // CMD=10 + RR + VVVV + WWWWXXXX + YYYYZZZZ + QQQQ0000 : COPY Quartets x Repeat+1
+            // - RR is repeat count - 3 of quartets (max=3+3 => 6 quartets)
+            // - VVVV: value of 1st 4BPP pixel
+            // - WWWW: value of 2nd 4BPP pixel
+            // - XXXX: value of 3rd 4BPP pixel
+            // - YYYY: value of 4th 4BPP pixel
+            // - ZZZZ: value of 5th 4BPP pixel
+            // - QQQQ: value of 6th 4BPP pixel
+            context->nb_pix = ((byte & 0x30) >> 4);
+            context->nb_pix += 3;
+            context->pixels[0] = byte & 0x0F;  // Store VVVV
+            byte               = context->buffer[context->read_cnt++];
+            context->pixels[1] = byte >> 4;    // Store WWWW
+            context->pixels[2] = byte & 0x0F;  // Store XXXX
+            if (context->nb_pix >= 4) {
+                byte               = context->buffer[context->read_cnt++];
+                context->pixels[3] = byte >> 4;    // Store YYYY
+                context->pixels[4] = byte & 0x0F;  // Store ZZZZ
+                if (context->nb_pix >= 6) {
+                    byte               = context->buffer[context->read_cnt++];
+                    context->pixels[5] = byte >> 4;  // Store QQQQ
+                }
+            }
+            context->color = 0x10;  // COPY command + pixels offset=0
+        }
+    }
+    else {
+        // CMD=0 + RRR + VVVV : FILL Value x Repeat+1 (max=7+1)
+        context->nb_pix = (byte & 0x70) >> 4;
+        context->nb_pix += 1;
+        context->color = byte & 0x0F;
+    }
+}
+
+/**
+ * @brief Uncompress a 4BPP RLE-encoded glyph and draw it in a RAM buffer
+ * (we handle transparency, meaning when resulting pixel is 0xF we don't store it)
+ *
+ * 4BPP RLE Decoder - The provided bytes contains:
+ *
+ *   11RRRRRR
+ *   10RRVVVV WWWWXXXX YYYYZZZZ QQQQ0000
+ *   0RRRVVVV
+ *
+ *   With:
+ *   * 11RRRRRR
+ *       - RRRRRRR is repeat count - 1 of White (0xF) quartets (max=63+1)
+ *   * 10RRVVVV WWWWXXXX YYYYZZZZ QQQQ0000
+ *       - RR is repeat count - 3 of quartets (max=3+3 => 6 quartets)
+ *       - VVVV: value of 1st 4BPP pixel
+ *       - WWWW: value of 2nd 4BPP pixel
+ *       - XXXX: value of 3rd 4BPP pixel
+ *       - YYYY: value of 4th 4BPP pixel
+ *       - ZZZZ: value of 5th 4BPP pixel
+ *       - QQQQ: value of 6th 4BPP pixel
+ *   * 0RRRVVVV
+ *       - RRR: repeat count - 1 => allow to store 1 to 8 repeat counts
+ *       - VVVV: value of the 4BPP pixel
+ *
+ * @param area area information about where to display the text
+ * @param buffer buffer of RLE-encoded data
+ * @param buffer_len length of buffer
+ * @param buf_area of the RAM buffer
+ * @param dst RAM buffer on which the glyph will be drawn
+ * @param nb_skipped_bytes number of bytes that was cropped
+ */
+static void nbgl_draw4BPPImageRle(nbgl_area_t *area,
+                                  uint8_t     *buffer,
+                                  uint32_t     buffer_len,
+                                  nbgl_area_t *buf_area,
+                                  uint8_t     *dst,
+                                  uint8_t      nb_skipped_bytes)
+{
+#ifdef SCREEN_SIZE_WALLET
+    // Width & Height are rotated 90° on Flex/Stax
+    size_t remaining_height = area->width;
+    size_t remaining_width  = area->height;
+#else   // SCREEN_SIZE_WALLET
+    size_t remaining_height = area->height;
+    size_t remaining_width  = area->width;
+#endif  // SCREEN_SIZE_WALLET
+    // size_t        dst_offset= (buf_area->width - area->width + 1) / 2;
+    size_t        dst_index = 0;
+    uint8_t       dst_shift = 4;  // Next pixel must be shift left 4 bit
+    Rle_context_t context   = {0};
+    uint8_t       dst_pixel;
+
+    if (!buffer_len) {
+        return;
+    }
+
+    context.buffer     = buffer;
+    context.buffer_len = buffer_len;
+
+    // Handle 'transparent' pixels
+    if (nb_skipped_bytes) {
+        context.nb_pix = nb_skipped_bytes * 2;
+        context.color  = 0xF;  // Background color, which is considered as transparent
+    }
+
+    dst += buf_area->y0 * buf_area->width / 2;
+    dst += buf_area->x0 / 2;
+    dst_pixel = *dst;
+
+    if (buf_area->x0 & 1) {
+        dst_shift = 0;
+    }
+    while (remaining_height) {
+        uint8_t nb_pix;
+
+        // if the context is empty, let's fill it
+        if (context.nb_pix == 0) {
+            get_next_pixels(&context, remaining_width);
+        }
+        // Write those pixels in the RAM buffer
+        nb_pix = context.nb_pix;
+        if (nb_pix > remaining_width) {
+            nb_pix = remaining_width;
+        }
+
+        // if color <= 0x0F it is a FILL command, else it is a COPY
+        if (context.color <= 0x0F) {
+            // Do we need to just skip transparent pixels?
+            if (context.color == 0x0F) {
+                dst[dst_index] = dst_pixel;
+                dst_index += nb_pix / 2;
+                if (nb_pix & 1) {
+                    dst_shift ^= 4;
+                    if (dst_shift) {
+                        ++dst_index;
+                    }
+                }
+                dst_pixel = dst[dst_index];
+                // FILL nb_pix pixels with context.color
+            }
+            else {
+                for (uint8_t i = 0; i < nb_pix; i++) {
+                    dst_pixel &= ~(0x0F << dst_shift);
+                    dst_pixel |= context.color << dst_shift;
+                    dst_shift ^= 4;
+                    // Do we need to go to next byte?
+                    if (dst_shift) {
+                        dst[dst_index] = dst_pixel;
+                        ++dst_index;
+                        dst_pixel = dst[dst_index];
+                    }
+                }
+            }
+        }
+        else {
+            uint8_t *pixels = context.pixels;
+            // LSB of context.color contains the offset of the pixels to copy
+            pixels += context.color & 0x0F;
+
+            // COPY nb_pix pixels from &context.pixels[i]
+            for (uint8_t i = 0; i < nb_pix; i++) {
+                uint8_t color = pixels[i];
+                // Handle transparency
+                if (color != 0x0F) {
+                    dst_pixel &= ~(0x0F << dst_shift);
+                    dst_pixel |= color << dst_shift;
+                }
+                dst_shift ^= 4;
+                // Do we need to go to next byte?
+                if (dst_shift) {
+                    dst[dst_index] = dst_pixel;
+                    ++dst_index;
+                    dst_pixel = dst[dst_index];
+                }
+            }
+            // Update offset of the pixels to copy
+            context.color += nb_pix;
+        }
+
+        // Take in account displayed pixels
+        context.nb_pix -= nb_pix;
+        remaining_width -= nb_pix;
+
+        // Have we reached the end of the line?
+        if (remaining_width == 0) {
+#ifdef SCREEN_SIZE_WALLET
+            // Width & Height are rotated 90° on Flex/Stax
+            remaining_width = area->height;
+#else   // SCREEN_SIZE_WALLET
+            remaining_width = area->width;
+#endif  // SCREEN_SIZE_WALLET
+
+            // Store last pixels
+            dst[dst_index] = dst_pixel;
+            // Start next line
+            dst_index = 0;
+            dst += buf_area->width / 2;
+            dst_pixel = dst[dst_index];
+            if (buf_area->x0 & 1) {
+                dst_shift = 0;
+            }
+            else {
+                dst_shift = 4;
+            }
+            --remaining_height;
+        }
+    }
+}
+
+/**
+ * @brief Uncompress a RLE-encoded glyph and draw it in a RAM buffer
+ *
+ * @param text_area area information about where to display the text
+ * @param buffer buffer of RLE-encoded data
+ * @param buffer_len length of buffer
+ * @param buf_area of the RAM buffer
+ * @param dst RAM buffer on which the glyph will be drawn
+ * @param nb_skipped_bytes number of bytes that was cropped
+ */
+
+static void nbgl_drawImageRle(nbgl_area_t *text_area,
+                              uint8_t     *buffer,
+                              uint32_t     buffer_len,
+                              nbgl_area_t *buf_area,
+                              uint8_t     *dst,
+                              uint8_t      nb_skipped_bytes)
+{
+    if (text_area->bpp == NBGL_BPP_4) {
+        nbgl_draw4BPPImageRle(text_area, buffer, buffer_len, buf_area, dst, nb_skipped_bytes);
+    }
+    else if (text_area->bpp == NBGL_BPP_1) {
+        nbgl_draw1BPPImageRle(text_area, buffer, buffer_len, buf_area, dst, nb_skipped_bytes);
+    }
+}
+
+static void pack_ram_buffer(nbgl_area_t *area, uint16_t width, uint16_t height, uint8_t *dst)
+{
+    uint8_t *src = dst;
+
+    if (area->bpp == NBGL_BPP_4) {
+        uint16_t bytes_per_line;
+        uint16_t skip;
+
+        area->x0 &= 0xFFFE;  // Make sure we are on a byte boundary
+        src += area->y0 * area->width / 2;
+        src += area->x0 / 2;
+        bytes_per_line = (width + 1) / 2;
+        skip           = (area->width + 1) / 2;
+
+        for (uint16_t y = 0; y < height; y++) {
+            memmove(dst, src, bytes_per_line);
+            dst += bytes_per_line;
+            src += skip;
+        }
+    }
+    else {
+        uint8_t src_pixel;
+        uint8_t src_shift;
+        uint8_t src_index;
+        uint8_t dst_pixel = 0;
+        uint8_t dst_shift = 7;
+
+        src += area->y0 * area->width / 8;
+        src += area->x0 / 8;
+        for (uint16_t y = 0; y < height; y++) {
+            src_shift = (7 - (area->x0 & 7));
+            src_pixel = *src;
+            src_index = 0;
+            for (uint16_t x = 0; x < width; x++) {
+                dst_pixel |= ((src_pixel >> src_shift) & 1) << dst_shift;
+                if (dst_shift == 0) {
+                    dst_shift = 8;
+                    *dst++    = dst_pixel;
+                    dst_pixel = 0;
+                }
+                --dst_shift;
+
+                if (src_shift == 0) {
+                    src_shift = 8;
+                    ++src_index;
+                    src_pixel = src[src_index];
+                }
+                --src_shift;
+            }
+            src += area->width / 8;
+        }
+        // Write last byte, if any
+        if (dst_shift != 7) {
+            *dst++ = dst_pixel;
+        }
+    }
+}
+
 /**
  * @brief This function draws the given single-line text, with the given parameters.
  *
@@ -549,6 +982,35 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
 #ifdef HAVE_UNICODE_SUPPORT
     nbgl_unicode_ctx_t *unicode_ctx = NULL;
 #endif  // HAVE_UNICODE_SUPPORT
+    // Area representing the RAM buffer and in which the glyphs will be drawn
+    nbgl_area_t buf_area = {0};
+    // ensure that the ramBuffer also used for image file decompression is big enough
+    // 4bpp: size of ram_buffer is (font->height * 2 * AVERAGE_CHAR_WIDTH) / 2
+    // 1bpp: size of ram_buffer is (font->height * 2 * AVERAGE_CHAR_WIDTH) / 8
+    CCASSERT(ram_buffer, (MAX_FONT_HEIGHT * AVERAGE_CHAR_WIDTH) <= GZLIB_UNCOMPRESSED_CHUNK);
+    // TODO Investigate why area->bpp is not always initialized correctly
+    buf_area.bpp = (nbgl_bpp_t) font->bpp;
+#ifdef SCREEN_SIZE_WALLET
+    // Width & Height are rotated 90° on Flex/Stax
+    buf_area.width  = (font->line_height + 7) & 0xFFF8;  // Modulo 8 is better for 1BPP
+    buf_area.height = 2 * AVERAGE_CHAR_WIDTH;
+    if (buf_area.bpp == NBGL_BPP_4) {
+        buf_area.backgroundColor = 0xF;  // This will be the transparent color
+    }
+    else {
+        buf_area.backgroundColor = 0;  // This will be the transparent color
+    }
+#ifdef BUILD_SCREENSHOTS
+    assert((buf_area.height * buf_area.width / 2) <= GZLIB_UNCOMPRESSED_CHUNK);
+#endif  // BUILD_SCREENSHOTS
+#else   // SCREEN_SIZE_WALLET
+    buf_area.width           = 2 * AVERAGE_CHAR_WIDTH;
+    buf_area.height          = font->line_height;
+    buf_area.backgroundColor = 0;  // This will be the transparent color
+#ifdef BUILD_SCREENSHOTS
+    assert((buf_area.height * buf_area.width / 8) <= GZLIB_UNCOMPRESSED_CHUNK);
+#endif  // BUILD_SCREENSHOTS
+#endif  // SCREEN_SIZE_WALLET
 
     LOG_DEBUG(DRAW_LOGGER,
               "nbgl_drawText: x0 = %d, y0 = %d, w = %d, h = %d, fontColor = %d, "
@@ -685,8 +1147,33 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
         // If char_byte_cnt = 0, call nbgl_frontDrawImageRle to let speculos notice
         // a space character was 'displayed'
         if (!char_byte_cnt || encoding == 1) {
-            nbgl_frontDrawImageRle(
-                &rectArea, char_buffer, char_byte_cnt, fontColor, nb_skipped_bytes);
+            // To be able to handle transparency, ramBuffer must be filled with background color
+            // => Fill ramBuffer with background color (0x0F for 4bpp & 0 for 1bpp)
+#ifdef SCREEN_SIZE_WALLET
+            if (buf_area.bpp == NBGL_BPP_4) {
+                memset(ramBuffer, 0xFF, (buf_area.height * buf_area.width / 2));
+            }
+            else {
+                memset(ramBuffer, 0x0, (buf_area.height * buf_area.width / 8));
+            }
+            //(X & Y are rotated 90° on Stax/Flex)
+            buf_area.x0 = char_y_min;
+            buf_area.y0 = AVERAGE_CHAR_WIDTH / 2;
+#else   // SCREEN_SIZE_WALLET
+            memset(ramBuffer, 0, (buf_area.height * buf_area.width / 8));
+            buf_area.x0 = AVERAGE_CHAR_WIDTH / 2;
+            buf_area.y0 = char_y_min;
+#endif  // SCREEN_SIZE_WALLET
+        // Draw that character in a RAM buffer
+            nbgl_drawImageRle(
+                &rectArea, char_buffer, char_byte_cnt, &buf_area, ramBuffer, nb_skipped_bytes);
+
+            // Now, draw this block into the real screen
+            if (char_byte_cnt) {
+                // Move the data at the beginning of RAM buffer, in a packed way
+                pack_ram_buffer(&buf_area, rectArea.height, rectArea.width, ramBuffer);
+                nbgl_frontDrawImage(&rectArea, ramBuffer, NO_TRANSFORMATION, fontColor);
+            }
         }
         else {
             nbgl_frontDrawImage(&rectArea, char_buffer, NO_TRANSFORMATION, fontColor);
