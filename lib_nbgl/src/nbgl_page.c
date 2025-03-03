@@ -264,7 +264,7 @@ nbgl_page_t *nbgl_pageDrawLedgerInfo(nbgl_layoutTouchCallback_t              onA
                                               .text2   = NULL,
                                               .text3   = NULL,
                                               .style   = LARGE_CASE_INFO,
-                                              .icon    = &C_Check_Circle_64px,
+                                              .icon    = &CHECK_CIRCLE_ICON,
                                               .offsetY = 0};
 
     layoutDescription.modal          = false;
