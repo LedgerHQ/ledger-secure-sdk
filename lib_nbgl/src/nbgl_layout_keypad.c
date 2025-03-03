@@ -41,6 +41,10 @@ enum {
 #define ENTRY_DIGITS_HEIGHT           64
 #define ENTRY_DIGITS_CONTAINER_HEIGHT 64
 #define INTER_ENTRY_DIGITS            12
+#elif defined(TARGET_APEX)
+#define ENTRY_DIGITS_HEIGHT           50
+#define ENTRY_DIGITS_CONTAINER_HEIGHT 28
+#define INTER_ENTRY_DIGITS            4
 #endif  // TARGETS
 
 /**********************
