@@ -538,6 +538,95 @@ static uint16_t get_bitmap_byte_cnt(const nbgl_font_t *font, uint8_t charId)
 }
 
 //=============================================================================
+#if 1  // TMP Wip stuff
+int save_png(char *framebuffer, char *fullPath, uint16_t width, uint16_t height);
+
+static void save_packed_picture(uint8_t *packed_buffer,
+                                uint16_t width,
+                                uint16_t height,
+                                uint16_t bpp,
+                                uint32_t unicode)
+{
+    char     filename[32];
+    uint8_t *buffer;
+    sprintf(filename, "toto_0x%X", unicode);
+    if ((buffer = calloc(width * height, 1)) == NULL) {
+        fprintf(stderr, "Can't allocate buffer!\n");
+        return;
+    }
+    if (bpp == NBGL_BPP_4) {
+        for (uint16_t y = 0; y < height; y++) {
+            for (uint16_t x = 0; x < width; x += 2) {
+                uint8_t double_pixel        = *packed_buffer++;
+                buffer[(y * width) + x + 0] = double_pixel >> 4;
+                buffer[(y * width) + x + 1] = double_pixel & 0x0F;
+            }
+        }
+    }
+    else {
+        for (uint16_t y = 0; y < height; y++) {
+            for (uint16_t x = 0; x < width; x += 8) {
+                uint8_t pixels = *packed_buffer++;
+                uint8_t msk    = 0x80;
+                for (uint16_t bit = 0; bit < 8; bit++, msk >>= 1) {
+                    uint8_t pixel = 0;
+                    if (pixels & msk) {
+                        pixel = 0xFF;
+                    }
+                    buffer[(y * width) + x + bit] = pixel;
+                }
+            }
+        }
+    }
+    save_png((char *) buffer, filename, width, height);
+    free(buffer);
+}
+
+static void save_ultrapacked_picture(uint8_t *packed_buffer,
+                                     uint16_t width,
+                                     uint16_t height,
+                                     uint16_t bpp,
+                                     uint32_t unicode)
+{
+    char     filename[32];
+    uint8_t *buffer;
+    sprintf(filename, "roro_0x%X", unicode);
+    if ((buffer = calloc(width * height, 1)) == NULL) {
+        fprintf(stderr, "Can't allocate buffer!\n");
+        return;
+    }
+    if (bpp == NBGL_BPP_4) {
+        for (uint16_t y = 0; y < height; y++) {
+            for (uint16_t x = 0; x < width; x += 2) {
+                uint8_t double_pixel        = *packed_buffer++;
+                buffer[(y * width) + x + 0] = double_pixel >> 4;
+                buffer[(y * width) + x + 1] = double_pixel & 0x0F;
+            }
+        }
+    }
+    else {
+        uint8_t pixels = *packed_buffer++;
+        uint8_t msk    = 0x80;
+        for (uint16_t y = 0; y < height; y++) {
+            for (uint16_t x = 0; x < width; x++) {
+                uint8_t pixel = 0;
+                if (pixels & msk) {
+                    pixel = 0xFF;
+                }
+                buffer[(y * width) + x] = pixel;
+                msk >>= 1;
+                if (!msk) {
+                    pixels = *packed_buffer++;
+                    msk    = 0x80;
+                }
+            }
+        }
+    }
+    save_png((char *) buffer, filename, width, height);
+    free(buffer);
+}
+#endif  // 1 TMP Wip stuff
+//=============================================================================
 
 /**
  * @brief Uncompress a 1BPP RLE-encoded glyph and draw it in a RAM buffer
@@ -1012,6 +1101,23 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
 #endif  // BUILD_SCREENSHOTS
 #endif  // SCREEN_SIZE_WALLET
 
+    // TMP Wip Stuff
+    const char *original_text = text;
+    // if (!strcmp(text, "Continue setting up using the Ledger Live app")) {
+    if (!strcmp(text, "Wrong word")) {
+        fprintf(stdout,
+                "nbgl_drawText: x0 = %d, y0 = %d, w = %d, h = %d, fontColor = %d, "
+                "backgroundColor=%d, fontId=%d, text = %s\n",
+                area->x0,
+                area->y0,
+                area->width,
+                area->height,
+                fontColor,
+                area->backgroundColor,
+                fontId,
+                text);
+    }
+
     LOG_DEBUG(DRAW_LOGGER,
               "nbgl_drawText: x0 = %d, y0 = %d, w = %d, h = %d, fontColor = %d, "
               "backgroundColor=%d, text = %s\n",
@@ -1147,6 +1253,24 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
         // If char_byte_cnt = 0, call nbgl_frontDrawImageRle to let speculos notice
         // a space character was 'displayed'
         if (!char_byte_cnt || encoding == 1) {
+            // if (!strcmp(original_text, "clock") && fontId == BAGL_FONT_INTER_SEMIBOLD_28px_1bpp)
+            // {
+            if (!strcmp(original_text, "Wrong word")) {
+                fprintf(stdout,
+                        "Rendering '%c' at X=%d, Y=%d, W=%d, H=%d, nb_skipped_bytes=%d\n",
+                        unicode,
+                        rectArea.x0,
+                        rectArea.y0,
+                        rectArea.width,
+                        rectArea.height,
+                        nb_skipped_bytes);
+                fprintf(stdout,
+                        "x_min=%d, x_max=%d, y_min=%d, y_max=%d\n",
+                        char_x_min,
+                        char_x_max,
+                        char_y_min,
+                        char_y_max);
+            }
             // To be able to handle transparency, ramBuffer must be filled with background color
             // => Fill ramBuffer with background color (0x0F for 4bpp & 0 for 1bpp)
 #ifdef SCREEN_SIZE_WALLET
@@ -1164,16 +1288,47 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
             buf_area.x0 = AVERAGE_CHAR_WIDTH / 2;
             buf_area.y0 = char_y_min;
 #endif  // SCREEN_SIZE_WALLET
-        // Draw that character in a RAM buffer
+#if 0
+            nbgl_frontDrawImageRle(
+                &rectArea, char_buffer, char_byte_cnt, fontColor, nb_skipped_bytes);
+#else
+            // Draw that character in a RAM buffer
             nbgl_drawImageRle(
                 &rectArea, char_buffer, char_byte_cnt, &buf_area, ramBuffer, nb_skipped_bytes);
-
+            // TMP Wip Stuff
+            static int saved      = 0;
+            static int ultrasaved = 0;
+            if (!strcmp(original_text, "Wrong word") && unicode == 'W' && rectArea.bpp == NBGL_BPP_4
+                && !saved) {
+                saved = 1;
+                fprintf(stdout,
+                        "Rendering '%c' at X=%d, Y=%d, W=%d, H=%d, nb_skipped_bytes=%d\n",
+                        unicode,
+                        rectArea.x0,
+                        rectArea.y0,
+                        rectArea.width,
+                        rectArea.height,
+                        nb_skipped_bytes);
+                fprintf(
+                    stdout, "ramBuffer: width=%d, height=%d\n", buf_area.width, buf_area.height);
+                fflush(stdout);
+                save_packed_picture(
+                    ramBuffer, buf_area.width, buf_area.height, rectArea.bpp, unicode);
+            }
             // Now, draw this block into the real screen
             if (char_byte_cnt) {
                 // Move the data at the beginning of RAM buffer, in a packed way
                 pack_ram_buffer(&buf_area, rectArea.height, rectArea.width, ramBuffer);
+                // TMP Wip Stuff
+                if (!strcmp(original_text, "Wrong word") && unicode == 'W'
+                    && rectArea.bpp == NBGL_BPP_4 && !ultrasaved) {
+                    ultrasaved = 1;
+                    save_ultrapacked_picture(
+                        ramBuffer, rectArea.height, rectArea.width, rectArea.bpp, unicode);
+                }
                 nbgl_frontDrawImage(&rectArea, ramBuffer, NO_TRANSFORMATION, fontColor);
             }
+#endif  // 0
         }
         else {
             nbgl_frontDrawImage(&rectArea, char_buffer, NO_TRANSFORMATION, fontColor);
