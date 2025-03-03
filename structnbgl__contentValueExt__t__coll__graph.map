@@ -1,6 +1,0 @@
-<map id="nbgl_contentValueExt_t" name="nbgl_contentValueExt_t">
-<area shape="rect" id="Node000001" title="This structure contains additions to a tag/value pair, to be able to build a screen to display these ..." alt="" coords="5,5,180,31"/>
-<area shape="rect" id="Node000002" href="$structnbgl__contentInfoList__s.html" title="This structure contains data to build a INFOS_LIST content." alt="" coords="9,93,177,119"/>
-<area shape="poly" id="edge2_Node000002_Node000001" title=" " alt="" coords="43,39,26,56,23,66,29,75,55,91,52,95,25,79,18,67,21,53,39,36"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="119,82,128,69,127,55,119,43,108,33,112,29,123,40,133,54,133,71,123,85"/>
-</map>
