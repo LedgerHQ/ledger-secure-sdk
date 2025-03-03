@@ -37,6 +37,8 @@
 #define INTER_DASHES 10
 #elif defined(TARGET_FLEX)
 #define INTER_DASHES 8
+#elif defined(TARGET_APEX)
+#define INTER_DASHES 8
 #endif  // TARGETS
 
 /**********************
@@ -522,6 +524,7 @@ static void draw_line(nbgl_line_t *obj, nbgl_obj_t *prevObj, bool computePositio
     }
     else {
         uint8_t mask;
+#if VERTICAL_ALIGNMENT == 4
         if (obj->thickness == 1) {
             mask = 0x1 << (obj->offset & 0x3);
         }
@@ -534,6 +537,20 @@ static void draw_line(nbgl_line_t *obj, nbgl_obj_t *prevObj, bool computePositio
         else if (obj->thickness == 4) {
             mask = 0xF;
         }
+#elif VERTICAL_ALIGNMENT == 8
+        if (obj->thickness == 1) {
+            mask = 0x1 << (obj->offset & 0x7);
+        }
+        else if (obj->thickness == 2) {
+            mask = 0x3 << ((obj->offset < 7) ? obj->offset : 6);
+        }
+        else if (obj->thickness == 3) {
+            mask = 0x7 << ((obj->offset < 6) ? obj->offset : 5);
+        }
+        else if (obj->thickness == 4) {
+            mask = 0xF << ((obj->offset < 5) ? obj->offset : 4);
+        }
+#endif  // VERTICAL_ALIGNMENT
         else {
             LOG_WARN(OBJ_LOGGER, "draw_line(), forbidden thickness = %d\n", obj->thickness);
             return;
@@ -1170,7 +1187,7 @@ static void draw_spinner(nbgl_spinner_t *obj, nbgl_obj_t *prevObj, bool computeP
     if (computePosition) {
         compute_position((nbgl_obj_t *) obj, prevObj);
     }
-    obj->obj.area.y0 &= ~0x3;
+    obj->obj.area.y0 &= ~(VERTICAL_ALIGNMENT - 1);
     LOG_DEBUG(OBJ_LOGGER, "draw_spinner(), x0 = %d, y0 = %d\n", obj->obj.area.x0, obj->obj.area.y0);
 
     // inherit background from parent
@@ -1186,14 +1203,16 @@ static void draw_spinner(nbgl_spinner_t *obj, nbgl_obj_t *prevObj, bool computeP
         rectArea.x0     = obj->obj.area.x0;
         rectArea.y0     = obj->obj.area.y0;
         rectArea.width  = 20;
-        rectArea.height = 4;
+        rectArea.height = VERTICAL_ALIGNMENT;
         nbgl_frontDrawHorizontalLine(&rectArea, 0x7, foreColor);  // top left
         rectArea.x0 = obj->obj.area.x0 + obj->obj.area.width - rectArea.width;
         nbgl_frontDrawHorizontalLine(&rectArea, 0x7, foreColor);  // top right
-        rectArea.y0 = obj->obj.area.y0 + obj->obj.area.height - 4;
-        nbgl_frontDrawHorizontalLine(&rectArea, 0xE, foreColor);  // bottom right
+        rectArea.y0 = obj->obj.area.y0 + obj->obj.area.height - VERTICAL_ALIGNMENT;
+        nbgl_frontDrawHorizontalLine(
+            &rectArea, 0x7 << (VERTICAL_ALIGNMENT - 3), foreColor);  // bottom right
         rectArea.x0 = obj->obj.area.x0;
-        nbgl_frontDrawHorizontalLine(&rectArea, 0xE, foreColor);  // bottom left
+        nbgl_frontDrawHorizontalLine(
+            &rectArea, 0x7 << (VERTICAL_ALIGNMENT - 3), foreColor);  // bottom left
         // draw vertical segments
         rectArea.x0              = obj->obj.area.x0;
         rectArea.y0              = obj->obj.area.y0;
