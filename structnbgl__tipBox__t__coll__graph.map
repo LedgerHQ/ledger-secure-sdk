@@ -1,7 +1,8 @@
 <map id="nbgl_tipBox_t" name="nbgl_tipBox_t">
-<area shape="rect" id="Node000001" title="The necessary parameters to build a tip&#45;box in first review page and the modal if this tip box is tou..." alt="" coords="37,181,148,207"/>
-<area shape="rect" id="Node000002" href="$structnbgl__contentInfoList__t.html" title="This structure contains data to build a INFOS_LIST content." alt="" coords="9,93,176,119"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="95,133,95,181,90,181,90,133"/>
-<area shape="rect" id="Node000003" href="$structnbgl__contentValueExt__t.html" title="This structure contains additions to a tag/value pair, to be able to build a screen to display these ..." alt="" coords="5,5,180,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="95,45,95,93,90,93,90,45"/>
+<area shape="rect" id="Node000001" title="The necessary parameters to build a tip&#45;box in first review page and the modal if this tip box is tou..." alt="" coords="5,93,116,119"/>
+<area shape="rect" id="Node000002" href="$structnbgl__contentInfoList__s.html" title="This structure contains data to build a INFOS_LIST content." alt="" coords="63,5,231,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="117,40,97,57,69,95,65,91,93,53,114,36"/>
+<area shape="rect" id="Node000003" href="$structnbgl__contentValueExt__t.html" title="This structure contains additions to a tag/value pair, to be able to build a screen to display these ..." alt="" coords="140,93,315,119"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="142,44,142,57,146,68,159,81,176,91,173,96,155,86,141,71,136,58,137,44"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="214,83,196,56,166,33,170,29,200,53,218,80"/>
 </map>
