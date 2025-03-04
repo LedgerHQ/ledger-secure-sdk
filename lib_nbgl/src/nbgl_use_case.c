@@ -1999,7 +1999,7 @@ static void displaySecurityReport(uint32_t set)
               + W3C_DESCRIPTION_MAX_LEN / 2;  // use the second half of tmpString for strings
 #ifdef NBGL_QRCODE
         // display a QR Code
-        nbgl_layoutQRCode_t qrCode = {.url      = tmpString,
+        nbgl_layoutQRCode_t qrCode = {.url      = destStr,
                                       .text1    = reviewWithWarnCtx.warning->reportUrl,
                                       .text2    = "Scan to view full report",
                                       .centered = true,
