@@ -113,20 +113,23 @@ int32_t app_storage_pwrite(const void *buf, uint32_t nbyte, uint32_t offset)
 {
     /* Input parameters verification */
     if (buf == NULL) {
-        return -1;
+        return APP_STORAGE_EINVAL;
     }
 
-    uint32_t size = offset + nbyte;
-    if (size >= APP_STORAGE_SIZE) {
-        return -1;
+    uint32_t max_offset = 0;
+    if (__builtin_add_overflow(offset, nbyte, &max_offset)) {
+        return APP_STORAGE_EINVAL;
+    }
+    if (max_offset >= APP_STORAGE_SIZE) {
+        return APP_STORAGE_EOVERFLOW;
     }
 
     /* Updating data */
     nvm_write((void *) &as.data[offset], (void *) buf, nbyte);
 
     /* Updating size if it increased */
-    if (as.header.size < size) {
-        nvm_write((void *) &as.header.size, (void *) &size, sizeof(size));
+    if (as.header.size < max_offset) {
+        nvm_write((void *) &as.header.size, (void *) &max_offset, sizeof(max_offset));
     }
     return nbyte;
 }
@@ -138,12 +141,15 @@ int32_t app_storage_pread(void *buf, uint32_t nbyte, uint32_t offset)
 {
     /* Input parameters verification */
     if (buf == NULL) {
-        return -1;
+        return APP_STORAGE_EINVAL;
     }
 
-    uint32_t size = offset + nbyte;
-    if (size > as.header.size) {
-        return -1;
+    uint32_t max_offset = 0;
+    if (__builtin_add_overflow(offset, nbyte, &max_offset)) {
+        return APP_STORAGE_EINVAL;
+    }
+    if (max_offset > as.header.size) {
+        return APP_STORAGE_EADDRNOTAVAIL;
     }
 
     /* Reading data */

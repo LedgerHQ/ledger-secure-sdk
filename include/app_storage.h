@@ -38,6 +38,11 @@
 ///<  Header structure version
 #define APP_STORAGE_HEADER_STRUCT_VERSION 1
 
+///< Error codes
+#define APP_STORAGE_EINVAL              -1  ///< Invalid argument
+#define APP_STORAGE_EADDRNOTAVAIL       -2  ///< Address not available for reading
+#define APP_STORAGE_EOVERFLOW           -3  ///< Value too large to be stored
+
 /**
  * @brief Structure defining the header of application storage header
  *
