@@ -128,10 +128,6 @@ WEAK void library_app_main(libargs_t *args)
 
                         common_app_init();
 
-#ifdef HAVE_NBGL
-                        nbgl_useCaseSpinner("Signing");
-#endif  // HAVE_NBGL
-
                         app_main();
                     }
                     break;
