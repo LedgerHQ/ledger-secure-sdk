@@ -17,6 +17,7 @@
 #include <stdint.h>  // uint*_t
 #include <string.h>  // memset, explicit_bzero
 
+#include "app_storage_internal.h"
 #include "os.h"
 #include "io.h"
 #include "ledger_assert.h"
@@ -39,8 +40,6 @@ WEAK void __attribute__((noreturn)) app_exit(void)
 {
     os_sched_exit(-1);
 }
-
-extern void app_storage_init(void);
 
 WEAK void common_app_init(void)
 {
