@@ -20,6 +20,8 @@
 #include "os_nvm.h"
 #include "os_pic.h"
 
+#define APP_STORAGE_ERASE_BLOCK_SIZE 256
+
 /* The storage consists of the system and the app parts */
 typedef struct __attribute__((packed)) app_storage_s {
     app_storage_header_t header;
@@ -41,6 +43,21 @@ static bool app_storage_is_initalized(void)
 }
 
 /**
+ * @brief resets system header
+ */
+static inline void system_header_reset(void)
+{
+    /* Starting with zero application data size */
+    app_storage_header_t header = {0};
+
+    memcpy(&header.tag, (void *) APP_STORAGE_TAG, APP_STORAGE_TAG_LEN);
+    header.struct_version = APP_STORAGE_HEADER_STRUCT_VERSION;
+    header.data_version   = 1;
+    header.properties = ((HAVE_APP_STORAGE_PROP_SETTINGS << 0) | (HAVE_APP_STORAGE_PROP_DATA << 1));
+    nvm_write((void *) &as.header, &header, sizeof(header));
+}
+
+/**
  * @brief initializes the header of application storage structure:
  *  - checks if it already initialized, if not:
  *  - sets "NVRA" tag
@@ -53,15 +70,26 @@ void app_storage_init(void)
     if (app_storage_is_initalized()) {
         return;
     }
+    system_header_reset();
+}
 
-    /* Starting with zero application data size */
-    app_storage_header_t header = {0};
+/**
+ * @brief resets and zeroes out application storage
+ */
+void app_storage_reset(void)
+{
+    system_header_reset();
 
-    memcpy(&header.tag, (void *) APP_STORAGE_TAG, APP_STORAGE_TAG_LEN);
-    header.struct_version = APP_STORAGE_HEADER_STRUCT_VERSION;
-    header.data_version   = 1;
-    header.properties = ((HAVE_APP_STORAGE_PROP_SETTINGS << 0) | (HAVE_APP_STORAGE_PROP_DATA << 1));
-    nvm_write((void *) &as.header, &header, sizeof(header));
+    uint8_t erase_buf[APP_STORAGE_ERASE_BLOCK_SIZE] = {0};
+    uint32_t offset = 0;
+    if (APP_STORAGE_SIZE > APP_STORAGE_ERASE_BLOCK_SIZE) {
+        for (; offset < APP_STORAGE_SIZE - APP_STORAGE_ERASE_BLOCK_SIZE; offset += APP_STORAGE_ERASE_BLOCK_SIZE) {
+            nvm_write((void *) &as.data[offset], (void *) erase_buf, APP_STORAGE_ERASE_BLOCK_SIZE);
+        }
+    }
+    if (APP_STORAGE_SIZE > offset) {
+        nvm_write((void *) &as.data[offset], (void *) erase_buf, APP_STORAGE_ERASE_BLOCK_SIZE - offset);
+    }
 }
 
 /**

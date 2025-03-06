@@ -74,4 +74,7 @@ int32_t app_storage_pwrite(const void *buf, uint32_t nbyte, uint32_t offset);
 void app_storage_set_data_version(uint32_t data_version);
 void app_storage_increment_data_version(void);
 
+/* Resets and zeroes out application storage */
+void app_storage_reset(void);
+
 #endif  // #ifndef HAVE_BOLOS
