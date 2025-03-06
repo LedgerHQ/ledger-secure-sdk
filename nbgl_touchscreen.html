@@ -82,7 +82,7 @@ Introduction</h1>
 <p>This chapter describes briefly how <b>NBGL</b> manages the touchscreen events and how to receive and process these events.</p>
 <h1><a class="anchor" id="touchscreen_mngt"></a>
 Touchscreen management</h1>
-<p>The low-level entry point of NBGL for Touchscreen management is <a class="el" href="nbgl__touch_8h.html#afc9d15935d82aad9b97f6b03983bfca9">nbgl_touchHandler()</a>. This function is supposed to be called periodically by the main scheduler to provide the current state and position of the finger on the Touchscreen.</p>
+<p>The low-level entry point of NBGL for Touchscreen management is <a class="el" href="nbgl__touch_8h.html#a5f059f6bf2b69dd09ef6fecdef013f0d">nbgl_touchHandler()</a>. This function is supposed to be called periodically by the main scheduler to provide the current state and position of the finger on the Touchscreen.</p>
 <p>The position is always useful when the <b>state</b> field of <a class="el" href="structnbgl__touchStatePosition__t.html">nbgl_touchStatePosition_t</a> is <a class="el" href="nbgl__types_8h.html#abef924ad7bd5b92ba15a19a0917aec80a5ef9a100ac8b4b8d6dec477c377b7901">PRESSED</a>, and also useful when the new state is <a class="el" href="nbgl__types_8h.html#abef924ad7bd5b92ba15a19a0917aec80aa38d18fe73a7fc82c112b6917d0b5cd0">RELEASED</a>.</p>
 <p>From a high-level perspective, every object can declare itself as "client" of touchscreen events.</p>
 <p>The low-level events are:</p>
@@ -96,7 +96,7 @@ Touchscreen management</h1>
 <div class="plantumlgraph">
 <img src="inline_umlgraph_3.png" />
 </div>
-<p>Typically, <a class="el" href="nbgl__touch_8h.html#afc9d15935d82aad9b97f6b03983bfca9">nbgl_touchHandler()</a> shall be called when <b>SEPROXYHAL_TAG_FINGER_EVENT</b> message is received by Bolos UX task or by Application's main task. </p>
+<p>Typically, <a class="el" href="nbgl__touch_8h.html#a5f059f6bf2b69dd09ef6fecdef013f0d">nbgl_touchHandler()</a> shall be called when <b>SEPROXYHAL_TAG_FINGER_EVENT</b> message is received by Bolos UX task or by Application's main task. </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 <!-- start footer part -->
