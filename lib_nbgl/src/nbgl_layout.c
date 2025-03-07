@@ -59,6 +59,8 @@
 #define QR_INTER_TEXTS_MARGIN            40
 #define SPINNER_TEXT_MARGIN              20
 #define SPINNER_INTER_TEXTS_MARGIN       20
+#define BAR_TEXT_MARGIN                  24
+#define BAR_INTER_TEXTS_MARGIN           16
 #elif defined(TARGET_FLEX)
 #define RADIO_CHOICE_HEIGHT              92
 #define FOOTER_HEIGHT                    80
@@ -79,6 +81,8 @@
 #define QR_INTER_TEXTS_MARGIN            28
 #define SPINNER_TEXT_MARGIN              24
 #define SPINNER_INTER_TEXTS_MARGIN       16
+#define BAR_TEXT_MARGIN                  24
+#define BAR_INTER_TEXTS_MARGIN           16
 #else  // TARGETS
 #error Undefined target
 #endif  // TARGETS
@@ -2219,7 +2223,7 @@ int nbgl_layoutAddProgressBar(nbgl_layout_t *layout,
     textArea->textAlignment = CENTER;
     textArea->fontId        = (subText != NULL) ? LARGE_MEDIUM_FONT : SMALL_REGULAR_FONT;
     textArea->wrapping      = true;
-    textArea->obj.alignmentMarginY = BAR_INTERVALE;
+    textArea->obj.alignmentMarginY = BAR_TEXT_MARGIN;
     textArea->obj.alignTo          = (nbgl_obj_t *) progress;
     textArea->obj.alignment        = BOTTOM_MIDDLE;
     textArea->obj.area.width       = AVAILABLE_WIDTH;
@@ -2242,7 +2246,7 @@ int nbgl_layoutAddProgressBar(nbgl_layout_t *layout,
         subTextArea->textAlignment        = CENTER;
         subTextArea->fontId               = SMALL_REGULAR_FONT;
         subTextArea->wrapping             = true;
-        subTextArea->obj.alignmentMarginY = BAR_INTERVALE;
+        subTextArea->obj.alignmentMarginY = BAR_INTER_TEXTS_MARGIN;
         subTextArea->obj.alignTo          = (nbgl_obj_t *) textArea;
         subTextArea->obj.alignment        = BOTTOM_MIDDLE;
         subTextArea->obj.area.width       = AVAILABLE_WIDTH;

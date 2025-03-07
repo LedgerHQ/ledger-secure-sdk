@@ -101,9 +101,9 @@ extern "C" {
 #define PROGRESSBAR_WIDTH  120
 #define PROGRESSBAR_HEIGHT 12
 #if defined(TARGET_STAX)
-#define PROGRESSBAR_ALIGNMENT_MARGIN_Y 40
+#define PROGRESSBAR_ALIGNMENT_MARGIN_Y 24
 #elif defined(TARGET_FLEX)
-#define PROGRESSBAR_ALIGNMENT_MARGIN_Y 44
+#define PROGRESSBAR_ALIGNMENT_MARGIN_Y 32
 #endif  // TARGETS
 
 // width & height for radio button
