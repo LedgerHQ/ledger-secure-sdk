@@ -2169,10 +2169,12 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
  * subtext if needed.
  *
  * @param layout the current layout
- * @param text text to draw under the spinner
+ * @param text text to draw under the progress bar
  * @param subText text to draw under the text (can be NULL)
- * @param percentage initial percentage position, zero by default.
- * @return - 2 partial color refresh needed
+ * @param percentage initial percentage position.
+ * @return - -1 An error occurred
+ *         - 2 partial color refresh needed
+ *
  */
 int nbgl_layoutAddProgressBar(nbgl_layout_t *layout,
                               const char    *text,
@@ -2200,8 +2202,7 @@ int nbgl_layoutAddProgressBar(nbgl_layout_t *layout,
     container->obj.alignment  = CENTER;
 
     // Create progressbar
-    progress                       = (nbgl_progress_bar_t *) nbgl_objPoolGet(PROGRESS_BAR,
-                                                       ((nbgl_layoutInternal_t *) layout)->layer);
+    progress = (nbgl_progress_bar_t *) nbgl_objPoolGet(PROGRESS_BAR, layoutInt->layer);
     progress->foregroundColor      = BLACK;
     progress->withBorder           = true;
     progress->state                = percentage;
@@ -2273,10 +2274,11 @@ int nbgl_layoutAddProgressBar(nbgl_layout_t *layout,
  * @brief Update an existing progress Bar (must be the only object of the layout)
  *
  * @param layout the current layout
- * @param text text to draw under the spinner
+ * @param text text to draw under the progress bar
  * @param subText text to draw under the text (can be NULL)
  * @param percentage progress bar percentage.
- * @return - 0 if no refresh needed
+ * @return - -1 An error occurred
+ *         - 0 if no refresh needed
  *         - 1 if partial B&W refresh needed
  *         - 2 if partial color refresh needed
  */
