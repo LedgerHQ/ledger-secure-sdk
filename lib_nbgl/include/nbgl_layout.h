@@ -606,11 +606,6 @@ nbgl_layout_t *nbgl_layoutGet(const nbgl_layoutDescription_t *description);
 int nbgl_layoutAddCenteredInfo(nbgl_layout_t *layout, const nbgl_layoutCenteredInfo_t *info);
 int nbgl_layoutAddContentCenter(nbgl_layout_t *layout, const nbgl_contentCenter_t *info);
 int nbgl_layoutAddLeftContent(nbgl_layout_t *layout, const nbgl_layoutLeftContent_t *info);
-// int nbgl_layoutAddProgressBar(nbgl_layout_t *layout, const nbgl_layoutProgressBar_t *barLayout);
-int nbgl_layoutAddProgressBar(nbgl_layout_t *layout,
-                              const char    *text,
-                              const char    *subText,
-                              uint8_t        percentage);
 int nbgl_layoutUpdateProgressBar(nbgl_layout_t *layout,
                                  const char    *text,
                                  const char    *subText,
@@ -673,6 +668,10 @@ int nbgl_layoutAddProgressIndicator(nbgl_layout_t *layout,
                                     bool           withBack,
                                     uint8_t        backToken,
                                     tune_index_e   tuneId);
+int nbgl_layoutAddProgressBar(nbgl_layout_t *layout,
+                              const char    *text,
+                              const char    *subText,
+                              uint8_t        percentage);
 int nbgl_layoutAddSpinner(nbgl_layout_t *layout,
                           const char    *text,
                           const char    *subText,
@@ -691,6 +690,7 @@ int nbgl_layoutAddText(nbgl_layout_t                  *layout,
                        const char                     *text,
                        const char                     *subText,
                        nbgl_contentCenteredInfoStyle_t style);
+int nbgl_layoutAddProgressBar(nbgl_layout_t *layout, const nbgl_layoutProgressBar_t *barLayout);
 int nbgl_layoutAddNavigation(nbgl_layout_t *layout, nbgl_layoutNavigation_t *info);
 int nbgl_layoutAddMenuList(nbgl_layout_t *layout, nbgl_layoutMenuList_t *list);
 #endif  // HAVE_SE_TOUCH
