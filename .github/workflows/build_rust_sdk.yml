@@ -9,7 +9,7 @@ jobs:
         name: Build Rust SDK
         runs-on: ubuntu-latest
         container:
-            image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
+            image: ghcr.io/apaillier-ledger/ledger-app-builder/ledger-app-builder:latest
         strategy:
             matrix:
                 target: ["nanox", "nanosplus", "stax", "flex"]
