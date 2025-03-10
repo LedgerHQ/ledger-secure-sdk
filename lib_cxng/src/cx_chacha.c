@@ -36,7 +36,7 @@
 static const uint8_t constants[16] = "expand 32-byte k";
 
 /* Chacha-20 quarter round function */
-static void cx_chacha_quarter_round(uint32_t *a, uint32_t *b, uint32_t *c, uint32_t *d)
+STATIC void cx_chacha_quarter_round(uint32_t *a, uint32_t *b, uint32_t *c, uint32_t *d)
 {
     *a = PLUS(*a, *b);
     *d = ROTATE(XOR(*d, *a), 16);
@@ -177,74 +177,3 @@ end:
     return error;
 }
 #endif  // HAVE_CHACHA
-
-#ifdef UNIT_TESTING
-#include <stdarg.h>
-#include <cmocka.h>
-
-static void test_chacha_round(void **state)
-{
-    (void) state;
-
-    uint32_t state_array[16]    = {0x61707865,
-                                   0x3320646e,
-                                   0x79622d32,
-                                   0x6b206574,
-                                   0x03020100,
-                                   0x07060504,
-                                   0x0b0a0908,
-                                   0x0f0e0d0c,
-                                   0x13121110,
-                                   0x17161514,
-                                   0x1b1a1918,
-                                   0x1f1e1d1c,
-                                   0x00000001,
-                                   0x09000000,
-                                   0x4a000000,
-                                   0x00000000};
-    uint32_t expected_array[16] = {0x837778ab,
-                                   0xe238d763,
-                                   0xa67ae21e,
-                                   0x5950bb2f,
-                                   0xc4f2d0c7,
-                                   0xfc62bb2f,
-                                   0x8fa018fc,
-                                   0x3f5ec7b7,
-                                   0x335271c2,
-                                   0xf29489f3,
-                                   0xeabda8fc,
-                                   0x82e46ebd,
-                                   0xd19c12b4,
-                                   0xb04e16de,
-                                   0x9e83d0cb,
-                                   0x4e3c50a2};
-    for (int i = 0; i < 10; i++) {
-        cx_chacha_quarter_round(
-            &state_array[0], &state_array[4], &state_array[8], &state_array[12]);
-        cx_chacha_quarter_round(
-            &state_array[1], &state_array[5], &state_array[9], &state_array[13]);
-        cx_chacha_quarter_round(
-            &state_array[2], &state_array[6], &state_array[10], &state_array[14]);
-        cx_chacha_quarter_round(
-            &state_array[3], &state_array[7], &state_array[11], &state_array[15]);
-
-        cx_chacha_quarter_round(
-            &state_array[0], &state_array[5], &state_array[10], &state_array[15]);
-        cx_chacha_quarter_round(
-            &state_array[1], &state_array[6], &state_array[11], &state_array[12]);
-        cx_chacha_quarter_round(
-            &state_array[2], &state_array[7], &state_array[8], &state_array[13]);
-        cx_chacha_quarter_round(
-            &state_array[3], &state_array[4], &state_array[9], &state_array[14]);
-    }
-
-    assert_memory_equal(state_array, expected_array, sizeof(state_array));
-}
-
-int main(void)
-{
-    const struct CMUnitTest tests[] = {cmocka_unit_test(test_chacha_round)};
-
-    return cmocka_run_group_tests(tests, NULL, NULL);
-}
-#endif  // UNIT_TESTING
