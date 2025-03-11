@@ -6,7 +6,7 @@ on:
 
 jobs:
     test_build_rust:
-        name: Build all Rust apps
+        name: Build all Rust apps with the reusable workflow
         uses: LedgerHQ/ledger-device-rust-sdk/.github/workflows/reusable_build_all_apps.yml@y333/update_ci
         with:
             c_sdk_branch: ${{ github.head_ref }}
