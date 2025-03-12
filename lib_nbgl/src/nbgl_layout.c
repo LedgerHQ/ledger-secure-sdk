@@ -2185,6 +2185,7 @@ int nbgl_layoutAddProgressBar(nbgl_layout_t *layout,
     nbgl_container_t      *container;
     nbgl_text_area_t      *textArea;
     nbgl_progress_bar_t   *progress;
+    uint16_t               height_nearest_multiple_of_8 = 0;
 
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddProgressBar():\n");
     if (layout == NULL) {
@@ -2194,7 +2195,7 @@ int nbgl_layoutAddProgressBar(nbgl_layout_t *layout,
     // First Create Container :
     container = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
     // progressbar + text + subText
-    container->nbChildren = 3;
+    container->nbChildren = (subText != NULL) ? 3 : 2;
     container->children   = nbgl_containerPoolGet(container->nbChildren, layoutInt->layer);
 
     container->obj.area.width = AVAILABLE_WIDTH;
@@ -2214,15 +2215,20 @@ int nbgl_layoutAddProgressBar(nbgl_layout_t *layout,
     // set this new progressbar as child of the container
     container->children[0] = (nbgl_obj_t *) progress;
 
+    // The height of containers must be a multiple of eight :
+    height_nearest_multiple_of_8 = PROGRESSBAR_HEIGHT + 4;
+    if (height_nearest_multiple_of_8 % 8 != 0) {
+        height_nearest_multiple_of_8 += 8 - (height_nearest_multiple_of_8 % 8);
+    }
     // update container height
-    container->obj.area.height += PROGRESSBAR_HEIGHT;
+    container->obj.area.height += (height_nearest_multiple_of_8);
 
     // create text area
     textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
     textArea->textColor     = BLACK;
     textArea->text          = PIC(text);
     textArea->textAlignment = CENTER;
-    textArea->fontId        = (subText != NULL) ? LARGE_MEDIUM_FONT : SMALL_REGULAR_FONT;
+    textArea->fontId        = LARGE_MEDIUM_FONT;
     textArea->wrapping      = true;
     textArea->obj.alignmentMarginY = BAR_TEXT_MARGIN;
     textArea->obj.alignTo          = (nbgl_obj_t *) progress;
@@ -2232,8 +2238,13 @@ int nbgl_layoutAddProgressBar(nbgl_layout_t *layout,
         textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
     textArea->style = NO_STYLE;
 
+    // The height of containers must be a multiple of eight :
+    height_nearest_multiple_of_8 = (textArea->obj.alignmentMarginY + textArea->obj.area.height) + 4;
+    if (height_nearest_multiple_of_8 % 8 != 0) {
+        height_nearest_multiple_of_8 += 8 - (height_nearest_multiple_of_8 % 8);
+    }
     // update container height
-    container->obj.area.height += textArea->obj.alignmentMarginY + textArea->obj.area.height;
+    container->obj.area.height += (height_nearest_multiple_of_8);
 
     // set this text as child of the container
     container->children[1] = (nbgl_obj_t *) textArea;
@@ -2257,9 +2268,14 @@ int nbgl_layoutAddProgressBar(nbgl_layout_t *layout,
                                                                  subTextArea->wrapping);
         subTextArea->style                = NO_STYLE;
 
+        // The height of containers must be a multiple of eight :
+        height_nearest_multiple_of_8
+            = (subTextArea->obj.alignmentMarginY + subTextArea->obj.area.height) + 4;
+        if (height_nearest_multiple_of_8 % 8 != 0) {
+            height_nearest_multiple_of_8 += 8 - (height_nearest_multiple_of_8 % 8);
+        }
         // update container height
-        container->obj.area.height
-            += subTextArea->obj.alignmentMarginY + subTextArea->obj.area.height;
+        container->obj.area.height += (height_nearest_multiple_of_8);
 
         // set thissub-text as child of the container
         container->children[2] = (nbgl_obj_t *) subTextArea;
