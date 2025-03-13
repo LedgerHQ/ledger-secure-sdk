@@ -97,15 +97,6 @@ extern "C" {
 #define SPINNER_HEIGHT 48
 #endif  // TARGETS
 
-// width & height for progress bar
-#define PROGRESSBAR_WIDTH  120
-#define PROGRESSBAR_HEIGHT 12
-#if defined(TARGET_STAX)
-#define PROGRESSBAR_ALIGNMENT_MARGIN_Y 28
-#elif defined(TARGET_FLEX)
-#define PROGRESSBAR_ALIGNMENT_MARGIN_Y 32
-#endif  // TARGETS
-
 // width & height for radio button
 #if defined(TARGET_STAX)
 #define RADIO_WIDTH  32
