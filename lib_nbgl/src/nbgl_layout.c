@@ -61,6 +61,7 @@
 #define SPINNER_INTER_TEXTS_MARGIN       20
 #define BAR_TEXT_MARGIN                  24
 #define BAR_INTER_TEXTS_MARGIN           16
+#define PROGRESSBAR_ALIGNMENT_MARGIN_Y   28
 #elif defined(TARGET_FLEX)
 #define RADIO_CHOICE_HEIGHT              92
 #define FOOTER_HEIGHT                    80
@@ -83,9 +84,14 @@
 #define SPINNER_INTER_TEXTS_MARGIN       16
 #define BAR_TEXT_MARGIN                  24
 #define BAR_INTER_TEXTS_MARGIN           16
+#define PROGRESSBAR_ALIGNMENT_MARGIN_Y   32
 #else  // TARGETS
 #error Undefined target
 #endif  // TARGETS
+
+// width & height for progress bar
+#define PROGRESSBAR_WIDTH  120
+#define PROGRESSBAR_HEIGHT 12
 
 // refresh period of the spinner, in ms
 #define SPINNER_REFRESH_PERIOD 400
@@ -2185,7 +2191,6 @@ int nbgl_layoutAddProgressBar(nbgl_layout_t *layout,
     nbgl_container_t      *container;
     nbgl_text_area_t      *textArea;
     nbgl_progress_bar_t   *progress;
-    uint16_t               height_nearest_multiple_of_8 = 0;
 
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddProgressBar():\n");
     if (layout == NULL) {
@@ -2204,24 +2209,18 @@ int nbgl_layoutAddProgressBar(nbgl_layout_t *layout,
 
     // Create progressbar
     progress = (nbgl_progress_bar_t *) nbgl_objPoolGet(PROGRESS_BAR, layoutInt->layer);
-    progress->foregroundColor      = BLACK;
-    progress->withBorder           = true;
-    progress->state                = percentage;
-    progress->obj.area.width       = PROGRESSBAR_WIDTH;
-    progress->obj.area.height      = PROGRESSBAR_HEIGHT;
-    progress->obj.alignment        = TOP_MIDDLE;
-    progress->obj.alignmentMarginY = PROGRESSBAR_ALIGNMENT_MARGIN_Y;
+    progress->foregroundColor = BLACK;
+    progress->withBorder      = true;
+    progress->state           = percentage;
+    progress->obj.area.width  = PROGRESSBAR_WIDTH;
+    progress->obj.area.height = PROGRESSBAR_HEIGHT;
+    progress->obj.alignment   = TOP_MIDDLE;
 
     // set this new progressbar as child of the container
     container->children[0] = (nbgl_obj_t *) progress;
 
-    // The height of containers must be a multiple of eight :
-    height_nearest_multiple_of_8 = PROGRESSBAR_HEIGHT + 4;
-    if (height_nearest_multiple_of_8 % 8 != 0) {
-        height_nearest_multiple_of_8 += 8 - (height_nearest_multiple_of_8 % 8);
-    }
     // update container height
-    container->obj.area.height += (height_nearest_multiple_of_8);
+    container->obj.area.height = progress->obj.alignmentMarginY + progress->obj.area.height;
 
     // create text area
     textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
@@ -2238,13 +2237,8 @@ int nbgl_layoutAddProgressBar(nbgl_layout_t *layout,
         textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
     textArea->style = NO_STYLE;
 
-    // The height of containers must be a multiple of eight :
-    height_nearest_multiple_of_8 = (textArea->obj.alignmentMarginY + textArea->obj.area.height) + 4;
-    if (height_nearest_multiple_of_8 % 8 != 0) {
-        height_nearest_multiple_of_8 += 8 - (height_nearest_multiple_of_8 % 8);
-    }
     // update container height
-    container->obj.area.height += (height_nearest_multiple_of_8);
+    container->obj.area.height += textArea->obj.alignmentMarginY + textArea->obj.area.height;
 
     // set this text as child of the container
     container->children[1] = (nbgl_obj_t *) textArea;
@@ -2268,18 +2262,15 @@ int nbgl_layoutAddProgressBar(nbgl_layout_t *layout,
                                                                  subTextArea->wrapping);
         subTextArea->style                = NO_STYLE;
 
-        // The height of containers must be a multiple of eight :
-        height_nearest_multiple_of_8
-            = (subTextArea->obj.alignmentMarginY + subTextArea->obj.area.height) + 4;
-        if (height_nearest_multiple_of_8 % 8 != 0) {
-            height_nearest_multiple_of_8 += 8 - (height_nearest_multiple_of_8 % 8);
-        }
         // update container height
-        container->obj.area.height += (height_nearest_multiple_of_8);
+        container->obj.area.height
+            += subTextArea->obj.alignmentMarginY + subTextArea->obj.area.height;
 
         // set thissub-text as child of the container
         container->children[2] = (nbgl_obj_t *) subTextArea;
     }
+    // The height of containers must be a multiple of eight
+    container->obj.area.height = (container->obj.area.height + 7) & 0xFFF8;
 
     layoutAddObject(layoutInt, (nbgl_obj_t *) container);
 
