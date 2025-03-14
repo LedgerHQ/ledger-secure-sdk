@@ -148,6 +148,7 @@ void app_dogecoinSignTransaction(bool blind,
         pairs[0].extension          = &dAppExtension;
         dAppExtension.aliasType     = INFO_LIST_ALIAS;
         dAppExtension.infolist      = &dAppInfoList;
+        dAppExtension.backText      = "My title";
         dAppInfoList.nbInfos        = 3;
         dAppInfoList.infoTypes      = dAppsInfoTypes;
         dAppInfoList.infoContents   = dAppsInfoValues;

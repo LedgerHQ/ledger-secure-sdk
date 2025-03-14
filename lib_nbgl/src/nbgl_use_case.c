@@ -1285,9 +1285,11 @@ static void displayFullValuePage(const char                   *backText,
                                  const char                   *aliasText,
                                  const nbgl_contentValueExt_t *extension)
 {
+    const char *modalTitle
+        = (extension->backText != NULL) ? PIC(extension->backText) : PIC(backText);
     if (extension->aliasType == INFO_LIST_ALIAS) {
         genericContext.currentInfos = extension->infolist;
-        displayInfosListModal(PIC(backText), extension->infolist, true);
+        displayInfosListModal(modalTitle, extension->infolist, true);
     }
     else {
         nbgl_layoutDescription_t layoutDescription = {.modal            = true,
@@ -1298,7 +1300,7 @@ static void displayFullValuePage(const char                   *backText,
                                                       .separationLine     = false,
                                                       .backAndText.token  = 0,
                                                       .backAndText.tuneId = TUNE_TAP_CASUAL,
-                                                      .backAndText.text   = PIC(backText)};
+                                                      .backAndText.text   = modalTitle};
         genericContext.modalLayout                 = nbgl_layoutGet(&layoutDescription);
         // add header with the tag part of the pair, to go back
         nbgl_layoutAddHeader(genericContext.modalLayout, &headerDesc);
