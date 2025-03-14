@@ -29,6 +29,9 @@ jobs:
           STAX=1 cmake -Bbuild -H. && make -C build && CTEST_OUTPUT_ON_FAILURE=1 make -C build test
           cd ../lib_ux_sync/
           cmake -Bbuild -H. && make -C build && make -C build test
+          cd ../app_storage/
+          cmake -Bbuild -H. && make -C build && make -C build test
+
 
       - name: Generate code coverage
         run: |
@@ -50,7 +53,12 @@ jobs:
           lcov --directory . -b "$(realpath build/)" --add-tracefile coverage.base --add-tracefile coverage.capture -o coverage.info && \
           lcov --directory . -b "$(realpath build/)" --remove coverage.info '*/unit-tests/*' -o coverage.info && \
           genhtml coverage.info -o coverage
-
+          cd ../app_storage/
+          lcov --directory . -b "$(realpath build/)" --capture --initial -o coverage.base && \
+          lcov --rc lcov_branch_coverage=1 --directory . -b "$(realpath build/)" --capture -o coverage.capture && \
+          lcov --directory . -b "$(realpath build/)" --add-tracefile coverage.base --add-tracefile coverage.capture -o coverage.info && \
+          lcov --directory . -b "$(realpath build/)" --remove coverage.info '*/unit-tests/*' -o coverage.info && \
+          genhtml coverage.info -o coverage
 
       - uses: actions/upload-artifact@v4
         with:
@@ -61,7 +69,7 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./unit-tests/lib_standard_app/coverage.info,./unit-tests/lib_nbgl/coverage.info,./unit-tests/lib_ux_sync/coverage.info
+          files: ./unit-tests/lib_standard_app/coverage.info,./unit-tests/lib_nbgl/coverage.info,./unit-tests/lib_ux_sync/coverage.info,./unit-tests/app_storage/coverage.info
           flags: unittests
           name: codecov-app-boilerplate
           fail_ci_if_error: true
