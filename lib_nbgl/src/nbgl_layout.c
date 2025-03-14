@@ -59,6 +59,9 @@
 #define QR_INTER_TEXTS_MARGIN            40
 #define SPINNER_TEXT_MARGIN              20
 #define SPINNER_INTER_TEXTS_MARGIN       20
+#define BAR_TEXT_MARGIN                  24
+#define BAR_INTER_TEXTS_MARGIN           16
+#define PROGRESSBAR_ALIGNMENT_MARGIN_Y   28
 #elif defined(TARGET_FLEX)
 #define RADIO_CHOICE_HEIGHT              92
 #define FOOTER_HEIGHT                    80
@@ -79,9 +82,16 @@
 #define QR_INTER_TEXTS_MARGIN            28
 #define SPINNER_TEXT_MARGIN              24
 #define SPINNER_INTER_TEXTS_MARGIN       16
+#define BAR_TEXT_MARGIN                  24
+#define BAR_INTER_TEXTS_MARGIN           16
+#define PROGRESSBAR_ALIGNMENT_MARGIN_Y   32
 #else  // TARGETS
 #error Undefined target
 #endif  // TARGETS
+
+// width & height for progress bar
+#define PROGRESSBAR_WIDTH  120
+#define PROGRESSBAR_HEIGHT 12
 
 // refresh period of the spinner, in ms
 #define SPINNER_REFRESH_PERIOD 400
@@ -2162,75 +2172,195 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
 
 /**
  * @brief Creates an area in main panel to display a progress bar, with a title text and a
- * description under the progress
+ * subtext if needed.
  *
  * @param layout the current layout
- * @param barLayout structure giving the description of progress bar
- * @return >= 0 if OK
+ * @param text text to draw under the progress bar
+ * @param subText text to draw under the text (can be NULL)
+ * @param percentage initial percentage position.
+ * @return - -1 An error occurred
+ *         - 2 partial color refresh needed
+ *
  */
-int nbgl_layoutAddProgressBar(nbgl_layout_t *layout, const nbgl_layoutProgressBar_t *barLayout)
+int nbgl_layoutAddProgressBar(nbgl_layout_t *layout,
+                              const char    *text,
+                              const char    *subText,
+                              uint8_t        percentage)
 {
     nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
+    nbgl_container_t      *container;
+    nbgl_text_area_t      *textArea;
     nbgl_progress_bar_t   *progress;
 
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddProgressBar():\n");
     if (layout == NULL) {
         return -1;
     }
-    if (barLayout->text != NULL) {
-        nbgl_text_area_t *textArea;
 
-        textArea                  = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA,
-                                                        ((nbgl_layoutInternal_t *) layout)->layer);
-        textArea->textColor       = BLACK;
-        textArea->text            = PIC(barLayout->text);
-        textArea->textAlignment   = MID_LEFT;
-        textArea->fontId          = SMALL_REGULAR_FONT;
-        textArea->wrapping        = true;
-        textArea->obj.area.width  = AVAILABLE_WIDTH;
-        textArea->obj.area.height = nbgl_getTextHeightInWidth(
-            textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
-        textArea->style                = NO_STYLE;
-        textArea->obj.alignment        = NO_ALIGNMENT;
-        textArea->obj.alignmentMarginX = BORDER_MARGIN;
-        textArea->obj.alignmentMarginY = BORDER_MARGIN;
-        layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
-    }
-    progress                       = (nbgl_progress_bar_t *) nbgl_objPoolGet(PROGRESS_BAR,
-                                                       ((nbgl_layoutInternal_t *) layout)->layer);
-    progress->foregroundColor      = BLACK;
-    progress->withBorder           = true;
-    progress->state                = barLayout->percentage;
-    progress->obj.area.width       = 120;
-    progress->obj.area.height      = 12;
-    progress->obj.alignment        = NO_ALIGNMENT;
-    progress->obj.alignmentMarginX = (AVAILABLE_WIDTH - progress->obj.area.width) / 2;
-    progress->obj.alignmentMarginY = BORDER_MARGIN;
-    layoutAddObject(layoutInt, (nbgl_obj_t *) progress);
+    // First Create Container :
+    container = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
+    // progressbar + text + subText
+    container->nbChildren = (subText != NULL) ? 3 : 2;
+    container->children   = nbgl_containerPoolGet(container->nbChildren, layoutInt->layer);
 
-    if (barLayout->subText != NULL) {
+    container->obj.area.width = AVAILABLE_WIDTH;
+    container->layout         = VERTICAL;
+    container->obj.alignment  = CENTER;
+
+    // Create progressbar
+    progress = (nbgl_progress_bar_t *) nbgl_objPoolGet(PROGRESS_BAR, layoutInt->layer);
+    progress->foregroundColor = BLACK;
+    progress->withBorder      = true;
+    progress->state           = percentage;
+    progress->obj.area.width  = PROGRESSBAR_WIDTH;
+    progress->obj.area.height = PROGRESSBAR_HEIGHT;
+    progress->obj.alignment   = TOP_MIDDLE;
+
+    // set this new progressbar as child of the container
+    container->children[0] = (nbgl_obj_t *) progress;
+
+    // update container height
+    container->obj.area.height = progress->obj.alignmentMarginY + progress->obj.area.height;
+
+    // create text area
+    textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+    textArea->textColor     = BLACK;
+    textArea->text          = PIC(text);
+    textArea->textAlignment = CENTER;
+    textArea->fontId        = LARGE_MEDIUM_FONT;
+    textArea->wrapping      = true;
+    textArea->obj.alignmentMarginY = BAR_TEXT_MARGIN;
+    textArea->obj.alignTo          = (nbgl_obj_t *) progress;
+    textArea->obj.alignment        = BOTTOM_MIDDLE;
+    textArea->obj.area.width       = AVAILABLE_WIDTH;
+    textArea->obj.area.height      = nbgl_getTextHeightInWidth(
+        textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
+    textArea->style = NO_STYLE;
+
+    // update container height
+    container->obj.area.height += textArea->obj.alignmentMarginY + textArea->obj.area.height;
+
+    // set this text as child of the container
+    container->children[1] = (nbgl_obj_t *) textArea;
+
+    if (subText != NULL) {
         nbgl_text_area_t *subTextArea;
-
-        subTextArea = (nbgl_text_area_t *) nbgl_objPoolGet(
-            TEXT_AREA, ((nbgl_layoutInternal_t *) layout)->layer);
-        subTextArea->textColor            = LIGHT_GRAY;
-        subTextArea->text                 = PIC(barLayout->subText);
-        subTextArea->textAlignment        = MID_LEFT;
+        // create sub-text area
+        subTextArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+        subTextArea->textColor = BLACK;
+        subTextArea->text      = PIC(subText);
+        subTextArea->textAlignment        = CENTER;
         subTextArea->fontId               = SMALL_REGULAR_FONT;
         subTextArea->wrapping             = true;
+        subTextArea->obj.alignmentMarginY = BAR_INTER_TEXTS_MARGIN;
+        subTextArea->obj.alignTo          = (nbgl_obj_t *) textArea;
+        subTextArea->obj.alignment        = BOTTOM_MIDDLE;
         subTextArea->obj.area.width       = AVAILABLE_WIDTH;
         subTextArea->obj.area.height      = nbgl_getTextHeightInWidth(subTextArea->fontId,
                                                                  subTextArea->text,
                                                                  subTextArea->obj.area.width,
                                                                  subTextArea->wrapping);
         subTextArea->style                = NO_STYLE;
-        subTextArea->obj.alignment        = NO_ALIGNMENT;
-        subTextArea->obj.alignmentMarginX = BORDER_MARGIN;
-        subTextArea->obj.alignmentMarginY = BORDER_MARGIN;
-        layoutAddObject(layoutInt, (nbgl_obj_t *) subTextArea);
+
+        // update container height
+        container->obj.area.height
+            += subTextArea->obj.alignmentMarginY + subTextArea->obj.area.height;
+
+        // set thissub-text as child of the container
+        container->children[2] = (nbgl_obj_t *) subTextArea;
+    }
+    // The height of containers must be a multiple of eight
+    container->obj.area.height = (container->obj.area.height + 7) & 0xFFF8;
+
+    layoutAddObject(layoutInt, (nbgl_obj_t *) container);
+
+    return 2;
+}
+
+/**
+ * @brief Update an existing progress Bar (must be the only object of the layout)
+ *
+ * @param layout the current layout
+ * @param text text to draw under the progress bar
+ * @param subText text to draw under the text (can be NULL)
+ * @param percentage progress bar percentage.
+ * @return - -1 An error occurred
+ *         - 0 if no refresh needed
+ *         - 1 if partial B&W refresh needed
+ *         - 2 if partial color refresh needed
+ */
+int nbgl_layoutUpdateProgressBar(nbgl_layout_t *layout,
+                                 const char    *text,
+                                 const char    *subText,
+                                 uint8_t        percentage)
+{
+    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
+    nbgl_container_t      *container;
+    nbgl_text_area_t      *textArea;
+    nbgl_progress_bar_t   *progress;
+    int                    ret = 0;
+
+    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutUpdateProgressBar():\n");
+    if ((layout == NULL) || (layoutInt->container->nbChildren == 0)) {
+        return -1;
     }
 
-    return 0;
+    container = (nbgl_container_t *) layoutInt->container->children[0];
+    if ((container->obj.type != CONTAINER) || (container->nbChildren < 2)) {
+        return -1;
+    }
+
+    progress = (nbgl_progress_bar_t *) container->children[0];
+    if (progress->obj.type != PROGRESS_BAR) {
+        return -1;
+    }
+
+    // if percentage is different, redraw
+    if (progress->state != percentage) {
+        progress->partialRedraw = true;
+        progress->state         = percentage;
+        nbgl_objDraw((nbgl_obj_t *) progress);
+        ret = 1;
+    }
+
+    // update text area if necessary
+    textArea = (nbgl_text_area_t *) container->children[1];
+    if (textArea->obj.type != TEXT_AREA) {
+        return -1;
+    }
+
+    const char *newText    = PIC(text);
+    size_t      newTextLen = strlen(newText);
+    // if text is different, redraw (don't use strcmp because it crashes with Rust SDK)
+    if ((newTextLen != strlen(textArea->text)) || memcmp(textArea->text, newText, newTextLen)) {
+        textArea->text = newText;
+        nbgl_objDraw((nbgl_obj_t *) textArea);
+        ret = 2;
+    }
+
+    if (subText != NULL) {
+        nbgl_text_area_t *subTextArea;
+
+        if (container->nbChildren != 3) {
+            return -1;
+        }
+
+        subTextArea = (nbgl_text_area_t *) container->children[2];
+        if (subTextArea->obj.type != TEXT_AREA) {
+            return -1;
+        }
+        const char *newSubText    = PIC(subText);
+        size_t      newSubTextLen = strlen(newSubText);
+        // if text is different, redraw
+        if ((newSubTextLen != strlen(subTextArea->text))
+            || memcmp(subTextArea->text, newSubText, newSubTextLen)) {
+            subTextArea->text = newSubText;
+            nbgl_objDraw((nbgl_obj_t *) subTextArea);
+            ret = 2;
+        }
+    }
+
+    return ret;
 }
 
 /**
