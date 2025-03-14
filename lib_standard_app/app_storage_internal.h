@@ -13,7 +13,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *****************************************************************************/
+#ifdef HAVE_APP_STORAGE
 
 #pragma once
 
+#include "app_storage.h"
+
+/* The storage consists of the system and the app parts */
+typedef struct __attribute__((packed)) app_storage_s {
+    app_storage_header_t header;
+    uint8_t              data[APP_STORAGE_SIZE];
+} app_storage_t;
+
 void app_storage_init(void);
+
+#endif /* #ifdef HAVE_APP_STORAGE */

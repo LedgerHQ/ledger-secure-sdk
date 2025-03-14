@@ -19,11 +19,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#ifndef HAVE_BOLOS
-/* "app_storage_data.h" needs to be created in all apps including this file */
-#include "app_storage_data.h"
-#endif  // HAVE_BOLOS
-
 ///< bit to indicate in properties that the application storage contains settings
 #define APP_STORAGE_PROP_SETTINGS (1 << 0)
 ///< bit to indicate in properties that the application contains data
@@ -42,6 +37,9 @@
 #define APP_STORAGE_EINVAL              -1  ///< Invalid argument
 #define APP_STORAGE_EADDRNOTAVAIL       -2  ///< Address not available for reading
 #define APP_STORAGE_EOVERFLOW           -3  ///< Value too large to be stored
+
+/// Initial app data storage version
+#define APP_STORAGE_INITIAL_APP_DATA_VERSION 1
 
 /**
  * @brief Structure defining the header of application storage header

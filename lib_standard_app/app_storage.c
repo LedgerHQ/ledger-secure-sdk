@@ -17,18 +17,19 @@
 #ifdef HAVE_APP_STORAGE
 #include <string.h>
 #include "app_storage.h"
+#include "app_storage_internal.h"
 #include "os_nvm.h"
 #include "os_pic.h"
 
 #define APP_STORAGE_ERASE_BLOCK_SIZE 256
 
-/* The storage consists of the system and the app parts */
-typedef struct __attribute__((packed)) app_storage_s {
-    app_storage_header_t header;
-    uint8_t              data[APP_STORAGE_SIZE];
-} app_storage_t;
+#if !defined(TEST)
+#define CONST const
+#else
+#define CONST
+#endif
 
-const app_storage_t app_storage_real __attribute__((section(".storage_section")));
+CONST app_storage_t app_storage_real __attribute__((section(".storage_section")));
 #define as (*(volatile app_storage_t *) PIC(&app_storage_real))
 
 /**
@@ -52,7 +53,7 @@ static inline void system_header_reset(void)
 
     memcpy(&header.tag, (void *) APP_STORAGE_TAG, APP_STORAGE_TAG_LEN);
     header.struct_version = APP_STORAGE_HEADER_STRUCT_VERSION;
-    header.data_version   = 1;
+    header.data_version   = APP_STORAGE_INITIAL_APP_DATA_VERSION;
     header.properties = ((HAVE_APP_STORAGE_PROP_SETTINGS << 0) | (HAVE_APP_STORAGE_PROP_DATA << 1));
     nvm_write((void *) &as.header, &header, sizeof(header));
 }
@@ -88,7 +89,7 @@ void app_storage_reset(void)
         }
     }
     if (APP_STORAGE_SIZE > offset) {
-        nvm_write((void *) &as.data[offset], (void *) erase_buf, APP_STORAGE_ERASE_BLOCK_SIZE - offset);
+        nvm_write((void *) &as.data[offset], (void *) erase_buf, APP_STORAGE_SIZE - offset);
     }
 }
 
@@ -123,6 +124,10 @@ void app_storage_increment_data_version(void)
 {
     uint32_t data_version = as.header.data_version;
     data_version++;
+    if (data_version == 0) {
+        /* wraparound  - TODO: what do we do in this case ? */
+        data_version = APP_STORAGE_INITIAL_APP_DATA_VERSION;
+    }
     nvm_write((void *) &as.header.data_version, (void *) &data_version, sizeof(data_version));
 }
 
@@ -143,12 +148,16 @@ int32_t app_storage_pwrite(const void *buf, uint32_t nbyte, uint32_t offset)
     if (buf == NULL) {
         return APP_STORAGE_EINVAL;
     }
-
+    if (nbyte == 0) {
+        return APP_STORAGE_EINVAL;
+    }
     uint32_t max_offset = 0;
     if (__builtin_add_overflow(offset, nbyte, &max_offset)) {
         return APP_STORAGE_EINVAL;
     }
-    if (max_offset >= APP_STORAGE_SIZE) {
+
+    /* Checking the app storage boundaries */
+    if (max_offset > APP_STORAGE_SIZE) {
         return APP_STORAGE_EOVERFLOW;
     }
 
@@ -171,11 +180,15 @@ int32_t app_storage_pread(void *buf, uint32_t nbyte, uint32_t offset)
     if (buf == NULL) {
         return APP_STORAGE_EINVAL;
     }
-
+    if (nbyte == 0) {
+        return APP_STORAGE_EINVAL;
+    }
     uint32_t max_offset = 0;
     if (__builtin_add_overflow(offset, nbyte, &max_offset)) {
         return APP_STORAGE_EINVAL;
     }
+
+    /* Checking if the data has been already written */
     if (max_offset > as.header.size) {
         return APP_STORAGE_EADDRNOTAVAIL;
     }
