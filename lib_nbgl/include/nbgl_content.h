@@ -140,6 +140,8 @@ typedef struct {
                               ///< only used if aliasType is @ref NO_ALIAS_TYPE
     const char *title;  ///< if not NULL and aliasType is @ref QR_CODE_ALIAS, is used as title of
                         ///< the QR Code
+    const char
+        *backText;  ///< used as title of the popping page, if not NULL, otherwise "item" is used
     const struct nbgl_contentInfoList_s *infolist;   ///< if aliasType is INFO_LIST_ALIAS
     nbgl_contentValueAliasType_t         aliasType;  ///< type of alias
 } nbgl_contentValueExt_t;
