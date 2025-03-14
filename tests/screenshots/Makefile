@@ -63,6 +63,7 @@ TARGET_DEFINES += \
                        HAVE_BAGL_FONT_INTER_REGULAR_24PX \
                        HAVE_BAGL_FONT_INTER_SEMIBOLD_24PX \
                        HAVE_BAGL_FONT_INTER_MEDIUM_32PX \
+                       HAVE_BAGL_FONT_INTER_SEMIBOLD_24PX_1BPP \
                        SCREEN_SIZE_WALLET
 
 TARGET_ID           := 0x33200004
