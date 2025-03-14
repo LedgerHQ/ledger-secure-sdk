@@ -2299,7 +2299,6 @@ int nbgl_layoutUpdateProgressBar(nbgl_layout_t *layout,
     nbgl_text_area_t      *textArea;
     nbgl_progress_bar_t   *progress;
     int                    ret = 0;
-    UNUSED(subText);
 
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutUpdateProgressBar():\n");
     if ((layout == NULL) || (layoutInt->container->nbChildren == 0)) {
