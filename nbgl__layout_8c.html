@@ -189,6 +189,10 @@ Macros</h2></td></tr>
 <tr class="separator:a1e7d4a6f3495d999221f17de16cb749b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0b01b8532d837dd5c5196a7d7bdc0c2c" id="r_a0b01b8532d837dd5c5196a7d7bdc0c2c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout_8c.html#a0b01b8532d837dd5c5196a7d7bdc0c2c">TAG_VALUE_ICON_WIDTH</a>&#160;&#160;&#160;32</td></tr>
 <tr class="separator:a0b01b8532d837dd5c5196a7d7bdc0c2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acd21097cbf356497c15c0e2465b14356" id="r_acd21097cbf356497c15c0e2465b14356"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout_8c.html#acd21097cbf356497c15c0e2465b14356">PROGRESSBAR_WIDTH</a>&#160;&#160;&#160;120</td></tr>
+<tr class="separator:acd21097cbf356497c15c0e2465b14356"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a15fde6bd19824fd452e3b79387173958" id="r_a15fde6bd19824fd452e3b79387173958"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout_8c.html#a15fde6bd19824fd452e3b79387173958">PROGRESSBAR_HEIGHT</a>&#160;&#160;&#160;12</td></tr>
+<tr class="separator:a15fde6bd19824fd452e3b79387173958"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6ebbc26dc50a906ce700e5ff448879f1" id="r_a6ebbc26dc50a906ce700e5ff448879f1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout_8c.html#a6ebbc26dc50a906ce700e5ff448879f1">SPINNER_REFRESH_PERIOD</a>&#160;&#160;&#160;400</td></tr>
 <tr class="separator:a6ebbc26dc50a906ce700e5ff448879f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0841e8a5c54a43a8c4897b695bc99288" id="r_a0841e8a5c54a43a8c4897b695bc99288"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout_8c.html#a0841e8a5c54a43a8c4897b695bc99288">HOLD_TO_APPROVE_STEP_PERCENT</a>&#160;&#160;&#160;(25)</td></tr>
@@ -276,9 +280,12 @@ Functions</h2></td></tr>
 <tr class="memitem:a06073279a7143cc0ee836a67c9b9d61f" id="r_a06073279a7143cc0ee836a67c9b9d61f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout_8c.html#a06073279a7143cc0ee836a67c9b9d61f">nbgl_layoutAddTagValueList</a> (<a class="el" href="nbgl__layout_8h.html#a8c06300795d2ce7f2a5c59b7c8fe4c01">nbgl_layout_t</a> *layout, const <a class="el" href="nbgl__layout_8h.html#ae280e4fad6eed7f4911e2e236b486b9b">nbgl_layoutTagValueList_t</a> *list)</td></tr>
 <tr class="memdesc:a06073279a7143cc0ee836a67c9b9d61f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a list of [tag,value] pairs.  <br /></td></tr>
 <tr class="separator:a06073279a7143cc0ee836a67c9b9d61f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a62eee07aa5dbf823780420a31807fa13" id="r_a62eee07aa5dbf823780420a31807fa13"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout_8c.html#a62eee07aa5dbf823780420a31807fa13">nbgl_layoutAddProgressBar</a> (<a class="el" href="nbgl__layout_8h.html#a8c06300795d2ce7f2a5c59b7c8fe4c01">nbgl_layout_t</a> *layout, const <a class="el" href="structnbgl__layoutProgressBar__t.html">nbgl_layoutProgressBar_t</a> *barLayout)</td></tr>
-<tr class="memdesc:a62eee07aa5dbf823780420a31807fa13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates an area in main panel to display a progress bar, with a title text and a description under the progress.  <br /></td></tr>
-<tr class="separator:a62eee07aa5dbf823780420a31807fa13"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac6b9ddd4e2ccf6f207bc8258fb9fa890" id="r_ac6b9ddd4e2ccf6f207bc8258fb9fa890"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout_8c.html#ac6b9ddd4e2ccf6f207bc8258fb9fa890">nbgl_layoutAddProgressBar</a> (<a class="el" href="nbgl__layout_8h.html#a8c06300795d2ce7f2a5c59b7c8fe4c01">nbgl_layout_t</a> *layout, const char *text, const char *subText, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> percentage)</td></tr>
+<tr class="memdesc:ac6b9ddd4e2ccf6f207bc8258fb9fa890"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates an area in main panel to display a progress bar, with a title text and a subtext if needed.  <br /></td></tr>
+<tr class="separator:ac6b9ddd4e2ccf6f207bc8258fb9fa890"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3a7ad58e0ff63d09dd97d485b0a43c33" id="r_a3a7ad58e0ff63d09dd97d485b0a43c33"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout_8c.html#a3a7ad58e0ff63d09dd97d485b0a43c33">nbgl_layoutUpdateProgressBar</a> (<a class="el" href="nbgl__layout_8h.html#a8c06300795d2ce7f2a5c59b7c8fe4c01">nbgl_layout_t</a> *layout, const char *text, const char *subText, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> percentage)</td></tr>
+<tr class="memdesc:a3a7ad58e0ff63d09dd97d485b0a43c33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update an existing progress Bar (must be the only object of the layout)  <br /></td></tr>
+<tr class="separator:a3a7ad58e0ff63d09dd97d485b0a43c33"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4cba828d9278495fbac092fa94dc382e" id="r_a4cba828d9278495fbac092fa94dc382e"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout_8c.html#a4cba828d9278495fbac092fa94dc382e">nbgl_layoutAddSeparationLine</a> (<a class="el" href="nbgl__layout_8h.html#a8c06300795d2ce7f2a5c59b7c8fe4c01">nbgl_layout_t</a> *layout)</td></tr>
 <tr class="memdesc:a4cba828d9278495fbac092fa94dc382e"><td class="mdescLeft">&#160;</td><td class="mdescRight">adds a separation line on bottom of the last added item  <br /></td></tr>
 <tr class="separator:a4cba828d9278495fbac092fa94dc382e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -337,7 +344,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l00147">147</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l00157">157</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -353,7 +360,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l00146">146</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l00156">156</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -421,6 +428,38 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a15fde6bd19824fd452e3b79387173958" name="a15fde6bd19824fd452e3b79387173958"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a15fde6bd19824fd452e3b79387173958">&#9670;&#160;</a></span>PROGRESSBAR_HEIGHT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PROGRESSBAR_HEIGHT&#160;&#160;&#160;12</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l00094">94</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+
+</div>
+</div>
+<a id="acd21097cbf356497c15c0e2465b14356" name="acd21097cbf356497c15c0e2465b14356"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acd21097cbf356497c15c0e2465b14356">&#9670;&#160;</a></span>PROGRESSBAR_WIDTH</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PROGRESSBAR_WIDTH&#160;&#160;&#160;120</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l00093">93</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+
+</div>
+</div>
 <a id="a6ebbc26dc50a906ce700e5ff448879f1" name="a6ebbc26dc50a906ce700e5ff448879f1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6ebbc26dc50a906ce700e5ff448879f1">&#9670;&#160;</a></span>SPINNER_REFRESH_PERIOD</h2>
 
@@ -433,7 +472,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l00087">87</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l00097">97</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -471,7 +510,7 @@ Functions</h2></td></tr>
 <tr><td class="fieldname"><a id="a92b50b586ee1adc2610e3479c05fa836a0ac7387617c50f6782df15f7feb84e25" name="a92b50b586ee1adc2610e3479c05fa836a0ac7387617c50f6782df15f7feb84e25"></a>NB_ITEM_TYPES&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l00097">97</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l00107">107</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -540,7 +579,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l00572">572</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l00582">582</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -579,7 +618,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l00599">599</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l00609">609</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -641,7 +680,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01292">1292</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01302">1302</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -681,7 +720,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02262">2262</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02392">2392</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -721,7 +760,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01688">1688</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01698">1698</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -761,7 +800,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01983">1983</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01993">1993</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -801,7 +840,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the size of the area if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01748">1748</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01758">1758</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -841,7 +880,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>height of the control if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02732">2732</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02862">2862</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -895,7 +934,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>height of the control if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02392">2392</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02522">2522</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -935,7 +974,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>height of the control if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02445">2445</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02575">2575</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -975,7 +1014,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02006">2006</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02016">2016</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1022,7 +1061,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01469">1469</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01479">1479</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1062,7 +1101,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01770">1770</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01780">1780</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1116,7 +1155,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02364">2364</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02494">2494</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1156,12 +1195,12 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the height of the control if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01266">1266</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01276">1276</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
-<a id="a62eee07aa5dbf823780420a31807fa13" name="a62eee07aa5dbf823780420a31807fa13"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a62eee07aa5dbf823780420a31807fa13">&#9670;&#160;</a></span>nbgl_layoutAddProgressBar()</h2>
+<a id="ac6b9ddd4e2ccf6f207bc8258fb9fa890" name="ac6b9ddd4e2ccf6f207bc8258fb9fa890"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac6b9ddd4e2ccf6f207bc8258fb9fa890">&#9670;&#160;</a></span>nbgl_layoutAddProgressBar()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1175,8 +1214,20 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="structnbgl__layoutProgressBar__t.html">nbgl_layoutProgressBar_t</a> *&#160;</td>
-          <td class="paramname"><em>barLayout</em>&#160;</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>text</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>subText</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td>
+          <td class="paramname"><em>percentage</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1186,17 +1237,22 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Creates an area in main panel to display a progress bar, with a title text and a description under the progress. </p>
+<p>Creates an area in main panel to display a progress bar, with a title text and a subtext if needed. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">layout</td><td>the current layout </td></tr>
-    <tr><td class="paramname">barLayout</td><td>structure giving the description of progress bar </td></tr>
+    <tr><td class="paramname">text</td><td>text to draw under the progress bar </td></tr>
+    <tr><td class="paramname">subText</td><td>text to draw under the text (can be NULL) </td></tr>
+    <tr><td class="paramname">percentage</td><td>initial percentage position. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>- -1 An error occurred<ul>
+<li>2 partial color refresh needed </li>
+</ul>
+</dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02171">2171</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02185">2185</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1265,7 +1321,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the height of the control if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l03430">3430</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l03560">3560</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1305,7 +1361,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>height of the control if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01860">1860</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01870">1870</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1345,7 +1401,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01591">1591</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01601">1601</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1374,7 +1430,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02242">2242</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02372">2372</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1428,7 +1484,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l03461">3461</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l03591">3591</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1496,7 +1552,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>height of the control if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02419">2419</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02549">2549</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1536,7 +1592,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>height of the control if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01431">1431</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01441">1441</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1597,7 +1653,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01184">1184</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01194">1194</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1637,7 +1693,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>height of the control if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01357">1357</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01367">1367</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1677,7 +1733,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02027">2027</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02037">2037</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1724,7 +1780,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>height of the control if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01397">1397</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01407">1407</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1783,7 +1839,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>height of the control if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01517">1517</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01527">1527</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1847,7 +1903,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>height of the control if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01414">1414</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01424">1424</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1901,7 +1957,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01221">1221</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01231">1231</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1941,7 +1997,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the height of the bar if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01318">1318</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01328">1328</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1981,7 +2037,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>height of the control if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l03130">3130</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l03260">3260</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -2010,7 +2066,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>a pointer to the corresponding layout </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l03644">3644</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l03774">3774</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -2039,7 +2095,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>a pointer to the corresponding layout </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01095">1095</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01105">1105</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -2068,7 +2124,66 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l03675">3675</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l03805">3805</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+
+</div>
+</div>
+<a id="a3a7ad58e0ff63d09dd97d485b0a43c33" name="a3a7ad58e0ff63d09dd97d485b0a43c33"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3a7ad58e0ff63d09dd97d485b0a43c33">&#9670;&#160;</a></span>nbgl_layoutUpdateProgressBar()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int nbgl_layoutUpdateProgressBar </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="nbgl__layout_8h.html#a8c06300795d2ce7f2a5c59b7c8fe4c01">nbgl_layout_t</a> *&#160;</td>
+          <td class="paramname"><em>layout</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>text</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>subText</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td>
+          <td class="paramname"><em>percentage</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Update an existing progress Bar (must be the only object of the layout) </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">layout</td><td>the current layout </td></tr>
+    <tr><td class="paramname">text</td><td>text to draw under the progress bar </td></tr>
+    <tr><td class="paramname">subText</td><td>text to draw under the text (can be NULL) </td></tr>
+    <tr><td class="paramname">percentage</td><td>progress bar percentage. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>- -1 An error occurred<ul>
+<li>0 if no refresh needed</li>
+<li>1 if partial B&amp;W refresh needed</li>
+<li>2 if partial color refresh needed </li>
+</ul>
+</dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02292">2292</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -2126,7 +2241,7 @@ Functions</h2></td></tr>
 </ul>
 </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l03568">3568</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l03698">3698</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>

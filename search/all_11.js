@@ -55,9 +55,11 @@ var searchData=
   ['progress_20indicator_52',['Progress indicator',['../nbgl_layout.html#progress_indicator',1,'']]],
   ['progress_5fbar_53',['PROGRESS_BAR',['../nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7a973175b44e05078b44bd89ad7efd11a5',1,'nbgl_types.h']]],
   ['progressandback_54',['progressAndBack',['../structnbgl__layoutHeader__t.html#a8f7c22e8623d7147a0215dd71ff5fb83',1,'nbgl_layoutHeader_t']]],
-  ['progressbarobj_55',['progressBarObj',['../structgenericObj__t.html#afbfd3b65581ec27e93ff63ebe4074dff',1,'genericObj_t']]],
-  ['progressindicator_56',['progressIndicator',['../structnbgl__pageMultiScreensDescription__s.html#ab5733fc8113f7ba5e9891cb97bf4a295',1,'nbgl_pageMultiScreensDescription_s']]],
-  ['progressive_5findicator_57',['PROGRESSIVE_INDICATOR',['../nbgl__obj_8h.html#adb9bc07f2a625e9062861df71f4ad78cad2faa3b333b9a333c833cc576699e41f',1,'nbgl_obj.h']]],
-  ['providermessage_58',['providerMessage',['../structnbgl__warning__t.html#a5762c212a9013f5aad2fc9ecbe2b5944',1,'nbgl_warning_t']]],
-  ['ptr_59',['ptr',['../structbuffer__t.html#a0477d73e0c041cc3cf557c4fdd091931',1,'buffer_t']]]
+  ['progressbar_5fheight_55',['PROGRESSBAR_HEIGHT',['../nbgl__layout_8c.html#a15fde6bd19824fd452e3b79387173958',1,'nbgl_layout.c']]],
+  ['progressbar_5fwidth_56',['PROGRESSBAR_WIDTH',['../nbgl__layout_8c.html#acd21097cbf356497c15c0e2465b14356',1,'nbgl_layout.c']]],
+  ['progressbarobj_57',['progressBarObj',['../structgenericObj__t.html#afbfd3b65581ec27e93ff63ebe4074dff',1,'genericObj_t']]],
+  ['progressindicator_58',['progressIndicator',['../structnbgl__pageMultiScreensDescription__s.html#ab5733fc8113f7ba5e9891cb97bf4a295',1,'nbgl_pageMultiScreensDescription_s']]],
+  ['progressive_5findicator_59',['PROGRESSIVE_INDICATOR',['../nbgl__obj_8h.html#adb9bc07f2a625e9062861df71f4ad78cad2faa3b333b9a333c833cc576699e41f',1,'nbgl_obj.h']]],
+  ['providermessage_60',['providerMessage',['../structnbgl__warning__t.html#a5762c212a9013f5aad2fc9ecbe2b5944',1,'nbgl_warning_t']]],
+  ['ptr_61',['ptr',['../structbuffer__t.html#a0477d73e0c041cc3cf557c4fdd091931',1,'buffer_t']]]
 ];
