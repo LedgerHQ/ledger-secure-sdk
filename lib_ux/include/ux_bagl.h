@@ -353,9 +353,7 @@ extern ux_state_t G_ux;
 #else  // COMPLIANCE_UX_160
 
 extern ux_state_t        G_ux;
-#if !defined(APP_UX)
 extern bolos_ux_params_t G_ux_params;
-#endif  // !defined(APP_UX)
 
 /**
  * Initialize the user experience structure

@@ -9,7 +9,6 @@
 /* -                            UX DEFINITIONS                           - */
 /* ----------------------------------------------------------------------- */
 
-#if !defined(APP_UX)
 #if !defined(HAVE_BOLOS)
 
 // Enumeration of the UX events usable by the UX library.
@@ -100,7 +99,6 @@ SYSCALL void os_ux_result(bolos_ux_params_t *params PLENGTH(sizeof(bolos_ux_para
 // unprocessed messages are replied with a generic general status
 // when returning the application must send a general status (or continue its command flow)
 unsigned int os_ux_blocking(bolos_ux_params_t *params);
-#endif  // !defined(APP_UX)
 
 #ifdef HAVE_BLE
 SYSCALL void os_ux_set_status(unsigned int ux_id, unsigned int status);
