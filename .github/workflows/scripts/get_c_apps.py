@@ -5,12 +5,10 @@ import sys
 import json
 
 if len(sys.argv) != 2:
-    print("Usage: get_rust_apps.py <github_token>")
+    print("Usage: get_c_apps.py <github_token>")
     sys.exit(1)
 
 # Excluded Rust apps
-# app-kadena-legacy: has been replaced by app-kadena
-# app-pocket: does not build (Obsidians' Alamgu issue)
 excluded_apps = ["app-avalanche"]
 
 # Retrieve all public apps on LedgerHQ GitHub organization
