@@ -21,7 +21,7 @@ apps=gh.apps.filter(private=Condition.WITHOUT, archived=Condition.WITHOUT)
 c_apps = []
 # loop all apps in gh.apps
 for app in apps:
-    try: 
+    try:
         manifest = app.manifest
     except NoManifestException as e:
         pass
