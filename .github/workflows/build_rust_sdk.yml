@@ -29,4 +29,3 @@ jobs:
               run: |
                   export LEDGER_SDK_PATH=$GITHUB_WORKSPACE/c_sdk
                   cargo +$RUST_NIGHTLY build --target ${{ matrix.target }}
-                
