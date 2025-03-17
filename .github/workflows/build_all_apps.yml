@@ -62,28 +62,28 @@ jobs:
           path: sdk
           ref: ${{ inputs.sdk_branch }}
       - name: Build App for Nano X
-        if: contains(${{ matrix.apps.devices }}, nanox)
+        if: contains(matrix.apps.devices, 'nanox')
         run: |
           cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}          
           echo "Building for Nano X"
           make clean
           make -j TARGET=nanox BOLOS_SDK=$GITHUB_WORKSPACE/sdk
       - name: Build App for Nano S+
-        if: contains(${{ matrix.apps.devices }}, nanos+)
+        if: contains(matrix.apps.devices, 'nanos+')
         run: |
           cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}          
           echo "Building for Nano S+"
           make clean
           make -j TARGET=nanos2 BOLOS_SDK=$GITHUB_WORKSPACE/sdk
       - name: Build App for Stax
-        if: contains(${{ matrix.apps.devices }}, stax)
+        if: contains(matrix.apps.devices, 'stax')
         run: |
           cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}          
           echo "Building for Stax"
           make clean
           make -j TARGET=stax BOLOS_SDK=$GITHUB_WORKSPACE/sdk
       - name: Build App for Flex
-        if: contains(${{ matrix.apps.devices }}, flex)
+        if: contains(matrix.apps.devices, 'flex')
         run: |
           cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}          
           echo "Building for Flex"
