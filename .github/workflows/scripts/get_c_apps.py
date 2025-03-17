@@ -22,7 +22,7 @@ c_apps = []
 # loop all apps in gh.apps
 for app in apps:
     try: 
-        manifest = app.manifest    
+        manifest = app.manifest
     except NoManifestException as e:
         pass
     except GithubException as e:
