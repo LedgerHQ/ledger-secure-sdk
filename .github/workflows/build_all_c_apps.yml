@@ -1,4 +1,4 @@
-name: Build all apps on latest SDK
+name: Build all C apps on latest C SDK
 
 on:
   workflow_dispatch:

@@ -1,4 +1,4 @@
-name: Build Rust SDK
+name: Build Rust SDK on latest C SDK
 
 on:
   workflow_dispatch:
