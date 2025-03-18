@@ -13,6 +13,7 @@
 #if !defined(HAVE_BOLOS)
 
 typedef bolos_ux_public_t bolos_ux_t;
+
 // Structure that defines the parameters to exchange with the BOLOS UX application
 typedef struct bolos_ux_params_s {
     // Event identifier.
@@ -60,6 +61,9 @@ typedef struct bolos_ux_params_s {
             } pairing_ok;
         } pairing_status;  // sent in BOLOS_UX_ASYNCHMODAL_PAIRING_CANCEL message
 #endif                     // HAVE_BLE
+        struct {           // for BOLOS_UX_DELAY_LOCK command
+            uint32_t delay_ms;
+        } lock_delay;
     } u;
 #endif  // defined(HAVE_BLE) || defined(HAVE_KEYBOARD_UX)
 } bolos_ux_params_t;
