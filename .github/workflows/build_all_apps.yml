@@ -54,7 +54,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: LedgerHQ/${{ matrix.apps.app-name }}
-          submodules: true
+          submodules: recursive
           path: ${{ matrix.apps.app-name }}
       - name: Clone SDK
         uses: actions/checkout@v4
