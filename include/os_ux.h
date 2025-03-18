@@ -4,29 +4,15 @@
 #include "os_math.h"
 #include "os_types.h"
 #include "os_utils.h"
+#include "os_ux_id.h"
 
 /* ----------------------------------------------------------------------- */
 /* -                            UX DEFINITIONS                           - */
 /* ----------------------------------------------------------------------- */
 
-#if !defined(APP_UX)
 #if !defined(HAVE_BOLOS)
 
-// Enumeration of the UX events usable by the UX library.
-typedef enum bolos_ux_e {
-    BOLOS_UX_INITIALIZE = 0,
-    BOLOS_UX_EVENT,
-    BOLOS_UX_KEYBOARD,
-    BOLOS_UX_WAKE_UP,
-    BOLOS_UX_STATUS_BAR,
-
-    BOLOS_UX_VALIDATE_PIN,
-    BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST,  // ask the ux to display a modal to accept/reject the
-                                           // current pairing request
-    BOLOS_UX_ASYNCHMODAL_PAIRING_CANCEL,
-    BOLOS_UX_IO_RESET,
-    BOLOS_UX_LAST_ID,
-} bolos_ux_t;
+typedef bolos_ux_public_t bolos_ux_t;
 
 // Structure that defines the parameters to exchange with the BOLOS UX application
 typedef struct bolos_ux_params_s {
@@ -75,6 +61,9 @@ typedef struct bolos_ux_params_s {
             } pairing_ok;
         } pairing_status;  // sent in BOLOS_UX_ASYNCHMODAL_PAIRING_CANCEL message
 #endif                     // HAVE_BLE
+        struct {           // for BOLOS_UX_DELAY_LOCK command
+            uint32_t delay_ms;
+        } lock_delay;
     } u;
 #endif  // defined(HAVE_BLE) || defined(HAVE_KEYBOARD_UX)
 } bolos_ux_params_t;
@@ -100,7 +89,6 @@ SYSCALL void os_ux_result(bolos_ux_params_t *params PLENGTH(sizeof(bolos_ux_para
 // unprocessed messages are replied with a generic general status
 // when returning the application must send a general status (or continue its command flow)
 unsigned int os_ux_blocking(bolos_ux_params_t *params);
-#endif  // !defined(APP_UX)
 
 #ifdef HAVE_BLE
 SYSCALL void os_ux_set_status(unsigned int ux_id, unsigned int status);

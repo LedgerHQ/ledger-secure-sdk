@@ -231,13 +231,6 @@ extern u2f_service_t G_io_u2f;
  */
 
 /**
- * Wait until a UX call returns a definitve status. Handle all event packets in between
- */
-#if !defined(APP_UX)
-unsigned int os_ux_blocking(bolos_ux_params_t *params);
-#endif  // !defined(APP_UX)
-
-/**
  * Global type that enables to map memory onto the application zone instead of over the os for os
  * side
  */

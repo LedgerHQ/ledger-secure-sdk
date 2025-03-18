@@ -1576,7 +1576,6 @@ void os_registry_get(unsigned int app_idx, application_t *out_application_entry)
     return;
 }
 
-#if !defined(APP_UX)
 unsigned int os_ux(bolos_ux_params_t *params)
 {
     unsigned int parameters[2];
@@ -1584,7 +1583,6 @@ unsigned int os_ux(bolos_ux_params_t *params)
     parameters[1] = 0;
     return (unsigned int) SVC_Call(SYSCALL_os_ux_ID, parameters);
 }
-#endif  // !defined(APP_UX)
 
 void os_dashboard_mbx(uint32_t cmd, uint32_t param)
 {
