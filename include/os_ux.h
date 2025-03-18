@@ -4,6 +4,7 @@
 #include "os_math.h"
 #include "os_types.h"
 #include "os_utils.h"
+#include "os_ux_id.h"
 
 /* ----------------------------------------------------------------------- */
 /* -                            UX DEFINITIONS                           - */
@@ -11,22 +12,7 @@
 
 #if !defined(HAVE_BOLOS)
 
-// Enumeration of the UX events usable by the UX library.
-typedef enum bolos_ux_e {
-    BOLOS_UX_INITIALIZE = 0,
-    BOLOS_UX_EVENT,
-    BOLOS_UX_KEYBOARD,
-    BOLOS_UX_WAKE_UP,
-    BOLOS_UX_STATUS_BAR,
-
-    BOLOS_UX_VALIDATE_PIN,
-    BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST,  // ask the ux to display a modal to accept/reject the
-                                           // current pairing request
-    BOLOS_UX_ASYNCHMODAL_PAIRING_CANCEL,
-    BOLOS_UX_IO_RESET,
-    BOLOS_UX_LAST_ID,
-} bolos_ux_t;
-
+typedef bolos_ux_public_t bolos_ux_t;
 // Structure that defines the parameters to exchange with the BOLOS UX application
 typedef struct bolos_ux_params_s {
     // Event identifier.
