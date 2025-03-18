@@ -29,6 +29,9 @@ typedef enum bolos_ux_e {
     BOLOS_UX_ASYNCHMODAL_PAIRING_CANCEL,
     BOLOS_UX_IO_RESET,
     BOLOS_UX_LAST_ID,
+
+    BOLOS_UX_DELAY_LOCK = 20  // delay the power-off/lock timer (this ID is only valid with OS not
+                              // in CI mode, with API level 22)
 } bolos_ux_t;
 
 // Structure that defines the parameters to exchange with the BOLOS UX application
@@ -38,7 +41,6 @@ typedef struct bolos_ux_params_s {
     // length of parameters in the u union to be copied during the syscall.
     unsigned int len;
 
-#if defined(HAVE_BLE) || defined(HAVE_KEYBOARD_UX)
     union {
         // Structure for the lib ux.
 #if defined(HAVE_KEYBOARD_UX)
@@ -78,8 +80,10 @@ typedef struct bolos_ux_params_s {
             } pairing_ok;
         } pairing_status;  // sent in BOLOS_UX_ASYNCHMODAL_PAIRING_CANCEL message
 #endif                     // HAVE_BLE
+        struct {           // for BOLOS_UX_DELAY_LOCK command
+            uint32_t delay_ms;
+        } lock_delay;
     } u;
-#endif  // defined(HAVE_BLE) || defined(HAVE_KEYBOARD_UX)
 } bolos_ux_params_t;
 
 #endif  // !defined(HAVE_BOLOS)

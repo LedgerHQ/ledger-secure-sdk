@@ -146,4 +146,19 @@ void ux_process_default_event(void)
     ux_forward_event(false);
 }
 
+/**
+ * @brief Function to delay the lock-screen/auto-power-off, up to current-time + delay_ms, if
+ * lock-screen/auto-power-off is about to happen in less than current-time + delay_ms, otherwise it
+ * does nothing
+ *
+ * @param delay_ms delay in ms
+ */
+void ux_delay_lock(uint32_t delay_ms)
+{
+    G_ux_params.ux_id                 = BOLOS_UX_DELAY_LOCK;
+    G_ux_params.u.lock_delay.delay_ms = delay_ms;
+    G_ux_params.len                   = sizeof(G_ux_params.u.lock_delay);
+    os_ux(&G_ux_params);
+}
+
 #endif  // HAVE_BOLOS
