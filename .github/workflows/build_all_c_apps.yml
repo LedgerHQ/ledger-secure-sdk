@@ -1,0 +1,91 @@
+name: Build all C apps on latest C SDK
+
+on:
+  workflow_dispatch:
+    inputs:
+      sdk_branch:
+        type: string
+        required: false
+        default: ''
+  pull_request:
+
+jobs:
+  prepare-matrix:
+    name: Retrieve C apps
+    runs-on: ubuntu-latest
+    outputs:
+      c_apps: ${{ steps.get_c_apps.outputs.c_apps }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+            python-version: '3.x'
+      - name: Install ledgered
+        run: pip install ledgered
+      - name: Get all C apps
+        id: get_c_apps
+        run: |
+          python .github/workflows/scripts/get_c_apps.py ${{ secrets.GITHUB_TOKEN }}
+          echo "c_apps=$(cat c_apps.json)" >> $GITHUB_OUTPUT
+
+  print-matrix:
+    needs: [prepare-matrix]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print matrix
+        run: |
+          echo "Matrix content: ${{ needs.prepare-matrix.outputs.c_apps }}"
+
+  test-build:
+    name: Build for all targets
+    needs: [prepare-matrix]
+    strategy:
+      fail-fast: false
+      matrix:
+        apps: ${{ fromJSON(needs.prepare-matrix.outputs.c_apps) }}
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
+
+    steps:
+      - name: Clone App
+        uses: actions/checkout@v4
+        with:
+          repository: LedgerHQ/${{ matrix.apps.app-name }}
+          submodules: recursive
+          path: ${{ matrix.apps.app-name }}
+      - name: Clone SDK
+        uses: actions/checkout@v4
+        with:
+          path: sdk
+          ref: ${{ inputs.sdk_branch }}
+      - name: Build App for Nano X
+        if: contains(matrix.apps.devices, 'nanox')
+        run: |
+          cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
+          echo "Building for Nano X"
+          make clean
+          make TARGET=nanox BOLOS_SDK=$GITHUB_WORKSPACE/sdk
+      - name: Build App for Nano S+
+        if: contains(matrix.apps.devices, 'nanos+')
+        run: |
+          cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
+          echo "Building for Nano S+"
+          make clean
+          make TARGET=nanos2 BOLOS_SDK=$GITHUB_WORKSPACE/sdk
+      - name: Build App for Stax
+        if: contains(matrix.apps.devices, 'stax')
+        run: |
+          cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
+          echo "Building for Stax"
+          make clean
+          make TARGET=stax BOLOS_SDK=$GITHUB_WORKSPACE/sdk
+      - name: Build App for Flex
+        if: contains(matrix.apps.devices, 'flex')
+        run: |
+          cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
+          echo "Building for Flex"
+          make clean
+          make TARGET=flex BOLOS_SDK=$GITHUB_WORKSPACE/sdk
