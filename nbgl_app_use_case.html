@@ -89,7 +89,7 @@ Introduction</h1>
 <p>A full description of each predefined use-case can be found in this document</p>
 <h1><a class="anchor" id="nbgl_use_case_concepts"></a>
 Concepts</h1>
-<p>This layer uses the high-level API described in <a class="el" href="nbgl_page.html">Predefined Pages API</a>, but offers to developer more than a single page.</p>
+<p>This layer uses the high-level API described in <a class="el" href="nbgl_page.html">Predefined pages API</a>, but offers to developer more than a single page.</p>
 <p>The goal is to simplify the usage of NBGL, but also to offer a better homogeneity across applications, by pushing developers to use common API for common use-cases.</p>
 <p>So that not only the look of the pages but also their transitions look the same. Which should be a real help for end-users, getting more and more familiar with the user experience of applications.</p>
 <h2><a class="anchor" id="nbgl_use_case_example_1"></a>
@@ -121,11 +121,6 @@ Use Cases</h1>
 <li><a class="el" href="nbgl__use__case_8h.html#a42b9838f8e87318f142b4bfa11cd8e1a">nbgl_useCaseReviewStreamingStart()</a> to draw the pages of a regular coin transaction review, when all info are not available from the beginning (see <a class="el" href="nbgl_app_use_case.html#use_case_review_streaming">Streaming review Use Case</a>)</li>
 </ul>
 </li>
-<li>for reviews with a warning prolog:<ul>
-<li><a class="el" href="nbgl__use__case_8h.html#aff5a4093825fd83540694a872c47b547">nbgl_useCaseAdvancedReview()</a> to draw the pages of a regular coin transaction review, when all info are available from the beginning, but with an identified risk requiring a warning prolog (see <a class="el" href="nbgl_app_use_case.html#use_case_review_with_warning">Review with warning Use Case</a>)</li>
-<li><a class="el" href="nbgl__use__case_8h.html#afe414aefd31734c6dad09156263a0550">nbgl_useCaseAdvancedReviewStreamingStart()</a> to draw the pages of a regular coin transaction review, when all info are not available from the beginning, but with an identified risk requiring a warning prolog (see <a class="el" href="nbgl_app_use_case.html#use_case_review_with_warning">Review with warning Use Case</a> and <a class="el" href="nbgl_app_use_case.html#use_case_review_streaming">Streaming review Use Case</a>)</li>
-</ul>
-</li>
 <li>for address verification:<ul>
 <li><a class="el" href="nbgl__use__case_8h.html#af488f6a96b0c702f31cca21ff5276663">nbgl_useCaseAddressReview()</a> to draw an address confirmation page, with a possibility to see it as QR Code and some extra tag/value pairs (see <a class="el" href="nbgl_app_use_case.html#use_case_addr_review">Address Review Use Case</a>)</li>
 </ul>
@@ -145,6 +140,7 @@ Use Cases</h1>
 <li>for most used reviews:<ul>
 <li><a class="el" href="nbgl__use__case_8h.html#a728cc81c77011fb0e51a6e73d15a8e8b">nbgl_useCaseReviewStart()</a> to draw the cover page of a review (initial page, without data)</li>
 <li><a class="el" href="nbgl__use__case_8h.html#ac85bc83d4448aa62ec57eed4bf8d1bd0">nbgl_useCaseStaticReview()</a> to draw the data pages of a regular review, when all info are available from the beginning (all pages but the cover one)</li>
+<li><a class="el" href="nbgl__use__case_8h.html#ac092f1759210d1ea0fc23754043fcdf0">nbgl_useCaseRegularReview()</a> to draw the data pages of a regular review (all pages but the cover one)</li>
 </ul>
 </li>
 </ul>
@@ -209,8 +205,8 @@ Home &amp; Settings screen Use Case</h2>
 <div class="line"> </div>
 <div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__genericContents__t.html">nbgl_genericContents_t</a> eth_settingContents</div>
 <div class="line">    = {.<a class="code hl_variable" href="structnbgl__genericContents__t.html#a5cca760808bb3ea7c33585b5a44f7e56">contentsList</a> = &amp;contentsList, .nbContents = 1};</div>
-<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__contentInfoList__s.html">nbgl_contentInfoList_t</a> eth_infosList</div>
-<div class="line">    = {.<a class="code hl_variable" href="structnbgl__contentInfoList__s.html#ac6d6eda91180a06b78b3265c1b284a6b">nbInfos</a> = 2, .infoTypes = infoTypes, .infoContents = infoContents};</div>
+<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__contentInfoList__t.html">nbgl_contentInfoList_t</a> eth_infosList</div>
+<div class="line">    = {.<a class="code hl_variable" href="structnbgl__contentInfoList__t.html#a793d32bf132778456d9d34c77f24fce8">nbInfos</a> = 2, .infoTypes = infoTypes, .infoContents = infoContents};</div>
 <div class="line"> </div>
 <div class="line"><span class="keywordtype">void</span> onQuit(<span class="keywordtype">void</span>) {</div>
 <div class="line">    <span class="comment">// exit app here</span></div>
@@ -225,21 +221,21 @@ Home &amp; Settings screen Use Case</h2>
 <div class="line">                                NULL,                  <span class="comment">// no action button on home screen</span></div>
 <div class="line">                                onQuit);               <span class="comment">// when quitting</span></div>
 <div class="line">}</div>
-<div class="ttc" id="anbgl__content_8h_html_a9010d75a386dacb48d7a31667d7cf203aaa3b4a61cc5be5e90bd2c1ab32f13373"><div class="ttname"><a href="nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203aaa3b4a61cc5be5e90bd2c1ab32f13373">SWITCHES_LIST</a></div><div class="ttdeci">@ SWITCHES_LIST</div><div class="ttdoc">list of switches with descriptions</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00366">nbgl_content.h:366</a></div></div>
+<div class="ttc" id="anbgl__content_8h_html_a9010d75a386dacb48d7a31667d7cf203aaa3b4a61cc5be5e90bd2c1ab32f13373"><div class="ttname"><a href="nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203aaa3b4a61cc5be5e90bd2c1ab32f13373">SWITCHES_LIST</a></div><div class="ttdeci">@ SWITCHES_LIST</div><div class="ttdoc">list of switches with descriptions</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00348">nbgl_content.h:348</a></div></div>
 <div class="ttc" id="anbgl__types_8h_html_a7724587bc3e14c498ed49c3e70c365d6"><div class="ttname"><a href="nbgl__types_8h.html#a7724587bc3e14c498ed49c3e70c365d6">nbgl_icon_details_t</a></div><div class="ttdeci">struct PACKED__ nbgl_icon_details_s nbgl_icon_details_t</div><div class="ttdoc">Represents all information about an icon.</div></div>
 <div class="ttc" id="anbgl__use__case_8h_html_a438078d9be71706e0ad6a05f56658255"><div class="ttname"><a href="nbgl__use__case_8h.html#a438078d9be71706e0ad6a05f56658255">nbgl_useCaseHomeAndSettings</a></div><div class="ttdeci">void nbgl_useCaseHomeAndSettings(const char *appName, const nbgl_icon_details_t *appIcon, const char *tagline, const uint8_t initSettingPage, const nbgl_genericContents_t *settingContents, const nbgl_contentInfoList_t *infosList, const nbgl_homeAction_t *action, nbgl_callback_t quitCallback)</div></div>
 <div class="ttc" id="anbgl__use__case_8h_html_a9cd8c314ebe1bb0c9ebb1a230a61fcb9"><div class="ttname"><a href="nbgl__use__case_8h.html#a9cd8c314ebe1bb0c9ebb1a230a61fcb9">INIT_HOME_PAGE</a></div><div class="ttdeci">#define INIT_HOME_PAGE</div><div class="ttdoc">Value to pass to nbgl_useCaseHomeAndSettings() initSettingPage parameter to initialize the use case o...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00097">nbgl_use_case.h:97</a></div></div>
 <div class="ttc" id="anbgl__use__case_8h_html_ab17d3c66e783f1a3b425e9b4ee41615c"><div class="ttname"><a href="nbgl__use__case_8h.html#ab17d3c66e783f1a3b425e9b4ee41615c">FIRST_USER_TOKEN</a></div><div class="ttdeci">#define FIRST_USER_TOKEN</div><div class="ttdoc">when using controls in page content (nbgl_pageContent_t), this is the first token value usable for th...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00032">nbgl_use_case.h:32</a></div></div>
-<div class="ttc" id="astructnbgl__contentInfoList__s_html"><div class="ttname"><a href="structnbgl__contentInfoList__s.html">nbgl_contentInfoList_s</a></div><div class="ttdoc">This structure contains data to build a INFOS_LIST content.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00286">nbgl_content.h:286</a></div></div>
-<div class="ttc" id="astructnbgl__contentInfoList__s_html_ac6d6eda91180a06b78b3265c1b284a6b"><div class="ttname"><a href="structnbgl__contentInfoList__s.html#ac6d6eda91180a06b78b3265c1b284a6b">nbgl_contentInfoList_s::nbInfos</a></div><div class="ttdeci">uint8_t nbInfos</div><div class="ttdoc">number of elements in infoTypes and infoContents array</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00292">nbgl_content.h:292</a></div></div>
-<div class="ttc" id="astructnbgl__contentSwitch__t_html"><div class="ttname"><a href="structnbgl__contentSwitch__t.html">nbgl_contentSwitch_t</a></div><div class="ttdoc">This structure contains info to build a switch (on the right) with a description (on the left),...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00264">nbgl_content.h:264</a></div></div>
-<div class="ttc" id="astructnbgl__contentSwitch__t_html_aaaf0670e644a56f10c4675debcddddee"><div class="ttname"><a href="structnbgl__contentSwitch__t.html#aaaf0670e644a56f10c4675debcddddee">nbgl_contentSwitch_t::initState</a></div><div class="ttdeci">nbgl_state_t initState</div><div class="ttdoc">initial state of the switch</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00268">nbgl_content.h:268</a></div></div>
-<div class="ttc" id="astructnbgl__content__t_html"><div class="ttname"><a href="structnbgl__content__t.html">nbgl_content_t</a></div><div class="ttdoc">This structure contains data to build a content.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00392">nbgl_content.h:392</a></div></div>
-<div class="ttc" id="astructnbgl__content__t_html_a1ac1044cc537f7fe43b304cbc0202061"><div class="ttname"><a href="structnbgl__content__t.html#a1ac1044cc537f7fe43b304cbc0202061">nbgl_content_t::content</a></div><div class="ttdeci">nbgl_content_u content</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00394">nbgl_content.h:394</a></div></div>
+<div class="ttc" id="astructnbgl__contentInfoList__t_html"><div class="ttname"><a href="structnbgl__contentInfoList__t.html">nbgl_contentInfoList_t</a></div><div class="ttdoc">This structure contains data to build a INFOS_LIST content.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00268">nbgl_content.h:268</a></div></div>
+<div class="ttc" id="astructnbgl__contentInfoList__t_html_a793d32bf132778456d9d34c77f24fce8"><div class="ttname"><a href="structnbgl__contentInfoList__t.html#a793d32bf132778456d9d34c77f24fce8">nbgl_contentInfoList_t::nbInfos</a></div><div class="ttdeci">uint8_t nbInfos</div><div class="ttdoc">number of elements in infoTypes and infoContents array</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00274">nbgl_content.h:274</a></div></div>
+<div class="ttc" id="astructnbgl__contentSwitch__t_html"><div class="ttname"><a href="structnbgl__contentSwitch__t.html">nbgl_contentSwitch_t</a></div><div class="ttdoc">This structure contains info to build a switch (on the right) with a description (on the left),...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00246">nbgl_content.h:246</a></div></div>
+<div class="ttc" id="astructnbgl__contentSwitch__t_html_aaaf0670e644a56f10c4675debcddddee"><div class="ttname"><a href="structnbgl__contentSwitch__t.html#aaaf0670e644a56f10c4675debcddddee">nbgl_contentSwitch_t::initState</a></div><div class="ttdeci">nbgl_state_t initState</div><div class="ttdoc">initial state of the switch</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00250">nbgl_content.h:250</a></div></div>
+<div class="ttc" id="astructnbgl__content__t_html"><div class="ttname"><a href="structnbgl__content__t.html">nbgl_content_t</a></div><div class="ttdoc">This structure contains data to build a content.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00374">nbgl_content.h:374</a></div></div>
+<div class="ttc" id="astructnbgl__content__t_html_a1ac1044cc537f7fe43b304cbc0202061"><div class="ttname"><a href="structnbgl__content__t.html#a1ac1044cc537f7fe43b304cbc0202061">nbgl_content_t::content</a></div><div class="ttdeci">nbgl_content_u content</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00376">nbgl_content.h:376</a></div></div>
 <div class="ttc" id="astructnbgl__genericContents__t_html"><div class="ttname"><a href="structnbgl__genericContents__t.html">nbgl_genericContents_t</a></div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00145">nbgl_use_case.h:145</a></div></div>
 <div class="ttc" id="astructnbgl__genericContents__t_html_a5cca760808bb3ea7c33585b5a44f7e56"><div class="ttname"><a href="structnbgl__genericContents__t.html#a5cca760808bb3ea7c33585b5a44f7e56">nbgl_genericContents_t::contentsList</a></div><div class="ttdeci">const nbgl_content_t * contentsList</div><div class="ttdoc">array of nbgl_content_t (nbContents items).</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00149">nbgl_use_case.h:149</a></div></div>
-<div class="ttc" id="astructnbgl__pageSwitchesList__s_html_a1036d245c6954223009c4706a15a0ef0"><div class="ttname"><a href="structnbgl__pageSwitchesList__s.html#a1036d245c6954223009c4706a15a0ef0">nbgl_pageSwitchesList_s::nbSwitches</a></div><div class="ttdeci">uint8_t nbSwitches</div><div class="ttdoc">number of elements in switches and tokens array</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00280">nbgl_content.h:280</a></div></div>
-<div class="ttc" id="aunionnbgl__content__u_html_abc36dfa9d42e152185ac985e42b69bde"><div class="ttname"><a href="unionnbgl__content__u.html#abc36dfa9d42e152185ac985e42b69bde">nbgl_content_u::switchesList</a></div><div class="ttdeci">nbgl_contentSwitchesList_t switchesList</div><div class="ttdoc">SWITCHES_LIST type</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00383">nbgl_content.h:383</a></div></div>
+<div class="ttc" id="astructnbgl__pageSwitchesList__s_html_a1036d245c6954223009c4706a15a0ef0"><div class="ttname"><a href="structnbgl__pageSwitchesList__s.html#a1036d245c6954223009c4706a15a0ef0">nbgl_pageSwitchesList_s::nbSwitches</a></div><div class="ttdeci">uint8_t nbSwitches</div><div class="ttdoc">number of elements in switches and tokens array</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00262">nbgl_content.h:262</a></div></div>
+<div class="ttc" id="aunionnbgl__content__u_html_abc36dfa9d42e152185ac985e42b69bde"><div class="ttname"><a href="unionnbgl__content__u.html#abc36dfa9d42e152185ac985e42b69bde">nbgl_content_u::switchesList</a></div><div class="ttdeci">nbgl_contentSwitchesList_t switchesList</div><div class="ttdoc">SWITCHES_LIST type</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00365">nbgl_content.h:365</a></div></div>
 <div class="ttc" id="ausbd__conf_8h_html_aba7bc1797add20fe3efdf37ced1182c5"><div class="ttname"><a href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a></div><div class="ttdeci">unsigned char uint8_t</div><div class="ttdef"><b>Definition</b> <a href="usbd__conf_8h_source.html#l00053">usbd_conf.h:53</a></div></div>
 </div><!-- fragment --><h3><a class="anchor" id="use_case_home_settings_with_action"></a>
 Home &amp; Settings screen with action button Use Case</h3>
@@ -264,14 +260,11 @@ Confirmation Use Case</h2>
 <p>Here is the code to display the example picture (and a status page for confirmation)</p>
 <div class="fragment"><div class="line"><span class="keyword">static</span> <span class="keywordtype">void</span> confirmationCallback(<span class="keywordtype">void</span>) {</div>
 <div class="line">  <span class="comment">// draw a status screen which continues by returning to appMain</span></div>
-<div class="line">  <a class="code hl_function" href="nbgl__use__case_8h.html#a8eebd5b1e53a4894c4c05ddae49c8ae8">nbgl_useCaseStatus</a>(<span class="stringliteral">&quot;Transaction rejected&quot;</span>, <span class="keyword">false</span>, appMain);</div>
+<div class="line">  <a class="code hl_function" href="nbgl__use__case_8h.html#a8eebd5b1e53a4894c4c05ddae49c8ae8">nbgl_useCaseStatus</a>(<span class="stringliteral">&quot;Transaction rejected&quot;</span>,<span class="keyword">false</span>,appMain);</div>
 <div class="line">}</div>
 <div class="line"> </div>
 <div class="line"><span class="keywordtype">void</span> onRejectTransaction(<span class="keywordtype">void</span>) {</div>
-<div class="line">  <a class="code hl_function" href="nbgl__use__case_8h.html#a6f689a2dbefa1dd38cff6174bb214b72">nbgl_useCaseConfirm</a>(<span class="stringliteral">&quot;Reject transaction?&quot;</span>,</div>
-<div class="line">                      <span class="stringliteral">&quot;Yes, Reject&quot;</span>,</div>
-<div class="line">                      <span class="stringliteral">&quot;Go back to transaction&quot;</span>,</div>
-<div class="line">                      confirmationCallback);</div>
+<div class="line">  <a class="code hl_function" href="nbgl__use__case_8h.html#a6f689a2dbefa1dd38cff6174bb214b72">nbgl_useCaseConfirm</a>(<span class="stringliteral">&quot;Reject transaction?&quot;</span>,<span class="stringliteral">&quot;Yes, Reject&quot;</span>,<span class="stringliteral">&quot;Go back to transaction&quot;</span>,confirmationCallback);</div>
 <div class="line">}</div>
 <div class="ttc" id="anbgl__use__case_8h_html_a6f689a2dbefa1dd38cff6174bb214b72"><div class="ttname"><a href="nbgl__use__case_8h.html#a6f689a2dbefa1dd38cff6174bb214b72">nbgl_useCaseConfirm</a></div><div class="ttdeci">void nbgl_useCaseConfirm(const char *message, const char *subMessage, const char *confirmText, const char *rejectText, nbgl_callback_t callback)</div></div>
 <div class="ttc" id="anbgl__use__case_8h_html_a8eebd5b1e53a4894c4c05ddae49c8ae8"><div class="ttname"><a href="nbgl__use__case_8h.html#a8eebd5b1e53a4894c4c05ddae49c8ae8">nbgl_useCaseStatus</a></div><div class="ttdeci">void nbgl_useCaseStatus(const char *message, bool isSuccess, nbgl_callback_t quitCallback)</div></div>
@@ -294,8 +287,7 @@ Choice Use Case</h2>
 <div class="line">  <a class="code hl_function" href="nbgl__use__case_8h.html#aafc860c31b7c91be7e22adc79f9b21a5">nbgl_useCaseChoice</a>(&amp;C_key_64px,</div>
 <div class="line">                     <span class="stringliteral">&quot;Delete all credentials?&quot;</span>,</div>
 <div class="line">                     <span class="stringliteral">&quot;This includes all saved\ncredentials from all websites\nand services.&quot;</span>,</div>
-<div class="line">                     <span class="stringliteral">&quot;Yes, erase&quot;</span>,</div>
-<div class="line">                     <span class="stringliteral">&quot;No, don&#39;t erase&quot;</span>,</div>
+<div class="line">                     <span class="stringliteral">&quot;Yes, erase&quot;</span>,<span class="stringliteral">&quot;No, don&#39;t erase&quot;</span>,</div>
 <div class="line">                     onChoice);</div>
 <div class="line">}</div>
 <div class="ttc" id="anbgl__use__case_8h_html_aafc860c31b7c91be7e22adc79f9b21a5"><div class="ttname"><a href="nbgl__use__case_8h.html#aafc860c31b7c91be7e22adc79f9b21a5">nbgl_useCaseChoice</a></div><div class="ttdeci">void nbgl_useCaseChoice(const nbgl_icon_details_t *icon, const char *message, const char *subMessage, const char *confirmText, const char *rejectString, nbgl_choiceCallback_t callback)</div></div>
@@ -305,26 +297,26 @@ Status Use Case</h2>
 <p>A status is a transient page, without control, to display during a short time, for example when a transaction is successfully signed. The <a class="el" href="nbgl__use__case_8h.html#a8eebd5b1e53a4894c4c05ddae49c8ae8">nbgl_useCaseStatus()</a> function enables to create such a page, with the following arguments:</p>
 <ul>
 <li>a message string to set in middle of page</li>
-<li>a boolean to indicate if true, that the message is drawn in a Ledger style (with corners) and select the icon</li>
-<li>a quit callback, called when timer times out (or the page is "tapped")</li>
+<li>a boolean to indicate if true, that the message is drawn in a Ledger style (with corners)</li>
+<li>a quit callback, called when quit timer times out (or the page is "tapped")</li>
 </ul>
-<p>If it's a success status, a <em>success</em> tune will be automatically played.</p>
+<p>If it's a success status, a "success" tune will be automatically played.</p>
 <h2><a class="anchor" id="use_case_review_status"></a>
-Pre-defined review status Use Case</h2>
+Pre-defined status Use Case</h2>
 <p><img src="UseCase-Review-Status.png" alt="" height="300" class="inline" title="caption"/></p>
 <p>Similar as <a class="el" href="nbgl_app_use_case.html#use_case_status">Status Use Case</a>, this is used to display transient page, without control, during a short time, for example when a transaction is successfully signed. The <a class="el" href="nbgl__use__case_8h.html#ae32d39392a88d6aa2595b0d45661f0ab">nbgl_useCaseReviewStatus()</a> function enables to create such a page, with the following arguments:</p>
 <ul>
 <li>a type of status (with predefined message)</li>
-<li>a quit callback, called when timer times out (or the page is "tapped")</li>
+<li>a quit callback, called when quit timer times out (or the page is "tapped")</li>
 </ul>
-<p>If it's a success status, a <em>success</em> tune will be automatically played.</p>
+<p>If it's a success status, a "success" tune will be automatically played.</p>
 <h2><a class="anchor" id="use_case_review"></a>
 Review Use Case</h2>
 <p><img src="UseCase-Review.png" alt="" height="300" class="inline" title="caption"/></p>
 <p>In most cases, the developer may know all tag/value pairs of a transaction when it is submitted.</p>
-<p>Thus, the number of pages is computed automatically and pages can be navigated forward and backward.</p>
-<p>In case of a tag/value pair too long to be fully displayed, the <em>more</em> button will be automatically drawn and its handling automatically performed by NBGL by building a detailed modal view.</p>
-<p>When the user taps on <em>Reject</em> in any page, a confirmation page is automatically drawned to let user confirm that he rejects the transaction. In this case, the given callback is called and it's up to app's developer to call <a class="el" href="nbgl__use__case_8h.html#ae32d39392a88d6aa2595b0d45661f0ab">nbgl_useCaseReviewStatus()</a>, as in case of long-press.</p>
+<p>In this case, what we call a "static" review can be used. The number of pages is computed automatically and pages can be navigated forward and backward.</p>
+<p>In case of a tag/value pair too long to be fully displayed, the "more" button will be automatically drawn and its handling automatically performed by NBGL by building a detailed modal view.</p>
+<p>When the user taps on "Reject" in any page, a confirmation page is automatically drawned to let user confirm that he rejects the transaction. In this case, the given callback is called and it's up to app's developer to call <a class="el" href="nbgl__use__case_8h.html#ae32d39392a88d6aa2595b0d45661f0ab">nbgl_useCaseReviewStatus()</a>, as in case of long-press.</p>
 <p>The API to initiate the display of the series of pages is <a class="el" href="nbgl__use__case_8h.html#a303e3242b26535f74695f94a51d8cb6a">nbgl_useCaseReview()</a>, providing:</p>
 <ul>
 <li>the type of operation to review (transaction, message or generic operation)</li>
@@ -353,24 +345,24 @@ Review Use Case</h2>
 <div class="line">  }</div>
 <div class="line">}</div>
 <div class="line"> </div>
-<div class="line"><span class="keywordtype">void</span> startReview(<span class="keywordtype">void</span>) {</div>
-<div class="line">  <span class="comment">// standard review, providing the whole list of pairs</span></div>
+<div class="line"><span class="keywordtype">void</span> staticReview(<span class="keywordtype">void</span>) {</div>
+<div class="line">  <span class="comment">// static review, providing the whole list of pairs</span></div>
 <div class="line">  <a class="code hl_function" href="nbgl__use__case_8h.html#a303e3242b26535f74695f94a51d8cb6a">nbgl_useCaseReview</a>(<a class="code hl_enumvalue" href="nbgl__use__case_8h.html#afa09e6097a8248ecbdc81d2fb1bfc317a58ebdf125d0fe120e74ebe9e00f86205">TYPE_TRANSACTION</a>, <span class="comment">// type of operation</span></div>
-<div class="line">                     &amp;pairList,       <span class="comment">// list of tag/value pairs</span></div>
-<div class="line">                     coinIcon,        <span class="comment">// icon of the coin</span></div>
-<div class="line">                     <span class="stringliteral">&quot;Review transaction\nto send coin&quot;</span>, <span class="comment">// title of the first page</span></div>
-<div class="line">                     NULL,                               <span class="comment">// sub-title of the first page</span></div>
-<div class="line">                     <span class="stringliteral">&quot;Sign transaction to\nsend coin?&quot;</span>,  <span class="comment">// title of the last page</span></div>
-<div class="line">                     onReviewResult);                    <span class="comment">// callback on result of the review</span></div>
+<div class="line">                      &amp;pairList,       <span class="comment">// list of tag/value pairs</span></div>
+<div class="line">                      coinIcon,        <span class="comment">// icon of the coin</span></div>
+<div class="line">                      <span class="stringliteral">&quot;Review transaction\nto send coin&quot;</span>, <span class="comment">// title of the first page</span></div>
+<div class="line">                      NULL,                               <span class="comment">// sub-title of the first page</span></div>
+<div class="line">                      <span class="stringliteral">&quot;Sign transaction to\nsend coin?&quot;</span>,  <span class="comment">// title of the last page</span></div>
+<div class="line">                      onReviewResult);                    <span class="comment">// callback on result of the review</span></div>
 <div class="line">}</div>
 <div class="ttc" id="anbgl__use__case_8h_html_a303e3242b26535f74695f94a51d8cb6a"><div class="ttname"><a href="nbgl__use__case_8h.html#a303e3242b26535f74695f94a51d8cb6a">nbgl_useCaseReview</a></div><div class="ttdeci">void nbgl_useCaseReview(nbgl_operationType_t operationType, const nbgl_contentTagValueList_t *tagValueList, const nbgl_icon_details_t *icon, const char *reviewTitle, const char *reviewSubTitle, const char *finishTitle, nbgl_choiceCallback_t choiceCallback)</div></div>
 <div class="ttc" id="anbgl__use__case_8h_html_ae32d39392a88d6aa2595b0d45661f0ab"><div class="ttname"><a href="nbgl__use__case_8h.html#ae32d39392a88d6aa2595b0d45661f0ab">nbgl_useCaseReviewStatus</a></div><div class="ttdeci">void nbgl_useCaseReviewStatus(nbgl_reviewStatusType_t reviewStatusType, nbgl_callback_t quitCallback)</div></div>
-<div class="ttc" id="anbgl__use__case_8h_html_aecc6f4750a49ca97c084e3fd5600d5dea39c63169fc1f2c1a4922cfd0b07bcf0a"><div class="ttname"><a href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea39c63169fc1f2c1a4922cfd0b07bcf0a">STATUS_TYPE_TRANSACTION_REJECTED</a></div><div class="ttdeci">@ STATUS_TYPE_TRANSACTION_REJECTED</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00316">nbgl_use_case.h:316</a></div></div>
-<div class="ttc" id="anbgl__use__case_8h_html_aecc6f4750a49ca97c084e3fd5600d5dea699644fad9f83e97303c7422daca9e41"><div class="ttname"><a href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea699644fad9f83e97303c7422daca9e41">STATUS_TYPE_TRANSACTION_SIGNED</a></div><div class="ttdeci">@ STATUS_TYPE_TRANSACTION_SIGNED</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00315">nbgl_use_case.h:315</a></div></div>
-<div class="ttc" id="anbgl__use__case_8h_html_afa09e6097a8248ecbdc81d2fb1bfc317a58ebdf125d0fe120e74ebe9e00f86205"><div class="ttname"><a href="nbgl__use__case_8h.html#afa09e6097a8248ecbdc81d2fb1bfc317a58ebdf125d0fe120e74ebe9e00f86205">TYPE_TRANSACTION</a></div><div class="ttdeci">@ TYPE_TRANSACTION</div><div class="ttdoc">For operations transferring a coin or taken from an account to another.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00283">nbgl_use_case.h:282</a></div></div>
-<div class="ttc" id="astructnbgl__contentTagValueList__t_html"><div class="ttname"><a href="structnbgl__contentTagValueList__t.html">nbgl_contentTagValueList_t</a></div><div class="ttdoc">This structure contains a list of [tag,value] pairs.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00203">nbgl_content.h:203</a></div></div>
-<div class="ttc" id="astructnbgl__contentTagValueList__t_html_af7465bb412cd1d9fd14bc526d0ea77d8"><div class="ttname"><a href="structnbgl__contentTagValueList__t.html#af7465bb412cd1d9fd14bc526d0ea77d8">nbgl_contentTagValueList_t::nbMaxLinesForValue</a></div><div class="ttdeci">uint8_t nbMaxLinesForValue</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00210">nbgl_content.h:210</a></div></div>
-<div class="ttc" id="astructnbgl__contentTagValue__t_html"><div class="ttname"><a href="structnbgl__contentTagValue__t.html">nbgl_contentTagValue_t</a></div><div class="ttdoc">This structure contains a [tag,value] pair.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00166">nbgl_content.h:166</a></div></div>
+<div class="ttc" id="anbgl__use__case_8h_html_aecc6f4750a49ca97c084e3fd5600d5dea39c63169fc1f2c1a4922cfd0b07bcf0a"><div class="ttname"><a href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea39c63169fc1f2c1a4922cfd0b07bcf0a">STATUS_TYPE_TRANSACTION_REJECTED</a></div><div class="ttdeci">@ STATUS_TYPE_TRANSACTION_REJECTED</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00230">nbgl_use_case.h:230</a></div></div>
+<div class="ttc" id="anbgl__use__case_8h_html_aecc6f4750a49ca97c084e3fd5600d5dea699644fad9f83e97303c7422daca9e41"><div class="ttname"><a href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea699644fad9f83e97303c7422daca9e41">STATUS_TYPE_TRANSACTION_SIGNED</a></div><div class="ttdeci">@ STATUS_TYPE_TRANSACTION_SIGNED</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00229">nbgl_use_case.h:229</a></div></div>
+<div class="ttc" id="anbgl__use__case_8h_html_afa09e6097a8248ecbdc81d2fb1bfc317a58ebdf125d0fe120e74ebe9e00f86205"><div class="ttname"><a href="nbgl__use__case_8h.html#afa09e6097a8248ecbdc81d2fb1bfc317a58ebdf125d0fe120e74ebe9e00f86205">TYPE_TRANSACTION</a></div><div class="ttdeci">@ TYPE_TRANSACTION</div><div class="ttdoc">For operations transferring a coin or taken from an account to another.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00197">nbgl_use_case.h:196</a></div></div>
+<div class="ttc" id="astructnbgl__contentTagValueList__t_html"><div class="ttname"><a href="structnbgl__contentTagValueList__t.html">nbgl_contentTagValueList_t</a></div><div class="ttdoc">This structure contains a list of [tag,value] pairs.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00185">nbgl_content.h:185</a></div></div>
+<div class="ttc" id="astructnbgl__contentTagValueList__t_html_af7465bb412cd1d9fd14bc526d0ea77d8"><div class="ttname"><a href="structnbgl__contentTagValueList__t.html#af7465bb412cd1d9fd14bc526d0ea77d8">nbgl_contentTagValueList_t::nbMaxLinesForValue</a></div><div class="ttdeci">uint8_t nbMaxLinesForValue</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00192">nbgl_content.h:192</a></div></div>
+<div class="ttc" id="astructnbgl__contentTagValue__t_html"><div class="ttname"><a href="structnbgl__contentTagValue__t.html">nbgl_contentTagValue_t</a></div><div class="ttdoc">This structure contains a [tag,value] pair.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00148">nbgl_content.h:148</a></div></div>
 </div><!-- fragment --><p>Here is another version of the example code, using a callback mechanism to get tag/value pairs:</p>
 <div class="fragment"><div class="line"><span class="comment">// common tag/value pair to return</span></div>
 <div class="line"><span class="keyword">static</span> <a class="code hl_struct" href="structnbgl__contentTagValue__t.html">nbgl_layoutTagValue_t</a> pair;</div>
@@ -419,18 +411,18 @@ Review Use Case</h2>
 <div class="line">  <span class="keywordflow">return</span> &amp;pair;</div>
 <div class="line">}</div>
 <div class="line"> </div>
-<div class="line"><span class="keywordtype">void</span> startReview(<span class="keywordtype">void</span>) {</div>
-<div class="line">  <span class="comment">// standard review, providing the whole list of pairs</span></div>
+<div class="line"><span class="keywordtype">void</span> staticReview(<span class="keywordtype">void</span>) {</div>
+<div class="line">  <span class="comment">// static review, providing the whole list of pairs</span></div>
 <div class="line">  <a class="code hl_function" href="nbgl__use__case_8h.html#a303e3242b26535f74695f94a51d8cb6a">nbgl_useCaseReview</a>(<a class="code hl_enumvalue" href="nbgl__use__case_8h.html#afa09e6097a8248ecbdc81d2fb1bfc317a58ebdf125d0fe120e74ebe9e00f86205">TYPE_TRANSACTION</a>, <span class="comment">// type of operation</span></div>
-<div class="line">                     &amp;pairList,       <span class="comment">// list of tag/value pairs</span></div>
-<div class="line">                     coinIcon,        <span class="comment">// icon of the coin</span></div>
-<div class="line">                     <span class="stringliteral">&quot;Review transaction\nto send coin&quot;</span>, <span class="comment">// title of the first page</span></div>
-<div class="line">                     NULL,                               <span class="comment">// sub-title of the first page</span></div>
-<div class="line">                     <span class="stringliteral">&quot;Sign transaction to\nsend coin?&quot;</span>,  <span class="comment">// title of the last page</span></div>
-<div class="line">                     onReviewResult);                    <span class="comment">// callback on result of the review</span></div>
+<div class="line">                      &amp;pairList,       <span class="comment">// list of tag/value pairs</span></div>
+<div class="line">                      coinIcon,        <span class="comment">// icon of the coin</span></div>
+<div class="line">                      <span class="stringliteral">&quot;Review transaction\nto send coin&quot;</span>, <span class="comment">// title of the first page</span></div>
+<div class="line">                      NULL,                               <span class="comment">// sub-title of the first page</span></div>
+<div class="line">                      <span class="stringliteral">&quot;Sign transaction to\nsend coin?&quot;</span>,  <span class="comment">// title of the last page</span></div>
+<div class="line">                      onReviewResult);                    <span class="comment">// callback on result of the review</span></div>
 <div class="line">}</div>
-<div class="ttc" id="astructnbgl__contentTagValue__t_html_ac54d64394fafb3edc3f5c751214e3a50"><div class="ttname"><a href="structnbgl__contentTagValue__t.html#ac54d64394fafb3edc3f5c751214e3a50">nbgl_contentTagValue_t::value</a></div><div class="ttdeci">const char * value</div><div class="ttdoc">string giving the value name</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00168">nbgl_content.h:168</a></div></div>
-<div class="ttc" id="astructnbgl__contentTagValue__t_html_ae8394cc87634df5504b7a224efeb48e2"><div class="ttname"><a href="structnbgl__contentTagValue__t.html#ae8394cc87634df5504b7a224efeb48e2">nbgl_contentTagValue_t::item</a></div><div class="ttdeci">const char * item</div><div class="ttdoc">string giving the tag name</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00167">nbgl_content.h:167</a></div></div>
+<div class="ttc" id="astructnbgl__contentTagValue__t_html_ac54d64394fafb3edc3f5c751214e3a50"><div class="ttname"><a href="structnbgl__contentTagValue__t.html#ac54d64394fafb3edc3f5c751214e3a50">nbgl_contentTagValue_t::value</a></div><div class="ttdeci">const char * value</div><div class="ttdoc">string giving the value name</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00150">nbgl_content.h:150</a></div></div>
+<div class="ttc" id="astructnbgl__contentTagValue__t_html_ae8394cc87634df5504b7a224efeb48e2"><div class="ttname"><a href="structnbgl__contentTagValue__t.html#ae8394cc87634df5504b7a224efeb48e2">nbgl_contentTagValue_t::item</a></div><div class="ttdeci">const char * item</div><div class="ttdoc">string giving the tag name</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00149">nbgl_content.h:149</a></div></div>
 </div><!-- fragment --><h2><a class="anchor" id="use_case_review_light"></a>
 Light review Use Case</h2>
 <p>In some cases, the developer may want to display a review but with a less intense confirmation than a long-press button. A simple button is used in this case.</p>
@@ -444,342 +436,186 @@ Light review Use Case</h2>
 Streaming review Use Case</h2>
 <p><img src="UseCase-Streaming.png" alt="" height="300" class="inline" title="caption"/></p>
 <p>In some cases, the application cannot know all tag/value pairs of a transaction when the review is started.</p>
-<p>In this case, what we call a <em>streaming</em> review can be used. The pages to display for each <em>stream</em> are computed automatically and pages can be navigated forward and backward (only within a <em>stream</em> for backward).</p>
-<p>In case of a tag/value pair too long to be fully displayed, the <em>more</em> button will be automatically drawn and its handling automatically performed by NBGL by building a detailed modal view.</p>
-<p>When the user taps on <em>Reject</em> in any page, a confirmation page is automatically drawned to let user confirm that he rejects the transaction. In this case, the given callback is called and it's up to app's developer to call <a class="el" href="nbgl__use__case_8h.html#ae32d39392a88d6aa2595b0d45661f0ab">nbgl_useCaseReviewStatus()</a>, as in case of long-press.</p>
-<p>The API to initiate the display of the series of pages is <a class="el" href="nbgl__use__case_8h.html#a42b9838f8e87318f142b4bfa11cd8e1a">nbgl_useCaseReviewStreamingStart()</a>, providing:</p>
-<ul>
-<li>the type of operation to review (transaction, message or generic operation)</li>
-<li>the texts/icon to use in presentation page</li>
-<li>a callback with one boolean parameter:<ul>
-<li>If this parameter is <em>false</em>, it means that the transaction is rejected.</li>
-<li>If this parameter is <em>true</em>, it means that NBGL is waiting for new data, sent with <a class="el" href="nbgl__use__case_8h.html#ad9d598fd702eb516d6c8dca231d4a08f">nbgl_useCaseReviewStreamingContinue()</a> or <a class="el" href="nbgl__use__case_8h.html#aabc16faf74588c6ee5d0379f7069d97b">nbgl_useCaseReviewStreamingContinueExt()</a></li>
-</ul>
-</li>
-</ul>
-<p>As long as there are new tag/value pairs to send, the API to call is either <a class="el" href="nbgl__use__case_8h.html#aabc16faf74588c6ee5d0379f7069d97b">nbgl_useCaseReviewStreamingContinueExt()</a> (if skip is possible) or <a class="el" href="nbgl__use__case_8h.html#ad9d598fd702eb516d6c8dca231d4a08f">nbgl_useCaseReviewStreamingContinue()</a>, providing:</p>
-<ul>
-<li>the list of tag/value pairs (or a callback to get them one by one)</li>
-<li>a callback with one boolean parameter:<ul>
-<li>If this parameter is <em>false</em>, it means that the transaction is rejected.</li>
-<li>If this parameter is <em>true</em>, it means that NBGL is waiting for new data, to be sent with <a class="el" href="nbgl__use__case_8h.html#ad9d598fd702eb516d6c8dca231d4a08f">nbgl_useCaseReviewStreamingContinue()</a> or <a class="el" href="nbgl__use__case_8h.html#aabc16faf74588c6ee5d0379f7069d97b">nbgl_useCaseReviewStreamingContinueExt()</a></li>
-</ul>
-</li>
-</ul>
-<p>When there is no more data to send, the API to call is <a class="el" href="nbgl__use__case_8h.html#a5b355b1051720c70f6e8a35659eb66f2">nbgl_useCaseReviewStreamingFinish()</a>, providing:</p>
-<ul>
-<li>the title to use for last page (with long-press button)</li>
-<li>a callback called when the long press button on last page or reject confirmation is used. The callback's param is <em>true</em> for confirmation, <em>false</em> for rejection.</li>
-</ul>
-<p>Here is the code to display something similar to example picture:</p>
-<div class="fragment"><div class="line"><span class="comment">// called when long press button on last page is long-touched or when reject footer is touched</span></div>
-<div class="line"><span class="keyword">static</span> <span class="keywordtype">void</span> onReviewResult(<span class="keywordtype">bool</span> confirm) {</div>
-<div class="line">  <span class="comment">// display a status page and go back to main</span></div>
-<div class="line">  <span class="keywordflow">if</span> (confirm) {</div>
-<div class="line">    <a class="code hl_function" href="nbgl__use__case_8h.html#ae32d39392a88d6aa2595b0d45661f0ab">nbgl_useCaseReviewStatus</a>(<a class="code hl_enumvalue" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea699644fad9f83e97303c7422daca9e41">STATUS_TYPE_TRANSACTION_SIGNED</a>, appMain);</div>
-<div class="line">  }</div>
-<div class="line">  <span class="keywordflow">else</span> {</div>
-<div class="line">    <a class="code hl_function" href="nbgl__use__case_8h.html#ae32d39392a88d6aa2595b0d45661f0ab">nbgl_useCaseReviewStatus</a>(<a class="code hl_enumvalue" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea39c63169fc1f2c1a4922cfd0b07bcf0a">STATUS_TYPE_TRANSACTION_REJECTED</a>, appMain);</div>
-<div class="line">  }</div>
-<div class="line">}</div>
-<div class="line"> </div>
-<div class="line"><span class="keyword">static</span> <span class="keywordtype">void</span> onTransactionContinue(<span class="keywordtype">bool</span> askMore)</div>
-<div class="line">{</div>
-<div class="line">  <span class="keywordflow">if</span> (askMore) {</div>
-<div class="line">    <a class="code hl_struct" href="structnbgl__contentTagValueList__t.html">nbgl_contentTagValueList_t</a> pairsToSend;</div>
-<div class="line">    <span class="comment">// try to get more data</span></div>
-<div class="line">    <span class="keywordflow">if</span> (moreDataToSend(&amp;pairsToSend)) {</div>
-<div class="line">      <a class="code hl_function" href="nbgl__use__case_8h.html#ad9d598fd702eb516d6c8dca231d4a08f">nbgl_useCaseReviewStreamingContinue</a>(&amp;pairsToSend, onTransactionContinue);</div>
-<div class="line">    }</div>
-<div class="line">    <span class="keywordflow">else</span> {</div>
-<div class="line">      <span class="comment">// all data sent, so finish</span></div>
-<div class="line">      <a class="code hl_function" href="nbgl__use__case_8h.html#a5b355b1051720c70f6e8a35659eb66f2">nbgl_useCaseReviewStreamingFinish</a>(<span class="stringliteral">&quot;Sign transaction to transfer Cardano?&quot;</span>, <span class="comment">// title on last page</span></div>
-<div class="line">                                        onReviewResult); <span class="comment">// callback to handle reject/accept</span></div>
-<div class="line">    }</div>
-<div class="line">  }</div>
-<div class="line">  <span class="keywordflow">else</span> {</div>
-<div class="line">      onReviewResult(<span class="keyword">false</span>);</div>
-<div class="line">  }</div>
-<div class="line">}</div>
-<div class="line"> </div>
-<div class="line"><span class="keywordtype">void</span> startReview(<span class="keywordtype">void</span>) {</div>
-<div class="line">  <span class="comment">// initiate the streaming review</span></div>
-<div class="line">  <a class="code hl_function" href="nbgl__use__case_8h.html#a42b9838f8e87318f142b4bfa11cd8e1a">nbgl_useCaseReviewStreamingStart</a>(<a class="code hl_enumvalue" href="nbgl__use__case_8h.html#afa09e6097a8248ecbdc81d2fb1bfc317a58ebdf125d0fe120e74ebe9e00f86205">TYPE_TRANSACTION</a>,</div>
-<div class="line">                                   &amp;C_ic_asset_cardano_64, <span class="comment">// icon on first and last page</span></div>
-<div class="line">                                   <span class="stringliteral">&quot;Review transaction&quot;</span>,   <span class="comment">// title of the first page</span></div>
-<div class="line">                                   NULL,                   <span class="comment">// sub-title of the first page</span></div>
-<div class="line">                                   onTransactionContinue); <span class="comment">// callback to reject or ask more data</span></div>
-<div class="line">}</div>
-<div class="ttc" id="anbgl__use__case_8h_html_a42b9838f8e87318f142b4bfa11cd8e1a"><div class="ttname"><a href="nbgl__use__case_8h.html#a42b9838f8e87318f142b4bfa11cd8e1a">nbgl_useCaseReviewStreamingStart</a></div><div class="ttdeci">void nbgl_useCaseReviewStreamingStart(nbgl_operationType_t operationType, const nbgl_icon_details_t *icon, const char *reviewTitle, const char *reviewSubTitle, nbgl_choiceCallback_t choiceCallback)</div></div>
-<div class="ttc" id="anbgl__use__case_8h_html_a5b355b1051720c70f6e8a35659eb66f2"><div class="ttname"><a href="nbgl__use__case_8h.html#a5b355b1051720c70f6e8a35659eb66f2">nbgl_useCaseReviewStreamingFinish</a></div><div class="ttdeci">void nbgl_useCaseReviewStreamingFinish(const char *finishTitle, nbgl_choiceCallback_t choiceCallback)</div></div>
-<div class="ttc" id="anbgl__use__case_8h_html_ad9d598fd702eb516d6c8dca231d4a08f"><div class="ttname"><a href="nbgl__use__case_8h.html#ad9d598fd702eb516d6c8dca231d4a08f">nbgl_useCaseReviewStreamingContinue</a></div><div class="ttdeci">void nbgl_useCaseReviewStreamingContinue(const nbgl_contentTagValueList_t *tagValueList, nbgl_choiceCallback_t choiceCallback)</div></div>
-</div><!-- fragment --><h2><a class="anchor" id="use_case_review_with_warning"></a>
-Review with warning Use Case</h2>
-<p><img src="UseCase-Review-With-Warning.png" alt="" height="500" class="inline" title="caption"/></p>
-<p>The review itself behaves like in <a class="el" href="nbgl_app_use_case.html#use_case_review">Review Use Case</a>. The main differences are:</p>
-<ul>
-<li>The review itself is preceded by a warning page offering the possibility to cancel the review ("Back to safety") or to start it ("Continue anyway")</li>
-<li>In the first and last pages of the actual review, a top-right button offers the possibility to get more information about the warning</li>
-</ul>
-<p>The API to initiate the display of the series of pages is <a class="el" href="nbgl__use__case_8h.html#aff5a4093825fd83540694a872c47b547">nbgl_useCaseAdvancedReview()</a>, providing:</p>
-<ul>
-<li>the type of operation to review (transaction, message or generic operation)</li>
-<li>the list of tag/value pairs (or a callback to get them one by one)</li>
-<li>the texts/icon to use in presentation page and in last page</li>
-<li>the configuration to use for the warning (see <a class="el" href="structnbgl__warning__t.html">nbgl_warning_t</a> structure)</li>
-<li>a callback called when the long press button on last page or reject confirmation is used. The callback's param is <em>true</em> for confirmation, <em>false</em> for rejection.</li>
-</ul>
-<dl class="section note"><dt>Note</dt><dd>the recommended configuration for warning is the predefined one. In this case, one just has to fill the <em>predefinedSet</em> field of <a class="el" href="structnbgl__warning__t.html">nbgl_warning_t</a> with the appropriate warning causes (bitfield) and the <em>reportProvider</em> field with the name of the 3rd party providing the Web3Checks report, if necessary.</dd></dl>
-<p>Here is the code to display something similar to example picture:</p>
-<div class="fragment"><div class="line"><span class="comment">// 4 pairs of tag/value to display</span></div>
-<div class="line"><span class="keyword">static</span> <a class="code hl_struct" href="structnbgl__contentTagValue__t.html">nbgl_layoutTagValue_t</a> pairs[4];</div>
-<div class="line"> </div>
-<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__contentTagValueList__t.html">nbgl_contentTagValueList_t</a> pairList = {</div>
-<div class="line">  .<a class="code hl_variable" href="structnbgl__contentTagValueList__t.html#af7465bb412cd1d9fd14bc526d0ea77d8">nbMaxLinesForValue</a> = 0,</div>
-<div class="line">  .nbPairs = 4,</div>
-<div class="line">  .pairs = (<a class="code hl_struct" href="structnbgl__contentTagValue__t.html">nbgl_layoutTagValue_t</a>*)pairs</div>
-<div class="line">};</div>
-<div class="line"> </div>
-<div class="line"><span class="comment">// warning description (cannot be in call stack)</span></div>
-<div class="line"><span class="keyword">static</span> <a class="code hl_struct" href="structnbgl__warning__t.html">nbgl_warning_t</a> warningDesc;</div>
-<div class="line"> </div>
-<div class="line"><span class="comment">// called when long press button on 3rd page is long-touched or when reject footer is touched</span></div>
-<div class="line"><span class="keyword">static</span> <span class="keywordtype">void</span> onReviewResult(<span class="keywordtype">bool</span> confirm) {</div>
-<div class="line">  <span class="comment">// display a status page and go back to main</span></div>
-<div class="line">  <span class="keywordflow">if</span> (confirm) {</div>
-<div class="line">    <a class="code hl_function" href="nbgl__use__case_8h.html#ae32d39392a88d6aa2595b0d45661f0ab">nbgl_useCaseReviewStatus</a>(<a class="code hl_enumvalue" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea699644fad9f83e97303c7422daca9e41">STATUS_TYPE_TRANSACTION_SIGNED</a>, appMain);</div>
-<div class="line">  }</div>
-<div class="line">  <span class="keywordflow">else</span> {</div>
-<div class="line">    <a class="code hl_function" href="nbgl__use__case_8h.html#ae32d39392a88d6aa2595b0d45661f0ab">nbgl_useCaseReviewStatus</a>(<a class="code hl_enumvalue" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea39c63169fc1f2c1a4922cfd0b07bcf0a">STATUS_TYPE_TRANSACTION_REJECTED</a>, appMain);</div>
-<div class="line">  }</div>
-<div class="line">}</div>
-<div class="line"> </div>
-<div class="line"><span class="keywordtype">void</span> staticReview(<span class="keywordtype">void</span>) {</div>
-<div class="line">  warningDesc.<a class="code hl_variable" href="structnbgl__warning__t.html#a4f80d55ce48ce054f0f552db18667182">predefinedSet</a>   = (1 &lt;&lt; <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3da7426474658a4efba94394281f2f54563">W3C_RISK_DETECTED_WARN</a>) | (1 &lt;&lt; <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3da1746cdd0d25523430492ebd999557c55">BLIND_SIGNING_WARN</a>);</div>
-<div class="line">  warningDesc.<a class="code hl_variable" href="structnbgl__warning__t.html#a9ce33a503a54b1f5e42c56bf85bb94cb">reportProvider</a>  = <span class="stringliteral">&quot;Blockaid&quot;</span>;</div>
-<div class="line">  warningDesc.<a class="code hl_variable" href="structnbgl__warning__t.html#a5762c212a9013f5aad2fc9ecbe2b5944">providerMessage</a> = <span class="stringliteral">&quot;Losing swap&quot;</span>;</div>
-<div class="line">  warningDesc.<a class="code hl_variable" href="structnbgl__warning__t.html#ace9bbfcec5c19cab4f3597e1cd65f696">reportUrl</a>       = <span class="stringliteral">&quot;url.com/od24xz&quot;</span>;</div>
-<div class="line"> </div>
-<div class="line">  <span class="comment">// static review, providing the whole list of pairs</span></div>
-<div class="line">  <a class="code hl_function" href="nbgl__use__case_8h.html#aff5a4093825fd83540694a872c47b547">nbgl_useCaseAdvancedReview</a>(<a class="code hl_enumvalue" href="nbgl__use__case_8h.html#afa09e6097a8248ecbdc81d2fb1bfc317a58ebdf125d0fe120e74ebe9e00f86205">TYPE_TRANSACTION</a>, <span class="comment">// type of operation</span></div>
-<div class="line">                                &amp;pairList,       <span class="comment">// list of tag/value pairs</span></div>
-<div class="line">                                coinIcon,        <span class="comment">// icon of the coin</span></div>
-<div class="line">                                <span class="stringliteral">&quot;Review transaction\nto send coin&quot;</span>, <span class="comment">// title of the first page</span></div>
-<div class="line">                                NULL,                               <span class="comment">// sub-title of the first page</span></div>
-<div class="line">                                <span class="stringliteral">&quot;Sign transaction to\nsend coin?&quot;</span>,  <span class="comment">// title of the last page</span></div>
-<div class="line">                                NULL,                               <span class="comment">// no tip-box in first page of review</span></div>
-<div class="line">                                &amp;warningDesc,                       <span class="comment">// description of warning causes</span></div>
-<div class="line">                                onReviewResult);                    <span class="comment">// callback on result of the review</span></div>
-<div class="line">}</div>
-<div class="ttc" id="anbgl__use__case_8h_html_a903c6890824dbca45c1cd9e1dc231a3da1746cdd0d25523430492ebd999557c55"><div class="ttname"><a href="nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3da1746cdd0d25523430492ebd999557c55">BLIND_SIGNING_WARN</a></div><div class="ttdeci">@ BLIND_SIGNING_WARN</div><div class="ttdoc">Blind signing.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00243">nbgl_use_case.h:243</a></div></div>
-<div class="ttc" id="anbgl__use__case_8h_html_a903c6890824dbca45c1cd9e1dc231a3da7426474658a4efba94394281f2f54563"><div class="ttname"><a href="nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3da7426474658a4efba94394281f2f54563">W3C_RISK_DETECTED_WARN</a></div><div class="ttdeci">@ W3C_RISK_DETECTED_WARN</div><div class="ttdoc">Web3 Checks: Risk detected (see reportRisk field)</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00240">nbgl_use_case.h:240</a></div></div>
-<div class="ttc" id="anbgl__use__case_8h_html_aff5a4093825fd83540694a872c47b547"><div class="ttname"><a href="nbgl__use__case_8h.html#aff5a4093825fd83540694a872c47b547">nbgl_useCaseAdvancedReview</a></div><div class="ttdeci">void nbgl_useCaseAdvancedReview(nbgl_operationType_t operationType, const nbgl_contentTagValueList_t *tagValueList, const nbgl_icon_details_t *icon, const char *reviewTitle, const char *reviewSubTitle, const char *finishTitle, const nbgl_tipBox_t *tipBox, const nbgl_warning_t *warning, nbgl_choiceCallback_t choiceCallback)</div></div>
-<div class="ttc" id="astructnbgl__warning__t_html"><div class="ttname"><a href="structnbgl__warning__t.html">nbgl_warning_t</a></div><div class="ttdoc">The necessary parameters to build a warning page preceding a review. One can either use predefinedSet...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00256">nbgl_use_case.h:256</a></div></div>
-<div class="ttc" id="astructnbgl__warning__t_html_a4f80d55ce48ce054f0f552db18667182"><div class="ttname"><a href="structnbgl__warning__t.html#a4f80d55ce48ce054f0f552db18667182">nbgl_warning_t::predefinedSet</a></div><div class="ttdeci">uint32_t predefinedSet</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00257">nbgl_use_case.h:257</a></div></div>
-<div class="ttc" id="astructnbgl__warning__t_html_a5762c212a9013f5aad2fc9ecbe2b5944"><div class="ttname"><a href="structnbgl__warning__t.html#a5762c212a9013f5aad2fc9ecbe2b5944">nbgl_warning_t::providerMessage</a></div><div class="ttdeci">const char * providerMessage</div><div class="ttdoc">Dedicated provider message. Default one will be used if NULL.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00262">nbgl_use_case.h:262</a></div></div>
-<div class="ttc" id="astructnbgl__warning__t_html_a9ce33a503a54b1f5e42c56bf85bb94cb"><div class="ttname"><a href="structnbgl__warning__t.html#a9ce33a503a54b1f5e42c56bf85bb94cb">nbgl_warning_t::reportProvider</a></div><div class="ttdeci">const char * reportProvider</div><div class="ttdoc">name of the security report provider, used in some strings</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00261">nbgl_use_case.h:261</a></div></div>
-<div class="ttc" id="astructnbgl__warning__t_html_ace9bbfcec5c19cab4f3597e1cd65f696"><div class="ttname"><a href="structnbgl__warning__t.html#ace9bbfcec5c19cab4f3597e1cd65f696">nbgl_warning_t::reportUrl</a></div><div class="ttdeci">const char * reportUrl</div><div class="ttdoc">URL of the report, used in some strings.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00260">nbgl_use_case.h:260</a></div></div>
-</div><!-- fragment --><p>Here is another version of the example code, not using predefined text:</p>
-<div class="fragment"><div class="line"><span class="comment">// 4 pairs of tag/value to display</span></div>
-<div class="line"><span class="keyword">static</span> <a class="code hl_struct" href="structnbgl__contentTagValue__t.html">nbgl_layoutTagValue_t</a> pairs[4];</div>
-<div class="line"> </div>
-<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__contentTagValueList__t.html">nbgl_contentTagValueList_t</a> pairList = {</div>
-<div class="line">  .<a class="code hl_variable" href="structnbgl__contentTagValueList__t.html#af7465bb412cd1d9fd14bc526d0ea77d8">nbMaxLinesForValue</a> = 0,</div>
-<div class="line">  .nbPairs = 4,</div>
-<div class="line">  .pairs = (<a class="code hl_struct" href="structnbgl__contentTagValue__t.html">nbgl_layoutTagValue_t</a>*)pairs</div>
-<div class="line">};</div>
-<div class="line"> </div>
-<div class="line"><span class="comment">// icons for first level warning details</span></div>
-<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <a class="code hl_typedef" href="nbgl__types_8h.html#a7724587bc3e14c498ed49c3e70c365d6">nbgl_icon_details_t</a> *barListIcons[] = {&amp;WARNING_ICON, &amp;INFO_I_ICON};</div>
-<div class="line"> </div>
-<div class="line"><span class="comment">// first level warning details</span></div>
-<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<span class="keyword">const</span>                  barListTexts[]    = {<span class="stringliteral">&quot;Blind signing&quot;</span>, <span class="stringliteral">&quot;Risk detected&quot;</span>};</div>
-<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<span class="keyword">const</span>                  barListSubTexts[] = {<span class="stringliteral">&quot;This transaction cannot be fully decoded.&quot;</span>, <span class="stringliteral">&quot;Web3 Checks found a risk:\nLosing swap&quot;</span>};</div>
-<div class="line"><span class="comment">// second level warning details in prolog</span></div>
-<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">struct </span><a class="code hl_struct" href="structnbgl__warningDetails__s.html">nbgl_warningDetails_s</a> barListIntroDetails[]  = {</div>
-<div class="line">    {.<a class="code hl_variable" href="structnbgl__warningDetails__s.html#acbfbcdbc9e10459a511601570b93a183">title</a>  = <span class="stringliteral">&quot;Back&quot;</span>,</div>
-<div class="line">     .type   = <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#ae8733047730d71c4601798d7688434f7a4a063b15c4b201a811dc606c075a72b6">QRCODE_WARNING</a>,</div>
-<div class="line">     .qrCode = {.url = <span class="stringliteral">&quot;ledger.com/e8&quot;</span>, .text1 = <span class="stringliteral">&quot;ledger.com/e8&quot;</span>, .text2 = <span class="stringliteral">&quot;Scan to learn about the risks of blind signing.&quot;</span>, .centered = <span class="keyword">true</span>}},</div>
-<div class="line">    {.title        = <span class="stringliteral">&quot;Back&quot;</span>,</div>
-<div class="line">     .type         = <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#ae8733047730d71c4601798d7688434f7a4a063b15c4b201a811dc606c075a72b6">QRCODE_WARNING</a>,</div>
-<div class="line">     .qrCode = {.url = <span class="stringliteral">&quot;url.com/od24xz&quot;</span>, .text1 = <span class="stringliteral">&quot;url.com/od24xz&quot;</span>, .text2 = <span class="stringliteral">&quot;Scan to view the risk report from Blockaid.&quot;</span>, .centered = <span class="keyword">true</span>}}</div>
-<div class="line">};</div>
-<div class="line"> </div>
-<div class="line"><span class="comment">// second level warning details in review</span></div>
-<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">struct </span><a class="code hl_struct" href="structnbgl__warningDetails__s.html">nbgl_warningDetails_s</a> barListIntroDetails[]  = {</div>
-<div class="line">    {.<a class="code hl_variable" href="structnbgl__warningDetails__s.html#acbfbcdbc9e10459a511601570b93a183">title</a>  = <span class="stringliteral">&quot;Back&quot;</span>,</div>
-<div class="line">     .type   = <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#ae8733047730d71c4601798d7688434f7a38f042c76573829aeb753399338ac9b6">CENTERED_INFO_WARNING</a>,</div>
-<div class="line">     .centeredInfo = {.icon = &amp;C_Warning_64px, .title = <span class="stringliteral">&quot;Blind signing&quot;</span>, .description = <span class="stringliteral">&quot;This transaction’s details are not fully verifiable. If you sign it, you could lose all your assets.\n\nLearn about blind signing:</span></div>
-<div class="line"><span class="stringliteral">ledger.com/e8&quot;</span>}},</div>
-<div class="line">    {.title        = <span class="stringliteral">&quot;Back&quot;</span>,</div>
-<div class="line">     .type         = <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#ae8733047730d71c4601798d7688434f7a38f042c76573829aeb753399338ac9b6">CENTERED_INFO_WARNING</a>,</div>
-<div class="line">     .centeredInfo = {.icon = &amp;C_Warning_64px, .title = <span class="stringliteral">&quot;Risk detected&quot;</span>, .description = <span class="stringliteral">&quot;This transaction was scanned as risky by Web3 Checks.\n\nView full Blockaid report:url.com/od24xz&quot;</span>}}</div>
-<div class="line">};</div>
-<div class="line"> </div>
-<div class="line"><span class="comment">// info in main warning page</span></div>
-<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__contentCenter__t.html">nbgl_contentCenter_t</a> warningInfo = {</div>
-<div class="line">  .<a class="code hl_variable" href="structnbgl__contentCenter__t.html#a10b52730e8dbf5b29f84e59d33946fc9">icon</a>          = &amp;C_Warning_64px,</div>
-<div class="line">  .title         = <span class="stringliteral">&quot;Dangerous transaction&quot;</span>,</div>
-<div class="line">  .description   = <span class="stringliteral">&quot;This transaction cannot be fully decoded, and was marked risky by Web3 Checks.&quot;</span></div>
-<div class="line">};</div>
-<div class="line"> </div>
-<div class="line"><span class="comment">// first level warning details in prolog</span></div>
-<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__warningDetails__s.html">nbgl_warningDetails_t</a> warningIntroDetails = {</div>
-<div class="line">  .<a class="code hl_variable" href="structnbgl__warningDetails__s.html#acbfbcdbc9e10459a511601570b93a183">title</a>                   = <span class="stringliteral">&quot;Security report&quot;</span>,</div>
-<div class="line">  .type                    = <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#ae8733047730d71c4601798d7688434f7a9d9aea494a173340576be278ef075936">BAR_LIST_WARNING</a>,</div>
-<div class="line">  .barList.nbBars          = 2,</div>
-<div class="line">  .barList.icons           = barListIcons,</div>
-<div class="line">  .texts                   = barListTexts,</div>
-<div class="line">  .subTexts                = barListSubTexts,</div>
-<div class="line">  .barList.details         = barListIntroDetails</div>
-<div class="line">};</div>
-<div class="line"> </div>
-<div class="line"><span class="comment">// first level warning details in review (when pressing top-right from first and last pages)</span></div>
-<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__warningDetails__s.html">nbgl_warningDetails_t</a> warningReviewDetails = {</div>
-<div class="line">  .<a class="code hl_variable" href="structnbgl__warningDetails__s.html#acbfbcdbc9e10459a511601570b93a183">title</a>                   = <span class="stringliteral">&quot;Security report&quot;</span>,</div>
-<div class="line">  .type                    = <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#ae8733047730d71c4601798d7688434f7a9d9aea494a173340576be278ef075936">BAR_LIST_WARNING</a>,</div>
-<div class="line">  .barList.nbBars          = 2,</div>
-<div class="line">  .barList.icons           = barListIcons,</div>
-<div class="line">  .texts                   = barListTexts,</div>
-<div class="line">  .subTexts                = barListSubTexts,</div>
-<div class="line">  .barList.details         = barListReviewDetails</div>
-<div class="line">};</div>
-<div class="line"> </div>
-<div class="line"><span class="comment">// warning description (cannot be in call stack)</span></div>
-<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__warning__t.html">nbgl_warning_t</a> warningDesc = {</div>
-<div class="line">  .<a class="code hl_variable" href="structnbgl__warning__t.html#ae67d2034ed6402a38e048fd0f74c9c9b">info</a>               = &amp;warningInfo,</div>
-<div class="line">  .introTopRightIcon  = &amp;PRIVACY_ICON,</div>
-<div class="line">  .reviewTopRightIcon = &amp;WARNING_ICON,</div>
-<div class="line">  .introDetails       = &amp;warningIntroDetails,</div>
-<div class="line">  .reviewDetails      = &amp;warningReviewDetails</div>
-<div class="line">};</div>
-<div class="line"> </div>
-<div class="line"><span class="comment">// called when long press button on 3rd page is long-touched or when reject footer is touched</span></div>
-<div class="line"><span class="keyword">static</span> <span class="keywordtype">void</span> onReviewResult(<span class="keywordtype">bool</span> confirm) {</div>
-<div class="line">  <span class="comment">// display a status page and go back to main</span></div>
-<div class="line">  <span class="keywordflow">if</span> (confirm) {</div>
-<div class="line">    <a class="code hl_function" href="nbgl__use__case_8h.html#ae32d39392a88d6aa2595b0d45661f0ab">nbgl_useCaseReviewStatus</a>(<a class="code hl_enumvalue" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea699644fad9f83e97303c7422daca9e41">STATUS_TYPE_TRANSACTION_SIGNED</a>, appMain);</div>
-<div class="line">  }</div>
-<div class="line">  <span class="keywordflow">else</span> {</div>
-<div class="line">    <a class="code hl_function" href="nbgl__use__case_8h.html#ae32d39392a88d6aa2595b0d45661f0ab">nbgl_useCaseReviewStatus</a>(<a class="code hl_enumvalue" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea39c63169fc1f2c1a4922cfd0b07bcf0a">STATUS_TYPE_TRANSACTION_REJECTED</a>, appMain);</div>
-<div class="line">  }</div>
-<div class="line">}</div>
-<div class="line"> </div>
-<div class="line"><span class="keywordtype">void</span> staticReview(<span class="keywordtype">void</span>) {</div>
-<div class="line">  <span class="comment">// static review, providing the whole list of pairs</span></div>
-<div class="line">  <a class="code hl_function" href="nbgl__use__case_8h.html#aff5a4093825fd83540694a872c47b547">nbgl_useCaseAdvancedReview</a>(<a class="code hl_enumvalue" href="nbgl__use__case_8h.html#afa09e6097a8248ecbdc81d2fb1bfc317a58ebdf125d0fe120e74ebe9e00f86205">TYPE_TRANSACTION</a>, <span class="comment">// type of operation</span></div>
-<div class="line">                                &amp;pairList,       <span class="comment">// list of tag/value pairs</span></div>
-<div class="line">                                coinIcon,        <span class="comment">// icon of the coin</span></div>
-<div class="line">                                <span class="stringliteral">&quot;Review transaction\nto send coin&quot;</span>, <span class="comment">// title of the first page</span></div>
-<div class="line">                                NULL,                               <span class="comment">// sub-title of the first page</span></div>
-<div class="line">                                <span class="stringliteral">&quot;Sign transaction to\nsend coin?&quot;</span>,  <span class="comment">// title of the last page</span></div>
-<div class="line">                                NULL,                               <span class="comment">// no tip-box in first page of review</span></div>
-<div class="line">                                &amp;warningDesc,                       <span class="comment">// description of warning causes</span></div>
-<div class="line">                                onReviewResult);                    <span class="comment">// callback on result of the review</span></div>
-<div class="line">}</div>
-<div class="ttc" id="anbgl__use__case_8h_html_ae8733047730d71c4601798d7688434f7a38f042c76573829aeb753399338ac9b6"><div class="ttname"><a href="nbgl__use__case_8h.html#ae8733047730d71c4601798d7688434f7a38f042c76573829aeb753399338ac9b6">CENTERED_INFO_WARNING</a></div><div class="ttdeci">@ CENTERED_INFO_WARNING</div><div class="ttdoc">Centered info.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00197">nbgl_use_case.h:197</a></div></div>
-<div class="ttc" id="anbgl__use__case_8h_html_ae8733047730d71c4601798d7688434f7a4a063b15c4b201a811dc606c075a72b6"><div class="ttname"><a href="nbgl__use__case_8h.html#ae8733047730d71c4601798d7688434f7a4a063b15c4b201a811dc606c075a72b6">QRCODE_WARNING</a></div><div class="ttdeci">@ QRCODE_WARNING</div><div class="ttdoc">QR Code.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00198">nbgl_use_case.h:198</a></div></div>
-<div class="ttc" id="anbgl__use__case_8h_html_ae8733047730d71c4601798d7688434f7a9d9aea494a173340576be278ef075936"><div class="ttname"><a href="nbgl__use__case_8h.html#ae8733047730d71c4601798d7688434f7a9d9aea494a173340576be278ef075936">BAR_LIST_WARNING</a></div><div class="ttdeci">@ BAR_LIST_WARNING</div><div class="ttdoc">list of touchable bars, to display sub-pages</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00200">nbgl_use_case.h:199</a></div></div>
-<div class="ttc" id="astructnbgl__contentCenter__t_html"><div class="ttname"><a href="structnbgl__contentCenter__t.html">nbgl_contentCenter_t</a></div><div class="ttdoc">This structure contains info to build a centered (vertically and horizontally) area,...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00090">nbgl_content.h:90</a></div></div>
-<div class="ttc" id="astructnbgl__contentCenter__t_html_a10b52730e8dbf5b29f84e59d33946fc9"><div class="ttname"><a href="structnbgl__contentCenter__t.html#a10b52730e8dbf5b29f84e59d33946fc9">nbgl_contentCenter_t::icon</a></div><div class="ttdeci">const nbgl_icon_details_t * icon</div><div class="ttdoc">the icon (can be null)</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00092">nbgl_content.h:92</a></div></div>
-<div class="ttc" id="astructnbgl__warningDetails__s_html"><div class="ttname"><a href="structnbgl__warningDetails__s.html">nbgl_warningDetails_s</a></div><div class="ttdoc">The necessary parameters to build the page(s) displayed when the top-right button is touched in intro...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00220">nbgl_use_case.h:220</a></div></div>
-<div class="ttc" id="astructnbgl__warningDetails__s_html_acbfbcdbc9e10459a511601570b93a183"><div class="ttname"><a href="structnbgl__warningDetails__s.html#acbfbcdbc9e10459a511601570b93a183">nbgl_warningDetails_s::title</a></div><div class="ttdeci">const char * title</div><div class="ttdoc">text of the page (used to go back)</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00221">nbgl_use_case.h:221</a></div></div>
-<div class="ttc" id="astructnbgl__warning__t_html_ae67d2034ed6402a38e048fd0f74c9c9b"><div class="ttname"><a href="structnbgl__warning__t.html#ae67d2034ed6402a38e048fd0f74c9c9b">nbgl_warning_t::info</a></div><div class="ttdeci">const nbgl_contentCenter_t * info</div><div class="ttdoc">parameters to build the intro warning page, if not using pre-defined</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00270">nbgl_use_case.h:270</a></div></div>
-</div><!-- fragment --><h2><a class="anchor" id="use_case_addr_review"></a>
-Address Review Use Case</h2>
-<p><img src="UseCase-AddressReview.png" alt="" height="500" class="inline" title="caption"/></p>
-<p>When an address needs to be confirmed, it can be displayed in a Address Review Use Case. After a title page, a second page is displayed with the raw address (as text). An extra button under the raw address enables to open a modal page to see the address as a QR code. Moreover, if extra information need to be displayed, for example a derivation path, it is provided in a second page, also containing a black button/Footer pair to choose to confirm or reject the address.</p>
-<p>The <a class="el" href="nbgl__use__case_8h.html#af488f6a96b0c702f31cca21ff5276663">nbgl_useCaseAddressReview()</a> function enables to create such a set of pages, with the following parameters:</p>
-<ul>
-<li>the address to confirm (NULL terminated string)</li>
-<li>a callback called when button or footer is touched (if true, confirm, if false reject)</li>
-<li>the list of extra tag/value pairs</li>
-</ul>
-<p>Here is the code to display something similar to example picture:</p>
-<div class="fragment"><div class="line"><span class="comment">// 2 pairs of tag/value to display in second page</span></div>
-<div class="line"><span class="keyword">static</span> <a class="code hl_struct" href="structnbgl__contentTagValue__t.html">nbgl_layoutTagValue_t</a> pairs[2];</div>
-<div class="line"> </div>
-<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__contentTagValueList__t.html">nbgl_contentTagValueList_t</a> pairList = {</div>
-<div class="line">  .<a class="code hl_variable" href="structnbgl__contentTagValueList__t.html#af7465bb412cd1d9fd14bc526d0ea77d8">nbMaxLinesForValue</a> = 0,</div>
-<div class="line">  .nbPairs = 2,</div>
-<div class="line">  .pairs = (<a class="code hl_struct" href="structnbgl__contentTagValue__t.html">nbgl_layoutTagValue_t</a>*)pairs</div>
-<div class="line">};</div>
-<div class="line"> </div>
-<div class="line"><span class="comment">// called when either confirm button or reject token is called</span></div>
-<div class="line"><span class="keyword">static</span> <span class="keywordtype">void</span> displayAddressCallback(<span class="keywordtype">bool</span> confirm) {</div>
-<div class="line">  <span class="keywordflow">if</span> (confirm) {</div>
-<div class="line">    <a class="code hl_function" href="nbgl__use__case_8h.html#ae32d39392a88d6aa2595b0d45661f0ab">nbgl_useCaseReviewStatus</a>(<a class="code hl_enumvalue" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea864b5611cf119286e3b93fc4642630c5">STATUS_TYPE_ADDRESS_VERIFIED</a>, app_fullEthereum);</div>
-<div class="line">  }</div>
-<div class="line">  <span class="keywordflow">else</span> {</div>
-<div class="line">    <a class="code hl_function" href="nbgl__use__case_8h.html#ae32d39392a88d6aa2595b0d45661f0ab">nbgl_useCaseReviewStatus</a>(<a class="code hl_enumvalue" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea421fe70db5ac9ff90611b7d1a57af340">STATUS_TYPE_ADDRESS_REJECTED</a>, app_fullEthereum);</div>
-<div class="line">  }</div>
-<div class="line">}</div>
-<div class="line"> </div>
-<div class="line"><span class="keywordtype">void</span> app_ethereumVerifyAddress(<span class="keywordtype">void</span>) {</div>
-<div class="line">  <a class="code hl_function" href="nbgl__use__case_8h.html#af488f6a96b0c702f31cca21ff5276663">nbgl_useCaseAddressReview</a>(<span class="stringliteral">&quot;bc1pkdcufjh6dxjaaa05hudvxqg5fhspfmwmp8g92gq8cv4gwwnmgrfqfd4jlg&quot;</span>,</div>
-<div class="line">                            &amp;pairList</div>
-<div class="line">                            myAppIcon,</div>
-<div class="line">                            <span class="stringliteral">&quot;Verify MyCoin\naddress&quot;</span>,</div>
-<div class="line">                            NULL,</div>
-<div class="line">                            <span class="stringliteral">&quot;Cancel&quot;</span>,</div>
-<div class="line">                            appMain);</div>
-<div class="line">}</div>
-<div class="ttc" id="anbgl__use__case_8h_html_aecc6f4750a49ca97c084e3fd5600d5dea421fe70db5ac9ff90611b7d1a57af340"><div class="ttname"><a href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea421fe70db5ac9ff90611b7d1a57af340">STATUS_TYPE_ADDRESS_REJECTED</a></div><div class="ttdeci">@ STATUS_TYPE_ADDRESS_REJECTED</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00322">nbgl_use_case.h:322</a></div></div>
-<div class="ttc" id="anbgl__use__case_8h_html_aecc6f4750a49ca97c084e3fd5600d5dea864b5611cf119286e3b93fc4642630c5"><div class="ttname"><a href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea864b5611cf119286e3b93fc4642630c5">STATUS_TYPE_ADDRESS_VERIFIED</a></div><div class="ttdeci">@ STATUS_TYPE_ADDRESS_VERIFIED</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00321">nbgl_use_case.h:321</a></div></div>
-<div class="ttc" id="anbgl__use__case_8h_html_af488f6a96b0c702f31cca21ff5276663"><div class="ttname"><a href="nbgl__use__case_8h.html#af488f6a96b0c702f31cca21ff5276663">nbgl_useCaseAddressReview</a></div><div class="ttdeci">void nbgl_useCaseAddressReview(const char *address, const nbgl_contentTagValueList_t *additionalTagValueList, const nbgl_icon_details_t *icon, const char *reviewTitle, const char *reviewSubTitle, nbgl_choiceCallback_t choiceCallback)</div></div>
-</div><!-- fragment --><h2><a class="anchor" id="use_case_spinner"></a>
-Spinner Use Case</h2>
-<p><img src="UseCase-Spinner.png" alt="" height="300" class="inline" title="caption"/></p>
-<p>This Use Case is simply to display a static <em>waiting page</em></p>
-<p>The <a class="el" href="nbgl__use__case_8h.html#a6c70e8409832531cb83c75c5c376ee18">nbgl_useCaseSpinner()</a> function enables to create such a page, without any parameters.</p>
-<h2><a class="anchor" id="use_case_keypad"></a>
-Keypad Use Case</h2>
-<p><img src="UseCase-Keypad.png" alt="" height="350" class="inline" title="caption"/></p>
-<p>We have here 2 different variants, allowing to show or hide the entered digits.</p>
-<p>When a pincode is requested, a default keypad can be displayed, with hidden digits. As shown on the image above, it consists of:</p>
-<ul>
-<li>a navigation bar at the top</li>
-<li>a title area, specifying the type of pin code or operation requested</li>
-<li>a hidden Digits area (the max nb of supported digits is 12)</li>
-<li>the keypad at the bottom</li>
-</ul>
-<p>The <a class="el" href="nbgl__use__case_8h.html#a29799c89a1e92963706ffc97ceee9d5a">nbgl_useCaseKeypadPIN()</a> function enables to create such page, with the following parameters:</p>
-<ul>
-<li>the title</li>
-<li>min and max pin code lengths</li>
-<li>a token for the navigation callback (if not provided, no navigation bar will appear)</li>
-<li>a boolean to request a shuffled keypad</li>
-<li>a tune value</li>
-<li>callbacks for navigation and pin validation</li>
-</ul>
-<p>The other variant, where digits don't need to be hidden is <a class="el" href="nbgl__use__case_8h.html#a89212f593a06326783ee901b62d21492">nbgl_useCaseKeypadDigits()</a>; it takes the same parameters.</p>
-<dl class="section note"><dt>Note</dt><dd>The <em>backspace</em> and <em>validate</em> buttons will be shown or hidden automatically.</dd></dl>
-<p>Here is the code to display something similar to example picture:</p>
-<div class="fragment"><div class="line"><span class="keyword">static</span> <span class="keywordtype">void</span> validate_pin(<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *pinentry, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> length) {</div>
-<div class="line">    <span class="comment">// Code to validate the entered pin code</span></div>
-<div class="line">}</div>
-<div class="line"> </div>
-<div class="line"><span class="keyword">static</span> <span class="keywordtype">void</span> pinentry_cb(<span class="keywordtype">int</span> token, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> index) {</div>
-<div class="line">    UNUSED(index);</div>
-<div class="line">    <span class="comment">// Callback for the key navigation (back key mainly)</span></div>
-<div class="line">    <span class="keywordflow">if</span> (token == TOKEN_PIN_ENTRY_BACK) {</div>
-<div class="line">        ui_init();</div>
-<div class="line">    }</div>
-<div class="line">}</div>
-<div class="line"> </div>
-<div class="line"><span class="keywordtype">void</span> ui_menu_pinentry_display(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> value) {</div>
-<div class="line">    <span class="comment">// Draw the keypad</span></div>
-<div class="line">    <a class="code hl_function" href="nbgl__use__case_8h.html#a29799c89a1e92963706ffc97ceee9d5a">nbgl_useCaseKeypadPIN</a>(<span class="stringliteral">&quot;Enter User PIN&quot;</span>,</div>
-<div class="line">                          6,</div>
-<div class="line">                          12,</div>
-<div class="line">                          TOKEN_PIN_ENTRY_BACK,</div>
-<div class="line">                          <span class="keyword">false</span>,</div>
-<div class="line">                          TUNE_TAP_CASUAL,</div>
-<div class="line">                          validate_pin,</div>
-<div class="line">                          pinentry_cb);</div>
-<div class="line">}</div>
-<div class="ttc" id="anbgl__use__case_8h_html_a29799c89a1e92963706ffc97ceee9d5a"><div class="ttname"><a href="nbgl__use__case_8h.html#a29799c89a1e92963706ffc97ceee9d5a">nbgl_useCaseKeypadPIN</a></div><div class="ttdeci">void nbgl_useCaseKeypadPIN(const char *title, uint8_t minDigits, uint8_t maxDigits, uint8_t backToken, bool shuffled, tune_index_e tuneId, nbgl_pinValidCallback_t validatePinCallback, nbgl_layoutTouchCallback_t actionCallback)</div></div>
-</div><!-- fragment --><h1><a class="anchor" id="use_case_refresh_page"></a>
+<p>In this case, what we call a "streaming" review can be used. The pages to display for each "stream are computed automatically and pages can be navigated forward
+and backward (only within a "stream" for backward).
+
+In case of a tag/value pair too long to be fully displayed, the "more" button will be automatically drawn and its handling
+automatically performed by NBGL by building a detailed modal view.
+
+When the user taps on "Reject" in any page, a confirmation page is automatically drawned to let user confirm that he rejects
+the transaction. In this case, the given callback is called and it's up to app's developer to call @ref nbgl_useCaseReviewStatus(), as in
+case of long-press.
+
+The API to initiate the display of the series of pages is @ref nbgl_useCaseReviewStreamingStart(), providing:
+
+- the type of operation to review (transaction, message or generic operation)
+- the texts/icon to use in presentation page
+- a callback with one boolean parameter.
+  - If this parameter is &lt;em&gt;false&lt;/em&gt;, it means that the transaction is rejected.
+  - If this parameter is &lt;em&gt;true&lt;/em&gt;, it means that NBGL is waiting for new data, sent with @ref nbgl_useCaseReviewStreamingContinue() or @ref nbgl_useCaseReviewStreamingContinueExt()
+
+As long as there are new tag/value pairs to send, the API to call is either @ref nbgl_useCaseReviewStreamingContinueExt() (if skip is possible) or
+@ref nbgl_useCaseReviewStreamingContinue(), providing:
+
+- the list of tag/value pairs (or a callback to get them one by one)
+- a callback with one boolean parameter.
+  - If this parameter is &lt;em&gt;false&lt;/em&gt;, it means that the transaction is rejected.
+  - If this parameter is &lt;em&gt;true&lt;/em&gt;, it means that NBGL is waiting for new data, to be sent with @ref nbgl_useCaseReviewStreamingContinue() or @ref nbgl_useCaseReviewStreamingContinueExt()
+
+When there is no more data to senf, the API to call is either @ref nbgl_useCaseReviewStreamingFinish(), providing:
+
+- the title to use for last page (with long-press button)
+- a callback called when the long press button on last page or reject confirmation is used. The callback's param is &lt;em&gt;true&lt;/em&gt; for confirmation, &lt;em&gt;false&lt;/em&gt; for rejection.
+
+Here is the code to display something similar to example picture:
+
+@code 
+
+// called when long press button on last page is long-touched or when reject footer is touched
+static void onReviewResult(bool confirm) {
+  // display a status page and go back to main
+  if (confirm) {
+    nbgl_useCaseReviewStatus(STATUS_TYPE_TRANSACTION_SIGNED, appMain);
+  }
+  else {
+    nbgl_useCaseReviewStatus(STATUS_TYPE_TRANSACTION_REJECTED, appMain);
+  }
+}
+
+static void onTransactionContinue(bool askMore)
+{
+  if (askMore) {
+    nbgl_contentTagValueList_t pairsToSend;
+    // try to get more data
+    if (moreDataToSend(&amp;pairsToSend)) {
+      nbgl_useCaseReviewStreamingContinue(&amp;pairsToSend, onTransactionContinue);
+    }
+    else {
+      // all data sent, so finish
+      nbgl_useCaseReviewStreamingFinish("Sign transaction to transfer Cardano?", // title on last page
+                                        onReviewResult); // callback to handle reject/accept
+    }
+  }
+  else {
+      onReviewResult(false);
+  }
+}
+
+void staticReview(void) {
+  // initiate the streaming review
+  nbgl_useCaseReviewStreamingStart(TYPE_TRANSACTION,
+                                    &amp;C_ic_asset_cardano_64, // icon on first and last page
+                                    "Review transaction",   // title of the first page
+                                    NULL,                   // sub-title of the first page
+                                    onTransactionContinue); // callback to reject or ask more data
+}
+@endcode
+
+@subsection use_case_addr_review Address Review Use Case
+
+@image{inline} html UseCase-AddressReview.png "caption" height=500
+
+When an address needs to be confirmed, it can be displayed in a Address Review Use Case.
+After a title page, a second page is displayed with the raw address (as text). An extra button under the raw address enables to open a modal page to see the address as a QR code.
+Moreover, if extra information need to be displayed, for example a derivation path, it is provided in a second page, also containing
+a black button/Footer pair to choose to confirm or reject the address.
+
+The @ref nbgl_useCaseAddressReview() function enables to create such a set of pages, with the following parameters:
+
+- the address to confirm (NULL terminated string)
+- a callback called when button or footer is touched (if true, confirm, if false reject)
+- the list of extra tag/value pairs
+
+Here is the code to display something similar to example picture:
+
+@code 
+// 2 pairs of tag/value to display in second page
+static nbgl_layoutTagValue_t pairs[2];
+
+static const nbgl_contentTagValueList_t pairList = {
+  .nbMaxLinesForValue = 0,
+  .nbPairs = 2,
+  .pairs = (nbgl_layoutTagValue_t*)pairs
+};
+
+// called when either confirm button or reject token is called
+static void displayAddressCallback(bool confirm) {
+  if (confirm) {
+    nbgl_useCaseStatus("ADDRESS\nVERIFIED",true,app_fullEthereum);
+  }
+  else {
+    nbgl_useCaseStatus("Address rejected",false,app_fullEthereum);
+  }
+}
+
+void app_ethereumVerifyAddress(void) {
+  nbgl_useCaseAddressReview("bc1pkdcufjh6dxjaaa05hudvxqg5fhspfmwmp8g92gq8cv4gwwnmgrfqfd4jlg",
+                            &amp;pairList
+                            myAppIcon,
+                            "Verify MyCoin\naddress",
+                            NULL,"Cancel",
+                            appMain);
+}
+@endcode
+
+@subsection use_case_spinner Spinner Use Case
+
+@image{inline} html UseCase-Spinner.png "caption" height=300
+
+When an address needs to be confirmed, it can be displayed in a Address Confirmation Use Case, at first as simple page with
+the raw address (as text) and a black button/Footer pair to choose to confirm or reject the address.
+
+An extra button under the raw address enables to open a modal page to see the address as a QR code.
+
+The @ref nbgl_useCaseSpinner() function enables to create such a page, with the following parameters:
+
+@subsection use_case_keypad Keypad Use Case
+
+@image{inline} html UseCase-Keypad.png "caption" height=350
+
+We have here 2 different variants, allowing to show or hide the entered digits.
+
+When a pincode is requested, a default keypad can be displayed, with hidden digits.
+As shown on the image above, it consists of:
+
+- a navigation bar at the top
+- a title area, specifying the type of pin code or operation requested
+- a hidden Digits area (the max nb of supported digits is 12)
+- the keypad at the bottom
+
+The @ref nbgl_useCaseKeypadPIN() function enables to create such page, with the following parameters:
+
+- the title
+- min and max pin code lengths
+- a token for the navigation callback (if not provided, no navigation bar will appear)
+- a boolean to request a shuffled keypad
+- a tune value
+- callbacks for navigation and pin validation
+
+The other variant, where digits don't need to be hidden is @ref nbgl_useCaseKeypadDigits();
+it takes the same parameters.
+
+@note The \em backspace and \em validate buttons will be shown or hidden automatically.
+
+Here is the code to display something similar to example picture:
+
+@code 
+static void validate_pin(const uint8_t *pinentry, uint8_t length) {
+    // Code to validate the entered pin code
+}
+
+static void pinentry_cb(int token, uint8_t index) {
+    UNUSED(index);
+    // Callback for the key navigation (back key mainly)
+    if (token == TOKEN_PIN_ENTRY_BACK) {
+        ui_init();
+    }
+}
+
+void ui_menu_pinentry_display(unsigned int value) {
+    // Draw the keypad
+    nbgl_useCaseKeypadPIN("Enter User PIN", 6, 12, TOKEN_PIN_ENTRY_BACK, false, TUNE_TAP_CASUAL, validate_pin, pinentry_cb); } </p>
+<h1><a class="anchor" id="use_case_refresh_page"></a>
 Refreshing screen</h1>
 <p>After having drawn graphic objects in <b>framebuffer</b>, all functions of this API automatically refresh the screen. So no need to call <a class="el" href="nbgl__obj_8h.html#a2c321e01f64784c5249e594b795bf252">nbgl_refresh()</a>. </p>
 </div></div><!-- contents -->

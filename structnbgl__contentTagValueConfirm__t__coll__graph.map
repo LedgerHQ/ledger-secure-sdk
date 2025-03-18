@@ -4,9 +4,6 @@
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,235,121,283,116,283,116,235"/>
 <area shape="rect" id="Node000003" href="$structnbgl__contentTagValue__t.html" title="This structure contains a [tag,value] pair." alt="" coords="31,93,207,119"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="121,133,121,196,116,196,116,133"/>
-<area shape="rect" id="Node000004" href="$structnbgl__contentValueExt__t.html" title="This structure contains additions to a tag/value pair, to be able to build a screen to display these ..." alt="" coords="131,5,306,31"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="142,39,122,56,117,74,118,93,113,93,111,74,118,53,139,35"/>
-<area shape="rect" id="Node000005" href="$structnbgl__contentInfoList__s.html" title="This structure contains data to build a INFOS_LIST content." alt="" coords="248,93,416,119"/>
-<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="213,44,213,57,217,68,231,82,249,91,247,96,228,86,212,71,207,58,208,44"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="329,80,326,67,319,56,303,43,283,33,286,28,306,38,323,53,331,65,334,79"/>
+<area shape="rect" id="Node000004" href="$structnbgl__contentValueExt__t.html" title="This structure contains additions to a tag/value pair, to be able to build a screen to display these ..." alt="" coords="31,5,206,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="121,45,121,93,116,93,116,45"/>
 </map>
