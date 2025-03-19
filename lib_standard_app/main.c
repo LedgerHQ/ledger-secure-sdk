@@ -75,6 +75,7 @@ WEAK void standalone_app_main(void)
         }
         CATCH_OTHER(e)
         {
+            (void) e;
 #ifdef HAVE_DEBUG_THROWS
             // Disable USB and BLE, the app have crashed and is going to be exited
             // This is necessary to avoid device freeze while displaying throw error
@@ -148,6 +149,7 @@ WEAK void library_app_main(libargs_t *args)
         }
         CATCH_OTHER(e)
         {
+            (void) e;
             PRINTF("Exiting following exception: 0x%04X\n", e);
         }
         FINALLY
