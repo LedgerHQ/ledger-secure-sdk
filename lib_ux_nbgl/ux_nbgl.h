@@ -58,6 +58,7 @@ extern void ux_process_finger_event(uint8_t seph_packet[]);
 extern void ux_process_button_event(uint8_t seph_packet[]);
 extern void ux_process_ticker_event(void);
 extern void ux_process_default_event(void);
+extern void ux_delay_lock(uint32_t delay_ms);
 #endif  // !defined(APP_UX)
 
 /**
