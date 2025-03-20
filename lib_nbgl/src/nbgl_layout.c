@@ -62,6 +62,7 @@
 #define BAR_TEXT_MARGIN                  24
 #define BAR_INTER_TEXTS_MARGIN           16
 #define PROGRESSBAR_ALIGNMENT_MARGIN_Y   28
+#define LEFT_CONTENT_TEXT_PADDING        0
 #elif defined(TARGET_FLEX)
 #define RADIO_CHOICE_HEIGHT              92
 #define FOOTER_HEIGHT                    80
@@ -85,6 +86,7 @@
 #define BAR_TEXT_MARGIN                  24
 #define BAR_INTER_TEXTS_MARGIN           16
 #define PROGRESSBAR_ALIGNMENT_MARGIN_Y   32
+#define LEFT_CONTENT_TEXT_PADDING        4
 #else  // TARGETS
 #error Undefined target
 #endif  // TARGETS
@@ -1827,21 +1829,19 @@ int nbgl_layoutAddLeftContent(nbgl_layout_t *layout, const nbgl_layoutLeftConten
         image->buffer             = info->rowIcons[row];
         rowContainer->children[0] = (nbgl_obj_t *) image;
 
-        textArea                       = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, 0);
-        textArea->textColor            = BLACK;
-        textArea->text                 = info->rowTexts[row];
-        textArea->textAlignment        = MID_LEFT;
-        textArea->fontId               = SMALL_REGULAR_FONT;
-        textArea->wrapping             = true;
-        textArea->obj.alignmentMarginX = 16;
-        textArea->obj.area.width
-            = AVAILABLE_WIDTH - image->buffer->width - textArea->obj.alignmentMarginX;
+        textArea                  = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, 0);
+        textArea->textColor       = BLACK;
+        textArea->text            = info->rowTexts[row];
+        textArea->textAlignment   = MID_LEFT;
+        textArea->fontId          = SMALL_REGULAR_FONT;
+        textArea->wrapping        = true;
+        textArea->obj.area.width  = AVAILABLE_WIDTH - image->buffer->width - 16;
         textArea->obj.area.height = nbgl_getTextHeightInWidth(
             textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
-        textArea->obj.alignment       = RIGHT_TOP;
-        textArea->obj.alignTo         = (nbgl_obj_t *) image;
-        rowContainer->children[1]     = (nbgl_obj_t *) textArea;
-        rowContainer->obj.area.height = MAX(image->buffer->height, textArea->obj.area.height);
+        textArea->obj.alignment   = MID_RIGHT;
+        rowContainer->children[1] = (nbgl_obj_t *) textArea;
+        rowContainer->obj.area.height
+            = MAX(image->buffer->height, textArea->obj.area.height + LEFT_CONTENT_TEXT_PADDING);
 
         if (row == 0) {
             rowContainer->obj.alignmentMarginY = 32;
@@ -2604,31 +2604,36 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
         case HEADER_BACK_AND_TEXT:
         case HEADER_BACK_ICON_AND_TEXT:
         case HEADER_EXTENDED_BACK: {
-            const char *text = (headerDesc->type == HEADER_EXTENDED_BACK)
-                                   ? PIC(headerDesc->extendedBack.text)
-                                   : PIC(headerDesc->backAndText.text);
+            const char *text      = (headerDesc->type == HEADER_EXTENDED_BACK)
+                                        ? PIC(headerDesc->extendedBack.text)
+                                        : PIC(headerDesc->backAndText.text);
+            uint8_t     backToken = (headerDesc->type == HEADER_EXTENDED_BACK)
+                                        ? headerDesc->extendedBack.backToken
+                                        : headerDesc->backAndText.token;
             // add back button
             button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layoutInt->layer);
-            obj    = layoutAddCallbackObj(
-                layoutInt,
-                (nbgl_obj_t *) button,
-                (headerDesc->type == HEADER_EXTENDED_BACK) ? headerDesc->extendedBack.backToken
-                                                              : headerDesc->backAndText.token,
-                (headerDesc->type == HEADER_EXTENDED_BACK) ? headerDesc->extendedBack.tuneId
-                                                              : headerDesc->backAndText.tuneId);
-            if (obj == NULL) {
-                return -1;
+            // only make it active if valid token
+            if (backToken != NBGL_INVALID_TOKEN) {
+                obj = layoutAddCallbackObj(layoutInt,
+                                           (nbgl_obj_t *) button,
+                                           backToken,
+                                           (headerDesc->type == HEADER_EXTENDED_BACK)
+                                               ? headerDesc->extendedBack.tuneId
+                                               : headerDesc->backAndText.tuneId);
+                if (obj == NULL) {
+                    return -1;
+                }
             }
 
             button->obj.alignment   = MID_LEFT;
             button->innerColor      = WHITE;
-            button->foregroundColor = BLACK;
+            button->foregroundColor = (backToken != NBGL_INVALID_TOKEN) ? BLACK : WHITE;
             button->borderColor     = WHITE;
             button->obj.area.width  = BACK_KEY_WIDTH;
             button->obj.area.height = TOUCHABLE_HEADER_BAR_HEIGHT;
             button->text            = NULL;
             button->icon            = PIC(&LEFT_ARROW_ICON);
-            button->obj.touchMask   = (1 << TOUCHED);
+            button->obj.touchMask   = (backToken != NBGL_INVALID_TOKEN) ? (1 << TOUCHED) : 0;
             button->obj.touchId     = BACK_BUTTON_ID;
             layoutInt->headerContainer->children[layoutInt->headerContainer->nbChildren]
                 = (nbgl_obj_t *) button;
