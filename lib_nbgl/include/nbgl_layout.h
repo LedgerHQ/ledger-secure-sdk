@@ -48,6 +48,7 @@ extern "C" {
 #define SIMPLE_FOOTER_HEIGHT              92
 #define SMALL_CENTERING_HEADER            32
 #define MEDIUM_CENTERING_HEADER           56
+#define MEDIUM_CENTERING_FOOTER           88
 #define LONG_PRESS_BUTTON_HEIGHT          128
 #else  // TARGET_STAX
 #define NB_MAX_SUGGESTION_BUTTONS         8
@@ -60,6 +61,7 @@ extern "C" {
 #define SIMPLE_FOOTER_HEIGHT              96
 #define SMALL_CENTERING_HEADER            40
 #define MEDIUM_CENTERING_HEADER           64
+#define MEDIUM_CENTERING_FOOTER           64
 #define LONG_PRESS_BUTTON_HEIGHT          152
 #endif  // TARGET_STAX
 
