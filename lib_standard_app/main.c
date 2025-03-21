@@ -24,6 +24,7 @@
 
 #ifdef HAVE_SWAP
 #include "swap.h"
+#include "swap_error_code_helpers.h"
 
 #ifdef HAVE_NBGL
 #include "nbgl_use_case.h"
@@ -139,6 +140,12 @@ WEAK void library_app_main(libargs_t *args)
                         nbgl_useCaseSpinner("Signing");
 #endif  // HAVE_NBGL
 
+#ifdef HAVE_PARTIAL_SWAP
+                        // Don't actually allow signing SWAP transactions
+                        send_swap_error_simple(0xcafe, SWAP_EC_ERROR_INTERNAL, 0);
+                        // unreachable
+                        os_sched_exit(0);
+#endif
                         app_main();
                     }
                     break;
