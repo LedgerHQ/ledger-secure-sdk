@@ -13,13 +13,13 @@ and for code coverage generation:
 
 ## Overview
 
-In `unit-tests/lib_standard_app` folder, compile with
+In `unit-tests/app_storage` folder, compile with:
 
 ```
 cmake -Bbuild -H. && make -C build
 ```
 
-and run tests with
+and run tests with:
 
 ```
 CTEST_OUTPUT_ON_FAILURE=1 make -C build test

@@ -68,6 +68,9 @@ SECTIONS
 
     _nvram_data = .;
 
+    /* App storage */
+    *(.storage_section)
+
     /* NVM data (ex-filesystem) */
     *(.bss.N_* .rodata.N_*)
 

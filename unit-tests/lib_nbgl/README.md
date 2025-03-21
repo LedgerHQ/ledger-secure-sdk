@@ -15,7 +15,7 @@ and for code coverage generation:
 
 ### For Stax
 
-In `unit-tests` folder, compile with:
+In `unit-tests/lib_nbgl` folder, compile with:
 
 ```
 STAX=1 cmake -Bbuild -H. && make -C build
@@ -46,7 +46,7 @@ CTEST_OUTPUT_ON_FAILURE=1 make -C build test
 Just execute in `unit-tests` folder
 
 ```
-./gen_coverage.sh
+../gen_coverage.sh
 ```
 
 it will output `coverage.total` and `coverage/` folder with HTML details (in `coverage/index.html`).
