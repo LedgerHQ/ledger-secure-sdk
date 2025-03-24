@@ -1601,6 +1601,13 @@ void os_ux_set_global(uint8_t param_type, uint8_t *param, size_t param_len)
     SVC_Call(SYSCALL_os_ux_set_global_ID, parameters);
 }
 
+bolos_bool_t os_ux_mode_is_recovery(void)
+{
+    unsigned int parameters[2];
+    parameters[1] = 0;
+    return (bolos_bool_t) SVC_Call(SYSCALL_os_ux_mode_is_recovery_ID, parameters);
+}
+
 void os_lib_call(unsigned int *call_parameters)
 {
     unsigned int parameters[2];

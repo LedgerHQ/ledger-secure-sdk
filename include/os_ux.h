@@ -100,3 +100,5 @@ SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_dashboard_mbx(uint32_t cmd
 SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_ux_set_global(uint8_t  param_type,
                                                                     uint8_t *param,
                                                                     size_t   param_len);
+SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX)
+bolos_bool_t os_ux_mode_is_recovery(void);

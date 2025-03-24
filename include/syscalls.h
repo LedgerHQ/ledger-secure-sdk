@@ -198,8 +198,9 @@
 #define SYSCALL_os_pki_get_info_ID         0x040000ac
 #endif  // HAVE_LEDGER_PKI
 
-#define SYSCALL_os_dashboard_mbx_ID 0x02000150
-#define SYSCALL_os_ux_set_global_ID 0x03000151
+#define SYSCALL_os_dashboard_mbx_ID       0x02000150
+#define SYSCALL_os_ux_set_global_ID       0x03000151
+#define SYSCALL_os_ux_mode_is_recovery_ID 0x00000153
 
 #ifdef HAVE_CUSTOM_CA_DETAILS_IN_SETTINGS
 #define SYSCALL_CERT_get_ID   0x01000CA0
