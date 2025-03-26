@@ -101,6 +101,9 @@ Public Attributes</h2></td></tr>
 <tr class="separator:af771eaaf3140e73013666dee9907235e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afdf260cd66591fd0a660b7976c4c8512" id="r_afdf260cd66591fd0a660b7976c4c8512"><td class="memItemLeft" >&#160;&#160;&#160;struct {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
 <tr class="separator:a615a598be618b34837a4f127cdfc8e7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac57e7e22c9ef97c3c6750e60cc7e8fbe" id="r_ac57e7e22c9ef97c3c6750e60cc7e8fbe"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;const <a class="el" href="nbgl__types_8h.html#a7724587bc3e14c498ed49c3e70c365d6">nbgl_icon_details_t</a> *&#160;&#160;&#160;<a class="el" href="structnbgl__layoutHeader__t.html#a128d5615265a902bcc7bba98cdf9b82c">icon</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memdesc:ac57e7e22c9ef97c3c6750e60cc7e8fbe"><td class="mdescLeft">&#160;</td><td class="mdescRight">icon on left of text (only if <a class="el" href="nbgl__layout_8h.html#a9879d9ceabe625bd287de2af3ca3b52aac12291ca5db59aedeb608b22b36bd6af">HEADER_BACK_ICON_AND_TEXT</a>)  <a href="structnbgl__layoutHeader__t.html#a128d5615265a902bcc7bba98cdf9b82c">More...</a><br /></td></tr>
+<tr class="separator:ac57e7e22c9ef97c3c6750e60cc7e8fbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a53166ef24e6d5611b39e86391577c464" id="r_a53166ef24e6d5611b39e86391577c464"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;const char *&#160;&#160;&#160;<a class="el" href="structnbgl__layoutHeader__t.html#a882f3d3b751e050ca465c0d1841af5a8">text</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
 <tr class="memdesc:a53166ef24e6d5611b39e86391577c464"><td class="mdescLeft">&#160;</td><td class="mdescRight">can be NULL if no text  <a href="structnbgl__layoutHeader__t.html#a882f3d3b751e050ca465c0d1841af5a8">More...</a><br /></td></tr>
 <tr class="separator:a53166ef24e6d5611b39e86391577c464"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -111,7 +114,7 @@ Public Attributes</h2></td></tr>
 <tr class="memdesc:ad93e8a37f1d8d663f09825d7e322f646"><td class="mdescLeft">&#160;</td><td class="mdescRight">when back key is pressed  <a href="structnbgl__layoutHeader__t.html#a73e3b097e1a5153666cff4c1b8e417fa">More...</a><br /></td></tr>
 <tr class="separator:ad93e8a37f1d8d663f09825d7e322f646"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afdf260cd66591fd0a660b7976c4c8512" id="r_afdf260cd66591fd0a660b7976c4c8512"><td class="memItemLeft" valign="top">&#160;&#160;&#160;}&#160;&#160;&#160;<a class="el" href="structnbgl__layoutHeader__t.html#a615a598be618b34837a4f127cdfc8e7e">backAndText</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="memdesc:afdf260cd66591fd0a660b7976c4c8512"><td class="mdescLeft">&#160;</td><td class="mdescRight">if type is <a class="el" href="nbgl__layout_8h.html#a9879d9ceabe625bd287de2af3ca3b52aa98155fa3797a7ca12d107b3d8dbdc344">HEADER_BACK_AND_TEXT</a>  <a href="structnbgl__layoutHeader__t.html#a615a598be618b34837a4f127cdfc8e7e">More...</a><br /></td></tr>
+<tr class="memdesc:afdf260cd66591fd0a660b7976c4c8512"><td class="mdescLeft">&#160;</td><td class="mdescRight">if type is <a class="el" href="nbgl__layout_8h.html#a9879d9ceabe625bd287de2af3ca3b52aac12291ca5db59aedeb608b22b36bd6af">HEADER_BACK_ICON_AND_TEXT</a> or <a class="el" href="nbgl__layout_8h.html#a9879d9ceabe625bd287de2af3ca3b52aa98155fa3797a7ca12d107b3d8dbdc344">HEADER_BACK_AND_TEXT</a>  <a href="structnbgl__layoutHeader__t.html#a615a598be618b34837a4f127cdfc8e7e">More...</a><br /></td></tr>
 <tr class="separator:afdf260cd66591fd0a660b7976c4c8512"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a14399fe6e53f7985db2582105900e24b" id="r_a14399fe6e53f7985db2582105900e24b"><td class="memItemLeft" >&#160;&#160;&#160;struct {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
 <tr class="separator:a8f7c22e8623d7147a0215dd71ff5fb83"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -186,7 +189,7 @@ Public Attributes</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This structure contains info to build a header. </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00434">434</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00441">441</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
 </div><h2 class="groupheader">Member Data Documentation</h2>
 <a id="a3a276e09d06449cc5994601fee773a20" name="a3a276e09d06449cc5994601fee773a20"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3a276e09d06449cc5994601fee773a20">&#9670;&#160;</a></span>[union]</h2>
@@ -216,7 +219,7 @@ Public Attributes</h2></td></tr>
 
 <p>right button icon </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00447">447</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00456">456</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
 
 </div>
 </div>
@@ -235,7 +238,7 @@ Public Attributes</h2></td></tr>
 <p>when optional right button is pressed </p>
 <p>when right key is pressed </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00452">452</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00461">461</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
 
 </div>
 </div>
@@ -251,7 +254,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00448">448</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00457">457</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
 
 </div>
 </div>
@@ -267,7 +270,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>if type is <a class="el" href="nbgl__layout_8h.html#a9879d9ceabe625bd287de2af3ca3b52aa98155fa3797a7ca12d107b3d8dbdc344">HEADER_BACK_AND_TEXT</a> </p>
+<p>if type is <a class="el" href="nbgl__layout_8h.html#a9879d9ceabe625bd287de2af3ca3b52aac12291ca5db59aedeb608b22b36bd6af">HEADER_BACK_ICON_AND_TEXT</a> or <a class="el" href="nbgl__layout_8h.html#a9879d9ceabe625bd287de2af3ca3b52aa98155fa3797a7ca12d107b3d8dbdc344">HEADER_BACK_AND_TEXT</a> </p>
 
 </div>
 </div>
@@ -285,7 +288,7 @@ Public Attributes</h2></td></tr>
 
 <p>when back key is pressed </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00462">462</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00471">471</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
 
 </div>
 </div>
@@ -333,7 +336,25 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00439">439</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00446">446</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
+
+</div>
+</div>
+<a id="a128d5615265a902bcc7bba98cdf9b82c" name="a128d5615265a902bcc7bba98cdf9b82c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a128d5615265a902bcc7bba98cdf9b82c">&#9670;&#160;</a></span>icon</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="nbgl__types_8h.html#a7724587bc3e14c498ed49c3e70c365d6">nbgl_icon_details_t</a>* nbgl_layoutHeader_t::icon</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>icon on left of text (only if <a class="el" href="nbgl__layout_8h.html#a9879d9ceabe625bd287de2af3ca3b52aac12291ca5db59aedeb608b22b36bd6af">HEADER_BACK_ICON_AND_TEXT</a>) </p>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00450">450</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
 
 </div>
 </div>
@@ -349,7 +370,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00449">449</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00458">458</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
 
 </div>
 </div>
@@ -399,7 +420,7 @@ Public Attributes</h2></td></tr>
 
 <p>if true, a separation line is added at the bottom of this control </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00436">436</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00443">443</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
 
 </div>
 </div>
@@ -419,7 +440,7 @@ Public Attributes</h2></td></tr>
 <p>touchable text on the right</p>
 <p>centered text (can be NULL if no text) </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00442">442</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00451">451</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
 
 </div>
 </div>
@@ -437,7 +458,7 @@ Public Attributes</h2></td></tr>
 
 <p>when text is touched </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00461">461</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00470">470</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
 
 </div>
 </div>
@@ -473,7 +494,7 @@ Public Attributes</h2></td></tr>
 <p>when text is pressed</p>
 <p>when optional back key is pressed </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00443">443</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00452">452</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
 
 </div>
 </div>
@@ -493,7 +514,7 @@ Public Attributes</h2></td></tr>
 <p>when text is pressed</p>
 <p>when optional back key is pressed </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00444">444</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00453">453</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
 
 </div>
 </div>
@@ -511,7 +532,7 @@ Public Attributes</h2></td></tr>
 
 <p>type of header </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00435">435</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00442">442</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
 
 </div>
 </div>
@@ -527,7 +548,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00450">450</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00459">459</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
 
 </div>
 </div>

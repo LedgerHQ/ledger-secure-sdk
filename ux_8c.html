@@ -104,14 +104,16 @@ Include dependency graph for ux.c:</div>
 <area shape="poly" title=" " alt="" coords="325,105,317,168,317,209,322,250,336,285,331,287,317,251,311,209,312,167,320,104"/>
 <area shape="rect" href="nbgl__obj_8h.html" title="API to draw all basic graphic objects." alt="" coords="348,152,437,177"/>
 <area shape="poly" title=" " alt="" coords="338,102,374,140,370,144,334,106"/>
-<area shape="rect" title=" " alt="" coords="162,372,237,397"/>
-<area shape="poly" title=" " alt="" coords="325,326,237,368,235,364,322,322"/>
-<area shape="rect" title=" " alt="" coords="261,372,332,397"/>
-<area shape="poly" title=" " alt="" coords="341,326,315,362,311,359,337,323"/>
-<area shape="rect" title=" " alt="" coords="357,372,439,397"/>
-<area shape="poly" title=" " alt="" coords="358,323,384,359,380,362,354,326"/>
-<area shape="rect" title=" " alt="" coords="463,372,578,397"/>
-<area shape="poly" title=" " alt="" coords="376,322,481,364,479,369,374,326"/>
+<area shape="rect" title=" " alt="" coords="111,372,186,397"/>
+<area shape="poly" title=" " alt="" coords="316,327,195,370,193,365,315,322"/>
+<area shape="rect" title=" " alt="" coords="211,372,281,397"/>
+<area shape="poly" title=" " alt="" coords="333,326,275,366,272,362,330,322"/>
+<area shape="rect" title=" " alt="" coords="306,372,389,397"/>
+<area shape="poly" title=" " alt="" coords="350,324,350,358,345,358,345,324"/>
+<area shape="rect" title=" " alt="" coords="413,372,517,397"/>
+<area shape="poly" title=" " alt="" coords="368,322,435,362,432,367,365,326"/>
+<area shape="rect" title=" " alt="" coords="541,372,655,397"/>
+<area shape="poly" title=" " alt="" coords="388,321,545,366,543,371,387,327"/>
 <area shape="poly" title=" " alt="" coords="375,179,351,199,331,226,328,241,328,256,337,285,332,287,323,257,322,240,326,224,347,196,372,175"/>
 <area shape="rect" href="nbgl__fonts_8h.html" title=" " alt="" coords="341,225,444,251"/>
 <area shape="poly" title=" " alt="" coords="395,178,395,212,390,212,390,178"/>
@@ -135,39 +137,8 @@ Functions</h2></td></tr>
 <tr class="separator:aa2780da18916a2a4e471c487e687e1d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0707eec2aef8a0337f445366950f1cee" id="r_a0707eec2aef8a0337f445366950f1cee"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux_8c.html#a0707eec2aef8a0337f445366950f1cee">ux_process_default_event</a> (void)</td></tr>
 <tr class="separator:a0707eec2aef8a0337f445366950f1cee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6b5b5db84ee90c3cf024ce045aea0347" id="r_a6b5b5db84ee90c3cf024ce045aea0347"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux_8c.html#a6b5b5db84ee90c3cf024ce045aea0347">ux_delay_lock</a> (uint32_t delay_ms)</td></tr>
-<tr class="memdesc:a6b5b5db84ee90c3cf024ce045aea0347"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to delay the lock-screen/auto-power-off, up to current-time + delay_ms, if lock-screen/auto-power-off is about to happen in less than current-time + delay_ms, otherwise it does nothing.  <br /></td></tr>
-<tr class="separator:a6b5b5db84ee90c3cf024ce045aea0347"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a6b5b5db84ee90c3cf024ce045aea0347" name="a6b5b5db84ee90c3cf024ce045aea0347"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6b5b5db84ee90c3cf024ce045aea0347">&#9670;&#160;</a></span>ux_delay_lock()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void ux_delay_lock </td>
-          <td>(</td>
-          <td class="paramtype">uint32_t&#160;</td>
-          <td class="paramname"><em>delay_ms</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Function to delay the lock-screen/auto-power-off, up to current-time + delay_ms, if lock-screen/auto-power-off is about to happen in less than current-time + delay_ms, otherwise it does nothing. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">delay_ms</td><td>delay in ms </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="ux_8c_source.html#l00156">156</a> of file <a class="el" href="ux_8c_source.html">ux.c</a>.</p>
-
-</div>
-</div>
 <a id="a0707eec2aef8a0337f445366950f1cee" name="a0707eec2aef8a0337f445366950f1cee"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0707eec2aef8a0337f445366950f1cee">&#9670;&#160;</a></span>ux_process_default_event()</h2>
 
@@ -185,7 +156,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Forwards the event to UX </p>
 
-<p class="definition">Definition at line <a class="el" href="ux_8c_source.html#l00143">143</a> of file <a class="el" href="ux_8c_source.html">ux.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux_8c_source.html#l00146">146</a> of file <a class="el" href="ux_8c_source.html">ux.c</a>.</p>
 
 </div>
 </div>
