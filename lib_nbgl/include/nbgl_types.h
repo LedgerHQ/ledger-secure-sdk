@@ -59,12 +59,14 @@ extern "C" {
 #define NB_COLOR_BITS       4
 #endif  // TARGETS
 #else   // SCREEN_SIZE_WALLET
-#define SCREEN_WIDTH      128
-#define SCREEN_HEIGHT     64
+#define SCREEN_WIDTH       128
+#define SCREEN_HEIGHT      64
 // height of the smallest used font
-#define SMALL_FONT_HEIGHT 11
+#define SMALL_FONT_HEIGHT  11
+// HW vertical alignment
+#define VERTICAL_ALIGNMENT 1
 // Number of color bits
-#define NB_COLOR_BITS     1
+#define NB_COLOR_BITS      1
 #endif  // SCREEN_SIZE_WALLET
 
 /**
