@@ -302,6 +302,7 @@ typedef enum tune_index_e {
     TUNE_LOOK_AT_ME,
     TUNE_TAP_CASUAL,
     TUNE_TAP_NEXT,
+    TUNE_CARD_CONNECT,
     NB_TUNES  // Keep at last position
 } tune_index_e;
 
