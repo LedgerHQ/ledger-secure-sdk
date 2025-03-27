@@ -200,6 +200,10 @@ static uint8_t getCharWidth(const nbgl_font_t *font, uint32_t unicode, bool is_u
         if (!unicodeCharacter) {
             return 0;
         }
+        // Don't take in account width of combined characters displayed over previous ones
+        if (unicodeCharacter->over_previous) {
+            return 0;
+        }
         return unicodeCharacter->width - font->char_kerning;
 #else   // HAVE_UNICODE_SUPPORT
         return 0;
