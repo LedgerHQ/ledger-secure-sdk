@@ -75,9 +75,11 @@ nbgl_contentInfoList_t eth_infosList
 static void controlsCallback(int token, uint8_t index, int page)
 {
     UNUSED(page);
+#ifndef BUILD_SCREENSHOTS
     if (token == SWITCH1_TOKEN) {
         LOG_WARN(APP_LOGGER, "First switch in position %d\n", index);
     }
+#endif  // BUILD_SCREENSHOTS
 }
 
 /**********************

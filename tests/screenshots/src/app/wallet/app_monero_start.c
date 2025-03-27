@@ -148,7 +148,9 @@ static void barControlsCallback(int token, uint8_t index, int page)
 {
     UNUSED(page);
     if (token == BAR_ACCOUNT_TOKEN) {
+#ifndef BUILD_SCREENSHOTS
         LOG_WARN(APP_LOGGER, "First switch in position %d\n", index);
+#endif  // BUILD_SCREENSHOTS
         nbgl_useCaseGenericConfiguration(
             "Select account", 0, &accountContents, quitAccountCallback);
     }
