@@ -731,7 +731,9 @@ void bagl_draw_with_context(const bagl_component_t *component,
     int          halignment     = 0;
     int          valignment     = 0;
     int          baseline       = 0;
+#ifndef DISPLAY_FLOWS
     unsigned int height_to_draw = 0;
+#endif
     int          strwidth       = 0;
     unsigned int ellipsis_1_len = 0;
 #ifdef HAVE_BAGL_ELLIPSIS
@@ -781,8 +783,9 @@ void bagl_draw_with_context(const bagl_component_t *component,
         const bagl_font_t *font = bagl_get_font(component->font_id);
         if (font) {
             baseline       = font->baseline;
+#ifndef DISPLAY_FLOWS
             height_to_draw = component->height;
-
+#endif
             if (context && context_length) {
                 // compute with some margin to fit other characters and check if ellipsis algorithm
                 // is required
