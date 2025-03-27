@@ -728,9 +728,9 @@ void bagl_draw_with_context(const bagl_component_t *component,
                             unsigned char           context_encoding)
 {
     // unsigned char comp_idx;
-    int          halignment     = 0;
-    int          valignment     = 0;
-    int          baseline       = 0;
+    int halignment = 0;
+    int valignment = 0;
+    int baseline   = 0;
 #ifndef DISPLAY_FLOWS
     unsigned int height_to_draw = 0;
 #endif
@@ -782,7 +782,7 @@ void bagl_draw_with_context(const bagl_component_t *component,
     if (type != BAGL_ICON) {
         const bagl_font_t *font = bagl_get_font(component->font_id);
         if (font) {
-            baseline       = font->baseline;
+            baseline = font->baseline;
 #ifndef DISPLAY_FLOWS
             height_to_draw = component->height;
 #endif
