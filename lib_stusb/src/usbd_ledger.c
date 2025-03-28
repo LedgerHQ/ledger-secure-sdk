@@ -428,6 +428,13 @@ void USBD_LEDGER_start(void)
     usbd_ledger_init_data.class_mask &= ~USBD_LEDGER_CLASS_CDC;
 #endif  // !HAVE_CDCUSB
 
+#ifdef HAVE_IO_U2F
+    if (usbd_ledger_init_data.class_mask == (USBD_LEDGER_CLASS_HID | USBD_LEDGER_CLASS_WEBUSB)) {
+        // Force U2F if necessary to avoid disconnection/connection
+        usbd_ledger_init_data.class_mask |= USBD_LEDGER_CLASS_HID_U2F;
+    }
+#endif  // HAVE_IO_U2F
+
     if ((usbd_ledger_data.state == USBD_LEDGER_STATE_INITIALIZED)
         || (usbd_ledger_data.classes != usbd_ledger_init_data.class_mask)
         || (usbd_ledger_init_data.vid && (usbd_ledger_data.vid != usbd_ledger_init_data.vid))) {
