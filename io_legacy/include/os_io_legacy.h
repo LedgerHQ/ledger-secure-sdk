@@ -29,7 +29,7 @@
 
 #define IO_APDU_BUFFER_SIZE OS_IO_BUFFER_SIZE + 1
 
-#define G_io_apdu_buffer G_io_rx_buffer
+#define G_io_apdu_buffer G_io_tx_buffer
 
 // deprecated
 #define G_io_apdu_media G_io_app.apdu_media
