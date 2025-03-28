@@ -9,8 +9,6 @@
 #include "buffer.h"
 #include "macros.h"
 
-#define G_io_apdu_buffer G_io_rx_buffer
-
 #ifdef HAVE_BAGL
 WEAK void io_seproxyhal_display(const bagl_element_t *element);
 #endif  // HAVE_BAGL
