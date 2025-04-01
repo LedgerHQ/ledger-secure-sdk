@@ -6,7 +6,14 @@
 
 // clang-format off
 /*
-# Error response for applications started by Exchange in SWAP context
+--8<-- [start:intro]
+# Error responses for applications started by Exchange in SWAP context
+
+This specification applies to the error responses returned by the Coin applications when started by
+Exchange for the final payment transaction of a SWAP.
+
+Replying valuable data when a final payment transaction is refused eases a lot the analysis,
+especially if the issue happens in production context and / or is hard to reproduce.
 
 ## RAPDU status word
 
@@ -18,28 +25,33 @@ The first 2 bytes of the RAPDU data represent the error code. Format is 16 bits 
 
 The upper byte is common between all applications. It must be one of the following value:
 
-| Name                          | Value  | Description                                                                   |
-| ----------------------------- | ------ | ----------------------------------------------------------------------------- |
-| ERROR_INTERNAL                | 0x00   | Internal application error, forward to the firmware team for analysis.        |
-| ERROR_WRONG_AMOUNT            | 0x01   | The amount does not match the one validated in Exchange.                      |
-| ERROR_WRONG_DESTINATION       | 0x02   | The destination address does not match the one validated in Exchange.         |
-| ERROR_WRONG_FEES              | 0x03   | The fees are different from what was validated in Exchange.                   |
-| ERROR_WRONG_METHOD            | 0x04   | The method used is invalid in Exchange context.                               |
-| ERROR_CROSSCHAIN_WRONG_MODE   | 0x05   | The mode used for the cross-chain hash validation is not supported.           |
-| ERROR_CROSSCHAIN_WRONG_METHOD | 0x06   | The method used is invalid in cross-chain Exchange context.                   |
-| ERROR_CROSSCHAIN_WRONG_HASH   | 0x07   | The hash for the cross-chain transaction does not match the validated value.  |
-| ERROR_GENERIC                 | 0xFF   | A generic or unspecified error not covered by the specific error codes above. |
-|                               |        |     Refer to the remaining bytes for further details on the error.            |
+| Name                          | Value  | Description                                                                                                                                     |
+| ----------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| ERROR_INTERNAL                | 0x00   | Internal application error, forward to the Firmware team for analysis.                                                                          |
+| ERROR_WRONG_AMOUNT            | 0x01   | The amount does not match the one validated in Exchange.                                                                                        |
+| ERROR_WRONG_DESTINATION       | 0x02   | The destination address does not match the one validated in Exchange.                                                                           |
+| ERROR_WRONG_FEES              | 0x03   | The fees are different from what was validated in Exchange.                                                                                     |
+| ERROR_WRONG_METHOD            | 0x04   | The method used is invalid in Exchange context.                                                                                                 |
+| ERROR_CROSSCHAIN_WRONG_MODE   | 0x05   | The mode used for the cross-chain hash validation is not supported.                                                                             |
+| ERROR_CROSSCHAIN_WRONG_METHOD | 0x06   | The method used is invalid in cross-chain Exchange context.                                                                                     |
+| ERROR_CROSSCHAIN_WRONG_HASH   | 0x07   | The hash for the cross-chain transaction does not match the validated value.                                                                    |
+| ERROR_GENERIC                 | 0xFF   | A generic or unspecified error not covered by the specific error codes above.<br>Refer to the remaining bytes for further details on the error. |
 
-The lower byte can be set by the application to refine the error code returned
+The lower byte can be set by the application to refine the error code returned.
 
-So the error code for ERROR_WRONG_METHOD would be 0x04XX with XX being application specific (can be 00 if there is nothing to refine)
+So the error code for `ERROR_WRONG_METHOD` would be `0x04XX` with `XX` being application specific
+(can be `00` if there is nothing to refine).
 
 The remaining bytes of the data are application-specific and can include, but are not limited to:
+
 - Debugging information (e.g., error logs or internal state).
 - Field values (e.g., expected vs actual amounts, destination, fees).
 - More specific error codes tailored to the application's context.
- */
+
+The standard application library define several helper function to return error codes from the Coin
+application.
+--8<-- [end:intro]
+*/
 // clang-format on
 
 typedef enum swap_error_common_code_e {
@@ -54,8 +66,10 @@ typedef enum swap_error_common_code_e {
     SWAP_EC_ERROR_GENERIC                 = 0xFF,
 } swap_error_common_code_t;
 
+// --8<-- [start:helpers]
 /**
  * Sends a basic swap error with no extra data.
+ *
  * @param status_word RAPDU status word.
  * @param common_error_code Common error code defined in swap_error_common_code_t.
  * @param application_specific_error_code Application-specific error code.
@@ -66,6 +80,7 @@ __attribute__((noreturn)) void send_swap_error_simple(uint16_t status_word,
 
 /**
  * Sends a swap error with one additional buffer data.
+ *
  * @param status_word RAPDU status word.
  * @param common_error_code Common error code.
  * @param application_specific_error_code Application-specific error code.
@@ -77,7 +92,8 @@ __attribute__((noreturn)) void send_swap_error_with_buffer(uint16_t status_word,
                                                            const buffer_t buffer_data);
 
 /**
- * Sends a swap error with multiple buffers containing error details.
+ * Sends a swap error with multiple buffers containing error details as data.
+ *
  * @param status_word RAPDU status word.
  * @param common_error_code Common error code.
  * @param application_specific_error_code Application-specific error code.
@@ -92,7 +108,8 @@ __attribute__((noreturn)) void send_swap_error_with_buffers(uint16_t status_word
                                                             size_t          count);
 
 /**
- * Macro to send a swap error using a formatted string.
+ * Macro to send a swap error with a formatted string as data.
+ *
  * Constructs a buffer from a formatted string and passes it to send_swap_error_with_buffers.
  * @param status_word RAPDU status word.
  * @param common_error_code Common error code.
@@ -120,5 +137,6 @@ __attribute__((noreturn)) void send_swap_error_with_buffers(uint16_t status_word
         send_swap_error_with_buffers(                                                            \
             status_word, common_error_code, application_specific_error_code, &string_buffer, 1); \
     } while (0)
+// --8<-- [end:helpers]
 
 #endif  // HAVE_SWAP
