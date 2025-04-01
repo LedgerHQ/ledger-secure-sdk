@@ -39,6 +39,12 @@ ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME), TARGET_STAX TARGET_FLEX))
 endif
 endif
 
+ifeq ($(ENABLE_NFC_READER), 1)
+ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME), TARGET_STAX TARGET_FLEX))
+    DEFINES += HAVE_NFC_READER
+endif
+endif
+
 #####################################################################
 #                               SWAP                                #
 #####################################################################
@@ -58,6 +64,14 @@ endif
 ifeq ($(ENABLE_APP_STORAGE), 1)
     HAVE_APP_STORAGE = 1
     DEFINES += HAVE_APP_STORAGE
+    ifeq ($(APP_STORAGE_SIZE),)
+    # Fall back to maximum page size for all the devices
+    # 512 (Flash page size) - 32 bytes (for the system header with a room to grow)
+        APP_STORAGE_SIZE := 480
+    endif
+    DEFINES += APP_STORAGE_SIZE=$(APP_STORAGE_SIZE)
+    DEFINES += HAVE_APP_STORAGE_PROP_SETTINGS=$(ENABLE_APP_STORAGE_PROP_SETTINGS)
+    DEFINES += HAVE_APP_STORAGE_PROP_DATA=$(ENABLE_APP_STORAGE_PROP_DATA)
 endif
 
 #####################################################################
@@ -222,13 +236,19 @@ APP_FLAGS_APP_LOAD_PARAMS = $(shell printf '0x%x' $$(( $(STANDARD_APP_FLAGS) + $
 #####################################################################
 #                         COMPILER SETTINGS                         #
 #####################################################################
-CC      := $(CLANGPATH)clang
-AS      := $(CLANGPATH)clang
-LD      := $(CLANGPATH)clang
-ifeq ($(AS),$(CLANGPATH)clang)
-    AFLAGS  += --target=arm-arm-none-eabi
+CC       = $(CLANGPATH)clang
+AS       = $(CLANGPATH)clang
+ifeq ($(TARGET_NAME),TARGET_NANOS)
+    LD      = $(GCCPATH)arm-none-eabi-gcc
+    LDLIBS += -lgcc
+else
+    LD      = $(CLANGPATH)clang
+    LDLIBS += -lclang_rt.builtins
 endif
-LDLIBS  += -lm -lgcc -lc
+
+AFLAGS  += --target=arm-none-eabi
+
+LDLIBS  += -lm -lc
 
 #####################################################################
 #                               MISC                                #
