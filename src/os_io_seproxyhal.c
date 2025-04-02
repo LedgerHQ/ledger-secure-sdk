@@ -479,7 +479,7 @@ void io_seproxyhal_init(void)
 }
 
 #ifdef HAVE_PIEZO_SOUND
-void io_seproxyhal_play_tune(tune_index_e tune_index)
+void os_io_seph_cmd_piezo_play_tune(tune_index_e tune_index)
 {
     uint8_t buffer[4];
     if (tune_index >= NB_TUNES) {

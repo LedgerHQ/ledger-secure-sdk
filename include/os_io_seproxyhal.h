@@ -306,7 +306,7 @@ typedef enum tune_index_e {
     NB_TUNES  // Keep at last position
 } tune_index_e;
 
-void io_seproxyhal_play_tune(tune_index_e tune_index);
+void os_io_seph_cmd_piezo_play_tune(tune_index_e tune_index);
 
 #endif  // HAVE_PIEZO_SOUND
 
