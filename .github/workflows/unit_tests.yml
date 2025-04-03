@@ -29,6 +29,8 @@ jobs:
           STAX=1 cmake -Bbuild -H. && make -C build && CTEST_OUTPUT_ON_FAILURE=1 make -C build test
           cd ../app_storage/
           cmake -Bbuild -H. && make -C build && make -C build test
+          cd ../lib_alloc/
+          cmake -Bbuild -H. && make -C build && make -C build test
 
       - name: Generate code coverage
         run: |
@@ -37,6 +39,8 @@ jobs:
           cd ../lib_nbgl/
           ../gen_coverage.sh
           cd ../app_storage/
+          ../gen_coverage.sh
+          cd ../lib_alloc/
           ../gen_coverage.sh
 
       - uses: actions/upload-artifact@v4
