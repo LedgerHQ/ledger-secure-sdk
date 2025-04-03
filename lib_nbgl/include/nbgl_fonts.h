@@ -173,7 +173,7 @@ uint8_t  nbgl_getFontLineHeight(nbgl_font_id_e fontId);
 uint16_t nbgl_getTextNbLines(const char *text);
 uint16_t nbgl_getTextHeight(nbgl_font_id_e fontId, const char *text);
 uint16_t nbgl_getTextLength(const char *text);
-void     nbgl_getTextMaxLenAndWidth(nbgl_font_id_e fontId,
+uint16_t nbgl_getTextMaxLenAndWidth(nbgl_font_id_e fontId,
                                     const char    *text,
                                     uint16_t       maxWidth,
                                     uint16_t      *len,

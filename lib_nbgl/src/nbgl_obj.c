@@ -435,12 +435,14 @@ static void draw_button(nbgl_button_t *obj, nbgl_obj_t *prevObj, bool computePos
     // draw the text (right of the icon, with 8 pixels between them)
     if (text != NULL) {
         nbgl_area_t rectArea;
+        // const nbgl_font_t *font = nbgl_getFont(obj->fontId);
+
         // Compute available with & height to display the text
         rectArea.x0 = obj->obj.area.x0;
         rectArea.y0 = obj->obj.area.y0;
         // Only one line of text
-        rectArea.height = nbgl_getFontHeight(obj->fontId);
-        rectArea.y0 += (obj->obj.area.height - rectArea.height) / 2;
+        // rectArea.height = nbgl_getFontHeight(obj->fontId);
+        // rectArea.y0 += (obj->obj.area.height - rectArea.height) / 2;
         rectArea.width = obj->obj.area.width;
         if (obj->icon != NULL) {
             rectArea.x0 += obj->icon->width + ICON_TEXT_SPACE;
@@ -448,8 +450,10 @@ static void draw_button(nbgl_button_t *obj, nbgl_obj_t *prevObj, bool computePos
         }
         // Compute the width & number of characters displayed on first line
         uint16_t textLen;
-        nbgl_getTextMaxLenAndWidth(obj->fontId, text, rectArea.width, &textLen, &textWidth, true);
-
+        rectArea.height = nbgl_getTextMaxLenAndWidth(
+            obj->fontId, text, rectArea.width, &textLen, &textWidth, true);
+        rectArea.y0
+            += ((obj->obj.area.height - nbgl_getFontHeight(obj->fontId)) / 2) - rectArea.height;
 #ifdef BUILD_SCREENSHOTS
         store_string_infos(text, obj->fontId, &rectArea, true, 1, 1, false);
 #endif  // BUILD_SCREENSHOTS
