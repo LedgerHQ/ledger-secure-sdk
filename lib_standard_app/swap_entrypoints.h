@@ -22,21 +22,46 @@
 #include "swap_lib_calls.h"
 
 /*
- * These functions must be defined by the application
+--8<-- [start:swap_entry_point_intro]
+The handle functions must be defined by each Coin application implementing the SWAP feature.
+
+Handlers are called by Exchange through the `os_lib_call` API, and dispatched by the `main()`
+and `library_app_main()` functions of the lib_standard_app.
+
+The Exchange application is responsible for handling the flow and sequencing of the SWAP.
+--8<-- [end:swap_entry_point_intro]
+*/
+
+// --8<-- [start:swap_handle_check_address]
+/* This handle is called when the Exchange application wants to ensure that a
+ * given address belongs to the device.
+ *
+ * If the address does belong to the device, result is set to 1. Otherwise it
+ * is set to 0.
  */
-
-/* Check check_address_parameters_t.address_to_check against specified parameters.
- *
- * Must set params.result to 0 on error, 1 otherwise */
 void swap_handle_check_address(check_address_parameters_t *params);
+// --8<-- [end:swap_handle_check_address]
 
-/* Format printable amount including the ticker from specified parameters.
+// --8<-- [start:swap_handle_get_printable_amount]
+/* This handle is called when the Exchange application wants to format for
+ * display an amount + ticker of a currency known by this application
  *
- * Must set empty printable_amount on error, printable amount otherwise */
+ * If the formatting succeeds, result is set to the formatted string. Otherwise
+ * it is set to '\0'.
+ */
 void swap_handle_get_printable_amount(get_printable_amount_parameters_t *params);
+// --8<-- [end:swap_handle_get_printable_amount]
 
-/* Backup up transaction parameters and wipe BSS to avoid collusion with
- * app-exchange BSS data.
+// --8<-- [start:swap_copy_transaction_parameters]
+/* This handle is called when the user has validated on screen the transaction
+ * proposal sent by the partner and started the FROM Coin application to sign
+ * the payment transaction.
  *
- * return false on error, true otherwise */
+ * This handler needs to save in the heap the details of what has been validated
+ * in Exchange. These elements will be checked against the received transaction
+ * upon its reception from the Ledger Live.
+ *
+ * return false on error, true otherwise
+ */
 bool swap_copy_transaction_parameters(create_transaction_parameters_t *sign_transaction_params);
+// --8<-- [end:swap_copy_transaction_parameters]
