@@ -234,14 +234,16 @@ APP_FLAGS_APP_LOAD_PARAMS = $(shell printf '0x%x' $$(( $(STANDARD_APP_FLAGS) + $
 CC       = $(CLANGPATH)clang
 AS       = $(CLANGPATH)clang
 ifeq ($(TARGET_NAME),TARGET_NANOS)
-    LD   = $(GCCPATH)arm-none-eabi-gcc
+    LD      = $(GCCPATH)arm-none-eabi-gcc
+    LDLIBS += -lgcc
 else
-    LD   = $(CLANGPATH)clang
+    LD      = $(CLANGPATH)clang
+    LDLIBS += -lclang_rt.builtins
 endif
 
 AFLAGS  += --target=arm-none-eabi
 
-LDLIBS  += -lm -lgcc -lc
+LDLIBS  += -lm -lc
 
 #####################################################################
 #                               MISC                                #
