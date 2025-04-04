@@ -3,7 +3,7 @@
 #endif  // ST33K1M5
 
 #ifndef TARGET_ID
-#define TARGET_ID 0x33300006
+#define TARGET_ID 0x33500004
 #endif  // TARGET_ID
 
 #ifndef TARGET_APEX_M
