@@ -393,7 +393,7 @@ uint8_t nbgl_getCharWidth(nbgl_font_id_e fontId, const char *text)
  */
 uint8_t nbgl_getFontHeight(nbgl_font_id_e fontId)
 {
-#ifdef HAVE_UNICODE_SUPPORTX
+#ifdef HAVE_UNICODE_SUPPORT
     // Unicode fonts are higher than normal ones, due to accents
     nbgl_unicode_ctx_t *unicode_ctx = nbgl_getUnicodeFont(fontId);
     return unicode_ctx->font->height;
@@ -411,7 +411,7 @@ uint8_t nbgl_getFontHeight(nbgl_font_id_e fontId)
  */
 uint8_t nbgl_getFontLineHeight(nbgl_font_id_e fontId)
 {
-#ifdef HAVE_UNICODE_SUPPORTX
+#ifdef HAVE_UNICODE_SUPPORT
     // Unicode fonts are higher than normal ones, due to accents
     nbgl_unicode_ctx_t *unicode_ctx = nbgl_getUnicodeFont(fontId);
     return unicode_ctx->font->line_height;
@@ -564,7 +564,7 @@ uint16_t nbgl_getTextMaxLenAndWidth(nbgl_font_id_e fontId,
         // if \f or \n, exit loop
         if ((unicode == '\f') || (unicode == '\n')) {
             *len += curTextLen - textLen;
-            return;
+            return text_y_max - text_y_min + 1;
         }
         // if \b, switch fontId
         else if (unicode == '\b') {
@@ -602,7 +602,7 @@ uint16_t nbgl_getTextMaxLenAndWidth(nbgl_font_id_e fontId,
                 *len   = lenAtLastDelimiter + 1;
                 *width = widthAtlastDelimiter;
             }
-            return;
+            return text_y_max - text_y_min + 1;
         }
         *len += curTextLen - textLen;
         *width = *width + char_width;

@@ -1123,7 +1123,8 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
     // if (!strcmp(text, "Eกู้ter your PIN")) {
     // if (!strcmp(text, "ใช่ครับ มันตรงกัน")) {
     // if (!strcmp(text, "รือที่รอกรหัส PIN ของคุณ")) {
-    if (strstr(text, "รับความช่วยเหลือได้ที่")) {
+    // if (strstr(text, "รับความช่วยเหลือได้ที่")) {
+    if (false && strstr(original_text, "ใช่ครับ")) {
         fprintf(stdout,
                 "nbgl_drawText: x0 = %d, y0 = %d, w = %d, h = %d, fontColor = %d, "
                 "backgroundColor=%d, fontId=%d, text = %s\n",
@@ -1287,7 +1288,8 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
 
         // if (!strcmp(original_text, "Eกู้ter your PIN")) {
         // if (!strcmp(original_text, "ใช่ครับ มันตรงกัน")) {
-        if (strstr(original_text, "รับความช่วยเหลือได้ที่")) {
+        // if (strstr(original_text, "รับความช่วยเหลือได้ที่")) {
+        if (false && sstrstr(original_text, "ใช่ครับ")) {
             fprintf(stdout,
                     "Will render '%c'(%X) (x=%d, char_width=%d, next_x=%d) at x0=%d, y0=%d, W=%d, "
                     "H=%d\n",
