@@ -86,6 +86,15 @@ static const unsigned char seph_io_cmd_more_time[] = {
     0,
 };
 
+#if defined(HAVE_SE_BUTTON) && !defined(BOLOS_RELEASE)
+static const unsigned char seph_io_evt_button_release[] = {
+    SEPROXYHAL_TAG_BUTTON_PUSH_EVENT,
+    0,
+    1,
+    0,
+};
+#endif  // HAVE_SE_BUTTON && !BOLOS_RELEASE
+
 /* Private functions ---------------------------------------------------------*/
 
 /* Exported functions --------------------------------------------------------*/
@@ -114,6 +123,12 @@ int os_io_seph_cmd_setup_ticker(unsigned int interval_ms)
 
 int os_io_seph_cmd_device_shutdown(uint8_t critical_battery)
 {
+#if defined(HAVE_SE_BUTTON) && !defined(BOLOS_RELEASE)
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH,
+                 seph_io_evt_button_release,
+                 sizeof(seph_io_evt_button_release),
+                 NULL);
+#endif  // HAVE_SE_BUTTON && !BOLOS_RELEASE
     uint8_t buffer[4];
     buffer[0] = SEPROXYHAL_TAG_DEVICE_OFF;
     buffer[1] = 0;
@@ -124,6 +139,12 @@ int os_io_seph_cmd_device_shutdown(uint8_t critical_battery)
 
 int os_io_seph_cmd_se_reset(void)
 {
+#if defined(HAVE_SE_BUTTON) && !defined(BOLOS_RELEASE)
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH,
+                 seph_io_evt_button_release,
+                 sizeof(seph_io_evt_button_release),
+                 NULL);
+#endif  // HAVE_SE_BUTTON && !BOLOS_RELEASE
     return os_io_tx_cmd(
         OS_IO_PACKET_TYPE_SEPH, seph_io_se_power_off, sizeof(seph_io_se_power_off), NULL);
 }
