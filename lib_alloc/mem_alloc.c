@@ -79,7 +79,7 @@ typedef struct {
 // For 2^n <= size < 2^(n+1), this function returns n.
 static inline int seglist_index(heap_t *heap, size_t size)
 {
-    size_t seg = 32 - __builtin_clz(size);
+    size_t seg = 31 - __builtin_clz(size);
     if (seg >= heap->nb_segs) {
         seg = heap->nb_segs - 1;
     }
@@ -176,11 +176,16 @@ static header_t *coalesce(heap_t *heap, header_t *header, header_t *neighbour)
                 next->phys_prev = GET_IDX(heap, header);
             }
             header->size += neighbour->size;
+            // clean-up neighbour to avoid leaking
+            memset(neighbour, 0, sizeof(*neighbour));
         }
         else {
             next            = (header_t *) (((uint8_t *) header) + header->size);
             next->phys_prev = neighbour_idx;
             neighbour->size += header->size;
+            // clean-up header to avoid leaking
+            memset(header, 0, sizeof(*header));
+            // header points now to neighbour
             header = neighbour;
         }
     }
@@ -217,12 +222,18 @@ static bool parse_callback(void *data, uint8_t *addr, bool allocated, size_t siz
  * @brief initializes the heap for this allocator
  *
  * @param heap_start address of the heap to use
- * @param heap_size size in bytes of the heap to use
- * @return the context to use for further calls
+ * @param heap_size size in bytes of the heap to use. It must be a multiple of 8, and at least 200
+ * bytes
+ * @return the context to use for further calls, or NULL if failling
  */
 mem_ctx_t mem_init(void *heap_start, size_t heap_size)
 {
     heap_t *heap = (heap_t *) heap_start;
+
+    // size must be a multiple of 8, and at least 200 bytes
+    if ((heap_size & (FREE_CHUNK_HEADER_SIZE - 1)) || (heap_size < 200)) {
+        return NULL;
+    }
 
     heap->end = ((uint8_t *) heap_start) + heap_size;
 
@@ -244,13 +255,20 @@ mem_ctx_t mem_init(void *heap_start, size_t heap_size)
  * @note this buffer should be free later with @ref mem_free
  *
  * @param ctx allocator context (returned by @ref mem_init())
- * @param nb_bytes size in bytes of the buffer to allocate
- * @return either a valid address if successful, or NULL if failed
+ * @param nb_bytes size in bytes of the buffer to allocate (must be > 0)
+ * @return either a valid address if successful, or NULL if failed (no more memory or invalid
+ * nb_bytes)
  */
 void *mem_alloc(mem_ctx_t ctx, size_t nb_bytes)
 {
     heap_t *heap = (heap_t *) ctx;
     size_t  seg;
+
+    // nb_bytes must be > 0
+    if (nb_bytes == 0) {
+        return NULL;
+    }
+
     // Adjust size to include header and satisfy alignment requirements, etc.
     nb_bytes += PAYLOAD_ALIGNEMENT - 1;
     nb_bytes &= ~(PAYLOAD_ALIGNEMENT - 1);
@@ -308,6 +326,9 @@ void *mem_alloc(mem_ctx_t ctx, size_t nb_bytes)
 
             // Update the chunk's header to set the allocated bit
             header->allocated = 0x1;
+
+            // clean-up previous empty header info
+            header->fnext = header->fprev = 0;
 
             // Return a pointer to the payload
             return block + ALLOC_CHUNK_HEADER_SIZE;

@@ -140,7 +140,7 @@ static void test_fragmentation(void **state __attribute__((unused)))
     char *middle_chunks[16];
     char *large_chunks[16];
 #ifndef USE_POINTER
-    malloc_buffer_size = 1856 + 52;
+    malloc_buffer_size = 1950 + 52;
 #else   // USE_POINTER
     malloc_buffer_size = 2048 + 0x90;
 #endif  // USE_POINTER
