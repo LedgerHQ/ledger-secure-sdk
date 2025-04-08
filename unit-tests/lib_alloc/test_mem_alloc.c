@@ -11,7 +11,7 @@
 
 #define UNUSED(x) (void) x
 
-static uint32_t malloc_buffer[4096 + 0x90];
+static uint32_t malloc_buffer[4096 + 96];
 static uint32_t malloc_buffer_size;
 bool            display_parse = false;
 
@@ -139,12 +139,8 @@ static void test_fragmentation(void **state __attribute__((unused)))
     char *small_chunks[16];
     char *middle_chunks[16];
     char *large_chunks[16];
-#ifndef USE_POINTER
-    malloc_buffer_size = 1950 + 52;
-#else   // USE_POINTER
-    malloc_buffer_size = 2048 + 0x90;
-#endif  // USE_POINTER
-    mem_ctx_t ctx = mem_init(malloc_buffer, malloc_buffer_size);
+    malloc_buffer_size = (16 + 64 + 128) * 8 + 96;  // 96 is size of heap header
+    mem_ctx_t ctx      = mem_init(malloc_buffer, malloc_buffer_size);
 
     // assert only one big empty chunk
     assert_state(ctx, 1, 0);
@@ -152,20 +148,13 @@ static void test_fragmentation(void **state __attribute__((unused)))
     // allocate chunks to fill entirely the heap
     for (int i = 0; i < 8; i++) {
         mem_stat_t mapping;
-
         mem_stat(ctx, &mapping);
-#ifndef USE_POINTER
-        assert_int_equal(mapping.free_size,
-                         malloc_buffer_size - 52 - ((16 + 64 + 128) + 3 * 8) * i);
-#else   // USE_POINTER
-        assert_int_equal(mapping.free_size,
-                         malloc_buffer_size - 0x90 - ((16 + 64 + 128) + 6 * 8) * i);
-#endif  // USE_POINTER
-        small_chunks[i] = mem_alloc(ctx, 16);
+        assert_int_equal(mapping.free_size, malloc_buffer_size - 96 - (16 + 64 + 128) * i);
+        small_chunks[i] = mem_alloc(ctx, 12);
         assert_non_null(small_chunks[i]);
-        middle_chunks[i] = mem_alloc(ctx, 64);
+        middle_chunks[i] = mem_alloc(ctx, 60);
         assert_non_null(middle_chunks[i]);
-        large_chunks[i] = mem_alloc(ctx, 128);
+        large_chunks[i] = mem_alloc(ctx, 124);
         assert_non_null(large_chunks[i]);
     }
     assert_state(ctx, 24, 24);
@@ -174,18 +163,18 @@ static void test_fragmentation(void **state __attribute__((unused)))
         mem_free(ctx, small_chunks[i]);
     }
     assert_state(ctx, 24, 16);
-    middle_chunks[8] = mem_alloc(ctx, 64);
+    middle_chunks[8] = mem_alloc(ctx, 60);
     assert_null(middle_chunks[8]);
     // release all middle chunks and try to allocate a large chunk
     for (int i = 0; i < 8; i++) {
         mem_free(ctx, middle_chunks[i]);
     }
     assert_state(ctx, 16, 8);
-    large_chunks[8] = mem_alloc(ctx, 128);
+    large_chunks[8] = mem_alloc(ctx, 124);
     assert_null(large_chunks[8]);
-    middle_chunks[0] = mem_alloc(ctx, 64);
+    middle_chunks[0] = mem_alloc(ctx, 60);
     assert_non_null(middle_chunks[0]);
-    middle_chunks[1] = mem_alloc(ctx, 64);
+    middle_chunks[1] = mem_alloc(ctx, 60);
     assert_non_null(middle_chunks[1]);
     assert_state(ctx, 18, 10);
 
@@ -197,11 +186,38 @@ static void test_fragmentation(void **state __attribute__((unused)))
     assert_state(ctx, 5, 2);
 }
 
+static void test_init(void **state __attribute__((unused)))
+{
+    char     *small_chunks[16];
+    mem_ctx_t ctx;
+
+    // try with too big
+    malloc_buffer_size = 0x8000 + 96;  // 96 is size of heap header
+    ctx                = mem_init(malloc_buffer, malloc_buffer_size);
+    assert_null(ctx);
+
+    // try with biggest possible
+    malloc_buffer_size = 0x7FF8 + 96;  // 96 is size of heap header
+    ctx                = mem_init(malloc_buffer, malloc_buffer_size);
+    assert_non_null(ctx);
+
+    // try with too small
+    malloc_buffer_size = 192;
+    ctx                = mem_init(malloc_buffer, malloc_buffer_size);
+    assert_null(ctx);
+
+    // try with non multiple of 8
+    malloc_buffer_size = 201;
+    ctx                = mem_init(malloc_buffer, malloc_buffer_size);
+    assert_null(ctx);
+}
+
 int main(int argc, char **argv)
 {
     const struct CMUnitTest tests[] = {cmocka_unit_test(test_alloc),
                                        cmocka_unit_test(test_corrupt_invalid),
                                        cmocka_unit_test(test_corrupt_overflow),
-                                       cmocka_unit_test(test_fragmentation)};
+                                       cmocka_unit_test(test_fragmentation),
+                                       cmocka_unit_test(test_init)};
     return cmocka_run_group_tests(tests, NULL, NULL);
 }
