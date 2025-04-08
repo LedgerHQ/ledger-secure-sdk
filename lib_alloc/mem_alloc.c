@@ -11,6 +11,7 @@
 #include "exceptions.h"
 #include "errors.h"
 #include "os_helpers.h"
+#include "os_math.h"
 #include "os_print.h"
 #include "os_utils.h"
 #include "mem_alloc.h"
@@ -18,32 +19,47 @@
 /*********************
  *      DEFINES
  *********************/
+// Alignment for payload data size
+#define PAYLOAD_ALIGNEMENT      4
+// Alignment for returned payload
+#define PAYLOAD_DATA_ALIGNEMENT 8
 // sizeof of header for a allocated chunk
 #define ALLOC_CHUNK_HEADER_SIZE 4
 // sizeof of header for a free chunk
 #define FREE_CHUNK_HEADER_SIZE  8
-// Alignment for payload size
-#define PAYLOAD_ALIGNEMENT      4
 // size of heap header
-#define HEAP_HEADER_SIZE        (sizeof(heap_t) + PAYLOAD_ALIGNEMENT)
+#define HEAP_HEADER_SIZE \
+    ((sizeof(heap_t) + PAYLOAD_DATA_ALIGNEMENT - 1) & ~(PAYLOAD_DATA_ALIGNEMENT - 1))
 
-// 16 segments enable using up to 64kBytes for Heap, so way too much
-#define NUM_SEG_LISTS 16
+// number of 2^N segments aggregated as linear
+#define NB_LINEAR_SEGMENTS 5
+// 10 segments (the first one is linear) enable using up to ~32k bytes chunks, which is more than
+// enough
+/* Segregated free list bucket sizes:
+- 0: 1-63 bytes
+- 1: 64-127 bytes
+- 2: 128-255 bytes
+- 4: 512-1023 bytes
+- 6: 2048-4095 bytes
+- 7: 4096-8191 bytes
+- n: 2^(n+5)-(2^(n+6)-1) bytes
+- 9: 16384-32767 bytes
+*/
+#define NB_MAX_SEGMENTS    10
+// 4 sub-segments to have a better segregation of each segments
+#define NB_SUB_SEGMENTS    4
 
-#define GET_PTR(_heap, index) \
-    ((header_t *) (((uint8_t *) _heap) + PAYLOAD_ALIGNEMENT + ((index) << 3)))
-#define GET_IDX(_heap, _ptr) \
-    ((((uint8_t *) (_ptr)) - ((uint8_t *) _heap) - PAYLOAD_ALIGNEMENT) >> 3)
-#define GET_PREV(_heap, _ptr) \
-    ((header_t *) (((uint8_t *) _heap) + PAYLOAD_ALIGNEMENT + ((_ptr)->fprev << 3)))
-#define GET_NEXT(_heap, _ptr) \
-    ((header_t *) (((uint8_t *) _heap) + PAYLOAD_ALIGNEMENT + ((_ptr)->fnext << 3)))
+// index is basically the offset in u64 from beginning of full heap buffer
+#define GET_PTR(_heap, index) ((header_t *) (((uint8_t *) _heap) + ((index) << 3)))
+#define GET_IDX(_heap, _ptr)  ((((uint8_t *) (_ptr)) - ((uint8_t *) _heap)) >> 3)
+#define GET_PREV(_heap, _ptr) ((header_t *) (((uint8_t *) _heap) + ((_ptr)->fprev << 3)))
+#define GET_NEXT(_heap, _ptr) ((header_t *) (((uint8_t *) _heap) + ((_ptr)->fnext << 3)))
 
 /**********************
  *      TYPEDEFS
  **********************/
 typedef struct header_s {
-    uint16_t size : 15;
+    uint16_t size : 15;  // the biggest size is 0x7FFF = 0x32767
     uint16_t allocated : 1;
 
     uint16_t phys_prev;  ///< physical previous chunk
@@ -52,15 +68,10 @@ typedef struct header_s {
     uint16_t fnext;  ///< next free chunk in the same segment
 } header_t;
 
-// Segregated free list bucket sizes:
-// 0: 16-31 bytes
-// 1: 32-63 bytes
-// n: 2^n-(2^(n+1)-1) bytes
-// ....
 typedef struct {
-    void    *end;
+    void    *end;      ///< end of headp buffer, for consistency check
     size_t   nb_segs;  ///< actual number of used segments
-    uint16_t free_segments[NUM_SEG_LISTS];
+    uint16_t free_segments[NB_MAX_SEGMENTS * NB_SUB_SEGMENTS];
 } heap_t;
 
 /**********************
@@ -79,11 +90,48 @@ typedef struct {
 // For 2^n <= size < 2^(n+1), this function returns n.
 static inline int seglist_index(heap_t *heap, size_t size)
 {
-    size_t seg = 31 - __builtin_clz(size);
+    size_t  seg = 31 - __builtin_clz(size);
+    uint8_t sub_segment;
+
+    seg         = MAX(NB_LINEAR_SEGMENTS, (31 - __builtin_clz(size)));
+    sub_segment = (size >> (seg - 1)) & 0x3;
+    // from size in [0 : 63[, segment is 0 to 5 but is forced to 0
+    // from size in [2^6 : 2^13[, segment is [6 : 12] but is forced to [1 : 7]
+    seg -= NB_LINEAR_SEGMENTS;
+    // check consistency
     if (seg >= heap->nb_segs) {
-        seg = heap->nb_segs - 1;
+        return -1;
     }
-    return seg;
+    return seg * NB_SUB_SEGMENTS + sub_segment;
+}
+
+// This function returns the index into the array segregated explicit free lists
+// corresponding to the given size, being sure to be big enough (so rounded to next sub-segment).
+static inline int seglist_index_up(heap_t *heap, size_t size)
+{
+    size_t  seg;
+    uint8_t sub_segment;
+    size_t  sub_segment_size;
+
+    seg              = MAX(NB_LINEAR_SEGMENTS, (31 - __builtin_clz(size)));
+    sub_segment_size = (1 << (seg - 1));
+
+    // round size to next sub-segment
+    size += sub_segment_size - 1;
+    size &= ~(sub_segment_size - 1);
+
+    seg         = MAX(NB_LINEAR_SEGMENTS, (31 - __builtin_clz(size)));
+    sub_segment = (size >> (seg - 1)) & 0x3;
+
+    // from size in [0 : 63[, segment is 0 to 5 but is forced to 0
+    // from size in [2^6 : 2^13[, segment is [6 : 12] but is forced to [1 : 7]
+    seg -= NB_LINEAR_SEGMENTS;
+
+    // check consistency
+    if (seg >= heap->nb_segs) {
+        return -1;
+    }
+    return seg * NB_SUB_SEGMENTS + sub_segment;
 }
 
 // remove item from linked list
@@ -112,8 +160,11 @@ static inline void list_remove(heap_t *heap, uint16_t *first_free, uint16_t elem
 // add item in LIFO
 static inline void list_push(heap_t *heap, header_t *header)
 {
-    uint8_t  seg_index = seglist_index(heap, header->size);
+    int      seg_index = seglist_index(heap, header->size);
     uint16_t first_idx = heap->free_segments[seg_index];
+    if (seg_index < 0) {
+        return;
+    }
     // if it's already the first item, nothing to do
     if (first_idx == GET_IDX(heap, header)) {
         return;
@@ -180,8 +231,11 @@ static header_t *coalesce(heap_t *heap, header_t *header, header_t *neighbour)
             memset(neighbour, 0, sizeof(*neighbour));
         }
         else {
-            next            = (header_t *) (((uint8_t *) header) + header->size);
-            next->phys_prev = neighbour_idx;
+            next = (header_t *) (((uint8_t *) header) + header->size);
+            // ensure next is valid (inside the  heap buffer) before linking it
+            if ((void *) next < heap->end) {
+                next->phys_prev = neighbour_idx;
+            }
             neighbour->size += header->size;
             // clean-up header to avoid leaking
             memset(header, 0, sizeof(*header));
@@ -223,7 +277,7 @@ static bool parse_callback(void *data, uint8_t *addr, bool allocated, size_t siz
  *
  * @param heap_start address of the heap to use
  * @param heap_size size in bytes of the heap to use. It must be a multiple of 8, and at least 200
- * bytes
+ * bytes but less than 32kBytes (max is exactly 32856 bytes)
  * @return the context to use for further calls, or NULL if failling
  */
 mem_ctx_t mem_init(void *heap_start, size_t heap_size)
@@ -231,15 +285,19 @@ mem_ctx_t mem_init(void *heap_start, size_t heap_size)
     heap_t *heap = (heap_t *) heap_start;
 
     // size must be a multiple of 8, and at least 200 bytes
-    if ((heap_size & (FREE_CHUNK_HEADER_SIZE - 1)) || (heap_size < 200)) {
+    if ((heap_size & (FREE_CHUNK_HEADER_SIZE - 1)) || (heap_size < 200)
+        || (heap_size > (0x7FF8 + HEAP_HEADER_SIZE))) {
         return NULL;
     }
 
     heap->end = ((uint8_t *) heap_start) + heap_size;
 
     // compute number of segments
-    heap->nb_segs = 32 - __builtin_clz(heap_size);
-    memset(heap->free_segments, 0, heap->nb_segs * sizeof(uint16_t));
+    heap->nb_segs = 31 - __builtin_clz(heap_size - HEAP_HEADER_SIZE) - NB_LINEAR_SEGMENTS + 1;
+    if (heap->nb_segs > NB_MAX_SEGMENTS) {
+        return NULL;
+    }
+    memset(heap->free_segments, 0, heap->nb_segs * NB_SUB_SEGMENTS * sizeof(uint16_t));
 
     // initiate free chunk LIFO with the whole heap as a free chunk
     header_t *first_free  = (header_t *) (((uint8_t *) heap) + HEAP_HEADER_SIZE);
@@ -262,7 +320,7 @@ mem_ctx_t mem_init(void *heap_start, size_t heap_size)
 void *mem_alloc(mem_ctx_t ctx, size_t nb_bytes)
 {
     heap_t *heap = (heap_t *) ctx;
-    size_t  seg;
+    int     seg;
 
     // nb_bytes must be > 0
     if (nb_bytes == 0) {
@@ -285,12 +343,12 @@ void *mem_alloc(mem_ctx_t ctx, size_t nb_bytes)
     // get the segment sure to be holding this size
     // if nb_bytes == 2^n , all chunks in [2^n: 2^(n+1)[ are ok
     // if nb_bytes > 2^n , all chunks in [2^(n+1): 2^(n+2)[ are ok
-    seg = seglist_index(heap, nb_bytes);
-    if ((nb_bytes > (size_t) (1 << seg)) && (seg < (heap->nb_segs))) {
-        seg++;
+    seg = seglist_index_up(heap, nb_bytes);
+    if (seg < 0) {
+        return NULL;
     }
     // Loop through all increasing size segments
-    while (seg < heap->nb_segs) {
+    while ((size_t) seg < (heap->nb_segs * NB_SUB_SEGMENTS)) {
         uint16_t chunk_idx = heap->free_segments[seg];
         // if this segment is not empty, it must contain a big-enough chunk
         if (chunk_idx != 0) {
