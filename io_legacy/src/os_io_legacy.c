@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "errors.h"
 #include "os_helpers.h"
+#include "os_pin.h"
 #include "os_io.h"
 #include "os_apdu.h"
 #include "os_io_default_apdu.h"
@@ -111,6 +112,10 @@ void io_seproxyhal_io_heartbeat(void)
     uint16_t      err = 0x6601;
     unsigned char err_buffer[2];
     int           status = os_io_rx_evt(G_io_rx_buffer, sizeof(G_io_rx_buffer), NULL);
+
+    if (os_perso_is_pin_set() == BOLOS_TRUE && os_global_pin_is_validated() != BOLOS_TRUE) {
+        err = SWO_SEC_PIN_15;
+    }
 
     err_buffer[0] = err >> 8;
     err_buffer[1] = err;
@@ -338,7 +343,14 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
             case OS_IO_PACKET_TYPE_BLE_APDU:
             case OS_IO_PACKET_TYPE_NFC_APDU:
                 io_os_legacy_apdu_type = G_io_rx_buffer[0];
-                if (G_io_rx_buffer[APDU_OFF_CLA + 1] == DEFAULT_APDU_CLA) {
+                if (os_perso_is_pin_set() == BOLOS_TRUE
+                    && os_global_pin_is_validated() != BOLOS_TRUE) {
+                    bolos_err_t err   = SWO_SEC_PIN_15;
+                    G_io_tx_buffer[0] = err >> 8;
+                    G_io_tx_buffer[1] = err;
+                    status            = os_io_tx_cmd(io_os_legacy_apdu_type, G_io_tx_buffer, 2, 0);
+                }
+                else if (G_io_rx_buffer[APDU_OFF_CLA + 1] == DEFAULT_APDU_CLA) {
                     size_t      buffer_out_length = sizeof(G_io_rx_buffer);
                     bolos_err_t err               = os_io_handle_default_apdu(&G_io_rx_buffer[1],
                                                                 status - 1,
