@@ -1,11 +1,13 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include <string.h>
+#include "os_pin.h"
 #include "os_io.h"
 #include "os_io_seph_cmd.h"
 #include "os_io_seph_ux.h"
 #include "seproxyhal_protocol.h"
 #include "checks.h"
+#include "errors.h"
 
 #ifdef HAVE_IO_USB
 #include "usbd_ledger.h"
@@ -401,6 +403,10 @@ unsigned int os_io_handle_ux_event_reject_apdu(void)
     uint16_t      err = 0x6601;
     unsigned char err_buffer[2];
     int           status = os_io_rx_evt(G_io_tx_buffer, sizeof(G_io_tx_buffer), NULL);
+
+    if (os_perso_is_pin_set() == BOLOS_TRUE && os_global_pin_is_validated() != BOLOS_TRUE) {
+        err = SWO_SEC_PIN_15;
+    }
 
     err_buffer[0] = err >> 8;
     err_buffer[1] = err;
