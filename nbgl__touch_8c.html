@@ -75,7 +75,10 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#define-members">Macros</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">nbgl_touch.c File Reference</div></div>
 </div><!--header-->
@@ -93,47 +96,53 @@ Include dependency graph for nbgl_touch.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="nbgl__touch_8c__incl.png" border="0" usemap="#alib__nbgl_2src_2nbgl__touch_8c" alt=""/></div>
 <map name="alib__nbgl_2src_2nbgl__touch_8c" id="alib__nbgl_2src_2nbgl__touch_8c">
-<area shape="rect" title=" " alt="" coords="327,5,510,31"/>
-<area shape="rect" title=" " alt="" coords="5,79,109,104"/>
-<area shape="poly" title=" " alt="" coords="361,33,123,80,122,75,360,28"/>
-<area shape="rect" title=" " alt="" coords="134,79,205,104"/>
-<area shape="poly" title=" " alt="" coords="379,33,219,79,217,74,378,28"/>
-<area shape="rect" href="nbgl__obj_8h.html" title="API to draw all basic graphic objects." alt="" coords="327,152,417,177"/>
-<area shape="poly" title=" " alt="" coords="417,32,400,80,382,139,376,138,395,78,412,30"/>
-<area shape="rect" href="nbgl__debug_8h.html" title="debug traces management" alt="" coords="545,79,655,104"/>
-<area shape="poly" title=" " alt="" coords="449,28,559,71,557,76,447,33"/>
-<area shape="rect" href="nbgl__touch_8h.html" title=" " alt="" coords="229,79,334,104"/>
-<area shape="poly" title=" " alt="" coords="398,33,317,75,315,70,395,28"/>
-<area shape="rect" href="nbgl__screen_8h.html" title="API to manage screens." alt="" coords="409,79,521,104"/>
-<area shape="poly" title=" " alt="" coords="429,30,452,66,448,69,424,32"/>
-<area shape="rect" title=" " alt="" coords="679,79,753,104"/>
-<area shape="poly" title=" " alt="" coords="467,28,666,75,665,81,466,33"/>
-<area shape="rect" title=" " alt="" coords="777,79,924,104"/>
-<area shape="poly" title=" " alt="" coords="489,28,768,74,767,79,488,33"/>
-<area shape="rect" href="nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="363,299,469,324"/>
-<area shape="poly" title=" " alt="" coords="378,177,411,285,406,286,373,179"/>
-<area shape="rect" href="nbgl__fonts_8h.html" title=" " alt="" coords="410,225,513,251"/>
-<area shape="poly" title=" " alt="" coords="388,175,438,214,434,219,385,179"/>
-<area shape="rect" title=" " alt="" coords="258,225,334,251"/>
-<area shape="poly" title=" " alt="" coords="362,179,320,218,317,214,358,175"/>
-<area shape="rect" title=" " alt="" coords="231,372,305,397"/>
-<area shape="poly" title=" " alt="" coords="393,326,306,368,303,364,391,322"/>
-<area shape="rect" title=" " alt="" coords="330,372,401,397"/>
-<area shape="poly" title=" " alt="" coords="410,326,384,362,379,359,405,323"/>
-<area shape="rect" title=" " alt="" coords="425,372,508,397"/>
-<area shape="poly" title=" " alt="" coords="427,323,453,359,448,362,422,326"/>
-<area shape="rect" title=" " alt="" coords="532,372,647,397"/>
-<area shape="poly" title=" " alt="" coords="445,322,549,364,547,369,443,326"/>
-<area shape="poly" title=" " alt="" coords="456,252,433,289,428,286,452,250"/>
-<area shape="poly" title=" " alt="" coords="298,102,348,141,345,145,294,106"/>
-<area shape="poly" title=" " alt="" coords="275,106,259,134,242,171,236,212,239,231,248,249,268,270,294,286,322,296,350,303,349,308,320,301,291,290,265,274,243,252,234,233,230,212,237,170,254,131,271,103"/>
-<area shape="poly" title=" " alt="" coords="452,106,400,146,396,141,449,102"/>
-<area shape="poly" title=" " alt="" coords="479,103,501,130,524,167,532,188,537,210,536,231,528,252,503,278,473,296,470,291,500,274,523,249,530,230,531,210,527,190,519,170,497,133,475,106"/>
+<area shape="rect" title=" " alt="" coords="318,5,501,31"/>
+<area shape="rect" title=" " alt="" coords="5,372,109,397"/>
+<area shape="poly" title=" " alt="" coords="318,28,251,35,182,46,123,61,100,70,84,81,69,99,62,117,60,163,60,239,60,358,55,358,55,239,55,163,56,116,64,96,81,77,98,66,121,56,181,41,250,30,317,23"/>
+<area shape="rect" title=" " alt="" coords="411,79,482,104"/>
+<area shape="poly" title=" " alt="" coords="418,30,437,65,432,68,413,32"/>
+<area shape="rect" href="nbgl__obj_8h.html" title="API to draw all basic graphic objects." alt="" coords="271,152,361,177"/>
+<area shape="poly" title=" " alt="" coords="404,33,333,142,329,139,399,30"/>
+<area shape="rect" href="nbgl__debug_8h.html" title="debug traces management" alt="" coords="507,79,616,104"/>
+<area shape="poly" title=" " alt="" coords="435,28,525,70,523,75,433,33"/>
+<area shape="rect" href="nbgl__touch_8h.html" title=" " alt="" coords="95,79,201,104"/>
+<area shape="poly" title=" " alt="" coords="368,33,204,78,203,72,367,28"/>
+<area shape="rect" href="nbgl__screen_8h.html" title="API to manage screens." alt="" coords="224,79,336,104"/>
+<area shape="poly" title=" " alt="" coords="390,33,315,74,312,69,387,28"/>
+<area shape="rect" title=" " alt="" coords="640,79,715,104"/>
+<area shape="poly" title=" " alt="" coords="453,28,627,74,625,79,452,33"/>
+<area shape="rect" title=" " alt="" coords="739,79,885,104"/>
+<area shape="poly" title=" " alt="" coords="474,28,734,74,733,79,474,33"/>
+<area shape="rect" href="nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="257,299,362,324"/>
+<area shape="poly" title=" " alt="" coords="322,177,328,210,328,251,320,286,315,285,323,250,322,211,316,178"/>
+<area shape="rect" href="nbgl__fonts_8h.html" title=" " alt="" coords="389,225,491,251"/>
+<area shape="poly" title=" " alt="" coords="337,175,409,216,407,221,335,180"/>
+<area shape="rect" title=" " alt="" coords="237,225,313,251"/>
+<area shape="poly" title=" " alt="" coords="311,179,291,215,286,212,307,176"/>
+<area shape="poly" title=" " alt="" coords="270,327,112,371,111,366,268,321"/>
+<area shape="rect" title=" " alt="" coords="272,372,347,397"/>
+<area shape="poly" title=" " alt="" coords="312,324,312,358,307,358,307,324"/>
+<area shape="rect" title=" " alt="" coords="371,372,442,397"/>
+<area shape="poly" title=" " alt="" coords="327,322,381,361,378,366,323,326"/>
+<area shape="rect" title=" " alt="" coords="467,372,549,397"/>
+<area shape="poly" title=" " alt="" coords="342,322,463,365,462,370,340,327"/>
+<area shape="rect" title=" " alt="" coords="133,372,248,397"/>
+<area shape="poly" title=" " alt="" coords="292,326,223,367,221,362,289,322"/>
+<area shape="poly" title=" " alt="" coords="420,253,344,294,341,290,418,248"/>
+<area shape="poly" title=" " alt="" coords="176,102,277,144,275,149,174,106"/>
+<area shape="poly" title=" " alt="" coords="153,104,171,170,189,211,214,249,240,273,270,290,267,295,237,277,210,252,184,214,166,172,148,105"/>
+<area shape="poly" title=" " alt="" coords="288,103,306,138,302,141,284,106"/>
+<area shape="poly" title=" " alt="" coords="272,106,252,133,232,169,220,210,221,230,228,249,246,273,271,290,268,294,243,277,223,252,216,231,215,209,227,167,247,130,268,103"/>
 </map>
 </div>
 </div>
 <p><a href="nbgl__touch_8c_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__touchCtx__s.html">nbgl_touchCtx_s</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
 Macros</h2></td></tr>
 <tr class="memitem:a40bed5e19b2b3a04dbc5ff22ea5da41c" id="r_a40bed5e19b2b3a04dbc5ff22ea5da41c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__touch_8c.html#a40bed5e19b2b3a04dbc5ff22ea5da41c">SWIPE_THRESHOLD_X</a>&#160;&#160;&#160;10</td></tr>
@@ -141,11 +150,27 @@ Macros</h2></td></tr>
 <tr class="memitem:a353ae823b6050d0410ae3dc28519d47d" id="r_a353ae823b6050d0410ae3dc28519d47d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__touch_8c.html#a353ae823b6050d0410ae3dc28519d47d">SWIPE_THRESHOLD_Y</a>&#160;&#160;&#160;20</td></tr>
 <tr class="separator:a353ae823b6050d0410ae3dc28519d47d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:ac3dd7140b032f396b133cac26cadbeda" id="r_ac3dd7140b032f396b133cac26cadbeda"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structnbgl__touchCtx__s.html">nbgl_touchCtx_s</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__touch_8c.html#ac3dd7140b032f396b133cac26cadbeda">nbgl_touchCtx_t</a></td></tr>
+<tr class="separator:ac3dd7140b032f396b133cac26cadbeda"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:a1fb9092bcdeada2d206bdc74afbbe122" id="r_a1fb9092bcdeada2d206bdc74afbbe122"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="nbgl__touch_8c.html#a1fb9092bcdeada2d206bdc74afbbe122aae71184f80165ed57f017de11cf1db2f">UX_CTX</a> = 0
+, <a class="el" href="nbgl__touch_8c.html#a1fb9092bcdeada2d206bdc74afbbe122a3a7df9667f9b767239268afa893fa06c">APP_CTX</a>
+, <a class="el" href="nbgl__touch_8c.html#a1fb9092bcdeada2d206bdc74afbbe122afab590c3b0b1686952af66037c4a293e">NB_CTXS</a>
+ }</td></tr>
+<tr class="separator:a1fb9092bcdeada2d206bdc74afbbe122"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:aa4aa0adfcf5b85375ccf7c6d20ff0b8a" id="r_aa4aa0adfcf5b85375ccf7c6d20ff0b8a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__touch_8c.html#aa4aa0adfcf5b85375ccf7c6d20ff0b8a">nbgl_touchHandler</a> (<a class="el" href="structnbgl__touchStatePosition__t.html">nbgl_touchStatePosition_t</a> *touchStatePosition, uint32_t currentTime)</td></tr>
-<tr class="memdesc:aa4aa0adfcf5b85375ccf7c6d20ff0b8a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to be called periodically to check touchscreen state and coordinates.  <br /></td></tr>
-<tr class="separator:aa4aa0adfcf5b85375ccf7c6d20ff0b8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed8d8aef440d1ffc6f8905d9e34e695a" id="r_aed8d8aef440d1ffc6f8905d9e34e695a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__touch_8c.html#aed8d8aef440d1ffc6f8905d9e34e695a">nbgl_touchInit</a> (bool fromUx)</td></tr>
+<tr class="memdesc:aed8d8aef440d1ffc6f8905d9e34e695a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to initialize the touch context.  <br /></td></tr>
+<tr class="separator:aed8d8aef440d1ffc6f8905d9e34e695a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae0844282fac7fc50ce67aaa5efb8e7a9" id="r_ae0844282fac7fc50ce67aaa5efb8e7a9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__touch_8c.html#ae0844282fac7fc50ce67aaa5efb8e7a9">nbgl_touchHandler</a> (bool fromUx, <a class="el" href="structnbgl__touchStatePosition__t.html">nbgl_touchStatePosition_t</a> *touchStatePosition, uint32_t currentTime)</td></tr>
+<tr class="memdesc:ae0844282fac7fc50ce67aaa5efb8e7a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to be called periodically to check touchscreen state and coordinates.  <br /></td></tr>
+<tr class="separator:ae0844282fac7fc50ce67aaa5efb8e7a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a62162d054b82feca17c941acd376da0f" id="r_a62162d054b82feca17c941acd376da0f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__touch_8c.html#a62162d054b82feca17c941acd376da0f">nbgl_touchGetTouchedPosition</a> (<a class="el" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *obj, <a class="el" href="structnbgl__touchStatePosition__t.html">nbgl_touchStatePosition_t</a> **firstPos, <a class="el" href="structnbgl__touchStatePosition__t.html">nbgl_touchStatePosition_t</a> **lastPos)</td></tr>
 <tr class="separator:a62162d054b82feca17c941acd376da0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a97cfc42c7379d6cb6ffe46590c93e144" id="r_a97cfc42c7379d6cb6ffe46590c93e144"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__touch_8c.html#a97cfc42c7379d6cb6ffe46590c93e144">nbgl_touchGetTouchDuration</a> (<a class="el" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *obj)</td></tr>
@@ -171,7 +196,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00214">214</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00224">224</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
 
 </div>
 </div>
@@ -187,7 +212,44 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00215">215</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00225">225</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Typedef Documentation</h2>
+<a id="ac3dd7140b032f396b133cac26cadbeda" name="ac3dd7140b032f396b133cac26cadbeda"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac3dd7140b032f396b133cac26cadbeda">&#9670;&#160;</a></span>nbgl_touchCtx_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structnbgl__touchCtx__s.html">nbgl_touchCtx_s</a> <a class="el" href="nbgl__touch_8c.html#ac3dd7140b032f396b133cac26cadbeda">nbgl_touchCtx_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="a1fb9092bcdeada2d206bdc74afbbe122" name="a1fb9092bcdeada2d206bdc74afbbe122"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1fb9092bcdeada2d206bdc74afbbe122">&#9670;&#160;</a></span>anonymous enum</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous enum</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a1fb9092bcdeada2d206bdc74afbbe122aae71184f80165ed57f017de11cf1db2f" name="a1fb9092bcdeada2d206bdc74afbbe122aae71184f80165ed57f017de11cf1db2f"></a>UX_CTX&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a1fb9092bcdeada2d206bdc74afbbe122a3a7df9667f9b767239268afa893fa06c" name="a1fb9092bcdeada2d206bdc74afbbe122a3a7df9667f9b767239268afa893fa06c"></a>APP_CTX&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a1fb9092bcdeada2d206bdc74afbbe122afab590c3b0b1686952af66037c4a293e" name="a1fb9092bcdeada2d206bdc74afbbe122afab590c3b0b1686952af66037c4a293e"></a>NB_CTXS&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00023">23</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
 
 </div>
 </div>
@@ -228,7 +290,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the concerned object or NULL if not found </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00395">395</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00421">421</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
 
 </div>
 </div>
@@ -248,7 +310,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00379">379</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00404">404</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
 
 </div>
 </div>
@@ -284,12 +346,12 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00366">366</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00390">390</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
 
 </div>
 </div>
-<a id="aa4aa0adfcf5b85375ccf7c6d20ff0b8a" name="aa4aa0adfcf5b85375ccf7c6d20ff0b8a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa4aa0adfcf5b85375ccf7c6d20ff0b8a">&#9670;&#160;</a></span>nbgl_touchHandler()</h2>
+<a id="ae0844282fac7fc50ce67aaa5efb8e7a9" name="ae0844282fac7fc50ce67aaa5efb8e7a9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae0844282fac7fc50ce67aaa5efb8e7a9">&#9670;&#160;</a></span>nbgl_touchHandler()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -297,6 +359,12 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">void nbgl_touchHandler </td>
           <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>fromUx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype"><a class="el" href="structnbgl__touchStatePosition__t.html">nbgl_touchStatePosition_t</a> *&#160;</td>
           <td class="paramname"><em>touchStatePosition</em>, </td>
         </tr>
@@ -317,13 +385,42 @@ Functions</h2></td></tr>
 <p>Function to be called periodically to check touchscreen state and coordinates. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
+    <tr><td class="paramname">fromUx</td><td>if true, means this is called from the UX, not the App </td></tr>
     <tr><td class="paramname">touchStatePosition</td><td>state and position read from touch screen </td></tr>
     <tr><td class="paramname">currentTime</td><td>current time in ms </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00267">267</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00287">287</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
+
+</div>
+</div>
+<a id="aed8d8aef440d1ffc6f8905d9e34e695a" name="aed8d8aef440d1ffc6f8905d9e34e695a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aed8d8aef440d1ffc6f8905d9e34e695a">&#9670;&#160;</a></span>nbgl_touchInit()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nbgl_touchInit </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>fromUx</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Function to initialize the touch context. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">fromUx</td><td>if true, means to initialize the UX context, otherwise App one </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00274">274</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
 
 </div>
 </div>
