@@ -111,29 +111,6 @@ static int process_itc_event(uint8_t *buffer_in, size_t buffer_in_length)
             break;
 #endif  // HAVE_NFC
 
-#ifdef HAVE_SE_BUTTON
-        case ITC_BUTTON_STATE: {
-            uint8_t tx_buff[4];
-            tx_buff[0] = SEPROXYHAL_TAG_BUTTON_PUSH_EVENT;
-            tx_buff[1] = 0;
-            tx_buff[2] = 1;
-            tx_buff[3] = buffer_in[4];
-            os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, tx_buff, 4, NULL);
-            status = 0;
-            break;
-        }
-#endif  // HAVE_SE_BUTTON
-        case ITC_FINGER_STATE: {
-            uint8_t tx_buff[10];
-            tx_buff[0] = SEPROXYHAL_TAG_FINGER_EVENT;
-            tx_buff[1] = 0;
-            tx_buff[2] = 7;
-            memcpy(&tx_buff[3], &buffer_in[4], 7);
-            os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, tx_buff, 10, NULL);
-            status = 0;
-            break;
-        }
-
 #ifdef HAVE_SE_TOUCH
 #endif  // HAVE_SE_TOUCH
 

@@ -87,6 +87,3 @@ int os_io_nfc_cmd_stop(void);
 int os_io_nfc_cmd_start_ce(void);
 int os_io_nfc_cmd_start_reader(void);
 #endif  // HAVE_NFC
-
-void os_io_ux_cmd_button_state(uint8_t state);
-void os_io_ux_cmd_touch_state(uint8_t state, uint16_t x, uint16_t y, uint8_t w, uint8_t h);
