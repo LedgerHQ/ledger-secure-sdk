@@ -12,8 +12,8 @@ var searchData=
   ['destination_5faddress_9',['destination_address',['../structcreate__transaction__parameters__s.html#a8019df5402d0abcfd7155d99f4593ba1',1,'create_transaction_parameters_s']]],
   ['destination_5faddress_5fextra_5fid_10',['destination_address_extra_id',['../structcreate__transaction__parameters__s.html#a49513ff8c5bd3b0f9e28987f3e69d7bf',1,'create_transaction_parameters_s']]],
   ['details_11',['details',['../structnbgl__warningBarList__t.html#a429879f31b62fb969b6d80fbe384cf86',1,'nbgl_warningBarList_t']]],
-  ['detailsbuttonicon_12',['detailsbuttonicon',['../structnbgl__contentTagValueConfirm__t.html#ace3d086fb542f41893f9ee9381fc4869',1,'nbgl_contentTagValueConfirm_t::detailsButtonIcon'],['../structnbgl__contentTagValueDetails__t.html#a721b1cc9a1ebd012367c4e35835d254d',1,'nbgl_contentTagValueDetails_t::detailsButtonIcon']]],
-  ['detailsbuttontext_13',['detailsbuttontext',['../structnbgl__contentTagValueDetails__t.html#a8cfe3900f6763243bc353d1d9c93c67c',1,'nbgl_contentTagValueDetails_t::detailsButtonText'],['../structnbgl__contentTagValueConfirm__t.html#a861cf55885415db99e52c8882a57ed79',1,'nbgl_contentTagValueConfirm_t::detailsButtonText']]],
+  ['detailsbuttonicon_12',['detailsbuttonicon',['../structnbgl__contentTagValueDetails__t.html#a721b1cc9a1ebd012367c4e35835d254d',1,'nbgl_contentTagValueDetails_t::detailsButtonIcon'],['../structnbgl__contentTagValueConfirm__t.html#ace3d086fb542f41893f9ee9381fc4869',1,'nbgl_contentTagValueConfirm_t::detailsButtonIcon']]],
+  ['detailsbuttontext_13',['detailsbuttontext',['../structnbgl__contentTagValueConfirm__t.html#a861cf55885415db99e52c8882a57ed79',1,'nbgl_contentTagValueConfirm_t::detailsButtonText'],['../structnbgl__contentTagValueDetails__t.html#a8cfe3900f6763243bc353d1d9c93c67c',1,'nbgl_contentTagValueDetails_t::detailsButtonText']]],
   ['detailsbuttontoken_14',['detailsbuttontoken',['../structnbgl__contentTagValueDetails__t.html#a7f2ecdcffa41cbbc6931bb508c4690fa',1,'nbgl_contentTagValueDetails_t::detailsButtonToken'],['../structnbgl__contentTagValueConfirm__t.html#a3b21b4e7d9fb5cf2e4f9c4775107ca40',1,'nbgl_contentTagValueConfirm_t::detailsButtonToken']]],
   ['device_5ffs_15',['DEVICE_FS',['../group__USBD__CONF__Exported__Defines.html#ga609db9b232fa154e9b1c86bcdd17e97c',1,'usbd_conf.h']]],
   ['device_5fname_16',['device_name',['../structledger__ble__data__t.html#ad2a72f2403547e5d3a4b9b3233b5bde5',1,'ledger_ble_data_t']]],
@@ -29,7 +29,5 @@ var searchData=
   ['drawing_20api_26',['Screen drawing API',['../index.html#nbgl_presentation',1,'']]],
   ['drawing_20apis_27',['Screen drawing APIs',['../nbgl_mainpage.html#nbgl_drawing_api',1,'']]],
   ['drawing_20graphic_20objects_28',['Drawing graphic objects',['../nbgl_obj.html#draw_objects',1,'']]],
-  ['dynamic_20memory_20allocator_29',['Dynamic memory allocator',['../mem_alloc_mainpage.html',1,'index']]],
-  ['dynamic_20memory_20allocator_20interface_30',['Dynamic Memory Allocator Interface',['../index.html#mem_presentation',1,'']]],
-  ['dynamic_20objects_20management_31',['dynamic objects management',['../nbgl_screens_and_objs.html#nbgl_objs_mngt',1,'Dynamic objects management'],['../nbgl_screens_and_objs.html',1,'Screens Stack and dynamic objects management']]]
+  ['dynamic_20objects_20management_29',['dynamic objects management',['../nbgl_screens_and_objs.html#nbgl_objs_mngt',1,'Dynamic objects management'],['../nbgl_screens_and_objs.html',1,'Screens Stack and dynamic objects management']]]
 ];

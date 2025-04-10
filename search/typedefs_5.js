@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['header_5ft_0',['header_t',['../mem__alloc_8c.html#a4eb4dd7e74c119ccddb3032242467d65',1,'mem_alloc.c']]]
+  ['int16_5ft_0',['int16_t',['../usbd__conf_8h.html#a269259c924dce846340ddbb810db2e3c',1,'usbd_conf.h']]],
+  ['int8_5ft_1',['int8_t',['../usbd__conf_8h.html#aef44329758059c91c76d334e8fc09700',1,'usbd_conf.h']]]
 ];
