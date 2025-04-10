@@ -86,15 +86,6 @@ static const unsigned char seph_io_cmd_more_time[] = {
     0,
 };
 
-#if defined(HAVE_SE_BUTTON) && !defined(BOLOS_RELEASE)
-static const unsigned char seph_io_evt_button_release[] = {
-    SEPROXYHAL_TAG_BUTTON_PUSH_EVENT,
-    0,
-    1,
-    0,
-};
-#endif  // HAVE_SE_BUTTON && !BOLOS_RELEASE
-
 /* Private functions ---------------------------------------------------------*/
 
 /* Exported functions --------------------------------------------------------*/
@@ -123,12 +114,6 @@ int os_io_seph_cmd_setup_ticker(unsigned int interval_ms)
 
 int os_io_seph_cmd_device_shutdown(uint8_t critical_battery)
 {
-#if defined(HAVE_SE_BUTTON) && !defined(BOLOS_RELEASE)
-    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH,
-                 seph_io_evt_button_release,
-                 sizeof(seph_io_evt_button_release),
-                 NULL);
-#endif  // HAVE_SE_BUTTON && !BOLOS_RELEASE
     uint8_t buffer[4];
     buffer[0] = SEPROXYHAL_TAG_DEVICE_OFF;
     buffer[1] = 0;
@@ -139,12 +124,6 @@ int os_io_seph_cmd_device_shutdown(uint8_t critical_battery)
 
 int os_io_seph_cmd_se_reset(void)
 {
-#if defined(HAVE_SE_BUTTON) && !defined(BOLOS_RELEASE)
-    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH,
-                 seph_io_evt_button_release,
-                 sizeof(seph_io_evt_button_release),
-                 NULL);
-#endif  // HAVE_SE_BUTTON && !BOLOS_RELEASE
     return os_io_tx_cmd(
         OS_IO_PACKET_TYPE_SEPH, seph_io_se_power_off, sizeof(seph_io_se_power_off), NULL);
 }
@@ -416,31 +395,3 @@ int os_io_nfc_cmd_start_reader(void)
     return os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 4, NULL);
 }
 #endif  // HAVE_NFC
-
-void os_io_ux_cmd_button_state(uint8_t state)
-{
-    uint8_t buffer[5];
-    buffer[0] = SEPROXYHAL_TAG_ITC_CMD;
-    buffer[1] = 0;
-    buffer[2] = 2;
-    buffer[3] = ITC_BUTTON_STATE;
-    buffer[4] = state;
-    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 5, NULL);
-}
-
-void os_io_ux_cmd_touch_state(uint8_t state, uint16_t x, uint16_t y, uint8_t w, uint8_t h)
-{
-    uint8_t buffer[11];
-    buffer[0]  = SEPROXYHAL_TAG_ITC_CMD;
-    buffer[1]  = 0;
-    buffer[2]  = 8;
-    buffer[3]  = ITC_FINGER_STATE;
-    buffer[4]  = state;
-    buffer[5]  = (uint8_t) (x >> 8);
-    buffer[6]  = (uint8_t) (x & 0x00FF);
-    buffer[7]  = (uint8_t) (y >> 8);
-    buffer[8]  = (uint8_t) (y & 0x00FF);
-    buffer[9]  = w;
-    buffer[10] = h;
-    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 11, NULL);
-}
