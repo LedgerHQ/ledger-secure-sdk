@@ -60,9 +60,6 @@ typedef enum {
     ITC_UX_ACCEPT_BLE_PAIRING = 0x21,
     ITC_UX_ASK_BLE_PAIRING    = 0x22,
     ITC_UX_BLE_PAIRING_STATUS = 0x23,
-    // MISC
-    ITC_BUTTON_STATE = 0x30,
-    ITC_FINGER_STATE = 0x31,
 } itc_type_t;
 
 /* Exported types, structures, unions ----------------------------------------*/
