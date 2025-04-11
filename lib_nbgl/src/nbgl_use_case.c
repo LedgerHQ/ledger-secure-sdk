@@ -2109,7 +2109,7 @@ static void displayInitialWarning(void)
 {
     // Play notification sound
 #ifdef HAVE_PIEZO_SOUND
-    io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
+    os_io_seph_cmd_piezo_play_tune(TUNE_LOOK_AT_ME);
 #endif  // HAVE_PIEZO_SOUND
     nbgl_layoutDescription_t   layoutDescription;
     nbgl_layoutChoiceButtons_t buttonsInfo = {.bottomText = "Continue anyway",
@@ -2324,7 +2324,7 @@ static void useCaseReview(nbgl_operationType_t              operationType,
     // Play notification sound if required
     if (playNotifSound) {
 #ifdef HAVE_PIEZO_SOUND
-        io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
+        os_io_seph_cmd_piezo_play_tune(TUNE_LOOK_AT_ME);
 #endif  // HAVE_PIEZO_SOUND
     }
 
@@ -2370,7 +2370,7 @@ static void useCaseReviewStreamingStart(nbgl_operationType_t       operationType
     // Play notification sound if required
     if (playNotifSound) {
 #ifdef HAVE_PIEZO_SOUND
-        io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
+        os_io_seph_cmd_piezo_play_tune(TUNE_LOOK_AT_ME);
 #endif  // HAVE_PIEZO_SOUND
     }
 
@@ -3063,7 +3063,7 @@ void nbgl_useCaseStatus(const char *message, bool isSuccess, nbgl_callback_t qui
     onQuit = quitCallback;
     if (isSuccess) {
 #ifdef HAVE_PIEZO_SOUND
-        io_seproxyhal_play_tune(TUNE_LEDGER_MOMENT);
+        os_io_seph_cmd_piezo_play_tune(TUNE_LEDGER_MOMENT);
 #endif  // HAVE_PIEZO_SOUND
 
         pageContext = nbgl_pageDrawLedgerInfo(&pageCallback, &ticker, message, QUIT_TOKEN);
@@ -3259,7 +3259,7 @@ void nbgl_useCaseReviewStart(const nbgl_icon_details_t *icon,
 
 #ifdef HAVE_PIEZO_SOUND
     // Play notification sound
-    io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
+    os_io_seph_cmd_piezo_play_tune(TUNE_LOOK_AT_ME);
 #endif  // HAVE_PIEZO_SOUND
 
     pageContext = nbgl_pageDrawInfo(&pageCallback, NULL, &info);
@@ -3644,7 +3644,7 @@ void nbgl_useCaseGenericReview(const nbgl_genericContents_t *contents,
 
 #ifdef HAVE_PIEZO_SOUND
     // Play notification sound
-    io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
+    os_io_seph_cmd_piezo_play_tune(TUNE_LOOK_AT_ME);
 #endif  // HAVE_PIEZO_SOUND
 
     displayGenericContextPage(0, true);
@@ -3894,7 +3894,7 @@ void nbgl_useCaseAddressConfirmationExt(const char                       *addres
 
 #ifdef HAVE_PIEZO_SOUND
     // Play notification sound
-    io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
+    os_io_seph_cmd_piezo_play_tune(TUNE_LOOK_AT_ME);
 #endif  // HAVE_PIEZO_SOUND
 
     displayGenericContextPage(0, true);
@@ -3958,7 +3958,7 @@ void nbgl_useCaseAddressReview(const char                       *address,
 
 #ifdef HAVE_PIEZO_SOUND
     // Play notification sound
-    io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
+    os_io_seph_cmd_piezo_play_tune(TUNE_LOOK_AT_ME);
 #endif  // HAVE_PIEZO_SOUND
 
     displayGenericContextPage(0, true);
