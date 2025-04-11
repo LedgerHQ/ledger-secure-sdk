@@ -18,76 +18,62 @@
 #include <string.h>
 
 #include "os.h"
-#include "io.h"
+#include "os_io_legacy_types.h"
+#include "os_io_seph_cmd.h"
+#include "os_io_seph_ux.h"
+#include "os_io_default_apdu.h"
+#include "seproxyhal_protocol.h"
 #include "write.h"
+#include "offsets.h"
+#include "io.h"
+
+#ifdef HAVE_IO_USB
+#include "usbd_ledger.h"
+#endif  // HAVE_IO_USB
+
+#ifdef HAVE_BLE
+#include "ble_ledger.h"
+#endif  // HAVE_BLE
+
+#ifdef HAVE_NFC_READER
+#include "nfc_ledger.h"
+#endif  // HAVE_NFC_READER
 
 #ifdef HAVE_SWAP
 #include "swap.h"
 #endif
-
-#ifdef HAVE_NFC_READER
-#include "os_io_nfc.h"
-#endif  // HAVE_NFC_READER
 
 // TODO: Temporary workaround, at some point all status words should be defined by the SDK and
 // removed from the application
 #define SW_OK                    0x9000
 #define SW_WRONG_RESPONSE_LENGTH 0xB000
 
-uint8_t G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
+static uint8_t need_to_start_io;
 
-#ifdef HAVE_NFC_READER
-struct nfc_reader_context G_io_reader_ctx;
-#endif
-
-/**
- * Variable containing the length of the APDU response to send back.
- */
-static uint32_t G_output_len = 0;
-
-/**
- * IO state (READY, RECEIVING, WAITING).
- */
-static io_state_e G_io_state = READY;
+uint8_t G_io_seproxyhal_spi_buffer[OS_IO_SEPH_BUFFER_SIZE];
 
 #ifdef HAVE_BAGL
 WEAK void io_seproxyhal_display(const bagl_element_t *element)
 {
-    io_seproxyhal_display_default(element);
+    io_seph_ux_display_bagl_element(element);
 }
 #endif  // HAVE_BAGL
 
 // This function can be used to declare a callback to SEPROXYHAL_TAG_TICKER_EVENT in the application
 WEAK void app_ticker_event_callback(void) {}
 
-WEAK uint8_t io_event(uint8_t channel)
+WEAK unsigned char io_event(unsigned char channel)
 {
-    (void) channel;
-
+    UNUSED(channel);
     switch (G_io_seproxyhal_spi_buffer[0]) {
         case SEPROXYHAL_TAG_BUTTON_PUSH_EVENT:
             UX_BUTTON_PUSH_EVENT(G_io_seproxyhal_spi_buffer);
             break;
-        case SEPROXYHAL_TAG_STATUS_EVENT:
-            if (G_io_apdu_media == IO_APDU_MEDIA_USB_HID &&  //
-                !(U4BE(G_io_seproxyhal_spi_buffer, 3) &      //
-                  SEPROXYHAL_TAG_STATUS_EVENT_FLAG_USB_POWERED)) {
-                THROW(EXCEPTION_IO_RESET);
-            }
-            __attribute__((fallthrough));
-        case SEPROXYHAL_TAG_DISPLAY_PROCESSED_EVENT:
-#ifdef HAVE_BAGL
-            UX_DISPLAYED_EVENT({});
-#endif  // HAVE_BAGL
-#ifdef HAVE_NBGL
-            UX_DEFAULT_EVENT();
-#endif  // HAVE_NBGL
-            break;
-#ifdef HAVE_NBGL
+#ifdef HAVE_SE_TOUCH
         case SEPROXYHAL_TAG_FINGER_EVENT:
             UX_FINGER_EVENT(G_io_seproxyhal_spi_buffer);
             break;
-#endif  // HAVE_NBGL
+#endif  // HAVE_SE_TOUCH
         case SEPROXYHAL_TAG_TICKER_EVENT:
             app_ticker_event_callback();
             UX_TICKER_EVENT(G_io_seproxyhal_spi_buffer, {});
@@ -96,106 +82,77 @@ WEAK uint8_t io_event(uint8_t channel)
             io_nfc_process_events();
 #endif  // HAVE_NFC_READER
             break;
+#ifdef HAVE_NFC_READER
+        case SEPROXYHAL_TAG_NFC_EVENT:
+            io_nfc_event();
+            io_nfc_process_events();
+            break;
+#endif  // HAVE_NFC_READER
+
         default:
             UX_DEFAULT_EVENT();
             break;
     }
 
-    if (!io_seproxyhal_spi_is_status_sent()) {
-        io_seproxyhal_general_status();
-    }
-
     return 1;
-}
-
-WEAK uint16_t io_exchange_al(uint8_t channel, uint16_t tx_len)
-{
-    switch (channel & ~(IO_FLAGS)) {
-        case CHANNEL_KEYBOARD:
-            break;
-        case CHANNEL_SPI:
-            if (tx_len) {
-                io_seproxyhal_spi_send(G_io_apdu_buffer, tx_len);
-
-                if (channel & IO_RESET_AFTER_REPLIED) {
-                    halt();
-                }
-
-                return 0;
-            }
-            else {
-                return io_seproxyhal_spi_recv(G_io_apdu_buffer, sizeof(G_io_apdu_buffer), 0);
-            }
-        default:
-            THROW(INVALID_PARAMETER);
-    }
-
-    return 0;
 }
 
 WEAK void io_init()
 {
-    // Reset length of APDU response
-    G_output_len = 0;
-    G_io_state   = READY;
+    need_to_start_io = 1;
 }
 
 WEAK int io_recv_command()
 {
-    int ret = -1;
+    int status = 0;
 
-    switch (G_io_state) {
-        case READY:
-            ret        = io_exchange(CHANNEL_APDU | IO_CONTINUE_RX, G_output_len);
-            G_io_state = RECEIVED;
-            break;
-        case RECEIVED:
-            G_io_state = WAITING;
-            ret        = io_exchange(CHANNEL_APDU | IO_ASYNCH_REPLY, G_output_len);
-            G_io_state = RECEIVED;
-            break;
-        case WAITING:
-            G_io_state = READY;
-            ret        = -1;
-            break;
+    if (need_to_start_io) {
+        io_seproxyhal_io_heartbeat();
+        io_seproxyhal_io_heartbeat();
+        io_seproxyhal_io_heartbeat();
+        os_io_start();
+        need_to_start_io = 0;
     }
 
-    return ret;
+    while (status <= 0) {
+        status = io_legacy_apdu_rx(1);
+    }
+
+    return status;
 }
 
 WEAK int io_send_response_buffers(const buffer_t *rdatalist, size_t count, uint16_t sw)
 {
-    int ret = -1;
+    int    status = 0;
+    size_t length = 0;
 
-    G_output_len = 0;
     if (rdatalist && count > 0) {
         for (size_t i = 0; i < count; i++) {
             const buffer_t *rdata = &rdatalist[i];
 
-            if (!buffer_copy(rdata,
-                             G_io_apdu_buffer + G_output_len,
-                             sizeof(G_io_apdu_buffer) - G_output_len - 2)) {
+            if (!buffer_copy(rdata, G_io_tx_buffer + length, sizeof(G_io_tx_buffer) - length - 2)) {
                 return io_send_sw(SW_WRONG_RESPONSE_LENGTH);
             }
-            G_output_len += rdata->size - rdata->offset;
+            length += rdata->size - rdata->offset;
             if (count > 1) {
                 PRINTF("<= FRAG (%u/%u) RData=%.*H\n", i + 1, count, rdata->size, rdata->ptr);
             }
         }
-        PRINTF("<= SW=%04X | RData=%.*H\n", sw, G_output_len, G_io_apdu_buffer);
+        PRINTF("<= SW=%04X | RData=%.*H\n", sw, length, G_io_tx_buffer);
     }
     else {
         PRINTF("<= SW=%04X | RData=\n", sw);
     }
 
-    write_u16_be(G_io_apdu_buffer, G_output_len, sw);
-    G_output_len += 2;
+    write_u16_be(G_io_tx_buffer, length, sw);
+    length += 2;
 
 #ifdef HAVE_SWAP
     // If we are in swap mode and have validated a TX, we send it and immediately quit
     if (G_called_from_swap && G_swap_response_ready) {
         PRINTF("Swap answer is processed. Send it\n");
-        if (io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, G_output_len) == 0) {
+
+        if (io_legacy_apdu_tx(G_io_tx_buffer, length) >= 0) {
             PRINTF("Returning to Exchange with status %d\n", (sw == SW_OK));
             *G_swap_signing_return_value_address = (sw == SW_OK);
             PRINTF("os_lib_end\n");
@@ -208,42 +165,20 @@ WEAK int io_send_response_buffers(const buffer_t *rdatalist, size_t count, uint1
     }
 #endif  // HAVE_SWAP
 
-    switch (G_io_state) {
-        case READY:
-            ret = -1;
-            break;
-        case RECEIVED:
-#ifdef STANDARD_APP_SYNC_RAPDU
-            // Send synchronously the APDU response.
-            // This is needed to send the response before displaying synchronous
-            // status message on the screen.
-            // This is not always done to spare the RAM (stack) on LNS.
-            __attribute__((fallthrough));
-#else
-            G_io_state = READY;
-            ret        = 0;
-            break;
-#endif
-        case WAITING:
-            ret          = io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, G_output_len);
-            G_output_len = 0;
-            G_io_state   = READY;
-            break;
+    status = io_legacy_apdu_tx(G_io_tx_buffer, length);
+
+    if (status < 0) {
+        status = -1;
     }
 
-    return ret;
+    return status;
 }
 
 #ifdef STANDARD_APP_SYNC_RAPDU
 WEAK bool io_recv_and_process_event(void)
 {
-    int apdu_state = G_io_app.apdu_state;
-
-    os_io_seph_recv_and_process(0);
-
-    // If an APDU was received in previous os_io_seph_recv_and_process call and
-    // is waiting to be processed, return true
-    if (apdu_state == APDU_IDLE && G_io_app.apdu_state != APDU_IDLE) {
+    int status = io_legacy_apdu_rx(1);
+    if (status > 0) {
         return true;
     }
 
