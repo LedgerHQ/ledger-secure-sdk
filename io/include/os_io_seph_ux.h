@@ -41,7 +41,7 @@ typedef struct io_touch_info_s {
 } io_touch_info_t;
 
 /* Exported defines   --------------------------------------------------------*/
-#define SERIALIZED_NBGL_MAX_LEN (100)
+#define SERIALIZED_NBGL_MAX_LEN (110)
 
 /* Exported macros------------------------------------------------------------*/
 
