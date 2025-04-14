@@ -858,9 +858,18 @@ void BLE_LEDGER_init(os_io_init_ble_t *init, uint8_t force_restart)
 
     if ((force_restart) || (ble_ledger_data.state < BLE_STATE_IDLE)) {
         // First time BLE is started or forced to restart
+        uint8_t random_address[6];
+        memcpy(random_address, ble_ledger_data.random_address, sizeof(random_address));
         memset(&ble_ledger_data, 0, sizeof(ble_ledger_data));
         ble_ledger_data.state = BLE_STATE_IDLE;
-        LEDGER_BLE_get_mac_address(ble_ledger_data.random_address);
+        if ((random_address[5] == 0xDE) && (random_address[4] == 0xF1)) {
+            memcpy(ble_ledger_data.random_address,
+                   random_address,
+                   sizeof(ble_ledger_data.random_address));
+        }
+        else {
+            LEDGER_BLE_get_mac_address(ble_ledger_data.random_address);
+        }
         LOG_IO("BLE_LEDGER_init deep\n");
     }
     else {
