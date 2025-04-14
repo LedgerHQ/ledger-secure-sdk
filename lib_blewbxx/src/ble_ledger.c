@@ -157,6 +157,8 @@ static void get_device_name(void)
 
 static void init_mngr(uint8_t *hci_buffer, uint16_t length)
 {
+    uint8_t index = 0;
+
     if (ble_ledger_data.init_step == BLE_INIT_STEP_IDLE) {
         LOG_IO("INIT START\n");
     }
@@ -244,26 +246,30 @@ static void init_mngr(uint8_t *hci_buffer, uint16_t length)
         case BLE_INIT_STEP_PROFILE_INIT:
         case BLE_INIT_STEP_PROFILE_CREATE_DB: {
             ble_profile_info_t *profile_info = NULL;
-            profile_info                     = ble_ledger_data.profile[0];
             if (ble_ledger_data.init_step == BLE_INIT_STEP_PROFILE_INIT) {
-                if (profile_info->init) {
-                    ((ble_profile_init_t) PIC(profile_info->init))(&ble_ledger_data.cmd_data,
-                                                                   profile_info->cookie);
+                for (index = 0; index < ble_ledger_data.nb_of_profile; index++) {
+                    profile_info = ble_ledger_data.profile[index];
+                    if (profile_info->init) {
+                        ((ble_profile_init_t) PIC(profile_info->init))(&ble_ledger_data.cmd_data,
+                                                                       profile_info->cookie);
+                    }
                 }
                 ble_ledger_data.init_step++;
             }
-            if (profile_info->create_db) {
-                if (((ble_profile_create_db_t) PIC(profile_info->create_db))(
-                        hci_buffer, length, profile_info->cookie)
-                    != BLE_PROFILE_STATUS_OK_PROCEDURE_END) {
-                    ble_ledger_data.init_step--;
-                    send_hci_packet(0);
-                }
-                else {
-                    init_mngr(hci_buffer, length);
+            uint8_t db_creation_complete = 1;
+            for (index = 0; index < ble_ledger_data.nb_of_profile; index++) {
+                profile_info = ble_ledger_data.profile[index];
+                if (profile_info->create_db) {
+                    if (((ble_profile_create_db_t) PIC(profile_info->create_db))(
+                            hci_buffer, length, profile_info->cookie)
+                        != BLE_PROFILE_STATUS_OK_PROCEDURE_END) {
+                        ble_ledger_data.init_step--;
+                        send_hci_packet(0);
+                        db_creation_complete = 0;
+                    }
                 }
             }
-            else {
+            if (db_creation_complete) {
                 init_mngr(hci_buffer, length);
             }
             break;
@@ -368,12 +374,14 @@ static void start_advertising_mngr(uint16_t opcode)
         case BLE_START_ADV_STEP_SET_SCAN_RSP_DATAS: {
             ble_profile_info_t *profile_info = NULL;
             // TODO_IO : should handle every profile in the future
-            profile_info = ble_ledger_data.profile[0];
-            // Incomplete List of 128-bit Service UUIDs
-            buffer[index++] = 16 + 1;
-            buffer[index++] = BLE_AD_AD_TYPE_128_BIT_SERV_UUID;
-            memcpy(&buffer[index], (uint8_t *) PIC(profile_info->service_uuid.value), 16);
-            index += 16;
+            if (ble_ledger_data.nb_of_profile) {
+                profile_info = ble_ledger_data.profile[0];
+                // Incomplete List of 128-bit Service UUIDs
+                buffer[index++] = 16 + 1;
+                buffer[index++] = BLE_AD_AD_TYPE_128_BIT_SERV_UUID;
+                memcpy(&buffer[index], (uint8_t *) PIC(profile_info->service_uuid.value), 16);
+                index += 16;
+            }
 
             // Slave Connection Interval Range
             buffer[index++] = 5;
@@ -565,6 +573,7 @@ static void hci_evt_cmd_complete(uint8_t *buffer, uint16_t length)
     }
 
     uint16_t opcode = U2LE(buffer, 1);
+    uint8_t  index  = 0;
 
     if (ble_ledger_data.state == BLE_STATE_INITIALIZING) {
         init_mngr(buffer, length);
@@ -578,24 +587,28 @@ static void hci_evt_cmd_complete(uint8_t *buffer, uint16_t length)
     else if (opcode == ACI_GATT_WRITE_RESP_CMD_CODE) {
         uint8_t             status       = BLE_PROFILE_STATUS_OK;
         ble_profile_info_t *profile_info = NULL;
-        profile_info                     = ble_ledger_data.profile[0];
-        if (profile_info->write_rsp_ack) {
-            status = ((ble_profile_write_rsp_ack_t) PIC(profile_info->write_rsp_ack))(
-                profile_info->cookie);
-            if (status == BLE_PROFILE_STATUS_OK_AND_SEND_PACKET) {
-                send_hci_packet(0);
+        for (index = 0; index < ble_ledger_data.nb_of_profile; index++) {
+            profile_info = ble_ledger_data.profile[index];
+            if (profile_info->write_rsp_ack) {
+                status = ((ble_profile_write_rsp_ack_t) PIC(profile_info->write_rsp_ack))(
+                    profile_info->cookie);
+                if (status == BLE_PROFILE_STATUS_OK_AND_SEND_PACKET) {
+                    send_hci_packet(0);
+                }
             }
         }
     }
     else if (opcode == ACI_GATT_UPDATE_CHAR_VALUE_CMD_CODE) {
         uint8_t             status       = BLE_PROFILE_STATUS_OK;
         ble_profile_info_t *profile_info = NULL;
-        profile_info                     = ble_ledger_data.profile[0];
-        if (profile_info->update_char_val_ack) {
-            status = ((ble_profile_update_char_value_ack_t) PIC(profile_info->update_char_val_ack))(
-                profile_info->cookie);
-            if (status == BLE_PROFILE_STATUS_OK_AND_SEND_PACKET) {
-                send_hci_packet(0);
+        for (index = 0; index < ble_ledger_data.nb_of_profile; index++) {
+            profile_info = ble_ledger_data.profile[index];
+            if (profile_info->update_char_val_ack) {
+                status = ((ble_profile_update_char_value_ack_t) PIC(
+                    profile_info->update_char_val_ack))(profile_info->cookie);
+                if (status == BLE_PROFILE_STATUS_OK_AND_SEND_PACKET) {
+                    send_hci_packet(0);
+                }
             }
         }
     }
@@ -619,6 +632,7 @@ static void hci_evt_le_meta_evt(uint8_t *buffer, uint16_t length)
         return;
     }
 
+    uint8_t             index        = 0;
     ble_profile_info_t *profile_info = NULL;
 
     switch (buffer[0]) {
@@ -639,10 +653,12 @@ static void hci_evt_le_meta_evt(uint8_t *buffer, uint16_t length)
                    ble_ledger_data.connection.supervision_timeout);
             ble_ledger_data.advertising_enabled = 0;
 
-            profile_info = ble_ledger_data.profile[0];
-            if (profile_info->connection_evt) {
-                ((ble_profile_connection_evt_t) PIC(profile_info->connection_evt))(
-                    &ble_ledger_data.connection, profile_info->cookie);
+            for (index = 0; index < ble_ledger_data.nb_of_profile; index++) {
+                profile_info = ble_ledger_data.profile[index];
+                if (profile_info->connection_evt) {
+                    ((ble_profile_connection_evt_t) PIC(profile_info->connection_evt))(
+                        &ble_ledger_data.connection, profile_info->cookie);
+                }
             }
             break;
 
@@ -657,10 +673,13 @@ static void hci_evt_le_meta_evt(uint8_t *buffer, uint16_t length)
                    ble_ledger_data.connection.conn_latency,
                    ble_ledger_data.connection.supervision_timeout);
 
-            profile_info = ble_ledger_data.profile[0];
-            if (profile_info->connection_update_evt) {
-                ((ble_profile_connection_update_evt_t) PIC(profile_info->connection_update_evt))(
-                    &ble_ledger_data.connection, profile_info->cookie);
+            for (index = 0; index < ble_ledger_data.nb_of_profile; index++) {
+                profile_info = ble_ledger_data.profile[index];
+                if (profile_info->connection_update_evt) {
+                    ((ble_profile_connection_update_evt_t) PIC(
+                        profile_info->connection_update_evt))(&ble_ledger_data.connection,
+                                                              profile_info->cookie);
+                }
             }
             break;
 
@@ -700,6 +719,7 @@ static void hci_evt_vendor(uint8_t *buffer, uint16_t length)
         return;
     }
 
+    uint8_t  index  = 0;
     uint16_t opcode = U2LE(buffer, 0);
 
     if (U2LE(buffer, 2) != ble_ledger_data.connection.connection_handle) {
@@ -757,29 +777,34 @@ static void hci_evt_vendor(uint8_t *buffer, uint16_t length)
         case ACI_GATT_ATTRIBUTE_MODIFIED_VSEVT_CODE:
         case ACI_GATT_WRITE_PERMIT_REQ_VSEVT_CODE: {
             uint16_t            att_handle   = U2LE(buffer, 4);
+            uint8_t             profil_found = 0;
             ble_profile_info_t *profile_info = NULL;
-            profile_info                     = ble_ledger_data.profile[0];
-            if ((profile_info->handle_in_range)
-                && (((ble_profile_handle_in_range_t) PIC(profile_info->handle_in_range))(
-                    att_handle, profile_info->cookie))) {
-                uint8_t status = BLE_PROFILE_STATUS_OK;
-                if (opcode == ACI_GATT_ATTRIBUTE_MODIFIED_VSEVT_CODE) {
-                    if (profile_info->att_modified) {
-                        status = ((ble_profile_att_modified_t) PIC(profile_info->att_modified))(
-                            buffer, length, profile_info->cookie);
+            for (index = 0; index < ble_ledger_data.nb_of_profile; index++) {
+                profile_info = ble_ledger_data.profile[index];
+                if ((profile_info->handle_in_range)
+                    && (((ble_profile_handle_in_range_t) PIC(profile_info->handle_in_range))(
+                        att_handle, profile_info->cookie))) {
+                    uint8_t status = BLE_PROFILE_STATUS_OK;
+                    if (opcode == ACI_GATT_ATTRIBUTE_MODIFIED_VSEVT_CODE) {
+                        if (profile_info->att_modified) {
+                            status = ((ble_profile_att_modified_t) PIC(profile_info->att_modified))(
+                                buffer, length, profile_info->cookie);
+                        }
                     }
-                }
-                else if (opcode == ACI_GATT_WRITE_PERMIT_REQ_VSEVT_CODE) {
-                    if (profile_info->write_permit_req) {
-                        status = ((ble_profile_write_permit_req_t) PIC(
-                            profile_info->write_permit_req))(buffer, length, profile_info->cookie);
+                    else if (opcode == ACI_GATT_WRITE_PERMIT_REQ_VSEVT_CODE) {
+                        if (profile_info->write_permit_req) {
+                            status = ((ble_profile_write_permit_req_t) PIC(
+                                profile_info->write_permit_req))(
+                                buffer, length, profile_info->cookie);
+                        }
                     }
-                }
-                if (status == BLE_PROFILE_STATUS_OK_AND_SEND_PACKET) {
-                    send_hci_packet(0);
+                    if (status == BLE_PROFILE_STATUS_OK_AND_SEND_PACKET) {
+                        send_hci_packet(0);
+                    }
+                    profil_found = 1;
                 }
             }
-            else if (opcode == ACI_GATT_ATTRIBUTE_MODIFIED_VSEVT_CODE) {
+            if ((!profil_found) && (opcode == ACI_GATT_ATTRIBUTE_MODIFIED_VSEVT_CODE)) {
                 LOG_IO("ATT MODIFIED %04X %d bytes at offset %d\n",
                        att_handle,
                        U2LE(buffer, 8),
@@ -790,15 +815,16 @@ static void hci_evt_vendor(uint8_t *buffer, uint16_t length)
 
         case ACI_ATT_EXCHANGE_MTU_RESP_VSEVT_CODE:
             LOG_IO("MTU : %d\n", U2LE(buffer, 4));
-
             ble_profile_info_t *profile_info = NULL;
-            profile_info                     = ble_ledger_data.profile[0];
-            if (profile_info->mtu_changed) {
-                uint8_t status = BLE_PROFILE_STATUS_OK;
-                status         = ((ble_profile_mtu_changed_t) PIC(profile_info->mtu_changed))(
-                    U2LE(buffer, 4), profile_info->cookie);
-                if (status == BLE_PROFILE_STATUS_OK_AND_SEND_PACKET) {
-                    send_hci_packet(0);
+            for (index = 0; index < ble_ledger_data.nb_of_profile; index++) {
+                profile_info = ble_ledger_data.profile[index];
+                if (profile_info->mtu_changed) {
+                    uint8_t status = BLE_PROFILE_STATUS_OK;
+                    status         = ((ble_profile_mtu_changed_t) PIC(profile_info->mtu_changed))(
+                        U2LE(buffer, 4), profile_info->cookie);
+                    if (status == BLE_PROFILE_STATUS_OK_AND_SEND_PACKET) {
+                        send_hci_packet(0);
+                    }
                 }
             }
             break;
@@ -969,6 +995,7 @@ int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
                            uint16_t apdu_buffer_max_length)
 {
     uint32_t status = 0;
+    uint8_t  index  = 0;
 
     if (seph_buffer_length < 5) {
         return -1;
@@ -1011,10 +1038,13 @@ int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
                         ble_ledger_data.connection.encrypted = 0;
                     }
                     ble_profile_info_t *profile_info = NULL;
-                    profile_info                     = ble_ledger_data.profile[0];
-                    if (profile_info->encryption_changed) {
-                        ((ble_profile_encryption_changed_t) PIC(profile_info->encryption_changed))(
-                            ble_ledger_data.connection.encrypted, profile_info->cookie);
+                    for (index = 0; index < ble_ledger_data.nb_of_profile; index++) {
+                        profile_info = ble_ledger_data.profile[index];
+                        if (profile_info->encryption_changed) {
+                            ((ble_profile_encryption_changed_t) PIC(
+                                profile_info->encryption_changed))(
+                                ble_ledger_data.connection.encrypted, profile_info->cookie);
+                        }
                     }
                 }
                 else {
@@ -1074,21 +1104,26 @@ int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
     return status;
 }
 
-uint32_t BLE_LEDGER_send(const uint8_t *packet, uint16_t packet_length, uint32_t timeout_ms)
+uint32_t BLE_LEDGER_send(uint8_t        profile_type,
+                         const uint8_t *packet,
+                         uint16_t       packet_length,
+                         uint32_t       timeout_ms)
 {
     uint32_t            status       = SWO_SUCCESS;
     uint8_t             ble_status   = BLE_PROFILE_STATUS_OK;
     ble_profile_info_t *profile_info = NULL;
+    uint8_t             index        = 0;
 
-    profile_info = ble_ledger_data.profile[0];
-
-    if (profile_info->send_packet) {
-        ble_status = ((ble_profile_send_packet_t) PIC(profile_info->send_packet))(
-            packet, packet_length, profile_info->cookie);
-    }
-
-    if (ble_status == BLE_PROFILE_STATUS_OK_AND_SEND_PACKET) {
-        status = send_hci_packet(timeout_ms);
+    for (index = 0; index < ble_ledger_data.nb_of_profile; index++) {
+        profile_info = ble_ledger_data.profile[index];
+        if (profile_info->type == profile_type) {
+            ble_status = ((ble_profile_send_packet_t) PIC(profile_info->send_packet))(
+                packet, packet_length, profile_info->cookie);
+            if (ble_status == BLE_PROFILE_STATUS_OK_AND_SEND_PACKET) {
+                status = send_hci_packet(timeout_ms);
+                break;
+            }
+        }
     }
 
     return status;
