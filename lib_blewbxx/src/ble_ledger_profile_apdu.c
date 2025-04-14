@@ -10,10 +10,10 @@
 #include "ble_ledger_profile_apdu.h"
 
 #ifdef HAVE_PRINTF
-#define DEBUG PRINTF
-// #define DEBUG(...)
+#define LOG_IO PRINTF
+// #define DELOG_IOBUG(...)
 #else  // !HAVE_PRINTF
-#define DEBUG(...)
+#define LOG_IO(...)
 #endif  // !HAVE_PRINTF
 
 /* Private enumerations ------------------------------------------------------*/
@@ -140,7 +140,7 @@ static void notify_chunk(ledger_ble_profile_apdu_handle_t *handle)
 static void check_transfer_mode(ledger_ble_profile_apdu_handle_t *handle)
 {
     if (handle->transfer_mode_enabled != handle->transfer_mode_wanted_enabled) {
-        DEBUG("LEDGER_BLE_set_transfer_mode %d\n", handle->transfer_mode_wanted_enabled);
+        LOG_IO("LEDGER_BLE_set_transfer_mode %d\n", handle->transfer_mode_wanted_enabled);
     }
 
     if ((handle->transfer_mode_enabled == 0) && (handle->transfer_mode_wanted_enabled != 0)) {
@@ -191,28 +191,28 @@ uint8_t BLE_LEDGER_PROFILE_apdu_create_db(uint8_t *hci_buffer, uint16_t length, 
     ledger_ble_profile_apdu_handle_t *handle = (ledger_ble_profile_apdu_handle_t *) PIC(cookie);
 
     if (handle->create_db_step == CREATE_DB_STEP_IDLE) {
-        DEBUG("APDU PROFILE INIT START\n");
+        LOG_IO("APDU PROFILE INIT START\n");
     }
     else if ((length >= 2) && (handle->create_db_step == CREATE_DB_STEP_ADD_SERVICE)) {
         handle->gatt_service_handle = U2LE(hci_buffer, 4);
-        DEBUG("APDU PROFILE GATT service handle        : %04X\n", handle->gatt_service_handle);
+        LOG_IO("APDU PROFILE GATT service handle        : %04X\n", handle->gatt_service_handle);
     }
     else if ((length >= 2)
              && (handle->create_db_step == CREATE_DB_STEP_ADD_NOTIFICATION_CHARACTERISTIC)) {
         handle->gatt_notification_characteristic_handle = U2LE(hci_buffer, 4);
-        DEBUG("APDU PROFILE GATT notif char handle     : %04X\n",
-              handle->gatt_notification_characteristic_handle);
+        LOG_IO("APDU PROFILE GATT notif char handle     : %04X\n",
+               handle->gatt_notification_characteristic_handle);
     }
     else if ((length >= 2) && (handle->create_db_step == CREATE_DB_STEP_ADD_WRITE_CHARACTERISTIC)) {
         handle->gatt_write_characteristic_handle = U2LE(hci_buffer, 4);
-        DEBUG("APDU PROFILE GATT write char handle     : %04X\n",
-              handle->gatt_write_characteristic_handle);
+        LOG_IO("APDU PROFILE GATT write char handle     : %04X\n",
+               handle->gatt_write_characteristic_handle);
     }
     else if ((length >= 2)
              && (handle->create_db_step == CREATE_DB_STEP_ADD_WRITE_COMMAND_CHARACTERISTIC)) {
         handle->gatt_write_cmd_characteristic_handle = U2LE(hci_buffer, 4);
-        DEBUG("APDU PROFILE GATT write cmd char handle : %04X\n",
-              handle->gatt_write_cmd_characteristic_handle);
+        LOG_IO("APDU PROFILE GATT write cmd char handle : %04X\n",
+               handle->gatt_write_cmd_characteristic_handle);
     }
 
     handle->create_db_step++;
@@ -272,7 +272,7 @@ uint8_t BLE_LEDGER_PROFILE_apdu_create_db(uint8_t *hci_buffer, uint16_t length, 
         }
 
         case CREATE_DB__STEP_END:
-            DEBUG("APDU PROFILE INIT END\n");
+            LOG_IO("APDU PROFILE INIT END\n");
             status = BLE_PROFILE_STATUS_OK_PROCEDURE_END;
             break;
 
@@ -357,7 +357,7 @@ uint8_t BLE_LEDGER_PROFILE_apdu_att_modified(uint8_t *hci_buffer, uint16_t lengt
         && (att_data_length == 2) && (offset == 0)) {
         // Peer device registering/unregistering for notifications
         if (U2LE(hci_buffer, 10) != 0) {
-            DEBUG("REGISTERED FOR NOTIFICATIONS\n");
+            LOG_IO("REGISTERED FOR NOTIFICATIONS\n");
             handle->notifications_enabled = 1;
             if (!handle->mtu_negotiated) {
                 ble_aci_gatt_forge_cmd_exchange_config(handle->cmd_data, connection_handle);
@@ -365,14 +365,14 @@ uint8_t BLE_LEDGER_PROFILE_apdu_att_modified(uint8_t *hci_buffer, uint16_t lengt
             }
         }
         else {
-            DEBUG("NOT REGISTERED FOR NOTIFICATIONS\n");
+            LOG_IO("NOT REGISTERED FOR NOTIFICATIONS\n");
             handle->notifications_enabled = 0;
         }
     }
     else if ((att_handle == handle->gatt_write_cmd_characteristic_handle + 1)
              && (handle->notifications_enabled) && (handle->link_is_encrypted)
              && (att_data_length)) {
-        DEBUG("WRITE CMD %d\n", length - 8);
+        LOG_IO("WRITE CMD %d\n", length - 8);
         hci_buffer[8] = 0xDE;
         hci_buffer[9] = 0xF1;
         LEDGER_PROTOCOL_rx(&handle->protocol_data, &hci_buffer[8], length - 8);
@@ -381,7 +381,7 @@ uint8_t BLE_LEDGER_PROFILE_apdu_att_modified(uint8_t *hci_buffer, uint16_t lengt
             check_transfer_mode(handle);
             if (handle->transfer_mode_enabled) {
                 if (U2BE(handle->resp, 0) != SWO_SUCCESS) {
-                    DEBUG("Transfer failed 0x%04x\n", U2BE(handle->resp, 0));
+                    LOG_IO("Transfer failed 0x%04x\n", U2BE(handle->resp, 0));
                     handle->transfer_mode_wanted_enabled = 0;
                     check_transfer_mode(handle);
                 }
@@ -430,7 +430,7 @@ uint8_t BLE_LEDGER_PROFILE_apdu_write_permit_req(uint8_t *hci_buffer, uint16_t l
                                           &hci_buffer[7]);
     }
     else {
-        DEBUG("ATT WRITE %04X %d bytes\n", att_handle, data_length);
+        LOG_IO("ATT WRITE %04X %d bytes\n", att_handle, data_length);
         handle->protocol_data.tx_chunk_length = 0;
         ble_aci_gatt_forge_cmd_write_resp(handle->cmd_data,
                                           connection_handle,

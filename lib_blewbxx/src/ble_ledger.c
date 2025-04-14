@@ -106,10 +106,10 @@ typedef struct {
 } ble_ledger_data_t;
 
 #ifdef HAVE_PRINTF
-#define DEBUG PRINTF
-// #define DEBUG(...)
+#define LOG_IO PRINTF
+// #define LOG_IO(...)
 #else  // !HAVE_PRINTF
-#define DEBUG(...)
+#define LOG_IO(...)
 #endif  // !HAVE_PRINTF
 
 /* Private macros-------------------------------------------------------------*/
@@ -158,7 +158,7 @@ static void get_device_name(void)
 static void init_mngr(uint8_t *hci_buffer, uint16_t length)
 {
     if (ble_ledger_data.init_step == BLE_INIT_STEP_IDLE) {
-        DEBUG("INIT START\n");
+        LOG_IO("INIT START\n");
     }
     else if (hci_buffer) {
         uint16_t opcode = U2LE(hci_buffer, 1);
@@ -171,11 +171,11 @@ static void init_mngr(uint8_t *hci_buffer, uint16_t length)
             ble_ledger_data.gap_service_handle                    = U2LE(hci_buffer, 4);
             ble_ledger_data.gap_device_name_characteristic_handle = U2LE(hci_buffer, 6);
             ble_ledger_data.gap_appearance_characteristic_handle  = U2LE(hci_buffer, 8);
-            DEBUG("GAP service handle          : %04X\n", ble_ledger_data.gap_service_handle);
-            DEBUG("GAP device name char handle : %04X\n",
-                  ble_ledger_data.gap_device_name_characteristic_handle);
-            DEBUG("GAP appearance char handle  : %04X\n",
-                  ble_ledger_data.gap_appearance_characteristic_handle);
+            LOG_IO("GAP service handle          : %04X\n", ble_ledger_data.gap_service_handle);
+            LOG_IO("GAP device name char handle : %04X\n",
+                   ble_ledger_data.gap_device_name_characteristic_handle);
+            LOG_IO("GAP appearance char handle  : %04X\n",
+                   ble_ledger_data.gap_appearance_characteristic_handle);
         }
         if (ble_ledger_data.init_step == BLE_INIT_STEP_START_ADVERTISING) {
             start_advertising_mngr(opcode);
@@ -292,7 +292,7 @@ static void init_mngr(uint8_t *hci_buffer, uint16_t length)
             break;
 
         case BLE_INIT_STEP_END:
-            DEBUG("INIT END\n");
+            LOG_IO("INIT END\n");
             ble_ledger_data.state = BLE_STATE_RUNNING;
             break;
 
@@ -313,13 +313,13 @@ static void start_advertising_mngr(uint16_t opcode)
     }
 
     if (ble_ledger_data.connection.connection_handle != 0xFFFF) {
-        DEBUG("START ADVERTISING ABORTED : connected\n");
+        LOG_IO("START ADVERTISING ABORTED : connected\n");
         ble_ledger_data.state = BLE_STATE_RUNNING;
         return;
     }
 
     if (ble_ledger_data.start_adv_step == BLE_START_ADV_STEP_IDLE) {
-        DEBUG("START ADVERTISING START\n");
+        LOG_IO("START ADVERTISING START\n");
         ble_ledger_data.start_after_stop = 0;
     }
 
@@ -331,7 +331,7 @@ static void start_advertising_mngr(uint16_t opcode)
 
     if (ble_ledger_data.start_adv_step == (BLE_START_ADV_STEP_START_ADV - 1)) {
         if ((os_setting_get(OS_SETTING_PLANEMODE, NULL, 0)) || ble_ledger_data.stop_after_start) {
-            DEBUG("START ADVERTISING ABORTED\n");
+            LOG_IO("START ADVERTISING ABORTED\n");
             ble_ledger_data.state = BLE_STATE_RUNNING;
             BLE_LEDGER_stop();
             return;
@@ -421,7 +421,7 @@ static void start_advertising_mngr(uint16_t opcode)
             break;
 
         case BLE_START_ADV_STEP_END:
-            DEBUG("START ADVERTISING END\n");
+            LOG_IO("START ADVERTISING END\n");
             ble_ledger_data.advertising_enabled = 1;
             ble_ledger_data.state               = BLE_STATE_RUNNING;
             break;
@@ -440,7 +440,7 @@ static void stopping_mngr(uint16_t opcode)
     }
 
     if (ble_ledger_data.stopping_step == BLE_STOPPING_STEP_IDLE) {
-        DEBUG("STOPPING START\n");
+        LOG_IO("STOPPING START\n");
         ble_ledger_data.stop_after_start = 0;
     }
 
@@ -477,7 +477,7 @@ static void stopping_mngr(uint16_t opcode)
             break;
 
         case BLE_STOPPING_STEP_END:
-            DEBUG("STOPPING END\n");
+            LOG_IO("STOPPING END\n");
             ble_ledger_data.state = BLE_STATE_IDLE;
             if (ble_ledger_data.start_after_stop) {
                 BLE_LEDGER_start();
@@ -522,8 +522,8 @@ static void rsp_user_pairing_numeric_comparison(unsigned int status)
 
 static void ask_user_pairing_passkey(void)
 {
-    ble_ledger_data.pairing_in_progress          = 2;
-    ble_ledger_data.pairing_code                 = cx_rng_u32_range_func(0, 1000000, cx_rng_u32);
+    ble_ledger_data.pairing_in_progress = 2;
+    ble_ledger_data.pairing_code        = cx_rng_u32_range_func(0, 1000000, cx_rng_u32);
 
     char pairing_info[16];
     SPRINTF(pairing_info, "%06d", ble_ledger_data.pairing_code);
@@ -551,7 +551,7 @@ static void rsp_user_pairing_passkey(unsigned int status)
 
 static void end_pairing_ux(uint8_t pairing_ok)
 {
-    DEBUG("end_pairing_ux : %d (%d)\n", pairing_ok, ble_ledger_data.pairing_in_progress);
+    LOG_IO("end_pairing_ux : %d (%d)\n", pairing_ok, ble_ledger_data.pairing_in_progress);
     if (ble_ledger_data.pairing_in_progress) {
         os_io_ux_cmd_ble_pairing_status(pairing_ok);
     }
@@ -600,16 +600,16 @@ static void hci_evt_cmd_complete(uint8_t *buffer, uint16_t length)
         }
     }
     else if (opcode == ACI_GAP_NUMERIC_COMPARISON_VALUE_CONFIRM_YESNO_CMD_CODE) {
-        DEBUG("ACI_GAP_NUMERIC_COMPARISON_VALUE_CONFIRM_YESNO\n");
+        LOG_IO("ACI_GAP_NUMERIC_COMPARISON_VALUE_CONFIRM_YESNO\n");
     }
     else if (opcode == ACI_GAP_CLEAR_SECURITY_DB_CMD_CODE) {
-        DEBUG("ACI_GAP_CLEAR_SECURITY_DB\n");
+        LOG_IO("ACI_GAP_CLEAR_SECURITY_DB\n");
     }
     else if (opcode == ACI_GATT_CONFIRM_INDICATION_CMD_CODE) {
-        DEBUG("ACI_GATT_CONFIRM_INDICATION\n");
+        LOG_IO("ACI_GATT_CONFIRM_INDICATION\n");
     }
     else {
-        DEBUG("HCI EVT CMD COMPLETE 0x%04X\n", opcode);
+        LOG_IO("HCI EVT CMD COMPLETE 0x%04X\n", opcode);
     }
 }
 
@@ -632,11 +632,11 @@ static void hci_evt_le_meta_evt(uint8_t *buffer, uint16_t length)
             ble_ledger_data.connection.supervision_timeout   = U2LE(buffer, 16);
             ble_ledger_data.connection.master_clock_accuracy = buffer[18];
             ble_ledger_data.connection.encrypted             = 0;
-            DEBUG("LE CONNECTION COMPLETE %04X - %04X- %04X- %04X\n",
-                  ble_ledger_data.connection.connection_handle,
-                  ble_ledger_data.connection.conn_interval,
-                  ble_ledger_data.connection.conn_latency,
-                  ble_ledger_data.connection.supervision_timeout);
+            LOG_IO("LE CONNECTION COMPLETE %04X - %04X- %04X- %04X\n",
+                   ble_ledger_data.connection.connection_handle,
+                   ble_ledger_data.connection.conn_interval,
+                   ble_ledger_data.connection.conn_latency,
+                   ble_ledger_data.connection.supervision_timeout);
             ble_ledger_data.advertising_enabled = 0;
 
             profile_info = ble_ledger_data.profile[0];
@@ -651,11 +651,11 @@ static void hci_evt_le_meta_evt(uint8_t *buffer, uint16_t length)
             ble_ledger_data.connection.conn_interval       = U2LE(buffer, 4);
             ble_ledger_data.connection.conn_latency        = U2LE(buffer, 6);
             ble_ledger_data.connection.supervision_timeout = U2LE(buffer, 8);
-            DEBUG("LE CONNECTION UPDATE %04X - %04X- %04X- %04X\n",
-                  ble_ledger_data.connection.connection_handle,
-                  ble_ledger_data.connection.conn_interval,
-                  ble_ledger_data.connection.conn_latency,
-                  ble_ledger_data.connection.supervision_timeout);
+            LOG_IO("LE CONNECTION UPDATE %04X - %04X- %04X- %04X\n",
+                   ble_ledger_data.connection.connection_handle,
+                   ble_ledger_data.connection.conn_interval,
+                   ble_ledger_data.connection.conn_latency,
+                   ble_ledger_data.connection.supervision_timeout);
 
             profile_info = ble_ledger_data.profile[0];
             if (profile_info->connection_update_evt) {
@@ -670,11 +670,11 @@ static void hci_evt_le_meta_evt(uint8_t *buffer, uint16_t length)
                 ble_ledger_data.connection.max_tx_time   = U2LE(buffer, 5);
                 ble_ledger_data.connection.max_rx_octets = U2LE(buffer, 7);
                 ble_ledger_data.connection.max_rx_time   = U2LE(buffer, 9);
-                DEBUG("LE DATA LENGTH CHANGE %04X - %04X- %04X- %04X\n",
-                      ble_ledger_data.connection.max_tx_octets,
-                      ble_ledger_data.connection.max_tx_time,
-                      ble_ledger_data.connection.max_rx_octets,
-                      ble_ledger_data.connection.max_rx_time);
+                LOG_IO("LE DATA LENGTH CHANGE %04X - %04X- %04X- %04X\n",
+                       ble_ledger_data.connection.max_tx_octets,
+                       ble_ledger_data.connection.max_tx_time,
+                       ble_ledger_data.connection.max_rx_octets,
+                       ble_ledger_data.connection.max_rx_time);
             }
             break;
 
@@ -682,14 +682,14 @@ static void hci_evt_le_meta_evt(uint8_t *buffer, uint16_t length)
             if (U2LE(buffer, 2) == ble_ledger_data.connection.connection_handle) {
                 ble_ledger_data.connection.tx_phy = buffer[4];
                 ble_ledger_data.connection.rx_phy = buffer[5];
-                DEBUG("LE PHY UPDATE %02X - %02X\n",
-                      ble_ledger_data.connection.tx_phy,
-                      ble_ledger_data.connection.rx_phy);
+                LOG_IO("LE PHY UPDATE %02X - %02X\n",
+                       ble_ledger_data.connection.tx_phy,
+                       ble_ledger_data.connection.rx_phy);
             }
             break;
 
         default:
-            DEBUG("HCI LE META 0x%02X\n", buffer[0]);
+            LOG_IO("HCI LE META 0x%02X\n", buffer[0]);
             break;
     }
 }
@@ -709,20 +709,20 @@ static void hci_evt_vendor(uint8_t *buffer, uint16_t length)
     switch (opcode) {
 #ifdef HAVE_INAPP_BLE_PAIRING
         case ACI_GAP_PAIRING_COMPLETE_VSEVT_CODE:
-            DEBUG("PAIRING");
+            LOG_IO("PAIRING");
             switch (buffer[4]) {
                 case SMP_PAIRING_STATUS_SUCCESS:
-                    DEBUG(" SUCCESS\n");
+                    LOG_IO(" SUCCESS\n");
                     end_pairing_ux(BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_SUCCESS);
                     break;
 
                 case SMP_PAIRING_STATUS_SMP_TIMEOUT:
-                    DEBUG(" TIMEOUT\n");
+                    LOG_IO(" TIMEOUT\n");
                     end_pairing_ux(BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_TIMEOUT);
                     break;
 
                 case SMP_PAIRING_STATUS_PAIRING_FAILED:
-                    DEBUG(" FAILED : %02X\n", buffer[5]);
+                    LOG_IO(" FAILED : %02X\n", buffer[5]);
                     if (buffer[5] == 0x08) {  // UNSPECIFIED_REASON
                         end_pairing_ux(BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_CANCELLED_FROM_REMOTE);
                     }
@@ -739,18 +739,18 @@ static void hci_evt_vendor(uint8_t *buffer, uint16_t length)
             break;
 
         case ACI_GAP_PASS_KEY_REQ_VSEVT_CODE:
-            DEBUG("PASSKEY REQ\n");
+            LOG_IO("PASSKEY REQ\n");
             ask_user_pairing_passkey();
             break;
 
         case ACI_GAP_NUMERIC_COMPARISON_VALUE_VSEVT_CODE:
-            DEBUG("NUMERIC COMP : %d\n", U4LE(buffer, 4));
+            LOG_IO("NUMERIC COMP : %d\n", U4LE(buffer, 4));
             ask_user_pairing_numeric_comparison(U4LE(buffer, 4));
             break;
 #endif  // HAVE_INAPP_BLE_PAIRING
 
         case ACI_L2CAP_CONNECTION_UPDATE_RESP_VSEVT_CODE: {
-            DEBUG("CONNECTION UPDATE RESP %d\n", buffer[4]);
+            LOG_IO("CONNECTION UPDATE RESP %d\n", buffer[4]);
             break;
         }
 
@@ -780,16 +780,16 @@ static void hci_evt_vendor(uint8_t *buffer, uint16_t length)
                 }
             }
             else if (opcode == ACI_GATT_ATTRIBUTE_MODIFIED_VSEVT_CODE) {
-                DEBUG("ATT MODIFIED %04X %d bytes at offset %d\n",
-                      att_handle,
-                      U2LE(buffer, 8),
-                      U2LE(buffer, 6));
+                LOG_IO("ATT MODIFIED %04X %d bytes at offset %d\n",
+                       att_handle,
+                       U2LE(buffer, 8),
+                       U2LE(buffer, 6));
             }
             break;
         }
 
         case ACI_ATT_EXCHANGE_MTU_RESP_VSEVT_CODE:
-            DEBUG("MTU : %d\n", U2LE(buffer, 4));
+            LOG_IO("MTU : %d\n", U2LE(buffer, 4));
 
             ble_profile_info_t *profile_info = NULL;
             profile_info                     = ble_ledger_data.profile[0];
@@ -804,18 +804,18 @@ static void hci_evt_vendor(uint8_t *buffer, uint16_t length)
             break;
 
         case ACI_GATT_INDICATION_VSEVT_CODE:
-            DEBUG("INDICATION EVT\n");
+            LOG_IO("INDICATION EVT\n");
             ble_aci_gatt_forge_cmd_confirm_indication(&ble_ledger_data.cmd_data,
                                                       ble_ledger_data.connection.connection_handle);
             send_hci_packet(0);
             break;
 
         case ACI_GATT_PROC_COMPLETE_VSEVT_CODE:
-            DEBUG("PROCEDURE COMPLETE\n");
+            LOG_IO("PROCEDURE COMPLETE\n");
             break;
 
         case ACI_GATT_PROC_TIMEOUT_VSEVT_CODE:
-            DEBUG("PROCEDURE TIMEOUT\n");
+            LOG_IO("PROCEDURE TIMEOUT\n");
 #ifdef HAVE_INAPP_BLE_PAIRING
             end_pairing_ux(BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_FAILED);
 #endif  // HAVE_INAPP_BLE_PAIRING
@@ -827,7 +827,7 @@ static void hci_evt_vendor(uint8_t *buffer, uint16_t length)
             break;
 
         default:
-            DEBUG("HCI VENDOR 0x%04X\n", opcode);
+            LOG_IO("HCI VENDOR 0x%04X\n", opcode);
             break;
     }
 }
@@ -861,10 +861,10 @@ void BLE_LEDGER_init(os_io_init_ble_t *init, uint8_t force_restart)
         memset(&ble_ledger_data, 0, sizeof(ble_ledger_data));
         ble_ledger_data.state = BLE_STATE_IDLE;
         LEDGER_BLE_get_mac_address(ble_ledger_data.random_address);
-        DEBUG("BLE_LEDGER_init deep\n");
+        LOG_IO("BLE_LEDGER_init deep\n");
     }
     else {
-        DEBUG("BLE_LEDGER_init\n");
+        LOG_IO("BLE_LEDGER_init\n");
     }
 
     memcpy(&ble_ledger_init_data, init, sizeof(ble_ledger_init_data));
@@ -872,7 +872,7 @@ void BLE_LEDGER_init(os_io_init_ble_t *init, uint8_t force_restart)
 
 void BLE_LEDGER_start(void)
 {
-    DEBUG("BLE_LEDGER_start\n");
+    LOG_IO("BLE_LEDGER_start\n");
 
     if ((ble_ledger_data.state == BLE_STATE_IDLE)
         || (ble_ledger_data.profiles != ble_ledger_init_data.profile_mask)) {
@@ -884,17 +884,17 @@ void BLE_LEDGER_start(void)
         ble_ledger_data.nb_of_profile                = 0;
         ble_ledger_data.connection.connection_handle = 0xFFFF;
         if (ble_ledger_init_data.profile_mask & BLE_LEDGER_PROFILE_APDU) {
-            DEBUG("APDU ");
+            LOG_IO("APDU ");
             ble_ledger_data.profile[ble_ledger_data.nb_of_profile++]
                 = (ble_profile_info_t *) PIC(&BLE_LEDGER_PROFILE_apdu_info);
         }
 #ifdef HAVE_IO_U2F
         else if (ble_ledger_init_data.profile_mask & BLE_LEDGER_PROFILE_U2F) {
-            DEBUG("U2F ");
+            LOG_IO("U2F ");
             // ble_ledger_data.profile[ble_ledger_data.nb_of_profile++] =
             // (ble_profile_info_t*)PIC(&BLE_LEDGER_PROFILE_u2f_info);
         }
-        DEBUG("\n");
+        LOG_IO("\n");
 #endif  // HAVE_IO_U2F
         ble_ledger_data.profiles = ble_ledger_init_data.profile_mask;
         init_mngr(NULL, 0);
@@ -912,7 +912,7 @@ void BLE_LEDGER_start(void)
 
 void BLE_LEDGER_stop(void)
 {
-    DEBUG("BLE_LEDGER_stop\n");
+    LOG_IO("BLE_LEDGER_stop\n");
 
     if (ble_ledger_data.state == BLE_STATE_RUNNING) {
         ble_ledger_data.cmd_data.hci_cmd_opcode = 0xFFFF;
@@ -972,7 +972,7 @@ int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
                     status = -1;
                 }
                 else {
-                    DEBUG("HCI DISCONNECTION COMPLETE code %02X\n", seph_buffer[9]);
+                    LOG_IO("HCI DISCONNECTION COMPLETE code %02X\n", seph_buffer[9]);
                     ble_ledger_data.connection.connection_handle = 0xFFFF;
                     ble_ledger_data.advertising_enabled          = 0;
                     ble_ledger_data.connection.encrypted         = 0;
@@ -994,11 +994,11 @@ int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
                 }
                 else if (U2LE(seph_buffer, 8) == ble_ledger_data.connection.connection_handle) {
                     if (seph_buffer[10]) {
-                        DEBUG("Link encrypted\n");
+                        LOG_IO("Link encrypted\n");
                         ble_ledger_data.connection.encrypted = 1;
                     }
                     else {
-                        DEBUG("Link not encrypted\n");
+                        LOG_IO("Link not encrypted\n");
                         ble_ledger_data.connection.encrypted = 0;
                     }
                     ble_profile_info_t *profile_info = NULL;
@@ -1009,9 +1009,9 @@ int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
                     }
                 }
                 else {
-                    DEBUG("HCI ENCRYPTION CHANGE EVT %d on connection handle \n",
-                          seph_buffer[10],
-                          U2LE(seph_buffer, 8));
+                    LOG_IO("HCI ENCRYPTION CHANGE EVT %d on connection handle \n",
+                           seph_buffer[10],
+                           U2LE(seph_buffer, 8));
                 }
                 break;
 
@@ -1025,17 +1025,17 @@ int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
                 break;
 
             case HCI_COMMAND_STATUS_EVT_CODE:
-                DEBUG("HCI COMMAND_STATUS %d - num %d - op %04X\n",
-                      seph_buffer[7],
-                      seph_buffer[8],
-                      U2LE(seph_buffer, 9));
+                LOG_IO("HCI COMMAND_STATUS %d - num %d - op %04X\n",
+                       seph_buffer[7],
+                       seph_buffer[8],
+                       U2LE(seph_buffer, 9));
                 if (ble_ledger_data.state == BLE_STATE_STOPPING) {
                     stopping_mngr(U2LE(seph_buffer, 9));
                 }
                 break;
 
             case HCI_ENCRYPTION_KEY_REFRESH_COMPLETE_EVT_CODE:
-                DEBUG("HCI KEY_REFRESH_COMPLETE\n");
+                LOG_IO("HCI KEY_REFRESH_COMPLETE\n");
                 break;
 
             case HCI_LE_META_EVT_CODE:
