@@ -38,20 +38,25 @@ ifneq ($(USE_NBGL),0)
 # NBGL glyphs files and generation script
 #
 # search icons (glyphs) in lib_nbgl/glyphs(_nano) folder of the SDK
-ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_STAX TARGET_FLEX))
+
+ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_STAX TARGET_FLEX TARGET_APEX_P TARGET_APEX_M))
 GLYPH_FILES += $(addprefix $(BOLOS_SDK)/lib_nbgl/glyphs/wallet/,$(sort $(notdir $(shell find $(BOLOS_SDK)/lib_nbgl/glyphs/wallet/))))
+
 ifeq ($(TARGET_NAME),TARGET_STAX)
 GLYPH_FILES += $(addprefix $(BOLOS_SDK)/lib_nbgl/glyphs/64px/,$(sort $(notdir $(shell find $(BOLOS_SDK)/lib_nbgl/glyphs/64px/))))
 GLYPH_FILES += $(addprefix $(BOLOS_SDK)/lib_nbgl/glyphs/32px/,$(sort $(notdir $(shell find $(BOLOS_SDK)/lib_nbgl/glyphs/32px/))))
 endif
+
 ifeq ($(TARGET_NAME),TARGET_FLEX)
 GLYPH_FILES += $(addprefix $(BOLOS_SDK)/lib_nbgl/glyphs/64px/,$(sort $(notdir $(shell find $(BOLOS_SDK)/lib_nbgl/glyphs/64px/))))
 GLYPH_FILES += $(addprefix $(BOLOS_SDK)/lib_nbgl/glyphs/40px/,$(sort $(notdir $(shell find $(BOLOS_SDK)/lib_nbgl/glyphs/40px/))))
 endif
-ifeq ($(TARGET_NAME),TARGET_APEX)
+
+ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_APEX_P TARGET_APEX_M))
 GLYPH_FILES += $(addprefix $(BOLOS_SDK)/lib_nbgl/glyphs/48px/,$(sort $(notdir $(shell find $(BOLOS_SDK)/lib_nbgl/glyphs/48px/))))
 GLYPH_FILES += $(addprefix $(BOLOS_SDK)/lib_nbgl/glyphs/24px/,$(sort $(notdir $(shell find $(BOLOS_SDK)/lib_nbgl/glyphs/24px/))))
 endif
+
 GLYPH_OPT :=
 else # ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_STAX TARGET_FLEX))
 GLYPH_FILES += $(addprefix $(BOLOS_SDK)/lib_nbgl/glyphs/nano/,$(sort $(notdir $(shell find $(BOLOS_SDK)/lib_nbgl/glyphs/nano/))))
