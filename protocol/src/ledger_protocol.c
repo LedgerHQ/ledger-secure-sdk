@@ -22,10 +22,10 @@
 #define TAG_MTU                  (0x08)
 
 #ifdef HAVE_PRINTF
-// #define DEBUG PRINTF
-#define DEBUG(...)
+// #define LOG_IO PRINTF
+#define LOG_IO(...)
 #else  // !HAVE_PRINTF
-#define DEBUG(...)
+#define LOG_IO(...)
 #endif  // !HAVE_PRINTF
 
 /* Private macros-------------------------------------------------------------*/
@@ -59,7 +59,7 @@ static void process_apdu_chunk(ledger_protocol_t *handle, uint8_t *buffer, uint1
         handle->rx_apdu_length    = (uint16_t) U2BE(buffer, 2);
         // Check if we have enough space to store the apdu
         if (handle->rx_apdu_length > handle->rx_apdu_buffer_size) {
-            DEBUG("APDU WAITING - %d\n", handle->rx_apdu_length);
+            LOG_IO("APDU WAITING - %d\n", handle->rx_apdu_length);
             handle->rx_apdu_status = APDU_STATUS_WAITING;
             handle->rx_apdu_length = handle->rx_apdu_buffer_size;
             return;
@@ -85,12 +85,12 @@ static void process_apdu_chunk(ledger_protocol_t *handle, uint8_t *buffer, uint1
         handle->rx_apdu_length++;  // include the type
         handle->rx_apdu_sequence_number = 0;
         handle->rx_apdu_status          = APDU_STATUS_COMPLETE;
-        DEBUG("APDU COMPLETE\n");
+        LOG_IO("APDU COMPLETE\n");
     }
     else {
         handle->rx_apdu_sequence_number++;
         handle->rx_apdu_status = APDU_STATUS_NEED_MORE_DATA;
-        DEBUG("APDU NEED MORE DATA\n");
+        LOG_IO("APDU NEED MORE DATA\n");
     }
 }
 
@@ -117,7 +117,7 @@ void LEDGER_PROTOCOL_rx(ledger_protocol_t *handle, uint8_t *buffer, uint16_t len
 
     switch (buffer[2]) {
         case TAG_GET_PROTOCOL_VERSION:
-            DEBUG("TAG_GET_PROTOCOL_VERSION\n");
+            LOG_IO("TAG_GET_PROTOCOL_VERSION\n");
             handle->tx_chunk_buffer[2] = TAG_GET_PROTOCOL_VERSION;
             handle->tx_chunk_length
                 = MIN((uint8_t) sizeof(protocol_version), (handle->tx_chunk_buffer_size - 3));
@@ -126,24 +126,24 @@ void LEDGER_PROTOCOL_rx(ledger_protocol_t *handle, uint8_t *buffer, uint16_t len
             break;
 
         case TAG_ALLOCATE_CHANNEL:
-            DEBUG("TAG_ALLOCATE_CHANNEL\n");
+            LOG_IO("TAG_ALLOCATE_CHANNEL\n");
             handle->tx_chunk_buffer[2] = TAG_ALLOCATE_CHANNEL;
             handle->tx_chunk_length    = 3;
             break;
 
         case TAG_PING:
-            DEBUG("TAG_PING\n");
+            LOG_IO("TAG_PING\n");
             handle->tx_chunk_length = MIN(handle->tx_chunk_buffer_size, length);
             memcpy(handle->tx_chunk_buffer, buffer, handle->tx_chunk_length);
             break;
 
         case TAG_APDU:
-            DEBUG("TAG_APDU\n");
+            LOG_IO("TAG_APDU\n");
             process_apdu_chunk(handle, &buffer[3], length - 3);
             break;
 
         case TAG_MTU:
-            DEBUG("TAG_MTU\n");
+            LOG_IO("TAG_MTU\n");
             handle->tx_chunk_buffer[2] = TAG_MTU;
             handle->tx_chunk_buffer[3] = 0x00;
             handle->tx_chunk_buffer[4] = 0x00;
@@ -166,7 +166,7 @@ void LEDGER_PROTOCOL_tx(ledger_protocol_t *handle, const uint8_t *buffer, uint16
         return;
     }
     if (buffer) {
-        DEBUG("FIRST CHUNK\n");
+        LOG_IO("FIRST CHUNK\n");
         handle->tx_apdu_buffer          = buffer;
         handle->tx_apdu_length          = length;
         handle->tx_apdu_sequence_number = 0;
@@ -174,7 +174,7 @@ void LEDGER_PROTOCOL_tx(ledger_protocol_t *handle, const uint8_t *buffer, uint16
         memset(&handle->tx_chunk_buffer[2], 0, handle->tx_chunk_buffer_size - 2);
     }
     else {
-        DEBUG("NEXT CHUNK\n");
+        LOG_IO("NEXT CHUNK\n");
         memset(&handle->tx_chunk_buffer[2], 0, handle->tx_chunk_buffer_size - 2);
     }
 
@@ -208,5 +208,5 @@ void LEDGER_PROTOCOL_tx(ledger_protocol_t *handle, const uint8_t *buffer, uint16
         handle->tx_apdu_buffer = NULL;
     }
     handle->tx_chunk_length = tx_chunk_offset;
-    DEBUG(" %d\n", handle->tx_chunk_length);
+    LOG_IO(" %d\n", handle->tx_chunk_length);
 }
