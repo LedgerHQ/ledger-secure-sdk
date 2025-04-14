@@ -27,10 +27,10 @@
 #endif  // HAVE_NFC_READER && !HAVE_BOLOS
 
 #ifdef HAVE_PRINTF
-#define DEBUG PRINTF
-// #define DEBUG(...)
+#define LOG_IO PRINTF
+// #define LOG_IO(...)
 #else  // !HAVE_PRINTF
-#define DEBUG(...)
+#define LOG_IO(...)
 #endif  // !HAVE_PRINTF
 
 /* Private enumerations ------------------------------------------------------*/
@@ -58,7 +58,7 @@ unsigned char G_io_seph_buffer[OS_IO_SEPH_BUFFER_SIZE + 1];
 size_t        G_io_seph_buffer_size;
 #endif  // !USE_OS_IO_STACK
 
-uint8_t G_io_syscall_flag;
+uint8_t G_io_state;
 
 /* Private variables ---------------------------------------------------------*/
 
@@ -118,10 +118,12 @@ static int process_itc_event(uint8_t *buffer_in, size_t buffer_in_length)
             break;
     }
 
-    if (!G_io_syscall_flag) {
-        if (status) {
-            status = io_process_itc_ux_event(buffer_in, buffer_in_length);
-        }
+    if ((status)
+#ifdef HAVE_BOLOS
+        && (G_io_state == OS_IO_STATE_DASHBOARD)
+#endif  // HAVE_BOLOS
+    ) {
+        status = io_process_itc_ux_event(buffer_in, buffer_in_length);
     }
 
     return status;
@@ -138,10 +140,30 @@ int os_io_init(os_io_init_t *init)
     }
 
     uint8_t force_restart = 0;
-    if (G_io_syscall_flag == init->syscall) {
+
+#ifdef HAVE_BOLOS
+    if (G_io_state == OS_IO_STATE_IDLE) {
+        // POR
+        G_io_state    = OS_IO_STATE_DASHBOARD;
         force_restart = 1;
     }
-    G_io_syscall_flag = init->syscall;
+    else if (init->syscall == 0) {
+        // Dashboard init
+        if (G_io_state == OS_IO_STATE_APP_LOW_LEVEL_API) {
+            force_restart = 1;
+        }
+        G_io_state = OS_IO_STATE_DASHBOARD;
+    }
+    else {
+        // App init
+        if (G_io_state == OS_IO_STATE_APP_LOW_LEVEL_API) {
+            force_restart = 1;
+        }
+        G_io_state = OS_IO_STATE_APP_HIGH_LEVEL_API;
+    }
+#else   // !HAVE_BOLOS
+    force_restart = 1;
+#endif  // !HAVE_BOLOS
 
 #ifdef HAVE_BAGL
     io_seph_ux_init_button();
