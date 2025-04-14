@@ -17,10 +17,10 @@
 
 /* Private defines------------------------------------------------------------*/
 #ifdef HAVE_PRINTF
-// #define DEBUG PRINTF
-#define DEBUG(...)
+// #define LOG_IO PRINTF
+#define LOG_IO(...)
 #else  // !HAVE_PRINTF
-#define DEBUG(...)
+#define LOG_IO(...)
 #endif  // !HAVE_PRINTF
 
 /* Private macros-------------------------------------------------------------*/
@@ -165,7 +165,7 @@ void U2F_TRANSPORT_rx(u2f_transport_t *handle, uint8_t *buffer, uint16_t length)
                              U2F_COMMAND_PING,
                              &handle->rx_message_buffer[3],
                              handle->rx_message_length - 3);
-            DEBUG("U2F_COMMAND_PING %d\n", handle->rx_message_length);
+            LOG_IO("U2F_COMMAND_PING %d\n", handle->rx_message_length);
             handle->state = U2F_STATE_CMD_PROCESSING;
             break;
 
@@ -181,7 +181,7 @@ void U2F_TRANSPORT_tx(u2f_transport_t *handle, uint8_t cmd, const uint8_t *buffe
     }
 
     if (buffer) {
-        DEBUG("INITIALIZATION PACKET\n");
+        LOG_IO("INITIALIZATION PACKET\n");
         handle->tx_message_buffer          = buffer;
         handle->tx_message_length          = length;
         handle->tx_message_sequence_number = 0;
@@ -190,7 +190,7 @@ void U2F_TRANSPORT_tx(u2f_transport_t *handle, uint8_t cmd, const uint8_t *buffe
         memset(handle->tx_packet_buffer, 0, handle->tx_packet_buffer_size);
     }
     else {
-        DEBUG("CONTINUATION PACKET\n");
+        LOG_IO("CONTINUATION PACKET\n");
     }
 
     uint16_t tx_packet_offset = 0;
@@ -234,5 +234,5 @@ void U2F_TRANSPORT_tx(u2f_transport_t *handle, uint8_t cmd, const uint8_t *buffe
     }
 
     handle->tx_packet_length = tx_packet_offset;
-    DEBUG(" %d\n", handle->tx_packet_length);
+    LOG_IO(" %d\n", handle->tx_packet_length);
 }
