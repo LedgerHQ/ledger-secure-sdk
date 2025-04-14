@@ -62,6 +62,15 @@ typedef enum {
     ITC_UX_BLE_PAIRING_STATUS = 0x23,
 } itc_type_t;
 
+typedef enum {
+    OS_IO_STATE_IDLE               = 0x00,
+    OS_IO_STATE_DASHBOARD          = 0x01,
+    OS_IO_STATE_APP                = 0x02,
+    OS_IO_STATE_APP_HIGH_LEVEL_API = 0x03,
+    OS_IO_STATE_APP_LOW_LEVEL_API  = 0x04,
+
+} os_io_state_t;
+
 /* Exported types, structures, unions ----------------------------------------*/
 typedef struct {
     uint8_t protocol_version;
@@ -108,7 +117,7 @@ typedef struct {
 extern unsigned char G_io_rx_buffer[OS_IO_BUFFER_SIZE + 1];
 extern unsigned char G_io_tx_buffer[OS_IO_BUFFER_SIZE + 1];
 
-extern uint8_t G_io_syscall_flag;
+extern uint8_t G_io_state;
 
 /* Exported functions prototypes--------------------------------------------- */
 SYSCALL int os_io_init(os_io_init_t *init);
