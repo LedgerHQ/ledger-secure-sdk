@@ -28,9 +28,9 @@ typedef struct {
 } nfc_ledger_data_t;
 
 #ifdef HAVE_PRINTF
-#define DEBUG PRINTF
+#define LOG_IO PRINTF
 #else  // !HAVE_PRINTF
-#define DEBUG(...)
+#define LOG_IO(...)
 #endif  // !HAVE_PRINTF
 
 /* Private macros-------------------------------------------------------------*/
@@ -68,16 +68,16 @@ void NFC_LEDGER_init(uint8_t force_restart)
     if (force_restart) {
         memset(&nfc_ledger_data, 0, sizeof(nfc_ledger_data));
         nfc_ledger_data.state = NFC_STATE_IDLE;
-        DEBUG("NFC_LEDGER_init deep\n");
+        LOG_IO("NFC_LEDGER_init deep\n");
     }
     else {
-        DEBUG("NFC_LEDGER_init\n");
+        LOG_IO("NFC_LEDGER_init\n");
     }
 }
 
 void NFC_LEDGER_start(uint8_t mode)
 {
-    DEBUG("NFC_LEDGER_start %d\n", mode);
+    LOG_IO("NFC_LEDGER_start %d\n", mode);
 
     if ((nfc_ledger_data.state == NFC_STATE_IDLE) || (nfc_ledger_data.mode != mode)) {
         memset(&nfc_ledger_data.protocol_data, 0, sizeof(nfc_ledger_data.protocol_data));

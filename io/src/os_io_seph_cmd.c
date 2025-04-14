@@ -11,10 +11,10 @@
 
 /* Private defines------------------------------------------------------------*/
 #ifdef HAVE_PRINTF
-#define DEBUG PRINTF
-// #define DEBUG(...)
+#define LOG_IO PRINTF
+// #define LOG_IO(...)
 #else  // !HAVE_PRINTF
-#define DEBUG(...)
+#define LOG_IO(...)
 #endif  // !HAVE_PRINTF
 
 /* Private macros-------------------------------------------------------------*/

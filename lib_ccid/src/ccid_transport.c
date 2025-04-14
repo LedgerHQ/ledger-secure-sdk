@@ -16,10 +16,10 @@
 #define CCID_DEFAULT_FIDI (0x11)
 
 #ifdef HAVE_PRINTF
-#define DEBUG PRINTF
-// #define DEBUG(...)
+#define LOG_IO PRINTF
+// #define LOG_IO(...)
 #else  // !HAVE_PRINTF
-#define DEBUG(...)
+#define LOG_IO(...)
 #endif  // !HAVE_PRINTF
 
 /* Private macros-------------------------------------------------------------*/
@@ -63,14 +63,14 @@ void CCID_TRANSPORT_rx(ccid_transport_t *handle, uint8_t *buffer, uint16_t lengt
                 handle->rx_msg_length = length - CCID_HEADER_SIZE;
                 if (handle->bulk_msg_header.out.length <= handle->rx_msg_length) {
                     // Msg is complete
-                    DEBUG("CCID complete\n");
+                    LOG_IO("CCID complete\n");
                     handle->rx_msg_length      = handle->bulk_msg_header.out.length;
                     handle->rx_msg_status      = CCID_MSG_STATUS_COMPLETE;
                     handle->rx_msg_apdu_offset = 0;
                 }
                 else {
                     // Msg not complete
-                    DEBUG("CCID not complete\n");
+                    LOG_IO("CCID not complete\n");
                     handle->rx_msg_status = CCID_MSG_STATUS_NEED_MORE_DATA;
                 }
                 memmove(handle->rx_msg_buffer, &buffer[CCID_HEADER_SIZE], handle->rx_msg_length);
@@ -86,13 +86,13 @@ void CCID_TRANSPORT_rx(ccid_transport_t *handle, uint8_t *buffer, uint16_t lengt
             handle->rx_msg_length      = handle->bulk_msg_header.out.length;
             handle->rx_msg_status      = CCID_MSG_STATUS_COMPLETE;
             handle->rx_msg_apdu_offset = 0;
-            DEBUG("CCID complete\n");
+            LOG_IO("CCID complete\n");
         }
         else {
             // Msg not complete
             memmove(&handle->rx_msg_buffer[handle->rx_msg_length], buffer, length);
             handle->rx_msg_length += length;
-            DEBUG("CCID not complete\n");
+            LOG_IO("CCID not complete\n");
         }
     }
 }
@@ -104,14 +104,14 @@ void CCID_TRANSPORT_tx(ccid_transport_t *handle, const uint8_t *buffer, uint16_t
     }
 
     if (buffer) {
-        DEBUG("INITIALIZATION PACKET\n");
+        LOG_IO("INITIALIZATION PACKET\n");
         handle->tx_message_buffer         = buffer;
         handle->tx_message_length         = length;
         handle->tx_message_offset         = 0;
         handle->bulk_msg_header.in.length = length;
     }
     else {
-        DEBUG("CONTINUATION PACKET\n");
+        LOG_IO("CONTINUATION PACKET\n");
     }
 
     uint16_t tx_packet_offset = 0;
@@ -150,7 +150,7 @@ void CCID_TRANSPORT_tx(ccid_transport_t *handle, const uint8_t *buffer, uint16_t
     }
 
     handle->tx_packet_length = tx_packet_offset;
-    DEBUG(" %d\n", handle->tx_packet_length);
+    LOG_IO(" %d\n", handle->tx_packet_length);
 }
 
 void CCID_TRANSPORT_reset_parameters(ccid_transport_t *handle)
