@@ -58,9 +58,9 @@ typedef struct {
 } usbd_ledger_data_t;
 
 #ifdef HAVE_PRINTF
-#define DEBUG PRINTF
+#define LOG_IO PRINTF
 #else  // !HAVE_PRINTF
-#define DEBUG(...)
+#define LOG_IO(...)
 #endif  // !HAVE_PRINTF
 
 /* Private macros-------------------------------------------------------------*/
@@ -389,10 +389,10 @@ void USBD_LEDGER_init(os_io_init_usb_t *init, uint8_t force_restart)
         // First time USB is started or forced to restart
         memset(&usbd_ledger_data, 0, sizeof(usbd_ledger_data));
         usbd_ledger_data.state = USBD_LEDGER_STATE_STOPPED;
-        DEBUG("USBD_LEDGER_init deep\n");
+        LOG_IO("USBD_LEDGER_init deep\n");
     }
     else {
-        DEBUG("USBD_LEDGER_init\n");
+        LOG_IO("USBD_LEDGER_init\n");
     }
 
     memcpy(&usbd_ledger_init_data, init, sizeof(usbd_ledger_init_data));
@@ -400,16 +400,16 @@ void USBD_LEDGER_init(os_io_init_usb_t *init, uint8_t force_restart)
 
 void USBD_LEDGER_start(void)
 {
-    DEBUG("USBD_LEDGER_start %d %04X:%04X (%04X)",
-          usbd_ledger_data.state,
-          usbd_ledger_init_data.pid,
-          usbd_ledger_init_data.vid,
-          usbd_ledger_init_data.class_mask);
+    LOG_IO("USBD_LEDGER_start %d %04X:%04X (%04X)",
+           usbd_ledger_data.state,
+           usbd_ledger_init_data.pid,
+           usbd_ledger_init_data.vid,
+           usbd_ledger_init_data.class_mask);
     if (strlen(usbd_ledger_init_data.name)) {
-        DEBUG(" %s\n", usbd_ledger_init_data.name);
+        LOG_IO(" %s\n", usbd_ledger_init_data.name);
     }
     else {
-        DEBUG("\n");
+        LOG_IO("\n");
     }
 
 #ifndef HAVE_USB_HIDKBD
