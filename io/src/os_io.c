@@ -359,7 +359,7 @@ int os_io_tx_cmd(uint8_t                     type,
 
 #ifdef HAVE_BLE
         case OS_IO_PACKET_TYPE_BLE_APDU:
-            BLE_LEDGER_send(buffer, length, 0);
+            BLE_LEDGER_send(BLE_LEDGER_PROFILE_APDU, buffer, length, 0);
             break;
 #endif  // HAVE_BLE
 
