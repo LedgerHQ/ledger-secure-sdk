@@ -23,6 +23,27 @@
 #define WITH_HORIZONTAL_CHOICES_LIST
 #define WITH_HORIZONTAL_BARS_LIST
 
+/**
+ * @brief This is to use in @ref nbgl_operationType_t when the operation is concerned by an internal
+ * warning This is used to indicate a warning with a top-right button in review first & last page
+ *
+ */
+#define RISKY_OPERATION (1 << 6)
+
+/**
+ * @brief This is to use in @ref nbgl_operationType_t when the operation is concerned by an internal
+ * information. This is used to indicate an info with a top-right button in review first & last page
+ *
+ */
+#define NO_THREAT_OPERATION (1 << 7)
+
+/**
+ * @brief This is the mask to apply on @ref nbgl_operationType_t to get the real type provided by
+ * app
+ *
+ */
+#define REAL_TYPE_MASK 0x7
+
 /**********************
  *      TYPEDEFS
  **********************/
@@ -113,9 +134,10 @@ typedef enum {
 } ContextType_t;
 
 typedef struct UseCaseContext_s {
-    ContextType_t type;
-    uint8_t       nbPages;
-    int8_t        currentPage;
+    ContextType_t        type;
+    nbgl_operationType_t operationType;
+    uint8_t              nbPages;
+    int8_t               currentPage;
     nbgl_stepCallback_t
         stepCallback;  ///< if not NULL, function to be called on "double-key" action
     union {
@@ -129,6 +151,15 @@ typedef struct UseCaseContext_s {
 #endif
     };
 } UseCaseContext_t;
+
+typedef struct PageContent_s {
+    bool                          isSwitch;
+    const char                   *text;
+    const char                   *subText;
+    const nbgl_icon_details_t    *icon;
+    const nbgl_contentValueExt_t *extension;
+    nbgl_state_t                  state;
+} PageContent_t;
 
 /**********************
  *  STATIC VARIABLES
@@ -409,7 +440,9 @@ static void onSwitchAction(void)
     }
     if (p_content->contentActionCallback != NULL) {
         nbgl_contentActionCallback_t actionCallback = PIC(p_content->contentActionCallback);
-        actionCallback(contentSwitch->token, 0, context.currentPage);
+        actionCallback(contentSwitch->token,
+                       (contentSwitch->initState == ON_STATE) ? OFF_STATE : ON_STATE,
+                       context.currentPage);
     }
     else if (context.content.controlsCallback != NULL) {
         context.content.controlsCallback(contentSwitch->token, 0);
@@ -492,6 +525,40 @@ static void drawStep(nbgl_stepPosition_t        pos,
     if (context.type == CONFIRM_USE_CASE) {
         context.confirm.currentStep = newStep;
     }
+}
+
+static void drawSwitchStep(nbgl_stepPosition_t       pos,
+                           const char               *title,
+                           const char               *description,
+                           bool                      state,
+                           nbgl_stepButtonCallback_t onActionCallback,
+                           bool                      modal)
+{
+    nbgl_screenTickerConfiguration_t *p_ticker = NULL;
+    nbgl_screenTickerConfiguration_t  ticker   = {
+           .tickerCallback  = PIC(statusTickerCallback),
+           .tickerIntervale = 0,    // not periodic
+           .tickerValue     = 3000  // 3 seconds
+    };
+    nbgl_layoutSwitch_t switchInfo;
+
+    pos |= GET_POS_OF_STEP(context.currentPage, context.nbPages);
+    // if we are in streaming+skip case, enable going backward even for first tag/value of the set
+    // (except the first set) because the set starts with a "skip" page
+    if ((context.type == STREAMING_CONTINUE_REVIEW_USE_CASE)
+        && (context.review.skipCallback != NULL) && (context.review.nbDataSets > 1)) {
+        pos |= LAST_STEP;
+    }
+    if ((context.type == STATUS_USE_CASE) || (context.type == SPINNER_USE_CASE)) {
+        p_ticker = &ticker;
+    }
+    if ((context.type == CONFIRM_USE_CASE) && (context.confirm.currentStep != NULL)) {
+        nbgl_stepRelease(context.confirm.currentStep);
+    }
+    switchInfo.initState = state;
+    switchInfo.text      = title;
+    switchInfo.subText   = description;
+    nbgl_stepDrawSwitch(pos, onActionCallback, p_ticker, &switchInfo, modal);
 }
 
 static bool buttonGenericCallback(nbgl_buttonEvent_t event, nbgl_stepPosition_t *pos)
@@ -868,17 +935,14 @@ static void displayStreamingReviewPage(nbgl_stepPosition_t pos)
             if ((context.review.skipCallback != NULL) && (context.review.skipDisplay == false)
                 && ((context.review.nbDataSets > 1) || (context.currentPage > 0)
                     || (context.review.dataDirection == BACKWARD_DIRECTION))) {
-                nbgl_stepPosition_t directions = (pos & BACKWARD_DIRECTION) | FIRST_STEP;
+                nbgl_stepPosition_t       directions = (pos & BACKWARD_DIRECTION) | FIRST_STEP;
+                nbgl_layoutCenteredInfo_t info       = {0};
                 if ((context.review.nbDataSets == 1) || (context.currentPage > 0)) {
                     directions |= LAST_STEP;
                 }
-                nbgl_stepDrawText(directions,
-                                  buttonSkipCallback,
-                                  NULL,
-                                  "Press right to continue message.\nDouble-press to skip",
-                                  NULL,
-                                  REGULAR_INFO,
-                                  false);
+                info.icon  = &C_Information_circle_14px;
+                info.text1 = "Press right button to continue message or \bpress both to skip\b";
+                nbgl_stepDrawCenteredInfo(directions, buttonSkipCallback, NULL, &info, false);
                 nbgl_refresh();
                 context.review.skipDisplay = true;
                 return;
@@ -934,14 +998,9 @@ static void displayInfoPage(nbgl_stepPosition_t pos)
 }
 
 // function used to get the current page content
-static void getContentPage(bool                        toogle_state,
-                           const char                **text,
-                           const char                **subText,
-                           const nbgl_icon_details_t **icon)
+static void getContentPage(bool toogle_state, PageContent_t *contentPage)
 {
-    static char           fullText[75];
     uint8_t               elemIdx;
-    nbgl_state_t          state         = OFF_STATE;
     const nbgl_content_t *p_content     = NULL;
     nbgl_content_t        content       = {0};
     nbgl_contentSwitch_t *contentSwitch = NULL;
@@ -956,60 +1015,59 @@ static void getContentPage(bool                        toogle_state,
     }
     switch (p_content->type) {
         case CENTERED_INFO:
-            *text    = PIC(p_content->content.centeredInfo.text1);
-            *subText = PIC(p_content->content.centeredInfo.text2);
+            contentPage->text    = PIC(p_content->content.centeredInfo.text1);
+            contentPage->subText = PIC(p_content->content.centeredInfo.text2);
             break;
         case INFO_BUTTON:
-            *icon    = PIC(p_content->content.infoButton.icon);
-            *text    = PIC(p_content->content.infoButton.text);
-            *subText = PIC(p_content->content.infoButton.buttonText);
+            contentPage->icon    = PIC(p_content->content.infoButton.icon);
+            contentPage->text    = PIC(p_content->content.infoButton.text);
+            contentPage->subText = PIC(p_content->content.infoButton.buttonText);
             break;
         case TAG_VALUE_LIST:
-            getPairData(&p_content->content.tagValueList, elemIdx, text, subText);
+            getPairData(&p_content->content.tagValueList,
+                        elemIdx,
+                        &contentPage->text,
+                        &contentPage->subText);
             break;
         case SWITCHES_LIST:
-            contentSwitch = &(
+            contentPage->isSwitch = true;
+            contentSwitch         = &(
                 (nbgl_contentSwitch_t *) PIC(p_content->content.switchesList.switches))[elemIdx];
-            *text = contentSwitch->text;
-            state = contentSwitch->initState;
+            contentPage->text  = contentSwitch->text;
+            contentPage->state = contentSwitch->initState;
             if (toogle_state) {
-                state = (state == ON_STATE) ? OFF_STATE : ON_STATE;
-            }
-            if (state == ON_STATE) {
-                snprintf(fullText, sizeof(fullText), "%s\nEnabled", contentSwitch->subText);
-            }
-            else {
-                snprintf(fullText, sizeof(fullText), "%s\nDisabled", contentSwitch->subText);
+                contentPage->state = (contentPage->state == ON_STATE) ? OFF_STATE : ON_STATE;
             }
             context.stepCallback = onSwitchAction;
-            *subText             = fullText;
+            contentPage->subText = contentSwitch->subText;
             break;
         case INFOS_LIST:
-            *text = ((const char *const *) PIC(p_content->content.infosList.infoTypes))[elemIdx];
-            *subText
+            contentPage->text
+                = ((const char *const *) PIC(p_content->content.infosList.infoTypes))[elemIdx];
+            contentPage->subText
                 = ((const char *const *) PIC(p_content->content.infosList.infoContents))[elemIdx];
             break;
         case CHOICES_LIST:
 #ifdef WITH_HORIZONTAL_CHOICES_LIST
             if ((context.type == CONTENT_USE_CASE) && (context.content.title != NULL)) {
-                *text    = PIC(context.content.title);
-                *subText = PIC(p_content->content.choicesList.names[elemIdx]);
+                contentPage->text    = PIC(context.content.title);
+                contentPage->subText = PIC(p_content->content.choicesList.names[elemIdx]);
             }
             else {
                 contentChoices = (nbgl_contentRadioChoice_t *) PIC(&p_content->content.choicesList);
                 names          = (char **) PIC(contentChoices->names);
-                *text          = (const char *) PIC(names[elemIdx]);
+                contentPage->text = (const char *) PIC(names[elemIdx]);
             }
 #endif
             break;
         case BARS_LIST:
 #ifdef WITH_HORIZONTAL_BARS_LIST
             if ((context.type == CONTENT_USE_CASE) && (context.content.title != NULL)) {
-                *text    = PIC(context.content.title);
-                *subText = PIC(p_content->content.barsList.barTexts[elemIdx]);
+                contentPage->text    = PIC(context.content.title);
+                contentPage->subText = PIC(p_content->content.barsList.barTexts[elemIdx]);
             }
             else {
-                *text = PIC(p_content->content.barsList.barTexts[elemIdx]);
+                contentPage->text = PIC(p_content->content.barsList.barTexts[elemIdx]);
             }
 #endif
             break;
@@ -1021,18 +1079,16 @@ static void getContentPage(bool                        toogle_state,
 // function used to display the current page in settings
 static void displaySettingsPage(nbgl_stepPosition_t pos, bool toogle_state)
 {
-    const char                *text    = NULL;
-    const char                *subText = NULL;
-    const nbgl_icon_details_t *icon    = NULL;
+    PageContent_t contentPage = {0};
 
     context.stepCallback = NULL;
 
     if (context.currentPage < (context.nbPages - 1)) {
-        getContentPage(toogle_state, &text, &subText, &icon);
+        getContentPage(toogle_state, &contentPage);
     }
     else {  // last page is for quit
-        icon = &C_icon_back_x;
-        text = "Back";
+        contentPage.icon = &C_icon_back_x;
+        contentPage.text = "Back";
         if (context.type == GENERIC_SETTINGS) {
             context.stepCallback = context.home.quitCallback;
         }
@@ -1041,7 +1097,15 @@ static void displaySettingsPage(nbgl_stepPosition_t pos, bool toogle_state)
         }
     }
 
-    drawStep(pos, icon, text, subText, settingsCallback, false);
+    if (contentPage.isSwitch) {
+        drawSwitchStep(
+            pos, contentPage.text, contentPage.subText, contentPage.state, settingsCallback, false);
+    }
+    else {
+        drawStep(
+            pos, contentPage.icon, contentPage.text, contentPage.subText, settingsCallback, false);
+    }
+
     nbgl_refresh();
 }
 
@@ -1095,10 +1159,8 @@ static void startUseCaseSettingsAtPage(uint8_t initSettingPage)
     nbgl_content_t        content   = {0};
     const nbgl_content_t *p_content = NULL;
 
-    if (context.type == 0) {
-        // Not yet init, it is not a GENERIC_SETTINGS
-        context.type = SETTINGS_USE_CASE;
-    }
+    context.type = SETTINGS_USE_CASE;
+
     context.nbPages = 1;  // For back screen
     for (int i = 0; i < context.home.settingContents->nbContents; i++) {
         p_content = getContentAtIdx(context.home.settingContents, i, &content);
@@ -1164,7 +1226,7 @@ static void displayHomePage(nbgl_stepPosition_t pos)
         }
         else {
             text    = context.home.appName;
-            subText = "is ready";
+            subText = "app is ready";
         }
     }
     else if (context.currentPage == actionIndex) {
@@ -1176,18 +1238,18 @@ static void displayHomePage(nbgl_stepPosition_t pos)
     else if (context.currentPage == settingsIndex) {
         // Settings page
         icon                 = &C_icon_coggle;
-        text                 = "Settings";
+        text                 = "App settings";
         context.stepCallback = startUseCaseSettings;
     }
     else if (context.currentPage == infoIndex) {
         // About page
-        icon                 = &C_icon_certificate;
-        text                 = "About";
+        icon                 = &C_Information_circle_14px;
+        text                 = "App info";
         context.stepCallback = startUseCaseInfo;
     }
     else {
-        icon                 = &C_icon_dashboard_x;
-        text                 = "Quit";
+        icon                 = &C_Quit_14px;
+        text                 = "Quit app";
         context.stepCallback = context.home.quitCallback;
     }
 
@@ -1279,32 +1341,38 @@ static void displayConfirm(nbgl_stepPosition_t pos)
 // function used to display the current navigable content
 static void displayContent(nbgl_stepPosition_t pos, bool toogle_state)
 {
-    const char                *text    = NULL;
-    const char                *subText = NULL;
-    const nbgl_icon_details_t *icon    = NULL;
+    PageContent_t contentPage = {0};
 
     context.stepCallback = NULL;
 
     if (context.currentPage < (context.nbPages - 1)) {
-        getContentPage(toogle_state, &text, &subText, &icon);
+        getContentPage(toogle_state, &contentPage);
     }
     else {  // last page is for quit
         if (context.content.rejectText) {
-            text = context.content.rejectText;
+            contentPage.text = context.content.rejectText;
         }
         else {
-            text = "Back";
+            contentPage.text = "Back";
         }
         if (context.type == GENERIC_REVIEW_USE_CASE) {
-            icon = &C_icon_crossmark;
+            contentPage.icon = &C_icon_crossmark;
         }
         else {
-            icon = &C_icon_back_x;
+            contentPage.icon = &C_icon_back_x;
         }
         context.stepCallback = context.content.quitCallback;
     }
 
-    drawStep(pos, icon, text, subText, contentCallback, false);
+    if (contentPage.isSwitch) {
+        drawSwitchStep(
+            pos, contentPage.text, contentPage.subText, contentPage.state, contentCallback, false);
+    }
+    else {
+        drawStep(
+            pos, contentPage.icon, contentPage.text, contentPage.subText, contentCallback, false);
+    }
+
     nbgl_refresh();
 }
 
@@ -1316,6 +1384,7 @@ static void displaySpinner(const char *text)
 
 // function to factorize code for all simple reviews
 static void useCaseReview(ContextType_t                     type,
+                          nbgl_operationType_t              operationType,
                           const nbgl_contentTagValueList_t *tagValueList,
                           const nbgl_icon_details_t        *icon,
                           const char                       *reviewTitle,
@@ -1327,6 +1396,7 @@ static void useCaseReview(ContextType_t                     type,
 
     memset(&context, 0, sizeof(UseCaseContext_t));
     context.type                  = type;
+    context.operationType         = operationType;
     context.review.tagValueList   = tagValueList;
     context.review.reviewTitle    = reviewTitle;
     context.review.reviewSubTitle = reviewSubTitle;
@@ -1779,9 +1849,8 @@ void nbgl_useCaseReview(nbgl_operationType_t              operationType,
                         const char                       *finishTitle,
                         nbgl_choiceCallback_t             choiceCallback)
 {
-    UNUSED(operationType);  // TODO adapt accept and reject text depending on this value?
-
     useCaseReview(REVIEW_USE_CASE,
+                  operationType,
                   tagValueList,
                   icon,
                   reviewTitle,
@@ -1833,8 +1902,14 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
         type = REVIEW_USE_CASE;
     }
 
-    useCaseReview(
-        type, tagValueList, icon, reviewTitle, reviewSubTitle, finishTitle, choiceCallback);
+    useCaseReview(type,
+                  operationType,
+                  tagValueList,
+                  icon,
+                  reviewTitle,
+                  reviewSubTitle,
+                  finishTitle,
+                  choiceCallback);
 }
 
 /**
@@ -1865,10 +1940,10 @@ void nbgl_useCaseReviewBlindSigning(nbgl_operationType_t              operationT
                                     const nbgl_tipBox_t              *dummy,
                                     nbgl_choiceCallback_t             choiceCallback)
 {
-    UNUSED(operationType);  // TODO adapt accept and reject text depending on this value?
     UNUSED(dummy);
 
     useCaseReview(REVIEW_BLIND_SIGN_USE_CASE,
+                  operationType,
                   tagValueList,
                   icon,
                   reviewTitle,
@@ -1899,13 +1974,13 @@ void nbgl_useCaseReviewLight(nbgl_operationType_t              operationType,
                              const char                       *finishTitle,
                              nbgl_choiceCallback_t             choiceCallback)
 {
-    return nbgl_useCaseReview(operationType,
-                              tagValueList,
-                              icon,
-                              reviewTitle,
-                              reviewSubTitle,
-                              finishTitle,
-                              choiceCallback);
+    nbgl_useCaseReview(operationType,
+                       tagValueList,
+                       icon,
+                       reviewTitle,
+                       reviewSubTitle,
+                       finishTitle,
+                       choiceCallback);
 }
 
 /**
@@ -1986,16 +2061,14 @@ void nbgl_useCaseGenericReview(const nbgl_genericContents_t *contents,
  */
 void nbgl_useCaseStatus(const char *message, bool isSuccess, nbgl_callback_t quitCallback)
 {
-    const nbgl_icon_details_t *icon = NULL;
-
+    UNUSED(isSuccess);
     memset(&context, 0, sizeof(UseCaseContext_t));
     context.type         = STATUS_USE_CASE;
     context.stepCallback = quitCallback;
     context.currentPage  = 0;
     context.nbPages      = 1;
 
-    icon = isSuccess ? &C_icon_validate_14 : &C_icon_crossmark;
-    drawStep(SINGLE_STEP, icon, message, NULL, statusButtonCallback, false);
+    drawStep(SINGLE_STEP, NULL, message, NULL, statusButtonCallback, false, NO_FORCED_TYPE);
 }
 
 /**
@@ -2066,10 +2139,9 @@ void nbgl_useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
                                       const char                *reviewSubTitle,
                                       nbgl_choiceCallback_t      choiceCallback)
 {
-    UNUSED(operationType);  // TODO adapt accept and reject text depending on this value?
-
     memset(&context, 0, sizeof(UseCaseContext_t));
     context.type                  = STREAMING_START_REVIEW_USE_CASE;
+    context.operationType         = operationType;
     context.review.reviewTitle    = reviewTitle;
     context.review.reviewSubTitle = reviewSubTitle;
     context.review.icon           = icon;
@@ -2099,10 +2171,9 @@ void nbgl_useCaseReviewStreamingBlindSigningStart(nbgl_operationType_t       ope
                                                   const char                *reviewSubTitle,
                                                   nbgl_choiceCallback_t      choiceCallback)
 {
-    UNUSED(operationType);  // TODO adapt accept and reject text depending on this value?
-
     memset(&context, 0, sizeof(UseCaseContext_t));
     context.type                  = STREAMING_BLIND_SIGN_START_REVIEW_USE_CASE;
+    context.operationType         = operationType;
     context.review.reviewTitle    = reviewTitle;
     context.review.reviewSubTitle = reviewSubTitle;
     context.review.icon           = icon;
@@ -2130,10 +2201,12 @@ void nbgl_useCaseReviewStreamingContinueExt(const nbgl_contentTagValueList_t *ta
                                             nbgl_choiceCallback_t             choiceCallback,
                                             nbgl_callback_t                   skipCallback)
 {
-    uint8_t curNbDataSets = context.review.nbDataSets;
+    uint8_t              curNbDataSets = context.review.nbDataSets;
+    nbgl_operationType_t operationType = context.operationType;
 
     memset(&context, 0, sizeof(UseCaseContext_t));
     context.type                = STREAMING_CONTINUE_REVIEW_USE_CASE;
+    context.operationType       = operationType;
     context.review.tagValueList = tagValueList;
     context.review.onChoice     = choiceCallback;
     context.currentPage         = 0;
@@ -2163,10 +2236,12 @@ void nbgl_useCaseReviewStreamingContinue(const nbgl_contentTagValueList_t *tagVa
 void nbgl_useCaseReviewStreamingFinish(const char           *finishTitle,
                                        nbgl_choiceCallback_t choiceCallback)
 {
+    nbgl_operationType_t operationType = context.operationType;
     UNUSED(finishTitle);  // TODO dedicated screen for it?
 
     memset(&context, 0, sizeof(UseCaseContext_t));
     context.type            = STREAMING_FINISH_REVIEW_USE_CASE;
+    context.operationType   = operationType;
     context.review.onChoice = choiceCallback;
     context.currentPage     = 0;
     context.nbPages         = 2;  // 2 pages at the end for accept/reject
