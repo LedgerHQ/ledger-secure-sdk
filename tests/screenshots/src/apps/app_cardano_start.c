@@ -91,11 +91,8 @@ static void onTransactionContinue(bool askMore)
 void app_cardanoSignTransaction(void)
 {
     nbPairsSent = 0;
-    nbgl_useCaseReviewStreamingStart(TYPE_TRANSACTION,
-                                     &C_ic_asset_cardano_64,
-                                     "Review transaction",
-                                     NULL,
-                                     onTransactionContinue);
+    nbgl_useCaseReviewStreamingStart(
+        TYPE_TRANSACTION, &CARD_MAIN_ICON, "Review transaction", NULL, onTransactionContinue);
 }
 
 /**
@@ -106,11 +103,11 @@ void app_fullCardano(void)
 {
     nbgl_useCaseHomeAndSettings(
         "Cardano",
-        &C_ic_asset_cardano_64,
+        &CARD_MAIN_ICON,
         "Use Ledger Live to create transactions and confirm them on your Europa.",
         INIT_HOME_PAGE,
         NULL,
         &infoContentsList,
         NULL,
-        NULL);
+        exit_app);
 }

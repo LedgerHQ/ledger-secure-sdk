@@ -68,7 +68,7 @@ void app_cardanoVerifyAddress(void)
         "addr1qyyp7u0s2zcxadzd5w9w8rzpcg0rzmw07v0tkurg32y8agjnfsh6w2r9tvuq0lrsktztgj845qdcz4lpa2x4e"
         "0me68mqpp4tzn",
         &pairList,
-        &C_ic_asset_cardano_64,
+        &CARD_MAIN_ICON,
         "Verify Cardano\naddress",
         NULL,
         displayAddressCallback);

@@ -73,7 +73,7 @@ static void long_press_callback(int token, uint8_t index, int page)
 static nbgl_content_t contentsList[] = {
     {.type                                       = EXTENDED_CENTER,
      .contentActionCallback                      = onTipBox,
-     .content.extendedCenter.contentCenter.icon  = &C_ic_asset_eth_64,
+     .content.extendedCenter.contentCenter.icon  = &ETH_MAIN_ICON,
      .content.extendedCenter.contentCenter.title = "Review swap with Uniswap"},
     {.type                                    = TAG_VALUE_LIST,
      .contentActionCallback                   = NULL,
@@ -83,7 +83,7 @@ static nbgl_content_t contentsList[] = {
      .content.tagValueList.pairs              = (nbgl_layoutTagValue_t *) pairs},
     {.type                                 = INFO_LONG_PRESS,
      .contentActionCallback                = long_press_callback,
-     .content.infoLongPress.icon           = &C_ic_asset_eth_64,
+     .content.infoLongPress.icon           = &ETH_MAIN_ICON,
      .content.infoLongPress.text           = "Confirm transaction\nXrp send",
      .content.infoLongPress.longPressText  = "Hold to send",
      .content.infoLongPress.longPressToken = FIRST_USER_TOKEN},
@@ -151,6 +151,7 @@ static void onTipBox(int token, uint8_t index, int page)
 
 void app_xrpSignMessage(void)
 {
+#ifdef SCREEN_SIZE_WALLET
     nbgl_tipBox_t tipBox = {.icon = &C_Important_Circle_64px,
                             .text = "You're interacting with a smart contract from Uniswap Labs.",
                             .modalTitle         = "Smart contract information",
@@ -158,15 +159,19 @@ void app_xrpSignMessage(void)
                             .infos.infoTypes    = infoTypes,
                             .infos.infoContents = infoValues,
                             .type               = INFOS_LIST};
-
+#endif
     lightReview = false;
     nbgl_useCaseAdvancedReview(TYPE_TRANSACTION,
                                &tagValueList,
-                               &C_ic_asset_eth_64,
+                               &ETH_MAIN_ICON,
                                "Review swap with Uniswap",
                                NULL,
                                "Sign transaction to\nsend Etherum?",
+#ifdef SCREEN_SIZE_WALLET
                                &tipBox,
+#else
+                               NULL,
+#endif
                                NULL,
                                onTransactionAccept);
 }
@@ -177,11 +182,12 @@ void app_xrpSignMessageLight(void)
         = {.callbackCallNeeded = false, .contentsList = contentsList, .nbContents = 3};
 
     lightReview = true;
+#ifdef SCREEN_SIZE_WALLET
     contentsList[0].content.extendedCenter.tipBox.text
         = "You're interacting with a smart contract from Uniswap Labs.";
     contentsList[0].content.extendedCenter.tipBox.icon  = &C_Important_Circle_64px;
     contentsList[0].content.extendedCenter.tipBox.token = FIRST_USER_TOKEN;
-
+#endif
     nbgl_useCaseGenericReview(&contents, "Reject", onCancel);
 }
 
@@ -191,5 +197,6 @@ void app_xrpSignMessageLight(void)
  */
 void app_fullXrp(void)
 {
-    nbgl_useCaseHomeAndSettings("Xrp", &C_xrp_32px, NULL, INIT_HOME_PAGE, NULL, NULL, NULL, NULL);
+    nbgl_useCaseHomeAndSettings(
+        "Xrp", &C_xrp_32px, NULL, INIT_HOME_PAGE, NULL, NULL, NULL, exit_app);
 }

@@ -35,22 +35,15 @@ static nbgl_contentTagValue_t *getPair(uint8_t pairIndex);
 static uint8_t nbPairsSent      = 0;
 static uint8_t currentPairIndex = 0;
 
-static nbgl_contentValueExt_t extension
-    = {.fullValue   = "bc1pkdcufjh6dxjaaa05hudvxqg5fhspfmwmp8g92gq8cv4gwwnmgrfqfd4jlg",
-       .explanation = NULL,
-       .aliasType   = ENS_ALIAS};
-
-static nbgl_contentValueExt_t extension2
-    = {.fullValue   = "arersnjvchvbhjvsbjdbvnfdlbvnscknblnldkfnlkbndfnblfdknblkndknb",
-       .explanation = NULL,
-       .aliasType   = ADDRESS_BOOK_ALIAS};
-
 static nbgl_contentTagValue_t pairs[] = {
-    {.item = "To", .value = "toto.mon", .extension = &extension, .aliasValue = 1},
-    {.item = "Amount", .value = "8.127467 MON"},
-    {.item = "To2", .value = "toto2.mon", .extension = &extension2, .aliasValue = 1},
-    {.item = "Amount2", .value = "8.127467 MON"},
-    {.item = "Fees", .value = "0.175157 MON"}
+    {
+     .item  = "Message",
+     .value = "Welcome to OpenSea! Click to sign in and accept\fthe OpenSea Terms of Service "
+                 "(https://ope\nnsea.io/tos) and  Privacy Policy (https://opensea.io/privacy).This "
+                 "request will not trigger a blockchain transaction or cost any gas fees. Wallet "
+                 "address: 0x519192a4", },
+    {.item  = "Message",
+     .value = "37e6aeb895cec72828a73b11b698de3a\nNonce:\f8f9a60c8 bab0-4f1f-\n867d-096b632da00b"},
 };
 
 static nbgl_contentTagValueList_t pairList
@@ -97,10 +90,10 @@ static nbgl_contentInfoList_t mon_infosList
 static void onTransactionAccept(bool confirm)
 {
     if (confirm) {
-        nbgl_useCaseStatus("Transaction signed", true, app_fullCardano);
+        nbgl_useCaseStatus("Message signed", true, app_fullMonero);
     }
     else {
-        nbgl_useCaseStatus("Transaction rejected", false, app_fullCardano);
+        nbgl_useCaseStatus("Message rejected", false, app_fullMonero);
     }
 }
 
@@ -117,9 +110,9 @@ static void onSkip(void)
 static void onTransactionContinue(bool askMore)
 {
     if (askMore) {
-        if (nbPairsSent < 5) {
+        if (nbPairsSent < 2) {
             if (nbPairsSent == 0) {
-                pairList.nbPairs = 4;
+                pairList.nbPairs = 1;
             }
             else {
                 currentPairIndex += nbPairsSent;
@@ -141,7 +134,7 @@ static void onTransactionContinue(bool askMore)
 static void quitAccountCallback(void)
 {
     nbgl_useCaseHomeAndSettings(
-        "Monero", &C_ic_asset_monero_64, NULL, 0, &mon_settingContents, &mon_infosList, NULL, NULL);
+        "Monero", &MON_MAIN_ICON, NULL, 0, &mon_settingContents, &mon_infosList, NULL, exit_app);
 }
 
 static void barControlsCallback(int token, uint8_t index, int page)
@@ -165,7 +158,7 @@ void app_moneroSignForwardOnlyMessage(void)
     nbPairsSent      = 0;
     currentPairIndex = 0;
     nbgl_useCaseReviewStreamingStart(
-        TYPE_TRANSACTION, &C_ic_asset_monero_64, "Review transaction", NULL, onTransactionContinue);
+        TYPE_MESSAGE, &MON_MAIN_ICON, "Review message", NULL, onTransactionContinue);
 }
 
 /**
@@ -175,11 +168,11 @@ void app_moneroSignForwardOnlyMessage(void)
 void app_fullMonero(void)
 {
     nbgl_useCaseHomeAndSettings("Monero",
-                                &C_ic_asset_monero_64,
+                                &MON_MAIN_ICON,
                                 NULL,
                                 INIT_HOME_PAGE,
                                 &mon_settingContents,
                                 &mon_infosList,
                                 NULL,
-                                NULL);
+                                exit_app);
 }

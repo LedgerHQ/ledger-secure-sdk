@@ -52,11 +52,11 @@ static const nbgl_contentInfoList_t infoContentsList
 void app_fullLedgerMarket(void)
 {
     nbgl_useCaseHomeAndSettings("Ledger Market",
-                                &C_ic_asset_eth_64,
+                                &ETH_MAIN_ICON,
                                 NULL,
                                 INIT_HOME_PAGE,
                                 NULL,
                                 &infoContentsList,
                                 NULL,
-                                NULL);
+                                exit_app);
 }

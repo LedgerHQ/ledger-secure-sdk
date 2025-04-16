@@ -28,11 +28,21 @@ static nbgl_contentTagValue_t pairs[] = {
     {.item = "Max Fee", .value = "0.00003 XLM"},
     {.item = "Valid Before (UTC)", .value = "2024-12-12 04:12:12"},
     {.item = "Tc Source", .value = "GDUTHC...XM2FN7"},
-    {.centeredInfo = true, .item = "Review transaction info", .value = "1 of 2"},
+    {
+#ifdef SCREEN_SIZE_WALLET
+     .centeredInfo = true,
+#endif
+     .item  = "Review transaction info",
+     .value = "1 of 2"},
     {.item = "Send", .value = "922,337,203,685 XLM"},
     {.item = "Destination", .value = "GDRMNAIPTNIJWJSL6JOF76CJORN47TDVMWERTXO2G2WKOMXGNHUFL5QX"},
     {.item = "Op Source", .value = "GDUTHC...XM2FN7"},
-    {.centeredInfo = true, .item = "Review operation type", .value = "2 of 2"},
+    {
+#ifdef SCREEN_SIZE_WALLET
+     .centeredInfo = true,
+#endif
+     .item  = "Review operation type",
+     .value = "2 of 2"},
     {.item = "Operation Type", .value = "Set Options"},
     {.item = "Home Domain", .value = "stellar.org"}
 };
@@ -108,7 +118,7 @@ void app_stellarSignTransaction(void)
     // Start review
     nbgl_useCaseReview(TYPE_TRANSACTION,
                        &pairList,
-                       &C_ic_asset_stellar_64,
+                       &STELLAR_MAIN_ICON,
                        "Review transaction",
                        NULL,
                        "Sign transaction?",
@@ -118,11 +128,8 @@ void app_stellarSignTransaction(void)
 void app_stellarSignStreamedTransaction(void)
 {
     nbPairsSent = 0;
-    nbgl_useCaseReviewStreamingStart(TYPE_TRANSACTION,
-                                     &C_ic_asset_stellar_64,
-                                     "Review transaction",
-                                     NULL,
-                                     onTransactionContinue);
+    nbgl_useCaseReviewStreamingStart(
+        TYPE_TRANSACTION, &STELLAR_MAIN_ICON, "Review transaction", NULL, onTransactionContinue);
 }
 
 /**
@@ -133,11 +140,11 @@ void app_fullStellar(void)
 {
     nbgl_useCaseHomeAndSettings(
         "Stellar",
-        &C_ic_asset_stellar_64,
+        &STELLAR_MAIN_ICON,
         "Use Ledger Live to create transactions and confirm them on your Europa.",
         INIT_HOME_PAGE,
         NULL,
         &infoContentsList,
         NULL,
-        NULL);
+        exit_app);
 }

@@ -9,7 +9,6 @@
  *      INCLUDES
  *********************/
 #include "nbgl_debug.h"
-#include "nbgl_page.h"
 #include "apps_api.h"
 
 /*********************
