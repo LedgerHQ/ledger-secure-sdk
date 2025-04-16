@@ -85,7 +85,8 @@ extern "C" {
 
 #define AVAILABLE_WIDTH (SCREEN_WIDTH - 2 * BORDER_MARGIN)
 
-#define NB_MAX_LINES NB_MAX_LINES_IN_DETAILS
+// not really used
+#define NB_MAX_LINES 12
 
 #else  // HAVE_SE_TOUCH
 // 7 pixels on each side

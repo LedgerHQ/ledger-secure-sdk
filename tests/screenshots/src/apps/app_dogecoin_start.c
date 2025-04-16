@@ -63,24 +63,6 @@ static const nbgl_contentInfoList_t infoContentsList
 
 static nbgl_warning_t warning = {0};
 
-/*static nbgl_contentCenter_t warningInfo;
-
-static nbgl_warningDetails_t warningIntroDetails;
-static nbgl_warningDetails_t warningReviewDetails;
-
-static const nbgl_icon_details_t *barListIcons[] = {&WARNING_ICON, &INFO_I_ICON};
-
-static const char *const                  barListTexts[]    = {"Bar1", "Bar2"};
-static const char *const                  barListSubTexts[] = {"Sub text 1", "Sub text 2"};
-static const struct nbgl_warningDetails_s barListDetails[]  = {
-    {.title  = "Back",
-     .type   = QRCODE_WARNING,
-     .qrCode = {.url = "my_url", .text1 = "my_url", .text2 = "my blabla", .centered = true}},
-    {.title        = "Back",
-     .type         = CENTERED_INFO_WARNING,
-     .centeredInfo = {.icon = &C_Check_Circle_64px, .title = "my main text"}               }
-};*/
-
 #ifdef SCREEN_SIZE_WALLET
 static const char *dAppsInfoTypes[3] = {"Contract owner", "Contract", "Deployed on"};
 static const char *dAppsInfoValues[3]
@@ -176,6 +158,7 @@ void app_dogecoinSignTransaction(bool blind,
     }
     if (dApp) {
 #ifdef SCREEN_SIZE_WALLET
+        tipBoxPtr                   = &tipBox;
         tipBox.type                 = INFOS_LIST;
         pairList.pairs              = pairs;
         pairs[0].aliasValue         = 1;

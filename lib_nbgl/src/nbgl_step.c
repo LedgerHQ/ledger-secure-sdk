@@ -88,9 +88,6 @@ static StepContext_t contexts[NB_MAX_LAYERS];
  *  VARIABLES
  **********************/
 #ifdef BUILD_SCREENSHOTS
-// Contains the last string index used
-extern UX_LOC_STRINGS_INDEX last_string_id;
-
 // Variables used to store important values (nb lines, bold state etc)
 extern uint16_t last_nb_lines;
 extern uint16_t last_nb_pages;

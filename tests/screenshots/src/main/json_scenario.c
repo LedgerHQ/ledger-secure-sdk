@@ -23,6 +23,7 @@
 #include "os_settings.h"
 #include "os_id.h"
 #include "apps_api.h"
+#include "ux_nbgl.h"
 
 Event_t appEvents[] = {
     {"BTC_SIGN",            BTC_SIGN           },
@@ -34,8 +35,13 @@ Event_t appEvents[] = {
     {"BTC_OPEN",            BTC_OPEN           },
     {"ETH_OPEN",            ETH_OPEN           },
     {"MONERO_OPEN",         MONERO_OPEN        },
+    {"MON_MESSAGE_SKIP",    MON_MESSAGE_SKIP   },
     {"ETH_MESSAGE_SKIP",    ETH_MESSAGE_SKIP   },
+    {"ETH_BLIND",           ETH_BLIND          },
+    {"ETH_ENS",             ETH_ENS            },
+    {"ETH_DAPP",            ETH_DAPP           },
     {"ETH_SIGN",            ETH_SIGN           },
+    {"ETH_VERIFY_ADDR",     ETH_VERIFY_ADDR    },
     {"RECOV_OPEN",          RECOV_OPEN         },
     {"DOGE_SIGN",           DOGE_SIGN          }
 };
@@ -553,7 +559,6 @@ static int scenario_get_action(void)
             case BTC_SIGN:
                 app_bitcoinSignTransaction();
                 break;
-#ifdef SCREEN_SIZE_WALLET
             case CARDANO_SIGN:
                 app_cardanoSignTransaction();
                 break;
@@ -578,11 +583,26 @@ static int scenario_get_action(void)
             case MONERO_OPEN:
                 app_fullMonero();
                 break;
+            case MON_MESSAGE_SKIP:
+                app_moneroSignForwardOnlyMessage();
+                break;
             case ETH_MESSAGE_SKIP:
                 app_ethereumSignForwardOnlyMessage();
                 break;
             case ETH_SIGN:
                 app_ethereumSignMessage();
+                break;
+            case ETH_BLIND:
+                app_ethereumReviewBlindSigningTransaction();
+                break;
+            case ETH_ENS:
+                app_ethereumReviewENSTransaction();
+                break;
+            case ETH_DAPP:
+                app_ethereumReviewDappTransaction();
+                break;
+            case ETH_VERIFY_ADDR:
+                app_ethereumVerifyAddress();
                 break;
             case RECOV_OPEN:
                 app_fullRecoveryCheck();
@@ -590,7 +610,6 @@ static int scenario_get_action(void)
             case DOGE_SIGN:
                 app_dogecoinSignTransaction(param & 1, param & 2, param & 4, param & 8, param & 16);
                 break;
-#endif  // SCREEN_SIZE_WALLET
             default:
                 // error
                 return -1;
@@ -863,25 +882,31 @@ void scenario_save_json(void)
             fprintf(fptr, "\t\t\t\"image\": \"%s/%s.%d.png\",\n", scenario_name, pages[i].name, k);
 #endif  // SCREEN_SIZE_WALLET
             fprintf(fptr, "\t\t\t\"transitions\": [\n");
-#ifdef SCREEN_SIZE_WALLET
             first = true;
             for (j = 0; j < pages[i].nbSteps; j++) {
                 PageStep_t *step = &pages[i].steps[j];
+#ifdef SCREEN_SIZE_WALLET
                 if (step->objTouchId > 0) {
+#else   // SCREEN_SIZE_WALLET
+                if (step->keyState > 0) {
+#endif  // SCREEN_SIZE_WALLET
                     if (first) {
                         first = false;
                     }
                     else {
                         fprintf(fptr, ",");
                     }
+#ifdef SCREEN_SIZE_WALLET
                     fprintf(fptr, "\n\t\t\t\t{\"dest_page\":\"%s\",", step->name);
                     fprintf(fptr,
                             "\n\t\t\t\t \"objectId\":\"%s\",",
                             getControlName(step->objTouchId, step->objTouchSubId));
                     fprintf(fptr, "\n\t\t\t\t \"coords\":\"%d,%d\"}", step->x, step->y);
+#else   // SCREEN_SIZE_WALLET
+                    fprintf(fptr, "\n\t\t\t\t{\"dest_page\":\"%s\"}", step->name);
+#endif  // SCREEN_SIZE_WALLET
                 }
             }
-#endif  // SCREEN_SIZE_WALLET
             fprintf(fptr, "\n\t\t\t]\n");
             fprintf(fptr, "\t\t}");
             if (k < pages[i].nb_sub_pages) {

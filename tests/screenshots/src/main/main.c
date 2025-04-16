@@ -22,6 +22,7 @@
 #include "app_icons.h"
 #include "nbgl_debug.h"
 #include "nbgl_driver.h"
+#include "nbgl_buttons.h"
 
 /*********************
  *      DEFINES
@@ -109,14 +110,14 @@ int main(int argc, char **argv)
     while (running) {
 #ifdef HAVE_SE_TOUCH
         static nbgl_touchState_t previousState = RELEASED;
-#else   // HAVE_SE_TOUCH
-        static uint8_t previousKeyState = 0;
-        uint8_t        keyState;
-#endif  // HAVE_SE_TOUCH
         // simulate touch during ticker event if pressed (for long press button)
         if (gTouchStatePosition.state == PRESSED) {
             nbgl_touchHandler(false, &gTouchStatePosition, currentTime);
         }
+#else   // HAVE_SE_TOUCH
+        static uint8_t previousKeyState = 0;
+        uint8_t        keyState;
+#endif  // HAVE_SE_TOUCH
 
 #ifdef HAVE_SE_TOUCH
         res = scenario_get_position(&gTouchStatePosition, previousState);
