@@ -10,7 +10,6 @@
  *********************/
 #include <stdlib.h>
 #include "nbgl_debug.h"
-#include "nbgl_page.h"
 #include "nbgl_obj.h"
 #include "nbgl_fonts.h"
 #include "apps_api.h"

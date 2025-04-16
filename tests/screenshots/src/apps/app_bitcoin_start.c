@@ -67,8 +67,12 @@ void app_bitcoinSignTransaction(void)
     // Start review
     nbgl_useCaseReview(TYPE_TRANSACTION,
                        &pairList,
-                       &C_ic_asset_btc_64,
+                       &BTC_MAIN_ICON,
+#ifdef SCREEN_SIZE_WALLET
                        "Review transaction\nto send Bitcoin",
+#else   // SCREEN_SIZE_WALLET
+                       "Review transaction to send bitcoin",
+#endif  // SCREEN_SIZE_WALLET
                        NULL,
                        "Sign transaction to\nsend Bitcoin?",
                        onTransactionAccept);
@@ -81,5 +85,5 @@ void app_bitcoinSignTransaction(void)
 void app_fullBitcoin(void)
 {
     nbgl_useCaseHomeAndSettings(
-        "Bitcoin", &C_ic_asset_btc_64, NULL, INIT_HOME_PAGE, NULL, &infoContentsList, NULL, NULL);
+        "Bitcoin", &BTC_MAIN_ICON, NULL, INIT_HOME_PAGE, NULL, &infoContentsList, NULL, exit_app);
 }
