@@ -1,0 +1,89 @@
+{
+  "title": "address_verif",
+  "pages": [
+    {
+      "name": "Entry",
+      "targets": [
+        {
+          "app_event": "ETH_VERIFY_ADDR",
+          "page": "classic-03"
+        }
+      ]
+    },
+    {
+      "name": "classic-03",
+      "targets": [
+        {
+          "key": "right",
+          "page": "classic-01"
+        },
+        {
+          "key": "right",
+          "page": "classic-01"
+        }
+      ]
+    },
+    {
+      "name": "classic-01",
+      "targets": [
+        {
+          "key": "right",
+          "page": "classic-02"
+        },
+        {
+          "key": "right",
+          "page": "classic-02"
+        }
+      ]
+    },
+    {
+      "name": "classic-02",
+      "targets": [
+        {
+          "key": "right",
+          "page": "classic-05"
+        },
+        {
+          "key": "right",
+          "page": "classic-05"
+        }
+      ]
+    },
+    {
+      "name": "classic-05",
+      "targets": [
+        {
+          "key": "both",
+          "page": "classic-07"
+        },
+        {
+          "key": "right",
+          "page": "classic-06"
+        }
+      ]
+    },
+    {
+      "name": "classic-07",
+      "targets": [
+        {
+          "app_event": "ETH_VERIFY_ADDR",
+          "page": "classic-03"
+        }
+      ]
+    },
+    {
+      "name": "classic-06",
+      "targets": [
+        {
+          "key": "both",
+          "page": "classic-08"
+        }
+      ]
+    },
+    {
+      "name": "classic-08",
+      "targets": [
+      ]
+    }
+  ]
+}

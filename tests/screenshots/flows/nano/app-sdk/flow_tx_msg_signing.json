@@ -1,0 +1,445 @@
+{
+  "title": "tx_msg_signing",
+  "pages": [
+    {
+      "name": "Entry",
+      "targets": [
+        {
+          "app_event": "BTC_SIGN",
+          "page": "basic_tx-01"
+        }
+      ]
+    },
+    {
+      "name": "basic_tx-01",
+      "targets": [
+        {
+          "key": "right",
+          "page": "basic_tx-02"
+        }
+      ]
+    },
+    {
+      "name": "basic_tx-02",
+      "targets": [
+        {
+          "key": "right",
+          "page": "basic_tx-03"
+        }
+      ]
+    },
+    {
+      "name": "basic_tx-03",
+      "targets": [
+        {
+          "key": "right",
+          "page": "basic_tx-04"
+        }
+      ]
+    },
+    {
+      "name": "basic_tx-04",
+      "targets": [
+        {
+          "key": "right",
+          "page": "basic_tx-05"
+        }
+      ]
+    },
+    {
+      "name": "basic_tx-05",
+      "targets": [
+        {
+          "key": "right",
+          "page": "basic_tx-06"
+        }
+      ]
+    },
+    {
+      "name": "basic_tx-06",
+      "targets": [
+        {
+          "key": "both",
+          "page": "basic_tx-08"
+        }
+      ]
+    },
+    {
+      "name": "basic_tx-08",
+      "targets": [
+        {
+          "key": "both",
+          "page": "bitcoin-home"
+        }
+      ]
+    },
+    {
+      "name": "bitcoin-home",
+      "targets": [
+        {
+          "app_event": "MON_MESSAGE_SKIP",
+          "page": "op_skip-multiple_pages-01"
+        }
+      ]
+    },
+    {
+      "name": "op_skip-multiple_pages-01",
+      "targets": [
+        {
+          "key": "right",
+          "page": "op_skip-multiple_pages-02"
+        }
+      ]
+    },
+    {
+      "name": "op_skip-multiple_pages-02",
+      "targets": [
+        {
+          "key": "right",
+          "page": "op_skip-multiple_pages-03"
+        }
+      ]
+    },
+    {
+      "name": "op_skip-multiple_pages-03",
+      "targets": [
+        {
+          "key": "right",
+          "page": "op_skip-multiple_pages-04"
+        }
+      ]
+    },
+    {
+      "name": "op_skip-multiple_pages-04",
+      "targets": [
+        {
+          "key": "right",
+          "page": "op_skip-multiple_pages-05"
+        }
+      ]
+    },
+    {
+      "name": "op_skip-multiple_pages-05",
+      "targets": [
+        {
+          "key": "right",
+          "page": "op_skip-multiple_pages-06"
+        }
+      ]
+    },
+    {
+      "name": "op_skip-multiple_pages-06",
+      "targets": [
+        {
+          "key": "right",
+          "page": "op_skip-multiple_pages-07"
+        }
+      ]
+    },
+    {
+      "name": "op_skip-multiple_pages-07",
+      "targets": [
+        {
+          "key": "right",
+          "page": "op_skip-multiple_pages-08"
+        }
+      ]
+    },
+    {
+      "name": "op_skip-multiple_pages-08",
+      "targets": [
+        {
+          "key": "right",
+          "page": "op_skip-multiple_pages-09"
+        }
+      ]
+    },
+    {
+      "name": "op_skip-multiple_pages-09",
+      "targets": [
+        {
+          "key": "right",
+          "page": "op_skip-multiple_pages-10"
+        }
+      ]
+    },
+    {
+      "name": "op_skip-multiple_pages-10",
+      "targets": [
+        {
+          "key": "right",
+          "page": "op_skip-multiple_pages-11"
+        }
+      ]
+    },
+    {
+      "name": "op_skip-multiple_pages-11",
+      "targets": [
+        {
+          "key": "both",
+          "page": "op_skip-multiple_pages-13"
+        }
+      ]
+    },
+    {
+      "name": "op_skip-multiple_pages-13",
+      "targets": [
+        {
+          "app_event": "ETH_BLIND",
+          "page": "blind-signing-01"
+        }
+      ]
+    },
+    {
+      "name": "blind-signing-01",
+      "targets": [
+        {
+          "key": "right",
+          "page": "blind-signing-02"
+        },
+        {
+          "key": "both",
+          "page": "blind-signing-04"
+        }
+      ]
+    },
+    {
+      "name": "blind-signing-02",
+      "targets": [
+        {
+          "key": "left",
+          "page": "blind-signing-01"
+        }
+      ]
+    },
+    {
+      "name": "blind-signing-04",
+      "targets": [
+        {
+          "key": "right",
+          "page": "blind-signing-05"
+        }
+      ]
+    },
+    {
+      "name": "blind-signing-05",
+      "targets": [
+        {
+          "key": "right",
+          "page": "blind-signing-06"
+        }
+      ]
+    },
+    {
+      "name": "blind-signing-06",
+      "targets": [
+        {
+          "key": "right",
+          "page": "blind-signing-07"
+        }
+      ]
+    },
+    {
+      "name": "blind-signing-07",
+      "targets": [
+        {
+          "key": "right",
+          "page": "blind-signing-08"
+        }
+      ]
+    },
+    {
+      "name": "blind-signing-08",
+      "targets": [
+        {
+          "key": "right",
+          "page": "blind-signing-09"
+        }
+      ]
+    },
+    {
+      "name": "blind-signing-09",
+      "targets": [
+        {
+          "key": "right",
+          "page": "blind-signing-10"
+        }
+      ]
+    },
+    {
+      "name": "blind-signing-10",
+      "targets": [
+        {
+          "key": "both",
+          "page": "blind-signing-12"
+        }
+      ]
+    },
+    {
+      "name": "blind-signing-12",
+      "targets": [
+        {
+          "app_event": "ETH_ENS",
+          "page": "op_fields-view_more-full_compact-01"
+        }
+      ]
+    },
+    {
+      "name": "op_fields-view_more-full_compact-01",
+      "targets": [
+        {
+          "key": "right",
+          "page": "op_fields-view_more-full_compact-02"
+        }
+      ]
+    },
+    {
+      "name": "op_fields-view_more-full_compact-02",
+      "targets": [
+        {
+          "key": "right",
+          "page": "op_fields-view_more-full_compact-03"
+        }
+      ]
+    },
+    {
+      "name": "op_fields-view_more-full_compact-03",
+      "targets": [
+        {
+          "key": "right",
+          "page": "op_fields-view_more-full_compact-04"
+        }
+      ]
+    },
+    {
+      "name": "op_fields-view_more-full_compact-04",
+      "targets": [
+        {
+          "key": "both",
+          "page": "op_fields-view_more-full_compact-08"
+        },
+        {
+          "key": "right",
+          "page": "op_fields-view_more-full_compact-05"
+        }
+      ]
+    },
+    {
+      "name": "op_fields-view_more-full_compact-08",
+      "targets": [
+        {
+          "key": "right",
+          "page": "op_fields-view_more-full_compact-09"
+        }
+      ]
+    },
+    {
+      "name": "op_fields-view_more-full_compact-09",
+      "targets": [
+        {
+          "key": "both",
+          "page": "op_fields-view_more-full_compact-04"
+        }
+      ]
+    },
+    {
+      "name": "op_fields-view_more-full_compact-05",
+      "targets": [
+        {
+          "key": "right",
+          "page": "op_fields-view_more-full_compact-06"
+        }
+      ]
+    },
+    {
+      "name": "op_fields-view_more-full_compact-06",
+      "targets": [
+        {
+          "key": "both",
+          "page": "op_fields-view_more-full_compact-010"
+        }
+      ]
+    },
+    {
+      "name": "op_fields-view_more-full_compact-010",
+      "targets": [
+        {
+          "app_event": "ETH_DAPP",
+          "page": "op_fields-generic-parcer-multiple-lines-01"
+        }
+      ]
+    },
+    {
+      "name": "op_fields-generic-parcer-multiple-lines-01",
+      "targets": [
+        {
+          "key": "right",
+          "page": "op_fields-generic-parcer-multiple-lines-02"
+        }
+      ]
+    },
+    {
+      "name": "op_fields-generic-parcer-multiple-lines-02",
+      "targets": [
+        {
+          "key": "both",
+          "page": "op_fields-generic-parcer-multiple-lines-06"
+        },
+        {
+          "key": "right",
+          "page": "op_fields-generic-parcer-multiple-lines-03"
+        }
+      ]
+    },
+    {
+      "name": "op_fields-generic-parcer-multiple-lines-06",
+      "targets": [
+        {
+          "key": "right",
+          "page": "op_fields-generic-parcer-multiple-lines-07"
+        }
+      ]
+    },
+    {
+      "name": "op_fields-generic-parcer-multiple-lines-07",
+      "targets": [
+        {
+          "key": "right",
+          "page": "op_fields-generic-parcer-multiple-lines-08"
+        }
+      ]
+    },
+    {
+      "name": "op_fields-generic-parcer-multiple-lines-08",
+      "targets": [
+        {
+          "key": "right",
+          "page": "op_fields-generic-parcer-multiple-lines-09"
+        }
+      ]
+    },
+    {
+      "name": "op_fields-generic-parcer-multiple-lines-09",
+      "targets": [
+        {
+          "key": "right",
+          "page": "op_fields-generic-parcer-multiple-lines-10"
+        }
+      ]
+    },
+    {
+      "name": "op_fields-generic-parcer-multiple-lines-10",
+      "targets": [
+        {
+          "key": "both",
+          "page": "op_fields-generic-parcer-multiple-lines-02"
+        }
+      ]
+    },
+    {
+      "name": "op_fields-generic-parcer-multiple-lines-03",
+      "targets": [
+      ]
+    }
+  ]
+}
