@@ -100,6 +100,11 @@ nbgl_step_t nbgl_stepDrawMenuList(nbgl_stepMenuListCallback_t       onActionCall
                                   nbgl_layoutMenuList_t            *list,
                                   bool                              modal);
 uint8_t     nbgl_stepGetMenuListCurrent(nbgl_step_t step);
+nbgl_step_t nbgl_stepDrawSwitch(nbgl_stepPosition_t               pos,
+                                nbgl_stepButtonCallback_t         onActionCallback,
+                                nbgl_screenTickerConfiguration_t *ticker,
+                                nbgl_layoutSwitch_t              *switchInfo,
+                                bool                              modal);
 int         nbgl_stepRelease(nbgl_step_t step);
 
 /**********************
