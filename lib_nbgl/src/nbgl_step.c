@@ -654,6 +654,63 @@ uint8_t nbgl_stepGetMenuListCurrent(nbgl_step_t step)
 }
 
 /**
+ * @brief draw a step page with a switch and navigation arrows to navigate to other pages.
+ *
+ * @note Switch name must fit in one line, description on 2 lines max.
+ *
+ * @param pos position of this step in the flow (first, last, single, not_first_nor_last)
+ * @param onActionCallback common callback for all actions on this page
+ * @param ticker ticker configuration, set to NULL to disable it
+ * @param switchInfo all information about the switch to be displayed
+ * @param modal if true, means this step shall be displayed on top of existing one
+ * @return the step context (or NULL if error)
+ */
+nbgl_step_t nbgl_stepDrawSwitch(nbgl_stepPosition_t               pos,
+                                nbgl_stepButtonCallback_t         onActionCallback,
+                                nbgl_screenTickerConfiguration_t *ticker,
+                                nbgl_layoutSwitch_t              *switchInfo,
+                                bool                              modal)
+{
+    nbgl_layoutDescription_t layoutDescription
+        = {.modal = modal, .onActionCallback = (nbgl_layoutButtonCallback_t) actionCallback};
+    nbgl_layoutNavigation_t navInfo = {
+        .direction = HORIZONTAL_NAV,
+    };
+    StepContext_t *ctx = getFreeContext(CENTERED_INFO_STEP, modal);
+    if (!ctx) {
+        return NULL;
+    }
+
+    // initialize context (already set to 0 by getFreeContext())
+    ctx->textContext.onActionCallback = onActionCallback;
+    if (ticker) {
+        ctx->ticker.tickerCallback               = ticker->tickerCallback;
+        ctx->ticker.tickerIntervale              = ticker->tickerIntervale;
+        ctx->ticker.tickerValue                  = ticker->tickerValue;
+        layoutDescription.ticker.tickerCallback  = ticker->tickerCallback;
+        layoutDescription.ticker.tickerIntervale = ticker->tickerIntervale;
+        layoutDescription.ticker.tickerValue     = ticker->tickerValue;
+    }
+
+    ctx->textContext.nbPages = 1;
+    // keep only direction part of position
+    ctx->textContext.pos = pos & (RIGHT_ARROW | LEFT_ARROW);
+    navInfo.indication   = getNavigationInfo(
+        ctx->textContext.pos, ctx->textContext.nbPages, ctx->textContext.currentPage);
+
+    ctx->layout = nbgl_layoutGet(&layoutDescription);
+    nbgl_layoutAddSwitch(ctx->layout, switchInfo);
+    if (navInfo.indication != NO_ARROWS) {
+        nbgl_layoutAddNavigation(ctx->layout, &navInfo);
+    }
+    nbgl_layoutDraw(ctx->layout);
+    nbgl_refresh();
+
+    LOG_DEBUG(STEP_LOGGER, "nbgl_stepDrawSwitch(): ctx = %p\n", ctx);
+    return (nbgl_step_t) ctx;
+}
+
+/**
  * @brief Release the step obtained with any of the nbgl_stepDrawXXX() functions
  *
  * @param step step to release
