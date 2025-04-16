@@ -27,15 +27,6 @@
 /**********************
  *      VARIABLES
  **********************/
-static nbgl_layoutTagValue_t pairs[] = {
-    {.item = "tutu",  .value = "myvalue1"},
-    {.item = "tutu2", .value = "myvalue2"}
-};
-static nbgl_contentTagValueList_t tagValueList = {.nbMaxLinesForValue = 6,
-                                                  .nbPairs            = 2,
-                                                  .pairs              = pairs,
-                                                  .smallCaseForValue  = false,
-                                                  .wrapping           = false};
 
 /**********************
  *  STATIC PROTOTYPES
@@ -43,10 +34,10 @@ static nbgl_contentTagValueList_t tagValueList = {.nbMaxLinesForValue = 6,
 static void displayAddressCallback(bool confirm)
 {
     if (confirm) {
-        nbgl_useCaseStatus("ADDRESS\nVERIFIED", true, app_fullEthereum);
+        nbgl_useCaseReviewStatus(STATUS_TYPE_ADDRESS_VERIFIED, app_fullEthereum);
     }
     else {
-        nbgl_useCaseStatus("Address verification\nrejected", false, app_fullEthereum);
+        nbgl_useCaseReviewStatus(STATUS_TYPE_ADDRESS_REJECTED, app_fullEthereum);
     }
 }
 
@@ -61,8 +52,8 @@ static void displayAddressCallback(bool confirm)
 void app_ethereumVerifyAddress(void)
 {
     nbgl_useCaseAddressReview("bc1pkdcufjh6dxjaaa05hudvxqg5fhspfmwmp8g92gq8cv4gwwnmgrfqfd4jlg",
-                              &tagValueList,
-                              &C_ic_asset_eth_64,
+                              NULL,
+                              &ETH_MAIN_ICON,
                               "Verify Ethereum\naddress",
                               NULL,
                               displayAddressCallback);

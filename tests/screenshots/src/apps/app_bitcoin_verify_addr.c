@@ -54,7 +54,7 @@ void app_bitcoinVerifyAddress(void)
 {
     nbgl_useCaseAddressReview("bc1pkdcufjh6dxjaaa05hudvxqg5fhspfmwmp8g92gq8cv4gwwnmgrfqfd4jlg",
                               NULL,
-                              &C_ic_asset_btc_64,
+                              &BTC_MAIN_ICON,
                               "Verify Bitcoin address",
                               NULL,
                               displayAddressCallback);
