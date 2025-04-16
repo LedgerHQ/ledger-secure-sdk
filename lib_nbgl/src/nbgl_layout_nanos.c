@@ -349,7 +349,7 @@ int nbgl_layoutAddText(nbgl_layout_t                  *layout,
                 button->innerColor      = WHITE;
                 button->borderColor     = WHITE;
                 button->radius          = RADIUS_3_PIXELS;
-                button->text            = (const char *) PIC(subText + len);
+                button->text            = (const char *) PIC(subText) + len;
                 button->fontId          = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
                 button->obj.area.height = 14;
                 button->obj.area.width
