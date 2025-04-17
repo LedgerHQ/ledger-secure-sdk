@@ -8,7 +8,7 @@ if len(sys.argv) != 2:
     sys.exit(1)
 
 # Excluded C apps
-excluded_apps = ["app-avalanche"]
+excluded_apps = [""]
 
 # Retrieve all public apps on LedgerHQ GitHub organization
 token = sys.argv[1]
