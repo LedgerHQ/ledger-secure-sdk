@@ -96,6 +96,9 @@ extern "C" {
  */
 #define INIT_HOME_PAGE 0xff
 
+///< Duration of status screens, automatically closing after this timeout (3s)
+#define STATUS_SCREEN_DURATION 3000
+
 /**********************
  *      MACROS
  **********************/

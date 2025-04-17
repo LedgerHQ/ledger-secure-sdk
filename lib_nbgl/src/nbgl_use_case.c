@@ -3060,11 +3060,10 @@ void nbgl_useCaseStatus(const char *message, bool isSuccess, nbgl_callback_t qui
 {
     reset_callbacks();
 
-    nbgl_screenTickerConfiguration_t ticker = {
-        .tickerCallback  = &tickerCallback,
-        .tickerIntervale = 0,    // not periodic
-        .tickerValue     = 3000  // 3 seconds
-    };
+    nbgl_screenTickerConfiguration_t ticker = {.tickerCallback  = &tickerCallback,
+                                               .tickerIntervale = 0,  // not periodic
+                                               .tickerValue     = STATUS_SCREEN_DURATION};
+
     onQuit = quitCallback;
     if (isSuccess) {
 #ifdef HAVE_PIEZO_SOUND

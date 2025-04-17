@@ -417,8 +417,8 @@ typedef struct PACKED__ nbgl_button_s {
     const char          *text;       ///< single line UTF-8 text (NULL terminated)
     onTextDrawCallback_t onDrawCallback;  ///< function called if not NULL, with above token as
                                           ///< parameter to get the text of the button
-    uint8_t                    token;     ///< token to use as param of onDrawCallback
-    const nbgl_icon_details_t *icon;  ///< buffer containing icons bitmap. Set to NULL when no icon
+    const nbgl_icon_details_t *icon;   ///< buffer containing icons bitmap. Set to NULL when no icon
+    uint8_t                    token;  ///< token to use as param of onDrawCallback
 } nbgl_button_t;
 
 /**
