@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['libargs_5ft_0',['libargs_t',['../swap__lib__calls_8h.html#a13e6cb186f1e65397e3606f3051f708a',1,'swap_lib_calls.h']]]
+  ['keyboardcallback_5ft_0',['keyboardCallback_t',['../nbgl__obj_8h.html#ac0df014fc4f9f0ea28437f3a752d51f5',1,'nbgl_obj.h']]]
 ];
