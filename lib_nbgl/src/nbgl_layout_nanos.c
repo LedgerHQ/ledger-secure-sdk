@@ -32,6 +32,9 @@
 
 #define BUTTON_MARGIN_Y 12
 
+// this is the maximum number of chars fitting in a line
+#define NB_MAX_CHAR_IN_LINE 20
+
 /**********************
  *      MACROS
  **********************/
@@ -291,6 +294,7 @@ int nbgl_layoutAddText(nbgl_layout_t                  *layout,
                 textArea->obj.area.height = nbLines * font->line_height;
             }
             else {
+                // the sub text must be vertically centered in a 3 lines container
                 textArea->obj.area.height = 3 * font->line_height;
             }
             textArea->textAlignment        = CENTER;
@@ -304,7 +308,7 @@ int nbgl_layoutAddText(nbgl_layout_t                  *layout,
             uint16_t       textWidth;
             uint16_t       len   = 0;
             uint16_t       width = 0;
-            static char    tmpString[20];
+            static char    tmpString[NB_MAX_CHAR_IN_LINE];
 
             button->foregroundColor = BLACK;
             button->innerColor      = WHITE;
@@ -324,10 +328,13 @@ int nbgl_layoutAddText(nbgl_layout_t                  *layout,
                                            &width,
                                            true);
                 button->obj.area.width = width + BUTTON_MARGIN_Y;
-                memcpy(tmpString, button->text, len);
-                tmpString[len]               = '\0';
-                button->text                 = tmpString;
-                button->obj.alignmentMarginY = 8 - 7;
+                // copy the first 'len' chars in the tmp string buffer (max is
+                // NB_MAX_CHAR_IN_LINE-1)
+                memcpy(tmpString, button->text, MIN(len, (NB_MAX_CHAR_IN_LINE - 1)));
+                // NULL termination
+                tmpString[MIN(len, (NB_MAX_CHAR_IN_LINE - 1))] = '\0';
+                button->text                                   = tmpString;
+                button->obj.alignmentMarginY                   = 8 - 7;
             }
             else {
                 button->obj.area.width       = textWidth + BUTTON_MARGIN_Y;

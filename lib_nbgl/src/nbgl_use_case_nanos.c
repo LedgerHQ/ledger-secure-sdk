@@ -505,11 +505,9 @@ static void drawStep(nbgl_stepPosition_t        pos,
     nbgl_contentBarsList_t           *contentBars    = NULL;
     nbgl_screenTickerConfiguration_t *p_ticker       = NULL;
     nbgl_layoutMenuList_t             list           = {0};
-    nbgl_screenTickerConfiguration_t  ticker         = {
-                 .tickerCallback  = PIC(statusTickerCallback),
-                 .tickerIntervale = 0,    // not periodic
-                 .tickerValue     = 3000  // 3 seconds
-    };
+    nbgl_screenTickerConfiguration_t  ticker         = {.tickerCallback  = PIC(statusTickerCallback),
+                                                        .tickerIntervale = 0,  // not periodic
+                                                        .tickerValue     = STATUS_SCREEN_DURATION};
 
     pos |= GET_POS_OF_STEP(context.currentPage, context.nbPages);
     // if we are in streaming+skip case, enable going backward even for first tag/value of the set
@@ -586,31 +584,13 @@ static void drawSwitchStep(nbgl_stepPosition_t       pos,
                            nbgl_stepButtonCallback_t onActionCallback,
                            bool                      modal)
 {
-    nbgl_screenTickerConfiguration_t *p_ticker = NULL;
-    nbgl_screenTickerConfiguration_t  ticker   = {
-           .tickerCallback  = PIC(statusTickerCallback),
-           .tickerIntervale = 0,    // not periodic
-           .tickerValue     = 3000  // 3 seconds
-    };
     nbgl_layoutSwitch_t switchInfo;
 
     pos |= GET_POS_OF_STEP(context.currentPage, context.nbPages);
-    // if we are in streaming+skip case, enable going backward even for first tag/value of the set
-    // (except the first set) because the set starts with a "skip" page
-    if ((context.type == STREAMING_CONTINUE_REVIEW_USE_CASE)
-        && (context.review.skipCallback != NULL) && (context.review.nbDataSets > 1)) {
-        pos |= LAST_STEP;
-    }
-    if ((context.type == STATUS_USE_CASE) || (context.type == SPINNER_USE_CASE)) {
-        p_ticker = &ticker;
-    }
-    if ((context.type == CONFIRM_USE_CASE) && (context.confirm.currentStep != NULL)) {
-        nbgl_stepRelease(context.confirm.currentStep);
-    }
     switchInfo.initState = state;
     switchInfo.text      = title;
     switchInfo.subText   = description;
-    nbgl_stepDrawSwitch(pos, onActionCallback, p_ticker, &switchInfo, modal);
+    nbgl_stepDrawSwitch(pos, onActionCallback, NULL, &switchInfo, modal);
 }
 
 static bool buttonGenericCallback(nbgl_buttonEvent_t event, nbgl_stepPosition_t *pos)
@@ -1019,7 +999,6 @@ static void displayReviewPage(nbgl_stepPosition_t pos)
     const char                   *subText      = NULL;
     const nbgl_icon_details_t    *icon         = NULL;
     uint8_t                       currentIndex = 0;
-    uint8_t                       warnIndex    = 255;
     uint8_t                       titleIndex   = 255;
     uint8_t                       subIndex     = 255;
     uint8_t                       approveIndex = 255;
@@ -1053,13 +1032,7 @@ static void displayReviewPage(nbgl_stepPosition_t pos)
         }
     }
     else if (context.currentPage < reviewPages) {
-        if (context.currentPage == warnIndex) {
-            // Blind Signing Warning page
-            icon    = &C_icon_warning;
-            text    = "Blind signing ahead";
-            subText = "To accept risk, press both buttons";
-        }
-        else if (context.currentPage == titleIndex) {
+        if (context.currentPage == titleIndex) {
             // Title page
             icon = context.review.icon;
             text = context.review.reviewTitle;
@@ -1103,7 +1076,6 @@ static void displayStreamingReviewPage(nbgl_stepPosition_t pos)
     const char                   *subText     = NULL;
     const nbgl_icon_details_t    *icon        = NULL;
     uint8_t                       reviewPages = 0;
-    uint8_t                       warnIndex   = 255;
     uint8_t                       titleIndex  = 255;
     uint8_t                       subIndex    = 255;
     const nbgl_contentValueExt_t *extension   = NULL;
@@ -1123,12 +1095,7 @@ static void displayStreamingReviewPage(nbgl_stepPosition_t pos)
                 return;
             }
             // header page(s)
-            if (context.currentPage == warnIndex) {
-                // warning page
-                icon = &C_icon_warning;
-                text = "Blind\nsigning";
-            }
-            else if (context.currentPage == titleIndex) {
+            if (context.currentPage == titleIndex) {
                 // title page
                 icon = context.review.icon;
                 text = context.review.reviewTitle;
@@ -1383,7 +1350,10 @@ static void startUseCaseSettingsAtPage(uint8_t initSettingPage)
     nbgl_content_t        content   = {0};
     const nbgl_content_t *p_content = NULL;
 
-    context.type = SETTINGS_USE_CASE;
+    // if not coming from GENERIC_SETTINGS, force to SETTINGS_USE_CASE
+    if (context.type != GENERIC_SETTINGS) {
+        context.type = SETTINGS_USE_CASE;
+    }
 
     context.nbPages = 1;  // For back screen
     for (int i = 0; i < context.home.settingContents->nbContents; i++) {
