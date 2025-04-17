@@ -122,6 +122,9 @@ typedef enum os_setting_e {
 // in side screen is enabled
 #define OS_SETTING_FEATURES_BATT_IN_SIDE_OFFSET   0x2
 #define OS_SETTING_FEATURES_BATT_IN_SIDE          (1 << OS_SETTING_FEATURES_BATT_IN_SIDE_OFFSET)
+// if (os_settings[OS_SETTING_FEATURES] & OS_SETTING_FEATURES_CHARON_BACKUP) then we are in the
+// state "Charon backup at end of onboarding"
+#define OS_SETTING_FEATURES_CHARON_BACKUP         0x80
 
 // Default features value
 #define FEATURES_DEFAULT_NFC_ENABLED    1
