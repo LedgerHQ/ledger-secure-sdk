@@ -45,7 +45,8 @@ typedef enum {
                  ///< black (24px) under it
 #else   // HAVE_SE_TOUCH
     REGULAR_INFO = 0,  ///< both texts regular (but '\\b' can switch to bold)
-    BOLD_TEXT1_INFO    ///< bold is used for text1 (but '\\b' can switch to regular)
+    BOLD_TEXT1_INFO,   ///< bold is used for text1 (but '\\b' can switch to regular)
+    BUTTON_INFO        ///< bold is used for text1 and text2 as a white button
 #endif  // HAVE_SE_TOUCH
 } nbgl_contentCenteredInfoStyle_t;
 
@@ -161,24 +162,26 @@ typedef struct {
 } nbgl_contentValueExt_t;
 
 /**
- * @brief This structure contains a [tag,value] pair
+ * @brief This structure contains a [tag,value] pair and possible extensions
  */
 typedef struct {
     const char *item;   ///< string giving the tag name
     const char *value;  ///< string giving the value name
-#ifdef SCREEN_SIZE_WALLET
     union {
+#ifdef SCREEN_SIZE_WALLET
         const nbgl_icon_details_t *valueIcon;  ///< a buffer containing the 32px 1BPP icon for icon
                                                ///< on right of value (can be NULL)
+#endif                                         // SCREEN_SIZE_WALLET
         const nbgl_contentValueExt_t
             *extension;  ///< if not NULL, gives additional info on value field
     };
     int8_t forcePageStart : 1;  ///< if set to 1, the tag will be displayed at the top of a new
                                 ///< review page
     int8_t centeredInfo : 1;    ///< if set to 1, the tag will be displayed as a centered info
-    int8_t aliasValue : 1;  ///< if set to 1, the value represents an alias and an > icon enables to
-                            ///< view the full value (extension field in union)
-#endif
+    int8_t aliasValue : 1;      ///< if set to 1, the value represents an alias
+                                ///< - On wallet size, a > icon enables to
+                                ///< view the full value (extension field in union)
+                                ///< - On Nano, the value is displayed in white
 } nbgl_contentTagValue_t;
 
 /**
@@ -266,7 +269,7 @@ typedef struct {
     const char
         *subText;  ///< description under main text (NULL terminated, single line, may be null)
     nbgl_state_t initState;  ///< initial state of the switch
-    uint8_t      token;      ///< the token that will be used as argument of the callback
+    uint8_t token;  ///< the token that will be used as argument of the callback (unused on Nano)
 #ifdef HAVE_PIEZO_SOUND
     tune_index_e tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played
 #endif                    // HAVE_PIEZO_SOUND
