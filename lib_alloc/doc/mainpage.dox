@@ -1,0 +1,21 @@
+/** @page mem_alloc_mainpage Dynamic memory allocator
+
+@section mem_alloc_mainpage_intro Introduction
+
+This page describes the Dynamic Memory Allocator available for Applications.
+
+Basically, this allocator behaves like any memory allocator in usual OS. The main difference is that it can be instantiated, thanks to
+its initialization function: @ref mem_init()
+
+This function takes as parameters
+
+- a pointer to a buffer that will be used both as context for the Allocator and for dynamic chunks,
+- and the size of this buffer
+
+It returns a memory context (@ref mem_ctx_t) that will be used by other functions
+
+Then, chunks can be allocated with @ref mem_alloc() and released with @ref mem_free()
+
+Both of these function take the memory context as first parameter.
+
+*/

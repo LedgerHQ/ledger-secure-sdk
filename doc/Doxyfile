@@ -825,6 +825,8 @@ WARN_LOGFILE           =
 
 INPUT                  = \
                          doc \
+                         lib_alloc \
+                         lib_alloc/doc \
                          lib_cxng/doc \
                          lib_cxng/include \
                          lib_cxng/src \

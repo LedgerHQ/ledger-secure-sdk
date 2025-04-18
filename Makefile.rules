@@ -22,6 +22,11 @@ else
     SDK_SOURCE_PATH += lib_nbgl lib_ux_nbgl lib_ux_sync
 endif
 
+# include dynamic memory allocator, if asked (temporary flag)
+ifeq ($(ENABLE_DYNAMIC_ALLOC), 1)
+  SDK_SOURCE_PATH += lib_alloc
+endif
+
 define uniq =
   $(eval seen :=)
   $(foreach _,$1,$(if $(filter $_,${seen}),,$(eval seen += $_)))
