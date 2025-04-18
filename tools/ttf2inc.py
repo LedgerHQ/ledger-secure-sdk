@@ -244,7 +244,7 @@ class TTF2INC:
         Handle Stax/Flex constraint on Y (should be modulo 4), top side.
         (decrease Y until it is modulo 4)
         """
-        if self.nbgl:
+        if self.nbgl and self.bpp > 1:
             top = top & 0xFC
 
         return top
@@ -255,7 +255,7 @@ class TTF2INC:
         Handle Stax/Flex constraint on Y (should be modulo 4), bottom side.
         (increase Y until it is modulo 4)
         """
-        if self.nbgl:
+        if self.nbgl and self.bpp > 1:
             bottom = (bottom+3) & 0xFC
 
         return bottom
@@ -533,13 +533,9 @@ class TTF2INC:
         if current_bit > 0:
             image_data.append(current_byte & 0xFF)
 
-        # Remove final transparent pixels, if any
         background_color = 0
         if self.nbgl and self.bpp != 1:
             background_color = 0xFF
-
-        while len(image_data) != 0 and image_data[-1] == background_color:
-            image_data = image_data[:-1]
 
         # When crop is False, we can crop at bytes level
         skipped_bytes = 0
@@ -785,11 +781,13 @@ class TTF2INC:
         else:
             x_min_offset = info["left"]
             y_min_offset = info["top"] - self.char_topmost_y
-            y_min_offset = (y_min_offset // 4) * 4
+            if self.bpp > 1:
+                y_min_offset = (y_min_offset // 4) * 4
 
             x_max_offset = width - info["right"]
             y_max_offset = self.height - info["bottom"]
-            y_max_offset = (y_max_offset // 4) * 4
+            if self.bpp > 1:
+                y_max_offset = (y_max_offset // 4) * 4
 
         # When crop is False, we may have some bytes to skip at beginning
         if not self.crop:
@@ -894,11 +892,13 @@ class TTF2INC:
         else:
             x_min_offset = info["left"]
             y_min_offset = info["top"] - self.char_topmost_y
-            y_min_offset = (y_min_offset // 4) * 4
+            if self.bpp > 1:
+                y_min_offset = (y_min_offset // 4) * 4
 
             x_max_offset = width - info["right"]
             y_max_offset = self.height - info["bottom"]
-            y_max_offset = (y_max_offset // 4) * 4
+            if self.bpp > 1:
+                y_max_offset = (y_max_offset // 4) * 4
 
         # When crop is False, we may have some bytes to skip at beginning
         if not self.crop:
