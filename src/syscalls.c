@@ -1601,6 +1601,15 @@ void os_ux_set_global(uint8_t param_type, uint8_t *param, size_t param_len)
     SVC_Call(SYSCALL_os_ux_set_global_ID, parameters);
 }
 
+#ifdef HAVE_CHARON
+void RK_set_backup_state(RK_backup_state_t state)
+{
+    unsigned int parameters[1];
+    parameters[0] = (unsigned int) state;
+    SVC_Call(SYSCALL_os_rk_set_backup_state_ID, parameters);
+}
+#endif  // HAVE_CHARON
+
 void os_lib_call(unsigned int *call_parameters)
 {
     unsigned int parameters[2];
