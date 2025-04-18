@@ -11,6 +11,7 @@
 #endif  // TARGET_APEX_P
 
 // Apex+ and Apex- share this TARGET_APEX flag
+// This definition must remain after `TARGET_APEX_P` definition
 #ifndef TARGET_APEX
 #define TARGET_APEX
 #endif  // TARGET_APEX
