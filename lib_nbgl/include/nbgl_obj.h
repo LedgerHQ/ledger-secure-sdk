@@ -198,7 +198,7 @@ extern "C" {
 #define PRIVACY_ICON         C_Privacy_24px
 #define EXCLAMATION_ICON     C_Exclamation_24px
 #define DIGIT_ICON           C_round_24px
-#define QUESTION_CIRCLE_ICON C_Question_Mark_Circle_40px
+#define QUESTION_CIRCLE_ICON C_Question_Mark_Circle_24px
 #else  // SMALL_ICON_SIZE
 #error Undefined SMALL_ICON_SIZE
 #endif  // SMALL_ICON_SIZE
