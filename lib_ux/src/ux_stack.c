@@ -22,7 +22,7 @@
 #include "os_screen.h"
 #include "os_types.h"
 #include "os_utils.h"
-#include "os_io_seproxyhal.h"
+#include "os_io_seph_ux.h"
 #include <string.h>
 
 // return true (stack slot +1) if an element
@@ -170,10 +170,6 @@ void ux_stack_remove(unsigned int stack_slot)
 // common code for all screens
 void ux_stack_init(unsigned int stack_slot)
 {
-    // reinit ux behavior (previous touched element, button push state)
-    io_seproxyhal_init_ux();  // glitch upon ux_stack_display for a button being pressed in a
-                              // previous screen
-
     /*
     // mismatch, the stack slot is not accessible !!
     if (G_ux.stack_count<stack_slot+1) {
@@ -222,7 +218,6 @@ const bagl_element_t *ux_stack_display_element_callback(const bagl_element_t *el
     return element;
 }
 
-#ifdef HAVE_SE_SCREEN
 void ux_stack_display_elements(ux_stack_slot_t *slot)
 {
     unsigned int          elem_idx;
@@ -251,9 +246,7 @@ void ux_stack_display_elements(ux_stack_slot_t *slot)
                 el      = ux_stack_display_element_callback(element);
                 if (!el) {
                     // skip display if requested to
-                    if (
-                        //! io_seproxyhal_spi_is_status_sent() &&
-                        G_ux.exit_code != BOLOS_UX_CONTINUE) {
+                    if (G_ux.exit_code != BOLOS_UX_CONTINUE) {
                         return;
                     }
                 }
@@ -262,7 +255,7 @@ void ux_stack_display_elements(ux_stack_slot_t *slot)
                     if ((unsigned int) el != 1) {
                         element = el;
                     }
-                    io_seproxyhal_display(element);
+                    io_seph_ux_display_bagl_element(element);
                 }
                 elem_idx++;
             }
@@ -290,58 +283,17 @@ void ux_stack_display_elements(ux_stack_slot_t *slot)
         }
     }
 }
-#endif  // HAVE_SE_SCREEN
-
-#ifndef HAVE_SE_SCREEN
-void ux_stack_al_display_next_element(unsigned int stack_slot) __attribute__((weak));
-void ux_stack_al_display_next_element(unsigned int stack_slot)
-{
-#if UX_STACK_SLOT_ARRAY_COUNT == 1
-    unsigned int status = os_sched_last_status(TASK_BOLOS_UX);
-    if (status != BOLOS_UX_IGNORE && status != BOLOS_UX_CONTINUE) {
-        while (G_ux.stack[stack_slot].element_arrays[0].element_array
-               && G_ux.stack[stack_slot].element_index
-                      < G_ux.stack[stack_slot].element_arrays[0].element_array_count
-               && !io_seproxyhal_spi_is_status_sent()
-               && (os_perso_isonboarded() != BOLOS_UX_OK
-                   || os_global_pin_is_validated() == BOLOS_UX_OK)) {
-            const bagl_element_t *element
-                = &G_ux.stack[stack_slot]
-                       .element_arrays[0]
-                       .element_array[G_ux.stack[stack_slot].element_index];
-            if (!G_ux.stack[stack_slot].screen_before_element_display_callback
-                || (element
-                    = G_ux.stack[stack_slot].screen_before_element_display_callback(element))) {
-                if ((unsigned int) element
-                    == 1) { /*backward compat with coding to avoid smashing everything*/
-                    element = &G_ux.stack[stack_slot]
-                                   .element_arrays[0]
-                                   .element_array[G_ux.stack[stack_slot].element_index];
-                }
-                io_seproxyhal_display(element);
-            }
-            G_ux.stack[stack_slot].element_index++;
-        }
-    }
-#endif  // UX_STACK_SLOT_ARRAY_COUNT == 1
-}
-#endif  // HAVE_SE_SCREEN
 
 // common code for all screens
 void ux_stack_display(unsigned int stack_slot)
 {
     // don't display any elements of a previous screen replacement
     if (G_ux.stack_count > 0 && stack_slot + 1 == G_ux.stack_count) {
-        io_seproxyhal_init_ux();
         // at worse a redisplay of the current screen has been requested, ensure to redraw it
         // correctly
         G_ux.stack[stack_slot].element_index = 0;
-#ifdef HAVE_SE_SCREEN
         ux_stack_display_elements(&G_ux.stack[stack_slot]);  // on balenos, no need to wait for the
                                                              // display processed event
-#else                                                        // HAVE_SE_SCREEN
-        ux_stack_al_display_next_element(stack_slot);
-#endif                                                       // HAVE_SE_SCREEN
     }
     // asking to redraw below top screen (likely the app below the ux)
     else if (stack_slot == -1UL || G_ux.stack_count == 0) {
