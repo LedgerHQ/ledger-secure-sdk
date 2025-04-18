@@ -99,7 +99,9 @@ extern "C" {
 #define SIMPLE_FOOTER_HEIGHT              64
 #define SMALL_CENTERING_HEADER            24
 #define MEDIUM_CENTERING_HEADER           40
-#define LONG_PRESS_BUTTON_HEIGHT          100
+#define MEDIUM_CENTERING_FOOTER           40
+#define LONG_PRESS_BUTTON_HEIGHT          88
+#define UP_FOOTER_BUTTON_HEIGHT           72
 
 #define PRE_TEXT_MARGIN     20
 #define TEXT_SUBTEXT_MARGIN 10
