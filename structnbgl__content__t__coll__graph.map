@@ -22,7 +22,7 @@
 <area shape="poly" id="edge15_Node000014_Node000010" title=" " alt="" coords="836,287,970,285,970,291,836,292"/>
 <area shape="rect" id="Node000015" href="$structnbgl__contentTagValueConfirm__t.html" title="This structure contains [item,value] pair(s) and info about a potential &quot;details&quot; button,..." alt="" coords="968,323,1195,349"/>
 <area shape="poly" id="edge17_Node000015_Node000010" title=" " alt="" coords="818,303,847,307,968,321,967,327,846,312,817,308"/>
-<area shape="rect" id="Node000011" href="$structnbgl__contentTagValue__t.html" title="This structure contains a [tag,value] pair." alt="" coords="329,279,505,305"/>
+<area shape="rect" id="Node000011" href="$structnbgl__contentTagValue__t.html" title="This structure contains a [tag,value] pair and possible extensions." alt="" coords="329,279,505,305"/>
 <area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="519,289,624,288,624,294,519,294"/>
 <area shape="rect" id="Node000012" href="$structnbgl__contentValueExt__t.html" title="This structure contains additions to a tag/value pair, to be able to build a screen to display these ..." alt="" coords="5,326,180,351"/>
 <area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="193,322,329,302,329,307,194,327"/>

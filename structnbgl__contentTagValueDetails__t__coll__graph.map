@@ -2,7 +2,7 @@
 <area shape="rect" id="Node000001" title="This structure contains a [item,value] pair and info about &quot;details&quot; button." alt="" coords="5,284,228,309"/>
 <area shape="rect" id="Node000002" href="$structnbgl__contentTagValueList__t.html" title="This structure contains a list of [tag,value] pairs." alt="" coords="17,196,216,221"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="119,235,119,283,114,283,114,235"/>
-<area shape="rect" id="Node000003" href="$structnbgl__contentTagValue__t.html" title="This structure contains a [tag,value] pair." alt="" coords="29,93,205,119"/>
+<area shape="rect" id="Node000003" href="$structnbgl__contentTagValue__t.html" title="This structure contains a [tag,value] pair and possible extensions." alt="" coords="29,93,205,119"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="119,133,119,196,114,196,114,133"/>
 <area shape="rect" id="Node000004" href="$structnbgl__contentValueExt__t.html" title="This structure contains additions to a tag/value pair, to be able to build a screen to display these ..." alt="" coords="129,5,304,31"/>
 <area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="140,39,120,56,115,74,116,93,111,93,109,74,116,53,137,35"/>
