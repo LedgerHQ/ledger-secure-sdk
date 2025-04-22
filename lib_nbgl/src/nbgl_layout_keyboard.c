@@ -74,17 +74,25 @@ enum {
 #if defined(TARGET_FLEX)
 #define LEFT_HALF_ICON C_left_half_64px
 #elif defined(TARGET_APEX)
-#define LEFT_HALF_ICON C_left_half_48px
+#define LEFT_HALF_ICON C_left_half_40px
 #endif  // TARGETS
 #endif  // USE_PARTIAL_BUTTONS
-
-// a horizontal line, even if displayed on 2 pixels, takes 4 pixels
-#define LINE_REAL_HEIGHT 4
 
 #define NUMBER_WIDTH 56
 
 // space between number and text
 #define NUMBER_TEXT_SPACE 8
+
+// space on left and right of suggestion buttons
+#if defined(TARGET_APEX)
+#define SUGGESTION_BUTTONS_SIDE_MARGIN 31
+#define LINE_THICKNESS                 1
+#define LINE_COLOR                     BLACK
+#else
+#define SUGGESTION_BUTTONS_SIDE_MARGIN BORDER_MARGIN
+#define LINE_THICKNESS                 2
+#define LINE_COLOR                     LIGHT_GRAY
+#endif  // TARGETS
 
 /**********************
  *      MACROS
@@ -154,7 +162,7 @@ static bool updateSuggestionButtons(nbgl_container_t *container,
     }
     // align top-left button on the left
     if (container->children[FIRST_BUTTON_INDEX] != NULL) {
-        container->children[FIRST_BUTTON_INDEX]->alignmentMarginX = BORDER_MARGIN;
+        container->children[FIRST_BUTTON_INDEX]->alignmentMarginX = SUGGESTION_BUTTONS_SIDE_MARGIN;
         container->children[FIRST_BUTTON_INDEX]->alignmentMarginY = 0;
         container->children[FIRST_BUTTON_INDEX]->alignment        = TOP_LEFT;
         container->children[FIRST_BUTTON_INDEX]->alignTo          = (nbgl_obj_t *) container;
@@ -258,17 +266,17 @@ static nbgl_container_t *addTextEntry(nbgl_layoutInternal_t *layoutInt,
                                       int                    textToken,
                                       bool                   compactMode)
 {
-    nbgl_container_t *container;
+    nbgl_container_t *mainContainer, *container;
     nbgl_text_area_t *textArea;
     layoutObj_t      *obj;
     uint16_t textEntryHeight = (compactMode ? TEXT_ENTRY_COMPACT_HEIGHT : TEXT_ENTRY_NORMAL_HEIGHT);
 
-    // create a container, to store title, entered text and underline
-    container                 = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
-    container->nbChildren     = 4;
-    container->children       = nbgl_containerPoolGet(container->nbChildren, layoutInt->layer);
-    container->obj.area.width = AVAILABLE_WIDTH;
-    container->obj.alignment  = CENTER;
+    // create a main container, to store title, and text-entry container
+    mainContainer             = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
+    mainContainer->nbChildren = 2;
+    mainContainer->children   = nbgl_containerPoolGet(mainContainer->nbChildren, layoutInt->layer);
+    mainContainer->obj.area.width = AVAILABLE_WIDTH;
+    mainContainer->obj.alignment  = CENTER;
 
     if (title != NULL) {
         // create text area for title
@@ -282,79 +290,77 @@ static nbgl_container_t *addTextEntry(nbgl_layoutInternal_t *layoutInt,
         textArea->obj.area.width  = AVAILABLE_WIDTH;
         textArea->obj.area.height = nbgl_getTextHeightInWidth(
             textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
-        container->children[0]     = (nbgl_obj_t *) textArea;
-        container->obj.area.height = textArea->obj.area.height + 4;
+        mainContainer->children[0]     = (nbgl_obj_t *) textArea;
+        mainContainer->obj.area.height = textArea->obj.area.height + 4;
     }
+
+    // create a text-entry container number, entered text and underline
+    container                 = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
+    container->nbChildren     = 3;
+    container->children       = nbgl_containerPoolGet(container->nbChildren, layoutInt->layer);
+    container->obj.area.width = AVAILABLE_WIDTH;
+    container->obj.alignment  = BOTTOM_MIDDLE;
 
     if (numbered) {
         // create Word num typed text
         textArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
         textArea->textColor = BLACK;
         snprintf(numText, sizeof(numText), "%d.", number);
-        textArea->text           = numText;
-        textArea->textAlignment  = CENTER;
-        textArea->fontId         = LARGE_MEDIUM_1BPP_FONT;
-        textArea->obj.area.width = NUMBER_WIDTH;
-        if (title != NULL) {
-            textArea->obj.alignmentMarginY = 4 + LINE_REAL_HEIGHT;
-            textArea->obj.alignTo          = container->children[0];
-            textArea->obj.alignment        = BOTTOM_LEFT;
-        }
-        else {
-            textArea->obj.alignmentMarginY = LINE_REAL_HEIGHT;
-            textArea->obj.alignment        = TOP_LEFT;
-        }
-        textArea->obj.area.height = textEntryHeight - 2 * LINE_REAL_HEIGHT;
+        textArea->text            = numText;
+        textArea->textAlignment   = CENTER;
+        textArea->fontId          = LARGE_MEDIUM_1BPP_FONT;
+        textArea->obj.area.width  = NUMBER_WIDTH;
+        textArea->obj.alignment   = MID_LEFT;
+        textArea->obj.area.height = nbgl_getFontHeight(LARGE_MEDIUM_1BPP_FONT);
         // set this text area as child of the container
-        container->children[1] = (nbgl_obj_t *) textArea;
+        container->children[0] = (nbgl_obj_t *) textArea;
     }
 
     // create text area for entered text
-    textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-    textArea->textColor     = grayedOut ? LIGHT_GRAY : BLACK;
-    textArea->text          = text;
-    textArea->textAlignment = MID_LEFT;
-    textArea->fontId        = LARGE_MEDIUM_1BPP_FONT;
-    if (title != NULL) {
-        textArea->obj.alignmentMarginY = 4 + LINE_REAL_HEIGHT;
-        textArea->obj.alignTo          = container->children[0];
-        textArea->obj.alignment        = BOTTOM_LEFT;
-    }
-    else {
-        textArea->obj.alignmentMarginY = LINE_REAL_HEIGHT;
-        textArea->obj.alignment        = TOP_LEFT;
-    }
+    textArea                 = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+    textArea->textColor      = grayedOut ? INACTIVE_TEXT_COLOR : BLACK;
+    textArea->text           = text;
+    textArea->textAlignment  = MID_LEFT;
+    textArea->fontId         = LARGE_MEDIUM_1BPP_FONT;
     textArea->obj.area.width = AVAILABLE_WIDTH;
     if (numbered) {
-        textArea->obj.alignmentMarginX = NUMBER_WIDTH + NUMBER_TEXT_SPACE;
-        textArea->obj.area.width -= textArea->obj.alignmentMarginX;
+        textArea->obj.alignmentMarginX = NUMBER_TEXT_SPACE;
+        textArea->obj.alignTo          = container->children[0];
+        textArea->obj.alignment        = MID_RIGHT;
+        textArea->obj.area.width -= textArea->obj.alignmentMarginX + NUMBER_WIDTH;
     }
-    textArea->obj.area.height  = textEntryHeight - 2 * LINE_REAL_HEIGHT;
+    else {
+        textArea->obj.alignment = MID_LEFT;
+    }
+    textArea->obj.area.height  = nbgl_getFontHeight(LARGE_MEDIUM_1BPP_FONT);
     textArea->autoHideLongLine = true;
 
     obj = layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) textArea, textToken, NBGL_NO_TUNE);
     if (obj == NULL) {
         return NULL;
     }
-    textArea->obj.touchMask = (1 << TOUCHED);
-    textArea->obj.touchId   = ENTERED_TEXT_ID;
-    container->children[2]  = (nbgl_obj_t *) textArea;
-    container->obj.area.height += textEntryHeight;
+    textArea->obj.touchMask    = (1 << TOUCHED);
+    textArea->obj.touchId      = ENTERED_TEXT_ID;
+    container->children[1]     = (nbgl_obj_t *) textArea;
+    container->obj.area.height = textEntryHeight;
 
     // create gray line
     nbgl_line_t *line = (nbgl_line_t *) nbgl_objPoolGet(LINE, layoutInt->layer);
-    line->lineColor   = LIGHT_GRAY;
-    // align on bottom of the container
+    line->lineColor   = LINE_COLOR;
+    // align on bottom of the text entry container
     line->obj.alignment   = BOTTOM_MIDDLE;
     line->obj.area.width  = AVAILABLE_WIDTH;
-    line->obj.area.height = LINE_REAL_HEIGHT;
+    line->obj.area.height = LINE_THICKNESS;
     line->direction       = HORIZONTAL;
-    line->thickness       = 2;
-    line->offset          = 2;
-    // set this line as child of the container
-    container->children[3] = (nbgl_obj_t *) line;
+    line->thickness       = LINE_THICKNESS;
+    // set this line as child of the text entry container
+    container->children[2] = (nbgl_obj_t *) line;
 
-    return container;
+    // set this text entry container as child of the main container
+    mainContainer->children[1] = (nbgl_obj_t *) container;
+    mainContainer->obj.area.height += container->obj.area.height;
+
+    return mainContainer;
 }
 
 static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
@@ -400,7 +406,8 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
         choiceButtons[i]->innerColor      = BLACK;
         choiceButtons[i]->borderColor     = BLACK;
         choiceButtons[i]->foregroundColor = WHITE;
-        choiceButtons[i]->obj.area.width  = (AVAILABLE_WIDTH - INTERNAL_MARGIN) / 2;
+        choiceButtons[i]->obj.area.width
+            = (SCREEN_WIDTH - (2 * SUGGESTION_BUTTONS_SIDE_MARGIN) - INTERNAL_MARGIN) / 2;
         choiceButtons[i]->obj.area.height = SMALL_BUTTON_HEIGHT;
         choiceButtons[i]->radius          = SMALL_BUTTON_RADIUS_INDEX;
         choiceButtons[i]->fontId          = SMALL_BOLD_1BPP_FONT;
@@ -469,8 +476,8 @@ static nbgl_button_t *addConfirmationButton(nbgl_layoutInternal_t *layoutInt,
         button->obj.touchId   = BOTTOM_BUTTON_ID;
     }
     else {
-        button->borderColor = LIGHT_GRAY;
-        button->innerColor  = LIGHT_GRAY;
+        button->borderColor = INACTIVE_COLOR;
+        button->innerColor  = INACTIVE_COLOR;
     }
     button->text            = PIC(text);
     button->fontId          = SMALL_BOLD_1BPP_FONT;
@@ -867,7 +874,7 @@ int nbgl_layoutUpdateEnteredText(nbgl_layout_t *layout,
         return -1;
     }
     textArea->text          = text;
-    textArea->textColor     = grayedOut ? LIGHT_GRAY : BLACK;
+    textArea->textColor     = grayedOut ? INACTIVE_TEXT_COLOR : BLACK;
     textArea->textAlignment = MID_LEFT;
     nbgl_objDraw((nbgl_obj_t *) textArea);
 
@@ -968,8 +975,8 @@ int nbgl_layoutUpdateConfirmationButton(nbgl_layout_t *layout,
         button->obj.touchId   = BOTTOM_BUTTON_ID;
     }
     else {
-        button->borderColor = LIGHT_GRAY;
-        button->innerColor  = LIGHT_GRAY;
+        button->borderColor = INACTIVE_COLOR;
+        button->innerColor  = INACTIVE_COLOR;
     }
     nbgl_objDraw((nbgl_obj_t *) button);
     return 0;
@@ -1060,7 +1067,7 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
 int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardContent_t *content)
 {
     nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
-    nbgl_container_t      *container;
+    nbgl_container_t      *mainContainer, *container;
     nbgl_text_area_t      *textArea;
 
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutUpdateKeyboardContent():\n");
@@ -1069,18 +1076,19 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
     }
 
     // get top container from main container (it shall be the 1st object)
-    container = (nbgl_container_t *) layoutInt->container->children[0];
+    mainContainer = (nbgl_container_t *) layoutInt->container->children[0];
+    container     = (nbgl_container_t *) mainContainer->children[1];
 
     if (content->numbered) {
         // get Word number typed text
-        textArea = (nbgl_text_area_t *) container->children[1];
+        textArea = (nbgl_text_area_t *) container->children[0];
         snprintf(numText, sizeof(numText), "%d.", content->number);
         nbgl_objDraw((nbgl_obj_t *) textArea);
     }
 
     // get text area for entered text
-    textArea            = (nbgl_text_area_t *) container->children[2];
-    textArea->textColor = content->grayedOut ? LIGHT_GRAY : BLACK;
+    textArea            = (nbgl_text_area_t *) container->children[1];
+    textArea->textColor = content->grayedOut ? INACTIVE_TEXT_COLOR : BLACK;
     textArea->text      = content->text;
     nbgl_objDraw((nbgl_obj_t *) textArea);
 
@@ -1129,8 +1137,8 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
             button->obj.touchId   = BOTTOM_BUTTON_ID;
         }
         else {
-            button->borderColor = LIGHT_GRAY;
-            button->innerColor  = LIGHT_GRAY;
+            button->borderColor = INACTIVE_COLOR;
+            button->innerColor  = INACTIVE_COLOR;
         }
         nbgl_objDraw((nbgl_obj_t *) button);
     }
