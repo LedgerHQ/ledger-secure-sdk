@@ -12,14 +12,17 @@ set(CMAKE_BUILD_TYPE "Debug")
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_FLAGS
-    "${CMAKE_C_FLAGS} -Wall -Wextra -pedantic -DFUZZ -g -O0 -fsanitize=fuzzer,address,undefined"
+    "${CMAKE_C_FLAGS} -Wall -Wextra -pedantic -DFUZZ -g -O0 -fdata-sections -ffunction-sections -funsigned-char -fshort-enums -fsanitize=fuzzer,address,undefined -fprofile-instr-generate -fcoverage-mapping"
 )
 
 include_directories(
-  ../lib_standard_app/
-  ../qrcode/include/
   mock/
+  ../lib_standard_app/
+  ../include/
+  ../qrcode/include/
 )
+
+add_definitions(-DHAVE_NFC -DHAVE_NDEF_SUPPORT)
 
 add_library(base58 SHARED ../../lib_standard_app/base58.c)
 add_library(bip32 SHARED ../../lib_standard_app/bip32.c)
