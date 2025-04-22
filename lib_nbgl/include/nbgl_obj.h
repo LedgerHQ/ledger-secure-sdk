@@ -90,15 +90,13 @@ extern "C" {
 
 // common dimensions for buttons
 #if COMMON_RADIUS == 40
-#define BUTTON_RADIUS   RADIUS_40_PIXELS
-#define BUTTON_DIAMETER (COMMON_RADIUS * 2)
+#define BUTTON_RADIUS RADIUS_40_PIXELS
 #elif COMMON_RADIUS == 44
-#define BUTTON_RADIUS   RADIUS_44_PIXELS
-#define BUTTON_DIAMETER (COMMON_RADIUS * 2)
-#elif COMMON_RADIUS == 8
-#define BUTTON_RADIUS   RADIUS_8_PIXELS
-#define BUTTON_DIAMETER 56
+#define BUTTON_RADIUS RADIUS_44_PIXELS
+#elif COMMON_RADIUS == 28
+#define BUTTON_RADIUS RADIUS_28_PIXELS
 #endif  // COMMON_RADIUS
+#define BUTTON_DIAMETER (COMMON_RADIUS * 2)
 
 // width & height for spinner
 #if defined(TARGET_STAX)
@@ -233,6 +231,20 @@ extern "C" {
 // number of spinner positions
 #define NB_SPINNER_POSITIONS 4
 #endif  // SCREEN_SIZE_WALLET
+
+#if NB_COLOR_BITS == 1
+#define INACTIVE_COLOR      WHITE
+#define INACTIVE_TEXT_COLOR BLACK
+#define INACTIVE_SMALL_FONT SMALL_REGULAR_FONT
+#define LIGHT_TEXT_COLOR    BLACK
+#define BUTTON_STROKE       1
+#else
+#define INACTIVE_COLOR      LIGHT_GRAY
+#define INACTIVE_TEXT_COLOR LIGHT_GRAY
+#define INACTIVE_SMALL_FONT SMALL_BOLD_FONT
+#define LIGHT_TEXT_COLOR    DARK_GRAY
+#define BUTTON_STROKE       2
+#endif
 
 /**********************
  *      TYPEDEFS
