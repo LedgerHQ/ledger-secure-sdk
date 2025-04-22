@@ -1,38 +1,60 @@
-cmake_minimum_required(VERSION 3.10)
-
-project(Fuzzer
-        VERSION 1.0
-	      DESCRIPTION "SDK Fuzzer"
-        LANGUAGES C)
+include_guard()
+cmake_minimum_required(VERSION 3.14)
 
 set(CMAKE_C_COMPILER clang)
 set(CMAKE_CPP_COMPILER clang)
 
-set(CMAKE_BUILD_TYPE "Debug")
+if(${CMAKE_VERSION} VERSION_LESS 3.14)
+    cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
+endif()
 
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_C_FLAGS
-    "${CMAKE_C_FLAGS} -Wall -Wextra -pedantic -DFUZZ -g -O0 -fsanitize=fuzzer,address,undefined"
-)
+# project information
+project(SDKFuzzer
+        VERSION 1.0
+	        DESCRIPTION "SDK Fuzzer"
+        LANGUAGES C)
 
-include_directories(
-  ../lib_standard_app/
-  ../qrcode/include/
-  mock/
-)
+# guard against bad build-type strings
+if (NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Debug")
+endif()
 
-add_library(base58 SHARED ../../lib_standard_app/base58.c)
-add_library(bip32 SHARED ../../lib_standard_app/bip32.c)
-add_library(read SHARED ../../lib_standard_app/read.c)
-add_library(apdu_parser SHARED ../../lib_standard_app/parser.c)
-add_library(qrcodegen SHARED ../../qrcode/src/qrcodegen.c mock/os_task.c)
 
-add_executable(fuzz_apdu_parser fuzzer_apdu_parser.c)
-add_executable(fuzz_base58 fuzzer_base58.c)
-add_executable(fuzz_bip32 fuzzer_bip32.c)
-add_executable(fuzz_qrcodegen fuzzer_qrcodegen.c)
+if (NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
+    message(FATAL_ERROR "Fuzzer needs to be built with Clang")
+endif()
 
-target_link_libraries(fuzz_apdu_parser apdu_parser)
-target_link_libraries(fuzz_base58 base58)
-target_link_libraries(fuzz_bip32 bip32 read)
-target_link_libraries(fuzz_qrcodegen qrcodegen)
+# default fuzz device target
+if (NOT TARGET_DEVICE)
+  set(TARGET_DEVICE "flex")
+endif()
+
+# guard against in-source builds
+if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+  message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. You may need to remove CMakeCache.txt. ")
+endif()
+
+
+# compatible with ClusterFuzzLite
+if (NOT DEFINED ENV{LIB_FUZZING_ENGINE})
+	set(COMPILATION_FLAGS -g -O0 -Wall -Wextra -fprofile-instr-generate -fcoverage-mapping)
+  if (SANITIZER MATCHES "address")
+    set(COMPILATION_FLAGS ${COMPILATION_FLAGS} -fsanitize=fuzzer,address,undefined)
+  elseif (SANITIZER MATCHES "memory")
+    set(COMPILATION_FLAGS ${COMPILATION_FLAGS} -fsanitize=fuzzer,memory,undefined -fsanitize-memory-track-origins -fsanitize=fuzzer-no-link)
+  else()
+    message(FATAL_ERROR "Unknown sanitizer type. It must be set to `address` or `memory`.")
+  endif()
+else()
+	set(COMPILATION_FLAGS "$ENV{LIB_FUZZING_ENGINE} $ENV{CFLAGS}")
+  separate_arguments(COMPILATION_FLAGS)
+endif()
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# Include haness cmake files
+file(GLOB cmake_extra_files "extra/*.cmake")
+
+foreach(file IN LISTS cmake_extra_files)
+    include(${file})
+endforeach()
