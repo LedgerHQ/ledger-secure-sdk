@@ -112,5 +112,5 @@ typedef struct __attribute__((packed)) ndef_struct_s {
 uint16_t os_get_uri_header(uint8_t uri_id, char *uri_header);
 uint8_t  os_parse_ndef(uint8_t *in_buffer, ndef_struct_t *parsed);
 uint16_t os_ndef_to_string(ndef_struct_t *ndef_message, char *out_string);
-
+uint16_t os_ndef_to_string2(ndef_struct_t *ndef_message, char *out_string);
 #endif
