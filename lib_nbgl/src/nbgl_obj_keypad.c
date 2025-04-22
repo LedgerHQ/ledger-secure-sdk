@@ -30,7 +30,7 @@
 #elif defined(TARGET_FLEX)
 #define DIGIT_OFFSET_Y (((KEYPAD_KEY_HEIGHT - 48) / 2) & 0xFFC)
 #elif defined(TARGET_APEX)
-#define DIGIT_OFFSET_Y (((KEYPAD_KEY_HEIGHT - 32) / 2) & 0xFFC)
+#define DIGIT_OFFSET_Y (((KEYPAD_KEY_HEIGHT - 28) / 2) & 0xFFC)
 #endif  // TARGETS
 
 #define BACKSPACE_KEY_IDX 10
@@ -124,7 +124,9 @@ static void keypadDrawGrid(nbgl_keypad_t *keypad)
     rectArea.y0              = keypad->obj.area.y0;
     rectArea.width           = 1;
     rectArea.height          = KEYPAD_KEY_HEIGHT * 4;
+#ifdef HAVE_SIDE_SCREEN
     nbgl_frontDrawRect(&rectArea);  // 1st full line, on the left
+#endif                              // HAVE_SIDE_SCREEN
     rectArea.x0 += KEY_WIDTH;
     nbgl_frontDrawRect(&rectArea);  // 2nd line
     rectArea.x0 += KEY_WIDTH;
