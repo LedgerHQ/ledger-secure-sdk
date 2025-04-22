@@ -427,7 +427,7 @@ static void draw_button(nbgl_button_t *obj, nbgl_obj_t *prevObj, bool computePos
     }
     else {
         nbgl_drawRoundedBorderedRect(
-            (nbgl_area_t *) obj, obj->radius, 2, obj->innerColor, obj->borderColor);
+            (nbgl_area_t *) obj, obj->radius, BUTTON_STROKE, obj->innerColor, obj->borderColor);
     }
     // get the text of the button from the callback if not NULL
     if (obj->onDrawCallback != NULL) {
@@ -719,7 +719,11 @@ static void draw_switch(nbgl_switch_t *obj, nbgl_obj_t *prevObj, bool computePos
     rectArea.backgroundColor = obj->obj.area.backgroundColor;
     rectArea.bpp             = NBGL_BPP_1;
     if (obj->state == OFF_STATE) {
+#if NB_COLOR_BITS == 1
+        nbgl_frontDrawImage(&rectArea, C_switch_off_60_40.bitmap, NO_TRANSFORMATION, obj->onColor);
+#else
         nbgl_frontDrawImage(&rectArea, C_switch_60_40.bitmap, NO_TRANSFORMATION, obj->offColor);
+#endif
     }
     else {
         nbgl_frontDrawImage(&rectArea, C_switch_60_40.bitmap, VERTICAL_MIRROR, obj->onColor);
@@ -748,8 +752,12 @@ static void draw_radioButton(nbgl_radio_t *obj, nbgl_obj_t *prevObj, bool comput
     obj->obj.area.backgroundColor = obj->obj.parent->area.backgroundColor;
 
     if (obj->state == OFF_STATE) {
-        icon      = &RADIO_OFF_ICON;
+        icon = &RADIO_OFF_ICON;
+#if NB_COLOR_BITS == 1
+        color_map = obj->activeColor;
+#else
         color_map = obj->borderColor;
+#endif
     }
     else {
         icon      = &RADIO_ON_ICON;
