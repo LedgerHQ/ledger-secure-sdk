@@ -58,7 +58,7 @@ extern "C" {
 #elif defined(TARGET_FLEX)
 #define KEYPAD_KEY_HEIGHT 88
 #elif defined(TARGET_APEX)
-#define KEYPAD_KEY_HEIGHT 64
+#define KEYPAD_KEY_HEIGHT 60
 #endif  // TARGETS
 #else   // SCREEN_SIZE_WALLET
 #define KEYPAD_WIDTH  114
@@ -69,14 +69,14 @@ extern "C" {
 #ifdef SCREEN_SIZE_WALLET
 // external margin in pixels
 #if defined(TARGET_STAX)
-#define BORDER_MARGIN        24
-#define BOTTOM_BORDER_MARGIN 24
+#define BORDER_MARGIN          24
+#define VERTICAL_BORDER_MARGIN 24
 #elif defined(TARGET_FLEX)
-#define BORDER_MARGIN        32
-#define BOTTOM_BORDER_MARGIN 24
+#define BORDER_MARGIN          32
+#define VERTICAL_BORDER_MARGIN 24
 #elif defined(TARGET_APEX)
-#define BORDER_MARGIN        24
-#define BOTTOM_BORDER_MARGIN 16
+#define BORDER_MARGIN          16
+#define VERTICAL_BORDER_MARGIN 24
 #endif  // TARGETS
 
 // Back button header height
