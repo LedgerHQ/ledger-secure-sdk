@@ -244,7 +244,7 @@ class TTF2INC:
         Handle Stax/Flex constraint on Y (should be modulo 4), top side.
         (decrease Y until it is modulo 4)
         """
-        if self.nbgl and self.bpp > 1:
+        if self.nbgl and (self.bpp > 1 or self.rle):
             top = top & 0xFC
 
         return top
@@ -255,7 +255,7 @@ class TTF2INC:
         Handle Stax/Flex constraint on Y (should be modulo 4), bottom side.
         (increase Y until it is modulo 4)
         """
-        if self.nbgl and self.bpp > 1:
+        if self.nbgl and (self.bpp > 1 or self.rle):
             bottom = (bottom+3) & 0xFC
 
         return bottom
@@ -892,12 +892,12 @@ class TTF2INC:
         else:
             x_min_offset = info["left"]
             y_min_offset = info["top"] - self.char_topmost_y
-            if self.bpp > 1:
+            if self.bpp > 1 or self.rle:
                 y_min_offset = (y_min_offset // 4) * 4
 
             x_max_offset = width - info["right"]
             y_max_offset = self.height - info["bottom"]
-            if self.bpp > 1:
+            if self.bpp > 1 or self.rle:
                 y_max_offset = (y_max_offset // 4) * 4
 
         # When crop is False, we may have some bytes to skip at beginning
