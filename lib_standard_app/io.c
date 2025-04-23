@@ -153,9 +153,6 @@ WEAK int io_send_response_buffers(const buffer_t *rdatalist, size_t count, uint1
         PRINTF("Swap answer is processed. Send it\n");
 
         if (io_legacy_apdu_tx(G_io_tx_buffer, length) >= 0) {
-            io_seproxyhal_io_heartbeat();
-            io_seproxyhal_io_heartbeat();
-            io_seproxyhal_io_heartbeat();
             PRINTF("Returning to Exchange with status %d\n", (sw == SW_OK));
             *G_swap_signing_return_value_address = (sw == SW_OK);
             PRINTF("os_lib_end\n");

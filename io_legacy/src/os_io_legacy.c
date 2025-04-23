@@ -207,9 +207,6 @@ unsigned short io_exchange(unsigned char channel_and_flags, unsigned short tx_le
     if (tx_len && !(channel_and_flags & IO_ASYNCH_REPLY)) {
         memmove(G_io_tx_buffer, G_io_apdu_buffer, tx_len);
         io_legacy_apdu_tx(G_io_tx_buffer, tx_len);
-        io_seproxyhal_io_heartbeat();
-        io_seproxyhal_io_heartbeat();
-        io_seproxyhal_io_heartbeat();
         G_io_app.apdu_media    = IO_APDU_MEDIA_NONE;
         io_os_legacy_apdu_type = APDU_TYPE_NONE;
         if (channel_and_flags & IO_RETURN_AFTER_TX) {
@@ -416,7 +413,8 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
 
 int io_legacy_apdu_tx(const unsigned char *buffer, unsigned short length)
 {
-    int status             = os_io_tx_cmd(io_os_legacy_apdu_type, buffer, length, 0);
+    int status = os_io_tx_cmd(io_os_legacy_apdu_type, buffer, length, 0);
+
     G_io_app.apdu_media    = IO_APDU_MEDIA_NONE;
     io_os_legacy_apdu_type = APDU_TYPE_NONE;
 #ifdef HAVE_IO_U2F
