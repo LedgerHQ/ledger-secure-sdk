@@ -54,6 +54,7 @@ typedef uint8_t (*ble_profile_write_rsp_ack_t)(void *cookie);
 typedef uint8_t (*ble_profile_update_char_value_ack_t)(void *cookie);
 
 typedef uint8_t (*ble_profile_send_packet_t)(const uint8_t *packet, uint16_t length, void *cookie);
+typedef uint8_t (*ble_profile_is_busy_t)(void *cookie);
 
 typedef int32_t (*ble_profile_data_ready_t)(uint8_t *buffer, uint16_t max_length, void *cookie);
 
@@ -80,6 +81,7 @@ typedef struct ble_profile_info_t_ {
     ble_profile_update_char_value_ack_t update_char_val_ack;
 
     ble_profile_send_packet_t send_packet;
+    ble_profile_is_busy_t     is_busy;
 
     ble_profile_data_ready_t data_ready;
 

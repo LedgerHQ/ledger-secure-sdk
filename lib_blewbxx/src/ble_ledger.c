@@ -1149,6 +1149,25 @@ int32_t BLE_LEDGER_data_ready(uint8_t *buffer, uint16_t max_length)
     return status;
 }
 
+int32_t BLE_LEDGER_is_busy(void)
+{
+    uint8_t index  = 0;
+    int32_t status = 0;
+
+    ble_profile_info_t *profile_info = NULL;
+    for (index = 0; index < ble_ledger_data.nb_of_profile; index++) {
+        profile_info = ble_ledger_data.profile[index];
+        if (profile_info->is_busy) {
+            status = ((ble_profile_is_busy_t) PIC(profile_info->is_busy))(profile_info->cookie);
+            if (status) {
+                break;
+            }
+        }
+    }
+
+    return status;
+}
+
 void BLE_LEDGER_setting(uint32_t profile_id, uint32_t setting_id, uint8_t *buffer, uint16_t length)
 {
     uint8_t index = 0;
