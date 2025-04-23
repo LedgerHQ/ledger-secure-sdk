@@ -117,7 +117,7 @@ static void keypadDrawGrid(void)
     rectArea.height          = 4;
     for (i = 0; i < NB_ROWS - 1; i++) {
         rectArea.y0 += KEY_HEIGHT;
-        nbgl_frontDrawHorizontalLine(&rectArea, 0x1, BLACK);
+        nbgl_frontDrawLine(&rectArea, 0x1, BLACK);
     }
 
     /// then draw vertical lines

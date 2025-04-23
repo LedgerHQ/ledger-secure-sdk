@@ -412,19 +412,19 @@ void nbgl_drawRoundedBorderedRect(const nbgl_area_t *area,
     rectArea.y0     = area->y0;
     rectArea.width  = area->width;
     rectArea.height = stroke;
-    nbgl_frontDrawHorizontalLine(&rectArea, 0, borderColor);  // top
+    nbgl_frontDrawLine(&rectArea, 0, borderColor);  // top
     rectArea.x0 = area->x0;
     rectArea.y0 = area->y0 + area->height - 1;
-    nbgl_frontDrawHorizontalLine(&rectArea, 0, borderColor);  // bottom
+    nbgl_frontDrawLine(&rectArea, 0, borderColor);  // bottom
     if ((2 * radius) < area->height) {
         rectArea.x0              = area->x0;
         rectArea.y0              = area->y0;
         rectArea.width           = stroke;
         rectArea.height          = area->height;
         rectArea.backgroundColor = area->backgroundColor;
-        nbgl_frontDrawHorizontalLine(&rectArea, 0, borderColor);  // left
+        nbgl_frontDrawLine(&rectArea, 0, borderColor);  // left
         rectArea.x0 = area->x0 + area->width - stroke;
-        nbgl_frontDrawHorizontalLine(&rectArea, 0, borderColor);  // right
+        nbgl_frontDrawLine(&rectArea, 0, borderColor);  // right
     }
     if (radiusIndex <= RADIUS_MAX) {
         // Draw 4 quarters of circles
@@ -458,9 +458,9 @@ void nbgl_drawRoundedBorderedRect(const nbgl_area_t *area,
         rectArea.width           = stroke;
         rectArea.height          = area->height - 2 * radius;
         rectArea.backgroundColor = area->backgroundColor;
-        nbgl_frontDrawHorizontalLine(&rectArea, 0, borderColor);  // left
+        nbgl_frontDrawLine(&rectArea, 0, borderColor);  // left
         rectArea.x0 = area->x0 + area->width - stroke;
-        nbgl_frontDrawHorizontalLine(&rectArea, 0, borderColor);  // right
+        nbgl_frontDrawLine(&rectArea, 0, borderColor);  // right
     }
 
     if (radiusIndex <= RADIUS_MAX) {
