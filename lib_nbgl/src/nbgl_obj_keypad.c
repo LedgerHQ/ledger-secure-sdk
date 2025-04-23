@@ -110,28 +110,27 @@ static void keypadDrawGrid(nbgl_keypad_t *keypad)
     rectArea.x0              = keypad->obj.area.x0;
     rectArea.y0              = keypad->obj.area.y0;
     rectArea.width           = keypad->obj.area.width;
-    rectArea.height          = VERTICAL_ALIGNMENT;
-    nbgl_frontDrawHorizontalLine(&rectArea, 0x1, keypad->borderColor);  // 1st line (top)
+    rectArea.height          = 1;
+    nbgl_frontDrawLine(&rectArea, 1, keypad->borderColor);  // 1st line (top)
     rectArea.y0 += KEYPAD_KEY_HEIGHT;
-    nbgl_frontDrawHorizontalLine(&rectArea, 0x1, keypad->borderColor);  // 2nd line
+    nbgl_frontDrawLine(&rectArea, 1, keypad->borderColor);  // 2nd line
     rectArea.y0 += KEYPAD_KEY_HEIGHT;
-    nbgl_frontDrawHorizontalLine(&rectArea, 0x1, keypad->borderColor);  // 3rd line
+    nbgl_frontDrawLine(&rectArea, 1, keypad->borderColor);  // 3rd line
     rectArea.y0 += KEYPAD_KEY_HEIGHT;
-    nbgl_frontDrawHorizontalLine(&rectArea, 0x1, keypad->borderColor);  // 4th line
+    nbgl_frontDrawLine(&rectArea, 1, keypad->borderColor);  // 4th line
 
-    /// then draw 3 vertical lines
-    rectArea.backgroundColor = keypad->borderColor;
-    rectArea.x0              = keypad->obj.area.x0;
-    rectArea.y0              = keypad->obj.area.y0;
-    rectArea.width           = 1;
-    rectArea.height          = KEYPAD_KEY_HEIGHT * 4;
+    /// then draw 2 or 3 (if side) vertical lines
+    rectArea.x0     = keypad->obj.area.x0;
+    rectArea.y0     = keypad->obj.area.y0;
+    rectArea.width  = 1;
+    rectArea.height = KEYPAD_KEY_HEIGHT * 4;
 #ifdef HAVE_SIDE_SCREEN
-    nbgl_frontDrawRect(&rectArea);  // 1st full line, on the left
-#endif                              // HAVE_SIDE_SCREEN
+    nbgl_frontDrawLine(&rectArea, 0, keypad->borderColor);  // 1st full line, on the left
+#endif                                                      // HAVE_SIDE_SCREEN
     rectArea.x0 += KEY_WIDTH;
-    nbgl_frontDrawRect(&rectArea);  // 2nd line
+    nbgl_frontDrawLine(&rectArea, 0, keypad->borderColor);  // 2nd line
     rectArea.x0 += KEY_WIDTH;
-    nbgl_frontDrawRect(&rectArea);  // 3rd line
+    nbgl_frontDrawLine(&rectArea, 0, keypad->borderColor);  // 3rd line
 }
 
 static void keypadDrawDigits(nbgl_keypad_t *keypad)
@@ -219,15 +218,14 @@ static void keypadDrawDigits(nbgl_keypad_t *keypad)
         rectArea.x0              = keypad->obj.area.x0 + 2 * KEY_WIDTH;
         rectArea.y0              = keypad->obj.area.y0 + KEYPAD_KEY_HEIGHT * 3;
         rectArea.width           = KEY_WIDTH;
-        rectArea.height          = VERTICAL_ALIGNMENT;
-        nbgl_frontDrawHorizontalLine(&rectArea, 0x1, keypad->borderColor);  // 1st line (top)
+        rectArea.height          = 1;
+        nbgl_frontDrawLine(&rectArea, 0, keypad->borderColor);  // 1st line (top)
         /// then draw vertical line
-        rectArea.backgroundColor = keypad->borderColor;
-        rectArea.x0              = keypad->obj.area.x0 + 2 * KEY_WIDTH;
-        rectArea.y0              = keypad->obj.area.y0 + KEYPAD_KEY_HEIGHT * 3;
-        rectArea.width           = 1;
-        rectArea.height          = KEYPAD_KEY_HEIGHT;
-        nbgl_frontDrawRect(&rectArea);  // 1st full line, on the left
+        rectArea.x0     = keypad->obj.area.x0 + 2 * KEY_WIDTH;
+        rectArea.y0     = keypad->obj.area.y0 + KEYPAD_KEY_HEIGHT * 3;
+        rectArea.width  = 1;
+        rectArea.height = KEYPAD_KEY_HEIGHT;
+        nbgl_frontDrawLine(&rectArea, 0, keypad->borderColor);  // 1st full line, on the left
     }
     else {
         const nbgl_icon_details_t *icon;
@@ -257,6 +255,22 @@ static void keypadDrawDigits(nbgl_keypad_t *keypad)
         else {
             nbgl_frontDrawImage(&rectArea, (uint8_t *) icon->bitmap, NO_TRANSFORMATION, WHITE);
         }
+#ifdef TARGET_APEX
+        // draw black line
+        rectArea.backgroundColor = keypad->obj.area.backgroundColor;
+        rectArea.x0              = keypad->obj.area.x0 + 2 * KEY_WIDTH;
+        rectArea.y0              = (keypad->obj.area.y0 + KEYPAD_KEY_HEIGHT * 3);
+        rectArea.width           = KEY_WIDTH;
+        rectArea.height          = 4;
+        nbgl_frontDrawLine(&rectArea, 0, BLACK);
+        /// then draw vertical line
+        rectArea.backgroundColor = keypad->borderColor;
+        rectArea.x0              = keypad->obj.area.x0 + 2 * KEY_WIDTH;
+        rectArea.y0              = keypad->obj.area.y0 + KEYPAD_KEY_HEIGHT * 2;
+        rectArea.width           = 1;
+        rectArea.height          = KEYPAD_KEY_HEIGHT;
+        // nbgl_frontDrawRect(&rectArea);  // 1st full line, on the left
+#endif  // TARGET_APEX
     }
 }
 

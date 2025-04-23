@@ -513,51 +513,18 @@ static void draw_line(nbgl_line_t *obj, nbgl_obj_t *prevObj, bool computePositio
               "draw_line(), backgroundColor = %d, lineColor = %d\n",
               obj->obj.area.backgroundColor,
               obj->lineColor);
-    rectArea.x0 = obj->obj.area.x0;
-    rectArea.y0 = obj->obj.area.y0;
+    rectArea.x0              = obj->obj.area.x0;
+    rectArea.y0              = obj->obj.area.y0;
+    rectArea.backgroundColor = obj->obj.area.backgroundColor;
     if (obj->direction == VERTICAL) {
         rectArea.width = obj->obj.area.width = obj->thickness;
-        rectArea.backgroundColor             = obj->lineColor;
         rectArea.height                      = obj->obj.area.height;
-        nbgl_frontDrawRect(&rectArea);
+        nbgl_frontDrawLine(&rectArea, 0, obj->lineColor);
     }
     else {
-        uint8_t mask;
-#if VERTICAL_ALIGNMENT == 4
-        if (obj->thickness == 1) {
-            mask = 0x1 << (obj->offset & 0x3);
-        }
-        else if (obj->thickness == 2) {
-            mask = 0x3 << ((obj->offset < 3) ? obj->offset : 2);
-        }
-        else if (obj->thickness == 3) {
-            mask = 0x7 << (obj->offset & 0x1);
-        }
-        else if (obj->thickness == 4) {
-            mask = 0xF;
-        }
-#elif VERTICAL_ALIGNMENT == 8
-        if (obj->thickness == 1) {
-            mask = 0x1 << (obj->offset & 0x7);
-        }
-        else if (obj->thickness == 2) {
-            mask = 0x3 << ((obj->offset < 7) ? obj->offset : 6);
-        }
-        else if (obj->thickness == 3) {
-            mask = 0x7 << ((obj->offset < 6) ? obj->offset : 5);
-        }
-        else if (obj->thickness == 4) {
-            mask = 0xF << ((obj->offset < 5) ? obj->offset : 4);
-        }
-#endif  // VERTICAL_ALIGNMENT
-        else {
-            LOG_WARN(OBJ_LOGGER, "draw_line(), forbidden thickness = %d\n", obj->thickness);
-            return;
-        }
         rectArea.width  = obj->obj.area.width;
-        rectArea.height = obj->obj.area.height = VERTICAL_ALIGNMENT;
-        rectArea.backgroundColor               = obj->obj.area.backgroundColor;
-        nbgl_frontDrawHorizontalLine(&rectArea, mask, obj->lineColor);
+        rectArea.height = obj->obj.area.height = obj->thickness;
+        nbgl_frontDrawLine(&rectArea, 0, obj->lineColor);
     }
 }
 #else  // HAVE_SE_TOUCH
@@ -934,21 +901,21 @@ static void draw_pageIndicator(nbgl_page_indicator_t *obj,
         rectArea.x0    = obj->obj.area.x0;
         rectArea.y0    = obj->obj.area.y0;
         rectArea.width = dashWidth;
-        rectArea.height          = obj->obj.area.height;
+        rectArea.height          = 4;
         rectArea.backgroundColor = obj->obj.area.backgroundColor;
         rectArea.bpp             = NBGL_BPP_1;
         // draw dashes
         for (i = 0; i < obj->activePage; i++) {
-            nbgl_frontDrawHorizontalLine(
-                &rectArea, 0xF, (obj->style == PROGRESSIVE_INDICATOR) ? BLACK : LIGHT_GRAY);
+            nbgl_frontDrawLine(
+                &rectArea, 0, (obj->style == PROGRESSIVE_INDICATOR) ? BLACK : LIGHT_GRAY);
             rectArea.x0 += dashWidth + INTER_DASHES;
         }
-        nbgl_frontDrawHorizontalLine(&rectArea, 0xF, BLACK);
+        nbgl_frontDrawLine(&rectArea, 0, BLACK);
         rectArea.x0 += dashWidth + INTER_DASHES;
         i++;
 
         for (; i < obj->nbPages; i++) {
-            nbgl_frontDrawHorizontalLine(&rectArea, 0xF, LIGHT_GRAY);
+            nbgl_frontDrawLine(&rectArea, 0, LIGHT_GRAY);
             rectArea.x0 += dashWidth + INTER_DASHES;
         }
     }
@@ -981,7 +948,7 @@ static void draw_pageIndicator(nbgl_page_indicator_t *obj,
         rectArea.height          = obj->obj.area.height;
         rectArea.backgroundColor = obj->obj.area.backgroundColor;
         rectArea.bpp             = NBGL_BPP_1;
-        nbgl_drawText(&rectArea, navText, strlen(navText), SMALL_REGULAR_FONT, DARK_GRAY);
+        nbgl_drawText(&rectArea, navText, strlen(navText), SMALL_REGULAR_FONT, LIGHT_TEXT_COLOR);
     }
 }
 #endif  // HAVE_SE_TOUCH
@@ -1306,16 +1273,14 @@ static void draw_spinner(nbgl_spinner_t *obj, nbgl_obj_t *prevObj, bool computeP
         rectArea.x0     = obj->obj.area.x0;
         rectArea.y0     = obj->obj.area.y0;
         rectArea.width  = 20;
-        rectArea.height = VERTICAL_ALIGNMENT;
-        nbgl_frontDrawHorizontalLine(&rectArea, 0x7, foreColor);  // top left
+        rectArea.height = 3;
+        nbgl_frontDrawLine(&rectArea, 0, foreColor);  // top left
         rectArea.x0 = obj->obj.area.x0 + obj->obj.area.width - rectArea.width;
-        nbgl_frontDrawHorizontalLine(&rectArea, 0x7, foreColor);  // top right
-        rectArea.y0 = obj->obj.area.y0 + obj->obj.area.height - VERTICAL_ALIGNMENT;
-        nbgl_frontDrawHorizontalLine(
-            &rectArea, 0x7 << (VERTICAL_ALIGNMENT - 3), foreColor);  // bottom right
+        nbgl_frontDrawLine(&rectArea, 0, foreColor);  // top right
+        rectArea.y0 = obj->obj.area.y0 + obj->obj.area.height - 3;
+        nbgl_frontDrawLine(&rectArea, 0, foreColor);  // bottom right
         rectArea.x0 = obj->obj.area.x0;
-        nbgl_frontDrawHorizontalLine(
-            &rectArea, 0x7 << (VERTICAL_ALIGNMENT - 3), foreColor);  // bottom left
+        nbgl_frontDrawLine(&rectArea, 0, foreColor);  // bottom left
         // draw vertical segments
         rectArea.x0              = obj->obj.area.x0;
         rectArea.y0              = obj->obj.area.y0;
@@ -1331,7 +1296,6 @@ static void draw_spinner(nbgl_spinner_t *obj, nbgl_obj_t *prevObj, bool computeP
         nbgl_frontDrawRect(&rectArea);  // bottom left
     }
     else {
-        uint8_t mask;
         // clean up full rectangle
         rectArea.x0              = obj->obj.area.x0;
         rectArea.y0              = obj->obj.area.y0;
@@ -1342,32 +1306,28 @@ static void draw_spinner(nbgl_spinner_t *obj, nbgl_obj_t *prevObj, bool computeP
 
         // draw horizontal segment in foreColor
         rectArea.width  = 20;
-        rectArea.height = 4;
+        rectArea.height = 3;
         switch (obj->position) {
             case 0:  // top left corner
                 rectArea.x0 = obj->obj.area.x0;
                 rectArea.y0 = obj->obj.area.y0;
-                mask        = 0x7;
                 break;
             case 1:  // top right
                 rectArea.x0 = obj->obj.area.x0 + obj->obj.area.width - rectArea.width;
                 rectArea.y0 = obj->obj.area.y0;
-                mask        = 0x7;
                 break;
             case 2:  // bottom right
                 rectArea.x0 = obj->obj.area.x0 + obj->obj.area.width - rectArea.width;
-                rectArea.y0 = obj->obj.area.y0 + obj->obj.area.height - 4;
-                mask        = 0xE;
+                rectArea.y0 = obj->obj.area.y0 + obj->obj.area.height - 3;
                 break;
             case 3:  // bottom left
                 rectArea.x0 = obj->obj.area.x0;
-                rectArea.y0 = obj->obj.area.y0 + obj->obj.area.height - 4;
-                mask        = 0xE;
+                rectArea.y0 = obj->obj.area.y0 + obj->obj.area.height - 3;
                 break;
             default:
                 return;
         }
-        nbgl_frontDrawHorizontalLine(&rectArea, mask, foreColor);
+        nbgl_frontDrawLine(&rectArea, 0, foreColor);
 
         // draw vertical segment in foreColor
         rectArea.width           = 3;
