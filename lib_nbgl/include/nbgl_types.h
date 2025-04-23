@@ -108,6 +108,9 @@ extern "C" {
  */
 #define INVALID_COLOR_MAP 0x0
 
+#define NBGL_LOWER_ALIGN(__y) ((__y) & ~(VERTICAL_ALIGNMENT - 1))
+#define NBGL_UPPER_ALIGN(__y) (((__y) + VERTICAL_ALIGNMENT - 1) & ~(VERTICAL_ALIGNMENT - 1))
+
 /**********************
  *      TYPEDEFS
  **********************/

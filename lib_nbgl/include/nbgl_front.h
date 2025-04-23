@@ -28,7 +28,7 @@ extern "C" {
  * GLOBAL PROTOTYPES
  **********************/
 void nbgl_frontDrawRect(const nbgl_area_t *area);
-void nbgl_frontDrawHorizontalLine(const nbgl_area_t *area, uint8_t mask, color_t lineColor);
+void nbgl_frontDrawLine(const nbgl_area_t *area, uint8_t dotStartIdx, color_t lineColor);
 void nbgl_frontDrawImage(const nbgl_area_t    *area,
                          const uint8_t        *buffer,
                          nbgl_transformation_t transformation,

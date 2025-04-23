@@ -72,7 +72,7 @@ extern "C" {
  * GLOBAL PROTOTYPES
  **********************/
 void nbgl_driver_drawRect(nbgl_area_t *area);
-void nbgl_driver_drawHorizontalLine(nbgl_area_t *area, uint8_t mask, color_t lineColor);
+void nbgl_driver_drawLine(nbgl_area_t *area, uint8_t dotStartIdx, color_t lineColor);
 void nbgl_driver_drawImage(nbgl_area_t          *area,
                            uint8_t              *buffer,
                            nbgl_transformation_t transformation,

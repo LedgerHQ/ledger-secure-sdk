@@ -141,9 +141,9 @@ void nbgl_drawQrCode(const nbgl_area_t *area __attribute__((unused)),
 }
 
 void nbgl_frontDrawRect(const nbgl_area_t *area __attribute__((unused))) {}
-void nbgl_frontDrawHorizontalLine(const nbgl_area_t *area __attribute__((unused)),
-                                  uint8_t            mask __attribute__((unused)),
-                                  color_t            lineColor __attribute__((unused)))
+void nbgl_frontDrawLine(const nbgl_area_t *area __attribute__((unused)),
+                        uint8_t            mask __attribute__((unused)),
+                        color_t            lineColor __attribute__((unused)))
 {
 }
 void nbgl_frontDrawImage(const nbgl_area_t    *area __attribute__((unused)),

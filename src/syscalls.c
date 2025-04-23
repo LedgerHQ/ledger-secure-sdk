@@ -66,13 +66,13 @@ void nbgl_frontDrawRect(nbgl_area_t *area)
     return;
 }
 
-void nbgl_frontDrawHorizontalLine(nbgl_area_t *area, uint8_t mask, color_t lineColor)
+void nbgl_frontDrawLine(nbgl_area_t *area, uint8_t dotStartIdx, color_t lineColor)
 {
     unsigned int parameters[3];
     parameters[0] = (unsigned int) area;
-    parameters[1] = (unsigned int) mask;
+    parameters[1] = (unsigned int) dotStartIdx;
     parameters[2] = (unsigned int) lineColor;
-    SVC_Call(SYSCALL_nbgl_front_draw_horizontal_line_ID, parameters);
+    SVC_Call(SYSCALL_nbgl_front_draw_line_ID, parameters);
     return;
 }
 

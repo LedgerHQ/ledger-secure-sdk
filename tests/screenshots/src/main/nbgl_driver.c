@@ -12,9 +12,6 @@
 #include "nbgl_driver.h"
 #include "nbgl_debug.h"
 #include "nbgl_image_utils.h"
-#ifndef BUILD_SCREENSHOTS
-#include "monitor.h"
-#endif  // BUILD_SCREENSHOTS
 #include "uzlib.h"
 #include "os_helpers.h"
 #include "os_screen.h"
@@ -23,6 +20,7 @@
 /*********************
  *      DEFINES
  *********************/
+#define NB_LAST_AREAS 32
 
 /**********************
  *      TYPEDEFS
@@ -44,17 +42,14 @@ typedef struct KeepOutArea_s {
 #ifdef SCREEN_SIZE_NANO
 static KeepOutArea_t keepOutArea;
 #endif
+static nbgl_area_t lastAreas[NB_LAST_AREAS];
+static uint32_t    lastAreaIndex = 0, nbValidAreas = 0;
 
 /**********************
  *      MACROS
  **********************/
 #ifdef SCREEN_SIZE_WALLET
-#define CHECK_PARAMS()                                                                \
-    {                                                                                 \
-        if (area->height & 0x3) {                                                     \
-            LOG_FATAL(LOW_LOGGER, "%s: Bad height %d\n", __FUNCTION__, area->height); \
-        }                                                                             \
-    }
+#define CHECK_PARAMS()
 #define CHECK_PARAMS_ROTATED()                                                      \
     {                                                                               \
         if (area->width & 0x3) {                                                    \
@@ -88,10 +83,65 @@ static KeepOutArea_t keepOutArea;
  *      VARIABLES
  **********************/
 static uint8_t framebuffer[FULL_SCREEN_WIDTH * SCREEN_HEIGHT];
+static color_t backgroundColor;
 
 /**********************
- *  STATIC PROTOTYPES
+ *  STATIC FUNCTIONS
  **********************/
+
+static color_t getBackgroundColor(int16_t x, int16_t y)
+{
+    uint32_t i = 0;
+    while (i < nbValidAreas) {
+        nbgl_area_t *paintedArea;
+
+        // lastAreas is a circular buffer and we are going from last to first
+        if (i < lastAreaIndex) {
+            paintedArea = &lastAreas[lastAreaIndex - i - 1];
+        }
+        else {
+            paintedArea = &lastAreas[NB_LAST_AREAS + lastAreaIndex - i - 1];
+        }
+        // Check if given area top-left position belongs to last painted area
+        if ((x >= paintedArea->x0) && (x < (paintedArea->x0 + paintedArea->width))
+            && (y >= paintedArea->y0) && (y < (paintedArea->y0 + paintedArea->height))) {
+            return paintedArea->backgroundColor;
+        }
+        i++;
+    }
+    return backgroundColor;
+}
+
+static void draw_alignedBackground(nbgl_area_t *area)
+{
+    color_t curBackgroundColorTop, curBackgroundColorBottom;
+    int16_t x, y, y0, y1;
+
+    y0 = NBGL_LOWER_ALIGN(MAX(0, area->y0));
+    y1 = NBGL_UPPER_ALIGN(MIN(SCREEN_HEIGHT, area->y0 + area->height));
+    if (y0 != MAX(0, area->y0)) {
+        curBackgroundColorTop = getBackgroundColor(area->x0, y0);
+    }
+    if (y1 != MIN(SCREEN_HEIGHT, area->y0 + area->height)) {
+        curBackgroundColorBottom = getBackgroundColor(area->x0, y1);
+    }
+    // draw from y0 to area->y0 in background color
+    for (y = y0; y < MAX(0, area->y0); y++) {
+        for (x = area->x0; x < (area->x0 + area->width); x++) {
+            if (IS_IN_SCREEN(x, y) && IS_NOT_KEEP_OUT(x, y)) {
+                framebuffer[y * FULL_SCREEN_WIDTH + x] = EXPAND_TO_4BPP(curBackgroundColorTop);
+            }
+        }
+    }
+    // draw from area->y0 + area->height to y1 in background color
+    for (y = MIN(SCREEN_HEIGHT, area->y0 + area->height); y < y1; y++) {
+        for (x = area->x0; x < (area->x0 + area->width); x++) {
+            if (IS_IN_SCREEN(x, y) && IS_NOT_KEEP_OUT(x, y)) {
+                framebuffer[y * FULL_SCREEN_WIDTH + x] = EXPAND_TO_4BPP(curBackgroundColorBottom);
+            }
+        }
+    }
+}
 
 /**********************
  *   GLOBAL FUNCTIONS
@@ -104,51 +154,124 @@ static uint8_t framebuffer[FULL_SCREEN_WIDTH * SCREEN_HEIGHT];
  */
 void nbgl_driver_drawRect(nbgl_area_t *area)
 {
-    int16_t x, y;
-    // LOG_DEBUG(LOW_LOGGER,"nbgl_driver_drawRect: x0 = %d, y0=%d, width=%d, height=%d,
-    // color=%d\n",area->x0, area->y0, area->width, area->height, area->backgroundColor);
+    int16_t x, y, y0, y1;
+    color_t curBackgroundColorTop, curBackgroundColorBottom;
+    LOG_DEBUG(LOW_LOGGER,
+              "nbgl_driver_drawRect: x0 = %d, y0=%d, width=%d, height=%d, color=%d\n",
+              area->x0,
+              area->y0,
+              area->width,
+              area->height,
+              area->backgroundColor);
     CHECK_PARAMS();
+    y0 = NBGL_LOWER_ALIGN(MAX(0, area->y0));
+    y1 = NBGL_UPPER_ALIGN(MIN(SCREEN_HEIGHT, area->y0 + area->height));
 
-    for (y = MAX(0, area->y0); y < MIN(SCREEN_HEIGHT, area->y0 + area->height); y++) {
+    // memorize screen background color if full screen paint
+    if ((area->width == SCREEN_WIDTH) && (area->height == SCREEN_HEIGHT)) {
+        backgroundColor          = area->backgroundColor;
+        curBackgroundColorTop    = backgroundColor;
+        curBackgroundColorBottom = backgroundColor;
+        // reset last painted areas
+        lastAreaIndex = 0;
+        nbValidAreas  = 0;
+    }
+    else {
+        if (y0 != MAX(0, area->y0)) {
+            curBackgroundColorTop = getBackgroundColor(area->x0, y0);
+        }
+        if (y1 != MIN(SCREEN_HEIGHT, area->y0 + area->height)) {
+            curBackgroundColorBottom = getBackgroundColor(area->x0, y1);
+        }
+        // add in circular buffer
+        if (nbValidAreas < NB_LAST_AREAS) {
+            nbValidAreas++;
+        }
+        memcpy(&lastAreas[lastAreaIndex], area, sizeof(nbgl_area_t));
+        if (lastAreaIndex < (NB_LAST_AREAS - 1)) {
+            lastAreaIndex++;
+        }
+        else {
+            lastAreaIndex = 0;
+        }
+    }
+    // draw from y0 to area->y0 in background color
+    for (y = MAX(0, area->y0); y < y0; y++) {
+        for (x = area->x0; x < (area->x0 + area->width); x++) {
+            if (IS_IN_SCREEN(x, y) && IS_NOT_KEEP_OUT(x, y)) {
+                framebuffer[y * FULL_SCREEN_WIDTH + x] = EXPAND_TO_4BPP(curBackgroundColorTop);
+            }
+        }
+    }
+
+    // draw from area->y0 to area->y0 + area->height
+    for (; y < MIN(SCREEN_HEIGHT, area->y0 + area->height); y++) {
         for (x = area->x0; x < (area->x0 + area->width); x++) {
             if (IS_IN_SCREEN(x, y) && IS_NOT_KEEP_OUT(x, y)) {
                 framebuffer[y * FULL_SCREEN_WIDTH + x] = EXPAND_TO_4BPP(area->backgroundColor);
             }
         }
     }
+
+    // draw from area->y0 + area->height to y1 in background color
+    for (; y < y1; y++) {
+        for (x = area->x0; x < (area->x0 + area->width); x++) {
+            if (IS_IN_SCREEN(x, y) && IS_NOT_KEEP_OUT(x, y)) {
+                framebuffer[y * FULL_SCREEN_WIDTH + x] = EXPAND_TO_4BPP(curBackgroundColorBottom);
+            }
+        }
+    }
 }
 
 /**
- * @brief Draws a horizontal line with the given parameters
+ * @brief Draws a line with the given parameters
  *
- * @note height is fixed to 4 pixels, and the mask provides the real thickness of the line
+ * @note if height <= VERTICAL_ALIGNMENT, it's considered as a horizontal line
+ *       if width <= VERTICAL_ALIGNMENT, it's considered as a vertical line
  *
  * @param area position, size and color of the line to draw
- * @param mask bit mask to tell which pixels (in vertical axis) are to be painted in lineColor.
- * bit[0] is the upper line on 4, and bit[3] is the bottom line
+ * @param dotStartIdx start index for dotted lines (index in x)
  * @param lineColor color to be applied to the line
  */
-void nbgl_driver_drawHorizontalLine(nbgl_area_t *area, uint8_t mask, color_t lineColor)
+void nbgl_driver_drawLine(nbgl_area_t *area, uint8_t startIndex, color_t lineColor)
 {
     CHECK_PARAMS();
-    if (area->height & 0x3) {
-        LOG_DEBUG(LOW_LOGGER, "Forbidden height: %d\n", area->height);
-        return;
-    }
+
+    UNUSED(startIndex);
+    // draw an aligned background
+    draw_alignedBackground(area);
+
     // LOG_DEBUG(LOW_LOGGER,"nbgl_ll_drawHorizontalLine: area->x0 = %d\n",area->x0);
-    if (area->height == 4) {
-        uint8_t bit;
-        for (bit = 0; bit < 4; bit++) {
-            if (((mask >> bit) & 0x1) == 1) {
-                memset(&framebuffer[(area->y0 + bit) * FULL_SCREEN_WIDTH + area->x0],
-                       EXPAND_TO_4BPP(lineColor),
-                       area->width);
+    for (int16_t y = 0; y < area->height; y++) {
+        for (int16_t x = 0; x < area->width; x++) {
+#if NB_COLOR_BITS == 4
+            framebuffer[(y + area->y0) * FULL_SCREEN_WIDTH + x + area->x0]
+                = EXPAND_TO_4BPP(lineColor);
+#else
+            if ((lineColor == BLACK) || (lineColor == WHITE)) {
+                framebuffer[(y + area->y0) * FULL_SCREEN_WIDTH + x + area->x0]
+                    = EXPAND_TO_4BPP(lineColor);
             }
             else {
-                memset(&framebuffer[(area->y0 + bit) * FULL_SCREEN_WIDTH + area->x0],
-                       EXPAND_TO_4BPP(area->backgroundColor),
-                       area->width);
+                if (area->height == 1) {  // horizontal line
+                    if ((x % 3) == startIndex) {
+                        framebuffer[(y + area->y0) * FULL_SCREEN_WIDTH + x + area->x0]
+                            = EXPAND_TO_4BPP(BLACK);
+                    }
+                }
+                else if (area->width == 1) {  // vertical line
+                    if ((y % 3) == startIndex) {
+                        framebuffer[(y + area->y0) * FULL_SCREEN_WIDTH + x + area->x0]
+                            = EXPAND_TO_4BPP(BLACK);
+                    }
+                }
+                else {
+                    framebuffer[(y + area->y0) * FULL_SCREEN_WIDTH + x + area->x0]
+                        = (((x + y) & 0x1) == 1) ? EXPAND_TO_4BPP(BLACK) : EXPAND_TO_4BPP(WHITE);
+                }
             }
+
+#endif
         }
     }
 }
@@ -168,6 +291,8 @@ static void nbgl_driver_draw1BPPImage(nbgl_area_t *area, uint8_t *buffer, color_
     uint8_t  shift = 0;
     uint8_t *end   = buffer + ((area->width * area->height + 7) / 8);
     CHECK_PARAMS();
+    // draw an aligned background
+    draw_alignedBackground(area);
     x = area->x0 + area->width - 1;
     y = area->y0;
     while (buffer < end) {
@@ -213,6 +338,8 @@ static void nbgl_driver_draw1BPPImageVerticalMirror(nbgl_area_t *area,
     uint8_t  shift = 0;
     uint8_t *end   = buffer + (area->width * area->height / 8);
     CHECK_PARAMS();
+    // draw an aligned background
+    draw_alignedBackground(area);
     x = area->x0;
     y = area->y0;
     while (buffer < end) {
@@ -251,6 +378,8 @@ static void nbgl_driver_draw1BPPImageRotate90(nbgl_area_t *area, uint8_t *buffer
     int16_t  x, y;
     uint8_t  shift = 0;
     uint8_t *end   = buffer + (area->width * area->height / 8);
+    // draw an aligned background
+    draw_alignedBackground(area);
     CHECK_PARAMS_ROTATED();
 
     x = area->x0 + area->height - 1;
@@ -304,6 +433,8 @@ static void nbgl_driver_draw1BPPImageRle(nbgl_area_t *area,
     size_t nb_ones          = 0;
     size_t remaining_pixels = area->width * area->height;
 
+    // draw an aligned background
+    draw_alignedBackground(area);
     CHECK_PARAMS();
     x = area->x0 + area->width - 1;
     y = area->y0;
@@ -608,6 +739,8 @@ static void nbgl_ll_draw1BPPCompressedImage(nbgl_area_t *area,
     x = area->x0 + area->width - 1;
     y = area->y0;
 
+    // draw an aligned background
+    draw_alignedBackground(area);
     uzlib_init();
     while (bufferLen > 0) {
         uint16_t compressed_chunk_len;
@@ -1061,11 +1194,7 @@ void nbgl_driver_refreshArea(nbgl_area_t        *area,
         return;
     }
     // LOG_DEBUG(LOW_LOGGER,"nbgl_driver_refreshArea(): \n");
-#ifndef BUILD_SCREENSHOTS
-    monitor_flush(area, framebuffer);
-#else   // BUILD_SCREENSHOTS
     scenario_save_screen((char *) framebuffer, area);
-#endif  // BUILD_SCREENSHOTS
 }
 
 void nbgl_driver_drawImageRle(nbgl_area_t *area,
@@ -1074,6 +1203,9 @@ void nbgl_driver_drawImageRle(nbgl_area_t *area,
                               color_t      fore_color,
                               uint8_t      nb_skipped_bytes)
 {
+    if (buffer_len == 0) {
+        return;
+    }
     if (area->bpp == NBGL_BPP_4) {
         nbgl_driver_draw4BPPImageRle(area, buffer, buffer_len, fore_color, nb_skipped_bytes);
     }
