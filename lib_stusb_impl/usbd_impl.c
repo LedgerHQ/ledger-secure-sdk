@@ -246,14 +246,14 @@ static uint8_t const USBD_PRODUCT_FS_STRING[] = {
   'e', 0,
   'x', 0,
 };
-#elif defined(TARGET_APEX)
+#elif defined(TARGET_APEX_P)
 #ifndef HAVE_LEGACY_PID
-#define USBD_PID                      0x7000
+#define USBD_PID                      0x8000
 #else // HAVE_LEGACY_PID
-#define USBD_PID                      0x0007
+#define USBD_PID                      0x0008
 #endif // HAVE_LEGACY_PID
 static uint8_t const USBD_PRODUCT_FS_STRING[] = {
-  11*2+2,
+  13*2+2,
   USB_DESC_TYPE_STRING,
   'L', 0,
   'e', 0,
@@ -262,10 +262,35 @@ static uint8_t const USBD_PRODUCT_FS_STRING[] = {
   'e', 0,
   'r', 0,
   ' ', 0,
-  'F', 0,
-  'l', 0,
+  'A', 0,
+  'p', 0,
   'e', 0,
   'x', 0,
+  ' ', 0,
+  'P', 0,
+};
+#elif defined(TARGET_APEX_M)
+#ifndef HAVE_LEGACY_PID
+#define USBD_PID                      0x9000
+#else // HAVE_LEGACY_PID
+#define USBD_PID                      0x0009
+#endif // HAVE_LEGACY_PID
+static uint8_t const USBD_PRODUCT_FS_STRING[] = {
+  13*2+2,
+  USB_DESC_TYPE_STRING,
+  'L', 0,
+  'e', 0,
+  'd', 0,
+  'g', 0,
+  'e', 0,
+  'r', 0,
+  ' ', 0,
+  'A', 0,
+  'p', 0,
+  'e', 0,
+  'x', 0,
+  ' ', 0,
+  'M', 0,
 };
 #else
 #error unknown TARGET_NAME
