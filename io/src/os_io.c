@@ -61,7 +61,7 @@ size_t        G_io_seph_buffer_size;
 #ifdef HAVE_BOLOS
 uint8_t G_io_state;
 uint8_t G_io_init_syscall;
-#endif // HAVE_BOLOS
+#endif  // HAVE_BOLOS
 
 /* Private variables ---------------------------------------------------------*/
 
@@ -396,6 +396,29 @@ int os_io_tx_cmd(uint8_t                     type,
         default:
             break;
     }
+
+#ifdef HAVE_IO_USB
+    if (type & OS_IO_PACKET_TYPE_USB_MASK) {
+        uint8_t count = 0;
+
+        status = 0;
+        while ((count < 5) && USBD_LEDGER_is_busy()) {
+            os_io_rx_evt(G_io_rx_buffer, sizeof(G_io_rx_buffer), NULL);
+            count++;
+        }
+    }
+#endif  // HAVE_IO_USB
+#ifdef HAVE_BLE
+    if (type & OS_IO_PACKET_TYPE_BLE_MASK) {
+        uint8_t count = 0;
+
+        status = 0;
+        while ((count < 5) && BLE_LEDGER_is_busy()) {
+            os_io_rx_evt(G_io_rx_buffer, sizeof(G_io_rx_buffer), NULL);
+            count++;
+        }
+    }
+#endif  // HAVE_BLE
 
     return status;
 }

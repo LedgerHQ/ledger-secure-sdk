@@ -707,6 +707,25 @@ int32_t USBD_LEDGER_data_ready(uint8_t *buffer, uint16_t max_length)
     return 0;
 }
 
+int32_t USBD_LEDGER_is_busy(void)
+{
+    uint8_t index  = 0;
+    int32_t status = 0;
+
+    usbd_class_info_t *class_info = NULL;
+    for (index = 0; index < usbd_ledger_data.nb_of_class; index++) {
+        class_info = usbd_ledger_data.class[index];
+        if (class_info->is_busy) {
+            status = ((usbd_is_busy_t) PIC(class_info->is_busy))(class_info->cookie);
+            if (status) {
+                break;
+            }
+        }
+    }
+
+    return status;
+}
+
 void USBD_LEDGER_setting(uint32_t class_id, uint32_t setting_id, uint8_t *buffer, uint16_t length)
 {
     uint8_t index = 0;
