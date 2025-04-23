@@ -274,7 +274,7 @@
 // Stax syscalls
 #ifdef HAVE_NBGL
 #define SYSCALL_nbgl_front_draw_rect_ID            0x01fa0000
-#define SYSCALL_nbgl_front_draw_horizontal_line_ID 0x03fa0001
+#define SYSCALL_nbgl_front_draw_line_ID            0x03fa0001
 #define SYSCALL_nbgl_front_draw_img_ID             0x04fa0002
 #define SYSCALL_nbgl_front_refresh_area_ID         0x03fa0003
 #define SYSCALL_nbgl_front_draw_img_file_ID        0x05fa0004
