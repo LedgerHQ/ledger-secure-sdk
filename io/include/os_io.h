@@ -95,7 +95,6 @@ typedef struct {
 } os_io_init_ble_t;
 
 typedef struct {
-    uint8_t          syscall;
     os_io_init_usb_t usb;
     os_io_init_ble_t ble;
 } os_io_init_t;
@@ -117,7 +116,10 @@ typedef struct {
 extern unsigned char G_io_rx_buffer[OS_IO_BUFFER_SIZE + 1];
 extern unsigned char G_io_tx_buffer[OS_IO_BUFFER_SIZE + 1];
 
+#ifdef HAVE_BOLOS
 extern uint8_t G_io_state;
+extern uint8_t G_io_init_syscall;
+#endif // HAVE_BOLOS
 
 /* Exported functions prototypes--------------------------------------------- */
 SYSCALL int os_io_init(os_io_init_t *init);
