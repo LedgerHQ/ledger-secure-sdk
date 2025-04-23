@@ -142,6 +142,7 @@ const usbd_class_info_t USBD_LEDGER_CCID_Bulk_class_info = {
     .data_out = USBD_LEDGER_CCID_data_out,
 
     .send_packet = USBD_LEDGER_CCID_send_packet,
+    .is_busy     = USBD_LEDGER_CCID_is_busy,
 
     .data_ready = USBD_LEDGER_CCID_data_ready,
 
@@ -378,6 +379,17 @@ uint8_t USBD_LEDGER_CCID_send_packet(USBD_HandleTypeDef *pdev,
     }
 
     return ret;
+}
+
+uint8_t USBD_LEDGER_CCID_is_busy(void *cookie)
+{
+    ledger_ccid_handle_t *handle = (ledger_ccid_handle_t *) PIC(cookie);
+
+    if (handle->state == LEDGER_CCID_STATE_BUSY) {
+        return 1;
+    }
+
+    return 0;
 }
 
 int32_t USBD_LEDGER_CCID_data_ready(USBD_HandleTypeDef *pdev,
