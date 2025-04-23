@@ -239,7 +239,6 @@ void io_seproxyhal_init(void)
     os_io_init_t init_io;
 
     io_os_legacy_apdu_type = APDU_TYPE_NONE;
-    init_io.syscall        = 0;
     init_io.usb.pid        = 0;
     init_io.usb.vid        = 0;
     init_io.usb.class_mask = 0;

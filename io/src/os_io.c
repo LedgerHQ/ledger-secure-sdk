@@ -58,7 +58,10 @@ unsigned char G_io_seph_buffer[OS_IO_SEPH_BUFFER_SIZE + 1];
 size_t        G_io_seph_buffer_size;
 #endif  // !USE_OS_IO_STACK
 
+#ifdef HAVE_BOLOS
 uint8_t G_io_state;
+uint8_t G_io_init_syscall;
+#endif // HAVE_BOLOS
 
 /* Private variables ---------------------------------------------------------*/
 
@@ -147,7 +150,7 @@ int os_io_init(os_io_init_t *init)
         G_io_state    = OS_IO_STATE_DASHBOARD;
         force_restart = 1;
     }
-    else if (init->syscall == 0) {
+    else if (G_io_init_syscall != 0x42) {
         // Dashboard init
         if (G_io_state == OS_IO_STATE_APP_LOW_LEVEL_API) {
             force_restart = 1;
@@ -161,6 +164,7 @@ int os_io_init(os_io_init_t *init)
         }
         G_io_state = OS_IO_STATE_APP_HIGH_LEVEL_API;
     }
+    G_io_init_syscall = 0;
 #else   // !HAVE_BOLOS
     force_restart = 1;
 #endif  // !HAVE_BOLOS
