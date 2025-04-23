@@ -37,6 +37,7 @@ uint8_t USBD_LEDGER_CCID_send_packet(USBD_HandleTypeDef *pdev,
                                      const uint8_t      *packet,
                                      uint16_t            packet_length,
                                      uint32_t            timeout_ms);
+uint8_t USBD_LEDGER_CCID_is_busy(void *cookie);
 
 int32_t USBD_LEDGER_CCID_data_ready(USBD_HandleTypeDef *pdev,
                                     void               *cookie,

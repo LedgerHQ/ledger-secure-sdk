@@ -204,6 +204,7 @@ const usbd_class_info_t USBD_LEDGER_CDC_Control_class_info = {
     .data_out = USBD_LEDGER_CDC_data_out,
 
     .send_packet = USBD_LEDGER_CDC_send_packet,
+    .is_busy     = NULL,
 
     .data_ready = NULL,
 

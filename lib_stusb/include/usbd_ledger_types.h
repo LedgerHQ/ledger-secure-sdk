@@ -40,6 +40,7 @@ typedef uint8_t (*usbd_send_packet_t)(USBD_HandleTypeDef *pdev,
                                       const uint8_t      *packet,
                                       uint16_t            packet_length,
                                       uint32_t            timeout_ms);
+typedef uint8_t (*usbd_is_busy_t)(void *cookie);
 
 typedef int32_t (*usbd_data_ready_t)(USBD_HandleTypeDef *pdev,
                                      void               *cookie,
@@ -61,6 +62,7 @@ typedef struct usbd_class_info_t_ {
     usbd_class_data_out_t data_out;
 
     usbd_send_packet_t send_packet;
+    usbd_is_busy_t     is_busy;
 
     usbd_data_ready_t data_ready;
 
