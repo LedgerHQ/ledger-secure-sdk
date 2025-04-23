@@ -17,10 +17,12 @@
 
 /* Exported enumerations -----------------------------------------------------*/
 typedef enum {
-    OS_IO_PACKET_TYPE_NONE             = 0x00,
-    OS_IO_PACKET_TYPE_SEPH             = 0x01,
-    OS_IO_PACKET_TYPE_SE_EVT           = 0x02,
-    OS_IO_PACKET_TYPE_RAW_APDU         = 0x10,
+    OS_IO_PACKET_TYPE_NONE     = 0x00,
+    OS_IO_PACKET_TYPE_SEPH     = 0x01,
+    OS_IO_PACKET_TYPE_SE_EVT   = 0x02,
+    OS_IO_PACKET_TYPE_RAW_APDU = 0x10,
+
+    OS_IO_PACKET_TYPE_USB_MASK         = 0x20,
     OS_IO_PACKET_TYPE_USB_HID_APDU     = 0x20,
     OS_IO_PACKET_TYPE_USB_WEBUSB_APDU  = 0x21,
     OS_IO_PACKET_TYPE_USB_CCID_APDU    = 0x22,
@@ -28,10 +30,14 @@ typedef enum {
     OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR = 0x24,
     OS_IO_PACKET_TYPE_USB_U2F_HID_RAW  = 0x25,
     OS_IO_PACKET_TYPE_USB_CDC_RAW      = 0x29,
-    OS_IO_PACKET_TYPE_BLE_APDU         = 0x30,
-    OS_IO_PACKET_TYPE_BLE_U2F_APDU     = 0x31,
-    OS_IO_PACKET_TYPE_NFC_APDU         = 0x40,
-    OS_IO_PACKET_TYPE_NFC_APDU_RSP     = 0x41,
+
+    OS_IO_PACKET_TYPE_BLE_MASK     = 0x30,
+    OS_IO_PACKET_TYPE_BLE_APDU     = 0x30,
+    OS_IO_PACKET_TYPE_BLE_U2F_APDU = 0x31,
+
+    OS_IO_PACKET_TYPE_NFC_MASK     = 0x40,
+    OS_IO_PACKET_TYPE_NFC_APDU     = 0x40,
+    OS_IO_PACKET_TYPE_NFC_APDU_RSP = 0x41,
 } os_io_packet_type_t;
 
 typedef enum {
@@ -119,7 +125,7 @@ extern unsigned char G_io_tx_buffer[OS_IO_BUFFER_SIZE + 1];
 #ifdef HAVE_BOLOS
 extern uint8_t G_io_state;
 extern uint8_t G_io_init_syscall;
-#endif // HAVE_BOLOS
+#endif  // HAVE_BOLOS
 
 /* Exported functions prototypes--------------------------------------------- */
 SYSCALL int os_io_init(os_io_init_t *init);
