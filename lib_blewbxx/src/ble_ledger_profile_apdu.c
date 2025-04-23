@@ -17,6 +17,11 @@
 #endif  // !HAVE_PRINTF
 
 /* Private enumerations ------------------------------------------------------*/
+enum ledger_ble_profile_apdu_state_t {
+    LEDGER_BLE_PROFILE_APDU_STATE_IDLE,
+    LEDGER_BLE_PROFILE_APDU_BUSY,
+};
+
 typedef enum {
     CREATE_DB_STEP_IDLE,
     CREATE_DB_STEP_ADD_SERVICE,
@@ -31,8 +36,10 @@ typedef enum {
 
 /* Private types, structures, unions -----------------------------------------*/
 typedef struct {
-    // State
+    // Database creation state
     create_db_step_t create_db_step;
+
+    uint8_t state;  // ledger_ble_profile_apdu_state_t
 
     // LEDGER PROTOCOL
     ledger_protocol_t protocol_data;
@@ -116,6 +123,7 @@ const ble_profile_info_t BLE_LEDGER_PROFILE_apdu_info = {
     .update_char_val_ack = BLE_LEDGER_PROFILE_apdu_update_char_value_ack,
 
     .send_packet = BLE_LEDGER_PROFILE_apdu_send_packet,
+    .is_busy     = BLE_LEDGER_PROFILE_apdu_is_busy,
 
     .data_ready = BLE_LEDGER_PROFILE_apdu_data_ready,
 
@@ -497,6 +505,7 @@ uint8_t BLE_LEDGER_PROFILE_apdu_update_char_value_ack(void *cookie)
         }
         if (!handle->protocol_data.tx_apdu_buffer) {
             handle->protocol_data.tx_chunk_length = 0;
+            handle->state                         = LEDGER_BLE_PROFILE_APDU_STATE_IDLE;
             if ((!handle->connection_updated)
                 && (handle->connection->conn_interval > BLE_SLAVE_CONN_INTERVAL_MIN)) {
                 handle->connection_updated = 1;
@@ -540,6 +549,7 @@ uint8_t BLE_LEDGER_PROFILE_apdu_send_packet(const uint8_t *packet, uint16_t leng
         }
         else {
             LEDGER_PROTOCOL_tx(&handle->protocol_data, packet, length);
+            handle->state = LEDGER_BLE_PROFILE_APDU_STATE_IDLE;
         }
         handle->resp_length = 0;
 
@@ -550,6 +560,17 @@ uint8_t BLE_LEDGER_PROFILE_apdu_send_packet(const uint8_t *packet, uint16_t leng
     }
 
     return status;
+}
+
+uint8_t BLE_LEDGER_PROFILE_apdu_is_busy(void *cookie)
+{
+    ledger_ble_profile_apdu_handle_t *handle = (ledger_ble_profile_apdu_handle_t *) PIC(cookie);
+
+    if (handle->state == LEDGER_BLE_PROFILE_APDU_BUSY) {
+        return 1;
+    }
+
+    return 0;
 }
 
 int32_t BLE_LEDGER_PROFILE_apdu_data_ready(uint8_t *buffer, uint16_t max_length, void *cookie)
