@@ -51,6 +51,9 @@ endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-include(extra/nfc_ndef.cmake)
-#include(extra/Bip32.cmake)
-#include(extra/lib_alloc.cmake)
+# Include haness cmake files
+file(GLOB cmake_extra_files "extra/*.cmake")
+
+foreach(file IN LISTS cmake_extra_files)
+    include(${file})
+endforeach()

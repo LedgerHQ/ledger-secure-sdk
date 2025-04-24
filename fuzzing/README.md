@@ -24,7 +24,7 @@ Once in the container, go into the `fuzzing` folder to compile the fuzzer:
 cd fuzzing
 
 # cmake initialization
-cmake -B build
+cmake -B build -DSANITIZER=address
 
 # Fuzzer compilation
 make -C build
