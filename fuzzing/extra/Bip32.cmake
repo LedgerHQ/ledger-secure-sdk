@@ -1,8 +1,8 @@
 include_guard()
 
 add_library(bip32
-    ../lib_standard_app/read.c
-    ../lib_standard_app/bip32.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../lib_standard_app/read.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../lib_standard_app/bip32.c
 )
 target_include_directories(bip32 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../lib_standard_app)
 

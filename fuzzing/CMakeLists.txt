@@ -51,5 +51,6 @@ endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-include(extra/Bip32.cmake)
-include(extra/lib_alloc.cmake)
+include(extra/nfc_ndef.cmake)
+#include(extra/Bip32.cmake)
+#include(extra/lib_alloc.cmake)
