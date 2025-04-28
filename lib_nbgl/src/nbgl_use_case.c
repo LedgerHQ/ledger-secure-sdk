@@ -3225,6 +3225,37 @@ void nbgl_useCaseConfirm(const char     *message,
 }
 
 /**
+ * @brief Draws a page to represent an action, described in a centered info (with given icon),
+ * thanks to a button at the bottom of the page. The given callback is called if the
+ * button is touched.
+ *
+ * @param icon icon to set in centered info
+ * @param message string to set in centered info
+ * @param actionText string to set in button, for action
+ * @param callback callback called when action button is touched
+ */
+void nbgl_useCaseAction(const nbgl_icon_details_t *icon,
+                        const char                *message,
+                        const char                *actionText,
+                        nbgl_callback_t            callback)
+{
+    nbgl_pageContent_t content = {0};
+
+    // memorize callback
+    onAction = callback;
+
+    content.tuneId                 = TUNE_TAP_CASUAL;
+    content.type                   = INFO_BUTTON;
+    content.infoButton.buttonText  = actionText;
+    content.infoButton.text        = message;
+    content.infoButton.icon        = icon;
+    content.infoButton.buttonToken = ACTION_BUTTON_TOKEN;
+
+    pageContext = nbgl_pageDrawGenericContent(&pageCallback, NULL, &content);
+    nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
+}
+
+/**
  * @brief Draws a review start page, with a centered message, a "tap to continue" container and a
  * "reject" footer
  *
