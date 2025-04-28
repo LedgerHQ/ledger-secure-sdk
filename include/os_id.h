@@ -38,11 +38,6 @@ SYSCALL unsigned int os_factory_setting_get(unsigned int         id,
                                             unsigned char *value PLENGTH(maxlength),
                                             unsigned int         maxlength);
 
-/*
- * Copy the serial number in the given buffer and return its length
- */
-unsigned int os_get_sn(unsigned char *buffer);
-
 // get API level
 SYSCALL unsigned int get_api_level(void);
 
