@@ -103,6 +103,10 @@ typedef struct HomeContext_s {
     nbgl_callback_t               quitCallback;
 } HomeContext_t;
 
+typedef struct ActionContext_s {
+    nbgl_callback_t actionCallback;
+} ActionContext_t;
+
 #ifdef NBGL_KEYPAD
 typedef struct KeypadContext_s {
     uint8_t                 pinEntry[8];
@@ -135,6 +139,7 @@ typedef enum {
     SETTINGS_USE_CASE,
     GENERIC_SETTINGS,
     CONTENT_USE_CASE,
+    ACTION_USE_CASE
 } ContextType_t;
 
 typedef struct UseCaseContext_s {
@@ -153,6 +158,7 @@ typedef struct UseCaseContext_s {
 #ifdef NBGL_KEYPAD
         KeypadContext_t keypad;
 #endif
+        ActionContext_t action;
     };
 } UseCaseContext_t;
 
@@ -709,6 +715,16 @@ static void buttonSkipCallback(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
         return;
     }
     displayStreamingReviewPage(pos);
+}
+
+// this is the callback used when buttons in "Action" use case are pressed
+static void useCaseActionCallback(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
+{
+    UNUSED(stepCtx);
+
+    if (event == BUTTON_BOTH_PRESSED) {
+        context.action.actionCallback();
+    }
 }
 
 static void streamingReviewCallback(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
@@ -2673,6 +2689,35 @@ void nbgl_useCaseConfirm(const char     *message,
     context.nbPages             = 1 + 2;  // 2 pages at the end for confirm/cancel
 
     displayConfirm(FORWARD_DIRECTION);
+}
+
+/**
+ * @brief Draws a page to represent an action, described in a centered info (with given icon),
+ *  The given callback is called if the both buttons are pressed.
+ *
+ * @param icon icon to set in centered info
+ * @param message string to set in centered info (in bold)
+ * @param actionText Not used on Nano
+ * @param callback callback called when action button is touched
+ */
+void nbgl_useCaseAction(const nbgl_icon_details_t *icon,
+                        const char                *message,
+                        const char                *actionText,
+                        nbgl_callback_t            callback)
+{
+    nbgl_layoutCenteredInfo_t centeredInfo = {0};
+
+    UNUSED(actionText);
+
+    // memorize callback in context
+    memset(&context, 0, sizeof(UseCaseContext_t));
+    context.type                  = ACTION_USE_CASE;
+    context.action.actionCallback = callback;
+
+    centeredInfo.icon  = icon;
+    centeredInfo.text1 = message;
+    centeredInfo.style = BOLD_TEXT1_INFO;
+    nbgl_stepDrawCenteredInfo(0, useCaseActionCallback, NULL, &centeredInfo, false);
 }
 
 #ifdef NBGL_KEYPAD
