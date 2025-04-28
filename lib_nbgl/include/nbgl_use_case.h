@@ -440,6 +440,12 @@ void nbgl_useCaseConfirm(const char     *message,
                          const char     *confirmText,
                          const char     *rejectText,
                          nbgl_callback_t callback);
+
+void nbgl_useCaseAction(const nbgl_icon_details_t *icon,
+                        const char                *message,
+                        const char                *actionText,
+                        nbgl_callback_t            callback);
+
 void nbgl_useCaseSpinner(const char *text);
 
 void nbgl_useCaseNavigableContent(const char                *title,
