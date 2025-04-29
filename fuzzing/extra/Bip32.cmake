@@ -13,4 +13,3 @@ add_executable(fuzz_bip32 ${CMAKE_CURRENT_SOURCE_DIR}/fuzzer_bip32.c)
 target_compile_options(fuzz_bip32 PUBLIC ${COMPILATION_FLAGS})
 target_link_options(fuzz_bip32 PUBLIC ${COMPILATION_FLAGS})
 target_link_libraries(fuzz_bip32 PUBLIC bip32)
-

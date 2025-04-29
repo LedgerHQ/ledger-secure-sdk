@@ -168,11 +168,12 @@ uint8_t os_parse_ndef(uint8_t *in_buffer, ndef_struct_t *parsed)
  */
 uint16_t os_ndef_to_string(ndef_struct_t *ndef_message, char *out_string)
 {
-    uint16_t size_text = strnlen(ndef_message->text, NFC_TEXT_MAX_LEN);
-    uint16_t size_info = strnlen(ndef_message->info, NFC_INFO_MAX_LEN);
+    uint16_t size_text   = strnlen(ndef_message->text, NFC_TEXT_MAX_LEN);
+    uint16_t size_info   = strnlen(ndef_message->info, NFC_INFO_MAX_LEN);
     uint16_t size_header = 0;
-    if(size_text > NFC_TEXT_MAX_LEN || size_info > NFC_INFO_MAX_LEN)
+    if (size_text > NFC_TEXT_MAX_LEN || size_info > NFC_INFO_MAX_LEN) {
         return 0;
+    }
 
     if (ndef_message->ndef_type == NFC_NDEF_TYPE_TEXT) {
         strncpy(out_string, ndef_message->text, size_text);
@@ -180,11 +181,12 @@ uint16_t os_ndef_to_string(ndef_struct_t *ndef_message, char *out_string)
     }
     else if (ndef_message->ndef_type == NFC_NDEF_TYPE_URI) {
         size_header = os_get_uri_header(ndef_message->uri_id, out_string);
-        if (size_header + size_text > URI_ID_STRING_MAX_LEN + NFC_TEXT_MAX_LEN)
+        if (size_header + size_text > URI_ID_STRING_MAX_LEN + NFC_TEXT_MAX_LEN) {
             return 0;
-        
+        }
+
         strncpy(&out_string[size_header], ndef_message->text, size_text);
-        
+
         if (ndef_message->info[0] != '\0') {
             out_string[size_text + (size_header++)] = '\n';
             if (size_header + size_text + size_info > NFC_NDEF_MAX_SIZE) {
@@ -196,7 +198,6 @@ uint16_t os_ndef_to_string(ndef_struct_t *ndef_message, char *out_string)
     }
     return 0;
 }
-
 
 #endif  // HAVE_NDEF_SUPPORT
 #endif  // HAVE_NFC
