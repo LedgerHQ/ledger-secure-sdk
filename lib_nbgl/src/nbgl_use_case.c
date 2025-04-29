@@ -361,8 +361,7 @@ static void useCaseReview(nbgl_operationType_t              operationType,
                           const nbgl_tipBox_t              *tipBox,
                           nbgl_choiceCallback_t             choiceCallback,
                           bool                              isLight,
-                          bool                              playNotifSound,
-                          bool                              validWarningCtx);
+                          bool                              playNotifSound);
 static void useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
                                         const nbgl_icon_details_t *icon,
                                         const char                *reviewTitle,
@@ -1512,8 +1511,7 @@ static void layoutTouchCallback(int token, uint8_t index)
                               &activeTipBox,
                               reviewWithWarnCtx.choiceCallback,
                               false,
-                              false,
-                              true);
+                              false);
             }
         }
     }
@@ -2210,43 +2208,13 @@ static void displayInitialWarning(void)
     nbgl_refresh();
 }
 
-// function to factorize code for all simple reviews
-static void useCaseReview(nbgl_operationType_t              operationType,
-                          const nbgl_contentTagValueList_t *tagValueList,
-                          const nbgl_icon_details_t        *icon,
-                          const char                       *reviewTitle,
-                          const char                       *reviewSubTitle,
-                          const char                       *finishTitle,
-                          const nbgl_tipBox_t              *tipBox,
-                          nbgl_choiceCallback_t             choiceCallback,
-                          bool                              isLight,
-                          bool                              playNotifSound,
-                          bool                              validWarningCtx)
+// function to factorize code for reviews tipbox
+static void initWarningTipBox(const nbgl_tipBox_t *tipBox)
 {
     const char *predefinedTipBoxText = NULL;
-    reset_callbacks();
-    memset(&genericContext, 0, sizeof(genericContext));
 
-    bundleNavContext.review.operationType  = operationType;
-    bundleNavContext.review.choiceCallback = choiceCallback;
-
-    // memorize context
-    onChoice  = bundleNavReviewChoice;
-    navType   = GENERIC_NAV;
-    pageTitle = NULL;
-
-    genericContext.validWarningCtx              = validWarningCtx;
-    genericContext.genericContents.contentsList = localContentsList;
-    genericContext.genericContents.nbContents   = 3;
-    memset(localContentsList, 0, 3 * sizeof(nbgl_content_t));
-
-    // First a centered info
-    STARTING_CONTENT.type = EXTENDED_CENTER;
-    prepareReviewFirstPage(
-        &STARTING_CONTENT.content.extendedCenter.contentCenter, icon, reviewTitle, reviewSubTitle);
-
-    // if warning is valid and a warning requiring a tip box
-    if (validWarningCtx) {
+    // if warning is valid and a warning requires a tip-box
+    if (reviewWithWarnCtx.warning) {
         if (reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_ISSUE_WARN)) {
             if (reviewWithWarnCtx.warning->predefinedSet & (1 << BLIND_SIGNING_WARN)) {
                 predefinedTipBoxText = "Transaction Check unavailable.\nBlind signing required.";
@@ -2284,7 +2252,9 @@ static void useCaseReview(nbgl_operationType_t              operationType,
             predefinedTipBoxText = "Blind signing required.";
         }
     }
+
     if ((tipBox != NULL) || (predefinedTipBoxText != NULL)) {
+        genericContext.validWarningCtx = true;
         // do not display "Swipe to review" if a tip-box is displayed
         STARTING_CONTENT.content.extendedCenter.contentCenter.subText = NULL;
         if (predefinedTipBoxText != NULL) {
@@ -2298,6 +2268,42 @@ static void useCaseReview(nbgl_operationType_t              operationType,
         STARTING_CONTENT.content.extendedCenter.tipBox.token  = TIP_BOX_TOKEN;
         STARTING_CONTENT.content.extendedCenter.tipBox.tuneId = TUNE_TAP_CASUAL;
     }
+}
+
+// function to factorize code for all simple reviews
+static void useCaseReview(nbgl_operationType_t              operationType,
+                          const nbgl_contentTagValueList_t *tagValueList,
+                          const nbgl_icon_details_t        *icon,
+                          const char                       *reviewTitle,
+                          const char                       *reviewSubTitle,
+                          const char                       *finishTitle,
+                          const nbgl_tipBox_t              *tipBox,
+                          nbgl_choiceCallback_t             choiceCallback,
+                          bool                              isLight,
+                          bool                              playNotifSound)
+{
+    reset_callbacks();
+    memset(&genericContext, 0, sizeof(genericContext));
+
+    bundleNavContext.review.operationType  = operationType;
+    bundleNavContext.review.choiceCallback = choiceCallback;
+
+    // memorize context
+    onChoice  = bundleNavReviewChoice;
+    navType   = GENERIC_NAV;
+    pageTitle = NULL;
+
+    genericContext.genericContents.contentsList = localContentsList;
+    genericContext.genericContents.nbContents   = 3;
+    memset(localContentsList, 0, 3 * sizeof(nbgl_content_t));
+
+    // First a centered info
+    STARTING_CONTENT.type = EXTENDED_CENTER;
+    prepareReviewFirstPage(
+        &STARTING_CONTENT.content.extendedCenter.contentCenter, icon, reviewTitle, reviewSubTitle);
+
+    // Prepare un tipbox if needed
+    initWarningTipBox(tipBox);
 
     // Then the tag/value pairs
     localContentsList[1].type = TAG_VALUE_LIST;
@@ -2359,6 +2365,9 @@ static void useCaseReviewStreamingStart(nbgl_operationType_t       operationType
     STARTING_CONTENT.type = EXTENDED_CENTER;
     prepareReviewFirstPage(
         &STARTING_CONTENT.content.extendedCenter.contentCenter, icon, reviewTitle, reviewSubTitle);
+
+    // Prepare un tipbox if needed
+    initWarningTipBox(NULL);
 
     // compute number of pages & fill navigation structure
     bundleNavContext.reviewStreaming.stepPageNb = getNbPagesForGenericContents(
@@ -3469,8 +3478,7 @@ void nbgl_useCaseReview(nbgl_operationType_t              operationType,
                   NULL,
                   choiceCallback,
                   false,
-                  true,
-                  false);
+                  true);
 }
 
 /**
@@ -3564,8 +3572,7 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
                       tipBox,
                       choiceCallback,
                       false,
-                      true,
-                      false);
+                      true);
         return;
     }
     if (warning->predefinedSet == (1 << W3C_NO_THREAT_WARN)) {
@@ -3599,7 +3606,6 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
                       tipBox,
                       choiceCallback,
                       false,
-                      true,
                       true);
         return;
     }
@@ -3640,8 +3646,7 @@ void nbgl_useCaseReviewLight(nbgl_operationType_t              operationType,
                   NULL,
                   choiceCallback,
                   true,
-                  true,
-                  false);
+                  true);
 }
 
 /**
