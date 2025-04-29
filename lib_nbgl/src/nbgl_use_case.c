@@ -2107,7 +2107,7 @@ static void displayInitialWarning(void)
 {
     // Play notification sound
 #ifdef HAVE_PIEZO_SOUND
-    io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
+    tune_index_e tune = TUNE_RESERVED;
 #endif  // HAVE_PIEZO_SOUND
     nbgl_layoutDescription_t   layoutDescription;
     nbgl_layoutChoiceButtons_t buttonsInfo = {.bottomText = "Continue anyway",
@@ -2174,6 +2174,9 @@ static void displayInitialWarning(void)
                 = "This transaction's details are not fully verifiable. If you sign, you could "
                   "lose all your assets.";
             buttonsInfo.bottomText = "Continue anyway";
+#ifdef HAVE_PIEZO_SOUND
+            tune = TUNE_NEUTRAL;
+#endif  // HAVE_PIEZO_SOUND
         }
         else if (set & (1 << W3C_RISK_DETECTED_WARN)) {
             info.title = "Potential risk";
@@ -2184,6 +2187,9 @@ static void displayInitialWarning(void)
                 info.description = reviewWithWarnCtx.warning->providerMessage;
             }
             buttonsInfo.bottomText = "Accept risk and continue";
+#ifdef HAVE_PIEZO_SOUND
+            tune = TUNE_NEUTRAL;
+#endif  // HAVE_PIEZO_SOUND
         }
         else if (set & (1 << W3C_THREAT_DETECTED_WARN)) {
             info.title = "Critical threat";
@@ -2194,16 +2200,27 @@ static void displayInitialWarning(void)
                 info.description = reviewWithWarnCtx.warning->providerMessage;
             }
             buttonsInfo.bottomText = "Accept threat and continue";
+#ifdef HAVE_PIEZO_SOUND
+            tune = TUNE_ERROR;
+#endif  // HAVE_PIEZO_SOUND
         }
         nbgl_layoutAddContentCenter(reviewWithWarnCtx.layoutCtx, &info);
     }
     else if (reviewWithWarnCtx.warning->info != NULL) {
         // if no predefined content, use custom one
         nbgl_layoutAddContentCenter(reviewWithWarnCtx.layoutCtx, reviewWithWarnCtx.warning->info);
+#ifdef HAVE_PIEZO_SOUND
+        tune = TUNE_LOOK_AT_ME;
+#endif  // HAVE_PIEZO_SOUND
     }
     // add button and footer on bottom
     nbgl_layoutAddChoiceButtons(reviewWithWarnCtx.layoutCtx, &buttonsInfo);
 
+#ifdef HAVE_PIEZO_SOUND
+    if (tune != TUNE_RESERVED) {
+        io_seproxyhal_play_tune(tune);
+    }
+#endif  // HAVE_PIEZO_SOUND
     nbgl_layoutDraw(reviewWithWarnCtx.layoutCtx);
     nbgl_refresh();
 }
