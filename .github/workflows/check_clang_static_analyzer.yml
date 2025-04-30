@@ -31,6 +31,9 @@ jobs:
         with:
           path: sdk
 
+      - name: Install prerequisites
+        run: pip install --break-system-packages ledgered
+
       - name: Build with Clang Static Analyzer
         run: |
           TARGET=${{ matrix.target }} \
