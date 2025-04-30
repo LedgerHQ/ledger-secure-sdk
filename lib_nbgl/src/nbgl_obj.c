@@ -1488,11 +1488,15 @@ static void draw_object(nbgl_obj_t *obj, nbgl_obj_t *prevObj, bool computePositi
     LOG_DEBUG(OBJ_LOGGER, "draw_object() obj->type = %d, prevObj = %p\n", obj->type, prevObj);
     objRefreshAreaDone = false;
     if ((obj->type < NB_OBJ_TYPES) && (draw_functions[obj->type] != NULL)) {
+        if ((obj->type != SCREEN) && (obj->parent == NULL)) {
+            LOG_WARN(OBJ_LOGGER, "object with type [%d] has not parent\n", obj->type);
+            return;
+        }
         draw_function_t func = (draw_function_t) PIC(draw_functions[obj->type]);
         func(obj, prevObj, computePosition);
     }
     else {
-        LOG_DEBUG(OBJ_LOGGER, "Not existing object type\n");
+        LOG_WARN(OBJ_LOGGER, "Not existing object type [%d]\n", obj->type);
         return;
     }
 
