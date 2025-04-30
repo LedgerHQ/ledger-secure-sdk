@@ -58,6 +58,5 @@ var searchData=
   ['error_5fuser_5faction_5fpending_55',['ERROR_USER_ACTION_PENDING',['../u2f__transport_8h.html#a2a858ef6e09a99b0fe382dc78a1286ba',1,'u2f_transport.h']]],
   ['error_5fuser_5faction_5ftimeout_56',['ERROR_USER_ACTION_TIMEOUT',['../u2f__transport_8h.html#aa2a5d8ea2089f21129bc760cc9e654a9',1,'u2f_transport.h']]],
   ['exception_5fdisconnect_57',['EXCEPTION_DISCONNECT',['../u2f__io_8h.html#af82ad9adafc35fc6637cda22b1d25368',1,'u2f_io.h']]],
-  ['exclamation_5ficon_58',['EXCLAMATION_ICON',['../nbgl__obj_8h.html#a0eab61f5c004f2f87743cd50b7033112',1,'nbgl_obj.h']]],
-  ['exit_5fpage_59',['EXIT_PAGE',['../nbgl__layout_8h.html#ae328b0b46fb693acca2bdab2213a4b1d',1,'nbgl_layout.h']]]
+  ['exit_5fpage_58',['EXIT_PAGE',['../nbgl__layout_8h.html#ae328b0b46fb693acca2bdab2213a4b1d',1,'nbgl_layout.h']]]
 ];
