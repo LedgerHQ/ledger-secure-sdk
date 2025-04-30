@@ -24,4 +24,3 @@ target_include_directories(lib_standard_app INTERFACE ${CMAKE_SOURCE_DIR}/../tar
 target_include_directories(lib_standard_app INTERFACE ${CMAKE_SOURCE_DIR}/../lib_cxng)
 target_include_directories(lib_standard_app INTERFACE ${CMAKE_SOURCE_DIR}/../lib_cxng/include)
 target_include_directories(lib_standard_app INTERFACE ${CMAKE_SOURCE_DIR}/../lib_standard_app)
-
