@@ -2341,10 +2341,10 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l02271" name="l02271"></a><span class="lineno"> 2271</span>    }</div>
 <div class="line"><a id="l02272" name="l02272"></a><span class="lineno"> 2272</span> </div>
 <div class="line"><a id="l02273" name="l02273"></a><span class="lineno"> 2273</span>    <span class="keywordflow">if</span> ((tipBox != NULL) || (predefinedTipBoxText != NULL)) {</div>
-<div class="line"><a id="l02274" name="l02274"></a><span class="lineno"> 2274</span>        genericContext.validWarningCtx = <span class="keyword">true</span>;</div>
-<div class="line"><a id="l02275" name="l02275"></a><span class="lineno"> 2275</span>        <span class="comment">// do not display &quot;Swipe to review&quot; if a tip-box is displayed</span></div>
-<div class="line"><a id="l02276" name="l02276"></a><span class="lineno"> 2276</span>        STARTING_CONTENT.content.extendedCenter.contentCenter.subText = NULL;</div>
-<div class="line"><a id="l02277" name="l02277"></a><span class="lineno"> 2277</span>        <span class="keywordflow">if</span> (predefinedTipBoxText != NULL) {</div>
+<div class="line"><a id="l02274" name="l02274"></a><span class="lineno"> 2274</span>        <span class="comment">// do not display &quot;Swipe to review&quot; if a tip-box is displayed</span></div>
+<div class="line"><a id="l02275" name="l02275"></a><span class="lineno"> 2275</span>        STARTING_CONTENT.content.extendedCenter.contentCenter.subText = NULL;</div>
+<div class="line"><a id="l02276" name="l02276"></a><span class="lineno"> 2276</span>        <span class="keywordflow">if</span> (predefinedTipBoxText != NULL) {</div>
+<div class="line"><a id="l02277" name="l02277"></a><span class="lineno"> 2277</span>            genericContext.validWarningCtx                      = <span class="keyword">true</span>;</div>
 <div class="line"><a id="l02278" name="l02278"></a><span class="lineno"> 2278</span>            STARTING_CONTENT.content.extendedCenter.tipBox.icon = NULL;</div>
 <div class="line"><a id="l02279" name="l02279"></a><span class="lineno"> 2279</span>            STARTING_CONTENT.content.extendedCenter.tipBox.text = predefinedTipBoxText;</div>
 <div class="line"><a id="l02280" name="l02280"></a><span class="lineno"> 2280</span>        }</div>
@@ -3338,37 +3338,37 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l03569" name="l03569"></a><span class="lineno"> 3569</span>                                <span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__warning__t.html">nbgl_warning_t</a>             *warning,</div>
 <div class="line"><a id="l03570" name="l03570"></a><span class="lineno"> 3570</span>                                <a class="code hl_typedef" href="nbgl__use__case_8h.html#a57b5d44ce43db8edcc44ff2c7b5014a5">nbgl_choiceCallback_t</a>             choiceCallback)</div>
 <div class="line"><a id="l03571" name="l03571"></a><span class="lineno"> 3571</span>{</div>
-<div class="line"><a id="l03572" name="l03572"></a><span class="lineno"> 3572</span>    <span class="comment">// memorize tipBox because it can be in the call stack of the caller</span></div>
-<div class="line"><a id="l03573" name="l03573"></a><span class="lineno"> 3573</span>    <span class="keywordflow">if</span> (tipBox != NULL) {</div>
-<div class="line"><a id="l03574" name="l03574"></a><span class="lineno"> 3574</span>        memcpy(&amp;activeTipBox, tipBox, <span class="keyword">sizeof</span>(activeTipBox));</div>
-<div class="line"><a id="l03575" name="l03575"></a><span class="lineno"> 3575</span>    }</div>
-<div class="line"><a id="l03576" name="l03576"></a><span class="lineno"> 3576</span>    <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l03577" name="l03577"></a><span class="lineno"> 3577</span>        memset(&amp;activeTipBox, 0, <span class="keyword">sizeof</span>(activeTipBox));</div>
-<div class="line"><a id="l03578" name="l03578"></a><span class="lineno"> 3578</span>    }</div>
-<div class="line"><a id="l03579" name="l03579"></a><span class="lineno"> 3579</span>    <span class="comment">// if no warning at all, it&#39;s a simple review</span></div>
-<div class="line"><a id="l03580" name="l03580"></a><span class="lineno"> 3580</span>    <span class="keywordflow">if</span> ((warning == NULL)</div>
-<div class="line"><a id="l03581" name="l03581"></a><span class="lineno"> 3581</span>        || ((warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a4f80d55ce48ce054f0f552db18667182">predefinedSet</a> == 0) &amp;&amp; (warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a21e73b102445d144422506984ed9f5db">introDetails</a> == NULL)</div>
-<div class="line"><a id="l03582" name="l03582"></a><span class="lineno"> 3582</span>            &amp;&amp; (warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a41ba752e0b657a44cd01b6ffbf8805a3">reviewDetails</a> == NULL))) {</div>
-<div class="line"><a id="l03583" name="l03583"></a><span class="lineno"> 3583</span>        useCaseReview(operationType,</div>
-<div class="line"><a id="l03584" name="l03584"></a><span class="lineno"> 3584</span>                      tagValueList,</div>
-<div class="line"><a id="l03585" name="l03585"></a><span class="lineno"> 3585</span>                      icon,</div>
-<div class="line"><a id="l03586" name="l03586"></a><span class="lineno"> 3586</span>                      reviewTitle,</div>
-<div class="line"><a id="l03587" name="l03587"></a><span class="lineno"> 3587</span>                      reviewSubTitle,</div>
-<div class="line"><a id="l03588" name="l03588"></a><span class="lineno"> 3588</span>                      finishTitle,</div>
-<div class="line"><a id="l03589" name="l03589"></a><span class="lineno"> 3589</span>                      tipBox,</div>
-<div class="line"><a id="l03590" name="l03590"></a><span class="lineno"> 3590</span>                      choiceCallback,</div>
-<div class="line"><a id="l03591" name="l03591"></a><span class="lineno"> 3591</span>                      <span class="keyword">false</span>,</div>
-<div class="line"><a id="l03592" name="l03592"></a><span class="lineno"> 3592</span>                      <span class="keyword">true</span>);</div>
-<div class="line"><a id="l03593" name="l03593"></a><span class="lineno"> 3593</span>        <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l03594" name="l03594"></a><span class="lineno"> 3594</span>    }</div>
-<div class="line"><a id="l03595" name="l03595"></a><span class="lineno"> 3595</span>    <span class="keywordflow">if</span> (warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a4f80d55ce48ce054f0f552db18667182">predefinedSet</a> == (1 &lt;&lt; <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3da57d6d38877f0e655f3049d10f416e6b3">W3C_NO_THREAT_WARN</a>)) {</div>
-<div class="line"><a id="l03596" name="l03596"></a><span class="lineno"> 3596</span>        operationType |= NO_THREAT_OPERATION;</div>
-<div class="line"><a id="l03597" name="l03597"></a><span class="lineno"> 3597</span>    }</div>
-<div class="line"><a id="l03598" name="l03598"></a><span class="lineno"> 3598</span>    <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l03599" name="l03599"></a><span class="lineno"> 3599</span>        operationType |= RISKY_OPERATION;</div>
-<div class="line"><a id="l03600" name="l03600"></a><span class="lineno"> 3600</span>    }</div>
-<div class="line"><a id="l03601" name="l03601"></a><span class="lineno"> 3601</span> </div>
-<div class="line"><a id="l03602" name="l03602"></a><span class="lineno"> 3602</span>    memset(&amp;reviewWithWarnCtx, 0, <span class="keyword">sizeof</span>(reviewWithWarnCtx));</div>
+<div class="line"><a id="l03572" name="l03572"></a><span class="lineno"> 3572</span>    memset(&amp;reviewWithWarnCtx, 0, <span class="keyword">sizeof</span>(reviewWithWarnCtx));</div>
+<div class="line"><a id="l03573" name="l03573"></a><span class="lineno"> 3573</span>    <span class="comment">// memorize tipBox because it can be in the call stack of the caller</span></div>
+<div class="line"><a id="l03574" name="l03574"></a><span class="lineno"> 3574</span>    <span class="keywordflow">if</span> (tipBox != NULL) {</div>
+<div class="line"><a id="l03575" name="l03575"></a><span class="lineno"> 3575</span>        memcpy(&amp;activeTipBox, tipBox, <span class="keyword">sizeof</span>(activeTipBox));</div>
+<div class="line"><a id="l03576" name="l03576"></a><span class="lineno"> 3576</span>    }</div>
+<div class="line"><a id="l03577" name="l03577"></a><span class="lineno"> 3577</span>    <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l03578" name="l03578"></a><span class="lineno"> 3578</span>        memset(&amp;activeTipBox, 0, <span class="keyword">sizeof</span>(activeTipBox));</div>
+<div class="line"><a id="l03579" name="l03579"></a><span class="lineno"> 3579</span>    }</div>
+<div class="line"><a id="l03580" name="l03580"></a><span class="lineno"> 3580</span>    <span class="comment">// if no warning at all, it&#39;s a simple review</span></div>
+<div class="line"><a id="l03581" name="l03581"></a><span class="lineno"> 3581</span>    <span class="keywordflow">if</span> ((warning == NULL)</div>
+<div class="line"><a id="l03582" name="l03582"></a><span class="lineno"> 3582</span>        || ((warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a4f80d55ce48ce054f0f552db18667182">predefinedSet</a> == 0) &amp;&amp; (warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a21e73b102445d144422506984ed9f5db">introDetails</a> == NULL)</div>
+<div class="line"><a id="l03583" name="l03583"></a><span class="lineno"> 3583</span>            &amp;&amp; (warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a41ba752e0b657a44cd01b6ffbf8805a3">reviewDetails</a> == NULL))) {</div>
+<div class="line"><a id="l03584" name="l03584"></a><span class="lineno"> 3584</span>        useCaseReview(operationType,</div>
+<div class="line"><a id="l03585" name="l03585"></a><span class="lineno"> 3585</span>                      tagValueList,</div>
+<div class="line"><a id="l03586" name="l03586"></a><span class="lineno"> 3586</span>                      icon,</div>
+<div class="line"><a id="l03587" name="l03587"></a><span class="lineno"> 3587</span>                      reviewTitle,</div>
+<div class="line"><a id="l03588" name="l03588"></a><span class="lineno"> 3588</span>                      reviewSubTitle,</div>
+<div class="line"><a id="l03589" name="l03589"></a><span class="lineno"> 3589</span>                      finishTitle,</div>
+<div class="line"><a id="l03590" name="l03590"></a><span class="lineno"> 3590</span>                      tipBox,</div>
+<div class="line"><a id="l03591" name="l03591"></a><span class="lineno"> 3591</span>                      choiceCallback,</div>
+<div class="line"><a id="l03592" name="l03592"></a><span class="lineno"> 3592</span>                      <span class="keyword">false</span>,</div>
+<div class="line"><a id="l03593" name="l03593"></a><span class="lineno"> 3593</span>                      <span class="keyword">true</span>);</div>
+<div class="line"><a id="l03594" name="l03594"></a><span class="lineno"> 3594</span>        <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l03595" name="l03595"></a><span class="lineno"> 3595</span>    }</div>
+<div class="line"><a id="l03596" name="l03596"></a><span class="lineno"> 3596</span>    <span class="keywordflow">if</span> (warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a4f80d55ce48ce054f0f552db18667182">predefinedSet</a> == (1 &lt;&lt; <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3da57d6d38877f0e655f3049d10f416e6b3">W3C_NO_THREAT_WARN</a>)) {</div>
+<div class="line"><a id="l03597" name="l03597"></a><span class="lineno"> 3597</span>        operationType |= NO_THREAT_OPERATION;</div>
+<div class="line"><a id="l03598" name="l03598"></a><span class="lineno"> 3598</span>    }</div>
+<div class="line"><a id="l03599" name="l03599"></a><span class="lineno"> 3599</span>    <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l03600" name="l03600"></a><span class="lineno"> 3600</span>        operationType |= RISKY_OPERATION;</div>
+<div class="line"><a id="l03601" name="l03601"></a><span class="lineno"> 3601</span>    }</div>
+<div class="line"><a id="l03602" name="l03602"></a><span class="lineno"> 3602</span> </div>
 <div class="line"><a id="l03603" name="l03603"></a><span class="lineno"> 3603</span>    reviewWithWarnCtx.isStreaming    = <span class="keyword">false</span>;</div>
 <div class="line"><a id="l03604" name="l03604"></a><span class="lineno"> 3604</span>    reviewWithWarnCtx.operationType  = operationType;</div>
 <div class="line"><a id="l03605" name="l03605"></a><span class="lineno"> 3605</span>    reviewWithWarnCtx.tagValueList   = tagValueList;</div>
@@ -3474,21 +3474,21 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l03769" name="l03769"></a><span class="lineno"> 3769</span>                                              <span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__warning__t.html">nbgl_warning_t</a>      *warning,</div>
 <div class="line"><a id="l03770" name="l03770"></a><span class="lineno"> 3770</span>                                              <a class="code hl_typedef" href="nbgl__use__case_8h.html#a57b5d44ce43db8edcc44ff2c7b5014a5">nbgl_choiceCallback_t</a>      choiceCallback)</div>
 <div class="line"><a id="l03771" name="l03771"></a><span class="lineno"> 3771</span>{</div>
-<div class="line"><a id="l03772" name="l03772"></a><span class="lineno"> 3772</span>    <span class="comment">// if no warning at all, it&#39;s a simple review</span></div>
-<div class="line"><a id="l03773" name="l03773"></a><span class="lineno"> 3773</span>    <span class="keywordflow">if</span> ((warning == NULL)</div>
-<div class="line"><a id="l03774" name="l03774"></a><span class="lineno"> 3774</span>        || ((warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a4f80d55ce48ce054f0f552db18667182">predefinedSet</a> == 0) &amp;&amp; (warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a21e73b102445d144422506984ed9f5db">introDetails</a> == NULL)</div>
-<div class="line"><a id="l03775" name="l03775"></a><span class="lineno"> 3775</span>            &amp;&amp; (warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a41ba752e0b657a44cd01b6ffbf8805a3">reviewDetails</a> == NULL))) {</div>
-<div class="line"><a id="l03776" name="l03776"></a><span class="lineno"> 3776</span>        useCaseReviewStreamingStart(</div>
-<div class="line"><a id="l03777" name="l03777"></a><span class="lineno"> 3777</span>            operationType, icon, reviewTitle, reviewSubTitle, choiceCallback, <span class="keyword">true</span>);</div>
-<div class="line"><a id="l03778" name="l03778"></a><span class="lineno"> 3778</span>        <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l03779" name="l03779"></a><span class="lineno"> 3779</span>    }</div>
-<div class="line"><a id="l03780" name="l03780"></a><span class="lineno"> 3780</span>    <span class="keywordflow">if</span> (warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a4f80d55ce48ce054f0f552db18667182">predefinedSet</a> == (1 &lt;&lt; <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3da57d6d38877f0e655f3049d10f416e6b3">W3C_NO_THREAT_WARN</a>)) {</div>
-<div class="line"><a id="l03781" name="l03781"></a><span class="lineno"> 3781</span>        operationType |= NO_THREAT_OPERATION;</div>
-<div class="line"><a id="l03782" name="l03782"></a><span class="lineno"> 3782</span>    }</div>
-<div class="line"><a id="l03783" name="l03783"></a><span class="lineno"> 3783</span>    <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l03784" name="l03784"></a><span class="lineno"> 3784</span>        operationType |= RISKY_OPERATION;</div>
-<div class="line"><a id="l03785" name="l03785"></a><span class="lineno"> 3785</span>    }</div>
-<div class="line"><a id="l03786" name="l03786"></a><span class="lineno"> 3786</span>    memset(&amp;reviewWithWarnCtx, 0, <span class="keyword">sizeof</span>(reviewWithWarnCtx));</div>
+<div class="line"><a id="l03772" name="l03772"></a><span class="lineno"> 3772</span>    memset(&amp;reviewWithWarnCtx, 0, <span class="keyword">sizeof</span>(reviewWithWarnCtx));</div>
+<div class="line"><a id="l03773" name="l03773"></a><span class="lineno"> 3773</span>    <span class="comment">// if no warning at all, it&#39;s a simple review</span></div>
+<div class="line"><a id="l03774" name="l03774"></a><span class="lineno"> 3774</span>    <span class="keywordflow">if</span> ((warning == NULL)</div>
+<div class="line"><a id="l03775" name="l03775"></a><span class="lineno"> 3775</span>        || ((warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a4f80d55ce48ce054f0f552db18667182">predefinedSet</a> == 0) &amp;&amp; (warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a21e73b102445d144422506984ed9f5db">introDetails</a> == NULL)</div>
+<div class="line"><a id="l03776" name="l03776"></a><span class="lineno"> 3776</span>            &amp;&amp; (warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a41ba752e0b657a44cd01b6ffbf8805a3">reviewDetails</a> == NULL))) {</div>
+<div class="line"><a id="l03777" name="l03777"></a><span class="lineno"> 3777</span>        useCaseReviewStreamingStart(</div>
+<div class="line"><a id="l03778" name="l03778"></a><span class="lineno"> 3778</span>            operationType, icon, reviewTitle, reviewSubTitle, choiceCallback, <span class="keyword">true</span>);</div>
+<div class="line"><a id="l03779" name="l03779"></a><span class="lineno"> 3779</span>        <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l03780" name="l03780"></a><span class="lineno"> 3780</span>    }</div>
+<div class="line"><a id="l03781" name="l03781"></a><span class="lineno"> 3781</span>    <span class="keywordflow">if</span> (warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a4f80d55ce48ce054f0f552db18667182">predefinedSet</a> == (1 &lt;&lt; <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3da57d6d38877f0e655f3049d10f416e6b3">W3C_NO_THREAT_WARN</a>)) {</div>
+<div class="line"><a id="l03782" name="l03782"></a><span class="lineno"> 3782</span>        operationType |= NO_THREAT_OPERATION;</div>
+<div class="line"><a id="l03783" name="l03783"></a><span class="lineno"> 3783</span>    }</div>
+<div class="line"><a id="l03784" name="l03784"></a><span class="lineno"> 3784</span>    <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l03785" name="l03785"></a><span class="lineno"> 3785</span>        operationType |= RISKY_OPERATION;</div>
+<div class="line"><a id="l03786" name="l03786"></a><span class="lineno"> 3786</span>    }</div>
 <div class="line"><a id="l03787" name="l03787"></a><span class="lineno"> 3787</span> </div>
 <div class="line"><a id="l03788" name="l03788"></a><span class="lineno"> 3788</span>    reviewWithWarnCtx.isStreaming    = <span class="keyword">true</span>;</div>
 <div class="line"><a id="l03789" name="l03789"></a><span class="lineno"> 3789</span>    reviewWithWarnCtx.operationType  = operationType;</div>
