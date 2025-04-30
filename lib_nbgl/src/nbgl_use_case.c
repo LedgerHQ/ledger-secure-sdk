@@ -2268,10 +2268,10 @@ static void initWarningTipBox(const nbgl_tipBox_t *tipBox)
     }
 
     if ((tipBox != NULL) || (predefinedTipBoxText != NULL)) {
-        genericContext.validWarningCtx = true;
         // do not display "Swipe to review" if a tip-box is displayed
         STARTING_CONTENT.content.extendedCenter.contentCenter.subText = NULL;
         if (predefinedTipBoxText != NULL) {
+            genericContext.validWarningCtx                      = true;
             STARTING_CONTENT.content.extendedCenter.tipBox.icon = NULL;
             STARTING_CONTENT.content.extendedCenter.tipBox.text = predefinedTipBoxText;
         }
@@ -3583,6 +3583,7 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
                                 const nbgl_warning_t             *warning,
                                 nbgl_choiceCallback_t             choiceCallback)
 {
+    memset(&reviewWithWarnCtx, 0, sizeof(reviewWithWarnCtx));
     // memorize tipBox because it can be in the call stack of the caller
     if (tipBox != NULL) {
         memcpy(&activeTipBox, tipBox, sizeof(activeTipBox));
@@ -3613,7 +3614,6 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
         operationType |= RISKY_OPERATION;
     }
 
-    memset(&reviewWithWarnCtx, 0, sizeof(reviewWithWarnCtx));
     reviewWithWarnCtx.isStreaming    = false;
     reviewWithWarnCtx.operationType  = operationType;
     reviewWithWarnCtx.tagValueList   = tagValueList;
@@ -3783,6 +3783,7 @@ void nbgl_useCaseAdvancedReviewStreamingStart(nbgl_operationType_t       operati
                                               const nbgl_warning_t      *warning,
                                               nbgl_choiceCallback_t      choiceCallback)
 {
+    memset(&reviewWithWarnCtx, 0, sizeof(reviewWithWarnCtx));
     // if no warning at all, it's a simple review
     if ((warning == NULL)
         || ((warning->predefinedSet == 0) && (warning->introDetails == NULL)
@@ -3797,7 +3798,6 @@ void nbgl_useCaseAdvancedReviewStreamingStart(nbgl_operationType_t       operati
     else {
         operationType |= RISKY_OPERATION;
     }
-    memset(&reviewWithWarnCtx, 0, sizeof(reviewWithWarnCtx));
 
     reviewWithWarnCtx.isStreaming    = true;
     reviewWithWarnCtx.operationType  = operationType;
