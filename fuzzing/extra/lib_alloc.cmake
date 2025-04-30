@@ -11,4 +11,3 @@ target_link_options(fuzz_alloc PUBLIC ${COMPILATION_FLAGS})
 
 # Link with required libraries
 target_link_libraries(fuzz_alloc PUBLIC lib_alloc lib_mock)
-
