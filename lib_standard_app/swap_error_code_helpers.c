@@ -3,6 +3,7 @@
 
 #include "swap_error_code_helpers.h"
 #include "swap_utils.h"
+#include "os_print.h"
 
 __attribute__((noreturn)) void send_swap_error_simple(uint16_t status_word,
                                                       uint8_t  common_error_code,
