@@ -430,8 +430,14 @@ void USBD_LEDGER_start(void)
 
 #ifdef HAVE_IO_U2F
     if (usbd_ledger_init_data.class_mask == (USBD_LEDGER_CLASS_HID | USBD_LEDGER_CLASS_WEBUSB)) {
-        // Force U2F if necessary to avoid disconnection/connection
+        // Force U2F for an app if necessary to avoid disconnection/connection
+#ifdef HAVE_BOLOS
+        if (G_io_state != OS_IO_STATE_DASHBOARD) {
+            usbd_ledger_init_data.class_mask |= USBD_LEDGER_CLASS_HID_U2F;
+        }
+#else   // !HAVE_BOLOS
         usbd_ledger_init_data.class_mask |= USBD_LEDGER_CLASS_HID_U2F;
+#endif  // !HAVE_BOLOS
     }
 #endif  // HAVE_IO_U2F
 
