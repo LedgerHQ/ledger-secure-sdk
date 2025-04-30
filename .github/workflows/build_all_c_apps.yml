@@ -61,6 +61,10 @@ jobs:
         with:
           path: sdk
           ref: ${{ inputs.sdk_branch }}
+
+      - name: Install prerequisites
+        run: pip install --break-system-packages ledgered
+
       - name: Build App for Nano X
         if: contains(matrix.apps.devices, 'nanox')
         run: |
