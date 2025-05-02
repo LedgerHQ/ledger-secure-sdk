@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
 
-set(CMAKE_C_COMPILER clang)
-set(CMAKE_CPP_COMPILER clang)
-
 if(${CMAKE_VERSION} VERSION_LESS 3.14)
     cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 endif()
@@ -48,8 +45,6 @@ else()
 	set(COMPILATION_FLAGS "$ENV{LIB_FUZZING_ENGINE} $ENV{CFLAGS}")
   separate_arguments(COMPILATION_FLAGS)
 endif()
-
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Include haness cmake files
 file(GLOB cmake_extra_files "extra/*.cmake")
