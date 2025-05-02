@@ -1891,12 +1891,14 @@ __attribute((weak)) int os_io_tx_cmd(unsigned char        type,
 
 __attribute((weak)) int os_io_rx_evt(unsigned char *buffer,
                                      unsigned short buffer_max_length,
-                                     unsigned int  *timeout_ms)
+                                     unsigned int  *timeout_ms,
+                                     bool           check_se_event)
 {
-    unsigned int parameters[3];
+    unsigned int parameters[4];
     parameters[0] = (unsigned int) buffer;
     parameters[1] = (unsigned int) buffer_max_length;
     parameters[2] = (unsigned int) timeout_ms;
+    parameters[3] = (unsigned int) check_se_event;
     return (int) SVC_Call(SYSCALL_os_io_rx_evt_ID, parameters);
 }
 
