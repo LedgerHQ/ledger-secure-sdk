@@ -20,16 +20,24 @@
 #include "glyphs.h"
 #include "os_pic.h"
 #include "os_utils.h"
+#include "os_helpers.h"
 
 /*********************
  *      DEFINES
  *********************/
+#ifdef SCREEN_SIZE_WALLET
+typedef enum {
+    LEFT_HALF,
+    RIGHT_HALF
+} half_t;
+#else   // SCREEN_SIZE_WALLET
 typedef enum {
     BAGL_FILL_CIRCLE_0_PI2,
     BAGL_FILL_CIRCLE_PI2_PI,
     BAGL_FILL_CIRCLE_PI_3PI2,
     BAGL_FILL_CIRCLE_3PI2_2PI
 } quarter_t;
+#endif  // SCREEN_SIZE_WALLET
 
 #define QR_PIXEL_WIDTH_HEIGHT 4
 
@@ -49,12 +57,19 @@ typedef struct {
 #endif  // NBGL_QRCODE
 
 // icons to be used to draw circles or discs for a given radius
+#ifdef SCREEN_SIZE_WALLET
+typedef struct {
+    const nbgl_icon_details_t *leftDisc;
+    const nbgl_icon_details_t *leftCircle;
+} radiusIcons_t;
+#else   // SCREEN_SIZE_WALLET
 typedef struct {
     const uint8_t *topLeftDisc;
     const uint8_t *bottomLeftDisc;
     const uint8_t *topLeftCircle;
     const uint8_t *bottomLeftCircle;
 } radiusIcons_t;
+#endif  // SCREEN_SIZE_WALLET
 
 /**********************
  *  STATIC PROTOTYPES
@@ -78,7 +93,8 @@ static const uint8_t quarter_circle_3px_270_1bpp[] = {0x58, 0x00};
 // indexed by nbgl_radius_t (except RADIUS_0_PIXELS)
 static const uint8_t radiusValues[RADIUS_MAX + 1] = {
 #ifdef SCREEN_SIZE_WALLET
-    8,
+    20,
+    28,
     32,
     40,
     44
@@ -90,41 +106,32 @@ static const uint8_t radiusValues[RADIUS_MAX + 1] = {
 
 #ifdef SCREEN_SIZE_WALLET
 
-#if COMMON_RADIUS == 8
-static const radiusIcons_t radiusIcons8px = {
-    C_quarter_disc_top_left_8px_1bpp_bitmap,
-    C_quarter_disc_bottom_left_8px_1bpp_bitmap,
-    C_quarter_circle_top_left_8px_1bpp_bitmap,
-    C_quarter_circle_bottom_left_8px_1bpp_bitmap,
-};
+#if COMMON_RADIUS == 28
+static const radiusIcons_t radiusIcons28px
+    = {&C_half_disc_left_56px_1bpp, &C_half_circle_left_56px_1bpp};
 #elif COMMON_RADIUS == 40
-static const radiusIcons_t radiusIcons40px = {
-    C_quarter_disc_top_left_40px_1bpp_bitmap,
-    C_quarter_disc_bottom_left_40px_1bpp_bitmap,
-    C_quarter_circle_top_left_40px_1bpp_bitmap,
-    C_quarter_circle_bottom_left_40px_1bpp_bitmap,
-};
+static const radiusIcons_t radiusIcons40px
+    = {&C_half_disc_left_80px_1bpp, &C_half_circle_left_80px_1bpp};
 #elif COMMON_RADIUS == 44
-static const radiusIcons_t radiusIcons44px = {
-    C_quarter_disc_top_left_44px_1bpp_bitmap,
-    C_quarter_disc_bottom_left_44px_1bpp_bitmap,
-    C_quarter_circle_top_left_44px_1bpp_bitmap,
-    C_quarter_circle_bottom_left_44px_1bpp_bitmap,
-};
+static const radiusIcons_t radiusIcons44px
+    = {&C_half_disc_left_88px_1bpp, &C_half_circle_left_88px_1bpp};
 #endif
-#if SMALL_BUTTON_RADIUS == 32
-static const radiusIcons_t radiusIcons32px = {
-    C_quarter_disc_top_left_32px_1bpp_bitmap,
-    C_quarter_disc_bottom_left_32px_1bpp_bitmap,
-    C_quarter_circle_top_left_32px_1bpp_bitmap,
-    C_quarter_circle_bottom_left_32px_1bpp_bitmap,
-};
+#if SMALL_BUTTON_RADIUS == 20
+static const radiusIcons_t radiusIcons20px = {&C_half_disc_left_40px_1bpp, NULL};
+#elif SMALL_BUTTON_RADIUS == 32
+static const radiusIcons_t radiusIcons32px
+    = {&C_half_disc_left_64px_1bpp, &C_half_circle_left_64px_1bpp};
 #endif
 
 // indexed by nbgl_radius_t (except RADIUS_0_PIXELS)
 static const radiusIcons_t *radiusIcons[RADIUS_MAX + 1] = {
-#if COMMON_RADIUS == 8
-    &radiusIcons8px,
+#if SMALL_BUTTON_RADIUS == 20
+    &radiusIcons20px,
+#else
+    NULL,
+#endif
+#if COMMON_RADIUS == 28
+    &radiusIcons28px,
 #else
     NULL,
 #endif
@@ -159,6 +166,47 @@ CCASSERT(qr_code_buffer, sizeof(QrCodeBuffer_t) <= GZLIB_UNCOMPRESSED_CHUNK);
  *  STATIC PROTOTYPES
  **********************/
 
+#ifdef SCREEN_SIZE_WALLET
+static void draw_circle_helper(int           x0,
+                               int           y0,
+                               nbgl_radius_t radiusIndex,
+                               half_t        half,
+                               color_t       borderColor,
+                               color_t       innerColor,
+                               color_t       backgroundColor)
+{
+    const nbgl_icon_details_t *half_icon = NULL;
+    nbgl_area_t                area      = {.bpp = NBGL_BPP_1, .backgroundColor = backgroundColor};
+
+    // radius is not supported
+    if (radiusIndex > RADIUS_MAX) {
+        return;
+    }
+    if (borderColor == innerColor) {
+        half_icon = PIC(radiusIcons[radiusIndex]->leftDisc);
+    }
+    else {
+#if NB_COLOR_BITS == 1
+        borderColor = BLACK;
+#endif
+        half_icon = PIC(radiusIcons[radiusIndex]->leftCircle);
+    }
+    area.width  = half_icon->width;
+    area.height = half_icon->height;
+    switch (half) {
+        case LEFT_HALF:  // left
+            area.x0 = x0;
+            area.y0 = y0;
+            nbgl_frontDrawImage(&area, half_icon->bitmap, NO_TRANSFORMATION, borderColor);
+            break;
+        case RIGHT_HALF:  // right
+            area.x0 = x0 - half_icon->width;
+            area.y0 = y0;
+            nbgl_frontDrawImage(&area, half_icon->bitmap, VERTICAL_MIRROR, borderColor);
+            break;
+    }
+}
+#else   // SCREEN_SIZE_WALLET
 static void draw_circle_helper(int           x_center,
                                int           y_center,
                                nbgl_radius_t radiusIndex,
@@ -175,46 +223,6 @@ static void draw_circle_helper(int           x_center,
         return;
     }
     area.width = area.height = radiusValues[radiusIndex];
-#ifdef SCREEN_SIZE_WALLET
-    if (borderColor == innerColor) {
-        if (quarter < BAGL_FILL_CIRCLE_PI_3PI2) {
-            quarter_buffer = (const uint8_t *) PIC(radiusIcons[radiusIndex]->topLeftDisc);
-        }
-        else {
-            quarter_buffer = (const uint8_t *) PIC(radiusIcons[radiusIndex]->bottomLeftDisc);
-        }
-    }
-    else {
-        if (quarter < BAGL_FILL_CIRCLE_PI_3PI2) {
-            quarter_buffer = (const uint8_t *) PIC(radiusIcons[radiusIndex]->topLeftCircle);
-        }
-        else {
-            quarter_buffer = (const uint8_t *) PIC(radiusIcons[radiusIndex]->bottomLeftCircle);
-        }
-    }
-    switch (quarter) {
-        case BAGL_FILL_CIRCLE_3PI2_2PI:  // bottom right
-            area.x0 = x_center;
-            area.y0 = y_center;
-            nbgl_frontDrawImage(&area, quarter_buffer, VERTICAL_MIRROR, borderColor);
-            break;
-        case BAGL_FILL_CIRCLE_PI_3PI2:  // bottom left
-            area.x0 = x_center - area.width;
-            area.y0 = y_center;
-            nbgl_frontDrawImage(&area, quarter_buffer, NO_TRANSFORMATION, borderColor);
-            break;
-        case BAGL_FILL_CIRCLE_0_PI2:  // top right
-            area.x0 = x_center;
-            area.y0 = y_center - area.width;
-            nbgl_frontDrawImage(&area, quarter_buffer, VERTICAL_MIRROR, borderColor);
-            break;
-        case BAGL_FILL_CIRCLE_PI2_PI:  // top left
-            area.x0 = x_center - area.width;
-            area.y0 = y_center - area.width;
-            nbgl_frontDrawImage(&area, quarter_buffer, NO_TRANSFORMATION, borderColor);
-            break;
-    }
-#else   // SCREEN_SIZE_WALLET
     switch (quarter) {
         case BAGL_FILL_CIRCLE_3PI2_2PI:  // bottom right
             area.x0        = x_center;
@@ -242,8 +250,8 @@ static void draw_circle_helper(int           x_center,
             break;
     }
     nbgl_frontDrawImage(&area, quarter_buffer, NO_TRANSFORMATION, borderColor);
-#endif  // SCREEN_SIZE_WALLET
 }
+#endif  // SCREEN_SIZE_WALLET
 
 /**********************
  *   GLOBAL FUNCTIONS
@@ -294,11 +302,27 @@ void nbgl_drawRoundedRect(const nbgl_area_t *area, nbgl_radius_t radiusIndex, co
         return;
     }
 
-#ifdef SCREEN_SIZE_NANO
+#ifdef SCREEN_SIZE_WALLET
+    UNUSED(radius);
+    // Draw 2 halves of disc
+    draw_circle_helper(area->x0,
+                       area->y0,
+                       radiusIndex,
+                       LEFT_HALF,
+                       innerColor,  // unused
+                       innerColor,
+                       area->backgroundColor);
+    draw_circle_helper(area->x0 + area->width,
+                       area->y0,
+                       radiusIndex,
+                       RIGHT_HALF,
+                       innerColor,  // unused
+                       innerColor,
+                       area->backgroundColor);
+#else   // SCREEN_SIZE_WALLET
     if (radiusIndex == RADIUS_1_PIXEL) {
         return;
     }
-#endif  // SCREEN_SIZE_NANO
     // Draw 4 quarters of disc
     draw_circle_helper(area->x0 + radius,
                        area->y0 + radius,
@@ -328,6 +352,7 @@ void nbgl_drawRoundedRect(const nbgl_area_t *area, nbgl_radius_t radiusIndex, co
                        innerColor,  // unused
                        innerColor,
                        area->backgroundColor);
+#endif  // SCREEN_SIZE_WALLET
 }
 
 /**
@@ -370,69 +395,55 @@ void nbgl_drawRoundedBorderedRect(const nbgl_area_t *area,
     }
     rectArea.backgroundColor = innerColor;
 
-    // special case, when border_color == inner_color == background_color, just draw a rectangle
+    // Draw 1 rectangle in inner rectangle
+    rectArea.x0     = area->x0;
+    rectArea.y0     = area->y0;
+    rectArea.width  = area->width;
+    rectArea.height = area->height;
+    nbgl_frontDrawRect(&rectArea);
+    // special case, when border_color == inner_color == background_color, return
     if ((innerColor == borderColor) && (borderColor == area->backgroundColor)) {
-        rectArea.x0     = area->x0;
-        rectArea.y0     = area->y0;
-        rectArea.width  = area->width;
-        rectArea.height = area->height;
-        nbgl_frontDrawRect(&rectArea);
         return;
-    }
-    // Draw 3 rectangles
-    if ((2 * radius) < area->width) {
-        rectArea.x0     = area->x0 + radius;
-        rectArea.y0     = area->y0;
-        rectArea.width  = area->width - (2 * radius);
-        rectArea.height = area->height;
-        nbgl_frontDrawRect(&rectArea);
-    }
-    // special case when radius is null, left and right rectangles are not necessary
-    if (radiusIndex <= RADIUS_MAX) {
-        if ((2 * radius) < area->height) {
-            rectArea.x0     = area->x0;
-            rectArea.y0     = area->y0 + radius;
-            rectArea.width  = radius;
-            rectArea.height = area->height - (2 * radius);
-            nbgl_frontDrawRect(&rectArea);
-            rectArea.x0 = area->x0 + area->width - radius;
-            rectArea.y0 = area->y0 + radius;
-            nbgl_frontDrawRect(&rectArea);
-        }
     }
     // border
     // 4 rectangles (with last pixel of each corner not set)
 #ifdef SCREEN_SIZE_WALLET
-    uint8_t maskTop, maskBottom;
-    if (stroke == 1) {
-        maskTop    = 0x1;
-        maskBottom = 0x1 << (VERTICAL_ALIGNMENT - 1);
-    }
-    else if (stroke == 2) {
-        maskTop    = 0x3;
-        maskBottom = 0x3 << (VERTICAL_ALIGNMENT - 2);
-    }
-    else if (stroke == 3) {
-        maskTop    = 0x7;
-        maskBottom = 0x7 << (VERTICAL_ALIGNMENT - 3);
-    }
-    else if (stroke == 4) {
-        maskTop    = 0xF;
-        maskBottom = 0xF << (VERTICAL_ALIGNMENT - 4);
-    }
-    else {
-        LOG_WARN(DRAW_LOGGER, "nbgl_drawRoundedBorderedRect forbidden stroke=%d\n", stroke);
-        return;
-    }
-    rectArea.x0     = area->x0 + radius;
+    rectArea.x0     = area->x0;
     rectArea.y0     = area->y0;
-    rectArea.width  = area->width - 2 * radius;
-    rectArea.height = VERTICAL_ALIGNMENT;
-    nbgl_frontDrawHorizontalLine(&rectArea, maskTop, borderColor);  // top
-    rectArea.x0 = area->x0 + radius;
-    rectArea.y0 = area->y0 + area->height - VERTICAL_ALIGNMENT;
-    nbgl_frontDrawHorizontalLine(&rectArea, maskBottom, borderColor);  // bottom
-#else                                                                  // SCREEN_SIZE_WALLET
+    rectArea.width  = area->width;
+    rectArea.height = stroke;
+    nbgl_frontDrawLine(&rectArea, 0, borderColor);  // top
+    rectArea.x0 = area->x0;
+    rectArea.y0 = area->y0 + area->height - 1;
+    nbgl_frontDrawLine(&rectArea, 0, borderColor);  // bottom
+    if ((2 * radius) < area->height) {
+        rectArea.x0              = area->x0;
+        rectArea.y0              = area->y0;
+        rectArea.width           = stroke;
+        rectArea.height          = area->height;
+        rectArea.backgroundColor = area->backgroundColor;
+        nbgl_frontDrawLine(&rectArea, 0, borderColor);  // left
+        rectArea.x0 = area->x0 + area->width - stroke;
+        nbgl_frontDrawLine(&rectArea, 0, borderColor);  // right
+    }
+    if (radiusIndex <= RADIUS_MAX) {
+        // Draw 4 quarters of circles
+        draw_circle_helper(area->x0,
+                           area->y0,
+                           radiusIndex,
+                           LEFT_HALF,
+                           borderColor,
+                           innerColor,
+                           area->backgroundColor);
+        draw_circle_helper(area->x0 + area->width,
+                           area->y0,
+                           radiusIndex,
+                           RIGHT_HALF,
+                           borderColor,
+                           innerColor,
+                           area->backgroundColor);
+    }
+#else   // SCREEN_SIZE_WALLET
     rectArea.x0              = area->x0 + radius;
     rectArea.y0              = area->y0;
     rectArea.width           = area->width - 2 * radius;
@@ -441,16 +452,15 @@ void nbgl_drawRoundedBorderedRect(const nbgl_area_t *area,
     nbgl_frontDrawRect(&rectArea);  // top
     rectArea.y0 = area->y0 + area->height - stroke;
     nbgl_frontDrawRect(&rectArea);  // bottom
-#endif                                                                 // SCREEN_SIZE_WALLET
     if ((2 * radius) < area->height) {
         rectArea.x0              = area->x0;
         rectArea.y0              = area->y0 + radius;
         rectArea.width           = stroke;
         rectArea.height          = area->height - 2 * radius;
-        rectArea.backgroundColor = borderColor;
-        nbgl_frontDrawRect(&rectArea);  // left
+        rectArea.backgroundColor = area->backgroundColor;
+        nbgl_frontDrawLine(&rectArea, 0, borderColor);  // left
         rectArea.x0 = area->x0 + area->width - stroke;
-        nbgl_frontDrawRect(&rectArea);  // right
+        nbgl_frontDrawLine(&rectArea, 0, borderColor);  // right
     }
 
     if (radiusIndex <= RADIUS_MAX) {
@@ -484,6 +494,7 @@ void nbgl_drawRoundedBorderedRect(const nbgl_area_t *area,
                            innerColor,
                            area->backgroundColor);
     }
+#endif  // SCREEN_SIZE_WALLET
 }
 
 /**
@@ -746,17 +757,26 @@ static void nbgl_frontDrawQrInternal(const nbgl_area_t    *area,
     }
     else {  // V4 small or V10
         // for each point of the V10 QR code, paint 16 pixels in image (4 in width, 4 in height)
-        qrArea.width  = QR_PIXEL_WIDTH_HEIGHT * size;
-        qrArea.height = QR_PIXEL_WIDTH_HEIGHT;
+        qrArea.width  = 1;
+        qrArea.height = QR_PIXEL_WIDTH_HEIGHT * size;
         // paint a line of 4*size pixels in width by 4 pixels in height
-        for (int y = 0; y < size; y++) {
+        for (int x = 0; x < size; x++) {
             idx = 0;
-            for (int x = 0; x < size; x++) {
-                memset(&QrDrawBuffer[idx], qrcodegen_getModule(qrcode, x, y) ? 0xFF : 0x00, 2);
-                idx += 2;
+            memset(QrDrawBuffer, 0, (size + 1) / 2);
+            for (int y = 0; y < size; y++) {
+                QrDrawBuffer[idx] |= qrcodegen_getModule(qrcode, x, y) ? 0xF0 >> ((y & 1) * 4) : 0;
+                if (y & 1) {
+                    idx++;
+                }
             }
             nbgl_frontDrawImage(&qrArea, QrDrawBuffer, NO_TRANSFORMATION, foregroundColor);
-            qrArea.y0 += QR_PIXEL_WIDTH_HEIGHT;
+            qrArea.x0++;
+            nbgl_frontDrawImage(&qrArea, QrDrawBuffer, NO_TRANSFORMATION, foregroundColor);
+            qrArea.x0++;
+            nbgl_frontDrawImage(&qrArea, QrDrawBuffer, NO_TRANSFORMATION, foregroundColor);
+            qrArea.x0++;
+            nbgl_frontDrawImage(&qrArea, QrDrawBuffer, NO_TRANSFORMATION, foregroundColor);
+            qrArea.x0++;
         }
     }
 }

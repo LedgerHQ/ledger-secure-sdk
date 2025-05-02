@@ -50,19 +50,19 @@ void nbgl_frontDrawRect(const nbgl_area_t *area)
 }
 
 /**
- * @brief Draws a horizontal line with the given parameters
+ * @brief Draws a line with the given parameters
  *
- * @note height is fixed to 4 pixels, and the mask provides the real thickness of the line
+ * @note if height <= VERTICAL_ALIGNMENT, it's considered as a horizontal line
+ *       if width <= VERTICAL_ALIGNMENT, it's considered as a vertical line
  *
  * @param area position, size and color of the line to draw
- * @param mask bit mask to tell which pixels (in vertical axis) are to be painted in lineColor.
- * bit[0] is the upper line on 4, and bit[3] is the bottom line
+ * @param dotStartIdx start index for dotted lines (index in x), for Apex
  * @param lineColor color to be applied to the line
  */
-void nbgl_frontDrawHorizontalLine(const nbgl_area_t *area, uint8_t mask, color_t lineColor)
+void nbgl_frontDrawLine(const nbgl_area_t *area, uint8_t dotStartIdx, color_t lineColor)
 {
     ((nbgl_area_t *) area)->x0 += FULL_SCREEN_WIDTH - SCREEN_WIDTH;
-    nbgl_driver_drawHorizontalLine((nbgl_area_t *) area, mask, lineColor);
+    nbgl_driver_drawLine((nbgl_area_t *) area, dotStartIdx, lineColor);
     ((nbgl_area_t *) area)->x0 -= FULL_SCREEN_WIDTH - SCREEN_WIDTH;
 }
 

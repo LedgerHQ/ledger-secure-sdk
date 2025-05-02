@@ -84,13 +84,14 @@ extern "C" {
 // only 2 buttons are visible at the same time on Apex
 #define NB_MAX_VISIBLE_SUGGESTION_BUTTONS 2
 #define TOUCHABLE_HEADER_BAR_HEIGHT       60
-#define TOUCHABLE_MAIN_BAR_HEIGHT         64
+#define TOUCHABLE_MAIN_BAR_HEIGHT         68
 #define TOUCHABLE_BAR_HEIGHT              64
-#define SMALL_FOOTER_HEIGHT               64
-#define SIMPLE_FOOTER_HEIGHT              64
+#define SMALL_FOOTER_HEIGHT               60
+#define SIMPLE_FOOTER_HEIGHT              60
 #define SMALL_CENTERING_HEADER            24
 #define MEDIUM_CENTERING_HEADER           40
-#define LONG_PRESS_BUTTON_HEIGHT          100
+#define MEDIUM_CENTERING_FOOTER           40
+#define LONG_PRESS_BUTTON_HEIGHT          88
 
 #define PRE_TEXT_MARGIN     20
 #define TEXT_SUBTEXT_MARGIN 10

@@ -58,7 +58,7 @@ extern "C" {
 #elif defined(TARGET_FLEX)
 #define KEYPAD_KEY_HEIGHT 88
 #elif defined(TARGET_APEX)
-#define KEYPAD_KEY_HEIGHT 64
+#define KEYPAD_KEY_HEIGHT 60
 #endif  // TARGETS
 #else   // SCREEN_SIZE_WALLET
 #define KEYPAD_WIDTH  114
@@ -69,14 +69,14 @@ extern "C" {
 #ifdef SCREEN_SIZE_WALLET
 // external margin in pixels
 #if defined(TARGET_STAX)
-#define BORDER_MARGIN        24
-#define BOTTOM_BORDER_MARGIN 24
+#define BORDER_MARGIN          24
+#define VERTICAL_BORDER_MARGIN 24
 #elif defined(TARGET_FLEX)
-#define BORDER_MARGIN        32
-#define BOTTOM_BORDER_MARGIN 24
+#define BORDER_MARGIN          32
+#define VERTICAL_BORDER_MARGIN 24
 #elif defined(TARGET_APEX)
-#define BORDER_MARGIN        24
-#define BOTTOM_BORDER_MARGIN 16
+#define BORDER_MARGIN          16
+#define VERTICAL_BORDER_MARGIN 24
 #endif  // TARGETS
 
 // Back button header height
@@ -90,15 +90,13 @@ extern "C" {
 
 // common dimensions for buttons
 #if COMMON_RADIUS == 40
-#define BUTTON_RADIUS   RADIUS_40_PIXELS
-#define BUTTON_DIAMETER (COMMON_RADIUS * 2)
+#define BUTTON_RADIUS RADIUS_40_PIXELS
 #elif COMMON_RADIUS == 44
-#define BUTTON_RADIUS   RADIUS_44_PIXELS
-#define BUTTON_DIAMETER (COMMON_RADIUS * 2)
-#elif COMMON_RADIUS == 8
-#define BUTTON_RADIUS   RADIUS_8_PIXELS
-#define BUTTON_DIAMETER 56
+#define BUTTON_RADIUS RADIUS_44_PIXELS
+#elif COMMON_RADIUS == 28
+#define BUTTON_RADIUS RADIUS_28_PIXELS
 #endif  // COMMON_RADIUS
+#define BUTTON_DIAMETER (COMMON_RADIUS * 2)
 
 // width & height for spinner
 #if defined(TARGET_STAX)
@@ -198,7 +196,7 @@ extern "C" {
 #define PRIVACY_ICON         C_Privacy_24px
 #define EXCLAMATION_ICON     C_Exclamation_24px
 #define DIGIT_ICON           C_round_24px
-#define QUESTION_CIRCLE_ICON C_Question_Mark_Circle_40px
+#define QUESTION_CIRCLE_ICON C_Question_Mark_Circle_24px
 #else  // SMALL_ICON_SIZE
 #error Undefined SMALL_ICON_SIZE
 #endif  // SMALL_ICON_SIZE
@@ -233,6 +231,20 @@ extern "C" {
 // number of spinner positions
 #define NB_SPINNER_POSITIONS 4
 #endif  // SCREEN_SIZE_WALLET
+
+#if NB_COLOR_BITS == 1
+#define INACTIVE_COLOR      WHITE
+#define INACTIVE_TEXT_COLOR BLACK
+#define INACTIVE_SMALL_FONT SMALL_REGULAR_FONT
+#define LIGHT_TEXT_COLOR    BLACK
+#define BUTTON_STROKE       1
+#else
+#define INACTIVE_COLOR      LIGHT_GRAY
+#define INACTIVE_TEXT_COLOR LIGHT_GRAY
+#define INACTIVE_SMALL_FONT SMALL_BOLD_FONT
+#define LIGHT_TEXT_COLOR    DARK_GRAY
+#define BUTTON_STROKE       2
+#endif
 
 /**********************
  *      TYPEDEFS

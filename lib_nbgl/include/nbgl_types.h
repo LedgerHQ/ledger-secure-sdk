@@ -65,9 +65,9 @@ extern "C" {
 // height of the smallest used font
 #define SMALL_FONT_HEIGHT   18
 // radius of corners used for controls (buttons)
-#define COMMON_RADIUS       8
+#define COMMON_RADIUS       28
 // radius for small buttons
-#define SMALL_BUTTON_RADIUS 8
+#define SMALL_BUTTON_RADIUS 20
 // HW vertical alignment
 #define VERTICAL_ALIGNMENT  8
 // Number of color bits
@@ -107,6 +107,9 @@ extern "C" {
  *
  */
 #define INVALID_COLOR_MAP 0x0
+
+#define NBGL_LOWER_ALIGN(__y) ((__y) & ~(VERTICAL_ALIGNMENT - 1))
+#define NBGL_UPPER_ALIGN(__y) (((__y) + VERTICAL_ALIGNMENT - 1) & ~(VERTICAL_ALIGNMENT - 1))
 
 /**********************
  *      TYPEDEFS
@@ -359,7 +362,8 @@ typedef enum nbgl_post_refresh_t {
  */
 typedef enum {
 #ifdef SCREEN_SIZE_WALLET
-    RADIUS_8_PIXELS = 0,
+    RADIUS_20_PIXELS = 0,
+    RADIUS_28_PIXELS,
     RADIUS_32_PIXELS,
     RADIUS_40_PIXELS,
     RADIUS_44_PIXELS,
