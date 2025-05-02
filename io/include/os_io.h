@@ -133,7 +133,8 @@ SYSCALL int os_io_start(void);
 SYSCALL int os_io_stop(void);
 SYSCALL int os_io_rx_evt(unsigned char *buffer,
                          unsigned short buffer_max_length,
-                         unsigned int  *timeout_ms);
+                         unsigned int  *timeout_ms,
+                         bool           check_se_event);
 SYSCALL int os_io_tx_cmd(unsigned char               type,  // os_io_packet_type_t
                          const unsigned char *buffer PLENGTH(length),
                          unsigned short              length,
