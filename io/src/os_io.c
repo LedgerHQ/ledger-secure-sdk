@@ -234,14 +234,20 @@ int os_io_stop(void)
     return 0;
 }
 
-int os_io_rx_evt(unsigned char *buffer, unsigned short buffer_max_length, unsigned int *timeout_ms)
+int os_io_rx_evt(unsigned char *buffer,
+                 unsigned short buffer_max_length,
+                 unsigned int  *timeout_ms,
+                 bool           check_se_event)
 {
     int      status = 0;
     uint16_t length = 0;
 
     if (!G_io_seph_buffer_size) {
-        status = os_io_seph_se_rx_event(
-            G_io_seph_buffer, sizeof(G_io_seph_buffer), (unsigned int *) timeout_ms, true, 0);
+        status = os_io_seph_se_rx_event(G_io_seph_buffer,
+                                        sizeof(G_io_seph_buffer),
+                                        (unsigned int *) timeout_ms,
+                                        check_se_event,
+                                        0);
     }
     else {
         // Cached rx event
@@ -254,8 +260,11 @@ int os_io_rx_evt(unsigned char *buffer, unsigned short buffer_max_length, unsign
         if (status < 0) {
             return status;
         }
-        status = os_io_seph_se_rx_event(
-            G_io_seph_buffer, sizeof(G_io_seph_buffer), (unsigned int *) timeout_ms, true, 0);
+        status = os_io_seph_se_rx_event(G_io_seph_buffer,
+                                        sizeof(G_io_seph_buffer),
+                                        (unsigned int *) timeout_ms,
+                                        check_se_event,
+                                        0);
     }
     if (status < 0) {
         return status;
@@ -401,10 +410,12 @@ int os_io_tx_cmd(uint8_t                     type,
     if (type & OS_IO_PACKET_TYPE_USB_MASK) {
         uint8_t count = 0;
 
-        status = 0;
         while ((count < 5) && USBD_LEDGER_is_busy()) {
-            os_io_rx_evt(G_io_rx_buffer, sizeof(G_io_rx_buffer), NULL);
+            os_io_rx_evt(G_io_rx_buffer, sizeof(G_io_rx_buffer), NULL, false);
             count++;
+        }
+        if (count < 5) {
+            status = length;
         }
     }
 #endif  // HAVE_IO_USB
@@ -412,10 +423,12 @@ int os_io_tx_cmd(uint8_t                     type,
     if (type & OS_IO_PACKET_TYPE_BLE_MASK) {
         uint8_t count = 0;
 
-        status = 0;
         while ((count < 5) && BLE_LEDGER_is_busy()) {
-            os_io_rx_evt(G_io_rx_buffer, sizeof(G_io_rx_buffer), NULL);
+            os_io_rx_evt(G_io_rx_buffer, sizeof(G_io_rx_buffer), NULL, false);
             count++;
+        }
+        if (count < 5) {
+            status = length;
         }
     }
 #endif  // HAVE_BLE
@@ -428,7 +441,7 @@ unsigned int os_io_handle_ux_event_reject_apdu(void)
 {
     uint16_t      err = 0x6601;
     unsigned char err_buffer[2];
-    int           status = os_io_rx_evt(G_io_tx_buffer, sizeof(G_io_tx_buffer), NULL);
+    int           status = os_io_rx_evt(G_io_tx_buffer, sizeof(G_io_tx_buffer), NULL, true);
 
     if (os_perso_is_pin_set() == BOLOS_TRUE && os_global_pin_is_validated() != BOLOS_TRUE) {
         err = SWO_SEC_PIN_15;

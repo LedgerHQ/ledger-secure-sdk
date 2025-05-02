@@ -111,7 +111,7 @@ void io_seproxyhal_io_heartbeat(void)
 {
     uint16_t      err = 0x6601;
     unsigned char err_buffer[2];
-    int           status = os_io_rx_evt(G_io_rx_buffer, sizeof(G_io_rx_buffer), NULL);
+    int           status = os_io_rx_evt(G_io_rx_buffer, sizeof(G_io_rx_buffer), NULL, true);
 
     if (os_perso_is_pin_set() == BOLOS_TRUE && os_global_pin_is_validated() != BOLOS_TRUE) {
         err = SWO_SEC_PIN_15;
@@ -167,7 +167,7 @@ unsigned short io_seph_recv(unsigned char *buffer, unsigned short maxlength, uns
 {
     UNUSED(maxlength);
     UNUSED(flags);
-    int status = os_io_rx_evt(G_io_rx_buffer, sizeof(G_io_rx_buffer), NULL);
+    int status = os_io_rx_evt(G_io_rx_buffer, sizeof(G_io_rx_buffer), NULL, true);
 
     if (status > 0) {
         switch (G_io_rx_buffer[0]) {
@@ -307,7 +307,7 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
     int                      status      = 0;
     os_io_apdu_post_action_t post_action = OS_IO_APDU_POST_ACTION_NONE;
 
-    status = os_io_rx_evt(G_io_rx_buffer, sizeof(G_io_rx_buffer), NULL);
+    status = os_io_rx_evt(G_io_rx_buffer, sizeof(G_io_rx_buffer), NULL, true);
 
     if (status > 0) {
         switch (G_io_rx_buffer[0]) {
