@@ -99,4 +99,17 @@ OBJECTS_DIR += $(sort $(dir $(OBJECT_FILES)))
 DEPEND_FILES = $(subst $(OBJ_DIR), $(DEP_DIR), $(addsuffix .d, $(basename $(OBJECT_FILES))))
 DEPEND_DIR += $(sort $(dir $(DEPEND_FILES)))
 
+# Path to the TOML file
+APP_MANIFEST_FILE := $(APP_DIR)/ledger_app.toml
+# If the TOML file exists, retrieve the use-cases
+ifneq ($(wildcard $(APP_MANIFEST_FILE)),)
+  # Retrieve the use-cases from the TOML file
+  APP_USE_CASES := $(shell ledger-manifest "$(APP_MANIFEST_FILE)" -ouc -j | jq -r 'keys | join(" ")')
+
+  # Function to extract flags for a specific use case
+  define get_flags_for_use_case
+    $(shell ledger-manifest "$(APP_MANIFEST_FILE)" -ouc $1)
+  endef
+endif
+
 include $(BOLOS_SDK)/Makefile.rules_generic
