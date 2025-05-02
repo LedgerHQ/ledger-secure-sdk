@@ -4,8 +4,6 @@ add_library(lib_mock ${CMAKE_CURRENT_SOURCE_DIR}/mock/os_task.c)
 add_library(lib_alloc ${CMAKE_CURRENT_SOURCE_DIR}/../lib_alloc/mem_alloc.c
 )
 
-set_target_properties(lib_alloc PROPERTIES SOVERSION 1)
-
 target_include_directories(lib_mock PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/mock/)
 target_include_directories(lib_alloc PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/../lib_alloc
