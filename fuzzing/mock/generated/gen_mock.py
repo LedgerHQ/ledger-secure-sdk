@@ -1,5 +1,6 @@
 import re
 import sys
+import subprocess
 
 def matching(line):
     """Pattern matching for functions or defines"""
@@ -9,7 +10,7 @@ def matching(line):
     if line.startswith("#") or line == "":
         case = "#"
 
-    elif re.match(r'^\s*[\w\s\*\_]+\s+\w+\s*\(.*', line):
+    elif re.match(r'^\s*[\w\s\*\_]+[*\s]+\w+\s*\(.*', line):
         case = "function"
 
     return case
@@ -62,7 +63,10 @@ def gen_mocks(c_code):
                         if line_aux.endswith(';'):  # prototype
                             write_lines.append('__weak ' + line_aux)
                         elif line_aux.startswith('void'):
-                            write_lines.append('__weak '+ line_aux + ' { return; }')
+                            if 'noreturn' in line_aux:
+                                write_lines.append('__weak '+ line_aux + ' { }')
+                            else:
+                                write_lines.append('__weak '+ line_aux + ' { return; }')
                             i = skip_function(line, lines, i)
                         elif line_aux.startswith('unsigned int') or 'SVC_cx_call' in line_aux:
                             write_lines.append('__weak ' + line_aux + ' { return 0; }')
@@ -88,6 +92,27 @@ def gen_mocks(c_code):
                         elif line_aux.startswith('uint8_t'):
                             write_lines.append('__weak ' + line_aux + ' { return 0; }') # will crash if function is type uint8_t * (fetch_background_img)
                             i = skip_function(line, lines, i)
+                        elif line_aux.startswith('try_context_t *'):
+                            write_lines.append('__weak ' + line_aux + ' { return NULL; }')
+                            i = skip_function(line, lines, i)
+                        elif line_aux.startswith('uint32_t'):
+                            write_lines.append('__weak ' + line_aux + ' { return 0; }')
+                            i = skip_function(line, lines, i)
+                        elif line_aux.startswith('_Bool'):
+                            write_lines.append('__weak ' + line_aux + ' { return true; }')
+                            i = skip_function(line, lines, i)
+                        elif line_aux.startswith('unsigned char'):
+                            write_lines.append('__weak ' + line_aux + ' { return \'M\'; }')
+                            i = skip_function(line, lines, i)
+                        elif line_aux.startswith('unsigned short'):
+                            write_lines.append('__weak ' + line_aux + ' { return 0; }')
+                            i = skip_function(line, lines, i)
+                        elif line_aux.startswith('int'):
+                            write_lines.append('__weak ' + line_aux + ' { return 0; }')
+                            i = skip_function(line, lines, i)
+                        elif line_aux.startswith('const LANGUAGE_PACK *'):
+                            write_lines.append('__weak ' + line_aux + ' { return NULL; }')
+                            i = skip_function(line, lines, i)
                         else:
                             print(f"Skipped line [{i+1}]: {line_aux}")
                             i = skip_function(line, lines, i)
@@ -103,6 +128,12 @@ def gen_mocks(c_code):
 
     return write_lines
 
+def format_file(file_path):
+    """Format the file using clang-format"""
+    try:
+        subprocess.run(["clang-format-15", "-i", file_path], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error formatting {file_path}: {e}")
 
 def main():
 
@@ -113,10 +144,14 @@ def main():
             c_code = file.read()
             write_lines = gen_mocks(c_code)
 
+        output_file = "syscalls_generated.c"
         if write_lines:
             with open("syscalls_generated.c", "w") as file:
                 for line in write_lines:
                     file.write(line + "\n")
+
+            # Format the generated file
+            format_file(output_file)
 
     else:
         print("Usage: python3 gen_mock.py [c_functions_file.c]")
