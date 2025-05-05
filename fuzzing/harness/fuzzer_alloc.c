@@ -58,8 +58,7 @@ bool get_alloc(size_t index, struct alloc **alloc)
 void exec_alloc(mem_ctx_t *allocator, size_t len)
 {
     void *ptr = mem_alloc(allocator, len);
-    if (ptr == NULL) {  // not perfect because we would need to ensure that it only happens when the
-                        // buffer is full...
+    if (ptr == NULL) {
         return;
     }
 #ifdef DEBUG_CRASH
@@ -102,8 +101,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 #endif
     memset(heap, 0, HEAP_SIZE);
     memset(allocs, 0, sizeof(allocs));
-    mem_ctx_t *allocator = mem_init(heap, HEAP_SIZE);  // We need a check on size else the mem_alloc
-                                                       // fails afterwards. For example for 0xffff
+    mem_ctx_t *allocator = mem_init(heap, HEAP_SIZE);
+    
     if (!allocator) {
         return 0;
     }

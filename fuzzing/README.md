@@ -21,22 +21,20 @@ sudo docker run --rm -ti --user "$(id -u):$(id -g)" -v "$(realpath .):/app" ghcr
 Once in the container, go into the `fuzzing` folder to compile the fuzzer:
 
 ```console
-cd fuzzing
-
 # cmake initialization
-cmake -B build -S . -DCMAKE_C_COMPILER=/usr/bin/clang -DSANITIZER=address
+cmake -S fuzzing -B fuzzing/build -DCMAKE_C_COMPILER=clang -DSANITIZER=address
 
 # Fuzzer compilation
-make -C build
+cmake --build fuzzing/build
 ```
 
 ### Run
 
 ```console
-./build/fuzz_apdu_parser
-./build/fuzz_base58
-./build/fuzz_bip32
-./build/fuzz_qrcodegen
-./build/fuzz_alloc
-./build/fuzz_nfc_ndef
+./fuzzing/build/fuzz_apdu_parser
+./fuzzing/build/fuzz_base58
+./fuzzing/build/fuzz_bip32
+./fuzzing/build/fuzz_qrcodegen
+./fuzzing/build/fuzz_alloc
+./fuzzing/build/fuzz_nfc_ndef
 ```
