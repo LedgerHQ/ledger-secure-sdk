@@ -4,7 +4,7 @@
 
 pushd fuzzing
 rm -rf build/*
-cmake -B build -S . -DCMAKE_C_COMPILER=/usr/bin/clang -DSANITIZER=address
+cmake -B build -S .
 make -C build
 mv ./build/fuzz_* "${OUT}"
 popd
