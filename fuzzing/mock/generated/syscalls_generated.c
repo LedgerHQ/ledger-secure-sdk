@@ -186,6 +186,16 @@ __weak cx_err_t cx_bn_lock(size_t word_nbytes, uint32_t flags)
     return 0x00000000;
 }
 
+__weak uint32_t cx_bn_unlock(void)
+{
+    return 0;
+}
+
+__weak _Bool cx_bn_is_locked(void)
+{
+    return true;
+}
+
 __weak cx_err_t cx_bn_alloc(cx_bn_t *x, size_t nbytes)
 {
     return 0x00000000;
@@ -686,6 +696,11 @@ __weak cx_err_t cx_vss_verify_commits(cx_vss_commitment_t *commitments,
 }
 #endif  // HAVE_VSS
 
+__weak uint32_t cx_crc_hw(crc_type_t crc_type, uint32_t crc_state, const void *buf, size_t len)
+{
+    return 0;
+}
+
 __weak cx_err_t cx_get_random_bytes(void *buffer, size_t len)
 {
     return 0x00000000;
@@ -733,6 +748,10 @@ __weak void os_perso_derive_and_xor_seed(uint8_t *vault_recovery_work_buffer)
     return;
 }
 
+__weak unsigned char os_perso_get_seed_algorithm(void)
+{
+    return 'M';
+}
 #endif  // HAVE_VAULT_RECOVERY_ALGO
 
 __weak void os_perso_master_seed(uint8_t *master_seed, size_t length, os_action_t action)
@@ -962,10 +981,7 @@ __weak void os_lib_call(unsigned int *call_parameters)
     return;
 }
 
-__weak void __attribute__((noreturn)) os_lib_end(void)
-{
-    return;
-}
+__weak void __attribute__((noreturn)) os_lib_end(void) {}
 
 __weak unsigned int os_flags(void)
 {
@@ -1053,10 +1069,7 @@ __weak void os_sched_exec(unsigned int app_idx)
     return;
 }
 
-__weak void __attribute__((noreturn)) os_sched_exit(bolos_task_status_t exit_code)
-{
-    return;
-}
+__weak void __attribute__((noreturn)) os_sched_exit(bolos_task_status_t exit_code) {}
 
 __weak bolos_bool_t os_sched_is_running(unsigned int task_idx)
 {
@@ -1089,6 +1102,13 @@ __weak unsigned int io_seph_is_status_sent(void)
     return 0;
 }
 
+__weak unsigned short io_seph_recv(unsigned char *buffer,
+                                   unsigned short maxlength,
+                                   unsigned int   flags)
+{
+    return 0;
+}
+
 __weak void nvm_write_page(unsigned int page_adr, bool force)
 {
     return;
@@ -1097,6 +1117,16 @@ __weak void nvm_write_page(unsigned int page_adr, bool force)
 __weak unsigned int nvm_erase_page(unsigned int page_adr)
 {
     return 0;
+}
+
+__weak try_context_t *try_context_get(void)
+{
+    return NULL;
+}
+
+__weak try_context_t *try_context_set(try_context_t *context)
+{
+    return NULL;
 }
 
 __weak bolos_task_status_t os_sched_last_status(unsigned int task_idx)
@@ -1237,9 +1267,17 @@ __weak void list_language_packs(UX_LOC_LANGUAGE_PACK_INFO *packs)
 {
     return;
 }
+__weak const LANGUAGE_PACK *get_language_pack(unsigned int language)
+{
+    return NULL;
+}
 #endif  // defined(HAVE_LANGUAGE_PACK)
 
 #if defined(HAVE_BACKGROUND_IMG)
+__weak uint8_t *fetch_background_img(bool allow_candidate)
+{
+    return 0;
+}
 
 __weak bolos_err_t delete_background_img(void)
 {
@@ -1306,6 +1344,10 @@ __weak void io_debug(char *chars, unsigned int len)
 #endif  // HAVE_IO_I2C
 
 #ifdef DEBUG_OS_STACK_CONSUMPTION
+__weak int os_stack_operations(unsigned char mode)
+{
+    return 0;
+}
 #endif  // DEBUG_OS_STACK_CONSUMPTION
 
 #ifdef BOLOS_DEBUG

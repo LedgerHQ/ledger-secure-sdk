@@ -1,3 +1,13 @@
-typedef unsigned char bolos_task_status_t;
+#include "exceptions.h"
+#include <stdio.h>
+#include <stdint.h>
 
-void os_longjmp(unsigned int exception);
+struct {
+    uint8_t bss[0xff];
+    uint8_t ebss[0xff];
+
+} mock_memory;
+
+try_context_t *try_context_get(void);
+
+try_context_t *try_context_set(try_context_t *context);
