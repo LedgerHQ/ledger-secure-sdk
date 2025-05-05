@@ -1,15 +1,12 @@
 include_guard()
 
-# Include required definitions
-add_definitions(-DHAVE_NFC -DHAVE_NDEF_SUPPORT)
+include(${CMAKE_SOURCE_DIR}/mock/mock.cmake)
 
-# Include required liraries
-include(${CMAKE_SOURCE_DIR}/libs/lib_nfc.cmake)
+# Commented lines need os mock or depend of another function that needs a mock
+file(GLOB LIB_NFC_SOURCES
+    "${CMAKE_SOURCE_DIR}/../lib_nfc/src/nfc_ndef.c"
+)
 
-# Define the executable and its properties
-add_executable(fuzz_nfc_ndef ${CMAKE_SOURCE_DIR}/harness/fuzzer_nfc_ndef.c)
-target_compile_options(fuzz_nfc_ndef PUBLIC ${COMPILATION_FLAGS})
-target_link_options(fuzz_nfc_ndef PUBLIC ${COMPILATION_FLAGS})
-
-# Link with required libraries
-target_link_libraries(fuzz_nfc_ndef PUBLIC lib_nfc)
+add_library(lib_nfc ${LIB_NFC_SOURCES})
+target_include_directories(lib_nfc PUBLIC ${CMAKE_SOURCE_DIR}/../include/)
+target_include_directories(lib_nfc PUBLIC ${CMAKE_SOURCE_DIR}/../lib_nfc/include/)
