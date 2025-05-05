@@ -102,7 +102,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     memset(heap, 0, HEAP_SIZE);
     memset(allocs, 0, sizeof(allocs));
     mem_ctx_t *allocator = mem_init(heap, HEAP_SIZE);
-    
+
     if (!allocator) {
         return 0;
     }
