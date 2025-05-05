@@ -52,7 +52,6 @@ def gen_mocks(c_code):
                 if ';' in line:
                     write_lines.append(line)
                 else:
-                    
                     line_aux = line.strip()
                     while ')' not in line and i < len(lines) - 1:
                         i += 1
@@ -89,7 +88,6 @@ def gen_mocks(c_code):
                         elif line_aux.startswith('uint8_t'):
                             write_lines.append('__weak ' + line_aux + ' { return 0; }') # will crash if function is type uint8_t * (fetch_background_img)
                             i = skip_function(line, lines, i)
-                        
                         else:
                             print(f"Skipped line [{i+1}]: {line_aux}")
                             i = skip_function(line, lines, i)
