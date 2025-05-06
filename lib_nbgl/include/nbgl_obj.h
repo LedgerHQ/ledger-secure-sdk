@@ -34,7 +34,7 @@ extern "C" {
 #elif defined(TARGET_FLEX)
 #define KEYBOARD_KEY_HEIGHT 72
 #elif defined(TARGET_APEX)
-#define KEYBOARD_KEY_HEIGHT 40
+#define KEYBOARD_KEY_HEIGHT 51
 #endif  // TARGETS
 
 // index of keys for keyMask field of nbgl_keyboard_t
@@ -85,7 +85,7 @@ extern "C" {
 #elif defined(TARGET_FLEX)
 #define BACK_BUTTON_HEADER_HEIGHT 96
 #elif defined(TARGET_APEX)
-#define BACK_BUTTON_HEADER_HEIGHT 64
+#define BACK_BUTTON_HEADER_HEIGHT 60
 #endif  // TARGETS
 
 // common dimensions for buttons
@@ -106,8 +106,8 @@ extern "C" {
 #define SPINNER_WIDTH  64
 #define SPINNER_HEIGHT 48
 #elif defined(TARGET_APEX)
-#define SPINNER_WIDTH  64
-#define SPINNER_HEIGHT 48
+#define SPINNER_WIDTH  40
+#define SPINNER_HEIGHT 32
 #endif  // TARGETS
 
 // width & height for radio button

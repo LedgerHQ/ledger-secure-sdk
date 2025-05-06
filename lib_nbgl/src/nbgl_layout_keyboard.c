@@ -52,6 +52,8 @@ enum {
 #define BOTTOM_COMPACT_MARGIN     24
 #define TOP_NORMAL_MARGIN         20
 #define TOP_COMPACT_MARGIN        20
+#define TITLE_ENTRY_MARGIN_Y      4
+#define TEXT_ENTRY_FONT           LARGE_MEDIUM_1BPP_FONT
 #elif defined(TARGET_FLEX)
 #define TEXT_ENTRY_NORMAL_HEIGHT  72
 #define TEXT_ENTRY_COMPACT_HEIGHT 56
@@ -59,13 +61,17 @@ enum {
 #define BOTTOM_COMPACT_MARGIN     12
 #define TOP_NORMAL_MARGIN         20
 #define TOP_COMPACT_MARGIN        12
+#define TITLE_ENTRY_MARGIN_Y      4
+#define TEXT_ENTRY_FONT           LARGE_MEDIUM_1BPP_FONT
 #elif defined(TARGET_APEX)
-#define TEXT_ENTRY_NORMAL_HEIGHT  64
-#define TEXT_ENTRY_COMPACT_HEIGHT 64
-#define BOTTOM_NORMAL_MARGIN      24
-#define BOTTOM_COMPACT_MARGIN     24
-#define TOP_NORMAL_MARGIN         20
+#define TEXT_ENTRY_NORMAL_HEIGHT  40
+#define TEXT_ENTRY_COMPACT_HEIGHT 40
+#define BOTTOM_NORMAL_MARGIN      16
+#define BOTTOM_COMPACT_MARGIN     20
+#define TOP_NORMAL_MARGIN         12
 #define TOP_COMPACT_MARGIN        20
+#define TITLE_ENTRY_MARGIN_Y      0
+#define TEXT_ENTRY_FONT           SMALL_BOLD_FONT
 #endif  // TARGETS
 
 #ifdef USE_PARTIAL_BUTTONS
@@ -289,7 +295,7 @@ static nbgl_container_t *addTextEntry(nbgl_layoutInternal_t *layoutInt,
         textArea->obj.area.height = nbgl_getTextHeightInWidth(
             textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
         mainContainer->children[0]     = (nbgl_obj_t *) textArea;
-        mainContainer->obj.area.height = textArea->obj.area.height + 4;
+        mainContainer->obj.area.height = textArea->obj.area.height + TITLE_ENTRY_MARGIN_Y;
     }
 
     // create a text-entry container number, entered text and underline
@@ -306,10 +312,10 @@ static nbgl_container_t *addTextEntry(nbgl_layoutInternal_t *layoutInt,
         snprintf(numText, sizeof(numText), "%d.", number);
         textArea->text            = numText;
         textArea->textAlignment   = CENTER;
-        textArea->fontId          = LARGE_MEDIUM_1BPP_FONT;
+        textArea->fontId          = TEXT_ENTRY_FONT;
         textArea->obj.area.width  = NUMBER_WIDTH;
         textArea->obj.alignment   = MID_LEFT;
-        textArea->obj.area.height = nbgl_getFontHeight(LARGE_MEDIUM_1BPP_FONT);
+        textArea->obj.area.height = nbgl_getFontHeight(textArea->fontId);
         // set this text area as child of the container
         container->children[0] = (nbgl_obj_t *) textArea;
     }
@@ -319,7 +325,7 @@ static nbgl_container_t *addTextEntry(nbgl_layoutInternal_t *layoutInt,
     textArea->textColor      = grayedOut ? INACTIVE_TEXT_COLOR : BLACK;
     textArea->text           = text;
     textArea->textAlignment  = MID_LEFT;
-    textArea->fontId         = LARGE_MEDIUM_1BPP_FONT;
+    textArea->fontId         = TEXT_ENTRY_FONT;
     textArea->obj.area.width = AVAILABLE_WIDTH;
     if (numbered) {
         textArea->obj.alignmentMarginX = NUMBER_TEXT_SPACE;
@@ -330,7 +336,7 @@ static nbgl_container_t *addTextEntry(nbgl_layoutInternal_t *layoutInt,
     else {
         textArea->obj.alignment = MID_LEFT;
     }
-    textArea->obj.area.height  = nbgl_getFontHeight(LARGE_MEDIUM_1BPP_FONT);
+    textArea->obj.area.height  = nbgl_getFontHeight(textArea->fontId);
     textArea->autoHideLongLine = true;
 
     obj = layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) textArea, textToken, NBGL_NO_TUNE);
@@ -386,7 +392,7 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
     suggestionsContainer->children
         = (nbgl_obj_t **) nbgl_containerPoolGet(NB_SUGGESTION_CHILDREN, layoutInt->layer);
 
-    // put suggestionsContainer at 24px of the bottom of main container
+    // put suggestionsContainer at the bottom of main container
     suggestionsContainer->obj.alignmentMarginY
         = compactMode ? BOTTOM_COMPACT_MARGIN : BOTTOM_NORMAL_MARGIN;
     suggestionsContainer->obj.alignment = BOTTOM_MIDDLE;
@@ -463,7 +469,7 @@ static nbgl_button_t *addConfirmationButton(nbgl_layoutInternal_t *layoutInt,
         return NULL;
     }
 
-    // put button at 24px/12px of the keyboard
+    // put button at the bottom of the main container
     button->obj.alignmentMarginY = compactMode ? BOTTOM_COMPACT_MARGIN : BOTTOM_NORMAL_MARGIN;
     button->obj.alignment        = BOTTOM_MIDDLE;
     button->foregroundColor      = WHITE;
@@ -625,60 +631,6 @@ bool nbgl_layoutKeyboardNeedsRefresh(nbgl_layout_t *layout, uint8_t index)
     }
 
     return false;
-}
-
-/**
- * @brief Adds up to 4 black suggestion buttons under the previously added object
- * @deprecated Use @ref nbgl_layoutAddKeyboardContent instead
- *
- * @param layout the current layout
- * @param nbUsedButtons the number of actually used buttons
- * @param buttonTexts array of 4 strings for buttons (last ones can be NULL)
- * @param firstButtonToken first token used for buttons, provided in onActionCallback (the next 3
- * values will be used for other buttons)
- * @param tuneId tune to play when any button is pressed
- * @return >= 0 if OK
- */
-int nbgl_layoutAddSuggestionButtons(nbgl_layout_t *layout,
-                                    uint8_t        nbUsedButtons,
-                                    const char    *buttonTexts[NB_MAX_SUGGESTION_BUTTONS],
-                                    int            firstButtonToken,
-                                    tune_index_e   tuneId)
-{
-    nbgl_container_t      *container;
-    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
-    // if a centered info has be used for title, entered text is the second child
-    uint8_t enteredTextIndex = (layoutInt->container->nbChildren == 2) ? 0 : 1;
-
-    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddSuggestionButtons():\n");
-    if (layout == NULL) {
-        return -1;
-    }
-
-    container = addSuggestionButtons(
-        layoutInt, nbUsedButtons, buttonTexts, firstButtonToken, tuneId, false);
-    // set this container as 2nd or 3rd child of the main layout container
-    layoutInt->container->children[enteredTextIndex + 1] = (nbgl_obj_t *) container;
-    if (layoutInt->container->children[enteredTextIndex] != NULL) {
-        ((nbgl_container_t *) layoutInt->container->children[enteredTextIndex])
-            ->obj.alignmentMarginY
-            -= (container->obj.area.height + container->obj.alignmentMarginY + 20) / 2;
-    }
-#ifdef USE_PARTIAL_BUTTONS
-    // the main container is swipable on Flex
-    if (layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) layoutInt->container, 0, NBGL_NO_TUNE)
-        == NULL) {
-        return -1;
-    }
-    layoutInt->container->obj.touchMask = (1 << SWIPED_LEFT) | (1 << SWIPED_RIGHT);
-    layoutInt->container->obj.touchId   = CONTROLS_ID;
-    layoutInt->swipeUsage               = SWIPE_USAGE_SUGGESTIONS;
-#endif  // USE_PARTIAL_BUTTONS
-    // set this new container as child of the main container
-    layoutAddObject(layoutInt, (nbgl_obj_t *) container);
-
-    // return index of container to be modified later on
-    return (layoutInt->container->nbChildren - 1);
 }
 
 /**
