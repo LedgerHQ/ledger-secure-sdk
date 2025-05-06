@@ -34,11 +34,20 @@
 #define NB_MAX_LETTERS 9
 
 #if defined(TARGET_STAX)
-#define INTER_DASHES 10
+#define INTER_DASHES        10
+#define SPINNER_DASH_WIDTH  22
+#define SPINNER_DASH_HEIGHT 14
+#define SPINNER_DASH_STROKE 4
 #elif defined(TARGET_FLEX)
-#define INTER_DASHES 8
+#define INTER_DASHES        8
+#define SPINNER_DASH_WIDTH  24
+#define SPINNER_DASH_HEIGHT 16
+#define SPINNER_DASH_STROKE 4
 #elif defined(TARGET_APEX)
-#define INTER_DASHES 8
+#define INTER_DASHES        8
+#define SPINNER_DASH_WIDTH  15
+#define SPINNER_DASH_HEIGHT 10
+#define SPINNER_DASH_STROKE 2
 #endif  // TARGETS
 
 /**********************
@@ -1261,7 +1270,6 @@ static void draw_spinner(nbgl_spinner_t *obj, nbgl_obj_t *prevObj, bool computeP
     if (computePosition) {
         compute_position((nbgl_obj_t *) obj, prevObj);
     }
-    obj->obj.area.y0 &= ~(VERTICAL_ALIGNMENT - 1);
     LOG_DEBUG(OBJ_LOGGER, "draw_spinner(), x0 = %d, y0 = %d\n", obj->obj.area.x0, obj->obj.area.y0);
 
     // inherit background from parent
@@ -1276,8 +1284,8 @@ static void draw_spinner(nbgl_spinner_t *obj, nbgl_obj_t *prevObj, bool computeP
         // draw horizontal segments
         rectArea.x0     = obj->obj.area.x0;
         rectArea.y0     = obj->obj.area.y0;
-        rectArea.width  = 20;
-        rectArea.height = 3;
+        rectArea.width  = SPINNER_DASH_WIDTH;
+        rectArea.height = SPINNER_DASH_STROKE;
         nbgl_frontDrawLine(&rectArea, 0, foreColor);  // top left
         rectArea.x0 = obj->obj.area.x0 + obj->obj.area.width - rectArea.width;
         nbgl_frontDrawLine(&rectArea, 0, foreColor);  // top right
@@ -1288,8 +1296,8 @@ static void draw_spinner(nbgl_spinner_t *obj, nbgl_obj_t *prevObj, bool computeP
         // draw vertical segments
         rectArea.x0              = obj->obj.area.x0;
         rectArea.y0              = obj->obj.area.y0;
-        rectArea.width           = 3;
-        rectArea.height          = 12;
+        rectArea.width           = SPINNER_DASH_STROKE;
+        rectArea.height          = SPINNER_DASH_HEIGHT;
         rectArea.backgroundColor = foreColor;
         nbgl_frontDrawRect(&rectArea);  // top left
         rectArea.x0 = obj->obj.area.x0 + obj->obj.area.width - rectArea.width;
@@ -1309,8 +1317,8 @@ static void draw_spinner(nbgl_spinner_t *obj, nbgl_obj_t *prevObj, bool computeP
         nbgl_frontDrawRect(&rectArea);  // top left
 
         // draw horizontal segment in foreColor
-        rectArea.width  = 20;
-        rectArea.height = 3;
+        rectArea.width  = SPINNER_DASH_WIDTH;
+        rectArea.height = SPINNER_DASH_STROKE;
         switch (obj->position) {
             case 0:  // top left corner
                 rectArea.x0 = obj->obj.area.x0;
@@ -1334,8 +1342,8 @@ static void draw_spinner(nbgl_spinner_t *obj, nbgl_obj_t *prevObj, bool computeP
         nbgl_frontDrawLine(&rectArea, 0, foreColor);
 
         // draw vertical segment in foreColor
-        rectArea.width           = 3;
-        rectArea.height          = 12;
+        rectArea.width           = SPINNER_DASH_STROKE;
+        rectArea.height          = SPINNER_DASH_HEIGHT;
         rectArea.backgroundColor = foreColor;
         switch (obj->position) {
             case 0:  // top left corner

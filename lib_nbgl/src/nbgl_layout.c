@@ -44,6 +44,8 @@
 #define RADIO_CHOICE_HEIGHT              96
 #define BAR_INTERVALE                    12
 #define FOOTER_BUTTON_HEIGHT             128
+#define UP_FOOTER_BUTTON_HEIGHT          120
+#define FOOTER_IN_PAIR_HEIGHT            80
 #define ROUNDED_AND_FOOTER_FOOTER_HEIGHT 192
 #define ACTION_AND_FOOTER_FOOTER_HEIGHT  216
 #define FOOTER_TEXT_AND_NAV_WIDTH        160
@@ -67,10 +69,15 @@
 #define SINGLE_BUTTON_MARGIN             24
 #define LONG_PRESS_PROGRESS_HEIGHT       8
 #define LONG_PRESS_PROGRESS_ALIGN        4
+#define ICON_TITLE_MARGIN                24
+#define TITLE_DESC_MARGIN                16
+#define LEFT_CONTENT_ICON_TEXT_X         16
 #elif defined(TARGET_FLEX)
 #define RADIO_CHOICE_HEIGHT              92
 #define BAR_INTERVALE                    16
 #define FOOTER_BUTTON_HEIGHT             136
+#define UP_FOOTER_BUTTON_HEIGHT          136
+#define FOOTER_IN_PAIR_HEIGHT            88
 #define ROUNDED_AND_FOOTER_FOOTER_HEIGHT 208
 #define ACTION_AND_FOOTER_FOOTER_HEIGHT  232
 #define FOOTER_TEXT_AND_NAV_WIDTH        192
@@ -81,7 +88,7 @@
 #define PRE_TITLE_MARGIN                 16
 #define PRE_DESCRIPTION_MARGIN           24
 #define PRE_FIRST_ROW_MARGIN             32
-#define INTER_ROWS_MARGIN                26
+#define INTER_ROWS_MARGIN                24
 #define QR_PRE_TEXT_MARGIN               24
 #define QR_INTER_TEXTS_MARGIN            28
 #define SPINNER_TEXT_MARGIN              24
@@ -94,12 +101,16 @@
 #define SINGLE_BUTTON_MARGIN             24
 #define LONG_PRESS_PROGRESS_HEIGHT       8
 #define LONG_PRESS_PROGRESS_ALIGN        4
+#define ICON_TITLE_MARGIN                24
+#define TITLE_DESC_MARGIN                16
+#define LEFT_CONTENT_ICON_TEXT_X         16
 #elif defined(TARGET_APEX)
 #define RADIO_CHOICE_HEIGHT              68
 #define BAR_INTERVALE                    8
-#define BACK_KEY_WIDTH                   60
+#define BACK_KEY_WIDTH                   56
 #define FOOTER_BUTTON_HEIGHT             72
 #define UP_FOOTER_BUTTON_HEIGHT          72
+#define FOOTER_IN_PAIR_HEIGHT            60
 #define ROUNDED_AND_FOOTER_FOOTER_HEIGHT 128
 #define ACTION_AND_FOOTER_FOOTER_HEIGHT  128
 #define FOOTER_TEXT_AND_NAV_WIDTH        120
@@ -110,7 +121,7 @@
 #define PRE_TITLE_MARGIN                 16
 #define PRE_DESCRIPTION_MARGIN           12
 #define PRE_FIRST_ROW_MARGIN             24
-#define INTER_ROWS_MARGIN                14
+#define INTER_ROWS_MARGIN                12
 #define QR_PRE_TEXT_MARGIN               16
 #define QR_INTER_TEXTS_MARGIN            20
 #define SPINNER_TEXT_MARGIN              16
@@ -120,9 +131,12 @@
 #define LEFT_CONTENT_TEXT_PADDING        4
 #define BUTTON_FROM_BOTTOM_MARGIN        0
 #define TOP_BUTTON_MARGIN                12
-#define SINGLE_BUTTON_MARGIN             12
+#define SINGLE_BUTTON_MARGIN             16
 #define LONG_PRESS_PROGRESS_HEIGHT       4
 #define LONG_PRESS_PROGRESS_ALIGN        4
+#define ICON_TITLE_MARGIN                16
+#define TITLE_DESC_MARGIN                12
+#define LEFT_CONTENT_ICON_TEXT_X         8
 #else  // TARGETS
 #error Undefined target
 #endif  // TARGETS
@@ -912,7 +926,7 @@ static nbgl_container_t *addContentCenter(nbgl_layoutInternal_t      *layoutInt,
         if (container->nbChildren > 0) {
             textArea->obj.alignment        = BOTTOM_MIDDLE;
             textArea->obj.alignTo          = (nbgl_obj_t *) image;
-            textArea->obj.alignmentMarginY = VERTICAL_BORDER_MARGIN + info->iconHug;
+            textArea->obj.alignmentMarginY = ICON_TITLE_MARGIN + info->iconHug;
         }
         else {
             textArea->obj.alignment = TOP_MIDDLE;
@@ -974,7 +988,7 @@ static nbgl_container_t *addContentCenter(nbgl_layoutInternal_t      *layoutInt,
             textArea->obj.alignTo   = (nbgl_obj_t *) container->children[container->nbChildren - 1];
             if (container->children[container->nbChildren - 1]->type == TEXT_AREA) {
                 // if previous element is text, only space of 16 px
-                textArea->obj.alignmentMarginY = 16;
+                textArea->obj.alignmentMarginY = TITLE_DESC_MARGIN;
             }
             else {
                 textArea->obj.alignmentMarginY = VERTICAL_BORDER_MARGIN + info->iconHug;
@@ -1869,13 +1883,14 @@ int nbgl_layoutAddLeftContent(nbgl_layout_t *layout, const nbgl_layoutLeftConten
         image->buffer             = info->rowIcons[row];
         rowContainer->children[0] = (nbgl_obj_t *) image;
 
-        textArea                  = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, 0);
-        textArea->textColor       = BLACK;
-        textArea->text            = info->rowTexts[row];
-        textArea->textAlignment   = MID_LEFT;
-        textArea->fontId          = SMALL_REGULAR_FONT;
-        textArea->wrapping        = true;
-        textArea->obj.area.width  = AVAILABLE_WIDTH - image->buffer->width - 16;
+        textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, 0);
+        textArea->textColor     = BLACK;
+        textArea->text          = info->rowTexts[row];
+        textArea->textAlignment = MID_LEFT;
+        textArea->fontId        = SMALL_REGULAR_FONT;
+        textArea->wrapping      = true;
+        textArea->obj.area.width
+            = AVAILABLE_WIDTH - image->buffer->width - LEFT_CONTENT_ICON_TEXT_X;
         textArea->obj.area.height = nbgl_getTextHeightInWidth(
             textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
         textArea->obj.alignment   = MID_RIGHT;
@@ -3099,7 +3114,7 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
             }
             button->foregroundColor = BLACK;
             button->obj.area.width  = AVAILABLE_WIDTH;
-            button->obj.area.height = BUTTON_DIAMETER;
+            button->obj.area.height = FOOTER_IN_PAIR_HEIGHT;
             button->radius          = BUTTON_RADIUS;
             button->text            = PIC(footerDesc->choiceButtons.bottomText);
             button->fontId          = SMALL_BOLD_FONT;

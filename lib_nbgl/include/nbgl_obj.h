@@ -34,7 +34,7 @@ extern "C" {
 #elif defined(TARGET_FLEX)
 #define KEYBOARD_KEY_HEIGHT 72
 #elif defined(TARGET_APEX)
-#define KEYBOARD_KEY_HEIGHT 40
+#define KEYBOARD_KEY_HEIGHT 51
 #endif  // TARGETS
 
 // index of keys for keyMask field of nbgl_keyboard_t
@@ -85,7 +85,7 @@ extern "C" {
 #elif defined(TARGET_FLEX)
 #define BACK_BUTTON_HEADER_HEIGHT 96
 #elif defined(TARGET_APEX)
-#define BACK_BUTTON_HEADER_HEIGHT 64
+#define BACK_BUTTON_HEADER_HEIGHT 60
 #endif  // TARGETS
 
 // common dimensions for buttons
@@ -106,8 +106,8 @@ extern "C" {
 #define SPINNER_WIDTH  64
 #define SPINNER_HEIGHT 48
 #elif defined(TARGET_APEX)
-#define SPINNER_WIDTH  64
-#define SPINNER_HEIGHT 48
+#define SPINNER_WIDTH  40
+#define SPINNER_HEIGHT 32
 #endif  // TARGETS
 
 // width & height for radio button
@@ -210,11 +210,13 @@ extern "C" {
 #define DENIED_CIRCLE_ICON    C_Denied_Circle_64px
 #define IMPORTANT_CIRCLE_ICON C_Important_Circle_64px
 #define LARGE_WARNING_ICON    C_Warning_64px
+#define INFO_CIRCLE_ICON      C_Info_Circle_64px
 #elif LARGE_ICON_SIZE == 48
 #define CHECK_CIRCLE_ICON     C_Check_Circle_48px
 #define DENIED_CIRCLE_ICON    C_Denied_Circle_48px
 #define IMPORTANT_CIRCLE_ICON C_Important_Circle_48px
 #define LARGE_WARNING_ICON    C_Warning_48px
+#define INFO_CIRCLE_ICON      C_Info_Circle_48px
 #else  // LARGE_ICON_SIZE
 #error Undefined LARGE_ICON_SIZE
 #endif  // LARGE_ICON_SIZE
