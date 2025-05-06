@@ -668,8 +668,8 @@ static void draw_switch(nbgl_switch_t *obj, nbgl_obj_t *prevObj, bool computePos
     nbgl_area_t rectArea;
 
     // force dimensions
-    obj->obj.area.width  = C_switch_60_40.width;
-    obj->obj.area.height = C_switch_60_40.height;
+    obj->obj.area.width  = SWITCH_ICON.width;
+    obj->obj.area.height = SWITCH_ICON.height;
     if (computePosition) {
         compute_position((nbgl_obj_t *) obj, prevObj);
     }
@@ -686,13 +686,17 @@ static void draw_switch(nbgl_switch_t *obj, nbgl_obj_t *prevObj, bool computePos
     rectArea.bpp             = NBGL_BPP_1;
     if (obj->state == OFF_STATE) {
 #if NB_COLOR_BITS == 1
-        nbgl_frontDrawImage(&rectArea, C_switch_off_60_40.bitmap, NO_TRANSFORMATION, obj->onColor);
+        nbgl_drawIcon(&rectArea, NO_TRANSFORMATION, obj->onColor, &C_switch_off_24px);
 #else
-        nbgl_frontDrawImage(&rectArea, C_switch_60_40.bitmap, NO_TRANSFORMATION, obj->offColor);
+        nbgl_frontDrawImage(&rectArea, SWITCH_ICON.bitmap, NO_TRANSFORMATION, obj->offColor);
 #endif
     }
     else {
-        nbgl_frontDrawImage(&rectArea, C_switch_60_40.bitmap, VERTICAL_MIRROR, obj->onColor);
+#if NB_COLOR_BITS == 1
+        nbgl_drawIcon(&rectArea, NO_TRANSFORMATION, obj->onColor, &C_switch_on_24px);
+#else
+        nbgl_frontDrawImage(&rectArea, SWITCH_ICON.bitmap, VERTICAL_MIRROR, obj->onColor);
+#endif
     }
 }
 

@@ -148,6 +148,7 @@ extern "C" {
 #define QUESTION_ICON        C_Question_32px
 #define DIGIT_ICON           C_round_24px
 #define QUESTION_CIRCLE_ICON C_Question_Mark_Circle_32px
+#define SWITCH_ICON          C_switch_60_40
 #elif SMALL_ICON_SIZE == 40
 #define SPACE_ICON           C_Space_40px
 #define BACKSPACE_ICON       C_Erase_40px
@@ -173,6 +174,7 @@ extern "C" {
 #define QUESTION_ICON        C_Question_40px
 #define DIGIT_ICON           C_pin_24
 #define QUESTION_CIRCLE_ICON C_Question_Mark_Circle_40px
+#define SWITCH_ICON          C_switch_60_40
 #elif SMALL_ICON_SIZE == 24
 #define SPACE_ICON           C_Space_24px
 #define BACKSPACE_ICON       C_Erase_24px
@@ -195,8 +197,9 @@ extern "C" {
 #define ROUND_WARN_ICON      C_Important_Circle_24px
 #define PRIVACY_ICON         C_Privacy_24px
 #define EXCLAMATION_ICON     C_Exclamation_24px
-#define DIGIT_ICON           C_round_24px
+#define DIGIT_ICON           C_Dot_16px
 #define QUESTION_CIRCLE_ICON C_Question_Mark_Circle_24px
+#define SWITCH_ICON          C_switch_on_24px
 #else  // SMALL_ICON_SIZE
 #error Undefined SMALL_ICON_SIZE
 #endif  // SMALL_ICON_SIZE
