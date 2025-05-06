@@ -675,7 +675,8 @@ static bool buttonGenericCallback(nbgl_buttonEvent_t event, nbgl_stepPosition_t 
             if (context.stepCallback != NULL) {
                 context.stepCallback();
             }
-            else if ((context.type == CONTENT_USE_CASE)
+            else if ((context.type == CONTENT_USE_CASE) || (context.type == SETTINGS_USE_CASE)
+                     || (context.type == GENERIC_SETTINGS)
                      || (context.type == GENERIC_REVIEW_USE_CASE)) {
                 p_content = getContentElemAtIdx(context.currentPage, &elemIdx, &content);
                 if (p_content != NULL) {
@@ -1249,7 +1250,10 @@ static void getContentPage(bool toogle_state, PageContent_t *contentPage)
     nbgl_contentRadioChoice_t *contentChoices = NULL;
     char                     **names          = NULL;
 #endif
-
+#ifdef WITH_HORIZONTAL_BARS_LIST
+    nbgl_contentBarsList_t *contentBars = NULL;
+    char                  **texts       = NULL;
+#endif
     p_content = getContentElemAtIdx(context.currentPage, &elemIdx, &content);
     if (p_content == NULL) {
         return;
@@ -1297,6 +1301,10 @@ static void getContentPage(bool toogle_state, PageContent_t *contentPage)
                 contentPage->text    = PIC(context.content.title);
                 contentPage->subText = (const char *) PIC(names[elemIdx]);
             }
+            else if ((context.type == GENERIC_SETTINGS) && (context.home.appName != NULL)) {
+                contentPage->text    = PIC(context.home.appName);
+                contentPage->subText = (const char *) PIC(names[elemIdx]);
+            }
             else {
                 contentPage->text = (const char *) PIC(names[elemIdx]);
             }
@@ -1304,12 +1312,18 @@ static void getContentPage(bool toogle_state, PageContent_t *contentPage)
             break;
         case BARS_LIST:
 #ifdef WITH_HORIZONTAL_BARS_LIST
+            contentBars = (nbgl_contentBarsList_t *) PIC(&p_content->content.barsList);
+            texts       = (char **) PIC(contentBars->barTexts);
             if ((context.type == CONTENT_USE_CASE) && (context.content.title != NULL)) {
                 contentPage->text    = PIC(context.content.title);
-                contentPage->subText = PIC(p_content->content.barsList.barTexts[elemIdx]);
+                contentPage->subText = PIC(texts[elemIdx]);
+            }
+            else if ((context.type == GENERIC_SETTINGS) && (context.home.appName != NULL)) {
+                contentPage->text    = PIC(context.home.appName);
+                contentPage->subText = PIC(texts[elemIdx]);
             }
             else {
-                contentPage->text = PIC(p_content->content.barsList.barTexts[elemIdx]);
+                contentPage->text = PIC(texts[elemIdx]);
             }
 #endif
             break;
