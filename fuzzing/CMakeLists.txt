@@ -47,9 +47,18 @@ else()
   separate_arguments(COMPILATION_FLAGS)
 endif()
 
+#if BOLOS_SDK is defined it is been used by an app
+if (NOT DEFINED BOLOS_SDK)
+  set(BOLOS_SDK ${CMAKE_SOURCE_DIR})
+  get_filename_component(BOLOS_SDK ${CMAKE_SOURCE_DIR} DIRECTORY)
+endif()
+
 # Include haness cmake files
 file(GLOB cmake_extra_files "extra/*.cmake")
-
 foreach(file IN LISTS cmake_extra_files)
-    include(${file})
+  include(${file})
 endforeach()
+
+# Include libs in extra target
+add_library(extra INTERFACE)
+target_link_libraries(extra INTERFACE lib_standard_app lib_alloc lib_nfc lib_qrcode lib_mock)
