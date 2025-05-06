@@ -108,6 +108,11 @@ extern "C" {
 
 #define PRE_TAG_VALUE_MARGIN   0
 #define INTER_TAG_VALUE_MARGIN 12
+// width & height for progress bar
+#define PROGRESSBAR_WIDTH      78
+#define PROGRESSBAR_HEIGHT     8
+#define BACK_KEY_WIDTH         56
+
 #else  // TARGETS
 #error Undefined target
 #endif  // TARGETS
