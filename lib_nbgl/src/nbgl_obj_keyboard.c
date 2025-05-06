@@ -29,13 +29,13 @@
 
 #if (SCREEN_WIDTH == 400)
 #define NORMAL_KEY_WIDTH 40
-#define LETTER_OFFSET_Y  (((KEYBOARD_KEY_HEIGHT - 32) / 2) & 0xFFC)
+#define LETTER_OFFSET_Y  ((KEYBOARD_KEY_HEIGHT - 32) / 2)
 #elif (SCREEN_WIDTH == 480)
 #define NORMAL_KEY_WIDTH 48
-#define LETTER_OFFSET_Y  (((KEYBOARD_KEY_HEIGHT - 36) / 2) & 0xFFC)
+#define LETTER_OFFSET_Y  ((KEYBOARD_KEY_HEIGHT - 36) / 2)
 #elif (SCREEN_WIDTH == 300)
 #define NORMAL_KEY_WIDTH 30
-#define LETTER_OFFSET_Y  (((KEYBOARD_KEY_HEIGHT - 24) / 2) & 0xFFC)
+#define LETTER_OFFSET_Y  ((KEYBOARD_KEY_HEIGHT - 22) / 2)
 #endif
 #define SHIFT_KEY_WIDTH    (NORMAL_KEY_WIDTH + SECOND_LINE_OFFSET)
 #define SECOND_LINE_OFFSET ((SCREEN_WIDTH - (SECOND_LINE_CHAR_COUNT * NORMAL_KEY_WIDTH)) / 2)
@@ -44,7 +44,7 @@
 #elif defined(TARGET_FLEX)
 #define SPACE_KEY_WIDTH 336
 #elif defined(TARGET_APEX)
-#define SPACE_KEY_WIDTH 200
+#define SPACE_KEY_WIDTH 209
 #endif  // TARGETS
 #define SWITCH_KEY_WIDTH                 (SCREEN_WIDTH - SPACE_KEY_WIDTH)
 #define SPECIAL_CHARS_KEY_WIDTH          (NORMAL_KEY_WIDTH * 2 + SECOND_LINE_OFFSET)
@@ -352,9 +352,8 @@ static void keyboardDrawLetters(nbgl_keyboard_t *keyboard)
         rectArea.height = SHIFT_ICON.height;
         rectArea.bpp    = NBGL_BPP_1;
         rectArea.y0     = (keyboard->obj.area.y0 + KEYBOARD_KEY_HEIGHT * 2
-                       + (KEYBOARD_KEY_HEIGHT - rectArea.height) / 2)
-                      & 0xFFC;
-        rectArea.x0 = (SHIFT_KEY_WIDTH - rectArea.width) / 2;
+                       + (KEYBOARD_KEY_HEIGHT - rectArea.height) / 2);
+        rectArea.x0     = (SHIFT_KEY_WIDTH - rectArea.width) / 2;
         if (IS_KEY_MASKED(SHIFT_KEY_INDEX)) {
             rectArea.backgroundColor = WHITE;
             nbgl_drawIcon(&rectArea, NO_TRANSFORMATION, WHITE, &SHIFT_LOCKED_ICON);
@@ -387,8 +386,7 @@ static void keyboardDrawLetters(nbgl_keyboard_t *keyboard)
     rectArea.bpp    = NBGL_BPP_1;
     rectArea.x0     = offsetX + 7 * NORMAL_KEY_WIDTH;
     rectArea.y0     = (keyboard->obj.area.y0 + KEYBOARD_KEY_HEIGHT * 2
-                   + (KEYBOARD_KEY_HEIGHT - rectArea.height) / 2)
-                  & 0xFFC;
+                   + (KEYBOARD_KEY_HEIGHT - rectArea.height) / 2);
     if (!keyboard->lettersOnly) {
         rectArea.x0 += (BACKSPACE_KEY_WIDTH_FULL - rectArea.width) / 2;
     }
@@ -484,7 +482,7 @@ static void keyboardDrawDigits(nbgl_keyboard_t *keyboard)
     rectArea.bpp    = NBGL_BPP_1;
     rectArea.x0     = SPECIAL_CHARS_KEY_WIDTH + 5 * NORMAL_KEY_WIDTH;
     rectArea.y0     = keyboard->obj.area.y0 + KEYBOARD_KEY_HEIGHT * 2
-                  + (((KEYBOARD_KEY_HEIGHT - rectArea.height) / 2) & 0xFFC);
+                  + ((KEYBOARD_KEY_HEIGHT - rectArea.height) / 2);
     rectArea.x0 += (BACKSPACE_KEY_WIDTH_DIGITS - rectArea.width) / 2;
     nbgl_drawIcon(&rectArea, NO_TRANSFORMATION, BLACK, &BACKSPACE_ICON);
 
