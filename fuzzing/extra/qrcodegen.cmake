@@ -1,11 +1,11 @@
 include_guard()
 
 # Include required liraries
-include(${CMAKE_SOURCE_DIR}/mock/mock.cmake)
-include(${CMAKE_SOURCE_DIR}/libs/lib_qrcode.cmake)
+include(${BOLOS_SDK}/fuzzing/mock/mock.cmake)
+include(${BOLOS_SDK}/fuzzing/libs/lib_qrcode.cmake)
 
 # Define the executable and its properties
-add_executable(fuzz_qrcodegen ${CMAKE_SOURCE_DIR}/harness/fuzzer_qrcodegen.c)
+add_executable(fuzz_qrcodegen ${BOLOS_SDK}/fuzzing/harness/fuzzer_qrcodegen.c)
 target_compile_options(fuzz_qrcodegen PUBLIC ${COMPILATION_FLAGS})
 target_link_options(fuzz_qrcodegen PUBLIC ${COMPILATION_FLAGS})
 

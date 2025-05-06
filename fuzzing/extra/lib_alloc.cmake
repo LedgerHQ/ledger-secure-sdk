@@ -1,11 +1,11 @@
 include_guard()
 
 # Include required liraries
-include(${CMAKE_SOURCE_DIR}/libs/lib_alloc.cmake)
-include(${CMAKE_SOURCE_DIR}/mock/mock.cmake)
+include(${BOLOS_SDK}/fuzzing/libs/lib_alloc.cmake)
+include(${BOLOS_SDK}/fuzzing/mock/mock.cmake)
 
 # Define the executable and its properties here
-add_executable(fuzz_alloc ${CMAKE_SOURCE_DIR}/harness/fuzzer_alloc.c)
+add_executable(fuzz_alloc ${BOLOS_SDK}/fuzzing/harness/fuzzer_alloc.c)
 target_compile_options(fuzz_alloc PUBLIC ${COMPILATION_FLAGS})
 target_link_options(fuzz_alloc PUBLIC ${COMPILATION_FLAGS})
 
