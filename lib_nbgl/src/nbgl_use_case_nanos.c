@@ -90,6 +90,7 @@ typedef struct ContentContext_s {
     nbgl_genericContents_t     genericContents;
     const char                *rejectText;
     nbgl_layoutTouchCallback_t controlsCallback;
+    nbgl_navCallback_t         navCallback;
     nbgl_callback_t            quitCallback;
 } ContentContext_t;
 
@@ -255,6 +256,7 @@ static const nbgl_content_t *getContentAtIdx(const nbgl_genericContents_t *gener
                                              int8_t                        contentIdx,
                                              nbgl_content_t               *content)
 {
+    nbgl_pageContent_t pageContent = {0};
     if (contentIdx < 0 || contentIdx >= genericContents->nbContents) {
         LOG_DEBUG(USE_CASE_LOGGER, "No content available at %d\n", contentIdx);
         return NULL;
@@ -267,7 +269,45 @@ static const nbgl_content_t *getContentAtIdx(const nbgl_genericContents_t *gener
         }
         // Retrieve content through callback, but first memset the content.
         memset(content, 0, sizeof(nbgl_content_t));
-        genericContents->contentGetterCallback(contentIdx, content);
+        if (context.content.navCallback) {
+            if (context.content.navCallback(contentIdx, &pageContent) == true) {
+                // Copy the Page Content to the Content variable
+                content->type = pageContent.type;
+                switch (content->type) {
+                    case CENTERED_INFO:
+                        content->content.centeredInfo = pageContent.centeredInfo;
+                        break;
+                    case INFO_BUTTON:
+                        content->content.infoButton = pageContent.infoButton;
+                        break;
+                    case TAG_VALUE_LIST:
+                        content->content.tagValueList = pageContent.tagValueList;
+                        break;
+                    case SWITCHES_LIST:
+                        content->content.switchesList = pageContent.switchesList;
+                        break;
+                    case INFOS_LIST:
+                        content->content.infosList = pageContent.infosList;
+                        break;
+                    case CHOICES_LIST:
+                        content->content.choicesList = pageContent.choicesList;
+                        break;
+                    case BARS_LIST:
+                        content->content.barsList = pageContent.barsList;
+                        break;
+                    default:
+                        LOG_DEBUG(USE_CASE_LOGGER, "Invalid content type\n");
+                        return NULL;
+                }
+            }
+            else {
+                LOG_DEBUG(USE_CASE_LOGGER, "Error getting page content\n");
+                return NULL;
+            }
+        }
+        else {
+            genericContents->contentGetterCallback(contentIdx, content);
+        }
         return content;
     }
     else {
@@ -1201,7 +1241,7 @@ static void displayInfoPage(nbgl_stepPosition_t pos)
 // function used to get the current page content
 static void getContentPage(bool toogle_state, PageContent_t *contentPage)
 {
-    uint8_t               elemIdx;
+    uint8_t               elemIdx       = 0;
     const nbgl_content_t *p_content     = NULL;
     nbgl_content_t        content       = {0};
     nbgl_contentSwitch_t *contentSwitch = NULL;
@@ -1251,13 +1291,13 @@ static void getContentPage(bool toogle_state, PageContent_t *contentPage)
             break;
         case CHOICES_LIST:
 #ifdef WITH_HORIZONTAL_CHOICES_LIST
+            contentChoices = (nbgl_contentRadioChoice_t *) PIC(&p_content->content.choicesList);
+            names          = (char **) PIC(contentChoices->names);
             if ((context.type == CONTENT_USE_CASE) && (context.content.title != NULL)) {
                 contentPage->text    = PIC(context.content.title);
-                contentPage->subText = PIC(p_content->content.choicesList.names[elemIdx]);
+                contentPage->subText = (const char *) PIC(names[elemIdx]);
             }
             else {
-                contentChoices = (nbgl_contentRadioChoice_t *) PIC(&p_content->content.choicesList);
-                names          = (char **) PIC(contentChoices->names);
                 contentPage->text = (const char *) PIC(names[elemIdx]);
             }
 #endif
@@ -1397,6 +1437,11 @@ static void startUseCaseContent(void)
     for (contentIdx = 0; contentIdx < context.content.genericContents.nbContents; contentIdx++) {
         p_content = getContentAtIdx(&context.content.genericContents, contentIdx, &content);
         context.nbPages += getContentNbElement(p_content);
+    }
+
+    // Ensure currentPage is valid
+    if (context.currentPage >= context.nbPages) {
+        return;
     }
 
     displayContent(FORWARD_DIRECTION, false);
@@ -1977,53 +2022,15 @@ void nbgl_useCaseNavigableContent(const char                *title,
                                   nbgl_navCallback_t         navCallback,
                                   nbgl_layoutTouchCallback_t controlsCallback)
 {
-    nbgl_pageContent_t    pageContent  = {0};
-    static nbgl_content_t contentsList = {0};
-
-    if (initPage >= nbPages) {
-        return;
-    }
-    // Use Callback to get the page content
-    if (navCallback(initPage, &pageContent) == false) {
-        return;
-    }
     memset(&context, 0, sizeof(UseCaseContext_t));
     context.type                                       = CONTENT_USE_CASE;
+    context.currentPage                                = initPage;
+    context.content.title                              = title;
     context.content.quitCallback                       = quitCallback;
+    context.content.navCallback                        = navCallback;
     context.content.controlsCallback                   = controlsCallback;
-    context.content.genericContents.callbackCallNeeded = false;
+    context.content.genericContents.callbackCallNeeded = true;
     context.content.genericContents.nbContents         = nbPages;
-
-    contentsList.type = pageContent.type;
-    switch (pageContent.type) {
-        case CENTERED_INFO:
-            contentsList.content.centeredInfo = pageContent.centeredInfo;
-            break;
-        case INFO_BUTTON:
-            contentsList.content.infoButton = pageContent.infoButton;
-            break;
-        case TAG_VALUE_LIST:
-            contentsList.content.tagValueList = pageContent.tagValueList;
-            break;
-        case SWITCHES_LIST:
-            contentsList.content.switchesList = pageContent.switchesList;
-            break;
-        case INFOS_LIST:
-            contentsList.content.infosList = pageContent.infosList;
-            break;
-        case CHOICES_LIST:
-            contentsList.content.choicesList = pageContent.choicesList;
-            context.content.title            = title;
-            context.currentPage              = pageContent.choicesList.initChoice;
-            break;
-        case BARS_LIST:
-            contentsList.content.barsList = pageContent.barsList;
-            context.content.title         = title;
-            break;
-        default:
-            break;
-    }
-    context.content.genericContents.contentsList = (const nbgl_content_t *) &contentsList;
 
     startUseCaseContent();
 }
