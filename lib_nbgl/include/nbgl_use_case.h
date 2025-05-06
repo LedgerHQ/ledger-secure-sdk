@@ -559,7 +559,7 @@ void nbgl_useCaseKeypadDigits(const char             *title,
                               uint8_t                 maxDigits,
                               bool                    shuffled,
                               nbgl_pinValidCallback_t validatePinCallback,
-                              nbgl_callback_t         backCallbackk);
+                              nbgl_callback_t         backCallback);
 void nbgl_useCaseKeypadPIN(const char             *title,
                            uint8_t                 minDigits,
                            uint8_t                 maxDigits,
