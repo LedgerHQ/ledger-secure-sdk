@@ -203,6 +203,9 @@ static ReviewWithWarningContext_t reviewWithWarnCtx;
 // configuration of warning when using @ref nbgl_useCaseReviewBlindSigning()
 static const nbgl_warning_t blindSigningWarning = {.predefinedSet = (1 << BLIND_SIGNING_WARN)};
 
+// Operation type for streaming (because the one in 'context' is reset at each streaming API call)
+nbgl_operationType_t streamingOpType;
+
 /**********************
  *  STATIC FUNCTIONS
  **********************/
@@ -2478,6 +2481,9 @@ void nbgl_useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
                                       const char                *reviewSubTitle,
                                       nbgl_choiceCallback_t      choiceCallback)
 {
+    // memorize streaming operation type for future API calls
+    streamingOpType = operationType;
+
     memset(&context, 0, sizeof(UseCaseContext_t));
     context.type                  = STREAMING_START_REVIEW_USE_CASE;
     context.operationType         = operationType;
@@ -2546,6 +2552,9 @@ void nbgl_useCaseAdvancedReviewStreamingStart(nbgl_operationType_t       operati
     context.currentPage           = 0;
     context.nbPages               = 2;  // Start page + trick for review continue
 
+    // memorize streaming operation type for future API calls
+    streamingOpType = operationType;
+
     // if no warning at all, it's a simple review
     if ((warning == NULL)
         || ((warning->predefinedSet == 0) && (warning->introDetails == NULL)
@@ -2596,12 +2605,11 @@ void nbgl_useCaseReviewStreamingContinueExt(const nbgl_contentTagValueList_t *ta
                                             nbgl_choiceCallback_t             choiceCallback,
                                             nbgl_callback_t                   skipCallback)
 {
-    uint8_t              curNbDataSets = context.review.nbDataSets;
-    nbgl_operationType_t operationType = context.operationType;
+    uint8_t curNbDataSets = context.review.nbDataSets;
 
     memset(&context, 0, sizeof(UseCaseContext_t));
     context.type                = STREAMING_CONTINUE_REVIEW_USE_CASE;
-    context.operationType       = operationType;
+    context.operationType       = streamingOpType;
     context.review.tagValueList = tagValueList;
     context.review.onChoice     = choiceCallback;
     context.currentPage         = 0;
@@ -2631,12 +2639,11 @@ void nbgl_useCaseReviewStreamingContinue(const nbgl_contentTagValueList_t *tagVa
 void nbgl_useCaseReviewStreamingFinish(const char           *finishTitle,
                                        nbgl_choiceCallback_t choiceCallback)
 {
-    nbgl_operationType_t operationType = context.operationType;
     UNUSED(finishTitle);  // TODO dedicated screen for it?
 
     memset(&context, 0, sizeof(UseCaseContext_t));
     context.type            = STREAMING_FINISH_REVIEW_USE_CASE;
-    context.operationType   = operationType;
+    context.operationType   = streamingOpType;
     context.review.onChoice = choiceCallback;
     context.currentPage     = 0;
     context.nbPages         = 2;  // 2 pages at the end for accept/reject
