@@ -408,14 +408,16 @@ void nbgl_drawRoundedBorderedRect(const nbgl_area_t *area,
     // border
     // 4 rectangles (with last pixel of each corner not set)
 #ifdef SCREEN_SIZE_WALLET
-    rectArea.x0     = area->x0;
-    rectArea.y0     = area->y0;
-    rectArea.width  = area->width;
-    rectArea.height = stroke;
-    nbgl_frontDrawLine(&rectArea, 0, borderColor);  // top
-    rectArea.x0 = area->x0;
-    rectArea.y0 = area->y0 + area->height - 1;
-    nbgl_frontDrawLine(&rectArea, 0, borderColor);  // bottom
+    if ((2 * radius) < area->width) {
+        rectArea.x0     = area->x0;
+        rectArea.y0     = area->y0;
+        rectArea.width  = area->width;
+        rectArea.height = stroke;
+        nbgl_frontDrawLine(&rectArea, 0, borderColor);  // top
+        rectArea.x0 = area->x0;
+        rectArea.y0 = area->y0 + area->height - 1;
+        nbgl_frontDrawLine(&rectArea, 0, borderColor);  // bottom
+    }
     if ((2 * radius) < area->height) {
         rectArea.x0              = area->x0;
         rectArea.y0              = area->y0;
