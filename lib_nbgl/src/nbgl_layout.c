@@ -20,6 +20,7 @@
 #include "nbgl_screen.h"
 #include "nbgl_touch.h"
 #include "glyphs.h"
+#include "os_io_seph_ux.h"
 #include "os_pic.h"
 #include "os_helpers.h"
 #include "lcx_rng.h"
@@ -145,7 +146,7 @@ static uint8_t nbTouchableControls = 0;
 /**********************
  *  STATIC PROTOTYPES
  **********************/
-extern const char *get_ux_loc_string(uint32_t index);
+// extern const char *get_ux_loc_string(UX_LOC_STRINGS_INDEX index);
 
 #ifdef HAVE_FAST_HOLD_TO_APPROVE
 // Unit step in % of touchable progress bar
@@ -314,7 +315,7 @@ static void touchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
     if ((layout->callback != NULL) && (layoutObj->token != NBGL_INVALID_TOKEN)) {
 #ifdef HAVE_PIEZO_SOUND
         if (layoutObj->tuneId < NBGL_NO_TUNE) {
-            io_seproxyhal_play_tune(layoutObj->tuneId);
+            os_io_seph_cmd_piezo_play_tune(layoutObj->tuneId);
         }
 #endif  // HAVE_PIEZO_SOUND
         if (needRefresh) {
@@ -446,7 +447,7 @@ static void radioTouchCallback(nbgl_obj_t            *obj,
         if (layout->callback != NULL) {
 #ifdef HAVE_PIEZO_SOUND
             if (layout->callbackObjPool[foundRadio].tuneId < NBGL_NO_TUNE) {
-                io_seproxyhal_play_tune(layout->callbackObjPool[foundRadio].tuneId);
+                os_io_seph_cmd_piezo_play_tune(layout->callbackObjPool[foundRadio].tuneId);
             }
             nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
 #endif  // HAVE_PIEZO_SOUND

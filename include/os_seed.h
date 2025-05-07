@@ -57,7 +57,7 @@ unsigned char os_perso_get_seed_algorithm(void);
 SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_perso_set_words(const unsigned char *words
                                                                                    PLENGTH(length),
                                                                       unsigned int length);
-SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_perso_finalize(void);
+SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_perso_finalize(uint8_t disable_io);
 
 SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_perso_master_seed(uint8_t *master_seed
                                                                                     PLENGTH(length),
