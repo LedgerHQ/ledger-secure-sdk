@@ -99,4 +99,17 @@ OBJECTS_DIR += $(sort $(dir $(OBJECT_FILES)))
 DEPEND_FILES = $(subst $(OBJ_DIR), $(DEP_DIR), $(addsuffix .d, $(basename $(OBJECT_FILES))))
 DEPEND_DIR += $(sort $(dir $(DEPEND_FILES)))
 
+# Path to the TOML file
+APP_MANIFEST_FILE := $(APP_DIR)/ledger_app.toml
+
+ifneq ($(wildcard $(APP_MANIFEST_FILE)),)
+  # Retrieve the use-cases from the TOML file
+  APP_USE_CASES := $(shell python3 $(BOLOS_SDK)/extract_use_cases.py -m "$(APP_MANIFEST_FILE)" -c names)
+
+# Function to extract flags for a specific use case
+define get_flags
+  $(shell python3 $(BOLOS_SDK)/extract_use_cases.py -m "$(APP_MANIFEST_FILE)" -c flags -k "$1")
+endef
+endif
+
 include $(BOLOS_SDK)/Makefile.rules_generic
