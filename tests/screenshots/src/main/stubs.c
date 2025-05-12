@@ -158,6 +158,13 @@ void io_seproxyhal_se_reset(void)
     }
 }
 
+void os_reset(void)
+{
+    if (verbose) {
+        printf("os_reset\n");
+    }
+}
+
 void io_seproxyhal_disable_io(void) {}
 
 void io_seproxyhal_general_status(void) {}
