@@ -44,6 +44,9 @@ extern "C" {
 #define NB_MAX_LINES_IN_DETAILS 12
 #elif defined(TARGET_FLEX)
 #define NB_MAX_LINES_IN_DETAILS 11
+#else
+// Nano
+#define NB_MAX_LINES_IN_DETAILS 3
 #endif  // TARGETS
 
 /**
@@ -53,6 +56,9 @@ extern "C" {
 #define NB_MAX_LINES_IN_REVIEW 10
 #elif defined(TARGET_FLEX)
 #define NB_MAX_LINES_IN_REVIEW 9
+#else
+// Nano
+#define NB_MAX_LINES_IN_REVIEW 3
 #endif  // TARGETS
 
 /**
@@ -98,6 +104,13 @@ extern "C" {
 
 ///< Duration of status screens, automatically closing after this timeout (3s)
 #define STATUS_SCREEN_DURATION 3000
+
+/**
+ * @brief This is the mask to apply on @ref nbgl_operationType_t to get the real type provided by
+ * app
+ *
+ */
+#define REAL_TYPE_MASK 0x7
 
 /**********************
  *      MACROS

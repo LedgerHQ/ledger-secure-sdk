@@ -37,13 +37,6 @@
  */
 #define NO_THREAT_OPERATION (1 << 7)
 
-/**
- * @brief This is the mask to apply on @ref nbgl_operationType_t to get the real type provided by
- * app
- *
- */
-#define REAL_TYPE_MASK 0x7
-
 /**********************
  *      TYPEDEFS
  **********************/
@@ -54,6 +47,7 @@ typedef struct ReviewContext_s {
     const nbgl_icon_details_t        *icon;
     const char                       *reviewTitle;
     const char                       *reviewSubTitle;
+    const char                       *finishTitle;
     const char                       *address;       // for address confirmation review
     nbgl_callback_t                   skipCallback;  // callback provided by used
     uint8_t nbDataSets;     // number of sets of data received by StreamingContinue
@@ -1004,28 +998,38 @@ static void getLastPageInfo(bool approve, const nbgl_icon_details_t **icon, cons
         if (context.type == ADDRESS_REVIEW_USE_CASE) {
             *text = "Confirm";
         }
-        else if ((context.operationType & REAL_TYPE_MASK) == TYPE_TRANSACTION) {
-            if (context.operationType & RISKY_OPERATION) {
-                *text = "Accept risk and sign transaction";
-            }
-            else {
-                *text = "Sign transaction";
-            }
-        }
-        else if ((context.operationType & REAL_TYPE_MASK) == TYPE_MESSAGE) {
-            if (context.operationType & RISKY_OPERATION) {
-                *text = "Accept risk and sign message";
-            }
-            else {
-                *text = "Sign message";
-            };
-        }
         else {
-            if (context.operationType & RISKY_OPERATION) {
-                *text = "Accept risk and sign operation";
+            // if finish title is provided, use it
+            if (context.review.finishTitle != NULL) {
+                *text = context.review.finishTitle;
             }
             else {
-                *text = "Sign operation";
+                switch (context.operationType & REAL_TYPE_MASK) {
+                    case TYPE_TRANSACTION:
+                        if (context.operationType & RISKY_OPERATION) {
+                            *text = "Accept risk and sign transaction";
+                        }
+                        else {
+                            *text = "Sign transaction";
+                        }
+                        break;
+                    case TYPE_MESSAGE:
+                        if (context.operationType & RISKY_OPERATION) {
+                            *text = "Accept risk and sign message";
+                        }
+                        else {
+                            *text = "Sign message";
+                        }
+                        break;
+                    default:
+                        if (context.operationType & RISKY_OPERATION) {
+                            *text = "Accept risk and sign operation";
+                        }
+                        else {
+                            *text = "Sign operation";
+                        }
+                        break;
+                }
             }
         }
         context.stepCallback = onReviewAccept;
@@ -1669,14 +1673,13 @@ static void useCaseReview(ContextType_t                     type,
                           const char                       *finishTitle,
                           nbgl_choiceCallback_t             choiceCallback)
 {
-    UNUSED(finishTitle);  // TODO dedicated screen for it?
-
     memset(&context, 0, sizeof(UseCaseContext_t));
     context.type                  = type;
     context.operationType         = operationType;
     context.review.tagValueList   = tagValueList;
     context.review.reviewTitle    = reviewTitle;
     context.review.reviewSubTitle = reviewSubTitle;
+    context.review.finishTitle    = finishTitle;
     context.review.icon           = icon;
     context.review.onChoice       = choiceCallback;
     context.currentPage           = 0;
@@ -2639,14 +2642,13 @@ void nbgl_useCaseReviewStreamingContinue(const nbgl_contentTagValueList_t *tagVa
 void nbgl_useCaseReviewStreamingFinish(const char           *finishTitle,
                                        nbgl_choiceCallback_t choiceCallback)
 {
-    UNUSED(finishTitle);  // TODO dedicated screen for it?
-
     memset(&context, 0, sizeof(UseCaseContext_t));
-    context.type            = STREAMING_FINISH_REVIEW_USE_CASE;
-    context.operationType   = streamingOpType;
-    context.review.onChoice = choiceCallback;
-    context.currentPage     = 0;
-    context.nbPages         = 2;  // 2 pages at the end for accept/reject
+    context.type               = STREAMING_FINISH_REVIEW_USE_CASE;
+    context.operationType      = streamingOpType;
+    context.review.onChoice    = choiceCallback;
+    context.review.finishTitle = finishTitle;
+    context.currentPage        = 0;
+    context.nbPages            = 2;  // 2 pages at the end for accept/reject
 
     displayStreamingReviewPage(FORWARD_DIRECTION);
 }
