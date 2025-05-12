@@ -29,6 +29,7 @@
 #include "os_pic.h"
 #include "os_app.h"
 #include "os_halt.h"
+#include "os_reset.h"
 #include "os_io_seproxyhal.h"
 #include "os_memory.h"
 #include "os_registry.h"
@@ -155,6 +156,13 @@ void io_seproxyhal_se_reset(void)
 {
     if (verbose) {
         printf("io_seproxyhal_se_reset\n");
+    }
+}
+
+void os_reset(void)
+{
+    if (verbose) {
+        printf("os_reset\n");
     }
 }
 

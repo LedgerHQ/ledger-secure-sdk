@@ -6,6 +6,7 @@
 #include "os_helpers.h"
 #include "os_pin.h"
 #include "os_io.h"
+#include "os_reset.h"
 #include "os_apdu.h"
 #include "os_io_default_apdu.h"
 #include "os_io_legacy.h"
@@ -97,9 +98,7 @@ void io_seproxyhal_general_status(void)
 
 void io_seproxyhal_se_reset(void)
 {
-    os_io_seph_cmd_se_reset();
-    for (;;)
-        ;
+    os_reset();
 }
 
 void io_seproxyhal_disable_io(void)
