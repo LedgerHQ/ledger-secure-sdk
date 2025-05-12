@@ -56,8 +56,13 @@ enum {
     BTC_OPEN,
     ETH_OPEN,
     MONERO_OPEN,
+    MON_MESSAGE_SKIP,
     ETH_MESSAGE_SKIP,
     ETH_SIGN,
+    ETH_BLIND,
+    ETH_ENS,
+    ETH_DAPP,
+    ETH_VERIFY_ADDR,
     RECOV_OPEN,
     DOGE_SIGN,
 };
