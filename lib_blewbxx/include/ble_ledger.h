@@ -63,9 +63,6 @@ uint32_t BLE_LEDGER_send(uint8_t        profile_type,
                          uint16_t       packet_length,
                          uint32_t       timeout_ms);
 
-// Check data received
-int32_t BLE_LEDGER_data_ready(uint8_t *buffer, uint16_t max_length);
-
 // Check data sent
 int32_t BLE_LEDGER_is_busy(void);
 
