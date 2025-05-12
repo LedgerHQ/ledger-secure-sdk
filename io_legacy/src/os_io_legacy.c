@@ -97,9 +97,7 @@ void io_seproxyhal_general_status(void)
 
 void io_seproxyhal_se_reset(void)
 {
-    os_io_seph_cmd_se_reset();
-    for (;;)
-        ;
+    os_reset();
 }
 
 void io_seproxyhal_disable_io(void)
