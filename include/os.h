@@ -94,6 +94,9 @@ void os_boot(void);
  */
 unsigned short io_timeout(unsigned short last_timeout);
 
+// reset the SE and wait forever
+void os_reset(void) __attribute__((noreturn));
+
 /* ----------------------------------------------------------------------- */
 /* -                            EXCEPTIONS                               - */
 /* ----------------------------------------------------------------------- */
