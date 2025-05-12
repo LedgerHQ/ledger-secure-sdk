@@ -495,21 +495,38 @@ static void prepareReviewFirstPage(nbgl_contentCenter_t      *contentCenter,
     contentCenter->padding     = false;
 }
 
-static void prepareReviewLastPage(nbgl_contentInfoLongPress_t *infoLongPress,
+static const char *getFinishTitle(nbgl_operationType_t operationType, const char *finishTitle)
+{
+    if (finishTitle != NULL) {
+        return finishTitle;
+    }
+    switch (operationType & REAL_TYPE_MASK) {
+        case TYPE_TRANSACTION:
+            return "Sign transaction";
+        case TYPE_MESSAGE:
+            return "Sign message";
+        default:
+            return "Sign operation";
+    }
+}
+
+static void prepareReviewLastPage(nbgl_operationType_t         operationType,
+                                  nbgl_contentInfoLongPress_t *infoLongPress,
                                   const nbgl_icon_details_t   *icon,
                                   const char                  *finishTitle)
 {
-    infoLongPress->text           = finishTitle;
+    infoLongPress->text           = getFinishTitle(operationType, finishTitle);
     infoLongPress->icon           = icon;
     infoLongPress->longPressText  = "Hold to sign";
     infoLongPress->longPressToken = CONFIRM_TOKEN;
 }
 
-static void prepareReviewLightLastPage(nbgl_contentInfoButton_t  *infoButton,
+static void prepareReviewLightLastPage(nbgl_operationType_t       operationType,
+                                       nbgl_contentInfoButton_t  *infoButton,
                                        const nbgl_icon_details_t *icon,
                                        const char                *finishTitle)
 {
-    infoButton->text        = finishTitle;
+    infoButton->text        = getFinishTitle(operationType, finishTitle);
     infoButton->icon        = icon;
     infoButton->buttonText  = "Approve";
     infoButton->buttonToken = CONFIRM_TOKEN;
@@ -2329,11 +2346,13 @@ static void useCaseReview(nbgl_operationType_t              operationType,
     // The last page
     if (isLight) {
         localContentsList[2].type = INFO_BUTTON;
-        prepareReviewLightLastPage(&localContentsList[2].content.infoButton, icon, finishTitle);
+        prepareReviewLightLastPage(
+            operationType, &localContentsList[2].content.infoButton, icon, finishTitle);
     }
     else {
         localContentsList[2].type = INFO_LONG_PRESS;
-        prepareReviewLastPage(&localContentsList[2].content.infoLongPress, icon, finishTitle);
+        prepareReviewLastPage(
+            operationType, &localContentsList[2].content.infoLongPress, icon, finishTitle);
     }
 
     // compute number of pages & fill navigation structure
@@ -3916,7 +3935,8 @@ void nbgl_useCaseReviewStreamingFinish(const char           *finishTitle,
 
     // Eventually the long press page
     STARTING_CONTENT.type = INFO_LONG_PRESS;
-    prepareReviewLastPage(&STARTING_CONTENT.content.infoLongPress,
+    prepareReviewLastPage(bundleNavContext.reviewStreaming.operationType,
+                          &STARTING_CONTENT.content.infoLongPress,
                           bundleNavContext.reviewStreaming.icon,
                           finishTitle);
 
