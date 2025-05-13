@@ -90,7 +90,7 @@ typedef struct {
 // For 2^n <= size < 2^(n+1), this function returns n.
 static inline int seglist_index(heap_t *heap, size_t size)
 {
-    size_t  seg = 31 - __builtin_clz(size);
+    size_t  seg;
     uint8_t sub_segment;
 
     seg         = MAX(NB_LINEAR_SEGMENTS, (31 - __builtin_clz(size)));
