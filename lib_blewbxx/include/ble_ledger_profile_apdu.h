@@ -28,7 +28,7 @@ uint8_t BLE_LEDGER_PROFILE_apdu_handle_in_range(uint16_t gatt_handle, void *cook
 
 void BLE_LEDGER_PROFILE_apdu_connection_evt(ble_connection_t *connection, void *cookie);
 void BLE_LEDGER_PROFILE_apdu_connection_update_evt(ble_connection_t *connection, void *cookie);
-void BLE_LEDGER_PROFILE_apdu_encryption_changed(uint8_t encrypted, void *cookie);
+void BLE_LEDGER_PROFILE_apdu_encryption_changed(bool encrypted, void *cookie);
 
 uint8_t BLE_LEDGER_PROFILE_apdu_att_modified(uint8_t *hci_buffer, uint16_t length, void *cookie);
 uint8_t BLE_LEDGER_PROFILE_apdu_write_permit_req(uint8_t *hci_buffer,

@@ -28,7 +28,7 @@ typedef enum ble_state_e {
     BLE_STATE_STOPPING,
 } ble_state_t;
 
-typedef enum {
+typedef enum ble_init_step_e {
     BLE_INIT_STEP_IDLE,
     BLE_INIT_STEP_RESET,
     BLE_INIT_STEP_STATIC_ADDRESS,
@@ -44,7 +44,7 @@ typedef enum {
     BLE_INIT_STEP_END,
 } ble_init_step_t;
 
-typedef enum {
+typedef enum ble_start_adv_step_e {
     BLE_START_ADV_STEP_IDLE,
     BLE_START_ADV_STEP_STOP_ADV,
     BLE_START_ADV_STEP_SET_ADV_DATAS,
@@ -54,7 +54,7 @@ typedef enum {
     BLE_START_ADV_STEP_END,
 } ble_start_adv_step_t;
 
-typedef enum {
+typedef enum ble_stopping_step_e {
     BLE_STOPPING_STEP_IDLE,
     BLE_STOPPING_STEP_DISCONNECT,
     BLE_STOPPING_STEP_STOP_ADV,
@@ -66,9 +66,9 @@ typedef enum {
 
 /* Private types, structures, unions -----------------------------------------*/
 
-typedef struct {
+typedef struct ble_ledger_data_s {
     // General
-    uint8_t             enabled;
+    bool             enabled;
     ble_state_t         state;
     char                device_name[BLE_GAP_MAX_LOCAL_NAME_LENGTH + 1];
     char                device_name_length;
@@ -96,7 +96,7 @@ typedef struct {
     uint16_t         gap_service_handle;
     uint16_t         gap_device_name_characteristic_handle;
     uint16_t         gap_appearance_characteristic_handle;
-    uint8_t          advertising_enabled;
+    bool          advertising_enabled;
     ble_connection_t connection;
     uint16_t         pairing_code;
     uint8_t          pairing_in_progress;
@@ -158,7 +158,6 @@ static void get_device_name(void)
 
 static void start_mngr(uint8_t *hci_buffer, uint16_t length)
 {
-    uint8_t index = 0;
 
     if (ble_ledger_data.init_step == BLE_INIT_STEP_IDLE) {
         LOG_IO("INIT START\n");
@@ -248,7 +247,7 @@ static void start_mngr(uint8_t *hci_buffer, uint16_t length)
         case BLE_INIT_STEP_PROFILE_CREATE_DB: {
             ble_profile_info_t *profile_info = NULL;
             if (ble_ledger_data.init_step == BLE_INIT_STEP_PROFILE_INIT) {
-                for (index = 0; index < ble_ledger_data.nb_of_profile; index++) {
+                for (uint8_t index = 0; index < ble_ledger_data.nb_of_profile; index++) {
                     profile_info = ble_ledger_data.profile[index];
                     if (profile_info->init) {
                         ((ble_profile_init_t) PIC(profile_info->init))(&ble_ledger_data.cmd_data,
@@ -258,7 +257,7 @@ static void start_mngr(uint8_t *hci_buffer, uint16_t length)
                 ble_ledger_data.init_step++;
             }
             uint8_t db_creation_complete = 1;
-            for (index = 0; index < ble_ledger_data.nb_of_profile; index++) {
+            for (uint8_t index = 0; index < ble_ledger_data.nb_of_profile; index++) {
                 profile_info = ble_ledger_data.profile[index];
                 if (profile_info->create_db) {
                     if (((ble_profile_create_db_t) PIC(profile_info->create_db))(
@@ -310,7 +309,7 @@ static void start_mngr(uint8_t *hci_buffer, uint16_t length)
 
 static void start_advertising_mngr(uint16_t opcode)
 {
-    uint8_t buffer[31];
+    uint8_t buffer[31] = {0};
     uint8_t index = 0;
 
     if ((ble_ledger_data.cmd_data.hci_cmd_opcode != 0xFFFF)
@@ -354,7 +353,7 @@ static void start_advertising_mngr(uint16_t opcode)
             break;
 
         case BLE_START_ADV_STEP_SET_ADV_DATAS:
-            ble_ledger_data.advertising_enabled = 0;
+            ble_ledger_data.advertising_enabled = false;
             // Flags
             buffer[index++] = 2;
             buffer[index++] = BLE_AD_TYPE_FLAGS;
@@ -431,7 +430,7 @@ static void start_advertising_mngr(uint16_t opcode)
 
         case BLE_START_ADV_STEP_END:
             LOG_IO("START ADVERTISING END\n");
-            ble_ledger_data.advertising_enabled = 1;
+            ble_ledger_data.advertising_enabled = true;
             ble_ledger_data.state               = BLE_STATE_RUNNING;
             break;
 
@@ -503,7 +502,7 @@ static void ask_user_pairing_numeric_comparison(uint32_t code)
 {
     ble_ledger_data.pairing_in_progress = 1;
 
-    char pairing_info[16];
+    char pairing_info[16] = {0};
     SPRINTF(pairing_info, "%06d", (unsigned int) code);
 
     os_io_ux_cmd_ble_pairing_request(BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST_NUMCOMP, pairing_info, 6);
@@ -534,7 +533,7 @@ static void ask_user_pairing_passkey(void)
     ble_ledger_data.pairing_in_progress = 2;
     ble_ledger_data.pairing_code        = cx_rng_u32_range_func(0, 1000000, cx_rng_u32);
 
-    char pairing_info[16];
+    char pairing_info[16] = {0};
     SPRINTF(pairing_info, "%06d", ble_ledger_data.pairing_code);
 
     os_io_ux_cmd_ble_pairing_request(BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST_PASSKEY, pairing_info, 6);
@@ -574,7 +573,6 @@ static void hci_evt_cmd_complete(uint8_t *buffer, uint16_t length)
     }
 
     uint16_t opcode = U2LE(buffer, 1);
-    uint8_t  index  = 0;
 
     if (ble_ledger_data.state == BLE_STATE_STARTING) {
         start_mngr(buffer, length);
@@ -588,7 +586,7 @@ static void hci_evt_cmd_complete(uint8_t *buffer, uint16_t length)
     else if (opcode == ACI_GATT_WRITE_RESP_CMD_CODE) {
         uint8_t             status       = BLE_PROFILE_STATUS_OK;
         ble_profile_info_t *profile_info = NULL;
-        for (index = 0; index < ble_ledger_data.nb_of_profile; index++) {
+        for (uint8_t index = 0; index < ble_ledger_data.nb_of_profile; index++) {
             profile_info = ble_ledger_data.profile[index];
             if (profile_info->write_rsp_ack) {
                 status = ((ble_profile_write_rsp_ack_t) PIC(profile_info->write_rsp_ack))(
@@ -602,7 +600,7 @@ static void hci_evt_cmd_complete(uint8_t *buffer, uint16_t length)
     else if (opcode == ACI_GATT_UPDATE_CHAR_VALUE_CMD_CODE) {
         uint8_t             status       = BLE_PROFILE_STATUS_OK;
         ble_profile_info_t *profile_info = NULL;
-        for (index = 0; index < ble_ledger_data.nb_of_profile; index++) {
+        for (uint8_t index = 0; index < ble_ledger_data.nb_of_profile; index++) {
             profile_info = ble_ledger_data.profile[index];
             if (profile_info->update_char_val_ack) {
                 status = ((ble_profile_update_char_value_ack_t) PIC(
@@ -633,9 +631,6 @@ static void hci_evt_le_meta_evt(uint8_t *buffer, uint16_t length)
         return;
     }
 
-    uint8_t             index        = 0;
-    ble_profile_info_t *profile_info = NULL;
-
     switch (buffer[0]) {
         case HCI_LE_CONNECTION_COMPLETE_SUBEVT_CODE:
             ble_ledger_data.connection.connection_handle   = U2LE(buffer, 2);
@@ -646,7 +641,7 @@ static void hci_evt_le_meta_evt(uint8_t *buffer, uint16_t length)
             ble_ledger_data.connection.conn_latency          = U2LE(buffer, 14);
             ble_ledger_data.connection.supervision_timeout   = U2LE(buffer, 16);
             ble_ledger_data.connection.master_clock_accuracy = buffer[18];
-            ble_ledger_data.connection.encrypted             = 0;
+            ble_ledger_data.connection.encrypted             = false;
             LOG_IO("LE CONNECTION COMPLETE %04X - %04X- %04X- %04X\n",
                    ble_ledger_data.connection.connection_handle,
                    ble_ledger_data.connection.conn_interval,
@@ -654,8 +649,8 @@ static void hci_evt_le_meta_evt(uint8_t *buffer, uint16_t length)
                    ble_ledger_data.connection.supervision_timeout);
             ble_ledger_data.advertising_enabled = 0;
 
-            for (index = 0; index < ble_ledger_data.nb_of_profile; index++) {
-                profile_info = ble_ledger_data.profile[index];
+            for (uint8_t index = 0; index < ble_ledger_data.nb_of_profile; index++) {
+                ble_profile_info_t *profile_info = ble_ledger_data.profile[index];
                 if (profile_info->connection_evt) {
                     ((ble_profile_connection_evt_t) PIC(profile_info->connection_evt))(
                         &ble_ledger_data.connection, profile_info->cookie);
@@ -674,8 +669,8 @@ static void hci_evt_le_meta_evt(uint8_t *buffer, uint16_t length)
                    ble_ledger_data.connection.conn_latency,
                    ble_ledger_data.connection.supervision_timeout);
 
-            for (index = 0; index < ble_ledger_data.nb_of_profile; index++) {
-                profile_info = ble_ledger_data.profile[index];
+            for (uint8_t index = 0; index < ble_ledger_data.nb_of_profile; index++) {
+                ble_profile_info_t *profile_info = ble_ledger_data.profile[index];
                 if (profile_info->connection_update_evt) {
                     ((ble_profile_connection_update_evt_t) PIC(
                         profile_info->connection_update_evt))(&ble_ledger_data.connection,
@@ -720,7 +715,6 @@ static void hci_evt_vendor(uint8_t *buffer, uint16_t length)
         return;
     }
 
-    uint8_t  index  = 0;
     uint16_t opcode = U2LE(buffer, 0);
 
     if (U2LE(buffer, 2) != ble_ledger_data.connection.connection_handle) {
@@ -780,7 +774,7 @@ static void hci_evt_vendor(uint8_t *buffer, uint16_t length)
             uint16_t            att_handle   = U2LE(buffer, 4);
             uint8_t             profil_found = 0;
             ble_profile_info_t *profile_info = NULL;
-            for (index = 0; index < ble_ledger_data.nb_of_profile; index++) {
+            for (uint8_t index = 0; index < ble_ledger_data.nb_of_profile; index++) {
                 profile_info = ble_ledger_data.profile[index];
                 if ((profile_info->handle_in_range)
                     && (((ble_profile_handle_in_range_t) PIC(profile_info->handle_in_range))(
@@ -817,7 +811,7 @@ static void hci_evt_vendor(uint8_t *buffer, uint16_t length)
         case ACI_ATT_EXCHANGE_MTU_RESP_VSEVT_CODE:
             LOG_IO("MTU : %d\n", U2LE(buffer, 4));
             ble_profile_info_t *profile_info = NULL;
-            for (index = 0; index < ble_ledger_data.nb_of_profile; index++) {
+            for (uint8_t index = 0; index < ble_ledger_data.nb_of_profile; index++) {
                 profile_info = ble_ledger_data.profile[index];
                 if (profile_info->mtu_changed) {
                     uint8_t status = BLE_PROFILE_STATUS_OK;
@@ -895,14 +889,14 @@ static int32_t is_data_ready(uint8_t *buffer, uint16_t max_length)
 }
 
 /* Exported functions --------------------------------------------------------*/
-void BLE_LEDGER_init(os_io_init_ble_t *init, uint8_t force_restart)
+void BLE_LEDGER_init(os_io_init_ble_t *init, uint8_t force)
 {
     if (!init) {
         return;
     }
 
-    if ((force_restart) || (ble_ledger_data.state == BLE_STATE_IDLE)) {
-        // First time BLE is started or forced to restart
+    if ((force) || (ble_ledger_data.state == BLE_STATE_IDLE)) {
+        // First time BLE is started or forced to reinit
         uint8_t random_address[6];
         memcpy(random_address, ble_ledger_data.random_address, sizeof(random_address));
         memset(&ble_ledger_data, 0, sizeof(ble_ledger_data));
@@ -1037,8 +1031,8 @@ int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
                     else {
                         LOG_IO("HCI DISCONNECTION COMPLETE code %02X\n", seph_buffer[9]);
                         ble_ledger_data.connection.connection_handle = 0xFFFF;
-                        ble_ledger_data.advertising_enabled          = 0;
-                        ble_ledger_data.connection.encrypted         = 0;
+                        ble_ledger_data.advertising_enabled          = false;
+                        ble_ledger_data.connection.encrypted         = false;
     #ifdef HAVE_INAPP_BLE_PAIRING
                         end_pairing_ux(BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_FAILED);
     #endif  // HAVE_INAPP_BLE_PAIRING
@@ -1060,11 +1054,11 @@ int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
                     else if (U2LE(seph_buffer, 8) == ble_ledger_data.connection.connection_handle) {
                         if (seph_buffer[10]) {
                             LOG_IO("Link encrypted\n");
-                            ble_ledger_data.connection.encrypted = 1;
+                            ble_ledger_data.connection.encrypted = true;
                         }
                         else {
                             LOG_IO("Link not encrypted\n");
-                            ble_ledger_data.connection.encrypted = 0;
+                            ble_ledger_data.connection.encrypted = false;
                         }
                         ble_profile_info_t *profile_info = NULL;
                         for (uint8_t index = 0; index < ble_ledger_data.nb_of_profile; index++) {
