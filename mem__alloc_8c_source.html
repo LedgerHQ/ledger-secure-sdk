@@ -176,7 +176,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span><span class="comment">// For 2^n &lt;= size &lt; 2^(n+1), this function returns n.</span></div>
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keywordtype">int</span> seglist_index(<a class="code hl_struct" href="structheap__t.html">heap_t</a> *heap, <span class="keywordtype">size_t</span> size)</div>
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>{</div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    <span class="keywordtype">size_t</span>  seg = 31 - __builtin_clz(size);</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    <span class="keywordtype">size_t</span>  seg;</div>
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> sub_segment;</div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span> </div>
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    seg         = <a class="code hl_define" href="nbgl__types_8h.html#aacc3ee1a7f283f8ef65cea31f4436a95">MAX</a>(<a class="code hl_define" href="mem__alloc_8c.html#a8058fbf7d82fe708211303742403267d">NB_LINEAR_SEGMENTS</a>, (31 - __builtin_clz(size)));</div>
