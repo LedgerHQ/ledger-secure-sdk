@@ -8,17 +8,17 @@
 #include "ble_cmd.h"
 
 /* Exported enumerations -----------------------------------------------------*/
-typedef enum {
+typedef enum ble_profile_status_e {
     BLE_PROFILE_STATUS_OK                 = 0x00,
     BLE_PROFILE_STATUS_OK_AND_SEND_PACKET = 0x01,
     BLE_PROFILE_STATUS_OK_PROCEDURE_END   = 0x02,
     BLE_PROFILE_STATUS_BAD_PARAMETERS     = 0xFF,
-} ble_profile_status_e;
+} ble_profile_status_t;
 
 /* Exported defines   --------------------------------------------------------*/
 
 /* Exported types, structures, unions ----------------------------------------*/
-typedef struct {
+typedef struct ble_connection_s {
     uint16_t connection_handle;
     uint8_t  role_slave;
     uint8_t  peer_address_random;
@@ -33,7 +33,7 @@ typedef struct {
     uint16_t max_tx_time;
     uint16_t max_rx_octets;
     uint16_t max_rx_time;
-    uint8_t  encrypted;
+    bool  encrypted;
 } ble_connection_t;
 
 typedef void (*ble_profile_init_t)(ble_cmd_data_t *cmd_data, void *cookie);
@@ -42,7 +42,7 @@ typedef uint8_t (*ble_profile_handle_in_range_t)(uint16_t gatt_handle, void *coo
 
 typedef void (*ble_profile_connection_evt_t)(ble_connection_t *connection, void *cookie);
 typedef void (*ble_profile_connection_update_evt_t)(ble_connection_t *connection, void *cookie);
-typedef void (*ble_profile_encryption_changed_t)(uint8_t encrypted, void *cookie);
+typedef void (*ble_profile_encryption_changed_t)(bool encrypted, void *cookie);
 
 typedef uint8_t (*ble_profile_att_modified_t)(uint8_t *hci_buffer, uint16_t length, void *cookie);
 typedef uint8_t (*ble_profile_write_permit_req_t)(uint8_t *hci_buffer,
