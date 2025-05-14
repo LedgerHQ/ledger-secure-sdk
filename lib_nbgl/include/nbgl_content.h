@@ -168,10 +168,10 @@ typedef struct {
     const char *item;   ///< string giving the tag name
     const char *value;  ///< string giving the value name
     union {
-#ifdef SCREEN_SIZE_WALLET
-        const nbgl_icon_details_t *valueIcon;  ///< a buffer containing the 32px 1BPP icon for icon
-                                               ///< on right of value (can be NULL)
-#endif                                         // SCREEN_SIZE_WALLET
+        const nbgl_icon_details_t
+            *valueIcon;  ///< - if alias, a buffer containing the 1BPP icon for icon
+                         ///< on right of value, on Stax/Flex (can be NULL)
+                         ///< - if centeredInfo, it's the icon of the centered info (can be NULL)
         const nbgl_contentValueExt_t
             *extension;  ///< if not NULL, gives additional info on value field
     };
