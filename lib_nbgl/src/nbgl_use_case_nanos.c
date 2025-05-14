@@ -164,6 +164,7 @@ typedef struct PageContent_s {
     const nbgl_icon_details_t    *icon;
     const nbgl_contentValueExt_t *extension;
     nbgl_state_t                  state;
+    bool                          isCenteredInfo;
 } PageContent_t;
 
 typedef struct ReviewWithWarningContext_s {
@@ -428,7 +429,9 @@ static void getPairData(const nbgl_contentTagValueList_t *tagValueList,
                         uint8_t                           index,
                         const char                      **item,
                         const char                      **value,
-                        const nbgl_contentValueExt_t    **extension)
+                        const nbgl_contentValueExt_t    **extension,
+                        const nbgl_icon_details_t       **icon,
+                        bool                             *isCenteredInfo)
 {
     const nbgl_contentTagValue_t *pair;
 
@@ -442,6 +445,10 @@ static void getPairData(const nbgl_contentTagValueList_t *tagValueList,
     *value = pair->value;
     if (pair->aliasValue) {
         *extension = pair->extension;
+    }
+    else if (pair->centeredInfo) {
+        *isCenteredInfo = true;
+        *icon           = pair->valueIcon;
     }
     else {
         *extension = NULL;
@@ -957,14 +964,18 @@ static void displayExtensionStep(nbgl_stepPosition_t pos)
 
 static void displayAliasFullValue(void)
 {
-    const char *text    = NULL;
-    const char *subText = NULL;
+    const char                *text    = NULL;
+    const char                *subText = NULL;
+    const nbgl_icon_details_t *icon;
+    bool                       isCenteredInfo;
 
     getPairData(context.review.tagValueList,
                 context.review.currentTagValueIndex,
                 &text,
                 &subText,
-                &context.review.extension);
+                &context.review.extension,
+                &icon,
+                &isCenteredInfo);
     if (context.review.extension == NULL) {
         // probably an error
         LOG_WARN(USE_CASE_LOGGER,
@@ -1068,6 +1079,7 @@ static void displayReviewPage(nbgl_stepPosition_t pos)
     uint8_t                       approveIndex = 255;
     uint8_t                       rejectIndex  = 255;
     const nbgl_contentValueExt_t *extension    = NULL;
+    ForcedType_t                  forcedType   = NO_FORCED_TYPE;
 
     context.stepCallback = NULL;
 
@@ -1112,24 +1124,31 @@ static void displayReviewPage(nbgl_stepPosition_t pos)
         subText = context.review.address;
     }
     else {
-        pairIndex = context.currentPage - reviewPages;
+        bool isCenteredInfo = false;
+        pairIndex           = context.currentPage - reviewPages;
         if (context.review.address != NULL) {
             pairIndex--;
         }
-        getPairData(context.review.tagValueList, pairIndex, &text, &subText, &extension);
+        getPairData(context.review.tagValueList,
+                    pairIndex,
+                    &text,
+                    &subText,
+                    &extension,
+                    &icon,
+                    &isCenteredInfo);
         if (extension != NULL) {
             context.stepCallback                = displayAliasFullValue;
             context.review.currentTagValueIndex = pairIndex;
+            forcedType                          = FORCE_BUTTON;
+        }
+        else {
+            if (isCenteredInfo) {
+                forcedType = FORCE_CENTERED_INFO;
+            }
         }
     }
 
-    drawStep(pos,
-             icon,
-             text,
-             subText,
-             reviewCallback,
-             false,
-             (extension != NULL) ? FORCE_BUTTON : NO_FORCED_TYPE);
+    drawStep(pos, icon, text, subText, reviewCallback, false, forcedType);
     nbgl_refresh();
 }
 
@@ -1143,6 +1162,7 @@ static void displayStreamingReviewPage(nbgl_stepPosition_t pos)
     uint8_t                       titleIndex  = 255;
     uint8_t                       subIndex    = 255;
     const nbgl_contentValueExt_t *extension   = NULL;
+    ForcedType_t                  forcedType  = NO_FORCED_TYPE;
 
     context.stepCallback = NULL;
     switch (context.type) {
@@ -1194,8 +1214,22 @@ static void displayStreamingReviewPage(nbgl_stepPosition_t pos)
                 return;
             }
             context.review.skipDisplay = false;
-            getPairData(
-                context.review.tagValueList, context.currentPage, &text, &subText, &extension);
+            bool isCenteredInfo        = false;
+            getPairData(context.review.tagValueList,
+                        context.currentPage,
+                        &text,
+                        &subText,
+                        &extension,
+                        &icon,
+                        &isCenteredInfo);
+            if (extension != NULL) {
+                forcedType = FORCE_BUTTON;
+            }
+            else {
+                if (isCenteredInfo) {
+                    forcedType = FORCE_CENTERED_INFO;
+                }
+            }
             break;
 
         case STREAMING_FINISH_REVIEW_USE_CASE:
@@ -1211,13 +1245,7 @@ static void displayStreamingReviewPage(nbgl_stepPosition_t pos)
             break;
     }
 
-    drawStep(pos,
-             icon,
-             text,
-             subText,
-             streamingReviewCallback,
-             false,
-             (extension != NULL) ? FORCE_BUTTON : NO_FORCED_TYPE);
+    drawStep(pos, icon, text, subText, streamingReviewCallback, false, forcedType);
     nbgl_refresh();
 }
 
@@ -1280,7 +1308,9 @@ static void getContentPage(bool toogle_state, PageContent_t *contentPage)
                         elemIdx,
                         &contentPage->text,
                         &contentPage->subText,
-                        &contentPage->extension);
+                        &contentPage->extension,
+                        &contentPage->icon,
+                        &contentPage->isCenteredInfo);
             break;
         case SWITCHES_LIST:
             contentPage->isSwitch = true;
@@ -1618,11 +1648,15 @@ static void displayConfirm(nbgl_stepPosition_t pos)
 static void displayContent(nbgl_stepPosition_t pos, bool toogle_state)
 {
     PageContent_t contentPage = {0};
+    ForcedType_t  forcedType  = NO_FORCED_TYPE;
 
     context.stepCallback = NULL;
 
     if (context.currentPage < (context.nbPages - 1)) {
         getContentPage(toogle_state, &contentPage);
+        if (contentPage.isCenteredInfo) {
+            forcedType = FORCE_CENTERED_INFO;
+        }
     }
     else {  // last page is for quit
         if (context.content.rejectText) {
@@ -1651,7 +1685,7 @@ static void displayContent(nbgl_stepPosition_t pos, bool toogle_state)
                  contentPage.subText,
                  contentCallback,
                  false,
-                 NO_FORCED_TYPE);
+                 forcedType);
     }
 
     nbgl_refresh();
