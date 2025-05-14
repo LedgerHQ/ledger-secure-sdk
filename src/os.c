@@ -23,6 +23,7 @@
 #include "os_io.h"
 #include "os_utils.h"
 #include "os.h"
+#include "os_io_seph_cmd.h"
 #include <string.h>
 
 #ifndef BOLOS_OS_UPGRADER_APP
@@ -257,6 +258,13 @@ void u4be_encode(unsigned char *buffer, unsigned int offset, unsigned int value)
 void u4le_encode(unsigned char *buffer, unsigned int offset, unsigned int value)
 {
     U4LE_ENCODE(buffer, offset, value);
+}
+
+void os_reset(void)
+{
+    os_io_seph_cmd_se_reset();
+    for (;;) {
+    }
 }
 
 void *os_memmove(void *dest, const void *src, size_t n)
