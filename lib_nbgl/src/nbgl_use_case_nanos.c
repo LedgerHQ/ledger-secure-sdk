@@ -37,13 +37,6 @@
  */
 #define NO_THREAT_OPERATION (1 << 7)
 
-/**
- * @brief This is the mask to apply on @ref nbgl_operationType_t to get the real type provided by
- * app
- *
- */
-#define REAL_TYPE_MASK 0x7
-
 /**********************
  *      TYPEDEFS
  **********************/
@@ -54,6 +47,7 @@ typedef struct ReviewContext_s {
     const nbgl_icon_details_t        *icon;
     const char                       *reviewTitle;
     const char                       *reviewSubTitle;
+    const char                       *finishTitle;
     const char                       *address;       // for address confirmation review
     nbgl_callback_t                   skipCallback;  // callback provided by used
     uint8_t nbDataSets;     // number of sets of data received by StreamingContinue
@@ -170,6 +164,7 @@ typedef struct PageContent_s {
     const nbgl_icon_details_t    *icon;
     const nbgl_contentValueExt_t *extension;
     nbgl_state_t                  state;
+    bool                          isCenteredInfo;
 } PageContent_t;
 
 typedef struct ReviewWithWarningContext_s {
@@ -202,6 +197,9 @@ static UseCaseContext_t context;
 static ReviewWithWarningContext_t reviewWithWarnCtx;
 // configuration of warning when using @ref nbgl_useCaseReviewBlindSigning()
 static const nbgl_warning_t blindSigningWarning = {.predefinedSet = (1 << BLIND_SIGNING_WARN)};
+
+// Operation type for streaming (because the one in 'context' is reset at each streaming API call)
+nbgl_operationType_t streamingOpType;
 
 /**********************
  *  STATIC FUNCTIONS
@@ -431,7 +429,9 @@ static void getPairData(const nbgl_contentTagValueList_t *tagValueList,
                         uint8_t                           index,
                         const char                      **item,
                         const char                      **value,
-                        const nbgl_contentValueExt_t    **extension)
+                        const nbgl_contentValueExt_t    **extension,
+                        const nbgl_icon_details_t       **icon,
+                        bool                             *isCenteredInfo)
 {
     const nbgl_contentTagValue_t *pair;
 
@@ -445,6 +445,10 @@ static void getPairData(const nbgl_contentTagValueList_t *tagValueList,
     *value = pair->value;
     if (pair->aliasValue) {
         *extension = pair->extension;
+    }
+    else if (pair->centeredInfo) {
+        *isCenteredInfo = true;
+        *icon           = pair->valueIcon;
     }
     else {
         *extension = NULL;
@@ -960,14 +964,18 @@ static void displayExtensionStep(nbgl_stepPosition_t pos)
 
 static void displayAliasFullValue(void)
 {
-    const char *text    = NULL;
-    const char *subText = NULL;
+    const char                *text    = NULL;
+    const char                *subText = NULL;
+    const nbgl_icon_details_t *icon;
+    bool                       isCenteredInfo;
 
     getPairData(context.review.tagValueList,
                 context.review.currentTagValueIndex,
                 &text,
                 &subText,
-                &context.review.extension);
+                &context.review.extension,
+                &icon,
+                &isCenteredInfo);
     if (context.review.extension == NULL) {
         // probably an error
         LOG_WARN(USE_CASE_LOGGER,
@@ -1001,28 +1009,38 @@ static void getLastPageInfo(bool approve, const nbgl_icon_details_t **icon, cons
         if (context.type == ADDRESS_REVIEW_USE_CASE) {
             *text = "Confirm";
         }
-        else if ((context.operationType & REAL_TYPE_MASK) == TYPE_TRANSACTION) {
-            if (context.operationType & RISKY_OPERATION) {
-                *text = "Accept risk and sign transaction";
-            }
-            else {
-                *text = "Sign transaction";
-            }
-        }
-        else if ((context.operationType & REAL_TYPE_MASK) == TYPE_MESSAGE) {
-            if (context.operationType & RISKY_OPERATION) {
-                *text = "Accept risk and sign message";
-            }
-            else {
-                *text = "Sign message";
-            };
-        }
         else {
-            if (context.operationType & RISKY_OPERATION) {
-                *text = "Accept risk and sign operation";
+            // if finish title is provided, use it
+            if (context.review.finishTitle != NULL) {
+                *text = context.review.finishTitle;
             }
             else {
-                *text = "Sign operation";
+                switch (context.operationType & REAL_TYPE_MASK) {
+                    case TYPE_TRANSACTION:
+                        if (context.operationType & RISKY_OPERATION) {
+                            *text = "Accept risk and sign transaction";
+                        }
+                        else {
+                            *text = "Sign transaction";
+                        }
+                        break;
+                    case TYPE_MESSAGE:
+                        if (context.operationType & RISKY_OPERATION) {
+                            *text = "Accept risk and sign message";
+                        }
+                        else {
+                            *text = "Sign message";
+                        }
+                        break;
+                    default:
+                        if (context.operationType & RISKY_OPERATION) {
+                            *text = "Accept risk and sign operation";
+                        }
+                        else {
+                            *text = "Sign operation";
+                        }
+                        break;
+                }
             }
         }
         context.stepCallback = onReviewAccept;
@@ -1061,6 +1079,7 @@ static void displayReviewPage(nbgl_stepPosition_t pos)
     uint8_t                       approveIndex = 255;
     uint8_t                       rejectIndex  = 255;
     const nbgl_contentValueExt_t *extension    = NULL;
+    ForcedType_t                  forcedType   = NO_FORCED_TYPE;
 
     context.stepCallback = NULL;
 
@@ -1105,24 +1124,31 @@ static void displayReviewPage(nbgl_stepPosition_t pos)
         subText = context.review.address;
     }
     else {
-        pairIndex = context.currentPage - reviewPages;
+        bool isCenteredInfo = false;
+        pairIndex           = context.currentPage - reviewPages;
         if (context.review.address != NULL) {
             pairIndex--;
         }
-        getPairData(context.review.tagValueList, pairIndex, &text, &subText, &extension);
+        getPairData(context.review.tagValueList,
+                    pairIndex,
+                    &text,
+                    &subText,
+                    &extension,
+                    &icon,
+                    &isCenteredInfo);
         if (extension != NULL) {
             context.stepCallback                = displayAliasFullValue;
             context.review.currentTagValueIndex = pairIndex;
+            forcedType                          = FORCE_BUTTON;
+        }
+        else {
+            if (isCenteredInfo) {
+                forcedType = FORCE_CENTERED_INFO;
+            }
         }
     }
 
-    drawStep(pos,
-             icon,
-             text,
-             subText,
-             reviewCallback,
-             false,
-             (extension != NULL) ? FORCE_BUTTON : NO_FORCED_TYPE);
+    drawStep(pos, icon, text, subText, reviewCallback, false, forcedType);
     nbgl_refresh();
 }
 
@@ -1136,6 +1162,7 @@ static void displayStreamingReviewPage(nbgl_stepPosition_t pos)
     uint8_t                       titleIndex  = 255;
     uint8_t                       subIndex    = 255;
     const nbgl_contentValueExt_t *extension   = NULL;
+    ForcedType_t                  forcedType  = NO_FORCED_TYPE;
 
     context.stepCallback = NULL;
     switch (context.type) {
@@ -1187,8 +1214,22 @@ static void displayStreamingReviewPage(nbgl_stepPosition_t pos)
                 return;
             }
             context.review.skipDisplay = false;
-            getPairData(
-                context.review.tagValueList, context.currentPage, &text, &subText, &extension);
+            bool isCenteredInfo        = false;
+            getPairData(context.review.tagValueList,
+                        context.currentPage,
+                        &text,
+                        &subText,
+                        &extension,
+                        &icon,
+                        &isCenteredInfo);
+            if (extension != NULL) {
+                forcedType = FORCE_BUTTON;
+            }
+            else {
+                if (isCenteredInfo) {
+                    forcedType = FORCE_CENTERED_INFO;
+                }
+            }
             break;
 
         case STREAMING_FINISH_REVIEW_USE_CASE:
@@ -1204,13 +1245,7 @@ static void displayStreamingReviewPage(nbgl_stepPosition_t pos)
             break;
     }
 
-    drawStep(pos,
-             icon,
-             text,
-             subText,
-             streamingReviewCallback,
-             false,
-             (extension != NULL) ? FORCE_BUTTON : NO_FORCED_TYPE);
+    drawStep(pos, icon, text, subText, streamingReviewCallback, false, forcedType);
     nbgl_refresh();
 }
 
@@ -1273,7 +1308,9 @@ static void getContentPage(bool toogle_state, PageContent_t *contentPage)
                         elemIdx,
                         &contentPage->text,
                         &contentPage->subText,
-                        &contentPage->extension);
+                        &contentPage->extension,
+                        &contentPage->icon,
+                        &contentPage->isCenteredInfo);
             break;
         case SWITCHES_LIST:
             contentPage->isSwitch = true;
@@ -1611,11 +1648,15 @@ static void displayConfirm(nbgl_stepPosition_t pos)
 static void displayContent(nbgl_stepPosition_t pos, bool toogle_state)
 {
     PageContent_t contentPage = {0};
+    ForcedType_t  forcedType  = NO_FORCED_TYPE;
 
     context.stepCallback = NULL;
 
     if (context.currentPage < (context.nbPages - 1)) {
         getContentPage(toogle_state, &contentPage);
+        if (contentPage.isCenteredInfo) {
+            forcedType = FORCE_CENTERED_INFO;
+        }
     }
     else {  // last page is for quit
         if (context.content.rejectText) {
@@ -1644,7 +1685,7 @@ static void displayContent(nbgl_stepPosition_t pos, bool toogle_state)
                  contentPage.subText,
                  contentCallback,
                  false,
-                 NO_FORCED_TYPE);
+                 forcedType);
     }
 
     nbgl_refresh();
@@ -1666,14 +1707,13 @@ static void useCaseReview(ContextType_t                     type,
                           const char                       *finishTitle,
                           nbgl_choiceCallback_t             choiceCallback)
 {
-    UNUSED(finishTitle);  // TODO dedicated screen for it?
-
     memset(&context, 0, sizeof(UseCaseContext_t));
     context.type                  = type;
     context.operationType         = operationType;
     context.review.tagValueList   = tagValueList;
     context.review.reviewTitle    = reviewTitle;
     context.review.reviewSubTitle = reviewSubTitle;
+    context.review.finishTitle    = finishTitle;
     context.review.icon           = icon;
     context.review.onChoice       = choiceCallback;
     context.currentPage           = 0;
@@ -2478,6 +2518,9 @@ void nbgl_useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
                                       const char                *reviewSubTitle,
                                       nbgl_choiceCallback_t      choiceCallback)
 {
+    // memorize streaming operation type for future API calls
+    streamingOpType = operationType;
+
     memset(&context, 0, sizeof(UseCaseContext_t));
     context.type                  = STREAMING_START_REVIEW_USE_CASE;
     context.operationType         = operationType;
@@ -2546,6 +2589,9 @@ void nbgl_useCaseAdvancedReviewStreamingStart(nbgl_operationType_t       operati
     context.currentPage           = 0;
     context.nbPages               = 2;  // Start page + trick for review continue
 
+    // memorize streaming operation type for future API calls
+    streamingOpType = operationType;
+
     // if no warning at all, it's a simple review
     if ((warning == NULL)
         || ((warning->predefinedSet == 0) && (warning->introDetails == NULL)
@@ -2596,12 +2642,11 @@ void nbgl_useCaseReviewStreamingContinueExt(const nbgl_contentTagValueList_t *ta
                                             nbgl_choiceCallback_t             choiceCallback,
                                             nbgl_callback_t                   skipCallback)
 {
-    uint8_t              curNbDataSets = context.review.nbDataSets;
-    nbgl_operationType_t operationType = context.operationType;
+    uint8_t curNbDataSets = context.review.nbDataSets;
 
     memset(&context, 0, sizeof(UseCaseContext_t));
     context.type                = STREAMING_CONTINUE_REVIEW_USE_CASE;
-    context.operationType       = operationType;
+    context.operationType       = streamingOpType;
     context.review.tagValueList = tagValueList;
     context.review.onChoice     = choiceCallback;
     context.currentPage         = 0;
@@ -2631,15 +2676,13 @@ void nbgl_useCaseReviewStreamingContinue(const nbgl_contentTagValueList_t *tagVa
 void nbgl_useCaseReviewStreamingFinish(const char           *finishTitle,
                                        nbgl_choiceCallback_t choiceCallback)
 {
-    nbgl_operationType_t operationType = context.operationType;
-    UNUSED(finishTitle);  // TODO dedicated screen for it?
-
     memset(&context, 0, sizeof(UseCaseContext_t));
-    context.type            = STREAMING_FINISH_REVIEW_USE_CASE;
-    context.operationType   = operationType;
-    context.review.onChoice = choiceCallback;
-    context.currentPage     = 0;
-    context.nbPages         = 2;  // 2 pages at the end for accept/reject
+    context.type               = STREAMING_FINISH_REVIEW_USE_CASE;
+    context.operationType      = streamingOpType;
+    context.review.onChoice    = choiceCallback;
+    context.review.finishTitle = finishTitle;
+    context.currentPage        = 0;
+    context.nbPages            = 2;  // 2 pages at the end for accept/reject
 
     displayStreamingReviewPage(FORWARD_DIRECTION);
 }
