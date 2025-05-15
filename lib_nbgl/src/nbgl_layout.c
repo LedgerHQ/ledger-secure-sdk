@@ -43,7 +43,6 @@
 #define RADIO_CHOICE_HEIGHT              96
 #define FOOTER_HEIGHT                    80
 #define BAR_INTERVALE                    12
-#define BACK_KEY_WIDTH                   88
 #define FOOTER_BUTTON_HEIGHT             128
 #define UP_FOOTER_BUTTON_HEIGHT          120
 #define ROUNDED_AND_FOOTER_FOOTER_HEIGHT 192
@@ -67,7 +66,6 @@
 #define RADIO_CHOICE_HEIGHT              92
 #define FOOTER_HEIGHT                    80
 #define BAR_INTERVALE                    16
-#define BACK_KEY_WIDTH                   104
 #define FOOTER_BUTTON_HEIGHT             136
 #define UP_FOOTER_BUTTON_HEIGHT          136
 #define ROUNDED_AND_FOOTER_FOOTER_HEIGHT 208
@@ -90,10 +88,6 @@
 #else  // TARGETS
 #error Undefined target
 #endif  // TARGETS
-
-// width & height for progress bar
-#define PROGRESSBAR_WIDTH  120
-#define PROGRESSBAR_HEIGHT 12
 
 // refresh period of the spinner, in ms
 #define SPINNER_REFRESH_PERIOD 400
@@ -1800,12 +1794,15 @@ int nbgl_layoutAddLeftContent(nbgl_layout_t *layout, const nbgl_layoutLeftConten
     container->obj.alignmentMarginX = BORDER_MARGIN;
 
     // create title
-    textArea                  = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-    textArea->textColor       = BLACK;
-    textArea->text            = PIC(info->title);
-    textArea->textAlignment   = MID_LEFT;
-    textArea->fontId          = LARGE_MEDIUM_FONT;
-    textArea->wrapping        = true;
+    textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+    textArea->textColor     = BLACK;
+    textArea->text          = PIC(info->title);
+    textArea->textAlignment = MID_LEFT;
+    textArea->fontId        = LARGE_MEDIUM_FONT;
+    textArea->wrapping      = true;
+#ifdef TARGET_STAX
+    textArea->obj.alignmentMarginY = 24;
+#endif
     textArea->obj.area.width  = AVAILABLE_WIDTH;
     textArea->obj.area.height = nbgl_getTextHeightInWidth(
         textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
@@ -2275,92 +2272,6 @@ int nbgl_layoutAddProgressBar(nbgl_layout_t *layout,
     layoutAddObject(layoutInt, (nbgl_obj_t *) container);
 
     return 2;
-}
-
-/**
- * @brief Update an existing progress Bar (must be the only object of the layout)
- *
- * @param layout the current layout
- * @param text text to draw under the progress bar
- * @param subText text to draw under the text (can be NULL)
- * @param percentage progress bar percentage.
- * @return - -1 An error occurred
- *         - 0 if no refresh needed
- *         - 1 if partial B&W refresh needed
- *         - 2 if partial color refresh needed
- */
-int nbgl_layoutUpdateProgressBar(nbgl_layout_t *layout,
-                                 const char    *text,
-                                 const char    *subText,
-                                 uint8_t        percentage)
-{
-    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
-    nbgl_container_t      *container;
-    nbgl_text_area_t      *textArea;
-    nbgl_progress_bar_t   *progress;
-    int                    ret = 0;
-
-    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutUpdateProgressBar():\n");
-    if ((layout == NULL) || (layoutInt->container->nbChildren == 0)) {
-        return -1;
-    }
-
-    container = (nbgl_container_t *) layoutInt->container->children[0];
-    if ((container->obj.type != CONTAINER) || (container->nbChildren < 2)) {
-        return -1;
-    }
-
-    progress = (nbgl_progress_bar_t *) container->children[0];
-    if (progress->obj.type != PROGRESS_BAR) {
-        return -1;
-    }
-
-    // if percentage is different, redraw
-    if (progress->state != percentage) {
-        progress->partialRedraw = true;
-        progress->state         = percentage;
-        nbgl_objDraw((nbgl_obj_t *) progress);
-        ret = 1;
-    }
-
-    // update text area if necessary
-    textArea = (nbgl_text_area_t *) container->children[1];
-    if (textArea->obj.type != TEXT_AREA) {
-        return -1;
-    }
-
-    const char *newText    = PIC(text);
-    size_t      newTextLen = strlen(newText);
-    // if text is different, redraw (don't use strcmp because it crashes with Rust SDK)
-    if ((newTextLen != strlen(textArea->text)) || memcmp(textArea->text, newText, newTextLen)) {
-        textArea->text = newText;
-        nbgl_objDraw((nbgl_obj_t *) textArea);
-        ret = 2;
-    }
-
-    if (subText != NULL) {
-        nbgl_text_area_t *subTextArea;
-
-        if (container->nbChildren != 3) {
-            return -1;
-        }
-
-        subTextArea = (nbgl_text_area_t *) container->children[2];
-        if (subTextArea->obj.type != TEXT_AREA) {
-            return -1;
-        }
-        const char *newSubText    = PIC(subText);
-        size_t      newSubTextLen = strlen(newSubText);
-        // if text is different, redraw
-        if ((newSubTextLen != strlen(subTextArea->text))
-            || memcmp(subTextArea->text, newSubText, newSubTextLen)) {
-            subTextArea->text = newSubText;
-            nbgl_objDraw((nbgl_obj_t *) subTextArea);
-            ret = 2;
-        }
-    }
-
-    return ret;
 }
 
 /**
