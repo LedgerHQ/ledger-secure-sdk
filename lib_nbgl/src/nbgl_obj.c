@@ -764,6 +764,8 @@ static void draw_progressBar(nbgl_progress_bar_t *obj, nbgl_obj_t *prevObj, bool
     if (computePosition) {
         compute_position((nbgl_obj_t *) obj, prevObj);
     }
+    // force vertical position to be aligned until using nbgl_drawLine()
+    obj->obj.area.y0 &= ~(VERTICAL_ALIGNMENT - 1);
     LOG_DEBUG(OBJ_LOGGER,
               "draw_progressBar(), x0 = %d, y0 = %d, level = %d %%\n",
               obj->obj.area.x0,
@@ -796,13 +798,13 @@ static void draw_progressBar(nbgl_progress_bar_t *obj, nbgl_obj_t *prevObj, bool
     color_t     barColor;
     memcpy(&barArea, &obj->obj.area, sizeof(nbgl_area_t));
 
-    if (barDiffWith >= 0) {
+    if (barDiffWith > 0) {
         // Drawing "forward"
         barArea.x0    = obj->obj.area.x0 + obj->previousWidth;
         barArea.width = barDiffWith;
         barColor      = obj->foregroundColor;
     }
-    else {
+    else if (barDiffWith < 0) {
         // Drawing "backward"
         barArea.x0    = obj->obj.area.x0 + obj->previousWidth + barDiffWith;
         barArea.width = -barDiffWith;
