@@ -58,6 +58,10 @@ extern "C" {
 
 #define PRE_TAG_VALUE_MARGIN   24
 #define INTER_TAG_VALUE_MARGIN 12
+// width & height for progress bar
+#define PROGRESSBAR_WIDTH      120
+#define PROGRESSBAR_HEIGHT     12
+#define BACK_KEY_WIDTH         88
 #elif defined(TARGET_FLEX)
 #define NB_MAX_SUGGESTION_BUTTONS         8
 // only 2 buttons are visible at the same time on Flex
@@ -79,6 +83,10 @@ extern "C" {
 
 #define PRE_TAG_VALUE_MARGIN   0
 #define INTER_TAG_VALUE_MARGIN 24
+// width & height for progress bar
+#define PROGRESSBAR_WIDTH      120
+#define PROGRESSBAR_HEIGHT     12
+#define BACK_KEY_WIDTH         104
 #else  // TARGETS
 #error Undefined target
 #endif  // TARGETS
@@ -627,10 +635,6 @@ nbgl_layout_t *nbgl_layoutGet(const nbgl_layoutDescription_t *description);
 int nbgl_layoutAddCenteredInfo(nbgl_layout_t *layout, const nbgl_layoutCenteredInfo_t *info);
 int nbgl_layoutAddContentCenter(nbgl_layout_t *layout, const nbgl_contentCenter_t *info);
 int nbgl_layoutAddLeftContent(nbgl_layout_t *layout, const nbgl_layoutLeftContent_t *info);
-int nbgl_layoutUpdateProgressBar(nbgl_layout_t *layout,
-                                 const char    *text,
-                                 const char    *subText,
-                                 uint8_t        percentage);
 
 #ifdef HAVE_SE_TOUCH
 int nbgl_layoutAddTopRightButton(nbgl_layout_t             *layout,
