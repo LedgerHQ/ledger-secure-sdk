@@ -43,7 +43,7 @@ typedef enum {
 extern uint8_t BLE_LEDGER_apdu_buffer[OS_IO_BUFFER_SIZE + 1];
 
 /* Exported functions prototypes--------------------------------------------- */
-void BLE_LEDGER_init(os_io_init_ble_t *init, uint8_t force_restart);
+void BLE_LEDGER_init(os_io_init_ble_t *init, uint8_t force);
 void BLE_LEDGER_start(void);
 void BLE_LEDGER_stop(void);
 
@@ -62,9 +62,6 @@ uint32_t BLE_LEDGER_send(uint8_t        profile_type,
                          const uint8_t *packet,
                          uint16_t       packet_length,
                          uint32_t       timeout_ms);
-
-// Check data received
-int32_t BLE_LEDGER_data_ready(uint8_t *buffer, uint16_t max_length);
 
 // Check data sent
 int32_t BLE_LEDGER_is_busy(void);
