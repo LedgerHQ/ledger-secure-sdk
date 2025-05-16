@@ -251,6 +251,10 @@ int os_io_rx_evt(unsigned char *buffer,
     }
     else {
         // Cached rx event
+        if (G_io_seph_buffer_size > sizeof(G_io_seph_buffer)) {
+            status = -22;  // EINVAL
+            goto error;
+        }
         status                = G_io_seph_buffer_size;
         G_io_seph_buffer_size = 0;
     }
@@ -258,7 +262,7 @@ int os_io_rx_evt(unsigned char *buffer,
         // Wrong state, send cmd to MCU
         status = os_io_seph_cmd_general_status();
         if (status < 0) {
-            return status;
+            goto error;
         }
         status = os_io_seph_se_rx_event(G_io_seph_buffer,
                                         sizeof(G_io_seph_buffer),
@@ -267,7 +271,7 @@ int os_io_rx_evt(unsigned char *buffer,
                                         0);
     }
     if (status < 0) {
-        return status;
+        goto error;
     }
     if (status > 0) {
         length = (uint16_t) status;
@@ -337,6 +341,7 @@ int os_io_rx_evt(unsigned char *buffer,
             break;
     }
 
+error:
     return status;
 }
 
