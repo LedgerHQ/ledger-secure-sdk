@@ -6,6 +6,10 @@
 #include "os_utils.h"
 #include "os_ux_id.h"
 
+#if defined(HAVE_BOLOS)
+#include "bolos_privileged_ux.h"
+#endif  // HAVE_BOLOS
+
 /* ----------------------------------------------------------------------- */
 /* -                            UX DEFINITIONS                           - */
 /* ----------------------------------------------------------------------- */
@@ -59,7 +63,7 @@ typedef struct bolos_ux_params_s {
                 BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_FAILED,
                 BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_CANCELLED_FROM_REMOTE,
             } pairing_ok;
-        } pairing_status;  // sent in BOLOS_UX_ASYNCHMODAL_PAIRING_CANCEL message
+        } pairing_status;  // sent in BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS message
 #endif                     // HAVE_BLE
         struct {           // for BOLOS_UX_DELAY_LOCK command
             uint32_t delay_ms;

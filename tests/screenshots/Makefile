@@ -53,7 +53,7 @@ DEFINES+=              \
                        OS_IO_SEPROXYHAL \
                        USB_SEGMENT_SIZE=64 \
                        IO_HID_EP_LENGTH=64 \
-                       IO_SEPROXYHAL_BUFFER_SIZE_B=300 \
+                       OS_IO_SEPH_BUFFER_SIZE=300 \
                        BUILD_SCREENSHOTS
 
 ifeq ($(PRODUCT_NAME),stax)
