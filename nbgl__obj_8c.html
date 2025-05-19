@@ -92,6 +92,7 @@ $(function() {
 <code>#include &quot;<a class="el" href="nbgl__front_8h_source.html">nbgl_front.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="nbgl__debug_8h_source.html">nbgl_debug.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="nbgl__screen_8h_source.html">nbgl_screen.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="nbgl__touch_8h_source.html">nbgl_touch.h</a>&quot;</code><br />
 <code>#include &quot;os_print.h&quot;</code><br />
 <code>#include &quot;os_helpers.h&quot;</code><br />
 <code>#include &quot;os_pic.h&quot;</code><br />
@@ -101,49 +102,54 @@ Include dependency graph for nbgl_obj.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="nbgl__obj_8c__incl.png" border="0" usemap="#alib__nbgl_2src_2nbgl__obj_8c" alt=""/></div>
 <map name="alib__nbgl_2src_2nbgl__obj_8c" id="alib__nbgl_2src_2nbgl__obj_8c">
-<area shape="rect" title="Implementation of API to draw all basic graphic objects." alt="" coords="396,5,563,31"/>
+<area shape="rect" title="Implementation of API to draw all basic graphic objects." alt="" coords="404,5,571,31"/>
 <area shape="rect" title=" " alt="" coords="5,79,76,104"/>
-<area shape="poly" title=" " alt="" coords="396,33,257,53,90,81,89,76,256,47,396,27"/>
-<area shape="rect" title=" " alt="" coords="101,79,205,104"/>
-<area shape="poly" title=" " alt="" coords="427,33,219,78,218,73,426,28"/>
-<area shape="rect" href="nbgl__obj_8h.html" title="API to draw all basic graphic objects." alt="" coords="248,152,337,177"/>
-<area shape="poly" title=" " alt="" coords="409,33,361,51,339,64,320,80,304,109,297,139,292,138,299,107,316,77,336,60,359,46,407,28"/>
-<area shape="rect" href="nbgl__draw_8h.html" title="Middle Level API of the new BOLOS Graphical Library." alt="" coords="112,152,212,177"/>
-<area shape="poly" title=" " alt="" coords="435,33,369,53,298,81,239,114,190,146,187,142,236,109,296,76,367,48,433,28"/>
-<area shape="rect" href="nbgl__front_8h.html" title="Font screen low&#45;Level driver API, to draw elementary forms." alt="" coords="440,152,540,177"/>
-<area shape="poly" title=" " alt="" coords="483,31,491,138,485,138,478,31"/>
-<area shape="rect" href="nbgl__debug_8h.html" title="debug traces management" alt="" coords="517,79,626,104"/>
-<area shape="poly" title=" " alt="" coords="496,29,547,68,544,72,492,33"/>
-<area shape="rect" href="nbgl__screen_8h.html" title="API to manage screens." alt="" coords="330,79,442,104"/>
-<area shape="poly" title=" " alt="" coords="466,33,414,72,410,68,463,29"/>
-<area shape="rect" title=" " alt="" coords="651,79,737,104"/>
-<area shape="poly" title=" " alt="" coords="515,28,647,72,645,77,513,33"/>
-<area shape="rect" title=" " alt="" coords="762,79,866,104"/>
-<area shape="poly" title=" " alt="" coords="534,28,749,73,748,79,533,33"/>
-<area shape="rect" title=" " alt="" coords="890,79,965,104"/>
-<area shape="poly" title=" " alt="" coords="563,27,706,47,877,76,876,81,705,53,563,32"/>
-<area shape="rect" title=" " alt="" coords="989,79,1066,104"/>
-<area shape="poly" title=" " alt="" coords="563,24,748,44,975,76,974,81,747,49,563,29"/>
-<area shape="rect" href="nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="299,299,404,324"/>
-<area shape="poly" title=" " alt="" coords="302,176,328,224,348,284,343,286,324,226,298,179"/>
-<area shape="rect" href="nbgl__fonts_8h.html" title=" " alt="" coords="111,225,213,251"/>
-<area shape="poly" title=" " alt="" coords="273,180,196,221,194,216,270,175"/>
-<area shape="rect" title=" " alt="" coords="237,225,313,251"/>
-<area shape="poly" title=" " alt="" coords="292,178,284,213,279,212,287,177"/>
-<area shape="rect" title=" " alt="" coords="166,372,241,397"/>
-<area shape="poly" title=" " alt="" coords="329,326,241,368,239,364,326,322"/>
-<area shape="rect" title=" " alt="" coords="265,372,336,397"/>
-<area shape="poly" title=" " alt="" coords="345,326,319,362,315,359,341,323"/>
-<area shape="rect" title=" " alt="" coords="361,372,443,397"/>
-<area shape="poly" title=" " alt="" coords="362,323,388,359,384,362,358,326"/>
-<area shape="rect" title=" " alt="" coords="467,372,582,397"/>
-<area shape="poly" title=" " alt="" coords="380,322,485,364,483,369,378,326"/>
-<area shape="poly" title=" " alt="" coords="193,248,308,291,307,296,191,253"/>
-<area shape="poly" title=" " alt="" coords="144,180,124,194,105,212,95,231,96,240,100,249,111,259,128,268,175,282,285,301,284,306,174,288,126,272,108,263,96,252,90,241,90,230,101,209,120,190,141,175"/>
-<area shape="poly" title=" " alt="" coords="165,178,165,212,159,212,159,178"/>
-<area shape="poly" title=" " alt="" coords="484,179,457,213,423,253,379,292,375,288,419,249,453,210,480,176"/>
-<area shape="poly" title=" " alt="" coords="373,106,320,146,317,141,369,102"/>
-<area shape="poly" title=" " alt="" coords="387,105,358,285,353,285,382,104"/>
+<area shape="poly" title=" " alt="" coords="404,33,96,81,91,82,90,77,95,76,403,28"/>
+<area shape="rect" title=" " alt="" coords="62,372,166,397"/>
+<area shape="poly" title=" " alt="" coords="404,26,330,33,253,43,185,59,159,69,141,81,125,99,118,117,117,163,117,239,117,358,111,358,111,239,111,163,113,115,121,96,138,77,157,64,183,54,252,38,330,27,404,21"/>
+<area shape="rect" href="nbgl__obj_8h.html" title="API to draw all basic graphic objects." alt="" coords="373,152,463,177"/>
+<area shape="poly" title=" " alt="" coords="444,33,408,51,392,64,379,80,375,95,378,110,398,140,393,143,373,112,370,95,374,77,388,60,405,47,442,28"/>
+<area shape="rect" href="nbgl__draw_8h.html" title="Middle Level API of the new BOLOS Graphical Library." alt="" coords="249,152,349,177"/>
+<area shape="poly" title=" " alt="" coords="456,33,413,53,369,81,339,111,316,142,312,139,335,107,366,77,410,48,454,28"/>
+<area shape="rect" href="nbgl__front_8h.html" title="Font screen low&#45;Level driver API, to draw elementary forms." alt="" coords="583,152,683,177"/>
+<area shape="poly" title=" " alt="" coords="498,29,524,63,560,102,607,142,604,146,556,106,520,67,494,33"/>
+<area shape="rect" href="nbgl__debug_8h.html" title="debug traces management" alt="" coords="570,79,679,104"/>
+<area shape="poly" title=" " alt="" coords="511,28,591,70,589,75,508,33"/>
+<area shape="rect" href="nbgl__screen_8h.html" title="API to manage screens." alt="" coords="151,79,263,104"/>
+<area shape="poly" title=" " alt="" coords="443,33,266,78,265,73,442,28"/>
+<area shape="rect" href="nbgl__touch_8h.html" title=" " alt="" coords="389,79,495,104"/>
+<area shape="poly" title=" " alt="" coords="482,32,459,69,454,66,478,30"/>
+<area shape="rect" title=" " alt="" coords="704,79,791,104"/>
+<area shape="poly" title=" " alt="" coords="530,28,693,72,691,78,528,33"/>
+<area shape="rect" title=" " alt="" coords="815,79,919,104"/>
+<area shape="poly" title=" " alt="" coords="549,28,802,75,801,80,548,33"/>
+<area shape="rect" title=" " alt="" coords="943,79,1018,104"/>
+<area shape="poly" title=" " alt="" coords="571,25,733,45,930,76,929,81,733,51,570,31"/>
+<area shape="rect" title=" " alt="" coords="1042,79,1119,104"/>
+<area shape="poly" title=" " alt="" coords="571,23,775,42,1029,76,1028,81,775,48,571,28"/>
+<area shape="rect" href="nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="313,299,419,324"/>
+<area shape="poly" title=" " alt="" coords="435,176,451,190,466,209,474,230,470,252,447,278,418,295,415,291,443,274,465,249,468,231,461,212,447,194,431,179"/>
+<area shape="rect" href="nbgl__fonts_8h.html" title=" " alt="" coords="253,225,356,251"/>
+<area shape="poly" title=" " alt="" coords="401,180,336,220,333,216,398,175"/>
+<area shape="rect" title=" " alt="" coords="380,225,456,251"/>
+<area shape="poly" title=" " alt="" coords="421,178,421,212,415,212,415,178"/>
+<area shape="poly" title=" " alt="" coords="326,327,169,371,167,366,325,321"/>
+<area shape="rect" title=" " alt="" coords="329,372,403,397"/>
+<area shape="poly" title=" " alt="" coords="369,324,369,358,363,358,363,324"/>
+<area shape="rect" title=" " alt="" coords="428,372,499,397"/>
+<area shape="poly" title=" " alt="" coords="383,322,438,361,435,366,380,326"/>
+<area shape="rect" title=" " alt="" coords="523,372,606,397"/>
+<area shape="poly" title=" " alt="" coords="399,322,520,365,518,370,397,327"/>
+<area shape="rect" title=" " alt="" coords="190,372,305,397"/>
+<area shape="poly" title=" " alt="" coords="348,326,280,367,277,362,346,322"/>
+<area shape="poly" title=" " alt="" coords="317,249,349,286,345,290,313,253"/>
+<area shape="poly" title=" " alt="" coords="283,180,265,194,248,212,239,231,239,240,243,249,254,263,268,275,302,292,299,297,266,280,251,267,238,252,234,241,234,230,244,209,261,190,280,175"/>
+<area shape="poly" title=" " alt="" coords="303,177,305,212,300,212,298,178"/>
+<area shape="poly" title=" " alt="" coords="628,179,604,215,586,236,565,253,533,271,499,285,433,303,432,298,497,280,531,266,562,248,582,232,600,212,624,176"/>
+<area shape="poly" title=" " alt="" coords="242,101,372,145,370,150,240,107"/>
+<area shape="poly" title=" " alt="" coords="208,104,206,133,207,171,215,212,234,249,247,264,264,276,301,293,299,298,261,280,244,268,229,252,210,214,202,171,201,132,203,104"/>
+<area shape="poly" title=" " alt="" coords="441,105,429,140,424,138,436,103"/>
+<area shape="poly" title=" " alt="" coords="454,103,473,130,492,168,501,211,499,232,491,252,465,279,433,296,430,291,462,274,486,249,494,231,496,211,487,170,468,133,449,106"/>
 </map>
 </div>
 </div>
@@ -155,8 +161,6 @@ Macros</h2></td></tr>
 <tr class="separator:a2085a6482b78c61b0f14dbe49b680efc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a13f945ef1ad7b3aee04ecd57d1f87e08" id="r_a13f945ef1ad7b3aee04ecd57d1f87e08"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj_8c.html#a13f945ef1ad7b3aee04ecd57d1f87e08">ICON_TEXT_SPACE</a>&#160;&#160;&#160;12</td></tr>
 <tr class="separator:a13f945ef1ad7b3aee04ecd57d1f87e08"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa28a3a9ca1c1f7882e8a2348be710a57" id="r_aa28a3a9ca1c1f7882e8a2348be710a57"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj_8c.html#aa28a3a9ca1c1f7882e8a2348be710a57">INTER_DASHES</a>&#160;&#160;&#160;8</td></tr>
-<tr class="separator:aa28a3a9ca1c1f7882e8a2348be710a57"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -190,6 +194,12 @@ Functions</h2></td></tr>
 <tr class="memitem:a567d902bae5e88e84e721d1e8360a84f" id="r_a567d902bae5e88e84e721d1e8360a84f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj_8c.html#a567d902bae5e88e84e721d1e8360a84f">nbgl_objAllowDrawing</a> (bool enable)</td></tr>
 <tr class="memdesc:a567d902bae5e88e84e721d1e8360a84f"><td class="mdescLeft">&#160;</td><td class="mdescRight">This functions enables or disables drawing/refresh for all further calls.  <br /></td></tr>
 <tr class="separator:a567d902bae5e88e84e721d1e8360a84f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad46cefa28523b3626a568bf18438f050" id="r_ad46cefa28523b3626a568bf18438f050"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj_8c.html#ad46cefa28523b3626a568bf18438f050">nbgl_objGetRAMBuffer</a> (void)</td></tr>
+<tr class="memdesc:ad46cefa28523b3626a568bf18438f050"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function is used to get the all purpose RAM buffer.  <br /></td></tr>
+<tr class="separator:ad46cefa28523b3626a568bf18438f050"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7fb960243dc7e5f9dfd13cd547dac30e" id="r_a7fb960243dc7e5f9dfd13cd547dac30e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__obj_8c.html#a7fb960243dc7e5f9dfd13cd547dac30e">nbgl_objIsUx</a> (<a class="el" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *obj)</td></tr>
+<tr class="memdesc:a7fb960243dc7e5f9dfd13cd547dac30e"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function returns true if the object belongs to a UxScreen.  <br /></td></tr>
+<tr class="separator:a7fb960243dc7e5f9dfd13cd547dac30e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -215,20 +225,6 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="aa28a3a9ca1c1f7882e8a2348be710a57" name="aa28a3a9ca1c1f7882e8a2348be710a57"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa28a3a9ca1c1f7882e8a2348be710a57">&#9670;&#160;</a></span>INTER_DASHES</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define INTER_DASHES&#160;&#160;&#160;8</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a id="a2085a6482b78c61b0f14dbe49b680efc" name="a2085a6482b78c61b0f14dbe49b680efc"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a2085a6482b78c61b0f14dbe49b680efc">&#9670;&#160;</a></span>NB_MAX_LETTERS</h2>
 
@@ -241,7 +237,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l00033">33</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l00034">34</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
@@ -258,7 +254,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l00038">38</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l00045">45</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
@@ -313,7 +309,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01739">1739</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01751">1751</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
@@ -341,7 +337,30 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01615">1615</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01622">1622</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+
+</div>
+</div>
+<a id="ad46cefa28523b3626a568bf18438f050" name="ad46cefa28523b3626a568bf18438f050"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad46cefa28523b3626a568bf18438f050">&#9670;&#160;</a></span>nbgl_objGetRAMBuffer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> * nbgl_objGetRAMBuffer </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>This function is used to get the all purpose RAM buffer. </p>
+<dl class="section return"><dt>Returns</dt><dd>a pointer to the all purpose RAM buffer </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01761">1761</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
@@ -362,8 +381,32 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>This functions inits all internal of nbgl objects layer. </p>
+<dl class="section note"><dt>Note</dt><dd>it is supposed to be called only from App </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01728">1728</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01736">1736</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+
+</div>
+</div>
+<a id="a7fb960243dc7e5f9dfd13cd547dac30e" name="a7fb960243dc7e5f9dfd13cd547dac30e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7fb960243dc7e5f9dfd13cd547dac30e">&#9670;&#160;</a></span>nbgl_objIsUx()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool nbgl_objIsUx </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *&#160;</td>
+          <td class="paramname"><em>obj</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>This function returns true if the object belongs to a UxScreen. </p>
+<dl class="section return"><dt>Returns</dt><dd>true if the object belongs to a UxScreen </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01771">1771</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
@@ -385,7 +428,7 @@ Variables</h2></td></tr>
 
 <p>This functions refreshes the actual screen on display with what has changed since the last refresh. </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01654">1654</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01661">1661</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
@@ -408,7 +451,7 @@ Variables</h2></td></tr>
 <p>This functions returns true if there is something to refresh. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if there is something to refresh </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01700">1700</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01707">1707</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
@@ -430,7 +473,7 @@ Variables</h2></td></tr>
 
 <p>This functions resets all changes since the last refresh. </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01712">1712</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01719">1719</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
@@ -458,7 +501,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01664">1664</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01671">1671</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
@@ -488,7 +531,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01680">1680</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l01687">1687</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>
@@ -505,7 +548,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l00124">124</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__obj_8c_source.html#l00131">131</a> of file <a class="el" href="nbgl__obj_8c_source.html">nbgl_obj.c</a>.</p>
 
 </div>
 </div>

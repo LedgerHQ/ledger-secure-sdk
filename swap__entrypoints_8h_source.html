@@ -106,27 +106,52 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#include &quot;<a class="code" href="swap__lib__calls_8h.html">swap_lib_calls.h</a>&quot;</span></div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="comment">/*</span></div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="comment"> * These functions must be defined by the application</span></div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="comment">/* Check check_address_parameters_t.address_to_check against specified parameters.</span></div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="comment"> *</span></div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="comment"> * Must set params.result to 0 on error, 1 otherwise */</span></div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno"><a class="line" href="swap__entrypoints_8h.html#a55ed26aac4d8f352d7e361513678bf19">   31</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="swap__entrypoints_8h.html#a55ed26aac4d8f352d7e361513678bf19">swap_handle_check_address</a>(<a class="code hl_struct" href="structcheck__address__parameters__s.html">check_address_parameters_t</a> *params);</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span> </div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="comment">/* Format printable amount including the ticker from specified parameters.</span></div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="comment"> *</span></div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="comment"> * Must set empty printable_amount on error, printable amount otherwise */</span></div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno"><a class="line" href="swap__entrypoints_8h.html#a064dc2780845ddaa9e9feaab672d1688">   36</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="swap__entrypoints_8h.html#a064dc2780845ddaa9e9feaab672d1688">swap_handle_get_printable_amount</a>(<a class="code hl_struct" href="structget__printable__amount__parameters__s.html">get_printable_amount_parameters_t</a> *params);</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span> </div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="comment">/* Backup up transaction parameters and wipe BSS to avoid collusion with</span></div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="comment"> * app-exchange BSS data.</span></div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="comment"> *</span></div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="comment"> * return false on error, true otherwise */</span></div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno"><a class="line" href="swap__entrypoints_8h.html#a7393debc68c0691aee283864a42c1b38">   42</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="swap__entrypoints_8h.html#a7393debc68c0691aee283864a42c1b38">swap_copy_transaction_parameters</a>(<a class="code hl_struct" href="structcreate__transaction__parameters__s.html">create_transaction_parameters_t</a> *sign_transaction_params);</div>
-<div class="ttc" id="astructcheck__address__parameters__s_html"><div class="ttname"><a href="structcheck__address__parameters__s.html">check_address_parameters_s</a></div><div class="ttdef"><b>Definition</b> <a href="swap__lib__calls_8h_source.html#l00031">swap_lib_calls.h:31</a></div></div>
-<div class="ttc" id="astructcreate__transaction__parameters__s_html"><div class="ttname"><a href="structcreate__transaction__parameters__s.html">create_transaction_parameters_s</a></div><div class="ttdef"><b>Definition</b> <a href="swap__lib__calls_8h_source.html#l00057">swap_lib_calls.h:57</a></div></div>
-<div class="ttc" id="astructget__printable__amount__parameters__s_html"><div class="ttname"><a href="structget__printable__amount__parameters__s.html">get_printable_amount_parameters_s</a></div><div class="ttdef"><b>Definition</b> <a href="swap__lib__calls_8h_source.html#l00046">swap_lib_calls.h:46</a></div></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="comment">--8&lt;-- [start:swap_entry_point_intro]</span></div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="comment">The handle functions must be defined by each Coin application implementing the SWAP feature.</span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="comment"></span> </div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="comment">Handlers are called by Exchange through the `os_lib_call` API, and dispatched by the `main()`</span></div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="comment">and `library_app_main()` functions of the lib_standard_app.</span></div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="comment"></span> </div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="comment">The Exchange application is responsible for handling the flow and sequencing of the SWAP.</span></div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="comment">--8&lt;-- [end:swap_entry_point_intro]</span></div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="comment">*/</span></div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span> </div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="comment">// --8&lt;-- [start:swap_handle_check_address]</span></div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="comment">/* This handle is called when the Exchange application wants to ensure that a</span></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="comment"> * given address belongs to the device.</span></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="comment"> *</span></div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="comment"> * If the address does belong to the device, result is set to 1. Otherwise it</span></div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="comment"> * is set to 0.</span></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno"><a class="line" href="swap__entrypoints_8h.html#a55ed26aac4d8f352d7e361513678bf19">   42</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="swap__entrypoints_8h.html#a55ed26aac4d8f352d7e361513678bf19">swap_handle_check_address</a>(<a class="code hl_struct" href="structcheck__address__parameters__s.html">check_address_parameters_t</a> *params);</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="comment">// --8&lt;-- [end:swap_handle_check_address]</span></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="comment">// --8&lt;-- [start:swap_handle_get_printable_amount]</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="comment">/* This handle is called when the Exchange application wants to format for</span></div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="comment"> * display an amount + ticker of a currency known by this application</span></div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="comment"> *</span></div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span><span class="comment"> * If the formatting succeeds, result is set to the formatted string. Otherwise</span></div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="comment"> * it is set to &#39;\0&#39;.</span></div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="swap__entrypoints_8h.html#a064dc2780845ddaa9e9feaab672d1688">   52</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="swap__entrypoints_8h.html#a064dc2780845ddaa9e9feaab672d1688">swap_handle_get_printable_amount</a>(<a class="code hl_struct" href="structget__printable__amount__parameters__s.html">get_printable_amount_parameters_t</a> *params);</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="comment">// --8&lt;-- [end:swap_handle_get_printable_amount]</span></div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><span class="comment">// --8&lt;-- [start:swap_copy_transaction_parameters]</span></div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span><span class="comment">/* This handle is called when the user has validated on screen the transaction</span></div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span><span class="comment"> * proposal sent by the partner and started the FROM Coin application to sign</span></div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span><span class="comment"> * the payment transaction.</span></div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span><span class="comment"> *</span></div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span><span class="comment"> * This handler needs to save in the heap the details of what has been validated</span></div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="comment"> * in Exchange. These elements will be checked against the received transaction</span></div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="comment"> * upon its reception from the Ledger Live.</span></div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span><span class="comment"> *</span></div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span><span class="comment"> * return false on error, true otherwise</span></div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno"><a class="line" href="swap__entrypoints_8h.html#a7393debc68c0691aee283864a42c1b38">   66</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="swap__entrypoints_8h.html#a7393debc68c0691aee283864a42c1b38">swap_copy_transaction_parameters</a>(<a class="code hl_struct" href="structcreate__transaction__parameters__s.html">create_transaction_parameters_t</a> *sign_transaction_params);</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="comment">// --8&lt;-- [end:swap_copy_transaction_parameters]</span></div>
+<div class="ttc" id="astructcheck__address__parameters__s_html"><div class="ttname"><a href="structcheck__address__parameters__s.html">check_address_parameters_s</a></div><div class="ttdef"><b>Definition</b> <a href="swap__lib__calls_8h_source.html#l00036">swap_lib_calls.h:36</a></div></div>
+<div class="ttc" id="astructcreate__transaction__parameters__s_html"><div class="ttname"><a href="structcreate__transaction__parameters__s.html">create_transaction_parameters_s</a></div><div class="ttdef"><b>Definition</b> <a href="swap__lib__calls_8h_source.html#l00085">swap_lib_calls.h:85</a></div></div>
+<div class="ttc" id="astructget__printable__amount__parameters__s_html"><div class="ttname"><a href="structget__printable__amount__parameters__s.html">get_printable_amount_parameters_s</a></div><div class="ttdef"><b>Definition</b> <a href="swap__lib__calls_8h_source.html#l00063">swap_lib_calls.h:63</a></div></div>
 <div class="ttc" id="aswap__entrypoints_8h_html_a064dc2780845ddaa9e9feaab672d1688"><div class="ttname"><a href="swap__entrypoints_8h.html#a064dc2780845ddaa9e9feaab672d1688">swap_handle_get_printable_amount</a></div><div class="ttdeci">void swap_handle_get_printable_amount(get_printable_amount_parameters_t *params)</div></div>
 <div class="ttc" id="aswap__entrypoints_8h_html_a55ed26aac4d8f352d7e361513678bf19"><div class="ttname"><a href="swap__entrypoints_8h.html#a55ed26aac4d8f352d7e361513678bf19">swap_handle_check_address</a></div><div class="ttdeci">void swap_handle_check_address(check_address_parameters_t *params)</div></div>
 <div class="ttc" id="aswap__entrypoints_8h_html_a7393debc68c0691aee283864a42c1b38"><div class="ttname"><a href="swap__entrypoints_8h.html#a7393debc68c0691aee283864a42c1b38">swap_copy_transaction_parameters</a></div><div class="ttdeci">bool swap_copy_transaction_parameters(create_transaction_parameters_t *sign_transaction_params)</div></div>
