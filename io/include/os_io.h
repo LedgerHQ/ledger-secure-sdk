@@ -74,7 +74,6 @@ typedef enum {
     OS_IO_STATE_APP                = 0x02,
     OS_IO_STATE_APP_HIGH_LEVEL_API = 0x03,
     OS_IO_STATE_APP_LOW_LEVEL_API  = 0x04,
-
 } os_io_state_t;
 
 /* Exported types, structures, unions ----------------------------------------*/
