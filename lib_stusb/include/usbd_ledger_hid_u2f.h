@@ -5,6 +5,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include <stdint.h>
+#include <stdbool.h>
 #include "usbd_def.h"
 #include "usbd_ledger_types.h"
 
@@ -44,7 +45,7 @@ uint8_t USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
                                          const uint8_t      *message,
                                          uint16_t            message_length,
                                          uint32_t            timeout_ms);
-uint8_t USBD_LEDGER_HID_U2F_is_busy(void *cookie);
+bool USBD_LEDGER_HID_U2F_is_busy(void *cookie);
 
 int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
                                        void               *cookie,

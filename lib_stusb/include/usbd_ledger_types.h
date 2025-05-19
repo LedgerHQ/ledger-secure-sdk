@@ -40,7 +40,7 @@ typedef uint8_t (*usbd_send_packet_t)(USBD_HandleTypeDef *pdev,
                                       const uint8_t      *packet,
                                       uint16_t            packet_length,
                                       uint32_t            timeout_ms);
-typedef uint8_t (*usbd_is_busy_t)(void *cookie);
+typedef bool (*usbd_is_busy_t)(void *cookie);
 
 typedef int32_t (*usbd_data_ready_t)(USBD_HandleTypeDef *pdev,
                                      void               *cookie,
