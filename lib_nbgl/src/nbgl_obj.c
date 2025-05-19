@@ -1112,9 +1112,9 @@ static void draw_textArea(nbgl_text_area_t *obj, nbgl_obj_t *prevObj, bool compu
         rectArea.width = lineWidth;
 
         LOG_DEBUG(OBJ_LOGGER,
-                  "draw_textArea(), %s line %d, lineLen %d lineWidth = %d, obj.area.height = %d, "
+                  "draw_textArea(), [%s] line %d, lineLen %d lineWidth = %d, obj.area.height = %d, "
                   "textHeight = %d, nbMaxLines = %d, wrapping = %d\n",
-                  text + 3,
+                  text,
                   line,
                   lineLen,
                   lineWidth,
@@ -1127,12 +1127,17 @@ static void draw_textArea(nbgl_text_area_t *obj, nbgl_obj_t *prevObj, bool compu
         }
         else {
 #ifdef HAVE_SE_TOUCH
+            uint16_t dotsWidth = nbgl_getSingleLineTextWidth(obj->fontId, "...");
             // for last chunk, if nbMaxLines is used, replace the 3 last chars by "..."
             // draw line except 3 last chars
-            nbgl_drawText(&rectArea, text, lineLen - 3, obj->fontId, obj->textColor);
+            if ((lineWidth + dotsWidth) >= obj->obj.area.width) {
+                lineLen -= 3;
+            }
+            nbgl_drawText(&rectArea, text, lineLen, obj->fontId, obj->textColor);
+            rectArea.x0 += nbgl_getSingleLineTextWidthInLen(obj->fontId, text, lineLen);
+
             // draw "..." after the other chars
-            rectArea.x0 += nbgl_getSingleLineTextWidthInLen(obj->fontId, text, lineLen - 3);
-            rectArea.width = nbgl_getSingleLineTextWidth(obj->fontId, "...");
+            rectArea.width = dotsWidth;
             nbgl_drawText(&rectArea, "...", 3, obj->fontId, obj->textColor);
 #else   // HAVE_SE_TOUCH
             nbgl_drawText(&rectArea, text, lineLen, fontId, obj->textColor);
