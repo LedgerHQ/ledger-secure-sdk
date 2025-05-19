@@ -388,15 +388,16 @@ uint8_t USBD_LEDGER_HID_send_packet(USBD_HandleTypeDef *pdev,
     return ret;
 }
 
-uint8_t USBD_LEDGER_HID_is_busy(void *cookie)
+bool USBD_LEDGER_HID_is_busy(void *cookie)
 {
     ledger_hid_handle_t *handle = (ledger_hid_handle_t *) PIC(cookie);
+    bool busy = false;
 
     if (handle->state == LEDGER_HID_STATE_BUSY) {
-        return 1;
+        busy = true;
     }
 
-    return 0;
+    return busy;
 }
 
 int32_t USBD_LEDGER_HID_data_ready(USBD_HandleTypeDef *pdev,

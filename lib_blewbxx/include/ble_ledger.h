@@ -64,7 +64,7 @@ uint32_t BLE_LEDGER_send(uint8_t        profile_type,
                          uint32_t       timeout_ms);
 
 // Check data sent
-int32_t BLE_LEDGER_is_busy(void);
+bool BLE_LEDGER_is_busy(void);
 
 // Setting
 void BLE_LEDGER_setting(uint32_t profile_id, uint32_t setting_id, uint8_t *buffer, uint16_t length);
