@@ -457,15 +457,16 @@ uint8_t USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
     return ret;
 }
 
-uint8_t USBD_LEDGER_HID_U2F_is_busy(void *cookie)
+bool USBD_LEDGER_HID_U2F_is_busy(void *cookie)
 {
     ledger_hid_u2f_handle_t *handle = (ledger_hid_u2f_handle_t *) PIC(cookie);
+    bool busy = false;
 
     if (handle->state == LEDGER_HID_U2F_STATE_BUSY) {
-        return 1;
+        busy = true;
     }
 
-    return 0;
+    return busy;
 }
 
 int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,

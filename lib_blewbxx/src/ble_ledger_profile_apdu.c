@@ -562,15 +562,16 @@ uint8_t BLE_LEDGER_PROFILE_apdu_send_packet(const uint8_t *packet, uint16_t leng
     return status;
 }
 
-uint8_t BLE_LEDGER_PROFILE_apdu_is_busy(void *cookie)
+bool BLE_LEDGER_PROFILE_apdu_is_busy(void *cookie)
 {
     ledger_ble_profile_apdu_handle_t *handle = (ledger_ble_profile_apdu_handle_t *) PIC(cookie);
+    bool busy = false;
 
     if (handle->state == LEDGER_BLE_PROFILE_APDU_BUSY) {
-        return 1;
+        busy = true;
     }
 
-    return 0;
+    return busy;
 }
 
 int32_t BLE_LEDGER_PROFILE_apdu_data_ready(uint8_t *buffer, uint16_t max_length, void *cookie)
