@@ -13,7 +13,7 @@ file(
   "${BOLOS_SDK}/lib_standard_app/buffer.c"
   "${BOLOS_SDK}/lib_standard_app/crypto_helpers.c"
   "${BOLOS_SDK}/lib_standard_app/format.c"
-  #"${BOLOS_SDK}/lib_standard_app/main.c"
+  # "${BOLOS_SDK}/lib_standard_app/main.c"
   "${BOLOS_SDK}/lib_standard_app/io.c"
   "${BOLOS_SDK}/lib_standard_app/parser.c"
   "${BOLOS_SDK}/lib_standard_app/swap_error_code_helpers.c"
@@ -26,7 +26,8 @@ add_library(standard_app ${LIB_STANDARD_APP_SOURCES})
 target_link_libraries(standard_app PUBLIC macros mock cxng)
 target_compile_options(standard_app PUBLIC ${COMPILATION_FLAGS})
 target_include_directories(standard_app PUBLIC ${BOLOS_SDK}/include/)
-target_include_directories(standard_app PUBLIC ${BOLOS_SDK}/target/${TARGET_DEVICE}/include)
+target_include_directories(standard_app
+                           PUBLIC ${BOLOS_SDK}/target/${TARGET_DEVICE}/include)
 target_include_directories(standard_app PUBLIC ${BOLOS_SDK}/lib_cxng)
 target_include_directories(standard_app PUBLIC ${BOLOS_SDK}/lib_cxng/include)
 target_include_directories(standard_app PUBLIC ${BOLOS_SDK}/lib_standard_app)

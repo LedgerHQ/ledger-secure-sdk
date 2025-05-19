@@ -35,10 +35,10 @@
 #include "os_endorsement.h"
 #include <string.h>
 
-#pragma GCC diagnostic                                      ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 
 cx_err_t cx_ecdomain_parameters_length(cx_curve_t cv, size_t *length)
 {
-    *length = (size_t)32;
+    *length = (size_t) 32;
     return 0x00000000;
 }
