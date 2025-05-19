@@ -9,7 +9,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     if (size == sizeof(ndef_struct_t)) {
         // Fuzz with raw data
         ndef_struct_t *ndef_message2 = (ndef_struct_t *) data;
-        os_ndef_to_string2(ndef_message2, out_string);
+        os_ndef_to_string(ndef_message2, out_string);
 
         // Fuzz with more specific data
         ndef_struct_t ndef_message;
