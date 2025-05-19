@@ -23,8 +23,9 @@ endif()
 
 # default fuzz device target
 if (NOT TARGET_DEVICE)
-  set(TARGET_DEVICE "flex")
+set(TARGET_DEVICE "flex")
 endif()
+message("TARGET_DEVICE = ${TARGET_DEVICE}")
 
 # guard against in-source builds
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
@@ -34,7 +35,7 @@ endif()
 
 # compatible with ClusterFuzzLite
 if (NOT DEFINED ENV{LIB_FUZZING_ENGINE})
-	set(COMPILATION_FLAGS -g -O0 -Wall -Wextra -fprofile-instr-generate -fcoverage-mapping)
+	set(COMPILATION_FLAGS -g -O0 -Wall -Wextra -ffunction-sections -fprofile-instr-generate -fcoverage-mapping -funsigned-char -fshort-enums)
   if (SANITIZER MATCHES "address")
     set(COMPILATION_FLAGS ${COMPILATION_FLAGS} -fsanitize=fuzzer,address,undefined)
   elseif (SANITIZER MATCHES "memory")
@@ -47,18 +48,30 @@ else()
   separate_arguments(COMPILATION_FLAGS)
 endif()
 
-#if BOLOS_SDK is defined it is been used by an app
 if (NOT DEFINED BOLOS_SDK)
   set(BOLOS_SDK ${CMAKE_SOURCE_DIR})
   get_filename_component(BOLOS_SDK ${CMAKE_SOURCE_DIR} DIRECTORY)
 endif()
 
-# Include haness cmake files
-file(GLOB cmake_extra_files "extra/*.cmake")
-foreach(file IN LISTS cmake_extra_files)
-  include(${file})
-endforeach()
+# Fuzzing an APP
+if (NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})  
+  file(GLOB LIBS "${BOLOS_SDK}/fuzzing/libs/*.cmake")
 
-# Include libs in extra target
-add_library(extra INTERFACE)
-target_link_libraries(extra INTERFACE lib_standard_app lib_alloc lib_nfc lib_qrcode lib_mock)
+  foreach(file IN LISTS LIBS)
+    include(${file})
+  endforeach()
+  
+  add_library(extra INTERFACE)
+  target_link_libraries(extra INTERFACE macros alloc cxng io nbgl nfc qrcode standard_app mock)
+  
+# Fuzzing the SDK
+else()
+  include("libs/lib_io.cmake")
+  # Include haness cmake files
+  file(GLOB cmake_extra_files "extra/*.cmake")
+
+  foreach(file IN LISTS cmake_extra_files)
+    include(${file})
+  endforeach()
+
+endif()
