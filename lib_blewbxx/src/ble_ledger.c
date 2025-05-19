@@ -1165,23 +1165,23 @@ uint32_t BLE_LEDGER_send(uint8_t        profile_type,
 }
 
 
-int32_t BLE_LEDGER_is_busy(void)
+bool BLE_LEDGER_is_busy(void)
 {
-    int32_t status = -1;
+    bool busy = false;
 
     if (ble_ledger_data.state == BLE_STATE_RUNNING) {
         for (uint8_t index = 0; index < ble_ledger_data.nb_of_profile; index++) {
             ble_profile_info_t *profile_info = ble_ledger_data.profile[index];
             if (profile_info->is_busy) {
-                status = ((ble_profile_is_busy_t) PIC(profile_info->is_busy))(profile_info->cookie);
-                if (status) {
+                busy = ((ble_profile_is_busy_t) PIC(profile_info->is_busy))(profile_info->cookie);
+                if (busy) {
                     break;
                 }
             }
         }
     }
 
-    return status;
+    return busy;
 }
 
 void BLE_LEDGER_setting(uint32_t profile_id, uint32_t setting_id, uint8_t *buffer, uint16_t length)

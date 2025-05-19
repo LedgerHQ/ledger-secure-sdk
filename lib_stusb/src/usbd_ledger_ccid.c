@@ -381,15 +381,16 @@ uint8_t USBD_LEDGER_CCID_send_packet(USBD_HandleTypeDef *pdev,
     return ret;
 }
 
-uint8_t USBD_LEDGER_CCID_is_busy(void *cookie)
+bool USBD_LEDGER_CCID_is_busy(void *cookie)
 {
     ledger_ccid_handle_t *handle = (ledger_ccid_handle_t *) PIC(cookie);
+    bool busy = false;
 
     if (handle->state == LEDGER_CCID_STATE_BUSY) {
-        return 1;
+        busy = true;
     }
 
-    return 0;
+    return busy;
 }
 
 int32_t USBD_LEDGER_CCID_data_ready(USBD_HandleTypeDef *pdev,
