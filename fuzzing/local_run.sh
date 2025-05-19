@@ -21,7 +21,6 @@ function show_help() {
 }
 
 function build(){
-    
     # TODO -> remove those lines after installation in the docker image is done by default
     if  ! dpkg -s ninja-build libclang-rt-dev >/dev/null 2>&1; then
         apt update
