@@ -37,7 +37,7 @@ uint8_t USBD_LEDGER_HID_send_packet(USBD_HandleTypeDef *pdev,
                                     const uint8_t      *packet,
                                     uint16_t            packet_length,
                                     uint32_t            timeout_ms);
-uint8_t USBD_LEDGER_HID_is_busy(void *cookie);
+bool USBD_LEDGER_HID_is_busy(void *cookie);
 
 int32_t USBD_LEDGER_HID_data_ready(USBD_HandleTypeDef *pdev,
                                    void               *cookie,
