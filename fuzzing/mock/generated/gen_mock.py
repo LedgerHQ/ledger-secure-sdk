@@ -90,7 +90,7 @@ def gen_mocks(c_code):
                             write_lines.append('__weak ' + line_aux + ' { return 0x0; }')
                             i = skip_function(line, lines, i)
                         elif line_aux.startswith('uint8_t'):
-                            write_lines.append('__weak ' + line_aux + ' { return 0; }') # will crash if function is type uint8_t * (fetch_background_img)
+                            write_lines.append('__weak ' + line_aux + ' { return 0; }')
                             i = skip_function(line, lines, i)
                         elif line_aux.startswith('try_context_t *'):
                             write_lines.append('__weak ' + line_aux + ' { return NULL; }')

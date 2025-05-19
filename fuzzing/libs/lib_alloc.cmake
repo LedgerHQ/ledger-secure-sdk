@@ -9,4 +9,5 @@ target_link_libraries(alloc PUBLIC macros)
 target_compile_options(alloc PUBLIC ${COMPILATION_FLAGS})
 target_include_directories(alloc PUBLIC ${BOLOS_SDK}/include/)
 target_include_directories(alloc PUBLIC ${BOLOS_SDK}/lib_alloc/)
-target_include_directories(alloc PUBLIC ${BOLOS_SDK}/target/${TARGET_DEVICE}/include)
+target_include_directories(alloc
+                           PUBLIC ${BOLOS_SDK}/target/${TARGET_DEVICE}/include)
