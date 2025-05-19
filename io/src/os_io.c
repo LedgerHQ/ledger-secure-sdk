@@ -278,6 +278,11 @@ int os_io_rx_evt(unsigned char *buffer,
         length = (uint16_t) status;
     }
 
+    if (length > buffer_max_length) {
+        status = -22;  // EINVAL
+        goto error;
+    }
+
     switch (G_io_seph_buffer[1]) {
 #ifdef HAVE_IO_USB
         case SEPROXYHAL_TAG_USB_EVENT:
@@ -315,8 +320,12 @@ int os_io_rx_evt(unsigned char *buffer,
 #endif  // HAVE_NFC
 
         case SEPROXYHAL_TAG_CAPDU_EVENT:
-            if (length >= buffer_max_length - 1) {
-                length = buffer_max_length - 1;
+            // Check size of both buffers:
+            //  + Read from 'G_io_seph_buffer'
+            //  + Write in 'buffer'
+            if ((length > sizeof(G_io_seph_buffer) - 4) || (length > buffer_max_length - 1)) {
+                status = -22;  // EINVAL
+                goto error;
             }
             buffer[0] = OS_IO_PACKET_TYPE_RAW_APDU;
             memmove(&buffer[1], &G_io_seph_buffer[4], length);
@@ -324,9 +333,6 @@ int os_io_rx_evt(unsigned char *buffer,
             break;
 
         case SEPROXYHAL_TAG_ITC_EVENT:
-            if (length >= buffer_max_length - 1) {
-                length = buffer_max_length - 1;
-            }
             memmove(buffer, G_io_seph_buffer, length);
             status = process_itc_event(&G_io_seph_buffer[1], status - 1);
             if (status > 0) {
@@ -335,9 +341,6 @@ int os_io_rx_evt(unsigned char *buffer,
             break;
 
         default:
-            if (length >= buffer_max_length - 1) {
-                length = buffer_max_length - 1;
-            }
             memmove(buffer, G_io_seph_buffer, length);
             break;
     }
