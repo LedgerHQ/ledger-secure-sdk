@@ -9,4 +9,4 @@ target_compile_options(fuzz_bip32 PUBLIC ${COMPILATION_FLAGS})
 target_link_options(fuzz_bip32 PUBLIC ${COMPILATION_FLAGS})
 
 # Link with required libraries
-target_link_libraries(fuzz_bip32 PUBLIC lib_standard_app)
+target_link_libraries(fuzz_bip32 PUBLIC standard_app)
