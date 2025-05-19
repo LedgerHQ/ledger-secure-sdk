@@ -158,7 +158,7 @@ int os_io_init(os_io_init_t *init)
         G_io_state = OS_IO_STATE_DASHBOARD;
     }
     else {
-        // App init
+        // App init without its own stack (USE_OS_IO_STACK == true)
         if (G_io_state == OS_IO_STATE_APP_LOW_LEVEL_API) {
             force_restart = 1;
         }
@@ -166,6 +166,7 @@ int os_io_init(os_io_init_t *init)
     }
     G_io_init_syscall = 0;
 #else   // !HAVE_BOLOS
+    // App init with its own stack (USE_OS_IO_STACK == false)
     force_restart = 1;
 #endif  // !HAVE_BOLOS
 
