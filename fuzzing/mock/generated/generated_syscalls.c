@@ -42,6 +42,8 @@
 #include "os_endorsement.h"
 #include <string.h>
 
+#pragma GCC diagnostic                                      ignored "-Wunused-parameter"
+#pragma GCC diagnostic                                      ignored "-Winvalid-noreturn"
 unsigned int SVC_Call(unsigned int syscall_id, void *parameters);
 unsigned int SVC_cx_call(unsigned int syscall_id, unsigned int *parameters);
 
