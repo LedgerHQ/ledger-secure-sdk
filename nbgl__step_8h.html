@@ -151,7 +151,16 @@ Macros</h2></td></tr>
 <tr class="memdesc:ad6c2f2458a2794d1d475b37efc5b58a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">When the flow is navigated from last to first step.  <br /></td></tr>
 <tr class="separator:ad6c2f2458a2794d1d475b37efc5b58a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:affe7b2a656d116cfa6c77d5b1831c71f" id="r_affe7b2a656d116cfa6c77d5b1831c71f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__step_8h.html#affe7b2a656d116cfa6c77d5b1831c71f">BACKWARD_DIRECTION</a>&#160;&#160;&#160;0x08</td></tr>
+<tr class="memdesc:affe7b2a656d116cfa6c77d5b1831c71f"><td class="mdescLeft">&#160;</td><td class="mdescRight">When action callback applies on any button press.  <br /></td></tr>
 <tr class="separator:affe7b2a656d116cfa6c77d5b1831c71f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8417d6448a79c4dfc0021f6e68ccfe4b" id="r_a8417d6448a79c4dfc0021f6e68ccfe4b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__step_8h.html#a8417d6448a79c4dfc0021f6e68ccfe4b">ACTION_ON_ANY_BUTTON</a>&#160;&#160;&#160;0x40</td></tr>
+<tr class="memdesc:a8417d6448a79c4dfc0021f6e68ccfe4b"><td class="mdescLeft">&#160;</td><td class="mdescRight">When action callback applies only on both button press.  <br /></td></tr>
+<tr class="separator:a8417d6448a79c4dfc0021f6e68ccfe4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2dcd4bbbc0b887daf11651e1a67766c7" id="r_a2dcd4bbbc0b887daf11651e1a67766c7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__step_8h.html#a2dcd4bbbc0b887daf11651e1a67766c7">ACTION_ON_BOTH_BUTTONS</a>&#160;&#160;&#160;0x00</td></tr>
+<tr class="memdesc:a2dcd4bbbc0b887daf11651e1a67766c7"><td class="mdescLeft">&#160;</td><td class="mdescRight">mask for the position of the step in nbgl_stepPosition_t  <br /></td></tr>
+<tr class="separator:a2dcd4bbbc0b887daf11651e1a67766c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4da6d6b1a2626f736d205d87b4c1a792" id="r_a4da6d6b1a2626f736d205d87b4c1a792"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__step_8h.html#a4da6d6b1a2626f736d205d87b4c1a792">STEP_POSITION_MASK</a>&#160;&#160;&#160;0x03</td></tr>
+<tr class="separator:a4da6d6b1a2626f736d205d87b4c1a792"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -165,7 +174,7 @@ Typedefs</h2></td></tr>
 <tr class="memdesc:a084e834f36ee3e606bc114b18e3ba990"><td class="mdescLeft">&#160;</td><td class="mdescRight">prototype of function to be called when buttons are touched on a screen  <br /></td></tr>
 <tr class="separator:a084e834f36ee3e606bc114b18e3ba990"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a40a55106a7765413cece1e9e70ef05b1" id="r_a40a55106a7765413cece1e9e70ef05b1"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__step_8h.html#a40a55106a7765413cece1e9e70ef05b1">nbgl_stepPosition_t</a></td></tr>
-<tr class="memdesc:a40a55106a7765413cece1e9e70ef05b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">this type contains nbgl_layoutNavIndication_t in its LSBs and direction in its MSB (using <a class="el" href="nbgl__step_8h.html#ad6c2f2458a2794d1d475b37efc5b58a1">FORWARD_DIRECTION</a> and <a class="el" href="nbgl__step_8h.html#affe7b2a656d116cfa6c77d5b1831c71f">BACKWARD_DIRECTION</a>)  <br /></td></tr>
+<tr class="memdesc:a40a55106a7765413cece1e9e70ef05b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">this type is a bitfield containing:  <br /></td></tr>
 <tr class="separator:a40a55106a7765413cece1e9e70ef05b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
@@ -198,6 +207,42 @@ Functions</h2></td></tr>
 
 <p class="definition">Definition in file <a class="el" href="nbgl__step_8h_source.html">nbgl_step.h</a>.</p>
 </div><h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a8417d6448a79c4dfc0021f6e68ccfe4b" name="a8417d6448a79c4dfc0021f6e68ccfe4b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8417d6448a79c4dfc0021f6e68ccfe4b">&#9670;&#160;</a></span>ACTION_ON_ANY_BUTTON</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define ACTION_ON_ANY_BUTTON&#160;&#160;&#160;0x40</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>When action callback applies only on both button press. </p>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__step_8h_source.html#l00076">76</a> of file <a class="el" href="nbgl__step_8h_source.html">nbgl_step.h</a>.</p>
+
+</div>
+</div>
+<a id="a2dcd4bbbc0b887daf11651e1a67766c7" name="a2dcd4bbbc0b887daf11651e1a67766c7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2dcd4bbbc0b887daf11651e1a67766c7">&#9670;&#160;</a></span>ACTION_ON_BOTH_BUTTONS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define ACTION_ON_BOTH_BUTTONS&#160;&#160;&#160;0x00</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>mask for the position of the step in nbgl_stepPosition_t </p>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__step_8h_source.html#l00078">78</a> of file <a class="el" href="nbgl__step_8h_source.html">nbgl_step.h</a>.</p>
+
+</div>
+</div>
 <a id="affe7b2a656d116cfa6c77d5b1831c71f" name="affe7b2a656d116cfa6c77d5b1831c71f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#affe7b2a656d116cfa6c77d5b1831c71f">&#9670;&#160;</a></span>BACKWARD_DIRECTION</h2>
 
@@ -210,7 +255,9 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__step_8h_source.html#l00073">73</a> of file <a class="el" href="nbgl__step_8h_source.html">nbgl_step.h</a>.</p>
+<p>When action callback applies on any button press. </p>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__step_8h_source.html#l00074">74</a> of file <a class="el" href="nbgl__step_8h_source.html">nbgl_step.h</a>.</p>
 
 </div>
 </div>
@@ -274,6 +321,22 @@ Functions</h2></td></tr>
 </dl>
 
 <p class="definition">Definition at line <a class="el" href="nbgl__step_8h_source.html#l00030">30</a> of file <a class="el" href="nbgl__step_8h_source.html">nbgl_step.h</a>.</p>
+
+</div>
+</div>
+<a id="a4da6d6b1a2626f736d205d87b4c1a792" name="a4da6d6b1a2626f736d205d87b4c1a792"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4da6d6b1a2626f736d205d87b4c1a792">&#9670;&#160;</a></span>STEP_POSITION_MASK</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define STEP_POSITION_MASK&#160;&#160;&#160;0x03</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="nbgl__step_8h_source.html#l00079">79</a> of file <a class="el" href="nbgl__step_8h_source.html">nbgl_step.h</a>.</p>
 
 </div>
 </div>
@@ -357,9 +420,14 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>this type contains nbgl_layoutNavIndication_t in its LSBs and direction in its MSB (using <a class="el" href="nbgl__step_8h.html#ad6c2f2458a2794d1d475b37efc5b58a1">FORWARD_DIRECTION</a> and <a class="el" href="nbgl__step_8h.html#affe7b2a656d116cfa6c77d5b1831c71f">BACKWARD_DIRECTION</a>) </p>
+<p>this type is a bitfield containing: </p>
+<ul>
+<li>bit[3]: if 1, backward direction, if 0 forward</li>
+<li>bit[2]: if 1, action on any button, if 0 action only on double button</li>
+<li>bit[1:0]: possible positions for a step in a flow </li>
+</ul>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__step_8h_source.html#l00080">80</a> of file <a class="el" href="nbgl__step_8h_source.html">nbgl_step.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__step_8h_source.html#l00088">88</a> of file <a class="el" href="nbgl__step_8h_source.html">nbgl_step.h</a>.</p>
 
 </div>
 </div>
