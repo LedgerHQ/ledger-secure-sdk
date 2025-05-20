@@ -2,7 +2,6 @@ include_guard()
 include(${BOLOS_SDK}/fuzzing/macros/macros.cmake)
 
 find_package(Python3 REQUIRED)
-find_program(MKDIR_EXECUTABLE mkdir REQUIRED)
 
 set(GEN_GLYPHS_DIR ${CMAKE_SOURCE_DIR}/build/src_gen)
 
@@ -37,9 +36,9 @@ set(GLYPHS_H ${GEN_GLYPHS_DIR}/glyphs.h)
 # Add target to generate glyphs
 set(GEN_GLYPHS_CMD "${BOLOS_SDK}/lib_nbgl/tools/icon2glyph.py")
 
+file(MAKE_DIRECTORY ${GEN_GLYPHS_DIR})
 add_custom_target(
   genglyphs
-  COMMAND ${MKDIR_EXECUTABLE} -p ${GEN_GLYPHS_DIR}
   COMMAND
     ${Python3_EXECUTABLE} ${GEN_GLYPHS_CMD} ${GLYPH_OPT} --glyphcheader
     ${GEN_GLYPHS_DIR}/glyphs.h --glyphcfile ${GEN_GLYPHS_DIR}/glyphs.c
