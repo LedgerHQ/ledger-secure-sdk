@@ -32,6 +32,13 @@ ifeq ($(ENABLE_DYNAMIC_ALLOC), 1)
   SDK_SOURCE_PATH += lib_alloc
 endif
 
+DEFINES += REVAMPED_IO
+ifneq ($(IS_STANDARD_APP),1)
+ifneq ($(DISABLE_OS_IO_STACK_USE), 1)
+DEFINES += USE_OS_IO_STACK
+endif
+endif
+
 define uniq =
   $(eval seen :=)
   $(foreach _,$1,$(if $(filter $_,${seen}),,$(eval seen += $_)))
@@ -42,6 +49,8 @@ define check_duplicate =
   $(eval LIST := $(sort $(foreach file_h, $(notdir $1), $(notdir $(shell find $2 -name $(file_h))))))
   $(if $(LIST), $(info [WARNING] Found duplicate files in SDK and APP: ${LIST}))
 endef
+
+SDK_SOURCE_PATH += io io_legacy protocol lib_u2f_legacy
 
 # adding the correct target header to sources
 SDK_SOURCE_PATH += target/$(TARGET)/include
