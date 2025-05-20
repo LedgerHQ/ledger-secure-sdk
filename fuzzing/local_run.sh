@@ -73,7 +73,7 @@ if [ "$REBUILD" -eq 1 ]; then
 fi
 if { [ -z "$FUZZER" ] || [ ! -x "$FUZZER" ]; } then
     echo ""
-    echo "Given fuzzer '$FUZZER' is not executable or was not set."
+    echo "Given fuzzer ""$FUZZER"" is not executable or was not set."
     echo ""
     exit 1
 fi
@@ -106,9 +106,9 @@ if [ "$RUN_FUZZER" -eq 1 ]; then
     "$FUZZER" -max_len=8192 -jobs="$jobs" ./out/corpus
 fi
 
-# Exit early if coverage isn't required
+# Exit early if coverage isn"t required
 if [ "$COMPUTE_COVERAGE" -ne 1 ]; then
-    mv *.log *.profraw out/ 2>/dev/null
+    mv -- *.log *.profraw out/ 2>/dev/null
     echo ""
     echo "----------"
     echo "Info: Generated data moved to out folder"
@@ -124,10 +124,10 @@ echo "----------"
 rm -f out/default.profdata out/default.profraw
 "$FUZZER" -max_len=8192 -runs=0 ./out/corpus
 
-mv *.log *.profraw out/ 2>/dev/null
+mv -- *.log *.profraw out/ 2>/dev/null
 llvm-profdata merge -sparse out/*.profraw -o out/default.profdata
-llvm-cov show $FUZZER -instr-profile=out/default.profdata -format=html > out/report.html
-llvm-cov report $FUZZER -instr-profile=out/default.profdata
+llvm-cov show "$FUZZER" -instr-profile=out/default.profdata -format=html > out/report.html
+llvm-cov report "$FUZZER" -instr-profile=out/default.profdata
 
 echo ""
 echo "----------"
