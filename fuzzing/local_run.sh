@@ -2,7 +2,7 @@
 
 # Defaults
 REBUILD=0
-COMPUTE_COVERAGE=0
+COMPUTE_COVERAGE=1
 FUZZER=""
 RUN_FUZZER=1
 TARGET_DEVICE="flex"
@@ -14,7 +14,7 @@ function show_help() {
     echo "  --fuzzer=PATH               Path to the fuzzer binary (required)"
     echo "  --TARGET_DEVICE=[flex|stax] Whether it is a flex or stax device (default: flex)"
     echo "  --build=1|0                 Whether to build the project (default: 0)"
-    echo "  --compute-coverage=1|0      Whether to compute coverage after fuzzing (default: 0)"
+    echo "  --compute-coverage=1|0      Whether to compute coverage after fuzzing (default: 1)"
     echo "  --run-fuzzer=1|0            Whether to run or not the fuzzer (default: 1)"
     echo "  --help                      Show this help message"
     exit 0
@@ -61,37 +61,22 @@ for arg in "$@"; do
 done
 
 
-if { [ -z "$FUZZER" ] || [ ! -x "$FUZZER" ]; } then
-    if { [ ! -z "$FUZZER" ] && [ ! -x "$FUZZER" ]; } then
-        echo "The fuzzer $FUZZER is not executable. Try using another one:"
-        echo ""
-        exit 1
-    fi
-    if [ "$REBUILD" -eq 1 ]; then
-        build
-
-        echo ""
-        echo "----------"
-        echo "Info: You have a fuzzer now. Run: ./local_run.sh --fuzzer=[PATH-TO-FUZZER] --compute-coverage=1"
-        echo "Tip: Fuzzers will be in build/fuzz_* :"
-        ls build/fuzz*
-        echo "----------"
-        exit 0
-    else
-        echo ""
-        echo "----------"
-        echo "Error: --fuzzer is required."
-        echo "Tip: If it's first time running the script, use --build=1"
-        echo "----------"
-        echo ""
-        show_help
-    fi
-fi
-
 if [ "$REBUILD" -eq 1 ]; then
     build
-fi
 
+    echo ""
+    echo "----------"
+    echo "Info: You have a fuzzer now. Run: ./local_run.sh --fuzzer=[PATH-TO-FUZZER] --compute-coverage=1"
+    echo "Tip: Fuzzers will be in build/fuzz_* :"
+    ls build/fuzz*
+    echo "----------"
+fi
+if { [ -z "$FUZZER" ] || [ ! -x "$FUZZER" ]; } then
+    echo ""
+    echo "Given fuzzer '$FUZZER' is not executable or was not set."
+    echo ""
+    exit 1
+fi
 
 if ! [ -d ./out ]; then
     mkdir out
