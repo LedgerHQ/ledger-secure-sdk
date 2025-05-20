@@ -49,6 +49,7 @@ typedef struct TextContext_s {
     const char *subTxtStart;    ///< pointer on the start point of sub-text (first page)
 
     nbgl_stepPosition_t pos;  ///< position of the step within a flow (used for navigation arrows)
+    bool                actionOnAnyButton;       ///< if true, action applies on any button
     nbgl_stepButtonCallback_t onActionCallback;  ///< function called when key actions done on this
                                                  ///< step (other than internal navigation)
     char tmpString[TMP_STRING_MAX_LEN];          ///< temporary string used for title when text +
@@ -349,7 +350,8 @@ static void actionCallback(nbgl_layout_t *layout, nbgl_buttonEvent_t event)
             return;
         }
         else if ((ctx->textContext.pos == LAST_STEP)
-                 || (ctx->textContext.pos == NEITHER_FIRST_NOR_LAST_STEP)) {
+                 || (ctx->textContext.pos == NEITHER_FIRST_NOR_LAST_STEP)
+                 || (ctx->textContext.actionOnAnyButton)) {
             if (ctx->textContext.onActionCallback != NULL) {
                 ctx->textContext.onActionCallback((nbgl_step_t) ctx, event);
             }
@@ -361,7 +363,8 @@ static void actionCallback(nbgl_layout_t *layout, nbgl_buttonEvent_t event)
             return;
         }
         else if ((ctx->textContext.pos == FIRST_STEP)
-                 || (ctx->textContext.pos == NEITHER_FIRST_NOR_LAST_STEP)) {
+                 || (ctx->textContext.pos == NEITHER_FIRST_NOR_LAST_STEP)
+                 || (ctx->textContext.actionOnAnyButton)) {
             if (ctx->textContext.onActionCallback != NULL) {
                 ctx->textContext.onActionCallback((nbgl_step_t) ctx, event);
             }
@@ -537,8 +540,9 @@ nbgl_step_t nbgl_stepDrawText(nbgl_stepPosition_t               pos,
     ctx->textContext.txtStart    = text;
     ctx->textContext.subTxtStart = subText;
     // keep only direction part of position
-    ctx->textContext.pos   = pos & (RIGHT_ARROW | LEFT_ARROW);
-    ctx->textContext.style = style;
+    ctx->textContext.pos               = pos & STEP_POSITION_MASK;
+    ctx->textContext.actionOnAnyButton = (pos & ACTION_ON_ANY_BUTTON) != 0;
+    ctx->textContext.style             = style;
     displayTextPage(ctx, ctx->textContext.currentPage);
 
     return (nbgl_step_t) ctx;
