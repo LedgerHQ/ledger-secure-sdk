@@ -27,6 +27,9 @@ file(
   "${BOLOS_SDK}/lib_stusb_impl/u2f_impl.c"
   "${BOLOS_SDK}/lib_stusb_impl/u2f_io.c"
   "${BOLOS_SDK}/lib_stusb_impl/usbd_impl.c"
+  "${BOLOS_SDK}/lib_stusb/STM32_USB_Device_Library/Class/CCID/src/usbd_ccid_cmd.c"
+  "${BOLOS_SDK}/lib_stusb/STM32_USB_Device_Library/Class/CCID/src/usbd_ccid_core.c"
+  "${BOLOS_SDK}/lib_stusb/STM32_USB_Device_Library/Class/CCID/src/usbd_ccid_if.c"
   "${BOLOS_SDK}/lib_ux_nbgl/ux.c")
 
 add_library(io ${LIB_IO_SOURCES})
@@ -49,5 +52,7 @@ target_include_directories(
   io PUBLIC ${BOLOS_SDK}/lib_stusb/STM32_USB_Device_Library/Class/HID/Inc/)
 target_include_directories(
   io PUBLIC ${BOLOS_SDK}/lib_stusb/STM32_USB_Device_Library/Class/HID/Inc/)
+target_include_directories(
+  io PUBLIC ${BOLOS_SDK}/lib_stusb/STM32_USB_Device_Library/Class/CCID/inc/)
 target_include_directories(io PUBLIC ${BOLOS_SDK}/lib_stusb_impl/)
 target_include_directories(io PUBLIC ${BOLOS_SDK}/)
