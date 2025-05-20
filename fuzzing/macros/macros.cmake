@@ -5,8 +5,7 @@ add_library(macros INTERFACE)
 # Building from App
 if(NOT "${BOLOS_SDK}/fuzzing" STREQUAL ${CMAKE_SOURCE_DIR})
   message(
-    "Importing macros from ${CMAKE_SOURCE_DIR}/generated_macros/generated/macros.txt"
-  )
+    "Importing macros from ${CMAKE_SOURCE_DIR}/macros/generated/macros.txt")
   file(STRINGS "${CMAKE_SOURCE_DIR}/macros/generated/macros.txt" MACRO_LIST)
   target_compile_definitions(macros INTERFACE ${MACRO_LIST})
 
