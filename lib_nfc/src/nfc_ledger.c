@@ -59,7 +59,7 @@ uint8_t NFC_LEDGER_io_buffer[OS_IO_BUFFER_SIZE + 1];
 /* Private variables ---------------------------------------------------------*/
 static nfc_ledger_data_t nfc_ledger_data;
 static uint8_t
-    ledger_protocol_chunk_buffer[156 + 2];  // TODO_IO : BLE buffer size, can be changed though
+    nfc_ledger_protocol_chunk_buffer[156 + 2];  // TODO_IO : BLE buffer size, can be changed though
 
 /* Private functions ---------------------------------------------------------*/
 static void nfc_ledger_send_rapdu(uint8_t *buffer, uint16_t length, uint32_t timeout_ms)
@@ -98,9 +98,9 @@ void NFC_LEDGER_start(uint8_t mode)
         memset(&nfc_ledger_data.protocol_data, 0, sizeof(nfc_ledger_data.protocol_data));
         nfc_ledger_data.protocol_data.rx_apdu_buffer       = NFC_LEDGER_io_buffer;
         nfc_ledger_data.protocol_data.rx_apdu_buffer_size  = sizeof(NFC_LEDGER_io_buffer);
-        nfc_ledger_data.protocol_data.tx_chunk_buffer      = ledger_protocol_chunk_buffer;
-        nfc_ledger_data.protocol_data.tx_chunk_buffer_size = sizeof(ledger_protocol_chunk_buffer);
-        nfc_ledger_data.protocol_data.mtu                  = sizeof(ledger_protocol_chunk_buffer);
+        nfc_ledger_data.protocol_data.tx_chunk_buffer      = nfc_ledger_protocol_chunk_buffer;
+        nfc_ledger_data.protocol_data.tx_chunk_buffer_size = sizeof(nfc_ledger_protocol_chunk_buffer);
+        nfc_ledger_data.protocol_data.mtu                  = sizeof(nfc_ledger_protocol_chunk_buffer);
         nfc_ledger_data.mode                               = mode;
         nfc_ledger_data.state                              = NFC_STATE_STARTED;
     }
