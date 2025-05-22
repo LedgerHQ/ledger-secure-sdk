@@ -851,7 +851,9 @@ static void genericConfirmCallback(nbgl_step_t stepCtx, nbgl_buttonEvent_t event
 static void statusButtonCallback(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
 {
     UNUSED(stepCtx);
-    if (event == BUTTON_BOTH_PRESSED) {
+    // any button press should dismiss the status screen
+    if ((event == BUTTON_BOTH_PRESSED) || (event == BUTTON_LEFT_PRESSED)
+        || (event == BUTTON_RIGHT_PRESSED)) {
         if (context.stepCallback != NULL) {
             context.stepCallback();
         }
@@ -2437,6 +2439,7 @@ void nbgl_useCaseGenericReview(const nbgl_genericContents_t *contents,
  * @param message string to set in middle of page (Upper case for success)
  * @param isSuccess if true, message is drawn in a Ledger style (with corners)
  * @param quitCallback callback called when quit timer times out or status is manually dismissed
+ * (any button press)
  */
 void nbgl_useCaseStatus(const char *message, bool isSuccess, nbgl_callback_t quitCallback)
 {
@@ -2447,7 +2450,13 @@ void nbgl_useCaseStatus(const char *message, bool isSuccess, nbgl_callback_t qui
     context.currentPage  = 0;
     context.nbPages      = 1;
 
-    drawStep(SINGLE_STEP, NULL, message, NULL, statusButtonCallback, false, NO_FORCED_TYPE);
+    drawStep(SINGLE_STEP | ACTION_ON_ANY_BUTTON,
+             NULL,
+             message,
+             NULL,
+             statusButtonCallback,
+             false,
+             NO_FORCED_TYPE);
 }
 
 /**

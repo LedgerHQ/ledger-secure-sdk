@@ -1571,13 +1571,15 @@ static void extendRefreshArea(nbgl_area_t *area)
     }
     // if obj top-left is on top of current top-left corner, move top-left corner
     if (area->y0 < refreshArea.y0) {
-        // No negative coordinates
-        refreshArea.y0 = MAX(0, area->y0);
+        // No negative coordinates and align on lower multiple of alignment
+        refreshArea.y0 = MAX(0, area->y0) & ~(VERTICAL_ALIGNMENT - 1);
     }
     // if obj bottom-right is on bottom of current bottom-right corner, move bottom-right corner
     if (((area->y0 + area->height) > y1) || (refreshArea.height == 0)) {
         // Not beyond height
         y1 = MIN(SCREEN_HEIGHT, area->y0 + area->height);
+        // align on upper multiple of alignment
+        y1 = (y1 + (VERTICAL_ALIGNMENT - 1)) & ~(VERTICAL_ALIGNMENT - 1);
     }
 
     // sanity check

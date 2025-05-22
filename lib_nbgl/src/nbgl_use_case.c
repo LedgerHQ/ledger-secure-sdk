@@ -2772,15 +2772,15 @@ uint8_t nbgl_useCaseGetNbSwitchesInPage(uint8_t                           nbSwit
         currentHeight += POST_SUBTEXT_MARGIN;  // under the sub-text
         // if height is over the limit
         if (currentHeight >= (INFOS_AREA_HEIGHT - navHeight)) {
-            // if there was no nav, now there will be, so it can be necessary to remove the last
-            // item
-            if (!withNav && (previousHeight >= (INFOS_AREA_HEIGHT - SIMPLE_FOOTER_HEIGHT))) {
-                nbSwitchesInPage--;
-            }
             break;
         }
         previousHeight = currentHeight;
         nbSwitchesInPage++;
+    }
+    // if there was no nav, now there will be, so it can be necessary to remove the last
+    // item
+    if (!withNav && (previousHeight >= (INFOS_AREA_HEIGHT - SIMPLE_FOOTER_HEIGHT))) {
+        nbSwitchesInPage--;
     }
     return nbSwitchesInPage;
 }

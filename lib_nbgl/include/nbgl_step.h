@@ -71,13 +71,21 @@ enum {
 };
 
 ///< When the flow is navigated from first to last step
-#define FORWARD_DIRECTION  0x00
+#define FORWARD_DIRECTION      0x00
 ///< When the flow is navigated from last to first step
-#define BACKWARD_DIRECTION 0x08
+#define BACKWARD_DIRECTION     0x08
+///< When action callback applies on any button press
+#define ACTION_ON_ANY_BUTTON   0x40
+///< When action callback applies only on both button press
+#define ACTION_ON_BOTH_BUTTONS 0x00
+///< mask for the position of the step in nbgl_stepPosition_t
+#define STEP_POSITION_MASK     0x03
 
 /**
- * @brief this type contains nbgl_layoutNavIndication_t in its LSBs
- * and direction in its MSB (using @ref FORWARD_DIRECTION and @ref BACKWARD_DIRECTION)
+ * @brief this type is a bitfield containing:
+ * - bit[3]: if 1, backward direction, if 0 forward
+ * - bit[2]: if 1, action on any button, if 0 action only on double button
+ * - bit[1:0]: possible positions for a step in a flow
  *
  */
 typedef uint8_t nbgl_stepPosition_t;

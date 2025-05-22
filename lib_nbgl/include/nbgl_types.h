@@ -48,6 +48,9 @@ extern "C" {
 #define SCREEN_HEIGHT 64
 #endif  // SCREEN_SIZE_WALLET
 
+// HW vertical alignment
+#define VERTICAL_ALIGNMENT 1
+
 /**
  * No transformation
  *
