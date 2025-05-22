@@ -33,7 +33,8 @@ typedef struct language_pack {
     uint16_t bitmaps_offset;        // Offset to the bitmaps x nb_fonts
     uint16_t bolos_version_offset;  // Offset to the Bolos version number string
     uint16_t pack_version_offset;   // Offset to the Language Pack version number string
-    uint16_t offsets[];             // Offsets from the BEGINNING of the language pack
+    uint16_t unused;                // for alignment
+    uint32_t offsets[];             // Offsets from the BEGINNING of the language pack
 } LANGUAGE_PACK;
 
 // A language pack is a binary file containing:
