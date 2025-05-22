@@ -102,9 +102,9 @@ WEAK void standalone_app_main(void)
 #endif
             // Display crash info on screen for debug purpose
             assert_display_exit();
-#else
+#else   // HAVE_DEBUG_THROWS
             PRINTF("Exiting following exception: 0x%04X\n", e);
-#endif
+#endif  // HAVE_DEBUG_THROWS
         }
         FINALLY {}
     }
