@@ -188,9 +188,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>            <span class="comment">// Display crash info on screen for debug purpose</span></div>
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>            assert_display_exit();</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span><span class="preprocessor">#else   </span><span class="comment">// HAVE_DEBUG_THROWS</span></div>
 <div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>            PRINTF(<span class="stringliteral">&quot;Exiting following exception: 0x%04X\n&quot;</span>, e);</div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span><span class="preprocessor">#endif  </span><span class="comment">// HAVE_DEBUG_THROWS</span></div>
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>        }</div>
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>        FINALLY {}</div>
 <div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    }</div>
@@ -209,7 +209,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span><span class="comment"> * We dispatch the Exchange request to the correct handler.</span></div>
 <div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span><span class="comment"> * Handlers content are not defined in the `lib_standard_app`</span></div>
 <div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span><a class="code hl_define" href="macros_8h.html#ad1480e9557edcc543498ca259cee6c7d">WEAK</a> <span class="keywordtype">void</span> library_app_main(<a class="code hl_struct" href="structlibargs__s.html">libargs_t</a> *args)</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span><a class="code hl_define" href="macros_8h.html#ad1480e9557edcc543498ca259cee6c7d">WEAK</a> <span class="keywordtype">void</span> <a class="code hl_function" href="main__std__app_8h.html#a99fff2d3c4cbf754cc1cc438d1aa65fb">library_app_main</a>(<a class="code hl_struct" href="structlibargs__s.html">libargs_t</a> *args)</div>
 <div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>{</div>
 <div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    BEGIN_TRY</div>
 <div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    {</div>
@@ -281,7 +281,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>        <span class="comment">// Called as library from another app</span></div>
 <div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>        <a class="code hl_struct" href="structlibargs__s.html">libargs_t</a> *args = (<a class="code hl_struct" href="structlibargs__s.html">libargs_t</a> *) arg0;</div>
 <div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>        <span class="keywordflow">if</span> (args-&gt;<a class="code hl_variable" href="structlibargs__s.html#af8bf13ecbe951e05edcc1cb2a4e0ba8b">id</a> == 0x100) {</div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>            library_app_main(args);</div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>            <a class="code hl_function" href="main__std__app_8h.html#a99fff2d3c4cbf754cc1cc438d1aa65fb">library_app_main</a>(args);</div>
 <div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>        }</div>
 <div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>        <span class="keywordflow">else</span> {</div>
 <div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>            app_exit();</div>
@@ -302,6 +302,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="amain_8c_html_ac0e2a4669d8cf3e8555319eb2e1d12a0"><div class="ttname"><a href="main_8c.html#ac0e2a4669d8cf3e8555319eb2e1d12a0">common_app_init</a></div><div class="ttdeci">WEAK void common_app_init(void)</div><div class="ttdef"><b>Definition</b> <a href="main_8c_source.html#l00045">main.c:45</a></div></div>
 <div class="ttc" id="amain_8c_html_ac515f0533c5ab83ac8cc134050f583de"><div class="ttname"><a href="main_8c.html#ac515f0533c5ab83ac8cc134050f583de">__attribute__</a></div><div class="ttdeci">WEAK void __attribute__((noreturn))</div><div class="ttdef"><b>Definition</b> <a href="main_8c_source.html#l00040">main.c:40</a></div></div>
 <div class="ttc" id="amain_8c_html_acc2f6c6a0eb0005234dc44fadc3dfcfd"><div class="ttname"><a href="main_8c.html#acc2f6c6a0eb0005234dc44fadc3dfcfd">G_ux</a></div><div class="ttdeci">ux_state_t G_ux</div><div class="ttdef"><b>Definition</b> <a href="main_8c_source.html#l00034">main.c:34</a></div></div>
+<div class="ttc" id="amain__std__app_8h_html_a99fff2d3c4cbf754cc1cc438d1aa65fb"><div class="ttname"><a href="main__std__app_8h.html#a99fff2d3c4cbf754cc1cc438d1aa65fb">library_app_main</a></div><div class="ttdeci">WEAK void library_app_main(void)</div></div>
 <div class="ttc" id="anbgl__use__case_8h_html"><div class="ttname"><a href="nbgl__use__case_8h.html">nbgl_use_case.h</a></div><div class="ttdoc">API of the Advanced BOLOS Graphical Library, for typical application use-cases.</div></div>
 <div class="ttc" id="anbgl__use__case_8h_html_a6c70e8409832531cb83c75c5c376ee18"><div class="ttname"><a href="nbgl__use__case_8h.html#a6c70e8409832531cb83c75c5c376ee18">nbgl_useCaseSpinner</a></div><div class="ttdeci">void nbgl_useCaseSpinner(const char *text)</div></div>
 <div class="ttc" id="astructcreate__transaction__parameters__s_html_ad704bf661f93dd992853ca4eb4414999"><div class="ttname"><a href="structcreate__transaction__parameters__s.html#ad704bf661f93dd992853ca4eb4414999">create_transaction_parameters_s::result</a></div><div class="ttdeci">uint8_t result</div><div class="ttdef"><b>Definition</b> <a href="swap__lib__calls_8h_source.html#l00112">swap_lib_calls.h:112</a></div></div>

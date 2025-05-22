@@ -198,6 +198,12 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Common init of the App.</p><ul>
+<li>UX</li>
+<li>io</li>
+<li>USB</li>
+<li>BLE </li>
+</ul>
 
 <p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00045">45</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
@@ -218,6 +224,10 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Main entry point of the App, in standalone mode. It calls (inside a try/catch):</p><ul>
+<li>common_app_init</li>
+<li>app_main (should be defined in the App) </li>
+</ul>
 
 <p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00067">67</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
