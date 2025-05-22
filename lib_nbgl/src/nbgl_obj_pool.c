@@ -49,10 +49,10 @@ typedef struct {
         nbgl_progress_bar_t progressBarObj;
         nbgl_container_t    containerObj;
         nbgl_image_t        imageObj;
+        nbgl_button_t       buttonObj;
+        nbgl_switch_t       switchObj;
 #ifdef HAVE_SE_TOUCH
         nbgl_radio_t          radioObj;
-        nbgl_switch_t         switchObj;
-        nbgl_button_t         buttonObj;
         nbgl_page_indicator_t navBarObj;
         nbgl_line_t           lineObj;
         nbgl_spinner_t        spinnerObj;
