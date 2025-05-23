@@ -82,7 +82,7 @@ static void forge_bos_descriptor(void);
 
 /* Exported variables --------------------------------------------------------*/
 uint8_t USBD_LEDGER_io_buffer[OS_IO_BUFFER_SIZE + 1];
-uint8_t USBD_LEDGER_protocol_chunk_buffer[0x40];
+uint8_t USBD_LEDGER_protocol_chunk_buffer[LEDGER_USBD_DEFAULT_EPOUT_SIZE];
 
 /* Private variables ---------------------------------------------------------*/
 static const USBD_ClassTypeDef USBD_LEDGER_CLASS = {

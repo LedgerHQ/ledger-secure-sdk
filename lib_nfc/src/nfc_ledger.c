@@ -82,13 +82,11 @@ void NFC_LEDGER_start(uint8_t mode)
 
     if ((nfc_ledger_data.state == NFC_STATE_INITIALIZED) || (nfc_ledger_data.mode != mode)) {
         memset(&nfc_ledger_data.protocol_data, 0, sizeof(nfc_ledger_data.protocol_data));
-        nfc_ledger_data.protocol_data.rx_apdu_buffer       = NFC_LEDGER_io_buffer;
-        nfc_ledger_data.protocol_data.rx_apdu_buffer_size  = sizeof(NFC_LEDGER_io_buffer);
-        nfc_ledger_data.protocol_data.tx_chunk_buffer      = nfc_ledger_protocol_chunk_buffer;
-        nfc_ledger_data.protocol_data.tx_chunk_buffer_size = sizeof(nfc_ledger_protocol_chunk_buffer);
-        nfc_ledger_data.protocol_data.mtu                  = sizeof(nfc_ledger_protocol_chunk_buffer);
-        nfc_ledger_data.mode                               = mode;
-        nfc_ledger_data.state                              = NFC_STATE_STARTED;
+        nfc_ledger_data.protocol_data.rx_apdu_buffer      = NFC_LEDGER_io_buffer;
+        nfc_ledger_data.protocol_data.rx_apdu_buffer_size = sizeof(NFC_LEDGER_io_buffer);
+        nfc_ledger_data.protocol_data.mtu = sizeof(nfc_ledger_protocol_chunk_buffer);
+        nfc_ledger_data.mode              = mode;
+        nfc_ledger_data.state             = NFC_STATE_STARTED;
     }
     if ((nfc_ledger_data.state == NFC_STATE_STARTED)
         && (os_setting_get(OS_SETTING_FEATURES, NULL, 0) & OS_SETTING_FEATURES_NFC_ENABLED)) {
@@ -126,7 +124,11 @@ int NFC_LEDGER_rx_seph_apdu_evt(uint8_t *seph_buffer,
         }
 
         uint16_t length = U2BE(seph_buffer, 2);
-        LEDGER_PROTOCOL_rx(&nfc_ledger_data.protocol_data, &seph_buffer[4], length);
+        LEDGER_PROTOCOL_rx(&nfc_ledger_data.protocol_data,
+                           &seph_buffer[4],
+                           length,
+                           nfc_ledger_protocol_chunk_buffer,
+                           sizeof(nfc_ledger_protocol_chunk_buffer));
 
         if (nfc_ledger_data.protocol_data.rx_apdu_status == APDU_STATUS_COMPLETE) {
             if (apdu_buffer_max_length < nfc_ledger_data.protocol_data.rx_apdu_length) {
@@ -150,17 +152,25 @@ uint32_t NFC_LEDGER_send(const uint8_t *packet, uint16_t packet_length, uint32_t
     uint32_t status = 1;
 
     if (nfc_ledger_data.state == NFC_STATE_RUNNING) {
-        LEDGER_PROTOCOL_tx(&nfc_ledger_data.protocol_data, packet, packet_length);
+        LEDGER_PROTOCOL_tx(&nfc_ledger_data.protocol_data,
+                           packet,
+                           packet_length,
+                           nfc_ledger_protocol_chunk_buffer,
+                           sizeof(nfc_ledger_protocol_chunk_buffer));
         if (nfc_ledger_data.protocol_data.tx_chunk_length >= 2) {
-            nfc_ledger_send_rapdu(nfc_ledger_data.protocol_data.tx_chunk_buffer,
+            nfc_ledger_send_rapdu(nfc_ledger_protocol_chunk_buffer,
                                   nfc_ledger_data.protocol_data.tx_chunk_length,
                                   timeout_ms);
         }
 
         while (nfc_ledger_data.protocol_data.tx_apdu_buffer) {
-            LEDGER_PROTOCOL_tx(&nfc_ledger_data.protocol_data, NULL, 0);
+            LEDGER_PROTOCOL_tx(&nfc_ledger_data.protocol_data,
+                               NULL,
+                               0,
+                               nfc_ledger_protocol_chunk_buffer,
+                               sizeof(nfc_ledger_protocol_chunk_buffer));
             if (nfc_ledger_data.protocol_data.tx_chunk_length >= 2) {
-                nfc_ledger_send_rapdu(nfc_ledger_data.protocol_data.tx_chunk_buffer,
+                nfc_ledger_send_rapdu(nfc_ledger_protocol_chunk_buffer,
                                       nfc_ledger_data.protocol_data.tx_chunk_length,
                                       timeout_ms);
             }
