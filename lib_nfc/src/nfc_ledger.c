@@ -40,7 +40,7 @@ typedef struct nfc_ledger_data_s {
 static void nfc_ledger_send_rapdu(uint8_t *buffer, uint16_t length, uint32_t timeout_ms);
 
 /* Exported variables --------------------------------------------------------*/
-uint8_t NFC_LEDGER_io_buffer[OS_IO_BUFFER_SIZE + 1];
+static uint8_t NFC_LEDGER_io_buffer[OS_IO_BUFFER_SIZE + 1];
 
 /* Private variables ---------------------------------------------------------*/
 static nfc_ledger_data_t nfc_ledger_data;
@@ -82,8 +82,6 @@ void NFC_LEDGER_start(uint8_t mode)
 
     if ((nfc_ledger_data.state == NFC_STATE_INITIALIZED) || (nfc_ledger_data.mode != mode)) {
         memset(&nfc_ledger_data.protocol_data, 0, sizeof(nfc_ledger_data.protocol_data));
-        nfc_ledger_data.protocol_data.rx_apdu_buffer      = NFC_LEDGER_io_buffer;
-        nfc_ledger_data.protocol_data.rx_apdu_buffer_size = sizeof(NFC_LEDGER_io_buffer);
         nfc_ledger_data.protocol_data.mtu = sizeof(nfc_ledger_protocol_chunk_buffer);
         nfc_ledger_data.mode              = mode;
         nfc_ledger_data.state             = NFC_STATE_STARTED;
@@ -128,7 +126,9 @@ int NFC_LEDGER_rx_seph_apdu_evt(uint8_t *seph_buffer,
                            &seph_buffer[4],
                            length,
                            nfc_ledger_protocol_chunk_buffer,
-                           sizeof(nfc_ledger_protocol_chunk_buffer));
+                           sizeof(nfc_ledger_protocol_chunk_buffer),
+                           NFC_LEDGER_io_buffer,
+                           sizeof(NFC_LEDGER_io_buffer));
 
         if (nfc_ledger_data.protocol_data.rx_apdu_status == APDU_STATUS_COMPLETE) {
             if (apdu_buffer_max_length < nfc_ledger_data.protocol_data.rx_apdu_length) {
@@ -136,7 +136,7 @@ int NFC_LEDGER_rx_seph_apdu_evt(uint8_t *seph_buffer,
             }
             else {
                 memmove(apdu_buffer,
-                        nfc_ledger_data.protocol_data.rx_apdu_buffer,
+                        NFC_LEDGER_io_buffer,
                         nfc_ledger_data.protocol_data.rx_apdu_length);
                 status = nfc_ledger_data.protocol_data.rx_apdu_length;
             }

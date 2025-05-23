@@ -40,7 +40,6 @@ typedef enum {
 /* Exported macros------------------------------------------------------------*/
 
 /* Exported variables --------------------------------------------------------*/
-extern uint8_t BLE_LEDGER_apdu_buffer[OS_IO_BUFFER_SIZE + 1];
 
 /* Exported functions prototypes--------------------------------------------- */
 void BLE_LEDGER_init(os_io_init_ble_t *init, uint8_t force);

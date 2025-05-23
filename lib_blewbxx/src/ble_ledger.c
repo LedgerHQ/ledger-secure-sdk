@@ -141,7 +141,6 @@ static void hci_evt_vendor(uint8_t *buffer, uint16_t length);
 static uint32_t send_hci_packet(uint32_t timeout_ms);
 
 /* Exported variables --------------------------------------------------------*/
-uint8_t BLE_LEDGER_apdu_buffer[OS_IO_BUFFER_SIZE + 1];
 
 /* Private variables ---------------------------------------------------------*/
 static ble_ledger_data_t ble_ledger_data;
