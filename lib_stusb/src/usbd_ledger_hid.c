@@ -32,7 +32,7 @@ enum ledger_hid_state_t {
 #define LEDGER_HID_EPIN_ADDR  (0x82)
 #define LEDGER_HID_EPIN_SIZE  (0x40)
 #define LEDGER_HID_EPOUT_ADDR (0x02)
-#define LEDGER_HID_EPOUT_SIZE (0x40)
+#define LEDGER_HID_EPOUT_SIZE (LEDGER_USBD_DEFAULT_EPOUT_SIZE)
 
 #define HID_DESCRIPTOR_TYPE        (0x21)
 #define HID_REPORT_DESCRIPTOR_TYPE (0x22)
@@ -184,8 +184,6 @@ uint8_t USBD_LEDGER_HID_init(USBD_HandleTypeDef *pdev, void *cookie)
     memset(&handle->protocol_data, 0, sizeof(handle->protocol_data));
     handle->protocol_data.rx_apdu_buffer       = USBD_LEDGER_io_buffer;
     handle->protocol_data.rx_apdu_buffer_size  = sizeof(USBD_LEDGER_io_buffer);
-    handle->protocol_data.tx_chunk_buffer      = USBD_LEDGER_protocol_chunk_buffer;
-    handle->protocol_data.tx_chunk_buffer_size = sizeof(USBD_LEDGER_protocol_chunk_buffer);
     handle->protocol_data.mtu                  = sizeof(USBD_LEDGER_protocol_chunk_buffer);
 
     LEDGER_PROTOCOL_init(&handle->protocol_data, OS_IO_PACKET_TYPE_USB_HID_APDU);
@@ -320,13 +318,13 @@ uint8_t USBD_LEDGER_HID_data_in(USBD_HandleTypeDef *pdev, void *cookie, uint8_t 
     ledger_hid_handle_t *handle = (ledger_hid_handle_t *) PIC(cookie);
 
     if (handle->protocol_data.tx_apdu_buffer) {
-        LEDGER_PROTOCOL_tx(&handle->protocol_data, NULL, 0);
+        LEDGER_PROTOCOL_tx(&handle->protocol_data, NULL, 0, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer));
         if (handle->protocol_data.tx_chunk_length >= 2) {
             handle->state = LEDGER_HID_STATE_BUSY;
             USBD_LL_Transmit(pdev,
                              LEDGER_HID_EPIN_ADDR,
-                             handle->protocol_data.tx_chunk_buffer,
-                             LEDGER_HID_EPIN_SIZE,
+                             USBD_LEDGER_protocol_chunk_buffer,
+                             sizeof(USBD_LEDGER_protocol_chunk_buffer),
                              0);
         }
     }
@@ -352,7 +350,7 @@ uint8_t USBD_LEDGER_HID_data_out(USBD_HandleTypeDef *pdev,
 
     ledger_hid_handle_t *handle = (ledger_hid_handle_t *) PIC(cookie);
 
-    LEDGER_PROTOCOL_rx(&handle->protocol_data, packet, packet_length);
+    LEDGER_PROTOCOL_rx(&handle->protocol_data, packet, packet_length, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer));
 
     USBD_LL_PrepareReceive(pdev, LEDGER_HID_EPOUT_ADDR, NULL, LEDGER_HID_EPOUT_SIZE);
 
@@ -375,7 +373,7 @@ uint8_t USBD_LEDGER_HID_send_packet(USBD_HandleTypeDef *pdev,
     uint8_t              ret    = USBD_OK;
     ledger_hid_handle_t *handle = (ledger_hid_handle_t *) PIC(cookie);
 
-    LEDGER_PROTOCOL_tx(&handle->protocol_data, packet, packet_length);
+    LEDGER_PROTOCOL_tx(&handle->protocol_data, packet, packet_length, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer));
 
     if (pdev->dev_state == USBD_STATE_CONFIGURED) {
         if (handle->state == LEDGER_HID_STATE_IDLE) {
@@ -383,8 +381,8 @@ uint8_t USBD_LEDGER_HID_send_packet(USBD_HandleTypeDef *pdev,
                 handle->state = LEDGER_HID_STATE_BUSY;
                 ret           = USBD_LL_Transmit(pdev,
                                        LEDGER_HID_EPIN_ADDR,
-                                       handle->protocol_data.tx_chunk_buffer,
-                                       LEDGER_HID_EPIN_SIZE,
+                                       USBD_LEDGER_protocol_chunk_buffer,
+                                       sizeof(USBD_LEDGER_protocol_chunk_buffer),
                                        timeout_ms);
             }
             else {
