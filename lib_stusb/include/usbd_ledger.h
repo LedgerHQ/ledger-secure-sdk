@@ -46,6 +46,7 @@ typedef enum {
 } usbd_ledger_class_mask_e;
 
 /* Exported defines   --------------------------------------------------------*/
+#define LEDGER_USBD_DEFAULT_EPOUT_SIZE (0x40)
 
 /* Exported types, structures, unions ----------------------------------------*/
 
@@ -53,7 +54,7 @@ typedef enum {
 
 /* Exported variables --------------------------------------------------------*/
 extern uint8_t USBD_LEDGER_io_buffer[OS_IO_BUFFER_SIZE + 1];
-extern uint8_t USBD_LEDGER_protocol_chunk_buffer[0x40];
+extern uint8_t USBD_LEDGER_protocol_chunk_buffer[LEDGER_USBD_DEFAULT_EPOUT_SIZE];
 
 /* Exported functions prototypes--------------------------------------------- */
 void USBD_LEDGER_init(os_io_init_usb_t *init, uint8_t force_restart);
