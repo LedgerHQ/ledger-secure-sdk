@@ -12,6 +12,12 @@
 /* Private enumerations ------------------------------------------------------*/
 
 /* Private types, structures, unions -----------------------------------------*/
+typedef struct protocol_header_s {
+    uint16_t channel_id;
+    uint8_t  tag;
+    uint16_t seq_num;
+    uint16_t size;
+} protocol_header_t;
 
 /* Private defines------------------------------------------------------------*/
 #define TAG_GET_PROTOCOL_VERSION (0x00)
@@ -106,35 +112,40 @@ void LEDGER_PROTOCOL_init(ledger_protocol_t *handle, uint8_t type)
     handle->type                    = type;
 }
 
-void LEDGER_PROTOCOL_rx(ledger_protocol_t *handle, uint8_t *buffer, uint16_t length)
+void LEDGER_PROTOCOL_rx(ledger_protocol_t *handle,
+                        uint8_t           *buffer,
+                        uint16_t           length,
+                        uint8_t           *proto_buf,
+                        uint8_t            proto_buf_size)
 {
-    if (!handle || !buffer || length < 3) {
+    protocol_header_t header = {0};
+    if (!handle || !buffer || (length < (sizeof(header.channel_id) + sizeof(header.tag)))
+        || !proto_buf || proto_buf_size < sizeof(header)) {
         return;
     }
 
-    memset(handle->tx_chunk_buffer, 0, handle->tx_chunk_buffer_size);
-    memcpy(handle->tx_chunk_buffer, buffer, 2);  // Copy channel ID
+    memset(proto_buf, 0, proto_buf_size);
+    memcpy(proto_buf, buffer, sizeof(header.channel_id));  // Copy channel ID
 
     switch (buffer[2]) {
         case TAG_GET_PROTOCOL_VERSION:
             LOG_IO("TAG_GET_PROTOCOL_VERSION\n");
-            handle->tx_chunk_buffer[2] = TAG_GET_PROTOCOL_VERSION;
-            handle->tx_chunk_length
-                = MIN((uint8_t) sizeof(protocol_version), (handle->tx_chunk_buffer_size - 3));
-            memcpy(&handle->tx_chunk_buffer[3], protocol_version, handle->tx_chunk_length);
+            proto_buf[2]            = TAG_GET_PROTOCOL_VERSION;
+            handle->tx_chunk_length = MIN((uint8_t) sizeof(protocol_version), (proto_buf_size - 3));
+            memcpy(&proto_buf[3], protocol_version, handle->tx_chunk_length);
             handle->tx_chunk_length += 3;
             break;
 
         case TAG_ALLOCATE_CHANNEL:
             LOG_IO("TAG_ALLOCATE_CHANNEL\n");
-            handle->tx_chunk_buffer[2] = TAG_ALLOCATE_CHANNEL;
-            handle->tx_chunk_length    = 3;
+            proto_buf[2]            = TAG_ALLOCATE_CHANNEL;
+            handle->tx_chunk_length = 3;
             break;
 
         case TAG_PING:
             LOG_IO("TAG_PING\n");
-            handle->tx_chunk_length = MIN(handle->tx_chunk_buffer_size, length);
-            memcpy(handle->tx_chunk_buffer, buffer, handle->tx_chunk_length);
+            handle->tx_chunk_length = MIN(proto_buf_size, length);
+            memcpy(proto_buf, buffer, handle->tx_chunk_length);
             break;
 
         case TAG_APDU:
@@ -144,14 +155,14 @@ void LEDGER_PROTOCOL_rx(ledger_protocol_t *handle, uint8_t *buffer, uint16_t len
 
         case TAG_MTU:
             LOG_IO("TAG_MTU\n");
-            handle->tx_chunk_buffer[2] = TAG_MTU;
-            handle->tx_chunk_buffer[3] = 0x00;
-            handle->tx_chunk_buffer[4] = 0x00;
-            handle->tx_chunk_buffer[5] = 0x00;
-            handle->tx_chunk_buffer[6] = 0x01;
-            handle->tx_chunk_buffer[7] = handle->mtu - 2;
-            handle->tx_chunk_length    = 8;
-            U2BE_ENCODE(handle->tx_chunk_buffer, 4, handle->mtu - 2);
+            proto_buf[2]            = TAG_MTU;
+            proto_buf[3]            = 0x00;
+            proto_buf[4]            = 0x00;
+            proto_buf[5]            = 0x00;
+            proto_buf[6]            = 0x01;
+            proto_buf[7]            = handle->mtu - 2;
+            handle->tx_chunk_length = 8;
+            U2BE_ENCODE(proto_buf, 4, handle->mtu - 2);
             break;
 
         default:
@@ -160,9 +171,15 @@ void LEDGER_PROTOCOL_rx(ledger_protocol_t *handle, uint8_t *buffer, uint16_t len
     }
 }
 
-void LEDGER_PROTOCOL_tx(ledger_protocol_t *handle, const uint8_t *buffer, uint16_t length)
+void LEDGER_PROTOCOL_tx(ledger_protocol_t *handle,
+                        const uint8_t     *buffer,
+                        uint16_t           length,
+                        uint8_t           *proto_buf,
+                        uint8_t            proto_buf_size)
 {
-    if (!handle || (!buffer && !handle->tx_apdu_buffer)) {
+    protocol_header_t header = {0};
+    if (!handle || (!buffer && !handle->tx_apdu_buffer) || !proto_buf
+        || proto_buf_size < sizeof(header)) {
         return;
     }
     if (buffer) {
@@ -171,27 +188,26 @@ void LEDGER_PROTOCOL_tx(ledger_protocol_t *handle, const uint8_t *buffer, uint16
         handle->tx_apdu_length          = length;
         handle->tx_apdu_sequence_number = 0;
         handle->tx_apdu_offset          = 0;
-        memset(&handle->tx_chunk_buffer[2], 0, handle->tx_chunk_buffer_size - 2);
     }
     else {
         LOG_IO("NEXT CHUNK\n");
-        memset(&handle->tx_chunk_buffer[2], 0, handle->tx_chunk_buffer_size - 2);
     }
+    uint16_t tx_chunk_offset
+        = sizeof(header.channel_id);  // Because channel id has been already filled beforehand
+    memset(&proto_buf[tx_chunk_offset], 0, proto_buf_size - tx_chunk_offset);
 
-    uint16_t tx_chunk_offset = 2;  // Because channel id has been already filled beforehand
+    proto_buf[tx_chunk_offset++] = TAG_APDU;
 
-    handle->tx_chunk_buffer[tx_chunk_offset++] = TAG_APDU;
-
-    U2BE_ENCODE(handle->tx_chunk_buffer, tx_chunk_offset, handle->tx_apdu_sequence_number);
+    U2BE_ENCODE(proto_buf, tx_chunk_offset, handle->tx_apdu_sequence_number);
     tx_chunk_offset += 2;
 
     if (handle->tx_apdu_sequence_number == 0) {
-        U2BE_ENCODE(handle->tx_chunk_buffer, tx_chunk_offset, handle->tx_apdu_length);
+        U2BE_ENCODE(proto_buf, tx_chunk_offset, handle->tx_apdu_length);
         tx_chunk_offset += 2;
     }
     if ((handle->tx_apdu_length + tx_chunk_offset) > (handle->mtu + handle->tx_apdu_offset)) {
         // Remaining buffer length doesn't fit the chunk
-        memcpy(&handle->tx_chunk_buffer[tx_chunk_offset],
+        memcpy(&proto_buf[tx_chunk_offset],
                &handle->tx_apdu_buffer[handle->tx_apdu_offset],
                handle->mtu - tx_chunk_offset);
         handle->tx_apdu_offset += handle->mtu - tx_chunk_offset;
@@ -200,7 +216,7 @@ void LEDGER_PROTOCOL_tx(ledger_protocol_t *handle, const uint8_t *buffer, uint16
     }
     else {
         // Remaining buffer fits the chunk
-        memcpy(&handle->tx_chunk_buffer[tx_chunk_offset],
+        memcpy(&proto_buf[tx_chunk_offset],
                &handle->tx_apdu_buffer[handle->tx_apdu_offset],
                handle->tx_apdu_length - handle->tx_apdu_offset);
         tx_chunk_offset += (handle->tx_apdu_length - handle->tx_apdu_offset);

@@ -20,7 +20,7 @@ enum ledger_webusb_state_t {
 #define LEDGER_WEBUSB_EPIN_ADDR  (0x83)
 #define LEDGER_WEBUSB_EPIN_SIZE  (0x40)
 #define LEDGER_WEBUSB_EPOUT_ADDR (0x03)
-#define LEDGER_WEBUSB_EPOUT_SIZE (0x40)
+#define LEDGER_WEBUSB_EPOUT_SIZE (LEDGER_USBD_DEFAULT_EPOUT_SIZE)
 
 #define WINUSB_GET_COMPATIBLE_ID_FEATURE          (0x04)
 #define WINUSB_GET_EXTENDED_PROPERTIES_OS_FEATURE (0x05)
@@ -266,8 +266,6 @@ uint8_t USBD_LEDGER_WEBUSB_init(USBD_HandleTypeDef *pdev, void *cookie)
     memset(&handle->protocol_data, 0, sizeof(handle->protocol_data));
     handle->protocol_data.rx_apdu_buffer       = USBD_LEDGER_io_buffer;
     handle->protocol_data.rx_apdu_buffer_size  = sizeof(USBD_LEDGER_io_buffer);
-    handle->protocol_data.tx_chunk_buffer      = USBD_LEDGER_protocol_chunk_buffer;
-    handle->protocol_data.tx_chunk_buffer_size = sizeof(USBD_LEDGER_protocol_chunk_buffer);
     handle->protocol_data.mtu                  = sizeof(USBD_LEDGER_protocol_chunk_buffer);
 
     LEDGER_PROTOCOL_init(&handle->protocol_data, OS_IO_PACKET_TYPE_USB_WEBUSB_APDU);
@@ -353,13 +351,13 @@ uint8_t USBD_LEDGER_WEBUSB_data_in(USBD_HandleTypeDef *pdev, void *cookie, uint8
     ledger_webusb_handle_t *handle = (ledger_webusb_handle_t *) PIC(cookie);
 
     if (handle->protocol_data.tx_apdu_buffer) {
-        LEDGER_PROTOCOL_tx(&handle->protocol_data, NULL, 0);
+        LEDGER_PROTOCOL_tx(&handle->protocol_data, NULL, 0, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer));
         if (handle->protocol_data.tx_chunk_length >= 2) {
             handle->state = LEDGER_WEBUSB_STATE_BUSY;
             USBD_LL_Transmit(pdev,
                              LEDGER_WEBUSB_EPIN_ADDR,
-                             handle->protocol_data.tx_chunk_buffer,
-                             LEDGER_WEBUSB_EPIN_SIZE,
+                             USBD_LEDGER_protocol_chunk_buffer,
+                             sizeof(USBD_LEDGER_protocol_chunk_buffer),
                              0);
         }
     }
@@ -385,7 +383,7 @@ uint8_t USBD_LEDGER_WEBUSB_data_out(USBD_HandleTypeDef *pdev,
 
     ledger_webusb_handle_t *handle = (ledger_webusb_handle_t *) PIC(cookie);
 
-    LEDGER_PROTOCOL_rx(&handle->protocol_data, packet, packet_length);
+    LEDGER_PROTOCOL_rx(&handle->protocol_data, packet, packet_length, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer));
 
     USBD_LL_PrepareReceive(pdev, LEDGER_WEBUSB_EPOUT_ADDR, NULL, LEDGER_WEBUSB_EPOUT_SIZE);
 
@@ -408,7 +406,7 @@ uint8_t USBD_LEDGER_WEBUSB_send_packet(USBD_HandleTypeDef *pdev,
     uint8_t                 ret    = USBD_OK;
     ledger_webusb_handle_t *handle = (ledger_webusb_handle_t *) PIC(cookie);
 
-    LEDGER_PROTOCOL_tx(&handle->protocol_data, packet, packet_length);
+    LEDGER_PROTOCOL_tx(&handle->protocol_data, packet, packet_length, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer));
 
     if (pdev->dev_state == USBD_STATE_CONFIGURED) {
         if (handle->state == LEDGER_WEBUSB_STATE_IDLE) {
@@ -416,8 +414,8 @@ uint8_t USBD_LEDGER_WEBUSB_send_packet(USBD_HandleTypeDef *pdev,
                 handle->state = LEDGER_WEBUSB_STATE_BUSY;
                 ret           = USBD_LL_Transmit(pdev,
                                        LEDGER_WEBUSB_EPIN_ADDR,
-                                       handle->protocol_data.tx_chunk_buffer,
-                                       LEDGER_WEBUSB_EPIN_SIZE,
+                                       USBD_LEDGER_protocol_chunk_buffer,
+                                       sizeof(USBD_LEDGER_protocol_chunk_buffer),
                                        timeout_ms);
             }
             else {
