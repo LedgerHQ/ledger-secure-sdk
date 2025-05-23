@@ -1411,19 +1411,26 @@ static void displaySettingsPage(nbgl_stepPosition_t pos, bool toogle_state)
 
 static void startUseCaseHome(void)
 {
-    int8_t addPages = 0;
-    if (context.home.homeAction) {
-        // Action page index
-        addPages++;
-    }
     switch (context.type) {
         case SETTINGS_USE_CASE:
             // Settings page index
-            context.currentPage = 1 + addPages;
+            context.currentPage = 1;
+            if (context.home.homeAction) {
+                // Action page is before Settings page
+                context.currentPage++;
+            }
             break;
         case INFO_USE_CASE:
             // Info page index
-            context.currentPage = 2 + addPages;
+            context.currentPage = 1;
+            if (context.home.homeAction) {
+                // Action page is before Settings and Info pages
+                context.currentPage++;
+            }
+            if (context.home.settingContents) {
+                // Settings page is before Info pages
+                context.currentPage++;
+            }
             break;
         default:
             // Home page index
@@ -1440,7 +1447,7 @@ static void startUseCaseHome(void)
         context.nbPages++;
     }
     if (context.home.homeAction) {
-        context.nbPages += addPages;
+        context.nbPages++;
     }
     displayHomePage(FORWARD_DIRECTION);
 }
@@ -2123,7 +2130,7 @@ void nbgl_useCaseHomeAndSettings(const char                   *appName,
     context.home.homeAction      = action;
     context.home.quitCallback    = quitCallback;
 
-    if (initSettingPage != INIT_HOME_PAGE) {
+    if ((initSettingPage != INIT_HOME_PAGE) && (settingContents != NULL)) {
         startUseCaseSettingsAtPage(initSettingPage);
     }
     else {
