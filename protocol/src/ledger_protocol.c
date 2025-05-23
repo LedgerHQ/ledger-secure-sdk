@@ -50,16 +50,17 @@ typedef struct protocol_header_s {
 
 /* Private macros-------------------------------------------------------------*/
 
-/* Private functions prototypes ----------------------------------------------*/
-static void process_apdu_chunk(ledger_protocol_t *handle, uint8_t *buffer, uint16_t length);
-
 /* Exported variables --------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
 static const uint8_t protocol_version[4] = {0x00, 0x00, 0x00, 0x00};
 
 /* Private functions ---------------------------------------------------------*/
-static void process_apdu_chunk(ledger_protocol_t *handle, uint8_t *buffer, uint16_t length)
+static void process_apdu_chunk(ledger_protocol_t *handle,
+                               uint8_t           *buffer,
+                               uint16_t           length,
+                               uint8_t           *apdu_buffer,
+                               uint16_t           apdu_buffer_size)
 {
     // Check the sequence number
     if ((length < 2) || ((uint16_t) U2BE(buffer, 0) != handle->rx_apdu_sequence_number)) {
@@ -74,14 +75,14 @@ static void process_apdu_chunk(ledger_protocol_t *handle, uint8_t *buffer, uint1
 
     if (handle->rx_apdu_sequence_number == 0) {
         // First chunk
-        handle->rx_apdu_buffer[0] = handle->type;
-        handle->rx_apdu_status    = APDU_STATUS_NEED_MORE_DATA;
-        handle->rx_apdu_length    = (uint16_t) U2BE(buffer, 2);
+        apdu_buffer[0]         = handle->type;
+        handle->rx_apdu_status = APDU_STATUS_NEED_MORE_DATA;
+        handle->rx_apdu_length = (uint16_t) U2BE(buffer, 2);
         // Check if we have enough space to store the apdu
-        if (handle->rx_apdu_length > handle->rx_apdu_buffer_size) {
+        if (handle->rx_apdu_length > apdu_buffer_size) {
             LOG_IO("APDU WAITING - %d\n", handle->rx_apdu_length);
             handle->rx_apdu_status = APDU_STATUS_WAITING;
-            handle->rx_apdu_length = handle->rx_apdu_buffer_size;
+            handle->rx_apdu_length = apdu_buffer_size;
             return;
         }
         handle->rx_apdu_offset = 0;
@@ -98,7 +99,7 @@ static void process_apdu_chunk(ledger_protocol_t *handle, uint8_t *buffer, uint1
         length = handle->rx_apdu_length - handle->rx_apdu_offset;
     }
 
-    memcpy(&handle->rx_apdu_buffer[1 + handle->rx_apdu_offset], buffer, length);
+    memcpy(&apdu_buffer[1 + handle->rx_apdu_offset], buffer, length);
     handle->rx_apdu_offset += length;
 
     if (handle->rx_apdu_offset == handle->rx_apdu_length) {
@@ -130,7 +131,9 @@ void LEDGER_PROTOCOL_rx(ledger_protocol_t *handle,
                         uint8_t           *buffer,
                         uint16_t           length,
                         uint8_t           *proto_buf,
-                        uint8_t            proto_buf_size)
+                        uint8_t            proto_buf_size,
+                        uint8_t           *apdu_buffer,
+                        uint16_t           apdu_buffer_size)
 {
     protocol_header_t header = {0};
     if (!handle || !buffer || (length < (sizeof(header.channel_id) + sizeof(header.tag)))
@@ -164,7 +167,7 @@ void LEDGER_PROTOCOL_rx(ledger_protocol_t *handle,
 
         case TAG_APDU:
             LOG_IO("TAG_APDU\n");
-            process_apdu_chunk(handle, &buffer[3], length - 3);
+            process_apdu_chunk(handle, &buffer[3], length - 3, apdu_buffer, apdu_buffer_size);
             break;
 
         case TAG_MTU:
