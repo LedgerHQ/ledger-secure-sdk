@@ -182,8 +182,6 @@ uint8_t USBD_LEDGER_HID_init(USBD_HandleTypeDef *pdev, void *cookie)
     memset(handle, 0, sizeof(ledger_hid_handle_t));
 
     memset(&handle->protocol_data, 0, sizeof(handle->protocol_data));
-    handle->protocol_data.rx_apdu_buffer       = USBD_LEDGER_io_buffer;
-    handle->protocol_data.rx_apdu_buffer_size  = sizeof(USBD_LEDGER_io_buffer);
     handle->protocol_data.mtu                  = sizeof(USBD_LEDGER_protocol_chunk_buffer);
 
     LEDGER_PROTOCOL_init(&handle->protocol_data, OS_IO_PACKET_TYPE_USB_HID_APDU);
@@ -350,7 +348,7 @@ uint8_t USBD_LEDGER_HID_data_out(USBD_HandleTypeDef *pdev,
 
     ledger_hid_handle_t *handle = (ledger_hid_handle_t *) PIC(cookie);
 
-    LEDGER_PROTOCOL_rx(&handle->protocol_data, packet, packet_length, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer));
+    LEDGER_PROTOCOL_rx(&handle->protocol_data, packet, packet_length, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer), USBD_LEDGER_io_buffer, sizeof(USBD_LEDGER_io_buffer));
 
     USBD_LL_PrepareReceive(pdev, LEDGER_HID_EPOUT_ADDR, NULL, LEDGER_HID_EPOUT_SIZE);
 
@@ -432,7 +430,7 @@ int32_t USBD_LEDGER_HID_data_ready(USBD_HandleTypeDef *pdev,
         }
         else {
             memmove(
-                buffer, handle->protocol_data.rx_apdu_buffer, handle->protocol_data.rx_apdu_length);
+                buffer, USBD_LEDGER_io_buffer, handle->protocol_data.rx_apdu_length);
             status = handle->protocol_data.rx_apdu_length;
         }
         handle->protocol_data.rx_apdu_status = APDU_STATUS_WAITING;
