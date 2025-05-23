@@ -19,3 +19,9 @@ Please complete this section if any breaking changes have been made, otherwise d
 ## Additional comments
 
 Please post additional comments in this section if you have them, otherwise delete it.
+
+## Auto cherry-pick in API_LEVEL
+
+If requested to backport this PR on a dedicated _API_LEVEL_ branch, add a line like `TARGET_API_LEVEL: API_LEVEL_xx`.
+
+This will only create the PR with cherry-picks, ready to be reviewed and merged.
