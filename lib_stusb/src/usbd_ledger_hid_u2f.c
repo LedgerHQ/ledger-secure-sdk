@@ -476,8 +476,6 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
 {
     int32_t status = 0;
 
-    UNUSED(max_length);
-
     if (!cookie || !buffer) {
         return -1;
     }
@@ -563,15 +561,18 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
                     handle->user_presence = LEDGER_HID_U2F_USER_PRESENCE_IDLE;
                 }
                 else {
-                    buffer[0] = OS_IO_PACKET_TYPE_USB_U2F_HID_APDU;
-                    // TODO_IO : check max length
-                    memmove(&buffer[1],
-                            &handle->transport_data.rx_message_buffer[3],
-                            handle->transport_data.rx_message_length - 3);
-                    handle->transport_data.state = U2F_STATE_CMD_PROCESSING;
-                    status                       = handle->transport_data.rx_message_length - 2;
-                    handle->message_crc          = crc;
-                    handle->user_presence        = LEDGER_HID_U2F_USER_PRESENCE_IDLE;
+                    if (handle->transport_data.rx_message_length + 1 > max_length) {
+                        status = -1;
+                    } else {
+                        buffer[0] = OS_IO_PACKET_TYPE_USB_U2F_HID_APDU;
+                        memmove(&buffer[1],
+                                &handle->transport_data.rx_message_buffer[3],
+                                handle->transport_data.rx_message_length - 3);
+                        handle->transport_data.state = U2F_STATE_CMD_PROCESSING;
+                        status                       = handle->transport_data.rx_message_length - 2;
+                        handle->message_crc          = crc;
+                        handle->user_presence        = LEDGER_HID_U2F_USER_PRESENCE_IDLE;
+                    }
                 }
             }
             break;
@@ -584,13 +585,16 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
                     pdev, cookie, OS_IO_PACKET_TYPE_USB_U2F_HID_RAW, error_msg, 2, 0);
             }
             else {
-                buffer[0] = OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR;
-                // TODO_IO : check max length
-                memmove(&buffer[1],
-                        &handle->transport_data.rx_message_buffer[3],
-                        handle->transport_data.rx_message_length - 3);
-                handle->transport_data.state = U2F_STATE_CMD_PROCESSING;
-                status                       = handle->transport_data.rx_message_length - 2;
+                if (handle->transport_data.rx_message_length + 1 > max_length) {
+                    status = -1;
+                } else {
+                    buffer[0] = OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR;
+                    memmove(&buffer[1],
+                            &handle->transport_data.rx_message_buffer[3],
+                            handle->transport_data.rx_message_length - 3);
+                    handle->transport_data.state = U2F_STATE_CMD_PROCESSING;
+                    status                       = handle->transport_data.rx_message_length - 2;
+                }
             }
             break;
 
