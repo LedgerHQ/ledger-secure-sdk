@@ -104,7 +104,8 @@ typedef struct nbgl_layoutInternal_s {
     nbgl_container_t       *container;
     const nbgl_animation_t *animation;      ///< current animation (if not NULL)
     uint8_t                 iconIdxInAnim;  ///< current icon index in animation
-    bool incrementAnim;  ///< if true, means that animation index is currently incrementing
+    bool incrementAnim;   ///< if true, means that animation index is currently incrementing
+    bool invertedColors;  ///< if true, means that background is black
     nbgl_swipe_usage_t swipeUsage;
 } nbgl_layoutInternal_t;
 
