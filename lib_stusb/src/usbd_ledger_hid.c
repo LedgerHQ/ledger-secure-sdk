@@ -411,7 +411,8 @@ int32_t USBD_LEDGER_HID_data_ready(USBD_HandleTypeDef *pdev,
     ledger_hid_handle_t *handle = (ledger_hid_handle_t *) PIC(cookie);
 
     if (handle->protocol_data.rx_apdu_status == APDU_STATUS_COMPLETE) {
-        if (max_length < handle->protocol_data.rx_apdu_length) {
+        if ((max_length < handle->protocol_data.rx_apdu_length)
+            || (sizeof(USBD_LEDGER_io_buffer) < handle->protocol_data.rx_apdu_length)) {
             status = -1;
         }
         else {
