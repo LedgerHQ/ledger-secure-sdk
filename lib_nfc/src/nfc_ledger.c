@@ -145,7 +145,8 @@ int NFC_LEDGER_rx_seph_apdu_evt(uint8_t *seph_buffer,
                            sizeof(NFC_LEDGER_io_buffer));
 
         if (nfc_ledger_data.protocol_data.rx_apdu_status == APDU_STATUS_COMPLETE) {
-            if (apdu_buffer_max_length < nfc_ledger_data.protocol_data.rx_apdu_length) {
+            if ((apdu_buffer_max_length < nfc_ledger_data.protocol_data.rx_apdu_length)
+                || (sizeof(NFC_LEDGER_io_buffer) < nfc_ledger_data.protocol_data.rx_apdu_length)) {
                 status = -1;
             }
             else {
