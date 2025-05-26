@@ -613,7 +613,8 @@ int32_t BLE_LEDGER_PROFILE_apdu_data_ready(uint8_t *buffer, uint16_t max_length,
 
     PRINTF("BLE_LEDGER_PROFILE_apdu_data_ready %d\n", handle->protocol_data.rx_apdu_status);
     if (handle->protocol_data.rx_apdu_status == APDU_STATUS_COMPLETE) {
-        if (max_length < handle->protocol_data.rx_apdu_length) {
+        if ((max_length < handle->protocol_data.rx_apdu_length)
+            || (sizeof(BLE_LEDGER_apdu_buffer) < handle->protocol_data.rx_apdu_length)) {
             status = -1;
         }
         else {
