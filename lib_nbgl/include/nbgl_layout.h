@@ -41,12 +41,12 @@ extern "C" {
 // only 4 buttons are visible at the same time on Stax
 #define NB_MAX_VISIBLE_SUGGESTION_BUTTONS 4
 #define TOUCHABLE_HEADER_BAR_HEIGHT       88
-#define TOUCHABLE_MAIN_BAR_HEIGHT         96
 #define TOUCHABLE_BAR_HEIGHT              96
 #define SMALL_FOOTER_HEIGHT               88
 #define SIMPLE_FOOTER_HEIGHT              92
 #define SMALL_CENTERING_HEADER            32
 #define MEDIUM_CENTERING_HEADER           56
+#define LARGE_CENTERING_HEADER            56
 #define MEDIUM_CENTERING_FOOTER           88
 #define LONG_PRESS_BUTTON_HEIGHT          128
 #define UP_FOOTER_BUTTON_HEIGHT           120
@@ -56,23 +56,29 @@ extern "C" {
 #define PRE_SUBTEXT_MARGIN  24
 #define POST_SUBTEXT_MARGIN 28
 
+#define LIST_ITEM_PRE_HEADING       28
+#define LIST_ITEM_PRE_HEADING_LARGE 28
+#define LIST_ITEM_HEADING_SUB_TEXT  12
+
 #define PRE_TAG_VALUE_MARGIN   24
 #define INTER_TAG_VALUE_MARGIN 12
 // width & height for progress bar
 #define PROGRESSBAR_WIDTH      120
 #define PROGRESSBAR_HEIGHT     12
 #define BACK_KEY_WIDTH         88
+#define ICON_TITLE_MARGIN      24
+
 #elif defined(TARGET_FLEX)
 #define NB_MAX_SUGGESTION_BUTTONS         8
 // only 2 buttons are visible at the same time on Flex
 #define NB_MAX_VISIBLE_SUGGESTION_BUTTONS 2
 #define TOUCHABLE_HEADER_BAR_HEIGHT       96
-#define TOUCHABLE_MAIN_BAR_HEIGHT         100
 #define TOUCHABLE_BAR_HEIGHT              92
 #define SMALL_FOOTER_HEIGHT               96
 #define SIMPLE_FOOTER_HEIGHT              96
 #define SMALL_CENTERING_HEADER            40
 #define MEDIUM_CENTERING_HEADER           64
+#define LARGE_CENTERING_HEADER            64
 #define MEDIUM_CENTERING_FOOTER           64
 #define LONG_PRESS_BUTTON_HEIGHT          152
 #define UP_FOOTER_BUTTON_HEIGHT           136
@@ -82,31 +88,41 @@ extern "C" {
 #define PRE_SUBTEXT_MARGIN  26
 #define POST_SUBTEXT_MARGIN 26
 
+#define LIST_ITEM_PRE_HEADING       26
+#define LIST_ITEM_PRE_HEADING_LARGE 30
+#define LIST_ITEM_HEADING_SUB_TEXT  12
+
 #define PRE_TAG_VALUE_MARGIN   0
 #define INTER_TAG_VALUE_MARGIN 24
 // width & height for progress bar
 #define PROGRESSBAR_WIDTH      120
 #define PROGRESSBAR_HEIGHT     12
 #define BACK_KEY_WIDTH         104
+#define ICON_TITLE_MARGIN      24
+
 #elif defined(TARGET_APEX)
 #define NB_MAX_SUGGESTION_BUTTONS         8
 // only 2 buttons are visible at the same time on Apex
 #define NB_MAX_VISIBLE_SUGGESTION_BUTTONS 2
 #define TOUCHABLE_HEADER_BAR_HEIGHT       60
-#define TOUCHABLE_MAIN_BAR_HEIGHT         68
-#define TOUCHABLE_BAR_HEIGHT              64
+#define TOUCHABLE_BAR_HEIGHT              68
 #define SMALL_FOOTER_HEIGHT               60
 #define SIMPLE_FOOTER_HEIGHT              60
 #define SMALL_CENTERING_HEADER            24
 #define MEDIUM_CENTERING_HEADER           40
+#define LARGE_CENTERING_HEADER            60
 #define MEDIUM_CENTERING_FOOTER           40
 #define LONG_PRESS_BUTTON_HEIGHT          88
 #define UP_FOOTER_BUTTON_HEIGHT           72
 
-#define PRE_TEXT_MARGIN     20
-#define TEXT_SUBTEXT_MARGIN 10
+#define PRE_TEXT_MARGIN     23
+#define TEXT_SUBTEXT_MARGIN 9
 #define PRE_SUBTEXT_MARGIN  18
-#define POST_SUBTEXT_MARGIN 18
+#define POST_SUBTEXT_MARGIN 22
+
+#define LIST_ITEM_PRE_HEADING       22
+#define LIST_ITEM_PRE_HEADING_LARGE 22
+#define LIST_ITEM_HEADING_SUB_TEXT  8
 
 #define PRE_TAG_VALUE_MARGIN   0
 #define INTER_TAG_VALUE_MARGIN 12
@@ -114,6 +130,7 @@ extern "C" {
 #define PROGRESSBAR_WIDTH      78
 #define PROGRESSBAR_HEIGHT     8
 #define BACK_KEY_WIDTH         56
+#define ICON_TITLE_MARGIN      16
 
 #else  // TARGETS
 #error Undefined target
@@ -131,6 +148,8 @@ extern "C" {
 #define NB_MAX_LINES    4
 
 #endif  // HAVE_SE_TOUCH
+
+#define LIST_ITEM_MIN_TEXT_HEIGHT SMALL_ICON_SIZE
 
 #define SPINNER_FIXED 0xFF  ///< position to use for a "fixed" spinner
 
@@ -765,11 +784,6 @@ DEPRECATED int nbgl_layoutAddSuggestionButtons(nbgl_layout_t *layout,
                                                const char  *buttonTexts[NB_MAX_SUGGESTION_BUTTONS],
                                                int          firstButtonToken,
                                                tune_index_e tuneId);
-DEPRECATED int nbgl_layoutUpdateSuggestionButtons(
-    nbgl_layout_t *layout,
-    uint8_t        index,
-    uint8_t        nbUsedButtons,
-    const char    *buttonTexts[NB_MAX_SUGGESTION_BUTTONS]);
 DEPRECATED int nbgl_layoutAddEnteredText(nbgl_layout_t *layout,
                                          bool           numbered,
                                          uint8_t        number,

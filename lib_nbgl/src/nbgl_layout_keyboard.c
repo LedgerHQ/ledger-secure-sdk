@@ -51,53 +51,64 @@ enum {
 #define TEXT_ENTRY_NORMAL_HEIGHT  64
 #define TEXT_ENTRY_COMPACT_HEIGHT 64
 #define BOTTOM_NORMAL_MARGIN      24
+#define BOTTOM_CONFIRM_MARGIN     24
 #define BOTTOM_COMPACT_MARGIN     24
 #define TOP_NORMAL_MARGIN         20
+#define TOP_CONFIRM_MARGIN        20
 #define TOP_COMPACT_MARGIN        20
 #define TITLE_ENTRY_MARGIN_Y      4
 #define TEXT_ENTRY_FONT           LARGE_MEDIUM_1BPP_FONT
+// space between number and text
+#define NUMBER_TEXT_SPACE         8
+#define NUMBER_WIDTH              56
 #elif defined(TARGET_FLEX)
 #define TEXT_ENTRY_NORMAL_HEIGHT  72
 #define TEXT_ENTRY_COMPACT_HEIGHT 56
 #define BOTTOM_NORMAL_MARGIN      24
+#define BOTTOM_CONFIRM_MARGIN     24
 #define BOTTOM_COMPACT_MARGIN     12
 #define TOP_NORMAL_MARGIN         20
+#define TOP_CONFIRM_MARGIN        20
 #define TOP_COMPACT_MARGIN        12
 #define TITLE_ENTRY_MARGIN_Y      4
 #define TEXT_ENTRY_FONT           LARGE_MEDIUM_1BPP_FONT
+// space between number and text
+#define NUMBER_TEXT_SPACE         8
+#define NUMBER_WIDTH              56
 #elif defined(TARGET_APEX)
 #define TEXT_ENTRY_NORMAL_HEIGHT  40
 #define TEXT_ENTRY_COMPACT_HEIGHT 40
-#define BOTTOM_NORMAL_MARGIN      16
-#define BOTTOM_COMPACT_MARGIN     20
-#define TOP_NORMAL_MARGIN         12
-#define TOP_COMPACT_MARGIN        20
-#define TITLE_ENTRY_MARGIN_Y      0
+#define BOTTOM_NORMAL_MARGIN      20
+#define BOTTOM_CONFIRM_MARGIN     16
+#define BOTTOM_COMPACT_MARGIN     8
+#define TOP_NORMAL_MARGIN         20
+#define TOP_CONFIRM_MARGIN        12
+#define TOP_COMPACT_MARGIN        8
+#define TITLE_ENTRY_MARGIN_Y      4
 #define TEXT_ENTRY_FONT           SMALL_BOLD_FONT
+// space between number and text
+#define NUMBER_TEXT_SPACE         4
+#define NUMBER_WIDTH              32
 #endif  // TARGETS
 
 #ifdef USE_PARTIAL_BUTTONS
 #if defined(TARGET_FLEX)
-#define LEFT_HALF_ICON C_left_half_64px
+#define LEFT_HALF_ICON              C_left_half_64px
+#define SUGGESTION_CONTAINER_HEIGHT 92
 #elif defined(TARGET_APEX)
-#define LEFT_HALF_ICON C_left_half_40px
+#define LEFT_HALF_ICON              C_half_disc_left_40px_1bpp
+#define SUGGESTION_CONTAINER_HEIGHT 56
 #endif  // TARGETS
 #endif  // USE_PARTIAL_BUTTONS
 
-#define NUMBER_WIDTH 56
-
-// space between number and text
-#define NUMBER_TEXT_SPACE 8
-
 // space on left and right of suggestion buttons
-#if defined(TARGET_APEX)
-#define SUGGESTION_BUTTONS_SIDE_MARGIN 31
-#define LINE_THICKNESS                 1
-#define LINE_COLOR                     BLACK
-#else
 #define SUGGESTION_BUTTONS_SIDE_MARGIN BORDER_MARGIN
-#define LINE_THICKNESS                 2
-#define LINE_COLOR                     LIGHT_GRAY
+#if defined(TARGET_APEX)
+#define LINE_THICKNESS 1
+#define LINE_COLOR     BLACK
+#else
+#define LINE_THICKNESS 2
+#define LINE_COLOR     LIGHT_GRAY
 #endif  // TARGETS
 
 /**********************
@@ -373,8 +384,7 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
                                               uint8_t                nbUsedButtons,
                                               const char           **buttonTexts,
                                               int                    firstButtonToken,
-                                              tune_index_e           tuneId,
-                                              bool                   compactMode)
+                                              tune_index_e           tuneId)
 {
     nbgl_container_t *suggestionsContainer;
     layoutObj_t      *obj;
@@ -388,16 +398,15 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
     suggestionsContainer->obj.area.height = 2 * SMALL_BUTTON_HEIGHT + INTERNAL_MARGIN + 28;
 #else   // USE_PARTIAL_BUTTONS
     // 1 row of buttons + 24px + page indicator
-    suggestionsContainer->obj.area.height = SMALL_BUTTON_HEIGHT + 28;
+    suggestionsContainer->obj.area.height = SUGGESTION_CONTAINER_HEIGHT;
 #endif  // USE_PARTIAL_BUTTONS
     suggestionsContainer->nbChildren = nbActiveButtons + FIRST_BUTTON_INDEX;
     suggestionsContainer->children
         = (nbgl_obj_t **) nbgl_containerPoolGet(NB_SUGGESTION_CHILDREN, layoutInt->layer);
 
     // put suggestionsContainer at the bottom of main container
-    suggestionsContainer->obj.alignmentMarginY
-        = compactMode ? BOTTOM_COMPACT_MARGIN : BOTTOM_NORMAL_MARGIN;
-    suggestionsContainer->obj.alignment = BOTTOM_MIDDLE;
+    suggestionsContainer->obj.alignmentMarginY = BOTTOM_NORMAL_MARGIN;
+    suggestionsContainer->obj.alignment        = BOTTOM_MIDDLE;
 
     // create all possible suggestion buttons, even if not displayed at first
     nbgl_objPoolGetArray(
@@ -433,7 +442,8 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
     indicator->activePage = 0;
     indicator->nbPages    = (nbActiveButtons + NB_MAX_VISIBLE_SUGGESTION_BUTTONS - 1)
                          / NB_MAX_VISIBLE_SUGGESTION_BUTTONS;
-    indicator->obj.area.width                            = 184;
+    indicator->obj.area.width
+        = (indicator->nbPages < 3) ? STEPPER_2_PAGES_WIDTH : STEPPER_N_PAGES_WIDTH;
     indicator->obj.alignment                             = BOTTOM_MIDDLE;
     indicator->style                                     = CURRENT_INDICATOR;
     suggestionsContainer->children[PAGE_INDICATOR_INDEX] = (nbgl_obj_t *) indicator;
@@ -472,7 +482,7 @@ static nbgl_button_t *addConfirmationButton(nbgl_layoutInternal_t *layoutInt,
     }
 
     // put button at the bottom of the main container
-    button->obj.alignmentMarginY = compactMode ? BOTTOM_COMPACT_MARGIN : BOTTOM_NORMAL_MARGIN;
+    button->obj.alignmentMarginY = compactMode ? BOTTOM_COMPACT_MARGIN : BOTTOM_CONFIRM_MARGIN;
     button->obj.alignment        = BOTTOM_MIDDLE;
     button->foregroundColor      = WHITE;
     if (active) {
@@ -633,84 +643,6 @@ bool nbgl_layoutKeyboardNeedsRefresh(nbgl_layout_t *layout, uint8_t index)
     }
 
     return false;
-}
-
-/**
- * @brief Updates the number and/or the text suggestion buttons created with @ref
- * nbgl_layoutAddSuggestionButtons()
- * @deprecated Use @ref nbgl_layoutUpdateKeyboardContent instead
- *
- * @param layout the current layout
- * @param index index returned by @ref nbgl_layoutAddSuggestionButtons() (unused)
- * @param nbUsedButtons the number of actually used buttons
- * @param buttonTexts array of 4 strings for buttons (last ones can be NULL)
- * @return >= 0 if OK
- */
-int nbgl_layoutUpdateSuggestionButtons(nbgl_layout_t *layout,
-                                       uint8_t        index,
-                                       uint8_t        nbUsedButtons,
-                                       const char    *buttonTexts[NB_MAX_SUGGESTION_BUTTONS])
-{
-    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
-    nbgl_container_t      *container;
-    uint8_t                enteredTextIndex = (layoutInt->container->nbChildren == 2) ? 0 : 1;
-
-    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutUpdateSuggestionButtons():\n");
-    if (layout == NULL) {
-        return -1;
-    }
-    UNUSED(index);
-
-    container = (nbgl_container_t *) layoutInt->container->children[enteredTextIndex + 1];
-    if ((container == NULL) || (container->obj.type != CONTAINER)) {
-        return -1;
-    }
-    nbActiveButtons       = nbUsedButtons;
-    container->nbChildren = nbUsedButtons + FIRST_BUTTON_INDEX;
-
-    // update suggestion buttons
-    for (int i = 0; i < NB_MAX_SUGGESTION_BUTTONS; i++) {
-        choiceButtons[i]->text = buttonTexts[i];
-        // some buttons may not be visible
-        if (i < MIN(NB_MAX_VISIBLE_SUGGESTION_BUTTONS, nbUsedButtons)) {
-            if ((i % 2) == 0) {
-                choiceButtons[i]->obj.alignmentMarginX = BORDER_MARGIN;
-#ifndef USE_PARTIAL_BUTTONS
-                // second row 8px under the first one
-                if (i != 0) {
-                    choiceButtons[i]->obj.alignmentMarginY = INTERNAL_MARGIN;
-                }
-                choiceButtons[i]->obj.alignment = NO_ALIGNMENT;
-#else   // USE_PARTIAL_BUTTONS
-                if (i == 0) {
-                    choiceButtons[i]->obj.alignment = TOP_LEFT;
-                }
-#endif  // USE_PARTIAL_BUTTONS
-            }
-            else {
-                choiceButtons[i]->obj.alignmentMarginX = INTERNAL_MARGIN;
-                choiceButtons[i]->obj.alignment        = MID_RIGHT;
-                choiceButtons[i]->obj.alignTo          = (nbgl_obj_t *) choiceButtons[i - 1];
-            }
-            container->children[i + FIRST_BUTTON_INDEX] = (nbgl_obj_t *) choiceButtons[i];
-        }
-        else {
-            container->children[i + FIRST_BUTTON_INDEX] = NULL;
-        }
-    }
-    container->forceClean = true;
-#ifdef USE_PARTIAL_BUTTONS
-    // on Flex, the first child is used by the progress indicator, if more that 2 buttons
-    nbgl_page_indicator_t *indicator
-        = (nbgl_page_indicator_t *) container->children[PAGE_INDICATOR_INDEX];
-    indicator->nbPages    = (nbUsedButtons + 1) / 2;
-    indicator->activePage = 0;
-    updateSuggestionButtons(container, 0, 0);
-#endif  // USE_PARTIAL_BUTTONS
-
-    nbgl_objDraw((nbgl_obj_t *) container);
-
-    return 0;
 }
 
 /**
@@ -945,7 +877,7 @@ int nbgl_layoutUpdateConfirmationButton(nbgl_layout_t *layout,
 int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardContent_t *content)
 {
     nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
-    nbgl_container_t      *container;
+    nbgl_container_t      *textEntryContainer;
     bool compactMode = ((content->type == KEYBOARD_WITH_BUTTON) && (content->title != NULL));
 
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddKeyboardContent():\n");
@@ -953,17 +885,17 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
         return -1;
     }
 
-    container = addTextEntry(layoutInt,
-                             content->title,
-                             content->text,
-                             content->numbered,
-                             content->number,
-                             content->grayedOut,
-                             content->textToken,
-                             compactMode);
+    textEntryContainer = addTextEntry(layoutInt,
+                                      content->title,
+                                      content->text,
+                                      content->numbered,
+                                      content->number,
+                                      content->grayedOut,
+                                      content->textToken,
+                                      compactMode);
 
     // set this container as first child of the main layout container
-    layoutInt->container->children[0] = (nbgl_obj_t *) container;
+    layoutInt->container->children[0] = (nbgl_obj_t *) textEntryContainer;
 
     if (content->type == KEYBOARD_WITH_SUGGESTIONS) {
         nbgl_container_t *suggestionsContainer
@@ -971,8 +903,7 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
                                    content->suggestionButtons.nbUsedButtons,
                                    content->suggestionButtons.buttons,
                                    content->suggestionButtons.firstButtonToken,
-                                   content->tuneId,
-                                   compactMode);
+                                   content->tuneId);
         // set this container as second child of the main layout container
         layoutInt->container->children[1] = (nbgl_obj_t *) suggestionsContainer;
         // the main container is swipable on Flex
@@ -983,9 +914,9 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
         layoutInt->container->obj.touchMask = (1 << SWIPED_LEFT) | (1 << SWIPED_RIGHT);
         layoutInt->container->obj.touchId   = CONTROLS_ID;
         layoutInt->swipeUsage               = SWIPE_USAGE_SUGGESTIONS;
-        container->obj.alignmentMarginY
+        textEntryContainer->obj.alignmentMarginY
             -= (suggestionsContainer->obj.area.height + suggestionsContainer->obj.alignmentMarginY
-                + (compactMode ? TOP_COMPACT_MARGIN : TOP_NORMAL_MARGIN))
+                + TOP_NORMAL_MARGIN)
                / 2;
     }
     else if (content->type == KEYBOARD_WITH_BUTTON) {
@@ -994,15 +925,14 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
                                                       content->confirmationButton.text,
                                                       content->confirmationButton.token,
                                                       content->tuneId,
-                                                      compactMode);
+                                                      (content->title != NULL));
         // set this button as second child of the main layout container
         layoutInt->container->children[1] = (nbgl_obj_t *) button;
-        container->obj.alignmentMarginY
+        textEntryContainer->obj.alignmentMarginY
             -= (button->obj.area.height + button->obj.alignmentMarginY
-                + (compactMode ? TOP_COMPACT_MARGIN : TOP_NORMAL_MARGIN))
+                + ((content->title != NULL) ? TOP_COMPACT_MARGIN : TOP_CONFIRM_MARGIN))
                / 2;
     }
-
     return layoutInt->container->obj.area.height;
 }
 

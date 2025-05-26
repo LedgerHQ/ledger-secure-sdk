@@ -38,16 +38,19 @@
 #define SPINNER_DASH_WIDTH  22
 #define SPINNER_DASH_HEIGHT 14
 #define SPINNER_DASH_STROKE 4
+#define PROGRESS_STROKE     3
 #elif defined(TARGET_FLEX)
 #define INTER_DASHES        8
 #define SPINNER_DASH_WIDTH  24
 #define SPINNER_DASH_HEIGHT 16
 #define SPINNER_DASH_STROKE 4
+#define PROGRESS_STROKE     3
 #elif defined(TARGET_APEX)
 #define INTER_DASHES        8
 #define SPINNER_DASH_WIDTH  15
 #define SPINNER_DASH_HEIGHT 10
 #define SPINNER_DASH_STROKE 2
+#define PROGRESS_STROKE     2
 #endif  // TARGETS
 
 /**********************
@@ -763,13 +766,11 @@ static void draw_progressBar(nbgl_progress_bar_t *obj, nbgl_obj_t *prevObj, bool
 {
 #ifdef HAVE_SE_TOUCH
 
-    uint8_t stroke = 3;  // 3 pixels for border
+    uint8_t stroke = PROGRESS_STROKE;  // pixels for border
 
     if (computePosition) {
         compute_position((nbgl_obj_t *) obj, prevObj);
     }
-    // force vertical position to be aligned until using nbgl_drawLine()
-    obj->obj.area.y0 &= ~(VERTICAL_ALIGNMENT - 1);
     LOG_DEBUG(OBJ_LOGGER,
               "draw_progressBar(), x0 = %d, y0 = %d, level = %d %%\n",
               obj->obj.area.x0,
