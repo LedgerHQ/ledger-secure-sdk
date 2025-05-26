@@ -68,7 +68,6 @@
 #define SINGLE_BUTTON_MARGIN             24
 #define LONG_PRESS_PROGRESS_HEIGHT       8
 #define LONG_PRESS_PROGRESS_ALIGN        4
-#define ICON_TITLE_MARGIN                24
 #define TITLE_DESC_MARGIN                16
 #define LEFT_CONTENT_ICON_TEXT_X         16
 #elif defined(TARGET_FLEX)
@@ -100,13 +99,11 @@
 #define SINGLE_BUTTON_MARGIN             24
 #define LONG_PRESS_PROGRESS_HEIGHT       8
 #define LONG_PRESS_PROGRESS_ALIGN        4
-#define ICON_TITLE_MARGIN                24
 #define TITLE_DESC_MARGIN                16
 #define LEFT_CONTENT_ICON_TEXT_X         16
 #elif defined(TARGET_APEX)
 #define RADIO_CHOICE_HEIGHT              68
 #define BAR_INTERVALE                    8
-#define BACK_KEY_WIDTH                   56
 #define FOOTER_BUTTON_HEIGHT             72
 #define UP_FOOTER_BUTTON_HEIGHT          72
 #define FOOTER_IN_PAIR_HEIGHT            60
@@ -133,7 +130,6 @@
 #define SINGLE_BUTTON_MARGIN             16
 #define LONG_PRESS_PROGRESS_HEIGHT       4
 #define LONG_PRESS_PROGRESS_ALIGN        4
-#define ICON_TITLE_MARGIN                16
 #define TITLE_DESC_MARGIN                12
 #define LEFT_CONTENT_ICON_TEXT_X         8
 #else  // TARGETS
@@ -714,7 +710,6 @@ static nbgl_container_t *addListItem(nbgl_layoutInternal_t *layoutInt, const lis
         = ((itemDesc->type == TOUCHABLE_BAR_ITEM) && (itemDesc->state == OFF_STATE))
               ? INACTIVE_SMALL_FONT
               : SMALL_BOLD_FONT;
-    int16_t usedHeight = 40;
 
     LOG_DEBUG(LAYOUT_LOGGER, "addListItem():\n");
 
@@ -729,9 +724,11 @@ static nbgl_container_t *addListItem(nbgl_layoutInternal_t *layoutInt, const lis
     container->children   = nbgl_containerPoolGet(4, layoutInt->layer);
     container->nbChildren = 0;
 
-    container->obj.area.width  = AVAILABLE_WIDTH;
-    container->obj.area.height = itemDesc->large ? TOUCHABLE_MAIN_BAR_HEIGHT : TOUCHABLE_BAR_HEIGHT;
-    container->layout          = HORIZONTAL;
+    container->obj.area.width = AVAILABLE_WIDTH;
+    container->obj.area.height
+        = LIST_ITEM_MIN_TEXT_HEIGHT
+          + 2 * (itemDesc->large ? LIST_ITEM_PRE_HEADING_LARGE : LIST_ITEM_PRE_HEADING);
+    container->layout               = HORIZONTAL;
     container->obj.alignmentMarginX = BORDER_MARGIN;
     container->obj.alignment        = NO_ALIGNMENT;
     container->obj.alignTo          = NULL;
@@ -763,13 +760,20 @@ static nbgl_container_t *addListItem(nbgl_layoutInternal_t *layoutInt, const lis
             -= ((nbgl_icon_details_t *) PIC(itemDesc->iconRight))->width + BAR_INTERVALE;
     }
     else if (itemDesc->type == SWITCH_ITEM) {
-        textArea->obj.area.width -= 60 + BAR_INTERVALE;
+        textArea->obj.area.width -= SWITCH_ICON.width + BAR_INTERVALE;
     }
-    textArea->obj.area.height = nbgl_getTextHeightInWidth(
-        textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
-    usedHeight                                 = MAX(usedHeight, textArea->obj.area.height);
-    textArea->style                            = NO_STYLE;
-    textArea->obj.alignment                    = MID_LEFT;
+    textArea->obj.area.height
+        = MAX(LIST_ITEM_MIN_TEXT_HEIGHT,
+              nbgl_getTextHeightInWidth(
+                  textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping));
+    textArea->style         = NO_STYLE;
+    textArea->obj.alignment = TOP_LEFT;
+    textArea->obj.alignmentMarginY
+        = itemDesc->large ? LIST_ITEM_PRE_HEADING_LARGE : LIST_ITEM_PRE_HEADING;
+    if (textArea->obj.area.height > LIST_ITEM_MIN_TEXT_HEIGHT) {
+        textArea->obj.alignmentMarginY
+            -= (textArea->obj.area.height - LIST_ITEM_MIN_TEXT_HEIGHT) / 2;
+    }
     textArea->textAlignment                    = MID_LEFT;
     container->children[container->nbChildren] = (nbgl_obj_t *) textArea;
     container->nbChildren++;
@@ -787,8 +791,6 @@ static nbgl_container_t *addListItem(nbgl_layoutInternal_t *layoutInt, const lis
         container->nbChildren++;
 
         textArea->obj.alignmentMarginX = imageLeft->buffer->width + BAR_INTERVALE;
-
-        usedHeight = MAX(usedHeight, imageLeft->buffer->height);
     }
     // allocate right icon if present
     if (itemDesc->iconRight != NULL) {
@@ -802,8 +804,6 @@ static nbgl_container_t *addListItem(nbgl_layoutInternal_t *layoutInt, const lis
 
         container->children[container->nbChildren] = (nbgl_obj_t *) imageRight;
         container->nbChildren++;
-
-        usedHeight = MAX(usedHeight, imageRight->buffer->height);
     }
     else if (itemDesc->type == SWITCH_ITEM) {
         nbgl_switch_t *switchObj = (nbgl_switch_t *) nbgl_objPoolGet(SWITCH, layoutInt->layer);
@@ -822,13 +822,19 @@ static nbgl_container_t *addListItem(nbgl_layoutInternal_t *layoutInt, const lis
         nbgl_text_area_t *subTextArea
             = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
 
-        subTextArea->textColor                     = color;
-        subTextArea->text                          = PIC(itemDesc->subText);
-        subTextArea->textAlignment                 = MID_LEFT;
-        subTextArea->fontId                        = SMALL_REGULAR_FONT;
-        subTextArea->style                         = NO_STYLE;
-        subTextArea->wrapping                      = true;
-        subTextArea->obj.alignment                 = MID_LEFT;
+        subTextArea->textColor            = color;
+        subTextArea->text                 = PIC(itemDesc->subText);
+        subTextArea->textAlignment        = MID_LEFT;
+        subTextArea->fontId               = SMALL_REGULAR_FONT;
+        subTextArea->style                = NO_STYLE;
+        subTextArea->wrapping             = true;
+        subTextArea->obj.alignment        = BOTTOM_LEFT;
+        subTextArea->obj.alignTo          = (nbgl_obj_t *) textArea;
+        subTextArea->obj.alignmentMarginY = LIST_ITEM_HEADING_SUB_TEXT;
+        if (itemDesc->iconLeft != NULL) {
+            subTextArea->obj.alignmentMarginX
+                = -(((nbgl_icon_details_t *) PIC(itemDesc->iconLeft))->width + BAR_INTERVALE);
+        }
         subTextArea->obj.area.width                = container->obj.area.width;
         subTextArea->obj.area.height               = nbgl_getTextHeightInWidth(subTextArea->fontId,
                                                                  subTextArea->text,
@@ -836,13 +842,9 @@ static nbgl_container_t *addListItem(nbgl_layoutInternal_t *layoutInt, const lis
                                                                  subTextArea->wrapping);
         container->children[container->nbChildren] = (nbgl_obj_t *) subTextArea;
         container->nbChildren++;
-        container->obj.area.height += subTextArea->obj.area.height + 12;
-
-        // modify alignments to have sub-text under (icon left - text - icon right)
-        textArea->obj.alignmentMarginY    = -(subTextArea->obj.area.height + 12) / 2;
-        subTextArea->obj.alignmentMarginY = (usedHeight + 12) / 2;
+        container->obj.area.height
+            += subTextArea->obj.area.height + subTextArea->obj.alignmentMarginY;
     }
-
     // set this new container as child of main container
     layoutAddObject(layoutInt, (nbgl_obj_t *) container);
 
@@ -1130,7 +1132,7 @@ static int addText(nbgl_layout_t *layout,
         container->children[container->nbChildren] = (nbgl_obj_t *) subTextArea;
         container->nbChildren++;
         fullHeight += subTextArea->obj.area.height + subTextArea->obj.alignmentMarginY;
-        fullHeight += PRE_SUBTEXT_MARGIN;
+        fullHeight += POST_SUBTEXT_MARGIN;
     }
     else {
         fullHeight += PRE_TEXT_MARGIN;
@@ -1998,10 +2000,9 @@ int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info)
         }
         else {
             textArea->obj.alignmentMarginY = 32;
-            fullHeight += 8;
         }
 
-        fullHeight += textArea->obj.area.height + textArea->obj.alignmentMarginY;
+        fullHeight += textArea->obj.area.height + textArea->obj.alignmentMarginY + 8;
 
         container->children[container->nbChildren] = (nbgl_obj_t *) textArea;
         container->nbChildren++;

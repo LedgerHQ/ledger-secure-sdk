@@ -38,16 +38,19 @@ enum {
 #define ENTRY_DIGITS_CONTAINER_HEIGHT 44
 #define INTER_ENTRY_DIGITS            10
 #define TITLE_MARGIN_Y                8
+#define TITLE_MARGIN_Y_SMALL          8
 #elif defined(TARGET_FLEX)
 #define ENTRY_DIGITS_HEIGHT           64
 #define ENTRY_DIGITS_CONTAINER_HEIGHT 64
 #define INTER_ENTRY_DIGITS            12
 #define TITLE_MARGIN_Y                8
+#define TITLE_MARGIN_Y_SMALL          8
 #elif defined(TARGET_APEX)
 #define ENTRY_DIGITS_HEIGHT           40
 #define ENTRY_DIGITS_CONTAINER_HEIGHT 40
 #define INTER_ENTRY_DIGITS            8
 #define TITLE_MARGIN_Y                13
+#define TITLE_MARGIN_Y_SMALL          2
 #endif  // TARGETS
 
 /**********************
@@ -391,7 +394,6 @@ int nbgl_layoutAddKeypadContent(nbgl_layout_t *layout,
     container->children       = nbgl_containerPoolGet(container->nbChildren, layoutInt->layer);
     container->obj.area.width = AVAILABLE_WIDTH;
     container->obj.alignment  = TOP_MIDDLE;
-    container->obj.alignmentMarginY = TITLE_MARGIN_Y;
 
     // create text area for title
     textArea                  = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
@@ -404,6 +406,12 @@ int nbgl_layoutAddKeypadContent(nbgl_layout_t *layout,
     textArea->obj.area.width  = AVAILABLE_WIDTH;
     textArea->obj.area.height = nbgl_getTextHeightInWidth(
         textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
+    if (textArea->obj.area.height > nbgl_getFontHeight(textArea->fontId)) {
+        container->obj.alignmentMarginY = TITLE_MARGIN_Y_SMALL;
+    }
+    else {
+        container->obj.alignmentMarginY = TITLE_MARGIN_Y;
+    }
     container->children[TITLE_INDEX] = (nbgl_obj_t *) textArea;
     container->obj.area.height += textArea->obj.area.height;
 

@@ -373,6 +373,7 @@ void nbgl_drawRoundedBorderedRect(const nbgl_area_t *area,
 {
     uint8_t     radius;
     nbgl_area_t rectArea;
+    uint16_t    circle_width = 0;
 
     LOG_DEBUG(
         DRAW_LOGGER,
@@ -408,20 +409,31 @@ void nbgl_drawRoundedBorderedRect(const nbgl_area_t *area,
     // border
     // 4 rectangles (with last pixel of each corner not set)
 #ifdef SCREEN_SIZE_WALLET
-    uint16_t circle_width = 0;
     if (radiusIndex <= RADIUS_MAX) {
         const nbgl_icon_details_t *half_icon = PIC(radiusIcons[radiusIndex]->leftDisc);
         circle_width                         = half_icon->width;
     }
     if ((2 * circle_width) < area->width) {
-        rectArea.x0     = area->x0;
-        rectArea.y0     = area->y0;
-        rectArea.width  = area->width;
-        rectArea.height = stroke;
-        nbgl_frontDrawLine(&rectArea, 0, borderColor);  // top
-        rectArea.x0 = area->x0;
-        rectArea.y0 = area->y0 + area->height - stroke;
-        nbgl_frontDrawLine(&rectArea, 0, borderColor);  // bottom
+        if ((area->height - stroke) > VERTICAL_ALIGNMENT) {
+            rectArea.height = stroke;
+            nbgl_frontDrawLine(&rectArea, 0, borderColor);  // top
+            rectArea.y0 = area->y0 + area->height - stroke;
+            nbgl_frontDrawLine(&rectArea, 0, borderColor);  // bottom
+        }
+        else {
+            uint8_t  pattern = 0;
+            uint32_t i;
+            for (i = 0; i < stroke; i++) {
+                pattern |= 1 << (7 - i);
+            }
+            for (i = area->height - stroke; i < area->height; i++) {
+                pattern |= 1 << (7 - i);
+            }
+            memset(ramBuffer, pattern, area->width);
+            rectArea.height = 8;
+            rectArea.bpp    = NBGL_BPP_1;
+            nbgl_frontDrawImage(&rectArea, ramBuffer, NO_TRANSFORMATION, borderColor);
+        }
     }
     if ((2 * radius) < area->height) {
         rectArea.x0              = area->x0;
