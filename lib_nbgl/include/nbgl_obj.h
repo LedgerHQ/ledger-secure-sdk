@@ -110,6 +110,18 @@ extern "C" {
 #define SPINNER_HEIGHT 32
 #endif  // TARGETS
 
+// width for indicator
+#if defined(TARGET_STAX)
+#define STEPPER_2_PAGES_WIDTH 136
+#define STEPPER_N_PAGES_WIDTH 184
+#elif defined(TARGET_FLEX)
+#define STEPPER_2_PAGES_WIDTH 136
+#define STEPPER_N_PAGES_WIDTH 184
+#elif defined(TARGET_APEX)
+#define STEPPER_2_PAGES_WIDTH 108
+#define STEPPER_N_PAGES_WIDTH 104
+#endif  // TARGETS
+
 // width & height for radio button
 #if defined(TARGET_STAX)
 #define RADIO_WIDTH  32
@@ -118,8 +130,8 @@ extern "C" {
 #define RADIO_WIDTH  40
 #define RADIO_HEIGHT 40
 #elif defined(TARGET_APEX)
-#define RADIO_WIDTH  32
-#define RADIO_HEIGHT 32
+#define RADIO_WIDTH  24
+#define RADIO_HEIGHT 24
 #endif  // TARGETS
 
 // common small icons
