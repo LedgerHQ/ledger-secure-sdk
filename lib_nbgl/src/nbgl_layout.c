@@ -1982,10 +1982,17 @@ int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info)
         qrcode->version = QRCODE_V4;
     }
     qrcode->foregroundColor = BLACK;
-    // in QR V4, we use 8*8 screen pixels for one QR pixel
+    // in QR V4, we use:
+    // - 8*8 screen pixels for one QR pixel on Stax/Flex
+    // - 5*5 screen pixels for one QR pixel on Apex
     // in QR V10, we use 4*4 screen pixels for one QR pixel
+#ifndef TARGET_APEX
     qrcode->obj.area.width
         = (qrcode->version == QRCODE_V4) ? (QR_V4_NB_PIX_SIZE * 8) : (QR_V10_NB_PIX_SIZE * 4);
+#else   // TARGET_APEX
+    qrcode->obj.area.width
+        = (qrcode->version == QRCODE_V4) ? (QR_V4_NB_PIX_SIZE * 5) : (QR_V10_NB_PIX_SIZE * 4);
+#endif  // TARGET_APEX
     qrcode->obj.area.height = qrcode->obj.area.width;
     qrcode->text            = PIC(info->url);
     qrcode->obj.area.bpp    = NBGL_BPP_1;
