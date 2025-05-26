@@ -102,8 +102,9 @@ typedef struct nbgl_layoutInternal_s {
     uint8_t layer : 5;           ///< layer in screen stack
     uint8_t nbUsedCallbackObjs;  ///< number of callback objects used by the whole layout in
                                  ///< callbackObjPool
-    uint8_t            nbChildren;     ///< number of children in above array
-    uint8_t            iconIdxInAnim;  ///< current icon index in animation
+    uint8_t            nbChildren;      ///< number of children in above array
+    uint8_t            iconIdxInAnim;   ///< current icon index in animation
+    bool               invertedColors;  ///< if true, means that background is black
     nbgl_swipe_usage_t swipeUsage;
 } nbgl_layoutInternal_t;
 
