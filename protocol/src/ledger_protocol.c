@@ -81,6 +81,9 @@ static void process_apdu_chunk(ledger_protocol_t *handle,
         length -= 2;
     }
 
+    if ((1 + handle->rx_apdu_offset + length) > apdu_buffer_size) {
+        return;
+    }
     if ((handle->rx_apdu_offset + length) > handle->rx_apdu_length) {
         length = handle->rx_apdu_length - handle->rx_apdu_offset;
     }
