@@ -877,7 +877,7 @@ static nbgl_container_t *addContentCenter(nbgl_layoutInternal_t      *layoutInt,
     // add icon or animation if present
     if (info->icon != NULL) {
         image                       = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
-        image->foregroundColor      = BLACK;
+        image->foregroundColor      = (layoutInt->invertedColors) ? WHITE : BLACK;
         image->buffer               = PIC(info->icon);
         image->obj.alignment        = TOP_MIDDLE;
         image->obj.alignmentMarginY = info->iconHug;
@@ -889,7 +889,7 @@ static nbgl_container_t *addContentCenter(nbgl_layoutInternal_t      *layoutInt,
         if (info->illustrType == ANIM_ILLUSTRATION) {
             nbgl_image_t *anim;
             anim                       = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
-            anim->foregroundColor      = BLACK;
+            anim->foregroundColor      = (layoutInt->invertedColors) ? WHITE : BLACK;
             anim->buffer               = PIC(info->animation->icons[0]);
             anim->obj.alignment        = TOP_MIDDLE;
             anim->obj.alignmentMarginY = info->iconHug + info->animOffsetY;
@@ -914,7 +914,7 @@ static nbgl_container_t *addContentCenter(nbgl_layoutInternal_t      *layoutInt,
     // add title if present
     if (info->title != NULL) {
         textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-        textArea->textColor     = BLACK;
+        textArea->textColor     = (layoutInt->invertedColors) ? WHITE : BLACK;
         textArea->text          = PIC(info->title);
         textArea->textAlignment = CENTER;
         textArea->fontId        = LARGE_MEDIUM_FONT;
@@ -941,7 +941,7 @@ static nbgl_container_t *addContentCenter(nbgl_layoutInternal_t      *layoutInt,
     // add small title if present
     if (info->smallTitle != NULL) {
         textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-        textArea->textColor     = BLACK;
+        textArea->textColor     = (layoutInt->invertedColors) ? WHITE : BLACK;
         textArea->text          = PIC(info->smallTitle);
         textArea->textAlignment = CENTER;
         textArea->fontId        = SMALL_BOLD_FONT;
@@ -974,7 +974,7 @@ static nbgl_container_t *addContentCenter(nbgl_layoutInternal_t      *layoutInt,
     // add description if present
     if (info->description != NULL) {
         textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-        textArea->textColor     = BLACK;
+        textArea->textColor     = (layoutInt->invertedColors) ? WHITE : BLACK;
         textArea->text          = PIC(info->description);
         textArea->textAlignment = CENTER;
         textArea->fontId        = SMALL_REGULAR_FONT;
@@ -1272,6 +1272,36 @@ int nbgl_layoutAddSwipe(nbgl_layout_t *layout,
         layoutInt->tapText->obj.alignment        = BOTTOM_MIDDLE;
     }
     return addSwipeInternal(layoutInt, swipesMask, SWIPE_USAGE_CUSTOM, token, tuneId);
+}
+
+/**
+ * @brief Inverts the background color (black instead of white)
+ *
+ * @param layout the current layout
+ * @return >= 0 if OK
+ */
+
+int nbgl_layoutInvertBackground(nbgl_layout_t *layout)
+{
+    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
+
+    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutInvertBackground():\n");
+    if (layout == NULL) {
+        return -1;
+    }
+    layoutInt->invertedColors = true;
+    nbgl_screenUpdateBackgroundColor(layoutInt->layer, BLACK);
+
+    // invert potential "Tap to continue"
+    if ((layoutInt->upFooterContainer) && (layoutInt->upFooterContainer->nbChildren == 1)
+        && (layoutInt->upFooterContainer->children[0]->type == TEXT_AREA)) {
+        nbgl_text_area_t *textArea = (nbgl_text_area_t *) layoutInt->upFooterContainer->children[0];
+        if (textArea->textColor == LIGHT_TEXT_COLOR) {
+            textArea->textColor = INACTIVE_COLOR;
+        }
+    }
+
+    return 0;
 }
 
 /**

@@ -755,6 +755,7 @@ int nbgl_layoutAddSwipe(nbgl_layout_t *layout,
                         const char    *text,
                         uint8_t        token,
                         tune_index_e   tuneId);
+int nbgl_layoutInvertBackground(nbgl_layout_t *layout);
 #else   // HAVE_SE_TOUCH
 int nbgl_layoutAddText(nbgl_layout_t                  *layout,
                        const char                     *text,
