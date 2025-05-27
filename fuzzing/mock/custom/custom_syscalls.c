@@ -35,10 +35,19 @@
 #include "os_endorsement.h"
 #include <string.h>
 
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-
 cx_err_t cx_ecdomain_parameters_length(cx_curve_t cv, size_t *length)
 {
+    // Explicitly mark as unused
+    (void) cv;
     *length = (size_t) 32;
     return 0x00000000;
+}
+
+void nvm_write(void *dst_adr, void *src_adr, unsigned int src_len)
+{
+    if (!dst_adr || !src_adr || src_len == 0) {
+        return;
+    }
+    // Simulate writing to NVM
+    memcpy(dst_adr, src_adr, src_len);
 }
