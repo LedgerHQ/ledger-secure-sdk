@@ -59,10 +59,9 @@ The code is divided into the following folders:
 | `--help` |  | **Optional**. Dsplay help message |
 
 
-### Compilation
+### Manual compilation
 
 Once in the container, go into the `fuzzing` folder to compile the fuzzer:
-Make sure that the packages: libclang-rt-dev and ninja-build are installed
 
 ```console
 # cmake initialization
