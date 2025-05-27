@@ -1,4 +1,11 @@
-#include "os_task.h"
+// #include "os_task.h"
+#include "exceptions.h"
+#include <stdio.h>
+#include <stdint.h>
+
+try_context_t *try_context_get(void);
+
+try_context_t *try_context_set(try_context_t *context);
 
 static try_context_t *G_exception_context = NULL;
 
