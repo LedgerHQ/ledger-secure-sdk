@@ -81,7 +81,7 @@ typedef struct ledger_ble_profile_apdu_handle_s {
     // TRANSFER MODE
     uint8_t transfer_mode_wanted_enabled;
     uint8_t transfer_mode_enabled;
-    uint8_t resp_length;
+    bool send_response;
     uint8_t resp[2];
 
 } ledger_ble_profile_apdu_handle_t;
@@ -168,7 +168,7 @@ static void check_transfer_mode(ledger_ble_profile_apdu_handle_t *handle)
     }
 
     if ((handle->transfer_mode_enabled == 0) && (handle->transfer_mode_wanted_enabled != 0)) {
-        handle->resp_length = 2;
+        handle->send_response = true;
         U2BE_ENCODE(handle->resp, 0, SWO_SUCCESS);
     }
 
@@ -333,7 +333,7 @@ void BLE_LEDGER_PROFILE_apdu_connection_evt(ble_connection_t *connection, void *
     handle->connection_updated    = 0;
     handle->wait_write_resp_ack   = 0;
     handle->transfer_mode_enabled = 0;
-    handle->resp_length           = 0;
+    handle->send_response             = false;
     handle->connection            = connection;
 }
 
@@ -405,9 +405,9 @@ uint8_t BLE_LEDGER_PROFILE_apdu_att_modified(uint8_t *hci_buffer, uint16_t lengt
                     handle->transfer_mode_wanted_enabled = 0;
                     check_transfer_mode(handle);
                 }
-                else if (handle->resp_length) {
-                    LEDGER_PROTOCOL_tx(&handle->protocol_data, handle->resp, handle->resp_length, ble_ledger_protocol_chunk_buffer, sizeof(ble_ledger_protocol_chunk_buffer));
-                    handle->resp_length = 0;
+                else if (handle->send_response) {
+                    LEDGER_PROTOCOL_tx(&handle->protocol_data, handle->resp, sizeof(handle->resp), ble_ledger_protocol_chunk_buffer, sizeof(ble_ledger_protocol_chunk_buffer));
+                    handle->send_response = false;
                     notify_chunk(handle);
                     status = BLE_PROFILE_STATUS_OK_AND_SEND_PACKET;
                 }
@@ -546,7 +546,7 @@ uint8_t BLE_LEDGER_PROFILE_apdu_send_packet(const uint8_t *packet, uint16_t leng
     ledger_ble_profile_apdu_handle_t *handle = (ledger_ble_profile_apdu_handle_t *) PIC(cookie);
 
     if ((handle->transfer_mode_enabled != 0) && (length == 2)) {
-        handle->resp_length = 2;
+        handle->send_response = true;
         handle->resp[0]     = packet[0];
         handle->resp[1]     = packet[1];
         if (handle->protocol_data.rx_apdu_length) {
@@ -556,14 +556,14 @@ uint8_t BLE_LEDGER_PROFILE_apdu_send_packet(const uint8_t *packet, uint16_t leng
         }
     }
     else {
-        if ((handle->resp_length != 0) && (U2BE(handle->resp, 0) != SWO_SUCCESS)) {
-            LEDGER_PROTOCOL_tx(&handle->protocol_data, handle->resp, handle->resp_length, ble_ledger_protocol_chunk_buffer, sizeof(ble_ledger_protocol_chunk_buffer));
+        if ((handle->send_response == true) && (U2BE(handle->resp, 0) != SWO_SUCCESS)) {
+            LEDGER_PROTOCOL_tx(&handle->protocol_data, handle->resp, sizeof(handle->resp), ble_ledger_protocol_chunk_buffer, sizeof(ble_ledger_protocol_chunk_buffer));
         }
         else {
             LEDGER_PROTOCOL_tx(&handle->protocol_data, packet, length, ble_ledger_protocol_chunk_buffer, sizeof(ble_ledger_protocol_chunk_buffer));
             handle->state = LEDGER_BLE_PROFILE_APDU_STATE_IDLE;
         }
-        handle->resp_length = 0;
+        handle->send_response = false;
 
         if (handle->wait_write_resp_ack == 0) {
             notify_chunk(handle);
