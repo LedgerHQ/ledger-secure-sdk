@@ -62,7 +62,7 @@ typedef uint8_t (*ble_profile_att_modified_t)(uint8_t *hci_buffer, uint16_t leng
 typedef uint8_t (*ble_profile_write_permit_req_t)(uint8_t *hci_buffer,
                                                   uint16_t length,
                                                   void    *cookie);
-typedef uint8_t (*ble_profile_mtu_changed_t)(uint16_t mtu, void *cookie);
+typedef ble_profile_status_t (*ble_profile_mtu_changed_t)(uint16_t mtu, void *cookie);
 
 typedef uint8_t (*ble_profile_write_rsp_ack_t)(void *cookie);
 typedef uint8_t (*ble_profile_update_char_value_ack_t)(void *cookie);
