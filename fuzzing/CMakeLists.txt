@@ -38,21 +38,37 @@ endif()
 # compatible with ClusterFuzzLite
 if(NOT DEFINED ENV{LIB_FUZZING_ENGINE})
   set(COMPILATION_FLAGS
-      -g
-      -O0
+      -fno-common
+      -std=gnu99
       -Wall
       -Wextra
+      -Wno-main
+      -Wno-error=int-conversion
+      -Wimplicit-fallthrough
+      -Wvla
+      -Wundef
+      -Wshadow
+      -Wformat=2
+      -Wformat-security
+      -Wwrite-strings
       -ffunction-sections
+      -fdata-sections
       -fprofile-instr-generate
       -fcoverage-mapping
       -funsigned-char
       -fshort-enums)
+  
+    set(LINK_FLAGS -ffunction-sections -fdata-sections -fprofile-instr-generate -fcoverage-mapping)
   if(SANITIZER MATCHES "address")
     set(COMPILATION_FLAGS ${COMPILATION_FLAGS}
                           -fsanitize=fuzzer,address,undefined)
+    set(LINK_FLAGS ${LINK_FLAGS} -fsanitize=fuzzer,address,undefined)
   elseif(SANITIZER MATCHES "memory")
     set(COMPILATION_FLAGS
         ${COMPILATION_FLAGS} -fsanitize=fuzzer,memory,undefined
+        -fsanitize-memory-track-origins -fsanitize=fuzzer-no-link)
+    set(LINK_FLAGS
+        ${LINK_FLAGS} -fsanitize=fuzzer,memory,undefined
         -fsanitize-memory-track-origins -fsanitize=fuzzer-no-link)
   else()
     message(
@@ -61,7 +77,9 @@ if(NOT DEFINED ENV{LIB_FUZZING_ENGINE})
   endif()
 else()
   set(COMPILATION_FLAGS "$ENV{LIB_FUZZING_ENGINE} $ENV{CFLAGS}")
+  set(LINK_FLAGS "$ENV{LIB_FUZZING_ENGINE} $ENV{LDFLAGS}")
   separate_arguments(COMPILATION_FLAGS)
+  separate_arguments(LINK_FLAGS)
 endif()
 
 if(NOT DEFINED BOLOS_SDK)
@@ -93,7 +111,7 @@ if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
   # Fuzzing the SDK
 else()
   include("libs/lib_io.cmake")
-  # Include haness cmake files
+  # Include harness cmake files
   file(GLOB cmake_extra_files "extra/*.cmake")
 
   foreach(file IN LISTS cmake_extra_files)
