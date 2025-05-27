@@ -48,7 +48,7 @@ uint8_t BLE_LEDGER_PROFILE_apdu_att_modified(uint8_t *hci_buffer, uint16_t lengt
 uint8_t BLE_LEDGER_PROFILE_apdu_write_permit_req(uint8_t *hci_buffer,
                                                  uint16_t length,
                                                  void    *cookie);
-uint8_t BLE_LEDGER_PROFILE_apdu_mtu_changed(uint16_t mtu, void *cookie);
+ble_profile_status_t BLE_LEDGER_PROFILE_apdu_mtu_changed(uint16_t mtu, void *cookie);
 
 uint8_t BLE_LEDGER_PROFILE_apdu_write_rsp_ack(void *cookie);
 uint8_t BLE_LEDGER_PROFILE_apdu_update_char_value_ack(void *cookie);
