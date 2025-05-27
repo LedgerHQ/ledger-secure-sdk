@@ -30,6 +30,11 @@
 // used by screen
 #define NB_MAX_SCREEN_CHILDREN 7
 
+#define BUTTON_MARGIN_Y 12
+
+// this is the maximum number of chars fitting in a line
+#define NB_MAX_CHAR_IN_LINE 20
+
 /**********************
  *      MACROS
  **********************/
@@ -208,8 +213,9 @@ int nbgl_layoutAddNavigation(nbgl_layout_t *layout, nbgl_layoutNavigation_t *inf
  * @brief Creates an area with given text and sub text, using the given style
  *
  * @param layout the current layout
- * @param text main text for the switch
- * @param subText description under main text (NULL terminated, single line, may be null)
+ * @param text main text, must be single line if subText
+ * @param subText description under main text (NULL terminated, in regular, 3 lines max, may be
+ * null)
  * @param style if @ref REGULAR_INFO, use regular font for text, otherwise use bold font for text
  * @return >= 0 if OK
  */
@@ -232,7 +238,7 @@ int nbgl_layoutAddText(nbgl_layout_t                  *layout,
     // get container children
     container->nbChildren = 1;
     if (subText != NULL) {
-        container->nbChildren++;
+        container->nbChildren += 2;  // possibly 2 buttons
     }
 
     container->children       = nbgl_containerPoolGet(container->nbChildren, layoutInt->layer);
@@ -266,29 +272,95 @@ int nbgl_layoutAddText(nbgl_layout_t                  *layout,
     container->children[0] = (nbgl_obj_t *) textArea;
 
     if (subText != NULL) {
-        textArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-        textArea->textColor = WHITE;
-        textArea->text      = PIC(subText);
-        textArea->wrapping  = true;
-        textArea->fontId    = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
-        textArea->obj.area.width = AVAILABLE_WIDTH;
-        nbLines
-            = nbgl_getTextNbLinesInWidth(textArea->fontId, textArea->text, AVAILABLE_WIDTH, true);
-        // if more than available lines on screen
-        if (nbLines > (NB_MAX_LINES - 1)) {
-            uint16_t len;
-            nbLines              = NB_MAX_LINES - 1;
-            textArea->nbMaxLines = nbLines;
-            nbgl_getTextMaxLenInNbLines(
-                textArea->fontId, textArea->text, AVAILABLE_WIDTH, nbLines, &len, true);
-            textArea->len = len;
+        if (style != BUTTON_INFO) {
+            textArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+            textArea->textColor = WHITE;
+            textArea->text      = PIC(subText);
+            textArea->wrapping  = true;
+            textArea->fontId    = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
+            textArea->obj.area.width = AVAILABLE_WIDTH;
+            nbLines                  = nbgl_getTextNbLinesInWidth(
+                textArea->fontId, textArea->text, AVAILABLE_WIDTH, true);
+            // if more than available lines on screen
+            if (nbLines > (NB_MAX_LINES - 1)) {
+                uint16_t len;
+                nbLines              = NB_MAX_LINES - 1;
+                textArea->nbMaxLines = nbLines;
+                nbgl_getTextMaxLenInNbLines(
+                    textArea->fontId, textArea->text, AVAILABLE_WIDTH, nbLines, &len, true);
+                textArea->len = len;
+            }
+            if (style == REGULAR_INFO) {
+                textArea->obj.area.height = nbLines * font->line_height;
+            }
+            else {
+                // the sub text must be vertically centered in a 3 lines container
+                textArea->obj.area.height = 3 * font->line_height;
+            }
+            textArea->textAlignment        = CENTER;
+            textArea->obj.alignment        = NO_ALIGNMENT;
+            textArea->obj.alignmentMarginY = 2;
+            fullHeight += textArea->obj.area.height + textArea->obj.alignmentMarginY;
+            container->children[1] = (nbgl_obj_t *) textArea;
         }
-        textArea->obj.area.height      = nbLines * font->line_height;
-        textArea->textAlignment        = CENTER;
-        textArea->obj.alignment        = NO_ALIGNMENT;
-        textArea->obj.alignmentMarginY = 2;
-        fullHeight += textArea->obj.area.height + textArea->obj.alignmentMarginY;
-        container->children[1] = (nbgl_obj_t *) textArea;
+        else {
+            nbgl_button_t *button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layoutInt->layer);
+            uint16_t       textWidth;
+            uint16_t       len   = 0;
+            uint16_t       width = 0;
+            static char    tmpString[NB_MAX_CHAR_IN_LINE];
+
+            button->foregroundColor = BLACK;
+            button->innerColor      = WHITE;
+            button->borderColor     = WHITE;
+            button->radius          = RADIUS_3_PIXELS;
+            button->text            = (const char *) PIC(subText);
+            button->fontId          = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
+            button->obj.area.height = 14;
+            button->obj.alignment   = CENTER;
+
+            textWidth = nbgl_getTextWidth(button->fontId, button->text);
+            if ((textWidth + BUTTON_MARGIN_Y) >= AVAILABLE_WIDTH) {
+                nbgl_getTextMaxLenAndWidth(button->fontId,
+                                           button->text,
+                                           AVAILABLE_WIDTH - BUTTON_MARGIN_Y,
+                                           &len,
+                                           &width,
+                                           true);
+                button->obj.area.width = width + BUTTON_MARGIN_Y;
+                // copy the first 'len' chars in the tmp string buffer (max is
+                // NB_MAX_CHAR_IN_LINE-1)
+                memcpy(tmpString, button->text, MIN(len, (NB_MAX_CHAR_IN_LINE - 1)));
+                // NULL termination
+                tmpString[MIN(len, (NB_MAX_CHAR_IN_LINE - 1))] = '\0';
+                button->text                                   = tmpString;
+                button->obj.alignmentMarginY                   = 8 - 7;
+            }
+            else {
+                button->obj.area.width       = textWidth + BUTTON_MARGIN_Y;
+                button->obj.alignmentMarginY = 8;
+            }
+            container->children[1] = (nbgl_obj_t *) button;
+
+            // if too long text, draw a second button under the first one, with the remaining text
+            if (width > 0) {
+                button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layoutInt->layer);
+                button->foregroundColor = BLACK;
+                button->innerColor      = WHITE;
+                button->borderColor     = WHITE;
+                button->radius          = RADIUS_3_PIXELS;
+                button->text            = (const char *) PIC(subText) + len;
+                button->fontId          = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
+                button->obj.area.height = 14;
+                button->obj.area.width
+                    = nbgl_getTextWidth(button->fontId, button->text) + BUTTON_MARGIN_Y;
+                button->obj.alignment        = CENTER;
+                button->obj.alignmentMarginY = 8 + 7;
+                container->children[2]       = (nbgl_obj_t *) button;
+            }
+
+            fullHeight += 44;
+        }
     }
     container->obj.area.height = fullHeight;
     container->layout          = VERTICAL;
@@ -440,6 +512,7 @@ int nbgl_layoutAddCenteredInfo(nbgl_layout_t *layout, const nbgl_layoutCenteredI
         textArea->textAlignment = CENTER;
         textArea->fontId        = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
         textArea->obj.area.width = AVAILABLE_WIDTH;
+        textArea->wrapping       = true;
         uint16_t nbLines
             = nbgl_getTextNbLinesInWidth(textArea->fontId, textArea->text, AVAILABLE_WIDTH, true);
         // if more than available lines on screen
@@ -544,6 +617,112 @@ int nbgl_layoutAddProgressBar(nbgl_layout_t *layout, const nbgl_layoutProgressBa
         subTextArea->obj.alignmentMarginY = 4;
         layoutAddObject(layoutInt, (nbgl_obj_t *) subTextArea);
     }
+
+    return 0;
+}
+
+/**
+ * @brief Creates an area in main panel to display a button, with the given style
+ *
+ * @param layout the current layout
+ * @param buttonInfo structure giving the description of button
+ * @return >= 0 if OK
+ */
+int nbgl_layoutAddButton(nbgl_layout_t *layout, const nbgl_layoutButton_t *buttonInfo)
+{
+    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
+    nbgl_button_t         *button;
+
+    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddButton():\n");
+    if (layout == NULL) {
+        return -1;
+    }
+    button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, ((nbgl_layoutInternal_t *) layout)->layer);
+    button->foregroundColor = BLACK;
+    button->innerColor      = WHITE;
+    button->borderColor     = WHITE;
+    button->radius          = RADIUS_3_PIXELS;
+    button->text            = (const char *) PIC(buttonInfo->text);
+    button->fontId          = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
+    button->icon            = (const nbgl_icon_details_t *) PIC(buttonInfo->icon);
+    button->obj.area.width  = nbgl_getTextWidth(button->fontId, button->text) + BUTTON_MARGIN_Y;
+    button->obj.area.height = 14;
+    layoutAddObject(layoutInt, (nbgl_obj_t *) button);
+
+    return 0;
+}
+
+/**
+ * @brief Creates an area in main panel to display a switch
+ *
+ * @param layout the current layout
+ * @param switchLayout structure giving the description of switch
+ * @return >= 0 if OK
+ */
+int nbgl_layoutAddSwitch(nbgl_layout_t *layout, const nbgl_layoutSwitch_t *switchLayout)
+{
+    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
+    nbgl_button_t         *button;
+    nbgl_text_area_t      *textArea;
+
+    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddSwitch():\n");
+    if (layout == NULL) {
+        return -1;
+    }
+    // add switch name as title
+    textArea                 = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+    textArea->textColor      = WHITE;
+    textArea->text           = PIC(switchLayout->text);
+    textArea->textAlignment  = CENTER;
+    textArea->fontId         = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
+    textArea->obj.area.width = AVAILABLE_WIDTH;
+    textArea->wrapping       = true;
+    uint16_t nbLines
+        = nbgl_getTextNbLinesInWidth(textArea->fontId, textArea->text, AVAILABLE_WIDTH, true);
+    // if more than 1 line on screen
+    if (nbLines > 1) {
+        // TODO: warning for screenshots
+        return -1;
+    }
+    textArea->obj.area.height      = nbgl_getFontLineHeight(textArea->fontId);
+    textArea->obj.alignment        = TOP_MIDDLE;
+    textArea->obj.alignmentMarginY = 3;
+    layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
+
+    // add switch description
+    textArea                  = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+    textArea->textColor       = WHITE;
+    textArea->text            = PIC(switchLayout->subText);
+    textArea->textAlignment   = CENTER;
+    textArea->fontId          = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
+    textArea->obj.area.width  = AVAILABLE_WIDTH;
+    textArea->obj.area.height = 2 * nbgl_getFontLineHeight(textArea->fontId);
+    textArea->wrapping        = true;
+    nbLines = nbgl_getTextNbLinesInWidth(textArea->fontId, textArea->text, AVAILABLE_WIDTH, true);
+    // if more than 2 lines on screen
+    if (nbLines > 2) {
+        // TODO: warning for screenshots
+        return -1;
+    }
+    textArea->obj.alignment        = CENTER;
+    textArea->obj.alignmentMarginY = 1;  // not exactly centered
+    layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
+
+    button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, ((nbgl_layoutInternal_t *) layout)->layer);
+    button->foregroundColor = BLACK;
+    button->innerColor      = WHITE;
+    button->borderColor     = WHITE;
+    button->radius          = RADIUS_3_PIXELS;
+    button->text            = (switchLayout->initState == ON_STATE) ? "Enabled" : "Disabled";
+    button->fontId          = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
+    button->icon = (switchLayout->initState == ON_STATE) ? &C_Switch_On_8px : &C_Switch_Off_8px;
+    // 2 pixels between icon & text, and 4 pixels on each side
+    button->obj.area.width
+        = nbgl_getTextWidth(button->fontId, button->text) + 2 + C_Switch_Off_8px.width + 8;
+    button->obj.area.height      = 12;
+    button->obj.alignment        = BOTTOM_MIDDLE;
+    button->obj.alignmentMarginY = 3;
+    layoutAddObject(layoutInt, (nbgl_obj_t *) button);
 
     return 0;
 }

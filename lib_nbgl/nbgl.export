@@ -38,6 +38,7 @@ nbgl_getSingleLineTextWidth
 nbgl_getSingleLineTextWidthInLen
 nbgl_getTextHeight
 nbgl_getTextHeightInWidth
+nbgl_getTextMaxLenAndWidth
 nbgl_getTextNbLinesInWidth
 nbgl_getTextNbPagesInWidth
 nbgl_getTextWidth

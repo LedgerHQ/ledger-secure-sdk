@@ -44,6 +44,9 @@ extern "C" {
 #define NB_MAX_LINES_IN_DETAILS 12
 #elif defined(TARGET_FLEX)
 #define NB_MAX_LINES_IN_DETAILS 11
+#else
+// Nano
+#define NB_MAX_LINES_IN_DETAILS 3
 #endif  // TARGETS
 
 /**
@@ -53,6 +56,9 @@ extern "C" {
 #define NB_MAX_LINES_IN_REVIEW 10
 #elif defined(TARGET_FLEX)
 #define NB_MAX_LINES_IN_REVIEW 9
+#else
+// Nano
+#define NB_MAX_LINES_IN_REVIEW 3
 #endif  // TARGETS
 
 /**
@@ -95,6 +101,16 @@ extern "C" {
  *          page.
  */
 #define INIT_HOME_PAGE 0xff
+
+///< Duration of status screens, automatically closing after this timeout (3s)
+#define STATUS_SCREEN_DURATION 3000
+
+/**
+ * @brief This is the mask to apply on @ref nbgl_operationType_t to get the real type provided by
+ * app
+ *
+ */
+#define REAL_TYPE_MASK 0x7
 
 /**********************
  *      MACROS
@@ -437,6 +453,12 @@ void nbgl_useCaseConfirm(const char     *message,
                          const char     *confirmText,
                          const char     *rejectText,
                          nbgl_callback_t callback);
+
+void nbgl_useCaseAction(const nbgl_icon_details_t *icon,
+                        const char                *message,
+                        const char                *actionText,
+                        nbgl_callback_t            callback);
+
 void nbgl_useCaseSpinner(const char *text);
 
 void nbgl_useCaseNavigableContent(const char                *title,
@@ -550,7 +572,7 @@ void nbgl_useCaseKeypadDigits(const char             *title,
                               uint8_t                 maxDigits,
                               bool                    shuffled,
                               nbgl_pinValidCallback_t validatePinCallback,
-                              nbgl_callback_t         backCallbackk);
+                              nbgl_callback_t         backCallback);
 void nbgl_useCaseKeypadPIN(const char             *title,
                            uint8_t                 minDigits,
                            uint8_t                 maxDigits,

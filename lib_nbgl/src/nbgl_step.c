@@ -49,6 +49,7 @@ typedef struct TextContext_s {
     const char *subTxtStart;    ///< pointer on the start point of sub-text (first page)
 
     nbgl_stepPosition_t pos;  ///< position of the step within a flow (used for navigation arrows)
+    bool                actionOnAnyButton;       ///< if true, action applies on any button
     nbgl_stepButtonCallback_t onActionCallback;  ///< function called when key actions done on this
                                                  ///< step (other than internal navigation)
     char tmpString[TMP_STRING_MAX_LEN];          ///< temporary string used for title when text +
@@ -88,9 +89,6 @@ static StepContext_t contexts[NB_MAX_LAYERS];
  *  VARIABLES
  **********************/
 #ifdef BUILD_SCREENSHOTS
-// Contains the last string index used
-extern UX_LOC_STRINGS_INDEX last_string_id;
-
 // Variables used to store important values (nb lines, bold state etc)
 extern uint16_t last_nb_lines;
 extern uint16_t last_nb_pages;
@@ -349,7 +347,8 @@ static void actionCallback(nbgl_layout_t *layout, nbgl_buttonEvent_t event)
             return;
         }
         else if ((ctx->textContext.pos == LAST_STEP)
-                 || (ctx->textContext.pos == NEITHER_FIRST_NOR_LAST_STEP)) {
+                 || (ctx->textContext.pos == NEITHER_FIRST_NOR_LAST_STEP)
+                 || (ctx->textContext.actionOnAnyButton)) {
             if (ctx->textContext.onActionCallback != NULL) {
                 ctx->textContext.onActionCallback((nbgl_step_t) ctx, event);
             }
@@ -361,7 +360,8 @@ static void actionCallback(nbgl_layout_t *layout, nbgl_buttonEvent_t event)
             return;
         }
         else if ((ctx->textContext.pos == FIRST_STEP)
-                 || (ctx->textContext.pos == NEITHER_FIRST_NOR_LAST_STEP)) {
+                 || (ctx->textContext.pos == NEITHER_FIRST_NOR_LAST_STEP)
+                 || (ctx->textContext.actionOnAnyButton)) {
             if (ctx->textContext.onActionCallback != NULL) {
                 ctx->textContext.onActionCallback((nbgl_step_t) ctx, event);
             }
@@ -537,8 +537,9 @@ nbgl_step_t nbgl_stepDrawText(nbgl_stepPosition_t               pos,
     ctx->textContext.txtStart    = text;
     ctx->textContext.subTxtStart = subText;
     // keep only direction part of position
-    ctx->textContext.pos   = pos & (RIGHT_ARROW | LEFT_ARROW);
-    ctx->textContext.style = style;
+    ctx->textContext.pos               = pos & STEP_POSITION_MASK;
+    ctx->textContext.actionOnAnyButton = (pos & ACTION_ON_ANY_BUTTON) != 0;
+    ctx->textContext.style             = style;
     displayTextPage(ctx, ctx->textContext.currentPage);
 
     return (nbgl_step_t) ctx;
@@ -651,6 +652,63 @@ uint8_t nbgl_stepGetMenuListCurrent(nbgl_step_t step)
         return 0;
     }
     return (ctx->menuListContext.list.selectedChoice);
+}
+
+/**
+ * @brief draw a step page with a switch and navigation arrows to navigate to other pages.
+ *
+ * @note Switch name must fit in one line, description on 2 lines max.
+ *
+ * @param pos position of this step in the flow (first, last, single, not_first_nor_last)
+ * @param onActionCallback common callback for all actions on this page
+ * @param ticker ticker configuration, set to NULL to disable it
+ * @param switchInfo all information about the switch to be displayed
+ * @param modal if true, means this step shall be displayed on top of existing one
+ * @return the step context (or NULL if error)
+ */
+nbgl_step_t nbgl_stepDrawSwitch(nbgl_stepPosition_t               pos,
+                                nbgl_stepButtonCallback_t         onActionCallback,
+                                nbgl_screenTickerConfiguration_t *ticker,
+                                nbgl_layoutSwitch_t              *switchInfo,
+                                bool                              modal)
+{
+    nbgl_layoutDescription_t layoutDescription
+        = {.modal = modal, .onActionCallback = (nbgl_layoutButtonCallback_t) actionCallback};
+    nbgl_layoutNavigation_t navInfo = {
+        .direction = HORIZONTAL_NAV,
+    };
+    StepContext_t *ctx = getFreeContext(CENTERED_INFO_STEP, modal);
+    if (!ctx) {
+        return NULL;
+    }
+
+    // initialize context (already set to 0 by getFreeContext())
+    ctx->textContext.onActionCallback = onActionCallback;
+    if (ticker) {
+        ctx->ticker.tickerCallback               = ticker->tickerCallback;
+        ctx->ticker.tickerIntervale              = ticker->tickerIntervale;
+        ctx->ticker.tickerValue                  = ticker->tickerValue;
+        layoutDescription.ticker.tickerCallback  = ticker->tickerCallback;
+        layoutDescription.ticker.tickerIntervale = ticker->tickerIntervale;
+        layoutDescription.ticker.tickerValue     = ticker->tickerValue;
+    }
+
+    ctx->textContext.nbPages = 1;
+    // keep only direction part of position
+    ctx->textContext.pos = pos & (RIGHT_ARROW | LEFT_ARROW);
+    navInfo.indication   = getNavigationInfo(
+        ctx->textContext.pos, ctx->textContext.nbPages, ctx->textContext.currentPage);
+
+    ctx->layout = nbgl_layoutGet(&layoutDescription);
+    nbgl_layoutAddSwitch(ctx->layout, switchInfo);
+    if (navInfo.indication != NO_ARROWS) {
+        nbgl_layoutAddNavigation(ctx->layout, &navInfo);
+    }
+    nbgl_layoutDraw(ctx->layout);
+    nbgl_refresh();
+
+    LOG_DEBUG(STEP_LOGGER, "nbgl_stepDrawSwitch(): ctx = %p\n", ctx);
+    return (nbgl_step_t) ctx;
 }
 
 /**

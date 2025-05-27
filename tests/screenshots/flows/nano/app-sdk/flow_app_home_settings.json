@@ -1,0 +1,148 @@
+{
+  "title": "app_home_settings",
+  "pages": [
+    {
+      "name": "Entry",
+      "targets": [
+        {
+          "app_event": "ETH_OPEN",
+          "page": "with_settings-01"
+        },
+        {
+          "app_event": "BTC_OPEN",
+          "page": "without_settings-01"
+        }
+      ]
+    },
+    {
+      "name": "with_settings-01",
+      "targets": [
+        {
+          "key": "right",
+          "page": "with_settings-02"
+        }
+      ]
+    },
+    {
+      "name": "with_settings-02",
+      "targets": [
+        {
+          "key": "both",
+          "page": "with_settings-05"
+        },
+        {
+          "key": "right",
+          "page": "with_settings-03"
+        }
+      ]
+    },
+    {
+      "name": "with_settings-05",
+      "targets": [
+        {
+          "key": "right",
+          "page": "with_settings-06"
+        }
+      ]
+    },
+    {
+      "name": "with_settings-06",
+      "targets": [
+        {
+          "key": "right",
+          "page": "with_settings-07"
+        }
+      ]
+    },
+    {
+      "name": "with_settings-07",
+      "targets": [
+        {
+          "key": "right",
+          "page": "with_settings-08"
+        }
+      ]
+    },
+    {
+      "name": "with_settings-08",
+      "targets": [
+        {
+          "key": "right",
+          "page": "with_settings-09"
+        }
+      ]
+    },
+    {
+      "name": "with_settings-09",
+      "targets": [
+        {
+          "key": "right",
+          "page": "with_settings-10"
+        }
+      ]
+    },
+    {
+      "name": "with_settings-10",
+      "targets": [
+        {
+          "key": "both",
+          "page": "with_settings-02"
+        }
+      ]
+    },
+    {
+      "name": "with_settings-03",
+      "targets": [
+        {
+          "key": "both",
+          "page": "with_settings-16"
+        },
+        {
+          "key": "right",
+          "page": "with_settings-04"
+        }
+      ]
+    },
+    {
+      "name": "with_settings-16",
+      "targets": [
+        {
+          "key": "right",
+          "page": "with_settings-17"
+        }
+      ]
+    },
+    {
+      "name": "with_settings-17",
+      "targets": [
+        {
+          "key": "right",
+          "page": "with_settings-18"
+        }
+      ]
+    },
+    {
+      "name": "with_settings-18",
+      "targets": [
+        {
+          "key": "right",
+          "page": "with_settings-19"
+        }
+      ]
+    },
+    {
+      "name": "with_settings-19",
+      "targets": [
+        {
+          "key": "both",
+          "page": "with_settings-03"
+        }
+      ]
+    },
+    {
+      "name": "with_settings-04",
+      "targets": [
+      ]
+    }
+  ]
+}

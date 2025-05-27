@@ -58,6 +58,10 @@ extern "C" {
 
 #define PRE_TAG_VALUE_MARGIN   24
 #define INTER_TAG_VALUE_MARGIN 12
+// width & height for progress bar
+#define PROGRESSBAR_WIDTH      120
+#define PROGRESSBAR_HEIGHT     12
+#define BACK_KEY_WIDTH         88
 #elif defined(TARGET_FLEX)
 #define NB_MAX_SUGGESTION_BUTTONS         8
 // only 2 buttons are visible at the same time on Flex
@@ -79,13 +83,18 @@ extern "C" {
 
 #define PRE_TAG_VALUE_MARGIN   0
 #define INTER_TAG_VALUE_MARGIN 24
+// width & height for progress bar
+#define PROGRESSBAR_WIDTH      120
+#define PROGRESSBAR_HEIGHT     12
+#define BACK_KEY_WIDTH         104
 #else  // TARGETS
 #error Undefined target
 #endif  // TARGETS
 
 #define AVAILABLE_WIDTH (SCREEN_WIDTH - 2 * BORDER_MARGIN)
 
-#define NB_MAX_LINES NB_MAX_LINES_IN_DETAILS
+// not really used
+#define NB_MAX_LINES 12
 
 #else  // HAVE_SE_TOUCH
 // 7 pixels on each side
@@ -197,7 +206,7 @@ typedef struct nbgl_layoutDescription_s {
         onActionCallback;  ///< the callback to be called on any action on the layout
 #else                      // HAVE_SE_TOUCH
     nbgl_layoutButtonCallback_t
-            onActionCallback;  ///< the callback to be called on any action on the layout
+        onActionCallback;  ///< the callback to be called on any action on the layout
 #endif                     // HAVE_SE_TOUCH
     nbgl_screenTickerConfiguration_t ticker;  // configuration of ticker (timeout)
 } nbgl_layoutDescription_t;
@@ -568,6 +577,24 @@ typedef struct {
         } text;                   ///< if type is @ref UP_FOOTER_TEXT
     };
 } nbgl_layoutUpFooter_t;
+#else  // HAVE_SE_TOUCH
+/**
+ * @brief The different styles for a button
+ *
+ */
+typedef enum {
+    WHITE_BACKGROUND = 0  ///< rounded bordered button, with text/icon in black, on white background
+} nbgl_layoutButtonStyle_t;
+
+/**
+ * @brief This structure contains info to build a single button
+ */
+typedef struct {
+    const char                *text;  ///< button text
+    const nbgl_icon_details_t *icon;  ///< a buffer containing the 1BPP icon for button
+    nbgl_layoutButtonStyle_t   style;
+} nbgl_layoutButton_t;
+
 #endif  // HAVE_SE_TOUCH
 
 /**
@@ -595,8 +622,8 @@ typedef struct {
 #ifdef HAVE_SE_TOUCH
     keyboardCase_t casing;  ///< keyboard casing mode (lower, upper once or upper locked)
 #else                       // HAVE_SE_TOUCH
-    bool    enableBackspace;   ///< if true, Backspace key is enabled
-    bool    enableValidate;    ///< if true, Validate key is enabled
+    bool    enableBackspace;  ///< if true, Backspace key is enabled
+    bool    enableValidate;   ///< if true, Validate key is enabled
     uint8_t selectedCharIndex;
 #endif                      // HAVE_SE_TOUCH
 } nbgl_layoutKbd_t;
@@ -608,10 +635,6 @@ nbgl_layout_t *nbgl_layoutGet(const nbgl_layoutDescription_t *description);
 int nbgl_layoutAddCenteredInfo(nbgl_layout_t *layout, const nbgl_layoutCenteredInfo_t *info);
 int nbgl_layoutAddContentCenter(nbgl_layout_t *layout, const nbgl_contentCenter_t *info);
 int nbgl_layoutAddLeftContent(nbgl_layout_t *layout, const nbgl_layoutLeftContent_t *info);
-int nbgl_layoutUpdateProgressBar(nbgl_layout_t *layout,
-                                 const char    *text,
-                                 const char    *subText,
-                                 uint8_t        percentage);
 
 #ifdef HAVE_SE_TOUCH
 int nbgl_layoutAddTopRightButton(nbgl_layout_t             *layout,
@@ -695,6 +718,8 @@ int nbgl_layoutAddText(nbgl_layout_t                  *layout,
 int nbgl_layoutAddProgressBar(nbgl_layout_t *layout, const nbgl_layoutProgressBar_t *barLayout);
 int nbgl_layoutAddNavigation(nbgl_layout_t *layout, nbgl_layoutNavigation_t *info);
 int nbgl_layoutAddMenuList(nbgl_layout_t *layout, nbgl_layoutMenuList_t *list);
+int nbgl_layoutAddButton(nbgl_layout_t *layout, const nbgl_layoutButton_t *buttonInfo);
+int nbgl_layoutAddSwitch(nbgl_layout_t *layout, const nbgl_layoutSwitch_t *switchLayout);
 #endif  // HAVE_SE_TOUCH
 
 #ifdef NBGL_KEYBOARD

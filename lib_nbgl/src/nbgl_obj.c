@@ -50,8 +50,8 @@ typedef void (*draw_function_t)(nbgl_obj_t *obj, nbgl_obj_t *prevObj, bool compu
 static void draw_screen(nbgl_container_t *obj, nbgl_obj_t *prevObj, bool computePosition);
 static void draw_container(nbgl_container_t *obj, nbgl_obj_t *prevObj, bool computePosition);
 static void draw_image(nbgl_image_t *obj, nbgl_obj_t *prevObj, bool computePosition);
-#ifdef HAVE_SE_TOUCH
 static void draw_button(nbgl_button_t *obj, nbgl_obj_t *prevObj, bool computePosition);
+#ifdef HAVE_SE_TOUCH
 static void draw_line(nbgl_line_t *obj, nbgl_obj_t *prevObj, bool computePosition);
 static void draw_switch(nbgl_switch_t *obj, nbgl_obj_t *prevObj, bool computePosition);
 static void draw_radioButton(nbgl_radio_t *obj, nbgl_obj_t *prevObj, bool computePosition);
@@ -98,9 +98,9 @@ static const draw_function_t draw_functions[NB_OBJ_TYPES] = {
     [CONTAINER] = (draw_function_t) draw_container,
     [IMAGE]     = (draw_function_t) draw_image,
     [TEXT_AREA] = (draw_function_t) draw_textArea,
+    [BUTTON]    = (draw_function_t) draw_button,
 #ifdef HAVE_SE_TOUCH
     [LINE]           = (draw_function_t) draw_line,
-    [BUTTON]         = (draw_function_t) draw_button,
     [SWITCH]         = (draw_function_t) draw_switch,
     [PAGE_INDICATOR] = (draw_function_t) draw_pageIndicator,
     [RADIO_BUTTON]   = (draw_function_t) draw_radioButton,
@@ -544,6 +544,95 @@ static void draw_line(nbgl_line_t *obj, nbgl_obj_t *prevObj, bool computePositio
         nbgl_frontDrawHorizontalLine(&rectArea, mask, obj->lineColor);
     }
 }
+#else  // HAVE_SE_TOUCH
+/**
+ * @brief internal function used to draw a button
+ * @note The button contains an icon AND/OR a single line UTF-8 text
+ *
+ * @param obj the object to draw
+ * @param prevObj the previous object drawned in the same container, with the default layout
+ * @param computePosition if true, force to compute the object position
+ */
+static void draw_button(nbgl_button_t *obj, nbgl_obj_t *prevObj, bool computePosition)
+{
+    uint16_t    textWidth = 0;
+    const char *text      = NULL;
+#define ICON_TEXT_SPACE 2
+
+    if (computePosition) {
+        compute_position((nbgl_obj_t *) obj, prevObj);
+    }
+    LOG_DEBUG(OBJ_LOGGER,
+              "draw_button(), x0 = %d, y0 = %d, width = %d, height = %d\n",
+              obj->obj.area.x0,
+              obj->obj.area.y0,
+              obj->obj.area.width,
+              obj->obj.area.height);
+
+    // inherit background from parent
+    obj->obj.area.backgroundColor = obj->obj.parent->area.backgroundColor;
+    // draw the rounded corner rectangle if necessary
+    nbgl_drawRoundedRect((nbgl_area_t *) obj, obj->radius, obj->innerColor);
+
+    // get the text of the button from the callback if not NULL
+    if (obj->onDrawCallback != NULL) {
+        obj->text = obj->onDrawCallback(obj->token);
+    }
+    text = obj->text;
+    // draw the text (right of the icon, with ICON_TEXT_SPACE pixels between them)
+    if (text != NULL) {
+        nbgl_area_t rectArea;
+        // Compute available with & height to display the text
+        rectArea.x0 = obj->obj.area.x0;
+        rectArea.y0 = obj->obj.area.y0;
+        // Only one line of text is allowed
+        rectArea.height = nbgl_getFontHeight(obj->fontId);
+        rectArea.y0 += (obj->obj.area.height - rectArea.height) / 2;
+        rectArea.width = obj->obj.area.width;
+        if (obj->icon != NULL) {
+            rectArea.x0 += obj->icon->width + ICON_TEXT_SPACE;
+            rectArea.width -= obj->icon->width + ICON_TEXT_SPACE;
+        }
+        // Compute the width & number of characters displayed on first line
+        uint16_t textLen;
+        nbgl_getTextMaxLenAndWidth(obj->fontId, text, rectArea.width, &textLen, &textWidth, true);
+
+        // Center the text, horizontally
+        if (textWidth < rectArea.width) {
+            rectArea.x0 += (rectArea.width - textWidth) / 2;
+        }
+        LOG_DEBUG(OBJ_LOGGER, "draw_button(), text = %s\n", text);
+        rectArea.backgroundColor = obj->innerColor;
+        nbgl_drawText(&rectArea, text, textLen, obj->fontId, obj->foregroundColor);
+    }
+    // draw the icon, if any
+    if (obj->icon != NULL) {
+        uint16_t    iconX0, iconY0;
+        nbgl_area_t rectArea;
+
+        if (text != NULL) {
+            iconX0 = obj->obj.area.x0
+                     + (obj->obj.area.width - (textWidth + obj->icon->width + ICON_TEXT_SPACE)) / 2;
+        }
+        else {
+            iconX0 = obj->obj.area.x0 + (obj->obj.area.width - obj->icon->width) / 2;
+        }
+        LOG_DEBUG(OBJ_LOGGER,
+                  "draw_button(), obj->obj.area.height = %d, obj->iconHeight = %d\n",
+                  obj->obj.area.height,
+                  obj->icon->height);
+        iconY0 = obj->obj.area.y0 + (obj->obj.area.height - obj->icon->height) / 2;
+
+        rectArea.backgroundColor = obj->innerColor;
+        rectArea.x0              = iconX0;
+        rectArea.y0              = iconY0;
+        rectArea.width           = obj->icon->width;
+        rectArea.height          = obj->icon->height;
+        rectArea.bpp             = obj->icon->bpp;
+
+        nbgl_drawIcon(&rectArea, NO_TRANSFORMATION, obj->foregroundColor, obj->icon);
+    }
+}
 #endif  // HAVE_SE_TOUCH
 
 static void draw_image(nbgl_image_t *obj, nbgl_obj_t *prevObj, bool computePosition)
@@ -675,6 +764,8 @@ static void draw_progressBar(nbgl_progress_bar_t *obj, nbgl_obj_t *prevObj, bool
     if (computePosition) {
         compute_position((nbgl_obj_t *) obj, prevObj);
     }
+    // force vertical position to be aligned until using nbgl_drawLine()
+    obj->obj.area.y0 &= ~(VERTICAL_ALIGNMENT - 1);
     LOG_DEBUG(OBJ_LOGGER,
               "draw_progressBar(), x0 = %d, y0 = %d, level = %d %%\n",
               obj->obj.area.x0,
@@ -707,13 +798,13 @@ static void draw_progressBar(nbgl_progress_bar_t *obj, nbgl_obj_t *prevObj, bool
     color_t     barColor;
     memcpy(&barArea, &obj->obj.area, sizeof(nbgl_area_t));
 
-    if (barDiffWith >= 0) {
+    if (barDiffWith > 0) {
         // Drawing "forward"
         barArea.x0    = obj->obj.area.x0 + obj->previousWidth;
         barArea.width = barDiffWith;
         barColor      = obj->foregroundColor;
     }
-    else {
+    else if (barDiffWith < 0) {
         // Drawing "backward"
         barArea.x0    = obj->obj.area.x0 + obj->previousWidth + barDiffWith;
         barArea.width = -barDiffWith;
@@ -1022,9 +1113,9 @@ static void draw_textArea(nbgl_text_area_t *obj, nbgl_obj_t *prevObj, bool compu
         rectArea.width = lineWidth;
 
         LOG_DEBUG(OBJ_LOGGER,
-                  "draw_textArea(), %s line %d, lineLen %d lineWidth = %d, obj.area.height = %d, "
+                  "draw_textArea(), [%s] line %d, lineLen %d lineWidth = %d, obj.area.height = %d, "
                   "textHeight = %d, nbMaxLines = %d, wrapping = %d\n",
-                  text + 3,
+                  text,
                   line,
                   lineLen,
                   lineWidth,
@@ -1037,12 +1128,17 @@ static void draw_textArea(nbgl_text_area_t *obj, nbgl_obj_t *prevObj, bool compu
         }
         else {
 #ifdef HAVE_SE_TOUCH
+            uint16_t dotsWidth = nbgl_getSingleLineTextWidth(obj->fontId, "...");
             // for last chunk, if nbMaxLines is used, replace the 3 last chars by "..."
             // draw line except 3 last chars
-            nbgl_drawText(&rectArea, text, lineLen - 3, obj->fontId, obj->textColor);
+            if ((lineWidth + dotsWidth) >= obj->obj.area.width) {
+                lineLen -= 3;
+            }
+            nbgl_drawText(&rectArea, text, lineLen, obj->fontId, obj->textColor);
+            rectArea.x0 += nbgl_getSingleLineTextWidthInLen(obj->fontId, text, lineLen);
+
             // draw "..." after the other chars
-            rectArea.x0 += nbgl_getSingleLineTextWidthInLen(obj->fontId, text, lineLen - 3);
-            rectArea.width = nbgl_getSingleLineTextWidth(obj->fontId, "...");
+            rectArea.width = dotsWidth;
             nbgl_drawText(&rectArea, "...", 3, obj->fontId, obj->textColor);
 #else   // HAVE_SE_TOUCH
             nbgl_drawText(&rectArea, text, lineLen, fontId, obj->textColor);
@@ -1399,11 +1495,15 @@ static void draw_object(nbgl_obj_t *obj, nbgl_obj_t *prevObj, bool computePositi
     LOG_DEBUG(OBJ_LOGGER, "draw_object() obj->type = %d, prevObj = %p\n", obj->type, prevObj);
     objRefreshAreaDone = false;
     if ((obj->type < NB_OBJ_TYPES) && (draw_functions[obj->type] != NULL)) {
+        if ((obj->type != SCREEN) && (obj->parent == NULL)) {
+            LOG_WARN(OBJ_LOGGER, "object with type [%d] has not parent\n", obj->type);
+            return;
+        }
         draw_function_t func = (draw_function_t) PIC(draw_functions[obj->type]);
         func(obj, prevObj, computePosition);
     }
     else {
-        LOG_DEBUG(OBJ_LOGGER, "Not existing object type\n");
+        LOG_WARN(OBJ_LOGGER, "Not existing object type [%d]\n", obj->type);
         return;
     }
 

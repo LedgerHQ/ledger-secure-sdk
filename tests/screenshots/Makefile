@@ -17,6 +17,7 @@ GEN_DIR			:= $(BUILD_DIR)/generated
 OBJ_DIR			:= $(BUILD_DIR)/obj
 BIN_DIR			:= $(BUILD_DIR)/bin
 PUBLIC_SDK_DIR	:= ../..
+APP_PATH  := $(SRC_DIR)/apps
 
 SCREENSHOTS_SRC_DIR := .
 
@@ -109,7 +110,6 @@ TARGET_DEFINES += \
                        HAVE_SE_SCREEN \
                        HAVE_SEPROXYHAL_MCU
 
-APP_PATH  := $(SRC_DIR)/app/nano
 FLOWS_PATH  := $(SCREENSHOTS_SRC_DIR)/flows/nano
 
 GLYPH_OPT := --reverse
@@ -127,7 +127,6 @@ TARGET_DEFINES += \
                        NBGL_USE_CASE \
                        HAVE_SE_EINK_DISPLAY
 
-APP_PATH  := $(SRC_DIR)/app/wallet
 FLOWS_PATH  := $(SCREENSHOTS_SRC_DIR)/flows/wallet
 endif
 

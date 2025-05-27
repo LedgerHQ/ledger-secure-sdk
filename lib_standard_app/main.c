@@ -102,9 +102,9 @@ WEAK void standalone_app_main(void)
 #endif
             // Display crash info on screen for debug purpose
             assert_display_exit();
-#else
+#else   // HAVE_DEBUG_THROWS
             PRINTF("Exiting following exception: 0x%04X\n", e);
-#endif
+#endif  // HAVE_DEBUG_THROWS
         }
         FINALLY {}
     }
@@ -115,6 +115,13 @@ WEAK void standalone_app_main(void)
 }
 
 #ifdef HAVE_SWAP
+// --8<-- [start:library_app_main]
+/* This function is called by the main() function if this application was started by Exchange
+ * through an os_lib_call() as opposed to being started from the Dashboard.
+ *
+ * We dispatch the Exchange request to the correct handler.
+ * Handlers content are not defined in the `lib_standard_app`
+ */
 WEAK void library_app_main(libargs_t *args)
 {
     BEGIN_TRY
@@ -166,6 +173,7 @@ WEAK void library_app_main(libargs_t *args)
     }
     END_TRY;
 }
+// --8<-- [end:library_app_main]
 #endif  // HAVE_SWAP
 
 WEAK __attribute__((section(".boot"))) int main(int arg0)

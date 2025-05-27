@@ -23,6 +23,7 @@ typedef void (*appmain_t)(void);
 // tag may have several occurrences, one for each dependency (by name). Malformed (multiple dep to
 // the same lib with different version is is not ORed but ANDed, and then considered bogus)
 #define BOLOS_TAG_DEPENDENCY 0x06
+#define BOLOS_TAG_RFU        0x07
 // first autorised tag value for user data
 #define BOLOS_TAG_USER_TAG   0x20
 

@@ -75,6 +75,13 @@ prepare:
 
 $(BUILD_DEPENDENCIES): prepare
 
+# Define a generic rule for each use-case
+ifneq ($(APP_USE_CASES),)
+$(APP_USE_CASES):
+	@echo "Building with '$@' configuration..."
+	@$(MAKE) --no-print-directory $(call get_flags_for_use_case,$@)
+endif
+
 BIN_TARGETS := bin/app.elf bin/app.apdu bin/app.sha256 bin/app.hex
 DBG_TARGETS := debug/app.map debug/app.asm
 

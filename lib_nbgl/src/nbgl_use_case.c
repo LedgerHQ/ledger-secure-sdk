@@ -361,8 +361,7 @@ static void useCaseReview(nbgl_operationType_t              operationType,
                           const nbgl_tipBox_t              *tipBox,
                           nbgl_choiceCallback_t             choiceCallback,
                           bool                              isLight,
-                          bool                              playNotifSound,
-                          bool                              validWarningCtx);
+                          bool                              playNotifSound);
 static void useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
                                         const nbgl_icon_details_t *icon,
                                         const char                *reviewTitle,
@@ -497,21 +496,38 @@ static void prepareReviewFirstPage(nbgl_contentCenter_t      *contentCenter,
     contentCenter->illustrType = ICON_ILLUSTRATION;
 }
 
-static void prepareReviewLastPage(nbgl_contentInfoLongPress_t *infoLongPress,
+static const char *getFinishTitle(nbgl_operationType_t operationType, const char *finishTitle)
+{
+    if (finishTitle != NULL) {
+        return finishTitle;
+    }
+    switch (operationType & REAL_TYPE_MASK) {
+        case TYPE_TRANSACTION:
+            return "Sign transaction";
+        case TYPE_MESSAGE:
+            return "Sign message";
+        default:
+            return "Sign operation";
+    }
+}
+
+static void prepareReviewLastPage(nbgl_operationType_t         operationType,
+                                  nbgl_contentInfoLongPress_t *infoLongPress,
                                   const nbgl_icon_details_t   *icon,
                                   const char                  *finishTitle)
 {
-    infoLongPress->text           = finishTitle;
+    infoLongPress->text           = getFinishTitle(operationType, finishTitle);
     infoLongPress->icon           = icon;
     infoLongPress->longPressText  = "Hold to sign";
     infoLongPress->longPressToken = CONFIRM_TOKEN;
 }
 
-static void prepareReviewLightLastPage(nbgl_contentInfoButton_t  *infoButton,
+static void prepareReviewLightLastPage(nbgl_operationType_t       operationType,
+                                       nbgl_contentInfoButton_t  *infoButton,
                                        const nbgl_icon_details_t *icon,
                                        const char                *finishTitle)
 {
-    infoButton->text        = finishTitle;
+    infoButton->text        = getFinishTitle(operationType, finishTitle);
     infoButton->icon        = icon;
     infoButton->buttonText  = "Approve";
     infoButton->buttonToken = CONFIRM_TOKEN;
@@ -1512,8 +1528,7 @@ static void layoutTouchCallback(int token, uint8_t index)
                               &activeTipBox,
                               reviewWithWarnCtx.choiceCallback,
                               false,
-                              false,
-                              true);
+                              false);
             }
         }
     }
@@ -2109,7 +2124,7 @@ static void displayInitialWarning(void)
 {
     // Play notification sound
 #ifdef HAVE_PIEZO_SOUND
-    io_seproxyhal_play_tune(TUNE_LOOK_AT_ME);
+    tune_index_e tune = TUNE_RESERVED;
 #endif  // HAVE_PIEZO_SOUND
     nbgl_layoutDescription_t   layoutDescription;
     nbgl_layoutChoiceButtons_t buttonsInfo = {.bottomText = "Continue anyway",
@@ -2176,6 +2191,9 @@ static void displayInitialWarning(void)
                 = "This transaction's details are not fully verifiable. If you sign, you could "
                   "lose all your assets.";
             buttonsInfo.bottomText = "Continue anyway";
+#ifdef HAVE_PIEZO_SOUND
+            tune = TUNE_NEUTRAL;
+#endif  // HAVE_PIEZO_SOUND
         }
         else if (set & (1 << W3C_RISK_DETECTED_WARN)) {
             info.title = "Potential risk";
@@ -2186,6 +2204,9 @@ static void displayInitialWarning(void)
                 info.description = reviewWithWarnCtx.warning->providerMessage;
             }
             buttonsInfo.bottomText = "Accept risk and continue";
+#ifdef HAVE_PIEZO_SOUND
+            tune = TUNE_NEUTRAL;
+#endif  // HAVE_PIEZO_SOUND
         }
         else if (set & (1 << W3C_THREAT_DETECTED_WARN)) {
             info.title = "Critical threat";
@@ -2196,57 +2217,38 @@ static void displayInitialWarning(void)
                 info.description = reviewWithWarnCtx.warning->providerMessage;
             }
             buttonsInfo.bottomText = "Accept threat and continue";
+#ifdef HAVE_PIEZO_SOUND
+            tune = TUNE_ERROR;
+#endif  // HAVE_PIEZO_SOUND
         }
         nbgl_layoutAddContentCenter(reviewWithWarnCtx.layoutCtx, &info);
     }
     else if (reviewWithWarnCtx.warning->info != NULL) {
         // if no predefined content, use custom one
         nbgl_layoutAddContentCenter(reviewWithWarnCtx.layoutCtx, reviewWithWarnCtx.warning->info);
+#ifdef HAVE_PIEZO_SOUND
+        tune = TUNE_LOOK_AT_ME;
+#endif  // HAVE_PIEZO_SOUND
     }
     // add button and footer on bottom
     nbgl_layoutAddChoiceButtons(reviewWithWarnCtx.layoutCtx, &buttonsInfo);
 
+#ifdef HAVE_PIEZO_SOUND
+    if (tune != TUNE_RESERVED) {
+        io_seproxyhal_play_tune(tune);
+    }
+#endif  // HAVE_PIEZO_SOUND
     nbgl_layoutDraw(reviewWithWarnCtx.layoutCtx);
     nbgl_refresh();
 }
 
-// function to factorize code for all simple reviews
-static void useCaseReview(nbgl_operationType_t              operationType,
-                          const nbgl_contentTagValueList_t *tagValueList,
-                          const nbgl_icon_details_t        *icon,
-                          const char                       *reviewTitle,
-                          const char                       *reviewSubTitle,
-                          const char                       *finishTitle,
-                          const nbgl_tipBox_t              *tipBox,
-                          nbgl_choiceCallback_t             choiceCallback,
-                          bool                              isLight,
-                          bool                              playNotifSound,
-                          bool                              validWarningCtx)
+// function to factorize code for reviews tipbox
+static void initWarningTipBox(const nbgl_tipBox_t *tipBox)
 {
     const char *predefinedTipBoxText = NULL;
-    reset_callbacks();
-    memset(&genericContext, 0, sizeof(genericContext));
 
-    bundleNavContext.review.operationType  = operationType;
-    bundleNavContext.review.choiceCallback = choiceCallback;
-
-    // memorize context
-    onChoice  = bundleNavReviewChoice;
-    navType   = GENERIC_NAV;
-    pageTitle = NULL;
-
-    genericContext.validWarningCtx              = validWarningCtx;
-    genericContext.genericContents.contentsList = localContentsList;
-    genericContext.genericContents.nbContents   = 3;
-    memset(localContentsList, 0, 3 * sizeof(nbgl_content_t));
-
-    // First a centered info
-    STARTING_CONTENT.type = EXTENDED_CENTER;
-    prepareReviewFirstPage(
-        &STARTING_CONTENT.content.extendedCenter.contentCenter, icon, reviewTitle, reviewSubTitle);
-
-    // if warning is valid and a warning requiring a tip box
-    if (validWarningCtx) {
+    // if warning is valid and a warning requires a tip-box
+    if (reviewWithWarnCtx.warning) {
         if (reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_ISSUE_WARN)) {
             if (reviewWithWarnCtx.warning->predefinedSet & (1 << BLIND_SIGNING_WARN)) {
                 predefinedTipBoxText = "Transaction Check unavailable.\nBlind signing required.";
@@ -2284,10 +2286,12 @@ static void useCaseReview(nbgl_operationType_t              operationType,
             predefinedTipBoxText = "Blind signing required.";
         }
     }
+
     if ((tipBox != NULL) || (predefinedTipBoxText != NULL)) {
         // do not display "Swipe to review" if a tip-box is displayed
         STARTING_CONTENT.content.extendedCenter.contentCenter.subText = NULL;
         if (predefinedTipBoxText != NULL) {
+            genericContext.validWarningCtx                      = true;
             STARTING_CONTENT.content.extendedCenter.tipBox.icon = NULL;
             STARTING_CONTENT.content.extendedCenter.tipBox.text = predefinedTipBoxText;
         }
@@ -2298,6 +2302,42 @@ static void useCaseReview(nbgl_operationType_t              operationType,
         STARTING_CONTENT.content.extendedCenter.tipBox.token  = TIP_BOX_TOKEN;
         STARTING_CONTENT.content.extendedCenter.tipBox.tuneId = TUNE_TAP_CASUAL;
     }
+}
+
+// function to factorize code for all simple reviews
+static void useCaseReview(nbgl_operationType_t              operationType,
+                          const nbgl_contentTagValueList_t *tagValueList,
+                          const nbgl_icon_details_t        *icon,
+                          const char                       *reviewTitle,
+                          const char                       *reviewSubTitle,
+                          const char                       *finishTitle,
+                          const nbgl_tipBox_t              *tipBox,
+                          nbgl_choiceCallback_t             choiceCallback,
+                          bool                              isLight,
+                          bool                              playNotifSound)
+{
+    reset_callbacks();
+    memset(&genericContext, 0, sizeof(genericContext));
+
+    bundleNavContext.review.operationType  = operationType;
+    bundleNavContext.review.choiceCallback = choiceCallback;
+
+    // memorize context
+    onChoice  = bundleNavReviewChoice;
+    navType   = GENERIC_NAV;
+    pageTitle = NULL;
+
+    genericContext.genericContents.contentsList = localContentsList;
+    genericContext.genericContents.nbContents   = 3;
+    memset(localContentsList, 0, 3 * sizeof(nbgl_content_t));
+
+    // First a centered info
+    STARTING_CONTENT.type = EXTENDED_CENTER;
+    prepareReviewFirstPage(
+        &STARTING_CONTENT.content.extendedCenter.contentCenter, icon, reviewTitle, reviewSubTitle);
+
+    // Prepare un tipbox if needed
+    initWarningTipBox(tipBox);
 
     // Then the tag/value pairs
     localContentsList[1].type = TAG_VALUE_LIST;
@@ -2309,11 +2349,13 @@ static void useCaseReview(nbgl_operationType_t              operationType,
     // The last page
     if (isLight) {
         localContentsList[2].type = INFO_BUTTON;
-        prepareReviewLightLastPage(&localContentsList[2].content.infoButton, icon, finishTitle);
+        prepareReviewLightLastPage(
+            operationType, &localContentsList[2].content.infoButton, icon, finishTitle);
     }
     else {
         localContentsList[2].type = INFO_LONG_PRESS;
-        prepareReviewLastPage(&localContentsList[2].content.infoLongPress, icon, finishTitle);
+        prepareReviewLastPage(
+            operationType, &localContentsList[2].content.infoLongPress, icon, finishTitle);
     }
 
     // compute number of pages & fill navigation structure
@@ -2359,6 +2401,9 @@ static void useCaseReviewStreamingStart(nbgl_operationType_t       operationType
     STARTING_CONTENT.type = EXTENDED_CENTER;
     prepareReviewFirstPage(
         &STARTING_CONTENT.content.extendedCenter.contentCenter, icon, reviewTitle, reviewSubTitle);
+
+    // Prepare un tipbox if needed
+    initWarningTipBox(NULL);
 
     // compute number of pages & fill navigation structure
     bundleNavContext.reviewStreaming.stepPageNb = getNbPagesForGenericContents(
@@ -3055,11 +3100,10 @@ void nbgl_useCaseStatus(const char *message, bool isSuccess, nbgl_callback_t qui
 {
     reset_callbacks();
 
-    nbgl_screenTickerConfiguration_t ticker = {
-        .tickerCallback  = &tickerCallback,
-        .tickerIntervale = 0,    // not periodic
-        .tickerValue     = 3000  // 3 seconds
-    };
+    nbgl_screenTickerConfiguration_t ticker = {.tickerCallback  = &tickerCallback,
+                                               .tickerIntervale = 0,  // not periodic
+                                               .tickerValue     = STATUS_SCREEN_DURATION};
+
     onQuit = quitCallback;
     if (isSuccess) {
 #ifdef HAVE_PIEZO_SOUND
@@ -3217,6 +3261,37 @@ void nbgl_useCaseConfirm(const char     *message,
         nbgl_pageRelease(modalPageContext);
     }
     modalPageContext = nbgl_pageDrawConfirmation(&pageModalCallback, &info);
+    nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
+}
+
+/**
+ * @brief Draws a page to represent an action, described in a centered info (with given icon),
+ * thanks to a button at the bottom of the page. The given callback is called if the
+ * button is touched.
+ *
+ * @param icon icon to set in centered info
+ * @param message string to set in centered info
+ * @param actionText string to set in button, for action
+ * @param callback callback called when action button is touched
+ */
+void nbgl_useCaseAction(const nbgl_icon_details_t *icon,
+                        const char                *message,
+                        const char                *actionText,
+                        nbgl_callback_t            callback)
+{
+    nbgl_pageContent_t content = {0};
+
+    // memorize callback
+    onAction = callback;
+
+    content.tuneId                 = TUNE_TAP_CASUAL;
+    content.type                   = INFO_BUTTON;
+    content.infoButton.buttonText  = actionText;
+    content.infoButton.text        = message;
+    content.infoButton.icon        = icon;
+    content.infoButton.buttonToken = ACTION_BUTTON_TOKEN;
+
+    pageContext = nbgl_pageDrawGenericContent(&pageCallback, NULL, &content);
     nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
 }
 
@@ -3439,8 +3514,7 @@ void nbgl_useCaseReview(nbgl_operationType_t              operationType,
                   NULL,
                   choiceCallback,
                   false,
-                  true,
-                  false);
+                  true);
 }
 
 /**
@@ -3514,6 +3588,7 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
                                 const nbgl_warning_t             *warning,
                                 nbgl_choiceCallback_t             choiceCallback)
 {
+    memset(&reviewWithWarnCtx, 0, sizeof(reviewWithWarnCtx));
     // memorize tipBox because it can be in the call stack of the caller
     if (tipBox != NULL) {
         memcpy(&activeTipBox, tipBox, sizeof(activeTipBox));
@@ -3534,8 +3609,7 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
                       tipBox,
                       choiceCallback,
                       false,
-                      true,
-                      false);
+                      true);
         return;
     }
     if (warning->predefinedSet == (1 << W3C_NO_THREAT_WARN)) {
@@ -3545,7 +3619,6 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
         operationType |= RISKY_OPERATION;
     }
 
-    memset(&reviewWithWarnCtx, 0, sizeof(reviewWithWarnCtx));
     reviewWithWarnCtx.isStreaming    = false;
     reviewWithWarnCtx.operationType  = operationType;
     reviewWithWarnCtx.tagValueList   = tagValueList;
@@ -3569,7 +3642,6 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
                       tipBox,
                       choiceCallback,
                       false,
-                      true,
                       true);
         return;
     }
@@ -3610,8 +3682,7 @@ void nbgl_useCaseReviewLight(nbgl_operationType_t              operationType,
                   NULL,
                   choiceCallback,
                   true,
-                  true,
-                  false);
+                  true);
 }
 
 /**
@@ -3717,6 +3788,7 @@ void nbgl_useCaseAdvancedReviewStreamingStart(nbgl_operationType_t       operati
                                               const nbgl_warning_t      *warning,
                                               nbgl_choiceCallback_t      choiceCallback)
 {
+    memset(&reviewWithWarnCtx, 0, sizeof(reviewWithWarnCtx));
     // if no warning at all, it's a simple review
     if ((warning == NULL)
         || ((warning->predefinedSet == 0) && (warning->introDetails == NULL)
@@ -3731,7 +3803,6 @@ void nbgl_useCaseAdvancedReviewStreamingStart(nbgl_operationType_t       operati
     else {
         operationType |= RISKY_OPERATION;
     }
-    memset(&reviewWithWarnCtx, 0, sizeof(reviewWithWarnCtx));
 
     reviewWithWarnCtx.isStreaming    = true;
     reviewWithWarnCtx.operationType  = operationType;
@@ -3850,7 +3921,8 @@ void nbgl_useCaseReviewStreamingFinish(const char           *finishTitle,
 
     // Eventually the long press page
     STARTING_CONTENT.type = INFO_LONG_PRESS;
-    prepareReviewLastPage(&STARTING_CONTENT.content.infoLongPress,
+    prepareReviewLastPage(bundleNavContext.reviewStreaming.operationType,
+                          &STARTING_CONTENT.content.infoLongPress,
                           bundleNavContext.reviewStreaming.icon,
                           finishTitle);
 
