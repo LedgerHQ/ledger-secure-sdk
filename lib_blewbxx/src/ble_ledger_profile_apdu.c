@@ -450,17 +450,20 @@ uint8_t BLE_LEDGER_PROFILE_apdu_write_permit_req(uint8_t *hci_buffer, uint16_t l
     return BLE_PROFILE_STATUS_OK_AND_SEND_PACKET;
 }
 
-uint8_t BLE_LEDGER_PROFILE_apdu_mtu_changed(uint16_t mtu, void *cookie)
+ble_profile_status_t BLE_LEDGER_PROFILE_apdu_mtu_changed(uint16_t mtu, void *cookie)
 {
     if (!cookie) {
         return BLE_PROFILE_STATUS_BAD_PARAMETERS;
     }
 
-    uint8_t                           status = 0;
-    ledger_ble_profile_apdu_handle_t *handle = (ledger_ble_profile_apdu_handle_t *) PIC(cookie);
+    ble_profile_status_t status = BLE_PROFILE_STATUS_BAD_PARAMETERS;
+    if (mtu <= BLE_ATT_MAX_MTU_SIZE) {
+        ledger_ble_profile_apdu_handle_t *handle = (ledger_ble_profile_apdu_handle_t *) PIC(cookie);
 
-    handle->protocol_data.mtu = mtu - 1;
-    handle->mtu_negotiated    = 1;
+        handle->protocol_data.mtu = mtu - 1;
+        handle->mtu_negotiated    = 1;
+        status = BLE_PROFILE_STATUS_OK;
+    }
 
     return status;
 }
