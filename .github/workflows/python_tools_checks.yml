@@ -1,0 +1,31 @@
+name: Checks on the Python tools
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  lint:
+    name: Client linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone
+        uses: actions/checkout@v4
+      - name: Installing PIP dependencies
+        run: pip install pylint PyGithub ledgered
+      - name: Lint Python code
+        run: pylint --rc setup.cfg .github/workflows/scripts/
+
+  mypy:
+    name: Type checking
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone
+        uses: actions/checkout@v4
+      - name: Installing PIP dependencies
+        run: pip install mypy PyGithub ledgered
+      - name: Mypy type checking
+        run: mypy .github/workflows/scripts/
