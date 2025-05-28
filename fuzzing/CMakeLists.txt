@@ -57,8 +57,9 @@ if(NOT DEFINED ENV{LIB_FUZZING_ENGINE})
       -fcoverage-mapping
       -funsigned-char
       -fshort-enums)
-  
-    set(LINK_FLAGS -ffunction-sections -fdata-sections -fprofile-instr-generate -fcoverage-mapping)
+
+  set(LINK_FLAGS -ffunction-sections -fdata-sections -fprofile-instr-generate
+                 -fcoverage-mapping)
   if(SANITIZER MATCHES "address")
     set(COMPILATION_FLAGS ${COMPILATION_FLAGS}
                           -fsanitize=fuzzer,address,undefined)
@@ -67,9 +68,8 @@ if(NOT DEFINED ENV{LIB_FUZZING_ENGINE})
     set(COMPILATION_FLAGS
         ${COMPILATION_FLAGS} -fsanitize=fuzzer,memory,undefined
         -fsanitize-memory-track-origins -fsanitize=fuzzer-no-link)
-    set(LINK_FLAGS
-        ${LINK_FLAGS} -fsanitize=fuzzer,memory,undefined
-        -fsanitize-memory-track-origins -fsanitize=fuzzer-no-link)
+    set(LINK_FLAGS ${LINK_FLAGS} -fsanitize=fuzzer,memory,undefined
+                   -fsanitize-memory-track-origins -fsanitize=fuzzer-no-link)
   else()
     message(
       FATAL_ERROR
