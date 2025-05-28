@@ -75,7 +75,15 @@ $(GLYPH_DESTH): $(GLYPH_FILES) $(ICON_SCRIPT)
 	$(L)echo "[GLYPH] Compiling..."
 	$(L)-mkdir -p $(GLYPH_SRC_DIR)
 ifneq ($(USE_NBGL),0)
-	$(L)python3 $(ICON_SCRIPT) $(GLYPH_OPT) --glyphcheader $(GLYPH_DESTH) --glyphcfile $(GLYPH_DESTC) $(GLYPH_FILES)
+ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOX TARGET_NANOS2))
+ifneq ($(strip $(ICON_HOME_NANO)),)
+ifneq ($(strip $(ICONNAME)),)
+	$(L)echo "[GLYPH] Converting Home Screen icon..."
+	$(L)python3 $(BOLOS_SDK)/lib_nbgl/tools/mask_icon.py --input $(ICONNAME) --output $(ICON_HOME_NANO)
+endif
+endif
+endif
+	$(L)python3 $(ICON_SCRIPT) $(GLYPH_OPT) --glyphcheader $(GLYPH_DESTH) --glyphcfile $(GLYPH_DESTC) $(GLYPH_FILES) $(ICON_HOME_NANO)
 else
 	$(L)rm -f $(GLYPH_DESTC) $(GLYPH_DESTH)
 	@# Use temporary files to prevent issues when build is interrupted
