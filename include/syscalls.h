@@ -201,6 +201,7 @@
 #define SYSCALL_os_dashboard_mbx_ID       0x02000150
 #define SYSCALL_os_ux_set_global_ID       0x03000151
 #define SYSCALL_os_rk_set_backup_state_ID 0x01000152
+#define SYSCALL_os_rk_set_update_state_ID 0x01000155
 
 #ifdef HAVE_CUSTOM_CA_DETAILS_IN_SETTINGS
 #define SYSCALL_CERT_get_ID   0x01000CA0
