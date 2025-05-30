@@ -1608,6 +1608,13 @@ void RK_set_backup_state(RK_backup_state_t state)
     parameters[0] = (unsigned int) state;
     SVC_Call(SYSCALL_os_rk_set_backup_state_ID, parameters);
 }
+
+void RK_set_update_state(RK_update_state_t state)
+{
+    unsigned int parameters[1];
+    parameters[0] = (unsigned int) state;
+    SVC_Call(SYSCALL_os_rk_set_update_state_ID, parameters);
+}
 #endif  // HAVE_CHARON
 
 void os_lib_call(unsigned int *call_parameters)
