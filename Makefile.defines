@@ -33,6 +33,8 @@ DEFINES += API_LEVEL=$(API_LEVEL)
 APP_METADATA_LIST := TARGET TARGET_NAME APPVERSION SDK_NAME SDK_VERSION SDK_HASH
 DEFINES += $(foreach item,$(APP_METADATA_LIST), $(item)=\"$($(item))\")
 
+# Use new io architecture
+DEFINES += REVAMPED_IO
 
 ### platform definitions
 DEFINES += gcc __IO=volatile
