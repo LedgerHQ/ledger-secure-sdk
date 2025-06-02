@@ -27,9 +27,11 @@ file(
   "${BOLOS_SDK}/src/cx_wrappers.c"
   "${BOLOS_SDK}/src/cx_hash_iovec.c"
   "${BOLOS_SDK}/fuzzing/mock/custom/*.c"
-  "${BOLOS_SDK}/fuzzing/mock/generated/*.c")
-
+  "${BOLOS_SDK}/fuzzing/mock/generated/*.c"
+  "${CMAKE_SOURCE_DIR}/mock/*.c" # mocks from the app
+)
 add_library(mock ${LIB_MOCK_SOURCES})
+
 target_link_libraries(mock PUBLIC macros cxng nbgl standard_app)
 target_compile_options(mock PUBLIC ${COMPILATION_FLAGS})
 target_include_directories(
