@@ -255,6 +255,9 @@ void io_seproxyhal_init(void)
 #ifdef HAVE_CCID_USB
     init_io.usb.class_mask |= USBD_LEDGER_CLASS_CCID_BULK;
 #endif  // HAVE_CCID_USB
+#ifdef HAVE_USB_HIDKBD
+    init_io.usb.class_mask |= USBD_LEDGER_CLASS_HID_KBD;
+#endif  // HAVE_USB_HIDKBD
 #endif  // !HAVE_IO_USB
 
     init_io.ble.profile_mask = 0;
