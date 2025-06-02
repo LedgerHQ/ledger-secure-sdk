@@ -380,7 +380,7 @@ static void forge_bos_descriptor(void)
 
 static bool is_running(void)
 {
-  return usbd_ledger_data.state == USBD_LEDGER_STATE_RUNNING;
+    return usbd_ledger_data.state == USBD_LEDGER_STATE_RUNNING;
 }
 
 /* Exported functions --------------------------------------------------------*/
@@ -527,16 +527,18 @@ void USBD_LEDGER_start(void)
             usbd_ledger_data.pid = usbd_ledger_data.product;
         }
 
+#ifdef HAVE_USB_HIDKBD
+        if (usbd_ledger_init_data.class_mask & USBD_LEDGER_CLASS_HID_KBD) {
+            usbd_ledger_data.class[usbd_ledger_data.nb_of_class++]
+                = (usbd_class_info_t *) PIC(&USBD_LEDGER_HID_KBD_class_info);
+        }
+#else   // !HAVE_USB_HIDKBD
         if (usbd_ledger_init_data.class_mask & USBD_LEDGER_CLASS_HID) {
             usbd_ledger_data.class[usbd_ledger_data.nb_of_class++]
                 = (usbd_class_info_t *) PIC(&USBD_LEDGER_HID_class_info);
         }
-#ifdef HAVE_USB_HIDKBD
-        else if (usbd_ledger_init_data.class_mask & USBD_LEDGER_CLASS_HID_KBD) {
-            usbd_ledger_data.class[usbd_ledger_data.nb_of_class++]
-                = (usbd_class_info_t *) PIC(&USBD_LEDGER_HID_KBD_class_info);
-        }
-#endif  // HAVE_USB_HIDKBD
+#endif  // !HAVE_USB_HIDKBD
+
 #ifdef HAVE_IO_U2F
         if (usbd_ledger_init_data.class_mask & USBD_LEDGER_CLASS_HID_U2F) {
             usbd_ledger_data.class[usbd_ledger_data.nb_of_class++]
@@ -606,7 +608,7 @@ void USBD_LEDGER_start(void)
 void USB_LEDGER_stop(void)
 {
     if (!is_running()) {
-      return;
+        return;
     }
 
     USBD_Stop(&usbd_ledger_data.usbd_handle);
@@ -616,9 +618,8 @@ void USB_LEDGER_stop(void)
 void USBD_LEDGER_add_profile(const usbd_class_info_t *class_info, uint8_t bcdusb, uint8_t usbd_iad)
 {
     if (!is_running()) {
-      return;
+        return;
     }
-
 
     usbd_ledger_data.class[usbd_ledger_data.nb_of_class++] = (usbd_class_info_t *) PIC(class_info);
     usbd_ledger_data.bcdusb |= bcdusb;
@@ -637,7 +638,7 @@ void USBD_LEDGER_add_profile(const usbd_class_info_t *class_info, uint8_t bcdusb
 void USBD_LEDGER_rx_evt_reset(void)
 {
     if (!is_running()) {
-      return;
+        return;
     }
 
     USBD_LL_SetSpeed(&usbd_ledger_data.usbd_handle, USBD_SPEED_FULL);
@@ -647,7 +648,7 @@ void USBD_LEDGER_rx_evt_reset(void)
 void USBD_LEDGER_rx_evt_sof(void)
 {
     if (!is_running()) {
-      return;
+        return;
     }
     USBD_LL_SOF(&usbd_ledger_data.usbd_handle);
 }
@@ -655,7 +656,7 @@ void USBD_LEDGER_rx_evt_sof(void)
 void USBD_LEDGER_rx_evt_suspend(void)
 {
     if (!is_running()) {
-      return;
+        return;
     }
     USBD_LL_Suspend(&usbd_ledger_data.usbd_handle);
 }
@@ -663,7 +664,7 @@ void USBD_LEDGER_rx_evt_suspend(void)
 void USBD_LEDGER_rx_evt_resume(void)
 {
     if (!is_running()) {
-      return;
+        return;
     }
     USBD_LL_Resume(&usbd_ledger_data.usbd_handle);
 }
@@ -671,7 +672,7 @@ void USBD_LEDGER_rx_evt_resume(void)
 void USBD_LEDGER_rx_evt_setup(uint8_t *buffer)
 {
     if (!is_running()) {
-      return;
+        return;
     }
     USBD_LL_SetupStage(&usbd_ledger_data.usbd_handle, buffer);
 }
@@ -679,7 +680,7 @@ void USBD_LEDGER_rx_evt_setup(uint8_t *buffer)
 void USBD_LEDGER_rx_evt_data_in(uint8_t ep_num, uint8_t *buffer)
 {
     if (!is_running()) {
-      return;
+        return;
     }
     USBD_LL_DataInStage(&usbd_ledger_data.usbd_handle, ep_num, buffer);
 }
@@ -687,7 +688,7 @@ void USBD_LEDGER_rx_evt_data_in(uint8_t ep_num, uint8_t *buffer)
 void USBD_LEDGER_rx_evt_data_out(uint8_t ep_num, uint8_t *buffer, uint16_t length)
 {
     if (!is_running()) {
-      return;
+        return;
     }
     usbd_ledger_data.usb_ep_xfer_len[ep_num & 0x7F]    = length;
     usbd_ledger_data.usb_ep_xfer_buffer[ep_num & 0x7F] = buffer;
@@ -705,7 +706,7 @@ uint32_t USBD_LEDGER_send(uint8_t        class_type,
     uint8_t  index      = 0;
 
     if (!is_running()) {
-      return status;
+        return status;
     }
 
     usbd_class_info_t *class_info = NULL;
@@ -739,7 +740,7 @@ int32_t USBD_LEDGER_data_ready(uint8_t *buffer, uint16_t max_length)
     int32_t status = 0;
 
     if (!is_running()) {
-      return status;
+        return status;
     }
 
     usbd_class_info_t *class_info = NULL;
@@ -763,7 +764,7 @@ int32_t USBD_LEDGER_is_busy(void)
     int32_t status = 0;
 
     if (!is_running()) {
-      return status;
+        return status;
     }
 
     usbd_class_info_t *class_info = NULL;
@@ -784,10 +785,6 @@ void USBD_LEDGER_setting(uint32_t class_id, uint32_t setting_id, uint8_t *buffer
 {
     uint8_t index = 0;
 
-    if (!is_running()) {
-      return;
-    }
-
     usbd_class_info_t *class_info = NULL;
     for (index = 0; index < usbd_ledger_data.nb_of_class; index++) {
         class_info = usbd_ledger_data.class[index];
@@ -806,7 +803,7 @@ int USBD_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
     int status = 0;
 
     if (!is_running()) {
-      return status;
+        return status;
     }
 
     if (seph_buffer[1] == SEPROXYHAL_TAG_USB_EVENT) {
