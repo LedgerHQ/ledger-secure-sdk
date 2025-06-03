@@ -345,6 +345,9 @@ static void start_advertising_mngr(uint16_t opcode)
 
     ble_ledger_data.start_adv_step++;
 
+    // Be sure to retrieve the actual name value and length
+    get_device_name();
+
     switch (ble_ledger_data.start_adv_step) {
         case BLE_START_ADV_STEP_STOP_ADV:
             ble_aci_gap_forge_cmd_set_non_discoverable(&ble_ledger_data.cmd_data);
@@ -359,8 +362,6 @@ static void start_advertising_mngr(uint16_t opcode)
             buffer[index++] = BLE_AD_TYPE_FLAG_BIT_BR_EDR_NOT_SUPPORTED
                               | BLE_AD_TYPE_FLAG_BIT_LE_GENERAL_DISCOVERABLE_MODE;
 
-            // Complete Local Name
-            get_device_name();
             buffer[index++] = ble_ledger_data.device_name_length + 1;
             buffer[index++] = BLE_AD_TYPE_COMPLETE_LOCAL_NAME;
             memcpy(&buffer[index], ble_ledger_data.device_name, ble_ledger_data.device_name_length);
@@ -407,7 +408,6 @@ static void start_advertising_mngr(uint16_t opcode)
             break;
 
         case BLE_START_ADV_STEP_START_ADV:
-            get_device_name();
             buffer[0] = BLE_AD_TYPE_COMPLETE_LOCAL_NAME;
             memcpy(&buffer[1], ble_ledger_data.device_name, ble_ledger_data.device_name_length);
 
