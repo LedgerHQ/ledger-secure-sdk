@@ -117,14 +117,16 @@ int NFC_LEDGER_rx_seph_apdu_evt(uint8_t *seph_buffer,
     int status = -1;
 
     if (nfc_ledger_data.state == NFC_STATE_RUNNING) {
-        if (seph_buffer_length < 2) {
-            return -1;
+        seph_t seph = {0};
+        if (seph_buffer_length
+            && !seph_parse_header(&seph_buffer[1], seph_buffer_length - 1, &seph)) {
+            status = -1;
+            goto error;
         }
 
-        uint16_t length = U2BE(seph_buffer, 2);
         LEDGER_PROTOCOL_rx(&nfc_ledger_data.protocol_data,
-                           &seph_buffer[4],
-                           length,
+                           seph.data,
+                           seph.size,
                            nfc_ledger_protocol_chunk_buffer,
                            sizeof(nfc_ledger_protocol_chunk_buffer),
                            NFC_LEDGER_io_buffer,
@@ -145,6 +147,7 @@ int NFC_LEDGER_rx_seph_apdu_evt(uint8_t *seph_buffer,
         }
     }
 
+error:
     return status;
 }
 
