@@ -369,6 +369,8 @@ int os_io_tx_cmd(uint8_t                     type,
 #ifdef HAVE_IO_U2F
         case OS_IO_PACKET_TYPE_USB_U2F_HID_APDU:
         case OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR:
+        case OS_IO_PACKET_TYPE_USB_U2F_HID_CANCEL:
+        case OS_IO_PACKET_TYPE_USB_U2F_HID_RAW:
             USBD_LEDGER_send(USBD_LEDGER_CLASS_HID_U2F, type, buffer, length, 0);
             break;
 #endif  // HAVE_IO_U2F
