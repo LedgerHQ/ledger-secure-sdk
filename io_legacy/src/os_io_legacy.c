@@ -250,7 +250,11 @@ void io_seproxyhal_init(void)
     init_io.usb.hid_u2f_settings.major_device_version_number = 0;
     init_io.usb.hid_u2f_settings.minor_device_version_number = 1;
     init_io.usb.hid_u2f_settings.build_device_version_number = 0;
-    init_io.usb.hid_u2f_settings.capabilities_flag           = 0;
+#ifdef HAVE_FIDO2
+    init_io.usb.hid_u2f_settings.capabilities_flag = U2F_HID_CAPABILITY_CBOR;
+#else   // !HAVE_FIDO2
+    init_io.usb.hid_u2f_settings.capabilities_flag = 0;
+#endif  // !HAVE_FIDO2
 #endif  // HAVE_IO_U2F
 #ifdef HAVE_CCID_USB
     init_io.usb.class_mask |= USBD_LEDGER_CLASS_CCID_BULK;
@@ -340,6 +344,8 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
             case OS_IO_PACKET_TYPE_USB_WEBUSB_APDU:
             case OS_IO_PACKET_TYPE_USB_U2F_HID_APDU:
             case OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR:
+            case OS_IO_PACKET_TYPE_USB_U2F_HID_CANCEL:
+            case OS_IO_PACKET_TYPE_USB_U2F_HID_RAW:
             case OS_IO_PACKET_TYPE_BLE_APDU:
             case OS_IO_PACKET_TYPE_NFC_APDU:
                 io_os_legacy_apdu_type = G_io_rx_buffer[0];
@@ -350,7 +356,8 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
                     G_io_tx_buffer[1] = err;
                     status            = os_io_tx_cmd(io_os_legacy_apdu_type, G_io_tx_buffer, 2, 0);
                 }
-                else if (G_io_rx_buffer[APDU_OFF_CLA + 1] == DEFAULT_APDU_CLA) {
+                else if ((G_io_rx_buffer[APDU_OFF_CLA + 1] == DEFAULT_APDU_CLA)
+                         && (G_io_rx_buffer[0] != OS_IO_PACKET_TYPE_USB_U2F_HID_APDU)) {
                     size_t      buffer_out_length = sizeof(G_io_rx_buffer);
                     bolos_err_t err               = os_io_handle_default_apdu(&G_io_rx_buffer[1],
                                                                 status - 1,
@@ -383,7 +390,12 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
                     }
                     else if (io_os_legacy_apdu_type == APDU_TYPE_USB_U2F_CBOR) {
                         G_io_u2f.media      = U2F_MEDIA_USB;
-                        G_io_app.apdu_state = APDU_IDLE;
+                        G_io_app.apdu_state = APDU_U2F_CBOR;
+                    }
+                    else if (io_os_legacy_apdu_type == APDU_TYPE_USB_U2F_CANCEL) {
+                        G_io_u2f.media      = U2F_MEDIA_USB;
+                        G_io_app.apdu_state = APDU_U2F_CANCEL;
+                        status += 1;
                     }
                     else if (io_os_legacy_apdu_type == APDU_TYPE_NFC) {
                         G_io_u2f.media      = U2F_MEDIA_NFC;
