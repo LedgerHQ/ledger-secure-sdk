@@ -59,7 +59,7 @@ if(NOT DEFINED ENV{LIB_FUZZING_ENGINE})
       -fshort-enums)
 
   set(LINK_FLAGS -ffunction-sections -fdata-sections -fprofile-instr-generate
-                 -fcoverage-mapping)
+                 -fcoverage-mapping -fuse-ld=lld)
   if(SANITIZER MATCHES "address")
     set(COMPILATION_FLAGS ${COMPILATION_FLAGS}
                           -fsanitize=fuzzer,address,undefined)
