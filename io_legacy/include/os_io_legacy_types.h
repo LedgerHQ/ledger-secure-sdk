@@ -33,6 +33,8 @@ typedef enum {
     APDU_USB_HID,
     APDU_USB_CCID,
     APDU_U2F,
+    APDU_U2F_CBOR,
+    APDU_U2F_CANCEL,
     APDU_RAW,
     APDU_USB_WEBUSB,
 } io_apdu_state_e;
