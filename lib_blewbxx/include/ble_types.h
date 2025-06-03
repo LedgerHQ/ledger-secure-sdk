@@ -171,6 +171,11 @@ typedef struct ble_uuid_s {
     uint8_t value[BLE_UUID_SIZE];
 } ble_uuid_t;
 
+typedef struct ble_hci_event_packet_s {
+    uint8_t code;
+    uint8_t length;
+} ble_hci_event_packet_t;
+
 /* Exported defines   --------------------------------------------------------*/
 /* Configuration value */
 #define BLE_CONFIG_DATA_RANDOM_ADDRESS_OFFSET 0x2e

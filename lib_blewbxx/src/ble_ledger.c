@@ -134,10 +134,6 @@ static void end_pairing_ux(uint8_t pairing_ok);
 #endif  // HAVE_INAPP_BLE_PAIRING
 
 // HCI
-static void hci_evt_cmd_complete(uint8_t *buffer, uint16_t length);
-static void hci_evt_le_meta_evt(uint8_t *buffer, uint16_t length);
-static void hci_evt_vendor(uint8_t *buffer, uint16_t length);
-
 static uint32_t send_hci_packet(uint32_t timeout_ms);
 
 /* Exported variables --------------------------------------------------------*/
@@ -161,14 +157,14 @@ static void start_mngr(uint8_t *hci_buffer, uint16_t length)
     if (ble_ledger_data.init_step == BLE_INIT_STEP_IDLE) {
         LOG_IO("INIT START\n");
     }
-    else if (hci_buffer) {
+    else if (hci_buffer && length) {
         uint16_t opcode = U2LE(hci_buffer, 1);
         if ((ble_ledger_data.cmd_data.hci_cmd_opcode != 0xFFFF)
             && (opcode != ble_ledger_data.cmd_data.hci_cmd_opcode)) {
             // Unexpected event => TODO_IO
             return;
         }
-        if ((length >= 6) && (ble_ledger_data.init_step == BLE_INIT_STEP_GAP_INIT)) {
+        if ((length >= 10) && (ble_ledger_data.init_step == BLE_INIT_STEP_GAP_INIT)) {
             ble_ledger_data.gap_service_handle                    = U2LE(hci_buffer, 4);
             ble_ledger_data.gap_device_name_characteristic_handle = U2LE(hci_buffer, 6);
             ble_ledger_data.gap_appearance_characteristic_handle  = U2LE(hci_buffer, 8);
@@ -565,10 +561,11 @@ static void end_pairing_ux(uint8_t pairing_ok)
 }
 #endif  // HAVE_INAPP_BLE_PAIRING
 
-static void hci_evt_cmd_complete(uint8_t *buffer, uint16_t length)
+static int32_t hci_evt_cmd_complete(uint8_t *buffer, uint16_t length)
 {
+    int32_t status = -1;
     if (length < 3) {
-        return;
+        goto error;
     }
 
     uint16_t opcode = U2LE(buffer, 1);
@@ -583,28 +580,26 @@ static void hci_evt_cmd_complete(uint8_t *buffer, uint16_t length)
         stopping_mngr(opcode);
     }
     else if (opcode == ACI_GATT_WRITE_RESP_CMD_CODE) {
-        uint8_t             status       = BLE_PROFILE_STATUS_OK;
         ble_profile_info_t *profile_info = NULL;
         for (uint8_t index = 0; index < ble_ledger_data.nb_of_profile; index++) {
             profile_info = ble_ledger_data.profile[index];
             if (profile_info->write_rsp_ack) {
-                status = ((ble_profile_write_rsp_ack_t) PIC(profile_info->write_rsp_ack))(
+                ble_profile_status_t ble_status = ((ble_profile_write_rsp_ack_t) PIC(profile_info->write_rsp_ack))(
                     profile_info->cookie);
-                if (status == BLE_PROFILE_STATUS_OK_AND_SEND_PACKET) {
+                if (ble_status == BLE_PROFILE_STATUS_OK_AND_SEND_PACKET) {
                     send_hci_packet(0);
                 }
             }
         }
     }
     else if (opcode == ACI_GATT_UPDATE_CHAR_VALUE_CMD_CODE) {
-        uint8_t             status       = BLE_PROFILE_STATUS_OK;
         ble_profile_info_t *profile_info = NULL;
         for (uint8_t index = 0; index < ble_ledger_data.nb_of_profile; index++) {
             profile_info = ble_ledger_data.profile[index];
             if (profile_info->update_char_val_ack) {
-                status = ((ble_profile_update_char_value_ack_t) PIC(
+                ble_profile_status_t ble_status = ((ble_profile_update_char_value_ack_t) PIC(
                     profile_info->update_char_val_ack))(profile_info->cookie);
-                if (status == BLE_PROFILE_STATUS_OK_AND_SEND_PACKET) {
+                if (ble_status == BLE_PROFILE_STATUS_OK_AND_SEND_PACKET) {
                     send_hci_packet(0);
                 }
             }
@@ -622,16 +617,24 @@ static void hci_evt_cmd_complete(uint8_t *buffer, uint16_t length)
     else {
         LOG_IO("HCI EVT CMD COMPLETE 0x%04X\n", opcode);
     }
+    status = 0;
+
+error:
+    return status;
 }
 
-static void hci_evt_le_meta_evt(uint8_t *buffer, uint16_t length)
+static int32_t hci_evt_le_meta_evt(uint8_t *buffer, uint16_t length)
 {
+    int32_t status = -1;
     if (!length) {
-        return;
+        goto error;
     }
 
     switch (buffer[0]) {
         case HCI_LE_CONNECTION_COMPLETE_SUBEVT_CODE:
+            if (length < 19) {
+                goto error;
+            }
             ble_ledger_data.connection.connection_handle   = U2LE(buffer, 2);
             ble_ledger_data.connection.role_slave          = buffer[4];
             ble_ledger_data.connection.peer_address_random = buffer[5];
@@ -658,6 +661,9 @@ static void hci_evt_le_meta_evt(uint8_t *buffer, uint16_t length)
             break;
 
         case HCI_LE_CONNECTION_UPDATE_COMPLETE_SUBEVT_CODE:
+            if (length < 10) {
+                goto error;
+            }
             ble_ledger_data.connection.connection_handle   = U2LE(buffer, 2);
             ble_ledger_data.connection.conn_interval       = U2LE(buffer, 4);
             ble_ledger_data.connection.conn_latency        = U2LE(buffer, 6);
@@ -679,6 +685,9 @@ static void hci_evt_le_meta_evt(uint8_t *buffer, uint16_t length)
             break;
 
         case HCI_LE_DATA_LENGTH_CHANGE_SUBEVT_CODE:
+            if (length < 11) {
+                goto error;
+            }
             if (U2LE(buffer, 1) == ble_ledger_data.connection.connection_handle) {
                 ble_ledger_data.connection.max_tx_octets = U2LE(buffer, 3);
                 ble_ledger_data.connection.max_tx_time   = U2LE(buffer, 5);
@@ -693,6 +702,9 @@ static void hci_evt_le_meta_evt(uint8_t *buffer, uint16_t length)
             break;
 
         case HCI_LE_PHY_UPDATE_COMPLETE_SUBEVT_CODE:
+            if (length < 6) {
+                goto error;
+            }
             if (U2LE(buffer, 2) == ble_ledger_data.connection.connection_handle) {
                 ble_ledger_data.connection.tx_phy = buffer[4];
                 ble_ledger_data.connection.rx_phy = buffer[5];
@@ -706,25 +718,37 @@ static void hci_evt_le_meta_evt(uint8_t *buffer, uint16_t length)
             LOG_IO("HCI LE META 0x%02X\n", buffer[0]);
             break;
     }
+    status = 0;
+error:
+    return status;
 }
 
-static void hci_evt_vendor(uint8_t *buffer, uint16_t length)
+static int32_t hci_evt_vendor(uint8_t *buffer, uint16_t length)
 {
-    if (length < 4) {
-        return;
+    int32_t status = -1;
+    size_t evt_min_size = sizeof(uint16_t) + sizeof(ble_ledger_data.connection.connection_handle);
+    if (length < evt_min_size) {
+        goto error;
     }
 
-    uint16_t opcode = U2LE(buffer, 0);
+    uint8_t offset = 0;
+    uint16_t opcode = U2LE(buffer, offset);
+    offset += sizeof(opcode);
 
-    if (U2LE(buffer, 2) != ble_ledger_data.connection.connection_handle) {
-        return;
+    uint16_t handle = U2LE(buffer, offset);
+    offset += sizeof(handle);
+    if (handle != ble_ledger_data.connection.connection_handle) {
+        goto error;
     }
 
     switch (opcode) {
 #ifdef HAVE_INAPP_BLE_PAIRING
         case ACI_GAP_PAIRING_COMPLETE_VSEVT_CODE:
             LOG_IO("PAIRING");
-            switch (buffer[4]) {
+            if (length < evt_min_size + 1) {
+                goto error;
+            }
+            switch (buffer[offset++]) {
                 case SMP_PAIRING_STATUS_SUCCESS:
                     LOG_IO(" SUCCESS\n");
                     end_pairing_ux(BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_SUCCESS);
@@ -736,8 +760,11 @@ static void hci_evt_vendor(uint8_t *buffer, uint16_t length)
                     break;
 
                 case SMP_PAIRING_STATUS_PAIRING_FAILED:
-                    LOG_IO(" FAILED : %02X\n", buffer[5]);
-                    if (buffer[5] == 0x08) {  // UNSPECIFIED_REASON
+                    if (length < evt_min_size + 1 + 1) {
+                        goto error;
+                    }
+                    LOG_IO(" FAILED : %02X\n", buffer[offset]);
+                    if (buffer[offset] == 0x08) {  // UNSPECIFIED_REASON
                         end_pairing_ux(BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS_CANCELLED_FROM_REMOTE);
                     }
                     else {
@@ -758,19 +785,29 @@ static void hci_evt_vendor(uint8_t *buffer, uint16_t length)
             break;
 
         case ACI_GAP_NUMERIC_COMPARISON_VALUE_VSEVT_CODE:
-            LOG_IO("NUMERIC COMP : %d\n", U4LE(buffer, 4));
-            ask_user_pairing_numeric_comparison(U4LE(buffer, 4));
+            if (length < evt_min_size + sizeof(uint32_t)) {
+                goto error;
+            }
+            LOG_IO("NUMERIC COMP : %d\n", U4LE(buffer, offset));
+            ask_user_pairing_numeric_comparison(U4LE(buffer, offset));
             break;
 #endif  // HAVE_INAPP_BLE_PAIRING
 
         case ACI_L2CAP_CONNECTION_UPDATE_RESP_VSEVT_CODE: {
-            LOG_IO("CONNECTION UPDATE RESP %d\n", buffer[4]);
+            if (length < evt_min_size + 1) {
+                goto error;
+            }
+            LOG_IO("CONNECTION UPDATE RESP %d\n", buffer[offset]);
             break;
         }
 
         case ACI_GATT_ATTRIBUTE_MODIFIED_VSEVT_CODE:
         case ACI_GATT_WRITE_PERMIT_REQ_VSEVT_CODE: {
-            uint16_t            att_handle   = U2LE(buffer, 4);
+            if (length < (evt_min_size + (3 * sizeof(uint16_t)))) {
+                goto error;
+            }
+            uint16_t            att_handle   = U2LE(buffer, offset);
+            offset += sizeof(att_handle);
             uint8_t             profil_found = 0;
             ble_profile_info_t *profile_info = NULL;
             for (uint8_t index = 0; index < ble_ledger_data.nb_of_profile; index++) {
@@ -801,21 +838,25 @@ static void hci_evt_vendor(uint8_t *buffer, uint16_t length)
             if ((!profil_found) && (opcode == ACI_GATT_ATTRIBUTE_MODIFIED_VSEVT_CODE)) {
                 LOG_IO("ATT MODIFIED %04X %d bytes at offset %d\n",
                        att_handle,
-                       U2LE(buffer, 8),
-                       U2LE(buffer, 6));
+                       U2LE(buffer, offset + sizeof(uint16_t)),
+                       U2LE(buffer, offset));
             }
             break;
         }
 
         case ACI_ATT_EXCHANGE_MTU_RESP_VSEVT_CODE:
-            LOG_IO("MTU : %d\n", U2LE(buffer, 4));
+            if (length < evt_min_size + sizeof(uint16_t)) {
+                goto error;
+            }
+            uint16_t mtu = U2LE(buffer, offset);
+            LOG_IO("MTU : %d\n", mtu);
             ble_profile_info_t *profile_info = NULL;
             for (uint8_t index = 0; index < ble_ledger_data.nb_of_profile; index++) {
                 profile_info = ble_ledger_data.profile[index];
                 if (profile_info->mtu_changed) {
                     uint8_t status = BLE_PROFILE_STATUS_OK;
                     status         = ((ble_profile_mtu_changed_t) PIC(profile_info->mtu_changed))(
-                        U2LE(buffer, 4), profile_info->cookie);
+                        mtu, profile_info->cookie);
                     if (status == BLE_PROFILE_STATUS_OK_AND_SEND_PACKET) {
                         send_hci_packet(0);
                     }
@@ -850,6 +891,10 @@ static void hci_evt_vendor(uint8_t *buffer, uint16_t length)
             LOG_IO("HCI VENDOR 0x%04X\n", opcode);
             break;
     }
+    status = 0;
+
+error:
+    return status;
 }
 
 static uint32_t send_hci_packet(uint32_t timeout_ms)
@@ -1011,24 +1056,46 @@ int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
     int32_t status = -1;
 
     LOG_IO("BLE_LEDGER_rx_seph_evt state(%u)\n", ble_ledger_data.state);
+    seph_t seph = {0};
+    if (seph_buffer_length == 0) {
+        goto error;
+    }
+    // Offset 0 is for the seph packet type, not handled here so skip it
+    seph_buffer_length -= 1;
+    seph_buffer++;
+    if (seph_buffer_length && !seph_parse_header(seph_buffer, seph_buffer_length, &seph)) {
+        goto error;
+    }
     if ((ble_ledger_data.state == BLE_STATE_STOPPING) ||
         (ble_ledger_data.state == BLE_STATE_STARTING) ||
         (ble_ledger_data.state == BLE_STATE_RUNNING) ||
         (ble_ledger_data.state == BLE_STATE_START_ADVERTISING)) {
-        if (seph_buffer_length < 5) {
+        // Check enough room for packet type and event type
+        size_t seph_header_size = seph_get_header_size();
+        uint8_t packet_type = 0;
+        ble_hci_event_packet_t event = {0};
+        size_t event_pkt_size = seph_header_size + sizeof(packet_type) + sizeof(event.code) + sizeof(event.length);
+        // Count at least one event param
+        if (seph_buffer_length < event_pkt_size + sizeof(uint8_t)) {
             status= -1;
             goto error;
         }
+        uint8_t offset = seph_header_size;
+        packet_type = seph_buffer[offset++];
 
-        if (seph_buffer[4] == HCI_EVENT_PKT_TYPE) {
-            switch (seph_buffer[5]) {
+        if (packet_type == HCI_EVENT_PKT_TYPE) {
+            event.code = seph_buffer[offset++];
+            event.length = seph_buffer[offset++];
+            if (seph_buffer_length < event_pkt_size + event.length) {
+                goto error;
+            }
+            switch (event.code) {
                 case HCI_DISCONNECTION_COMPLETE_EVT_CODE:
-                    if (seph_buffer_length < 10) {
-                        status = -1;
+                    if (seph_buffer_length < (event_pkt_size + 4)) {
                         goto error;
                     }
                     else {
-                        LOG_IO("HCI DISCONNECTION COMPLETE code %02X\n", seph_buffer[9]);
+                        LOG_IO("HCI DISCONNECTION COMPLETE code %02X\n", seph_buffer[offset + 2]);
                         ble_ledger_data.connection.connection_handle = 0xFFFF;
                         ble_ledger_data.advertising_enabled          = false;
                         ble_ledger_data.connection.encrypted         = false;
@@ -1046,12 +1113,13 @@ int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
                     break;
 
                 case HCI_ENCRYPTION_CHANGE_EVT_CODE:
-                    if (seph_buffer_length < 10) {
-                        status = -1;
+                    if (seph_buffer_length  < (event_pkt_size + 4)) {
                         goto error;
                     }
-                    else if (U2LE(seph_buffer, 8) == ble_ledger_data.connection.connection_handle) {
-                        if (seph_buffer[10]) {
+                    uint16_t handle = U2LE(seph_buffer, offset + 1);
+                    uint8_t enabled = seph_buffer[offset + 3];
+                    if (handle == ble_ledger_data.connection.connection_handle) {
+                        if (enabled) {
                             LOG_IO("Link encrypted\n");
                             ble_ledger_data.connection.encrypted = true;
                         }
@@ -1070,31 +1138,28 @@ int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
                         }
                     }
                     else {
-                        LOG_IO("HCI ENCRYPTION CHANGE EVT %d on connection handle \n",
-                               seph_buffer[10],
-                               U2LE(seph_buffer, 8));
+                        LOG_IO("HCI ENCRYPTION CHANGE EVT %d on connection handle 0x%02X\n",
+                               enabled,
+                               handle);
                     }
                     status = 0;
                     break;
 
                 case HCI_COMMAND_COMPLETE_EVT_CODE:
-                    if (seph_buffer_length < 8) {
-                        status = -1;
-                        goto error;
-                    }
-                    else {
-                        hci_evt_cmd_complete(&seph_buffer[7], seph_buffer[6]);
-                    }
-                    status = 0;
+                    status = hci_evt_cmd_complete(&seph_buffer[offset], event.length);
                     break;
 
                 case HCI_COMMAND_STATUS_EVT_CODE:
+                    if (seph_buffer_length < (event_pkt_size + 4)) {
+                        goto error;
+                    }
+                    uint16_t opcode = U2LE(seph_buffer, offset + 2);
                     LOG_IO("HCI COMMAND_STATUS %d - num %d - op %04X\n",
-                           seph_buffer[7],
-                           seph_buffer[8],
-                           U2LE(seph_buffer, 9));
+                           seph_buffer[offset],
+                           seph_buffer[offset + 1],
+                           opcode);
                     if (ble_ledger_data.state == BLE_STATE_STOPPING) {
-                        stopping_mngr(U2LE(seph_buffer, 9));
+                        stopping_mngr(opcode);
                     }
                     status = 0;
                     break;
@@ -1105,23 +1170,18 @@ int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
                     break;
 
                 case HCI_LE_META_EVT_CODE:
-                    if (seph_buffer_length < 8) {
-                        status = -1;
-                        goto error;
-                    }
-                    else {
-                        hci_evt_le_meta_evt(&seph_buffer[7], seph_buffer[6]);
-                    }
-                    status = 0;
+                    status = hci_evt_le_meta_evt(&seph_buffer[offset], event.length);
                     break;
 
                 case HCI_VENDOR_SPECIFIC_DEBUG_EVT_CODE:
-                    if (seph_buffer_length < 8) {
-                        status = -1;
+                    if (seph_buffer_length < (event_pkt_size + 2)) {
+                        goto error;
                     }
                     else {
-                        hci_evt_vendor(&seph_buffer[7], seph_buffer[6]);
-                        status = is_data_ready(apdu_buffer, apdu_buffer_max_length);
+                        status = hci_evt_vendor(&seph_buffer[offset], event.length);
+                        if (!status) {
+                            status = is_data_ready(apdu_buffer, apdu_buffer_max_length);
+                        }
                     }
                     break;
 
@@ -1134,7 +1194,6 @@ int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
     }
 
 error:
-
     return status;
 }
 
