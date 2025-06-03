@@ -413,11 +413,14 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
 
 #ifdef HAVE_NFC_READER
             case OS_IO_PACKET_TYPE_NFC_APDU_RSP:
-                G_io_app.apdu_media = IO_APDU_MEDIA_NFC;
-                status -= 1;
-                memcpy(G_io_seproxyhal_spi_buffer, &G_io_rx_buffer[1], status);
-                G_io_reader_ctx.response_received = true;
-                G_io_reader_ctx.apdu_rx_len       = status;
+                if ((status - 1) <= G_io_reader_ctx.apdu_rx_max_size) {
+                    status -= 1;
+                    memcpy(G_io_reader_ctx.apdu_rx, &G_io_rx_buffer[1], status);
+                    G_io_reader_ctx.response_received = true;
+                    G_io_reader_ctx.apdu_rx_len       = status;
+                    io_nfc_process_events();
+                }
+                status = 0;
                 break;
 #endif  // HAVE_NFC_READER
 
@@ -529,8 +532,7 @@ bool io_nfc_reader_send(const uint8_t      *cmd_data,
                         int                 timeout_ms)
 {
     G_io_reader_ctx.resp_callback = PIC(callback);
-    io_os_legacy_apdu_type        = APDU_TYPE_NFC;
-    io_legacy_apdu_tx(PIC(cmd_data), cmd_len);
+    os_io_tx_cmd(APDU_TYPE_NFC, PIC(cmd_data), cmd_len, 0);
 
     G_io_reader_ctx.response_received = false;
     G_io_reader_ctx.remaining_ms      = timeout_ms;
