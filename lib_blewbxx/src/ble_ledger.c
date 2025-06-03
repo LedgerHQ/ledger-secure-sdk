@@ -899,13 +899,16 @@ error:
 
 static uint32_t send_hci_packet(uint32_t timeout_ms)
 {
-    uint8_t hdr[3];
-
+    uint8_t hdr[3] = {0};
     UNUSED(timeout_ms);
+    if (sizeof(ble_ledger_data.cmd_data.hci_cmd_buffer) < ble_ledger_data.cmd_data.hci_cmd_buffer_length) {
+        return 1;
+    }
+
 
     hdr[0] = SEPROXYHAL_TAG_BLE_SEND;
     U2BE_ENCODE(hdr, 1, ble_ledger_data.cmd_data.hci_cmd_buffer_length);
-    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, hdr, 3, NULL);
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, hdr, sizeof(hdr), NULL);
     os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH,
                  ble_ledger_data.cmd_data.hci_cmd_buffer,
                  ble_ledger_data.cmd_data.hci_cmd_buffer_length,
