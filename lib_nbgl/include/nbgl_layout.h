@@ -462,9 +462,9 @@ typedef struct {
     const char                      *text;   ///< already entered text
     bool    numbered;   ///< if set to true, the text is preceded on the left by 'number.'
     uint8_t number;     ///< if numbered is true, number used to build 'number.' text
-    bool    grayedOut;  ///< if true, the text is grayed out (but not the potential number)
-    int     textToken;  ///< the token that will be used as argument of the callback when text is
-                        ///< touched
+    bool    grayedOut;  ///< (unused, kept for compatibility)
+    int     textToken;  ///< the token that will be used as argument of the callback when "cross"
+                        ///< button is touched (when text is not empty)
     union {
         nbgl_layoutSuggestionButtons_t
             suggestionButtons;  /// used if type is @ref KEYBOARD_WITH_SUGGESTIONS

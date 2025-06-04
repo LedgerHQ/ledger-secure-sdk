@@ -47,6 +47,14 @@ enum {
     NB_SUGGESTION_CHILDREN
 };
 
+// Keyboard Text Entry container children
+enum {
+    NUMBER_INDEX = 0,
+    TEXT_INDEX,
+    DELETE_INDEX,
+    LINE_INDEX
+};
+
 #if defined(TARGET_STAX)
 #define TEXT_ENTRY_NORMAL_HEIGHT  64
 #define TEXT_ENTRY_COMPACT_HEIGHT 64
@@ -61,6 +69,7 @@ enum {
 // space between number and text
 #define NUMBER_TEXT_SPACE         8
 #define NUMBER_WIDTH              56
+#define DELETE_ICON               C_Close_32px
 #elif defined(TARGET_FLEX)
 #define TEXT_ENTRY_NORMAL_HEIGHT  72
 #define TEXT_ENTRY_COMPACT_HEIGHT 56
@@ -75,6 +84,7 @@ enum {
 // space between number and text
 #define NUMBER_TEXT_SPACE         8
 #define NUMBER_WIDTH              56
+#define DELETE_ICON               C_Close_40px
 #elif defined(TARGET_APEX)
 #define TEXT_ENTRY_NORMAL_HEIGHT  40
 #define TEXT_ENTRY_COMPACT_HEIGHT 40
@@ -89,6 +99,7 @@ enum {
 // space between number and text
 #define NUMBER_TEXT_SPACE         4
 #define NUMBER_WIDTH              32
+#define DELETE_ICON               C_Close_Tiny_24px
 #endif  // TARGETS
 
 #ifdef USE_PARTIAL_BUTTONS
@@ -279,7 +290,6 @@ static nbgl_container_t *addTextEntry(nbgl_layoutInternal_t *layoutInt,
                                       const char            *text,
                                       bool                   numbered,
                                       uint8_t                number,
-                                      bool                   grayedOut,
                                       int                    textToken,
                                       bool                   compactMode)
 {
@@ -287,6 +297,7 @@ static nbgl_container_t *addTextEntry(nbgl_layoutInternal_t *layoutInt,
     nbgl_text_area_t *textArea;
     layoutObj_t      *obj;
     uint16_t textEntryHeight = (compactMode ? TEXT_ENTRY_COMPACT_HEIGHT : TEXT_ENTRY_NORMAL_HEIGHT);
+    bool     withCross       = ((text != NULL) && (strlen(text) > 0));
 
     // create a main container, to store title, and text-entry container
     mainContainer             = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
@@ -311,9 +322,9 @@ static nbgl_container_t *addTextEntry(nbgl_layoutInternal_t *layoutInt,
         mainContainer->obj.area.height = textArea->obj.area.height + TITLE_ENTRY_MARGIN_Y;
     }
 
-    // create a text-entry container number, entered text and underline
+    // create a text-entry container number, entered text, potential cross and underline
     container                 = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
-    container->nbChildren     = 3;
+    container->nbChildren     = 4;
     container->children       = nbgl_containerPoolGet(container->nbChildren, layoutInt->layer);
     container->obj.area.width = AVAILABLE_WIDTH;
     container->obj.alignment  = BOTTOM_MIDDLE;
@@ -330,16 +341,16 @@ static nbgl_container_t *addTextEntry(nbgl_layoutInternal_t *layoutInt,
         textArea->obj.alignment   = MID_LEFT;
         textArea->obj.area.height = nbgl_getFontHeight(textArea->fontId);
         // set this text area as child of the container
-        container->children[0] = (nbgl_obj_t *) textArea;
+        container->children[NUMBER_INDEX] = (nbgl_obj_t *) textArea;
     }
 
     // create text area for entered text
     textArea                 = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-    textArea->textColor      = grayedOut ? INACTIVE_TEXT_COLOR : BLACK;
+    textArea->textColor      = BLACK;
     textArea->text           = text;
     textArea->textAlignment  = MID_LEFT;
     textArea->fontId         = TEXT_ENTRY_FONT;
-    textArea->obj.area.width = AVAILABLE_WIDTH;
+    textArea->obj.area.width = AVAILABLE_WIDTH - DELETE_ICON.width - NUMBER_TEXT_SPACE;
     if (numbered) {
         textArea->obj.alignmentMarginX = NUMBER_TEXT_SPACE;
         textArea->obj.alignTo          = container->children[0];
@@ -352,14 +363,24 @@ static nbgl_container_t *addTextEntry(nbgl_layoutInternal_t *layoutInt,
     textArea->obj.area.height  = nbgl_getFontHeight(textArea->fontId);
     textArea->autoHideLongLine = true;
 
-    obj = layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) textArea, textToken, NBGL_NO_TUNE);
+    container->children[TEXT_INDEX] = (nbgl_obj_t *) textArea;
+    container->obj.area.height      = textEntryHeight;
+
+    // Create Cross
+    nbgl_image_t *image = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
+    image->buffer       = &DELETE_ICON;
+    // only display it if text non empty
+    image->foregroundColor = withCross ? BLACK : WHITE;
+    obj = layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) image, textToken, NBGL_NO_TUNE);
     if (obj == NULL) {
         return NULL;
     }
-    textArea->obj.touchMask    = (1 << TOUCHED);
-    textArea->obj.touchId      = ENTERED_TEXT_ID;
-    container->children[1]     = (nbgl_obj_t *) textArea;
-    container->obj.area.height = textEntryHeight;
+    image->obj.alignment              = MID_RIGHT;
+    image->obj.alignTo                = container->children[1];
+    image->obj.alignmentMarginX       = NUMBER_TEXT_SPACE;
+    image->obj.touchMask              = (1 << TOUCHED);
+    image->obj.touchId                = ENTERED_TEXT_ID;
+    container->children[DELETE_INDEX] = (nbgl_obj_t *) image;
 
     // create gray line
     nbgl_line_t *line = (nbgl_line_t *) nbgl_objPoolGet(LINE, layoutInt->layer);
@@ -371,7 +392,7 @@ static nbgl_container_t *addTextEntry(nbgl_layoutInternal_t *layoutInt,
     line->direction       = HORIZONTAL;
     line->thickness       = LINE_THICKNESS;
     // set this line as child of the text entry container
-    container->children[2] = (nbgl_obj_t *) line;
+    container->children[LINE_INDEX] = (nbgl_obj_t *) line;
 
     // set this text entry container as child of the main container
     mainContainer->children[1] = (nbgl_obj_t *) container;
@@ -657,9 +678,9 @@ bool nbgl_layoutKeyboardNeedsRefresh(nbgl_layout_t *layout, uint8_t index)
  * @param numbered if true, the "number" param is used as index
  * @param number index of the text
  * @param text string to display in the area
- * @param grayedOut if true, the text is grayed out (but not the potential number)
+ * @param grayedOut if true, the text is grayed out (unused)
  * @param offsetY vertical offset from the top of the page
- * @param token token provided in onActionCallback when this area is touched
+ * @param token token provided in onActionCallback when the "cross" is touched
  * @return >= 0 if OK
  */
 int nbgl_layoutAddEnteredText(nbgl_layout_t *layout,
@@ -682,9 +703,9 @@ int nbgl_layoutAddEnteredText(nbgl_layout_t *layout,
         return -1;
     }
     UNUSED(offsetY);
+    UNUSED(grayedOut);
 
-    container
-        = addTextEntry(layoutInt, NULL, text, numbered, number, grayedOut, token, compactMode);
+    container = addTextEntry(layoutInt, NULL, text, numbered, number, token, compactMode);
 
     // set this container as first or 2nd child of the main layout container
     layoutInt->container->children[enteredTextIndex] = (nbgl_obj_t *) container;
@@ -890,7 +911,6 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
                                       content->text,
                                       content->numbered,
                                       content->number,
-                                      content->grayedOut,
                                       content->textToken,
                                       compactMode);
 
@@ -951,6 +971,7 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
     nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
     nbgl_container_t      *mainContainer, *container;
     nbgl_text_area_t      *textArea;
+    nbgl_image_t          *image;
 
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutUpdateKeyboardContent():\n");
     if (layout == NULL) {
@@ -963,16 +984,30 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
 
     if (content->numbered) {
         // get Word number typed text
-        textArea = (nbgl_text_area_t *) container->children[0];
+        textArea = (nbgl_text_area_t *) container->children[NUMBER_INDEX];
         snprintf(numText, sizeof(numText), "%d.", content->number);
         nbgl_objDraw((nbgl_obj_t *) textArea);
     }
 
     // get text area for entered text
-    textArea            = (nbgl_text_area_t *) container->children[1];
-    textArea->textColor = content->grayedOut ? INACTIVE_TEXT_COLOR : BLACK;
-    textArea->text      = content->text;
+    textArea       = (nbgl_text_area_t *) container->children[TEXT_INDEX];
+    textArea->text = content->text;
     nbgl_objDraw((nbgl_obj_t *) textArea);
+
+    // get delete cross
+    image = (nbgl_image_t *) container->children[DELETE_INDEX];
+    if ((textArea->text != NULL) && (strlen(textArea->text) > 0)) {
+        if (image->foregroundColor == WHITE) {
+            image->foregroundColor = BLACK;
+            nbgl_objDraw((nbgl_obj_t *) image);
+        }
+    }
+    else {
+        if (image->foregroundColor == BLACK) {
+            image->foregroundColor = WHITE;
+            nbgl_objDraw((nbgl_obj_t *) image);
+        }
+    }
 
     if (content->type == KEYBOARD_WITH_SUGGESTIONS) {
         nbActiveButtons = content->suggestionButtons.nbUsedButtons;
