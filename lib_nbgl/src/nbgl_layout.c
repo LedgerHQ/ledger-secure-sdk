@@ -1070,10 +1070,10 @@ static int addText(nbgl_layout_t *layout,
         else {
             subTextArea->obj.alignmentMarginY = PRE_SUBTEXT_MARGIN;
         }
-        fullHeight += subTextArea->obj.alignmentMarginY;
         container->children[container->nbChildren] = (nbgl_obj_t *) subTextArea;
         container->nbChildren++;
         fullHeight += subTextArea->obj.area.height + subTextArea->obj.alignmentMarginY;
+        fullHeight += POST_SUBTEXT_MARGIN;
     }
     else {
         fullHeight += PRE_TEXT_MARGIN;
