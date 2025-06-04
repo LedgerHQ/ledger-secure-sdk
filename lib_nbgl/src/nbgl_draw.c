@@ -414,14 +414,26 @@ void nbgl_drawRoundedBorderedRect(const nbgl_area_t *area,
         circle_width                         = half_icon->width;
     }
     if ((2 * circle_width) < area->width) {
-        rectArea.x0     = area->x0;
-        rectArea.y0     = area->y0;
-        rectArea.width  = area->width;
-        rectArea.height = stroke;
-        nbgl_frontDrawLine(&rectArea, 0, borderColor);  // top
-        rectArea.x0 = area->x0;
-        rectArea.y0 = area->y0 + area->height - stroke;
-        nbgl_frontDrawLine(&rectArea, 0, borderColor);  // bottom
+        if ((area->height - stroke) > VERTICAL_ALIGNMENT) {
+            rectArea.height = stroke;
+            nbgl_frontDrawLine(&rectArea, 0, borderColor);  // top
+            rectArea.y0 = area->y0 + area->height - stroke;
+            nbgl_frontDrawLine(&rectArea, 0, borderColor);  // bottom
+        }
+        else {
+            uint8_t  pattern = 0;
+            uint32_t i;
+            for (i = 0; i < stroke; i++) {
+                pattern |= 1 << (7 - i);
+            }
+            for (i = area->height - stroke; i < area->height; i++) {
+                pattern |= 1 << (7 - i);
+            }
+            memset(ramBuffer, pattern, area->width);
+            rectArea.height = 8;
+            rectArea.bpp    = NBGL_BPP_1;
+            nbgl_frontDrawImage(&rectArea, ramBuffer, NO_TRANSFORMATION, borderColor);
+        }
     }
     if ((2 * radius) < area->height) {
         rectArea.x0              = area->x0;
@@ -727,6 +739,26 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
 }
 
 #ifdef NBGL_QRCODE
+#ifdef TARGET_APEX
+static void push_bits(uint8_t *buffer, uint16_t current_bits, uint8_t bits, uint8_t nb_bits)
+{
+    uint8_t byte           = current_bits / 8;
+    uint8_t remaining_bits = 8 - current_bits % 8;
+
+    if (remaining_bits >= nb_bits) {
+        // put bits in possible MSB
+        buffer[byte] |= bits << (remaining_bits - nb_bits);
+    }
+    else {
+        // manage MSB
+        buffer[byte] |= bits >> (nb_bits - remaining_bits);
+        nb_bits -= remaining_bits;
+        // then LSB
+        buffer[byte + 1] |= bits << (8 - nb_bits);
+    }
+}
+#endif  // TARGET_APEX
+
 static void nbgl_frontDrawQrInternal(const nbgl_area_t    *area,
                                      color_t               foregroundColor,
                                      nbgl_qrcode_version_t version)
@@ -740,6 +772,7 @@ static void nbgl_frontDrawQrInternal(const nbgl_area_t    *area,
                           // QR codes are 1 BPP only
                           .bpp = NBGL_BPP_1};
     if (version == QRCODE_V4) {
+#ifndef TARGET_APEX
         // for each point of the V4 QR code, paint 64 pixels in image (8 in width, 8 in height)
         qrArea.width  = 2;
         qrArea.height = QR_PIXEL_WIDTH_HEIGHT * 2 * size;
@@ -761,6 +794,23 @@ static void nbgl_frontDrawQrInternal(const nbgl_area_t    *area,
             nbgl_frontDrawImage(&qrArea, QrDrawBuffer, NO_TRANSFORMATION, foregroundColor);
             qrArea.x0 += 2;
         }
+#else   // TARGET_APEX
+        // for each point of the V4 QR code, paint 5*5 pixels in image
+        qrArea.width  = 1;
+        qrArea.height = 5 * size;
+        for (int x = 0; x < size; x++) {
+            idx = 0;
+            memset(QrDrawBuffer, 0, (size * 5 + 7) / 8);
+            // paint a column of 5*size pixels in width by 5 pixels in height
+            for (int y = 0; y < size; y++) {
+                push_bits(QrDrawBuffer, 5 * y, qrcodegen_getModule(qrcode, x, y) ? 0x1F : 0x00, 5);
+            }
+            for (int z = 0; z < 5; z++) {
+                nbgl_frontDrawImage(&qrArea, QrDrawBuffer, NO_TRANSFORMATION, foregroundColor);
+                qrArea.x0 += 1;
+            }
+        }
+#endif  // TARGET_APEX
     }
     else {  // V4 small or V10
         // for each point of the V10 QR code, paint 16 pixels in image (4 in width, 4 in height)
