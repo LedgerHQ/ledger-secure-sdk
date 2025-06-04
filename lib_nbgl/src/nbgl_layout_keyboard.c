@@ -376,7 +376,7 @@ static nbgl_container_t *addTextEntry(nbgl_layoutInternal_t *layoutInt,
         return NULL;
     }
     image->obj.alignment              = MID_RIGHT;
-    image->obj.alignTo                = container->children[1];
+    image->obj.alignTo                = container->children[TEXT_INDEX];
     image->obj.alignmentMarginX       = NUMBER_TEXT_SPACE;
     image->obj.touchMask              = (1 << TOUCHED);
     image->obj.touchId                = ENTERED_TEXT_ID;
