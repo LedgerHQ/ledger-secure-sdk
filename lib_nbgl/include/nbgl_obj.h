@@ -624,20 +624,23 @@ typedef struct PACKED__ nbgl_keyboard_s {
  *
  */
 typedef struct PACKED__ nbgl_keypad_s {
-    nbgl_obj_t obj;  ///< common part
+    nbgl_obj_t         obj;       ///< common part
+    keyboardCallback_t callback;  ///< function called when an active key is pressed
 #ifdef SCREEN_SIZE_WALLET
-    color_t borderColor;                 ///< color set to key borders
-    bool    softValidation;              ///< if true, the "check icon" is replaced by an arrow
-    bool    enableDigits;                ///< if true, Digit keys are enabled
-    bool    partial;                     ///< if true, means that only some keys have changed
-    uint8_t digitIndexes[5];             ///< array of digits indexes, 4 bits per digit
-#else                                    // SCREEN_SIZE_WALLET
-    uint8_t selectedKey;  ///< selected key position
-#endif                                   // SCREEN_SIZE_WALLET
-    bool               enableBackspace;  ///< if true, Backspace key is enabled
-    bool               enableValidate;   ///< if true, Validate key is enabled
-    bool               shuffled;         ///< if true, Digit keys are shuffled
-    keyboardCallback_t callback;         ///< function called when an active key is pressed
+    uint8_t softValidation : 1;   ///< if true, the "check icon" is replaced by an arrow
+    uint8_t enableDigits : 1;     ///< if true, Digit keys are enabled
+    uint8_t digitsChanged : 1;    ///< if true, means that only digit keys have changed
+    uint8_t validateChanged : 1;  ///< if true, means that validate key has changed
+    uint8_t enableBackspace : 1;  ///< if true, Backspace key is enabled
+    uint8_t enableValidate : 1;   ///< if true, Validate key is enabled
+    uint8_t shuffled : 1;         ///< if true, Digit keys are shuffled
+    uint8_t digitIndexes[5];      ///< array of digits indexes, 4 bits per digit
+#else                             // SCREEN_SIZE_WALLET
+    uint8_t selectedKey : 5;      ///< selected key position
+    uint8_t enableBackspace : 1;  ///< if true, Backspace key is enabled
+    uint8_t enableValidate : 1;   ///< if true, Validate key is enabled
+    uint8_t shuffled : 1;         ///< if true, Digit keys are shuffled
+#endif                            // SCREEN_SIZE_WALLET
 } nbgl_keypad_t;
 
 /**
