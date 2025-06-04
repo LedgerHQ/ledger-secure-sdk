@@ -356,8 +356,8 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
                     G_io_tx_buffer[1] = err;
                     status            = os_io_tx_cmd(io_os_legacy_apdu_type, G_io_tx_buffer, 2, 0);
                 }
-                else if ((G_io_rx_buffer[APDU_OFF_CLA + 1] == DEFAULT_APDU_CLA)
-                         && (G_io_rx_buffer[0] != OS_IO_PACKET_TYPE_USB_U2F_HID_APDU)) {
+#ifndef HAVE_BOLOS_NO_DEFAULT_APDU
+                else if (G_io_rx_buffer[APDU_OFF_CLA + 1] == DEFAULT_APDU_CLA) {
                     size_t      buffer_out_length = sizeof(G_io_rx_buffer);
                     bolos_err_t err               = os_io_handle_default_apdu(&G_io_rx_buffer[1],
                                                                 status - 1,
@@ -379,12 +379,17 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
                         status = 0;
                     }
                 }
+#endif  // HAVE_BOLOS_NO_DEFAULT_APDU
                 else {
                     G_io_app.apdu_media = get_media_from_apdu_type(io_os_legacy_apdu_type);
                     status -= 1;
                     memmove(G_io_apdu_buffer, &G_io_rx_buffer[1], status);
 #ifdef HAVE_IO_U2F
-                    if (io_os_legacy_apdu_type == APDU_TYPE_USB_U2F) {
+                    if (io_os_legacy_apdu_type == APDU_TYPE_USB_HID) {
+                        G_io_u2f.media      = U2F_MEDIA_USB;
+                        G_io_app.apdu_state = APDU_USB_HID;
+                    }
+                    else if (io_os_legacy_apdu_type == APDU_TYPE_USB_U2F) {
                         G_io_u2f.media      = U2F_MEDIA_USB;
                         G_io_app.apdu_state = APDU_U2F;
                     }
