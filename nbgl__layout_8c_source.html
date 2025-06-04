@@ -1123,10 +1123,10 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l01070" name="l01070"></a><span class="lineno"> 1070</span>        <span class="keywordflow">else</span> {</div>
 <div class="line"><a id="l01071" name="l01071"></a><span class="lineno"> 1071</span>            subTextArea-&gt;obj.alignmentMarginY = PRE_SUBTEXT_MARGIN;</div>
 <div class="line"><a id="l01072" name="l01072"></a><span class="lineno"> 1072</span>        }</div>
-<div class="line"><a id="l01073" name="l01073"></a><span class="lineno"> 1073</span>        fullHeight += subTextArea-&gt;obj.alignmentMarginY;</div>
-<div class="line"><a id="l01074" name="l01074"></a><span class="lineno"> 1074</span>        container-&gt;children[container-&gt;nbChildren] = (<a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *) subTextArea;</div>
-<div class="line"><a id="l01075" name="l01075"></a><span class="lineno"> 1075</span>        container-&gt;nbChildren++;</div>
-<div class="line"><a id="l01076" name="l01076"></a><span class="lineno"> 1076</span>        fullHeight += subTextArea-&gt;obj.area.height + subTextArea-&gt;obj.alignmentMarginY;</div>
+<div class="line"><a id="l01073" name="l01073"></a><span class="lineno"> 1073</span>        container-&gt;children[container-&gt;nbChildren] = (<a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *) subTextArea;</div>
+<div class="line"><a id="l01074" name="l01074"></a><span class="lineno"> 1074</span>        container-&gt;nbChildren++;</div>
+<div class="line"><a id="l01075" name="l01075"></a><span class="lineno"> 1075</span>        fullHeight += subTextArea-&gt;obj.area.height + subTextArea-&gt;obj.alignmentMarginY;</div>
+<div class="line"><a id="l01076" name="l01076"></a><span class="lineno"> 1076</span>        fullHeight += POST_SUBTEXT_MARGIN;</div>
 <div class="line"><a id="l01077" name="l01077"></a><span class="lineno"> 1077</span>    }</div>
 <div class="line"><a id="l01078" name="l01078"></a><span class="lineno"> 1078</span>    <span class="keywordflow">else</span> {</div>
 <div class="line"><a id="l01079" name="l01079"></a><span class="lineno"> 1079</span>        fullHeight += PRE_TEXT_MARGIN;</div>
