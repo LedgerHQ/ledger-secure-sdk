@@ -368,6 +368,7 @@ static void keyboardDrawLetters(nbgl_keyboard_t *keyboard)
             rectArea.backgroundColor = (keyboard->casing != LOWER_CASE) ? BLACK : WHITE;
             nbgl_frontDrawLine(&rectArea, 0, keyboard->borderColor);
             rectArea.y0 += KEYBOARD_KEY_HEIGHT;
+            rectArea.backgroundColor = WHITE;
             nbgl_frontDrawLine(&rectArea, 0, keyboard->borderColor);
         }
         // draw Shift key

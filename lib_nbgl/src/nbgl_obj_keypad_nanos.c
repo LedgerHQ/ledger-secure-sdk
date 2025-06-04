@@ -255,7 +255,7 @@ void nbgl_objDrawKeypad(nbgl_keypad_t *keypad)
     LOG_DEBUG(OBJ_LOGGER, "nbgl_objDrawKeypad keypad->shuffled= %d\n", keypad->shuffled);
     // draw digits content
     keypadDrawDigits(keypad);
-    if (keypad->selectedKey == 0xFF) {
+    if (keypad->selectedKey == KEYPAD_REINIT_KEYS) {
         keypadInitSelected(keypad);
     }
     keypadDrawSelected(keypad);
