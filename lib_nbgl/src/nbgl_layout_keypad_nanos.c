@@ -91,7 +91,7 @@ int nbgl_layoutAddKeypad(nbgl_layout_t     *layout,
     keypad->callback             = PIC(callback);
     keypad->enableBackspace      = false;
     keypad->enableValidate       = false;
-    keypad->selectedKey          = 0xFF;  // to be picked
+    keypad->selectedKey          = KEYPAD_REINIT_KEYS;  // to be picked
     keypad->shuffled             = shuffled;
     // set this new keypad as child of the container
     layoutAddObject(layoutInt, (nbgl_obj_t *) keypad);
@@ -137,7 +137,7 @@ int nbgl_layoutUpdateKeypad(nbgl_layout_t *layout,
     }
     // Shuffle if selected key was not backspace or if the last pin entry has been deleted
     else if ((keypad->selectedKey != 0) || (keypad->enableBackspace && !enableBackspace)) {
-        keypad->selectedKey = 0xFF;
+        keypad->selectedKey = KEYPAD_REINIT_KEYS;
     }
     keypad->enableValidate  = enableValidate;
     keypad->enableBackspace = enableBackspace;
