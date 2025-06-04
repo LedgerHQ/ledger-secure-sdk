@@ -104,12 +104,13 @@ int nbgl_layoutAddKeypad(nbgl_layout_t *layout, keyboardCallback_t callback, boo
     keypad->obj.alignTo          = NULL;
     keypad->obj.area.width       = SCREEN_WIDTH;
     keypad->obj.area.height      = 4 * KEYPAD_KEY_HEIGHT;
-    keypad->borderColor          = LIGHT_GRAY;
     keypad->callback             = PIC(callback);
     keypad->enableDigits         = true;
     keypad->enableBackspace      = false;
     keypad->enableValidate       = false;
     keypad->shuffled             = shuffled;
+    keypad->digitsChanged        = true;
+    keypad->validateChanged      = true;
 
     // the keypad occupies the footer
     layoutInt->footerContainer = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
@@ -168,7 +169,8 @@ int nbgl_layoutUpdateKeypad(nbgl_layout_t *layout,
         return -1;
     }
     // partial redraw only if only validate and backspace have changed
-    keypad->partial         = (keypad->enableDigits == enableDigits);
+    keypad->digitsChanged   = (keypad->enableDigits != enableDigits);
+    keypad->validateChanged = (keypad->enableValidate != enableValidate);
     keypad->enableValidate  = enableValidate;
     keypad->enableBackspace = enableBackspace;
     keypad->enableDigits    = enableDigits;
