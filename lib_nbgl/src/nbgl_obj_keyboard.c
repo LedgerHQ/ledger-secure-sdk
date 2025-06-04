@@ -333,20 +333,43 @@ static void keyboardDrawLetters(nbgl_keyboard_t *keyboard)
     uint16_t offsetX;
     if (!keyboard->lettersOnly) {
         // draw background rectangle
-        rectArea.width           = SHIFT_KEY_WIDTH - 1;
-        rectArea.height          = KEYBOARD_KEY_HEIGHT;
+#if defined(TARGET_STAX)
+        rectArea.width  = SHIFT_KEY_WIDTH - 1;
+        rectArea.height = KEYBOARD_KEY_HEIGHT;
+        rectArea.x0     = 1;
+#elif defined(TARGET_FLEX)
+        rectArea.width  = SHIFT_KEY_WIDTH;
+        rectArea.height = KEYBOARD_KEY_HEIGHT;
+        rectArea.x0     = 0;
+#elif defined(TARGET_APEX)
+        if (keyboard->casing == LOWER_CASE) {
+            rectArea.width = SHIFT_KEY_WIDTH;
+        }
+        else {
+            rectArea.width = SHIFT_KEY_WIDTH + 1;
+        }
+        rectArea.height = KEYBOARD_KEY_HEIGHT + 1;
+        rectArea.x0     = 0;
+#endif
         rectArea.bpp             = NBGL_BPP_1;
         rectArea.y0              = keyboard->obj.area.y0 + KEYBOARD_KEY_HEIGHT * 2;
-        rectArea.x0              = 1;
         rectArea.backgroundColor = (keyboard->casing != LOWER_CASE) ? BLACK : WHITE;
         nbgl_frontDrawRect(&rectArea);
-        // draw horizontal line
-        rectArea.width           = SHIFT_KEY_WIDTH - 1;
-        rectArea.height          = 1;
-        rectArea.x0              = 1;
-        rectArea.y0              = keyboard->obj.area.y0 + KEYBOARD_KEY_HEIGHT * 2;
-        rectArea.backgroundColor = (keyboard->casing != LOWER_CASE) ? BLACK : WHITE;
-        nbgl_frontDrawLine(&rectArea, 0, keyboard->borderColor);
+
+        // draw top & bottom horizontal lines (on Apex, only if in lower case)
+#ifdef TARGET_APEX
+        if (keyboard->casing == LOWER_CASE)
+#endif
+        {
+            rectArea.width           = SHIFT_KEY_WIDTH - 1;
+            rectArea.height          = 1;
+            rectArea.x0              = 1;
+            rectArea.y0              = keyboard->obj.area.y0 + KEYBOARD_KEY_HEIGHT * 2;
+            rectArea.backgroundColor = (keyboard->casing != LOWER_CASE) ? BLACK : WHITE;
+            nbgl_frontDrawLine(&rectArea, 0, keyboard->borderColor);
+            rectArea.y0 += KEYBOARD_KEY_HEIGHT;
+            nbgl_frontDrawLine(&rectArea, 0, keyboard->borderColor);
+        }
         // draw Shift key
         rectArea.width  = SHIFT_ICON.width;
         rectArea.height = SHIFT_ICON.height;
