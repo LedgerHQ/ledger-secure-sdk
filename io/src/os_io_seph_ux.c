@@ -144,13 +144,16 @@ int io_process_itc_ux_event(uint8_t *buffer_in, size_t buffer_in_length)
 #if !defined(HAVE_BOLOS) && defined(HAVE_BAGL)
         case ITC_UX_REDISPLAY:
             ux_stack_redisplay();
+            status = 0;
             break;
 #endif  // HAVE_BOLOS && HAVE_BAGL
+
 #if !defined(HAVE_BOLOS) && defined(HAVE_NBGL)
         case ITC_UX_REDISPLAY:
             nbgl_objAllowDrawing(true);
             nbgl_screenRedraw();
             nbgl_refresh();
+            status = 0;
             break;
 #endif  // HAVE_BOLOS && HAVE_NBGL
 
