@@ -614,8 +614,8 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
                                                          handle->backup_message,
                                                          handle->backup_message_length,
                                                          0);
-                        handle->user_presence = LEDGER_HID_U2F_USER_PRESENCE_IDLE;
                     }
+                    handle->user_presence = LEDGER_HID_U2F_USER_PRESENCE_IDLE;
                 }
                 else {
                     buffer[0] = OS_IO_PACKET_TYPE_USB_U2F_HID_APDU;
