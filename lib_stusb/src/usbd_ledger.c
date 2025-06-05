@@ -159,6 +159,9 @@ static uint8_t init(USBD_HandleTypeDef *pdev, uint8_t cfg_idx)
 
             // Open EP IN
             if (end_point_info->ep_in_addr != 0xFF) {
+                if ((end_point_info->ep_in_addr & 0x0F) >= IO_USB_MAX_ENDPOINTS) {
+                    return USBD_FAIL;
+                }
                 USBD_LL_OpenEP(pdev,
                                end_point_info->ep_in_addr,
                                end_point_info->ep_type,
@@ -168,6 +171,9 @@ static uint8_t init(USBD_HandleTypeDef *pdev, uint8_t cfg_idx)
 
             // Open EP OUT
             if (end_point_info->ep_out_addr != 0xFF) {
+                if ((end_point_info->ep_out_addr & 0x0F) >= IO_USB_MAX_ENDPOINTS) {
+                    return USBD_FAIL;
+                }
                 USBD_LL_OpenEP(pdev,
                                end_point_info->ep_out_addr,
                                end_point_info->ep_type,
@@ -200,12 +206,18 @@ static uint8_t de_init(USBD_HandleTypeDef *pdev, uint8_t cfg_idx)
 
             // Close EP IN
             if (end_point_info->ep_in_addr != 0xFF) {
+                if ((end_point_info->ep_in_addr & 0x0F) >= IO_USB_MAX_ENDPOINTS) {
+                    return USBD_FAIL;
+                }
                 USBD_LL_CloseEP(pdev, end_point_info->ep_in_addr);
                 pdev->ep_in[end_point_info->ep_in_addr & 0x0F].is_used = 0;
             }
 
             // Close EP OUT
             if (end_point_info->ep_out_addr != 0xFF) {
+                if ((end_point_info->ep_out_addr & 0x0F) >= IO_USB_MAX_ENDPOINTS) {
+                    return USBD_FAIL;
+                }
                 USBD_LL_CloseEP(pdev, end_point_info->ep_out_addr);
                 pdev->ep_out[end_point_info->ep_out_addr & 0x0F].is_used = 0;
             }
@@ -261,6 +273,10 @@ static uint8_t data_out(USBD_HandleTypeDef *pdev, uint8_t ep_num)
 {
     uint8_t ret   = USBD_OK;
     uint8_t index = 0;
+
+    if ((ep_num & 0x7F) >= IO_USB_MAX_ENDPOINTS) {
+        return USBD_FAIL;
+    }
 
     usbd_class_info_t     *class_info     = NULL;
     usbd_end_point_info_t *end_point_info = NULL;
@@ -688,6 +704,9 @@ void USBD_LEDGER_rx_evt_data_in(uint8_t ep_num, uint8_t *buffer)
 void USBD_LEDGER_rx_evt_data_out(uint8_t ep_num, uint8_t *buffer, uint16_t length)
 {
     if (!is_running()) {
+        return;
+    }
+    if ((ep_num & 0x7F) >= IO_USB_MAX_ENDPOINTS) {
         return;
     }
     usbd_ledger_data.usb_ep_xfer_len[ep_num & 0x7F]    = length;
