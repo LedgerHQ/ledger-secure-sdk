@@ -137,7 +137,7 @@ const ble_profile_info_t BLE_LEDGER_PROFILE_apdu_info = {
 /* Private functions ---------------------------------------------------------*/
 static void notify_chunk(ledger_ble_profile_apdu_handle_t *handle)
 {
-    if (handle->protocol_data.tx_chunk_length >= 2) {
+    if ((handle->protocol_data.tx_chunk_length >= 2) && sizeof(ble_ledger_protocol_chunk_buffer) >= handle->protocol_data.tx_chunk_length) {
         ble_aci_gatt_forge_cmd_update_char_value(handle->cmd_data,
                                                  handle->gatt_service_handle,
                                                  handle->gatt_notification_characteristic_handle,
