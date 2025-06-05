@@ -225,7 +225,14 @@ void LEDGER_PROTOCOL_tx(ledger_protocol_t *handle,
         U2BE_ENCODE(proto_buf, tx_chunk_offset, handle->tx_apdu_length);
         tx_chunk_offset += 2;
     }
+    if (!handle->mtu) {
+        return;
+    }
+
     if ((handle->tx_apdu_length + tx_chunk_offset) > (handle->mtu + handle->tx_apdu_offset)) {
+        if (handle->mtu < tx_chunk_offset) {
+            return;
+        }
         // Remaining buffer length doesn't fit the chunk
         memcpy(&proto_buf[tx_chunk_offset],
                &handle->tx_apdu_buffer[handle->tx_apdu_offset],
