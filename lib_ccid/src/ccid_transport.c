@@ -15,6 +15,7 @@
  *****************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
+#include <stdint.h>
 #include <string.h>
 #include "os.h"
 
@@ -92,8 +93,15 @@ void CCID_TRANSPORT_rx(ccid_transport_t *handle, uint8_t *buffer, uint16_t lengt
         }
     }
     else if (handle->rx_msg_status == CCID_MSG_STATUS_NEED_MORE_DATA) {
+        // used for secure memmove
+        uint16_t movelength = 0;
         if (handle->bulk_msg_header.out.length <= (handle->rx_msg_length + length)) {
             // Msg is complete
+            if (__builtin_sub_overflow(
+                    handle->bulk_msg_header.out.length, handle->rx_msg_length, &movelength)
+                || handle->rx_msg_buffer_size <= movelength) {
+                return;
+            }
             memmove(&handle->rx_msg_buffer[handle->rx_msg_length],
                     buffer,
                     handle->bulk_msg_header.out.length - handle->rx_msg_length);
@@ -104,6 +112,10 @@ void CCID_TRANSPORT_rx(ccid_transport_t *handle, uint8_t *buffer, uint16_t lengt
         }
         else {
             // Msg not complete
+            if (__builtin_add_overflow(length, handle->rx_msg_length, &movelength)
+                || handle->rx_msg_buffer_size <= movelength) {
+                return;
+            }
             memmove(&handle->rx_msg_buffer[handle->rx_msg_length], buffer, length);
             handle->rx_msg_length += length;
             LOG_IO("CCID not complete\n");
