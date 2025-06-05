@@ -228,6 +228,9 @@ void LEDGER_PROTOCOL_tx(ledger_protocol_t *handle,
         tx_chunk_offset = handle->mtu;
     }
     else {
+        if (handle->tx_apdu_length - handle->tx_apdu_offset > proto_buf_size - tx_chunk_offset) {
+            return;
+        }
         // Remaining buffer fits the chunk
         memcpy(&proto_buf[tx_chunk_offset],
                &handle->tx_apdu_buffer[handle->tx_apdu_offset],
