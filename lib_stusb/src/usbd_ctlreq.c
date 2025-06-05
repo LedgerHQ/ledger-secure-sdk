@@ -180,6 +180,10 @@ USBD_StatusTypeDef USBD_StdEPReq(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef 
     USBD_EndpointTypeDef *pep     = NULL;
     uint8_t               ep_addr = LOBYTE(req->wIndex);
 
+    if ((ep_addr & 0x7FU) >= IO_USB_MAX_ENDPOINTS) {
+        return USBD_FAIL;
+    }
+
     switch (req->bmRequest & USB_REQ_TYPE_MASK) {
         case USB_REQ_TYPE_CLASS:
         case USB_REQ_TYPE_VENDOR:
@@ -275,6 +279,9 @@ USBD_StatusTypeDef USBD_StdEPReq(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef 
 
                             pep = ((ep_addr & 0x80U) == 0x80U) ? &pdev->ep_in[ep_addr & 0x7FU]
                                                                : &pdev->ep_out[ep_addr & 0x7FU];
+                            if ((ep_addr & 0x7fU) >= IO_USB_MAX_ENDPOINTS) {
+                                break;
+                            }
 
                             if ((ep_addr == 0x00U) || (ep_addr == 0x80U)) {
                                 pep->status = 0x0000U;

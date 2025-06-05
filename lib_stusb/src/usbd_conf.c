@@ -103,7 +103,7 @@ USBD_StatusTypeDef USBD_LL_OpenEP(USBD_HandleTypeDef *pdev,
 
     UNUSED(pdev);
 
-    if ((ep_addr & 0x7F) >= 8) {
+    if ((ep_addr & 0x7F) >= IO_USB_MAX_ENDPOINTS) {
         return USBD_FAIL;
     }
 
@@ -152,7 +152,7 @@ USBD_StatusTypeDef USBD_LL_CloseEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
 
     UNUSED(pdev);
 
-    if ((ep_addr & 0x7F) >= 8) {
+    if ((ep_addr & 0x7F) >= IO_USB_MAX_ENDPOINTS) {
         return USBD_FAIL;
     }
 
@@ -173,7 +173,7 @@ USBD_StatusTypeDef USBD_LL_FlushEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
 {
     UNUSED(pdev);
 
-    if ((ep_addr & 0x7F) >= 8) {
+    if ((ep_addr & 0x7F) >= IO_USB_MAX_ENDPOINTS) {
         return USBD_FAIL;
     }
 
@@ -186,7 +186,7 @@ USBD_StatusTypeDef USBD_LL_StallEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
 
     UNUSED(pdev);
 
-    if ((ep_addr & 0x7F) >= 8) {
+    if ((ep_addr & 0x7F) >= IO_USB_MAX_ENDPOINTS) {
         return USBD_FAIL;
     }
 
@@ -214,7 +214,7 @@ USBD_StatusTypeDef USBD_LL_ClearStallEP(USBD_HandleTypeDef *pdev, uint8_t ep_add
 
     UNUSED(pdev);
 
-    if ((ep_addr & 0x7F) >= 8) {
+    if ((ep_addr & 0x7F) >= IO_USB_MAX_ENDPOINTS) {
         return USBD_FAIL;
     }
 
@@ -240,7 +240,7 @@ uint8_t USBD_LL_IsStallEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
 {
     UNUSED(pdev);
 
-    if ((ep_addr & 0x7F) >= 8) {
+    if ((ep_addr & 0x7F) >= IO_USB_MAX_ENDPOINTS) {
         return 0;
     }
 
@@ -279,7 +279,7 @@ USBD_StatusTypeDef USBD_LL_Transmit(USBD_HandleTypeDef *pdev,
 
     UNUSED(pdev);
 
-    if ((ep_addr & 0x7F) >= 8) {
+    if ((ep_addr & 0x7F) >= IO_USB_MAX_ENDPOINTS) {
         return USBD_FAIL;
     }
 
@@ -316,7 +316,7 @@ USBD_StatusTypeDef USBD_LL_PrepareReceive(USBD_HandleTypeDef *pdev,
     UNUSED(pdev);
     UNUSED(pbuf);
 
-    if ((ep_addr & 0x7F) >= 8) {
+    if ((ep_addr & 0x7F) >= IO_USB_MAX_ENDPOINTS) {
         return USBD_FAIL;
     }
 
