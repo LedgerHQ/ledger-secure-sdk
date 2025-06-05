@@ -119,10 +119,14 @@ static u2f_error_t process_packet(u2f_transport_t *handle, uint8_t *buffer, uint
         length -= 1;
     }
 
-    if ((handle->rx_message_offset + length) > handle->rx_message_length) {
+    // prevent integer underflows in the rest of the operations
+    if (handle->rx_message_length < handle->rx_message_offset) {
+        error = CTAP1_ERR_OTHER;
+        goto end;
+    }
+    if (length > handle->rx_message_length - handle->rx_message_offset) {
         length = handle->rx_message_length - handle->rx_message_offset;
     }
-
     memcpy(&handle->rx_message_buffer[handle->rx_message_offset], buffer, length);
     handle->rx_message_offset += length;
 
