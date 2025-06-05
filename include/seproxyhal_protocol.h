@@ -3,10 +3,48 @@
 #pragma once
 
 /* Includes ------------------------------------------------------------------*/
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
+
+#include "os_utils.h"
 
 /* Exported enumerations -----------------------------------------------------*/
 
 /* Exported types, structures, unions ----------------------------------------*/
+typedef struct seph_s {
+    uint8_t  tag;
+    uint16_t size;
+    uint8_t *data;
+} seph_t;
+
+static inline size_t seph_get_header_size(void)
+{
+    seph_t tmp = {0};
+    return sizeof(tmp.tag) + sizeof(tmp.size);
+}
+
+static inline bool seph_parse_header(const uint8_t *buf, size_t size, seph_t *seph)
+{
+    bool   status      = false;
+    seph_t tmp_seph    = {0};
+    size_t header_size = seph_get_header_size();
+    if (!buf | !seph || (size < header_size)) {
+        goto error;
+    }
+    tmp_seph.tag  = buf[0];
+    tmp_seph.size = U2BE(buf, sizeof(tmp_seph.tag));
+    if (tmp_seph.size > (size - header_size)) {
+        goto error;
+    }
+    tmp_seph.data = (uint8_t *) &buf[header_size];
+    *seph         = tmp_seph;
+
+    status = true;
+
+error:
+    return status;
+}
 
 ////////////
 // EVENTS //
