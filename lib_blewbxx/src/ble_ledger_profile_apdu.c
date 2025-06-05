@@ -457,7 +457,7 @@ ble_profile_status_t BLE_LEDGER_PROFILE_apdu_mtu_changed(uint16_t mtu, void *coo
     }
 
     ble_profile_status_t status = BLE_PROFILE_STATUS_BAD_PARAMETERS;
-    if (mtu <= BLE_ATT_MAX_MTU_SIZE) {
+    if (mtu && (mtu <= BLE_ATT_MAX_MTU_SIZE)) {
         ledger_ble_profile_apdu_handle_t *handle = (ledger_ble_profile_apdu_handle_t *) PIC(cookie);
 
         handle->protocol_data.mtu = mtu - 1;
