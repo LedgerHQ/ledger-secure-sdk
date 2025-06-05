@@ -391,7 +391,7 @@ void ble_aci_gatt_forge_cmd_write_resp(ble_cmd_data_t *cmd_data,
                                        const uint8_t  *attribute_val)
 {
     if ((!cmd_data)
-        || ((uint16_t) (attribute_val_length + 8) > (uint16_t) sizeof(cmd_data->hci_cmd_buffer))) {
+        || ((uint16_t) (attribute_val_length + 9) > (uint16_t) sizeof(cmd_data->hci_cmd_buffer))) {
         return;
     }
 
