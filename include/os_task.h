@@ -85,9 +85,3 @@ SYSCALL unsigned int os_sched_create(void *main   PLENGTH(4),
 
 // kill a task
 SYSCALL void os_sched_kill(unsigned int taskidx);
-
-typedef struct {
-    void (*asynchmodal_end_callback)(unsigned int ux_status);
-} bolos_ux_asynch_callback_t;
-
-extern bolos_ux_asynch_callback_t G_io_asynch_ux_callback;

@@ -33,6 +33,8 @@ DEFINES += API_LEVEL=$(API_LEVEL)
 APP_METADATA_LIST := TARGET TARGET_NAME APPVERSION SDK_NAME SDK_VERSION SDK_HASH
 DEFINES += $(foreach item,$(APP_METADATA_LIST), $(item)=\"$($(item))\")
 
+# Use new io architecture
+DEFINES += REVAMPED_IO
 
 ### platform definitions
 DEFINES += gcc __IO=volatile
@@ -188,6 +190,8 @@ DEFINES += BAGL_WIDTH=128
 DEFINES += SCREEN_SIZE_NANO
 DEFINES += HAVE_BAGL
 endif # TARGET_NANOS
+
+DEFINES += OS_IO_SEPH_BUFFER_SIZE=272
 
 ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOX TARGET_NANOS2))
 # Screen is directly connected to the SE
