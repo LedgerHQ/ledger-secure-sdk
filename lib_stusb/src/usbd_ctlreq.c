@@ -322,6 +322,10 @@ static void USBD_GetDescriptor(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *r
     uint8_t *pbuf = NULL;
     uint8_t  err  = 0U;
 
+    if (pdev->pDesc == NULL) {
+        USBD_CtlError(pdev, req);
+        return;
+    }
     switch (req->wValue >> 8) {
         case USB_DESC_TYPE_BOS:
             if (pdev->pDesc->GetBOSDescriptor != NULL) {
