@@ -229,7 +229,7 @@ bolos_err_t os_io_handle_default_apdu(uint8_t                  *buffer_in,
 #endif  // HAVE_LEDGER_PKI
 
             default:
-                err = 0x6e01;
+                err = 0x6e00;
                 goto end;
                 break;
         }

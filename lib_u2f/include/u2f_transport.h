@@ -4,6 +4,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include <stdint.h>
+#include "u2f_types.h"
 
 /* Exported enumerations -----------------------------------------------------*/
 typedef enum {
@@ -17,6 +18,9 @@ typedef struct {
 
     uint32_t cid;
     uint8_t  state;
+
+    u2f_error_t error;
+    uint32_t    tx_cid;
 
     const uint8_t *tx_message_buffer;
     uint16_t       tx_message_length;
