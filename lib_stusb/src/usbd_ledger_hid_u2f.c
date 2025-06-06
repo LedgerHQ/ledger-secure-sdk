@@ -207,8 +207,8 @@ uint8_t USBD_LEDGER_HID_U2F_init(USBD_HandleTypeDef *pdev, void *cookie)
     handle->transport_data.tx_packet_buffer       = u2f_transport_packet_buffer;
     handle->transport_data.tx_packet_buffer_size  = sizeof(u2f_transport_packet_buffer);
 
-    handle->message_crc    = 0;
-    handle->user_presence  = LEDGER_HID_U2F_USER_PRESENCE_IDLE;
+    handle->message_crc   = 0;
+    handle->user_presence = LEDGER_HID_U2F_USER_PRESENCE_IDLE;
 
     handle->os_context = 0;
 
@@ -566,6 +566,16 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
             }
             else {
                 // Check length
+                // Only Extended encoding is supported
+                // APDU_MIN_HEADER:
+                //     Either short or extended encoding with Lc and Le omitted
+                // APDU_MIN_HEADER + 1:
+                //     Short encoding, with next byte either Le or Lc with the other one omitted
+                //     There is no way to tell so no way to check the value
+                //     but anyway the data length is 0
+                //     Support this particular short encoding APDU as Fido Conformance Tool v1.7.0
+                //     is using it even though spec requires that short encoding should not be used
+                //     over HID.
                 bool length_ok = true;
                 if ((handle->transport_data.rx_message_length < APDU_MIN_HEADER)
                     || (handle->transport_data.rx_message_length == (APDU_MIN_HEADER + 2))) {
@@ -573,15 +583,16 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
                 }
                 else if (handle->transport_data.rx_message_length == (APDU_MIN_HEADER + 3)) {
                     if (buffer[APDU_MIN_HEADER] != 0) {
+                        // Short encoding or bad length
+                        // We don't support short encoding
                         length_ok = false;
                     }
+                    // Can't be short encoding as Lc = 0x00 would lead to invalid length
+                    // so extended encoding and either:
+                    // - Lc = 0x00 0x00 0x00 and Le is omitted
+                    // - Lc omitted and Le = 0x00 0xyy 0xzz
+                    // so no way to check the value
                 }
-                /*else if (buffer[APDU_MIN_HEADER] != 0) {
-                    PRINTF("Bof3 %d %02X\n",
-                           handle->transport_data.rx_message_length,
-                           buffer[APDU_MIN_HEADER]);
-                    length_ok = false;
-                }*/
 
                 uint16_t crc = cx_crc16_update(0,
                                                handle->transport_data.rx_message_buffer,
@@ -617,9 +628,13 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
                     }
                     handle->user_presence = LEDGER_HID_U2F_USER_PRESENCE_IDLE;
                 }
+                else if (max_length < handle->transport_data.rx_message_length - 2) {
+                    error_msg[1] = CTAP1_ERR_INVALID_LENGTH;
+                    USBD_LEDGER_HID_U2F_send_message(
+                        pdev, cookie, OS_IO_PACKET_TYPE_USB_U2F_HID_APDU, error_msg, 2, 0);
+                }
                 else {
                     buffer[0] = OS_IO_PACKET_TYPE_USB_U2F_HID_APDU;
-                    // TODO_IO : check max length
                     memmove(&buffer[1],
                             &handle->transport_data.rx_message_buffer[3],
                             handle->transport_data.rx_message_length - 3);
@@ -638,9 +653,13 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
                 USBD_LEDGER_HID_U2F_send_message(
                     pdev, cookie, OS_IO_PACKET_TYPE_USB_U2F_HID_RAW, error_msg, 2, 0);
             }
+            else if (max_length < handle->transport_data.rx_message_length - 2) {
+                error_msg[1] = CTAP1_ERR_INVALID_LENGTH;
+                USBD_LEDGER_HID_U2F_send_message(
+                    pdev, cookie, OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR, error_msg, 2, 0);
+            }
             else {
                 buffer[0] = OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR;
-                // TODO_IO : check max length
                 memmove(&buffer[1],
                         &handle->transport_data.rx_message_buffer[3],
                         handle->transport_data.rx_message_length - 3);
@@ -668,9 +687,13 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
                 USBD_LEDGER_HID_U2F_send_message(
                     pdev, cookie, OS_IO_PACKET_TYPE_USB_U2F_HID_RAW, error_msg, 2, 0);
             }
+            else if (max_length < handle->transport_data.rx_message_length - 2) {
+                error_msg[1] = CTAP1_ERR_INVALID_LENGTH;
+                USBD_LEDGER_HID_U2F_send_message(
+                    pdev, cookie, OS_IO_PACKET_TYPE_USB_U2F_HID_CANCEL, error_msg, 2, 0);
+            }
             else {
                 buffer[0] = OS_IO_PACKET_TYPE_USB_U2F_HID_CANCEL;
-                // TODO_IO : check max length
                 memmove(&buffer[1],
                         &handle->transport_data.rx_message_buffer[3],
                         handle->transport_data.rx_message_length - 3);
