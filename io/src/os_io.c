@@ -69,34 +69,29 @@ uint8_t G_io_init_syscall;
 #ifndef USE_OS_IO_STACK
 static int process_itc_event(uint8_t *buffer_in, size_t buffer_in_length)
 {
-    int status = buffer_in_length;
+    int status = 0;
 
     switch (buffer_in[3]) {
 #ifdef HAVE_BLE
         case ITC_IO_BLE_STOP:
             BLE_LEDGER_stop();
-            status = 0;
             break;
 
         case ITC_IO_BLE_START:
             BLE_LEDGER_start();
-            status = 0;
             break;
 
         case ITC_IO_BLE_RESET_PAIRINGS:
             BLE_LEDGER_reset_pairings();
-            status = 0;
             break;
 
         case ITC_IO_BLE_BLE_NAME_CHANGED:
             // Restart advertising
             BLE_LEDGER_name_changed();
-            status = 0;
             break;
 
         case ITC_UX_ACCEPT_BLE_PAIRING:
             BLE_LEDGER_accept_pairing(buffer_in[4]);
-            status = 0;
             break;
 #endif  // HAVE_BLE
 
@@ -118,6 +113,7 @@ static int process_itc_event(uint8_t *buffer_in, size_t buffer_in_length)
 #endif  // HAVE_SE_TOUCH
 
         default:
+            status = buffer_in_length;
             break;
     }
 
