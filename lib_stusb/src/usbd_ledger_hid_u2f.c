@@ -200,7 +200,7 @@ const usbd_class_info_t USBD_LEDGER_HID_U2F_class_info = {
 /* Private functions ---------------------------------------------------------*/
 
 /* Exported functions --------------------------------------------------------*/
-uint8_t USBD_LEDGER_HID_U2F_init(USBD_HandleTypeDef *pdev, void *cookie)
+USBD_StatusTypeDef USBD_LEDGER_HID_U2F_init(USBD_HandleTypeDef *pdev, void *cookie)
 {
     if (!cookie) {
         return USBD_FAIL;
@@ -233,7 +233,7 @@ uint8_t USBD_LEDGER_HID_U2F_init(USBD_HandleTypeDef *pdev, void *cookie)
     return USBD_OK;
 }
 
-uint8_t USBD_LEDGER_HID_U2F_de_init(USBD_HandleTypeDef *pdev, void *cookie)
+USBD_StatusTypeDef USBD_LEDGER_HID_U2F_de_init(USBD_HandleTypeDef *pdev, void *cookie)
 {
     UNUSED(pdev);
     UNUSED(cookie);
@@ -241,7 +241,7 @@ uint8_t USBD_LEDGER_HID_U2F_de_init(USBD_HandleTypeDef *pdev, void *cookie)
     return USBD_OK;
 }
 
-uint8_t USBD_LEDGER_HID_U2F_setup(USBD_HandleTypeDef *pdev, void *cookie, USBD_SetupReqTypedef *req)
+USBD_StatusTypeDef USBD_LEDGER_HID_U2F_setup(USBD_HandleTypeDef *pdev, void *cookie, USBD_SetupReqTypedef *req)
 {
     if (!pdev || !cookie || !req) {
         return USBD_FAIL;
@@ -339,7 +339,7 @@ uint8_t USBD_LEDGER_HID_U2F_setup(USBD_HandleTypeDef *pdev, void *cookie, USBD_S
     return ret;
 }
 
-uint8_t USBD_LEDGER_HID_U2F_ep0_rx_ready(USBD_HandleTypeDef *pdev, void *cookie)
+USBD_StatusTypeDef USBD_LEDGER_HID_U2F_ep0_rx_ready(USBD_HandleTypeDef *pdev, void *cookie)
 {
     UNUSED(pdev);
     UNUSED(cookie);
@@ -347,7 +347,7 @@ uint8_t USBD_LEDGER_HID_U2F_ep0_rx_ready(USBD_HandleTypeDef *pdev, void *cookie)
     return USBD_OK;
 }
 
-uint8_t USBD_LEDGER_HID_U2F_data_in(USBD_HandleTypeDef *pdev, void *cookie, uint8_t ep_num)
+USBD_StatusTypeDef USBD_LEDGER_HID_U2F_data_in(USBD_HandleTypeDef *pdev, void *cookie, uint8_t ep_num)
 {
     if (!cookie) {
         return USBD_FAIL;
@@ -380,7 +380,7 @@ uint8_t USBD_LEDGER_HID_U2F_data_in(USBD_HandleTypeDef *pdev, void *cookie, uint
     return USBD_OK;
 }
 
-uint8_t USBD_LEDGER_HID_U2F_data_out(USBD_HandleTypeDef *pdev,
+USBD_StatusTypeDef USBD_LEDGER_HID_U2F_data_out(USBD_HandleTypeDef *pdev,
                                      void               *cookie,
                                      uint8_t             ep_num,
                                      uint8_t            *packet,
@@ -401,7 +401,7 @@ uint8_t USBD_LEDGER_HID_U2F_data_out(USBD_HandleTypeDef *pdev,
     return USBD_OK;
 }
 
-uint8_t USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
+USBD_StatusTypeDef USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
                                          void               *cookie,
                                          uint8_t             packet_type,
                                          const uint8_t      *message,

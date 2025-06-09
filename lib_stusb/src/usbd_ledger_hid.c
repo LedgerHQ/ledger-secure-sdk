@@ -169,13 +169,12 @@ const usbd_class_info_t USBD_LEDGER_HID_class_info = {
 /* Private functions ---------------------------------------------------------*/
 
 /* Exported functions --------------------------------------------------------*/
-uint8_t USBD_LEDGER_HID_init(USBD_HandleTypeDef *pdev, void *cookie)
+USBD_StatusTypeDef USBD_LEDGER_HID_init(USBD_HandleTypeDef *pdev, void *cookie)
 {
+    USBD_StatusTypeDef status = USBD_FAIL;
     if (!cookie) {
-        return USBD_FAIL;
+        goto error;
     }
-
-    UNUSED(pdev);
 
     ledger_hid_handle_t *handle = (ledger_hid_handle_t *) PIC(cookie);
 
@@ -184,14 +183,18 @@ uint8_t USBD_LEDGER_HID_init(USBD_HandleTypeDef *pdev, void *cookie)
     memset(&handle->protocol_data, 0, sizeof(handle->protocol_data));
     handle->protocol_data.mtu                  = sizeof(USBD_LEDGER_protocol_chunk_buffer);
 
-    LEDGER_PROTOCOL_init(&handle->protocol_data, OS_IO_PACKET_TYPE_USB_HID_APDU);
+    ledger_protocol_result_t result = LEDGER_PROTOCOL_init(&handle->protocol_data, OS_IO_PACKET_TYPE_USB_HID_APDU);
+    if (result != LP_SUCCESS) {
+        goto error;
+    }
 
-    USBD_LL_PrepareReceive(pdev, LEDGER_HID_EPOUT_ADDR, NULL, LEDGER_HID_EPOUT_SIZE);
+    status = USBD_LL_PrepareReceive(pdev, LEDGER_HID_EPOUT_ADDR, NULL, LEDGER_HID_EPOUT_SIZE);
 
-    return USBD_OK;
+error:
+    return status;
 }
 
-uint8_t USBD_LEDGER_HID_de_init(USBD_HandleTypeDef *pdev, void *cookie)
+USBD_StatusTypeDef USBD_LEDGER_HID_de_init(USBD_HandleTypeDef *pdev, void *cookie)
 {
     UNUSED(pdev);
     UNUSED(cookie);
@@ -199,7 +202,7 @@ uint8_t USBD_LEDGER_HID_de_init(USBD_HandleTypeDef *pdev, void *cookie)
     return USBD_OK;
 }
 
-uint8_t USBD_LEDGER_HID_setup(USBD_HandleTypeDef *pdev, void *cookie, USBD_SetupReqTypedef *req)
+USBD_StatusTypeDef USBD_LEDGER_HID_setup(USBD_HandleTypeDef *pdev, void *cookie, USBD_SetupReqTypedef *req)
 {
     if (!pdev || !cookie || !req) {
         return USBD_FAIL;
@@ -296,7 +299,7 @@ uint8_t USBD_LEDGER_HID_setup(USBD_HandleTypeDef *pdev, void *cookie, USBD_Setup
     return ret;
 }
 
-uint8_t USBD_LEDGER_HID_ep0_rx_ready(USBD_HandleTypeDef *pdev, void *cookie)
+USBD_StatusTypeDef USBD_LEDGER_HID_ep0_rx_ready(USBD_HandleTypeDef *pdev, void *cookie)
 {
     UNUSED(pdev);
     UNUSED(cookie);
@@ -304,19 +307,22 @@ uint8_t USBD_LEDGER_HID_ep0_rx_ready(USBD_HandleTypeDef *pdev, void *cookie)
     return USBD_OK;
 }
 
-uint8_t USBD_LEDGER_HID_data_in(USBD_HandleTypeDef *pdev, void *cookie, uint8_t ep_num)
+USBD_StatusTypeDef USBD_LEDGER_HID_data_in(USBD_HandleTypeDef *pdev, void *cookie, uint8_t ep_num)
 {
+    USBD_StatusTypeDef status = USBD_FAIL;
     if (!cookie) {
-        return USBD_FAIL;
+        goto error;
     }
 
-    UNUSED(pdev);
     UNUSED(ep_num);
 
     ledger_hid_handle_t *handle = (ledger_hid_handle_t *) PIC(cookie);
 
     if (handle->protocol_data.tx_apdu_buffer) {
-        LEDGER_PROTOCOL_tx(&handle->protocol_data, NULL, 0, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer));
+        ledger_protocol_result_t result = LEDGER_PROTOCOL_tx(&handle->protocol_data, NULL, 0, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer));
+        if (result != LP_SUCCESS) {
+            goto error;
+        }
         if (handle->protocol_data.tx_chunk_length >= 2) {
             handle->state = LEDGER_HID_STATE_BUSY;
             USBD_LL_Transmit(pdev,
@@ -330,48 +336,60 @@ uint8_t USBD_LEDGER_HID_data_in(USBD_HandleTypeDef *pdev, void *cookie, uint8_t 
         handle->protocol_data.tx_chunk_length = 0;
         handle->state                         = LEDGER_HID_STATE_IDLE;
     }
+    status = USBD_OK;
 
-    return USBD_OK;
+error:
+    return status;
 }
 
-uint8_t USBD_LEDGER_HID_data_out(USBD_HandleTypeDef *pdev,
+USBD_StatusTypeDef USBD_LEDGER_HID_data_out(USBD_HandleTypeDef *pdev,
                                  void               *cookie,
                                  uint8_t             ep_num,
                                  uint8_t            *packet,
                                  uint16_t            packet_length)
 {
+    USBD_StatusTypeDef status = USBD_FAIL;
     if (!pdev || !cookie || !packet) {
-        return USBD_FAIL;
+        goto error;
     }
 
     UNUSED(ep_num);
 
     ledger_hid_handle_t *handle = (ledger_hid_handle_t *) PIC(cookie);
 
-    LEDGER_PROTOCOL_rx(&handle->protocol_data, packet, packet_length, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer), USBD_LEDGER_io_buffer, sizeof(USBD_LEDGER_io_buffer));
+    ledger_protocol_result_t result = LEDGER_PROTOCOL_rx(&handle->protocol_data, packet, packet_length, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer), USBD_LEDGER_io_buffer, sizeof(USBD_LEDGER_io_buffer));
+    if (result != LP_SUCCESS) {
+        goto error;
+    }
 
     USBD_LL_PrepareReceive(pdev, LEDGER_HID_EPOUT_ADDR, NULL, LEDGER_HID_EPOUT_SIZE);
 
-    return USBD_OK;
+    status = USBD_OK;
+
+error:
+    return status;
 }
 
-uint8_t USBD_LEDGER_HID_send_packet(USBD_HandleTypeDef *pdev,
+USBD_StatusTypeDef USBD_LEDGER_HID_send_packet(USBD_HandleTypeDef *pdev,
                                     void               *cookie,
                                     uint8_t             packet_type,
                                     const uint8_t      *packet,
                                     uint16_t            packet_length,
                                     uint32_t            timeout_ms)
 {
+    USBD_StatusTypeDef ret = USBD_FAIL;
     if (!pdev || !cookie || !packet) {
-        return USBD_FAIL;
+        goto error;
     }
 
     UNUSED(packet_type);
 
-    uint8_t              ret    = USBD_OK;
     ledger_hid_handle_t *handle = (ledger_hid_handle_t *) PIC(cookie);
 
-    LEDGER_PROTOCOL_tx(&handle->protocol_data, packet, packet_length, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer));
+    ledger_protocol_result_t result = LEDGER_PROTOCOL_tx(&handle->protocol_data, packet, packet_length, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer));
+    if (result != LP_SUCCESS) {
+        goto error;
+    }
 
     if (pdev->dev_state == USBD_STATE_CONFIGURED) {
         if (handle->state == LEDGER_HID_STATE_IDLE) {
@@ -395,6 +413,7 @@ uint8_t USBD_LEDGER_HID_send_packet(USBD_HandleTypeDef *pdev,
         ret = USBD_FAIL;
     }
 
+error:
     return ret;
 }
 

@@ -56,21 +56,24 @@ typedef struct protocol_header_s {
 static const uint8_t protocol_version[4] = {0x00, 0x00, 0x00, 0x00};
 
 /* Private functions ---------------------------------------------------------*/
-static void process_apdu_chunk(ledger_protocol_t *handle,
-                               uint8_t           *buffer,
-                               uint16_t           length,
-                               uint8_t           *apdu_buffer,
-                               uint16_t           apdu_buffer_size)
+static ledger_protocol_result_t process_apdu_chunk(ledger_protocol_t *handle,
+                                                   uint8_t           *buffer,
+                                                   uint16_t           length,
+                                                   uint8_t           *apdu_buffer,
+                                                   uint16_t           apdu_buffer_size)
 {
+    ledger_protocol_result_t result = LP_ERROR_INVALID_PARAMETER;
     // Check the sequence number
     if ((length < 2) || ((uint16_t) U2BE(buffer, 0) != handle->rx_apdu_sequence_number)) {
         handle->rx_apdu_status = APDU_STATUS_WAITING;
-        return;
+        result                 = LP_ERROR_NOT_ENOUGH_SPACE;
+        goto error;
     }
     // Check total length presence
     if ((length < 4) && (handle->rx_apdu_sequence_number == 0)) {
         handle->rx_apdu_status = APDU_STATUS_WAITING;
-        return;
+        result                 = LP_ERROR_NOT_ENOUGH_SPACE;
+        goto error;
     }
 
     if (handle->rx_apdu_sequence_number == 0) {
@@ -83,7 +86,8 @@ static void process_apdu_chunk(ledger_protocol_t *handle,
             LOG_IO("APDU WAITING - %d\n", handle->rx_apdu_length);
             handle->rx_apdu_status = APDU_STATUS_WAITING;
             handle->rx_apdu_length = apdu_buffer_size;
-            return;
+            result                 = LP_ERROR_NOT_ENOUGH_SPACE;
+            goto error;
         }
         handle->rx_apdu_offset = 0;
         buffer                 = &buffer[4];
@@ -96,7 +100,8 @@ static void process_apdu_chunk(ledger_protocol_t *handle,
     }
 
     if ((1 + handle->rx_apdu_offset + length) > apdu_buffer_size) {
-        return;
+        result = LP_ERROR_NOT_ENOUGH_SPACE;
+        goto error;
     }
     if ((handle->rx_apdu_offset + length) > handle->rx_apdu_length) {
         length = handle->rx_apdu_length - handle->rx_apdu_offset;
@@ -116,32 +121,43 @@ static void process_apdu_chunk(ledger_protocol_t *handle,
         handle->rx_apdu_status = APDU_STATUS_NEED_MORE_DATA;
         LOG_IO("APDU NEED MORE DATA\n");
     }
+    result = LP_SUCCESS;
+
+error:
+    return result;
 }
 
 /* Exported functions --------------------------------------------------------*/
-void LEDGER_PROTOCOL_init(ledger_protocol_t *handle, uint8_t type)
+ledger_protocol_result_t LEDGER_PROTOCOL_init(ledger_protocol_t *handle, uint8_t type)
 {
+    ledger_protocol_result_t result = LP_ERROR_INVALID_PARAMETER;
+
     if (!handle) {
-        return;
+        goto error;
     }
 
     handle->rx_apdu_status          = APDU_STATUS_WAITING;
     handle->rx_apdu_sequence_number = 0;
     handle->type                    = type;
+    result                          = LP_SUCCESS;
+
+error:
+    return result;
 }
 
-void LEDGER_PROTOCOL_rx(ledger_protocol_t *handle,
-                        uint8_t           *buffer,
-                        uint16_t           length,
-                        uint8_t           *proto_buf,
-                        uint8_t            proto_buf_size,
-                        uint8_t           *apdu_buffer,
-                        uint16_t           apdu_buffer_size)
+ledger_protocol_result_t LEDGER_PROTOCOL_rx(ledger_protocol_t *handle,
+                                            uint8_t           *buffer,
+                                            uint16_t           length,
+                                            uint8_t           *proto_buf,
+                                            uint8_t            proto_buf_size,
+                                            uint8_t           *apdu_buffer,
+                                            uint16_t           apdu_buffer_size)
 {
-    protocol_header_t header = {0};
+    ledger_protocol_result_t result = LP_ERROR_INVALID_PARAMETER;
+    protocol_header_t        header = {0};
     if (!handle || !buffer || (length < (sizeof(header.channel_id) + sizeof(header.tag)))
         || !proto_buf || proto_buf_size < sizeof(header)) {
-        return;
+        goto error;
     }
 
     memset(proto_buf, 0, proto_buf_size);
@@ -154,23 +170,27 @@ void LEDGER_PROTOCOL_rx(ledger_protocol_t *handle,
             handle->tx_chunk_length = MIN((uint8_t) sizeof(protocol_version), (proto_buf_size - 3));
             memcpy(&proto_buf[3], protocol_version, handle->tx_chunk_length);
             handle->tx_chunk_length += 3;
+            result = LP_SUCCESS;
             break;
 
         case TAG_ALLOCATE_CHANNEL:
             LOG_IO("TAG_ALLOCATE_CHANNEL\n");
             proto_buf[2]            = TAG_ALLOCATE_CHANNEL;
             handle->tx_chunk_length = 3;
+            result                  = LP_SUCCESS;
             break;
 
         case TAG_PING:
             LOG_IO("TAG_PING\n");
             handle->tx_chunk_length = MIN(proto_buf_size, length);
             memcpy(proto_buf, buffer, handle->tx_chunk_length);
+            result = LP_SUCCESS;
             break;
 
         case TAG_APDU:
             LOG_IO("TAG_APDU\n");
-            process_apdu_chunk(handle, &buffer[3], length - 3, apdu_buffer, apdu_buffer_size);
+            result
+                = process_apdu_chunk(handle, &buffer[3], length - 3, apdu_buffer, apdu_buffer_size);
             break;
 
         case TAG_MTU:
@@ -183,24 +203,30 @@ void LEDGER_PROTOCOL_rx(ledger_protocol_t *handle,
             proto_buf[7]            = handle->mtu - 2;
             handle->tx_chunk_length = 8;
             U2BE_ENCODE(proto_buf, 4, handle->mtu - 2);
+            result = LP_SUCCESS;
             break;
 
         default:
             // Unsupported command
+            result = LP_ERROR_NOT_SUPPORTED;
             break;
     }
+
+error:
+    return result;
 }
 
-void LEDGER_PROTOCOL_tx(ledger_protocol_t *handle,
-                        const uint8_t     *buffer,
-                        uint16_t           length,
-                        uint8_t           *proto_buf,
-                        uint8_t            proto_buf_size)
+ledger_protocol_result_t LEDGER_PROTOCOL_tx(ledger_protocol_t *handle,
+                                            const uint8_t     *buffer,
+                                            uint16_t           length,
+                                            uint8_t           *proto_buf,
+                                            uint8_t            proto_buf_size)
 {
-    protocol_header_t header = {0};
+    ledger_protocol_result_t result = LP_ERROR_INVALID_PARAMETER;
+    protocol_header_t        header = {0};
     if (!handle || (!buffer && !handle->tx_apdu_buffer) || !proto_buf
         || proto_buf_size < sizeof(header)) {
-        return;
+        goto error;
     }
     if (buffer) {
         LOG_IO("FIRST CHUNK\n");
@@ -226,15 +252,15 @@ void LEDGER_PROTOCOL_tx(ledger_protocol_t *handle,
         tx_chunk_offset += 2;
     }
     if (!handle->mtu) {
-        return;
+        goto error;
     }
 
     if ((handle->tx_apdu_length + tx_chunk_offset) > (handle->mtu + handle->tx_apdu_offset)) {
         if (handle->mtu < tx_chunk_offset) {
-            return;
+            goto error;
         }
         if (handle->mtu - tx_chunk_offset > proto_buf_size - tx_chunk_offset) {
-            return;
+            goto error;
         }
         // Remaining buffer length doesn't fit the chunk
         memcpy(&proto_buf[tx_chunk_offset],
@@ -246,7 +272,7 @@ void LEDGER_PROTOCOL_tx(ledger_protocol_t *handle,
     }
     else {
         if (handle->tx_apdu_length - handle->tx_apdu_offset > proto_buf_size - tx_chunk_offset) {
-            return;
+            goto error;
         }
         // Remaining buffer fits the chunk
         memcpy(&proto_buf[tx_chunk_offset],
@@ -257,5 +283,9 @@ void LEDGER_PROTOCOL_tx(ledger_protocol_t *handle,
         handle->tx_apdu_buffer = NULL;
     }
     handle->tx_chunk_length = tx_chunk_offset;
+    result                  = LP_SUCCESS;
     LOG_IO(" %d\n", handle->tx_chunk_length);
+
+error:
+    return result;
 }
