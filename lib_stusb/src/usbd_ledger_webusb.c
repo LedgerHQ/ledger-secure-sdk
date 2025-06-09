@@ -368,7 +368,7 @@ USBD_StatusTypeDef USBD_LEDGER_WEBUSB_data_in(USBD_HandleTypeDef *pdev, void *co
     ledger_webusb_handle_t *handle = (ledger_webusb_handle_t *) PIC(cookie);
 
     if (handle->protocol_data.tx_apdu_buffer) {
-        ledger_protocol_result_t result = LEDGER_PROTOCOL_tx(&handle->protocol_data, NULL, 0, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer));
+        ledger_protocol_result_t result = LEDGER_PROTOCOL_tx(&handle->protocol_data, NULL, 0, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer), sizeof(USBD_LEDGER_protocol_chunk_buffer));
         if (result != LP_SUCCESS) {
             goto error;
         }
@@ -406,7 +406,7 @@ USBD_StatusTypeDef USBD_LEDGER_WEBUSB_data_out(USBD_HandleTypeDef *pdev,
 
     ledger_webusb_handle_t *handle = (ledger_webusb_handle_t *) PIC(cookie);
 
-    ledger_protocol_result_t result = LEDGER_PROTOCOL_rx(&handle->protocol_data, packet, packet_length, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer), USBD_LEDGER_io_buffer, sizeof(USBD_LEDGER_io_buffer));
+    ledger_protocol_result_t result = LEDGER_PROTOCOL_rx(&handle->protocol_data, packet, packet_length, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer), USBD_LEDGER_io_buffer, sizeof(USBD_LEDGER_io_buffer), sizeof(USBD_LEDGER_protocol_chunk_buffer));
     if (result != LP_SUCCESS) {
         goto error;
     }
@@ -433,7 +433,7 @@ USBD_StatusTypeDef USBD_LEDGER_WEBUSB_send_packet(USBD_HandleTypeDef *pdev,
 
     ledger_webusb_handle_t *handle = (ledger_webusb_handle_t *) PIC(cookie);
 
-    ledger_protocol_result_t result = LEDGER_PROTOCOL_tx(&handle->protocol_data, packet, packet_length, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer));
+    ledger_protocol_result_t result = LEDGER_PROTOCOL_tx(&handle->protocol_data, packet, packet_length, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer), sizeof(USBD_LEDGER_protocol_chunk_buffer));
     if (result != LP_SUCCESS) {
         goto error;
     }

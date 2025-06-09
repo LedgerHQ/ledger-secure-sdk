@@ -40,6 +40,7 @@ typedef struct protocol_header_s {
 #define TAG_ABORT                (0x03)
 #define TAG_APDU                 (0x05)
 #define TAG_MTU                  (0x08)
+#define MTU_MIN_SIZE             (3)
 
 #ifdef HAVE_PRINTF
 // #define LOG_IO PRINTF
@@ -151,7 +152,8 @@ ledger_protocol_result_t LEDGER_PROTOCOL_rx(ledger_protocol_t *handle,
                                             uint8_t           *proto_buf,
                                             uint8_t            proto_buf_size,
                                             uint8_t           *apdu_buffer,
-                                            uint16_t           apdu_buffer_size)
+                                            uint16_t           apdu_buffer_size,
+                                            uint16_t           mtu)
 {
     ledger_protocol_result_t result = LP_ERROR_INVALID_PARAMETER;
     protocol_header_t        header = {0};
@@ -195,15 +197,23 @@ ledger_protocol_result_t LEDGER_PROTOCOL_rx(ledger_protocol_t *handle,
 
         case TAG_MTU:
             LOG_IO("TAG_MTU\n");
-            proto_buf[2]            = TAG_MTU;
-            proto_buf[3]            = 0x00;
-            proto_buf[4]            = 0x00;
-            proto_buf[5]            = 0x00;
-            proto_buf[6]            = 0x01;
-            proto_buf[7]            = handle->mtu - 2;
-            handle->tx_chunk_length = 8;
-            U2BE_ENCODE(proto_buf, 4, handle->mtu - 2);
-            result = LP_SUCCESS;
+            if (!mtu) {
+                mtu = handle->mtu;
+            }
+            if (mtu >= MTU_MIN_SIZE) {
+                proto_buf[2]            = TAG_MTU;
+                proto_buf[3]            = 0x00;
+                proto_buf[4]            = 0x00;
+                proto_buf[5]            = 0x00;
+                proto_buf[6]            = 0x01;
+                proto_buf[7]            = mtu - 2;
+                handle->tx_chunk_length = 8;
+                U2BE_ENCODE(proto_buf, 4, mtu - 2);
+                result = LP_SUCCESS;
+            }
+            else {
+                result = LP_ERROR_INVALID_PARAMETER;
+            }
             break;
 
         default:
@@ -220,7 +230,8 @@ ledger_protocol_result_t LEDGER_PROTOCOL_tx(ledger_protocol_t *handle,
                                             const uint8_t     *buffer,
                                             uint16_t           length,
                                             uint8_t           *proto_buf,
-                                            uint8_t            proto_buf_size)
+                                            uint8_t            proto_buf_size,
+                                            uint16_t           mtu)
 {
     ledger_protocol_result_t result = LP_ERROR_INVALID_PARAMETER;
     protocol_header_t        header = {0};
@@ -251,24 +262,27 @@ ledger_protocol_result_t LEDGER_PROTOCOL_tx(ledger_protocol_t *handle,
         U2BE_ENCODE(proto_buf, tx_chunk_offset, handle->tx_apdu_length);
         tx_chunk_offset += 2;
     }
-    if (!handle->mtu) {
+    if (!mtu) {
+        mtu = handle->mtu;
+    }
+    if (mtu < MTU_MIN_SIZE) {
         goto error;
     }
 
-    if ((handle->tx_apdu_length + tx_chunk_offset) > (handle->mtu + handle->tx_apdu_offset)) {
-        if (handle->mtu < tx_chunk_offset) {
+    if ((handle->tx_apdu_length + tx_chunk_offset) > (mtu + handle->tx_apdu_offset)) {
+        if (mtu < tx_chunk_offset) {
             goto error;
         }
-        if (handle->mtu - tx_chunk_offset > proto_buf_size - tx_chunk_offset) {
+        if (mtu - tx_chunk_offset > proto_buf_size - tx_chunk_offset) {
             goto error;
         }
         // Remaining buffer length doesn't fit the chunk
         memcpy(&proto_buf[tx_chunk_offset],
                &handle->tx_apdu_buffer[handle->tx_apdu_offset],
-               handle->mtu - tx_chunk_offset);
-        handle->tx_apdu_offset += handle->mtu - tx_chunk_offset;
+               mtu - tx_chunk_offset);
+        handle->tx_apdu_offset += mtu - tx_chunk_offset;
         handle->tx_apdu_sequence_number++;
-        tx_chunk_offset = handle->mtu;
+        tx_chunk_offset = mtu;
     }
     else {
         if (handle->tx_apdu_length - handle->tx_apdu_offset > proto_buf_size - tx_chunk_offset) {
