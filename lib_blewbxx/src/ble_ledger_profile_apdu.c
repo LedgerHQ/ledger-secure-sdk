@@ -421,7 +421,7 @@ ble_profile_status_t BLE_LEDGER_PROFILE_apdu_att_modified(uint8_t *hci_buffer, u
         LOG_IO("WRITE CMD %d\n", length - 8);
         hci_buffer[8] = 0xDE;
         hci_buffer[9] = 0xF1;
-        ledger_protocol_result_t result = LEDGER_PROTOCOL_rx(&handle->protocol_data, &hci_buffer[8], length - 8, ble_ledger_protocol_chunk_buffer, sizeof(ble_ledger_protocol_chunk_buffer), BLE_LEDGER_apdu_buffer, sizeof(BLE_LEDGER_apdu_buffer));
+        ledger_protocol_result_t result = LEDGER_PROTOCOL_rx(&handle->protocol_data, &hci_buffer[8], length - 8, ble_ledger_protocol_chunk_buffer, sizeof(ble_ledger_protocol_chunk_buffer), BLE_LEDGER_apdu_buffer, sizeof(BLE_LEDGER_apdu_buffer), handle->protocol_data.mtu);
         if (result != LP_SUCCESS) {
             goto error;
         }
@@ -436,7 +436,7 @@ ble_profile_status_t BLE_LEDGER_PROFILE_apdu_att_modified(uint8_t *hci_buffer, u
                     status = BLE_PROFILE_STATUS_OK;
                 }
                 else if (handle->send_response) {
-                    result = LEDGER_PROTOCOL_tx(&handle->protocol_data, handle->resp, sizeof(handle->resp), ble_ledger_protocol_chunk_buffer, sizeof(ble_ledger_protocol_chunk_buffer));
+                    result = LEDGER_PROTOCOL_tx(&handle->protocol_data, handle->resp, sizeof(handle->resp), ble_ledger_protocol_chunk_buffer, sizeof(ble_ledger_protocol_chunk_buffer), handle->protocol_data.mtu);
                     if (result != LP_SUCCESS) {
                         goto error;
                     }
@@ -477,7 +477,7 @@ ble_profile_status_t BLE_LEDGER_PROFILE_apdu_write_permit_req(uint8_t *hci_buffe
         && (handle->notifications_enabled) && (handle->link_is_encrypted) && (data_length)) {
         hci_buffer[5] = 0xDE;
         hci_buffer[6] = 0xF1;
-        ledger_protocol_result_t result = LEDGER_PROTOCOL_rx(&handle->protocol_data, &hci_buffer[5], length - 5, ble_ledger_protocol_chunk_buffer, sizeof(ble_ledger_protocol_chunk_buffer), BLE_LEDGER_apdu_buffer, sizeof(BLE_LEDGER_apdu_buffer));
+        ledger_protocol_result_t result = LEDGER_PROTOCOL_rx(&handle->protocol_data, &hci_buffer[5], length - 5, ble_ledger_protocol_chunk_buffer, sizeof(ble_ledger_protocol_chunk_buffer), BLE_LEDGER_apdu_buffer, sizeof(BLE_LEDGER_apdu_buffer), handle->protocol_data.mtu);
         if (result != LP_SUCCESS) {
             goto error;
         }
@@ -513,7 +513,7 @@ ble_profile_status_t BLE_LEDGER_PROFILE_apdu_mtu_changed(uint16_t mtu, void *coo
         goto error;
     }
 
-    if (mtu && (mtu <= BLE_ATT_MAX_MTU_SIZE)) {
+    if ((mtu > 1) && (mtu <= BLE_ATT_MAX_MTU_SIZE)) {
         ledger_ble_profile_apdu_handle_t *handle = (ledger_ble_profile_apdu_handle_t *) PIC(cookie);
 
         handle->protocol_data.mtu = mtu - 1;
@@ -560,7 +560,7 @@ ble_profile_status_t BLE_LEDGER_PROFILE_apdu_update_char_value_ack(void *cookie)
     handle->protocol_data.tx_chunk_length = 0;
     if (!handle->transfer_mode_enabled) {
         if (handle->protocol_data.tx_apdu_buffer) {
-            ledger_protocol_result_t result = LEDGER_PROTOCOL_tx(&handle->protocol_data, NULL, 0, ble_ledger_protocol_chunk_buffer, sizeof(ble_ledger_protocol_chunk_buffer));
+            ledger_protocol_result_t result = LEDGER_PROTOCOL_tx(&handle->protocol_data, NULL, 0, ble_ledger_protocol_chunk_buffer, sizeof(ble_ledger_protocol_chunk_buffer), handle->protocol_data.mtu);
             if (result != LP_SUCCESS) {
                 goto error;
             }
@@ -605,7 +605,7 @@ ble_profile_status_t BLE_LEDGER_PROFILE_apdu_send_packet(const uint8_t *packet, 
         handle->resp[0]     = packet[0];
         handle->resp[1]     = packet[1];
         if (handle->protocol_data.rx_apdu_length) {
-            ledger_protocol_result_t result = LEDGER_PROTOCOL_tx(&handle->protocol_data, packet, length, ble_ledger_protocol_chunk_buffer, sizeof(ble_ledger_protocol_chunk_buffer));
+            ledger_protocol_result_t result = LEDGER_PROTOCOL_tx(&handle->protocol_data, packet, length, ble_ledger_protocol_chunk_buffer, sizeof(ble_ledger_protocol_chunk_buffer), handle->protocol_data.mtu);
             if (result != LP_SUCCESS) {
                 goto error;
             }
@@ -617,13 +617,13 @@ ble_profile_status_t BLE_LEDGER_PROFILE_apdu_send_packet(const uint8_t *packet, 
     }
     else {
         if ((handle->send_response == true) && (U2BE(handle->resp, 0) != SWO_SUCCESS)) {
-            ledger_protocol_result_t result = LEDGER_PROTOCOL_tx(&handle->protocol_data, handle->resp, sizeof(handle->resp), ble_ledger_protocol_chunk_buffer, sizeof(ble_ledger_protocol_chunk_buffer));
+            ledger_protocol_result_t result = LEDGER_PROTOCOL_tx(&handle->protocol_data, handle->resp, sizeof(handle->resp), ble_ledger_protocol_chunk_buffer, sizeof(ble_ledger_protocol_chunk_buffer), handle->protocol_data.mtu);
             if (result != LP_SUCCESS) {
                 goto error;
             }
         }
         else {
-            ledger_protocol_result_t result = LEDGER_PROTOCOL_tx(&handle->protocol_data, packet, length, ble_ledger_protocol_chunk_buffer, sizeof(ble_ledger_protocol_chunk_buffer));
+            ledger_protocol_result_t result = LEDGER_PROTOCOL_tx(&handle->protocol_data, packet, length, ble_ledger_protocol_chunk_buffer, sizeof(ble_ledger_protocol_chunk_buffer), handle->protocol_data.mtu);
             if (result != LP_SUCCESS) {
                 goto error;
             }

@@ -68,9 +68,11 @@ ledger_protocol_result_t LEDGER_PROTOCOL_rx(ledger_protocol_t *data,
                                             uint8_t           *proto_buf,
                                             uint8_t            proto_buff_size,
                                             uint8_t           *apdu_buffer,
-                                            uint16_t           apdu_buffer_size);
+                                            uint16_t           apdu_buffer_size,
+                                            uint16_t           mtu);
 ledger_protocol_result_t LEDGER_PROTOCOL_tx(ledger_protocol_t *data,
                                             const uint8_t     *buffer,
                                             uint16_t           length,
                                             uint8_t           *proto_buf,
-                                            uint8_t            proto_buf_size);
+                                            uint8_t            proto_buf_size,
+                                            uint16_t           mtu);

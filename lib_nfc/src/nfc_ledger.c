@@ -96,7 +96,7 @@ void NFC_LEDGER_start(uint8_t mode)
 
     if ((nfc_ledger_data.state == NFC_STATE_INITIALIZED) || (nfc_ledger_data.mode != mode)) {
         memset(&nfc_ledger_data.protocol_data, 0, sizeof(nfc_ledger_data.protocol_data));
-        nfc_ledger_data.protocol_data.mtu = sizeof(nfc_ledger_protocol_chunk_buffer);
+        nfc_ledger_data.protocol_data.mtu = 0;
         nfc_ledger_data.mode              = mode;
         nfc_ledger_data.state             = NFC_STATE_STARTED;
     }
@@ -156,7 +156,8 @@ int NFC_LEDGER_rx_seph_apdu_evt(uint8_t *seph_buffer,
                                  nfc_ledger_protocol_chunk_buffer,
                                  sizeof(nfc_ledger_protocol_chunk_buffer),
                                  NFC_LEDGER_io_buffer,
-                                 sizeof(NFC_LEDGER_io_buffer));
+                                 sizeof(NFC_LEDGER_io_buffer),
+                                 sizeof(nfc_ledger_protocol_chunk_buffer));
         if (result != LP_SUCCESS) {
             status = -1;
             goto error;
@@ -191,6 +192,7 @@ uint32_t NFC_LEDGER_send(const uint8_t *packet, uint16_t packet_length, uint32_t
                                  packet,
                                  packet_length,
                                  nfc_ledger_protocol_chunk_buffer,
+                                 sizeof(nfc_ledger_protocol_chunk_buffer),
                                  sizeof(nfc_ledger_protocol_chunk_buffer));
         if (result != LP_SUCCESS) {
             status = 1;
@@ -208,6 +210,7 @@ uint32_t NFC_LEDGER_send(const uint8_t *packet, uint16_t packet_length, uint32_t
                                      NULL,
                                      0,
                                      nfc_ledger_protocol_chunk_buffer,
+                                     sizeof(nfc_ledger_protocol_chunk_buffer),
                                      sizeof(nfc_ledger_protocol_chunk_buffer));
             if (result != LP_SUCCESS) {
                 status = 1;
