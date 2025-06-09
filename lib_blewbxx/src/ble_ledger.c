@@ -829,21 +829,21 @@ static int32_t hci_evt_vendor(uint8_t *buffer, uint16_t length)
                 if ((profile_info->handle_in_range)
                     && (((ble_profile_handle_in_range_t) PIC(profile_info->handle_in_range))(
                         att_handle, profile_info->cookie))) {
-                    uint8_t status = BLE_PROFILE_STATUS_OK;
+                    ble_profile_status_t ble_status = BLE_PROFILE_STATUS_OK;
                     if (opcode == ACI_GATT_ATTRIBUTE_MODIFIED_VSEVT_CODE) {
                         if (profile_info->att_modified) {
-                            status = ((ble_profile_att_modified_t) PIC(profile_info->att_modified))(
+                            ble_status = ((ble_profile_att_modified_t) PIC(profile_info->att_modified))(
                                 buffer, length, profile_info->cookie);
                         }
                     }
                     else if (opcode == ACI_GATT_WRITE_PERMIT_REQ_VSEVT_CODE) {
                         if (profile_info->write_permit_req) {
-                            status = ((ble_profile_write_permit_req_t) PIC(
+                            ble_status = ((ble_profile_write_permit_req_t) PIC(
                                 profile_info->write_permit_req))(
                                 buffer, length, profile_info->cookie);
                         }
                     }
-                    if (status == BLE_PROFILE_STATUS_OK_AND_SEND_PACKET) {
+                    if (ble_status == BLE_PROFILE_STATUS_OK_AND_SEND_PACKET) {
                         send_hci_packet(0);
                     }
                     profil_found = 1;
@@ -868,10 +868,10 @@ static int32_t hci_evt_vendor(uint8_t *buffer, uint16_t length)
             for (uint8_t index = 0; index < ble_ledger_data.nb_of_profile; index++) {
                 profile_info = ble_ledger_data.profile[index];
                 if (profile_info->mtu_changed) {
-                    uint8_t status = BLE_PROFILE_STATUS_OK;
-                    status         = ((ble_profile_mtu_changed_t) PIC(profile_info->mtu_changed))(
+                    ble_profile_status_t ble_status = BLE_PROFILE_STATUS_OK;
+                    ble_status         = ((ble_profile_mtu_changed_t) PIC(profile_info->mtu_changed))(
                         mtu, profile_info->cookie);
-                    if (status == BLE_PROFILE_STATUS_OK_AND_SEND_PACKET) {
+                    if (ble_status == BLE_PROFILE_STATUS_OK_AND_SEND_PACKET) {
                         send_hci_packet(0);
                     }
                 }
