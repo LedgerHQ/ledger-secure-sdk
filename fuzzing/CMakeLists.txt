@@ -96,6 +96,9 @@ if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
   endforeach()
 
   add_library(extra INTERFACE)
+  target_compile_options(extra INTERFACE ${COMPILATION_FLAGS})
+  target_link_options(extra INTERFACE ${LINK_FLAGS})
+  target_compile_definitions(extra INTERFACE FUZZ FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION=1)
   target_link_libraries(
     extra
     INTERFACE macros
