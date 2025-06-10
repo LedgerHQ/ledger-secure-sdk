@@ -118,8 +118,8 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>       SHA256_BLOCK_SIZE,</div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>       <span class="keyword">sizeof</span>(cx_sha256_t),</div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>       (cx_err_t(*)(cx_hash_t * ctx)) cx_sha224_init_no_throw,</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>       (cx_err_t(*)(cx_hash_t * ctx, <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *data, <span class="keywordtype">size_t</span> len)) cx_sha256_update,</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>       (cx_err_t(*)(cx_hash_t * ctx, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *digest)) cx_sha256_final,</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>       (cx_err_t(*)(cx_hash_t * ctx, <span class="keyword">const</span> uint8_t *data, <span class="keywordtype">size_t</span> len)) cx_sha256_update,</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>       (cx_err_t(*)(cx_hash_t * ctx, uint8_t *digest)) cx_sha256_final,</div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>       NULL,</div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>       NULL};</div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="preprocessor">#endif  </span><span class="comment">// HAVE_SHA224</span></div>
@@ -131,8 +131,8 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>       SHA256_BLOCK_SIZE,</div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>       <span class="keyword">sizeof</span>(cx_sha256_t),</div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>       (cx_err_t(*)(cx_hash_t * ctx)) cx_sha256_init_no_throw,</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>       (cx_err_t(*)(cx_hash_t * ctx, <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *data, <span class="keywordtype">size_t</span> len)) cx_sha256_update,</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>       (cx_err_t(*)(cx_hash_t * ctx, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *digest)) cx_sha256_final,</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>       (cx_err_t(*)(cx_hash_t * ctx, <span class="keyword">const</span> uint8_t *data, <span class="keywordtype">size_t</span> len)) cx_sha256_update,</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>       (cx_err_t(*)(cx_hash_t * ctx, uint8_t *digest)) cx_sha256_final,</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>       NULL,</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>       NULL};</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span><span class="preprocessor">#endif  </span><span class="comment">// HAVE_SHA256</span></div>
@@ -275,7 +275,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>    accumulator[7] += H;</div>
 <div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>}</div>
 <div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span> </div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>cx_err_t cx_sha256_update(cx_sha256_t *ctx, <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *data, <span class="keywordtype">size_t</span> len)</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>cx_err_t cx_sha256_update(cx_sha256_t *ctx, <span class="keyword">const</span> uint8_t *data, <span class="keywordtype">size_t</span> len)</div>
 <div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>{</div>
 <div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>    <span class="keywordtype">size_t</span> r;</div>
 <div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>    <span class="keywordtype">size_t</span> blen;</div>
@@ -320,12 +320,12 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>    <span class="keywordflow">return</span> CX_OK;</div>
 <div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>}</div>
 <div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span> </div>
-<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>cx_err_t cx_sha256_final(cx_sha256_t *ctx, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *digest)</div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>cx_err_t cx_sha256_final(cx_sha256_t *ctx, uint8_t *digest)</div>
 <div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>{</div>
 <div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>    uint64_t bitlen;</div>
 <div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span> </div>
 <div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>    <span class="comment">// --- init locals ---</span></div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *block = ctx-&gt;block;</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>    uint8_t *block = ctx-&gt;block;</div>
 <div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span> </div>
 <div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>    block[ctx-&gt;blen] = 0x80;</div>
 <div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>    ctx-&gt;blen++;</div>
@@ -362,7 +362,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>    <span class="keywordflow">return</span> CX_OK;</div>
 <div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>}</div>
 <div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span> </div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span><span class="keywordtype">size_t</span> cx_hash_sha256(<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *in, <span class="keywordtype">size_t</span> in_len, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *out, <span class="keywordtype">size_t</span> out_len)</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span><span class="keywordtype">size_t</span> cx_hash_sha256(<span class="keyword">const</span> uint8_t *in, <span class="keywordtype">size_t</span> in_len, uint8_t *out, <span class="keywordtype">size_t</span> out_len)</div>
 <div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>{</div>
 <div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>    <span class="keywordflow">if</span> (out_len &lt; CX_SHA256_SIZE) {</div>
 <div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>        <span class="keywordflow">return</span> 0;</div>
@@ -383,7 +383,6 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="acx__utils_8c_html_a8dd79c4a6e04634b7e7d2ecf407976dc"><div class="ttname"><a href="cx__utils_8c.html#a8dd79c4a6e04634b7e7d2ecf407976dc">cx_swap_uint64</a></div><div class="ttdeci">void cx_swap_uint64(uint64bits_t *v)</div><div class="ttdef"><b>Definition</b> <a href="cx__utils_8c_source.html#l00118">cx_utils.c:118</a></div></div>
 <div class="ttc" id="acx__utils_8c_html_acd67f8e5f59140a743404f88632cf417"><div class="ttname"><a href="cx__utils_8c.html#acd67f8e5f59140a743404f88632cf417">cx_swap_buffer32</a></div><div class="ttdeci">void cx_swap_buffer32(uint32_t *v, size_t len)</div><div class="ttdef"><b>Definition</b> <a href="cx__utils_8c_source.html#l00047">cx_utils.c:47</a></div></div>
 <div class="ttc" id="acx__utils_8h_html"><div class="ttname"><a href="cx__utils_8h.html">cx_utils.h</a></div></div>
-<div class="ttc" id="ausbd__conf_8h_html_aba7bc1797add20fe3efdf37ced1182c5"><div class="ttname"><a href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a></div><div class="ttdeci">unsigned char uint8_t</div><div class="ttdef"><b>Definition</b> <a href="usbd__conf_8h_source.html#l00053">usbd_conf.h:53</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

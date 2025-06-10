@@ -192,8 +192,6 @@ Macros</h2></td></tr>
 <tr class="separator:a8c4537d497f8a21b846e92c7745b47c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a662fc7d0a4e63b2d3be096441802cba3" id="r_a662fc7d0a4e63b2d3be096441802cba3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux__bagl_8h.html#a662fc7d0a4e63b2d3be096441802cba3">UX_DISPLAY_NEXT_ELEMENT</a>()</td></tr>
 <tr class="separator:a662fc7d0a4e63b2d3be096441802cba3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4a9eeb0db391cbb1be7a002451b5d6b3" id="r_a4a9eeb0db391cbb1be7a002451b5d6b3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux__bagl_8h.html#a4a9eeb0db391cbb1be7a002451b5d6b3">UX_FORWARD_EVENT_REDRAWCB</a>(bypasspincheck,  <a class="el" href="ux__bagl_8h.html#ab9274f9d1108b6474b587c1e70e69ec5">G_ux_params</a>,  <a class="el" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>,  os_ux,  os_sched_last_status,  callback,  redraw_cb,  ignoring_app_if_ux_busy)</td></tr>
-<tr class="separator:a4a9eeb0db391cbb1be7a002451b5d6b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a23d27c45dc1841195eafdf2881a32973" id="r_a23d27c45dc1841195eafdf2881a32973"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux__bagl_8h.html#a23d27c45dc1841195eafdf2881a32973">UX_WAKE_UP</a>()</td></tr>
 <tr class="separator:a23d27c45dc1841195eafdf2881a32973"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adc69102d51e62ffaa030bc107b098aac" id="r_adc69102d51e62ffaa030bc107b098aac"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux__bagl_8h.html#adc69102d51e62ffaa030bc107b098aac">UX_REDISPLAY_REQUEST</a>()</td></tr>
@@ -257,8 +255,6 @@ Typedefs</h2></td></tr>
 <tr class="separator:abec57042d81077b2bf9a4eb420d7555f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afbda69f22d68ca118c135f7d73bafa1d" id="r_afbda69f22d68ca118c135f7d73bafa1d"><td class="memItemLeft" align="right" valign="top">typedef unsigned int(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux__bagl_8h.html#afbda69f22d68ca118c135f7d73bafa1d">callback_int_t</a>) (unsigned int)</td></tr>
 <tr class="separator:afbda69f22d68ca118c135f7d73bafa1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1a0ebb6c99973db928532dddaf532fa9" id="r_a1a0ebb6c99973db928532dddaf532fa9"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux__bagl_8h.html#a1a0ebb6c99973db928532dddaf532fa9">asynchmodal_end_callback_t</a>) (unsigned int ux_status)</td></tr>
-<tr class="separator:a1a0ebb6c99973db928532dddaf532fa9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab5c8e6b316bff722939b1e3585ae0354" id="r_ab5c8e6b316bff722939b1e3585ae0354"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structux__stack__slot__s.html">ux_stack_slot_s</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux__bagl_8h.html#ab5c8e6b316bff722939b1e3585ae0354">ux_stack_slot_t</a></td></tr>
 <tr class="separator:ab5c8e6b316bff722939b1e3585ae0354"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae9a5a63c5af37a899d143fa5f05905f7" id="r_ae9a5a63c5af37a899d143fa5f05905f7"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structux__state__s.html">ux_state_s</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux__bagl_8h.html#ae9a5a63c5af37a899d143fa5f05905f7">ux_state_t</a></td></tr>
@@ -322,24 +318,8 @@ Functions</h2></td></tr>
 <tr class="separator:ae60910c2b72389d1ebf375a3ba813c29"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2e7aa58aea7040f1894be7637ad317e4" id="r_a2e7aa58aea7040f1894be7637ad317e4"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="ux__bagl_8h.html#a45f9ac7dba48418bdc6f5d03c356eb40">bagl_element_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux__bagl_8h.html#a2e7aa58aea7040f1894be7637ad317e4">ux_stack_display_element_callback</a> (const <a class="el" href="ux__bagl_8h.html#a45f9ac7dba48418bdc6f5d03c356eb40">bagl_element_t</a> *element)</td></tr>
 <tr class="separator:a2e7aa58aea7040f1894be7637ad317e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0b29c35ffddde4eed0aa0df9d5705aee" id="r_a0b29c35ffddde4eed0aa0df9d5705aee"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux__bagl_8h.html#a0b29c35ffddde4eed0aa0df9d5705aee">io_seproxyhal_setup_ticker</a> (unsigned int interval_ms)</td></tr>
-<tr class="separator:a0b29c35ffddde4eed0aa0df9d5705aee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af92102a62bd517b493b4c4e23ce7a707" id="r_af92102a62bd517b493b4c4e23ce7a707"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux__bagl_8h.html#af92102a62bd517b493b4c4e23ce7a707">io_seproxyhal_request_mcu_status</a> (void)</td></tr>
-<tr class="separator:af92102a62bd517b493b4c4e23ce7a707"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a27a36fefb2565fa8802176a6b1c86590" id="r_a27a36fefb2565fa8802176a6b1c86590"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux__bagl_8h.html#a27a36fefb2565fa8802176a6b1c86590">io_seproxyhal_display_bitmap</a> (int x, int y, unsigned int w, unsigned int h, unsigned int *color_index, unsigned int bit_per_pixel, unsigned char *bitmap)</td></tr>
-<tr class="separator:a27a36fefb2565fa8802176a6b1c86590"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a65e9e267a91f19ccac487eac1164bbc1" id="r_a65e9e267a91f19ccac487eac1164bbc1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux__bagl_8h.html#a65e9e267a91f19ccac487eac1164bbc1">io_seproxyhal_power_off</a> (bool criticalBattery)</td></tr>
-<tr class="separator:a65e9e267a91f19ccac487eac1164bbc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7ee6fe77dbb1b22efb52f081e2f54226" id="r_a7ee6fe77dbb1b22efb52f081e2f54226"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux__bagl_8h.html#a7ee6fe77dbb1b22efb52f081e2f54226">io_seproxyhal_se_reset</a> (void)</td></tr>
-<tr class="separator:a7ee6fe77dbb1b22efb52f081e2f54226"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4cf2021212a51924d907e8f5d0d87879" id="r_a4cf2021212a51924d907e8f5d0d87879"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux__bagl_8h.html#a4cf2021212a51924d907e8f5d0d87879">io_seproxyhal_disable_io</a> (void)</td></tr>
-<tr class="separator:a4cf2021212a51924d907e8f5d0d87879"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a54091291a0085fcce6013e6c89b2ca0d" id="r_a54091291a0085fcce6013e6c89b2ca0d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux__bagl_8h.html#a54091291a0085fcce6013e6c89b2ca0d">io_seproxyhal_backlight</a> (unsigned int flags, unsigned int backlight_percentage)</td></tr>
-<tr class="separator:a54091291a0085fcce6013e6c89b2ca0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abeaabf881851154ecf872c4f1a69f7a8" id="r_abeaabf881851154ecf872c4f1a69f7a8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux__bagl_8h.html#abeaabf881851154ecf872c4f1a69f7a8">io_seproxyhal_display_icon</a> (const bagl_component_t *icon_component, const bagl_icon_details_t *icon_details)</td></tr>
-<tr class="separator:abeaabf881851154ecf872c4f1a69f7a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac41a9065caa4177fa8eea523040f76ed" id="r_ac41a9065caa4177fa8eea523040f76ed"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux__bagl_8h.html#ac41a9065caa4177fa8eea523040f76ed">io_seproxyhal_display_icon_header_and_colors</a> (const bagl_component_t *icon_component, const bagl_icon_details_t *icon_details, unsigned int *icon_len)</td></tr>
-<tr class="separator:ac41a9065caa4177fa8eea523040f76ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aded948ac7880d1dde7d2eafa097bbe58" id="r_aded948ac7880d1dde7d2eafa097bbe58"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux__bagl_8h.html#aded948ac7880d1dde7d2eafa097bbe58">ux_stack_display_elements</a> (<a class="el" href="ux__bagl_8h.html#ab5c8e6b316bff722939b1e3585ae0354">ux_stack_slot_t</a> *slot)</td></tr>
+<tr class="separator:aded948ac7880d1dde7d2eafa097bbe58"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ace0502636ed9f1d1d8d2844b13f2c319" id="r_ace0502636ed9f1d1d8d2844b13f2c319"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux__bagl_8h.html#ace0502636ed9f1d1d8d2844b13f2c319">ux_menu_display</a> (unsigned int current_entry, const <a class="el" href="ux__bagl_8h.html#a22f317524409825fb0417a33c89fde3e">ux_menu_entry_t</a> *menu_entries, <a class="el" href="ux__bagl_8h.html#af2cc62c84020514e5b26107e2a289e6d">ux_menu_preprocessor_t</a> menu_entry_preprocessor)</td></tr>
 <tr class="separator:ace0502636ed9f1d1d8d2844b13f2c319"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2150b3f7e7ed3eff96c75176908bf7f5" id="r_a2150b3f7e7ed3eff96c75176908bf7f5"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="ux__bagl_8h.html#a45f9ac7dba48418bdc6f5d03c356eb40">bagl_element_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux__bagl_8h.html#a2150b3f7e7ed3eff96c75176908bf7f5">ux_menu_element_preprocessor</a> (const <a class="el" href="ux__bagl_8h.html#a45f9ac7dba48418bdc6f5d03c356eb40">bagl_element_t</a> *element)</td></tr>
@@ -471,7 +451,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00347">347</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00340">340</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -503,7 +483,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00345">345</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00338">338</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -519,7 +499,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00346">346</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00339">339</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -579,11 +559,11 @@ Variables</h2></td></tr>
 <div class="line">            UX_CONTINUE_DISPLAY_APP({});                                      \</div>
 <div class="line">        },                                                                    \</div>
 <div class="line">        1);</div>
-<div class="ttc" id="aux__bagl_8h_html_a136ee0b40f57b92d39ad9f14c124852f"><div class="ttname"><a href="ux__bagl_8h.html#a136ee0b40f57b92d39ad9f14c124852f">UX_FORWARD_EVENT</a></div><div class="ttdeci">#define UX_FORWARD_EVENT(callback, ignoring_app_if_ux_busy)</div><div class="ttdef"><b>Definition</b> <a href="ux__bagl_8h_source.html#l00546">ux_bagl.h:546</a></div></div>
-<div class="ttc" id="aux__bagl_8h_html_a6ec4e6443409481122dfb4b6ad33cf0d"><div class="ttname"><a href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a></div><div class="ttdeci">#define G_ux</div><div class="ttdef"><b>Definition</b> <a href="ux__bagl_8h_source.html#l00345">ux_bagl.h:345</a></div></div>
+<div class="ttc" id="aux__bagl_8h_html_a136ee0b40f57b92d39ad9f14c124852f"><div class="ttname"><a href="ux__bagl_8h.html#a136ee0b40f57b92d39ad9f14c124852f">UX_FORWARD_EVENT</a></div><div class="ttdeci">#define UX_FORWARD_EVENT(callback, ignoring_app_if_ux_busy)</div><div class="ttdef"><b>Definition</b> <a href="ux__bagl_8h_source.html#l00456">ux_bagl.h:456</a></div></div>
+<div class="ttc" id="aux__bagl_8h_html_a6ec4e6443409481122dfb4b6ad33cf0d"><div class="ttname"><a href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a></div><div class="ttdeci">#define G_ux</div><div class="ttdef"><b>Definition</b> <a href="ux__bagl_8h_source.html#l00338">ux_bagl.h:338</a></div></div>
 </div><!-- fragment --><p>Process button push events. Application's button event handler is called only if the ux app does not deny it (modal frame displayed). </p>
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00605">605</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00501">501</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -604,7 +584,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 <p>Request a screen redisplay after the given milliseconds interval has passed. Interval is not repeated, it's a single shot callback. must be re-enabled (the JS way). </p>
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00540">540</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00450">450</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -623,15 +603,14 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">    <a class="code hl_define" href="ux__bagl_8h.html#a662fc7d0a4e63b2d3be096441802cba3">UX_DISPLAY_NEXT_ELEMENT</a>();                                                             \</div>
-<div class="line">    <span class="comment">/* all items have been displayed */</span>                                                    \</div>
-<div class="line">    if (<a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_index &gt;= <a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_arrays[0].element_array_count \</div>
-<div class="line">        &amp;&amp; !io_seproxyhal_spi_is_status_sent()) {                                          \</div>
-<div class="line">        displayed_callback                                                                 \</div>
+<b>Value:</b><div class="fragment"><div class="line">    <a class="code hl_define" href="ux__bagl_8h.html#a662fc7d0a4e63b2d3be096441802cba3">UX_DISPLAY_NEXT_ELEMENT</a>();                                                                \</div>
+<div class="line">    <span class="comment">/* all items have been displayed */</span>                                                       \</div>
+<div class="line">    if (<a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_index &gt;= <a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_arrays[0].element_array_count) { \</div>
+<div class="line">        displayed_callback                                                                    \</div>
 <div class="line">    }</div>
-<div class="ttc" id="aux__bagl_8h_html_a662fc7d0a4e63b2d3be096441802cba3"><div class="ttname"><a href="ux__bagl_8h.html#a662fc7d0a4e63b2d3be096441802cba3">UX_DISPLAY_NEXT_ELEMENT</a></div><div class="ttdeci">#define UX_DISPLAY_NEXT_ELEMENT()</div><div class="ttdef"><b>Definition</b> <a href="ux__bagl_8h_source.html#l00398">ux_bagl.h:398</a></div></div>
+<div class="ttc" id="aux__bagl_8h_html_a662fc7d0a4e63b2d3be096441802cba3"><div class="ttname"><a href="ux__bagl_8h.html#a662fc7d0a4e63b2d3be096441802cba3">UX_DISPLAY_NEXT_ELEMENT</a></div><div class="ttdeci">#define UX_DISPLAY_NEXT_ELEMENT()</div><div class="ttdef"><b>Definition</b> <a href="ux__bagl_8h_source.html#l00364">ux_bagl.h:364</a></div></div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00556">556</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00469">469</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -651,7 +630,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 <p>Forward the event, ignoring the UX return code, the event must therefore be either not processed or processed with extreme care by the application afterwards </p>
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00648">648</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00544">544</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -688,7 +667,7 @@ Variables</h2></td></tr>
 <div class="line">    UX_WAKE_UP();                                                                   \</div>
 <div class="line">    UX_REDISPLAY();</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00515">515</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00425">425</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -711,10 +690,10 @@ Variables</h2></td></tr>
 <div class="line">    <a class="code hl_define" href="ux__bagl_8h.html#ab9274f9d1108b6474b587c1e70e69ec5">G_ux_params</a>.len   = 0;                 \</div>
 <div class="line">    os_ux(&amp;<a class="code hl_define" href="ux__bagl_8h.html#ab9274f9d1108b6474b587c1e70e69ec5">G_ux_params</a>);                   \</div>
 <div class="line">    <a class="code hl_define" href="ux__bagl_8h.html#ab9274f9d1108b6474b587c1e70e69ec5">G_ux_params</a>.len = os_sched_last_status(TASK_BOLOS_UX);</div>
-<div class="ttc" id="aux__bagl_8h_html_ab9274f9d1108b6474b587c1e70e69ec5"><div class="ttname"><a href="ux__bagl_8h.html#ab9274f9d1108b6474b587c1e70e69ec5">G_ux_params</a></div><div class="ttdeci">#define G_ux_params</div><div class="ttdef"><b>Definition</b> <a href="ux__bagl_8h_source.html#l00346">ux_bagl.h:346</a></div></div>
+<div class="ttc" id="aux__bagl_8h_html_ab9274f9d1108b6474b587c1e70e69ec5"><div class="ttname"><a href="ux__bagl_8h.html#ab9274f9d1108b6474b587c1e70e69ec5">G_ux_params</a></div><div class="ttdeci">#define G_ux_params</div><div class="ttdef"><b>Definition</b> <a href="ux__bagl_8h_source.html#l00339">ux_bagl.h:339</a></div></div>
 </div><!-- fragment --><p>Start displaying the system keyboard input to allow. keyboard entry ends when any ux call returns with an OK status. </p>
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00654">654</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00550">550</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -732,28 +711,34 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">    <span class="keywordflow">while</span> (<a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_arrays[0].element_array                                           \</div>
-<div class="line">           &amp;&amp; <a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_index &lt; <a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_arrays[0].element_array_count    \</div>
-<div class="line">           &amp;&amp; !io_seproxyhal_spi_is_status_sent()                                                  \</div>
-<div class="line">           &amp;&amp; (os_perso_isonboarded() != BOLOS_UX_OK                                               \</div>
-<div class="line">               || os_global_pin_is_validated() == BOLOS_UX_OK)) {                                  \</div>
-<div class="line">        <span class="keyword">const</span> <a class="code hl_struct" href="structbagl__element__e.html">bagl_element_t</a> *element                                                              \</div>
-<div class="line">            = &amp;<a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_arrays[0].element_array[<a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_index];         \</div>
-<div class="line">        if (!<a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].screen_before_element_display_callback                                  \</div>
-<div class="line">            || (element = <a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].screen_before_element_display_callback(element))) {        \</div>
-<div class="line">            if ((<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>) element                                                             \</div>
-<div class="line">                == 1) { <span class="comment">/*backward compat with coding to avoid smashing everything*/</span>               \</div>
-<div class="line">                element                                                                            \</div>
-<div class="line">                    = &amp;<a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_arrays[0].element_array[<a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_index]; \</div>
-<div class="line">            }                                                                                      \</div>
-<div class="line">            io_seproxyhal_display(element);                                                        \</div>
-<div class="line">        }                                                                                          \</div>
-<div class="line">        <a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_index++;                                                             \</div>
+<b>Value:</b><div class="fragment"><div class="line">    <span class="keywordflow">if</span> (<a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_arrays[0].element_array                                             \</div>
+<div class="line">        &amp;&amp; <a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_index &lt; <a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_arrays[0].element_array_count      \</div>
+<div class="line">        &amp;&amp; (os_perso_isonboarded() != BOLOS_UX_OK                                                 \</div>
+<div class="line">            || os_global_pin_is_validated() == BOLOS_UX_OK)) {                                    \</div>
+<div class="line">        while (<a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_index                                                        \</div>
+<div class="line">               &lt; <a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_arrays[0].element_array_count) {                           \</div>
+<div class="line">            <span class="keyword">const</span> <a class="code hl_struct" href="structbagl__element__e.html">bagl_element_t</a> *element                                                         \</div>
+<div class="line">                = &amp;<a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_arrays[0].element_array[<a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_index];    \</div>
+<div class="line">            if (!<a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].screen_before_element_display_callback                             \</div>
+<div class="line">                || (element = <a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].screen_before_element_display_callback(element))) {   \</div>
+<div class="line">                if ((<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>) element                                                        \</div>
+<div class="line">                    == 1) { <span class="comment">/*backward compat with coding to avoid smashing everything*/</span>          \</div>
+<div class="line">                    element = &amp;<a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0]                                                      \</div>
+<div class="line">                                   .element_arrays[0]                                             \</div>
+<div class="line">                                   .element_array[<a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_index];                   \</div>
+<div class="line">                }                                                                                 \</div>
+<div class="line">                io_seph_ux_display_bagl_element(element);                                         \</div>
+<div class="line">            }                                                                                     \</div>
+<div class="line">            <a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_index++;                                                        \</div>
+<div class="line">        }                                                                                         \</div>
+<div class="line">        if (<a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_index == <a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_arrays[0].element_array_count) { \</div>
+<div class="line">            screen_update();                                                                      \</div>
+<div class="line">        }                                                                                         \</div>
 <div class="line">    }</div>
 <div class="ttc" id="astructbagl__element__e_html"><div class="ttname"><a href="structbagl__element__e.html">bagl_element_e</a></div><div class="ttdef"><b>Definition</b> <a href="ux__bagl_8h_source.html#l00057">ux_bagl.h:57</a></div></div>
 </div><!-- fragment --><p>Request displaying the next element in the UX structure. Take into account if a seproxyhal status has already been issued. Take into account if the next element is allowed/denied for display by the registered preprocessor </p>
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00398">398</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00364">364</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -790,7 +775,7 @@ Variables</h2></td></tr>
 <div class="line">    UX_WAKE_UP();</div>
 </div><!-- fragment --><p>Request the given UX to be redisplayed without emitting a display status right now (to continue current operation, like transferring an USB reply) </p>
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00528">528</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00438">438</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -810,7 +795,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 <p>Deprecated version to be removed </p>
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00573">573</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00485">485</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -831,7 +816,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 <p>Process display processed event (by the os_ux or by the application code) </p>
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00567">567</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00479">479</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -851,7 +836,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00616">616</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00512">512</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -880,89 +865,12 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">    <a class="code hl_define" href="ux__bagl_8h.html#a4a9eeb0db391cbb1be7a002451b5d6b3">UX_FORWARD_EVENT_REDRAWCB</a>(0,                            \</div>
-<div class="line">                              <a class="code hl_define" href="ux__bagl_8h.html#ab9274f9d1108b6474b587c1e70e69ec5">G_ux_params</a>,                  \</div>
-<div class="line">                              G_io_asynch_ux_callback,      \</div>
-<div class="line">                              os_ux,                        \</div>
-<div class="line">                              os_sched_last_status,         \</div>
-<div class="line">                              callback,                     \</div>
-<div class="line">                              <a class="code hl_define" href="ux__bagl_8h.html#ac593936b904ae5ba938e5294309d1ec5">UX_REDISPLAY</a>(),               \</div>
-<div class="line">                              ignoring_app_if_ux_busy);</div>
-<div class="ttc" id="aux__bagl_8h_html_a4a9eeb0db391cbb1be7a002451b5d6b3"><div class="ttname"><a href="ux__bagl_8h.html#a4a9eeb0db391cbb1be7a002451b5d6b3">UX_FORWARD_EVENT_REDRAWCB</a></div><div class="ttdeci">#define UX_FORWARD_EVENT_REDRAWCB(bypasspincheck, G_ux_params, G_ux, os_ux, os_sched_last_status, callback, redraw_cb, ignoring_app_if_ux_busy)</div><div class="ttdef"><b>Definition</b> <a href="ux__bagl_8h_source.html#l00457">ux_bagl.h:457</a></div></div>
-<div class="ttc" id="aux__bagl_8h_html_ac593936b904ae5ba938e5294309d1ec5"><div class="ttname"><a href="ux__bagl_8h.html#ac593936b904ae5ba938e5294309d1ec5">UX_REDISPLAY</a></div><div class="ttdeci">#define UX_REDISPLAY()</div><div class="ttdef"><b>Definition</b> <a href="ux__bagl_8h_source.html#l00513">ux_bagl.h:513</a></div></div>
-</div><!-- fragment --><p>internal bolos ux event processing with callback in case event is to be processed by the application </p>
-
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00546">546</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
-
-</div>
-</div>
-<a id="a4a9eeb0db391cbb1be7a002451b5d6b3" name="a4a9eeb0db391cbb1be7a002451b5d6b3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4a9eeb0db391cbb1be7a002451b5d6b3">&#9670;&#160;</a></span>UX_FORWARD_EVENT_REDRAWCB</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define UX_FORWARD_EVENT_REDRAWCB</td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">bypasspincheck, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><a class="el" href="ux__bagl_8h.html#ab9274f9d1108b6474b587c1e70e69ec5">G_ux_params</a>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><a class="el" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">os_ux, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">os_sched_last_status, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">callback, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">redraw_cb, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">ignoring_app_if_ux_busy&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
 <b>Value:</b><div class="fragment"><div class="line">    <a class="code hl_define" href="ux__bagl_8h.html#ab9274f9d1108b6474b587c1e70e69ec5">G_ux_params</a>.ux_id = BOLOS_UX_EVENT;                                                         \</div>
 <div class="line">    <a class="code hl_define" href="ux__bagl_8h.html#ab9274f9d1108b6474b587c1e70e69ec5">G_ux_params</a>.len   = 0;                                                                      \</div>
 <div class="line">    os_ux(&amp;<a class="code hl_define" href="ux__bagl_8h.html#ab9274f9d1108b6474b587c1e70e69ec5">G_ux_params</a>);                                                                        \</div>
 <div class="line">    <a class="code hl_define" href="ux__bagl_8h.html#ab9274f9d1108b6474b587c1e70e69ec5">G_ux_params</a>.len = os_sched_last_status(TASK_BOLOS_UX);                                      \</div>
 <div class="line">    if (<a class="code hl_define" href="ux__bagl_8h.html#ab9274f9d1108b6474b587c1e70e69ec5">G_ux_params</a>.len == BOLOS_UX_REDRAW) {                                                   \</div>
-<div class="line">        redraw_cb;                                                                              \</div>
+<div class="line">        UX_REDISPLAY();                                                                         \</div>
 <div class="line">    }                                                                                           \</div>
 <div class="line">    <span class="keywordflow">else</span> <span class="keywordflow">if</span> (!ignoring_app_if_ux_busy                                                           \</div>
 <div class="line">             || (<a class="code hl_define" href="ux__bagl_8h.html#ab9274f9d1108b6474b587c1e70e69ec5">G_ux_params</a>.len != BOLOS_UX_IGNORE &amp;&amp; <a class="code hl_define" href="ux__bagl_8h.html#ab9274f9d1108b6474b587c1e70e69ec5">G_ux_params</a>.len != BOLOS_UX_CONTINUE)) { \</div>
@@ -970,7 +878,7 @@ Variables</h2></td></tr>
 <div class="line">    }</div>
 </div><!-- fragment --><p>internal bolos ux event processing with callback in case event is to be processed by the application </p>
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00457">457</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00456">456</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -991,7 +899,7 @@ Variables</h2></td></tr>
 <b>Value:</b><div class="fragment"><div class="line">    memset(&amp;<a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>, 0, <span class="keyword">sizeof</span>(<a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>)); \</div>
 <div class="line">    ux_stack_push();</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00348">348</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00341">341</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -1027,7 +935,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00722">722</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00576">576</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -1046,7 +954,7 @@ Variables</h2></td></tr>
 <div class="line">        NULL, NULL, 0, NULL, NULL, NULL, 0, 0 \</div>
 <div class="line">    }</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00715">715</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00569">569</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -1065,7 +973,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00720">720</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00574">574</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -1081,7 +989,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00726">726</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00580">580</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -1101,7 +1009,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 <p>Redisplay all elements of the screen </p>
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00513">513</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00423">423</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -1120,18 +1028,17 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">    io_seproxyhal_init_ux();                                                                   \</div>
-<div class="line">    io_seproxyhal_init_button(); <span class="comment">/*ensure to avoid release of a button from a nother screen to \</span></div>
-<div class="line"><span class="comment">                                    mess up with the redisplayed screen */</span>                     \</div>
-<div class="line">    <a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_index = index;                                                       \</div>
-<div class="line">    <span class="comment">/* REDRAW is redisplay already, use os_ux return value to check */</span>                         \</div>
-<div class="line">    <a class="code hl_define" href="ux__bagl_8h.html#ab9274f9d1108b6474b587c1e70e69ec5">G_ux_params</a>.len = os_sched_last_status(TASK_BOLOS_UX);                                     \</div>
-<div class="line">    if (<a class="code hl_define" href="ux__bagl_8h.html#ab9274f9d1108b6474b587c1e70e69ec5">G_ux_params</a>.len != BOLOS_UX_IGNORE &amp;&amp; <a class="code hl_define" href="ux__bagl_8h.html#ab9274f9d1108b6474b587c1e70e69ec5">G_ux_params</a>.len != BOLOS_UX_CONTINUE) {          \</div>
-<div class="line">        UX_DISPLAY_NEXT_ELEMENT();                                                             \</div>
+<b>Value:</b><div class="fragment"><div class="line">    io_seph_ux_init_button(); <span class="comment">/*ensure to avoid release of a button from a nother screen to \</span></div>
+<div class="line"><span class="comment">                                    mess up with the redisplayed screen */</span>                  \</div>
+<div class="line">    <a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_index = index;                                                    \</div>
+<div class="line">    <span class="comment">/* REDRAW is redisplay already, use os_ux return value to check */</span>                      \</div>
+<div class="line">    <a class="code hl_define" href="ux__bagl_8h.html#ab9274f9d1108b6474b587c1e70e69ec5">G_ux_params</a>.len = os_sched_last_status(TASK_BOLOS_UX);                                  \</div>
+<div class="line">    if (<a class="code hl_define" href="ux__bagl_8h.html#ab9274f9d1108b6474b587c1e70e69ec5">G_ux_params</a>.len != BOLOS_UX_IGNORE &amp;&amp; <a class="code hl_define" href="ux__bagl_8h.html#ab9274f9d1108b6474b587c1e70e69ec5">G_ux_params</a>.len != BOLOS_UX_CONTINUE) {       \</div>
+<div class="line">        UX_DISPLAY_NEXT_ELEMENT();                                                          \</div>
 <div class="line">    }</div>
 </div><!-- fragment --><p>Force redisplay of the screen from the given index in the screen's element array </p>
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00500">500</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00411">411</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -1149,12 +1056,11 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">    io_seproxyhal_init_ux();     \</div>
-<div class="line">    io_seproxyhal_init_button(); \</div>
+<b>Value:</b><div class="fragment"><div class="line">    io_seph_ux_init_button();  \</div>
 <div class="line">    <a class="code hl_define" href="ux__bagl_8h.html#a6ec4e6443409481122dfb4b6ad33cf0d">G_ux</a>.stack[0].element_index = 0;</div>
 </div><!-- fragment --><p>Redisplay request (no immediate display status sent) </p>
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00492">492</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00404">404</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -1239,7 +1145,7 @@ Variables</h2></td></tr>
 <div class="ttc" id="anbgl__types_8h_html_a74e75242132eaabbc1c512488a135926"><div class="ttname"><a href="nbgl__types_8h.html#a74e75242132eaabbc1c512488a135926">MIN</a></div><div class="ttdeci">#define MIN(x, y)</div><div class="ttdef"><b>Definition</b> <a href="nbgl__types_8h_source.html#l00100">nbgl_types.h:100</a></div></div>
 </div><!-- fragment --><p>forward the ticker_event to the os ux handler. Ticker event callback is always called whatever the return code of the ux app. Ticker event interval is assumed to be 100 ms. </p>
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00621">621</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00517">517</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -1281,7 +1187,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00736">736</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00590">590</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -1300,7 +1206,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00734">734</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00588">588</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -1316,7 +1222,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00740">740</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00594">594</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -1334,24 +1240,13 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">    <span class="keywordflow">while</span> (!<a class="code hl_define" href="ux__bagl_8h.html#ac5d070c59903f2feface750035129663">UX_DISPLAYED</a>()) {                                                                      \</div>
-<div class="line">        <span class="comment">/* We wait for the MCU event (should indicate display processed for a bagl element) */</span>     \</div>
-<div class="line">        io_seproxyhal_spi_recv(<a class="code hl_variable" href="io_8c.html#a03a36e664bbaeebd65e4a0b383e06c77">G_io_seproxyhal_spi_buffer</a>, <span class="keyword">sizeof</span>(<a class="code hl_variable" href="io_8c.html#a03a36e664bbaeebd65e4a0b383e06c77">G_io_seproxyhal_spi_buffer</a>), 0); \</div>
-<div class="line">        io_seproxyhal_handle_event();                                                              \</div>
-<div class="line">        UX_DISPLAY_NEXT_ELEMENT();                                                                 \</div>
-<div class="line">    }                                                                                              \</div>
-<div class="line">    io_seproxyhal_spi_recv(<a class="code hl_variable" href="io_8c.html#a03a36e664bbaeebd65e4a0b383e06c77">G_io_seproxyhal_spi_buffer</a>, <span class="keyword">sizeof</span>(<a class="code hl_variable" href="io_8c.html#a03a36e664bbaeebd65e4a0b383e06c77">G_io_seproxyhal_spi_buffer</a>), 0);     \</div>
-<div class="line">    io_seproxyhal_handle_event();                                                                  \</div>
-<div class="line">    <span class="comment">/* We send a general status which indicates to the MCU that he can process any pending action  \</span></div>
-<div class="line"><span class="comment">     * (i.e. here, display the whole screen) */</span>                                                    \</div>
-<div class="line">    io_seproxyhal_general_status();                                                                \</div>
-<div class="line">    <span class="comment">/* We wait for an ack of the MCU. */</span>                                                           \</div>
-<div class="line">    io_seproxyhal_spi_recv(<a class="code hl_variable" href="io_8c.html#a03a36e664bbaeebd65e4a0b383e06c77">G_io_seproxyhal_spi_buffer</a>, <span class="keyword">sizeof</span>(<a class="code hl_variable" href="io_8c.html#a03a36e664bbaeebd65e4a0b383e06c77">G_io_seproxyhal_spi_buffer</a>), 0);</div>
-<div class="ttc" id="aio_8c_html_a03a36e664bbaeebd65e4a0b383e06c77"><div class="ttname"><a href="io_8c.html#a03a36e664bbaeebd65e4a0b383e06c77">G_io_seproxyhal_spi_buffer</a></div><div class="ttdeci">uint8_t G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B]</div><div class="ttdef"><b>Definition</b> <a href="io_8c_source.html#l00037">io.c:37</a></div></div>
-<div class="ttc" id="aux__bagl_8h_html_ac5d070c59903f2feface750035129663"><div class="ttname"><a href="ux__bagl_8h.html#ac5d070c59903f2feface750035129663">UX_DISPLAYED</a></div><div class="ttdeci">#define UX_DISPLAYED()</div><div class="ttdef"><b>Definition</b> <a href="ux__bagl_8h_source.html#l00573">ux_bagl.h:573</a></div></div>
+<b>Value:</b><div class="fragment"><div class="line">    <span class="keywordflow">while</span> (!<a class="code hl_define" href="ux__bagl_8h.html#ac5d070c59903f2feface750035129663">UX_DISPLAYED</a>()) {      \</div>
+<div class="line">        UX_DISPLAY_NEXT_ELEMENT(); \</div>
+<div class="line">    }</div>
+<div class="ttc" id="aux__bagl_8h_html_ac5d070c59903f2feface750035129663"><div class="ttname"><a href="ux__bagl_8h.html#ac5d070c59903f2feface750035129663">UX_DISPLAYED</a></div><div class="ttdeci">#define UX_DISPLAYED()</div><div class="ttdef"><b>Definition</b> <a href="ux__bagl_8h_source.html#l00485">ux_bagl.h:485</a></div></div>
 </div><!-- fragment --><p>Macro to process sequentially display a screen. The call finishes when the UX is completely displayed, and the state of the MCU &lt;-&gt; SE exchanges is the same as before this macro call. </p>
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00586">586</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00492">492</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -1375,27 +1270,11 @@ Variables</h2></td></tr>
 <div class="line">    <a class="code hl_define" href="ux__bagl_8h.html#ab9274f9d1108b6474b587c1e70e69ec5">G_ux_params</a>.len = os_sched_last_status(TASK_BOLOS_UX);</div>
 </div><!-- fragment --><p>Request a wake up of the device (backlight, pin lock screen, ...) to display a new interface to the user. Wake up prevent both autolock and power off features. Therefore, security wise, this function shall only be called to request direct user interaction. </p>
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00483">483</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00395">395</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Typedef Documentation</h2>
-<a id="a1a0ebb6c99973db928532dddaf532fa9" name="a1a0ebb6c99973db928532dddaf532fa9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1a0ebb6c99973db928532dddaf532fa9">&#9670;&#160;</a></span>asynchmodal_end_callback_t</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef void(* asynchmodal_end_callback_t) (unsigned int ux_status)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00174">174</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
-
-</div>
-</div>
 <a id="ac07f57503d2127007197e7460a6b03d9" name="ac07f57503d2127007197e7460a6b03d9"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac07f57503d2127007197e7460a6b03d9">&#9670;&#160;</a></span>bagl_element_callback_t</h2>
 
@@ -1500,7 +1379,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00219">219</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00216">216</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -1516,7 +1395,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00221">221</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00218">218</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -1532,7 +1411,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00243">243</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00240">240</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -1548,7 +1427,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00241">241</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00238">238</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -1592,7 +1471,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00176">176</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00175">175</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -1609,7 +1488,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 <p>Common structure for applications to perform asynchronous UX aside IO operations </p>
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00181">181</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00180">180</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -1625,7 +1504,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00254">254</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__bagl_8h_source.html#l00251">251</a> of file <a class="el" href="ux__bagl_8h_source.html">ux_bagl.h</a>.</p>
 
 </div>
 </div>
@@ -1720,34 +1599,6 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="a54091291a0085fcce6013e6c89b2ca0d" name="a54091291a0085fcce6013e6c89b2ca0d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a54091291a0085fcce6013e6c89b2ca0d">&#9670;&#160;</a></span>io_seproxyhal_backlight()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void io_seproxyhal_backlight </td>
-          <td>(</td>
-          <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>flags</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>backlight_percentage</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a id="a02d989a39462e5dbbaf7ff556d1d7bbd" name="a02d989a39462e5dbbaf7ff556d1d7bbd"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a02d989a39462e5dbbaf7ff556d1d7bbd">&#9670;&#160;</a></span>io_seproxyhal_button_push()</h2>
 
@@ -1776,24 +1627,6 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="a4cf2021212a51924d907e8f5d0d87879" name="a4cf2021212a51924d907e8f5d0d87879"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4cf2021212a51924d907e8f5d0d87879">&#9670;&#160;</a></span>io_seproxyhal_disable_io()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void io_seproxyhal_disable_io </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a id="a92a444d36e654eabcae8118f754599db" name="a92a444d36e654eabcae8118f754599db"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a92a444d36e654eabcae8118f754599db">&#9670;&#160;</a></span>io_seproxyhal_display()</h2>
 
@@ -1812,65 +1645,6 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="a27a36fefb2565fa8802176a6b1c86590" name="a27a36fefb2565fa8802176a6b1c86590"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a27a36fefb2565fa8802176a6b1c86590">&#9670;&#160;</a></span>io_seproxyhal_display_bitmap()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void io_seproxyhal_display_bitmap </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>x</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>y</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>w</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>h</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">unsigned int *&#160;</td>
-          <td class="paramname"><em>color_index</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>bit_per_pixel</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">unsigned char *&#160;</td>
-          <td class="paramname"><em>bitmap</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Helper function to order the MCU to display the given bitmap with the given color index, a table of size: (1&lt;&lt;bit_per_pixel) with little endian encoded colors. Deprecated </p>
-
-</div>
-</div>
 <a id="a9d2df3e5630d26d6aeae56f2ff3d3a3e" name="a9d2df3e5630d26d6aeae56f2ff3d3a3e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9d2df3e5630d26d6aeae56f2ff3d3a3e">&#9670;&#160;</a></span>io_seproxyhal_display_default()</h2>
 
@@ -1886,143 +1660,6 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-</div>
-</div>
-<a id="abeaabf881851154ecf872c4f1a69f7a8" name="abeaabf881851154ecf872c4f1a69f7a8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abeaabf881851154ecf872c4f1a69f7a8">&#9670;&#160;</a></span>io_seproxyhal_display_icon()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void io_seproxyhal_display_icon </td>
-          <td>(</td>
-          <td class="paramtype">const bagl_component_t *&#160;</td>
-          <td class="paramname"><em>icon_component</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const bagl_icon_details_t *&#160;</td>
-          <td class="paramname"><em>icon_details</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Helper function to send the given bitmap splitting into multiple DISPLAY_RAW packet as the bitmap is not meant to fit in a single SEPROXYHAL packet. </p>
-
-</div>
-</div>
-<a id="ac41a9065caa4177fa8eea523040f76ed" name="ac41a9065caa4177fa8eea523040f76ed"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac41a9065caa4177fa8eea523040f76ed">&#9670;&#160;</a></span>io_seproxyhal_display_icon_header_and_colors()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">unsigned int io_seproxyhal_display_icon_header_and_colors </td>
-          <td>(</td>
-          <td class="paramtype">const bagl_component_t *&#160;</td>
-          <td class="paramname"><em>icon_component</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const bagl_icon_details_t *&#160;</td>
-          <td class="paramname"><em>icon_details</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">unsigned int *&#160;</td>
-          <td class="paramname"><em>icon_len</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Helper method on the Blue to output icon header to the MCU and allow for bitmap transformation </p>
-
-</div>
-</div>
-<a id="a65e9e267a91f19ccac487eac1164bbc1" name="a65e9e267a91f19ccac487eac1164bbc1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a65e9e267a91f19ccac487eac1164bbc1">&#9670;&#160;</a></span>io_seproxyhal_power_off()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void io_seproxyhal_power_off </td>
-          <td>(</td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>criticalBattery</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="af92102a62bd517b493b4c4e23ce7a707" name="af92102a62bd517b493b4c4e23ce7a707"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af92102a62bd517b493b4c4e23ce7a707">&#9670;&#160;</a></span>io_seproxyhal_request_mcu_status()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void io_seproxyhal_request_mcu_status </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a7ee6fe77dbb1b22efb52f081e2f54226" name="a7ee6fe77dbb1b22efb52f081e2f54226"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7ee6fe77dbb1b22efb52f081e2f54226">&#9670;&#160;</a></span>io_seproxyhal_se_reset()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void io_seproxyhal_se_reset </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a0b29c35ffddde4eed0aa0df9d5705aee" name="a0b29c35ffddde4eed0aa0df9d5705aee"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0b29c35ffddde4eed0aa0df9d5705aee">&#9670;&#160;</a></span>io_seproxyhal_setup_ticker()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void io_seproxyhal_setup_ticker </td>
-          <td>(</td>
-          <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>interval_ms</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Setup the TICKER_EVENT interval. Application shall not use this entry point as it's the main ticking source. Use the ::UX_SET_INTERVAL_MS instead. </p>
 
 </div>
 </div>
@@ -2268,8 +1905,6 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 <p>Function to be implemented by the UX manager (to allow specific callback and processing of the target) The next displayable element of the given stack slot must be displayed </p>
 
-<p class="definition">Definition at line <a class="el" href="ux__stack_8c_source.html#l00297">297</a> of file <a class="el" href="ux__stack_8c_source.html">ux_stack.c</a>.</p>
-
 </div>
 </div>
 <a id="a716f640a52fa0ae2d57a480e2e286644" name="a716f640a52fa0ae2d57a480e2e286644"></a>
@@ -2288,7 +1923,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ux__stack_8c_source.html#l00331">331</a> of file <a class="el" href="ux__stack_8c_source.html">ux_stack.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__stack_8c_source.html#l00288">288</a> of file <a class="el" href="ux__stack_8c_source.html">ux_stack.c</a>.</p>
 
 </div>
 </div>
@@ -2308,7 +1943,27 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ux__stack_8c_source.html#l00206">206</a> of file <a class="el" href="ux__stack_8c_source.html">ux_stack.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__stack_8c_source.html#l00202">202</a> of file <a class="el" href="ux__stack_8c_source.html">ux_stack.c</a>.</p>
+
+</div>
+</div>
+<a id="aded948ac7880d1dde7d2eafa097bbe58" name="aded948ac7880d1dde7d2eafa097bbe58"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aded948ac7880d1dde7d2eafa097bbe58">&#9670;&#160;</a></span>ux_stack_display_elements()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ux_stack_display_elements </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ux__bagl_8h.html#ab5c8e6b316bff722939b1e3585ae0354">ux_stack_slot_t</a> *&#160;</td>
+          <td class="paramname"><em>slot</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ux__stack_8c_source.html#l00221">221</a> of file <a class="el" href="ux__stack_8c_source.html">ux_stack.c</a>.</p>
 
 </div>
 </div>

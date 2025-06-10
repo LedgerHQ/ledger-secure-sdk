@@ -269,7 +269,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span> </div>
 <div class="foldopen" id="foldopen00173" data-start="{" data-end="}">
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno"><a class="line" href="cx__utils_8c.html#a936b11285e1e935cea4362d427537899">  173</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="cx__utils_8c.html#a936b11285e1e935cea4362d427537899">cx_memxor</a>(<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *buf1, <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *buf2, <span class="keywordtype">size_t</span> len)</div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno"><a class="line" href="cx__utils_8c.html#a936b11285e1e935cea4362d427537899">  173</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="cx__utils_8c.html#a936b11285e1e935cea4362d427537899">cx_memxor</a>(uint8_t *buf1, <span class="keyword">const</span> uint8_t *buf2, <span class="keywordtype">size_t</span> len)</div>
 <div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>{</div>
 <div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>    <span class="keywordtype">size_t</span> i;</div>
 <div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    <span class="keywordflow">for</span> (i = 0; i &lt; len; i++) {</div>
@@ -279,11 +279,11 @@ $(document).ready(function() { init_codefold(0); });
 </div>
 <div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span> </div>
 <div class="foldopen" id="foldopen00181" data-start="{" data-end="}">
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno"><a class="line" href="cx__utils_8c.html#a62c32e721f7930c3700ba1ff68c4a222">  181</a></span><a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> <a class="code hl_function" href="cx__utils_8c.html#a62c32e721f7930c3700ba1ff68c4a222">cx_constant_time_eq</a>(<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *buf1, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *buf2, <span class="keywordtype">size_t</span> len)</div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno"><a class="line" href="cx__utils_8c.html#a62c32e721f7930c3700ba1ff68c4a222">  181</a></span>uint8_t <a class="code hl_function" href="cx__utils_8c.html#a62c32e721f7930c3700ba1ff68c4a222">cx_constant_time_eq</a>(<span class="keyword">const</span> uint8_t *buf1, uint8_t *buf2, <span class="keywordtype">size_t</span> len)</div>
 <div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>{</div>
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> diff;</div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>    uint8_t diff;</div>
 <div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>    <span class="keywordtype">size_t</span>  i;</div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> is_eq;</div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>    uint8_t is_eq;</div>
 <div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>    <span class="keywordflow">for</span> (diff = 0, i = 0; i &lt; len; i++) {</div>
 <div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>        diff |= buf1[i] ^ buf2[i];</div>
 <div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>    }</div>
@@ -308,7 +308,6 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="astructuint64__s_html"><div class="ttname"><a href="structuint64__s.html">uint64_s</a></div><div class="ttdoc">64-bit types, native or by-hands, depending on target and/or compiler support.</div><div class="ttdef"><b>Definition</b> <a href="lcx__common_8h_source.html#l00049">lcx_common.h:49</a></div></div>
 <div class="ttc" id="astructuint64__s_html_a552ecaab703e1315820eec1999cc56ab"><div class="ttname"><a href="structuint64__s.html#a552ecaab703e1315820eec1999cc56ab">uint64_s::l</a></div><div class="ttdeci">uint32_t l</div><div class="ttdoc">32 least significant bits</div><div class="ttdef"><b>Definition</b> <a href="lcx__common_8h_source.html#l00051">lcx_common.h:51</a></div></div>
 <div class="ttc" id="astructuint64__s_html_aaf5fe5430f8878f1ecfbacab62f9f6e4"><div class="ttname"><a href="structuint64__s.html#aaf5fe5430f8878f1ecfbacab62f9f6e4">uint64_s::h</a></div><div class="ttdeci">uint32_t h</div><div class="ttdoc">32 most significant bits</div><div class="ttdef"><b>Definition</b> <a href="lcx__common_8h_source.html#l00052">lcx_common.h:52</a></div></div>
-<div class="ttc" id="ausbd__conf_8h_html_aba7bc1797add20fe3efdf37ced1182c5"><div class="ttname"><a href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a></div><div class="ttdeci">unsigned char uint8_t</div><div class="ttdef"><b>Definition</b> <a href="usbd__conf_8h_source.html#l00053">usbd_conf.h:53</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

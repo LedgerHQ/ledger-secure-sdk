@@ -1,7 +1,0 @@
-<map id="lib_stusb_impl/usbd_hid_impl.h" name="lib_stusb_impl/usbd_hid_impl.h">
-<area shape="rect" id="Node000001" title=" " alt="" coords="86,5,237,45"/>
-<area shape="rect" id="Node000002" href="$u2f__impl_8h.html" title=" " alt="" coords="5,93,147,133"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="135,57,97,95,93,91,131,53"/>
-<area shape="rect" id="Node000003" href="$usbd__impl_8c.html" title="This file provides the HID core functions." alt="" coords="171,93,322,133"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="192,53,230,91,226,95,188,57"/>
-</map>

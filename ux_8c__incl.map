@@ -1,15 +1,17 @@
 <map id="lib_ux_nbgl/ux.c" name="lib_ux_nbgl/ux.c">
-<area shape="rect" id="Node000001" title=" " alt="" coords="261,5,388,31"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="329,5,456,31"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="5,79,172,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="288,33,141,77,139,72,286,28"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="344,33,152,78,150,73,343,28"/>
 <area shape="rect" id="Node000003" title=" " alt="" coords="197,79,247,104"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="310,33,252,73,249,68,307,28"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="366,33,261,77,259,72,364,28"/>
 <area shape="rect" id="Node000004" href="$nbgl__touch_8h.html" title=" " alt="" coords="272,79,377,104"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="327,31,327,65,322,65,322,31"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="383,33,347,70,343,67,380,29"/>
 <area shape="rect" id="Node000014" href="$nbgl__buttons_8h.html" title=" " alt="" coords="401,79,520,104"/>
-<area shape="poly" id="edge15_Node000001_Node000014" title=" " alt="" coords="348,28,428,70,425,75,345,33"/>
+<area shape="poly" id="edge15_Node000001_Node000014" title=" " alt="" coords="406,29,442,67,438,70,402,33"/>
 <area shape="rect" id="Node000015" title=" " alt="" coords="544,79,612,104"/>
-<area shape="poly" id="edge18_Node000001_Node000015" title=" " alt="" coords="366,28,531,74,530,79,365,33"/>
+<area shape="poly" id="edge18_Node000001_Node000015" title=" " alt="" coords="423,28,536,71,534,76,421,33"/>
+<area shape="rect" id="Node000016" title=" " alt="" coords="636,79,765,104"/>
+<area shape="poly" id="edge19_Node000001_Node000016" title=" " alt="" coords="443,28,638,73,637,78,442,33"/>
 <area shape="rect" id="Node000005" href="$nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="295,299,400,324"/>
 <area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="325,105,317,168,317,209,322,250,336,285,331,287,317,251,311,209,312,167,320,104"/>
 <area shape="rect" id="Node000011" href="$nbgl__obj_8h.html" title="API to draw all basic graphic objects." alt="" coords="348,152,437,177"/>

@@ -74,11 +74,192 @@ $(function() {
 </div>
 </div><!-- top -->
 <div class="header">
+  <div class="summary">
+<a href="#define-members">Macros</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">u2f_transport.c File Reference</div></div>
 </div><!--header-->
 <div class="contents">
-
+<div class="textblock"><code>#include &lt;string.h&gt;</code><br />
+<code>#include &quot;os.h&quot;</code><br />
+<code>#include &quot;os_math.h&quot;</code><br />
+<code>#include &quot;os_utils.h&quot;</code><br />
+<code>#include &quot;os_io.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="u2f__types_8h_source.html">u2f_types.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="u2f__transport_8h_source.html">u2f_transport.h</a>&quot;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Include dependency graph for u2f_transport.c:</div>
+<div class="dyncontent">
+<div class="center"><img src="u2f__transport_8c__incl.png" border="0" usemap="#alib__u2f_2src_2u2f__transport_8c" alt=""/></div>
+<map name="alib__u2f_2src_2u2f__transport_8c" id="alib__u2f_2src_2u2f__transport_8c">
+<area shape="rect" title=" " alt="" coords="236,5,427,31"/>
+<area shape="rect" title=" " alt="" coords="5,79,76,104"/>
+<area shape="poly" title=" " alt="" coords="285,33,90,81,89,76,284,28"/>
+<area shape="rect" title=" " alt="" coords="100,79,149,104"/>
+<area shape="poly" title=" " alt="" coords="299,33,163,80,161,75,297,28"/>
+<area shape="rect" title=" " alt="" coords="174,79,265,104"/>
+<area shape="poly" title=" " alt="" coords="315,33,251,73,248,69,312,28"/>
+<area shape="rect" title=" " alt="" coords="289,79,373,104"/>
+<area shape="poly" title=" " alt="" coords="334,31,334,65,329,65,329,31"/>
+<area shape="rect" title=" " alt="" coords="397,79,465,104"/>
+<area shape="poly" title=" " alt="" coords="349,29,405,68,402,73,346,33"/>
+<area shape="rect" href="u2f__types_8h.html" title=" " alt="" coords="466,152,565,177"/>
+<area shape="poly" title=" " alt="" coords="385,28,433,46,457,60,479,77,500,106,512,138,507,140,495,109,475,81,454,64,431,51,383,33"/>
+<area shape="rect" href="u2f__transport_8h.html" title=" " alt="" coords="541,79,663,104"/>
+<area shape="poly" title=" " alt="" coords="375,28,546,73,544,78,374,33"/>
+<area shape="rect" title=" " alt="" coords="523,225,593,251"/>
+<area shape="poly" title=" " alt="" coords="525,176,546,212,542,215,520,179"/>
+<area shape="poly" title=" " alt="" coords="590,106,542,145,538,141,586,102"/>
+<area shape="poly" title=" " alt="" coords="601,105,579,178,568,213,563,211,574,177,596,103"/>
+</map>
+</div>
+</div>
 <p><a href="u2f__transport_8c_source.html">Go to the source code of this file.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:a290210daad9e97226bf3cdbc442bbcb4" id="r_a290210daad9e97226bf3cdbc442bbcb4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="u2f__transport_8c.html#a290210daad9e97226bf3cdbc442bbcb4">LOG_IO</a>(...)</td></tr>
+<tr class="separator:a290210daad9e97226bf3cdbc442bbcb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a32ade6260fecf56d427423b368e7361f" id="r_a32ade6260fecf56d427423b368e7361f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="u2f__transport_8c.html#a32ade6260fecf56d427423b368e7361f">U2F_TRANSPORT_init</a> (<a class="el" href="structu2f__transport__t.html">u2f_transport_t</a> *handle, uint8_t type)</td></tr>
+<tr class="separator:a32ade6260fecf56d427423b368e7361f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81a7cf225b3e32069116c98f4f54ffa3" id="r_a81a7cf225b3e32069116c98f4f54ffa3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="u2f__transport_8c.html#a81a7cf225b3e32069116c98f4f54ffa3">U2F_TRANSPORT_rx</a> (<a class="el" href="structu2f__transport__t.html">u2f_transport_t</a> *handle, uint8_t *buffer, uint16_t length)</td></tr>
+<tr class="separator:a81a7cf225b3e32069116c98f4f54ffa3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4898dfbba3e25138038e3b6ad3cc0026" id="r_a4898dfbba3e25138038e3b6ad3cc0026"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="u2f__transport_8c.html#a4898dfbba3e25138038e3b6ad3cc0026">U2F_TRANSPORT_tx</a> (<a class="el" href="structu2f__transport__t.html">u2f_transport_t</a> *handle, uint8_t cmd, const uint8_t *buffer, uint16_t length)</td></tr>
+<tr class="separator:a4898dfbba3e25138038e3b6ad3cc0026"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a290210daad9e97226bf3cdbc442bbcb4" name="a290210daad9e97226bf3cdbc442bbcb4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a290210daad9e97226bf3cdbc442bbcb4">&#9670;&#160;</a></span>LOG_IO</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define LOG_IO</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>...</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="u2f__transport_8c_source.html#l00023">23</a> of file <a class="el" href="u2f__transport_8c_source.html">u2f_transport.c</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="a32ade6260fecf56d427423b368e7361f" name="a32ade6260fecf56d427423b368e7361f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a32ade6260fecf56d427423b368e7361f">&#9670;&#160;</a></span>U2F_TRANSPORT_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void U2F_TRANSPORT_init </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structu2f__transport__t.html">u2f_transport_t</a> *&#160;</td>
+          <td class="paramname"><em>handle</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>type</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="u2f__transport_8c_source.html#l00147">147</a> of file <a class="el" href="u2f__transport_8c_source.html">u2f_transport.c</a>.</p>
+
+</div>
+</div>
+<a id="a81a7cf225b3e32069116c98f4f54ffa3" name="a81a7cf225b3e32069116c98f4f54ffa3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a81a7cf225b3e32069116c98f4f54ffa3">&#9670;&#160;</a></span>U2F_TRANSPORT_rx()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void U2F_TRANSPORT_rx </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structu2f__transport__t.html">u2f_transport_t</a> *&#160;</td>
+          <td class="paramname"><em>handle</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>buffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>length</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="u2f__transport_8c_source.html#l00158">158</a> of file <a class="el" href="u2f__transport_8c_source.html">u2f_transport.c</a>.</p>
+
+</div>
+</div>
+<a id="a4898dfbba3e25138038e3b6ad3cc0026" name="a4898dfbba3e25138038e3b6ad3cc0026"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4898dfbba3e25138038e3b6ad3cc0026">&#9670;&#160;</a></span>U2F_TRANSPORT_tx()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void U2F_TRANSPORT_tx </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structu2f__transport__t.html">u2f_transport_t</a> *&#160;</td>
+          <td class="paramname"><em>handle</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>cmd</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>buffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>length</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="u2f__transport_8c_source.html#l00167">167</a> of file <a class="el" href="u2f__transport_8c_source.html">u2f_transport.c</a>.</p>
+
+</div>
+</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

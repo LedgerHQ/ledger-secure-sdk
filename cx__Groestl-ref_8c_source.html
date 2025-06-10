@@ -135,9 +135,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>cx_err_t cx_groestl(cx_groestl_t  *hash,</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>                    uint32_t       mode,</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>                    <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *in,</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>                    <span class="keyword">const</span> uint8_t *in,</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>                    <span class="keywordtype">size_t</span>         len,</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>                    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>       *out,</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>                    uint8_t       *out,</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>                    <span class="keywordtype">size_t</span>         out_len)</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>{</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keywordtype">size_t</span> sz = 0;</div>
@@ -152,7 +152,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    <span class="keywordflow">return</span> CX_OK;</div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>}</div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>cx_err_t cx_groestl_update(cx_groestl_t *ctx, <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *data, <span class="keywordtype">size_t</span> len)</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>cx_err_t cx_groestl_update(cx_groestl_t *ctx, <span class="keyword">const</span> uint8_t *data, <span class="keywordtype">size_t</span> len)</div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>{</div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <span class="keywordflow">if</span> (ctx == NULL) {</div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>        <span class="keywordflow">return</span> CX_INVALID_PARAMETER;</div>
@@ -164,7 +164,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    <span class="keywordflow">return</span> CX_OK;</div>
 <div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>}</div>
 <div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span> </div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>cx_err_t cx_groestl_final(cx_groestl_t *ctx, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *digest)</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>cx_err_t cx_groestl_final(cx_groestl_t *ctx, uint8_t *digest)</div>
 <div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>{</div>
 <div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    Final(&amp;ctx-&gt;ctx, digest);</div>
 <div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    <span class="keywordflow">return</span> CX_OK;</div>
@@ -516,7 +516,6 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="acx__utils_8c_html_a936b11285e1e935cea4362d427537899"><div class="ttname"><a href="cx__utils_8c.html#a936b11285e1e935cea4362d427537899">cx_memxor</a></div><div class="ttdeci">void cx_memxor(uint8_t *buf1, const uint8_t *buf2, size_t len)</div><div class="ttdef"><b>Definition</b> <a href="cx__utils_8c_source.html#l00173">cx_utils.c:173</a></div></div>
 <div class="ttc" id="acx__utils_8h_html"><div class="ttname"><a href="cx__utils_8h.html">cx_utils.h</a></div></div>
 <div class="ttc" id="alcx__common_8h_html_af11e07ffd4b2daabe18e74d896e640fd"><div class="ttname"><a href="lcx__common_8h.html#af11e07ffd4b2daabe18e74d896e640fd">CX_LAST</a></div><div class="ttdeci">#define CX_LAST</div><div class="ttdef"><b>Definition</b> <a href="lcx__common_8h_source.html#l00115">lcx_common.h:115</a></div></div>
-<div class="ttc" id="ausbd__conf_8h_html_aba7bc1797add20fe3efdf37ced1182c5"><div class="ttname"><a href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a></div><div class="ttdeci">unsigned char uint8_t</div><div class="ttdef"><b>Definition</b> <a href="usbd__conf_8h_source.html#l00053">usbd_conf.h:53</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
