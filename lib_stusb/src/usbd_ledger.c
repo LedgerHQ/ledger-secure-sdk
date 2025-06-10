@@ -647,7 +647,7 @@ void USB_LEDGER_stop(void)
 
 void USBD_LEDGER_add_profile(const usbd_class_info_t *class_info, uint8_t bcdusb, uint8_t usbd_iad)
 {
-    if (!is_running()) {
+    if (!is_running() || usbd_ledger_data.nb_of_class >= USBD_MAX_NUM_INTERFACES) {
         return;
     }
 

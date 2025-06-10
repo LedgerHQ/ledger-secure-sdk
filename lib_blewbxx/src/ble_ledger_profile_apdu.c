@@ -685,7 +685,7 @@ int32_t BLE_LEDGER_PROFILE_apdu_data_ready(uint8_t *buffer, uint16_t max_length,
 
 void BLE_LEDGER_PROFILE_apdu_setting(uint32_t id, uint8_t *buffer, uint16_t length, void *cookie)
 {
-    if ((id == BLE_LEDGER_PROFILE_APDU_SETTING_ID_TRANSFER_MODE) && (buffer) && (length == 1)) {
+    if ((id == BLE_LEDGER_PROFILE_APDU_SETTING_ID_TRANSFER_MODE) && (buffer) && (length == 1) && (cookie)) {
         ledger_ble_profile_apdu_handle_t *handle = (ledger_ble_profile_apdu_handle_t *) PIC(cookie);
         handle->transfer_mode_wanted_enabled     = buffer[0];
     }
