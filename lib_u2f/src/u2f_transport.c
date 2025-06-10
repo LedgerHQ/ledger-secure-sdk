@@ -46,6 +46,7 @@ static u2f_error_t process_packet(u2f_transport_t *handle, uint8_t *buffer, uint
             goto end;
         }
         uint32_t message_cid = U4BE(buffer, 0);
+        handle->tx_cid       = message_cid;
         if (message_cid == U2F_FORBIDDEN_CID) {
             // Forbidden CID
             error = CTAP1_ERR_INVALID_CHANNEL;
@@ -54,7 +55,8 @@ static u2f_error_t process_packet(u2f_transport_t *handle, uint8_t *buffer, uint
         else if ((message_cid == U2F_BROADCAST_CID) && (length >= 5)
                  && (buffer[4] != (U2F_COMMAND_HID_INIT | 0x80))) {
             // Broadcast CID but not an init message
-            error = CTAP1_ERR_INVALID_CHANNEL;
+            error       = CTAP1_ERR_INVALID_CHANNEL;
+            handle->cid = message_cid;
             goto end;
         }
         else if ((handle->cid != U2F_FORBIDDEN_CID) && (handle->cid != message_cid)) {
@@ -62,7 +64,8 @@ static u2f_error_t process_packet(u2f_transport_t *handle, uint8_t *buffer, uint
             error = CTAP1_ERR_CHANNEL_BUSY;
             goto end;
         }
-        else if (handle->state > U2F_STATE_CMD_FRAMING) {
+        else if ((handle->state > U2F_STATE_CMD_FRAMING) && (length >= 5)
+                 && (buffer[4] != (U2F_COMMAND_HID_CANCEL | 0x80))) {
             // Good CID but a request is already in process
             error = CTAP1_ERR_CHANNEL_BUSY;
             goto end;
@@ -91,7 +94,13 @@ static u2f_error_t process_packet(u2f_transport_t *handle, uint8_t *buffer, uint
         // Check if packet will fit in the rx buffer
         handle->rx_message_length = (uint16_t) U2BE(buffer, 1) + 3;
         if (handle->rx_message_length > handle->rx_message_buffer_size) {
-            error = CTAP1_ERR_OTHER;
+            error = CTAP1_ERR_INVALID_LENGTH;
+            goto end;
+        }
+
+        if ((handle->rx_message_length <= 3) && (buffer[0] == (U2F_COMMAND_HID_CBOR | 0x80))) {
+            handle->rx_message_buffer[0] = U2F_COMMAND_HID_CBOR;
+            error                        = CTAP2_ERR_INVALID_CBOR;
             goto end;
         }
 
@@ -152,26 +161,7 @@ void U2F_TRANSPORT_rx(u2f_transport_t *handle, uint8_t *buffer, uint16_t length)
         return;
     }
 
-    uint8_t error = (uint8_t) process_packet(handle, buffer, length);
-
-    if (error != CTAP1_ERR_SUCCESS) {
-        U2F_TRANSPORT_tx(handle, U2F_COMMAND_ERROR, &error, 1);
-        return;
-    }
-
-    switch (handle->rx_message_buffer[0]) {
-        case U2F_COMMAND_PING:
-            U2F_TRANSPORT_tx(handle,
-                             U2F_COMMAND_PING,
-                             &handle->rx_message_buffer[3],
-                             handle->rx_message_length - 3);
-            LOG_IO("U2F_COMMAND_PING %d\n", handle->rx_message_length);
-            handle->state = U2F_STATE_CMD_PROCESSING;
-            break;
-
-        default:
-            break;
-    }
+    handle->error = process_packet(handle, buffer, length);
 }
 
 void U2F_TRANSPORT_tx(u2f_transport_t *handle, uint8_t cmd, const uint8_t *buffer, uint16_t length)
@@ -181,7 +171,7 @@ void U2F_TRANSPORT_tx(u2f_transport_t *handle, uint8_t cmd, const uint8_t *buffe
     }
 
     if (buffer) {
-        LOG_IO("INITIALIZATION PACKET\n");
+        LOG_IO("Tx : INITIALIZATION PACKET\n");
         handle->tx_message_buffer          = buffer;
         handle->tx_message_length          = length;
         handle->tx_message_sequence_number = 0;
@@ -190,7 +180,7 @@ void U2F_TRANSPORT_tx(u2f_transport_t *handle, uint8_t cmd, const uint8_t *buffe
         memset(handle->tx_packet_buffer, 0, handle->tx_packet_buffer_size);
     }
     else {
-        LOG_IO("CONTINUATION PACKET\n");
+        LOG_IO("Tx : CONTINUATION PACKET\n");
     }
 
     uint16_t tx_packet_offset = 0;
@@ -198,7 +188,7 @@ void U2F_TRANSPORT_tx(u2f_transport_t *handle, uint8_t cmd, const uint8_t *buffe
 
     // Add CID if necessary
     if (handle->type == U2F_TRANSPORT_TYPE_USB_HID) {
-        U4BE_ENCODE(handle->tx_packet_buffer, 0, handle->cid);
+        U4BE_ENCODE(handle->tx_packet_buffer, 0, handle->tx_cid);
         tx_packet_offset += 4;
     }
 
@@ -213,7 +203,7 @@ void U2F_TRANSPORT_tx(u2f_transport_t *handle, uint8_t cmd, const uint8_t *buffe
     }
 
     if ((handle->tx_message_length + tx_packet_offset)
-        >= (handle->tx_packet_buffer_size + handle->tx_message_offset)) {
+        > (handle->tx_packet_buffer_size + handle->tx_message_offset)) {
         // Remaining message length doesn't fit the max packet size
         memcpy(&handle->tx_packet_buffer[tx_packet_offset],
                &handle->tx_message_buffer[handle->tx_message_offset],
@@ -229,7 +219,6 @@ void U2F_TRANSPORT_tx(u2f_transport_t *handle, uint8_t cmd, const uint8_t *buffe
         tx_packet_offset += (handle->tx_message_length - handle->tx_message_offset);
         handle->tx_message_offset = handle->tx_message_length;
         handle->tx_message_buffer = NULL;
-        handle->state             = U2F_STATE_IDLE;
         handle->cid               = U2F_FORBIDDEN_CID;
     }
 
