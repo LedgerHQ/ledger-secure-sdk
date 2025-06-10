@@ -20,7 +20,9 @@ file(
   "${BOLOS_SDK}/lib_blewbxx/core/template/*.c"
   "${BOLOS_SDK}/lib_stusb/STM32_USB_Device_Library/Core/Src/*.c"
   "${BOLOS_SDK}/lib_stusb/STM32_USB_Device_Library/Class/HID/Src/*.c"
-  "${BOLOS_SDK}/lib_stusb/STM32_USB_Device_Library/Class/CCID/src/*.c")
+  "${BOLOS_SDK}/lib_stusb/STM32_USB_Device_Library/Class/CCID/src/*.c"
+  "${BOLOS_SDK}/lib_u2f/src/*.c"
+  )
 
 add_library(io ${LIB_IO_SOURCES})
 target_link_libraries(io PUBLIC nbgl cxng standard_app macros)
@@ -45,4 +47,5 @@ target_include_directories(
          ${BOLOS_SDK}/lib_stusb/STM32_USB_Device_Library/Class/HID/Inc/
          ${BOLOS_SDK}/lib_stusb/STM32_USB_Device_Library/Class/CCID/inc/
          ${BOLOS_SDK}/lib_stusb_impl/
+         ${BOLOS_SDK}/lib_u2f/include
          ${BOLOS_SDK}/)
