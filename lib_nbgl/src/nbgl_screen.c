@@ -12,7 +12,7 @@
 #include "nbgl_debug.h"
 #include "nbgl_touch.h"
 #include "os_pic.h"
-#include "os_io.h"
+#include "os_io_seph_ux.h"
 #include "os_task.h"
 
 /*********************
@@ -73,7 +73,7 @@ void nbgl_screenRedraw(void)
 #ifdef TARGET_STAX
     // by default, exclude only left border from touch
     // if any sub-object is a keyboard, this will be modified when drawing it
-    touch_exclude_borders(LEFT_BORDER);
+    touch_exclude_borders(OS_IO_TOUCH_AREA_LEFT_BORDER);
 #endif  // TARGET_STAX
 
     nbgl_screen_reinit();

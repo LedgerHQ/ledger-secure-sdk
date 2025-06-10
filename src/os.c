@@ -23,12 +23,8 @@
 #include "os_io.h"
 #include "os_utils.h"
 #include "os.h"
+#include "os_io_seph_cmd.h"
 #include <string.h>
-
-#ifndef HAVE_LOCAL_APDU_BUFFER
-// apdu buffer must hold a complete apdu to avoid troubles
-unsigned char G_io_apdu_buffer[IO_APDU_BUFFER_SIZE];
-#endif
 
 #ifndef BOLOS_OS_UPGRADER_APP
 void os_boot(void)
@@ -262,6 +258,13 @@ void u4be_encode(unsigned char *buffer, unsigned int offset, unsigned int value)
 void u4le_encode(unsigned char *buffer, unsigned int offset, unsigned int value)
 {
     U4LE_ENCODE(buffer, offset, value);
+}
+
+void os_reset(void)
+{
+    os_io_seph_cmd_se_reset();
+    for (;;) {
+    }
 }
 
 void *os_memmove(void *dest, const void *src, size_t n)

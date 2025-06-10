@@ -18,10 +18,10 @@
 
 #include "ledger_assert.h"
 #include "os.h"
+#include "os_io_legacy.h"
 #if defined(HAVE_BAGL) || defined(HAVE_NBGL)
 #include "ux.h"
 #endif
-#include "os_io_seproxyhal.h"
 
 #ifdef HAVE_NBGL
 #include "nbgl_use_case.h"

@@ -63,13 +63,10 @@
 #ifdef HAVE_SE_TOUCH
 nbgl_touchStatePosition_t gTouchStatePosition;
 #endif
-unsigned char G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
-extern bool   verbose;
+extern bool verbose;
 
 bool         globalError = false;
 extern char *dirName;
-
-unsigned char G_io_apdu_buffer[IO_APDU_BUFFER_SIZE];
 
 uint32_t G_interval_ms = 100;
 
@@ -161,16 +158,16 @@ void io_seproxyhal_se_reset(void)
     }
 }
 
+void os_reset(void)
+{
+    if (verbose) {
+        printf("os_reset\n");
+    }
+}
+
 void io_seproxyhal_disable_io(void) {}
 
 void io_seproxyhal_general_status(void) {}
-
-#ifdef HAVE_NFC
-void io_seproxyhal_nfc_power(bool forceInit)
-{
-    UNUSED(forceInit);
-}
-#endif  // HAVE_NFC
 
 #ifdef HAVE_BLE
 void os_ux_set_status(unsigned int ux_id, unsigned int status)

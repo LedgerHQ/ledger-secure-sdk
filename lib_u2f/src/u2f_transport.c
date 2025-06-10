@@ -1,572 +1,227 @@
+/* @BANNER@ */
 
-/*******************************************************************************
- *   Ledger Nano S - Secure firmware
- *   (c) 2022 Ledger
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- ********************************************************************************/
-
-#ifdef HAVE_IO_U2F
-
-#include <stdint.h>
+/* Includes ------------------------------------------------------------------*/
 #include <string.h>
-#include "u2f_service.h"
-#include "u2f_transport.h"
-#include "u2f_processing.h"
-#include "u2f_io.h"
 
-#include "lcx_rng.h"
-#include "lcx_crc.h"
 #include "os.h"
-#include "os_io_seproxyhal.h"
+#include "os_math.h"
+#include "os_utils.h"
+#include "os_io.h"
 
-#define U2F_MASK_COMMAND        0x80
-#define U2F_COMMAND_HEADER_SIZE 3
+#include "u2f_types.h"
+#include "u2f_transport.h"
 
-static const uint8_t BROADCAST_CHANNEL[] = {0xff, 0xff, 0xff, 0xff};
-static const uint8_t FORBIDDEN_CHANNEL[] = {0x00, 0x00, 0x00, 0x00};
+/* Private enumerations ------------------------------------------------------*/
 
-/* TODO: take into account the INIT during SEGMENTED message correctly.
- * Avoid erasing the first part of the apdu buffer when doing so)
- */
+/* Private types, structures, unions -----------------------------------------*/
 
-// init
-void u2f_transport_reset(u2f_service_t *service)
+/* Private defines------------------------------------------------------------*/
+#ifdef HAVE_PRINTF
+// #define LOG_IO PRINTF
+#define LOG_IO(...)
+#else  // !HAVE_PRINTF
+#define LOG_IO(...)
+#endif  // !HAVE_PRINTF
+
+/* Private macros-------------------------------------------------------------*/
+
+/* Private functions prototypes ----------------------------------------------*/
+static u2f_error_t process_packet(u2f_transport_t *handle, uint8_t *buffer, uint16_t length);
+
+/* Exported variables --------------------------------------------------------*/
+
+/* Private variables ---------------------------------------------------------*/
+
+/* Private functions ---------------------------------------------------------*/
+static u2f_error_t process_packet(u2f_transport_t *handle, uint8_t *buffer, uint16_t length)
 {
-    service->transportState                  = U2F_IDLE;
-    service->transportOffset                 = 0;
-    service->transportMedia                  = 0;
-    service->transportPacketIndex            = 0;
-    service->fakeChannelTransportState       = U2F_IDLE;
-    service->fakeChannelTransportOffset      = 0;
-    service->fakeChannelTransportPacketIndex = 0;
-    service->sending                         = false;
-    service->waitAsynchronousResponse        = U2F_WAIT_ASYNCH_IDLE;
-    // reset the receive buffer to allow for a new message to be received again (in case
-    // transmission of a CODE buffer the previous reply)
-    service->transportBuffer = service->transportReceiveBuffer;
-    cx_rng(service->channel, U2F_CHANNEL_ID_SIZE);
-}
+    u2f_error_t error = CTAP1_ERR_SUCCESS;
 
-/**
- * Initialize the u2f transport and provide the buffer into which to store incoming message
- */
-void u2f_transport_init(u2f_service_t *service,
-                        uint8_t       *message_buffer,
-                        uint16_t       message_buffer_length)
-{
-    service->next_channel                 = 1;
-    service->transportReceiveBuffer       = message_buffer;
-    service->transportReceiveBufferLength = message_buffer_length;
-    u2f_transport_reset(service);
-}
-
-/**
- * Reply an error at the U2F transport level (take into account the FIDO U2F framing)
- */
-static void u2f_transport_error(u2f_service_t *service, char errorCode)
-{
-    // u2f_transport_reset(service); // warning reset first to allow for U2F_io sent call to
-    // u2f_transport_sent internally on eventless platforms
-    G_io_usb_ep_buffer[8] = errorCode;
-
-    // ensure the state is set to error sending to allow for special treatment in case reply is not
-    // read by the receiver
-    service->transportState       = U2F_SENDING_ERROR;
-    service->transportPacketIndex = 0;
-    service->transportBuffer      = G_io_usb_ep_buffer + 8;
-    service->transportOffset      = 0;
-    service->transportLength      = 1;
-    service->sendCmd              = U2F_STATUS_ERROR;
-    // pump the first message, with the reception media
-    u2f_transport_sent(service, service->media);
-}
-
-/**
- * Function called when the previously scheduled message to be sent on the media is effectively
- * sent. And a new message can be scheduled.
- */
-void u2f_transport_sent(u2f_service_t *service, u2f_transport_media_t media)
-{
-    // don't process when replying to anti timeout requests
-    if (!u2f_message_repliable(service)) {
-        // previous mark packet as sent
-        service->sending = false;
-        return;
+    // Check CID for USB HID transport
+    if (handle->type == U2F_TRANSPORT_TYPE_USB_HID) {
+        if (length < 4) {
+            // CID not complete, answer with broadcast CID?
+            error       = CTAP1_ERR_OTHER;
+            handle->cid = U2F_BROADCAST_CID;
+            goto end;
+        }
+        uint32_t message_cid = U4BE(buffer, 0);
+        handle->tx_cid       = message_cid;
+        if (message_cid == U2F_FORBIDDEN_CID) {
+            // Forbidden CID
+            error = CTAP1_ERR_INVALID_CHANNEL;
+            goto end;
+        }
+        else if ((message_cid == U2F_BROADCAST_CID) && (length >= 5)
+                 && (buffer[4] != (U2F_COMMAND_HID_INIT | 0x80))) {
+            // Broadcast CID but not an init message
+            error       = CTAP1_ERR_INVALID_CHANNEL;
+            handle->cid = message_cid;
+            goto end;
+        }
+        else if ((handle->cid != U2F_FORBIDDEN_CID) && (handle->cid != message_cid)) {
+            // CID is already set
+            error = CTAP1_ERR_CHANNEL_BUSY;
+            goto end;
+        }
+        else if ((handle->state > U2F_STATE_CMD_FRAMING) && (length >= 5)
+                 && (buffer[4] != (U2F_COMMAND_HID_CANCEL | 0x80))) {
+            // Good CID but a request is already in process
+            error = CTAP1_ERR_CHANNEL_BUSY;
+            goto end;
+        }
+        else if (handle->cid == U2F_FORBIDDEN_CID) {
+            // Set new CID
+            handle->cid = message_cid;
+        }
+        buffer += 4;
+        length -= 4;
     }
 
-    // previous mark packet as sent
-    service->sending = false;
-
-    // if idle (possibly after an error), then only await for a transmission
-    if (service->transportState != U2F_SENDING_RESPONSE
-        && service->transportState != U2F_SENDING_ERROR) {
-        // absorb the error, transport is erroneous but that won't hurt in the end.
-        // also absorb the fake channel user presence check reply ack
-        // THROW(INVALID_STATE);
-        return;
+    // Check header length
+    if (length < 1) {
+        error = CTAP1_ERR_OTHER;
+        goto end;
     }
-    if (service->transportOffset < service->transportLength) {
-        uint16_t mtu           = (media == U2F_MEDIA_USB) ? USB_SEGMENT_SIZE : BLE_SEGMENT_SIZE;
-        uint16_t channelHeader = (media == U2F_MEDIA_USB ? 4 : 0);
-        uint8_t  headerSize
-            = (service->transportPacketIndex == 0 ? (channelHeader + 3) : (channelHeader + 1));
-        uint16_t blockSize
-            = ((service->transportLength - service->transportOffset) > (mtu - headerSize)
-                   ? (mtu - headerSize)
-                   : service->transportLength - service->transportOffset);
-        uint16_t dataSize = blockSize + headerSize;
-        uint16_t offset   = 0;
-        // Fragment
-        if (media == U2F_MEDIA_USB) {
-            memcpy(G_io_usb_ep_buffer, service->channel, U2F_CHANNEL_ID_SIZE);
-            offset += 4;
-        }
-        if (service->transportPacketIndex == 0) {
-            G_io_usb_ep_buffer[offset++] = service->sendCmd;
-            G_io_usb_ep_buffer[offset++] = (service->transportLength >> 8);
-            G_io_usb_ep_buffer[offset++] = (service->transportLength & 0xff);
-        }
-        else {
-            G_io_usb_ep_buffer[offset++] = (service->transportPacketIndex - 1);
-        }
-        if (service->transportBuffer != NULL) {
-            memmove(G_io_usb_ep_buffer + headerSize,
-                    service->transportBuffer + service->transportOffset,
-                    blockSize);
-        }
-        service->transportOffset += blockSize;
-        service->transportPacketIndex++;
-        u2f_io_send(G_io_usb_ep_buffer, dataSize, media);
-    }
-    // last part sent
-    else if (service->transportOffset == service->transportLength) {
-        u2f_transport_reset(service);
-        // we sent the whole response (even if we haven't yet received the ack for the last sent usb
-        // in packet)
-        G_io_app.apdu_state = APDU_IDLE;
-    }
-}
 
-void u2f_transport_send_usb_user_presence_required(u2f_service_t *service)
-{
-    uint16_t offset  = 0;
-    service->sending = true;
-    memcpy(G_io_usb_ep_buffer, service->channel, U2F_CHANNEL_ID_SIZE);
-    offset += 4;
-    G_io_usb_ep_buffer[offset++] = U2F_CMD_MSG;
-    G_io_usb_ep_buffer[offset++] = 0;
-    G_io_usb_ep_buffer[offset++] = 2;
-    G_io_usb_ep_buffer[offset++] = 0x69;
-    G_io_usb_ep_buffer[offset++] = 0x85;
-    u2f_io_send(G_io_usb_ep_buffer, offset, U2F_MEDIA_USB);
-}
-
-void u2f_transport_send_wink(u2f_service_t *service)
-{
-    uint16_t offset  = 0;
-    service->sending = true;
-    memcpy(G_io_usb_ep_buffer, service->channel, U2F_CHANNEL_ID_SIZE);
-    offset += 4;
-    G_io_usb_ep_buffer[offset++] = U2F_CMD_WINK;
-    G_io_usb_ep_buffer[offset++] = 0;
-    G_io_usb_ep_buffer[offset++] = 0;
-    u2f_io_send(G_io_usb_ep_buffer, offset, U2F_MEDIA_USB);
-}
-
-#ifdef HAVE_FIDO2
-
-void u2f_transport_ctap2_send_keepalive(u2f_service_t *service, uint8_t reason)
-{
-    uint16_t offset  = 0;
-    service->sending = true;
-    memcpy(G_io_usb_ep_buffer, service->channel, U2F_CHANNEL_ID_SIZE);
-    offset += 4;
-    G_io_usb_ep_buffer[offset++] = CTAP2_STATUS_KEEPALIVE;
-    G_io_usb_ep_buffer[offset++] = 0;
-    G_io_usb_ep_buffer[offset++] = 1;
-    G_io_usb_ep_buffer[offset++] = reason;
-    u2f_io_send(G_io_usb_ep_buffer, offset, U2F_MEDIA_USB);
-}
-
-#endif
-
-bool u2f_transport_receive_fakeChannel(u2f_service_t *service, uint8_t *buffer, uint16_t size)
-{
-    if (service->fakeChannelTransportState == U2F_INTERNAL_ERROR) {
-        return false;
-    }
-    if (memcmp(service->channel, buffer, U2F_CHANNEL_ID_SIZE) != 0) {
-        goto error;
-    }
-    if (service->fakeChannelTransportOffset == 0) {
-        uint16_t commandLength = U2BE(buffer, 4 + 1) + U2F_COMMAND_HEADER_SIZE;
-        // Some buggy implementations can send a WINK here, reply it gently
-        if (buffer[4] == U2F_CMD_WINK) {
-            u2f_transport_send_wink(service);
-            return true;
+    if (buffer[0] & 0x80) {
+        // Initialization packet
+        if (length < 3) {
+            error = CTAP1_ERR_OTHER;
+            goto end;
         }
 
-        if (commandLength != service->transportLength) {
-            goto error;
+        // Check if packet will fit in the rx buffer
+        handle->rx_message_length = (uint16_t) U2BE(buffer, 1) + 3;
+        if (handle->rx_message_length > handle->rx_message_buffer_size) {
+            error = CTAP1_ERR_INVALID_LENGTH;
+            goto end;
         }
-        if (buffer[4] != U2F_CMD_MSG) {
-            goto error;
+
+        if ((handle->rx_message_length <= 3) && (buffer[0] == (U2F_COMMAND_HID_CBOR | 0x80))) {
+            handle->rx_message_buffer[0] = U2F_COMMAND_HID_CBOR;
+            error                        = CTAP2_ERR_INVALID_CBOR;
+            goto end;
         }
-        service->fakeChannelTransportOffset      = MIN(size - 4, service->transportLength);
-        service->fakeChannelTransportPacketIndex = 0;
-        service->fakeChannelCrc
-            = cx_crc16_update(0, buffer + 4, service->fakeChannelTransportOffset);
+
+        handle->state                                          = U2F_STATE_CMD_FRAMING;
+        handle->rx_message_offset                              = 0;
+        handle->rx_message_buffer[handle->rx_message_offset++] = buffer[0] & 0x7F;  // CMD
+        handle->rx_message_buffer[handle->rx_message_offset++] = buffer[1];         // BCNTH
+        handle->rx_message_buffer[handle->rx_message_offset++] = buffer[2];         // BCNTL
+        handle->rx_message_expected_sequence_number            = 0;
+        buffer += 3;
+        length -= 3;
     }
     else {
-        if (buffer[4] != service->fakeChannelTransportPacketIndex) {
-            goto error;
+        // Continuation packet
+        if (handle->state != U2F_STATE_CMD_FRAMING) {
+            error = CTAP1_ERR_OTHER;
+            goto end;
         }
-        uint16_t xfer_len
-            = MIN(size - 5, service->transportLength - service->fakeChannelTransportOffset);
-        service->fakeChannelTransportPacketIndex++;
-        service->fakeChannelTransportOffset += xfer_len;
-        service->fakeChannelCrc = cx_crc16_update(service->fakeChannelCrc, buffer + 5, xfer_len);
+        else if (buffer[0] != handle->rx_message_expected_sequence_number) {
+            error = CTAP1_ERR_INVALID_SEQ;
+            goto end;
+        }
+        handle->rx_message_expected_sequence_number++;
+        buffer += 1;
+        length -= 1;
     }
-    if (service->fakeChannelTransportOffset >= service->transportLength) {
-        if (service->fakeChannelCrc != service->commandCrc) {
-            goto error;
-        }
-        service->fakeChannelTransportState  = U2F_FAKE_RECEIVED;
-        service->fakeChannelTransportOffset = 0;
-        // reply immediately when the asynch response is not yet ready
-        if (service->waitAsynchronousResponse == U2F_WAIT_ASYNCH_ON) {
-            u2f_transport_send_usb_user_presence_required(service);
-            // response sent
-            service->fakeChannelTransportState = U2F_IDLE;
-        }
+
+    if ((handle->rx_message_offset + length) > handle->rx_message_length) {
+        length = handle->rx_message_length - handle->rx_message_offset;
     }
-    return true;
-error:
-    service->fakeChannelTransportState = U2F_INTERNAL_ERROR;
-    // don't hesitate here, the user will have to exit/rerun the app otherwise.
-    THROW(EXCEPTION_IO_RESET);
-    return false;
+
+    memcpy(&handle->rx_message_buffer[handle->rx_message_offset], buffer, length);
+    handle->rx_message_offset += length;
+
+    if (handle->rx_message_offset == handle->rx_message_length) {
+        handle->state = U2F_STATE_CMD_COMPLETE;
+    }
+
+end:
+    return error;
 }
 
-/**
- * Function that process every message received on a media.
- * Performs message concatenation when message is split.
- */
-void u2f_transport_received(u2f_service_t        *service,
-                            uint8_t              *buffer,
-                            uint16_t              size,
-                            u2f_transport_media_t media)
+/* Exported functions --------------------------------------------------------*/
+void U2F_TRANSPORT_init(u2f_transport_t *handle, uint8_t type)
 {
-    uint16_t channelHeader = (media == U2F_MEDIA_USB ? 4 : 0);
-    uint16_t xfer_len;
-    service->media = media;
-
-    // PRINTF("recv %d %d %d %d %d\n", size, service->waitAsynchronousResponse,
-    // service->transportState, service->transportOffset, buffer[4]);
-
-    // Handle a busy channel and avoid reentry
-    if (service->transportState == U2F_SENDING_RESPONSE) {
-        u2f_transport_error(service, ERROR_CHANNEL_BUSY);
-        goto error;
-    }
-    if (service->waitAsynchronousResponse != U2F_WAIT_ASYNCH_IDLE) {
-        // TODO : this is an error for FIDO 2
-        if (!u2f_transport_receive_fakeChannel(service, buffer, size)) {
-            u2f_transport_error(service, ERROR_CHANNEL_BUSY);
-            goto error;
-        }
+    if (!handle) {
         return;
     }
 
-    // SENDING_ERROR is accepted, and triggers a reset => means the host hasn't consumed the error.
-    if (service->transportState == U2F_SENDING_ERROR) {
-        u2f_transport_reset(service);
-    }
+    handle->state = U2F_STATE_IDLE;
+    handle->cid   = U2F_FORBIDDEN_CID;
+    handle->type  = type;
+}
 
-    if (size < (1 + channelHeader)) {
-        // Message to short, abort
-        u2f_transport_error(service, ERROR_PROP_MESSAGE_TOO_SHORT);
-        goto error;
-    }
-    if (media == U2F_MEDIA_USB) {
-        // hold the current channel value to reply to, for example, INIT commands within flow of
-        // segments.
-        memcpy(service->channel, buffer, U2F_CHANNEL_ID_SIZE);
-    }
-
-#ifdef HAVE_FIDO2
-
-    // Handle a cancel request if received
-
-    if ((buffer[channelHeader] == CTAP2_CMD_CANCEL)
-        && (((media == U2F_MEDIA_USB)
-             && (memcmp(service->transportChannel, service->channel, U2F_CHANNEL_ID_SIZE) == 0))
-            || (media != U2F_MEDIA_USB))) {
-        // Drop the cancel request if there's no command to be processed, otherwise pass it to the
-        // upper layer immediately
-        if (service->transportState != U2F_PROCESSING_COMMAND) {
-            return;
-        }
-        uint16_t commandLength = U2BE(buffer, channelHeader + 1);
-        ctap2_handle_cmd_cancel(service, buffer + channelHeader + 1 + 2, commandLength);
+void U2F_TRANSPORT_rx(u2f_transport_t *handle, uint8_t *buffer, uint16_t length)
+{
+    if (!handle || !buffer || length < 3) {
         return;
     }
 
-#endif
+    handle->error = process_packet(handle, buffer, length);
+}
 
-    // no previous chunk processed for the current message
-    if (service->transportOffset == 0
-        // on USB we could get an INIT within a flow of segments.
-        || (media == U2F_MEDIA_USB
-            && memcmp(service->transportChannel, service->channel, U2F_CHANNEL_ID_SIZE) != 0)
-        // CTAP2 transport test (HID-1)
-        || (buffer[channelHeader] == U2F_CMD_INIT)) {
-        if (size < (channelHeader + 3)) {
-            // Message to short, abort
-            u2f_transport_error(service, ERROR_PROP_MESSAGE_TOO_SHORT);
-            goto error;
-        }
-        // check this is a command, cannot accept continuation without previous command
-        if ((buffer[channelHeader + 0] & U2F_MASK_COMMAND) == 0) {
-            // Not a command packet, abort
-            // CTAP2 transport test : do not send back an error in this case (HID-1)
-            // u2f_transport_error(service, ERROR_INVALID_SEQ);
-            goto error;
-        }
+void U2F_TRANSPORT_tx(u2f_transport_t *handle, uint8_t cmd, const uint8_t *buffer, uint16_t length)
+{
+    if (!handle || (!buffer && !handle->tx_message_buffer)) {
+        return;
+    }
 
-        // If waiting for a continuation on a different channel, reply BUSY
-        // immediately
-        if (media == U2F_MEDIA_USB) {
-            if ((service->transportState == U2F_HANDLE_SEGMENTED)
-                && (memcmp(service->channel, service->transportChannel, U2F_CHANNEL_ID_SIZE) != 0)
-                && (buffer[channelHeader] != U2F_CMD_INIT)) {
-                // special error case, we reply but don't change the current state of the transport
-                // (ongoing message for example)
-                // u2f_transport_error_no_reset(service, ERROR_CHANNEL_BUSY);
-                uint16_t offset = 0;
-                // Fragment
-                if (media == U2F_MEDIA_USB) {
-                    memcpy(G_io_usb_ep_buffer, service->channel, U2F_CHANNEL_ID_SIZE);
-                    offset += 4;
-                }
-                G_io_usb_ep_buffer[offset++] = U2F_STATUS_ERROR;
-                G_io_usb_ep_buffer[offset++] = 0;
-                G_io_usb_ep_buffer[offset++] = 1;
-                G_io_usb_ep_buffer[offset++] = ERROR_CHANNEL_BUSY;
-                u2f_io_send(G_io_usb_ep_buffer, offset, media);
-                goto error;
-            }
-        }
-        // If a command was already sent, and we are not processing a INIT
-        // command, abort
-        if ((service->transportState == U2F_HANDLE_SEGMENTED)
-            && !((media == U2F_MEDIA_USB) && (buffer[channelHeader] == U2F_CMD_INIT))) {
-            // Unexpected continuation at this stage, abort
-            u2f_transport_error(service, ERROR_INVALID_SEQ);
-            goto error;
-        }
-        // Check the length
-        uint16_t commandLength = U2BE(buffer, channelHeader + 1);
-        if (commandLength > (service->transportReceiveBufferLength - 3)) {
-            // Overflow in message size, abort
-            u2f_transport_error(service, ERROR_INVALID_LEN);
-            goto error;
-        }
-        // Check if the command is supported
-        switch (buffer[channelHeader]) {
-            case U2F_CMD_PING:
-            case U2F_CMD_MSG:
-#ifdef HAVE_FIDO2
-            case CTAP2_CMD_CBOR:
-            case CTAP2_CMD_CANCEL:
-#endif
-                if (media == U2F_MEDIA_USB) {
-                    if (u2f_is_channel_broadcast(service->channel)
-                        || u2f_is_channel_forbidden(service->channel)) {
-                        u2f_transport_error(service, ERROR_INVALID_CID);
-                        goto error;
-                    }
-                }
-                // no channel for BLE
-                break;
-            case U2F_CMD_INIT:
-                if (media != U2F_MEDIA_USB) {
-                    // Unknown command, abort
-                    u2f_transport_error(service, ERROR_INVALID_CMD);
-                    goto error;
-                }
-
-                if (u2f_is_channel_forbidden(service->channel)) {
-                    u2f_transport_error(service, ERROR_INVALID_CID);
-                    goto error;
-                }
-
-                break;
-            default:
-                // Unknown command, abort
-                u2f_transport_error(service, ERROR_INVALID_CMD);
-                goto error;
-        }
-
-        // Ok, initialize the buffer
-        // if (buffer[channelHeader] != U2F_CMD_INIT)
-        {
-            xfer_len = MIN(size - (channelHeader), U2F_COMMAND_HEADER_SIZE + commandLength);
-            memmove(service->transportBuffer, buffer + channelHeader, xfer_len);
-            if (media == U2F_MEDIA_USB) {
-                service->commandCrc = cx_crc16_update(0, service->transportBuffer, xfer_len);
-            }
-            service->transportOffset = xfer_len;
-            service->transportLength = U2F_COMMAND_HEADER_SIZE + commandLength;
-            service->transportMedia  = media;
-            // initialize the response
-            service->transportPacketIndex = 0;
-            memcpy(service->transportChannel, service->channel, U2F_CHANNEL_ID_SIZE);
-        }
+    if (buffer) {
+        LOG_IO("Tx : INITIALIZATION PACKET\n");
+        handle->tx_message_buffer          = buffer;
+        handle->tx_message_length          = length;
+        handle->tx_message_sequence_number = 0;
+        handle->tx_message_offset          = 0;
+        handle->tx_packet_length           = 0;
+        memset(handle->tx_packet_buffer, 0, handle->tx_packet_buffer_size);
     }
     else {
-        // Continuation
-        if (size < (channelHeader + 2)) {
-            // Message to short, abort
-            u2f_transport_error(service, ERROR_PROP_MESSAGE_TOO_SHORT);
-            goto error;
-        }
-        if (media != service->transportMedia) {
-            // Mixed media
-            u2f_transport_error(service, ERROR_PROP_MEDIA_MIXED);
-            goto error;
-        }
-        if (service->transportState != U2F_HANDLE_SEGMENTED) {
-            // Unexpected continuation at this stage, abort
-            // TODO : review the behavior is HID only
-            if (media == U2F_MEDIA_USB) {
-                u2f_transport_reset(service);
-                goto error;
-            }
-            else {
-                u2f_transport_error(service, ERROR_INVALID_SEQ);
-                goto error;
-            }
-        }
-        if (media == U2F_MEDIA_USB) {
-            // Check the channel
-            if (memcmp(buffer, service->channel, U2F_CHANNEL_ID_SIZE) != 0) {
-                u2f_transport_error(service, ERROR_CHANNEL_BUSY);
-                goto error;
-            }
-        }
-        // also discriminate invalid command sent instead of a continuation
-        if (buffer[channelHeader] != service->transportPacketIndex) {
-            // Bad continuation packet, abort
-            u2f_transport_error(service, ERROR_INVALID_SEQ);
-            goto error;
-        }
-        xfer_len
-            = MIN(size - (channelHeader + 1), service->transportLength - service->transportOffset);
-        memmove(service->transportBuffer + service->transportOffset,
-                buffer + channelHeader + 1,
-                xfer_len);
-        if (media == U2F_MEDIA_USB) {
-            service->commandCrc = cx_crc16_update(
-                service->commandCrc, service->transportBuffer + service->transportOffset, xfer_len);
-        }
-        service->transportOffset += xfer_len;
-        service->transportPacketIndex++;
+        LOG_IO("Tx : CONTINUATION PACKET\n");
     }
-    // See if we can process the command
-    if ((media != U2F_MEDIA_USB)
-        && (service->transportOffset > (service->transportLength + U2F_COMMAND_HEADER_SIZE))) {
-        // Overflow, abort
-        u2f_transport_error(service, ERROR_INVALID_LEN);
-        goto error;
+
+    uint16_t tx_packet_offset = 0;
+    memset(handle->tx_packet_buffer, 0, handle->tx_packet_buffer_size);
+
+    // Add CID if necessary
+    if (handle->type == U2F_TRANSPORT_TYPE_USB_HID) {
+        U4BE_ENCODE(handle->tx_packet_buffer, 0, handle->tx_cid);
+        tx_packet_offset += 4;
     }
-    else if (service->transportOffset >= service->transportLength) {
-        // switch before the handler gets the opportunity to change it again
-        service->transportState = U2F_PROCESSING_COMMAND;
-        // internal notification of a complete message received
-        u2f_message_complete(service);
+
+    // Fill header
+    if (buffer) {
+        handle->tx_packet_buffer[tx_packet_offset++] = cmd | 0x80;        // CMD
+        U2BE_ENCODE(handle->tx_packet_buffer, tx_packet_offset, length);  // BCNT
+        tx_packet_offset += 2;
     }
     else {
-        // new segment received, reset the timeout for the current piece
-        service->seqTimeout     = 0;
-        service->transportState = U2F_HANDLE_SEGMENTED;
+        handle->tx_packet_buffer[tx_packet_offset++] = handle->tx_message_sequence_number++;  // SEQ
     }
-error:
-    return;
-}
 
-bool u2f_is_channel_broadcast(uint8_t *channel)
-{
-    return (memcmp(channel, BROADCAST_CHANNEL, 4) == 0);
-}
-
-bool u2f_is_channel_forbidden(uint8_t *channel)
-{
-    return (memcmp(channel, FORBIDDEN_CHANNEL, 4) == 0);
-}
-
-/**
- * Auto reply hodl until the real reply is prepared and sent
- */
-void u2f_message_set_autoreply_wait_user_presence(u2f_service_t *service, bool enabled)
-{
-    // TODO : this only works for U2F
-
-    if (enabled) {
-        // start replying placeholder until user presence validated
-        if (service->waitAsynchronousResponse == U2F_WAIT_ASYNCH_IDLE) {
-            service->waitAsynchronousResponse = U2F_WAIT_ASYNCH_ON;
-            u2f_transport_send_usb_user_presence_required(service);
-        }
+    if ((handle->tx_message_length + tx_packet_offset)
+        > (handle->tx_packet_buffer_size + handle->tx_message_offset)) {
+        // Remaining message length doesn't fit the max packet size
+        memcpy(&handle->tx_packet_buffer[tx_packet_offset],
+               &handle->tx_message_buffer[handle->tx_message_offset],
+               handle->tx_packet_buffer_size - tx_packet_offset);
+        handle->tx_message_offset += handle->tx_packet_buffer_size - tx_packet_offset;
+        tx_packet_offset = handle->tx_packet_buffer_size;
     }
-    // don't set to REPLY_READY when it has not been enabled beforehand
-    else if (service->waitAsynchronousResponse == U2F_WAIT_ASYNCH_ON) {
-        service->waitAsynchronousResponse = U2F_WAIT_ASYNCH_REPLY_READY;
+    else {
+        // Remaining message fits the max packet size
+        memcpy(&handle->tx_packet_buffer[tx_packet_offset],
+               &handle->tx_message_buffer[handle->tx_message_offset],
+               handle->tx_message_length - handle->tx_message_offset);
+        tx_packet_offset += (handle->tx_message_length - handle->tx_message_offset);
+        handle->tx_message_offset = handle->tx_message_length;
+        handle->tx_message_buffer = NULL;
+        handle->cid               = U2F_FORBIDDEN_CID;
     }
-}
 
-bool u2f_message_repliable(u2f_service_t *service)
-{
-    // no more asynch replies
-    // finished receiving the command
-    // and not sending a user presence required status
-    return service->waitAsynchronousResponse == U2F_WAIT_ASYNCH_IDLE
-           || (service->waitAsynchronousResponse != U2F_WAIT_ASYNCH_ON
-               && service->fakeChannelTransportState == U2F_FAKE_RECEIVED
-               && service->sending == false);
+    handle->tx_packet_length = tx_packet_offset;
+    LOG_IO(" %d\n", handle->tx_packet_length);
 }
-
-void u2f_message_reply(u2f_service_t *service, uint8_t cmd, uint8_t *buffer, uint16_t len)
-{
-    // if U2F is not ready to reply, then gently avoid replying
-    if (u2f_message_repliable(service)) {
-        service->transportState       = U2F_SENDING_RESPONSE;
-        service->transportPacketIndex = 0;
-        service->transportBuffer      = buffer;
-        service->transportOffset      = 0;
-        service->transportLength      = len;
-        service->sendCmd              = cmd;
-        if (service->transportMedia != U2F_MEDIA_BLE) {
-            // pump the first message
-            u2f_transport_sent(service, service->transportMedia);
-        }
-        else {
-            while (G_io_app.apdu_state != APDU_IDLE) {
-                u2f_transport_sent(service, service->transportMedia);
-            }
-        }
-    }
-}
-
-#endif
