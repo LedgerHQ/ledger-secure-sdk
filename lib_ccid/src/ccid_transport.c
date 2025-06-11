@@ -123,7 +123,11 @@ void CCID_TRANSPORT_rx(ccid_transport_t *handle, uint8_t *buffer, uint16_t lengt
     }
 }
 
-void CCID_TRANSPORT_tx(ccid_transport_t *handle, const uint8_t *buffer, uint16_t length)
+void CCID_TRANSPORT_tx(ccid_transport_t *handle,
+                       const uint8_t    *buffer,
+                       uint16_t          length,
+                       uint8_t          *tx_packet_buffer,
+                       uint16_t          tx_packet_buffer_size)
 {
     if (!handle || (!buffer && !handle->tx_message_buffer)) {
         return;
@@ -141,32 +145,32 @@ void CCID_TRANSPORT_tx(ccid_transport_t *handle, const uint8_t *buffer, uint16_t
     }
 
     uint16_t tx_packet_offset = 0;
-    memset(handle->tx_packet_buffer, 0, handle->tx_packet_buffer_size);
+    memset(tx_packet_buffer, 0, tx_packet_buffer_size);
 
     // Fill header
     if (buffer) {
-        handle->tx_packet_buffer[0] = handle->bulk_msg_header.in.msg_type;
+        tx_packet_buffer[0] = handle->bulk_msg_header.in.msg_type;
         U4LE_ENCODE(handle->tx_packet_buffer, 1, handle->bulk_msg_header.in.length);
-        handle->tx_packet_buffer[5] = handle->bulk_msg_header.in.slot_number;
-        handle->tx_packet_buffer[6] = handle->bulk_msg_header.in.seq_number;
-        handle->tx_packet_buffer[7] = handle->bulk_msg_header.in.status;
-        handle->tx_packet_buffer[8] = handle->bulk_msg_header.in.error;
-        handle->tx_packet_buffer[9] = handle->bulk_msg_header.in.specific;
-        tx_packet_offset            = 10;
+        tx_packet_buffer[5] = handle->bulk_msg_header.in.slot_number;
+        tx_packet_buffer[6] = handle->bulk_msg_header.in.seq_number;
+        tx_packet_buffer[7] = handle->bulk_msg_header.in.status;
+        tx_packet_buffer[8] = handle->bulk_msg_header.in.error;
+        tx_packet_buffer[9] = handle->bulk_msg_header.in.specific;
+        tx_packet_offset    = 10;
     }
 
     if ((handle->tx_message_length + tx_packet_offset)
-        >= (handle->tx_packet_buffer_size + handle->tx_message_offset)) {
+        >= (tx_packet_buffer_size + handle->tx_message_offset)) {
         // Remaining message length doesn't fit the max packet size
-        memcpy(&handle->tx_packet_buffer[tx_packet_offset],
+        memcpy(&tx_packet_buffer[tx_packet_offset],
                &handle->tx_message_buffer[handle->tx_message_offset],
-               handle->tx_packet_buffer_size - tx_packet_offset);
-        handle->tx_message_offset += handle->tx_packet_buffer_size - tx_packet_offset;
-        tx_packet_offset = handle->tx_packet_buffer_size;
+               tx_packet_buffer_size - tx_packet_offset);
+        handle->tx_message_offset += tx_packet_buffer_size - tx_packet_offset;
+        tx_packet_offset = tx_packet_buffer_size;
     }
     else {
         // Remaining message fits the max packet size
-        memcpy(&handle->tx_packet_buffer[tx_packet_offset],
+        memcpy(&tx_packet_buffer[tx_packet_offset],
                &handle->tx_message_buffer[handle->tx_message_offset],
                handle->tx_message_length - handle->tx_message_offset);
         tx_packet_offset += (handle->tx_message_length - handle->tx_message_offset);

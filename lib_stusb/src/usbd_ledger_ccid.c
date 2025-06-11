@@ -192,8 +192,6 @@ USBD_StatusTypeDef USBD_LEDGER_CCID_init(USBD_HandleTypeDef *pdev, void *cookie)
     handle->device.slot_status                     = CCID_SLOT_STATUS_IDLE;
     handle->device.transport.rx_msg_buffer         = USBD_LEDGER_io_buffer;
     handle->device.transport.rx_msg_buffer_size    = sizeof(USBD_LEDGER_io_buffer);
-    handle->device.transport.tx_packet_buffer      = ledger_ccid_transport_packet_buffer;
-    handle->device.transport.tx_packet_buffer_size = sizeof(ledger_ccid_transport_packet_buffer);
 
     CCID_TRANSPORT_init(&handle->device.transport);
 
@@ -313,12 +311,12 @@ USBD_StatusTypeDef USBD_LEDGER_CCID_data_in(USBD_HandleTypeDef *pdev, void *cook
 
     ledger_ccid_handle_t *handle = (ledger_ccid_handle_t *) PIC(cookie);
     if (handle->device.transport.tx_message_buffer) {
-        CCID_TRANSPORT_tx(&handle->device.transport, NULL, 0);
+        CCID_TRANSPORT_tx(&handle->device.transport, NULL, 0, ledger_ccid_transport_packet_buffer, sizeof(ledger_ccid_transport_packet_buffer));
         if (handle->device.transport.tx_packet_length) {
             handle->state = LEDGER_CCID_STATE_BUSY;
             USBD_LL_Transmit(pdev,
                              LEDGER_CCID_BULK_EPIN_ADDR,
-                             handle->device.transport.tx_packet_buffer,
+                             ledger_ccid_transport_packet_buffer,
                              handle->device.transport.tx_packet_length,
                              0);
         }
@@ -368,7 +366,7 @@ USBD_StatusTypeDef USBD_LEDGER_CCID_send_packet(USBD_HandleTypeDef *pdev,
     uint8_t               ret    = USBD_OK;
     ledger_ccid_handle_t *handle = (ledger_ccid_handle_t *) PIC(cookie);
 
-    CCID_TRANSPORT_tx(&handle->device.transport, packet, packet_length);
+    CCID_TRANSPORT_tx(&handle->device.transport, packet, packet_length, ledger_ccid_transport_packet_buffer, sizeof(ledger_ccid_transport_packet_buffer));
 
     if (pdev->dev_state == USBD_STATE_CONFIGURED) {
         if (handle->state == LEDGER_CCID_STATE_IDLE) {
@@ -376,7 +374,7 @@ USBD_StatusTypeDef USBD_LEDGER_CCID_send_packet(USBD_HandleTypeDef *pdev,
                 handle->state = LEDGER_CCID_STATE_BUSY;
                 ret           = USBD_LL_Transmit(pdev,
                                        LEDGER_CCID_BULK_EPIN_ADDR,
-                                       handle->device.transport.tx_packet_buffer,
+                                       ledger_ccid_transport_packet_buffer,
                                        handle->device.transport.tx_packet_length,
                                        timeout_ms);
             }
