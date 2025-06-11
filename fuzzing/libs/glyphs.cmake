@@ -39,14 +39,11 @@ set(GEN_GLYPHS_CMD "${BOLOS_SDK}/lib_nbgl/tools/icon2glyph.py")
 file(MAKE_DIRECTORY ${GEN_GLYPHS_DIR})
 add_custom_command(
   OUTPUT ${GLYPHS_C} ${GLYPHS_H}
-  COMMAND ${Python3_EXECUTABLE} ${GEN_GLYPHS_CMD} ${GLYPH_OPT}
-          --glyphcheader ${GLYPHS_H}
-          --glyphcfile ${GLYPHS_C}
-          ${GLYPH_FILES}
+  COMMAND ${Python3_EXECUTABLE} ${GEN_GLYPHS_CMD} ${GLYPH_OPT} --glyphcheader
+          ${GLYPHS_H} --glyphcfile ${GLYPHS_C} ${GLYPH_FILES}
   DEPENDS ${GLYPH_FILES}
   COMMENT "Generating glyphs..."
   VERBATIM)
-
 
 # Optionally, expose glyphs as a library
 add_library(glyphs STATIC EXCLUDE_FROM_ALL ${GLYPHS_C})
