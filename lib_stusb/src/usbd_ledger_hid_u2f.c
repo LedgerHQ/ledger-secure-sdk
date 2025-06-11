@@ -218,8 +218,6 @@ USBD_StatusTypeDef USBD_LEDGER_HID_U2F_init(USBD_HandleTypeDef *pdev, void *cook
 
     handle->transport_data.rx_message_buffer      = USBD_LEDGER_io_buffer;
     handle->transport_data.rx_message_buffer_size = sizeof(USBD_LEDGER_io_buffer);
-    handle->transport_data.tx_packet_buffer       = u2f_transport_packet_buffer;
-    handle->transport_data.tx_packet_buffer_size  = sizeof(u2f_transport_packet_buffer);
 
     handle->message_crc   = 0;
     handle->user_presence = LEDGER_HID_U2F_USER_PRESENCE_IDLE;
@@ -353,18 +351,17 @@ USBD_StatusTypeDef USBD_LEDGER_HID_U2F_data_in(USBD_HandleTypeDef *pdev, void *c
         return USBD_FAIL;
     }
 
-    UNUSED(pdev);
     UNUSED(ep_num);
 
     ledger_hid_u2f_handle_t *handle = (ledger_hid_u2f_handle_t *) PIC(cookie);
 
     if (handle->transport_data.tx_message_buffer) {
-        U2F_TRANSPORT_tx(&handle->transport_data, 0, NULL, 0);
+        U2F_TRANSPORT_tx(&handle->transport_data, 0, NULL, 0, u2f_transport_packet_buffer, sizeof(u2f_transport_packet_buffer));
         if (handle->transport_data.tx_packet_length) {
             handle->state = LEDGER_HID_U2F_STATE_BUSY;
             USBD_LL_Transmit(pdev,
                              LEDGER_HID_U2F_EPIN_ADDR,
-                             handle->transport_data.tx_packet_buffer,
+                             u2f_transport_packet_buffer,
                              LEDGER_HID_U2F_EPIN_SIZE,
                              0);
         }
@@ -452,7 +449,7 @@ USBD_StatusTypeDef USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
             break;
     }
 
-    U2F_TRANSPORT_tx(&handle->transport_data, cmd, tx_buffer, tx_length);
+    U2F_TRANSPORT_tx(&handle->transport_data, cmd, tx_buffer, tx_length, u2f_transport_packet_buffer, sizeof(u2f_transport_packet_buffer));
 
     if (handle->transport_data.tx_packet_length) {
         if (pdev->dev_state == USBD_STATE_CONFIGURED) {
@@ -462,7 +459,7 @@ USBD_StatusTypeDef USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
                 }
                 ret = USBD_LL_Transmit(pdev,
                                        LEDGER_HID_U2F_EPIN_ADDR,
-                                       handle->transport_data.tx_packet_buffer,
+                                       u2f_transport_packet_buffer,
                                        LEDGER_HID_U2F_EPIN_SIZE,
                                        timeout_ms);
             }
