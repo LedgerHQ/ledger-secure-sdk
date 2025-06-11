@@ -25,7 +25,6 @@ endif()
 if(NOT TARGET_DEVICE)
   set(TARGET_DEVICE "flex")
 endif()
-message("TARGET_DEVICE = ${TARGET_DEVICE}")
 
 # guard against in-source builds
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
@@ -82,11 +81,6 @@ else()
   separate_arguments(LINK_FLAGS)
 endif()
 
-if(NOT DEFINED BOLOS_SDK)
-  set(BOLOS_SDK ${CMAKE_SOURCE_DIR})
-  get_filename_component(BOLOS_SDK ${CMAKE_SOURCE_DIR} DIRECTORY)
-endif()
-
 # Fuzzing an APP
 if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
   file(GLOB LIBS "${BOLOS_SDK}/fuzzing/libs/*.cmake")
@@ -111,8 +105,11 @@ if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
               standard_app
               mock)
 
-  # Fuzzing the SDK
+# Fuzzing the SDK
 else()
+  
+  set(BOLOS_SDK ${CMAKE_SOURCE_DIR})
+  get_filename_component(BOLOS_SDK ${CMAKE_SOURCE_DIR} DIRECTORY)
   include("libs/lib_io.cmake")
   # Include harness cmake files
   file(GLOB cmake_extra_files "extra/*.cmake")
