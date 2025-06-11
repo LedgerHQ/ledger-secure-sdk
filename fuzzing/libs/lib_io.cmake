@@ -21,16 +21,12 @@ file(
   "${BOLOS_SDK}/lib_stusb/STM32_USB_Device_Library/Core/Src/*.c"
   "${BOLOS_SDK}/lib_stusb/STM32_USB_Device_Library/Class/HID/Src/*.c"
   "${BOLOS_SDK}/lib_stusb/STM32_USB_Device_Library/Class/CCID/src/*.c"
-  "${BOLOS_SDK}/lib_u2f/src/*.c"
-  )
+  "${BOLOS_SDK}/lib_u2f/src/*.c")
 
 add_library(io ${LIB_IO_SOURCES})
 target_link_libraries(io PUBLIC nbgl cxng standard_app macros)
 target_compile_options(io PUBLIC ${COMPILATION_FLAGS})
-target_compile_definitions(io PUBLIC 
-HAVE_BLE
-HAVE_BLE_APDU
-)
+target_compile_definitions(io PUBLIC HAVE_BLE HAVE_BLE_APDU)
 target_include_directories(
   io
   PUBLIC ${BOLOS_SDK}/include/
