@@ -3,7 +3,7 @@ include(${BOLOS_SDK}/fuzzing/macros/macros.cmake)
 
 find_package(Python3 REQUIRED)
 
-set(GEN_GLYPHS_DIR ${CMAKE_SOURCE_DIR}/build/src_gen)
+set(GEN_GLYPHS_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated_glyphs)
 
 set(GLYPH_OPT "")
 
@@ -37,18 +37,19 @@ set(GLYPHS_H ${GEN_GLYPHS_DIR}/glyphs.h)
 set(GEN_GLYPHS_CMD "${BOLOS_SDK}/lib_nbgl/tools/icon2glyph.py")
 
 file(MAKE_DIRECTORY ${GEN_GLYPHS_DIR})
-add_custom_target(
-  genglyphs
-  COMMAND
-    ${Python3_EXECUTABLE} ${GEN_GLYPHS_CMD} ${GLYPH_OPT} --glyphcheader
-    ${GEN_GLYPHS_DIR}/glyphs.h --glyphcfile ${GEN_GLYPHS_DIR}/glyphs.c
-    ${GLYPH_FILES}
-  BYPRODUCTS ${GEN_GLYPHS_DIR}/glyphs.h ${GEN_GLYPHS_DIR}/glyphs.c
-  SOURCES ${GLYPH_FILES})
+add_custom_command(
+  OUTPUT ${GLYPHS_C} ${GLYPHS_H}
+  COMMAND ${Python3_EXECUTABLE} ${GEN_GLYPHS_CMD} ${GLYPH_OPT}
+          --glyphcheader ${GLYPHS_H}
+          --glyphcfile ${GLYPHS_C}
+          ${GLYPH_FILES}
+  DEPENDS ${GLYPH_FILES}
+  COMMENT "Generating glyphs..."
+  VERBATIM)
+
 
 # Optionally, expose glyphs as a library
 add_library(glyphs STATIC EXCLUDE_FROM_ALL ${GLYPHS_C})
-add_dependencies(glyphs genglyphs)
 target_include_directories(
   glyphs
   PUBLIC ${GEN_GLYPHS_DIR} ${BOLOS_SDK}/include/
