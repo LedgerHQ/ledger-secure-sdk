@@ -33,7 +33,7 @@ function gen_macros() {
     if [ "$BOLOS_SDK" ]; then
         mkdir -p "$FUZZING_PATH/macros/generated"
         apt-get update && apt-get install -y bear
-        
+
         cd "$FUZZING_PATH/.." || exit 1
         case "$TARGET_DEVICE" in
             flex)
@@ -58,8 +58,8 @@ function gen_macros() {
 function build() {
     cd "$FUZZING_PATH" || exit
     apt update && apt install -y libclang-rt-dev ninja-build
-    
-    cmake -S . -B build -DCMAKE_C_COMPILER=clang -DSANITIZER=address -DTARGET_DEVICE="$TARGET_DEVICE" -DBOLOS_SDK="$BOLOS_SDK" -G Ninja
+
+    cmake -S . -B build -DCMAKE_C_COMPILER=clang -DSANITIZER=address -DTARGET_DEVICE="$TARGET_DEVICE" -DBOLOS_SDK="$BOLOS_SDK" -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS:bool=On
     cmake --build build
 }
 
