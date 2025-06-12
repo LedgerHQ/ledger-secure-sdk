@@ -431,6 +431,7 @@ void USBD_LEDGER_init(os_io_init_usb_t *init, uint8_t force_restart)
     }
 
     memcpy(&usbd_ledger_init_data, init, sizeof(usbd_ledger_init_data));
+    usbd_ledger_init_data.name[sizeof(usbd_ledger_init_data.name) - 1] = '\0';
 }
 
 void USBD_LEDGER_start(void)
@@ -440,7 +441,7 @@ void USBD_LEDGER_start(void)
            usbd_ledger_init_data.pid,
            usbd_ledger_init_data.vid,
            usbd_ledger_init_data.class_mask);
-    if (strlen(usbd_ledger_init_data.name)) {
+    if (strnlen(usbd_ledger_init_data.name, sizeof(usbd_ledger_init_data.name))) {
         LOG_IO(" %s\n", usbd_ledger_init_data.name);
     }
     else {
@@ -493,7 +494,7 @@ void USBD_LEDGER_start(void)
         usbd_ledger_data.nb_of_class = 0;
 
         // Fill the name
-        if (!strlen(usbd_ledger_init_data.name)) {
+        if (!strnlen(usbd_ledger_init_data.name, sizeof(usbd_ledger_init_data.name))) {
             strlcpy(usbd_ledger_init_data.name,
                     USBD_BLUE_PRODUCT_STRING,
                     sizeof(usbd_ledger_data.name));
@@ -620,6 +621,7 @@ void USBD_LEDGER_start(void)
         usbd_ledger_data.classes = usbd_ledger_init_data.class_mask;
 
         USBD_DESC_init(usbd_ledger_data.name,
+                       (uint16_t) sizeof(usbd_ledger_data.name),
                        usbd_ledger_data.vid,
                        usbd_ledger_data.pid,
                        usbd_ledger_data.bcdusb,
@@ -658,6 +660,7 @@ void USBD_LEDGER_add_profile(const usbd_class_info_t *class_info, uint8_t bcdusb
     }
 
     USBD_DESC_init(usbd_ledger_data.name,
+                   (uint16_t) sizeof(usbd_ledger_data.name),
                    usbd_ledger_data.vid,
                    usbd_ledger_data.pid,
                    usbd_ledger_data.bcdusb,
