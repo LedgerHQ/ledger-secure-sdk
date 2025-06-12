@@ -111,6 +111,7 @@ else()
 
   set(BOLOS_SDK ${CMAKE_SOURCE_DIR})
   get_filename_component(BOLOS_SDK ${CMAKE_SOURCE_DIR} DIRECTORY)
+  message("Fuzzing BOLOS_SDK at ${BOLOS_SDK}")
   include("libs/lib_io.cmake")
   # Include harness cmake files
   file(GLOB cmake_extra_files "extra/*.cmake")
