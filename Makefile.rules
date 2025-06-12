@@ -112,11 +112,11 @@ APP_MANIFEST_FILE := $(APP_DIR)/ledger_app.toml
 # If the TOML file exists, retrieve the use-cases
 ifneq ($(wildcard $(APP_MANIFEST_FILE)),)
   # Retrieve the use-cases from the TOML file
-  APP_USE_CASES := $(shell ledger-manifest "$(APP_MANIFEST_FILE)" -ouc -j | jq -r 'keys | join(" ")')
+  APP_USE_CASES := $(shell ledger-manifest --output-usecase -j "$(APP_MANIFEST_FILE)" | jq -rc '.use_cases' | jq -r 'keys | join(" ")')
 
   # Function to extract flags for a specific use case
   define get_flags_for_use_case
-    $(shell ledger-manifest "$(APP_MANIFEST_FILE)" -ouc $1)
+    $(shell ledger-manifest --output-usecase $1 -j -- "$(APP_MANIFEST_FILE)" | jq -rc '.use_cases' | jq -r 'to_entries | map(.value) | join(" ")')
   endef
 endif
 
