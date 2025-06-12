@@ -42,6 +42,7 @@ uint8_t *USBD_get_descriptor_serial(USBD_SpeedTypeDef speed, uint16_t *length);
 uint8_t *USBD_get_descriptor_BOS(USBD_SpeedTypeDef speed, uint16_t *length);
 
 void USBD_DESC_init(char                  *product_str,
+                    uint16_t               product_str_len,
                     uint16_t               vid,
                     uint16_t               pid,
                     uint8_t                bcdusb,
