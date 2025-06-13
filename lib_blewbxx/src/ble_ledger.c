@@ -1,13 +1,15 @@
 /* @BANNER@ */
 
 /* Includes ------------------------------------------------------------------*/
+#include <string.h>
+
 #include "os.h"
+#include "os_helpers.h"
 #include "os_settings.h"
 #include "seproxyhal_protocol.h"
 #include "os_io.h"
 #include "os_io_seph_cmd.h"
 
-#include <string.h>
 
 #include "lcx_rng.h"
 
@@ -838,6 +840,7 @@ static int32_t hci_evt_vendor(uint8_t *buffer, uint16_t length)
                        att_handle,
                        U2LE(buffer, offset + sizeof(uint16_t)),
                        U2LE(buffer, offset));
+                UNUSED(offset);
             }
             break;
         }
