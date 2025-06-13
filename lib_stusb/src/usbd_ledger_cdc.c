@@ -7,7 +7,6 @@
 
 #ifdef HAVE_CDCUSB
 
-#pragma GCC diagnostic ignored "-Wcast-qual"
 
 /* Private enumerations ------------------------------------------------------*/
 

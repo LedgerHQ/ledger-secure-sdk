@@ -8,7 +8,6 @@
 
 #ifdef HAVE_WEBUSB
 
-#pragma GCC diagnostic ignored "-Wcast-qual"
 
 /* Private enumerations ------------------------------------------------------*/
 enum ledger_webusb_state_t {

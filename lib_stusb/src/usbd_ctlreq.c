@@ -4,7 +4,6 @@
 #include "usbd_ctlreq.h"
 #include "usbd_ioreq.h"
 
-#pragma GCC diagnostic ignored "-Wcast-qual"
 
 /* Private enumerations ------------------------------------------------------*/
 
