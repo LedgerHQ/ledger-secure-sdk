@@ -23,7 +23,6 @@
 #include "ccid_cmd.h"
 #include "ccid_types.h"
 
-#pragma GCC diagnostic ignored "-Wcast-qual"
 
 #ifdef HAVE_PRINTF
 // #define LOG_IO PRINTF

@@ -19,7 +19,6 @@
 #include "usbd_conf.h"
 #include "usbd_desc.h"
 
-#pragma GCC diagnostic ignored "-Wcast-qual"
 
 /* Private enumerations ------------------------------------------------------*/
 
@@ -127,7 +126,7 @@ uint8_t *USBD_get_descriptor_lang_id(USBD_SpeedTypeDef speed, uint16_t *length)
     UNUSED(speed);
 
     *length = sizeof(USBD_desc_lang_id_desc);
-    return (uint8_t *) USBD_desc_lang_id_desc;
+    return (uint8_t*)(uintptr_t)USBD_desc_lang_id_desc;
 }
 
 uint8_t *USBD_get_descriptor_manufacturer(USBD_SpeedTypeDef speed, uint16_t *length)
