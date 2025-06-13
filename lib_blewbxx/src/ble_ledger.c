@@ -30,8 +30,6 @@
 #include "ble_ledger_types.h"
 #include "ble_ledger_profile_apdu.h"
 
-#pragma GCC diagnostic ignored "-Wcast-qual"
-
 /* Private enumerations ------------------------------------------------------*/
 typedef enum ble_state_e {
     BLE_STATE_IDLE = 0,

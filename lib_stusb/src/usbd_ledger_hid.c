@@ -20,7 +20,6 @@
 #include "usbd_ledger.h"
 #include "usbd_ledger_hid.h"
 
-#pragma GCC diagnostic ignored "-Wcast-qual"
 
 /* Private enumerations ------------------------------------------------------*/
 enum ledger_hid_state_t {

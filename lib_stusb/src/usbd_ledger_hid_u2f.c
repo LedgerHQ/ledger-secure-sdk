@@ -23,7 +23,6 @@
 #include "u2f_types.h"
 #include "usbd_ledger_hid_u2f.h"
 
-#pragma GCC diagnostic ignored "-Wcast-qual"
 
 /* Private enumerations ------------------------------------------------------*/
 enum ledger_hid_u2f_state_t {
@@ -72,7 +71,7 @@ typedef struct {
     // User presence handling
     uint16_t message_crc;
     uint8_t  user_presence;  // ledger_hid_u2f_user_presence_t
-    uint8_t *backup_message;
+    const uint8_t *backup_message;
     uint16_t backup_message_length;
 
     // Context
@@ -413,21 +412,21 @@ USBD_StatusTypeDef USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
     ledger_hid_u2f_handle_t *handle = (ledger_hid_u2f_handle_t *) PIC(cookie);
 
     uint8_t  cmd       = 0;
-    uint8_t *tx_buffer = (uint8_t *) message;
+    const uint8_t *tx_buffer = message;
+    const uint8_t status[2] = {0x69, 0x85};
     uint16_t tx_length = message_length;
 
     switch (packet_type) {
         case OS_IO_PACKET_TYPE_USB_U2F_HID_APDU:
             cmd = U2F_COMMAND_MSG;
             if ((message_length == 2) && (message[0] == 0xFF) && (message[1] == 0xFF)) {
-                tx_buffer[0]          = 0x69;
-                tx_buffer[1]          = 0x85;
+                tx_buffer = status;
                 handle->user_presence = LEDGER_HID_U2F_USER_PRESENCE_ASKING;
             }
             else if (handle->user_presence == LEDGER_HID_U2F_USER_PRESENCE_ASKING) {
                 if ((message_length != 2) || (message[0] != 0x69) || (message[1] != 0x85)) {
                     handle->user_presence         = LEDGER_HID_U2F_USER_PRESENCE_CONFIRMED;
-                    handle->backup_message        = (uint8_t *) message;
+                    handle->backup_message        = message;
                     handle->backup_message_length = message_length;
                     return USBD_OK;
                 }
@@ -440,7 +439,7 @@ USBD_StatusTypeDef USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
 
         case OS_IO_PACKET_TYPE_USB_U2F_HID_RAW:
             cmd       = message[0];
-            tx_buffer = (uint8_t *) &message[1];
+            tx_buffer = &message[1];
             tx_length = message_length - 1;
             break;
 

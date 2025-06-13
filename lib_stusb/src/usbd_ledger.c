@@ -33,7 +33,6 @@
 #include "os_io_seph_cmd.h"
 #include "seproxyhal_protocol.h"
 
-#pragma GCC diagnostic ignored "-Wcast-qual"
 
 /* Private enumerations ------------------------------------------------------*/
 typedef enum {
@@ -598,22 +597,22 @@ void USBD_LEDGER_start(void)
 #ifdef HAVE_CCID_USB
         if (usbd_ledger_init_data.class_mask & USBD_LEDGER_CLASS_CCID_BULK && usbd_ledger_data.nb_of_class < USBD_MAX_NUM_INTERFACES) {
             usbd_ledger_data.class[usbd_ledger_data.nb_of_class++]
-                = (usbd_class_info_t *) PIC(&USBD_LEDGER_CCID_Bulk_class_info);
+                = (usbd_class_info_t *) PIC((USBD_ClassTypeDef *)(uintptr_t)&USBD_LEDGER_CCID_Bulk_class_info);
         }
 #endif  // HAVE_CCID_USB
 #ifdef HAVE_WEBUSB
         if (usbd_ledger_init_data.class_mask & USBD_LEDGER_CLASS_WEBUSB && usbd_ledger_data.nb_of_class < USBD_MAX_NUM_INTERFACES) {
             usbd_ledger_data.bcdusb = 0x10;
             usbd_ledger_data.class[usbd_ledger_data.nb_of_class++]
-                = (usbd_class_info_t *) PIC(&USBD_LEDGER_WEBUSB_class_info);
+                = (usbd_class_info_t *) PIC((USBD_ClassTypeDef *)(uintptr_t)&USBD_LEDGER_WEBUSB_class_info);
         }
 #endif  // HAVE_WEBUSB
 #ifdef HAVE_CDCUSB
         if (usbd_ledger_init_data.class_mask & USBD_LEDGER_CLASS_CDC && usbd_ledger_data.nb_of_class + 1  < USBD_MAX_NUM_INTERFACES) {
             usbd_ledger_data.class[usbd_ledger_data.nb_of_class++]
-                = (usbd_class_info_t *) PIC(&USBD_LEDGER_CDC_Control_class_info);
+                = (usbd_class_info_t *) PIC((USBD_ClassTypeDef *)(uintptr_t)&USBD_LEDGER_CDC_Control_class_info);
             usbd_ledger_data.class[usbd_ledger_data.nb_of_class++]
-                = (usbd_class_info_t *) PIC(&USBD_LEDGER_CDC_Data_class_info);
+                = (usbd_class_info_t *) PIC((USBD_ClassTypeDef *)(uintptr_t)&USBD_LEDGER_CDC_Data_class_info);
             usbd_ledger_data.usbd_iad = 1;
         }
 #endif  // HAVE_CDCUSB
@@ -627,8 +626,8 @@ void USBD_LEDGER_start(void)
                        usbd_ledger_data.bcdusb,
                        usbd_ledger_data.usbd_iad,
                        get_bos_desc);
-        USBD_Init(&usbd_ledger_data.usbd_handle, (USBD_DescriptorsTypeDef *) &LEDGER_Desc, 0);
-        USBD_RegisterClass(&usbd_ledger_data.usbd_handle, (USBD_ClassTypeDef *) &USBD_LEDGER_CLASS);
+        USBD_Init(&usbd_ledger_data.usbd_handle, (USBD_DescriptorsTypeDef*)(uintptr_t)&LEDGER_Desc, 0);
+        USBD_RegisterClass(&usbd_ledger_data.usbd_handle, (USBD_ClassTypeDef *)(uintptr_t)&USBD_LEDGER_CLASS);
     }
     if ((usbd_ledger_data.state == USBD_LEDGER_STATE_STOPPED)
         || (usbd_ledger_data.state == USBD_LEDGER_STATE_INITIALIZED)) {

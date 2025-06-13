@@ -21,7 +21,6 @@
 
 #ifdef HAVE_USB_HIDKBD
 
-#pragma GCC diagnostic ignored "-Wcast-qual"
 
 /* Private enumerations ------------------------------------------------------*/
 enum ledger_hid_kbd_state_t {
