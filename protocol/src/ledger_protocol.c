@@ -100,12 +100,13 @@ static ledger_protocol_result_t process_apdu_chunk(ledger_protocol_t *handle,
         length -= 2;
     }
 
+    // Remove padding bytes if any
+    if ((handle->rx_apdu_offset + length) > handle->rx_apdu_length) {
+        length = handle->rx_apdu_length - handle->rx_apdu_offset;
+    }
     if ((1 + handle->rx_apdu_offset + length) > apdu_buffer_size) {
         result = LP_ERROR_NOT_ENOUGH_SPACE;
         goto error;
-    }
-    if ((handle->rx_apdu_offset + length) > handle->rx_apdu_length) {
-        length = handle->rx_apdu_length - handle->rx_apdu_offset;
     }
 
     memcpy(&apdu_buffer[1 + handle->rx_apdu_offset], buffer, length);
