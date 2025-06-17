@@ -128,30 +128,20 @@ def gen_mocks(c_code):
 
     return write_lines
 
-def format_file(file_path):
-    """Format the file using clang-format"""
-    try:
-        subprocess.run(["clang-format-15", "-i", file_path], check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"Error formatting {file_path}: {e}")
-
 def main():
 
-    if(len(sys.argv) > 1):
+    if(len(sys.argv) > 2):
         functions_path = sys.argv[1]
-
+        output_file = sys.argv[2]
+        
         with open(functions_path, "r") as file:
             c_code = file.read()
             write_lines = gen_mocks(c_code)
 
-        output_file = "syscalls_generated.c"
         if write_lines:
-            with open("syscalls_generated.c", "w") as file:
+            with open(output_file, "w") as file:
                 for line in write_lines:
                     file.write(line + "\n")
-
-            # Format the generated file
-            format_file(output_file)
 
     else:
         print("Usage: python3 gen_mock.py [c_functions_file.c]")
