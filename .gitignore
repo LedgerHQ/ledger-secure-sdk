@@ -20,3 +20,4 @@ unit-tests/lib_*/build/
 build
 fuzzing/build/
 fuzzing/out/
+fuzzing/mock/generated
