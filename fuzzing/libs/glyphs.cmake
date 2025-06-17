@@ -45,7 +45,6 @@ add_custom_command(
   COMMENT "Generating glyphs..."
   VERBATIM)
 
-# Optionally, expose glyphs as a library
 add_library(glyphs STATIC EXCLUDE_FROM_ALL ${GLYPHS_C})
 target_include_directories(
   glyphs
