@@ -18,6 +18,7 @@
 #include <string.h>
 #include "app_storage.h"
 #include "app_storage_internal.h"
+#include "lcx_crc.h"
 #include "os_nvm.h"
 #include "os_pic.h"
 
@@ -44,6 +45,13 @@ static bool app_storage_is_initalized(void)
     return true;
 }
 
+static inline void update_crc(void)
+{
+    uint32_t crc = cx_crc32((void *) &app_storage.header,
+                            sizeof(app_storage.header) + app_storage.header.size);
+    nvm_write((void *) &app_storage.crc, &crc, sizeof(app_storage.crc));
+}
+
 /**
  * @brief resets system header
  */
@@ -60,6 +68,7 @@ static inline void system_header_reset(void)
     /* Setting up properties fields from the app makefile */
     header.properties = ((HAVE_APP_STORAGE_PROP_SETTINGS << 0) | (HAVE_APP_STORAGE_PROP_DATA << 1));
     nvm_write((void *) &app_storage.header, &header, sizeof(header));
+    update_crc();
 }
 
 /**
@@ -87,6 +96,8 @@ void app_storage_reset(void)
 
     uint8_t  erase_buf[APP_STORAGE_ERASE_BLOCK_SIZE] = {0};
     uint32_t offset                                  = 0;
+    bool     need_update                             = false;
+
     if (APP_STORAGE_SIZE > APP_STORAGE_ERASE_BLOCK_SIZE) {
         for (; offset < APP_STORAGE_SIZE - APP_STORAGE_ERASE_BLOCK_SIZE;
              offset += APP_STORAGE_ERASE_BLOCK_SIZE) {
@@ -94,10 +105,15 @@ void app_storage_reset(void)
                       (void *) erase_buf,
                       APP_STORAGE_ERASE_BLOCK_SIZE);
         }
+        need_update = true;
     }
     if (APP_STORAGE_SIZE > offset) {
         nvm_write(
             (void *) &app_storage.data[offset], (void *) erase_buf, APP_STORAGE_SIZE - offset);
+        need_update = true;
+    }
+    if (need_update) {
+        update_crc();
     }
 }
 
@@ -141,6 +157,7 @@ void app_storage_increment_data_version(void)
     }
     nvm_write(
         (void *) &app_storage.header.data_version, (void *) &data_version, sizeof(data_version));
+    update_crc();
 }
 
 /**
@@ -150,6 +167,7 @@ void app_storage_set_data_version(uint32_t data_version)
 {
     nvm_write(
         (void *) &app_storage.header.data_version, (void *) &data_version, sizeof(data_version));
+    update_crc();
 }
 
 /**
@@ -181,6 +199,8 @@ int32_t app_storage_write(const void *buf, uint32_t nbyte, uint32_t offset)
     if (app_storage.header.size < max_offset) {
         nvm_write((void *) &app_storage.header.size, (void *) &max_offset, sizeof(max_offset));
     }
+    update_crc();
+
     return nbyte;
 }
 
