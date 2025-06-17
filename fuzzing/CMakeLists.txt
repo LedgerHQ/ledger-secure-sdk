@@ -57,7 +57,7 @@ if(NOT DEFINED ENV{LIB_FUZZING_ENGINE})
       -funsigned-char
       -fshort-enums)
 
-  set(LINK_FLAGS -ffunction-sections -fdata-sections -fprofile-instr-generate
+  set(LINK_FLAGS -fprofile-instr-generate
                  -fcoverage-mapping -fuse-ld=lld)
   if(SANITIZER MATCHES "address")
     set(COMPILATION_FLAGS ${COMPILATION_FLAGS}
@@ -92,8 +92,6 @@ if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
   add_library(extra INTERFACE)
   target_compile_options(extra INTERFACE ${COMPILATION_FLAGS})
   target_link_options(extra INTERFACE ${LINK_FLAGS})
-  target_compile_definitions(
-    extra INTERFACE FUZZ FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION=1)
   target_link_libraries(
     extra
     INTERFACE macros
@@ -111,8 +109,6 @@ else()
 
   set(BOLOS_SDK ${CMAKE_SOURCE_DIR})
   get_filename_component(BOLOS_SDK ${CMAKE_SOURCE_DIR} DIRECTORY)
-  message("Fuzzing BOLOS_SDK at ${BOLOS_SDK}")
-  include("libs/lib_io.cmake")
   # Include harness cmake files
   file(GLOB cmake_extra_files "extra/*.cmake")
 
