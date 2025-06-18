@@ -83,7 +83,9 @@ endif()
 
 # Fuzzing an APP
 if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
-  file(GLOB LIBS "${BOLOS_SDK}/fuzzing/libs/*.cmake")
+  file(GLOB LIBS
+        "${BOLOS_SDK}/fuzzing/libs/*.cmake"
+        )
 
   foreach(file IN LISTS LIBS)
     include(${file})
@@ -106,12 +108,11 @@ if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
 
   # Fuzzing the SDK
 else()
-
   set(BOLOS_SDK ${CMAKE_SOURCE_DIR})
   get_filename_component(BOLOS_SDK ${CMAKE_SOURCE_DIR} DIRECTORY)
   # Include harness cmake files
   file(GLOB cmake_extra_files "extra/*.cmake")
-
+    #list(REMOVE_ITEM cmake_extra_files "${CMAKE_SOURCE_DIR}/extra/nfc_ndef.cmake")
   foreach(file IN LISTS cmake_extra_files)
     include(${file})
   endforeach()
