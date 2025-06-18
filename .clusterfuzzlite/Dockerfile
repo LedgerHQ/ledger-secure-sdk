@@ -12,4 +12,3 @@ WORKDIR $SRC/ledger-secure-sdk
 
 # Copy build.sh into $SRC dir.
 COPY ./.clusterfuzzlite/build.sh $SRC/
-#CMD ["bash"]
