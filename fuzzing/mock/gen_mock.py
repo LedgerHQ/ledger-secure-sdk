@@ -133,7 +133,7 @@ def main():
     if(len(sys.argv) > 2):
         functions_path = sys.argv[1]
         output_file = sys.argv[2]
-        
+
         with open(functions_path, "r") as file:
             c_code = file.read()
             write_lines = gen_mocks(c_code)
