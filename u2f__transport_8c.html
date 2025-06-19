@@ -127,8 +127,8 @@ Functions</h2></td></tr>
 <tr class="separator:a32ade6260fecf56d427423b368e7361f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a81a7cf225b3e32069116c98f4f54ffa3" id="r_a81a7cf225b3e32069116c98f4f54ffa3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="u2f__transport_8c.html#a81a7cf225b3e32069116c98f4f54ffa3">U2F_TRANSPORT_rx</a> (<a class="el" href="structu2f__transport__t.html">u2f_transport_t</a> *handle, uint8_t *buffer, uint16_t length)</td></tr>
 <tr class="separator:a81a7cf225b3e32069116c98f4f54ffa3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4898dfbba3e25138038e3b6ad3cc0026" id="r_a4898dfbba3e25138038e3b6ad3cc0026"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="u2f__transport_8c.html#a4898dfbba3e25138038e3b6ad3cc0026">U2F_TRANSPORT_tx</a> (<a class="el" href="structu2f__transport__t.html">u2f_transport_t</a> *handle, uint8_t cmd, const uint8_t *buffer, uint16_t length)</td></tr>
-<tr class="separator:a4898dfbba3e25138038e3b6ad3cc0026"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2fafa7fa0f22d33aaa156a82c7afbf58" id="r_a2fafa7fa0f22d33aaa156a82c7afbf58"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="u2f__transport_8c.html#a2fafa7fa0f22d33aaa156a82c7afbf58">U2F_TRANSPORT_tx</a> (<a class="el" href="structu2f__transport__t.html">u2f_transport_t</a> *handle, uint8_t cmd, const uint8_t *buffer, uint16_t length, uint8_t *tx_packet_buffer, uint16_t tx_packet_buffer_size)</td></tr>
+<tr class="separator:a2fafa7fa0f22d33aaa156a82c7afbf58"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
 <a id="a290210daad9e97226bf3cdbc442bbcb4" name="a290210daad9e97226bf3cdbc442bbcb4"></a>
@@ -178,7 +178,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="u2f__transport_8c_source.html#l00161">161</a> of file <a class="el" href="u2f__transport_8c_source.html">u2f_transport.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="u2f__transport_8c_source.html#l00165">165</a> of file <a class="el" href="u2f__transport_8c_source.html">u2f_transport.c</a>.</p>
 
 </div>
 </div>
@@ -214,12 +214,12 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="u2f__transport_8c_source.html#l00172">172</a> of file <a class="el" href="u2f__transport_8c_source.html">u2f_transport.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="u2f__transport_8c_source.html#l00176">176</a> of file <a class="el" href="u2f__transport_8c_source.html">u2f_transport.c</a>.</p>
 
 </div>
 </div>
-<a id="a4898dfbba3e25138038e3b6ad3cc0026" name="a4898dfbba3e25138038e3b6ad3cc0026"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4898dfbba3e25138038e3b6ad3cc0026">&#9670;&#160;</a></span>U2F_TRANSPORT_tx()</h2>
+<a id="a2fafa7fa0f22d33aaa156a82c7afbf58" name="a2fafa7fa0f22d33aaa156a82c7afbf58"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2fafa7fa0f22d33aaa156a82c7afbf58">&#9670;&#160;</a></span>U2F_TRANSPORT_tx()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -246,7 +246,19 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">uint16_t&#160;</td>
-          <td class="paramname"><em>length</em>&#160;</td>
+          <td class="paramname"><em>length</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>tx_packet_buffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>tx_packet_buffer_size</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -256,7 +268,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="u2f__transport_8c_source.html#l00181">181</a> of file <a class="el" href="u2f__transport_8c_source.html">u2f_transport.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="u2f__transport_8c_source.html#l00185">185</a> of file <a class="el" href="u2f__transport_8c_source.html">u2f_transport.c</a>.</p>
 
 </div>
 </div>
