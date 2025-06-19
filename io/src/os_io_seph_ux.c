@@ -134,11 +134,14 @@ int io_process_itc_ux_event(uint8_t *buffer_in, size_t buffer_in_length)
             G_ux_params.ux_id = BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST;
             G_ux_params.len   = sizeof(G_ux_params.u.pairing_request);
             memset(&G_ux_params.u.pairing_request, 0, sizeof(G_ux_params.u.pairing_request));
-            G_ux_params.u.pairing_request.type             = buffer_in[4];
-            G_ux_params.u.pairing_request.pairing_info_len = U2BE(buffer_in, 1) - 2;
-            if (G_ux_params.u.pairing_request.pairing_info_len > buffer_in_length + 5) {
+            G_ux_params.u.pairing_request.type = buffer_in[4];
+            uint16_t pairing_info_len          = U2BE(buffer_in, 1) - 2;
+            if (!pairing_info_len
+                || (pairing_info_len > sizeof(G_ux_params.u.pairing_request.pairing_info))
+                || (pairing_info_len > (buffer_in_length - 5))) {
                 return -22;  // EINVAL
             }
+            G_ux_params.u.pairing_request.pairing_info_len = pairing_info_len;
             memcpy(G_ux_params.u.pairing_request.pairing_info,
                    &buffer_in[5],
                    G_ux_params.u.pairing_request.pairing_info_len);

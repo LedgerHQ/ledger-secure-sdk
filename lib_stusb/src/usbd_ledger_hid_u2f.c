@@ -23,7 +23,6 @@
 #include "u2f_types.h"
 #include "usbd_ledger_hid_u2f.h"
 
-#pragma GCC diagnostic ignored "-Wcast-qual"
 
 /* Private enumerations ------------------------------------------------------*/
 enum ledger_hid_u2f_state_t {
@@ -43,7 +42,7 @@ enum ledger_hid_u2f_user_presence_t {
 #define LEDGER_HID_U2F_EPIN_ADDR  (0x81)
 #define LEDGER_HID_U2F_EPIN_SIZE  (0x40)
 #define LEDGER_HID_U2F_EPOUT_ADDR (0x01)
-#define LEDGER_HID_U2F_EPOUT_SIZE (0x40)
+#define LEDGER_HID_U2F_EPOUT_SIZE (LEDGER_USBD_DEFAULT_EPOUT_SIZE)
 
 #define HID_DESCRIPTOR_TYPE        (0x21)
 #define HID_REPORT_DESCRIPTOR_TYPE (0x22)
@@ -72,7 +71,7 @@ typedef struct {
     // User presence handling
     uint16_t message_crc;
     uint8_t  user_presence;  // ledger_hid_u2f_user_presence_t
-    uint8_t *backup_message;
+    const uint8_t *backup_message;
     uint16_t backup_message_length;
 
     // Context
@@ -200,7 +199,7 @@ const usbd_class_info_t USBD_LEDGER_HID_U2F_class_info = {
 /* Private functions ---------------------------------------------------------*/
 
 /* Exported functions --------------------------------------------------------*/
-uint8_t USBD_LEDGER_HID_U2F_init(USBD_HandleTypeDef *pdev, void *cookie)
+USBD_StatusTypeDef USBD_LEDGER_HID_U2F_init(USBD_HandleTypeDef *pdev, void *cookie)
 {
     if (!cookie) {
         return USBD_FAIL;
@@ -218,8 +217,6 @@ uint8_t USBD_LEDGER_HID_U2F_init(USBD_HandleTypeDef *pdev, void *cookie)
 
     handle->transport_data.rx_message_buffer      = USBD_LEDGER_io_buffer;
     handle->transport_data.rx_message_buffer_size = sizeof(USBD_LEDGER_io_buffer);
-    handle->transport_data.tx_packet_buffer       = u2f_transport_packet_buffer;
-    handle->transport_data.tx_packet_buffer_size  = sizeof(u2f_transport_packet_buffer);
 
     handle->message_crc   = 0;
     handle->user_presence = LEDGER_HID_U2F_USER_PRESENCE_IDLE;
@@ -233,7 +230,7 @@ uint8_t USBD_LEDGER_HID_U2F_init(USBD_HandleTypeDef *pdev, void *cookie)
     return USBD_OK;
 }
 
-uint8_t USBD_LEDGER_HID_U2F_de_init(USBD_HandleTypeDef *pdev, void *cookie)
+USBD_StatusTypeDef USBD_LEDGER_HID_U2F_de_init(USBD_HandleTypeDef *pdev, void *cookie)
 {
     UNUSED(pdev);
     UNUSED(cookie);
@@ -241,7 +238,7 @@ uint8_t USBD_LEDGER_HID_U2F_de_init(USBD_HandleTypeDef *pdev, void *cookie)
     return USBD_OK;
 }
 
-uint8_t USBD_LEDGER_HID_U2F_setup(USBD_HandleTypeDef *pdev, void *cookie, USBD_SetupReqTypedef *req)
+USBD_StatusTypeDef USBD_LEDGER_HID_U2F_setup(USBD_HandleTypeDef *pdev, void *cookie, USBD_SetupReqTypedef *req)
 {
     if (!pdev || !cookie || !req) {
         return USBD_FAIL;
@@ -339,7 +336,7 @@ uint8_t USBD_LEDGER_HID_U2F_setup(USBD_HandleTypeDef *pdev, void *cookie, USBD_S
     return ret;
 }
 
-uint8_t USBD_LEDGER_HID_U2F_ep0_rx_ready(USBD_HandleTypeDef *pdev, void *cookie)
+USBD_StatusTypeDef USBD_LEDGER_HID_U2F_ep0_rx_ready(USBD_HandleTypeDef *pdev, void *cookie)
 {
     UNUSED(pdev);
     UNUSED(cookie);
@@ -347,24 +344,23 @@ uint8_t USBD_LEDGER_HID_U2F_ep0_rx_ready(USBD_HandleTypeDef *pdev, void *cookie)
     return USBD_OK;
 }
 
-uint8_t USBD_LEDGER_HID_U2F_data_in(USBD_HandleTypeDef *pdev, void *cookie, uint8_t ep_num)
+USBD_StatusTypeDef USBD_LEDGER_HID_U2F_data_in(USBD_HandleTypeDef *pdev, void *cookie, uint8_t ep_num)
 {
     if (!cookie) {
         return USBD_FAIL;
     }
 
-    UNUSED(pdev);
     UNUSED(ep_num);
 
     ledger_hid_u2f_handle_t *handle = (ledger_hid_u2f_handle_t *) PIC(cookie);
 
     if (handle->transport_data.tx_message_buffer) {
-        U2F_TRANSPORT_tx(&handle->transport_data, 0, NULL, 0);
+        U2F_TRANSPORT_tx(&handle->transport_data, 0, NULL, 0, u2f_transport_packet_buffer, sizeof(u2f_transport_packet_buffer));
         if (handle->transport_data.tx_packet_length) {
             handle->state = LEDGER_HID_U2F_STATE_BUSY;
             USBD_LL_Transmit(pdev,
                              LEDGER_HID_U2F_EPIN_ADDR,
-                             handle->transport_data.tx_packet_buffer,
+                             u2f_transport_packet_buffer,
                              LEDGER_HID_U2F_EPIN_SIZE,
                              0);
         }
@@ -380,7 +376,7 @@ uint8_t USBD_LEDGER_HID_U2F_data_in(USBD_HandleTypeDef *pdev, void *cookie, uint
     return USBD_OK;
 }
 
-uint8_t USBD_LEDGER_HID_U2F_data_out(USBD_HandleTypeDef *pdev,
+USBD_StatusTypeDef USBD_LEDGER_HID_U2F_data_out(USBD_HandleTypeDef *pdev,
                                      void               *cookie,
                                      uint8_t             ep_num,
                                      uint8_t            *packet,
@@ -401,7 +397,7 @@ uint8_t USBD_LEDGER_HID_U2F_data_out(USBD_HandleTypeDef *pdev,
     return USBD_OK;
 }
 
-uint8_t USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
+USBD_StatusTypeDef USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
                                          void               *cookie,
                                          uint8_t             packet_type,
                                          const uint8_t      *message,
@@ -416,21 +412,21 @@ uint8_t USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
     ledger_hid_u2f_handle_t *handle = (ledger_hid_u2f_handle_t *) PIC(cookie);
 
     uint8_t  cmd       = 0;
-    uint8_t *tx_buffer = (uint8_t *) message;
+    const uint8_t *tx_buffer = message;
+    const uint8_t status[2] = {0x69, 0x85};
     uint16_t tx_length = message_length;
 
     switch (packet_type) {
         case OS_IO_PACKET_TYPE_USB_U2F_HID_APDU:
             cmd = U2F_COMMAND_MSG;
             if ((message_length == 2) && (message[0] == 0xFF) && (message[1] == 0xFF)) {
-                tx_buffer[0]          = 0x69;
-                tx_buffer[1]          = 0x85;
+                tx_buffer = status;
                 handle->user_presence = LEDGER_HID_U2F_USER_PRESENCE_ASKING;
             }
             else if (handle->user_presence == LEDGER_HID_U2F_USER_PRESENCE_ASKING) {
                 if ((message_length != 2) || (message[0] != 0x69) || (message[1] != 0x85)) {
                     handle->user_presence         = LEDGER_HID_U2F_USER_PRESENCE_CONFIRMED;
-                    handle->backup_message        = (uint8_t *) message;
+                    handle->backup_message        = message;
                     handle->backup_message_length = message_length;
                     return USBD_OK;
                 }
@@ -443,7 +439,7 @@ uint8_t USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
 
         case OS_IO_PACKET_TYPE_USB_U2F_HID_RAW:
             cmd       = message[0];
-            tx_buffer = (uint8_t *) &message[1];
+            tx_buffer = &message[1];
             tx_length = message_length - 1;
             break;
 
@@ -452,7 +448,7 @@ uint8_t USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
             break;
     }
 
-    U2F_TRANSPORT_tx(&handle->transport_data, cmd, tx_buffer, tx_length);
+    U2F_TRANSPORT_tx(&handle->transport_data, cmd, tx_buffer, tx_length, u2f_transport_packet_buffer, sizeof(u2f_transport_packet_buffer));
 
     if (handle->transport_data.tx_packet_length) {
         if (pdev->dev_state == USBD_STATE_CONFIGURED) {
@@ -462,7 +458,7 @@ uint8_t USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
                 }
                 ret = USBD_LL_Transmit(pdev,
                                        LEDGER_HID_U2F_EPIN_ADDR,
-                                       handle->transport_data.tx_packet_buffer,
+                                       u2f_transport_packet_buffer,
                                        LEDGER_HID_U2F_EPIN_SIZE,
                                        timeout_ms);
             }
@@ -500,8 +496,6 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
 {
     int32_t status = 0;
     uint8_t error_msg[2];
-
-    UNUSED(max_length);
 
     if (!cookie || !buffer) {
         return -1;
@@ -648,14 +642,18 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
                         pdev, cookie, OS_IO_PACKET_TYPE_USB_U2F_HID_APDU, error_msg, 2, 0);
                 }
                 else {
-                    buffer[0] = OS_IO_PACKET_TYPE_USB_U2F_HID_APDU;
-                    memmove(&buffer[1],
-                            &handle->transport_data.rx_message_buffer[3],
-                            handle->transport_data.rx_message_length - 3);
-                    handle->transport_data.state = U2F_STATE_CMD_PROCESSING;
-                    status                       = handle->transport_data.rx_message_length - 2;
-                    handle->message_crc          = crc;
-                    handle->user_presence        = LEDGER_HID_U2F_USER_PRESENCE_IDLE;
+                    if (handle->transport_data.rx_message_length + 1 > max_length) {
+                        status = -1;
+                    } else {
+                        buffer[0] = OS_IO_PACKET_TYPE_USB_U2F_HID_APDU;
+                        memmove(&buffer[1],
+                                &handle->transport_data.rx_message_buffer[3],
+                                handle->transport_data.rx_message_length - 3);
+                        handle->transport_data.state = U2F_STATE_CMD_PROCESSING;
+                        status                       = handle->transport_data.rx_message_length - 2;
+                        handle->message_crc          = crc;
+                        handle->user_presence        = LEDGER_HID_U2F_USER_PRESENCE_IDLE;
+                    }
                 }
             }
             break;
@@ -673,12 +671,16 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
                     pdev, cookie, OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR, error_msg, 2, 0);
             }
             else {
-                buffer[0] = OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR;
-                memmove(&buffer[1],
-                        &handle->transport_data.rx_message_buffer[3],
-                        handle->transport_data.rx_message_length - 3);
-                handle->transport_data.state = U2F_STATE_CMD_PROCESSING;
-                status                       = handle->transport_data.rx_message_length - 2;
+                if (handle->transport_data.rx_message_length + 1 > max_length) {
+                    status = -1;
+                } else {
+                    buffer[0] = OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR;
+                    memmove(&buffer[1],
+                            &handle->transport_data.rx_message_buffer[3],
+                            handle->transport_data.rx_message_length - 3);
+                    handle->transport_data.state = U2F_STATE_CMD_PROCESSING;
+                    status                       = handle->transport_data.rx_message_length - 2;
+                }
             }
             break;
 

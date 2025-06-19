@@ -23,7 +23,6 @@
 #include "ccid_cmd.h"
 #include "ccid_types.h"
 
-#pragma GCC diagnostic ignored "-Wcast-qual"
 
 #ifdef HAVE_PRINTF
 // #define LOG_IO PRINTF
@@ -175,7 +174,7 @@ const usbd_class_info_t USBD_LEDGER_CCID_Bulk_class_info = {
 /* Private functions ---------------------------------------------------------*/
 
 /* Exported functions --------------------------------------------------------*/
-uint8_t USBD_LEDGER_CCID_init(USBD_HandleTypeDef *pdev, void *cookie)
+USBD_StatusTypeDef USBD_LEDGER_CCID_init(USBD_HandleTypeDef *pdev, void *cookie)
 {
     if (!cookie) {
         return USBD_FAIL;
@@ -192,8 +191,6 @@ uint8_t USBD_LEDGER_CCID_init(USBD_HandleTypeDef *pdev, void *cookie)
     handle->device.slot_status                     = CCID_SLOT_STATUS_IDLE;
     handle->device.transport.rx_msg_buffer         = USBD_LEDGER_io_buffer;
     handle->device.transport.rx_msg_buffer_size    = sizeof(USBD_LEDGER_io_buffer);
-    handle->device.transport.tx_packet_buffer      = ledger_ccid_transport_packet_buffer;
-    handle->device.transport.tx_packet_buffer_size = sizeof(ledger_ccid_transport_packet_buffer);
 
     CCID_TRANSPORT_init(&handle->device.transport);
 
@@ -202,7 +199,7 @@ uint8_t USBD_LEDGER_CCID_init(USBD_HandleTypeDef *pdev, void *cookie)
     return USBD_OK;
 }
 
-uint8_t USBD_LEDGER_CCID_de_init(USBD_HandleTypeDef *pdev, void *cookie)
+USBD_StatusTypeDef USBD_LEDGER_CCID_de_init(USBD_HandleTypeDef *pdev, void *cookie)
 {
     UNUSED(pdev);
     UNUSED(cookie);
@@ -210,7 +207,7 @@ uint8_t USBD_LEDGER_CCID_de_init(USBD_HandleTypeDef *pdev, void *cookie)
     return USBD_OK;
 }
 
-uint8_t USBD_LEDGER_CCID_setup(USBD_HandleTypeDef *pdev, void *cookie, USBD_SetupReqTypedef *req)
+USBD_StatusTypeDef USBD_LEDGER_CCID_setup(USBD_HandleTypeDef *pdev, void *cookie, USBD_SetupReqTypedef *req)
 {
     if (!pdev || !cookie || !req) {
         return USBD_FAIL;
@@ -294,7 +291,7 @@ uint8_t USBD_LEDGER_CCID_setup(USBD_HandleTypeDef *pdev, void *cookie, USBD_Setu
     return ret;
 }
 
-uint8_t USBD_LEDGER_CCID_ep0_rx_ready(USBD_HandleTypeDef *pdev, void *cookie)
+USBD_StatusTypeDef USBD_LEDGER_CCID_ep0_rx_ready(USBD_HandleTypeDef *pdev, void *cookie)
 {
     UNUSED(pdev);
     UNUSED(cookie);
@@ -302,7 +299,7 @@ uint8_t USBD_LEDGER_CCID_ep0_rx_ready(USBD_HandleTypeDef *pdev, void *cookie)
     return USBD_OK;
 }
 
-uint8_t USBD_LEDGER_CCID_data_in(USBD_HandleTypeDef *pdev, void *cookie, uint8_t ep_num)
+USBD_StatusTypeDef USBD_LEDGER_CCID_data_in(USBD_HandleTypeDef *pdev, void *cookie, uint8_t ep_num)
 {
     if (!cookie) {
         return USBD_FAIL;
@@ -313,12 +310,12 @@ uint8_t USBD_LEDGER_CCID_data_in(USBD_HandleTypeDef *pdev, void *cookie, uint8_t
 
     ledger_ccid_handle_t *handle = (ledger_ccid_handle_t *) PIC(cookie);
     if (handle->device.transport.tx_message_buffer) {
-        CCID_TRANSPORT_tx(&handle->device.transport, NULL, 0);
+        CCID_TRANSPORT_tx(&handle->device.transport, NULL, 0, ledger_ccid_transport_packet_buffer, sizeof(ledger_ccid_transport_packet_buffer));
         if (handle->device.transport.tx_packet_length) {
             handle->state = LEDGER_CCID_STATE_BUSY;
             USBD_LL_Transmit(pdev,
                              LEDGER_CCID_BULK_EPIN_ADDR,
-                             handle->device.transport.tx_packet_buffer,
+                             ledger_ccid_transport_packet_buffer,
                              handle->device.transport.tx_packet_length,
                              0);
         }
@@ -331,7 +328,7 @@ uint8_t USBD_LEDGER_CCID_data_in(USBD_HandleTypeDef *pdev, void *cookie, uint8_t
     return USBD_OK;
 }
 
-uint8_t USBD_LEDGER_CCID_data_out(USBD_HandleTypeDef *pdev,
+USBD_StatusTypeDef USBD_LEDGER_CCID_data_out(USBD_HandleTypeDef *pdev,
                                   void               *cookie,
                                   uint8_t             ep_num,
                                   uint8_t            *packet,
@@ -352,7 +349,7 @@ uint8_t USBD_LEDGER_CCID_data_out(USBD_HandleTypeDef *pdev,
     return USBD_OK;
 }
 
-uint8_t USBD_LEDGER_CCID_send_packet(USBD_HandleTypeDef *pdev,
+USBD_StatusTypeDef USBD_LEDGER_CCID_send_packet(USBD_HandleTypeDef *pdev,
                                      void               *cookie,
                                      uint8_t             packet_type,
                                      const uint8_t      *packet,
@@ -368,7 +365,7 @@ uint8_t USBD_LEDGER_CCID_send_packet(USBD_HandleTypeDef *pdev,
     uint8_t               ret    = USBD_OK;
     ledger_ccid_handle_t *handle = (ledger_ccid_handle_t *) PIC(cookie);
 
-    CCID_TRANSPORT_tx(&handle->device.transport, packet, packet_length);
+    CCID_TRANSPORT_tx(&handle->device.transport, packet, packet_length, ledger_ccid_transport_packet_buffer, sizeof(ledger_ccid_transport_packet_buffer));
 
     if (pdev->dev_state == USBD_STATE_CONFIGURED) {
         if (handle->state == LEDGER_CCID_STATE_IDLE) {
@@ -376,7 +373,7 @@ uint8_t USBD_LEDGER_CCID_send_packet(USBD_HandleTypeDef *pdev,
                 handle->state = LEDGER_CCID_STATE_BUSY;
                 ret           = USBD_LL_Transmit(pdev,
                                        LEDGER_CCID_BULK_EPIN_ADDR,
-                                       handle->device.transport.tx_packet_buffer,
+                                       ledger_ccid_transport_packet_buffer,
                                        handle->device.transport.tx_packet_length,
                                        timeout_ms);
             }
@@ -415,7 +412,6 @@ int32_t USBD_LEDGER_CCID_data_ready(USBD_HandleTypeDef *pdev,
     int32_t status = 0;
 
     UNUSED(pdev);
-    UNUSED(max_length);
 
     if (!cookie || !buffer) {
         return -1;
@@ -456,11 +452,15 @@ int32_t USBD_LEDGER_CCID_data_ready(USBD_HandleTypeDef *pdev,
     }
     else if (status == 1) {
         // Transfer to upper layer
-        buffer[0] = OS_IO_PACKET_TYPE_USB_CCID_APDU;
-        memmove(&buffer[1],
-                handle->device.transport.rx_msg_buffer,
-                handle->device.transport.rx_msg_length);
-        status = handle->device.transport.rx_msg_length + 1;
+        if (handle->device.transport.rx_msg_length + 1 > max_length) {
+            status = -1;
+        } else {
+            buffer[0] = OS_IO_PACKET_TYPE_USB_CCID_APDU;
+            memmove(&buffer[1],
+                    handle->device.transport.rx_msg_buffer,
+                    handle->device.transport.rx_msg_length);
+            status = handle->device.transport.rx_msg_length + 1;
+        }
     }
     handle->device.transport.rx_msg_status = CCID_MSG_STATUS_WAITING;
 

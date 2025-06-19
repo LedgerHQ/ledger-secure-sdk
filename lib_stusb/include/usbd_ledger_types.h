@@ -35,20 +35,20 @@ typedef struct {
     uint8_t  ep_type;
 } usbd_end_point_info_t;
 
-typedef uint8_t (*usbd_class_init_t)(USBD_HandleTypeDef *pdev, void *cookie);
-typedef uint8_t (*usbd_class_de_init_t)(USBD_HandleTypeDef *pdev, void *cookie);
-typedef uint8_t (*usbd_class_setup_t)(USBD_HandleTypeDef   *pdev,
+typedef USBD_StatusTypeDef (*usbd_class_init_t)(USBD_HandleTypeDef *pdev, void *cookie);
+typedef USBD_StatusTypeDef (*usbd_class_de_init_t)(USBD_HandleTypeDef *pdev, void *cookie);
+typedef USBD_StatusTypeDef (*usbd_class_setup_t)(USBD_HandleTypeDef   *pdev,
                                       void                 *cookie,
                                       USBD_SetupReqTypedef *req);
-typedef uint8_t (*usbd_ep0_rx_ready_t)(USBD_HandleTypeDef *pdev, void *cookie);
-typedef uint8_t (*usbd_class_data_in_t)(USBD_HandleTypeDef *pdev, void *cookie, uint8_t ep_num);
-typedef uint8_t (*usbd_class_data_out_t)(USBD_HandleTypeDef *pdev,
+typedef USBD_StatusTypeDef (*usbd_ep0_rx_ready_t)(USBD_HandleTypeDef *pdev, void *cookie);
+typedef USBD_StatusTypeDef (*usbd_class_data_in_t)(USBD_HandleTypeDef *pdev, void *cookie, uint8_t ep_num);
+typedef USBD_StatusTypeDef (*usbd_class_data_out_t)(USBD_HandleTypeDef *pdev,
                                          void               *cookie,
                                          uint8_t             ep_num,
                                          uint8_t            *packet,
                                          uint16_t            packet_length);
 
-typedef uint8_t (*usbd_send_packet_t)(USBD_HandleTypeDef *pdev,
+typedef USBD_StatusTypeDef (*usbd_send_packet_t)(USBD_HandleTypeDef *pdev,
                                       void               *cookie,
                                       uint8_t             packet_type,
                                       const uint8_t      *packet,

@@ -36,25 +36,25 @@ typedef enum {
 extern const ble_profile_info_t BLE_LEDGER_PROFILE_apdu_info;
 
 /* Exported functions prototypes--------------------------------------------- */
-void    BLE_LEDGER_PROFILE_apdu_init(ble_cmd_data_t *cmd_data, void *cookie);
-uint8_t BLE_LEDGER_PROFILE_apdu_create_db(uint8_t *hci_buffer, uint16_t length, void *cookie);
+ble_profile_status_t     BLE_LEDGER_PROFILE_apdu_init(ble_cmd_data_t *cmd_data, void *cookie);
+ble_profile_status_t BLE_LEDGER_PROFILE_apdu_create_db(uint8_t *hci_buffer, uint16_t length, void *cookie);
 uint8_t BLE_LEDGER_PROFILE_apdu_handle_in_range(uint16_t gatt_handle, void *cookie);
 
 void BLE_LEDGER_PROFILE_apdu_connection_evt(ble_connection_t *connection, void *cookie);
 void BLE_LEDGER_PROFILE_apdu_connection_update_evt(ble_connection_t *connection, void *cookie);
 void BLE_LEDGER_PROFILE_apdu_encryption_changed(bool encrypted, void *cookie);
 
-uint8_t BLE_LEDGER_PROFILE_apdu_att_modified(uint8_t *hci_buffer, uint16_t length, void *cookie);
-uint8_t BLE_LEDGER_PROFILE_apdu_write_permit_req(uint8_t *hci_buffer,
+ble_profile_status_t BLE_LEDGER_PROFILE_apdu_att_modified(uint8_t *hci_buffer, uint16_t length, void *cookie);
+ble_profile_status_t BLE_LEDGER_PROFILE_apdu_write_permit_req(uint8_t *hci_buffer,
                                                  uint16_t length,
                                                  void    *cookie);
-uint8_t BLE_LEDGER_PROFILE_apdu_mtu_changed(uint16_t mtu, void *cookie);
+ble_profile_status_t BLE_LEDGER_PROFILE_apdu_mtu_changed(uint16_t mtu, void *cookie);
 
-uint8_t BLE_LEDGER_PROFILE_apdu_write_rsp_ack(void *cookie);
-uint8_t BLE_LEDGER_PROFILE_apdu_update_char_value_ack(void *cookie);
+ble_profile_status_t BLE_LEDGER_PROFILE_apdu_write_rsp_ack(void *cookie);
+ble_profile_status_t BLE_LEDGER_PROFILE_apdu_update_char_value_ack(void *cookie);
 bool BLE_LEDGER_PROFILE_apdu_is_busy(void *cookie);
 
-uint8_t BLE_LEDGER_PROFILE_apdu_send_packet(const uint8_t *packet, uint16_t length, void *cookie);
+ble_profile_status_t BLE_LEDGER_PROFILE_apdu_send_packet(const uint8_t *packet, uint16_t length, void *cookie);
 
 int32_t BLE_LEDGER_PROFILE_apdu_data_ready(uint8_t *buffer, uint16_t max_length, void *cookie);
 

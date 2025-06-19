@@ -33,7 +33,6 @@
 #include "usbd_ctlreq.h"
 #include "usbd_ioreq.h"
 
-#pragma GCC diagnostic ignored "-Wcast-qual"
 
 /* Private enumerations ------------------------------------------------------*/
 
@@ -180,6 +179,10 @@ USBD_StatusTypeDef USBD_StdEPReq(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef 
     USBD_EndpointTypeDef *pep     = NULL;
     uint8_t               ep_addr = LOBYTE(req->wIndex);
 
+    if ((ep_addr & 0x7FU) >= IO_USB_MAX_ENDPOINTS) {
+        return USBD_FAIL;
+    }
+
     switch (req->bmRequest & USB_REQ_TYPE_MASK) {
         case USB_REQ_TYPE_CLASS:
         case USB_REQ_TYPE_VENDOR:
@@ -275,6 +278,9 @@ USBD_StatusTypeDef USBD_StdEPReq(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef 
 
                             pep = ((ep_addr & 0x80U) == 0x80U) ? &pdev->ep_in[ep_addr & 0x7FU]
                                                                : &pdev->ep_out[ep_addr & 0x7FU];
+                            if ((ep_addr & 0x7fU) >= IO_USB_MAX_ENDPOINTS) {
+                                break;
+                            }
 
                             if ((ep_addr == 0x00U) || (ep_addr == 0x80U)) {
                                 pep->status = 0x0000U;
@@ -322,6 +328,10 @@ static void USBD_GetDescriptor(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *r
     uint8_t *pbuf = NULL;
     uint8_t  err  = 0U;
 
+    if (pdev->pDesc == NULL) {
+        USBD_CtlError(pdev, req);
+        return;
+    }
     switch (req->wValue >> 8) {
         case USB_DESC_TYPE_BOS:
             if (pdev->pDesc->GetBOSDescriptor != NULL) {

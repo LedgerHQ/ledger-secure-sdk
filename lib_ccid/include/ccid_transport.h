@@ -33,5 +33,9 @@
 /* Exported functions prototypes--------------------------------------------- */
 void CCID_TRANSPORT_init(ccid_transport_t *handle);
 void CCID_TRANSPORT_rx(ccid_transport_t *handle, uint8_t *buffer, uint16_t length);
-void CCID_TRANSPORT_tx(ccid_transport_t *handle, const uint8_t *buffer, uint16_t length);
+void CCID_TRANSPORT_tx(ccid_transport_t *handle,
+                       const uint8_t    *buffer,
+                       uint16_t          length,
+                       uint8_t          *tx_packer_buffer,
+                       uint16_t          tx_packet_buffer_size);
 void CCID_TRANSPORT_reset_parameters(ccid_transport_t *handle);
