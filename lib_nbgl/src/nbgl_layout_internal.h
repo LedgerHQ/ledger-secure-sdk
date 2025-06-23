@@ -73,19 +73,7 @@ enum {
  *
  */
 typedef struct nbgl_layoutInternal_s {
-    bool modal;           ///< if true, means the screen is a modal
-    bool withLeftBorder;  ///< if true, draws a light gray left border on the whole height of the
-                          ///< screen
-    uint8_t layer;  ///< if >0, puts the layout on top of screen stack (modal). Otherwise puts on
-                    ///< background (for apps)
-    uint8_t      nbChildren;  ///< number of children in above array
-    nbgl_obj_t **children;    ///< children for main screen
-
-    uint8_t                   nbPages;       ///< number of pages for navigation bar
-    uint8_t                   activePage;    ///< index of active page for navigation bar
-    nbgl_layoutHeaderType_t   headerType;    ///< type of header
-    nbgl_layoutFooterType_t   footerType;    ///< type of footer
-    nbgl_layoutUpFooterType_t upFooterType;  ///< type of up-footer
+    nbgl_obj_t **children;  ///< children for main screen
     nbgl_container_t
         *headerContainer;  ///< container used to store header (progress, back, empty space...)
     nbgl_container_t *footerContainer;    ///< container used to store footer (buttons, nav....)
@@ -95,13 +83,24 @@ typedef struct nbgl_layoutInternal_s {
     nbgl_layoutTouchCallback_t callback;  // user callback for all controls
     // This is the pool of callback objects, potentially used by this layout
     layoutObj_t callbackObjPool[LAYOUT_OBJ_POOL_LEN];
-    // number of callback objects used by the whole layout in callbackObjPool
-    uint8_t nbUsedCallbackObjs;
 
     nbgl_container_t       *container;
-    const nbgl_animation_t *animation;      ///< current animation (if not NULL)
-    uint8_t                 iconIdxInAnim;  ///< current icon index in animation
-    bool incrementAnim;  ///< if true, means that animation index is currently incrementing
+    const nbgl_animation_t *animation;  ///< current animation (if not NULL)
+
+    uint8_t                   nbPages;       ///< number of pages for navigation bar
+    uint8_t                   activePage;    ///< index of active page for navigation bar
+    nbgl_layoutHeaderType_t   headerType;    ///< type of header
+    nbgl_layoutFooterType_t   footerType;    ///< type of footer
+    nbgl_layoutUpFooterType_t upFooterType;  ///< type of up-footer
+    uint8_t                   modal : 1;     ///< if true, means the screen is a modal
+    uint8_t withLeftBorder : 1;  ///< if true, draws a light gray left border on the whole height of
+                                 ///< the screen
+    uint8_t incrementAnim : 1;   ///< if true, means that animation index is currently incrementing
+    uint8_t layer : 5;           ///< layer in screen stack
+    uint8_t nbUsedCallbackObjs;  ///< number of callback objects used by the whole layout in
+                                 ///< callbackObjPool
+    uint8_t            nbChildren;     ///< number of children in above array
+    uint8_t            iconIdxInAnim;  ///< current icon index in animation
     nbgl_swipe_usage_t swipeUsage;
 } nbgl_layoutInternal_t;
 
