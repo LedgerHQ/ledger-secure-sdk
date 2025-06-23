@@ -14,20 +14,29 @@ jobs:
       matrix:
         target:
           - core: cortex-m3
+            newlib_arch_path: /usr/lib/arm-none-eabi/newlib/thumb/v7-m/nofp
             se: st33
           - core: cortex-m35p+nodsp
+            newlib_arch_path: /usr/lib/arm-none-eabi/newlib/thumb/v8-m.main+fp/softfp
             se: st33k1
 
     steps:
       - uses: actions/checkout@v4
         with:
           # TODO: remove this next line before merging!
-          ref: feat/apa/clangrt
+          ref: feat/iar/clangrt_22_from_apa
           sparse-checkout: |
             tools/build_clangrt_builtins.sh
           sparse-checkout-cone-mode: false
 
-      - run: ./tools/build_clangrt_builtins.sh -t ${{ matrix.target.core }} -o artifact/arch/${{ matrix.target.se }}/lib
+      - name: Comiple and copy Clang compiler-rt runtime library
+        run: |
+          ./tools/build_clangrt_builtins.sh -t ${{ matrix.target.core }} -o artifact/arch/${{ matrix.target.se }}/lib
+
+      - name: Copy libc and libm from newlib
+        run: |
+          cp ${{ matrix.target.newlib_arch_path }}/libm.a artifact/arch/${{ matrix.target.se }}/lib
+          cp ${{ matrix.target.newlib_arch_path }}/libc.a artifact/arch/${{ matrix.target.se }}/lib
 
       - uses: actions/upload-artifact@v4
         with:
