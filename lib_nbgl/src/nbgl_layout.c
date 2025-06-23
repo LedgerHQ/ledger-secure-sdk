@@ -3248,12 +3248,11 @@ int nbgl_layoutAddUpFooter(nbgl_layout_t *layout, const nbgl_layoutUpFooter_t *u
             layoutInt->upFooterContainer->children[2] = (nbgl_obj_t *) line;
 
             progressBar = (nbgl_progress_bar_t *) nbgl_objPoolGet(PROGRESS_BAR, layoutInt->layer);
-            progressBar->withBorder                   = false;
             progressBar->obj.area.width               = SCREEN_WIDTH;
             progressBar->obj.area.height              = 8;
             progressBar->obj.alignment                = TOP_MIDDLE;
             progressBar->obj.alignmentMarginY         = 4;
-            progressBar->obj.alignTo                  = NULL;
+            progressBar->resetIfOverriden             = true;
             layoutInt->upFooterContainer->children[3] = (nbgl_obj_t *) progressBar;
             break;
         }
