@@ -85,16 +85,24 @@ bool touchEnabled = true;
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef HAVE_BLE
-void io_seph_ble_enable(unsigned char enable)
+int os_io_ble_cmd_enable(unsigned char enable)
 {
     UNUSED(enable);
+    return 0;
 }
-void io_seph_ble_clear_bond_db(void) {}
-void io_seph_ble_name_changed(void) {}
+int os_io_ble_cmd_clear_bond_db(void)
+{
+    return 0;
+}
+int os_io_ble_cmd_name_changed(void)
+{
+    return 0;
+}
 
-void io_seph_ux_accept_pairing(unsigned char status)
+int os_io_ux_cmd_ble_accept_pairing(uint8_t status)
 {
     UNUSED(status);
+    return 0;
 }
 #endif  // HAVE_BLE
 
@@ -137,9 +145,10 @@ void io_seph_send(const unsigned char *buffer, unsigned short length)
 }
 
 #ifdef HAVE_PIEZO_SOUND
-void io_seproxyhal_play_tune(tune_index_e tune_index)
+int os_io_seph_cmd_piezo_play_tune(tune_index_e tune_index)
 {
     UNUSED(tune_index);
+    return 0;
 }
 #endif  // HAVE_PIEZO_SOUND
 
@@ -158,11 +167,12 @@ void io_seproxyhal_se_reset(void)
     }
 }
 
-void os_reset(void)
+int os_io_seph_cmd_se_reset(void)
 {
     if (verbose) {
-        printf("os_reset\n");
+        printf("io_seproxyhal_se_reset\n");
     }
+    return 0;
 }
 
 void io_seproxyhal_disable_io(void) {}
@@ -177,9 +187,10 @@ void os_ux_set_status(unsigned int ux_id, unsigned int status)
 }
 #endif  // HAVE_BLE
 
-void io_seph_ux_redisplay(void)
+int os_io_ux_cmd_redisplay(void)
 {
     nbgl_screenRedraw();
+    return 0;
 }
 
 void halt(void) {}

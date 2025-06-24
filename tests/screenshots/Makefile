@@ -151,6 +151,8 @@ INC:=                  \
                        $(PUBLIC_SDK_DIR)/include \
                        $(PUBLIC_SDK_DIR)/lib_ux_nbgl \
                        $(PUBLIC_SDK_DIR)/lib_cxng/include \
+                       $(PUBLIC_SDK_DIR)/io/include \
+                       $(PUBLIC_SDK_DIR)/io_legacy/include \
                        $(NBGL_PATH)/include/fonts \
                        $(NBGL_PATH)/include \
                        $(PUBLIC_SDK_DIR)/qrcode/include \
