@@ -16,7 +16,7 @@ var searchData=
   ['image_5ffile_5fheader_5fsize_13',['IMAGE_FILE_HEADER_SIZE',['../nbgl__image__utils_8h.html#a4cfc91e3c7e9aeceb531c9bf94f1a436',1,'nbgl_image_utils.h']]],
   ['imageobj_14',['imageObj',['../structgenericObj__t.html#a203cf4b1e9e3cf7e4d758bc3bd17d397',1,'genericObj_t']]],
   ['inactive_15',['inactive',['../structnbgl__layoutBar__t.html#a43b09973aa8a7eb1e9099a81839cec54',1,'nbgl_layoutBar_t']]],
-  ['incrementanim_16',['incrementAnim',['../structnbgl__layoutInternal__s.html#a04b414ce72a3367205a117f2b216df40',1,'nbgl_layoutInternal_s']]],
+  ['incrementanim_16',['incrementAnim',['../structnbgl__layoutInternal__s.html#a98b9c71f5c94bd54c5c36d43f02adfd7',1,'nbgl_layoutInternal_s']]],
   ['index_17',['index',['../structnbgl__screen__s.html#a21a38f85c32fdbf4607ab824713abde6',1,'nbgl_screen_s::index'],['../structlayoutObj__t.html#afe1f663415afde670bcde9338845adcb',1,'layoutObj_t::index'],['../structux__flow__state__t.html#a6107168e64ec4985b59bd3a6be56b103',1,'ux_flow_state_t::index'],['../structux__loc__layout__params__s.html#a44e6947402f7d33d6ff24ca55bf00896',1,'ux_loc_layout_params_s::index'],['../structux__loc__layout__icon__params__s.html#a7883b877f2038034f3773aa71428fcbf',1,'ux_loc_layout_icon_params_s::index']]],
   ['indication_18',['indication',['../structnbgl__layoutNavigation__t.html#ab6fb2b817dc7063db328a4dd79c31056',1,'nbgl_layoutNavigation_t']]],
   ['indicator_19',['Progress indicator',['../nbgl_layout.html#progress_indicator',1,'']]],

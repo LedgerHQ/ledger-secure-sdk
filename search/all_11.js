@@ -21,7 +21,7 @@ var searchData=
   ['parser_2eh_18',['parser.h',['../parser_8h.html',1,'']]],
   ['parsing_19',['parsing',['../structnbgl__animation__s.html#af51c6ee98fe271ebd8c6ad4376fe92e0',1,'nbgl_animation_s']]],
   ['partial_20',['partial',['../structnbgl__keypad__s.html#ad1829f1adbd6bd0a779ecbf4a858df8d',1,'nbgl_keypad_s']]],
-  ['partialredraw_21',['partialRedraw',['../structnbgl__progress__bar__s.html#a8875e445f9f6a5323a7a54f453da1b68',1,'nbgl_progress_bar_s']]],
+  ['partialredraw_21',['partialRedraw',['../structnbgl__progress__bar__s.html#ac46d8a1b8f801421d290aeb0bc17eef0',1,'nbgl_progress_bar_s']]],
   ['payload_5falignement_22',['PAYLOAD_ALIGNEMENT',['../mem__alloc_8c.html#a5107199c34f5f4b6c029cf2b5dc47bb5',1,'mem_alloc.c']]],
   ['payload_5fdata_5falignement_23',['PAYLOAD_DATA_ALIGNEMENT',['../mem__alloc_8c.html#adc0eda6f62e7558b85a9fe60ebd50e2b',1,'mem_alloc.c']]],
   ['percentage_24',['percentage',['../structnbgl__layoutProgressBar__t.html#a02f6a73067feb2d09af5cfc23ac96693',1,'nbgl_layoutProgressBar_t']]],

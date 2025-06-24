@@ -8,7 +8,7 @@ var searchData=
   ['parent_5',['parent',['../structnbgl__obj__s.html#a4d8154a63e17916af8080f954c2a68f6',1,'nbgl_obj_s']]],
   ['parsing_6',['parsing',['../structnbgl__animation__s.html#af51c6ee98fe271ebd8c6ad4376fe92e0',1,'nbgl_animation_s']]],
   ['partial_7',['partial',['../structnbgl__keypad__s.html#ad1829f1adbd6bd0a779ecbf4a858df8d',1,'nbgl_keypad_s']]],
-  ['partialredraw_8',['partialRedraw',['../structnbgl__progress__bar__s.html#a8875e445f9f6a5323a7a54f453da1b68',1,'nbgl_progress_bar_s']]],
+  ['partialredraw_8',['partialRedraw',['../structnbgl__progress__bar__s.html#ac46d8a1b8f801421d290aeb0bc17eef0',1,'nbgl_progress_bar_s']]],
   ['percentage_9',['percentage',['../structnbgl__layoutProgressBar__t.html#a02f6a73067feb2d09af5cfc23ac96693',1,'nbgl_layoutProgressBar_t']]],
   ['phys_5fprev_10',['phys_prev',['../structheader__s.html#a7c9f9b96621c21b806c138f5dfef8fde',1,'header_s']]],
   ['position_11',['position',['../structnbgl__spinner__s.html#ab0f3a65e710d1894d5a893a59dbc3f71',1,'nbgl_spinner_s']]],
