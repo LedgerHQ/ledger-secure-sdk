@@ -50,6 +50,7 @@ extern "C" {
 #define MEDIUM_CENTERING_HEADER           56
 #define MEDIUM_CENTERING_FOOTER           88
 #define LONG_PRESS_BUTTON_HEIGHT          128
+#define UP_FOOTER_BUTTON_HEIGHT           120
 
 #define PRE_TEXT_MARGIN     32
 #define TEXT_SUBTEXT_MARGIN 16
@@ -75,6 +76,7 @@ extern "C" {
 #define MEDIUM_CENTERING_HEADER           64
 #define MEDIUM_CENTERING_FOOTER           64
 #define LONG_PRESS_BUTTON_HEIGHT          152
+#define UP_FOOTER_BUTTON_HEIGHT           136
 
 #define PRE_TEXT_MARGIN     28
 #define TEXT_SUBTEXT_MARGIN 14
