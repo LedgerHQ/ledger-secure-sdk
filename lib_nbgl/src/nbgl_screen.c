@@ -364,13 +364,13 @@ int nbgl_screenPush(nbgl_obj_t                           ***elements,
                 // update previous topOfStack
                 topOfStack->next                  = &screenStack[screenIndex];
                 screenStack[screenIndex].previous = topOfStack;
-#ifdef HAVE_SE_TOUCH
-                nbgl_touchStatePosition_t touchStatePosition = {.state = RELEASED, .x = 0, .y = 0};
-                // make a fake touch release for the current top-of-stack to avoid issue
-                // (for example in long-touch press)
-                nbgl_touchHandler(topOfStack->isUxScreen, &touchStatePosition, 0);
-#endif  // HAVE_SE_TOUCH
-        // new top of stack
+                // search for a potential progress bar in current topOfStack to reset it if needed
+                nbgl_progress_bar_t *progress
+                    = (nbgl_progress_bar_t *) nbgl_screenContainsObjType(topOfStack, PROGRESS_BAR);
+                if ((progress != NULL) && (progress->resetIfOverriden)) {
+                    progress->state = 0;
+                }
+                // new top of stack
                 topOfStack       = &screenStack[screenIndex];
                 topOfStack->next = NULL;
                 break;
