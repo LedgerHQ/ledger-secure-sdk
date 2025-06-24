@@ -107,9 +107,11 @@ WEAK int io_recv_command()
     int status = 0;
 
     if (need_to_start_io) {
+#ifndef USE_OS_IO_STACK
         io_seproxyhal_io_heartbeat();
         io_seproxyhal_io_heartbeat();
         io_seproxyhal_io_heartbeat();
+#endif  // USE_OS_IO_STACK
         os_io_start();
         need_to_start_io = 0;
     }
