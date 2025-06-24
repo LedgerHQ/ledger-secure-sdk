@@ -422,6 +422,8 @@ static uint8_t getContentNbElement(const nbgl_content_t *content)
     switch (content->type) {
         case TAG_VALUE_LIST:
             return content->content.tagValueList.nbPairs;
+        case TAG_VALUE_CONFIRM:
+            return content->content.tagValueConfirm.tagValueList.nbPairs;
         case SWITCHES_LIST:
             return content->content.switchesList.nbSwitches;
         case INFOS_LIST:
@@ -1064,9 +1066,26 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
             break;
         }
         case TAG_VALUE_CONFIRM:
-            memcpy(&pageContent->tagValueConfirm,
-                   &p_content->content.tagValueConfirm,
-                   sizeof(pageContent->tagValueConfirm));
+            // only display a TAG_VALUE_CONFIRM if we are at the last page
+            if ((nextElementIdx + nbElementsInPage)
+                == p_content->content.tagValueConfirm.tagValueList.nbPairs) {
+                memcpy(&pageContent->tagValueConfirm,
+                       &p_content->content.tagValueConfirm,
+                       sizeof(pageContent->tagValueConfirm));
+                nbgl_contentTagValueList_t *p_tagValueList
+                    = &pageContent->tagValueConfirm.tagValueList;
+                p_tagValueList->nbPairs = nbElementsInPage;
+                p_tagValueList->pairs
+                    = PIC(&p_content->content.tagValueConfirm.tagValueList.pairs[nextElementIdx]);
+            }
+            else {
+                // else display it as a TAG_VALUE_LIST
+                pageContent->type                          = TAG_VALUE_LIST;
+                nbgl_contentTagValueList_t *p_tagValueList = &pageContent->tagValueList;
+                p_tagValueList->nbPairs                    = nbElementsInPage;
+                p_tagValueList->pairs
+                    = PIC(&p_content->content.tagValueConfirm.tagValueList.pairs[nextElementIdx]);
+            }
             break;
         case SWITCHES_LIST:
             pageContent->switchesList.nbSwitches = nbElementsInPage;
@@ -1717,10 +1736,119 @@ static void keypadGenericUseCase(const char                *title,
 }
 #endif
 
-static uint8_t nbgl_useCaseGetNbPagesForContent(const nbgl_content_t *content,
-                                                uint8_t               pageIdxStart,
-                                                bool                  isLast,
-                                                bool                  isSkippable)
+/**
+ * @brief computes the number of tag/values pairs displayable in a page, with the given list of
+ * tag/value pairs
+ *
+ * @param nbPairs number of tag/value pairs to use in \b tagValueList
+ * @param tagValueList list of tag/value pairs
+ * @param startIndex first index to consider in \b tagValueList
+ * @param isSkippable if true, a skip header is added
+ * @param hasConfirmationButton if true, a confirmation button is added at last page
+ * @param requireSpecificDisplay (output) set to true if the tag/value needs a specific display:
+ *        - centeredInfo flag is enabled
+ *        - the tag/value doesn't fit in a page
+ * @return the number of tag/value pairs fitting in a page
+ */
+static uint8_t getNbTagValuesInPage(uint8_t                           nbPairs,
+                                    const nbgl_contentTagValueList_t *tagValueList,
+                                    uint8_t                           startIndex,
+                                    bool                              isSkippable,
+                                    bool                              hasConfirmationButton,
+                                    bool                             *requireSpecificDisplay)
+{
+    uint8_t  nbPairsInPage   = 0;
+    uint16_t currentHeight   = PRE_TAG_VALUE_MARGIN;  // upper margin
+    uint16_t maxUsableHeight = TAG_VALUE_AREA_HEIGHT;
+
+    // if the review is skippable, it means that there is less height for tag/value pairs
+    // the small centering header becomes a touchable header
+    if (isSkippable) {
+        maxUsableHeight -= TOUCHABLE_HEADER_BAR_HEIGHT - SMALL_CENTERING_HEADER;
+    }
+
+    *requireSpecificDisplay = false;
+    while (nbPairsInPage < nbPairs) {
+        const nbgl_layoutTagValue_t *pair;
+        nbgl_font_id_e               value_font;
+        uint16_t                     nbLines;
+
+        // margin between pairs
+        // 12 or 24 px between each tag/value pair
+        if (nbPairsInPage > 0) {
+            currentHeight += INTER_TAG_VALUE_MARGIN;
+        }
+        // fetch tag/value pair strings.
+        if (tagValueList->pairs != NULL) {
+            pair = PIC(&tagValueList->pairs[startIndex + nbPairsInPage]);
+        }
+        else {
+            pair = PIC(tagValueList->callback(startIndex + nbPairsInPage));
+        }
+
+        if (pair->forcePageStart && nbPairsInPage > 0) {
+            // This pair must be at the top of a page
+            break;
+        }
+
+        if (pair->centeredInfo) {
+            if (nbPairsInPage > 0) {
+                // This pair must be at the top of a page
+                break;
+            }
+            else {
+                // This pair is the only one of the page and has a specific display behavior
+                nbPairsInPage           = 1;
+                *requireSpecificDisplay = true;
+                break;
+            }
+        }
+
+        // tag height
+        currentHeight += nbgl_getTextHeightInWidth(
+            SMALL_REGULAR_FONT, pair->item, AVAILABLE_WIDTH, tagValueList->wrapping);
+        // space between tag and value
+        currentHeight += 4;
+        // set value font
+        if (tagValueList->smallCaseForValue) {
+            value_font = SMALL_REGULAR_FONT;
+        }
+        else {
+            value_font = LARGE_MEDIUM_FONT;
+        }
+        // value height
+        currentHeight += nbgl_getTextHeightInWidth(
+            value_font, pair->value, AVAILABLE_WIDTH, tagValueList->wrapping);
+        // nb lines for value
+        nbLines = nbgl_getTextNbLinesInWidth(
+            value_font, pair->value, AVAILABLE_WIDTH, tagValueList->wrapping);
+        if ((currentHeight >= maxUsableHeight) || (nbLines > NB_MAX_LINES_IN_REVIEW)) {
+            if (nbPairsInPage == 0) {
+                // Pair too long to fit in a single screen
+                // It will be the only one of the page and has a specific display behavior
+                nbPairsInPage           = 1;
+                *requireSpecificDisplay = true;
+            }
+            break;
+        }
+        nbPairsInPage++;
+    }
+    // if this is a TAG_VALUE_CONFIRM and we have reached the last pairs,
+    // let's check if it still fits with a CONFIRMATION button, and if not,
+    // remove the last pair
+    if (hasConfirmationButton && (nbPairsInPage == nbPairs)) {
+        maxUsableHeight -= UP_FOOTER_BUTTON_HEIGHT;
+        if (currentHeight > maxUsableHeight) {
+            nbPairsInPage--;
+        }
+    }
+    return nbPairsInPage;
+}
+
+static uint8_t getNbPagesForContent(const nbgl_content_t *content,
+                                    uint8_t               pageIdxStart,
+                                    bool                  isLast,
+                                    bool                  isSkippable)
 {
     uint8_t nbElements = 0;
     uint8_t nbPages    = 0;
@@ -1735,8 +1863,16 @@ static uint8_t nbgl_useCaseGetNbPagesForContent(const nbgl_content_t *content,
         // if the current page is not the first one (or last), a navigation bar exists
         bool hasNav = !isLast || (pageIdxStart > 0) || (elemIdx > 0);
         if (content->type == TAG_VALUE_LIST) {
-            nbElementsInPage = nbgl_useCaseGetNbTagValuesInPageExt(
-                nbElements, &content->content.tagValueList, elemIdx, isSkippable, &flag);
+            nbElementsInPage = getNbTagValuesInPage(
+                nbElements, &content->content.tagValueList, elemIdx, isSkippable, false, &flag);
+        }
+        else if (content->type == TAG_VALUE_CONFIRM) {
+            nbElementsInPage = getNbTagValuesInPage(nbElements,
+                                                    &content->content.tagValueConfirm.tagValueList,
+                                                    elemIdx,
+                                                    isSkippable,
+                                                    true,
+                                                    &flag);
         }
         else if (content->type == INFOS_LIST) {
             nbElementsInPage = nbgl_useCaseGetNbInfosInPage(
@@ -1780,10 +1916,10 @@ static uint8_t getNbPagesForGenericContents(const nbgl_genericContents_t *generi
         if (p_content == NULL) {
             return 0;
         }
-        nbPages += nbgl_useCaseGetNbPagesForContent(p_content,
-                                                    pageIdxStart + nbPages,
-                                                    (i == (genericContents->nbContents - 1)),
-                                                    isSkippable);
+        nbPages += getNbPagesForContent(p_content,
+                                        pageIdxStart + nbPages,
+                                        (i == (genericContents->nbContents - 1)),
+                                        isSkippable);
     }
 
     return nbPages;
@@ -2569,8 +2705,8 @@ uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPai
                                          uint8_t                           startIndex,
                                          bool                             *requireSpecificDisplay)
 {
-    return nbgl_useCaseGetNbTagValuesInPageExt(
-        nbPairs, tagValueList, startIndex, false, requireSpecificDisplay);
+    return getNbTagValuesInPage(
+        nbPairs, tagValueList, startIndex, false, false, requireSpecificDisplay);
 }
 
 /**
@@ -2592,91 +2728,8 @@ uint8_t nbgl_useCaseGetNbTagValuesInPageExt(uint8_t                           nb
                                             bool                              isSkippable,
                                             bool *requireSpecificDisplay)
 {
-    uint8_t nbPairsInPage = 0;
-#ifdef TARGET_STAX
-    uint16_t currentHeight = 24;  // upper margin
-#else                             // TARGET_STAX
-    uint16_t currentHeight             = 0;  // upper margin
-#endif                            // TARGET_STAX
-    uint16_t maxUsableHeight = TAG_VALUE_AREA_HEIGHT;
-
-    // if the review is skippable, it means that there is less height for tag/value pairs
-    // the small centering header becomes a touchable header
-    if (isSkippable) {
-        maxUsableHeight -= TOUCHABLE_HEADER_BAR_HEIGHT - SMALL_CENTERING_HEADER;
-    }
-
-    *requireSpecificDisplay = false;
-    while (nbPairsInPage < nbPairs) {
-        const nbgl_layoutTagValue_t *pair;
-        nbgl_font_id_e               value_font;
-        uint16_t                     nbLines;
-
-        // margin between pairs
-        // 12 or 24 px between each tag/value pair
-        if (nbPairsInPage > 0) {
-#ifdef TARGET_STAX
-            currentHeight += 12;
-#else   // TARGET_STAX
-            currentHeight += 24;
-#endif  // TARGET_STAX
-        }
-        // fetch tag/value pair strings.
-        if (tagValueList->pairs != NULL) {
-            pair = PIC(&tagValueList->pairs[startIndex + nbPairsInPage]);
-        }
-        else {
-            pair = PIC(tagValueList->callback(startIndex + nbPairsInPage));
-        }
-
-        if (pair->forcePageStart && nbPairsInPage > 0) {
-            // This pair must be at the top of a page
-            break;
-        }
-
-        if (pair->centeredInfo) {
-            if (nbPairsInPage > 0) {
-                // This pair must be at the top of a page
-                break;
-            }
-            else {
-                // This pair is the only one of the page and has a specific display behavior
-                nbPairsInPage           = 1;
-                *requireSpecificDisplay = true;
-                break;
-            }
-        }
-
-        // tag height
-        currentHeight += nbgl_getTextHeightInWidth(
-            SMALL_REGULAR_FONT, pair->item, AVAILABLE_WIDTH, tagValueList->wrapping);
-        // space between tag and value
-        currentHeight += 4;
-        // set value font
-        if (tagValueList->smallCaseForValue) {
-            value_font = SMALL_REGULAR_FONT;
-        }
-        else {
-            value_font = LARGE_MEDIUM_FONT;
-        }
-        // value height
-        currentHeight += nbgl_getTextHeightInWidth(
-            value_font, pair->value, AVAILABLE_WIDTH, tagValueList->wrapping);
-        // nb lines for value
-        nbLines = nbgl_getTextNbLinesInWidth(
-            value_font, pair->value, AVAILABLE_WIDTH, tagValueList->wrapping);
-        if ((currentHeight >= maxUsableHeight) || (nbLines > NB_MAX_LINES_IN_REVIEW)) {
-            if (nbPairsInPage == 0) {
-                // Pair too long to fit in a single screen
-                // It will be the only one of the page and has a specific display behavior
-                nbPairsInPage           = 1;
-                *requireSpecificDisplay = true;
-            }
-            break;
-        }
-        nbPairsInPage++;
-    }
-    return nbPairsInPage;
+    return getNbTagValuesInPage(
+        nbPairs, tagValueList, startIndex, isSkippable, false, requireSpecificDisplay);
 }
 
 /**
@@ -3017,7 +3070,7 @@ void nbgl_useCaseGenericSettings(const char                   *appName,
     // fill navigation structure
     uint8_t nbPages = getNbPagesForGenericContents(&genericContext.genericContents, 0, false);
     if (infosList != NULL) {
-        nbPages += nbgl_useCaseGetNbPagesForContent(&FINISHING_CONTENT, nbPages, true, false);
+        nbPages += getNbPagesForContent(&FINISHING_CONTENT, nbPages, true, false);
     }
 
     prepareNavInfo(false, nbPages, NULL);

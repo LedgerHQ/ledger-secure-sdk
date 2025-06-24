@@ -50,6 +50,10 @@ extern "C" {
 #define MEDIUM_CENTERING_HEADER           56
 #define MEDIUM_CENTERING_FOOTER           88
 #define LONG_PRESS_BUTTON_HEIGHT          128
+#define UP_FOOTER_BUTTON_HEIGHT           120
+
+#define PRE_TAG_VALUE_MARGIN   24
+#define INTER_TAG_VALUE_MARGIN 12
 #else  // TARGET_STAX
 #define NB_MAX_SUGGESTION_BUTTONS         8
 // only 2 buttons are visible at the same time on Flex
@@ -63,6 +67,10 @@ extern "C" {
 #define MEDIUM_CENTERING_HEADER           64
 #define MEDIUM_CENTERING_FOOTER           64
 #define LONG_PRESS_BUTTON_HEIGHT          152
+#define UP_FOOTER_BUTTON_HEIGHT           136
+
+#define PRE_TAG_VALUE_MARGIN   0
+#define INTER_TAG_VALUE_MARGIN 24
 #endif  // TARGET_STAX
 
 #define AVAILABLE_WIDTH (SCREEN_WIDTH - 2 * BORDER_MARGIN)
