@@ -36,7 +36,7 @@ jobs:
         fetch-depth: 0
 
     - name : Python dependencies
-      run: pip install PyGithub
+      run: pip install PyGithub GitPython
 
     - name : PR check
       run: .github/workflows/scripts/pr_check.py -t ${{ secrets.GITHUB_TOKEN }} -r ${{ github.event.repository.name }} -p ${{ github.event.number }}
