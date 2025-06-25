@@ -26,7 +26,8 @@ size_t strlcpy(char *dst, const char *src, size_t size)
     return i;  // Return length of src
 }
 
-uint32_t USBD_LL_GetRxDataSize(USBD_HandleTypeDef *pdev __attribute__((unused)), uint8_t ep_addr __attribute__((unused)))
+uint32_t USBD_LL_GetRxDataSize(USBD_HandleTypeDef *pdev __attribute__((unused)),
+                               uint8_t             ep_addr __attribute__((unused)))
 {
     return 0;
 }
