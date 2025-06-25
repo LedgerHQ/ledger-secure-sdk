@@ -49,5 +49,6 @@ target_include_directories(
          ${BOLOS_SDK}/target/${TARGET_DEVICE}/include/
          ${BOLOS_SDK}/lib_standard_app/
          ${BOLOS_SDK}/include/
-         ${BOLOS_SDK}/fuzzing/mock/written/
+         ${BOLOS_SDK}/fuzzing/mock/custom/
+         ${BOLOS_SDK}/fuzzing/mock/generated/
          ${BOLOS_SDK}/target/${TARGET_DEVICE}/)
