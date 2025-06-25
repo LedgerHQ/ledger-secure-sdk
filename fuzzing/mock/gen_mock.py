@@ -1,8 +1,11 @@
 import re
 import sys
-import subprocess
+
+NUM_WRITTEN_MOCKS = 0
+NUM_SKIPPED_MOCKS = 0
 
 def mark_params_unused(signature: str) -> str:
+    global NUM_WRITTEN_MOCKS
     """Add __attribute__((unused)) to each function parameter name in the signature."""
     if '(' not in signature or ')' not in signature:
         return signature  # Not a valid function
@@ -10,6 +13,7 @@ def mark_params_unused(signature: str) -> str:
     prefix, param_str = signature.split('(', 1)
     param_str, suffix = param_str.rsplit(')', 1)
     params = param_str.split(',')
+    NUM_WRITTEN_MOCKS += 1
 
     def modify_param(param):
         param = param.strip()
@@ -57,6 +61,8 @@ def skip_function(line, lines, i):
     return i - 1  # return to the last valid line
 
 def gen_mocks(c_code):
+    global NUM_SKIPPED_MOCKS
+    skipped_lines = []
     write_lines = []
     write_lines.append('#ifndef __weak')
     write_lines.append('#define __weak __attribute__((weak))')
@@ -148,29 +154,40 @@ def gen_mocks(c_code):
                 if '{' in line:
                     i = skip_function(line, lines, i)
                 else:
-                    print(f"Not handled line[{i+1}] = {line}")
+                    NUM_SKIPPED_MOCKS +=1
+                    skipped_lines.append(f"Ignoring line[{i+1}] = {line}")
 
         i += 1
 
-    return write_lines
+    return write_lines, skipped_lines
 
 def main():
 
+
+    WARNING = '\033[93m'
+    ENDC = '\033[0m'
     if(len(sys.argv) > 2):
         functions_path = sys.argv[1]
         output_file = sys.argv[2]
 
         with open(functions_path, "r") as file:
             c_code = file.read()
-            write_lines = gen_mocks(c_code)
+            write_lines, skipped_lines = gen_mocks(c_code)
 
         if write_lines:
             with open(output_file, "w") as file:
                 for line in write_lines:
                     file.write(line + "\n")
+        skipped_file = output_file.split('.')[0]+"_skipped.txt"
+        if skipped_lines:
+            with open(skipped_file, "w") as file:
+                for line in skipped_lines:
+                    file.write(line + "\n")
 
     else:
         print("Usage: python3 gen_mock.py [c_functions_file.c]")
+    print(f"{WARNING}{NUM_WRITTEN_MOCKS} mocks generated at {output_file}{ENDC}")
+    print(f"{WARNING}{NUM_SKIPPED_MOCKS} lines skipped, written at {skipped_file}{ENDC}")
 
 if __name__ == "__main__":
     main()
