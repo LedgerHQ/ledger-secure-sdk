@@ -48,7 +48,9 @@ function custom_macros(){
 function gen_macros() {
     if [ "$BOLOS_SDK" ]; then
         mkdir -p "$FUZZING_PATH/macros/generated"
-        apt-get update && apt-get install -y bear
+        if [ ! "$(bear --version)" ]; then
+            apt-get update && apt-get install -y bear
+        fi
 
         cd "$FUZZING_PATH/.." || exit 1
         echo -e "${BLUE}Generating macros...${NC}"
@@ -74,7 +76,10 @@ function gen_macros() {
 
 function build() {
     cd "$FUZZING_PATH" || exit
-    apt update && apt install -y libclang-rt-dev
+    CLANG_RT_PATH="$(clang -print-resource-dir)/lib/linux"
+    if [ ! -f "$CLANG_RT_PATH/libclang_rt.asan-x86_64.a" ]; then
+        apt update && apt install -y libclang-rt-dev
+    fi
     echo -e "${BLUE}Building the project...${NC}"
     cmake -S . -B build -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Debug -DSANITIZER=address -DTARGET_DEVICE="$TARGET_DEVICE" -DBOLOS_SDK="$BOLOS_SDK" -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS:bool=On
     cmake --build build
@@ -141,8 +146,8 @@ if [ "$REGENERATE_MACROS" -ne 0 ]; then
 fi
 
 if [ "$REBUILD" -eq 1 ]; then
-    if [ ! -s "$FUZZING_PATH/macros/generated/macros.txt" ]; then
-        if [ -s "$FUZZING_PATH/macros/extract_macros.py" ]; then
+    if [ -s "$FUZZING_PATH/macros/extract_macros.py" ]; then
+        if [ ! -s "$FUZZING_PATH/macros/generated/macros.txt" ]; then
             echo -e "${YELLOW}macros.txt is missing or empty. Generating macros...${NC}"
             gen_macros
         fi
