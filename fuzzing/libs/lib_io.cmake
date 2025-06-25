@@ -21,7 +21,7 @@ file(
 
 add_library(io ${LIB_IO_SOURCES})
 target_link_libraries(io PUBLIC nbgl cxng macros nfc)
-target_compile_options(io PUBLIC ${COMPILATION_FLAGS})
+target_compile_options(io PUBLIC ${COMPILATION_FLAGS} -Wno-implicit-function-declaration)
 target_compile_definitions(io PUBLIC OS_IO_SEPH_BUFFER_SIZE=300)
 target_include_directories(
   io
