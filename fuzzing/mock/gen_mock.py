@@ -2,6 +2,31 @@ import re
 import sys
 import subprocess
 
+def mark_params_unused(signature: str) -> str:
+    """Add __attribute__((unused)) to each function parameter name in the signature."""
+    if '(' not in signature or ')' not in signature:
+        return signature  # Not a valid function
+
+    prefix, param_str = signature.split('(', 1)
+    param_str, suffix = param_str.rsplit(')', 1)
+    params = param_str.split(',')
+
+    def modify_param(param):
+        param = param.strip()
+        if not param or param == 'void':
+            return param
+        if '__attribute__' in param:
+            return param  # Already marked
+        # Attempt to find the variable name (last token)
+        parts = param.rsplit(' ', 1)
+        if len(parts) == 2:
+            return f"{parts[0]} {parts[1]} __attribute__((unused))"
+        else:
+            return f"{param} __attribute__((unused))"
+
+    modified_params = [modify_param(p) for p in params]
+    return f"{prefix}({', '.join(modified_params)}){suffix}"
+
 def matching(line):
     """Pattern matching for functions or defines"""
     case = -1
@@ -61,57 +86,58 @@ def gen_mocks(c_code):
 
                     if ')' in line_aux:
                         if line_aux.endswith(';'):  # prototype
-                            write_lines.append('__weak ' + line_aux)
+                            unused_signature = mark_params_unused(line_aux)
+                            write_lines.append('__weak ' + unused_signature)
                         elif line_aux.startswith('void'):
                             if 'noreturn' in line_aux:
-                                write_lines.append('__weak '+ line_aux + ' { }')
+                                write_lines.append('__weak '+ mark_params_unused(line_aux) + ' { __builtin_unreachable(); }')
                             else:
-                                write_lines.append('__weak '+ line_aux + ' { return; }')
+                                write_lines.append('__weak '+ mark_params_unused(line_aux) + ' { return; }')
                             i = skip_function(line, lines, i)
                         elif line_aux.startswith('unsigned int') or 'SVC_cx_call' in line_aux:
-                            write_lines.append('__weak ' + line_aux + ' { return 0; }')
+                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return 0; }')
                             i = skip_function(line, lines, i)
                         elif line_aux.startswith('cx_err_t'):
-                            write_lines.append('__weak ' + line_aux + ' { return 0x00000000; }')
+                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return 0x00000000; }')
                             i = skip_function(line, lines, i)
                         elif line_aux.startswith('bolos_err_t'):
-                            write_lines.append('__weak ' + line_aux + ' { return 0xaa; }')
+                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return 0xaa; }')
                             i = skip_function(line, lines, i)
                         elif line_aux.startswith('bolos_bool_t'):
-                            write_lines.append('__weak ' + line_aux + ' { return 0xaa; }')
+                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return 0xaa; }')
                             i = skip_function(line, lines, i)
                         elif line_aux.startswith('bool'):
-                            write_lines.append('__weak ' + line_aux + ' { return true; }')
+                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return true; }')
                             i = skip_function(line, lines, i)
                         elif line_aux.startswith('bolos_bool_t'):
-                            write_lines.append('__weak ' + line_aux + ' { return 0xaa; }')
+                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return 0xaa; }')
                             i = skip_function(line, lines, i)
                         elif line_aux.startswith('bolos_task_status_t'):
-                            write_lines.append('__weak ' + line_aux + ' { return 0x0; }')
+                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return 0x0; }')
                             i = skip_function(line, lines, i)
                         elif line_aux.startswith('uint8_t'):
-                            write_lines.append('__weak ' + line_aux + ' { return 0; }')
+                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return 0; }')
                             i = skip_function(line, lines, i)
                         elif line_aux.startswith('try_context_t *'):
-                            write_lines.append('__weak ' + line_aux + ' { return NULL; }')
+                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return NULL; }')
                             i = skip_function(line, lines, i)
                         elif line_aux.startswith('uint32_t'):
-                            write_lines.append('__weak ' + line_aux + ' { return 0; }')
+                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return 0; }')
                             i = skip_function(line, lines, i)
                         elif line_aux.startswith('_Bool'):
-                            write_lines.append('__weak ' + line_aux + ' { return true; }')
+                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return true; }')
                             i = skip_function(line, lines, i)
                         elif line_aux.startswith('unsigned char'):
-                            write_lines.append('__weak ' + line_aux + ' { return \'M\'; }')
+                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return \'M\'; }')
                             i = skip_function(line, lines, i)
                         elif line_aux.startswith('unsigned short'):
-                            write_lines.append('__weak ' + line_aux + ' { return 0; }')
+                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return 0; }')
                             i = skip_function(line, lines, i)
                         elif line_aux.startswith('int'):
-                            write_lines.append('__weak ' + line_aux + ' { return 0; }')
+                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return 0; }')
                             i = skip_function(line, lines, i)
                         elif line_aux.startswith('const LANGUAGE_PACK *'):
-                            write_lines.append('__weak ' + line_aux + ' { return NULL; }')
+                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return NULL; }')
                             i = skip_function(line, lines, i)
                         else:
                             print(f"Skipped line [{i+1}]: {line_aux}")
@@ -122,7 +148,7 @@ def gen_mocks(c_code):
                 if '{' in line:
                     i = skip_function(line, lines, i)
                 else:
-                    print(f"Not identified line[{i+1}] = {line}")
+                    print(f"Not handled line[{i+1}] = {line}")
 
         i += 1
 
