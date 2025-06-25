@@ -7,6 +7,13 @@ include(${BOLOS_SDK}/fuzzing/libs/lib_cxng.cmake)
 
 find_package(Python3 REQUIRED)
 
+if(NOT WIN32)
+  string(ASCII 27 Esc)
+  set(Blue "${Esc}[34m")
+  set(ColourReset "${Esc}[m")
+  set(White "${Esc}[37m")
+endif()
+
 # --- Setup generation paths ---
 set(GEN_SYSCALLS_DIR "${BOLOS_SDK}/fuzzing/mock/generated")
 file(MAKE_DIRECTORY ${GEN_SYSCALLS_DIR})
@@ -18,7 +25,7 @@ add_custom_command(
   COMMAND ${Python3_EXECUTABLE} ${BOLOS_SDK}/fuzzing/mock/gen_mock.py
           ${BOLOS_SDK}/src/syscalls.c
           ${GEN_SYSCALLS_OUTPUT}
-  COMMENT "Generating syscalls..."
+  COMMENT "${Blue}Generating syscalls...${ColourReset}"
   VERBATIM
 )
 
@@ -42,7 +49,7 @@ add_library(mock ${LIB_MOCK_SOURCES})
 add_dependencies(mock generate_syscalls_only)
 
 target_link_libraries(mock PUBLIC macros cxng nbgl standard_app)
-target_compile_options(mock PUBLIC ${COMPILATION_FLAGS})
+target_compile_options(mock PUBLIC ${COMPILATION_FLAGS} -Wno-pointer-to-int-cast)
 target_include_directories(
   mock
   PUBLIC ${BOLOS_SDK}/lib_cxng/include/
