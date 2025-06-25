@@ -2,10 +2,15 @@ include_guard()
 
 add_library(macros INTERFACE)
 
+if(NOT WIN32)
+  string(ASCII 27 Esc)
+  set(Blue "${Esc}[34m")
+endif()
+
 # Building from App
 if(NOT "${BOLOS_SDK}/fuzzing" STREQUAL ${CMAKE_SOURCE_DIR})
   message(
-    "Importing macros from ${CMAKE_SOURCE_DIR}/macros/generated/macros.txt")
+    "${Blue}Importing macros from ${CMAKE_SOURCE_DIR}/macros/generated/macros.txt")
   file(STRINGS "${CMAKE_SOURCE_DIR}/macros/generated/macros.txt" MACRO_LIST)
   list(APPEND MACRO_LIST "FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION=1")
   target_compile_definitions(macros INTERFACE ${MACRO_LIST})
@@ -13,12 +18,12 @@ if(NOT "${BOLOS_SDK}/fuzzing" STREQUAL ${CMAKE_SOURCE_DIR})
   # Building from SDK
 else()
   if("${TARGET_DEVICE}" STREQUAL "stax")
-    message("Importing macros from ${CMAKE_SOURCE_DIR}/macros/macros-stax.txt")
+    message("${Blue}Importing macros from ${CMAKE_SOURCE_DIR}/macros/macros-stax.txt")
     file(STRINGS "${CMAKE_SOURCE_DIR}/macros/macros-stax.txt" MACRO_LIST)
     list(APPEND MACRO_LIST "FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION=1")
     target_compile_definitions(macros INTERFACE ${MACRO_LIST})
   elseif("${TARGET_DEVICE}" STREQUAL "flex")
-    message("Importing macros from ${CMAKE_SOURCE_DIR}/macros/macros-flex.txt")
+    message("${Blue}Importing macros from ${CMAKE_SOURCE_DIR}/macros/macros-flex.txt")
     file(STRINGS "${CMAKE_SOURCE_DIR}/macros/macros-flex.txt" MACRO_LIST)
     list(APPEND MACRO_LIST "FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION=1")
     target_compile_definitions(macros INTERFACE ${MACRO_LIST})
