@@ -133,7 +133,9 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                 if (offset + 1 >= size) {
                     return 0;
                 }
-                size_t index = (data[offset++] << 8) + data[offset++];
+                uint8_t high = data[offset++];
+                uint8_t low = data[offset++];
+                size_t index = (high << 8) + low;                
                 exec_free(allocator, index);
                 break;
             default:
