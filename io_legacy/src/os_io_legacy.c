@@ -147,8 +147,7 @@ void io_seproxyhal_io_heartbeat(void)
             case OS_IO_PACKET_TYPE_USB_U2F_HID_APDU:
             case OS_IO_PACKET_TYPE_BLE_APDU:
             case OS_IO_PACKET_TYPE_NFC_APDU:
-                // TODO_IO : temporary until ragger issue is solved
-                // os_io_tx_cmd(G_io_rx_buffer[0], err_buffer, sizeof(err_buffer), 0);
+                os_io_tx_cmd(G_io_rx_buffer[0], err_buffer, sizeof(err_buffer), 0);
                 break;
 
             default:
