@@ -64,8 +64,8 @@ typedef struct bolos_ux_params_s {
             } pairing_ok;
         } pairing_status;  // sent in BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS message
 #endif                     // HAVE_BLE
-#endif  // defined(HAVE_BLE) || defined(HAVE_KEYBOARD_UX)
-        struct {  // for BOLOS_UX_DELAY_LOCK command
+#endif                     // defined(HAVE_BLE) || defined(HAVE_KEYBOARD_UX)
+        struct {           // for BOLOS_UX_DELAY_LOCK command
             uint32_t delay_ms;
         } lock_delay;
     } u;
