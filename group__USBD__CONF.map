@@ -1,0 +1,9 @@
+<map id="USBD_CONF" name="USBD_CONF">
+<area shape="rect" id="Node000001" title="usb otg low level driver configuration file" alt="" coords="204,141,307,166"/>
+<area shape="rect" id="Node000003" href="$group__USBD__CONF__Exported__Defines.html" title=" " alt="" coords="355,5,523,45"/>
+<area shape="rect" id="Node000007" href="$group__USBD__CONF__Exported__FunctionsPrototype.html" title=" " alt="" coords="355,69,523,109"/>
+<area shape="rect" id="Node000005" href="$group__USBD__CONF__Exported__Macros.html" title=" " alt="" coords="355,133,523,173"/>
+<area shape="rect" id="Node000004" href="$group__USBD__CONF__Exported__Types.html" title=" " alt="" coords="355,197,523,237"/>
+<area shape="rect" id="Node000006" href="$group__USBD__CONF__Exported__Variables.html" title=" " alt="" coords="355,261,523,301"/>
+<area shape="rect" id="Node000002" href="$group__USBD__OTG__DRIVER.html" title=" " alt="" coords="5,141,156,166"/>
+</map>

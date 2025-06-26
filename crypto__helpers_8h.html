@@ -101,19 +101,19 @@ Include dependency graph for crypto_helpers.h:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a60ff66e6f0c9aa876fdeea2279d7ac7d" id="r_a60ff66e6f0c9aa876fdeea2279d7ac7d"><td class="memItemLeft" align="right" valign="top">WARN_UNUSED_RESULT cx_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="crypto__helpers_8h.html#a60ff66e6f0c9aa876fdeea2279d7ac7d">bip32_derive_with_seed_init_privkey_256</a> (unsigned int derivation_mode, cx_curve_t curve, const uint32_t *path, size_t path_len, cx_ecfp_256_private_key_t *privkey, uint8_t *chain_code, unsigned char *seed, size_t seed_len)</td></tr>
+<tr class="memitem:a60ff66e6f0c9aa876fdeea2279d7ac7d" id="r_a60ff66e6f0c9aa876fdeea2279d7ac7d"><td class="memItemLeft" align="right" valign="top">WARN_UNUSED_RESULT cx_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="crypto__helpers_8h.html#a60ff66e6f0c9aa876fdeea2279d7ac7d">bip32_derive_with_seed_init_privkey_256</a> (unsigned int derivation_mode, cx_curve_t curve, const uint32_t *path, size_t path_len, cx_ecfp_256_private_key_t *privkey, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *chain_code, unsigned char *seed, size_t seed_len)</td></tr>
 <tr class="memdesc:a60ff66e6f0c9aa876fdeea2279d7ac7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the private key from the device seed using the specified bip32 path and seed key.  <br /></td></tr>
 <tr class="separator:a60ff66e6f0c9aa876fdeea2279d7ac7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a95f3cbb39cfb4a372ee8c07e6d7590da" id="r_a95f3cbb39cfb4a372ee8c07e6d7590da"><td class="memItemLeft" align="right" valign="top">WARN_UNUSED_RESULT cx_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="crypto__helpers_8h.html#a95f3cbb39cfb4a372ee8c07e6d7590da">bip32_derive_with_seed_get_pubkey_256</a> (unsigned int derivation_mode, cx_curve_t curve, const uint32_t *path, size_t path_len, uint8_t raw_pubkey[static 65], uint8_t *chain_code, cx_md_t hashID, unsigned char *seed, size_t seed_len)</td></tr>
+<tr class="memitem:a95f3cbb39cfb4a372ee8c07e6d7590da" id="r_a95f3cbb39cfb4a372ee8c07e6d7590da"><td class="memItemLeft" align="right" valign="top">WARN_UNUSED_RESULT cx_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="crypto__helpers_8h.html#a95f3cbb39cfb4a372ee8c07e6d7590da">bip32_derive_with_seed_get_pubkey_256</a> (unsigned int derivation_mode, cx_curve_t curve, const uint32_t *path, size_t path_len, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> raw_pubkey[static 65], <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *chain_code, cx_md_t hashID, unsigned char *seed, size_t seed_len)</td></tr>
 <tr class="memdesc:a95f3cbb39cfb4a372ee8c07e6d7590da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the public key from the device seed using the specified bip32 path and seed key.  <br /></td></tr>
 <tr class="separator:a95f3cbb39cfb4a372ee8c07e6d7590da"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a261b0357775a8bc04d3bbbfca5849aa5" id="r_a261b0357775a8bc04d3bbbfca5849aa5"><td class="memItemLeft" align="right" valign="top">WARN_UNUSED_RESULT cx_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="crypto__helpers_8h.html#a261b0357775a8bc04d3bbbfca5849aa5">bip32_derive_with_seed_ecdsa_sign_hash_256</a> (unsigned int derivation_mode, cx_curve_t curve, const uint32_t *path, size_t path_len, uint32_t sign_mode, cx_md_t hashID, const uint8_t *hash, size_t hash_len, uint8_t *sig, size_t *sig_len, uint32_t *info, unsigned char *seed, size_t seed_len)</td></tr>
+<tr class="memitem:a261b0357775a8bc04d3bbbfca5849aa5" id="r_a261b0357775a8bc04d3bbbfca5849aa5"><td class="memItemLeft" align="right" valign="top">WARN_UNUSED_RESULT cx_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="crypto__helpers_8h.html#a261b0357775a8bc04d3bbbfca5849aa5">bip32_derive_with_seed_ecdsa_sign_hash_256</a> (unsigned int derivation_mode, cx_curve_t curve, const uint32_t *path, size_t path_len, uint32_t sign_mode, cx_md_t hashID, const <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *hash, size_t hash_len, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *sig, size_t *sig_len, uint32_t *info, unsigned char *seed, size_t seed_len)</td></tr>
 <tr class="memdesc:a261b0357775a8bc04d3bbbfca5849aa5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sign a hash with ecdsa using the device seed derived from the specified bip32 path and seed key.  <br /></td></tr>
 <tr class="separator:a261b0357775a8bc04d3bbbfca5849aa5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8a0e1152dea878b3979cbe3dddcbe0ee" id="r_a8a0e1152dea878b3979cbe3dddcbe0ee"><td class="memItemLeft" align="right" valign="top">WARN_UNUSED_RESULT cx_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="crypto__helpers_8h.html#a8a0e1152dea878b3979cbe3dddcbe0ee">bip32_derive_with_seed_ecdsa_sign_rs_hash_256</a> (unsigned int derivation_mode, cx_curve_t curve, const uint32_t *path, size_t path_len, uint32_t sign_mode, cx_md_t hashID, const uint8_t *hash, size_t hash_len, uint8_t sig_r[static 32], uint8_t sig_s[static 32], uint32_t *info, unsigned char *seed, size_t seed_len)</td></tr>
+<tr class="memitem:a8a0e1152dea878b3979cbe3dddcbe0ee" id="r_a8a0e1152dea878b3979cbe3dddcbe0ee"><td class="memItemLeft" align="right" valign="top">WARN_UNUSED_RESULT cx_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="crypto__helpers_8h.html#a8a0e1152dea878b3979cbe3dddcbe0ee">bip32_derive_with_seed_ecdsa_sign_rs_hash_256</a> (unsigned int derivation_mode, cx_curve_t curve, const uint32_t *path, size_t path_len, uint32_t sign_mode, cx_md_t hashID, const <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *hash, size_t hash_len, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> sig_r[static 32], <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> sig_s[static 32], uint32_t *info, unsigned char *seed, size_t seed_len)</td></tr>
 <tr class="memdesc:a8a0e1152dea878b3979cbe3dddcbe0ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sign a hash with ecdsa using the device seed derived from the specified bip32 path and seed key.  <br /></td></tr>
 <tr class="separator:a8a0e1152dea878b3979cbe3dddcbe0ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7954a660d9d93c904d43d5ba78865b05" id="r_a7954a660d9d93c904d43d5ba78865b05"><td class="memItemLeft" align="right" valign="top">WARN_UNUSED_RESULT cx_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="crypto__helpers_8h.html#a7954a660d9d93c904d43d5ba78865b05">bip32_derive_with_seed_eddsa_sign_hash_256</a> (unsigned int derivation_mode, cx_curve_t curve, const uint32_t *path, size_t path_len, cx_md_t hashID, const uint8_t *hash, size_t hash_len, uint8_t *sig, size_t *sig_len, unsigned char *seed, size_t seed_len)</td></tr>
+<tr class="memitem:a7954a660d9d93c904d43d5ba78865b05" id="r_a7954a660d9d93c904d43d5ba78865b05"><td class="memItemLeft" align="right" valign="top">WARN_UNUSED_RESULT cx_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="crypto__helpers_8h.html#a7954a660d9d93c904d43d5ba78865b05">bip32_derive_with_seed_eddsa_sign_hash_256</a> (unsigned int derivation_mode, cx_curve_t curve, const uint32_t *path, size_t path_len, cx_md_t hashID, const <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *hash, size_t hash_len, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *sig, size_t *sig_len, unsigned char *seed, size_t seed_len)</td></tr>
 <tr class="memdesc:a7954a660d9d93c904d43d5ba78865b05"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sign a hash with eddsa using the device seed derived from the specified bip32 path and seed key.  <br /></td></tr>
 <tr class="separator:a7954a660d9d93c904d43d5ba78865b05"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -163,7 +163,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramtype">const <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *&#160;</td>
           <td class="paramname"><em>hash</em>, </td>
         </tr>
         <tr>
@@ -175,7 +175,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *&#160;</td>
           <td class="paramname"><em>sig</em>, </td>
         </tr>
         <tr>
@@ -284,7 +284,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramtype">const <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *&#160;</td>
           <td class="paramname"><em>hash</em>, </td>
         </tr>
         <tr>
@@ -296,13 +296,13 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td>
           <td class="paramname"><em>sig_r</em>[static 32], </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td>
           <td class="paramname"><em>sig_s</em>[static 32], </td>
         </tr>
         <tr>
@@ -399,7 +399,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramtype">const <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *&#160;</td>
           <td class="paramname"><em>hash</em>, </td>
         </tr>
         <tr>
@@ -411,7 +411,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *&#160;</td>
           <td class="paramname"><em>sig</em>, </td>
         </tr>
         <tr>
@@ -501,13 +501,13 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td>
           <td class="paramname"><em>raw_pubkey</em>[static 65], </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *&#160;</td>
           <td class="paramname"><em>chain_code</em>, </td>
         </tr>
         <tr>
@@ -601,7 +601,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *&#160;</td>
           <td class="paramname"><em>chain_code</em>, </td>
         </tr>
         <tr>

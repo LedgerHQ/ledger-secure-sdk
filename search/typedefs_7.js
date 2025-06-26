@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['mem_5fctx_5ft_0',['mem_ctx_t',['../mem__alloc_8h.html#a050ea486d898e406141fa11ba55c9b45',1,'mem_alloc.h']]],
-  ['mem_5fparse_5fcallback_5ft_1',['mem_parse_callback_t',['../mem__alloc_8h.html#a4157777866c205fbc93a7f109fe549af',1,'mem_alloc.h']]]
+  ['keyboardcallback_5ft_0',['keyboardCallback_t',['../nbgl__obj_8h.html#ac0df014fc4f9f0ea28437f3a752d51f5',1,'nbgl_obj.h']]]
 ];

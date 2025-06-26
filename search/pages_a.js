@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['objects_20layout_20api_0',['Complex objects layout API',['../nbgl_layout.html',1,'nbgl_mainpage']]],
-  ['objects_20management_1',['Screens Stack and dynamic objects management',['../nbgl_screens_and_objs.html',1,'nbgl_mainpage']]]
+  ['nanos_0',['User Experience (graphical) library for Nanos',['../ux_mainpage.html',1,'index']]],
+  ['new_20bolos_20graphic_20api_20for_20stax_20flex_1',['New BOLOS Graphic API for Stax/Flex',['../nbgl_mainpage.html',1,'index']]],
+  ['nfc_20api_2',['NFC API',['../nfc_mainpage.html',1,'index']]]
 ];
