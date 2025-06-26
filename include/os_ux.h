@@ -24,9 +24,8 @@ typedef struct bolos_ux_params_s {
     bolos_ux_t ux_id;
     // length of parameters in the u union to be copied during the syscall.
     unsigned int len;
-
-#if defined(HAVE_BLE) || defined(HAVE_KEYBOARD_UX)
     union {
+#if defined(HAVE_BLE) || defined(HAVE_KEYBOARD_UX)
         // Structure for the lib ux.
 #if defined(HAVE_KEYBOARD_UX)
         struct {
@@ -65,11 +64,11 @@ typedef struct bolos_ux_params_s {
             } pairing_ok;
         } pairing_status;  // sent in BOLOS_UX_ASYNCHMODAL_PAIRING_STATUS message
 #endif                     // HAVE_BLE
-        struct {           // for BOLOS_UX_DELAY_LOCK command
+#endif  // defined(HAVE_BLE) || defined(HAVE_KEYBOARD_UX)
+        struct {  // for BOLOS_UX_DELAY_LOCK command
             uint32_t delay_ms;
         } lock_delay;
     } u;
-#endif  // defined(HAVE_BLE) || defined(HAVE_KEYBOARD_UX)
 } bolos_ux_params_t;
 
 #endif  // !defined(HAVE_BOLOS)
