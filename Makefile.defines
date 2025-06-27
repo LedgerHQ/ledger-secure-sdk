@@ -114,6 +114,7 @@ LDFLAGS  += -mtune=cortex-m0plus -mlittle-endian  -mcpu=cortex-m0plus
 LDFLAGS  += -nostdlib -nodefaultlibs #-nostartfiles
 LDFLAGS  += -mno-movt
 LDFLAGS  += -L$(BOLOS_SDK)/arch/st33/lib/
+LDFLAGS  += -L$(SYSROOT)/newlib/thumb/v7-m/nofp/
 AFLAGS   += -mcpu=cortex-m0plus -mthumb
 endif
 
@@ -125,6 +126,7 @@ LDFLAGS  += -mcpu=cortex-m35p+nodsp -mlittle-endian
 LDFLAGS  += -nostdlib -nodefaultlibs #-nostartfiles
 LDFLAGS  += -mno-movt
 LDFLAGS  += -L$(BOLOS_SDK)/arch/st33k1/lib/
+LDFLAGS  += -L$(SYSROOT)/newlib/thumb/v8-m.main+dp/softfp/
 AFLAGS   += -mcpu=cortex-m35p+nodsp -mthumb
 endif
 
