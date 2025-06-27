@@ -1,0 +1,200 @@
+#!/bin/bash
+
+# Defaults
+REBUILD=0
+COMPUTE_COVERAGE=1
+RUN_FUZZER=1
+TARGET_DEVICE="flex"
+REGENERATE_MACROS=0
+
+BOLOS_SDK=""
+FUZZING_PATH="$(pwd)"
+NUM_CPUS=1
+FUZZER=""
+FUZZERNAME=""
+
+# Colors
+RED="\033[0;31m"
+GREEN="\033[0;32m"
+BLUE="\033[0;34m"
+YELLOW="\033[0;33m"
+NC="\033[0m"
+
+# Help message
+function show_help() {
+    echo -e "${BLUE}Usage: ./local_run.sh --fuzzer=/path/to/fuzz_binary [--build=1|0] [other options:]${NC}"
+    echo
+    echo -e "  --BOLOS_SDK=PATH            Path to the BOLOS SDK (required if fuzzing an App)"
+    echo -e "  --TARGET_DEVICE=[flex|stax] Whether it is a flex or stax device (default: flex)"
+    echo -e "  --fuzzer=PATH               Path to the fuzzer binary (required)"
+    echo -e "  --build=1|0                 Whether to build the project (default: 0)"
+    echo -e "  --re-generate-macros=0|1    Whether to regenerate macros (default: 0)"
+    echo -e "  --compute-coverage=1|0      Whether to compute coverage after fuzzing (default: 1)"
+    echo -e "  --run-fuzzer=1|0            Whether to run the fuzzer (default: 1)"
+    echo -e "  --j=1|...|n_cpus            Number of CPUs to use (default: 1)"
+    echo -e "  --help                      Show this help message${NC}"
+    exit 0
+}
+
+function custom_macros(){
+    echo -e "${BLUE}Customizing macros...${NC}"
+    if [ "$BOLOS_SDK" ]; then
+        cd "$FUZZING_PATH/macros/" || exit
+        python3 extract_macros.py --exclude exclude_macros.txt --add add_macros.txt --output generated/macros.txt --customsonly=1
+        cd "$FUZZING_PATH" || exit 1
+    fi
+}
+
+function gen_macros() {
+    if [ "$BOLOS_SDK" ]; then
+        mkdir -p "$FUZZING_PATH/macros/generated"
+        if [ ! "$(bear --version)" ]; then
+            apt-get update && apt-get install -y bear
+        fi
+
+        cd "$FUZZING_PATH/.." || exit 1
+        echo -e "${BLUE}Generating macros...${NC}"
+        case "$TARGET_DEVICE" in
+            flex)
+                make clean BOLOS_SDK=/opt/flex-secure-sdk
+                bear --output "$FUZZING_PATH/macros/generated/used_macros.json" -- make -j"$NUM_CPUS" BOLOS_SDK=/opt/flex-secure-sdk
+                ;;
+            stax)
+                make clean BOLOS_SDK=/opt/stax-secure-sdk
+                bear --output "$FUZZING_PATH/macros/generated/used_macros.json" -- make -j"$NUM_CPUS" BOLOS_SDK=/opt/stax-secure-sdk
+                ;;
+            *)
+                echo -e "${RED}Unsupported TARGET_DEVICE: $TARGET_DEVICE${NC}"
+                exit 1
+                ;;
+        esac
+        cd "$FUZZING_PATH/macros/" || exit
+        python3 extract_macros.py --file generated/used_macros.json --exclude exclude_macros.txt --add add_macros.txt --output generated/macros.txt
+        cd "$FUZZING_PATH" || exit 1
+    fi
+}
+
+function build() {
+    cd "$FUZZING_PATH" || exit
+    CLANG_RT_PATH="$(clang -print-resource-dir)/lib/linux"
+    if [ ! -f "$CLANG_RT_PATH/libclang_rt.asan-x86_64.a" ]; then
+        apt update && apt install -y libclang-rt-dev
+    fi
+    echo -e "${BLUE}Building the project...${NC}"
+    cmake -S . -B build -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Debug -DSANITIZER=address -DTARGET_DEVICE="$TARGET_DEVICE" -DBOLOS_SDK="$BOLOS_SDK" -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS:bool=On
+    cmake --build build
+}
+
+# Parse args
+for arg in "$@"; do
+    case $arg in
+        --fuzzer=*)
+            FUZZER="${arg#*=}"
+            ;;
+        --BOLOS_SDK=*)
+            BOLOS_SDK="${arg#*=}"
+            ;;
+        --TARGET_DEVICE=*)
+            TARGET_DEVICE="${arg#*=}"
+            ;;
+        --re-generate-macros=*)
+            REGENERATE_MACROS="${arg#*=}"
+            ;;
+        --build=*)
+            REBUILD="${arg#*=}"
+            ;;
+        --compute-coverage=*)
+            COMPUTE_COVERAGE="${arg#*=}"
+            ;;
+        --run-fuzzer=*)
+            RUN_FUZZER="${arg#*=}"
+            ;;
+        --j=*)
+            NUM_CPUS="${arg#*=}"
+            ;;
+        --help)
+            show_help
+            ;;
+        *)
+            echo -e "${RED}Unknown argument: $arg${NC}"
+            show_help
+            ;;
+    esac
+done
+
+# Set paths
+FUZZERNAME=$(basename "$FUZZER")
+OUT_DIR="./out/$FUZZERNAME"
+CORPUS_DIR="$OUT_DIR/corpus"
+
+# Validate required args
+if [ -z "$BOLOS_SDK" ]; then
+    echo -e "${YELLOW}Note: If you are fuzzing an App --BOLOS_SDK=\$BOLOS_SDK is required.${NC}"
+fi
+
+# Sanity checks
+if [ "$TARGET_DEVICE" != "flex" ] && [ "$TARGET_DEVICE" != "stax" ]; then
+    echo -e "${RED}Unsupported TARGET_DEVICE: $TARGET_DEVICE | Must be STAX or FLEX${NC}"
+    exit 1
+fi
+
+if [ "$REGENERATE_MACROS" -ne 0 ]; then
+    if [ -s "$FUZZING_PATH/macros/extract_macros.py" ]; then
+        echo -e "${YELLOW}Generating custom macros...${NC}"
+        custom_macros
+    fi
+fi
+
+if [ "$REBUILD" -eq 1 ]; then
+    if [ -s "$FUZZING_PATH/macros/extract_macros.py" ]; then
+        if [ ! -s "$FUZZING_PATH/macros/generated/macros.txt" ]; then
+            echo -e "${YELLOW}macros.txt is missing or empty. Generating macros...${NC}"
+            gen_macros
+        fi
+    fi
+    if [ -s "$FUZZING_PATH/macros/extract_macros.py" ]; then
+        echo -e "${YELLOW}Generating custom macros...${NC}"
+        custom_macros
+    fi
+    build
+    echo -e "${GREEN}\n----------\nFuzzer built at $FUZZING_PATH/build/fuzz_*\n----------${NC}"
+fi
+
+if [ -z "$FUZZER" ]; then
+    exit 0
+fi
+
+if [ ! -x "$FUZZER" ]; then
+    echo -e "${RED}\nFuzzer binary '$FUZZER' is not executable.\n${NC}"
+    exit 1
+fi
+
+mkdir -p "$CORPUS_DIR"
+
+if [ "$RUN_FUZZER" -eq 1 ]; then
+    echo -e "${GREEN}\n----------\nStarting fuzzer '$FUZZERNAME'...\n----------\n${NC}"
+    LLVM_PROFILE_FILE="$OUT_DIR/fuzzer.profraw" "$FUZZER" -max_len=8192 -jobs="$NUM_CPUS" -timeout=10 "$CORPUS_DIR"
+fi
+
+# Early exit if coverage not needed
+if [ "$COMPUTE_COVERAGE" -ne 1 ]; then
+    mv -- *.log *.profraw "$OUT_DIR" 2>/dev/null
+    echo -e "${GREEN}\n----------\nFuzzing done. Data saved to $OUT_DIR\n----------${NC}"
+    exit 0
+fi
+
+# Coverage computation
+echo -e "${BLUE}\n----------\nComputing coverage...\n----------${NC}"
+
+rm -f "$OUT_DIR/default.profdata" "$OUT_DIR/default.profraw"
+LLVM_PROFILE_FILE="$OUT_DIR/coverage.profraw" "$FUZZER" -max_len=8192 -runs=0 "$CORPUS_DIR"
+
+mv -- *.log *.profraw "$OUT_DIR" 2>/dev/null
+llvm-profdata merge -sparse "$OUT_DIR"/*.profraw -o "$OUT_DIR/default.profdata"
+llvm-cov show "$FUZZER" --ignore-filename-regex="$BOLOS_SDK" -instr-profile="$OUT_DIR/default.profdata" -format=html -output-dir="$OUT_DIR"
+llvm-cov report "$FUZZER" --ignore-filename-regex="$BOLOS_SDK" -instr-profile="$OUT_DIR/default.profdata"
+
+echo -e "${GREEN}\n----------"
+echo "Report available at $OUT_DIR/index.html"
+echo "To view: xdg-open $OUT_DIR/index.html"
+echo -e "----------${NC}"
