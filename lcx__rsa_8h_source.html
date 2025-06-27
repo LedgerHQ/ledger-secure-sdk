@@ -114,73 +114,73 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span> </div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="keyword">struct </span>cx_rsa_public_key_s {</div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <span class="keywordtype">size_t</span>  size;  </div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> e[4];  </div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> n[1];  </div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    uint8_t e[4];  </div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    uint8_t n[1];  </div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>};</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span><span class="keyword">struct </span>cx_rsa_private_key_s {</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keywordtype">size_t</span>  size;  </div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> d[1];  </div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> n[1];  </div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    uint8_t d[1];  </div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    uint8_t n[1];  </div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>};</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span><span class="keyword">typedef</span> <span class="keyword">struct </span>cx_rsa_public_key_s cx_rsa_public_key_t;</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="keyword">typedef</span> <span class="keyword">struct </span>cx_rsa_private_key_s cx_rsa_private_key_t;</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span><span class="keyword">struct </span>cx_rsa_1024_public_key_s {</div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    <span class="keywordtype">size_t</span>  size;    </div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> e[4];    </div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> n[128];  </div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    uint8_t e[4];    </div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    uint8_t n[128];  </div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>};</div>
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span><span class="keyword">struct </span>cx_rsa_1024_private_key_s {</div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    <span class="keywordtype">size_t</span>  size;    </div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> d[128];  </div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> n[128];  </div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    uint8_t d[128];  </div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    uint8_t n[128];  </div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>};</div>
 <div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span><span class="keyword">typedef</span> <span class="keyword">struct </span>cx_rsa_1024_public_key_s cx_rsa_1024_public_key_t;</div>
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="keyword">typedef</span> <span class="keyword">struct </span>cx_rsa_1024_private_key_s cx_rsa_1024_private_key_t;</div>
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
 <div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span><span class="keyword">struct </span>cx_rsa_2048_public_key_s {</div>
 <div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>    <span class="keywordtype">size_t</span>  size;    </div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> e[4];    </div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> n[256];  </div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    uint8_t e[4];    </div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    uint8_t n[256];  </div>
 <div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>};</div>
 <div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span><span class="keyword">struct </span>cx_rsa_2048_private_key_s {</div>
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    <span class="keywordtype">size_t</span>  size;    </div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> d[256];  </div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> n[256];  </div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    uint8_t d[256];  </div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    uint8_t n[256];  </div>
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>};</div>
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span><span class="keyword">typedef</span> <span class="keyword">struct </span>cx_rsa_2048_public_key_s cx_rsa_2048_public_key_t;</div>
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span><span class="keyword">typedef</span> <span class="keyword">struct </span>cx_rsa_2048_private_key_s cx_rsa_2048_private_key_t;</div>
 <div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span> </div>
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span><span class="keyword">struct </span>cx_rsa_3072_public_key_s {</div>
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    <span class="keywordtype">size_t</span>  size;    </div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> e[4];    </div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> n[384];  </div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    uint8_t e[4];    </div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    uint8_t n[384];  </div>
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>};</div>
 <div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span><span class="keyword">struct </span>cx_rsa_3072_private_key_s {</div>
 <div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>    <span class="keywordtype">size_t</span>  size;    </div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> d[384];  </div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> n[384];  </div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    uint8_t d[384];  </div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    uint8_t n[384];  </div>
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>};</div>
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span><span class="keyword">typedef</span> <span class="keyword">struct </span>cx_rsa_3072_public_key_s cx_rsa_3072_public_key_t;</div>
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span><span class="keyword">typedef</span> <span class="keyword">struct </span>cx_rsa_3072_private_key_s cx_rsa_3072_private_key_t;</div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span> </div>
 <div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span><span class="keyword">struct </span>cx_rsa_4096_public_key_s {</div>
 <div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    <span class="keywordtype">size_t</span>  size;    </div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> e[4];    </div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> n[512];  </div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>    uint8_t e[4];    </div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    uint8_t n[512];  </div>
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>};</div>
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span><span class="keyword">struct </span>cx_rsa_4096_private_key_s {</div>
 <div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    <span class="keywordtype">size_t</span>  size;    </div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> d[512];  </div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> n[512];  </div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    uint8_t d[512];  </div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    uint8_t n[512];  </div>
 <div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>};</div>
 <div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span><span class="keyword">typedef</span> <span class="keyword">struct </span>cx_rsa_4096_public_key_s cx_rsa_4096_public_key_t;</div>
 <div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span><span class="keyword">typedef</span> <span class="keyword">struct </span>cx_rsa_4096_private_key_s cx_rsa_4096_private_key_t;</div>
 <div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span> </div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>WARN_UNUSED_RESULT cx_err_t cx_rsa_init_public_key_no_throw(<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>       *exponent,</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>WARN_UNUSED_RESULT cx_err_t cx_rsa_init_public_key_no_throw(<span class="keyword">const</span> uint8_t       *exponent,</div>
 <div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>                                                            <span class="keywordtype">size_t</span>               exponent_len,</div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>                                                            <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>       *modulus,</div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>                                                            <span class="keyword">const</span> uint8_t       *modulus,</div>
 <div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>                                                            <span class="keywordtype">size_t</span>               modulus_len,</div>
 <div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>                                                            cx_rsa_public_key_t *key);</div>
 <div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span> </div>
@@ -194,9 +194,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    <span class="keywordflow">return</span> modulus_len;</div>
 <div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>}</div>
 <div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span> </div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>WARN_UNUSED_RESULT cx_err_t cx_rsa_init_private_key_no_throw(<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>        *exponent,</div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>WARN_UNUSED_RESULT cx_err_t cx_rsa_init_private_key_no_throw(<span class="keyword">const</span> uint8_t        *exponent,</div>
 <div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>                                                             <span class="keywordtype">size_t</span>                exponent_len,</div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>                                                             <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>        *modulus,</div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>                                                             <span class="keyword">const</span> uint8_t        *modulus,</div>
 <div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>                                                             <span class="keywordtype">size_t</span>                modulus_len,</div>
 <div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>                                                             cx_rsa_private_key_t *key);</div>
 <div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span> </div>
@@ -213,9 +213,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>WARN_UNUSED_RESULT cx_err_t cx_rsa_generate_pair_no_throw(<span class="keywordtype">size_t</span>                modulus_len,</div>
 <div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>                                                          cx_rsa_public_key_t  *public_key,</div>
 <div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>                                                          cx_rsa_private_key_t *private_key,</div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>                                                          <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>        *pub_exponent,</div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>                                                          <span class="keyword">const</span> uint8_t        *pub_exponent,</div>
 <div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>                                                          <span class="keywordtype">size_t</span>                exponent_len,</div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>                                                          <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>        *externalPQ);</div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>                                                          <span class="keyword">const</span> uint8_t        *externalPQ);</div>
 <div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span> </div>
 <div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>DEPRECATED <span class="keyword">static</span> <span class="keyword">inline</span> <span class="keywordtype">int</span> cx_rsa_generate_pair(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>          modulus_len,</div>
 <div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>                                                  cx_rsa_public_key_t  *public_key,</div>
@@ -232,18 +232,18 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>WARN_UNUSED_RESULT cx_err_t cx_rsa_sign_with_salt_len(<span class="keyword">const</span> cx_rsa_private_key_t *key,</div>
 <div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>                                                      uint32_t                    mode,</div>
 <div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>                                                      cx_md_t                     hashID,</div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>                                                      <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>              *hash,</div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>                                                      <span class="keyword">const</span> uint8_t              *hash,</div>
 <div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>                                                      <span class="keywordtype">size_t</span>                      hash_len,</div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>                                                      <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>                    *sig,</div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>                                                      uint8_t                    *sig,</div>
 <div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>                                                      <span class="keywordtype">size_t</span>                      sig_len,</div>
 <div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>                                                      <span class="keywordtype">size_t</span>                      salt_len);</div>
 <div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span> </div>
 <div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>WARN_UNUSED_RESULT cx_err_t cx_rsa_sign_no_throw(<span class="keyword">const</span> cx_rsa_private_key_t *key,</div>
 <div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>                                                 uint32_t                    mode,</div>
 <div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>                                                 cx_md_t                     hashID,</div>
-<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>                                                 <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>              *hash,</div>
+<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>                                                 <span class="keyword">const</span> uint8_t              *hash,</div>
 <div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>                                                 <span class="keywordtype">size_t</span>                      hash_len,</div>
-<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>                                                 <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>                    *sig,</div>
+<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>                                                 uint8_t                    *sig,</div>
 <div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>                                                 <span class="keywordtype">size_t</span>                      sig_len);</div>
 <div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span> </div>
 <div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>DEPRECATED <span class="keyword">static</span> <span class="keyword">inline</span> <span class="keywordtype">int</span> cx_rsa_sign(<span class="keyword">const</span> cx_rsa_private_key_t *key,</div>
@@ -261,26 +261,26 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span><span class="keywordtype">bool</span> cx_rsa_verify_with_salt_len(<span class="keyword">const</span> cx_rsa_public_key_t *key,</div>
 <div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span>                                 uint32_t                   mode,</div>
 <div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span>                                 cx_md_t                    hashID,</div>
-<div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span>                                 <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>             *hash,</div>
+<div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span>                                 <span class="keyword">const</span> uint8_t             *hash,</div>
 <div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span>                                 <span class="keywordtype">size_t</span>                     hash_len,</div>
-<div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span>                                 <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>                   *sig,</div>
+<div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span>                                 uint8_t                   *sig,</div>
 <div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span>                                 <span class="keywordtype">size_t</span>                     sig_len,</div>
 <div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span>                                 <span class="keywordtype">size_t</span>                     salt_len);</div>
 <div class="line"><a id="l00426" name="l00426"></a><span class="lineno">  426</span> </div>
 <div class="line"><a id="l00462" name="l00462"></a><span class="lineno">  462</span><span class="keywordtype">bool</span> cx_rsa_verify(<span class="keyword">const</span> cx_rsa_public_key_t *key,</div>
 <div class="line"><a id="l00463" name="l00463"></a><span class="lineno">  463</span>                   uint32_t                   mode,</div>
 <div class="line"><a id="l00464" name="l00464"></a><span class="lineno">  464</span>                   cx_md_t                    hashID,</div>
-<div class="line"><a id="l00465" name="l00465"></a><span class="lineno">  465</span>                   <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>             *hash,</div>
+<div class="line"><a id="l00465" name="l00465"></a><span class="lineno">  465</span>                   <span class="keyword">const</span> uint8_t             *hash,</div>
 <div class="line"><a id="l00466" name="l00466"></a><span class="lineno">  466</span>                   <span class="keywordtype">size_t</span>                     hash_len,</div>
-<div class="line"><a id="l00467" name="l00467"></a><span class="lineno">  467</span>                   <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>                   *sig,</div>
+<div class="line"><a id="l00467" name="l00467"></a><span class="lineno">  467</span>                   uint8_t                   *sig,</div>
 <div class="line"><a id="l00468" name="l00468"></a><span class="lineno">  468</span>                   <span class="keywordtype">size_t</span>                     sig_len);</div>
 <div class="line"><a id="l00469" name="l00469"></a><span class="lineno">  469</span> </div>
 <div class="line"><a id="l00502" name="l00502"></a><span class="lineno">  502</span>WARN_UNUSED_RESULT cx_err_t cx_rsa_encrypt_no_throw(<span class="keyword">const</span> cx_rsa_public_key_t *key,</div>
 <div class="line"><a id="l00503" name="l00503"></a><span class="lineno">  503</span>                                                    uint32_t                   mode,</div>
 <div class="line"><a id="l00504" name="l00504"></a><span class="lineno">  504</span>                                                    cx_md_t                    hashID,</div>
-<div class="line"><a id="l00505" name="l00505"></a><span class="lineno">  505</span>                                                    <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>             *mesg,</div>
+<div class="line"><a id="l00505" name="l00505"></a><span class="lineno">  505</span>                                                    <span class="keyword">const</span> uint8_t             *mesg,</div>
 <div class="line"><a id="l00506" name="l00506"></a><span class="lineno">  506</span>                                                    <span class="keywordtype">size_t</span>                     mesg_len,</div>
-<div class="line"><a id="l00507" name="l00507"></a><span class="lineno">  507</span>                                                    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>                   *enc,</div>
+<div class="line"><a id="l00507" name="l00507"></a><span class="lineno">  507</span>                                                    uint8_t                   *enc,</div>
 <div class="line"><a id="l00508" name="l00508"></a><span class="lineno">  508</span>                                                    <span class="keywordtype">size_t</span>                     enc_len);</div>
 <div class="line"><a id="l00509" name="l00509"></a><span class="lineno">  509</span> </div>
 <div class="line"><a id="l00514" name="l00514"></a><span class="lineno">  514</span>DEPRECATED <span class="keyword">static</span> <span class="keyword">inline</span> <span class="keywordtype">int</span> cx_rsa_encrypt(<span class="keyword">const</span> cx_rsa_public_key_t *key,</div>
@@ -298,9 +298,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00558" name="l00558"></a><span class="lineno">  558</span>WARN_UNUSED_RESULT cx_err_t cx_rsa_decrypt_no_throw(<span class="keyword">const</span> cx_rsa_private_key_t *key,</div>
 <div class="line"><a id="l00559" name="l00559"></a><span class="lineno">  559</span>                                                    uint32_t                    mode,</div>
 <div class="line"><a id="l00560" name="l00560"></a><span class="lineno">  560</span>                                                    cx_md_t                     hashID,</div>
-<div class="line"><a id="l00561" name="l00561"></a><span class="lineno">  561</span>                                                    <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>              *mesg,</div>
+<div class="line"><a id="l00561" name="l00561"></a><span class="lineno">  561</span>                                                    <span class="keyword">const</span> uint8_t              *mesg,</div>
 <div class="line"><a id="l00562" name="l00562"></a><span class="lineno">  562</span>                                                    <span class="keywordtype">size_t</span>                      mesg_len,</div>
-<div class="line"><a id="l00563" name="l00563"></a><span class="lineno">  563</span>                                                    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>                    *dec,</div>
+<div class="line"><a id="l00563" name="l00563"></a><span class="lineno">  563</span>                                                    uint8_t                    *dec,</div>
 <div class="line"><a id="l00564" name="l00564"></a><span class="lineno">  564</span>                                                    <span class="keywordtype">size_t</span>                     *dec_len);</div>
 <div class="line"><a id="l00565" name="l00565"></a><span class="lineno">  565</span> </div>
 <div class="line"><a id="l00570" name="l00570"></a><span class="lineno">  570</span>DEPRECATED <span class="keyword">static</span> <span class="keyword">inline</span> <span class="keywordtype">int</span> cx_rsa_decrypt(<span class="keyword">const</span> cx_rsa_private_key_t *key,</div>
@@ -324,7 +324,6 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="alcx__sha512_8h_html"><div class="ttname"><a href="lcx__sha512_8h.html">lcx_sha512.h</a></div><div class="ttdoc">SHA-2 (Secure Hash Algorithm 2)</div></div>
 <div class="ttc" id="alcx__wrappers_8h_html"><div class="ttname"><a href="lcx__wrappers_8h.html">lcx_wrappers.h</a></div></div>
 <div class="ttc" id="alcx__wrappers_8h_html_a3f138a371c5202063cbd27fd41379cab"><div class="ttname"><a href="lcx__wrappers_8h.html#a3f138a371c5202063cbd27fd41379cab">CX_THROW</a></div><div class="ttdeci">#define CX_THROW(call)</div><div class="ttdef"><b>Definition</b> <a href="lcx__wrappers_8h_source.html#l00015">lcx_wrappers.h:15</a></div></div>
-<div class="ttc" id="ausbd__conf_8h_html_aba7bc1797add20fe3efdf37ced1182c5"><div class="ttname"><a href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a></div><div class="ttdeci">unsigned char uint8_t</div><div class="ttdef"><b>Definition</b> <a href="usbd__conf_8h_source.html#l00053">usbd_conf.h:53</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

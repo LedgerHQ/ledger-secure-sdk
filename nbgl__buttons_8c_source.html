@@ -109,7 +109,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="comment">/**********************</span></div>
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="comment"> *  STATIC VARIABLES</span></div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="comment"> **********************/</span></div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="keyword">static</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>  gButtonMask            = 0;</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="keyword">static</span> uint8_t  gButtonMask            = 0;</div>
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="keyword">static</span> uint32_t gButtonSameMaskCounter = 0;</div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span> </div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="comment">/**********************</span></div>
@@ -119,7 +119,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="comment">/**********************</span></div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="comment"> *  STATIC PROTOTYPES</span></div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="comment"> **********************/</span></div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="keyword">static</span> <a class="code hl_enumeration" href="nbgl__obj_8h.html#a6f2dbe3e3c1d075e918962ec93755759">nbgl_buttonEvent_t</a> maskToEvent(<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> mask)</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="keyword">static</span> <a class="code hl_enumeration" href="nbgl__obj_8h.html#a6f2dbe3e3c1d075e918962ec93755759">nbgl_buttonEvent_t</a> maskToEvent(uint8_t mask)</div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>{</div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <a class="code hl_enumeration" href="nbgl__obj_8h.html#a6f2dbe3e3c1d075e918962ec93755759">nbgl_buttonEvent_t</a> <span class="keyword">event</span> = <a class="code hl_enumvalue" href="nbgl__obj_8h.html#a6f2dbe3e3c1d075e918962ec93755759ae5e962a15509d9c94fe084121ef99faa">INVALID_BUTTON_EVENT</a>;</div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="keywordflow">switch</span> (mask) {</div>
@@ -154,9 +154,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span><span class="comment"> *   GLOBAL FUNCTIONS</span></div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span><span class="comment"> **********************/</span></div>
 <div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span> </div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__buttons_8h.html#a8eb1dd312fa0c7a67ffc12167740e835">nbgl_buttonsHandler</a>(<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> buttonState, uint32_t currentTimeMs)</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__buttons_8h.html#a8eb1dd312fa0c7a67ffc12167740e835">nbgl_buttonsHandler</a>(uint8_t buttonState, uint32_t currentTimeMs)</div>
 <div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>{</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>  button_mask;</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    uint8_t  button_mask;</div>
 <div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    uint32_t button_same_mask_counter;</div>
 <div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span> </div>
 <div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    (void) currentTimeMs;</div>
@@ -244,7 +244,6 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="anbgl__screen_8h_html"><div class="ttname"><a href="nbgl__screen_8h.html">nbgl_screen.h</a></div><div class="ttdoc">API to manage screens.</div></div>
 <div class="ttc" id="anbgl__screen_8h_html_a6a0725e5007ff0b4cdc64183c6862fd6"><div class="ttname"><a href="nbgl__screen_8h.html#a6a0725e5007ff0b4cdc64183c6862fd6">nbgl_screen_t</a></div><div class="ttdeci">struct PACKED__ nbgl_screen_s nbgl_screen_t</div><div class="ttdoc">struct to represent a screen (SCREEN type)</div></div>
 <div class="ttc" id="anbgl__screen_8h_html_a92fcddf9ddabaaeb3c03072e3d9da552"><div class="ttname"><a href="nbgl__screen_8h.html#a92fcddf9ddabaaeb3c03072e3d9da552">nbgl_screenGetTop</a></div><div class="ttdeci">nbgl_obj_t * nbgl_screenGetTop(void)</div><div class="ttdoc">Returns the screen on top layer, as a generic object.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__screen_8c_source.html#l00102">nbgl_screen.c:102</a></div></div>
-<div class="ttc" id="ausbd__conf_8h_html_aba7bc1797add20fe3efdf37ced1182c5"><div class="ttname"><a href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a></div><div class="ttdeci">unsigned char uint8_t</div><div class="ttdef"><b>Definition</b> <a href="usbd__conf_8h_source.html#l00053">usbd_conf.h:53</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

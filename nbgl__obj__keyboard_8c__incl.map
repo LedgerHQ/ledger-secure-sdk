@@ -1,21 +1,23 @@
 <map id="lib_nbgl/src/nbgl_obj_keyboard.c" name="lib_nbgl/src/nbgl_obj_keyboard.c">
-<area shape="rect" id="Node000001" title="The construction and touch management of a keyboard object." alt="" coords="215,5,370,45"/>
+<area shape="rect" id="Node000001" title="The construction and touch management of a keyboard object." alt="" coords="241,5,395,45"/>
 <area shape="rect" id="Node000002" href="$nbgl__debug_8h.html" title="debug traces management" alt="" coords="19,93,129,119"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="241,48,120,91,118,86,239,43"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="260,48,124,92,122,86,259,43"/>
 <area shape="rect" id="Node000003" href="$nbgl__front_8h.html" title="Font screen low&#45;Level driver API, to draw elementary forms." alt="" coords="5,167,105,192"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="265,48,87,161,84,157,262,43"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="287,48,89,162,86,157,284,43"/>
 <area shape="rect" id="Node000010" href="$nbgl__draw_8h.html" title="Middle Level API of the new BOLOS Graphical Library." alt="" coords="129,167,229,192"/>
-<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="280,47,198,157,194,154,276,44"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="299,48,251,95,199,157,195,154,247,92,295,44"/>
 <area shape="rect" id="Node000011" href="$nbgl__fonts_8h.html" title=" " alt="" coords="192,240,295,265"/>
-<area shape="poly" id="edge17_Node000001_Node000011" title=" " alt="" coords="291,46,251,227,246,226,286,45"/>
+<area shape="poly" id="edge17_Node000001_Node000011" title=" " alt="" coords="314,46,254,228,249,226,309,45"/>
 <area shape="rect" id="Node000012" href="$nbgl__obj_8h.html" title="API to draw all basic graphic objects." alt="" coords="305,167,395,192"/>
-<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="302,45,343,153,338,155,297,47"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="325,45,347,152,342,154,319,46"/>
 <area shape="rect" id="Node000014" href="$nbgl__touch_8h.html" title=" " alt="" coords="356,93,461,119"/>
-<area shape="poly" id="edge18_Node000001_Node000014" title=" " alt="" coords="322,43,382,83,379,88,319,48"/>
+<area shape="poly" id="edge18_Node000001_Node000014" title=" " alt="" coords="342,44,387,82,383,86,338,48"/>
 <area shape="rect" id="Node000015" title=" " alt="" coords="485,93,562,119"/>
-<area shape="poly" id="edge21_Node000001_Node000015" title=" " alt="" coords="349,43,477,86,476,91,347,48"/>
-<area shape="rect" id="Node000016" title=" " alt="" coords="587,93,655,119"/>
-<area shape="poly" id="edge22_Node000001_Node000016" title=" " alt="" coords="371,42,574,91,573,96,370,48"/>
+<area shape="poly" id="edge21_Node000001_Node000015" title=" " alt="" coords="368,43,481,86,479,91,366,48"/>
+<area shape="rect" id="Node000016" title=" " alt="" coords="586,93,727,119"/>
+<area shape="poly" id="edge22_Node000001_Node000016" title=" " alt="" coords="396,42,594,88,593,93,395,47"/>
+<area shape="rect" id="Node000017" title=" " alt="" coords="752,93,881,119"/>
+<area shape="poly" id="edge23_Node000001_Node000017" title=" " alt="" coords="396,36,739,90,738,95,395,41"/>
 <area shape="rect" id="Node000004" href="$nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="191,313,296,339"/>
 <area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="72,190,219,303,216,307,69,195"/>
 <area shape="rect" id="Node000005" title=" " alt="" coords="7,387,82,412"/>

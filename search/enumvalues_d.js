@@ -11,5 +11,20 @@ var searchData=
   ['pressed_8',['PRESSED',['../nbgl__types_8h.html#abef924ad7bd5b92ba15a19a0917aec80a5ef9a100ac8b4b8d6dec477c377b7901',1,'nbgl_types.h']]],
   ['previous_5fpage_5findex_9',['PREVIOUS_PAGE_INDEX',['../nbgl__layout__navigation_8c.html#a394b3903fbf00ba2b6243f60689a5a5fa957792b50ebc129c838e6045c72f8136',1,'nbgl_layout_navigation.c']]],
   ['progress_5fbar_10',['PROGRESS_BAR',['../nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7a973175b44e05078b44bd89ad7efd11a5',1,'nbgl_types.h']]],
-  ['progressive_5findicator_11',['PROGRESSIVE_INDICATOR',['../nbgl__obj_8h.html#adb9bc07f2a625e9062861df71f4ad78cad2faa3b333b9a333c833cc576699e41f',1,'nbgl_obj.h']]]
+  ['progressive_5findicator_11',['PROGRESSIVE_INDICATOR',['../nbgl__obj_8h.html#adb9bc07f2a625e9062861df71f4ad78cad2faa3b333b9a333c833cc576699e41f',1,'nbgl_obj.h']]],
+  ['prop_5ferr_5fcommand_5ftoo_5flong_12',['PROP_ERR_COMMAND_TOO_LONG',['../u2f__types_8h.html#aa5fe2089e82d28b6b26545d2e4f4df95ab045fad07ba4449b9ffccc0b12ff9c82',1,'u2f_types.h']]],
+  ['prop_5ferr_5fcontinuation_5foverflow_13',['PROP_ERR_CONTINUATION_OVERFLOW',['../u2f__types_8h.html#aa5fe2089e82d28b6b26545d2e4f4df95a23da9a1f97aa482ad310fbf0ec4293fe',1,'u2f_types.h']]],
+  ['prop_5ferr_5fdevice_5fnot_5fsetup_14',['PROP_ERR_DEVICE_NOT_SETUP',['../u2f__types_8h.html#aa5fe2089e82d28b6b26545d2e4f4df95adf1fde47137549a785de4e4ccd7a892b',1,'u2f_types.h']]],
+  ['prop_5ferr_5finternal_5ferror_5fapdu_15',['PROP_ERR_INTERNAL_ERROR_APDU',['../u2f__types_8h.html#aa5fe2089e82d28b6b26545d2e4f4df95a65802688ae4785dad9fd8adc908776be',1,'u2f_types.h']]],
+  ['prop_5ferr_5finvalid_5fcontinuation_16',['PROP_ERR_INVALID_CONTINUATION',['../u2f__types_8h.html#aa5fe2089e82d28b6b26545d2e4f4df95a7500113da9f65acbfceeefe399539988',1,'u2f_types.h']]],
+  ['prop_5ferr_5finvalid_5fdata_5fapdu_17',['PROP_ERR_INVALID_DATA_APDU',['../u2f__types_8h.html#aa5fe2089e82d28b6b26545d2e4f4df95aad2f97597b497cb0cd7c17ff9bd32cda',1,'u2f_types.h']]],
+  ['prop_5ferr_5finvalid_5fdata_5flength_5fapdu_18',['PROP_ERR_INVALID_DATA_LENGTH_APDU',['../u2f__types_8h.html#aa5fe2089e82d28b6b26545d2e4f4df95ac456308aa44b79a2c746826dbfc78ca4',1,'u2f_types.h']]],
+  ['prop_5ferr_5finvalid_5fparameters_5fapdu_19',['PROP_ERR_INVALID_PARAMETERS_APDU',['../u2f__types_8h.html#aa5fe2089e82d28b6b26545d2e4f4df95ab5e342d8aea084e1cdb00fea3e89a772',1,'u2f_types.h']]],
+  ['prop_5ferr_5fmedia_5fmixed_20',['PROP_ERR_MEDIA_MIXED',['../u2f__types_8h.html#aa5fe2089e82d28b6b26545d2e4f4df95a8fc3bcbf6979a13cc3d6a4d616dbf731',1,'u2f_types.h']]],
+  ['prop_5ferr_5fmessage_5ftoo_5fshort_21',['PROP_ERR_MESSAGE_TOO_SHORT',['../u2f__types_8h.html#aa5fe2089e82d28b6b26545d2e4f4df95a82481aab31052c9ded531e19b1157e03',1,'u2f_types.h']]],
+  ['prop_5ferr_5frpid_5fmedia_5fdenied_22',['PROP_ERR_RPID_MEDIA_DENIED',['../u2f__types_8h.html#aa5fe2089e82d28b6b26545d2e4f4df95a11a43a1e81e45b59073d93390bc55a71',1,'u2f_types.h']]],
+  ['prop_5ferr_5funconsistent_5fmsg_5flength_23',['PROP_ERR_UNCONSISTENT_MSG_LENGTH',['../u2f__types_8h.html#aa5fe2089e82d28b6b26545d2e4f4df95af6c8f592876fb69453e12f79ca9d2e1b',1,'u2f_types.h']]],
+  ['prop_5ferr_5funexpected_5fcontinuation_24',['PROP_ERR_UNEXPECTED_CONTINUATION',['../u2f__types_8h.html#aa5fe2089e82d28b6b26545d2e4f4df95a32ee868fcc38d5df86d075418b220bfb',1,'u2f_types.h']]],
+  ['prop_5ferr_5funknown_5fcommand_25',['PROP_ERR_UNKNOWN_COMMAND',['../u2f__types_8h.html#aa5fe2089e82d28b6b26545d2e4f4df95a9c6535429a70fe2db24a549824ab24c1',1,'u2f_types.h']]],
+  ['prop_5ferr_5funsupported_5fmsg_5fapdu_26',['PROP_ERR_UNSUPPORTED_MSG_APDU',['../u2f__types_8h.html#aa5fe2089e82d28b6b26545d2e4f4df95a001b11aec20bccdcaca1a05ada10ccdc',1,'u2f_types.h']]]
 ];
