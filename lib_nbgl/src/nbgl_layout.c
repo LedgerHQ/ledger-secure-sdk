@@ -44,7 +44,6 @@
 #define FOOTER_HEIGHT                    80
 #define BAR_INTERVALE                    12
 #define FOOTER_BUTTON_HEIGHT             128
-#define UP_FOOTER_BUTTON_HEIGHT          120
 #define ROUNDED_AND_FOOTER_FOOTER_HEIGHT 192
 #define ACTION_AND_FOOTER_FOOTER_HEIGHT  216
 #define FOOTER_TEXT_AND_NAV_WIDTH        160
@@ -67,7 +66,6 @@
 #define FOOTER_HEIGHT                    80
 #define BAR_INTERVALE                    16
 #define FOOTER_BUTTON_HEIGHT             136
-#define UP_FOOTER_BUTTON_HEIGHT          136
 #define ROUNDED_AND_FOOTER_FOOTER_HEIGHT 208
 #define ACTION_AND_FOOTER_FOOTER_HEIGHT  232
 #define FOOTER_TEXT_AND_NAV_WIDTH        192
