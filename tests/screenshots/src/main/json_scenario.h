@@ -63,6 +63,7 @@ enum {
     ETH_ENS,
     ETH_DAPP,
     ETH_VERIFY_ADDR,
+    ETH_VERIFY_MULTISIG,
     RECOV_OPEN,
     DOGE_SIGN,
 };
