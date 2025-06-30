@@ -37,7 +37,8 @@
     (pagesData[pageIdx / PAGES_PER_UINT8] = pageData \
                                             << ((pageIdx % PAGES_PER_UINT8) * PAGE_DATA_BITS))
 
-#define MAX_PAGE_NB 256
+#define MAX_PAGE_NB       256
+#define MAX_MODAL_PAGE_NB 32
 
 /* Alias to clarify usage of genericContext hasStartingContent and hasFinishingContent feature */
 #define STARTING_CONTENT  localContentsList[0]
@@ -80,6 +81,7 @@ enum {
     NEXT_TOKEN,
     QUIT_TOKEN,
     NAV_TOKEN,
+    MODAL_NAV_TOKEN,
     SKIP_TOKEN,
     CONTINUE_TOKEN,
     ADDRESS_QRCODE_BUTTON_TOKEN,
@@ -112,6 +114,7 @@ typedef enum {
 typedef struct DetailsContext_s {
     uint8_t     nbPages;
     uint8_t     currentPage;
+    uint8_t     currentPairIdx;
     bool        wrapping;
     const char *tag;
     const char *value;
@@ -184,7 +187,8 @@ typedef struct {
                   currentCallback;  // to be used to retrieve the pairs with value alias
     nbgl_layout_t modalLayout;
     nbgl_layout_t backgroundLayout;
-    const nbgl_contentInfoList_t *currentInfos;
+    const nbgl_contentInfoList_t     *currentInfos;
+    const nbgl_contentTagValueList_t *currentTagValues;
 } GenericContext_t;
 
 typedef struct {
@@ -270,6 +274,7 @@ static GenericContext_t genericContext;
 static nbgl_content_t
     localContentsList[3];  // 3 needed for nbgl_useCaseReview (starting page / tags / final page)
 static uint8_t genericContextPagesInfo[MAX_PAGE_NB / PAGES_PER_UINT8];
+static uint8_t modalContextPagesInfo[MAX_MODAL_PAGE_NB / PAGES_PER_UINT8];
 
 // contexts for bundle navigation
 static nbgl_BundleNavContext_t bundleNavContext;
@@ -334,12 +339,14 @@ static char reducedAddress[QRCODE_REDUCED_ADDR_LEN];
  **********************/
 static void displayReviewPage(uint8_t page, bool forceFullRefresh);
 static void displayDetailsPage(uint8_t page, bool forceFullRefresh);
+static void displayTagValueListModalPage(uint8_t pageIdx, bool forceFullRefresh);
 static void displayFullValuePage(const char                   *backText,
                                  const char                   *aliasText,
                                  const nbgl_contentValueExt_t *extension);
 static void displayInfosListModal(const char                   *modalTitle,
                                   const nbgl_contentInfoList_t *infos,
                                   bool                          fromReview);
+static void displayTagValueListModal(const nbgl_contentTagValueList_t *tagValues);
 static void displaySettingsPage(uint8_t page, bool forceFullRefresh);
 static void displayGenericContextPage(uint8_t pageIdx, bool forceFullRefresh);
 static void pageCallback(int token, uint8_t index);
@@ -418,6 +425,27 @@ static void genericContextGetPageInfo(uint8_t pageIdx, uint8_t *nbElements, bool
     }
     if (flag != NULL) {
         *flag = GET_PAGE_FLAG(pageData);
+    }
+}
+
+// Helper to set modalContext page info
+static void modalContextSetPageInfo(uint8_t pageIdx, uint8_t nbElements)
+{
+    uint8_t pageData = SET_PAGE_NB_ELEMENTS(nbElements);
+
+    modalContextPagesInfo[pageIdx / PAGES_PER_UINT8]
+        &= ~(0x0F << ((pageIdx % PAGES_PER_UINT8) * PAGE_DATA_BITS));
+    modalContextPagesInfo[pageIdx / PAGES_PER_UINT8]
+        |= pageData << ((pageIdx % PAGES_PER_UINT8) * PAGE_DATA_BITS);
+}
+
+// Helper to get modalContext page info
+static void modalContextGetPageInfo(uint8_t pageIdx, uint8_t *nbElements)
+{
+    uint8_t pageData = modalContextPagesInfo[pageIdx / PAGES_PER_UINT8]
+                       >> ((pageIdx % PAGES_PER_UINT8) * PAGE_DATA_BITS);
+    if (nbElements != NULL) {
+        *nbElements = GET_PAGE_NB_ELEMENTS(pageData);
     }
 }
 
@@ -576,6 +604,16 @@ static void pageModalCallback(int token, uint8_t index)
         }
         else {
             displayDetailsPage(index, false);
+        }
+    }
+    if (token == MODAL_NAV_TOKEN) {
+        if (index == EXIT_PAGE) {
+            // redraw the background layer
+            nbgl_screenRedraw();
+            nbgl_refresh();
+        }
+        else {
+            displayTagValueListModalPage(index, false);
         }
     }
     else if (token == QUIT_TOKEN) {
@@ -1071,28 +1109,36 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
 
             break;
         }
-        case TAG_VALUE_CONFIRM:
+        case TAG_VALUE_CONFIRM: {
+            nbgl_contentTagValueList_t *p_tagValueList;
             // only display a TAG_VALUE_CONFIRM if we are at the last page
             if ((nextElementIdx + nbElementsInPage)
                 == p_content->content.tagValueConfirm.tagValueList.nbPairs) {
                 memcpy(&pageContent->tagValueConfirm,
                        &p_content->content.tagValueConfirm,
                        sizeof(pageContent->tagValueConfirm));
-                nbgl_contentTagValueList_t *p_tagValueList
-                    = &pageContent->tagValueConfirm.tagValueList;
-                p_tagValueList->nbPairs = nbElementsInPage;
-                p_tagValueList->pairs
-                    = PIC(&p_content->content.tagValueConfirm.tagValueList.pairs[nextElementIdx]);
+                p_tagValueList = &pageContent->tagValueConfirm.tagValueList;
             }
             else {
                 // else display it as a TAG_VALUE_LIST
-                pageContent->type                          = TAG_VALUE_LIST;
-                nbgl_contentTagValueList_t *p_tagValueList = &pageContent->tagValueList;
-                p_tagValueList->nbPairs                    = nbElementsInPage;
-                p_tagValueList->pairs
-                    = PIC(&p_content->content.tagValueConfirm.tagValueList.pairs[nextElementIdx]);
+                pageContent->type = TAG_VALUE_LIST;
+                p_tagValueList    = &pageContent->tagValueList;
             }
+            p_tagValueList->nbPairs = nbElementsInPage;
+            p_tagValueList->pairs
+                = PIC(&p_content->content.tagValueConfirm.tagValueList.pairs[nextElementIdx]);
+            // parse pairs to check if any contains an alias for value
+            for (uint8_t i = 0; i < nbElementsInPage; i++) {
+                if (p_tagValueList->pairs[i].aliasValue) {
+                    p_tagValueList->token = VALUE_ALIAS_TOKEN;
+                    break;
+                }
+            }
+            // memorize pairs (or callback) for usage when alias is used
+            genericContext.currentPairs    = p_tagValueList->pairs;
+            genericContext.currentCallback = p_tagValueList->callback;
             break;
+        }
         case SWITCHES_LIST:
             pageContent->switchesList.nbSwitches = nbElementsInPage;
             pageContent->switchesList.switches
@@ -1331,6 +1377,10 @@ static void displayFullValuePage(const char                   *backText,
         genericContext.currentInfos = extension->infolist;
         displayInfosListModal(modalTitle, extension->infolist, true);
     }
+    else if (extension->aliasType == TAG_VALUE_LIST_ALIAS) {
+        genericContext.currentTagValues = extension->tagValuelist;
+        displayTagValueListModal(extension->tagValuelist);
+    }
     else {
         nbgl_layoutDescription_t layoutDescription = {.modal            = true,
                                                       .withLeftBorder   = true,
@@ -1412,6 +1462,60 @@ static void displayInfosListModal(const char                   *modalTitle,
     modalPageContext = nbgl_pageDrawGenericContentExt(&pageModalCallback, &info, &content, true);
 
     nbgl_refreshSpecial(FULL_COLOR_CLEAN_REFRESH);
+}
+
+// function used to display the modal containing alias tag-value pairs
+static void displayTagValueListModalPage(uint8_t pageIdx, bool forceFullRefresh)
+{
+    nbgl_pageNavigationInfo_t info    = {.activePage                = pageIdx,
+                                         .nbPages                   = detailsContext.nbPages,
+                                         .navType                   = NAV_WITH_BUTTONS,
+                                         .quitToken                 = QUIT_TOKEN,
+                                         .navWithButtons.navToken   = MODAL_NAV_TOKEN,
+                                         .navWithButtons.quitButton = true,
+                                         .navWithButtons.backButton = true,
+                                         .navWithButtons.quitText   = NULL,
+                                         .progressIndicator         = false,
+                                         .tuneId                    = TUNE_TAP_CASUAL};
+    nbgl_pageContent_t        content = {.type                           = TAG_VALUE_LIST,
+                                         .topRightIcon                   = NULL,
+                                         .tagValueList.smallCaseForValue = true,
+                                         .tagValueList.wrapping          = detailsContext.wrapping};
+    uint8_t                   nbElementsInPage;
+
+    // if first page or forward
+    if (detailsContext.currentPage <= pageIdx) {
+        modalContextGetPageInfo(pageIdx, &nbElementsInPage);
+    }
+    else {
+        // backward direction
+        modalContextGetPageInfo(pageIdx + 1, &nbElementsInPage);
+        detailsContext.currentPairIdx -= nbElementsInPage;
+        modalContextGetPageInfo(pageIdx, &nbElementsInPage);
+        detailsContext.currentPairIdx -= nbElementsInPage;
+    }
+    detailsContext.currentPage = pageIdx;
+
+    content.tagValueList.pairs
+        = &genericContext.currentTagValues->pairs[detailsContext.currentPairIdx];
+    content.tagValueList.nbPairs = nbElementsInPage;
+    detailsContext.currentPairIdx += nbElementsInPage;
+    if (info.nbPages == 1) {
+        // if only one page, no navigation bar, and use a footer instead
+        info.navWithButtons.quitText = "Close";
+    }
+
+    if (modalPageContext != NULL) {
+        nbgl_pageRelease(modalPageContext);
+    }
+    modalPageContext = nbgl_pageDrawGenericContentExt(&pageModalCallback, &info, &content, true);
+
+    if (forceFullRefresh) {
+        nbgl_refreshSpecial(FULL_COLOR_CLEAN_REFRESH);
+    }
+    else {
+        nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
+    }
 }
 
 #ifdef NBGL_QRCODE
@@ -1857,6 +1961,58 @@ static uint8_t getNbTagValuesInPage(uint8_t                           nbPairs,
         if (currentHeight > maxUsableHeight) {
             nbPairsInPage--;
         }
+    }
+    return nbPairsInPage;
+}
+
+/**
+ * @brief computes the number of tag/values pairs displayable in a details page, with the given list
+ * of tag/value pairs
+ *
+ * @param nbPairs number of tag/value pairs to use in \b tagValueList
+ * @param tagValueList list of tag/value pairs
+ * @param startIndex first index to consider in \b tagValueList
+ * @return the number of tag/value pairs fitting in a page
+ */
+static uint8_t getNbTagValuesInDetailsPage(uint8_t                           nbPairs,
+                                           const nbgl_contentTagValueList_t *tagValueList,
+                                           uint8_t                           startIndex)
+{
+    uint8_t  nbPairsInPage   = 0;
+    uint16_t currentHeight   = PRE_TAG_VALUE_MARGIN;  // upper margin
+    uint16_t maxUsableHeight = TAG_VALUE_AREA_HEIGHT;
+
+    while (nbPairsInPage < nbPairs) {
+        const nbgl_layoutTagValue_t *pair;
+
+        // margin between pairs
+        // 12 or 24 px between each tag/value pair
+        if (nbPairsInPage > 0) {
+            currentHeight += INTER_TAG_VALUE_MARGIN;
+        }
+        // fetch tag/value pair strings.
+        if (tagValueList->pairs != NULL) {
+            pair = PIC(&tagValueList->pairs[startIndex + nbPairsInPage]);
+        }
+        else {
+            pair = PIC(tagValueList->callback(startIndex + nbPairsInPage));
+        }
+
+        // tag height
+        currentHeight += nbgl_getTextHeightInWidth(
+            SMALL_REGULAR_FONT, pair->item, AVAILABLE_WIDTH, tagValueList->wrapping);
+        // space between tag and value
+        currentHeight += 4;
+
+        // value height
+        currentHeight += nbgl_getTextHeightInWidth(
+            SMALL_REGULAR_FONT, pair->value, AVAILABLE_WIDTH, tagValueList->wrapping);
+
+        // we have reached the maximum height, it means than there are to many pairs
+        if (currentHeight >= maxUsableHeight) {
+            break;
+        }
+        nbPairsInPage++;
     }
     return nbPairsInPage;
 }
@@ -2727,6 +2883,29 @@ static void displayDetails(const char *tag, const char *value, bool wrapping)
     }
 
     displayDetailsPage(0, true);
+}
+
+// function used to display the modal containing alias tag-value pairs
+static void displayTagValueListModal(const nbgl_contentTagValueList_t *tagValues)
+{
+    uint8_t nbElements = 0;
+    uint8_t nbElementsInPage;
+    uint8_t elemIdx = 0;
+
+    // initialize context
+    memset(&detailsContext, 0, sizeof(detailsContext));
+    nbElements = tagValues->nbPairs;
+
+    while (nbElements > 0) {
+        nbElementsInPage = getNbTagValuesInDetailsPage(nbElements, tagValues, elemIdx);
+
+        elemIdx += nbElementsInPage;
+        modalContextSetPageInfo(detailsContext.nbPages, nbElementsInPage);
+        nbElements -= nbElementsInPage;
+        detailsContext.nbPages++;
+    }
+
+    displayTagValueListModalPage(0, true);
 }
 
 /**********************

@@ -42,6 +42,7 @@ Event_t appEvents[] = {
     {"ETH_DAPP",            ETH_DAPP           },
     {"ETH_SIGN",            ETH_SIGN           },
     {"ETH_VERIFY_ADDR",     ETH_VERIFY_ADDR    },
+    {"ETH_VERIFY_MULTISIG", ETH_VERIFY_MULTISIG},
     {"RECOV_OPEN",          RECOV_OPEN         },
     {"DOGE_SIGN",           DOGE_SIGN          }
 };
@@ -603,6 +604,9 @@ static int scenario_get_action(void)
                 break;
             case ETH_VERIFY_ADDR:
                 app_ethereumVerifyAddress();
+                break;
+            case ETH_VERIFY_MULTISIG:
+                app_ethereumVerifyMultiSig();
                 break;
             case RECOV_OPEN:
                 app_fullRecoveryCheck();
