@@ -3,7 +3,7 @@ var searchData=
   ['actionbuttonicon_0',['actionButtonIcon',['../structnbgl__pageInfoDescription__s.html#aa6bf33b11e78bcbad433ef4653cc8cb4',1,'nbgl_pageInfoDescription_s']]],
   ['actionbuttonstyle_1',['actionButtonStyle',['../structnbgl__pageInfoDescription__s.html#a0478ec47aa56761709ca9e6a99193577',1,'nbgl_pageInfoDescription_s']]],
   ['actionbuttontext_2',['actionButtonText',['../structnbgl__pageInfoDescription__s.html#a0a87c25273a4952ad3d9b324c0ddac9a',1,'nbgl_pageInfoDescription_s']]],
-  ['actioncallback_3',['actionCallback',['../structnbgl__contentTagValueList__t.html#a0cde68ae40bcd52eb994a8366eb7ad13',1,'nbgl_contentTagValueList_t']]],
+  ['actioncallback_3',['actionCallback',['../structnbgl__contentTagValueList__s.html#af0347b1fdd41e5d2e8403865aac279f3',1,'nbgl_contentTagValueList_s']]],
   ['actionicon_4',['actionIcon',['../structnbgl__layoutHeader__t.html#a4e97f869c13f5dc35cf924dd3837720a',1,'nbgl_layoutHeader_t']]],
   ['actiontoken_5',['actionToken',['../structnbgl__layoutHeader__t.html#a5af1b09421f7599bffb54d7cac4f5935',1,'nbgl_layoutHeader_t']]],
   ['active_6',['active',['../structnbgl__layoutConfirmationButton__t.html#ab70ec5cb748c6d08de6a082fa5ce8e7f',1,'nbgl_layoutConfirmationButton_t']]],

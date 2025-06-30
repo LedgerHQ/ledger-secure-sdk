@@ -24,12 +24,12 @@ var searchData=
   ['u2f_5ftransport_5ftype_5fusb_5fhid_21',['U2F_TRANSPORT_TYPE_USB_HID',['../u2f__transport_8h.html#a2b78f19e6944070ef375447ff6d06a9da4856d5f5ff170be8cd896054a0a498e5',1,'u2f_transport.h']]],
   ['up_5ffooter_5fbutton_22',['UP_FOOTER_BUTTON',['../nbgl__layout_8h.html#a88a4bd82691a0a53afdca2dd2a173694a41bc1957dac62b36cf0702cbe92d4b2d',1,'nbgl_layout.h']]],
   ['up_5ffooter_5fhorizontal_5fbuttons_23',['UP_FOOTER_HORIZONTAL_BUTTONS',['../nbgl__layout_8h.html#a88a4bd82691a0a53afdca2dd2a173694af5434f7eb4d16d4ad856424141cdb900',1,'nbgl_layout.h']]],
-  ['up_5ffooter_5findex_24',['UP_FOOTER_INDEX',['../nbgl__layout__internal_8h.html#a16685eea158879e41b101ca3634de462a2ac48822874804a760f2378cce0c8d54',1,'nbgl_layout_internal.h']]],
+  ['up_5ffooter_5findex_24',['UP_FOOTER_INDEX',['../nbgl__layout__internal_8h.html#afa231099d07583c3ed0981e0bb665f55a2ac48822874804a760f2378cce0c8d54',1,'nbgl_layout_internal.h']]],
   ['up_5ffooter_5flong_5fpress_25',['UP_FOOTER_LONG_PRESS',['../nbgl__layout_8h.html#a88a4bd82691a0a53afdca2dd2a173694a522e4f4b8629f1ef1d3ff3bbd032d750',1,'nbgl_layout.h']]],
   ['up_5ffooter_5ftext_26',['UP_FOOTER_TEXT',['../nbgl__layout_8h.html#a88a4bd82691a0a53afdca2dd2a173694a0993668db9da7bf5ce70f36935f1d1e7',1,'nbgl_layout.h']]],
   ['up_5ffooter_5ftip_5fbox_27',['UP_FOOTER_TIP_BOX',['../nbgl__layout_8h.html#a88a4bd82691a0a53afdca2dd2a173694a5ec6f9349ded662cc7a3d15cf00bb2cb',1,'nbgl_layout.h']]],
   ['upper_5fcase_28',['UPPER_CASE',['../nbgl__obj_8h.html#a526042c25a10ab7633bf29bd1cca44ceae1e489b6536e7429c92851b95854c6cf',1,'nbgl_obj.h']]],
-  ['use_5fcase_5flogger_29',['USE_CASE_LOGGER',['../nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06ca2aba8ceddb55fc3eb020c5f2ac2f0bf5',1,'nbgl_debug.h']]],
-  ['ux_5fctx_30',['UX_CTX',['../nbgl__touch_8c.html#a1fb9092bcdeada2d206bdc74afbbe122aae71184f80165ed57f017de11cf1db2f',1,'nbgl_touch.c']]],
-  ['ux_5flogger_31',['UX_LOGGER',['../nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06caaf3e0fa47a6383268a17905c3b8027a8',1,'nbgl_debug.h']]]
+  ['use_5fcase_5flogger_29',['USE_CASE_LOGGER',['../nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635a2aba8ceddb55fc3eb020c5f2ac2f0bf5',1,'nbgl_debug.h']]],
+  ['ux_5fctx_30',['UX_CTX',['../nbgl__touch_8c.html#af3520ff6d43011872bab77edd27d4de3aae71184f80165ed57f017de11cf1db2f',1,'nbgl_touch.c']]],
+  ['ux_5flogger_31',['UX_LOGGER',['../nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635aaf3e0fa47a6383268a17905c3b8027a8',1,'nbgl_debug.h']]]
 ];

@@ -178,8 +178,8 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__contentTagValue__t.html">nbgl_contentTagValue_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This structure contains a [tag,value] pair and possible extensions.  <a href="structnbgl__contentTagValue__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__contentTagValueList__t.html">nbgl_contentTagValueList_t</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This structure contains a list of [tag,value] pairs.  <a href="structnbgl__contentTagValueList__t.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__contentTagValueList__s.html">nbgl_contentTagValueList_s</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This structure contains a list of [tag,value] pairs.  <a href="structnbgl__contentTagValueList__s.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__contentTagValueDetails__t.html">nbgl_contentTagValueDetails_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This structure contains a [item,value] pair and info about "details" button.  <a href="structnbgl__contentTagValueDetails__t.html#details">More...</a><br /></td></tr>
@@ -223,6 +223,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ad071ce733666a9e0310f83dc3139f375" id="r_ad071ce733666a9e0310f83dc3139f375"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__content_8h.html#ad071ce733666a9e0310f83dc3139f375">nbgl_contentActionCallback_t</a>) (int token, uint8_t index, int page)</td></tr>
 <tr class="memdesc:ad071ce733666a9e0310f83dc3139f375"><td class="mdescLeft">&#160;</td><td class="mdescRight">prototype of function to be called when an action on a content object occurs  <br /></td></tr>
 <tr class="separator:ad071ce733666a9e0310f83dc3139f375"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6856b677b252ec8098553acbfca14e9a" id="r_a6856b677b252ec8098553acbfca14e9a"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structnbgl__contentTagValueList__s.html">nbgl_contentTagValueList_s</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__content_8h.html#a6856b677b252ec8098553acbfca14e9a">nbgl_contentTagValueList_t</a></td></tr>
+<tr class="memdesc:a6856b677b252ec8098553acbfca14e9a"><td class="mdescLeft">&#160;</td><td class="mdescRight">This structure contains a list of [tag,value] pairs.  <br /></td></tr>
+<tr class="separator:a6856b677b252ec8098553acbfca14e9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1e9fa82698f1cb79be7824591c133f41" id="r_a1e9fa82698f1cb79be7824591c133f41"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structnbgl__pageSwitchesList__s.html">nbgl_pageSwitchesList_s</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__content_8h.html#a1e9fa82698f1cb79be7824591c133f41">nbgl_contentSwitchesList_t</a></td></tr>
 <tr class="memdesc:a1e9fa82698f1cb79be7824591c133f41"><td class="mdescLeft">&#160;</td><td class="mdescRight">This structure contains data to build a <a class="el" href="nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203aaa3b4a61cc5be5e90bd2c1ab32f13373">SWITCHES_LIST</a> content.  <br /></td></tr>
 <tr class="separator:a1e9fa82698f1cb79be7824591c133f41"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -255,6 +258,7 @@ Enumerations</h2></td></tr>
 , <a class="el" href="nbgl__content_8h.html#aa4402a878699462ea2897df1048f16ebaf639e0bf407dd2928180788de4a6da6b">QR_CODE_ALIAS</a>
 , <br />
 &#160;&#160;<a class="el" href="nbgl__content_8h.html#aa4402a878699462ea2897df1048f16eba0eb3677cf8d363fb8f40dc136c62c1db">INFO_LIST_ALIAS</a>
+, <a class="el" href="nbgl__content_8h.html#aa4402a878699462ea2897df1048f16eba1d26cadcb4eaa1c803e87637ca391c52">TAG_VALUE_LIST_ALIAS</a>
 <br />
  }</td></tr>
 <tr class="memdesc:aa4402a878699462ea2897df1048f16eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">possible types of value alias  <a href="nbgl__content_8h.html#aa4402a878699462ea2897df1048f16eb">More...</a><br /></td></tr>
@@ -305,7 +309,7 @@ Enumerations</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00202">202</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00207">207</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
 
 </div>
 </div>
@@ -362,7 +366,23 @@ Enumerations</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>a pointer on a static tag/value pair </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00193">193</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00198">198</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
+
+</div>
+</div>
+<a id="a6856b677b252ec8098553acbfca14e9a" name="a6856b677b252ec8098553acbfca14e9a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6856b677b252ec8098553acbfca14e9a">&#9670;&#160;</a></span>nbgl_contentTagValueList_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structnbgl__contentTagValueList__s.html">nbgl_contentTagValueList_s</a> <a class="el" href="nbgl__content_8h.html#a6856b677b252ec8098553acbfca14e9a">nbgl_contentTagValueList_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>This structure contains a list of [tag,value] pairs. </p>
 
 </div>
 </div>
@@ -459,7 +479,7 @@ Enumerations</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00362">362</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00367">367</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
 
 </div>
 </div>
@@ -486,6 +506,7 @@ Enumerations</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="aa4402a878699462ea2897df1048f16eba0eb3677cf8d363fb8f40dc136c62c1db" name="aa4402a878699462ea2897df1048f16eba0eb3677cf8d363fb8f40dc136c62c1db"></a>INFO_LIST_ALIAS&#160;</td><td class="fielddoc"><p>alias is list of infos </p>
 </td></tr>
+<tr><td class="fieldname"><a id="aa4402a878699462ea2897df1048f16eba1d26cadcb4eaa1c803e87637ca391c52" name="aa4402a878699462ea2897df1048f16eba1d26cadcb4eaa1c803e87637ca391c52"></a>TAG_VALUE_LIST_ALIAS&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 <p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00141">141</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>

@@ -2,7 +2,7 @@ var searchData=
 [
   ['macros_2eh_0',['macros.h',['../macros_8h.html',1,'']]],
   ['main_2ec_1',['main.c',['../main_8c.html',1,'']]],
-  ['main_5fcontainer_5findex_2',['MAIN_CONTAINER_INDEX',['../nbgl__layout__internal_8h.html#a16685eea158879e41b101ca3634de462ad80324e7f2a40f6d0e43c744895646bf',1,'nbgl_layout_internal.h']]],
+  ['main_5fcontainer_5findex_2',['MAIN_CONTAINER_INDEX',['../nbgl__layout__internal_8h.html#afa231099d07583c3ed0981e0bb665f55ad80324e7f2a40f6d0e43c744895646bf',1,'nbgl_layout_internal.h']]],
   ['main_5fstd_5fapp_2eh_3',['main_std_app.h',['../main__std__app_8h.html',1,'']]],
   ['mainpage_2edox_4',['mainpage.dox',['../doc_2mainpage_8dox.html',1,'(Global Namespace)'],['../lib__ux__nbgl_2doc_2mainpage_8dox.html',1,'(Global Namespace)'],['../lib__ux_2doc_2mainpage_8dox.html',1,'(Global Namespace)'],['../lib__standard__app_2doc_2mainpage_8dox.html',1,'(Global Namespace)'],['../lib__nfc_2doc_2mainpage_8dox.html',1,'(Global Namespace)'],['../lib__nbgl_2doc_2mainpage_8dox.html',1,'(Global Namespace)'],['../lib__cxng_2doc_2mainpage_8dox.html',1,'(Global Namespace)'],['../lib__alloc_2doc_2mainpage_8dox.html',1,'(Global Namespace)']]],
   ['mainpage_5fnanos_2edox_5',['mainpage_nanos.dox',['../mainpage__nanos_8dox.html',1,'']]],
@@ -39,7 +39,7 @@ var searchData=
   ['mid_5fleft_36',['MID_LEFT',['../nbgl__types_8h.html#a82db45397671e5a06f32c857ed8980c6aad5cc8adf8a022e34c30f0cd7d6b2323',1,'nbgl_types.h']]],
   ['mid_5fright_37',['MID_RIGHT',['../nbgl__types_8h.html#a82db45397671e5a06f32c857ed8980c6a8c86316489d5c767f93417b035256ab9',1,'nbgl_types.h']]],
   ['min_38',['MIN',['../nbgl__types_8h.html#a74e75242132eaabbc1c512488a135926',1,'nbgl_types.h']]],
-  ['misc_5flogger_39',['MISC_LOGGER',['../nbgl__debug_8h.html#adc29c2ff13d900c2f185ee95427fb06cad4fa1132179cb4c7d82614846a005ddf',1,'nbgl_debug.h']]],
+  ['misc_5flogger_39',['MISC_LOGGER',['../nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635ad4fa1132179cb4c7d82614846a005ddf',1,'nbgl_debug.h']]],
   ['modal_40',['modal',['../structnbgl__layoutDescription__s.html#a0768b0863e64e44da3ebab04aca0ca6b',1,'nbgl_layoutDescription_s::modal'],['../structnbgl__layoutInternal__s.html#ab8e3d025b643255e427dfbd1d9222916',1,'nbgl_layoutInternal_s::modal'],['../structnbgl__layoutInternal__s.html#a7b50481e95034c671dc2735c8760b742',1,'nbgl_layoutInternal_s::modal'],['../structnbgl__pageConfirmationDescription__s.html#a48f489119d2d99303b4364a515720b4b',1,'nbgl_pageConfirmationDescription_s::modal']]],
   ['modaltitle_41',['modalTitle',['../structnbgl__tipBox__t.html#a70e1829caa5a364d0e09d5cb3822f4a5',1,'nbgl_tipBox_t']]],
   ['mode_42',['mode',['../structcx__cipher__context__t.html#a24a8c422a7e013c0359f9f2502eac971',1,'cx_cipher_context_t::mode'],['../structnbgl__layoutKbd__t.html#af12faade1255e6c31b60f63345c11110',1,'nbgl_layoutKbd_t::mode'],['../structnbgl__keyboard__s.html#ac5dba677e6bc1a0662bdf84896cd3f23',1,'nbgl_keyboard_s::mode']]],

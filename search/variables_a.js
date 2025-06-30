@@ -25,7 +25,7 @@ var searchData=
   ['lineobj_22',['lineObj',['../structgenericObj__t.html#a8a6ffbebd58528bd2f5c74da9c02b49b',1,'genericObj_t']]],
   ['lines_23',['lines',['../structux__layout__strings__params__s.html#a4c6da8b15480ac4d6c167921117dc9da',1,'ux_layout_strings_params_s::lines'],['../structux__layout__icon__strings__params__s.html#ae71bcb2a11aa88706136e089a9755347',1,'ux_layout_icon_strings_params_s::lines']]],
   ['localized_24',['localized',['../structnbgl__contentRadioChoice__t.html#a7e84c7755f5d7ca0878c83242dc3ae88',1,'nbgl_contentRadioChoice_t::localized'],['../structnbgl__button__s.html#ae444af062f5598329f845f0b0508d5b7',1,'nbgl_button_s::localized']]],
-  ['longpress_25',['longPress',['../structnbgl__layoutUpFooter__t.html#abdd70bd0686ad82602a5f9ad7dcfc6eb',1,'nbgl_layoutUpFooter_t']]],
+  ['longpress_25',['longPress',['../structnbgl__layoutUpFooter__t.html#a6f9130eb6c65b48f7c09ff731002a899',1,'nbgl_layoutUpFooter_t']]],
   ['longpresstext_26',['longPressText',['../structnbgl__contentInfoLongPress__t.html#a45d19232faebafc785259699a748f338',1,'nbgl_contentInfoLongPress_t']]],
   ['longpresstoken_27',['longPressToken',['../structnbgl__contentInfoLongPress__t.html#a435a2990f3ab8f7980854429b95fa0ca',1,'nbgl_contentInfoLongPress_t']]]
 ];
