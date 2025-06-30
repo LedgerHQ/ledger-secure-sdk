@@ -1,11 +1,24 @@
-/* @BANNER@ */
+/*****************************************************************************
+ *   (c) 2025 Ledger SAS.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *****************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_core.h"
 #include "usbd_conf.h"
 #include "usbd_desc.h"
 
-#pragma GCC diagnostic ignored "-Wcast-qual"
 
 /* Private enumerations ------------------------------------------------------*/
 
@@ -38,6 +51,7 @@ static uint8_t                usbd_bcdusb;
 static uint16_t               usbd_vid;
 static uint16_t               usbd_pid;
 static char                  *usbd_desc_product_str;
+static uint16_t                  usbd_desc_product_str_len;
 static uint8_t                usbd_iad;
 static USB_GetBOSDescriptor_t usbd_bos_descriptor;
 
@@ -112,7 +126,7 @@ uint8_t *USBD_get_descriptor_lang_id(USBD_SpeedTypeDef speed, uint16_t *length)
     UNUSED(speed);
 
     *length = sizeof(USBD_desc_lang_id_desc);
-    return (uint8_t *) USBD_desc_lang_id_desc;
+    return (uint8_t*)(uintptr_t)USBD_desc_lang_id_desc;
 }
 
 uint8_t *USBD_get_descriptor_manufacturer(USBD_SpeedTypeDef speed, uint16_t *length)
@@ -128,6 +142,7 @@ uint8_t *USBD_get_descriptor_product(USBD_SpeedTypeDef speed, uint16_t *length)
 {
     UNUSED(speed);
 
+    usbd_desc_product_str[usbd_desc_product_str_len-1] = '\0';
     USBD_GetString((uint8_t *) (usbd_desc_product_str), (uint8_t *) USBD_StrDesc, length);
 
     return (uint8_t *) USBD_StrDesc;
@@ -165,6 +180,7 @@ uint8_t *USBD_get_descriptor_BOS(USBD_SpeedTypeDef speed, uint16_t *length)
 }
 
 void USBD_DESC_init(char                  *product_str,
+                    uint16_t product_str_len,
                     uint16_t               vid,
                     uint16_t               pid,
                     uint8_t                bcdusb,
@@ -175,6 +191,7 @@ void USBD_DESC_init(char                  *product_str,
     usbd_vid              = vid;
     usbd_pid              = pid;
     usbd_desc_product_str = product_str;
+    usbd_desc_product_str_len = product_str_len;
     usbd_iad              = iad;
     usbd_bos_descriptor   = bos_descriptor;
 }

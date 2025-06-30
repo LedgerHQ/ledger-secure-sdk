@@ -1,12 +1,64 @@
-/* @BANNER@ */
+/*******************************************************************************
+ *   (c) 2022-2025 Ledger
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ ********************************************************************************/
 
 #pragma once
 
 /* Includes ------------------------------------------------------------------*/
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
+
+#include <os_utils.h>
 
 /* Exported enumerations -----------------------------------------------------*/
 
 /* Exported types, structures, unions ----------------------------------------*/
+typedef struct seph_s {
+    uint8_t  tag;
+    uint16_t size;
+    uint8_t *data;
+} seph_t;
+
+static inline size_t seph_get_header_size(void)
+{
+    seph_t tmp = {0};
+    return sizeof(tmp.tag) + sizeof(tmp.size);
+}
+
+static inline bool seph_parse_header(const uint8_t *buf, size_t size, seph_t *seph)
+{
+    bool   status      = false;
+    seph_t tmp_seph    = {0};
+    size_t header_size = seph_get_header_size();
+    if (!buf | !seph || (size < header_size)) {
+        goto error;
+    }
+    tmp_seph.tag  = buf[0];
+    tmp_seph.size = U2BE(buf, sizeof(tmp_seph.tag));
+    if (tmp_seph.size > (size - header_size)) {
+        goto error;
+    }
+    tmp_seph.data = (uint8_t *) ((uintptr_t) &buf[header_size]);
+    *seph         = tmp_seph;
+
+    status = true;
+
+error:
+    return status;
+}
 
 ////////////
 // EVENTS //

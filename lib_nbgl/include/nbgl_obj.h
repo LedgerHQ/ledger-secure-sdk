@@ -372,12 +372,14 @@ typedef struct PACKED__ nbgl_switch_s {
  * @note if withBorder, the stroke of the border is fixed (3 pixels)
  */
 typedef struct PACKED__ nbgl_progress_bar_s {
-    nbgl_obj_t obj;            // common part
-    bool       withBorder;     ///< if set to true, a border in black surround the whole object
-    uint8_t    state;          ///< state of the progress, in % (from 0 to 100).
-    bool       partialRedraw;  ///< set to true to redraw only partially the object (update state).
+    nbgl_obj_t obj;  // common part
     uint16_t   previousWidth;
-    color_t    foregroundColor;  ///< color of the inner progress bar and border (if applicable)
+    uint8_t    state;           ///< state of the progress, in % (from 0 to 100).
+    uint8_t partialRedraw : 1;  ///< set to true to redraw only partially the object (update state).
+    uint8_t withBorder : 1;     ///< if set to true, a border in black surround the whole object
+    uint8_t resetIfOverriden : 1;  ///< if set to true, the state is reset to 0 if the screen is
+                                   ///< covered by another screen
+    color_t foregroundColor;       ///< color of the inner progress bar and border (if applicable)
 } nbgl_progress_bar_t;
 
 /**

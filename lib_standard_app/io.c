@@ -116,7 +116,11 @@ WEAK int io_recv_command()
         need_to_start_io = 0;
     }
 
+#ifdef FUZZING
+    for (uint8_t retries = 5; retries && status <= 0; retries--) {
+#else
     while (status <= 0) {
+#endif
         status = io_legacy_apdu_rx(1);
     }
 

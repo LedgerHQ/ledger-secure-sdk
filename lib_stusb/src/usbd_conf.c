@@ -1,4 +1,18 @@
-/* @BANNER@ */
+/*****************************************************************************
+ *   (c) 2025 Ledger SAS.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *****************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
 #include "os.h"
@@ -89,7 +103,7 @@ USBD_StatusTypeDef USBD_LL_OpenEP(USBD_HandleTypeDef *pdev,
 
     UNUSED(pdev);
 
-    if ((ep_addr & 0x7F) >= 8) {
+    if ((ep_addr & 0x7F) >= IO_USB_MAX_ENDPOINTS) {
         return USBD_FAIL;
     }
 
@@ -138,7 +152,7 @@ USBD_StatusTypeDef USBD_LL_CloseEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
 
     UNUSED(pdev);
 
-    if ((ep_addr & 0x7F) >= 8) {
+    if ((ep_addr & 0x7F) >= IO_USB_MAX_ENDPOINTS) {
         return USBD_FAIL;
     }
 
@@ -159,7 +173,7 @@ USBD_StatusTypeDef USBD_LL_FlushEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
 {
     UNUSED(pdev);
 
-    if ((ep_addr & 0x7F) >= 8) {
+    if ((ep_addr & 0x7F) >= IO_USB_MAX_ENDPOINTS) {
         return USBD_FAIL;
     }
 
@@ -172,7 +186,7 @@ USBD_StatusTypeDef USBD_LL_StallEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
 
     UNUSED(pdev);
 
-    if ((ep_addr & 0x7F) >= 8) {
+    if ((ep_addr & 0x7F) >= IO_USB_MAX_ENDPOINTS) {
         return USBD_FAIL;
     }
 
@@ -200,7 +214,7 @@ USBD_StatusTypeDef USBD_LL_ClearStallEP(USBD_HandleTypeDef *pdev, uint8_t ep_add
 
     UNUSED(pdev);
 
-    if ((ep_addr & 0x7F) >= 8) {
+    if ((ep_addr & 0x7F) >= IO_USB_MAX_ENDPOINTS) {
         return USBD_FAIL;
     }
 
@@ -226,7 +240,7 @@ uint8_t USBD_LL_IsStallEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
 {
     UNUSED(pdev);
 
-    if ((ep_addr & 0x7F) >= 8) {
+    if ((ep_addr & 0x7F) >= IO_USB_MAX_ENDPOINTS) {
         return 0;
     }
 
@@ -265,7 +279,7 @@ USBD_StatusTypeDef USBD_LL_Transmit(USBD_HandleTypeDef *pdev,
 
     UNUSED(pdev);
 
-    if ((ep_addr & 0x7F) >= 8) {
+    if ((ep_addr & 0x7F) >= IO_USB_MAX_ENDPOINTS) {
         return USBD_FAIL;
     }
 
@@ -302,7 +316,7 @@ USBD_StatusTypeDef USBD_LL_PrepareReceive(USBD_HandleTypeDef *pdev,
     UNUSED(pdev);
     UNUSED(pbuf);
 
-    if ((ep_addr & 0x7F) >= 8) {
+    if ((ep_addr & 0x7F) >= IO_USB_MAX_ENDPOINTS) {
         return USBD_FAIL;
     }
 

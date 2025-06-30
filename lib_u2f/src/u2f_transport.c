@@ -1,4 +1,18 @@
-/* @BANNER@ */
+/*****************************************************************************
+ *   (c) 2025 Ledger SAS.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *****************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
 #include <string.h>
@@ -128,10 +142,14 @@ static u2f_error_t process_packet(u2f_transport_t *handle, uint8_t *buffer, uint
         length -= 1;
     }
 
-    if ((handle->rx_message_offset + length) > handle->rx_message_length) {
+    // prevent integer underflows in the rest of the operations
+    if (handle->rx_message_length < handle->rx_message_offset) {
+        error = CTAP1_ERR_OTHER;
+        goto end;
+    }
+    if (length > handle->rx_message_length - handle->rx_message_offset) {
         length = handle->rx_message_length - handle->rx_message_offset;
     }
-
     memcpy(&handle->rx_message_buffer[handle->rx_message_offset], buffer, length);
     handle->rx_message_offset += length;
 
@@ -164,7 +182,12 @@ void U2F_TRANSPORT_rx(u2f_transport_t *handle, uint8_t *buffer, uint16_t length)
     handle->error = process_packet(handle, buffer, length);
 }
 
-void U2F_TRANSPORT_tx(u2f_transport_t *handle, uint8_t cmd, const uint8_t *buffer, uint16_t length)
+void U2F_TRANSPORT_tx(u2f_transport_t *handle,
+                      uint8_t          cmd,
+                      const uint8_t   *buffer,
+                      uint16_t         length,
+                      uint8_t         *tx_packet_buffer,
+                      uint16_t         tx_packet_buffer_size)
 {
     if (!handle || (!buffer && !handle->tx_message_buffer)) {
         return;
@@ -177,43 +200,43 @@ void U2F_TRANSPORT_tx(u2f_transport_t *handle, uint8_t cmd, const uint8_t *buffe
         handle->tx_message_sequence_number = 0;
         handle->tx_message_offset          = 0;
         handle->tx_packet_length           = 0;
-        memset(handle->tx_packet_buffer, 0, handle->tx_packet_buffer_size);
+        memset(tx_packet_buffer, 0, tx_packet_buffer_size);
     }
     else {
         LOG_IO("Tx : CONTINUATION PACKET\n");
     }
 
     uint16_t tx_packet_offset = 0;
-    memset(handle->tx_packet_buffer, 0, handle->tx_packet_buffer_size);
+    memset(tx_packet_buffer, 0, tx_packet_buffer_size);
 
     // Add CID if necessary
     if (handle->type == U2F_TRANSPORT_TYPE_USB_HID) {
-        U4BE_ENCODE(handle->tx_packet_buffer, 0, handle->tx_cid);
+        U4BE_ENCODE(tx_packet_buffer, 0, handle->tx_cid);
         tx_packet_offset += 4;
     }
 
     // Fill header
     if (buffer) {
-        handle->tx_packet_buffer[tx_packet_offset++] = cmd | 0x80;        // CMD
-        U2BE_ENCODE(handle->tx_packet_buffer, tx_packet_offset, length);  // BCNT
+        tx_packet_buffer[tx_packet_offset++] = cmd | 0x80;        // CMD
+        U2BE_ENCODE(tx_packet_buffer, tx_packet_offset, length);  // BCNT
         tx_packet_offset += 2;
     }
     else {
-        handle->tx_packet_buffer[tx_packet_offset++] = handle->tx_message_sequence_number++;  // SEQ
+        tx_packet_buffer[tx_packet_offset++] = handle->tx_message_sequence_number++;  // SEQ
     }
 
     if ((handle->tx_message_length + tx_packet_offset)
-        > (handle->tx_packet_buffer_size + handle->tx_message_offset)) {
+        > (tx_packet_buffer_size + handle->tx_message_offset)) {
         // Remaining message length doesn't fit the max packet size
-        memcpy(&handle->tx_packet_buffer[tx_packet_offset],
+        memcpy(&tx_packet_buffer[tx_packet_offset],
                &handle->tx_message_buffer[handle->tx_message_offset],
-               handle->tx_packet_buffer_size - tx_packet_offset);
-        handle->tx_message_offset += handle->tx_packet_buffer_size - tx_packet_offset;
-        tx_packet_offset = handle->tx_packet_buffer_size;
+               tx_packet_buffer_size - tx_packet_offset);
+        handle->tx_message_offset += tx_packet_buffer_size - tx_packet_offset;
+        tx_packet_offset = tx_packet_buffer_size;
     }
     else {
         // Remaining message fits the max packet size
-        memcpy(&handle->tx_packet_buffer[tx_packet_offset],
+        memcpy(&tx_packet_buffer[tx_packet_offset],
                &handle->tx_message_buffer[handle->tx_message_offset],
                handle->tx_message_length - handle->tx_message_offset);
         tx_packet_offset += (handle->tx_message_length - handle->tx_message_offset);

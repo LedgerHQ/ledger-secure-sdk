@@ -1,4 +1,18 @@
-/* @BANNER@ */
+/*****************************************************************************
+ *   (c) 2025 Ledger SAS.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *****************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
 #include "os.h"
@@ -120,11 +134,14 @@ int io_process_itc_ux_event(uint8_t *buffer_in, size_t buffer_in_length)
             G_ux_params.ux_id = BOLOS_UX_ASYNCHMODAL_PAIRING_REQUEST;
             G_ux_params.len   = sizeof(G_ux_params.u.pairing_request);
             memset(&G_ux_params.u.pairing_request, 0, sizeof(G_ux_params.u.pairing_request));
-            G_ux_params.u.pairing_request.type             = buffer_in[4];
-            G_ux_params.u.pairing_request.pairing_info_len = U2BE(buffer_in, 1) - 2;
-            if (G_ux_params.u.pairing_request.pairing_info_len > buffer_in_length + 5) {
+            G_ux_params.u.pairing_request.type = buffer_in[4];
+            uint16_t pairing_info_len          = U2BE(buffer_in, 1) - 2;
+            if (!pairing_info_len
+                || (pairing_info_len > sizeof(G_ux_params.u.pairing_request.pairing_info))
+                || (pairing_info_len > (buffer_in_length - 5))) {
                 return -22;  // EINVAL
             }
+            G_ux_params.u.pairing_request.pairing_info_len = pairing_info_len;
             memcpy(G_ux_params.u.pairing_request.pairing_info,
                    &buffer_in[5],
                    G_ux_params.u.pairing_request.pairing_info_len);

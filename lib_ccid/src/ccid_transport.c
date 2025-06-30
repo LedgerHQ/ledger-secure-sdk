@@ -1,6 +1,21 @@
-/* @BANNER@ */
+/*****************************************************************************
+ *   (c) 2025 Ledger SAS.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *****************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
+#include <stdint.h>
 #include <string.h>
 #include "os.h"
 
@@ -78,8 +93,15 @@ void CCID_TRANSPORT_rx(ccid_transport_t *handle, uint8_t *buffer, uint16_t lengt
         }
     }
     else if (handle->rx_msg_status == CCID_MSG_STATUS_NEED_MORE_DATA) {
+        // used for secure memmove
+        uint16_t movelength = 0;
         if (handle->bulk_msg_header.out.length <= (handle->rx_msg_length + length)) {
             // Msg is complete
+            if (__builtin_sub_overflow(
+                    handle->bulk_msg_header.out.length, handle->rx_msg_length, &movelength)
+                || handle->rx_msg_buffer_size <= movelength) {
+                return;
+            }
             memmove(&handle->rx_msg_buffer[handle->rx_msg_length],
                     buffer,
                     handle->bulk_msg_header.out.length - handle->rx_msg_length);
@@ -90,6 +112,10 @@ void CCID_TRANSPORT_rx(ccid_transport_t *handle, uint8_t *buffer, uint16_t lengt
         }
         else {
             // Msg not complete
+            if (__builtin_add_overflow(length, handle->rx_msg_length, &movelength)
+                || handle->rx_msg_buffer_size <= movelength) {
+                return;
+            }
             memmove(&handle->rx_msg_buffer[handle->rx_msg_length], buffer, length);
             handle->rx_msg_length += length;
             LOG_IO("CCID not complete\n");
@@ -97,7 +123,11 @@ void CCID_TRANSPORT_rx(ccid_transport_t *handle, uint8_t *buffer, uint16_t lengt
     }
 }
 
-void CCID_TRANSPORT_tx(ccid_transport_t *handle, const uint8_t *buffer, uint16_t length)
+void CCID_TRANSPORT_tx(ccid_transport_t *handle,
+                       const uint8_t    *buffer,
+                       uint16_t          length,
+                       uint8_t          *tx_packet_buffer,
+                       uint16_t          tx_packet_buffer_size)
 {
     if (!handle || (!buffer && !handle->tx_message_buffer)) {
         return;
@@ -115,32 +145,32 @@ void CCID_TRANSPORT_tx(ccid_transport_t *handle, const uint8_t *buffer, uint16_t
     }
 
     uint16_t tx_packet_offset = 0;
-    memset(handle->tx_packet_buffer, 0, handle->tx_packet_buffer_size);
+    memset(tx_packet_buffer, 0, tx_packet_buffer_size);
 
     // Fill header
     if (buffer) {
-        handle->tx_packet_buffer[0] = handle->bulk_msg_header.in.msg_type;
+        tx_packet_buffer[0] = handle->bulk_msg_header.in.msg_type;
         U4LE_ENCODE(handle->tx_packet_buffer, 1, handle->bulk_msg_header.in.length);
-        handle->tx_packet_buffer[5] = handle->bulk_msg_header.in.slot_number;
-        handle->tx_packet_buffer[6] = handle->bulk_msg_header.in.seq_number;
-        handle->tx_packet_buffer[7] = handle->bulk_msg_header.in.status;
-        handle->tx_packet_buffer[8] = handle->bulk_msg_header.in.error;
-        handle->tx_packet_buffer[9] = handle->bulk_msg_header.in.specific;
-        tx_packet_offset            = 10;
+        tx_packet_buffer[5] = handle->bulk_msg_header.in.slot_number;
+        tx_packet_buffer[6] = handle->bulk_msg_header.in.seq_number;
+        tx_packet_buffer[7] = handle->bulk_msg_header.in.status;
+        tx_packet_buffer[8] = handle->bulk_msg_header.in.error;
+        tx_packet_buffer[9] = handle->bulk_msg_header.in.specific;
+        tx_packet_offset    = 10;
     }
 
     if ((handle->tx_message_length + tx_packet_offset)
-        >= (handle->tx_packet_buffer_size + handle->tx_message_offset)) {
+        >= (tx_packet_buffer_size + handle->tx_message_offset)) {
         // Remaining message length doesn't fit the max packet size
-        memcpy(&handle->tx_packet_buffer[tx_packet_offset],
+        memcpy(&tx_packet_buffer[tx_packet_offset],
                &handle->tx_message_buffer[handle->tx_message_offset],
-               handle->tx_packet_buffer_size - tx_packet_offset);
-        handle->tx_message_offset += handle->tx_packet_buffer_size - tx_packet_offset;
-        tx_packet_offset = handle->tx_packet_buffer_size;
+               tx_packet_buffer_size - tx_packet_offset);
+        handle->tx_message_offset += tx_packet_buffer_size - tx_packet_offset;
+        tx_packet_offset = tx_packet_buffer_size;
     }
     else {
         // Remaining message fits the max packet size
-        memcpy(&handle->tx_packet_buffer[tx_packet_offset],
+        memcpy(&tx_packet_buffer[tx_packet_offset],
                &handle->tx_message_buffer[handle->tx_message_offset],
                handle->tx_message_length - handle->tx_message_offset);
         tx_packet_offset += (handle->tx_message_length - handle->tx_message_offset);

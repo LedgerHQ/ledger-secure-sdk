@@ -1,4 +1,18 @@
-/* @BANNER@ */
+/*****************************************************************************
+ *   (c) 2025 Ledger SAS.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *****************************************************************************/
 
 #pragma once
 
@@ -170,6 +184,11 @@ typedef struct ble_uuid_s {
     uint8_t type;  // ble_gatt_uuid_e
     uint8_t value[BLE_UUID_SIZE];
 } ble_uuid_t;
+
+typedef struct ble_hci_event_packet_s {
+    uint8_t code;
+    uint8_t length;
+} ble_hci_event_packet_t;
 
 /* Exported defines   --------------------------------------------------------*/
 /* Configuration value */
