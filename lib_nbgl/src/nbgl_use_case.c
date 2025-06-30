@@ -37,7 +37,8 @@
     (pagesData[pageIdx / PAGES_PER_UINT8] = pageData \
                                             << ((pageIdx % PAGES_PER_UINT8) * PAGE_DATA_BITS))
 
-#define MAX_PAGE_NB 256
+#define MAX_PAGE_NB       256
+#define MAX_MODAL_PAGE_NB 32
 
 /* Alias to clarify usage of genericContext hasStartingContent and hasFinishingContent feature */
 #define STARTING_CONTENT  localContentsList[0]
@@ -47,6 +48,9 @@
 #define QRCODE_NB_MAX_LINES     3
 /* max number of char for reduced QR Code address */
 #define QRCODE_REDUCED_ADDR_LEN 128
+
+/* maximum number of pairs in a page of address confirm */
+#define ADDR_VERIF_NB_PAIRS 3
 
 // macros to ease access to shared contexts
 #define keypadContext     sharedContext.keypad
@@ -77,6 +81,7 @@ enum {
     NEXT_TOKEN,
     QUIT_TOKEN,
     NAV_TOKEN,
+    MODAL_NAV_TOKEN,
     SKIP_TOKEN,
     CONTINUE_TOKEN,
     ADDRESS_QRCODE_BUTTON_TOKEN,
@@ -109,6 +114,7 @@ typedef enum {
 typedef struct DetailsContext_s {
     uint8_t     nbPages;
     uint8_t     currentPage;
+    uint8_t     currentPairIdx;
     bool        wrapping;
     const char *tag;
     const char *value;
@@ -116,8 +122,9 @@ typedef struct DetailsContext_s {
 } DetailsContext_t;
 
 typedef struct AddressConfirmationContext_s {
-    nbgl_layoutTagValue_t tagValuePair;
+    nbgl_layoutTagValue_t tagValuePairs[ADDR_VERIF_NB_PAIRS];
     nbgl_layout_t        *modalLayout;
+    uint8_t               nbPairs;
 } AddressConfirmationContext_t;
 
 #ifdef NBGL_KEYPAD
@@ -180,7 +187,8 @@ typedef struct {
                   currentCallback;  // to be used to retrieve the pairs with value alias
     nbgl_layout_t modalLayout;
     nbgl_layout_t backgroundLayout;
-    const nbgl_contentInfoList_t *currentInfos;
+    const nbgl_contentInfoList_t     *currentInfos;
+    const nbgl_contentTagValueList_t *currentTagValues;
 } GenericContext_t;
 
 typedef struct {
@@ -266,6 +274,7 @@ static GenericContext_t genericContext;
 static nbgl_content_t
     localContentsList[3];  // 3 needed for nbgl_useCaseReview (starting page / tags / final page)
 static uint8_t genericContextPagesInfo[MAX_PAGE_NB / PAGES_PER_UINT8];
+static uint8_t modalContextPagesInfo[MAX_MODAL_PAGE_NB / PAGES_PER_UINT8];
 
 // contexts for bundle navigation
 static nbgl_BundleNavContext_t bundleNavContext;
@@ -330,12 +339,14 @@ static char reducedAddress[QRCODE_REDUCED_ADDR_LEN];
  **********************/
 static void displayReviewPage(uint8_t page, bool forceFullRefresh);
 static void displayDetailsPage(uint8_t page, bool forceFullRefresh);
+static void displayTagValueListModalPage(uint8_t pageIdx, bool forceFullRefresh);
 static void displayFullValuePage(const char                   *backText,
                                  const char                   *aliasText,
                                  const nbgl_contentValueExt_t *extension);
 static void displayInfosListModal(const char                   *modalTitle,
                                   const nbgl_contentInfoList_t *infos,
                                   bool                          fromReview);
+static void displayTagValueListModal(const nbgl_contentTagValueList_t *tagValues);
 static void displaySettingsPage(uint8_t page, bool forceFullRefresh);
 static void displayGenericContextPage(uint8_t pageIdx, bool forceFullRefresh);
 static void pageCallback(int token, uint8_t index);
@@ -414,6 +425,27 @@ static void genericContextGetPageInfo(uint8_t pageIdx, uint8_t *nbElements, bool
     }
     if (flag != NULL) {
         *flag = GET_PAGE_FLAG(pageData);
+    }
+}
+
+// Helper to set modalContext page info
+static void modalContextSetPageInfo(uint8_t pageIdx, uint8_t nbElements)
+{
+    uint8_t pageData = SET_PAGE_NB_ELEMENTS(nbElements);
+
+    modalContextPagesInfo[pageIdx / PAGES_PER_UINT8]
+        &= ~(0x0F << ((pageIdx % PAGES_PER_UINT8) * PAGE_DATA_BITS));
+    modalContextPagesInfo[pageIdx / PAGES_PER_UINT8]
+        |= pageData << ((pageIdx % PAGES_PER_UINT8) * PAGE_DATA_BITS);
+}
+
+// Helper to get modalContext page info
+static void modalContextGetPageInfo(uint8_t pageIdx, uint8_t *nbElements)
+{
+    uint8_t pageData = modalContextPagesInfo[pageIdx / PAGES_PER_UINT8]
+                       >> ((pageIdx % PAGES_PER_UINT8) * PAGE_DATA_BITS);
+    if (nbElements != NULL) {
+        *nbElements = GET_PAGE_NB_ELEMENTS(pageData);
     }
 }
 
@@ -572,6 +604,16 @@ static void pageModalCallback(int token, uint8_t index)
         }
         else {
             displayDetailsPage(index, false);
+        }
+    }
+    if (token == MODAL_NAV_TOKEN) {
+        if (index == EXIT_PAGE) {
+            // redraw the background layer
+            nbgl_screenRedraw();
+            nbgl_refresh();
+        }
+        else {
+            displayTagValueListModalPage(index, false);
         }
     }
     else if (token == QUIT_TOKEN) {
@@ -1067,28 +1109,36 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
 
             break;
         }
-        case TAG_VALUE_CONFIRM:
+        case TAG_VALUE_CONFIRM: {
+            nbgl_contentTagValueList_t *p_tagValueList;
             // only display a TAG_VALUE_CONFIRM if we are at the last page
             if ((nextElementIdx + nbElementsInPage)
                 == p_content->content.tagValueConfirm.tagValueList.nbPairs) {
                 memcpy(&pageContent->tagValueConfirm,
                        &p_content->content.tagValueConfirm,
                        sizeof(pageContent->tagValueConfirm));
-                nbgl_contentTagValueList_t *p_tagValueList
-                    = &pageContent->tagValueConfirm.tagValueList;
-                p_tagValueList->nbPairs = nbElementsInPage;
-                p_tagValueList->pairs
-                    = PIC(&p_content->content.tagValueConfirm.tagValueList.pairs[nextElementIdx]);
+                p_tagValueList = &pageContent->tagValueConfirm.tagValueList;
             }
             else {
                 // else display it as a TAG_VALUE_LIST
-                pageContent->type                          = TAG_VALUE_LIST;
-                nbgl_contentTagValueList_t *p_tagValueList = &pageContent->tagValueList;
-                p_tagValueList->nbPairs                    = nbElementsInPage;
-                p_tagValueList->pairs
-                    = PIC(&p_content->content.tagValueConfirm.tagValueList.pairs[nextElementIdx]);
+                pageContent->type = TAG_VALUE_LIST;
+                p_tagValueList    = &pageContent->tagValueList;
             }
+            p_tagValueList->nbPairs = nbElementsInPage;
+            p_tagValueList->pairs
+                = PIC(&p_content->content.tagValueConfirm.tagValueList.pairs[nextElementIdx]);
+            // parse pairs to check if any contains an alias for value
+            for (uint8_t i = 0; i < nbElementsInPage; i++) {
+                if (p_tagValueList->pairs[i].aliasValue) {
+                    p_tagValueList->token = VALUE_ALIAS_TOKEN;
+                    break;
+                }
+            }
+            // memorize pairs (or callback) for usage when alias is used
+            genericContext.currentPairs    = p_tagValueList->pairs;
+            genericContext.currentCallback = p_tagValueList->callback;
             break;
+        }
         case SWITCHES_LIST:
             pageContent->switchesList.nbSwitches = nbElementsInPage;
             pageContent->switchesList.switches
@@ -1327,6 +1377,10 @@ static void displayFullValuePage(const char                   *backText,
         genericContext.currentInfos = extension->infolist;
         displayInfosListModal(modalTitle, extension->infolist, true);
     }
+    else if (extension->aliasType == TAG_VALUE_LIST_ALIAS) {
+        genericContext.currentTagValues = extension->tagValuelist;
+        displayTagValueListModal(extension->tagValuelist);
+    }
     else {
         nbgl_layoutDescription_t layoutDescription = {.modal            = true,
                                                       .withLeftBorder   = true,
@@ -1410,6 +1464,60 @@ static void displayInfosListModal(const char                   *modalTitle,
     nbgl_refreshSpecial(FULL_COLOR_CLEAN_REFRESH);
 }
 
+// function used to display the modal containing alias tag-value pairs
+static void displayTagValueListModalPage(uint8_t pageIdx, bool forceFullRefresh)
+{
+    nbgl_pageNavigationInfo_t info    = {.activePage                = pageIdx,
+                                         .nbPages                   = detailsContext.nbPages,
+                                         .navType                   = NAV_WITH_BUTTONS,
+                                         .quitToken                 = QUIT_TOKEN,
+                                         .navWithButtons.navToken   = MODAL_NAV_TOKEN,
+                                         .navWithButtons.quitButton = true,
+                                         .navWithButtons.backButton = true,
+                                         .navWithButtons.quitText   = NULL,
+                                         .progressIndicator         = false,
+                                         .tuneId                    = TUNE_TAP_CASUAL};
+    nbgl_pageContent_t        content = {.type                           = TAG_VALUE_LIST,
+                                         .topRightIcon                   = NULL,
+                                         .tagValueList.smallCaseForValue = true,
+                                         .tagValueList.wrapping          = detailsContext.wrapping};
+    uint8_t                   nbElementsInPage;
+
+    // if first page or forward
+    if (detailsContext.currentPage <= pageIdx) {
+        modalContextGetPageInfo(pageIdx, &nbElementsInPage);
+    }
+    else {
+        // backward direction
+        modalContextGetPageInfo(pageIdx + 1, &nbElementsInPage);
+        detailsContext.currentPairIdx -= nbElementsInPage;
+        modalContextGetPageInfo(pageIdx, &nbElementsInPage);
+        detailsContext.currentPairIdx -= nbElementsInPage;
+    }
+    detailsContext.currentPage = pageIdx;
+
+    content.tagValueList.pairs
+        = &genericContext.currentTagValues->pairs[detailsContext.currentPairIdx];
+    content.tagValueList.nbPairs = nbElementsInPage;
+    detailsContext.currentPairIdx += nbElementsInPage;
+    if (info.nbPages == 1) {
+        // if only one page, no navigation bar, and use a footer instead
+        info.navWithButtons.quitText = "Close";
+    }
+
+    if (modalPageContext != NULL) {
+        nbgl_pageRelease(modalPageContext);
+    }
+    modalPageContext = nbgl_pageDrawGenericContentExt(&pageModalCallback, &info, &content, true);
+
+    if (forceFullRefresh) {
+        nbgl_refreshSpecial(FULL_COLOR_CLEAN_REFRESH);
+    }
+    else {
+        nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
+    }
+}
+
 #ifdef NBGL_QRCODE
 static void displayAddressQRCode(void)
 {
@@ -1420,7 +1528,7 @@ static void displayAddressQRCode(void)
                                                   .tapActionText    = NULL};
     nbgl_layoutHeader_t      headerDesc        = {
                     .type = HEADER_EMPTY, .separationLine = false, .emptySpace.height = SMALL_CENTERING_HEADER};
-    nbgl_layoutQRCode_t qrCode = {.url      = addressConfirmationContext.tagValuePair.value,
+    nbgl_layoutQRCode_t qrCode = {.url      = addressConfirmationContext.tagValuePairs[0].value,
                                   .text1    = NULL,
                                   .centered = true,
                                   .offsetY  = 0};
@@ -1429,16 +1537,18 @@ static void displayAddressQRCode(void)
     // add empty header for better look
     nbgl_layoutAddHeader(addressConfirmationContext.modalLayout, &headerDesc);
     // compute nb lines to check whether it shall be shorten (max is 3 lines)
-    uint16_t nbLines = nbgl_getTextNbLinesInWidth(
-        SMALL_REGULAR_FONT, addressConfirmationContext.tagValuePair.value, AVAILABLE_WIDTH, false);
+    uint16_t nbLines = nbgl_getTextNbLinesInWidth(SMALL_REGULAR_FONT,
+                                                  addressConfirmationContext.tagValuePairs[0].value,
+                                                  AVAILABLE_WIDTH,
+                                                  false);
 
     if (nbLines <= QRCODE_NB_MAX_LINES) {
-        qrCode.text2 = addressConfirmationContext.tagValuePair.value;  // in gray
+        qrCode.text2 = addressConfirmationContext.tagValuePairs[0].value;  // in gray
     }
     else {
         // only keep beginning and end of text, and add ... in the middle
         nbgl_textReduceOnNbLines(SMALL_REGULAR_FONT,
-                                 addressConfirmationContext.tagValuePair.value,
+                                 addressConfirmationContext.tagValuePairs[0].value,
                                  AVAILABLE_WIDTH,
                                  QRCODE_NB_MAX_LINES,
                                  reducedAddress,
@@ -1757,6 +1867,7 @@ static uint8_t getNbTagValuesInPage(uint8_t                           nbPairs,
                                     uint8_t                           startIndex,
                                     bool                              isSkippable,
                                     bool                              hasConfirmationButton,
+                                    bool                              hasDetailsButton,
                                     bool                             *requireSpecificDisplay)
 {
     uint8_t  nbPairsInPage   = 0;
@@ -1844,6 +1955,65 @@ static uint8_t getNbTagValuesInPage(uint8_t                           nbPairs,
             nbPairsInPage--;
         }
     }
+    // do the same with just a details button
+    else if (hasDetailsButton) {
+        maxUsableHeight -= (SMALL_BUTTON_RADIUS * 2);
+        if (currentHeight > maxUsableHeight) {
+            nbPairsInPage--;
+        }
+    }
+    return nbPairsInPage;
+}
+
+/**
+ * @brief computes the number of tag/values pairs displayable in a details page, with the given list
+ * of tag/value pairs
+ *
+ * @param nbPairs number of tag/value pairs to use in \b tagValueList
+ * @param tagValueList list of tag/value pairs
+ * @param startIndex first index to consider in \b tagValueList
+ * @return the number of tag/value pairs fitting in a page
+ */
+static uint8_t getNbTagValuesInDetailsPage(uint8_t                           nbPairs,
+                                           const nbgl_contentTagValueList_t *tagValueList,
+                                           uint8_t                           startIndex)
+{
+    uint8_t  nbPairsInPage   = 0;
+    uint16_t currentHeight   = PRE_TAG_VALUE_MARGIN;  // upper margin
+    uint16_t maxUsableHeight = TAG_VALUE_AREA_HEIGHT;
+
+    while (nbPairsInPage < nbPairs) {
+        const nbgl_layoutTagValue_t *pair;
+
+        // margin between pairs
+        // 12 or 24 px between each tag/value pair
+        if (nbPairsInPage > 0) {
+            currentHeight += INTER_TAG_VALUE_MARGIN;
+        }
+        // fetch tag/value pair strings.
+        if (tagValueList->pairs != NULL) {
+            pair = PIC(&tagValueList->pairs[startIndex + nbPairsInPage]);
+        }
+        else {
+            pair = PIC(tagValueList->callback(startIndex + nbPairsInPage));
+        }
+
+        // tag height
+        currentHeight += nbgl_getTextHeightInWidth(
+            SMALL_REGULAR_FONT, pair->item, AVAILABLE_WIDTH, tagValueList->wrapping);
+        // space between tag and value
+        currentHeight += 4;
+
+        // value height
+        currentHeight += nbgl_getTextHeightInWidth(
+            SMALL_REGULAR_FONT, pair->value, AVAILABLE_WIDTH, tagValueList->wrapping);
+
+        // we have reached the maximum height, it means than there are to many pairs
+        if (currentHeight >= maxUsableHeight) {
+            break;
+        }
+        nbPairsInPage++;
+    }
     return nbPairsInPage;
 }
 
@@ -1865,15 +2035,21 @@ static uint8_t getNbPagesForContent(const nbgl_content_t *content,
         // if the current page is not the first one (or last), a navigation bar exists
         bool hasNav = !isLast || (pageIdxStart > 0) || (elemIdx > 0);
         if (content->type == TAG_VALUE_LIST) {
-            nbElementsInPage = getNbTagValuesInPage(
-                nbElements, &content->content.tagValueList, elemIdx, isSkippable, false, &flag);
+            nbElementsInPage = getNbTagValuesInPage(nbElements,
+                                                    &content->content.tagValueList,
+                                                    elemIdx,
+                                                    isSkippable,
+                                                    false,
+                                                    false,
+                                                    &flag);
         }
         else if (content->type == TAG_VALUE_CONFIRM) {
             nbElementsInPage = getNbTagValuesInPage(nbElements,
                                                     &content->content.tagValueConfirm.tagValueList,
                                                     elemIdx,
                                                     isSkippable,
-                                                    true,
+                                                    isLast,
+                                                    !isLast,
                                                     &flag);
         }
         else if (content->type == INFOS_LIST) {
@@ -1934,8 +2110,9 @@ static void prepareAddressConfirmationPages(const char                       *ad
 {
     nbgl_contentTagValueConfirm_t *tagValueConfirm;
 
-    addressConfirmationContext.tagValuePair.item  = "Address";
-    addressConfirmationContext.tagValuePair.value = address;
+    addressConfirmationContext.tagValuePairs[0].item  = "Address";
+    addressConfirmationContext.tagValuePairs[0].value = address;
+    addressConfirmationContext.nbPairs                = 1;
 
     // First page
     firstPageContent->type = TAG_VALUE_CONFIRM;
@@ -1943,9 +2120,27 @@ static void prepareAddressConfirmationPages(const char                       *ad
 
 #ifdef NBGL_QRCODE
     tagValueConfirm->detailsButtonIcon = &QRCODE_ICON;
-    // only use "Show as QR" when it's not the last page
-    if (tagValueList != NULL) {
-        tagValueConfirm->detailsButtonText = "Show as QR";
+    // only use "Show as QR" when address & pairs are not fitting in a single page
+    if ((tagValueList != NULL) && (tagValueList->nbPairs < ADDR_VERIF_NB_PAIRS)) {
+        nbgl_contentTagValueList_t tmpList;
+        bool                       flag;
+        // copy in intermediate structure
+        for (uint8_t i = 0; i < tagValueList->nbPairs; i++) {
+            memcpy(&addressConfirmationContext.tagValuePairs[1 + i],
+                   &tagValueList->pairs[i],
+                   sizeof(nbgl_contentTagValue_t));
+            addressConfirmationContext.nbPairs++;
+        }
+        // check how many can fit in a page
+        memcpy(&tmpList, tagValueList, sizeof(nbgl_contentTagValueList_t));
+        tmpList.nbPairs                    = addressConfirmationContext.nbPairs;
+        tmpList.pairs                      = addressConfirmationContext.tagValuePairs;
+        addressConfirmationContext.nbPairs = getNbTagValuesInPage(
+            addressConfirmationContext.nbPairs, &tmpList, 0, false, true, true, &flag);
+        // if they don't all fit, keep only the address
+        if (tmpList.nbPairs > addressConfirmationContext.nbPairs) {
+            addressConfirmationContext.nbPairs = 1;
+        }
     }
     else {
         tagValueConfirm->detailsButtonText = NULL;
@@ -1956,24 +2151,17 @@ static void prepareAddressConfirmationPages(const char                       *ad
     tagValueConfirm->detailsButtonIcon = NULL;
 #endif  // NBGL_QRCODE
     tagValueConfirm->tuneId                          = TUNE_TAP_CASUAL;
-    tagValueConfirm->tagValueList.nbPairs            = 1;
-    tagValueConfirm->tagValueList.pairs              = &addressConfirmationContext.tagValuePair;
+    tagValueConfirm->tagValueList.nbPairs            = addressConfirmationContext.nbPairs;
+    tagValueConfirm->tagValueList.pairs              = addressConfirmationContext.tagValuePairs;
     tagValueConfirm->tagValueList.smallCaseForValue  = false;
     tagValueConfirm->tagValueList.nbMaxLinesForValue = 0;
     tagValueConfirm->tagValueList.wrapping           = false;
     // if it's an extended address verif, it takes 2 pages, so display a "Tap to continue", and
     // no confirmation button
-    if (tagValueList != NULL) {
-        tagValueConfirm->confirmationText = NULL;
-    }
-    else {
-        // otherwise no tap to continue but a confirmation button
-        tagValueConfirm->confirmationText  = "Confirm";
-        tagValueConfirm->confirmationToken = CONFIRM_TOKEN;
-    }
-
-    // Second page if any:
-    if (tagValueList != NULL) {
+    if ((tagValueList != NULL)
+        && (tagValueList->nbPairs > (addressConfirmationContext.nbPairs - 1))) {
+        tagValueConfirm->detailsButtonText = "Show as QR";
+        tagValueConfirm->confirmationText  = NULL;
         // the second page is dedicated to the extended tag/value pairs
         secondPageContent->type            = TAG_VALUE_CONFIRM;
         tagValueConfirm                    = &secondPageContent->content.tagValueConfirm;
@@ -1983,6 +2171,15 @@ static void prepareAddressConfirmationPages(const char                       *ad
         tagValueConfirm->detailsButtonIcon = NULL;
         tagValueConfirm->tuneId            = TUNE_TAP_CASUAL;
         memcpy(&tagValueConfirm->tagValueList, tagValueList, sizeof(nbgl_contentTagValueList_t));
+        tagValueConfirm->tagValueList.nbPairs
+            = tagValueList->nbPairs - (addressConfirmationContext.nbPairs - 1);
+        tagValueConfirm->tagValueList.pairs
+            = &tagValueList->pairs[addressConfirmationContext.nbPairs - 1];
+    }
+    else {
+        // otherwise no tap to continue but a confirmation button
+        tagValueConfirm->confirmationText  = "Confirm";
+        tagValueConfirm->confirmationToken = CONFIRM_TOKEN;
     }
 }
 
@@ -2688,6 +2885,29 @@ static void displayDetails(const char *tag, const char *value, bool wrapping)
     displayDetailsPage(0, true);
 }
 
+// function used to display the modal containing alias tag-value pairs
+static void displayTagValueListModal(const nbgl_contentTagValueList_t *tagValues)
+{
+    uint8_t nbElements = 0;
+    uint8_t nbElementsInPage;
+    uint8_t elemIdx = 0;
+
+    // initialize context
+    memset(&detailsContext, 0, sizeof(detailsContext));
+    nbElements = tagValues->nbPairs;
+
+    while (nbElements > 0) {
+        nbElementsInPage = getNbTagValuesInDetailsPage(nbElements, tagValues, elemIdx);
+
+        elemIdx += nbElementsInPage;
+        modalContextSetPageInfo(detailsContext.nbPages, nbElementsInPage);
+        nbElements -= nbElementsInPage;
+        detailsContext.nbPages++;
+    }
+
+    displayTagValueListModalPage(0, true);
+}
+
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
@@ -2710,7 +2930,7 @@ uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPai
                                          bool                             *requireSpecificDisplay)
 {
     return getNbTagValuesInPage(
-        nbPairs, tagValueList, startIndex, false, false, requireSpecificDisplay);
+        nbPairs, tagValueList, startIndex, false, false, false, requireSpecificDisplay);
 }
 
 /**
@@ -2733,7 +2953,7 @@ uint8_t nbgl_useCaseGetNbTagValuesInPageExt(uint8_t                           nb
                                             bool *requireSpecificDisplay)
 {
     return getNbTagValuesInPage(
-        nbPairs, tagValueList, startIndex, isSkippable, false, requireSpecificDisplay);
+        nbPairs, tagValueList, startIndex, isSkippable, false, false, requireSpecificDisplay);
 }
 
 /**
@@ -4072,7 +4292,6 @@ void nbgl_useCaseAddressReview(const char                       *address,
     bundleNavContext.review.operationType = TYPE_OPERATION;
 
     genericContext.genericContents.contentsList = localContentsList;
-    genericContext.genericContents.nbContents   = (additionalTagValueList == NULL) ? 2 : 3;
     memset(localContentsList, 0, 3 * sizeof(nbgl_content_t));
 
     // First a centered info
@@ -4086,6 +4305,8 @@ void nbgl_useCaseAddressReview(const char                       *address,
         address, additionalTagValueList, &localContentsList[1], &localContentsList[2]);
 
     // fill navigation structure, common to all pages
+    genericContext.genericContents.nbContents
+        = (localContentsList[2].type == TAG_VALUE_CONFIRM) ? 3 : 2;
     uint8_t nbPages = getNbPagesForGenericContents(&genericContext.genericContents, 0, false);
 
     prepareNavInfo(true, nbPages, "Cancel");
