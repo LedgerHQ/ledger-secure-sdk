@@ -117,6 +117,71 @@
     {
       "name": "long_address-03",
       "targets": [
+        {
+          "app_event": "ETH_VERIFY_MULTISIG",
+          "page": "multi-sig-01",
+          "comment": "verify mutli-sig"
+        }
+      ]
+    },
+    {
+      "name": "multi-sig-01",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "multi-sig-02"
+        }
+      ]
+    },
+    {
+      "name": "multi-sig-02",
+      "targets": [
+        {
+          "object": "EXTRA_BUTTON",
+          "page": "multi-sig-qr_code",
+          "comment": "view QR"
+        },
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "multi-sig-03"
+        }
+      ]
+    },
+    {
+      "name": "multi-sig-03",
+      "targets": [
+        {
+          "object": "VALUE_BUTTON_2",
+          "page": "multi-sig-signers-01",
+          "comment": "view signers details (alias)"
+        }
+      ]
+    },
+    {
+      "name": "multi-sig-qr_code",
+      "targets": [
+        {
+          "object": "BOTTOM_BUTTON",
+          "page": "multi-sig-02"
+        }
+      ]
+    },
+    {
+      "name": "multi-sig-signers-01",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "multi-sig-signers-02"
+        }
+      ]
+    },
+    {
+      "name": "multi-sig-signers-02",
+      "targets": [
+        {
+          "object": "BOTTOM_BUTTON",
+          "page": "multi-sig-03"
+        }
       ]
     }
   ]

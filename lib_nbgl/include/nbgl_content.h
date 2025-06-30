@@ -142,7 +142,8 @@ typedef enum {
     ENS_ALIAS,           ///< alias comes from ENS
     ADDRESS_BOOK_ALIAS,  ///< alias comes from Address Book
     QR_CODE_ALIAS,       ///< alias is an address to be displayed as a QR Code
-    INFO_LIST_ALIAS      ///< alias is list of infos
+    INFO_LIST_ALIAS,     ///< alias is list of infos
+    TAG_VALUE_LIST_ALIAS
 } nbgl_contentValueAliasType_t;
 
 /**
@@ -157,8 +158,12 @@ typedef struct {
                         ///< the QR Code
     const char
         *backText;  ///< used as title of the popping page, if not NULL, otherwise "item" is used
-    const struct nbgl_contentInfoList_s *infolist;   ///< if aliasType is INFO_LIST_ALIAS
-    nbgl_contentValueAliasType_t         aliasType;  ///< type of alias
+    union {
+        const struct nbgl_contentInfoList_s *infolist;  ///< if aliasType is INFO_LIST_ALIAS
+        const struct nbgl_contentTagValueList_s
+            *tagValuelist;  ///< if aliasType is TAG_VALUE_LIST_ALIAS
+    };
+    nbgl_contentValueAliasType_t aliasType;  ///< type of alias
 } nbgl_contentValueExt_t;
 
 /**
@@ -203,7 +208,7 @@ typedef void (*nbgl_contentActionCallback_t)(int token, uint8_t index, int page)
 /**
  * @brief This structure contains a list of [tag,value] pairs
  */
-typedef struct {
+typedef struct nbgl_contentTagValueList_s {
     const nbgl_contentTagValue_t
         *pairs;  ///< array of [tag,value] pairs (nbPairs items). If NULL, callback is used instead
     nbgl_contentTagValueCallback_t callback;  ///< function to call to retrieve a given pair

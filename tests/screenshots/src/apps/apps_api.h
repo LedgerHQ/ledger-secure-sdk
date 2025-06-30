@@ -66,6 +66,7 @@ void app_ethereumReviewBlindSigningTransaction(void);
 void app_ethereumReviewENSTransaction(void);
 void app_ethereumReviewDappTransaction(void);
 void app_ethereumVerifyAddress(void);
+void app_ethereumVerifyMultiSig(void);
 void app_ethereumSecurityKeyLogin(void);
 void app_fullEthereumShareAddress(void);
 void app_fullAlgorand(void);
