@@ -86,15 +86,10 @@ Collaboration diagram for nbgl_contentValueExt_t:</div>
 <div class="dyncontent">
 <div class="center"><img src="structnbgl__contentValueExt__t__coll__graph.png" border="0" usemap="#anbgl__contentValueExt__t_coll__map" alt="Collaboration graph"/></div>
 <map name="anbgl__contentValueExt__t_coll__map" id="anbgl__contentValueExt__t_coll__map">
-<area shape="rect" title="This structure contains additions to a tag/value pair, to be able to build a screen to display these ..." alt="" coords="166,5,341,31"/>
-<area shape="rect" href="structnbgl__contentInfoList__s.html" title="This structure contains data to build a INFOS_LIST content." alt="" coords="5,93,173,119"/>
-<area shape="poly" title=" " alt="" coords="153,31,107,41,90,48,79,56,76,64,76,73,84,92,79,94,71,74,71,63,75,53,87,44,105,36,152,26"/>
-<area shape="rect" href="structnbgl__contentTagValue__t.html" title="This structure contains a [tag,value] pair and possible extensions." alt="" coords="201,93,377,119"/>
-<area shape="poly" title=" " alt="" coords="266,43,287,92,282,94,261,45"/>
-<area shape="poly" title=" " alt="" coords="138,86,183,67,238,29,241,33,185,72,140,91"/>
-<area shape="rect" href="structnbgl__contentTagValueList__s.html" title="This structure contains a list of [tag,value] pairs." alt="" coords="270,196,471,221"/>
-<area shape="poly" title=" " alt="" coords="392,184,400,171,406,150,405,132,387,95,370,73,347,56,298,33,300,28,350,51,373,69,392,92,410,131,411,150,405,173,397,187"/>
-<area shape="poly" title=" " alt="" coords="310,128,364,194,359,198,305,131"/>
+<area shape="rect" title="This structure contains additions to a tag/value pair, to be able to build a screen to display these ..." alt="" coords="5,5,180,31"/>
+<area shape="rect" href="structnbgl__contentInfoList__s.html" title="This structure contains data to build a INFOS_LIST content." alt="" coords="9,93,177,119"/>
+<area shape="poly" title=" " alt="" coords="43,39,26,56,23,66,29,75,55,91,52,95,25,79,18,67,21,53,39,36"/>
+<area shape="poly" title=" " alt="" coords="119,82,128,69,127,55,119,43,108,33,112,29,123,40,133,54,133,71,123,85"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -110,16 +105,9 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a3a1f4ab96b5713b9c70352c90b44cf8c" id="r_a3a1f4ab96b5713b9c70352c90b44cf8c"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__contentValueExt__t.html#a3a1f4ab96b5713b9c70352c90b44cf8c">backText</a></td></tr>
 <tr class="memdesc:a3a1f4ab96b5713b9c70352c90b44cf8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">used as title of the popping page, if not NULL, otherwise "item" is used  <br /></td></tr>
 <tr class="separator:a3a1f4ab96b5713b9c70352c90b44cf8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4141c0c6505634537698151819562465" id="r_a4141c0c6505634537698151819562465"><td class="memItemLeft" >union {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad8612230ebd5d49376da6271120903e3" id="r_ad8612230ebd5d49376da6271120903e3"><td class="memItemLeft" >&#160;&#160;&#160;const struct <a class="el" href="structnbgl__contentInfoList__s.html">nbgl_contentInfoList_s</a> *&#160;&#160;&#160;<a class="el" href="structnbgl__contentValueExt__t.html#af329ac8f377856048772055b318769d2">infolist</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="memdesc:ad8612230ebd5d49376da6271120903e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">if aliasType is INFO_LIST_ALIAS  <a href="structnbgl__contentValueExt__t.html#af329ac8f377856048772055b318769d2">More...</a><br /></td></tr>
-<tr class="separator:ad8612230ebd5d49376da6271120903e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab6a2a21b56ad5f3ca6a3f2b93c4bd1ea" id="r_ab6a2a21b56ad5f3ca6a3f2b93c4bd1ea"><td class="memItemLeft" >&#160;&#160;&#160;const struct <a class="el" href="structnbgl__contentTagValueList__s.html">nbgl_contentTagValueList_s</a> *&#160;&#160;&#160;<a class="el" href="structnbgl__contentValueExt__t.html#a1fdab96a55177fac6faa7c6f320a5677">tagValuelist</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="memdesc:ab6a2a21b56ad5f3ca6a3f2b93c4bd1ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">if aliasType is TAG_VALUE_LIST_ALIAS  <a href="structnbgl__contentValueExt__t.html#a1fdab96a55177fac6faa7c6f320a5677">More...</a><br /></td></tr>
-<tr class="separator:ab6a2a21b56ad5f3ca6a3f2b93c4bd1ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4141c0c6505634537698151819562465" id="r_a4141c0c6505634537698151819562465"><td class="memItemLeft" valign="top">};&#160;</td><td class="memItemRight" valign="bottom">&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="separator:a4141c0c6505634537698151819562465"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af329ac8f377856048772055b318769d2" id="r_af329ac8f377856048772055b318769d2"><td class="memItemLeft" align="right" valign="top">const struct <a class="el" href="structnbgl__contentInfoList__s.html">nbgl_contentInfoList_s</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__contentValueExt__t.html#af329ac8f377856048772055b318769d2">infolist</a></td></tr>
+<tr class="memdesc:af329ac8f377856048772055b318769d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">if aliasType is INFO_LIST_ALIAS  <br /></td></tr>
+<tr class="separator:af329ac8f377856048772055b318769d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a03a9a37a86dd3823620ca3eb0e66b419" id="r_a03a9a37a86dd3823620ca3eb0e66b419"><td class="memItemLeft" align="right" valign="top"><a class="el" href="nbgl__content_8h.html#aa4402a878699462ea2897df1048f16eb">nbgl_contentValueAliasType_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__contentValueExt__t.html#a03a9a37a86dd3823620ca3eb0e66b419">aliasType</a></td></tr>
 <tr class="memdesc:a03a9a37a86dd3823620ca3eb0e66b419"><td class="mdescLeft">&#160;</td><td class="mdescRight">type of alias  <br /></td></tr>
 <tr class="separator:a03a9a37a86dd3823620ca3eb0e66b419"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -127,22 +115,8 @@ Public Attributes</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This structure contains additions to a tag/value pair, to be able to build a screen to display these additions (for alias) </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00154">154</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00152">152</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
 </div><h2 class="groupheader">Member Data Documentation</h2>
-<a id="a4141c0c6505634537698151819562465" name="a4141c0c6505634537698151819562465"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4141c0c6505634537698151819562465">&#9670;&#160;</a></span>[union]</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">union  { ... }  <a class="el" href="structnbgl__contentValueExt__t.html">nbgl_contentValueExt_t</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a id="a03a9a37a86dd3823620ca3eb0e66b419" name="a03a9a37a86dd3823620ca3eb0e66b419"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a03a9a37a86dd3823620ca3eb0e66b419">&#9670;&#160;</a></span>aliasType</h2>
 
@@ -157,7 +131,7 @@ Public Attributes</h2></td></tr>
 
 <p>type of alias </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00167">167</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00161">161</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
 
 </div>
 </div>
@@ -175,7 +149,7 @@ Public Attributes</h2></td></tr>
 
 <p>used as title of the popping page, if not NULL, otherwise "item" is used </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00161">161</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00159">159</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
 
 </div>
 </div>
@@ -192,7 +166,7 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>string displayed in gray, explaing where the alias comes from only used if aliasType is <a class="el" href="nbgl__content_8h.html#aa4402a878699462ea2897df1048f16ebaf981ae5aed73c9a8dc64bdfad470a8a5">NO_ALIAS_TYPE</a> </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00156">156</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00154">154</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
 
 </div>
 </div>
@@ -210,7 +184,7 @@ Public Attributes</h2></td></tr>
 
 <p>full string of the value when used as an alias </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00155">155</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00153">153</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
 
 </div>
 </div>
@@ -228,25 +202,7 @@ Public Attributes</h2></td></tr>
 
 <p>if aliasType is INFO_LIST_ALIAS </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00163">163</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
-
-</div>
-</div>
-<a id="a1fdab96a55177fac6faa7c6f320a5677" name="a1fdab96a55177fac6faa7c6f320a5677"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1fdab96a55177fac6faa7c6f320a5677">&#9670;&#160;</a></span>tagValuelist</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const struct <a class="el" href="structnbgl__contentTagValueList__s.html">nbgl_contentTagValueList_s</a>* nbgl_contentValueExt_t::tagValuelist</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>if aliasType is TAG_VALUE_LIST_ALIAS </p>
-
-<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00165">165</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00160">160</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
 
 </div>
 </div>
@@ -263,7 +219,7 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>if not NULL and aliasType is <a class="el" href="nbgl__content_8h.html#aa4402a878699462ea2897df1048f16ebaf639e0bf407dd2928180788de4a6da6b">QR_CODE_ALIAS</a>, is used as title of the QR Code </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00158">158</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00156">156</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
 
 </div>
 </div>

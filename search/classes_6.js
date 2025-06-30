@@ -18,7 +18,7 @@ var searchData=
   ['nbgl_5fcontenttagvalue_5ft_15',['nbgl_contentTagValue_t',['../structnbgl__contentTagValue__t.html',1,'']]],
   ['nbgl_5fcontenttagvalueconfirm_5ft_16',['nbgl_contentTagValueConfirm_t',['../structnbgl__contentTagValueConfirm__t.html',1,'']]],
   ['nbgl_5fcontenttagvaluedetails_5ft_17',['nbgl_contentTagValueDetails_t',['../structnbgl__contentTagValueDetails__t.html',1,'']]],
-  ['nbgl_5fcontenttagvaluelist_5fs_18',['nbgl_contentTagValueList_s',['../structnbgl__contentTagValueList__s.html',1,'']]],
+  ['nbgl_5fcontenttagvaluelist_5ft_18',['nbgl_contentTagValueList_t',['../structnbgl__contentTagValueList__t.html',1,'']]],
   ['nbgl_5fcontenttipbox_5ft_19',['nbgl_contentTipBox_t',['../structnbgl__contentTipBox__t.html',1,'']]],
   ['nbgl_5fcontentvalueext_5ft_20',['nbgl_contentValueExt_t',['../structnbgl__contentValueExt__t.html',1,'']]],
   ['nbgl_5ffont_5fcharacter_5ft_21',['nbgl_font_character_t',['../structnbgl__font__character__t.html',1,'']]],

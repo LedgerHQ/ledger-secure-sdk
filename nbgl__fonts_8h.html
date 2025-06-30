@@ -234,7 +234,7 @@ Classes</h2></td></tr>
 Macros</h2></td></tr>
 <tr class="memitem:a723810fb923700f83de76f45eaa6b87b" id="r_a723810fb923700f83de76f45eaa6b87b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#a723810fb923700f83de76f45eaa6b87b">PIC_CHAR</a>(x)&#160;&#160;&#160;((const <a class="el" href="structnbgl__font__character__t.html">nbgl_font_character_t</a> *) PIC(x))</td></tr>
 <tr class="separator:a723810fb923700f83de76f45eaa6b87b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1f8949d3ce6264afcdf8e27d4427e820" id="r_a1f8949d3ce6264afcdf8e27d4427e820"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#a1f8949d3ce6264afcdf8e27d4427e820">PIC_BMP</a>(x)&#160;&#160;&#160;((uint8_t const *) PIC(x))</td></tr>
+<tr class="memitem:a1f8949d3ce6264afcdf8e27d4427e820" id="r_a1f8949d3ce6264afcdf8e27d4427e820"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#a1f8949d3ce6264afcdf8e27d4427e820">PIC_BMP</a>(x)&#160;&#160;&#160;((<a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> const *) PIC(x))</td></tr>
 <tr class="separator:a1f8949d3ce6264afcdf8e27d4427e820"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abfcf96b04860f96ac36bdf7dad14fc28" id="r_abfcf96b04860f96ac36bdf7dad14fc28"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#abfcf96b04860f96ac36bdf7dad14fc28">LANGUAGE_PACK</a>&#160;&#160;&#160;void</td></tr>
 <tr class="separator:abfcf96b04860f96ac36bdf7dad14fc28"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -282,62 +282,62 @@ Enumerations</h2></td></tr>
 Functions</h2></td></tr>
 <tr class="memitem:ad52bcaf36b3247a1d37d9a1913fddeba" id="r_ad52bcaf36b3247a1d37d9a1913fddeba"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structnbgl__font__t.html">nbgl_font_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#ad52bcaf36b3247a1d37d9a1913fddeba">nbgl_getFont</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId)</td></tr>
 <tr class="separator:ad52bcaf36b3247a1d37d9a1913fddeba"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a60eb9bc6aef38c003e9db088af465da4" id="r_a60eb9bc6aef38c003e9db088af465da4"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#a60eb9bc6aef38c003e9db088af465da4">nbgl_getSingleLineTextWidth</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, const char *text)</td></tr>
+<tr class="memitem:a60eb9bc6aef38c003e9db088af465da4" id="r_a60eb9bc6aef38c003e9db088af465da4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#a60eb9bc6aef38c003e9db088af465da4">nbgl_getSingleLineTextWidth</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, const char *text)</td></tr>
 <tr class="memdesc:a60eb9bc6aef38c003e9db088af465da4"><td class="mdescLeft">&#160;</td><td class="mdescRight">return the max width in pixels of the given text until the first <br  />
  or \0 is encountered  <br /></td></tr>
 <tr class="separator:a60eb9bc6aef38c003e9db088af465da4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae1c2e5b79d0e9ade9a81141196e521e2" id="r_ae1c2e5b79d0e9ade9a81141196e521e2"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#ae1c2e5b79d0e9ade9a81141196e521e2">nbgl_getSingleLineTextWidthInLen</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, const char *text, uint16_t maxLen)</td></tr>
+<tr class="memitem:ae1c2e5b79d0e9ade9a81141196e521e2" id="r_ae1c2e5b79d0e9ade9a81141196e521e2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#ae1c2e5b79d0e9ade9a81141196e521e2">nbgl_getSingleLineTextWidthInLen</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, const char *text, <a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> maxLen)</td></tr>
 <tr class="memdesc:ae1c2e5b79d0e9ade9a81141196e521e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">return the max width in pixels of the given text until the first <br  />
  or \0 is encountered, or maxLen characters have been parsed.  <br /></td></tr>
 <tr class="separator:ae1c2e5b79d0e9ade9a81141196e521e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abec07ec3c911850ce5f63537c77ee524" id="r_abec07ec3c911850ce5f63537c77ee524"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#abec07ec3c911850ce5f63537c77ee524">nbgl_getTextWidth</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, const char *text)</td></tr>
+<tr class="memitem:abec07ec3c911850ce5f63537c77ee524" id="r_abec07ec3c911850ce5f63537c77ee524"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#abec07ec3c911850ce5f63537c77ee524">nbgl_getTextWidth</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, const char *text)</td></tr>
 <tr class="memdesc:abec07ec3c911850ce5f63537c77ee524"><td class="mdescLeft">&#160;</td><td class="mdescRight">return the max width in pixels of the given text (can be multiline)  <br /></td></tr>
 <tr class="separator:abec07ec3c911850ce5f63537c77ee524"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6ba04cbe83073baf45f6cbd6c54ffcf7" id="r_a6ba04cbe83073baf45f6cbd6c54ffcf7"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#a6ba04cbe83073baf45f6cbd6c54ffcf7">nbgl_getCharWidth</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, const char *text)</td></tr>
+<tr class="memitem:a6ba04cbe83073baf45f6cbd6c54ffcf7" id="r_a6ba04cbe83073baf45f6cbd6c54ffcf7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#a6ba04cbe83073baf45f6cbd6c54ffcf7">nbgl_getCharWidth</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, const char *text)</td></tr>
 <tr class="memdesc:a6ba04cbe83073baf45f6cbd6c54ffcf7"><td class="mdescLeft">&#160;</td><td class="mdescRight">return the width in pixels of the given UTF-8 character  <br /></td></tr>
 <tr class="separator:a6ba04cbe83073baf45f6cbd6c54ffcf7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa19c77fc8638c058fcef97642436c153" id="r_aa19c77fc8638c058fcef97642436c153"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#aa19c77fc8638c058fcef97642436c153">nbgl_getFontHeight</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId)</td></tr>
+<tr class="memitem:aa19c77fc8638c058fcef97642436c153" id="r_aa19c77fc8638c058fcef97642436c153"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#aa19c77fc8638c058fcef97642436c153">nbgl_getFontHeight</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId)</td></tr>
 <tr class="memdesc:aa19c77fc8638c058fcef97642436c153"><td class="mdescLeft">&#160;</td><td class="mdescRight">return the height in pixels of the font with the given font ID  <br /></td></tr>
 <tr class="separator:aa19c77fc8638c058fcef97642436c153"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adde9824521c7cd297d5058f8d55f34cf" id="r_adde9824521c7cd297d5058f8d55f34cf"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#adde9824521c7cd297d5058f8d55f34cf">nbgl_getFontLineHeight</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId)</td></tr>
+<tr class="memitem:adde9824521c7cd297d5058f8d55f34cf" id="r_adde9824521c7cd297d5058f8d55f34cf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#adde9824521c7cd297d5058f8d55f34cf">nbgl_getFontLineHeight</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId)</td></tr>
 <tr class="memdesc:adde9824521c7cd297d5058f8d55f34cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">return the height in pixels of the line of font with the given font ID  <br /></td></tr>
 <tr class="separator:adde9824521c7cd297d5058f8d55f34cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1ffa0e9ebf67a047a8422270da8f8f2f" id="r_a1ffa0e9ebf67a047a8422270da8f8f2f"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#a1ffa0e9ebf67a047a8422270da8f8f2f">nbgl_getTextNbLines</a> (const char *text)</td></tr>
+<tr class="memitem:a1ffa0e9ebf67a047a8422270da8f8f2f" id="r_a1ffa0e9ebf67a047a8422270da8f8f2f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#a1ffa0e9ebf67a047a8422270da8f8f2f">nbgl_getTextNbLines</a> (const char *text)</td></tr>
 <tr class="memdesc:a1ffa0e9ebf67a047a8422270da8f8f2f"><td class="mdescLeft">&#160;</td><td class="mdescRight">return the number of lines in the given text, according to the found '<br  />
 's  <br /></td></tr>
 <tr class="separator:a1ffa0e9ebf67a047a8422270da8f8f2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad6c99cf28fe0773bff759a0c6169f047" id="r_ad6c99cf28fe0773bff759a0c6169f047"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#ad6c99cf28fe0773bff759a0c6169f047">nbgl_getTextHeight</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, const char *text)</td></tr>
+<tr class="memitem:ad6c99cf28fe0773bff759a0c6169f047" id="r_ad6c99cf28fe0773bff759a0c6169f047"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#ad6c99cf28fe0773bff759a0c6169f047">nbgl_getTextHeight</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, const char *text)</td></tr>
 <tr class="memdesc:ad6c99cf28fe0773bff759a0c6169f047"><td class="mdescLeft">&#160;</td><td class="mdescRight">return the height of the given multiline text, with the given font.  <br /></td></tr>
 <tr class="separator:ad6c99cf28fe0773bff759a0c6169f047"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acfdb04054ef0e04067e1d29980fd04a9" id="r_acfdb04054ef0e04067e1d29980fd04a9"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#acfdb04054ef0e04067e1d29980fd04a9">nbgl_getTextLength</a> (const char *text)</td></tr>
+<tr class="memitem:acfdb04054ef0e04067e1d29980fd04a9" id="r_acfdb04054ef0e04067e1d29980fd04a9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#acfdb04054ef0e04067e1d29980fd04a9">nbgl_getTextLength</a> (const char *text)</td></tr>
 <tr class="memdesc:acfdb04054ef0e04067e1d29980fd04a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">return the number of bytes of the given text, excluding final '<br  />
 ' or '\0'  <br /></td></tr>
 <tr class="separator:acfdb04054ef0e04067e1d29980fd04a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1e07d9ffc4f9d2fb49cd44a458e50406" id="r_a1e07d9ffc4f9d2fb49cd44a458e50406"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#a1e07d9ffc4f9d2fb49cd44a458e50406">nbgl_getTextMaxLenAndWidth</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, const char *text, uint16_t maxWidth, uint16_t *len, uint16_t *width, bool wrapping)</td></tr>
+<tr class="memitem:a1e07d9ffc4f9d2fb49cd44a458e50406" id="r_a1e07d9ffc4f9d2fb49cd44a458e50406"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#a1e07d9ffc4f9d2fb49cd44a458e50406">nbgl_getTextMaxLenAndWidth</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, const char *text, <a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> maxWidth, <a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> *len, <a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> *width, bool wrapping)</td></tr>
 <tr class="memdesc:a1e07d9ffc4f9d2fb49cd44a458e50406"><td class="mdescLeft">&#160;</td><td class="mdescRight">compute the max width of the first line of the given text fitting in maxWidth  <br /></td></tr>
 <tr class="separator:a1e07d9ffc4f9d2fb49cd44a458e50406"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad2394ff1ddf81b6df31a0d42df0e42e3" id="r_ad2394ff1ddf81b6df31a0d42df0e42e3"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#ad2394ff1ddf81b6df31a0d42df0e42e3">nbgl_getTextNbLinesInWidth</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, const char *text, uint16_t maxWidth, bool wrapping)</td></tr>
+<tr class="memitem:ad2394ff1ddf81b6df31a0d42df0e42e3" id="r_ad2394ff1ddf81b6df31a0d42df0e42e3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#ad2394ff1ddf81b6df31a0d42df0e42e3">nbgl_getTextNbLinesInWidth</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, const char *text, <a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> maxWidth, bool wrapping)</td></tr>
 <tr class="memdesc:ad2394ff1ddf81b6df31a0d42df0e42e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">compute the number of lines of the given text fitting in the given maxWidth  <br /></td></tr>
 <tr class="separator:ad2394ff1ddf81b6df31a0d42df0e42e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac6f26ed49bfffc9873425fbb2e48cb1f" id="r_ac6f26ed49bfffc9873425fbb2e48cb1f"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#ac6f26ed49bfffc9873425fbb2e48cb1f">nbgl_getTextHeightInWidth</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, const char *text, uint16_t maxWidth, bool wrapping)</td></tr>
+<tr class="memitem:ac6f26ed49bfffc9873425fbb2e48cb1f" id="r_ac6f26ed49bfffc9873425fbb2e48cb1f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#ac6f26ed49bfffc9873425fbb2e48cb1f">nbgl_getTextHeightInWidth</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, const char *text, <a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> maxWidth, bool wrapping)</td></tr>
 <tr class="memdesc:ac6f26ed49bfffc9873425fbb2e48cb1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">return the height of the given multiline text, with the given font.  <br /></td></tr>
 <tr class="separator:ac6f26ed49bfffc9873425fbb2e48cb1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7d81cb9664d3e8c85b11a98d5a9fa67c" id="r_a7d81cb9664d3e8c85b11a98d5a9fa67c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#a7d81cb9664d3e8c85b11a98d5a9fa67c">nbgl_getTextMaxLenAndWidthFromEnd</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, const char *text, uint16_t maxWidth, uint16_t *len, uint16_t *width)</td></tr>
+<tr class="memitem:a7d81cb9664d3e8c85b11a98d5a9fa67c" id="r_a7d81cb9664d3e8c85b11a98d5a9fa67c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#a7d81cb9664d3e8c85b11a98d5a9fa67c">nbgl_getTextMaxLenAndWidthFromEnd</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, const char *text, <a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> maxWidth, <a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> *len, <a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> *width)</td></tr>
 <tr class="memdesc:a7d81cb9664d3e8c85b11a98d5a9fa67c"><td class="mdescLeft">&#160;</td><td class="mdescRight">compute the len and width of the given text fitting in the maxWidth, starting from end of text  <br /></td></tr>
 <tr class="separator:a7d81cb9664d3e8c85b11a98d5a9fa67c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a773963bf2012303637df6d7bc8c138e1" id="r_a773963bf2012303637df6d7bc8c138e1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#a773963bf2012303637df6d7bc8c138e1">nbgl_getTextMaxLenInNbLines</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, const char *text, uint16_t maxWidth, uint16_t maxNbLines, uint16_t *len, bool wrapping)</td></tr>
+<tr class="memitem:a773963bf2012303637df6d7bc8c138e1" id="r_a773963bf2012303637df6d7bc8c138e1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#a773963bf2012303637df6d7bc8c138e1">nbgl_getTextMaxLenInNbLines</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, const char *text, <a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> maxWidth, <a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> maxNbLines, <a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> *len, bool wrapping)</td></tr>
 <tr class="memdesc:a773963bf2012303637df6d7bc8c138e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">compute the len of the given text (in bytes) fitting in the given maximum nb lines, with the given maximum width  <br /></td></tr>
 <tr class="separator:a773963bf2012303637df6d7bc8c138e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1b6f02e2d978505dbc0407b6f098c9cc" id="r_a1b6f02e2d978505dbc0407b6f098c9cc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#a1b6f02e2d978505dbc0407b6f098c9cc">nbgl_textWrapOnNbLines</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, char *text, uint16_t maxWidth, uint8_t nbLines)</td></tr>
+<tr class="memitem:a1b6f02e2d978505dbc0407b6f098c9cc" id="r_a1b6f02e2d978505dbc0407b6f098c9cc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#a1b6f02e2d978505dbc0407b6f098c9cc">nbgl_textWrapOnNbLines</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, char *text, <a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> maxWidth, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbLines)</td></tr>
 <tr class="memdesc:a1b6f02e2d978505dbc0407b6f098c9cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Modifies the given text to wrap it on the given max width (in pixels), in the given nbLines If possible,.  <br /></td></tr>
 <tr class="separator:a1b6f02e2d978505dbc0407b6f098c9cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa4167a32a65f3106c498b4ce894207b8" id="r_aa4167a32a65f3106c498b4ce894207b8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#aa4167a32a65f3106c498b4ce894207b8">nbgl_textReduceOnNbLines</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, const char *origText, uint16_t maxWidth, uint8_t nbLines, char *reducedText, uint16_t reducedTextLen)</td></tr>
+<tr class="memitem:aa4167a32a65f3106c498b4ce894207b8" id="r_aa4167a32a65f3106c498b4ce894207b8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#aa4167a32a65f3106c498b4ce894207b8">nbgl_textReduceOnNbLines</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, const char *origText, <a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> maxWidth, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbLines, char *reducedText, <a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> reducedTextLen)</td></tr>
 <tr class="memdesc:aa4167a32a65f3106c498b4ce894207b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a reduced version of given ASCII text to wrap it on the given max width (in pixels), in the given nbLines.  <br /></td></tr>
 <tr class="separator:aa4167a32a65f3106c498b4ce894207b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a28acd66d24773d35a69b8729199e01fc" id="r_a28acd66d24773d35a69b8729199e01fc"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#a28acd66d24773d35a69b8729199e01fc">nbgl_getTextNbPagesInWidth</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, const char *text, uint8_t nbLinesPerPage, uint16_t maxWidth)</td></tr>
+<tr class="memitem:a28acd66d24773d35a69b8729199e01fc" id="r_a28acd66d24773d35a69b8729199e01fc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#a28acd66d24773d35a69b8729199e01fc">nbgl_getTextNbPagesInWidth</a> (<a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, const char *text, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbLinesPerPage, <a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> maxWidth)</td></tr>
 <tr class="memdesc:a28acd66d24773d35a69b8729199e01fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">compute the number of pages of nbLinesPerPage lines per page of the given text fitting in the given maxWidth  <br /></td></tr>
 <tr class="separator:a28acd66d24773d35a69b8729199e01fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5b79cb386c8c94d49457bc55aefca318" id="r_a5b79cb386c8c94d49457bc55aefca318"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#a5b79cb386c8c94d49457bc55aefca318">nbgl_popUnicodeChar</a> (const uint8_t **text, uint16_t *text_length, bool *is_unicode)</td></tr>
+<tr class="memitem:a5b79cb386c8c94d49457bc55aefca318" id="r_a5b79cb386c8c94d49457bc55aefca318"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__fonts_8h.html#a5b79cb386c8c94d49457bc55aefca318">nbgl_popUnicodeChar</a> (const <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> **text, <a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> *text_length, bool *is_unicode)</td></tr>
 <tr class="memdesc:a5b79cb386c8c94d49457bc55aefca318"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the coming unicode value on the given UTF-8 string. If the value is a simple ASCII character, is_unicode is set to false.  <br /></td></tr>
 <tr class="separator:a5b79cb386c8c94d49457bc55aefca318"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -441,7 +441,7 @@ Functions</h2></td></tr>
           <td>(</td>
           <td class="paramtype">&#160;</td>
           <td class="paramname">x</td><td>)</td>
-          <td>&#160;&#160;&#160;((uint8_t const *) PIC(x))</td>
+          <td>&#160;&#160;&#160;((<a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> const *) PIC(x))</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -528,7 +528,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint8_t nbgl_getCharWidth </td>
+          <td class="memname"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbgl_getCharWidth </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a>&#160;</td>
           <td class="paramname"><em>fontId</em>, </td>
@@ -586,7 +586,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint8_t nbgl_getFontHeight </td>
+          <td class="memname"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbgl_getFontHeight </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a>&#160;</td>
           <td class="paramname"><em>fontId</em></td><td>)</td>
@@ -615,7 +615,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint8_t nbgl_getFontLineHeight </td>
+          <td class="memname"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbgl_getFontLineHeight </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a>&#160;</td>
           <td class="paramname"><em>fontId</em></td><td>)</td>
@@ -644,7 +644,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint16_t nbgl_getSingleLineTextWidth </td>
+          <td class="memname"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> nbgl_getSingleLineTextWidth </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a>&#160;</td>
           <td class="paramname"><em>fontId</em>, </td>
@@ -685,7 +685,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint16_t nbgl_getSingleLineTextWidthInLen </td>
+          <td class="memname"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> nbgl_getSingleLineTextWidthInLen </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a>&#160;</td>
           <td class="paramname"><em>fontId</em>, </td>
@@ -699,7 +699,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>&#160;</td>
           <td class="paramname"><em>maxLen</em>&#160;</td>
         </tr>
         <tr>
@@ -733,7 +733,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint16_t nbgl_getTextHeight </td>
+          <td class="memname"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> nbgl_getTextHeight </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a>&#160;</td>
           <td class="paramname"><em>fontId</em>, </td>
@@ -773,7 +773,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint16_t nbgl_getTextHeightInWidth </td>
+          <td class="memname"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> nbgl_getTextHeightInWidth </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a>&#160;</td>
           <td class="paramname"><em>fontId</em>, </td>
@@ -787,7 +787,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>&#160;</td>
           <td class="paramname"><em>maxWidth</em>, </td>
         </tr>
         <tr>
@@ -828,7 +828,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint16_t nbgl_getTextLength </td>
+          <td class="memname"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> nbgl_getTextLength </td>
           <td>(</td>
           <td class="paramtype">const char *&#160;</td>
           <td class="paramname"><em>text</em></td><td>)</td>
@@ -874,19 +874,19 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>&#160;</td>
           <td class="paramname"><em>maxWidth</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint16_t *&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> *&#160;</td>
           <td class="paramname"><em>len</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint16_t *&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> *&#160;</td>
           <td class="paramname"><em>width</em>, </td>
         </tr>
         <tr>
@@ -944,19 +944,19 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>&#160;</td>
           <td class="paramname"><em>maxWidth</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint16_t *&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> *&#160;</td>
           <td class="paramname"><em>len</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint16_t *&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> *&#160;</td>
           <td class="paramname"><em>width</em>&#160;</td>
         </tr>
         <tr>
@@ -1006,19 +1006,19 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>&#160;</td>
           <td class="paramname"><em>maxWidth</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>&#160;</td>
           <td class="paramname"><em>maxNbLines</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint16_t *&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> *&#160;</td>
           <td class="paramname"><em>len</em>, </td>
         </tr>
         <tr>
@@ -1061,7 +1061,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint16_t nbgl_getTextNbLines </td>
+          <td class="memname"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> nbgl_getTextNbLines </td>
           <td>(</td>
           <td class="paramtype">const char *&#160;</td>
           <td class="paramname"><em>text</em></td><td>)</td>
@@ -1091,7 +1091,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint16_t nbgl_getTextNbLinesInWidth </td>
+          <td class="memname"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> nbgl_getTextNbLinesInWidth </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a>&#160;</td>
           <td class="paramname"><em>fontId</em>, </td>
@@ -1105,7 +1105,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>&#160;</td>
           <td class="paramname"><em>maxWidth</em>, </td>
         </tr>
         <tr>
@@ -1146,7 +1146,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint8_t nbgl_getTextNbPagesInWidth </td>
+          <td class="memname"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> nbgl_getTextNbPagesInWidth </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a>&#160;</td>
           <td class="paramname"><em>fontId</em>, </td>
@@ -1160,13 +1160,13 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td>
           <td class="paramname"><em>nbLinesPerPage</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>&#160;</td>
           <td class="paramname"><em>maxWidth</em>&#160;</td>
         </tr>
         <tr>
@@ -1200,7 +1200,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint16_t nbgl_getTextWidth </td>
+          <td class="memname"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> nbgl_getTextWidth </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a>&#160;</td>
           <td class="paramname"><em>fontId</em>, </td>
@@ -1242,13 +1242,13 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">uint32_t nbgl_popUnicodeChar </td>
           <td>(</td>
-          <td class="paramtype">const uint8_t **&#160;</td>
+          <td class="paramtype">const <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> **&#160;</td>
           <td class="paramname"><em>text</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint16_t *&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> *&#160;</td>
           <td class="paramname"><em>textLen</em>, </td>
         </tr>
         <tr>
@@ -1302,13 +1302,13 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>&#160;</td>
           <td class="paramname"><em>maxWidth</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td>
           <td class="paramname"><em>nbLines</em>, </td>
         </tr>
         <tr>
@@ -1320,7 +1320,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>&#160;</td>
           <td class="paramname"><em>reducedTextLen</em>&#160;</td>
         </tr>
         <tr>
@@ -1370,13 +1370,13 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>&#160;</td>
           <td class="paramname"><em>maxWidth</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td>
           <td class="paramname"><em>nbLines</em>&#160;</td>
         </tr>
         <tr>
