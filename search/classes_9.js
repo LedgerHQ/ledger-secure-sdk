@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['u2f_5fservice_5ft_0',['u2f_service_t',['../structu2f__service__t.html',1,'']]],
+  ['u2f_5ftransport_5ft_0',['u2f_transport_t',['../structu2f__transport__t.html',1,'']]],
   ['uint64_5fs_1',['uint64_s',['../structuint64__s.html',1,'']]],
   ['ux_5fflow_5fstate_5ft_2',['ux_flow_state_t',['../structux__flow__state__t.html',1,'']]],
   ['ux_5fflow_5fstep_5fs_3',['ux_flow_step_s',['../structux__flow__step__s.html',1,'']]],

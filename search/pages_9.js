@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['management_0',['management',['../nbgl_screens_and_objs.html',1,'Screens Stack and dynamic objects management'],['../nbgl_touchscreen.html',1,'Touchscreen management']]],
-  ['memory_20allocator_1',['Dynamic memory allocator',['../mem_alloc_mainpage.html',1,'index']]]
+  ['nanos_0',['User Experience (graphical) library for Nanos',['../ux_mainpage.html',1,'index']]],
+  ['new_20bolos_20graphic_20api_20for_20stax_20flex_1',['New BOLOS Graphic API for Stax/Flex',['../nbgl_mainpage.html',1,'index']]],
+  ['nfc_20api_2',['NFC API',['../nfc_mainpage.html',1,'index']]]
 ];

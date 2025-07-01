@@ -54,6 +54,8 @@ var searchData=
   ['nbgl_5fuse_5fcase_2eh_51',['nbgl_use_case.h',['../nbgl__use__case_8h.html',1,'']]],
   ['nbgl_5fuse_5fcase_5fnanos_2ec_52',['nbgl_use_case_nanos.c',['../nbgl__use__case__nanos_8c.html',1,'']]],
   ['nbgl_5fuse_5fcase_5fnanos_2edox_53',['nbgl_use_case_nanos.dox',['../nbgl__use__case__nanos_8dox.html',1,'']]],
-  ['nfc_5fndef_2ec_54',['nfc_ndef.c',['../nfc__ndef_8c.html',1,'']]],
-  ['nfc_5fndef_2eh_55',['nfc_ndef.h',['../nfc__ndef_8h.html',1,'']]]
+  ['nfc_5fledger_2ec_54',['nfc_ledger.c',['../nfc__ledger_8c.html',1,'']]],
+  ['nfc_5fledger_2eh_55',['nfc_ledger.h',['../nfc__ledger_8h.html',1,'']]],
+  ['nfc_5fndef_2ec_56',['nfc_ndef.c',['../nfc__ndef_8c.html',1,'']]],
+  ['nfc_5fndef_2eh_57',['nfc_ndef.h',['../nfc__ndef_8h.html',1,'']]]
 ];
