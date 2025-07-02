@@ -132,6 +132,7 @@ extern "C" {
 #define QUESTION_ICON        C_Question_32px
 #define DIGIT_ICON           C_round_24px
 #define QUESTION_CIRCLE_ICON C_Question_Mark_Circle_32px
+#define SEARCH_ICON          C_Search_32px
 #elif SMALL_ICON_SIZE == 40
 #define SPACE_ICON           C_Space_40px
 #define BACKSPACE_ICON       C_Erase_40px
@@ -157,6 +158,7 @@ extern "C" {
 #define QUESTION_ICON        C_Question_40px
 #define DIGIT_ICON           C_pin_24
 #define QUESTION_CIRCLE_ICON C_Question_Mark_Circle_40px
+#define SEARCH_ICON          C_Search_40px
 #endif  // SMALL_ICON_SIZE
 
 // common large icons
