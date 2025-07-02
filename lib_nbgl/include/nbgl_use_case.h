@@ -210,14 +210,17 @@ typedef struct {
 } nbgl_tipBox_t;
 
 /**
- * @brief The different types of warning page contents
+ * @brief The different types of generic detailed page contents
  *
  */
 typedef enum {
-    CENTERED_INFO_WARNING = 0,  ///< Centered info
-    QRCODE_WARNING,             ///< QR Code
-    BAR_LIST_WARNING            ///< list of touchable bars, to display sub-pages
-} nbgl_warningDetailsType_t;
+    NO_TYPE_WARNING = 0,    ///< Invalid type (to use for bars leading to nothing)
+    CENTERED_INFO_WARNING,  ///< Centered info
+    QRCODE_WARNING,         ///< QR Code
+    BAR_LIST_WARNING        ///< list of touchable bars, to display sub-pages
+} nbgl_genericDetailsType_t;
+
+typedef nbgl_genericDetailsType_t nbgl_warningDetailsType_t;
 
 /**
  * @brief The necessary parameters to build a list of touchable bars, to display sub-pages
@@ -228,18 +231,20 @@ typedef struct {
     const char *const *texts;     ///< array of texts for each bar (nbBars items, in black/bold)
     const char *const *subTexts;  ///< array of texts for each bar (nbBars items, in black)
     const nbgl_icon_details_t **icons;  ///< array of icons for each bar (nbBars items)
-    const struct nbgl_warningDetails_s
+    const struct nbgl_genericDetails_s
         *details;  ///< array of nbBars structures giving what to display when each bar is touched.
-} nbgl_warningBarList_t;
+} nbgl_genericBarList_t;
+
+typedef nbgl_genericBarList_t nbgl_warningBarList_t;
 
 /**
  * @brief The necessary parameters to build the page(s) displayed when the top-right button is
- * touched in intro page (before review)
+ * touched in intro page (before review), or in a Choice with details use-case
  *
  */
-typedef struct nbgl_warningDetails_s {
+typedef struct nbgl_genericDetails_s {
     const char *title;  ///< text of the page (used to go back)
-    nbgl_warningDetailsType_t
+    nbgl_genericDetailsType_t
         type;  ///< type of content in the page, determining what to use in the following union
     union {
         nbgl_contentCenter_t
@@ -247,9 +252,11 @@ typedef struct nbgl_warningDetails_s {
 #ifdef NBGL_QRCODE
         nbgl_layoutQRCode_t qrCode;     ///< QR code, if type == @ref QRCODE_WARNING
 #endif                                  // NBGL_QRCODE
-        nbgl_warningBarList_t barList;  ///< touchable bars list, if type == @ref BAR_LIST_WARNING
+        nbgl_genericBarList_t barList;  ///< touchable bars list, if type == @ref BAR_LIST_WARNING
     };
-} nbgl_warningDetails_t;
+} nbgl_genericDetails_t;
+
+typedef nbgl_genericDetails_t nbgl_warningDetails_t;
 
 /**
  * @brief The different types of pre-defined warnings
@@ -449,7 +456,13 @@ void nbgl_useCaseChoice(const nbgl_icon_details_t *icon,
                         const char                *confirmText,
                         const char                *rejectString,
                         nbgl_choiceCallback_t      callback);
-
+void nbgl_useCaseChoiceWithDetails(const nbgl_icon_details_t *icon,
+                                   const char                *message,
+                                   const char                *subMessage,
+                                   const char                *confirmText,
+                                   const char                *cancelText,
+                                   nbgl_warningDetails_t     *details,
+                                   nbgl_choiceCallback_t      callback);
 void nbgl_useCaseStatus(const char *message, bool isSuccess, nbgl_callback_t quitCallback);
 
 void nbgl_useCaseConfirm(const char     *message,

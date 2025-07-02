@@ -53,8 +53,9 @@
 #define ADDR_VERIF_NB_PAIRS 3
 
 // macros to ease access to shared contexts
-#define keypadContext     sharedContext.keypad
-#define reviewWithWarnCtx sharedContext.reviewWithWarning
+#define keypadContext        sharedContext.keypad
+#define reviewWithWarnCtx    sharedContext.reviewWithWarning
+#define choiceWithDetailsCtx sharedContext.choiceWithDetails
 
 /* max length of the string displaying the description of the Web3 Checks report */
 #define W3C_DESCRIPTION_MAX_LEN 128
@@ -95,11 +96,13 @@ enum {
     INFOS_TIP_BOX_TOKEN,
     BLIND_WARNING_TOKEN,
     WARNING_BUTTON_TOKEN,
+    CHOICE_DETAILS_TOKEN,
     TIP_BOX_TOKEN,
     QUIT_TIPBOX_MODAL_TOKEN,
     WARNING_CHOICE_TOKEN,
     DISMISS_QR_TOKEN,
     DISMISS_WARNING_TOKEN,
+    DISMISS_DETAILS_TOKEN,
     FIRST_WARN_BAR_TOKEN,
     LAST_WARN_BAR_TOKEN = (FIRST_WARN_BAR_TOKEN + NB_WARNING_TYPES - 1),
 };
@@ -154,13 +157,30 @@ typedef struct ReviewWithWarningContext_s {
     bool                              isIntro;  // set to true during intro (before actual review)
 } ReviewWithWarningContext_t;
 
+typedef struct ChoiceWithDetailsContext_s {
+    const nbgl_genericDetails_t *details;
+    nbgl_layout_t               *layoutCtx;
+    nbgl_layout_t               *modalLayout;
+    uint8_t                      level;  // level 1 is the first level of menus
+} ChoiceWithDetailsContext_t;
+
+typedef enum {
+    SHARE_CTX_KEYPAD,
+    SHARE_CTX_REVIEW_WITH_WARNING,
+    SHARE_CTX_CHOICE_WITH_DETAILS,
+} SharedContextUsage_t;
+
 // this union is intended to save RAM for context storage
-// indeed, these 2 contexts cannot happen simultaneously
-typedef union {
+// indeed, these 3 contexts cannot happen simultaneously
+typedef struct {
+    union {
 #ifdef NBGL_KEYPAD
-    KeypadContext_t keypad;
+        KeypadContext_t keypad;
 #endif
-    ReviewWithWarningContext_t reviewWithWarning;
+        ReviewWithWarningContext_t reviewWithWarning;
+        ChoiceWithDetailsContext_t choiceWithDetails;
+    };
+    SharedContextUsage_t usage;
 } SharedContext_t;
 
 typedef enum {
@@ -360,34 +380,35 @@ static void bundleNavStartHome(void);
 static void bundleNavStartSettingsAtPage(uint8_t initSettingPage);
 static void bundleNavStartSettings(void);
 
-static void bundleNavReviewStreamingChoice(bool confirm);
-static void displaySecurityReport(uint32_t set);
-static void displayCustomizedSecurityReport(const nbgl_warningDetails_t *details);
-static void displayInitialWarning(void);
-static void useCaseReview(nbgl_operationType_t              operationType,
-                          const nbgl_contentTagValueList_t *tagValueList,
-                          const nbgl_icon_details_t        *icon,
-                          const char                       *reviewTitle,
-                          const char                       *reviewSubTitle,
-                          const char                       *finishTitle,
-                          const nbgl_tipBox_t              *tipBox,
-                          nbgl_choiceCallback_t             choiceCallback,
-                          bool                              isLight,
-                          bool                              playNotifSound);
-static void useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
-                                        const nbgl_icon_details_t *icon,
-                                        const char                *reviewTitle,
-                                        const char                *reviewSubTitle,
-                                        nbgl_choiceCallback_t      choiceCallback,
-                                        bool                       playNotifSound);
-static void useCaseHomeExt(const char                *appName,
-                           const nbgl_icon_details_t *appIcon,
-                           const char                *tagline,
-                           bool                       withSettings,
-                           nbgl_homeAction_t         *homeAction,
-                           nbgl_callback_t            topRightCallback,
-                           nbgl_callback_t            quitCallback);
-static void displayDetails(const char *tag, const char *value, bool wrapping);
+static void           bundleNavReviewStreamingChoice(bool confirm);
+static nbgl_layout_t *displayModalDetails(const nbgl_warningDetails_t *details, uint8_t token);
+static void           displaySecurityReport(uint32_t set);
+static void           displayCustomizedSecurityReport(const nbgl_warningDetails_t *details);
+static void           displayInitialWarning(void);
+static void           useCaseReview(nbgl_operationType_t              operationType,
+                                    const nbgl_contentTagValueList_t *tagValueList,
+                                    const nbgl_icon_details_t        *icon,
+                                    const char                       *reviewTitle,
+                                    const char                       *reviewSubTitle,
+                                    const char                       *finishTitle,
+                                    const nbgl_tipBox_t              *tipBox,
+                                    nbgl_choiceCallback_t             choiceCallback,
+                                    bool                              isLight,
+                                    bool                              playNotifSound);
+static void           useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
+                                                  const nbgl_icon_details_t *icon,
+                                                  const char                *reviewTitle,
+                                                  const char                *reviewSubTitle,
+                                                  nbgl_choiceCallback_t      choiceCallback,
+                                                  bool                       playNotifSound);
+static void           useCaseHomeExt(const char                *appName,
+                                     const nbgl_icon_details_t *appIcon,
+                                     const char                *tagline,
+                                     bool                       withSettings,
+                                     nbgl_homeAction_t         *homeAction,
+                                     nbgl_callback_t            topRightCallback,
+                                     nbgl_callback_t            quitCallback);
+static void           displayDetails(const char *tag, const char *value, bool wrapping);
 
 static void reset_callbacks(void)
 {
@@ -1601,22 +1622,50 @@ static void modalLayoutTouchCallback(int token, uint8_t index)
             return;
         }
     }
-    else if ((token >= FIRST_WARN_BAR_TOKEN) && (token <= LAST_WARN_BAR_TOKEN)) {
-        // dismiss modal before creating a new one
-        nbgl_layoutRelease(reviewWithWarnCtx.modalLayout);
-        reviewWithWarnCtx.securityReportLevel = 2;
-        // if preset is used
-        if (reviewWithWarnCtx.warning->predefinedSet) {
-            displaySecurityReport(1 << (token - FIRST_WARN_BAR_TOKEN));
+    else if (token == DISMISS_DETAILS_TOKEN) {
+        // dismiss modal
+        nbgl_layoutRelease(choiceWithDetailsCtx.modalLayout);
+        // if already at first level, simply redraw the background
+        if (choiceWithDetailsCtx.level <= 1) {
+            choiceWithDetailsCtx.modalLayout = NULL;
+            nbgl_screenRedraw();
         }
         else {
-            // use customized warning
-            const nbgl_warningDetails_t *details = (reviewWithWarnCtx.isIntro)
-                                                       ? reviewWithWarnCtx.warning->introDetails
-                                                       : reviewWithWarnCtx.warning->reviewDetails;
-            if (details->type == BAR_LIST_WARNING) {
-                displayCustomizedSecurityReport(
-                    &details->barList.details[token - FIRST_WARN_BAR_TOKEN]);
+            // We are at level 2 of details modal, so re-display the level 1
+            choiceWithDetailsCtx.level = 1;
+            choiceWithDetailsCtx.modalLayout
+                = displayModalDetails(choiceWithDetailsCtx.details, DISMISS_DETAILS_TOKEN);
+        }
+    }
+    else if ((token >= FIRST_WARN_BAR_TOKEN) && (token <= LAST_WARN_BAR_TOKEN)) {
+        if (sharedContext.usage == SHARE_CTX_REVIEW_WITH_WARNING) {
+            // dismiss modal before creating a new one
+            nbgl_layoutRelease(reviewWithWarnCtx.modalLayout);
+            reviewWithWarnCtx.securityReportLevel = 2;
+            // if preset is used
+            if (reviewWithWarnCtx.warning->predefinedSet) {
+                displaySecurityReport(1 << (token - FIRST_WARN_BAR_TOKEN));
+            }
+            else {
+                // use customized warning
+                const nbgl_warningDetails_t *details
+                    = (reviewWithWarnCtx.isIntro) ? reviewWithWarnCtx.warning->introDetails
+                                                  : reviewWithWarnCtx.warning->reviewDetails;
+                if (details->type == BAR_LIST_WARNING) {
+                    displayCustomizedSecurityReport(
+                        &details->barList.details[token - FIRST_WARN_BAR_TOKEN]);
+                }
+            }
+        }
+        else if (sharedContext.usage == SHARE_CTX_CHOICE_WITH_DETAILS) {
+            const nbgl_warningDetails_t *details
+                = &choiceWithDetailsCtx.details->barList.details[token - FIRST_WARN_BAR_TOKEN];
+            if (details->title != NO_TYPE_WARNING) {
+                // dismiss modal before creating a new one
+                nbgl_layoutRelease(choiceWithDetailsCtx.modalLayout);
+                choiceWithDetailsCtx.level = 2;
+                choiceWithDetailsCtx.modalLayout
+                    = displayModalDetails(details, DISMISS_DETAILS_TOKEN);
             }
         }
         return;
@@ -1677,6 +1726,12 @@ static void layoutTouchCallback(int token, uint8_t index)
                                                        : reviewWithWarnCtx.warning->reviewDetails;
             displayCustomizedSecurityReport(details);
         }
+    }
+    // top-right button in choice with details page
+    else if (token == CHOICE_DETAILS_TOKEN) {
+        choiceWithDetailsCtx.level = 1;
+        choiceWithDetailsCtx.modalLayout
+            = displayModalDetails(choiceWithDetailsCtx.details, DISMISS_DETAILS_TOKEN);
     }
 }
 
@@ -2273,6 +2328,60 @@ static void bundleNavReviewStreamingChoice(bool confirm)
     }
 }
 
+// function used to display the details in modal (from Choice with details or from Customized
+// security report) it can be either a single page with text or QR code, or a list of touchable bars
+// leading to single pages
+static nbgl_layout_t *displayModalDetails(const nbgl_warningDetails_t *details, uint8_t token)
+{
+    nbgl_layoutDescription_t layoutDescription = {.modal            = true,
+                                                  .withLeftBorder   = true,
+                                                  .onActionCallback = modalLayoutTouchCallback,
+                                                  .tapActionText    = NULL};
+    nbgl_layoutHeader_t      headerDesc        = {.type               = HEADER_BACK_AND_TEXT,
+                                                  .separationLine     = true,
+                                                  .backAndText.icon   = NULL,
+                                                  .backAndText.tuneId = TUNE_TAP_CASUAL,
+                                                  .backAndText.token  = token};
+    uint8_t                  i;
+    nbgl_layout_t           *layout;
+
+    layout                      = nbgl_layoutGet(&layoutDescription);
+    headerDesc.backAndText.text = details->title;
+    nbgl_layoutAddHeader(layout, &headerDesc);
+    if (details->type == BAR_LIST_WARNING) {
+        // if more than one warning, so use a list of touchable bars
+        for (i = 0; i < details->barList.nbBars; i++) {
+            nbgl_layoutBar_t bar;
+            bar.text    = details->barList.texts[i];
+            bar.subText = details->barList.subTexts[i];
+            bar.iconRight
+                = (details->barList.details[i].type != NO_TYPE_WARNING) ? &PUSH_ICON : NULL;
+            bar.iconLeft = details->barList.icons[i];
+            bar.token    = FIRST_WARN_BAR_TOKEN + i;
+            bar.tuneId   = TUNE_TAP_CASUAL;
+            bar.large    = false;
+            bar.inactive = false;
+            nbgl_layoutAddTouchableBar(layout, &bar);
+            nbgl_layoutAddSeparationLine(layout);
+        }
+    }
+    else if (details->type == QRCODE_WARNING) {
+#ifdef NBGL_QRCODE
+        // display a QR Code
+        nbgl_layoutAddQRCode(layout, &details->qrCode);
+#endif  // NBGL_QRCODE
+        headerDesc.backAndText.text = details->title;
+    }
+    else if (details->type == CENTERED_INFO_WARNING) {
+        // display a centered info
+        nbgl_layoutAddContentCenter(layout, &details->centeredInfo);
+        headerDesc.separationLine = false;
+    }
+    nbgl_layoutDraw(layout);
+    nbgl_refresh();
+    return layout;
+}
+
 // function used to display the security level page in modal
 // it can be either a single page with text or QR code, or a list of touchable bars leading
 // to single pages
@@ -2407,50 +2516,7 @@ static void displaySecurityReport(uint32_t set)
 // to single pages
 static void displayCustomizedSecurityReport(const nbgl_warningDetails_t *details)
 {
-    nbgl_layoutDescription_t layoutDescription = {.modal            = true,
-                                                  .withLeftBorder   = true,
-                                                  .onActionCallback = modalLayoutTouchCallback,
-                                                  .tapActionText    = NULL};
-    nbgl_layoutHeader_t      headerDesc        = {.type               = HEADER_BACK_AND_TEXT,
-                                                  .separationLine     = true,
-                                                  .backAndText.icon   = NULL,
-                                                  .backAndText.tuneId = TUNE_TAP_CASUAL,
-                                                  .backAndText.token  = DISMISS_WARNING_TOKEN};
-    uint8_t                  i;
-
-    reviewWithWarnCtx.modalLayout = nbgl_layoutGet(&layoutDescription);
-    headerDesc.backAndText.text   = details->title;
-    nbgl_layoutAddHeader(reviewWithWarnCtx.modalLayout, &headerDesc);
-    if (details->type == BAR_LIST_WARNING) {
-        // if more than one warning warning, so use a list of touchable bars
-        for (i = 0; i < details->barList.nbBars; i++) {
-            nbgl_layoutBar_t bar;
-            bar.text      = details->barList.texts[i];
-            bar.subText   = details->barList.subTexts[i];
-            bar.iconRight = &PUSH_ICON;
-            bar.iconLeft  = details->barList.icons[i];
-            bar.token     = FIRST_WARN_BAR_TOKEN + i;
-            bar.tuneId    = TUNE_TAP_CASUAL;
-            bar.large     = false;
-            bar.inactive  = false;
-            nbgl_layoutAddTouchableBar(reviewWithWarnCtx.modalLayout, &bar);
-            nbgl_layoutAddSeparationLine(reviewWithWarnCtx.modalLayout);
-        }
-    }
-    else if (details->type == QRCODE_WARNING) {
-#ifdef NBGL_QRCODE
-        // display a QR Code
-        nbgl_layoutAddQRCode(reviewWithWarnCtx.modalLayout, &details->qrCode);
-#endif  // NBGL_QRCODE
-        headerDesc.backAndText.text = details->title;
-    }
-    else if (details->type == CENTERED_INFO_WARNING) {
-        // display a centered info
-        nbgl_layoutAddContentCenter(reviewWithWarnCtx.modalLayout, &details->centeredInfo);
-        headerDesc.separationLine = false;
-    }
-    nbgl_layoutDraw(reviewWithWarnCtx.modalLayout);
-    nbgl_refresh();
+    reviewWithWarnCtx.modalLayout = displayModalDetails(details, DISMISS_WARNING_TOKEN);
 }
 
 // function used to display the initial warning page when starting a "review with warning"
@@ -3492,6 +3558,72 @@ void nbgl_useCaseChoice(const nbgl_icon_details_t *icon,
 }
 
 /**
+ * @brief Draws a generic choice page, described in a centered info (with configurable icon), thanks
+ * to a button and a footer at the bottom of the page. The given callback is called with true as
+ * argument if the button is touched, false if footer is touched
+ * Compared to @ref nbgl_useCaseChoiceWithDetails, it also adds a top-right button to access details
+ *
+ * @param icon icon to set in center of page
+ * @param message string to set in center of page (32px)
+ * @param subMessage string to set under message (24px) (can be NULL)
+ * @param confirmText string to set in button, to confirm (cannot be NULL)
+ * @param cancelText string to set in footer, to reject (cannot be NULL)
+ * @param details details to be displayed when pressing top-right button
+ * @param callback callback called when button or footer is touched
+ */
+void nbgl_useCaseChoiceWithDetails(const nbgl_icon_details_t *icon,
+                                   const char                *message,
+                                   const char                *subMessage,
+                                   const char                *confirmText,
+                                   const char                *cancelText,
+                                   nbgl_genericDetails_t     *details,
+                                   nbgl_choiceCallback_t      callback)
+{
+    reset_callbacks();
+    nbgl_layoutDescription_t   layoutDescription;
+    nbgl_layoutChoiceButtons_t buttonsInfo  = {.bottomText = cancelText,
+                                               .token      = CHOICE_TOKEN,
+                                               .topText    = confirmText,
+                                               .style      = ROUNDED_AND_FOOTER_STYLE,
+                                               .tuneId     = TUNE_TAP_CASUAL};
+    nbgl_contentCenter_t       centeredInfo = {0};
+    nbgl_layoutHeader_t        headerDesc   = {.type              = HEADER_EMPTY,
+                                               .separationLine    = false,
+                                               .emptySpace.height = MEDIUM_CENTERING_HEADER};
+
+    // check params
+    if ((confirmText == NULL) || (cancelText == NULL)) {
+        return;
+    }
+    onChoice                         = callback;
+    layoutDescription.modal          = false;
+    layoutDescription.withLeftBorder = true;
+
+    layoutDescription.onActionCallback = layoutTouchCallback;
+    layoutDescription.tapActionText    = NULL;
+
+    layoutDescription.ticker.tickerCallback = NULL;
+    sharedContext.usage                     = SHARE_CTX_CHOICE_WITH_DETAILS;
+    choiceWithDetailsCtx.layoutCtx          = nbgl_layoutGet(&layoutDescription);
+    choiceWithDetailsCtx.details            = details;
+
+    nbgl_layoutAddHeader(choiceWithDetailsCtx.layoutCtx, &headerDesc);
+    nbgl_layoutAddChoiceButtons(choiceWithDetailsCtx.layoutCtx, &buttonsInfo);
+    centeredInfo.icon        = icon;
+    centeredInfo.title       = message;
+    centeredInfo.description = subMessage;
+    nbgl_layoutAddContentCenter(choiceWithDetailsCtx.layoutCtx, &centeredInfo);
+
+    if (details != NULL) {
+        nbgl_layoutAddTopRightButton(
+            choiceWithDetailsCtx.layoutCtx, &SEARCH_ICON, CHOICE_DETAILS_TOKEN, TUNE_TAP_CASUAL);
+    }
+
+    nbgl_layoutDraw(choiceWithDetailsCtx.layoutCtx);
+    nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
+}
+
+/**
  * @brief Draws a page to confirm or not an action, described in a centered info (with info icon),
  * thanks to a button and a footer at the bottom of the page. The given callback is called if the
  * button is touched. If the footer is touched, the page is only "dismissed"
@@ -3885,7 +4017,7 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
     else {
         operationType |= RISKY_OPERATION;
     }
-
+    sharedContext.usage              = SHARE_CTX_REVIEW_WITH_WARNING;
     reviewWithWarnCtx.isStreaming    = false;
     reviewWithWarnCtx.operationType  = operationType;
     reviewWithWarnCtx.tagValueList   = tagValueList;
@@ -4071,6 +4203,7 @@ void nbgl_useCaseAdvancedReviewStreamingStart(nbgl_operationType_t       operati
         operationType |= RISKY_OPERATION;
     }
 
+    sharedContext.usage              = SHARE_CTX_REVIEW_WITH_WARNING;
     reviewWithWarnCtx.isStreaming    = true;
     reviewWithWarnCtx.operationType  = operationType;
     reviewWithWarnCtx.icon           = icon;
