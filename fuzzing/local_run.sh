@@ -52,16 +52,16 @@ function gen_macros() {
             apt-get update && apt-get install -y bear
         fi
 
-        cd "$FUZZING_PATH/.." || exit 1
+        cd "/app" || exit 1
         echo -e "${BLUE}Generating macros...${NC}"
         case "$TARGET_DEVICE" in
             flex)
-                make clean BOLOS_SDK=/opt/flex-secure-sdk
-                bear --output "$FUZZING_PATH/macros/generated/used_macros.json" -- make -j"$NUM_CPUS" BOLOS_SDK=/opt/flex-secure-sdk
+                make clean BOLOS_SDK="$FLEX_SDK"
+                bear --output "$FUZZING_PATH/macros/generated/used_macros.json" -- make -j"$NUM_CPUS" BOLOS_SDK="$FLEX_SDK"
                 ;;
             stax)
-                make clean BOLOS_SDK=/opt/stax-secure-sdk
-                bear --output "$FUZZING_PATH/macros/generated/used_macros.json" -- make -j"$NUM_CPUS" BOLOS_SDK=/opt/stax-secure-sdk
+                make clean BOLOS_SDK="$STAX_SDK"
+                bear --output "$FUZZING_PATH/macros/generated/used_macros.json" -- make -j"$NUM_CPUS" BOLOS_SDK="$STAX_SDK"
                 ;;
             *)
                 echo -e "${RED}Unsupported TARGET_DEVICE: $TARGET_DEVICE${NC}"
@@ -78,7 +78,7 @@ function build() {
     cd "$FUZZING_PATH" || exit
     CLANG_RT_PATH="$(clang -print-resource-dir)/lib/linux"
     if [ ! -f "$CLANG_RT_PATH/libclang_rt.asan-x86_64.a" ]; then
-        apt update && apt install -y libclang-rt-dev
+    apt update && apt install -y libclang-rt-dev
     fi
     echo -e "${BLUE}Building the project...${NC}"
     cmake -S . -B build -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Debug -DSANITIZER=address -DTARGET_DEVICE="$TARGET_DEVICE" -DBOLOS_SDK="$BOLOS_SDK" -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS:bool=On
@@ -132,7 +132,6 @@ if [ -z "$BOLOS_SDK" ]; then
     echo -e "${YELLOW}Note: If you are fuzzing an App --BOLOS_SDK=\$BOLOS_SDK is required.${NC}"
 fi
 
-# Sanity checks
 if [ "$TARGET_DEVICE" != "flex" ] && [ "$TARGET_DEVICE" != "stax" ]; then
     echo -e "${RED}Unsupported TARGET_DEVICE: $TARGET_DEVICE | Must be STAX or FLEX${NC}"
     exit 1
