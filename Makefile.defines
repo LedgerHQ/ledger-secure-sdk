@@ -51,8 +51,9 @@ endif
 SYSROOT = $(shell $(GCCPATH)arm-none-eabi-gcc -print-sysroot)
 ifeq ($(SYSROOT),)
     # path for Debian-based systems
-    SYSROOT = /usr/lib/arm-none-eabi
+    SYSROOT = /usr/lib/picolibc/arm-none-eabi
 endif
+
 CFLAGS   += --sysroot="$(SYSROOT)"
 
 # optimization and debugging levels
