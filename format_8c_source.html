@@ -169,7 +169,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>    out[i]     = in + <span class="charliteral">&#39;0&#39;</span>;</div>
 <div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>    out[i + 1] = <span class="charliteral">&#39;\0&#39;</span>;</div>
 <div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span> </div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    uint8_t j = 0;</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> j = 0;</div>
 <div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    <span class="keywordtype">char</span>    tmp;</div>
 <div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span> </div>
 <div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    <span class="comment">// revert the string</span></div>
@@ -187,7 +187,7 @@ $(document).ready(function() { init_codefold(0); });
 </div>
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span> </div>
 <div class="foldopen" id="foldopen00101" data-start="{" data-end="}">
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno"><a class="line" href="format_8c.html#ae9114bdc796ce241fc01714617caecd8">  101</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="format_8c.html#ae9114bdc796ce241fc01714617caecd8">format_fpu64</a>(<span class="keywordtype">char</span> *dst, <span class="keywordtype">size_t</span> dst_len, <span class="keyword">const</span> uint64_t value, uint8_t decimals)</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno"><a class="line" href="format_8c.html#ae9114bdc796ce241fc01714617caecd8">  101</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="format_8c.html#ae9114bdc796ce241fc01714617caecd8">format_fpu64</a>(<span class="keywordtype">char</span> *dst, <span class="keywordtype">size_t</span> dst_len, <span class="keyword">const</span> uint64_t value, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> decimals)</div>
 <div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>{</div>
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    <span class="keywordtype">char</span> buffer[21] = {0};</div>
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span> </div>
@@ -203,7 +203,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>        }</div>
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>        *dst++ = <span class="charliteral">&#39;0&#39;</span>;</div>
 <div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>        *dst++ = <span class="charliteral">&#39;.&#39;</span>;</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>        <span class="keywordflow">for</span> (uint16_t i = 0; i &lt; decimals - digits; i++, dst++) {</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>        <span class="keywordflow">for</span> (<a class="code hl_typedef" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> i = 0; i &lt; decimals - digits; i++, dst++) {</div>
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>            *dst = <span class="charliteral">&#39;0&#39;</span>;</div>
 <div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>        }</div>
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>        dst_len -= 2 + decimals - digits;</div>
@@ -225,7 +225,7 @@ $(document).ready(function() { init_codefold(0); });
 </div>
 <div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span> </div>
 <div class="foldopen" id="foldopen00137" data-start="{" data-end="}">
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno"><a class="line" href="format_8c.html#a3400ce2e5f8caa253f4828b93b9684c5">  137</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="format_8c.html#a3400ce2e5f8caa253f4828b93b9684c5">format_fpu64_trimmed</a>(<span class="keywordtype">char</span> *dst, <span class="keywordtype">size_t</span> dst_len, <span class="keyword">const</span> uint64_t value, uint8_t decimals)</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno"><a class="line" href="format_8c.html#a3400ce2e5f8caa253f4828b93b9684c5">  137</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="format_8c.html#a3400ce2e5f8caa253f4828b93b9684c5">format_fpu64_trimmed</a>(<span class="keywordtype">char</span> *dst, <span class="keywordtype">size_t</span> dst_len, <span class="keyword">const</span> uint64_t value, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> decimals)</div>
 <div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>{</div>
 <div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>    <span class="keywordflow">if</span> (!<a class="code hl_function" href="format_8c.html#ae9114bdc796ce241fc01714617caecd8">format_fpu64</a>(dst, dst_len, value, decimals)) {</div>
 <div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
@@ -246,7 +246,7 @@ $(document).ready(function() { init_codefold(0); });
 </div>
 <div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span> </div>
 <div class="foldopen" id="foldopen00156" data-start="{" data-end="}">
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno"><a class="line" href="format_8c.html#a2f47064b7a9e13033fdaf6682fe1967d">  156</a></span><span class="keywordtype">int</span> <a class="code hl_function" href="format_8c.html#a2f47064b7a9e13033fdaf6682fe1967d">format_hex</a>(<span class="keyword">const</span> uint8_t *in, <span class="keywordtype">size_t</span> in_len, <span class="keywordtype">char</span> *out, <span class="keywordtype">size_t</span> out_len)</div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno"><a class="line" href="format_8c.html#a2f47064b7a9e13033fdaf6682fe1967d">  156</a></span><span class="keywordtype">int</span> <a class="code hl_function" href="format_8c.html#a2f47064b7a9e13033fdaf6682fe1967d">format_hex</a>(<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *in, <span class="keywordtype">size_t</span> in_len, <span class="keywordtype">char</span> *out, <span class="keywordtype">size_t</span> out_len)</div>
 <div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>{</div>
 <div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>    <span class="keywordflow">if</span> (out_len &lt; 2 * in_len + 1) {</div>
 <div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>        <span class="keywordflow">return</span> -1;</div>
@@ -257,11 +257,11 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>    <span class="keywordtype">int</span>        written = 0;</div>
 <div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span> </div>
 <div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>    <span class="keywordflow">while</span> (i &lt; in_len &amp;&amp; (i * 2 + (2 + 1)) &lt;= out_len) {</div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>        uint8_t high_nibble = (in[i] &amp; 0xF0) &gt;&gt; 4;</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>        <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> high_nibble = (in[i] &amp; 0xF0) &gt;&gt; 4;</div>
 <div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>        *out                = hex[high_nibble];</div>
 <div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>        out++;</div>
 <div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span> </div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>        uint8_t low_nibble = in[i] &amp; 0x0F;</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>        <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> low_nibble = in[i] &amp; 0x0F;</div>
 <div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>        *out               = hex[low_nibble];</div>
 <div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>        out++;</div>
 <div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span> </div>
@@ -280,6 +280,8 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="aformat_8c_html_a8f0cb93adeddd89792270c4eb4e209e0"><div class="ttname"><a href="format_8c.html#a8f0cb93adeddd89792270c4eb4e209e0">format_i64</a></div><div class="ttdeci">bool format_i64(char *dst, size_t dst_len, const int64_t value)</div><div class="ttdef"><b>Definition</b> <a href="format_8c_source.html#l00024">format.c:24</a></div></div>
 <div class="ttc" id="aformat_8c_html_ae9114bdc796ce241fc01714617caecd8"><div class="ttname"><a href="format_8c.html#ae9114bdc796ce241fc01714617caecd8">format_fpu64</a></div><div class="ttdeci">bool format_fpu64(char *dst, size_t dst_len, const uint64_t value, uint8_t decimals)</div><div class="ttdef"><b>Definition</b> <a href="format_8c_source.html#l00101">format.c:101</a></div></div>
 <div class="ttc" id="aformat_8h_html"><div class="ttname"><a href="format_8h.html">format.h</a></div></div>
+<div class="ttc" id="ausbd__conf_8h_html_a273cf69d639a59973b6019625df33e30"><div class="ttname"><a href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a></div><div class="ttdeci">unsigned short uint16_t</div><div class="ttdef"><b>Definition</b> <a href="usbd__conf_8h_source.html#l00054">usbd_conf.h:54</a></div></div>
+<div class="ttc" id="ausbd__conf_8h_html_aba7bc1797add20fe3efdf37ced1182c5"><div class="ttname"><a href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a></div><div class="ttdeci">unsigned char uint8_t</div><div class="ttdef"><b>Definition</b> <a href="usbd__conf_8h_source.html#l00053">usbd_conf.h:53</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

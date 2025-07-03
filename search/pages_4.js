@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['embedded_20sdk_0',['Embedded SDK',['../index.html',1,'']]],
-  ['experience_20graphical_20library_20for_20nanos_1',['User Experience (graphical) library for Nanos',['../ux_mainpage.html',1,'index']]],
-  ['experience_20library_20for_20stax_2',['User Experience library for Stax',['../ux_nbgl_mainpage.html',1,'index']]]
+  ['deprecated_20list_0',['Deprecated List',['../deprecated.html',1,'']]],
+  ['dynamic_20memory_20allocator_1',['Dynamic memory allocator',['../mem_alloc_mainpage.html',1,'index']]],
+  ['dynamic_20objects_20management_2',['Screens Stack and dynamic objects management',['../nbgl_screens_and_objs.html',1,'nbgl_mainpage']]]
 ];

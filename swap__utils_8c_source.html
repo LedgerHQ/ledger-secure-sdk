@@ -108,9 +108,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="keyword">volatile</span> <span class="keywordtype">bool</span> <a class="code hl_variable" href="swap__utils_8h.html#a7f1d33be3c06ebaed245fec053df2543">G_swap_response_ready</a>;</div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="comment">// Save the BSS address where we will write the return value when finished</span></div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="comment">// Don&#39;t use in application, SDK only</span></div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="keyword">volatile</span> uint8_t *<a class="code hl_variable" href="swap__utils_8h.html#a8a24630b48f5c8241a5a174fbb655f34">G_swap_signing_return_value_address</a>;</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="keyword">volatile</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *<a class="code hl_variable" href="swap__utils_8h.html#a8a24630b48f5c8241a5a174fbb655f34">G_swap_signing_return_value_address</a>;</div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="keywordtype">bool</span> <a class="code hl_function" href="swap__utils_8h.html#ace6b6c9c0a3b5a18dbcc59595ea43d10">swap_str_to_u64</a>(<span class="keyword">const</span> uint8_t *src, <span class="keywordtype">size_t</span> length, uint64_t *result)</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="keywordtype">bool</span> <a class="code hl_function" href="swap__utils_8h.html#ace6b6c9c0a3b5a18dbcc59595ea43d10">swap_str_to_u64</a>(<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *src, <span class="keywordtype">size_t</span> length, uint64_t *result)</div>
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>{</div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    <span class="keywordflow">if</span> (length &gt; <span class="keyword">sizeof</span>(uint64_t)) {</div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
@@ -124,13 +124,13 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>}</div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="keywordtype">bool</span> <a class="code hl_function" href="swap__utils_8h.html#a66f43e6700d071bf67af49714ab57d1c">swap_parse_config</a>(<span class="keyword">const</span> uint8_t *config,</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>                       uint8_t        config_len,</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="keywordtype">bool</span> <a class="code hl_function" href="swap__utils_8h.html#a66f43e6700d071bf67af49714ab57d1c">swap_parse_config</a>(<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *config,</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>                       <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>        config_len,</div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>                       <span class="keywordtype">char</span>          *ticker,</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>                       uint8_t        ticker_buf_len,</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>                       uint8_t       *decimals)</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>                       <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>        ticker_buf_len,</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>                       <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>       *decimals)</div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>{</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    uint8_t ticker_len, offset = 0;</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> ticker_len, offset = 0;</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <span class="keywordflow">if</span> (config_len == 0 || config == NULL) {</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    }</div>
@@ -155,6 +155,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="aswap__utils_8h_html_a7f1d33be3c06ebaed245fec053df2543"><div class="ttname"><a href="swap__utils_8h.html#a7f1d33be3c06ebaed245fec053df2543">G_swap_response_ready</a></div><div class="ttdeci">volatile bool G_swap_response_ready</div></div>
 <div class="ttc" id="aswap__utils_8h_html_a8a24630b48f5c8241a5a174fbb655f34"><div class="ttname"><a href="swap__utils_8h.html#a8a24630b48f5c8241a5a174fbb655f34">G_swap_signing_return_value_address</a></div><div class="ttdeci">volatile uint8_t * G_swap_signing_return_value_address</div></div>
 <div class="ttc" id="aswap__utils_8h_html_ace6b6c9c0a3b5a18dbcc59595ea43d10"><div class="ttname"><a href="swap__utils_8h.html#ace6b6c9c0a3b5a18dbcc59595ea43d10">swap_str_to_u64</a></div><div class="ttdeci">bool swap_str_to_u64(const uint8_t *src, size_t length, uint64_t *result)</div></div>
+<div class="ttc" id="ausbd__conf_8h_html_aba7bc1797add20fe3efdf37ced1182c5"><div class="ttname"><a href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a></div><div class="ttdeci">unsigned char uint8_t</div><div class="ttdef"><b>Definition</b> <a href="usbd__conf_8h_source.html#l00053">usbd_conf.h:53</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

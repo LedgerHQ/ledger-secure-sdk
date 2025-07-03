@@ -1,41 +1,40 @@
 <map id="nbgl_pageContent_s" name="nbgl_pageContent_s">
-<area shape="rect" id="Node000001" title="This structure contains data to build a page in multi&#45;pages mode (nbgl_pageDrawGenericContent)" alt="" coords="1356,278,1511,303"/>
-<area shape="rect" id="Node000002" href="$structnbgl__contentCenteredInfo__t.html" title="This structure contains info to build a centered (vertically and horizontally) area,..." alt="" coords="980,15,1183,41"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1197,15,1232,18,1268,25,1302,37,1334,55,1360,80,1381,108,1398,140,1411,173,1427,234,1433,277,1428,278,1422,235,1405,174,1393,142,1376,111,1356,83,1330,59,1300,42,1266,30,1231,23,1196,20"/>
-<area shape="rect" id="Node000003" href="$structnbgl__contentInfoButton__t.html" title="This structure contains data to build a centered info + simple black button content." alt="" coords="988,65,1175,90"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1189,68,1226,71,1263,78,1300,90,1333,108,1355,127,1374,148,1403,196,1422,243,1432,277,1427,279,1417,244,1398,199,1370,151,1352,130,1331,113,1298,95,1262,84,1225,77,1189,73"/>
-<area shape="rect" id="Node000004" href="$structnbgl__contentTagValueList__t.html" title="This structure contains a list of [tag,value] pairs." alt="" coords="624,181,823,206"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="779,174,886,150,955,140,1029,134,1106,134,1185,141,1261,159,1333,188,1363,208,1389,232,1425,276,1421,279,1385,236,1360,212,1331,193,1260,164,1184,146,1106,139,1029,139,955,146,887,156,780,180"/>
-<area shape="rect" id="Node000017" href="$structnbgl__contentTagValueDetails__t.html" title="This structure contains a [item,value] pair and info about &quot;details&quot; button." alt="" coords="970,178,1193,203"/>
-<area shape="poly" id="edge19_Node000017_Node000004" title=" " alt="" coords="836,190,970,189,970,194,836,195"/>
-<area shape="rect" id="Node000018" href="$structnbgl__contentTagValueConfirm__t.html" title="This structure contains [item,value] pair(s) and info about a potential &quot;details&quot; button,..." alt="" coords="968,227,1195,253"/>
-<area shape="poly" id="edge21_Node000018_Node000004" title=" " alt="" coords="813,206,847,211,968,226,967,231,846,216,812,211"/>
-<area shape="rect" id="Node000005" href="$structnbgl__contentTagValue__t.html" title="This structure contains a [tag,value] pair and possible extensions." alt="" coords="329,185,505,210"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="519,193,624,192,624,197,519,199"/>
-<area shape="rect" id="Node000006" href="$structnbgl__contentValueExt__t.html" title="This structure contains additions to a tag/value pair, to be able to build a screen to display these ..." alt="" coords="5,231,180,257"/>
-<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="193,227,329,207,329,213,194,232"/>
-<area shape="rect" id="Node000007" href="$structnbgl__contentInfoList__s.html" title="This structure contains data to build a INFOS_LIST content." alt="" coords="333,277,501,302"/>
-<area shape="poly" id="edge7_Node000007_Node000006" title=" " alt="" coords="194,255,306,271,334,275,333,280,305,276,193,260"/>
-<area shape="poly" id="edge10_Node000001_Node000007" title=" " alt="" coords="515,287,1356,288,1356,293,515,292"/>
-<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="319,299,262,298,203,291,157,277,117,259,119,254,159,272,205,285,262,292,320,294"/>
-<area shape="rect" id="Node000008" href="$structnbgl__pageSwitchesList__s.html" title="This structure contains data to build a SWITCHES_LIST content." alt="" coords="989,329,1173,354"/>
-<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="1187,337,1258,332,1331,321,1400,301,1401,306,1333,327,1259,337,1187,343"/>
-<area shape="rect" id="Node000009" href="$structnbgl__contentSwitch__t.html" title="This structure contains info to build a switch (on the right) with a description (on the left),..." alt="" coords="643,329,804,354"/>
-<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="818,339,989,339,989,344,818,344"/>
-<area shape="rect" id="Node000010" href="$structnbgl__contentRadioChoice__t.html" title="This structure contains a list of names to build a list of radio buttons (on the right part of screen..." alt="" coords="982,378,1181,403"/>
-<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="1194,385,1263,375,1331,356,1379,330,1416,302,1419,306,1382,335,1333,361,1264,380,1195,390"/>
-<area shape="rect" id="Node000011" href="$structnbgl__contentBarsList__t.html" title="This structure contains data to build a BARS_LIST content." alt="" coords="996,427,1167,453"/>
-<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="1180,440,1256,429,1295,419,1331,403,1362,381,1388,353,1423,302,1427,305,1392,356,1365,385,1333,408,1297,424,1257,435,1181,445"/>
-<area shape="rect" id="Node000012" href="$structnbgl__contentExtendedCenter__t.html" title="This structure contains data to build a EXTENDED_CENTER content." alt="" coords="970,477,1193,502"/>
-<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="1206,493,1271,482,1302,472,1331,456,1351,440,1368,421,1396,378,1415,335,1426,303,1431,304,1420,337,1401,380,1372,425,1354,444,1333,461,1304,477,1272,487,1207,498"/>
-<area shape="rect" id="Node000013" href="$structnbgl__contentCenter__t.html" title="This structure contains info to build a centered (vertically and horizontally) area,..." alt="" coords="643,450,804,475"/>
-<area shape="poly" id="edge14_Node000012_Node000013" title=" " alt="" coords="818,467,970,478,970,484,818,472"/>
-<area shape="rect" id="Node000014" href="$structnbgl__animation__s.html" title="Represents all information about an animation (succession of icons)" alt="" coords="349,450,486,475"/>
-<area shape="poly" id="edge15_Node000013_Node000014" title=" " alt="" coords="500,460,642,460,642,465,500,465"/>
-<area shape="rect" id="Node000015" href="$structnbgl__contentTipBox__t.html" title="This structure contains data to build a tip&#45;box, on top of a footer, on bottom of a content center." alt="" coords="642,499,805,525"/>
-<area shape="poly" id="edge16_Node000012_Node000015" title=" " alt="" coords="818,511,944,507,1006,499,1006,505,944,512,819,516"/>
-<area shape="rect" id="Node000016" href="$structnbgl__contentInfoLongPress__t.html" title="This structure contains data to build a centered info + long press button content." alt="" coords="977,526,1186,551"/>
-<area shape="poly" id="edge17_Node000001_Node000016" title=" " alt="" coords="1196,549,1231,547,1266,541,1300,530,1330,512,1355,490,1375,464,1392,434,1404,403,1421,345,1428,303,1433,304,1426,346,1410,405,1397,436,1380,466,1359,494,1334,517,1302,534,1268,546,1232,552,1197,554"/>
-<area shape="poly" id="edge18_Node000001_Node000017" title=" " alt="" coords="1203,203,1268,216,1333,235,1377,255,1414,276,1411,280,1375,259,1331,240,1267,221,1202,208"/>
-<area shape="poly" id="edge20_Node000001_Node000018" title=" " alt="" coords="1206,252,1332,269,1367,275,1367,281,1332,275,1205,257"/>
+<area shape="rect" id="Node000001" title="This structure contains data to build a page in multi&#45;pages mode (nbgl_pageDrawGenericContent)" alt="" coords="1169,309,1324,334"/>
+<area shape="rect" id="Node000002" href="$structnbgl__contentCenteredInfo__t.html" title="This structure contains info to build a centered (vertically and horizontally) area,..." alt="" coords="799,10,1002,35"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1016,14,1051,18,1085,26,1117,39,1147,58,1175,86,1197,119,1214,155,1227,192,1242,260,1247,308,1242,309,1237,261,1222,193,1209,157,1192,122,1171,89,1144,62,1115,44,1083,31,1050,23,1016,19"/>
+<area shape="rect" id="Node000003" href="$structnbgl__contentInfoButton__t.html" title="This structure contains data to build a centered info + simple black button content." alt="" coords="807,59,994,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1008,73,1090,83,1123,91,1147,102,1172,124,1192,151,1221,210,1238,267,1246,308,1241,309,1233,268,1216,212,1187,154,1168,128,1144,106,1122,96,1089,88,1008,79"/>
+<area shape="rect" id="Node000004" href="$structnbgl__contentTagValueList__s.html" title="This structure contains a list of [tag,value] pairs." alt="" coords="5,290,207,315"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="137,280,180,254,230,230,284,210,339,196,525,151,602,136,673,127,746,123,823,124,910,132,1012,145,1083,155,1113,166,1147,186,1180,215,1207,249,1242,307,1237,310,1203,252,1176,219,1144,190,1111,170,1082,161,1012,151,910,137,823,130,746,128,674,132,602,141,526,156,341,201,285,215,232,234,182,259,139,285"/>
+<area shape="rect" id="Node000006" href="$structnbgl__contentValueExt__t.html" title="This structure contains additions to a tag/value pair, to be able to build a screen to display these ..." alt="" coords="340,211,515,237"/>
+<area shape="poly" id="edge8_Node000006_Node000004" title=" " alt="" coords="171,284,374,234,375,239,173,289"/>
+<area shape="rect" id="Node000016" href="$structnbgl__contentTagValueDetails__t.html" title="This structure contains a [item,value] pair and info about &quot;details&quot; button." alt="" coords="541,509,763,534"/>
+<area shape="poly" id="edge19_Node000016_Node000004" title=" " alt="" coords="129,324,165,363,214,409,274,455,341,491,390,507,441,517,541,524,540,530,441,522,389,512,339,496,271,459,211,413,161,366,125,328"/>
+<area shape="rect" id="Node000017" href="$structnbgl__contentTagValueConfirm__t.html" title="This structure contains [item,value] pair(s) and info about a potential &quot;details&quot; button,..." alt="" coords="539,567,765,593"/>
+<area shape="poly" id="edge21_Node000017_Node000004" title=" " alt="" coords="119,327,135,366,159,412,191,459,232,499,267,522,304,540,384,565,465,578,539,582,539,588,464,583,383,570,302,545,264,526,229,503,187,463,154,415,130,368,114,329"/>
+<area shape="rect" id="Node000005" href="$structnbgl__contentTagValue__t.html" title="This structure contains a [tag,value] pair and possible extensions." alt="" coords="813,210,989,235"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="802,243,791,249,784,256,780,264,776,272,767,280,687,312,604,333,518,344,433,347,353,344,279,337,163,318,164,313,279,331,353,338,433,341,518,338,603,327,686,307,764,275,771,269,775,261,779,253,788,245,799,238"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="475,239,539,255,603,264,652,268,702,266,765,255,788,244,830,233,831,238,790,249,766,260,703,271,652,273,602,269,538,260,474,244"/>
+<area shape="rect" id="Node000007" href="$structnbgl__contentInfoList__s.html" title="This structure contains data to build a INFOS_LIST content." alt="" coords="817,161,985,186"/>
+<area shape="poly" id="edge7_Node000007_Node000006" title=" " alt="" coords="486,205,538,195,685,179,816,172,817,177,686,184,539,200,487,211"/>
+<area shape="poly" id="edge11_Node000001_Node000007" title=" " alt="" coords="988,187,1013,195,1076,222,1137,252,1227,306,1224,311,1134,257,1074,226,1011,200,986,192"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="813,192,791,200,779,207,766,214,702,229,635,236,572,237,515,235,515,230,572,232,635,231,701,224,764,210,776,203,788,195,811,187"/>
+<area shape="rect" id="Node000008" href="$structnbgl__pageSwitchesList__s.html" title="This structure contains data to build a SWITCHES_LIST content." alt="" coords="809,358,993,383"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="1006,357,1145,339,1185,331,1186,337,1146,344,1007,362"/>
+<area shape="rect" id="Node000009" href="$structnbgl__contentSwitch__t.html" title="This structure contains info to build a switch (on the right) with a description (on the left),..." alt="" coords="347,358,508,383"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="522,368,809,368,809,373,522,373"/>
+<area shape="rect" id="Node000010" href="$structnbgl__contentRadioChoice__t.html" title="This structure contains a list of names to build a list of radio buttons (on the right part of screen..." alt="" coords="801,259,1000,285"/>
+<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="1015,281,1146,299,1186,306,1185,311,1145,304,1014,286"/>
+<area shape="rect" id="Node000011" href="$structnbgl__contentBarsList__t.html" title="This structure contains data to build a BARS_LIST content." alt="" coords="815,309,986,334"/>
+<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="1000,319,1169,319,1169,324,1000,324"/>
+<area shape="rect" id="Node000012" href="$structnbgl__contentExtendedCenter__t.html" title="This structure contains data to build a EXTENDED_CENTER content." alt="" coords="789,457,1012,482"/>
+<area shape="poly" id="edge14_Node000001_Node000012" title=" " alt="" coords="1025,459,1086,445,1144,422,1173,402,1199,377,1235,333,1239,336,1203,381,1177,406,1147,426,1088,450,1026,464"/>
+<area shape="rect" id="Node000013" href="$structnbgl__contentCenter__t.html" title="This structure contains info to build a centered (vertically and horizontally) area,..." alt="" coords="347,457,508,482"/>
+<area shape="poly" id="edge15_Node000012_Node000013" title=" " alt="" coords="522,467,789,467,789,472,522,472"/>
+<area shape="rect" id="Node000014" href="$structnbgl__contentTipBox__t.html" title="This structure contains data to build a tip&#45;box, on top of a footer, on bottom of a content center." alt="" coords="346,407,509,433"/>
+<area shape="poly" id="edge16_Node000012_Node000014" title=" " alt="" coords="523,424,766,447,820,454,819,459,765,452,522,429"/>
+<area shape="rect" id="Node000015" href="$structnbgl__contentInfoLongPress__t.html" title="This structure contains data to build a centered info + long press button content." alt="" coords="796,407,1005,433"/>
+<area shape="poly" id="edge17_Node000001_Node000015" title=" " alt="" coords="1019,405,1082,393,1144,375,1189,354,1226,332,1228,336,1192,359,1146,380,1083,398,1020,410"/>
+<area shape="poly" id="edge18_Node000001_Node000016" title=" " alt="" coords="741,533,832,540,938,535,993,527,1046,513,1097,492,1144,463,1177,432,1204,395,1238,333,1242,335,1208,398,1181,435,1147,467,1100,496,1048,518,994,532,939,541,832,545,740,538"/>
+<area shape="poly" id="edge20_Node000001_Node000017" title=" " alt="" coords="731,592,825,601,878,602,934,598,991,589,1046,574,1097,551,1144,519,1165,498,1183,474,1212,420,1230,370,1240,334,1245,335,1235,372,1216,423,1188,476,1169,501,1147,523,1100,556,1047,579,992,595,935,604,878,607,824,606,731,597"/>
 </map>

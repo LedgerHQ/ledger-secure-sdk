@@ -11,12 +11,12 @@
 <area shape="poly" id="edge9_Node000006_Node000002" title=" " alt="" coords="244,337,268,303,300,270,348,242,399,225,401,230,351,247,303,274,272,306,249,340"/>
 <area shape="rect" id="Node000007" href="$structnbgl__image__s.html" title="struct to represent an image (IMAGE type)" alt="" coords="411,253,523,278"/>
 <area shape="poly" id="edge11_Node000007_Node000002" title=" " alt="" coords="257,340,300,312,356,290,410,274,411,279,357,295,303,317,260,345"/>
-<area shape="rect" id="Node000008" href="$structnbgl__button__s.html" title="struct to represent a button (BUTTON type) that can contain a text and/or an icon" alt="" coords="410,302,523,327"/>
-<area shape="poly" id="edge13_Node000008_Node000002" title=" " alt="" coords="290,347,301,344,409,322,410,327,302,349,291,352"/>
+<area shape="rect" id="Node000008" href="$structnbgl__radio__s.html" title="struct to represent a radio button (RADIO_BUTTON type)" alt="" coords="415,302,519,327"/>
+<area shape="poly" id="edge13_Node000008_Node000002" title=" " alt="" coords="290,347,301,344,414,321,415,326,302,349,291,352"/>
 <area shape="rect" id="Node000009" href="$structnbgl__switch__s.html" title="struct to represent a switch (size is fixed) (SWITCH type)" alt="" coords="410,351,523,377"/>
 <area shape="poly" id="edge15_Node000009_Node000002" title=" " alt="" coords="291,361,410,361,410,367,291,367"/>
-<area shape="rect" id="Node000010" href="$structnbgl__radio__s.html" title="struct to represent a radio button (RADIO_BUTTON type)" alt="" coords="415,401,519,426"/>
-<area shape="poly" id="edge17_Node000010_Node000002" title=" " alt="" coords="287,378,302,381,415,403,414,408,301,387,286,383"/>
+<area shape="rect" id="Node000010" href="$structnbgl__button__s.html" title="struct to represent a button (BUTTON type) that can contain a text and/or an icon" alt="" coords="410,401,523,426"/>
+<area shape="poly" id="edge17_Node000010_Node000002" title=" " alt="" coords="287,378,302,381,410,402,409,408,301,387,286,383"/>
 <area shape="rect" id="Node000011" href="$structnbgl__navigation__bar__s.html" title="struct to represent a navigation bar (PAGE_INDICATOR type) There can be up to 5 page indicators,..." alt="" coords="383,450,551,475"/>
 <area shape="poly" id="edge19_Node000011_Node000002" title=" " alt="" coords="259,383,303,412,353,433,404,447,402,453,351,438,300,417,256,388"/>
 <area shape="rect" id="Node000012" href="$structnbgl__line__s.html" title="struct to represent a vertical or horizontal line" alt="" coords="419,499,514,525"/>
@@ -33,9 +33,9 @@
 <area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="558,161,622,172,653,183,682,201,699,217,714,236,736,278,749,319,755,350,750,352,744,321,731,280,709,239,695,220,678,205,651,188,621,177,557,166"/>
 <area shape="poly" id="edge8_Node000001_Node000006" title=" " alt="" coords="547,215,615,228,649,240,681,256,706,278,727,304,752,350,747,353,722,307,703,282,679,261,647,245,614,233,546,221"/>
 <area shape="poly" id="edge10_Node000001_Node000007" title=" " alt="" coords="537,269,608,281,681,306,716,327,743,349,740,353,713,331,679,310,606,287,536,274"/>
-<area shape="poly" id="edge12_Node000001_Node000008" title=" " alt="" coords="538,320,680,343,708,349,706,354,680,348,537,326"/>
+<area shape="poly" id="edge12_Node000001_Node000008" title=" " alt="" coords="533,320,680,343,708,349,706,354,680,348,532,325"/>
 <area shape="poly" id="edge14_Node000001_Node000009" title=" " alt="" coords="538,361,704,361,704,367,538,367"/>
-<area shape="poly" id="edge16_Node000001_Node000010" title=" " alt="" coords="532,404,679,381,710,374,711,379,681,387,533,409"/>
+<area shape="poly" id="edge16_Node000001_Node000010" title=" " alt="" coords="537,403,679,381,710,374,711,379,681,387,538,409"/>
 <area shape="poly" id="edge18_Node000001_Node000011" title=" " alt="" coords="564,450,622,437,679,418,713,397,740,375,743,379,716,401,681,422,623,443,565,455"/>
 <area shape="poly" id="edge20_Node000001_Node000012" title=" " alt="" coords="527,509,603,498,642,486,679,467,703,446,722,421,747,375,752,378,727,424,706,450,681,472,644,490,604,503,528,514"/>
 <area shape="poly" id="edge22_Node000001_Node000013" title=" " alt="" coords="540,563,575,560,611,554,647,542,678,523,695,508,709,489,731,448,744,407,750,376,755,378,749,409,736,450,714,492,699,511,682,527,649,547,612,559,575,565,540,568"/>

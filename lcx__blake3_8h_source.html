@@ -126,18 +126,18 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span><span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    uint32_t cv[BLAKE3_NB_OF_WORDS];    </div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    uint64_t t;                         </div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    uint8_t  buffer[BLAKE3_BLOCK_LEN];  </div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    uint8_t  buffer_len;                </div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    uint8_t  blocks_compressed;         </div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    uint8_t  d;                         </div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>  buffer[BLAKE3_BLOCK_LEN];  </div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>  buffer_len;                </div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>  blocks_compressed;         </div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>  d;                         </div>
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>} cx_blake3_state_t;</div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span> </div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    uint32_t key[BLAKE3_NB_OF_WORDS];  </div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    <span class="comment">// the stack contains at most (BLAKE3_MAX_DEPTH + 1)</span></div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>    <span class="comment">// 32-byte chaining values</span></div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    uint8_t cv_stack[BLAKE3_MAX_STACK_SIZE];  </div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>    uint8_t cv_stack_len;                     </div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> cv_stack[BLAKE3_MAX_STACK_SIZE];  </div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> cv_stack_len;                     </div>
 <div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    <span class="comment">// contains the 32-byte chaining value (CV)</span></div>
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    <span class="comment">// of the previous block,</span></div>
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    <span class="comment">// the 64-byte input buffer for the next block</span></div>
@@ -147,28 +147,29 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>} cx_blake3_t;</div>
 <div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span> </div>
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>WARN_UNUSED_RESULT cx_err_t cx_blake3_init(cx_blake3_t         *hash,</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>                                           uint8_t              mode,</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>                                           <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>              mode,</div>
 <div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>                                           <span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> *key,</div>
 <div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>                                           <span class="keyword">const</span> <span class="keywordtype">void</span>          *context,</div>
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>                                           <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>         context_len);</div>
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span> </div>
 <div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>WARN_UNUSED_RESULT cx_err_t cx_blake3(cx_blake3_t *hash,</div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>                                      uint8_t      mode,</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>                                      <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>      mode,</div>
 <div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>                                      <span class="keyword">const</span> <span class="keywordtype">void</span>  *input,</div>
 <div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>                                      <span class="keywordtype">size_t</span>       input_len,</div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>                                      uint8_t     *out,</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>                                      <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>     *out,</div>
 <div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>                                      <span class="keywordtype">size_t</span>       out_len);</div>
 <div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span> </div>
 <div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>WARN_UNUSED_RESULT cx_err_t cx_blake3_update(cx_blake3_t *hash,</div>
 <div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>                                             <span class="keyword">const</span> <span class="keywordtype">void</span>  *input,</div>
 <div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>                                             <span class="keywordtype">size_t</span>       input_len);</div>
 <div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span> </div>
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>WARN_UNUSED_RESULT cx_err_t cx_blake3_final(cx_blake3_t *hash, uint8_t *output, <span class="keywordtype">size_t</span> out_len);</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>WARN_UNUSED_RESULT cx_err_t cx_blake3_final(cx_blake3_t *hash, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *output, <span class="keywordtype">size_t</span> out_len);</div>
 <div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span> </div>
 <div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span><span class="preprocessor">#endif  </span><span class="comment">// LCX_BLAKE3_H</span></div>
 <div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span><span class="preprocessor">#endif  </span><span class="comment">// HAVE_BLAKE3</span></div>
 <div class="ttc" id="alcx__hash_8h_html"><div class="ttname"><a href="lcx__hash_8h.html">lcx_hash.h</a></div><div class="ttdoc">Hash functions.</div></div>
 <div class="ttc" id="alcx__wrappers_8h_html"><div class="ttname"><a href="lcx__wrappers_8h.html">lcx_wrappers.h</a></div></div>
+<div class="ttc" id="ausbd__conf_8h_html_aba7bc1797add20fe3efdf37ced1182c5"><div class="ttname"><a href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a></div><div class="ttdeci">unsigned char uint8_t</div><div class="ttdef"><b>Definition</b> <a href="usbd__conf_8h_source.html#l00053">usbd_conf.h:53</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
