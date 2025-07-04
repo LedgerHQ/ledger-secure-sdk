@@ -59,7 +59,7 @@ jobs:
     needs: merge
     runs-on: ubuntu-latest
     name: "Pull Request Create"
-    if: ${{ success() && inputs.create_pr }}
+#    if: ${{ success() && inputs.create_pr }}
     continue-on-error: true
     steps:
       - name: Clone repository
