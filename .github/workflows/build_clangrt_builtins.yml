@@ -61,10 +61,6 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ success() && inputs.create_pr }}
     continue-on-error: true
-    strategy:
-      fail-fast: false
-      matrix:
-        se: [st33, st33k1]
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
@@ -83,9 +79,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ls -l
           git status
           git switch --create sdk_libs_update
-          git add arch/${{ matrix.se }}/lib
+          git add -A .
+          git commit -m 'Updating static SDK libraries'
           git status
           gh pr create -B ${{ inputs.target_sdk_branch }} --title '[SDK_LIBS_UPDATE] Updating static SDK libraries' --body 'Created by Github action'
