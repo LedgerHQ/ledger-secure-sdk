@@ -180,8 +180,10 @@ mkdir -p "$CORPUS_DIR"
 if [ "$RUN_FUZZER" -eq 1 ]; then
     echo -e "${GREEN}\n----------\nStarting fuzzer '$FUZZERNAME'...\n----------\n${NC}"
     LLVM_PROFILE_FILE="$OUT_DIR/fuzzer.profraw" "$FUZZER" -detect_leaks=0 -max_len=8192 -jobs="$NUM_CPUS" -timeout=10 "$CORPUS_DIR"
-    mkdir -p "$FUZZING_PATH/crashes"
-    mv -- crash-* "$FUZZING_PATH/crashes"
+    if compgen -G "$FUZZING_PATH/crash-*" > /dev/null; then
+        mkdir -p "$FUZZING_PATH/crashes"
+        mv -- crash-* "$FUZZING_PATH/crashes"
+    fi
     mv -- *.log *.profraw "$OUT_DIR" 2>/dev/null
 fi
 
