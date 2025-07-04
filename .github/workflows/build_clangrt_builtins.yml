@@ -17,34 +17,18 @@ on:
 
 jobs:
 
-  define-matrix:
-    runs-on: ubuntu-latest
-
-    outputs:
-      cores: ${{ steps.cores.outputs.cores }}
-      se_names: ${{ steps.se_names.outputs.se_names }}
-
-    steps:
-      - name: Define MCU cores
-        id: cores
-        run: |
-          echo 'cores=["cortex-m3", "cortex-m35p+nodsp"]' >> "$GITHUB_OUTPUT"
-
-      - name: Define SE names
-        id: se_names
-        run: |
-          echo 'se_names=["st33", "st33k1"]' >> "$GITHUB_OUTPUT"
-
   build:
-    needs: define-matrix
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-lite:latest
     strategy:
       fail-fast: false
       matrix:
-        cores: ${{ fromJSON(needs.define-matrix.outputs.cores) }}
-        se_names: ${{ fromJSON(needs.define-matrix.outputs.se_names) }}
+        target:
+          - core: cortex-m3
+            se: st33
+          - core: cortex-m35p+nodsp
+            se: st33k1
 
     steps:
       - uses: actions/checkout@v4
@@ -55,7 +39,7 @@ jobs:
             tools/build_clangrt_builtins.sh
           sparse-checkout-cone-mode: false
 
-      - run: ./tools/build_clangrt_builtins.sh -t ${{ matrix.target.cores }} -o artifact/arch/${{ matrix.target.se_names }}/lib
+      - run: ./tools/build_clangrt_builtins.sh -t ${{ matrix.target.core }} -o artifact/arch/${{ matrix.target.se }}/lib
 
       - uses: actions/upload-artifact@v4
         with:
@@ -73,14 +57,15 @@ jobs:
           delete-merged: true
 
   pr_create:
-    needs: [merge, define-matrix]
+    needs: merge
     runs-on: ubuntu-latest
     if: ${{ success() && inputs.create_pr }}
     continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
-        se_names: ${{ fromJSON(needs.define-matrix.outputs.se_names) }}
+        target:
+          - se: [st33, st33k1]
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
@@ -102,6 +87,6 @@ jobs:
           ls -l
           git status
           git switch --create sdk_libs_update
-          git add arch/${{ matrix.target.se_names }}/lib
+          git add arch/${{ matrix.target.se }}/lib
           git status
           gh pr create -B ${{ inputs.target_sdk_branch }} --title '[SDK_LIBS_UPDATE] Updating static SDK libraries' --body 'Created by Github action'
