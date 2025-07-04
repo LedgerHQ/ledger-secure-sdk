@@ -84,5 +84,12 @@ cmake ../compiler-rt \
     -DCMAKE_ASM_FLAGS="-mcpu=${TARGET_CPU} -mlittle-endian -mthumb" \
     -DCMAKE_SYSROOT="$SYSROOT"
 make -j
+
+# Removing duplicated symbols that are also present in picolibc
+ar d lib/baremetal/libclang_rt.builtins-arm.a aeabi_memset.S.o
+ar d lib/baremetal/libclang_rt.builtins-arm.a aeabi_memmove.S.o
+ar d lib/baremetal/libclang_rt.builtins-arm.a aeabi_memcpy.S.o
+
+# Output
 mkdir -p "$OUTPUT_DIR"
 cp lib/baremetal/libclang_rt.builtins-arm.a "$OUTPUT_DIR/libclang_rt.builtins.a"
