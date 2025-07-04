@@ -73,7 +73,7 @@ jobs:
           delete-merged: true
 
   pr_create:
-    needs: merge, define-matrix
+    needs: [merge, define-matrix]
     runs-on: ubuntu-latest
     if: ${{ success() && inputs.create_pr }}
     continue-on-error: true
