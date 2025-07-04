@@ -59,7 +59,7 @@ jobs:
     needs: merge
     runs-on: ubuntu-latest
     name: "Pull Request Create"
-#    if: ${{ success() && inputs.create_pr }}
+    if: ${{ success() && inputs.create_pr }}
     continue-on-error: true
     steps:
       - name: Clone repository
@@ -76,6 +76,12 @@ jobs:
           name: arch
 
       - name: Print matrix
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ls -l
           git status
+          git switch --create sdk_libs_update
+          git add arch/${{ matrix.target.se }}/lib
+          git status
+          gh pr create -B ${{ inputs.target_sdk_branch }} --title '[SDK_LIBS_UPDATE] Updating static SDK libraries' --body 'Created by Github action'
