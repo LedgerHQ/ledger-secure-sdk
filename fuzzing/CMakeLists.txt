@@ -91,11 +91,11 @@ if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
     include(${file})
   endforeach()
 
-  add_library(extra INTERFACE)
-  target_compile_options(extra INTERFACE ${COMPILATION_FLAGS})
-  target_link_options(extra INTERFACE ${LINK_FLAGS})
+  add_library(secure_sdk INTERFACE)
+  target_compile_options(secure_sdk INTERFACE ${COMPILATION_FLAGS})
+  target_link_options(secure_sdk INTERFACE ${LINK_FLAGS})
   target_link_libraries(
-    extra
+    secure_sdk
     INTERFACE macros
               alloc
               cxng
@@ -112,7 +112,6 @@ else()
   get_filename_component(BOLOS_SDK ${CMAKE_SOURCE_DIR} DIRECTORY)
   # Include harness cmake files
   file(GLOB cmake_extra_files "extra/*.cmake")
-    #list(REMOVE_ITEM cmake_extra_files "${CMAKE_SOURCE_DIR}/extra/nfc_ndef.cmake")
   foreach(file IN LISTS cmake_extra_files)
     include(${file})
   endforeach()
