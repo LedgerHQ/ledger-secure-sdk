@@ -22,7 +22,7 @@ jobs:
 
     outputs:
       cores: ${{ steps.cores.outputs.cores }}
-      ses: ${{ steps.se_names.outputs.se_names }}
+      se_names: ${{ steps.se_names.outputs.se_names }}
 
     steps:
       - name: Define MCU cores
