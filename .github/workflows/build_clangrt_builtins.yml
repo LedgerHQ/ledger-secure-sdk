@@ -15,8 +15,12 @@ on:
   # TODO: remove this next line before merging!
   push:
 
-jobs:
+env:
+  GIT_USER_EMAIL: 'ledger@github.com'
+  GIT_USER_NAME: 'SDKLibsUpdaterGithub'
+  UPDATE_BRANCH: 'sdk_libs_update'
 
+jobs:
   build:
     runs-on: ubuntu-latest
     container:
@@ -79,11 +83,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config --global user.email 'ledger@github.com'
-          git config --global user.name 'SDKLibsUpdaterGithub'
-          git status
-          git switch --create sdk_libs_update
+          git config --global user.email ${{ env.GIT_USER_EMAIL }}
+          git config --global user.name ${{ env.GIT_USER_NAME }}
+          git switch --create ${{ env.UPDATE_BRANCH }}
           git add -A .
           git commit -m 'Updating static SDK libraries'
-          git status
+          git push -u origin ${{ env.UPDATE_BRANCH }}
           gh pr create -B ${{ inputs.target_sdk_branch }} --title '[SDK_LIBS_UPDATE] Updating static SDK libraries' --body 'Created by Github action'
