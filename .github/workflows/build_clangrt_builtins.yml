@@ -1,8 +1,24 @@
 name: Build clang runtime builtins
+
 on:
   workflow_dispatch:
+    inputs:
+      target_sdk_branch:
+        type: string
+        required: false
+        default: 'master'
+      create_pr:
+        type: boolean
+        required: false
+        default: false
+
   # TODO: remove this next line before merging!
   push:
+
+env:
+  GIT_USER_EMAIL: 'ledger@github.com'
+  GIT_USER_NAME: 'SDKLibsUpdaterGithub'
+  UPDATE_BRANCH: 'sdk_libs_update'
 
 jobs:
   build:
@@ -22,7 +38,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           # TODO: remove this next line before merging!
-          ref: feat/apa/clangrt
+          ref: feat/regain_control_over_libs
           sparse-checkout: |
             tools/build_clangrt_builtins.sh
           sparse-checkout-cone-mode: false
@@ -43,3 +59,34 @@ jobs:
           name: arch
           pattern: arch-*
           delete-merged: true
+
+  pr_create:
+    needs: merge
+    runs-on: ubuntu-latest
+    if: ${{ success() && inputs.create_pr }}
+    continue-on-error: true
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with:
+          # by default the action uses fetch-depth = 1, which creates
+          # shallow repositories from which we can't push
+          fetch-depth: 0
+          ref: ${{ inputs.target_sdk_branch }}
+
+      - name: Download Binaries artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: arch
+
+      - name: PR creation
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.email ${{ env.GIT_USER_EMAIL }}
+          git config --global user.name ${{ env.GIT_USER_NAME }}
+          git switch --create ${{ env.UPDATE_BRANCH }}
+          git add -A .
+          git commit -m 'Updating static SDK libraries'
+          git push -u origin ${{ env.UPDATE_BRANCH }}
+          gh pr create -B ${{ inputs.target_sdk_branch }} --title '[SDK_LIBS_UPDATE] Updating static SDK libraries' --body 'Created by Github workflow "${{ github.workflow }}", job "${{ github.job }}", run "${{ github.run_id }}".'
