@@ -2,10 +2,11 @@
 
 # Defaults
 REBUILD=0
-COMPUTE_COVERAGE=1
-RUN_FUZZER=1
+COMPUTE_COVERAGE=0
+RUN_FUZZER=0
 TARGET_DEVICE="flex"
 REGENERATE_MACROS=0
+RUN_CRASH=0
 
 BOLOS_SDK=""
 FUZZING_PATH="$(pwd)"
@@ -30,12 +31,14 @@ function show_help() {
     echo -e "  --build=1|0                 Whether to build the project (default: 0)"
     echo -e "  --re-generate-macros=0|1    Whether to regenerate macros (default: 0)"
     echo -e "  --compute-coverage=1|0      Whether to compute coverage after fuzzing (default: 1)"
+    echo -e "  --run-crash=[crash_file_nameWhether to compute coverage of a crash (default: 0)"
     echo -e "  --run-fuzzer=1|0            Whether to run the fuzzer (default: 1)"
     echo -e "  --j=1|...|n_cpus            Number of CPUs to use (default: 1)"
     echo -e "  --help                      Show this help message${NC}"
     exit 0
 }
 
+# Does generated_macros[] = generated_macros[] + add_macros[] - exclude_macros[]
 function custom_macros(){
     echo -e "${BLUE}Customizing macros...${NC}"
     if [ "$BOLOS_SDK" ]; then
@@ -106,6 +109,9 @@ for arg in "$@"; do
         --compute-coverage=*)
             COMPUTE_COVERAGE="${arg#*=}"
             ;;
+        --run-crash=*)
+            RUN_CRASH="${arg#*=}"
+            ;;
         --run-fuzzer=*)
             RUN_FUZZER="${arg#*=}"
             ;;
@@ -127,9 +133,10 @@ FUZZERNAME=$(basename "$FUZZER")
 OUT_DIR="./out/$FUZZERNAME"
 CORPUS_DIR="$OUT_DIR/corpus"
 
-# Validate required args
+### Validate required args
+
 if [ -z "$BOLOS_SDK" ]; then
-    echo -e "${YELLOW}Note: If you are fuzzing an App --BOLOS_SDK=\$BOLOS_SDK is required.${NC}"
+    echo -e "${RED}Error: --BOLOS_SDK=\$BOLOS_SDK is required.${NC}"
 fi
 
 if [ "$TARGET_DEVICE" != "flex" ] && [ "$TARGET_DEVICE" != "stax" ]; then
@@ -172,28 +179,46 @@ mkdir -p "$CORPUS_DIR"
 
 if [ "$RUN_FUZZER" -eq 1 ]; then
     echo -e "${GREEN}\n----------\nStarting fuzzer '$FUZZERNAME'...\n----------\n${NC}"
-    LLVM_PROFILE_FILE="$OUT_DIR/fuzzer.profraw" "$FUZZER" -max_len=8192 -jobs="$NUM_CPUS" -timeout=10 "$CORPUS_DIR"
-fi
-
-# Early exit if coverage not needed
-if [ "$COMPUTE_COVERAGE" -ne 1 ]; then
+    LLVM_PROFILE_FILE="$OUT_DIR/fuzzer.profraw" "$FUZZER" -detect_leaks=0 -max_len=8192 -jobs="$NUM_CPUS" -timeout=10 "$CORPUS_DIR"
+    mkdir -p "$FUZZING_PATH/crashes"
+    mv -- crash-* "$FUZZING_PATH/crashes"
     mv -- *.log *.profraw "$OUT_DIR" 2>/dev/null
-    echo -e "${GREEN}\n----------\nFuzzing done. Data saved to $OUT_DIR\n----------${NC}"
-    exit 0
 fi
 
-# Coverage computation
-echo -e "${BLUE}\n----------\nComputing coverage...\n----------${NC}"
+if [ "$COMPUTE_COVERAGE" -eq 1 ]; then
+    # Coverage computation
+    echo -e "${BLUE}\n----------\nComputing coverage...\n----------${NC}"
 
-rm -f "$OUT_DIR/default.profdata" "$OUT_DIR/default.profraw"
-LLVM_PROFILE_FILE="$OUT_DIR/coverage.profraw" "$FUZZER" -max_len=8192 -runs=0 "$CORPUS_DIR"
+    rm -f "$OUT_DIR/default.profdata" "$OUT_DIR/default.profraw"
+    LLVM_PROFILE_FILE="$OUT_DIR/coverage.profraw" "$FUZZER" -max_len=8192 -runs=0 "$CORPUS_DIR"
 
-mv -- *.log *.profraw "$OUT_DIR" 2>/dev/null
-llvm-profdata merge -sparse "$OUT_DIR"/*.profraw -o "$OUT_DIR/default.profdata"
-llvm-cov show "$FUZZER" --ignore-filename-regex="$BOLOS_SDK" -instr-profile="$OUT_DIR/default.profdata" -format=html -output-dir="$OUT_DIR"
-llvm-cov report "$FUZZER" --ignore-filename-regex="$BOLOS_SDK" -instr-profile="$OUT_DIR/default.profdata"
+    mv -- *.log *.profraw "$OUT_DIR" 2>/dev/null
+    llvm-profdata merge -sparse "$OUT_DIR"/*.profraw -o "$OUT_DIR/default.profdata"
+    llvm-cov show "$FUZZER" --ignore-filename-regex="$BOLOS_SDK" -instr-profile="$OUT_DIR/default.profdata" -format=html -output-dir="$OUT_DIR"
+    llvm-cov report "$FUZZER" --ignore-filename-regex="$BOLOS_SDK" -instr-profile="$OUT_DIR/default.profdata"
 
-echo -e "${GREEN}\n----------"
-echo "Report available at $OUT_DIR/index.html"
-echo "To view: xdg-open $OUT_DIR/index.html"
-echo -e "----------${NC}"
+    echo -e "${GREEN}\n----------"
+    echo "Report available at $OUT_DIR/index.html"
+    echo "To view: xdg-open $OUT_DIR/index.html"
+    echo -e "----------${NC}"
+fi
+
+OUT_CRASH_DIR="$FUZZING_PATH/out/crashes/$FUZZERNAME"
+
+# If a crash is just to be run (e.g., to observe logs or crash)
+if [ -n "$RUN_CRASH" ] && [ "$RUN_CRASH" != "0" ]; then
+    echo -e "${BLUE}\n-------- Running crash input: ${RUN_CRASH} --------${NC}"
+
+    CRASH_INPUT="$FUZZING_PATH/crashes/$RUN_CRASH"
+    if [ ! -f "$CRASH_INPUT" ]; then
+        echo -e "${RED}Crash file '$CRASH_INPUT' not found!${NC}\n"
+        exit 1
+    fi
+
+    echo -e "${YELLOW}Executing crash input under fuzzer...${NC}"
+    LLVM_PROFILE_FILE="$OUT_CRASH_DIR/crash.profraw" "$FUZZER" -runs=1 -timeout=10 "$CRASH_INPUT"
+
+    echo -e "${GREEN}\n----------"
+    echo "Crash execution complete for $RUN_CRASH"
+    echo -e "----------${NC}"
+fi
