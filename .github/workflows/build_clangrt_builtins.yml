@@ -76,4 +76,6 @@ jobs:
           name: arch
 
       - name: Print matrix
-        run: ls -l
+        run: |
+          ls -l
+          git status
