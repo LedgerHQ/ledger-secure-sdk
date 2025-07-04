@@ -64,8 +64,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target:
-          - se: [st33, st33k1]
+        se: [st33, st33k1]
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
@@ -87,6 +86,6 @@ jobs:
           ls -l
           git status
           git switch --create sdk_libs_update
-          git add arch/${{ matrix.target.se }}/lib
+          git add arch/${{ matrix.se }}/lib
           git status
           gh pr create -B ${{ inputs.target_sdk_branch }} --title '[SDK_LIBS_UPDATE] Updating static SDK libraries' --body 'Created by Github action'
