@@ -89,4 +89,4 @@ jobs:
           git add -A .
           git commit -m 'Updating static SDK libraries'
           git push -u origin ${{ env.UPDATE_BRANCH }}
-          gh pr create -B ${{ inputs.target_sdk_branch }} --title '[SDK_LIBS_UPDATE] Updating static SDK libraries' --body 'Created by Github action'
+          gh pr create -B ${{ inputs.target_sdk_branch }} --title '[SDK_LIBS_UPDATE] Updating static SDK libraries' --body 'Created by Github workflow "${{ github.workflow }}", job "${{ github.job }}", run ${{ github.run_id }}'
