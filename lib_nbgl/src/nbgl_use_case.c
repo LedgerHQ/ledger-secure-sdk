@@ -3561,7 +3561,7 @@ void nbgl_useCaseChoice(const nbgl_icon_details_t *icon,
  * @brief Draws a generic choice page, described in a centered info (with configurable icon), thanks
  * to a button and a footer at the bottom of the page. The given callback is called with true as
  * argument if the button is touched, false if footer is touched
- * Compared to @ref nbgl_useCaseChoiceWithDetails, it also adds a top-right button to access details
+ * Compared to @ref nbgl_useCaseChoice, it also adds a top-right button to access details
  *
  * @param icon icon to set in center of page
  * @param message string to set in center of page (32px)
