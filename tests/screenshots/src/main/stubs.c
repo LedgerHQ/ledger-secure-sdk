@@ -185,13 +185,13 @@ void os_ux_set_status(unsigned int ux_id, unsigned int status)
     UNUSED(ux_id);
     UNUSED(status);
 }
-#endif  // HAVE_BLE
 
 int os_io_ux_cmd_redisplay(void)
 {
     nbgl_screenRedraw();
     return 0;
 }
+#endif  // HAVE_BLE
 
 void halt(void) {}
 
