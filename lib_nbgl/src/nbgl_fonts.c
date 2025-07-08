@@ -141,6 +141,10 @@ const nbgl_font_t *nbgl_getFont(nbgl_font_id_e fontId)
  */
 uint32_t nbgl_popUnicodeChar(const uint8_t **text, uint16_t *textLen, bool *is_unicode)
 {
+    // Be sure there are still some characters to read;
+    if (!*textLen) {
+        return 0;
+    }
     const uint8_t *txt      = *text;
     uint8_t        cur_char = *txt++;
     uint32_t       unicode;

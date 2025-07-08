@@ -1074,6 +1074,8 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
     int16_t            buf_y_max;
     int16_t            combined_height  = 9;  // TMP
     uint32_t           previous_unicode = 0;
+    uint32_t           next_unicode     = 0;
+    bool               next_is_unicode;
 #ifdef HAVE_UNICODE_SUPPORT
     nbgl_unicode_ctx_t *unicode_ctx = nbgl_getUnicodeFont(fontId);
 #endif                            // HAVE_UNICODE_SUPPORT
@@ -1124,7 +1126,7 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
     // if (!strcmp(text, "ใช่ครับ มันตรงกัน")) {
     // if (!strcmp(text, "รือที่รอกรหัส PIN ของคุณ")) {
     // if (strstr(text, "รับความช่วยเหลือได้ที่")) {
-    if (false && strstr(original_text, "ใช่ครับ")) {
+    if (strstr(original_text, "เพิ่มใบรับรองที่ยังไม่ได้ตรวจสอบ?")) {
         fprintf(stdout,
                 "nbgl_drawText: x0 = %d, y0 = %d, w = %d, h = %d, fontColor = %d, "
                 "backgroundColor=%d, fontId=%d, text = %s\n",
@@ -1152,7 +1154,12 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
     rectArea.backgroundColor = area->backgroundColor;
     rectArea.bpp             = (nbgl_bpp_t) font->bpp;
 
-    while (textLen > 0) {
+    // Get the first character, that will go into 'unicode'
+    // (needed by languages using 'combined characters':  we need to know current, previous & next
+    // characters)
+    next_unicode = nbgl_popUnicodeChar((const uint8_t **) &text, &textLen, &next_is_unicode);
+
+    while (textLen > 0 || next_unicode) {
         const nbgl_font_character_t *character;
         uint8_t                      char_width;
         uint32_t                     unicode;
@@ -1167,7 +1174,10 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
         uint8_t                      nb_skipped_bytes;
         uint8_t                      over_previous;
 
-        unicode = nbgl_popUnicodeChar((const uint8_t **) &text, &textLen, &is_unicode);
+        // Get the character we already read
+        unicode      = next_unicode;
+        is_unicode   = next_is_unicode;
+        next_unicode = nbgl_popUnicodeChar((const uint8_t **) &text, &textLen, &next_is_unicode);
 
         if (is_unicode) {
 #ifdef HAVE_UNICODE_SUPPORT
@@ -1175,6 +1185,12 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
                 = nbgl_getUnicodeFontCharacter(unicode);
             // if not supported char, go to next one
             if (unicodeCharacter == NULL) {
+                fprintf(
+                    stdout,
+                    "Inside nbgl_drawText, unicode (%c)[0x%X] is not supported (string=>%s<=)\n",
+                    unicode,
+                    unicode,
+                    original_text);
                 continue;
             }
             char_width = unicodeCharacter->width;
@@ -1289,19 +1305,20 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
         // if (!strcmp(original_text, "Eกู้ter your PIN")) {
         // if (!strcmp(original_text, "ใช่ครับ มันตรงกัน")) {
         // if (strstr(original_text, "รับความช่วยเหลือได้ที่")) {
-        if (false && sstrstr(original_text, "ใช่ครับ")) {
-            fprintf(stdout,
-                    "Will render '%c'(%X) (x=%d, char_width=%d, next_x=%d) at x0=%d, y0=%d, W=%d, "
-                    "H=%d\n",
-                    unicode,
-                    unicode,
-                    x,
-                    char_width,
-                    next_x,
-                    rectArea.x0,
-                    rectArea.y0,
-                    rectArea.width,
-                    rectArea.height);
+        if (strstr(original_text, "เพิ่มใบรับรองที่ยังไม่ได้ตรวจสอบ?")) {
+            fprintf(
+                stdout,
+                "Will render '%c'(0x0%X) (x=%d, char_width=%d, next_x=%d) at x0=%d, y0=%d, W=%d, "
+                "H=%d\n",
+                unicode,
+                unicode,
+                x,
+                char_width,
+                next_x,
+                rectArea.x0,
+                rectArea.y0,
+                rectArea.width,
+                rectArea.height);
             fprintf(stdout,
                     "OP=%d, x_min=%d, x_max=%d, y_min=%d, y_max=%d\n",
                     over_previous,
@@ -1322,7 +1339,7 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
             // if (!strcmp(original_text, "Wrong word")) {
             if (unicode >= 0x000E00 && unicode < 0x000E80 && false) {
                 fprintf(stdout,
-                        "Rendering '%c'(%X) at X=%d, Y=%d, W=%d, H=%d, nb_skipped_bytes=%d\n",
+                        "Rendering '%c'(0x%X) at X=%d, Y=%d, W=%d, H=%d, nb_skipped_bytes=%d\n",
                         unicode,
                         unicode,
                         rectArea.x0,
@@ -1365,7 +1382,7 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
                     // if (previous_unicode >= 0x000E00 && previous_unicode < 0x000E80 &&
                     // !ultrasaved) {
                     // fprintf(stdout, "previous_unicode=%X\n", previous_unicode);
-                    if (previous_unicode == 0x000E37 && !ultrasaved) {
+                    if (previous_unicode == 0x000E33 && !ultrasaved) {
                         ultrasaved = 1;
                         save_ultrapacked_picture(ramBuffer,
                                                  previous_area.height,
@@ -1420,7 +1437,7 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
                 // Security check: first character can't be a composed one!
                 if (previous_unicode == 0) {
                     fprintf(stdout,
-                            "ERROR: First character '%c'(%X) is a composed one! (text=>%s<=)\n",
+                            "ERROR: First character '%c'(0x%X) is a composed one! (text=>%s<=)\n",
                             unicode,
                             unicode,
                             original_text);
@@ -1447,10 +1464,17 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
                 // other characters! WARNING: some vowels, signs or tone may have to be displayed
                 // left with some consonnant (0E1B, 0E1F etc)
 
-                if (unicode >= 0x0E48 && unicode <= 0x0E4C && previous_unicode >= 0x0E31
-                    && previous_unicode <= 0x0E37) {
-                    // Take in account the height of previous character
-                    buf_area.x0 -= previous_area.height - 2;
+                if (unicode >= 0x0E48 && unicode <= 0x0E4C) {
+                    if (next_unicode == 0x00E33) {
+                        // Display current character up to next one
+                        buf_area.x0 = combined_height + 0;  // TODO should be next_area.ymin
+                        buf_area.x0 -= (char_y_max - char_y_min) - 2;  // minus height of cur char
+                    }
+                    else if (previous_unicode >= 0x0E31 && previous_unicode <= 0x0E37) {
+                        // Take in account the height of previous character
+                        // buf_area.x0 -= previous_area.height - 2;
+                        buf_area.x0 = buf_x_min - (char_y_max - char_y_min) - 1;
+                    }
                 }
                 // Update RAM buffer x/y min/max
                 if (buf_area.x0 < buf_x_min) {
@@ -1511,7 +1535,7 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
             }
             if (false && unicode >= 0x000E00 && unicode < 0x000E80) {
                 fprintf(stdout,
-                        "Drawing in RAM buffer '%c'(%X) at X=%d, Y=%d, W=%d, H=%d\n",
+                        "Drawing in RAM buffer '%c'(0x%X) at X=%d, Y=%d, W=%d, H=%d\n",
                         unicode,
                         unicode,
                         rectArea.x0,
@@ -1540,22 +1564,22 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
             // NBGL_BPP_4
             //     && !saved) {
             // if (unicode >= 0x000E00 && unicode < 0x000E80 && !saved) {
-            if (false
-                && (unicode == 0x000E17 || unicode == 0x000E35 || unicode == 0x000E23
-                    || unicode == 0x000E48 || unicode == 0x000E37)
-                && !saved) {
-                if (unicode == 0x000E37) {
+            if (strstr(original_text, "เพิ่มใบรับรองที่ยังไม่ได้ตรวจสอบ?")
+                && (unicode == 0x000E1E || unicode == 0x000E48 || unicode == 0x000E34) && !saved) {
+                if (unicode == 0x000E48) {
                     saved = 1;
                 }
                 fprintf(stdout,
-                        "Saving packed picture '%c' (%X) at X=%d, Y=%d, W=%d, H=%d, "
-                        "nb_skipped_bytes=%d\n",
+                        "Saving packed picture '%c' (0x%X) at X=%d, Y=%d, W=%d, H=%d, "
+                        "buf_x_min=%d, buf_y_min=%d, nb_skipped_bytes=%d\n",
                         unicode,
                         unicode,
                         buf_area.x0,
                         buf_area.y0,
                         buf_area.width,
                         buf_area.height,
+                        buf_x_min,
+                        buf_y_min,
                         nb_skipped_bytes);
                 fprintf(
                     stdout, "ramBuffer: width=%d, height=%d\n", buf_area.width, buf_area.height);
