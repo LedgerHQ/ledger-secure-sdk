@@ -234,7 +234,7 @@ endif
 
 AFLAGS  += --target=arm-none-eabi
 
-LDLIBS  += -lm -lc
+LDLIBS  += -lm -lc_nano
 
 #####################################################################
 #                               MISC                                #

@@ -51,7 +51,7 @@ endif
 SYSROOT = $(shell $(GCCPATH)arm-none-eabi-gcc -print-sysroot)
 ifeq ($(SYSROOT),)
     # path for Debian-based systems
-    SYSROOT = /usr/lib/picolibc/arm-none-eabi
+    SYSROOT = /usr/lib/arm-none-eabi
 endif
 
 CFLAGS   += --sysroot="$(SYSROOT)"
@@ -114,7 +114,7 @@ LDFLAGS  += --target=armv6m-none-eabi -mthumb
 LDFLAGS  += -mtune=cortex-m0plus -mlittle-endian  -mcpu=cortex-m0plus
 LDFLAGS  += -nostdlib -nodefaultlibs #-nostartfiles
 LDFLAGS  += -mno-movt
-LDFLAGS  += -L$(SYSROOT)/lib/thumb/v7-m/nofp/
+LDFLAGS  += -L$(SYSROOT)/newlib/thumb/v7-m/nofp/
 LDFLAGS  += -L$(BOLOS_SDK)/arch/st33/lib/
 AFLAGS   += -mcpu=cortex-m0plus -mthumb
 endif
@@ -126,7 +126,7 @@ LDFLAGS  += --target=armv8m-none-eabi
 LDFLAGS  += -mcpu=cortex-m35p+nodsp -mlittle-endian
 LDFLAGS  += -nostdlib -nodefaultlibs #-nostartfiles
 LDFLAGS  += -mno-movt
-LDFLAGS  += -L$(SYSROOT)/lib/thumb/v8-m.main/nofp/
+LDFLAGS  += -L$(SYSROOT)/newlib/thumb/v8-m.main/nofp/
 LDFLAGS  += -L$(BOLOS_SDK)/arch/st33k1/lib/
 AFLAGS   += -mcpu=cortex-m35p+nodsp -mthumb
 endif
