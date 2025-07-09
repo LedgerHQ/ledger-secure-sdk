@@ -102,13 +102,11 @@ typedef struct {
 } usdb_ledger_hid_u2f_settings_t;
 
 typedef struct {
-    uint16_t pid;
-    uint16_t vid;
-    char     name[20];
-    uint16_t class_mask;  // usbd_ledger_product_e
-#ifdef HAVE_IO_U2F
+    uint16_t                       pid;
+    uint16_t                       vid;
+    char                           name[20];
+    uint16_t                       class_mask;  // usbd_ledger_product_e
     usdb_ledger_hid_u2f_settings_t hid_u2f_settings;
-#endif  // HAVE_IO_U2F
 } os_io_init_usb_t;
 
 typedef struct {
