@@ -147,7 +147,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    <span class="keywordflow">return</span> CX_OK;</div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>}</div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span> </div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>cx_err_t cx_rsa_get_public_components(<span class="keyword">const</span> cx_rsa_public_key_t *key, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> **e, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> **n)</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>cx_err_t cx_rsa_get_public_components(<span class="keyword">const</span> cx_rsa_public_key_t *key, uint8_t **e, uint8_t **n)</div>
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>{</div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    <span class="keywordflow">switch</span> (key-&gt;size) {</div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>        <span class="keywordflow">case</span> 128:</div>
@@ -172,7 +172,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    <span class="keywordflow">return</span> CX_OK;</div>
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>}</div>
 <div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span> </div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>cx_err_t cx_rsa_get_private_components(<span class="keyword">const</span> cx_rsa_private_key_t *key, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> **d, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> **n)</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>cx_err_t cx_rsa_get_private_components(<span class="keyword">const</span> cx_rsa_private_key_t *key, uint8_t **d, uint8_t **n)</div>
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>{</div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    <span class="keywordflow">switch</span> (key-&gt;size) {</div>
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>        <span class="keywordflow">case</span> 128:</div>
@@ -197,15 +197,15 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    <span class="keywordflow">return</span> CX_OK;</div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>}</div>
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span> </div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>cx_err_t cx_rsa_init_public_key_no_throw(<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>       *exponent,</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>cx_err_t cx_rsa_init_public_key_no_throw(<span class="keyword">const</span> uint8_t       *exponent,</div>
 <div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>                                         <span class="keywordtype">size_t</span>               exponent_len,</div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>                                         <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>       *modulus,</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>                                         <span class="keyword">const</span> uint8_t       *modulus,</div>
 <div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>                                         <span class="keywordtype">size_t</span>               modulus_len,</div>
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>                                         cx_rsa_public_key_t *key)</div>
 <div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>{</div>
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    cx_err_t error;</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *e;</div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *n;</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    uint8_t *e;</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    uint8_t *n;</div>
 <div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span> </div>
 <div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>    <span class="keywordflow">if</span> (!(((exponent == NULL) &amp;&amp; (exponent_len == 0)) || ((exponent) &amp;&amp; (exponent_len &lt;= 4)))) {</div>
 <div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>        <span class="keywordflow">return</span> CX_INVALID_PARAMETER;</div>
@@ -236,15 +236,15 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>    <span class="keywordflow">return</span> error;</div>
 <div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>}</div>
 <div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span> </div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>cx_err_t cx_rsa_init_private_key_no_throw(<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>        *exponent,</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>cx_err_t cx_rsa_init_private_key_no_throw(<span class="keyword">const</span> uint8_t        *exponent,</div>
 <div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>                                          <span class="keywordtype">size_t</span>                exponent_len,</div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>                                          <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>        *modulus,</div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>                                          <span class="keyword">const</span> uint8_t        *modulus,</div>
 <div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>                                          <span class="keywordtype">size_t</span>                modulus_len,</div>
 <div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>                                          cx_rsa_private_key_t *key)</div>
 <div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>{</div>
 <div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>    cx_err_t error;</div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *d;</div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *n;</div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>    uint8_t *d;</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>    uint8_t *n;</div>
 <div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span> </div>
 <div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>    <span class="keywordflow">if</span> (!(((exponent == NULL) &amp;&amp; (exponent_len == 0)) || (exponent))) {</div>
 <div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>        <span class="keywordflow">return</span> CX_INVALID_PARAMETER;</div>
@@ -277,21 +277,21 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    <span class="keywordflow">return</span> error;</div>
 <div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>}</div>
 <div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span> </div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span><span class="keyword">static</span> <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> C_default_e[] = {0x00, 0x01, 0x00, 0x01};</div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span><span class="keyword">static</span> <span class="keyword">const</span> uint8_t C_default_e[] = {0x00, 0x01, 0x00, 0x01};</div>
 <div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span> </div>
 <div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>cx_err_t cx_rsa_generate_pair_no_throw(<span class="keywordtype">size_t</span>                modulus_len,</div>
 <div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>                                       cx_rsa_public_key_t  *public_key,</div>
 <div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>                                       cx_rsa_private_key_t *private_key,</div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>                                       <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>        *exponent,</div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>                                       <span class="keyword">const</span> uint8_t        *exponent,</div>
 <div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>                                       <span class="keywordtype">size_t</span>                exponent_len,</div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>                                       <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>        *externalPQ)</div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>                                       <span class="keyword">const</span> uint8_t        *externalPQ)</div>
 <div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>{</div>
 <div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>    cx_bn_t  bn_p, bn_q, bn_n;</div>
 <div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>    cx_err_t error;</div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *pv_d;</div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *pv_n;</div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *pu_e;</div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *pu_n;</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>    uint8_t *pv_d;</div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>    uint8_t *pv_n;</div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>    uint8_t *pu_e;</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    uint8_t *pu_n;</div>
 <div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>    <span class="keywordtype">size_t</span>   size;</div>
 <div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span> </div>
 <div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>    <span class="keywordflow">if</span> (!(((exponent == NULL) &amp;&amp; (exponent_len == 0)) || ((exponent) &amp;&amp; (exponent_len &lt;= 4)))) {</div>
@@ -366,14 +366,14 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>cx_err_t cx_rsa_sign_with_salt_len(<span class="keyword">const</span> cx_rsa_private_key_t *key,</div>
 <div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>                                   uint32_t                    mode,</div>
 <div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>                                   cx_md_t                     hashID,</div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>                                   <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>              *hash,</div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>                                   <span class="keyword">const</span> uint8_t              *hash,</div>
 <div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>                                   <span class="keywordtype">size_t</span>                      hash_len,</div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>                                   <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>                    *sig,</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>                                   uint8_t                    *sig,</div>
 <div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>                                   <span class="keywordtype">size_t</span>                      sig_len,</div>
 <div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>                                   <span class="keywordtype">size_t</span>                      salt_len)</div>
 <div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>{</div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *key_d;</div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *key_n;</div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>    uint8_t *key_d;</div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>    uint8_t *key_n;</div>
 <div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>    cx_bn_t  bn_n, bn_msg, bn_r;</div>
 <div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>    uint32_t nbits;</div>
 <div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>    cx_err_t error;</div>
@@ -420,9 +420,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>cx_err_t cx_rsa_sign_no_throw(<span class="keyword">const</span> cx_rsa_private_key_t *key,</div>
 <div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>                              uint32_t                    mode,</div>
 <div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>                              cx_md_t                     hashID,</div>
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>                              <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>              *hash,</div>
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>                              <span class="keyword">const</span> uint8_t              *hash,</div>
 <div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>                              <span class="keywordtype">size_t</span>                      hash_len,</div>
-<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>                              <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>                    *sig,</div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>                              uint8_t                    *sig,</div>
 <div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>                              <span class="keywordtype">size_t</span>                      sig_len)</div>
 <div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>{</div>
 <div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>    <span class="keywordtype">size_t</span> output_hash_len = cx_pkcs1_get_hash_len(hashID);</div>
@@ -433,15 +433,15 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span><span class="keywordtype">bool</span> cx_rsa_verify_with_salt_len(<span class="keyword">const</span> cx_rsa_public_key_t *key,</div>
 <div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>                                 uint32_t                   mode,</div>
 <div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>                                 cx_md_t                    hashID,</div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>                                 <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>             *hash,</div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>                                 <span class="keyword">const</span> uint8_t             *hash,</div>
 <div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>                                 <span class="keywordtype">size_t</span>                     hash_len,</div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>                                 <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>                   *sig,</div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>                                 uint8_t                   *sig,</div>
 <div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>                                 <span class="keywordtype">size_t</span>                     sig_len,</div>
 <div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>                                 <span class="keywordtype">size_t</span>                     salt_len)</div>
 <div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>{</div>
 <div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>    <span class="keywordtype">size_t</span>   ok;</div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *key_n;</div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *key_e;</div>
+<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>    uint8_t *key_n;</div>
+<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>    uint8_t *key_e;</div>
 <div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>    cx_bn_t  bn_n, bn_msg, bn_r;</div>
 <div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>    uint32_t nbits;</div>
 <div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>    cx_err_t error;</div>
@@ -487,9 +487,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span><span class="keywordtype">bool</span> cx_rsa_verify(<span class="keyword">const</span> cx_rsa_public_key_t *key,</div>
 <div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>                   uint32_t                   mode,</div>
 <div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>                   cx_md_t                    hashID,</div>
-<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span>                   <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>             *hash,</div>
+<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span>                   <span class="keyword">const</span> uint8_t             *hash,</div>
 <div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>                   <span class="keywordtype">size_t</span>                     hash_len,</div>
-<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>                   <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>                   *sig,</div>
+<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>                   uint8_t                   *sig,</div>
 <div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span>                   <span class="keywordtype">size_t</span>                     sig_len)</div>
 <div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span>{</div>
 <div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span>    <span class="keywordtype">size_t</span> output_hash_len = cx_pkcs1_get_hash_len(hashID);</div>
@@ -500,13 +500,13 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span>cx_err_t cx_rsa_encrypt_no_throw(<span class="keyword">const</span> cx_rsa_public_key_t *key,</div>
 <div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span>                                 uint32_t                   mode,</div>
 <div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span>                                 cx_md_t                    hashID,</div>
-<div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span>                                 <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>             *mesg,</div>
+<div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span>                                 <span class="keyword">const</span> uint8_t             *mesg,</div>
 <div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span>                                 <span class="keywordtype">size_t</span>                     mesg_len,</div>
-<div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span>                                 <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>                   *enc,</div>
+<div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span>                                 uint8_t                   *enc,</div>
 <div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span>                                 <span class="keywordtype">size_t</span>                     enc_len)</div>
 <div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span>{</div>
-<div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *key_n;</div>
-<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *key_e;</div>
+<div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span>    uint8_t *key_n;</div>
+<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span>    uint8_t *key_e;</div>
 <div class="line"><a id="l00426" name="l00426"></a><span class="lineno">  426</span>    cx_bn_t  bn_n, bn_msg, bn_r;</div>
 <div class="line"><a id="l00427" name="l00427"></a><span class="lineno">  427</span>    cx_err_t error;</div>
 <div class="line"><a id="l00428" name="l00428"></a><span class="lineno">  428</span> </div>
@@ -553,13 +553,13 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00469" name="l00469"></a><span class="lineno">  469</span>cx_err_t cx_rsa_decrypt_no_throw(<span class="keyword">const</span> cx_rsa_private_key_t *key,</div>
 <div class="line"><a id="l00470" name="l00470"></a><span class="lineno">  470</span>                                 uint32_t                    mode,</div>
 <div class="line"><a id="l00471" name="l00471"></a><span class="lineno">  471</span>                                 cx_md_t                     hashID,</div>
-<div class="line"><a id="l00472" name="l00472"></a><span class="lineno">  472</span>                                 <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>              *mesg,</div>
+<div class="line"><a id="l00472" name="l00472"></a><span class="lineno">  472</span>                                 <span class="keyword">const</span> uint8_t              *mesg,</div>
 <div class="line"><a id="l00473" name="l00473"></a><span class="lineno">  473</span>                                 <span class="keywordtype">size_t</span>                      mesg_len,</div>
-<div class="line"><a id="l00474" name="l00474"></a><span class="lineno">  474</span>                                 <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>                    *dec,</div>
+<div class="line"><a id="l00474" name="l00474"></a><span class="lineno">  474</span>                                 uint8_t                    *dec,</div>
 <div class="line"><a id="l00475" name="l00475"></a><span class="lineno">  475</span>                                 <span class="keywordtype">size_t</span>                     *dec_len)</div>
 <div class="line"><a id="l00476" name="l00476"></a><span class="lineno">  476</span>{</div>
-<div class="line"><a id="l00477" name="l00477"></a><span class="lineno">  477</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *key_n;</div>
-<div class="line"><a id="l00478" name="l00478"></a><span class="lineno">  478</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *key_d;</div>
+<div class="line"><a id="l00477" name="l00477"></a><span class="lineno">  477</span>    uint8_t *key_n;</div>
+<div class="line"><a id="l00478" name="l00478"></a><span class="lineno">  478</span>    uint8_t *key_d;</div>
 <div class="line"><a id="l00479" name="l00479"></a><span class="lineno">  479</span>    cx_bn_t  bn_n, bn_msg, bn_r;</div>
 <div class="line"><a id="l00480" name="l00480"></a><span class="lineno">  480</span>    cx_err_t error;</div>
 <div class="line"><a id="l00481" name="l00481"></a><span class="lineno">  481</span>    <span class="keywordtype">int</span>      diff;</div>
@@ -622,7 +622,6 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="alcx__common_8h_html_a79bcccbd7c655047832e9d58061f162a"><div class="ttname"><a href="lcx__common_8h.html#a79bcccbd7c655047832e9d58061f162a">CX_PAD_PKCS1_PSS</a></div><div class="ttdeci">#define CX_PAD_PKCS1_PSS</div><div class="ttdef"><b>Definition</b> <a href="lcx__common_8h_source.html#l00139">lcx_common.h:139</a></div></div>
 <div class="ttc" id="alcx__common_8h_html_abbe30a7ff4920fdb0655e4110d68ec47"><div class="ttname"><a href="lcx__common_8h.html#abbe30a7ff4920fdb0655e4110d68ec47">CX_MASK_PAD</a></div><div class="ttdeci">#define CX_MASK_PAD</div><div class="ttdef"><b>Definition</b> <a href="lcx__common_8h_source.html#l00134">lcx_common.h:134</a></div></div>
 <div class="ttc" id="alcx__common_8h_html_afc950d9c9ef0793e1268820a5048fc48"><div class="ttname"><a href="lcx__common_8h.html#afc950d9c9ef0793e1268820a5048fc48">CX_PAD_PKCS1_1o5</a></div><div class="ttdeci">#define CX_PAD_PKCS1_1o5</div><div class="ttdef"><b>Definition</b> <a href="lcx__common_8h_source.html#l00138">lcx_common.h:138</a></div></div>
-<div class="ttc" id="ausbd__conf_8h_html_aba7bc1797add20fe3efdf37ced1182c5"><div class="ttname"><a href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a></div><div class="ttdeci">unsigned char uint8_t</div><div class="ttdef"><b>Definition</b> <a href="usbd__conf_8h_source.html#l00053">usbd_conf.h:53</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

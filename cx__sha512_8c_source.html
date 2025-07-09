@@ -115,8 +115,8 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>       SHA512_BLOCK_SIZE,</div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>       <span class="keyword">sizeof</span>(cx_sha512_t),</div>
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>       (cx_err_t(*)(cx_hash_t * ctx)) cx_sha384_init_no_throw,</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>       (cx_err_t(*)(cx_hash_t * ctx, <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *data, <span class="keywordtype">size_t</span> len)) cx_sha512_update,</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>       (cx_err_t(*)(cx_hash_t * ctx, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *digest)) cx_sha512_final,</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>       (cx_err_t(*)(cx_hash_t * ctx, <span class="keyword">const</span> uint8_t *data, <span class="keywordtype">size_t</span> len)) cx_sha512_update,</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>       (cx_err_t(*)(cx_hash_t * ctx, uint8_t *digest)) cx_sha512_final,</div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>       NULL,</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>       NULL};</div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="preprocessor">#endif  </span><span class="comment">// HAVE_SHA384</span></div>
@@ -128,8 +128,8 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>       SHA512_BLOCK_SIZE,</div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>       <span class="keyword">sizeof</span>(cx_sha512_t),</div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>       (cx_err_t(*)(cx_hash_t * ctx)) cx_sha512_init_no_throw,</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>       (cx_err_t(*)(cx_hash_t * ctx, <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *data, <span class="keywordtype">size_t</span> len)) cx_sha512_update,</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>       (cx_err_t(*)(cx_hash_t * ctx, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *digest)) cx_sha512_final,</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>       (cx_err_t(*)(cx_hash_t * ctx, <span class="keyword">const</span> uint8_t *data, <span class="keywordtype">size_t</span> len)) cx_sha512_update,</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>       (cx_err_t(*)(cx_hash_t * ctx, uint8_t *digest)) cx_sha512_final,</div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>       NULL,</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>       NULL};</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="preprocessor">#endif  </span><span class="comment">// HAVE_SHA512</span></div>
@@ -185,7 +185,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span><span class="preprocessor">#define rotR64(x, n) cx_rotr64(&amp;x, n)</span></div>
 <div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span><span class="preprocessor">#define shR64(x, n)  cx_shr64(&amp;x, n)</span></div>
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span> </div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span><span class="keyword">static</span> <span class="keywordtype">void</span> sig512(<a class="code hl_struct" href="structuint64__s.html">uint64bits_t</a> *x, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> a, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> b, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> c)</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span><span class="keyword">static</span> <span class="keywordtype">void</span> sig512(<a class="code hl_struct" href="structuint64__s.html">uint64bits_t</a> *x, uint8_t a, uint8_t b, uint8_t c)</div>
 <div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>{</div>
 <div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>    <a class="code hl_struct" href="structuint64__s.html">uint64bits_t</a> x1, x2, x3;</div>
 <div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span> </div>
@@ -199,7 +199,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    x-&gt;<a class="code hl_variable" href="structuint64__s.html#aaf5fe5430f8878f1ecfbacab62f9f6e4">h</a> = x1.<a class="code hl_variable" href="structuint64__s.html#aaf5fe5430f8878f1ecfbacab62f9f6e4">h</a> ^ x2.<a class="code hl_variable" href="structuint64__s.html#aaf5fe5430f8878f1ecfbacab62f9f6e4">h</a> ^ x3.<a class="code hl_variable" href="structuint64__s.html#aaf5fe5430f8878f1ecfbacab62f9f6e4">h</a>;</div>
 <div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>}</div>
 <div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span> </div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span><span class="keyword">static</span> <span class="keywordtype">void</span> sum512(<a class="code hl_struct" href="structuint64__s.html">uint64bits_t</a> *x, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> a, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> b, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> c)</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span><span class="keyword">static</span> <span class="keywordtype">void</span> sum512(<a class="code hl_struct" href="structuint64__s.html">uint64bits_t</a> *x, uint8_t a, uint8_t b, uint8_t c)</div>
 <div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>{</div>
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    <a class="code hl_struct" href="structuint64__s.html">uint64bits_t</a> x1, x2, x3;</div>
 <div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span> </div>
@@ -291,7 +291,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span> </div>
 <div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span><span class="keywordtype">void</span> cx_sha512_block(cx_sha512_t *hash)</div>
 <div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>{</div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>      j;</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    uint8_t      j;</div>
 <div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>    <a class="code hl_struct" href="structuint64__s.html">uint64bits_t</a> t1, t2;</div>
 <div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span> </div>
 <div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>    <a class="code hl_struct" href="structuint64__s.html">uint64bits_t</a> *accumulator;</div>
@@ -459,11 +459,11 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span><span class="keywordtype">void</span> cx_sha512_block(cx_sha512_t *ctx);</div>
 <div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span><span class="preprocessor">#endif  </span></div>
 <div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span> </div>
-<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>cx_err_t cx_sha512_update(cx_sha512_t *ctx, <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *data, <span class="keywordtype">size_t</span> len)</div>
+<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>cx_err_t cx_sha512_update(cx_sha512_t *ctx, <span class="keyword">const</span> uint8_t *data, <span class="keywordtype">size_t</span> len)</div>
 <div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>{</div>
 <div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>    <span class="keywordtype">size_t</span>   r;</div>
-<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>  block_size;</div>
-<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *block;</div>
+<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>    uint8_t  block_size;</div>
+<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>    uint8_t *block;</div>
 <div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>    <span class="keywordtype">size_t</span>   blen;</div>
 <div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span> </div>
 <div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>    <span class="keywordflow">if</span> (ctx == NULL) {</div>
@@ -508,14 +508,14 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00426" name="l00426"></a><span class="lineno">  426</span>    <span class="keywordflow">return</span> CX_OK;</div>
 <div class="line"><a id="l00427" name="l00427"></a><span class="lineno">  427</span>}</div>
 <div class="line"><a id="l00428" name="l00428"></a><span class="lineno">  428</span> </div>
-<div class="line"><a id="l00429" name="l00429"></a><span class="lineno">  429</span>cx_err_t cx_sha512_final(cx_sha512_t *ctx, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *digest)</div>
+<div class="line"><a id="l00429" name="l00429"></a><span class="lineno">  429</span>cx_err_t cx_sha512_final(cx_sha512_t *ctx, uint8_t *digest)</div>
 <div class="line"><a id="l00430" name="l00430"></a><span class="lineno">  430</span>{</div>
 <div class="line"><a id="l00431" name="l00431"></a><span class="lineno">  431</span>    uint64_t bitlen;</div>
 <div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span>    <span class="keywordtype">size_t</span>   len;</div>
 <div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span> </div>
-<div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>     *block = ctx-&gt;block;</div>
+<div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span>    uint8_t     *block = ctx-&gt;block;</div>
 <div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span>    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> blen  = ctx-&gt;blen;</div>
-<div class="line"><a id="l00436" name="l00436"></a><span class="lineno">  436</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>     *acc   = ctx-&gt;acc;</div>
+<div class="line"><a id="l00436" name="l00436"></a><span class="lineno">  436</span>    uint8_t     *acc   = ctx-&gt;acc;</div>
 <div class="line"><a id="l00437" name="l00437"></a><span class="lineno">  437</span> </div>
 <div class="line"><a id="l00438" name="l00438"></a><span class="lineno">  438</span>    <span class="comment">// one more block?</span></div>
 <div class="line"><a id="l00439" name="l00439"></a><span class="lineno">  439</span>    block[blen] = 0x80;</div>
@@ -546,7 +546,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00464" name="l00464"></a><span class="lineno">  464</span>}</div>
 <div class="line"><a id="l00465" name="l00465"></a><span class="lineno">  465</span> </div>
 <div class="line"><a id="l00466" name="l00466"></a><span class="lineno">  466</span><span class="preprocessor">#if defined(HAVE_SHA512)</span></div>
-<div class="line"><a id="l00467" name="l00467"></a><span class="lineno">  467</span><span class="keywordtype">size_t</span> cx_hash_sha512(<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *in, <span class="keywordtype">size_t</span> in_len, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *out, <span class="keywordtype">size_t</span> out_len)</div>
+<div class="line"><a id="l00467" name="l00467"></a><span class="lineno">  467</span><span class="keywordtype">size_t</span> cx_hash_sha512(<span class="keyword">const</span> uint8_t *in, <span class="keywordtype">size_t</span> in_len, uint8_t *out, <span class="keywordtype">size_t</span> out_len)</div>
 <div class="line"><a id="l00468" name="l00468"></a><span class="lineno">  468</span>{</div>
 <div class="line"><a id="l00469" name="l00469"></a><span class="lineno">  469</span>    <span class="keywordflow">if</span> (out_len &lt; CX_SHA512_SIZE) {</div>
 <div class="line"><a id="l00470" name="l00470"></a><span class="lineno">  470</span>        <span class="keywordflow">return</span> 0;</div>
@@ -574,7 +574,6 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="astructuint64__s_html"><div class="ttname"><a href="structuint64__s.html">uint64_s</a></div><div class="ttdoc">64-bit types, native or by-hands, depending on target and/or compiler support.</div><div class="ttdef"><b>Definition</b> <a href="lcx__common_8h_source.html#l00049">lcx_common.h:49</a></div></div>
 <div class="ttc" id="astructuint64__s_html_a552ecaab703e1315820eec1999cc56ab"><div class="ttname"><a href="structuint64__s.html#a552ecaab703e1315820eec1999cc56ab">uint64_s::l</a></div><div class="ttdeci">uint32_t l</div><div class="ttdoc">32 least significant bits</div><div class="ttdef"><b>Definition</b> <a href="lcx__common_8h_source.html#l00051">lcx_common.h:51</a></div></div>
 <div class="ttc" id="astructuint64__s_html_aaf5fe5430f8878f1ecfbacab62f9f6e4"><div class="ttname"><a href="structuint64__s.html#aaf5fe5430f8878f1ecfbacab62f9f6e4">uint64_s::h</a></div><div class="ttdeci">uint32_t h</div><div class="ttdoc">32 most significant bits</div><div class="ttdef"><b>Definition</b> <a href="lcx__common_8h_source.html#l00052">lcx_common.h:52</a></div></div>
-<div class="ttc" id="ausbd__conf_8h_html_aba7bc1797add20fe3efdf37ced1182c5"><div class="ttname"><a href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a></div><div class="ttdeci">unsigned char uint8_t</div><div class="ttdef"><b>Definition</b> <a href="usbd__conf_8h_source.html#l00053">usbd_conf.h:53</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

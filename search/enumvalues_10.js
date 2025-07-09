@@ -2,7 +2,7 @@ var searchData=
 [
   ['screen_0',['SCREEN',['../nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7af2a9da294a4a62d55f04725d7efbb6ac',1,'nbgl_types.h']]],
   ['screen_5flogger_1',['SCREEN_LOGGER',['../nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635a065d7a318551c3444c9e8203aa29a27c',1,'nbgl_debug.h']]],
-  ['second_5fbutton_5findex_2',['SECOND_BUTTON_INDEX',['../nbgl__layout__keyboard_8c.html#ac205be2172292384dd687b5471a87edda26ce0ef3e6c6dc001aff4db8d8b4fa8a',1,'nbgl_layout_keyboard.c']]],
+  ['second_5fbutton_5findex_2',['SECOND_BUTTON_INDEX',['../nbgl__layout__keyboard_8c.html#a394b3903fbf00ba2b6243f60689a5a5fa26ce0ef3e6c6dc001aff4db8d8b4fa8a',1,'nbgl_layout_keyboard.c']]],
   ['settings_5ficon_3',['SETTINGS_ICON',['../nbgl__page_8h.html#afb48cdeef2dbc001c1091fdfc2c95d3dae74a129f91886278077f03a91a005dda',1,'nbgl_page.h']]],
   ['single_5fbutton_5fid_4',['SINGLE_BUTTON_ID',['../nbgl__obj_8h.html#aac34dfe6c6b73b43a4656c9dce041034abdb8eed39a0f4853bdc55470dfe6c168',1,'nbgl_obj.h']]],
   ['single_5fstep_5',['SINGLE_STEP',['../nbgl__step_8h.html#a96a58e29e8dbf2b5bdeb775cba46556ea4cf77e5736bd9a94342342d774b2e264',1,'nbgl_step.h']]],

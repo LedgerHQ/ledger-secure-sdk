@@ -262,11 +262,11 @@ Functions</h2></td></tr>
 <tr class="memitem:a6c3b3640509f89b35e7a615e76713605" id="r_a6c3b3640509f89b35e7a615e76713605"><td class="memItemLeft" align="right" valign="top">struct&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nfc__ndef_8h.html#a6c3b3640509f89b35e7a615e76713605">__attribute__</a> ((packed)) ndef_struct_s</td></tr>
 <tr class="memdesc:a6c3b3640509f89b35e7a615e76713605"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structure to store an NDEF message.  <br /></td></tr>
 <tr class="separator:a6c3b3640509f89b35e7a615e76713605"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad3b822d9a96dbb03a2015ac0e06e8cf3" id="r_ad3b822d9a96dbb03a2015ac0e06e8cf3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nfc__ndef_8h.html#ad3b822d9a96dbb03a2015ac0e06e8cf3">os_get_uri_header</a> (<a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> uri_id, char *uri_header)</td></tr>
+<tr class="memitem:ad3b822d9a96dbb03a2015ac0e06e8cf3" id="r_ad3b822d9a96dbb03a2015ac0e06e8cf3"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nfc__ndef_8h.html#ad3b822d9a96dbb03a2015ac0e06e8cf3">os_get_uri_header</a> (uint8_t uri_id, char *uri_header)</td></tr>
 <tr class="separator:ad3b822d9a96dbb03a2015ac0e06e8cf3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6c85d6248ba648dcaa49a0d5eb10d76e" id="r_a6c85d6248ba648dcaa49a0d5eb10d76e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nfc__ndef_8h.html#a6c85d6248ba648dcaa49a0d5eb10d76e">os_parse_ndef</a> (<a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *in_buffer, <a class="el" href="nfc__ndef_8h.html#a0accc676f447db1d188182a33884c77b">ndef_struct_t</a> *parsed)</td></tr>
+<tr class="memitem:a6c85d6248ba648dcaa49a0d5eb10d76e" id="r_a6c85d6248ba648dcaa49a0d5eb10d76e"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nfc__ndef_8h.html#a6c85d6248ba648dcaa49a0d5eb10d76e">os_parse_ndef</a> (uint8_t *in_buffer, <a class="el" href="nfc__ndef_8h.html#a0accc676f447db1d188182a33884c77b">ndef_struct_t</a> *parsed)</td></tr>
 <tr class="separator:a6c85d6248ba648dcaa49a0d5eb10d76e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afcf247d6f1483900066313636758ecf1" id="r_afcf247d6f1483900066313636758ecf1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nfc__ndef_8h.html#afcf247d6f1483900066313636758ecf1">os_ndef_to_string</a> (<a class="el" href="nfc__ndef_8h.html#a0accc676f447db1d188182a33884c77b">ndef_struct_t</a> *ndef_message, char *out_string)</td></tr>
+<tr class="memitem:afcf247d6f1483900066313636758ecf1" id="r_afcf247d6f1483900066313636758ecf1"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nfc__ndef_8h.html#afcf247d6f1483900066313636758ecf1">os_ndef_to_string</a> (<a class="el" href="nfc__ndef_8h.html#a0accc676f447db1d188182a33884c77b">ndef_struct_t</a> *ndef_message, char *out_string)</td></tr>
 <tr class="separator:afcf247d6f1483900066313636758ecf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
@@ -1553,9 +1553,9 @@ Variables</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> os_get_uri_header </td>
+          <td class="memname">uint16_t os_get_uri_header </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>&#160;</td>
+          <td class="paramtype">uint8_t&#160;</td>
           <td class="paramname"><em>uri_id</em>, </td>
         </tr>
         <tr>
@@ -1581,7 +1581,7 @@ Variables</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> os_ndef_to_string </td>
+          <td class="memname">uint16_t os_ndef_to_string </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="nfc__ndef_8h.html#a0accc676f447db1d188182a33884c77b">ndef_struct_t</a> *&#160;</td>
           <td class="paramname"><em>ndef_message</em>, </td>
@@ -1609,9 +1609,9 @@ Variables</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> os_parse_ndef </td>
+          <td class="memname">uint8_t os_parse_ndef </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *&#160;</td>
+          <td class="paramtype">uint8_t *&#160;</td>
           <td class="paramname"><em>in_buffer</em>, </td>
         </tr>
         <tr>

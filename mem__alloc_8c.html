@@ -154,13 +154,13 @@ Macros</h2></td></tr>
 <tr class="separator:a9b203b63f3cf9ac8d1168ca47e22bf6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a80db6558178f7246c9557f80c119cae8" id="r_a80db6558178f7246c9557f80c119cae8"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem__alloc_8c.html#a80db6558178f7246c9557f80c119cae8">NB_SUB_SEGMENTS</a>&#160;&#160;&#160;4</td></tr>
 <tr class="separator:a80db6558178f7246c9557f80c119cae8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1bac9dc8b7ada4a309e4d7df48007417" id="r_a1bac9dc8b7ada4a309e4d7df48007417"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem__alloc_8c.html#a1bac9dc8b7ada4a309e4d7df48007417">GET_PTR</a>(_heap,  index)&#160;&#160;&#160;((<a class="el" href="mem__alloc_8c.html#a4eb4dd7e74c119ccddb3032242467d65">header_t</a> *) (((<a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *) _heap) + ((index) &lt;&lt; 3)))</td></tr>
+<tr class="memitem:a1bac9dc8b7ada4a309e4d7df48007417" id="r_a1bac9dc8b7ada4a309e4d7df48007417"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem__alloc_8c.html#a1bac9dc8b7ada4a309e4d7df48007417">GET_PTR</a>(_heap,  index)&#160;&#160;&#160;((<a class="el" href="mem__alloc_8c.html#a4eb4dd7e74c119ccddb3032242467d65">header_t</a> *) (((uint8_t *) _heap) + ((index) &lt;&lt; 3)))</td></tr>
 <tr class="separator:a1bac9dc8b7ada4a309e4d7df48007417"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af726bc6aca0d9c033578f446ddd3b76d" id="r_af726bc6aca0d9c033578f446ddd3b76d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem__alloc_8c.html#af726bc6aca0d9c033578f446ddd3b76d">GET_IDX</a>(_heap,  _ptr)&#160;&#160;&#160;((((<a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *) (_ptr)) - ((<a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *) _heap)) &gt;&gt; 3)</td></tr>
+<tr class="memitem:af726bc6aca0d9c033578f446ddd3b76d" id="r_af726bc6aca0d9c033578f446ddd3b76d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem__alloc_8c.html#af726bc6aca0d9c033578f446ddd3b76d">GET_IDX</a>(_heap,  _ptr)&#160;&#160;&#160;((((uint8_t *) (_ptr)) - ((uint8_t *) _heap)) &gt;&gt; 3)</td></tr>
 <tr class="separator:af726bc6aca0d9c033578f446ddd3b76d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af479eb4b0bb80da4bd499d3c381e2448" id="r_af479eb4b0bb80da4bd499d3c381e2448"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem__alloc_8c.html#af479eb4b0bb80da4bd499d3c381e2448">GET_PREV</a>(_heap,  _ptr)&#160;&#160;&#160;((<a class="el" href="mem__alloc_8c.html#a4eb4dd7e74c119ccddb3032242467d65">header_t</a> *) (((<a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *) _heap) + ((_ptr)-&gt;fprev &lt;&lt; 3)))</td></tr>
+<tr class="memitem:af479eb4b0bb80da4bd499d3c381e2448" id="r_af479eb4b0bb80da4bd499d3c381e2448"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem__alloc_8c.html#af479eb4b0bb80da4bd499d3c381e2448">GET_PREV</a>(_heap,  _ptr)&#160;&#160;&#160;((<a class="el" href="mem__alloc_8c.html#a4eb4dd7e74c119ccddb3032242467d65">header_t</a> *) (((uint8_t *) _heap) + ((_ptr)-&gt;fprev &lt;&lt; 3)))</td></tr>
 <tr class="separator:af479eb4b0bb80da4bd499d3c381e2448"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a14df2aa367304a7af4a6e9683ceacc7b" id="r_a14df2aa367304a7af4a6e9683ceacc7b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem__alloc_8c.html#a14df2aa367304a7af4a6e9683ceacc7b">GET_NEXT</a>(_heap,  _ptr)&#160;&#160;&#160;((<a class="el" href="mem__alloc_8c.html#a4eb4dd7e74c119ccddb3032242467d65">header_t</a> *) (((<a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *) _heap) + ((_ptr)-&gt;fnext &lt;&lt; 3)))</td></tr>
+<tr class="memitem:a14df2aa367304a7af4a6e9683ceacc7b" id="r_a14df2aa367304a7af4a6e9683ceacc7b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem__alloc_8c.html#a14df2aa367304a7af4a6e9683ceacc7b">GET_NEXT</a>(_heap,  _ptr)&#160;&#160;&#160;((<a class="el" href="mem__alloc_8c.html#a4eb4dd7e74c119ccddb3032242467d65">header_t</a> *) (((uint8_t *) _heap) + ((_ptr)-&gt;fnext &lt;&lt; 3)))</td></tr>
 <tr class="separator:a14df2aa367304a7af4a6e9683ceacc7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
@@ -244,7 +244,7 @@ Functions</h2></td></tr>
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td>&#160;&#160;&#160;((((<a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *) (_ptr)) - ((<a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *) _heap)) &gt;&gt; 3)</td>
+          <td></td><td>&#160;&#160;&#160;((((uint8_t *) (_ptr)) - ((uint8_t *) _heap)) &gt;&gt; 3)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -274,7 +274,7 @@ Functions</h2></td></tr>
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td>&#160;&#160;&#160;((<a class="el" href="mem__alloc_8c.html#a4eb4dd7e74c119ccddb3032242467d65">header_t</a> *) (((<a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *) _heap) + ((_ptr)-&gt;fnext &lt;&lt; 3)))</td>
+          <td></td><td>&#160;&#160;&#160;((<a class="el" href="mem__alloc_8c.html#a4eb4dd7e74c119ccddb3032242467d65">header_t</a> *) (((uint8_t *) _heap) + ((_ptr)-&gt;fnext &lt;&lt; 3)))</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -304,7 +304,7 @@ Functions</h2></td></tr>
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td>&#160;&#160;&#160;((<a class="el" href="mem__alloc_8c.html#a4eb4dd7e74c119ccddb3032242467d65">header_t</a> *) (((<a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *) _heap) + ((_ptr)-&gt;fprev &lt;&lt; 3)))</td>
+          <td></td><td>&#160;&#160;&#160;((<a class="el" href="mem__alloc_8c.html#a4eb4dd7e74c119ccddb3032242467d65">header_t</a> *) (((uint8_t *) _heap) + ((_ptr)-&gt;fprev &lt;&lt; 3)))</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -334,7 +334,7 @@ Functions</h2></td></tr>
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td>&#160;&#160;&#160;((<a class="el" href="mem__alloc_8c.html#a4eb4dd7e74c119ccddb3032242467d65">header_t</a> *) (((<a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *) _heap) + ((index) &lt;&lt; 3)))</td>
+          <td></td><td>&#160;&#160;&#160;((<a class="el" href="mem__alloc_8c.html#a4eb4dd7e74c119ccddb3032242467d65">header_t</a> *) (((uint8_t *) _heap) + ((index) &lt;&lt; 3)))</td>
         </tr>
       </table>
 </div><div class="memdoc">

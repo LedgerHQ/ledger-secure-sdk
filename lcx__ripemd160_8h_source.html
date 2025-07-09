@@ -113,11 +113,11 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="keyword">struct </span>cx_ripemd160_s {</div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <span class="keyword">struct </span>cx_hash_header_s header;     </div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    <span class="keywordtype">size_t</span>                  blen;       </div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>                 block[64];  </div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    uint8_t                 block[64];  </div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="comment">// After finishing the digest,</span></div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <span class="comment">// contains the digest if correct</span></div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="comment">// parameters are passed.</span></div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> acc[5 * 4];  </div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    uint8_t acc[5 * 4];  </div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>};</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="keyword">typedef</span> <span class="keyword">struct </span>cx_ripemd160_s cx_ripemd160_t;</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
@@ -134,18 +134,18 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>cx_err_t cx_ripemd160_hash_iovec(<span class="keyword">const</span> <a class="code hl_struct" href="structcx__iovec__t.html">cx_iovec_t</a> *iovec,</div>
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>                                 <span class="keywordtype">size_t</span>            iovec_len,</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>                                 <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>           digest[<span class="keyword">static</span> CX_RIPEMD160_SIZE]);</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>                                 uint8_t           digest[<span class="keyword">static</span> CX_RIPEMD160_SIZE]);</div>
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span> </div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span><span class="keyword">static</span> <span class="keyword">inline</span> cx_err_t cx_ripemd160_hash(<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *in,</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span><span class="keyword">static</span> <span class="keyword">inline</span> cx_err_t cx_ripemd160_hash(<span class="keyword">const</span> uint8_t *in,</div>
 <div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>                                         <span class="keywordtype">size_t</span>         in_len,</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>                                         <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>        digest[<span class="keyword">static</span> CX_RIPEMD160_SIZE])</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>                                         uint8_t        digest[<span class="keyword">static</span> CX_RIPEMD160_SIZE])</div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>{</div>
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    <span class="keyword">const</span> <a class="code hl_struct" href="structcx__iovec__t.html">cx_iovec_t</a> iovec = {.<a class="code hl_variable" href="structcx__iovec__t.html#a3231b4389b63289832e244d2983b1376">iov_base</a> = in, .iov_len = in_len};</div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span> </div>
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    <span class="keywordflow">return</span> cx_ripemd160_hash_iovec(&amp;iovec, 1, digest);</div>
 <div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>}</div>
 <div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span> </div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span><span class="keywordtype">size_t</span> cx_hash_ripemd160(<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *in, <span class="keywordtype">size_t</span> in_len, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *out, <span class="keywordtype">size_t</span> out_len);</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span><span class="keywordtype">size_t</span> cx_hash_ripemd160(<span class="keyword">const</span> uint8_t *in, <span class="keywordtype">size_t</span> in_len, uint8_t *out, <span class="keywordtype">size_t</span> out_len);</div>
 <div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span> </div>
 <div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span><span class="preprocessor">#endif  </span><span class="comment">// HAVE_RIPEMD160</span></div>
 <div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span> </div>
@@ -154,7 +154,6 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="alcx__wrappers_8h_html"><div class="ttname"><a href="lcx__wrappers_8h.html">lcx_wrappers.h</a></div></div>
 <div class="ttc" id="astructcx__iovec__t_html"><div class="ttname"><a href="structcx__iovec__t.html">cx_iovec_t</a></div><div class="ttdoc">Similar to libc iovec type.</div><div class="ttdef"><b>Definition</b> <a href="lcx__common_8h_source.html#l00066">lcx_common.h:66</a></div></div>
 <div class="ttc" id="astructcx__iovec__t_html_a3231b4389b63289832e244d2983b1376"><div class="ttname"><a href="structcx__iovec__t.html#a3231b4389b63289832e244d2983b1376">cx_iovec_t::iov_base</a></div><div class="ttdeci">const uint8_t * iov_base</div><div class="ttdef"><b>Definition</b> <a href="lcx__common_8h_source.html#l00067">lcx_common.h:67</a></div></div>
-<div class="ttc" id="ausbd__conf_8h_html_aba7bc1797add20fe3efdf37ced1182c5"><div class="ttname"><a href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a></div><div class="ttdeci">unsigned char uint8_t</div><div class="ttdef"><b>Definition</b> <a href="usbd__conf_8h_source.html#l00053">usbd_conf.h:53</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

@@ -1,9 +1,5 @@
 <map id="lib_cxng/include/lcx_crc.h" name="lib_cxng/include/lcx_crc.h">
-<area shape="rect" id="Node000001" title="CRC (Cyclic Redundancy Check)." alt="" coords="130,5,281,45"/>
-<area shape="rect" id="Node000002" href="$ledger__ble_8h.html" title=" " alt="" coords="5,93,192,133"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="173,56,124,95,121,91,169,52"/>
-<area shape="rect" id="Node000004" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="217,101,407,126"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="242,52,299,98,296,102,238,56"/>
-<area shape="rect" id="Node000003" href="$ledger__ble_8c.html" title=" " alt="" coords="19,181,178,221"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="101,147,101,181,96,181,96,147"/>
+<area shape="rect" id="Node000001" title="CRC (Cyclic Redundancy Check)." alt="" coords="25,5,176,45"/>
+<area shape="rect" id="Node000002" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="5,93,196,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,59,103,93,98,93,98,59"/>
 </map>
