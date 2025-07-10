@@ -248,16 +248,27 @@ static uint8_t de_init(USBD_HandleTypeDef *pdev, uint8_t cfg_idx)
 
 static uint8_t setup(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
 {
-    uint8_t  ret   = USBD_FAIL;
-    uint16_t index = req->wIndex;
+    uint8_t            ret   = USBD_FAIL;
+    uint16_t           index = req->wIndex;
+    usbd_class_info_t *class_info;
 
     if (index < usbd_ledger_data.nb_of_class) {
-        usbd_class_info_t *class_info = usbd_ledger_data.class[index];
-        ret = ((usbd_class_setup_t) PIC(class_info->setup))(pdev, class_info->cookie, req);
+        class_info = usbd_ledger_data.class[index];
+        ret        = ((usbd_class_setup_t) PIC(class_info->setup))(pdev, class_info->cookie, req);
     }
     else {
         ret = USBD_FAIL;
-        USBD_CtlError(pdev, req);
+#ifdef HAVE_WEBUSB
+        for (index = 0; index < usbd_ledger_data.nb_of_class; index++) {
+            class_info = usbd_ledger_data.class[index];
+            if (class_info->type == USBD_LEDGER_CLASS_WEBUSB) {
+                ret = ((usbd_class_setup_t) PIC(class_info->setup))(pdev, class_info->cookie, req);
+            }
+        }
+#endif  // HAVE_WEBUSB
+        if (ret == USBD_FAIL) {
+            USBD_CtlError(pdev, req);
+        }
     }
 
     return ret;
