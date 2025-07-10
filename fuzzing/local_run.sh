@@ -42,47 +42,61 @@ function show_help() {
 function custom_macros(){
     echo -e "${BLUE}Customizing macros...${NC}"
     if [ "$BOLOS_SDK" ]; then
-        cd "$FUZZING_PATH/macros/" || exit
-        python3 extract_macros.py --exclude exclude_macros.txt --add add_macros.txt --output generated/macros.txt --customsonly=1
+        cd "$FUZZING_PATH/macros" || exit 1
+        python3 "$BOLOS_SDK/fuzzing/macros/extract_macros.py" \
+                                --file "generated/used_macros.json" \
+                                --exclude "exclude_macros.txt" \
+                                --add "add_macros.txt" \
+                                --output "generated/macros.txt" \
+                                --customsonly=1
         cd "$FUZZING_PATH" || exit 1
     fi
 }
 
 function gen_macros() {
-    if [ "$BOLOS_SDK" ]; then
-        mkdir -p "$FUZZING_PATH/macros/generated"
-        if [ ! "$(bear --version)" ]; then
-            apt-get update && apt-get install -y bear
-        fi
+    mkdir -p "$FUZZING_PATH/macros/generated"
 
-        cd "/app" || exit 1
-        echo -e "${BLUE}Generating macros...${NC}"
-        case "$TARGET_DEVICE" in
-            flex)
-                make clean BOLOS_SDK="$FLEX_SDK"
-                bear --output "$FUZZING_PATH/macros/generated/used_macros.json" -- make -j"$NUM_CPUS" BOLOS_SDK="$FLEX_SDK"
-                ;;
-            stax)
-                make clean BOLOS_SDK="$STAX_SDK"
-                bear --output "$FUZZING_PATH/macros/generated/used_macros.json" -- make -j"$NUM_CPUS" BOLOS_SDK="$STAX_SDK"
-                ;;
-            *)
-                echo -e "${RED}Unsupported TARGET_DEVICE: $TARGET_DEVICE${NC}"
-                exit 1
-                ;;
-        esac
-        cd "$FUZZING_PATH/macros/" || exit
-        python3 extract_macros.py --file generated/used_macros.json --exclude exclude_macros.txt --add add_macros.txt --output generated/macros.txt
-        cd "$FUZZING_PATH" || exit 1
+    # Install bear while it is not added to the docker image
+    if [ ! "$(bear --version)" ]; then
+        apt-get update && apt-get install -y bear
     fi
+
+    cd "/app" || exit 1
+    echo -e "${BLUE}Generating macros...${NC}"
+    case "$TARGET_DEVICE" in
+        flex)
+            make clean BOLOS_SDK="$FLEX_SDK"
+            bear --output "$FUZZING_PATH/macros/generated/used_macros.json" -- make -j"$NUM_CPUS" BOLOS_SDK="$FLEX_SDK"
+            ;;
+        stax)
+            make clean BOLOS_SDK="$STAX_SDK"
+            bear --output "$FUZZING_PATH/macros/generated/used_macros.json" -- make -j"$NUM_CPUS" BOLOS_SDK="$STAX_SDK"
+            ;;
+        *)
+            echo -e "${RED}Unsupported TARGET_DEVICE: $TARGET_DEVICE${NC}"
+            exit 1
+            ;;
+    esac
+    cd "$FUZZING_PATH/macros/" || exit 1
+    python3 "$BOLOS_SDK/fuzzing/macros/extract_macros.py" \
+                            --file "generated/used_macros.json" \
+                            --exclude exclude_macros.txt \
+                            --add add_macros.txt \
+                            --output generated/macros.txt
+
+    rm "$FUZZING_PATH/macros/generated/used_macros.json"
+    cd "$FUZZING_PATH" || exit 1
 }
 
 function build() {
     cd "$FUZZING_PATH" || exit
+
+    # Install clang_rt while it is not added to the docker image
     CLANG_RT_PATH="$(clang -print-resource-dir)/lib/linux"
     if [ ! -f "$CLANG_RT_PATH/libclang_rt.asan-x86_64.a" ]; then
     apt update && apt install -y libclang-rt-dev
     fi
+
     echo -e "${BLUE}Building the project...${NC}"
     cmake -S . -B build -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Debug -DSANITIZER=address -DTARGET_DEVICE="$TARGET_DEVICE" -DBOLOS_SDK="$BOLOS_SDK" -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS:bool=On
     cmake --build build
@@ -132,39 +146,44 @@ done
 FUZZERNAME=$(basename "$FUZZER")
 OUT_DIR="./out/$FUZZERNAME"
 CORPUS_DIR="$OUT_DIR/corpus"
+CRASH_DIR="$OUT_DIR/crashes"
 
 ### Validate required args
-
-if [ -z "$BOLOS_SDK" ]; then
-    echo -e "${RED}Error: --BOLOS_SDK=\$BOLOS_SDK is required.${NC}"
-fi
 
 if [ "$TARGET_DEVICE" != "flex" ] && [ "$TARGET_DEVICE" != "stax" ]; then
     echo -e "${RED}Unsupported TARGET_DEVICE: $TARGET_DEVICE | Must be STAX or FLEX${NC}"
     exit 1
 fi
 
-if [ "$REGENERATE_MACROS" -ne 0 ]; then
-    if [ -s "$FUZZING_PATH/macros/extract_macros.py" ]; then
+
+if [ ! -f "$FUZZING_PATH/local_run.sh" ]; then
+    #Fuzzing an APP
+    echo "Fuzzing PATH = $FUZZING_PATH"
+    if [ -z "$BOLOS_SDK" ]; then
+        echo -e "${RED}Error: --BOLOS_SDK=\$BOLOS_SDK is required.${NC}"
+        show_help
+    fi
+    if [ "$REGENERATE_MACROS" -ne 0 ]; then
         echo -e "${YELLOW}Generating custom macros...${NC}"
         custom_macros
     fi
-fi
-
-if [ "$REBUILD" -eq 1 ]; then
-    if [ -s "$FUZZING_PATH/macros/extract_macros.py" ]; then
+    if [ "$REBUILD" -eq 1 ] || [ "$REGENERATE_MACROS" -ne 0 ]; then
         if [ ! -s "$FUZZING_PATH/macros/generated/macros.txt" ]; then
             echo -e "${YELLOW}macros.txt is missing or empty. Generating macros...${NC}"
             gen_macros
         fi
+        if [ -s "$FUZZING_PATH/macros/generated/macros.txt" ]; then
+            echo -e "${YELLOW}Generating custom macros...${NC}"
+            custom_macros
+        fi
+        echo -e "${GREEN}\n----------\nFuzzer built at $FUZZING_PATH/build/fuzz_*\n----------${NC}"
     fi
-    if [ -s "$FUZZING_PATH/macros/extract_macros.py" ]; then
-        echo -e "${YELLOW}Generating custom macros...${NC}"
-        custom_macros
-    fi
-    build
-    echo -e "${GREEN}\n----------\nFuzzer built at $FUZZING_PATH/build/fuzz_*\n----------${NC}"
 fi
+if [ "$REBUILD" -eq 1 ]; then
+    build
+fi
+
+### Execute commands
 
 if [ -z "$FUZZER" ]; then
     exit 0
@@ -181,8 +200,8 @@ if [ "$RUN_FUZZER" -eq 1 ]; then
     echo -e "${GREEN}\n----------\nStarting fuzzer '$FUZZERNAME'...\n----------\n${NC}"
     LLVM_PROFILE_FILE="$OUT_DIR/fuzzer.profraw" "$FUZZER" -detect_leaks=0 -max_len=8192 -jobs="$NUM_CPUS" -timeout=10 "$CORPUS_DIR"
     if compgen -G "$FUZZING_PATH/crash-*" > /dev/null; then
-        mkdir -p "$FUZZING_PATH/crashes"
-        mv -- crash-* "$FUZZING_PATH/crashes"
+        mkdir -p "$CRASH_DIR"
+        mv -- crash-* "$CRASH_DIR"
     fi
     mv -- *.log *.profraw "$OUT_DIR" 2>/dev/null
 fi
@@ -205,20 +224,17 @@ if [ "$COMPUTE_COVERAGE" -eq 1 ]; then
     echo -e "----------${NC}"
 fi
 
-OUT_CRASH_DIR="$FUZZING_PATH/out/crashes/$FUZZERNAME"
-
-# If a crash is just to be run (e.g., to observe logs or crash)
 if [ -n "$RUN_CRASH" ] && [ "$RUN_CRASH" != "0" ]; then
     echo -e "${BLUE}\n-------- Running crash input: ${RUN_CRASH} --------${NC}"
 
-    CRASH_INPUT="$FUZZING_PATH/crashes/$RUN_CRASH"
+    CRASH_INPUT="$CRASH_DIR/$RUN_CRASH"
     if [ ! -f "$CRASH_INPUT" ]; then
         echo -e "${RED}Crash file '$CRASH_INPUT' not found!${NC}\n"
         exit 1
     fi
 
     echo -e "${YELLOW}Executing crash input under fuzzer...${NC}"
-    LLVM_PROFILE_FILE="$OUT_CRASH_DIR/crash.profraw" "$FUZZER" -runs=1 -timeout=10 "$CRASH_INPUT"
+    LLVM_PROFILE_FILE="$OUT_DIR/crash.profraw" "$FUZZER" -runs=1 -timeout=10 "$CRASH_INPUT"
 
     echo -e "${GREEN}\n----------"
     echo "Crash execution complete for $RUN_CRASH"
