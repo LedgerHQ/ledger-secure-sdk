@@ -58,6 +58,10 @@ static const LANGUAGE_PACK *language_pack;
 #include "nbgl_font_inter_regular_28_1bpp.inc"
 #include "nbgl_font_inter_semibold_28_1bpp.inc"
 #include "nbgl_font_inter_medium_36_1bpp.inc"
+#elif SMALL_FONT_HEIGHT == 18
+#include "nbgl_font_nanotext_medium_18_1bpp.inc"
+#include "nbgl_font_nanotext_bold_18_1bpp.inc"
+#include "nbgl_font_nanodisplay_semibold_24_1bpp.inc"
 #elif SMALL_FONT_HEIGHT == 11
 #include "nbgl_font_open_sans_extrabold_11.inc"
 #include "nbgl_font_open_sans_regular_11.inc"

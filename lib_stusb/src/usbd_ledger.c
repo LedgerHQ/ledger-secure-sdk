@@ -33,7 +33,6 @@
 #include "os_io_seph_cmd.h"
 #include "seproxyhal_protocol.h"
 
-
 /* Private enumerations ------------------------------------------------------*/
 typedef enum {
     USBD_LEDGER_STATE_INITIALIZED = 0xA0,
@@ -48,6 +47,8 @@ typedef enum {
 #define USBD_NANOS_PLUS_PRODUCT_STRING ("Nano S+")
 #define USBD_STAX_PRODUCT_STRING       ("Stax")
 #define USBD_FLEX_PRODUCT_STRING       ("Flex")
+#define USBD_APEX_P_PRODUCT_STRING     ("Apex P")
+#define USBD_APEX_M_PRODUCT_STRING     ("Apex M")
 
 /* Private types, structures, unions -----------------------------------------*/
 typedef struct {
@@ -533,6 +534,16 @@ void USBD_LEDGER_start(void)
                     USBD_FLEX_PRODUCT_STRING,
                     sizeof(usbd_ledger_data.name));
 #endif  // TARGET_FLEX
+#if defined(TARGET_APEX_P)
+            strlcpy(usbd_ledger_init_data.name,
+                    USBD_APEX_P_PRODUCT_STRING,
+                    sizeof(usbd_ledger_data.name));
+#endif  // TARGET_APEX_P
+#if defined(TARGET_APEX_M)
+            strlcpy(usbd_ledger_init_data.name,
+                    USBD_APEX_M_PRODUCT_STRING,
+                    sizeof(usbd_ledger_data.name));
+#endif  // TARGET_APEX_M
         }
         strlcpy(usbd_ledger_data.name, usbd_ledger_init_data.name, sizeof(usbd_ledger_data.name));
 
@@ -553,6 +564,12 @@ void USBD_LEDGER_start(void)
 #if defined(TARGET_FLEX)
         usbd_ledger_data.product = USBD_LEDGER_PRODUCT_FLEX;
 #endif  // TARGET_FLEX
+#if defined(TARGET_APEX_P)
+        usbd_ledger_data.product = USBD_LEDGER_PRODUCT_APEX_P;
+#endif  // TARGET_APEX_P
+#if defined(TARGET_APEX_M)
+        usbd_ledger_data.product = USBD_LEDGER_PRODUCT_APEX_M;
+#endif  // TARGET_APEX_M
 
         if (usbd_ledger_init_data.vid) {
             usbd_ledger_data.vid = usbd_ledger_init_data.vid;
@@ -569,19 +586,22 @@ void USBD_LEDGER_start(void)
         }
 
 #ifdef HAVE_USB_HIDKBD
-        if (usbd_ledger_init_data.class_mask & USBD_LEDGER_CLASS_HID_KBD && usbd_ledger_data.nb_of_class < USBD_MAX_NUM_INTERFACES) {
+        if (usbd_ledger_init_data.class_mask & USBD_LEDGER_CLASS_HID_KBD
+            && usbd_ledger_data.nb_of_class < USBD_MAX_NUM_INTERFACES) {
             usbd_ledger_data.class[usbd_ledger_data.nb_of_class++]
                 = (usbd_class_info_t *) PIC(&USBD_LEDGER_HID_KBD_class_info);
         }
 #else   // !HAVE_USB_HIDKBD
-        if (usbd_ledger_init_data.class_mask & USBD_LEDGER_CLASS_HID && usbd_ledger_data.nb_of_class < USBD_MAX_NUM_INTERFACES) {
+        if (usbd_ledger_init_data.class_mask & USBD_LEDGER_CLASS_HID
+            && usbd_ledger_data.nb_of_class < USBD_MAX_NUM_INTERFACES) {
             usbd_ledger_data.class[usbd_ledger_data.nb_of_class++]
                 = (usbd_class_info_t *) PIC(&USBD_LEDGER_HID_class_info);
         }
 #endif  // !HAVE_USB_HIDKBD
 
 #ifdef HAVE_IO_U2F
-        if (usbd_ledger_init_data.class_mask & USBD_LEDGER_CLASS_HID_U2F && usbd_ledger_data.nb_of_class < USBD_MAX_NUM_INTERFACES) {
+        if (usbd_ledger_init_data.class_mask & USBD_LEDGER_CLASS_HID_U2F
+            && usbd_ledger_data.nb_of_class < USBD_MAX_NUM_INTERFACES) {
             usbd_ledger_data.class[usbd_ledger_data.nb_of_class++]
                 = (usbd_class_info_t *) PIC(&USBD_LEDGER_HID_U2F_class_info);
             uint8_t buffer[4];
@@ -606,24 +626,27 @@ void USBD_LEDGER_start(void)
         }
 #endif  // HAVE_IO_U2F
 #ifdef HAVE_CCID_USB
-        if (usbd_ledger_init_data.class_mask & USBD_LEDGER_CLASS_CCID_BULK && usbd_ledger_data.nb_of_class < USBD_MAX_NUM_INTERFACES) {
-            usbd_ledger_data.class[usbd_ledger_data.nb_of_class++]
-                = (usbd_class_info_t *) PIC((USBD_ClassTypeDef *)(uintptr_t)&USBD_LEDGER_CCID_Bulk_class_info);
+        if (usbd_ledger_init_data.class_mask & USBD_LEDGER_CLASS_CCID_BULK
+            && usbd_ledger_data.nb_of_class < USBD_MAX_NUM_INTERFACES) {
+            usbd_ledger_data.class[usbd_ledger_data.nb_of_class++] = (usbd_class_info_t *) PIC(
+                (USBD_ClassTypeDef *) (uintptr_t) &USBD_LEDGER_CCID_Bulk_class_info);
         }
 #endif  // HAVE_CCID_USB
 #ifdef HAVE_WEBUSB
-        if (usbd_ledger_init_data.class_mask & USBD_LEDGER_CLASS_WEBUSB && usbd_ledger_data.nb_of_class < USBD_MAX_NUM_INTERFACES) {
-            usbd_ledger_data.bcdusb = 0x10;
-            usbd_ledger_data.class[usbd_ledger_data.nb_of_class++]
-                = (usbd_class_info_t *) PIC((USBD_ClassTypeDef *)(uintptr_t)&USBD_LEDGER_WEBUSB_class_info);
+        if (usbd_ledger_init_data.class_mask & USBD_LEDGER_CLASS_WEBUSB
+            && usbd_ledger_data.nb_of_class < USBD_MAX_NUM_INTERFACES) {
+            usbd_ledger_data.bcdusb                                = 0x10;
+            usbd_ledger_data.class[usbd_ledger_data.nb_of_class++] = (usbd_class_info_t *) PIC(
+                (USBD_ClassTypeDef *) (uintptr_t) &USBD_LEDGER_WEBUSB_class_info);
         }
 #endif  // HAVE_WEBUSB
 #ifdef HAVE_CDCUSB
-        if (usbd_ledger_init_data.class_mask & USBD_LEDGER_CLASS_CDC && usbd_ledger_data.nb_of_class + 1  < USBD_MAX_NUM_INTERFACES) {
-            usbd_ledger_data.class[usbd_ledger_data.nb_of_class++]
-                = (usbd_class_info_t *) PIC((USBD_ClassTypeDef *)(uintptr_t)&USBD_LEDGER_CDC_Control_class_info);
-            usbd_ledger_data.class[usbd_ledger_data.nb_of_class++]
-                = (usbd_class_info_t *) PIC((USBD_ClassTypeDef *)(uintptr_t)&USBD_LEDGER_CDC_Data_class_info);
+        if (usbd_ledger_init_data.class_mask & USBD_LEDGER_CLASS_CDC
+            && usbd_ledger_data.nb_of_class + 1 < USBD_MAX_NUM_INTERFACES) {
+            usbd_ledger_data.class[usbd_ledger_data.nb_of_class++] = (usbd_class_info_t *) PIC(
+                (USBD_ClassTypeDef *) (uintptr_t) &USBD_LEDGER_CDC_Control_class_info);
+            usbd_ledger_data.class[usbd_ledger_data.nb_of_class++] = (usbd_class_info_t *) PIC(
+                (USBD_ClassTypeDef *) (uintptr_t) &USBD_LEDGER_CDC_Data_class_info);
             usbd_ledger_data.usbd_iad = 1;
         }
 #endif  // HAVE_CDCUSB
@@ -637,8 +660,10 @@ void USBD_LEDGER_start(void)
                        usbd_ledger_data.bcdusb,
                        usbd_ledger_data.usbd_iad,
                        get_bos_desc);
-        USBD_Init(&usbd_ledger_data.usbd_handle, (USBD_DescriptorsTypeDef*)(uintptr_t)&LEDGER_Desc, 0);
-        USBD_RegisterClass(&usbd_ledger_data.usbd_handle, (USBD_ClassTypeDef *)(uintptr_t)&USBD_LEDGER_CLASS);
+        USBD_Init(
+            &usbd_ledger_data.usbd_handle, (USBD_DescriptorsTypeDef *) (uintptr_t) &LEDGER_Desc, 0);
+        USBD_RegisterClass(&usbd_ledger_data.usbd_handle,
+                           (USBD_ClassTypeDef *) (uintptr_t) &USBD_LEDGER_CLASS);
     }
     if ((usbd_ledger_data.state == USBD_LEDGER_STATE_STOPPED)
         || (usbd_ledger_data.state == USBD_LEDGER_STATE_INITIALIZED)) {

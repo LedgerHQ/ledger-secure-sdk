@@ -27,7 +27,7 @@
 /*********************
  *      DEFINES
  *********************/
-#if defined(TARGET_FLEX)
+#if defined(TARGET_FLEX) || defined(TARGET_APEX)
 #define USE_PARTIAL_BUTTONS 1
 #endif  // TARGET_FLEX
 
@@ -47,35 +47,80 @@ enum {
     NB_SUGGESTION_CHILDREN
 };
 
+// Keyboard Text Entry container children
+enum {
+    NUMBER_INDEX = 0,
+    TEXT_INDEX,
+    DELETE_INDEX,
+    LINE_INDEX
+};
+
 #if defined(TARGET_STAX)
 #define TEXT_ENTRY_NORMAL_HEIGHT  64
 #define TEXT_ENTRY_COMPACT_HEIGHT 64
 #define BOTTOM_NORMAL_MARGIN      24
+#define BOTTOM_CONFIRM_MARGIN     24
 #define BOTTOM_COMPACT_MARGIN     24
 #define TOP_NORMAL_MARGIN         20
+#define TOP_CONFIRM_MARGIN        20
 #define TOP_COMPACT_MARGIN        20
+#define TITLE_ENTRY_MARGIN_Y      4
+#define TEXT_ENTRY_FONT           LARGE_MEDIUM_1BPP_FONT
+// space between number and text
+#define NUMBER_TEXT_SPACE         8
+#define NUMBER_WIDTH              56
+#define DELETE_ICON               C_Close_32px
 #elif defined(TARGET_FLEX)
 #define TEXT_ENTRY_NORMAL_HEIGHT  72
 #define TEXT_ENTRY_COMPACT_HEIGHT 56
 #define BOTTOM_NORMAL_MARGIN      24
+#define BOTTOM_CONFIRM_MARGIN     24
 #define BOTTOM_COMPACT_MARGIN     12
 #define TOP_NORMAL_MARGIN         20
+#define TOP_CONFIRM_MARGIN        20
 #define TOP_COMPACT_MARGIN        12
+#define TITLE_ENTRY_MARGIN_Y      4
+#define TEXT_ENTRY_FONT           LARGE_MEDIUM_1BPP_FONT
+// space between number and text
+#define NUMBER_TEXT_SPACE         8
+#define NUMBER_WIDTH              56
+#define DELETE_ICON               C_Close_40px
+#elif defined(TARGET_APEX)
+#define TEXT_ENTRY_NORMAL_HEIGHT  40
+#define TEXT_ENTRY_COMPACT_HEIGHT 40
+#define BOTTOM_NORMAL_MARGIN      20
+#define BOTTOM_CONFIRM_MARGIN     16
+#define BOTTOM_COMPACT_MARGIN     8
+#define TOP_NORMAL_MARGIN         20
+#define TOP_CONFIRM_MARGIN        12
+#define TOP_COMPACT_MARGIN        8
+#define TITLE_ENTRY_MARGIN_Y      4
+#define TEXT_ENTRY_FONT           SMALL_BOLD_FONT
+// space between number and text
+#define NUMBER_TEXT_SPACE         4
+#define NUMBER_WIDTH              32
+#define DELETE_ICON               C_Close_Tiny_24px
 #endif  // TARGETS
 
 #ifdef USE_PARTIAL_BUTTONS
 #if defined(TARGET_FLEX)
-#define LEFT_HALF_ICON C_left_half_64px
+#define LEFT_HALF_ICON              C_left_half_64px
+#define SUGGESTION_CONTAINER_HEIGHT 92
+#elif defined(TARGET_APEX)
+#define LEFT_HALF_ICON              C_half_disc_left_40px_1bpp
+#define SUGGESTION_CONTAINER_HEIGHT 56
 #endif  // TARGETS
 #endif  // USE_PARTIAL_BUTTONS
 
-// a horizontal line, even if displayed on 2 pixels, takes 4 pixels
-#define LINE_REAL_HEIGHT 4
-
-#define NUMBER_WIDTH 56
-
-// space between number and text
-#define NUMBER_TEXT_SPACE 8
+// space on left and right of suggestion buttons
+#define SUGGESTION_BUTTONS_SIDE_MARGIN BORDER_MARGIN
+#if defined(TARGET_APEX)
+#define LINE_THICKNESS 1
+#define LINE_COLOR     BLACK
+#else
+#define LINE_THICKNESS 2
+#define LINE_COLOR     LIGHT_GRAY
+#endif  // TARGETS
 
 /**********************
  *      MACROS
@@ -145,7 +190,7 @@ static bool updateSuggestionButtons(nbgl_container_t *container,
     }
     // align top-left button on the left
     if (container->children[FIRST_BUTTON_INDEX] != NULL) {
-        container->children[FIRST_BUTTON_INDEX]->alignmentMarginX = BORDER_MARGIN;
+        container->children[FIRST_BUTTON_INDEX]->alignmentMarginX = SUGGESTION_BUTTONS_SIDE_MARGIN;
         container->children[FIRST_BUTTON_INDEX]->alignmentMarginY = 0;
         container->children[FIRST_BUTTON_INDEX]->alignment        = TOP_LEFT;
         container->children[FIRST_BUTTON_INDEX]->alignTo          = (nbgl_obj_t *) container;
@@ -245,21 +290,21 @@ static nbgl_container_t *addTextEntry(nbgl_layoutInternal_t *layoutInt,
                                       const char            *text,
                                       bool                   numbered,
                                       uint8_t                number,
-                                      bool                   grayedOut,
                                       int                    textToken,
                                       bool                   compactMode)
 {
-    nbgl_container_t *container;
+    nbgl_container_t *mainContainer, *container;
     nbgl_text_area_t *textArea;
     layoutObj_t      *obj;
     uint16_t textEntryHeight = (compactMode ? TEXT_ENTRY_COMPACT_HEIGHT : TEXT_ENTRY_NORMAL_HEIGHT);
+    bool     withCross       = ((text != NULL) && (strlen(text) > 0));
 
-    // create a container, to store title, entered text and underline
-    container                 = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
-    container->nbChildren     = 4;
-    container->children       = nbgl_containerPoolGet(container->nbChildren, layoutInt->layer);
-    container->obj.area.width = AVAILABLE_WIDTH;
-    container->obj.alignment  = CENTER;
+    // create a main container, to store title, and text-entry container
+    mainContainer             = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
+    mainContainer->nbChildren = 2;
+    mainContainer->children   = nbgl_containerPoolGet(mainContainer->nbChildren, layoutInt->layer);
+    mainContainer->obj.area.width = AVAILABLE_WIDTH;
+    mainContainer->obj.alignment  = CENTER;
 
     if (title != NULL) {
         // create text area for title
@@ -273,87 +318,94 @@ static nbgl_container_t *addTextEntry(nbgl_layoutInternal_t *layoutInt,
         textArea->obj.area.width  = AVAILABLE_WIDTH;
         textArea->obj.area.height = nbgl_getTextHeightInWidth(
             textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
-        container->children[0]     = (nbgl_obj_t *) textArea;
-        container->obj.area.height = textArea->obj.area.height + 4;
+        mainContainer->children[0]     = (nbgl_obj_t *) textArea;
+        mainContainer->obj.area.height = textArea->obj.area.height + TITLE_ENTRY_MARGIN_Y;
     }
+
+    // create a text-entry container number, entered text, potential cross and underline
+    container                 = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
+    container->nbChildren     = 4;
+    container->children       = nbgl_containerPoolGet(container->nbChildren, layoutInt->layer);
+    container->obj.area.width = AVAILABLE_WIDTH;
+    container->obj.alignment  = BOTTOM_MIDDLE;
 
     if (numbered) {
         // create Word num typed text
         textArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
         textArea->textColor = BLACK;
         snprintf(numText, sizeof(numText), "%d.", number);
-        textArea->text           = numText;
-        textArea->textAlignment  = CENTER;
-        textArea->fontId         = LARGE_MEDIUM_1BPP_FONT;
-        textArea->obj.area.width = NUMBER_WIDTH;
-        if (title != NULL) {
-            textArea->obj.alignmentMarginY = 4 + LINE_REAL_HEIGHT;
-            textArea->obj.alignTo          = container->children[0];
-            textArea->obj.alignment        = BOTTOM_LEFT;
-        }
-        else {
-            textArea->obj.alignmentMarginY = LINE_REAL_HEIGHT;
-            textArea->obj.alignment        = TOP_LEFT;
-        }
-        textArea->obj.area.height = textEntryHeight - 2 * LINE_REAL_HEIGHT;
+        textArea->text            = numText;
+        textArea->textAlignment   = CENTER;
+        textArea->fontId          = TEXT_ENTRY_FONT;
+        textArea->obj.area.width  = NUMBER_WIDTH;
+        textArea->obj.alignment   = MID_LEFT;
+        textArea->obj.area.height = nbgl_getFontHeight(textArea->fontId);
         // set this text area as child of the container
-        container->children[1] = (nbgl_obj_t *) textArea;
+        container->children[NUMBER_INDEX] = (nbgl_obj_t *) textArea;
     }
 
     // create text area for entered text
-    textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-    textArea->textColor     = grayedOut ? LIGHT_GRAY : BLACK;
-    textArea->text          = text;
-    textArea->textAlignment = MID_LEFT;
-    textArea->fontId        = LARGE_MEDIUM_1BPP_FONT;
-    if (title != NULL) {
-        textArea->obj.alignmentMarginY = 4 + LINE_REAL_HEIGHT;
+    textArea                 = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+    textArea->textColor      = BLACK;
+    textArea->text           = text;
+    textArea->textAlignment  = MID_LEFT;
+    textArea->fontId         = TEXT_ENTRY_FONT;
+    textArea->obj.area.width = AVAILABLE_WIDTH - DELETE_ICON.width - NUMBER_TEXT_SPACE;
+    if (numbered) {
+        textArea->obj.alignmentMarginX = NUMBER_TEXT_SPACE;
         textArea->obj.alignTo          = container->children[0];
-        textArea->obj.alignment        = BOTTOM_LEFT;
+        textArea->obj.alignment        = MID_RIGHT;
+        textArea->obj.area.width -= textArea->obj.alignmentMarginX + NUMBER_WIDTH;
     }
     else {
-        textArea->obj.alignmentMarginY = LINE_REAL_HEIGHT;
-        textArea->obj.alignment        = TOP_LEFT;
+        textArea->obj.alignment = MID_LEFT;
     }
-    textArea->obj.area.width = AVAILABLE_WIDTH;
-    if (numbered) {
-        textArea->obj.alignmentMarginX = NUMBER_WIDTH + NUMBER_TEXT_SPACE;
-        textArea->obj.area.width -= textArea->obj.alignmentMarginX;
-    }
-    textArea->obj.area.height  = textEntryHeight - 2 * LINE_REAL_HEIGHT;
+    textArea->obj.area.height  = nbgl_getFontHeight(textArea->fontId);
     textArea->autoHideLongLine = true;
 
-    obj = layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) textArea, textToken, NBGL_NO_TUNE);
+    container->children[TEXT_INDEX] = (nbgl_obj_t *) textArea;
+    container->obj.area.height      = textEntryHeight;
+
+    // Create Cross
+    nbgl_image_t *image = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
+    image->buffer       = &DELETE_ICON;
+    // only display it if text non empty
+    image->foregroundColor = withCross ? BLACK : WHITE;
+    obj = layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) image, textToken, NBGL_NO_TUNE);
     if (obj == NULL) {
         return NULL;
     }
-    textArea->obj.touchMask = (1 << TOUCHED);
-    textArea->obj.touchId   = ENTERED_TEXT_ID;
-    container->children[2]  = (nbgl_obj_t *) textArea;
-    container->obj.area.height += textEntryHeight;
+    image->obj.alignment              = MID_RIGHT;
+    image->obj.alignTo                = container->children[TEXT_INDEX];
+    image->obj.alignmentMarginX       = NUMBER_TEXT_SPACE;
+    image->obj.touchMask              = (1 << TOUCHED);
+    image->obj.touchId                = ENTERED_TEXT_ID;
+    container->children[DELETE_INDEX] = (nbgl_obj_t *) image;
 
     // create gray line
     nbgl_line_t *line = (nbgl_line_t *) nbgl_objPoolGet(LINE, layoutInt->layer);
-    line->lineColor   = LIGHT_GRAY;
-    // align on bottom of the container
+    line->lineColor   = LINE_COLOR;
+    // align on bottom of the text entry container
     line->obj.alignment   = BOTTOM_MIDDLE;
     line->obj.area.width  = AVAILABLE_WIDTH;
-    line->obj.area.height = LINE_REAL_HEIGHT;
+    line->obj.area.height = LINE_THICKNESS;
     line->direction       = HORIZONTAL;
-    line->thickness       = 2;
-    line->offset          = 2;
-    // set this line as child of the container
-    container->children[3] = (nbgl_obj_t *) line;
+    line->thickness       = LINE_THICKNESS;
+    // set this line as child of the text entry container
+    container->children[LINE_INDEX] = (nbgl_obj_t *) line;
 
-    return container;
+    // set this text entry container as child of the main container
+    mainContainer->children[1] = (nbgl_obj_t *) container;
+    mainContainer->obj.area.height += container->obj.area.height;
+
+    return mainContainer;
 }
 
 static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
                                               uint8_t                nbUsedButtons,
                                               const char           **buttonTexts,
                                               int                    firstButtonToken,
-                                              tune_index_e           tuneId,
-                                              bool                   compactMode)
+                                              tune_index_e           tuneId)
 {
     nbgl_container_t *suggestionsContainer;
     layoutObj_t      *obj;
@@ -367,16 +419,15 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
     suggestionsContainer->obj.area.height = 2 * SMALL_BUTTON_HEIGHT + INTERNAL_MARGIN + 28;
 #else   // USE_PARTIAL_BUTTONS
     // 1 row of buttons + 24px + page indicator
-    suggestionsContainer->obj.area.height = SMALL_BUTTON_HEIGHT + 28;
+    suggestionsContainer->obj.area.height = SUGGESTION_CONTAINER_HEIGHT;
 #endif  // USE_PARTIAL_BUTTONS
     suggestionsContainer->nbChildren = nbActiveButtons + FIRST_BUTTON_INDEX;
     suggestionsContainer->children
         = (nbgl_obj_t **) nbgl_containerPoolGet(NB_SUGGESTION_CHILDREN, layoutInt->layer);
 
-    // put suggestionsContainer at 24px of the bottom of main container
-    suggestionsContainer->obj.alignmentMarginY
-        = compactMode ? BOTTOM_COMPACT_MARGIN : BOTTOM_NORMAL_MARGIN;
-    suggestionsContainer->obj.alignment = BOTTOM_MIDDLE;
+    // put suggestionsContainer at the bottom of main container
+    suggestionsContainer->obj.alignmentMarginY = BOTTOM_NORMAL_MARGIN;
+    suggestionsContainer->obj.alignment        = BOTTOM_MIDDLE;
 
     // create all possible suggestion buttons, even if not displayed at first
     nbgl_objPoolGetArray(
@@ -391,7 +442,8 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
         choiceButtons[i]->innerColor      = BLACK;
         choiceButtons[i]->borderColor     = BLACK;
         choiceButtons[i]->foregroundColor = WHITE;
-        choiceButtons[i]->obj.area.width  = (AVAILABLE_WIDTH - INTERNAL_MARGIN) / 2;
+        choiceButtons[i]->obj.area.width
+            = (SCREEN_WIDTH - (2 * SUGGESTION_BUTTONS_SIDE_MARGIN) - INTERNAL_MARGIN) / 2;
         choiceButtons[i]->obj.area.height = SMALL_BUTTON_HEIGHT;
         choiceButtons[i]->radius          = SMALL_BUTTON_RADIUS_INDEX;
         choiceButtons[i]->fontId          = SMALL_BOLD_1BPP_FONT;
@@ -411,7 +463,8 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
     indicator->activePage = 0;
     indicator->nbPages    = (nbActiveButtons + NB_MAX_VISIBLE_SUGGESTION_BUTTONS - 1)
                          / NB_MAX_VISIBLE_SUGGESTION_BUTTONS;
-    indicator->obj.area.width                            = 184;
+    indicator->obj.area.width
+        = (indicator->nbPages < 3) ? STEPPER_2_PAGES_WIDTH : STEPPER_N_PAGES_WIDTH;
     indicator->obj.alignment                             = BOTTOM_MIDDLE;
     indicator->style                                     = CURRENT_INDICATOR;
     suggestionsContainer->children[PAGE_INDICATOR_INDEX] = (nbgl_obj_t *) indicator;
@@ -449,8 +502,8 @@ static nbgl_button_t *addConfirmationButton(nbgl_layoutInternal_t *layoutInt,
         return NULL;
     }
 
-    // put button at 24px/12px of the keyboard
-    button->obj.alignmentMarginY = compactMode ? BOTTOM_COMPACT_MARGIN : BOTTOM_NORMAL_MARGIN;
+    // put button at the bottom of the main container
+    button->obj.alignmentMarginY = compactMode ? BOTTOM_COMPACT_MARGIN : BOTTOM_CONFIRM_MARGIN;
     button->obj.alignment        = BOTTOM_MIDDLE;
     button->foregroundColor      = WHITE;
     if (active) {
@@ -460,8 +513,8 @@ static nbgl_button_t *addConfirmationButton(nbgl_layoutInternal_t *layoutInt,
         button->obj.touchId   = BOTTOM_BUTTON_ID;
     }
     else {
-        button->borderColor = LIGHT_GRAY;
-        button->innerColor  = LIGHT_GRAY;
+        button->borderColor = INACTIVE_COLOR;
+        button->innerColor  = INACTIVE_COLOR;
     }
     button->text            = PIC(text);
     button->fontId          = SMALL_BOLD_1BPP_FONT;
@@ -614,138 +667,6 @@ bool nbgl_layoutKeyboardNeedsRefresh(nbgl_layout_t *layout, uint8_t index)
 }
 
 /**
- * @brief Adds up to 4 black suggestion buttons under the previously added object
- * @deprecated Use @ref nbgl_layoutAddKeyboardContent instead
- *
- * @param layout the current layout
- * @param nbUsedButtons the number of actually used buttons
- * @param buttonTexts array of 4 strings for buttons (last ones can be NULL)
- * @param firstButtonToken first token used for buttons, provided in onActionCallback (the next 3
- * values will be used for other buttons)
- * @param tuneId tune to play when any button is pressed
- * @return >= 0 if OK
- */
-int nbgl_layoutAddSuggestionButtons(nbgl_layout_t *layout,
-                                    uint8_t        nbUsedButtons,
-                                    const char    *buttonTexts[NB_MAX_SUGGESTION_BUTTONS],
-                                    int            firstButtonToken,
-                                    tune_index_e   tuneId)
-{
-    nbgl_container_t      *container;
-    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
-    // if a centered info has be used for title, entered text is the second child
-    uint8_t enteredTextIndex = (layoutInt->container->nbChildren == 2) ? 0 : 1;
-
-    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddSuggestionButtons():\n");
-    if (layout == NULL) {
-        return -1;
-    }
-
-    container = addSuggestionButtons(
-        layoutInt, nbUsedButtons, buttonTexts, firstButtonToken, tuneId, false);
-    // set this container as 2nd or 3rd child of the main layout container
-    layoutInt->container->children[enteredTextIndex + 1] = (nbgl_obj_t *) container;
-    if (layoutInt->container->children[enteredTextIndex] != NULL) {
-        ((nbgl_container_t *) layoutInt->container->children[enteredTextIndex])
-            ->obj.alignmentMarginY
-            -= (container->obj.area.height + container->obj.alignmentMarginY + 20) / 2;
-    }
-#ifdef USE_PARTIAL_BUTTONS
-    // the main container is swipable on Flex
-    if (layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) layoutInt->container, 0, NBGL_NO_TUNE)
-        == NULL) {
-        return -1;
-    }
-    layoutInt->container->obj.touchMask = (1 << SWIPED_LEFT) | (1 << SWIPED_RIGHT);
-    layoutInt->container->obj.touchId   = CONTROLS_ID;
-    layoutInt->swipeUsage               = SWIPE_USAGE_SUGGESTIONS;
-#endif  // USE_PARTIAL_BUTTONS
-    // set this new container as child of the main container
-    layoutAddObject(layoutInt, (nbgl_obj_t *) container);
-
-    // return index of container to be modified later on
-    return (layoutInt->container->nbChildren - 1);
-}
-
-/**
- * @brief Updates the number and/or the text suggestion buttons created with @ref
- * nbgl_layoutAddSuggestionButtons()
- * @deprecated Use @ref nbgl_layoutUpdateKeyboardContent instead
- *
- * @param layout the current layout
- * @param index index returned by @ref nbgl_layoutAddSuggestionButtons() (unused)
- * @param nbUsedButtons the number of actually used buttons
- * @param buttonTexts array of 4 strings for buttons (last ones can be NULL)
- * @return >= 0 if OK
- */
-int nbgl_layoutUpdateSuggestionButtons(nbgl_layout_t *layout,
-                                       uint8_t        index,
-                                       uint8_t        nbUsedButtons,
-                                       const char    *buttonTexts[NB_MAX_SUGGESTION_BUTTONS])
-{
-    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
-    nbgl_container_t      *container;
-    uint8_t                enteredTextIndex = (layoutInt->container->nbChildren == 2) ? 0 : 1;
-
-    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutUpdateSuggestionButtons():\n");
-    if (layout == NULL) {
-        return -1;
-    }
-    UNUSED(index);
-
-    container = (nbgl_container_t *) layoutInt->container->children[enteredTextIndex + 1];
-    if ((container == NULL) || (container->obj.type != CONTAINER)) {
-        return -1;
-    }
-    nbActiveButtons       = nbUsedButtons;
-    container->nbChildren = nbUsedButtons + FIRST_BUTTON_INDEX;
-
-    // update suggestion buttons
-    for (int i = 0; i < NB_MAX_SUGGESTION_BUTTONS; i++) {
-        choiceButtons[i]->text = buttonTexts[i];
-        // some buttons may not be visible
-        if (i < MIN(NB_MAX_VISIBLE_SUGGESTION_BUTTONS, nbUsedButtons)) {
-            if ((i % 2) == 0) {
-                choiceButtons[i]->obj.alignmentMarginX = BORDER_MARGIN;
-#ifndef USE_PARTIAL_BUTTONS
-                // second row 8px under the first one
-                if (i != 0) {
-                    choiceButtons[i]->obj.alignmentMarginY = INTERNAL_MARGIN;
-                }
-                choiceButtons[i]->obj.alignment = NO_ALIGNMENT;
-#else   // USE_PARTIAL_BUTTONS
-                if (i == 0) {
-                    choiceButtons[i]->obj.alignment = TOP_LEFT;
-                }
-#endif  // USE_PARTIAL_BUTTONS
-            }
-            else {
-                choiceButtons[i]->obj.alignmentMarginX = INTERNAL_MARGIN;
-                choiceButtons[i]->obj.alignment        = MID_RIGHT;
-                choiceButtons[i]->obj.alignTo          = (nbgl_obj_t *) choiceButtons[i - 1];
-            }
-            container->children[i + FIRST_BUTTON_INDEX] = (nbgl_obj_t *) choiceButtons[i];
-        }
-        else {
-            container->children[i + FIRST_BUTTON_INDEX] = NULL;
-        }
-    }
-    container->forceClean = true;
-#ifdef USE_PARTIAL_BUTTONS
-    // on Flex, the first child is used by the progress indicator, if more that 2 buttons
-    nbgl_page_indicator_t *indicator
-        = (nbgl_page_indicator_t *) container->children[PAGE_INDICATOR_INDEX];
-    indicator->nbPages    = (nbUsedButtons + 1) / 2;
-    indicator->activePage = 0;
-    updateSuggestionButtons(container, 0, 0);
-#endif  // USE_PARTIAL_BUTTONS
-
-    nbgl_objDraw((nbgl_obj_t *) container);
-
-    return 0;
-}
-
-/**
  * @brief Adds a "text entry" area under the previously entered object. This area can be preceded
  * (beginning of line) by an index, indicating for example the entered world. A vertical gray line
  * is placed under the text. This text must be vertical placed in the screen with offsetY
@@ -757,9 +678,9 @@ int nbgl_layoutUpdateSuggestionButtons(nbgl_layout_t *layout,
  * @param numbered if true, the "number" param is used as index
  * @param number index of the text
  * @param text string to display in the area
- * @param grayedOut if true, the text is grayed out (but not the potential number)
+ * @param grayedOut if true, the text is grayed out (unused)
  * @param offsetY vertical offset from the top of the page
- * @param token token provided in onActionCallback when this area is touched
+ * @param token token provided in onActionCallback when the "cross" is touched
  * @return >= 0 if OK
  */
 int nbgl_layoutAddEnteredText(nbgl_layout_t *layout,
@@ -782,9 +703,9 @@ int nbgl_layoutAddEnteredText(nbgl_layout_t *layout,
         return -1;
     }
     UNUSED(offsetY);
+    UNUSED(grayedOut);
 
-    container
-        = addTextEntry(layoutInt, NULL, text, numbered, number, grayedOut, token, compactMode);
+    container = addTextEntry(layoutInt, NULL, text, numbered, number, token, compactMode);
 
     // set this container as first or 2nd child of the main layout container
     layoutInt->container->children[enteredTextIndex] = (nbgl_obj_t *) container;
@@ -858,7 +779,7 @@ int nbgl_layoutUpdateEnteredText(nbgl_layout_t *layout,
         return -1;
     }
     textArea->text          = text;
-    textArea->textColor     = grayedOut ? LIGHT_GRAY : BLACK;
+    textArea->textColor     = grayedOut ? INACTIVE_TEXT_COLOR : BLACK;
     textArea->textAlignment = MID_LEFT;
     nbgl_objDraw((nbgl_obj_t *) textArea);
 
@@ -959,8 +880,8 @@ int nbgl_layoutUpdateConfirmationButton(nbgl_layout_t *layout,
         button->obj.touchId   = BOTTOM_BUTTON_ID;
     }
     else {
-        button->borderColor = LIGHT_GRAY;
-        button->innerColor  = LIGHT_GRAY;
+        button->borderColor = INACTIVE_COLOR;
+        button->innerColor  = INACTIVE_COLOR;
     }
     nbgl_objDraw((nbgl_obj_t *) button);
     return 0;
@@ -977,7 +898,7 @@ int nbgl_layoutUpdateConfirmationButton(nbgl_layout_t *layout,
 int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardContent_t *content)
 {
     nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
-    nbgl_container_t      *container;
+    nbgl_container_t      *textEntryContainer;
     bool compactMode = ((content->type == KEYBOARD_WITH_BUTTON) && (content->title != NULL));
 
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddKeyboardContent():\n");
@@ -985,17 +906,16 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
         return -1;
     }
 
-    container = addTextEntry(layoutInt,
-                             content->title,
-                             content->text,
-                             content->numbered,
-                             content->number,
-                             content->grayedOut,
-                             content->textToken,
-                             compactMode);
+    textEntryContainer = addTextEntry(layoutInt,
+                                      content->title,
+                                      content->text,
+                                      content->numbered,
+                                      content->number,
+                                      content->textToken,
+                                      compactMode);
 
     // set this container as first child of the main layout container
-    layoutInt->container->children[0] = (nbgl_obj_t *) container;
+    layoutInt->container->children[0] = (nbgl_obj_t *) textEntryContainer;
 
     if (content->type == KEYBOARD_WITH_SUGGESTIONS) {
         nbgl_container_t *suggestionsContainer
@@ -1003,8 +923,7 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
                                    content->suggestionButtons.nbUsedButtons,
                                    content->suggestionButtons.buttons,
                                    content->suggestionButtons.firstButtonToken,
-                                   content->tuneId,
-                                   compactMode);
+                                   content->tuneId);
         // set this container as second child of the main layout container
         layoutInt->container->children[1] = (nbgl_obj_t *) suggestionsContainer;
         // the main container is swipable on Flex
@@ -1015,9 +934,9 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
         layoutInt->container->obj.touchMask = (1 << SWIPED_LEFT) | (1 << SWIPED_RIGHT);
         layoutInt->container->obj.touchId   = CONTROLS_ID;
         layoutInt->swipeUsage               = SWIPE_USAGE_SUGGESTIONS;
-        container->obj.alignmentMarginY
+        textEntryContainer->obj.alignmentMarginY
             -= (suggestionsContainer->obj.area.height + suggestionsContainer->obj.alignmentMarginY
-                + (compactMode ? TOP_COMPACT_MARGIN : TOP_NORMAL_MARGIN))
+                + TOP_NORMAL_MARGIN)
                / 2;
     }
     else if (content->type == KEYBOARD_WITH_BUTTON) {
@@ -1026,15 +945,14 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
                                                       content->confirmationButton.text,
                                                       content->confirmationButton.token,
                                                       content->tuneId,
-                                                      compactMode);
+                                                      (content->title != NULL));
         // set this button as second child of the main layout container
         layoutInt->container->children[1] = (nbgl_obj_t *) button;
-        container->obj.alignmentMarginY
+        textEntryContainer->obj.alignmentMarginY
             -= (button->obj.area.height + button->obj.alignmentMarginY
-                + (compactMode ? TOP_COMPACT_MARGIN : TOP_NORMAL_MARGIN))
+                + ((content->title != NULL) ? TOP_COMPACT_MARGIN : TOP_CONFIRM_MARGIN))
                / 2;
     }
-
     return layoutInt->container->obj.area.height;
 }
 
@@ -1051,8 +969,9 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
 int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardContent_t *content)
 {
     nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
-    nbgl_container_t      *container;
+    nbgl_container_t      *mainContainer, *container;
     nbgl_text_area_t      *textArea;
+    nbgl_image_t          *image;
 
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutUpdateKeyboardContent():\n");
     if (layout == NULL) {
@@ -1060,20 +979,35 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
     }
 
     // get top container from main container (it shall be the 1st object)
-    container = (nbgl_container_t *) layoutInt->container->children[0];
+    mainContainer = (nbgl_container_t *) layoutInt->container->children[0];
+    container     = (nbgl_container_t *) mainContainer->children[1];
 
     if (content->numbered) {
         // get Word number typed text
-        textArea = (nbgl_text_area_t *) container->children[1];
+        textArea = (nbgl_text_area_t *) container->children[NUMBER_INDEX];
         snprintf(numText, sizeof(numText), "%d.", content->number);
         nbgl_objDraw((nbgl_obj_t *) textArea);
     }
 
     // get text area for entered text
-    textArea            = (nbgl_text_area_t *) container->children[2];
-    textArea->textColor = content->grayedOut ? LIGHT_GRAY : BLACK;
-    textArea->text      = content->text;
+    textArea       = (nbgl_text_area_t *) container->children[TEXT_INDEX];
+    textArea->text = content->text;
     nbgl_objDraw((nbgl_obj_t *) textArea);
+
+    // get delete cross
+    image = (nbgl_image_t *) container->children[DELETE_INDEX];
+    if ((textArea->text != NULL) && (strlen(textArea->text) > 0)) {
+        if (image->foregroundColor == WHITE) {
+            image->foregroundColor = BLACK;
+            nbgl_objDraw((nbgl_obj_t *) image);
+        }
+    }
+    else {
+        if (image->foregroundColor == BLACK) {
+            image->foregroundColor = WHITE;
+            nbgl_objDraw((nbgl_obj_t *) image);
+        }
+    }
 
     if (content->type == KEYBOARD_WITH_SUGGESTIONS) {
         nbActiveButtons = content->suggestionButtons.nbUsedButtons;
@@ -1120,8 +1054,8 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
             button->obj.touchId   = BOTTOM_BUTTON_ID;
         }
         else {
-            button->borderColor = LIGHT_GRAY;
-            button->innerColor  = LIGHT_GRAY;
+            button->borderColor = INACTIVE_COLOR;
+            button->innerColor  = INACTIVE_COLOR;
         }
         nbgl_objDraw((nbgl_obj_t *) button);
     }

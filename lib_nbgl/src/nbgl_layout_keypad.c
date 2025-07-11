@@ -37,10 +37,20 @@ enum {
 #define ENTRY_DIGITS_HEIGHT           50
 #define ENTRY_DIGITS_CONTAINER_HEIGHT 44
 #define INTER_ENTRY_DIGITS            10
+#define TITLE_MARGIN_Y                8
+#define TITLE_MARGIN_Y_SMALL          8
 #elif defined(TARGET_FLEX)
 #define ENTRY_DIGITS_HEIGHT           64
 #define ENTRY_DIGITS_CONTAINER_HEIGHT 64
 #define INTER_ENTRY_DIGITS            12
+#define TITLE_MARGIN_Y                8
+#define TITLE_MARGIN_Y_SMALL          8
+#elif defined(TARGET_APEX)
+#define ENTRY_DIGITS_HEIGHT           40
+#define ENTRY_DIGITS_CONTAINER_HEIGHT 40
+#define INTER_ENTRY_DIGITS            8
+#define TITLE_MARGIN_Y                13
+#define TITLE_MARGIN_Y_SMALL          2
 #endif  // TARGETS
 
 /**********************
@@ -94,12 +104,13 @@ int nbgl_layoutAddKeypad(nbgl_layout_t *layout, keyboardCallback_t callback, boo
     keypad->obj.alignTo          = NULL;
     keypad->obj.area.width       = SCREEN_WIDTH;
     keypad->obj.area.height      = 4 * KEYPAD_KEY_HEIGHT;
-    keypad->borderColor          = LIGHT_GRAY;
     keypad->callback             = PIC(callback);
     keypad->enableDigits         = true;
     keypad->enableBackspace      = false;
     keypad->enableValidate       = false;
     keypad->shuffled             = shuffled;
+    keypad->digitsChanged        = true;
+    keypad->validateChanged      = true;
 
     // the keypad occupies the footer
     layoutInt->footerContainer = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
@@ -158,7 +169,8 @@ int nbgl_layoutUpdateKeypad(nbgl_layout_t *layout,
         return -1;
     }
     // partial redraw only if only validate and backspace have changed
-    keypad->partial         = (keypad->enableDigits == enableDigits);
+    keypad->digitsChanged   = (keypad->enableDigits != enableDigits);
+    keypad->validateChanged = (keypad->enableValidate != enableValidate);
     keypad->enableValidate  = enableValidate;
     keypad->enableBackspace = enableBackspace;
     keypad->enableDigits    = enableDigits;
@@ -384,7 +396,6 @@ int nbgl_layoutAddKeypadContent(nbgl_layout_t *layout,
     container->children       = nbgl_containerPoolGet(container->nbChildren, layoutInt->layer);
     container->obj.area.width = AVAILABLE_WIDTH;
     container->obj.alignment  = TOP_MIDDLE;
-    container->obj.alignmentMarginY = 8;
 
     // create text area for title
     textArea                  = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
@@ -397,6 +408,12 @@ int nbgl_layoutAddKeypadContent(nbgl_layout_t *layout,
     textArea->obj.area.width  = AVAILABLE_WIDTH;
     textArea->obj.area.height = nbgl_getTextHeightInWidth(
         textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
+    if (textArea->obj.area.height > nbgl_getFontHeight(textArea->fontId)) {
+        container->obj.alignmentMarginY = TITLE_MARGIN_Y_SMALL;
+    }
+    else {
+        container->obj.alignmentMarginY = TITLE_MARGIN_Y;
+    }
     container->children[TITLE_INDEX] = (nbgl_obj_t *) textArea;
     container->obj.area.height += textArea->obj.area.height;
 

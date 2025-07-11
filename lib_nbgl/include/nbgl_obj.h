@@ -33,6 +33,8 @@ extern "C" {
 #define KEYBOARD_KEY_HEIGHT 60
 #elif defined(TARGET_FLEX)
 #define KEYBOARD_KEY_HEIGHT 72
+#elif defined(TARGET_APEX)
+#define KEYBOARD_KEY_HEIGHT 51
 #endif  // TARGETS
 
 // index of keys for keyMask field of nbgl_keyboard_t
@@ -55,6 +57,8 @@ extern "C" {
 #define KEYPAD_KEY_HEIGHT 104
 #elif defined(TARGET_FLEX)
 #define KEYPAD_KEY_HEIGHT 88
+#elif defined(TARGET_APEX)
+#define KEYPAD_KEY_HEIGHT 60
 #endif  // TARGETS
 #else   // SCREEN_SIZE_WALLET
 #define KEYPAD_WIDTH  114
@@ -65,11 +69,14 @@ extern "C" {
 #ifdef SCREEN_SIZE_WALLET
 // external margin in pixels
 #if defined(TARGET_STAX)
-#define BORDER_MARGIN        24
-#define BOTTOM_BORDER_MARGIN 24
+#define BORDER_MARGIN          24
+#define VERTICAL_BORDER_MARGIN 24
 #elif defined(TARGET_FLEX)
-#define BORDER_MARGIN        32
-#define BOTTOM_BORDER_MARGIN 24
+#define BORDER_MARGIN          32
+#define VERTICAL_BORDER_MARGIN 24
+#elif defined(TARGET_APEX)
+#define BORDER_MARGIN          16
+#define VERTICAL_BORDER_MARGIN 24
 #endif  // TARGETS
 
 // Back button header height
@@ -77,16 +84,19 @@ extern "C" {
 #define BACK_BUTTON_HEADER_HEIGHT 88
 #elif defined(TARGET_FLEX)
 #define BACK_BUTTON_HEADER_HEIGHT 96
+#elif defined(TARGET_APEX)
+#define BACK_BUTTON_HEADER_HEIGHT 60
 #endif  // TARGETS
 
 // common dimensions for buttons
 #if COMMON_RADIUS == 40
-#define BUTTON_RADIUS   RADIUS_40_PIXELS
-#define BUTTON_DIAMETER (COMMON_RADIUS * 2)
+#define BUTTON_RADIUS RADIUS_40_PIXELS
 #elif COMMON_RADIUS == 44
-#define BUTTON_RADIUS   RADIUS_44_PIXELS
-#define BUTTON_DIAMETER (COMMON_RADIUS * 2)
+#define BUTTON_RADIUS RADIUS_44_PIXELS
+#elif COMMON_RADIUS == 28
+#define BUTTON_RADIUS RADIUS_28_PIXELS
 #endif  // COMMON_RADIUS
+#define BUTTON_DIAMETER (COMMON_RADIUS * 2)
 
 // width & height for spinner
 #if defined(TARGET_STAX)
@@ -95,6 +105,21 @@ extern "C" {
 #elif defined(TARGET_FLEX)
 #define SPINNER_WIDTH  64
 #define SPINNER_HEIGHT 48
+#elif defined(TARGET_APEX)
+#define SPINNER_WIDTH  40
+#define SPINNER_HEIGHT 32
+#endif  // TARGETS
+
+// width for indicator
+#if defined(TARGET_STAX)
+#define STEPPER_2_PAGES_WIDTH 136
+#define STEPPER_N_PAGES_WIDTH 184
+#elif defined(TARGET_FLEX)
+#define STEPPER_2_PAGES_WIDTH 136
+#define STEPPER_N_PAGES_WIDTH 184
+#elif defined(TARGET_APEX)
+#define STEPPER_2_PAGES_WIDTH 108
+#define STEPPER_N_PAGES_WIDTH 104
 #endif  // TARGETS
 
 // width & height for radio button
@@ -104,6 +129,9 @@ extern "C" {
 #elif defined(TARGET_FLEX)
 #define RADIO_WIDTH  40
 #define RADIO_HEIGHT 40
+#elif defined(TARGET_APEX)
+#define RADIO_WIDTH  24
+#define RADIO_HEIGHT 24
 #endif  // TARGETS
 
 // common small icons
@@ -132,6 +160,7 @@ extern "C" {
 #define QUESTION_ICON        C_Question_32px
 #define DIGIT_ICON           C_round_24px
 #define QUESTION_CIRCLE_ICON C_Question_Mark_Circle_32px
+#define SWITCH_ICON          C_switch_60_40
 #elif SMALL_ICON_SIZE == 40
 #define SPACE_ICON           C_Space_40px
 #define BACKSPACE_ICON       C_Erase_40px
@@ -157,6 +186,34 @@ extern "C" {
 #define QUESTION_ICON        C_Question_40px
 #define DIGIT_ICON           C_pin_24
 #define QUESTION_CIRCLE_ICON C_Question_Mark_Circle_40px
+#define SWITCH_ICON          C_switch_60_40
+#elif SMALL_ICON_SIZE == 24
+#define SPACE_ICON           C_Space_24px
+#define BACKSPACE_ICON       C_Erase_24px
+#define SHIFT_ICON           C_Maj_24px
+#define SHIFT_LOCKED_ICON    C_Maj_Lock_24px
+#define VALIDATE_ICON        C_Check_24px
+#define RADIO_OFF_ICON       C_radio_inactive_24px
+#define RADIO_ON_ICON        C_radio_active_24px
+#define PUSH_ICON            C_Chevron_24px
+#define LEFT_ARROW_ICON      C_Back_24px
+#define RIGHT_ARROW_ICON     C_Next_24px
+#define CHEVRON_BACK_ICON    C_Chevron_Back_24px
+#define CHEVRON_NEXT_ICON    C_Chevron_Next_24px
+#define CLOSE_ICON           C_Close_24px
+#define WHEEL_ICON           C_Settings_24px
+#define INFO_I_ICON          C_Info_24px
+#define QRCODE_ICON          C_QRCode_24px
+#define MINI_PUSH_ICON       C_Mini_Push_24px
+#define WARNING_ICON         C_Warning_24px
+#define ROUND_WARN_ICON      C_Important_Circle_24px
+#define PRIVACY_ICON         C_Privacy_24px
+#define EXCLAMATION_ICON     C_Exclamation_24px
+#define DIGIT_ICON           C_Dot_16px
+#define QUESTION_CIRCLE_ICON C_Question_Mark_Circle_24px
+#define SWITCH_ICON          C_switch_on_24px
+#else  // SMALL_ICON_SIZE
+#error Undefined SMALL_ICON_SIZE
 #endif  // SMALL_ICON_SIZE
 
 // common large icons
@@ -165,6 +222,13 @@ extern "C" {
 #define DENIED_CIRCLE_ICON    C_Denied_Circle_64px
 #define IMPORTANT_CIRCLE_ICON C_Important_Circle_64px
 #define LARGE_WARNING_ICON    C_Warning_64px
+#define INFO_CIRCLE_ICON      C_Info_Circle_64px
+#elif LARGE_ICON_SIZE == 48
+#define CHECK_CIRCLE_ICON     C_Check_Circle_48px
+#define DENIED_CIRCLE_ICON    C_Denied_Circle_48px
+#define IMPORTANT_CIRCLE_ICON C_Important_Circle_48px
+#define LARGE_WARNING_ICON    C_Warning_48px
+#define INFO_CIRCLE_ICON      C_Info_Circle_48px
 #else  // LARGE_ICON_SIZE
 #error Undefined LARGE_ICON_SIZE
 #endif  // LARGE_ICON_SIZE
@@ -184,6 +248,22 @@ extern "C" {
 // number of spinner positions
 #define NB_SPINNER_POSITIONS 4
 #endif  // SCREEN_SIZE_WALLET
+
+#if NB_COLOR_BITS == 1
+#define INACTIVE_COLOR      WHITE
+#define INACTIVE_TEXT_COLOR BLACK
+#define INACTIVE_SMALL_FONT SMALL_REGULAR_FONT
+#define LIGHT_TEXT_COLOR    BLACK
+#define BUTTON_STROKE       1
+#else
+#define INACTIVE_COLOR      LIGHT_GRAY
+#define INACTIVE_TEXT_COLOR LIGHT_GRAY
+#define INACTIVE_SMALL_FONT SMALL_BOLD_FONT
+#define LIGHT_TEXT_COLOR    DARK_GRAY
+#define BUTTON_STROKE       2
+#endif
+
+#define KEYPAD_REINIT_KEYS 0x1F
 
 /**********************
  *      TYPEDEFS
@@ -292,8 +372,8 @@ typedef struct PACKED__ nbgl_line_s {
     color_t          lineColor;  ///< color of the line
     uint8_t thickness;  ///< thickness of the line in pixel, maybe different from height for
                         ///< horizontal line
-    uint8_t offset;  ///< the object height being always 4, with a y0 multiple of 4, this offset is
-                     ///< use to move the line within these 4 pixels
+    uint8_t offset;  ///< the object height being always 4 (or 8), with a y0 multiple of 4 (or 8),
+                     ///< this offset is use to move the line within these 4 (or 8) pixels
 } nbgl_line_t;
 
 /**
@@ -548,20 +628,23 @@ typedef struct PACKED__ nbgl_keyboard_s {
  *
  */
 typedef struct PACKED__ nbgl_keypad_s {
-    nbgl_obj_t obj;  ///< common part
+    nbgl_obj_t         obj;       ///< common part
+    keyboardCallback_t callback;  ///< function called when an active key is pressed
 #ifdef SCREEN_SIZE_WALLET
-    color_t borderColor;                 ///< color set to key borders
-    bool    softValidation;              ///< if true, the "check icon" is replaced by an arrow
-    bool    enableDigits;                ///< if true, Digit keys are enabled
-    bool    partial;                     ///< if true, means that only some keys have changed
-    uint8_t digitIndexes[5];             ///< array of digits indexes, 4 bits per digit
-#else                                    // SCREEN_SIZE_WALLET
-    uint8_t selectedKey;  ///< selected key position
-#endif                                   // SCREEN_SIZE_WALLET
-    bool               enableBackspace;  ///< if true, Backspace key is enabled
-    bool               enableValidate;   ///< if true, Validate key is enabled
-    bool               shuffled;         ///< if true, Digit keys are shuffled
-    keyboardCallback_t callback;         ///< function called when an active key is pressed
+    uint8_t softValidation : 1;   ///< if true, the "check icon" is replaced by an arrow
+    uint8_t enableDigits : 1;     ///< if true, Digit keys are enabled
+    uint8_t digitsChanged : 1;    ///< if true, means that only digit keys have changed
+    uint8_t validateChanged : 1;  ///< if true, means that validate key has changed
+    uint8_t enableBackspace : 1;  ///< if true, Backspace key is enabled
+    uint8_t enableValidate : 1;   ///< if true, Validate key is enabled
+    uint8_t shuffled : 1;         ///< if true, Digit keys are shuffled
+    uint8_t digitIndexes[5];      ///< array of digits indexes, 4 bits per digit
+#else                             // SCREEN_SIZE_WALLET
+    uint8_t selectedKey : 5;      ///< selected key position
+    uint8_t enableBackspace : 1;  ///< if true, Backspace key is enabled
+    uint8_t enableValidate : 1;   ///< if true, Validate key is enabled
+    uint8_t shuffled : 1;         ///< if true, Digit keys are shuffled
+#endif                            // SCREEN_SIZE_WALLET
 } nbgl_keypad_t;
 
 /**

@@ -27,6 +27,9 @@ extern "C" {
 #if SMALL_BUTTON_RADIUS == 32
 #define SMALL_BUTTON_HEIGHT       64
 #define SMALL_BUTTON_RADIUS_INDEX RADIUS_32_PIXELS
+#elif SMALL_BUTTON_RADIUS == 20
+#define SMALL_BUTTON_HEIGHT       40
+#define SMALL_BUTTON_RADIUS_INDEX RADIUS_20_PIXELS
 #endif  // SMALL_BUTTON_RADIUS
 #endif  // SCREEN_SIZE_WALLET
 
@@ -99,8 +102,9 @@ typedef struct nbgl_layoutInternal_s {
     uint8_t layer : 5;           ///< layer in screen stack
     uint8_t nbUsedCallbackObjs;  ///< number of callback objects used by the whole layout in
                                  ///< callbackObjPool
-    uint8_t            nbChildren;     ///< number of children in above array
-    uint8_t            iconIdxInAnim;  ///< current icon index in animation
+    uint8_t            nbChildren;      ///< number of children in above array
+    uint8_t            iconIdxInAnim;   ///< current icon index in animation
+    bool               invertedColors;  ///< if true, means that background is black
     nbgl_swipe_usage_t swipeUsage;
 } nbgl_layoutInternal_t;
 

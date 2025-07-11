@@ -34,9 +34,23 @@
 #define NB_MAX_LETTERS 9
 
 #if defined(TARGET_STAX)
-#define INTER_DASHES 10
+#define INTER_DASHES        10
+#define SPINNER_DASH_WIDTH  22
+#define SPINNER_DASH_HEIGHT 14
+#define SPINNER_DASH_STROKE 4
+#define PROGRESS_STROKE     3
 #elif defined(TARGET_FLEX)
-#define INTER_DASHES 8
+#define INTER_DASHES        8
+#define SPINNER_DASH_WIDTH  24
+#define SPINNER_DASH_HEIGHT 16
+#define SPINNER_DASH_STROKE 4
+#define PROGRESS_STROKE     3
+#elif defined(TARGET_APEX)
+#define INTER_DASHES        8
+#define SPINNER_DASH_WIDTH  15
+#define SPINNER_DASH_HEIGHT 10
+#define SPINNER_DASH_STROKE 2
+#define PROGRESS_STROKE     2
 #endif  // TARGETS
 
 /**********************
@@ -424,7 +438,7 @@ static void draw_button(nbgl_button_t *obj, nbgl_obj_t *prevObj, bool computePos
     }
     else {
         nbgl_drawRoundedBorderedRect(
-            (nbgl_area_t *) obj, obj->radius, 2, obj->innerColor, obj->borderColor);
+            (nbgl_area_t *) obj, obj->radius, BUTTON_STROKE, obj->innerColor, obj->borderColor);
     }
     // get the text of the button from the callback if not NULL
     if (obj->onDrawCallback != NULL) {
@@ -511,36 +525,18 @@ static void draw_line(nbgl_line_t *obj, nbgl_obj_t *prevObj, bool computePositio
               "draw_line(), backgroundColor = %d, lineColor = %d\n",
               obj->obj.area.backgroundColor,
               obj->lineColor);
-    rectArea.x0 = obj->obj.area.x0;
-    rectArea.y0 = obj->obj.area.y0;
+    rectArea.x0              = obj->obj.area.x0;
+    rectArea.y0              = obj->obj.area.y0;
+    rectArea.backgroundColor = obj->obj.area.backgroundColor;
     if (obj->direction == VERTICAL) {
         rectArea.width = obj->obj.area.width = obj->thickness;
-        rectArea.backgroundColor             = obj->lineColor;
         rectArea.height                      = obj->obj.area.height;
-        nbgl_frontDrawRect(&rectArea);
+        nbgl_frontDrawLine(&rectArea, 0, obj->lineColor);
     }
     else {
-        uint8_t mask;
-        if (obj->thickness == 1) {
-            mask = 0x1 << (obj->offset & 0x3);
-        }
-        else if (obj->thickness == 2) {
-            mask = 0x3 << ((obj->offset < 3) ? obj->offset : 2);
-        }
-        else if (obj->thickness == 3) {
-            mask = 0x7 << (obj->offset & 0x1);
-        }
-        else if (obj->thickness == 4) {
-            mask = 0xF;
-        }
-        else {
-            LOG_WARN(OBJ_LOGGER, "draw_line(), forbidden thickness = %d\n", obj->thickness);
-            return;
-        }
         rectArea.width  = obj->obj.area.width;
-        rectArea.height = obj->obj.area.height = VERTICAL_ALIGNMENT;
-        rectArea.backgroundColor               = obj->obj.area.backgroundColor;
-        nbgl_frontDrawHorizontalLine(&rectArea, mask, obj->lineColor);
+        rectArea.height = obj->obj.area.height = obj->thickness;
+        nbgl_frontDrawLine(&rectArea, 0, obj->lineColor);
     }
 }
 #else  // HAVE_SE_TOUCH
@@ -684,8 +680,8 @@ static void draw_switch(nbgl_switch_t *obj, nbgl_obj_t *prevObj, bool computePos
     nbgl_area_t rectArea;
 
     // force dimensions
-    obj->obj.area.width  = C_switch_60_40.width;
-    obj->obj.area.height = C_switch_60_40.height;
+    obj->obj.area.width  = SWITCH_ICON.width;
+    obj->obj.area.height = SWITCH_ICON.height;
     if (computePosition) {
         compute_position((nbgl_obj_t *) obj, prevObj);
     }
@@ -701,10 +697,18 @@ static void draw_switch(nbgl_switch_t *obj, nbgl_obj_t *prevObj, bool computePos
     rectArea.backgroundColor = obj->obj.area.backgroundColor;
     rectArea.bpp             = NBGL_BPP_1;
     if (obj->state == OFF_STATE) {
-        nbgl_frontDrawImage(&rectArea, C_switch_60_40.bitmap, NO_TRANSFORMATION, obj->offColor);
+#if NB_COLOR_BITS == 1
+        nbgl_drawIcon(&rectArea, NO_TRANSFORMATION, obj->onColor, &C_switch_off_24px);
+#else
+        nbgl_frontDrawImage(&rectArea, SWITCH_ICON.bitmap, NO_TRANSFORMATION, obj->offColor);
+#endif
     }
     else {
-        nbgl_frontDrawImage(&rectArea, C_switch_60_40.bitmap, VERTICAL_MIRROR, obj->onColor);
+#if NB_COLOR_BITS == 1
+        nbgl_drawIcon(&rectArea, NO_TRANSFORMATION, obj->onColor, &C_switch_on_24px);
+#else
+        nbgl_frontDrawImage(&rectArea, SWITCH_ICON.bitmap, VERTICAL_MIRROR, obj->onColor);
+#endif
     }
 }
 
@@ -730,8 +734,12 @@ static void draw_radioButton(nbgl_radio_t *obj, nbgl_obj_t *prevObj, bool comput
     obj->obj.area.backgroundColor = obj->obj.parent->area.backgroundColor;
 
     if (obj->state == OFF_STATE) {
-        icon      = &RADIO_OFF_ICON;
+        icon = &RADIO_OFF_ICON;
+#if NB_COLOR_BITS == 1
+        color_map = obj->activeColor;
+#else
         color_map = obj->borderColor;
+#endif
     }
     else {
         icon      = &RADIO_ON_ICON;
@@ -758,13 +766,11 @@ static void draw_progressBar(nbgl_progress_bar_t *obj, nbgl_obj_t *prevObj, bool
 {
 #ifdef HAVE_SE_TOUCH
 
-    uint8_t stroke = 3;  // 3 pixels for border
+    uint8_t stroke = PROGRESS_STROKE;  // pixels for border
 
     if (computePosition) {
         compute_position((nbgl_obj_t *) obj, prevObj);
     }
-    // force vertical position to be aligned until using nbgl_drawLine()
-    obj->obj.area.y0 &= ~(VERTICAL_ALIGNMENT - 1);
     LOG_DEBUG(OBJ_LOGGER,
               "draw_progressBar(), x0 = %d, y0 = %d, level = %d %%\n",
               obj->obj.area.x0,
@@ -909,21 +915,21 @@ static void draw_pageIndicator(nbgl_page_indicator_t *obj,
         rectArea.x0    = obj->obj.area.x0;
         rectArea.y0    = obj->obj.area.y0;
         rectArea.width = dashWidth;
-        rectArea.height          = obj->obj.area.height;
+        rectArea.height          = 4;
         rectArea.backgroundColor = obj->obj.area.backgroundColor;
         rectArea.bpp             = NBGL_BPP_1;
         // draw dashes
         for (i = 0; i < obj->activePage; i++) {
-            nbgl_frontDrawHorizontalLine(
-                &rectArea, 0xF, (obj->style == PROGRESSIVE_INDICATOR) ? BLACK : LIGHT_GRAY);
+            nbgl_frontDrawLine(
+                &rectArea, 0, (obj->style == PROGRESSIVE_INDICATOR) ? BLACK : LIGHT_GRAY);
             rectArea.x0 += dashWidth + INTER_DASHES;
         }
-        nbgl_frontDrawHorizontalLine(&rectArea, 0xF, BLACK);
+        nbgl_frontDrawLine(&rectArea, 0, BLACK);
         rectArea.x0 += dashWidth + INTER_DASHES;
         i++;
 
         for (; i < obj->nbPages; i++) {
-            nbgl_frontDrawHorizontalLine(&rectArea, 0xF, LIGHT_GRAY);
+            nbgl_frontDrawLine(&rectArea, 0, LIGHT_GRAY);
             rectArea.x0 += dashWidth + INTER_DASHES;
         }
     }
@@ -956,7 +962,7 @@ static void draw_pageIndicator(nbgl_page_indicator_t *obj,
         rectArea.height          = obj->obj.area.height;
         rectArea.backgroundColor = obj->obj.area.backgroundColor;
         rectArea.bpp             = NBGL_BPP_1;
-        nbgl_drawText(&rectArea, navText, strlen(navText), SMALL_REGULAR_FONT, DARK_GRAY);
+        nbgl_drawText(&rectArea, navText, strlen(navText), SMALL_REGULAR_FONT, LIGHT_TEXT_COLOR);
     }
 }
 #endif  // HAVE_SE_TOUCH
@@ -1265,7 +1271,6 @@ static void draw_spinner(nbgl_spinner_t *obj, nbgl_obj_t *prevObj, bool computeP
     if (computePosition) {
         compute_position((nbgl_obj_t *) obj, prevObj);
     }
-    obj->obj.area.y0 &= ~0x3;
     LOG_DEBUG(OBJ_LOGGER, "draw_spinner(), x0 = %d, y0 = %d\n", obj->obj.area.x0, obj->obj.area.y0);
 
     // inherit background from parent
@@ -1280,20 +1285,20 @@ static void draw_spinner(nbgl_spinner_t *obj, nbgl_obj_t *prevObj, bool computeP
         // draw horizontal segments
         rectArea.x0     = obj->obj.area.x0;
         rectArea.y0     = obj->obj.area.y0;
-        rectArea.width  = 20;
-        rectArea.height = 4;
-        nbgl_frontDrawHorizontalLine(&rectArea, 0x7, foreColor);  // top left
+        rectArea.width  = SPINNER_DASH_WIDTH;
+        rectArea.height = SPINNER_DASH_STROKE;
+        nbgl_frontDrawLine(&rectArea, 0, foreColor);  // top left
         rectArea.x0 = obj->obj.area.x0 + obj->obj.area.width - rectArea.width;
-        nbgl_frontDrawHorizontalLine(&rectArea, 0x7, foreColor);  // top right
-        rectArea.y0 = obj->obj.area.y0 + obj->obj.area.height - 4;
-        nbgl_frontDrawHorizontalLine(&rectArea, 0xE, foreColor);  // bottom right
+        nbgl_frontDrawLine(&rectArea, 0, foreColor);  // top right
+        rectArea.y0 = obj->obj.area.y0 + obj->obj.area.height - 3;
+        nbgl_frontDrawLine(&rectArea, 0, foreColor);  // bottom right
         rectArea.x0 = obj->obj.area.x0;
-        nbgl_frontDrawHorizontalLine(&rectArea, 0xE, foreColor);  // bottom left
+        nbgl_frontDrawLine(&rectArea, 0, foreColor);  // bottom left
         // draw vertical segments
         rectArea.x0              = obj->obj.area.x0;
         rectArea.y0              = obj->obj.area.y0;
-        rectArea.width           = 3;
-        rectArea.height          = 12;
+        rectArea.width           = SPINNER_DASH_STROKE;
+        rectArea.height          = SPINNER_DASH_HEIGHT;
         rectArea.backgroundColor = foreColor;
         nbgl_frontDrawRect(&rectArea);  // top left
         rectArea.x0 = obj->obj.area.x0 + obj->obj.area.width - rectArea.width;
@@ -1304,7 +1309,6 @@ static void draw_spinner(nbgl_spinner_t *obj, nbgl_obj_t *prevObj, bool computeP
         nbgl_frontDrawRect(&rectArea);  // bottom left
     }
     else {
-        uint8_t mask;
         // clean up full rectangle
         rectArea.x0              = obj->obj.area.x0;
         rectArea.y0              = obj->obj.area.y0;
@@ -1314,37 +1318,33 @@ static void draw_spinner(nbgl_spinner_t *obj, nbgl_obj_t *prevObj, bool computeP
         nbgl_frontDrawRect(&rectArea);  // top left
 
         // draw horizontal segment in foreColor
-        rectArea.width  = 20;
-        rectArea.height = 4;
+        rectArea.width  = SPINNER_DASH_WIDTH;
+        rectArea.height = SPINNER_DASH_STROKE;
         switch (obj->position) {
             case 0:  // top left corner
                 rectArea.x0 = obj->obj.area.x0;
                 rectArea.y0 = obj->obj.area.y0;
-                mask        = 0x7;
                 break;
             case 1:  // top right
                 rectArea.x0 = obj->obj.area.x0 + obj->obj.area.width - rectArea.width;
                 rectArea.y0 = obj->obj.area.y0;
-                mask        = 0x7;
                 break;
             case 2:  // bottom right
                 rectArea.x0 = obj->obj.area.x0 + obj->obj.area.width - rectArea.width;
-                rectArea.y0 = obj->obj.area.y0 + obj->obj.area.height - 4;
-                mask        = 0xE;
+                rectArea.y0 = obj->obj.area.y0 + obj->obj.area.height - 3;
                 break;
             case 3:  // bottom left
                 rectArea.x0 = obj->obj.area.x0;
-                rectArea.y0 = obj->obj.area.y0 + obj->obj.area.height - 4;
-                mask        = 0xE;
+                rectArea.y0 = obj->obj.area.y0 + obj->obj.area.height - 3;
                 break;
             default:
                 return;
         }
-        nbgl_frontDrawHorizontalLine(&rectArea, mask, foreColor);
+        nbgl_frontDrawLine(&rectArea, 0, foreColor);
 
         // draw vertical segment in foreColor
-        rectArea.width           = 3;
-        rectArea.height          = 12;
+        rectArea.width           = SPINNER_DASH_STROKE;
+        rectArea.height          = SPINNER_DASH_HEIGHT;
         rectArea.backgroundColor = foreColor;
         switch (obj->position) {
             case 0:  // top left corner
