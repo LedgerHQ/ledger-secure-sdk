@@ -2,26 +2,6 @@
 
 ## Manual usage based on Ledger container
 
-### Preparation
-
-The fuzzer can run from the docker `ledger-app-dev-tools`. You can download it from the `ghcr.io` docker repository:
-
-```console
-sudo docker pull ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools
-```
-
-You can then enter this development environment by executing the following command from the repository root directory:
-
-```console
-docker run --rm -ti -v "$(realpath .):/app" ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools
-```
-
-```console
-cd fuzzing
-
-./local_run.sh --build=1 --TARGET_DEVICE=stax --fuzzer=build/fuzz_bip32 --j=4 --run-fuzzer=1 --compute-coverage=1
-```
-
 ### About Fuzzing Framework
 The code is divided into the following folders:
 
@@ -48,6 +28,26 @@ The code is divided into the following folders:
 
 ```
 
+### Preparation
+
+The fuzzer can run from the docker `ledger-app-dev-tools`. You can download it from the `ghcr.io` docker repository:
+
+```console
+sudo docker pull ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools
+```
+
+You can then enter this development environment by executing the following command from the repository root directory:
+
+```console
+docker run --rm -ti -v "$(realpath .):/app" ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools
+```
+
+```console
+cd fuzzing # You must run it from the fuzzing folder
+
+./local_run.sh --build=1 --TARGET_DEVICE=stax --fuzzer=build/fuzz_bip32 --j=4 --run-fuzzer=1 --compute-coverage=1
+```
+
 ### About local_run.sh
 
 | Parameter              | Type                | Description                                                          |
@@ -58,8 +58,41 @@ The code is divided into the following folders:
 | `--build`              | `bool`              | **Optional**. Whether to build the project (default: 0)              |
 | `--fuzzer`             | `PATH`              | **Required**. Path to the fuzzer binary                              |
 | `--compute-coverage`   | `bool`              | **Optional**. Whether to compute coverage after fuzzing (default: 0) |
-| `--run-fuzzer`         | `bool`              | **Optional**. Whether to run or not the fuzzer (default: 1)          |
+| `--run-fuzzer`         | `bool`              | **Optional**. Whether to run or not the fuzzer (default: 0)          |
+| `--run-crash`          | `FILENAME`          | **Optional**. Run the fuzzer on a specific crash input file (default: 0) |
+| `--sanitizer`          | `address or memory` | **Optional**. Compile fuzzer with sanitizer (default: address)       |
+| `--j`                  | `int`               | **Optional**. Number of parallel jobs/CPUs for build and fuzzing (default: 1) |
 | `--help`               |                     | **Optional**. Display help message                                   |
+
+
+### Writing your Harness
+
+When writing your harness, keep the following points in mind:
+
+- An SDK's interface for compilation is provided via the target `secure_sdk` in CMakeLists.txt
+- If you are running it for the first time, consider using the script `local_run` from inside the
+  Docker container using the flag build=1, if you need to manually
+  add/remove macros you can then do it using the files macros/add_macros.txt or
+  macros/exclude_macros.txt and rerunning it, or directly change the macros/generated/macros.txt.
+- A typical harness looks like this:
+
+  ```console
+
+  int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+    if (sigsetjmp(fuzz_exit_jump_ctx.jmp_buf, 1)) return 0;
+
+    ### harness code ###
+
+    return 0;
+  }
+
+  ```
+
+  This allows a return point when the `os_sched_exit()` function is mocked.
+
+- To provide an SDK interface, we automatically generate syscall mock functions located in
+  `SECURE_SDK_PATH/fuzzing/mock/generated/generated_syscalls.c`, if you need a more specific mock,
+  you can define it in `APP_PATH/fuzzing/mock` with the same name and without the WEAK attribute.
 
 
 ### Manual compilation
