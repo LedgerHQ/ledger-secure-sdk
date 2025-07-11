@@ -30,7 +30,7 @@ The code is divided into the following folders:
 │   ├── build
 │   │   ├── ...
 │   │   └── generated_glyphs # generated glyphs
-│   ├── extra                # .cmake files for building function harness
+│   ├── extra                # .cmake files for building SDK's function harness
 │   ├── harness              # libFuzzer .c files for harness
 │   ├── libs                 # .cmake files for building SDK libraries
 │   ├── macros
