@@ -64,6 +64,7 @@ enum {
     ETH_DAPP,
     ETH_VERIFY_ADDR,
     ETH_VERIFY_MULTISIG,
+    BTC_SHARE_ADDR,
     RECOV_OPEN,
     DOGE_SIGN,
 };
