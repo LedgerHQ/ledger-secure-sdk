@@ -7,7 +7,7 @@ RUN_FUZZER=0
 TARGET_DEVICE="flex"
 REGENERATE_MACROS=0
 RUN_CRASH=0
-
+SANITIZER="address"
 BOLOS_SDK=""
 FUZZING_PATH="$(pwd)"
 NUM_CPUS=1
@@ -29,12 +29,15 @@ function show_help() {
     echo -e "  --TARGET_DEVICE=[flex|stax] Whether it is a flex or stax device (default: flex)"
     echo -e "  --fuzzer=PATH               Path to the fuzzer binary (required)"
     echo -e "  --build=1|0                 Whether to build the project (default: 0)"
+    echo -e "  --sanitizer=address|memory  Compiles fuzzer with -fsanitize=fuzzer,undefined,[address|memory](default: address)"
     echo -e "  --re-generate-macros=0|1    Whether to regenerate macros (default: 0)"
-    echo -e "  --compute-coverage=1|0      Whether to compute coverage after fuzzing (default: 1)"
-    echo -e "  --run-crash=[crash_file_nameWhether to compute coverage of a crash (default: 0)"
-    echo -e "  --run-fuzzer=1|0            Whether to run the fuzzer (default: 1)"
-    echo -e "  --j=1|...|n_cpus            Number of CPUs to use (default: 1)"
-    echo -e "  --help                      Show this help message${NC}"
+    echo -e "  --compute-coverage=1|0      Whether to compute coverage after fuzzing (default: 0)"
+    echo -e "  --run-fuzzer=1|0            Whether to run the fuzzer (default: 0)"
+    echo -e "  --run-crash=FILENAME        Run the fuzzer on a specific crash input file (default: 0)"
+    echo -e "  --j=N                       Number of parallel jobs/CPUs to use for build and fuzzing (default: 1)"
+    echo -e "  --help                      Show this help message and exit"
+    echo -e "\nExample:"
+    echo -e "  ./local_run.sh --fuzzer=./build/fuzz_myapp --build=1 --run-fuzzer=1${NC}"
     exit 0
 }
 
@@ -57,12 +60,13 @@ function gen_macros() {
     mkdir -p "$FUZZING_PATH/macros/generated"
 
     # Install bear while it is not added to the docker image
-    if [ ! "$(bear --version)" ]; then
+    if ! command -v bear >/dev/null 2>&1; then
         apt-get update && apt-get install -y bear
     fi
 
     cd "/app" || exit 1
     echo -e "${BLUE}Generating macros...${NC}"
+    # $FLEX_SDK and $STAX_SDK are set in the docker image
     case "$TARGET_DEVICE" in
         flex)
             make clean BOLOS_SDK="$FLEX_SDK"
@@ -98,7 +102,7 @@ function build() {
     fi
 
     echo -e "${BLUE}Building the project...${NC}"
-    cmake -S . -B build -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Debug -DSANITIZER=address -DTARGET_DEVICE="$TARGET_DEVICE" -DBOLOS_SDK="$BOLOS_SDK" -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS:bool=On
+    cmake -S . -B build -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Debug -DSANITIZER="$SANITIZER" -DTARGET_DEVICE="$TARGET_DEVICE" -DBOLOS_SDK="$BOLOS_SDK" -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=On
     cmake --build build
 }
 
@@ -119,6 +123,9 @@ for arg in "$@"; do
             ;;
         --build=*)
             REBUILD="${arg#*=}"
+            ;;
+        --sanitizer=*)
+            SANITIZER="${arg#*=}"
             ;;
         --compute-coverage=*)
             COMPUTE_COVERAGE="${arg#*=}"
@@ -155,6 +162,10 @@ if [ "$TARGET_DEVICE" != "flex" ] && [ "$TARGET_DEVICE" != "stax" ]; then
     exit 1
 fi
 
+if [ "$SANITIZER" != "address" ] && [ "$SANITIZER" != "memory" ]; then
+    echo -e "${RED}Unsupported SANITIZER: $SANITIZER | Must be 'address' or 'memory'${NC}"
+    exit 1
+fi
 
 if [ ! -f "$FUZZING_PATH/local_run.sh" ]; then
     #Fuzzing an APP
