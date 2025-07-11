@@ -14,10 +14,10 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         // Fuzz with more specific data
         ndef_struct_t ndef_message;
         memcpy(&ndef_message, data, sizeof(ndef_struct_t));
-        ndef_message.ndef_type              = ndef_message.ndef_type % 2 + 1;
-        ndef_message.uri_id                 = ndef_message.uri_id % 37;
-        ndef_message.text[NFC_TEXT_MAX_LEN] = '\0';
-        ndef_message.info[NFC_INFO_MAX_LEN] = '\0';
+        ndef_message.ndef_type = ndef_message.ndef_type % 2 + 1;
+        ndef_message.uri_id    = ndef_message.uri_id % 37;
+        // ndef_message.text[NFC_TEXT_MAX_LEN] = '\0';
+        // ndef_message.info[NFC_INFO_MAX_LEN] = '\0';
         os_ndef_to_string(&ndef_message, out_string);
     }
 
