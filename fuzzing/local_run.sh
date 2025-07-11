@@ -167,19 +167,15 @@ if [ "$SANITIZER" != "address" ] && [ "$SANITIZER" != "memory" ]; then
     exit 1
 fi
 
+#Fuzzing an APP
 if [ ! -f "$FUZZING_PATH/local_run.sh" ]; then
-    #Fuzzing an APP
     echo "Fuzzing PATH = $FUZZING_PATH"
     if [ -z "$BOLOS_SDK" ]; then
         echo -e "${RED}Error: --BOLOS_SDK=\$BOLOS_SDK is required.${NC}"
         show_help
     fi
-    if [ "$REGENERATE_MACROS" -ne 0 ]; then
-        echo -e "${YELLOW}Generating custom macros...${NC}"
-        custom_macros
-    fi
-    if [ "$REBUILD" -eq 1 ] || [ "$REGENERATE_MACROS" -ne 0 ]; then
-        if [ ! -s "$FUZZING_PATH/macros/generated/macros.txt" ]; then
+    if [ "$REBUILD" -eq 1 ] || [ "$REGENERATE_MACROS" -eq 1 ]; then
+        if [ ! -s "$FUZZING_PATH/macros/generated/macros.txt" ] || [ "$REGENERATE_MACROS" -eq 1 ]; then
             echo -e "${YELLOW}macros.txt is missing or empty. Generating macros...${NC}"
             gen_macros
         fi
@@ -193,8 +189,6 @@ fi
 if [ "$REBUILD" -eq 1 ]; then
     build
 fi
-
-### Execute commands
 
 if [ -z "$FUZZER" ]; then
     exit 0
@@ -218,7 +212,6 @@ if [ "$RUN_FUZZER" -eq 1 ]; then
 fi
 
 if [ "$COMPUTE_COVERAGE" -eq 1 ]; then
-    # Coverage computation
     echo -e "${BLUE}\n----------\nComputing coverage...\n----------${NC}"
 
     rm -f "$OUT_DIR/default.profdata" "$OUT_DIR/default.profraw"
