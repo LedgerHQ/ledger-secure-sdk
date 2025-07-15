@@ -43,7 +43,7 @@ static inline bool seph_parse_header(const uint8_t *buf, size_t size, seph_t *se
     bool   status      = false;
     seph_t tmp_seph    = {0};
     size_t header_size = seph_get_header_size();
-    if (!buf | !seph || (size < header_size)) {
+    if (!buf || !seph || (size < header_size)) {
         goto error;
     }
     tmp_seph.tag  = buf[0];
