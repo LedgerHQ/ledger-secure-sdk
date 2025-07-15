@@ -871,50 +871,66 @@ int USBD_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
                             uint8_t *apdu_buffer,
                             uint16_t apdu_buffer_max_length)
 {
-    int status = 0;
+    int status = -1;
 
     if (!is_running()) {
-        return status;
+        goto error;
+    }
+
+    if (!seph_buffer_length || !seph_buffer) {
+        goto error;
     }
 
     if (seph_buffer[1] == SEPROXYHAL_TAG_USB_EVENT) {
+        if (seph_buffer_length < 5) {
+            goto error;
+        }
         switch (seph_buffer[4]) {
             case SEPROXYHAL_TAG_USB_EVENT_RESET:
                 USBD_LEDGER_rx_evt_reset();
+                status = 0;
                 break;
 
             case SEPROXYHAL_TAG_USB_EVENT_SOF:
                 USBD_LEDGER_rx_evt_sof();
+                status = 0;
                 break;
 
             case SEPROXYHAL_TAG_USB_EVENT_SUSPENDED:
                 USBD_LEDGER_rx_evt_suspend();
+                status = 0;
                 break;
 
             case SEPROXYHAL_TAG_USB_EVENT_RESUMED:
                 USBD_LEDGER_rx_evt_resume();
+                status = 0;
                 break;
 
             default:
-                status = -1;
+                goto error;
                 break;
         }
     }
     else if (seph_buffer[1] == SEPROXYHAL_TAG_USB_EP_XFER_EVENT) {
+        if (seph_buffer_length < 7) {
+            goto error;
+        }
         uint8_t  epnum  = seph_buffer[4] & 0x7F;
         uint16_t length = MIN(seph_buffer[6], seph_buffer_length - 6);
 
         switch (seph_buffer[5]) {
             case SEPROXYHAL_TAG_USB_EP_XFER_SETUP:
                 USBD_LEDGER_rx_evt_setup(&seph_buffer[7]);
+                status = 0;
                 break;
 
             case SEPROXYHAL_TAG_USB_EP_XFER_IN:
                 if (epnum < IO_USB_MAX_ENDPOINTS) {
                     USBD_LEDGER_rx_evt_data_in(epnum, &seph_buffer[7]);
+                    status = 0;
                 }
                 else {
-                    status = -1;
+                    goto error;
                 }
                 break;
 
@@ -924,12 +940,12 @@ int USBD_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
                     status = USBD_LEDGER_data_ready(apdu_buffer, apdu_buffer_max_length);
                 }
                 else {
-                    status = -1;
+                    goto error;
                 }
                 break;
 
             default:
-                status = -1;
+                goto error;
                 break;
         }
     }
@@ -937,5 +953,6 @@ int USBD_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
         return -1;
     }
 
+error:
     return status;
 }
