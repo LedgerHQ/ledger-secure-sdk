@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 #include "os_math.h"
 #include "decorators.h"
 #ifdef HAVE_IO_U2F
@@ -163,3 +164,8 @@ SYSCALL int os_io_seph_se_rx_event(unsigned char *buffer PLENGTH(length),
                                    unsigned int          flags);
 
 unsigned int os_io_handle_ux_event_reject_apdu(void);
+
+#ifdef HAVE_NFC_READER
+void os_io_nfc_reader_rx(uint8_t *in_buffer, size_t in_buffer_len);
+void os_io_nfc_evt(uint8_t *buffer_in, size_t buffer_in_length);
+#endif  // HAVE_NFC_READER

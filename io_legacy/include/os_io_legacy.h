@@ -102,10 +102,6 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events);
 int io_legacy_apdu_tx(const unsigned char *buffer, unsigned short length);
 
 #ifdef HAVE_NFC_READER
-void io_nfc_event(void);
-void io_nfc_ticker(void);
-void io_nfc_process_events(void);
-
 bool io_nfc_reader_send(const uint8_t      *cmd_data,
                         size_t              cmd_len,
                         nfc_resp_callback_t callback,
@@ -114,5 +110,4 @@ bool io_nfc_reader_send(const uint8_t      *cmd_data,
 /* Return false if nfc reader can not be started in current conditions */
 bool io_nfc_reader_start(nfc_evt_callback_t callback);
 void io_nfc_reader_stop(void);
-bool io_nfc_is_reader(void);
 #endif  // HAVE_NFC_READER

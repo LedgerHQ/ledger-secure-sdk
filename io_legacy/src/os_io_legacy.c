@@ -52,6 +52,11 @@
 #endif  // HAVE_BOLOS_APP_STACK_CANARY
 
 /* Private functions prototypes ----------------------------------------------*/
+#ifdef HAVE_NFC_READER
+static void io_nfc_event(uint8_t *buffer_in, size_t buffer_in_length);
+static void io_nfc_ticker(void);
+static void io_nfc_process_events(void);
+#endif
 
 /* Exported variables --------------------------------------------------------*/
 io_seph_app_t G_io_app;
@@ -424,19 +429,6 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
                 }
                 break;
 
-#ifdef HAVE_NFC_READER
-            case OS_IO_PACKET_TYPE_NFC_APDU_RSP:
-                if ((status - 1) <= G_io_reader_ctx.apdu_rx_max_size) {
-                    status -= 1;
-                    memcpy(G_io_reader_ctx.apdu_rx, &G_io_rx_buffer[1], status);
-                    G_io_reader_ctx.response_received = true;
-                    G_io_reader_ctx.apdu_rx_len       = status;
-                    io_nfc_process_events();
-                }
-                status = 0;
-                break;
-#endif  // HAVE_NFC_READER
-
             default:
                 status = 0;
                 break;
@@ -461,19 +453,23 @@ int io_legacy_apdu_tx(const unsigned char *buffer, unsigned short length)
 
 #ifdef HAVE_NFC_READER
 
-void io_nfc_event(void)
+void io_nfc_event(uint8_t *buffer_in, size_t buffer_in_length)
 {
-    size_t size = U2BE(G_io_seproxyhal_spi_buffer, 1);
+    if (buffer_in_length < 3) {
+        return;
+    }
+    size_t size = U2BE(buffer_in, 1);
+    if (buffer_in_length < 3 + size) {
+        return;
+    }
 
     if (size >= 1) {
-        switch (G_io_seproxyhal_spi_buffer[3]) {
+        switch (buffer_in[3]) {
             case SEPROXYHAL_TAG_NFC_EVENT_CARD_DETECTED: {
                 G_io_reader_ctx.event_happened = true;
                 G_io_reader_ctx.last_event     = CARD_DETECTED;
                 G_io_reader_ctx.card.tech
-                    = (G_io_seproxyhal_spi_buffer[4] == SEPROXYHAL_TAG_NFC_EVENT_CARD_DETECTED_A)
-                          ? NFC_A
-                          : NFC_B;
+                    = (buffer_in[4] == SEPROXYHAL_TAG_NFC_EVENT_CARD_DETECTED_A) ? NFC_A : NFC_B;
                 G_io_reader_ctx.card.nfcid_len = MIN(size - 2, sizeof(G_io_reader_ctx.card.nfcid));
                 memcpy((void *) G_io_reader_ctx.card.nfcid,
                        G_io_seproxyhal_spi_buffer + 5,
@@ -487,6 +483,16 @@ void io_nfc_event(void)
                 }
                 break;
         }
+    }
+}
+
+void os_io_nfc_reader_rx(uint8_t *in_buffer, size_t in_buffer_len)
+{
+    if (in_buffer_len <= G_io_reader_ctx.apdu_rx_max_size) {
+        memcpy(G_io_reader_ctx.apdu_rx, in_buffer, in_buffer_len);
+        G_io_reader_ctx.response_received = true;
+        G_io_reader_ctx.apdu_rx_len       = in_buffer_len;
+        io_nfc_process_events();
     }
 }
 
@@ -536,6 +542,24 @@ void io_nfc_ticker(void)
         else {
             G_io_reader_ctx.remaining_ms -= 100;
         }
+    }
+}
+
+void os_io_nfc_evt(uint8_t *buffer_in, size_t buffer_in_length)
+{
+    switch (buffer_in[0]) {
+        case SEPROXYHAL_TAG_NFC_EVENT:
+            io_nfc_event(buffer_in, buffer_in_length);
+            io_nfc_process_events();
+            break;
+
+        case SEPROXYHAL_TAG_TICKER_EVENT:
+            io_nfc_ticker();
+            io_nfc_process_events();
+            break;
+
+        default:
+            break;
     }
 }
 
