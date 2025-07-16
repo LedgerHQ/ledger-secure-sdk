@@ -201,7 +201,21 @@ fi
 
 mkdir -p "$CORPUS_DIR"
 
+# Prepare initial corpus if available
+INITIAL_CORPUS_DIR="$FUZZING_PATH/harness/$FUZZERNAME"
 if [ "$RUN_FUZZER" -eq 1 ]; then
+    if [ -d "$INITIAL_CORPUS_DIR" ]; then
+        echo -e "${BLUE}Checking for initial corpus in: $INITIAL_CORPUS_DIR${NC}"
+        for file in "$INITIAL_CORPUS_DIR"/*; do
+            filename=$(basename "$file")
+            if [ ! -f "$CORPUS_DIR/$filename" ]; then
+                echo -e "${YELLOW}Copying initial input '$filename' to corpus...${NC}"
+                cp "$file" "$CORPUS_DIR/"
+            fi
+        done
+    else
+        echo -e "${YELLOW}No initial corpus found at $INITIAL_CORPUS_DIR${NC}"
+    fi
     echo -e "${GREEN}\n----------\nStarting fuzzer '$FUZZERNAME'...\n----------\n${NC}"
     LLVM_PROFILE_FILE="$OUT_DIR/fuzzer.profraw" "$FUZZER" -detect_leaks=0 -max_len=8192 -jobs="$NUM_CPUS" -timeout=10 "$CORPUS_DIR"
     if compgen -G "$FUZZING_PATH/crash-*" > /dev/null; then
