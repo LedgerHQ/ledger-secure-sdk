@@ -30,6 +30,8 @@
 #define DIGIT_OFFSET_Y (((KEYPAD_KEY_HEIGHT - 48) / 2) & 0xFFC)
 #elif defined(TARGET_FLEX)
 #define DIGIT_OFFSET_Y (((KEYPAD_KEY_HEIGHT - 48) / 2) & 0xFFC)
+#elif defined(TARGET_APEX)
+#define DIGIT_OFFSET_Y (((KEYPAD_KEY_HEIGHT - 28) / 2) & 0xFFC)
 #endif  // TARGETS
 
 #define BACKSPACE_KEY_IDX 10
@@ -108,26 +110,27 @@ static void keypadDrawGrid(nbgl_keypad_t *keypad)
     rectArea.x0              = keypad->obj.area.x0;
     rectArea.y0              = keypad->obj.area.y0;
     rectArea.width           = keypad->obj.area.width;
-    rectArea.height          = VERTICAL_ALIGNMENT;
-    nbgl_frontDrawHorizontalLine(&rectArea, 0x1, keypad->borderColor);  // 1st line (top)
+    rectArea.height          = 1;
+    nbgl_frontDrawLine(&rectArea, 1, LIGHT_GRAY);  // 1st line (top)
     rectArea.y0 += KEYPAD_KEY_HEIGHT;
-    nbgl_frontDrawHorizontalLine(&rectArea, 0x1, keypad->borderColor);  // 2nd line
+    nbgl_frontDrawLine(&rectArea, 1, LIGHT_GRAY);  // 2nd line
     rectArea.y0 += KEYPAD_KEY_HEIGHT;
-    nbgl_frontDrawHorizontalLine(&rectArea, 0x1, keypad->borderColor);  // 3rd line
+    nbgl_frontDrawLine(&rectArea, 1, LIGHT_GRAY);  // 3rd line
     rectArea.y0 += KEYPAD_KEY_HEIGHT;
-    nbgl_frontDrawHorizontalLine(&rectArea, 0x1, keypad->borderColor);  // 4th line
+    nbgl_frontDrawLine(&rectArea, 1, LIGHT_GRAY);  // 4th line
 
-    /// then draw 3 vertical lines
-    rectArea.backgroundColor = keypad->borderColor;
-    rectArea.x0              = keypad->obj.area.x0;
-    rectArea.y0              = keypad->obj.area.y0;
-    rectArea.width           = 1;
-    rectArea.height          = KEYPAD_KEY_HEIGHT * 4;
-    nbgl_frontDrawRect(&rectArea);  // 1st full line, on the left
+    /// then draw 2 or 3 (if side) vertical lines
+    rectArea.x0     = keypad->obj.area.x0;
+    rectArea.y0     = keypad->obj.area.y0;
+    rectArea.width  = 1;
+    rectArea.height = KEYPAD_KEY_HEIGHT * 4;
+#ifdef HAVE_SIDE_SCREEN
+    nbgl_frontDrawLine(&rectArea, 0, LIGHT_GRAY);  // 1st full line, on the left
+#endif                                             // HAVE_SIDE_SCREEN
     rectArea.x0 += KEY_WIDTH;
-    nbgl_frontDrawRect(&rectArea);  // 2nd line
+    nbgl_frontDrawLine(&rectArea, 0, LIGHT_GRAY);  // 2nd line
     rectArea.x0 += KEY_WIDTH;
-    nbgl_frontDrawRect(&rectArea);  // 3rd line
+    nbgl_frontDrawLine(&rectArea, 0, LIGHT_GRAY);  // 3rd line
 }
 
 static void keypadDrawDigits(nbgl_keypad_t *keypad)
@@ -138,7 +141,7 @@ static void keypadDrawDigits(nbgl_keypad_t *keypad)
 
     rectArea.backgroundColor = keypad->obj.area.backgroundColor;
     // only draw digits if not a partial refresh
-    if (!keypad->partial) {
+    if (keypad->digitsChanged) {
         rectArea.y0 = keypad->obj.area.y0 + DIGIT_OFFSET_Y;
 
         // First row of keys: 1 2 3
@@ -191,7 +194,7 @@ static void keypadDrawDigits(nbgl_keypad_t *keypad)
     }
 
     // only draw '0' if not a partial refresh
-    if (!keypad->partial) {
+    if (keypad->digitsChanged) {
         // draw 0
         key_value   = GET_DIGIT_INDEX(keypad, 0) + 0x30;
         rectArea.x0 = keypad->obj.area.x0 + KEY_WIDTH;
@@ -202,30 +205,37 @@ static void keypadDrawDigits(nbgl_keypad_t *keypad)
     }
 
     // draw white background if validate not enabled
-    if (!keypad->enableValidate) {
-        rectArea.width           = KEY_WIDTH - 1;
-        rectArea.height          = KEYPAD_KEY_HEIGHT - 4;
+    if (!keypad->enableValidate && keypad->validateChanged) {
+        uint8_t dotStartIdx = 0;
+
+        rectArea.width           = KEY_WIDTH;
+        rectArea.height          = KEYPAD_KEY_HEIGHT;
         rectArea.bpp             = NBGL_BPP_1;
-        rectArea.x0              = keypad->obj.area.x0 + 2 * KEY_WIDTH + 1;
-        rectArea.y0              = keypad->obj.area.y0 + KEYPAD_KEY_HEIGHT * 3 + 4;
+        rectArea.x0              = keypad->obj.area.x0 + 2 * KEY_WIDTH;
+        rectArea.y0              = keypad->obj.area.y0 + KEYPAD_KEY_HEIGHT * 3;
         rectArea.backgroundColor = WHITE;
         nbgl_frontDrawRect(&rectArea);
-        /// draw horizontal line
+        /// draw horizontal line on top of validate
         rectArea.backgroundColor = keypad->obj.area.backgroundColor;
         rectArea.x0              = keypad->obj.area.x0 + 2 * KEY_WIDTH;
         rectArea.y0              = keypad->obj.area.y0 + KEYPAD_KEY_HEIGHT * 3;
         rectArea.width           = KEY_WIDTH;
-        rectArea.height          = VERTICAL_ALIGNMENT;
-        nbgl_frontDrawHorizontalLine(&rectArea, 0x1, keypad->borderColor);  // 1st line (top)
-        /// then draw vertical line
-        rectArea.backgroundColor = keypad->borderColor;
-        rectArea.x0              = keypad->obj.area.x0 + 2 * KEY_WIDTH;
-        rectArea.y0              = keypad->obj.area.y0 + KEYPAD_KEY_HEIGHT * 3;
-        rectArea.width           = 1;
-        rectArea.height          = KEYPAD_KEY_HEIGHT;
-        nbgl_frontDrawRect(&rectArea);  // 1st full line, on the left
+        rectArea.height          = 1;
+        nbgl_frontDrawLine(&rectArea, 0, LIGHT_GRAY);
+        /// then draw vertical line on left of validate
+        rectArea.x0     = keypad->obj.area.x0 + 2 * KEY_WIDTH;
+        rectArea.y0     = keypad->obj.area.y0 + KEYPAD_KEY_HEIGHT * 3;
+        rectArea.width  = 1;
+        rectArea.height = KEYPAD_KEY_HEIGHT;
+#ifdef TARGET_APEX
+        // draw the small erased vertical ... on top-left corner
+        rectArea.y0 -= 4;
+        rectArea.height += 4;
+        dotStartIdx = 1;
+#endif  // TARGET_APEX
+        nbgl_frontDrawLine(&rectArea, dotStartIdx, LIGHT_GRAY);
     }
-    else {
+    else if (keypad->validateChanged) {
         const nbgl_icon_details_t *icon;
 
         if (keypad->softValidation) {
@@ -253,19 +263,29 @@ static void keypadDrawDigits(nbgl_keypad_t *keypad)
         else {
             nbgl_frontDrawImage(&rectArea, (uint8_t *) icon->bitmap, NO_TRANSFORMATION, WHITE);
         }
+#ifdef TARGET_APEX
+        // draw the small erased vertical ... on top-left corner
+        ramBuffer[0]             = 0x4F;
+        rectArea.backgroundColor = WHITE;
+        rectArea.x0              = keypad->obj.area.x0 + 2 * KEY_WIDTH;
+        rectArea.y0              = keypad->obj.area.y0 + KEYPAD_KEY_HEIGHT * 3 - 4;
+        rectArea.width           = 1;
+        rectArea.height          = 8;
+        nbgl_frontDrawImage(&rectArea, (uint8_t *) ramBuffer, NO_TRANSFORMATION, BLACK);
+#endif  // TARGET_APEX
     }
 }
 
 static void keypadDraw(nbgl_keypad_t *keypad)
 {
-    if (!keypad->partial) {
+    if (keypad->digitsChanged) {
         // At first, draw grid
         keypadDrawGrid(keypad);
     }
 
     // then draw key content
     keypadDrawDigits(keypad);
-    keypad->partial = false;
+    keypad->digitsChanged = false;
 }
 
 /**********************

@@ -4,31 +4,41 @@
 #
 # where:
 #  - <FILE_TO_COMPRESS> is the path to the input image file
-#  - <PRODUCT> can be --flex (--stax is the default)
+#  - <PRODUCT> can be --stax, --flex or --apex.
 #
 # Example for Stax:
 #
 # ```
 # sh tools/generate_ledgerimg.sh ~/Downloads/cryptopunk.png
-# Write /home/abonnaudet/Downloads/cryptopunk.bmp
-# Write /home/abonnaudet/Downloads/cryptopunk.ledgerimg
 # ```
 # Example for Flex:
 #
 # ```
 # sh tools/generate_ledgerimg.sh ~/Downloads/cryptopunk.png --flex
-# Write /home/abonnaudet/Downloads/cryptopunk.bmp
-# Write /home/abonnaudet/Downloads/cryptopunk.ledgerimg
+# ```
+#
+# Example for Apex:
+#
+# ```
+# sh tools/generate_ledgerimg.sh ~/Downloads/cryptopunk.png --apex
 # ```
 
 ## Product detection for screen height & width
-if [ "$2" = "--flex" ]
-then
-	FRONT_SCREEN_WIDTH=480
-	FRONT_SCREEN_HEIGHT=600
+if [ "$2" = "--flex" ]; then
+    FRONT_SCREEN_WIDTH=480
+    FRONT_SCREEN_HEIGHT=600
+    IMAGE_BPP=4
+elif [ "$2" = "--stax" ]; then
+    FRONT_SCREEN_WIDTH=400
+    FRONT_SCREEN_HEIGHT=672
+    IMAGE_BPP=4
+elif [ "$2" = "--apex" ]; then
+    FRONT_SCREEN_WIDTH=300
+    FRONT_SCREEN_HEIGHT=400
+    IMAGE_BPP=1
 else
-	FRONT_SCREEN_WIDTH=400
-	FRONT_SCREEN_HEIGHT=672
+    echo "Invalid option. Please use --flex, --stax, or --apex."
+    exit 1
 fi
 
 # Path to bmp2display python script
@@ -45,4 +55,4 @@ echo "Write" $FILE_OUTPUT_BMP
 
 ## Convert BMP file into ledgerimg
 FILE_OUTPUT_LEDGERIMG=${FILE_INPUT%.*}.ledgerimg
-python3 $BMP2DISPLAY_PY --file --compress --input $FILE_OUTPUT_BMP --bpp 4 --outfile $FILE_OUTPUT_LEDGERIMG
+python3 $BMP2DISPLAY_PY --file --compress --input $FILE_OUTPUT_BMP --bpp $IMAGE_BPP --outfile $FILE_OUTPUT_LEDGERIMG

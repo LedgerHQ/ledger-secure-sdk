@@ -34,6 +34,11 @@
 #define NAV_BUTTON_HEIGHT NAVIGATION_HEIGHT
 #define NAV_BUTTON_WIDTH  104
 #define PAGE_NUMBER_WIDTH 79
+#elif defined(TARGET_APEX)
+#define NAVIGATION_HEIGHT 60
+#define NAV_BUTTON_HEIGHT 60
+#define NAV_BUTTON_WIDTH  60
+#define PAGE_NUMBER_WIDTH 60
 #endif  // TARGETS
 
 /**********************
@@ -66,10 +71,10 @@ static void configButtons(nbgl_container_t *navContainer, uint8_t navNbPages, ui
     nbgl_button_t *buttonNext     = (nbgl_button_t *) navContainer->children[NEXT_PAGE_INDEX];
 
     if (buttonPrevious) {
-        buttonPrevious->foregroundColor = (navActivePage == 0) ? LIGHT_GRAY : BLACK;
+        buttonPrevious->foregroundColor = (navActivePage == 0) ? INACTIVE_COLOR : BLACK;
     }
     if (navNbPages > 1) {
-        buttonNext->foregroundColor = (navActivePage == (navNbPages - 1)) ? LIGHT_GRAY : BLACK;
+        buttonNext->foregroundColor = (navActivePage == (navNbPages - 1)) ? INACTIVE_COLOR : BLACK;
     }
 }
 
@@ -205,7 +210,7 @@ void layoutNavigationPopulate(nbgl_container_t                 *navContainer,
 
             SPRINTF(navText, "%d of %d", navConfig->activePage + 1, navConfig->nbPages);
 
-            textArea->textColor = DARK_GRAY;
+            textArea->textColor = LIGHT_TEXT_COLOR;
             // the max width is the width of the whole container, but not overriding the < and >
             // icons
             textArea->obj.area.width

@@ -138,6 +138,8 @@ void __attribute__((noreturn)) assert_display_exit(void)
 #define ICON_APP_WARNING C_icon_warning
 #elif defined(TARGET_STAX) || defined(TARGET_FLEX)
 #define ICON_APP_WARNING C_Important_Circle_64px
+#elif defined(TARGET_APEX)
+#define ICON_APP_WARNING C_Important_Circle_48px
 #endif
 
     nbgl_useCaseChoice(

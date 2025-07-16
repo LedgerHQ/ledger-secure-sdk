@@ -20,7 +20,7 @@ __MAKEFILE_TARGET__ := 1
 
 # TARGET should be set as an environment variable otherwise it will be read from a `.target`
 # file in the SDK root repository
-TARGETS := nanos nanox nanos2 stax flex
+TARGETS := nanos nanox nanos2 stax flex apex_p apex_m
 ifeq ($(TARGET),)
 ifeq ("$(wildcard $(BOLOS_SDK)/.target)","")
 $(error No TARGET specified and no .target file in SDK repository $(BOLOS_SDK))
@@ -36,7 +36,7 @@ endif
 TARGET_PATH := $(BOLOS_SDK)/target/$(TARGET)
 BOLOS_TARGET_H := $(TARGET_PATH)/include/bolos_target.h
 TARGET_ID   := $(shell grep -E "^\#define\s*TARGET_ID" $(BOLOS_TARGET_H) | cut -f3 -d' ')
-TARGET_NAME := $(shell grep -E "^\#define\s*TARGET_[^I]" $(BOLOS_TARGET_H) | cut -f2 -d' ')
+TARGET_NAME := $(shell grep -E "^\#define\s*TARGET_[^I]" $(BOLOS_TARGET_H) | head -n 1 | cut -f2 -d' ')
 SDK_NAME    := "ledger-secure-sdk"
 SDK_VERSION := $(shell git -C $(BOLOS_SDK) describe --tags --exact-match  --match "v[0-9]*" --dirty)
 SDK_HASH    := $(shell git -C $(BOLOS_SDK) describe --always --dirty --exclude '*' --abbrev=40)
