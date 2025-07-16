@@ -4,190 +4,134 @@ import sys
 NUM_WRITTEN_MOCKS = 0
 NUM_SKIPPED_MOCKS = 0
 
+HEADER_LINES = [
+    '#ifndef __weak\n',
+    '#define __weak __attribute__((weak))\n',
+    '#endif\n',
+    '#include "ox_aes.h"\n'
+]
+
+RETURN_MOCKS = {
+    "void": ["{ __builtin_unreachable(); }", "{ return; }"],
+    "unsigned int": "{ return 0; }",
+    "SVC_cx_call": "{ return 0; }",
+    "cx_err_t": "{ return 0x00000000; }",
+    "bolos_err_t": "{ return 0xaa; }",
+    "bool": "{ return true; }",
+    "bolos_bool_t": "{ return 0xaa; }",
+    "bolos_task_status_t": "{ return 0x0; }",
+    "uint8_t": "{ return 0; }",
+    "uint8_t*": "{ return NULL; }",
+    "try_context_t*": "{ return NULL; }",
+    "uint32_t": "{ return 0; }",
+    "_Bool": "{ return true; }",
+    "unsigned char": "{ return 'M'; }",
+    "unsigned short": "{ return 0; }",
+    "int": "{ return 0; }",
+    "const LANGUAGE_PACK*": "{ return NULL; }"
+}
+
 def mark_params_unused(signature: str) -> str:
     global NUM_WRITTEN_MOCKS
-    """Add __attribute__((unused)) to each function parameter name in the signature."""
     if '(' not in signature or ')' not in signature:
-        return signature  # Not a valid function
+        return signature
 
     prefix, param_str = signature.split('(', 1)
     param_str, suffix = param_str.rsplit(')', 1)
-    params = param_str.split(',')
+    params = [p.strip() for p in param_str.split(',')]
     NUM_WRITTEN_MOCKS += 1
 
-    def modify_param(param):
-        param = param.strip()
-        if not param or param == 'void':
-            return param
-        if '__attribute__' in param:
-            return param  # Already marked
-        # Attempt to find the variable name (last token)
-        parts = param.rsplit(' ', 1)
-        if len(parts) == 2:
-            return f"{parts[0]} {parts[1]} __attribute__((unused))"
-        else:
-            return f"{param} __attribute__((unused))"
+    def modify(p):
+        if not p or p == 'void' or '__attribute__' in p:
+            return p
+        parts = p.rsplit(' ', 1)
+        return f"{parts[0]} {parts[1]} __attribute__((unused))" if len(parts) == 2 else f"{p} __attribute__((unused))"
 
-    modified_params = [modify_param(p) for p in params]
-    return f"{prefix}({', '.join(modified_params)}){suffix}"
+    return f"{prefix}({', '.join(modify(p) for p in params)}){suffix}"
 
-def matching(line):
-    """Pattern matching for functions or defines"""
-    case = -1
-    line = line.strip()
-
-    if line.startswith("#") or line == "":
-        case = "#"
-
-    elif re.match(r'^\s*[\w\s\*\_]+[*\s]+\w+\s*\(.*', line):
-        case = "function"
-
-    return case
-
-def parse_defines(defines):
-    """Parse the list of defined macros."""
-    return set(defines.split())
-
-def skip_function(line, lines, i):
-    """ Skip lines until the closing brace is found """
-    brace_counter = line.count('{') - line.count('}')
+def skip_function_body(lines, i):
+    brace_count = lines[i].count('{') - lines[i].count('}')
     i += 1
-
-    while brace_counter > 0 and i < len(lines):
-        line = lines[i]
-        brace_counter += line.count('{') - line.count('}')
+    while brace_count > 0 and i < len(lines):
+        brace_count += lines[i].count('{') - lines[i].count('}')
         i += 1
+    return i - 1
 
-    return i - 1  # return to the last valid line
+def extract_signature(lines, i):
+    sig = lines[i].strip()
+    while ')' not in sig and i < len(lines) - 1:
+        i += 1
+        sig += ' ' + lines[i].strip()
+    return sig, i
+
+def generate_mock(signature):
+    ret_type, func_name = signature.split('(', 1)[0].strip().rsplit(' ', 1)
+    if func_name.startswith('*'):
+        ret_type = ret_type + '*'
+
+    mock = RETURN_MOCKS.get(ret_type)
+    if isinstance(mock, list):  # void case
+        return mock[0] if 'noreturn' in signature else mock[1]
+    return mock
 
 def gen_mocks(c_code):
     global NUM_SKIPPED_MOCKS
-    skipped_lines = []
-    write_lines = []
-    write_lines.append('#ifndef __weak')
-    write_lines.append('#define __weak __attribute__((weak))')
-    write_lines.append('#endif')
-    write_lines.append('#include "ox_aes.h"')
     lines = c_code.splitlines()
+    mocks, skipped = [], []
     i = 0
 
     while i < len(lines):
         line = lines[i]
-        case = matching(line)
 
-        match case:
-            case "#":
-                write_lines.append(line)
+        if line.strip().startswith('#') or not line.strip():
+            mocks.append(line + '\n')
+        elif re.match(r'^\s*[\w\s\*\_]+[*\s]+\w+\s*\(.*', line):
+            if ';' in line:
+                mocks.append(line + '\n')
+            else:
+                signature, i = extract_signature(lines, i)
+                mock_body = generate_mock(signature)
 
-            case "function":
-
-                if ';' in line:
-                    write_lines.append(line)
+                if mock_body:
+                    mocks.append(f"__weak {mark_params_unused(signature)} {mock_body}\n")
+                    i = skip_function_body(lines, i)
                 else:
-                    line_aux = line.strip()
-                    while ')' not in line and i < len(lines) - 1:
-                        i += 1
-                        line = lines[i]
-                        line_aux += ' ' + line.strip()
-
-                    if ')' in line_aux:
-                        if line_aux.endswith(';'):  # prototype
-                            unused_signature = mark_params_unused(line_aux)
-                            write_lines.append('__weak ' + unused_signature)
-                        elif line_aux.startswith('void'):
-                            if 'noreturn' in line_aux:
-                                write_lines.append('__weak '+ mark_params_unused(line_aux) + ' { __builtin_unreachable(); }')
-                            else:
-                                write_lines.append('__weak '+ mark_params_unused(line_aux) + ' { return; }')
-                            i = skip_function(line, lines, i)
-                        elif line_aux.startswith('unsigned int') or 'SVC_cx_call' in line_aux:
-                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return 0; }')
-                            i = skip_function(line, lines, i)
-                        elif line_aux.startswith('cx_err_t'):
-                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return 0x00000000; }')
-                            i = skip_function(line, lines, i)
-                        elif line_aux.startswith('bolos_err_t'):
-                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return 0xaa; }')
-                            i = skip_function(line, lines, i)
-                        elif line_aux.startswith('bolos_bool_t'):
-                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return 0xaa; }')
-                            i = skip_function(line, lines, i)
-                        elif line_aux.startswith('bool'):
-                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return true; }')
-                            i = skip_function(line, lines, i)
-                        elif line_aux.startswith('bolos_bool_t'):
-                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return 0xaa; }')
-                            i = skip_function(line, lines, i)
-                        elif line_aux.startswith('bolos_task_status_t'):
-                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return 0x0; }')
-                            i = skip_function(line, lines, i)
-                        elif line_aux.startswith('uint8_t'):
-                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return 0; }')
-                            i = skip_function(line, lines, i)
-                        elif line_aux.startswith('try_context_t *'):
-                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return NULL; }')
-                            i = skip_function(line, lines, i)
-                        elif line_aux.startswith('uint32_t'):
-                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return 0; }')
-                            i = skip_function(line, lines, i)
-                        elif line_aux.startswith('_Bool'):
-                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return true; }')
-                            i = skip_function(line, lines, i)
-                        elif line_aux.startswith('unsigned char'):
-                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return \'M\'; }')
-                            i = skip_function(line, lines, i)
-                        elif line_aux.startswith('unsigned short'):
-                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return 0; }')
-                            i = skip_function(line, lines, i)
-                        elif line_aux.startswith('int'):
-                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return 0; }')
-                            i = skip_function(line, lines, i)
-                        elif line_aux.startswith('const LANGUAGE_PACK *'):
-                            write_lines.append('__weak ' + mark_params_unused(line_aux) + ' { return NULL; }')
-                            i = skip_function(line, lines, i)
-                        else:
-                            print(f"Skipped line [{i+1}]: {line_aux}")
-                            i = skip_function(line, lines, i)
-
-            case _:
-                # Other not identified lines
-                if '{' in line:
-                    i = skip_function(line, lines, i)
-                else:
-                    NUM_SKIPPED_MOCKS +=1
-                    skipped_lines.append(f"Ignoring line[{i+1}] = {line}")
+                    skipped.append(f"Skipped line [{i+1}]: {signature}\n")
+                    i = skip_function_body(lines, i)
+        elif '{' in line:
+            i = skip_function_body(lines, i)
+        else:
+            NUM_SKIPPED_MOCKS += 1
+            skipped.append(f"Ignoring line [{i+1}]: {line}\n")
 
         i += 1
 
-    return write_lines, skipped_lines
+    return mocks, skipped
 
 def main():
+    WARNING, ENDC = '\033[93m', '\033[0m'
 
+    if len(sys.argv) < 3:
+        print("Usage: python3 gen_mock.py [path/input.c] [path/output.c]")
+        return
 
-    WARNING = '\033[93m'
-    ENDC = '\033[0m'
-    if(len(sys.argv) > 2):
-        functions_path = sys.argv[1]
-        output_file = sys.argv[2]
+    input_path, output_path = sys.argv[1], sys.argv[2]
+    skipped_path = output_path.rsplit('.', 1)[0] + '_skipped.txt'
 
-        with open(functions_path, "r") as file:
-            c_code = file.read()
-            write_lines, skipped_lines = gen_mocks(c_code)
+    with open(input_path, 'r') as f:
+        c_code = f.read()
 
-        if write_lines:
-            with open(output_file, "w") as file:
-                for line in write_lines:
-                    file.write(line + "\n")
-        skipped_file = output_file.split('.')[0]+"_skipped.txt"
-        if skipped_lines:
-            with open(skipped_file, "w") as file:
-                for line in skipped_lines:
-                    file.write(line + "\n")
+    mocks, skipped = gen_mocks(c_code)
 
-    else:
-        print("Usage: python3 gen_mock.py [c_functions_file.c]")
-    print(f"{WARNING}{NUM_WRITTEN_MOCKS} mocks generated at {output_file}{ENDC}")
-    print(f"{WARNING}{NUM_SKIPPED_MOCKS} lines skipped, written at {skipped_file}{ENDC}")
+    with open(output_path, 'w') as f:
+        f.writelines(HEADER_LINES + mocks)
+
+    if skipped:
+        with open(skipped_path, 'w') as f:
+            f.writelines(skipped)
+
+    print(f"{WARNING}{NUM_WRITTEN_MOCKS} mocks generated at {output_path}{ENDC}")
+    print(f"{WARNING}{NUM_SKIPPED_MOCKS} lines skipped, written at {skipped_path}{ENDC}")
 
 if __name__ == "__main__":
     main()
