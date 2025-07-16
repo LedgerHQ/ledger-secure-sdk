@@ -77,18 +77,7 @@ WEAK unsigned char io_event(unsigned char channel)
         case SEPROXYHAL_TAG_TICKER_EVENT:
             app_ticker_event_callback();
             UX_TICKER_EVENT(G_io_seproxyhal_spi_buffer, {});
-#ifdef HAVE_NFC_READER
-            io_nfc_ticker();
-            io_nfc_process_events();
-#endif  // HAVE_NFC_READER
             break;
-#ifdef HAVE_NFC_READER
-        case SEPROXYHAL_TAG_NFC_EVENT:
-            io_nfc_event();
-            io_nfc_process_events();
-            break;
-#endif  // HAVE_NFC_READER
-
         default:
             UX_DEFAULT_EVENT();
             break;
