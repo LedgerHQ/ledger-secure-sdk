@@ -297,22 +297,22 @@ int os_io_rx_evt(unsigned char *buffer,
         case SEPROXYHAL_TAG_NFC_APDU_EVENT:
             status
                 = NFC_LEDGER_rx_seph_apdu_evt(G_io_seph_buffer, length, buffer, buffer_max_length);
-#if defined(HAVE_NFC_READER) && !defined(HAVE_BOLOS)
-            io_nfc_process_events();
-#endif  // HAVE_NFC_READER && !HAVE_BOLOS
+
+#ifdef HAVE_NFC_READER
+            if (status > 0 && status < buffer_max_length
+                && buffer[0] == OS_IO_PACKET_TYPE_NFC_APDU_RSP) {
+                os_io_nfc_reader_rx(&buffer[1], status - 1);
+            }
+#endif  // HAVE_NFC_READER
             break;
 
-#if defined(HAVE_NFC_READER) && !defined(HAVE_BOLOS)
+#ifdef HAVE_NFC_READER
         case SEPROXYHAL_TAG_NFC_EVENT:
-            io_nfc_event();
-            io_nfc_process_events();
-            break;
-
         case SEPROXYHAL_TAG_TICKER_EVENT:
-            io_nfc_ticker();
-            io_nfc_process_events();
+            os_io_nfc_evt(&G_io_seph_buffer[1], status - 1);
+            memmove(buffer, G_io_seph_buffer, length);
             break;
-#endif  // HAVE_NFC_READER && !HAVE_BOLOS
+#endif  // HAVE_NFC_READER
 #endif  // HAVE_NFC
 
         case SEPROXYHAL_TAG_CAPDU_EVENT:
