@@ -501,6 +501,10 @@ ble_profile_status_t BLE_LEDGER_PROFILE_apdu_write_permit_req(uint8_t *hci_buffe
     uint16_t att_handle        = U2LE(hci_buffer, 4);
     uint8_t  data_length       = hci_buffer[6];
 
+    if (data_length > length - 7) {
+        goto error;
+    }
+
     handle->wait_write_resp_ack = 1;
 
     if ((att_handle == handle->gatt_write_characteristic_handle + 1)
