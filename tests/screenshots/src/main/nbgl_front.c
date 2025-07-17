@@ -9,6 +9,7 @@
  *      INCLUDES
  *********************/
 #include "nbgl_driver.h"
+#include "nbgl_driver_masking.h"
 #include "nbgl_front.h"
 #include "nbgl_debug.h"
 #include "os_helpers.h"
@@ -138,4 +139,19 @@ void nbgl_frontDrawImageRle(const nbgl_area_t *area,
     nbgl_driver_drawImageRle(
         (nbgl_area_t *) area, (uint8_t *) buffer, buffer_len, fore_color, nb_skipped_bytes);
     ((nbgl_area_t *) area)->x0 -= FULL_SCREEN_WIDTH - SCREEN_WIDTH;
+}
+
+void nbgl_frontControlAreaMasking(uint8_t mask_index, nbgl_area_t *masked_area_or_null)
+{
+    if (masked_area_or_null == NULL) {
+        // Disable masking
+        nbgl_driver_masking_controlMasking(mask_index, NULL);
+        return;
+    }
+
+    // Enable masking
+    masked_area_or_null->x0 += FULL_SCREEN_WIDTH - SCREEN_WIDTH;
+    nbgl_driver_masking_controlMasking(mask_index, masked_area_or_null);
+    masked_area_or_null->x0 -= FULL_SCREEN_WIDTH - SCREEN_WIDTH;
+    return;
 }

@@ -152,7 +152,7 @@ static void onTipBox(int token, uint8_t index, int page)
 void app_xrpSignMessage(void)
 {
 #ifdef SCREEN_SIZE_WALLET
-    nbgl_tipBox_t tipBox = {.icon = &C_Important_Circle_64px,
+    nbgl_tipBox_t tipBox = {.icon = &IMPORTANT_CIRCLE_ICON,
                             .text = "You're interacting with a smart contract from Uniswap Labs.",
                             .modalTitle         = "Smart contract information",
                             .infos.nbInfos      = 2,
@@ -185,7 +185,7 @@ void app_xrpSignMessageLight(void)
 #ifdef SCREEN_SIZE_WALLET
     contentsList[0].content.extendedCenter.tipBox.text
         = "You're interacting with a smart contract from Uniswap Labs.";
-    contentsList[0].content.extendedCenter.tipBox.icon  = &C_Important_Circle_64px;
+    contentsList[0].content.extendedCenter.tipBox.icon  = &IMPORTANT_CIRCLE_ICON;
     contentsList[0].content.extendedCenter.tipBox.token = FIRST_USER_TOKEN;
 #endif
     nbgl_useCaseGenericReview(&contents, "Reject", onCancel);
@@ -198,5 +198,5 @@ void app_xrpSignMessageLight(void)
 void app_fullXrp(void)
 {
     nbgl_useCaseHomeAndSettings(
-        "Xrp", &C_xrp_32px, NULL, INIT_HOME_PAGE, NULL, NULL, NULL, exit_app);
+        "Xrp", &XRP_MAIN_ICON, NULL, INIT_HOME_PAGE, NULL, NULL, NULL, exit_app);
 }

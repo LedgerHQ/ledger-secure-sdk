@@ -23,15 +23,15 @@ extern "C" {
 /**
  * Width of the full screen in pixels, including side, front and unusable edge
  */
-#ifdef TARGET_STAX
+#if defined(TARGET_STAX)
 #define FULL_SCREEN_WIDTH 496
-#endif  // TARGET_STAX
-#ifdef TARGET_FLEX
+#elif defined(TARGET_FLEX)
 #define FULL_SCREEN_WIDTH 480
-#endif  // TARGET_FLEX
-#ifndef SCREEN_SIZE_WALLET
+#elif defined(TARGET_APEX)
+#define FULL_SCREEN_WIDTH 300
+#elif defined(SCREEN_SIZE_NANO)
 #define FULL_SCREEN_WIDTH 128
-#endif  // SCREEN_SIZE_WALLET
+#endif  // TARGET_APEX
 
 /**
  * @brief macro to get the color from color_map for the __code__ input

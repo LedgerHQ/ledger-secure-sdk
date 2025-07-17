@@ -191,7 +191,7 @@ static int add_targets(ScenarioPage_t *page, struct json_object *value)
             }
             else if (!strcmp(k, "product")) {  // to restrict a target to a specific product
                 name = (char *) json_object_get_string(v);
-                if (strcmp(name, productName)) {
+                if (!strstr(name, productName)) {
                     notConcerned = true;
                     continue;
                 }
@@ -396,7 +396,7 @@ int scenario_parse_json(void)
         }
         else if (!strcmp(key, "product")) {
             char *name = (char *) json_object_get_string(value);
-            if (strcmp(name, productName)) {
+            if (!strstr(name, productName)) {
                 break;
             }
         }
@@ -426,7 +426,7 @@ int scenario_parse_json(void)
                     }
                     else if (!strcmp(k, "product")) {  // to restrict a page to a specific product
                         name = (char *) json_object_get_string(v);
-                        if (strcmp(name, productName)) {
+                        if (!strstr(name, productName)) {
                             notConcerned = true;
                             continue;
                         }
