@@ -524,6 +524,7 @@ typedef struct {
         struct {
             const nbgl_icon_details_t *actionIcon;   ///< right button icon
             const char                *text;         ///< centered text (can be NULL if no text)
+            const char                *subText;      ///< text under the line (can be NULL)
             uint8_t                    textToken;    ///< when text is touched
             uint8_t                    backToken;    ///< when back key is pressed
             uint8_t                    actionToken;  ///< when right key is pressed
@@ -697,7 +698,6 @@ int nbgl_layoutAddTextWithAlias(nbgl_layout_t *layout,
                                 const char    *subText,
                                 uint8_t        token,
                                 uint8_t        index);
-int nbgl_layoutAddSubHeaderText(nbgl_layout_t *layout, const char *text);
 int nbgl_layoutAddRadioChoice(nbgl_layout_t *layout, const nbgl_layoutRadioChoice_t *choices);
 int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info);
 int nbgl_layoutAddChoiceButtons(nbgl_layout_t *layout, const nbgl_layoutChoiceButtons_t *info);
