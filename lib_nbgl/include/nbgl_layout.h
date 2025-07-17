@@ -41,7 +41,6 @@ extern "C" {
 // only 4 buttons are visible at the same time on Stax
 #define NB_MAX_VISIBLE_SUGGESTION_BUTTONS 4
 #define TOUCHABLE_HEADER_BAR_HEIGHT       88
-#define TOUCHABLE_BAR_HEIGHT              96
 #define SMALL_FOOTER_HEIGHT               88
 #define SIMPLE_FOOTER_HEIGHT              92
 #define SMALL_CENTERING_HEADER            32
@@ -50,11 +49,6 @@ extern "C" {
 #define MEDIUM_CENTERING_FOOTER           88
 #define LONG_PRESS_BUTTON_HEIGHT          128
 #define UP_FOOTER_BUTTON_HEIGHT           120
-
-#define PRE_TEXT_MARGIN     32
-#define TEXT_SUBTEXT_MARGIN 16
-#define PRE_SUBTEXT_MARGIN  24
-#define POST_SUBTEXT_MARGIN 28
 
 #define LIST_ITEM_MIN_TEXT_HEIGHT   40
 #define LIST_ITEM_PRE_HEADING       28
@@ -74,7 +68,6 @@ extern "C" {
 // only 2 buttons are visible at the same time on Flex
 #define NB_MAX_VISIBLE_SUGGESTION_BUTTONS 2
 #define TOUCHABLE_HEADER_BAR_HEIGHT       96
-#define TOUCHABLE_BAR_HEIGHT              92
 #define SMALL_FOOTER_HEIGHT               96
 #define SIMPLE_FOOTER_HEIGHT              96
 #define SMALL_CENTERING_HEADER            40
@@ -83,11 +76,6 @@ extern "C" {
 #define MEDIUM_CENTERING_FOOTER           64
 #define LONG_PRESS_BUTTON_HEIGHT          152
 #define UP_FOOTER_BUTTON_HEIGHT           136
-
-#define PRE_TEXT_MARGIN     28
-#define TEXT_SUBTEXT_MARGIN 14
-#define PRE_SUBTEXT_MARGIN  26
-#define POST_SUBTEXT_MARGIN 26
 
 #define LIST_ITEM_MIN_TEXT_HEIGHT   SMALL_ICON_SIZE
 #define LIST_ITEM_PRE_HEADING       26
@@ -107,7 +95,6 @@ extern "C" {
 // only 2 buttons are visible at the same time on Apex
 #define NB_MAX_VISIBLE_SUGGESTION_BUTTONS 2
 #define TOUCHABLE_HEADER_BAR_HEIGHT       60
-#define TOUCHABLE_BAR_HEIGHT              68
 #define SMALL_FOOTER_HEIGHT               60
 #define SIMPLE_FOOTER_HEIGHT              60
 #define SMALL_CENTERING_HEADER            24
@@ -116,11 +103,6 @@ extern "C" {
 #define MEDIUM_CENTERING_FOOTER           40
 #define LONG_PRESS_BUTTON_HEIGHT          88
 #define UP_FOOTER_BUTTON_HEIGHT           72
-
-#define PRE_TEXT_MARGIN     23
-#define TEXT_SUBTEXT_MARGIN 9
-#define PRE_SUBTEXT_MARGIN  18
-#define POST_SUBTEXT_MARGIN 22
 
 #define LIST_ITEM_MIN_TEXT_HEIGHT   SMALL_ICON_SIZE
 #define LIST_ITEM_PRE_HEADING       22
@@ -524,6 +506,7 @@ typedef struct {
         struct {
             const nbgl_icon_details_t *actionIcon;   ///< right button icon
             const char                *text;         ///< centered text (can be NULL if no text)
+            const char                *subText;      ///< text under the line (can be NULL)
             uint8_t                    textToken;    ///< when text is touched
             uint8_t                    backToken;    ///< when back key is pressed
             uint8_t                    actionToken;  ///< when right key is pressed
@@ -697,7 +680,6 @@ int nbgl_layoutAddTextWithAlias(nbgl_layout_t *layout,
                                 const char    *subText,
                                 uint8_t        token,
                                 uint8_t        index);
-int nbgl_layoutAddSubHeaderText(nbgl_layout_t *layout, const char *text);
 int nbgl_layoutAddRadioChoice(nbgl_layout_t *layout, const nbgl_layoutRadioChoice_t *choices);
 int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info);
 int nbgl_layoutAddChoiceButtons(nbgl_layout_t *layout, const nbgl_layoutChoiceButtons_t *info);
