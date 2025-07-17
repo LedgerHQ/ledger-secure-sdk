@@ -435,6 +435,8 @@ static void draw_button(nbgl_button_t *obj, nbgl_obj_t *prevObj, bool computePos
     // draw the text (right of the icon, with 8 pixels between them)
     if (text != NULL) {
         nbgl_area_t rectArea;
+        // const nbgl_font_t *font = nbgl_getFont(obj->fontId);
+
         // Compute available with & height to display the text
         rectArea.x0 = obj->obj.area.x0;
         rectArea.y0 = obj->obj.area.y0;
@@ -448,8 +450,38 @@ static void draw_button(nbgl_button_t *obj, nbgl_obj_t *prevObj, bool computePos
         }
         // Compute the width & number of characters displayed on first line
         uint16_t textLen;
+#if 1
         nbgl_getTextMaxLenAndWidth(obj->fontId, text, rectArea.width, &textLen, &textWidth, true);
-
+#else   // False
+        uint16_t textHeight = nbgl_getTextMaxLenAndWidth(
+            obj->fontId, text, rectArea.width, &textLen, &textWidth, true);
+        // rectArea.height = textHeight;
+        rectArea.height = nbgl_getFontHeight(obj->fontId);
+        //  rectArea.height = nbgl_getFontLineHeight(obj->fontId);
+        uint16_t y_padding = (obj->obj.area.height - rectArea.height) / 2;
+        y_padding -= (rectArea.height - textHeight) / 2;
+        /*fprintf(stdout, "draw_button(), text =>%s<=, y0=%d, y_padding=%d, w=%d, h=%d,
+          area->height=%d, FontHeight=%d, FontLineHeight=%d\n", text, rectArea.y0, y_padding,
+          textWidth, textHeight, obj->obj.area.height, nbgl_getFontHeight(obj->fontId),
+          nbgl_getFontLineHeight(obj->fontId));*/
+        rectArea.y0 += y_padding;
+        rectArea.y0 -= nbgl_getFontYmin(obj->fontId);
+        // if (!strcmp(text, "เปิด")) {
+        if (!strcmp(text, "Charger")) {
+            fprintf(stdout,
+                    "draw_button: textHeight=%d, obj->obj.area.y0=%d, obj->obj.area.height=%d, "
+                    "rectArea.y0=%d, rectArea.height=%d, y_padding=%d, nbgl_getFontHeight=%d, "
+                    "nbgl_getFontLineHeight=%d\n",
+                    textHeight,
+                    obj->obj.area.y0,
+                    obj->obj.area.height,
+                    rectArea.y0,
+                    rectArea.height,
+                    y_padding,
+                    nbgl_getFontHeight(obj->fontId),
+                    nbgl_getFontLineHeight(obj->fontId));
+        }
+#endif  // False
 #ifdef BUILD_SCREENSHOTS
         store_string_infos(text, obj->fontId, &rectArea, true, 1, 1, false);
 #endif  // BUILD_SCREENSHOTS
@@ -991,7 +1023,12 @@ static void draw_textArea(nbgl_text_area_t *obj, nbgl_obj_t *prevObj, bool compu
 
     textHeight = (nbLines - 1) * lineHeight + fontHeight;
 
-    midHeight = (obj->obj.area.height - textHeight) / 2;
+    if (obj->obj.area.height >= textHeight) {
+        midHeight = (obj->obj.area.height - textHeight) / 2;
+    }
+    else {
+        midHeight = 0;
+    }
 #ifdef SCREEN_SIZE_NANO
     if (obj->style == INVERTED_COLORS) {
         midHeight--;
