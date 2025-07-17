@@ -138,17 +138,32 @@
       "targets": [
         {
           "object": "EXTRA_BUTTON",
+          "product": "flex",
+          "page": "multi-sig-qr_code",
+          "comment": "view QR"
+        },
+        {
+          "object": "CHOICE_2",
+          "product": "stax,apex_p",
           "page": "multi-sig-qr_code",
           "comment": "view QR"
         },
         {
           "object": "RIGHT_BUTTON",
+          "product": "flex",
           "page": "multi-sig-03"
+        },
+        {
+          "object": "VALUE_BUTTON_3",
+          "product": "stax,apex_p",
+          "page": "multi-sig-signers-01",
+          "comment": "view signers details (alias)"
         }
       ]
     },
     {
       "name": "multi-sig-03",
+      "product": "flex",
       "targets": [
         {
           "object": "VALUE_BUTTON_2",
@@ -180,7 +195,13 @@
       "targets": [
         {
           "object": "BOTTOM_BUTTON",
+          "product": "flex",
           "page": "multi-sig-03"
+        },
+        {
+          "object": "BOTTOM_BUTTON",
+          "product": "stax,apex_p",
+          "page": "multi-sig-02"
         }
       ]
     }

@@ -1,10 +1,10 @@
 # Makefile to build and launch screenshots
 # The generated screenshots can be used to validate NBGL Application Use Cases
 GCC 				?= gcc
-PRODUCT_NAME ?=$(word 1, $(subst _, ,$(MAKECMDGOALS)))
+PRODUCT_NAME ?=$(word 1, $(subst _clean, , $(subst _screenshots, ,$(MAKECMDGOALS))))
 
 # possible products
-PRODUCT_NAMES = stax nanox flex nanosp
+PRODUCT_NAMES := stax nanox flex nanosp apex_p
 
 ifeq (, $(filter $(PRODUCT_NAMES), $(PRODUCT_NAME)))
 $(error "Product $(PRODUCT_NAME) not found")
@@ -67,6 +67,9 @@ TARGET_DEFINES += \
                        SCREEN_SIZE_WALLET
 
 TARGET_ID           := 0x33200004
+SMALL_ICON_SIZE := 32px
+LARGE_ICON_SIZE := 64px
+APP_ICON_SIZE   := 32px
 endif
 
 ifeq ($(PRODUCT_NAME),flex)
@@ -78,6 +81,9 @@ TARGET_DEFINES += \
                        SCREEN_SIZE_WALLET
 
 TARGET_ID           := 0x33300004
+SMALL_ICON_SIZE := 40px
+LARGE_ICON_SIZE := 64px
+APP_ICON_SIZE   := 40px
 endif
 
 ifeq ($(PRODUCT_NAME),nanox)
@@ -97,6 +103,24 @@ TARGET_DEFINES += \
 
 TARGET_ID           := 0x33100004
 endif
+
+ifeq ($(PRODUCT_NAME),apex_p)
+TARGET_DEFINES += \
+                       TARGET_APEX \
+                       TARGET_APEX_P \
+                       HAVE_BAGL_FONT_NANOTEXT_MEDIUM_18PX \
+                       HAVE_BAGL_FONT_NANOTEXT_BOLD_18PX \
+                       HAVE_BAGL_FONT_NANODISPLAY_SEMIBOLD_24PX \
+                       SCREEN_SIZE_WALLET \
+                       MONITOR_ZOOM=2 \
+                       NBGL_MASKING
+
+TARGET_ID           := 0x33300004
+SMALL_ICON_SIZE := 24px
+LARGE_ICON_SIZE := 48px
+APP_ICON_SIZE   := 32px_1bpp
+endif
+
 
 #if Nano
 ifeq (, $(filter $(TARGET_DEFINES), SCREEN_SIZE_WALLET))
@@ -173,22 +197,22 @@ LIB_SRCS   := $(shell find $(NBGL_PATH)/src -type f -name '*.c')
 LIB_SRCS   += $(shell find $(NBGL_PATH)/fonts -type f -name '*.c')
 LIB_SRCS   += $(shell find $(PUBLIC_SDK_DIR)/qrcode/src -type f -name '*.c')
 
-APP_ICON_FILES = $(addprefix $(APP_PATH)/glyphs/,$(sort $(notdir $(shell find $(APP_PATH)/glyphs/))))
-APP_ICON_FILENAMES = $(sort $(notdir $(shell find $(APP_PATH)/glyphs/)))
-GLYPH_FILES = $(addprefix $(APP_PATH)/glyphs/,$(sort $(notdir $(shell find $(APP_PATH)/glyphs/))))
+ifneq (, $(filter $(TARGET_DEFINES), SCREEN_SIZE_WALLET))
+APP_GLYPHS_PATH := $(APP_PATH)/glyphs/$(APP_ICON_SIZE)/
+GLYPH_FILES = $(addprefix $(APP_PATH)/glyphs/$(LARGE_ICON_SIZE)/,$(sort $(notdir $(shell find $(APP_PATH)/glyphs/$(LARGE_ICON_SIZE)/))))
+else
+APP_GLYPHS_PATH := $(APP_PATH)/glyphs/nano/
+GLYPH_FILES = $(addprefix $(APP_GLYPHS_PATH),$(sort $(notdir $(shell find $(APP_GLYPHS_PATH)))))
+endif
+APP_ICON_FILENAMES = $(sort $(notdir $(shell find $(APP_GLYPHS_PATH))))
+APP_ICON_FILES = $(addprefix $(APP_GLYPHS_PATH),$(APP_ICON_FILENAMES))
 
-ifneq (, $(filter $(PRODUCT_NAME), stax flex))
+ifneq (, $(filter $(TARGET_DEFINES), SCREEN_SIZE_WALLET))
 GLYPH_FILES += $(addprefix $(NBGL_PATH)/glyphs/wallet/,$(sort $(notdir $(shell find $(NBGL_PATH)/glyphs/wallet/))))
-GLYPH_FILES += $(addprefix $(NBGL_PATH)/glyphs/64px/,$(sort $(notdir $(shell find $(NBGL_PATH)/glyphs/64px/))))
+GLYPH_FILES += $(addprefix $(NBGL_PATH)/glyphs/$(LARGE_ICON_SIZE)/,$(sort $(notdir $(shell find $(NBGL_PATH)/glyphs/$(LARGE_ICON_SIZE)/))))
+GLYPH_FILES += $(addprefix $(NBGL_PATH)/glyphs/$(SMALL_ICON_SIZE)/,$(sort $(notdir $(shell find $(NBGL_PATH)/glyphs/$(SMALL_ICON_SIZE)/))))
 else
 GLYPH_FILES += $(addprefix $(NBGL_PATH)/glyphs/nano/,$(sort $(notdir $(shell find $(NBGL_PATH)/glyphs/nano/))))
-endif
-
-ifeq ($(PRODUCT_NAME),stax)
-GLYPH_FILES += $(addprefix $(NBGL_PATH)/glyphs/32px/,$(sort $(notdir $(shell find $(NBGL_PATH)/glyphs/32px/))))
-endif
-ifeq ($(PRODUCT_NAME),flex)
-GLYPH_FILES += $(addprefix $(NBGL_PATH)/glyphs/40px/,$(sort $(notdir $(shell find $(NBGL_PATH)/glyphs/40px/))))
 endif
 
 ICON_SCRIPT := $(NBGL_PATH)/tools/icon2glyph.py
@@ -212,7 +236,7 @@ $(APP_ICON_DESTH): $(APP_ICON_FILES) hexbitmap2c.py | $(GEN_DIR)
 	@echo "/* Generated */" > $(APP_ICON_DESTC)
 	@echo "/* Generated */" > $(APP_ICON_DESTH)
 	@for file in $(APP_ICON_FILENAMES) ; do \
-	  python3 $(ICON_SCRIPT) $(GLYPH_OPT) --hexbitmap tmp_$$file.hex $(APP_PATH)/glyphs/$$file ; \
+	  python3 $(ICON_SCRIPT) $(GLYPH_OPT) --hexbitmap tmp_$$file.hex $(APP_GLYPHS_PATH)/$$file ; \
 	  python3 hexbitmap2c.py --hexbitmap tmp_$$file.hex --inc $(APP_ICON_DESTH) --src $(APP_ICON_DESTC) --variable $$file; \
     rm -f tmp_$$file.hex; \
 	done
@@ -297,5 +321,15 @@ flex: $(BIN)
 flex_clean:
 
 flex_screenshots: $(BIN)
+
+##
+## Apex+
+##
+
+apex_p: $(BIN)
+
+apex_p_clean:
+
+apex_p_screenshots: $(BIN)
 
 -include $(OBJECTS:%.o=%.d)

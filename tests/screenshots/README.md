@@ -24,6 +24,7 @@ where `<product>` can be:
 - `stax`
 - `nanox`
 - `nanosp`
+- `apex_p`
 
 so for example to generate screenshots for Flex:
 
