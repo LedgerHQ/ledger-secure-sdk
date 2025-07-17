@@ -41,7 +41,6 @@ extern "C" {
 // only 4 buttons are visible at the same time on Stax
 #define NB_MAX_VISIBLE_SUGGESTION_BUTTONS 4
 #define TOUCHABLE_HEADER_BAR_HEIGHT       88
-#define TOUCHABLE_BAR_HEIGHT              96
 #define SMALL_FOOTER_HEIGHT               88
 #define SIMPLE_FOOTER_HEIGHT              92
 #define SMALL_CENTERING_HEADER            32
@@ -50,11 +49,6 @@ extern "C" {
 #define MEDIUM_CENTERING_FOOTER           88
 #define LONG_PRESS_BUTTON_HEIGHT          128
 #define UP_FOOTER_BUTTON_HEIGHT           120
-
-#define PRE_TEXT_MARGIN     32
-#define TEXT_SUBTEXT_MARGIN 16
-#define PRE_SUBTEXT_MARGIN  24
-#define POST_SUBTEXT_MARGIN 28
 
 #define LIST_ITEM_MIN_TEXT_HEIGHT   40
 #define LIST_ITEM_PRE_HEADING       28
@@ -74,7 +68,6 @@ extern "C" {
 // only 2 buttons are visible at the same time on Flex
 #define NB_MAX_VISIBLE_SUGGESTION_BUTTONS 2
 #define TOUCHABLE_HEADER_BAR_HEIGHT       96
-#define TOUCHABLE_BAR_HEIGHT              92
 #define SMALL_FOOTER_HEIGHT               96
 #define SIMPLE_FOOTER_HEIGHT              96
 #define SMALL_CENTERING_HEADER            40
@@ -83,11 +76,6 @@ extern "C" {
 #define MEDIUM_CENTERING_FOOTER           64
 #define LONG_PRESS_BUTTON_HEIGHT          152
 #define UP_FOOTER_BUTTON_HEIGHT           136
-
-#define PRE_TEXT_MARGIN     28
-#define TEXT_SUBTEXT_MARGIN 14
-#define PRE_SUBTEXT_MARGIN  26
-#define POST_SUBTEXT_MARGIN 26
 
 #define LIST_ITEM_MIN_TEXT_HEIGHT   SMALL_ICON_SIZE
 #define LIST_ITEM_PRE_HEADING       26
@@ -107,7 +95,6 @@ extern "C" {
 // only 2 buttons are visible at the same time on Apex
 #define NB_MAX_VISIBLE_SUGGESTION_BUTTONS 2
 #define TOUCHABLE_HEADER_BAR_HEIGHT       60
-#define TOUCHABLE_BAR_HEIGHT              68
 #define SMALL_FOOTER_HEIGHT               60
 #define SIMPLE_FOOTER_HEIGHT              60
 #define SMALL_CENTERING_HEADER            24
@@ -116,11 +103,6 @@ extern "C" {
 #define MEDIUM_CENTERING_FOOTER           40
 #define LONG_PRESS_BUTTON_HEIGHT          88
 #define UP_FOOTER_BUTTON_HEIGHT           72
-
-#define PRE_TEXT_MARGIN     23
-#define TEXT_SUBTEXT_MARGIN 9
-#define PRE_SUBTEXT_MARGIN  18
-#define POST_SUBTEXT_MARGIN 22
 
 #define LIST_ITEM_MIN_TEXT_HEIGHT   SMALL_ICON_SIZE
 #define LIST_ITEM_PRE_HEADING       22
