@@ -2378,7 +2378,7 @@ static void displaySecurityReport(uint32_t set)
               "could be authorizing malicious actions that can drain your wallet.\n\nLearn more: "
               "ledger.com/e8";
         nbgl_layoutAddContentCenter(reviewWithWarnCtx.modalLayout, &info);
-        footerDesc.emptySpace.height = MEDIUM_CENTERING_HEADER;
+        footerDesc.emptySpace.height = SMALL_CENTERING_HEADER;
         headerDesc.separationLine    = false;
     }
     else if (set & (1 << W3C_ISSUE_WARN)) {
@@ -2391,7 +2391,7 @@ static void displaySecurityReport(uint32_t set)
               "are using Ledger Live, reject the transaction and try again.\n\nGet help at "
               "ledger.com/e11";
         nbgl_layoutAddContentCenter(reviewWithWarnCtx.modalLayout, &info);
-        footerDesc.emptySpace.height = MEDIUM_CENTERING_HEADER;
+        footerDesc.emptySpace.height = SMALL_CENTERING_HEADER;
         headerDesc.separationLine    = false;
     }
     nbgl_layoutAddHeader(reviewWithWarnCtx.modalLayout, &headerDesc);
@@ -2974,25 +2974,18 @@ uint8_t nbgl_useCaseGetNbInfosInPage(uint8_t                       nbInfos,
     uint16_t           currentHeight = 0;
     uint16_t           previousHeight;
     uint16_t           navHeight    = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
-    const char *const *infoTypes    = PIC(infosList->infoTypes);
     const char *const *infoContents = PIC(infosList->infoContents);
 
     while (nbInfosInPage < nbInfos) {
-        // margin between infos
-        currentHeight += PRE_TEXT_MARGIN;
-
-        // type height
-        currentHeight += nbgl_getTextHeightInWidth(
-            SMALL_BOLD_FONT, PIC(infoTypes[startIndex + nbInfosInPage]), AVAILABLE_WIDTH, true);
-        // space between type and content
-        currentHeight += TEXT_SUBTEXT_MARGIN;
+        // The type string must be a 1 liner and its height is LIST_ITEM_MIN_TEXT_HEIGHT
+        currentHeight
+            += LIST_ITEM_MIN_TEXT_HEIGHT + 2 * LIST_ITEM_PRE_HEADING + LIST_ITEM_HEADING_SUB_TEXT;
 
         // content height
         currentHeight += nbgl_getTextHeightInWidth(SMALL_REGULAR_FONT,
                                                    PIC(infoContents[startIndex + nbInfosInPage]),
                                                    AVAILABLE_WIDTH,
                                                    true);
-        currentHeight += POST_SUBTEXT_MARGIN;  // under the content
         // if height is over the limit
         if (currentHeight >= (INFOS_AREA_HEIGHT - navHeight)) {
             // if there was no nav, now there will be, so it can be necessary to remove the last
@@ -3029,16 +3022,9 @@ uint8_t nbgl_useCaseGetNbSwitchesInPage(uint8_t                           nbSwit
     nbgl_contentSwitch_t *switchArray = (nbgl_contentSwitch_t *) PIC(switchesList->switches);
 
     while (nbSwitchesInPage < nbSwitches) {
-        // margin between switches
-        currentHeight += PRE_TEXT_MARGIN;
-
-        // text height
-        currentHeight += nbgl_getTextHeightInWidth(SMALL_BOLD_FONT,
-                                                   switchArray[startIndex + nbSwitchesInPage].text,
-                                                   AVAILABLE_WIDTH,
-                                                   true);
-        // space between text and sub-text
-        currentHeight += TEXT_SUBTEXT_MARGIN;
+        // The text string must be a 1 liner and its height is LIST_ITEM_MIN_TEXT_HEIGHT
+        currentHeight
+            += LIST_ITEM_MIN_TEXT_HEIGHT + 2 * LIST_ITEM_PRE_HEADING + LIST_ITEM_HEADING_SUB_TEXT;
 
         // sub-text height
         currentHeight
@@ -3046,7 +3032,6 @@ uint8_t nbgl_useCaseGetNbSwitchesInPage(uint8_t                           nbSwit
                                          switchArray[startIndex + nbSwitchesInPage].subText,
                                          AVAILABLE_WIDTH,
                                          true);
-        currentHeight += POST_SUBTEXT_MARGIN;  // under the sub-text
         // if height is over the limit
         if (currentHeight >= (INFOS_AREA_HEIGHT - navHeight)) {
             break;
@@ -3085,7 +3070,7 @@ uint8_t nbgl_useCaseGetNbBarsInPage(uint8_t                       nbBars,
     UNUSED(startIndex);
 
     while (nbBarsInPage < nbBars) {
-        currentHeight += TOUCHABLE_BAR_HEIGHT;
+        currentHeight += LIST_ITEM_MIN_TEXT_HEIGHT + 2 * LIST_ITEM_PRE_HEADING;
         // if height is over the limit
         if (currentHeight >= (INFOS_AREA_HEIGHT - navHeight)) {
             break;
@@ -3124,7 +3109,7 @@ uint8_t nbgl_useCaseGetNbChoicesInPage(uint8_t                          nbChoice
     UNUSED(startIndex);
 
     while (nbChoicesInPage < nbChoices) {
-        currentHeight += TOUCHABLE_BAR_HEIGHT;
+        currentHeight += LIST_ITEM_MIN_TEXT_HEIGHT + 2 * LIST_ITEM_PRE_HEADING;
         // if height is over the limit
         if (currentHeight >= (INFOS_AREA_HEIGHT - navHeight)) {
             // if there was no nav, now there will be, so it can be necessary to remove the last
