@@ -1,6 +1,10 @@
 #!/bin/bash
 
-# Defaults
+#===============================================================================
+#
+#     Env Variables
+#
+#===============================================================================
 REBUILD=0
 COMPUTE_COVERAGE=0
 RUN_FUZZER=0
@@ -14,14 +18,17 @@ NUM_CPUS=1
 FUZZER=""
 FUZZERNAME=""
 
-# Colors
 RED="\033[0;31m"
 GREEN="\033[0;32m"
 BLUE="\033[0;34m"
 YELLOW="\033[0;33m"
 NC="\033[0m"
 
-# Help message
+#===============================================================================
+#
+#     Help message
+#
+#===============================================================================
 function show_help() {
     echo -e "${BLUE}Usage: ./local_run.sh --fuzzer=/path/to/fuzz_binary [--build=1|0] [other options:]${NC}"
     echo
@@ -41,7 +48,11 @@ function show_help() {
     exit 0
 }
 
-# Does generated_macros[] = generated_macros[] + add_macros[] - exclude_macros[]
+#===============================================================================
+#
+#     Perform: generated_macros[] = generated_macros[] + add_macros[] - exclude_macros[]
+#
+#===============================================================================
 function custom_macros(){
     echo -e "${BLUE}Customizing macros...${NC}"
     if [ "$BOLOS_SDK" ]; then
@@ -56,6 +67,11 @@ function custom_macros(){
     fi
 }
 
+#===============================================================================
+#
+#     Generates Macro definitions
+#
+#===============================================================================
 function gen_macros() {
     mkdir -p "$FUZZING_PATH/macros/generated"
 
@@ -92,6 +108,12 @@ function gen_macros() {
     cd "$FUZZING_PATH" || exit 1
 }
 
+
+#===============================================================================
+#
+#     Build the fuzzer
+#
+#===============================================================================
 function build() {
     cd "$FUZZING_PATH" || exit
 
@@ -106,7 +128,12 @@ function build() {
     cmake --build build
 }
 
-# Parse args
+
+#===============================================================================
+#
+#     Parsing parameters
+#
+#===============================================================================
 for arg in "$@"; do
     case $arg in
         --fuzzer=*)
@@ -149,13 +176,21 @@ for arg in "$@"; do
     esac
 done
 
-# Set paths
+#===============================================================================
+#
+#     Set paths
+#
+#===============================================================================
 FUZZERNAME=$(basename "$FUZZER")
 OUT_DIR="./out/$FUZZERNAME"
 CORPUS_DIR="$OUT_DIR/corpus"
 CRASH_DIR="$OUT_DIR/crashes"
 
-### Validate required args
+#===============================================================================
+#
+#     Validate required args
+#
+#===============================================================================
 
 if [ "$TARGET_DEVICE" != "flex" ] && [ "$TARGET_DEVICE" != "stax" ]; then
     echo -e "${RED}Unsupported TARGET_DEVICE: $TARGET_DEVICE | Must be STAX or FLEX${NC}"
@@ -167,9 +202,12 @@ if [ "$SANITIZER" != "address" ] && [ "$SANITIZER" != "memory" ]; then
     exit 1
 fi
 
-#Fuzzing an APP
+#===============================================================================
+#
+#     Generating Macros for APPs
+#
+#===============================================================================
 if [ ! -f "$FUZZING_PATH/local_run.sh" ]; then
-    echo "Fuzzing PATH = $FUZZING_PATH"
     if [ -z "$BOLOS_SDK" ]; then
         echo -e "${RED}Error: --BOLOS_SDK=\$BOLOS_SDK is required.${NC}"
         show_help
@@ -186,10 +224,20 @@ if [ ! -f "$FUZZING_PATH/local_run.sh" ]; then
         echo -e "${GREEN}\n----------\nFuzzer built at $FUZZING_PATH/build/fuzz_*\n----------${NC}"
     fi
 fi
+#===============================================================================
+#
+#     Build
+#
+#===============================================================================
 if [ "$REBUILD" -eq 1 ]; then
     build
 fi
 
+#===============================================================================
+#
+#     Fuzz
+#
+#===============================================================================
 if [ -z "$FUZZER" ]; then
     exit 0
 fi
@@ -201,7 +249,6 @@ fi
 
 mkdir -p "$CORPUS_DIR"
 
-# Prepare initial corpus if available
 INITIAL_CORPUS_DIR="$FUZZING_PATH/harness/$FUZZERNAME"
 if [ "$RUN_FUZZER" -eq 1 ]; then
     if [ -d "$INITIAL_CORPUS_DIR" ]; then
@@ -225,6 +272,11 @@ if [ "$RUN_FUZZER" -eq 1 ]; then
     mv -- *.log *.profraw "$OUT_DIR" 2>/dev/null
 fi
 
+#===============================================================================
+#
+#     Compute coverage
+#
+#===============================================================================
 if [ "$COMPUTE_COVERAGE" -eq 1 ]; then
     echo -e "${BLUE}\n----------\nComputing coverage...\n----------${NC}"
 
@@ -242,6 +294,11 @@ if [ "$COMPUTE_COVERAGE" -eq 1 ]; then
     echo -e "----------${NC}"
 fi
 
+#===============================================================================
+#
+#     Run a crash
+#
+#===============================================================================
 if [ -n "$RUN_CRASH" ] && [ "$RUN_CRASH" != "0" ]; then
     echo -e "${BLUE}\n-------- Running crash input: ${RUN_CRASH} --------${NC}"
 
