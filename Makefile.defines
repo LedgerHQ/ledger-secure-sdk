@@ -53,8 +53,9 @@ endif
 SYSROOT = $(shell $(GCCPATH)arm-none-eabi-gcc -print-sysroot)
 ifeq ($(SYSROOT),)
     # path for Debian-based systems
-    SYSROOT = /usr/lib/arm-none-eabi
+    SYSROOT = /usr/lib/picolibc/arm-none-eabi
 endif
+
 CFLAGS   += --sysroot="$(SYSROOT)"
 
 # optimization and debugging levels
@@ -107,6 +108,7 @@ endif
 ifeq ($(TARGET_NAME),TARGET_NANOX)
     CPU       = cortex-m0plus
     CFLAGS   += -frwpi
+    LDFLAGS  += -L$(SYSROOT)/lib/thumb/v7-m/nofp/
     LDFLAGS  += -L$(BOLOS_SDK)/arch/st33/lib/
 endif
 
@@ -114,6 +116,7 @@ ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_STAX TARGET_FLEX TARGET_NANO
     CPU       = cortex-m35p+nodsp
     CFLAGS   += -msoft-float
     CFLAGS   += -frwpi
+    LDFLAGS  += -L$(SYSROOT)/lib/thumb/v8-m.main/nofp/
     LDFLAGS  += -L$(BOLOS_SDK)/arch/st33k1/lib/
 endif
 
