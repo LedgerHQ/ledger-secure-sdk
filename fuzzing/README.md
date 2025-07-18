@@ -12,6 +12,7 @@ The code is divided into the following folders:
 │   │   └── generated_glyphs # generated glyphs
 │   ├── extra                # .cmake files for building SDK's function harness
 │   ├── harness              # libFuzzer .c files for harness
+│   │   └── fuzz_{}/         # Optional folders for corpus of each harness [with the same name as the harness]
 │   ├── libs                 # .cmake files for building SDK libraries
 │   ├── macros
 │   │   ├── macros-flex.txt  # for flex targets
@@ -73,7 +74,7 @@ When writing your harness, keep the following points in mind:
 - If you are running it for the first time, consider using the script `local_run` from inside the
   Docker container using the flag build=1, if you need to manually
   add/remove macros you can then do it using the files macros/add_macros.txt or
-  macros/exclude_macros.txt and rerunning it, or directly change the macros/generated/macros.txt.
+  macros/exclude_macros.txt and rerunning it, or directly change the generated macros/generated/macros.txt.
 - A typical harness looks like this:
 
   ```console
@@ -94,6 +95,19 @@ When writing your harness, keep the following points in mind:
   `SECURE_SDK_PATH/fuzzing/mock/generated/generated_syscalls.c`, if you need a more specific mock,
   you can define it in `APP_PATH/fuzzing/mock` with the same name and without the WEAK attribute.
 
+### Adding an initial Corpus
+
+```bash
+├── fuzzing
+│   ├── harness              # libFuzzer .c files for harness
+│   │   └── fuzz_{}/         # Optional folders for corpus of each harness [with the same name as the harness]
+```
+
+To add an initial corpus for a specific harness, create a folder with the same name of the harness
+inside `fuzzing/harness` with the binary input files.
+
+The `local_run.sh` script will move them to the corpus before the fuzzing. If committed those folders will also
+be used by ClusterFuzz in CI.
 
 ### Manual compilation
 
