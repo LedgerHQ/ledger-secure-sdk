@@ -21,8 +21,6 @@ extern "C" {
 
 #include "nbgl_types.h"
 #include "nbgl_obj.h"
-#ifdef HAVE_PIEZO_SOUND
-#endif
 
 /**********************
  *      TYPEDEFS
@@ -113,10 +111,8 @@ typedef struct {
     const char                *longPressText;  ///< text of the long press button
     uint8_t longPressToken;  ///< the token used as argument of the onActionCallback when button is
                              ///< long pressed
-#ifdef HAVE_PIEZO_SOUND
     tune_index_e
         tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played when button is touched
-#endif
 } nbgl_contentInfoLongPress_t;
 
 /**
@@ -128,10 +124,8 @@ typedef struct {
     const char                *buttonText;  ///< text of the long press button
     uint8_t buttonToken;  ///< the token used as argument of the onActionCallback when button is
                           ///< long pressed
-#ifdef HAVE_PIEZO_SOUND
     tune_index_e
         tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played when button is touched
-#endif
 } nbgl_contentInfoButton_t;
 
 /**
@@ -236,10 +230,8 @@ typedef struct {
     const char                *detailsButtonText;  ///< this text is used for "details" button
     uint8_t detailsButtonToken;  ///< the token used as argument of the actionCallback when the
                                  ///< "details" button is touched
-#ifdef HAVE_PIEZO_SOUND
     tune_index_e
         tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played when details button is touched
-#endif
 } nbgl_contentTagValueDetails_t;
 
 /**
@@ -252,10 +244,8 @@ typedef struct {
     const char *detailsButtonText;  ///< this text is used for "details" button (if NULL, no button)
     uint8_t     detailsButtonToken;  ///< the token used as argument of the actionCallback when the
                                      ///< "details" button is touched
-#ifdef HAVE_PIEZO_SOUND
     tune_index_e
         tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played when details button is touched
-#endif
     const char
         *confirmationText;  ///< text of the confirmation button, if NULL "It matches" is used
     const char
@@ -276,9 +266,7 @@ typedef struct {
         *subText;  ///< description under main text (NULL terminated, single line, may be null)
     nbgl_state_t initState;  ///< initial state of the switch
     uint8_t token;  ///< the token that will be used as argument of the callback (unused on Nano)
-#ifdef HAVE_PIEZO_SOUND
     tune_index_e tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played
-#endif                    // HAVE_PIEZO_SOUND
 } nbgl_contentSwitch_t;
 
 /**
@@ -321,10 +309,9 @@ typedef struct {
     uint8_t nbChoices;   ///< number of choices
     uint8_t initChoice;  ///< index of the current choice
     uint8_t token;       ///< the token that will be used as argument of the callback
-#ifdef HAVE_PIEZO_SOUND
     tune_index_e
         tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played when selecting a radio button)
-#endif           // HAVE_PIEZO_SOUND
+
 } nbgl_contentRadioChoice_t;
 
 /**
@@ -334,9 +321,7 @@ typedef struct {
     const char *const *barTexts;  ///< array of texts for each bar (nbBars items, in black/bold)
     const uint8_t     *tokens;    ///< array of tokens, one for each bar (nbBars items)
     uint8_t            nbBars;    ///< number of elements in barTexts and tokens array
-#ifdef HAVE_PIEZO_SOUND
     tune_index_e tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played when a bar is touched
-#endif                    // HAVE_PIEZO_SOUND
 } nbgl_contentBarsList_t;
 
 /**
@@ -344,12 +329,10 @@ typedef struct {
  * on bottom of a content center
  */
 typedef struct {
-    const char                *text;   ///< text of the tip-box
-    const nbgl_icon_details_t *icon;   ///< icon of the tip-box
-    uint8_t                    token;  ///< token used when tip-box is tapped
-#ifdef HAVE_PIEZO_SOUND
-    tune_index_e tuneId;  ///< tune played when tip-box is tapped
-#endif                    // HAVE_PIEZO_SOUND
+    const char                *text;    ///< text of the tip-box
+    const nbgl_icon_details_t *icon;    ///< icon of the tip-box
+    uint8_t                    token;   ///< token used when tip-box is tapped
+    tune_index_e               tuneId;  ///< tune played when tip-box is tapped
 } nbgl_contentTipBox_t;
 
 /**

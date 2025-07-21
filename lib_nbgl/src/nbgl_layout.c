@@ -158,13 +158,11 @@ typedef struct {
                                            // NULL). Dimensions must be the same as iconLeft
     const char  *text;                     // text (can be NULL)
     const char  *subText;                  // sub text (can be NULL)
-    uint8_t      token;  // the token that will be used as argument of the callback
-    nbgl_state_t state;  // state of the item
-    bool         large;  // set to true only for the main level of OS settings
-    uint8_t      index;  // index of obj (for callback)
-#ifdef HAVE_PIEZO_SOUND
+    uint8_t      token;   // the token that will be used as argument of the callback
+    nbgl_state_t state;   // state of the item
+    bool         large;   // set to true only for the main level of OS settings
+    uint8_t      index;   // index of obj (for callback)
     tune_index_e tuneId;  // if not @ref NBGL_NO_TUNE, a tune will be played
-#endif                    // HAVE_PIEZO_SOUND
 } listItem_t;
 
 /**********************
