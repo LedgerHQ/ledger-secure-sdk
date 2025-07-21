@@ -1246,7 +1246,7 @@ int nbgl_layoutAddTopRightButton(nbgl_layout_t             *layout,
         return -1;
     }
 
-    button->obj.area.width       = BUTTON_DIAMETER;
+    button->obj.area.width       = BUTTON_WIDTH;
     button->obj.area.height      = BUTTON_DIAMETER;
     button->radius               = BUTTON_RADIUS;
     button->obj.alignmentMarginX = BORDER_MARGIN;
@@ -3377,7 +3377,7 @@ int nbgl_layoutAddUpFooter(nbgl_layout_t *layout, const nbgl_layoutUpFooter_t *u
             button->borderColor          = LIGHT_GRAY;
             button->innerColor           = WHITE;
             button->foregroundColor      = BLACK;
-            button->obj.area.width       = BUTTON_DIAMETER;
+            button->obj.area.width       = BUTTON_WIDTH;
             button->obj.area.height      = BUTTON_DIAMETER;
             button->radius               = BUTTON_RADIUS;
             button->icon                 = PIC(upFooterDesc->horizontalButtons.leftIcon);

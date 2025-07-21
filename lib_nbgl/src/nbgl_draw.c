@@ -416,9 +416,9 @@ void nbgl_drawRoundedBorderedRect(const nbgl_area_t *area,
     if ((2 * circle_width) < area->width) {
         if ((area->height - stroke) > VERTICAL_ALIGNMENT) {
             rectArea.height = stroke;
-            nbgl_frontDrawLine(&rectArea, 0, borderColor);  // top
+            nbgl_frontDrawLine(&rectArea, 1, borderColor);  // top
             rectArea.y0 = area->y0 + area->height - stroke;
-            nbgl_frontDrawLine(&rectArea, 0, borderColor);  // bottom
+            nbgl_frontDrawLine(&rectArea, 1, borderColor);  // bottom
         }
         else {
             uint8_t  pattern = 0;
