@@ -3476,17 +3476,20 @@ int nbgl_layoutAddUpFooter(nbgl_layout_t *layout, const nbgl_layoutUpFooter_t *u
             layoutInt->upFooterContainer->obj.touchId     = WHOLE_SCREEN_ID;
             layoutInt->upFooterContainer->obj.touchMask   = (1 << TOUCHED);
 
-            textArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-            textArea->textColor = LIGHT_TEXT_COLOR;
-            textArea->text      = PIC(upFooterDesc->text.text);
-            textArea->textAlignment   = CENTER;
-            textArea->fontId          = SMALL_REGULAR_FONT;
-            textArea->wrapping        = true;
-            textArea->obj.area.width  = AVAILABLE_WIDTH;
-            textArea->obj.area.height = nbgl_getTextHeightInWidth(
-                textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
-            textArea->obj.alignment                   = CENTER;
-            layoutInt->upFooterContainer->children[0] = (nbgl_obj_t *) textArea;
+            // only create text_area if text is not empty
+            if (strlen(PIC(upFooterDesc->text.text))) {
+                textArea = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+                textArea->textColor       = LIGHT_TEXT_COLOR;
+                textArea->text            = PIC(upFooterDesc->text.text);
+                textArea->textAlignment   = CENTER;
+                textArea->fontId          = SMALL_REGULAR_FONT;
+                textArea->wrapping        = true;
+                textArea->obj.area.width  = AVAILABLE_WIDTH;
+                textArea->obj.area.height = nbgl_getTextHeightInWidth(
+                    textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
+                textArea->obj.alignment                   = CENTER;
+                layoutInt->upFooterContainer->children[0] = (nbgl_obj_t *) textArea;
+            }
             break;
         }
         default:
