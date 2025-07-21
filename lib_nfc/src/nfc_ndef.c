@@ -168,36 +168,34 @@ uint8_t os_parse_ndef(uint8_t *in_buffer, ndef_struct_t *parsed)
  */
 uint16_t os_ndef_to_string(ndef_struct_t *ndef_message, char *out_string)
 {
-    uint16_t size_text   = strnlen(ndef_message->text, NFC_TEXT_MAX_LEN);
-    uint16_t size_info   = strnlen(ndef_message->info, NFC_INFO_MAX_LEN);
-    uint16_t size_header = 0;
-    if (size_text > NFC_TEXT_MAX_LEN || size_info > NFC_INFO_MAX_LEN) {
-        return 0;
-    }
-
+    uint16_t tot_length      = 0;
+    uint16_t length_internal = 0;
     if (ndef_message->ndef_type == NFC_NDEF_TYPE_TEXT) {
-        strncpy(out_string, ndef_message->text, size_text);
-        return size_text;
-    }
-    else if (ndef_message->ndef_type == NFC_NDEF_TYPE_URI) {
-        size_header = os_get_uri_header(ndef_message->uri_id, out_string);
-        if (size_header + size_text > URI_ID_STRING_MAX_LEN + NFC_TEXT_MAX_LEN) {
+        tot_length += strlen(ndef_message->text);
+        if (tot_length > NFC_TEXT_MAX_LEN) {
             return 0;
         }
-
-        strncpy(&out_string[size_header], ndef_message->text, size_text);
-
+        strcpy(out_string, ndef_message->text);
+    }
+    else if (ndef_message->ndef_type == NFC_NDEF_TYPE_URI) {
+        tot_length += os_get_uri_header(ndef_message->uri_id, out_string);
+        length_internal = strlen(ndef_message->text);
+        if (tot_length + length_internal > URI_ID_STRING_MAX_LEN + NFC_TEXT_MAX_LEN) {
+            return 0;
+        }
+        strcpy(&out_string[tot_length], ndef_message->text);
+        tot_length += length_internal;
         if (ndef_message->info[0] != '\0') {
-            out_string[size_text + (size_header++)] = '\n';
-            if (size_header + size_text + size_info > NFC_NDEF_MAX_SIZE) {
+            out_string[tot_length++] = '\n';
+            length_internal          = strlen(ndef_message->info);
+            if (tot_length + length_internal > NFC_NDEF_MAX_SIZE) {
                 return 0;
             }
-            strncpy(&out_string[size_header + size_text], ndef_message->info, size_info);
+            strcpy(&out_string[tot_length], ndef_message->info);
+            tot_length += length_internal;
         }
-        return size_header + size_text + size_info;
     }
-    return 0;
+    return tot_length;
 }
-
 #endif  // HAVE_NDEF_SUPPORT
 #endif  // HAVE_NFC
