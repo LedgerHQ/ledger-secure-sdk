@@ -46,7 +46,6 @@
 #define FOOTER_BUTTON_HEIGHT             128
 #define FOOTER_IN_PAIR_HEIGHT            80
 #define ROUNDED_AND_FOOTER_FOOTER_HEIGHT 192
-#define ACTION_AND_FOOTER_FOOTER_HEIGHT  216
 #define FOOTER_TEXT_AND_NAV_WIDTH        160
 #define TAP_TO_CONTINUE_MARGIN           24
 #define SUB_HEADER_MARGIN                24
@@ -76,7 +75,6 @@
 #define FOOTER_BUTTON_HEIGHT             136
 #define FOOTER_IN_PAIR_HEIGHT            88
 #define ROUNDED_AND_FOOTER_FOOTER_HEIGHT 208
-#define ACTION_AND_FOOTER_FOOTER_HEIGHT  232
 #define FOOTER_TEXT_AND_NAV_WIDTH        192
 #define TAP_TO_CONTINUE_MARGIN           30
 #define SUB_HEADER_MARGIN                28
@@ -106,7 +104,6 @@
 #define FOOTER_BUTTON_HEIGHT             72
 #define FOOTER_IN_PAIR_HEIGHT            60
 #define ROUNDED_AND_FOOTER_FOOTER_HEIGHT 128
-#define ACTION_AND_FOOTER_FOOTER_HEIGHT  128
 #define FOOTER_TEXT_AND_NAV_WIDTH        120
 #define TAP_TO_CONTINUE_MARGIN           30
 #define SUB_HEADER_MARGIN                16
@@ -1246,7 +1243,7 @@ int nbgl_layoutAddTopRightButton(nbgl_layout_t             *layout,
         return -1;
     }
 
-    button->obj.area.width       = BUTTON_DIAMETER;
+    button->obj.area.width       = BUTTON_WIDTH;
     button->obj.area.height      = BUTTON_DIAMETER;
     button->radius               = BUTTON_RADIUS;
     button->obj.alignmentMarginX = BORDER_MARGIN;
@@ -3377,7 +3374,7 @@ int nbgl_layoutAddUpFooter(nbgl_layout_t *layout, const nbgl_layoutUpFooter_t *u
             button->borderColor          = LIGHT_GRAY;
             button->innerColor           = WHITE;
             button->foregroundColor      = BLACK;
-            button->obj.area.width       = BUTTON_DIAMETER;
+            button->obj.area.width       = BUTTON_WIDTH;
             button->obj.area.height      = BUTTON_DIAMETER;
             button->radius               = BUTTON_RADIUS;
             button->icon                 = PIC(upFooterDesc->horizontalButtons.leftIcon);
@@ -3402,13 +3399,13 @@ int nbgl_layoutAddUpFooter(nbgl_layout_t *layout, const nbgl_layoutUpFooter_t *u
             button->innerColor           = BLACK;
             button->borderColor          = BLACK;
             button->foregroundColor      = WHITE;
-            button->obj.area.width       = AVAILABLE_WIDTH - BUTTON_DIAMETER - 16;
-            button->obj.area.height      = BUTTON_DIAMETER;
-            button->radius               = BUTTON_RADIUS;
-            button->text                 = PIC(upFooterDesc->horizontalButtons.rightText);
-            button->fontId               = SMALL_BOLD_FONT;
-            button->obj.touchMask        = (1 << TOUCHED);
-            button->obj.touchId          = CHOICE_1_ID;
+            button->obj.area.width  = AVAILABLE_WIDTH - BUTTON_WIDTH - LEFT_CONTENT_ICON_TEXT_X;
+            button->obj.area.height = BUTTON_DIAMETER;
+            button->radius          = BUTTON_RADIUS;
+            button->text            = PIC(upFooterDesc->horizontalButtons.rightText);
+            button->fontId          = SMALL_BOLD_FONT;
+            button->obj.touchMask   = (1 << TOUCHED);
+            button->obj.touchId     = CHOICE_1_ID;
             layoutInt->upFooterContainer->children[1] = (nbgl_obj_t *) button;
             break;
         }
@@ -3479,17 +3476,20 @@ int nbgl_layoutAddUpFooter(nbgl_layout_t *layout, const nbgl_layoutUpFooter_t *u
             layoutInt->upFooterContainer->obj.touchId     = WHOLE_SCREEN_ID;
             layoutInt->upFooterContainer->obj.touchMask   = (1 << TOUCHED);
 
-            textArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-            textArea->textColor = LIGHT_TEXT_COLOR;
-            textArea->text      = PIC(upFooterDesc->text.text);
-            textArea->textAlignment   = CENTER;
-            textArea->fontId          = SMALL_REGULAR_FONT;
-            textArea->wrapping        = true;
-            textArea->obj.area.width  = AVAILABLE_WIDTH;
-            textArea->obj.area.height = nbgl_getTextHeightInWidth(
-                textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
-            textArea->obj.alignment                   = CENTER;
-            layoutInt->upFooterContainer->children[0] = (nbgl_obj_t *) textArea;
+            // only create text_area if text is not empty
+            if (strlen(PIC(upFooterDesc->text.text))) {
+                textArea = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+                textArea->textColor       = LIGHT_TEXT_COLOR;
+                textArea->text            = PIC(upFooterDesc->text.text);
+                textArea->textAlignment   = CENTER;
+                textArea->fontId          = SMALL_REGULAR_FONT;
+                textArea->wrapping        = true;
+                textArea->obj.area.width  = AVAILABLE_WIDTH;
+                textArea->obj.area.height = nbgl_getTextHeightInWidth(
+                    textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
+                textArea->obj.alignment                   = CENTER;
+                layoutInt->upFooterContainer->children[0] = (nbgl_obj_t *) textArea;
+            }
             break;
         }
         default:

@@ -97,6 +97,12 @@ extern "C" {
 #define BUTTON_RADIUS RADIUS_28_PIXELS
 #endif  // COMMON_RADIUS
 #define BUTTON_DIAMETER (COMMON_RADIUS * 2)
+// on Apex, "round" buttons are not exactly round
+#if defined(TARGET_APEX)
+#define BUTTON_WIDTH (BUTTON_DIAMETER - 2)
+#else
+#define BUTTON_WIDTH BUTTON_DIAMETER
+#endif
 
 // width & height for spinner
 #if defined(TARGET_STAX)
@@ -160,6 +166,7 @@ extern "C" {
 #define QUESTION_ICON        C_Question_32px
 #define DIGIT_ICON           C_round_24px
 #define QUESTION_CIRCLE_ICON C_Question_Mark_Circle_32px
+#define SEARCH_ICON          C_Search_32px
 #define SWITCH_ICON          C_switch_60_40
 #elif SMALL_ICON_SIZE == 40
 #define SPACE_ICON           C_Space_40px
@@ -186,6 +193,7 @@ extern "C" {
 #define QUESTION_ICON        C_Question_40px
 #define DIGIT_ICON           C_pin_24
 #define QUESTION_CIRCLE_ICON C_Question_Mark_Circle_40px
+#define SEARCH_ICON          C_Search_40px
 #define SWITCH_ICON          C_switch_60_40
 #elif SMALL_ICON_SIZE == 24
 #define SPACE_ICON           C_Space_24px
@@ -211,6 +219,7 @@ extern "C" {
 #define EXCLAMATION_ICON     C_Exclamation_24px
 #define DIGIT_ICON           C_Dot_16px
 #define QUESTION_CIRCLE_ICON C_Question_Mark_Circle_24px
+#define SEARCH_ICON          C_Search_24px
 #define SWITCH_ICON          C_switch_on_24px
 #else  // SMALL_ICON_SIZE
 #error Undefined SMALL_ICON_SIZE

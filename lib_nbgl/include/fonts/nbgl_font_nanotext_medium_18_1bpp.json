@@ -1,6 +1,6 @@
 [
   {
-    "bitmap": "/9/+wP/B/4AYBsY/8D+Bj+xv/wP4GPjGwDAAOAw+DjuGGM/////8xhh3HB8cBwwAAPAH4Dnww+Od5+HPA4AHgAcDzh+e5x8MPnAfgDwAAAgMwH4A5492zxx4w+8bz4A4/8DAA/gfP/wH4AfgP/z4H8ADRFDn84URABgYGP//GBgY58b/8F+gwAD8AB+AA/gAPwAHH8P/mA2APAHgDwBsBn/w/gD////wAMADAAA8G/D5x4c8HeB/ge4HMBgx49+7z4w8YeMPgOwOIGAAYAM////+BjwweYD8AeADAAPmP7OPmDzB5g8Q/87+YDHjn7nPjDxh4w+M7/4f4PAH4DfBj4wfYD8AeAAx49+7z4w8YeMPvO9+MeA/w/+5j4Y8MeGPnO/OPGBAuH4dAkAOHOH0A8DYZhjMMweB4DAMAM8888888wwDAeB4MwzGGYbAwDgD4DuBjgw94O+ADAAH4A/4DgYMAwYDhn+PH8eYM8wZ5gzx3Gx8ZgAxwHB/8A/gABgHwfh/j4xgY+MH+AfgB8AGAeHfn8/cPGHjDxh4w////8AwY4OYD4A8AeAPAGwHcHH/A+APgf8cHcB8AeAPAHgDwB////7AHjDxh4w8YeMPGH////jABhgwwYYMMGGDDB////gz45+4z4Y8MeAPAHwHcHH/A+D////BgAwAYAMAGADABgf///7AHgD////8AeAM/+f/gA4AMAGAHAHADIAOAPgO4OOODuA+AOADh////gAYAMAGADABgA/////////8APwA+AD4AOAHAfB8H4HgD////P///8AcA8A4B4BwDwDgB////g+B/xwdwHwB4A8AeAPgO4OP+B8APgP4OOGDDBhgwwYYMP///8APgP+XB/gOwHsDbAmwBuA5wcP+A+A8C/H53YeMOGGDDBhg////wAHjH5jPjDxh4w8YfYd8ccMAwAYAMAGAD////wAYAMAGAAD/x/+ADAAwAYAMAGADADf/v/DAB8APwA/AD4AMA+D8PwfAMACAB4A/wB/AD4AcH8fw+AfAD+AP4AOAfD+f4PAEAACADgD8HnvA+AOAPge88H4A4ALAB4APAB4AP4H8PAeA8AYAAOAfgP8HnDx54O8D+AfAGMAB4AD/////8AAHAD8D+B+A/ADAAP/////wAHgAMAz/MPDwwP//L0A/3/yLI8zzNnyeB+B/hw4wMYGMDDDf///4Ybh8DwPA+Hf4/P///8MMMDGBjAxw4f4H4D2fbs8zzPM+3f4/AIAGwDYB//f/jABgAP/z/+Yd8DPAzwM+HN/mPxgH+H/HADABgAwAMB////jf/v/A3/9v/8AAYBAIwMcOHOB8AcAGH///+AAYAP///+A/3/4DAMAYA/3/4DAMAYD///A/3/4DAMAwBgP//8A/H+4fA8DwPh3+PwA/Af4OHDAwwMMDBhg////8////9hgwMMDDAw4cH+A/AMAwDAGA///wYxnsbzPM9jeYxhgYwP///+GADAD///AYAwDAMB/+/wCAOA/AfgHAcfvw4CAAgDwP4H8Ax//jAP4H8Ax//jwIAIB4f3x4Hj3+HgGAA4APwAfgAfAH4fj/A+AOAADA+D+Pc87x/B8DwAHgAN+fx//AGAAMAP//////8AGAAMAP/4/P7AAeAAxGMzZsxiA=",
+    "bitmap": "/9/+wP/B/4AYBsY/8D+Bj+xv/wP4GPjGwDAAOAw+DjuGGM/////8xhh3HB8cBwwAAPAH4Dnww+Od5+HPA4AHgAcDzh+e5x8MPnAfgDwAAAgMwH4A5492zxx4w+8bz4A4/8DAA/gfP/wH4AfgP/z4H8ADRFDn84URABgYGP//GBgY58b/8F+gwAD8AB+AA/gAPwAHH8P/mA2APAHgDYDP/h/A////8ADAAwAAPBvw+ceHPB3gf4HuBzAYMePfu8+MPGHjD4DsDiBgAGADP////gY8MHmA/AHgAwAD5j+zj5g8weYPEP/O/mAx45+5z4w8YeMPjO/+H+DwB+A3wY+MH2A/AHgAMePfu8+MPGHjD7zvfjHgP8P/uY+GPDHhj5zvzjxgQLh+HQJADhzh9APA2GYYzDMHgeAwDADPPPPPPPMMAwHgeDMMxhmGwMA4A+A7gY4MPeDvgAwAB+AP+A4GDAMGA4Z/jx/HmDPMGeYM8dxsfGYAMcBwf/AP4AAYB8H4f4+MYGPjB/gH4AfABgHh35/P3Dxh4w8YeMP////AMGODmA+APAHgDwBsB3Bx/wPgD4H/HB3AfAHgDwB4A8Af///+wB4w8YeMPGHjDxh////4wAYYMMGGDDBhgwwf///4M+OfuM+GPDHgDwB8B3Bx/wPg////wYAMAGADABgAwAYH///+wB4A/////AHgDP/n/4AOADABgBwBwAyADgD4DuDjjg7gPgDgA4f///4AGADABgAwAYAP/////////AD8APgA+ADgBwHwfB+B4A////z////AHAPAOAeAcA8A4Af///4Pgf8cHcB8AeAPAHgD4DuDj/gfAD4D+DjhgwwYYMMGGDD////AD4D/lwf4DsB7A2wJsAbgOcHD/gPgPAvx+d2HjDhhgwwYYP///8AB4x+Yz4w8YeMPGH2HfHHDAMAGADABgA////8AGADABgAA/8f/gAwAMAGADABgAwA3/7/wwAfAD8APwA+ADAPg/D8HwDAAgAeAP8AfwA+AHB/H8PgHwA/gD+ADgHw/n+DwBAAAgA4A/B57wPgDgD4HvPB+AOACwAeADwAeAD+B/DwHgPAGAADgH4D/B5w8eeDvA/gHwBjAAeAA//////AABwA/A/gfgPwAwAD/////8AB4ADAM/zDw8MD//y9AP9/8iyPM8zZ8ngfgf4cOMDGBjAww3///+GG4fA8DwPh3+Pz////DDDAxgYwMcOH+B+A9n27PM8zzPt3+PwCABsA2Af/3/4wAYAD/8//mHfAzwM8DPhzf5j8YB/h/xwAwAYAMADAf///43/7/wN//b//AAGAQCMDHDhzgfAHABh////gAGAD////gP9/+AwDAGAP9/+AwDAGA///wP9/+AwDAMAYD///APx/uHwPA8D4d/j8APwH+DhwwMMDDAwYYP////P////YYMDDAwwMOHB/gPwDAMAwBgP//8GMZ7G8zzPY3mMYYGMD////hgAwA///wGAMAwDAf/v8AgDgP4H4BwHH7+OAgAIA8D+B/AMf/4wD+B/AMf/48CACAeH98eB49/h4BgAOAD8AH4AHwB+H4/wPgDgAAwPg/j3PO8fwfA8AB4ADfn8f/wBgADAD///////ABgADAD/+Pz+wAHgAMRjM2bMYg",
     "nbgl_font_character": [
       {
         "encoding": 0,
@@ -184,14 +184,14 @@
         "width": 12,
         "x_min_offset": 1,
         "y_min_offset": 5,
-        "x_max_offset": 1,
+        "x_max_offset": 2,
         "y_max_offset": 4,
         "char": 48,
-        "bitmap_byte_count": 17
+        "bitmap_byte_count": 15
       },
       {
         "encoding": 0,
-        "bitmap_offset": 164,
+        "bitmap_offset": 162,
         "width": 7,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -202,7 +202,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 173,
+        "bitmap_offset": 171,
         "width": 11,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -213,7 +213,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 188,
+        "bitmap_offset": 186,
         "width": 11,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -224,7 +224,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 203,
+        "bitmap_offset": 201,
         "width": 12,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -235,7 +235,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 220,
+        "bitmap_offset": 218,
         "width": 11,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -246,7 +246,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 235,
+        "bitmap_offset": 233,
         "width": 11,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -257,7 +257,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 250,
+        "bitmap_offset": 248,
         "width": 10,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -268,7 +268,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 263,
+        "bitmap_offset": 261,
         "width": 11,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -279,7 +279,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 278,
+        "bitmap_offset": 276,
         "width": 11,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -290,7 +290,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 293,
+        "bitmap_offset": 291,
         "width": 5,
         "x_min_offset": 1,
         "y_min_offset": 8,
@@ -301,7 +301,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 298,
+        "bitmap_offset": 296,
         "width": 6,
         "x_min_offset": 1,
         "y_min_offset": 8,
@@ -312,7 +312,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 304,
+        "bitmap_offset": 302,
         "width": 12,
         "x_min_offset": 1,
         "y_min_offset": 8,
@@ -323,7 +323,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 316,
+        "bitmap_offset": 314,
         "width": 12,
         "x_min_offset": 2,
         "y_min_offset": 10,
@@ -334,7 +334,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 322,
+        "bitmap_offset": 320,
         "width": 12,
         "x_min_offset": 2,
         "y_min_offset": 8,
@@ -345,7 +345,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 334,
+        "bitmap_offset": 332,
         "width": 10,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -356,7 +356,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 347,
+        "bitmap_offset": 345,
         "width": 18,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -367,7 +367,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 381,
+        "bitmap_offset": 379,
         "width": 13,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -378,7 +378,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 399,
+        "bitmap_offset": 397,
         "width": 12,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -389,7 +389,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 416,
+        "bitmap_offset": 414,
         "width": 13,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -400,7 +400,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 434,
+        "bitmap_offset": 432,
         "width": 13,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -411,7 +411,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 452,
+        "bitmap_offset": 450,
         "width": 11,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -422,7 +422,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 467,
+        "bitmap_offset": 465,
         "width": 11,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -433,7 +433,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 482,
+        "bitmap_offset": 480,
         "width": 13,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -444,7 +444,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 500,
+        "bitmap_offset": 498,
         "width": 13,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -455,7 +455,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 518,
+        "bitmap_offset": 516,
         "width": 8,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -466,7 +466,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 528,
+        "bitmap_offset": 526,
         "width": 10,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -477,7 +477,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 541,
+        "bitmap_offset": 539,
         "width": 12,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -488,7 +488,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 559,
+        "bitmap_offset": 557,
         "width": 10,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -499,7 +499,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 572,
+        "bitmap_offset": 570,
         "width": 16,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -510,7 +510,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 595,
+        "bitmap_offset": 593,
         "width": 13,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -521,7 +521,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 613,
+        "bitmap_offset": 611,
         "width": 14,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -532,7 +532,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 633,
+        "bitmap_offset": 631,
         "width": 12,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -543,7 +543,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 650,
+        "bitmap_offset": 648,
         "width": 14,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -554,7 +554,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 671,
+        "bitmap_offset": 669,
         "width": 12,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -565,7 +565,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 688,
+        "bitmap_offset": 686,
         "width": 12,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -576,18 +576,18 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 705,
-        "width": 12,
-        "x_min_offset": 1,
+        "bitmap_offset": 703,
+        "width": 10,
+        "x_min_offset": 0,
         "y_min_offset": 5,
-        "x_max_offset": 1,
+        "x_max_offset": 0,
         "y_max_offset": 4,
         "char": 84,
         "bitmap_byte_count": 17
       },
       {
         "encoding": 0,
-        "bitmap_offset": 722,
+        "bitmap_offset": 720,
         "width": 13,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -598,7 +598,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 740,
+        "bitmap_offset": 738,
         "width": 13,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -609,7 +609,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 758,
+        "bitmap_offset": 756,
         "width": 18,
         "x_min_offset": 0,
         "y_min_offset": 5,
@@ -620,7 +620,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 788,
+        "bitmap_offset": 786,
         "width": 13,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -631,7 +631,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 806,
+        "bitmap_offset": 804,
         "width": 12,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -642,7 +642,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 823,
+        "bitmap_offset": 821,
         "width": 12,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -653,7 +653,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 838,
+        "bitmap_offset": 836,
         "width": 7,
         "x_min_offset": 2,
         "y_min_offset": 3,
@@ -664,7 +664,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 847,
+        "bitmap_offset": 845,
         "width": 7,
         "x_min_offset": 0,
         "y_min_offset": 4,
@@ -675,7 +675,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 859,
+        "bitmap_offset": 857,
         "width": 7,
         "x_min_offset": 1,
         "y_min_offset": 3,
@@ -686,7 +686,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 868,
+        "bitmap_offset": 866,
         "width": 9,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -697,7 +697,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 874,
+        "bitmap_offset": 872,
         "width": 8,
         "x_min_offset": 0,
         "y_min_offset": 18,
@@ -708,7 +708,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 876,
+        "bitmap_offset": 874,
         "width": 6,
         "x_min_offset": 1,
         "y_min_offset": 4,
@@ -719,7 +719,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 878,
+        "bitmap_offset": 876,
         "width": 10,
         "x_min_offset": 1,
         "y_min_offset": 8,
@@ -730,7 +730,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 888,
+        "bitmap_offset": 886,
         "width": 11,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -741,7 +741,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 903,
+        "bitmap_offset": 901,
         "width": 10,
         "x_min_offset": 1,
         "y_min_offset": 8,
@@ -752,7 +752,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 913,
+        "bitmap_offset": 911,
         "width": 11,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -763,7 +763,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 928,
+        "bitmap_offset": 926,
         "width": 11,
         "x_min_offset": 1,
         "y_min_offset": 8,
@@ -774,7 +774,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 940,
+        "bitmap_offset": 938,
         "width": 7,
         "x_min_offset": 0,
         "y_min_offset": 5,
@@ -785,7 +785,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 952,
+        "bitmap_offset": 950,
         "width": 11,
         "x_min_offset": 1,
         "y_min_offset": 8,
@@ -796,7 +796,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 968,
+        "bitmap_offset": 966,
         "width": 11,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -807,7 +807,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 983,
+        "bitmap_offset": 981,
         "width": 4,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -818,7 +818,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 987,
+        "bitmap_offset": 985,
         "width": 4,
         "x_min_offset": 0,
         "y_min_offset": 5,
@@ -829,7 +829,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 994,
+        "bitmap_offset": 992,
         "width": 10,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -840,7 +840,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 1009,
+        "bitmap_offset": 1007,
         "width": 5,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -851,7 +851,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 1016,
+        "bitmap_offset": 1014,
         "width": 16,
         "x_min_offset": 1,
         "y_min_offset": 8,
@@ -862,7 +862,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 1034,
+        "bitmap_offset": 1032,
         "width": 11,
         "x_min_offset": 1,
         "y_min_offset": 8,
@@ -873,7 +873,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 1046,
+        "bitmap_offset": 1044,
         "width": 11,
         "x_min_offset": 1,
         "y_min_offset": 8,
@@ -884,7 +884,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 1058,
+        "bitmap_offset": 1056,
         "width": 11,
         "x_min_offset": 1,
         "y_min_offset": 8,
@@ -895,7 +895,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 1074,
+        "bitmap_offset": 1072,
         "width": 11,
         "x_min_offset": 1,
         "y_min_offset": 8,
@@ -906,7 +906,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 1090,
+        "bitmap_offset": 1088,
         "width": 7,
         "x_min_offset": 1,
         "y_min_offset": 8,
@@ -917,7 +917,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 1098,
+        "bitmap_offset": 1096,
         "width": 10,
         "x_min_offset": 1,
         "y_min_offset": 8,
@@ -928,7 +928,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 1108,
+        "bitmap_offset": 1106,
         "width": 6,
         "x_min_offset": 0,
         "y_min_offset": 5,
@@ -939,7 +939,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 1118,
+        "bitmap_offset": 1116,
         "width": 11,
         "x_min_offset": 1,
         "y_min_offset": 8,
@@ -950,7 +950,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 1130,
+        "bitmap_offset": 1128,
         "width": 10,
         "x_min_offset": 0,
         "y_min_offset": 8,
@@ -961,7 +961,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 1143,
+        "bitmap_offset": 1141,
         "width": 15,
         "x_min_offset": 0,
         "y_min_offset": 8,
@@ -972,7 +972,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 1162,
+        "bitmap_offset": 1160,
         "width": 10,
         "x_min_offset": 1,
         "y_min_offset": 8,
@@ -983,7 +983,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 1172,
+        "bitmap_offset": 1170,
         "width": 10,
         "x_min_offset": 0,
         "y_min_offset": 8,
@@ -994,7 +994,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 1190,
+        "bitmap_offset": 1188,
         "width": 10,
         "x_min_offset": 1,
         "y_min_offset": 8,
@@ -1005,7 +1005,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 1200,
+        "bitmap_offset": 1198,
         "width": 8,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -1016,7 +1016,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 1213,
+        "bitmap_offset": 1211,
         "width": 6,
         "x_min_offset": 2,
         "y_min_offset": 0,
@@ -1027,7 +1027,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 1219,
+        "bitmap_offset": 1217,
         "width": 8,
         "x_min_offset": 1,
         "y_min_offset": 5,
@@ -1038,7 +1038,7 @@
       },
       {
         "encoding": 0,
-        "bitmap_offset": 1232,
+        "bitmap_offset": 1230,
         "width": 12,
         "x_min_offset": 0,
         "y_min_offset": 11,
