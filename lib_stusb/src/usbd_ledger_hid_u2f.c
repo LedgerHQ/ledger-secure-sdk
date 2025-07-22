@@ -413,13 +413,15 @@ USBD_StatusTypeDef USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
 
     uint8_t  cmd       = 0;
     const uint8_t *tx_buffer = message;
-    const uint8_t status[2] = {0x69, 0x85};
     uint16_t tx_length = message_length;
 
     switch (packet_type) {
         case OS_IO_PACKET_TYPE_USB_U2F_HID_APDU:
             cmd = U2F_COMMAND_MSG;
+// Cannot enable user presence handling in the OS, see OS issues/555 for more information
+#ifndef HAVE_BOLOS
             if ((message_length == 2) && (message[0] == 0xFF) && (message[1] == 0xFF)) {
+                const uint8_t status[2] = {0x69, 0x85};
                 tx_buffer = status;
                 handle->user_presence = LEDGER_HID_U2F_USER_PRESENCE_ASKING;
             }
@@ -431,6 +433,7 @@ USBD_StatusTypeDef USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
                     return USBD_OK;
                 }
             }
+#endif // !HAVE_BOLOS
             break;
 
         case OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR:
@@ -611,6 +614,8 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
                     USBD_LEDGER_HID_U2F_send_message(
                         pdev, cookie, OS_IO_PACKET_TYPE_USB_U2F_HID_APDU, error_msg, 2, 0);
                 }
+// Cannot enable user presence handling in the OS, see OS issues/555 for more information
+#ifndef HAVE_BOLOS
                 else if (handle->user_presence == LEDGER_HID_U2F_USER_PRESENCE_ASKING) {
                     if (handle->message_crc == crc) {
                         error_msg[0] = 0x69;
@@ -636,6 +641,7 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
                     }
                     handle->user_presence = LEDGER_HID_U2F_USER_PRESENCE_IDLE;
                 }
+#endif // !HAVE_BOLOS
                 else if (max_length < handle->transport_data.rx_message_length - 2) {
                     error_msg[1] = CTAP1_ERR_INVALID_LENGTH;
                     USBD_LEDGER_HID_U2F_send_message(
