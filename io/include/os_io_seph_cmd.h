@@ -72,9 +72,7 @@ void os_io_seph_cmd_printf(const char *str, uint16_t charcount);
 int os_io_seph_cmd_set_touch_state(uint8_t enable);
 #endif  // HAVE_SE_TOUCH
 
-#ifdef HAVE_PIEZO_SOUND
 int os_io_seph_cmd_piezo_play_tune(tune_index_e tune_index);
-#endif  // HAVE_PIEZO_SOUND
 
 #ifdef HAVE_SERIALIZED_NBGL
 void os_io_seph_cmd_serialized_nbgl(const uint8_t *buffer, uint16_t length);

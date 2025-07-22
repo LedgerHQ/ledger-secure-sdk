@@ -15,8 +15,6 @@ extern "C" {
 #include "nbgl_screen.h"
 #include "nbgl_types.h"
 #include "nbgl_content.h"
-#ifdef HAVE_PIEZO_SOUND
-#endif
 
 /*********************
  *      INCLUDES
@@ -182,9 +180,7 @@ typedef struct {
     bool visibleIndicator;   ///< on Flex, the page indicator can be visible or not.
                              ///< if withPageIndicator is true and this boolean false, the back key
                              ///< is placed as if there was an indicator
-#ifdef HAVE_PIEZO_SOUND
     tune_index_e tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played when pressing keys)
-#endif                    // HAVE_PIEZO_SOUND
 } nbgl_layoutNavigationBar_t;
 
 /**
@@ -231,10 +227,8 @@ typedef struct nbgl_layoutDescription_s {
     const char *tapActionText;  ///< Light gray text used when main container is "tapable"
     uint8_t tapActionToken;     ///< the token that will be used as argument of the onActionCallback
                                 ///< when main container is "tapped"
-#ifdef HAVE_PIEZO_SOUND
-    tune_index_e tapTuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played when tapping on
-                             ///< main container
-#endif                       // HAVE_PIEZO_SOUND
+    tune_index_e tapTuneId;     ///< if not @ref NBGL_NO_TUNE, a tune will be played when tapping on
+                                ///< main container
     nbgl_layoutTouchCallback_t
         onActionCallback;  ///< the callback to be called on any action on the layout
 #else                      // HAVE_SE_TOUCH
@@ -254,14 +248,12 @@ typedef struct {
     const char *text;      ///< text (can be NULL)
     const nbgl_icon_details_t *iconRight;  ///< a buffer containing the 1BPP icon for icon 2 (can be
                                            ///< NULL). Dimensions must be the same as iconLeft
-    const char *subText;                   ///< sub text (can be NULL)
-    bool        large;                     ///< set to true only for the main level of OS settings
-    uint8_t     token;     ///< the token that will be used as argument of the callback
-    bool        inactive;  ///< if set to true, the bar is grayed-out and cannot be touched
-    bool        centered;  ///< DEPRECATED, not used
-#ifdef HAVE_PIEZO_SOUND
-    tune_index_e tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played
-#endif                    // HAVE_PIEZO_SOUND
+    const char  *subText;                  ///< sub text (can be NULL)
+    bool         large;                    ///< set to true only for the main level of OS settings
+    uint8_t      token;     ///< the token that will be used as argument of the callback
+    bool         inactive;  ///< if set to true, the bar is grayed-out and cannot be touched
+    bool         centered;  ///< DEPRECATED, not used
+    tune_index_e tuneId;    ///< if not @ref NBGL_NO_TUNE, a tune will be played
 } nbgl_layoutBar_t;
 
 /**
@@ -358,10 +350,8 @@ typedef struct {
     const char                *bottomText;  ///< bottom-button text (index 1)
     const nbgl_icon_details_t *topIcon;     ///< icon of top button
     uint8_t                    token;  ///< the token that will be used as argument of the callback
-    nbgl_layoutChoiceButtonsStyle_t style;  ///< the style of the pair
-#ifdef HAVE_PIEZO_SOUND
-    tune_index_e tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played
-#endif                    // HAVE_PIEZO_SOUND
+    nbgl_layoutChoiceButtonsStyle_t style;   ///< the style of the pair
+    tune_index_e                    tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played
 } nbgl_layoutChoiceButtons_t;
 
 /**
@@ -375,9 +365,7 @@ typedef struct {
     const char                *rightText;   ///< right-button text
     uint8_t                    leftToken;   ///< the token used when left button is pressed
     uint8_t                    rightToken;  ///< the token used when right button is pressed
-#ifdef HAVE_PIEZO_SOUND
-    tune_index_e tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played
-#endif                    // HAVE_PIEZO_SOUND
+    tune_index_e               tuneId;      ///< if not @ref NBGL_NO_TUNE, a tune will be played
 } nbgl_layoutHorizontalButtons_t;
 
 /**
@@ -403,9 +391,7 @@ typedef struct {
     bool fittingContent;  ///< if set to true, fit the width of button to text, otherwise full width
     bool onBottom;        ///< if set to true, align on bottom of page, otherwise put on bottom of
                           ///< previous object
-#ifdef HAVE_PIEZO_SOUND
     tune_index_e tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played
-#endif                    // HAVE_PIEZO_SOUND
 } nbgl_layoutButton_t;
 
 /**
@@ -456,9 +442,7 @@ typedef struct {
         nbgl_layoutConfirmationButton_t
             confirmationButton;  /// used if type is @ref KEYBOARD_WITH_BUTTON
     };
-#ifdef HAVE_PIEZO_SOUND
     tune_index_e tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played
-#endif                    // HAVE_PIEZO_SOUND
 } nbgl_layoutKeyboardContent_t;
 
 /**

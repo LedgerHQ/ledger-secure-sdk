@@ -221,11 +221,10 @@ int os_io_seph_cmd_set_touch_state(uint8_t enable)
 }
 #endif  // HAVE_SE_TOUCH
 
-#ifdef HAVE_PIEZO_SOUND
 int os_io_seph_cmd_piezo_play_tune(tune_index_e tune_index)
 {
     int status = 0;
-
+#ifdef HAVE_PIEZO_SOUND
     uint8_t buffer[4];
     if (tune_index >= NB_TUNES) {
         status = -22;  // EINVAL
@@ -246,16 +245,22 @@ int os_io_seph_cmd_piezo_play_tune(tune_index_e tune_index)
     buffer[2] = 1;
     buffer[3] = (uint8_t) tune_index;
     status    = os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 4, NULL);
-
 end:
+#else
+    UNUSED(tune_index);
+#endif  // HAVE_PIEZO_SOUND
+
     return status;
 }
 
 void io_seproxyhal_play_tune(tune_index_e tune_index)
 {
+#ifdef HAVE_PIEZO_SOUND
     (void) os_io_seph_cmd_piezo_play_tune(tune_index);
-}
+#else
+    UNUSED(tune_index);
 #endif  // HAVE_PIEZO_SOUND
+}
 
 #ifdef HAVE_SERIALIZED_NBGL
 void os_io_seph_cmd_serialized_nbgl(const uint8_t *buffer, uint16_t length)
