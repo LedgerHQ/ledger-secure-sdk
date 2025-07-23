@@ -152,7 +152,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>{</div>
 <div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    system_header_reset();</div>
 <div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span> </div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    uint8_t  erase_buf[APP_STORAGE_ERASE_BLOCK_SIZE] = {0};</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>  erase_buf[APP_STORAGE_ERASE_BLOCK_SIZE] = {0};</div>
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    uint32_t offset                                  = 0;</div>
 <div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <span class="keywordflow">if</span> (APP_STORAGE_SIZE &gt; APP_STORAGE_ERASE_BLOCK_SIZE) {</div>
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>        <span class="keywordflow">for</span> (; offset &lt; APP_STORAGE_SIZE - APP_STORAGE_ERASE_BLOCK_SIZE;</div>
@@ -178,7 +178,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    <span class="keywordflow">return</span> app_storage.header.data_version;</div>
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>}</div>
 <div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span> </div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>uint16_t app_storage_get_properties(<span class="keywordtype">void</span>)</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span><a class="code hl_typedef" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> app_storage_get_properties(<span class="keywordtype">void</span>)</div>
 <div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>{</div>
 <div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    <span class="keywordflow">return</span> app_storage.header.properties;</div>
 <div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>}</div>
@@ -260,7 +260,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span> </div>
 <div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span><span class="preprocessor">#endif  </span><span class="comment">// HAVE_APP_STORAGE</span></div>
 <div class="ttc" id="aapp__storage__internal_8h_html"><div class="ttname"><a href="app__storage__internal_8h.html">app_storage_internal.h</a></div></div>
-<div class="ttc" id="anbgl__fonts_8c_html_af64d6b2f3814b25984291ea1aad3ad4c"><div class="ttname"><a href="nbgl__fonts_8c.html#af64d6b2f3814b25984291ea1aad3ad4c">__attribute__</a></div><div class="ttdeci">__attribute__((section(&quot;._nbgl_fonts_&quot;))) const</div><div class="ttdoc">return the non-unicode font corresponding to the given font ID</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l00071">nbgl_fonts.c:71</a></div></div>
+<div class="ttc" id="anbgl__fonts_8c_html_af64d6b2f3814b25984291ea1aad3ad4c"><div class="ttname"><a href="nbgl__fonts_8c.html#af64d6b2f3814b25984291ea1aad3ad4c">__attribute__</a></div><div class="ttdeci">__attribute__((section(&quot;._nbgl_fonts_&quot;))) const</div><div class="ttdoc">return the non-unicode font corresponding to the given font ID</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l00067">nbgl_fonts.c:67</a></div></div>
+<div class="ttc" id="ausbd__conf_8h_html_a273cf69d639a59973b6019625df33e30"><div class="ttname"><a href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a></div><div class="ttdeci">unsigned short uint16_t</div><div class="ttdef"><b>Definition</b> <a href="usbd__conf_8h_source.html#l00054">usbd_conf.h:54</a></div></div>
+<div class="ttc" id="ausbd__conf_8h_html_aba7bc1797add20fe3efdf37ced1182c5"><div class="ttname"><a href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a></div><div class="ttdeci">unsigned char uint8_t</div><div class="ttdef"><b>Definition</b> <a href="usbd__conf_8h_source.html#l00053">usbd_conf.h:53</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

@@ -94,7 +94,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &lt;stddef.h&gt;</span></div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &lt;string.h&gt;</span></div>
 <div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>cx_err_t cx_aes_init_key_no_throw(<span class="keyword">const</span> uint8_t *raw_key, <span class="keywordtype">size_t</span> key_len, cx_aes_key_t *key)</div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>cx_err_t cx_aes_init_key_no_throw(<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *raw_key, <span class="keywordtype">size_t</span> key_len, cx_aes_key_t *key)</div>
 <div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>{</div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>    memset(key, 0, <span class="keyword">sizeof</span>(cx_aes_key_t));</div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>    <span class="keywordflow">switch</span> (key_len) {</div>
@@ -109,7 +109,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    }</div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>}</div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>cx_err_t cx_aes_enc_block(<span class="keyword">const</span> cx_aes_key_t *key, <span class="keyword">const</span> uint8_t *inblock, uint8_t *outblock)</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>cx_err_t cx_aes_enc_block(<span class="keyword">const</span> cx_aes_key_t *key, <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *inblock, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *outblock)</div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>{</div>
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    cx_err_t error;</div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    cx_err_t err_reset = CX_INTERNAL_ERROR;</div>
@@ -120,7 +120,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    <span class="keywordflow">return</span> error == CX_OK ? err_reset : error;</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>}</div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>cx_err_t cx_aes_dec_block(<span class="keyword">const</span> cx_aes_key_t *key, <span class="keyword">const</span> uint8_t *inblock, uint8_t *outblock)</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>cx_err_t cx_aes_dec_block(<span class="keyword">const</span> cx_aes_key_t *key, <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *inblock, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *outblock)</div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>{</div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    cx_err_t error;</div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    cx_err_t err_reset = CX_INTERNAL_ERROR;</div>
@@ -134,11 +134,11 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>cx_err_t cx_aes_iv_no_throw(<span class="keyword">const</span> cx_aes_key_t *key,</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>                            uint32_t            mode,</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>                            <span class="keyword">const</span> uint8_t      *iv,</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>                            <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>      *iv,</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>                            <span class="keywordtype">size_t</span>              iv_len,</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>                            <span class="keyword">const</span> uint8_t      *in,</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>                            <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>      *in,</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>                            <span class="keywordtype">size_t</span>              in_len,</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>                            uint8_t            *out,</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>                            <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>            *out,</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>                            <span class="keywordtype">size_t</span>             *out_len)</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>{</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <a class="code hl_struct" href="structcx__cipher__context__t.html">cx_cipher_context_t</a> *ctx;</div>
@@ -184,9 +184,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span> </div>
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>cx_err_t cx_aes_no_throw(<span class="keyword">const</span> cx_aes_key_t *key,</div>
 <div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>                         uint32_t            mode,</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>                         <span class="keyword">const</span> uint8_t      *in,</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>                         <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>      *in,</div>
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>                         <span class="keywordtype">size_t</span>              in_len,</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>                         uint8_t            *out,</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>                         <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>            *out,</div>
 <div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>                         <span class="keywordtype">size_t</span>             *out_len)</div>
 <div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>{</div>
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <span class="keywordflow">return</span> cx_aes_iv_no_throw(key, mode, NULL, 0, in, in_len, out, out_len);</div>
@@ -195,12 +195,12 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>cx_err_t aes_ctr(cx_aes_key_t  *ctx_key,</div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>                 <span class="keywordtype">size_t</span>         len,</div>
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>                 <span class="keywordtype">size_t</span>        *nc_off,</div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>                 uint8_t       *nonce_counter,</div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>                 uint8_t       *stream_block,</div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>                 <span class="keyword">const</span> uint8_t *input,</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>                 uint8_t       *output)</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>                 <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>       *nonce_counter,</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>                 <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>       *stream_block,</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>                 <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *input,</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>                 <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>       *output)</div>
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>{</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    uint8_t  c;</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>  c;</div>
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    <span class="keywordtype">size_t</span>   n     = *nc_off;</div>
 <div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>    cx_err_t error = CX_INVALID_PARAMETER;</div>
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    UNUSED(ctx_key);</div>
@@ -227,7 +227,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span> </div>
 <div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>cx_err_t aes_setkey(cx_aes_key_t  *ctx_key,</div>
 <div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>                    uint32_t       operation,</div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>                    <span class="keyword">const</span> uint8_t *key,</div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>                    <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *key,</div>
 <div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>                    uint32_t       key_bitlen)</div>
 <div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>{</div>
 <div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>    cx_err_t error;</div>
@@ -238,18 +238,18 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>}</div>
 <div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span> </div>
 <div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span><span class="keyword">static</span> <span class="keyword">const</span> <a class="code hl_struct" href="structcx__cipher__base__t.html">cx_cipher_base_t</a> aes_base = {</div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>    (cx_err_t(*)(<span class="keyword">const</span> uint8_t *inblock, uint8_t *outblock)) cx_aes_block_hw,</div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>    (cx_err_t(*)(<span class="keyword">const</span> uint8_t *inblock, uint8_t *outblock)) cx_aes_block_hw,</div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>    (cx_err_t(*)(<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *inblock, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *outblock)) cx_aes_block_hw,</div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>    (cx_err_t(*)(<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *inblock, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *outblock)) cx_aes_block_hw,</div>
 <div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>    (cx_err_t(*)(const <a class="code hl_struct" href="structcipher__key__t.html">cipher_key_t</a> *ctx_key,</div>
 <div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>                 <span class="keywordtype">size_t</span>              len,</div>
 <div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>                 <span class="keywordtype">size_t</span>             *nc_off,</div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>                 uint8_t            *nonce_counter,</div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>                 uint8_t            *stream_block,</div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>                 const uint8_t      *input,</div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>                 uint8_t            *output)) aes_ctr,</div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>                 <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>            *nonce_counter,</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>                 <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>            *stream_block,</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>                 const <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>      *input,</div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>                 <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>            *output)) aes_ctr,</div>
 <div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>    (cx_err_t(*)(const <a class="code hl_struct" href="structcipher__key__t.html">cipher_key_t</a> *ctx_key,</div>
 <div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>                 uint32_t            operation,</div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>                 const uint8_t      *key,</div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>                 const <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>      *key,</div>
 <div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>                 uint32_t            key_bitlen)) aes_setkey,</div>
 <div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>    (cx_err_t(*)(<span class="keywordtype">void</span>)) cx_aes_reset_hw,</div>
 <div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>};</div>
@@ -305,6 +305,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="astructcx__cipher__context__t_html_acb5a84244a091ee9920d80ae065460ba"><div class="ttname"><a href="structcx__cipher__context__t.html#acb5a84244a091ee9920d80ae065460ba">cx_cipher_context_t::cipher_key</a></div><div class="ttdeci">const cipher_key_t * cipher_key</div><div class="ttdoc">Cipher-specific context.</div><div class="ttdef"><b>Definition</b> <a href="lcx__cipher_8h_source.html#l00095">lcx_cipher.h:95</a></div></div>
 <div class="ttc" id="astructcx__cipher__info__t_html"><div class="ttname"><a href="structcx__cipher__info__t.html">cx_cipher_info_t</a></div><div class="ttdef"><b>Definition</b> <a href="lcx__cipher_8h_source.html#l00068">lcx_cipher.h:68</a></div></div>
 <div class="ttc" id="aunioncx__u_html_aec880bb2eeb68bff8cdd5ae653a83de2"><div class="ttname"><a href="unioncx__u.html#aec880bb2eeb68bff8cdd5ae653a83de2">cx_u::cipher</a></div><div class="ttdeci">cx_cipher_context_t cipher</div><div class="ttdef"><b>Definition</b> <a href="cx__ram_8h_source.html#l00109">cx_ram.h:109</a></div></div>
+<div class="ttc" id="ausbd__conf_8h_html_aba7bc1797add20fe3efdf37ced1182c5"><div class="ttname"><a href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a></div><div class="ttdeci">unsigned char uint8_t</div><div class="ttdef"><b>Definition</b> <a href="usbd__conf_8h_source.html#l00053">usbd_conf.h:53</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

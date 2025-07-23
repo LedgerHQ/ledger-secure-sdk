@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['keyboardswipecallback_0',['keyboardswipecallback',['../nbgl__layout__internal_8h.html#a17f7108e2958beab88380ca984c0b542',1,'keyboardSwipeCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType):&#160;nbgl_layout_keyboard.c'],['../nbgl__layout__keyboard_8c.html#a17f7108e2958beab88380ca984c0b542',1,'keyboardSwipeCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType):&#160;nbgl_layout_keyboard.c']]]
+  ['get_5fux_5floc_5fstring_0',['get_ux_loc_string',['../nbgl__layout_8c.html#aa4815ef27c66b3d5ce7587e00d11af2d',1,'get_ux_loc_string(uint32_t index):&#160;nbgl_layout.c'],['../nbgl__obj_8c.html#aa4815ef27c66b3d5ce7587e00d11af2d',1,'get_ux_loc_string(uint32_t index):&#160;nbgl_obj.c']]]
 ];

@@ -1,8 +1,7 @@
 var searchData=
 [
-  ['flex_0',['New BOLOS Graphic API for Stax/Flex',['../nbgl_mainpage.html',1,'index']]],
-  ['for_20nanos_1',['User Experience (graphical) library for Nanos',['../ux_mainpage.html',1,'index']]],
-  ['for_20stax_2',['User Experience library for Stax',['../ux_nbgl_mainpage.html',1,'index']]],
-  ['for_20stax_20flex_3',['New BOLOS Graphic API for Stax/Flex',['../nbgl_mainpage.html',1,'index']]],
-  ['framework_4',['Standard Application Framework',['../standard_app_mainpage.html',1,'index']]]
+  ['embedded_20sdk_0',['Embedded SDK',['../index.html',1,'']]],
+  ['energy_20stack_1',['BlueTooth Low-Energy Stack',['../ble_mainpage.html',1,'index']]],
+  ['experience_20graphical_20library_20for_20nanos_2',['User Experience (graphical) library for Nanos',['../ux_mainpage.html',1,'index']]],
+  ['experience_20library_20for_20stax_3',['User Experience library for Stax',['../ux_nbgl_mainpage.html',1,'index']]]
 ];

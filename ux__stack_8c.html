@@ -85,7 +85,7 @@ $(function() {
 <code>#include &quot;os_screen.h&quot;</code><br />
 <code>#include &quot;os_types.h&quot;</code><br />
 <code>#include &quot;os_utils.h&quot;</code><br />
-<code>#include &quot;os_io_seph_ux.h&quot;</code><br />
+<code>#include &quot;os_io_seproxyhal.h&quot;</code><br />
 <code>#include &lt;string.h&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for ux_stack.c:</div>
@@ -105,10 +105,10 @@ Include dependency graph for ux_stack.c:</div>
 <area shape="poly" title=" " alt="" coords="413,29,445,66,441,70,409,33"/>
 <area shape="rect" title=" " alt="" coords="531,79,615,104"/>
 <area shape="poly" title=" " alt="" coords="430,28,534,71,532,76,428,33"/>
-<area shape="rect" title=" " alt="" coords="639,79,769,104"/>
-<area shape="poly" title=" " alt="" coords="451,28,642,73,641,78,449,33"/>
-<area shape="rect" title=" " alt="" coords="793,79,863,104"/>
-<area shape="poly" title=" " alt="" coords="481,27,617,47,780,76,779,81,616,52,480,32"/>
+<area shape="rect" title=" " alt="" coords="640,79,787,104"/>
+<area shape="poly" title=" " alt="" coords="452,28,650,73,649,78,451,33"/>
+<area shape="rect" title=" " alt="" coords="811,79,882,104"/>
+<area shape="poly" title=" " alt="" coords="480,26,624,47,798,76,797,81,623,52,480,32"/>
 </map>
 </div>
 </div>
@@ -132,12 +132,33 @@ Functions</h2></td></tr>
 <tr class="separator:ab8a06cf1cc2f68b954faa9aff4ef2b1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2e7aa58aea7040f1894be7637ad317e4" id="r_a2e7aa58aea7040f1894be7637ad317e4"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="ux__bagl_8h.html#a45f9ac7dba48418bdc6f5d03c356eb40">bagl_element_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux__stack_8c.html#a2e7aa58aea7040f1894be7637ad317e4">ux_stack_display_element_callback</a> (const <a class="el" href="ux__bagl_8h.html#a45f9ac7dba48418bdc6f5d03c356eb40">bagl_element_t</a> *element)</td></tr>
 <tr class="separator:a2e7aa58aea7040f1894be7637ad317e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aded948ac7880d1dde7d2eafa097bbe58" id="r_aded948ac7880d1dde7d2eafa097bbe58"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux__stack_8c.html#aded948ac7880d1dde7d2eafa097bbe58">ux_stack_display_elements</a> (<a class="el" href="ux__bagl_8h.html#ab5c8e6b316bff722939b1e3585ae0354">ux_stack_slot_t</a> *slot)</td></tr>
-<tr class="separator:aded948ac7880d1dde7d2eafa097bbe58"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a476ec92657e4a0f2206653d066158a2f" id="r_a476ec92657e4a0f2206653d066158a2f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux__stack_8c.html#a476ec92657e4a0f2206653d066158a2f">ux_stack_al_display_next_element</a> (unsigned int stack_slot) <a class="el" href="nbgl__fonts_8c.html#af64d6b2f3814b25984291ea1aad3ad4c">__attribute__</a>((weak))</td></tr>
+<tr class="separator:a476ec92657e4a0f2206653d066158a2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a716f640a52fa0ae2d57a480e2e286644" id="r_a716f640a52fa0ae2d57a480e2e286644"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ux__stack_8c.html#a716f640a52fa0ae2d57a480e2e286644">ux_stack_display</a> (unsigned int stack_slot)</td></tr>
 <tr class="separator:a716f640a52fa0ae2d57a480e2e286644"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="a476ec92657e4a0f2206653d066158a2f" name="a476ec92657e4a0f2206653d066158a2f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a476ec92657e4a0f2206653d066158a2f">&#9670;&#160;</a></span>ux_stack_al_display_next_element()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ux_stack_al_display_next_element </td>
+          <td>(</td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>stack_slot</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Function to be implemented by the UX manager (to allow specific callback and processing of the target) The next displayable element of the given stack slot must be displayed </p>
+
+<p class="definition">Definition at line <a class="el" href="ux__stack_8c_source.html#l00297">297</a> of file <a class="el" href="ux__stack_8c_source.html">ux_stack.c</a>.</p>
+
+</div>
+</div>
 <a id="a716f640a52fa0ae2d57a480e2e286644" name="a716f640a52fa0ae2d57a480e2e286644"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a716f640a52fa0ae2d57a480e2e286644">&#9670;&#160;</a></span>ux_stack_display()</h2>
 
@@ -154,7 +175,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ux__stack_8c_source.html#l00288">288</a> of file <a class="el" href="ux__stack_8c_source.html">ux_stack.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__stack_8c_source.html#l00331">331</a> of file <a class="el" href="ux__stack_8c_source.html">ux_stack.c</a>.</p>
 
 </div>
 </div>
@@ -174,27 +195,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ux__stack_8c_source.html#l00202">202</a> of file <a class="el" href="ux__stack_8c_source.html">ux_stack.c</a>.</p>
-
-</div>
-</div>
-<a id="aded948ac7880d1dde7d2eafa097bbe58" name="aded948ac7880d1dde7d2eafa097bbe58"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aded948ac7880d1dde7d2eafa097bbe58">&#9670;&#160;</a></span>ux_stack_display_elements()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void ux_stack_display_elements </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="ux__bagl_8h.html#ab5c8e6b316bff722939b1e3585ae0354">ux_stack_slot_t</a> *&#160;</td>
-          <td class="paramname"><em>slot</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="ux__stack_8c_source.html#l00221">221</a> of file <a class="el" href="ux__stack_8c_source.html">ux_stack.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ux__stack_8c_source.html#l00206">206</a> of file <a class="el" href="ux__stack_8c_source.html">ux_stack.c</a>.</p>
 
 </div>
 </div>

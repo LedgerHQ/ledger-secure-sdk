@@ -108,7 +108,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="preprocessor">#include &quot;<a class="code" href="read_8h.html">read.h</a>&quot;</span></div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span> </div>
 <div class="foldopen" id="foldopen00026" data-start="{" data-end="}">
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno"><a class="line" href="bip32_8c.html#a7f63c17ef0f1204d641ff8f404a72050">   26</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="bip32_8c.html#a7f63c17ef0f1204d641ff8f404a72050">bip32_path_read</a>(<span class="keyword">const</span> uint8_t *in, <span class="keywordtype">size_t</span> in_len, uint32_t *out, <span class="keywordtype">size_t</span> out_len)</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno"><a class="line" href="bip32_8c.html#a7f63c17ef0f1204d641ff8f404a72050">   26</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="bip32_8c.html#a7f63c17ef0f1204d641ff8f404a72050">bip32_path_read</a>(<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *in, <span class="keywordtype">size_t</span> in_len, uint32_t *out, <span class="keywordtype">size_t</span> out_len)</div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>{</div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    <span class="keywordflow">if</span> (out_len == 0 || out_len &gt; <a class="code hl_define" href="bip32_8h.html#af10f692290972cfc4c9859d013bea972">MAX_BIP32_PATH</a>) {</div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
@@ -137,7 +137,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keywordtype">size_t</span> offset = 0;</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    <span class="keywordflow">for</span> (uint16_t i = 0; i &lt; bip32_path_len; i++) {</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    <span class="keywordflow">for</span> (<a class="code hl_typedef" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> i = 0; i &lt; bip32_path_len; i++) {</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>        <span class="keywordtype">size_t</span> written;</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>        snprintf(out + offset, out_len - offset, <span class="stringliteral">&quot;%u&quot;</span>, bip32_path[i] &amp; 0x7FFFFFFFu);</div>
@@ -178,6 +178,8 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="abip32_8h_html_af10f692290972cfc4c9859d013bea972"><div class="ttname"><a href="bip32_8h.html#af10f692290972cfc4c9859d013bea972">MAX_BIP32_PATH</a></div><div class="ttdeci">#define MAX_BIP32_PATH</div><div class="ttdef"><b>Definition</b> <a href="bip32_8h_source.html#l00010">bip32.h:10</a></div></div>
 <div class="ttc" id="aread_8c_html_ab3a9b2f8c078cd7789ee6571ca3a6bb4"><div class="ttname"><a href="read_8c.html#ab3a9b2f8c078cd7789ee6571ca3a6bb4">read_u32_be</a></div><div class="ttdeci">uint32_t read_u32_be(const uint8_t *ptr, size_t offset)</div><div class="ttdef"><b>Definition</b> <a href="read_8c_source.html#l00026">read.c:26</a></div></div>
 <div class="ttc" id="aread_8h_html"><div class="ttname"><a href="read_8h.html">read.h</a></div></div>
+<div class="ttc" id="ausbd__conf_8h_html_a273cf69d639a59973b6019625df33e30"><div class="ttname"><a href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a></div><div class="ttdeci">unsigned short uint16_t</div><div class="ttdef"><b>Definition</b> <a href="usbd__conf_8h_source.html#l00054">usbd_conf.h:54</a></div></div>
+<div class="ttc" id="ausbd__conf_8h_html_aba7bc1797add20fe3efdf37ced1182c5"><div class="ttname"><a href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a></div><div class="ttdeci">unsigned char uint8_t</div><div class="ttdef"><b>Definition</b> <a href="usbd__conf_8h_source.html#l00053">usbd_conf.h:53</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
