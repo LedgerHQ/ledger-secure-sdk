@@ -434,7 +434,7 @@ void USBD_LEDGER_init(os_io_init_usb_t *init, uint8_t force_restart)
     if ((force_restart) || (usbd_ledger_data.state < USBD_LEDGER_STATE_INITIALIZED)) {
         // First time USB is started or forced to restart
         memset(&usbd_ledger_data, 0, sizeof(usbd_ledger_data));
-        usbd_ledger_data.state = USBD_LEDGER_STATE_STOPPED;
+        usbd_ledger_data.state = USBD_LEDGER_STATE_INITIALIZED;
         LOG_IO("USBD_LEDGER_init deep\n");
     }
     else {
@@ -495,8 +495,8 @@ void USBD_LEDGER_start(void)
         // or wanted classes have changed
         // or vendor ID has changed
 
-        if (usbd_ledger_data.state == USBD_LEDGER_STATE_RUNNING) {
-            USB_LEDGER_stop();
+        if (usbd_ledger_data.state != USBD_LEDGER_STATE_STOPPED) {
+            USBD_Stop(&usbd_ledger_data.usbd_handle);
             usbd_ledger_data.state = USBD_LEDGER_STATE_STOPPED;
         }
 
@@ -665,8 +665,7 @@ void USBD_LEDGER_start(void)
         USBD_RegisterClass(&usbd_ledger_data.usbd_handle,
                            (USBD_ClassTypeDef *) (uintptr_t) &USBD_LEDGER_CLASS);
     }
-    if ((usbd_ledger_data.state == USBD_LEDGER_STATE_STOPPED)
-        || (usbd_ledger_data.state == USBD_LEDGER_STATE_INITIALIZED)) {
+    if (usbd_ledger_data.state == USBD_LEDGER_STATE_STOPPED) {
         USBD_Start(&usbd_ledger_data.usbd_handle);
         usbd_ledger_data.state = USBD_LEDGER_STATE_RUNNING;
     }
