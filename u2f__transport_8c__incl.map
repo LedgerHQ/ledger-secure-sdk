@@ -1,0 +1,21 @@
+<map id="lib_u2f/src/u2f_transport.c" name="lib_u2f/src/u2f_transport.c">
+<area shape="rect" id="Node000001" title=" " alt="" coords="236,5,427,31"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,79,76,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="285,33,90,81,89,76,284,28"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="100,79,149,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="299,33,163,80,161,75,297,28"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="174,79,265,104"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="315,33,251,73,248,69,312,28"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="289,79,373,104"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="334,31,334,65,329,65,329,31"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="397,79,465,104"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="349,29,405,68,402,73,346,33"/>
+<area shape="rect" id="Node000007" href="$u2f__types_8h.html" title=" " alt="" coords="466,152,565,177"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="385,28,433,46,457,60,479,77,500,106,512,138,507,140,495,109,475,81,454,64,431,51,383,33"/>
+<area shape="rect" id="Node000009" href="$u2f__transport_8h.html" title=" " alt="" coords="541,79,663,104"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="375,28,546,73,544,78,374,33"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="523,225,593,251"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="525,176,546,212,542,215,520,179"/>
+<area shape="poly" id="edge10_Node000009_Node000007" title=" " alt="" coords="590,106,542,145,538,141,586,102"/>
+<area shape="poly" id="edge9_Node000009_Node000008" title=" " alt="" coords="601,105,579,178,568,213,563,211,574,177,596,103"/>
+</map>

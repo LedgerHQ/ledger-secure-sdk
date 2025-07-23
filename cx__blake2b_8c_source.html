@@ -121,8 +121,8 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>       BLAKE2B_BLOCKBYTES,</div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>       <span class="keyword">sizeof</span>(cx_blake2b_t),</div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>       NULL,</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>       (cx_err_t(*)(cx_hash_t * ctx, <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *data, <span class="keywordtype">size_t</span> len)) cx_blake2b_update,</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>       (cx_err_t(*)(cx_hash_t * ctx, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *digest)) cx_blake2b_final,</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>       (cx_err_t(*)(cx_hash_t * ctx, <span class="keyword">const</span> uint8_t *data, <span class="keywordtype">size_t</span> len)) cx_blake2b_update,</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>       (cx_err_t(*)(cx_hash_t * ctx, uint8_t *digest)) cx_blake2b_final,</div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>       (cx_err_t(*)(cx_hash_t * ctx, <span class="keywordtype">size_t</span> output_size)) cx_blake2b_init_no_throw,</div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>       (size_t(*)(<span class="keyword">const</span> cx_hash_t *ctx)) cx_blake2b_get_output_size};</div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
@@ -133,9 +133,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>cx_err_t cx_blake2b_init2_no_throw(cx_blake2b_t *hash,</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>                                   <span class="keywordtype">size_t</span>        size,</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>                                   <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>      *salt,</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>                                   uint8_t      *salt,</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>                                   <span class="keywordtype">size_t</span>        salt_len,</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>                                   <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>      *perso,</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>                                   uint8_t      *perso,</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>                                   <span class="keywordtype">size_t</span>        perso_len)</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>{</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keywordflow">if</span> (salt == NULL &amp;&amp; salt_len != 0) {</div>
@@ -165,7 +165,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    <span class="keywordflow">return</span> CX_INVALID_PARAMETER;</div>
 <div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>}</div>
 <div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span> </div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>cx_err_t cx_blake2b_update(cx_blake2b_t *ctx, <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *data, <span class="keywordtype">size_t</span> len)</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>cx_err_t cx_blake2b_update(cx_blake2b_t *ctx, <span class="keyword">const</span> uint8_t *data, <span class="keywordtype">size_t</span> len)</div>
 <div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>{</div>
 <div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    <span class="keywordflow">if</span> (ctx == NULL) {</div>
 <div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>        <span class="keywordflow">return</span> CX_INVALID_PARAMETER;</div>
@@ -177,7 +177,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    <span class="keywordflow">return</span> CX_OK;</div>
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>}</div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span> </div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>cx_err_t cx_blake2b_final(cx_blake2b_t *ctx, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *digest)</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>cx_err_t cx_blake2b_final(cx_blake2b_t *ctx, uint8_t *digest)</div>
 <div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>{</div>
 <div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    (void) blake2b_final(&amp;ctx-&gt;ctx, digest, ctx-&gt;output_size);</div>
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <span class="keywordflow">return</span> CX_OK;</div>
@@ -190,9 +190,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span> </div>
 <div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>cx_err_t cx_blake2b(cx_hash_t     *hash,</div>
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>                    uint32_t       mode,</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>                    <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *in,</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>                    <span class="keyword">const</span> uint8_t *in,</div>
 <div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>                    <span class="keywordtype">size_t</span>         len,</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>                    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>       *out,</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>                    uint8_t       *out,</div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>                    <span class="keywordtype">size_t</span>         out_len)</div>
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>{</div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <span class="keywordtype">size_t</span> sz = 0;</div>
@@ -251,27 +251,27 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span> </div>
 <div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span><span class="preprocessor">#if defined(BLAKE2_UNUSED)</span></div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span><span class="keyword">static</span> BLAKE2_INLINE <a class="code hl_typedef" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> load16(<span class="keyword">const</span> <span class="keywordtype">void</span> *src)</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span><span class="keyword">static</span> BLAKE2_INLINE uint16_t load16(<span class="keyword">const</span> <span class="keywordtype">void</span> *src)</div>
 <div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>{</div>
 <div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span><span class="preprocessor">#if defined(NATIVE_LITTLE_ENDIAN)</span></div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> w;</div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    uint16_t w;</div>
 <div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>    memcpy(&amp;w, src, <span class="keyword">sizeof</span> w);</div>
 <div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>    <span class="keywordflow">return</span> w;</div>
 <div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *p = (<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *) src;</div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    <span class="keywordflow">return</span> ((<a class="code hl_typedef" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>) (p[0]) &lt;&lt; 0) | ((<a class="code hl_typedef" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>) (p[1]) &lt;&lt; 8);</div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    <span class="keyword">const</span> uint8_t *p = (<span class="keyword">const</span> uint8_t *) src;</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    <span class="keywordflow">return</span> ((uint16_t) (p[0]) &lt;&lt; 0) | ((uint16_t) (p[1]) &lt;&lt; 8);</div>
 <div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>}</div>
 <div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span> </div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span><span class="keyword">static</span> BLAKE2_INLINE <span class="keywordtype">void</span> store16(<span class="keywordtype">void</span> *dst, <a class="code hl_typedef" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> w)</div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span><span class="keyword">static</span> BLAKE2_INLINE <span class="keywordtype">void</span> store16(<span class="keywordtype">void</span> *dst, uint16_t w)</div>
 <div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>{</div>
 <div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span><span class="preprocessor">#if defined(NATIVE_LITTLE_ENDIAN)</span></div>
 <div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>    memcpy(dst, &amp;w, <span class="keyword">sizeof</span> w);</div>
 <div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *p = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *) dst;</div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>    *p++       = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) w;</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>    uint8_t *p = (uint8_t *) dst;</div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>    *p++       = (uint8_t) w;</div>
 <div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    w &gt;&gt;= 8;</div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>    *p++             = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) w;</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>    *p++             = (uint8_t) w;</div>
 <div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>}</div>
 <div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span><span class="keyword">static</span> BLAKE2_INLINE uint32_t load32(<span class="keyword">const</span> <span class="keywordtype">void</span> *src)</div>
@@ -281,7 +281,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>    memcpy(&amp;w, src, <span class="keyword">sizeof</span> w);</div>
 <div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>    <span class="keywordflow">return</span> w;</div>
 <div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *p = (<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *) src;</div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    <span class="keyword">const</span> uint8_t *p = (<span class="keyword">const</span> uint8_t *) src;</div>
 <div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>    <span class="keywordflow">return</span> ((uint32_t) (p[0]) &lt;&lt; 0) | ((uint32_t) (p[1]) &lt;&lt; 8) | ((uint32_t) (p[2]) &lt;&lt; 16)</div>
 <div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>           | ((uint32_t) (p[3]) &lt;&lt; 24);</div>
 <div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span><span class="preprocessor">#endif</span></div>
@@ -289,20 +289,20 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span> </div>
 <div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span><span class="keyword">static</span> BLAKE2_INLINE uint64_t load48(<span class="keyword">const</span> <span class="keywordtype">void</span> *src)</div>
 <div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>{</div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>    <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *p = (<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *) src;</div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>    <span class="keyword">const</span> uint8_t *p = (<span class="keyword">const</span> uint8_t *) src;</div>
 <div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>    <span class="keywordflow">return</span> ((uint64_t) (p[0]) &lt;&lt; 0) | ((uint64_t) (p[1]) &lt;&lt; 8) | ((uint64_t) (p[2]) &lt;&lt; 16)</div>
 <div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>           | ((uint64_t) (p[3]) &lt;&lt; 24) | ((uint64_t) (p[4]) &lt;&lt; 32) | ((uint64_t) (p[5]) &lt;&lt; 40);</div>
 <div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>}</div>
 <div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span> </div>
 <div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span><span class="keyword">static</span> BLAKE2_INLINE <span class="keywordtype">void</span> store48(<span class="keywordtype">void</span> *dst, uint64_t w)</div>
 <div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>{</div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *p = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *) dst;</div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>    p[0]       = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) (w &gt;&gt; 0);</div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>    p[1]       = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) (w &gt;&gt; 8);</div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>    p[2]       = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) (w &gt;&gt; 16);</div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>    p[3]       = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) (w &gt;&gt; 24);</div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>    p[4]       = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) (w &gt;&gt; 32);</div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>    p[5]       = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) (w &gt;&gt; 40);</div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>    uint8_t *p = (uint8_t *) dst;</div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>    p[0]       = (uint8_t) (w &gt;&gt; 0);</div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>    p[1]       = (uint8_t) (w &gt;&gt; 8);</div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>    p[2]       = (uint8_t) (w &gt;&gt; 16);</div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>    p[3]       = (uint8_t) (w &gt;&gt; 24);</div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>    p[4]       = (uint8_t) (w &gt;&gt; 32);</div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>    p[5]       = (uint8_t) (w &gt;&gt; 40);</div>
 <div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>}</div>
 <div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span> </div>
 <div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span><span class="preprocessor">#endif</span></div>
@@ -312,11 +312,11 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span><span class="preprocessor">#if defined(NATIVE_LITTLE_ENDIAN)</span></div>
 <div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>    memcpy(dst, &amp;w, <span class="keyword">sizeof</span> w);</div>
 <div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *p       = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *) dst;</div>
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>    p[0]             = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) (w &gt;&gt; 0);</div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    p[1]             = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) (w &gt;&gt; 8);</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>    p[2]             = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) (w &gt;&gt; 16);</div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>    p[3]             = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) (w &gt;&gt; 24);</div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>    uint8_t *p       = (uint8_t *) dst;</div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>    p[0]             = (uint8_t) (w &gt;&gt; 0);</div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    p[1]             = (uint8_t) (w &gt;&gt; 8);</div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>    p[2]             = (uint8_t) (w &gt;&gt; 16);</div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>    p[3]             = (uint8_t) (w &gt;&gt; 24);</div>
 <div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>}</div>
 <div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span><span class="keyword">static</span> BLAKE2_INLINE uint64_t load64(<span class="keyword">const</span> <span class="keywordtype">void</span> *src)</div>
@@ -326,7 +326,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>    memcpy(&amp;w, src, <span class="keyword">sizeof</span> w);</div>
 <div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>    <span class="keywordflow">return</span> w;</div>
 <div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>    <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *p = (<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *) src;</div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>    <span class="keyword">const</span> uint8_t *p = (<span class="keyword">const</span> uint8_t *) src;</div>
 <div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>    <span class="keywordflow">return</span> ((uint64_t) (p[0]) &lt;&lt; 0) | ((uint64_t) (p[1]) &lt;&lt; 8) | ((uint64_t) (p[2]) &lt;&lt; 16)</div>
 <div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>           | ((uint64_t) (p[3]) &lt;&lt; 24) | ((uint64_t) (p[4]) &lt;&lt; 32) | ((uint64_t) (p[5]) &lt;&lt; 40)</div>
 <div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>           | ((uint64_t) (p[6]) &lt;&lt; 48) | ((uint64_t) (p[7]) &lt;&lt; 56);</div>
@@ -338,15 +338,15 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span><span class="preprocessor">#if defined(NATIVE_LITTLE_ENDIAN)</span></div>
 <div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>    memcpy(dst, &amp;w, <span class="keyword">sizeof</span> w);</div>
 <div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *p = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *) dst;</div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>    p[0]       = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) (w &gt;&gt; 0);</div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    p[1]       = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) (w &gt;&gt; 8);</div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>    p[2]       = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) (w &gt;&gt; 16);</div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>    p[3]       = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) (w &gt;&gt; 24);</div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>    p[4]       = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) (w &gt;&gt; 32);</div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    p[5]       = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) (w &gt;&gt; 40);</div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>    p[6]       = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) (w &gt;&gt; 48);</div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>    p[7]       = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) (w &gt;&gt; 56);</div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>    uint8_t *p = (uint8_t *) dst;</div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>    p[0]       = (uint8_t) (w &gt;&gt; 0);</div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    p[1]       = (uint8_t) (w &gt;&gt; 8);</div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>    p[2]       = (uint8_t) (w &gt;&gt; 16);</div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>    p[3]       = (uint8_t) (w &gt;&gt; 24);</div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>    p[4]       = (uint8_t) (w &gt;&gt; 32);</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    p[5]       = (uint8_t) (w &gt;&gt; 40);</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>    p[6]       = (uint8_t) (w &gt;&gt; 48);</div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>    p[7]       = (uint8_t) (w &gt;&gt; 56);</div>
 <div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>}</div>
 <div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span> </div>
@@ -381,7 +381,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>                                       0x1f83d9abfb41bd6bULL,</div>
 <div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>                                       0x5be0cd19137e2179ULL};</div>
 <div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span> </div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span><span class="keyword">static</span> <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> blake2b_sigma[12][16] = {</div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span><span class="keyword">static</span> <span class="keyword">const</span> uint8_t blake2b_sigma[12][16] = {</div>
 <div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>    {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15},</div>
 <div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>    {14, 10, 4,  8,  9,  15, 13, 6,  1,  12, 0,  2,  11, 7,  5,  3 },</div>
 <div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>    {11, 8,  12, 0,  5,  2,  15, 13, 10, 14, 3,  6,  7,  1,  9,  4 },</div>
@@ -435,7 +435,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span><span class="comment">/* init xors IV with input parameter block */</span></div>
 <div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span><span class="keywordtype">int</span> blake2b_init_param(blake2b_state *S, <span class="keyword">const</span> blake2b_param *P)</div>
 <div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>{</div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>    <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *p = (<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *) (P);</div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>    <span class="keyword">const</span> uint8_t *p = (<span class="keyword">const</span> uint8_t *) (P);</div>
 <div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>    <span class="keywordtype">size_t</span>         i;</div>
 <div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span> </div>
 <div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>    blake2b_init0(S);</div>
@@ -451,9 +451,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span> </div>
 <div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span><span class="keywordtype">int</span> blake2b_init(blake2b_state *S,</div>
 <div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>                 <span class="keywordtype">size_t</span>         outlen,</div>
-<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>                 <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>       *salt,</div>
+<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>                 uint8_t       *salt,</div>
 <div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span>                 <span class="keywordtype">size_t</span>         salt_len,</div>
-<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>                 <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>       *personal,</div>
+<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>                 uint8_t       *personal,</div>
 <div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>                 <span class="keywordtype">size_t</span>         personal_len)</div>
 <div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>{</div>
 <div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>    blake2b_param P[1];</div>
@@ -462,7 +462,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>        <span class="keywordflow">return</span> CX_INVALID_PARAMETER;</div>
 <div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span>    }</div>
 <div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span> </div>
-<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>    P-&gt;digest_length = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) outlen;</div>
+<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>    P-&gt;digest_length = (uint8_t) outlen;</div>
 <div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>    P-&gt;key_length    = 0;</div>
 <div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>    P-&gt;fanout        = 1;</div>
 <div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>    P-&gt;depth         = 1;</div>
@@ -495,8 +495,8 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span>        <span class="keywordflow">return</span> -1;</div>
 <div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span>    }</div>
 <div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span> </div>
-<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span>    P-&gt;digest_length = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) outlen;</div>
-<div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span>    P-&gt;key_length    = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) keylen;</div>
+<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span>    P-&gt;digest_length = (uint8_t) outlen;</div>
+<div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span>    P-&gt;key_length    = (uint8_t) keylen;</div>
 <div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span>    P-&gt;fanout        = 1;</div>
 <div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span>    P-&gt;depth         = 1;</div>
 <div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span>    store32(&amp;P-&gt;leaf_length, 0);</div>
@@ -536,7 +536,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00452" name="l00452"></a><span class="lineno">  452</span><span class="preprocessor">        b = rotr64(b ^ c, 63);                        \</span></div>
 <div class="line"><a id="l00453" name="l00453"></a><span class="lineno">  453</span><span class="preprocessor">    } while (0)</span></div>
 <div class="line"><a id="l00454" name="l00454"></a><span class="lineno">  454</span> </div>
-<div class="line"><a id="l00455" name="l00455"></a><span class="lineno">  455</span><span class="keyword">static</span> <span class="keywordtype">void</span> blake2b_compress(blake2b_state *S, <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> block[BLAKE2B_BLOCKBYTES])</div>
+<div class="line"><a id="l00455" name="l00455"></a><span class="lineno">  455</span><span class="keyword">static</span> <span class="keywordtype">void</span> blake2b_compress(blake2b_state *S, <span class="keyword">const</span> uint8_t block[BLAKE2B_BLOCKBYTES])</div>
 <div class="line"><a id="l00456" name="l00456"></a><span class="lineno">  456</span>{</div>
 <div class="line"><a id="l00457" name="l00457"></a><span class="lineno">  457</span><span class="comment">/*</span></div>
 <div class="line"><a id="l00458" name="l00458"></a><span class="lineno">  458</span><span class="comment">uint64_t m[16];</span></div>
@@ -586,7 +586,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00502" name="l00502"></a><span class="lineno">  502</span> </div>
 <div class="line"><a id="l00503" name="l00503"></a><span class="lineno">  503</span><span class="keywordtype">void</span> blake2b_update(blake2b_state *S, <span class="keyword">const</span> <span class="keywordtype">void</span> *pin, <span class="keywordtype">size_t</span> inlen)</div>
 <div class="line"><a id="l00504" name="l00504"></a><span class="lineno">  504</span>{</div>
-<div class="line"><a id="l00505" name="l00505"></a><span class="lineno">  505</span>    <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *in = (<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *) pin;</div>
+<div class="line"><a id="l00505" name="l00505"></a><span class="lineno">  505</span>    <span class="keyword">const</span> uint8_t *in = (<span class="keyword">const</span> uint8_t *) pin;</div>
 <div class="line"><a id="l00506" name="l00506"></a><span class="lineno">  506</span>    <span class="keywordflow">if</span> (inlen &gt; 0) {</div>
 <div class="line"><a id="l00507" name="l00507"></a><span class="lineno">  507</span>        <span class="keywordtype">size_t</span> left = S-&gt;buflen;</div>
 <div class="line"><a id="l00508" name="l00508"></a><span class="lineno">  508</span>        <span class="keywordtype">size_t</span> fill = BLAKE2B_BLOCKBYTES - left;</div>
@@ -681,7 +681,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span>        }</div>
 <div class="line"><a id="l00598" name="l00598"></a><span class="lineno">  598</span>    }</div>
 <div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span> </div>
-<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span>    blake2b_update(S, (<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *) in, inlen);</div>
+<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span>    blake2b_update(S, (<span class="keyword">const</span> uint8_t *) in, inlen);</div>
 <div class="line"><a id="l00601" name="l00601"></a><span class="lineno">  601</span>    <span class="keywordflow">return</span> blake2b_final(S, out, outlen);</div>
 <div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span>}</div>
 <div class="line"><a id="l00603" name="l00603"></a><span class="lineno">  603</span> </div>
@@ -695,21 +695,21 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00611" name="l00611"></a><span class="lineno">  611</span><span class="preprocessor">#include &quot;blake2-kat.h&quot;</span></div>
 <div class="line"><a id="l00612" name="l00612"></a><span class="lineno">  612</span><span class="keywordtype">int</span> main(<span class="keywordtype">void</span>)</div>
 <div class="line"><a id="l00613" name="l00613"></a><span class="lineno">  613</span>{</div>
-<div class="line"><a id="l00614" name="l00614"></a><span class="lineno">  614</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> key[BLAKE2B_KEYBYTES];</div>
-<div class="line"><a id="l00615" name="l00615"></a><span class="lineno">  615</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> buf[BLAKE2_KAT_LENGTH];</div>
+<div class="line"><a id="l00614" name="l00614"></a><span class="lineno">  614</span>    uint8_t key[BLAKE2B_KEYBYTES];</div>
+<div class="line"><a id="l00615" name="l00615"></a><span class="lineno">  615</span>    uint8_t buf[BLAKE2_KAT_LENGTH];</div>
 <div class="line"><a id="l00616" name="l00616"></a><span class="lineno">  616</span>    <span class="keywordtype">size_t</span>  i, step;</div>
 <div class="line"><a id="l00617" name="l00617"></a><span class="lineno">  617</span> </div>
 <div class="line"><a id="l00618" name="l00618"></a><span class="lineno">  618</span>    <span class="keywordflow">for</span> (i = 0; i &lt; BLAKE2B_KEYBYTES; ++i) {</div>
-<div class="line"><a id="l00619" name="l00619"></a><span class="lineno">  619</span>        key[i] = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) i;</div>
+<div class="line"><a id="l00619" name="l00619"></a><span class="lineno">  619</span>        key[i] = (uint8_t) i;</div>
 <div class="line"><a id="l00620" name="l00620"></a><span class="lineno">  620</span>    }</div>
 <div class="line"><a id="l00621" name="l00621"></a><span class="lineno">  621</span> </div>
 <div class="line"><a id="l00622" name="l00622"></a><span class="lineno">  622</span>    <span class="keywordflow">for</span> (i = 0; i &lt; BLAKE2_KAT_LENGTH; ++i) {</div>
-<div class="line"><a id="l00623" name="l00623"></a><span class="lineno">  623</span>        buf[i] = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) i;</div>
+<div class="line"><a id="l00623" name="l00623"></a><span class="lineno">  623</span>        buf[i] = (uint8_t) i;</div>
 <div class="line"><a id="l00624" name="l00624"></a><span class="lineno">  624</span>    }</div>
 <div class="line"><a id="l00625" name="l00625"></a><span class="lineno">  625</span> </div>
 <div class="line"><a id="l00626" name="l00626"></a><span class="lineno">  626</span>    <span class="comment">/* Test simple API */</span></div>
 <div class="line"><a id="l00627" name="l00627"></a><span class="lineno">  627</span>    <span class="keywordflow">for</span> (i = 0; i &lt; BLAKE2_KAT_LENGTH; ++i) {</div>
-<div class="line"><a id="l00628" name="l00628"></a><span class="lineno">  628</span>        <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> hash[BLAKE2B_OUTBYTES];</div>
+<div class="line"><a id="l00628" name="l00628"></a><span class="lineno">  628</span>        uint8_t hash[BLAKE2B_OUTBYTES];</div>
 <div class="line"><a id="l00629" name="l00629"></a><span class="lineno">  629</span>        blake2b(hash, BLAKE2B_OUTBYTES, buf, i, key, BLAKE2B_KEYBYTES);</div>
 <div class="line"><a id="l00630" name="l00630"></a><span class="lineno">  630</span> </div>
 <div class="line"><a id="l00631" name="l00631"></a><span class="lineno">  631</span>        <span class="keywordflow">if</span> (0 != memcmp(hash, blake2b_keyed_kat[i], BLAKE2B_OUTBYTES)) {</div>
@@ -720,9 +720,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00636" name="l00636"></a><span class="lineno">  636</span>    <span class="comment">/* Test streaming API */</span></div>
 <div class="line"><a id="l00637" name="l00637"></a><span class="lineno">  637</span>    <span class="keywordflow">for</span> (step = 1; step &lt; BLAKE2B_BLOCKBYTES; ++step) {</div>
 <div class="line"><a id="l00638" name="l00638"></a><span class="lineno">  638</span>        <span class="keywordflow">for</span> (i = 0; i &lt; BLAKE2_KAT_LENGTH; ++i) {</div>
-<div class="line"><a id="l00639" name="l00639"></a><span class="lineno">  639</span>            <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>       hash[BLAKE2B_OUTBYTES];</div>
+<div class="line"><a id="l00639" name="l00639"></a><span class="lineno">  639</span>            uint8_t       hash[BLAKE2B_OUTBYTES];</div>
 <div class="line"><a id="l00640" name="l00640"></a><span class="lineno">  640</span>            blake2b_state S;</div>
-<div class="line"><a id="l00641" name="l00641"></a><span class="lineno">  641</span>            <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>      *p    = buf;</div>
+<div class="line"><a id="l00641" name="l00641"></a><span class="lineno">  641</span>            uint8_t      *p    = buf;</div>
 <div class="line"><a id="l00642" name="l00642"></a><span class="lineno">  642</span>            <span class="keywordtype">size_t</span>        mlen = i;</div>
 <div class="line"><a id="l00643" name="l00643"></a><span class="lineno">  643</span>            <span class="keywordtype">int</span>           err  = 0;</div>
 <div class="line"><a id="l00644" name="l00644"></a><span class="lineno">  644</span> </div>
@@ -761,8 +761,6 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="acx__ram_8h_html"><div class="ttname"><a href="cx__ram_8h.html">cx_ram.h</a></div></div>
 <div class="ttc" id="acx__utils_8h_html"><div class="ttname"><a href="cx__utils_8h.html">cx_utils.h</a></div></div>
 <div class="ttc" id="alcx__common_8h_html_af11e07ffd4b2daabe18e74d896e640fd"><div class="ttname"><a href="lcx__common_8h.html#af11e07ffd4b2daabe18e74d896e640fd">CX_LAST</a></div><div class="ttdeci">#define CX_LAST</div><div class="ttdef"><b>Definition</b> <a href="lcx__common_8h_source.html#l00115">lcx_common.h:115</a></div></div>
-<div class="ttc" id="ausbd__conf_8h_html_a273cf69d639a59973b6019625df33e30"><div class="ttname"><a href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a></div><div class="ttdeci">unsigned short uint16_t</div><div class="ttdef"><b>Definition</b> <a href="usbd__conf_8h_source.html#l00054">usbd_conf.h:54</a></div></div>
-<div class="ttc" id="ausbd__conf_8h_html_aba7bc1797add20fe3efdf37ced1182c5"><div class="ttname"><a href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a></div><div class="ttdeci">unsigned char uint8_t</div><div class="ttdef"><b>Definition</b> <a href="usbd__conf_8h_source.html#l00053">usbd_conf.h:53</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

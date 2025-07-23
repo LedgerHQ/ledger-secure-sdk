@@ -131,7 +131,7 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a2d07142376e7c4abd6d854cb11781843" id="r_a2d07142376e7c4abd6d854cb11781843"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cx__cipher_8c.html#a2d07142376e7c4abd6d854cb11781843">add_one_and_zeros_padding</a> (<a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *output, size_t out_len, size_t data_len)</td></tr>
+<tr class="memitem:a2d07142376e7c4abd6d854cb11781843" id="r_a2d07142376e7c4abd6d854cb11781843"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cx__cipher_8c.html#a2d07142376e7c4abd6d854cb11781843">add_one_and_zeros_padding</a> (uint8_t *output, size_t out_len, size_t data_len)</td></tr>
 <tr class="separator:a2d07142376e7c4abd6d854cb11781843"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a82b9fbe085a79f3c3a1acfdad7da52f6" id="r_a82b9fbe085a79f3c3a1acfdad7da52f6"><td class="memItemLeft" align="right" valign="top">cx_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cx__cipher_8c.html#a82b9fbe085a79f3c3a1acfdad7da52f6">cx_cipher_init</a> (<a class="el" href="structcx__cipher__context__t.html">cx_cipher_context_t</a> *ctx)</td></tr>
 <tr class="memdesc:a82b9fbe085a79f3c3a1acfdad7da52f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a cipher context as NONE.  <br /></td></tr>
@@ -139,24 +139,24 @@ Functions</h2></td></tr>
 <tr class="memitem:a730b5b1b193f60a9d508bbb810ff43d4" id="r_a730b5b1b193f60a9d508bbb810ff43d4"><td class="memItemLeft" align="right" valign="top">cx_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cx__cipher_8c.html#a730b5b1b193f60a9d508bbb810ff43d4">cx_cipher_setup</a> (<a class="el" href="structcx__cipher__context__t.html">cx_cipher_context_t</a> *ctx, const <a class="el" href="lcx__cipher_8h.html#a442ecab9ea1a4ba2dae3975a2bb3b41e">cx_cipher_id_t</a> type, uint32_t mode)</td></tr>
 <tr class="memdesc:a730b5b1b193f60a9d508bbb810ff43d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize and fill the context structure given the cipher info.  <br /></td></tr>
 <tr class="separator:a730b5b1b193f60a9d508bbb810ff43d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae14056189cdfaa269429b4e6142bac75" id="r_ae14056189cdfaa269429b4e6142bac75"><td class="memItemLeft" align="right" valign="top">cx_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cx__cipher_8c.html#ae14056189cdfaa269429b4e6142bac75">cx_cipher_setkey</a> (<a class="el" href="structcx__cipher__context__t.html">cx_cipher_context_t</a> *ctx, const <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *key, uint32_t key_bitlen, uint32_t operation)</td></tr>
+<tr class="memitem:ae14056189cdfaa269429b4e6142bac75" id="r_ae14056189cdfaa269429b4e6142bac75"><td class="memItemLeft" align="right" valign="top">cx_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cx__cipher_8c.html#ae14056189cdfaa269429b4e6142bac75">cx_cipher_setkey</a> (<a class="el" href="structcx__cipher__context__t.html">cx_cipher_context_t</a> *ctx, const uint8_t *key, uint32_t key_bitlen, uint32_t operation)</td></tr>
 <tr class="memdesc:ae14056189cdfaa269429b4e6142bac75"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the key to use.  <br /></td></tr>
 <tr class="separator:ae14056189cdfaa269429b4e6142bac75"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a214eaa2594a0f4fb936664799746cdf5" id="r_a214eaa2594a0f4fb936664799746cdf5"><td class="memItemLeft" align="right" valign="top">cx_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cx__cipher_8c.html#a214eaa2594a0f4fb936664799746cdf5">cx_cipher_setiv</a> (<a class="el" href="structcx__cipher__context__t.html">cx_cipher_context_t</a> *ctx, const <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *iv, size_t iv_len)</td></tr>
+<tr class="memitem:a214eaa2594a0f4fb936664799746cdf5" id="r_a214eaa2594a0f4fb936664799746cdf5"><td class="memItemLeft" align="right" valign="top">cx_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cx__cipher_8c.html#a214eaa2594a0f4fb936664799746cdf5">cx_cipher_setiv</a> (<a class="el" href="structcx__cipher__context__t.html">cx_cipher_context_t</a> *ctx, const uint8_t *iv, size_t iv_len)</td></tr>
 <tr class="memdesc:a214eaa2594a0f4fb936664799746cdf5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the initialization vector.  <br /></td></tr>
 <tr class="separator:a214eaa2594a0f4fb936664799746cdf5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aef5c796a77e6542bb320341221322596" id="r_aef5c796a77e6542bb320341221322596"><td class="memItemLeft" align="right" valign="top">cx_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cx__cipher_8c.html#aef5c796a77e6542bb320341221322596">cx_cipher_set_padding</a> (<a class="el" href="structcx__cipher__context__t.html">cx_cipher_context_t</a> *ctx, uint32_t padding)</td></tr>
 <tr class="memdesc:aef5c796a77e6542bb320341221322596"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the padding type.  <br /></td></tr>
 <tr class="separator:aef5c796a77e6542bb320341221322596"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac899041122ff66c8e73c4cf9baf010f2" id="r_ac899041122ff66c8e73c4cf9baf010f2"><td class="memItemLeft" align="right" valign="top">cx_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cx__cipher_8c.html#ac899041122ff66c8e73c4cf9baf010f2">cx_cipher_update</a> (<a class="el" href="structcx__cipher__context__t.html">cx_cipher_context_t</a> *ctx, const <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *input, size_t in_len, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *output, size_t *out_len)</td></tr>
+<tr class="memitem:ac899041122ff66c8e73c4cf9baf010f2" id="r_ac899041122ff66c8e73c4cf9baf010f2"><td class="memItemLeft" align="right" valign="top">cx_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cx__cipher_8c.html#ac899041122ff66c8e73c4cf9baf010f2">cx_cipher_update</a> (<a class="el" href="structcx__cipher__context__t.html">cx_cipher_context_t</a> *ctx, const uint8_t *input, size_t in_len, uint8_t *output, size_t *out_len)</td></tr>
 <tr class="memdesc:ac899041122ff66c8e73c4cf9baf010f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encrypt or decrypt with the given context.  <br /></td></tr>
 <tr class="separator:ac899041122ff66c8e73c4cf9baf010f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae88c45f2c1c1b3de6801601261285c98" id="r_ae88c45f2c1c1b3de6801601261285c98"><td class="memItemLeft" align="right" valign="top">cx_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cx__cipher_8c.html#ae88c45f2c1c1b3de6801601261285c98">cx_cipher_finish</a> (<a class="el" href="structcx__cipher__context__t.html">cx_cipher_context_t</a> *ctx, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *output, size_t *out_len)</td></tr>
+<tr class="memitem:ae88c45f2c1c1b3de6801601261285c98" id="r_ae88c45f2c1c1b3de6801601261285c98"><td class="memItemLeft" align="right" valign="top">cx_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cx__cipher_8c.html#ae88c45f2c1c1b3de6801601261285c98">cx_cipher_finish</a> (<a class="el" href="structcx__cipher__context__t.html">cx_cipher_context_t</a> *ctx, uint8_t *output, size_t *out_len)</td></tr>
 <tr class="memdesc:ae88c45f2c1c1b3de6801601261285c98"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finalize the operation.  <br /></td></tr>
 <tr class="separator:ae88c45f2c1c1b3de6801601261285c98"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4dce79f604151d68df821ff165a30dc5" id="r_a4dce79f604151d68df821ff165a30dc5"><td class="memItemLeft" align="right" valign="top">cx_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cx__cipher_8c.html#a4dce79f604151d68df821ff165a30dc5">cx_cipher_mac</a> (<a class="el" href="structcx__cipher__context__t.html">cx_cipher_context_t</a> *ctx, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *output, size_t *out_len, size_t *finish_len)</td></tr>
+<tr class="memitem:a4dce79f604151d68df821ff165a30dc5" id="r_a4dce79f604151d68df821ff165a30dc5"><td class="memItemLeft" align="right" valign="top">cx_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cx__cipher_8c.html#a4dce79f604151d68df821ff165a30dc5">cx_cipher_mac</a> (<a class="el" href="structcx__cipher__context__t.html">cx_cipher_context_t</a> *ctx, uint8_t *output, size_t *out_len, size_t *finish_len)</td></tr>
 <tr class="separator:a4dce79f604151d68df821ff165a30dc5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaf29f2bc67e425071bd492cf5ec9fcfc" id="r_aaf29f2bc67e425071bd492cf5ec9fcfc"><td class="memItemLeft" align="right" valign="top">cx_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cx__cipher_8c.html#aaf29f2bc67e425071bd492cf5ec9fcfc">cx_cipher_enc_dec</a> (<a class="el" href="structcx__cipher__context__t.html">cx_cipher_context_t</a> *ctx, const <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *iv, size_t iv_len, const <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *input, size_t in_len, <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *output, size_t *out_len)</td></tr>
+<tr class="memitem:aaf29f2bc67e425071bd492cf5ec9fcfc" id="r_aaf29f2bc67e425071bd492cf5ec9fcfc"><td class="memItemLeft" align="right" valign="top">cx_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cx__cipher_8c.html#aaf29f2bc67e425071bd492cf5ec9fcfc">cx_cipher_enc_dec</a> (<a class="el" href="structcx__cipher__context__t.html">cx_cipher_context_t</a> *ctx, const uint8_t *iv, size_t iv_len, const uint8_t *input, size_t in_len, uint8_t *output, size_t *out_len)</td></tr>
 <tr class="memdesc:aaf29f2bc67e425071bd492cf5ec9fcfc"><td class="mdescLeft">&#160;</td><td class="mdescRight">All-in-one encryption or decryption.  <br /></td></tr>
 <tr class="separator:aaf29f2bc67e425071bd492cf5ec9fcfc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0e856cb58d08b3451b7f8bf93cc9cbcd" id="r_a0e856cb58d08b3451b7f8bf93cc9cbcd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cx__cipher_8c.html#a0e856cb58d08b3451b7f8bf93cc9cbcd">cx_cipher_reset</a> (<a class="el" href="structcx__cipher__context__t.html">cx_cipher_context_t</a> *ctx)</td></tr>
@@ -189,7 +189,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">void add_one_and_zeros_padding </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *&#160;</td>
+          <td class="paramtype">uint8_t *&#160;</td>
           <td class="paramname"><em>output</em>, </td>
         </tr>
         <tr>
@@ -231,7 +231,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *&#160;</td>
+          <td class="paramtype">const uint8_t *&#160;</td>
           <td class="paramname"><em>iv</em>, </td>
         </tr>
         <tr>
@@ -243,7 +243,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *&#160;</td>
+          <td class="paramtype">const uint8_t *&#160;</td>
           <td class="paramname"><em>input</em>, </td>
         </tr>
         <tr>
@@ -255,7 +255,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *&#160;</td>
+          <td class="paramtype">uint8_t *&#160;</td>
           <td class="paramname"><em>output</em>, </td>
         </tr>
         <tr>
@@ -313,7 +313,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *&#160;</td>
+          <td class="paramtype">uint8_t *&#160;</td>
           <td class="paramname"><em>output</em>, </td>
         </tr>
         <tr>
@@ -401,7 +401,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *&#160;</td>
+          <td class="paramtype">uint8_t *&#160;</td>
           <td class="paramname"><em>output</em>, </td>
         </tr>
         <tr>
@@ -514,7 +514,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *&#160;</td>
+          <td class="paramtype">const uint8_t *&#160;</td>
           <td class="paramname"><em>iv</em>, </td>
         </tr>
         <tr>
@@ -567,7 +567,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *&#160;</td>
+          <td class="paramtype">const uint8_t *&#160;</td>
           <td class="paramname"><em>key</em>, </td>
         </tr>
         <tr>
@@ -690,7 +690,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *&#160;</td>
+          <td class="paramtype">const uint8_t *&#160;</td>
           <td class="paramname"><em>input</em>, </td>
         </tr>
         <tr>
@@ -702,7 +702,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *&#160;</td>
+          <td class="paramtype">uint8_t *&#160;</td>
           <td class="paramname"><em>output</em>, </td>
         </tr>
         <tr>

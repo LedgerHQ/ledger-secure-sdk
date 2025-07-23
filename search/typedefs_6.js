@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['int16_5ft_0',['int16_t',['../usbd__conf_8h.html#a269259c924dce846340ddbb810db2e3c',1,'usbd_conf.h']]],
-  ['int8_5ft_1',['int8_t',['../usbd__conf_8h.html#aef44329758059c91c76d334e8fc09700',1,'usbd_conf.h']]]
+  ['libargs_5ft_0',['libargs_t',['../swap__lib__calls_8h.html#a13e6cb186f1e65397e3606f3051f708a',1,'swap_lib_calls.h']]]
 ];

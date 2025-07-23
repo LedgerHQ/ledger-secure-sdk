@@ -101,7 +101,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>    memcpy(&amp;w, src, <span class="keyword">sizeof</span> w);</div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>    <span class="keywordflow">return</span> w;</div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>    <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *p = (<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *) src;</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>    <span class="keyword">const</span> uint8_t *p = (<span class="keyword">const</span> uint8_t *) src;</div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    <span class="keywordflow">return</span> ((uint32_t) (p[0]) &lt;&lt; 0) | ((uint32_t) (p[1]) &lt;&lt; 8) | ((uint32_t) (p[2]) &lt;&lt; 16)</div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>           | ((uint32_t) (p[3]) &lt;&lt; 24);</div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#endif</span></div>
@@ -112,7 +112,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    <span class="keywordflow">return</span> (w &gt;&gt; c) | (w &lt;&lt; (32 - c));</div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>}</div>
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>INLINE <span class="keywordtype">void</span> load_key_words(<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> key[BLAKE3_KEY_LEN], uint32_t key_words[8])</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>INLINE <span class="keywordtype">void</span> load_key_words(<span class="keyword">const</span> uint8_t key[BLAKE3_KEY_LEN], uint32_t key_words[8])</div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>{</div>
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    key_words[0] = load32(&amp;key[0 * 4]);</div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    key_words[1] = load32(&amp;key[1 * 4]);</div>
@@ -129,15 +129,15 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="preprocessor">#if defined(NATIVE_LITTLE_ENDIAN)</span></div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    memcpy(dst, &amp;w, <span class="keyword">sizeof</span> w);</div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *p = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *) dst;</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    p[0]       = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) (w &gt;&gt; 0);</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    p[1]       = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) (w &gt;&gt; 8);</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    p[2]       = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) (w &gt;&gt; 16);</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    p[3]       = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) (w &gt;&gt; 24);</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    uint8_t *p = (uint8_t *) dst;</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    p[0]       = (uint8_t) (w &gt;&gt; 0);</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    p[1]       = (uint8_t) (w &gt;&gt; 8);</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    p[2]       = (uint8_t) (w &gt;&gt; 16);</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    p[3]       = (uint8_t) (w &gt;&gt; 24);</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>}</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>INLINE <span class="keywordtype">void</span> store_cv_words(<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> bytes_out[32], uint32_t cv_words[8])</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>INLINE <span class="keywordtype">void</span> store_cv_words(uint8_t bytes_out[32], uint32_t cv_words[8])</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>{</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    store32(&amp;bytes_out[0 * 4], cv_words[0]);</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    store32(&amp;bytes_out[1 * 4], cv_words[1]);</div>
@@ -190,9 +190,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>    <span class="keywordflow">return</span> count;</div>
 <div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>}</div>
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span> </div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span><span class="keywordtype">void</span> blake3_state_init(cx_blake3_state_t *chunk_state, <span class="keyword">const</span> uint32_t *key, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> flags);</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span><span class="keywordtype">void</span> blake3_state_init(cx_blake3_state_t *chunk_state, <span class="keyword">const</span> uint32_t *key, uint8_t flags);</div>
 <div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span> </div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span><span class="keywordtype">void</span> blake3_state_update(cx_blake3_state_t *chunk_state, <span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *input, <span class="keywordtype">size_t</span> input_len);</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span><span class="keywordtype">void</span> blake3_state_update(cx_blake3_state_t *chunk_state, <span class="keyword">const</span> uint8_t *input, <span class="keywordtype">size_t</span> input_len);</div>
 <div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span> </div>
 <div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span><span class="keywordtype">void</span> blake3_state_reset(cx_blake3_state_t *chunk_state,</div>
 <div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>                        <span class="keyword">const</span> uint32_t    *key,</div>
@@ -200,27 +200,26 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span> </div>
 <div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>cx_blake3_state_out_t blake3_state_output(<span class="keyword">const</span> cx_blake3_state_t *chunk_state);</div>
 <div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span> </div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span><span class="keywordtype">void</span> blake3_output_chain(<span class="keyword">const</span> cx_blake3_state_out_t *out, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *cv);</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span><span class="keywordtype">void</span> blake3_output_chain(<span class="keyword">const</span> cx_blake3_state_out_t *out, uint8_t *cv);</div>
 <div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span> </div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span><span class="keywordtype">void</span> blake3_compress_subtree_to_parent(<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>  *input,</div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span><span class="keywordtype">void</span> blake3_compress_subtree_to_parent(<span class="keyword">const</span> uint8_t  *input,</div>
 <div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>                                       <span class="keywordtype">size_t</span>          input_len,</div>
 <div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>                                       <span class="keyword">const</span> uint32_t *key,</div>
 <div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>                                       uint64_t        chunk_counter,</div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>                                       <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>         flags,</div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>                                       <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>        *out);</div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>                                       uint8_t         flags,</div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>                                       uint8_t        *out);</div>
 <div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span> </div>
 <div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span><span class="keywordtype">void</span> blake3_hasher_merge_cv(cx_blake3_t *hash, uint64_t total_len);</div>
 <div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span> </div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span><span class="keywordtype">void</span> blake3_hasher_push_cv(cx_blake3_t *hash, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *new_cv, uint64_t chunk_counter);</div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span><span class="keywordtype">void</span> blake3_hasher_push_cv(cx_blake3_t *hash, uint8_t *new_cv, uint64_t chunk_counter);</div>
 <div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span> </div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span><span class="keywordtype">void</span> blake3_output_root_bytes(<span class="keyword">const</span> cx_blake3_state_out_t *chunk_out, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *out, <span class="keywordtype">size_t</span> out_len);</div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span><span class="keywordtype">void</span> blake3_output_root_bytes(<span class="keyword">const</span> cx_blake3_state_out_t *chunk_out, uint8_t *out, <span class="keywordtype">size_t</span> out_len);</div>
 <div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span> </div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span><span class="keywordtype">void</span> blake3_init_ctx(cx_blake3_t *hash, <span class="keyword">const</span> uint32_t *key, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> mode);</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span><span class="keywordtype">void</span> blake3_init_ctx(cx_blake3_t *hash, <span class="keyword">const</span> uint32_t *key, uint8_t mode);</div>
 <div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span> </div>
 <div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span><span class="preprocessor">#endif  </span><span class="comment">// CX_BLAKE3_REF_H</span></div>
 <div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span><span class="preprocessor">#endif  </span><span class="comment">// HAVE_BLAKE3</span></div>
 <div class="ttc" id="acx__blake3_8h_html"><div class="ttname"><a href="cx__blake3_8h.html">cx_blake3.h</a></div></div>
-<div class="ttc" id="ausbd__conf_8h_html_aba7bc1797add20fe3efdf37ced1182c5"><div class="ttname"><a href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a></div><div class="ttdeci">unsigned char uint8_t</div><div class="ttdef"><b>Definition</b> <a href="usbd__conf_8h_source.html#l00053">usbd_conf.h:53</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

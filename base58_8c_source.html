@@ -106,7 +106,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#include &quot;<a class="code" href="base58_8h.html">base58.h</a>&quot;</span></div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
 <div class="foldopen" id="foldopen00024" data-start="{" data-end="};">
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno"><a class="line" href="base58_8c.html#a4975d554c4fd59278fdb066a996c9d9b">   24</a></span><a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> <span class="keyword">const</span> <a class="code hl_variable" href="base58_8c.html#a4975d554c4fd59278fdb066a996c9d9b">BASE58_TABLE</a>[] = {</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno"><a class="line" href="base58_8c.html#a4975d554c4fd59278fdb066a996c9d9b">   24</a></span>uint8_t <span class="keyword">const</span> <a class="code hl_variable" href="base58_8c.html#a4975d554c4fd59278fdb066a996c9d9b">BASE58_TABLE</a>[] = {</div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  <span class="comment">//</span></div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  <span class="comment">//</span></div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  <span class="comment">//</span></div>
@@ -131,13 +131,13 @@ $(document).ready(function() { init_codefold(0); });
 </div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
 <div class="foldopen" id="foldopen00045" data-start="{" data-end="}">
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno"><a class="line" href="base58_8c.html#a7c38a95e05a528ebd6b242e62607fcf4">   45</a></span><span class="keywordtype">int</span> <a class="code hl_function" href="base58_8c.html#a7c38a95e05a528ebd6b242e62607fcf4">base58_decode</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *in, <span class="keywordtype">size_t</span> in_len, <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *out, <span class="keywordtype">size_t</span> out_len)</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno"><a class="line" href="base58_8c.html#a7c38a95e05a528ebd6b242e62607fcf4">   45</a></span><span class="keywordtype">int</span> <a class="code hl_function" href="base58_8c.html#a7c38a95e05a528ebd6b242e62607fcf4">base58_decode</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *in, <span class="keywordtype">size_t</span> in_len, uint8_t *out, <span class="keywordtype">size_t</span> out_len)</div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>{</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> tmp[<a class="code hl_define" href="base58_8h.html#a233e70f7f9f9e136d7da05d7eada9b1e">MAX_DEC_INPUT_SIZE</a>]    = {0};</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> buffer[<a class="code hl_define" href="base58_8h.html#a233e70f7f9f9e136d7da05d7eada9b1e">MAX_DEC_INPUT_SIZE</a>] = {0};</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> j;</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> start_at;</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> zero_count = 0;</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    uint8_t tmp[<a class="code hl_define" href="base58_8h.html#a233e70f7f9f9e136d7da05d7eada9b1e">MAX_DEC_INPUT_SIZE</a>]    = {0};</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    uint8_t buffer[<a class="code hl_define" href="base58_8h.html#a233e70f7f9f9e136d7da05d7eada9b1e">MAX_DEC_INPUT_SIZE</a>] = {0};</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    uint8_t j;</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    uint8_t start_at;</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    uint8_t zero_count = 0;</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    <span class="keywordflow">if</span> (in_len &gt; <a class="code hl_define" href="base58_8h.html#a233e70f7f9f9e136d7da05d7eada9b1e">MAX_DEC_INPUT_SIZE</a> || in_len &lt; 2) {</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>        <span class="keywordflow">return</span> -1;</div>
@@ -145,7 +145,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    memmove(tmp, in, in_len);</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keywordflow">for</span> (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> i = 0; i &lt; in_len; i++) {</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keywordflow">for</span> (uint8_t i = 0; i &lt; in_len; i++) {</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>        <span class="keywordflow">if</span> (in[i] &gt;= <span class="keyword">sizeof</span>(<a class="code hl_variable" href="base58_8c.html#a4975d554c4fd59278fdb066a996c9d9b">BASE58_TABLE</a>)) {</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>            <span class="keywordflow">return</span> -1;</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>        }</div>
@@ -164,11 +164,11 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>    j        = in_len;</div>
 <div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    start_at = zero_count;</div>
 <div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>    <span class="keywordflow">while</span> (start_at &lt; in_len) {</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>        <a class="code hl_typedef" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> remainder = 0;</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>        <span class="keywordflow">for</span> (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> div_loop = start_at; div_loop &lt; in_len; div_loop++) {</div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>            <a class="code hl_typedef" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> digit256 = (<a class="code hl_typedef" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>) (tmp[div_loop] &amp; 0xFF);</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>            <a class="code hl_typedef" href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> tmp_div  = remainder * 58 + digit256;</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>            tmp[div_loop]     = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) (tmp_div / 256);</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>        uint16_t remainder = 0;</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>        <span class="keywordflow">for</span> (uint8_t div_loop = start_at; div_loop &lt; in_len; div_loop++) {</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>            uint16_t digit256 = (uint16_t) (tmp[div_loop] &amp; 0xFF);</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>            uint16_t tmp_div  = remainder * 58 + digit256;</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>            tmp[div_loop]     = (uint8_t) (tmp_div / 256);</div>
 <div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>            remainder         = tmp_div % 256;</div>
 <div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>        }</div>
 <div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span> </div>
@@ -176,7 +176,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>            ++start_at;</div>
 <div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>        }</div>
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span> </div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>        buffer[--j] = (<a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>) remainder;</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>        buffer[--j] = (uint8_t) remainder;</div>
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    }</div>
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    <span class="keywordflow">while</span> ((j &lt; in_len) &amp;&amp; (buffer[j] == 0)) {</div>
@@ -196,9 +196,9 @@ $(document).ready(function() { init_codefold(0); });
 </div>
 <div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span> </div>
 <div class="foldopen" id="foldopen00108" data-start="{" data-end="}">
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno"><a class="line" href="base58_8c.html#a62168cf8ddf247f15a7d58261d38d0f9">  108</a></span><span class="keywordtype">int</span> <a class="code hl_function" href="base58_8c.html#a62168cf8ddf247f15a7d58261d38d0f9">base58_encode</a>(<span class="keyword">const</span> <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> *in, <span class="keywordtype">size_t</span> in_len, <span class="keywordtype">char</span> *out, <span class="keywordtype">size_t</span> out_len)</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno"><a class="line" href="base58_8c.html#a62168cf8ddf247f15a7d58261d38d0f9">  108</a></span><span class="keywordtype">int</span> <a class="code hl_function" href="base58_8c.html#a62168cf8ddf247f15a7d58261d38d0f9">base58_encode</a>(<span class="keyword">const</span> uint8_t *in, <span class="keywordtype">size_t</span> in_len, <span class="keywordtype">char</span> *out, <span class="keywordtype">size_t</span> out_len)</div>
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>{</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    <a class="code hl_typedef" href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a> buffer[<a class="code hl_define" href="base58_8h.html#a4faf3c2883bf7b324fcc03ad2e0dd485">MAX_ENC_INPUT_SIZE</a> * 138 / 100 + 1] = {0};</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    uint8_t buffer[<a class="code hl_define" href="base58_8h.html#a4faf3c2883bf7b324fcc03ad2e0dd485">MAX_ENC_INPUT_SIZE</a> * 138 / 100 + 1] = {0};</div>
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    <span class="keywordtype">size_t</span>  i, j;</div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    <span class="keywordtype">size_t</span>  stop_at;</div>
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    <span class="keywordtype">size_t</span>  zero_count = 0;</div>
@@ -254,8 +254,6 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="abase58_8h_html"><div class="ttname"><a href="base58_8h.html">base58.h</a></div></div>
 <div class="ttc" id="abase58_8h_html_a233e70f7f9f9e136d7da05d7eada9b1e"><div class="ttname"><a href="base58_8h.html#a233e70f7f9f9e136d7da05d7eada9b1e">MAX_DEC_INPUT_SIZE</a></div><div class="ttdeci">#define MAX_DEC_INPUT_SIZE</div><div class="ttdef"><b>Definition</b> <a href="base58_8h_source.html#l00010">base58.h:10</a></div></div>
 <div class="ttc" id="abase58_8h_html_a4faf3c2883bf7b324fcc03ad2e0dd485"><div class="ttname"><a href="base58_8h.html#a4faf3c2883bf7b324fcc03ad2e0dd485">MAX_ENC_INPUT_SIZE</a></div><div class="ttdeci">#define MAX_ENC_INPUT_SIZE</div><div class="ttdef"><b>Definition</b> <a href="base58_8h_source.html#l00014">base58.h:14</a></div></div>
-<div class="ttc" id="ausbd__conf_8h_html_a273cf69d639a59973b6019625df33e30"><div class="ttname"><a href="usbd__conf_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a></div><div class="ttdeci">unsigned short uint16_t</div><div class="ttdef"><b>Definition</b> <a href="usbd__conf_8h_source.html#l00054">usbd_conf.h:54</a></div></div>
-<div class="ttc" id="ausbd__conf_8h_html_aba7bc1797add20fe3efdf37ced1182c5"><div class="ttname"><a href="usbd__conf_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a></div><div class="ttdeci">unsigned char uint8_t</div><div class="ttdef"><b>Definition</b> <a href="usbd__conf_8h_source.html#l00053">usbd_conf.h:53</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
