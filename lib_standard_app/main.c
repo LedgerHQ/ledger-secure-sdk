@@ -39,6 +39,9 @@ bolos_ux_params_t G_ux_params;
  */
 WEAK void __attribute__((noreturn)) app_exit(void)
 {
+#ifndef USE_OS_IO_STACK
+    os_io_stop();
+#endif  // USE_OS_IO_STACK
     os_sched_exit(-1);
 }
 
