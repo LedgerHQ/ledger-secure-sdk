@@ -155,6 +155,9 @@ WEAK int io_send_response_buffers(const buffer_t *rdatalist, size_t count, uint1
         }
         else {
             PRINTF("Unrecoverable\n");
+#ifndef USE_OS_IO_STACK
+            os_io_stop();
+#endif  // USE_OS_IO_STACK
             os_sched_exit(-1);
         }
     }
