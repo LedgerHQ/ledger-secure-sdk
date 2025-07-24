@@ -73,7 +73,7 @@ static ledger_protocol_result_t process_apdu_chunk(ledger_protocol_t *handle,
         }
         else {
             // Ledger Live is well known for sending empty apdu chunk
-            // after the last apdu chunk fits totaly in the MTU
+            // after the last apdu chunk fits totally in the MTU
             return LP_SUCCESS;
         }
     }
