@@ -392,6 +392,9 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
                         io_os_legacy_apdu_type, G_io_tx_buffer, buffer_out_length, 0);
                     io_os_legacy_apdu_type = APDU_TYPE_NONE;
                     if (post_action == OS_IO_APDU_POST_ACTION_EXIT) {
+#ifndef USE_OS_IO_STACK
+                        os_io_stop();
+#endif  // USE_OS_IO_STACK
                         os_sched_exit(-1);
                     }
                     if (status > 0) {
