@@ -66,9 +66,16 @@ static ledger_protocol_result_t process_apdu_chunk(ledger_protocol_t *handle,
     ledger_protocol_result_t result = LP_ERROR_INVALID_PARAMETER;
     // Check the sequence number
     if ((length < 2) || ((uint16_t) U2BE(buffer, 0) != handle->rx_apdu_sequence_number)) {
-        handle->rx_apdu_status = APDU_STATUS_WAITING;
-        result                 = LP_ERROR_NOT_ENOUGH_SPACE;
-        goto error;
+        if (handle->rx_apdu_status == APDU_STATUS_NEED_MORE_DATA) {
+            handle->rx_apdu_status = APDU_STATUS_WAITING;
+            result                 = LP_ERROR_NOT_ENOUGH_SPACE;
+            goto error;
+        }
+        else {
+            // Ledger Live is well known for sending empty apdu chunk
+            // after the last apdu chunk fits totaly in the MTU
+            return LP_SUCCESS;
+        }
     }
     // Check total length presence
     if ((length < 4) && (handle->rx_apdu_sequence_number == 0)) {
