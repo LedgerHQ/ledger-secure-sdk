@@ -34,7 +34,9 @@ endif
 
 ifneq ($(IS_STANDARD_APP),1)
 ifneq ($(DISABLE_OS_IO_STACK_USE), 1)
+ifeq (,$(filter $(DEFINES),HAVE_LEGACY_PID))
 DEFINES += USE_OS_IO_STACK
+endif
 endif
 endif
 
