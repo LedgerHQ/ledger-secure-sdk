@@ -127,7 +127,9 @@ endif
 #                          OS IO STACK USE                          #
 #####################################################################
 ifneq ($(DISABLE_OS_IO_STACK_USE), 1)
+ifeq (,$(filter $(DEFINES),HAVE_LEGACY_PID))
     DEFINES += USE_OS_IO_STACK
+endif
 endif
 
 #####################################################################
