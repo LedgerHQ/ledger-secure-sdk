@@ -254,6 +254,26 @@ void io_seproxyhal_init(void)
 
     io_os_legacy_apdu_type = APDU_TYPE_NONE;
     init_io.usb.pid        = 0;
+#ifdef HAVE_LEGACY_PID
+#if defined(TARGET_NANOX)
+    init_io.usb.pid = USBD_LEDGER_INVERTED_PRODUCT_NANOX;
+#endif  // TARGET_NANOX
+#if defined(TARGET_NANOS2)
+    init_io.usb.pid = USBD_LEDGER_INVERTED_PRODUCT_NANOS_PLUS;
+#endif  // TARGET_NANOS2
+#if defined(TARGET_FATSTACKS) || defined(TARGET_STAX)
+    init_io.usb.pid = USBD_LEDGER_INVERTED_PRODUCT_STAX;
+#endif  // TARGET_FATSTACKS || TARGET_STAX
+#if defined(TARGET_FLEX)
+    init_io.usb.pid = USBD_LEDGER_INVERTED_PRODUCT_FLEX;
+#endif  // TARGET_FLEX
+#if defined(TARGET_APEX_P)
+    init_io.usb.pid = USBD_LEDGER_INVERTED_PRODUCT_APEX_P;
+#endif  // TARGET_APEX_M
+#if defined(TARGET_FLEX)
+    init_io.usb.pid = USBD_LEDGER_INVERTED_PRODUCT_APEX_M;
+#endif  // TARGET_APEX_M
+#endif  // HAVE_LEGACY_PID
     init_io.usb.vid        = 0;
     init_io.usb.class_mask = 0;
     memset(init_io.usb.name, 0, sizeof(init_io.usb.name));
