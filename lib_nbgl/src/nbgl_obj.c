@@ -18,6 +18,7 @@
 #include "os_print.h"
 #include "os_helpers.h"
 #include "os_pic.h"
+#include "os_task.h"
 #include "glyphs.h"
 #include "os_io_seph_ux.h"
 #ifdef HAVE_SERIALIZED_NBGL
@@ -1621,7 +1622,7 @@ static void extendRefreshArea(nbgl_area_t *area)
 void nbgl_objDraw(nbgl_obj_t *obj)
 {
     bool computePosition = false;
-    bool fromApp;
+    bool fromApp         = false;
 
     LOG_DEBUG(OBJ_LOGGER, "nbgl_objDraw(): obj = %p\n", obj);
     // check whether it's necessary to compute position, and if this object belongs to
@@ -1644,6 +1645,10 @@ void nbgl_objDraw(nbgl_obj_t *obj)
             // should never happen
             fromApp = false;
         }
+    }
+    // forbid redrawing App screens by UX or vice versa
+    if ((os_sched_current_task() == TASK_BOLOS_UX) == fromApp) {
+        return;
     }
     // actually draw the object and its children, if it is allowed
     if (objDrawingDisabled && fromApp) {
