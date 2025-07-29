@@ -1039,8 +1039,8 @@ void BLE_LEDGER_stop(void)
 
 void BLE_LEDGER_reset_pairings(void)
 {
-    ble_ledger_data.clear_pairing = 1;
     if (ble_ledger_data.state == BLE_STATE_RUNNING) {
+        ble_ledger_data.clear_pairing = 1;
         BLE_LEDGER_stop();
         BLE_LEDGER_start();
     }
