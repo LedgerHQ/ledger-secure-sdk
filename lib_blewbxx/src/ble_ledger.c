@@ -309,6 +309,7 @@ static void start_mngr(uint8_t *hci_buffer, uint16_t length)
         case BLE_INIT_STEP_END:
             LOG_IO("INIT END\n");
             ble_ledger_data.state = BLE_STATE_RUNNING;
+            ble_ledger_data.clear_pairing = 0;
             break;
 
         default:
