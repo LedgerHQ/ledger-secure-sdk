@@ -81,9 +81,7 @@ void io_seproxyhal_request_mcu_status(void);
 void io_seproxyhal_display_default(const bagl_element_t *element);
 #endif  // HAVE_BAGL
 
-#ifdef HAVE_PIEZO_SOUND
 void io_seproxyhal_play_tune(tune_index_e tune_index);
-#endif  // HAVE_PIEZO_SOUND
 
 unsigned int io_seph_is_status_sent(void);
 
