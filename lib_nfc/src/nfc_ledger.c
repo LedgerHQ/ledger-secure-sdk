@@ -205,13 +205,12 @@ uint32_t NFC_LEDGER_send(const uint8_t *packet, uint16_t packet_length, uint32_t
         }
 
         while (nfc_ledger_data.protocol_data.tx_apdu_buffer) {
-            ledger_protocol_result_t result
-                = LEDGER_PROTOCOL_tx(&nfc_ledger_data.protocol_data,
-                                     NULL,
-                                     0,
-                                     nfc_ledger_protocol_chunk_buffer,
-                                     sizeof(nfc_ledger_protocol_chunk_buffer),
-                                     sizeof(nfc_ledger_protocol_chunk_buffer));
+            result = LEDGER_PROTOCOL_tx(&nfc_ledger_data.protocol_data,
+                                        NULL,
+                                        0,
+                                        nfc_ledger_protocol_chunk_buffer,
+                                        sizeof(nfc_ledger_protocol_chunk_buffer),
+                                        sizeof(nfc_ledger_protocol_chunk_buffer));
             if (result != LP_SUCCESS) {
                 status = 1;
                 goto error;
