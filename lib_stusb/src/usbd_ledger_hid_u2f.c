@@ -414,6 +414,9 @@ USBD_StatusTypeDef USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
     uint8_t  cmd       = 0;
     const uint8_t *tx_buffer = message;
     uint16_t tx_length = message_length;
+#ifndef HAVE_BOLOS
+    const uint8_t status[2] = {0x69, 0x85};
+#endif // !HAVE_BOLOS
 
     switch (packet_type) {
         case OS_IO_PACKET_TYPE_USB_U2F_HID_APDU:
@@ -421,7 +424,6 @@ USBD_StatusTypeDef USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
 // Cannot enable user presence handling in the OS, see OS issues/555 for more information
 #ifndef HAVE_BOLOS
             if ((message_length == 2) && (message[0] == 0xFF) && (message[1] == 0xFF)) {
-                const uint8_t status[2] = {0x69, 0x85};
                 tx_buffer = status;
                 handle->user_presence = LEDGER_HID_U2F_USER_PRESENCE_ASKING;
             }
