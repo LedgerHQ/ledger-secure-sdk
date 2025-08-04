@@ -37,13 +37,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # TODO: remove this next line before merging!
-          ref: feat/regain_control_over_libs
           sparse-checkout: |
             tools/build_clangrt_builtins.sh
+            tools/build_newlib.sh
+            tools/cantunwind.patch
           sparse-checkout-cone-mode: false
 
       - run: ./tools/build_clangrt_builtins.sh -t ${{ matrix.target.core }} -o artifact/arch/${{ matrix.target.se }}/lib
+
+      - run: ./tools/build_newlib.sh -t ${{ matrix.target.core }} -o artifact/arch/${{ matrix.target.se }}/lib
 
       - uses: actions/upload-artifact@v4
         with:
