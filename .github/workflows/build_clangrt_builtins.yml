@@ -45,6 +45,8 @@ jobs:
 
       - run: ./tools/build_clangrt_builtins.sh -t ${{ matrix.target.core }} -o artifact/arch/${{ matrix.target.se }}/lib
 
+      - run: ./tools/build_newlib.sh -t ${{ matrix.target.core }} -o artifact/arch/${{ matrix.target.se }}/lib
+
       - uses: actions/upload-artifact@v4
         with:
           name: arch-${{ matrix.target.se }}
