@@ -37,8 +37,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # TODO: remove this next line before merging!
-          ref: feat/regain_control_over_libs
           sparse-checkout: |
             tools/build_clangrt_builtins.sh
           sparse-checkout-cone-mode: false
