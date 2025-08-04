@@ -39,6 +39,7 @@ jobs:
         with:
           sparse-checkout: |
             tools/build_clangrt_builtins.sh
+            tools/build_newlib.sh
           sparse-checkout-cone-mode: false
 
       - run: ./tools/build_clangrt_builtins.sh -t ${{ matrix.target.core }} -o artifact/arch/${{ matrix.target.se }}/lib
