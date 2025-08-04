@@ -1,0 +1,12 @@
+diff --git a/newlib/libc/machine/arm/setjmp.S b/newlib/libc/machine/arm/setjmp.S
+index 0070f17..23a3896 100644
+--- a/newlib/libc/machine/arm/setjmp.S
++++ b/newlib/libc/machine/arm/setjmp.S
+@@ -193,6 +193,7 @@ SYM (\name):
+ .macro FUNC_END name
+ 	RET
+ 	.cfi_endproc
++	.cantunwind
+ 	.fnend
+ 	SIZE (\name)
+ .endm
