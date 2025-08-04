@@ -62,7 +62,7 @@ static nbgl_touchStatePosition_t pos;
  *
  * @param seph_packet received SEPH packet
  */
-void ux_process_finger_event(uint8_t seph_packet[])
+void ux_process_finger_event(const uint8_t seph_packet[])
 {
     bool displayEnabled = ux_forward_event(true);
     // enable/disable drawing according to UX decision
@@ -88,7 +88,7 @@ void ux_process_finger_event(uint8_t seph_packet[])
  *
  * @param seph_packet received SEPH packet
  */
-void ux_process_button_event(uint8_t seph_packet[])
+void ux_process_button_event(const uint8_t seph_packet[])
 {
     bool displayEnabled = ux_forward_event(true);
     // enable/disable drawing according to UX decision
