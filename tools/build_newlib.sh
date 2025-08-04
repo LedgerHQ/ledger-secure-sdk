@@ -41,7 +41,7 @@ cd "${WORKDIR}"
 
 # Installing newlib build dependencies
 apt update
-apt install -y --no-install-recommends makeinfo
+apt install -y --no-install-recommends texinfo
 
 # Get the latest fixed version
 git clone --depth=1 --single-branch --branch newlib-4.5.0 https://sourceware.org/git/newlib-cygwin.git "${SRC}"
