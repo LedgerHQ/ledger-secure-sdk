@@ -4,13 +4,6 @@ import sys
 NUM_WRITTEN_MOCKS = 0
 NUM_SKIPPED_MOCKS = 0
 
-HEADER_LINES = [
-    '#ifndef __weak\n',
-    '#define __weak __attribute__((weak))\n',
-    '#endif\n',
-    '#include "ox_aes.h"\n'
-]
-
 RETURN_MOCKS = {
     "void": ["{ __builtin_unreachable(); }", "{ return; }"],
     "unsigned int": "{ return 0; }",
@@ -93,7 +86,7 @@ def gen_mocks(c_code):
                 mock_body = generate_mock(signature)
 
                 if mock_body:
-                    mocks.append(f"__weak {mark_params_unused(signature)} {mock_body}\n")
+                    mocks.append(f"__attribute__((weak)) {mark_params_unused(signature)} {mock_body}\n")
                     i = skip_function_body(lines, i)
                 else:
                     skipped.append(f"Skipped line [{i+1}]: {signature}\n")
@@ -124,7 +117,7 @@ def main():
     mocks, skipped = gen_mocks(c_code)
 
     with open(output_path, 'w') as f:
-        f.writelines(HEADER_LINES + mocks)
+        f.writelines(mocks)
 
     if skipped:
         with open(skipped_path, 'w') as f:
