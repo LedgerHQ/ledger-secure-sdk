@@ -39,6 +39,10 @@ BUILD="${SRC}/arm_none_eabi_build"
 INSTALL="${SRC}/arm_none_eabi_install"
 cd "${WORKDIR}"
 
+# Installing newlib build dependencies
+apt update
+apt install -y --no-install-recommends makeinfo
+
 # Get the latest fixed version
 git clone --depth=1 --single-branch --branch newlib-4.5.0 https://sourceware.org/git/newlib-cygwin.git "${SRC}"
 
@@ -46,8 +50,6 @@ git clone --depth=1 --single-branch --branch newlib-4.5.0 https://sourceware.org
 # Build configuration
 mkdir -p "${BUILD}" "${INSTALL}"
 cd "${BUILD}"
-
-# -march=armv8-m.main+nofp
 
 CFLAGS_FOR_TARGET="-ffunction-sections -fdata-sections -fshort-wchar -DPREFER_SIZE_OVER_SPEED -mcpu=${TARGET_CPU} -mthumb -mlittle-endian" \
     ../configure  \
