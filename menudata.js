@@ -139,10 +139,10 @@ var menudata={children:[
 {text:"Enumerations",url:"globals_enum.html",children:[
 {text:"c",url:"globals_enum.html#index_c"},
 {text:"e",url:"globals_enum.html#index_e"},
-{text:"h",url:"globals_enum.html#index_h"},
 {text:"k",url:"globals_enum.html#index_k"},
 {text:"l",url:"globals_enum.html#index_l"},
 {text:"n",url:"globals_enum.html#index_n"},
+{text:"q",url:"globals_enum.html#index_q"},
 {text:"u",url:"globals_enum.html#index_u"}]},
 {text:"Enumerator",url:"globals_eval.html",children:[
 {text:"a",url:"globals_eval.html#index_a"},
