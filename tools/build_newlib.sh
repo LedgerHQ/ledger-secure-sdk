@@ -46,6 +46,13 @@ apt install -y --no-install-recommends texinfo
 # Get the latest fixed version
 git clone --depth=1 --single-branch --branch newlib-4.5.0 https://sourceware.org/git/newlib-cygwin.git "${SRC}"
 
+# Apply patch to fix "undefined symbol: __aeabi_unwind_cpp_pr0 referenced by libc_a-setjmp.o" issue
+PATCH_NAME="cantunwind.patch"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+cp "${SCRIPT_DIR}/${PATCH_NAME}" "${SRC}"
+cd "${SRC}"
+git apply "${PATCH_NAME}"
+cd ..
 
 # Build configuration
 mkdir -p "${BUILD}" "${INSTALL}"
@@ -79,6 +86,9 @@ CFLAGS_FOR_TARGET="-ffunction-sections -fdata-sections -fshort-wchar -DPREFER_SI
 make "-j$(nproc)"
 make install
 
+# Stripping debug symbols
+arm-none-eabi-strip --strip-debug "${INSTALL}/arm-none-eabi/lib/libc.a"
+arm-none-eabi-strip --strip-debug "${INSTALL}/arm-none-eabi/lib/libm.a"
 
 # Copy back
 mkdir -p "$OUTPUT_DIR"
