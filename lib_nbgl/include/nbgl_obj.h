@@ -165,6 +165,7 @@ extern "C" {
 #define DENIED_CIRCLE_ICON    C_Denied_Circle_64px
 #define IMPORTANT_CIRCLE_ICON C_Important_Circle_64px
 #define LARGE_WARNING_ICON    C_Warning_64px
+#define LARGE_REVIEW_ICON     C_Review_64px
 #else  // LARGE_ICON_SIZE
 #error Undefined LARGE_ICON_SIZE
 #endif  // LARGE_ICON_SIZE
@@ -183,6 +184,9 @@ extern "C" {
 
 // number of spinner positions
 #define NB_SPINNER_POSITIONS 4
+#else  // SCREEN_SIZE_WALLET
+#define WARNING_ICON C_icon_warning
+#define REVIEW_ICON  C_icon_certificate
 #endif  // SCREEN_SIZE_WALLET
 
 /**********************
