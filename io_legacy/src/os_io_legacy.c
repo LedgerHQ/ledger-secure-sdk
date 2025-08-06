@@ -23,6 +23,7 @@
 #include "os_apdu.h"
 #include "os_io_default_apdu.h"
 #include "os_io_legacy.h"
+#include "os.h"
 
 #ifdef HAVE_IO_USB
 #include "usbd_ledger.h"
