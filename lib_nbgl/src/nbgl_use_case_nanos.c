@@ -950,6 +950,16 @@ static void displayExtensionStep(nbgl_stepPosition_t pos)
             context.review.extensionStepCtx = nbgl_stepDrawText(
                 pos, extensionNavigate, NULL, text, subText, BOLD_TEXT1_INFO, true);
         }
+        else if (context.review.extension->aliasType == TAG_VALUE_LIST_ALIAS) {
+            text = PIC(
+                context.review.extension->tagValuelist->pairs[context.review.currentExtensionPage]
+                    .item);
+            subText = PIC(
+                context.review.extension->tagValuelist->pairs[context.review.currentExtensionPage]
+                    .value);
+            context.review.extensionStepCtx = nbgl_stepDrawText(
+                pos, extensionNavigate, NULL, text, subText, BOLD_TEXT1_INFO, true);
+        }
     }
     else if (context.review.currentExtensionPage == (context.review.nbExtensionPages - 1)) {
         // draw the back page
@@ -992,6 +1002,9 @@ static void displayAliasFullValue(void)
     }
     else if (context.review.extension->aliasType == INFO_LIST_ALIAS) {
         context.review.nbExtensionPages = context.review.extension->infolist->nbInfos + 1;
+    }
+    else if (context.review.extension->aliasType == TAG_VALUE_LIST_ALIAS) {
+        context.review.nbExtensionPages = context.review.extension->tagValuelist->nbPairs + 1;
     }
     else {
         LOG_WARN(USE_CASE_LOGGER,
