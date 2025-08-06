@@ -918,7 +918,9 @@ static void extensionNavigate(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
 // function used to display the extension pages
 static void displayExtensionStep(nbgl_stepPosition_t pos)
 {
-    nbgl_layoutCenteredInfo_t info = {0};
+    nbgl_layoutCenteredInfo_t info    = {0};
+    char                     *text    = NULL;
+    char                     *subText = NULL;
 
     if (context.review.extensionStepCtx != NULL) {
         nbgl_stepRelease(context.review.extensionStepCtx);
@@ -941,15 +943,12 @@ static void displayExtensionStep(nbgl_stepPosition_t pos)
                                                                 true);
         }
         else if (context.review.extension->aliasType == INFO_LIST_ALIAS) {
+            text = PIC(
+                context.review.extension->infolist->infoTypes[context.review.currentExtensionPage]);
+            subText                         = PIC(context.review.extension->infolist
+                              ->infoContents[context.review.currentExtensionPage]);
             context.review.extensionStepCtx = nbgl_stepDrawText(
-                pos,
-                extensionNavigate,
-                NULL,
-                context.review.extension->infolist->infoTypes[context.review.currentExtensionPage],
-                context.review.extension->infolist
-                    ->infoContents[context.review.currentExtensionPage],
-                BOLD_TEXT1_INFO,
-                true);
+                pos, extensionNavigate, NULL, text, subText, BOLD_TEXT1_INFO, true);
         }
     }
     else if (context.review.currentExtensionPage == (context.review.nbExtensionPages - 1)) {
