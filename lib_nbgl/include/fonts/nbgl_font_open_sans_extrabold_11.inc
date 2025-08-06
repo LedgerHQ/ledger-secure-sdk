@@ -300,11 +300,11 @@ __attribute__ ((section("._nbgl_fonts_"))) const nbgl_font_t fontOPEN_SANS_EXTRA
   497, // bitmap len
   BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp, // font id
   (uint8_t) NBGL_BPP_1, // bpp
-  14, // height of all characters in pixels
+  15, // height of all characters in pixels
   14, // line height in pixels
   1, // kerning
   1, // crop enabled (1) or not (0)
-  2, // Most top Y coordinate of any char
+  3, // Most top Y coordinate of any char
   0x20, // first character
   0x7E, // last character
   charactersOPEN_SANS_EXTRABOLD_11PX_1BPP,

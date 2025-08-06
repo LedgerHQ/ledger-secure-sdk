@@ -533,9 +533,13 @@ class TTF2INC:
         if current_bit > 0:
             image_data.append(current_byte & 0xFF)
 
+        # Remove final transparent pixels, if any
         background_color = 0
         if self.nbgl and self.bpp != 1:
             background_color = 0xFF
+
+        while self.rle and len(image_data) != 0 and image_data[-1] == background_color:
+            image_data = image_data[:-1]
 
         # When crop is False, we can crop at bytes level
         skipped_bytes = 0
