@@ -918,7 +918,11 @@ static void extensionNavigate(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
 // function used to display the extension pages
 static void displayExtensionStep(nbgl_stepPosition_t pos)
 {
-    nbgl_layoutCenteredInfo_t info = {0};
+    nbgl_layoutCenteredInfo_t         info         = {0};
+    const nbgl_contentTagValueList_t *tagValueList = NULL;
+    const nbgl_contentInfoList_t     *infoList     = NULL;
+    const char                       *text         = NULL;
+    const char                       *subText      = NULL;
 
     if (context.review.extensionStepCtx != NULL) {
         nbgl_stepRelease(context.review.extensionStepCtx);
@@ -931,25 +935,27 @@ static void displayExtensionStep(nbgl_stepPosition_t pos)
             pos |= NEITHER_FIRST_NOR_LAST_STEP;
         }
 
-        if (context.review.extension->aliasType == ENS_ALIAS) {
-            context.review.extensionStepCtx = nbgl_stepDrawText(pos,
-                                                                extensionNavigate,
-                                                                NULL,
-                                                                context.review.extension->title,
-                                                                context.review.extension->fullValue,
-                                                                BOLD_TEXT1_INFO,
-                                                                true);
+        switch (context.review.extension->aliasType) {
+            case ENS_ALIAS:
+                text    = context.review.extension->title;
+                subText = context.review.extension->fullValue;
+                break;
+            case INFO_LIST_ALIAS:
+                infoList = context.review.extension->infolist;
+                text     = PIC(infoList->infoTypes[context.review.currentExtensionPage]);
+                subText  = PIC(infoList->infoContents[context.review.currentExtensionPage]);
+                break;
+            case TAG_VALUE_LIST_ALIAS:
+                tagValueList = context.review.extension->tagValuelist;
+                text         = PIC(tagValueList->pairs[context.review.currentExtensionPage].item);
+                subText      = PIC(tagValueList->pairs[context.review.currentExtensionPage].value);
+                break;
+            default:
+                break;
         }
-        else if (context.review.extension->aliasType == INFO_LIST_ALIAS) {
+        if (text != NULL) {
             context.review.extensionStepCtx = nbgl_stepDrawText(
-                pos,
-                extensionNavigate,
-                NULL,
-                context.review.extension->infolist->infoTypes[context.review.currentExtensionPage],
-                context.review.extension->infolist
-                    ->infoContents[context.review.currentExtensionPage],
-                BOLD_TEXT1_INFO,
-                true);
+                pos, extensionNavigate, NULL, text, subText, BOLD_TEXT1_INFO, true);
         }
     }
     else if (context.review.currentExtensionPage == (context.review.nbExtensionPages - 1)) {
@@ -988,17 +994,21 @@ static void displayAliasFullValue(void)
     context.review.currentExtensionPage = 0;
     context.review.extensionStepCtx     = NULL;
     // create a modal flow to display this extension
-    if (context.review.extension->aliasType == ENS_ALIAS) {
-        context.review.nbExtensionPages = 2;
-    }
-    else if (context.review.extension->aliasType == INFO_LIST_ALIAS) {
-        context.review.nbExtensionPages = context.review.extension->infolist->nbInfos + 1;
-    }
-    else {
-        LOG_WARN(USE_CASE_LOGGER,
-                 "displayAliasFullValue: unsupported alias type %d\n",
-                 context.review.extension->aliasType);
-        return;
+    switch (context.review.extension->aliasType) {
+        case ENS_ALIAS:
+            context.review.nbExtensionPages = 2;
+            break;
+        case INFO_LIST_ALIAS:
+            context.review.nbExtensionPages = context.review.extension->infolist->nbInfos + 1;
+            break;
+        case TAG_VALUE_LIST_ALIAS:
+            context.review.nbExtensionPages = context.review.extension->tagValuelist->nbPairs + 1;
+            break;
+        default:
+            LOG_WARN(USE_CASE_LOGGER,
+                     "displayAliasFullValue: unsupported alias type %d\n",
+                     context.review.extension->aliasType);
+            return;
     }
     displayExtensionStep(FORWARD_DIRECTION);
 }
