@@ -21,6 +21,7 @@
 #include "glyphs.h"
 #include "os_pic.h"
 #include "os_helpers.h"
+#include "os.h"
 
 /*********************
  *      DEFINES
