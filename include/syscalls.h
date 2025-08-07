@@ -139,6 +139,8 @@
 #define SYSCALL_os_perso_seed_cookie_ID 0x010000a8
 #endif  // HAVE_SEED_COOKIE
 
+#define SYSCALL_os_perso_get_master_key_identifier_ID 0x02000055
+
 #define SYSCALL_ENDORSEMENT_get_code_hash_ID               0x01000055
 #define SYSCALL_ENDORSEMENT_get_public_key_ID              0x03000056
 #define SYSCALL_ENDORSEMENT_get_public_key_certificate_ID  0x03000057
