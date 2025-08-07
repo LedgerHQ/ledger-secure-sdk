@@ -41,6 +41,7 @@ add_custom_command(
   OUTPUT ${GLYPHS_C} ${GLYPHS_H}
   COMMAND ${Python3_EXECUTABLE} ${GEN_GLYPHS_CMD} ${GLYPH_OPT} --glyphcheader
           ${GLYPHS_H} --glyphcfile ${GLYPHS_C} ${GLYPH_FILES}
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/"
   DEPENDS ${GLYPH_FILES}
   COMMENT "Generating glyphs..."
   VERBATIM)
