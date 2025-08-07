@@ -50,8 +50,8 @@ struct ux_state_s {
 extern ux_state_t        G_ux;
 extern bolos_ux_params_t G_ux_params;
 
-extern void ux_process_finger_event(uint8_t seph_packet[]);
-extern void ux_process_button_event(uint8_t seph_packet[]);
+extern void ux_process_finger_event(const uint8_t seph_packet[]);
+extern void ux_process_button_event(const uint8_t seph_packet[]);
 extern void ux_process_ticker_event(void);
 extern void ux_process_default_event(void);
 
