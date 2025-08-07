@@ -1370,6 +1370,14 @@ bolos_bool_t os_perso_seed_cookie(unsigned char *seed_cookie)
 }
 #endif  // HAVE_SEED_COOKIE
 
+bolos_err_t os_perso_get_master_key_identifier(uint8_t *identifier, size_t identifier_length)
+{
+    unsigned int parameters[2];
+    parameters[0] = (unsigned int) identifier;
+    parameters[1] = (unsigned int) identifier_length;
+    return (bolos_err_t) SVC_Call(SYSCALL_os_perso_get_master_key_identifier_ID, parameters);
+}
+
 #if defined(HAVE_LEDGER_PKI)
 bolos_err_t os_pki_load_certificate(uint8_t                   expected_key_usage,
                                     uint8_t                  *certificate,
