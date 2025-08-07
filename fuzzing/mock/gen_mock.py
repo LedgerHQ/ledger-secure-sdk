@@ -67,6 +67,9 @@ def generate_mock(signature):
         return mock[0] if 'noreturn' in signature else mock[1]
     return mock
 
+def clean_duplicate_attributes(signature: str) -> str:
+    return signature.replace("__attribute((weak))", "").strip()
+
 def gen_mocks(c_code):
     global NUM_SKIPPED_MOCKS
     lines = c_code.splitlines()
@@ -74,6 +77,7 @@ def gen_mocks(c_code):
     i = 0
 
     while i < len(lines):
+        lines[i] = clean_duplicate_attributes(lines[i])
         line = lines[i]
 
         if line.strip().startswith('#') or not line.strip():
