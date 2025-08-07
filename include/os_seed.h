@@ -298,3 +298,6 @@ WARN_UNUSED_RESULT static inline cx_err_t os_derive_eip2333_no_throw(
 // return BOLOS_TRUE if the seed has been generated, return BOLOS_FALSE otherwise.
 SYSCALL bolos_bool_t os_perso_seed_cookie(unsigned char *seed_cookie PLENGTH(CX_SHA512_SIZE));
 #endif  // HAVE_SEED_COOKIE
+
+SYSCALL bolos_err_t os_perso_get_master_key_identifier(uint8_t *identifier,
+                                                       size_t   identifier_length);
