@@ -1,4 +1,6 @@
 name: Build clang runtime builtins
+permissions:
+  contents: read
 
 on:
   workflow_dispatch:
@@ -67,6 +69,9 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ success() && inputs.create_pr }}
     continue-on-error: true
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
@@ -84,11 +89,12 @@ jobs:
       - name: PR creation
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TARGET_BRANCH: ${{ inputs.target_sdk_branch }}
         run: |
-          git config --global user.email ${{ env.GIT_USER_EMAIL }}
-          git config --global user.name ${{ env.GIT_USER_NAME }}
-          git switch --create ${{ env.UPDATE_BRANCH }}
+          git config --global user.email "$GIT_USER_EMAIL"
+          git config --global user.name "$GIT_USER_NAME"
+          git switch --create "$UPDATE_BRANCH"
           git add -A .
           git commit -m 'Updating static SDK libraries'
-          git push -u origin ${{ env.UPDATE_BRANCH }}
-          gh pr create -B ${{ inputs.target_sdk_branch }} --title '[SDK_LIBS_UPDATE] Updating static SDK libraries' --body 'Created by Github workflow "${{ github.workflow }}", job "${{ github.job }}", run "${{ github.run_id }}".'
+          git push -u origin "$UPDATE_BRANCH"
+          gh pr create -B "$TARGET_BRANCH" --title '[SDK_LIBS_UPDATE] Updating static SDK libraries' --body 'Created by Github workflow "${{ github.workflow }}", job "${{ github.job }}", run "${{ github.run_id }}".'
