@@ -15,7 +15,7 @@ jobs:
       - name: Clone
         uses: actions/checkout@v4
       - name: Installing PIP dependencies
-        run: pip install pylint PyGithub ledgered
+        run: pip install pylint PyGithub GitPython ledgered
       - name: Lint Python code
         run: pylint --rc setup.cfg .github/workflows/scripts/
 
@@ -26,6 +26,6 @@ jobs:
       - name: Clone
         uses: actions/checkout@v4
       - name: Installing PIP dependencies
-        run: pip install mypy PyGithub ledgered
+        run: pip install mypy PyGithub GitPython ledgered
       - name: Mypy type checking
         run: mypy .github/workflows/scripts/
