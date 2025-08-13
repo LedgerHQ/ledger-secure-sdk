@@ -3024,9 +3024,9 @@ uint8_t nbgl_useCaseGetNbSwitchesInPage(uint8_t                           nbSwit
 {
     uint8_t               nbSwitchesInPage = 0;
     uint16_t              currentHeight    = 0;
-    uint16_t              previousHeight;
-    uint16_t              navHeight   = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
-    nbgl_contentSwitch_t *switchArray = (nbgl_contentSwitch_t *) PIC(switchesList->switches);
+    uint16_t              previousHeight   = 0;
+    uint16_t              navHeight        = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
+    nbgl_contentSwitch_t *switchArray      = (nbgl_contentSwitch_t *) PIC(switchesList->switches);
 
     while (nbSwitchesInPage < nbSwitches) {
         // margin between switches
@@ -3037,16 +3037,18 @@ uint8_t nbgl_useCaseGetNbSwitchesInPage(uint8_t                           nbSwit
                                                    switchArray[startIndex + nbSwitchesInPage].text,
                                                    AVAILABLE_WIDTH,
                                                    true);
-        // space between text and sub-text
-        currentHeight += TEXT_SUBTEXT_MARGIN;
+        if (switchArray[startIndex + nbSwitchesInPage].subText) {
+            // space between text and sub-text
+            currentHeight += TEXT_SUBTEXT_MARGIN;
 
-        // sub-text height
-        currentHeight
-            += nbgl_getTextHeightInWidth(SMALL_REGULAR_FONT,
-                                         switchArray[startIndex + nbSwitchesInPage].subText,
-                                         AVAILABLE_WIDTH,
-                                         true);
-        currentHeight += POST_SUBTEXT_MARGIN;  // under the sub-text
+            // sub-text height
+            currentHeight
+                += nbgl_getTextHeightInWidth(SMALL_REGULAR_FONT,
+                                             switchArray[startIndex + nbSwitchesInPage].subText,
+                                             AVAILABLE_WIDTH,
+                                             true);
+            currentHeight += POST_SUBTEXT_MARGIN;  // under the sub-text
+        }
         // if height is over the limit
         if (currentHeight >= (INFOS_AREA_HEIGHT - navHeight)) {
             break;
