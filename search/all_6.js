@@ -11,7 +11,7 @@ var searchData=
   ['description_8',['description',['../structnbgl__contentCenter__t.html#a1908111efeebaaa84962496207967781',1,'nbgl_contentCenter_t']]],
   ['destination_5faddress_9',['destination_address',['../structcreate__transaction__parameters__s.html#a8019df5402d0abcfd7155d99f4593ba1',1,'create_transaction_parameters_s']]],
   ['destination_5faddress_5fextra_5fid_10',['destination_address_extra_id',['../structcreate__transaction__parameters__s.html#a49513ff8c5bd3b0f9e28987f3e69d7bf',1,'create_transaction_parameters_s']]],
-  ['details_11',['details',['../structnbgl__genericBarList__t.html#a1331a76d84d2b29942e58846e3fefa11',1,'nbgl_genericBarList_t']]],
+  ['details_11',['details',['../structnbgl__warningBarList__t.html#a429879f31b62fb969b6d80fbe384cf86',1,'nbgl_warningBarList_t']]],
   ['detailsbuttonicon_12',['detailsbuttonicon',['../structnbgl__contentTagValueDetails__t.html#a721b1cc9a1ebd012367c4e35835d254d',1,'nbgl_contentTagValueDetails_t::detailsButtonIcon'],['../structnbgl__contentTagValueConfirm__t.html#ace3d086fb542f41893f9ee9381fc4869',1,'nbgl_contentTagValueConfirm_t::detailsButtonIcon']]],
   ['detailsbuttontext_13',['detailsbuttontext',['../structnbgl__contentTagValueDetails__t.html#a8cfe3900f6763243bc353d1d9c93c67c',1,'nbgl_contentTagValueDetails_t::detailsButtonText'],['../structnbgl__contentTagValueConfirm__t.html#a861cf55885415db99e52c8882a57ed79',1,'nbgl_contentTagValueConfirm_t::detailsButtonText']]],
   ['detailsbuttontoken_14',['detailsbuttontoken',['../structnbgl__contentTagValueConfirm__t.html#a3b21b4e7d9fb5cf2e4f9c4775107ca40',1,'nbgl_contentTagValueConfirm_t::detailsButtonToken'],['../structnbgl__contentTagValueDetails__t.html#a7f2ecdcffa41cbbc6931bb508c4690fa',1,'nbgl_contentTagValueDetails_t::detailsButtonToken']]],
