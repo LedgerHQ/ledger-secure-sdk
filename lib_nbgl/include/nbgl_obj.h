@@ -233,6 +233,8 @@ extern "C" {
 #define LARGE_WARNING_ICON    C_Warning_64px
 #define INFO_CIRCLE_ICON      C_Info_Circle_64px
 #define LARGE_REVIEW_ICON     C_Review_64px
+#define LARGE_LOGIN_ICON      C_Login_64px
+#define LARGE_TRASH_ICON      C_Trash_64px
 #elif LARGE_ICON_SIZE == 48
 #define CHECK_CIRCLE_ICON     C_Check_Circle_48px
 #define DENIED_CIRCLE_ICON    C_Denied_Circle_48px
@@ -240,6 +242,8 @@ extern "C" {
 #define LARGE_WARNING_ICON    C_Warning_48px
 #define INFO_CIRCLE_ICON      C_Info_Circle_48px
 #define LARGE_REVIEW_ICON     C_Review_48px
+#define LARGE_LOGIN_ICON      C_Login_48px
+#define LARGE_TRASH_ICON      C_Trash_48px
 #else  // LARGE_ICON_SIZE
 #error Undefined LARGE_ICON_SIZE
 #endif  // LARGE_ICON_SIZE
@@ -261,6 +265,8 @@ extern "C" {
 #else  // SCREEN_SIZE_WALLET
 #define WARNING_ICON C_icon_warning
 #define REVIEW_ICON  C_icon_certificate
+#define LOGIN_ICON   C_Login_14px
+#define TRASH_ICON   C_Trash_14px
 #endif  // SCREEN_SIZE_WALLET
 
 #if NB_COLOR_BITS == 1
