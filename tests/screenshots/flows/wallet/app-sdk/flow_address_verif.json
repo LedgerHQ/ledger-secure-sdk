@@ -169,6 +169,11 @@
           "object": "VALUE_BUTTON_2",
           "page": "multi-sig-signers-01",
           "comment": "view signers details (alias)"
+        },
+        {
+          "app_event": "BTC_SHARE_ADDR",
+          "page": "share-addr-01",
+          "comment": "start share addr scenario"
         }
       ]
     },
@@ -203,6 +208,30 @@
           "product": "stax,apex_p",
           "page": "multi-sig-02"
         }
+      ]
+    },
+    {
+      "name": "share-addr-01",
+      "targets": [
+        {
+          "object": "TOP_RIGHT_BUTTON",
+          "page": "share-addr-02"
+        }
+      ]
+    },
+    {
+      "name": "share-addr-02",
+      "targets": [
+        {
+          "object": "CONTROLS,0",
+          "page": "share-addr-03",
+          "comment": "view addr details (alias)"
+        }
+      ]
+    },
+    {
+      "name": "share-addr-03",
+      "targets": [
       ]
     }
   ]

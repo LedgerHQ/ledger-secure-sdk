@@ -91,7 +91,8 @@ TARGET_DEFINES += \
                        TARGET_NANOX \
                        HAVE_BATTERY \
                        HAVE_HARDWARE_VERSIONS \
-                       SCREEN_SIZE_NANO
+                       SCREEN_SIZE_NANO \
+                       HAVE_BLE
 
 TARGET_ID           := 0x33000004
 endif

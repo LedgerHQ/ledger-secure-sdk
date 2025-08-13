@@ -62,12 +62,13 @@ typedef struct ReviewContext_s {
 } ReviewContext_t;
 
 typedef struct ChoiceContext_s {
-    const nbgl_icon_details_t *icon;
-    const char                *message;
-    const char                *subMessage;
-    const char                *confirmText;
-    const char                *cancelText;
-    nbgl_choiceCallback_t      onChoice;
+    const nbgl_icon_details_t   *icon;
+    const char                  *message;
+    const char                  *subMessage;
+    const char                  *confirmText;
+    const char                  *cancelText;
+    nbgl_choiceCallback_t        onChoice;
+    const nbgl_genericDetails_t *details;
 } ChoiceContext_t;
 
 typedef struct ConfirmContext_s {
@@ -1588,43 +1589,52 @@ static void displayChoicePage(nbgl_stepPosition_t pos)
     const char                *text    = NULL;
     const char                *subText = NULL;
     const nbgl_icon_details_t *icon    = NULL;
+    // set to 1 if there is only one page for intro (if either icon or subMessage is NULL)
+    uint8_t acceptPage = 0;
 
-    context.stepCallback = NULL;
-
-    // Handle case where there is no icon or subMessage
-    if (context.currentPage == 1
-        && (context.choice.icon == NULL || context.choice.subMessage == NULL)) {
-        if (pos & BACKWARD_DIRECTION) {
-            context.currentPage -= 1;
+    if (context.choice.message != NULL) {
+        if ((context.choice.icon == NULL) || (context.choice.subMessage == NULL)) {
+            acceptPage = 1;
         }
         else {
-            context.currentPage += 1;
+            acceptPage = 2;
         }
     }
+    context.stepCallback = NULL;
 
-    if (context.currentPage == 0) {  // title page
-        text = context.choice.message;
-        if (context.choice.icon != NULL) {
-            icon = context.choice.icon;
+    if (context.currentPage < acceptPage) {
+        if (context.currentPage == 0) {  // title page
+            text = context.choice.message;
+            if (context.choice.icon != NULL) {
+                icon = context.choice.icon;
+            }
+            else {
+                subText = context.choice.subMessage;
+            }
         }
-        else {
+        else if ((acceptPage == 2) && (context.currentPage == 1)) {  // sub-title page
+            // displayed only if there is both icon and submessage
+            text    = context.choice.message;
             subText = context.choice.subMessage;
         }
     }
-    else if (context.currentPage == 1) {  // sub-title page
-        // displayed only if there is both icon and submessage
-        text    = context.choice.message;
-        subText = context.choice.subMessage;
-    }
-    else if (context.currentPage == 2) {  // confirm page
+    else if (context.currentPage == acceptPage) {  // confirm page
         icon                 = &C_icon_validate_14;
         text                 = context.choice.confirmText;
         context.stepCallback = onChoiceAccept;
     }
-    else {  // cancel page
+    else if (context.currentPage == (acceptPage + 1)) {  // cancel page
         icon                 = &C_icon_crossmark;
         text                 = context.choice.cancelText;
         context.stepCallback = onChoiceReject;
+    }
+    else if (context.choice.details != NULL) {
+        // only the first level of details and BAR_LIST type are supported
+        if (context.choice.details->type == BAR_LIST_WARNING) {
+            text = context.choice.details->barList.texts[context.currentPage - (acceptPage + 2)];
+            subText
+                = context.choice.details->barList.subTexts[context.currentPage - (acceptPage + 2)];
+        }
     }
 
     drawStep(pos, icon, text, subText, genericChoiceCallback, false, NO_FORCED_TYPE);
@@ -2728,12 +2738,50 @@ void nbgl_useCaseSpinner(const char *text)
     displaySpinner(text);
 }
 
+/**
+ * @brief Draws a generic choice flow, starting with a centered info, and then two pages, one to
+ * confirm, the other to cancel. The given callback is called with true as argument if confirmed,
+ * false if footer if cancelled
+ *
+ * @param icon icon to set in center of page
+ * @param message main string to set in center of page
+ * @param subMessage string to set under message (can be NULL)
+ * @param confirmText string to set in 2nd page, to confirm (cannot be NULL)
+ * @param cancelText string to set in 3rd page, to reject (cannot be NULL)
+ * @param callback callback called when 2nd or 3rd page is double-pressed
+ */
 void nbgl_useCaseChoice(const nbgl_icon_details_t *icon,
                         const char                *message,
                         const char                *subMessage,
                         const char                *confirmText,
                         const char                *cancelText,
                         nbgl_choiceCallback_t      callback)
+{
+    nbgl_useCaseChoiceWithDetails(
+        icon, message, subMessage, confirmText, cancelText, NULL, callback);
+};
+
+/**
+ * @brief Draws a generic choice flow, starting with a centered info, and then two pages, one to
+ * accept, the other to refuse. Then, additional pages are added to display the given details The
+ * given callback is called with true as argument if confirmed, false if footer if cancelled
+ * @note if icon, message and subMessage are NULL, the flow starts with accept page
+ *
+ * @param icon icon to set in center of page (can be NULL)
+ * @param message main string to set in center of page (can be NULL)
+ * @param subMessage string to set under message (can be NULL)
+ * @param confirmText string to set in 2nd page, to confirm (cannot be NULL)
+ * @param cancelText string to set in 3rd page, to reject (cannot be NULL)
+ * @param details  details to be displayed after the 2 pages of action (can be NULL)
+ * @param callback callback called when 2nd or 3rd page is double-pressed
+ */
+void nbgl_useCaseChoiceWithDetails(const nbgl_icon_details_t *icon,
+                                   const char                *message,
+                                   const char                *subMessage,
+                                   const char                *confirmText,
+                                   const char                *cancelText,
+                                   nbgl_genericDetails_t     *details,
+                                   nbgl_choiceCallback_t      callback)
 {
     memset(&context, 0, sizeof(UseCaseContext_t));
     context.type               = CHOICE_USE_CASE;
@@ -2743,8 +2791,22 @@ void nbgl_useCaseChoice(const nbgl_icon_details_t *icon,
     context.choice.confirmText = confirmText;
     context.choice.cancelText  = cancelText;
     context.choice.onChoice    = callback;
+    context.choice.details     = details;
     context.currentPage        = 0;
-    context.nbPages            = 1 + 1 + 2;  // 2 pages at the end for confirm/cancel
+    context.nbPages            = 2;  // 2 pages for confirm/cancel
+    if (message != NULL) {
+        context.nbPages++;
+        // if both icon and subMessage are non NULL, add a page
+        if ((icon != NULL) && (subMessage != NULL)) {
+            context.nbPages++;
+        }
+    }
+    if (details != NULL) {
+        // only the first level of details and BAR_LIST type are supported
+        if (details->type == BAR_LIST_WARNING) {
+            context.nbPages += details->barList.nbBars;
+        }
+    }
 
     displayChoicePage(FORWARD_DIRECTION);
 };
