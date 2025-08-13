@@ -3083,9 +3083,9 @@ uint8_t nbgl_useCaseGetNbSwitchesInPage(uint8_t                           nbSwit
 {
     uint8_t               nbSwitchesInPage = 0;
     uint16_t              currentHeight    = 0;
-    uint16_t              previousHeight;
-    uint16_t              navHeight   = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
-    nbgl_contentSwitch_t *switchArray = (nbgl_contentSwitch_t *) PIC(switchesList->switches);
+    uint16_t              previousHeight   = 0;
+    uint16_t              navHeight        = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
+    nbgl_contentSwitch_t *switchArray      = (nbgl_contentSwitch_t *) PIC(switchesList->switches);
 
     while (nbSwitchesInPage < nbSwitches) {
         // The text string must be a 1 liner and its height is LIST_ITEM_MIN_TEXT_HEIGHT
