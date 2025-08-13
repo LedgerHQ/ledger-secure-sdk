@@ -69,6 +69,7 @@
 #define LONG_PRESS_PROGRESS_ALIGN        4
 #define TITLE_DESC_MARGIN                16
 #define LEFT_CONTENT_ICON_TEXT_X         16
+#define TIP_BOX_MARGIN_Y                 24
 #elif defined(TARGET_FLEX)
 #define RADIO_CHOICE_HEIGHT              92
 #define BAR_INTERVALE                    16
@@ -98,6 +99,7 @@
 #define LONG_PRESS_PROGRESS_ALIGN        4
 #define TITLE_DESC_MARGIN                16
 #define LEFT_CONTENT_ICON_TEXT_X         16
+#define TIP_BOX_MARGIN_Y                 24
 #elif defined(TARGET_APEX)
 #define RADIO_CHOICE_HEIGHT              68
 #define BAR_INTERVALE                    8
@@ -121,12 +123,13 @@
 #define BAR_INTER_TEXTS_MARGIN           12
 #define LEFT_CONTENT_TEXT_PADDING        4
 #define BUTTON_FROM_BOTTOM_MARGIN        0
-#define TOP_BUTTON_MARGIN                12
+#define TOP_BUTTON_MARGIN                0
 #define SINGLE_BUTTON_MARGIN             16
 #define LONG_PRESS_PROGRESS_HEIGHT       4
 #define LONG_PRESS_PROGRESS_ALIGN        4
 #define TITLE_DESC_MARGIN                12
 #define LEFT_CONTENT_ICON_TEXT_X         8
+#define TIP_BOX_MARGIN_Y                 12
 #else  // TARGETS
 #error Undefined target
 #endif  // TARGETS
@@ -3457,7 +3460,7 @@ int nbgl_layoutAddUpFooter(nbgl_layout_t *layout, const nbgl_layoutUpFooter_t *u
                     layoutInt->upFooterContainer->obj.area.height = image->buffer->height;
                 }
             }
-            layoutInt->upFooterContainer->obj.area.height += 2 * VERTICAL_BORDER_MARGIN;
+            layoutInt->upFooterContainer->obj.area.height += 2 * TIP_BOX_MARGIN_Y;
 
             break;
         }
