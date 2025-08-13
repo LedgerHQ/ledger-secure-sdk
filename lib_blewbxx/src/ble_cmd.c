@@ -198,7 +198,7 @@ void ble_aci_gap_forge_cmd_clear_security_db(ble_cmd_data_t *cmd_data)
 void ble_aci_gap_forge_cmd_set_discoverable(ble_cmd_data_t                  *cmd_data,
                                             ble_cmd_set_discoverable_data_t *data)
 {
-    if ((!cmd_data) || (!data) || (data->local_name_length > BLE_GAP_MAX_LOCAL_NAME_LENGTH)) {
+  if ((!cmd_data) || (!data) || (data->local_name_length > (BLE_GAP_MAX_LOCAL_NAME_LENGTH+1))) {
         return;
     }
 
@@ -217,9 +217,9 @@ void ble_aci_gap_forge_cmd_set_discoverable(ble_cmd_data_t                  *cmd
     cmd_data->hci_cmd_buffer[cmd_data->hci_cmd_buffer_length++] = data->own_address_type;
     // Advertising_Filter_Policy
     cmd_data->hci_cmd_buffer[cmd_data->hci_cmd_buffer_length++] = data->advertising_filter_policy;
-    // Local_Name_Length
+    // Local_Name_Length + 1 byte BLE_AD_TYPE_COMPLETE_LOCAL_NAME
     cmd_data->hci_cmd_buffer[cmd_data->hci_cmd_buffer_length++] = data->local_name_length;
-    // Local_Name
+    // Local_Name + 1 byte BLE_AD_TYPE_COMPLETE_LOCAL_NAME
     if (data->local_name_length && data->local_name) {
         memcpy(&cmd_data->hci_cmd_buffer[cmd_data->hci_cmd_buffer_length],
                data->local_name,
