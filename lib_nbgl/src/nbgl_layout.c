@@ -421,6 +421,11 @@ static void longTouchCallback(nbgl_obj_t            *obj,
         progressBar->partialRedraw = true;
         progressBar->state         = 0;
         nbgl_objDraw((nbgl_obj_t *) progressBar);
+#ifdef TARGET_APEX
+        // for Apex, it's necessary to redraw the dotted line, that has been partially wiped
+        nbgl_line_t *line = (nbgl_line_t *) container->children[2];
+        nbgl_objDraw((nbgl_obj_t *) line);
+#endif  // TARGET_APEX
         nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_REFRESH, POST_REFRESH_FORCE_POWER_OFF);
     }
 }
@@ -3300,6 +3305,7 @@ int nbgl_layoutAddUpFooter(nbgl_layout_t *layout, const nbgl_layoutUpFooter_t *u
             progressBar->obj.alignment                = TOP_MIDDLE;
             progressBar->obj.alignmentMarginY         = LONG_PRESS_PROGRESS_ALIGN;
             progressBar->resetIfOverriden             = true;
+            progressBar->partialRedraw                = true;
             layoutInt->upFooterContainer->children[3] = (nbgl_obj_t *) progressBar;
             break;
         }
