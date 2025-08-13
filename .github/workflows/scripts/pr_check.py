@@ -125,7 +125,12 @@ def clone_repo(github_url: str, local_path: str, token: str) -> None:
     Repo.clone_from(github_url, local_path)
 
 
-def create_or_get_branch(target_br: str, branches: List[str], repo_path: str, dry_run: bool = False) -> str:
+def create_or_get_branch(github_url: str,
+                         target_br: str,
+                         branches: List[str],
+                         repo_path: str,
+                         token: str,
+                         dry_run: bool = False) -> str:
     """Create a new branch if it doesn't exist, or get the existing branch."""
     auto_branch = f"auto_update_{target_br}"
     if auto_branch not in branches:
@@ -137,6 +142,10 @@ def create_or_get_branch(target_br: str, branches: List[str], repo_path: str, dr
         local_repo.git.checkout(target_br)
         local_repo.git.checkout('-b', auto_branch)
         if not dry_run:
+            if github_url.startswith("https://"):
+                protocol, rest = github_url.split("://", 1)
+                github_url = f"{protocol}://x-access-token:{token}@{rest}"
+                local_repo.git.remote("set-url", "origin", github_url)
             local_repo.git.push('--set-upstream', 'origin', auto_branch)
     return auto_branch
 
@@ -248,7 +257,12 @@ def main():
             clone_repo(github_url, local_repo_path, args.token)
 
             # Check if dedicated auto_update branch exists, else create it
-            auto_branch = create_or_get_branch(target_br, branches, local_repo_path, args.dry_run)
+            auto_branch = create_or_get_branch(github_url,
+                                               target_br,
+                                               branches,
+                                               local_repo_path,
+                                               args.token,
+                                               args.dry_run)
 
             # Cherry-pick the commits onto the auto_update branch
             if not cherry_pick_commits(local_repo_path, commits, auto_branch, args.dry_run):
