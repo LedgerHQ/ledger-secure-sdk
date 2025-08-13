@@ -370,7 +370,15 @@ int nbgl_screenPush(nbgl_obj_t                           ***elements,
                 if ((progress != NULL) && (progress->resetIfOverriden)) {
                     progress->state = 0;
                 }
-                // new top of stack
+#ifdef SCREEN_SIZE_WALLET
+                // search for a potential keypad in current topOfStack to force redraw if needed
+                nbgl_keypad_t *keypad
+                    = (nbgl_keypad_t *) nbgl_screenContainsObjType(topOfStack, KEYPAD);
+                if (keypad != NULL) {
+                    keypad->digitsChanged = true;
+                }
+#endif  // SCREEN_SIZE_WALLET
+        // new top of stack
                 topOfStack       = &screenStack[screenIndex];
                 topOfStack->next = NULL;
                 break;

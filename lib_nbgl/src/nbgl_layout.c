@@ -64,6 +64,7 @@
 #define LEFT_CONTENT_TEXT_PADDING        0
 #define BUTTON_FROM_BOTTOM_MARGIN        4
 #define TOP_BUTTON_MARGIN                VERTICAL_BORDER_MARGIN
+#define TOP_BUTTON_MARGIN_WITH_ACTION    VERTICAL_BORDER_MARGIN
 #define SINGLE_BUTTON_MARGIN             24
 #define LONG_PRESS_PROGRESS_HEIGHT       8
 #define LONG_PRESS_PROGRESS_ALIGN        4
@@ -94,6 +95,7 @@
 #define LEFT_CONTENT_TEXT_PADDING        4
 #define BUTTON_FROM_BOTTOM_MARGIN        4
 #define TOP_BUTTON_MARGIN                VERTICAL_BORDER_MARGIN
+#define TOP_BUTTON_MARGIN_WITH_ACTION    VERTICAL_BORDER_MARGIN
 #define SINGLE_BUTTON_MARGIN             24
 #define LONG_PRESS_PROGRESS_HEIGHT       8
 #define LONG_PRESS_PROGRESS_ALIGN        4
@@ -123,7 +125,8 @@
 #define BAR_INTER_TEXTS_MARGIN           12
 #define LEFT_CONTENT_TEXT_PADDING        4
 #define BUTTON_FROM_BOTTOM_MARGIN        0
-#define TOP_BUTTON_MARGIN                0
+#define TOP_BUTTON_MARGIN                12
+#define TOP_BUTTON_MARGIN_WITH_ACTION    0
 #define SINGLE_BUTTON_MARGIN             16
 #define LONG_PRESS_PROGRESS_HEIGHT       4
 #define LONG_PRESS_PROGRESS_ALIGN        4
@@ -3140,9 +3143,16 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
                 return -1;
             }
             // associate with with index 0
-            obj->index                   = 0;
-            button->obj.alignment        = TOP_MIDDLE;
-            button->obj.alignmentMarginY = TOP_BUTTON_MARGIN;  // pixels from top of container
+            obj->index            = 0;
+            button->obj.alignment = TOP_MIDDLE;
+            if ((footerDesc->choiceButtons.style != ROUNDED_AND_FOOTER_STYLE)
+                && (footerDesc->choiceButtons.style != BOTH_ROUNDED_STYLE)) {
+                button->obj.alignmentMarginY
+                    = TOP_BUTTON_MARGIN_WITH_ACTION;  // pixels from top of container
+            }
+            else {
+                button->obj.alignmentMarginY = TOP_BUTTON_MARGIN;  // pixels from top of container
+            }
             if (footerDesc->choiceButtons.style == SOFT_ACTION_AND_FOOTER_STYLE) {
                 button->innerColor      = WHITE;
                 button->borderColor     = LIGHT_GRAY;
