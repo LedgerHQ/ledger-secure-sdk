@@ -3017,21 +3017,25 @@ uint8_t nbgl_useCaseGetNbSwitchesInPage(uint8_t                           nbSwit
 {
     uint8_t               nbSwitchesInPage = 0;
     uint16_t              currentHeight    = 0;
-    uint16_t              previousHeight;
-    uint16_t              navHeight   = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
-    nbgl_contentSwitch_t *switchArray = (nbgl_contentSwitch_t *) PIC(switchesList->switches);
+    uint16_t              previousHeight   = 0;
+    uint16_t              navHeight        = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
+    nbgl_contentSwitch_t *switchArray      = (nbgl_contentSwitch_t *) PIC(switchesList->switches);
 
     while (nbSwitchesInPage < nbSwitches) {
         // The text string must be a 1 liner and its height is LIST_ITEM_MIN_TEXT_HEIGHT
-        currentHeight
-            += LIST_ITEM_MIN_TEXT_HEIGHT + 2 * LIST_ITEM_PRE_HEADING + LIST_ITEM_HEADING_SUB_TEXT;
+        currentHeight += LIST_ITEM_MIN_TEXT_HEIGHT + LIST_ITEM_PRE_HEADING;
 
-        // sub-text height
-        currentHeight
-            += nbgl_getTextHeightInWidth(SMALL_REGULAR_FONT,
-                                         switchArray[startIndex + nbSwitchesInPage].subText,
-                                         AVAILABLE_WIDTH,
-                                         true);
+        if (switchArray[startIndex + nbSwitchesInPage].subText) {
+            currentHeight += LIST_ITEM_HEADING_SUB_TEXT;
+
+            // sub-text height
+            currentHeight
+                += nbgl_getTextHeightInWidth(SMALL_REGULAR_FONT,
+                                             switchArray[startIndex + nbSwitchesInPage].subText,
+                                             AVAILABLE_WIDTH,
+                                             true);
+            currentHeight += LIST_ITEM_PRE_HEADING;  // under the sub-text
+        }
         // if height is over the limit
         if (currentHeight >= (INFOS_AREA_HEIGHT - navHeight)) {
             break;
