@@ -577,8 +577,8 @@ static const nbgl_warningDetails_t warningIntroDetails = {
   .type                    = BAR_LIST_WARNING,
   .barList.nbBars          = 2,
   .barList.icons           = barListIcons,
-  .texts                   = barListTexts,
-  .subTexts                = barListSubTexts,
+  .barList.texts           = barListTexts,
+  .barList.subTexts        = barListSubTexts,
   .barList.details         = barListIntroDetails
 };
 
@@ -588,8 +588,8 @@ static const nbgl_warningDetails_t warningReviewDetails = {
   .type                    = BAR_LIST_WARNING,
   .barList.nbBars          = 2,
   .barList.icons           = barListIcons,
-  .texts                   = barListTexts,
-  .subTexts                = barListSubTexts,
+  .barList.texts           = barListTexts,
+  .barList.subTexts        = barListSubTexts,
   .barList.details         = barListReviewDetails
 };
 
