@@ -155,6 +155,10 @@ def cherry_pick_commits(repo_path: str, commits: List[str], auto_branch: str, dr
     repo = Repo(repo_path)
     origin = repo.remotes.origin
 
+    # Configure Git user identity for the cherry-pick
+    repo.config_writer().set_value("user", "name", "github-actions[bot]").release()
+    repo.config_writer().set_value("user", "email", "github-actions[bot]@users.noreply.github.com").release()
+
     # Fetch latest changes
     origin.fetch()
 
