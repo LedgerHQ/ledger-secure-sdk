@@ -3029,25 +3029,16 @@ uint8_t nbgl_useCaseGetNbSwitchesInPage(uint8_t                           nbSwit
     nbgl_contentSwitch_t *switchArray      = (nbgl_contentSwitch_t *) PIC(switchesList->switches);
 
     while (nbSwitchesInPage < nbSwitches) {
-        // margin between switches
-        currentHeight += PRE_TEXT_MARGIN;
+        nbgl_contentSwitch_t *curSwitch = &switchArray[startIndex + nbSwitchesInPage];
+        currentHeight += TOUCHABLE_BAR_HEIGHT;
 
-        // text height
-        currentHeight += nbgl_getTextHeightInWidth(SMALL_BOLD_FONT,
-                                                   switchArray[startIndex + nbSwitchesInPage].text,
-                                                   AVAILABLE_WIDTH,
-                                                   true);
-        if (switchArray[startIndex + nbSwitchesInPage].subText) {
+        if (curSwitch->subText) {
             // space between text and sub-text
-            currentHeight += TEXT_SUBTEXT_MARGIN;
+            currentHeight += 12;
 
             // sub-text height
-            currentHeight
-                += nbgl_getTextHeightInWidth(SMALL_REGULAR_FONT,
-                                             switchArray[startIndex + nbSwitchesInPage].subText,
-                                             AVAILABLE_WIDTH,
-                                             true);
-            currentHeight += POST_SUBTEXT_MARGIN;  // under the sub-text
+            currentHeight += nbgl_getTextHeightInWidth(
+                SMALL_REGULAR_FONT, curSwitch->subText, AVAILABLE_WIDTH, true);
         }
         // if height is over the limit
         if (currentHeight >= (INFOS_AREA_HEIGHT - navHeight)) {
@@ -3914,9 +3905,10 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
     reviewWithWarnCtx.choiceCallback = choiceCallback;
 
     // display the initial warning only of a risk/threat or blind signing
-    if (!(reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_THREAT_DETECTED_WARN))
-        && !(reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_RISK_DETECTED_WARN))
-        && !(reviewWithWarnCtx.warning->predefinedSet & (1 << BLIND_SIGNING_WARN))) {
+    if ((!(reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_THREAT_DETECTED_WARN))
+         && !(reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_RISK_DETECTED_WARN))
+         && !(reviewWithWarnCtx.warning->predefinedSet & (1 << BLIND_SIGNING_WARN)))
+        && (warning->introDetails == NULL)) {
         useCaseReview(operationType,
                       tagValueList,
                       icon,
