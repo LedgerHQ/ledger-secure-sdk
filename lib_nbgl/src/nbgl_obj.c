@@ -766,7 +766,9 @@ static void draw_progressBar(nbgl_progress_bar_t *obj, nbgl_obj_t *prevObj, bool
 {
 #ifdef HAVE_SE_TOUCH
 
-    uint8_t stroke = PROGRESS_STROKE;  // pixels for border
+    uint8_t     stroke = PROGRESS_STROKE;  // pixels for border
+    nbgl_area_t barArea;
+    uint16_t    barWidth = ((obj->state * obj->obj.area.width)) / 100;
 
     if (computePosition) {
         compute_position((nbgl_obj_t *) obj, prevObj);
@@ -776,6 +778,7 @@ static void draw_progressBar(nbgl_progress_bar_t *obj, nbgl_obj_t *prevObj, bool
               obj->obj.area.x0,
               obj->obj.area.y0,
               obj->state);
+    memcpy(&barArea, &obj->obj.area, sizeof(nbgl_area_t));
 
     // inherit background from parent
     obj->obj.area.backgroundColor = obj->obj.parent->area.backgroundColor;
@@ -795,13 +798,13 @@ static void draw_progressBar(nbgl_progress_bar_t *obj, nbgl_obj_t *prevObj, bool
         }
         // also reset previous width to be sure to clean up everything
         obj->previousWidth = 0;
+        if (obj->state == 0) {
+            goto end;
+        }
     }
     // Setup bar draw
-    nbgl_area_t barArea;
-    uint16_t    barWidth    = ((obj->state * obj->obj.area.width)) / 100;
-    int         barDiffWith = barWidth - obj->previousWidth;
-    color_t     barColor;
-    memcpy(&barArea, &obj->obj.area, sizeof(nbgl_area_t));
+    int     barDiffWith = barWidth - obj->previousWidth;
+    color_t barColor;
 
     if (barDiffWith > 0) {
         // Drawing "forward"
@@ -827,6 +830,7 @@ static void draw_progressBar(nbgl_progress_bar_t *obj, nbgl_obj_t *prevObj, bool
     }
     obj->previousWidth = barWidth;
 
+end:
     extendRefreshArea(&barArea);
     objRefreshAreaDone = true;
 #else   // HAVE_SE_TOUCH

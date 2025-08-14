@@ -64,11 +64,13 @@
 #define LEFT_CONTENT_TEXT_PADDING        0
 #define BUTTON_FROM_BOTTOM_MARGIN        4
 #define TOP_BUTTON_MARGIN                VERTICAL_BORDER_MARGIN
+#define TOP_BUTTON_MARGIN_WITH_ACTION    VERTICAL_BORDER_MARGIN
 #define SINGLE_BUTTON_MARGIN             24
 #define LONG_PRESS_PROGRESS_HEIGHT       8
 #define LONG_PRESS_PROGRESS_ALIGN        4
 #define TITLE_DESC_MARGIN                16
 #define LEFT_CONTENT_ICON_TEXT_X         16
+#define TIP_BOX_MARGIN_Y                 24
 #elif defined(TARGET_FLEX)
 #define RADIO_CHOICE_HEIGHT              92
 #define BAR_INTERVALE                    16
@@ -93,11 +95,13 @@
 #define LEFT_CONTENT_TEXT_PADDING        4
 #define BUTTON_FROM_BOTTOM_MARGIN        4
 #define TOP_BUTTON_MARGIN                VERTICAL_BORDER_MARGIN
+#define TOP_BUTTON_MARGIN_WITH_ACTION    VERTICAL_BORDER_MARGIN
 #define SINGLE_BUTTON_MARGIN             24
 #define LONG_PRESS_PROGRESS_HEIGHT       8
 #define LONG_PRESS_PROGRESS_ALIGN        4
 #define TITLE_DESC_MARGIN                16
 #define LEFT_CONTENT_ICON_TEXT_X         16
+#define TIP_BOX_MARGIN_Y                 24
 #elif defined(TARGET_APEX)
 #define RADIO_CHOICE_HEIGHT              68
 #define BAR_INTERVALE                    8
@@ -122,11 +126,13 @@
 #define LEFT_CONTENT_TEXT_PADDING        4
 #define BUTTON_FROM_BOTTOM_MARGIN        0
 #define TOP_BUTTON_MARGIN                12
+#define TOP_BUTTON_MARGIN_WITH_ACTION    0
 #define SINGLE_BUTTON_MARGIN             16
 #define LONG_PRESS_PROGRESS_HEIGHT       4
 #define LONG_PRESS_PROGRESS_ALIGN        4
 #define TITLE_DESC_MARGIN                12
 #define LEFT_CONTENT_ICON_TEXT_X         8
+#define TIP_BOX_MARGIN_Y                 12
 #else  // TARGETS
 #error Undefined target
 #endif  // TARGETS
@@ -418,6 +424,11 @@ static void longTouchCallback(nbgl_obj_t            *obj,
         progressBar->partialRedraw = true;
         progressBar->state         = 0;
         nbgl_objDraw((nbgl_obj_t *) progressBar);
+#ifdef TARGET_APEX
+        // for Apex, it's necessary to redraw the dotted line, that has been partially wiped
+        nbgl_line_t *line = (nbgl_line_t *) container->children[2];
+        nbgl_objDraw((nbgl_obj_t *) line);
+#endif  // TARGET_APEX
         nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_REFRESH, POST_REFRESH_FORCE_POWER_OFF);
     }
 }
@@ -3132,9 +3143,16 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
                 return -1;
             }
             // associate with with index 0
-            obj->index                   = 0;
-            button->obj.alignment        = TOP_MIDDLE;
-            button->obj.alignmentMarginY = TOP_BUTTON_MARGIN;  // pixels from top of container
+            obj->index            = 0;
+            button->obj.alignment = TOP_MIDDLE;
+            if ((footerDesc->choiceButtons.style != ROUNDED_AND_FOOTER_STYLE)
+                && (footerDesc->choiceButtons.style != BOTH_ROUNDED_STYLE)) {
+                button->obj.alignmentMarginY
+                    = TOP_BUTTON_MARGIN_WITH_ACTION;  // pixels from top of container
+            }
+            else {
+                button->obj.alignmentMarginY = TOP_BUTTON_MARGIN;  // pixels from top of container
+            }
             if (footerDesc->choiceButtons.style == SOFT_ACTION_AND_FOOTER_STYLE) {
                 button->innerColor      = WHITE;
                 button->borderColor     = LIGHT_GRAY;
@@ -3297,6 +3315,7 @@ int nbgl_layoutAddUpFooter(nbgl_layout_t *layout, const nbgl_layoutUpFooter_t *u
             progressBar->obj.alignment                = TOP_MIDDLE;
             progressBar->obj.alignmentMarginY         = LONG_PRESS_PROGRESS_ALIGN;
             progressBar->resetIfOverriden             = true;
+            progressBar->partialRedraw                = true;
             layoutInt->upFooterContainer->children[3] = (nbgl_obj_t *) progressBar;
             break;
         }
@@ -3457,7 +3476,7 @@ int nbgl_layoutAddUpFooter(nbgl_layout_t *layout, const nbgl_layoutUpFooter_t *u
                     layoutInt->upFooterContainer->obj.area.height = image->buffer->height;
                 }
             }
-            layoutInt->upFooterContainer->obj.area.height += 2 * VERTICAL_BORDER_MARGIN;
+            layoutInt->upFooterContainer->obj.area.height += 2 * TIP_BOX_MARGIN_Y;
 
             break;
         }
