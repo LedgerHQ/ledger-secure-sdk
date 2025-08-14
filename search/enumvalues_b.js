@@ -40,6 +40,7 @@ var searchData=
   ['no_5fbutton_5fstyle_37',['NO_BUTTON_STYLE',['../nbgl__page_8h.html#afb48cdeef2dbc001c1091fdfc2c95d3dad7a827d4c79e33b48f4b34d7a8e24a42',1,'nbgl_page.h']]],
   ['no_5fhardware_5fswipe_38',['NO_HARDWARE_SWIPE',['../nbgl__types_8h.html#aa46b0267d63d4d7ce935d65571fb06f5a958fd0c17270681d0fe0028fa02c42eb',1,'nbgl_types.h']]],
   ['no_5fstyle_39',['NO_STYLE',['../nbgl__types_8h.html#acb93559ef3740ec23f4c1d3bd1a654aea9d4c7ab7e4f5a38f0bbe11f5f86addeb',1,'nbgl_types.h']]],
-  ['normal_5finfo_40',['NORMAL_INFO',['../nbgl__content_8h.html#a3735e557349f1945eff88ee65ea92fb5a9709023dec2f7e17e254b11bc19c6bcf',1,'nbgl_content.h']]],
-  ['number_5findex_41',['NUMBER_INDEX',['../nbgl__layout__keyboard_8c.html#ac205be2172292384dd687b5471a87eddaedbdef7543e2605b1dba8543459a616a',1,'nbgl_layout_keyboard.c']]]
+  ['no_5ftype_5fwarning_40',['NO_TYPE_WARNING',['../nbgl__use__case_8h.html#a03a5d1f24c2bc6235d870b2383ff3069a04f8530525e8c76f4557723d17ee35e4',1,'nbgl_use_case.h']]],
+  ['normal_5finfo_41',['NORMAL_INFO',['../nbgl__content_8h.html#a3735e557349f1945eff88ee65ea92fb5a9709023dec2f7e17e254b11bc19c6bcf',1,'nbgl_content.h']]],
+  ['number_5findex_42',['NUMBER_INDEX',['../nbgl__layout__keyboard_8c.html#ac205be2172292384dd687b5471a87eddaedbdef7543e2605b1dba8543459a616a',1,'nbgl_layout_keyboard.c']]]
 ];

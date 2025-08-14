@@ -21,7 +21,7 @@ var searchData=
   ['bagl_5ffont_5fopen_5fsans_5fextrabold_5f11px_5f1bpp_18',['BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp',['../nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0ba3848915052e6f7dd401018a0e3c7ae47',1,'nbgl_fonts.h']]],
   ['bagl_5ffont_5fopen_5fsans_5flight_5f16px_5f1bpp_19',['BAGL_FONT_OPEN_SANS_LIGHT_16px_1bpp',['../nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0ba9cf7510acc1cf3b440bc82896bd4d743',1,'nbgl_fonts.h']]],
   ['bagl_5ffont_5fopen_5fsans_5fregular_5f11px_5f1bpp_20',['BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp',['../nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0ba12abd3e5df05c459056a25f4a4a7f8e3',1,'nbgl_fonts.h']]],
-  ['bar_5flist_5fwarning_21',['BAR_LIST_WARNING',['../nbgl__use__case_8h.html#ae8733047730d71c4601798d7688434f7a9d9aea494a173340576be278ef075936',1,'nbgl_use_case.h']]],
+  ['bar_5flist_5fwarning_21',['BAR_LIST_WARNING',['../nbgl__use__case_8h.html#a03a5d1f24c2bc6235d870b2383ff3069a9d9aea494a173340576be278ef075936',1,'nbgl_use_case.h']]],
   ['bars_5flist_22',['BARS_LIST',['../nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203ad7c24dba039a29d3a48a1178f59199d0',1,'nbgl_content.h']]],
   ['be_23',['BE',['../buffer_8h.html#a8ee416154f17c63c478a546c59e5bbfbac115336a31f6a75e7dd426dfd459fb54',1,'buffer.h']]],
   ['black_24',['BLACK',['../nbgl__types_8h.html#a0a8ef1b5e1941b7257e545cc33405ff1af77fb67151d0c18d397069ad8c271ba3',1,'nbgl_types.h']]],
