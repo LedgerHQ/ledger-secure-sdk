@@ -2148,16 +2148,18 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
         fullHeight += valueTextArea->obj.area.height + valueTextArea->obj.alignmentMarginY;
         if (valueIcon != NULL) {
             nbgl_image_t *image = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
-            layoutObj_t  *obj   = layoutAddCallbackObj(
-                layoutInt, (nbgl_obj_t *) image, list->token, TUNE_TAP_CASUAL);
+            // set the container as touchable, not only the image
+            layoutObj_t *obj = layoutAddCallbackObj(
+                layoutInt, (nbgl_obj_t *) container, list->token, TUNE_TAP_CASUAL);
             obj->index                  = i;
             image->foregroundColor      = BLACK;
             image->buffer               = valueIcon;
             image->obj.alignment        = RIGHT_TOP;
             image->obj.alignmentMarginX = 12;
             image->obj.alignTo          = (nbgl_obj_t *) valueTextArea;
-            image->obj.touchMask        = (1 << TOUCHED);
-            image->obj.touchId          = VALUE_BUTTON_1_ID + i;
+            // set the container as touchable, not only the image
+            container->obj.touchMask = (1 << TOUCHED);
+            container->obj.touchId   = VALUE_BUTTON_1_ID + i;
 
             container->children[container->nbChildren] = (nbgl_obj_t *) image;
             container->nbChildren++;
