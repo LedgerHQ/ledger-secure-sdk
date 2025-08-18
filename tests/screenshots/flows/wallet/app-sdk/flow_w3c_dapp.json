@@ -40,7 +40,7 @@
       "name": "w3c-disabled-clear-dapp-03",
       "targets": [
         {
-          "object": "VALUE_BUTTON_2",
+          "object": "CONTROLS,0",
           "page": "w3c-disabled-clear-dapp-04"
         },
         {
@@ -112,7 +112,7 @@
       "name": "w3c-no-threat-clear-dapp-04",
       "targets": [
         {
-          "object": "VALUE_BUTTON_2",
+          "object": "CONTROLS,0",
           "page": "w3c-no-threat-clear-dapp-05"
         },
         {
@@ -206,7 +206,7 @@
       "name": "w3c-threat-clear-dapp-06",
       "targets": [
         {
-          "object": "VALUE_BUTTON_2",
+          "object": "CONTROLS,0",
           "page": "w3c-threat-clear-dapp-07"
         },
         {
@@ -298,7 +298,7 @@
       "name": "w3c-issue-clear-dapp-05",
       "targets": [
         {
-          "object": "VALUE_BUTTON_2",
+          "object": "CONTROLS,0",
           "page": "w3c-issue-clear-dapp-06"
         }
       ]
