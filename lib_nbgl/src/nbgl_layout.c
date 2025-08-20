@@ -132,6 +132,9 @@ typedef struct {
  */
 static nbgl_layoutInternal_t gLayout[NB_MAX_LAYOUTS] = {0};
 
+// current top of stack
+static nbgl_layoutInternal_t *topLayout;
+
 // numbers of touchable controls for the whole page
 static uint8_t nbTouchableControls = 0;
 
@@ -167,28 +170,23 @@ static bool getLayoutAndLayoutObj(nbgl_obj_t             *obj,
                                   nbgl_layoutInternal_t **layout,
                                   layoutObj_t           **layoutObj)
 {
-    uint8_t i = NB_MAX_LAYOUTS;
-
-    // parse all layouts (starting with modals) to find the object
+    // only try to find the object on top layout on the stack (the other cannot receive touch
+    // events)
     *layout = NULL;
-    while (i > 0) {
-        i--;
-        if (gLayout[i].nbChildren > 0) {
-            uint8_t j;
+    if ((topLayout) && (topLayout->isUsed)) {
+        uint8_t j;
 
-            // search index of obj in this layout
-            for (j = 0; j < gLayout[i].nbUsedCallbackObjs; j++) {
-                if (obj == gLayout[i].callbackObjPool[j].obj) {
-                    LOG_DEBUG(LAYOUT_LOGGER,
-                              "getLayoutAndLayoutObj(): obj found in layout[%d], index = %d, "
-                              "nbUsedCallbackObjs = %d\n",
-                              i,
-                              j,
-                              gLayout[i].nbUsedCallbackObjs);
-                    *layout    = &gLayout[i];
-                    *layoutObj = &(gLayout[i].callbackObjPool[j]);
-                    return true;
-                }
+        // search index of obj in this layout
+        for (j = 0; j < topLayout->nbUsedCallbackObjs; j++) {
+            if (obj == topLayout->callbackObjPool[j].obj) {
+                LOG_DEBUG(LAYOUT_LOGGER,
+                          "getLayoutAndLayoutObj(): obj found in layout %p "
+                          "nbUsedCallbackObjs = %d\n",
+                          topLayout,
+                          topLayout->nbUsedCallbackObjs);
+                *layout    = topLayout;
+                *layoutObj = &(topLayout->callbackObjPool[j]);
+                return true;
             }
         }
     }
@@ -327,11 +325,7 @@ static void longTouchCallback(nbgl_obj_t            *obj,
     // 4th child of container is the progress bar
     nbgl_progress_bar_t *progressBar = (nbgl_progress_bar_t *) container->children[3];
 
-    LOG_DEBUG(LAYOUT_LOGGER,
-              "longTouchCallback(): eventType = %d, obj = %p, gLayout[1].nbChildren = %d\n",
-              eventType,
-              obj,
-              gLayout[1].nbChildren);
+    LOG_DEBUG(LAYOUT_LOGGER, "longTouchCallback(): eventType = %d, obj = %p\n", eventType, obj);
 
     // case of pressing a long press button
     if (eventType == TOUCHING) {
@@ -451,22 +445,17 @@ static void radioTouchCallback(nbgl_obj_t            *obj,
 // callback for spinner ticker
 static void spinnerTickerCallback(void)
 {
-    nbgl_spinner_t        *spinner;
-    uint8_t                i = 0;
-    nbgl_layoutInternal_t *layout;
+    nbgl_spinner_t *spinner;
+    uint8_t         i = 0;
 
-    // gLayout[1] is on top of gLayout[0] so if gLayout[1] is active, it must catch the event
-    if (gLayout[1].nbChildren > 0) {
-        layout = &gLayout[1];
-    }
-    else {
-        layout = &gLayout[0];
+    if (!topLayout || !topLayout->isUsed) {
+        return;
     }
 
     // get index of obj
-    while (i < layout->container->nbChildren) {
-        if (layout->container->children[i]->type == CONTAINER) {
-            nbgl_container_t *container = (nbgl_container_t *) layout->container->children[i];
+    while (i < topLayout->container->nbChildren) {
+        if (topLayout->container->children[i]->type == CONTAINER) {
+            nbgl_container_t *container = (nbgl_container_t *) topLayout->container->children[i];
             if (container->nbChildren && (container->children[0]->type == SPINNER)) {
                 spinner = (nbgl_spinner_t *) container->children[0];
                 spinner->position++;
@@ -487,18 +476,10 @@ static void spinnerTickerCallback(void)
 static void animTickerCallback(void)
 {
     nbgl_image_t          *image;
-    uint8_t                i = 0;
-    nbgl_layoutInternal_t *layout;
+    uint8_t                i      = 0;
+    nbgl_layoutInternal_t *layout = topLayout;
 
-    // gLayout[1] is on top of gLayout[0] so if gLayout[1] is active, it must catch the event
-    if (gLayout[1].nbChildren > 0) {
-        layout = &gLayout[1];
-    }
-    else {
-        layout = &gLayout[0];
-    }
-
-    if (layout->animation == NULL) {
+    if (!layout || !layout->isUsed || (layout->animation == NULL)) {
         return;
     }
 
@@ -1101,19 +1082,21 @@ nbgl_layout_t *nbgl_layoutGet(const nbgl_layoutDescription_t *description)
 {
     nbgl_layoutInternal_t *layout = NULL;
 
-    // find an empty layout in the proper "layer"
     if (description->modal) {
-        if (gLayout[1].nbChildren == 0) {
-            layout = &gLayout[1];
-        }
-        else if (gLayout[2].nbChildren == 0) {
-            layout = &gLayout[2];
+        int i;
+        // find an empty layout in the array of layouts (0 is reserved for background)
+        for (i = 1; i < NB_MAX_LAYOUTS; i++) {
+            if (!gLayout[i].isUsed) {
+                layout = &gLayout[i];
+            }
         }
     }
     else {
-        // automatically "release" a potentially opened non-modal layout
-        gLayout[0].nbChildren = 0;
-        layout                = &gLayout[0];
+        // always use layout 0 for background
+        layout = &gLayout[0];
+        if (topLayout == NULL) {
+            topLayout = layout;
+        }
     }
     if (layout == NULL) {
         LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutGet(): impossible to get a layout!\n");
@@ -1121,7 +1104,26 @@ nbgl_layout_t *nbgl_layoutGet(const nbgl_layoutDescription_t *description)
     }
 
     // reset globals
+    nbgl_layoutInternal_t *backgroundTop = gLayout[0].top;
     memset(layout, 0, sizeof(nbgl_layoutInternal_t));
+    // link layout to other ones
+    if (description->modal) {
+        if (topLayout != NULL) {
+            // if topLayout already existing, push this new one on top of it
+            topLayout->top = layout;
+            layout->bottom = topLayout;
+        }
+        else {
+            // otherwise put it on top of background layout
+            layout->bottom = &gLayout[0];
+            gLayout[0].top = layout;
+        }
+        topLayout = layout;
+    }
+    else {
+        // restore potentially valid background top layer
+        gLayout[0].top = backgroundTop;
+    }
 
     nbTouchableControls = 0;
 
@@ -1150,7 +1152,7 @@ nbgl_layout_t *nbgl_layoutGet(const nbgl_layoutDescription_t *description)
     layout->container->obj.alignment = TOP_LEFT;
     // main container is always the second object, leaving space for header
     layout->children[MAIN_CONTAINER_INDEX] = (nbgl_obj_t *) layout->container;
-    layout->nbChildren                     = NB_MAX_SCREEN_CHILDREN;
+    layout->isUsed                         = true;
 
     // if a tap text is defined, make the container tapable and display this text in gray
     if (description->tapActionText != NULL) {
@@ -3694,10 +3696,7 @@ int nbgl_layoutDraw(nbgl_layout_t *layoutParam)
     if (layout == NULL) {
         return -1;
     }
-    LOG_DEBUG(LAYOUT_LOGGER,
-              "nbgl_layoutDraw(): container.nbChildren =%d, layout->nbChildren = %d\n",
-              layout->container->nbChildren,
-              layout->nbChildren);
+    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutDraw(): layout->isUsed = %d\n", layout->isUsed);
     if (layout->tapText) {
         // set this new container as child of main container
         layoutAddObject(layout, (nbgl_obj_t *) layout->tapText);
@@ -3722,14 +3721,24 @@ int nbgl_layoutRelease(nbgl_layout_t *layoutParam)
 {
     nbgl_layoutInternal_t *layout = (nbgl_layoutInternal_t *) layoutParam;
     LOG_DEBUG(PAGE_LOGGER, "nbgl_layoutRelease(): \n");
-    if (layout == NULL) {
+    if ((layout == NULL) || (!layout->isUsed)) {
         return -1;
     }
     // if modal
     if (layout->modal) {
         nbgl_screenPop(layout->layer);
+        // if this layout was on top, use its bottom layout as top
+        if (layout == topLayout) {
+            topLayout      = layout->bottom;
+            topLayout->top = NULL;
+        }
+        else {
+            // otherwise connect top to bottom
+            layout->bottom->top = layout->top;
+            layout->top->bottom = layout->bottom;
+        }
     }
-    layout->nbChildren = 0;
+    layout->isUsed = false;
     return 0;
 }
 
