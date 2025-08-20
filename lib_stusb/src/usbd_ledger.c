@@ -601,6 +601,15 @@ void USBD_LEDGER_start(void)
         }
 #endif  // !HAVE_USB_HIDKBD
 
+#ifdef HAVE_WEBUSB
+        if (usbd_ledger_init_data.class_mask & USBD_LEDGER_CLASS_WEBUSB
+            && usbd_ledger_data.nb_of_class < USBD_MAX_NUM_INTERFACES) {
+            usbd_ledger_data.bcdusb                                = 0x10;
+            usbd_ledger_data.class[usbd_ledger_data.nb_of_class++] = (usbd_class_info_t *) PIC(
+                (USBD_ClassTypeDef *) (uintptr_t) &USBD_LEDGER_WEBUSB_class_info);
+        }
+#endif  // HAVE_WEBUSB
+
 #ifdef HAVE_IO_U2F
         if (usbd_ledger_init_data.class_mask & USBD_LEDGER_CLASS_HID_U2F
             && usbd_ledger_data.nb_of_class < USBD_MAX_NUM_INTERFACES) {
@@ -627,6 +636,7 @@ void USBD_LEDGER_start(void)
                 USBD_LEDGER_CLASS_HID_U2F, USBD_LEDGER_HID_U2F_SETTING_ID_FREE_CID, buffer, 4);
         }
 #endif  // HAVE_IO_U2F
+
 #ifdef HAVE_CCID_USB
         if (usbd_ledger_init_data.class_mask & USBD_LEDGER_CLASS_CCID_BULK
             && usbd_ledger_data.nb_of_class < USBD_MAX_NUM_INTERFACES) {
@@ -634,14 +644,7 @@ void USBD_LEDGER_start(void)
                 (USBD_ClassTypeDef *) (uintptr_t) &USBD_LEDGER_CCID_Bulk_class_info);
         }
 #endif  // HAVE_CCID_USB
-#ifdef HAVE_WEBUSB
-        if (usbd_ledger_init_data.class_mask & USBD_LEDGER_CLASS_WEBUSB
-            && usbd_ledger_data.nb_of_class < USBD_MAX_NUM_INTERFACES) {
-            usbd_ledger_data.bcdusb                                = 0x10;
-            usbd_ledger_data.class[usbd_ledger_data.nb_of_class++] = (usbd_class_info_t *) PIC(
-                (USBD_ClassTypeDef *) (uintptr_t) &USBD_LEDGER_WEBUSB_class_info);
-        }
-#endif  // HAVE_WEBUSB
+
 #ifdef HAVE_CDCUSB
         if (usbd_ledger_init_data.class_mask & USBD_LEDGER_CLASS_CDC
             && usbd_ledger_data.nb_of_class + 1 < USBD_MAX_NUM_INTERFACES) {
