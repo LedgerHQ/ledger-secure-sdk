@@ -76,14 +76,16 @@ enum {
  *
  */
 typedef struct nbgl_layoutInternal_s {
-    nbgl_obj_t **children;  ///< children for main screen
+    struct nbgl_layoutInternal_s *top;       ///< layout above this one, in stack
+    struct nbgl_layoutInternal_s *bottom;    ///< layout under this one, in stack
+    nbgl_obj_t                  **children;  ///< children for main screen
     nbgl_container_t
         *headerContainer;  ///< container used to store header (progress, back, empty space...)
     nbgl_container_t *footerContainer;    ///< container used to store footer (buttons, nav....)
     nbgl_container_t *upFooterContainer;  ///< container used on top on footer to store special
                                           ///< contents like tip-box or long-press button
     nbgl_text_area_t          *tapText;
-    nbgl_layoutTouchCallback_t callback;  // user callback for all controls
+    nbgl_layoutTouchCallback_t callback;  ///< user callback for all controls
     // This is the pool of callback objects, potentially used by this layout
     layoutObj_t callbackObjPool[LAYOUT_OBJ_POOL_LEN];
 
@@ -100,11 +102,11 @@ typedef struct nbgl_layoutInternal_s {
                                  ///< the screen
     uint8_t incrementAnim : 1;   ///< if true, means that animation index is currently incrementing
     uint8_t layer : 5;           ///< layer in screen stack
-    uint8_t nbUsedCallbackObjs;  ///< number of callback objects used by the whole layout in
-                                 ///< callbackObjPool
-    uint8_t            nbChildren;      ///< number of children in above array
-    uint8_t            iconIdxInAnim;   ///< current icon index in animation
-    bool               invertedColors;  ///< if true, means that background is black
+    uint8_t nbUsedCallbackObjs : 6;  ///< number of callback objects used by the whole layout in
+                                     ///< callbackObjPool
+    uint8_t            isUsed : 1;   ///< if true, means this layout is in use
+    uint8_t            invertedColors : 1;  ///< if true, means that background is black
+    uint8_t            iconIdxInAnim;       ///< current icon index in animation
     nbgl_swipe_usage_t swipeUsage;
 } nbgl_layoutInternal_t;
 
