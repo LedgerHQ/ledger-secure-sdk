@@ -11,7 +11,8 @@
 
 #define U8BE(buf, off) (((uint64_t) U4BE(buf, off) << 32) | (uint64_t) U4BE(buf, off + 4))
 
-bool get_uint64_t_from_tlv_data(const tlv_data_t *data, uint64_t *value) {
+bool get_uint64_t_from_tlv_data(const tlv_data_t *data, uint64_t *value)
+{
     if (data->value.size == 0 || data->value.size > sizeof(uint64_t)) {
         PRINTF("Invalid length (%u bytes) for tag 0x%x (expected 1-%zu bytes)\n",
                data->value.size,
@@ -28,7 +29,8 @@ bool get_uint64_t_from_tlv_data(const tlv_data_t *data, uint64_t *value) {
     return true;
 }
 
-bool get_uint32_t_from_tlv_data(const tlv_data_t *data, uint32_t *value) {
+bool get_uint32_t_from_tlv_data(const tlv_data_t *data, uint32_t *value)
+{
     uint64_t tmp_value;
     if (!get_uint64_t_from_tlv_data(data, &tmp_value) || tmp_value > UINT32_MAX) {
         return false;
@@ -37,7 +39,8 @@ bool get_uint32_t_from_tlv_data(const tlv_data_t *data, uint32_t *value) {
     return true;
 }
 
-bool get_uint16_t_from_tlv_data(const tlv_data_t *data, uint16_t *value) {
+bool get_uint16_t_from_tlv_data(const tlv_data_t *data, uint16_t *value)
+{
     uint64_t tmp_value;
     if (!get_uint64_t_from_tlv_data(data, &tmp_value) || (tmp_value > UINT16_MAX)) {
         return false;
@@ -46,7 +49,8 @@ bool get_uint16_t_from_tlv_data(const tlv_data_t *data, uint16_t *value) {
     return true;
 }
 
-bool get_uint8_t_from_tlv_data(const tlv_data_t *data, uint8_t *value) {
+bool get_uint8_t_from_tlv_data(const tlv_data_t *data, uint8_t *value)
+{
     uint64_t tmp_value;
     if (!get_uint64_t_from_tlv_data(data, &tmp_value) || (tmp_value > UINT8_MAX)) {
         return false;
@@ -55,7 +59,8 @@ bool get_uint8_t_from_tlv_data(const tlv_data_t *data, uint8_t *value) {
     return true;
 }
 
-bool get_bool_from_tlv_data(const tlv_data_t *data, bool *value) {
+bool get_bool_from_tlv_data(const tlv_data_t *data, bool *value)
+{
     uint8_t tmp_value;
     if (!get_uint8_t_from_tlv_data(data, &tmp_value) || (tmp_value > 1)) {
         return false;
@@ -65,9 +70,10 @@ bool get_bool_from_tlv_data(const tlv_data_t *data, bool *value) {
 }
 
 bool get_buffer_from_tlv_data(const tlv_data_t *data,
-                              buffer_t *out,
-                              uint16_t min_size,
-                              uint16_t max_size) {
+                              buffer_t         *out,
+                              uint16_t          min_size,
+                              uint16_t          max_size)
+{
     if (min_size != 0 && data->value.size < min_size) {
         PRINTF("Expected at least %d bytes, found %d\n", min_size, data->value.size);
         return false;
@@ -77,14 +83,15 @@ bool get_buffer_from_tlv_data(const tlv_data_t *data,
         return false;
     }
     out->size = data->value.size;
-    out->ptr = data->value.ptr;
+    out->ptr  = data->value.ptr;
     return true;
 }
 
 bool get_string_from_tlv_data(const tlv_data_t *data,
-                              char *out,
-                              uint16_t min_length,
-                              uint16_t out_size) {
+                              char             *out,
+                              uint16_t          min_length,
+                              uint16_t          out_size)
+{
     // Reject TLV strings with embedded null bytes
     size_t actual_length = strnlen((const char *) data->value.ptr, data->value.size);
     if (actual_length != data->value.size) {
@@ -118,8 +125,9 @@ bool get_string_from_tlv_data(const tlv_data_t *data,
  * @param[out] value the parsed value
  * @return whether it was successful
  */
-static bool get_der_value_as_uint32(const buffer_t *payload, size_t *offset, uint32_t *value) {
-    bool ret = false;
+static bool get_der_value_as_uint32(const buffer_t *payload, size_t *offset, uint32_t *value)
+{
+    bool    ret = false;
     uint8_t byte_length;
     uint8_t buf[sizeof(*value)];
 
@@ -129,10 +137,12 @@ static bool get_der_value_as_uint32(const buffer_t *payload, size_t *offset, uin
             *offset += 1;
             if ((*offset + byte_length) > payload->size) {
                 PRINTF("TLV payload too small for DER encoded value\n");
-            } else {
+            }
+            else {
                 if (byte_length > sizeof(buf) || byte_length == 0) {
                     PRINTF("Unexpectedly long DER-encoded value (%u bytes)\n", byte_length);
-                } else {
+                }
+                else {
                     memset(buf, 0, (sizeof(buf) - byte_length));
                     memcpy(buf + (sizeof(buf) - byte_length), &payload->ptr[*offset], byte_length);
                     *value = U4BE(buf, 0);
@@ -140,7 +150,8 @@ static bool get_der_value_as_uint32(const buffer_t *payload, size_t *offset, uin
                     ret = true;
                 }
             }
-        } else {  // short form
+        }
+        else {  // short form
             *value = payload->ptr[*offset];
             *offset += 1;
             ret = true;
@@ -151,7 +162,8 @@ static bool get_der_value_as_uint32(const buffer_t *payload, size_t *offset, uin
 
 /** Parse DER-encoded value and fits it in uint16_t or fails
  */
-static bool get_der_value_as_uint16(const buffer_t *payload, size_t *offset, uint16_t *value) {
+static bool get_der_value_as_uint16(const buffer_t *payload, size_t *offset, uint16_t *value)
+{
     uint32_t tmp_value;
     if (!get_der_value_as_uint32(payload, offset, &tmp_value) || (tmp_value > UINT16_MAX)) {
         return false;
@@ -164,8 +176,9 @@ static bool get_der_value_as_uint16(const buffer_t *payload, size_t *offset, uin
 /** Parse DER-encoded value and fits it in uint8_t or fails
  */
 __attribute__((unused)) static bool get_der_value_as_uint8(const buffer_t *payload,
-                                                           size_t *offset,
-                                                           uint8_t *value) {
+                                                           size_t         *offset,
+                                                           uint8_t        *value)
+{
     uint32_t tmp_value;
     if (!get_der_value_as_uint32(payload, offset, &tmp_value) || (tmp_value > UINT8_MAX)) {
         return false;
@@ -175,7 +188,8 @@ __attribute__((unused)) static bool get_der_value_as_uint8(const buffer_t *paylo
     return true;
 }
 
-static bool set_tag(TLV_reception_t *received_tags_flags, TLV_tag_t tag) {
+static bool set_tag(TLV_reception_t *received_tags_flags, TLV_tag_t tag)
+{
     TLV_flag_t flag = received_tags_flags->tag_to_flag_function(tag);
     if (received_tags_flags->flags & flag) {
         return false;
@@ -184,7 +198,8 @@ static bool set_tag(TLV_reception_t *received_tags_flags, TLV_tag_t tag) {
     return true;
 }
 
-bool tlv_check_received_tags(TLV_reception_t received, const TLV_tag_t *tags, size_t tag_count) {
+bool tlv_check_received_tags(TLV_reception_t received, const TLV_tag_t *tags, size_t tag_count)
+{
     for (size_t i = 0; i < tag_count; i++) {
         TLV_flag_t flag = received.tag_to_flag_function(tags[i]);
         if (flag == 0) {
@@ -200,8 +215,9 @@ bool tlv_check_received_tags(TLV_reception_t received, const TLV_tag_t *tags, si
 }
 
 static const _internal_tlv_handler_t *find_handler(const _internal_tlv_handler_t *handlers,
-                                                   uint8_t handlers_count,
-                                                   TLV_tag_t tag) {
+                                                   uint8_t                        handlers_count,
+                                                   TLV_tag_t                      tag)
+{
     // check if a handler exists for this tag
     for (uint8_t idx = 0; idx < handlers_count; ++idx) {
         if (handlers[idx].tag == tag) {
@@ -218,19 +234,20 @@ typedef enum tlv_step_e {
 } tlv_step_t;
 
 bool _parse_tlv_internal(const _internal_tlv_handler_t *handlers,
-                         uint8_t handlers_count,
-                         tlv_handler_cb_t *common_handler,
-                         tag_to_flag_function_t *tag_to_flag_function,
-                         const buffer_t *payload,
-                         void *tlv_out,
-                         TLV_reception_t *received_tags_flags) {
-    tlv_step_t step = TLV_TAG;
-    tlv_data_t data;
-    size_t offset = 0;
-    size_t tag_start_offset;
+                         uint8_t                        handlers_count,
+                         tlv_handler_cb_t              *common_handler,
+                         tag_to_flag_function_t        *tag_to_flag_function,
+                         const buffer_t                *payload,
+                         void                          *tlv_out,
+                         TLV_reception_t               *received_tags_flags)
+{
+    tlv_step_t                     step = TLV_TAG;
+    tlv_data_t                     data;
+    size_t                         offset = 0;
+    size_t                         tag_start_offset;
     const _internal_tlv_handler_t *handler;
-    tlv_handler_cb_t *fptr;
-    uint16_t size;
+    tlv_handler_cb_t              *fptr;
+    uint16_t                       size;
 
     explicit_bzero(received_tags_flags, sizeof(*received_tags_flags));
     received_tags_flags->tag_to_flag_function = PIC(tag_to_flag_function);
@@ -258,7 +275,7 @@ bool _parse_tlv_internal(const _internal_tlv_handler_t *handlers,
                     return false;
                 }
                 data.value.size = size;
-                step = TLV_VALUE;
+                step            = TLV_VALUE;
                 break;
 
             case TLV_VALUE:
@@ -276,14 +293,15 @@ bool _parse_tlv_internal(const _internal_tlv_handler_t *handlers,
                            data.value.size,
                            data.value.size,
                            data.value.ptr);
-                } else {
+                }
+                else {
                     data.value.ptr = NULL;
                     PRINTF("Handling tag 0x%02x length %d\n", data.tag, data.value.size);
                 }
                 offset += data.value.size;
 
                 // Calculate raw TLV start/end to give to the handler
-                data.raw.ptr = &payload->ptr[tag_start_offset];
+                data.raw.ptr  = &payload->ptr[tag_start_offset];
                 data.raw.size = offset - tag_start_offset;
 
                 // Call the common handler if there is one

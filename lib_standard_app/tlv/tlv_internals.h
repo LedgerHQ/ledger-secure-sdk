@@ -42,8 +42,8 @@
  * @note Do not use directly.
  */
 #define __X_DEFINE_TLV__TAG_CALLBACKS(value, name, callback, unicity) \
-    {.tag = name,                                                     \
-     .func = (tlv_handler_cb_t *) callback,                           \
+    {.tag       = name,                                               \
+     .func      = (tlv_handler_cb_t *) callback,                      \
      .is_unique = (unicity == ENFORCE_UNIQUE_TAG)},
 
 // The generated TLV library will give the user a tag_to_flag function of the following type for
@@ -55,6 +55,6 @@ typedef TLV_flag_t(tag_to_flag_function_t)(TLV_tag_t tag);
 // This structure is returned to the TLV parser caller and can be used in conjunction with the
 // associated helper functions to get the status of received tags.
 typedef struct {
-    TLV_flag_t flags;
+    TLV_flag_t              flags;
     tag_to_flag_function_t *tag_to_flag_function;
 } TLV_reception_internal_t;
