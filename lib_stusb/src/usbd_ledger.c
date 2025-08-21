@@ -21,7 +21,9 @@
 #include "usbd_ledger.h"
 #include "usbd_ledger_hid.h"
 #include "usbd_ledger_hid_kbd.h"
+#ifdef HAVE_IO_U2F
 #include "usbd_ledger_hid_u2f.h"
+#endif  // HAVE_IO_U2F
 #include "usbd_ledger_webusb.h"
 #include "usbd_ledger_ccid.h"
 #include "usbd_ledger_cdc.h"

@@ -11,8 +11,11 @@
 
 #ifdef HAVE_IO_USB
 #include "usbd_ledger.h"
-#include "usbd_ledger_hid_u2f.h"
 #endif  // HAVE_IO_USB
+
+#ifdef HAVE_IO_U2F
+#include "usbd_ledger_hid_u2f.h"
+#endif  // HAVE_IO_U2F
 
 #ifdef HAVE_BLE
 #include "ble_ledger.h"
@@ -375,6 +378,11 @@ int os_io_tx_cmd(uint8_t                     type,
             USBD_LEDGER_send(USBD_LEDGER_CLASS_CCID_BULK, type, buffer, length, 0);
             break;
 #endif  // HAVE_CCID_USB
+#ifdef HAVE_CDCUSB
+        case OS_IO_PACKET_TYPE_USB_CDC_RAW:
+            USBD_LEDGER_send(USBD_LEDGER_CLASS_CDC_DATA, type, buffer, length, 0);
+            break;
+#endif  // HAVE_CDCUSB
 #endif  // HAVE_IO_USB
 
 #ifdef HAVE_BLE
