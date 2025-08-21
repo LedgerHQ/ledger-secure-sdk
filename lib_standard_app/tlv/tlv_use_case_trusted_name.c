@@ -12,11 +12,11 @@
 // We will know the correct format to use at reception of the signer_algo tag. We don't try to
 // be clever and just calculate all hash until then.
 typedef struct multi_hash_ctx_s {
-    cx_sha256_t sha256;
-    cx_sha3_t sha3_256;
-    cx_sha3_t keccak_256;
+    cx_sha256_t    sha256;
+    cx_sha3_t      sha3_256;
+    cx_sha3_t      keccak_256;
     cx_ripemd160_t ripemd160;
-    cx_sha512_t sha512;
+    cx_sha512_t    sha512;
 } multi_hash_ctx_t;
 
 // Output of the multi hash after hash finalize
@@ -34,7 +34,8 @@ typedef struct multi_hash_finalized_u {
     buffer_t hash;
 } multi_hash_finalized_t;
 
-static void init_multi_hash_ctx(multi_hash_ctx_t *hash_ctx) {
+static void init_multi_hash_ctx(multi_hash_ctx_t *hash_ctx)
+{
     // Use CX_ASSERT, none of those functions can reasonably fail
     CX_ASSERT(cx_sha256_init_no_throw(&hash_ctx->sha256));
     CX_ASSERT(cx_sha3_init_no_throw(&hash_ctx->sha3_256, CX_SHA3_256_SIZE * 8));
@@ -44,7 +45,8 @@ static void init_multi_hash_ctx(multi_hash_ctx_t *hash_ctx) {
 }
 
 // Feed data into all hash without concern
-static void update_multi_hash_ctx(multi_hash_ctx_t *hash_ctx, buffer_t data) {
+static void update_multi_hash_ctx(multi_hash_ctx_t *hash_ctx, buffer_t data)
+{
     // Use CX_ASSERT, none of those functions can reasonably fail
     CX_ASSERT(cx_hash_update((cx_hash_t *) &hash_ctx->sha256, data.ptr, data.size));
     CX_ASSERT(cx_hash_update((cx_hash_t *) &hash_ctx->sha3_256, data.ptr, data.size));
@@ -54,31 +56,32 @@ static void update_multi_hash_ctx(multi_hash_ctx_t *hash_ctx, buffer_t data) {
 }
 
 // Select the correct hash to use depending on the requested algorithm and finalize it
-static int finalize_hash_for_algo(const multi_hash_ctx_t *hash_ctx,
+static int finalize_hash_for_algo(const multi_hash_ctx_t             *hash_ctx,
                                   tlv_trusted_name_signer_algorithm_t signer_algo,
-                                  multi_hash_finalized_t *multi_hash_finalized) {
+                                  multi_hash_finalized_t             *multi_hash_finalized)
+{
     cx_hash_t *hash;
     switch (signer_algo) {
         case TLV_TRUSTED_NAME_SIGNER_ALGORITHM_ECDSA_SHA256:
-            hash = (cx_hash_t *) &hash_ctx->sha256;
+            hash                            = (cx_hash_t *) &hash_ctx->sha256;
             multi_hash_finalized->hash.size = sizeof(multi_hash_finalized->_sha256);
             break;
         case TLV_TRUSTED_NAME_SIGNER_ALGORITHM_ECDSA_SHA3_256:
         case TLV_TRUSTED_NAME_SIGNER_ALGORITHM_EDDSA_SHA3_256:
-            hash = (cx_hash_t *) &hash_ctx->sha3_256;
+            hash                            = (cx_hash_t *) &hash_ctx->sha3_256;
             multi_hash_finalized->hash.size = sizeof(multi_hash_finalized->_sha3_256);
             break;
         case TLV_TRUSTED_NAME_SIGNER_ALGORITHM_ECDSA_KECCAK_256:
         case TLV_TRUSTED_NAME_SIGNER_ALGORITHM_EDDSA_KECCAK_256:
-            hash = (cx_hash_t *) &hash_ctx->keccak_256;
+            hash                            = (cx_hash_t *) &hash_ctx->keccak_256;
             multi_hash_finalized->hash.size = sizeof(multi_hash_finalized->_keccak_256);
             break;
         case TLV_TRUSTED_NAME_SIGNER_ALGORITHM_ECDSA_RIPEMD160:
-            hash = (cx_hash_t *) &hash_ctx->ripemd160;
+            hash                            = (cx_hash_t *) &hash_ctx->ripemd160;
             multi_hash_finalized->hash.size = sizeof(multi_hash_finalized->_ripemd160);
             break;
         case TLV_TRUSTED_NAME_SIGNER_ALGORITHM_ECDSA_SHA512:
-            hash = (cx_hash_t *) &hash_ctx->sha512;
+            hash                            = (cx_hash_t *) &hash_ctx->sha512;
             multi_hash_finalized->hash.size = sizeof(multi_hash_finalized->_sha512);
             break;
         default:
@@ -104,59 +107,68 @@ typedef struct tlv_extracted_s {
     tlv_trusted_name_out_t *output;
 
     // Tags handled by the use case API and not the caller
-    uint8_t structure_type;
+    uint8_t  structure_type;
     uint16_t signer_key_id;
-    uint8_t signer_algo;
+    uint8_t  signer_algo;
     buffer_t input_sig;
 
     // Hash using all protocols at once
     multi_hash_ctx_t hash_ctx;
 } tlv_extracted_t;
 
-static bool handle_structure_type(const tlv_data_t *data, tlv_extracted_t *tlv_extracted) {
+static bool handle_structure_type(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+{
     return get_uint8_t_from_tlv_data(data, &tlv_extracted->structure_type);
 }
 
-static bool handle_version(const tlv_data_t *data, tlv_extracted_t *tlv_extracted) {
+static bool handle_version(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+{
     return get_uint8_t_from_tlv_data(data, &tlv_extracted->output->version);
 }
 
-static bool handle_trusted_name_type(const tlv_data_t *data, tlv_extracted_t *tlv_extracted) {
+static bool handle_trusted_name_type(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+{
     return get_uint8_t_from_tlv_data(data, &tlv_extracted->output->trusted_name_type);
 }
 
-static bool handle_trusted_name_source(const tlv_data_t *data, tlv_extracted_t *tlv_extracted) {
+static bool handle_trusted_name_source(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+{
     return get_uint8_t_from_tlv_data(data, &tlv_extracted->output->trusted_name_source);
 }
 
-static bool handle_trusted_name(const tlv_data_t *data, tlv_extracted_t *tlv_extracted) {
-    return get_buffer_from_tlv_data(data,
-                                    &tlv_extracted->output->trusted_name,
-                                    1,
-                                    TRUSTED_NAME_STRINGS_MAX_SIZE);
+static bool handle_trusted_name(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+{
+    return get_buffer_from_tlv_data(
+        data, &tlv_extracted->output->trusted_name, 1, TRUSTED_NAME_STRINGS_MAX_SIZE);
 }
 
-static bool handle_chain_id(const tlv_data_t *data, tlv_extracted_t *tlv_extracted) {
+static bool handle_chain_id(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+{
     return get_uint64_t_from_tlv_data(data, &tlv_extracted->output->chain_id);
 }
 
-static bool handle_address(const tlv_data_t *data, tlv_extracted_t *tlv_extracted) {
+static bool handle_address(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+{
     return get_buffer_from_tlv_data(data, &tlv_extracted->output->address, 1, 0);
 }
 
-static bool handle_nft_id(const tlv_data_t *data, tlv_extracted_t *tlv_extracted) {
+static bool handle_nft_id(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+{
     return get_buffer_from_tlv_data(data, &tlv_extracted->output->nft_id, NFT_ID_SIZE, NFT_ID_SIZE);
 }
 
-static bool handle_source_contract(const tlv_data_t *data, tlv_extracted_t *tlv_extracted) {
+static bool handle_source_contract(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+{
     return get_buffer_from_tlv_data(data, &tlv_extracted->output->source_contract, 1, 0);
 }
 
-static bool handle_challenge(const tlv_data_t *data, tlv_extracted_t *tlv_extracted) {
+static bool handle_challenge(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+{
     return get_uint32_t_from_tlv_data(data, &tlv_extracted->output->challenge);
 }
 
-static bool handle_not_valid_after(const tlv_data_t *data, tlv_extracted_t *tlv_extracted) {
+static bool handle_not_valid_after(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+{
     if (data->value.size != sizeof(tlv_extracted->output->not_valid_after)) {
         PRINTF("Invalid handle_not_valid_after format length %d\n", data->value.size);
         return false;
@@ -171,19 +183,20 @@ static bool handle_not_valid_after(const tlv_data_t *data, tlv_extracted_t *tlv_
     return true;
 }
 
-static bool handle_signer_key_id(const tlv_data_t *data, tlv_extracted_t *tlv_extracted) {
+static bool handle_signer_key_id(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+{
     return get_uint16_t_from_tlv_data(data, &tlv_extracted->signer_key_id);
 }
 
-static bool handle_signer_algorithm(const tlv_data_t *data, tlv_extracted_t *tlv_extracted) {
+static bool handle_signer_algorithm(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+{
     return get_uint8_t_from_tlv_data(data, &tlv_extracted->signer_algo);
 }
 
-static bool handle_der_signature(const tlv_data_t *data, tlv_extracted_t *tlv_extracted) {
-    return get_buffer_from_tlv_data(data,
-                                    &tlv_extracted->input_sig,
-                                    DER_SIGNATURE_MIN_SIZE,
-                                    DER_SIGNATURE_MAX_SIZE);
+static bool handle_der_signature(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+{
+    return get_buffer_from_tlv_data(
+        data, &tlv_extracted->input_sig, DER_SIGNATURE_MIN_SIZE, DER_SIGNATURE_MAX_SIZE);
 }
 
 static bool handle_common(const tlv_data_t *data, tlv_extracted_t *tlv_extracted);
@@ -209,14 +222,16 @@ static bool handle_common(const tlv_data_t *data, tlv_extracted_t *tlv_extracted
 
 DEFINE_TLV_PARSER(TLV_TAGS, &handle_common, parse_tlv_trusted_name)
 
-static bool handle_common(const tlv_data_t *data, tlv_extracted_t *tlv_extracted) {
+static bool handle_common(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+{
     if (data->tag != TAG_DER_SIGNATURE) {
         update_multi_hash_ctx(&tlv_extracted->hash_ctx, data->raw);
     }
     return true;
 }
 
-static tlv_trusted_name_status_t verify_struct(const tlv_extracted_t *tlv_extracted) {
+static tlv_trusted_name_status_t verify_struct(const tlv_extracted_t *tlv_extracted)
+{
 #ifdef TRUSTED_NAME_TEST_KEY
     uint16_t valid_key_id = TLV_TRUSTED_NAME_SIGNER_KEY_ID_TEST;
 #else
@@ -249,17 +264,14 @@ static tlv_trusted_name_status_t verify_struct(const tlv_extracted_t *tlv_extrac
     }
 
     // Forward optional fields to caller application
-    tlv_extracted->output->nft_id_received = TLV_CHECK_RECEIVED_TAGS(tlv_extracted->received_tags,
-                                                                     TAG_NFT_ID);
-    tlv_extracted->output->source_contract_received = TLV_CHECK_RECEIVED_TAGS(
-        tlv_extracted->received_tags,
-        TAG_SOURCE_CONTRACT);
-    tlv_extracted->output->challenge_received = TLV_CHECK_RECEIVED_TAGS(
-        tlv_extracted->received_tags,
-        TAG_CHALLENGE);
-    tlv_extracted->output->not_valid_after_received = TLV_CHECK_RECEIVED_TAGS(
-        tlv_extracted->received_tags,
-        TAG_NOT_VALID_AFTER);
+    tlv_extracted->output->nft_id_received
+        = TLV_CHECK_RECEIVED_TAGS(tlv_extracted->received_tags, TAG_NFT_ID);
+    tlv_extracted->output->source_contract_received
+        = TLV_CHECK_RECEIVED_TAGS(tlv_extracted->received_tags, TAG_SOURCE_CONTRACT);
+    tlv_extracted->output->challenge_received
+        = TLV_CHECK_RECEIVED_TAGS(tlv_extracted->received_tags, TAG_CHALLENGE);
+    tlv_extracted->output->not_valid_after_received
+        = TLV_CHECK_RECEIVED_TAGS(tlv_extracted->received_tags, TAG_NOT_VALID_AFTER);
 
     if (tlv_extracted->output->version == 0 || tlv_extracted->output->version > 2) {
         PRINTF("Error: unsupported struct version %d\n", tlv_extracted->output->version);
@@ -279,21 +291,23 @@ static tlv_trusted_name_status_t verify_struct(const tlv_extracted_t *tlv_extrac
     return TLV_TRUSTED_NAME_SUCCESS;
 }
 
-static tlv_trusted_name_status_t verify_signature(const tlv_extracted_t *tlv_extracted) {
+static tlv_trusted_name_status_t verify_signature(const tlv_extracted_t *tlv_extracted)
+{
     // Finalize hash object filled by the parser
     multi_hash_finalized_t multi_hash_finalized;
-    if (finalize_hash_for_algo(&tlv_extracted->hash_ctx,
-                               tlv_extracted->signer_algo,
-                               &multi_hash_finalized) != 0) {
+    if (finalize_hash_for_algo(
+            &tlv_extracted->hash_ctx, tlv_extracted->signer_algo, &multi_hash_finalized)
+        != 0) {
         PRINTF("finalize_hash_for_algo failed\n");
         return TLV_TRUSTED_NAME_HASH_FAILED;
     }
 
     uint8_t curve;
-    if (tlv_extracted->signer_algo == TLV_TRUSTED_NAME_SIGNER_ALGORITHM_EDDSA_SHA3_256 ||
-        tlv_extracted->signer_algo == TLV_TRUSTED_NAME_SIGNER_ALGORITHM_EDDSA_KECCAK_256) {
+    if (tlv_extracted->signer_algo == TLV_TRUSTED_NAME_SIGNER_ALGORITHM_EDDSA_SHA3_256
+        || tlv_extracted->signer_algo == TLV_TRUSTED_NAME_SIGNER_ALGORITHM_EDDSA_KECCAK_256) {
         curve = CX_CURVE_Ed25519;
-    } else {
+    }
+    else {
         // ECDSA
         curve = CX_CURVE_SECP256K1;
     }
@@ -313,11 +327,12 @@ static tlv_trusted_name_status_t verify_signature(const tlv_extracted_t *tlv_ext
     return TLV_TRUSTED_NAME_SUCCESS;
 }
 
-tlv_trusted_name_status_t tlv_use_case_trusted_name(const buffer_t *payload,
-                                                    tlv_trusted_name_out_t *output) {
+tlv_trusted_name_status_t tlv_use_case_trusted_name(const buffer_t         *payload,
+                                                    tlv_trusted_name_out_t *output)
+{
     // Main structure that will received the parsed TLV data
     tlv_extracted_t tlv_extracted = {0};
-    tlv_extracted.output = output;
+    tlv_extracted.output          = output;
     tlv_trusted_name_status_t err;
 
     // The parser will fill it with the hash of the whole TLV payload (except SIGN tag)

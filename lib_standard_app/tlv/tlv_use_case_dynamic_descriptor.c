@@ -20,7 +20,7 @@ typedef struct tlv_extracted_s {
 
     // Tags handled by the use case API and not the caller
     uint8_t structure_type;
-    char application_name[BOLOS_APPNAME_MAX_SIZE_B + 1];
+    char    application_name[BOLOS_APPNAME_MAX_SIZE_B + 1];
 
     buffer_t input_sig;
 
@@ -28,45 +28,47 @@ typedef struct tlv_extracted_s {
     cx_sha256_t hash_ctx;
 } tlv_extracted_t;
 
-static bool handle_structure_type(const tlv_data_t *data, tlv_extracted_t *tlv_extracted) {
+static bool handle_structure_type(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+{
     return get_uint8_t_from_tlv_data(data, &tlv_extracted->structure_type);
 }
 
-static bool handle_version(const tlv_data_t *data, tlv_extracted_t *tlv_extracted) {
+static bool handle_version(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+{
     return get_uint8_t_from_tlv_data(data, &tlv_extracted->output->version);
 }
 
-static bool handle_coin_type(const tlv_data_t *data, tlv_extracted_t *tlv_extracted) {
+static bool handle_coin_type(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+{
     return get_uint32_t_from_tlv_data(data, &tlv_extracted->output->coin_type);
 }
 
-static bool handle_application_name(const tlv_data_t *data, tlv_extracted_t *tlv_extracted) {
-    return get_string_from_tlv_data(data,
-                                    tlv_extracted->application_name,
-                                    1,
-                                    sizeof(tlv_extracted->application_name));
+static bool handle_application_name(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+{
+    return get_string_from_tlv_data(
+        data, tlv_extracted->application_name, 1, sizeof(tlv_extracted->application_name));
 }
 
-static bool handle_ticker(const tlv_data_t *data, tlv_extracted_t *tlv_extracted) {
-    return get_string_from_tlv_data(data,
-                                    tlv_extracted->output->ticker,
-                                    1,
-                                    sizeof(tlv_extracted->output->ticker));
+static bool handle_ticker(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+{
+    return get_string_from_tlv_data(
+        data, tlv_extracted->output->ticker, 1, sizeof(tlv_extracted->output->ticker));
 }
 
-static bool handle_magnitude(const tlv_data_t *data, tlv_extracted_t *tlv_extracted) {
+static bool handle_magnitude(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+{
     return get_uint8_t_from_tlv_data(data, &tlv_extracted->output->magnitude);
 }
 
-static bool handle_tuid(const tlv_data_t *data, tlv_extracted_t *tlv_extracted) {
+static bool handle_tuid(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+{
     return get_buffer_from_tlv_data(data, &tlv_extracted->output->TUID, 0, 0);
 }
 
-static bool handle_signature(const tlv_data_t *data, tlv_extracted_t *tlv_extracted) {
-    return get_buffer_from_tlv_data(data,
-                                    &tlv_extracted->input_sig,
-                                    DER_SIGNATURE_MIN_SIZE,
-                                    DER_SIGNATURE_MAX_SIZE);
+static bool handle_signature(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+{
+    return get_buffer_from_tlv_data(
+        data, &tlv_extracted->input_sig, DER_SIGNATURE_MIN_SIZE, DER_SIGNATURE_MAX_SIZE);
 }
 
 static bool handle_common(const tlv_data_t *data, tlv_extracted_t *tlv_extracted);
@@ -86,7 +88,8 @@ static bool handle_common(const tlv_data_t *data, tlv_extracted_t *tlv_extracted
 
 DEFINE_TLV_PARSER(TLV_TAGS, &handle_common, parse_dynamic_token_tag)
 
-static bool handle_common(const tlv_data_t *data, tlv_extracted_t *tlv_extracted) {
+static bool handle_common(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+{
     if (data->tag != TAG_SIGNATURE) {
         CX_ASSERT(
             cx_hash_update((cx_hash_t *) &tlv_extracted->hash_ctx, data->raw.ptr, data->raw.size));
@@ -95,10 +98,11 @@ static bool handle_common(const tlv_data_t *data, tlv_extracted_t *tlv_extracted
 }
 
 tlv_dynamic_descriptor_status_t tlv_use_case_dynamic_descriptor(const buffer_t *payload,
-                                                                tlv_dynamic_descriptor_out_t *out) {
+                                                                tlv_dynamic_descriptor_out_t *out)
+{
     // Parser output
     tlv_extracted_t tlv_extracted = {0};
-    tlv_extracted.output = out;
+    tlv_extracted.output          = out;
 
     // The parser will fill it with the hash of the whole TLV payload (except SIGN tag)
     cx_sha256_init(&tlv_extracted.hash_ctx);
@@ -149,10 +153,8 @@ tlv_dynamic_descriptor_status_t tlv_use_case_dynamic_descriptor(const buffer_t *
     // Verify that the signature field of the TLV is the signature of the TLV hash by the key loaded
     // by the PKI
     check_signature_with_pki_status_t err;
-    err = check_signature_with_pki(hash,
-                                   CERTIFICATE_PUBLIC_KEY_USAGE_COIN_META,
-                                   CX_CURVE_SECP256K1,
-                                   tlv_extracted.input_sig);
+    err = check_signature_with_pki(
+        hash, CERTIFICATE_PUBLIC_KEY_USAGE_COIN_META, CX_CURVE_SECP256K1, tlv_extracted.input_sig);
     if (err != CHECK_SIGNATURE_WITH_PKI_SUCCESS) {
         PRINTF("Failed to verify signature of dynamic token info\n");
         return TLV_DYNAMIC_DESCRIPTOR_SIGNATURE_ERROR | err;

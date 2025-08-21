@@ -218,9 +218,9 @@ bool get_bool_from_tlv_data(const tlv_data_t *data, bool *value);
  * allowed range)
  */
 bool get_buffer_from_tlv_data(const tlv_data_t *data,
-                              buffer_t *out,
-                              uint16_t min_size,
-                              uint16_t max_size);
+                              buffer_t         *out,
+                              uint16_t          min_size,
+                              uint16_t          max_size);
 
 /**
  * Get a string from tlv data
@@ -239,9 +239,9 @@ bool get_buffer_from_tlv_data(const tlv_data_t *data,
  * allowed range)
  */
 bool get_string_from_tlv_data(const tlv_data_t *data,
-                              char *out,
-                              uint16_t min_length,
-                              uint16_t out_size);
+                              char             *out,
+                              uint16_t          min_length,
+                              uint16_t          out_size);
 
 /**
  * Checks if a given list of tags have been received by the parser-set tag reception tracker
@@ -295,9 +295,9 @@ typedef struct {
  * @return whether it was successful
  */
 bool _parse_tlv_internal(const _internal_tlv_handler_t *handlers,
-                         uint8_t handlers_count,
-                         tlv_handler_cb_t *common_handler,
-                         tag_to_flag_function_t *tag_to_flag_function,
-                         const buffer_t *payload,
-                         void *tlv_out,
-                         TLV_reception_t *received_tags_flags);
+                         uint8_t                        handlers_count,
+                         tlv_handler_cb_t              *common_handler,
+                         tag_to_flag_function_t        *tag_to_flag_function,
+                         const buffer_t                *payload,
+                         void                          *tlv_out,
+                         TLV_reception_t               *received_tags_flags);
