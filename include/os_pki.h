@@ -3,7 +3,9 @@
 #include "decorators.h"
 #include "errors.h"
 #include "lcx_ecfp.h"
+#include "lcx_hash.h"
 #include "ox_ec.h"
+#include "os_types.h"
 #include <stdint.h>
 #include <stddef.h>
 
