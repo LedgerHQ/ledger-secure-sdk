@@ -452,7 +452,7 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
 #endif  // HAVE_IO_U2F
                 }
                 break;
-            case OS_IO_PACKET_TYPE_AT_APDU:
+            case OS_IO_PACKET_TYPE_AT_CMD:
                 break;
 
             default:

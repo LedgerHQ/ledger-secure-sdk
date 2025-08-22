@@ -487,7 +487,7 @@ int32_t USBD_LEDGER_CDC_data_ready(USBD_HandleTypeDef *pdev,
     // Filter anything not starting with AT+ :
     if (handle->tx_in_progress == 0 && G_io_app.apdu_length > 3) {
         // First update packet type in buff :
-        buffer[0] = OS_IO_PACKET_TYPE_AT_APDU;
+        buffer[0] = OS_IO_PACKET_TYPE_AT_CMD;
         // Then copy data to G_io_rx_buffer.
         if (G_io_app.apdu_length < (max_length - 1)) {
             memmove(buffer + 1, USBD_LEDGER_io_buffer, G_io_app.apdu_length);
