@@ -33,6 +33,7 @@ typedef enum {
     IO_APDU_MEDIA_USB_WEBUSB,
     IO_APDU_MEDIA_RAW,
     IO_APDU_MEDIA_U2F,
+    IO_APDU_MEDIA_CDC,
 } io_apdu_media_t;
 
 typedef enum {

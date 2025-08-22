@@ -21,7 +21,6 @@
 
 #ifdef HAVE_CDCUSB
 
-
 /* Private enumerations ------------------------------------------------------*/
 
 /* Private defines------------------------------------------------------------*/
@@ -120,7 +119,7 @@ const usbd_class_info_t USBD_LEDGER_CDC_Data_class_info = {
 
     .send_packet = USBD_LEDGER_CDC_send_packet,
 
-    .data_ready = NULL,
+    .data_ready = USBD_LEDGER_CDC_data_ready,
 
     .setting = NULL,
 
@@ -306,7 +305,9 @@ USBD_StatusTypeDef USBD_LEDGER_CDC_de_init(USBD_HandleTypeDef *pdev, void *cooki
     return USBD_OK;
 }
 
-USBD_StatusTypeDef USBD_LEDGER_CDC_setup(USBD_HandleTypeDef *pdev, void *cookie, USBD_SetupReqTypedef *req)
+USBD_StatusTypeDef USBD_LEDGER_CDC_setup(USBD_HandleTypeDef   *pdev,
+                                         void                 *cookie,
+                                         USBD_SetupReqTypedef *req)
 {
     if (!pdev || !cookie || !req) {
         return USBD_FAIL;
@@ -412,18 +413,24 @@ USBD_StatusTypeDef USBD_LEDGER_CDC_data_in(USBD_HandleTypeDef *pdev, void *cooki
 }
 
 USBD_StatusTypeDef USBD_LEDGER_CDC_data_out(USBD_HandleTypeDef *pdev,
-                                 void               *cookie,
-                                 uint8_t             ep_num,
-                                 uint8_t            *packet,
-                                 uint16_t            packet_length)
+                                            void               *cookie,
+                                            uint8_t             ep_num,
+                                            uint8_t            *packet,
+                                            uint16_t            packet_length)
 {
     if (!pdev) {
         return USBD_FAIL;
     }
 
     UNUSED(cookie);
-    UNUSED(packet);
-    UNUSED(packet_length);
+
+    // Filter anything not starting with AT+ :
+    if (packet_length > 3) {
+        memset(USBD_LEDGER_io_buffer, 0, packet_length);
+        memcpy(USBD_LEDGER_io_buffer, packet, packet_length);
+        G_io_app.apdu_length = packet_length;
+        G_io_app.apdu_media  = IO_APDU_MEDIA_CDC;
+    }
 
     if (ep_num == LEDGER_CDC_DATA_EPOUT_ADDR) {
         USBD_LL_PrepareReceive(pdev, LEDGER_CDC_DATA_EPOUT_ADDR, NULL, LEDGER_CDC_DATA_EPOUT_SIZE);
@@ -433,11 +440,11 @@ USBD_StatusTypeDef USBD_LEDGER_CDC_data_out(USBD_HandleTypeDef *pdev,
 }
 
 USBD_StatusTypeDef USBD_LEDGER_CDC_send_packet(USBD_HandleTypeDef *pdev,
-                                    void               *cookie,
-                                    uint8_t             packet_type,
-                                    const uint8_t      *packet,
-                                    uint16_t            packet_length,
-                                    uint32_t            timeout_ms)
+                                               void               *cookie,
+                                               uint8_t             packet_type,
+                                               const uint8_t      *packet,
+                                               uint16_t            packet_length,
+                                               uint32_t            timeout_ms)
 {
     if (!pdev || !cookie || !packet) {
         return USBD_FAIL;
@@ -459,6 +466,36 @@ USBD_StatusTypeDef USBD_LEDGER_CDC_send_packet(USBD_HandleTypeDef *pdev,
     }
 
     return ret;
+}
+
+int32_t USBD_LEDGER_CDC_data_ready(USBD_HandleTypeDef *pdev,
+                                   void               *cookie,
+                                   uint8_t            *buffer,
+                                   uint16_t            max_length)
+{
+    int32_t status = 0;
+
+    UNUSED(pdev);
+    UNUSED(max_length);
+
+    if (!cookie || !buffer) {
+        return -1;
+    }
+
+    ledger_cdc_handle_t *handle = (ledger_cdc_handle_t *) PIC(cookie);
+
+    // Filter anything not starting with AT+ :
+    if (handle->tx_in_progress == 0 && G_io_app.apdu_length > 3) {
+        // First update packet type in buff :
+        buffer[0] = OS_IO_PACKET_TYPE_AT_CMD;
+        // Then copy data to G_io_rx_buffer.
+        if (G_io_app.apdu_length < (max_length - 1)) {
+            memmove(buffer + 1, USBD_LEDGER_io_buffer, G_io_app.apdu_length);
+            status = G_io_app.apdu_length + 1;
+        }
+    }
+
+    return status;
 }
 
 #endif  // HAVE_CDCUSB
