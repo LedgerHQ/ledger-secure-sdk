@@ -2565,7 +2565,7 @@ void nbgl_useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
     context.review.icon           = icon;
     context.review.onChoice       = choiceCallback;
     context.currentPage           = 0;
-    context.nbPages               = 2;  // Start page + trick for review continue
+    context.nbPages = reviewSubTitle ? 3 : 2;  // Start page(s) + trick for review continue
 
     displayStreamingReviewPage(FORWARD_DIRECTION);
 }
@@ -2623,7 +2623,7 @@ void nbgl_useCaseAdvancedReviewStreamingStart(nbgl_operationType_t       operati
     context.review.icon           = icon;
     context.review.onChoice       = choiceCallback;
     context.currentPage           = 0;
-    context.nbPages               = 2;  // Start page + trick for review continue
+    context.nbPages = reviewSubTitle ? 3 : 2;  // Start page(s) + trick for review continue
 
     // memorize streaming operation type for future API calls
     streamingOpType = operationType;
