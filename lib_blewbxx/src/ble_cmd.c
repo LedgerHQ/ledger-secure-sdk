@@ -198,7 +198,7 @@ void ble_aci_gap_forge_cmd_clear_security_db(ble_cmd_data_t *cmd_data)
 void ble_aci_gap_forge_cmd_set_discoverable(ble_cmd_data_t                  *cmd_data,
                                             ble_cmd_set_discoverable_data_t *data)
 {
-  if ((!cmd_data) || (!data) || (data->local_name_length > (BLE_GAP_MAX_LOCAL_NAME_LENGTH+1))) {
+    if ((!cmd_data) || (!data) || (data->local_name_length > (BLE_GAP_MAX_LOCAL_NAME_LENGTH + 1))) {
         return;
     }
 
@@ -428,3 +428,100 @@ void ble_aci_gatt_forge_cmd_exchange_config(ble_cmd_data_t *cmd_data, uint16_t c
     U2LE_ENCODE(cmd_data->hci_cmd_buffer, 2, connection_handle);
     cmd_data->hci_cmd_buffer_length = 4;
 }
+
+#ifdef HAVE_ADVANCED_BLE_CMDS
+
+void ble_hci_forge_cmd_read_rssi(ble_cmd_data_t *cmd_data, uint16_t connection_handle)
+{
+    if (!cmd_data) {
+        return;
+    }
+
+    start_packet_with_opcode(cmd_data, HCI_READ_RSSI_CMD_CODE);
+    U2LE_ENCODE(cmd_data->hci_cmd_buffer, cmd_data->hci_cmd_buffer_length, connection_handle);
+    cmd_data->hci_cmd_buffer_length += 2;
+}
+
+void ble_hci_forge_cmd_read_transmit_power_level(ble_cmd_data_t *cmd_data,
+                                                 uint16_t        connection_handle,
+                                                 uint8_t         current)
+{
+    if (!cmd_data) {
+        return;
+    }
+
+    start_packet_with_opcode(cmd_data, HCI_READ_TRANSMIT_POWER_LEVEL_CMD_CODE);
+    U2LE_ENCODE(cmd_data->hci_cmd_buffer, cmd_data->hci_cmd_buffer_length, connection_handle);
+    cmd_data->hci_cmd_buffer_length += 2;
+    if (current) {
+        cmd_data->hci_cmd_buffer[cmd_data->hci_cmd_buffer_length++] = 0;
+    }
+    else {
+        cmd_data->hci_cmd_buffer[cmd_data->hci_cmd_buffer_length++] = 1;
+    }
+}
+
+void ble_hci_forge_cmd_disconnect_with_reason(ble_cmd_data_t *cmd_data,
+                                              uint16_t        connection_handle,
+                                              uint8_t         reason)
+{
+    if (!cmd_data) {
+        return;
+    }
+
+    start_packet_with_opcode(cmd_data, reason);
+    U2LE_ENCODE(cmd_data->hci_cmd_buffer, 2, connection_handle);
+    cmd_data->hci_cmd_buffer_length = 4;
+}
+
+void ble_aci_hal_forge_cmd_read_raw_rssi(ble_cmd_data_t *cmd_data)
+{
+    if (!cmd_data) {
+        return;
+    }
+
+    start_packet_with_opcode(cmd_data, ACI_HAL_READ_RAW_RSSI);
+}
+
+void ble_hci_forge_cmd_receiver_test(ble_cmd_data_t *cmd_data, uint8_t channel_id)
+{
+    if ((!cmd_data) || (channel_id > 39)) {
+        return;
+    }
+
+    start_packet_with_opcode(cmd_data, HCI_LE_RECEIVER_TEST_CMD_CODE);
+    cmd_data->hci_cmd_buffer[cmd_data->hci_cmd_buffer_length++] = channel_id;
+}
+
+void ble_hci_forge_cmd_end_test(ble_cmd_data_t *cmd_data)
+{
+    if (!cmd_data) {
+        return;
+    }
+
+    start_packet_with_opcode(cmd_data, HCI_LE_TEST_END_CODE);
+}
+
+void ble_aci_forge_cmd_hal_tone_start(ble_cmd_data_t *cmd_data,
+                                      uint8_t         channel_id,
+                                      uint8_t         freq_offset)
+{
+    if ((!cmd_data) || (channel_id > 39)) {
+        return;
+    }
+
+    start_packet_with_opcode(cmd_data, ACI_HAL_TONE_START_CMD_CODE);
+    cmd_data->hci_cmd_buffer[cmd_data->hci_cmd_buffer_length++] = channel_id;
+    cmd_data->hci_cmd_buffer[cmd_data->hci_cmd_buffer_length++] = freq_offset;
+}
+
+void ble_aci_forge_cmd_hal_tone_stop(ble_cmd_data_t *cmd_data)
+{
+    if (!cmd_data) {
+        return;
+    }
+
+    start_packet_with_opcode(cmd_data, ACI_HAL_TONE_STOP_CMD_CODE);
+}
+
+#endif  // HAVE_ADVANCED_BLE_CMDS

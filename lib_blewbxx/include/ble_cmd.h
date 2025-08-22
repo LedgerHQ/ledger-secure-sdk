@@ -25,7 +25,7 @@
 /* Exported types, structures, unions ----------------------------------------*/
 typedef struct {
     uint16_t hci_cmd_opcode;
-    uint8_t  hci_cmd_buffer[BLE_ATT_MAX_MTU_SIZE+16];
+    uint8_t  hci_cmd_buffer[BLE_ATT_MAX_MTU_SIZE + 16];
     uint16_t hci_cmd_buffer_length;
 } ble_cmd_data_t;
 
@@ -112,3 +112,23 @@ void ble_aci_gatt_forge_cmd_exchange_config(ble_cmd_data_t *cmd_data, uint16_t c
 aci_gap_clear_security_db();
 aci_gap_pass_key_resp
 */
+
+#ifdef HAVE_ADVANCED_BLE_CMDS
+/* HCI cmd */
+void ble_hci_forge_cmd_read_rssi(ble_cmd_data_t *cmd_data, uint16_t connection_handle);
+void ble_hci_forge_cmd_disconnect_with_reason(ble_cmd_data_t *cmd_data,
+                                              uint16_t        connection_handle,
+                                              uint8_t         reason);
+void ble_hci_forge_cmd_read_transmit_power_level(ble_cmd_data_t *cmd_data,
+                                                 uint16_t        connection_handle,
+                                                 uint8_t         current);
+/* ACI HAL cmd */
+void ble_aci_hal_forge_cmd_read_raw_rssi(ble_cmd_data_t *cmd_data);
+/* RF Test*/
+void ble_hci_forge_cmd_receiver_test(ble_cmd_data_t *cmd_data, uint8_t channel_id);
+void ble_hci_forge_cmd_end_test(ble_cmd_data_t *cmd_data);
+void ble_aci_forge_cmd_hal_tone_start(ble_cmd_data_t *cmd_data,
+                                      uint8_t         channel_id,
+                                      uint8_t         freq_offset);
+void ble_aci_forge_cmd_hal_tone_stop(ble_cmd_data_t *cmd_data);
+#endif  // HAVE_ADVANCED_BLE_CMDS

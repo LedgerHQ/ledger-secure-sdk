@@ -19,9 +19,13 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdint.h>
 #include "os_id.h"
+#include "os_io.h"
 #include "lcx_crc.h"
 #include "ble_types.h"
 
+#ifdef HAVE_ADVANCED_BLE_CMDS
+#include "ble_ledger_types.h"
+#endif  // HAVE_ADVANCED_BLE_CMDS
 /* Exported enumerations -----------------------------------------------------*/
 typedef enum {
     BLE_LEDGER_PROFILE_APDU = 0x0001,
@@ -50,7 +54,24 @@ typedef enum {
 #define BLE_ADVERTISING_INTERVAL_MAX 96  // 60ms
 
 /* Exported types, structures, unions ----------------------------------------*/
+#ifdef HAVE_ADVANCED_BLE_CMDS
+typedef void (*cdc_controller_packet_cb_t)(uint8_t *packet, uint16_t length);
 
+typedef void (*cdc_event_cb_t)(uint32_t event, uint32_t param);
+
+typedef struct ble_ledger_advanced_data_s {
+    int8_t  rssi_level;
+    int8_t  current_transmit_power_level;
+    int8_t  max_transmit_power_level;
+    int8_t  requested_tx_power;
+    uint8_t hci_reading_current_tx_power;
+    uint8_t adv_tx_power;
+    uint8_t enabling_advertising;
+    uint8_t disabling_advertising;
+    uint8_t adv_enable;
+} ble_ledger_advanced_data_t;
+
+#endif  // HAVE_ADVANCED_BLE_CMDS
 /* Exported macros------------------------------------------------------------*/
 
 /* Exported variables --------------------------------------------------------*/
@@ -81,3 +102,32 @@ bool BLE_LEDGER_is_busy(void);
 
 // Setting
 void BLE_LEDGER_setting(uint32_t profile_id, uint32_t setting_id, uint8_t *buffer, uint16_t length);
+
+#ifdef HAVE_ADVANCED_BLE_CMDS
+void    BLE_LEDGER_start_advanced(uint16_t profile_mask);
+void    BLE_LEDGER_swith_to_bridge(void);
+uint8_t BLE_LEDGER_enable_advertising(uint8_t enable);
+void    BLE_LEDGER_start_bridge(cdc_controller_packet_cb_t cdc_controller_packet_cb,
+                                cdc_event_cb_t             cdc_event_cb);
+void    BLE_LEDGER_send_to_controller(uint8_t *packet, uint16_t packet_length);
+
+uint8_t BLE_LEDGER_set_tx_power(uint8_t high_power, int8_t value);
+int8_t  BLE_LEDGER_requested_tx_power(void);
+
+uint8_t BLE_LEDGER_is_advertising_enabled(void);
+
+uint8_t BLE_LEDGER_disconnect(void);
+
+void BLE_LEDGER_confirm_numeric_comparison(uint8_t confirm);
+
+void BLE_LEDGER_clear_pairings(void);
+
+void BLE_LEDGER_get_connection_info(ble_connection_t           *connection_info,
+                                    ble_ledger_advanced_data_t *advanced_data_info);
+
+void BLE_LEDGER_trig_read_rssi(void);
+void BLE_LEDGER_trig_read_transmit_power_level(uint8_t current);
+
+uint8_t BLE_LEDGER_update_connection_interval(uint16_t conn_interval_min,
+                                              uint16_t conn_interval_max);
+#endif  // HAVE_ADVANCED_BLE_CMDS

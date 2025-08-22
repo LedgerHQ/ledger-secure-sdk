@@ -43,6 +43,13 @@ typedef enum ble_hci_cmd_codes_e {
     HCI_DISCONNECT_CMD_CODE                = 0x0406,
     HCI_LE_SET_SCAN_RESPONSE_DATA_CMD_CODE = 0x2009,
     HCI_RESET_CMD_CODE                     = 0x0c03,
+#ifdef HAVE_ADVANCED_BLE_CMDS
+    HCI_READ_TRANSMIT_POWER_LEVEL_CMD_CODE            = 0x0c2d,
+    HCI_READ_RSSI_CMD_CODE                            = 0x1405,
+    HCI_LE_READ_ADVERTISING_CHANNEL_TX_POWER_CMD_CODE = 0x2007,
+    HCI_LE_RECEIVER_TEST_CMD_CODE                     = 0x201d,
+    HCI_LE_TEST_END_CODE                              = 0x201f,
+#endif
 } ble_hci_cmd_codes_t;
 
 /* HCI LE SubEvent codes */
@@ -103,6 +110,11 @@ typedef enum ble_aci_cmd_codes_e {
     ACI_GATT_CONFIRM_INDICATION_CMD_CODE                    = 0xfd25,
     ACI_GATT_WRITE_RESP_CMD_CODE                            = 0xfd26,
     ACI_L2CAP_CONNECTION_PARAMETER_UPDATE_CMD_CODE          = 0xfd81,
+#ifdef HAVE_ADVANCED_BLE_CMDS
+    ACI_HAL_TONE_START_CMD_CODE = 0xfc15,
+    ACI_HAL_TONE_STOP_CMD_CODE  = 0xfc16,
+    ACI_HAL_READ_RAW_RSSI       = 0xfc32,
+#endif
 } ble_aci_cmd_codes_t;
 
 /* Adv/Scan AD types*/
@@ -197,6 +209,9 @@ typedef struct ble_hci_event_packet_s {
 
 /* HCI */
 #define HCI_EVENT_PKT_TYPE 0x04
+#ifdef HAVE_ADVANCED_BLE_CMDS
+#define HCI_DISCONNECTION_REASON_REM_USER_TERM_CONN 0x13
+#endif  // HAVE_ADVANCED_BLE_CMDS
 
 /* GAP init*/
 #define BLE_GAP_PERIPHERAL_ROLE       0x01
