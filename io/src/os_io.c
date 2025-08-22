@@ -11,11 +11,10 @@
 
 #ifdef HAVE_IO_USB
 #include "usbd_ledger.h"
-#endif  // HAVE_IO_USB
-
-#ifdef HAVE_IO_U2F
+#ifndef HAVE_CDCUSB
 #include "usbd_ledger_hid_u2f.h"
-#endif  // HAVE_IO_U2F
+#endif  // HAVE_CDCUSB
+#endif  // HAVE_IO_USB
 
 #ifdef HAVE_BLE
 #include "ble_ledger.h"
