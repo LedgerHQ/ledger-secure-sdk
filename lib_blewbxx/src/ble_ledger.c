@@ -1230,7 +1230,8 @@ int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
         if ((ble_ledger_data.cdc_controller_packet_cb) && (seph_buffer_length >= 3)) {
             ble_ledger_data.cdc_controller_packet_cb(&seph_buffer[3], seph_buffer_length - 3);
         }
-        return status;
+        status = 0;
+        goto error;
     }
 #endif
 
@@ -1533,8 +1534,9 @@ void BLE_LEDGER_send_to_controller(uint8_t *packet, uint16_t packet_length)
 
     hdr[0] = 0x39;
     U2BE_ENCODE(hdr, 1, packet_length);
-    io_seph_send(hdr, 3);
-    io_seph_send(packet, packet_length);
+
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, hdr, sizeof(hdr), NULL);
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, packet, packet_length, NULL);
 }
 
 uint8_t BLE_LEDGER_set_tx_power(uint8_t high_power, int8_t value)
