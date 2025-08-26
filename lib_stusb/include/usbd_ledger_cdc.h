@@ -57,6 +57,7 @@ USBD_StatusTypeDef USBD_LEDGER_CDC_send_packet(USBD_HandleTypeDef *pdev,
                                                uint32_t            timeout_ms);
 
 uint8_t *USBD_LEDGER_CDC_get_bos_desc(USBD_SpeedTypeDef speed, uint16_t *length);
+bool     USBD_LEDGER_CDC_is_busy(void *cookie);
 int32_t  USBD_LEDGER_CDC_data_ready(USBD_HandleTypeDef *pdev,
                                     void               *cookie,
                                     uint8_t            *buffer,

@@ -1226,9 +1226,12 @@ int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
     int32_t status = -1;
 
 #ifdef HAVE_ADVANCED_BLE_CMDS
-    if (ble_ledger_data.state == BLE_STATE_BRIDGING) {
+    if ((ble_ledger_data.state == BLE_STATE_BRIDGING) && (seph_buffer_length != 0)) {
         if ((ble_ledger_data.cdc_controller_packet_cb) && (seph_buffer_length >= 3)) {
-            ble_ledger_data.cdc_controller_packet_cb(&seph_buffer[3], seph_buffer_length - 3);
+            ble_ledger_data.cdc_controller_packet_cb(&seph_buffer[4], seph_buffer_length - 4);
+            // Clear buf
+            memset(seph_buffer, 0, seph_buffer_length);
+            seph_buffer_length = 0;
         }
         status = 0;
         goto error;
