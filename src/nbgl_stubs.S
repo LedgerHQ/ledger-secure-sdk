@@ -50,7 +50,6 @@ NBGL_TRAMPOLINE _NR_nbgl_getSingleLineTextWidth              nbgl_getSingleLineT
 NBGL_TRAMPOLINE _NR_nbgl_getSingleLineTextWidthInLen         nbgl_getSingleLineTextWidthInLen
 NBGL_TRAMPOLINE _NR_nbgl_getTextHeight                       nbgl_getTextHeight
 NBGL_TRAMPOLINE _NR_nbgl_getTextHeightInWidth                nbgl_getTextHeightInWidth
-NBGL_TRAMPOLINE _NR_nbgl_getTextMaxLenAndWidth               nbgl_getTextMaxLenAndWidth
 NBGL_TRAMPOLINE _NR_nbgl_getTextNbLinesInWidth               nbgl_getTextNbLinesInWidth
 NBGL_TRAMPOLINE _NR_nbgl_getTextNbPagesInWidth               nbgl_getTextNbPagesInWidth
 NBGL_TRAMPOLINE _NR_nbgl_getTextWidth                        nbgl_getTextWidth
