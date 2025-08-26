@@ -104,6 +104,81 @@ static void buttonCallback(nbgl_screen_t *screen, nbgl_buttonEvent_t buttonEvent
 }
 
 /**
+ * @brief compute the max width of the first line of the given text fitting in maxWidth
+ *
+ * @param fontId font ID
+ * @param text input UTF-8 string, possibly multi-line (but only first line, before \n, is used)
+ * @param maxWidth maximum width in bytes, if text is greater than that the parsing is escaped
+ * @param len (output) consumed bytes in text fitting in maxWidth
+ * @param width (output) set to maximum width in pixels in text fitting in maxWidth
+ *
+ * @return true if maxWidth is reached, false otherwise
+ *
+ */
+void getTextMaxLenAndWidth(nbgl_font_id_e fontId,
+                           const char    *text,
+                           uint16_t       maxWidth,
+                           uint16_t      *len,
+                           uint16_t      *width)
+{
+    const nbgl_font_t *font    = nbgl_getFont(fontId);
+    uint16_t           textLen = strlen(text);
+
+    *width = 0;
+    *len   = 0;
+    while (textLen) {
+        uint8_t  char_width;
+        char     curChar;
+        uint16_t curTextLen = textLen;
+
+        curChar = *text;
+        textLen--;
+        // if \f or \n, exit loop
+        if ((curChar == '\f') || (curChar == '\n')) {
+            *len += curTextLen - textLen;
+            return;
+        }
+        // if \b, switch fontId
+        else if (curChar == '\b') {
+            if (fontId == BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp) {  // switch to bold
+                fontId = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
+                font   = nbgl_getFont(fontId);
+            }
+            else if (fontId == BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp) {  // switch to regular
+                fontId = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
+                font   = nbgl_getFont(fontId);
+            }
+            *len += curTextLen - textLen;
+            continue;
+        }
+        if ((curChar < font->first_char) || (curChar > font->last_char)) {
+            char_width = 0;
+        }
+        else {
+            const nbgl_font_character_t *character = (const nbgl_font_character_t *) PIC(
+                &font->characters[curChar - font->first_char]);
+            char_width = character->width - font->char_kerning;
+        }
+        if (char_width == 0) {
+            *len += curTextLen - textLen;
+            continue;
+        }
+
+        // memorize cursors at last found sepator, when wrapping
+
+        if ((*width + char_width) > maxWidth) {
+            return;
+        }
+        *len += curTextLen - textLen;
+        *width = *width + char_width;
+    }
+}
+
+/**********************
+ *   GLOBAL FUNCTIONS
+ **********************/
+
+/**
  * @brief adds the given obj to the layout
  *
  * @param layout
@@ -117,10 +192,6 @@ void layoutAddObject(nbgl_layoutInternal_t *layout, nbgl_obj_t *obj)
     layout->children[layout->nbChildren] = obj;
     layout->nbChildren++;
 }
-
-/**********************
- *   GLOBAL FUNCTIONS
- **********************/
 
 /**
  * @brief returns a layout of the given type. The layout is reset
@@ -321,19 +392,15 @@ int nbgl_layoutAddText(nbgl_layout_t                  *layout,
 
             textWidth = nbgl_getTextWidth(button->fontId, button->text);
             if ((textWidth + BUTTON_MARGIN_Y) >= AVAILABLE_WIDTH) {
-                nbgl_getTextMaxLenAndWidth(button->fontId,
-                                           button->text,
-                                           AVAILABLE_WIDTH - BUTTON_MARGIN_Y,
-                                           &len,
-                                           &width,
-                                           true);
+                getTextMaxLenAndWidth(
+                    button->fontId, button->text, AVAILABLE_WIDTH - BUTTON_MARGIN_Y, &len, &width);
                 button->obj.area.width = width + BUTTON_MARGIN_Y;
                 // copy the first 'len' chars in the tmp string buffer (max is
                 // NB_MAX_CHAR_IN_LINE-1)
                 memcpy(tmpString, button->text, MIN(len, (NB_MAX_CHAR_IN_LINE - 1)));
                 // NULL termination
                 tmpString[MIN(len, (NB_MAX_CHAR_IN_LINE - 1))] = '\0';
-                button->text                                   = tmpString;
+                button->text                                   = PIC(tmpString);
                 button->obj.alignmentMarginY                   = 8 - 7;
             }
             else {
