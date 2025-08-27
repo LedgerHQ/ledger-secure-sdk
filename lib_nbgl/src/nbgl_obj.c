@@ -1294,23 +1294,22 @@ static void draw_spinner(nbgl_spinner_t *obj, nbgl_obj_t *prevObj, bool computeP
         nbgl_frontDrawLine(&rectArea, 0, foreColor);  // top left
         rectArea.x0 = obj->obj.area.x0 + obj->obj.area.width - rectArea.width;
         nbgl_frontDrawLine(&rectArea, 0, foreColor);  // top right
-        rectArea.y0 = obj->obj.area.y0 + obj->obj.area.height - 3;
+        rectArea.y0 = obj->obj.area.y0 + obj->obj.area.height - rectArea.height;
         nbgl_frontDrawLine(&rectArea, 0, foreColor);  // bottom right
         rectArea.x0 = obj->obj.area.x0;
         nbgl_frontDrawLine(&rectArea, 0, foreColor);  // bottom left
         // draw vertical segments
-        rectArea.x0              = obj->obj.area.x0;
-        rectArea.y0              = obj->obj.area.y0;
-        rectArea.width           = SPINNER_DASH_STROKE;
-        rectArea.height          = SPINNER_DASH_HEIGHT;
-        rectArea.backgroundColor = foreColor;
-        nbgl_frontDrawRect(&rectArea);  // top left
+        rectArea.x0     = obj->obj.area.x0;
+        rectArea.y0     = obj->obj.area.y0;
+        rectArea.width  = SPINNER_DASH_STROKE;
+        rectArea.height = SPINNER_DASH_HEIGHT;
+        nbgl_frontDrawLine(&rectArea, 0, foreColor);  // top left
         rectArea.x0 = obj->obj.area.x0 + obj->obj.area.width - rectArea.width;
-        nbgl_frontDrawRect(&rectArea);  // top right
+        nbgl_frontDrawLine(&rectArea, 0, foreColor);  // top right
         rectArea.y0 = obj->obj.area.y0 + obj->obj.area.height - rectArea.height;
-        nbgl_frontDrawRect(&rectArea);  // bottom right
+        nbgl_frontDrawLine(&rectArea, 0, foreColor);  // bottom right
         rectArea.x0 = obj->obj.area.x0;
-        nbgl_frontDrawRect(&rectArea);  // bottom left
+        nbgl_frontDrawLine(&rectArea, 0, foreColor);  // bottom left
     }
     else {
         // clean up full rectangle
