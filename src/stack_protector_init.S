@@ -16,11 +16,11 @@ __wrap___stack_chk_init:
     // call cx_get_random_bytes(&__stack_chk_guard, sizeof(__stack_chk_guard));
     // we can't use the function cx_get_random_bytes because of PIC
     ldr r0, =SYSCALL_cx_get_random_bytes_ID
-    ldr r2, =__stack_chk_guard
+    mov r2, r9
     movs r3, #4
     push {r2-r3}
     mov r1, sp
-    svc 1
+    bl SVC_Call
     pop {r2-r3}
 
     // restore arguments
