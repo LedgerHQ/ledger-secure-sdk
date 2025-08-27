@@ -15,6 +15,7 @@
  *****************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
+#include "os_io_legacy.h"
 #include "usbd_ioreq.h"
 #include "usbd_ledger.h"
 #include "usbd_ledger_cdc.h"
