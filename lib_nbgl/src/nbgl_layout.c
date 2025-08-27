@@ -105,7 +105,7 @@
 #elif defined(TARGET_APEX)
 #define RADIO_CHOICE_HEIGHT              68
 #define BAR_INTERVALE                    8
-#define FOOTER_BUTTON_HEIGHT             72
+#define FOOTER_BUTTON_HEIGHT             88
 #define FOOTER_IN_PAIR_HEIGHT            60
 #define ROUNDED_AND_FOOTER_FOOTER_HEIGHT 128
 #define FOOTER_TEXT_AND_NAV_WIDTH        120
