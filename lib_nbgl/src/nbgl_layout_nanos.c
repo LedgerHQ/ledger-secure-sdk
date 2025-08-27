@@ -333,7 +333,7 @@ int nbgl_layoutAddText(nbgl_layout_t                  *layout,
                 memcpy(tmpString, button->text, MIN(len, (NB_MAX_CHAR_IN_LINE - 1)));
                 // NULL termination
                 tmpString[MIN(len, (NB_MAX_CHAR_IN_LINE - 1))] = '\0';
-                button->text                                   = tmpString;
+                button->text                                   = PIC(tmpString);
                 button->obj.alignmentMarginY                   = 8 - 7;
             }
             else {

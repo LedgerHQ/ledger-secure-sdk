@@ -37,7 +37,7 @@
 #elif defined(TARGET_APEX)
 #define NAVIGATION_HEIGHT 60
 #define NAV_BUTTON_HEIGHT 60
-#define NAV_BUTTON_WIDTH  60
+#define NAV_BUTTON_WIDTH  56
 #define PAGE_NUMBER_WIDTH 60
 #endif  // TARGETS
 
@@ -162,7 +162,7 @@ void layoutNavigationPopulate(nbgl_container_t                 *navContainer,
         button->obj.area.height = BUTTON_DIAMETER;
         button->radius          = BUTTON_RADIUS;
         button->icon            = &CLOSE_ICON;
-#ifndef TARGET_STAX
+#ifdef TARGET_FLEX
         button->obj.alignmentMarginX = (navConfig->nbPages > 1) ? 8 : 0;
 #endif  // TARGET_STAX
 
