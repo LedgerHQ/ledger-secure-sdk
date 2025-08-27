@@ -98,7 +98,7 @@ enum {
 #define TEXT_ENTRY_FONT           LARGE_MEDIUM_1BPP_FONT
 // space between number and text
 #define NUMBER_TEXT_SPACE         4
-#define NUMBER_WIDTH              32
+#define NUMBER_WIDTH              40
 #define DELETE_ICON               C_Close_Tiny_24px
 #endif  // TARGETS
 
