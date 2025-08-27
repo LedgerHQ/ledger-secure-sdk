@@ -95,7 +95,7 @@ enum {
 #define TOP_CONFIRM_MARGIN        12
 #define TOP_COMPACT_MARGIN        8
 #define TITLE_ENTRY_MARGIN_Y      4
-#define TEXT_ENTRY_FONT           SMALL_BOLD_FONT
+#define TEXT_ENTRY_FONT           LARGE_MEDIUM_1BPP_FONT
 // space between number and text
 #define NUMBER_TEXT_SPACE         4
 #define NUMBER_WIDTH              32
