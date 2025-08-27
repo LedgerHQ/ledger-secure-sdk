@@ -115,7 +115,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="preprocessor">#elif defined(TARGET_APEX)</span></div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="preprocessor">#define NAVIGATION_HEIGHT 60</span></div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="preprocessor">#define NAV_BUTTON_HEIGHT 60</span></div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="preprocessor">#define NAV_BUTTON_WIDTH  60</span></div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="preprocessor">#define NAV_BUTTON_WIDTH  56</span></div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="preprocessor">#define PAGE_NUMBER_WIDTH 60</span></div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="preprocessor">#endif  </span><span class="comment">// TARGETS</span></div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
@@ -225,7 +225,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>        button-&gt;obj.area.height = <a class="code hl_define" href="nbgl__obj_8h.html#aac46a54f30a8ff5af6b91c13866434f7">BUTTON_DIAMETER</a>;</div>
 <div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>        button-&gt;radius          = BUTTON_RADIUS;</div>
 <div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>        button-&gt;icon            = &amp;CLOSE_ICON;</div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span><span class="preprocessor">#ifndef TARGET_STAX</span></div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span><span class="preprocessor">#ifdef TARGET_FLEX</span></div>
 <div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>        button-&gt;obj.alignmentMarginX = (navConfig-&gt;<a class="code hl_variable" href="structnbgl__layoutNavigationBar__t.html#ae849b5d02421160099745e4e6b2a43d4">nbPages</a> &gt; 1) ? 8 : 0;</div>
 <div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span><span class="preprocessor">#endif  </span><span class="comment">// TARGET_STAX</span></div>
 <div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span> </div>
