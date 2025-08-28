@@ -208,7 +208,7 @@ extern "C" {
 #define RIGHT_ARROW_ICON     C_Next_24px
 #define CHEVRON_BACK_ICON    C_Chevron_Back_24px
 #define CHEVRON_NEXT_ICON    C_Chevron_Next_24px
-#define CLOSE_ICON           C_Close_24px
+#define CLOSE_ICON           C_Close_Tiny_24px
 #define WHEEL_ICON           C_Settings_24px
 #define INFO_I_ICON          C_Info_24px
 #define QRCODE_ICON          C_QRCode_24px
