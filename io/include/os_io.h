@@ -54,6 +54,8 @@ typedef enum {
     OS_IO_PACKET_TYPE_NFC_MASK     = 0x40,
     OS_IO_PACKET_TYPE_NFC_APDU     = 0x40,
     OS_IO_PACKET_TYPE_NFC_APDU_RSP = 0x41,
+
+    OS_IO_PACKET_TYPE_AT_CMD = 0x42,
 } os_io_packet_type_t;
 
 typedef enum {

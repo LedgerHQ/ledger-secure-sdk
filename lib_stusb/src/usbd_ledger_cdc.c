@@ -15,15 +15,18 @@
  *****************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
+#include "os_io_legacy.h"
 #include "usbd_ioreq.h"
 #include "usbd_ledger.h"
 #include "usbd_ledger_cdc.h"
 
 #ifdef HAVE_CDCUSB
 
-
 /* Private enumerations ------------------------------------------------------*/
-
+enum ledger_cdc_state_t {
+    LEDGER_CDC_STATE_IDLE,
+    LEDGER_CDC_STATE_BUSY,
+};
 /* Private defines------------------------------------------------------------*/
 #define LEDGER_CDC_DATA_EPIN_ADDR  (0x81)
 #define LEDGER_CDC_DATA_EPIN_SIZE  (0x40)
@@ -119,8 +122,9 @@ const usbd_class_info_t USBD_LEDGER_CDC_Data_class_info = {
     .data_out = USBD_LEDGER_CDC_data_out,
 
     .send_packet = USBD_LEDGER_CDC_send_packet,
+    .is_busy     = USBD_LEDGER_CDC_is_busy,
 
-    .data_ready = NULL,
+    .data_ready = USBD_LEDGER_CDC_data_ready,
 
     .setting = NULL,
 
@@ -306,7 +310,9 @@ USBD_StatusTypeDef USBD_LEDGER_CDC_de_init(USBD_HandleTypeDef *pdev, void *cooki
     return USBD_OK;
 }
 
-USBD_StatusTypeDef USBD_LEDGER_CDC_setup(USBD_HandleTypeDef *pdev, void *cookie, USBD_SetupReqTypedef *req)
+USBD_StatusTypeDef USBD_LEDGER_CDC_setup(USBD_HandleTypeDef   *pdev,
+                                         void                 *cookie,
+                                         USBD_SetupReqTypedef *req)
 {
     if (!pdev || !cookie || !req) {
         return USBD_FAIL;
@@ -393,8 +399,9 @@ USBD_StatusTypeDef USBD_LEDGER_CDC_ep0_rx_ready(USBD_HandleTypeDef *pdev, void *
 
 USBD_StatusTypeDef USBD_LEDGER_CDC_data_in(USBD_HandleTypeDef *pdev, void *cookie, uint8_t ep_num)
 {
+    USBD_StatusTypeDef status = USBD_FAIL;
     if (!pdev || !cookie) {
-        return USBD_FAIL;
+        goto error;
     }
 
     ledger_cdc_handle_t *handle = (ledger_cdc_handle_t *) PIC(cookie);
@@ -402,63 +409,119 @@ USBD_StatusTypeDef USBD_LEDGER_CDC_data_in(USBD_HandleTypeDef *pdev, void *cooki
     if ((pdev->ep_in[ep_num].total_length > 0)
         && ((pdev->ep_in[ep_num].total_length % MAX_PACKET_SIZE) == 0)) {
         pdev->ep_in[ep_num].total_length = 0;
-        (void) USBD_LL_Transmit(pdev, ep_num, NULL, 0, 0);
+        handle->tx_in_progress           = LEDGER_CDC_STATE_BUSY;
+        status                           = USBD_LL_Transmit(pdev, ep_num, NULL, 0, 0);
+        handle->tx_in_progress           = LEDGER_CDC_STATE_IDLE;
     }
     else {
-        handle->tx_in_progress = 0;
+        handle->tx_in_progress = LEDGER_CDC_STATE_IDLE;
+        status                 = USBD_OK;
     }
 
-    return USBD_OK;
+error:
+    return status;
 }
 
 USBD_StatusTypeDef USBD_LEDGER_CDC_data_out(USBD_HandleTypeDef *pdev,
-                                 void               *cookie,
-                                 uint8_t             ep_num,
-                                 uint8_t            *packet,
-                                 uint16_t            packet_length)
+                                            void               *cookie,
+                                            uint8_t             ep_num,
+                                            uint8_t            *packet,
+                                            uint16_t            packet_length)
 {
+    USBD_StatusTypeDef status = USBD_FAIL;
     if (!pdev) {
-        return USBD_FAIL;
+        goto error;
     }
 
     UNUSED(cookie);
-    UNUSED(packet);
-    UNUSED(packet_length);
+
+    memset(USBD_LEDGER_io_buffer, 0, packet_length);
+    memcpy(USBD_LEDGER_io_buffer, packet, packet_length);
+    G_io_app.apdu_length = packet_length;
+    G_io_app.apdu_media  = IO_APDU_MEDIA_CDC;
 
     if (ep_num == LEDGER_CDC_DATA_EPOUT_ADDR) {
-        USBD_LL_PrepareReceive(pdev, LEDGER_CDC_DATA_EPOUT_ADDR, NULL, LEDGER_CDC_DATA_EPOUT_SIZE);
+        status = USBD_LL_PrepareReceive(
+            pdev, LEDGER_CDC_DATA_EPOUT_ADDR, NULL, LEDGER_CDC_DATA_EPOUT_SIZE);
     }
 
-    return USBD_OK;
+error:
+    return status;
 }
 
 USBD_StatusTypeDef USBD_LEDGER_CDC_send_packet(USBD_HandleTypeDef *pdev,
-                                    void               *cookie,
-                                    uint8_t             packet_type,
-                                    const uint8_t      *packet,
-                                    uint16_t            packet_length,
-                                    uint32_t            timeout_ms)
+                                               void               *cookie,
+                                               uint8_t             packet_type,
+                                               const uint8_t      *packet,
+                                               uint16_t            packet_length,
+                                               uint32_t            timeout_ms)
 {
+    USBD_StatusTypeDef ret = USBD_FAIL;
     if (!pdev || !cookie || !packet) {
-        return USBD_FAIL;
+        goto error;
     }
 
     UNUSED(packet_type);
 
-    uint8_t              ret    = USBD_OK;
     ledger_cdc_handle_t *handle = (ledger_cdc_handle_t *) PIC(cookie);
 
     if (pdev->dev_state == USBD_STATE_CONFIGURED) {
-        if (handle->tx_in_progress == 0) {
-            handle->tx_in_progress = 1;
-            USBD_LL_Transmit(pdev, LEDGER_CDC_DATA_EPIN_ADDR, packet, packet_length, timeout_ms);
+        if (handle->tx_in_progress == LEDGER_CDC_STATE_IDLE) {
+            handle->tx_in_progress = LEDGER_CDC_STATE_BUSY;
+            ret                    = USBD_LL_Transmit(
+                pdev, LEDGER_CDC_DATA_EPIN_ADDR, packet, packet_length, timeout_ms);
         }
         else {
-            return USBD_BUSY;
+            ret = USBD_BUSY;
         }
     }
+    else {
+        ret = USBD_FAIL;
+    }
 
+error:
     return ret;
+}
+
+bool USBD_LEDGER_CDC_is_busy(void *cookie)
+{
+    ledger_cdc_handle_t *handle = (ledger_cdc_handle_t *) PIC(cookie);
+    bool                 busy   = false;
+
+    if (handle->tx_in_progress == LEDGER_CDC_STATE_BUSY) {
+        busy = true;
+    }
+
+    return busy;
+}
+
+int32_t USBD_LEDGER_CDC_data_ready(USBD_HandleTypeDef *pdev,
+                                   void               *cookie,
+                                   uint8_t            *buffer,
+                                   uint16_t            max_length)
+{
+    int32_t status = 0;
+
+    UNUSED(pdev);
+    UNUSED(max_length);
+
+    if (!cookie || !buffer) {
+        return -1;
+    }
+
+    ledger_cdc_handle_t *handle = (ledger_cdc_handle_t *) PIC(cookie);
+    if (handle->tx_in_progress == LEDGER_CDC_STATE_IDLE) {
+        buffer[0] = OS_IO_PACKET_TYPE_AT_CMD;
+        if (G_io_app.apdu_length < (max_length - 1)) {
+            memmove(buffer + 1, USBD_LEDGER_io_buffer, G_io_app.apdu_length);
+            status = G_io_app.apdu_length + 1;
+        }
+    }
+    else {
+        status = 1;
+    }
+
+    return status;
 }
 
 #endif  // HAVE_CDCUSB
