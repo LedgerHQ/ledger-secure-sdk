@@ -53,6 +53,7 @@ void *pic(void *link_address)
         link_address = pic_internal(link_address);
     }
 
+#ifndef BOLOS_OS_UPGRADER_APP
     // check if in the LINKED RAM zone
     __asm volatile("ldr %0, =_bss" : "=r"(n));
     __asm volatile("ldr %0, =_estack" : "=r"(en));
@@ -61,6 +62,7 @@ void *pic(void *link_address)
         // deref into the RAM therefore add the RAM offset from R9
         link_address = (char *) link_address - (char *) n + (char *) en;
     }
+#endif  // BOLOS_OS_UPGRADER_APP
 
     return link_address;
 }
