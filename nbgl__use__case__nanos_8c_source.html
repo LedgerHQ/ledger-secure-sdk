@@ -2405,7 +2405,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l02565" name="l02565"></a><span class="lineno"> 2565</span>    context.review.icon           = icon;</div>
 <div class="line"><a id="l02566" name="l02566"></a><span class="lineno"> 2566</span>    context.review.onChoice       = choiceCallback;</div>
 <div class="line"><a id="l02567" name="l02567"></a><span class="lineno"> 2567</span>    context.currentPage           = 0;</div>
-<div class="line"><a id="l02568" name="l02568"></a><span class="lineno"> 2568</span>    context.nbPages               = 2;  <span class="comment">// Start page + trick for review continue</span></div>
+<div class="line"><a id="l02568" name="l02568"></a><span class="lineno"> 2568</span>    context.nbPages = reviewSubTitle ? 3 : 2;  <span class="comment">// Start page(s) + trick for review continue</span></div>
 <div class="line"><a id="l02569" name="l02569"></a><span class="lineno"> 2569</span> </div>
 <div class="line"><a id="l02570" name="l02570"></a><span class="lineno"> 2570</span>    displayStreamingReviewPage(<a class="code hl_define" href="nbgl__step_8h.html#ad6c2f2458a2794d1d475b37efc5b58a1">FORWARD_DIRECTION</a>);</div>
 <div class="line"><a id="l02571" name="l02571"></a><span class="lineno"> 2571</span>}</div>
@@ -2435,7 +2435,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l02623" name="l02623"></a><span class="lineno"> 2623</span>    context.review.icon           = icon;</div>
 <div class="line"><a id="l02624" name="l02624"></a><span class="lineno"> 2624</span>    context.review.onChoice       = choiceCallback;</div>
 <div class="line"><a id="l02625" name="l02625"></a><span class="lineno"> 2625</span>    context.currentPage           = 0;</div>
-<div class="line"><a id="l02626" name="l02626"></a><span class="lineno"> 2626</span>    context.nbPages               = 2;  <span class="comment">// Start page + trick for review continue</span></div>
+<div class="line"><a id="l02626" name="l02626"></a><span class="lineno"> 2626</span>    context.nbPages = reviewSubTitle ? 3 : 2;  <span class="comment">// Start page(s) + trick for review continue</span></div>
 <div class="line"><a id="l02627" name="l02627"></a><span class="lineno"> 2627</span> </div>
 <div class="line"><a id="l02628" name="l02628"></a><span class="lineno"> 2628</span>    <span class="comment">// memorize streaming operation type for future API calls</span></div>
 <div class="line"><a id="l02629" name="l02629"></a><span class="lineno"> 2629</span>    streamingOpType = operationType;</div>
