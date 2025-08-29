@@ -96,6 +96,7 @@ static uint8_t getKeypadIndex(uint16_t x, uint16_t y)
 static void keypadDrawGrid(nbgl_keypad_t *keypad)
 {
     nbgl_area_t rectArea;
+    uint8_t     i;
 
     // clean full area
     rectArea.backgroundColor = keypad->obj.area.backgroundColor;
@@ -105,19 +106,27 @@ static void keypadDrawGrid(nbgl_keypad_t *keypad)
     rectArea.height          = keypad->obj.area.height;
     nbgl_frontDrawRect(&rectArea);
 
-    /// draw horizontal lines
+    /// draw the 4 horizontal lines
     rectArea.backgroundColor = keypad->obj.area.backgroundColor;
     rectArea.x0              = keypad->obj.area.x0;
     rectArea.y0              = keypad->obj.area.y0;
-    rectArea.width           = keypad->obj.area.width;
     rectArea.height          = 1;
-    nbgl_frontDrawLine(&rectArea, 1, LIGHT_GRAY);  // 1st line (top)
-    rectArea.y0 += KEYPAD_KEY_HEIGHT;
-    nbgl_frontDrawLine(&rectArea, 1, LIGHT_GRAY);  // 2nd line
-    rectArea.y0 += KEYPAD_KEY_HEIGHT;
-    nbgl_frontDrawLine(&rectArea, 1, LIGHT_GRAY);  // 3rd line
-    rectArea.y0 += KEYPAD_KEY_HEIGHT;
-    nbgl_frontDrawLine(&rectArea, 1, LIGHT_GRAY);  // 4th line
+    rectArea.width           = keypad->obj.area.width;
+    for (i = 0; i < 4; i++) {
+#ifdef TARGET_APEX
+        // on Apex, draw 3 segments per line, for "intersections"
+        rectArea.width = KEY_WIDTH - 2;
+        nbgl_frontDrawLine(&rectArea, 2, LIGHT_GRAY);
+        rectArea.x0 += KEY_WIDTH + 1;
+        nbgl_frontDrawLine(&rectArea, 2, LIGHT_GRAY);
+        rectArea.x0 += KEY_WIDTH + 1;
+        nbgl_frontDrawLine(&rectArea, 2, LIGHT_GRAY);
+        rectArea.x0 = keypad->obj.area.x0;
+#else   // TARGET_APEX
+        nbgl_frontDrawLine(&rectArea, 2, LIGHT_GRAY);
+#endif  // TARGET_APEX
+        rectArea.y0 += KEYPAD_KEY_HEIGHT;
+    }
 
     /// then draw 2 or 3 (if side) vertical lines
     rectArea.x0     = keypad->obj.area.x0;
@@ -128,8 +137,12 @@ static void keypadDrawGrid(nbgl_keypad_t *keypad)
     nbgl_frontDrawLine(&rectArea, 0, LIGHT_GRAY);  // 1st full line, on the left
 #endif                                             // HAVE_SIDE_SCREEN
     rectArea.x0 += KEY_WIDTH;
+#ifdef TARGET_APEX
+    // on Apex, the first "column" is only 99px large
+    rectArea.x0--;
+#endif                                             // TARGET_APEX
     nbgl_frontDrawLine(&rectArea, 0, LIGHT_GRAY);  // 2nd line
-    rectArea.x0 += KEY_WIDTH;
+    rectArea.x0 = keypad->obj.area.x0 + 2 * KEY_WIDTH;
     nbgl_frontDrawLine(&rectArea, 0, LIGHT_GRAY);  // 3rd line
 }
 
