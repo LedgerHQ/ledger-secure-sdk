@@ -27,6 +27,9 @@ then
     exit 1
 fi
 
+# Working in a temporary folder
+mkdir tmp && cd tmp
+
 # Enabling source repository
 sed -i 's/^\(Types: deb\)$/\1 deb-src/g' /etc/apt/sources.list.d/debian.sources
 
