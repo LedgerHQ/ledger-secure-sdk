@@ -249,3 +249,27 @@ void app_fullEthereum(void)
                                 NULL,
                                 exit_app);
 }
+
+/**
+ * @brief Ethereum application start page, with extra action
+ *
+ */
+void app_fullEthereum2(void)
+{
+#ifdef SCREEN_SIZE_WALLET
+    nbgl_homeAction_t homeAction
+        = {.callback = NULL, .icon = &WHEEL_ICON, .text = "My accounts", .style = SOFT_HOME_ACTION};
+#endif  // SCREEN_SIZE_WALLET
+    nbgl_useCaseHomeAndSettings("Ethereum",
+                                &ETH_MAIN_ICON,
+                                NULL,
+                                INIT_HOME_PAGE,
+                                &eth_settingContents,
+                                &eth_infosList,
+#ifdef SCREEN_SIZE_WALLET
+                                &homeAction,
+#else   // SCREEN_SIZE_WALLET
+                                NULL,
+#endif  // SCREEN_SIZE_WALLET
+                                exit_app);
+}
