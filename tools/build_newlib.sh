@@ -27,6 +27,9 @@ then
     exit 1
 fi
 
+mkdir -p "$OUTPUT_DIR"
+OUTPUT_DIR=$(realpath "$OUTPUT_DIR")
+
 # Working in a temporary folder
 mkdir tmp && cd tmp
 
@@ -89,8 +92,6 @@ arm-none-eabi-strip --strip-debug "${INSTALL}/arm-none-eabi/lib/libc.a"
 arm-none-eabi-strip --strip-debug "${INSTALL}/arm-none-eabi/lib/libm.a"
 
 # Copy back
-mkdir -p "$OUTPUT_DIR"
-OUTPUT_DIR=$(realpath "$OUTPUT_DIR")
 cp "${INSTALL}/arm-none-eabi/lib/libc.a" "$OUTPUT_DIR"
 cp "${INSTALL}/arm-none-eabi/lib/libm.a" "$OUTPUT_DIR"
 
