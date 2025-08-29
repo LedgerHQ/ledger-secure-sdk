@@ -20,6 +20,7 @@
 
 #include "lcx_crc.h"
 #include "cx_ram.h"
+#include "ox_crc.h"
 
 static uint32_t reverse_32_bits(uint32_t value)
 {

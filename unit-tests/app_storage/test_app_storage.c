@@ -444,12 +444,6 @@ static void test_app_style_from_prepared(void **state __attribute__((unused)))
     }
 }
 
-// big numbers + reset
-// starting with prepared storage
-// structure and accessors (app)
-// CI !
-// coverage
-
 int main(int argc, char **argv)
 {
     const struct CMUnitTest tests[] = {
