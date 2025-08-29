@@ -89,8 +89,8 @@ arm-none-eabi-strip --strip-debug "${INSTALL}/arm-none-eabi/lib/libc.a"
 arm-none-eabi-strip --strip-debug "${INSTALL}/arm-none-eabi/lib/libm.a"
 
 # Copy back
-OUTPUT_DIR=$(realpath "$OUTPUT_DIR")
 mkdir -p "$OUTPUT_DIR"
+OUTPUT_DIR=$(realpath "$OUTPUT_DIR")
 cp "${INSTALL}/arm-none-eabi/lib/libc.a" "$OUTPUT_DIR"
 cp "${INSTALL}/arm-none-eabi/lib/libm.a" "$OUTPUT_DIR"
 
