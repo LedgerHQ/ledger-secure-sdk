@@ -27,24 +27,24 @@ then
     exit 1
 fi
 
-
-mkdir -p "$OUTPUT_DIR"
-OUTPUT_DIR=$(realpath "$OUTPUT_DIR")
-
-
-# ENV SETUP
-WORKDIR="$(pwd)"
-SRC="${WORKDIR}/newlib"
-BUILD="${SRC}/arm_none_eabi_build"
-INSTALL="${SRC}/arm_none_eabi_install"
-cd "${WORKDIR}"
+# Enabling source repository
+sed -i 's/^\(Types: deb\)$/\1 deb-src/g' /etc/apt/sources.list.d/debian.sources
 
 # Installing newlib build dependencies
 apt update
-apt install -y --no-install-recommends texinfo
+apt install -y --no-install-recommends texinfo dpkg-dev
 
-# Get the latest fixed version
-git clone --depth=1 --single-branch --branch newlib-4.5.0 https://sourceware.org/git/newlib-cygwin.git "${SRC}"
+# Get the latest fixed version for this OS version
+apt source newlib
+
+# Entering the source directory
+cd */
+
+# ENV SETUP
+WORKDIR="$(pwd)"
+#SRC="${WORKDIR}/newlib"
+BUILD="${WORKDIR}/arm_none_eabi_build"
+INSTALL="${WORKDIR}/arm_none_eabi_install"
 
 # Build configuration
 mkdir -p "${BUILD}" "${INSTALL}"
@@ -86,6 +86,7 @@ arm-none-eabi-strip --strip-debug "${INSTALL}/arm-none-eabi/lib/libc.a"
 arm-none-eabi-strip --strip-debug "${INSTALL}/arm-none-eabi/lib/libm.a"
 
 # Copy back
+OUTPUT_DIR=$(realpath "$OUTPUT_DIR")
 mkdir -p "$OUTPUT_DIR"
 cp "${INSTALL}/arm-none-eabi/lib/libc.a" "$OUTPUT_DIR"
 cp "${INSTALL}/arm-none-eabi/lib/libm.a" "$OUTPUT_DIR"
