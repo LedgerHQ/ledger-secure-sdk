@@ -103,7 +103,7 @@
         {
           "object": "RIGHT_BUTTON",
           "page": "streamed_tx-03",
-          "product": "flex"
+          "product": "flex,apex_p"
         },
         {
           "object": "RIGHT_BUTTON",
@@ -114,7 +114,7 @@
     },
     {
       "name": "streamed_tx-03",
-      "product": "flex",
+      "product": "flex,apex_p",
       "targets": [
         {
           "object": "RIGHT_BUTTON",

@@ -163,20 +163,20 @@ static void keyboardDrawCommonLines(nbgl_keyboard_t *keyboard)
     rectArea.y0              = keyboard->obj.area.y0;
     rectArea.width           = keyboard->obj.area.width;
     rectArea.height          = 1;
-    nbgl_frontDrawLine(&rectArea, 0, keyboard->borderColor);  // 1st line (top)
+    nbgl_frontDrawLine(&rectArea, 1, keyboard->borderColor);  // 1st line (top)
     rectArea.y0 += KEYBOARD_KEY_HEIGHT;
-    nbgl_frontDrawLine(&rectArea, 0, keyboard->borderColor);  // 2nd line
+    nbgl_frontDrawLine(&rectArea, 1, keyboard->borderColor);  // 2nd line
     rectArea.y0 += KEYBOARD_KEY_HEIGHT;
-    nbgl_frontDrawLine(&rectArea, 0, keyboard->borderColor);  // 3rd line
+    nbgl_frontDrawLine(&rectArea, 1, keyboard->borderColor);  // 3rd line
     // in letter only mode, only draw the last line if not at bottom of screen
     if ((keyboard->obj.alignmentMarginY > 0) || (!keyboard->lettersOnly)) {
         rectArea.y0 += KEYBOARD_KEY_HEIGHT;
-        nbgl_frontDrawLine(&rectArea, 0, keyboard->borderColor);  // 4th line
+        nbgl_frontDrawLine(&rectArea, 1, keyboard->borderColor);  // 4th line
     }
     // in non letter only mode, only draw the last line if not at bottom of screen
     if ((keyboard->obj.alignmentMarginY > 0) && (!keyboard->lettersOnly)) {
         rectArea.y0 += KEYBOARD_KEY_HEIGHT;
-        nbgl_frontDrawLine(&rectArea, 0, keyboard->borderColor);  // 5th line
+        nbgl_frontDrawLine(&rectArea, 1, keyboard->borderColor);  // 5th line
     }
 #ifdef TARGET_STAX
     /// then draw vertical line
@@ -191,8 +191,8 @@ static void keyboardDrawCommonLines(nbgl_keyboard_t *keyboard)
 #endif                                                        // TARGET_STAX
 }
 
-// draw full grid for letters mode
-static void keyboardDrawLetterGrid(nbgl_keyboard_t *keyboard)
+// draw full grid
+static void keyboardDrawGrid(nbgl_keyboard_t *keyboard)
 {
     nbgl_area_t rectArea;
     uint8_t     i;
@@ -206,89 +206,64 @@ static void keyboardDrawLetterGrid(nbgl_keyboard_t *keyboard)
     rectArea.y0              = keyboard->obj.area.y0;
     rectArea.width           = 1;
     rectArea.height          = KEYBOARD_KEY_HEIGHT;
-    // First row of keys: 10 letters (qwertyuiop)
+#ifdef TARGET_APEX
+    // On Apex, we start all lines 1px under the horizontal one
+    rectArea.y0++;
+    rectArea.height--;
+#endif
+
+    // First row of keys: 10 letters (qwertyuiop) or digits, so 9 separations
     for (i = 0; i < 9; i++) {
         rectArea.x0 += NORMAL_KEY_WIDTH;
-        nbgl_frontDrawLine(&rectArea, 0, keyboard->borderColor);
+        nbgl_frontDrawLine(&rectArea, 2, keyboard->borderColor);
     }
 
-    // Second row: 9 letters (asdfghjkl)
+    // Second row: 9 letters (asdfghjkl) or digits
     rectArea.x0 = keyboard->obj.area.x0 + SECOND_LINE_OFFSET;
     rectArea.y0 += KEYBOARD_KEY_HEIGHT;
-    nbgl_frontDrawLine(&rectArea, 0, keyboard->borderColor);
+    nbgl_frontDrawLine(&rectArea, 2, keyboard->borderColor);
     for (i = 10; i < 19; i++) {
         rectArea.x0 += NORMAL_KEY_WIDTH;
-        nbgl_frontDrawLine(&rectArea, 0, keyboard->borderColor);
+        nbgl_frontDrawLine(&rectArea, 2, keyboard->borderColor);
     }
-    // Third row: Shift key, 7 letters (zxcvbnm) and backspace in normal mode
-    // Third row: 7 letters (zxcvbnm) and backspace in letters only mode
-    rectArea.y0 += KEYBOARD_KEY_HEIGHT;
-    if (!keyboard->lettersOnly) {
-        rectArea.x0 = keyboard->obj.area.x0 + SHIFT_KEY_WIDTH;
+
+    // Third row, it depends of the mode:
+    // - 9 keys: Shift, 7 letters (zxcvbnm) and backspace in normal mode
+    // - 8 keys: 7 letters (zxcvbnm) and backspace in letters only mode
+    // - 7 keys: Special char key, 5 keys and backspace in digits mode
+    uint8_t nbLines, firstShift;
+    if (keyboard->mode == MODE_LETTERS) {
+        if (keyboard->lettersOnly) {
+            nbLines    = 7;
+            firstShift = NORMAL_KEY_WIDTH;
+        }
+        else {
+            nbLines    = 8;
+            firstShift = SHIFT_KEY_WIDTH;
+        }
     }
     else {
-        rectArea.x0 = NORMAL_KEY_WIDTH;
+        nbLines    = 6;
+        firstShift = SPECIAL_CHARS_KEY_WIDTH;
     }
-    for (i = 0; i < 6; i++) {
-        nbgl_frontDrawLine(&rectArea, 0, keyboard->borderColor);
+    rectArea.x0 = keyboard->obj.area.x0 + firstShift;
+    rectArea.y0 += KEYBOARD_KEY_HEIGHT;
+    for (i = 0; i < nbLines; i++) {
+        nbgl_frontDrawLine(&rectArea, 2, keyboard->borderColor);
         rectArea.x0 += NORMAL_KEY_WIDTH;
     }
-    if (!keyboard->lettersOnly) {
-        nbgl_frontDrawLine(&rectArea, 0, keyboard->borderColor);
-        rectArea.x0 += NORMAL_KEY_WIDTH;
-    }
-    nbgl_frontDrawLine(&rectArea, 0, keyboard->borderColor);
 
     // 4th row, only in Full mode
-    if (!keyboard->lettersOnly) {
-        rectArea.y0 += KEYBOARD_KEY_HEIGHT;
+    if (!keyboard->lettersOnly || (keyboard->mode != MODE_LETTERS)) {
         rectArea.x0 = keyboard->obj.area.x0 + SWITCH_KEY_WIDTH;
+        rectArea.y0 += KEYBOARD_KEY_HEIGHT;
+#ifdef TARGET_APEX
+        // On Apex, we start the last line 2px under the horizontal one
+        rectArea.y0 += 2;
+        rectArea.height -= 2;
+#endif
         nbgl_frontDrawLine(&rectArea, 0, keyboard->borderColor);
     }
-}
-
-// draw full grid for digits/special mode
-static void keyboardDrawDigitsGrid(nbgl_keyboard_t *keyboard)
-{
-    nbgl_area_t rectArea;
-    uint8_t     i;
-
-    /// draw common lines
-    keyboardDrawCommonLines(keyboard);
-
-    // then all vertical lines separating keys
-    rectArea.backgroundColor = keyboard->obj.area.backgroundColor;
-    rectArea.x0              = keyboard->obj.area.x0;
-    rectArea.y0              = keyboard->obj.area.y0;
-    rectArea.width           = 1;
-    rectArea.height          = KEYBOARD_KEY_HEIGHT;
-    // First row of keys: 10 keys so 9 separations
-    for (i = 0; i < 9; i++) {
-        rectArea.x0 += NORMAL_KEY_WIDTH;
-        nbgl_frontDrawLine(&rectArea, 0, keyboard->borderColor);
-    }
-
-    // Second row: 9 keys
-    rectArea.x0 = keyboard->obj.area.x0 + SECOND_LINE_OFFSET;
-    rectArea.y0 += KEYBOARD_KEY_HEIGHT;
-    nbgl_frontDrawLine(&rectArea, 0, keyboard->borderColor);
-    for (i = 10; i < 19; i++) {
-        rectArea.x0 += NORMAL_KEY_WIDTH;
-        nbgl_frontDrawLine(&rectArea, 0, keyboard->borderColor);
-    }
-    // Third row: Special char key, 5 keys and backspace
-    rectArea.x0 = keyboard->obj.area.x0 + SPECIAL_CHARS_KEY_WIDTH;
-    rectArea.y0 += KEYBOARD_KEY_HEIGHT;
-    nbgl_frontDrawLine(&rectArea, 0, keyboard->borderColor);
-    for (i = 0; i < 5; i++) {
-        rectArea.x0 += NORMAL_KEY_WIDTH;
-        nbgl_frontDrawLine(&rectArea, 0, keyboard->borderColor);
-    }
-
-    // 4th row, switch to letters and space
-    rectArea.y0 += KEYBOARD_KEY_HEIGHT;
-    rectArea.x0 = keyboard->obj.area.x0 + SWITCH_KEY_WIDTH;
-    nbgl_frontDrawLine(&rectArea, 0, keyboard->borderColor);
 }
 
 // draw letters for letters mode
@@ -525,17 +500,13 @@ static void keyboardDrawDigits(nbgl_keyboard_t *keyboard)
 
 static void keyboardDraw(nbgl_keyboard_t *keyboard)
 {
+    // At first, draw grid
+    keyboardDrawGrid(keyboard);
     if (keyboard->mode == MODE_LETTERS) {
-        // At first, draw grid
-        keyboardDrawLetterGrid(keyboard);
-
         // then draw key content
         keyboardDrawLetters(keyboard);
     }
     else {
-        ////// At first, draw grid //////
-        keyboardDrawDigitsGrid(keyboard);
-
         ////// then draw key content //////
         keyboardDrawDigits(keyboard);
     }

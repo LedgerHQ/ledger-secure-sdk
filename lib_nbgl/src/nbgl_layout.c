@@ -2377,7 +2377,7 @@ int nbgl_layoutAddButton(nbgl_layout_t *layout, const nbgl_layoutButton_t *butto
             button->borderColor = BLACK;
         }
         else {
-            button->borderColor = INACTIVE_COLOR;
+            button->borderColor = LIGHT_GRAY;
         }
     }
     button->text   = PIC(buttonInfo->text);

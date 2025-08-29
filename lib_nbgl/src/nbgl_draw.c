@@ -117,7 +117,8 @@ static const radiusIcons_t radiusIcons44px
     = {&C_half_disc_left_88px_1bpp, &C_half_circle_left_88px_1bpp};
 #endif
 #if SMALL_BUTTON_RADIUS == 20
-static const radiusIcons_t radiusIcons20px = {&C_half_disc_left_40px_1bpp, NULL};
+static const radiusIcons_t radiusIcons20px
+    = {&C_half_disc_left_40px_1bpp, &C_half_circle_left_40px_1bpp};
 #elif SMALL_BUTTON_RADIUS == 32
 static const radiusIcons_t radiusIcons32px
     = {&C_half_disc_left_64px_1bpp, &C_half_circle_left_64px_1bpp};
@@ -415,7 +416,10 @@ void nbgl_drawRoundedBorderedRect(const nbgl_area_t *area,
     }
     if ((2 * circle_width) < area->width) {
         if ((area->height - stroke) > VERTICAL_ALIGNMENT) {
+            // draw the 2 horizontal lines
             rectArea.height = stroke;
+            rectArea.width  = area->width - 2 * circle_width;
+            rectArea.x0 += circle_width;
             nbgl_frontDrawLine(&rectArea, 1, borderColor);  // top
             rectArea.y0 = area->y0 + area->height - stroke;
             nbgl_frontDrawLine(&rectArea, 1, borderColor);  // bottom
