@@ -49,6 +49,11 @@ WEAK void common_app_init(void)
 {
     UX_INIT();
     io_seproxyhal_init();
+
+#ifdef HAVE_APP_STORAGE
+    /* Implicit app storage initialization */
+    app_storage_init();
+#endif  // #ifdef HAVE_APP_STORAGE
 }
 
 WEAK void standalone_app_main(void)
