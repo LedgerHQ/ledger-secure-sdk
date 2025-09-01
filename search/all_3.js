@@ -57,7 +57,7 @@ var searchData=
   ['api_54',['api',['../nbgl_obj.html',1,'Advanced BOLOS GL API'],['../nbgl_screens_and_objs.html#nbgl_objs_mngt_api',1,'API'],['../nbgl_mainpage.html#nbgl_app_use_case_api_1',1,'Application Use-cases API'],['../nbgl_layout.html',1,'Complex objects layout API'],['../nbgl_page.html#page_generic_single',1,'Generic content page API'],['../nbgl_mainpage.html#nbgl_high_level_api_1',1,'High-Level API'],['../nbgl_mainpage.html#nbgl_low_level_api_1',1,'Low-Level API'],['../nbgl_mainpage.html#nbgl_mid_level_api_1',1,'Mid-Level API'],['../nfc_mainpage.html',1,'NFC API'],['../nbgl_app_use_case.html',1,'Predefined Application Use-cases API'],['../nbgl_page.html',1,'Predefined Pages API'],['../index.html#nbgl_presentation',1,'Screen drawing API'],['../index.html#u2f_presentation',1,'U2F (Universal 2nd Factor) API'],['../index.html#usb_impl_presentation',1,'USB Classes API']]],
   ['api_20for_20stax_20flex_55',['New BOLOS Graphic API for Stax/Flex',['../nbgl_mainpage.html',1,'index']]],
   ['apis_56',['Screen drawing APIs',['../nbgl_mainpage.html#nbgl_drawing_api',1,'']]],
-  ['app_5fctx_57',['APP_CTX',['../nbgl__touch_8c.html#ae8a3b6a5d0d3244ed73924ab2421a0d0a3a7df9667f9b767239268afa893fa06c',1,'nbgl_touch.c']]],
+  ['app_5fctx_57',['APP_CTX',['../nbgl__touch_8c.html#af3520ff6d43011872bab77edd27d4de3a3a7df9667f9b767239268afa893fa06c',1,'nbgl_touch.c']]],
   ['app_5fdescription_5fmax_5flen_58',['APP_DESCRIPTION_MAX_LEN',['../nbgl__use__case_8h.html#a8972d4a69d40e4efd9c7437a46d7c8b7',1,'nbgl_use_case.h']]],
   ['app_5flogger_59',['APP_LOGGER',['../nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635a53109ee21c43dd0d246e86d9f0aa30cb',1,'nbgl_debug.h']]],
   ['app_5fstorage_2ec_60',['app_storage.c',['../app__storage_8c.html',1,'']]],
