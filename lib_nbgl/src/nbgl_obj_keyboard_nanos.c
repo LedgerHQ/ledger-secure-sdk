@@ -238,35 +238,63 @@ static void keyboardDrawRegular(nbgl_keyboard_t *keyboard)
         return;
     }
 
-    const char *keys   = keysByMode[keyboard->mode];
-    uint8_t     maxLen = strlen(keys);
+    // if all keys are masked, exit immediately
+    if ((keyboard->keyMask & 0x1FFFFFFF) == 0x1FFFFFFF) {
+        return;
+    }
+
+    const char *keys          = keysByMode[keyboard->mode];
+    uint8_t     maxLen        = strlen(keys);
+    char        keysToDraw[3] = {0};
+
+    // fill the keys to draw in a temporary array, depending of keyMask
+    // start with central and right ones
+    uint8_t charIndex = keyboard->selectedCharIndex;
+    for (i = 1; i < 3; i++) {
+        while (keyboard->keyMask & (1 << charIndex)) {
+            charIndex++;
+            charIndex %= maxLen;
+        }
+        keysToDraw[i] = keys[charIndex];
+        charIndex++;
+        charIndex %= maxLen;
+    }
+    // then left one
+    charIndex = (keyboard->selectedCharIndex + maxLen - 1) % maxLen;
+    while (keyboard->keyMask & (1 << charIndex)) {
+        if (charIndex > 0) {
+            charIndex--;
+        }
+        else {
+            charIndex = maxLen - 1;
+        }
+    }
 
     // mode is defined, so draw the proper 3 letters (or icons)
     for (i = 0; i < 3; i++) {
-        uint8_t charIndex = (keyboard->selectedCharIndex + maxLen - 1 + i) % maxLen;
-        if (keys[charIndex] == '\r') {
+        if (keysToDraw[i] == '\r') {
             keyboardDrawIcon(keyboard->obj.area.x0 + 2 * i * KEYBOARD_KEY_WIDTH,
                              keyboard->obj.area.y0,
                              (i == 1),
                              &C_icon_classes);
         }
-        else if (keys[charIndex] == '\n') {
+        else if (keysToDraw[i] == '\n') {
             keyboardDrawIcon(keyboard->obj.area.x0 + 2 * i * KEYBOARD_KEY_WIDTH,
                              keyboard->obj.area.y0,
                              (i == 1),
                              &C_icon_validate_10);
         }
-        else if (keys[charIndex] == '\b') {
+        else if (keysToDraw[i] == '\b') {
             keyboardDrawIcon(keyboard->obj.area.x0 + 2 * i * KEYBOARD_KEY_WIDTH,
                              keyboard->obj.area.y0,
                              (i == 1),
                              &C_icon_backspace);
         }
-        else {
+        else if (keysToDraw[i] != 0) {
             keyboardDrawChar(keyboard->obj.area.x0 + 2 * i * KEYBOARD_KEY_WIDTH,
                              keyboard->obj.area.y0,
                              (i == 1),
-                             &keys[charIndex]);
+                             &keysToDraw[i]);
         }
     }
 }
@@ -349,7 +377,8 @@ void nbgl_keyboardCallback(nbgl_obj_t *obj, nbgl_buttonEvent_t buttonEvent)
             else {
                 keyboard->selectedCharIndex = nbMax;
             }
-        } while (keyboard->keyMask & (1 << keyboard->selectedCharIndex));
+        } while ((keyboard->mode != MODE_NONE)
+                 && (keyboard->keyMask & (1 << keyboard->selectedCharIndex)));
     }
     else if (buttonEvent == BUTTON_RIGHT_PRESSED) {
         do {
@@ -359,7 +388,8 @@ void nbgl_keyboardCallback(nbgl_obj_t *obj, nbgl_buttonEvent_t buttonEvent)
             else {
                 keyboard->selectedCharIndex = 0;
             }
-        } while (keyboard->keyMask & (1 << keyboard->selectedCharIndex));
+        } while ((keyboard->mode != MODE_NONE)
+                 && (keyboard->keyMask & (1 << keyboard->selectedCharIndex)));
     }
     else {
         return;
