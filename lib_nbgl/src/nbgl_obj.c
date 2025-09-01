@@ -353,21 +353,38 @@ static void compute_position(nbgl_obj_t *obj, nbgl_obj_t *prevObj)
 
     obj->area.x0 = parent->obj.area.x0 + obj->rel_x0;
     obj->area.y0 = parent->obj.area.y0 + obj->rel_y0;
-
-    if ((obj->area.x0 + obj->area.width) > SCREEN_WIDTH) {
+    if ((obj->area.x0 + obj->area.width) > (parent->obj.area.x0 + parent->obj.area.width)) {
+#ifdef BUILD_SCREENSHOTS
+        obj->area.width = parent->obj.area.x0 + parent->obj.area.width - obj->area.x0;
+        // Be sure the area is not empty
+        if (!obj->area.width) {
+            obj->area.width = 1;
+            obj->area.x0 -= 1;
+        }
+#else   // BUILD_SCREENSHOTS
         LOG_FATAL(OBJ_LOGGER,
                   "compute_position(), forbidden width, obj->type = %d, x0=%d, width=%d\n",
                   obj->type,
                   obj->area.x0,
                   obj->area.width);
+#endif  // BUILD_SCREENSHOTS
     }
 #ifdef HAVE_SE_TOUCH
-    if ((obj->area.y0 + obj->area.height) > SCREEN_HEIGHT) {
+    if ((obj->area.y0 + obj->area.height) > (parent->obj.area.y0 + parent->obj.area.height)) {
+#ifdef BUILD_SCREENSHOTS
+        obj->area.height = parent->obj.area.y0 + parent->obj.area.height - obj->area.y0;
+        // Be sure the area is not empty
+        if (!obj->area.height) {
+            obj->area.height = 1;
+            obj->area.y0 -= 1;
+        }
+#else   // BUILD_SCREENSHOTS
         LOG_FATAL(OBJ_LOGGER,
                   "compute_position(), forbidden height, obj->type = %d, y0=%d, height=%d\n",
                   obj->type,
                   obj->area.y0,
                   obj->area.height);
+#endif  // BUILD_SCREENSHOTS
     }
 #endif  // HAVE_SE_TOUCH
 }
