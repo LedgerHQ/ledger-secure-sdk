@@ -79,7 +79,6 @@ _Static_assert(sizeof(app_storage_data_t) <= APP_STORAGE_SIZE,
 
 // app_storage.h private
 extern app_storage_t app_storage_real;
-bool                 app_storage_is_initalized(void);
 
 /* Local prototypes */
 static void test_write_read_from_empty(void **state __attribute__((unused)));
@@ -88,7 +87,7 @@ static void test_app_style_from_empty(void **state __attribute__((unused)));
 /* Functions */
 static int setup_from_empty(void **state)
 {
-    app_storage_init();
+    assert_int_equal(app_storage_init(), APP_STORAGE_SUCCESS);
     return 0;
 }
 
@@ -101,11 +100,11 @@ static int teardown(void **state)
 static int setup_from_prepared(void **state)
 {
     /* Prepare storage */
-    app_storage_init();
+    assert_int_equal(app_storage_init(), APP_STORAGE_SUCCESS);
     test_write_read_from_empty(state);
 
     /* Reinit storage */
-    app_storage_init();
+    assert_int_equal(app_storage_init(), APP_STORAGE_SUCCESS);
 
     return 0;
 }
@@ -113,11 +112,11 @@ static int setup_from_prepared(void **state)
 static int setup_from_prepared_app_style(void **state)
 {
     /* Prepare storage */
-    app_storage_init();
+    assert_int_equal(app_storage_init(), APP_STORAGE_SUCCESS);
     test_app_style_from_empty(state);
 
     /* Reinit storage */
-    app_storage_init();
+    assert_int_equal(app_storage_init(), APP_STORAGE_SUCCESS);
     return 0;
 }
 
@@ -135,18 +134,16 @@ static void test_getters_from_empty(void **state __attribute__((unused)))
 /* Test that corruption from empty storage is detected */
 static void test_corrupted_storage_from_empty(void **state __attribute__((unused)))
 {
-    assert_true(app_storage_is_initalized());
     // --- Simulate corrupted header
     app_storage_header_t header = app_storage_real.header;
     header.data_version += 1;
     // Change header with no CRC update
     nvm_write((void *) &app_storage_real.header, &header, sizeof(header));
     // Ensure invalid CRC
-    assert_false(app_storage_is_initalized());
+    assert_int_equal(app_storage_init(), APP_STORAGE_ERR_CORRUPTED);
 
     // --- Simulate corrupted data
     setup_from_empty(NULL);
-    assert_true(app_storage_is_initalized());
     uint8_t buf[20] = {0};
     memset(buf, 0xAA, sizeof(buf));
     assert_int_equal(app_storage_write(buf, sizeof(buf), 0), sizeof(buf));
@@ -154,31 +151,29 @@ static void test_corrupted_storage_from_empty(void **state __attribute__((unused
     buf[sizeof(buf) - 1] = 0xAB;
     nvm_write((void *) &app_storage_real.data, buf, sizeof(buf));
     // Ensure invalid CRC
-    assert_false(app_storage_is_initalized());
+    assert_int_equal(app_storage_init(), APP_STORAGE_ERR_CORRUPTED);
 }
 
 /* Test that corruption from prepared storage is detected */
 static void test_corrupted_storage_from_prepared(void **state __attribute__((unused)))
 {
-    assert_true(app_storage_is_initalized());
     // --- Simulate corrupted header
     app_storage_header_t header = app_storage_real.header;
     header.data_version += 1;
     // Change header with no CRC update
     nvm_write((void *) &app_storage_real.header, &header, sizeof(header));
     // Ensure invalid CRC
-    assert_false(app_storage_is_initalized());
+    assert_int_equal(app_storage_init(), APP_STORAGE_ERR_CORRUPTED);
 
     // --- Simulate corrupted data
     setup_from_prepared(NULL);
-    assert_true(app_storage_is_initalized());
     uint8_t data[INITIAL_SIZE + ADDITIONALL_SIZE] = {0};
     app_storage_read(data, INITIAL_SIZE + ADDITIONALL_SIZE, 0);
     // Change data with no CRC update
     data[INITIAL_SIZE + ADDITIONALL_SIZE - 1]++;
     nvm_write((void *) &app_storage_real.data, data, INITIAL_SIZE + ADDITIONALL_SIZE);
     // Ensure invalid CRC
-    assert_false(app_storage_is_initalized());
+    assert_int_equal(app_storage_init(), APP_STORAGE_ERR_CORRUPTED);
 }
 
 /* Read error cases with initially empty storage */

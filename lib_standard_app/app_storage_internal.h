@@ -28,6 +28,15 @@ typedef struct app_storage_s {
     uint8_t              data[APP_STORAGE_SIZE];
 } app_storage_t;
 
-void app_storage_init(void);
+/**
+ * @brief initializes the application storage.
+ *
+ * @returns int32_t Initialization status.
+ *
+ * @retval APP_STORAGE_SUCCESS Application storage is successfully initialized.
+ * @retval APP_STORAGE_ERR_CORRUPTED Error, application storage is corrupted.
+ *
+ */
+int32_t app_storage_init(void);
 
 #endif /* HAVE_APP_STORAGE || HAVE_BOLOS */

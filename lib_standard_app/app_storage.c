@@ -30,13 +30,14 @@ CONST app_storage_t app_storage_real __attribute__((section(".storage_section"))
 /**
  * @brief checks if the app storage struct is initialized and valid
  */
-STATIC bool app_storage_is_initalized(void)
+STATIC int32_t app_storage_is_initalized(void)
 {
-    bool is_initialized = false;
+    int32_t status = APP_STORAGE_ERR_INVALID_ARGUMENT;
     if (memcmp((const void *) &app_storage.header.tag, APP_STORAGE_TAG, APP_STORAGE_TAG_LEN) == 0) {
-        is_initialized = true;
+        status = APP_STORAGE_SUCCESS;
     }
     else {
+        status = APP_STORAGE_ERR_INVALID_HEADER;
         goto error;
     }
 
@@ -44,14 +45,14 @@ STATIC bool app_storage_is_initalized(void)
                             sizeof(app_storage.header) + app_storage.header.size);
     if (crc != app_storage.crc) {
         // Invalid CRC, force reset
-        is_initialized = false;
+        status = APP_STORAGE_ERR_CORRUPTED;
     }
     else {
-        is_initialized = true;
+        status = APP_STORAGE_SUCCESS;
     }
 
 error:
-    return is_initialized;
+    return status;
 }
 
 static inline void update_crc(void)
@@ -87,13 +88,31 @@ static inline void system_header_reset(void)
  *  - sets initial size (0)
  *  - sets struct and data versions (1)
  *  - sets properties (from Makefile)
+ *
+ * @returns int32_t
+ *
+ * @retval APP_STORAGE_SUCCESS Application storage is successfully initialized.
+ * @retval APP_STORAGE_ERR_CORRUPTED Error, application storage is corrupted.
  */
-void app_storage_init(void)
+int32_t app_storage_init(void)
 {
-    if (app_storage_is_initalized()) {
-        return;
+    int32_t status = app_storage_is_initalized();
+    switch (status) {
+        case APP_STORAGE_ERR_INVALID_HEADER:
+            // Invalid tag or uninitialized storage, reset the HEADER
+            system_header_reset();
+            status = APP_STORAGE_SUCCESS;
+            break;
+        case APP_STORAGE_ERR_CORRUPTED:
+            system_header_reset();
+            break;
+        case APP_STORAGE_SUCCESS:
+        default:
+            // Return status as-is
+            break;
     }
-    system_header_reset();
+
+    return status;
 }
 
 /**
