@@ -34,6 +34,7 @@ Event_t appEvents[] = {
     {"CARDANO_VERIFY_ADDR", CARDANO_VERIFY_ADDR},
     {"BTC_OPEN",            BTC_OPEN           },
     {"ETH_OPEN",            ETH_OPEN           },
+    {"ETH_OPEN_2",          ETH_OPEN_2         },
     {"MONERO_OPEN",         MONERO_OPEN        },
     {"MON_MESSAGE_SKIP",    MON_MESSAGE_SKIP   },
     {"ETH_MESSAGE_SKIP",    ETH_MESSAGE_SKIP   },
@@ -580,6 +581,9 @@ static int scenario_get_action(void)
                 break;
             case ETH_OPEN:
                 app_fullEthereum();
+                break;
+            case ETH_OPEN_2:
+                app_fullEthereum2();
                 break;
             case MONERO_OPEN:
                 app_fullMonero();

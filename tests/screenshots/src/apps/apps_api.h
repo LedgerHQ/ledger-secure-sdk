@@ -77,7 +77,7 @@ void app_fullCardano(void);
 void app_cardanoSignTransaction(void);
 void app_cardanoVerifyAddress(void);
 void app_fullEthereum(void);
-void app_ethereumSettings(void);
+void app_fullEthereum2(void);
 void app_ethereumSignMessage(void);
 void app_ethereumSignForwardOnlyMessage(void);
 void app_ethereumSignUnknownLengthMessage(void);

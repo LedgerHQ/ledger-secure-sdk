@@ -1955,7 +1955,7 @@ int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info)
             textArea->obj.alignmentMarginY = QR_INTER_TEXTS_MARGIN;
         }
         else {
-            textArea->obj.alignmentMarginY = 32;
+            textArea->obj.alignmentMarginY = QR_PRE_TEXT_MARGIN + 8;
         }
 
         fullHeight += textArea->obj.area.height + textArea->obj.alignmentMarginY + 8;
@@ -2377,7 +2377,7 @@ int nbgl_layoutAddButton(nbgl_layout_t *layout, const nbgl_layoutButton_t *butto
             button->borderColor = BLACK;
         }
         else {
-            button->borderColor = INACTIVE_COLOR;
+            button->borderColor = LIGHT_GRAY;
         }
     }
     button->text   = PIC(buttonInfo->text);
