@@ -674,6 +674,18 @@ void USBD_LEDGER_start(void)
         USBD_Start(&usbd_ledger_data.usbd_handle);
         usbd_ledger_data.state = USBD_LEDGER_STATE_RUNNING;
     }
+    else {
+        for (int index = 0; index < usbd_ledger_data.nb_of_class; index++) {
+            usbd_class_info_t *class_info = usbd_ledger_data.class[index];
+            if (class_info) {
+                if (class_info->init) {
+                    USBD_StatusTypeDef ret = ((usbd_class_init_t) PIC(class_info->init))(
+                        &usbd_ledger_data.usbd_handle, class_info->cookie);
+                    UNUSED(ret);
+                }
+            }
+        }
+    }
 }
 
 void USB_LEDGER_stop(void)
