@@ -61,6 +61,7 @@ target_compile_options(
   -Werror
   -O0
   --coverage
+  -fsanitize=address,undefined
 )
 
 target_compile_definitions(
@@ -90,6 +91,7 @@ target_link_options(
   PRIVATE
   --coverage
   -lgcov
+  -fsanitize=address,undefined
 )
 
 add_test(
