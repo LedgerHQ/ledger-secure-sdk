@@ -438,8 +438,19 @@ static void draw_button(nbgl_button_t *obj, nbgl_obj_t *prevObj, bool computePos
         nbgl_drawRoundedRect((nbgl_area_t *) obj, obj->radius, obj->innerColor);
     }
     else {
+#ifdef TARGET_APEX
+        // on Apex, top-right button (54x56) is drawned as an icon
+        if ((obj->radius == RADIUS_28_PIXELS) && (obj->obj.area.width == BUTTON_WIDTH)) {
+            nbgl_drawIcon(&obj->obj.area, NO_TRANSFORMATION, BLACK, &C_dashed_button_56px);
+        }
+        else {
+            nbgl_drawRoundedBorderedRect(
+                (nbgl_area_t *) obj, obj->radius, BUTTON_STROKE, obj->innerColor, obj->borderColor);
+        }
+#else   // TARGET_APEX
         nbgl_drawRoundedBorderedRect(
             (nbgl_area_t *) obj, obj->radius, BUTTON_STROKE, obj->innerColor, obj->borderColor);
+#endif  // TARGET_APEX
     }
     // get the text of the button from the callback if not NULL
     if (obj->onDrawCallback != NULL) {

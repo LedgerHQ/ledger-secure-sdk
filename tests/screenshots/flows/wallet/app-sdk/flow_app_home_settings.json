@@ -5,6 +5,15 @@
       "name": "Entry",
       "targets": [
         {
+          "app_event": "ETH_OPEN_2",
+          "page": "app-with-cta-action-02"
+        }
+      ]
+    },
+    {
+      "name": "app-with-cta-action-02",
+      "targets": [
+        {
           "app_event": "ETH_OPEN",
           "page": "with_settings-01"
         }
