@@ -17,14 +17,23 @@
 #include <stddef.h>
 #include <setjmp.h>
 #include <string.h>
-
-#include <cmocka.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifdef UNIT_TESTING
+// When defined cmocka redefine malloc/free which does not work well with
+// address-sanitizer
+#undef UNIT_TESTING
+#include <cmocka.h>
+#define UNIT_TESTING
+#else
+#include <cmocka.h>
+#endif
 
 #include "app_storage.h"
 #include "app_storage_internal.h"
 #include "app_storage_stubs.h"
+#include "os_nvm.h"
 
 /* Defines */
 #define INITIAL_SIZE      20
@@ -67,6 +76,10 @@ _Static_assert(sizeof(app_storage_data_t) <= APP_STORAGE_SIZE,
 #define APP_STORAGE_READ_F(field, dst_buf) \
     app_storage_read(                      \
         dst_buf, sizeof(((app_storage_data_t *) 0)->field), offsetof(app_storage_data_t, field))
+
+// app_storage.h private
+extern app_storage_t app_storage_real;
+bool                 app_storage_is_initalized(void);
 
 /* Local prototypes */
 static void test_write_read_from_empty(void **state __attribute__((unused)));
@@ -117,6 +130,55 @@ static void test_getters_from_empty(void **state __attribute__((unused)))
      * APP_STORAGE_PROP_DATA */
     assert_int_equal(app_storage_get_properties(),
                      APP_STORAGE_PROP_SETTINGS | APP_STORAGE_PROP_DATA);
+}
+
+/* Test that corruption from empty storage is detected */
+static void test_corrupted_storage_from_empty(void **state __attribute__((unused)))
+{
+    assert_true(app_storage_is_initalized());
+    // --- Simulate corrupted header
+    app_storage_header_t header = app_storage_real.header;
+    header.data_version += 1;
+    // Change header with no CRC update
+    nvm_write((void *) &app_storage_real.header, &header, sizeof(header));
+    // Ensure invalid CRC
+    assert_false(app_storage_is_initalized());
+
+    // --- Simulate corrupted data
+    setup_from_empty(NULL);
+    assert_true(app_storage_is_initalized());
+    uint8_t buf[20] = {0};
+    memset(buf, 0xAA, sizeof(buf));
+    assert_int_equal(app_storage_write(buf, sizeof(buf), 0), sizeof(buf));
+    // Change data with no CRC update
+    buf[sizeof(buf) - 1] = 0xAB;
+    nvm_write((void *) &app_storage_real.data, buf, sizeof(buf));
+    // Ensure invalid CRC
+    assert_false(app_storage_is_initalized());
+}
+
+/* Test that corruption from prepared storage is detected */
+static void test_corrupted_storage_from_prepared(void **state __attribute__((unused)))
+{
+    assert_true(app_storage_is_initalized());
+    // --- Simulate corrupted header
+    app_storage_header_t header = app_storage_real.header;
+    header.data_version += 1;
+    // Change header with no CRC update
+    nvm_write((void *) &app_storage_real.header, &header, sizeof(header));
+    // Ensure invalid CRC
+    assert_false(app_storage_is_initalized());
+
+    // --- Simulate corrupted data
+    setup_from_prepared(NULL);
+    assert_true(app_storage_is_initalized());
+    uint8_t data[INITIAL_SIZE + ADDITIONALL_SIZE] = {0};
+    app_storage_read(data, INITIAL_SIZE + ADDITIONALL_SIZE, 0);
+    // Change data with no CRC update
+    data[INITIAL_SIZE + ADDITIONALL_SIZE - 1]++;
+    nvm_write((void *) &app_storage_real.data, data, INITIAL_SIZE + ADDITIONALL_SIZE);
+    // Ensure invalid CRC
+    assert_false(app_storage_is_initalized());
 }
 
 /* Read error cases with initially empty storage */
@@ -448,6 +510,8 @@ int main(int argc, char **argv)
 {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test_setup_teardown(test_getters_from_empty, setup_from_empty, teardown),
+        cmocka_unit_test_setup_teardown(
+            test_corrupted_storage_from_empty, setup_from_empty, teardown),
         cmocka_unit_test_setup_teardown(test_read_error_from_empty, setup_from_empty, teardown),
         cmocka_unit_test_setup_teardown(test_write_error_from_empty, setup_from_empty, teardown),
         cmocka_unit_test_setup_teardown(test_data_version_from_empty, setup_from_empty, teardown),
@@ -456,6 +520,8 @@ int main(int argc, char **argv)
             test_write_big_reset_from_empty, setup_from_empty, teardown),
         cmocka_unit_test_setup_teardown(
             test_write_read_from_prepared, setup_from_prepared, teardown),
+        cmocka_unit_test_setup_teardown(
+            test_corrupted_storage_from_prepared, setup_from_prepared, teardown),
         cmocka_unit_test_setup_teardown(test_app_style_from_empty, setup_from_empty, teardown),
         cmocka_unit_test_setup_teardown(
             test_app_style_from_prepared, setup_from_prepared_app_style, teardown),

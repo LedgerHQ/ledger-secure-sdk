@@ -24,25 +24,34 @@
 
 #define APP_STORAGE_ERASE_BLOCK_SIZE 256
 
-/* In order to be used in unit testing */
-#if !defined(TEST)
-#define CONST const
-#else
-#define CONST
-#endif
-
 CONST app_storage_t app_storage_real __attribute__((section(".storage_section")));
 #define app_storage (*(volatile app_storage_t *) PIC(&app_storage_real))
 
 /**
- * @brief checks if the app storage struct is initialized
+ * @brief checks if the app storage struct is initialized and valid
  */
-static bool app_storage_is_initalized(void)
+STATIC bool app_storage_is_initalized(void)
 {
-    if (memcmp((const void *) &app_storage.header.tag, APP_STORAGE_TAG, APP_STORAGE_TAG_LEN) != 0) {
-        return false;
+    bool is_initialized = false;
+    if (memcmp((const void *) &app_storage.header.tag, APP_STORAGE_TAG, APP_STORAGE_TAG_LEN) == 0) {
+        is_initialized = true;
     }
-    return true;
+    else {
+        goto error;
+    }
+
+    uint32_t crc = cx_crc32((void *) &app_storage.header,
+                            sizeof(app_storage.header) + app_storage.header.size);
+    if (crc != app_storage.crc) {
+        // Invalid CRC, force reset
+        is_initialized = false;
+    }
+    else {
+        is_initialized = true;
+    }
+
+error:
+    return is_initialized;
 }
 
 static inline void update_crc(void)

@@ -72,3 +72,9 @@
 #else
 #define STATIC
 #endif
+
+#if !defined(UNIT_TESTING)
+#define CONST const
+#else
+#define CONST
+#endif

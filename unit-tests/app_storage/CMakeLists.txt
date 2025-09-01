@@ -66,7 +66,7 @@ target_compile_options(
 target_compile_definitions(
   ${TEST}
   PRIVATE
-  TEST
+  UNIT_TESTING
   SCREEN_SIZE_WALLET
   USB_SEGMENT_SIZE=64
   HAVE_NBGL
