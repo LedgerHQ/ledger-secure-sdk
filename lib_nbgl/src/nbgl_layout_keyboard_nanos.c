@@ -104,7 +104,6 @@ int nbgl_layoutUpdateKeyboard(nbgl_layout_t *layout, uint8_t index, uint32_t key
     if ((keyboard == NULL) || (keyboard->obj.type != KEYBOARD)) {
         return -1;
     }
-    keyboard->keyMask = keyMask;
     if (keyboard->lettersOnly) {
         if (keyMask & (1 << 26)) {
             keyboard->selectedCharIndex = cx_rng_u32() % 26;
@@ -113,6 +112,14 @@ int nbgl_layoutUpdateKeyboard(nbgl_layout_t *layout, uint8_t index, uint32_t key
             keyboard->selectedCharIndex = 0;
         }
     }
+    else {
+        // if current keyMask was O and new one filters all keys,
+        // we should select Validate by default
+        if ((keyboard->keyMask == 0) && ((keyMask & 0x3FFFFFF) == 0x3FFFFFF)) {
+            keyboard->selectedCharIndex = 27;
+        }
+    }
+    keyboard->keyMask = keyMask;
 
     nbgl_objDraw((nbgl_obj_t *) keyboard);
 
