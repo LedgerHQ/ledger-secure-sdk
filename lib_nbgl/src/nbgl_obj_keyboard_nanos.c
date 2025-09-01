@@ -269,6 +269,7 @@ static void keyboardDrawRegular(nbgl_keyboard_t *keyboard)
             charIndex = maxLen - 1;
         }
     }
+    keysToDraw[0] = keys[charIndex];
 
     // mode is defined, so draw the proper 3 letters (or icons)
     for (i = 0; i < 3; i++) {
