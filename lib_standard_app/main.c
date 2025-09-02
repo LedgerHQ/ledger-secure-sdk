@@ -58,7 +58,7 @@ WEAK void common_app_init(void)
 
 WEAK void standalone_app_main(void)
 {
-    PRINTF("standalone_app_main");
+    PRINTF("standalone_app_main\n");
 #ifdef HAVE_SWAP
     G_called_from_swap                  = false;
     G_swap_response_ready               = false;
