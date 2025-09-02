@@ -23,6 +23,9 @@
 #include "u2f_types.h"
 #include "usbd_ledger_hid_u2f.h"
 
+#ifdef HAVE_BOLOS
+#include "cx_crc_internal.h"
+#endif  // !HAVE_BOLOS
 
 /* Private enumerations ------------------------------------------------------*/
 enum ledger_hid_u2f_state_t {
@@ -607,9 +610,15 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
                     // so no way to check the value
                 }
 
+#ifdef HAVE_BOLOS
+                uint16_t crc = cx_crc16_update_internal(0,
+                                                        handle->transport_data.rx_message_buffer,
+                                                        handle->transport_data.rx_message_length);
+#else   // !HAVE_BOLOS
                 uint16_t crc = cx_crc16_update(0,
                                                handle->transport_data.rx_message_buffer,
                                                handle->transport_data.rx_message_length);
+#endif  // !HAVE_BOLOS
                 if (!length_ok) {
                     error_msg[0] = 0x67;
                     error_msg[1] = 0x00;
