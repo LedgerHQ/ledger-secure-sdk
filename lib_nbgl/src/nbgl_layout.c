@@ -1146,14 +1146,15 @@ nbgl_layout_t *nbgl_layoutGet(const nbgl_layoutDescription_t *description)
         layout->container->obj.touchMask = (1 << TOUCHED);
         layout->container->obj.touchId   = WHOLE_SCREEN_ID;
 
-        nbgl_layoutUpFooter_t footerDesc;
-        footerDesc.type        = UP_FOOTER_TEXT;
-        footerDesc.text.text   = PIC(description->tapActionText);
-        footerDesc.text.token  = description->tapActionToken;
-        footerDesc.text.tuneId = description->tapTuneId;
-        nbgl_layoutAddUpFooter((nbgl_layout_t *) layout, &footerDesc);
+        if (strlen(description->tapActionText) > 0) {
+            nbgl_layoutUpFooter_t footerDesc;
+            footerDesc.type        = UP_FOOTER_TEXT;
+            footerDesc.text.text   = PIC(description->tapActionText);
+            footerDesc.text.token  = description->tapActionToken;
+            footerDesc.text.tuneId = description->tapTuneId;
+            nbgl_layoutAddUpFooter((nbgl_layout_t *) layout, &footerDesc);
+        }
     }
-
     return (nbgl_layout_t *) layout;
 }
 
@@ -2848,7 +2849,7 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
     }
 
     layoutInt->footerContainer = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
-    layoutInt->footerContainer->obj.area.width = AVAILABLE_WIDTH;
+    layoutInt->footerContainer->obj.area.width = SCREEN_WIDTH;
     layoutInt->footerContainer->layout         = VERTICAL;
     layoutInt->footerContainer->children
         = (nbgl_obj_t **) nbgl_containerPoolGet(5, layoutInt->layer);
@@ -2947,7 +2948,6 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
             break;
         }
         case FOOTER_TEXT_AND_NAV: {
-            layoutInt->footerContainer->obj.area.width  = SCREEN_WIDTH;
             layoutInt->footerContainer->obj.area.height = SIMPLE_FOOTER_HEIGHT;
             // add touchable text on the left
             textArea = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
@@ -3012,7 +3012,6 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
             break;
         }
         case FOOTER_NAV: {
-            layoutInt->footerContainer->obj.area.width  = SCREEN_WIDTH;
             layoutInt->footerContainer->obj.area.height = SIMPLE_FOOTER_HEIGHT;
             layoutNavigationPopulate(
                 layoutInt->footerContainer, &footerDesc->navigation, layoutInt->layer);
@@ -3102,20 +3101,20 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
             // put at the bottom of the container
             button->obj.alignment = BOTTOM_MIDDLE;
             button->innerColor    = WHITE;
-            if (footerDesc->choiceButtons.style
-                == BOTH_ROUNDED_STYLE) {  // TODO: remove BOTH_ROUNDED_STYLE support
+            if (footerDesc->choiceButtons.style == BOTH_ROUNDED_STYLE) {
                 button->obj.alignmentMarginY
-                    = VERTICAL_BORDER_MARGIN;  // pixels from bottom of container
-                button->borderColor = LIGHT_GRAY;
+                    = SINGLE_BUTTON_MARGIN;  // pixels from bottom of container
+                button->borderColor     = LIGHT_GRAY;
+                button->obj.area.height = BUTTON_DIAMETER;
             }
             else {
                 button->obj.alignmentMarginY
                     = BUTTON_FROM_BOTTOM_MARGIN;  // pixels from screen bottom
-                button->borderColor = WHITE;
+                button->borderColor     = WHITE;
+                button->obj.area.height = FOOTER_IN_PAIR_HEIGHT;
             }
             button->foregroundColor = BLACK;
             button->obj.area.width  = AVAILABLE_WIDTH;
-            button->obj.area.height = FOOTER_IN_PAIR_HEIGHT;
             button->radius          = BUTTON_RADIUS;
             button->text            = PIC(footerDesc->choiceButtons.bottomText);
             button->fontId          = SMALL_BOLD_FONT;
@@ -3149,13 +3148,16 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
             // associate with with index 0
             obj->index            = 0;
             button->obj.alignment = TOP_MIDDLE;
-            if ((footerDesc->choiceButtons.style != ROUNDED_AND_FOOTER_STYLE)
-                && (footerDesc->choiceButtons.style != BOTH_ROUNDED_STYLE)) {
+            if (footerDesc->choiceButtons.style == ROUNDED_AND_FOOTER_STYLE) {
+                button->obj.alignmentMarginY = TOP_BUTTON_MARGIN;  // pixels from top of container
+            }
+            else if (footerDesc->choiceButtons.style == BOTH_ROUNDED_STYLE) {
                 button->obj.alignmentMarginY
-                    = TOP_BUTTON_MARGIN_WITH_ACTION;  // pixels from top of container
+                    = SINGLE_BUTTON_MARGIN;  // pixels from top of container
             }
             else {
-                button->obj.alignmentMarginY = TOP_BUTTON_MARGIN;  // pixels from top of container
+                button->obj.alignmentMarginY
+                    = TOP_BUTTON_MARGIN_WITH_ACTION;  // pixels from top of container
             }
             if (footerDesc->choiceButtons.style == SOFT_ACTION_AND_FOOTER_STYLE) {
                 button->innerColor      = WHITE;
@@ -3182,11 +3184,14 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
                 = (nbgl_obj_t *) button;
             layoutInt->footerContainer->nbChildren++;
 
-            if (footerDesc->choiceButtons.style != ROUNDED_AND_FOOTER_STYLE) {
-                layoutInt->footerContainer->obj.area.height = ACTION_AND_FOOTER_FOOTER_HEIGHT;
+            if (footerDesc->choiceButtons.style == ROUNDED_AND_FOOTER_STYLE) {
+                layoutInt->footerContainer->obj.area.height = ROUNDED_AND_FOOTER_FOOTER_HEIGHT;
+            }
+            else if (footerDesc->choiceButtons.style == BOTH_ROUNDED_STYLE) {
+                layoutInt->footerContainer->obj.area.height = BOTH_ROUNDED_FOOTER_HEIGHT;
             }
             else {
-                layoutInt->footerContainer->obj.area.height = ROUNDED_AND_FOOTER_FOOTER_HEIGHT;
+                layoutInt->footerContainer->obj.area.height = ACTION_AND_FOOTER_FOOTER_HEIGHT;
             }
 
             break;
