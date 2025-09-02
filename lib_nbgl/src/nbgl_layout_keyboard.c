@@ -11,6 +11,7 @@
  *********************/
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "nbgl_debug.h"
 #include "nbgl_front.h"
 #include "nbgl_layout_internal.h"
