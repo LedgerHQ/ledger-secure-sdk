@@ -10,18 +10,17 @@ defaults:
     shell: bash
 
 jobs:
-  # Branch is today automatically deleted
-  # PR_Delete_Branch:
-  #   runs-on: ubuntu-latest
-  #   name: "Delete Auto Update branch"
-  #   if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'auto_update_') == true
-  #   continue-on-error: true
-  #   steps:
-  #   - name: Clone repository
-  #     uses: actions/checkout@v4
+  PR_Delete_Branch:
+    runs-on: ubuntu-latest
+    name: "Delete Auto Update branch"
+    if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'auto_update_') == true
+    continue-on-error: true
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v4
 
-  #   - name: Delete branch
-  #     run: git push origin --delete ${{ github.head_ref }}
+    - name: Delete branch
+      run: git push origin --delete ${{ github.head_ref }}
 
   PR_Check:
     runs-on: ubuntu-latest
