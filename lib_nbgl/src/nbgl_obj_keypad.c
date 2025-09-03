@@ -248,7 +248,7 @@ static void keypadDrawDigits(nbgl_keypad_t *keypad)
 #endif  // TARGET_APEX
         nbgl_frontDrawLine(&rectArea, dotStartIdx, LIGHT_GRAY);
     }
-    else if (keypad->validateChanged) {
+    else if (keypad->enableValidate && (keypad->digitsChanged || keypad->validateChanged)) {
         const nbgl_icon_details_t *icon;
 
         if (keypad->softValidation) {
