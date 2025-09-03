@@ -9,7 +9,7 @@ set(GLYPH_OPT "")
 
 # Building from App
 if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
-  list(APPEND GLYPH_PATHS ${CMAKE_SOURCE_DIR}/../glyphs/*)
+  list(APPEND GLYPH_PATHS "/app/${BUILD_PATH}/glyphs/*")
 endif()
 
 if(TARGET_DEVICE STREQUAL "flex" OR TARGET_DEVICE STREQUAL "stax")
