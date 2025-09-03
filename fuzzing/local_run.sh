@@ -17,7 +17,7 @@ FUZZING_PATH="$(pwd)"
 NUM_CPUS=1
 FUZZER=""
 FUZZERNAME=""
-
+BUILD_PATH="$(cd /app && ledger-manifest -ob ledger_app.toml)"
 RED="\033[0;31m"
 GREEN="\033[0;32m"
 BLUE="\033[0;34m"
@@ -80,7 +80,7 @@ function gen_macros() {
         apt-get update && apt-get install -y bear
     fi
 
-    cd "/app" || exit 1
+    cd "/app/$BUILD_PATH" || exit 1
     echo -e "${BLUE}Generating macros...${NC}"
     # $FLEX_SDK and $STAX_SDK are set in the docker image
     case "$TARGET_DEVICE" in
@@ -124,7 +124,7 @@ function build() {
     fi
 
     echo -e "${BLUE}Building the project...${NC}"
-    cmake -S . -B build -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Debug -DSANITIZER="$SANITIZER" -DTARGET_DEVICE="$TARGET_DEVICE" -DBOLOS_SDK="$BOLOS_SDK" -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=On
+    cmake -S . -B build -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Debug -DSANITIZER="$SANITIZER" -DTARGET_DEVICE="$TARGET_DEVICE" -DBUILD_PATH="$BUILD_PATH" -DBOLOS_SDK="$BOLOS_SDK" -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=On
     cmake --build build
 }
 
