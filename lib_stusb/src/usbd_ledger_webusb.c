@@ -194,7 +194,7 @@ const uint8_t USBD_LEDGER_WINUSB_ms_os_20_descriptor_set[] = {
     // Microsoft OS 2.0 function subset header
     0x08, 0x00,                                  // wLength
     0x02, 0x00,                                  // wDescriptorType : MS_OS_20_SUBSET_HEADER_FUNCTION
-    0x02,                                        // bFirstInterface (dynamic) // TODO_IO
+    0x01,                                        // bFirstInterface (dynamic) // TODO_IO
     0x00,                                        // bReserved
     0xa0, 0x00,                                  // wSubsetLength
 

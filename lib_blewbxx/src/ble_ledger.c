@@ -84,7 +84,7 @@ typedef struct ble_ledger_data_s {
     // General
     bool             enabled;
     ble_state_t         state;
-    char                device_name[BLE_GAP_MAX_LOCAL_NAME_LENGTH + 1];
+    char                device_name[BLE_GAP_MAX_LOCAL_NAME_LENGTH];
     char                device_name_length;
     uint8_t             random_address[BLE_CONFIG_DATA_RANDOM_ADDRESS_LEN];
     uint8_t             nb_of_profile;
@@ -162,7 +162,7 @@ static void get_device_name(void)
     memset(ble_ledger_data.device_name, 0, sizeof(ble_ledger_data.device_name));
     ble_ledger_data.device_name_length = os_setting_get(OS_SETTING_DEVICENAME,
                                                         (uint8_t *) ble_ledger_data.device_name,
-                                                        sizeof(ble_ledger_data.device_name) - 1);
+                                                        sizeof(ble_ledger_data.device_name));
 }
 
 static void start_mngr(uint8_t *hci_buffer, uint16_t length)
@@ -226,7 +226,7 @@ static void start_mngr(uint8_t *hci_buffer, uint16_t length)
             ble_aci_gap_forge_cmd_init(&ble_ledger_data.cmd_data,
                                        BLE_GAP_PERIPHERAL_ROLE,
                                        BLE_GAP_PRIVACY_DISABLED,
-                                       sizeof(ble_ledger_data.device_name) - 1);
+                                       sizeof(ble_ledger_data.device_name));
             send_hci_packet(0);
             break;
 
