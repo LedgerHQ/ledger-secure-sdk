@@ -149,8 +149,7 @@ typedef struct {
     uint16_t       tx_message_length;
     uint16_t       tx_message_offset;
 
-    uint8_t *tx_packet_buffer;
-    uint8_t  tx_packet_length;
+    uint8_t tx_packet_length;
 
     ccid_protocol_data_t0_t protocol_data;
 
