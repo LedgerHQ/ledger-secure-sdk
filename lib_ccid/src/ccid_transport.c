@@ -150,7 +150,7 @@ void CCID_TRANSPORT_tx(ccid_transport_t *handle,
     // Fill header
     if (buffer) {
         tx_packet_buffer[0] = handle->bulk_msg_header.in.msg_type;
-        U4LE_ENCODE(handle->tx_packet_buffer, 1, handle->bulk_msg_header.in.length);
+        U4LE_ENCODE(tx_packet_buffer, 1, handle->bulk_msg_header.in.length);
         tx_packet_buffer[5] = handle->bulk_msg_header.in.slot_number;
         tx_packet_buffer[6] = handle->bulk_msg_header.in.seq_number;
         tx_packet_buffer[7] = handle->bulk_msg_header.in.status;
