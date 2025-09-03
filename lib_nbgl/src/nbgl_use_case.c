@@ -389,7 +389,7 @@ static void useCaseHomeExt(const char                *appName,
                            nbgl_callback_t            quitCallback);
 static void displayDetails(const char *tag, const char *value, bool wrapping);
 
-static void reset_callbacks(void)
+static void reset_callbacks_and_context(void)
 {
     onQuit          = NULL;
     onContinue      = NULL;
@@ -398,10 +398,10 @@ static void reset_callbacks(void)
     onControls      = NULL;
     onContentAction = NULL;
     onChoice        = NULL;
-    onModalConfirm  = NULL;
 #ifdef NBGL_KEYPAD
     onValidatePin = NULL;
 #endif
+    memset(&genericContext, 0, sizeof(genericContext));
 }
 
 // Helper to set genericContext page info
@@ -648,6 +648,7 @@ static void pageModalCallback(int token, uint8_t index)
         if (index == 0) {
             if (onModalConfirm != NULL) {
                 onModalConfirm();
+                onModalConfirm = NULL;
             }
         }
         else {
@@ -1810,7 +1811,7 @@ static void keypadGenericUseCase(const char                *title,
         return;
     }
 
-    reset_callbacks();
+    reset_callbacks_and_context();
     // reset the keypad context
     memset(&keypadContext, 0, sizeof(KeypadContext_t));
 
@@ -2650,8 +2651,7 @@ static void useCaseReview(nbgl_operationType_t              operationType,
                           bool                              isLight,
                           bool                              playNotifSound)
 {
-    reset_callbacks();
-    memset(&genericContext, 0, sizeof(genericContext));
+    reset_callbacks_and_context();
 
     bundleNavContext.review.operationType  = operationType;
     bundleNavContext.review.choiceCallback = choiceCallback;
@@ -2715,8 +2715,7 @@ static void useCaseReviewStreamingStart(nbgl_operationType_t       operationType
                                         nbgl_choiceCallback_t      choiceCallback,
                                         bool                       playNotifSound)
 {
-    reset_callbacks();
-    memset(&genericContext, 0, sizeof(genericContext));
+    reset_callbacks_and_context();
 
     bundleNavContext.reviewStreaming.operationType  = operationType;
     bundleNavContext.reviewStreaming.choiceCallback = choiceCallback;
@@ -2780,8 +2779,6 @@ static void useCaseHomeExt(const char                *appName,
                            nbgl_callback_t            topRightCallback,
                            nbgl_callback_t            quitCallback)
 {
-    reset_callbacks();
-
     nbgl_pageInfoDescription_t info = {.centeredInfo.icon    = appIcon,
                                        .centeredInfo.text1   = appName,
                                        .centeredInfo.text3   = NULL,
@@ -2793,6 +2790,8 @@ static void useCaseHomeExt(const char                *appName,
                                        .topRightStyle = withSettings ? SETTINGS_ICON : INFO_ICON,
                                        .topRightToken = CONTINUE_TOKEN,
                                        .tuneId        = TUNE_TAP_CASUAL};
+    reset_callbacks_and_context();
+
     if ((homeAction->text != NULL) || (homeAction->icon != NULL)) {
         // trick to use ACTION_BUTTON_TOKEN for action and quit, with index used to distinguish
         info.bottomButtonsToken = ACTION_BUTTON_TOKEN;
@@ -3215,7 +3214,7 @@ void nbgl_useCaseNavigableContent(const char                *title,
                                   nbgl_navCallback_t         navCallback,
                                   nbgl_layoutTouchCallback_t controlsCallback)
 {
-    reset_callbacks();
+    reset_callbacks_and_context();
 
     // memorize context
     onQuit     = quitCallback;
@@ -3266,8 +3265,7 @@ void nbgl_useCaseGenericSettings(const char                   *appName,
                                  const nbgl_contentInfoList_t *infosList,
                                  nbgl_callback_t               quitCallback)
 {
-    reset_callbacks();
-    memset(&genericContext, 0, sizeof(genericContext));
+    reset_callbacks_and_context();
 
     // memorize context
     onQuit    = quitCallback;
@@ -3343,6 +3341,8 @@ void nbgl_useCaseHomeAndSettings(
 {
     nbgl_homeAndSettingsContext_t *context = &bundleNavContext.homeAndSettings;
 
+    reset_callbacks_and_context();
+
     context->appName         = appName;
     context->appIcon         = appIcon;
     context->tagline         = tagline;
@@ -3373,11 +3373,11 @@ void nbgl_useCaseHomeAndSettings(
  */
 void nbgl_useCaseStatus(const char *message, bool isSuccess, nbgl_callback_t quitCallback)
 {
-    reset_callbacks();
-
     nbgl_screenTickerConfiguration_t ticker = {.tickerCallback  = &tickerCallback,
                                                .tickerIntervale = 0,  // not periodic
                                                .tickerValue     = STATUS_SCREEN_DURATION};
+
+    reset_callbacks_and_context();
 
     onQuit = quitCallback;
     if (isSuccess) {
@@ -3477,23 +3477,22 @@ void nbgl_useCaseChoice(const nbgl_icon_details_t *icon,
                         const char                *cancelText,
                         nbgl_choiceCallback_t      callback)
 {
-    reset_callbacks();
-
-    nbgl_pageConfirmationDescription_t info = {.cancelText           = cancelText,
-                                               .centeredInfo.text1   = message,
-                                               .centeredInfo.text2   = subMessage,
-                                               .centeredInfo.text3   = NULL,
-                                               .centeredInfo.style   = LARGE_CASE_INFO,
-                                               .centeredInfo.icon    = icon,
-                                               .centeredInfo.offsetY = 0,
-                                               .confirmationText     = confirmText,
-                                               .confirmationToken    = CHOICE_TOKEN,
-                                               .tuneId               = TUNE_TAP_CASUAL,
-                                               .modal                = false};
+    nbgl_pageConfirmationDescription_t info = {0};
     // check params
     if ((confirmText == NULL) || (cancelText == NULL)) {
         return;
     }
+    reset_callbacks_and_context();
+
+    info.cancelText         = cancelText;
+    info.centeredInfo.text1 = message;
+    info.centeredInfo.text2 = subMessage;
+    info.centeredInfo.style = LARGE_CASE_INFO;
+    info.centeredInfo.icon  = icon;
+    info.confirmationText   = confirmText;
+    info.confirmationToken  = CHOICE_TOKEN;
+    info.tuneId             = TUNE_TAP_CASUAL;
+
     onChoice    = callback;
     pageContext = nbgl_pageDrawConfirmation(&pageCallback, &info);
     nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
@@ -3556,6 +3555,7 @@ void nbgl_useCaseAction(const nbgl_icon_details_t *icon,
 {
     nbgl_pageContent_t content = {0};
 
+    reset_callbacks_and_context();
     // memorize callback
     onAction = callback;
 
@@ -3588,8 +3588,6 @@ void nbgl_useCaseReviewStart(const nbgl_icon_details_t *icon,
                              nbgl_callback_t            continueCallback,
                              nbgl_callback_t            rejectCallback)
 {
-    reset_callbacks();
-
     nbgl_pageInfoDescription_t info = {.footerText       = rejectText,
                                        .footerToken      = QUIT_TOKEN,
                                        .tapActionText    = NULL,
@@ -3598,14 +3596,17 @@ void nbgl_useCaseReviewStart(const nbgl_icon_details_t *icon,
                                        .topRightStyle    = NO_BUTTON_STYLE,
                                        .actionButtonText = NULL,
                                        .tuneId           = TUNE_TAP_CASUAL};
-    info.centeredInfo.icon          = icon;
-    info.centeredInfo.text1         = reviewTitle;
-    info.centeredInfo.text2         = reviewSubTitle;
-    info.centeredInfo.text3         = "Swipe to review";
-    info.centeredInfo.style         = LARGE_CASE_GRAY_INFO;
-    info.centeredInfo.offsetY       = 0;
-    onQuit                          = rejectCallback;
-    onContinue                      = continueCallback;
+
+    reset_callbacks_and_context();
+
+    info.centeredInfo.icon    = icon;
+    info.centeredInfo.text1   = reviewTitle;
+    info.centeredInfo.text2   = reviewSubTitle;
+    info.centeredInfo.text3   = "Swipe to review";
+    info.centeredInfo.style   = LARGE_CASE_GRAY_INFO;
+    info.centeredInfo.offsetY = 0;
+    onQuit                    = rejectCallback;
+    onContinue                = continueCallback;
 
 #ifdef HAVE_PIEZO_SOUND
     // Play notification sound
@@ -3627,7 +3628,7 @@ void nbgl_useCaseRegularReview(uint8_t                    initPage,
                                nbgl_navCallback_t         navCallback,
                                nbgl_choiceCallback_t      choiceCallback)
 {
-    reset_callbacks();
+    reset_callbacks_and_context();
 
     // memorize context
     onChoice       = choiceCallback;
@@ -3662,8 +3663,7 @@ void nbgl_useCaseStaticReview(const nbgl_contentTagValueList_t *tagValueList,
 {
     uint8_t offset = 0;
 
-    reset_callbacks();
-    memset(&genericContext, 0, sizeof(genericContext));
+    reset_callbacks_and_context();
 
     // memorize context
     onChoice                              = callback;
@@ -3719,8 +3719,7 @@ void nbgl_useCaseStaticReviewLight(const nbgl_contentTagValueList_t *tagValueLis
 {
     uint8_t offset = 0;
 
-    reset_callbacks();
-    memset(&genericContext, 0, sizeof(genericContext));
+    reset_callbacks_and_context();
 
     // memorize context
     onChoice  = callback;
@@ -3863,7 +3862,9 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
                                 const nbgl_warning_t             *warning,
                                 nbgl_choiceCallback_t             choiceCallback)
 {
+    reset_callbacks_and_context();
     memset(&reviewWithWarnCtx, 0, sizeof(reviewWithWarnCtx));
+
     // memorize tipBox because it can be in the call stack of the caller
     if (tipBox != NULL) {
         memcpy(&activeTipBox, tipBox, sizeof(activeTipBox));
@@ -3973,8 +3974,7 @@ void nbgl_useCaseGenericReview(const nbgl_genericContents_t *contents,
                                const char                   *rejectText,
                                nbgl_callback_t               rejectCallback)
 {
-    reset_callbacks();
-    memset(&genericContext, 0, sizeof(genericContext));
+    reset_callbacks_and_context();
 
     // memorize context
     onQuit                                = rejectCallback;
@@ -4220,8 +4220,7 @@ void nbgl_useCaseAddressConfirmationExt(const char                       *addres
                                         nbgl_choiceCallback_t             callback,
                                         const nbgl_contentTagValueList_t *tagValueList)
 {
-    reset_callbacks();
-    memset(&genericContext, 0, sizeof(genericContext));
+    reset_callbacks_and_context();
     memset(&addressConfirmationContext, 0, sizeof(addressConfirmationContext));
 
     // save context
@@ -4271,8 +4270,8 @@ void nbgl_useCaseAddressReview(const char                       *address,
                                const char                       *reviewSubTitle,
                                nbgl_choiceCallback_t             choiceCallback)
 {
-    reset_callbacks();
-    memset(&genericContext, 0, sizeof(genericContext));
+    reset_callbacks_and_context();
+
     // release a potential modal
     if (addressConfirmationContext.modalLayout) {
         nbgl_layoutRelease(addressConfirmationContext.modalLayout);
