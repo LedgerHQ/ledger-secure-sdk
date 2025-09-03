@@ -103,6 +103,10 @@ static void buttonCallback(nbgl_screen_t *screen, nbgl_buttonEvent_t buttonEvent
     }
 }
 
+/**********************
+ *   GLOBAL FUNCTIONS
+ **********************/
+
 /**
  * @brief adds the given obj to the layout
  *
@@ -117,10 +121,6 @@ void layoutAddObject(nbgl_layoutInternal_t *layout, nbgl_obj_t *obj)
     layout->children[layout->nbChildren] = obj;
     layout->nbChildren++;
 }
-
-/**********************
- *   GLOBAL FUNCTIONS
- **********************/
 
 /**
  * @brief returns a layout of the given type. The layout is reset
@@ -689,24 +689,27 @@ int nbgl_layoutAddSwitch(nbgl_layout_t *layout, const nbgl_layoutSwitch_t *switc
     textArea->obj.alignmentMarginY = 3;
     layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
 
-    // add switch description
-    textArea                  = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-    textArea->textColor       = WHITE;
-    textArea->text            = PIC(switchLayout->subText);
-    textArea->textAlignment   = CENTER;
-    textArea->fontId          = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
-    textArea->obj.area.width  = AVAILABLE_WIDTH;
-    textArea->obj.area.height = 2 * nbgl_getFontLineHeight(textArea->fontId);
-    textArea->wrapping        = true;
-    nbLines = nbgl_getTextNbLinesInWidth(textArea->fontId, textArea->text, AVAILABLE_WIDTH, true);
-    // if more than 2 lines on screen
-    if (nbLines > 2) {
-        // TODO: warning for screenshots
-        return -1;
+    if (switchLayout->subText != NULL) {
+        // add switch description
+        textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+        textArea->textColor     = WHITE;
+        textArea->text          = PIC(switchLayout->subText);
+        textArea->textAlignment = CENTER;
+        textArea->fontId        = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
+        textArea->obj.area.width  = AVAILABLE_WIDTH;
+        textArea->obj.area.height = 2 * nbgl_getFontLineHeight(textArea->fontId);
+        textArea->wrapping        = true;
+        nbLines
+            = nbgl_getTextNbLinesInWidth(textArea->fontId, textArea->text, AVAILABLE_WIDTH, true);
+        // if more than 2 lines on screen
+        if (nbLines > 2) {
+            // TODO: warning for screenshots
+            return -1;
+        }
+        textArea->obj.alignment        = CENTER;
+        textArea->obj.alignmentMarginY = 1;  // not exactly centered
+        layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
     }
-    textArea->obj.alignment        = CENTER;
-    textArea->obj.alignmentMarginY = 1;  // not exactly centered
-    layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
 
     button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, ((nbgl_layoutInternal_t *) layout)->layer);
     button->foregroundColor = BLACK;
