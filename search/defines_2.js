@@ -17,13 +17,10 @@ var searchData=
   ['bpp_5fcompress_5foffset_14',['BPP_COMPRESS_OFFSET',['../nbgl__image__utils_8h.html#ae68c9d8f492d0982240e2512e73f1a58',1,'nbgl_image_utils.h']]],
   ['buffer_5flen_5foffset_15',['BUFFER_LEN_OFFSET',['../nbgl__image__utils_8h.html#af9012e797eae8d52564dbf0ad42ece12',1,'nbgl_image_utils.h']]],
   ['buffer_5foffset_16',['BUFFER_OFFSET',['../nbgl__image__utils_8h.html#a8cfc1001c2734f7b512e28e7cf233fa7',1,'nbgl_image_utils.h']]],
-  ['button_5fdiameter_17',['BUTTON_DIAMETER',['../nbgl__obj_8h.html#aac46a54f30a8ff5af6b91c13866434f7',1,'nbgl_obj.h']]],
-  ['button_5fevt_5ffast_18',['BUTTON_EVT_FAST',['../ux__bagl_8h.html#a3a2f9e8259309037a78ecf51c8ee34ee',1,'ux_bagl.h']]],
-  ['button_5fevt_5freleased_19',['BUTTON_EVT_RELEASED',['../ux__bagl_8h.html#a566393980a2b57cffa9aa91c1cc4f8b7',1,'ux_bagl.h']]],
-  ['button_5ffast_5faction_5fcs_20',['BUTTON_FAST_ACTION_CS',['../ux__bagl_8h.html#aaba111bdf76557461f02b9920fb4e285',1,'ux_bagl.h']]],
-  ['button_5ffast_5fthreshold_5fcs_21',['BUTTON_FAST_THRESHOLD_CS',['../ux__bagl_8h.html#a6d85a2ac89cb65320c608f3569b8c895',1,'ux_bagl.h']]],
-  ['button_5fleft_22',['button_left',['../ux__bagl_8h.html#ad08344c00ddb49531348245d0c82987f',1,'BUTTON_LEFT:&#160;ux_bagl.h'],['../ux__nbgl_8h.html#ad08344c00ddb49531348245d0c82987f',1,'BUTTON_LEFT:&#160;ux_nbgl.h']]],
-  ['button_5fright_23',['button_right',['../ux__bagl_8h.html#a4cebcc5780890f5f5fbca9d072ea9652',1,'BUTTON_RIGHT:&#160;ux_bagl.h'],['../ux__nbgl_8h.html#a4cebcc5780890f5f5fbca9d072ea9652',1,'BUTTON_RIGHT:&#160;ux_nbgl.h']]],
-  ['button_5fstroke_24',['BUTTON_STROKE',['../nbgl__obj_8h.html#adc104b1cba5bece4c2a9e8d34049b8b9',1,'nbgl_obj.h']]],
-  ['button_5fwidth_25',['BUTTON_WIDTH',['../nbgl__obj_8h.html#ae98035e5bee7146fab48f941818a2bc7',1,'nbgl_obj.h']]]
+  ['button_5fevt_5ffast_17',['BUTTON_EVT_FAST',['../ux__bagl_8h.html#a3a2f9e8259309037a78ecf51c8ee34ee',1,'ux_bagl.h']]],
+  ['button_5fevt_5freleased_18',['BUTTON_EVT_RELEASED',['../ux__bagl_8h.html#a566393980a2b57cffa9aa91c1cc4f8b7',1,'ux_bagl.h']]],
+  ['button_5ffast_5faction_5fcs_19',['BUTTON_FAST_ACTION_CS',['../ux__bagl_8h.html#aaba111bdf76557461f02b9920fb4e285',1,'ux_bagl.h']]],
+  ['button_5ffast_5fthreshold_5fcs_20',['BUTTON_FAST_THRESHOLD_CS',['../ux__bagl_8h.html#a6d85a2ac89cb65320c608f3569b8c895',1,'ux_bagl.h']]],
+  ['button_5fleft_21',['button_left',['../ux__bagl_8h.html#ad08344c00ddb49531348245d0c82987f',1,'BUTTON_LEFT:&#160;ux_bagl.h'],['../ux__nbgl_8h.html#ad08344c00ddb49531348245d0c82987f',1,'BUTTON_LEFT:&#160;ux_nbgl.h']]],
+  ['button_5fright_22',['button_right',['../ux__bagl_8h.html#a4cebcc5780890f5f5fbca9d072ea9652',1,'BUTTON_RIGHT:&#160;ux_bagl.h'],['../ux__nbgl_8h.html#a4cebcc5780890f5f5fbca9d072ea9652',1,'BUTTON_RIGHT:&#160;ux_nbgl.h']]]
 ];
