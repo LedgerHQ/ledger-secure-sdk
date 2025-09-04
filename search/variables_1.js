@@ -5,7 +5,7 @@ var searchData=
   ['backgroundcolor_2',['backgroundColor',['../structnbgl__area__s.html#a399ef7c2c6c16dea55badb21cf80948b',1,'nbgl_area_s']]],
   ['backtext_3',['backText',['../structnbgl__contentValueExt__t.html#a3a1f4ab96b5713b9c70352c90b44cf8c',1,'nbgl_contentValueExt_t']]],
   ['backtoken_4',['backtoken',['../structnbgl__layoutHeader__t.html#a14f29fbd1698da0f0b9f7e02359a8fc2',1,'nbgl_layoutHeader_t::backToken'],['../structnbgl__pageNavWithTap__s.html#aabf898b0dad0e72a135dc82718417607',1,'nbgl_pageNavWithTap_s::backToken']]],
-  ['barlist_5',['barList',['../structnbgl__genericDetails__s.html#a3e049ab8a74090cc673c1f1a648ba409',1,'nbgl_genericDetails_s']]],
+  ['barlist_5',['barList',['../structnbgl__warningDetails__s.html#af5a4ba0404fd6d1a9459f4587583affd',1,'nbgl_warningDetails_s']]],
   ['barslist_6',['barslist',['../unionnbgl__content__u.html#a9ee6bd78318147c9c2efe58b9174e1a4',1,'nbgl_content_u::barsList'],['../structnbgl__pageContent__s.html#a69ec4306aad6c6c01c775614e6c6fc37',1,'nbgl_pageContent_s::barsList']]],
   ['bartexts_7',['barTexts',['../structnbgl__contentBarsList__t.html#a3ccb26d3d629f5d044fd3b08db2ff91e',1,'nbgl_contentBarsList_t']]],
   ['base_8',['base',['../structcx__cipher__info__t.html#a08a5b9513d17ee2e44b26108200b6eb7',1,'cx_cipher_info_t']]],
