@@ -13,18 +13,30 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *****************************************************************************/
-#ifdef HAVE_APP_STORAGE
+#if defined(HAVE_APP_STORAGE) || defined(HAVE_BOLOS)
 
 #pragma once
 
 #include "app_storage.h"
 
-/* The storage consists of the system and the app parts */
+/**
+ * @brief The storage consists of the system and the app parts
+ */
 typedef struct app_storage_s {
+    uint32_t             crc;  ///< CRC32 of the app storage header and data
     app_storage_header_t header;
     uint8_t              data[APP_STORAGE_SIZE];
 } app_storage_t;
 
-void app_storage_init(void);
+/**
+ * @brief initializes the application storage.
+ *
+ * @returns int32_t Initialization status.
+ *
+ * @retval APP_STORAGE_SUCCESS Application storage is successfully initialized.
+ * @retval APP_STORAGE_ERR_CORRUPTED Error, application storage is corrupted.
+ *
+ */
+int32_t app_storage_init(void);
 
-#endif /* #ifdef HAVE_APP_STORAGE */
+#endif /* HAVE_APP_STORAGE || HAVE_BOLOS */

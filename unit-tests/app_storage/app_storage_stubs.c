@@ -18,6 +18,16 @@
 #include <setjmp.h>
 #include <string.h>
 
+#ifdef UNIT_TESTING
+// When defined cmocka redefine malloc/free which does not work well with
+// address-sanitizer
+#undef UNIT_TESTING
+#include <cmocka.h>
+#define UNIT_TESTING
+#else
+#include <cmocka.h>
+#endif
+
 #include <cmocka.h>
 #include <malloc.h>
 #include <stdio.h>

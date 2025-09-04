@@ -7,9 +7,8 @@ endif()
 # project information
 project(unit_tests
         VERSION 0.1
-	      DESCRIPTION "Unit tests for UX_SYNC"
+        DESCRIPTION "Unit tests for Application storage"
         LANGUAGES C)
-
 
 # guard against bad build-type strings
 if (NOT CMAKE_BUILD_TYPE)
@@ -22,42 +21,80 @@ ENABLE_TESTING()
 # specify C standard
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED True)
-add_compile_definitions(SCREEN_SIZE_WALLET)
-add_compile_definitions(USB_SEGMENT_SIZE=64)
-add_compile_definitions(HAVE_NBGL)
-add_compile_definitions(WITH_STDIO)
-add_compile_definitions(HAVE_APP_STORAGE)
-add_compile_definitions(APP_STORAGE_SIZE=5555)
-add_compile_definitions(HAVE_APP_STORAGE_PROP_SETTINGS)
-add_compile_definitions(HAVE_APP_STORAGE_PROP_DATA)
 
-
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall ${DEFINES} -g -O0 --coverage")
-
-set(GCC_COVERAGE_LINK_FLAGS "--coverage -lgcov")
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
+set(CMAKE_BUILD_TYPE Debug)
 
 # guard against in-source builds
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
   message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. You may need to remove CMakeCache.txt. ")
 endif()
 
-add_compile_definitions(TEST)
+set(TEST test_app_storage)
 
-include_directories(.)
-include_directories(../../target/stax/include)
-include_directories(../../include)
-include_directories(../../lib_nbgl/include)
-include_directories(../../lib_nbgl/include/fonts)
-include_directories(../../lib_ux_nbgl)
-include_directories(../../lib_standard_app)
+add_executable(
+  ${TEST}
+  test_app_storage.c
+  app_storage_stubs.c
+  ../../lib_standard_app/app_storage.c
+  ../../lib_cxng/src/cx_crc32.c
+  ../../mock/src/cx_crc.c
+)
 
-add_executable(test_app_storage test_app_storage.c)
+target_include_directories(
+  ${TEST}
+  PRIVATE
+  ./
+  ../../target/stax/include
+  ../../include
+  ../../lib_cxng/include
+  ../../lib_nbgl/include
+  ../../lib_nbgl/include/fonts
+  ../../lib_ux_nbgl
+  ../../lib_standard_app
+  ../mock/include
+)
 
-add_library(app_storage_stubs SHARED app_storage_stubs.c)
-add_library(app_storage SHARED ../../lib_standard_app/app_storage.c)
+target_compile_options(
+  ${TEST}
+  PRIVATE
+  -Wall
+  -Werror
+  -O0
+  --coverage
+  -fsanitize=address,undefined
+)
 
-target_link_libraries(test_app_storage PUBLIC cmocka gcov app_storage app_storage_stubs)
+target_compile_definitions(
+  ${TEST}
+  PRIVATE
+  UNIT_TESTING
+  SCREEN_SIZE_WALLET
+  USB_SEGMENT_SIZE=64
+  HAVE_NBGL
+  WITH_STDIO
+  HAVE_APP_STORAGE
+  APP_STORAGE_SIZE=5555
+  HAVE_APP_STORAGE_PROP_SETTINGS
+  HAVE_APP_STORAGE_PROP_DATA
+  HAVE_CRC
+)
 
-add_test(test_app_storage test_app_storage)
+target_link_libraries(
+  ${TEST}
+  PRIVATE
+  cmocka
+  gcov
+)
+
+target_link_options(
+  ${TEST}
+  PRIVATE
+  --coverage
+  -lgcov
+  -fsanitize=address,undefined
+)
+
+add_test(
+  NAME ${TEST}
+  COMMAND ${TEST}
+)

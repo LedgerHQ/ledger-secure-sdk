@@ -34,9 +34,12 @@
 #define APP_STORAGE_HEADER_STRUCT_VERSION 1
 
 ///< Error codes
+#define APP_STORAGE_SUCCESS               0   ///< No error
 #define APP_STORAGE_ERR_INVALID_ARGUMENT  -1  ///< Invalid argument
 #define APP_STORAGE_ERR_NO_DATA_AVAILABLE -2  ///< Address not available for reading
 #define APP_STORAGE_ERR_OVERFLOW          -3  ///< Value too large to be stored
+#define APP_STORAGE_ERR_INVALID_HEADER    -4  ///< Invalid storage header
+#define APP_STORAGE_ERR_CORRUPTED         -5  ///< App storage is corrupted
 
 /// Initial app data storage version
 #define APP_STORAGE_INITIAL_APP_DATA_VERSION 1
