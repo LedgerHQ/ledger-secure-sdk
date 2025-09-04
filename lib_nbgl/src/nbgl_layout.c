@@ -192,25 +192,28 @@ static uint8_t nbTouchableControls = 0;
  **********************/
 // extern const char *get_ux_loc_string(UX_LOC_STRINGS_INDEX index);
 
-#ifdef HAVE_FAST_HOLD_TO_APPROVE
-// Unit step in % of touchable progress bar
+// Hold-to-approve parameters
+#if defined(TARGET_FLEX)
+// Percent of a single "hold-to-approve" bar
 #define HOLD_TO_APPROVE_STEP_PERCENT     (7)
-// Duration in ms the user must hold the progress bar
-// to make it progress HOLD_TO_APPROVE_STEP_PERCENT %.
-// This duration must be higher than the screen refresh duration.
+// Duration between two bars
 #define HOLD_TO_APPROVE_STEP_DURATION_MS (100)
-#else
+// Number of bars displayed when the user start the "hold-to-approve" mechanism
+#define HOLD_TO_APPROVE_FIRST_STEP       (0)
+#elif defined(TARGET_STAX)
 #define HOLD_TO_APPROVE_STEP_PERCENT     (25)
 #define HOLD_TO_APPROVE_STEP_DURATION_MS (400)
-#endif  // HAVE_FAST_HOLD_TO_APPROVE
+#define HOLD_TO_APPROVE_FIRST_STEP       (1)
+#elif defined(TARGET_APEX)
+#define HOLD_TO_APPROVE_STEP_PERCENT     (20)
+#define HOLD_TO_APPROVE_STEP_DURATION_MS (300)
+#define HOLD_TO_APPROVE_FIRST_STEP       (1)
+#endif  // TARGETS
 
 static inline uint8_t get_hold_to_approve_percent(uint32_t touch_duration)
 {
-#ifdef HAVE_FAST_HOLD_TO_APPROVE
-    uint8_t current_step_nb = (touch_duration / HOLD_TO_APPROVE_STEP_DURATION_MS);
-#else
-    uint8_t current_step_nb = (touch_duration / HOLD_TO_APPROVE_STEP_DURATION_MS) + 1;
-#endif
+    uint8_t current_step_nb
+        = (touch_duration / HOLD_TO_APPROVE_STEP_DURATION_MS) + HOLD_TO_APPROVE_FIRST_STEP;
     return (current_step_nb * HOLD_TO_APPROVE_STEP_PERCENT);
 }
 
