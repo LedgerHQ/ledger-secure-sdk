@@ -90,7 +90,7 @@ var searchData=
   ['line2_87',['line2',['../structux__turner__step__s.html#aeeb94df0a73453cc620be3d5f49d8def',1,'ux_turner_step_s::line2'],['../structux__menu__entry__s.html#a55aa2f7711298c18adb9caf02d25961e',1,'ux_menu_entry_s::line2']]],
   ['line_5fcolor_88',['LINE_COLOR',['../nbgl__layout__keyboard_8c.html#af07f0b9d220b9aa8bccc2bd34bd3f368',1,'nbgl_layout_keyboard.c']]],
   ['line_5fheight_89',['line_height',['../structnbgl__font__t.html#ab25190673a2a36fcc5cc5bda2d163004',1,'nbgl_font_t::line_height'],['../structnbgl__font__unicode__t.html#af5c8479b44567ee1b963989e3845dabd',1,'nbgl_font_unicode_t::line_height']]],
-  ['line_5findex_90',['line_index',['../nbgl__layout__keypad_8c.html#a157d5577a5b2f5986037d0d09c7dc77da95903013f51f0e61b3392ed6fb48cf6d',1,'LINE_INDEX:&#160;nbgl_layout_keypad.c'],['../nbgl__layout__keyboard_8c.html#ac205be2172292384dd687b5471a87edda95903013f51f0e61b3392ed6fb48cf6d',1,'LINE_INDEX:&#160;nbgl_layout_keyboard.c']]],
+  ['line_5findex_90',['LINE_INDEX',['../nbgl__layout__keyboard_8c.html#ac205be2172292384dd687b5471a87edda95903013f51f0e61b3392ed6fb48cf6d',1,'nbgl_layout_keyboard.c']]],
   ['line_5fthickness_91',['LINE_THICKNESS',['../nbgl__layout__keyboard_8c.html#a7317eaf17db7cafcc1a42cff71850cc2',1,'nbgl_layout_keyboard.c']]],
   ['linecolor_92',['lineColor',['../structnbgl__line__s.html#a1248bc1c9b257924ed83e2d4903e72e2',1,'nbgl_line_s']]],
   ['lineobj_93',['lineObj',['../structgenericObj__t.html#a8a6ffbebd58528bd2f5c74da9c02b49b',1,'genericObj_t']]],

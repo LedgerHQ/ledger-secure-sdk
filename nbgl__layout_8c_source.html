@@ -1767,7 +1767,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l01817" name="l01817"></a><span class="lineno"> 1817</span>    textArea-&gt;obj.area.height = <a class="code hl_function" href="nbgl__fonts_8h.html#ac6f26ed49bfffc9873425fbb2e48cb1f">nbgl_getTextHeightInWidth</a>(</div>
 <div class="line"><a id="l01818" name="l01818"></a><span class="lineno"> 1818</span>        textArea-&gt;fontId, textArea-&gt;text, textArea-&gt;obj.area.width, textArea-&gt;wrapping);</div>
 <div class="line"><a id="l01819" name="l01819"></a><span class="lineno"> 1819</span> </div>
-<div class="line"><a id="l01820" name="l01820"></a><span class="lineno"> 1820</span>    container-&gt;obj.area.height += textArea-&gt;obj.area.height;</div>
+<div class="line"><a id="l01820" name="l01820"></a><span class="lineno"> 1820</span>    container-&gt;obj.area.height += textArea-&gt;obj.area.height + textArea-&gt;obj.alignmentMarginY;</div>
 <div class="line"><a id="l01821" name="l01821"></a><span class="lineno"> 1821</span> </div>
 <div class="line"><a id="l01822" name="l01822"></a><span class="lineno"> 1822</span>    container-&gt;children[0] = (<a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *) textArea;</div>
 <div class="line"><a id="l01823" name="l01823"></a><span class="lineno"> 1823</span> </div>

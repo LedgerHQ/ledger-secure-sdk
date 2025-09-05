@@ -14,7 +14,7 @@ var searchData=
   ['left_5ftop_11',['LEFT_TOP',['../nbgl__types_8h.html#a82db45397671e5a06f32c857ed8980c6a7da02230a1ff90c7f779cbbaf9e91e93',1,'nbgl_types.h']]],
   ['light_5fgray_12',['LIGHT_GRAY',['../nbgl__types_8h.html#a0a8ef1b5e1941b7257e545cc33405ff1a82a1f4f015ad85784e8c8671b7338433',1,'nbgl_types.h']]],
   ['line_13',['LINE',['../nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7ab023460c84f774a219d46ccf4665994c',1,'nbgl_types.h']]],
-  ['line_5findex_14',['line_index',['../nbgl__layout__keyboard_8c.html#ac205be2172292384dd687b5471a87edda95903013f51f0e61b3392ed6fb48cf6d',1,'LINE_INDEX:&#160;nbgl_layout_keyboard.c'],['../nbgl__layout__keypad_8c.html#a157d5577a5b2f5986037d0d09c7dc77da95903013f51f0e61b3392ed6fb48cf6d',1,'LINE_INDEX:&#160;nbgl_layout_keypad.c']]],
+  ['line_5findex_14',['LINE_INDEX',['../nbgl__layout__keyboard_8c.html#ac205be2172292384dd687b5471a87edda95903013f51f0e61b3392ed6fb48cf6d',1,'nbgl_layout_keyboard.c']]],
   ['locked_5fupper_5fcase_15',['LOCKED_UPPER_CASE',['../nbgl__obj_8h.html#a526042c25a10ab7633bf29bd1cca44cea2457090c95409662083af5c0a1d5420c',1,'nbgl_obj.h']]],
   ['long_5fpress_16',['LONG_PRESS',['../nbgl__layout_8h.html#a6c0826686d5821f00b3fad9cfd2c57e0a34286cfb7c78e79ea02769fa1cc58376',1,'nbgl_layout.h']]],
   ['long_5fpress_5fbutton_5fid_17',['LONG_PRESS_BUTTON_ID',['../nbgl__obj_8h.html#aac34dfe6c6b73b43a4656c9dce041034a3d957242431dd0689030cdbc443922a1',1,'nbgl_obj.h']]],
