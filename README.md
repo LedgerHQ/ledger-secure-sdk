@@ -72,7 +72,8 @@ The full mapping of API_LEVEL branches, including OS release candidates, is avai
 | 18   | nanos+_1.2.0                                                                                                                                   | :x:                |
 | 19   | flex_1.0.0 <br/> flex_1.0.1 <br/>                                                                                                              | :x:                |
 | 21   | stax_1.5.0 <br/> flex_1.1.0 <br/> flex_1.1.1 <br/>                                                                                             | :x:                |
-| 22   | nanox_2.4.1 <br/> nanos+_1.3.1 <br/> stax_1.6.1 <br/> flex_1.2.1 <br/> nanox_2.4.2 <br/> nanos+_1.3.2 <br/> stax_1.6.2 <br/> flex_1.2.2 <br/>  | :heavy_check_mark: |
+| 22   | nanox_2.4.1 <br/> nanos+_1.3.1 <br/> stax_1.6.1 <br/> flex_1.2.1 <br/> nanox_2.4.2 <br/> nanos+_1.3.2 <br/> stax_1.6.2 <br/> flex_1.2.2 <br/>  | :x:                |
+| 24   | nanox_2.5.0 <br/> nanos+_1.4.0 <br/> stax_1.8.0 <br/> flex_1.4.0 <br/>                                                                         | :heavy_check_mark: |
 
 ### Cherry-picking process:
 
