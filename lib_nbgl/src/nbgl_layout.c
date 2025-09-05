@@ -1817,7 +1817,7 @@ int nbgl_layoutAddLeftContent(nbgl_layout_t *layout, const nbgl_layoutLeftConten
     textArea->obj.area.height = nbgl_getTextHeightInWidth(
         textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
 
-    container->obj.area.height += textArea->obj.area.height;
+    container->obj.area.height += textArea->obj.area.height + textArea->obj.alignmentMarginY;
 
     container->children[0] = (nbgl_obj_t *) textArea;
 
