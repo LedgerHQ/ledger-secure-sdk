@@ -9,22 +9,22 @@ The code is divided into the following folders:
 ├── fuzzing
 │   ├── build
 │   │   ├── ...
-│   │   └── generated_glyphs # generated glyphs
-│   ├── extra                # .cmake files for building SDK's function harness
-│   ├── harness              # libFuzzer .c files for harness
-│   │   └── fuzz_{}/         # Optional folders for corpus of each harness [with the same name as the harness]
-│   ├── libs                 # .cmake files for building SDK libraries
+│   │   └── generated_glyphs  #  generated glyphs
+│   ├── extra                 #  .cmake files for building SDK's function harness
+│   ├── harness               #  libFuzzer .c files for harness
+│   │   └── fuzz_{}/          #  Optional folders for corpus of each harness [with the same name as the harness]
+│   ├── libs                  #  .cmake files for building SDK libraries
 │   ├── macros
-│   │   ├── macros-flex.txt  # for flex targets
-│   │   ├── macros-stax.txt  # for stax targets
-│   │   └── macros.cmake     # creates an INTERFACE for using macros in cmake targets
+│   │   ├── extract_macros.py #  Python script used to extract macros when fuzzing embedded apps
+│   │   ├── Makefile          #  Makefile used to expose the macros used when fuzzing the SDK
+│   │   └── macros.cmake      #  creates an INTERFACE for using macros in cmake targets
 │   ├── mock
-│   │   ├── custom           # Custom mock implementations for specific use cases (folder name must appear before 'generated' to override __weak__ functions)
-│   │   ├── generated        # automatically generated mock functions from src/syscalls.c
-│   │   └── mock.cmake       # .cmake file for building mock functions
-│   ├── out                  # Fuzzing output files
-│   ├── CMakeLists.txt       # .cmake file that builds SDK Fuzzers and exposes an INTERFACE for SDK libs for fuzzing APPs
-│   ├── local_run.sh         # Script for building and running fuzzers.
+│   │   ├── custom            #  Custom mock implementations for specific use cases (folder name must appear before 'generated' to override __weak__ functions)
+│   │   ├── generated         #  automatically generated mock functions from src/syscalls.c
+│   │   └── mock.cmake        #  .cmake file for building mock functions
+│   ├── out                   #  Fuzzing output files
+│   ├── CMakeLists.txt        #  .cmake file that builds SDK Fuzzers and exposes an INTERFACE for SDK libs for fuzzing APPs
+│   ├── local_run.sh          #  Script for building and running fuzzers.
 └────── README.md
 
 ```
