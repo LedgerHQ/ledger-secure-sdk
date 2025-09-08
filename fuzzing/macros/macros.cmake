@@ -27,9 +27,6 @@ else()
       ERROR_QUIET
     )
 
-
-
-
     if(NOT MACRO_OUTPUT)
       message(FATAL_ERROR "Failed to extract macros via 'make list-defines'")
     endif()
