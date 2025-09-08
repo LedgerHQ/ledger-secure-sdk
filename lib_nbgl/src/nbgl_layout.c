@@ -1137,6 +1137,7 @@ nbgl_layout_t *nbgl_layoutGet(const nbgl_layoutDescription_t *description)
     // if a tap text is defined, make the container tapable and display this text in gray
     if (description->tapActionText != NULL) {
         layoutObj_t *obj;
+        const char  *tapActionText = PIC(description->tapActionText);
 
         obj = &layout->callbackObjPool[layout->nbUsedCallbackObjs];
         layout->nbUsedCallbackObjs++;
@@ -1146,10 +1147,10 @@ nbgl_layout_t *nbgl_layoutGet(const nbgl_layoutDescription_t *description)
         layout->container->obj.touchMask = (1 << TOUCHED);
         layout->container->obj.touchId   = WHOLE_SCREEN_ID;
 
-        if (strlen(description->tapActionText) > 0) {
+        if (strlen(tapActionText) > 0) {
             nbgl_layoutUpFooter_t footerDesc;
             footerDesc.type        = UP_FOOTER_TEXT;
-            footerDesc.text.text   = PIC(description->tapActionText);
+            footerDesc.text.text   = tapActionText;
             footerDesc.text.token  = description->tapActionToken;
             footerDesc.text.tuneId = description->tapTuneId;
             nbgl_layoutAddUpFooter((nbgl_layout_t *) layout, &footerDesc);
