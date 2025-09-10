@@ -280,7 +280,6 @@ nbgl_page_t *nbgl_pageDrawLedgerInfo(nbgl_layoutTouchCallback_t              onA
     layoutDescription.ticker.tickerValue     = ticker->tickerValue;
     layout                                   = nbgl_layoutGet(&layoutDescription);
 
-    addEmptyHeader(layout, SIMPLE_FOOTER_HEIGHT);
     nbgl_layoutAddCenteredInfo(layout, &centeredInfo);
 
     nbgl_layoutDraw(layout);
@@ -355,8 +354,9 @@ nbgl_page_t *nbgl_pageDrawInfo(nbgl_layoutTouchCallback_t              onActionC
                             info->tapActionToken,
                             info->tuneId);
     }
-    // add an empty header if a top-right button is used
-    if (info->topRightStyle != NO_BUTTON_STYLE) {
+    // add an empty header if a top-right button is used or if the tap text is not empty
+    if ((info->topRightStyle != NO_BUTTON_STYLE)
+        || (info->tapActionText && strlen(PIC(info->tapActionText)))) {
         addEmptyHeader(layout, SMALL_CENTERING_HEADER);
     }
     nbgl_layoutAddCenteredInfo(layout, &info->centeredInfo);

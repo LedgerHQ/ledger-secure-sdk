@@ -67,10 +67,10 @@
 #define TOP_BUTTON_MARGIN_WITH_ACTION    VERTICAL_BORDER_MARGIN
 #define SINGLE_BUTTON_MARGIN             24
 #define LONG_PRESS_PROGRESS_HEIGHT       8
-#define LONG_PRESS_PROGRESS_ALIGN        4
-#define TITLE_DESC_MARGIN                16
+#define LONG_PRESS_PROGRESS_ALIGN        1
 #define LEFT_CONTENT_ICON_TEXT_X         16
 #define TIP_BOX_MARGIN_Y                 24
+#define TIP_BOX_TEXT_ICON_MARGIN         24
 #elif defined(TARGET_FLEX)
 #define RADIO_CHOICE_HEIGHT              92
 #define BAR_INTERVALE                    16
@@ -98,10 +98,10 @@
 #define TOP_BUTTON_MARGIN_WITH_ACTION    VERTICAL_BORDER_MARGIN
 #define SINGLE_BUTTON_MARGIN             24
 #define LONG_PRESS_PROGRESS_HEIGHT       8
-#define LONG_PRESS_PROGRESS_ALIGN        4
-#define TITLE_DESC_MARGIN                16
+#define LONG_PRESS_PROGRESS_ALIGN        1
 #define LEFT_CONTENT_ICON_TEXT_X         16
 #define TIP_BOX_MARGIN_Y                 24
+#define TIP_BOX_TEXT_ICON_MARGIN         32
 #elif defined(TARGET_APEX)
 #define RADIO_CHOICE_HEIGHT              68
 #define BAR_INTERVALE                    8
@@ -129,10 +129,10 @@
 #define TOP_BUTTON_MARGIN_WITH_ACTION    0
 #define SINGLE_BUTTON_MARGIN             16
 #define LONG_PRESS_PROGRESS_HEIGHT       4
-#define LONG_PRESS_PROGRESS_ALIGN        4
-#define TITLE_DESC_MARGIN                12
+#define LONG_PRESS_PROGRESS_ALIGN        0
 #define LEFT_CONTENT_ICON_TEXT_X         8
 #define TIP_BOX_MARGIN_Y                 12
+#define TIP_BOX_TEXT_ICON_MARGIN         20
 #else  // TARGETS
 #error Undefined target
 #endif  // TARGETS
@@ -697,7 +697,8 @@ static nbgl_container_t *addListItem(nbgl_layoutInternal_t *layoutInt, const lis
                         ? INACTIVE_TEXT_COLOR
                         : BLACK;
     nbgl_font_id_e fontId
-        = ((itemDesc->type == TOUCHABLE_BAR_ITEM) && (itemDesc->state == OFF_STATE))
+        = (((itemDesc->type == TOUCHABLE_BAR_ITEM) || (itemDesc->type == SWITCH_ITEM))
+           && (itemDesc->state == OFF_STATE))
               ? INACTIVE_SMALL_FONT
               : SMALL_BOLD_FONT;
 
@@ -961,7 +962,7 @@ static nbgl_container_t *addContentCenter(nbgl_layoutInternal_t      *layoutInt,
                 textArea->obj.alignmentMarginY = VERTICAL_BORDER_MARGIN + info->iconHug;
             }
             else {
-                textArea->obj.alignmentMarginY = 16;
+                textArea->obj.alignmentMarginY = TITLE_DESC_MARGIN;
             }
         }
         else {
@@ -994,7 +995,7 @@ static nbgl_container_t *addContentCenter(nbgl_layoutInternal_t      *layoutInt,
                 textArea->obj.alignmentMarginY = TITLE_DESC_MARGIN;
             }
             else {
-                textArea->obj.alignmentMarginY = VERTICAL_BORDER_MARGIN + info->iconHug;
+                textArea->obj.alignmentMarginY = ICON_TITLE_MARGIN + info->iconHug;
             }
         }
         else {
@@ -3319,7 +3320,6 @@ int nbgl_layoutAddUpFooter(nbgl_layout_t *layout, const nbgl_layoutUpFooter_t *u
 
             line                                      = createHorizontalLine(layoutInt->layer);
             line->obj.alignment                       = TOP_MIDDLE;
-            line->obj.alignmentMarginY                = VERTICAL_ALIGNMENT - 1;
             layoutInt->upFooterContainer->children[2] = (nbgl_obj_t *) line;
 
             progressBar = (nbgl_progress_bar_t *) nbgl_objPoolGet(PROGRESS_BAR, layoutInt->layer);
@@ -3465,7 +3465,7 @@ int nbgl_layoutAddUpFooter(nbgl_layout_t *layout, const nbgl_layoutUpFooter_t *u
             if (upFooterDesc->tipBox.icon != NULL) {
                 textArea->obj.area.width
                     -= ((nbgl_icon_details_t *) PIC(upFooterDesc->tipBox.icon))->width
-                       + BORDER_MARGIN;
+                       + TIP_BOX_TEXT_ICON_MARGIN;
             }
             textArea->obj.area.height = nbgl_getTextHeightInWidth(
                 textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
