@@ -97,21 +97,21 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="comment"> *  See the License for the specific language governing permissions and</span></div>
 <div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="comment"> *  limitations under the License.</span></div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="comment"> *****************************************************************************/</span></div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="preprocessor">#if defined(HAVE_APP_STORAGE) || defined(HAVE_BOLOS)</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="preprocessor">#ifdef HAVE_APP_STORAGE</span></div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#pragma once</span></div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &quot;app_storage.h&quot;</span></div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="keyword">typedef</span> <span class="keyword">struct </span>app_storage_s {</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    uint32_t             crc;  </div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    app_storage_header_t header;</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    uint8_t              data[APP_STORAGE_SIZE];</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>} app_storage_t;</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>int32_t app_storage_init(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="preprocessor">#endif </span><span class="comment">/* HAVE_APP_STORAGE || HAVE_BOLOS */</span><span class="preprocessor"></span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="comment">/* The storage consists of the system and the app parts */</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="keyword">typedef</span> <span class="keyword">struct </span>app_storage_s {</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    app_storage_header_t header;</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    uint8_t              data[APP_STORAGE_SIZE];</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>} app_storage_t;</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="keywordtype">void</span> app_storage_init(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="preprocessor">#endif </span><span class="comment">/* #ifdef HAVE_APP_STORAGE */</span><span class="preprocessor"></span></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
