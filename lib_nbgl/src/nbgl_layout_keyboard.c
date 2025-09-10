@@ -87,8 +87,8 @@ enum {
 #define NUMBER_WIDTH              56
 #define DELETE_ICON               C_Close_40px
 #elif defined(TARGET_APEX)
-#define TEXT_ENTRY_NORMAL_HEIGHT  40
-#define TEXT_ENTRY_COMPACT_HEIGHT 40
+#define TEXT_ENTRY_NORMAL_HEIGHT  44
+#define TEXT_ENTRY_COMPACT_HEIGHT 44
 #define BOTTOM_NORMAL_MARGIN      20
 #define BOTTOM_CONFIRM_MARGIN     16
 #define BOTTOM_COMPACT_MARGIN     8

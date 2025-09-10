@@ -209,6 +209,7 @@ typedef struct {
     nbgl_layout_t backgroundLayout;
     const nbgl_contentInfoList_t     *currentInfos;
     const nbgl_contentTagValueList_t *currentTagValues;
+    nbgl_tipBox_t                     tipBox;
 } GenericContext_t;
 
 typedef struct {
@@ -274,7 +275,7 @@ static nbgl_page_t *modalPageContext;
 static const char *pageTitle;
 
 // context for tip-box
-static nbgl_tipBox_t activeTipBox;
+#define activeTipBox genericContext.tipBox
 
 // context for navigation use case
 static nbgl_pageNavigationInfo_t navInfo;
@@ -3439,6 +3440,7 @@ void nbgl_useCaseStatus(const char *message, bool isSuccess, nbgl_callback_t qui
     nbgl_screenTickerConfiguration_t ticker = {.tickerCallback  = &tickerCallback,
                                                .tickerIntervale = 0,  // not periodic
                                                .tickerValue     = STATUS_SCREEN_DURATION};
+    nbgl_pageInfoDescription_t       info   = {0};
 
     reset_callbacks_and_context();
 
@@ -3447,27 +3449,14 @@ void nbgl_useCaseStatus(const char *message, bool isSuccess, nbgl_callback_t qui
 #ifdef HAVE_PIEZO_SOUND
         os_io_seph_cmd_piezo_play_tune(TUNE_LEDGER_MOMENT);
 #endif  // HAVE_PIEZO_SOUND
-
-        pageContext = nbgl_pageDrawLedgerInfo(&pageCallback, &ticker, message, QUIT_TOKEN);
     }
-    else {
-        nbgl_pageInfoDescription_t info = {.bottomButtonStyle    = NO_BUTTON_STYLE,
-                                           .footerText           = NULL,
-                                           .centeredInfo.icon    = &DENIED_CIRCLE_ICON,
-                                           .centeredInfo.offsetY = SMALL_FOOTER_HEIGHT / 2,
-                                           .centeredInfo.onTop   = false,
-                                           .centeredInfo.style   = LARGE_CASE_INFO,
-                                           .centeredInfo.text1   = message,
-                                           .centeredInfo.text2   = NULL,
-                                           .centeredInfo.text3   = NULL,
-                                           .tapActionText        = "",
-                                           .isSwipeable          = false,
-                                           .tapActionToken       = QUIT_TOKEN,
-                                           .topRightStyle        = NO_BUTTON_STYLE,
-                                           .actionButtonText     = NULL,
-                                           .tuneId               = TUNE_TAP_CASUAL};
-        pageContext                     = nbgl_pageDrawInfo(&pageCallback, &ticker, &info);
-    }
+    info.centeredInfo.icon  = isSuccess ? &CHECK_CIRCLE_ICON : &DENIED_CIRCLE_ICON;
+    info.centeredInfo.style = LARGE_CASE_INFO;
+    info.centeredInfo.text1 = message;
+    info.tapActionText      = "";
+    info.tapActionToken     = QUIT_TOKEN;
+    info.tuneId             = TUNE_TAP_CASUAL;
+    pageContext             = nbgl_pageDrawInfo(&pageCallback, &ticker, &info);
     nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
 }
 
@@ -3999,9 +3988,6 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
     // memorize tipBox because it can be in the call stack of the caller
     if (tipBox != NULL) {
         memcpy(&activeTipBox, tipBox, sizeof(activeTipBox));
-    }
-    else {
-        memset(&activeTipBox, 0, sizeof(activeTipBox));
     }
     // if no warning at all, it's a simple review
     if ((warning == NULL)
