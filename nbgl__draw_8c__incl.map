@@ -1,27 +1,25 @@
 <map id="lib_nbgl/src/nbgl_draw.c" name="lib_nbgl/src/nbgl_draw.c">
-<area shape="rect" id="Node000001" title="Implementation of middle&#45;level API to draw rich forms like rounded rectangle." alt="" coords="385,5,563,31"/>
+<area shape="rect" id="Node000001" title="Implementation of middle&#45;level API to draw rich forms like rounded rectangle." alt="" coords="339,5,516,31"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="5,79,76,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="394,33,96,81,91,82,90,77,95,76,394,28"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="361,33,96,81,91,82,90,77,95,76,360,28"/>
 <area shape="rect" id="Node000003" href="$nbgl__front_8h.html" title="Font screen low&#45;Level driver API, to draw elementary forms." alt="" coords="64,152,164,177"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="385,28,316,35,244,45,183,61,159,70,142,81,132,93,125,107,118,138,113,137,120,106,128,90,139,77,157,65,181,56,243,40,315,29,385,22"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="339,31,223,49,174,63,142,81,132,93,125,108,118,139,113,137,120,106,128,90,139,77,172,59,222,44,338,25"/>
 <area shape="rect" id="Node000010" href="$nbgl__draw_8h.html" title="Middle Level API of the new BOLOS Graphical Library." alt="" coords="152,79,252,104"/>
-<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="431,33,260,78,258,73,430,28"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="392,33,252,77,251,72,390,28"/>
 <area shape="rect" id="Node000011" href="$nbgl__fonts_8h.html" title=" " alt="" coords="240,152,343,177"/>
-<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="405,33,358,51,336,64,317,80,302,108,295,139,290,138,297,107,313,77,333,60,355,46,403,28"/>
+<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="391,33,352,52,333,65,317,80,303,109,296,139,291,137,298,107,313,77,330,61,349,47,388,28"/>
 <area shape="rect" id="Node000012" href="$nbgl__debug_8h.html" title="debug traces management" alt="" coords="327,79,437,104"/>
-<area shape="poly" id="edge14_Node000001_Node000012" title=" " alt="" coords="461,33,409,72,406,68,458,29"/>
+<area shape="poly" id="edge14_Node000001_Node000012" title=" " alt="" coords="422,32,399,69,394,66,418,30"/>
 <area shape="rect" id="Node000013" href="$nbgl__side_8h.html" title="Side screen low&#45;Level driver API, to draw elementary forms." alt="" coords="397,152,493,177"/>
-<area shape="poly" id="edge15_Node000001_Node000013" title=" " alt="" coords="474,32,452,139,447,138,469,31"/>
+<area shape="poly" id="edge15_Node000001_Node000013" title=" " alt="" coords="435,30,451,78,453,109,451,138,446,138,448,109,446,79,430,32"/>
 <area shape="rect" id="Node000014" title=" " alt="" coords="512,79,615,104"/>
-<area shape="poly" id="edge17_Node000001_Node000014" title=" " alt="" coords="490,29,540,68,536,72,487,33"/>
+<area shape="poly" id="edge17_Node000001_Node000014" title=" " alt="" coords="450,28,530,70,528,75,448,33"/>
 <area shape="rect" id="Node000015" title=" " alt="" coords="639,79,717,104"/>
-<area shape="poly" id="edge18_Node000001_Node000015" title=" " alt="" coords="508,28,633,72,631,77,506,33"/>
+<area shape="poly" id="edge18_Node000001_Node000015" title=" " alt="" coords="468,28,627,73,625,78,467,33"/>
 <area shape="rect" id="Node000016" title=" " alt="" coords="741,79,815,104"/>
-<area shape="poly" id="edge19_Node000001_Node000016" title=" " alt="" coords="523,28,728,76,726,81,522,33"/>
+<area shape="poly" id="edge19_Node000001_Node000016" title=" " alt="" coords="489,28,727,76,726,81,488,33"/>
 <area shape="rect" id="Node000017" title=" " alt="" coords="840,79,924,104"/>
-<area shape="poly" id="edge20_Node000001_Node000017" title=" " alt="" coords="547,28,827,76,826,81,546,33"/>
-<area shape="rect" id="Node000018" title=" " alt="" coords="949,79,1053,104"/>
-<area shape="poly" id="edge21_Node000001_Node000018" title=" " alt="" coords="563,27,936,76,935,81,563,32"/>
+<area shape="poly" id="edge20_Node000001_Node000017" title=" " alt="" coords="514,28,827,76,826,81,513,33"/>
 <area shape="rect" id="Node000004" href="$nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="193,225,299,251"/>
 <area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="136,175,214,216,211,221,134,180"/>
 <area shape="rect" id="Node000005" title=" " alt="" coords="10,299,85,324"/>
