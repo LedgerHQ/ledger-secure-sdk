@@ -1,0 +1,12 @@
+<map id="nbgl_genericBarList_t" name="nbgl_genericBarList_t">
+<area shape="rect" id="Node000001" title="The necessary parameters to build a list of touchable bars, to display sub&#45;pages." alt="" coords="5,93,168,119"/>
+<area shape="rect" id="Node000002" href="$structnbgl__genericDetails__s.html" title="The necessary parameters to build the page(s) displayed when the top&#45;right button is touched in intro..." alt="" coords="136,181,301,207"/>
+<area shape="poly" id="edge5_Node000002_Node000001" title=" " alt="" coords="86,132,87,145,93,156,112,172,137,183,135,188,110,177,89,159,82,146,80,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="190,176,144,145,105,121,108,117,147,140,193,171"/>
+<area shape="rect" id="Node000003" href="$structnbgl__contentCenter__t.html" title="This structure contains info to build a centered (vertically and horizontally) area,..." alt="" coords="193,93,354,119"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="261,132,229,182,224,179,256,129"/>
+<area shape="rect" id="Node000004" href="$structnbgl__animation__s.html" title="Represents all information about an animation (succession of icons)" alt="" coords="205,5,342,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="276,45,276,93,271,93,271,45"/>
+<area shape="rect" id="Node000005" href="$structnbgl__layoutQRCode__t.html" title="This structure contains info to build a centered (vertically and horizontally) area,..." alt="" coords="379,93,541,119"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="423,127,341,160,263,184,261,179,339,155,421,122"/>
+</map>
