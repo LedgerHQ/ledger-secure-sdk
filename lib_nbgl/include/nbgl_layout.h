@@ -62,6 +62,7 @@ extern "C" {
 #define PROGRESSBAR_HEIGHT     12
 #define BACK_KEY_WIDTH         88
 #define ICON_TITLE_MARGIN      24
+#define TITLE_DESC_MARGIN      16
 
 #elif defined(TARGET_FLEX)
 #define NB_MAX_SUGGESTION_BUTTONS         8
@@ -91,6 +92,7 @@ extern "C" {
 #define PROGRESSBAR_HEIGHT     12
 #define BACK_KEY_WIDTH         104
 #define ICON_TITLE_MARGIN      24
+#define TITLE_DESC_MARGIN      16
 
 #elif defined(TARGET_APEX)
 #define NB_MAX_SUGGESTION_BUTTONS         8
@@ -114,12 +116,13 @@ extern "C" {
 #define LIST_ITEM_HEADING_SUB_TEXT  8
 
 #define PRE_TAG_VALUE_MARGIN   0
-#define INTER_TAG_VALUE_MARGIN 12
+#define INTER_TAG_VALUE_MARGIN 16
 // width & height for progress bar
 #define PROGRESSBAR_WIDTH      78
 #define PROGRESSBAR_HEIGHT     8
 #define BACK_KEY_WIDTH         56
 #define ICON_TITLE_MARGIN      16
+#define TITLE_DESC_MARGIN      12
 
 #else  // TARGETS
 #error Undefined target
