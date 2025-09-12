@@ -25,7 +25,6 @@ var searchData=
   ['keypad_5ffooter_5ftype_22',['KEYPAD_FOOTER_TYPE',['../nbgl__layout__internal_8h.html#ab559e7c42ad35996f0979aa2dab1b214',1,'nbgl_layout_internal.h']]],
   ['keypad_5fid_23',['KEYPAD_ID',['../nbgl__obj_8h.html#aac34dfe6c6b73b43a4656c9dce041034ad6eb789221f4209542dad920605d6fb1',1,'nbgl_obj.h']]],
   ['keypad_5fmax_5fdigits_24',['KEYPAD_MAX_DIGITS',['../nbgl__obj_8h.html#a5e3ebd232b253583614cad4446403d47',1,'nbgl_obj.h']]],
-  ['keypad_5freinit_5fkeys_25',['KEYPAD_REINIT_KEYS',['../nbgl__obj_8h.html#a4059c98ba8fca374abc54faf1a75baf0',1,'nbgl_obj.h']]],
-  ['keypadobj_26',['keypadObj',['../structgenericObj__t.html#aa628edad3501c56197a7cee55af59da1',1,'genericObj_t']]],
-  ['keys_27',['keys',['../structcipher__key__t.html#a15d83f9ea14cf9a3e64fbe01cc44cf4c',1,'cipher_key_t']]]
+  ['keypadobj_25',['keypadObj',['../structgenericObj__t.html#aa628edad3501c56197a7cee55af59da1',1,'genericObj_t']]],
+  ['keys_26',['keys',['../structcipher__key__t.html#a15d83f9ea14cf9a3e64fbe01cc44cf4c',1,'cipher_key_t']]]
 ];
