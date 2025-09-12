@@ -492,8 +492,8 @@ static void radioTouchCallback(nbgl_obj_t            *obj,
             if (layout->callbackObjPool[foundRadio].tuneId < NBGL_NO_TUNE) {
                 os_io_seph_cmd_piezo_play_tune(layout->callbackObjPool[foundRadio].tuneId);
             }
-            nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
 #endif  // HAVE_PIEZO_SOUND
+            nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
             layout->callback(layout->callbackObjPool[foundRadio].token, foundRadioIndex);
         }
     }
