@@ -1905,10 +1905,23 @@ static void displayWarningStep(void)
     nbgl_stepPosition_t       pos  = 0;
     if (reviewWithWarnCtx.warningPage == 0) {
         // draw the main warning page
-        info.icon  = &C_icon_warning;
-        info.text1 = "Blind signing ahead";
-        info.text2 = "To accept risk, press both buttons";
-        pos        = FIRST_STEP | FORWARD_DIRECTION;
+        if (reviewWithWarnCtx.warning->predefinedSet & (1 << BLIND_SIGNING_WARN)) {
+            info.icon  = &C_icon_warning;
+            info.text1 = "Blind signing ahead";
+            info.text2 = "To accept risk, press both buttons";
+        }
+        else if (reviewWithWarnCtx.warning->predefinedSet == 0) {
+            info.icon  = reviewWithWarnCtx.warning->info->icon;
+            info.text1 = reviewWithWarnCtx.warning->info->title;
+            info.text2 = reviewWithWarnCtx.warning->info->description;
+        }
+        else {
+            // generic warning page
+            info.icon  = &C_icon_warning;
+            info.text1 = "Warning";
+            info.text2 = "To accept risk, press both buttons";
+        }
+        pos = FIRST_STEP | FORWARD_DIRECTION;
     }
     else if (reviewWithWarnCtx.warningPage == (reviewWithWarnCtx.nbWarningPages - 1)) {
         getLastPageInfo(false, &info.icon, &info.text1);
@@ -2305,9 +2318,10 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
     reviewWithWarnCtx.choiceCallback = choiceCallback;
 
     // display the initial warning only of a risk/threat or blind signing
-    if (!(reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_THREAT_DETECTED_WARN))
-        && !(reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_RISK_DETECTED_WARN))
-        && !(reviewWithWarnCtx.warning->predefinedSet & (1 << BLIND_SIGNING_WARN))) {
+    if ((!(reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_THREAT_DETECTED_WARN))
+         && !(reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_RISK_DETECTED_WARN))
+         && !(reviewWithWarnCtx.warning->predefinedSet & (1 << BLIND_SIGNING_WARN)))
+        && (warning->introDetails == NULL)) {
         useCaseReview(type,
                       operationType,
                       tagValueList,
