@@ -206,7 +206,7 @@ cx_err_t cx_ecfp_generate_pair2_no_throw(cx_curve_t             curve,
         CX_CHECK(cx_ecdomain_generator_bn(curve, &W));
         // 'cx_ecpoint_rnd_fixed_scalarmul' doesn't support BLS12-381 so far
         // use cx_ecpoint_rnd_scalarmul for now
-        if (CX_CURVE_BLS12_381_G1 == private_key->curve) {
+        if ((CX_CURVE_BLS12_381_G1 == private_key->curve) || (CX_CURVE_BLS12_377_G1 == private_key->curve)) {
             CX_CHECK(cx_ecpoint_rnd_scalarmul(&W, private_key->d, private_key->d_len));
         }
         else {
