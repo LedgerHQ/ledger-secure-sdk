@@ -1852,6 +1852,24 @@ static void keypadGenericUseCase(const char             *title,
 }
 #endif  // NBGL_KEYPAD
 
+// this is the function called to start the actual review, from the initial warning pages
+static void launchReviewAfterWarning(void)
+{
+    if (reviewWithWarnCtx.type == REVIEW_USE_CASE) {
+        useCaseReview(reviewWithWarnCtx.type,
+                      reviewWithWarnCtx.operationType,
+                      reviewWithWarnCtx.tagValueList,
+                      reviewWithWarnCtx.icon,
+                      reviewWithWarnCtx.reviewTitle,
+                      reviewWithWarnCtx.reviewSubTitle,
+                      reviewWithWarnCtx.finishTitle,
+                      reviewWithWarnCtx.choiceCallback);
+    }
+    else if (reviewWithWarnCtx.type == STREAMING_START_REVIEW_USE_CASE) {
+        displayStreamingReviewPage(FORWARD_DIRECTION);
+    }
+}
+
 // this is the callback used when navigating in warning pages
 static void warningNavigate(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
 {
@@ -1868,23 +1886,17 @@ static void warningNavigate(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
         if (reviewWithWarnCtx.warningPage < (reviewWithWarnCtx.nbWarningPages - 1)) {
             reviewWithWarnCtx.warningPage++;
         }
+        else if ((reviewWithWarnCtx.warning->predefinedSet == 0)
+                 && (reviewWithWarnCtx.warning->info != NULL)) {
+            launchReviewAfterWarning();
+            return;
+        }
     }
-    else if (event == BUTTON_BOTH_PRESSED) {
+    else if ((event == BUTTON_BOTH_PRESSED)
+             && (reviewWithWarnCtx.warning->predefinedSet & (1 << BLIND_SIGNING_WARN))) {
         // if at first page, double press leads to start of review
         if (reviewWithWarnCtx.warningPage == 0) {
-            if (reviewWithWarnCtx.type == REVIEW_USE_CASE) {
-                useCaseReview(reviewWithWarnCtx.type,
-                              reviewWithWarnCtx.operationType,
-                              reviewWithWarnCtx.tagValueList,
-                              reviewWithWarnCtx.icon,
-                              reviewWithWarnCtx.reviewTitle,
-                              reviewWithWarnCtx.reviewSubTitle,
-                              reviewWithWarnCtx.finishTitle,
-                              reviewWithWarnCtx.choiceCallback);
-            }
-            else if (reviewWithWarnCtx.type == STREAMING_START_REVIEW_USE_CASE) {
-                displayStreamingReviewPage(FORWARD_DIRECTION);
-            }
+            launchReviewAfterWarning();
         }
         // if at last page, reject operation
         else if (reviewWithWarnCtx.warningPage == (reviewWithWarnCtx.nbWarningPages - 1)) {
@@ -1898,21 +1910,48 @@ static void warningNavigate(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
     displayWarningStep();
 }
 
-// function used to display the initial warning page when starting a "review with warning"
+// function used to display the initial warning pages when starting a "review with warning"
 static void displayWarningStep(void)
 {
     nbgl_layoutCenteredInfo_t info = {0};
     nbgl_stepPosition_t       pos  = 0;
-    if (reviewWithWarnCtx.warningPage == 0) {
-        // draw the main warning page
-        info.icon  = &C_icon_warning;
-        info.text1 = "Blind signing ahead";
-        info.text2 = "To accept risk, press both buttons";
-        pos        = FIRST_STEP | FORWARD_DIRECTION;
+    if (reviewWithWarnCtx.warning->predefinedSet & (1 << BLIND_SIGNING_WARN)) {
+        if (reviewWithWarnCtx.warningPage == 0) {
+            // draw the main warning page
+            info.icon  = &C_icon_warning;
+            info.text1 = "Blind signing ahead";
+            info.text2 = "To accept risk, press both buttons";
+            pos        = FIRST_STEP | FORWARD_DIRECTION;
+        }
+        else if (reviewWithWarnCtx.warningPage == (reviewWithWarnCtx.nbWarningPages - 1)) {
+            getLastPageInfo(false, &info.icon, &info.text1);
+            pos = LAST_STEP | BACKWARD_DIRECTION;
+        }
     }
-    else if (reviewWithWarnCtx.warningPage == (reviewWithWarnCtx.nbWarningPages - 1)) {
-        getLastPageInfo(false, &info.icon, &info.text1);
-        pos = LAST_STEP | BACKWARD_DIRECTION;
+    else if ((reviewWithWarnCtx.warning->predefinedSet == 0)
+             && (reviewWithWarnCtx.warning->info != NULL)) {
+        if (reviewWithWarnCtx.warningPage == 0) {
+            info.icon  = reviewWithWarnCtx.warning->info->icon;
+            info.text1 = reviewWithWarnCtx.warning->info->title;
+            info.text2 = reviewWithWarnCtx.warning->info->description;
+            pos        = FIRST_STEP | FORWARD_DIRECTION;
+        }
+        else if (reviewWithWarnCtx.warningPage == (reviewWithWarnCtx.nbWarningPages - 1)) {
+            if (reviewWithWarnCtx.warning->introDetails->type == CENTERED_INFO_WARNING) {
+                info.icon  = reviewWithWarnCtx.warning->introDetails->centeredInfo.icon;
+                info.text1 = reviewWithWarnCtx.warning->introDetails->centeredInfo.title;
+                info.text2 = reviewWithWarnCtx.warning->introDetails->centeredInfo.description;
+                pos        = NEITHER_FIRST_NOR_LAST_STEP;
+            }
+            else {
+                // not supported
+                return;
+            }
+        }
+    }
+    else {
+        // not supported
+        return;
     }
     info.style = BOLD_TEXT1_INFO;
     nbgl_stepDrawCenteredInfo(pos, warningNavigate, NULL, &info, false);
@@ -2305,9 +2344,10 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
     reviewWithWarnCtx.choiceCallback = choiceCallback;
 
     // display the initial warning only of a risk/threat or blind signing
-    if (!(reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_THREAT_DETECTED_WARN))
-        && !(reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_RISK_DETECTED_WARN))
-        && !(reviewWithWarnCtx.warning->predefinedSet & (1 << BLIND_SIGNING_WARN))) {
+    if ((!(reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_THREAT_DETECTED_WARN))
+         && !(reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_RISK_DETECTED_WARN))
+         && !(reviewWithWarnCtx.warning->predefinedSet & (1 << BLIND_SIGNING_WARN)))
+        && (warning->introDetails == NULL)) {
         useCaseReview(type,
                       operationType,
                       tagValueList,
@@ -2652,9 +2692,10 @@ void nbgl_useCaseAdvancedReviewStreamingStart(nbgl_operationType_t       operati
     reviewWithWarnCtx.warning        = warning;
 
     // display the initial warning only of a risk/threat or blind signing
-    if (!(reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_THREAT_DETECTED_WARN))
-        && !(reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_RISK_DETECTED_WARN))
-        && !(reviewWithWarnCtx.warning->predefinedSet & (1 << BLIND_SIGNING_WARN))) {
+    if ((!(reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_THREAT_DETECTED_WARN))
+         && !(reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_RISK_DETECTED_WARN))
+         && !(reviewWithWarnCtx.warning->predefinedSet & (1 << BLIND_SIGNING_WARN)))
+        && (warning->introDetails == NULL)) {
         displayStreamingReviewPage(FORWARD_DIRECTION);
         return;
     }
