@@ -103,6 +103,8 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a2c5052a06b1cc5df1ebfefe8272663b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a36e80f5a908031b24a9e5b796d23f72f" id="r_a36e80f5a908031b24a9e5b796d23f72f"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__layoutDescription__s.html#a36e80f5a908031b24a9e5b796d23f72f">tapActionToken</a></td></tr>
 <tr class="separator:a36e80f5a908031b24a9e5b796d23f72f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a60dea9b92d63563240c798d9908e2004" id="r_a60dea9b92d63563240c798d9908e2004"><td class="memItemLeft" align="right" valign="top">tune_index_e&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__layoutDescription__s.html#a60dea9b92d63563240c798d9908e2004">tapTuneId</a></td></tr>
+<tr class="separator:a60dea9b92d63563240c798d9908e2004"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a923aed719baabcf052e1b63460bee469" id="r_a923aed719baabcf052e1b63460bee469"><td class="memItemLeft" align="right" valign="top"><a class="el" href="nbgl__layout_8h.html#a01348bb7cb5aebd69dcf87806ea58aa7">nbgl_layoutTouchCallback_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__layoutDescription__s.html#a923aed719baabcf052e1b63460bee469">onActionCallback</a></td></tr>
 <tr class="memdesc:a923aed719baabcf052e1b63460bee469"><td class="mdescLeft">&#160;</td><td class="mdescRight">the callback to be called on any action on the layout  <br /></td></tr>
 <tr class="separator:a923aed719baabcf052e1b63460bee469"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -113,7 +115,7 @@ Public Attributes</h2></td></tr>
 <div class="textblock"><p>Structure containing all information when creating a layout. This structure must be passed as argument to <a class="el" href="nbgl__layout_8h.html#a9ff89401d84106e775567a11c40769b7">nbgl_layoutGet</a>. </p>
 <dl class="section note"><dt>Note</dt><dd>It shall not be used </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00193">193</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00227">227</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
 </div><h2 class="groupheader">Member Data Documentation</h2>
 <a id="a0768b0863e64e44da3ebab04aca0ca6b" name="a0768b0863e64e44da3ebab04aca0ca6b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0768b0863e64e44da3ebab04aca0ca6b">&#9670;&#160;</a></span>modal</h2>
@@ -128,7 +130,7 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>if true, puts the layout on top of screen stack (modal). Otherwise puts on background (for apps) </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00194">194</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00228">228</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
 
 </div>
 </div>
@@ -146,7 +148,7 @@ Public Attributes</h2></td></tr>
 
 <p>the callback to be called on any action on the layout </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00207">207</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00239">239</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
 
 </div>
 </div>
@@ -164,7 +166,7 @@ Public Attributes</h2></td></tr>
 
 <p>Light gray text used when main container is "tapable". </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00199">199</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00233">233</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
 
 </div>
 </div>
@@ -181,7 +183,24 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>the token that will be used as argument of the onActionCallback when main container is "tapped" </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00200">200</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00234">234</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
+
+</div>
+</div>
+<a id="a60dea9b92d63563240c798d9908e2004" name="a60dea9b92d63563240c798d9908e2004"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a60dea9b92d63563240c798d9908e2004">&#9670;&#160;</a></span>tapTuneId</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">tune_index_e nbgl_layoutDescription_s::tapTuneId</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>if not <a class="el" href="nbgl__layout_8h.html#ac3777fecd3d5be8db30507a038e2443e">NBGL_NO_TUNE</a>, a tune will be played when tapping on main container </p>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00236">236</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
 
 </div>
 </div>
@@ -197,7 +216,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00212">212</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00244">244</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
 
 </div>
 </div>
@@ -214,7 +233,7 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>if true, draws a light gray left border on the whole height of the screen </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00197">197</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8h_source.html#l00231">231</a> of file <a class="el" href="nbgl__layout_8h_source.html">nbgl_layout.h</a>.</p>
 
 </div>
 </div>
