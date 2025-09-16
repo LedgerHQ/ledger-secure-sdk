@@ -376,11 +376,17 @@ class TTF2INC:
 
         # Build full path of the destination file:
         filename = f"{self.font_prefix}{self.basename}_{unicode_value}"
+        filename_without_unicode = filename.replace('_unicode', '')
         fullpath = os.path.join(self.directory, filename)
+        fullpath_without_unicode = os.path.join(self.directory, filename_without_unicode)
 
         # We'll look for .bmp, .png and .gif extensions to check if file exists
         for ext in [".bmp", ".png", ".gif"]:
             image_name = fullpath + ext
+            if os.path.exists(image_name):
+                break
+            # try without 'unicode' in filename
+            image_name = fullpath_without_unicode + ext
             if os.path.exists(image_name):
                 break
 

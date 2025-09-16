@@ -1437,7 +1437,7 @@ static void displayFullValuePage(const char                   *backText,
                 info = "ENS names are resolved by Ledger backend.";
             }
             else if (extension->aliasType == ADDRESS_BOOK_ALIAS) {
-                info = "This account label comes from your Address Book in Ledger Live.";
+                info = "This account label comes from your Address Book in Ledger Wallet.";
             }
             else {
                 info = extension->explanation;
@@ -2498,8 +2498,9 @@ static void displaySecurityReport(uint32_t set)
         info.icon                 = &LARGE_WARNING_ICON;
         info.title                = "Transaction Check unavailable";
         info.description
-            = "If you're not using the\nLedger Live app, Transaction Check might not work. If your "
-              "are using Ledger Live, reject the transaction and try again.\n\nGet help at "
+            = "If you're not using the Ledger Wallet app, Transaction Check might not work. If "
+              "your "
+              "are using Ledger Wallet, reject the transaction and try again.\n\nGet help at "
               "ledger.com/e11";
         nbgl_layoutAddContentCenter(reviewWithWarnCtx.modalLayout, &info);
         footerDesc.emptySpace.height = SMALL_CENTERING_HEADER;
