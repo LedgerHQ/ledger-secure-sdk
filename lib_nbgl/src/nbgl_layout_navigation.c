@@ -38,7 +38,7 @@
 #define NAVIGATION_HEIGHT 60
 #define NAV_BUTTON_HEIGHT 60
 #define NAV_BUTTON_WIDTH  56
-#define PAGE_NUMBER_WIDTH 60
+#define PAGE_NUMBER_WIDTH 68
 #endif  // TARGETS
 
 /**********************
