@@ -175,6 +175,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a6372cdf1a4acaa55ce7f5be0b70aa18a" id="r_a6372cdf1a4acaa55ce7f5be0b70aa18a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__touch_8c.html#a6372cdf1a4acaa55ce7f5be0b70aa18a">nbgl_touchGetObjectFromId</a> (<a class="el" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *obj, uint8_t id)</td></tr>
 <tr class="memdesc:a6372cdf1a4acaa55ce7f5be0b70aa18a"><td class="mdescLeft">&#160;</td><td class="mdescRight">parse all the children of the given object, recursively, until an object with the given touch if is found.  <br /></td></tr>
 <tr class="separator:a6372cdf1a4acaa55ce7f5be0b70aa18a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a30bf3e6bb4d6dabd8bbaf4ff53bce377" id="r_a30bf3e6bb4d6dabd8bbaf4ff53bce377"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__touch_8c.html#a30bf3e6bb4d6dabd8bbaf4ff53bce377">nbgl_touchClear</a> (bool fromUx)</td></tr>
+<tr class="memdesc:a30bf3e6bb4d6dabd8bbaf4ff53bce377"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clears the context (to be used when the screen is set/pushed)  <br /></td></tr>
+<tr class="separator:a30bf3e6bb4d6dabd8bbaf4ff53bce377"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Implementation of touchscreen management in new BAGL </p>
@@ -193,7 +196,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00223">223</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00224">224</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
 
 </div>
 </div>
@@ -209,7 +212,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00224">224</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00225">225</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
 
 </div>
 </div>
@@ -251,6 +254,34 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="a30bf3e6bb4d6dabd8bbaf4ff53bce377" name="a30bf3e6bb4d6dabd8bbaf4ff53bce377"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a30bf3e6bb4d6dabd8bbaf4ff53bce377">&#9670;&#160;</a></span>nbgl_touchClear()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nbgl_touchClear </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>fromUx</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Clears the context (to be used when the screen is set/pushed) </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">fromUx</td><td>true if called from UX </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00460">460</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
+
+</div>
+</div>
 <a id="a6372cdf1a4acaa55ce7f5be0b70aa18a" name="a6372cdf1a4acaa55ce7f5be0b70aa18a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6372cdf1a4acaa55ce7f5be0b70aa18a">&#9670;&#160;</a></span>nbgl_touchGetObjectFromId()</h2>
 
@@ -287,7 +318,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the concerned object or NULL if not found </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00420">420</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00424">424</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
 
 </div>
 </div>
@@ -307,7 +338,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00403">403</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00407">407</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
 
 </div>
 </div>
@@ -343,7 +374,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00389">389</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00393">393</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
 
 </div>
 </div>
@@ -389,7 +420,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00286">286</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00287">287</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
 
 </div>
 </div>
@@ -417,7 +448,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00273">273</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__touch_8c_source.html#l00274">274</a> of file <a class="el" href="nbgl__touch_8c_source.html">nbgl_touch.c</a>.</p>
 
 </div>
 </div>

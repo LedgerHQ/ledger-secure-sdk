@@ -1514,255 +1514,263 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l01531" name="l01531"></a><span class="lineno"> 1531</span>            <a class="code hl_define" href="nbgl__debug_8h.html#a0cc05ccd60a4255a70bf44771005dbca">LOG_WARN</a>(<a class="code hl_enumvalue" href="nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635a1027be546fb5313f962d13d8e4c4cc99">OBJ_LOGGER</a>, <span class="stringliteral">&quot;object with type [%d] has not parent\n&quot;</span>, obj-&gt;type);</div>
 <div class="line"><a id="l01532" name="l01532"></a><span class="lineno"> 1532</span>            <span class="keywordflow">return</span>;</div>
 <div class="line"><a id="l01533" name="l01533"></a><span class="lineno"> 1533</span>        }</div>
-<div class="line"><a id="l01534" name="l01534"></a><span class="lineno"> 1534</span>        <a class="code hl_typedef" href="nbgl__obj_8c.html#a6a1227f0b134cb3d2bdd036f4b67f50b">draw_function_t</a> func = (<a class="code hl_typedef" href="nbgl__obj_8c.html#a6a1227f0b134cb3d2bdd036f4b67f50b">draw_function_t</a>) PIC(draw_functions[obj-&gt;type]);</div>
-<div class="line"><a id="l01535" name="l01535"></a><span class="lineno"> 1535</span>        func(obj, prevObj, computePosition);</div>
-<div class="line"><a id="l01536" name="l01536"></a><span class="lineno"> 1536</span>    }</div>
-<div class="line"><a id="l01537" name="l01537"></a><span class="lineno"> 1537</span>    <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l01538" name="l01538"></a><span class="lineno"> 1538</span>        <a class="code hl_define" href="nbgl__debug_8h.html#a0cc05ccd60a4255a70bf44771005dbca">LOG_WARN</a>(<a class="code hl_enumvalue" href="nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635a1027be546fb5313f962d13d8e4c4cc99">OBJ_LOGGER</a>, <span class="stringliteral">&quot;Not existing object type [%d]\n&quot;</span>, obj-&gt;type);</div>
-<div class="line"><a id="l01539" name="l01539"></a><span class="lineno"> 1539</span>        <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l01540" name="l01540"></a><span class="lineno"> 1540</span>    }</div>
-<div class="line"><a id="l01541" name="l01541"></a><span class="lineno"> 1541</span> </div>
-<div class="line"><a id="l01542" name="l01542"></a><span class="lineno"> 1542</span><span class="preprocessor">#ifdef HAVE_SERIALIZED_NBGL</span></div>
-<div class="line"><a id="l01543" name="l01543"></a><span class="lineno"> 1543</span>    io_seph_ux_send_nbgl_serialized(<a class="code hl_enumvalue" href="nbgl__serialize_8h.html#a975e897b33b8c1690bb635642b47b54ca9223120331d931d793ca9095c5482e50">NBGL_DRAW_OBJ</a>, obj);</div>
-<div class="line"><a id="l01544" name="l01544"></a><span class="lineno"> 1544</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l01545" name="l01545"></a><span class="lineno"> 1545</span>    <span class="keywordflow">if</span> (!objRefreshAreaDone) {</div>
-<div class="line"><a id="l01546" name="l01546"></a><span class="lineno"> 1546</span>        extendRefreshArea(&amp;obj-&gt;area);</div>
-<div class="line"><a id="l01547" name="l01547"></a><span class="lineno"> 1547</span>    }</div>
-<div class="line"><a id="l01548" name="l01548"></a><span class="lineno"> 1548</span>}</div>
+<div class="line"><a id="l01534" name="l01534"></a><span class="lineno"> 1534</span><span class="preprocessor">#ifdef SCREEN_SIZE_WALLET</span></div>
+<div class="line"><a id="l01535" name="l01535"></a><span class="lineno"> 1535</span>        <span class="comment">// if the type is KEYPAD, force digitsChanged to be sure to redraw the full keypad if the</span></div>
+<div class="line"><a id="l01536" name="l01536"></a><span class="lineno"> 1536</span>        <span class="comment">// full screen is redrawn</span></div>
+<div class="line"><a id="l01537" name="l01537"></a><span class="lineno"> 1537</span>        <span class="keywordflow">if</span> (computePosition &amp;&amp; (obj-&gt;type == <a class="code hl_enumvalue" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7a010863ffb4e151e6a1b2ac64f6f95b1f">KEYPAD</a>)) {</div>
+<div class="line"><a id="l01538" name="l01538"></a><span class="lineno"> 1538</span>            <a class="code hl_typedef" href="nbgl__obj_8h.html#a43d9b5f69b1b04c1ae2cfa8564ee77e7">nbgl_keypad_t</a> *keypad = (<a class="code hl_typedef" href="nbgl__obj_8h.html#a43d9b5f69b1b04c1ae2cfa8564ee77e7">nbgl_keypad_t</a> *) obj;</div>
+<div class="line"><a id="l01539" name="l01539"></a><span class="lineno"> 1539</span>            keypad-&gt;digitsChanged = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l01540" name="l01540"></a><span class="lineno"> 1540</span>        }</div>
+<div class="line"><a id="l01541" name="l01541"></a><span class="lineno"> 1541</span><span class="preprocessor">#endif  </span><span class="comment">// SCREEN_SIZE_WALLET</span></div>
+<div class="line"><a id="l01542" name="l01542"></a><span class="lineno"> 1542</span>        <a class="code hl_typedef" href="nbgl__obj_8c.html#a6a1227f0b134cb3d2bdd036f4b67f50b">draw_function_t</a> func = (<a class="code hl_typedef" href="nbgl__obj_8c.html#a6a1227f0b134cb3d2bdd036f4b67f50b">draw_function_t</a>) PIC(draw_functions[obj-&gt;type]);</div>
+<div class="line"><a id="l01543" name="l01543"></a><span class="lineno"> 1543</span>        func(obj, prevObj, computePosition);</div>
+<div class="line"><a id="l01544" name="l01544"></a><span class="lineno"> 1544</span>    }</div>
+<div class="line"><a id="l01545" name="l01545"></a><span class="lineno"> 1545</span>    <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l01546" name="l01546"></a><span class="lineno"> 1546</span>        <a class="code hl_define" href="nbgl__debug_8h.html#a0cc05ccd60a4255a70bf44771005dbca">LOG_WARN</a>(<a class="code hl_enumvalue" href="nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635a1027be546fb5313f962d13d8e4c4cc99">OBJ_LOGGER</a>, <span class="stringliteral">&quot;Not existing object type [%d]\n&quot;</span>, obj-&gt;type);</div>
+<div class="line"><a id="l01547" name="l01547"></a><span class="lineno"> 1547</span>        <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l01548" name="l01548"></a><span class="lineno"> 1548</span>    }</div>
 <div class="line"><a id="l01549" name="l01549"></a><span class="lineno"> 1549</span> </div>
-<div class="line"><a id="l01559" name="l01559"></a><span class="lineno"> 1559</span><span class="keyword">static</span> <span class="keywordtype">void</span> draw_obj_and_chidren(<a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *obj, <a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *prevObj, <span class="keywordtype">bool</span> computePosition)</div>
-<div class="line"><a id="l01560" name="l01560"></a><span class="lineno"> 1560</span>{</div>
-<div class="line"><a id="l01561" name="l01561"></a><span class="lineno"> 1561</span>    uint8_t i = 0;</div>
-<div class="line"><a id="l01562" name="l01562"></a><span class="lineno"> 1562</span>    <a class="code hl_define" href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a>(<a class="code hl_enumvalue" href="nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635a1027be546fb5313f962d13d8e4c4cc99">OBJ_LOGGER</a>, <span class="stringliteral">&quot;draw_obj_and_chidren(): obj = %p\n&quot;</span>, obj);</div>
-<div class="line"><a id="l01563" name="l01563"></a><span class="lineno"> 1563</span>    <span class="comment">// draw the object itself</span></div>
-<div class="line"><a id="l01564" name="l01564"></a><span class="lineno"> 1564</span>    draw_object(obj, prevObj, computePosition);</div>
-<div class="line"><a id="l01565" name="l01565"></a><span class="lineno"> 1565</span> </div>
-<div class="line"><a id="l01566" name="l01566"></a><span class="lineno"> 1566</span>    <span class="keywordflow">if</span> ((obj-&gt;type == <a class="code hl_enumvalue" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7af2a9da294a4a62d55f04725d7efbb6ac">SCREEN</a>) || (obj-&gt;type == <a class="code hl_enumvalue" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7ae167e6a4547c44c68eb321881de789bd">CONTAINER</a>)) {</div>
-<div class="line"><a id="l01567" name="l01567"></a><span class="lineno"> 1567</span>        <a class="code hl_typedef" href="nbgl__obj_8h.html#accca85b3f89995e3b9e1261a30d68972">nbgl_container_t</a> *container = (<a class="code hl_typedef" href="nbgl__obj_8h.html#accca85b3f89995e3b9e1261a30d68972">nbgl_container_t</a> *) obj;</div>
-<div class="line"><a id="l01568" name="l01568"></a><span class="lineno"> 1568</span>        <a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a>       *prev      = NULL;</div>
-<div class="line"><a id="l01569" name="l01569"></a><span class="lineno"> 1569</span>        <a class="code hl_define" href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a>(</div>
-<div class="line"><a id="l01570" name="l01570"></a><span class="lineno"> 1570</span>            <a class="code hl_enumvalue" href="nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635a1027be546fb5313f962d13d8e4c4cc99">OBJ_LOGGER</a>, <span class="stringliteral">&quot;draw_obj_and_chidren(): container-&gt;children = %p\n&quot;</span>, container-&gt;children);</div>
-<div class="line"><a id="l01571" name="l01571"></a><span class="lineno"> 1571</span>        <span class="comment">// draw the children, if any</span></div>
-<div class="line"><a id="l01572" name="l01572"></a><span class="lineno"> 1572</span>        <span class="keywordflow">if</span> (container-&gt;children != NULL) {</div>
-<div class="line"><a id="l01573" name="l01573"></a><span class="lineno"> 1573</span>            <span class="keywordflow">for</span> (i = 0; i &lt; container-&gt;nbChildren; i++) {</div>
-<div class="line"><a id="l01574" name="l01574"></a><span class="lineno"> 1574</span>                <a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *current = container-&gt;children[i];</div>
-<div class="line"><a id="l01575" name="l01575"></a><span class="lineno"> 1575</span>                <span class="keywordflow">if</span> (current != NULL) {</div>
-<div class="line"><a id="l01576" name="l01576"></a><span class="lineno"> 1576</span>                    current-&gt;parent = (<a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *) container;</div>
-<div class="line"><a id="l01577" name="l01577"></a><span class="lineno"> 1577</span>                    draw_obj_and_chidren(current, prev, <span class="keyword">true</span>);</div>
-<div class="line"><a id="l01578" name="l01578"></a><span class="lineno"> 1578</span>                    <span class="keywordflow">if</span> (current-&gt;alignTo == NULL) {</div>
-<div class="line"><a id="l01579" name="l01579"></a><span class="lineno"> 1579</span>                        prev = current;</div>
-<div class="line"><a id="l01580" name="l01580"></a><span class="lineno"> 1580</span>                    }</div>
-<div class="line"><a id="l01581" name="l01581"></a><span class="lineno"> 1581</span>                }</div>
-<div class="line"><a id="l01582" name="l01582"></a><span class="lineno"> 1582</span>            }</div>
-<div class="line"><a id="l01583" name="l01583"></a><span class="lineno"> 1583</span>        }</div>
-<div class="line"><a id="l01584" name="l01584"></a><span class="lineno"> 1584</span>    }</div>
-<div class="line"><a id="l01585" name="l01585"></a><span class="lineno"> 1585</span>}</div>
-<div class="line"><a id="l01586" name="l01586"></a><span class="lineno"> 1586</span> </div>
-<div class="line"><a id="l01593" name="l01593"></a><span class="lineno"> 1593</span><span class="keyword">static</span> <span class="keywordtype">void</span> extendRefreshArea(<a class="code hl_typedef" href="nbgl__types_8h.html#ad8d6b26cf49117bcc4373dc05a2f52a8">nbgl_area_t</a> *area)</div>
-<div class="line"><a id="l01594" name="l01594"></a><span class="lineno"> 1594</span>{</div>
-<div class="line"><a id="l01595" name="l01595"></a><span class="lineno"> 1595</span>    int16_t x1, y1;  <span class="comment">// bottom right corner</span></div>
-<div class="line"><a id="l01596" name="l01596"></a><span class="lineno"> 1596</span>    x1 = refreshArea.x0 + refreshArea.width;</div>
-<div class="line"><a id="l01597" name="l01597"></a><span class="lineno"> 1597</span>    y1 = refreshArea.y0 + refreshArea.height;</div>
-<div class="line"><a id="l01598" name="l01598"></a><span class="lineno"> 1598</span> </div>
-<div class="line"><a id="l01599" name="l01599"></a><span class="lineno"> 1599</span>    <span class="comment">// if obj top-left is on left of current top-left corner, move top-left corner</span></div>
-<div class="line"><a id="l01600" name="l01600"></a><span class="lineno"> 1600</span>    <span class="keywordflow">if</span> (area-&gt;x0 &lt; refreshArea.x0) {</div>
-<div class="line"><a id="l01601" name="l01601"></a><span class="lineno"> 1601</span>        <span class="comment">// No negative coordinates</span></div>
-<div class="line"><a id="l01602" name="l01602"></a><span class="lineno"> 1602</span>        refreshArea.x0 = <a class="code hl_define" href="nbgl__types_8h.html#aacc3ee1a7f283f8ef65cea31f4436a95">MAX</a>(0, area-&gt;x0);</div>
-<div class="line"><a id="l01603" name="l01603"></a><span class="lineno"> 1603</span>    }</div>
-<div class="line"><a id="l01604" name="l01604"></a><span class="lineno"> 1604</span>    <span class="comment">// if obj bottom-right is on right of current bottom-right corner, move bottom-right corner</span></div>
-<div class="line"><a id="l01605" name="l01605"></a><span class="lineno"> 1605</span>    <span class="keywordflow">if</span> (((area-&gt;x0 + area-&gt;width) &gt; x1) || (refreshArea.width == 0)) {</div>
-<div class="line"><a id="l01606" name="l01606"></a><span class="lineno"> 1606</span>        <span class="comment">// Not beyond width</span></div>
-<div class="line"><a id="l01607" name="l01607"></a><span class="lineno"> 1607</span>        x1 = <a class="code hl_define" href="nbgl__types_8h.html#a74e75242132eaabbc1c512488a135926">MIN</a>(SCREEN_WIDTH, area-&gt;x0 + area-&gt;width);</div>
-<div class="line"><a id="l01608" name="l01608"></a><span class="lineno"> 1608</span>    }</div>
-<div class="line"><a id="l01609" name="l01609"></a><span class="lineno"> 1609</span>    <span class="comment">// if obj top-left is on top of current top-left corner, move top-left corner</span></div>
-<div class="line"><a id="l01610" name="l01610"></a><span class="lineno"> 1610</span>    <span class="keywordflow">if</span> (area-&gt;y0 &lt; refreshArea.y0) {</div>
-<div class="line"><a id="l01611" name="l01611"></a><span class="lineno"> 1611</span>        <span class="comment">// No negative coordinates and align on lower multiple of alignment</span></div>
-<div class="line"><a id="l01612" name="l01612"></a><span class="lineno"> 1612</span>        refreshArea.y0 = <a class="code hl_define" href="nbgl__types_8h.html#aacc3ee1a7f283f8ef65cea31f4436a95">MAX</a>(0, area-&gt;y0) &amp; ~(VERTICAL_ALIGNMENT - 1);</div>
-<div class="line"><a id="l01613" name="l01613"></a><span class="lineno"> 1613</span>    }</div>
-<div class="line"><a id="l01614" name="l01614"></a><span class="lineno"> 1614</span>    <span class="comment">// if obj bottom-right is on bottom of current bottom-right corner, move bottom-right corner</span></div>
-<div class="line"><a id="l01615" name="l01615"></a><span class="lineno"> 1615</span>    <span class="keywordflow">if</span> (((area-&gt;y0 + area-&gt;height) &gt; y1) || (refreshArea.height == 0)) {</div>
-<div class="line"><a id="l01616" name="l01616"></a><span class="lineno"> 1616</span>        <span class="comment">// Not beyond height</span></div>
-<div class="line"><a id="l01617" name="l01617"></a><span class="lineno"> 1617</span>        y1 = <a class="code hl_define" href="nbgl__types_8h.html#a74e75242132eaabbc1c512488a135926">MIN</a>(SCREEN_HEIGHT, area-&gt;y0 + area-&gt;height);</div>
-<div class="line"><a id="l01618" name="l01618"></a><span class="lineno"> 1618</span>        <span class="comment">// align on upper multiple of alignment</span></div>
-<div class="line"><a id="l01619" name="l01619"></a><span class="lineno"> 1619</span>        y1 = (y1 + (VERTICAL_ALIGNMENT - 1)) &amp; ~(VERTICAL_ALIGNMENT - 1);</div>
-<div class="line"><a id="l01620" name="l01620"></a><span class="lineno"> 1620</span>    }</div>
-<div class="line"><a id="l01621" name="l01621"></a><span class="lineno"> 1621</span> </div>
-<div class="line"><a id="l01622" name="l01622"></a><span class="lineno"> 1622</span>    <span class="comment">// sanity check</span></div>
-<div class="line"><a id="l01623" name="l01623"></a><span class="lineno"> 1623</span>    <span class="keywordflow">if</span> (x1 &gt; SCREEN_WIDTH) {</div>
-<div class="line"><a id="l01624" name="l01624"></a><span class="lineno"> 1624</span>        <a class="code hl_define" href="nbgl__debug_8h.html#a642c9caa0896b4a1e950fc32341dad92">LOG_FATAL</a>(<a class="code hl_enumvalue" href="nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635a1027be546fb5313f962d13d8e4c4cc99">OBJ_LOGGER</a>,</div>
-<div class="line"><a id="l01625" name="l01625"></a><span class="lineno"> 1625</span>                  <span class="stringliteral">&quot;extendRefreshArea: Impossible area x0 = %d width %d\n&quot;</span>,</div>
-<div class="line"><a id="l01626" name="l01626"></a><span class="lineno"> 1626</span>                  refreshArea.x0,</div>
-<div class="line"><a id="l01627" name="l01627"></a><span class="lineno"> 1627</span>                  refreshArea.width);</div>
+<div class="line"><a id="l01550" name="l01550"></a><span class="lineno"> 1550</span><span class="preprocessor">#ifdef HAVE_SERIALIZED_NBGL</span></div>
+<div class="line"><a id="l01551" name="l01551"></a><span class="lineno"> 1551</span>    io_seph_ux_send_nbgl_serialized(<a class="code hl_enumvalue" href="nbgl__serialize_8h.html#a975e897b33b8c1690bb635642b47b54ca9223120331d931d793ca9095c5482e50">NBGL_DRAW_OBJ</a>, obj);</div>
+<div class="line"><a id="l01552" name="l01552"></a><span class="lineno"> 1552</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l01553" name="l01553"></a><span class="lineno"> 1553</span>    <span class="keywordflow">if</span> (!objRefreshAreaDone) {</div>
+<div class="line"><a id="l01554" name="l01554"></a><span class="lineno"> 1554</span>        extendRefreshArea(&amp;obj-&gt;area);</div>
+<div class="line"><a id="l01555" name="l01555"></a><span class="lineno"> 1555</span>    }</div>
+<div class="line"><a id="l01556" name="l01556"></a><span class="lineno"> 1556</span>}</div>
+<div class="line"><a id="l01557" name="l01557"></a><span class="lineno"> 1557</span> </div>
+<div class="line"><a id="l01567" name="l01567"></a><span class="lineno"> 1567</span><span class="keyword">static</span> <span class="keywordtype">void</span> draw_obj_and_chidren(<a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *obj, <a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *prevObj, <span class="keywordtype">bool</span> computePosition)</div>
+<div class="line"><a id="l01568" name="l01568"></a><span class="lineno"> 1568</span>{</div>
+<div class="line"><a id="l01569" name="l01569"></a><span class="lineno"> 1569</span>    uint8_t i = 0;</div>
+<div class="line"><a id="l01570" name="l01570"></a><span class="lineno"> 1570</span>    <a class="code hl_define" href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a>(<a class="code hl_enumvalue" href="nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635a1027be546fb5313f962d13d8e4c4cc99">OBJ_LOGGER</a>, <span class="stringliteral">&quot;draw_obj_and_chidren(): obj = %p\n&quot;</span>, obj);</div>
+<div class="line"><a id="l01571" name="l01571"></a><span class="lineno"> 1571</span>    <span class="comment">// draw the object itself</span></div>
+<div class="line"><a id="l01572" name="l01572"></a><span class="lineno"> 1572</span>    draw_object(obj, prevObj, computePosition);</div>
+<div class="line"><a id="l01573" name="l01573"></a><span class="lineno"> 1573</span> </div>
+<div class="line"><a id="l01574" name="l01574"></a><span class="lineno"> 1574</span>    <span class="keywordflow">if</span> ((obj-&gt;type == <a class="code hl_enumvalue" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7af2a9da294a4a62d55f04725d7efbb6ac">SCREEN</a>) || (obj-&gt;type == <a class="code hl_enumvalue" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7ae167e6a4547c44c68eb321881de789bd">CONTAINER</a>)) {</div>
+<div class="line"><a id="l01575" name="l01575"></a><span class="lineno"> 1575</span>        <a class="code hl_typedef" href="nbgl__obj_8h.html#accca85b3f89995e3b9e1261a30d68972">nbgl_container_t</a> *container = (<a class="code hl_typedef" href="nbgl__obj_8h.html#accca85b3f89995e3b9e1261a30d68972">nbgl_container_t</a> *) obj;</div>
+<div class="line"><a id="l01576" name="l01576"></a><span class="lineno"> 1576</span>        <a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a>       *prev      = NULL;</div>
+<div class="line"><a id="l01577" name="l01577"></a><span class="lineno"> 1577</span>        <a class="code hl_define" href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a>(</div>
+<div class="line"><a id="l01578" name="l01578"></a><span class="lineno"> 1578</span>            <a class="code hl_enumvalue" href="nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635a1027be546fb5313f962d13d8e4c4cc99">OBJ_LOGGER</a>, <span class="stringliteral">&quot;draw_obj_and_chidren(): container-&gt;children = %p\n&quot;</span>, container-&gt;children);</div>
+<div class="line"><a id="l01579" name="l01579"></a><span class="lineno"> 1579</span>        <span class="comment">// draw the children, if any</span></div>
+<div class="line"><a id="l01580" name="l01580"></a><span class="lineno"> 1580</span>        <span class="keywordflow">if</span> (container-&gt;children != NULL) {</div>
+<div class="line"><a id="l01581" name="l01581"></a><span class="lineno"> 1581</span>            <span class="keywordflow">for</span> (i = 0; i &lt; container-&gt;nbChildren; i++) {</div>
+<div class="line"><a id="l01582" name="l01582"></a><span class="lineno"> 1582</span>                <a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *current = container-&gt;children[i];</div>
+<div class="line"><a id="l01583" name="l01583"></a><span class="lineno"> 1583</span>                <span class="keywordflow">if</span> (current != NULL) {</div>
+<div class="line"><a id="l01584" name="l01584"></a><span class="lineno"> 1584</span>                    current-&gt;parent = (<a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *) container;</div>
+<div class="line"><a id="l01585" name="l01585"></a><span class="lineno"> 1585</span>                    draw_obj_and_chidren(current, prev, <span class="keyword">true</span>);</div>
+<div class="line"><a id="l01586" name="l01586"></a><span class="lineno"> 1586</span>                    <span class="keywordflow">if</span> (current-&gt;alignTo == NULL) {</div>
+<div class="line"><a id="l01587" name="l01587"></a><span class="lineno"> 1587</span>                        prev = current;</div>
+<div class="line"><a id="l01588" name="l01588"></a><span class="lineno"> 1588</span>                    }</div>
+<div class="line"><a id="l01589" name="l01589"></a><span class="lineno"> 1589</span>                }</div>
+<div class="line"><a id="l01590" name="l01590"></a><span class="lineno"> 1590</span>            }</div>
+<div class="line"><a id="l01591" name="l01591"></a><span class="lineno"> 1591</span>        }</div>
+<div class="line"><a id="l01592" name="l01592"></a><span class="lineno"> 1592</span>    }</div>
+<div class="line"><a id="l01593" name="l01593"></a><span class="lineno"> 1593</span>}</div>
+<div class="line"><a id="l01594" name="l01594"></a><span class="lineno"> 1594</span> </div>
+<div class="line"><a id="l01601" name="l01601"></a><span class="lineno"> 1601</span><span class="keyword">static</span> <span class="keywordtype">void</span> extendRefreshArea(<a class="code hl_typedef" href="nbgl__types_8h.html#ad8d6b26cf49117bcc4373dc05a2f52a8">nbgl_area_t</a> *area)</div>
+<div class="line"><a id="l01602" name="l01602"></a><span class="lineno"> 1602</span>{</div>
+<div class="line"><a id="l01603" name="l01603"></a><span class="lineno"> 1603</span>    int16_t x1, y1;  <span class="comment">// bottom right corner</span></div>
+<div class="line"><a id="l01604" name="l01604"></a><span class="lineno"> 1604</span>    x1 = refreshArea.x0 + refreshArea.width;</div>
+<div class="line"><a id="l01605" name="l01605"></a><span class="lineno"> 1605</span>    y1 = refreshArea.y0 + refreshArea.height;</div>
+<div class="line"><a id="l01606" name="l01606"></a><span class="lineno"> 1606</span> </div>
+<div class="line"><a id="l01607" name="l01607"></a><span class="lineno"> 1607</span>    <span class="comment">// if obj top-left is on left of current top-left corner, move top-left corner</span></div>
+<div class="line"><a id="l01608" name="l01608"></a><span class="lineno"> 1608</span>    <span class="keywordflow">if</span> (area-&gt;x0 &lt; refreshArea.x0) {</div>
+<div class="line"><a id="l01609" name="l01609"></a><span class="lineno"> 1609</span>        <span class="comment">// No negative coordinates</span></div>
+<div class="line"><a id="l01610" name="l01610"></a><span class="lineno"> 1610</span>        refreshArea.x0 = <a class="code hl_define" href="nbgl__types_8h.html#aacc3ee1a7f283f8ef65cea31f4436a95">MAX</a>(0, area-&gt;x0);</div>
+<div class="line"><a id="l01611" name="l01611"></a><span class="lineno"> 1611</span>    }</div>
+<div class="line"><a id="l01612" name="l01612"></a><span class="lineno"> 1612</span>    <span class="comment">// if obj bottom-right is on right of current bottom-right corner, move bottom-right corner</span></div>
+<div class="line"><a id="l01613" name="l01613"></a><span class="lineno"> 1613</span>    <span class="keywordflow">if</span> (((area-&gt;x0 + area-&gt;width) &gt; x1) || (refreshArea.width == 0)) {</div>
+<div class="line"><a id="l01614" name="l01614"></a><span class="lineno"> 1614</span>        <span class="comment">// Not beyond width</span></div>
+<div class="line"><a id="l01615" name="l01615"></a><span class="lineno"> 1615</span>        x1 = <a class="code hl_define" href="nbgl__types_8h.html#a74e75242132eaabbc1c512488a135926">MIN</a>(SCREEN_WIDTH, area-&gt;x0 + area-&gt;width);</div>
+<div class="line"><a id="l01616" name="l01616"></a><span class="lineno"> 1616</span>    }</div>
+<div class="line"><a id="l01617" name="l01617"></a><span class="lineno"> 1617</span>    <span class="comment">// if obj top-left is on top of current top-left corner, move top-left corner</span></div>
+<div class="line"><a id="l01618" name="l01618"></a><span class="lineno"> 1618</span>    <span class="keywordflow">if</span> (area-&gt;y0 &lt; refreshArea.y0) {</div>
+<div class="line"><a id="l01619" name="l01619"></a><span class="lineno"> 1619</span>        <span class="comment">// No negative coordinates and align on lower multiple of alignment</span></div>
+<div class="line"><a id="l01620" name="l01620"></a><span class="lineno"> 1620</span>        refreshArea.y0 = <a class="code hl_define" href="nbgl__types_8h.html#aacc3ee1a7f283f8ef65cea31f4436a95">MAX</a>(0, area-&gt;y0) &amp; ~(VERTICAL_ALIGNMENT - 1);</div>
+<div class="line"><a id="l01621" name="l01621"></a><span class="lineno"> 1621</span>    }</div>
+<div class="line"><a id="l01622" name="l01622"></a><span class="lineno"> 1622</span>    <span class="comment">// if obj bottom-right is on bottom of current bottom-right corner, move bottom-right corner</span></div>
+<div class="line"><a id="l01623" name="l01623"></a><span class="lineno"> 1623</span>    <span class="keywordflow">if</span> (((area-&gt;y0 + area-&gt;height) &gt; y1) || (refreshArea.height == 0)) {</div>
+<div class="line"><a id="l01624" name="l01624"></a><span class="lineno"> 1624</span>        <span class="comment">// Not beyond height</span></div>
+<div class="line"><a id="l01625" name="l01625"></a><span class="lineno"> 1625</span>        y1 = <a class="code hl_define" href="nbgl__types_8h.html#a74e75242132eaabbc1c512488a135926">MIN</a>(SCREEN_HEIGHT, area-&gt;y0 + area-&gt;height);</div>
+<div class="line"><a id="l01626" name="l01626"></a><span class="lineno"> 1626</span>        <span class="comment">// align on upper multiple of alignment</span></div>
+<div class="line"><a id="l01627" name="l01627"></a><span class="lineno"> 1627</span>        y1 = (y1 + (VERTICAL_ALIGNMENT - 1)) &amp; ~(VERTICAL_ALIGNMENT - 1);</div>
 <div class="line"><a id="l01628" name="l01628"></a><span class="lineno"> 1628</span>    }</div>
-<div class="line"><a id="l01629" name="l01629"></a><span class="lineno"> 1629</span>    <span class="keywordflow">if</span> (y1 &gt; SCREEN_HEIGHT) {</div>
-<div class="line"><a id="l01630" name="l01630"></a><span class="lineno"> 1630</span><span class="preprocessor">#ifdef HAVE_SE_TOUCH</span></div>
-<div class="line"><a id="l01631" name="l01631"></a><span class="lineno"> 1631</span>        <a class="code hl_define" href="nbgl__debug_8h.html#a642c9caa0896b4a1e950fc32341dad92">LOG_FATAL</a>(<a class="code hl_enumvalue" href="nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635a1027be546fb5313f962d13d8e4c4cc99">OBJ_LOGGER</a>,</div>
-<div class="line"><a id="l01632" name="l01632"></a><span class="lineno"> 1632</span>                  <span class="stringliteral">&quot;extendRefreshArea: Impossible area y0 = %d height %d\n&quot;</span>,</div>
-<div class="line"><a id="l01633" name="l01633"></a><span class="lineno"> 1633</span>                  refreshArea.y0,</div>
-<div class="line"><a id="l01634" name="l01634"></a><span class="lineno"> 1634</span>                  refreshArea.height);</div>
-<div class="line"><a id="l01635" name="l01635"></a><span class="lineno"> 1635</span><span class="preprocessor">#else   </span><span class="comment">// HAVE_SE_TOUCH</span></div>
-<div class="line"><a id="l01636" name="l01636"></a><span class="lineno"> 1636</span>        y1 = SCREEN_HEIGHT;</div>
-<div class="line"><a id="l01637" name="l01637"></a><span class="lineno"> 1637</span><span class="preprocessor">#endif  </span><span class="comment">// HAVE_SE_TOUCH</span></div>
-<div class="line"><a id="l01638" name="l01638"></a><span class="lineno"> 1638</span>    }</div>
-<div class="line"><a id="l01639" name="l01639"></a><span class="lineno"> 1639</span>    <span class="comment">// recompute width and height</span></div>
-<div class="line"><a id="l01640" name="l01640"></a><span class="lineno"> 1640</span>    refreshArea.width  = x1 - refreshArea.x0;</div>
-<div class="line"><a id="l01641" name="l01641"></a><span class="lineno"> 1641</span>    refreshArea.height = y1 - refreshArea.y0;</div>
-<div class="line"><a id="l01642" name="l01642"></a><span class="lineno"> 1642</span> </div>
-<div class="line"><a id="l01643" name="l01643"></a><span class="lineno"> 1643</span>    <span class="comment">// revaluate area bpp</span></div>
-<div class="line"><a id="l01644" name="l01644"></a><span class="lineno"> 1644</span>    <span class="keywordflow">if</span> (area-&gt;bpp &gt; refreshArea.bpp) {</div>
-<div class="line"><a id="l01645" name="l01645"></a><span class="lineno"> 1645</span>        refreshArea.bpp = area-&gt;bpp;</div>
+<div class="line"><a id="l01629" name="l01629"></a><span class="lineno"> 1629</span> </div>
+<div class="line"><a id="l01630" name="l01630"></a><span class="lineno"> 1630</span>    <span class="comment">// sanity check</span></div>
+<div class="line"><a id="l01631" name="l01631"></a><span class="lineno"> 1631</span>    <span class="keywordflow">if</span> (x1 &gt; SCREEN_WIDTH) {</div>
+<div class="line"><a id="l01632" name="l01632"></a><span class="lineno"> 1632</span>        <a class="code hl_define" href="nbgl__debug_8h.html#a642c9caa0896b4a1e950fc32341dad92">LOG_FATAL</a>(<a class="code hl_enumvalue" href="nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635a1027be546fb5313f962d13d8e4c4cc99">OBJ_LOGGER</a>,</div>
+<div class="line"><a id="l01633" name="l01633"></a><span class="lineno"> 1633</span>                  <span class="stringliteral">&quot;extendRefreshArea: Impossible area x0 = %d width %d\n&quot;</span>,</div>
+<div class="line"><a id="l01634" name="l01634"></a><span class="lineno"> 1634</span>                  refreshArea.x0,</div>
+<div class="line"><a id="l01635" name="l01635"></a><span class="lineno"> 1635</span>                  refreshArea.width);</div>
+<div class="line"><a id="l01636" name="l01636"></a><span class="lineno"> 1636</span>    }</div>
+<div class="line"><a id="l01637" name="l01637"></a><span class="lineno"> 1637</span>    <span class="keywordflow">if</span> (y1 &gt; SCREEN_HEIGHT) {</div>
+<div class="line"><a id="l01638" name="l01638"></a><span class="lineno"> 1638</span><span class="preprocessor">#ifdef HAVE_SE_TOUCH</span></div>
+<div class="line"><a id="l01639" name="l01639"></a><span class="lineno"> 1639</span>        <a class="code hl_define" href="nbgl__debug_8h.html#a642c9caa0896b4a1e950fc32341dad92">LOG_FATAL</a>(<a class="code hl_enumvalue" href="nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635a1027be546fb5313f962d13d8e4c4cc99">OBJ_LOGGER</a>,</div>
+<div class="line"><a id="l01640" name="l01640"></a><span class="lineno"> 1640</span>                  <span class="stringliteral">&quot;extendRefreshArea: Impossible area y0 = %d height %d\n&quot;</span>,</div>
+<div class="line"><a id="l01641" name="l01641"></a><span class="lineno"> 1641</span>                  refreshArea.y0,</div>
+<div class="line"><a id="l01642" name="l01642"></a><span class="lineno"> 1642</span>                  refreshArea.height);</div>
+<div class="line"><a id="l01643" name="l01643"></a><span class="lineno"> 1643</span><span class="preprocessor">#else   </span><span class="comment">// HAVE_SE_TOUCH</span></div>
+<div class="line"><a id="l01644" name="l01644"></a><span class="lineno"> 1644</span>        y1 = SCREEN_HEIGHT;</div>
+<div class="line"><a id="l01645" name="l01645"></a><span class="lineno"> 1645</span><span class="preprocessor">#endif  </span><span class="comment">// HAVE_SE_TOUCH</span></div>
 <div class="line"><a id="l01646" name="l01646"></a><span class="lineno"> 1646</span>    }</div>
-<div class="line"><a id="l01647" name="l01647"></a><span class="lineno"> 1647</span>}</div>
-<div class="line"><a id="l01648" name="l01648"></a><span class="lineno"> 1648</span> </div>
-<div class="foldopen" id="foldopen01654" data-start="{" data-end="}">
-<div class="line"><a id="l01654" name="l01654"></a><span class="lineno"><a class="line" href="nbgl__obj_8h.html#a2ab8e03ef462a1e39312659f3b2d419f"> 1654</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__obj_8c.html#a2ab8e03ef462a1e39312659f3b2d419f">nbgl_objDraw</a>(<a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *obj)</div>
-<div class="line"><a id="l01655" name="l01655"></a><span class="lineno"> 1655</span>{</div>
-<div class="line"><a id="l01656" name="l01656"></a><span class="lineno"> 1656</span>    <span class="keywordtype">bool</span> computePosition = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l01657" name="l01657"></a><span class="lineno"> 1657</span>    <span class="keywordtype">bool</span> fromApp         = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l01658" name="l01658"></a><span class="lineno"> 1658</span> </div>
-<div class="line"><a id="l01659" name="l01659"></a><span class="lineno"> 1659</span>    <a class="code hl_define" href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a>(<a class="code hl_enumvalue" href="nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635a1027be546fb5313f962d13d8e4c4cc99">OBJ_LOGGER</a>, <span class="stringliteral">&quot;nbgl_objDraw(): obj = %p\n&quot;</span>, obj);</div>
-<div class="line"><a id="l01660" name="l01660"></a><span class="lineno"> 1660</span>    <span class="comment">// check whether it&#39;s necessary to compute position, and if this object belongs to</span></div>
-<div class="line"><a id="l01661" name="l01661"></a><span class="lineno"> 1661</span>    <span class="comment">// an Application screen</span></div>
-<div class="line"><a id="l01662" name="l01662"></a><span class="lineno"> 1662</span>    <span class="keywordflow">if</span> (obj-&gt;type == <a class="code hl_enumvalue" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7af2a9da294a4a62d55f04725d7efbb6ac">SCREEN</a>) {</div>
-<div class="line"><a id="l01663" name="l01663"></a><span class="lineno"> 1663</span>        <span class="comment">// always compute position for screen and all sub-objects</span></div>
-<div class="line"><a id="l01664" name="l01664"></a><span class="lineno"> 1664</span>        computePosition = <span class="keyword">true</span>;</div>
-<div class="line"><a id="l01665" name="l01665"></a><span class="lineno"> 1665</span>        fromApp         = !(((<a class="code hl_typedef" href="nbgl__screen_8h.html#a6a0725e5007ff0b4cdc64183c6862fd6">nbgl_screen_t</a> *) obj)-&gt;isUxScreen);</div>
-<div class="line"><a id="l01666" name="l01666"></a><span class="lineno"> 1666</span>    }</div>
-<div class="line"><a id="l01667" name="l01667"></a><span class="lineno"> 1667</span>    <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l01668" name="l01668"></a><span class="lineno"> 1668</span>        <a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *parent = obj;</div>
-<div class="line"><a id="l01669" name="l01669"></a><span class="lineno"> 1669</span>        <span class="comment">// search screen in parenthood</span></div>
-<div class="line"><a id="l01670" name="l01670"></a><span class="lineno"> 1670</span>        <span class="keywordflow">while</span> (parent-&gt;parent != NULL) {</div>
-<div class="line"><a id="l01671" name="l01671"></a><span class="lineno"> 1671</span>            parent = parent-&gt;parent;</div>
-<div class="line"><a id="l01672" name="l01672"></a><span class="lineno"> 1672</span>        }</div>
-<div class="line"><a id="l01673" name="l01673"></a><span class="lineno"> 1673</span>        <span class="keywordflow">if</span> (parent-&gt;type == <a class="code hl_enumvalue" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7af2a9da294a4a62d55f04725d7efbb6ac">SCREEN</a>) {</div>
-<div class="line"><a id="l01674" name="l01674"></a><span class="lineno"> 1674</span>            fromApp = !(((<a class="code hl_typedef" href="nbgl__screen_8h.html#a6a0725e5007ff0b4cdc64183c6862fd6">nbgl_screen_t</a> *) parent)-&gt;isUxScreen);</div>
-<div class="line"><a id="l01675" name="l01675"></a><span class="lineno"> 1675</span>        }</div>
-<div class="line"><a id="l01676" name="l01676"></a><span class="lineno"> 1676</span>        <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l01677" name="l01677"></a><span class="lineno"> 1677</span>            <span class="comment">// should never happen</span></div>
-<div class="line"><a id="l01678" name="l01678"></a><span class="lineno"> 1678</span>            fromApp = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l01679" name="l01679"></a><span class="lineno"> 1679</span>        }</div>
-<div class="line"><a id="l01680" name="l01680"></a><span class="lineno"> 1680</span>    }</div>
-<div class="line"><a id="l01681" name="l01681"></a><span class="lineno"> 1681</span>    <span class="comment">// forbid redrawing App screens by UX or vice versa</span></div>
-<div class="line"><a id="l01682" name="l01682"></a><span class="lineno"> 1682</span>    <span class="keywordflow">if</span> ((os_sched_current_task() == TASK_BOLOS_UX) == fromApp) {</div>
-<div class="line"><a id="l01683" name="l01683"></a><span class="lineno"> 1683</span>        <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l01684" name="l01684"></a><span class="lineno"> 1684</span>    }</div>
-<div class="line"><a id="l01685" name="l01685"></a><span class="lineno"> 1685</span>    <span class="comment">// actually draw the object and its children, if it is allowed</span></div>
-<div class="line"><a id="l01686" name="l01686"></a><span class="lineno"> 1686</span>    <span class="keywordflow">if</span> (objDrawingDisabled &amp;&amp; fromApp) {</div>
-<div class="line"><a id="l01687" name="l01687"></a><span class="lineno"> 1687</span>        <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l01647" name="l01647"></a><span class="lineno"> 1647</span>    <span class="comment">// recompute width and height</span></div>
+<div class="line"><a id="l01648" name="l01648"></a><span class="lineno"> 1648</span>    refreshArea.width  = x1 - refreshArea.x0;</div>
+<div class="line"><a id="l01649" name="l01649"></a><span class="lineno"> 1649</span>    refreshArea.height = y1 - refreshArea.y0;</div>
+<div class="line"><a id="l01650" name="l01650"></a><span class="lineno"> 1650</span> </div>
+<div class="line"><a id="l01651" name="l01651"></a><span class="lineno"> 1651</span>    <span class="comment">// revaluate area bpp</span></div>
+<div class="line"><a id="l01652" name="l01652"></a><span class="lineno"> 1652</span>    <span class="keywordflow">if</span> (area-&gt;bpp &gt; refreshArea.bpp) {</div>
+<div class="line"><a id="l01653" name="l01653"></a><span class="lineno"> 1653</span>        refreshArea.bpp = area-&gt;bpp;</div>
+<div class="line"><a id="l01654" name="l01654"></a><span class="lineno"> 1654</span>    }</div>
+<div class="line"><a id="l01655" name="l01655"></a><span class="lineno"> 1655</span>}</div>
+<div class="line"><a id="l01656" name="l01656"></a><span class="lineno"> 1656</span> </div>
+<div class="foldopen" id="foldopen01662" data-start="{" data-end="}">
+<div class="line"><a id="l01662" name="l01662"></a><span class="lineno"><a class="line" href="nbgl__obj_8h.html#a2ab8e03ef462a1e39312659f3b2d419f"> 1662</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__obj_8c.html#a2ab8e03ef462a1e39312659f3b2d419f">nbgl_objDraw</a>(<a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *obj)</div>
+<div class="line"><a id="l01663" name="l01663"></a><span class="lineno"> 1663</span>{</div>
+<div class="line"><a id="l01664" name="l01664"></a><span class="lineno"> 1664</span>    <span class="keywordtype">bool</span> computePosition = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l01665" name="l01665"></a><span class="lineno"> 1665</span>    <span class="keywordtype">bool</span> fromApp         = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l01666" name="l01666"></a><span class="lineno"> 1666</span> </div>
+<div class="line"><a id="l01667" name="l01667"></a><span class="lineno"> 1667</span>    <a class="code hl_define" href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a>(<a class="code hl_enumvalue" href="nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635a1027be546fb5313f962d13d8e4c4cc99">OBJ_LOGGER</a>, <span class="stringliteral">&quot;nbgl_objDraw(): obj = %p\n&quot;</span>, obj);</div>
+<div class="line"><a id="l01668" name="l01668"></a><span class="lineno"> 1668</span>    <span class="comment">// check whether it&#39;s necessary to compute position, and if this object belongs to</span></div>
+<div class="line"><a id="l01669" name="l01669"></a><span class="lineno"> 1669</span>    <span class="comment">// an Application screen</span></div>
+<div class="line"><a id="l01670" name="l01670"></a><span class="lineno"> 1670</span>    <span class="keywordflow">if</span> (obj-&gt;type == <a class="code hl_enumvalue" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7af2a9da294a4a62d55f04725d7efbb6ac">SCREEN</a>) {</div>
+<div class="line"><a id="l01671" name="l01671"></a><span class="lineno"> 1671</span>        <span class="comment">// always compute position for screen and all sub-objects</span></div>
+<div class="line"><a id="l01672" name="l01672"></a><span class="lineno"> 1672</span>        computePosition = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l01673" name="l01673"></a><span class="lineno"> 1673</span>        fromApp         = !(((<a class="code hl_typedef" href="nbgl__screen_8h.html#a6a0725e5007ff0b4cdc64183c6862fd6">nbgl_screen_t</a> *) obj)-&gt;isUxScreen);</div>
+<div class="line"><a id="l01674" name="l01674"></a><span class="lineno"> 1674</span>    }</div>
+<div class="line"><a id="l01675" name="l01675"></a><span class="lineno"> 1675</span>    <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l01676" name="l01676"></a><span class="lineno"> 1676</span>        <a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *parent = obj;</div>
+<div class="line"><a id="l01677" name="l01677"></a><span class="lineno"> 1677</span>        <span class="comment">// search screen in parenthood</span></div>
+<div class="line"><a id="l01678" name="l01678"></a><span class="lineno"> 1678</span>        <span class="keywordflow">while</span> (parent-&gt;parent != NULL) {</div>
+<div class="line"><a id="l01679" name="l01679"></a><span class="lineno"> 1679</span>            parent = parent-&gt;parent;</div>
+<div class="line"><a id="l01680" name="l01680"></a><span class="lineno"> 1680</span>        }</div>
+<div class="line"><a id="l01681" name="l01681"></a><span class="lineno"> 1681</span>        <span class="keywordflow">if</span> (parent-&gt;type == <a class="code hl_enumvalue" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7af2a9da294a4a62d55f04725d7efbb6ac">SCREEN</a>) {</div>
+<div class="line"><a id="l01682" name="l01682"></a><span class="lineno"> 1682</span>            fromApp = !(((<a class="code hl_typedef" href="nbgl__screen_8h.html#a6a0725e5007ff0b4cdc64183c6862fd6">nbgl_screen_t</a> *) parent)-&gt;isUxScreen);</div>
+<div class="line"><a id="l01683" name="l01683"></a><span class="lineno"> 1683</span>        }</div>
+<div class="line"><a id="l01684" name="l01684"></a><span class="lineno"> 1684</span>        <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l01685" name="l01685"></a><span class="lineno"> 1685</span>            <span class="comment">// should never happen</span></div>
+<div class="line"><a id="l01686" name="l01686"></a><span class="lineno"> 1686</span>            fromApp = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l01687" name="l01687"></a><span class="lineno"> 1687</span>        }</div>
 <div class="line"><a id="l01688" name="l01688"></a><span class="lineno"> 1688</span>    }</div>
-<div class="line"><a id="l01689" name="l01689"></a><span class="lineno"> 1689</span>    draw_obj_and_chidren(obj, NULL, computePosition);</div>
-<div class="line"><a id="l01690" name="l01690"></a><span class="lineno"> 1690</span>}</div>
+<div class="line"><a id="l01689" name="l01689"></a><span class="lineno"> 1689</span>    <span class="comment">// forbid redrawing App screens by UX or vice versa</span></div>
+<div class="line"><a id="l01690" name="l01690"></a><span class="lineno"> 1690</span>    <span class="keywordflow">if</span> ((os_sched_current_task() == TASK_BOLOS_UX) == fromApp) {</div>
+<div class="line"><a id="l01691" name="l01691"></a><span class="lineno"> 1691</span>        <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l01692" name="l01692"></a><span class="lineno"> 1692</span>    }</div>
+<div class="line"><a id="l01693" name="l01693"></a><span class="lineno"> 1693</span>    <span class="comment">// actually draw the object and its children, if it is allowed</span></div>
+<div class="line"><a id="l01694" name="l01694"></a><span class="lineno"> 1694</span>    <span class="keywordflow">if</span> (objDrawingDisabled &amp;&amp; fromApp) {</div>
+<div class="line"><a id="l01695" name="l01695"></a><span class="lineno"> 1695</span>        <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l01696" name="l01696"></a><span class="lineno"> 1696</span>    }</div>
+<div class="line"><a id="l01697" name="l01697"></a><span class="lineno"> 1697</span>    draw_obj_and_chidren(obj, NULL, computePosition);</div>
+<div class="line"><a id="l01698" name="l01698"></a><span class="lineno"> 1698</span>}</div>
 </div>
-<div class="line"><a id="l01691" name="l01691"></a><span class="lineno"> 1691</span> </div>
-<div class="foldopen" id="foldopen01697" data-start="{" data-end="}">
-<div class="line"><a id="l01697" name="l01697"></a><span class="lineno"><a class="line" href="nbgl__obj_8h.html#a2c321e01f64784c5249e594b795bf252"> 1697</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__obj_8c.html#a2c321e01f64784c5249e594b795bf252">nbgl_refresh</a>(<span class="keywordtype">void</span>)</div>
-<div class="line"><a id="l01698" name="l01698"></a><span class="lineno"> 1698</span>{</div>
-<div class="line"><a id="l01699" name="l01699"></a><span class="lineno"> 1699</span>    <a class="code hl_function" href="nbgl__obj_8c.html#a6cded259d99182cf7d03961d2bd9eed9">nbgl_refreshSpecial</a>(<a class="code hl_enumvalue" href="nbgl__types_8h.html#af1925267fed387ae0d3cb4b13064f449a6bd9ad943e44285f074aafe8a721c728">FULL_COLOR_CLEAN_REFRESH</a>);</div>
-<div class="line"><a id="l01700" name="l01700"></a><span class="lineno"> 1700</span>}</div>
+<div class="line"><a id="l01699" name="l01699"></a><span class="lineno"> 1699</span> </div>
+<div class="foldopen" id="foldopen01705" data-start="{" data-end="}">
+<div class="line"><a id="l01705" name="l01705"></a><span class="lineno"><a class="line" href="nbgl__obj_8h.html#a2c321e01f64784c5249e594b795bf252"> 1705</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__obj_8c.html#a2c321e01f64784c5249e594b795bf252">nbgl_refresh</a>(<span class="keywordtype">void</span>)</div>
+<div class="line"><a id="l01706" name="l01706"></a><span class="lineno"> 1706</span>{</div>
+<div class="line"><a id="l01707" name="l01707"></a><span class="lineno"> 1707</span>    <a class="code hl_function" href="nbgl__obj_8c.html#a6cded259d99182cf7d03961d2bd9eed9">nbgl_refreshSpecial</a>(<a class="code hl_enumvalue" href="nbgl__types_8h.html#af1925267fed387ae0d3cb4b13064f449a6bd9ad943e44285f074aafe8a721c728">FULL_COLOR_CLEAN_REFRESH</a>);</div>
+<div class="line"><a id="l01708" name="l01708"></a><span class="lineno"> 1708</span>}</div>
 </div>
-<div class="line"><a id="l01701" name="l01701"></a><span class="lineno"> 1701</span> </div>
-<div class="foldopen" id="foldopen01707" data-start="{" data-end="}">
-<div class="line"><a id="l01707" name="l01707"></a><span class="lineno"><a class="line" href="nbgl__obj_8h.html#a6cded259d99182cf7d03961d2bd9eed9"> 1707</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__obj_8c.html#a6cded259d99182cf7d03961d2bd9eed9">nbgl_refreshSpecial</a>(<a class="code hl_enumeration" href="nbgl__types_8h.html#af1925267fed387ae0d3cb4b13064f449">nbgl_refresh_mode_t</a> mode)</div>
-<div class="line"><a id="l01708" name="l01708"></a><span class="lineno"> 1708</span>{</div>
-<div class="line"><a id="l01709" name="l01709"></a><span class="lineno"> 1709</span>    <span class="keywordflow">if</span> ((refreshArea.width == 0) || (refreshArea.height == 0)) {</div>
-<div class="line"><a id="l01710" name="l01710"></a><span class="lineno"> 1710</span>        <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l01711" name="l01711"></a><span class="lineno"> 1711</span>    }</div>
-<div class="line"><a id="l01712" name="l01712"></a><span class="lineno"> 1712</span> </div>
-<div class="line"><a id="l01713" name="l01713"></a><span class="lineno"> 1713</span>    <a class="code hl_function" href="nbgl__front_8h.html#ab7ec391fb30a36de0cf95fb8992a43c0">nbgl_frontRefreshArea</a>(&amp;refreshArea, mode, <a class="code hl_enumvalue" href="nbgl__types_8h.html#a15c1c05622abb5421019c246c7baa264acfaef5b92ef88a3c378bfe8a1f5c76a0">POST_REFRESH_FORCE_POWER_OFF</a>);</div>
-<div class="line"><a id="l01714" name="l01714"></a><span class="lineno"> 1714</span>    <a class="code hl_define" href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a>(<a class="code hl_enumvalue" href="nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635a1027be546fb5313f962d13d8e4c4cc99">OBJ_LOGGER</a>,</div>
-<div class="line"><a id="l01715" name="l01715"></a><span class="lineno"> 1715</span>              <span class="stringliteral">&quot;nbgl_refreshSpecial(), x0,y0 = [%d, %d], w,h = [%d, %d]\n&quot;</span>,</div>
-<div class="line"><a id="l01716" name="l01716"></a><span class="lineno"> 1716</span>              refreshArea.x0,</div>
-<div class="line"><a id="l01717" name="l01717"></a><span class="lineno"> 1717</span>              refreshArea.y0,</div>
-<div class="line"><a id="l01718" name="l01718"></a><span class="lineno"> 1718</span>              refreshArea.width,</div>
-<div class="line"><a id="l01719" name="l01719"></a><span class="lineno"> 1719</span>              refreshArea.height);</div>
-<div class="line"><a id="l01720" name="l01720"></a><span class="lineno"> 1720</span>    <a class="code hl_function" href="nbgl__obj_8c.html#a46a836d03d7dedadc133310006ca62a4">nbgl_refreshReset</a>();</div>
-<div class="line"><a id="l01721" name="l01721"></a><span class="lineno"> 1721</span>}</div>
+<div class="line"><a id="l01709" name="l01709"></a><span class="lineno"> 1709</span> </div>
+<div class="foldopen" id="foldopen01715" data-start="{" data-end="}">
+<div class="line"><a id="l01715" name="l01715"></a><span class="lineno"><a class="line" href="nbgl__obj_8h.html#a6cded259d99182cf7d03961d2bd9eed9"> 1715</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__obj_8c.html#a6cded259d99182cf7d03961d2bd9eed9">nbgl_refreshSpecial</a>(<a class="code hl_enumeration" href="nbgl__types_8h.html#af1925267fed387ae0d3cb4b13064f449">nbgl_refresh_mode_t</a> mode)</div>
+<div class="line"><a id="l01716" name="l01716"></a><span class="lineno"> 1716</span>{</div>
+<div class="line"><a id="l01717" name="l01717"></a><span class="lineno"> 1717</span>    <span class="keywordflow">if</span> ((refreshArea.width == 0) || (refreshArea.height == 0)) {</div>
+<div class="line"><a id="l01718" name="l01718"></a><span class="lineno"> 1718</span>        <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l01719" name="l01719"></a><span class="lineno"> 1719</span>    }</div>
+<div class="line"><a id="l01720" name="l01720"></a><span class="lineno"> 1720</span> </div>
+<div class="line"><a id="l01721" name="l01721"></a><span class="lineno"> 1721</span>    <a class="code hl_function" href="nbgl__front_8h.html#ab7ec391fb30a36de0cf95fb8992a43c0">nbgl_frontRefreshArea</a>(&amp;refreshArea, mode, <a class="code hl_enumvalue" href="nbgl__types_8h.html#a15c1c05622abb5421019c246c7baa264acfaef5b92ef88a3c378bfe8a1f5c76a0">POST_REFRESH_FORCE_POWER_OFF</a>);</div>
+<div class="line"><a id="l01722" name="l01722"></a><span class="lineno"> 1722</span>    <a class="code hl_define" href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a>(<a class="code hl_enumvalue" href="nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635a1027be546fb5313f962d13d8e4c4cc99">OBJ_LOGGER</a>,</div>
+<div class="line"><a id="l01723" name="l01723"></a><span class="lineno"> 1723</span>              <span class="stringliteral">&quot;nbgl_refreshSpecial(), x0,y0 = [%d, %d], w,h = [%d, %d]\n&quot;</span>,</div>
+<div class="line"><a id="l01724" name="l01724"></a><span class="lineno"> 1724</span>              refreshArea.x0,</div>
+<div class="line"><a id="l01725" name="l01725"></a><span class="lineno"> 1725</span>              refreshArea.y0,</div>
+<div class="line"><a id="l01726" name="l01726"></a><span class="lineno"> 1726</span>              refreshArea.width,</div>
+<div class="line"><a id="l01727" name="l01727"></a><span class="lineno"> 1727</span>              refreshArea.height);</div>
+<div class="line"><a id="l01728" name="l01728"></a><span class="lineno"> 1728</span>    <a class="code hl_function" href="nbgl__obj_8c.html#a46a836d03d7dedadc133310006ca62a4">nbgl_refreshReset</a>();</div>
+<div class="line"><a id="l01729" name="l01729"></a><span class="lineno"> 1729</span>}</div>
 </div>
-<div class="line"><a id="l01722" name="l01722"></a><span class="lineno"> 1722</span> </div>
-<div class="foldopen" id="foldopen01723" data-start="{" data-end="}">
-<div class="line"><a id="l01723" name="l01723"></a><span class="lineno"><a class="line" href="nbgl__obj_8h.html#aa8f7e8852258cd9af9a5c4e9e183a64c"> 1723</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__obj_8c.html#aa8f7e8852258cd9af9a5c4e9e183a64c">nbgl_refreshSpecialWithPostRefresh</a>(<a class="code hl_enumeration" href="nbgl__types_8h.html#af1925267fed387ae0d3cb4b13064f449">nbgl_refresh_mode_t</a> mode, <a class="code hl_enumeration" href="nbgl__types_8h.html#a15c1c05622abb5421019c246c7baa264">nbgl_post_refresh_t</a> post_refresh)</div>
-<div class="line"><a id="l01724" name="l01724"></a><span class="lineno"> 1724</span>{</div>
-<div class="line"><a id="l01725" name="l01725"></a><span class="lineno"> 1725</span>    <span class="keywordflow">if</span> ((refreshArea.width == 0) || (refreshArea.height == 0)) {</div>
-<div class="line"><a id="l01726" name="l01726"></a><span class="lineno"> 1726</span>        <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l01727" name="l01727"></a><span class="lineno"> 1727</span>    }</div>
-<div class="line"><a id="l01728" name="l01728"></a><span class="lineno"> 1728</span> </div>
-<div class="line"><a id="l01729" name="l01729"></a><span class="lineno"> 1729</span>    <a class="code hl_function" href="nbgl__front_8h.html#ab7ec391fb30a36de0cf95fb8992a43c0">nbgl_frontRefreshArea</a>(&amp;refreshArea, mode, post_refresh);</div>
-<div class="line"><a id="l01730" name="l01730"></a><span class="lineno"> 1730</span>    <a class="code hl_define" href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a>(<a class="code hl_enumvalue" href="nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635a1027be546fb5313f962d13d8e4c4cc99">OBJ_LOGGER</a>,</div>
-<div class="line"><a id="l01731" name="l01731"></a><span class="lineno"> 1731</span>              <span class="stringliteral">&quot;nbgl_refreshSpecialNoPoff(), x0,y0 = [%d, %d], w,h = [%d, %d]\n&quot;</span>,</div>
-<div class="line"><a id="l01732" name="l01732"></a><span class="lineno"> 1732</span>              refreshArea.x0,</div>
-<div class="line"><a id="l01733" name="l01733"></a><span class="lineno"> 1733</span>              refreshArea.y0,</div>
-<div class="line"><a id="l01734" name="l01734"></a><span class="lineno"> 1734</span>              refreshArea.width,</div>
-<div class="line"><a id="l01735" name="l01735"></a><span class="lineno"> 1735</span>              refreshArea.height);</div>
-<div class="line"><a id="l01736" name="l01736"></a><span class="lineno"> 1736</span>    <a class="code hl_function" href="nbgl__obj_8c.html#a46a836d03d7dedadc133310006ca62a4">nbgl_refreshReset</a>();</div>
-<div class="line"><a id="l01737" name="l01737"></a><span class="lineno"> 1737</span>}</div>
+<div class="line"><a id="l01730" name="l01730"></a><span class="lineno"> 1730</span> </div>
+<div class="foldopen" id="foldopen01731" data-start="{" data-end="}">
+<div class="line"><a id="l01731" name="l01731"></a><span class="lineno"><a class="line" href="nbgl__obj_8h.html#aa8f7e8852258cd9af9a5c4e9e183a64c"> 1731</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__obj_8c.html#aa8f7e8852258cd9af9a5c4e9e183a64c">nbgl_refreshSpecialWithPostRefresh</a>(<a class="code hl_enumeration" href="nbgl__types_8h.html#af1925267fed387ae0d3cb4b13064f449">nbgl_refresh_mode_t</a> mode, <a class="code hl_enumeration" href="nbgl__types_8h.html#a15c1c05622abb5421019c246c7baa264">nbgl_post_refresh_t</a> post_refresh)</div>
+<div class="line"><a id="l01732" name="l01732"></a><span class="lineno"> 1732</span>{</div>
+<div class="line"><a id="l01733" name="l01733"></a><span class="lineno"> 1733</span>    <span class="keywordflow">if</span> ((refreshArea.width == 0) || (refreshArea.height == 0)) {</div>
+<div class="line"><a id="l01734" name="l01734"></a><span class="lineno"> 1734</span>        <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l01735" name="l01735"></a><span class="lineno"> 1735</span>    }</div>
+<div class="line"><a id="l01736" name="l01736"></a><span class="lineno"> 1736</span> </div>
+<div class="line"><a id="l01737" name="l01737"></a><span class="lineno"> 1737</span>    <a class="code hl_function" href="nbgl__front_8h.html#ab7ec391fb30a36de0cf95fb8992a43c0">nbgl_frontRefreshArea</a>(&amp;refreshArea, mode, post_refresh);</div>
+<div class="line"><a id="l01738" name="l01738"></a><span class="lineno"> 1738</span>    <a class="code hl_define" href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a>(<a class="code hl_enumvalue" href="nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635a1027be546fb5313f962d13d8e4c4cc99">OBJ_LOGGER</a>,</div>
+<div class="line"><a id="l01739" name="l01739"></a><span class="lineno"> 1739</span>              <span class="stringliteral">&quot;nbgl_refreshSpecialNoPoff(), x0,y0 = [%d, %d], w,h = [%d, %d]\n&quot;</span>,</div>
+<div class="line"><a id="l01740" name="l01740"></a><span class="lineno"> 1740</span>              refreshArea.x0,</div>
+<div class="line"><a id="l01741" name="l01741"></a><span class="lineno"> 1741</span>              refreshArea.y0,</div>
+<div class="line"><a id="l01742" name="l01742"></a><span class="lineno"> 1742</span>              refreshArea.width,</div>
+<div class="line"><a id="l01743" name="l01743"></a><span class="lineno"> 1743</span>              refreshArea.height);</div>
+<div class="line"><a id="l01744" name="l01744"></a><span class="lineno"> 1744</span>    <a class="code hl_function" href="nbgl__obj_8c.html#a46a836d03d7dedadc133310006ca62a4">nbgl_refreshReset</a>();</div>
+<div class="line"><a id="l01745" name="l01745"></a><span class="lineno"> 1745</span>}</div>
 </div>
-<div class="line"><a id="l01738" name="l01738"></a><span class="lineno"> 1738</span> </div>
-<div class="foldopen" id="foldopen01743" data-start="{" data-end="}">
-<div class="line"><a id="l01743" name="l01743"></a><span class="lineno"><a class="line" href="nbgl__obj_8h.html#aeb82f9b2087e5afb89088f33b5f994f7"> 1743</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="nbgl__obj_8c.html#aeb82f9b2087e5afb89088f33b5f994f7">nbgl_refreshIsNeeded</a>(<span class="keywordtype">void</span>)</div>
-<div class="line"><a id="l01744" name="l01744"></a><span class="lineno"> 1744</span>{</div>
-<div class="line"><a id="l01745" name="l01745"></a><span class="lineno"> 1745</span>    <span class="keywordflow">if</span> ((refreshArea.width == 0) || (refreshArea.height == 0)) {</div>
-<div class="line"><a id="l01746" name="l01746"></a><span class="lineno"> 1746</span>        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a id="l01747" name="l01747"></a><span class="lineno"> 1747</span>    }</div>
-<div class="line"><a id="l01748" name="l01748"></a><span class="lineno"> 1748</span>    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><a id="l01749" name="l01749"></a><span class="lineno"> 1749</span>}</div>
+<div class="line"><a id="l01746" name="l01746"></a><span class="lineno"> 1746</span> </div>
+<div class="foldopen" id="foldopen01751" data-start="{" data-end="}">
+<div class="line"><a id="l01751" name="l01751"></a><span class="lineno"><a class="line" href="nbgl__obj_8h.html#aeb82f9b2087e5afb89088f33b5f994f7"> 1751</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="nbgl__obj_8c.html#aeb82f9b2087e5afb89088f33b5f994f7">nbgl_refreshIsNeeded</a>(<span class="keywordtype">void</span>)</div>
+<div class="line"><a id="l01752" name="l01752"></a><span class="lineno"> 1752</span>{</div>
+<div class="line"><a id="l01753" name="l01753"></a><span class="lineno"> 1753</span>    <span class="keywordflow">if</span> ((refreshArea.width == 0) || (refreshArea.height == 0)) {</div>
+<div class="line"><a id="l01754" name="l01754"></a><span class="lineno"> 1754</span>        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l01755" name="l01755"></a><span class="lineno"> 1755</span>    }</div>
+<div class="line"><a id="l01756" name="l01756"></a><span class="lineno"> 1756</span>    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a id="l01757" name="l01757"></a><span class="lineno"> 1757</span>}</div>
 </div>
-<div class="line"><a id="l01750" name="l01750"></a><span class="lineno"> 1750</span> </div>
-<div class="foldopen" id="foldopen01755" data-start="{" data-end="}">
-<div class="line"><a id="l01755" name="l01755"></a><span class="lineno"><a class="line" href="nbgl__obj_8h.html#a46a836d03d7dedadc133310006ca62a4"> 1755</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__obj_8c.html#a46a836d03d7dedadc133310006ca62a4">nbgl_refreshReset</a>(<span class="keywordtype">void</span>)</div>
-<div class="line"><a id="l01756" name="l01756"></a><span class="lineno"> 1756</span>{</div>
-<div class="line"><a id="l01757" name="l01757"></a><span class="lineno"> 1757</span><span class="preprocessor">#ifdef HAVE_SERIALIZED_NBGL</span></div>
-<div class="line"><a id="l01758" name="l01758"></a><span class="lineno"> 1758</span>    io_seph_ux_send_nbgl_serialized(<a class="code hl_enumvalue" href="nbgl__serialize_8h.html#a975e897b33b8c1690bb635642b47b54caf456677c947e5d4ba41d5553908a8b80">NBGL_REFRESH_AREA</a>, (<a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *) &amp;refreshArea);</div>
-<div class="line"><a id="l01759" name="l01759"></a><span class="lineno"> 1759</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l01760" name="l01760"></a><span class="lineno"> 1760</span>    refreshArea.x0     = SCREEN_WIDTH - 1;</div>
-<div class="line"><a id="l01761" name="l01761"></a><span class="lineno"> 1761</span>    refreshArea.width  = 0;</div>
-<div class="line"><a id="l01762" name="l01762"></a><span class="lineno"> 1762</span>    refreshArea.y0     = SCREEN_HEIGHT - 1;</div>
-<div class="line"><a id="l01763" name="l01763"></a><span class="lineno"> 1763</span>    refreshArea.height = 0;</div>
-<div class="line"><a id="l01764" name="l01764"></a><span class="lineno"> 1764</span>    refreshArea.bpp    = <a class="code hl_enumvalue" href="nbgl__types_8h.html#ac8218c2e101b99b3652f2d779b101db9aec8afa27d0578dcea229d587c2c78596">NBGL_BPP_2</a>;</div>
-<div class="line"><a id="l01765" name="l01765"></a><span class="lineno"> 1765</span>}</div>
+<div class="line"><a id="l01758" name="l01758"></a><span class="lineno"> 1758</span> </div>
+<div class="foldopen" id="foldopen01763" data-start="{" data-end="}">
+<div class="line"><a id="l01763" name="l01763"></a><span class="lineno"><a class="line" href="nbgl__obj_8h.html#a46a836d03d7dedadc133310006ca62a4"> 1763</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__obj_8c.html#a46a836d03d7dedadc133310006ca62a4">nbgl_refreshReset</a>(<span class="keywordtype">void</span>)</div>
+<div class="line"><a id="l01764" name="l01764"></a><span class="lineno"> 1764</span>{</div>
+<div class="line"><a id="l01765" name="l01765"></a><span class="lineno"> 1765</span><span class="preprocessor">#ifdef HAVE_SERIALIZED_NBGL</span></div>
+<div class="line"><a id="l01766" name="l01766"></a><span class="lineno"> 1766</span>    io_seph_ux_send_nbgl_serialized(<a class="code hl_enumvalue" href="nbgl__serialize_8h.html#a975e897b33b8c1690bb635642b47b54caf456677c947e5d4ba41d5553908a8b80">NBGL_REFRESH_AREA</a>, (<a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *) &amp;refreshArea);</div>
+<div class="line"><a id="l01767" name="l01767"></a><span class="lineno"> 1767</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l01768" name="l01768"></a><span class="lineno"> 1768</span>    refreshArea.x0     = SCREEN_WIDTH - 1;</div>
+<div class="line"><a id="l01769" name="l01769"></a><span class="lineno"> 1769</span>    refreshArea.width  = 0;</div>
+<div class="line"><a id="l01770" name="l01770"></a><span class="lineno"> 1770</span>    refreshArea.y0     = SCREEN_HEIGHT - 1;</div>
+<div class="line"><a id="l01771" name="l01771"></a><span class="lineno"> 1771</span>    refreshArea.height = 0;</div>
+<div class="line"><a id="l01772" name="l01772"></a><span class="lineno"> 1772</span>    refreshArea.bpp    = <a class="code hl_enumvalue" href="nbgl__types_8h.html#ac8218c2e101b99b3652f2d779b101db9aec8afa27d0578dcea229d587c2c78596">NBGL_BPP_2</a>;</div>
+<div class="line"><a id="l01773" name="l01773"></a><span class="lineno"> 1773</span>}</div>
 </div>
-<div class="line"><a id="l01766" name="l01766"></a><span class="lineno"> 1766</span> </div>
-<div class="foldopen" id="foldopen01772" data-start="{" data-end="}">
-<div class="line"><a id="l01772" name="l01772"></a><span class="lineno"><a class="line" href="nbgl__obj_8h.html#af9933059c2ad8149f1030ea09f642f43"> 1772</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__obj_8c.html#af9933059c2ad8149f1030ea09f642f43">nbgl_objInit</a>(<span class="keywordtype">void</span>)</div>
-<div class="line"><a id="l01773" name="l01773"></a><span class="lineno"> 1773</span>{</div>
-<div class="line"><a id="l01774" name="l01774"></a><span class="lineno"> 1774</span>    <span class="comment">// init area to the smallest size</span></div>
-<div class="line"><a id="l01775" name="l01775"></a><span class="lineno"> 1775</span>    <a class="code hl_function" href="nbgl__obj_8c.html#a46a836d03d7dedadc133310006ca62a4">nbgl_refreshReset</a>();</div>
-<div class="line"><a id="l01776" name="l01776"></a><span class="lineno"> 1776</span>    objDrawingDisabled = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l01777" name="l01777"></a><span class="lineno"> 1777</span><span class="preprocessor">#ifdef HAVE_SE_TOUCH</span></div>
-<div class="line"><a id="l01778" name="l01778"></a><span class="lineno"> 1778</span>    <a class="code hl_function" href="nbgl__touch_8h.html#aed8d8aef440d1ffc6f8905d9e34e695a">nbgl_touchInit</a>(<span class="keyword">false</span>);</div>
-<div class="line"><a id="l01779" name="l01779"></a><span class="lineno"> 1779</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l01780" name="l01780"></a><span class="lineno"> 1780</span>}</div>
+<div class="line"><a id="l01774" name="l01774"></a><span class="lineno"> 1774</span> </div>
+<div class="foldopen" id="foldopen01780" data-start="{" data-end="}">
+<div class="line"><a id="l01780" name="l01780"></a><span class="lineno"><a class="line" href="nbgl__obj_8h.html#af9933059c2ad8149f1030ea09f642f43"> 1780</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__obj_8c.html#af9933059c2ad8149f1030ea09f642f43">nbgl_objInit</a>(<span class="keywordtype">void</span>)</div>
+<div class="line"><a id="l01781" name="l01781"></a><span class="lineno"> 1781</span>{</div>
+<div class="line"><a id="l01782" name="l01782"></a><span class="lineno"> 1782</span>    <span class="comment">// init area to the smallest size</span></div>
+<div class="line"><a id="l01783" name="l01783"></a><span class="lineno"> 1783</span>    <a class="code hl_function" href="nbgl__obj_8c.html#a46a836d03d7dedadc133310006ca62a4">nbgl_refreshReset</a>();</div>
+<div class="line"><a id="l01784" name="l01784"></a><span class="lineno"> 1784</span>    objDrawingDisabled = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l01785" name="l01785"></a><span class="lineno"> 1785</span><span class="preprocessor">#ifdef HAVE_SE_TOUCH</span></div>
+<div class="line"><a id="l01786" name="l01786"></a><span class="lineno"> 1786</span>    <a class="code hl_function" href="nbgl__touch_8h.html#aed8d8aef440d1ffc6f8905d9e34e695a">nbgl_touchInit</a>(<span class="keyword">false</span>);</div>
+<div class="line"><a id="l01787" name="l01787"></a><span class="lineno"> 1787</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l01788" name="l01788"></a><span class="lineno"> 1788</span>}</div>
 </div>
-<div class="line"><a id="l01781" name="l01781"></a><span class="lineno"> 1781</span> </div>
-<div class="foldopen" id="foldopen01787" data-start="{" data-end="}">
-<div class="line"><a id="l01787" name="l01787"></a><span class="lineno"><a class="line" href="nbgl__obj_8h.html#a567d902bae5e88e84e721d1e8360a84f"> 1787</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__obj_8c.html#a567d902bae5e88e84e721d1e8360a84f">nbgl_objAllowDrawing</a>(<span class="keywordtype">bool</span> enable)</div>
-<div class="line"><a id="l01788" name="l01788"></a><span class="lineno"> 1788</span>{</div>
-<div class="line"><a id="l01789" name="l01789"></a><span class="lineno"> 1789</span>    objDrawingDisabled = !enable;</div>
-<div class="line"><a id="l01790" name="l01790"></a><span class="lineno"> 1790</span>}</div>
+<div class="line"><a id="l01789" name="l01789"></a><span class="lineno"> 1789</span> </div>
+<div class="foldopen" id="foldopen01795" data-start="{" data-end="}">
+<div class="line"><a id="l01795" name="l01795"></a><span class="lineno"><a class="line" href="nbgl__obj_8h.html#a567d902bae5e88e84e721d1e8360a84f"> 1795</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__obj_8c.html#a567d902bae5e88e84e721d1e8360a84f">nbgl_objAllowDrawing</a>(<span class="keywordtype">bool</span> enable)</div>
+<div class="line"><a id="l01796" name="l01796"></a><span class="lineno"> 1796</span>{</div>
+<div class="line"><a id="l01797" name="l01797"></a><span class="lineno"> 1797</span>    objDrawingDisabled = !enable;</div>
+<div class="line"><a id="l01798" name="l01798"></a><span class="lineno"> 1798</span>}</div>
 </div>
-<div class="line"><a id="l01791" name="l01791"></a><span class="lineno"> 1791</span> </div>
-<div class="foldopen" id="foldopen01797" data-start="{" data-end="}">
-<div class="line"><a id="l01797" name="l01797"></a><span class="lineno"><a class="line" href="nbgl__obj_8h.html#ad46cefa28523b3626a568bf18438f050"> 1797</a></span>uint8_t *<a class="code hl_function" href="nbgl__obj_8c.html#ad46cefa28523b3626a568bf18438f050">nbgl_objGetRAMBuffer</a>(<span class="keywordtype">void</span>)</div>
-<div class="line"><a id="l01798" name="l01798"></a><span class="lineno"> 1798</span>{</div>
-<div class="line"><a id="l01799" name="l01799"></a><span class="lineno"> 1799</span>    <span class="keywordflow">return</span> <a class="code hl_variable" href="nbgl__obj_8c.html#adfb5f081fdc13512fac0c0d5bfb73262">ramBuffer</a>;</div>
-<div class="line"><a id="l01800" name="l01800"></a><span class="lineno"> 1800</span>}</div>
+<div class="line"><a id="l01799" name="l01799"></a><span class="lineno"> 1799</span> </div>
+<div class="foldopen" id="foldopen01805" data-start="{" data-end="}">
+<div class="line"><a id="l01805" name="l01805"></a><span class="lineno"><a class="line" href="nbgl__obj_8h.html#ad46cefa28523b3626a568bf18438f050"> 1805</a></span>uint8_t *<a class="code hl_function" href="nbgl__obj_8c.html#ad46cefa28523b3626a568bf18438f050">nbgl_objGetRAMBuffer</a>(<span class="keywordtype">void</span>)</div>
+<div class="line"><a id="l01806" name="l01806"></a><span class="lineno"> 1806</span>{</div>
+<div class="line"><a id="l01807" name="l01807"></a><span class="lineno"> 1807</span>    <span class="keywordflow">return</span> <a class="code hl_variable" href="nbgl__obj_8c.html#adfb5f081fdc13512fac0c0d5bfb73262">ramBuffer</a>;</div>
+<div class="line"><a id="l01808" name="l01808"></a><span class="lineno"> 1808</span>}</div>
 </div>
-<div class="line"><a id="l01801" name="l01801"></a><span class="lineno"> 1801</span> </div>
-<div class="foldopen" id="foldopen01807" data-start="{" data-end="}">
-<div class="line"><a id="l01807" name="l01807"></a><span class="lineno"><a class="line" href="nbgl__obj_8h.html#a7fb960243dc7e5f9dfd13cd547dac30e"> 1807</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="nbgl__obj_8c.html#a7fb960243dc7e5f9dfd13cd547dac30e">nbgl_objIsUx</a>(<a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *obj)</div>
-<div class="line"><a id="l01808" name="l01808"></a><span class="lineno"> 1808</span>{</div>
-<div class="line"><a id="l01809" name="l01809"></a><span class="lineno"> 1809</span>    <a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *parent = obj;</div>
-<div class="line"><a id="l01810" name="l01810"></a><span class="lineno"> 1810</span>    <span class="comment">// search screen in parenthood</span></div>
-<div class="line"><a id="l01811" name="l01811"></a><span class="lineno"> 1811</span>    <span class="keywordflow">while</span> (parent-&gt;parent != NULL) {</div>
-<div class="line"><a id="l01812" name="l01812"></a><span class="lineno"> 1812</span>        parent = parent-&gt;parent;</div>
-<div class="line"><a id="l01813" name="l01813"></a><span class="lineno"> 1813</span>    }</div>
-<div class="line"><a id="l01814" name="l01814"></a><span class="lineno"> 1814</span>    <span class="keywordflow">if</span> (parent-&gt;type == <a class="code hl_enumvalue" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7af2a9da294a4a62d55f04725d7efbb6ac">SCREEN</a>) {</div>
-<div class="line"><a id="l01815" name="l01815"></a><span class="lineno"> 1815</span>        <span class="keywordflow">return</span> (((<a class="code hl_typedef" href="nbgl__screen_8h.html#a6a0725e5007ff0b4cdc64183c6862fd6">nbgl_screen_t</a> *) parent)-&gt;isUxScreen);</div>
-<div class="line"><a id="l01816" name="l01816"></a><span class="lineno"> 1816</span>    }</div>
-<div class="line"><a id="l01817" name="l01817"></a><span class="lineno"> 1817</span>    <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l01818" name="l01818"></a><span class="lineno"> 1818</span>        <span class="comment">// should never happen</span></div>
-<div class="line"><a id="l01819" name="l01819"></a><span class="lineno"> 1819</span>        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><a id="l01820" name="l01820"></a><span class="lineno"> 1820</span>    }</div>
-<div class="line"><a id="l01821" name="l01821"></a><span class="lineno"> 1821</span>}</div>
+<div class="line"><a id="l01809" name="l01809"></a><span class="lineno"> 1809</span> </div>
+<div class="foldopen" id="foldopen01815" data-start="{" data-end="}">
+<div class="line"><a id="l01815" name="l01815"></a><span class="lineno"><a class="line" href="nbgl__obj_8h.html#a7fb960243dc7e5f9dfd13cd547dac30e"> 1815</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="nbgl__obj_8c.html#a7fb960243dc7e5f9dfd13cd547dac30e">nbgl_objIsUx</a>(<a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *obj)</div>
+<div class="line"><a id="l01816" name="l01816"></a><span class="lineno"> 1816</span>{</div>
+<div class="line"><a id="l01817" name="l01817"></a><span class="lineno"> 1817</span>    <a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *parent = obj;</div>
+<div class="line"><a id="l01818" name="l01818"></a><span class="lineno"> 1818</span>    <span class="comment">// search screen in parenthood</span></div>
+<div class="line"><a id="l01819" name="l01819"></a><span class="lineno"> 1819</span>    <span class="keywordflow">while</span> (parent-&gt;parent != NULL) {</div>
+<div class="line"><a id="l01820" name="l01820"></a><span class="lineno"> 1820</span>        parent = parent-&gt;parent;</div>
+<div class="line"><a id="l01821" name="l01821"></a><span class="lineno"> 1821</span>    }</div>
+<div class="line"><a id="l01822" name="l01822"></a><span class="lineno"> 1822</span>    <span class="keywordflow">if</span> (parent-&gt;type == <a class="code hl_enumvalue" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7af2a9da294a4a62d55f04725d7efbb6ac">SCREEN</a>) {</div>
+<div class="line"><a id="l01823" name="l01823"></a><span class="lineno"> 1823</span>        <span class="keywordflow">return</span> (((<a class="code hl_typedef" href="nbgl__screen_8h.html#a6a0725e5007ff0b4cdc64183c6862fd6">nbgl_screen_t</a> *) parent)-&gt;isUxScreen);</div>
+<div class="line"><a id="l01824" name="l01824"></a><span class="lineno"> 1824</span>    }</div>
+<div class="line"><a id="l01825" name="l01825"></a><span class="lineno"> 1825</span>    <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l01826" name="l01826"></a><span class="lineno"> 1826</span>        <span class="comment">// should never happen</span></div>
+<div class="line"><a id="l01827" name="l01827"></a><span class="lineno"> 1827</span>        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a id="l01828" name="l01828"></a><span class="lineno"> 1828</span>    }</div>
+<div class="line"><a id="l01829" name="l01829"></a><span class="lineno"> 1829</span>}</div>
 </div>
 <div class="ttc" id="anbgl__debug_8h_html"><div class="ttname"><a href="nbgl__debug_8h.html">nbgl_debug.h</a></div><div class="ttdoc">debug traces management</div></div>
 <div class="ttc" id="anbgl__debug_8h_html_a0cc05ccd60a4255a70bf44771005dbca"><div class="ttname"><a href="nbgl__debug_8h.html#a0cc05ccd60a4255a70bf44771005dbca">LOG_WARN</a></div><div class="ttdeci">#define LOG_WARN(__logger,...)</div><div class="ttdef"><b>Definition</b> <a href="nbgl__debug_8h_source.html#l00087">nbgl_debug.h:87</a></div></div>
@@ -1795,18 +1803,18 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="anbgl__front_8h_html_ae9234f018f8fd93d6893a9dd6d2cdff1"><div class="ttname"><a href="nbgl__front_8h.html#ae9234f018f8fd93d6893a9dd6d2cdff1">nbgl_frontDrawRect</a></div><div class="ttdeci">void nbgl_frontDrawRect(const nbgl_area_t *area)</div></div>
 <div class="ttc" id="anbgl__obj_8c_html_a13f945ef1ad7b3aee04ecd57d1f87e08"><div class="ttname"><a href="nbgl__obj_8c.html#a13f945ef1ad7b3aee04ecd57d1f87e08">ICON_TEXT_SPACE</a></div><div class="ttdeci">#define ICON_TEXT_SPACE</div></div>
 <div class="ttc" id="anbgl__obj_8c_html_a2085a6482b78c61b0f14dbe49b680efc"><div class="ttname"><a href="nbgl__obj_8c.html#a2085a6482b78c61b0f14dbe49b680efc">NB_MAX_LETTERS</a></div><div class="ttdeci">#define NB_MAX_LETTERS</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8c_source.html#l00035">nbgl_obj.c:35</a></div></div>
-<div class="ttc" id="anbgl__obj_8c_html_a2ab8e03ef462a1e39312659f3b2d419f"><div class="ttname"><a href="nbgl__obj_8c.html#a2ab8e03ef462a1e39312659f3b2d419f">nbgl_objDraw</a></div><div class="ttdeci">void nbgl_objDraw(nbgl_obj_t *obj)</div><div class="ttdoc">This function draws or redraws the given object and its children (recursive version)</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8c_source.html#l01654">nbgl_obj.c:1654</a></div></div>
-<div class="ttc" id="anbgl__obj_8c_html_a2c321e01f64784c5249e594b795bf252"><div class="ttname"><a href="nbgl__obj_8c.html#a2c321e01f64784c5249e594b795bf252">nbgl_refresh</a></div><div class="ttdeci">void nbgl_refresh(void)</div><div class="ttdoc">This functions refreshes the actual screen on display with what has changed since the last refresh.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8c_source.html#l01697">nbgl_obj.c:1697</a></div></div>
-<div class="ttc" id="anbgl__obj_8c_html_a46a836d03d7dedadc133310006ca62a4"><div class="ttname"><a href="nbgl__obj_8c.html#a46a836d03d7dedadc133310006ca62a4">nbgl_refreshReset</a></div><div class="ttdeci">void nbgl_refreshReset(void)</div><div class="ttdoc">This functions resets all changes since the last refresh.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8c_source.html#l01755">nbgl_obj.c:1755</a></div></div>
-<div class="ttc" id="anbgl__obj_8c_html_a567d902bae5e88e84e721d1e8360a84f"><div class="ttname"><a href="nbgl__obj_8c.html#a567d902bae5e88e84e721d1e8360a84f">nbgl_objAllowDrawing</a></div><div class="ttdeci">void nbgl_objAllowDrawing(bool enable)</div><div class="ttdoc">This functions enables or disables drawing/refresh for all further calls.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8c_source.html#l01787">nbgl_obj.c:1787</a></div></div>
+<div class="ttc" id="anbgl__obj_8c_html_a2ab8e03ef462a1e39312659f3b2d419f"><div class="ttname"><a href="nbgl__obj_8c.html#a2ab8e03ef462a1e39312659f3b2d419f">nbgl_objDraw</a></div><div class="ttdeci">void nbgl_objDraw(nbgl_obj_t *obj)</div><div class="ttdoc">This function draws or redraws the given object and its children (recursive version)</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8c_source.html#l01662">nbgl_obj.c:1662</a></div></div>
+<div class="ttc" id="anbgl__obj_8c_html_a2c321e01f64784c5249e594b795bf252"><div class="ttname"><a href="nbgl__obj_8c.html#a2c321e01f64784c5249e594b795bf252">nbgl_refresh</a></div><div class="ttdeci">void nbgl_refresh(void)</div><div class="ttdoc">This functions refreshes the actual screen on display with what has changed since the last refresh.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8c_source.html#l01705">nbgl_obj.c:1705</a></div></div>
+<div class="ttc" id="anbgl__obj_8c_html_a46a836d03d7dedadc133310006ca62a4"><div class="ttname"><a href="nbgl__obj_8c.html#a46a836d03d7dedadc133310006ca62a4">nbgl_refreshReset</a></div><div class="ttdeci">void nbgl_refreshReset(void)</div><div class="ttdoc">This functions resets all changes since the last refresh.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8c_source.html#l01763">nbgl_obj.c:1763</a></div></div>
+<div class="ttc" id="anbgl__obj_8c_html_a567d902bae5e88e84e721d1e8360a84f"><div class="ttname"><a href="nbgl__obj_8c.html#a567d902bae5e88e84e721d1e8360a84f">nbgl_objAllowDrawing</a></div><div class="ttdeci">void nbgl_objAllowDrawing(bool enable)</div><div class="ttdoc">This functions enables or disables drawing/refresh for all further calls.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8c_source.html#l01795">nbgl_obj.c:1795</a></div></div>
 <div class="ttc" id="anbgl__obj_8c_html_a6a1227f0b134cb3d2bdd036f4b67f50b"><div class="ttname"><a href="nbgl__obj_8c.html#a6a1227f0b134cb3d2bdd036f4b67f50b">draw_function_t</a></div><div class="ttdeci">void(* draw_function_t)(nbgl_obj_t *obj, nbgl_obj_t *prevObj, bool computePosition)</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8c_source.html#l00060">nbgl_obj.c:60</a></div></div>
-<div class="ttc" id="anbgl__obj_8c_html_a6cded259d99182cf7d03961d2bd9eed9"><div class="ttname"><a href="nbgl__obj_8c.html#a6cded259d99182cf7d03961d2bd9eed9">nbgl_refreshSpecial</a></div><div class="ttdeci">void nbgl_refreshSpecial(nbgl_refresh_mode_t mode)</div><div class="ttdoc">This functions refreshes the actual screen on display with what has changed since the last refresh,...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8c_source.html#l01707">nbgl_obj.c:1707</a></div></div>
-<div class="ttc" id="anbgl__obj_8c_html_a7fb960243dc7e5f9dfd13cd547dac30e"><div class="ttname"><a href="nbgl__obj_8c.html#a7fb960243dc7e5f9dfd13cd547dac30e">nbgl_objIsUx</a></div><div class="ttdeci">bool nbgl_objIsUx(nbgl_obj_t *obj)</div><div class="ttdoc">This function returns true if the object belongs to a UxScreen.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8c_source.html#l01807">nbgl_obj.c:1807</a></div></div>
-<div class="ttc" id="anbgl__obj_8c_html_aa8f7e8852258cd9af9a5c4e9e183a64c"><div class="ttname"><a href="nbgl__obj_8c.html#aa8f7e8852258cd9af9a5c4e9e183a64c">nbgl_refreshSpecialWithPostRefresh</a></div><div class="ttdeci">void nbgl_refreshSpecialWithPostRefresh(nbgl_refresh_mode_t mode, nbgl_post_refresh_t post_refresh)</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8c_source.html#l01723">nbgl_obj.c:1723</a></div></div>
-<div class="ttc" id="anbgl__obj_8c_html_ad46cefa28523b3626a568bf18438f050"><div class="ttname"><a href="nbgl__obj_8c.html#ad46cefa28523b3626a568bf18438f050">nbgl_objGetRAMBuffer</a></div><div class="ttdeci">uint8_t * nbgl_objGetRAMBuffer(void)</div><div class="ttdoc">This function is used to get the all purpose RAM buffer.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8c_source.html#l01797">nbgl_obj.c:1797</a></div></div>
+<div class="ttc" id="anbgl__obj_8c_html_a6cded259d99182cf7d03961d2bd9eed9"><div class="ttname"><a href="nbgl__obj_8c.html#a6cded259d99182cf7d03961d2bd9eed9">nbgl_refreshSpecial</a></div><div class="ttdeci">void nbgl_refreshSpecial(nbgl_refresh_mode_t mode)</div><div class="ttdoc">This functions refreshes the actual screen on display with what has changed since the last refresh,...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8c_source.html#l01715">nbgl_obj.c:1715</a></div></div>
+<div class="ttc" id="anbgl__obj_8c_html_a7fb960243dc7e5f9dfd13cd547dac30e"><div class="ttname"><a href="nbgl__obj_8c.html#a7fb960243dc7e5f9dfd13cd547dac30e">nbgl_objIsUx</a></div><div class="ttdeci">bool nbgl_objIsUx(nbgl_obj_t *obj)</div><div class="ttdoc">This function returns true if the object belongs to a UxScreen.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8c_source.html#l01815">nbgl_obj.c:1815</a></div></div>
+<div class="ttc" id="anbgl__obj_8c_html_aa8f7e8852258cd9af9a5c4e9e183a64c"><div class="ttname"><a href="nbgl__obj_8c.html#aa8f7e8852258cd9af9a5c4e9e183a64c">nbgl_refreshSpecialWithPostRefresh</a></div><div class="ttdeci">void nbgl_refreshSpecialWithPostRefresh(nbgl_refresh_mode_t mode, nbgl_post_refresh_t post_refresh)</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8c_source.html#l01731">nbgl_obj.c:1731</a></div></div>
+<div class="ttc" id="anbgl__obj_8c_html_ad46cefa28523b3626a568bf18438f050"><div class="ttname"><a href="nbgl__obj_8c.html#ad46cefa28523b3626a568bf18438f050">nbgl_objGetRAMBuffer</a></div><div class="ttdeci">uint8_t * nbgl_objGetRAMBuffer(void)</div><div class="ttdoc">This function is used to get the all purpose RAM buffer.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8c_source.html#l01805">nbgl_obj.c:1805</a></div></div>
 <div class="ttc" id="anbgl__obj_8c_html_adfb5f081fdc13512fac0c0d5bfb73262"><div class="ttname"><a href="nbgl__obj_8c.html#adfb5f081fdc13512fac0c0d5bfb73262">ramBuffer</a></div><div class="ttdeci">uint8_t ramBuffer[GZLIB_UNCOMPRESSED_CHUNK]</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8c_source.html#l00146">nbgl_obj.c:146</a></div></div>
-<div class="ttc" id="anbgl__obj_8c_html_aeb82f9b2087e5afb89088f33b5f994f7"><div class="ttname"><a href="nbgl__obj_8c.html#aeb82f9b2087e5afb89088f33b5f994f7">nbgl_refreshIsNeeded</a></div><div class="ttdeci">bool nbgl_refreshIsNeeded(void)</div><div class="ttdoc">This functions returns true if there is something to refresh.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8c_source.html#l01743">nbgl_obj.c:1743</a></div></div>
-<div class="ttc" id="anbgl__obj_8c_html_af9933059c2ad8149f1030ea09f642f43"><div class="ttname"><a href="nbgl__obj_8c.html#af9933059c2ad8149f1030ea09f642f43">nbgl_objInit</a></div><div class="ttdeci">void nbgl_objInit(void)</div><div class="ttdoc">This functions inits all internal of nbgl objects layer.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8c_source.html#l01772">nbgl_obj.c:1772</a></div></div>
+<div class="ttc" id="anbgl__obj_8c_html_aeb82f9b2087e5afb89088f33b5f994f7"><div class="ttname"><a href="nbgl__obj_8c.html#aeb82f9b2087e5afb89088f33b5f994f7">nbgl_refreshIsNeeded</a></div><div class="ttdeci">bool nbgl_refreshIsNeeded(void)</div><div class="ttdoc">This functions returns true if there is something to refresh.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8c_source.html#l01751">nbgl_obj.c:1751</a></div></div>
+<div class="ttc" id="anbgl__obj_8c_html_af9933059c2ad8149f1030ea09f642f43"><div class="ttname"><a href="nbgl__obj_8c.html#af9933059c2ad8149f1030ea09f642f43">nbgl_objInit</a></div><div class="ttdeci">void nbgl_objInit(void)</div><div class="ttdoc">This functions inits all internal of nbgl objects layer.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__obj_8c_source.html#l01780">nbgl_obj.c:1780</a></div></div>
 <div class="ttc" id="anbgl__obj_8h_html"><div class="ttname"><a href="nbgl__obj_8h.html">nbgl_obj.h</a></div><div class="ttdoc">API to draw all basic graphic objects.</div></div>
 <div class="ttc" id="anbgl__obj_8h_html_a0b456a7b6b63c9bd4d1d91a24047d131"><div class="ttname"><a href="nbgl__obj_8h.html#a0b456a7b6b63c9bd4d1d91a24047d131">nbgl_line_t</a></div><div class="ttdeci">struct PACKED__ nbgl_line_s nbgl_line_t</div><div class="ttdoc">struct to represent a vertical or horizontal line</div></div>
 <div class="ttc" id="anbgl__obj_8h_html_a0c22eed1fdf59d0fe00f341ca17d605b"><div class="ttname"><a href="nbgl__obj_8h.html#a0c22eed1fdf59d0fe00f341ca17d605b">nbgl_page_indicator_t</a></div><div class="ttdeci">struct PACKED__ nbgl_navigation_bar_s nbgl_page_indicator_t</div><div class="ttdoc">struct to represent a navigation bar (PAGE_INDICATOR type) There can be up to 5 page indicators,...</div></div>
@@ -1838,7 +1846,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="anbgl__serialize_8h_html_a975e897b33b8c1690bb635642b47b54ca9223120331d931d793ca9095c5482e50"><div class="ttname"><a href="nbgl__serialize_8h.html#a975e897b33b8c1690bb635642b47b54ca9223120331d931d793ca9095c5482e50">NBGL_DRAW_OBJ</a></div><div class="ttdeci">@ NBGL_DRAW_OBJ</div><div class="ttdef"><b>Definition</b> <a href="nbgl__serialize_8h_source.html#l00009">nbgl_serialize.h:9</a></div></div>
 <div class="ttc" id="anbgl__serialize_8h_html_a975e897b33b8c1690bb635642b47b54caf456677c947e5d4ba41d5553908a8b80"><div class="ttname"><a href="nbgl__serialize_8h.html#a975e897b33b8c1690bb635642b47b54caf456677c947e5d4ba41d5553908a8b80">NBGL_REFRESH_AREA</a></div><div class="ttdeci">@ NBGL_REFRESH_AREA</div><div class="ttdef"><b>Definition</b> <a href="nbgl__serialize_8h_source.html#l00011">nbgl_serialize.h:10</a></div></div>
 <div class="ttc" id="anbgl__touch_8h_html"><div class="ttname"><a href="nbgl__touch_8h.html">nbgl_touch.h</a></div></div>
-<div class="ttc" id="anbgl__touch_8h_html_aed8d8aef440d1ffc6f8905d9e34e695a"><div class="ttname"><a href="nbgl__touch_8h.html#aed8d8aef440d1ffc6f8905d9e34e695a">nbgl_touchInit</a></div><div class="ttdeci">void nbgl_touchInit(bool fromUx)</div><div class="ttdoc">Function to initialize the touch context.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__touch_8c_source.html#l00273">nbgl_touch.c:273</a></div></div>
+<div class="ttc" id="anbgl__touch_8h_html_aed8d8aef440d1ffc6f8905d9e34e695a"><div class="ttname"><a href="nbgl__touch_8h.html#aed8d8aef440d1ffc6f8905d9e34e695a">nbgl_touchInit</a></div><div class="ttdeci">void nbgl_touchInit(bool fromUx)</div><div class="ttdoc">Function to initialize the touch context.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__touch_8c_source.html#l00274">nbgl_touch.c:274</a></div></div>
 <div class="ttc" id="anbgl__types_8h_html_a0a8ef1b5e1941b7257e545cc33405ff1"><div class="ttname"><a href="nbgl__types_8h.html#a0a8ef1b5e1941b7257e545cc33405ff1">color_t</a></div><div class="ttdeci">color_t</div><div class="ttdef"><b>Definition</b> <a href="nbgl__types_8h_source.html#l00140">nbgl_types.h:140</a></div></div>
 <div class="ttc" id="anbgl__types_8h_html_a0a8ef1b5e1941b7257e545cc33405ff1a283fc479650da98250635b9c3c0e7e50"><div class="ttname"><a href="nbgl__types_8h.html#a0a8ef1b5e1941b7257e545cc33405ff1a283fc479650da98250635b9c3c0e7e50">WHITE</a></div><div class="ttdeci">@ WHITE</div><div class="ttdef"><b>Definition</b> <a href="nbgl__types_8h_source.html#l00144">nbgl_types.h:144</a></div></div>
 <div class="ttc" id="anbgl__types_8h_html_a0a8ef1b5e1941b7257e545cc33405ff1a656c37aed4a972689007d4c9ce88f425"><div class="ttname"><a href="nbgl__types_8h.html#a0a8ef1b5e1941b7257e545cc33405ff1a656c37aed4a972689007d4c9ce88f425">DARK_GRAY</a></div><div class="ttdeci">@ DARK_GRAY</div><div class="ttdef"><b>Definition</b> <a href="nbgl__types_8h_source.html#l00142">nbgl_types.h:142</a></div></div>

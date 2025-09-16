@@ -19,7 +19,7 @@ var searchData=
   ['infocontents_16',['infoContents',['../structnbgl__contentInfoList__s.html#a07e1241da34061098ad69932f9b49854',1,'nbgl_contentInfoList_s']]],
   ['infoextensions_17',['infoExtensions',['../structnbgl__contentInfoList__s.html#ab2c491c09f226ea1f39e117b0b9732fb',1,'nbgl_contentInfoList_s']]],
   ['infolist_18',['infolist',['../structnbgl__contentValueExt__t.html#af329ac8f377856048772055b318769d2',1,'nbgl_contentValueExt_t']]],
-  ['infolongpress_19',['infolongpress',['../unionnbgl__content__u.html#a364dccbc78342c450fb7fb7de7a125d5',1,'nbgl_content_u::infoLongPress'],['../structnbgl__pageContent__s.html#a191c8115f565cdd18dc37c32fadef4c3',1,'nbgl_pageContent_s::infoLongPress']]],
+  ['infolongpress_19',['infolongpress',['../structnbgl__pageContent__s.html#a191c8115f565cdd18dc37c32fadef4c3',1,'nbgl_pageContent_s::infoLongPress'],['../unionnbgl__content__u.html#a364dccbc78342c450fb7fb7de7a125d5',1,'nbgl_content_u::infoLongPress']]],
   ['infos_20',['infos',['../structnbgl__tipBox__t.html#aa1bf090a18b2b2bf68cd159ab0bacd16',1,'nbgl_tipBox_t']]],
   ['infoslist_21',['infoslist',['../unionnbgl__content__u.html#a1a7775c8145e5b5a1da7733faec86085',1,'nbgl_content_u::infosList'],['../structnbgl__pageContent__s.html#a7170fe7acb852ad392c8c3f08f0e485f',1,'nbgl_pageContent_s::infosList']]],
   ['infotypes_22',['infoTypes',['../structnbgl__contentInfoList__s.html#aac3986b2899ab80532afe9158233f789',1,'nbgl_contentInfoList_s']]],
@@ -35,11 +35,12 @@ var searchData=
   ['iov_5flen_32',['iov_len',['../structcx__iovec__t.html#a68cdcd1652fe045ab929c9b29d604fa3',1,'cx_iovec_t']]],
   ['is_5ffee_33',['is_fee',['../structget__printable__amount__parameters__s.html#a66c606a5fd3f8d4025836a801279c0ca',1,'get_printable_amount_parameters_s']]],
   ['isfile_34',['isFile',['../structnbgl__icon__details__s.html#a01bd596edc2d6826707ab15cd3018bf4',1,'nbgl_icon_details_s']]],
-  ['isswipeable_35',['isSwipeable',['../structnbgl__pageInfoDescription__s.html#a8dd3b125bcf88df142fb4407edb6b969',1,'nbgl_pageInfoDescription_s']]],
-  ['istouchabletitle_36',['isTouchableTitle',['../structnbgl__pageContent__s.html#aed42f3810935bcf3a204f1ad3f57b2bb',1,'nbgl_pageContent_s']]],
-  ['isused_37',['isUsed',['../structnbgl__layoutInternal__s.html#a71016d9cf10619fe1ee6820dd9ed74d7',1,'nbgl_layoutInternal_s']]],
-  ['isuxscreen_38',['isUxScreen',['../structnbgl__screen__s.html#a629e556fab58e772ec6a5c0973a509c9',1,'nbgl_screen_s']]],
-  ['item_39',['item',['../structnbgl__contentTagValue__t.html#ae8394cc87634df5504b7a224efeb48e2',1,'nbgl_contentTagValue_t']]],
-  ['iv_40',['iv',['../structcx__cipher__context__t.html#acc1309a88aa4c23544d8fc1c606792c0',1,'cx_cipher_context_t']]],
-  ['iv_5fsize_41',['iv_size',['../structcx__cipher__info__t.html#a353f1c5bba3b25779bba458d61c0f717',1,'cx_cipher_info_t::iv_size'],['../structcx__cipher__context__t.html#a47fa6a41627ebf8a7168b481c5812d65',1,'cx_cipher_context_t::iv_size']]]
+  ['islastpressedobjvalid_35',['isLastPressedObjValid',['../structnbgl__touchCtx__s.html#a3349b98a57fc93f0bcbd31b0d91af10a',1,'nbgl_touchCtx_s']]],
+  ['isswipeable_36',['isSwipeable',['../structnbgl__pageInfoDescription__s.html#a8dd3b125bcf88df142fb4407edb6b969',1,'nbgl_pageInfoDescription_s']]],
+  ['istouchabletitle_37',['isTouchableTitle',['../structnbgl__pageContent__s.html#aed42f3810935bcf3a204f1ad3f57b2bb',1,'nbgl_pageContent_s']]],
+  ['isused_38',['isUsed',['../structnbgl__layoutInternal__s.html#a71016d9cf10619fe1ee6820dd9ed74d7',1,'nbgl_layoutInternal_s']]],
+  ['isuxscreen_39',['isUxScreen',['../structnbgl__screen__s.html#a629e556fab58e772ec6a5c0973a509c9',1,'nbgl_screen_s']]],
+  ['item_40',['item',['../structnbgl__contentTagValue__t.html#ae8394cc87634df5504b7a224efeb48e2',1,'nbgl_contentTagValue_t']]],
+  ['iv_41',['iv',['../structcx__cipher__context__t.html#acc1309a88aa4c23544d8fc1c606792c0',1,'cx_cipher_context_t']]],
+  ['iv_5fsize_42',['iv_size',['../structcx__cipher__info__t.html#a353f1c5bba3b25779bba458d61c0f717',1,'cx_cipher_info_t::iv_size'],['../structcx__cipher__context__t.html#a47fa6a41627ebf8a7168b481c5812d65',1,'cx_cipher_context_t::iv_size']]]
 ];
