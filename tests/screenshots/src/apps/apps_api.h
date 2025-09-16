@@ -29,7 +29,7 @@ extern "C" {
 #define LTC_MAIN_ICON       eth_32px
 #define MARKET_MAIN_ICON    LedgerMarket32px
 #define MON_MAIN_ICON       C_ic_asset_monero_64
-#define REC_CHECK_MAIN_ICON RecoveryCheck32px
+#define REC_CHECK_MAIN_ICON C_Recovery_Check_64px
 #define STELLAR_MAIN_ICON   C_ic_asset_stellar_64
 #define TRON_MAIN_ICON      Tron32px
 #define XRP_MAIN_ICON       C_xrp_64px
@@ -44,7 +44,7 @@ extern "C" {
 #define LTC_MAIN_ICON       C_ethereum_48px
 #define MARKET_MAIN_ICON    C_ethereum_48px
 #define MON_MAIN_ICON       C_monero_48px
-#define REC_CHECK_MAIN_ICON C_recovery check_48px
+#define REC_CHECK_MAIN_ICON C_recovery_check_48px
 #define STELLAR_MAIN_ICON   C_stellar_48px
 #define TRON_MAIN_ICON      C_xrp_48px
 #define XRP_MAIN_ICON       C_xrp_48px
