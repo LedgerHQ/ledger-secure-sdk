@@ -1531,6 +1531,14 @@ static void draw_object(nbgl_obj_t *obj, nbgl_obj_t *prevObj, bool computePositi
             LOG_WARN(OBJ_LOGGER, "object with type [%d] has not parent\n", obj->type);
             return;
         }
+#ifdef SCREEN_SIZE_WALLET
+        // if the type is KEYPAD, force digitsChanged to be sure to redraw the full keypad if the
+        // full screen is redrawn
+        if (computePosition && (obj->type == KEYPAD)) {
+            nbgl_keypad_t *keypad = (nbgl_keypad_t *) obj;
+            keypad->digitsChanged = true;
+        }
+#endif  // SCREEN_SIZE_WALLET
         draw_function_t func = (draw_function_t) PIC(draw_functions[obj->type]);
         func(obj, prevObj, computePosition);
     }
