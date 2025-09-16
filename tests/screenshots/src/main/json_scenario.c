@@ -162,13 +162,12 @@ static int add_targets(ScenarioPage_t *page, struct json_object *value)
 
         target->wait         = 0;
         target->wait_initial = 0;
-
 #if defined(TARGET_FLEX)
         target->long_press_wait = 1500;
 #elif defined(TARGET_STAX)
         target->long_press_wait = 1200;
 #elif defined(TARGET_APEX)
-        target->long_press_wait = 1500;
+        target->long_press_wait = 1200;
 #endif  // TARGETS
 
 #ifdef HAVE_SE_TOUCH
