@@ -29,12 +29,13 @@ enum {
  *      TYPEDEFS
  **********************/
 typedef struct nbgl_touchCtx_s {
-    nbgl_touchState_t         lastState;
     uint32_t                  lastPressedTime;
     uint32_t                  lastCurrentTime;
     nbgl_obj_t               *lastPressedObj;
     nbgl_touchStatePosition_t firstTouchedPosition;
     nbgl_touchStatePosition_t lastTouchedPosition;
+    nbgl_touchState_t         lastState;
+    bool                      isLastPressedObjValid;
 } nbgl_touchCtx_t;
 
 /**********************
@@ -313,7 +314,7 @@ void nbgl_touchHandler(bool                       fromUx,
     if (foundObj == NULL) {
         LOG_DEBUG(TOUCH_LOGGER, "nbgl_touchHandler: no found obj\n");
         if ((touchStatePosition->state == PRESSED) && (ctx->lastState == PRESSED)
-            && (ctx->lastPressedObj != NULL)) {
+            && ctx->isLastPressedObjValid && (ctx->lastPressedObj != NULL)) {
             // finger has moved out of an object
             // make sure lastPressedObj still belongs to current screen before warning it
             if (nbgl_screenContainsObj(ctx->lastPressedObj)) {
@@ -342,7 +343,7 @@ void nbgl_touchHandler(bool                       fromUx,
                 consumed = true;
             }
         }
-        if (!consumed && (ctx->lastPressedObj != NULL)
+        if (!consumed && ctx->isLastPressedObjValid && (ctx->lastPressedObj != NULL)
             && ((foundObj == ctx->lastPressedObj)
                 || (nbgl_screenContainsObj(ctx->lastPressedObj)))) {
             // very strange if lastPressedObj != foundObj, let's consider that it's a normal release
@@ -360,26 +361,29 @@ void nbgl_touchHandler(bool                       fromUx,
         ctx->lastPressedObj = NULL;
     }
     else {  // PRESSED
-        if ((ctx->lastState == PRESSED) && (ctx->lastPressedObj != NULL)) {
-            ctx->lastState = touchStatePosition->state;
-            if (foundObj != ctx->lastPressedObj) {
-                // finger has moved out of an object
-                // make sure lastPressedObj still belongs to current screen before warning it
-                if (nbgl_screenContainsObj(ctx->lastPressedObj)) {
-                    applytouchStatePosition(ctx->lastPressedObj, OUT_OF_TOUCH);
+        if (ctx->lastState == PRESSED) {
+            if ((ctx->isLastPressedObjValid && (ctx->lastPressedObj != NULL))) {
+                ctx->lastState = touchStatePosition->state;
+                if (foundObj != ctx->lastPressedObj) {
+                    // finger has moved out of an object
+                    // make sure lastPressedObj still belongs to current screen before warning it
+                    if (nbgl_screenContainsObj(ctx->lastPressedObj)) {
+                        applytouchStatePosition(ctx->lastPressedObj, OUT_OF_TOUCH);
+                    }
+                    ctx->lastPressedObj = NULL;
                 }
-                ctx->lastPressedObj = NULL;
-            }
-            else {
-                // warn the concerned object that it is still touched
-                applytouchStatePosition(foundObj, TOUCHING);
+                else {
+                    // warn the concerned object that it is still touched
+                    applytouchStatePosition(foundObj, TOUCHING);
+                }
             }
         }
         else if (ctx->lastState == RELEASED) {
             ctx->lastState = touchStatePosition->state;
             // newly touched object
-            ctx->lastPressedObj  = foundObj;
-            ctx->lastPressedTime = currentTime;
+            ctx->lastPressedObj        = foundObj;
+            ctx->isLastPressedObjValid = true;
+            ctx->lastPressedTime       = currentTime;
             applytouchStatePosition(foundObj, TOUCH_PRESSED);
             applytouchStatePosition(foundObj, TOUCHING);
         }
@@ -447,4 +451,16 @@ nbgl_obj_t *nbgl_touchGetObjectFromId(nbgl_obj_t *obj, uint8_t id)
         return NULL;
     }
 }
+
+/**
+ * @brief Clears the context (to be used when the screen is set/pushed)
+ *
+ * @param fromUx true if called from UX
+ */
+void nbgl_touchClear(bool fromUx)
+{
+    nbgl_touchCtx_t *ctx       = fromUx ? &touchCtxs[UX_CTX] : &touchCtxs[APP_CTX];
+    ctx->isLastPressedObjValid = false;
+}
+
 #endif  // HAVE_SE_TOUCH

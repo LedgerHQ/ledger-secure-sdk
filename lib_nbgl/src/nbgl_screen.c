@@ -241,7 +241,14 @@ int nbgl_screenSet(nbgl_obj_t                           ***elements,
     nbgl_objPoolRelease(0);
     nbgl_containerPoolRelease(0);
     // always use the first layer (background) for user application
-    return nbgl_screenSetAt(0, elements, nbElements, ticker, callback);
+    int ret = nbgl_screenSetAt(0, elements, nbElements, ticker, callback);
+#ifdef HAVE_SE_TOUCH
+    // if it's the only screen on stack, clear the touch automatum to avoid fake touch
+    if (nbScreensOnStack == 1) {
+        nbgl_touchClear(topOfStack->isUxScreen);
+    }
+#endif  // HAVE_SE_TOUCH
+    return ret;
 }
 
 /**
@@ -370,15 +377,7 @@ int nbgl_screenPush(nbgl_obj_t                           ***elements,
                 if ((progress != NULL) && (progress->resetIfOverriden)) {
                     progress->state = 0;
                 }
-#ifdef SCREEN_SIZE_WALLET
-                // search for a potential keypad in current topOfStack to force redraw if needed
-                nbgl_keypad_t *keypad
-                    = (nbgl_keypad_t *) nbgl_screenContainsObjType(topOfStack, KEYPAD);
-                if (keypad != NULL) {
-                    keypad->digitsChanged = true;
-                }
-#endif  // SCREEN_SIZE_WALLET
-        // new top of stack
+                // new top of stack
                 topOfStack       = &screenStack[screenIndex];
                 topOfStack->next = NULL;
                 break;
@@ -392,6 +391,10 @@ int nbgl_screenPush(nbgl_obj_t                           ***elements,
     if (nbgl_screenSetAt(screenIndex, elements, nbElements, ticker, callback) >= 0) {
         nbScreensOnStack++;
         LOG_DEBUG(SCREEN_LOGGER, "nbgl_screenPush(): screen %d is now top of stack\n", screenIndex);
+#ifdef HAVE_SE_TOUCH
+        // clear the touch automatum to avoid fake touch
+        nbgl_touchClear(topOfStack->isUxScreen);
+#endif  // HAVE_SE_TOUCH
         return screenIndex;
     }
     else {

@@ -697,8 +697,7 @@ static nbgl_container_t *addListItem(nbgl_layoutInternal_t *layoutInt, const lis
                         ? INACTIVE_TEXT_COLOR
                         : BLACK;
     nbgl_font_id_e fontId
-        = (((itemDesc->type == TOUCHABLE_BAR_ITEM) || (itemDesc->type == SWITCH_ITEM))
-           && (itemDesc->state == OFF_STATE))
+        = ((itemDesc->type == TOUCHABLE_BAR_ITEM) && (itemDesc->state == OFF_STATE))
               ? INACTIVE_SMALL_FONT
               : SMALL_BOLD_FONT;
 

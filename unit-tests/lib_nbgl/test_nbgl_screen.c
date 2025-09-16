@@ -56,6 +56,11 @@ void nbgl_touchHandler(bool                       fromUx,
     UNUSED(currentTime);
 }
 
+void nbgl_touchClear(bool fromUx)
+{
+    UNUSED(fromUx);
+}
+
 static void test_push_pop(void **state __attribute__((unused)))
 {
     nbgl_obj_t   **elements0, **elements1, **elements2, **elements3;
