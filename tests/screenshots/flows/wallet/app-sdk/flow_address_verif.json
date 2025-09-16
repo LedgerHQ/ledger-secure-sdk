@@ -158,6 +158,12 @@
           "product": "stax",
           "page": "multi-sig-signers-01",
           "comment": "view signers details (alias)"
+        },
+        {
+          "app_event": "BTC_SHARE_ADDR",
+          "product": "stax",
+          "page": "share-addr-01",
+          "comment": "start share addr scenario"
         }
       ]
     },
