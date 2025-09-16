@@ -241,7 +241,14 @@ int nbgl_screenSet(nbgl_obj_t                           ***elements,
     nbgl_objPoolRelease(0);
     nbgl_containerPoolRelease(0);
     // always use the first layer (background) for user application
-    return nbgl_screenSetAt(0, elements, nbElements, ticker, callback);
+    int ret = nbgl_screenSetAt(0, elements, nbElements, ticker, callback);
+#ifdef HAVE_SE_TOUCH
+    // if it's the only screen on stack, clear the touch automatum to avoid fake touch
+    if (nbScreensOnStack == 1) {
+        nbgl_touchClear(topOfStack->isUxScreen);
+    }
+#endif  // HAVE_SE_TOUCH
+    return ret;
 }
 
 /**
@@ -392,6 +399,10 @@ int nbgl_screenPush(nbgl_obj_t                           ***elements,
     if (nbgl_screenSetAt(screenIndex, elements, nbElements, ticker, callback) >= 0) {
         nbScreensOnStack++;
         LOG_DEBUG(SCREEN_LOGGER, "nbgl_screenPush(): screen %d is now top of stack\n", screenIndex);
+#ifdef HAVE_SE_TOUCH
+        // clear the touch automatum to avoid fake touch
+        nbgl_touchClear(topOfStack->isUxScreen);
+#endif  // HAVE_SE_TOUCH
         return screenIndex;
     }
     else {
