@@ -53,6 +53,7 @@
 #define ADDR_VERIF_NB_PAIRS 3
 
 // macros to ease access to shared contexts
+#define sharedContext     genericContext.sharedCtx
 #define keypadContext     sharedContext.keypad
 #define reviewWithWarnCtx sharedContext.reviewWithWarning
 
@@ -189,6 +190,7 @@ typedef struct {
     nbgl_layout_t backgroundLayout;
     const nbgl_contentInfoList_t     *currentInfos;
     const nbgl_contentTagValueList_t *currentTagValues;
+    SharedContext_t sharedCtx;  // multi-purpose context shared for non-concurrent usages
 } GenericContext_t;
 
 typedef struct {
@@ -262,9 +264,6 @@ static bool                      forwardNavOnly;
 static NavType_t                 navType;
 
 static DetailsContext_t detailsContext;
-
-// multi-purpose context shared for non-concurrent usages
-static SharedContext_t sharedContext;
 
 // context for address review
 static AddressConfirmationContext_t addressConfirmationContext;
@@ -2651,8 +2650,6 @@ static void useCaseReview(nbgl_operationType_t              operationType,
                           bool                              isLight,
                           bool                              playNotifSound)
 {
-    reset_callbacks_and_context();
-
     bundleNavContext.review.operationType  = operationType;
     bundleNavContext.review.choiceCallback = choiceCallback;
 
@@ -2715,8 +2712,6 @@ static void useCaseReviewStreamingStart(nbgl_operationType_t       operationType
                                         nbgl_choiceCallback_t      choiceCallback,
                                         bool                       playNotifSound)
 {
-    reset_callbacks_and_context();
-
     bundleNavContext.reviewStreaming.operationType  = operationType;
     bundleNavContext.reviewStreaming.choiceCallback = choiceCallback;
     bundleNavContext.reviewStreaming.icon           = icon;
@@ -3779,6 +3774,8 @@ void nbgl_useCaseReview(nbgl_operationType_t              operationType,
                         const char                       *finishTitle,
                         nbgl_choiceCallback_t             choiceCallback)
 {
+    reset_callbacks_and_context();
+
     useCaseReview(operationType,
                   tagValueList,
                   icon,
@@ -3863,7 +3860,6 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
                                 nbgl_choiceCallback_t             choiceCallback)
 {
     reset_callbacks_and_context();
-    memset(&reviewWithWarnCtx, 0, sizeof(reviewWithWarnCtx));
 
     // memorize tipBox because it can be in the call stack of the caller
     if (tipBox != NULL) {
@@ -3950,6 +3946,8 @@ void nbgl_useCaseReviewLight(nbgl_operationType_t              operationType,
                              const char                       *finishTitle,
                              nbgl_choiceCallback_t             choiceCallback)
 {
+    reset_callbacks_and_context();
+
     useCaseReview(operationType,
                   tagValueList,
                   icon,
@@ -4015,6 +4013,8 @@ void nbgl_useCaseReviewStreamingStart(nbgl_operationType_t       operationType,
                                       const char                *reviewSubTitle,
                                       nbgl_choiceCallback_t      choiceCallback)
 {
+    reset_callbacks_and_context();
+
     useCaseReviewStreamingStart(
         operationType, icon, reviewTitle, reviewSubTitle, choiceCallback, true);
 }
@@ -4064,7 +4064,8 @@ void nbgl_useCaseAdvancedReviewStreamingStart(nbgl_operationType_t       operati
                                               const nbgl_warning_t      *warning,
                                               nbgl_choiceCallback_t      choiceCallback)
 {
-    memset(&reviewWithWarnCtx, 0, sizeof(reviewWithWarnCtx));
+    reset_callbacks_and_context();
+
     // if no warning at all, it's a simple review
     if ((warning == NULL)
         || ((warning->predefinedSet == 0) && (warning->introDetails == NULL)
