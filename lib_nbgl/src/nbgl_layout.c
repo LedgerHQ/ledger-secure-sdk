@@ -2180,7 +2180,16 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
             container->obj.alignmentMarginY = INTER_TAG_VALUE_MARGIN;
         }
         else {
-            container->obj.alignmentMarginY = PRE_TAG_VALUE_MARGIN;
+            // if there is a header with a separation line, add a margin
+            if (layoutInt->headerContainer && (layoutInt->headerContainer->nbChildren > 0)
+                && (layoutInt->headerContainer->children[layoutInt->headerContainer->nbChildren - 1]
+                        ->type
+                    == LINE)) {
+                container->obj.alignmentMarginY = INTER_TAG_VALUE_MARGIN;
+            }
+            else {
+                container->obj.alignmentMarginY = PRE_TAG_VALUE_MARGIN;
+            }
         }
         container->obj.alignment = NO_ALIGNMENT;
 
