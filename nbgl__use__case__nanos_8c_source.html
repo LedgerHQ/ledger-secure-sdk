@@ -2337,344 +2337,345 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l02463" name="l02463"></a><span class="lineno"> 2463</span>    context.review.onChoice       = choiceCallback;</div>
 <div class="line"><a id="l02464" name="l02464"></a><span class="lineno"> 2464</span>    context.currentPage           = 0;</div>
 <div class="line"><a id="l02465" name="l02465"></a><span class="lineno"> 2465</span>    <span class="comment">// + 4 because 1 page for title, 1 for address and 2 pages at the end for approve/reject</span></div>
-<div class="line"><a id="l02466" name="l02466"></a><span class="lineno"> 2466</span>    context.nbPages = 4;</div>
-<div class="line"><a id="l02467" name="l02467"></a><span class="lineno"> 2467</span>    <span class="keywordflow">if</span> (additionalTagValueList) {</div>
-<div class="line"><a id="l02468" name="l02468"></a><span class="lineno"> 2468</span>        context.review.tagValueList = PIC(additionalTagValueList);</div>
-<div class="line"><a id="l02469" name="l02469"></a><span class="lineno"> 2469</span>        context.nbPages += additionalTagValueList-&gt;<a class="code hl_variable" href="structnbgl__contentTagValueList__s.html#af2cd30ee768ec8ff56ab2b986d3e0f59">nbPairs</a>;</div>
-<div class="line"><a id="l02470" name="l02470"></a><span class="lineno"> 2470</span>    }</div>
-<div class="line"><a id="l02471" name="l02471"></a><span class="lineno"> 2471</span> </div>
-<div class="line"><a id="l02472" name="l02472"></a><span class="lineno"> 2472</span>    displayReviewPage(<a class="code hl_define" href="nbgl__step_8h.html#ad6c2f2458a2794d1d475b37efc5b58a1">FORWARD_DIRECTION</a>);</div>
-<div class="line"><a id="l02473" name="l02473"></a><span class="lineno"> 2473</span>}</div>
-<div class="line"><a id="l02474" name="l02474"></a><span class="lineno"> 2474</span> </div>
-<div class="line"><a id="l02483" name="l02483"></a><span class="lineno"> 2483</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#abdb12a4292bd8571bad3ad0acf4a1610">nbgl_useCaseGenericReview</a>(<span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__genericContents__t.html">nbgl_genericContents_t</a> *contents,</div>
-<div class="line"><a id="l02484" name="l02484"></a><span class="lineno"> 2484</span>                               <span class="keyword">const</span> <span class="keywordtype">char</span>                   *rejectText,</div>
-<div class="line"><a id="l02485" name="l02485"></a><span class="lineno"> 2485</span>                               <a class="code hl_typedef" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a>               rejectCallback)</div>
-<div class="line"><a id="l02486" name="l02486"></a><span class="lineno"> 2486</span>{</div>
-<div class="line"><a id="l02487" name="l02487"></a><span class="lineno"> 2487</span>    memset(&amp;context, 0, <span class="keyword">sizeof</span>(UseCaseContext_t));</div>
-<div class="line"><a id="l02488" name="l02488"></a><span class="lineno"> 2488</span>    context.type                                       = GENERIC_REVIEW_USE_CASE;</div>
-<div class="line"><a id="l02489" name="l02489"></a><span class="lineno"> 2489</span>    context.content.rejectText                         = rejectText;</div>
-<div class="line"><a id="l02490" name="l02490"></a><span class="lineno"> 2490</span>    context.content.quitCallback                       = rejectCallback;</div>
-<div class="line"><a id="l02491" name="l02491"></a><span class="lineno"> 2491</span>    context.content.genericContents.nbContents         = contents-&gt;<a class="code hl_variable" href="structnbgl__genericContents__t.html#a3e5838be4502eff97637a460aae2f7e0">nbContents</a>;</div>
-<div class="line"><a id="l02492" name="l02492"></a><span class="lineno"> 2492</span>    context.content.genericContents.callbackCallNeeded = contents-&gt;<a class="code hl_variable" href="structnbgl__genericContents__t.html#ac8afe1b355e5501c70d993792c1956a5">callbackCallNeeded</a>;</div>
-<div class="line"><a id="l02493" name="l02493"></a><span class="lineno"> 2493</span>    <span class="keywordflow">if</span> (contents-&gt;<a class="code hl_variable" href="structnbgl__genericContents__t.html#ac8afe1b355e5501c70d993792c1956a5">callbackCallNeeded</a>) {</div>
-<div class="line"><a id="l02494" name="l02494"></a><span class="lineno"> 2494</span>        context.content.genericContents.contentGetterCallback = contents-&gt;<a class="code hl_variable" href="structnbgl__genericContents__t.html#a81b9757bffce319e61c62c603dcc9a65">contentGetterCallback</a>;</div>
-<div class="line"><a id="l02495" name="l02495"></a><span class="lineno"> 2495</span>    }</div>
-<div class="line"><a id="l02496" name="l02496"></a><span class="lineno"> 2496</span>    <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l02497" name="l02497"></a><span class="lineno"> 2497</span>        context.content.genericContents.contentsList = PIC(contents-&gt;<a class="code hl_variable" href="structnbgl__genericContents__t.html#a5cca760808bb3ea7c33585b5a44f7e56">contentsList</a>);</div>
-<div class="line"><a id="l02498" name="l02498"></a><span class="lineno"> 2498</span>    }</div>
-<div class="line"><a id="l02499" name="l02499"></a><span class="lineno"> 2499</span> </div>
-<div class="line"><a id="l02500" name="l02500"></a><span class="lineno"> 2500</span>    startUseCaseContent();</div>
-<div class="line"><a id="l02501" name="l02501"></a><span class="lineno"> 2501</span>}</div>
-<div class="line"><a id="l02502" name="l02502"></a><span class="lineno"> 2502</span> </div>
-<div class="line"><a id="l02511" name="l02511"></a><span class="lineno"> 2511</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#a8eebd5b1e53a4894c4c05ddae49c8ae8">nbgl_useCaseStatus</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *message, <span class="keywordtype">bool</span> isSuccess, <a class="code hl_typedef" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a> quitCallback)</div>
-<div class="line"><a id="l02512" name="l02512"></a><span class="lineno"> 2512</span>{</div>
-<div class="line"><a id="l02513" name="l02513"></a><span class="lineno"> 2513</span>    UNUSED(isSuccess);</div>
-<div class="line"><a id="l02514" name="l02514"></a><span class="lineno"> 2514</span>    memset(&amp;context, 0, <span class="keyword">sizeof</span>(UseCaseContext_t));</div>
-<div class="line"><a id="l02515" name="l02515"></a><span class="lineno"> 2515</span>    context.type         = STATUS_USE_CASE;</div>
-<div class="line"><a id="l02516" name="l02516"></a><span class="lineno"> 2516</span>    context.stepCallback = quitCallback;</div>
-<div class="line"><a id="l02517" name="l02517"></a><span class="lineno"> 2517</span>    context.currentPage  = 0;</div>
-<div class="line"><a id="l02518" name="l02518"></a><span class="lineno"> 2518</span>    context.nbPages      = 1;</div>
-<div class="line"><a id="l02519" name="l02519"></a><span class="lineno"> 2519</span> </div>
-<div class="line"><a id="l02520" name="l02520"></a><span class="lineno"> 2520</span>    drawStep(<a class="code hl_enumvalue" href="nbgl__step_8h.html#a96a58e29e8dbf2b5bdeb775cba46556ea4cf77e5736bd9a94342342d774b2e264">SINGLE_STEP</a> | <a class="code hl_define" href="nbgl__step_8h.html#a8417d6448a79c4dfc0021f6e68ccfe4b">ACTION_ON_ANY_BUTTON</a>,</div>
-<div class="line"><a id="l02521" name="l02521"></a><span class="lineno"> 2521</span>             NULL,</div>
-<div class="line"><a id="l02522" name="l02522"></a><span class="lineno"> 2522</span>             message,</div>
-<div class="line"><a id="l02523" name="l02523"></a><span class="lineno"> 2523</span>             NULL,</div>
-<div class="line"><a id="l02524" name="l02524"></a><span class="lineno"> 2524</span>             statusButtonCallback,</div>
-<div class="line"><a id="l02525" name="l02525"></a><span class="lineno"> 2525</span>             <span class="keyword">false</span>,</div>
-<div class="line"><a id="l02526" name="l02526"></a><span class="lineno"> 2526</span>             NO_FORCED_TYPE);</div>
-<div class="line"><a id="l02527" name="l02527"></a><span class="lineno"> 2527</span>}</div>
-<div class="line"><a id="l02528" name="l02528"></a><span class="lineno"> 2528</span> </div>
-<div class="line"><a id="l02535" name="l02535"></a><span class="lineno"> 2535</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#ae32d39392a88d6aa2595b0d45661f0ab">nbgl_useCaseReviewStatus</a>(<a class="code hl_enumeration" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5de">nbgl_reviewStatusType_t</a> reviewStatusType,</div>
-<div class="line"><a id="l02536" name="l02536"></a><span class="lineno"> 2536</span>                              <a class="code hl_typedef" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a>         quitCallback)</div>
-<div class="line"><a id="l02537" name="l02537"></a><span class="lineno"> 2537</span>{</div>
-<div class="line"><a id="l02538" name="l02538"></a><span class="lineno"> 2538</span>    <span class="keyword">const</span> <span class="keywordtype">char</span> *msg;</div>
-<div class="line"><a id="l02539" name="l02539"></a><span class="lineno"> 2539</span>    <span class="keywordtype">bool</span>        isSuccess;</div>
-<div class="line"><a id="l02540" name="l02540"></a><span class="lineno"> 2540</span>    <span class="keywordflow">switch</span> (reviewStatusType) {</div>
-<div class="line"><a id="l02541" name="l02541"></a><span class="lineno"> 2541</span>        <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea7e4ff36f95e78ea168b618339e6a95ef">STATUS_TYPE_OPERATION_SIGNED</a>:</div>
-<div class="line"><a id="l02542" name="l02542"></a><span class="lineno"> 2542</span>            msg       = <span class="stringliteral">&quot;Operation signed&quot;</span>;</div>
-<div class="line"><a id="l02543" name="l02543"></a><span class="lineno"> 2543</span>            isSuccess = <span class="keyword">true</span>;</div>
-<div class="line"><a id="l02544" name="l02544"></a><span class="lineno"> 2544</span>            <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l02545" name="l02545"></a><span class="lineno"> 2545</span>        <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea79596ac53e274635974a2faa2b26fd72">STATUS_TYPE_OPERATION_REJECTED</a>:</div>
-<div class="line"><a id="l02546" name="l02546"></a><span class="lineno"> 2546</span>            msg       = <span class="stringliteral">&quot;Operation rejected&quot;</span>;</div>
-<div class="line"><a id="l02547" name="l02547"></a><span class="lineno"> 2547</span>            isSuccess = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l02548" name="l02548"></a><span class="lineno"> 2548</span>            <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l02549" name="l02549"></a><span class="lineno"> 2549</span>        <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea699644fad9f83e97303c7422daca9e41">STATUS_TYPE_TRANSACTION_SIGNED</a>:</div>
-<div class="line"><a id="l02550" name="l02550"></a><span class="lineno"> 2550</span>            msg       = <span class="stringliteral">&quot;Transaction signed&quot;</span>;</div>
-<div class="line"><a id="l02551" name="l02551"></a><span class="lineno"> 2551</span>            isSuccess = <span class="keyword">true</span>;</div>
-<div class="line"><a id="l02552" name="l02552"></a><span class="lineno"> 2552</span>            <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l02553" name="l02553"></a><span class="lineno"> 2553</span>        <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea39c63169fc1f2c1a4922cfd0b07bcf0a">STATUS_TYPE_TRANSACTION_REJECTED</a>:</div>
-<div class="line"><a id="l02554" name="l02554"></a><span class="lineno"> 2554</span>            msg       = <span class="stringliteral">&quot;Transaction rejected&quot;</span>;</div>
-<div class="line"><a id="l02555" name="l02555"></a><span class="lineno"> 2555</span>            isSuccess = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l02556" name="l02556"></a><span class="lineno"> 2556</span>            <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l02557" name="l02557"></a><span class="lineno"> 2557</span>        <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5deab11b92d3b02430711c16443272cf3773">STATUS_TYPE_MESSAGE_SIGNED</a>:</div>
-<div class="line"><a id="l02558" name="l02558"></a><span class="lineno"> 2558</span>            msg       = <span class="stringliteral">&quot;Message signed&quot;</span>;</div>
-<div class="line"><a id="l02559" name="l02559"></a><span class="lineno"> 2559</span>            isSuccess = <span class="keyword">true</span>;</div>
-<div class="line"><a id="l02560" name="l02560"></a><span class="lineno"> 2560</span>            <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l02561" name="l02561"></a><span class="lineno"> 2561</span>        <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5deae88058964d3f23982a8ece738b9c2d23">STATUS_TYPE_MESSAGE_REJECTED</a>:</div>
-<div class="line"><a id="l02562" name="l02562"></a><span class="lineno"> 2562</span>            msg       = <span class="stringliteral">&quot;Message rejected&quot;</span>;</div>
-<div class="line"><a id="l02563" name="l02563"></a><span class="lineno"> 2563</span>            isSuccess = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l02564" name="l02564"></a><span class="lineno"> 2564</span>            <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l02565" name="l02565"></a><span class="lineno"> 2565</span>        <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea864b5611cf119286e3b93fc4642630c5">STATUS_TYPE_ADDRESS_VERIFIED</a>:</div>
-<div class="line"><a id="l02566" name="l02566"></a><span class="lineno"> 2566</span>            msg       = <span class="stringliteral">&quot;Address verified&quot;</span>;</div>
-<div class="line"><a id="l02567" name="l02567"></a><span class="lineno"> 2567</span>            isSuccess = <span class="keyword">true</span>;</div>
-<div class="line"><a id="l02568" name="l02568"></a><span class="lineno"> 2568</span>            <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l02569" name="l02569"></a><span class="lineno"> 2569</span>        <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea421fe70db5ac9ff90611b7d1a57af340">STATUS_TYPE_ADDRESS_REJECTED</a>:</div>
-<div class="line"><a id="l02570" name="l02570"></a><span class="lineno"> 2570</span>            msg       = <span class="stringliteral">&quot;Address verification cancelled&quot;</span>;</div>
-<div class="line"><a id="l02571" name="l02571"></a><span class="lineno"> 2571</span>            isSuccess = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l02572" name="l02572"></a><span class="lineno"> 2572</span>            <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l02573" name="l02573"></a><span class="lineno"> 2573</span>        <span class="keywordflow">default</span>:</div>
-<div class="line"><a id="l02574" name="l02574"></a><span class="lineno"> 2574</span>            <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l02575" name="l02575"></a><span class="lineno"> 2575</span>    }</div>
-<div class="line"><a id="l02576" name="l02576"></a><span class="lineno"> 2576</span>    <a class="code hl_function" href="nbgl__use__case_8h.html#a8eebd5b1e53a4894c4c05ddae49c8ae8">nbgl_useCaseStatus</a>(msg, isSuccess, quitCallback);</div>
-<div class="line"><a id="l02577" name="l02577"></a><span class="lineno"> 2577</span>}</div>
-<div class="line"><a id="l02578" name="l02578"></a><span class="lineno"> 2578</span> </div>
-<div class="line"><a id="l02591" name="l02591"></a><span class="lineno"> 2591</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#a42b9838f8e87318f142b4bfa11cd8e1a">nbgl_useCaseReviewStreamingStart</a>(<a class="code hl_typedef" href="nbgl__use__case_8h.html#a2a61232bd0b7a090272a1fd43f3b9f26">nbgl_operationType_t</a>       operationType,</div>
-<div class="line"><a id="l02592" name="l02592"></a><span class="lineno"> 2592</span>                                      <span class="keyword">const</span> <a class="code hl_typedef" href="nbgl__types_8h.html#a7724587bc3e14c498ed49c3e70c365d6">nbgl_icon_details_t</a> *icon,</div>
-<div class="line"><a id="l02593" name="l02593"></a><span class="lineno"> 2593</span>                                      <span class="keyword">const</span> <span class="keywordtype">char</span>                *reviewTitle,</div>
-<div class="line"><a id="l02594" name="l02594"></a><span class="lineno"> 2594</span>                                      <span class="keyword">const</span> <span class="keywordtype">char</span>                *reviewSubTitle,</div>
-<div class="line"><a id="l02595" name="l02595"></a><span class="lineno"> 2595</span>                                      <a class="code hl_typedef" href="nbgl__use__case_8h.html#a57b5d44ce43db8edcc44ff2c7b5014a5">nbgl_choiceCallback_t</a>      choiceCallback)</div>
-<div class="line"><a id="l02596" name="l02596"></a><span class="lineno"> 2596</span>{</div>
-<div class="line"><a id="l02597" name="l02597"></a><span class="lineno"> 2597</span>    <span class="comment">// memorize streaming operation type for future API calls</span></div>
-<div class="line"><a id="l02598" name="l02598"></a><span class="lineno"> 2598</span>    streamingOpType = operationType;</div>
-<div class="line"><a id="l02599" name="l02599"></a><span class="lineno"> 2599</span> </div>
-<div class="line"><a id="l02600" name="l02600"></a><span class="lineno"> 2600</span>    memset(&amp;context, 0, <span class="keyword">sizeof</span>(UseCaseContext_t));</div>
-<div class="line"><a id="l02601" name="l02601"></a><span class="lineno"> 2601</span>    context.type                  = STREAMING_START_REVIEW_USE_CASE;</div>
-<div class="line"><a id="l02602" name="l02602"></a><span class="lineno"> 2602</span>    context.operationType         = operationType;</div>
-<div class="line"><a id="l02603" name="l02603"></a><span class="lineno"> 2603</span>    context.review.reviewTitle    = reviewTitle;</div>
-<div class="line"><a id="l02604" name="l02604"></a><span class="lineno"> 2604</span>    context.review.reviewSubTitle = reviewSubTitle;</div>
-<div class="line"><a id="l02605" name="l02605"></a><span class="lineno"> 2605</span>    context.review.icon           = icon;</div>
-<div class="line"><a id="l02606" name="l02606"></a><span class="lineno"> 2606</span>    context.review.onChoice       = choiceCallback;</div>
-<div class="line"><a id="l02607" name="l02607"></a><span class="lineno"> 2607</span>    context.currentPage           = 0;</div>
-<div class="line"><a id="l02608" name="l02608"></a><span class="lineno"> 2608</span>    context.nbPages = reviewSubTitle ? 3 : 2;  <span class="comment">// Start page(s) + trick for review continue</span></div>
-<div class="line"><a id="l02609" name="l02609"></a><span class="lineno"> 2609</span> </div>
-<div class="line"><a id="l02610" name="l02610"></a><span class="lineno"> 2610</span>    displayStreamingReviewPage(<a class="code hl_define" href="nbgl__step_8h.html#ad6c2f2458a2794d1d475b37efc5b58a1">FORWARD_DIRECTION</a>);</div>
-<div class="line"><a id="l02611" name="l02611"></a><span class="lineno"> 2611</span>}</div>
-<div class="line"><a id="l02612" name="l02612"></a><span class="lineno"> 2612</span> </div>
-<div class="line"><a id="l02626" name="l02626"></a><span class="lineno"> 2626</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#acb295bee9f969d4436e833317355aa54">nbgl_useCaseReviewStreamingBlindSigningStart</a>(<a class="code hl_typedef" href="nbgl__use__case_8h.html#a2a61232bd0b7a090272a1fd43f3b9f26">nbgl_operationType_t</a>       operationType,</div>
-<div class="line"><a id="l02627" name="l02627"></a><span class="lineno"> 2627</span>                                                  <span class="keyword">const</span> <a class="code hl_typedef" href="nbgl__types_8h.html#a7724587bc3e14c498ed49c3e70c365d6">nbgl_icon_details_t</a> *icon,</div>
-<div class="line"><a id="l02628" name="l02628"></a><span class="lineno"> 2628</span>                                                  <span class="keyword">const</span> <span class="keywordtype">char</span>                *reviewTitle,</div>
-<div class="line"><a id="l02629" name="l02629"></a><span class="lineno"> 2629</span>                                                  <span class="keyword">const</span> <span class="keywordtype">char</span>                *reviewSubTitle,</div>
-<div class="line"><a id="l02630" name="l02630"></a><span class="lineno"> 2630</span>                                                  <a class="code hl_typedef" href="nbgl__use__case_8h.html#a57b5d44ce43db8edcc44ff2c7b5014a5">nbgl_choiceCallback_t</a>      choiceCallback)</div>
-<div class="line"><a id="l02631" name="l02631"></a><span class="lineno"> 2631</span>{</div>
-<div class="line"><a id="l02632" name="l02632"></a><span class="lineno"> 2632</span>    <a class="code hl_function" href="nbgl__use__case_8h.html#afe414aefd31734c6dad09156263a0550">nbgl_useCaseAdvancedReviewStreamingStart</a>(</div>
-<div class="line"><a id="l02633" name="l02633"></a><span class="lineno"> 2633</span>        operationType, icon, reviewTitle, reviewSubTitle, &amp;blindSigningWarning, choiceCallback);</div>
-<div class="line"><a id="l02634" name="l02634"></a><span class="lineno"> 2634</span>}</div>
-<div class="line"><a id="l02635" name="l02635"></a><span class="lineno"> 2635</span> </div>
-<div class="line"><a id="l02651" name="l02651"></a><span class="lineno"> 2651</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#afe414aefd31734c6dad09156263a0550">nbgl_useCaseAdvancedReviewStreamingStart</a>(<a class="code hl_typedef" href="nbgl__use__case_8h.html#a2a61232bd0b7a090272a1fd43f3b9f26">nbgl_operationType_t</a>       operationType,</div>
-<div class="line"><a id="l02652" name="l02652"></a><span class="lineno"> 2652</span>                                              <span class="keyword">const</span> <a class="code hl_typedef" href="nbgl__types_8h.html#a7724587bc3e14c498ed49c3e70c365d6">nbgl_icon_details_t</a> *icon,</div>
-<div class="line"><a id="l02653" name="l02653"></a><span class="lineno"> 2653</span>                                              <span class="keyword">const</span> <span class="keywordtype">char</span>                *reviewTitle,</div>
-<div class="line"><a id="l02654" name="l02654"></a><span class="lineno"> 2654</span>                                              <span class="keyword">const</span> <span class="keywordtype">char</span>                *reviewSubTitle,</div>
-<div class="line"><a id="l02655" name="l02655"></a><span class="lineno"> 2655</span>                                              <span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__warning__t.html">nbgl_warning_t</a>      *warning,</div>
-<div class="line"><a id="l02656" name="l02656"></a><span class="lineno"> 2656</span>                                              <a class="code hl_typedef" href="nbgl__use__case_8h.html#a57b5d44ce43db8edcc44ff2c7b5014a5">nbgl_choiceCallback_t</a>      choiceCallback)</div>
-<div class="line"><a id="l02657" name="l02657"></a><span class="lineno"> 2657</span>{</div>
-<div class="line"><a id="l02658" name="l02658"></a><span class="lineno"> 2658</span>    memset(&amp;context, 0, <span class="keyword">sizeof</span>(UseCaseContext_t));</div>
-<div class="line"><a id="l02659" name="l02659"></a><span class="lineno"> 2659</span>    context.type                  = STREAMING_START_REVIEW_USE_CASE;</div>
-<div class="line"><a id="l02660" name="l02660"></a><span class="lineno"> 2660</span>    context.operationType         = operationType;</div>
-<div class="line"><a id="l02661" name="l02661"></a><span class="lineno"> 2661</span>    context.review.reviewTitle    = reviewTitle;</div>
-<div class="line"><a id="l02662" name="l02662"></a><span class="lineno"> 2662</span>    context.review.reviewSubTitle = reviewSubTitle;</div>
-<div class="line"><a id="l02663" name="l02663"></a><span class="lineno"> 2663</span>    context.review.icon           = icon;</div>
-<div class="line"><a id="l02664" name="l02664"></a><span class="lineno"> 2664</span>    context.review.onChoice       = choiceCallback;</div>
-<div class="line"><a id="l02665" name="l02665"></a><span class="lineno"> 2665</span>    context.currentPage           = 0;</div>
-<div class="line"><a id="l02666" name="l02666"></a><span class="lineno"> 2666</span>    context.nbPages = reviewSubTitle ? 3 : 2;  <span class="comment">// Start page(s) + trick for review continue</span></div>
-<div class="line"><a id="l02667" name="l02667"></a><span class="lineno"> 2667</span> </div>
-<div class="line"><a id="l02668" name="l02668"></a><span class="lineno"> 2668</span>    <span class="comment">// memorize streaming operation type for future API calls</span></div>
-<div class="line"><a id="l02669" name="l02669"></a><span class="lineno"> 2669</span>    streamingOpType = operationType;</div>
-<div class="line"><a id="l02670" name="l02670"></a><span class="lineno"> 2670</span> </div>
-<div class="line"><a id="l02671" name="l02671"></a><span class="lineno"> 2671</span>    <span class="comment">// if no warning at all, it&#39;s a simple review</span></div>
-<div class="line"><a id="l02672" name="l02672"></a><span class="lineno"> 2672</span>    <span class="keywordflow">if</span> ((warning == NULL)</div>
-<div class="line"><a id="l02673" name="l02673"></a><span class="lineno"> 2673</span>        || ((warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a4f80d55ce48ce054f0f552db18667182">predefinedSet</a> == 0) &amp;&amp; (warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a21e73b102445d144422506984ed9f5db">introDetails</a> == NULL)</div>
-<div class="line"><a id="l02674" name="l02674"></a><span class="lineno"> 2674</span>            &amp;&amp; (warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a41ba752e0b657a44cd01b6ffbf8805a3">reviewDetails</a> == NULL))) {</div>
-<div class="line"><a id="l02675" name="l02675"></a><span class="lineno"> 2675</span>        displayStreamingReviewPage(<a class="code hl_define" href="nbgl__step_8h.html#ad6c2f2458a2794d1d475b37efc5b58a1">FORWARD_DIRECTION</a>);</div>
-<div class="line"><a id="l02676" name="l02676"></a><span class="lineno"> 2676</span>        <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l02677" name="l02677"></a><span class="lineno"> 2677</span>    }</div>
-<div class="line"><a id="l02678" name="l02678"></a><span class="lineno"> 2678</span>    <span class="keywordflow">if</span> (warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a4f80d55ce48ce054f0f552db18667182">predefinedSet</a> == (1 &lt;&lt; <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3da57d6d38877f0e655f3049d10f416e6b3">W3C_NO_THREAT_WARN</a>)) {</div>
-<div class="line"><a id="l02679" name="l02679"></a><span class="lineno"> 2679</span>        operationType |= NO_THREAT_OPERATION;</div>
-<div class="line"><a id="l02680" name="l02680"></a><span class="lineno"> 2680</span>    }</div>
-<div class="line"><a id="l02681" name="l02681"></a><span class="lineno"> 2681</span>    <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l02682" name="l02682"></a><span class="lineno"> 2682</span>        operationType |= RISKY_OPERATION;</div>
-<div class="line"><a id="l02683" name="l02683"></a><span class="lineno"> 2683</span>    }</div>
-<div class="line"><a id="l02684" name="l02684"></a><span class="lineno"> 2684</span>    memset(&amp;reviewWithWarnCtx, 0, <span class="keyword">sizeof</span>(reviewWithWarnCtx));</div>
-<div class="line"><a id="l02685" name="l02685"></a><span class="lineno"> 2685</span> </div>
-<div class="line"><a id="l02686" name="l02686"></a><span class="lineno"> 2686</span>    reviewWithWarnCtx.type           = context.type;</div>
-<div class="line"><a id="l02687" name="l02687"></a><span class="lineno"> 2687</span>    reviewWithWarnCtx.operationType  = operationType;</div>
-<div class="line"><a id="l02688" name="l02688"></a><span class="lineno"> 2688</span>    reviewWithWarnCtx.icon           = icon;</div>
-<div class="line"><a id="l02689" name="l02689"></a><span class="lineno"> 2689</span>    reviewWithWarnCtx.reviewTitle    = reviewTitle;</div>
-<div class="line"><a id="l02690" name="l02690"></a><span class="lineno"> 2690</span>    reviewWithWarnCtx.reviewSubTitle = reviewSubTitle;</div>
-<div class="line"><a id="l02691" name="l02691"></a><span class="lineno"> 2691</span>    reviewWithWarnCtx.choiceCallback = choiceCallback;</div>
-<div class="line"><a id="l02692" name="l02692"></a><span class="lineno"> 2692</span>    reviewWithWarnCtx.warning        = warning;</div>
-<div class="line"><a id="l02693" name="l02693"></a><span class="lineno"> 2693</span> </div>
-<div class="line"><a id="l02694" name="l02694"></a><span class="lineno"> 2694</span>    <span class="comment">// display the initial warning only of a risk/threat or blind signing</span></div>
-<div class="line"><a id="l02695" name="l02695"></a><span class="lineno"> 2695</span>    <span class="keywordflow">if</span> ((!(reviewWithWarnCtx.warning-&gt;predefinedSet &amp; (1 &lt;&lt; <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3da03a721b91c71fc0f59446488d81ad74e">W3C_THREAT_DETECTED_WARN</a>))</div>
-<div class="line"><a id="l02696" name="l02696"></a><span class="lineno"> 2696</span>         &amp;&amp; !(reviewWithWarnCtx.warning-&gt;predefinedSet &amp; (1 &lt;&lt; <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3da7426474658a4efba94394281f2f54563">W3C_RISK_DETECTED_WARN</a>))</div>
-<div class="line"><a id="l02697" name="l02697"></a><span class="lineno"> 2697</span>         &amp;&amp; !(reviewWithWarnCtx.warning-&gt;predefinedSet &amp; (1 &lt;&lt; <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3da1746cdd0d25523430492ebd999557c55">BLIND_SIGNING_WARN</a>)))</div>
-<div class="line"><a id="l02698" name="l02698"></a><span class="lineno"> 2698</span>        &amp;&amp; (warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a21e73b102445d144422506984ed9f5db">introDetails</a> == NULL)) {</div>
-<div class="line"><a id="l02699" name="l02699"></a><span class="lineno"> 2699</span>        displayStreamingReviewPage(<a class="code hl_define" href="nbgl__step_8h.html#ad6c2f2458a2794d1d475b37efc5b58a1">FORWARD_DIRECTION</a>);</div>
-<div class="line"><a id="l02700" name="l02700"></a><span class="lineno"> 2700</span>        <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l02701" name="l02701"></a><span class="lineno"> 2701</span>    }</div>
-<div class="line"><a id="l02702" name="l02702"></a><span class="lineno"> 2702</span>    displayInitialWarning();</div>
-<div class="line"><a id="l02703" name="l02703"></a><span class="lineno"> 2703</span>}</div>
-<div class="line"><a id="l02704" name="l02704"></a><span class="lineno"> 2704</span> </div>
-<div class="line"><a id="l02718" name="l02718"></a><span class="lineno"> 2718</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#aabc16faf74588c6ee5d0379f7069d97b">nbgl_useCaseReviewStreamingContinueExt</a>(<span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__contentTagValueList__s.html">nbgl_contentTagValueList_t</a> *tagValueList,</div>
-<div class="line"><a id="l02719" name="l02719"></a><span class="lineno"> 2719</span>                                            <a class="code hl_typedef" href="nbgl__use__case_8h.html#a57b5d44ce43db8edcc44ff2c7b5014a5">nbgl_choiceCallback_t</a>             choiceCallback,</div>
-<div class="line"><a id="l02720" name="l02720"></a><span class="lineno"> 2720</span>                                            <a class="code hl_typedef" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a>                   skipCallback)</div>
-<div class="line"><a id="l02721" name="l02721"></a><span class="lineno"> 2721</span>{</div>
-<div class="line"><a id="l02722" name="l02722"></a><span class="lineno"> 2722</span>    uint8_t curNbDataSets = context.review.nbDataSets;</div>
-<div class="line"><a id="l02723" name="l02723"></a><span class="lineno"> 2723</span> </div>
-<div class="line"><a id="l02724" name="l02724"></a><span class="lineno"> 2724</span>    memset(&amp;context, 0, <span class="keyword">sizeof</span>(UseCaseContext_t));</div>
-<div class="line"><a id="l02725" name="l02725"></a><span class="lineno"> 2725</span>    context.type                = STREAMING_CONTINUE_REVIEW_USE_CASE;</div>
-<div class="line"><a id="l02726" name="l02726"></a><span class="lineno"> 2726</span>    context.operationType       = streamingOpType;</div>
-<div class="line"><a id="l02727" name="l02727"></a><span class="lineno"> 2727</span>    context.review.tagValueList = tagValueList;</div>
-<div class="line"><a id="l02728" name="l02728"></a><span class="lineno"> 2728</span>    context.review.onChoice     = choiceCallback;</div>
-<div class="line"><a id="l02729" name="l02729"></a><span class="lineno"> 2729</span>    context.currentPage         = 0;</div>
-<div class="line"><a id="l02730" name="l02730"></a><span class="lineno"> 2730</span>    context.nbPages             = tagValueList-&gt;<a class="code hl_variable" href="structnbgl__contentTagValueList__s.html#af2cd30ee768ec8ff56ab2b986d3e0f59">nbPairs</a> + 1;  <span class="comment">// data + trick for review continue</span></div>
-<div class="line"><a id="l02731" name="l02731"></a><span class="lineno"> 2731</span>    context.review.skipCallback = skipCallback;</div>
-<div class="line"><a id="l02732" name="l02732"></a><span class="lineno"> 2732</span>    context.review.nbDataSets   = curNbDataSets + 1;</div>
-<div class="line"><a id="l02733" name="l02733"></a><span class="lineno"> 2733</span> </div>
-<div class="line"><a id="l02734" name="l02734"></a><span class="lineno"> 2734</span>    displayStreamingReviewPage(<a class="code hl_define" href="nbgl__step_8h.html#ad6c2f2458a2794d1d475b37efc5b58a1">FORWARD_DIRECTION</a>);</div>
-<div class="line"><a id="l02735" name="l02735"></a><span class="lineno"> 2735</span>}</div>
-<div class="line"><a id="l02736" name="l02736"></a><span class="lineno"> 2736</span> </div>
-<div class="line"><a id="l02747" name="l02747"></a><span class="lineno"> 2747</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#ad9d598fd702eb516d6c8dca231d4a08f">nbgl_useCaseReviewStreamingContinue</a>(<span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__contentTagValueList__s.html">nbgl_contentTagValueList_t</a> *tagValueList,</div>
-<div class="line"><a id="l02748" name="l02748"></a><span class="lineno"> 2748</span>                                         <a class="code hl_typedef" href="nbgl__use__case_8h.html#a57b5d44ce43db8edcc44ff2c7b5014a5">nbgl_choiceCallback_t</a>             choiceCallback)</div>
-<div class="line"><a id="l02749" name="l02749"></a><span class="lineno"> 2749</span>{</div>
-<div class="line"><a id="l02750" name="l02750"></a><span class="lineno"> 2750</span>    <a class="code hl_function" href="nbgl__use__case_8h.html#aabc16faf74588c6ee5d0379f7069d97b">nbgl_useCaseReviewStreamingContinueExt</a>(tagValueList, choiceCallback, NULL);</div>
-<div class="line"><a id="l02751" name="l02751"></a><span class="lineno"> 2751</span>}</div>
-<div class="line"><a id="l02752" name="l02752"></a><span class="lineno"> 2752</span> </div>
-<div class="line"><a id="l02753" name="l02753"></a><span class="lineno"> 2753</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#a5b355b1051720c70f6e8a35659eb66f2">nbgl_useCaseReviewStreamingFinish</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>           *finishTitle,</div>
-<div class="line"><a id="l02754" name="l02754"></a><span class="lineno"> 2754</span>                                       <a class="code hl_typedef" href="nbgl__use__case_8h.html#a57b5d44ce43db8edcc44ff2c7b5014a5">nbgl_choiceCallback_t</a> choiceCallback)</div>
-<div class="line"><a id="l02755" name="l02755"></a><span class="lineno"> 2755</span>{</div>
-<div class="line"><a id="l02756" name="l02756"></a><span class="lineno"> 2756</span>    memset(&amp;context, 0, <span class="keyword">sizeof</span>(UseCaseContext_t));</div>
-<div class="line"><a id="l02757" name="l02757"></a><span class="lineno"> 2757</span>    context.type               = STREAMING_FINISH_REVIEW_USE_CASE;</div>
-<div class="line"><a id="l02758" name="l02758"></a><span class="lineno"> 2758</span>    context.operationType      = streamingOpType;</div>
-<div class="line"><a id="l02759" name="l02759"></a><span class="lineno"> 2759</span>    context.review.onChoice    = choiceCallback;</div>
-<div class="line"><a id="l02760" name="l02760"></a><span class="lineno"> 2760</span>    context.review.finishTitle = finishTitle;</div>
-<div class="line"><a id="l02761" name="l02761"></a><span class="lineno"> 2761</span>    context.currentPage        = 0;</div>
-<div class="line"><a id="l02762" name="l02762"></a><span class="lineno"> 2762</span>    context.nbPages            = 2;  <span class="comment">// 2 pages at the end for accept/reject</span></div>
-<div class="line"><a id="l02763" name="l02763"></a><span class="lineno"> 2763</span> </div>
-<div class="line"><a id="l02764" name="l02764"></a><span class="lineno"> 2764</span>    displayStreamingReviewPage(<a class="code hl_define" href="nbgl__step_8h.html#ad6c2f2458a2794d1d475b37efc5b58a1">FORWARD_DIRECTION</a>);</div>
-<div class="line"><a id="l02765" name="l02765"></a><span class="lineno"> 2765</span>}</div>
-<div class="line"><a id="l02766" name="l02766"></a><span class="lineno"> 2766</span> </div>
-<div class="line"><a id="l02772" name="l02772"></a><span class="lineno"> 2772</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#a6c70e8409832531cb83c75c5c376ee18">nbgl_useCaseSpinner</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *text)</div>
-<div class="line"><a id="l02773" name="l02773"></a><span class="lineno"> 2773</span>{</div>
-<div class="line"><a id="l02774" name="l02774"></a><span class="lineno"> 2774</span>    memset(&amp;context, 0, <span class="keyword">sizeof</span>(UseCaseContext_t));</div>
-<div class="line"><a id="l02775" name="l02775"></a><span class="lineno"> 2775</span>    context.type        = SPINNER_USE_CASE;</div>
-<div class="line"><a id="l02776" name="l02776"></a><span class="lineno"> 2776</span>    context.currentPage = 0;</div>
-<div class="line"><a id="l02777" name="l02777"></a><span class="lineno"> 2777</span>    context.nbPages     = 1;</div>
-<div class="line"><a id="l02778" name="l02778"></a><span class="lineno"> 2778</span> </div>
-<div class="line"><a id="l02779" name="l02779"></a><span class="lineno"> 2779</span>    displaySpinner(text);</div>
-<div class="line"><a id="l02780" name="l02780"></a><span class="lineno"> 2780</span>}</div>
-<div class="line"><a id="l02781" name="l02781"></a><span class="lineno"> 2781</span> </div>
-<div class="line"><a id="l02794" name="l02794"></a><span class="lineno"> 2794</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#aafc860c31b7c91be7e22adc79f9b21a5">nbgl_useCaseChoice</a>(<span class="keyword">const</span> <a class="code hl_typedef" href="nbgl__types_8h.html#a7724587bc3e14c498ed49c3e70c365d6">nbgl_icon_details_t</a> *icon,</div>
-<div class="line"><a id="l02795" name="l02795"></a><span class="lineno"> 2795</span>                        <span class="keyword">const</span> <span class="keywordtype">char</span>                *message,</div>
-<div class="line"><a id="l02796" name="l02796"></a><span class="lineno"> 2796</span>                        <span class="keyword">const</span> <span class="keywordtype">char</span>                *subMessage,</div>
-<div class="line"><a id="l02797" name="l02797"></a><span class="lineno"> 2797</span>                        <span class="keyword">const</span> <span class="keywordtype">char</span>                *confirmText,</div>
-<div class="line"><a id="l02798" name="l02798"></a><span class="lineno"> 2798</span>                        <span class="keyword">const</span> <span class="keywordtype">char</span>                *cancelText,</div>
-<div class="line"><a id="l02799" name="l02799"></a><span class="lineno"> 2799</span>                        <a class="code hl_typedef" href="nbgl__use__case_8h.html#a57b5d44ce43db8edcc44ff2c7b5014a5">nbgl_choiceCallback_t</a>      callback)</div>
-<div class="line"><a id="l02800" name="l02800"></a><span class="lineno"> 2800</span>{</div>
-<div class="line"><a id="l02801" name="l02801"></a><span class="lineno"> 2801</span>    <a class="code hl_function" href="nbgl__use__case_8h.html#a629c429918af67155339d6f7f50d6758">nbgl_useCaseChoiceWithDetails</a>(</div>
-<div class="line"><a id="l02802" name="l02802"></a><span class="lineno"> 2802</span>        icon, message, subMessage, confirmText, cancelText, NULL, callback);</div>
-<div class="line"><a id="l02803" name="l02803"></a><span class="lineno"> 2803</span>};</div>
-<div class="line"><a id="l02804" name="l02804"></a><span class="lineno"> 2804</span> </div>
-<div class="line"><a id="l02819" name="l02819"></a><span class="lineno"> 2819</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#a629c429918af67155339d6f7f50d6758">nbgl_useCaseChoiceWithDetails</a>(<span class="keyword">const</span> <a class="code hl_typedef" href="nbgl__types_8h.html#a7724587bc3e14c498ed49c3e70c365d6">nbgl_icon_details_t</a> *icon,</div>
-<div class="line"><a id="l02820" name="l02820"></a><span class="lineno"> 2820</span>                                   <span class="keyword">const</span> <span class="keywordtype">char</span>                *message,</div>
-<div class="line"><a id="l02821" name="l02821"></a><span class="lineno"> 2821</span>                                   <span class="keyword">const</span> <span class="keywordtype">char</span>                *subMessage,</div>
-<div class="line"><a id="l02822" name="l02822"></a><span class="lineno"> 2822</span>                                   <span class="keyword">const</span> <span class="keywordtype">char</span>                *confirmText,</div>
-<div class="line"><a id="l02823" name="l02823"></a><span class="lineno"> 2823</span>                                   <span class="keyword">const</span> <span class="keywordtype">char</span>                *cancelText,</div>
-<div class="line"><a id="l02824" name="l02824"></a><span class="lineno"> 2824</span>                                   <a class="code hl_struct" href="structnbgl__genericDetails__s.html">nbgl_genericDetails_t</a>     *details,</div>
-<div class="line"><a id="l02825" name="l02825"></a><span class="lineno"> 2825</span>                                   <a class="code hl_typedef" href="nbgl__use__case_8h.html#a57b5d44ce43db8edcc44ff2c7b5014a5">nbgl_choiceCallback_t</a>      callback)</div>
-<div class="line"><a id="l02826" name="l02826"></a><span class="lineno"> 2826</span>{</div>
-<div class="line"><a id="l02827" name="l02827"></a><span class="lineno"> 2827</span>    memset(&amp;context, 0, <span class="keyword">sizeof</span>(UseCaseContext_t));</div>
-<div class="line"><a id="l02828" name="l02828"></a><span class="lineno"> 2828</span>    context.type               = CHOICE_USE_CASE;</div>
-<div class="line"><a id="l02829" name="l02829"></a><span class="lineno"> 2829</span>    context.choice.icon        = icon;</div>
-<div class="line"><a id="l02830" name="l02830"></a><span class="lineno"> 2830</span>    context.choice.message     = message;</div>
-<div class="line"><a id="l02831" name="l02831"></a><span class="lineno"> 2831</span>    context.choice.subMessage  = subMessage;</div>
-<div class="line"><a id="l02832" name="l02832"></a><span class="lineno"> 2832</span>    context.choice.confirmText = confirmText;</div>
-<div class="line"><a id="l02833" name="l02833"></a><span class="lineno"> 2833</span>    context.choice.cancelText  = cancelText;</div>
-<div class="line"><a id="l02834" name="l02834"></a><span class="lineno"> 2834</span>    context.choice.onChoice    = callback;</div>
-<div class="line"><a id="l02835" name="l02835"></a><span class="lineno"> 2835</span>    context.choice.details     = details;</div>
-<div class="line"><a id="l02836" name="l02836"></a><span class="lineno"> 2836</span>    context.currentPage        = 0;</div>
-<div class="line"><a id="l02837" name="l02837"></a><span class="lineno"> 2837</span>    context.nbPages            = 2;  <span class="comment">// 2 pages for confirm/cancel</span></div>
-<div class="line"><a id="l02838" name="l02838"></a><span class="lineno"> 2838</span>    <span class="keywordflow">if</span> (message != NULL) {</div>
-<div class="line"><a id="l02839" name="l02839"></a><span class="lineno"> 2839</span>        context.nbPages++;</div>
-<div class="line"><a id="l02840" name="l02840"></a><span class="lineno"> 2840</span>        <span class="comment">// if both icon and subMessage are non NULL, add a page</span></div>
-<div class="line"><a id="l02841" name="l02841"></a><span class="lineno"> 2841</span>        <span class="keywordflow">if</span> ((icon != NULL) &amp;&amp; (subMessage != NULL)) {</div>
-<div class="line"><a id="l02842" name="l02842"></a><span class="lineno"> 2842</span>            context.nbPages++;</div>
-<div class="line"><a id="l02843" name="l02843"></a><span class="lineno"> 2843</span>        }</div>
-<div class="line"><a id="l02844" name="l02844"></a><span class="lineno"> 2844</span>    }</div>
-<div class="line"><a id="l02845" name="l02845"></a><span class="lineno"> 2845</span>    <span class="keywordflow">if</span> (details != NULL) {</div>
-<div class="line"><a id="l02846" name="l02846"></a><span class="lineno"> 2846</span>        <span class="comment">// only the first level of details and BAR_LIST type are supported</span></div>
-<div class="line"><a id="l02847" name="l02847"></a><span class="lineno"> 2847</span>        <span class="keywordflow">if</span> (details-&gt;<a class="code hl_variable" href="structnbgl__genericDetails__s.html#acfd73ba3738649a64c592a0904a938de">type</a> == <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#a03a5d1f24c2bc6235d870b2383ff3069a9d9aea494a173340576be278ef075936">BAR_LIST_WARNING</a>) {</div>
-<div class="line"><a id="l02848" name="l02848"></a><span class="lineno"> 2848</span>            context.nbPages += details-&gt;<a class="code hl_variable" href="structnbgl__genericDetails__s.html#a3e049ab8a74090cc673c1f1a648ba409">barList</a>.<a class="code hl_variable" href="structnbgl__genericBarList__t.html#a61430df9341287d5aa272545bc643a9e">nbBars</a>;</div>
-<div class="line"><a id="l02849" name="l02849"></a><span class="lineno"> 2849</span>        }</div>
-<div class="line"><a id="l02850" name="l02850"></a><span class="lineno"> 2850</span>    }</div>
-<div class="line"><a id="l02851" name="l02851"></a><span class="lineno"> 2851</span> </div>
-<div class="line"><a id="l02852" name="l02852"></a><span class="lineno"> 2852</span>    displayChoicePage(<a class="code hl_define" href="nbgl__step_8h.html#ad6c2f2458a2794d1d475b37efc5b58a1">FORWARD_DIRECTION</a>);</div>
-<div class="line"><a id="l02853" name="l02853"></a><span class="lineno"> 2853</span>};</div>
-<div class="line"><a id="l02854" name="l02854"></a><span class="lineno"> 2854</span> </div>
-<div class="line"><a id="l02868" name="l02868"></a><span class="lineno"> 2868</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#a6f689a2dbefa1dd38cff6174bb214b72">nbgl_useCaseConfirm</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>     *message,</div>
-<div class="line"><a id="l02869" name="l02869"></a><span class="lineno"> 2869</span>                         <span class="keyword">const</span> <span class="keywordtype">char</span>     *subMessage,</div>
-<div class="line"><a id="l02870" name="l02870"></a><span class="lineno"> 2870</span>                         <span class="keyword">const</span> <span class="keywordtype">char</span>     *confirmText,</div>
-<div class="line"><a id="l02871" name="l02871"></a><span class="lineno"> 2871</span>                         <span class="keyword">const</span> <span class="keywordtype">char</span>     *cancelText,</div>
-<div class="line"><a id="l02872" name="l02872"></a><span class="lineno"> 2872</span>                         <a class="code hl_typedef" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a> callback)</div>
-<div class="line"><a id="l02873" name="l02873"></a><span class="lineno"> 2873</span>{</div>
-<div class="line"><a id="l02874" name="l02874"></a><span class="lineno"> 2874</span>    memset(&amp;context, 0, <span class="keyword">sizeof</span>(UseCaseContext_t));</div>
-<div class="line"><a id="l02875" name="l02875"></a><span class="lineno"> 2875</span>    context.type                = CONFIRM_USE_CASE;</div>
-<div class="line"><a id="l02876" name="l02876"></a><span class="lineno"> 2876</span>    context.confirm.message     = message;</div>
-<div class="line"><a id="l02877" name="l02877"></a><span class="lineno"> 2877</span>    context.confirm.subMessage  = subMessage;</div>
-<div class="line"><a id="l02878" name="l02878"></a><span class="lineno"> 2878</span>    context.confirm.confirmText = confirmText;</div>
-<div class="line"><a id="l02879" name="l02879"></a><span class="lineno"> 2879</span>    context.confirm.cancelText  = cancelText;</div>
-<div class="line"><a id="l02880" name="l02880"></a><span class="lineno"> 2880</span>    context.confirm.onConfirm   = callback;</div>
-<div class="line"><a id="l02881" name="l02881"></a><span class="lineno"> 2881</span>    context.currentPage         = 0;</div>
-<div class="line"><a id="l02882" name="l02882"></a><span class="lineno"> 2882</span>    context.nbPages             = 1 + 2;  <span class="comment">// 2 pages at the end for confirm/cancel</span></div>
-<div class="line"><a id="l02883" name="l02883"></a><span class="lineno"> 2883</span> </div>
-<div class="line"><a id="l02884" name="l02884"></a><span class="lineno"> 2884</span>    displayConfirm(<a class="code hl_define" href="nbgl__step_8h.html#ad6c2f2458a2794d1d475b37efc5b58a1">FORWARD_DIRECTION</a>);</div>
-<div class="line"><a id="l02885" name="l02885"></a><span class="lineno"> 2885</span>}</div>
-<div class="line"><a id="l02886" name="l02886"></a><span class="lineno"> 2886</span> </div>
-<div class="line"><a id="l02896" name="l02896"></a><span class="lineno"> 2896</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#a39866962567da5b7a0c26fa2cb32467d">nbgl_useCaseAction</a>(<span class="keyword">const</span> <a class="code hl_typedef" href="nbgl__types_8h.html#a7724587bc3e14c498ed49c3e70c365d6">nbgl_icon_details_t</a> *icon,</div>
-<div class="line"><a id="l02897" name="l02897"></a><span class="lineno"> 2897</span>                        <span class="keyword">const</span> <span class="keywordtype">char</span>                *message,</div>
-<div class="line"><a id="l02898" name="l02898"></a><span class="lineno"> 2898</span>                        <span class="keyword">const</span> <span class="keywordtype">char</span>                *actionText,</div>
-<div class="line"><a id="l02899" name="l02899"></a><span class="lineno"> 2899</span>                        <a class="code hl_typedef" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a>            callback)</div>
-<div class="line"><a id="l02900" name="l02900"></a><span class="lineno"> 2900</span>{</div>
-<div class="line"><a id="l02901" name="l02901"></a><span class="lineno"> 2901</span>    <a class="code hl_struct" href="structnbgl__contentCenteredInfo__t.html">nbgl_layoutCenteredInfo_t</a> centeredInfo = {0};</div>
-<div class="line"><a id="l02902" name="l02902"></a><span class="lineno"> 2902</span> </div>
-<div class="line"><a id="l02903" name="l02903"></a><span class="lineno"> 2903</span>    UNUSED(actionText);</div>
-<div class="line"><a id="l02904" name="l02904"></a><span class="lineno"> 2904</span> </div>
-<div class="line"><a id="l02905" name="l02905"></a><span class="lineno"> 2905</span>    <span class="comment">// memorize callback in context</span></div>
-<div class="line"><a id="l02906" name="l02906"></a><span class="lineno"> 2906</span>    memset(&amp;context, 0, <span class="keyword">sizeof</span>(UseCaseContext_t));</div>
-<div class="line"><a id="l02907" name="l02907"></a><span class="lineno"> 2907</span>    context.type                  = ACTION_USE_CASE;</div>
-<div class="line"><a id="l02908" name="l02908"></a><span class="lineno"> 2908</span>    context.action.actionCallback = callback;</div>
-<div class="line"><a id="l02909" name="l02909"></a><span class="lineno"> 2909</span> </div>
-<div class="line"><a id="l02910" name="l02910"></a><span class="lineno"> 2910</span>    centeredInfo.<a class="code hl_variable" href="structnbgl__contentCenteredInfo__t.html#add86e1f20850ee1e1bfa43abe55e1ceb">icon</a>  = icon;</div>
-<div class="line"><a id="l02911" name="l02911"></a><span class="lineno"> 2911</span>    centeredInfo.<a class="code hl_variable" href="structnbgl__contentCenteredInfo__t.html#a7a9feb7e35d117bf95dc28b03ba694dc">text1</a> = message;</div>
-<div class="line"><a id="l02912" name="l02912"></a><span class="lineno"> 2912</span>    centeredInfo.<a class="code hl_variable" href="structnbgl__contentCenteredInfo__t.html#a9e81c23716e97c4bb97c4378a7f10820">style</a> = BOLD_TEXT1_INFO;</div>
-<div class="line"><a id="l02913" name="l02913"></a><span class="lineno"> 2913</span>    <a class="code hl_function" href="nbgl__step_8h.html#affa590fcf69c274585126345323db768">nbgl_stepDrawCenteredInfo</a>(0, useCaseActionCallback, NULL, &amp;centeredInfo, <span class="keyword">false</span>);</div>
-<div class="line"><a id="l02914" name="l02914"></a><span class="lineno"> 2914</span>}</div>
-<div class="line"><a id="l02915" name="l02915"></a><span class="lineno"> 2915</span> </div>
-<div class="line"><a id="l02916" name="l02916"></a><span class="lineno"> 2916</span><span class="preprocessor">#ifdef NBGL_KEYPAD</span></div>
-<div class="line"><a id="l02934" name="l02934"></a><span class="lineno"> 2934</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#a89212f593a06326783ee901b62d21492">nbgl_useCaseKeypadDigits</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>             *title,</div>
-<div class="line"><a id="l02935" name="l02935"></a><span class="lineno"> 2935</span>                              uint8_t                 minDigits,</div>
-<div class="line"><a id="l02936" name="l02936"></a><span class="lineno"> 2936</span>                              uint8_t                 maxDigits,</div>
-<div class="line"><a id="l02937" name="l02937"></a><span class="lineno"> 2937</span>                              <span class="keywordtype">bool</span>                    shuffled,</div>
-<div class="line"><a id="l02938" name="l02938"></a><span class="lineno"> 2938</span>                              <a class="code hl_typedef" href="nbgl__use__case_8h.html#a426673c300bd98628ce5ec8e8c14c2d8">nbgl_pinValidCallback_t</a> validatePinCallback,</div>
-<div class="line"><a id="l02939" name="l02939"></a><span class="lineno"> 2939</span>                              <a class="code hl_typedef" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a>         backCallback)</div>
-<div class="line"><a id="l02940" name="l02940"></a><span class="lineno"> 2940</span>{</div>
-<div class="line"><a id="l02941" name="l02941"></a><span class="lineno"> 2941</span>    keypadGenericUseCase(</div>
-<div class="line"><a id="l02942" name="l02942"></a><span class="lineno"> 2942</span>        title, minDigits, maxDigits, shuffled, <span class="keyword">false</span>, validatePinCallback, backCallback);</div>
-<div class="line"><a id="l02943" name="l02943"></a><span class="lineno"> 2943</span>}</div>
-<div class="line"><a id="l02944" name="l02944"></a><span class="lineno"> 2944</span> </div>
-<div class="line"><a id="l02963" name="l02963"></a><span class="lineno"> 2963</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#a29799c89a1e92963706ffc97ceee9d5a">nbgl_useCaseKeypadPIN</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>             *title,</div>
-<div class="line"><a id="l02964" name="l02964"></a><span class="lineno"> 2964</span>                           uint8_t                 minDigits,</div>
-<div class="line"><a id="l02965" name="l02965"></a><span class="lineno"> 2965</span>                           uint8_t                 maxDigits,</div>
-<div class="line"><a id="l02966" name="l02966"></a><span class="lineno"> 2966</span>                           <span class="keywordtype">bool</span>                    shuffled,</div>
-<div class="line"><a id="l02967" name="l02967"></a><span class="lineno"> 2967</span>                           <a class="code hl_typedef" href="nbgl__use__case_8h.html#a426673c300bd98628ce5ec8e8c14c2d8">nbgl_pinValidCallback_t</a> validatePinCallback,</div>
-<div class="line"><a id="l02968" name="l02968"></a><span class="lineno"> 2968</span>                           <a class="code hl_typedef" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a>         backCallback)</div>
-<div class="line"><a id="l02969" name="l02969"></a><span class="lineno"> 2969</span>{</div>
-<div class="line"><a id="l02970" name="l02970"></a><span class="lineno"> 2970</span>    keypadGenericUseCase(</div>
-<div class="line"><a id="l02971" name="l02971"></a><span class="lineno"> 2971</span>        title, minDigits, maxDigits, shuffled, <span class="keyword">true</span>, validatePinCallback, backCallback);</div>
-<div class="line"><a id="l02972" name="l02972"></a><span class="lineno"> 2972</span>}</div>
-<div class="line"><a id="l02973" name="l02973"></a><span class="lineno"> 2973</span><span class="preprocessor">#endif  </span><span class="comment">// NBGL_KEYPAD</span></div>
-<div class="line"><a id="l02974" name="l02974"></a><span class="lineno"> 2974</span> </div>
-<div class="line"><a id="l02975" name="l02975"></a><span class="lineno"> 2975</span><span class="preprocessor">#endif  </span><span class="comment">// HAVE_SE_TOUCH</span></div>
-<div class="line"><a id="l02976" name="l02976"></a><span class="lineno"> 2976</span><span class="preprocessor">#endif  </span><span class="comment">// NBGL_USE_CASE</span></div>
+<div class="line"><a id="l02466" name="l02466"></a><span class="lineno"> 2466</span>    <span class="comment">// + 1 if sub Title</span></div>
+<div class="line"><a id="l02467" name="l02467"></a><span class="lineno"> 2467</span>    context.nbPages = reviewSubTitle ? 5 : 4;</div>
+<div class="line"><a id="l02468" name="l02468"></a><span class="lineno"> 2468</span>    <span class="keywordflow">if</span> (additionalTagValueList) {</div>
+<div class="line"><a id="l02469" name="l02469"></a><span class="lineno"> 2469</span>        context.review.tagValueList = PIC(additionalTagValueList);</div>
+<div class="line"><a id="l02470" name="l02470"></a><span class="lineno"> 2470</span>        context.nbPages += additionalTagValueList-&gt;<a class="code hl_variable" href="structnbgl__contentTagValueList__s.html#af2cd30ee768ec8ff56ab2b986d3e0f59">nbPairs</a>;</div>
+<div class="line"><a id="l02471" name="l02471"></a><span class="lineno"> 2471</span>    }</div>
+<div class="line"><a id="l02472" name="l02472"></a><span class="lineno"> 2472</span> </div>
+<div class="line"><a id="l02473" name="l02473"></a><span class="lineno"> 2473</span>    displayReviewPage(<a class="code hl_define" href="nbgl__step_8h.html#ad6c2f2458a2794d1d475b37efc5b58a1">FORWARD_DIRECTION</a>);</div>
+<div class="line"><a id="l02474" name="l02474"></a><span class="lineno"> 2474</span>}</div>
+<div class="line"><a id="l02475" name="l02475"></a><span class="lineno"> 2475</span> </div>
+<div class="line"><a id="l02484" name="l02484"></a><span class="lineno"> 2484</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#abdb12a4292bd8571bad3ad0acf4a1610">nbgl_useCaseGenericReview</a>(<span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__genericContents__t.html">nbgl_genericContents_t</a> *contents,</div>
+<div class="line"><a id="l02485" name="l02485"></a><span class="lineno"> 2485</span>                               <span class="keyword">const</span> <span class="keywordtype">char</span>                   *rejectText,</div>
+<div class="line"><a id="l02486" name="l02486"></a><span class="lineno"> 2486</span>                               <a class="code hl_typedef" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a>               rejectCallback)</div>
+<div class="line"><a id="l02487" name="l02487"></a><span class="lineno"> 2487</span>{</div>
+<div class="line"><a id="l02488" name="l02488"></a><span class="lineno"> 2488</span>    memset(&amp;context, 0, <span class="keyword">sizeof</span>(UseCaseContext_t));</div>
+<div class="line"><a id="l02489" name="l02489"></a><span class="lineno"> 2489</span>    context.type                                       = GENERIC_REVIEW_USE_CASE;</div>
+<div class="line"><a id="l02490" name="l02490"></a><span class="lineno"> 2490</span>    context.content.rejectText                         = rejectText;</div>
+<div class="line"><a id="l02491" name="l02491"></a><span class="lineno"> 2491</span>    context.content.quitCallback                       = rejectCallback;</div>
+<div class="line"><a id="l02492" name="l02492"></a><span class="lineno"> 2492</span>    context.content.genericContents.nbContents         = contents-&gt;<a class="code hl_variable" href="structnbgl__genericContents__t.html#a3e5838be4502eff97637a460aae2f7e0">nbContents</a>;</div>
+<div class="line"><a id="l02493" name="l02493"></a><span class="lineno"> 2493</span>    context.content.genericContents.callbackCallNeeded = contents-&gt;<a class="code hl_variable" href="structnbgl__genericContents__t.html#ac8afe1b355e5501c70d993792c1956a5">callbackCallNeeded</a>;</div>
+<div class="line"><a id="l02494" name="l02494"></a><span class="lineno"> 2494</span>    <span class="keywordflow">if</span> (contents-&gt;<a class="code hl_variable" href="structnbgl__genericContents__t.html#ac8afe1b355e5501c70d993792c1956a5">callbackCallNeeded</a>) {</div>
+<div class="line"><a id="l02495" name="l02495"></a><span class="lineno"> 2495</span>        context.content.genericContents.contentGetterCallback = contents-&gt;<a class="code hl_variable" href="structnbgl__genericContents__t.html#a81b9757bffce319e61c62c603dcc9a65">contentGetterCallback</a>;</div>
+<div class="line"><a id="l02496" name="l02496"></a><span class="lineno"> 2496</span>    }</div>
+<div class="line"><a id="l02497" name="l02497"></a><span class="lineno"> 2497</span>    <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l02498" name="l02498"></a><span class="lineno"> 2498</span>        context.content.genericContents.contentsList = PIC(contents-&gt;<a class="code hl_variable" href="structnbgl__genericContents__t.html#a5cca760808bb3ea7c33585b5a44f7e56">contentsList</a>);</div>
+<div class="line"><a id="l02499" name="l02499"></a><span class="lineno"> 2499</span>    }</div>
+<div class="line"><a id="l02500" name="l02500"></a><span class="lineno"> 2500</span> </div>
+<div class="line"><a id="l02501" name="l02501"></a><span class="lineno"> 2501</span>    startUseCaseContent();</div>
+<div class="line"><a id="l02502" name="l02502"></a><span class="lineno"> 2502</span>}</div>
+<div class="line"><a id="l02503" name="l02503"></a><span class="lineno"> 2503</span> </div>
+<div class="line"><a id="l02512" name="l02512"></a><span class="lineno"> 2512</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#a8eebd5b1e53a4894c4c05ddae49c8ae8">nbgl_useCaseStatus</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *message, <span class="keywordtype">bool</span> isSuccess, <a class="code hl_typedef" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a> quitCallback)</div>
+<div class="line"><a id="l02513" name="l02513"></a><span class="lineno"> 2513</span>{</div>
+<div class="line"><a id="l02514" name="l02514"></a><span class="lineno"> 2514</span>    UNUSED(isSuccess);</div>
+<div class="line"><a id="l02515" name="l02515"></a><span class="lineno"> 2515</span>    memset(&amp;context, 0, <span class="keyword">sizeof</span>(UseCaseContext_t));</div>
+<div class="line"><a id="l02516" name="l02516"></a><span class="lineno"> 2516</span>    context.type         = STATUS_USE_CASE;</div>
+<div class="line"><a id="l02517" name="l02517"></a><span class="lineno"> 2517</span>    context.stepCallback = quitCallback;</div>
+<div class="line"><a id="l02518" name="l02518"></a><span class="lineno"> 2518</span>    context.currentPage  = 0;</div>
+<div class="line"><a id="l02519" name="l02519"></a><span class="lineno"> 2519</span>    context.nbPages      = 1;</div>
+<div class="line"><a id="l02520" name="l02520"></a><span class="lineno"> 2520</span> </div>
+<div class="line"><a id="l02521" name="l02521"></a><span class="lineno"> 2521</span>    drawStep(<a class="code hl_enumvalue" href="nbgl__step_8h.html#a96a58e29e8dbf2b5bdeb775cba46556ea4cf77e5736bd9a94342342d774b2e264">SINGLE_STEP</a> | <a class="code hl_define" href="nbgl__step_8h.html#a8417d6448a79c4dfc0021f6e68ccfe4b">ACTION_ON_ANY_BUTTON</a>,</div>
+<div class="line"><a id="l02522" name="l02522"></a><span class="lineno"> 2522</span>             NULL,</div>
+<div class="line"><a id="l02523" name="l02523"></a><span class="lineno"> 2523</span>             message,</div>
+<div class="line"><a id="l02524" name="l02524"></a><span class="lineno"> 2524</span>             NULL,</div>
+<div class="line"><a id="l02525" name="l02525"></a><span class="lineno"> 2525</span>             statusButtonCallback,</div>
+<div class="line"><a id="l02526" name="l02526"></a><span class="lineno"> 2526</span>             <span class="keyword">false</span>,</div>
+<div class="line"><a id="l02527" name="l02527"></a><span class="lineno"> 2527</span>             NO_FORCED_TYPE);</div>
+<div class="line"><a id="l02528" name="l02528"></a><span class="lineno"> 2528</span>}</div>
+<div class="line"><a id="l02529" name="l02529"></a><span class="lineno"> 2529</span> </div>
+<div class="line"><a id="l02536" name="l02536"></a><span class="lineno"> 2536</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#ae32d39392a88d6aa2595b0d45661f0ab">nbgl_useCaseReviewStatus</a>(<a class="code hl_enumeration" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5de">nbgl_reviewStatusType_t</a> reviewStatusType,</div>
+<div class="line"><a id="l02537" name="l02537"></a><span class="lineno"> 2537</span>                              <a class="code hl_typedef" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a>         quitCallback)</div>
+<div class="line"><a id="l02538" name="l02538"></a><span class="lineno"> 2538</span>{</div>
+<div class="line"><a id="l02539" name="l02539"></a><span class="lineno"> 2539</span>    <span class="keyword">const</span> <span class="keywordtype">char</span> *msg;</div>
+<div class="line"><a id="l02540" name="l02540"></a><span class="lineno"> 2540</span>    <span class="keywordtype">bool</span>        isSuccess;</div>
+<div class="line"><a id="l02541" name="l02541"></a><span class="lineno"> 2541</span>    <span class="keywordflow">switch</span> (reviewStatusType) {</div>
+<div class="line"><a id="l02542" name="l02542"></a><span class="lineno"> 2542</span>        <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea7e4ff36f95e78ea168b618339e6a95ef">STATUS_TYPE_OPERATION_SIGNED</a>:</div>
+<div class="line"><a id="l02543" name="l02543"></a><span class="lineno"> 2543</span>            msg       = <span class="stringliteral">&quot;Operation signed&quot;</span>;</div>
+<div class="line"><a id="l02544" name="l02544"></a><span class="lineno"> 2544</span>            isSuccess = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l02545" name="l02545"></a><span class="lineno"> 2545</span>            <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l02546" name="l02546"></a><span class="lineno"> 2546</span>        <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea79596ac53e274635974a2faa2b26fd72">STATUS_TYPE_OPERATION_REJECTED</a>:</div>
+<div class="line"><a id="l02547" name="l02547"></a><span class="lineno"> 2547</span>            msg       = <span class="stringliteral">&quot;Operation rejected&quot;</span>;</div>
+<div class="line"><a id="l02548" name="l02548"></a><span class="lineno"> 2548</span>            isSuccess = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l02549" name="l02549"></a><span class="lineno"> 2549</span>            <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l02550" name="l02550"></a><span class="lineno"> 2550</span>        <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea699644fad9f83e97303c7422daca9e41">STATUS_TYPE_TRANSACTION_SIGNED</a>:</div>
+<div class="line"><a id="l02551" name="l02551"></a><span class="lineno"> 2551</span>            msg       = <span class="stringliteral">&quot;Transaction signed&quot;</span>;</div>
+<div class="line"><a id="l02552" name="l02552"></a><span class="lineno"> 2552</span>            isSuccess = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l02553" name="l02553"></a><span class="lineno"> 2553</span>            <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l02554" name="l02554"></a><span class="lineno"> 2554</span>        <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea39c63169fc1f2c1a4922cfd0b07bcf0a">STATUS_TYPE_TRANSACTION_REJECTED</a>:</div>
+<div class="line"><a id="l02555" name="l02555"></a><span class="lineno"> 2555</span>            msg       = <span class="stringliteral">&quot;Transaction rejected&quot;</span>;</div>
+<div class="line"><a id="l02556" name="l02556"></a><span class="lineno"> 2556</span>            isSuccess = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l02557" name="l02557"></a><span class="lineno"> 2557</span>            <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l02558" name="l02558"></a><span class="lineno"> 2558</span>        <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5deab11b92d3b02430711c16443272cf3773">STATUS_TYPE_MESSAGE_SIGNED</a>:</div>
+<div class="line"><a id="l02559" name="l02559"></a><span class="lineno"> 2559</span>            msg       = <span class="stringliteral">&quot;Message signed&quot;</span>;</div>
+<div class="line"><a id="l02560" name="l02560"></a><span class="lineno"> 2560</span>            isSuccess = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l02561" name="l02561"></a><span class="lineno"> 2561</span>            <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l02562" name="l02562"></a><span class="lineno"> 2562</span>        <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5deae88058964d3f23982a8ece738b9c2d23">STATUS_TYPE_MESSAGE_REJECTED</a>:</div>
+<div class="line"><a id="l02563" name="l02563"></a><span class="lineno"> 2563</span>            msg       = <span class="stringliteral">&quot;Message rejected&quot;</span>;</div>
+<div class="line"><a id="l02564" name="l02564"></a><span class="lineno"> 2564</span>            isSuccess = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l02565" name="l02565"></a><span class="lineno"> 2565</span>            <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l02566" name="l02566"></a><span class="lineno"> 2566</span>        <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea864b5611cf119286e3b93fc4642630c5">STATUS_TYPE_ADDRESS_VERIFIED</a>:</div>
+<div class="line"><a id="l02567" name="l02567"></a><span class="lineno"> 2567</span>            msg       = <span class="stringliteral">&quot;Address verified&quot;</span>;</div>
+<div class="line"><a id="l02568" name="l02568"></a><span class="lineno"> 2568</span>            isSuccess = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l02569" name="l02569"></a><span class="lineno"> 2569</span>            <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l02570" name="l02570"></a><span class="lineno"> 2570</span>        <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea421fe70db5ac9ff90611b7d1a57af340">STATUS_TYPE_ADDRESS_REJECTED</a>:</div>
+<div class="line"><a id="l02571" name="l02571"></a><span class="lineno"> 2571</span>            msg       = <span class="stringliteral">&quot;Address verification cancelled&quot;</span>;</div>
+<div class="line"><a id="l02572" name="l02572"></a><span class="lineno"> 2572</span>            isSuccess = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l02573" name="l02573"></a><span class="lineno"> 2573</span>            <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l02574" name="l02574"></a><span class="lineno"> 2574</span>        <span class="keywordflow">default</span>:</div>
+<div class="line"><a id="l02575" name="l02575"></a><span class="lineno"> 2575</span>            <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l02576" name="l02576"></a><span class="lineno"> 2576</span>    }</div>
+<div class="line"><a id="l02577" name="l02577"></a><span class="lineno"> 2577</span>    <a class="code hl_function" href="nbgl__use__case_8h.html#a8eebd5b1e53a4894c4c05ddae49c8ae8">nbgl_useCaseStatus</a>(msg, isSuccess, quitCallback);</div>
+<div class="line"><a id="l02578" name="l02578"></a><span class="lineno"> 2578</span>}</div>
+<div class="line"><a id="l02579" name="l02579"></a><span class="lineno"> 2579</span> </div>
+<div class="line"><a id="l02592" name="l02592"></a><span class="lineno"> 2592</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#a42b9838f8e87318f142b4bfa11cd8e1a">nbgl_useCaseReviewStreamingStart</a>(<a class="code hl_typedef" href="nbgl__use__case_8h.html#a2a61232bd0b7a090272a1fd43f3b9f26">nbgl_operationType_t</a>       operationType,</div>
+<div class="line"><a id="l02593" name="l02593"></a><span class="lineno"> 2593</span>                                      <span class="keyword">const</span> <a class="code hl_typedef" href="nbgl__types_8h.html#a7724587bc3e14c498ed49c3e70c365d6">nbgl_icon_details_t</a> *icon,</div>
+<div class="line"><a id="l02594" name="l02594"></a><span class="lineno"> 2594</span>                                      <span class="keyword">const</span> <span class="keywordtype">char</span>                *reviewTitle,</div>
+<div class="line"><a id="l02595" name="l02595"></a><span class="lineno"> 2595</span>                                      <span class="keyword">const</span> <span class="keywordtype">char</span>                *reviewSubTitle,</div>
+<div class="line"><a id="l02596" name="l02596"></a><span class="lineno"> 2596</span>                                      <a class="code hl_typedef" href="nbgl__use__case_8h.html#a57b5d44ce43db8edcc44ff2c7b5014a5">nbgl_choiceCallback_t</a>      choiceCallback)</div>
+<div class="line"><a id="l02597" name="l02597"></a><span class="lineno"> 2597</span>{</div>
+<div class="line"><a id="l02598" name="l02598"></a><span class="lineno"> 2598</span>    <span class="comment">// memorize streaming operation type for future API calls</span></div>
+<div class="line"><a id="l02599" name="l02599"></a><span class="lineno"> 2599</span>    streamingOpType = operationType;</div>
+<div class="line"><a id="l02600" name="l02600"></a><span class="lineno"> 2600</span> </div>
+<div class="line"><a id="l02601" name="l02601"></a><span class="lineno"> 2601</span>    memset(&amp;context, 0, <span class="keyword">sizeof</span>(UseCaseContext_t));</div>
+<div class="line"><a id="l02602" name="l02602"></a><span class="lineno"> 2602</span>    context.type                  = STREAMING_START_REVIEW_USE_CASE;</div>
+<div class="line"><a id="l02603" name="l02603"></a><span class="lineno"> 2603</span>    context.operationType         = operationType;</div>
+<div class="line"><a id="l02604" name="l02604"></a><span class="lineno"> 2604</span>    context.review.reviewTitle    = reviewTitle;</div>
+<div class="line"><a id="l02605" name="l02605"></a><span class="lineno"> 2605</span>    context.review.reviewSubTitle = reviewSubTitle;</div>
+<div class="line"><a id="l02606" name="l02606"></a><span class="lineno"> 2606</span>    context.review.icon           = icon;</div>
+<div class="line"><a id="l02607" name="l02607"></a><span class="lineno"> 2607</span>    context.review.onChoice       = choiceCallback;</div>
+<div class="line"><a id="l02608" name="l02608"></a><span class="lineno"> 2608</span>    context.currentPage           = 0;</div>
+<div class="line"><a id="l02609" name="l02609"></a><span class="lineno"> 2609</span>    context.nbPages = reviewSubTitle ? 3 : 2;  <span class="comment">// Start page(s) + trick for review continue</span></div>
+<div class="line"><a id="l02610" name="l02610"></a><span class="lineno"> 2610</span> </div>
+<div class="line"><a id="l02611" name="l02611"></a><span class="lineno"> 2611</span>    displayStreamingReviewPage(<a class="code hl_define" href="nbgl__step_8h.html#ad6c2f2458a2794d1d475b37efc5b58a1">FORWARD_DIRECTION</a>);</div>
+<div class="line"><a id="l02612" name="l02612"></a><span class="lineno"> 2612</span>}</div>
+<div class="line"><a id="l02613" name="l02613"></a><span class="lineno"> 2613</span> </div>
+<div class="line"><a id="l02627" name="l02627"></a><span class="lineno"> 2627</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#acb295bee9f969d4436e833317355aa54">nbgl_useCaseReviewStreamingBlindSigningStart</a>(<a class="code hl_typedef" href="nbgl__use__case_8h.html#a2a61232bd0b7a090272a1fd43f3b9f26">nbgl_operationType_t</a>       operationType,</div>
+<div class="line"><a id="l02628" name="l02628"></a><span class="lineno"> 2628</span>                                                  <span class="keyword">const</span> <a class="code hl_typedef" href="nbgl__types_8h.html#a7724587bc3e14c498ed49c3e70c365d6">nbgl_icon_details_t</a> *icon,</div>
+<div class="line"><a id="l02629" name="l02629"></a><span class="lineno"> 2629</span>                                                  <span class="keyword">const</span> <span class="keywordtype">char</span>                *reviewTitle,</div>
+<div class="line"><a id="l02630" name="l02630"></a><span class="lineno"> 2630</span>                                                  <span class="keyword">const</span> <span class="keywordtype">char</span>                *reviewSubTitle,</div>
+<div class="line"><a id="l02631" name="l02631"></a><span class="lineno"> 2631</span>                                                  <a class="code hl_typedef" href="nbgl__use__case_8h.html#a57b5d44ce43db8edcc44ff2c7b5014a5">nbgl_choiceCallback_t</a>      choiceCallback)</div>
+<div class="line"><a id="l02632" name="l02632"></a><span class="lineno"> 2632</span>{</div>
+<div class="line"><a id="l02633" name="l02633"></a><span class="lineno"> 2633</span>    <a class="code hl_function" href="nbgl__use__case_8h.html#afe414aefd31734c6dad09156263a0550">nbgl_useCaseAdvancedReviewStreamingStart</a>(</div>
+<div class="line"><a id="l02634" name="l02634"></a><span class="lineno"> 2634</span>        operationType, icon, reviewTitle, reviewSubTitle, &amp;blindSigningWarning, choiceCallback);</div>
+<div class="line"><a id="l02635" name="l02635"></a><span class="lineno"> 2635</span>}</div>
+<div class="line"><a id="l02636" name="l02636"></a><span class="lineno"> 2636</span> </div>
+<div class="line"><a id="l02652" name="l02652"></a><span class="lineno"> 2652</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#afe414aefd31734c6dad09156263a0550">nbgl_useCaseAdvancedReviewStreamingStart</a>(<a class="code hl_typedef" href="nbgl__use__case_8h.html#a2a61232bd0b7a090272a1fd43f3b9f26">nbgl_operationType_t</a>       operationType,</div>
+<div class="line"><a id="l02653" name="l02653"></a><span class="lineno"> 2653</span>                                              <span class="keyword">const</span> <a class="code hl_typedef" href="nbgl__types_8h.html#a7724587bc3e14c498ed49c3e70c365d6">nbgl_icon_details_t</a> *icon,</div>
+<div class="line"><a id="l02654" name="l02654"></a><span class="lineno"> 2654</span>                                              <span class="keyword">const</span> <span class="keywordtype">char</span>                *reviewTitle,</div>
+<div class="line"><a id="l02655" name="l02655"></a><span class="lineno"> 2655</span>                                              <span class="keyword">const</span> <span class="keywordtype">char</span>                *reviewSubTitle,</div>
+<div class="line"><a id="l02656" name="l02656"></a><span class="lineno"> 2656</span>                                              <span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__warning__t.html">nbgl_warning_t</a>      *warning,</div>
+<div class="line"><a id="l02657" name="l02657"></a><span class="lineno"> 2657</span>                                              <a class="code hl_typedef" href="nbgl__use__case_8h.html#a57b5d44ce43db8edcc44ff2c7b5014a5">nbgl_choiceCallback_t</a>      choiceCallback)</div>
+<div class="line"><a id="l02658" name="l02658"></a><span class="lineno"> 2658</span>{</div>
+<div class="line"><a id="l02659" name="l02659"></a><span class="lineno"> 2659</span>    memset(&amp;context, 0, <span class="keyword">sizeof</span>(UseCaseContext_t));</div>
+<div class="line"><a id="l02660" name="l02660"></a><span class="lineno"> 2660</span>    context.type                  = STREAMING_START_REVIEW_USE_CASE;</div>
+<div class="line"><a id="l02661" name="l02661"></a><span class="lineno"> 2661</span>    context.operationType         = operationType;</div>
+<div class="line"><a id="l02662" name="l02662"></a><span class="lineno"> 2662</span>    context.review.reviewTitle    = reviewTitle;</div>
+<div class="line"><a id="l02663" name="l02663"></a><span class="lineno"> 2663</span>    context.review.reviewSubTitle = reviewSubTitle;</div>
+<div class="line"><a id="l02664" name="l02664"></a><span class="lineno"> 2664</span>    context.review.icon           = icon;</div>
+<div class="line"><a id="l02665" name="l02665"></a><span class="lineno"> 2665</span>    context.review.onChoice       = choiceCallback;</div>
+<div class="line"><a id="l02666" name="l02666"></a><span class="lineno"> 2666</span>    context.currentPage           = 0;</div>
+<div class="line"><a id="l02667" name="l02667"></a><span class="lineno"> 2667</span>    context.nbPages = reviewSubTitle ? 3 : 2;  <span class="comment">// Start page(s) + trick for review continue</span></div>
+<div class="line"><a id="l02668" name="l02668"></a><span class="lineno"> 2668</span> </div>
+<div class="line"><a id="l02669" name="l02669"></a><span class="lineno"> 2669</span>    <span class="comment">// memorize streaming operation type for future API calls</span></div>
+<div class="line"><a id="l02670" name="l02670"></a><span class="lineno"> 2670</span>    streamingOpType = operationType;</div>
+<div class="line"><a id="l02671" name="l02671"></a><span class="lineno"> 2671</span> </div>
+<div class="line"><a id="l02672" name="l02672"></a><span class="lineno"> 2672</span>    <span class="comment">// if no warning at all, it&#39;s a simple review</span></div>
+<div class="line"><a id="l02673" name="l02673"></a><span class="lineno"> 2673</span>    <span class="keywordflow">if</span> ((warning == NULL)</div>
+<div class="line"><a id="l02674" name="l02674"></a><span class="lineno"> 2674</span>        || ((warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a4f80d55ce48ce054f0f552db18667182">predefinedSet</a> == 0) &amp;&amp; (warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a21e73b102445d144422506984ed9f5db">introDetails</a> == NULL)</div>
+<div class="line"><a id="l02675" name="l02675"></a><span class="lineno"> 2675</span>            &amp;&amp; (warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a41ba752e0b657a44cd01b6ffbf8805a3">reviewDetails</a> == NULL))) {</div>
+<div class="line"><a id="l02676" name="l02676"></a><span class="lineno"> 2676</span>        displayStreamingReviewPage(<a class="code hl_define" href="nbgl__step_8h.html#ad6c2f2458a2794d1d475b37efc5b58a1">FORWARD_DIRECTION</a>);</div>
+<div class="line"><a id="l02677" name="l02677"></a><span class="lineno"> 2677</span>        <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l02678" name="l02678"></a><span class="lineno"> 2678</span>    }</div>
+<div class="line"><a id="l02679" name="l02679"></a><span class="lineno"> 2679</span>    <span class="keywordflow">if</span> (warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a4f80d55ce48ce054f0f552db18667182">predefinedSet</a> == (1 &lt;&lt; <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3da57d6d38877f0e655f3049d10f416e6b3">W3C_NO_THREAT_WARN</a>)) {</div>
+<div class="line"><a id="l02680" name="l02680"></a><span class="lineno"> 2680</span>        operationType |= NO_THREAT_OPERATION;</div>
+<div class="line"><a id="l02681" name="l02681"></a><span class="lineno"> 2681</span>    }</div>
+<div class="line"><a id="l02682" name="l02682"></a><span class="lineno"> 2682</span>    <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l02683" name="l02683"></a><span class="lineno"> 2683</span>        operationType |= RISKY_OPERATION;</div>
+<div class="line"><a id="l02684" name="l02684"></a><span class="lineno"> 2684</span>    }</div>
+<div class="line"><a id="l02685" name="l02685"></a><span class="lineno"> 2685</span>    memset(&amp;reviewWithWarnCtx, 0, <span class="keyword">sizeof</span>(reviewWithWarnCtx));</div>
+<div class="line"><a id="l02686" name="l02686"></a><span class="lineno"> 2686</span> </div>
+<div class="line"><a id="l02687" name="l02687"></a><span class="lineno"> 2687</span>    reviewWithWarnCtx.type           = context.type;</div>
+<div class="line"><a id="l02688" name="l02688"></a><span class="lineno"> 2688</span>    reviewWithWarnCtx.operationType  = operationType;</div>
+<div class="line"><a id="l02689" name="l02689"></a><span class="lineno"> 2689</span>    reviewWithWarnCtx.icon           = icon;</div>
+<div class="line"><a id="l02690" name="l02690"></a><span class="lineno"> 2690</span>    reviewWithWarnCtx.reviewTitle    = reviewTitle;</div>
+<div class="line"><a id="l02691" name="l02691"></a><span class="lineno"> 2691</span>    reviewWithWarnCtx.reviewSubTitle = reviewSubTitle;</div>
+<div class="line"><a id="l02692" name="l02692"></a><span class="lineno"> 2692</span>    reviewWithWarnCtx.choiceCallback = choiceCallback;</div>
+<div class="line"><a id="l02693" name="l02693"></a><span class="lineno"> 2693</span>    reviewWithWarnCtx.warning        = warning;</div>
+<div class="line"><a id="l02694" name="l02694"></a><span class="lineno"> 2694</span> </div>
+<div class="line"><a id="l02695" name="l02695"></a><span class="lineno"> 2695</span>    <span class="comment">// display the initial warning only of a risk/threat or blind signing</span></div>
+<div class="line"><a id="l02696" name="l02696"></a><span class="lineno"> 2696</span>    <span class="keywordflow">if</span> ((!(reviewWithWarnCtx.warning-&gt;predefinedSet &amp; (1 &lt;&lt; <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3da03a721b91c71fc0f59446488d81ad74e">W3C_THREAT_DETECTED_WARN</a>))</div>
+<div class="line"><a id="l02697" name="l02697"></a><span class="lineno"> 2697</span>         &amp;&amp; !(reviewWithWarnCtx.warning-&gt;predefinedSet &amp; (1 &lt;&lt; <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3da7426474658a4efba94394281f2f54563">W3C_RISK_DETECTED_WARN</a>))</div>
+<div class="line"><a id="l02698" name="l02698"></a><span class="lineno"> 2698</span>         &amp;&amp; !(reviewWithWarnCtx.warning-&gt;predefinedSet &amp; (1 &lt;&lt; <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3da1746cdd0d25523430492ebd999557c55">BLIND_SIGNING_WARN</a>)))</div>
+<div class="line"><a id="l02699" name="l02699"></a><span class="lineno"> 2699</span>        &amp;&amp; (warning-&gt;<a class="code hl_variable" href="structnbgl__warning__t.html#a21e73b102445d144422506984ed9f5db">introDetails</a> == NULL)) {</div>
+<div class="line"><a id="l02700" name="l02700"></a><span class="lineno"> 2700</span>        displayStreamingReviewPage(<a class="code hl_define" href="nbgl__step_8h.html#ad6c2f2458a2794d1d475b37efc5b58a1">FORWARD_DIRECTION</a>);</div>
+<div class="line"><a id="l02701" name="l02701"></a><span class="lineno"> 2701</span>        <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l02702" name="l02702"></a><span class="lineno"> 2702</span>    }</div>
+<div class="line"><a id="l02703" name="l02703"></a><span class="lineno"> 2703</span>    displayInitialWarning();</div>
+<div class="line"><a id="l02704" name="l02704"></a><span class="lineno"> 2704</span>}</div>
+<div class="line"><a id="l02705" name="l02705"></a><span class="lineno"> 2705</span> </div>
+<div class="line"><a id="l02719" name="l02719"></a><span class="lineno"> 2719</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#aabc16faf74588c6ee5d0379f7069d97b">nbgl_useCaseReviewStreamingContinueExt</a>(<span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__contentTagValueList__s.html">nbgl_contentTagValueList_t</a> *tagValueList,</div>
+<div class="line"><a id="l02720" name="l02720"></a><span class="lineno"> 2720</span>                                            <a class="code hl_typedef" href="nbgl__use__case_8h.html#a57b5d44ce43db8edcc44ff2c7b5014a5">nbgl_choiceCallback_t</a>             choiceCallback,</div>
+<div class="line"><a id="l02721" name="l02721"></a><span class="lineno"> 2721</span>                                            <a class="code hl_typedef" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a>                   skipCallback)</div>
+<div class="line"><a id="l02722" name="l02722"></a><span class="lineno"> 2722</span>{</div>
+<div class="line"><a id="l02723" name="l02723"></a><span class="lineno"> 2723</span>    uint8_t curNbDataSets = context.review.nbDataSets;</div>
+<div class="line"><a id="l02724" name="l02724"></a><span class="lineno"> 2724</span> </div>
+<div class="line"><a id="l02725" name="l02725"></a><span class="lineno"> 2725</span>    memset(&amp;context, 0, <span class="keyword">sizeof</span>(UseCaseContext_t));</div>
+<div class="line"><a id="l02726" name="l02726"></a><span class="lineno"> 2726</span>    context.type                = STREAMING_CONTINUE_REVIEW_USE_CASE;</div>
+<div class="line"><a id="l02727" name="l02727"></a><span class="lineno"> 2727</span>    context.operationType       = streamingOpType;</div>
+<div class="line"><a id="l02728" name="l02728"></a><span class="lineno"> 2728</span>    context.review.tagValueList = tagValueList;</div>
+<div class="line"><a id="l02729" name="l02729"></a><span class="lineno"> 2729</span>    context.review.onChoice     = choiceCallback;</div>
+<div class="line"><a id="l02730" name="l02730"></a><span class="lineno"> 2730</span>    context.currentPage         = 0;</div>
+<div class="line"><a id="l02731" name="l02731"></a><span class="lineno"> 2731</span>    context.nbPages             = tagValueList-&gt;<a class="code hl_variable" href="structnbgl__contentTagValueList__s.html#af2cd30ee768ec8ff56ab2b986d3e0f59">nbPairs</a> + 1;  <span class="comment">// data + trick for review continue</span></div>
+<div class="line"><a id="l02732" name="l02732"></a><span class="lineno"> 2732</span>    context.review.skipCallback = skipCallback;</div>
+<div class="line"><a id="l02733" name="l02733"></a><span class="lineno"> 2733</span>    context.review.nbDataSets   = curNbDataSets + 1;</div>
+<div class="line"><a id="l02734" name="l02734"></a><span class="lineno"> 2734</span> </div>
+<div class="line"><a id="l02735" name="l02735"></a><span class="lineno"> 2735</span>    displayStreamingReviewPage(<a class="code hl_define" href="nbgl__step_8h.html#ad6c2f2458a2794d1d475b37efc5b58a1">FORWARD_DIRECTION</a>);</div>
+<div class="line"><a id="l02736" name="l02736"></a><span class="lineno"> 2736</span>}</div>
+<div class="line"><a id="l02737" name="l02737"></a><span class="lineno"> 2737</span> </div>
+<div class="line"><a id="l02748" name="l02748"></a><span class="lineno"> 2748</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#ad9d598fd702eb516d6c8dca231d4a08f">nbgl_useCaseReviewStreamingContinue</a>(<span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__contentTagValueList__s.html">nbgl_contentTagValueList_t</a> *tagValueList,</div>
+<div class="line"><a id="l02749" name="l02749"></a><span class="lineno"> 2749</span>                                         <a class="code hl_typedef" href="nbgl__use__case_8h.html#a57b5d44ce43db8edcc44ff2c7b5014a5">nbgl_choiceCallback_t</a>             choiceCallback)</div>
+<div class="line"><a id="l02750" name="l02750"></a><span class="lineno"> 2750</span>{</div>
+<div class="line"><a id="l02751" name="l02751"></a><span class="lineno"> 2751</span>    <a class="code hl_function" href="nbgl__use__case_8h.html#aabc16faf74588c6ee5d0379f7069d97b">nbgl_useCaseReviewStreamingContinueExt</a>(tagValueList, choiceCallback, NULL);</div>
+<div class="line"><a id="l02752" name="l02752"></a><span class="lineno"> 2752</span>}</div>
+<div class="line"><a id="l02753" name="l02753"></a><span class="lineno"> 2753</span> </div>
+<div class="line"><a id="l02754" name="l02754"></a><span class="lineno"> 2754</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#a5b355b1051720c70f6e8a35659eb66f2">nbgl_useCaseReviewStreamingFinish</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>           *finishTitle,</div>
+<div class="line"><a id="l02755" name="l02755"></a><span class="lineno"> 2755</span>                                       <a class="code hl_typedef" href="nbgl__use__case_8h.html#a57b5d44ce43db8edcc44ff2c7b5014a5">nbgl_choiceCallback_t</a> choiceCallback)</div>
+<div class="line"><a id="l02756" name="l02756"></a><span class="lineno"> 2756</span>{</div>
+<div class="line"><a id="l02757" name="l02757"></a><span class="lineno"> 2757</span>    memset(&amp;context, 0, <span class="keyword">sizeof</span>(UseCaseContext_t));</div>
+<div class="line"><a id="l02758" name="l02758"></a><span class="lineno"> 2758</span>    context.type               = STREAMING_FINISH_REVIEW_USE_CASE;</div>
+<div class="line"><a id="l02759" name="l02759"></a><span class="lineno"> 2759</span>    context.operationType      = streamingOpType;</div>
+<div class="line"><a id="l02760" name="l02760"></a><span class="lineno"> 2760</span>    context.review.onChoice    = choiceCallback;</div>
+<div class="line"><a id="l02761" name="l02761"></a><span class="lineno"> 2761</span>    context.review.finishTitle = finishTitle;</div>
+<div class="line"><a id="l02762" name="l02762"></a><span class="lineno"> 2762</span>    context.currentPage        = 0;</div>
+<div class="line"><a id="l02763" name="l02763"></a><span class="lineno"> 2763</span>    context.nbPages            = 2;  <span class="comment">// 2 pages at the end for accept/reject</span></div>
+<div class="line"><a id="l02764" name="l02764"></a><span class="lineno"> 2764</span> </div>
+<div class="line"><a id="l02765" name="l02765"></a><span class="lineno"> 2765</span>    displayStreamingReviewPage(<a class="code hl_define" href="nbgl__step_8h.html#ad6c2f2458a2794d1d475b37efc5b58a1">FORWARD_DIRECTION</a>);</div>
+<div class="line"><a id="l02766" name="l02766"></a><span class="lineno"> 2766</span>}</div>
+<div class="line"><a id="l02767" name="l02767"></a><span class="lineno"> 2767</span> </div>
+<div class="line"><a id="l02773" name="l02773"></a><span class="lineno"> 2773</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#a6c70e8409832531cb83c75c5c376ee18">nbgl_useCaseSpinner</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *text)</div>
+<div class="line"><a id="l02774" name="l02774"></a><span class="lineno"> 2774</span>{</div>
+<div class="line"><a id="l02775" name="l02775"></a><span class="lineno"> 2775</span>    memset(&amp;context, 0, <span class="keyword">sizeof</span>(UseCaseContext_t));</div>
+<div class="line"><a id="l02776" name="l02776"></a><span class="lineno"> 2776</span>    context.type        = SPINNER_USE_CASE;</div>
+<div class="line"><a id="l02777" name="l02777"></a><span class="lineno"> 2777</span>    context.currentPage = 0;</div>
+<div class="line"><a id="l02778" name="l02778"></a><span class="lineno"> 2778</span>    context.nbPages     = 1;</div>
+<div class="line"><a id="l02779" name="l02779"></a><span class="lineno"> 2779</span> </div>
+<div class="line"><a id="l02780" name="l02780"></a><span class="lineno"> 2780</span>    displaySpinner(text);</div>
+<div class="line"><a id="l02781" name="l02781"></a><span class="lineno"> 2781</span>}</div>
+<div class="line"><a id="l02782" name="l02782"></a><span class="lineno"> 2782</span> </div>
+<div class="line"><a id="l02795" name="l02795"></a><span class="lineno"> 2795</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#aafc860c31b7c91be7e22adc79f9b21a5">nbgl_useCaseChoice</a>(<span class="keyword">const</span> <a class="code hl_typedef" href="nbgl__types_8h.html#a7724587bc3e14c498ed49c3e70c365d6">nbgl_icon_details_t</a> *icon,</div>
+<div class="line"><a id="l02796" name="l02796"></a><span class="lineno"> 2796</span>                        <span class="keyword">const</span> <span class="keywordtype">char</span>                *message,</div>
+<div class="line"><a id="l02797" name="l02797"></a><span class="lineno"> 2797</span>                        <span class="keyword">const</span> <span class="keywordtype">char</span>                *subMessage,</div>
+<div class="line"><a id="l02798" name="l02798"></a><span class="lineno"> 2798</span>                        <span class="keyword">const</span> <span class="keywordtype">char</span>                *confirmText,</div>
+<div class="line"><a id="l02799" name="l02799"></a><span class="lineno"> 2799</span>                        <span class="keyword">const</span> <span class="keywordtype">char</span>                *cancelText,</div>
+<div class="line"><a id="l02800" name="l02800"></a><span class="lineno"> 2800</span>                        <a class="code hl_typedef" href="nbgl__use__case_8h.html#a57b5d44ce43db8edcc44ff2c7b5014a5">nbgl_choiceCallback_t</a>      callback)</div>
+<div class="line"><a id="l02801" name="l02801"></a><span class="lineno"> 2801</span>{</div>
+<div class="line"><a id="l02802" name="l02802"></a><span class="lineno"> 2802</span>    <a class="code hl_function" href="nbgl__use__case_8h.html#a629c429918af67155339d6f7f50d6758">nbgl_useCaseChoiceWithDetails</a>(</div>
+<div class="line"><a id="l02803" name="l02803"></a><span class="lineno"> 2803</span>        icon, message, subMessage, confirmText, cancelText, NULL, callback);</div>
+<div class="line"><a id="l02804" name="l02804"></a><span class="lineno"> 2804</span>};</div>
+<div class="line"><a id="l02805" name="l02805"></a><span class="lineno"> 2805</span> </div>
+<div class="line"><a id="l02820" name="l02820"></a><span class="lineno"> 2820</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#a629c429918af67155339d6f7f50d6758">nbgl_useCaseChoiceWithDetails</a>(<span class="keyword">const</span> <a class="code hl_typedef" href="nbgl__types_8h.html#a7724587bc3e14c498ed49c3e70c365d6">nbgl_icon_details_t</a> *icon,</div>
+<div class="line"><a id="l02821" name="l02821"></a><span class="lineno"> 2821</span>                                   <span class="keyword">const</span> <span class="keywordtype">char</span>                *message,</div>
+<div class="line"><a id="l02822" name="l02822"></a><span class="lineno"> 2822</span>                                   <span class="keyword">const</span> <span class="keywordtype">char</span>                *subMessage,</div>
+<div class="line"><a id="l02823" name="l02823"></a><span class="lineno"> 2823</span>                                   <span class="keyword">const</span> <span class="keywordtype">char</span>                *confirmText,</div>
+<div class="line"><a id="l02824" name="l02824"></a><span class="lineno"> 2824</span>                                   <span class="keyword">const</span> <span class="keywordtype">char</span>                *cancelText,</div>
+<div class="line"><a id="l02825" name="l02825"></a><span class="lineno"> 2825</span>                                   <a class="code hl_struct" href="structnbgl__genericDetails__s.html">nbgl_genericDetails_t</a>     *details,</div>
+<div class="line"><a id="l02826" name="l02826"></a><span class="lineno"> 2826</span>                                   <a class="code hl_typedef" href="nbgl__use__case_8h.html#a57b5d44ce43db8edcc44ff2c7b5014a5">nbgl_choiceCallback_t</a>      callback)</div>
+<div class="line"><a id="l02827" name="l02827"></a><span class="lineno"> 2827</span>{</div>
+<div class="line"><a id="l02828" name="l02828"></a><span class="lineno"> 2828</span>    memset(&amp;context, 0, <span class="keyword">sizeof</span>(UseCaseContext_t));</div>
+<div class="line"><a id="l02829" name="l02829"></a><span class="lineno"> 2829</span>    context.type               = CHOICE_USE_CASE;</div>
+<div class="line"><a id="l02830" name="l02830"></a><span class="lineno"> 2830</span>    context.choice.icon        = icon;</div>
+<div class="line"><a id="l02831" name="l02831"></a><span class="lineno"> 2831</span>    context.choice.message     = message;</div>
+<div class="line"><a id="l02832" name="l02832"></a><span class="lineno"> 2832</span>    context.choice.subMessage  = subMessage;</div>
+<div class="line"><a id="l02833" name="l02833"></a><span class="lineno"> 2833</span>    context.choice.confirmText = confirmText;</div>
+<div class="line"><a id="l02834" name="l02834"></a><span class="lineno"> 2834</span>    context.choice.cancelText  = cancelText;</div>
+<div class="line"><a id="l02835" name="l02835"></a><span class="lineno"> 2835</span>    context.choice.onChoice    = callback;</div>
+<div class="line"><a id="l02836" name="l02836"></a><span class="lineno"> 2836</span>    context.choice.details     = details;</div>
+<div class="line"><a id="l02837" name="l02837"></a><span class="lineno"> 2837</span>    context.currentPage        = 0;</div>
+<div class="line"><a id="l02838" name="l02838"></a><span class="lineno"> 2838</span>    context.nbPages            = 2;  <span class="comment">// 2 pages for confirm/cancel</span></div>
+<div class="line"><a id="l02839" name="l02839"></a><span class="lineno"> 2839</span>    <span class="keywordflow">if</span> (message != NULL) {</div>
+<div class="line"><a id="l02840" name="l02840"></a><span class="lineno"> 2840</span>        context.nbPages++;</div>
+<div class="line"><a id="l02841" name="l02841"></a><span class="lineno"> 2841</span>        <span class="comment">// if both icon and subMessage are non NULL, add a page</span></div>
+<div class="line"><a id="l02842" name="l02842"></a><span class="lineno"> 2842</span>        <span class="keywordflow">if</span> ((icon != NULL) &amp;&amp; (subMessage != NULL)) {</div>
+<div class="line"><a id="l02843" name="l02843"></a><span class="lineno"> 2843</span>            context.nbPages++;</div>
+<div class="line"><a id="l02844" name="l02844"></a><span class="lineno"> 2844</span>        }</div>
+<div class="line"><a id="l02845" name="l02845"></a><span class="lineno"> 2845</span>    }</div>
+<div class="line"><a id="l02846" name="l02846"></a><span class="lineno"> 2846</span>    <span class="keywordflow">if</span> (details != NULL) {</div>
+<div class="line"><a id="l02847" name="l02847"></a><span class="lineno"> 2847</span>        <span class="comment">// only the first level of details and BAR_LIST type are supported</span></div>
+<div class="line"><a id="l02848" name="l02848"></a><span class="lineno"> 2848</span>        <span class="keywordflow">if</span> (details-&gt;<a class="code hl_variable" href="structnbgl__genericDetails__s.html#acfd73ba3738649a64c592a0904a938de">type</a> == <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#a03a5d1f24c2bc6235d870b2383ff3069a9d9aea494a173340576be278ef075936">BAR_LIST_WARNING</a>) {</div>
+<div class="line"><a id="l02849" name="l02849"></a><span class="lineno"> 2849</span>            context.nbPages += details-&gt;<a class="code hl_variable" href="structnbgl__genericDetails__s.html#a3e049ab8a74090cc673c1f1a648ba409">barList</a>.<a class="code hl_variable" href="structnbgl__genericBarList__t.html#a61430df9341287d5aa272545bc643a9e">nbBars</a>;</div>
+<div class="line"><a id="l02850" name="l02850"></a><span class="lineno"> 2850</span>        }</div>
+<div class="line"><a id="l02851" name="l02851"></a><span class="lineno"> 2851</span>    }</div>
+<div class="line"><a id="l02852" name="l02852"></a><span class="lineno"> 2852</span> </div>
+<div class="line"><a id="l02853" name="l02853"></a><span class="lineno"> 2853</span>    displayChoicePage(<a class="code hl_define" href="nbgl__step_8h.html#ad6c2f2458a2794d1d475b37efc5b58a1">FORWARD_DIRECTION</a>);</div>
+<div class="line"><a id="l02854" name="l02854"></a><span class="lineno"> 2854</span>};</div>
+<div class="line"><a id="l02855" name="l02855"></a><span class="lineno"> 2855</span> </div>
+<div class="line"><a id="l02869" name="l02869"></a><span class="lineno"> 2869</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#a6f689a2dbefa1dd38cff6174bb214b72">nbgl_useCaseConfirm</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>     *message,</div>
+<div class="line"><a id="l02870" name="l02870"></a><span class="lineno"> 2870</span>                         <span class="keyword">const</span> <span class="keywordtype">char</span>     *subMessage,</div>
+<div class="line"><a id="l02871" name="l02871"></a><span class="lineno"> 2871</span>                         <span class="keyword">const</span> <span class="keywordtype">char</span>     *confirmText,</div>
+<div class="line"><a id="l02872" name="l02872"></a><span class="lineno"> 2872</span>                         <span class="keyword">const</span> <span class="keywordtype">char</span>     *cancelText,</div>
+<div class="line"><a id="l02873" name="l02873"></a><span class="lineno"> 2873</span>                         <a class="code hl_typedef" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a> callback)</div>
+<div class="line"><a id="l02874" name="l02874"></a><span class="lineno"> 2874</span>{</div>
+<div class="line"><a id="l02875" name="l02875"></a><span class="lineno"> 2875</span>    memset(&amp;context, 0, <span class="keyword">sizeof</span>(UseCaseContext_t));</div>
+<div class="line"><a id="l02876" name="l02876"></a><span class="lineno"> 2876</span>    context.type                = CONFIRM_USE_CASE;</div>
+<div class="line"><a id="l02877" name="l02877"></a><span class="lineno"> 2877</span>    context.confirm.message     = message;</div>
+<div class="line"><a id="l02878" name="l02878"></a><span class="lineno"> 2878</span>    context.confirm.subMessage  = subMessage;</div>
+<div class="line"><a id="l02879" name="l02879"></a><span class="lineno"> 2879</span>    context.confirm.confirmText = confirmText;</div>
+<div class="line"><a id="l02880" name="l02880"></a><span class="lineno"> 2880</span>    context.confirm.cancelText  = cancelText;</div>
+<div class="line"><a id="l02881" name="l02881"></a><span class="lineno"> 2881</span>    context.confirm.onConfirm   = callback;</div>
+<div class="line"><a id="l02882" name="l02882"></a><span class="lineno"> 2882</span>    context.currentPage         = 0;</div>
+<div class="line"><a id="l02883" name="l02883"></a><span class="lineno"> 2883</span>    context.nbPages             = 1 + 2;  <span class="comment">// 2 pages at the end for confirm/cancel</span></div>
+<div class="line"><a id="l02884" name="l02884"></a><span class="lineno"> 2884</span> </div>
+<div class="line"><a id="l02885" name="l02885"></a><span class="lineno"> 2885</span>    displayConfirm(<a class="code hl_define" href="nbgl__step_8h.html#ad6c2f2458a2794d1d475b37efc5b58a1">FORWARD_DIRECTION</a>);</div>
+<div class="line"><a id="l02886" name="l02886"></a><span class="lineno"> 2886</span>}</div>
+<div class="line"><a id="l02887" name="l02887"></a><span class="lineno"> 2887</span> </div>
+<div class="line"><a id="l02897" name="l02897"></a><span class="lineno"> 2897</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#a39866962567da5b7a0c26fa2cb32467d">nbgl_useCaseAction</a>(<span class="keyword">const</span> <a class="code hl_typedef" href="nbgl__types_8h.html#a7724587bc3e14c498ed49c3e70c365d6">nbgl_icon_details_t</a> *icon,</div>
+<div class="line"><a id="l02898" name="l02898"></a><span class="lineno"> 2898</span>                        <span class="keyword">const</span> <span class="keywordtype">char</span>                *message,</div>
+<div class="line"><a id="l02899" name="l02899"></a><span class="lineno"> 2899</span>                        <span class="keyword">const</span> <span class="keywordtype">char</span>                *actionText,</div>
+<div class="line"><a id="l02900" name="l02900"></a><span class="lineno"> 2900</span>                        <a class="code hl_typedef" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a>            callback)</div>
+<div class="line"><a id="l02901" name="l02901"></a><span class="lineno"> 2901</span>{</div>
+<div class="line"><a id="l02902" name="l02902"></a><span class="lineno"> 2902</span>    <a class="code hl_struct" href="structnbgl__contentCenteredInfo__t.html">nbgl_layoutCenteredInfo_t</a> centeredInfo = {0};</div>
+<div class="line"><a id="l02903" name="l02903"></a><span class="lineno"> 2903</span> </div>
+<div class="line"><a id="l02904" name="l02904"></a><span class="lineno"> 2904</span>    UNUSED(actionText);</div>
+<div class="line"><a id="l02905" name="l02905"></a><span class="lineno"> 2905</span> </div>
+<div class="line"><a id="l02906" name="l02906"></a><span class="lineno"> 2906</span>    <span class="comment">// memorize callback in context</span></div>
+<div class="line"><a id="l02907" name="l02907"></a><span class="lineno"> 2907</span>    memset(&amp;context, 0, <span class="keyword">sizeof</span>(UseCaseContext_t));</div>
+<div class="line"><a id="l02908" name="l02908"></a><span class="lineno"> 2908</span>    context.type                  = ACTION_USE_CASE;</div>
+<div class="line"><a id="l02909" name="l02909"></a><span class="lineno"> 2909</span>    context.action.actionCallback = callback;</div>
+<div class="line"><a id="l02910" name="l02910"></a><span class="lineno"> 2910</span> </div>
+<div class="line"><a id="l02911" name="l02911"></a><span class="lineno"> 2911</span>    centeredInfo.<a class="code hl_variable" href="structnbgl__contentCenteredInfo__t.html#add86e1f20850ee1e1bfa43abe55e1ceb">icon</a>  = icon;</div>
+<div class="line"><a id="l02912" name="l02912"></a><span class="lineno"> 2912</span>    centeredInfo.<a class="code hl_variable" href="structnbgl__contentCenteredInfo__t.html#a7a9feb7e35d117bf95dc28b03ba694dc">text1</a> = message;</div>
+<div class="line"><a id="l02913" name="l02913"></a><span class="lineno"> 2913</span>    centeredInfo.<a class="code hl_variable" href="structnbgl__contentCenteredInfo__t.html#a9e81c23716e97c4bb97c4378a7f10820">style</a> = BOLD_TEXT1_INFO;</div>
+<div class="line"><a id="l02914" name="l02914"></a><span class="lineno"> 2914</span>    <a class="code hl_function" href="nbgl__step_8h.html#affa590fcf69c274585126345323db768">nbgl_stepDrawCenteredInfo</a>(0, useCaseActionCallback, NULL, &amp;centeredInfo, <span class="keyword">false</span>);</div>
+<div class="line"><a id="l02915" name="l02915"></a><span class="lineno"> 2915</span>}</div>
+<div class="line"><a id="l02916" name="l02916"></a><span class="lineno"> 2916</span> </div>
+<div class="line"><a id="l02917" name="l02917"></a><span class="lineno"> 2917</span><span class="preprocessor">#ifdef NBGL_KEYPAD</span></div>
+<div class="line"><a id="l02935" name="l02935"></a><span class="lineno"> 2935</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#a89212f593a06326783ee901b62d21492">nbgl_useCaseKeypadDigits</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>             *title,</div>
+<div class="line"><a id="l02936" name="l02936"></a><span class="lineno"> 2936</span>                              uint8_t                 minDigits,</div>
+<div class="line"><a id="l02937" name="l02937"></a><span class="lineno"> 2937</span>                              uint8_t                 maxDigits,</div>
+<div class="line"><a id="l02938" name="l02938"></a><span class="lineno"> 2938</span>                              <span class="keywordtype">bool</span>                    shuffled,</div>
+<div class="line"><a id="l02939" name="l02939"></a><span class="lineno"> 2939</span>                              <a class="code hl_typedef" href="nbgl__use__case_8h.html#a426673c300bd98628ce5ec8e8c14c2d8">nbgl_pinValidCallback_t</a> validatePinCallback,</div>
+<div class="line"><a id="l02940" name="l02940"></a><span class="lineno"> 2940</span>                              <a class="code hl_typedef" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a>         backCallback)</div>
+<div class="line"><a id="l02941" name="l02941"></a><span class="lineno"> 2941</span>{</div>
+<div class="line"><a id="l02942" name="l02942"></a><span class="lineno"> 2942</span>    keypadGenericUseCase(</div>
+<div class="line"><a id="l02943" name="l02943"></a><span class="lineno"> 2943</span>        title, minDigits, maxDigits, shuffled, <span class="keyword">false</span>, validatePinCallback, backCallback);</div>
+<div class="line"><a id="l02944" name="l02944"></a><span class="lineno"> 2944</span>}</div>
+<div class="line"><a id="l02945" name="l02945"></a><span class="lineno"> 2945</span> </div>
+<div class="line"><a id="l02964" name="l02964"></a><span class="lineno"> 2964</span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__use__case_8h.html#a29799c89a1e92963706ffc97ceee9d5a">nbgl_useCaseKeypadPIN</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>             *title,</div>
+<div class="line"><a id="l02965" name="l02965"></a><span class="lineno"> 2965</span>                           uint8_t                 minDigits,</div>
+<div class="line"><a id="l02966" name="l02966"></a><span class="lineno"> 2966</span>                           uint8_t                 maxDigits,</div>
+<div class="line"><a id="l02967" name="l02967"></a><span class="lineno"> 2967</span>                           <span class="keywordtype">bool</span>                    shuffled,</div>
+<div class="line"><a id="l02968" name="l02968"></a><span class="lineno"> 2968</span>                           <a class="code hl_typedef" href="nbgl__use__case_8h.html#a426673c300bd98628ce5ec8e8c14c2d8">nbgl_pinValidCallback_t</a> validatePinCallback,</div>
+<div class="line"><a id="l02969" name="l02969"></a><span class="lineno"> 2969</span>                           <a class="code hl_typedef" href="nbgl__use__case_8h.html#a1788964f1ae97b54ad0a22a28b84e82a">nbgl_callback_t</a>         backCallback)</div>
+<div class="line"><a id="l02970" name="l02970"></a><span class="lineno"> 2970</span>{</div>
+<div class="line"><a id="l02971" name="l02971"></a><span class="lineno"> 2971</span>    keypadGenericUseCase(</div>
+<div class="line"><a id="l02972" name="l02972"></a><span class="lineno"> 2972</span>        title, minDigits, maxDigits, shuffled, <span class="keyword">true</span>, validatePinCallback, backCallback);</div>
+<div class="line"><a id="l02973" name="l02973"></a><span class="lineno"> 2973</span>}</div>
+<div class="line"><a id="l02974" name="l02974"></a><span class="lineno"> 2974</span><span class="preprocessor">#endif  </span><span class="comment">// NBGL_KEYPAD</span></div>
+<div class="line"><a id="l02975" name="l02975"></a><span class="lineno"> 2975</span> </div>
+<div class="line"><a id="l02976" name="l02976"></a><span class="lineno"> 2976</span><span class="preprocessor">#endif  </span><span class="comment">// HAVE_SE_TOUCH</span></div>
+<div class="line"><a id="l02977" name="l02977"></a><span class="lineno"> 2977</span><span class="preprocessor">#endif  </span><span class="comment">// NBGL_USE_CASE</span></div>
 <div class="ttc" id="anbgl__content_8h_html_a3735e557349f1945eff88ee65ea92fb5"><div class="ttname"><a href="nbgl__content_8h.html#a3735e557349f1945eff88ee65ea92fb5">nbgl_contentCenteredInfoStyle_t</a></div><div class="ttdeci">nbgl_contentCenteredInfoStyle_t</div><div class="ttdoc">possible styles for Centered Info Area</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00033">nbgl_content.h:33</a></div></div>
 <div class="ttc" id="anbgl__content_8h_html_a9010d75a386dacb48d7a31667d7cf203a9688daa58ea35451ae316f87bb10d705"><div class="ttname"><a href="nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203a9688daa58ea35451ae316f87bb10d705">CHOICES_LIST</a></div><div class="ttdeci">@ CHOICES_LIST</div><div class="ttdoc">list of choices through radio buttons</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00360">nbgl_content.h:360</a></div></div>
 <div class="ttc" id="anbgl__content_8h_html_a9010d75a386dacb48d7a31667d7cf203a9d1cb6345b68a3b110bf826fd702dcc1"><div class="ttname"><a href="nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203a9d1cb6345b68a3b110bf826fd702dcc1">CENTERED_INFO</a></div><div class="ttdeci">@ CENTERED_INFO</div><div class="ttdoc">a centered info</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00351">nbgl_content.h:351</a></div></div>
