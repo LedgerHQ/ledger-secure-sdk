@@ -61,10 +61,10 @@ def get_pull_request(repo: Repository, pull_number: int) -> PullRequest:
     try:
         pull = repo.get_pull(pull_number)
         logger.debug("Pull Title: %s", pull.title)
-        return pull
     except Exception as e:
         logger.error("Failed to retrieve pull request: %s", e)
         sys.exit(1)
+    return pull
 
 
 def get_target_branches(pull: PullRequest) -> List[str]:
@@ -223,20 +223,57 @@ def create_pull_request_if_needed(repo: Repository,
     """Create a pull request if one does not already exist."""
     pr_auto_title = f"[AUTO_UPDATE] Branch {target_br}"
     prs = repo.get_pulls(state="open", base=target_br)
-    if not any(pr.title == pr_auto_title for pr in prs):
-        # Create a new pull request with the auto_update branch as
-        # the head and the target branch as the base
+
+    # Check if PR already exists
+    existing_pr = None
+    for pr in prs:
+        if pr.title == pr_auto_title:
+            existing_pr = pr
+            logger.info("There is already an existing PR. Just update it!")
+            break
+
+    # Get original PR info for the body
+    initialPR = repo.get_pull(pull_number)
+    new_body = f"Automated update from #{pull_number} ({initialPR.title})"
+
+    if existing_pr:
+        # Update existing PR
         try:
-            repo.create_pull(
+            # Append to existing body or replace it
+            current_body = existing_pr.body or ""
+            if f"#{pull_number}" not in current_body:
+                # Only add if this PR reference isn't already in the body
+                updated_body = f"{current_body}\n\n{new_body}" if current_body else new_body
+                existing_pr.edit(body=updated_body)
+                logger.info("Update existing PR #%d body", existing_pr.number)
+            else:
+                logger.info("PR #%d already references #%d, skipping body update",
+                           existing_pr.number, pull_number)
+        except Exception as e:
+            logger.error("Failed to update existing PR: %s", e)
+    else:
+        try:
+            # Create a new pull request with the auto_update branch as
+            # the head and the target branch as the base
+            initialPR = repo.get_pull(pull_number)
+            new_pr = repo.create_pull(
                 title=pr_auto_title,
-                body=f"Automated update from #{pull_number}",
+                body=f"Automated update from #{pull_number} ({initialPR.title})",
                 head=auto_branch,
                 base=target_br
             )
         except:
             logger.error("Failed to create PR!")
             sys.exit(1)
-        logger.info("Created PR for branch '%s'", auto_branch)
+
+        try:
+            # Assign the PR to the original author
+            original_author = initialPR.user.login
+            new_pr.create_review_request(reviewers=[original_author])
+            logger.info("Assigned PR to original author: %s", original_author)
+        except:
+            logger.error("Failed to assign PR to original author: %s", original_author)
+        logger.info("Created PR for branch '%s': %s", auto_branch, new_pr.html_url)
 
 
 # ===============================================================================
