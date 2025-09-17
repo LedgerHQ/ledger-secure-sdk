@@ -2453,7 +2453,8 @@ void nbgl_useCaseAddressReview(const char                       *address,
     context.review.onChoice       = choiceCallback;
     context.currentPage           = 0;
     // + 4 because 1 page for title, 1 for address and 2 pages at the end for approve/reject
-    context.nbPages = 4;
+    // + 1 if sub Title
+    context.nbPages = reviewSubTitle ? 5 : 4;
     if (additionalTagValueList) {
         context.review.tagValueList = PIC(additionalTagValueList);
         context.nbPages += additionalTagValueList->nbPairs;
