@@ -13,7 +13,7 @@ This specification applies to the error responses returned by the Coin applicati
 Exchange for the final payment transaction of a SWAP.
 
 Replying valuable data when a final payment transaction is refused eases a lot the analysis,
-especially if the issue happens in production context and / or is hard to reproduce.
+especially if the issue happens in production context and/or is hard to reproduce.
 
 ## RAPDU status word
 
@@ -47,6 +47,8 @@ The remaining bytes of the data are application-specific and can include, but ar
 - Debugging information (e.g., error logs or internal state).
 - Field values (e.g., expected vs actual amounts, destination, fees).
 - More specific error codes tailored to the application's context.
+
+## Helpers API
 
 The standard application library define several helper function to return error codes from the Coin
 application.
