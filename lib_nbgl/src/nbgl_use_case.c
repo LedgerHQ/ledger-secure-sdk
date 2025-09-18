@@ -1363,11 +1363,16 @@ static void displayDetailsPage(uint8_t detailsPage, bool forceFullRefresh)
                                     NB_MAX_LINES_IN_DETAILS,
                                     &len,
                                     detailsContext.wrapping);
-        len -= 3;
-        // memorize next position to save processing
-        detailsContext.nextPageStart = currentPair.value + len;
+        if (currentPair.value[len] != '\n') {
+            len -= 3;
+            // memorize next position to save processing
+            detailsContext.nextPageStart = currentPair.value + len;
+        }
+        else {
+            detailsContext.nextPageStart = currentPair.value + len + 1;
+        }
         // use special feature to keep only NB_MAX_LINES_IN_DETAILS lines and replace the last 3
-        // chars by "..."
+        // chars by "...", only if the next char to display in next page is not '\n'
         content.tagValueList.nbMaxLinesForValue = NB_MAX_LINES_IN_DETAILS;
     }
     else {

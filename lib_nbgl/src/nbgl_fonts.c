@@ -606,7 +606,8 @@ bool nbgl_getTextMaxLenInNbLines(nbgl_font_id_e fontId,
             if (maxNbLines == 0) {
                 text--;
             }
-            width = 0;
+            lastDelimiter = NULL;
+            width         = 0;
             continue;
         }
         // if \f, exit
