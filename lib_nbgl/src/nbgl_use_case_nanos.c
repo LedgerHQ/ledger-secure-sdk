@@ -1837,50 +1837,6 @@ static void keypadCallback(char touchedKey)
             break;
     }
 }
-
-// called to create a keypad, with either hidden or visible digits
-static void keypadGenericUseCase(const char             *title,
-                                 uint8_t                 minDigits,
-                                 uint8_t                 maxDigits,
-                                 bool                    shuffled,
-                                 bool                    hidden,
-                                 nbgl_pinValidCallback_t validatePinCallback,
-                                 nbgl_callback_t         backCallback)
-{
-    nbgl_layoutDescription_t layoutDescription = {0};
-    int                      status            = -1;
-
-    // reset the keypad context
-    memset(&context, 0, sizeof(KeypadContext_t));
-    context.type                = KEYPAD_USE_CASE;
-    context.currentPage         = 0;
-    context.nbPages             = 1;
-    context.keypad.validatePin  = validatePinCallback;
-    context.keypad.backCallback = backCallback;
-    context.keypad.pinMinDigits = minDigits;
-    context.keypad.pinMaxDigits = maxDigits;
-    context.keypad.hidden       = hidden;
-    context.keypad.layoutCtx    = nbgl_layoutGet(&layoutDescription);
-
-    // add keypad
-    status = nbgl_layoutAddKeypad(context.keypad.layoutCtx, keypadCallback, title, shuffled);
-    if (status < 0) {
-        return;
-    }
-    context.keypad.keypadIndex = status;
-    // add digits
-    status = nbgl_layoutAddKeypadContent(context.keypad.layoutCtx, hidden, maxDigits, "");
-    if (status < 0) {
-        return;
-    }
-
-    nbgl_layoutDraw(context.keypad.layoutCtx);
-    if (context.keypad.backCallback != NULL) {
-        // force backspace to be visible at first digit, to be used as quit
-        nbgl_layoutUpdateKeypad(context.keypad.layoutCtx, context.keypad.keypadIndex, false, true);
-    }
-    nbgl_refresh();
-}
 #endif  // NBGL_KEYPAD
 
 // this is the function called to start the actual review, from the initial warning pages
@@ -2908,47 +2864,51 @@ void nbgl_useCaseAction(const nbgl_icon_details_t *icon,
  * @param minDigits pin minimum number of digits
  * @param maxDigits maximum number of digits to be displayed
  * @param shuffled if set to true, digits are shuffled in keypad
+ * @param hidden if set to true, digits are hidden in keypad
  * @param validatePinCallback function calledto validate the pin code
  * @param backCallback callback called on backspace is "pressed" in first digit
  */
-void nbgl_useCaseKeypadDigits(const char             *title,
-                              uint8_t                 minDigits,
-                              uint8_t                 maxDigits,
-                              bool                    shuffled,
-                              nbgl_pinValidCallback_t validatePinCallback,
-                              nbgl_callback_t         backCallback)
+void nbgl_useCaseKeypad(const char             *title,
+                        uint8_t                 minDigits,
+                        uint8_t                 maxDigits,
+                        bool                    shuffled,
+                        bool                    hidden,
+                        nbgl_pinValidCallback_t validatePinCallback,
+                        nbgl_callback_t         backCallback)
 {
-    keypadGenericUseCase(
-        title, minDigits, maxDigits, shuffled, false, validatePinCallback, backCallback);
-}
+    nbgl_layoutDescription_t layoutDescription = {0};
+    int                      status            = -1;
 
-/**
- * @brief draws a standard keypad modal page with hidden digits. It contains
- *        - a navigation bar at the top
- *        - a title for the pin code
- *        - a hidden digit entry
- *        - the keypad at the bottom
- *
- * @note callbacks allow to control the behavior.
- *       backspace and validation button are shown/hidden automatically
- *
- * @param title string to set in pin code title
- * @param minDigits pin minimum number of digits
- * @param maxDigits maximum number of digits to be displayed
- * @param backToken token used with actionCallback (0 if unused))
- * @param shuffled if set to true, digits are shuffled in keypad
- * @param validatePinCallback function calledto validate the pin code
- * @param backCallback callback called on backspace is "pressed" in first digit
- */
-void nbgl_useCaseKeypadPIN(const char             *title,
-                           uint8_t                 minDigits,
-                           uint8_t                 maxDigits,
-                           bool                    shuffled,
-                           nbgl_pinValidCallback_t validatePinCallback,
-                           nbgl_callback_t         backCallback)
-{
-    keypadGenericUseCase(
-        title, minDigits, maxDigits, shuffled, true, validatePinCallback, backCallback);
+    // reset the keypad context
+    memset(&context, 0, sizeof(KeypadContext_t));
+    context.type                = KEYPAD_USE_CASE;
+    context.currentPage         = 0;
+    context.nbPages             = 1;
+    context.keypad.validatePin  = validatePinCallback;
+    context.keypad.backCallback = backCallback;
+    context.keypad.pinMinDigits = minDigits;
+    context.keypad.pinMaxDigits = maxDigits;
+    context.keypad.hidden       = hidden;
+    context.keypad.layoutCtx    = nbgl_layoutGet(&layoutDescription);
+
+    // add keypad
+    status = nbgl_layoutAddKeypad(context.keypad.layoutCtx, keypadCallback, title, shuffled);
+    if (status < 0) {
+        return;
+    }
+    context.keypad.keypadIndex = status;
+    // add digits
+    status = nbgl_layoutAddKeypadContent(context.keypad.layoutCtx, hidden, maxDigits, "");
+    if (status < 0) {
+        return;
+    }
+
+    nbgl_layoutDraw(context.keypad.layoutCtx);
+    if (context.keypad.backCallback != NULL) {
+        // force backspace to be visible at first digit, to be used as quit
+        nbgl_layoutUpdateKeypad(context.keypad.layoutCtx, context.keypad.keypadIndex, false, true);
+    }
+    nbgl_refresh();
 }
 #endif  // NBGL_KEYPAD
 
