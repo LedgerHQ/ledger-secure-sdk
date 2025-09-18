@@ -208,7 +208,7 @@ void layoutNavigationPopulate(nbgl_container_t                 *navContainer,
             nbgl_text_area_t *textArea = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layer);
             uint16_t          marginX  = (NAV_BUTTON_WIDTH - CHEVRON_NEXT_ICON.width) / 2;
 
-            SPRINTF(navText, "%d of %d", navConfig->activePage + 1, navConfig->nbPages);
+            SPRINTF(navText, "%d / %d", navConfig->activePage + 1, navConfig->nbPages);
 
             textArea->textColor = LIGHT_TEXT_COLOR;
             // the max width is the width of the whole container, but not overriding the < and >

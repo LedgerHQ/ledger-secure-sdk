@@ -970,7 +970,7 @@ static void draw_pageIndicator(nbgl_page_indicator_t *obj,
     else {
         char navText[11];  // worst case is "ccc of nnn"
 
-        SPRINTF(navText, "%d of %d", obj->activePage + 1, obj->nbPages);
+        SPRINTF(navText, "%d / %d", obj->activePage + 1, obj->nbPages);
         // force height
         obj->obj.area.height = nbgl_getFontHeight(SMALL_REGULAR_FONT);
         // the width must be at least 80
