@@ -421,11 +421,9 @@ static void longTouchCallback(nbgl_obj_t            *obj,
         progressBar->partialRedraw = true;
         progressBar->state         = 0;
         nbgl_objDraw((nbgl_obj_t *) progressBar);
-#ifdef TARGET_APEX
-        // for Apex, it's necessary to redraw the dotted line, that has been partially wiped
+        // It's necessary to redraw the grey/dotted line, that has been partially wiped
         nbgl_line_t *line = (nbgl_line_t *) container->children[2];
         nbgl_objDraw((nbgl_obj_t *) line);
-#endif  // TARGET_APEX
         nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_REFRESH, POST_REFRESH_FORCE_POWER_OFF);
     }
 }
