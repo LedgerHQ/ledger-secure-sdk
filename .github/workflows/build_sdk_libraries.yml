@@ -1,4 +1,4 @@
-name: Build clang runtime builtins
+name: Build SDK libraries and make PR to update them
 permissions:
   contents: read
 
