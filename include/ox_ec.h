@@ -229,6 +229,8 @@ enum cx_curve_e {
     CX_CURVE_Ed448 = 0x72,
 #endif
 
+    CX_CURVE_EdBLS12 = 0x73,
+
     /** High limit (not included) of Twisted Edwards curve ID */
     CX_CURVE_TWISTED_EDWARDS_END = 0x7F,
 
