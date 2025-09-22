@@ -124,8 +124,16 @@ def clone_repo(github_url: str, local_path: str, token: str) -> None:
     Repo.clone_from(github_url, local_path)
 
 
-def create_or_get_branch(github_url: str,
-                         target_br: str,
+def set_token_auth(repo: Repo, token: str) -> None:
+    """Set token authentication for the repo's origin remote."""
+    url = repo.remotes.origin.url
+    if url.startswith("https://") and "x-access-token" not in url:
+        protocol, rest = url.split("://", 1)
+        auth_url = f"{protocol}://x-access-token:{token}@{rest}"
+        repo.git.remote("set-url", "origin", auth_url)
+
+
+def create_or_get_branch(target_br: str,
                          branches: List[str],
                          repo_path: str,
                          token: str,
@@ -143,10 +151,7 @@ def create_or_get_branch(github_url: str,
         local_repo.git.checkout(target_br)
         local_repo.git.checkout('-b', auto_branch)
         if not dry_run:
-            if github_url.startswith("https://"):
-                protocol, rest = github_url.split("://", 1)
-                github_url = f"{protocol}://x-access-token:{token}@{rest}"
-                local_repo.git.remote("set-url", "origin", github_url)
+            set_token_auth(local_repo, token)
             local_repo.git.push('--set-upstream', 'origin', auto_branch)
     return auto_branch, branch_created
 
@@ -175,10 +180,14 @@ def cherry_pick_commits(repo_path: str,
                         auto_branch: str,
                         default_branch: str,
                         branch_created: bool,
+                        token: str,
                         dry_run: bool = False) -> bool:
     """Cherry-pick the specified commits onto the auto_update branch."""
     repo = Repo(repo_path)
     origin = repo.remotes.origin
+
+    # Set up authentication for pushing
+    set_token_auth(repo, token)
 
     # Configure Git user identity for the cherry-pick
     repo.config_writer().set_value("user", "name", "github-actions[bot]").release()
@@ -334,8 +343,7 @@ def main():
             clone_repo(github_url, local_repo_path, args.token)
 
             # Check if dedicated auto_update branch exists, else create it
-            auto_branch, branch_created = create_or_get_branch(github_url,
-                                                               target_br,
+            auto_branch, branch_created = create_or_get_branch(target_br,
                                                                branches,
                                                                local_repo_path,
                                                                args.token,
@@ -347,6 +355,7 @@ def main():
                                        auto_branch,
                                        default_branch,
                                        branch_created,
+                                       args.token,
                                        args.dry_run):
                 result = 1
                 continue
