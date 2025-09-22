@@ -456,93 +456,98 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00489" name="l00489"></a><span class="lineno">  489</span>    <span class="keywordflow">if</span> (nbScreensOnStack == 0) {</div>
 <div class="line"><a id="l00490" name="l00490"></a><span class="lineno">  490</span>        <span class="keywordflow">return</span>;</div>
 <div class="line"><a id="l00491" name="l00491"></a><span class="lineno">  491</span>    }</div>
-<div class="line"><a id="l00492" name="l00492"></a><span class="lineno">  492</span>    <span class="comment">// call ticker callback of top of stack if active and not expired yet (for a non periodic)</span></div>
-<div class="line"><a id="l00493" name="l00493"></a><span class="lineno">  493</span>    <span class="keywordflow">if</span> ((topOfStack-&gt;ticker.tickerCallback != NULL) &amp;&amp; (topOfStack-&gt;ticker.tickerValue != 0)) {</div>
-<div class="line"><a id="l00494" name="l00494"></a><span class="lineno">  494</span>        topOfStack-&gt;ticker.tickerValue -= <a class="code hl_define" href="nbgl__types_8h.html#a74e75242132eaabbc1c512488a135926">MIN</a>(topOfStack-&gt;ticker.tickerValue, intervaleMs);</div>
-<div class="line"><a id="l00495" name="l00495"></a><span class="lineno">  495</span>        <span class="keywordflow">if</span> (topOfStack-&gt;ticker.tickerValue == 0) {</div>
-<div class="line"><a id="l00496" name="l00496"></a><span class="lineno">  496</span>            <span class="comment">// rearm if intervale is not null, and call the registered function</span></div>
-<div class="line"><a id="l00497" name="l00497"></a><span class="lineno">  497</span>            topOfStack-&gt;ticker.tickerValue = topOfStack-&gt;ticker.tickerIntervale;</div>
-<div class="line"><a id="l00498" name="l00498"></a><span class="lineno">  498</span>            topOfStack-&gt;ticker.tickerCallback();</div>
-<div class="line"><a id="l00499" name="l00499"></a><span class="lineno">  499</span>        }</div>
-<div class="line"><a id="l00500" name="l00500"></a><span class="lineno">  500</span>    }</div>
-<div class="line"><a id="l00501" name="l00501"></a><span class="lineno">  501</span>}</div>
+<div class="line"><a id="l00492" name="l00492"></a><span class="lineno">  492</span>    <span class="comment">// ensure the screen is owned by the proper caller</span></div>
+<div class="line"><a id="l00493" name="l00493"></a><span class="lineno">  493</span>    <span class="keywordflow">if</span> ((os_sched_current_task() == TASK_BOLOS_UX) != topOfStack-&gt;isUxScreen) {</div>
+<div class="line"><a id="l00494" name="l00494"></a><span class="lineno">  494</span>        <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l00495" name="l00495"></a><span class="lineno">  495</span>    }</div>
+<div class="line"><a id="l00496" name="l00496"></a><span class="lineno">  496</span> </div>
+<div class="line"><a id="l00497" name="l00497"></a><span class="lineno">  497</span>    <span class="comment">// call ticker callback of top of stack if active and not expired yet (for a non periodic)</span></div>
+<div class="line"><a id="l00498" name="l00498"></a><span class="lineno">  498</span>    <span class="keywordflow">if</span> ((topOfStack-&gt;ticker.tickerCallback != NULL) &amp;&amp; (topOfStack-&gt;ticker.tickerValue != 0)) {</div>
+<div class="line"><a id="l00499" name="l00499"></a><span class="lineno">  499</span>        topOfStack-&gt;ticker.tickerValue -= <a class="code hl_define" href="nbgl__types_8h.html#a74e75242132eaabbc1c512488a135926">MIN</a>(topOfStack-&gt;ticker.tickerValue, intervaleMs);</div>
+<div class="line"><a id="l00500" name="l00500"></a><span class="lineno">  500</span>        <span class="keywordflow">if</span> (topOfStack-&gt;ticker.tickerValue == 0) {</div>
+<div class="line"><a id="l00501" name="l00501"></a><span class="lineno">  501</span>            <span class="comment">// rearm if intervale is not null, and call the registered function</span></div>
+<div class="line"><a id="l00502" name="l00502"></a><span class="lineno">  502</span>            topOfStack-&gt;ticker.tickerValue = topOfStack-&gt;ticker.tickerIntervale;</div>
+<div class="line"><a id="l00503" name="l00503"></a><span class="lineno">  503</span>            topOfStack-&gt;ticker.tickerCallback();</div>
+<div class="line"><a id="l00504" name="l00504"></a><span class="lineno">  504</span>        }</div>
+<div class="line"><a id="l00505" name="l00505"></a><span class="lineno">  505</span>    }</div>
+<div class="line"><a id="l00506" name="l00506"></a><span class="lineno">  506</span>}</div>
 </div>
-<div class="line"><a id="l00502" name="l00502"></a><span class="lineno">  502</span> </div>
-<div class="line"><a id="l00510" name="l00510"></a><span class="lineno">  510</span><span class="keyword">static</span> <span class="keywordtype">bool</span> objIsIn(<a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *refObj, <a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *obj)</div>
-<div class="line"><a id="l00511" name="l00511"></a><span class="lineno">  511</span>{</div>
-<div class="line"><a id="l00512" name="l00512"></a><span class="lineno">  512</span>    uint8_t i;</div>
-<div class="line"><a id="l00513" name="l00513"></a><span class="lineno">  513</span> </div>
-<div class="line"><a id="l00514" name="l00514"></a><span class="lineno">  514</span>    <span class="keywordflow">if</span> (obj == NULL) {</div>
-<div class="line"><a id="l00515" name="l00515"></a><span class="lineno">  515</span>        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00516" name="l00516"></a><span class="lineno">  516</span>    }</div>
-<div class="line"><a id="l00517" name="l00517"></a><span class="lineno">  517</span>    <span class="keywordflow">if</span> ((<a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *) refObj == obj) {</div>
-<div class="line"><a id="l00518" name="l00518"></a><span class="lineno">  518</span>        <a class="code hl_define" href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a>(<a class="code hl_enumvalue" href="nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635a065d7a318551c3444c9e8203aa29a27c">SCREEN_LOGGER</a>, <span class="stringliteral">&quot;nbgl_screenContainsObj(): yes\n&quot;</span>);</div>
-<div class="line"><a id="l00519" name="l00519"></a><span class="lineno">  519</span>        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><a id="l00520" name="l00520"></a><span class="lineno">  520</span>    }</div>
-<div class="line"><a id="l00521" name="l00521"></a><span class="lineno">  521</span> </div>
-<div class="line"><a id="l00522" name="l00522"></a><span class="lineno">  522</span>    <span class="keywordflow">if</span> ((refObj-&gt;type == <a class="code hl_enumvalue" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7af2a9da294a4a62d55f04725d7efbb6ac">SCREEN</a>) || (refObj-&gt;type == <a class="code hl_enumvalue" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7ae167e6a4547c44c68eb321881de789bd">CONTAINER</a>)) {</div>
-<div class="line"><a id="l00523" name="l00523"></a><span class="lineno">  523</span>        <a class="code hl_typedef" href="nbgl__obj_8h.html#accca85b3f89995e3b9e1261a30d68972">nbgl_container_t</a> *container = (<a class="code hl_typedef" href="nbgl__obj_8h.html#accca85b3f89995e3b9e1261a30d68972">nbgl_container_t</a> *) refObj;</div>
-<div class="line"><a id="l00524" name="l00524"></a><span class="lineno">  524</span>        <span class="comment">// draw the children, if any</span></div>
-<div class="line"><a id="l00525" name="l00525"></a><span class="lineno">  525</span>        <span class="keywordflow">if</span> (container-&gt;children != NULL) {</div>
-<div class="line"><a id="l00526" name="l00526"></a><span class="lineno">  526</span>            <span class="keywordflow">for</span> (i = 0; i &lt; container-&gt;nbChildren; i++) {</div>
-<div class="line"><a id="l00527" name="l00527"></a><span class="lineno">  527</span>                <a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *current = container-&gt;children[i];</div>
-<div class="line"><a id="l00528" name="l00528"></a><span class="lineno">  528</span>                <span class="keywordflow">if</span> (current != NULL) {</div>
-<div class="line"><a id="l00529" name="l00529"></a><span class="lineno">  529</span>                    <span class="keywordflow">if</span> (objIsIn(current, obj) == <span class="keyword">true</span>) {</div>
-<div class="line"><a id="l00530" name="l00530"></a><span class="lineno">  530</span>                        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><a id="l00531" name="l00531"></a><span class="lineno">  531</span>                    }</div>
-<div class="line"><a id="l00532" name="l00532"></a><span class="lineno">  532</span>                }</div>
-<div class="line"><a id="l00533" name="l00533"></a><span class="lineno">  533</span>            }</div>
-<div class="line"><a id="l00534" name="l00534"></a><span class="lineno">  534</span>        }</div>
-<div class="line"><a id="l00535" name="l00535"></a><span class="lineno">  535</span>    }</div>
-<div class="line"><a id="l00536" name="l00536"></a><span class="lineno">  536</span>    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00537" name="l00537"></a><span class="lineno">  537</span>}</div>
-<div class="line"><a id="l00538" name="l00538"></a><span class="lineno">  538</span> </div>
-<div class="line"><a id="l00546" name="l00546"></a><span class="lineno">  546</span><span class="keyword">static</span> <a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *objIsOfType(<a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *refObj, <a class="code hl_enumeration" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7">nbgl_obj_type_t</a> type)</div>
-<div class="line"><a id="l00547" name="l00547"></a><span class="lineno">  547</span>{</div>
-<div class="line"><a id="l00548" name="l00548"></a><span class="lineno">  548</span>    uint8_t i;</div>
-<div class="line"><a id="l00549" name="l00549"></a><span class="lineno">  549</span> </div>
-<div class="line"><a id="l00550" name="l00550"></a><span class="lineno">  550</span>    <span class="keywordflow">if</span> (refObj-&gt;type == type) {</div>
-<div class="line"><a id="l00551" name="l00551"></a><span class="lineno">  551</span>        <a class="code hl_define" href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a>(<a class="code hl_enumvalue" href="nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635a065d7a318551c3444c9e8203aa29a27c">SCREEN_LOGGER</a>, <span class="stringliteral">&quot;objIsOfType(): yes\n&quot;</span>);</div>
-<div class="line"><a id="l00552" name="l00552"></a><span class="lineno">  552</span>        <span class="keywordflow">return</span> refObj;</div>
-<div class="line"><a id="l00553" name="l00553"></a><span class="lineno">  553</span>    }</div>
+<div class="line"><a id="l00507" name="l00507"></a><span class="lineno">  507</span> </div>
+<div class="line"><a id="l00515" name="l00515"></a><span class="lineno">  515</span><span class="keyword">static</span> <span class="keywordtype">bool</span> objIsIn(<a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *refObj, <a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *obj)</div>
+<div class="line"><a id="l00516" name="l00516"></a><span class="lineno">  516</span>{</div>
+<div class="line"><a id="l00517" name="l00517"></a><span class="lineno">  517</span>    uint8_t i;</div>
+<div class="line"><a id="l00518" name="l00518"></a><span class="lineno">  518</span> </div>
+<div class="line"><a id="l00519" name="l00519"></a><span class="lineno">  519</span>    <span class="keywordflow">if</span> (obj == NULL) {</div>
+<div class="line"><a id="l00520" name="l00520"></a><span class="lineno">  520</span>        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00521" name="l00521"></a><span class="lineno">  521</span>    }</div>
+<div class="line"><a id="l00522" name="l00522"></a><span class="lineno">  522</span>    <span class="keywordflow">if</span> ((<a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *) refObj == obj) {</div>
+<div class="line"><a id="l00523" name="l00523"></a><span class="lineno">  523</span>        <a class="code hl_define" href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a>(<a class="code hl_enumvalue" href="nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635a065d7a318551c3444c9e8203aa29a27c">SCREEN_LOGGER</a>, <span class="stringliteral">&quot;nbgl_screenContainsObj(): yes\n&quot;</span>);</div>
+<div class="line"><a id="l00524" name="l00524"></a><span class="lineno">  524</span>        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00525" name="l00525"></a><span class="lineno">  525</span>    }</div>
+<div class="line"><a id="l00526" name="l00526"></a><span class="lineno">  526</span> </div>
+<div class="line"><a id="l00527" name="l00527"></a><span class="lineno">  527</span>    <span class="keywordflow">if</span> ((refObj-&gt;type == <a class="code hl_enumvalue" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7af2a9da294a4a62d55f04725d7efbb6ac">SCREEN</a>) || (refObj-&gt;type == <a class="code hl_enumvalue" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7ae167e6a4547c44c68eb321881de789bd">CONTAINER</a>)) {</div>
+<div class="line"><a id="l00528" name="l00528"></a><span class="lineno">  528</span>        <a class="code hl_typedef" href="nbgl__obj_8h.html#accca85b3f89995e3b9e1261a30d68972">nbgl_container_t</a> *container = (<a class="code hl_typedef" href="nbgl__obj_8h.html#accca85b3f89995e3b9e1261a30d68972">nbgl_container_t</a> *) refObj;</div>
+<div class="line"><a id="l00529" name="l00529"></a><span class="lineno">  529</span>        <span class="comment">// draw the children, if any</span></div>
+<div class="line"><a id="l00530" name="l00530"></a><span class="lineno">  530</span>        <span class="keywordflow">if</span> (container-&gt;children != NULL) {</div>
+<div class="line"><a id="l00531" name="l00531"></a><span class="lineno">  531</span>            <span class="keywordflow">for</span> (i = 0; i &lt; container-&gt;nbChildren; i++) {</div>
+<div class="line"><a id="l00532" name="l00532"></a><span class="lineno">  532</span>                <a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *current = container-&gt;children[i];</div>
+<div class="line"><a id="l00533" name="l00533"></a><span class="lineno">  533</span>                <span class="keywordflow">if</span> (current != NULL) {</div>
+<div class="line"><a id="l00534" name="l00534"></a><span class="lineno">  534</span>                    <span class="keywordflow">if</span> (objIsIn(current, obj) == <span class="keyword">true</span>) {</div>
+<div class="line"><a id="l00535" name="l00535"></a><span class="lineno">  535</span>                        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00536" name="l00536"></a><span class="lineno">  536</span>                    }</div>
+<div class="line"><a id="l00537" name="l00537"></a><span class="lineno">  537</span>                }</div>
+<div class="line"><a id="l00538" name="l00538"></a><span class="lineno">  538</span>            }</div>
+<div class="line"><a id="l00539" name="l00539"></a><span class="lineno">  539</span>        }</div>
+<div class="line"><a id="l00540" name="l00540"></a><span class="lineno">  540</span>    }</div>
+<div class="line"><a id="l00541" name="l00541"></a><span class="lineno">  541</span>    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00542" name="l00542"></a><span class="lineno">  542</span>}</div>
+<div class="line"><a id="l00543" name="l00543"></a><span class="lineno">  543</span> </div>
+<div class="line"><a id="l00551" name="l00551"></a><span class="lineno">  551</span><span class="keyword">static</span> <a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *objIsOfType(<a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *refObj, <a class="code hl_enumeration" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7">nbgl_obj_type_t</a> type)</div>
+<div class="line"><a id="l00552" name="l00552"></a><span class="lineno">  552</span>{</div>
+<div class="line"><a id="l00553" name="l00553"></a><span class="lineno">  553</span>    uint8_t i;</div>
 <div class="line"><a id="l00554" name="l00554"></a><span class="lineno">  554</span> </div>
-<div class="line"><a id="l00555" name="l00555"></a><span class="lineno">  555</span>    <span class="keywordflow">if</span> ((refObj-&gt;type == <a class="code hl_enumvalue" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7af2a9da294a4a62d55f04725d7efbb6ac">SCREEN</a>) || (refObj-&gt;type == <a class="code hl_enumvalue" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7ae167e6a4547c44c68eb321881de789bd">CONTAINER</a>)) {</div>
-<div class="line"><a id="l00556" name="l00556"></a><span class="lineno">  556</span>        <a class="code hl_typedef" href="nbgl__obj_8h.html#accca85b3f89995e3b9e1261a30d68972">nbgl_container_t</a> *container = (<a class="code hl_typedef" href="nbgl__obj_8h.html#accca85b3f89995e3b9e1261a30d68972">nbgl_container_t</a> *) refObj;</div>
-<div class="line"><a id="l00557" name="l00557"></a><span class="lineno">  557</span>        <span class="comment">// draw the children, if any</span></div>
-<div class="line"><a id="l00558" name="l00558"></a><span class="lineno">  558</span>        <span class="keywordflow">if</span> (container-&gt;children != NULL) {</div>
-<div class="line"><a id="l00559" name="l00559"></a><span class="lineno">  559</span>            <span class="keywordflow">for</span> (i = 0; i &lt; container-&gt;nbChildren; i++) {</div>
-<div class="line"><a id="l00560" name="l00560"></a><span class="lineno">  560</span>                <a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *current = container-&gt;children[i];</div>
-<div class="line"><a id="l00561" name="l00561"></a><span class="lineno">  561</span>                <span class="keywordflow">if</span> (current != NULL) {</div>
-<div class="line"><a id="l00562" name="l00562"></a><span class="lineno">  562</span>                    <a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *found = objIsOfType(current, type);</div>
-<div class="line"><a id="l00563" name="l00563"></a><span class="lineno">  563</span>                    <span class="keywordflow">if</span> (found) {</div>
-<div class="line"><a id="l00564" name="l00564"></a><span class="lineno">  564</span>                        <span class="keywordflow">return</span> found;</div>
-<div class="line"><a id="l00565" name="l00565"></a><span class="lineno">  565</span>                    }</div>
-<div class="line"><a id="l00566" name="l00566"></a><span class="lineno">  566</span>                }</div>
-<div class="line"><a id="l00567" name="l00567"></a><span class="lineno">  567</span>            }</div>
-<div class="line"><a id="l00568" name="l00568"></a><span class="lineno">  568</span>        }</div>
-<div class="line"><a id="l00569" name="l00569"></a><span class="lineno">  569</span>    }</div>
-<div class="line"><a id="l00570" name="l00570"></a><span class="lineno">  570</span>    <span class="keywordflow">return</span> NULL;</div>
-<div class="line"><a id="l00571" name="l00571"></a><span class="lineno">  571</span>}</div>
-<div class="line"><a id="l00572" name="l00572"></a><span class="lineno">  572</span> </div>
-<div class="foldopen" id="foldopen00579" data-start="{" data-end="}">
-<div class="line"><a id="l00579" name="l00579"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#a69a6f7aa1911af30ea0d80644199453c">  579</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="nbgl__screen_8c.html#a69a6f7aa1911af30ea0d80644199453c">nbgl_screenContainsObj</a>(<a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *obj)</div>
-<div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span>{</div>
-<div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span>    <span class="keywordflow">if</span> (nbScreensOnStack == 0) {</div>
-<div class="line"><a id="l00582" name="l00582"></a><span class="lineno">  582</span>        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00583" name="l00583"></a><span class="lineno">  583</span>    }</div>
-<div class="line"><a id="l00584" name="l00584"></a><span class="lineno">  584</span>    <span class="keywordflow">return</span> objIsIn((<a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *) topOfStack, obj);</div>
-<div class="line"><a id="l00585" name="l00585"></a><span class="lineno">  585</span>}</div>
+<div class="line"><a id="l00555" name="l00555"></a><span class="lineno">  555</span>    <span class="keywordflow">if</span> (refObj-&gt;type == type) {</div>
+<div class="line"><a id="l00556" name="l00556"></a><span class="lineno">  556</span>        <a class="code hl_define" href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a>(<a class="code hl_enumvalue" href="nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635a065d7a318551c3444c9e8203aa29a27c">SCREEN_LOGGER</a>, <span class="stringliteral">&quot;objIsOfType(): yes\n&quot;</span>);</div>
+<div class="line"><a id="l00557" name="l00557"></a><span class="lineno">  557</span>        <span class="keywordflow">return</span> refObj;</div>
+<div class="line"><a id="l00558" name="l00558"></a><span class="lineno">  558</span>    }</div>
+<div class="line"><a id="l00559" name="l00559"></a><span class="lineno">  559</span> </div>
+<div class="line"><a id="l00560" name="l00560"></a><span class="lineno">  560</span>    <span class="keywordflow">if</span> ((refObj-&gt;type == <a class="code hl_enumvalue" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7af2a9da294a4a62d55f04725d7efbb6ac">SCREEN</a>) || (refObj-&gt;type == <a class="code hl_enumvalue" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7ae167e6a4547c44c68eb321881de789bd">CONTAINER</a>)) {</div>
+<div class="line"><a id="l00561" name="l00561"></a><span class="lineno">  561</span>        <a class="code hl_typedef" href="nbgl__obj_8h.html#accca85b3f89995e3b9e1261a30d68972">nbgl_container_t</a> *container = (<a class="code hl_typedef" href="nbgl__obj_8h.html#accca85b3f89995e3b9e1261a30d68972">nbgl_container_t</a> *) refObj;</div>
+<div class="line"><a id="l00562" name="l00562"></a><span class="lineno">  562</span>        <span class="comment">// draw the children, if any</span></div>
+<div class="line"><a id="l00563" name="l00563"></a><span class="lineno">  563</span>        <span class="keywordflow">if</span> (container-&gt;children != NULL) {</div>
+<div class="line"><a id="l00564" name="l00564"></a><span class="lineno">  564</span>            <span class="keywordflow">for</span> (i = 0; i &lt; container-&gt;nbChildren; i++) {</div>
+<div class="line"><a id="l00565" name="l00565"></a><span class="lineno">  565</span>                <a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *current = container-&gt;children[i];</div>
+<div class="line"><a id="l00566" name="l00566"></a><span class="lineno">  566</span>                <span class="keywordflow">if</span> (current != NULL) {</div>
+<div class="line"><a id="l00567" name="l00567"></a><span class="lineno">  567</span>                    <a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *found = objIsOfType(current, type);</div>
+<div class="line"><a id="l00568" name="l00568"></a><span class="lineno">  568</span>                    <span class="keywordflow">if</span> (found) {</div>
+<div class="line"><a id="l00569" name="l00569"></a><span class="lineno">  569</span>                        <span class="keywordflow">return</span> found;</div>
+<div class="line"><a id="l00570" name="l00570"></a><span class="lineno">  570</span>                    }</div>
+<div class="line"><a id="l00571" name="l00571"></a><span class="lineno">  571</span>                }</div>
+<div class="line"><a id="l00572" name="l00572"></a><span class="lineno">  572</span>            }</div>
+<div class="line"><a id="l00573" name="l00573"></a><span class="lineno">  573</span>        }</div>
+<div class="line"><a id="l00574" name="l00574"></a><span class="lineno">  574</span>    }</div>
+<div class="line"><a id="l00575" name="l00575"></a><span class="lineno">  575</span>    <span class="keywordflow">return</span> NULL;</div>
+<div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span>}</div>
+<div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span> </div>
+<div class="foldopen" id="foldopen00584" data-start="{" data-end="}">
+<div class="line"><a id="l00584" name="l00584"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#a69a6f7aa1911af30ea0d80644199453c">  584</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="nbgl__screen_8c.html#a69a6f7aa1911af30ea0d80644199453c">nbgl_screenContainsObj</a>(<a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *obj)</div>
+<div class="line"><a id="l00585" name="l00585"></a><span class="lineno">  585</span>{</div>
+<div class="line"><a id="l00586" name="l00586"></a><span class="lineno">  586</span>    <span class="keywordflow">if</span> (nbScreensOnStack == 0) {</div>
+<div class="line"><a id="l00587" name="l00587"></a><span class="lineno">  587</span>        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00588" name="l00588"></a><span class="lineno">  588</span>    }</div>
+<div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span>    <span class="keywordflow">return</span> objIsIn((<a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *) topOfStack, obj);</div>
+<div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span>}</div>
 </div>
-<div class="line"><a id="l00586" name="l00586"></a><span class="lineno">  586</span> </div>
-<div class="foldopen" id="foldopen00594" data-start="{" data-end="}">
-<div class="line"><a id="l00594" name="l00594"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#ad2ca47e6d7026b81223e8116e125fb8b">  594</a></span><a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *<a class="code hl_function" href="nbgl__screen_8c.html#ad2ca47e6d7026b81223e8116e125fb8b">nbgl_screenContainsObjType</a>(<a class="code hl_typedef" href="nbgl__screen_8h.html#a6a0725e5007ff0b4cdc64183c6862fd6">nbgl_screen_t</a> *screen, <a class="code hl_enumeration" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7">nbgl_obj_type_t</a> type)</div>
-<div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span>{</div>
-<div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span>    <span class="keywordflow">if</span> (nbScreensOnStack == 0) {</div>
-<div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span>        <span class="keywordflow">return</span> NULL;</div>
-<div class="line"><a id="l00598" name="l00598"></a><span class="lineno">  598</span>    }</div>
-<div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span> </div>
-<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span>    <span class="keywordflow">return</span> objIsOfType((<a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *) screen, type);</div>
-<div class="line"><a id="l00601" name="l00601"></a><span class="lineno">  601</span>}</div>
+<div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span> </div>
+<div class="foldopen" id="foldopen00599" data-start="{" data-end="}">
+<div class="line"><a id="l00599" name="l00599"></a><span class="lineno"><a class="line" href="nbgl__screen_8h.html#ad2ca47e6d7026b81223e8116e125fb8b">  599</a></span><a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *<a class="code hl_function" href="nbgl__screen_8c.html#ad2ca47e6d7026b81223e8116e125fb8b">nbgl_screenContainsObjType</a>(<a class="code hl_typedef" href="nbgl__screen_8h.html#a6a0725e5007ff0b4cdc64183c6862fd6">nbgl_screen_t</a> *screen, <a class="code hl_enumeration" href="nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7">nbgl_obj_type_t</a> type)</div>
+<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span>{</div>
+<div class="line"><a id="l00601" name="l00601"></a><span class="lineno">  601</span>    <span class="keywordflow">if</span> (nbScreensOnStack == 0) {</div>
+<div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span>        <span class="keywordflow">return</span> NULL;</div>
+<div class="line"><a id="l00603" name="l00603"></a><span class="lineno">  603</span>    }</div>
+<div class="line"><a id="l00604" name="l00604"></a><span class="lineno">  604</span> </div>
+<div class="line"><a id="l00605" name="l00605"></a><span class="lineno">  605</span>    <span class="keywordflow">return</span> objIsOfType((<a class="code hl_typedef" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *) screen, type);</div>
+<div class="line"><a id="l00606" name="l00606"></a><span class="lineno">  606</span>}</div>
 </div>
 <div class="ttc" id="anbgl__debug_8h_html"><div class="ttname"><a href="nbgl__debug_8h.html">nbgl_debug.h</a></div><div class="ttdoc">debug traces management</div></div>
 <div class="ttc" id="anbgl__debug_8h_html_a0cc05ccd60a4255a70bf44771005dbca"><div class="ttname"><a href="nbgl__debug_8h.html#a0cc05ccd60a4255a70bf44771005dbca">LOG_WARN</a></div><div class="ttdeci">#define LOG_WARN(__logger,...)</div><div class="ttdef"><b>Definition</b> <a href="nbgl__debug_8h_source.html#l00087">nbgl_debug.h:87</a></div></div>
@@ -563,7 +568,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="anbgl__screen_8c_html_a4133e082be8b399c9f4e519f95d3dbda"><div class="ttname"><a href="nbgl__screen_8c.html#a4133e082be8b399c9f4e519f95d3dbda">nbgl_screenPush</a></div><div class="ttdeci">int nbgl_screenPush(nbgl_obj_t ***elements, uint8_t nbElements, const nbgl_screenTickerConfiguration_t *ticker, nbgl_touchCallback_t callback)</div><div class="ttdoc">Pushes a screen on top of the stack, with the given number of elements, if possible....</div><div class="ttdef"><b>Definition</b> <a href="nbgl__screen_8c_source.html#l00337">nbgl_screen.c:337</a></div></div>
 <div class="ttc" id="anbgl__screen_8c_html_a5db4e20e622f06114f718cbb138e7261"><div class="ttname"><a href="nbgl__screen_8c.html#a5db4e20e622f06114f718cbb138e7261">nbgl_screenUpdateNbElements</a></div><div class="ttdeci">int nbgl_screenUpdateNbElements(uint8_t screenIndex, uint8_t nbElements)</div><div class="ttdoc">Updates the number of children on given layer. can only be smaller than the number given in nbgl_scre...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__screen_8c_source.html#l00264">nbgl_screen.c:264</a></div></div>
 <div class="ttc" id="anbgl__screen_8c_html_a615c6f3aaef0571e15541789b1a975d0"><div class="ttname"><a href="nbgl__screen_8c.html#a615c6f3aaef0571e15541789b1a975d0">nbgl_screenUpdateTicker</a></div><div class="ttdeci">int nbgl_screenUpdateTicker(uint8_t screenIndex, const nbgl_screenTickerConfiguration_t *ticker)</div><div class="ttdoc">Updates the ticker configuration of the screen at the given screenIndex, always set at WHITE in.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__screen_8c_source.html#l00296">nbgl_screen.c:296</a></div></div>
-<div class="ttc" id="anbgl__screen_8c_html_a69a6f7aa1911af30ea0d80644199453c"><div class="ttname"><a href="nbgl__screen_8c.html#a69a6f7aa1911af30ea0d80644199453c">nbgl_screenContainsObj</a></div><div class="ttdeci">bool nbgl_screenContainsObj(nbgl_obj_t *obj)</div><div class="ttdoc">return true if the given obj can be found in refObj or any of its children</div><div class="ttdef"><b>Definition</b> <a href="nbgl__screen_8c_source.html#l00579">nbgl_screen.c:579</a></div></div>
+<div class="ttc" id="anbgl__screen_8c_html_a69a6f7aa1911af30ea0d80644199453c"><div class="ttname"><a href="nbgl__screen_8c.html#a69a6f7aa1911af30ea0d80644199453c">nbgl_screenContainsObj</a></div><div class="ttdeci">bool nbgl_screenContainsObj(nbgl_obj_t *obj)</div><div class="ttdoc">return true if the given obj can be found in refObj or any of its children</div><div class="ttdef"><b>Definition</b> <a href="nbgl__screen_8c_source.html#l00584">nbgl_screen.c:584</a></div></div>
 <div class="ttc" id="anbgl__screen_8c_html_a6bfe080c462003c1928db39628d2425e"><div class="ttname"><a href="nbgl__screen_8c.html#a6bfe080c462003c1928db39628d2425e">nbgl_screenGetAt</a></div><div class="ttdeci">nbgl_obj_t * nbgl_screenGetAt(uint8_t screenIndex)</div><div class="ttdoc">Returns the screen on the given layer index, as a generic object.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__screen_8c_source.html#l00088">nbgl_screen.c:88</a></div></div>
 <div class="ttc" id="anbgl__screen_8c_html_a6e8213c7657f8a819e601ad37cccecb4"><div class="ttname"><a href="nbgl__screen_8c.html#a6e8213c7657f8a819e601ad37cccecb4">nbgl_screenReset</a></div><div class="ttdeci">int nbgl_screenReset(void)</div><div class="ttdoc">Releases all screens and objects and resets the screen stack. It is supposed to be called before runn...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__screen_8c_source.html#l00463">nbgl_screen.c:463</a></div></div>
 <div class="ttc" id="anbgl__screen_8c_html_a6f0b4001fc02af1de33fe582208c4b5c"><div class="ttname"><a href="nbgl__screen_8c.html#a6f0b4001fc02af1de33fe582208c4b5c">nbgl_screenGetElements</a></div><div class="ttdeci">nbgl_obj_t ** nbgl_screenGetElements(uint8_t screenIndex)</div><div class="ttdoc">Returns the array of elements (children) of the screen at the given index (return value of nbgl_scree...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__screen_8c_source.html#l00319">nbgl_screen.c:319</a></div></div>
@@ -572,7 +577,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="anbgl__screen_8c_html_a93d1ccd6c8af6fc0c205e8c2c283282b"><div class="ttname"><a href="nbgl__screen_8c.html#a93d1ccd6c8af6fc0c205e8c2c283282b">nbgl_screenPop</a></div><div class="ttdeci">int nbgl_screenPop(uint8_t screenIndex)</div><div class="ttdoc">Release the screen at the given index in screen array (index returned by nbgl_screenPush())....</div><div class="ttdef"><b>Definition</b> <a href="nbgl__screen_8c_source.html#l00414">nbgl_screen.c:414</a></div></div>
 <div class="ttc" id="anbgl__screen_8c_html_a97c04d45453ccfcb7947c7efa1ea6e3a"><div class="ttname"><a href="nbgl__screen_8c.html#a97c04d45453ccfcb7947c7efa1ea6e3a">nbgl_screenGetCurrentStackSize</a></div><div class="ttdeci">uint8_t nbgl_screenGetCurrentStackSize(void)</div><div class="ttdoc">Returns the number of used screens on stack.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__screen_8c_source.html#l00116">nbgl_screen.c:116</a></div></div>
 <div class="ttc" id="anbgl__screen_8c_html_ac0881cdb12d5c0fac710542c9b9784b7"><div class="ttname"><a href="nbgl__screen_8c.html#ac0881cdb12d5c0fac710542c9b9784b7">nbgl_screenUpdateBackgroundColor</a></div><div class="ttdeci">int nbgl_screenUpdateBackgroundColor(uint8_t screenIndex, color_t color)</div><div class="ttdoc">Updates the background color of the screen at the given screenIndex, always set at WHITE in.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__screen_8c_source.html#l00280">nbgl_screen.c:280</a></div></div>
-<div class="ttc" id="anbgl__screen_8c_html_ad2ca47e6d7026b81223e8116e125fb8b"><div class="ttname"><a href="nbgl__screen_8c.html#ad2ca47e6d7026b81223e8116e125fb8b">nbgl_screenContainsObjType</a></div><div class="ttdeci">nbgl_obj_t * nbgl_screenContainsObjType(nbgl_screen_t *screen, nbgl_obj_type_t type)</div><div class="ttdoc">return an object of the given type in the given screen</div><div class="ttdef"><b>Definition</b> <a href="nbgl__screen_8c_source.html#l00594">nbgl_screen.c:594</a></div></div>
+<div class="ttc" id="anbgl__screen_8c_html_ad2ca47e6d7026b81223e8116e125fb8b"><div class="ttname"><a href="nbgl__screen_8c.html#ad2ca47e6d7026b81223e8116e125fb8b">nbgl_screenContainsObjType</a></div><div class="ttdeci">nbgl_obj_t * nbgl_screenContainsObjType(nbgl_screen_t *screen, nbgl_obj_type_t type)</div><div class="ttdoc">return an object of the given type in the given screen</div><div class="ttdef"><b>Definition</b> <a href="nbgl__screen_8c_source.html#l00599">nbgl_screen.c:599</a></div></div>
 <div class="ttc" id="anbgl__screen_8c_html_ad6821d8742004d473146aa1ca12fbbcb"><div class="ttname"><a href="nbgl__screen_8c.html#ad6821d8742004d473146aa1ca12fbbcb">nbgl_screenRedraw</a></div><div class="ttdeci">void nbgl_screenRedraw(void)</div><div class="ttdoc">This function redraws the whole screen on top of stack and its children.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__screen_8c_source.html#l00066">nbgl_screen.c:66</a></div></div>
 <div class="ttc" id="anbgl__screen_8c_html_ae8867b5a5b1167895f4dd34d8fe35f83"><div class="ttname"><a href="nbgl__screen_8c.html#ae8867b5a5b1167895f4dd34d8fe35f83">nbgl_screenHandler</a></div><div class="ttdeci">void nbgl_screenHandler(uint32_t intervaleMs)</div><div class="ttdoc">Function to be called periodically by system to enable using ticker.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__screen_8c_source.html#l00486">nbgl_screen.c:486</a></div></div>
 <div class="ttc" id="anbgl__screen_8h_html"><div class="ttname"><a href="nbgl__screen_8h.html">nbgl_screen.h</a></div><div class="ttdoc">API to manage screens.</div></div>
