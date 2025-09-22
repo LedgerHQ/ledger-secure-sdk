@@ -489,6 +489,11 @@ void nbgl_screenHandler(uint32_t intervaleMs)
     if (nbScreensOnStack == 0) {
         return;
     }
+    // ensure the screen is owned by the proper caller
+    if ((os_sched_current_task() == TASK_BOLOS_UX) != topOfStack->isUxScreen) {
+        return;
+    }
+
     // call ticker callback of top of stack if active and not expired yet (for a non periodic)
     if ((topOfStack->ticker.tickerCallback != NULL) && (topOfStack->ticker.tickerValue != 0)) {
         topOfStack->ticker.tickerValue -= MIN(topOfStack->ticker.tickerValue, intervaleMs);
