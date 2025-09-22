@@ -1,7 +1,6 @@
 name: Auto Cherry-pick PRs
 
 on:
-  workflow_dispatch:
   pull_request:
     types: [closed]
 
@@ -13,7 +12,7 @@ jobs:
   PR_Delete_Branch:
     runs-on: ubuntu-latest
     name: "Delete Auto Update branch"
-    if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'auto_update_') == true
+    if: startsWith(github.head_ref, 'auto_update_') == true
     continue-on-error: true
     steps:
     - name: Clone repository
