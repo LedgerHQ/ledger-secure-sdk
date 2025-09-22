@@ -211,7 +211,11 @@ def cherry_pick_commits(repo_path: str,
 
     # Push the branch if needed
     if not dry_run:
-        repo.git.push('origin', auto_branch)
+        try:
+            repo.git.push('origin', auto_branch)
+        except GitCommandError as err:
+            logger.error("Failed to push branch %s:\n%s", auto_branch, err)
+            return False
 
     return True
 
