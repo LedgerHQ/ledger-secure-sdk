@@ -31,7 +31,7 @@ def init_parser() -> ArgumentParser:
     parser = ArgumentParser(description="Automatically cherry-pick SDK commits",
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument("--token", "-t", required=True, help="GitHub Access Token")
-    parser.add_argument("--repo", "-r", required=True, help="GitHub Repository")
+    parser.add_argument("--repo", "-r", default="ledger-secure-sdk", help="GitHub Repository")
     parser.add_argument("--pull", "-p", type=int, required=True, help="Pull Request number")
     parser.add_argument("--dry_run", "-d", action='store_true', help="Dry Run mode")
     parser.add_argument("--verbose", "-v", action='store_true', help="Verbose mode")
