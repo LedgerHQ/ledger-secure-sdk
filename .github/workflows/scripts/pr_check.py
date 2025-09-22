@@ -31,7 +31,7 @@ def init_parser() -> ArgumentParser:
     parser = ArgumentParser(description="Automatically cherry-pick SDK commits",
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument("--token", "-t", required=True, help="GitHub Access Token")
-    parser.add_argument("--repo", "-r", required=True, help="GitHub Repository")
+    parser.add_argument("--repo", "-r", default="ledger-secure-sdk", help="GitHub Repository")
     parser.add_argument("--pull", "-p", type=int, required=True, help="Pull Request number")
     parser.add_argument("--dry_run", "-d", action='store_true', help="Dry Run mode")
     parser.add_argument("--verbose", "-v", action='store_true', help="Verbose mode")
@@ -124,8 +124,16 @@ def clone_repo(github_url: str, local_path: str, token: str) -> None:
     Repo.clone_from(github_url, local_path)
 
 
-def create_or_get_branch(github_url: str,
-                         target_br: str,
+def set_token_auth(repo: Repo, token: str) -> None:
+    """Set token authentication for the repo's origin remote."""
+    url = repo.remotes.origin.url
+    if url.startswith("https://") and "x-access-token" not in url:
+        protocol, rest = url.split("://", 1)
+        auth_url = f"{protocol}://x-access-token:{token}@{rest}"
+        repo.git.remote("set-url", "origin", auth_url)
+
+
+def create_or_get_branch(target_br: str,
                          branches: List[str],
                          repo_path: str,
                          token: str,
@@ -143,10 +151,7 @@ def create_or_get_branch(github_url: str,
         local_repo.git.checkout(target_br)
         local_repo.git.checkout('-b', auto_branch)
         if not dry_run:
-            if github_url.startswith("https://"):
-                protocol, rest = github_url.split("://", 1)
-                github_url = f"{protocol}://x-access-token:{token}@{rest}"
-                local_repo.git.remote("set-url", "origin", github_url)
+            set_token_auth(local_repo, token)
             local_repo.git.push('--set-upstream', 'origin', auto_branch)
     return auto_branch, branch_created
 
@@ -175,10 +180,14 @@ def cherry_pick_commits(repo_path: str,
                         auto_branch: str,
                         default_branch: str,
                         branch_created: bool,
+                        token: str,
                         dry_run: bool = False) -> bool:
     """Cherry-pick the specified commits onto the auto_update branch."""
     repo = Repo(repo_path)
     origin = repo.remotes.origin
+
+    # Set up authentication for pushing
+    set_token_auth(repo, token)
 
     # Configure Git user identity for the cherry-pick
     repo.config_writer().set_value("user", "name", "github-actions[bot]").release()
@@ -211,7 +220,11 @@ def cherry_pick_commits(repo_path: str,
 
     # Push the branch if needed
     if not dry_run:
-        repo.git.push('origin', auto_branch)
+        try:
+            repo.git.push('origin', auto_branch)
+        except GitCommandError as err:
+            logger.error("Failed to push branch %s:\n%s", auto_branch, err)
+            return False
 
     return True
 
@@ -330,8 +343,7 @@ def main():
             clone_repo(github_url, local_repo_path, args.token)
 
             # Check if dedicated auto_update branch exists, else create it
-            auto_branch, branch_created = create_or_get_branch(github_url,
-                                                               target_br,
+            auto_branch, branch_created = create_or_get_branch(target_br,
                                                                branches,
                                                                local_repo_path,
                                                                args.token,
@@ -343,6 +355,7 @@ def main():
                                        auto_branch,
                                        default_branch,
                                        branch_created,
+                                       args.token,
                                        args.dry_run):
                 result = 1
                 continue
