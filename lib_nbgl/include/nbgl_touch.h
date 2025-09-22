@@ -38,6 +38,7 @@ bool nbgl_touchGetTouchedPosition(nbgl_obj_t                 *obj,
                                   nbgl_touchStatePosition_t **lastPos);
 uint32_t    nbgl_touchGetTouchDuration(nbgl_obj_t *obj);
 nbgl_obj_t *nbgl_touchGetObjectFromId(nbgl_obj_t *obj, uint8_t id);
+void        nbgl_touchClear(bool fromUx);
 
 /**********************
  *      MACROS
