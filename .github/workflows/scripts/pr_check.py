@@ -23,6 +23,7 @@ GITHUB_ORG_NAME = "LedgerHQ"
 
 logger = logging.getLogger(__name__)
 
+
 # ===============================================================================
 #          Parameters
 # ===============================================================================
@@ -118,8 +119,8 @@ def clone_repo(github_url: str, local_path: str, token: str) -> None:
     """Clone the repo to local_path."""
     # Insert token into URL for authentication
     if github_url.startswith("https://"):
-        protocol, rest = github_url.split("://", 1)
-        github_url = f"{protocol}://{token}:x-oauth-basic@{rest}"
+        rest = github_url.replace("https://", "")
+        github_url = f"https://{token}@{rest}"
     logger.info("Cloning repo from %s to %s", rest, local_path)
     Repo.clone_from(github_url, local_path)
 
@@ -127,10 +128,10 @@ def clone_repo(github_url: str, local_path: str, token: str) -> None:
 def set_token_auth(repo: Repo, token: str) -> None:
     """Set token authentication for the repo's origin remote."""
     url = repo.remotes.origin.url
-    if url.startswith("https://") and "x-access-token" not in url:
-        protocol, rest = url.split("://", 1)
-        auth_url = f"{protocol}://x-access-token:{token}@{rest}"
-        repo.git.remote("set-url", "origin", auth_url)
+    if url.startswith("https://") and "@" not in url:
+        rest = url.replace("https://", "")
+        url = f"https://{token}@{rest}"
+        repo.git.remote("set-url", "origin", url)
 
 
 def create_or_get_branch(target_br: str,
@@ -261,7 +262,7 @@ def create_pull_request_if_needed(repo: Repository,
                 logger.info("Update existing PR #%d body", existing_pr.number)
             else:
                 logger.info("PR #%d already references #%d, skipping body update",
-                           existing_pr.number, pull_number)
+                            existing_pr.number, pull_number)
         except Exception as e:
             logger.error("Failed to update existing PR: %s", e)
     else:
@@ -367,6 +368,7 @@ def main():
     if result != 0:
         logger.error("One or more operations failed.")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
