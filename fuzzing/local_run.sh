@@ -17,7 +17,9 @@ FUZZING_PATH="$(pwd)"
 NUM_CPUS=1
 FUZZER=""
 FUZZERNAME=""
-APP_BUILD_PATH="$(cd /app && ledger-manifest -ob ledger_app.toml)"
+if [ ! -f "$FUZZING_PATH/local_run.sh" ]; then
+    APP_BUILD_PATH="$(cd /app && ledger-manifest -ob ledger_app.toml)"
+fi
 RED="\033[0;31m"
 GREEN="\033[0;32m"
 BLUE="\033[0;34m"
