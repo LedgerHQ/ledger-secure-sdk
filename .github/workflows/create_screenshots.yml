@@ -1,0 +1,37 @@
+name: Create screenshots and compare to golden samples
+
+on:
+  workflow_dispatch:
+    inputs:
+      sdk_branch:
+        type: string
+        required: false
+        default: ''
+  pull_request:
+
+jobs:
+  create-screenshots:
+    name: Create screenshots
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone SDK
+        uses: actions/checkout@v4
+        with:
+          path: sdk
+
+      - name: Install prerequisites
+        run: |
+          pip install pillow
+          sudo apt install -y libbsd-dev build-essential libpng-dev libjson-c-dev
+          echo '["nanox", "nanosp", "stax", "flex", "apex_p"]' > targets.json
+
+      - name: Generate screenshots for all products
+        run: |
+          targets=$(jq -r '.[]' targets.json)
+          cd sdk/tests/screenshots
+          for t in $targets; do
+            echo "Building screenshots for $t"
+            make "$t"_screenshots
+          done

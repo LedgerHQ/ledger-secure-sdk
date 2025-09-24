@@ -11,8 +11,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
-#define SDL_MAIN_HANDLED /*To fix SDL's "undefined reference to WinMain" issue*/
-#include <SDL.h>
 #include "properties.h"
 #include "apps_api.h"
 #include "glyphs.h"
