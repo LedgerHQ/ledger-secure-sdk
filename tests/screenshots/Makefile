@@ -172,7 +172,6 @@ APP_ICON_DESTH := $(GEN_DIR)/app_icons.h
 NBGL_PATH := $(PUBLIC_SDK_DIR)/lib_nbgl
 
 INC:=                  \
-                       /usr/include/SDL2 \
                        $(APP_PATH) \
                        $(SRC_DIR)/main \
                        $(SRC_DIR)/uzlib \
@@ -187,7 +186,7 @@ INC:=                  \
                        $(PUBLIC_SDK_DIR)/qrcode/include \
                        $(GEN_DIR)
 
-LDLIBS              := -lSDL2 -lm -lbsd -lssl -lcrypto
+LDLIBS              := -lm -lbsd -lssl -lcrypto
 LDFLAGS             := -Xlinker -Map=$(BUILD_DIR)/memory.map
 BIN                 := $(BIN_DIR)/simulator
 
