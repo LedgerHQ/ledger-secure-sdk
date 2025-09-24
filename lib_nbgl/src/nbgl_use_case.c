@@ -1228,6 +1228,12 @@ static void displayGenericContextPage(uint8_t pageIdx, bool forceFullRefresh)
             return;
         }
     }
+    else {
+        // if coming from Skip modal, let's say we are at the last page
+        if (pageIdx == LAST_PAGE_FOR_REVIEW) {
+            pageIdx = navInfo.nbPages - 1;
+        }
+    }
 
     if (navInfo.activePage == pageIdx) {
         p_content
@@ -1252,6 +1258,18 @@ static void displayGenericContextPage(uint8_t pageIdx, bool forceFullRefresh)
 
     if (p_content == NULL) {
         return;
+    }
+    // if the operation is skippable
+    if (bundleNavContext.review.operationType & SKIPPABLE_OPERATION) {
+        // only present the "Skip" header on actual tag/value pages
+        if ((pageIdx > 0) && (pageIdx < (navInfo.nbPages - 1))) {
+            navInfo.progressIndicator = false;
+            navInfo.skipText          = "Skip";
+            navInfo.skipToken         = SKIP_TOKEN;
+        }
+        else {
+            navInfo.skipText = NULL;
+        }
     }
 
     // Create next page content
