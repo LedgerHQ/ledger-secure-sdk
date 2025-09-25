@@ -318,6 +318,7 @@ USBD_StatusTypeDef USBD_LEDGER_HID_setup(USBD_HandleTypeDef   *pdev,
                 break;
 
             case USB_REQ_CLEAR_FEATURE:
+                USBD_CtlSendStatus(pdev);
                 break;
 
             default:
