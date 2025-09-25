@@ -13,7 +13,7 @@ import sys
 import logging
 import tempfile
 from typing import List, Tuple
-from github import Github
+from github import Github, Auth
 from github.Repository import Repository
 from github.PullRequest import PullRequest
 from git import Repo, GitCommandError
@@ -147,12 +147,13 @@ def create_or_get_branch(target_br: str,
         branch_created = True
         # Branch does not exist yet, create it now
         local_repo = Repo(repo_path)
+        if not dry_run:
+            set_token_auth(local_repo, token)
         origin = local_repo.remotes.origin
         origin.fetch()
         local_repo.git.checkout(target_br)
         local_repo.git.checkout('-b', auto_branch)
         if not dry_run:
-            set_token_auth(local_repo, token)
             local_repo.git.push('--set-upstream', 'origin', auto_branch)
     return auto_branch, branch_created
 
@@ -305,7 +306,8 @@ def main():
 
     # Connect to GitHub LedgerHQ
     try:
-        github = Github(args.token)
+        auth = Auth.Token(args.token)
+        github = Github(auth=auth)
     except Exception as err:
         logger.error("Github connection error: %s", err)
         sys.exit(1)
