@@ -143,6 +143,7 @@ typedef struct UseCaseContext_s {
     nbgl_operationType_t operationType;
     uint8_t              nbPages;
     int8_t               currentPage;
+    int8_t               firstPairPage;
     nbgl_stepCallback_t
         stepCallback;  ///< if not NULL, function to be called on "double-key" action
     union {
@@ -728,7 +729,10 @@ static void reviewCallback(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
     if (!buttonGenericCallback(event, &pos)) {
         return;
     }
-
+    else {
+        // memorize last direction
+        context.review.dataDirection = pos;
+    }
     displayReviewPage(pos);
 }
 
@@ -740,7 +744,8 @@ static void buttonSkipCallback(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
 
     if (event == BUTTON_LEFT_PRESSED) {
         // only decrement page if we are going backward but coming from forward (back & forth)
-        if ((context.review.dataDirection == FORWARD_DIRECTION) && (context.currentPage > 0)) {
+        if ((context.review.dataDirection == FORWARD_DIRECTION)
+            && (context.currentPage > context.firstPairPage)) {
             context.currentPage--;
         }
         pos = BACKWARD_DIRECTION;
@@ -748,19 +753,35 @@ static void buttonSkipCallback(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
     else if (event == BUTTON_RIGHT_PRESSED) {
         // only increment page if we are going forward but coming from backward (back & forth)
         if ((context.review.dataDirection == BACKWARD_DIRECTION)
-            && (context.currentPage < (int) (context.nbPages - 1)) && (context.currentPage > 0)) {
+            && (context.currentPage < (int) (context.nbPages - 1))
+            && (context.currentPage > context.firstPairPage)) {
             context.currentPage++;
         }
         pos = FORWARD_DIRECTION;
     }
     else if (event == BUTTON_BOTH_PRESSED) {
-        context.review.skipCallback();
+        // the first tag/value page is at page 0 only in streaming case
+        if (context.firstPairPage == 0) {
+            // in streaming, we have to call the provided callback
+            context.review.skipCallback();
+        }
+        else {
+            // if not in streaming, go directly to the "approve" page
+            context.currentPage = context.nbPages - 2;
+            displayReviewPage(FORWARD_DIRECTION);
+        }
         return;
     }
     else {
         return;
     }
-    displayStreamingReviewPage(pos);
+    // the first tag/value page is at page 0 only in streaming case
+    if (context.firstPairPage == 0) {
+        displayStreamingReviewPage(pos);
+    }
+    else {
+        displayReviewPage(pos);
+    }
 }
 
 // this is the callback used when buttons in "Action" use case are pressed
@@ -1137,8 +1158,28 @@ static void displayReviewPage(nbgl_stepPosition_t pos)
         subText = context.review.address;
     }
     else {
-        bool isCenteredInfo = false;
-        pairIndex           = context.currentPage - reviewPages;
+        // if there is a skip, and we are not already displaying the "skip" page
+        // and we are not at the first tag/value of the first set of data (except if going
+        // backward) then display the "skip" page
+        if ((context.operationType & SKIPPABLE_OPERATION) && (context.review.skipDisplay == false)
+            && ((context.currentPage > reviewPages)
+                || (context.review.dataDirection == BACKWARD_DIRECTION))) {
+            nbgl_stepPosition_t       directions = (pos & BACKWARD_DIRECTION) | FIRST_STEP;
+            nbgl_layoutCenteredInfo_t info       = {0};
+            if ((context.review.nbDataSets == 1) || (context.currentPage > 0)) {
+                directions |= LAST_STEP;
+            }
+            info.icon  = &C_Information_circle_14px;
+            info.text1 = "Press right button to continue message or \bpress both to skip\b";
+            nbgl_stepDrawCenteredInfo(directions, buttonSkipCallback, NULL, &info, false);
+            nbgl_refresh();
+            context.review.skipDisplay = true;
+            context.firstPairPage      = reviewPages;
+            return;
+        }
+        context.review.skipDisplay = false;
+        bool isCenteredInfo        = false;
+        pairIndex                  = context.currentPage - reviewPages;
         if (context.review.address != NULL) {
             pairIndex--;
         }

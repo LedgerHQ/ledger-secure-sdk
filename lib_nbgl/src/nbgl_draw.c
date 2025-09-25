@@ -677,14 +677,14 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
                 if (fontId == BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp) {  // switch to bold
                     fontId = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
 #ifdef HAVE_UNICODE_SUPPORT
-                    unicode_ctx = nbgl_getUnicodeFont(fontId);
+                    unicode_ctx = NULL;
 #endif  // HAVE_UNICODE_SUPPORT
                     font = (const nbgl_font_t *) nbgl_getFont(fontId);
                 }
                 else if (fontId == BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp) {  // switch to regular
                     fontId = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
 #ifdef HAVE_UNICODE_SUPPORT
-                    unicode_ctx = nbgl_getUnicodeFont(fontId);
+                    unicode_ctx = NULL;
 #endif  // HAVE_UNICODE_SUPPORT
                     font = (const nbgl_font_t *) nbgl_getFont(fontId);
                 }
