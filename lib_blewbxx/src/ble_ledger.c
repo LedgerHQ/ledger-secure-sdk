@@ -287,11 +287,11 @@ static void start_mngr(uint8_t *hci_buffer, uint16_t length)
         case BLE_INIT_STEP_SET_TX_POWER_LEVEL:
             ble_aci_hal_forge_cmd_set_tx_power_level(&ble_ledger_data.cmd_data,
                                                      1,  // High power
-#ifdef TARGET_STAX
+#if defined(TARGET_STAX) || defined(TARGET_FLEX) || defined(TARGET_APEX)
                                                      0x19);  // 0 dBm
-#else                                                        // !TARGET_STAX
+#else                                                        // !TARGET_STAX && !TARGET_FLEX && !TARGET_APEX
                                                      0x07);  // -14.1 dBm
-#endif                                                       // !TARGET_STAX
+#endif                                                       // TARGET_STAX || TARGET_FLEX || TARGET_APEX
             send_hci_packet(0);
             break;
 
