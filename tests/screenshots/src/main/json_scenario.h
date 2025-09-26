@@ -139,6 +139,7 @@ extern ScenarioPage_t *current_scenario_page;
  *   GLOBAL PROTOTYPES
  **********************/
 #define store_string_infos(text, font_id, area, wrapping, nb_lines, nb_pages, bold)
+#define store_button_infos(button_area)
 
 uint8_t strxcmp(char *str1, char *str2);
 bool    same_string(uint16_t string_id, char *text);
