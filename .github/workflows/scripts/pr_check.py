@@ -8,6 +8,7 @@ automatically creates cherry-pick PRs on the targeted API_LEVEL branch.
 # -----------------------------------------------------------------------------
 
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+import os
 import re
 import sys
 import logging
@@ -20,6 +21,9 @@ from git import Repo, GitCommandError
 
 
 GITHUB_ORG_NAME = "LedgerHQ"
+GITHUB_REPO_NAME = "ledger-secure-sdk"
+GITHUB_REPO_PATH = f"{GITHUB_ORG_NAME}/{GITHUB_REPO_NAME}"
+GITHUB_FULL_URL = f"https://github.com/{GITHUB_REPO_PATH}.git"
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +36,7 @@ def init_parser() -> ArgumentParser:
     parser = ArgumentParser(description="Automatically cherry-pick SDK commits",
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument("--token", "-t", required=True, help="GitHub Access Token")
-    parser.add_argument("--repo", "-r", default="ledger-secure-sdk", help="GitHub Repository")
+    parser.add_argument("--repo_path", "-r", help="Cloned repository path")
     parser.add_argument("--pull", "-p", type=int, required=True, help="Pull Request number")
     parser.add_argument("--dry_run", "-d", action='store_true', help="Dry Run mode")
     parser.add_argument("--verbose", "-v", action='store_true', help="Verbose mode")
@@ -57,10 +61,10 @@ def set_logging(verbose: bool = False) -> None:
 # ===============================================================================
 #          Sub functions to retrieve objects
 # ===============================================================================
-def get_pull_request(repo: Repository, pull_number: int) -> PullRequest:
+def get_pull_request(git_repo: Repository, pull_number: int) -> PullRequest:
     """Retrieve the pull request object."""
     try:
-        pull = repo.get_pull(pull_number)
+        pull = git_repo.get_pull(pull_number)
         logger.debug("Pull Title: %s", pull.title)
     except Exception as e:
         logger.error("Failed to retrieve pull request: %s", e)
@@ -87,10 +91,10 @@ def get_target_branches(pull: PullRequest) -> List[str]:
     return target_branches
 
 
-def get_all_branches(repo: Repository) -> List[str]:
+def get_all_branches(git_repo: Repository) -> List[str]:
     """Retrieve all branches in the repository."""
     try:
-        branches = [br.name for br in repo.get_branches()]
+        branches = [br.name for br in git_repo.get_branches()]
         return branches
     except Exception as e:
         logger.error("Failed to retrieve branches: %s", e)
@@ -115,55 +119,45 @@ def get_commits_to_cherry_pick(pull: PullRequest) -> List[str]:
     return commits
 
 
-def clone_repo(github_url: str, local_path: str, token: str) -> None:
-    """Clone the repo to local_path."""
-    # Insert token into URL for authentication
-    if github_url.startswith("https://"):
-        rest = github_url.replace("https://", "")
-        github_url = f"https://{token}@{rest}"
-    logger.info("Cloning repo from %s to %s", rest, local_path)
-    Repo.clone_from(github_url, local_path)
-
-
-def set_token_auth(repo: Repo, token: str) -> None:
-    """Set token authentication for the repo's origin remote."""
-    url = repo.remotes.origin.url
-    if url.startswith("https://") and "@" not in url:
-        rest = url.replace("https://", "")
-        url = f"https://{token}@{rest}"
-        repo.git.remote("set-url", "origin", url)
-
-
-def create_or_get_branch(target_br: str,
+def create_or_get_branch(local_repo: Repo,
+                         target_br: str,
                          branches: List[str],
-                         repo_path: str,
-                         token: str,
                          dry_run: bool = False) -> Tuple[str, bool]:
     """Create a new branch if it doesn't exist, or get the existing branch."""
+    origin = local_repo.remotes.origin
+    origin.fetch()
+
     branch_created: bool = False
     auto_branch = f"auto_update_{target_br}"
     if auto_branch not in branches:
         logger.info("Create branch: %s", auto_branch)
         branch_created = True
-        # Branch does not exist yet, create it now
-        local_repo = Repo(repo_path)
-        if not dry_run:
-            set_token_auth(local_repo, token)
-        origin = local_repo.remotes.origin
-        origin.fetch()
+        # Checkout the branch we want to base the new branch on (e.g. API_LEVEL_25)
         local_repo.git.checkout(target_br)
+        # Create the new branch now
         local_repo.git.checkout('-b', auto_branch)
         if not dry_run:
             local_repo.git.push('--set-upstream', 'origin', auto_branch)
+    else:
+        # Branch already exists, just checkout
+        logger.info("Branch already exists: %s", auto_branch)
+        # Checkout the target branch (or create a new one)
+        local_repo.git.checkout(auto_branch)
+        # update the target branch
+        local_repo.git.pull('origin', auto_branch)
+
     return auto_branch, branch_created
 
 
-def branch_delete(repo: Repo, auto_branch: str, default_branch: str, dry_run: bool = False) -> None:
+def branch_delete(local_repo: Repo,
+                  auto_branch: str,
+                  default_branch: str,
+                  dry_run: bool = False) -> None:
     """Delete the specified branch."""
-    repo.git.checkout(default_branch)
+    local_repo.git.checkout(default_branch)
     # Delete the local branch
     try:
-        repo.git.branch('-D', auto_branch)  # Force delete
+        local_repo.git.branch('-D', auto_branch)  # Force delete
         logger.info("Deleted local branch: %s", auto_branch)
     except GitCommandError as abort_err:
         logger.warning("Failed to delete the local branch: %s", abort_err)
@@ -171,59 +165,39 @@ def branch_delete(repo: Repo, auto_branch: str, default_branch: str, dry_run: bo
     if not dry_run:
         # Delete the remote branch
         try:
-            repo.git.push('origin', '--delete', auto_branch)
+            local_repo.git.push('origin', '--delete', auto_branch)
             logger.info("Deleted remote branch: %s", auto_branch)
         except GitCommandError as abort_err:
             logger.warning("Failed to delete the remote branch: %s", abort_err)
 
 
-def cherry_pick_commits(repo_path: str,
+def cherry_pick_commits(local_repo: Repo,
                         commits: List[str],
                         auto_branch: str,
                         default_branch: str,
                         branch_created: bool,
-                        token: str,
                         dry_run: bool = False) -> bool:
     """Cherry-pick the specified commits onto the auto_update branch."""
-    repo = Repo(repo_path)
-    origin = repo.remotes.origin
-
-    # Set up authentication for pushing
-    set_token_auth(repo, token)
-
-    # Configure Git user identity for the cherry-pick
-    repo.config_writer().set_value("user", "name", "github-actions[bot]").release()
-    repo.config_writer().set_value("user", "email", "github-actions[bot]@users.noreply.github.com").release()
-
-    # Fetch latest changes
-    origin.fetch()
-
-    # Checkout the target branch (or create a new one)
-    repo.git.checkout(auto_branch)
-
-    # update the target branch
-    if not dry_run:
-        repo.git.pull('origin', auto_branch)
 
     for sha in commits:
         try:
             logger.info("Cherry-picking %s onto %s", sha, auto_branch)
-            repo.git.cherry_pick('-x', sha)
+            local_repo.git.cherry_pick('-x', sha)
         except GitCommandError as err:
             logger.error("Failed to apply cherry-pick of %s:\n%s", sha, err)
             # Abort cherry-pick on conflict
             try:
-                repo.git.cherry_pick('--abort')
+                local_repo.git.cherry_pick('--abort')
             except GitCommandError:
                 pass
             if branch_created:
-                branch_delete(repo, auto_branch, default_branch, dry_run)
+                branch_delete(local_repo, auto_branch, default_branch, dry_run)
             return False
 
     # Push the branch if needed
     if not dry_run:
         try:
-            repo.git.push('origin', auto_branch)
+            local_repo.git.push('origin', auto_branch)
         except GitCommandError as err:
             logger.error("Failed to push branch %s:\n%s", auto_branch, err)
             return False
@@ -231,13 +205,13 @@ def cherry_pick_commits(repo_path: str,
     return True
 
 
-def create_pull_request_if_needed(repo: Repository,
+def create_pull_request_if_needed(git_repo: Repository,
                                   auto_branch: str,
                                   target_br: str,
                                   pull_number: int) -> None:
     """Create a pull request if one does not already exist."""
     pr_auto_title = f"[AUTO_UPDATE] Branch {target_br}"
-    prs = repo.get_pulls(state="open", base=target_br)
+    prs = git_repo.get_pulls(state="open", base=target_br)
 
     # Check if PR already exists
     existing_pr = None
@@ -248,7 +222,7 @@ def create_pull_request_if_needed(repo: Repository,
             break
 
     # Get original PR info for the body
-    initialPR = repo.get_pull(pull_number)
+    initialPR = git_repo.get_pull(pull_number)
     new_body = f"Automated update from #{pull_number} ({initialPR.title})"
 
     if existing_pr:
@@ -270,8 +244,8 @@ def create_pull_request_if_needed(repo: Repository,
         try:
             # Create a new pull request with the auto_update branch as
             # the head and the target branch as the base
-            initialPR = repo.get_pull(pull_number)
-            new_pr = repo.create_pull(
+            initialPR = git_repo.get_pull(pull_number)
+            new_pr = git_repo.create_pull(
                 title=pr_auto_title,
                 body=f"Automated update from #{pull_number} ({initialPR.title})",
                 head=auto_branch,
@@ -312,19 +286,19 @@ def main():
         logger.error("Github connection error: %s", err)
         sys.exit(1)
 
-    # Retrieve repo object
-    repo = github.get_repo(f"{GITHUB_ORG_NAME}/{args.repo}")
-    logger.debug("Repo Name: %s", repo.name)
-    default_branch = repo.default_branch
+    # Retrieve remote repo object
+    git_repo = github.get_repo(GITHUB_REPO_PATH)
+    logger.debug("Repo Name: %s", git_repo.name)
+    default_branch = git_repo.default_branch
 
     # Retrieve PR object
-    pull = get_pull_request(repo, args.pull)
+    pull = get_pull_request(git_repo, args.pull)
 
     # Search target branches from PR description
     target_branches = get_target_branches(pull)
 
     # Retrieve all available branches
-    branches = get_all_branches(repo)
+    branches = get_all_branches(git_repo)
 
     # Check if all target branches exist
     validate_target_branches(target_branches, branches)
@@ -332,40 +306,64 @@ def main():
     # Retrieve the list of commits to cherry-pick
     commits = get_commits_to_cherry_pick(pull)
 
-    # Prepare local repo path
-    github_url = f"https://github.com/{GITHUB_ORG_NAME}/{args.repo}.git"
+    # Clone the repo if not already done
+    if args.repo_path and os.path.isdir(args.repo_path):
+        local_repo_path = args.repo_path
+        logger.info("Using existing repository at %s", local_repo_path)
+    else:
+        # Prepare local repo path
+        local_repo_path = tempfile.mkdtemp()
+        logger.info("Cloning repo from %s to %s", GITHUB_FULL_URL, local_repo_path)
+        try:
+            Repo.clone_from(GITHUB_FULL_URL, local_repo_path)
+        except Exception as err:
+            logger.error("Failed to clone repository: %s", err)
+            sys.exit(1)
+
+    # Open the local repository
+    try:
+        local_repo = Repo(local_repo_path)
+    except Exception as err:
+        logger.error("Failed to open local repository: %s", err)
+        sys.exit(1)
+    # Configure Git user identity for the cherry-pick
+    local_repo.config_writer().set_value("user", "name", "github-actions[bot]").release()
+    local_repo.config_writer().set_value("user", "email", "github-actions[bot]@users.noreply.github.com").release()
 
     # Loop for all target branches
     result = 0
     for target_br in target_branches:
         logger.info("-------------")
         logger.info("Target branch: %s", target_br)
-        with tempfile.TemporaryDirectory() as local_repo_path:
 
-            # Clone the repo
-            clone_repo(github_url, local_repo_path, args.token)
+        # Ensure that we are on the default branch to start cleanly
+        local_repo.git.checkout(default_branch)
 
-            # Check if dedicated auto_update branch exists, else create it
-            auto_branch, branch_created = create_or_get_branch(target_br,
-                                                               branches,
-                                                               local_repo_path,
-                                                               args.token,
-                                                               args.dry_run)
+        # Check if dedicated auto_update branch exists, else create it
+        auto_branch, branch_created = create_or_get_branch(local_repo,
+                                                            target_br,
+                                                            branches,
+                                                            args.dry_run)
 
-            # Cherry-pick the commits onto the auto_update branch
-            if not cherry_pick_commits(local_repo_path,
-                                       commits,
-                                       auto_branch,
-                                       default_branch,
-                                       branch_created,
-                                       args.token,
-                                       args.dry_run):
-                result = 1
-                continue
+        # Cherry-pick the commits onto the auto_update branch
+        if not cherry_pick_commits(local_repo,
+                                    commits,
+                                    auto_branch,
+                                    default_branch,
+                                    branch_created,
+                                    args.dry_run):
+            result = 1
+            continue
 
-            if not args.dry_run:
-                # Create a pull request if needed
-                create_pull_request_if_needed(repo, auto_branch, target_br, args.pull)
+        if not args.dry_run:
+            # Create a pull request if needed
+            create_pull_request_if_needed(git_repo, auto_branch, target_br, args.pull)
+
+        try:
+            # Return to default branch
+            local_repo.git.checkout(default_branch)
+        except GitCommandError as e:
+            logger.warning("Failed to checkout to default branch (%s): %s", default_branch, e)
 
     if result != 0:
         logger.error("One or more operations failed.")
