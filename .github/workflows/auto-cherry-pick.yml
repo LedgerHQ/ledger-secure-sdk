@@ -35,5 +35,10 @@ jobs:
     - name : Python dependencies
       run: pip install PyGithub GitPython
 
+    - name: Configure Git
+      run: |
+        git config --global url.https://github.com/.insteadOf git@github.com:
+        git config --global url.https://oauth2:${{ secrets.GITHUB_TOKEN }}@github.com/.insteadOf https://github.com/
+
     - name : PR check
-      run: .github/workflows/scripts/pr_check.py -t ${{ secrets.GITHUB_TOKEN }} -r ${{ github.event.repository.name }} -p ${{ github.event.number }}
+      run: .github/workflows/scripts/pr_check.py -t ${{ secrets.GITHUB_TOKEN }} -r ./ -p ${{ github.event.number }}
