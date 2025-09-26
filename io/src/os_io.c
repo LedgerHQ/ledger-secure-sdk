@@ -199,13 +199,13 @@ int os_io_init(os_io_init_t *init)
 
 int os_io_start(void)
 {
-#ifdef HAVE_IO_USB
-    USBD_LEDGER_start();
-#endif  // HAVE_IO_USB
-
 #ifdef HAVE_BLE
     BLE_LEDGER_start();
 #endif  // HAVE_BLE
+
+#ifdef HAVE_IO_USB
+    USBD_LEDGER_start();
+#endif  // HAVE_IO_USB
 
 #ifdef HAVE_NFC
     NFC_LEDGER_start(NFC_LEDGER_MODE_CARD_EMULATION);
@@ -216,13 +216,13 @@ int os_io_start(void)
 
 int os_io_stop(void)
 {
-#ifdef HAVE_IO_USB
-    USB_LEDGER_stop();
-#endif  // HAVE_IO_USB
-
 #ifdef HAVE_BLE
     BLE_LEDGER_stop();
 #endif  // HAVE_BLE
+
+#ifdef HAVE_IO_USB
+    USB_LEDGER_stop();
+#endif  // HAVE_IO_USB
 
 #ifdef HAVE_NFC
     NFC_LEDGER_stop();
