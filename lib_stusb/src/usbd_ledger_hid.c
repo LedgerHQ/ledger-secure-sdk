@@ -16,10 +16,10 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "ledger_protocol.h"
+#include "usbd_desc.h"
 #include "usbd_ioreq.h"
 #include "usbd_ledger.h"
 #include "usbd_ledger_hid.h"
-
 
 /* Private enumerations ------------------------------------------------------*/
 enum ledger_hid_state_t {
@@ -28,13 +28,17 @@ enum ledger_hid_state_t {
 };
 
 /* Private defines------------------------------------------------------------*/
+#define CONFIGURATION_DESCRIPTOR_SIZE (0x20)
+#define REPORT_DESCRIPTOR_SIZE        (0x22)
+
 #define LEDGER_HID_EPIN_ADDR  (0x82)
 #define LEDGER_HID_EPIN_SIZE  (0x40)
 #define LEDGER_HID_EPOUT_ADDR (0x02)
 #define LEDGER_HID_EPOUT_SIZE (LEDGER_USBD_DEFAULT_EPOUT_SIZE)
 
 #define HID_DESCRIPTOR_TYPE        (0x21)
-#define HID_REPORT_DESCRIPTOR_TYPE (0x22)
+#define HID_REPORT_DESCRIPTOR      (0x22)
+#define HID_DESCRIPTOR_BLOP_OFFSET (0x09)
 
 // HID Class-Specific Requests
 #define REQ_SET_REPORT   (0x09)
@@ -70,7 +74,7 @@ const usbd_end_point_info_t LEDGER_HID_end_point_info = {
 };
 
 // clang-format off
-const uint8_t LEDGER_HID_report_descriptor[34] = {
+const uint8_t LEDGER_HID_report_descriptor[REPORT_DESCRIPTOR_SIZE] = {
     0x06, 0xA0, 0xFF,            // Usage page      : vendor defined
     0x09, 0x01,                  // Usage ID        : vendor defined
     0xA1, 0x01,                  // Collection      : application
@@ -94,8 +98,10 @@ const uint8_t LEDGER_HID_report_descriptor[34] = {
     0xC0                          // Collection      : end
 };
 
-const uint8_t LEDGER_HID_descriptors[32] = {
+const uint8_t LEDGER_HID_descriptors[CONFIGURATION_DESCRIPTOR_SIZE] =
+{
     /************** Interface descriptor ******************************/
+    /* 9 */
     USB_LEN_IF_DESC,                       // bLength
     USB_DESC_TYPE_INTERFACE,               // bDescriptorType    : interface
     0x00,                                  // bInterfaceNumber   : 0 (dynamic)
@@ -107,17 +113,19 @@ const uint8_t LEDGER_HID_descriptors[32] = {
     USBD_IDX_PRODUCT_STR,                  // iInterface         :
 
     /************** HID descriptor ************************************/
+    /* 18 */
     0x09,                                  // bLength
     HID_DESCRIPTOR_TYPE,                   // bDescriptorType : HID
     0x11,                                  // bcdHID
     0x01,                                  // bcdHID          : V1.11
     0x00,                                  // bCountryCode    : not supported
     0x01,                                  // bNumDescriptors : 1
-    HID_REPORT_DESCRIPTOR_TYPE,            // bDescriptorType : report
-    sizeof(LEDGER_HID_report_descriptor),  // wItemLength
+    HID_REPORT_DESCRIPTOR,            // bDescriptorType : report
+    REPORT_DESCRIPTOR_SIZE,  // wItemLength
     0x00,
 
     /************** Endpoint descriptor *******************************/
+    /* 27 */
     USB_LEN_EP_DESC,                       // bLength
     USB_DESC_TYPE_ENDPOINT,                // bDescriptorType
     LEDGER_HID_EPIN_ADDR,                  // bEndpointAddress
@@ -125,8 +133,7 @@ const uint8_t LEDGER_HID_descriptors[32] = {
     LEDGER_HID_EPIN_SIZE,                  // wMaxPacketSize
     0x00,                                  // wMaxPacketSize
     0x01,                                  // bInterval
-
-    /************** Endpoint descriptor *******************************/
+    /* 34 */
     USB_LEN_EP_DESC,                       // bLength
     USB_DESC_TYPE_ENDPOINT,                // bDescriptorType
     LEDGER_HID_EPOUT_ADDR,                 // bEndpointAddress
@@ -134,6 +141,7 @@ const uint8_t LEDGER_HID_descriptors[32] = {
     LEDGER_HID_EPOUT_SIZE,                 // wMaxPacketSize
     0x00,                                  // wMaxPacketSize
     0x01,                                  // bInterval
+    /* 41 */
 };
 // clang-format on
 
@@ -180,9 +188,10 @@ USBD_StatusTypeDef USBD_LEDGER_HID_init(USBD_HandleTypeDef *pdev, void *cookie)
     memset(handle, 0, sizeof(ledger_hid_handle_t));
 
     memset(&handle->protocol_data, 0, sizeof(handle->protocol_data));
-    handle->protocol_data.mtu                  = sizeof(USBD_LEDGER_protocol_chunk_buffer);
+    handle->protocol_data.mtu = sizeof(USBD_LEDGER_protocol_chunk_buffer);
 
-    ledger_protocol_result_t result = LEDGER_PROTOCOL_init(&handle->protocol_data, OS_IO_PACKET_TYPE_USB_HID_APDU);
+    ledger_protocol_result_t result
+        = LEDGER_PROTOCOL_init(&handle->protocol_data, OS_IO_PACKET_TYPE_USB_HID_APDU);
     if (result != LP_SUCCESS) {
         goto error;
     }
@@ -201,7 +210,9 @@ USBD_StatusTypeDef USBD_LEDGER_HID_de_init(USBD_HandleTypeDef *pdev, void *cooki
     return USBD_OK;
 }
 
-USBD_StatusTypeDef USBD_LEDGER_HID_setup(USBD_HandleTypeDef *pdev, void *cookie, USBD_SetupReqTypedef *req)
+USBD_StatusTypeDef USBD_LEDGER_HID_setup(USBD_HandleTypeDef   *pdev,
+                                         void                 *cookie,
+                                         USBD_SetupReqTypedef *req)
 {
     if (!pdev || !cookie || !req) {
         return USBD_FAIL;
@@ -212,6 +223,14 @@ USBD_StatusTypeDef USBD_LEDGER_HID_setup(USBD_HandleTypeDef *pdev, void *cookie,
 
     uint8_t request = req->bmRequest & (USB_REQ_TYPE_MASK | USB_REQ_RECIPIENT_MASK);
 
+    uint8_t *pbuf     = NULL;
+    uint16_t length   = 0;
+    uint16_t desc_len = 0;
+    uint8_t  dtype    = (uint8_t) ((req->wValue) >> 8);
+    uint8_t  dindex   = (uint8_t) (req->wValue & 0xFF);
+    // uint8_t dtype = (uint8_t) ((req->wValue) & 0xFF);
+    // uint8_t  dindex   = (uint8_t) (req->wValue >> 8);
+
     // HID Standard Requests
     if (request == (USB_REQ_TYPE_STANDARD | USB_REQ_RECIPIENT_INTERFACE)) {
         switch (req->bRequest) {
@@ -221,24 +240,61 @@ USBD_StatusTypeDef USBD_LEDGER_HID_setup(USBD_HandleTypeDef *pdev, void *cookie,
                     USBD_CtlSendData(pdev, (uint8_t *) (void *) &status_info, sizeof(status_info));
                 }
                 else {
+                    USBD_CtlError(pdev, req);
                     ret = USBD_FAIL;
                 }
                 break;
 
             case USB_REQ_GET_DESCRIPTOR:
-                if (req->wValue == ((uint16_t) (HID_DESCRIPTOR_TYPE << 8))) {
-                    USBD_CtlSendData(pdev,
-                                     (uint8_t *) PIC(&LEDGER_HID_descriptors[USB_LEN_IF_DESC]),
-                                     MIN(LEDGER_HID_descriptors[USB_LEN_IF_DESC], req->wLength));
+                switch (dtype) {
+                    case USB_DESC_TYPE_DEVICE:
+                        pbuf   = USBD_get_descriptor_device(USBD_SPEED_FULL, &desc_len);
+                        length = MIN(desc_len, req->wLength);
+                        break;
+                    case USB_DESC_TYPE_CONFIGURATION:
+                        length = MIN(LEDGER_HID_descriptors[0], req->wLength);
+                        pbuf   = (uint8_t *) PIC(&LEDGER_HID_descriptors);
+                        break;
+                    case USB_DESC_TYPE_STRING:
+                        switch (dindex) {
+                            case USBD_IDX_LANGID_STR:
+                                pbuf = USBD_get_descriptor_lang_id(USBD_SPEED_FULL, &desc_len);
+                                break;
+                            case USBD_IDX_MFC_STR:
+                                pbuf = USBD_get_descriptor_manufacturer(USBD_SPEED_FULL, &desc_len);
+                                break;
+                            case USBD_IDX_PRODUCT_STR:
+                                pbuf = USBD_get_descriptor_product(USBD_SPEED_FULL, &desc_len);
+                                break;
+                            case USBD_IDX_SERIAL_STR:
+                                pbuf = USBD_get_descriptor_serial(USBD_SPEED_FULL, &desc_len);
+                                break;
+                            default:
+                                pbuf     = NULL;
+                                desc_len = 0;
+                                break;
+                        }
+                        length = MIN(desc_len, req->wLength);
+                        break;
+                    case HID_DESCRIPTOR_TYPE:
+                        length
+                            = MIN(LEDGER_HID_descriptors[HID_DESCRIPTOR_BLOP_OFFSET], req->wLength);
+                        pbuf = (uint8_t *) PIC(&LEDGER_HID_descriptors[HID_DESCRIPTOR_BLOP_OFFSET]);
+                        break;
+                    case HID_REPORT_DESCRIPTOR:
+                        length = MIN(REPORT_DESCRIPTOR_SIZE, req->wLength);
+                        pbuf   = (uint8_t *) PIC(LEDGER_HID_report_descriptor);
+                        break;
+                    default:
+                        pbuf   = NULL;
+                        length = 0;
                 }
-                else if (req->wValue == ((uint16_t) (HID_REPORT_DESCRIPTOR_TYPE << 8))) {
-                    USBD_CtlSendData(pdev,
-                                     (uint8_t *) PIC(LEDGER_HID_report_descriptor),
-                                     MIN(sizeof(LEDGER_HID_report_descriptor), req->wLength));
+                // Finally add guard to direct return error/unsupported.
+                if (pbuf == NULL || length == 0) {
+                    USBD_CtlError(pdev, req);
+                    return USBD_FAIL;
                 }
-                else {
-                    ret = USBD_FAIL;
-                }
+                USBD_CtlSendData(pdev, pbuf, length);
                 break;
 
             case USB_REQ_GET_INTERFACE:
@@ -246,6 +302,7 @@ USBD_StatusTypeDef USBD_LEDGER_HID_setup(USBD_HandleTypeDef *pdev, void *cookie,
                     USBD_CtlSendData(pdev, &handle->alt_setting, sizeof(handle->alt_setting));
                 }
                 else {
+                    USBD_CtlError(pdev, req);
                     ret = USBD_FAIL;
                 }
                 break;
@@ -255,14 +312,17 @@ USBD_StatusTypeDef USBD_LEDGER_HID_setup(USBD_HandleTypeDef *pdev, void *cookie,
                     handle->alt_setting = (uint8_t) (req->wValue);
                 }
                 else {
+                    USBD_CtlError(pdev, req);
                     ret = USBD_FAIL;
                 }
                 break;
 
             case USB_REQ_CLEAR_FEATURE:
+                USBD_CtlSendStatus(pdev);
                 break;
 
             default:
+                USBD_CtlError(pdev, req);
                 ret = USBD_FAIL;
                 break;
         }
@@ -287,11 +347,13 @@ USBD_StatusTypeDef USBD_LEDGER_HID_setup(USBD_HandleTypeDef *pdev, void *cookie,
                 break;
 
             default:
+                USBD_CtlError(pdev, req);
                 ret = USBD_FAIL;
                 break;
         }
     }
     else {
+        USBD_CtlError(pdev, req);
         ret = USBD_FAIL;
     }
 
@@ -315,10 +377,22 @@ USBD_StatusTypeDef USBD_LEDGER_HID_data_in(USBD_HandleTypeDef *pdev, void *cooki
 
     UNUSED(ep_num);
 
+    if ((ep_num & 0x7F) == 0) {
+        // Arm for the OUT ZLP status
+        USBD_CtlReceiveStatus(pdev);
+        return USBD_OK;
+    }
+
     ledger_hid_handle_t *handle = (ledger_hid_handle_t *) PIC(cookie);
 
     if (handle->protocol_data.tx_apdu_buffer) {
-        ledger_protocol_result_t result = LEDGER_PROTOCOL_tx(&handle->protocol_data, NULL, 0, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer), sizeof(USBD_LEDGER_protocol_chunk_buffer));
+        ledger_protocol_result_t result
+            = LEDGER_PROTOCOL_tx(&handle->protocol_data,
+                                 NULL,
+                                 0,
+                                 USBD_LEDGER_protocol_chunk_buffer,
+                                 sizeof(USBD_LEDGER_protocol_chunk_buffer),
+                                 sizeof(USBD_LEDGER_protocol_chunk_buffer));
         if (result != LP_SUCCESS) {
             goto error;
         }
@@ -342,10 +416,10 @@ error:
 }
 
 USBD_StatusTypeDef USBD_LEDGER_HID_data_out(USBD_HandleTypeDef *pdev,
-                                 void               *cookie,
-                                 uint8_t             ep_num,
-                                 uint8_t            *packet,
-                                 uint16_t            packet_length)
+                                            void               *cookie,
+                                            uint8_t             ep_num,
+                                            uint8_t            *packet,
+                                            uint16_t            packet_length)
 {
     USBD_StatusTypeDef status = USBD_FAIL;
     if (!pdev || !cookie || !packet) {
@@ -356,7 +430,14 @@ USBD_StatusTypeDef USBD_LEDGER_HID_data_out(USBD_HandleTypeDef *pdev,
 
     ledger_hid_handle_t *handle = (ledger_hid_handle_t *) PIC(cookie);
 
-    ledger_protocol_result_t result = LEDGER_PROTOCOL_rx(&handle->protocol_data, packet, packet_length, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer), USBD_LEDGER_io_buffer, sizeof(USBD_LEDGER_io_buffer), sizeof(USBD_LEDGER_protocol_chunk_buffer));
+    ledger_protocol_result_t result = LEDGER_PROTOCOL_rx(&handle->protocol_data,
+                                                         packet,
+                                                         packet_length,
+                                                         USBD_LEDGER_protocol_chunk_buffer,
+                                                         sizeof(USBD_LEDGER_protocol_chunk_buffer),
+                                                         USBD_LEDGER_io_buffer,
+                                                         sizeof(USBD_LEDGER_io_buffer),
+                                                         sizeof(USBD_LEDGER_protocol_chunk_buffer));
     if (result != LP_SUCCESS) {
         goto error;
     }
@@ -370,11 +451,11 @@ error:
 }
 
 USBD_StatusTypeDef USBD_LEDGER_HID_send_packet(USBD_HandleTypeDef *pdev,
-                                    void               *cookie,
-                                    uint8_t             packet_type,
-                                    const uint8_t      *packet,
-                                    uint16_t            packet_length,
-                                    uint32_t            timeout_ms)
+                                               void               *cookie,
+                                               uint8_t             packet_type,
+                                               const uint8_t      *packet,
+                                               uint16_t            packet_length,
+                                               uint32_t            timeout_ms)
 {
     USBD_StatusTypeDef ret = USBD_FAIL;
     if (!pdev || !cookie || !packet) {
@@ -385,7 +466,12 @@ USBD_StatusTypeDef USBD_LEDGER_HID_send_packet(USBD_HandleTypeDef *pdev,
 
     ledger_hid_handle_t *handle = (ledger_hid_handle_t *) PIC(cookie);
 
-    ledger_protocol_result_t result = LEDGER_PROTOCOL_tx(&handle->protocol_data, packet, packet_length, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer), sizeof(USBD_LEDGER_protocol_chunk_buffer));
+    ledger_protocol_result_t result = LEDGER_PROTOCOL_tx(&handle->protocol_data,
+                                                         packet,
+                                                         packet_length,
+                                                         USBD_LEDGER_protocol_chunk_buffer,
+                                                         sizeof(USBD_LEDGER_protocol_chunk_buffer),
+                                                         sizeof(USBD_LEDGER_protocol_chunk_buffer));
     if (result != LP_SUCCESS) {
         goto error;
     }
@@ -419,7 +505,7 @@ error:
 bool USBD_LEDGER_HID_is_busy(void *cookie)
 {
     ledger_hid_handle_t *handle = (ledger_hid_handle_t *) PIC(cookie);
-    bool busy = false;
+    bool                 busy   = false;
 
     if (handle->state == LEDGER_HID_STATE_BUSY) {
         busy = true;
@@ -448,8 +534,7 @@ int32_t USBD_LEDGER_HID_data_ready(USBD_HandleTypeDef *pdev,
             status = -1;
         }
         else {
-            memmove(
-                buffer, USBD_LEDGER_io_buffer, handle->protocol_data.rx_apdu_length);
+            memmove(buffer, USBD_LEDGER_io_buffer, handle->protocol_data.rx_apdu_length);
             status = handle->protocol_data.rx_apdu_length;
         }
         handle->protocol_data.rx_apdu_status = APDU_STATUS_WAITING;
