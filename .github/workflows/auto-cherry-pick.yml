@@ -13,7 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     name: "Delete Auto Update branch"
     if: startsWith(github.head_ref, 'auto_update_') == true
-    continue-on-error: true
     steps:
     - name: Clone repository
       uses: actions/checkout@v4
@@ -25,7 +24,6 @@ jobs:
     runs-on: ubuntu-latest
     name: "Pull Request Check"
     if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'auto_update_') == false && github.event.pull_request.base.ref == 'master'
-    continue-on-error: true
     steps:
     - name: Clone repository
       uses: actions/checkout@v4
@@ -37,5 +35,10 @@ jobs:
     - name : Python dependencies
       run: pip install PyGithub GitPython
 
+    - name: Configure Git
+      run: |
+        git config --global url.https://github.com/.insteadOf git@github.com:
+        git config --global url.https://oauth2:${{ secrets.GITHUB_TOKEN }}@github.com/.insteadOf https://github.com/
+
     - name : PR check
-      run: .github/workflows/scripts/pr_check.py -t ${{ secrets.GITHUB_TOKEN }} -r ${{ github.event.repository.name }} -p ${{ github.event.number }}
+      run: .github/workflows/scripts/pr_check.py -t ${{ secrets.GITHUB_TOKEN }} -r ./ -p ${{ github.event.number }}
