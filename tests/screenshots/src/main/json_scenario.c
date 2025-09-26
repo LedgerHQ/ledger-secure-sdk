@@ -332,6 +332,50 @@ static char *read_json_data(char *path, char *filename)
     return buffer;
 }
 
+// compute hah of the given framebuffer
+static int save_hash(char         *framebuffer,
+                     uint16_t      width,
+                     uint16_t      height,
+                     uint8_t      *hash,
+                     unsigned int *hash_length)
+{
+    EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
+    if (mdctx == NULL) {
+        perror("Failed to create context");
+        return -1;
+    }
+
+    if (EVP_DigestInit_ex(mdctx, EVP_sha256(), NULL) != 1) {
+        perror("Digest initialization failed");
+        EVP_MD_CTX_free(mdctx);
+        return -1;
+    };
+
+    unsigned int remaining_bytes = width * height;
+    char        *buffer          = framebuffer;
+
+    while (remaining_bytes > 0) {
+        int nb_bytes = MIN(4096, remaining_bytes);
+        if (EVP_DigestUpdate(mdctx, buffer, nb_bytes) != 1) {
+            perror("Digest update failed");
+            EVP_MD_CTX_free(mdctx);
+            return -1;
+        }
+        buffer += nb_bytes;
+        remaining_bytes -= nb_bytes;
+    }
+
+    if (EVP_DigestFinal_ex(mdctx, hash, hash_length) != 1) {
+        perror("Digest finalization failed");
+        EVP_MD_CTX_free(mdctx);
+        return -1;
+    }
+
+    EVP_MD_CTX_free(mdctx);
+
+    return 0;
+}
+
 // =--------------------------------------------------------------------------=
 
 void scenario_parse_args(int argc, char **argv)
@@ -844,6 +888,11 @@ int scenario_save_screen(char *framebuffer, nbgl_area_t *area)
 #ifndef NO_SCREENSHOTS_PNG
             save_png((char *) framebuffer, fullPath, FULL_SCREEN_WIDTH, SCREEN_HEIGHT);
 #endif  // NO_SCREENSHOTS_PNG
+            save_hash((char *) framebuffer,
+                      FULL_SCREEN_WIDTH,
+                      SCREEN_HEIGHT,
+                      current_scenario_page->hash,
+                      &current_scenario_page->hash_len);
             current_scenario_page->saved = true;
         }
         // special case when a screen is transient and automatically closed, without user action
@@ -896,6 +945,11 @@ void scenario_save_json(void)
             fprintf(fptr, "\t\t\t\"name\": \"%s.%d\",\n", pages[i].name, k);
             fprintf(fptr, "\t\t\t\"image\": \"%s/%s.%d.png\",\n", scenario_name, pages[i].name, k);
 #endif  // SCREEN_SIZE_WALLET
+            fprintf(fptr, "\t\t\t\"hash\": \"");
+            for (j = 0; j < pages[i].hash_len; j++) {
+                fprintf(fptr, "%02x", pages[i].hash[j]);
+            }
+            fprintf(fptr, "\",\n");
             fprintf(fptr, "\t\t\t\"transitions\": [\n");
             first = true;
             for (j = 0; j < pages[i].nbSteps; j++) {

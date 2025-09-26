@@ -24,15 +24,6 @@
       ]
     },
     {
-      "name": "w3c-disabled-clear-no-dapp-03",
-      "targets": [
-        {
-          "app_event": "BACK_BUTTON",
-          "page": "w3c-disabled-clear-no-dapp-02"
-        }
-      ]
-    },
-    {
       "name": "w3c-no-threat-clear-no-dapp-01",
       "targets": [
         {
