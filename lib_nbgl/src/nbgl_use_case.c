@@ -1282,7 +1282,8 @@ static void displayGenericContextPage(uint8_t pageIdx, bool forceFullRefresh)
         return;
     }
     // if the operation is skippable
-    if (bundleNavContext.review.operationType & SKIPPABLE_OPERATION) {
+    if ((navType != STREAMING_NAV)
+        && (bundleNavContext.review.operationType & SKIPPABLE_OPERATION)) {
         // only present the "Skip" header on actual tag/value pages
         if ((pageIdx > 0) && (pageIdx < (navInfo.nbPages - 1))) {
             navInfo.progressIndicator = false;
