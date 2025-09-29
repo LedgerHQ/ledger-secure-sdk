@@ -78,8 +78,8 @@ def main():
     for file in args.image_file:
         try:
             im = Image.open(file)
-            if im.mode != 'P':
-                sys.stderr.write("Error: input file {} must have indexed colors".format(file) + "\n")
+            if im.mode not in ['1', 'L', 'P']:
+                sys.stderr.write("Error: input file {} has an unsupported mode ({}))".format(file, im.mode) + "\n")
                 if args.errors:
                     exitcode = -1
                 continue
