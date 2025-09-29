@@ -494,7 +494,8 @@ static void draw_button(nbgl_button_t *obj, nbgl_obj_t *prevObj, bool computePos
         nbgl_getTextMaxLenAndWidth(obj->fontId, text, rectArea.width, &textLen, &textWidth, true);
 
 #ifdef BUILD_SCREENSHOTS
-        store_string_infos(text, obj->fontId, &rectArea, true, 1, 1, false);
+        // Use the area of the button, to check if we overlap any text!
+        store_string_infos(text, obj->fontId, &obj->obj.area, true, 1, 0, false);
 #endif  // BUILD_SCREENSHOTS
 
         // Center the text, horizontally
@@ -505,6 +506,15 @@ static void draw_button(nbgl_button_t *obj, nbgl_obj_t *prevObj, bool computePos
         rectArea.backgroundColor = obj->innerColor;
         nbgl_drawText(&rectArea, text, textLen, obj->fontId, obj->foregroundColor);
     }
+#ifdef BUILD_SCREENSHOTS
+    else {
+        // If we are drawing a button without text, check if we don't overlap any text
+        if ((obj->innerColor == obj->borderColor)
+            && (obj->innerColor != obj->obj.area.backgroundColor)) {
+            store_button_infos(&obj->obj.area);
+        }
+    }
+#endif  // BUILD_SCREENSHOTS
     // draw the icon, if any
     if (obj->icon != NULL) {
         uint16_t    iconX0, iconY0;
