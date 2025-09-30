@@ -2623,9 +2623,13 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
                                                textArea->obj.area.width,
                                                textArea->wrapping)
                     > nbMaxLines) {
+                    textArea->obj.area.height
+                        = nbMaxLines * nbgl_getFontLineHeight(textArea->fontId);
+#ifndef BUILD_SCREENSHOTS
                     LOG_WARN(LAYOUT_LOGGER,
                              "nbgl_layoutAddHeader: text [%s] is too long for header\n",
                              text);
+#endif  // BUILD_SCREENSHOTS
                 }
                 if (headerDesc->type == HEADER_BACK_ICON_AND_TEXT) {
                     textArea->obj.area.width = nbgl_getTextWidth(textArea->fontId, textArea->text);
