@@ -1875,6 +1875,10 @@ static void keypadGeneric_cb(int token, uint8_t index)
     }
     onQuit();
 }
+static void old_keypadCallback(uint8_t token, uint8_t value)
+{
+    keypadGeneric_cb(BACK_TOKEN, value);
+}
 #endif
 
 /**
@@ -4527,6 +4531,33 @@ void nbgl_useCaseKeypad(const char             *title,
     nbgl_layoutDraw(keypadContext.layoutCtx);
     nbgl_refreshSpecialWithPostRefresh(FULL_COLOR_CLEAN_REFRESH, POST_REFRESH_FORCE_POWER_ON);
 }
+
+void nbgl_useCaseKeypadDigits(const char                *title,
+                              uint8_t                    minDigits,
+                              uint8_t                    maxDigits,
+                              uint8_t                    backToken,
+                              bool                       shuffled,
+                              tune_index_e               tuneId,
+                              nbgl_pinValidCallback_t    validatePinCallback,
+                              nbgl_layoutTouchCallback_t actionCallback)
+{
+    nbgl_useCaseKeypad(
+        title, minDigits, maxDigits, shuffled, false, validatePinCallback, old_keypadCallback);
+}
+
+void nbgl_useCaseKeypadPIN(const char                *title,
+                           uint8_t                    minDigits,
+                           uint8_t                    maxDigits,
+                           uint8_t                    backToken,
+                           bool                       shuffled,
+                           tune_index_e               tuneId,
+                           nbgl_pinValidCallback_t    validatePinCallback,
+                           nbgl_layoutTouchCallback_t actionCallback)
+{
+    nbgl_useCaseKeypad(
+        title, minDigits, maxDigits, shuffled, true, validatePinCallback, old_keypadCallback);
+}
+
 #endif  // NBGL_KEYPAD
 
 #endif  // HAVE_SE_TOUCH
