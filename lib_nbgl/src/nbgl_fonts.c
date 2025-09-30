@@ -13,6 +13,7 @@
 #include "nbgl_fonts.h"
 #include "os_helpers.h"
 #include "os_pic.h"
+#include "os_task.h"
 #if defined(HAVE_LANGUAGE_PACK)
 #include "ux_loc.h"
 #endif  // defined(HAVE_LANGUAGE_PACK)
@@ -1242,6 +1243,10 @@ void nbgl_textReduceOnNbLines(nbgl_font_id_e fontId,
  */
 nbgl_unicode_ctx_t *nbgl_getUnicodeFont(nbgl_font_id_e fontId)
 {
+    // if in Apps, do not support unicode
+    if (os_sched_current_task() != TASK_BOLOS_UX) {
+        return NULL;
+    }
     if ((unicodeCtx.font != NULL) && (unicodeCtx.font->font_id == fontId)) {
         return &unicodeCtx;
     }
@@ -1282,6 +1287,10 @@ nbgl_unicode_ctx_t *nbgl_getUnicodeFont(nbgl_font_id_e fontId)
  */
 const nbgl_font_unicode_character_t *nbgl_getUnicodeFontCharacter(uint32_t unicode)
 {
+    // if in Apps, do not support unicode
+    if (os_sched_current_task() != TASK_BOLOS_UX) {
+        return NULL;
+    }
 #if defined(HAVE_LANGUAGE_PACK)
     const nbgl_font_unicode_character_t *characters
         = (const nbgl_font_unicode_character_t *) PIC(unicodeCtx.characters);
@@ -1321,6 +1330,10 @@ const nbgl_font_unicode_character_t *nbgl_getUnicodeFontCharacter(uint32_t unico
  */
 uint32_t nbgl_getUnicodeFontCharacterByteCount(void)
 {
+    // if in Apps, do not support unicode
+    if (os_sched_current_task() != TASK_BOLOS_UX) {
+        return 0;
+    }
 #ifdef HAVE_LANGUAGE_PACK
     return unicodeCtx.unicode_character_byte_count;
 #else   // defined(HAVE_LANGUAGE_PACK)
