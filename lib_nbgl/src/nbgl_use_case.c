@@ -1811,64 +1811,17 @@ static void keypadCallback(char touchedKey)
     }
 }
 
-// called to create a keypad, with either hidden or visible digits
-static void keypadGenericUseCase(const char                *title,
-                                 uint8_t                    minDigits,
-                                 uint8_t                    maxDigits,
-                                 uint8_t                    backToken,
-                                 bool                       shuffled,
-                                 bool                       hidden,
-                                 tune_index_e               tuneId,
-                                 nbgl_pinValidCallback_t    validatePinCallback,
-                                 nbgl_layoutTouchCallback_t actionCallback)
+static void keypadGeneric_cb(int token, uint8_t index)
 {
-    nbgl_layoutDescription_t layoutDescription = {0};
-    nbgl_layoutHeader_t      headerDesc        = {.type               = HEADER_BACK_AND_TEXT,
-                                                  .separationLine     = true,
-                                                  .backAndText.token  = backToken,
-                                                  .backAndText.tuneId = tuneId,
-                                                  .backAndText.text   = NULL};
-    int                      status            = -1;
-
-    if ((minDigits > KEYPAD_MAX_DIGITS) || (maxDigits > KEYPAD_MAX_DIGITS)) {
+    UNUSED(index);
+    if (token != BACK_TOKEN) {
         return;
     }
-
-    reset_callbacks_and_context();
-    // reset the keypad context
-    memset(&keypadContext, 0, sizeof(KeypadContext_t));
-
-    // get a layout
-    layoutDescription.onActionCallback = actionCallback;
-    layoutDescription.modal            = false;
-    layoutDescription.withLeftBorder   = false;
-    keypadContext.layoutCtx            = nbgl_layoutGet(&layoutDescription);
-    keypadContext.hidden               = hidden;
-
-    // set back key in header
-    nbgl_layoutAddHeader(keypadContext.layoutCtx, &headerDesc);
-
-    // add keypad
-    status = nbgl_layoutAddKeypad(keypadContext.layoutCtx, keypadCallback, shuffled);
-    if (status < 0) {
-        return;
-    }
-    // add keypad content
-    status = nbgl_layoutAddKeypadContent(
-        keypadContext.layoutCtx, title, keypadContext.hidden, maxDigits, "");
-
-    if (status < 0) {
-        return;
-    }
-
-    // validation pin callback
-    onValidatePin = validatePinCallback;
-    // pin code acceptable lengths
-    keypadContext.pinMinDigits = minDigits;
-    keypadContext.pinMaxDigits = maxDigits;
-
-    nbgl_layoutDraw(keypadContext.layoutCtx);
-    nbgl_refreshSpecialWithPostRefresh(FULL_COLOR_CLEAN_REFRESH, POST_REFRESH_FORCE_POWER_ON);
+    onQuit();
+}
+static void old_keypadCallback(uint8_t token, uint8_t value)
+{
+    keypadGeneric_cb(BACK_TOKEN, value);
 }
 #endif
 
@@ -4383,10 +4336,10 @@ void nbgl_useCaseSpinner(const char *text)
 
 #ifdef NBGL_KEYPAD
 /**
- * @brief draws a standard keypad modal page with visible digits. It contains
+ * @brief draws a standard keypad modal page. It contains
  *        - a navigation bar at the top
  *        - a title for the pin code
- *        - a visible digit entry
+ *        - a digit entry (visible or hidden)
  *        - the keypad at the bottom
  *
  * @note callbacks allow to control the behavior.
@@ -4395,12 +4348,71 @@ void nbgl_useCaseSpinner(const char *text)
  * @param title string to set in pin code title
  * @param minDigits pin minimum number of digits
  * @param maxDigits maximum number of digits to be displayed
- * @param backToken token used with actionCallback (0 if unused))
  * @param shuffled if set to true, digits are shuffled in keypad
- * @param tuneId if not @ref NBGL_NO_TUNE, a tune will be played when back button is pressed
+ * @param hidden if set to true, digits are hidden in keypad
  * @param validatePinCallback function calledto validate the pin code
- * @param onActionCallback callback called on any action on the layout
+ * @param backCallback callback called title is pressed
  */
+void nbgl_useCaseKeypad(const char             *title,
+                        uint8_t                 minDigits,
+                        uint8_t                 maxDigits,
+                        bool                    shuffled,
+                        bool                    hidden,
+                        nbgl_pinValidCallback_t validatePinCallback,
+                        nbgl_callback_t         backCallback)
+{
+    nbgl_layoutDescription_t layoutDescription = {0};
+    nbgl_layoutHeader_t      headerDesc        = {.type               = HEADER_BACK_AND_TEXT,
+                                                  .separationLine     = true,
+                                                  .backAndText.token  = BACK_TOKEN,
+                                                  .backAndText.tuneId = TUNE_TAP_CASUAL,
+                                                  .backAndText.text   = NULL};
+    int                      status            = -1;
+
+    if ((minDigits > KEYPAD_MAX_DIGITS) || (maxDigits > KEYPAD_MAX_DIGITS)) {
+        return;
+    }
+
+    reset_callbacks_and_context();
+    // reset the keypad context
+    memset(&keypadContext, 0, sizeof(KeypadContext_t));
+
+    // memorize context
+    onQuit = backCallback;
+
+    // get a layout
+    layoutDescription.onActionCallback = keypadGeneric_cb;
+    layoutDescription.modal            = false;
+    layoutDescription.withLeftBorder   = false;
+    keypadContext.layoutCtx            = nbgl_layoutGet(&layoutDescription);
+    keypadContext.hidden               = hidden;
+
+    // set back key in header
+    nbgl_layoutAddHeader(keypadContext.layoutCtx, &headerDesc);
+
+    // add keypad
+    status = nbgl_layoutAddKeypad(keypadContext.layoutCtx, keypadCallback, shuffled);
+    if (status < 0) {
+        return;
+    }
+    // add keypad content
+    status = nbgl_layoutAddKeypadContent(
+        keypadContext.layoutCtx, title, keypadContext.hidden, maxDigits, "");
+
+    if (status < 0) {
+        return;
+    }
+
+    // validation pin callback
+    onValidatePin = validatePinCallback;
+    // pin code acceptable lengths
+    keypadContext.pinMinDigits = minDigits;
+    keypadContext.pinMaxDigits = maxDigits;
+
+    nbgl_layoutDraw(keypadContext.layoutCtx);
+    nbgl_refreshSpecialWithPostRefresh(FULL_COLOR_CLEAN_REFRESH, POST_REFRESH_FORCE_POWER_ON);
+}
+
 void nbgl_useCaseKeypadDigits(const char                *title,
                               uint8_t                    minDigits,
                               uint8_t                    maxDigits,
@@ -4410,35 +4422,10 @@ void nbgl_useCaseKeypadDigits(const char                *title,
                               nbgl_pinValidCallback_t    validatePinCallback,
                               nbgl_layoutTouchCallback_t actionCallback)
 {
-    keypadGenericUseCase(title,
-                         minDigits,
-                         maxDigits,
-                         backToken,
-                         shuffled,
-                         false,
-                         tuneId,
-                         validatePinCallback,
-                         actionCallback);
+    nbgl_useCaseKeypad(
+        title, minDigits, maxDigits, shuffled, false, validatePinCallback, old_keypadCallback);
 }
-/**
- * @brief draws a standard keypad modal page with hidden digits. It contains
- *        - a navigation bar at the top
- *        - a title for the pin code
- *        - a hidden digit entry
- *        - the keypad at the bottom
- *
- * @note callbacks allow to control the behavior.
- *       backspace and validation button are shown/hidden automatically
- *
- * @param title string to set in pin code title
- * @param minDigits pin minimum number of digits
- * @param maxDigits maximum number of digits to be displayed
- * @param backToken token used with actionCallback (0 if unused))
- * @param shuffled if set to true, digits are shuffled in keypad
- * @param tuneId if not @ref NBGL_NO_TUNE, a tune will be played when back button is pressed
- * @param validatePinCallback function calledto validate the pin code
- * @param onActionCallback callback called on any action on the layout
- */
+
 void nbgl_useCaseKeypadPIN(const char                *title,
                            uint8_t                    minDigits,
                            uint8_t                    maxDigits,
@@ -4448,16 +4435,10 @@ void nbgl_useCaseKeypadPIN(const char                *title,
                            nbgl_pinValidCallback_t    validatePinCallback,
                            nbgl_layoutTouchCallback_t actionCallback)
 {
-    keypadGenericUseCase(title,
-                         minDigits,
-                         maxDigits,
-                         backToken,
-                         shuffled,
-                         true,
-                         tuneId,
-                         validatePinCallback,
-                         actionCallback);
+    nbgl_useCaseKeypad(
+        title, minDigits, maxDigits, shuffled, true, validatePinCallback, old_keypadCallback);
 }
+
 #endif  // NBGL_KEYPAD
 
 #endif  // HAVE_SE_TOUCH
