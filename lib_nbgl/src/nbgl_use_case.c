@@ -2475,7 +2475,7 @@ static void displaySecurityReport(uint32_t set)
         info.title                = "Transaction Check unavailable";
         info.description
             = "If you're not using the Ledger Wallet app, Transaction Check might not work. If "
-              "your "
+              "you "
               "are using Ledger Wallet, reject the transaction and try again.\n\nGet help at "
               "ledger.com/e11";
         nbgl_layoutAddContentCenter(reviewWithWarnCtx.modalLayout, &info);
