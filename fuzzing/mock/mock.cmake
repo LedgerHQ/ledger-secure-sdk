@@ -23,11 +23,9 @@ set(GEN_SYSCALLS_OUTPUT "${GEN_SYSCALLS_DIR}/generated_syscalls.c")
 add_custom_command(
   OUTPUT ${GEN_SYSCALLS_OUTPUT}
   COMMAND ${Python3_EXECUTABLE} ${BOLOS_SDK}/fuzzing/mock/gen_mock.py
-          ${BOLOS_SDK}/src/syscalls.c
-          ${GEN_SYSCALLS_OUTPUT}
+          ${BOLOS_SDK}/src/syscalls.c ${GEN_SYSCALLS_OUTPUT}
   COMMENT "${Blue}Generating syscalls...${ColourReset}"
-  VERBATIM
-)
+  VERBATIM)
 
 # --- Custom target to group generation ---
 add_custom_target(generate_syscalls_only DEPENDS ${GEN_SYSCALLS_OUTPUT})
@@ -36,26 +34,23 @@ add_custom_target(generate_syscalls_only DEPENDS ${GEN_SYSCALLS_OUTPUT})
 file(GLOB CUSTOM_MOCK_SOURCES "${BOLOS_SDK}/fuzzing/mock/custom/*.c")
 
 set(LIB_MOCK_SOURCES
-  ${BOLOS_SDK}/src/os.c
-  ${BOLOS_SDK}/src/ledger_assert.c
-  ${BOLOS_SDK}/src/cx_wrappers.c
-  ${BOLOS_SDK}/src/cx_hash_iovec.c
-  ${CUSTOM_MOCK_SOURCES}
-  ${GEN_SYSCALLS_OUTPUT}
-)
+    ${BOLOS_SDK}/src/os.c ${BOLOS_SDK}/src/ledger_assert.c
+    ${BOLOS_SDK}/src/cx_wrappers.c ${BOLOS_SDK}/src/cx_hash_iovec.c
+    ${CUSTOM_MOCK_SOURCES} ${GEN_SYSCALLS_OUTPUT})
 
 # --- Add library and hook up dependencies ---
 add_library(mock ${LIB_MOCK_SOURCES})
 add_dependencies(mock generate_syscalls_only)
 
 target_link_libraries(mock PUBLIC macros cxng nbgl standard_app)
-target_compile_options(mock PUBLIC ${COMPILATION_FLAGS} -Wno-pointer-to-int-cast)
+target_compile_options(mock PUBLIC ${COMPILATION_FLAGS}
+                                   -Wno-pointer-to-int-cast)
 target_include_directories(
   mock
-  PUBLIC ${BOLOS_SDK}/lib_cxng/include/
-         ${BOLOS_SDK}/target/${TARGET_DEVICE}/include/
-         ${BOLOS_SDK}/lib_standard_app/
-         ${BOLOS_SDK}/include/
-         ${BOLOS_SDK}/fuzzing/mock/custom/
-         ${BOLOS_SDK}/fuzzing/mock/generated/
-         ${BOLOS_SDK}/target/${TARGET_DEVICE}/)
+  PUBLIC "${BOLOS_SDK}/lib_cxng/include/"
+         "${BOLOS_SDK}/target/${TARGET}/include/"
+         "${BOLOS_SDK}/lib_standard_app/"
+         "${BOLOS_SDK}/include/"
+         "${BOLOS_SDK}/fuzzing/mock/custom/"
+         "${BOLOS_SDK}/fuzzing/mock/generated/"
+         "${BOLOS_SDK}/target/${TARGET}/")
