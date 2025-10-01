@@ -21,16 +21,31 @@ if(NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
   message(FATAL_ERROR "Fuzzer needs to be built with Clang")
 endif()
 
-# fuzz device target
+# Check for BOLOS_SDK
+if(NOT BOLOS_SDK)
+  message(WARNING "BOLOS_SDK not passed.")
+endif()
+
+# Check for .target in BOLOS_SDK
 if(EXISTS "${BOLOS_SDK}/.target")
   file(STRINGS "${BOLOS_SDK}/.target" TARGET)
   string(STRIP "${TARGET}" TARGET)
-
   if(NOT "${TARGET}" STREQUAL "stax" AND NOT "${TARGET}" STREQUAL "flex")
     message(FATAL_ERROR ".target must be 'flex' or 'stax' (found '${TARGET}')!")
+  else()
+    message("Using TARGET=${TARGET} from ${BOLOS_SDK}/.target")
   endif()
+# If no .target, checks for -DTARGET=
 else()
-  message(FATAL_ERROR "No .target file found in ${BOLOS_SDK}")
+  message(WARNING "No .target file found in BOLOS_SDK=${BOLOS_SDK}")
+  if(TARGET)
+    message("Using -DTARGET=${TARGET}")
+  else()
+    message(
+      FATAL_ERROR
+        " No TARGET passed."
+      )
+  endif()
 endif()
 
 # guard against in-source builds

@@ -1,7 +1,10 @@
 #!/bin/bash -e
 
 pushd fuzzing
-cmake -S . -B build -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Debug -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=On
+cmake -S . -B build -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Debug \
+            -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=On \
+            -DBOLOS_SDK=/src/ledger-secure-sdk/ -DTARGET=flex \
+            -DAPP_BUILD_PATH=/src/ledger-secure-sdk/
 # Generates .zip for initial corpus in clusterFuzz
 for dir in harness/*; do
     if [ -d "$dir" ]; then
