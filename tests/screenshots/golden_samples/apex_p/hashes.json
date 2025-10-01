@@ -47,7 +47,7 @@
             "w3c-issue-blind-01.png": "a684869f2af041dc8627e2c5f056744542ce6fa6ab7442dda609fee63b201fd7",
             "w3c-issue-blind-02.png": "08ce3a1e6174abbd62782474aade87fa43ae84e8db5d4796dc7df841e66c1946",
             "w3c-issue-blind-03.png": "53cff59273c65bccb3a92f0ea1c5aa08b4e997a551b0269b65d0d36b979f1bd0",
-            "w3c-issue-blind-04.png": "3504b2297279391e6f8d507ce15909f9622656815a2971f2207f360b47b26719",
+            "w3c-issue-blind-04.png": "9360147db96ee65fc182456f8128351eecab2673947dbef59dca4c0804c74127",
             "w3c-issue-blind-05.png": "84e21146926c63ac78185aa2c84dc7a21e35d8cb2b8168ad0c50bd8d571d3408"
         },
         "app_home_settings": {
@@ -116,9 +116,9 @@
             "w3c-threat-clear-no-dapp-04-ter.png": "ce55ec521deb4e7a1b5264bca4f8f9e0c27839cff3ff14aa24598846d078bb89",
             "w3c-issue-clear-no-dapp-01.png": "ccf52fcb90430540bc8226fdeadd7c1299b1312228bb117210f5c3d1499368a5",
             "w3c-issue-clear-no-dapp-02.png": "48165bfb6495b70c655ff33ca85ff4a1e16f7fe7b9ca7f6c2fbf7570b1dde367",
-            "w3c-issue-clear-no-dapp-03.png": "3504b2297279391e6f8d507ce15909f9622656815a2971f2207f360b47b26719",
+            "w3c-issue-clear-no-dapp-03.png": "9360147db96ee65fc182456f8128351eecab2673947dbef59dca4c0804c74127",
             "w3c-issue-clear-no-dapp-02-bis.png": "48165bfb6495b70c655ff33ca85ff4a1e16f7fe7b9ca7f6c2fbf7570b1dde367",
-            "w3c-issue-clear-no-dapp-03-bis.png": "3504b2297279391e6f8d507ce15909f9622656815a2971f2207f360b47b26719"
+            "w3c-issue-clear-no-dapp-03-bis.png": "9360147db96ee65fc182456f8128351eecab2673947dbef59dca4c0804c74127"
         },
         "w3c_dapp": {
             "Entry.png": "",
@@ -142,9 +142,9 @@
             "w3c-threat-clear-dapp-07.png": "6f61f5d503dbf7645788d9fbad5be09b76317fa70ef45c93590695bff4d9d03e",
             "w3c-issue-clear-dapp-01.png": "ccf52fcb90430540bc8226fdeadd7c1299b1312228bb117210f5c3d1499368a5",
             "w3c-issue-clear-dapp-02.png": "48165bfb6495b70c655ff33ca85ff4a1e16f7fe7b9ca7f6c2fbf7570b1dde367",
-            "w3c-issue-clear-dapp-04.png": "3504b2297279391e6f8d507ce15909f9622656815a2971f2207f360b47b26719",
+            "w3c-issue-clear-dapp-04.png": "9360147db96ee65fc182456f8128351eecab2673947dbef59dca4c0804c74127",
             "w3c-issue-clear-dapp-02-bis.png": "48165bfb6495b70c655ff33ca85ff4a1e16f7fe7b9ca7f6c2fbf7570b1dde367",
-            "w3c-issue-clear-dapp-04-bis.png": "3504b2297279391e6f8d507ce15909f9622656815a2971f2207f360b47b26719",
+            "w3c-issue-clear-dapp-04-bis.png": "9360147db96ee65fc182456f8128351eecab2673947dbef59dca4c0804c74127",
             "w3c-issue-clear-dapp-03.png": "baf76355588255e4f2ae8144f0c40173b01c306d4bc744991db96e54ac908c60",
             "w3c-issue-clear-dapp-05.png": "fd85c08338a39cf4fd8eb3cabdb778f99108d6866eb0d3c2dce1990f5e4811a3",
             "w3c-issue-clear-dapp-06.png": "6f61f5d503dbf7645788d9fbad5be09b76317fa70ef45c93590695bff4d9d03e"

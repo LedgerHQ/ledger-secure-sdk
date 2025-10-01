@@ -95,22 +95,14 @@ static void validatePinCallback(const uint8_t *content, uint8_t page)
     app_fullDogecoin();
 }
 
-static void touchCallback(int token, uint8_t index)
+static void backCallback(void)
 {
-    UNUSED(token);
-    UNUSED(index);
+    app_fullDogecoin();
 }
 
 static void actionCallback(void)
 {
-    nbgl_useCaseKeypadDigits("my title",
-                             4,
-                             8,
-                             FIRST_USER_TOKEN,
-                             false,
-                             NBGL_NO_TUNE,
-                             validatePinCallback,
-                             touchCallback);
+    nbgl_useCaseKeypad("my title", 4, 8, false, false, validatePinCallback, backCallback);
 }
 #endif  // SCREEN_SIZE_WALLET
 
