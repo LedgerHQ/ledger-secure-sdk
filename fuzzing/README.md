@@ -9,22 +9,23 @@ The code is divided into the following folders:
 ├── fuzzing
 │   ├── build
 │   │   ├── ...
-│   │   └── generated_glyphs  #  generated glyphs
-│   ├── extra                 #  .cmake files for building SDK's function harness
-│   ├── harness               #  libFuzzer .c files for harness
-│   │   └── fuzz_{}/          #  Optional folders for corpus of each harness [with the same name as the harness]
-│   ├── libs                  #  .cmake files for building SDK libraries
+│   │   └── generated_glyphs   #  generated glyphs
+│   ├── extra                  #  .cmake files for building SDK's function harness
+│   ├── harness                #  libFuzzer .c files for harness
+│   │   └── fuzz_{}/           #  Optional folders for corpus of each harness [with the same name as the harness]
+│   ├── libs                   #  .cmake files for building SDK libraries
 │   ├── macros
-│   │   ├── extract_macros.py #  Python script used to extract macros when fuzzing embedded apps
-│   │   ├── Makefile          #  Makefile used to expose the macros used when fuzzing the SDK
-│   │   └── macros.cmake      #  creates an INTERFACE for using macros in cmake targets
+│   │   ├── Makefile           #  Makefile used to expose the macros used when fuzzing the SDK
+│   │   └── macros.cmake       #  creates an INTERFACE for using macros in cmake targets
+│   │   └── add_macros.txt     #  macro list to add in SDK fuzzer compilation process
+│   │   └── exclude_macros.txt #  macro list to exclude from the SDK fuzzer compilation process
 │   ├── mock
-│   │   ├── custom            #  Custom mock implementations for specific use cases (folder name must appear before 'generated' to override __weak__ functions)
-│   │   ├── generated         #  automatically generated mock functions from src/syscalls.c
-│   │   └── mock.cmake        #  .cmake file for building mock functions
-│   ├── out                   #  Fuzzing output files
-│   ├── CMakeLists.txt        #  .cmake file that builds SDK Fuzzers and exposes an INTERFACE for SDK libs for fuzzing APPs
-│   ├── local_run.sh          #  Script for building and running fuzzers.
+│   │   ├── custom             #  Custom mock implementations for specific use cases (folder name must appear before 'generated' to override __weak__ functions)
+│   │   ├── generated          #  automatically generated mock functions from src/syscalls.c
+│   │   └── mock.cmake         #  .cmake file for building mock functions
+│   ├── out                    #  Fuzzing output files
+│   ├── CMakeLists.txt         #  .cmake file that builds SDK Fuzzers and exposes an INTERFACE for SDK libs for fuzzing APPs
+│   ├── local_run.sh           #  Script for building and running fuzzers.
 └────── README.md
 
 ```
@@ -46,16 +47,14 @@ docker run --rm -ti -v "$(realpath .):/app" ghcr.io/ledgerhq/ledger-app-builder/
 ```console
 cd fuzzing # You must run it from the fuzzing folder
 
-./local_run.sh --build=1 --TARGET_DEVICE=stax --fuzzer=build/fuzz_bip32 --j=4 --run-fuzzer=1 --compute-coverage=1
+./local_run.sh --build=1 --fuzzer=build/fuzz_bip32 --j=4 --run-fuzzer=1 --compute-coverage=1
 ```
 
 ### About local_run.sh
 
 | Parameter              | Type                | Description                                                          |
 | :--------------------- | :------------------ | :------------------------------------------------------------------- |
-| `--TARGET_DEVICE`      | `flex or stax`      | **Optional**. Whether it is a flex or stax device (default: flex)    |
 | `--BOLOS_SDK`          | `PATH TO BOLOS SDK` | **Required**. Path to the BOLOS SDK                                  |
-| `--re-generate-macros` | `bool`              | **Optional**. Whether to regenerate macros or not (default: 0)       |
 | `--build`              | `bool`              | **Optional**. Whether to build the project (default: 0)              |
 | `--fuzzer`             | `PATH`              | **Required**. Path to the fuzzer binary                              |
 | `--compute-coverage`   | `bool`              | **Optional**. Whether to compute coverage after fuzzing (default: 0) |
@@ -114,8 +113,11 @@ be used by ClusterFuzz in CI.
 Once in the container, go into the `fuzzing` folder to compile the fuzzer:
 
 ```console
+# Install missing dependencies
+apt update && apt install -y libclang-rt-dev
+
 # cmake initialization
-cmake -S . -B build -DCMAKE_C_COMPILER=clang -DSANITIZER=address -DTARGET_DEVICE="$TARGET_DEVICE" -G Ninja
+cmake -S . -B build -DCMAKE_C_COMPILER=clang -DSANITIZER=address -G Ninja
 
 # Fuzzer compilation
 cmake --build build

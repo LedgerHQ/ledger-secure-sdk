@@ -21,9 +21,16 @@ if(NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
   message(FATAL_ERROR "Fuzzer needs to be built with Clang")
 endif()
 
-# default fuzz device target
-if(NOT TARGET_DEVICE)
-  set(TARGET_DEVICE "flex")
+# fuzz device target
+if(EXISTS "${BOLOS_SDK}/.target")
+  file(STRINGS "${BOLOS_SDK}/.target" TARGET)
+  string(STRIP "${TARGET}" TARGET)
+
+  if(NOT "${TARGET}" STREQUAL "stax" AND NOT "${TARGET}" STREQUAL "flex")
+    message(FATAL_ERROR ".target must be 'flex' or 'stax' (found '${TARGET}')!")
+  endif()
+else()
+  message(FATAL_ERROR "No .target file found in ${BOLOS_SDK}")
 endif()
 
 # guard against in-source builds
@@ -57,8 +64,7 @@ if(NOT DEFINED ENV{LIB_FUZZING_ENGINE})
       -funsigned-char
       -fshort-enums)
 
-  set(LINK_FLAGS -fprofile-instr-generate
-                 -fcoverage-mapping -fuse-ld=lld)
+  set(LINK_FLAGS -fprofile-instr-generate -fcoverage-mapping -fuse-ld=lld)
   if(SANITIZER MATCHES "address")
     set(COMPILATION_FLAGS ${COMPILATION_FLAGS}
                           -fsanitize=fuzzer,address,undefined)
@@ -79,20 +85,15 @@ else()
   message(STATUS "Clang version: ${CLANG_VERSION}")
 
   execute_process(COMMAND ldd --version OUTPUT_VARIABLE LDD_VERSION)
-  message(STATUS "ldd version: ${LDD_VERSION}")
   set(COMPILATION_FLAGS "$ENV{LIB_FUZZING_ENGINE} $ENV{CFLAGS}")
-  message("The compilation flags = ${COMPILATION_FLAGS}")
   set(LINK_FLAGS "$ENV{LIB_FUZZING_ENGINE} $ENV{CFLAGS}")
-  message("The link flags = ${LINK_FLAGS}")
   separate_arguments(COMPILATION_FLAGS)
   separate_arguments(LINK_FLAGS)
 endif()
 
 # Fuzzing an APP
 if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
-  file(GLOB LIBS
-        "${BOLOS_SDK}/fuzzing/libs/*.cmake"
-        )
+  file(GLOB LIBS "${BOLOS_SDK}/fuzzing/libs/*.cmake")
 
   foreach(file IN LISTS LIBS)
     include(${file})

@@ -10,10 +10,11 @@ list(REMOVE_ITEM LIB_STANDARD_APP_SOURCES
      "${BOLOS_SDK}/lib_standard_app/main.c")
 add_library(standard_app ${LIB_STANDARD_APP_SOURCES})
 target_link_libraries(standard_app PUBLIC macros mock cxng io nfc)
-target_link_options(standard_app PUBLIC  -Wl,--undefined=io_send_response_buffers)
+target_link_options(standard_app PUBLIC
+                    -Wl,--undefined=io_send_response_buffers)
 target_compile_options(standard_app PUBLIC ${COMPILATION_FLAGS})
 target_include_directories(
   standard_app
-  PUBLIC ${BOLOS_SDK}/include/ ${BOLOS_SDK}/target/${TARGET_DEVICE}/include
-         ${BOLOS_SDK}/lib_cxng ${BOLOS_SDK}/lib_cxng/include
-         ${BOLOS_SDK}/lib_standard_app)
+  PUBLIC "${BOLOS_SDK}/include/" "${BOLOS_SDK}/target/${TARGET}/include"
+         "${BOLOS_SDK}/lib_cxng" "${BOLOS_SDK}/lib_cxng/include"
+         "${BOLOS_SDK}/lib_standard_app")
