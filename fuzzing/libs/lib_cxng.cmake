@@ -10,6 +10,6 @@ target_compile_definitions(cxng PUBLIC HAVE_FIXED_SCALAR_LENGTH)
 target_link_libraries(cxng PUBLIC macros mock)
 target_include_directories(
   cxng
-  PUBLIC ${BOLOS_SDK}/include/ ${BOLOS_SDK}/target/${TARGET_DEVICE}/include
-         ${BOLOS_SDK}/lib_cxng/ ${BOLOS_SDK}/lib_cxng/include
-         ${BOLOS_SDK}/lib_cxng/src ${BOLOS_SDK}/)
+  PUBLIC "${BOLOS_SDK}/include/" "${BOLOS_SDK}/target/${TARGET}/include"
+         "${BOLOS_SDK}/lib_cxng/" "${BOLOS_SDK}/lib_cxng/include"
+         "${BOLOS_SDK}/lib_cxng/src" "${BOLOS_SDK}/")

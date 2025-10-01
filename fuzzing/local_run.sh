@@ -8,8 +8,6 @@
 REBUILD=0
 COMPUTE_COVERAGE=0
 RUN_FUZZER=0
-TARGET_DEVICE="flex"
-REGENERATE_MACROS=0
 RUN_CRASH=0
 SANITIZER="address"
 BOLOS_SDK=""
@@ -18,7 +16,7 @@ NUM_CPUS=1
 FUZZER=""
 FUZZERNAME=""
 if [ ! -f "$FUZZING_PATH/local_run.sh" ]; then
-    APP_BUILD_PATH="$(cd /app && ledger-manifest -ob ledger_app.toml)"
+    APP_BUILD_PATH="/app/$(cd /app && ledger-manifest -ob ledger_app.toml)"
 fi
 RED="\033[0;31m"
 GREEN="\033[0;32m"
@@ -35,7 +33,6 @@ function show_help() {
     echo -e "${BLUE}Usage: ./local_run.sh --fuzzer=/path/to/fuzz_binary [--build=1|0] [other options:]${NC}"
     echo
     echo -e "  --BOLOS_SDK=PATH            Path to the BOLOS SDK (required if fuzzing an App)"
-    echo -e "  --TARGET_DEVICE=[flex|stax] Whether it is a flex or stax device (default: flex)"
     echo -e "  --fuzzer=PATH               Path to the fuzzer binary (required)"
     echo -e "  --build=1|0                 Whether to build the project (default: 0)"
     echo -e "  --sanitizer=address|memory  Compiles fuzzer with -fsanitize=fuzzer,undefined,[address|memory](default: address)"
@@ -49,67 +46,6 @@ function show_help() {
     echo -e "  ./local_run.sh --fuzzer=./build/fuzz_myapp --build=1 --run-fuzzer=1${NC}"
     exit 0
 }
-
-#===============================================================================
-#
-#     Perform: generated_macros[] = generated_macros[] + add_macros[] - exclude_macros[]
-#
-#===============================================================================
-function custom_macros(){
-    echo -e "${BLUE}Customizing macros...${NC}"
-    if [ "$BOLOS_SDK" ]; then
-        cd "$FUZZING_PATH/macros" || exit 1
-        python3 "$BOLOS_SDK/fuzzing/macros/extract_macros.py" \
-                                --file "generated/used_macros.json" \
-                                --exclude "exclude_macros.txt" \
-                                --add "add_macros.txt" \
-                                --output "generated/macros.txt" \
-                                --customsonly=1
-        cd "$FUZZING_PATH" || exit 1
-    fi
-}
-
-#===============================================================================
-#
-#     Generates Macro definitions
-#
-#===============================================================================
-function gen_macros() {
-    mkdir -p "$FUZZING_PATH/macros/generated"
-
-    # Install bear while it is not added to the docker image
-    if ! command -v bear >/dev/null 2>&1; then
-        apt-get update && apt-get install -y bear
-    fi
-
-    cd "/app/$APP_BUILD_PATH" || exit 1
-    echo -e "${BLUE}Generating macros...${NC}"
-    # $FLEX_SDK and $STAX_SDK are set in the docker image
-    case "$TARGET_DEVICE" in
-        flex)
-            make clean BOLOS_SDK="$FLEX_SDK"
-            bear --output "$FUZZING_PATH/macros/generated/used_macros.json" -- make -j"$NUM_CPUS" BOLOS_SDK="$FLEX_SDK"
-            ;;
-        stax)
-            make clean BOLOS_SDK="$STAX_SDK"
-            bear --output "$FUZZING_PATH/macros/generated/used_macros.json" -- make -j"$NUM_CPUS" BOLOS_SDK="$STAX_SDK"
-            ;;
-        *)
-            echo -e "${RED}Unsupported TARGET_DEVICE: $TARGET_DEVICE${NC}"
-            exit 1
-            ;;
-    esac
-    cd "$FUZZING_PATH/macros/" || exit 1
-    python3 "$BOLOS_SDK/fuzzing/macros/extract_macros.py" \
-                            --file "generated/used_macros.json" \
-                            --exclude exclude_macros.txt \
-                            --add add_macros.txt \
-                            --output generated/macros.txt
-
-    rm "$FUZZING_PATH/macros/generated/used_macros.json"
-    cd "$FUZZING_PATH" || exit 1
-}
-
 
 #===============================================================================
 #
@@ -127,9 +63,9 @@ function build() {
 
     echo -e "${BLUE}Building the project...${NC}"
     if [ ! -f "$FUZZING_PATH/local_run.sh" ]; then
-        cmake -S . -B build -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Debug -DSANITIZER="$SANITIZER" -DTARGET_DEVICE="$TARGET_DEVICE" -DAPP_GLYPH_DIR="/app/${APP_BUILD_PATH}/glyphs/" -DBOLOS_SDK="$BOLOS_SDK" -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=On
+        cmake -S . -B build -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Debug -DSANITIZER="$SANITIZER" -DAPP_BUILD_PATH="${APP_BUILD_PATH}" -DBOLOS_SDK="$BOLOS_SDK" -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=On
     else
-        cmake -S . -B build -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Debug -DSANITIZER="$SANITIZER" -DTARGET_DEVICE="$TARGET_DEVICE" -DBOLOS_SDK="$BOLOS_SDK" -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=On
+        cmake -S . -B build -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Debug -DSANITIZER="$SANITIZER" -DBOLOS_SDK="$BOLOS_SDK" -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=On
     fi
     cmake --build build
 }
@@ -147,12 +83,6 @@ for arg in "$@"; do
             ;;
         --BOLOS_SDK=*)
             BOLOS_SDK="${arg#*=}"
-            ;;
-        --TARGET_DEVICE=*)
-            TARGET_DEVICE="${arg#*=}"
-            ;;
-        --re-generate-macros=*)
-            REGENERATE_MACROS="${arg#*=}"
             ;;
         --build=*)
             REBUILD="${arg#*=}"
@@ -197,39 +127,11 @@ CRASH_DIR="$OUT_DIR/crashes"
 #     Validate required args
 #
 #===============================================================================
-
-if [ "$TARGET_DEVICE" != "flex" ] && [ "$TARGET_DEVICE" != "stax" ]; then
-    echo -e "${RED}Unsupported TARGET_DEVICE: $TARGET_DEVICE | Must be STAX or FLEX${NC}"
-    exit 1
-fi
-
 if [ "$SANITIZER" != "address" ] && [ "$SANITIZER" != "memory" ]; then
     echo -e "${RED}Unsupported SANITIZER: $SANITIZER | Must be 'address' or 'memory'${NC}"
     exit 1
 fi
 
-#===============================================================================
-#
-#     Generating Macros for APPs
-#
-#===============================================================================
-if [ ! -f "$FUZZING_PATH/local_run.sh" ]; then
-    if [ -z "$BOLOS_SDK" ]; then
-        echo -e "${RED}Error: --BOLOS_SDK=\$BOLOS_SDK is required.${NC}"
-        show_help
-    fi
-    if [ "$REBUILD" -eq 1 ] || [ "$REGENERATE_MACROS" -eq 1 ]; then
-        if [ ! -s "$FUZZING_PATH/macros/generated/macros.txt" ] || [ "$REGENERATE_MACROS" -eq 1 ]; then
-            echo -e "${YELLOW}macros.txt is missing or empty. Generating macros...${NC}"
-            gen_macros
-        fi
-        if [ -s "$FUZZING_PATH/macros/generated/macros.txt" ]; then
-            echo -e "${YELLOW}Generating custom macros...${NC}"
-            custom_macros
-        fi
-        echo -e "${GREEN}\n----------\nFuzzer built at $FUZZING_PATH/build/fuzz_*\n----------${NC}"
-    fi
-fi
 #===============================================================================
 #
 #     Build
