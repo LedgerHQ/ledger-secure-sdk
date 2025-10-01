@@ -35,6 +35,3 @@ ENABLE_TESTING_SWAP = 1
 endif
 
 include $(BOLOS_SDK)/Makefile.standard_app
-
-list-defines:
-	@echo "$(DEFINES)"
