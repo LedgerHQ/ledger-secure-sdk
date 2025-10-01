@@ -123,3 +123,10 @@ ifneq ($(wildcard $(APP_MANIFEST_FILE)),)
 endif
 
 include $(BOLOS_SDK)/Makefile.rules_generic
+
+list-defines:
+# As of now APPNAME is added as a CFLAG and not a DEFINE
+# We force print it.
+	@echo "DEFINITIONS LIST"
+	@echo "APPNAME=\"$(APPNAME)\""
+	@for d in $(DEFINES); do echo "$$d"; done
