@@ -178,12 +178,12 @@ Include dependency graph for nbgl_layout_keyboard.c:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:a204a5a79b0d44a5141af68e3d3acb4cb" id="r_a204a5a79b0d44a5141af68e3d3acb4cb"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout__keyboard_8c.html#a204a5a79b0d44a5141af68e3d3acb4cb">LINE_REAL_HEIGHT</a>&#160;&#160;&#160;4</td></tr>
-<tr class="separator:a204a5a79b0d44a5141af68e3d3acb4cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a99d62cca2084c030133c3bdb019ec2cb" id="r_a99d62cca2084c030133c3bdb019ec2cb"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout__keyboard_8c.html#a99d62cca2084c030133c3bdb019ec2cb">NUMBER_WIDTH</a>&#160;&#160;&#160;56</td></tr>
-<tr class="separator:a99d62cca2084c030133c3bdb019ec2cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad3037f8ca88d82c1e65b2e7ba3885292" id="r_ad3037f8ca88d82c1e65b2e7ba3885292"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout__keyboard_8c.html#ad3037f8ca88d82c1e65b2e7ba3885292">NUMBER_TEXT_SPACE</a>&#160;&#160;&#160;8</td></tr>
-<tr class="separator:ad3037f8ca88d82c1e65b2e7ba3885292"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8c12d91cd945e63a3c89874f3a1c98de" id="r_a8c12d91cd945e63a3c89874f3a1c98de"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout__keyboard_8c.html#a8c12d91cd945e63a3c89874f3a1c98de">SUGGESTION_BUTTONS_SIDE_MARGIN</a>&#160;&#160;&#160;BORDER_MARGIN</td></tr>
+<tr class="separator:a8c12d91cd945e63a3c89874f3a1c98de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7317eaf17db7cafcc1a42cff71850cc2" id="r_a7317eaf17db7cafcc1a42cff71850cc2"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout__keyboard_8c.html#a7317eaf17db7cafcc1a42cff71850cc2">LINE_THICKNESS</a>&#160;&#160;&#160;2</td></tr>
+<tr class="separator:a7317eaf17db7cafcc1a42cff71850cc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af07f0b9d220b9aa8bccc2bd34bd3f368" id="r_af07f0b9d220b9aa8bccc2bd34bd3f368"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout__keyboard_8c.html#af07f0b9d220b9aa8bccc2bd34bd3f368">LINE_COLOR</a>&#160;&#160;&#160;<a class="el" href="nbgl__types_8h.html#a0a8ef1b5e1941b7257e545cc33405ff1a82a1f4f015ad85784e8c8671b7338433">LIGHT_GRAY</a></td></tr>
+<tr class="separator:af07f0b9d220b9aa8bccc2bd34bd3f368"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -198,6 +198,12 @@ Enumerations</h2></td></tr>
 <br />
  }</td></tr>
 <tr class="separator:a394b3903fbf00ba2b6243f60689a5a5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac205be2172292384dd687b5471a87edd" id="r_ac205be2172292384dd687b5471a87edd"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="nbgl__layout__keyboard_8c.html#ac205be2172292384dd687b5471a87eddaedbdef7543e2605b1dba8543459a616a">NUMBER_INDEX</a> = 0
+, <a class="el" href="nbgl__layout__keyboard_8c.html#ac205be2172292384dd687b5471a87edda95e70983110bbf573e1dbcce945626ed">TEXT_INDEX</a>
+, <a class="el" href="nbgl__layout__keyboard_8c.html#ac205be2172292384dd687b5471a87eddae313fca897cb9a8694e998955b3118ea">DELETE_INDEX</a>
+, <a class="el" href="nbgl__layout__keyboard_8c.html#ac205be2172292384dd687b5471a87edda95903013f51f0e61b3392ed6fb48cf6d">LINE_INDEX</a>
+ }</td></tr>
+<tr class="separator:ac205be2172292384dd687b5471a87edd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -212,12 +218,6 @@ Functions</h2></td></tr>
 <tr class="memitem:af08405f1e391932482f1f3bc112512e9" id="r_af08405f1e391932482f1f3bc112512e9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout__keyboard_8c.html#af08405f1e391932482f1f3bc112512e9">nbgl_layoutKeyboardNeedsRefresh</a> (<a class="el" href="nbgl__layout_8h.html#a8c06300795d2ce7f2a5c59b7c8fe4c01">nbgl_layout_t</a> *layout, uint8_t index)</td></tr>
 <tr class="memdesc:af08405f1e391932482f1f3bc112512e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">function called to know whether the keyboard has been redrawn and needs a refresh  <br /></td></tr>
 <tr class="separator:af08405f1e391932482f1f3bc112512e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a16d892254e4074796927736958cf70db" id="r_a16d892254e4074796927736958cf70db"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout__keyboard_8c.html#a16d892254e4074796927736958cf70db">nbgl_layoutAddSuggestionButtons</a> (<a class="el" href="nbgl__layout_8h.html#a8c06300795d2ce7f2a5c59b7c8fe4c01">nbgl_layout_t</a> *layout, uint8_t nbUsedButtons, const char *buttonTexts[NB_MAX_SUGGESTION_BUTTONS], int firstButtonToken, tune_index_e tuneId)</td></tr>
-<tr class="memdesc:a16d892254e4074796927736958cf70db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds up to 4 black suggestion buttons under the previously added object.  <br /></td></tr>
-<tr class="separator:a16d892254e4074796927736958cf70db"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a411bba1dedd5d187a2b0b60c79be802e" id="r_a411bba1dedd5d187a2b0b60c79be802e"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout__keyboard_8c.html#a411bba1dedd5d187a2b0b60c79be802e">nbgl_layoutUpdateSuggestionButtons</a> (<a class="el" href="nbgl__layout_8h.html#a8c06300795d2ce7f2a5c59b7c8fe4c01">nbgl_layout_t</a> *layout, uint8_t index, uint8_t nbUsedButtons, const char *buttonTexts[NB_MAX_SUGGESTION_BUTTONS])</td></tr>
-<tr class="memdesc:a411bba1dedd5d187a2b0b60c79be802e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the number and/or the text suggestion buttons created with <a class="el" href="nbgl__layout_8h.html#addc58a116ad42c8bd42172e3b2555ab3">nbgl_layoutAddSuggestionButtons()</a>  <br /></td></tr>
-<tr class="separator:a411bba1dedd5d187a2b0b60c79be802e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a641428c586e263473e31397bb6725a0a" id="r_a641428c586e263473e31397bb6725a0a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout__keyboard_8c.html#a641428c586e263473e31397bb6725a0a">nbgl_layoutAddEnteredText</a> (<a class="el" href="nbgl__layout_8h.html#a8c06300795d2ce7f2a5c59b7c8fe4c01">nbgl_layout_t</a> *layout, bool numbered, uint8_t number, const char *text, bool grayedOut, int offsetY, int token)</td></tr>
 <tr class="memdesc:a641428c586e263473e31397bb6725a0a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a "text entry" area under the previously entered object. This area can be preceded (beginning of line) by an index, indicating for example the entered world. A vertical gray line is placed under the text. This text must be vertical placed in the screen with offsetY.  <br /></td></tr>
 <tr class="separator:a641428c586e263473e31397bb6725a0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -243,51 +243,51 @@ Functions</h2></td></tr>
 
 <p class="definition">Definition in file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
 </div><h2 class="groupheader">Macro Definition Documentation</h2>
-<a id="a204a5a79b0d44a5141af68e3d3acb4cb" name="a204a5a79b0d44a5141af68e3d3acb4cb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a204a5a79b0d44a5141af68e3d3acb4cb">&#9670;&#160;</a></span>LINE_REAL_HEIGHT</h2>
+<a id="af07f0b9d220b9aa8bccc2bd34bd3f368" name="af07f0b9d220b9aa8bccc2bd34bd3f368"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af07f0b9d220b9aa8bccc2bd34bd3f368">&#9670;&#160;</a></span>LINE_COLOR</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define LINE_REAL_HEIGHT&#160;&#160;&#160;4</td>
+          <td class="memname">#define LINE_COLOR&#160;&#160;&#160;<a class="el" href="nbgl__types_8h.html#a0a8ef1b5e1941b7257e545cc33405ff1a82a1f4f015ad85784e8c8671b7338433">LIGHT_GRAY</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00074">74</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00123">123</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
 
 </div>
 </div>
-<a id="ad3037f8ca88d82c1e65b2e7ba3885292" name="ad3037f8ca88d82c1e65b2e7ba3885292"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad3037f8ca88d82c1e65b2e7ba3885292">&#9670;&#160;</a></span>NUMBER_TEXT_SPACE</h2>
+<a id="a7317eaf17db7cafcc1a42cff71850cc2" name="a7317eaf17db7cafcc1a42cff71850cc2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7317eaf17db7cafcc1a42cff71850cc2">&#9670;&#160;</a></span>LINE_THICKNESS</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define NUMBER_TEXT_SPACE&#160;&#160;&#160;8</td>
+          <td class="memname">#define LINE_THICKNESS&#160;&#160;&#160;2</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00079">79</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00122">122</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
 
 </div>
 </div>
-<a id="a99d62cca2084c030133c3bdb019ec2cb" name="a99d62cca2084c030133c3bdb019ec2cb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a99d62cca2084c030133c3bdb019ec2cb">&#9670;&#160;</a></span>NUMBER_WIDTH</h2>
+<a id="a8c12d91cd945e63a3c89874f3a1c98de" name="a8c12d91cd945e63a3c89874f3a1c98de"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8c12d91cd945e63a3c89874f3a1c98de">&#9670;&#160;</a></span>SUGGESTION_BUTTONS_SIDE_MARGIN</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define NUMBER_WIDTH&#160;&#160;&#160;56</td>
+          <td class="memname">#define SUGGESTION_BUTTONS_SIDE_MARGIN&#160;&#160;&#160;BORDER_MARGIN</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00076">76</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00117">117</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
 
 </div>
 </div>
@@ -313,6 +313,28 @@ Functions</h2></td></tr>
 </table>
 
 <p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00036">36</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
+
+</div>
+</div>
+<a id="ac205be2172292384dd687b5471a87edd" name="ac205be2172292384dd687b5471a87edd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac205be2172292384dd687b5471a87edd">&#9670;&#160;</a></span>anonymous enum</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous enum</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ac205be2172292384dd687b5471a87eddaedbdef7543e2605b1dba8543459a616a" name="ac205be2172292384dd687b5471a87eddaedbdef7543e2605b1dba8543459a616a"></a>NUMBER_INDEX&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ac205be2172292384dd687b5471a87edda95e70983110bbf573e1dbcce945626ed" name="ac205be2172292384dd687b5471a87edda95e70983110bbf573e1dbcce945626ed"></a>TEXT_INDEX&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ac205be2172292384dd687b5471a87eddae313fca897cb9a8694e998955b3118ea" name="ac205be2172292384dd687b5471a87eddae313fca897cb9a8694e998955b3118ea"></a>DELETE_INDEX&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ac205be2172292384dd687b5471a87edda95903013f51f0e61b3392ed6fb48cf6d" name="ac205be2172292384dd687b5471a87edda95903013f51f0e61b3392ed6fb48cf6d"></a>LINE_INDEX&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00052">52</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
 
 </div>
 </div>
@@ -343,7 +365,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00209">209</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00254">254</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
 
 </div>
 </div>
@@ -392,7 +414,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Adds a black full width confirmation button on top of the previously added keyboard. </p>
-<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000006">Deprecated:</a></b></dt><dd>Use <a class="el" href="nbgl__layout_8h.html#a465870d19e2d8f1a07e332021be2a3c8">nbgl_layoutAddKeyboardContent</a> instead</dd></dl>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000004">Deprecated:</a></b></dt><dd>Use <a class="el" href="nbgl__layout_8h.html#a465870d19e2d8f1a07e332021be2a3c8">nbgl_layoutAddKeyboardContent</a> instead</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">layout</td><td>the current layout </td></tr>
@@ -405,7 +427,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00892">892</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00813">813</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
 
 </div>
 </div>
@@ -466,7 +488,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Adds a "text entry" area under the previously entered object. This area can be preceded (beginning of line) by an index, indicating for example the entered world. A vertical gray line is placed under the text. This text must be vertical placed in the screen with offsetY. </p>
-<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000004">Deprecated:</a></b></dt><dd>Use <a class="el" href="nbgl__layout_8h.html#a465870d19e2d8f1a07e332021be2a3c8">nbgl_layoutAddKeyboardContent</a> instead</dd></dl>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000002">Deprecated:</a></b></dt><dd>Use <a class="el" href="nbgl__layout_8h.html#a465870d19e2d8f1a07e332021be2a3c8">nbgl_layoutAddKeyboardContent</a> instead</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>This area is touchable</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -474,15 +496,15 @@ Functions</h2></td></tr>
     <tr><td class="paramname">numbered</td><td>if true, the "number" param is used as index </td></tr>
     <tr><td class="paramname">number</td><td>index of the text </td></tr>
     <tr><td class="paramname">text</td><td>string to display in the area </td></tr>
-    <tr><td class="paramname">grayedOut</td><td>if true, the text is grayed out (but not the potential number) </td></tr>
+    <tr><td class="paramname">grayedOut</td><td>if true, the text is grayed out (unused) </td></tr>
     <tr><td class="paramname">offsetY</td><td>vertical offset from the top of the page </td></tr>
-    <tr><td class="paramname">token</td><td>token provided in onActionCallback when this area is touched </td></tr>
+    <tr><td class="paramname">token</td><td>token provided in onActionCallback when the "cross" is touched </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00766">766</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00687">687</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
 
 </div>
 </div>
@@ -522,7 +544,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the index of keyboard, to use in <a class="el" href="nbgl__layout_8h.html#a09d0e7466b4a3c6a4c7da128232b29d3">nbgl_layoutUpdateKeyboard()</a> </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00487">487</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00540">540</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
 
 </div>
 </div>
@@ -562,69 +584,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the height of the area if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00978">978</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
-
-</div>
-</div>
-<a id="a16d892254e4074796927736958cf70db" name="a16d892254e4074796927736958cf70db"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a16d892254e4074796927736958cf70db">&#9670;&#160;</a></span>nbgl_layoutAddSuggestionButtons()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int nbgl_layoutAddSuggestionButtons </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="nbgl__layout_8h.html#a8c06300795d2ce7f2a5c59b7c8fe4c01">nbgl_layout_t</a> *&#160;</td>
-          <td class="paramname"><em>layout</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>nbUsedButtons</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>buttonTexts</em>[NB_MAX_SUGGESTION_BUTTONS], </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>firstButtonToken</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">tune_index_e&#160;</td>
-          <td class="paramname"><em>tuneId</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Adds up to 4 black suggestion buttons under the previously added object. </p>
-<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000002">Deprecated:</a></b></dt><dd>Use <a class="el" href="nbgl__layout_8h.html#a465870d19e2d8f1a07e332021be2a3c8">nbgl_layoutAddKeyboardContent</a> instead</dd></dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">layout</td><td>the current layout </td></tr>
-    <tr><td class="paramname">nbUsedButtons</td><td>the number of actually used buttons </td></tr>
-    <tr><td class="paramname">buttonTexts</td><td>array of 4 strings for buttons (last ones can be NULL) </td></tr>
-    <tr><td class="paramname">firstButtonToken</td><td>first token used for buttons, provided in onActionCallback (the next 3 values will be used for other buttons) </td></tr>
-    <tr><td class="paramname">tuneId</td><td>tune to play when any button is pressed </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00629">629</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00899">899</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
 
 </div>
 </div>
@@ -664,7 +624,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if keyboard needs a refresh </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00593">593</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00646">646</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
 
 </div>
 </div>
@@ -707,7 +667,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Updates an existing black full width confirmation button on top of the previously added keyboard. </p>
-<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000007">Deprecated:</a></b></dt><dd>Use <a class="el" href="nbgl__layout_8h.html#a991f5c48168e09ee81c86c62526c1bb8">nbgl_layoutUpdateKeyboardContent</a> instead</dd></dl>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000005">Deprecated:</a></b></dt><dd>Use <a class="el" href="nbgl__layout_8h.html#a991f5c48168e09ee81c86c62526c1bb8">nbgl_layoutUpdateKeyboardContent</a> instead</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">layout</td><td>the current layout </td></tr>
@@ -719,7 +679,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00933">933</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00854">854</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
 
 </div>
 </div>
@@ -774,7 +734,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Updates an existing "text entry" area, created with <a class="el" href="nbgl__layout_8h.html#a091ab8f5f9c7e3828c44b26e70b5de2c">nbgl_layoutAddEnteredText()</a> </p>
-<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000005">Deprecated:</a></b></dt><dd>Use <a class="el" href="nbgl__layout_8h.html#a991f5c48168e09ee81c86c62526c1bb8">nbgl_layoutUpdateKeyboardContent</a> instead</dd></dl>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000003">Deprecated:</a></b></dt><dd>Use <a class="el" href="nbgl__layout_8h.html#a991f5c48168e09ee81c86c62526c1bb8">nbgl_layoutUpdateKeyboardContent</a> instead</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">layout</td><td>the current layout </td></tr>
@@ -788,7 +748,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&lt;0 if error, 0 if OK with text fitting the area, 1 of 0K with text not fitting the area </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00834">834</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00755">755</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
 
 </div>
 </div>
@@ -849,7 +809,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;=0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00556">556</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00609">609</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
 
 </div>
 </div>
@@ -889,62 +849,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the height of the area if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l01052">1052</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
-
-</div>
-</div>
-<a id="a411bba1dedd5d187a2b0b60c79be802e" name="a411bba1dedd5d187a2b0b60c79be802e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a411bba1dedd5d187a2b0b60c79be802e">&#9670;&#160;</a></span>nbgl_layoutUpdateSuggestionButtons()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int nbgl_layoutUpdateSuggestionButtons </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="nbgl__layout_8h.html#a8c06300795d2ce7f2a5c59b7c8fe4c01">nbgl_layout_t</a> *&#160;</td>
-          <td class="paramname"><em>layout</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>index</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>nbUsedButtons</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>buttonTexts</em>[NB_MAX_SUGGESTION_BUTTONS]&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Updates the number and/or the text suggestion buttons created with <a class="el" href="nbgl__layout_8h.html#addc58a116ad42c8bd42172e3b2555ab3">nbgl_layoutAddSuggestionButtons()</a> </p>
-<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000003">Deprecated:</a></b></dt><dd>Use <a class="el" href="nbgl__layout_8h.html#a991f5c48168e09ee81c86c62526c1bb8">nbgl_layoutUpdateKeyboardContent</a> instead</dd></dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">layout</td><td>the current layout </td></tr>
-    <tr><td class="paramname">index</td><td>index returned by <a class="el" href="nbgl__layout_8h.html#addc58a116ad42c8bd42172e3b2555ab3">nbgl_layoutAddSuggestionButtons()</a> (unused) </td></tr>
-    <tr><td class="paramname">nbUsedButtons</td><td>the number of actually used buttons </td></tr>
-    <tr><td class="paramname">buttonTexts</td><td>array of 4 strings for buttons (last ones can be NULL) </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00682">682</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout__keyboard_8c_source.html#l00970">970</a> of file <a class="el" href="nbgl__layout__keyboard_8c_source.html">nbgl_layout_keyboard.c</a>.</p>
 
 </div>
 </div>
