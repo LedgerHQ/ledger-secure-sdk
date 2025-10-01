@@ -134,8 +134,8 @@ This graph shows which files directly or indirectly include this file:</div>
 Functions</h2></td></tr>
 <tr class="memitem:ae9234f018f8fd93d6893a9dd6d2cdff1" id="r_ae9234f018f8fd93d6893a9dd6d2cdff1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__front_8h.html#ae9234f018f8fd93d6893a9dd6d2cdff1">nbgl_frontDrawRect</a> (const <a class="el" href="nbgl__types_8h.html#ad8d6b26cf49117bcc4373dc05a2f52a8">nbgl_area_t</a> *area)</td></tr>
 <tr class="separator:ae9234f018f8fd93d6893a9dd6d2cdff1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0d1e8853b7140fefcf1bbf44ca4baed2" id="r_a0d1e8853b7140fefcf1bbf44ca4baed2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__front_8h.html#a0d1e8853b7140fefcf1bbf44ca4baed2">nbgl_frontDrawLine</a> (const <a class="el" href="nbgl__types_8h.html#ad8d6b26cf49117bcc4373dc05a2f52a8">nbgl_area_t</a> *area, uint8_t dotStartIdx, <a class="el" href="nbgl__types_8h.html#a0a8ef1b5e1941b7257e545cc33405ff1">color_t</a> lineColor)</td></tr>
-<tr class="separator:a0d1e8853b7140fefcf1bbf44ca4baed2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac4faf4bf9754b5ab4677ab0f7cf9626e" id="r_ac4faf4bf9754b5ab4677ab0f7cf9626e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__front_8h.html#ac4faf4bf9754b5ab4677ab0f7cf9626e">nbgl_frontDrawHorizontalLine</a> (const <a class="el" href="nbgl__types_8h.html#ad8d6b26cf49117bcc4373dc05a2f52a8">nbgl_area_t</a> *area, uint8_t mask, <a class="el" href="nbgl__types_8h.html#a0a8ef1b5e1941b7257e545cc33405ff1">color_t</a> lineColor)</td></tr>
+<tr class="separator:ac4faf4bf9754b5ab4677ab0f7cf9626e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2549e41a7a9dd762316411d3f3ab970d" id="r_a2549e41a7a9dd762316411d3f3ab970d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__front_8h.html#a2549e41a7a9dd762316411d3f3ab970d">nbgl_frontDrawImage</a> (const <a class="el" href="nbgl__types_8h.html#ad8d6b26cf49117bcc4373dc05a2f52a8">nbgl_area_t</a> *area, const uint8_t *buffer, <a class="el" href="nbgl__types_8h.html#a0d395d1171ca489a7449e77f463a1596">nbgl_transformation_t</a> transformation, <a class="el" href="nbgl__types_8h.html#a1fb2212acfe3f30e1c3a5e3a876a6740">nbgl_color_map_t</a> colorMap)</td></tr>
 <tr class="separator:a2549e41a7a9dd762316411d3f3ab970d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5e18ee7daf7749bc49a1d60cf6b2fb9b" id="r_a5e18ee7daf7749bc49a1d60cf6b2fb9b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__front_8h.html#a5e18ee7daf7749bc49a1d60cf6b2fb9b">nbgl_frontDrawImageFile</a> (const <a class="el" href="nbgl__types_8h.html#ad8d6b26cf49117bcc4373dc05a2f52a8">nbgl_area_t</a> *area, const uint8_t *buffer, <a class="el" href="nbgl__types_8h.html#a1fb2212acfe3f30e1c3a5e3a876a6740">nbgl_color_map_t</a> colorMap, const uint8_t *uzlib_chunk_buffer)</td></tr>
@@ -169,6 +169,40 @@ Functions</h2></td></tr>
           <td></td>
           <td class="paramtype"><a class="el" href="nbgl__types_8h.html#ad8d6b26cf49117bcc4373dc05a2f52a8">nbgl_area_t</a> *&#160;</td>
           <td class="paramname"><em>masked_area_or_null</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac4faf4bf9754b5ab4677ab0f7cf9626e" name="ac4faf4bf9754b5ab4677ab0f7cf9626e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac4faf4bf9754b5ab4677ab0f7cf9626e">&#9670;&#160;</a></span>nbgl_frontDrawHorizontalLine()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void nbgl_frontDrawHorizontalLine </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="nbgl__types_8h.html#ad8d6b26cf49117bcc4373dc05a2f52a8">nbgl_area_t</a> *&#160;</td>
+          <td class="paramname"><em>area</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>mask</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="nbgl__types_8h.html#a0a8ef1b5e1941b7257e545cc33405ff1">color_t</a>&#160;</td>
+          <td class="paramname"><em>lineColor</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -295,40 +329,6 @@ Functions</h2></td></tr>
           <td></td>
           <td class="paramtype">uint8_t&#160;</td>
           <td class="paramname"><em>nb_skipped_bytes</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a0d1e8853b7140fefcf1bbf44ca4baed2" name="a0d1e8853b7140fefcf1bbf44ca4baed2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0d1e8853b7140fefcf1bbf44ca4baed2">&#9670;&#160;</a></span>nbgl_frontDrawLine()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void nbgl_frontDrawLine </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="nbgl__types_8h.html#ad8d6b26cf49117bcc4373dc05a2f52a8">nbgl_area_t</a> *&#160;</td>
-          <td class="paramname"><em>area</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>dotStartIdx</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="nbgl__types_8h.html#a0a8ef1b5e1941b7257e545cc33405ff1">color_t</a>&#160;</td>
-          <td class="paramname"><em>lineColor</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
