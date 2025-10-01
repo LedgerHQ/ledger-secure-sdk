@@ -1,8 +1,9 @@
 # Makefile to build and launch screenshots
 # The generated screenshots can be used to validate NBGL Application Use Cases
 GCC 				?= gcc
-PRODUCT_NAME ?=$(word 1, $(subst _clean, , $(subst _screenshots, ,$(MAKECMDGOALS))))
+PRODUCT_NAME ?=$(word 1, $(subst _golden, , $(subst _clean, , $(subst _screenshots, ,$(MAKECMDGOALS)))))
 
+TARGET_PRODUCT_NAME ?= $(PRODUCT_NAME)
 # possible products
 PRODUCT_NAMES := stax nanox flex nanosp apex_p
 
@@ -18,6 +19,7 @@ OBJ_DIR			:= $(BUILD_DIR)/obj
 BIN_DIR			:= $(BUILD_DIR)/bin
 PUBLIC_SDK_DIR	:= ../..
 APP_PATH  := $(SRC_DIR)/apps
+GOLDEN_PATH  := golden_samples
 
 SCREENSHOTS_SRC_DIR := .
 
@@ -103,6 +105,7 @@ TARGET_DEFINES += \
                        SCREEN_SIZE_NANO
 
 TARGET_ID           := 0x33100004
+TARGET_PRODUCT_NAME := nanos2
 endif
 
 ifeq ($(PRODUCT_NAME),apex_p)
@@ -169,11 +172,10 @@ APP_ICON_DESTH := $(GEN_DIR)/app_icons.h
 NBGL_PATH := $(PUBLIC_SDK_DIR)/lib_nbgl
 
 INC:=                  \
-                       /usr/include/SDL2 \
                        $(APP_PATH) \
                        $(SRC_DIR)/main \
                        $(SRC_DIR)/uzlib \
-                       $(PUBLIC_SDK_DIR)/target/$(PRODUCT_NAME)/include \
+                       $(PUBLIC_SDK_DIR)/target/$(TARGET_PRODUCT_NAME)/include \
                        $(PUBLIC_SDK_DIR)/include \
                        $(PUBLIC_SDK_DIR)/lib_ux_nbgl \
                        $(PUBLIC_SDK_DIR)/lib_cxng/include \
@@ -184,7 +186,7 @@ INC:=                  \
                        $(PUBLIC_SDK_DIR)/qrcode/include \
                        $(GEN_DIR)
 
-LDLIBS              := -lSDL2 -lm -lbsd
+LDLIBS              := -lm -lbsd -lssl -lcrypto
 LDFLAGS             := -Xlinker -Map=$(BUILD_DIR)/memory.map
 BIN                 := $(BIN_DIR)/simulator
 
@@ -277,6 +279,11 @@ $(BIN_DIR) $(OBJ_DIR) $(GEN_DIR) $(BUILD_DIR) $(BUILD_DIR)/screenshots:
 %_screenshots: $(BIN) | $(BUILD_DIR)/screenshots
 	@echo "Building... "$@
 	@python3 $(SCREENSHOTS_SRC_DIR)/launch_screenshots.py -b $(BIN) -w $(BUILD_DIR)/screenshots -f $(FLOWS_PATH) -p $(PROPERTIES_FILENAME) -n $(PRODUCT_NAME)
+	@python3 $(SCREENSHOTS_SRC_DIR)/compare_screenshots.py -r $(GOLDEN_PATH)/$(PRODUCT_NAME) -t $(BUILD_DIR)/screenshots
+
+# Update golden sample
+%_golden:
+	@python3 $(SCREENSHOTS_SRC_DIR)/compare_screenshots.py -r $(GOLDEN_PATH)/$(PRODUCT_NAME) -t $(BUILD_DIR)/screenshots -g
 
 %_clean:
 	rm -rf $(PRODUCT_DIR)

@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "nbgl_touch.h"
+#include <openssl/evp.h>
 
 /**********************
  *     DEFINE
@@ -94,22 +95,23 @@ typedef struct {
 #else   // HAVE_SE_TOUCH
     uint8_t keyState;
 #endif  // HAVE_SE_TOUCH
-    char    *name;
-    uint16_t wait;
-    uint16_t wait_initial;
-    uint8_t  power_press;
-    uint8_t  forced_key_press;
-    uint8_t  ble_event_idx;
-    uint8_t  batt_level;
-    bool     auto_transition;
-    bool     reset;  // if true, reset the counter of parent
-    uint8_t  batt_event_idx;
-    uint8_t  ux_event_idx;
-    uint8_t  app_event_idx;
-    uint8_t  seed_algorithm;
-    uint32_t param;
-    uint32_t os_flags;
-    uint16_t long_press_wait;
+    char        *name;
+    uint16_t     wait;
+    uint16_t     wait_initial;
+    uint8_t      power_press;
+    uint8_t      forced_key_press;
+    uint8_t      ble_event_idx;
+    uint8_t      batt_level;
+    bool         auto_transition;
+    bool         reset;  // if true, reset the counter of parent
+    uint8_t      batt_event_idx;
+    uint8_t      ux_event_idx;
+    uint8_t      app_event_idx;
+    uint8_t      seed_algorithm;
+    uint32_t     param;
+    uint32_t     os_flags;
+    uint16_t     long_press_wait;
+    unsigned int features;
 } PageStep_t;
 
 typedef struct {
@@ -117,12 +119,14 @@ typedef struct {
     char *name;      // name of this scenario page
     bool  optional;  // if set to true, it means it's a page only existing for some langs, so saving
                      // is not mandatory
-    uint32_t    nbSteps;       // number of steps for this scenario page
-    PageStep_t *steps;         // dynamic array of steps for this scenario page
-    uint32_t    currentStep;   // current step in steps[] array
-    bool        saved;         // set to true once the page is saved (.png file created)
-    uint32_t    nb_sub_pages;  // for Nanos, when a string is plit on several sub pages
-    uint32_t    cur_sub_page;
+    uint32_t      nbSteps;       // number of steps for this scenario page
+    PageStep_t   *steps;         // dynamic array of steps for this scenario page
+    uint32_t      currentStep;   // current step in steps[] array
+    bool          saved;         // set to true once the page is saved (.png file created)
+    uint32_t      nb_sub_pages;  // for Nanos, when a string is plit on several sub pages
+    uint32_t      cur_sub_page;
+    unsigned char hash[EVP_MAX_MD_SIZE];
+    unsigned int  hash_len;
 } ScenarioPage_t;
 
 typedef struct {

@@ -41,3 +41,11 @@ The environment can be cleaned-up with:
 ```
 make <product>_clean
 ```
+
+## (Re)Generate golden samples
+
+The golden samples of screenshots can be (re)regenerated, if needed, with:
+
+```
+make <product>_golden
+```
