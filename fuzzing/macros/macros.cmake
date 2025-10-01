@@ -9,40 +9,52 @@ endif()
 
 # Building from App
 if(NOT "${BOLOS_SDK}/fuzzing" STREQUAL ${CMAKE_SOURCE_DIR})
-  message(
-    "${Blue}Importing macros from ${CMAKE_SOURCE_DIR}/macros/generated/macros.txt")
-  file(STRINGS "${CMAKE_SOURCE_DIR}/macros/generated/macros.txt" MACRO_LIST)
-  list(APPEND MACRO_LIST "FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION=1")
-  target_compile_definitions(macros INTERFACE ${MACRO_LIST})
-
+  set(DEFINES_MAKEFILE_DIRECTORY "${APP_BUILD_PATH}")
   # Building from SDK
 else()
-  if(${TARGET_DEVICE} STREQUAL "stax" OR ${TARGET_DEVICE} STREQUAL "flex")
-    # Run `make list-defines` and capture output
-    execute_process(
-      COMMAND ${CMAKE_COMMAND} -E env BOLOS_SDK=${BOLOS_SDK} TARGET=${TARGET_DEVICE} CC=${CMAKE_C_COMPILER} make list-defines
-      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/macros"
-      OUTPUT_VARIABLE MACRO_OUTPUT
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-      ERROR_QUIET
-    )
-
-    if(NOT MACRO_OUTPUT)
-      message(FATAL_ERROR "Failed to extract macros via 'make list-defines'")
-    endif()
-
-    string(REPLACE " " ";" MACRO_LIST "${MACRO_OUTPUT}")
-
-    # Append the special fuzzing macro
-    list(APPEND MACRO_LIST "FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION=1")
-    list(REMOVE_ITEM MACRO_LIST "PRINTF\\(...\\)=")
-    list(REMOVE_ITEM MACRO_LIST "USE_OS_IO_STACK")
-
-    target_compile_definitions(macros INTERFACE ${MACRO_LIST})
-  endif()
+  set(DEFINES_MAKEFILE_DIRECTORY "${BOLOS_SDK}/fuzzing/macros")
 endif()
 
-message("${Blue}Loaded macros from 'make list-defines' (${CMAKE_SOURCE_DIR}/macros):")
-foreach(M ${MACRO_LIST})
-  message("  - ${M}")
-endforeach()
+# getting DEFINES from Makefile
+execute_process(
+  COMMAND
+    bash "-c"
+    "make list-defines BOLOS_SDK=${BOLOS_SDK} TARGET=${TARGET} | awk '/DEFINITIONS LIST/{flag=1;next}flag'" # prints the
+                                                                                                            # output of
+                                                                                                            # command
+                                                                                                            # only after
+                                                                                                            # "DEFINITIONS
+                                                                                                            # LIST"
+                                                                                                            # marker to
+                                                                                                            # avoid
+                                                                                                            # warnings
+                                                                                                            # and other
+                                                                                                            # logs
+  WORKING_DIRECTORY "${DEFINES_MAKEFILE_DIRECTORY}"
+  OUTPUT_VARIABLE MACRO_OUTPUT
+  OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
+
+if(NOT MACRO_OUTPUT)
+  message(FATAL_ERROR "Failed to extract macros via 'make list-defines'")
+endif()
+
+string(REPLACE "\n" ";" MACRO_LIST "${MACRO_OUTPUT}")
+
+# Adding extra macro definitions
+set(ADD_MACRO_FILE "${CMAKE_SOURCE_DIR}/macros/add_macros.txt")
+if(EXISTS "${ADD_MACRO_FILE}")
+  file(STRINGS "${ADD_MACRO_FILE}" ADD_MACRO_LIST)
+  list(APPEND ADD_MACRO_LIST "FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION=1")
+  list(APPEND MACRO_LIST ${ADD_MACRO_LIST})
+endif()
+
+# Excluding macro definitions
+set(EXCLUDE_MACRO_FILE "${CMAKE_SOURCE_DIR}/macros/exclude_macros.txt")
+if(EXISTS "${EXCLUDE_MACRO_FILE}")
+  file(STRINGS "${EXCLUDE_MACRO_FILE}" EXCLUDE_MACRO_LIST)
+  foreach(EXCLUDE_MACRO ${EXCLUDE_MACRO_LIST})
+    list(REMOVE_ITEM MACRO_LIST "${EXCLUDE_MACRO}")
+  endforeach()
+endif()
+
+target_compile_definitions(macros INTERFACE ${MACRO_LIST})
