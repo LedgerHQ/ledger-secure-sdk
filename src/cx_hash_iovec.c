@@ -20,7 +20,6 @@
 
 #include "bolos_target.h"
 #include "cx.h"
-#include "lib_cxng/src/cx_ram.h"
 
 #ifdef TARGET_NANOS
 // The G_cx symbol is already defined in some apps.

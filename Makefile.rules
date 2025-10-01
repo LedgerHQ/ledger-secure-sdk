@@ -62,6 +62,7 @@ INCLUDES_PATH  += ${BOLOS_SDK}
 #include the lib_cxng definition by default if not asked otherwise
 ifeq ($(NO_CXNG),)
 INCLUDES_PATH += $(BOLOS_SDK)/lib_cxng/include
+INCLUDES_PATH += $(BOLOS_SDK)/lib_cxng/src
 endif
 
 # Get absolute App root directory to ensure correct stem replacement
