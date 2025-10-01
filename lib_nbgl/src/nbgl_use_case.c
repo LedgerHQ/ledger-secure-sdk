@@ -2364,7 +2364,7 @@ static void displaySecurityReport(uint32_t set)
         info.icon                 = &LARGE_WARNING_ICON;
         info.title                = "Transaction Check unavailable";
         info.description
-            = "If you're not using the\nLedger Live app, Transaction Check might not work. If your "
+            = "If you're not using the\nLedger Live app, Transaction Check might not work. If you "
               "are using Ledger Live, reject the transaction and try again.\n\nGet help at "
               "ledger.com/e11";
         nbgl_layoutAddContentCenter(reviewWithWarnCtx.modalLayout, &info);
