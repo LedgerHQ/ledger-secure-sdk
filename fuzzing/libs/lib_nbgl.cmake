@@ -13,6 +13,7 @@ target_compile_options(nbgl PUBLIC ${COMPILATION_FLAGS})
 target_include_directories(
   nbgl
   PUBLIC "${LIB_NBGL_FONT_DIRS}"
+         "${BOLOS_SDK}/fuzzing/glyphs/"
          "${BOLOS_SDK}/lib_nbgl/include/fonts/"
          "${BOLOS_SDK}/lib_cxng/include/"
          "${BOLOS_SDK}/include/"

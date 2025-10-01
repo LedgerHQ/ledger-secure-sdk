@@ -44,7 +44,8 @@ string(REPLACE "\n" ";" MACRO_LIST "${MACRO_OUTPUT}")
 set(ADD_MACRO_FILE "${CMAKE_SOURCE_DIR}/macros/add_macros.txt")
 if(EXISTS "${ADD_MACRO_FILE}")
   file(STRINGS "${ADD_MACRO_FILE}" ADD_MACRO_LIST)
-  list(APPEND ADD_MACRO_LIST "FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION=1")
+  # Exclude comments from MACRO list
+  list(FILTER ADD_MACRO_LIST EXCLUDE REGEX "^#.*$")
   list(APPEND MACRO_LIST ${ADD_MACRO_LIST})
 endif()
 
@@ -52,6 +53,8 @@ endif()
 set(EXCLUDE_MACRO_FILE "${CMAKE_SOURCE_DIR}/macros/exclude_macros.txt")
 if(EXISTS "${EXCLUDE_MACRO_FILE}")
   file(STRINGS "${EXCLUDE_MACRO_FILE}" EXCLUDE_MACRO_LIST)
+  # Exclude comments from MACRO list
+  list(FILTER EXCLUDE_MACRO_LIST EXCLUDE REGEX "^#.*$")
   foreach(EXCLUDE_MACRO ${EXCLUDE_MACRO_LIST})
     list(REMOVE_ITEM MACRO_LIST "${EXCLUDE_MACRO}")
   endforeach()
