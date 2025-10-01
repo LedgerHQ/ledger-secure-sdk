@@ -1875,9 +1875,9 @@ static void keypadGeneric_cb(int token, uint8_t index)
     }
     onQuit();
 }
-static void old_keypadCallback(uint8_t token, uint8_t value)
+static void old_keypadCallback(void)
 {
-    keypadGeneric_cb(BACK_TOKEN, value);
+    keypadGeneric_cb(BACK_TOKEN, 0);
 }
 #endif
 
@@ -4541,6 +4541,9 @@ void nbgl_useCaseKeypadDigits(const char                *title,
                               nbgl_pinValidCallback_t    validatePinCallback,
                               nbgl_layoutTouchCallback_t actionCallback)
 {
+    UNUSED(backToken);
+    UNUSED(tuneId);
+    UNUSED(actionCallback);
     nbgl_useCaseKeypad(
         title, minDigits, maxDigits, shuffled, false, validatePinCallback, old_keypadCallback);
 }
@@ -4554,6 +4557,9 @@ void nbgl_useCaseKeypadPIN(const char                *title,
                            nbgl_pinValidCallback_t    validatePinCallback,
                            nbgl_layoutTouchCallback_t actionCallback)
 {
+    UNUSED(backToken);
+    UNUSED(tuneId);
+    UNUSED(actionCallback);
     nbgl_useCaseKeypad(
         title, minDigits, maxDigits, shuffled, true, validatePinCallback, old_keypadCallback);
 }
