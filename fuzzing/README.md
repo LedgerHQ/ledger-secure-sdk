@@ -45,9 +45,11 @@ docker run --rm -ti -v "$(realpath .):/app" ghcr.io/ledgerhq/ledger-app-builder/
 ```
 
 ```console
+export BOLOS_SDK=/app
+
 cd fuzzing # You must run it from the fuzzing folder
 
-./local_run.sh --build=1 --fuzzer=build/fuzz_bip32 --j=4 --run-fuzzer=1 --compute-coverage=1
+./local_run.sh --build=1 --fuzzer=build/fuzz_bip32 --j=4 --run-fuzzer=1 --compute-coverage=1 --BOLOS_SDK=${BOLOS_SDK}
 ```
 
 ### About local_run.sh
@@ -123,7 +125,7 @@ cmake -S . -B build -DCMAKE_C_COMPILER=clang -DSANITIZER=address -G Ninja
 cmake --build build
 ```
 
-One can still use his own modified `ledgere-secure-sdk`. If it does't contain a .target, you can pass it in the compilation
+One can still use his own modified `ledgere-secure-sdk`. If it doesn't contain a .target, you can pass it in the compilation
 parameters:
 ```console
 cmake -S . -B build -DCMAKE_C_COMPILER=clang -DSANITIZER=address -G Ninja -DTARGET=stax
