@@ -35,16 +35,13 @@ if(EXISTS "${BOLOS_SDK}/.target")
   else()
     message("Using TARGET=${TARGET} from ${BOLOS_SDK}/.target")
   endif()
-# If no .target, checks for -DTARGET=
+  # If no .target, checks for -DTARGET=
 else()
   message(WARNING "No .target file found in BOLOS_SDK=${BOLOS_SDK}")
   if(TARGET)
     message("Using -DTARGET=${TARGET}")
   else()
-    message(
-      FATAL_ERROR
-        " No TARGET passed."
-      )
+    message(FATAL_ERROR " No TARGET passed.")
   endif()
 endif()
 
