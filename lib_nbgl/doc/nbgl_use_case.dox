@@ -56,8 +56,7 @@ A few APIs are available to draw typical Use-Cases, such as:
 - for address verification:
  - @ref nbgl_useCaseAddressReview() to draw an address confirmation page, with a possibility to see it as QR Code and some extra tag/value pairs (see @subpage use_case_addr_review)
 - for keypad:
- - @ref nbgl_useCaseKeypadPIN() to draw a default keypad implementation with hidden digits (see @subpage use_case_keypad)
- - @ref nbgl_useCaseKeypadDigits() to draw a default keypad implementation, showing digits (see @subpage use_case_keypad)
+ - @ref nbgl_useCaseKeypad() to draw a default keypad implementation (see @subpage use_case_keypad)
 - for generic navigable content:
  - @ref nbgl_useCaseNavigableContent() to draw a level of generic content navigable pages
 
@@ -697,17 +696,13 @@ As shown on the image above, it consists of:
 - a hidden Digits area (the max nb of supported digits is 12)
 - the keypad at the bottom
 
-The @ref nbgl_useCaseKeypadPIN() function enables to create such page, with the following parameters:
+The @ref nbgl_useCaseKeypad() function enables to create such page, with the following parameters:
 
-- the title
+- a title
 - min and max pin code lengths
-- a token for the navigation callback (if not provided, no navigation bar will appear)
 - a boolean to request a shuffled keypad
-- a tune value
+- a boolean to request \b hidden digits
 - callbacks for navigation and pin validation
-
-The other variant, where digits don't need to be hidden is @ref nbgl_useCaseKeypadDigits();
-it takes the same parameters.
 
 @note The \em backspace and \em validate buttons will be shown or hidden automatically.
 
@@ -718,24 +713,19 @@ static void validate_pin(const uint8_t *pinentry, uint8_t length) {
     // Code to validate the entered pin code
 }
 
-static void pinentry_cb(int token, uint8_t index) {
-    UNUSED(index);
-    // Callback for the key navigation (back key mainly)
-    if (token == TOKEN_PIN_ENTRY_BACK) {
-        ui_init();
-    }
+static void quit_cb() {
+    // Back to the main app menu
 }
 
 void ui_menu_pinentry_display(unsigned int value) {
     // Draw the keypad
-    nbgl_useCaseKeypadPIN("Enter User PIN",
-                          6,
-                          12,
-                          TOKEN_PIN_ENTRY_BACK,
-                          false,
-                          TUNE_TAP_CASUAL,
-                          validate_pin,
-                          pinentry_cb);
+    nbgl_useCaseKeypad("PIN Keypad (5555)",
+                       4,
+                       4,
+                       false,
+                       true,
+                       validate_pin,
+                       quit_cb);
 }
 @endcode
 
