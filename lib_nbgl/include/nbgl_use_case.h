@@ -574,40 +574,6 @@ DEPRECATED void nbgl_useCaseAddressConfirmationExt(const char                   
     nbgl_useCaseAddressConfirmationExt(__address, __callback, NULL)
 #endif  // HAVE_SE_TOUCH
 
-#ifdef NBGL_KEYPAD
-#ifdef HAVE_SE_TOUCH
-DEPRECATED void nbgl_useCaseKeypadDigits(const char                *title,
-                                         uint8_t                    minDigits,
-                                         uint8_t                    maxDigits,
-                                         uint8_t                    backToken,
-                                         bool                       shuffled,
-                                         tune_index_e               tuneId,
-                                         nbgl_pinValidCallback_t    validatePinCallback,
-                                         nbgl_layoutTouchCallback_t actionCallback);
-DEPRECATED void nbgl_useCaseKeypadPIN(const char                *title,
-                                      uint8_t                    minDigits,
-                                      uint8_t                    maxDigits,
-                                      uint8_t                    backToken,
-                                      bool                       shuffled,
-                                      tune_index_e               tuneId,
-                                      nbgl_pinValidCallback_t    validatePinCallback,
-                                      nbgl_layoutTouchCallback_t actionCallback);
-#else   // HAVE_SE_TOUCH
-DEPRECATED void nbgl_useCaseKeypadDigits(const char             *title,
-                                         uint8_t                 minDigits,
-                                         uint8_t                 maxDigits,
-                                         bool                    shuffled,
-                                         nbgl_pinValidCallback_t validatePinCallback,
-                                         nbgl_callback_t         backCallback);
-DEPRECATED void nbgl_useCaseKeypadPIN(const char             *title,
-                                      uint8_t                 minDigits,
-                                      uint8_t                 maxDigits,
-                                      bool                    shuffled,
-                                      nbgl_pinValidCallback_t validatePinCallback,
-                                      nbgl_callback_t         backCallback);
-#endif  // HAVE_SE_TOUCH
-#endif  // NBGL_KEYPAD
-
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
