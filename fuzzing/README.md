@@ -123,6 +123,12 @@ cmake -S . -B build -DCMAKE_C_COMPILER=clang -DSANITIZER=address -G Ninja
 cmake --build build
 ```
 
+One can still use his own modified `ledgere-secure-sdk`. If it does't contain a .target, you can pass it in the compilation
+parameters:
+```console
+cmake -S . -B build -DCMAKE_C_COMPILER=clang -DSANITIZER=address -G Ninja -DTARGET=stax
+```
+
 ### Run
 
 ```console
