@@ -4,7 +4,6 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "buffer.h"
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TLV X macros

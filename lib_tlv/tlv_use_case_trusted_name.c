@@ -11,6 +11,7 @@
 // Progressive hash of the received TLVs (except the signature type)
 // We will know the correct format to use at reception of the signer_algo tag. We don't try to
 // be clever and just calculate all hash until then.
+// Performance hit is unnoticeable. Memory footprint is negligeable.
 typedef struct multi_hash_ctx_s {
     cx_sha256_t    sha256;
     cx_sha3_t      sha3_256;
@@ -315,10 +316,9 @@ static tlv_trusted_name_status_t verify_signature(const tlv_extracted_t *tlv_ext
     // Verify that the signature field of the TLV is the signature of the TLV hash by the key loaded
     // by the PKI
     check_signature_with_pki_status_t err;
-    err = check_signature_with_pki(multi_hash_finalized.hash,
-                                   CERTIFICATE_PUBLIC_KEY_USAGE_TRUSTED_NAME,
-                                   curve,
-                                   tlv_extracted->input_sig);
+    uint8_t expected_key_usage = CERTIFICATE_PUBLIC_KEY_USAGE_TRUSTED_NAME;
+    err                        = check_signature_with_pki(
+        multi_hash_finalized.hash, &expected_key_usage, &curve, tlv_extracted->input_sig);
     if (err != CHECK_SIGNATURE_WITH_PKI_SUCCESS) {
         PRINTF("Failed to verify signature of trusted token info\n");
         return TLV_TRUSTED_NAME_SIGNATURE_ERROR | err;
@@ -328,11 +328,11 @@ static tlv_trusted_name_status_t verify_signature(const tlv_extracted_t *tlv_ext
 }
 
 tlv_trusted_name_status_t tlv_use_case_trusted_name(const buffer_t         *payload,
-                                                    tlv_trusted_name_out_t *output)
+                                                    tlv_trusted_name_out_t *out)
 {
     // Main structure that will received the parsed TLV data
     tlv_extracted_t tlv_extracted = {0};
-    tlv_extracted.output          = output;
+    tlv_extracted.output          = out;
     tlv_trusted_name_status_t err;
 
     // The parser will fill it with the hash of the whole TLV payload (except SIGN tag)

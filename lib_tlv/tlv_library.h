@@ -12,10 +12,16 @@
 // TLV example
 // ─────────────────────────────────────────────────────────────────────────────
 
-/* As usage of this library can seem complicated at first, here is as an introduction a minimalist
+/* The SDK exposes the TLV library to allow applications to implement their own TLV parser for
+ * their own use cases.
+ *
+ * The SDK also exposes several TLV parsers already coded for cross-application use-cases.
+ * Please refer instead to the documentation of each use case for more details about them.
+ *
+ * As usage of this library can seem complicated at first, here is as an introduction a minimalist
  * example implementation
  *
- * ```c
+```c
 
 typedef struct my_tlv_output_s {
     TLV_reception_t received_tags;
@@ -31,26 +37,29 @@ static bool my_handler_2(const tlv_data_t *data, my_tlv_output_t *out) {
     return get_uint32_t_from_tlv_data(data, &out->my_value_2);
 }
 
+// We are not interested in TAG_C
 #define MY_TAGS(X) \
     X(0x0A, TAG_A, my_handler_1, ENFORCE_UNIQUE_TAG) \
     X(0x1F, TAG_B, my_handler_2, ENFORCE_UNIQUE_TAG) \
     X(0x77, TAG_C, NULL, ALLOW_MULTIPLE_TAG)
 
+// Create my_tlv_parser function
 DEFINE_TLV_PARSER(MY_TAGS, NULL, my_tlv_parser)
 
-bool my_tlv_parser(buffer_t payload, uint8_t *my_value_to_receive) {
+bool parse_and_return_a_value(buffer_t payload, uint8_t *my_value_to_receive) {
     my_tlv_output_t out = {0};
-    if (!parse_tlv_trusted_name(&payload, &out, &out.received_tags)) {
+    if (!my_tlv_parser(&payload, &out, &out.received_tags)) {
+        // my_tlv_parser failed
         return false;
     }
+    // Ensure we have received both values
     if (!CHECK_RECEIVED_TAGS(out.received_tags, TAG_A, TAG_B)) {
         return false;
     }
     *my_value_to_receive = out.my_value_1;
     return true;
 }
-
- * ```
+```
  */
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -188,6 +197,20 @@ bool get_uint64_t_from_tlv_data(const tlv_data_t *data, uint64_t *value);
 bool get_uint32_t_from_tlv_data(const tlv_data_t *data, uint32_t *value);
 bool get_uint16_t_from_tlv_data(const tlv_data_t *data, uint16_t *value);
 bool get_uint8_t_from_tlv_data(const tlv_data_t *data, uint8_t *value);
+
+/** Parse DER-encoded value
+ *
+ * Parses a DER-encoded value (up to N bytes long)
+ * https://en.wikipedia.org/wiki/X.690
+ *
+ * @param[in] payload the TLV payload
+ * @param[in,out] offset the payload offset
+ * @param[out] value the parsed value
+ * @return whether it was successful
+ */
+bool get_der_value_as_uint32(const buffer_t *payload, size_t *offset, uint32_t *value);
+bool get_der_value_as_uint16(const buffer_t *payload, size_t *offset, uint16_t *value);
+bool get_der_value_as_uint8(const buffer_t *payload, size_t *offset, uint8_t *value);
 
 /**
  * Get a boolean from tlv data

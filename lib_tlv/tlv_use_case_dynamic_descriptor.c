@@ -150,11 +150,13 @@ tlv_dynamic_descriptor_status_t tlv_use_case_dynamic_descriptor(const buffer_t *
     CX_ASSERT(cx_hash_final((cx_hash_t *) &tlv_extracted.hash_ctx, tlv_hash));
     buffer_t hash = {.ptr = tlv_hash, .size = sizeof(tlv_hash)};
 
-    // Verify that the signature field of the TLV is the signature of the TLV hash by the key loaded
-    // by the PKI
+    // Verify that the signature field of the TLV is the signature of the TLV hash by the key
+    // loaded by the PKI
     check_signature_with_pki_status_t err;
-    err = check_signature_with_pki(
-        hash, CERTIFICATE_PUBLIC_KEY_USAGE_COIN_META, CX_CURVE_SECP256K1, tlv_extracted.input_sig);
+    uint8_t                           expected_key_usage = CERTIFICATE_PUBLIC_KEY_USAGE_COIN_META;
+    cx_curve_t                        expected_curve     = CX_CURVE_SECP256K1;
+    err                                                  = check_signature_with_pki(
+        hash, &expected_key_usage, &expected_curve, tlv_extracted.input_sig);
     if (err != CHECK_SIGNATURE_WITH_PKI_SUCCESS) {
         PRINTF("Failed to verify signature of dynamic token info\n");
         return TLV_DYNAMIC_DESCRIPTOR_SIGNATURE_ERROR | err;

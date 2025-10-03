@@ -9,10 +9,21 @@
 #define DER_LONG_FORM_FLAG        0x80  // 8th bit set
 #define DER_FIRST_BYTE_VALUE_MASK 0x7f
 
-#define U8BE(buf, off) (((uint64_t) U4BE(buf, off) << 32) | (uint64_t) U4BE(buf, off + 4))
-
+/** Parse uint64 value
+ *
+ * Parses a uint64 value
+ * https://en.wikipedia.org/wiki/X.690
+ *
+ * @param[in] data the TLV data
+ * @param[out] value the parsed value
+ * @return whether it was successful
+ */
 bool get_uint64_t_from_tlv_data(const tlv_data_t *data, uint64_t *value)
 {
+    if (data == NULL || value == NULL) {
+        PRINTF("Received NULL parameter\n");
+        return false;
+    }
     if (data->value.size == 0 || data->value.size > sizeof(uint64_t)) {
         PRINTF("Invalid length (%u bytes) for tag 0x%x (expected 1-%zu bytes)\n",
                data->value.size,
@@ -29,6 +40,8 @@ bool get_uint64_t_from_tlv_data(const tlv_data_t *data, uint64_t *value)
     return true;
 }
 
+/** Parse uint32 value from a TLV or fails
+ */
 bool get_uint32_t_from_tlv_data(const tlv_data_t *data, uint32_t *value)
 {
     uint64_t tmp_value;
@@ -39,6 +52,8 @@ bool get_uint32_t_from_tlv_data(const tlv_data_t *data, uint32_t *value)
     return true;
 }
 
+/** Parse uint16 value from a TLV or fails
+ */
 bool get_uint16_t_from_tlv_data(const tlv_data_t *data, uint16_t *value)
 {
     uint64_t tmp_value;
@@ -49,6 +64,8 @@ bool get_uint16_t_from_tlv_data(const tlv_data_t *data, uint16_t *value)
     return true;
 }
 
+/** Parse uint8 value from a TLV or fails
+ */
 bool get_uint8_t_from_tlv_data(const tlv_data_t *data, uint8_t *value)
 {
     uint64_t tmp_value;
@@ -59,6 +76,8 @@ bool get_uint8_t_from_tlv_data(const tlv_data_t *data, uint8_t *value)
     return true;
 }
 
+/** Parse a 0/1 uint8_t value from a TLV and cast it to boolean or fails
+ */
 bool get_bool_from_tlv_data(const tlv_data_t *data, bool *value)
 {
     uint8_t tmp_value;
@@ -69,11 +88,18 @@ bool get_bool_from_tlv_data(const tlv_data_t *data, bool *value)
     return true;
 }
 
+/** Parse a TLV data as a sized buffer or fails. O copy
+ */
 bool get_buffer_from_tlv_data(const tlv_data_t *data,
                               buffer_t         *out,
                               uint16_t          min_size,
                               uint16_t          max_size)
 {
+    if (data == NULL || out == NULL) {
+        PRINTF("Received NULL parameter\n");
+        return false;
+    }
+
     if (min_size != 0 && data->value.size < min_size) {
         PRINTF("Expected at least %d bytes, found %d\n", min_size, data->value.size);
         return false;
@@ -87,11 +113,18 @@ bool get_buffer_from_tlv_data(const tlv_data_t *data,
     return true;
 }
 
+/** Parse and copies a C string from a TLV dataor fails.
+ */
 bool get_string_from_tlv_data(const tlv_data_t *data,
                               char             *out,
                               uint16_t          min_length,
                               uint16_t          out_size)
 {
+    if (data == NULL || out == NULL) {
+        PRINTF("Received NULL parameter\n");
+        return false;
+    }
+
     // Reject TLV strings with embedded null bytes
     size_t actual_length = strnlen((const char *) data->value.ptr, data->value.size);
     if (actual_length != data->value.size) {
@@ -125,44 +158,43 @@ bool get_string_from_tlv_data(const tlv_data_t *data,
  * @param[out] value the parsed value
  * @return whether it was successful
  */
-static bool get_der_value_as_uint32(const buffer_t *payload, size_t *offset, uint32_t *value)
+bool get_der_value_as_uint32(const buffer_t *payload, size_t *offset, uint32_t *value)
 {
-    bool    ret = false;
     uint8_t byte_length;
     uint8_t buf[sizeof(*value)];
 
-    if (value != NULL) {
-        if (payload->ptr[*offset] & DER_LONG_FORM_FLAG) {  // long form
-            byte_length = payload->ptr[*offset] & DER_FIRST_BYTE_VALUE_MASK;
-            *offset += 1;
-            if ((*offset + byte_length) > payload->size) {
-                PRINTF("TLV payload too small for DER encoded value\n");
-            }
-            else {
-                if (byte_length > sizeof(buf) || byte_length == 0) {
-                    PRINTF("Unexpectedly long DER-encoded value (%u bytes)\n", byte_length);
-                }
-                else {
-                    memset(buf, 0, (sizeof(buf) - byte_length));
-                    memcpy(buf + (sizeof(buf) - byte_length), &payload->ptr[*offset], byte_length);
-                    *value = U4BE(buf, 0);
-                    *offset += byte_length;
-                    ret = true;
-                }
-            }
-        }
-        else {  // short form
-            *value = payload->ptr[*offset];
-            *offset += 1;
-            ret = true;
-        }
+    if (payload == NULL || offset == NULL || value == NULL) {
+        PRINTF("Received NULL parameter\n");
+        return false;
     }
-    return ret;
+
+    if (payload->ptr[*offset] & DER_LONG_FORM_FLAG) {  // long form
+        byte_length = payload->ptr[*offset] & DER_FIRST_BYTE_VALUE_MASK;
+        *offset += 1;
+        if ((*offset + byte_length) > payload->size) {
+            PRINTF("TLV payload too small for DER encoded value\n");
+            return false;
+        }
+        if (byte_length > sizeof(buf) || byte_length == 0) {
+            PRINTF("Unexpectedly long DER-encoded value (%u bytes)\n", byte_length);
+            return false;
+        }
+        memset(buf, 0, (sizeof(buf) - byte_length));
+        memcpy(buf + (sizeof(buf) - byte_length), &payload->ptr[*offset], byte_length);
+        *value = U4BE(buf, 0);
+        *offset += byte_length;
+        return true;
+    }
+    else {  // short form
+        *value = payload->ptr[*offset];
+        *offset += 1;
+        return true;
+    }
 }
 
 /** Parse DER-encoded value and fits it in uint16_t or fails
  */
-static bool get_der_value_as_uint16(const buffer_t *payload, size_t *offset, uint16_t *value)
+bool get_der_value_as_uint16(const buffer_t *payload, size_t *offset, uint16_t *value)
 {
     uint32_t tmp_value;
     if (!get_der_value_as_uint32(payload, offset, &tmp_value) || (tmp_value > UINT16_MAX)) {
@@ -175,9 +207,7 @@ static bool get_der_value_as_uint16(const buffer_t *payload, size_t *offset, uin
 
 /** Parse DER-encoded value and fits it in uint8_t or fails
  */
-__attribute__((unused)) static bool get_der_value_as_uint8(const buffer_t *payload,
-                                                           size_t         *offset,
-                                                           uint8_t        *value)
+bool get_der_value_as_uint8(const buffer_t *payload, size_t *offset, uint8_t *value)
 {
     uint32_t tmp_value;
     if (!get_der_value_as_uint32(payload, offset, &tmp_value) || (tmp_value > UINT8_MAX)) {
@@ -320,6 +350,7 @@ bool _parse_tlv_internal(const _internal_tlv_handler_t *handlers,
 
                 // Flag reception after handler callback in case the handler wants to check it
                 if (!set_tag(received_tags_flags, data.tag)) {
+                    // If set_tag failed it means that the flag was already received
                     if (handler->is_unique) {
                         PRINTF("Tag = %d was already received and is flagged unique\n", data.tag);
                         return false;
