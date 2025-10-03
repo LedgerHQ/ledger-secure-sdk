@@ -38,6 +38,7 @@ def init_parser() -> ArgumentParser:
     parser.add_argument("--token", "-t", required=True, help="GitHub Access Token")
     parser.add_argument("--repo_path", "-r", help="Cloned repository path")
     parser.add_argument("--pull", "-p", type=int, required=True, help="Pull Request number")
+    parser.add_argument("--branch", "-b", help="target branch (manual selection)")
     parser.add_argument("--dry_run", "-d", action='store_true', help="Dry Run mode")
     parser.add_argument("--verbose", "-v", action='store_true', help="Verbose mode")
     return parser
@@ -56,6 +57,21 @@ def set_logging(verbose: bool = False) -> None:
     handler = logging.StreamHandler()
     handler.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
     logger.addHandler(handler)
+
+
+def set_gh_summary(value: str) -> None:
+    """Sets a summary status for a GitHub Actions workflow.
+       This is used to write the summary of the workflow run.
+
+    Args:
+        value: Summary content
+    """
+
+    # Check if the GITHUB_STEP_SUMMARY environment variable is set
+    gh = os.environ.get("GITHUB_STEP_SUMMARY")
+    if gh:
+        with open(gh, "a", encoding="utf-8") as outfile:
+            outfile.write(f"{value}\n")
 
 
 # ===============================================================================
@@ -116,6 +132,7 @@ def get_commits_to_cherry_pick(pull: PullRequest) -> List[str]:
         logger.error("No commits found. Exiting.")
         sys.exit(1)
     logger.info("Found commits: %s", commits)
+    set_gh_summary(f":loudspeaker: Found {len(commits)} commits")
     return commits
 
 
@@ -181,7 +198,7 @@ def cherry_pick_commits(local_repo: Repo,
 
     for sha in commits:
         try:
-            logger.info("Cherry-picking %s onto %s", sha, auto_branch)
+            logger.info("Cherry-picking %s", sha)
             local_repo.git.cherry_pick('-x', sha)
         except GitCommandError as err:
             logger.error("Failed to apply cherry-pick of %s:\n%s", sha, err)
@@ -208,7 +225,7 @@ def cherry_pick_commits(local_repo: Repo,
 def create_pull_request_if_needed(git_repo: Repository,
                                   auto_branch: str,
                                   target_br: str,
-                                  pull_number: int) -> None:
+                                  pull_number: int) -> bool:
     """Create a pull request if one does not already exist."""
     pr_auto_title = f"[AUTO_UPDATE] Branch {target_br}"
     prs = git_repo.get_pulls(state="open", base=target_br)
@@ -240,6 +257,7 @@ def create_pull_request_if_needed(git_repo: Repository,
                             existing_pr.number, pull_number)
         except Exception as e:
             logger.error("Failed to update existing PR: %s", e)
+            return False
     else:
         try:
             # Create a new pull request with the auto_update branch as
@@ -253,7 +271,7 @@ def create_pull_request_if_needed(git_repo: Repository,
             )
         except:
             logger.error("Failed to create PR!")
-            sys.exit(1)
+            return False
 
         try:
             # Assign the PR to the original author
@@ -263,6 +281,7 @@ def create_pull_request_if_needed(git_repo: Repository,
         except:
             logger.error("Failed to assign PR to original author: %s", original_author)
         logger.info("Created PR for branch '%s': %s", auto_branch, new_pr.html_url)
+    return True
 
 
 # ===============================================================================
@@ -294,8 +313,15 @@ def main():
     # Retrieve PR object
     pull = get_pull_request(git_repo, args.pull)
 
-    # Search target branches from PR description
-    target_branches = get_target_branches(pull)
+    if args.branch:
+        # check branch naming
+        if not args.branch.startswith("API_LEVEL_"):
+            logger.error("Invalid branch: %s", args.branch)
+            sys.exit(1)
+        target_branches = [args.branch]
+    else:
+        # Search target branches from PR description
+        target_branches = get_target_branches(pull)
 
     # Retrieve all available branches
     branches = get_all_branches(git_repo)
@@ -341,29 +367,36 @@ def main():
 
         # Check if dedicated auto_update branch exists, else create it
         auto_branch, branch_created = create_or_get_branch(local_repo,
-                                                            target_br,
-                                                            branches,
-                                                            args.dry_run)
+                                                           target_br,
+                                                           branches,
+                                                           args.dry_run)
 
         # Cherry-pick the commits onto the auto_update branch
         if not cherry_pick_commits(local_repo,
-                                    commits,
-                                    auto_branch,
-                                    default_branch,
-                                    branch_created,
-                                    args.dry_run):
+                                   commits,
+                                   auto_branch,
+                                   default_branch,
+                                   branch_created,
+                                   args.dry_run):
             result = 1
-            continue
 
-        if not args.dry_run:
+        if result == 0 and not args.dry_run:
             # Create a pull request if needed
-            create_pull_request_if_needed(git_repo, auto_branch, target_br, args.pull)
+            if not create_pull_request_if_needed(git_repo, auto_branch, target_br, args.pull):
+                result = 1
 
         try:
             # Return to default branch
             local_repo.git.checkout(default_branch)
         except GitCommandError as e:
             logger.warning("Failed to checkout to default branch (%s): %s", default_branch, e)
+
+        # Set result in summary
+        if result == 0:
+            set_gh_summary(f":white_check_mark: {target_br}")
+        else:
+            set_gh_summary(f":x: {target_br}")
+
 
     if result != 0:
         logger.error("One or more operations failed.")

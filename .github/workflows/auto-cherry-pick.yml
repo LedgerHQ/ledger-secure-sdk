@@ -9,6 +9,10 @@ on:
         description: 'Pull Request number to process'
         required: true
         type: number
+      target_branch:
+        description: 'Target Branch to apply cherry_pick (API_LEVEL_xxx)'
+        required: true
+        type: string
 defaults:
   run:
     shell: bash
@@ -48,14 +52,18 @@ jobs:
         git config --global url.https://github.com/.insteadOf git@github.com:
         git config --global url.https://oauth2:${{ secrets.GITHUB_TOKEN }}@github.com/.insteadOf https://github.com/
 
-    - name: Set PR ID
-      id: pr_id_step
+    - name : PR check
       run: |
+        ARGS=(-t ${{ secrets.GITHUB_TOKEN }} -r ./)
+
         # Define the variable PR_ID based on the trigger
         if [ "${{ github.event_name }}" == "pull_request" ]; then
-          echo "PR_ID=${{ github.event.number }}" >> $GITHUB_OUTPUT
+          ARGS+=(-p ${{ github.event.number }})
         else
-          echo "PR_ID=${{ github.event.inputs.pr_number }}" >> $GITHUB_OUTPUT
+          ARGS+=(-p ${{ inputs.pr_number }})
+          if [ -n "${{ inputs.target_branch }}" ]; then
+            ARGS+=(-b ${{ inputs.target_branch }})
+          fi
         fi
-    - name : PR check
-      run: .github/workflows/scripts/pr_check.py -t ${{ secrets.GITHUB_TOKEN }} -r ./ -p ${{ steps.pr_id_step.outputs.PR_ID }}
+
+        .github/workflows/scripts/pr_check.py "${ARGS[@]}"
