@@ -726,12 +726,16 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
                     pdev, cookie, OS_IO_PACKET_TYPE_USB_U2F_HID_CANCEL, error_msg, 2, 0);
             }
             else {
-                buffer[0] = OS_IO_PACKET_TYPE_USB_U2F_HID_CANCEL;
-                memmove(&buffer[1],
-                        &handle->transport_data.rx_message_buffer[3],
-                        handle->transport_data.rx_message_length - 3);
-                handle->transport_data.state = U2F_STATE_CMD_PROCESSING;
-                status                       = handle->transport_data.rx_message_length - 2;
+                // A CTAPHID_CANCEL received while no CTAPHID_CBOR request is being processed SHALL
+                // be ignored by the authenticator.
+                if (handle->transport_data.state == U2F_STATE_CMD_PROCESSING) {
+                    buffer[0] = OS_IO_PACKET_TYPE_USB_U2F_HID_CANCEL;
+                    memmove(&buffer[1],
+                            &handle->transport_data.rx_message_buffer[3],
+                            handle->transport_data.rx_message_length - 3);
+                    handle->transport_data.state = U2F_STATE_CMD_PROCESSING;
+                    status                       = handle->transport_data.rx_message_length - 2;
+                }
             }
             break;
 
