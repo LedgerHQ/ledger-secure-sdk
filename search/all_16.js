@@ -152,7 +152,7 @@ var searchData=
   ['ux_5fbutton_5fpush_5fevent_149',['ux_button_push_event',['../ux__nbgl_8h.html#adc038530b69afb6eac63a74605de6d25',1,'UX_BUTTON_PUSH_EVENT:&#160;ux_nbgl.h'],['../ux__bagl_8h.html#adc038530b69afb6eac63a74605de6d25',1,'UX_BUTTON_PUSH_EVENT:&#160;ux_bagl.h']]],
   ['ux_5fcallback_5fset_5finterval_150',['UX_CALLBACK_SET_INTERVAL',['../ux__bagl_8h.html#a37fffeb462c52d1aac10f7040caeadfd',1,'ux_bagl.h']]],
   ['ux_5fcontinue_5fdisplay_5fapp_151',['UX_CONTINUE_DISPLAY_APP',['../ux__bagl_8h.html#a41f511e9ddcb1d80c29117a4b22bfbde',1,'ux_bagl.h']]],
-  ['ux_5fctx_152',['UX_CTX',['../nbgl__touch_8c.html#af3520ff6d43011872bab77edd27d4de3aae71184f80165ed57f017de11cf1db2f',1,'nbgl_touch.c']]],
+  ['ux_5fctx_152',['UX_CTX',['../nbgl__touch_8c.html#ae8a3b6a5d0d3244ed73924ab2421a0d0aae71184f80165ed57f017de11cf1db2f',1,'nbgl_touch.c']]],
   ['ux_5fdef_153',['UX_DEF',['../ux__flow__engine_8h.html#a99f328ab5b06fc119fc86b6f562d740a',1,'ux_flow_engine.h']]],
   ['ux_5fdefault_5fevent_154',['ux_default_event',['../ux__nbgl_8h.html#ab9ed154204361b04a3a896cceeac5e3e',1,'UX_DEFAULT_EVENT:&#160;ux_nbgl.h'],['../ux__bagl_8h.html#ab9ed154204361b04a3a896cceeac5e3e',1,'UX_DEFAULT_EVENT:&#160;ux_bagl.h']]],
   ['ux_5fdisplay_155',['UX_DISPLAY',['../ux__bagl_8h.html#ae885d9ec24d070241032aa2967b76396',1,'ux_bagl.h']]],
