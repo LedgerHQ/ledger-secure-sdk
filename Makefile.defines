@@ -105,7 +105,7 @@ ifeq ($(TARGET_NAME),TARGET_NANOS)
 endif
 
 ifeq ($(TARGET_NAME),TARGET_NANOX)
-    CPU       = cortex-m0plus
+    CPU       = cortex-m3
     CFLAGS   += -frwpi
     LDFLAGS  += -L$(BOLOS_SDK)/arch/st33/lib/
 endif
