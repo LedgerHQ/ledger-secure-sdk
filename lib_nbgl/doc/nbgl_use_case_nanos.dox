@@ -55,8 +55,7 @@ A few APIs are available to draw typical Use-Cases, such as:
 - For address verification:
  - @ref nbgl_useCaseAddressReview() to draw an address confirmation page, with a possibility to see some extra tag/value pairs (see @subpage use_case_addr_review)
 - For keypad:
- - @ref nbgl_useCaseKeypadPIN() to draw a default keypad implementation with hidden digits (see @subpage use_case_keypad)
- - @ref nbgl_useCaseKeypadDigits() to draw a default keypad implementation, showing digits (see @subpage use_case_keypad)
+ - @ref nbgl_useCaseKeypad() to draw a default keypad implementation (see @subpage use_case_keypad)
 - For generic navigable content:
  - @ref nbgl_useCaseNavigableContent() to draw a level of generic content navigable pages
 
@@ -593,15 +592,13 @@ We have here 2 different variants, allowing to \b show or \b hide the entered di
 
 When a pincode is requested, a default keypad can be displayed, with hidden digits.
 
-The @ref nbgl_useCaseKeypadPIN() function enables to create such page, with the following parameters:
+The @ref nbgl_useCaseKeypad() function enables to create such page, with the following parameters:
 
 - A title
 - The min and max lengths
 - A boolean to request a *shuffled* keypad
+- A boolean to request \b hidden digits
 - Callbacks for navigation and pin validation
-
-The other variant, where digits don't need to be hidden is @ref nbgl_useCaseKeypadDigits();
-it takes the same parameters.
 
 @note The \em backspace and \em validate buttons will be shown or hidden automatically.
 @note The \em backspace button is also used as a *cancel* button, when no digits are selected.
@@ -620,12 +617,13 @@ static void quit_cb() {
 
 void ui_menu_pinentry_display(unsigned int value) {
     // Draw the keypad
-    nbgl_useCaseKeypadPIN("PIN Keypad (5555)",
-                          4,
-                          4,
-                          false,
-                          validate_pin,
-                          quit_cb);
+    nbgl_useCaseKeypad("PIN Keypad (5555)",
+                       4,
+                       4,
+                       false,
+                       true,
+                       validate_pin,
+                       quit_cb);
 }
 @endcode
 

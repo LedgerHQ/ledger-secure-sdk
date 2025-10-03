@@ -2972,29 +2972,6 @@ void nbgl_useCaseKeypad(const char             *title,
     }
     nbgl_refresh();
 }
-
-void nbgl_useCaseKeypadDigits(const char             *title,
-                              uint8_t                 minDigits,
-                              uint8_t                 maxDigits,
-                              bool                    shuffled,
-                              nbgl_pinValidCallback_t validatePinCallback,
-                              nbgl_callback_t         backCallback)
-{
-    nbgl_useCaseKeypad(
-        title, minDigits, maxDigits, shuffled, false, validatePinCallback, backCallback);
-}
-
-void nbgl_useCaseKeypadPIN(const char             *title,
-                           uint8_t                 minDigits,
-                           uint8_t                 maxDigits,
-                           bool                    shuffled,
-                           nbgl_pinValidCallback_t validatePinCallback,
-                           nbgl_callback_t         backCallback)
-{
-    nbgl_useCaseKeypad(
-        title, minDigits, maxDigits, shuffled, true, validatePinCallback, backCallback);
-}
-
 #endif  // NBGL_KEYPAD
 
 #endif  // HAVE_SE_TOUCH
