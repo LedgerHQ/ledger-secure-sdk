@@ -100,7 +100,7 @@ LDFLAGS  += -Wl,--gc-sections -Wl,-Map,$(DBG_DIR)/app.map
 LDFLAGS  += -nostdlib -nodefaultlibs
 
 ifeq ($(TARGET_NAME),TARGET_NANOX)
-    CPU       = cortex-m0plus
+    CPU       = cortex-m3
     CFLAGS   += -frwpi
     LDFLAGS  += -L$(BOLOS_SDK)/arch/st33/lib/
 endif
