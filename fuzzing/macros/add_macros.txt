@@ -1,0 +1,2 @@
+# Standard macro for excluding code from a fuzzer build
+FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION=1
