@@ -1,6 +1,6 @@
-<map id="nbgl_genericDetails_s" name="nbgl_genericDetails_s">
-<area shape="rect" id="Node000001" title="The necessary parameters to build the page(s) displayed when the top&#45;right button is touched in intro..." alt="" coords="97,181,262,207"/>
-<area shape="rect" id="Node000005" href="$structnbgl__genericBarList__t.html" title="The necessary parameters to build a list of touchable bars, to display sub&#45;pages." alt="" coords="98,269,261,295"/>
+<map id="nbgl_warningDetails_s" name="nbgl_warningDetails_s">
+<area shape="rect" id="Node000001" title="The necessary parameters to build the page(s) displayed when the top&#45;right button is touched in intro..." alt="" coords="95,181,264,207"/>
+<area shape="rect" id="Node000005" href="$structnbgl__warningBarList__t.html" title="The necessary parameters to build a list of touchable bars, to display sub&#45;pages." alt="" coords="96,269,263,295"/>
 <area shape="poly" id="edge5_Node000005_Node000001" title=" " alt="" coords="149,217,138,232,136,241,140,250,159,267,156,271,136,254,131,242,133,230,145,214"/>
 <area shape="rect" id="Node000002" href="$structnbgl__contentCenter__t.html" title="This structure contains info to build a centered (vertically and horizontally) area,..." alt="" coords="5,93,167,119"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,126,168,179,165,183,107,130"/>
