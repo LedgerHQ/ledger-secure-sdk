@@ -95,32 +95,35 @@ $(function() {
 <code>#include &quot;glyphs.h&quot;</code><br />
 <code>#include &quot;os_pic.h&quot;</code><br />
 <code>#include &quot;os_utils.h&quot;</code><br />
+<code>#include &quot;os_helpers.h&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for nbgl_draw.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="nbgl__draw_8c__incl.png" border="0" usemap="#alib__nbgl_2src_2nbgl__draw_8c" alt=""/></div>
 <map name="alib__nbgl_2src_2nbgl__draw_8c" id="alib__nbgl_2src_2nbgl__draw_8c">
-<area shape="rect" title="Implementation of middle&#45;level API to draw rich forms like rounded rectangle." alt="" coords="339,5,516,31"/>
+<area shape="rect" title="Implementation of middle&#45;level API to draw rich forms like rounded rectangle." alt="" coords="385,5,563,31"/>
 <area shape="rect" title=" " alt="" coords="5,79,76,104"/>
-<area shape="poly" title=" " alt="" coords="361,33,96,81,91,82,90,77,95,76,360,28"/>
+<area shape="poly" title=" " alt="" coords="394,33,96,81,91,82,90,77,95,76,394,28"/>
 <area shape="rect" href="nbgl__front_8h.html" title="Font screen low&#45;Level driver API, to draw elementary forms." alt="" coords="64,152,164,177"/>
-<area shape="poly" title=" " alt="" coords="339,31,223,49,174,63,142,81,132,93,125,108,118,139,113,137,120,106,128,90,139,77,172,59,222,44,338,25"/>
+<area shape="poly" title=" " alt="" coords="385,28,316,35,244,45,183,61,159,70,142,81,132,93,125,107,118,138,113,137,120,106,128,90,139,77,157,65,181,56,243,40,315,29,385,22"/>
 <area shape="rect" href="nbgl__draw_8h.html" title="Middle Level API of the new BOLOS Graphical Library." alt="" coords="152,79,252,104"/>
-<area shape="poly" title=" " alt="" coords="392,33,252,77,251,72,390,28"/>
+<area shape="poly" title=" " alt="" coords="431,33,260,78,258,73,430,28"/>
 <area shape="rect" href="nbgl__fonts_8h.html" title=" " alt="" coords="240,152,343,177"/>
-<area shape="poly" title=" " alt="" coords="391,33,352,52,333,65,317,80,303,109,296,139,291,137,298,107,313,77,330,61,349,47,388,28"/>
+<area shape="poly" title=" " alt="" coords="405,33,358,51,336,64,317,80,302,108,295,139,290,138,297,107,313,77,333,60,355,46,403,28"/>
 <area shape="rect" href="nbgl__debug_8h.html" title="debug traces management" alt="" coords="327,79,437,104"/>
-<area shape="poly" title=" " alt="" coords="422,32,399,69,394,66,418,30"/>
+<area shape="poly" title=" " alt="" coords="461,33,409,72,406,68,458,29"/>
 <area shape="rect" href="nbgl__side_8h.html" title="Side screen low&#45;Level driver API, to draw elementary forms." alt="" coords="397,152,493,177"/>
-<area shape="poly" title=" " alt="" coords="435,30,451,78,453,109,451,138,446,138,448,109,446,79,430,32"/>
+<area shape="poly" title=" " alt="" coords="474,32,452,139,447,138,469,31"/>
 <area shape="rect" title=" " alt="" coords="512,79,615,104"/>
-<area shape="poly" title=" " alt="" coords="450,28,530,70,528,75,448,33"/>
+<area shape="poly" title=" " alt="" coords="490,29,540,68,536,72,487,33"/>
 <area shape="rect" title=" " alt="" coords="639,79,717,104"/>
-<area shape="poly" title=" " alt="" coords="468,28,627,73,625,78,467,33"/>
+<area shape="poly" title=" " alt="" coords="508,28,633,72,631,77,506,33"/>
 <area shape="rect" title=" " alt="" coords="741,79,815,104"/>
-<area shape="poly" title=" " alt="" coords="489,28,727,76,726,81,488,33"/>
+<area shape="poly" title=" " alt="" coords="523,28,728,76,726,81,522,33"/>
 <area shape="rect" title=" " alt="" coords="840,79,924,104"/>
-<area shape="poly" title=" " alt="" coords="514,28,827,76,826,81,513,33"/>
+<area shape="poly" title=" " alt="" coords="547,28,827,76,826,81,546,33"/>
+<area shape="rect" title=" " alt="" coords="949,79,1053,104"/>
+<area shape="poly" title=" " alt="" coords="563,27,936,76,935,81,563,32"/>
 <area shape="rect" href="nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="193,225,299,251"/>
 <area shape="poly" title=" " alt="" coords="136,175,214,216,211,221,134,180"/>
 <area shape="rect" title=" " alt="" coords="10,299,85,324"/>
@@ -162,12 +165,10 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
-<tr class="memitem:a9542181e2c3e52f9888879d7c528e350" id="r_a9542181e2c3e52f9888879d7c528e350"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw_8c.html#a9542181e2c3e52f9888879d7c528e350">quarter_t</a> { <a class="el" href="nbgl__draw_8c.html#a9542181e2c3e52f9888879d7c528e350a32cd5a2ec6942f6ecec4a06658b05736">BAGL_FILL_CIRCLE_0_PI2</a>
-, <a class="el" href="nbgl__draw_8c.html#a9542181e2c3e52f9888879d7c528e350a8ab554bfd59325a69ef2981b4649b93f">BAGL_FILL_CIRCLE_PI2_PI</a>
-, <a class="el" href="nbgl__draw_8c.html#a9542181e2c3e52f9888879d7c528e350a19f4fd645008b238281ff470e7b02346">BAGL_FILL_CIRCLE_PI_3PI2</a>
-, <a class="el" href="nbgl__draw_8c.html#a9542181e2c3e52f9888879d7c528e350a7fba61697244f57dd1ccd69eff18e426">BAGL_FILL_CIRCLE_3PI2_2PI</a>
+<tr class="memitem:afd109ef1b4544a38efb47a2a83ba77d9" id="r_afd109ef1b4544a38efb47a2a83ba77d9"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw_8c.html#afd109ef1b4544a38efb47a2a83ba77d9">half_t</a> { <a class="el" href="nbgl__draw_8c.html#afd109ef1b4544a38efb47a2a83ba77d9a2e75f2e4a2dd70bf786dfc50c5bcf48e">LEFT_HALF</a>
+, <a class="el" href="nbgl__draw_8c.html#afd109ef1b4544a38efb47a2a83ba77d9a1ad609f4a66da4511bcec405de71fc6c">RIGHT_HALF</a>
  }</td></tr>
-<tr class="separator:a9542181e2c3e52f9888879d7c528e350"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:afd109ef1b4544a38efb47a2a83ba77d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -206,7 +207,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__draw_8c_source.html#l00034">34</a> of file <a class="el" href="nbgl__draw_8c_source.html">nbgl_draw.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__draw_8c_source.html#l00042">42</a> of file <a class="el" href="nbgl__draw_8c_source.html">nbgl_draw.c</a>.</p>
 
 </div>
 </div>
@@ -222,7 +223,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__draw_8c_source.html#l00046">46</a> of file <a class="el" href="nbgl__draw_8c_source.html">nbgl_draw.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__draw_8c_source.html#l00054">54</a> of file <a class="el" href="nbgl__draw_8c_source.html">nbgl_draw.c</a>.</p>
 
 </div>
 </div>
@@ -238,7 +239,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__draw_8c_source.html#l00048">48</a> of file <a class="el" href="nbgl__draw_8c_source.html">nbgl_draw.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__draw_8c_source.html#l00056">56</a> of file <a class="el" href="nbgl__draw_8c_source.html">nbgl_draw.c</a>.</p>
 
 </div>
 </div>
@@ -254,30 +255,28 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__draw_8c_source.html#l00047">47</a> of file <a class="el" href="nbgl__draw_8c_source.html">nbgl_draw.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__draw_8c_source.html#l00055">55</a> of file <a class="el" href="nbgl__draw_8c_source.html">nbgl_draw.c</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
-<a id="a9542181e2c3e52f9888879d7c528e350" name="a9542181e2c3e52f9888879d7c528e350"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9542181e2c3e52f9888879d7c528e350">&#9670;&#160;</a></span>quarter_t</h2>
+<a id="afd109ef1b4544a38efb47a2a83ba77d9" name="afd109ef1b4544a38efb47a2a83ba77d9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afd109ef1b4544a38efb47a2a83ba77d9">&#9670;&#160;</a></span>half_t</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">enum <a class="el" href="nbgl__draw_8c.html#a9542181e2c3e52f9888879d7c528e350">quarter_t</a></td>
+          <td class="memname">enum <a class="el" href="nbgl__draw_8c.html#afd109ef1b4544a38efb47a2a83ba77d9">half_t</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a9542181e2c3e52f9888879d7c528e350a32cd5a2ec6942f6ecec4a06658b05736" name="a9542181e2c3e52f9888879d7c528e350a32cd5a2ec6942f6ecec4a06658b05736"></a>BAGL_FILL_CIRCLE_0_PI2&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a9542181e2c3e52f9888879d7c528e350a8ab554bfd59325a69ef2981b4649b93f" name="a9542181e2c3e52f9888879d7c528e350a8ab554bfd59325a69ef2981b4649b93f"></a>BAGL_FILL_CIRCLE_PI2_PI&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a9542181e2c3e52f9888879d7c528e350a19f4fd645008b238281ff470e7b02346" name="a9542181e2c3e52f9888879d7c528e350a19f4fd645008b238281ff470e7b02346"></a>BAGL_FILL_CIRCLE_PI_3PI2&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a9542181e2c3e52f9888879d7c528e350a7fba61697244f57dd1ccd69eff18e426" name="a9542181e2c3e52f9888879d7c528e350a7fba61697244f57dd1ccd69eff18e426"></a>BAGL_FILL_CIRCLE_3PI2_2PI&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="afd109ef1b4544a38efb47a2a83ba77d9a2e75f2e4a2dd70bf786dfc50c5bcf48e" name="afd109ef1b4544a38efb47a2a83ba77d9a2e75f2e4a2dd70bf786dfc50c5bcf48e"></a>LEFT_HALF&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="afd109ef1b4544a38efb47a2a83ba77d9a1ad609f4a66da4511bcec405de71fc6c" name="afd109ef1b4544a38efb47a2a83ba77d9a1ad609f4a66da4511bcec405de71fc6c"></a>RIGHT_HALF&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__draw_8c_source.html#l00027">27</a> of file <a class="el" href="nbgl__draw_8c_source.html">nbgl_draw.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__draw_8c_source.html#l00029">29</a> of file <a class="el" href="nbgl__draw_8c_source.html">nbgl_draw.c</a>.</p>
 
 </div>
 </div>
@@ -360,7 +359,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__draw_8c_source.html#l00489">489</a> of file <a class="el" href="nbgl__draw_8c_source.html">nbgl_draw.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__draw_8c_source.html#l00535">535</a> of file <a class="el" href="nbgl__draw_8c_source.html">nbgl_draw.c</a>.</p>
 
 </div>
 </div>
@@ -414,7 +413,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__draw_8c_source.html#l00764">764</a> of file <a class="el" href="nbgl__draw_8c_source.html">nbgl_draw.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__draw_8c_source.html#l00857">857</a> of file <a class="el" href="nbgl__draw_8c_source.html">nbgl_draw.c</a>.</p>
 
 </div>
 </div>
@@ -474,7 +473,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__draw_8c_source.html#l00331">331</a> of file <a class="el" href="nbgl__draw_8c_source.html">nbgl_draw.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__draw_8c_source.html#l00369">369</a> of file <a class="el" href="nbgl__draw_8c_source.html">nbgl_draw.c</a>.</p>
 
 </div>
 </div>
@@ -520,7 +519,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__draw_8c_source.html#l00249">249</a> of file <a class="el" href="nbgl__draw_8c_source.html">nbgl_draw.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__draw_8c_source.html#l00270">270</a> of file <a class="el" href="nbgl__draw_8c_source.html">nbgl_draw.c</a>.</p>
 
 </div>
 </div>
@@ -580,7 +579,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__draw_8c_source.html#l00538">538</a> of file <a class="el" href="nbgl__draw_8c_source.html">nbgl_draw.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__draw_8c_source.html#l00584">584</a> of file <a class="el" href="nbgl__draw_8c_source.html">nbgl_draw.c</a>.</p>
 
 </div>
 </div>
