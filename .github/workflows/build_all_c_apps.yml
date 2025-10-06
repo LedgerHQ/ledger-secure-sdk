@@ -93,3 +93,10 @@ jobs:
           echo "Building for Flex"
           make clean
           make TARGET=flex BOLOS_SDK=$GITHUB_WORKSPACE/sdk
+      - name: Build App for Apex+
+        if: contains(matrix.apps.devices, 'apex_p')
+        run: |
+          cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
+          echo "Building for Apex+"
+          make clean
+          make TARGET=apex_p BOLOS_SDK=$GITHUB_WORKSPACE/sdk
