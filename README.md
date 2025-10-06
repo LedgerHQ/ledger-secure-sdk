@@ -8,11 +8,9 @@ If you are developing an application, for a smooth and quick integration:
 
 ## Introduction
 
-This directory contains the SDK for Nano S, Nano X, Nano S+, Stax, and Flex applications development.
+This directory contains the SDK for Nano X, Nano S+, Stax, Apex+ and Flex applications development.
 
-It is the unified version of the previous Nano S, Nano X, Nano S+ SDKs.
-
-As the previous SDKs, this SDK is tightly linked to the Ledger Hardware Wallet OS: BOLOS.
+This SDK is tightly linked to the Ledger Hardware Wallet OS: BOLOS.
 
 Indeed, it allows to interact with `syscalls` and `cxlib` functions which are embedded in the OS.
 
@@ -51,7 +49,7 @@ In short, to build an app for an OS, you should:
     - `git pull`
     - The last commit should be tagged with the complete version of the SDK (`v<N>.<x>.<y>`)
 - Build the app from your app folder:
-    - `make BOLOS_SDK=<path_to_sdk> TARGET=<target>` where `target` is one of `nanos`, `nanox`, `nanos2`, `stax`, `flex` (`nanos2` is used for Nano S+ device).
+    - `make BOLOS_SDK=<path_to_sdk> TARGET=<target>` where `target` is one of `nanox`, `nanos2`, `stax`, `flex`, `apex_p` (`nanos2` is used for Nano S+ device).
 
 ## About API_LEVEL branches
 

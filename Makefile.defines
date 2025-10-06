@@ -99,11 +99,6 @@ LDFLAGS  += -mno-unaligned-access
 LDFLAGS  += -Wl,--gc-sections -Wl,-Map,$(DBG_DIR)/app.map
 LDFLAGS  += -nostdlib -nodefaultlibs
 
-ifeq ($(TARGET_NAME),TARGET_NANOS)
-    CPU       = cortex-m0plus
-    LDFLAGS  += -nostartfiles --specs=nano.specs
-endif
-
 ifeq ($(TARGET_NAME),TARGET_NANOX)
     CPU       = cortex-m0plus
     CFLAGS   += -frwpi
@@ -121,10 +116,8 @@ endif
 CFLAGS   += --target=arm-none-eabi -mcpu=$(CPU) -mlittle-endian -mthumb
 # no --target in case arm-none-eabi-gcc is used
 AFLAGS   += -mcpu=$(CPU) -mlittle-endian -mthumb
-ifneq ($(TARGET_NAME),TARGET_NANOS)
-    # in rules_generic for non-LNS targets, LD is set to $(CC) (clang)
-    LDFLAGS  += --target=arm-none-eabi
-endif
+# LD is set to $(CC) (clang)
+LDFLAGS  += --target=arm-none-eabi
 LDFLAGS  += -mcpu=$(CPU) -mlittle-endian -mthumb
 
 ifeq ($(TARGET_NAME),TARGET_STAX)
@@ -203,13 +196,6 @@ DEFINES += NBGL_USE_CASE
 endif # USE_NBGL
 
 endif # TARGET_NANOX / TARGET_NANOS2
-
-ifeq ($(TARGET_NAME),TARGET_NANOS)
-DEFINES += BAGL_HEIGHT=32
-DEFINES += BAGL_WIDTH=128
-DEFINES += SCREEN_SIZE_NANO
-DEFINES += HAVE_BAGL
-endif # TARGET_NANOS
 
 DEFINES += OS_IO_SEPH_BUFFER_SIZE=272
 

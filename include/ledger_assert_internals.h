@@ -23,12 +23,7 @@
 #ifdef HAVE_LEDGER_ASSERT_DISPLAY
 
 #ifdef LEDGER_ASSERT_CONFIG_MESSAGE_INFO
-#if defined(TARGET_NANOS)
-// Spare RAM on NANOS
-#define MESSAGE_SIZE 20
-#else
 #define MESSAGE_SIZE 50
-#endif
 #else
 #define MESSAGE_SIZE 0
 #endif

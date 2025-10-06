@@ -426,12 +426,6 @@ const bagl_element_t printf_element = {
      32, 0,
      0, 0,
      0xFFFFFF, 0x000000,
-#ifdef TARGET_NANOS
-     BAGL_FONT_OPEN_SANS_EXTRABOLD_11px | BAGL_FONT_ALIGNMENT_CENTER | BAGL_FONT_ALIGNMENT_MIDDLE
-#else   // TARGET_NANOS
-     BAGL_FONT_OPEN_SANS_REGULAR_8_11PX
-#endif  // TARGET_NANOS
-     ,
-     0},
+     BAGL_FONT_OPEN_SANS_REGULAR_8_11PX, 0},
     .text = "Default printf"
 };
