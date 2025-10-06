@@ -17,16 +17,12 @@
 
 # Command to print ICONNAME hexadecimal bitmap on stdout according to the
 # hardware target.
-ifneq ($(TARGET),nanos)
 ICON_HEX_FILE=icon.hex
 #inverse B&W for non Stax
 ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOX TARGET_NANOS2))
 ICONHEX_CMD=python3 $(BOLOS_SDK)/lib_nbgl/tools/icon2glyph.py --reverse --hexbitmap $(ICON_HEX_FILE) $(ICONNAME)
 else
 ICONHEX_CMD=python3 $(BOLOS_SDK)/lib_nbgl/tools/icon2glyph.py --hexbitmap $(ICON_HEX_FILE) $(ICONNAME)
-endif
-else
-ICONHEX_CMD=python3 $(BOLOS_SDK)/icon3.py --hexbitmaponly $(ICONNAME)
 endif
 
 
@@ -80,12 +76,8 @@ endif
 
 APP_INSTALL_PARAMS = --appName $(APPNAME)
 APP_INSTALL_PARAMS += --appVersion $(APPVERSION)
-ifneq ($(TARGET),nanos)
 # icon2glyph outputs its result in a file that needs to be deleted after usage
 ICONHEX := $(shell $(ICONHEX_CMD) && cat $(ICON_HEX_FILE) && rm -f $(ICON_HEX_FILE))
-else
-ICONHEX := $(shell $(ICONHEX_CMD))
-endif
 
 ifneq ($(ICONHEX),)
 APP_INSTALL_PARAMS += --icon $(ICONHEX)
