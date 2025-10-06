@@ -536,8 +536,8 @@ Here is the source code to display this second example (with simulated transitio
 @code
 enum {
   BACK_BUTTON_TOKEN = 0,
-  FIRST_SUGGESTION_TOKEN,
   KBD_TEXT_TOKEN
+  FIRST_SUGGESTION_TOKEN,
 };
 
 static nbgl_layout_t *layout;
@@ -554,6 +554,28 @@ static void layoutTouchCallback(int token, uint8_t index) {
     nbgl_layoutRelease(layout);
     app_main();
   }
+  else if (token == KBD_TEXT_TOKEN) {
+    // Delete entered text
+    textToEnter[0] = '\0';
+    nbgl_layoutKbdContent_t kbdContent = {
+      .title                              = headerText,
+      .type                               = KEYBOARD_WITH_SUGGESTIONS,
+      .numbered                           = true,
+      .number                             = G_bolos_ux_context.onboarding_step + 1,
+      .text                               = "",
+      .grayedOut                          = false,
+      .textToken                          = KBD_TEXT_TOKEN,
+      .tuneId                             = TUNE_TAP_CASUAL,
+      .suggestionButtons.buttons          = (const char **) buttonTexts,
+      .suggestionButtons.firstButtonToken = FIRST_SUGGESTION_TOKEN,
+      .suggestionButtons.nbUsedButtons    = 0
+    };
+    // update keyboard content
+    nbgl_layoutUpdateKeyboardContent(&kbdContent);
+
+    // and refresh screen
+    nbgl_refresh();
+ }
   else if (token >= FIRST_SUGGESTION_TOKEN) {
     // do something with touched button
     printf("Selected word is %s\n", buttonTexts[token - FIRST_SUGGESTION_TOKEN]);
