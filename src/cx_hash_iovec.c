@@ -22,12 +22,6 @@
 #include "cx.h"
 #include "lib_cxng/src/cx_ram.h"
 
-#ifdef TARGET_NANOS
-// The G_cx symbol is already defined in some apps.
-// In such cases, do not redefine it to avoid conflicts.
-__attribute__((weak)) union cx_u G_cx;
-#endif
-
 static cx_err_t hash_iovec(cx_hash_t        *hash_ctx,
                            size_t            hash_ctx_size,
                            cx_md_t           hash_id,
@@ -76,12 +70,8 @@ cx_err_t cx_ripemd160_hash_iovec(const cx_iovec_t *iovec,
                                  size_t            iovec_len,
                                  uint8_t           digest[static CX_RIPEMD160_SIZE])
 {
-#ifdef TARGET_NANOS
-    cx_ripemd160_t *hash = &G_cx.ripemd160;
-#else
     cx_ripemd160_t  ripemd160;
     cx_ripemd160_t *hash = &ripemd160;
-#endif
 
     return hash_iovec(
         &hash->header, sizeof(cx_ripemd160_t), CX_RIPEMD160, iovec, iovec_len, digest);
@@ -94,12 +84,8 @@ cx_err_t cx_sha224_hash_iovec(const cx_iovec_t *iovec,
                               size_t            iovec_len,
                               uint8_t           digest[static CX_SHA224_SIZE])
 {
-#ifdef TARGET_NANOS
-    cx_sha256_t *hash = &G_cx.sha256;
-#else
-    cx_sha256_t     sha256;
-    cx_sha256_t    *hash = &sha256;
-#endif
+    cx_sha256_t  sha256;
+    cx_sha256_t *hash = &sha256;
 
     return hash_iovec(&hash->header, sizeof(cx_sha256_t), CX_SHA224, iovec, iovec_len, digest);
 }
@@ -110,12 +96,8 @@ cx_err_t cx_sha256_hash_iovec(const cx_iovec_t *iovec,
                               size_t            iovec_len,
                               uint8_t           digest[static CX_SHA256_SIZE])
 {
-#ifdef TARGET_NANOS
-    cx_sha256_t *hash = &G_cx.sha256;
-#else
-    cx_sha256_t     sha256;
-    cx_sha256_t    *hash = &sha256;
-#endif
+    cx_sha256_t  sha256;
+    cx_sha256_t *hash = &sha256;
 
     return hash_iovec(&hash->header, sizeof(cx_sha256_t), CX_SHA256, iovec, iovec_len, digest);
 }
@@ -126,12 +108,8 @@ cx_err_t cx_sha384_hash_iovec(const cx_iovec_t *iovec,
                               size_t            iovec_len,
                               uint8_t           digest[static CX_SHA384_SIZE])
 {
-#ifdef TARGET_NANOS
-    cx_sha512_t *hash = &G_cx.sha512;
-#else
-    cx_sha512_t     sha512;
-    cx_sha512_t    *hash = &sha512;
-#endif
+    cx_sha512_t  sha512;
+    cx_sha512_t *hash = &sha512;
 
     return hash_iovec(&hash->header, sizeof(cx_sha512_t), CX_SHA384, iovec, iovec_len, digest);
 }
@@ -142,25 +120,17 @@ cx_err_t cx_sha512_hash_iovec(const cx_iovec_t *iovec,
                               size_t            iovec_len,
                               uint8_t           digest[static CX_SHA512_SIZE])
 {
-#ifdef TARGET_NANOS
-    cx_sha512_t *hash = &G_cx.sha512;
-#else
-    cx_sha512_t     sha512;
-    cx_sha512_t    *hash = &sha512;
-#endif
+    cx_sha512_t  sha512;
+    cx_sha512_t *hash = &sha512;
 
     return hash_iovec(&hash->header, sizeof(cx_sha512_t), CX_SHA512, iovec, iovec_len, digest);
 }
 #endif
 
 #ifdef HAVE_SHA3
-#ifdef TARGET_NANOS
-#define ALLOCATE_SHA3_HASH() cx_sha3_t *hash = &G_cx.sha3
-#else
 #define ALLOCATE_SHA3_HASH() \
     cx_sha3_t  sha3;         \
     cx_sha3_t *hash = &sha3
-#endif
 
 #define CX_SHA3_BASED_FUNC(func_name, hash_id, digest_len)                                    \
     cx_err_t func_name(                                                                       \
@@ -207,12 +177,8 @@ cx_err_t cx_blake2b_256_hash_iovec(const cx_iovec_t *iovec,
                                    size_t            iovec_len,
                                    uint8_t           digest[static CX_BLAKE2B_256_SIZE])
 {
-#ifdef TARGET_NANOS
-    cx_blake2b_t *hash = &G_cx.blake.blake2b;
-#else
-    cx_blake2b_t    blake;
-    cx_blake2b_t   *hash = &blake;
-#endif
+    cx_blake2b_t  blake;
+    cx_blake2b_t *hash = &blake;
 
     return hash_iovec_ex(&hash->header,
                          sizeof(cx_blake2b_t),
@@ -227,12 +193,8 @@ cx_err_t cx_blake2b_512_hash_iovec(const cx_iovec_t *iovec,
                                    size_t            iovec_len,
                                    uint8_t           digest[static CX_BLAKE2B_512_SIZE])
 {
-#ifdef TARGET_NANOS
-    cx_blake2b_t *hash = &G_cx.blake.blake2b;
-#else
-    cx_blake2b_t    blake;
-    cx_blake2b_t   *hash = &blake;
-#endif
+    cx_blake2b_t  blake;
+    cx_blake2b_t *hash = &blake;
 
     return hash_iovec_ex(&hash->header,
                          sizeof(cx_blake2b_t),

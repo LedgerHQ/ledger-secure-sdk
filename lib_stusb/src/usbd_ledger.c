@@ -511,11 +511,6 @@ void USBD_LEDGER_start(void)
             strlcpy(usbd_ledger_init_data.name,
                     USBD_BLUE_PRODUCT_STRING,
                     sizeof(usbd_ledger_data.name));
-#if defined(TARGET_NANOS)
-            strlcpy(usbd_ledger_init_data.name,
-                    USBD_NANOS_PRODUCT_STRING,
-                    sizeof(usbd_ledger_data.name));
-#endif  // TARGET_NANOS
 #if defined(TARGET_NANOX)
             strlcpy(usbd_ledger_init_data.name,
                     USBD_NANOX_PRODUCT_STRING,
@@ -551,9 +546,6 @@ void USBD_LEDGER_start(void)
 
         // Fill the product type
         usbd_ledger_data.product = USBD_LEDGER_PRODUCT_BLUE;
-#if defined(TARGET_NANOS)
-        usbd_ledger_data.product = USBD_LEDGER_PRODUCT_NANOS;
-#endif  // TARGET_NANOS
 #if defined(TARGET_NANOX)
         usbd_ledger_data.product = USBD_LEDGER_PRODUCT_NANOX;
 #endif  // TARGET_NANOX

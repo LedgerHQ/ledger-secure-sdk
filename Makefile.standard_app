@@ -79,11 +79,7 @@ endif
 #####################################################################
 ifneq ($(DEBUG), 0)
     DEFINES += HAVE_PRINTF
-    ifeq ($(TARGET_NAME),TARGET_NANOS)
-        DEFINES += PRINTF=screen_printf
-    else
-        DEFINES += PRINTF=mcu_usb_printf
-    endif
+    DEFINES += PRINTF=mcu_usb_printf
     ifneq ($(DISABLE_DEBUG_LEDGER_ASSERT), 1)
         DEFINES += HAVE_LEDGER_ASSERT_DISPLAY
         DEFINES += LEDGER_ASSERT_CONFIG_FILE_INFO
@@ -98,7 +94,7 @@ endif
 #####################################################################
 #                              NBGL                                 #
 #####################################################################
-ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOS TARGET_NANOX TARGET_NANOS2))
+ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOX TARGET_NANOS2))
 ifeq ($(ENABLE_NBGL_FOR_NANO_DEVICES), 1)
 USE_NBGL = 1
 else
@@ -197,15 +193,7 @@ SDK_SOURCE_PATH += lib_standard_app
 endif
 
 ifneq ($(DISABLE_STANDARD_APP_SYNC_RAPDU), 1)
-# On LNS only activate it by default if using NBGL.
-# This impact stack usage and shouldn't be activated on all apps silently
-ifneq ($(TARGET_NAME),TARGET_NANOS)
 DEFINES += STANDARD_APP_SYNC_RAPDU
-else
-ifeq ($(ENABLE_NBGL_FOR_NANO_DEVICES), 1)
-DEFINES += STANDARD_APP_SYNC_RAPDU
-endif
-endif
 endif
 
 #####################################################################
@@ -254,13 +242,8 @@ APP_FLAGS_APP_LOAD_PARAMS = $(shell printf '0x%x' $$(( $(STANDARD_APP_FLAGS) + $
 #####################################################################
 CC       = $(CLANGPATH)clang
 AS       = $(CLANGPATH)clang
-ifeq ($(TARGET_NAME),TARGET_NANOS)
-    LD      = $(GCCPATH)arm-none-eabi-gcc
-    LDLIBS += -lgcc
-else
-    LD      = $(CLANGPATH)clang
-    LDLIBS += -lclang_rt.builtins
-endif
+LD       = $(CLANGPATH)clang
+LDLIBS  += -lclang_rt.builtins
 
 AFLAGS  += --target=arm-none-eabi
 
@@ -269,9 +252,6 @@ LDLIBS  += -lm -lc
 #####################################################################
 #                               MISC                                #
 #####################################################################
-ifeq ($(TARGET_NAME), TARGET_NANOS)
-ICONNAME ?= $(ICON_NANOS)
-endif
 ifeq ($(TARGET_NAME), TARGET_NANOX)
 ICONNAME ?= $(ICON_NANOX)
 endif

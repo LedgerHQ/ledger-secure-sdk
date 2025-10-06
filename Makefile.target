@@ -20,7 +20,7 @@ __MAKEFILE_TARGET__ := 1
 
 # TARGET should be set as an environment variable otherwise it will be read from a `.target`
 # file in the SDK root repository
-TARGETS := nanos nanox nanos2 stax flex apex_p apex_m
+TARGETS := nanox nanos2 stax flex apex_p apex_m
 ifeq ($(TARGET),)
 ifeq ("$(wildcard $(BOLOS_SDK)/.target)","")
 $(error No TARGET specified and no .target file in SDK repository $(BOLOS_SDK))
