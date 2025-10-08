@@ -139,13 +139,6 @@ cx_err_t cx_blake2b(cx_hash_t     *hash,
    More information about the BLAKE2 hash function can be found at
    https://blake2.net.
 */
-
-// #include <stdint.h>
-// #include <string.h>
-// #include <stdio.h>
-
-// #include "cx_blake2.h" //moved on top
-
 #include <stddef.h>
 #include <string.h>
 

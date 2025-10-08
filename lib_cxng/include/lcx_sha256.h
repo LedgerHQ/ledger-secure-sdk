@@ -147,6 +147,25 @@ static inline int cx_sha256_init(cx_sha256_t *hash)
 }
 
 /**
+ * @brief  Update the current SHA256 operation with the given buffer
+ *
+ * @param ctx context initialized with @ref cx_sha256_init
+ * @param data buffer to add
+ * @param len length in bytes of the data buffer
+ * @return result of the operation
+ */
+WARN_UNUSED_RESULT cx_err_t cx_sha256_update(cx_sha256_t *ctx, const uint8_t *data, size_t len);
+
+/**
+ * @brief Finalizes the current SHA256 and produce the given digest
+ *
+ * @param ctx  context initialized with @ref cx_sha256_init
+ * @param digest (output) output digest (@ref CX_SHA256_SIZE bytes)
+ * @return always CX_OK
+ */
+cx_err_t cx_sha256_final(cx_sha256_t *ctx, uint8_t *digest);
+
+/**
  * @brief   Computes a standalone one shot SHA-256 digest.
  *
  * @param[in]  iovec     Input data in the form of an array of cx_iovec_t.

@@ -19,8 +19,8 @@
 #ifdef HAVE_RNG_RFC6979
 
 #include <string.h>
-#include "cx_rng_rfc6979.h"
-#include "cx_hmac.h"
+#include "lcx_rng.h"
+#include "lcx_hmac.h"
 #include "cx_hash.h"
 #include "cx_ram.h"
 #include "exceptions.h"

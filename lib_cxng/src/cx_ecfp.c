@@ -18,13 +18,17 @@
 
 #ifdef HAVE_ECC
 
-#include "cx_ecfp.h"
+#include "lcx_ecfp.h"
 #include "libcxng.h"
-#include "cx_eddsa.h"
+#include "lcx_eddsa.h"
 #include "cx_utils.h"
 #include "cx_ram.h"
 
 #include <string.h>
+
+#if defined(BOLOS_RELEASE) && defined(HAVE_ECC_WITH_NO_RANDOMIZE)
+#error HAVE_ECC_WITH_NO_RANDOMIZE not allowed for release
+#endif  // HAVE_ECC_WITH_NO_RANDOMIZE
 
 /* ========================================================================= */
 /* ========================================================================= */

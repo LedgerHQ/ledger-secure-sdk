@@ -273,9 +273,6 @@ typedef enum {
 } HashReturn;
 /* NIST API end */
 
-/* helper functions */
-void PrintHash(BitSequence *, int);
-
 #endif /* __groestl_ref_h */
 
 #endif  // HAVE_GROESTL

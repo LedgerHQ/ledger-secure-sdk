@@ -26,7 +26,7 @@
 #endif  // HAVE_AEAD
 #include "lcx_chacha.h"
 #include "lcx_chacha_poly.h"
-#include "cx_poly1305.h"
+#include "lcx_poly1305.h"
 #include "ox.h"
 #include <stddef.h>
 

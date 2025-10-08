@@ -74,6 +74,10 @@ enum cx_md_e {
     CX_SHA3_256 = 12,  ///< SHA3-256 digest
     CX_SHA3_512 = 13,  ///< SHA3-512 digest
 };
+
+#define SHA256_BLOCK_SIZE 64
+#define SHA512_BLOCK_SIZE 128
+
 /** Convenience type. See #cx_md_e. */
 typedef enum cx_md_e cx_md_t;
 
@@ -234,6 +238,51 @@ WARN_UNUSED_RESULT cx_err_t cx_hash_update(cx_hash_t *hash, const uint8_t *in, s
  *                    - CX_OK on success
  */
 WARN_UNUSED_RESULT cx_err_t cx_hash_final(cx_hash_t *hash, uint8_t *digest);
+
+/**
+ * @brief get information about a hash method
+ *
+ * @param md_type method for hash
+ * @return const cx_hash_info_t*
+ */
+const cx_hash_info_t *cx_hash_get_info(cx_md_t md_type);
+
+/**
+ * @brief HMAC-Based Key Kerivation Function defined at https://tools.ietf.org/html/rfc5869
+ * Used to implement the EIP-2333 for BLS12-381 key generation
+ *
+ * @param hash_id[in] Hash algo to use
+ * @param ikm[in]  Key to derive
+ * @param ikm_len[in] len of ikm
+ * @param salt[in] Salt to use
+ * @param salt_len[in] len of salt
+ * @param prk[out] output key
+ */
+void cx_hkdf_extract(const cx_md_t        hash_id,
+                     const unsigned char *ikm,
+                     unsigned int         ikm_len,
+                     unsigned char       *salt,
+                     unsigned int         salt_len,
+                     unsigned char       *prk);
+
+/**
+ * @brief Expand function (TBC)
+ *
+ * @param hash_id[in] Hash algo to use
+ * @param prk[in] Input key
+ * @param prk_len[in] len of prk
+ * @param info[in]
+ * @param info_len[in]
+ * @param okm[out] Output key
+ * @param okm_len[in] Max output key len
+ */
+void cx_hkdf_expand(const cx_md_t        hash_id,
+                    const unsigned char *prk,
+                    unsigned int         prk_len,
+                    unsigned char       *info,
+                    unsigned int         info_len,
+                    unsigned char       *okm,
+                    unsigned int         okm_len);
 
 #endif  // HAVE_HASH
 

@@ -21,7 +21,7 @@
 #ifdef HAVE_CRC
 
 #include "lcx_crc.h"
-#include "cx_ram.h"
+#include "ox_crc.h"
 
 uint16_t cx_crc16_update(uint16_t crc, const void *buf, size_t len)
 {

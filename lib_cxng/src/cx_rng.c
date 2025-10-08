@@ -20,17 +20,10 @@
 
 #ifdef HAVE_RNG
 
-#include "cx_ram.h"
-#include "cx_utils.h"
-#include "cx_crc.h"
+#include <stdint.h>
 #include "lcx_rng.h"
-#include "errors.h"
-#include "exceptions.h"
 
-#include "os_halt.h"
-#include "os_math.h"
 #include "os_random.h"
-#include <string.h>
 
 void cx_rng_no_throw(uint8_t *buffer, size_t len)
 {

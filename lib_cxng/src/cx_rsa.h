@@ -188,7 +188,7 @@ cx_pkcs1_eme_oaep_decode(cx_md_t hID, uint8_t *em, size_t em_len, uint8_t *m, si
 // For PKCS1.5
 #define PKCS1_DIGEST_BUFFER_LENGTH 64
 
-struct cx_pkcs1_s {
+typedef struct cx_pkcs1_s {
     union {
         cx_hash_t hash;
 #if defined(HAVE_SHA256)
@@ -201,8 +201,7 @@ struct cx_pkcs1_s {
     } hash_ctx;
     uint8_t digest[PKCS1_DIGEST_BUFFER_LENGTH];
     uint8_t MGF1[512];
-};
-typedef struct cx_pkcs1_s cx_pkcs1_t;
+} cx_pkcs1_t;
 
 #if defined(HAVE_SHA224)
 #define CX_OID_SHA224_LENGTH 19
