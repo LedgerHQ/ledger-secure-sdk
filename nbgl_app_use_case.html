@@ -131,7 +131,8 @@ Use Cases</h1>
 </ul>
 </li>
 <li>for keypad:<ul>
-<li><a class="el" href="nbgl__use__case_8h.html#aab213759153c92bc0262f3a4e1904a5a">nbgl_useCaseKeypad()</a> to draw a default keypad implementation (see <a class="el" href="nbgl_app_use_case.html#use_case_keypad">Keypad Use Case</a>)</li>
+<li><a class="el" href="nbgl__use__case_8h.html#a29799c89a1e92963706ffc97ceee9d5a">nbgl_useCaseKeypadPIN()</a> to draw a default keypad implementation with hidden digits (see <a class="el" href="nbgl_app_use_case.html#use_case_keypad">Keypad Use Case</a>)</li>
+<li><a class="el" href="nbgl__use__case_8h.html#a89212f593a06326783ee901b62d21492">nbgl_useCaseKeypadDigits()</a> to draw a default keypad implementation, showing digits (see <a class="el" href="nbgl_app_use_case.html#use_case_keypad">Keypad Use Case</a>)</li>
 </ul>
 </li>
 <li>for generic navigable content:<ul>
@@ -741,35 +742,42 @@ Keypad Use Case</h2>
 <li>a hidden Digits area (the max nb of supported digits is 12)</li>
 <li>the keypad at the bottom</li>
 </ul>
-<p>The <a class="el" href="nbgl__use__case_8h.html#aab213759153c92bc0262f3a4e1904a5a">nbgl_useCaseKeypad()</a> function enables to create such page, with the following parameters:</p>
+<p>The <a class="el" href="nbgl__use__case_8h.html#a29799c89a1e92963706ffc97ceee9d5a">nbgl_useCaseKeypadPIN()</a> function enables to create such page, with the following parameters:</p>
 <ul>
-<li>a title</li>
+<li>the title</li>
 <li>min and max pin code lengths</li>
+<li>a token for the navigation callback (if not provided, no navigation bar will appear)</li>
 <li>a boolean to request a shuffled keypad</li>
-<li>a boolean to request <b>hidden</b> digits</li>
+<li>a tune value</li>
 <li>callbacks for navigation and pin validation</li>
 </ul>
+<p>The other variant, where digits don't need to be hidden is <a class="el" href="nbgl__use__case_8h.html#a89212f593a06326783ee901b62d21492">nbgl_useCaseKeypadDigits()</a>; it takes the same parameters.</p>
 <dl class="section note"><dt>Note</dt><dd>The <em>backspace</em> and <em>validate</em> buttons will be shown or hidden automatically.</dd></dl>
 <p>Here is the code to display something similar to example picture:</p>
 <div class="fragment"><div class="line"><span class="keyword">static</span> <span class="keywordtype">void</span> validate_pin(<span class="keyword">const</span> uint8_t *pinentry, uint8_t length) {</div>
 <div class="line">    <span class="comment">// Code to validate the entered pin code</span></div>
 <div class="line">}</div>
 <div class="line"> </div>
-<div class="line"><span class="keyword">static</span> <span class="keywordtype">void</span> quit_cb() {</div>
-<div class="line">    <span class="comment">// Back to the main app menu</span></div>
+<div class="line"><span class="keyword">static</span> <span class="keywordtype">void</span> pinentry_cb(<span class="keywordtype">int</span> token, uint8_t index) {</div>
+<div class="line">    UNUSED(index);</div>
+<div class="line">    <span class="comment">// Callback for the key navigation (back key mainly)</span></div>
+<div class="line">    <span class="keywordflow">if</span> (token == TOKEN_PIN_ENTRY_BACK) {</div>
+<div class="line">        ui_init();</div>
+<div class="line">    }</div>
 <div class="line">}</div>
 <div class="line"> </div>
 <div class="line"><span class="keywordtype">void</span> ui_menu_pinentry_display(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> value) {</div>
 <div class="line">    <span class="comment">// Draw the keypad</span></div>
-<div class="line">    <a class="code hl_function" href="nbgl__use__case_8h.html#aab213759153c92bc0262f3a4e1904a5a">nbgl_useCaseKeypad</a>(<span class="stringliteral">&quot;PIN Keypad (5555)&quot;</span>,</div>
-<div class="line">                       4,</div>
-<div class="line">                       4,</div>
-<div class="line">                       <span class="keyword">false</span>,</div>
-<div class="line">                       <span class="keyword">true</span>,</div>
-<div class="line">                       validate_pin,</div>
-<div class="line">                       quit_cb);</div>
+<div class="line">    <a class="code hl_function" href="nbgl__use__case_8h.html#a29799c89a1e92963706ffc97ceee9d5a">nbgl_useCaseKeypadPIN</a>(<span class="stringliteral">&quot;Enter User PIN&quot;</span>,</div>
+<div class="line">                          6,</div>
+<div class="line">                          12,</div>
+<div class="line">                          TOKEN_PIN_ENTRY_BACK,</div>
+<div class="line">                          <span class="keyword">false</span>,</div>
+<div class="line">                          TUNE_TAP_CASUAL,</div>
+<div class="line">                          validate_pin,</div>
+<div class="line">                          pinentry_cb);</div>
 <div class="line">}</div>
-<div class="ttc" id="anbgl__use__case_8h_html_aab213759153c92bc0262f3a4e1904a5a"><div class="ttname"><a href="nbgl__use__case_8h.html#aab213759153c92bc0262f3a4e1904a5a">nbgl_useCaseKeypad</a></div><div class="ttdeci">void nbgl_useCaseKeypad(const char *title, uint8_t minDigits, uint8_t maxDigits, bool shuffled, bool hidden, nbgl_pinValidCallback_t validatePinCallback, nbgl_callback_t backCallback)</div></div>
+<div class="ttc" id="anbgl__use__case_8h_html_a29799c89a1e92963706ffc97ceee9d5a"><div class="ttname"><a href="nbgl__use__case_8h.html#a29799c89a1e92963706ffc97ceee9d5a">nbgl_useCaseKeypadPIN</a></div><div class="ttdeci">void nbgl_useCaseKeypadPIN(const char *title, uint8_t minDigits, uint8_t maxDigits, uint8_t backToken, bool shuffled, tune_index_e tuneId, nbgl_pinValidCallback_t validatePinCallback, nbgl_layoutTouchCallback_t actionCallback)</div></div>
 </div><!-- fragment --><h1><a class="anchor" id="use_case_refresh_page"></a>
 Refreshing screen</h1>
 <p>After having drawn graphic objects in <b>framebuffer</b>, all functions of this API automatically refresh the screen. So no need to call <a class="el" href="nbgl__obj_8h.html#a2c321e01f64784c5249e594b795bf252">nbgl_refresh()</a>. </p>
