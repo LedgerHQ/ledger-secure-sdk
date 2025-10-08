@@ -130,6 +130,27 @@ static inline cx_err_t cx_ripemd160_hash(const uint8_t *in,
  */
 size_t cx_hash_ripemd160(const uint8_t *in, size_t in_len, uint8_t *out, size_t out_len);
 
+/**
+ * @brief Update RIPEMD160 digest initialized with #cx_ripemd160_init_no_throw
+ *
+ * @param ctx[in] context initialized with #cx_ripemd160_init_no_throw
+ * @param data[in] data to add in RIPEMD160 digest
+ * @param len[in] len of data
+ * @return error or CX_OK
+ */
+WARN_UNUSED_RESULT cx_err_t cx_ripemd160_update(cx_ripemd160_t *ctx,
+                                                const uint8_t  *data,
+                                                size_t          len);
+
+/**
+ * @brief Finalize RIPEMD160 digest initialized with #cx_ripemd160_init_no_throw
+ *
+ * @param ctx[in] context initialized with #cx_ripemd160_init_no_throw
+ * @param digest[out] output digest
+ * @return error or CX_OK
+ */
+WARN_UNUSED_RESULT cx_err_t cx_ripemd160_final(cx_ripemd160_t *ctx, uint8_t *digest);
+
 #endif  // HAVE_RIPEMD160
 
 #endif  // LCX_RIPEMD160_H

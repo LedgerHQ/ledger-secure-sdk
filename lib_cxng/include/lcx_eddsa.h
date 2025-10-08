@@ -340,6 +340,28 @@ bool cx_eddsa_verify_hash(const cx_ecfp_public_key_t *public_key,
                           const uint8_t              *signature,
                           size_t                      signature_len);
 
+/**
+ * @brief Get the public key from the given private key and hash
+ *
+ * @param[in] pv_key    Private key.
+ * @param[in] hashID       hash identifier to use.
+ * @param[out] pu_key      output public key
+ * @param[out] a     Secret scalar a (can be null)
+ * @param[out] a_len len of a
+ * @param[out] h     Secret scalar h (can be null)
+ * @param[out] h_len eln of h
+ * @param[out] scal full secret scalar
+ * @return error code or CX_OK
+ */
+WARN_UNUSED_RESULT cx_err_t cx_eddsa_get_public_key_internal(const cx_ecfp_private_key_t *pv_key,
+                                                             cx_md_t                      hashID,
+                                                             cx_ecfp_public_key_t        *pu_key,
+                                                             uint8_t                     *a,
+                                                             size_t                       a_len,
+                                                             uint8_t                     *h,
+                                                             size_t                       h_len,
+                                                             uint8_t *scal /*temp uint8[114]*/);
+
 #endif  // HAVE_EDDSA
 
 #endif  // LCX_EDDSA_H

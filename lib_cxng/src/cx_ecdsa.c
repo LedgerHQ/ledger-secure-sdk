@@ -19,8 +19,8 @@
 #ifdef HAVE_ECDSA
 
 #include "cx_rng.h"
-#include "cx_rng_rfc6979.h"
-#include "cx_ecfp.h"
+#include "lcx_rng.h"
+#include "lcx_ecfp.h"
 #include "cx_ecdsa.h"
 #include "cx_utils.h"
 #include "cx_ram.h"

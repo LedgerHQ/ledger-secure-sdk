@@ -22,9 +22,6 @@
 #if defined(HAVE_SHA256) || defined(HAVE_SHA224)
 
 #include "lcx_sha256.h"
-#include <stddef.h>
-#include <stdint.h>
-#include <stdbool.h>
 
 #ifdef HAVE_SHA224
 extern const cx_hash_info_t cx_sha224_info;
@@ -34,10 +31,6 @@ extern const cx_hash_info_t cx_sha224_info;
 extern const cx_hash_info_t cx_sha256_info;
 #endif  // HAVE_SHA256
 
-WARN_UNUSED_RESULT cx_err_t cx_sha256_update(cx_sha256_t *ctx, const uint8_t *data, size_t len);
-// No need to add WARN_UNUSED_RESULT to cx_sha256_final(), it always returns CX_OK
-cx_err_t cx_sha256_final(cx_sha256_t *ctx, uint8_t *digest);
-
-#endif  // HAVE_SHA256
+#endif  // HAVE_SHA256 || HAVE_SHA224
 
 #endif  // CX_SHA256_H

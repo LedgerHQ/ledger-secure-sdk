@@ -557,6 +557,44 @@ DEPRECATED static inline void cx_edward_decompress_point(cx_curve_t curve, uint8
 
 #endif  // HAVE_ECC_TWISTED_EDWARDS
 
+/**
+ * @brief Encode the signature of the given
+ *
+ * @param sig[out] output buffer in which to store signature
+ * @param sig_len[in] max len of sig
+ * @param r[in]
+ * @param r_len[in] len of r buffer
+ * @param s[in]
+ * @param s_len[in]  len of s buffer
+ * @return real len of signature
+ */
+size_t cx_ecfp_encode_sig_der(uint8_t       *sig,
+                              size_t         sig_len,
+                              const uint8_t *r,
+                              size_t         r_len,
+                              const uint8_t *s,
+                              size_t         s_len);
+
+/**
+ * @brief Decode the given signature
+ *
+ * @param sig[in] input signature to decode
+ * @param sig_len[in]
+ * @param max_size[in]
+ * @param r[out] buffer in which to store decoded R
+ * @param r_len[out] len of r buffer
+ * @param s[out] buffer in which to store decoded S
+ * @param s_len[out] len of s buffer
+ * @return 0 if error
+ */
+int cx_ecfp_decode_sig_der(const uint8_t  *sig,
+                           size_t          sig_len,
+                           size_t          max_size,
+                           const uint8_t **r,
+                           size_t         *r_len,
+                           const uint8_t **s,
+                           size_t         *s_len);
+
 #endif  // HAVE_ECC
 
 #endif  // LCX_ECFP_H

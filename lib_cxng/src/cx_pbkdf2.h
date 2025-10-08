@@ -22,6 +22,7 @@
 #ifdef HAVE_PBKDF2
 
 #include "lcx_hmac.h"
+#include "lcx_pbkdf2.h"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -29,7 +30,7 @@
 #define PBKDF2_BUFFER_LENGTH 64
 
 /* ========= PBKDF2 ========= */
-struct cx_pbkdf2_s {
+typedef struct cx_pbkdf2_s {
     // salt buffer used to initialize each pbkdf2 turn.
     uint8_t salt[384];
     uint8_t sha512out[64];  // avoid stack usage in derive_and_set_seed
@@ -51,17 +52,7 @@ struct cx_pbkdf2_s {
         cx_hmac_sha256_t hmac_sha256;
 #endif
     };
-};
-typedef struct cx_pbkdf2_s cx_pbkdf2_t;
-
-WARN_UNUSED_RESULT cx_err_t cx_pbkdf2_hmac(cx_md_t        md_type,
-                                           const uint8_t *password,
-                                           size_t         password_len,
-                                           const uint8_t *salt,
-                                           size_t         salt_len,
-                                           uint32_t       iterations,
-                                           uint8_t       *key,
-                                           size_t         key_len);
+} cx_pbkdf2_t;
 
 #endif  // HAVE_PBKDF2
 

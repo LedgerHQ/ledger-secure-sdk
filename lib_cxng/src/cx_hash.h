@@ -15,7 +15,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  ********************************************************************************/
-
+/*
+ * Internal hash function
+ */
 #ifndef CX_HASH_H
 #define CX_HASH_H
 
@@ -24,28 +26,9 @@
 #include "lcx_hash.h"
 #include <stddef.h>
 
-#if defined(HAVE_SHA256) || defined(HAVE_SHA224)
-#define SHA256_BLOCK_SIZE 64
-#endif
-
-#if defined(HAVE_SHA512) || defined(HAVE_SHA384)
-#define SHA512_BLOCK_SIZE 128
-#endif
-
 // #warning reduce MAX_HASH_SIZE and MAX_HASH_BLOCK_SIZE according to HAVE_xxx
 #define MAX_HASH_SIZE       128
 #define MAX_HASH_BLOCK_SIZE 128
-
-#ifdef HAVE_BLAKE2
-WARN_UNUSED_RESULT cx_err_t cx_blake2b(cx_hash_t     *hash,
-                                       uint32_t       mode,
-                                       const uint8_t *in,
-                                       size_t         in_len,
-                                       uint8_t       *out,
-                                       size_t         out_len);
-#endif
-
-const cx_hash_info_t *cx_hash_get_info(cx_md_t md_type);
 
 /**
  * Destroy/clean the hash context.

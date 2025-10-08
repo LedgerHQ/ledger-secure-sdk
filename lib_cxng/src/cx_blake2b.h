@@ -28,19 +28,13 @@
 
 extern const cx_hash_info_t cx_blake2b_info;
 
-WARN_UNUSED_RESULT cx_err_t cx_blake2b_update(cx_blake2b_t *ctx, const uint8_t *data, size_t len);
-// No need to add WARN_UNUSED_RESULT to cx_blake2b_final(), it always returns CX_OK
-cx_err_t cx_blake2b_final(cx_blake2b_t *ctx, uint8_t *digest);
-size_t   cx_blake2b_get_output_size(const cx_blake2b_t *ctx);
-
-struct cx_xblake_s {
+typedef struct cx_xblake_s {
     cx_blake2b_t blake2b;
     uint64_t     m[16];
     uint64_t     v[16];
     uint8_t      buffer[BLAKE2B_OUTBYTES];
     uint8_t      block1[BLAKE2B_BLOCKBYTES];
-};
-typedef struct cx_xblake_s cx_xblake_t;
+} cx_xblake_t;
 
 #endif  // HAVE_BLAKE2
 
