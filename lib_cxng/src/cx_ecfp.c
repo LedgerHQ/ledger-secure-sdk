@@ -206,7 +206,8 @@ cx_err_t cx_ecfp_generate_pair2_no_throw(cx_curve_t             curve,
         CX_CHECK(cx_ecdomain_generator_bn(curve, &W));
         // 'cx_ecpoint_rnd_fixed_scalarmul' doesn't support BLS12-381 so far
         // use cx_ecpoint_rnd_scalarmul for now
-        if (CX_CURVE_BLS12_381_G1 == private_key->curve) {
+        if ((CX_CURVE_BLS12_381_G1 == private_key->curve)
+            || (CX_CURVE_BLS12_377_G1 == private_key->curve)) {
             CX_CHECK(cx_ecpoint_rnd_scalarmul(&W, private_key->d, private_key->d_len));
         }
         else {
@@ -223,8 +224,21 @@ cx_err_t cx_ecfp_generate_pair2_no_throw(cx_curve_t             curve,
 #ifdef HAVE_ECC_TWISTED_EDWARDS
     if (CX_CURVE_RANGE(curve, TWISTED_EDWARDS)) {
         uint8_t scal[114];
-        CX_CHECK(cx_eddsa_get_public_key_internal(
-            private_key, hashID, public_key, NULL, 0, NULL, 0, scal));
+
+        if (curve == CX_CURVE_EdBLS12) {
+            CX_CHECK(cx_ecpoint_alloc(&W, private_key->curve));
+            CX_CHECK(cx_ecdomain_generator_bn(curve, &W));
+            CX_CHECK(cx_ecpoint_rnd_scalarmul(&W, private_key->d, private_key->d_len));
+            public_key->curve = curve;
+            public_key->W_len = 1 + 2 * size;
+            public_key->W[0]  = 0x04;
+            CX_CHECK(
+                cx_ecpoint_export(&W, &public_key->W[1], size, &public_key->W[1 + size], size));
+        }
+        else {
+            CX_CHECK(cx_eddsa_get_public_key_internal(
+                private_key, hashID, public_key, NULL, 0, NULL, 0, scal));
+        }
         goto end;
     }
 #endif
