@@ -10,4 +10,4 @@ target_compile_options(fuzz_qrcodegen PUBLIC ${COMPILATION_FLAGS})
 target_link_options(fuzz_qrcodegen PUBLIC ${LINK_FLAGS})
 
 # Link with required libraries
-target_link_libraries(fuzz_qrcodegen PUBLIC qrcode mock)
+target_link_libraries(fuzz_qrcodegen PUBLIC qrcode mock nbgl_shared)
