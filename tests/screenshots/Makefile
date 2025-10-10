@@ -181,13 +181,13 @@ INC:=                  \
                        $(PUBLIC_SDK_DIR)/lib_cxng/include \
                        $(PUBLIC_SDK_DIR)/io/include \
                        $(PUBLIC_SDK_DIR)/io_legacy/include \
-                       $(NBGL_PATH)/include/fonts \
                        $(NBGL_PATH)/include \
                        $(PUBLIC_SDK_DIR)/qrcode/include \
                        $(GEN_DIR)
 
-LDLIBS              := -lm -lbsd -lssl -lcrypto
-LDFLAGS             := -Xlinker -Map=$(BUILD_DIR)/memory.map
+# Link with NBGL shared library provided in Bolos build
+LDLIBS              := -lm -lbsd -lssl -lcrypto -lnbgl_shared_screenshots_$(PRODUCT_NAME)
+LDFLAGS             := -Xlinker -Map=$(BUILD_DIR)/memory.map -Lshared_libs
 BIN                 := $(BIN_DIR)/simulator
 
 COMPILE              = $(GCC) $(CFLAGS) $(addprefix -I,$(INC)) $(addprefix -D,$(DEFINES))

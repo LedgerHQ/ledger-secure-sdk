@@ -48,7 +48,6 @@ target_include_directories(
   ../../include
   ../../lib_cxng/include
   ../../lib_nbgl/include
-  ../../lib_nbgl/include/fonts
   ../../lib_ux_nbgl
   ../../lib_standard_app
   ../mock/include
