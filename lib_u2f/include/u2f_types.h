@@ -23,10 +23,11 @@
 
 /* Exported types, structures, unions ----------------------------------------*/
 typedef enum {
-    U2F_STATE_IDLE           = 0x00,
-    U2F_STATE_CMD_FRAMING    = 0x01,
-    U2F_STATE_CMD_COMPLETE   = 0x02,
-    U2F_STATE_CMD_PROCESSING = 0x03,
+    U2F_STATE_IDLE                  = 0x00,
+    U2F_STATE_CMD_FRAMING           = 0x01,
+    U2F_STATE_CMD_COMPLETE          = 0x02,
+    U2F_STATE_CMD_PROCESSING        = 0x03,
+    U2F_STATE_CMD_PROCESSING_CANCEL = 0x04,
 } u2f_state_t;
 
 typedef enum {

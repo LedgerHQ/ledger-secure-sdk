@@ -371,7 +371,8 @@ USBD_StatusTypeDef USBD_LEDGER_HID_U2F_data_in(USBD_HandleTypeDef *pdev, void *c
     if (!handle->transport_data.tx_message_buffer) {
         handle->transport_data.tx_packet_length = 0;
         handle->state                           = LEDGER_HID_U2F_STATE_IDLE;
-        if (handle->transport_data.state == U2F_STATE_CMD_PROCESSING) {
+        if ((handle->transport_data.state == U2F_STATE_CMD_PROCESSING)
+            || (handle->transport_data.state == U2F_STATE_CMD_PROCESSING_CANCEL)) {
             handle->transport_data.state = U2F_STATE_IDLE;
         }
     }
@@ -726,13 +727,17 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
                     pdev, cookie, OS_IO_PACKET_TYPE_USB_U2F_HID_CANCEL, error_msg, 2, 0);
             }
             else {
+                // CTAPHID_CANCEL is transmitted to the application.
+                // It is up to the application do ignore it if
+                // no CTAPHID_CBOR request is being processed.
                 buffer[0] = OS_IO_PACKET_TYPE_USB_U2F_HID_CANCEL;
                 memmove(&buffer[1],
                         &handle->transport_data.rx_message_buffer[3],
                         handle->transport_data.rx_message_length - 3);
-                handle->transport_data.state = U2F_STATE_CMD_PROCESSING;
+                handle->transport_data.state = U2F_STATE_CMD_PROCESSING_CANCEL;
                 status                       = handle->transport_data.rx_message_length - 2;
             }
+            handle->transport_data.cid = U2F_FORBIDDEN_CID;
             break;
 
         case U2F_COMMAND_PING:

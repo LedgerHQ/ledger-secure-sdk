@@ -79,8 +79,13 @@ static u2f_error_t process_packet(u2f_transport_t *handle, uint8_t *buffer, uint
             goto end;
         }
         else if ((handle->state > U2F_STATE_CMD_FRAMING) && (length >= 5)
-                 && (buffer[4] != (U2F_COMMAND_HID_CANCEL | 0x80))) {
-            // Good CID but a request is already in process
+                 && (buffer[4] != (U2F_COMMAND_HID_CANCEL | 0x80))
+                 && handle->state != U2F_STATE_CMD_PROCESSING_CANCEL) {
+            // Good CID but a request is already in process.
+            // If previous command is CTAPHID_CANCEL (supposedly without response) a new one is
+            // still authorized.
+            // TODO: to check the use case when on-going CTAPHID_CANCEL needs to interrupt UI and to
+            // respond with ERROR_KEEPALIVE_CANCEL while a new U2F_TRANSPORT_TYPE_USB_HID is coming.
             error = CTAP1_ERR_CHANNEL_BUSY;
             goto end;
         }
