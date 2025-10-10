@@ -12,4 +12,4 @@ target_compile_options(fuzz_alloc PUBLIC ${COMPILATION_FLAGS})
 target_link_options(fuzz_alloc PUBLIC ${LINK_FLAGS})
 
 # Link with required libraries
-target_link_libraries(fuzz_alloc PUBLIC alloc nbgl io mock)
+target_link_libraries(fuzz_alloc PUBLIC alloc nbgl io mock nbgl_shared)

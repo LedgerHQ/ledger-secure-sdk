@@ -10,4 +10,4 @@ target_compile_options(fuzz_apdu_parser PUBLIC ${COMPILATION_FLAGS})
 target_link_options(fuzz_apdu_parser PUBLIC ${LINK_FLAGS})
 
 # Link with required libraries
-target_link_libraries(fuzz_apdu_parser PUBLIC standard_app)
+target_link_libraries(fuzz_apdu_parser PUBLIC standard_app nbgl_shared)

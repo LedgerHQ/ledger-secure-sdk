@@ -98,6 +98,31 @@ uint8_t strxcmp(char *str1, char *str2)
     return 0;
 }
 
+void store_button_infos(nbgl_area_t *button_area)
+{
+    UNUSED(button_area);
+}
+
+// =--------------------------------------------------------------------------=
+// Store the number of lines used by a specific string ID
+
+void store_string_infos(const char    *text,
+                        nbgl_font_id_e font_id,
+                        nbgl_area_t   *area,
+                        bool           wrapping,
+                        uint16_t       nb_lines,
+                        uint16_t       nb_pages_,
+                        bool           bold)
+{
+    UNUSED(text);
+    UNUSED(font_id);
+    UNUSED(area);
+    UNUSED(wrapping);
+    UNUSED(nb_lines);
+    UNUSED(nb_pages_);
+    UNUSED(bold);
+}
+
 // =--------------------------------------------------------------------------=
 static int add_name(ScenarioPage_t *page, char *text)
 {
