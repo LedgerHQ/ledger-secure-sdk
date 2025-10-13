@@ -889,6 +889,7 @@ static void displayReviewPage(uint8_t page, bool forceFullRefresh)
         // the maximum displayable number of lines for value is NB_MAX_LINES_IN_REVIEW (without More
         // button)
         content.tagValueDetails.tagValueList.nbMaxLinesForValue = NB_MAX_LINES_IN_REVIEW;
+        content.tagValueDetails.tagValueList.hideEndOfLastLine  = true;
     }
     else if (content.type == TAG_VALUE_LIST) {
         content.tagValueList.smallCaseForValue = false;
@@ -1126,6 +1127,7 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
                 }
                 p_tagValueList->smallCaseForValue  = false;
                 p_tagValueList->nbMaxLinesForValue = NB_MAX_LINES_IN_REVIEW;
+                p_tagValueList->hideEndOfLastLine  = true;
                 p_tagValueList->wrapping           = p_content->content.tagValueList.wrapping;
             }
 
@@ -1327,7 +1329,13 @@ static const char *getDetailsPageAt(uint8_t detailsPage)
                                         NB_MAX_LINES_IN_DETAILS,
                                         &len,
                                         detailsContext.wrapping);
-            len -= 3;
+            // don't start next page on a \n
+            if (currentChar[len] == '\n') {
+                len++;
+            }
+            else if (detailsContext.wrapping == false) {
+                len -= 3;
+            }
             currentChar = currentChar + len;
         }
         page++;
@@ -1382,14 +1390,17 @@ static void displayDetailsPage(uint8_t detailsPage, bool forceFullRefresh)
                                     NB_MAX_LINES_IN_DETAILS,
                                     &len,
                                     detailsContext.wrapping);
-        if (currentPair.value[len] != '\n') {
+        content.tagValueDetails.tagValueList.hideEndOfLastLine = false;
+        // don't start next page on a \n
+        if (currentPair.value[len] == '\n') {
+            len++;
+        }
+        else if (!detailsContext.wrapping) {
+            content.tagValueDetails.tagValueList.hideEndOfLastLine = true;
             len -= 3;
-            // memorize next position to save processing
-            detailsContext.nextPageStart = currentPair.value + len;
         }
-        else {
-            detailsContext.nextPageStart = currentPair.value + len + 1;
-        }
+        // memorize next position to save processing
+        detailsContext.nextPageStart = currentPair.value + len;
         // use special feature to keep only NB_MAX_LINES_IN_DETAILS lines and replace the last 3
         // chars by "...", only if the next char to display in next page is not '\n'
         content.tagValueList.nbMaxLinesForValue = NB_MAX_LINES_IN_DETAILS;

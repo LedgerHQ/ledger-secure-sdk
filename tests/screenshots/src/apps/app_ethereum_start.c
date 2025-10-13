@@ -165,8 +165,9 @@ static void onTransactionContinue(bool askMore)
 
 void app_ethereumSignMessage(void)
 {
-    pairList.pairs   = pairs;
-    pairList.nbPairs = 5;
+    pairList.wrapping = false;
+    pairList.pairs    = pairs;
+    pairList.nbPairs  = 5;
     nbgl_useCaseReview(TYPE_TRANSACTION,
                        &pairList,
                        &ETH_MAIN_ICON,

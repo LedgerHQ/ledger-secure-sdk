@@ -2137,8 +2137,9 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
                                                       list->wrapping);
         // use this nbMaxLinesForValue parameter only if >0
         if ((list->nbMaxLinesForValue > 0) && (nbLines > list->nbMaxLinesForValue)) {
-            nbLines                   = list->nbMaxLinesForValue;
-            valueTextArea->nbMaxLines = list->nbMaxLinesForValue;
+            nbLines                          = list->nbMaxLinesForValue;
+            valueTextArea->nbMaxLines        = list->nbMaxLinesForValue;
+            valueTextArea->hideEndOfLastLine = list->hideEndOfLastLine;
         }
         const nbgl_font_t *font                    = nbgl_getFont(valueTextArea->fontId);
         valueTextArea->obj.area.height             = nbLines * font->line_height;
