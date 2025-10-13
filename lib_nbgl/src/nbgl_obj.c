@@ -1179,7 +1179,7 @@ static void draw_textArea(nbgl_text_area_t *obj, nbgl_obj_t *prevObj, bool compu
 #ifdef HAVE_SE_TOUCH
             // for last chunk, if nbMaxLines is used, replace the 3 last chars by "..."
             // only if the line doesn't end with a '\n'
-            if (text[lineLen] != '\n') {
+            if ((text[lineLen] != '\n') && obj->hideEndOfLastLine) {
                 uint16_t dotsWidth = nbgl_getSingleLineTextWidth(obj->fontId, "...");
                 if ((lineWidth + dotsWidth) >= obj->obj.area.width) {
                     lineLen -= 3;
