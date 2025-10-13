@@ -209,6 +209,8 @@ enum cx_curve_e {
 
     CX_CURVE_PALLAS = 0x53,
 
+    CX_CURVE_VESTA = 0x54,
+
     /** High limit (not included) of Weierstrass curve ID */
     CX_CURVE_WEIERSTRASS_END = 0x6F,
 
