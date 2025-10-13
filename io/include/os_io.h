@@ -131,6 +131,10 @@ typedef struct {
 #define OS_IO_BUFFER_SIZE OS_IO_SEPH_BUFFER_SIZE
 #endif  // !CUSTOM_IO_APDU_BUFFER_SIZE
 
+#ifdef HAVE_BOLOS_APP_STACK_CANARY
+#define APP_STACK_CANARY_MAGIC 0xDEAD0031
+#endif  // HAVE_BOLOS_APP_STACK_CANARY
+
 /* Exported macros------------------------------------------------------------*/
 
 /* Exported variables --------------------------------------------------------*/
