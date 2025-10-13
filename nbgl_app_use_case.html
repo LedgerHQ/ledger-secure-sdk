@@ -131,8 +131,7 @@ Use Cases</h1>
 </ul>
 </li>
 <li>for keypad:<ul>
-<li><a class="el" href="nbgl__use__case_8h.html#a29799c89a1e92963706ffc97ceee9d5a">nbgl_useCaseKeypadPIN()</a> to draw a default keypad implementation with hidden digits (see <a class="el" href="nbgl_app_use_case.html#use_case_keypad">Keypad Use Case</a>)</li>
-<li><a class="el" href="nbgl__use__case_8h.html#a89212f593a06326783ee901b62d21492">nbgl_useCaseKeypadDigits()</a> to draw a default keypad implementation, showing digits (see <a class="el" href="nbgl_app_use_case.html#use_case_keypad">Keypad Use Case</a>)</li>
+<li><a class="el" href="nbgl__use__case_8h.html#aab213759153c92bc0262f3a4e1904a5a">nbgl_useCaseKeypad()</a> to draw a default keypad implementation (see <a class="el" href="nbgl_app_use_case.html#use_case_keypad">Keypad Use Case</a>)</li>
 </ul>
 </li>
 <li>for generic navigable content:<ul>
@@ -368,7 +367,7 @@ Review Use Case</h2>
 <div class="ttc" id="anbgl__use__case_8h_html_aecc6f4750a49ca97c084e3fd5600d5dea699644fad9f83e97303c7422daca9e41"><div class="ttname"><a href="nbgl__use__case_8h.html#aecc6f4750a49ca97c084e3fd5600d5dea699644fad9f83e97303c7422daca9e41">STATUS_TYPE_TRANSACTION_SIGNED</a></div><div class="ttdeci">@ STATUS_TYPE_TRANSACTION_SIGNED</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00342">nbgl_use_case.h:342</a></div></div>
 <div class="ttc" id="anbgl__use__case_8h_html_afa09e6097a8248ecbdc81d2fb1bfc317a58ebdf125d0fe120e74ebe9e00f86205"><div class="ttname"><a href="nbgl__use__case_8h.html#afa09e6097a8248ecbdc81d2fb1bfc317a58ebdf125d0fe120e74ebe9e00f86205">TYPE_TRANSACTION</a></div><div class="ttdeci">@ TYPE_TRANSACTION</div><div class="ttdoc">For operations transferring a coin or taken from an account to another.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00310">nbgl_use_case.h:309</a></div></div>
 <div class="ttc" id="astructnbgl__contentTagValueList__s_html"><div class="ttname"><a href="structnbgl__contentTagValueList__s.html">nbgl_contentTagValueList_s</a></div><div class="ttdoc">This structure contains a list of [tag,value] pairs.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00206">nbgl_content.h:206</a></div></div>
-<div class="ttc" id="astructnbgl__contentTagValueList__s_html_a62aef00665fae1eccac527fe4d361102"><div class="ttname"><a href="structnbgl__contentTagValueList__s.html#a62aef00665fae1eccac527fe4d361102">nbgl_contentTagValueList_s::nbMaxLinesForValue</a></div><div class="ttdeci">uint8_t nbMaxLinesForValue</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00213">nbgl_content.h:213</a></div></div>
+<div class="ttc" id="astructnbgl__contentTagValueList__s_html_a62aef00665fae1eccac527fe4d361102"><div class="ttname"><a href="structnbgl__contentTagValueList__s.html#a62aef00665fae1eccac527fe4d361102">nbgl_contentTagValueList_s::nbMaxLinesForValue</a></div><div class="ttdeci">uint8_t nbMaxLinesForValue</div><div class="ttdoc">if &gt; 0, set the max number of lines for value field.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00214">nbgl_content.h:214</a></div></div>
 <div class="ttc" id="astructnbgl__contentTagValue__t_html"><div class="ttname"><a href="structnbgl__contentTagValue__t.html">nbgl_contentTagValue_t</a></div><div class="ttdoc">This structure contains a [tag,value] pair and possible extensions.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__content_8h_source.html#l00167">nbgl_content.h:167</a></div></div>
 </div><!-- fragment --><p>Here is another version of the example code, using a callback mechanism to get tag/value pairs:</p>
 <div class="fragment"><div class="line"><span class="comment">// common tag/value pair to return</span></div>
@@ -742,42 +741,35 @@ Keypad Use Case</h2>
 <li>a hidden Digits area (the max nb of supported digits is 12)</li>
 <li>the keypad at the bottom</li>
 </ul>
-<p>The <a class="el" href="nbgl__use__case_8h.html#a29799c89a1e92963706ffc97ceee9d5a">nbgl_useCaseKeypadPIN()</a> function enables to create such page, with the following parameters:</p>
+<p>The <a class="el" href="nbgl__use__case_8h.html#aab213759153c92bc0262f3a4e1904a5a">nbgl_useCaseKeypad()</a> function enables to create such page, with the following parameters:</p>
 <ul>
-<li>the title</li>
+<li>a title</li>
 <li>min and max pin code lengths</li>
-<li>a token for the navigation callback (if not provided, no navigation bar will appear)</li>
 <li>a boolean to request a shuffled keypad</li>
-<li>a tune value</li>
+<li>a boolean to request <b>hidden</b> digits</li>
 <li>callbacks for navigation and pin validation</li>
 </ul>
-<p>The other variant, where digits don't need to be hidden is <a class="el" href="nbgl__use__case_8h.html#a89212f593a06326783ee901b62d21492">nbgl_useCaseKeypadDigits()</a>; it takes the same parameters.</p>
 <dl class="section note"><dt>Note</dt><dd>The <em>backspace</em> and <em>validate</em> buttons will be shown or hidden automatically.</dd></dl>
 <p>Here is the code to display something similar to example picture:</p>
 <div class="fragment"><div class="line"><span class="keyword">static</span> <span class="keywordtype">void</span> validate_pin(<span class="keyword">const</span> uint8_t *pinentry, uint8_t length) {</div>
 <div class="line">    <span class="comment">// Code to validate the entered pin code</span></div>
 <div class="line">}</div>
 <div class="line"> </div>
-<div class="line"><span class="keyword">static</span> <span class="keywordtype">void</span> pinentry_cb(<span class="keywordtype">int</span> token, uint8_t index) {</div>
-<div class="line">    UNUSED(index);</div>
-<div class="line">    <span class="comment">// Callback for the key navigation (back key mainly)</span></div>
-<div class="line">    <span class="keywordflow">if</span> (token == TOKEN_PIN_ENTRY_BACK) {</div>
-<div class="line">        ui_init();</div>
-<div class="line">    }</div>
+<div class="line"><span class="keyword">static</span> <span class="keywordtype">void</span> quit_cb() {</div>
+<div class="line">    <span class="comment">// Back to the main app menu</span></div>
 <div class="line">}</div>
 <div class="line"> </div>
 <div class="line"><span class="keywordtype">void</span> ui_menu_pinentry_display(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> value) {</div>
 <div class="line">    <span class="comment">// Draw the keypad</span></div>
-<div class="line">    <a class="code hl_function" href="nbgl__use__case_8h.html#a29799c89a1e92963706ffc97ceee9d5a">nbgl_useCaseKeypadPIN</a>(<span class="stringliteral">&quot;Enter User PIN&quot;</span>,</div>
-<div class="line">                          6,</div>
-<div class="line">                          12,</div>
-<div class="line">                          TOKEN_PIN_ENTRY_BACK,</div>
-<div class="line">                          <span class="keyword">false</span>,</div>
-<div class="line">                          TUNE_TAP_CASUAL,</div>
-<div class="line">                          validate_pin,</div>
-<div class="line">                          pinentry_cb);</div>
+<div class="line">    <a class="code hl_function" href="nbgl__use__case_8h.html#aab213759153c92bc0262f3a4e1904a5a">nbgl_useCaseKeypad</a>(<span class="stringliteral">&quot;PIN Keypad (5555)&quot;</span>,</div>
+<div class="line">                       4,</div>
+<div class="line">                       4,</div>
+<div class="line">                       <span class="keyword">false</span>,</div>
+<div class="line">                       <span class="keyword">true</span>,</div>
+<div class="line">                       validate_pin,</div>
+<div class="line">                       quit_cb);</div>
 <div class="line">}</div>
-<div class="ttc" id="anbgl__use__case_8h_html_a29799c89a1e92963706ffc97ceee9d5a"><div class="ttname"><a href="nbgl__use__case_8h.html#a29799c89a1e92963706ffc97ceee9d5a">nbgl_useCaseKeypadPIN</a></div><div class="ttdeci">void nbgl_useCaseKeypadPIN(const char *title, uint8_t minDigits, uint8_t maxDigits, uint8_t backToken, bool shuffled, tune_index_e tuneId, nbgl_pinValidCallback_t validatePinCallback, nbgl_layoutTouchCallback_t actionCallback)</div></div>
+<div class="ttc" id="anbgl__use__case_8h_html_aab213759153c92bc0262f3a4e1904a5a"><div class="ttname"><a href="nbgl__use__case_8h.html#aab213759153c92bc0262f3a4e1904a5a">nbgl_useCaseKeypad</a></div><div class="ttdeci">void nbgl_useCaseKeypad(const char *title, uint8_t minDigits, uint8_t maxDigits, bool shuffled, bool hidden, nbgl_pinValidCallback_t validatePinCallback, nbgl_callback_t backCallback)</div></div>
 </div><!-- fragment --><h1><a class="anchor" id="use_case_refresh_page"></a>
 Refreshing screen</h1>
 <p>After having drawn graphic objects in <b>framebuffer</b>, all functions of this API automatically refresh the screen. So no need to call <a class="el" href="nbgl__obj_8h.html#a2c321e01f64784c5249e594b795bf252">nbgl_refresh()</a>. </p>

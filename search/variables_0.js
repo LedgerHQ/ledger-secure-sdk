@@ -28,5 +28,5 @@ var searchData=
   ['animoffsetx_25',['animOffsetX',['../structnbgl__contentCenter__t.html#aecdfa6d57c7096939a433a28bcb71a74',1,'nbgl_contentCenter_t']]],
   ['animoffsety_26',['animOffsetY',['../structnbgl__contentCenter__t.html#a87eb8ea8ff93f4dbb46fc865e77978e5',1,'nbgl_contentCenter_t']]],
   ['area_27',['area',['../structnbgl__obj__s.html#ade96249b762ae348501b96c67e19e25e',1,'nbgl_obj_s']]],
-  ['autohidelongline_28',['autoHideLongLine',['../structnbgl__text__area__s.html#acc3478a72d26ae679bd71fef564b6804',1,'nbgl_text_area_s']]]
+  ['autohidelongline_28',['autoHideLongLine',['../structnbgl__text__area__s.html#a6fee18df613358152d882a3d2e61535a',1,'nbgl_text_area_s']]]
 ];
