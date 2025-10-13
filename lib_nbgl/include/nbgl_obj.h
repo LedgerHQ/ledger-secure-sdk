@@ -545,16 +545,16 @@ typedef struct PACKED__ nbgl_text_area_s {
     nbgl_aligment_t textAlignment;  ///< alignment of text within the area
     nbgl_style_t    style;          ///< to define the style of border
     nbgl_font_id_e  fontId;         ///< id of the font to use
-    bool autoHideLongLine;  ///< if set to true, replace beginning of line by ... to keep it single
-                            ///< line
-    bool    wrapping;       ///< if set to true, break lines on ' ' when possible
-    uint8_t nbMaxLines;  ///< if >0, replace end (3 last chars) of line (nbMaxLines-1) by "..." and
-                         ///< stop display here
-    const char *text;    ///< ASCII text to draw (NULL terminated). Can be NULL.
-    uint16_t    len;     ///< number of bytes to write (if 0, max number of chars or strlen is used)
+    uint8_t autoHideLongLine : 1;   ///< if set to true, replace beginning of line by ... to keep it
+                                    ///< single line
+    uint8_t  wrapping : 1;          ///< if set to true, break lines on ' ' when possible
+    uint8_t  hideEndOfLastLine : 1;  ///< if set to true, replace 3 last chars of last line by "..."
+    uint8_t  nbMaxLines : 5;         ///< if >0, only display the nbMaxLines first lines
+    uint8_t  token;                  ///< token to use as param of onDrawCallback
+    uint16_t len;      ///< number of bytes to write (if 0, max number of chars or strlen is used)
+    const char *text;  ///< ASCII text to draw (NULL terminated). Can be NULL.
     onTextDrawCallback_t
-            onDrawCallback;  ///< function called if not NULL to get the text of the text area
-    uint8_t token;           ///< token to use as param of onDrawCallback
+        onDrawCallback;  ///< function called if not NULL to get the text of the text area
 } nbgl_text_area_t;
 
 /**
