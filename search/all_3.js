@@ -71,7 +71,7 @@ var searchData=
   ['area_68',['area',['../structnbgl__obj__s.html#ade96249b762ae348501b96c67e19e25e',1,'nbgl_obj_s::area'],['../nbgl_layout.html#centered_info',1,'Centered info area']]],
   ['array_5flength_69',['ARRAY_LENGTH',['../macros_8h.html#a7539f9740177f669ce68a77ae64f38b5',1,'macros.h']]],
   ['assign64_70',['ASSIGN64',['../cx__utils_8h.html#a660b5a3766209ed109e4508c6b6c5521',1,'cx_utils.h']]],
-  ['autohidelongline_71',['autoHideLongLine',['../structnbgl__text__area__s.html#a6fee18df613358152d882a3d2e61535a',1,'nbgl_text_area_s']]],
+  ['autohidelongline_71',['autoHideLongLine',['../structnbgl__text__area__s.html#acc3478a72d26ae679bd71fef564b6804',1,'nbgl_text_area_s']]],
   ['automatic_20allocation_20and_20release_72',['Automatic allocation and release',['../nbgl_screens_and_objs.html#nbgl_objs_mngt_automatic',1,'']]],
   ['available_5fwidth_73',['AVAILABLE_WIDTH',['../nbgl__layout_8h.html#a7cbe9f98ad52749210b99e1ed27ac2b9',1,'nbgl_layout.h']]]
 ];
