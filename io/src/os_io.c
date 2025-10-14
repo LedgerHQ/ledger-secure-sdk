@@ -252,7 +252,7 @@ int os_io_rx_evt(unsigned char *buffer,
 #ifdef HAVE_BOLOS_APP_STACK_CANARY
     // if the canary is corrupted, reset the device
     if (app_stack_canary != APP_STACK_CANARY_MAGIC) {
-        os_reset();
+        os_sched_exit(APP_STACK_CANARY_CORRUPTED_EXIT_VALUE);
     }
 #endif
 
@@ -370,7 +370,7 @@ int os_io_tx_cmd(uint8_t                     type,
 #ifdef HAVE_BOLOS_APP_STACK_CANARY
     // if the canary is corrupted, reset the device
     if (app_stack_canary != APP_STACK_CANARY_MAGIC) {
-        os_reset();
+        os_sched_exit(APP_STACK_CANARY_CORRUPTED_EXIT_VALUE);
     }
 #endif
 
