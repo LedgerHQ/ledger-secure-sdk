@@ -155,6 +155,9 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__genericDetails__s.html">nbgl_genericDetails_s</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The necessary parameters to build the page(s) displayed when the top-right button is touched in intro page (before review), or in a Choice with details use-case.  <a href="structnbgl__genericDetails__s.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__preludeDetails__s.html">nbgl_preludeDetails_s</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The necessary parameters to build the prelude of a review use-case.  <a href="structnbgl__preludeDetails__s.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__warning__t.html">nbgl_warning_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The necessary parameters to build a warning page preceding a review. One can either use <code>predefinedSet</code> when the warnings are already supported in <a class="el" href="nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3d">nbgl_warningType_t</a> list, or use <code>introDetails</code> or <code>reviewDetails</code> to configure manually the warning pages.  <a href="structnbgl__warning__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -201,6 +204,8 @@ Macros</h2></td></tr>
 <tr class="memitem:ade2bbdfda80e2b641261cccad0d0b78e" id="r_ade2bbdfda80e2b641261cccad0d0b78e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#ade2bbdfda80e2b641261cccad0d0b78e">REAL_TYPE_MASK</a>&#160;&#160;&#160;0x7</td></tr>
 <tr class="memdesc:ade2bbdfda80e2b641261cccad0d0b78e"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is the mask to apply on <a class="el" href="nbgl__use__case_8h.html#a2a61232bd0b7a090272a1fd43f3b9f26">nbgl_operationType_t</a> to get the real type provided by app.  <br /></td></tr>
 <tr class="separator:ade2bbdfda80e2b641261cccad0d0b78e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af28d995443b37f3de8ec1accf6f95185" id="r_af28d995443b37f3de8ec1accf6f95185"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#af28d995443b37f3de8ec1accf6f95185">HAS_INITIAL_WARNING</a>(_warning)</td></tr>
+<tr class="separator:af28d995443b37f3de8ec1accf6f95185"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a200676cdf5bfc30c4184d2bd650b6f14" id="r_a200676cdf5bfc30c4184d2bd650b6f14"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a200676cdf5bfc30c4184d2bd650b6f14">SKIPPABLE_OPERATION</a>&#160;&#160;&#160;(1 &lt;&lt; 4)</td></tr>
 <tr class="memdesc:a200676cdf5bfc30c4184d2bd650b6f14"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is to use in <a class="el" href="nbgl__use__case_8h.html#a2a61232bd0b7a090272a1fd43f3b9f26">nbgl_operationType_t</a> when the operation is skippable. This is used.  <br /></td></tr>
 <tr class="separator:a200676cdf5bfc30c4184d2bd650b6f14"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -239,6 +244,9 @@ Typedefs</h2></td></tr>
 <tr class="separator:a329484575d35744041d1d0a64b6e707d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a444cda35b4dfe99a5dadb17b007557aa" id="r_a444cda35b4dfe99a5dadb17b007557aa"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="nbgl__use__case_8h.html#a329484575d35744041d1d0a64b6e707d">nbgl_genericDetails_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a444cda35b4dfe99a5dadb17b007557aa">nbgl_warningDetails_t</a></td></tr>
 <tr class="separator:a444cda35b4dfe99a5dadb17b007557aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b0232ad6269a6fffcf0c0e6a7ca9ce1" id="r_a1b0232ad6269a6fffcf0c0e6a7ca9ce1"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structnbgl__preludeDetails__s.html">nbgl_preludeDetails_s</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a1b0232ad6269a6fffcf0c0e6a7ca9ce1">nbgl_preludeDetails_t</a></td></tr>
+<tr class="memdesc:a1b0232ad6269a6fffcf0c0e6a7ca9ce1"><td class="mdescLeft">&#160;</td><td class="mdescRight">The necessary parameters to build the prelude of a review use-case.  <br /></td></tr>
+<tr class="separator:a1b0232ad6269a6fffcf0c0e6a7ca9ce1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2a61232bd0b7a090272a1fd43f3b9f26" id="r_a2a61232bd0b7a090272a1fd43f3b9f26"><td class="memItemLeft" align="right" valign="top">typedef uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__use__case_8h.html#a2a61232bd0b7a090272a1fd43f3b9f26">nbgl_operationType_t</a></td></tr>
 <tr class="memdesc:a2a61232bd0b7a090272a1fd43f3b9f26"><td class="mdescLeft">&#160;</td><td class="mdescRight">This mask is used to describe the type of operation to review with additional options It is a mask of <a class="el" href="nbgl__use__case_8h.html#afa09e6097a8248ecbdc81d2fb1bfc317">nbgl_opType_t</a> [| <a class="el" href="nbgl__use__case_8h.html#a200676cdf5bfc30c4184d2bd650b6f14">SKIPPABLE_OPERATION</a>] [| <a class="el" href="nbgl__use__case_8h.html#ab65c98f1761ae5a746bb0c968ecd2f69">BLIND_OPERATION</a>].  <br /></td></tr>
 <tr class="separator:a2a61232bd0b7a090272a1fd43f3b9f26"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -408,7 +416,7 @@ Functions</h2></td></tr>
 
 <p>This is to use in <a class="el" href="nbgl__use__case_8h.html#a2a61232bd0b7a090272a1fd43f3b9f26">nbgl_operationType_t</a> when the operation is "blind" This is used to indicate a warning with a top-right button in review first &amp; last page. </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00328">328</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00350">350</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -427,6 +435,33 @@ Functions</h2></td></tr>
 <p>when using controls in page content (<a class="el" href="nbgl__flow_8h.html#a7c04efc72fca9b7b64d6253838133890">nbgl_pageContent_t</a>), this is the first token value usable for these controls </p>
 
 <p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00032">32</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+
+</div>
+</div>
+<a id="af28d995443b37f3de8ec1accf6f95185" name="af28d995443b37f3de8ec1accf6f95185"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af28d995443b37f3de8ec1accf6f95185">&#9670;&#160;</a></span>HAS_INITIAL_WARNING</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HAS_INITIAL_WARNING</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">_warning</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">    ((_warning-&gt;predefinedSet                                            \</div>
+<div class="line">      &amp; ((1 &lt;&lt; <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3da03a721b91c71fc0f59446488d81ad74e">W3C_THREAT_DETECTED_WARN</a>) | (1 &lt;&lt; <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3da7426474658a4efba94394281f2f54563">W3C_RISK_DETECTED_WARN</a>) \</div>
+<div class="line">         | (1 &lt;&lt; <a class="code hl_enumvalue" href="nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3da1746cdd0d25523430492ebd999557c55">BLIND_SIGNING_WARN</a>)))                                   \</div>
+<div class="line">     || (_warning-&gt;introDetails != NULL))</div>
+<div class="ttc" id="anbgl__use__case_8h_html_a903c6890824dbca45c1cd9e1dc231a3da03a721b91c71fc0f59446488d81ad74e"><div class="ttname"><a href="nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3da03a721b91c71fc0f59446488d81ad74e">W3C_THREAT_DETECTED_WARN</a></div><div class="ttdeci">@ W3C_THREAT_DETECTED_WARN</div><div class="ttdoc">Web3 Checks: Threat detected (see reportRisk field)</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00275">nbgl_use_case.h:275</a></div></div>
+<div class="ttc" id="anbgl__use__case_8h_html_a903c6890824dbca45c1cd9e1dc231a3da1746cdd0d25523430492ebd999557c55"><div class="ttname"><a href="nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3da1746cdd0d25523430492ebd999557c55">BLIND_SIGNING_WARN</a></div><div class="ttdeci">@ BLIND_SIGNING_WARN</div><div class="ttdoc">Blind signing.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00277">nbgl_use_case.h:277</a></div></div>
+<div class="ttc" id="anbgl__use__case_8h_html_a903c6890824dbca45c1cd9e1dc231a3da7426474658a4efba94394281f2f54563"><div class="ttname"><a href="nbgl__use__case_8h.html#a903c6890824dbca45c1cd9e1dc231a3da7426474658a4efba94394281f2f54563">W3C_RISK_DETECTED_WARN</a></div><div class="ttdeci">@ W3C_RISK_DETECTED_WARN</div><div class="ttdoc">Web3 Checks: Risk detected (see reportRisk field)</div><div class="ttdef"><b>Definition</b> <a href="nbgl__use__case_8h_source.html#l00274">nbgl_use_case.h:274</a></div></div>
+</div><!-- fragment -->
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00120">120</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -583,7 +618,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00573">573</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00595">595</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -619,7 +654,7 @@ Functions</h2></td></tr>
 
 <p>This is to use in <a class="el" href="nbgl__use__case_8h.html#a2a61232bd0b7a090272a1fd43f3b9f26">nbgl_operationType_t</a> when the operation is skippable. This is used. </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00321">321</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00343">343</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -712,7 +747,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00149">149</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00156">156</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -730,7 +765,7 @@ Functions</h2></td></tr>
 
 <p>prototype of generic callback function </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00129">129</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00136">136</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -754,7 +789,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00143">143</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00150">150</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -779,7 +814,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00163">163</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00170">170</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -821,7 +856,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the page content is valid, false if no more page </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00137">137</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00144">144</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -839,7 +874,7 @@ Functions</h2></td></tr>
 
 <p>This mask is used to describe the type of operation to review with additional options It is a mask of <a class="el" href="nbgl__use__case_8h.html#afa09e6097a8248ecbdc81d2fb1bfc317">nbgl_opType_t</a> [| <a class="el" href="nbgl__use__case_8h.html#a200676cdf5bfc30c4184d2bd650b6f14">SKIPPABLE_OPERATION</a>] [| <a class="el" href="nbgl__use__case_8h.html#ab65c98f1761ae5a746bb0c968ecd2f69">BLIND_OPERATION</a>]. </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00335">335</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00357">357</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -864,7 +899,24 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00156">156</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00163">163</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+
+</div>
+</div>
+<a id="a1b0232ad6269a6fffcf0c0e6a7ca9ce1" name="a1b0232ad6269a6fffcf0c0e6a7ca9ce1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1b0232ad6269a6fffcf0c0e6a7ca9ce1">&#9670;&#160;</a></span>nbgl_preludeDetails_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structnbgl__preludeDetails__s.html">nbgl_preludeDetails_s</a> <a class="el" href="nbgl__use__case_8h.html#a1b0232ad6269a6fffcf0c0e6a7ca9ce1">nbgl_preludeDetails_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The necessary parameters to build the prelude of a review use-case. </p>
+<dl class="section note"><dt>Note</dt><dd>On Nano, only title field can be used </dd></dl>
 
 </div>
 </div>
@@ -880,7 +932,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00238">238</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00245">245</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -896,7 +948,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00259">259</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00266">266</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -912,7 +964,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00223">223</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00230">230</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -941,7 +993,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00216">216</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00223">223</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -965,7 +1017,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00180">180</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00187">187</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -991,7 +1043,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00308">308</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00330">330</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -1019,7 +1071,7 @@ Functions</h2></td></tr>
 <tr><td class="fieldname"><a id="aecc6f4750a49ca97c084e3fd5600d5dea421fe70db5ac9ff90611b7d1a57af340" name="aecc6f4750a49ca97c084e3fd5600d5dea421fe70db5ac9ff90611b7d1a57af340"></a>STATUS_TYPE_ADDRESS_REJECTED&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00341">341</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00363">363</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
@@ -1050,7 +1102,7 @@ Functions</h2></td></tr>
 <tr><td class="fieldname"><a id="a903c6890824dbca45c1cd9e1dc231a3dabf7adb836c342c165390afa552a35e67" name="a903c6890824dbca45c1cd9e1dc231a3dabf7adb836c342c165390afa552a35e67"></a>NB_WARNING_TYPES&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00265">265</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__use__case_8h_source.html#l00272">272</a> of file <a class="el" href="nbgl__use__case_8h_source.html">nbgl_use_case.h</a>.</p>
 
 </div>
 </div>
