@@ -116,6 +116,13 @@ extern "C" {
  */
 #define REAL_TYPE_MASK 0x7
 
+// returns true if the given warning structure requires display of an initial page (internal usage)
+#define HAS_INITIAL_WARNING(_warning)                                    \
+    ((_warning->predefinedSet                                            \
+      & ((1 << W3C_THREAT_DETECTED_WARN) | (1 << W3C_RISK_DETECTED_WARN) \
+         | (1 << BLIND_SIGNING_WARN)))                                   \
+     || (_warning->introDetails != NULL))
+
 /**********************
  *      MACROS
  **********************/
@@ -272,6 +279,19 @@ typedef enum {
 } nbgl_warningType_t;
 
 /**
+ * @brief The necessary parameters to build the prelude of a review use-case
+ * @note On Nano, only title field can be used
+ */
+typedef struct nbgl_preludeDetails_s {
+    const nbgl_icon_details_t *icon;         ///< icon of the centered info
+    const char                *title;        ///< title of the centered info
+    const char                *description;  ///< sub-text of the centered info
+    const char                *buttonText;   ///< text of the black button, used to open details
+    const char                *footerText;   ///< text of the footer, used to continue to the review
+    const nbgl_genericDetails_t *details;    ///< pointer to structure containing some details
+} nbgl_preludeDetails_t;
+
+/**
  * @brief The necessary parameters to build a warning page preceding a review.
  * One can either use `predefinedSet` when the warnings are already supported in @ref
  * nbgl_warningType_t list, or use `introDetails` or `reviewDetails` to configure manually the
@@ -299,6 +319,8 @@ typedef struct {
         *introTopRightIcon;  ///< icon to use in the intro warning page, if not using pre-defined
     const nbgl_icon_details_t *reviewTopRightIcon;  ///< icon to use in the first/last page of
                                                     ///< review, if not using pre-defined
+    const nbgl_preludeDetails_t
+        *prelude;  ///< if not null, means that the review can start by a prelude
 } nbgl_warning_t;
 
 /**

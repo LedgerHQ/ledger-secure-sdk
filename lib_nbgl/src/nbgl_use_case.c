@@ -104,6 +104,7 @@ enum {
     DISMISS_QR_TOKEN,
     DISMISS_WARNING_TOKEN,
     DISMISS_DETAILS_TOKEN,
+    PRELUDE_CHOICE_TOKEN,
     FIRST_WARN_BAR_TOKEN,
     LAST_WARN_BAR_TOKEN = (FIRST_WARN_BAR_TOKEN + NB_WARNING_TYPES - 1),
 };
@@ -1769,6 +1770,40 @@ static void layoutTouchCallback(int token, uint8_t index)
         choiceWithDetailsCtx.modalLayout
             = displayModalDetails(choiceWithDetailsCtx.details, DISMISS_DETAILS_TOKEN);
     }
+    // main prelude page
+    else if (token == PRELUDE_CHOICE_TOKEN) {
+        if (index == 0) {  // top button to display details about prelude
+            displayCustomizedSecurityReport(reviewWithWarnCtx.warning->prelude->details);
+        }
+        else {  // footer to continue to review
+            if (HAS_INITIAL_WARNING(reviewWithWarnCtx.warning)) {
+                displayInitialWarning();
+            }
+            else {
+                reviewWithWarnCtx.isIntro = false;
+                if (reviewWithWarnCtx.isStreaming) {
+                    useCaseReviewStreamingStart(reviewWithWarnCtx.operationType,
+                                                reviewWithWarnCtx.icon,
+                                                reviewWithWarnCtx.reviewTitle,
+                                                reviewWithWarnCtx.reviewSubTitle,
+                                                reviewWithWarnCtx.choiceCallback,
+                                                false);
+                }
+                else {
+                    useCaseReview(reviewWithWarnCtx.operationType,
+                                  reviewWithWarnCtx.tagValueList,
+                                  reviewWithWarnCtx.icon,
+                                  reviewWithWarnCtx.reviewTitle,
+                                  reviewWithWarnCtx.reviewSubTitle,
+                                  reviewWithWarnCtx.finishTitle,
+                                  &activeTipBox,
+                                  reviewWithWarnCtx.choiceCallback,
+                                  false,
+                                  false);
+                }
+            }
+        }
+    }
 }
 
 // called when skip button is touched in footer, during forward only review
@@ -2623,6 +2658,50 @@ static void displayInitialWarning(void)
     if (tune != TUNE_RESERVED) {
         os_io_seph_cmd_piezo_play_tune(tune);
     }
+#endif  // HAVE_PIEZO_SOUND
+    nbgl_layoutDraw(reviewWithWarnCtx.layoutCtx);
+    nbgl_refresh();
+}
+
+// function used to display the prelude when starting a "review with warning"
+static void displayPrelude(void)
+{
+    nbgl_layoutDescription_t   layoutDescription;
+    nbgl_layoutChoiceButtons_t buttonsInfo
+        = {.bottomText = reviewWithWarnCtx.warning->prelude->footerText,
+           .token      = PRELUDE_CHOICE_TOKEN,
+           .topText    = reviewWithWarnCtx.warning->prelude->buttonText,
+           .style      = ROUNDED_AND_FOOTER_STYLE,
+           .tuneId     = TUNE_TAP_CASUAL};
+    nbgl_layoutHeader_t headerDesc = {.type              = HEADER_EMPTY,
+                                      .separationLine    = false,
+                                      .emptySpace.height = MEDIUM_CENTERING_HEADER};
+
+    reviewWithWarnCtx.isIntro = true;
+
+    layoutDescription.modal                 = false;
+    layoutDescription.withLeftBorder        = true;
+    layoutDescription.onActionCallback      = layoutTouchCallback;
+    layoutDescription.tapActionText         = NULL;
+    layoutDescription.ticker.tickerCallback = NULL;
+    reviewWithWarnCtx.layoutCtx             = nbgl_layoutGet(&layoutDescription);
+
+    nbgl_layoutAddHeader(reviewWithWarnCtx.layoutCtx, &headerDesc);
+    // add centered content
+    nbgl_contentCenter_t info = {0};
+
+    // default icon
+    info.icon = reviewWithWarnCtx.warning->prelude->icon;
+
+    info.title       = reviewWithWarnCtx.warning->prelude->title;
+    info.description = reviewWithWarnCtx.warning->prelude->description;
+    nbgl_layoutAddContentCenter(reviewWithWarnCtx.layoutCtx, &info);
+
+    // add button and footer on bottom
+    nbgl_layoutAddChoiceButtons(reviewWithWarnCtx.layoutCtx, &buttonsInfo);
+
+#ifdef HAVE_PIEZO_SOUND
+    os_io_seph_cmd_piezo_play_tune(TUNE_LOOK_AT_ME);
 #endif  // HAVE_PIEZO_SOUND
     nbgl_layoutDraw(reviewWithWarnCtx.layoutCtx);
     nbgl_refresh();
@@ -3973,7 +4052,7 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
     // if no warning at all, it's a simple review
     if ((warning == NULL)
         || ((warning->predefinedSet == 0) && (warning->introDetails == NULL)
-            && (warning->reviewDetails == NULL))) {
+            && (warning->reviewDetails == NULL) && (warning->prelude == NULL))) {
         useCaseReview(operationType,
                       tagValueList,
                       icon,
@@ -3989,7 +4068,7 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
     if (warning->predefinedSet == (1 << W3C_NO_THREAT_WARN)) {
         operationType |= NO_THREAT_OPERATION;
     }
-    else {
+    else if (warning->predefinedSet != 0) {
         operationType |= RISKY_OPERATION;
     }
     sharedContext.usage              = SHARE_CTX_REVIEW_WITH_WARNING;
@@ -4003,11 +4082,15 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
     reviewWithWarnCtx.warning        = warning;
     reviewWithWarnCtx.choiceCallback = choiceCallback;
 
-    // display the initial warning only of a risk/threat or blind signing
-    if ((!(reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_THREAT_DETECTED_WARN))
-         && !(reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_RISK_DETECTED_WARN))
-         && !(reviewWithWarnCtx.warning->predefinedSet & (1 << BLIND_SIGNING_WARN)))
-        && (warning->introDetails == NULL)) {
+    // if the warning contains a prelude, display it first
+    if (reviewWithWarnCtx.warning->prelude) {
+        displayPrelude();
+    }
+    // display the initial warning only of a risk/threat or blind signing or prelude
+    else if (HAS_INITIAL_WARNING(warning)) {
+        displayInitialWarning();
+    }
+    else {
         useCaseReview(operationType,
                       tagValueList,
                       icon,
@@ -4018,10 +4101,7 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
                       choiceCallback,
                       false,
                       true);
-        return;
     }
-
-    displayInitialWarning();
 }
 
 /**
@@ -4171,7 +4251,7 @@ void nbgl_useCaseAdvancedReviewStreamingStart(nbgl_operationType_t       operati
     // if no warning at all, it's a simple review
     if ((warning == NULL)
         || ((warning->predefinedSet == 0) && (warning->introDetails == NULL)
-            && (warning->reviewDetails == NULL))) {
+            && (warning->reviewDetails == NULL) && (warning->prelude == NULL))) {
         useCaseReviewStreamingStart(
             operationType, icon, reviewTitle, reviewSubTitle, choiceCallback, true);
         return;
@@ -4179,7 +4259,7 @@ void nbgl_useCaseAdvancedReviewStreamingStart(nbgl_operationType_t       operati
     if (warning->predefinedSet == (1 << W3C_NO_THREAT_WARN)) {
         operationType |= NO_THREAT_OPERATION;
     }
-    else {
+    else if (warning->predefinedSet != 0) {
         operationType |= RISKY_OPERATION;
     }
 
@@ -4192,15 +4272,18 @@ void nbgl_useCaseAdvancedReviewStreamingStart(nbgl_operationType_t       operati
     reviewWithWarnCtx.choiceCallback = choiceCallback;
     reviewWithWarnCtx.warning        = warning;
 
+    // if the warning contains a prelude, display it first
+    if (reviewWithWarnCtx.warning->prelude) {
+        displayPrelude();
+    }
     // display the initial warning only of a risk/threat or blind signing
-    if (!(reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_THREAT_DETECTED_WARN))
-        && !(reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_RISK_DETECTED_WARN))
-        && !(reviewWithWarnCtx.warning->predefinedSet & (1 << BLIND_SIGNING_WARN))) {
+    else if (HAS_INITIAL_WARNING(warning)) {
+        displayInitialWarning();
+    }
+    else {
         useCaseReviewStreamingStart(
             operationType, icon, reviewTitle, reviewSubTitle, choiceCallback, true);
-        return;
     }
-    displayInitialWarning();
 }
 
 /**

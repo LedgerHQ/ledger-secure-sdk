@@ -183,6 +183,7 @@ typedef struct ReviewWithWarningContext_s {
     bool                              isIntro;  // set to true during intro (before actual review)
     uint8_t                           warningPage;
     uint8_t                           nbWarningPages;
+    uint8_t                           firstWarningPage;
 } ReviewWithWarningContext_t;
 
 typedef enum {
@@ -1892,7 +1893,7 @@ static void warningNavigate(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
     else if ((event == BUTTON_BOTH_PRESSED)
              && (reviewWithWarnCtx.warning->predefinedSet & (1 << BLIND_SIGNING_WARN))) {
         // if at first page, double press leads to start of review
-        if (reviewWithWarnCtx.warningPage == 0) {
+        if (reviewWithWarnCtx.warningPage == reviewWithWarnCtx.firstWarningPage) {
             launchReviewAfterWarning();
         }
         // if at last page, reject operation
@@ -1912,13 +1913,27 @@ static void displayWarningStep(void)
 {
     nbgl_layoutCenteredInfo_t info = {0};
     nbgl_stepPosition_t       pos  = 0;
-    if (reviewWithWarnCtx.warning->predefinedSet & (1 << BLIND_SIGNING_WARN)) {
-        if (reviewWithWarnCtx.warningPage == 0) {
+    if ((reviewWithWarnCtx.warning->prelude) && (reviewWithWarnCtx.warningPage == 0)) {
+        // for prelude, only draw text as a single step
+        nbgl_stepDrawText(FIRST_STEP | FORWARD_DIRECTION,
+                          warningNavigate,
+                          NULL,
+                          reviewWithWarnCtx.warning->prelude->title,
+                          NULL,
+                          REGULAR_INFO,
+                          false);
+        nbgl_refresh();
+        return;
+    }
+    else if (reviewWithWarnCtx.warning->predefinedSet & (1 << BLIND_SIGNING_WARN)) {
+        if (reviewWithWarnCtx.warningPage == reviewWithWarnCtx.firstWarningPage) {
             // draw the main warning page
             info.icon  = &C_icon_warning;
             info.text1 = "Blind signing ahead";
             info.text2 = "To accept risk, press both buttons";
-            pos        = FIRST_STEP | FORWARD_DIRECTION;
+            pos        = (reviewWithWarnCtx.firstWarningPage == 0) ? FIRST_STEP
+                                                                   : NEITHER_FIRST_NOR_LAST_STEP;
+            pos |= FORWARD_DIRECTION;
         }
         else if (reviewWithWarnCtx.warningPage == (reviewWithWarnCtx.nbWarningPages - 1)) {
             getLastPageInfo(false, &info.icon, &info.text1);
@@ -1927,11 +1942,13 @@ static void displayWarningStep(void)
     }
     else if ((reviewWithWarnCtx.warning->predefinedSet == 0)
              && (reviewWithWarnCtx.warning->info != NULL)) {
-        if (reviewWithWarnCtx.warningPage == 0) {
+        if (reviewWithWarnCtx.warningPage == reviewWithWarnCtx.firstWarningPage) {
             info.icon  = reviewWithWarnCtx.warning->info->icon;
             info.text1 = reviewWithWarnCtx.warning->info->title;
             info.text2 = reviewWithWarnCtx.warning->info->description;
-            pos        = FIRST_STEP | FORWARD_DIRECTION;
+            pos        = (reviewWithWarnCtx.firstWarningPage == 0) ? FIRST_STEP
+                                                                   : NEITHER_FIRST_NOR_LAST_STEP;
+            pos |= FORWARD_DIRECTION;
         }
         else if (reviewWithWarnCtx.warningPage == (reviewWithWarnCtx.nbWarningPages - 1)) {
             if (reviewWithWarnCtx.warning->introDetails->type == CENTERED_INFO_WARNING) {
@@ -1959,8 +1976,19 @@ static void displayWarningStep(void)
 static void displayInitialWarning(void)
 {
     // draw the main warning page
-    reviewWithWarnCtx.warningPage    = 0;
-    reviewWithWarnCtx.nbWarningPages = 2;
+    reviewWithWarnCtx.warningPage      = 0;
+    reviewWithWarnCtx.nbWarningPages   = 2;
+    reviewWithWarnCtx.firstWarningPage = 0;
+    displayWarningStep();
+}
+
+// function used to display the prelude page when starting a "review with warning"
+static void displayPrelude(void)
+{
+    // draw the main warning page
+    reviewWithWarnCtx.warningPage      = 0;
+    reviewWithWarnCtx.nbWarningPages   = 3;
+    reviewWithWarnCtx.firstWarningPage = 1;
     displayWarningStep();
 }
 
@@ -2311,7 +2339,7 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
     // if no warning at all, it's a simple review
     if ((warning == NULL)
         || ((warning->predefinedSet == 0) && (warning->introDetails == NULL)
-            && (warning->reviewDetails == NULL))) {
+            && (warning->reviewDetails == NULL) && (warning->prelude == NULL))) {
         useCaseReview(type,
                       operationType,
                       tagValueList,
@@ -2325,7 +2353,7 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
     if (warning->predefinedSet == (1 << W3C_NO_THREAT_WARN)) {
         operationType |= NO_THREAT_OPERATION;
     }
-    else {
+    else if (warning->predefinedSet != 0) {
         operationType |= RISKY_OPERATION;
     }
 
@@ -2340,11 +2368,15 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
     reviewWithWarnCtx.warning        = warning;
     reviewWithWarnCtx.choiceCallback = choiceCallback;
 
-    // display the initial warning only of a risk/threat or blind signing
-    if ((!(reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_THREAT_DETECTED_WARN))
-         && !(reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_RISK_DETECTED_WARN))
-         && !(reviewWithWarnCtx.warning->predefinedSet & (1 << BLIND_SIGNING_WARN)))
-        && (warning->introDetails == NULL)) {
+    // if the warning contains a prelude, display it first
+    if (reviewWithWarnCtx.warning->prelude) {
+        displayPrelude();
+    }
+    // display the initial warning only of a risk/threat or blind signing or prelude
+    else if (HAS_INITIAL_WARNING(warning)) {
+        displayInitialWarning();
+    }
+    else {
         useCaseReview(type,
                       operationType,
                       tagValueList,
@@ -2353,9 +2385,7 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
                       reviewSubTitle,
                       finishTitle,
                       choiceCallback);
-        return;
     }
-    displayInitialWarning();
 }
 
 /**
@@ -2669,14 +2699,14 @@ void nbgl_useCaseAdvancedReviewStreamingStart(nbgl_operationType_t       operati
     // if no warning at all, it's a simple review
     if ((warning == NULL)
         || ((warning->predefinedSet == 0) && (warning->introDetails == NULL)
-            && (warning->reviewDetails == NULL))) {
+            && (warning->reviewDetails == NULL) && (warning->prelude == NULL))) {
         displayStreamingReviewPage(FORWARD_DIRECTION);
         return;
     }
     if (warning->predefinedSet == (1 << W3C_NO_THREAT_WARN)) {
         operationType |= NO_THREAT_OPERATION;
     }
-    else {
+    else if (warning->predefinedSet != 0) {
         operationType |= RISKY_OPERATION;
     }
     memset(&reviewWithWarnCtx, 0, sizeof(reviewWithWarnCtx));
@@ -2689,15 +2719,17 @@ void nbgl_useCaseAdvancedReviewStreamingStart(nbgl_operationType_t       operati
     reviewWithWarnCtx.choiceCallback = choiceCallback;
     reviewWithWarnCtx.warning        = warning;
 
-    // display the initial warning only of a risk/threat or blind signing
-    if ((!(reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_THREAT_DETECTED_WARN))
-         && !(reviewWithWarnCtx.warning->predefinedSet & (1 << W3C_RISK_DETECTED_WARN))
-         && !(reviewWithWarnCtx.warning->predefinedSet & (1 << BLIND_SIGNING_WARN)))
-        && (warning->introDetails == NULL)) {
-        displayStreamingReviewPage(FORWARD_DIRECTION);
-        return;
+    // if the warning contains a prelude, display it first
+    if (reviewWithWarnCtx.warning->prelude) {
+        displayPrelude();
     }
-    displayInitialWarning();
+    // display the initial warning only of a risk/threat or blind signing or prelude
+    else if (HAS_INITIAL_WARNING(warning)) {
+        displayInitialWarning();
+    }
+    else {
+        displayStreamingReviewPage(FORWARD_DIRECTION);
+    }
 }
 
 /**

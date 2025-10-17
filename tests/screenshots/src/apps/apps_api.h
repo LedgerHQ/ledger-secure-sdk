@@ -112,6 +112,7 @@ void app_dogecoinSignTransaction(bool blind,
                                  bool w3c_enabled,
                                  bool w3c_issue,
                                  bool w3c_threat);
+void app_dogecoinSignWithPrelude(void);
 
 #ifdef __cplusplus
 } /* extern "C" */

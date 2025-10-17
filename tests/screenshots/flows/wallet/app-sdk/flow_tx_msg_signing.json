@@ -354,11 +354,46 @@
         {
           "object": "EXTRA_BUTTON",
           "page": "op_fields-view_more-full_width-2"
+        },
+        {
+          "app_event": "DOGE_PRELUDE_SIGN",
+          "page": "prelude_sign"
         }
       ]
     },
     {
       "name": "op_fields-view_more-full_width-2",
+      "targets": [
+        {
+          "object": "BOTTOM_BUTTON",
+          "page": "op_fields-view_more-full_width-1"
+        }
+      ]
+    },
+    {
+      "name": "prelude_sign",
+      "targets": [
+        {
+          "object": "CHOICE_1",
+          "page": "prelude_sign_2"
+        },
+        {
+          "object": "CHOICE_2",
+          "page": "prelude_sign_3"
+        }
+      ]
+    },
+    {
+      "name": "prelude_sign_2",
+      "targets": [
+        {
+          "object": "BACK_BUTTON",
+          "page": "prelude_sign"
+        }
+      ]
+    },
+    {
+      "name": "prelude_sign_3",
       "targets": [
       ]
     }

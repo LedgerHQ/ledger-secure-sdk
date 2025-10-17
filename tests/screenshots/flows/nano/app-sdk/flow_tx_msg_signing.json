@@ -439,6 +439,46 @@
     {
       "name": "op_fields-generic-parcer-multiple-lines-03",
       "targets": [
+        {
+          "app_event": "DOGE_PRELUDE_SIGN",
+          "page": "prelude_sign"
+        }
+      ]
+    },
+    {
+      "name": "prelude_sign",
+      "targets": [
+        {
+          "key": "right",
+          "page": "prelude_sign_2"
+        }
+      ]
+    },
+    {
+      "name": "prelude_sign_2",
+      "targets": [
+        {
+          "key": "right",
+          "page": "prelude_sign_3"
+        },
+        {
+          "key": "both",
+          "page": "prelude_sign_4"
+        }
+      ]
+    },
+    {
+      "name": "prelude_sign_3",
+      "targets": [
+        {
+          "key": "left",
+          "page": "prelude_sign_2"
+        }
+      ]
+    },
+    {
+      "name": "prelude_sign_4",
+      "targets": [
       ]
     }
   ]
