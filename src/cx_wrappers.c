@@ -19,7 +19,7 @@
 #include <stdbool.h>  // bool
 
 #include "cx.h"
-#include "lib_cxng/src/cx_ecfp.h"
+#include "lcx_ecfp.h"
 
 // At some point this could/should be migrated to a cx func included in the cx_lib
 cx_err_t cx_ecdsa_sign_rs_no_throw(const cx_ecfp_private_key_t *key,

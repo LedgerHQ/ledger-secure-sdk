@@ -19,24 +19,22 @@
 #ifndef CX_RAM_H
 #define CX_RAM_H
 
-#include "cx_hash.h"
+#include "lcx_hash.h"
 #include "cx_pbkdf2.h"
-#include "cx_ecfp.h"
-#include "cx_rng.h"
-#include "cx_rng_rfc6979.h"
-#include "cx_hmac.h"
+#include "lcx_ecfp.h"
+#include "lcx_rng.h"
+#include "lcx_hmac.h"
 #include "cx_blake2b.h"
 #include "cx_groestl.h"
 #include "cx_rsa.h"
-#include "cx_sha3.h"
-#include "cx_sha256.h"
-#include "cx_sha512.h"
-#include "cx_ripemd160.h"
-#include "cx_blake3.h"
-#include "cx_poly1305.h"
+#include "lcx_sha3.h"
+#include "lcx_sha256.h"
+#include "lcx_sha512.h"
+#include "lcx_ripemd160.h"
+#include "lcx_blake3.h"
+#include "lcx_poly1305.h"
 #include "lcx_chacha.h"
-#include "cx_cipher.h"
-#include "cx_cmac.h"
+#include "lcx_cipher.h"
 
 /** 1K RAM lib */
 union cx_u {

@@ -19,8 +19,8 @@
 #ifdef HAVE_ECC_TWISTED_EDWARDS
 
 #include "cx_hash.h"
-#include "cx_ecfp.h"
-#include "cx_eddsa.h"
+#include "lcx_ecfp.h"
+#include "lcx_eddsa.h"
 #include "cx_selftests.h"
 #include "cx_utils.h"
 #include "cx_ram.h"

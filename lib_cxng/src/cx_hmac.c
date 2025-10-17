@@ -18,7 +18,7 @@
 
 #ifdef HAVE_HMAC
 
-#include "cx_hmac.h"
+#include "lcx_hmac.h"
 #include "cx_hash.h"
 #include "cx_ram.h"
 #include "errors.h"

@@ -213,6 +213,50 @@ DEPRECATED static inline int cx_blake2b_init2(cx_blake2b_t  *hash,
     CX_THROW(cx_blake2b_init2_no_throw(hash, out_len, salt, salt_len, perso, perso_len));
     return CX_BLAKE2B;
 }
+/**
+ * @brief Update blake2 computation with given buffer
+ *
+ * @param ctx[in/out] context initialized with #cx_blake2b_init2_no_throw
+ * @param data[in] data to add in computation
+ * @param len[in] len of data in bytes
+ * @return WARN_UNUSED_RESULT
+ */
+WARN_UNUSED_RESULT cx_err_t cx_blake2b_update(cx_blake2b_t *ctx, const uint8_t *data, size_t len);
+
+/**
+ * @brief Finalize blake2 computation
+ *
+ * @param ctx[in] context initialized with #cx_blake2b_init2_no_throw
+ * @param digest[out] output digest (size can be retrieved with #cx_blake2b_get_output_size)
+ * @return cx_err_t
+ */
+cx_err_t cx_blake2b_final(cx_blake2b_t *ctx, uint8_t *digest);
+
+/**
+ * @brief Get output size of blake2 digest
+ *
+ * @param ctx [in] context initialized with #cx_blake2b_init2_no_throw
+ * @return size in bytes
+ */
+size_t cx_blake2b_get_output_size(const cx_blake2b_t *ctx);
+
+/**
+ * @brief hash the given input buffer with BLAKE2
+ *
+ * @param hash hash context
+ * @param mode
+ * @param in input buffer to hash
+ * @param in_len length in bytes of input buffer
+ * @param out output buffer to store hash
+ * @param out_len length in bytes of output buffer
+ * @return INVALID_PARAMETER or CX_OK
+ */
+WARN_UNUSED_RESULT cx_err_t cx_blake2b(cx_hash_t     *hash,
+                                       uint32_t       mode,
+                                       const uint8_t *in,
+                                       size_t         in_len,
+                                       uint8_t       *out,
+                                       size_t         out_len);
 
 #endif  // HAVE_BLAKE2
 

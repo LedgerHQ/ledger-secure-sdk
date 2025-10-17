@@ -617,6 +617,33 @@ DEPRECATED static inline int cx_sha3_xof_init(cx_sha3_t   *hash,
     }
 }
 
+/**
+ * @brief Update a sha3 hash initialized with #cx_sha3_init_no_throw
+ *
+ * @param ctx[in] context initialized with #cx_sha3_init_no_throw
+ * @param data[in] data to add to hah
+ * @param len[in] length of data
+ * @return error code or CX_OK
+ */
+WARN_UNUSED_RESULT cx_err_t cx_sha3_update(cx_sha3_t *ctx, const uint8_t *data, size_t len);
+
+/**
+ * @brief Finalize a sha3 hash initialized with #cx_sha3_init_no_throw
+ *
+ * @param ctx[in] context initialized with #cx_sha3_init_no_throw
+ * @param digest[out] hash output
+ * @return error code or CX_OK
+ */
+cx_err_t cx_sha3_final(cx_sha3_t *ctx, uint8_t *digest);
+
+/**
+ * @brief Get size in bytes of the hash output
+ *
+ * @param ctx [in] context initialized with #cx_sha3_init_no_throw
+ * @return size in bytes
+ */
+size_t cx_sha3_get_output_size(const cx_sha3_t *ctx);
+
 #endif  // HAVE_SHA3
 
 #endif  // LCX_SHA3_H

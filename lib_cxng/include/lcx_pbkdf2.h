@@ -119,6 +119,39 @@ DEPRECATED static inline void cx_pbkdf2(cx_md_t              md_type,
 #define cx_pbkdf2_sha512(password, password_len, salt, salt_len, iterations, out, out_len) \
     cx_pbkdf2_no_throw(CX_SHA512, password, password_len, salt, salt_len, iterations, out, out_len)
 
+/**
+ * @brief Computes a PBKDF2 bytes sequence with the given Message digest algorithm.
+ *
+ * @details It computes the bytes sequence according to
+ *          <a href="https://tools.ietf.org/html/rfc2898">  RFC 2898 </a>
+ *          with SHA512 as the underlying hash function.
+ *
+ * @param[in]  md_type      Message digest algorithm identifier
+ * @param[in]  password     Password used as a base key to compute
+ *                          the HMAC.
+ *
+ * @param[in]  password_len Length of the password i.e. the length
+ *                          of the HMAC key.
+ *
+ * @param[in]  salt         Initial salt.
+ *
+ * @param[in]  salt_len     Length of the salt.
+ * @param[in]  iterations   Per block iteration.
+ * @param[out] key key buffer
+ * @param[in] key_len Length of the key buffer.
+ * @return                  Error code:
+ *                          - CX_OK
+ *                          - CX_INVALID_PARAMETER
+ */
+WARN_UNUSED_RESULT cx_err_t cx_pbkdf2_hmac(cx_md_t        md_type,
+                                           const uint8_t *password,
+                                           size_t         password_len,
+                                           const uint8_t *salt,
+                                           size_t         salt_len,
+                                           uint32_t       iterations,
+                                           uint8_t       *key,
+                                           size_t         key_len);
+
 #endif  // HAVE_PBKDF2
 
 #endif  // LCX_PBKDF2_H

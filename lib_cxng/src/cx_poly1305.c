@@ -18,7 +18,7 @@
 
 #if defined(HAVE_POLY1305)
 
-#include "cx_poly1305.h"
+#include "lcx_poly1305.h"
 #include "cx_ram.h"
 #include "cx_utils.h"
 #include "os_math.h"

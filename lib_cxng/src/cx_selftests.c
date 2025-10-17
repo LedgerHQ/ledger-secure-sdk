@@ -20,8 +20,8 @@
 
 #include "os.h"
 #include "cx_selftests.h"
-#include "cx_ecfp.h"
-#include "cx_eddsa.h"
+#include "lcx_ecfp.h"
+#include "lcx_eddsa.h"
 #include "cx_ram.h"
 
 enum test_id {

@@ -18,7 +18,7 @@
 
 #ifdef HAVE_MATH
 
-#include "cx_math.h"
+#include "lcx_math.h"
 #include "cx_utils.h"
 
 cx_err_t cx_math_cmp_no_throw(const uint8_t *a, const uint8_t *b, size_t length, int *diff)
