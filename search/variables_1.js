@@ -29,6 +29,6 @@ var searchData=
   ['button_5fsame_5fmask_5fcounter_26',['button_same_mask_counter',['../structux__seph__s.html#aeb109d57595a02c3bd21d5db3cb4de18',1,'ux_seph_s']]],
   ['buttonobj_27',['buttonObj',['../structgenericObj__t.html#abea29838922d3acb038a35e74b11cdd5',1,'genericObj_t']]],
   ['buttons_28',['buttons',['../structnbgl__layoutSuggestionButtons__t.html#a7c3703d13f9afa833fe244ec194351d3',1,'nbgl_layoutSuggestionButtons_t']]],
-  ['buttontext_29',['buttontext',['../structnbgl__contentInfoButton__t.html#a37226fa37d6d51cd6b636c1f09cc2f22',1,'nbgl_contentInfoButton_t::buttonText'],['../structnbgl__preludeDetails__s.html#a7600daf21a2f488f89a131bb6b7c4a63',1,'nbgl_preludeDetails_s::buttonText']]],
+  ['buttontext_29',['buttonText',['../structnbgl__contentInfoButton__t.html#a37226fa37d6d51cd6b636c1f09cc2f22',1,'nbgl_contentInfoButton_t']]],
   ['buttontoken_30',['buttonToken',['../structnbgl__contentInfoButton__t.html#a21be4afd35ef4f2a1063d3758e403e63',1,'nbgl_contentInfoButton_t']]]
 ];
