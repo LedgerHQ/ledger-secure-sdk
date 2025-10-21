@@ -79,6 +79,29 @@ static const nbgl_contentValueExt_t dAppsInfoExtensions[3] = {
 static nbgl_tipBox_t tipBox = {0};
 #endif  // SCREEN_SIZE_WALLET
 
+#ifdef SCREEN_SIZE_WALLET
+static const nbgl_genericDetails_t preludeDetails
+    = {.type            = QRCODE_WARNING,
+       .title           = "Discover safer signing",
+       .qrCode.centered = true,
+       .qrCode.url      = "ledger.com/ledger-multisig",
+       .qrCode.text1    = "ledger.com/ledger-multisig",
+       .qrCode.text2    = "Discover a safer way to sign your transactions."};
+
+static const nbgl_preludeDetails_t prelude = {
+    .title = "There is a safer way to sign",
+    .description
+    = "To scan for threats and verify this transaction before signing, use Ledger Multisig.",
+    .buttonText = "Learn more",
+    .footerText = "Continue to blind signing",
+    .details    = &preludeDetails,
+};
+#else   // SCREEN_SIZE_WALLET
+static const nbgl_preludeDetails_t prelude = {
+    .title = "\bThere is a safer way to sign:\b\nledger.com/ledger-multisig",
+};
+#endif  // SCREEN_SIZE_WALLET
+
 /**********************
  *      VARIABLES
  **********************/
@@ -133,6 +156,7 @@ void app_dogecoinSignTransaction(bool blind,
 {
     nbgl_tipBox_t *tipBoxPtr = NULL;
     warning.predefinedSet    = 0;
+    warning.prelude          = NULL;
 
     if (blind) {
         warning.predefinedSet |= 1 << BLIND_SIGNING_WARN;
@@ -178,6 +202,29 @@ void app_dogecoinSignTransaction(bool blind,
     nbgl_useCaseAdvancedReview(TYPE_TRANSACTION,
                                &pairList,
                                &ETH_MAIN_ICON,
+                               "Review transaction",
+                               NULL,
+                               "Sign transaction to\nsend Dogecoin?",
+                               tipBoxPtr,
+                               &warning,
+                               onTransactionAccept);
+}
+
+/**
+ * @brief Blind signing with upsell prelude
+ *
+ */
+void app_dogecoinSignWithPrelude(void)
+{
+    nbgl_tipBox_t *tipBoxPtr = NULL;
+    warning.predefinedSet    = 1 << BLIND_SIGNING_WARN;
+    pairList.pairs           = &pairs[1];
+
+    warning.prelude = &prelude;
+    // Start review
+    nbgl_useCaseAdvancedReview(TYPE_TRANSACTION,
+                               &pairList,
+                               &DOGE_MAIN_ICON,
                                "Review transaction",
                                NULL,
                                "Sign transaction to\nsend Dogecoin?",
