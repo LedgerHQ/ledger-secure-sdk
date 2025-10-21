@@ -27,14 +27,8 @@
 
 #include <stdint.h>
 
-void cx_rng_init(void);
-
 /// @brief function to be called each time random data is needed
 uint32_t cx_trng_u32(void);
-
-#ifdef CX_EMU_SELFTESTS
-void cx_trng_lengthtest(void);
-#endif
 
 #endif  // HAVE_RNG
 

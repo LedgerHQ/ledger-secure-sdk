@@ -28,11 +28,45 @@
 #ifndef LCX_RNG_H
 #define LCX_RNG_H
 
-#ifdef HAVE_RNG
-
 #include "lcx_wrappers.h"
 #include "lcx_hash.h"
+#include "libcxng.h"
 
+#ifdef HAVE_RNG_RFC6979
+#define CX_RFC6979_BUFFER_LENGTH 64
+#define CX_RFC6979_MAX_RLEN      66
+
+typedef struct {
+    uint8_t  v[CX_RFC6979_BUFFER_LENGTH + 1];
+    uint8_t  k[CX_RFC6979_BUFFER_LENGTH];
+    uint8_t  q[CX_RFC6979_MAX_RLEN];
+    uint32_t q_len;
+    uint32_t r_len;
+    uint8_t  tmp[CX_RFC6979_MAX_RLEN];
+    cx_md_t  hash_id;
+    size_t   md_len;
+
+    union {
+#if (!defined(HAVE_SHA512) && !defined(HAVE_SHA384) && !defined(HAVE_SHA256) \
+     && !defined(HAVE_SHA224))                                               \
+    || !defined(HAVE_HMAC)
+#error No hmac defined for rfc6979 support
+#endif
+
+        cx_hmac_t hmac;
+
+#if defined(HAVE_SHA512) || defined(HAVE_SHA384)
+        cx_hmac_sha512_t hmac_sha512;
+#endif
+
+#if defined(HAVE_SHA256) || defined(HAVE_SHA224)
+        cx_hmac_sha256_t hmac_sha256;
+#endif
+    };
+} cx_rnd_rfc6979_ctx_t;
+#endif  // HAVE_RNG_RFC6979
+
+#ifdef HAVE_RNG
 /**
  * @brief   Generates a random buffer such that
  *          each byte is between 0 and 255.
@@ -156,7 +190,61 @@ WARN_UNUSED_RESULT cx_err_t cx_rng_rfc6979(cx_md_t        hash_id,
                                            size_t         q_len,
                                            uint8_t       *out,
                                            size_t         out_len);
-
 #endif  // HAVE_RNG
+
+#ifdef HAVE_RNG_RFC6979
+/**
+ * @brief   Initialize a random buffer context according to
+ *          <a href="https://tools.ietf.org/html/rfc6979"> RFC6979 </a>.
+ *
+ * @param[out]  rfc_ctx  Context to initialize
+ *
+ * @param[in]  hash_id  Message digest algorithm identifier.
+ *
+ * @param[in]  x        ECDSA private key.
+ *
+ * @param[in]  x_len    Length of the key.
+ *
+ * @param[in]  h1       Hash of the message.
+ *
+ * @param[in]  h1_len   Length of the hash.
+ *
+ * @param[in]  q        Prime number that is a divisor of the curve order.
+ *
+ * @param[in]  q_len    Length of the prime number *q*.
+ *
+ * @return              Error code:
+ *                      - CX_OK on success
+ *                      - CX_INVALID_PARAMETER
+ */
+WARN_UNUSED_RESULT cx_err_t cx_rng_rfc6979_init(cx_rnd_rfc6979_ctx_t *rfc_ctx,
+                                                cx_md_t               hash_id,
+                                                const uint8_t        *x,
+                                                size_t                x_len,
+                                                const uint8_t        *h1,
+                                                size_t                h1_len,
+                                                const uint8_t        *q,
+                                                size_t                q_len);
+
+/**
+ * @brief   Generate a random buffer context according to
+ *          <a href="https://tools.ietf.org/html/rfc6979"> RFC6979 </a>, from a context
+ *          initialized with #cx_rng_rfc6979_init()
+ *
+ * @param[out]  rfc_ctx  Context initialized with #cx_rng_rfc6979_init
+ *
+ * @param[out] out      Buffer for the output.
+ *
+ * @param[in]  out_len  Length of the output.
+ *
+ *
+ * @return              Error code:
+ *                      - CX_OK on success
+ *                      - CX_INVALID_PARAMETER
+ */
+WARN_UNUSED_RESULT cx_err_t cx_rng_rfc6979_next(cx_rnd_rfc6979_ctx_t *rfc_ctx,
+                                                uint8_t              *out,
+                                                size_t                out_len);
+#endif  // HAVE_RNG_RFC6979
 
 #endif  // LCX_RNG_H

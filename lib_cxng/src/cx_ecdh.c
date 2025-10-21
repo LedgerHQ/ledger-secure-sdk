@@ -18,7 +18,7 @@
 
 #if defined(HAVE_ECDH) || defined(HAVE_X25519) || defined(HAVE_X448)
 
-#include "cx_ecfp.h"
+#include "lcx_ecfp.h"
 #include "cx_utils.h"
 #include "cx_ram.h"
 
