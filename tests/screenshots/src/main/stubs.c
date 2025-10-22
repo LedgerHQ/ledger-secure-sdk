@@ -30,7 +30,6 @@
 #include "os_app.h"
 #include "os_halt.h"
 #include "os_io_seproxyhal.h"
-#include "os_memory.h"
 #include "os_registry.h"
 #include "os_screen.h"
 #include "os_task.h"
@@ -224,11 +223,6 @@ uint32_t cx_rng_u32_range_func(uint32_t a, uint32_t b, cx_rng_u32_range_randfunc
         r = randfunc();
     }
     return a + r / chunk_size;
-}
-
-void os_get_memory_info(meminfo_t *meminfo)
-{
-    UNUSED(meminfo);
 }
 
 #ifdef HAVE_SE_TOUCH

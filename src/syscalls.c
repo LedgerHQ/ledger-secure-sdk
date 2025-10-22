@@ -13,7 +13,6 @@
 #include "lcx_wrappers.h"
 #include "cx_errors.h"
 #include "os_task.h"
-#include "os_memory.h"
 #include "os_registry.h"
 #include "os_ux.h"
 #include "os_io.h"
@@ -1721,15 +1720,6 @@ void os_setting_set(unsigned int setting_id, unsigned char *value, unsigned int 
     parameters[1] = (unsigned int) value;
     parameters[2] = (unsigned int) length;
     SVC_Call(SYSCALL_os_setting_set_ID, parameters);
-    return;
-}
-
-void os_get_memory_info(meminfo_t *meminfo)
-{
-    unsigned int parameters[2];
-    parameters[0] = (unsigned int) meminfo;
-    parameters[1] = 0;
-    SVC_Call(SYSCALL_os_get_memory_info_ID, parameters);
     return;
 }
 
