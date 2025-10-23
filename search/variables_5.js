@@ -13,7 +13,7 @@ var searchData=
   ['fontid1_10',['fontid1',['../structux__turner__step__s.html#a32f755279227c8e16a9d17f9f89d2fb3',1,'ux_turner_step_s']]],
   ['fontid2_11',['fontid2',['../structux__turner__step__s.html#a125dcc198d65ffe42983cbe78686298c',1,'ux_turner_step_s']]],
   ['footercontainer_12',['footerContainer',['../structnbgl__layoutInternal__s.html#a01ac61ad01be574276cf03497f227c56',1,'nbgl_layoutInternal_s']]],
-  ['footertext_13',['footerText',['../structnbgl__pageInfoDescription__s.html#a86a4a8ff72f89938ff08c232ed350786',1,'nbgl_pageInfoDescription_s']]],
+  ['footertext_13',['footertext',['../structnbgl__pageInfoDescription__s.html#a86a4a8ff72f89938ff08c232ed350786',1,'nbgl_pageInfoDescription_s::footerText'],['../structnbgl__preludeDetails__s.html#abcd3e6672af488f333700f258bc81e25',1,'nbgl_preludeDetails_s::footerText']]],
   ['footertoken_14',['footerToken',['../structnbgl__pageInfoDescription__s.html#aa1762691e8c0f7bb8721164faa3255d1',1,'nbgl_pageInfoDescription_s']]],
   ['footertype_15',['footerType',['../structnbgl__layoutInternal__s.html#a773e928493fa25f826e3f019d829094d',1,'nbgl_layoutInternal_s']]],
   ['forceclean_16',['forceClean',['../structnbgl__container__s.html#ace833cf2a332863ab63f7bc299c0a386',1,'nbgl_container_s']]],
