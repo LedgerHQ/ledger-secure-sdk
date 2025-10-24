@@ -207,6 +207,10 @@ enum cx_curve_e {
 
     CX_CURVE_BLS12_377_G1 = 0x52,
 
+    CX_CURVE_PALLAS = 0x53,
+
+    CX_CURVE_VESTA = 0x54,
+
     /** High limit (not included) of Weierstrass curve ID */
     CX_CURVE_WEIERSTRASS_END = 0x6F,
 
@@ -230,6 +234,8 @@ enum cx_curve_e {
 #endif
 
     CX_CURVE_EdBLS12 = 0x73,
+
+    CX_CURVE_JUBJUB = 0x74,
 
     /** High limit (not included) of Twisted Edwards curve ID */
     CX_CURVE_TWISTED_EDWARDS_END = 0x7F,
