@@ -225,7 +225,7 @@ cx_err_t cx_ecfp_generate_pair2_no_throw(cx_curve_t             curve,
     if (CX_CURVE_RANGE(curve, TWISTED_EDWARDS)) {
         uint8_t scal[114];
 
-        if (curve == CX_CURVE_EdBLS12) {
+        if ((curve == CX_CURVE_EdBLS12) || (curve == CX_CURVE_JUBJUB)) {
             CX_CHECK(cx_ecpoint_alloc(&W, private_key->curve));
             CX_CHECK(cx_ecdomain_generator_bn(curve, &W));
             CX_CHECK(cx_ecpoint_rnd_scalarmul(&W, private_key->d, private_key->d_len));
