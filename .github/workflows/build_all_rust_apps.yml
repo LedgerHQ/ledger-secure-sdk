@@ -2,7 +2,20 @@ name: Build all Rust apps
 
 on:
   workflow_dispatch:
+    inputs:
+      c_sdk_branch:
+        type: string
+        required: false
+        default: ''
+      c_sdk_repo:
+        type: string
+        required: false
+        default: 'LedgerHQ/ledger-secure-sdk'
   pull_request:
+
+env:
+  C_SDK_BRANCH: ${{ github.event.inputs.c_sdk_branch || github.head_ref }}
+  C_SDK_REPO: ${{ github.event.inputs.c_sdk_repo || github.event.pull_request.head.repo.full_name }}
 
 jobs:
     display_branch:
@@ -17,5 +30,5 @@ jobs:
         name: Build all Rust apps with the reusable workflow
         uses: LedgerHQ/ledger-device-rust-sdk/.github/workflows/reusable_build_all_apps.yml@master
         with:
-            c_sdk_branch: '${{ github.head_ref }}'
-            c_sdk_repo: '${{ github.repository }}'
+            c_sdk_branch: $C_SDK_BRANCH
+            c_sdk_repo: $C_SDK_REPO
