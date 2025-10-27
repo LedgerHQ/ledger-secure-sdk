@@ -61,6 +61,7 @@ class TTF2INC:
         # - True : generate unicode bitmaps, meaning we may use any font data
         # => it is updated in 'find_string_dimension' method, when parsing all characters
         self.unicode_needed = False
+        self.unicode_index = 0 # It is the index of the font section to use!
         self.font = None
         self.ttfont = None
         self.name = None
@@ -97,6 +98,7 @@ class TTF2INC:
         self.font_heights = []
         self.line_sizes = []
         self.rles = []
+        self.crops = []
         # Store parameters:
         self.args = args
         # Initialise config with provided values or default ones
@@ -151,18 +153,14 @@ class TTF2INC:
     def update_font_info(self, index):
         """
         Update the font related variables according to index value.
+        WARNING: some values depends on which kind of data we will generate (ASCII/UNICOE)
         """
-        # Are we already using that font index?
-        if index == self.font_index:
-            return
-
         self.font_index = index
         self.font = self.fonts[index]
         self.ttfont = self.ttfonts[index]
         self.name = self.font_name[index]
         self.font_size = self.font_sizes[index]
         self.line_size = self.line_sizes[index]
-        self.rle = self.rles[index]
 
         # Get font metrics:
         # - ascent: distance from the baseline to the highest outline point.
@@ -173,8 +171,12 @@ class TTF2INC:
         self.font_height = self.font_heights[index]
         self.baseline = self.baselines[index]
 
-        # We now know everything on this font & used chars => build filenames
-        self.build_names()
+        # if self.unicode_needed is not False, then we want to generate UNICODE data
+        if index == 0 and self.unicode_needed and len(self.rles) > 1:
+            index = 1   # Use rle & crop values from first section after main
+
+        self.rle = self.rles[index]
+        self.crop = self.crops[index]
 
     # -------------------------------------------------------------------------
     def get_font_id_name(self):
@@ -228,7 +230,7 @@ class TTF2INC:
             self.last_character = int(config.get('lastChar', '0x7E'), 16)
             self.font_sizes.append(config.getint('fontSize'))
             self.line_sizes.append(config.getint('lineSize'))
-            self.crop = config.getboolean('crop', False)
+            self.crops.append(config.getboolean('crop', False))
             self.kerning = config.getint('kerning', 0)
             self.rles.append(config.getboolean('rle', True))
             self.bpp = config.getint('bpp', 1)
@@ -242,9 +244,11 @@ class TTF2INC:
                 config = config_parser[section]
                 # Get mandatory values
                 self.font_name.append(config.get('font'))
-                self.font_sizes.append(config.getint('fontSize'))
-                self.line_sizes.append(config.getint('lineSize'))
-                self.rles.append(config.getboolean('rle', True))
+                # Get other values, if present, or use [main] section ones
+                self.font_sizes.append(config.getint('fontSize', self.font_sizes[0]))
+                self.line_sizes.append(config.getint('lineSize', self.line_sizes[0]))
+                self.rles.append(config.getboolean('rle', self.rles[0]))
+                self.crops.append(config.getboolean('crop', self.crops[0]))
 
         # Otherwise, use command line parameters (or default values)
         else:
@@ -341,20 +345,20 @@ class TTF2INC:
         return False
 
     # -------------------------------------------------------------------------
-    def check_unicode(self, char):
+    def find_char(self, char):
         """
-        Check if unicode is needed to encode provided character.
-        Also update the index of font containing this character, searching first in font #0
+        Update the index of font containing this character, searching first in font #0
         """
         index = 0
         # If it is an ASCII character, then it is present in font #0
         if ord(char) > 0x7F:
-            self.unicode_needed = True
 
             # If the character is present in font #0, then we can use it
             while index < len(self.ttfonts):
                 # Find the font having that character
                 if self.char_is_in_font(char, self.ttfonts[index]):
+                    if index > self.unicode_index:
+                        self.unicode_index = index # Keep track of highest section # used
                     break;
 
                 index += 1
@@ -407,11 +411,13 @@ class TTF2INC:
         """
         for char in string:
 
-            # Update Unicode flag & font info
-            self.check_unicode(char)
+            # Update font info
+            self.find_char(char)
 
             # Get dimension using font.getbbox
             left, top, right, bottom = self.font.getbbox(char)
+            # Here, bottom is just ymax => make it be equal to ymax + 1
+            bottom += 1
 
             # Some characters (ie 'j' & '_') may need to be displayed at x < 0
             # For Thai, Korean or Arabic, some chars may be displayed over previous one.
@@ -432,19 +438,19 @@ class TTF2INC:
             else:
                 left_offset = 0
 
-            # To be able to check if some y are < 0
+            # Keep track of the top most Y for that font
             if top < self.char_topmost_y:
                 self.char_topmost_y = top
 
             if top < 0 and self.baseline_offset < (-self.char_topmost_y):
-                sys.stderr.write(f"WARNING: Font {self.name} ({self.bpp} BPP)"
-                                 f" display characters at y={top} "
+                sys.stderr.write(f"WARNING: Font {self.font_id_name} "
+                                 f"display character '{char}' ({ord(char):06X}) at y={top} "
                                  f"=> 'baseline_offset' value should be set "
                                  f"at least to {-(top)} !\n")
 
             # Some characters may be displayed over self.font_height
-            if bottom >= self.font_height:
-                self.font_height = bottom + 1
+            if bottom > self.font_height:
+                self.font_height = bottom
                 self.font_heights[self.font_index] = self.font_height
 
             # Store relevant information
@@ -461,7 +467,13 @@ class TTF2INC:
                 sys.stderr.write(f"char (font): {char} ({ord(char):06X}) "
                                  f"left_offset={left_offset:3} (OP={over_previous}), left={left:2}"
                                  f",right={right:2} "
-                                 f"top= {top:2}, bottom={bottom}\n")
+                                 f"top= {top:2}, bottom={bottom}, font_height={self.font_height}\n")
+
+        # Make font_height be modulo 4, when crop is False
+        if not self.crop:
+            for index, font_height in enumerate(self.font_heights):
+                font_height = (font_height + 3) & 0xFC
+                self.font_heights[index] = font_height
 
         self.compute_check_bits()
 
@@ -768,6 +780,7 @@ class TTF2INC:
                 right = info['right']
                 bottom = self.font_height
 
+            # bottom is actually ymax + 1
             height = bottom - top
 
             # Are some values too big to fit in a small bitfield?
@@ -781,13 +794,6 @@ class TTF2INC:
                                          f" for char {char} ({ord(char):06X})\n")
                     # Compression will compensate those added transparent lines
                     top = self.max_y_min_offset
-
-                if top < 0:
-                    if self.args.verbose:
-                        sys.stderr.write(f"Adjusting top from {top} to 0"
-                                         f" for char {char} ({ord(char):06X})\n")
-                    # Compression will compensate those added transparent lines
-                    top = 0
 
                 # Be sure x_min_offset value is not too big
                 if left > self.max_x_min_offset:
@@ -811,8 +817,12 @@ class TTF2INC:
             if left < self.char_leftmost_x:
                 self.char_leftmost_x = left
 
+            # bottom is actually ymax + 1
             if bottom > self.real_height:
                 self.real_height = bottom
+
+            if bottom > self.line_size:
+                sys.stderr.write(f"WARNING: char '{char}' ({ord(char):06X}) is bigger ({bottom}) than line_size ({self.line_size})!\n")
 
             if top < self.char_topmost_y:
                 self.char_topmost_y = top
@@ -821,7 +831,7 @@ class TTF2INC:
         info['left'] = left
         info['top'] = top
         info['right'] = right
-        info['bottom'] = bottom
+        info['bottom'] = bottom # bottom is actually ymax + 1
         info['height'] = height
 
         # Get the packed bitmap corresponding to this box
@@ -946,6 +956,7 @@ class TTF2INC:
             y_min_offset = info["top"] - self.char_topmost_y
 
             x_max_offset = width - info["right"]
+            # bottom is actually ymax + 1
             y_max_offset = self.real_height - info["bottom"]
 
         # When crop is False, we may have some bytes to skip at beginning
@@ -1055,6 +1066,7 @@ class TTF2INC:
             y_min_offset = info["top"] - self.char_topmost_y
 
             x_max_offset = width - info["right"]
+            # bottom is actually ymax + 1
             y_max_offset = self.real_height - info["bottom"]
 
         # When crop is False, we may have some bytes to skip at beginning
@@ -1170,6 +1182,7 @@ class TTF2INC:
             x_min_offset = info["left"]
             x_max_offset = width - info["right"]
             y_min_offset = info["top"] - self.char_topmost_y
+            # bottom is actually ymax + 1
             y_max_offset = self.real_height - info["bottom"]
 
         offset = info["offset"]
@@ -1472,9 +1485,19 @@ if __name__ == "__main__":
                 for value in range(ttf.first_character, ttf.last_character+1):
                     string += chr(value)
 
+            # Check if string contains only ASCII characters or have UNICODE ondes
+            for char in string:
+                if ord(char) > 0x7F:
+                    ttf.unicode_needed = True
+                    break
+            # Now, we know if we will generate ASCII or UNICODE data
+
             # Find dimension used by specified characters with that font
             # (also, find which font is really the one to use here)
             ttf.find_string_dimension(string)
+
+            # We now know everything on this font & used chars => build filenames
+            ttf.build_names()
 
             # Now, handle all characters from the string:
             for char in string:
@@ -1503,12 +1526,29 @@ if __name__ == "__main__":
                 sys.stdout.write(f"Font {ttf.basename.upper()}: "
                                  f"ascent={ttf.ascent}, descent={ttf.descent}"
                                  f", font size={ttf.font.size}, "
-                                 f"font height={ttf.font_height}\n"
-                                 f"crop={ttf.crop}, "
+                                 f"font height={ttf.font_heights[0]}\n"
+                                 f"crop={ttf.crops[0]}, "
                                  f"char_leftmost_x={ttf.char_leftmost_x}, "
                                  f"char_topmost_y={ttf.char_topmost_y}, "
                                  f"real font height={ttf.real_height}, "
-                                 f"baseline={ttf.baseline}\n")
+                                 f"line_height={ttf.line_sizes[ttf.unicode_index]}, "
+                                 f"baseline={ttf.baselines[ttf.unicode_index]}\n")
+
+            if ttf.real_height > ttf.line_sizes[ttf.unicode_index]:
+                # If baseline_offset is > 0, it means some chars are displayed at Y < 0
+                # => the only solution is to increase line_height value!
+                if ttf.baseline_offset > 0:
+                    sys.stderr.write(f"WARNING: Font {ttf.font_id_name} have "
+                                     f"a real font height value ({ttf.real_height}) "
+                                     f"> to line_height value ({ttf.line_sizes[ttf.unicode_index]}) "
+                                     f"=> as 'baseline_offset' value ({ttf.baseline_offset}) "
+                                     f"is already > 0, you MUST increase line_height value!\n")
+                else:
+                    delta = ttf.real_height - ttf.line_sizes[ttf.unicode_index]
+                    sys.stderr.write(f"WARNING: Font {ttf.font_id_name} have "
+                                     f"a real font height value ({ttf.real_height}) "
+                                     f"> to line_height value ({ttf.line_sizes[ttf.unicode_index]}) "
+                                     f"=> 'baseline_offset' value should be set to {-(delta)} !\n")
 
             # Last step: generate .inc & json files with data for all chars
             # (the .inc file will be stored in src directory)

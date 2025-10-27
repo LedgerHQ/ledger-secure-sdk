@@ -504,11 +504,11 @@ __attribute__ ((section("._nbgl_fonts_"))) const nbgl_font_t fontNANODISPLAY_SEM
   2137, // bitmap len
   BAGL_FONT_NANODISPLAY_SEMIBOLD_24px_1bpp, // font id
   (uint8_t) NBGL_BPP_1, // bpp
-  29, // height of all characters in pixels
+  28, // height of all characters in pixels
   28, // line height in pixels
   0, // kerning
   1, // crop enabled (1) or not (0)
-  1, // Most top Y coordinate of any char
+  0, // Most top Y coordinate of any char
   0x20, // first character
   0x7E, // last character
   charactersNANODISPLAY_SEMIBOLD_24PX_1BPP,
