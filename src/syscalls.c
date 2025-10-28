@@ -1751,15 +1751,6 @@ unsigned int os_registry_get_current_app_tag(unsigned int   tag,
     return (unsigned int) SVC_Call(SYSCALL_os_registry_get_current_app_tag_ID, parameters);
 }
 
-void os_registry_delete_app_and_dependees(unsigned int app_idx)
-{
-    unsigned int parameters[2];
-    parameters[0] = (unsigned int) app_idx;
-    parameters[1] = 0;
-    SVC_Call(SYSCALL_os_registry_delete_app_and_dependees_ID, parameters);
-    return;
-}
-
 void os_registry_delete_all_apps(void)
 {
     unsigned int parameters[2];

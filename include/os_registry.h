@@ -47,14 +47,6 @@ SYSCALL unsigned int os_registry_get_current_app_tag(unsigned int          tag,
                                                      unsigned int          maxlen);
 
 /**
- * This function deletes the application mentioned with its index, as well as all the applications
- * depending on it.
- * @param index The index of the the application to suppress.
- */
-SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_registry_delete_app_and_dependees(
-    unsigned int app_idx);
-
-/**
  * This function deletes all the installed applications.
  */
 SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_registry_delete_all_apps(void);
