@@ -30,7 +30,6 @@
 #include "os_io.h"
 #include "os_lib.h"
 #include "os_math.h"
-#include "os_memory.h"
 #include "os_nvm.h"
 #include "os_pic.h"
 #include "os_pin.h"

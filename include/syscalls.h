@@ -168,7 +168,6 @@
 #define SYSCALL_os_factory_setting_get_ID                  0x0300014c
 #define SYSCALL_os_setting_get_ID                          0x03000070
 #define SYSCALL_os_setting_set_ID                          0x03000071
-#define SYSCALL_os_get_memory_info_ID                      0x01000072
 #define SYSCALL_os_registry_get_tag_ID                     0x06000123
 #define SYSCALL_os_registry_get_current_app_tag_ID         0x03000074
 #define SYSCALL_os_registry_delete_app_and_dependees_ID    0x01000124
