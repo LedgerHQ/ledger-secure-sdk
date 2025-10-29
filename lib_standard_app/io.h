@@ -113,3 +113,10 @@ static inline int io_send_sw(uint16_t sw)
 {
     return io_send_response_buffers(NULL, 0, sw);
 }
+
+/**
+ * @brief send automatic error response (0xC000) in case of potentially pending APDU
+ * @note to be called at application exit
+ *
+ */
+void io_send_pending_response(void);

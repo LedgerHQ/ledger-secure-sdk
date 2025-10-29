@@ -47,8 +47,10 @@
 // removed from the application
 #define SW_OK                    0x9000
 #define SW_WRONG_RESPONSE_LENGTH 0xB000
+#define SW_WRONG_APP_STATE       0xC000
 
 static uint8_t need_to_start_io;
+static bool    pending_apdu_response;
 
 uint8_t G_io_seproxyhal_spi_buffer[OS_IO_SEPH_BUFFER_SIZE];
 
@@ -91,7 +93,7 @@ WEAK void io_init()
     need_to_start_io = 1;
 }
 
-WEAK int io_recv_command()
+WEAK int io_recv_command(void)
 {
     int status = 0;
 
@@ -112,7 +114,10 @@ WEAK int io_recv_command()
 #endif
         status = io_legacy_apdu_rx(1);
     }
-
+    if (status > 0) {
+        // set the state of APDU as "pending response"
+        pending_apdu_response = true;
+    }
     return status;
 }
 
@@ -141,6 +146,8 @@ WEAK int io_send_response_buffers(const buffer_t *rdatalist, size_t count, uint1
 
     write_u16_be(G_io_tx_buffer, length, sw);
     length += 2;
+    // reset the state of APDU
+    pending_apdu_response = false;
 
 #ifdef HAVE_SWAP
     // If we are in swap mode and have validated a TX, we send it and immediately quit
@@ -183,3 +190,10 @@ WEAK bool io_recv_and_process_event(void)
     return false;
 }
 #endif
+
+void io_send_pending_response(void)
+{
+    if (pending_apdu_response) {
+        io_send_sw(SW_WRONG_APP_STATE);
+    }
+}
