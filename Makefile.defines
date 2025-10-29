@@ -85,7 +85,7 @@ CFLAGS   += -Wvla -Wundef -Wshadow -Wformat=2 -Wformat-security -Wwrite-strings
 
 ENABLE_SDK_WERROR ?= 0
 ifneq ($(ENABLE_SDK_WERROR),0)
-    CFLAGS   += -Werror
+    CFLAGS   += -Werror -Werror=\#pragma-messages
 endif
 
 CFLAGS   += -fdata-sections -ffunction-sections -funsigned-char -fshort-enums
