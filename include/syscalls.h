@@ -170,7 +170,6 @@
 #define SYSCALL_os_setting_set_ID                          0x03000071
 #define SYSCALL_os_registry_get_tag_ID                     0x06000123
 #define SYSCALL_os_registry_get_current_app_tag_ID         0x03000074
-#define SYSCALL_os_registry_delete_app_and_dependees_ID    0x01000124
 #define SYSCALL_os_registry_delete_all_apps_ID             0x00000125
 #define SYSCALL_os_sched_exec_ID                           0x01000126
 #define SYSCALL_os_sched_exit_ID                           0x0100009a
