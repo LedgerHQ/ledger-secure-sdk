@@ -28,6 +28,13 @@ static inline uint32_t U4BE(const uint8_t *buf, size_t off)
     return (((uint32_t) buf[off]) << 24) | (buf[off + 1] << 16) | (buf[off + 2] << 8)
            | buf[off + 3];
 }
+static inline uint64_t U8BE(const uint8_t *buf, size_t off)
+{
+    return ((uint64_t) buf[off] << (8 * 7)) | ((uint64_t) buf[off + 1] << (8 * 6))
+           | ((uint64_t) buf[off + 2] << (8 * 5)) | ((uint64_t) buf[off + 3] << (8 * 4))
+           | ((uint64_t) buf[off + 4] << (8 * 3)) | ((uint64_t) buf[off + 5] << (8 * 2))
+           | ((uint64_t) buf[off + 6] << (8 * 1)) | (uint64_t) buf[off + 7];
+}
 static inline uint16_t U2LE(const uint8_t *buf, size_t off)
 {
     return (buf[off + 1] << 8) | buf[off];
@@ -37,7 +44,13 @@ static inline uint32_t U4LE(const uint8_t *buf, size_t off)
     return (((uint32_t) buf[off + 3]) << 24) | (buf[off + 2] << 16) | (buf[off + 1] << 8)
            | buf[off];
 }
-
+static inline uint64_t U8LE(const uint8_t *buf, size_t off)
+{
+    return ((uint64_t) buf[off + 7] << (8 * 7)) | ((uint64_t) buf[off + 6] << (8 * 6))
+           | ((uint64_t) buf[off + 5] << (8 * 5)) | ((uint64_t) buf[off + 4] << (8 * 4))
+           | ((uint64_t) buf[off + 3] << (8 * 3)) | ((uint64_t) buf[off + 2] << (8 * 2))
+           | ((uint64_t) buf[off + 1] << (8 * 1)) | (uint64_t) buf[off];
+}
 static inline void U2BE_ENCODE(uint8_t *buf, size_t off, uint32_t value)
 {
     buf[off + 0] = (value >> 8) & 0xFF;
