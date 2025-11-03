@@ -127,7 +127,7 @@ void io_seproxyhal_disable_io(void)
 
 void io_seproxyhal_io_heartbeat(void)
 {
-    uint16_t      err = 0x6601;
+    uint16_t      err = SWO_COMMAND_NOT_ACCEPTED;
     unsigned char err_buffer[2];
     int           status = os_io_rx_evt(G_io_rx_buffer, sizeof(G_io_rx_buffer), NULL, true);
 
