@@ -2234,10 +2234,6 @@ static void bundleNavReviewStreamingConfirmRejection(void)
 static void bundleNavReviewStreamingChoice(bool confirm)
 {
     if (confirm) {
-        // Display a spinner if it wasn't the finish step
-        if (STARTING_CONTENT.type != INFO_LONG_PRESS) {
-            nbgl_useCaseSpinner("Processing");
-        }
         bundleNavContext.reviewStreaming.choiceCallback(true);
     }
     else {
