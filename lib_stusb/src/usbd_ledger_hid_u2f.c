@@ -27,6 +27,8 @@
 #include "cx_crc_internal.h"
 #endif  // !HAVE_BOLOS
 
+#include "status_words.h"
+
 /* Private enumerations ------------------------------------------------------*/
 enum ledger_hid_u2f_state_t {
     LEDGER_HID_U2F_STATE_IDLE,
@@ -419,7 +421,7 @@ USBD_StatusTypeDef USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
     const uint8_t *tx_buffer = message;
     uint16_t tx_length = message_length;
 #ifndef HAVE_BOLOS
-    const uint8_t status[2] = {0x69, 0x85};
+    uint8_t status[2];
 #endif // !HAVE_BOLOS
 
     switch (packet_type) {
@@ -427,12 +429,13 @@ USBD_StatusTypeDef USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
             cmd = U2F_COMMAND_MSG;
 // Cannot enable user presence handling in the OS, see OS issues/555 for more information
 #ifndef HAVE_BOLOS
+            U2BE_ENCODE(status, 0, SWO_CONDITIONS_NOT_SATISFIED);
             if ((message_length == 2) && (message[0] == 0xFF) && (message[1] == 0xFF)) {
                 tx_buffer = status;
                 handle->user_presence = LEDGER_HID_U2F_USER_PRESENCE_ASKING;
             }
             else if (handle->user_presence == LEDGER_HID_U2F_USER_PRESENCE_ASKING) {
-                if ((message_length != 2) || (message[0] != 0x69) || (message[1] != 0x85)) {
+                if ((message_length != 2) || (memcmp(message, status, 2) != 0)) {
                     handle->user_presence         = LEDGER_HID_U2F_USER_PRESENCE_CONFIRMED;
                     handle->backup_message        = message;
                     handle->backup_message_length = message_length;
@@ -621,8 +624,7 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
                                                handle->transport_data.rx_message_length);
 #endif  // !HAVE_BOLOS
                 if (!length_ok) {
-                    error_msg[0] = 0x67;
-                    error_msg[1] = 0x00;
+                    U2BE_ENCODE(error_msg, 0, SWO_WRONG_LENGTH);
                     USBD_LEDGER_HID_U2F_send_message(
                         pdev, cookie, OS_IO_PACKET_TYPE_USB_U2F_HID_APDU, error_msg, 2, 0);
                 }
@@ -630,8 +632,7 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
 #ifndef HAVE_BOLOS
                 else if (handle->user_presence == LEDGER_HID_U2F_USER_PRESENCE_ASKING) {
                     if (handle->message_crc == crc) {
-                        error_msg[0] = 0x69;
-                        error_msg[1] = 0x85;
+                        U2BE_ENCODE(error_msg, 0, SWO_CONDITIONS_NOT_SATISFIED);
                         USBD_LEDGER_HID_U2F_send_message(
                             pdev, cookie, OS_IO_PACKET_TYPE_USB_U2F_HID_APDU, error_msg, 2, 0);
                     }

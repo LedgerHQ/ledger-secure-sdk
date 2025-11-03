@@ -10,7 +10,7 @@
 #define SWO_RESPONSE_BYTES_AVAILABLE         0x6100
 // 62 -- Warning, the state of persistent memory is unchanged. The command succeeded, possibly with
 // restrictions. Typically used to signal blocked applications
-#define SWO_EOF_REACHED_BRFORE_LE            0x6282
+#define SWO_EOF_REACHED_BEFORE_LE            0x6282
 #define SWO_SELECTED_FILE_INVALID            0x6284
 #define SWO_NO_INPUT_DATA_AVAILABLE          0x6285
 // 63 -- Warning, the state of persistent memory is changed. Typically used to indicate the number
@@ -47,7 +47,7 @@
 #define SWO_COMMAND_NOT_ALLOWED_EF           0x6986
 #define SWO_EXPECTED_SECURE_MSG_OBJ_MISSING  0x6987
 #define SWO_INCORRECT_SECURE_MSG_DATA_OBJ    0x6988
-#define SWO_IPERMISSION_DENIED               0x69f0
+#define SWO_PERMISSION_DENIED                0x69f0
 // 6A -- Wrong parameters (with details)
 #define SWO_PARAMETER_ERROR_NO_INFO          0x6a00
 #define SWO_INCORRECT_DATA                   0x6a80

@@ -30,6 +30,7 @@
 #include "os_pki.h"
 #include "os_registry.h"
 #include "os_io_default_apdu.h"
+#include "status_words.h"
 
 /* Private enumerations ------------------------------------------------------*/
 
@@ -61,7 +62,7 @@ static bolos_err_t pki_load_certificate(uint8_t *buffer, size_t buffer_len, uint
 /* Private functions ---------------------------------------------------------*/
 static bolos_err_t get_version(uint8_t *buffer_out, size_t *buffer_out_length)
 {
-    bolos_err_t err                   = 0x6985;
+    bolos_err_t err                   = SWO_CONDITIONS_NOT_SATISFIED;
     size_t      max_buffer_out_length = *buffer_out_length;
     int         str_length            = 0;
 
@@ -107,7 +108,7 @@ static bolos_err_t get_version(uint8_t *buffer_out, size_t *buffer_out_length)
 #if defined(HAVE_SEED_COOKIE)
 static bolos_err_t get_seed_cookie(uint8_t *buffer_out, size_t *buffer_out_length)
 {
-    bolos_err_t err                   = 0x6985;
+    bolos_err_t err                   = SWO_CONDITIONS_NOT_SATISFIED;
     size_t      max_buffer_out_length = *buffer_out_length;
 
     *buffer_out_length = 0;
@@ -135,7 +136,7 @@ static bolos_err_t get_stack_consumption(uint8_t  mode,
                                          uint8_t *buffer_out,
                                          size_t  *buffer_out_length)
 {
-    bolos_err_t err    = 0x6985;
+    bolos_err_t err    = SWO_CONDITIONS_NOT_SATISFIED;
     int         status = os_stack_operations(mode);
 
     *buffer_out_length = 0;
@@ -152,7 +153,7 @@ static bolos_err_t get_stack_consumption(uint8_t  mode,
 #if defined(HAVE_LEDGER_PKI)
 static bolos_err_t pki_load_certificate(uint8_t *buffer, size_t buffer_len, uint8_t key_usage)
 {
-    bolos_err_t              err = 0x6985;
+    bolos_err_t              err = SWO_CONDITIONS_NOT_SATISFIED;
     cx_ecfp_384_public_key_t public_key;
 
     err = os_pki_load_certificate(key_usage, buffer, buffer_len, NULL, NULL, &public_key);
@@ -172,7 +173,7 @@ bolos_err_t os_io_handle_default_apdu(uint8_t                  *buffer_in,
                                       size_t                   *buffer_out_length,
                                       os_io_apdu_post_action_t *post_action)
 {
-    bolos_err_t err = 0x6985;
+    bolos_err_t err = SWO_CONDITIONS_NOT_SATISFIED;
 
     if (!buffer_in || !buffer_in_length || !buffer_out || !buffer_out_length) {
         return *post_action;
@@ -188,7 +189,7 @@ bolos_err_t os_io_handle_default_apdu(uint8_t                  *buffer_in,
                     err = get_version(buffer_out, buffer_out_length);
                 }
                 else {
-                    err = 0x6e00;
+                    err = SWO_INVALID_CLA;
                     goto end;
                 }
                 break;
@@ -199,7 +200,7 @@ bolos_err_t os_io_handle_default_apdu(uint8_t                  *buffer_in,
                     err = get_seed_cookie(buffer_out, buffer_out_length);
                 }
                 else {
-                    err = 0x6e00;
+                    err = SWO_INVALID_CLA;
                     goto end;
                 }
                 break;
@@ -212,7 +213,7 @@ bolos_err_t os_io_handle_default_apdu(uint8_t                  *buffer_in,
                         buffer_in[APDU_OFF_P1], buffer_out, buffer_out_length);
                 }
                 else {
-                    err = 0x6e00;
+                    err = SWO_INVALID_CLA;
                     goto end;
                 }
                 break;
@@ -229,7 +230,7 @@ bolos_err_t os_io_handle_default_apdu(uint8_t                  *buffer_in,
                     err = SWO_SUCCESS;
                 }
                 else {
-                    err = 0x6e00;
+                    err = SWO_INVALID_CLA;
                     goto end;
                 }
                 break;
@@ -243,7 +244,7 @@ bolos_err_t os_io_handle_default_apdu(uint8_t                  *buffer_in,
 #endif  // HAVE_LEDGER_PKI
 
             default:
-                err = 0x6e00;
+                err = SWO_INVALID_CLA;
                 goto end;
                 break;
         }
