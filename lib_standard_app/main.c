@@ -39,6 +39,8 @@ bolos_ux_params_t G_ux_params;
  */
 WEAK void __attribute__((noreturn)) app_exit(void)
 {
+    // send automatic error response in case of potentially pending APDU
+    io_send_pending_response();
 #ifndef USE_OS_IO_STACK
     os_io_stop();
 #endif  // USE_OS_IO_STACK
