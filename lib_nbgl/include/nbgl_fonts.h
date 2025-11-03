@@ -116,7 +116,8 @@ typedef struct {
     uint32_t y_min_offset : 6;    ///< y_min = (y_min + y_min_offset)
     uint32_t x_max_offset : 4;    ///< x_max = width - x_max_offset
     uint32_t y_max_offset : 6;    ///< y_max = (height - y_max_offset)
-    uint32_t bitmap_offset : 16;  ///< offset of this character in chars buffer
+    uint32_t bitmap_offset : 15;  ///< offset of this character in chars buffer
+    uint32_t over_previous : 1;   ///< flag set to 1 when displayed over previous char
 } nbgl_font_unicode_character_t;
 /**
  * @brief structure defining a unicode font

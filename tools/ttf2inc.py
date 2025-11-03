@@ -11,6 +11,7 @@ import json
 import base64
 import struct
 import configparser
+from fontTools.ttLib import TTFont
 from PIL import Image, ImageFont, ImageDraw
 from rle_custom import RLECustom
 
@@ -22,6 +23,7 @@ class TTF2INC:
     # Default values:
     FONT_NAME = "open_sans_regular.ttf"
     FONT_SIZE = 11
+    LINE_SIZE = 16
     FIRST_CHARACTER = 0x20
     LAST_CHARACTER = 0x7E
     # Maximum possible bytes to skip when crop is False
@@ -39,9 +41,12 @@ class TTF2INC:
     # Add Portuguese specific characters (not already included)
     STRING += "ÃÕãõ"
     # Add Turkish specific characters (not already included)
-    STRING += "İıĞğŞş₤"
+    STRING += "İıĞğŞş"
     # Add Russian specific characters (not already included)
     STRING += "АаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя"
+    # Add Thai specific characters (not already included)
+    STRING += "กขฃคฅฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรฤลฦวศษสหฬอฮฯะัาำิีึืฺุู฿เแโใไๅๆ" \
+        "็่้๊๋์ํ๎๏๐๑๒๓๔๕๖๗๘๙๚๛"
 
     # -------------------------------------------------------------------------
     def __init__(self, args):
@@ -50,8 +55,17 @@ class TTF2INC:
         self.nbgl = False
         self.rle = False
         self.crop = True
+        self.apex = False
+        self.nanos = False
+        # This flag is very important, as it allows us to determine whether we:
+        # - False: generate only ASCII bitmaps (0x20 to 0x7E), using only main font data
+        # - True : generate unicode bitmaps, meaning we may use any font data
+        # => it is updated in 'find_string_dimension' method, when parsing all characters
         self.unicode_needed = False
-        self.font_name = None
+        self.unicode_index = 0 # It is the index of the font section to use!
+        self.font = None
+        self.ttfont = None
+        self.name = None
         self.font_id_name = None
         self.basename = None
         self.directory = None
@@ -60,40 +74,65 @@ class TTF2INC:
         self.top = None
         self.bottom = None
         self.font_prefix = None
-        self.height = 0
+        self.font_height = 0
+        self.real_height = 0
+        self.font_size = 0
         self.line_size = 0
+        self.kerning = 0
         self.char_leftmost_x = 0
         self.max_y_min_offset = 0
+        self.max_x_min_offset = 0
         self.max_x_max_offset = 0
         self.char_topmost_y = 0
         self.bitmap_len = 0
         self.loaded_baseline = 0
         self.baseline_offset = 0
-        self.bpp = 1
+        self.bpp = args.bpp
+        self.font_index = -1
         self.char_info = {}
         self.ttf_info_dictionary = {}
         # Be sure there are at least some mandatory characters
         self.unicode_chars = "�"
         self.ids = []
+        self.font_name = []
+        self.font_sizes = []
+        self.font_heights = []
+        self.line_sizes = []
+        self.rles = []
+        self.crops = []
         # Store parameters:
         self.args = args
         # Initialise config with provided values or default ones
         self.init_config()
         # Get font infos
-        try:
-            self.font = ImageFont.truetype(self.font_name, self.font_size)
-        except (BaseException, Exception) as error:
-            sys.stderr.write(f"Error with font {self.font_name}: {error}\n")
-            sys.exit(-1)
+        self.fonts = []
+        self.ttfonts = []
+        self.baselines = []
 
-        # Get font metrics:
-        # - ascent: distance from the baseline to the highest outline point.
-        # - descent: distance from the baseline to the lowest outline point.
-        # (descent is a negative value)
-        self.ascent, self.descent = self.font.getmetrics()
-        self.font_width = self.args.font_size
-        self.font_height = self.font.font.height
-        self.baseline = self.ascent
+        if self.args.verbose:
+            sys.stderr.write(f"self.font_name={self.font_name}\n")
+        for index, font_name in enumerate(self.font_name):
+            if not os.path.exists(font_name):
+                sys.stderr.write(f"Can't open file {font_name}\n")
+                sys.exit(-2)
+            try:
+                self.font = ImageFont.truetype(font_name, self.font_sizes[index], layout_engine=0)
+                self.fonts.append(self.font)
+                ascent, descent = self.font.getmetrics()
+                self.baselines.append(ascent)
+                self.font_heights.append(self.font.font.height)
+
+                if self.args.verbose:
+                    sys.stderr.write(f"{font_name} metrics: ascent={ascent}, "
+                                     f"descent={descent}, height={self.font.font.height}\n")
+                ttfont = TTFont(font_name)
+                self.ttfonts.append(ttfont)
+            except (BaseException, Exception) as error:
+                sys.stderr.write(f"Error with font {font_name}: {error}\n")
+                sys.exit(-1)
+
+        # Select font 0 by default and update all global info
+        self.update_font_info(0)
         self.char_leftmost_x = self.font_width
         self.char_topmost_y = self.font_height
 
@@ -111,6 +150,35 @@ class TTF2INC:
         """
 
     # -------------------------------------------------------------------------
+    def update_font_info(self, index):
+        """
+        Update the font related variables according to index value.
+        WARNING: some values depends on which kind of data we will generate (ASCII/UNICOE)
+        """
+        self.font_index = index
+        self.font = self.fonts[index]
+        self.ttfont = self.ttfonts[index]
+        self.name = self.font_name[index]
+        self.font_size = self.font_sizes[index]
+        self.line_size = self.line_sizes[index]
+
+        # Get font metrics:
+        # - ascent: distance from the baseline to the highest outline point.
+        # - descent: distance from the baseline to the lowest outline point.
+        # (descent is a negative value)
+        self.ascent, self.descent = self.font.getmetrics()
+        self.font_width = self.font_size   # This is just an approximation
+        self.font_height = self.font_heights[index]
+        self.baseline = self.baselines[index]
+
+        # if self.unicode_needed is not False, then we want to generate UNICODE data
+        if index == 0 and self.unicode_needed and len(self.rles) > 1:
+            index = 1   # Use rle & crop values from first section after main
+
+        self.rle = self.rles[index]
+        self.crop = self.crops[index]
+
+    # -------------------------------------------------------------------------
     def get_font_id_name(self):
         """
         Return the name of the font id.
@@ -121,7 +189,7 @@ class TTF2INC:
 
         # Those ids are defined in bagl.h file, in bagl_font_id_e enums.
         font_id_name = "BAGL_FONT"
-        font_name = self.font_name.lower()
+        font_name = self.font_name[0].lower()
         if "open" in font_name and "sans" in font_name:
             font_id_name += "_OPEN_SANS"
             if "regular" in font_name:
@@ -135,7 +203,7 @@ class TTF2INC:
         else:
             font_id_name += "_UNKNOWN"
 
-        font_id_name += f"_{self.args.font_size}px"
+        font_id_name += f"_{self.font_size}px"
 
         return font_id_name
 
@@ -152,67 +220,92 @@ class TTF2INC:
             config_parser = configparser.ConfigParser()
             config_parser.read(self.args.init_file)
             print(self.args.init_file)
+            # Get main settings
             config = config_parser['main']
-            self.font_name = config.get('font')
+            self.font_name = config.get('font').split()
             self.font_id_name = config.get('font_id_name')
             self.loaded_baseline = int(config.get('loaded_baseline', 0))
             self.baseline_offset = int(config.get('baseline_offset', 0))
             self.first_character = int(config.get('firstChar', '0x20'), 16)
             self.last_character = int(config.get('lastChar', '0x7E'), 16)
-            self.font_size = config.getint('fontSize')
-            self.line_size = config.getint('lineSize')
-            self.bottom_offset = config.getint('bottom_offset',0)
-            self.crop = config.getboolean('crop', False)
-            self.kerning = config.getint('kerning',0)
-            self.rle = config.getboolean('rle', True)
+            self.font_sizes.append(config.getint('fontSize'))
+            self.line_sizes.append(config.getint('lineSize'))
+            self.crops.append(config.getboolean('crop', False))
+            self.kerning = config.getint('kerning', 0)
+            self.rles.append(config.getboolean('rle', True))
             self.bpp = config.getint('bpp', 1)
             self.nbgl = config.getboolean('nbgl', False)
+            # Get additional settings, if any
+            for section in config_parser.sections():
+                if section == 'main':
+                    continue    # already done
+                if self.args.verbose:
+                    sys.stderr.write(f"Reading section [{section}]\n")
+                config = config_parser[section]
+                # Get mandatory values
+                self.font_name.append(config.get('font'))
+                # Get other values, if present, or use [main] section ones
+                self.font_sizes.append(config.getint('fontSize', self.font_sizes[0]))
+                self.line_sizes.append(config.getint('lineSize', self.line_sizes[0]))
+                self.rles.append(config.getboolean('rle', self.rles[0]))
+                self.crops.append(config.getboolean('crop', self.crops[0]))
+
         # Otherwise, use command line parameters (or default values)
         else:
-            self.font_name = self.args.font_name
+            self.font_name = self.args.font_name.split()
             self.font_id_name = self.get_font_id_name()
             self.first_character = self.args.first_character
             self.last_character = self.args.last_character
-            self.font_size = self.args.font_size
+            self.font_sizes.append(self.args.font_size)
+            self.line_sizes.append(self.args.line_size)
 
         if self.nbgl:
             self.font_prefix = "nbgl_font_"
         else:
             self.font_prefix = "bagl_font_"
 
-        # Be sure there is a file at self.font_name
-        self.find_font()
+        # Be sure filenames for fonts are correct, and update them if necessary
+        self.find_fonts()
+
+        # Update Apex flag
+        self.get_font_id()
 
     # -------------------------------------------------------------------------
-    def find_font(self):
+    def find_fonts(self):
         """
-        Try to find where is located the font specified in self.font_name
+        Try to find where are located the fonts specified in self.font_name
         (in current directory, in the .ini directory or in the .py directory)
         """
-        # Check first in current directory
-        if os.path.exists(self.font_name):
-            # We found it!!
-            return
+        # Make self.font_name a list with all font names
+        if not isinstance(self.font_name, list):
+            self.font_name = self.font_name.split()
 
-        # Check at .ini location
-        if self.args.init_file:
-            filename = os.path.dirname(self.args.init_file)
-            filename = os.path.join(filename, self.font_name)
+        for index, font_name in enumerate(self.font_name):
+
+            # Check first in current directory
+            if os.path.exists(font_name):
+                # We found it!!
+                continue
+
+            # Check at .ini location
+            if self.args.init_file:
+                filename = os.path.dirname(self.args.init_file)
+                filename = os.path.join(filename, font_name)
+                if os.path.exists(filename):
+                    # We found it!!
+                    self.font_name[index] = filename
+                    continue
+
+            # Check at the location of the script
+            filename = os.path.dirname(__file__)
+            filename = os.path.join(filename, font_name)
             if os.path.exists(filename):
                 # We found it!!
-                self.font_name = filename
-                return
+                self.font_name[index] = filename
+                continue
 
-        # Check at the location of the script
-        filename = os.path.dirname(__file__)
-        filename = os.path.join(filename, self.font_name)
-        if os.path.exists(filename):
-            # We found it!!
-            self.font_name = filename
-            return
-
-        # We didn't found the specified font... :(
-        # => let pillow search by itself (it looks in system directories too)
+        # If we didn't found the specified font, let pillow search by itself
+        # (it looks in system directories too)
 
     # -------------------------------------------------------------------------
     def build_names(self):
@@ -221,7 +314,7 @@ class TTF2INC:
         """
         # Get the font basename, without extension
         self.basename = os.path.splitext(
-            os.path.basename(self.font_name))[0]
+            os.path.basename(self.name))[0]
         self.basename = self.basename.replace("-", "_")
         self.basename += f"_{self.font_size}px"
         if self.nbgl and self.bpp != 4:
@@ -229,7 +322,7 @@ class TTF2INC:
         if self.unicode_needed:
             self.basename += "_unicode"
         # Build destination directory name, based on font+size[+unicode]+bpp
-        self.directory = os.path.dirname(self.font_name)
+        self.directory = os.path.dirname(self.name)
         name = self.font_prefix + self.basename
         self.directory = os.path.join(self.directory, name)
         # Create that directory if it doesn't exist
@@ -239,75 +332,53 @@ class TTF2INC:
             os.mkdir(self.directory)
 
     # -------------------------------------------------------------------------
-    def align_top(self, top):
+    def char_is_in_font(self, char, ttfont):
         """
-        Handle Stax/Flex constraint on Y (should be modulo 4), top side.
-        (decrease Y until it is modulo 4)
+        Find if a char is the current font
         """
-        if self.nbgl and (self.bpp > 1 or self.rle):
-            top = top & 0xFC
-
-        return top
-
-    # -------------------------------------------------------------------------
-    def align_bottom(self, bottom):
-        """
-        Handle Stax/Flex constraint on Y (should be modulo 4), bottom side.
-        (increase Y until it is modulo 4)
-        """
-        if self.nbgl and (self.bpp > 1 or self.rle):
-            bottom = (bottom+3) & 0xFC
-
-        return bottom
+        for cmap in ttfont['cmap'].tables:
+            if cmap.isUnicode():
+                if ord(char) in cmap.cmap:
+                    return True
+        return False
 
     # -------------------------------------------------------------------------
-    def check_unicode(self, char):
+    def find_char(self, char):
         """
-        Check if unicode is needed to encode provided character.
+        Update the index of font containing this character, searching first in font #0
         """
+        index = 0
+        # If it is an ASCII character, then it is present in font #0
         if ord(char) > 0x7F:
-            self.unicode_needed = True
+
+            # If the character is present in font #0, then we can use it
+            while index < len(self.ttfonts):
+                # Find the font having that character
+                if self.char_is_in_font(char, self.ttfonts[index]):
+                    if index > self.unicode_index:
+                        self.unicode_index = index # Keep track of highest section # used
+                    break
+
+                index += 1
+
+            if index >= len(self.ttfonts):
+                # We didn't found that character => use font 0 by default
+                if ord(char) != 0xFFFD:
+                    sys.stderr.write(f"WARNING: The character '{char}' (0x{ord(char):X})"
+                                     " was not found in any font!\n")
+                index = 0
+
+        # Update font information with index of the font to use
+        self.update_font_info(index)
 
     # -------------------------------------------------------------------------
-    def find_string_dimension(self, string):
+    def compute_check_bits(self):
         """
-        Find the real dimension needed by all the characters in string.
-        Update the unicode_needed flag and build filenames.
+        Most offsets are stored on bitfields => compute values used to check they are big enough
         """
-        for char in string:
-
-            # Update Unicode flag
-            self.check_unicode(char)
-
-            # Get dimension using font.getbbox
-            left, top, right, bottom = self.font.getbbox(char)
-
-            # Some characters (ie 'j' & '_') may need to be displayed at x < 0
-            # As we display char by char, we can't modify previous one...
-            # (there is no real transparency support on current devices)
-            if left < 0:
-                left_offset = left
-                left = 0
-            else:
-                left_offset = 0
-
-            # To be able to check if some y are < 0
-            if top < self.char_topmost_y:
-                self.char_topmost_y = top
-
-            # Store relevant information
-            self.char_info[char] = {
-                "left_offset": left_offset,
-                "left": left,
-                "top": top,
-                "right": right,
-                "bottom": bottom
-            }
-            if self.args.verbose:
-                sys.stderr.write(f"char (font): {char} ({ord(char):06X}) "
-                                 f"left_offset={left_offset:2}, left={left:2}"
-                                 f",right={right:2} "
-                                 f"top= {top:2}, bottom={bottom}\n")
+        # Compute value of max_x_min_offset, depending of allowed bits
+        max_bits = 4
+        self.max_x_min_offset = pow(2, max_bits) - 1
 
         # Compute value of max_x_max_offset, depending of allowed bits
         if self.nbgl:
@@ -330,37 +401,98 @@ class TTF2INC:
                 max_bits = 5
             self.max_y_min_offset = 4 * pow(2, max_bits) - 1
 
-        # Some fonts display some characters at y < 0
-        # => Be sure we are aware of that and already compensated it
-        if (self.baseline_offset + self.char_topmost_y) < 0:
-            sys.stderr.write(f"WARNING: Font {self.font_name} ({self.bpp} BPP)"
-                             f" display characters at y={self.char_topmost_y} "
-                             f"=> 'baseline_offset' value should be set "
-                             f"at least to {-(self.char_topmost_y)} !\n")
-            # Increase font height accordingly
-            self.font_height -= self.baseline_offset + self.char_topmost_y
-        else:
-            self.font_height += self.baseline_offset
+    # -------------------------------------------------------------------------
+    def find_string_dimension(self, string):
+        """
+        Find the real dimension needed by all the characters in string.
+        Update the unicode_needed flag and build filenames.
+        """
+        for char in string:
 
-        # char_topmost_y will use the real information (from bitmap data)
+            # Update font info
+            self.find_char(char)
+
+            # Get dimension using font.getbbox
+            left, top, right, bottom = self.font.getbbox(char)
+            # Here, bottom is just ymax => make it be equal to ymax + 1
+            bottom += 1
+
+            # Some characters (ie 'j' & '_') may need to be displayed at x < 0
+            # For Thai, Korean or Arabic, some chars may be displayed over previous one.
+            # Thai characters that are displayed completely over previous one:
+            # (left is << 0 and right is ~0)
+            # 000E31, 000E34, 000E35, 000E36, 000E37, 000E38, 000E39
+            # 000E3A, 000E47, 000E48, 000E49, 000E4A, 000E4C, 000E4D, 000E4E
+            # Thai characters that are displayed left, overlapping a bit:
+            # (left is < 0 and right is >> 0)
+            # 000E07(-1,19), 000E42(-1, 12), 000E43(-1, 11), 000E44(-1, 11)
+            # Between the two: 000E33 (-9, 16)
+            over_previous = 0
+            if left < 0:
+                left_offset = left
+                left = 0
+                if left_offset < -2:
+                    over_previous = 1
+            else:
+                left_offset = 0
+
+            # Keep track of the top most Y for that font
+            if top < self.char_topmost_y:
+                self.char_topmost_y = top
+
+            if top < 0 and self.baseline_offset < (-self.char_topmost_y):
+                sys.stderr.write(f"WARNING: Font {self.font_id_name} "
+                                 f"display character '{char}' ({ord(char):06X}) at y={top} "
+                                 f"=> 'baseline_offset' value should be set "
+                                 f"at least to {-(top)} !\n")
+
+            # Some characters may be displayed over self.font_height
+            if bottom > self.font_height:
+                self.font_height = bottom
+                self.font_heights[self.font_index] = self.font_height
+
+            # Store relevant information
+            self.char_info[char] = {
+                "index": self.font_index,
+                "over_previous": over_previous,
+                "left_offset": left_offset,
+                "left": left,
+                "top": top,
+                "right": right,
+                "bottom": bottom
+            }
+            if self.args.verbose:
+                sys.stderr.write(f"char (font): {char} ({ord(char):06X}) "
+                                 f"left_offset={left_offset:3} (OP={over_previous}), left={left:2}"
+                                 f",right={right:2} "
+                                 f"top= {top:2}, bottom={bottom}, font_height={self.font_height}\n")
+
+        # Make font_height be modulo 4, when crop is False
+        if not self.crop:
+            for index, font_height in enumerate(self.font_heights):
+                font_height = (font_height + 3) & 0xFC
+                self.font_heights[index] = font_height
+
+        self.compute_check_bits()
+
+        # char_topmost_y will be updated with the real information (from bitmap data)
         self.char_topmost_y = self.font_height
-
-        # We now know everything on this font & used chars => build filenames
-        self.build_names()
 
     # -------------------------------------------------------------------------
     def create_empty_image(self, width, height):
         """
         Create an image using font characteristics and provided dimensions.
         """
-        background_color = 'black'
-        text_color = 'white'
-        mode = "1"
-        if self.bpp != 1:
+        if self.bpp == 1:
+            background_color = 'black'
+            text_color = 'white'
+            # Use 'L' mode, because the conversion to 1 bpp is terrific!
             mode = "L"
-            if self.nbgl:
-                background_color = 'white'
-                text_color = 'black'
+        else:
+            background_color = 'white'
+            text_color = 'black'
+            mode = "L"
+
         img = Image.new(mode, (width, height), color=background_color)
 
         return img, text_color
@@ -393,6 +525,9 @@ class TTF2INC:
         info = self.char_info[char]
         # STEP 1: Generate the image if it doesn't exist
         if not os.path.exists(image_name) or self.args.overwrite:
+            if self.args.verbose:
+                sys.stdout.write(f"Generating {image_name}\n")
+
             # To keep compatibility with 'genuine' generated images, picture
             # will have the height of the font and use font.getbbox sizes
             # Build an image with font height & taking in account left_offset
@@ -401,9 +536,10 @@ class TTF2INC:
                 # Increase width by the number of negative pixels
                 width -= info['left_offset']
                 # Update right coordinate
-                info['right'] = width
+                # info['right'] = width
+                # No need to update 'right', as we can now display at x < 0
 
-            height = self.align_bottom(self.font_height)
+            height = self.font_height
 
             # Generate and save the picture
             # Create a B&W (or grey levels) image with that size
@@ -413,36 +549,45 @@ class TTF2INC:
             # (no pixel should be displayed outside of [width, height])
             offset_x = 0 - info['left_offset']
             offset_y = self.baseline_offset
-            offset_y += self.font_height - self.font.font.height - self.bottom_offset
+            offset_y += self.baselines[0] - self.baseline
 
             # Draw the character
             draw.text((offset_x, offset_y), char, font=self.font,
                       fill=text_color)
+
+            # We used 'L' mode for a better quality => convert image to 1 bpp
+            if self.bpp == 1:
+                # Convert the picture (ImageMagick may obtain a better quality)
+                img = img.convert('1', dither=Image.Dither.NONE)
+
             # Save the picture if we asked to
             if self.args.save:
                 image_name = change_ext(image_name, ".png")
-                #sys.stdout.write(f"Saving {image_name} ({width}x{height})\n")
+                if self.args.verbose:
+                    sys.stdout.write(f"Saving {image_name} ({width}x{height})"
+                                     " (offset_x={offset_x}, offset_y={offset_y})\n")
                 img.save(image_name)
         else:
             # We will load the existing picture
-            #if self.args.verbose:
-            #    sys.stdout.write(f"Loading {image_name}\n")
+            if self.args.verbose:
+                sys.stdout.write(f"Loading {image_name}\n")
             img = Image.open(image_name)
             # Be sure it is a B&W or grey levels picture:
-            mode = "1"
-            if self.bpp != 1:
+            if self.bpp == 1:
+                mode = "1"
+            else:
                 mode = "L"
             if img.mode != mode:
                 # Convert the picture (ImageMagick may obtain a better quality)
-                img = img.convert(mode)
+                img = img.convert(mode, dither=Image.Dither.NONE)
 
             # Make sure the loaded picture have same characteristics than
             # the ones already used for the font (height, baseline etc)
             # => char bitmap should be displayed at the correct coordinates.
             width, height = img.size
-            if height < self.align_bottom(self.font_height) or \
+            if height < self.font_height or \
                self.loaded_baseline != 0 or self.baseline_offset != 0:
-                height = self.align_bottom(self.font_height)
+                height = self.font_height
                 # Create a new picture with expanded height
                 new_img, _ = self.create_empty_image(width, height)
                 # Integrate baseline (take in account baseline differences)
@@ -451,13 +596,15 @@ class TTF2INC:
                 else:
                     offset_y = 0
                 offset_y += self.baseline_offset
+                offset_y += self.baselines[0] - self.baseline
                 new_img.paste(img, (0, offset_y))
                 img = new_img
 
             # Save the picture if we asked to
             if self.args.save:
                 image_name = change_ext(image_name, ".png")
-                #sys.stdout.write(f"Saving {image_name} ({width}x{height})\n")
+                if self.args.verbose:
+                    sys.stdout.write(f"Saving {image_name} ({width}x{height})\n")
                 img.save(image_name)
 
             # Let suppose picture correctly takes in account left_offset
@@ -539,9 +686,13 @@ class TTF2INC:
         if current_bit > 0:
             image_data.append(current_byte & 0xFF)
 
+        # Remove final transparent pixels, if any
         background_color = 0
         if self.nbgl and self.bpp != 1:
             background_color = 0xFF
+
+        while self.rle and len(image_data) != 0 and image_data[-1] == background_color:
+            image_data = image_data[:-1]
 
         # When crop is False, we can crop at bytes level
         skipped_bytes = 0
@@ -567,8 +718,9 @@ class TTF2INC:
         right = 0
         bottom = 0
         # Find transparent color (not 0 on Stax with 4BPP)
-        background_color = 0
-        if self.nbgl and self.bpp != 1:
+        if self.bpp == 1:
+            background_color = 0
+        else:
             background_color = 0xFF
 
         # Find left, top, right and bottom values for existing pixels
@@ -581,20 +733,22 @@ class TTF2INC:
                 if x_coord < left:
                     left = x_coord
                 if x_coord >= right:
-                    right = x_coord+1 # Right is X2+1 (right - left = width)
+                    right = x_coord+1   # Right is X2+1 (right - left = width)
 
                 if y_coord < top:
                     top = y_coord
                 if y_coord >= bottom:
-                    bottom = y_coord+1 # Bottom is X2+1 (bottom - top = height)
+                    bottom = y_coord+1  # Bottom is Y2+1 (bottom - top = height)
 
         # Is it an empty box?
         if right <= left or bottom <= top:
             return None
 
-        # Handle Stax/Flex constraint on Y (should be modulo 4)
-        top = self.align_top(top)
-        bottom = self.align_bottom(bottom)
+        # Don't make bottom be modulo 4 on LNX, LNS+ & Apex
+        if not self.apex and not self.nanos:
+            bottom = (bottom+3) & 0xFC
+            if bottom > height:
+                bottom = height
 
         # Return the box coordinates in a 4-tuple
         return (left, top, right, bottom)
@@ -628,8 +782,9 @@ class TTF2INC:
                 left = 0
                 top = 0
                 right = info['right']
-                bottom = self.align_bottom(self.font_height)
+                bottom = self.font_height
 
+            # bottom is actually ymax + 1
             height = bottom - top
 
             # Are some values too big to fit in a small bitfield?
@@ -637,17 +792,28 @@ class TTF2INC:
             if self.crop:
                 # Be sure y_min_offset value is not too big
                 if top > self.max_y_min_offset:
-                    #sys.stderr.write(f"Adjusting top from {top} to "
-                    #                 f"{self.max_y_min_offset}"
-                    #                 f" for char {char} ({ord(char):06X})\n")
+                    if self.args.verbose:
+                        sys.stderr.write(f"Adjusting top from {top} to "
+                                         f"{self.max_y_min_offset}"
+                                         f" for char {char} ({ord(char):06X})\n")
                     # Compression will compensate those added transparent lines
                     top = self.max_y_min_offset
 
+                # Be sure x_min_offset value is not too big
+                if left > self.max_x_min_offset:
+                    if self.args.verbose:
+                        sys.stderr.write(f"Adjusting left from {left} to "
+                                         f"{self.max_x_min_offset}"
+                                         f" for char {char} ({ord(char):06X})\n")
+                    # Compression will compensate those added transparent pixels
+                    left = self.max_x_min_offset
+
                 # Be sure difference between right & width is not too big
                 if (info['width'] - right) > self.max_x_max_offset:
-                    #sys.stderr.write(f"Adjusting right from {right} to "
-                    #                 f"{info['width'] - self.max_x_max_offset}"
-                    #                 f" for char {char} ({ord(char):06X})\n")
+                    if self.args.verbose:
+                        sys.stderr.write(f"Adjusting right from {right} to "
+                                         f"{info['width'] - self.max_x_max_offset}"
+                                         f" for char {char} ({ord(char):06X})\n")
                     # Compression will compensate those added 'empty' pixels
                     right = info['width'] - self.max_x_max_offset
 
@@ -655,8 +821,13 @@ class TTF2INC:
             if left < self.char_leftmost_x:
                 self.char_leftmost_x = left
 
-            if bottom > self.height:
-                self.height = bottom
+            # bottom is actually ymax + 1
+            if bottom > self.real_height:
+                self.real_height = bottom
+
+            if bottom > self.line_size:
+                sys.stderr.write(f"WARNING: char '{char}' ({ord(char):06X}) is bigger "
+                                 f"({bottom}) than line_size ({self.line_size})!\n")
 
             if top < self.char_topmost_y:
                 self.char_topmost_y = top
@@ -665,7 +836,7 @@ class TTF2INC:
         info['left'] = left
         info['top'] = top
         info['right'] = right
-        info['bottom'] = bottom
+        info['bottom'] = bottom # bottom is actually ymax + 1
         info['height'] = height
 
         # Get the packed bitmap corresponding to this box
@@ -700,24 +871,25 @@ class TTF2INC:
         self.char_info[char] = info
 
         if self.args.verbose:
-            sys.stderr.write(f"char (img): {char} ({ord(char):06X}) "\
-                             f"width:{info['width']:2}, height:{height:2} "\
-                             f"left={left:2}, right={right:2} "\
-                             f"top={top:2}, bottom={bottom:2} "\
-                             f"datasize={size}\n")
+            sys.stderr.write(f"char (img): {char} ({ord(char):06X}) "
+                             f"width:{info['width']:2}, height:{height:2} "
+                             f"left_offset={info['left_offset']:3}, left={left:2}, right={right:2} "
+                             f"top={top:2}, bottom={bottom:2} "
+                             f"datasize={size}, encoding={encoding}\n")
 
     # -------------------------------------------------------------------------
     def check_max_bits(self, value, max_bits, char, name):
         """
         Check if a provided value exceeds the number of bits allowed.
         """
-        if value >= pow(2, max_bits):
-            sys.stderr.write(f"Field '{name}' for char 0x{ord(char):X}({char})"
-                             f" needs too much bits: value is 0x{value:X} and"
+        if value < 0 or value >= pow(2, max_bits):
+            sys.stderr.write(f"Field '{name}' for char 0x{ord(char):X}({char}) in {self.basename}"
+                             f" needs too much bits: value is {value} and"
                              f" {max_bits} bits are allowed!\n")
-            sys.stderr.write(f"Font ID: {self.font_id_name}")
+            info = self.char_info[char]
+            sys.stderr.write(f"self.char_topmost_y={self.char_topmost_y}, info={info}\n")
+            sys.stderr.write(f"Font ID: {self.font_id_name} ({self.font_name[info['index']]})")
             sys.exit(3)
-
 
     # -------------------------------------------------------------------------
     def save_nbgl_font(self, inc, crop, suffix, first_char, last_char):
@@ -735,7 +907,7 @@ class TTF2INC:
           uint8_t y_min;            ///< Most top Y coordinate of any char in the font
           uint8_t first_char;       ///< ASCII code of the first character
           uint8_t last_char;        ///< ASCII code of the last character
-          const nbgl_font_character_t *const characters; ///< array containing definitions of all characters
+          const nbgl_font_character_t *const characters; ///< array with definitions of all chars
           uint8_t const *bitmap;    ///< array containing bitmaps of all characters
         } nbgl_font_t;
         """
@@ -746,7 +918,7 @@ class TTF2INC:
             f"  {self.bitmap_len}, // bitmap len\n"
             f"  {self.font_id_name}, // font id\n"
             f"  (uint8_t) NBGL_BPP_{self.bpp}, // bpp\n"
-            f"  {self.height}, // height of all characters in pixels\n"
+            f"  {self.real_height}, // height of all characters in pixels\n"
             f"  {self.line_size}, // line height in pixels\n"
             f"  {self.kerning}, // kerning\n"
             f"  {crop}, // crop enabled (1) or not (0)\n"
@@ -787,13 +959,10 @@ class TTF2INC:
         else:
             x_min_offset = info["left"]
             y_min_offset = info["top"] - self.char_topmost_y
-            if self.bpp > 1:
-                y_min_offset = (y_min_offset // 4) * 4
 
             x_max_offset = width - info["right"]
-            y_max_offset = self.height - info["bottom"]
-            if self.bpp > 1:
-                y_max_offset = (y_max_offset // 4) * 4
+            # bottom is actually ymax + 1
+            y_max_offset = self.real_height - info["bottom"]
 
         # When crop is False, we may have some bytes to skip at beginning
         if not self.crop:
@@ -854,7 +1023,7 @@ class TTF2INC:
             f"= {{\n"
             f"  {self.font_id_name}, // font id\n"
             f"  (uint8_t) NBGL_BPP_{self.bpp}, // bpp\n"
-            f"  {self.height}, // height of all characters in pixels\n"
+            f"  {self.real_height}, // height of all characters in pixels\n"
             f"  {self.line_size}, // line height in pixels\n"
             f"  {self.kerning}, // kerning in pixels\n"
             f"  {crop}, // crop enabled (1) or not (0)\n"
@@ -879,7 +1048,8 @@ class TTF2INC:
             uint32_t y_min_offset : 6;    ///< y_min = (y_min + y_min_offset)
             uint32_t x_max_offset : 4;    ///< x_max = width - x_max_offset
             uint32_t y_max_offset : 6;    ///< y_max = (height - y_max_offset)
-            uint32_t bitmap_offset : 16;  ///< offset of this character in chars buffer
+            uint32_t bitmap_offset : 15;  ///< offset of this character in chars buffer
+            uint32_t over_previous : 1;   ///< flag set to 1 when displayed over previous char
         } nbgl_font_unicode_character_t;
         """
         char_unicode = ord(char)
@@ -887,6 +1057,7 @@ class TTF2INC:
         encoding = info["encoding"]
         bitmap_offset = info["offset"]
         width = info["width"]
+        over_previous = info["over_previous"]
 
         # If it's an empty box, just put everything at 0
         if info["bitmap"] is None or len(info["bitmap"]) == 0:
@@ -898,13 +1069,10 @@ class TTF2INC:
         else:
             x_min_offset = info["left"]
             y_min_offset = info["top"] - self.char_topmost_y
-            if self.bpp > 1 or self.rle:
-                y_min_offset = (y_min_offset // 4) * 4
 
             x_max_offset = width - info["right"]
-            y_max_offset = self.height - info["bottom"]
-            if self.bpp > 1 or self.rle:
-                y_max_offset = (y_max_offset // 4) * 4
+            # bottom is actually ymax + 1
+            y_max_offset = self.real_height - info["bottom"]
 
         # When crop is False, we may have some bytes to skip at beginning
         if not self.crop:
@@ -914,9 +1082,19 @@ class TTF2INC:
             x_min_offset = (skipped_bytes >> 3) & 7
             y_min_offset = skipped_bytes & 7
 
+        # If this character is displayed over previous one, adapt X coordinates
+        if over_previous:
+            # left_offset is < 0, which can't be stored here => use width to store left_offset
+            width = 0 - (info["left_offset"] + info["left"])
+            # Combine x_min + x_max to store the real width of displayed data
+            real_width = info["right"] - info["left"]
+            x_min_offset = real_width // 16
+            x_max_offset = real_width % 16
+
         # Check maximum values
         self.check_max_bits(char_unicode, 21, char, "char_unicode")
-        self.check_max_bits(bitmap_byte_count, 16, char, "bitmap_byte_count")
+        self.check_max_bits(bitmap_byte_count, 15, char, "bitmap_byte_count")
+        self.check_max_bits(over_previous, 1, char, "over_previous")
         self.check_max_bits(bitmap_offset, 16, char, "bitmap_offset")
         self.check_max_bits(width, 8, char, "width")
         self.check_max_bits(x_min_offset, 4, char, "x_min_offset")
@@ -937,11 +1115,12 @@ class TTF2INC:
             "x_max_offset": x_max_offset,
             "y_max_offset": y_max_offset,
             "encoding": encoding,
+            "over_previous": over_previous,
             # Additional field used for speculos OCR
             "char": ord(char),
         })
         inc.write(f"  {{ 0x{ord(char):06X}, {bitmap_byte_count:3},"
-                  f" {bitmap_offset:5}, {encoding}, {width:2},"
+                  f" {bitmap_offset:5}, {encoding:1}, {over_previous:1}, {width:2},"
                   f" {x_min_offset:2}, {y_min_offset:2},"
                   f" {x_max_offset:2}, {y_max_offset:2}}}, "
                   f"//unicode {unicode}\n")
@@ -963,7 +1142,7 @@ class TTF2INC:
           unsigned char const * bitmap; // single bitmap for all chars of a font
         } bagl_font_t;
         """
-        height = self.height - self.char_topmost_y
+        height = self.real_height - self.char_topmost_y
         baseline = self.baseline - self.char_topmost_y
         inc.write(
             f"\nconst bagl_font_t font{self.basename.upper()}{suffix}"
@@ -1008,7 +1187,8 @@ class TTF2INC:
             x_min_offset = info["left"]
             x_max_offset = width - info["right"]
             y_min_offset = info["top"] - self.char_topmost_y
-            y_max_offset = self.height - info["bottom"]
+            # bottom is actually ymax + 1
+            y_max_offset = self.real_height - info["bottom"]
 
         offset = info["offset"]
         encoding = info["encoding"]
@@ -1121,9 +1301,9 @@ class TTF2INC:
             "bitmap_byte_count": info["size"]
         })
 
-        inc.write(f"  {{ 0x{ord(char):06X}, {width:3}, "\
-                  f"{x_min_offset:2}, {y_min_offset:2},"\
-                  f"{x_max_offset:2}, {encoding:1}, "\
+        inc.write(f"  {{ 0x{ord(char):06X}, {width:3}, "
+                  f"{x_min_offset:2}, {y_min_offset:2},"
+                  f"{x_max_offset:2}, {encoding:1}, "
                   f"{offset:5} }}, //unicode {unicode}\n")
 
     # -------------------------------------------------------------------------
@@ -1147,7 +1327,7 @@ class TTF2INC:
         Return the font id.
         """
         # Those ids are defined in bagl.h file, in bagl_font_id_e enums.
-        bagl_font_ids={
+        bagl_font_ids = {
             "BAGL_FONT_LUCIDA_CONSOLE_8PX": 0,
             "BAGL_FONT_OPEN_SANS_LIGHT_16_22PX": 1,
             "BAGL_FONT_OPEN_SANS_REGULAR_8_11PX": 2,
@@ -1166,7 +1346,7 @@ class TTF2INC:
             "BAGL_FONT_SYMBOLS_1": 15
         }
         # Those ids are defined in nbgl_fonts.h file, in nbgl_font_id_e enums.
-        nbgl_font_ids={
+        nbgl_font_ids = {
             "BAGL_FONT_INTER_REGULAR_24px": 0,
             "BAGL_FONT_INTER_SEMIBOLD_24px": 1,
             "BAGL_FONT_INTER_MEDIUM_32px": 2,
@@ -1196,6 +1376,14 @@ class TTF2INC:
         if self.font_id_name in font_ids.keys():
             font_id = font_ids[self.font_id_name]
 
+        # Set the nanos flag if we are using an LNX/LNS+ font
+        if font_id >= 8 and font_id <= 10:
+            self.nanos = True
+
+        # Set the apex flag if we are using an Apex font
+        if font_id >= 17:
+            self.apex = True
+
         return font_id
 
     # -------------------------------------------------------------------------
@@ -1208,7 +1396,7 @@ class TTF2INC:
             sys.exit(-5)
 
         # Read the .h file and store each ID found
-        with open(id_filename, "r") as id_file:
+        with open(id_filename, "r", encoding="utf-8", errors='ignore') as id_file:
             for line in id_file:
                 # Ignore lines that don't start with "
                 if line[0] != '"':
@@ -1246,7 +1434,7 @@ class TTF2INC:
                 sys.exit(-4)
 
             # Read the JSON file into json_data
-            with open(file, "r") as json_file:
+            with open(file, "r", encoding="utf-8", errors='ignore') as json_file:
                 json_data = json.load(json_file, strict=False)
 
             # Parse all strings contained in txt fields of json_data
@@ -1257,13 +1445,14 @@ class TTF2INC:
 
                 # Parse all "text" strings and add the unicode characters
                 for string in json_data[category]:
-                    if not "text" in string.keys() or not "id" in string.keys():
-                        sys.stdout.write(f"Skipping {string} because it does "\
+                    if "text" not in string.keys() or "id" not in string.keys():
+                        sys.stdout.write(f"Skipping {string} because it does "
                                          "not contain \"text\" or \"id\"!\n")
                         continue
                     self.add_unicode_chars(string['text'], string['id'])
 
         return self.unicode_chars
+
 
 # -----------------------------------------------------------------------------
 def change_ext(filename, extension):
@@ -1277,6 +1466,7 @@ def change_ext(filename, extension):
 
     return new_filename
 
+
 # -----------------------------------------------------------------------------
 # Program entry point:
 # -----------------------------------------------------------------------------
@@ -1284,6 +1474,9 @@ if __name__ == "__main__":
 
     # -------------------------------------------------------------------------
     def main(args):
+        """
+        Main entry point
+        """
 
         with TTF2INC(args) as ttf:
 
@@ -1297,15 +1490,27 @@ if __name__ == "__main__":
             # else use the provided string or generate all wanted ASCII characters:
             else:
                 string = args.string
-            if len(string) == 0:
+            if len(string) == 0 or args.ascii:
                 for value in range(ttf.first_character, ttf.last_character+1):
                     string += chr(value)
 
+            # Check if string contains only ASCII characters or have UNICODE ondes
+            for char in string:
+                if ord(char) > 0x7F:
+                    ttf.unicode_needed = True
+                    break
+            # Now, we know if we will generate ASCII or UNICODE data
+
             # Find dimension used by specified characters with that font
+            # (also, find which font is really the one to use here)
             ttf.find_string_dimension(string)
+
+            # We now know everything on this font & used chars => build filenames
+            ttf.build_names()
 
             # Now, handle all characters from the string:
             for char in string:
+                ttf.update_font_info(ttf.char_info[char]['index'])
                 try:
                     # We could have done everything in one step, from .ttf to
                     # .inc, but to allow manual editing of generated images
@@ -1322,20 +1527,37 @@ if __name__ == "__main__":
 
                 except (BaseException, Exception) as error:
                     sys.stderr.write(f"An error occurred while processing char"
-                                     f" '{char}' with font {ttf.font_name}"
-                                     f" size {args.font_size}: {error}\n")
+                                     f" '{char}' with font {ttf.name}"
+                                     f" size {ttf.font_size}: {error}\n")
                     return 1
 
             if args.verbose:
-                sys.stdout.write(f"Font {ttf.basename.upper()}: " \
-                                 f"ascent={ttf.ascent}, descent={ttf.descent}"\
-                                 f", font size={ttf.font.size}, "\
-                                 f"font height={ttf.font_height}\n"\
-                                 f"crop={ttf.crop}, "\
-                                 f"char_leftmost_x={ttf.char_leftmost_x}, "\
-                                 f"char_topmost_y={ttf.char_topmost_y}, "\
-                                 f"real font height={ttf.height}, "\
-                                 f"baseline={ttf.baseline}\n")
+                sys.stdout.write(f"Font {ttf.basename.upper()}: "
+                                 f"ascent={ttf.ascent}, descent={ttf.descent}"
+                                 f", font size={ttf.font.size}, "
+                                 f"font height={ttf.font_heights[0]}\n"
+                                 f"crop={ttf.crops[0]}, "
+                                 f"char_leftmost_x={ttf.char_leftmost_x}, "
+                                 f"char_topmost_y={ttf.char_topmost_y}, "
+                                 f"real font height={ttf.real_height}, "
+                                 f"line_height={ttf.line_sizes[ttf.unicode_index]}, "
+                                 f"baseline={ttf.baselines[ttf.unicode_index]}\n")
+
+            if ttf.real_height > ttf.line_sizes[ttf.unicode_index]:
+                # If baseline_offset is > 0, it means some chars are displayed at Y < 0
+                # => the only solution is to increase line_height value!
+                if ttf.baseline_offset > 0:
+                    sys.stderr.write(f"WARNING: Font {ttf.font_id_name} have "
+                                     f"a real font height value ({ttf.real_height}) > "
+                                     f"to line_height value ({ttf.line_sizes[ttf.unicode_index]}) "
+                                     f"=> as 'baseline_offset' value ({ttf.baseline_offset}) "
+                                     f"is already > 0, you MUST increase line_height value!\n")
+                else:
+                    delta = ttf.real_height - ttf.line_sizes[ttf.unicode_index]
+                    sys.stderr.write(f"WARNING: Font {ttf.font_id_name} have "
+                                     f"a real font height value ({ttf.real_height}) > "
+                                     f"to line_height value ({ttf.line_sizes[ttf.unicode_index]}) "
+                                     f"=> 'baseline_offset' value should be set to {-(delta)} !\n")
 
             # Last step: generate .inc & json files with data for all chars
             # (the .inc file will be stored in src directory)
@@ -1363,7 +1585,7 @@ if __name__ == "__main__":
                 mode = "a"
                 # Read previous entries, if such file exists
                 if inc_json and os.path.exists(inc_json):
-                    with open(inc_json, "r") as json_file:
+                    with open(inc_json, "r", encoding="utf-8", errors='ignore') as json_file:
                         ttf_info_list = json.load(json_file, strict=False)
             else:
                 mode = "w"
@@ -1372,7 +1594,7 @@ if __name__ == "__main__":
             crop = 0
             if ttf.crop:
                 crop = 1
-            with open(inc_filename, mode) as inc:
+            with open(inc_filename, mode, encoding="utf-8") as inc:
                 if not args.output_name:
                     inc.write("/* @BANNER@ */\n\n")
                 # Write the array containing all bitmaps:
@@ -1423,10 +1645,10 @@ if __name__ == "__main__":
                 # Write the array containing information about characters:
                 if ttf.unicode_needed:
                     typedef = f"{ttf.font_prefix}unicode_character_t"
-                    ttf.ttf_info_dictionary[f"{ttf.font_prefix}unicode_character"]= []
+                    ttf.ttf_info_dictionary[f"{ttf.font_prefix}unicode_character"] = []
                 else:
                     typedef = f"{ttf.font_prefix}character_t"
-                    ttf.ttf_info_dictionary[f"{ttf.font_prefix}character"]= []
+                    ttf.ttf_info_dictionary[f"{ttf.font_prefix}character"] = []
 
                 inc.write("\n")
                 if ttf.nbgl:
@@ -1462,7 +1684,7 @@ if __name__ == "__main__":
                         "bitmap_len": ttf.bitmap_len,
                         "font_id": ttf.get_font_id(),
                         "bpp": ttf.bpp,
-                        "height": ttf.height,
+                        "height": ttf.real_height,
                         "baseline": ttf.baseline,
                         "line_height": ttf.line_size,
                         "char_kerning": ttf.kerning,
@@ -1493,7 +1715,7 @@ if __name__ == "__main__":
 
             # Generate a JSON file with all font related info?
             ttf_info_list.append(ttf.ttf_info_dictionary)
-            with open(inc_json, "w") as json_file:
+            with open(inc_json, "w", encoding="utf-8") as json_file:
                 json.dump(ttf_info_list, json_file, indent=2)
                 # Be sure there is a newline at the end of the file
                 json_file.write("\n")
@@ -1503,13 +1725,25 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------------
     # Parse arguments:
     parser = argparse.ArgumentParser(
-        description="Convert a .ttf file into a .inc file (Build #230531.1811)")
+        description="Convert a .ttf file into a .inc file (Build #251030.1451)")
+
+    parser.add_argument(
+        "--ascii",
+        dest="ascii", action='store_true',
+        default=False,
+        help="Add ASCII characters ('%(default)s' by default)")
 
     parser.add_argument(
         "-n", "--name", "--font_name",
         dest="font_name", type=str,
         default=TTF2INC.FONT_NAME,
         help="Font name ('%(default)s' by default)")
+
+    parser.add_argument(
+        "-b", "--bpp",
+        dest="bpp", type=int,
+        default=1,
+        help="Bits Per Point (bpp) to use ('%(default)s' by default)")
 
     parser.add_argument(
         "--font_id_name",
@@ -1534,6 +1768,12 @@ if __name__ == "__main__":
         dest="font_size", type=int,
         default=TTF2INC.FONT_SIZE,
         help="Font size in pixels ('%(default)s' by default)")
+
+    parser.add_argument(
+        "--line_size",
+        dest="line_size", type=int,
+        default=TTF2INC.LINE_SIZE,
+        help="Line size in pixels ('%(default)s' by default)")
 
     parser.add_argument(
         "-f", "--first", "--first_character",
