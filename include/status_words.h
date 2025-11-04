@@ -10,11 +10,19 @@
 #define SWO_RESPONSE_BYTES_AVAILABLE         0x6100
 // 62 -- Warning, the state of persistent memory is unchanged. The command succeeded, possibly with
 // restrictions. Typically used to signal blocked applications
+#define SWO_DATA_MAY_BE_CORRUPTED            0x6281
 #define SWO_EOF_REACHED_BEFORE_LE            0x6282
+#define SWO_SELECTED_FILE_INVALIDATED        0x6283
 #define SWO_SELECTED_FILE_INVALID            0x6284
 #define SWO_NO_INPUT_DATA_AVAILABLE          0x6285
 // 63 -- Warning, the state of persistent memory is changed. Typically used to indicate the number
 // of attempts left on a PIN code after a failure
+#define SWO_CARD_KEY_NOT_SUPPORTED           0x6382
+#define SWO_READER_KEY_NOT_SUPPORTED         0x6383
+#define SWO_PLAINTEXT_TRANS_NOT_SUPPORTED    0x6384
+#define SWO_SECURED_TRANS_NOT_SUPPORTED      0x6385
+#define SWO_VOLATILE_MEM_NOT_AVAILABLE       0x6386
+#define SWO_NON_VOLATILE_MEM_NOT_AVAILABLE   0x6387
 #define SWO_KEY_NUMBER_INVALID               0x6388
 #define SWO_KEY_LENGTH_INCORRECT             0x6389
 #define SWO_VERIFY_FAILED                    0x63c0  // lower 4-bits indicates the number of attempts left
@@ -27,6 +35,9 @@
 #define SWO_MEMORY_FAILURE                   0x6581
 // 66 -- Security-related issues
 #define SWO_SECURITY_ISSUE                   0x6600
+#define SWO_RECEIVE_ERROR_PARITY             0x6601
+#define SWO_WRONG_CHECKSUM                   0x6602
+#define SWO_INCORRECT_PADDING                0x6669
 // 67 -- Transport error. The length is incorrect
 #define SWO_WRONG_LENGTH                     0x6700
 // 68 -- Functions in CLA not supported
@@ -48,6 +59,7 @@
 #define SWO_EXPECTED_SECURE_MSG_OBJ_MISSING  0x6987
 #define SWO_INCORRECT_SECURE_MSG_DATA_OBJ    0x6988
 #define SWO_PERMISSION_DENIED                0x69f0
+#define SWO_MISSING_PRIVILEGES               0x69f1
 // 6A -- Wrong parameters (with details)
 #define SWO_PARAMETER_ERROR_NO_INFO          0x6a00
 #define SWO_INCORRECT_DATA                   0x6a80
@@ -74,10 +86,14 @@
 #define SWO_UNKNOWN                          0x6f00
 // 9- --
 #define SWO_SUCCESS                          0x9000
+#define SWO_BUSY                             0x9001
 #define SWO_PIN_NOT_SUCCESFULLY_VERIFIED     0x9004
 #define SWO_RESULT_OK                        0x9100
 #define SWO_STATES_STATUS_WRONG              0x9101
+#define SWO_TRANSACTION_LIMIT_REACHED        0x9102
+#define SWO_INSUFFICIENT_MEM_FOR_CMD         0x910e
 #define SWO_COMMAND_CODE_NOT_SUPPORTED       0x911c
+#define SWO_INVALID_KEY_NUMBER               0x9140
 #define SWO_WRONG_LENGTH_FOR_INS             0x917e
 #define SWO_NO_EF_SELECTED                   0x9400
 #define SWO_ADDRESS_RANGE_EXCEEDED           0x9402
