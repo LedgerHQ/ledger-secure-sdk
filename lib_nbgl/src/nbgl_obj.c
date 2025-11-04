@@ -11,6 +11,7 @@
 #include "app_config.h"
 #include "nbgl_obj.h"
 #include "nbgl_draw.h"
+#include "nbgl_draw_text.h"
 #include "nbgl_front.h"
 #include "nbgl_debug.h"
 #include "nbgl_screen.h"

@@ -15,7 +15,6 @@ extern "C" {
  *      INCLUDES
  *********************/
 #include "nbgl_types.h"
-#include "nbgl_fonts.h"
 
 /*********************
  *      DEFINES
@@ -42,15 +41,10 @@ void nbgl_drawRoundedBorderedRect(const nbgl_area_t *area,
                                   uint8_t            stroke,
                                   color_t            innerColor,
                                   color_t            borderColor);
-nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
-                             const char        *text,
-                             uint16_t           textLen,
-                             nbgl_font_id_e     fontId,
-                             color_t            fontColor);
-void           nbgl_drawQrCode(const nbgl_area_t    *area,
-                               nbgl_qrcode_version_t version,
-                               const char           *text,
-                               color_t               backgroundColor);
+void nbgl_drawQrCode(const nbgl_area_t    *area,
+                     nbgl_qrcode_version_t version,
+                     const char           *text,
+                     color_t               backgroundColor);
 
 /**********************
  *      MACROS

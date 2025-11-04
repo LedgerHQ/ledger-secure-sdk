@@ -14,6 +14,7 @@
 #include "nbgl_debug.h"
 #include "nbgl_front.h"
 #include "nbgl_draw.h"
+#include "nbgl_draw_text.h"
 #include "nbgl_obj.h"
 #include "nbgl_fonts.h"
 #include "nbgl_touch.h"
