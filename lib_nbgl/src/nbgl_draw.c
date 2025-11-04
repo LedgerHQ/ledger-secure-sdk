@@ -11,12 +11,14 @@
 #include <string.h>
 #include "nbgl_front.h"
 #include "nbgl_draw.h"
-#include "nbgl_fonts.h"
 #include "nbgl_debug.h"
 #include "nbgl_side.h"
 #ifdef NBGL_QRCODE
 #include "qrcodegen.h"
 #endif  // NBGL_QRCODE
+#ifdef BUILD_SCREENSHOTS
+#include <assert.h>
+#endif  // BUILD_SCREENSHOTS
 #include "glyphs.h"
 #include "os_pic.h"
 #include "os_utils.h"
@@ -40,6 +42,14 @@ typedef enum {
 #endif  // SCREEN_SIZE_WALLET
 
 #define QR_PIXEL_WIDTH_HEIGHT 4
+
+#ifdef SCREEN_SIZE_WALLET
+#define MAX_FONT_HEIGHT    54
+#define AVERAGE_CHAR_WIDTH 40
+#else  // SCREEN_SIZE_WALLET
+#define MAX_FONT_HEIGHT    24
+#define AVERAGE_CHAR_WIDTH 24
+#endif  // SCREEN_SIZE_WALLET
 
 /**********************
  *      TYPEDEFS
@@ -70,6 +80,10 @@ typedef struct {
     const uint8_t *bottomLeftCircle;
 } radiusIcons_t;
 #endif  // SCREEN_SIZE_WALLET
+
+/****************
+ *  STRUCTURES
+ ****************/
 
 /**********************
  *  STATIC PROTOTYPES
@@ -543,203 +557,6 @@ void nbgl_drawIcon(nbgl_area_t               *area,
     else {
         nbgl_frontDrawImage(area, icon->bitmap, transformation, color_map);
     }
-}
-
-/**
- * @brief Return the size of the bitmap associated to the input font and character
- *
- * @param font pointer to the font infos
- * @param charId id of the character
- */
-
-static uint16_t get_bitmap_byte_cnt(const nbgl_font_t *font, uint8_t charId)
-{
-    if ((charId < font->first_char) || (charId > font->last_char)) {
-        return 0;
-    }
-
-    uint16_t baseId = charId - font->first_char;
-    if (charId < font->last_char) {
-        const nbgl_font_character_t *character
-            = (const nbgl_font_character_t *) PIC(&font->characters[baseId]);
-        const nbgl_font_character_t *nextCharacter
-            = (const nbgl_font_character_t *) PIC(&font->characters[baseId + 1]);
-        return (nextCharacter->bitmap_offset - character->bitmap_offset);
-    }
-    else if (charId == font->last_char) {
-        return (font->bitmap_len - font->characters[baseId].bitmap_offset);
-    }
-    return 0;
-}
-
-/**
- * @brief This function draws the given single-line text, with the given parameters.
- *
- * @param area position, size and background color to use for text
- * @param text array of characters (UTF-8)
- * @param textLen number of chars to draw
- * @param fontId font to be used
- * @param fontColor color to use for font
- */
-nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
-                             const char        *text,
-                             uint16_t           textLen,
-                             nbgl_font_id_e     fontId,
-                             color_t            fontColor)
-{
-    // text is a series of characters, each character being a bitmap
-    // we need to align bitmaps on width multiple of 4 limitation.
-    int16_t            x = area->x0;
-    nbgl_area_t        rectArea;
-    const nbgl_font_t *font = nbgl_getFont(fontId);
-#ifdef HAVE_UNICODE_SUPPORT
-    nbgl_unicode_ctx_t *unicode_ctx = NULL;
-#endif  // HAVE_UNICODE_SUPPORT
-
-    LOG_DEBUG(DRAW_LOGGER,
-              "nbgl_drawText: x0 = %d, y0 = %d, w = %d, h = %d, fontColor = %d, "
-              "backgroundColor=%d, text = %s\n",
-              area->x0,
-              area->y0,
-              area->width,
-              area->height,
-              fontColor,
-              area->backgroundColor,
-              text);
-
-    rectArea.backgroundColor = area->backgroundColor;
-    rectArea.bpp             = (nbgl_bpp_t) font->bpp;
-
-    while (textLen > 0) {
-        const nbgl_font_character_t *character;
-        uint8_t                      char_width;
-        uint32_t                     unicode;
-        bool                         is_unicode;
-        const uint8_t               *char_buffer;
-        int16_t                      char_x_min;
-        int16_t                      char_y_min;
-        int16_t                      char_x_max;
-        int16_t                      char_y_max;
-        uint16_t                     char_byte_cnt;
-        uint8_t                      encoding;
-        uint8_t                      nb_skipped_bytes;
-
-        unicode = nbgl_popUnicodeChar((const uint8_t **) &text, &textLen, &is_unicode);
-
-        if (is_unicode) {
-#ifdef HAVE_UNICODE_SUPPORT
-            if (unicode_ctx == NULL) {
-                unicode_ctx = nbgl_getUnicodeFont(fontId);
-            }
-            const nbgl_font_unicode_character_t *unicodeCharacter
-                = nbgl_getUnicodeFontCharacter(unicode);
-            // if not supported char, go to next one
-            if (unicodeCharacter == NULL) {
-                continue;
-            }
-            char_width = unicodeCharacter->width;
-#if defined(HAVE_LANGUAGE_PACK)
-            char_buffer = unicode_ctx->bitmap;
-            char_buffer += unicodeCharacter->bitmap_offset;
-
-            char_x_max = char_width;
-            char_y_max = unicode_ctx->font->height;
-
-            if (!unicode_ctx->font->crop) {
-                // Take in account the skipped bytes, if any
-                nb_skipped_bytes = (unicodeCharacter->x_min_offset & 7) << 3;
-                nb_skipped_bytes |= unicodeCharacter->y_min_offset & 7;
-                char_x_min = 0;
-                char_y_min = 0;
-            }
-            else {
-                nb_skipped_bytes = 0;
-                char_x_min       = (uint16_t) unicodeCharacter->x_min_offset;
-                char_y_min       = unicode_ctx->font->y_min;
-                char_y_min += (uint16_t) unicodeCharacter->y_min_offset;
-                char_x_max -= (uint16_t) unicodeCharacter->x_max_offset;
-                char_y_max -= (uint16_t) unicodeCharacter->y_max_offset;
-            }
-
-            char_byte_cnt = nbgl_getUnicodeFontCharacterByteCount();
-            encoding      = unicodeCharacter->encoding;
-#endif  // defined(HAVE_LANGUAGE_PACK)
-#else   // HAVE_UNICODE_SUPPORT
-            continue;
-#endif  // HAVE_UNICODE_SUPPORT
-        }
-        else {
-            if (unicode == '\f') {
-                break;
-            }
-            // if \b, switch fontId
-            else if (unicode == '\b') {
-                if (fontId == BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp) {  // switch to bold
-                    fontId = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
-#ifdef HAVE_UNICODE_SUPPORT
-                    unicode_ctx = NULL;
-#endif  // HAVE_UNICODE_SUPPORT
-                    font = (const nbgl_font_t *) nbgl_getFont(fontId);
-                }
-                else if (fontId == BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp) {  // switch to regular
-                    fontId = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
-#ifdef HAVE_UNICODE_SUPPORT
-                    unicode_ctx = NULL;
-#endif  // HAVE_UNICODE_SUPPORT
-                    font = (const nbgl_font_t *) nbgl_getFont(fontId);
-                }
-                continue;
-            }
-            // if not supported char, go to next one
-            if ((unicode < font->first_char) || (unicode > font->last_char)) {
-                continue;
-            }
-            character = (const nbgl_font_character_t *) PIC(
-                &font->characters[unicode - font->first_char]);
-            char_buffer = (const uint8_t *) PIC(&font->bitmap[character->bitmap_offset]);
-            char_width  = character->width;
-            encoding    = character->encoding;
-
-            char_x_max = char_width;
-            char_y_max = font->height;
-
-            if (!font->crop) {
-                // Take in account the skipped bytes, if any
-                nb_skipped_bytes = (character->x_min_offset & 7) << 3;
-                nb_skipped_bytes |= character->y_min_offset & 7;
-                char_x_min = 0;
-                char_y_min = 0;
-            }
-            else {
-                nb_skipped_bytes = 0;
-                char_x_min       = (uint16_t) character->x_min_offset;
-                char_y_min       = font->y_min;
-                char_y_min += (uint16_t) character->y_min_offset;
-                char_x_max -= (uint16_t) character->x_max_offset;
-                char_y_max -= (uint16_t) character->y_max_offset;
-            }
-
-            char_byte_cnt = get_bitmap_byte_cnt(font, unicode);
-        }
-
-        // Render character
-        rectArea.x0     = x + char_x_min;
-        rectArea.y0     = area->y0 + char_y_min;
-        rectArea.height = (char_y_max - char_y_min);
-        rectArea.width  = (char_x_max - char_x_min);
-
-        // If char_byte_cnt = 0, call nbgl_frontDrawImageRle to let speculos notice
-        // a space character was 'displayed'
-        if (!char_byte_cnt || encoding == 1) {
-            nbgl_frontDrawImageRle(
-                &rectArea, char_buffer, char_byte_cnt, fontColor, nb_skipped_bytes);
-        }
-        else {
-            nbgl_frontDrawImage(&rectArea, char_buffer, NO_TRANSFORMATION, fontColor);
-        }
-        x += char_width - font->char_kerning;
-    }
-    return fontId;
 }
 
 #ifdef NBGL_QRCODE

@@ -144,6 +144,10 @@ const nbgl_font_t *nbgl_getFont(nbgl_font_id_e fontId)
  */
 uint32_t nbgl_popUnicodeChar(const uint8_t **text, uint16_t *textLen, bool *is_unicode)
 {
+    // Be sure there are still some characters to read;
+    if (!*textLen) {
+        return 0;
+    }
     const uint8_t *txt      = *text;
     uint8_t        cur_char = *txt++;
     uint32_t       unicode;
@@ -205,6 +209,12 @@ static uint8_t getCharWidth(const nbgl_font_t *font, uint32_t unicode, bool is_u
         if (!unicodeCharacter) {
             return 0;
         }
+        // Don't take in account width of combined characters displayed over previous ones
+#ifdef SCREEN_SIZE_WALLET
+        if (unicodeCharacter->over_previous) {
+            return 0;
+        }
+#endif  // SCREEN_SIZE_WALLET
         return unicodeCharacter->width - font->char_kerning;
 #else   // HAVE_UNICODE_SUPPORT
         return 0;
@@ -259,6 +269,10 @@ static uint16_t getTextWidth(nbgl_font_id_e fontId,
         bool     is_unicode;
 
         unicode = nbgl_popUnicodeChar((const uint8_t **) &text, &textLen, &is_unicode);
+        // Do we still have some characters to read?
+        if (!unicode) {
+            break;
+        }
 #ifdef HAVE_UNICODE_SUPPORT
         if (is_unicode && !unicode_ctx) {
             unicode_ctx = nbgl_getUnicodeFont(fontId);
@@ -392,8 +406,14 @@ uint8_t nbgl_getCharWidth(nbgl_font_id_e fontId, const char *text)
  */
 uint8_t nbgl_getFontHeight(nbgl_font_id_e fontId)
 {
+#ifdef HAVE_UNICODE_SUPPORT
+    // Unicode combined fonts can be higher than normal ones, due to supperposition of 'accents'
+    nbgl_unicode_ctx_t *unicode_ctx = nbgl_getUnicodeFont(fontId);
+    return unicode_ctx->font->height;
+#else   // HAVE_UNICODE_SUPPORT
     const nbgl_font_t *font = nbgl_getFont(fontId);
     return font->height;
+#endif  // HAVE_UNICODE_SUPPORT
 }
 
 /**
@@ -404,8 +424,14 @@ uint8_t nbgl_getFontHeight(nbgl_font_id_e fontId)
  */
 uint8_t nbgl_getFontLineHeight(nbgl_font_id_e fontId)
 {
+#ifdef HAVE_UNICODE_SUPPORT
+    // Unicode combined fonts can be higher than normal ones, due to supperposition of 'accents'
+    nbgl_unicode_ctx_t *unicode_ctx = nbgl_getUnicodeFont(fontId);
+    return unicode_ctx->font->line_height;
+#else   // HAVE_UNICODE_SUPPORT
     const nbgl_font_t *font = nbgl_getFont(fontId);
     return font->line_height;
+#endif  // HAVE_UNICODE_SUPPORT
 }
 
 /**
@@ -502,8 +528,8 @@ void nbgl_getTextMaxLenAndWidth(nbgl_font_id_e fontId,
             unicode_ctx = nbgl_getUnicodeFont(fontId);
         }
 #endif
-        // if \f or \n, exit loop
-        if ((unicode == '\f') || (unicode == '\n')) {
+        // if EOS or \f or \n, exit loop
+        if (!unicode || (unicode == '\f') || (unicode == '\n')) {
             *len += curTextLen - textLen;
             return;
         }

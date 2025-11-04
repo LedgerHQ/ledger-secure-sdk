@@ -1,22 +1,5 @@
 {
     "app-sdk": {
-        "address_verif": {
-            "Entry.1.png": "",
-            "classic-03.1.png": "004051aac4f9f66fafdb6e5eefff317befa33c0f13dbc41ee3d4d7efdb45a820",
-            "classic-01.1.png": "678bae1f8c9694bae00112824c2ce1f844bd480ad94d22fa2586b13a6b900c95",
-            "classic-02.1.png": "5f84981db7e06fd13d7a83b2bf04077e50ee0f0fd48bb58e998dc872b3cf87ae",
-            "classic-05.1.png": "5395b7928837064f34c244a40f2b250e1e71ae6288685c74e5df14c6d6844f20",
-            "classic-07.1.png": "a15a4b89ffac36f6e5a1e457308c95c0149af5c3df0ec28216903fb8e446d713",
-            "classic-06.1.png": "54c9929aab4313752b025cba45008d47b0eee53e6ecc39849ff53fe1bf918653",
-            "classic-08.1.png": "f3c9b911eea667f3cb06270ce8ad90fb72d4eb3363766597b2080a3bd3c9e0da",
-            "share-addr-01.1.png": "626853aa14ac6518df11edf2a1278ac647681516d988551cf805860aef9f918f",
-            "share-addr-02.1.png": "d99ca751f111d1a38d6672f3fa8bd784c4adf73744561b8289870acdea1898ca",
-            "share-addr-03.1.png": "5a3cc1ae7cedc5ad403bcec4beb90c09b5bf99260e8a8e93c031fc52030bfc37",
-            "share-addr-04.1.png": "21bd38ea8c0b803ea813cd7f8559148ed4ad42860c9988e6f85f0c78a71ef854",
-            "share-addr-05.1.png": "edb739334b2fe9cf8aeee88fff054a6c1572023aed8dc7bfc07586aff4bea51d",
-            "share-addr-06.1.png": "124e27b236df43fca21bbd898bf781c03d1625e3dd8319df9d826716b4411118",
-            "share-addr-07.1.png": "06510557674249216f4c2fca0c9e09038c8f6300ea943db22a07b3e389af5872"
-        },
         "app_home_settings": {
             "Entry.1.png": "",
             "with_settings-01.1.png": "b54b4f3b677cec9d4abbd56ec4a5314b5b12958da98f119a6000b659980476ec",
@@ -87,6 +70,23 @@
             "prelude_sign_2.1.png": "af25c570e927782ab8dd8ec0819db6297dac0334c41c7498a0c5a3758b047c77",
             "prelude_sign_3.1.png": "7bee29ea86629f9e8d61e6c01631eec0c5b73b9e640320d129e108db700f2b20",
             "prelude_sign_4.1.png": "68a8126932c9a8822ee385b1e0aa3d8e948024f8559a526c15ce8e81b79bfbc2"
+        },
+        "address_verif": {
+            "Entry.1.png": "",
+            "classic-03.1.png": "004051aac4f9f66fafdb6e5eefff317befa33c0f13dbc41ee3d4d7efdb45a820",
+            "classic-01.1.png": "678bae1f8c9694bae00112824c2ce1f844bd480ad94d22fa2586b13a6b900c95",
+            "classic-02.1.png": "5f84981db7e06fd13d7a83b2bf04077e50ee0f0fd48bb58e998dc872b3cf87ae",
+            "classic-05.1.png": "5395b7928837064f34c244a40f2b250e1e71ae6288685c74e5df14c6d6844f20",
+            "classic-07.1.png": "a15a4b89ffac36f6e5a1e457308c95c0149af5c3df0ec28216903fb8e446d713",
+            "classic-06.1.png": "54c9929aab4313752b025cba45008d47b0eee53e6ecc39849ff53fe1bf918653",
+            "classic-08.1.png": "f3c9b911eea667f3cb06270ce8ad90fb72d4eb3363766597b2080a3bd3c9e0da",
+            "share-addr-01.1.png": "626853aa14ac6518df11edf2a1278ac647681516d988551cf805860aef9f918f",
+            "share-addr-02.1.png": "d99ca751f111d1a38d6672f3fa8bd784c4adf73744561b8289870acdea1898ca",
+            "share-addr-03.1.png": "5a3cc1ae7cedc5ad403bcec4beb90c09b5bf99260e8a8e93c031fc52030bfc37",
+            "share-addr-04.1.png": "21bd38ea8c0b803ea813cd7f8559148ed4ad42860c9988e6f85f0c78a71ef854",
+            "share-addr-05.1.png": "edb739334b2fe9cf8aeee88fff054a6c1572023aed8dc7bfc07586aff4bea51d",
+            "share-addr-06.1.png": "124e27b236df43fca21bbd898bf781c03d1625e3dd8319df9d826716b4411118",
+            "share-addr-07.1.png": "06510557674249216f4c2fca0c9e09038c8f6300ea943db22a07b3e389af5872"
         }
     }
 }
