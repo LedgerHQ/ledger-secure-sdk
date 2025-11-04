@@ -43,10 +43,7 @@
 #include "swap.h"
 #endif
 
-// TODO: Temporary workaround, at some point all status words should be defined by the SDK and
-// removed from the application
-#define SW_OK                    0x9000
-#define SW_WRONG_RESPONSE_LENGTH 0xB000
+#include "status_words.h"
 
 static uint8_t need_to_start_io;
 
@@ -126,7 +123,7 @@ WEAK int io_send_response_buffers(const buffer_t *rdatalist, size_t count, uint1
             const buffer_t *rdata = &rdatalist[i];
 
             if (!buffer_copy(rdata, G_io_tx_buffer + length, sizeof(G_io_tx_buffer) - length - 2)) {
-                return io_send_sw(SW_WRONG_RESPONSE_LENGTH);
+                return io_send_sw(SWO_INSUFFICIENT_MEMORY);
             }
             length += rdata->size - rdata->offset;
             if (count > 1) {
@@ -148,8 +145,8 @@ WEAK int io_send_response_buffers(const buffer_t *rdatalist, size_t count, uint1
         PRINTF("Swap answer is processed. Send it\n");
 
         if (io_legacy_apdu_tx(G_io_tx_buffer, length) >= 0) {
-            PRINTF("Returning to Exchange with status %d\n", (sw == SW_OK));
-            *G_swap_signing_return_value_address = (sw == SW_OK);
+            PRINTF("Returning to Exchange with status %d\n", (sw == SWO_SUCCESS));
+            *G_swap_signing_return_value_address = (sw == SWO_SUCCESS);
             PRINTF("os_lib_end\n");
             os_lib_end();
         }

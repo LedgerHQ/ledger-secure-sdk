@@ -453,7 +453,7 @@ int os_io_tx_cmd(uint8_t                     type,
 
 unsigned int os_io_handle_ux_event_reject_apdu(void)
 {
-    uint16_t      err = 0x6601;
+    uint16_t      err = SWO_COMMAND_NOT_ACCEPTED;
     unsigned char err_buffer[2];
     int           status = os_io_rx_evt(G_io_tx_buffer, sizeof(G_io_tx_buffer), NULL, true);
 
