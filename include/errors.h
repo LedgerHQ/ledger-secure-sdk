@@ -19,9 +19,10 @@
 #if !defined(ERRORS_H)
 #define ERRORS_H
 
-#if !defined(HAVE_BOLOS)
-
 #include "status_words.h"
+#if defined(HAVE_BOLOS)
+#include "os_errors.h"
+#endif  // HAVE_BOLOS
 
 /**
  * Applications-reserved error codes ranges.
@@ -126,10 +127,6 @@ enum sdk_generic_identifiers {
 #define SWO_IOL_BLE_0B (ERR_IOL_BLE + ERR_GEN_ID_0B)  // 0x150B
 #define SWO_IOL_BLE_0C (ERR_IOL_BLE + ERR_GEN_ID_0C)  // 0x150C
 #endif                                                // HAVE_BLE
-
-#else
-#include "os_errors.h"
-#endif  // HAVE_BOLOS
 
 // Legacy
 #define EXCEPTION             0x1   // keep original value // SWO_MUI_UNK_01

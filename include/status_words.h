@@ -3,8 +3,10 @@
 // Default Status Word (ISO7816)
 // refer to https://www.eftlab.com/knowledge-base/complete-list-of-apdu-responses
 
+#if !defined(HAVE_BOLOS)
 // Proprietary error codes
 #define SWO_SEC_PIN_15 0x5515
+#endif  // !HAVE_BOLOS
 
 // 61 -- Normal processing, lower byte indicates the amount of data to be retrieved
 #define SWO_RESPONSE_BYTES_AVAILABLE         0x6100
