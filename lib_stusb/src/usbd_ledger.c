@@ -48,7 +48,7 @@ typedef enum {
 #define USBD_NANOS_PLUS_PRODUCT_STRING ("Nano S+")
 #define USBD_STAX_PRODUCT_STRING       ("Stax")
 #define USBD_FLEX_PRODUCT_STRING       ("Flex")
-#define USBD_APEX_P_PRODUCT_STRING     ("Apex P")
+#define USBD_APEX_P_PRODUCT_STRING     ("Nano Gen5")
 #define USBD_APEX_M_PRODUCT_STRING     ("Apex M")
 
 /* Private types, structures, unions -----------------------------------------*/
