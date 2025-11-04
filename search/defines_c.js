@@ -8,6 +8,7 @@ var searchData=
   ['max_5fenc_5finput_5fsize_5',['MAX_ENC_INPUT_SIZE',['../base58_8h.html#a4faf3c2883bf7b324fcc03ad2e0dd485',1,'base58.h']]],
   ['max_5fiv_5flength_6',['MAX_IV_LENGTH',['../lcx__cipher_8h.html#a5eb96dec73f3a571607d51730f2a28b0',1,'lcx_cipher.h']]],
   ['max_5fprintable_5famount_5fsize_7',['MAX_PRINTABLE_AMOUNT_SIZE',['../swap__lib__calls_8h.html#a599a91fbe02d6e58b31554ff301427aa',1,'swap_lib_calls.h']]],
-  ['member_5fsize_8',['MEMBER_SIZE',['../macros_8h.html#a4411361b7b39fe77832ce053152480e7',1,'macros.h']]],
-  ['min_9',['MIN',['../nbgl__types_8h.html#a74e75242132eaabbc1c512488a135926',1,'nbgl_types.h']]]
+  ['max_5fticker_5fsize_8',['MAX_TICKER_SIZE',['../tokens_8h.html#a0a6a3902beb0ef7b581e341e8112e9ba',1,'tokens.h']]],
+  ['member_5fsize_9',['MEMBER_SIZE',['../macros_8h.html#a4411361b7b39fe77832ce053152480e7',1,'macros.h']]],
+  ['min_10',['MIN',['../nbgl__types_8h.html#a74e75242132eaabbc1c512488a135926',1,'nbgl_types.h']]]
 ];
