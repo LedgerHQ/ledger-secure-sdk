@@ -29,18 +29,22 @@ typedef enum {
 } ble_ledger_profile_mask_e;
 
 /* Exported defines   --------------------------------------------------------*/
-#define LEDGER_BLE_get_mac_address(address)            \
-    {                                                  \
-        unsigned char se_serial[8] = {0};              \
-        os_serial(se_serial, sizeof(se_serial));       \
-        unsigned int uid = cx_crc16(se_serial, 4);     \
-        address[0]       = uid;                        \
-        address[1]       = uid >> 8;                   \
-        uid              = cx_crc16(se_serial + 4, 4); \
-        address[2]       = uid;                        \
-        address[3]       = uid >> 8;                   \
-        address[4]       = 0xF1;                       \
-        address[5]       = 0xDE;                       \
+#define LEDGER_BLE_get_mac_address(address)                    \
+    {                                                          \
+        unsigned char se_serial[8] = {0};                      \
+        os_serial(se_serial, sizeof(se_serial));               \
+        unsigned int uid = cx_crc16(se_serial, 4);             \
+        address[0]       = uid;                                \
+        address[1]       = uid >> 8;                           \
+        uid              = cx_crc16(se_serial + 4, 4);         \
+        address[2]       = uid;                                \
+        address[3]       = uid >> 8;                           \
+        for (unsigned int i = 0; i < sizeof(se_serial); i++) { \
+            se_serial[i] = ~se_serial[i];                      \
+        }                                                      \
+        uid        = cx_crc16(se_serial, 8);                   \
+        address[4] = uid;                                      \
+        address[5] = uid >> 8;                                 \
     }
 
 #define BLE_SLAVE_CONN_INTERVAL_MIN 12  // 15ms
