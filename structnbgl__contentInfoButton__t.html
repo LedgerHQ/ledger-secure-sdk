@@ -95,11 +95,14 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a37226fa37d6d51cd6b636c1f09cc2f22"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a21be4afd35ef4f2a1063d3758e403e63" id="r_a21be4afd35ef4f2a1063d3758e403e63"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__contentInfoButton__t.html#a21be4afd35ef4f2a1063d3758e403e63">buttonToken</a></td></tr>
 <tr class="separator:a21be4afd35ef4f2a1063d3758e403e63"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af7b2a18b7acc8f4f2f9ff55ec80e66d8" id="r_af7b2a18b7acc8f4f2f9ff55ec80e66d8"><td class="memItemLeft" align="right" valign="top">tune_index_e&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnbgl__contentInfoButton__t.html#af7b2a18b7acc8f4f2f9ff55ec80e66d8">tuneId</a></td></tr>
+<tr class="memdesc:af7b2a18b7acc8f4f2f9ff55ec80e66d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">if not <a class="el" href="nbgl__layout_8h.html#ac3777fecd3d5be8db30507a038e2443e">NBGL_NO_TUNE</a>, a tune will be played when button is touched  <br /></td></tr>
+<tr class="separator:af7b2a18b7acc8f4f2f9ff55ec80e66d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This structure contains data to build a centered info + simple black button content. </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00125">125</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00121">121</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
 </div><h2 class="groupheader">Member Data Documentation</h2>
 <a id="a37226fa37d6d51cd6b636c1f09cc2f22" name="a37226fa37d6d51cd6b636c1f09cc2f22"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a37226fa37d6d51cd6b636c1f09cc2f22">&#9670;&#160;</a></span>buttonText</h2>
@@ -115,7 +118,7 @@ Public Attributes</h2></td></tr>
 
 <p>text of the long press button </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00128">128</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00124">124</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
 
 </div>
 </div>
@@ -132,7 +135,7 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>the token used as argument of the onActionCallback when button is long pressed </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00129">129</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00125">125</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
 
 </div>
 </div>
@@ -150,7 +153,7 @@ Public Attributes</h2></td></tr>
 
 <p>a buffer containing the 1BPP icon </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00127">127</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00123">123</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
 
 </div>
 </div>
@@ -168,7 +171,25 @@ Public Attributes</h2></td></tr>
 
 <p>centered text in large case </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00126">126</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00122">122</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
+
+</div>
+</div>
+<a id="af7b2a18b7acc8f4f2f9ff55ec80e66d8" name="af7b2a18b7acc8f4f2f9ff55ec80e66d8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af7b2a18b7acc8f4f2f9ff55ec80e66d8">&#9670;&#160;</a></span>tuneId</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">tune_index_e nbgl_contentInfoButton_t::tuneId</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>if not <a class="el" href="nbgl__layout_8h.html#ac3777fecd3d5be8db30507a038e2443e">NBGL_NO_TUNE</a>, a tune will be played when button is touched </p>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__content_8h_source.html#l00128">128</a> of file <a class="el" href="nbgl__content_8h_source.html">nbgl_content.h</a>.</p>
 
 </div>
 </div>

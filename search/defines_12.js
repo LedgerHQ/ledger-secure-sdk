@@ -23,8 +23,9 @@ var searchData=
   ['store32be_20',['STORE32BE',['../cx__aes__gcm_8h.html#a8663906e08e818efa91dd6f65a7e636d',1,'cx_aes_gcm.h']]],
   ['store64be_21',['STORE64BE',['../cx__aes__gcm_8h.html#abd64119985555609ad9c94eed4c96e0f',1,'cx_aes_gcm.h']]],
   ['strpic_22',['STRPIC',['../ux__flow__engine_8h.html#ae4d05634a6200974e336656ebe573c28',1,'ux_flow_engine.h']]],
-  ['swipe_5fmask_23',['SWIPE_MASK',['../nbgl__obj_8h.html#a3ad65271458480d6dbc95de47f0067ac',1,'nbgl_obj.h']]],
-  ['swipe_5fthreshold_5fx_24',['SWIPE_THRESHOLD_X',['../nbgl__touch_8c.html#a40bed5e19b2b3a04dbc5ff22ea5da41c',1,'nbgl_touch.c']]],
-  ['swipe_5fthreshold_5fy_25',['SWIPE_THRESHOLD_Y',['../nbgl__touch_8c.html#a353ae823b6050d0410ae3dc28519d47d',1,'nbgl_touch.c']]],
-  ['switch_5fkey_5fwidth_26',['SWITCH_KEY_WIDTH',['../nbgl__obj__keyboard_8c.html#ae1d60b51f534c2a1e1d8540d1cf23bae',1,'nbgl_obj_keyboard.c']]]
+  ['suggestion_5fbuttons_5fside_5fmargin_23',['SUGGESTION_BUTTONS_SIDE_MARGIN',['../nbgl__layout__keyboard_8c.html#a8c12d91cd945e63a3c89874f3a1c98de',1,'nbgl_layout_keyboard.c']]],
+  ['swipe_5fmask_24',['SWIPE_MASK',['../nbgl__obj_8h.html#a3ad65271458480d6dbc95de47f0067ac',1,'nbgl_obj.h']]],
+  ['swipe_5fthreshold_5fx_25',['SWIPE_THRESHOLD_X',['../nbgl__touch_8c.html#a40bed5e19b2b3a04dbc5ff22ea5da41c',1,'nbgl_touch.c']]],
+  ['swipe_5fthreshold_5fy_26',['SWIPE_THRESHOLD_Y',['../nbgl__touch_8c.html#a353ae823b6050d0410ae3dc28519d47d',1,'nbgl_touch.c']]],
+  ['switch_5fkey_5fwidth_27',['SWITCH_KEY_WIDTH',['../nbgl__obj__keyboard_8c.html#ae1d60b51f534c2a1e1d8540d1cf23bae',1,'nbgl_obj_keyboard.c']]]
 ];

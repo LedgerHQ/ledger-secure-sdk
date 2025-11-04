@@ -269,6 +269,10 @@ Macros</h2></td></tr>
 <tr class="separator:abd81efbee134c2be618ad18c3ffac523"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aff0e0f77d2f46756c98039501c7006c2" id="r_aff0e0f77d2f46756c98039501c7006c2"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__types_8h.html#aff0e0f77d2f46756c98039501c7006c2">INVALID_COLOR_MAP</a>&#160;&#160;&#160;0x0</td></tr>
 <tr class="separator:aff0e0f77d2f46756c98039501c7006c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa8d3e7ac3076be961712fdcb8abef2b2" id="r_aa8d3e7ac3076be961712fdcb8abef2b2"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__types_8h.html#aa8d3e7ac3076be961712fdcb8abef2b2">NBGL_LOWER_ALIGN</a>(__y)&#160;&#160;&#160;((__y) &amp; ~(VERTICAL_ALIGNMENT - 1))</td></tr>
+<tr class="separator:aa8d3e7ac3076be961712fdcb8abef2b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab6e23898a4f7cbe07de5a38edf3ccfb3" id="r_ab6e23898a4f7cbe07de5a38edf3ccfb3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__types_8h.html#ab6e23898a4f7cbe07de5a38edf3ccfb3">NBGL_UPPER_ALIGN</a>(__y)&#160;&#160;&#160;(((__y) + VERTICAL_ALIGNMENT - 1) &amp; ~(VERTICAL_ALIGNMENT - 1))</td></tr>
+<tr class="separator:ab6e23898a4f7cbe07de5a38edf3ccfb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a74e75242132eaabbc1c512488a135926" id="r_a74e75242132eaabbc1c512488a135926"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__types_8h.html#a74e75242132eaabbc1c512488a135926">MIN</a>(x,  y)&#160;&#160;&#160;((x) &lt; (y) ? (x) : (y))</td></tr>
 <tr class="separator:a74e75242132eaabbc1c512488a135926"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aacc3ee1a7f283f8ef65cea31f4436a95" id="r_aacc3ee1a7f283f8ef65cea31f4436a95"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__types_8h.html#aacc3ee1a7f283f8ef65cea31f4436a95">MAX</a>(x,  y)&#160;&#160;&#160;((x) &gt; (y) ? (x) : (y))</td></tr>
@@ -451,12 +455,13 @@ Enumerations</h2></td></tr>
 <tr class="memdesc:a15c1c05622abb5421019c246c7baa264"><td class="mdescLeft">&#160;</td><td class="mdescRight">Post refresh modes.  <a href="nbgl__types_8h.html#a15c1c05622abb5421019c246c7baa264">More...</a><br /></td></tr>
 <tr class="separator:a15c1c05622abb5421019c246c7baa264"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2f721ef814c9914e8082f9329aeeda11" id="r_a2f721ef814c9914e8082f9329aeeda11"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__types_8h.html#a2f721ef814c9914e8082f9329aeeda11">nbgl_radius_t</a> { <br />
-&#160;&#160;<a class="el" href="nbgl__types_8h.html#a2f721ef814c9914e8082f9329aeeda11a35848a58c673234244d6376e5e1c921d">RADIUS_8_PIXELS</a> = 0
+&#160;&#160;<a class="el" href="nbgl__types_8h.html#a2f721ef814c9914e8082f9329aeeda11ae019aaf23ff4c04ede5472041f6d3e3b">RADIUS_20_PIXELS</a> = 0
+, <a class="el" href="nbgl__types_8h.html#a2f721ef814c9914e8082f9329aeeda11a2e18675cb028b6396ccc84fb006d5b9a">RADIUS_28_PIXELS</a>
 , <a class="el" href="nbgl__types_8h.html#a2f721ef814c9914e8082f9329aeeda11a4a598c7514a9c34f435c6d23f480e24d">RADIUS_32_PIXELS</a>
 , <a class="el" href="nbgl__types_8h.html#a2f721ef814c9914e8082f9329aeeda11afca18d1e73e02feb9daaa443e2c2142f">RADIUS_40_PIXELS</a>
-, <a class="el" href="nbgl__types_8h.html#a2f721ef814c9914e8082f9329aeeda11a9f0fdc378598cbfb38913e22bce15220">RADIUS_44_PIXELS</a>
 , <br />
-&#160;&#160;<a class="el" href="nbgl__types_8h.html#a2f721ef814c9914e8082f9329aeeda11a140e147c0c0ebdc8d4165005950dd960">RADIUS_MAX</a> = RADIUS_44_PIXELS
+&#160;&#160;<a class="el" href="nbgl__types_8h.html#a2f721ef814c9914e8082f9329aeeda11a9f0fdc378598cbfb38913e22bce15220">RADIUS_44_PIXELS</a>
+, <a class="el" href="nbgl__types_8h.html#a2f721ef814c9914e8082f9329aeeda11a140e147c0c0ebdc8d4165005950dd960">RADIUS_MAX</a> = RADIUS_44_PIXELS
 , <a class="el" href="nbgl__types_8h.html#a2f721ef814c9914e8082f9329aeeda11a27faf3fa105bbe34601f4cc78b221cf3">RADIUS_0_PIXELS</a> = 0xFF
 <br />
  }</td></tr>
@@ -487,7 +492,7 @@ Enumerations</h2></td></tr>
 
 <p>size of gzlib uncompression buffer in bytes </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00287">287</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00305">305</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
@@ -504,7 +509,7 @@ Enumerations</h2></td></tr>
 </div><div class="memdoc">
 <p>Code to be used for color map when not used </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00094">94</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00109">109</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
@@ -534,7 +539,7 @@ Enumerations</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00103">103</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00121">121</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
@@ -564,7 +569,47 @@ Enumerations</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00100">100</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00118">118</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+
+</div>
+</div>
+<a id="aa8d3e7ac3076be961712fdcb8abef2b2" name="aa8d3e7ac3076be961712fdcb8abef2b2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa8d3e7ac3076be961712fdcb8abef2b2">&#9670;&#160;</a></span>NBGL_LOWER_ALIGN</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define NBGL_LOWER_ALIGN</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">__y</td><td>)</td>
+          <td>&#160;&#160;&#160;((__y) &amp; ~(VERTICAL_ALIGNMENT - 1))</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00111">111</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+
+</div>
+</div>
+<a id="ab6e23898a4f7cbe07de5a38edf3ccfb3" name="ab6e23898a4f7cbe07de5a38edf3ccfb3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab6e23898a4f7cbe07de5a38edf3ccfb3">&#9670;&#160;</a></span>NBGL_UPPER_ALIGN</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define NBGL_UPPER_ALIGN</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">__y</td><td>)</td>
+          <td>&#160;&#160;&#160;(((__y) + VERTICAL_ALIGNMENT - 1) &amp; ~(VERTICAL_ALIGNMENT - 1))</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00112">112</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
@@ -581,7 +626,7 @@ Enumerations</h2></td></tr>
 </div><div class="memdoc">
 <p>Width, height of the front screen in pixels and common sizes of icons and fonts No transformation </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00076">76</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00091">91</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
@@ -597,7 +642,7 @@ Enumerations</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00109">109</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00127">127</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
@@ -614,7 +659,7 @@ Enumerations</h2></td></tr>
 </div><div class="memdoc">
 <p>Rotation 90 degrees clockwise when rendering bitmap </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00088">88</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00103">103</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
@@ -631,7 +676,7 @@ Enumerations</h2></td></tr>
 </div><div class="memdoc">
 <p>Vertical mirroring when rendering bitmap </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00082">82</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00097">97</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
@@ -685,7 +730,7 @@ Enumerations</h2></td></tr>
 <dd>
 not used for 4BPP image </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00371">371</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00390">390</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
@@ -740,7 +785,7 @@ not used for 4BPP image </dd></dl>
 
 <p>Represents the transformation to be applied on the bitmap before rendering This is a bitfield using masks as <a class="el" href="nbgl__types_8h.html#a1d95708673f1032bbcc478d9c65667f1">VERTICAL_MIRROR</a>. </p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00364">364</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00383">383</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
@@ -764,7 +809,7 @@ not used for 4BPP image </dd></dl>
 <tr><td class="fieldname"><a id="a0a8ef1b5e1941b7257e545cc33405ff1a066ee96e6503fb285729454bf4263415" name="a0a8ef1b5e1941b7257e545cc33405ff1a066ee96e6503fb285729454bf4263415"></a>NB_NBGL_COLOR&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00122">122</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00140">140</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
@@ -803,7 +848,7 @@ not used for 4BPP image </dd></dl>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00161">161</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00179">179</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
@@ -831,7 +876,7 @@ not used for 4BPP image </dd></dl>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00265">265</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00283">283</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
@@ -859,7 +904,7 @@ not used for 4BPP image </dd></dl>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00276">276</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00294">294</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
@@ -883,7 +928,7 @@ not used for 4BPP image </dd></dl>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00190">190</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00208">208</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
@@ -908,7 +953,7 @@ not used for 4BPP image </dd></dl>
 <tr><td class="fieldname"><a id="aa46b0267d63d4d7ce935d65571fb06f5a958fd0c17270681d0fe0028fa02c42eb" name="aa46b0267d63d4d7ce935d65571fb06f5a958fd0c17270681d0fe0028fa02c42eb"></a>NO_HARDWARE_SWIPE&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00229">229</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00247">247</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
@@ -963,7 +1008,7 @@ not used for 4BPP image </dd></dl>
 <tr><td class="fieldname"><a id="aabda6232106281a9b84f3464fb43f8a7a52186cf0b9d3c8eed25c58268bb59ffa" name="aabda6232106281a9b84f3464fb43f8a7a52186cf0b9d3c8eed25c58268bb59ffa"></a>NB_OBJ_TYPES&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00136">136</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00154">154</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
@@ -987,7 +1032,7 @@ not used for 4BPP image </dd></dl>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00389">389</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00408">408</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
@@ -1020,7 +1065,7 @@ not used for 4BPP image </dd></dl>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00334">334</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00352">352</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
@@ -1047,7 +1092,7 @@ not used for 4BPP image </dd></dl>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00211">211</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00229">229</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
@@ -1065,7 +1110,8 @@ not used for 4BPP image </dd></dl>
 
 <p>possible radius indexes for objects </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a2f721ef814c9914e8082f9329aeeda11a35848a58c673234244d6376e5e1c921d" name="a2f721ef814c9914e8082f9329aeeda11a35848a58c673234244d6376e5e1c921d"></a>RADIUS_8_PIXELS&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a2f721ef814c9914e8082f9329aeeda11ae019aaf23ff4c04ede5472041f6d3e3b" name="a2f721ef814c9914e8082f9329aeeda11ae019aaf23ff4c04ede5472041f6d3e3b"></a>RADIUS_20_PIXELS&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a2f721ef814c9914e8082f9329aeeda11a2e18675cb028b6396ccc84fb006d5b9a" name="a2f721ef814c9914e8082f9329aeeda11a2e18675cb028b6396ccc84fb006d5b9a"></a>RADIUS_28_PIXELS&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="a2f721ef814c9914e8082f9329aeeda11a4a598c7514a9c34f435c6d23f480e24d" name="a2f721ef814c9914e8082f9329aeeda11a4a598c7514a9c34f435c6d23f480e24d"></a>RADIUS_32_PIXELS&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="a2f721ef814c9914e8082f9329aeeda11afca18d1e73e02feb9daaa443e2c2142f" name="a2f721ef814c9914e8082f9329aeeda11afca18d1e73e02feb9daaa443e2c2142f"></a>RADIUS_40_PIXELS&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="a2f721ef814c9914e8082f9329aeeda11a9f0fdc378598cbfb38913e22bce15220" name="a2f721ef814c9914e8082f9329aeeda11a9f0fdc378598cbfb38913e22bce15220"></a>RADIUS_44_PIXELS&#160;</td><td class="fielddoc"></td></tr>
@@ -1074,7 +1120,7 @@ not used for 4BPP image </dd></dl>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00345">345</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00363">363</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
@@ -1107,7 +1153,7 @@ not used for 4BPP image </dd></dl>
 <tr><td class="fieldname"><a id="af1925267fed387ae0d3cb4b13064f449ab85b993d51da979651bfce80bcc8380f" name="af1925267fed387ae0d3cb4b13064f449ab85b993d51da979651bfce80bcc8380f"></a>NB_REFRESH_MODES&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00308">308</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00326">326</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
@@ -1129,7 +1175,7 @@ not used for 4BPP image </dd></dl>
 <tr><td class="fieldname"><a id="a156ae9665622eed3fb8eb12c41731d9da7c39b3957ce96fc29bfb43d004b989aa" name="a156ae9665622eed3fb8eb12c41731d9da7c39b3957ce96fc29bfb43d004b989aa"></a>ON_STATE&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00181">181</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00199">199</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
@@ -1151,7 +1197,7 @@ not used for 4BPP image </dd></dl>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00199">199</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00217">217</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
@@ -1175,7 +1221,7 @@ not used for 4BPP image </dd></dl>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00221">221</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00239">239</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
@@ -1214,7 +1260,7 @@ not used for 4BPP image </dd></dl>
 <tr><td class="fieldname"><a id="a3740adc715354911139e2117a3722ca8a75650d13919be0a0d2e5070c52bdab2b" name="a3740adc715354911139e2117a3722ca8a75650d13919be0a0d2e5070c52bdab2b"></a>NB_TOUCH_TYPES&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00241">241</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__types_8h_source.html#l00259">259</a> of file <a class="el" href="nbgl__types_8h_source.html">nbgl_types.h</a>.</p>
 
 </div>
 </div>
