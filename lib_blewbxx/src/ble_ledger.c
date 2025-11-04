@@ -160,7 +160,7 @@ static os_io_init_ble_t  ble_ledger_init_data;
 static void get_device_name(void)
 {
     memset(ble_ledger_data.device_name, 0, sizeof(ble_ledger_data.device_name));
-    ble_ledger_data.device_name_length = os_setting_get(OS_SETTING_DEVICENAME,
+    ble_ledger_data.device_name_length = os_setting_get(OS_SETTING_BLUETOOTH_NAME,
                                                         (uint8_t *) ble_ledger_data.device_name,
                                                         sizeof(ble_ledger_data.device_name));
 }

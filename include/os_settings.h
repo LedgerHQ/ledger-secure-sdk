@@ -99,7 +99,7 @@ typedef enum os_setting_e {
     // screen saver string to display
     OS_SETTING_SAVER_STRING = OS_SETTING_LAST_INT,
     OS_SETTING_DEVICENAME,
-    OS_SETTING_BLEMACADR,
+    OS_SETTING_BLUETOOTH_NAME,
 
     OS_SETTING_NFC_TAG_CONTENT,
     OS_SETTING_FEATURES,
@@ -164,3 +164,4 @@ void         os_setting_set_language(unsigned int language);
 #endif  // HAVE_LANGUAGE_PACK
 
 unsigned int os_setting_get_default_device_name(unsigned char *buffer, unsigned int maxlength);
+unsigned int os_setting_get_default_bluetooth_name(unsigned char *buffer, unsigned int maxlength);
