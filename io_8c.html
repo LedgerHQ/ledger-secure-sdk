@@ -75,7 +75,6 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#define-members">Macros</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">io.c File Reference</div></div>
@@ -92,34 +91,37 @@ $(function() {
 <code>#include &quot;<a class="el" href="write_8h_source.html">write.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="offsets_8h_source.html">offsets.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="io_8h_source.html">io.h</a>&quot;</code><br />
+<code>#include &quot;status_words.h&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for io.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="io_8c__incl.png" border="0" usemap="#alib__standard__app_2io_8c" alt=""/></div>
 <map name="alib__standard__app_2io_8c" id="alib__standard__app_2io_8c">
-<area shape="rect" title=" " alt="" coords="878,5,1038,31"/>
+<area shape="rect" title=" " alt="" coords="966,5,1126,31"/>
 <area shape="rect" title=" " alt="" coords="529,225,600,251"/>
-<area shape="poly" title=" " alt="" coords="878,23,834,28,786,39,740,56,698,81,679,103,671,126,664,151,648,179,624,202,599,220,596,216,621,198,644,176,659,149,666,125,675,100,695,77,738,51,785,34,833,23,878,18"/>
+<area shape="poly" title=" " alt="" coords="966,27,814,46,744,61,718,70,698,81,679,102,671,126,664,151,648,179,624,202,599,220,596,216,621,198,644,176,659,149,666,124,674,100,695,77,715,65,743,56,813,40,965,22"/>
 <area shape="rect" title=" " alt="" coords="709,79,780,104"/>
-<area shape="poly" title=" " alt="" coords="925,33,793,77,791,72,923,28"/>
+<area shape="poly" title=" " alt="" coords="998,33,794,81,793,76,997,28"/>
 <area shape="rect" title=" " alt="" coords="804,79,853,104"/>
-<area shape="poly" title=" " alt="" coords="938,33,863,74,861,69,936,28"/>
+<area shape="poly" title=" " alt="" coords="1012,33,867,80,865,75,1010,28"/>
 <area shape="rect" title=" " alt="" coords="877,79,1039,104"/>
-<area shape="poly" title=" " alt="" coords="961,31,961,65,955,65,955,31"/>
+<area shape="poly" title=" " alt="" coords="1034,33,985,72,981,68,1030,29"/>
 <area shape="rect" title=" " alt="" coords="1063,79,1205,104"/>
-<area shape="poly" title=" " alt="" coords="987,28,1093,71,1091,76,985,33"/>
+<area shape="poly" title=" " alt="" coords="1062,29,1111,68,1107,72,1058,33"/>
 <area shape="rect" title=" " alt="" coords="1229,79,1359,104"/>
-<area shape="poly" title=" " alt="" coords="1013,28,1227,73,1226,78,1011,33"/>
+<area shape="poly" title=" " alt="" coords="1087,28,1241,72,1240,77,1085,33"/>
 <area shape="rect" title=" " alt="" coords="1383,79,1543,104"/>
-<area shape="poly" title=" " alt="" coords="1038,28,1370,74,1369,80,1038,33"/>
+<area shape="poly" title=" " alt="" coords="1113,28,1383,74,1382,79,1113,33"/>
 <area shape="rect" title=" " alt="" coords="1568,79,1735,104"/>
-<area shape="poly" title=" " alt="" coords="1039,24,1555,76,1554,81,1038,29"/>
+<area shape="poly" title=" " alt="" coords="1127,26,1554,76,1554,81,1126,31"/>
 <area shape="rect" href="write_8h.html" title=" " alt="" coords="567,152,634,177"/>
-<area shape="poly" title=" " alt="" coords="878,30,750,50,693,64,654,81,640,93,628,109,612,140,607,138,624,106,636,90,651,76,691,59,749,45,877,25"/>
+<area shape="poly" title=" " alt="" coords="966,26,882,33,791,44,709,60,677,70,654,81,640,93,628,108,611,140,607,138,624,105,636,90,651,76,675,65,708,54,790,38,882,28,966,21"/>
 <area shape="rect" href="offsets_8h.html" title=" " alt="" coords="1759,79,1837,104"/>
-<area shape="poly" title=" " alt="" coords="1039,19,1345,35,1543,51,1745,76,1745,81,1542,57,1345,40,1038,24"/>
+<area shape="poly" title=" " alt="" coords="1127,20,1397,37,1569,53,1745,76,1745,81,1568,59,1397,42,1126,25"/>
 <area shape="rect" href="io_8h.html" title=" " alt="" coords="351,79,397,104"/>
-<area shape="poly" title=" " alt="" coords="878,32,412,88,411,83,877,26"/>
+<area shape="poly" title=" " alt="" coords="966,30,411,89,411,83,966,25"/>
+<area shape="rect" title=" " alt="" coords="1862,79,1982,104"/>
+<area shape="poly" title=" " alt="" coords="1126,20,1439,39,1641,55,1849,76,1848,81,1640,61,1438,45,1126,26"/>
 <area shape="poly" title=" " alt="" coords="597,179,579,214,574,212,592,176"/>
 <area shape="rect" title=" " alt="" coords="410,225,485,251"/>
 <area shape="poly" title=" " alt="" coords="577,180,486,222,484,217,575,175"/>
@@ -143,13 +145,6 @@ Include dependency graph for io.c:</div>
 </div>
 <p><a href="io_8c_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
-Macros</h2></td></tr>
-<tr class="memitem:a8c7b7be5dd3dcbaa85f9d9536fc93f55" id="r_a8c7b7be5dd3dcbaa85f9d9536fc93f55"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="io_8c.html#a8c7b7be5dd3dcbaa85f9d9536fc93f55">SW_OK</a>&#160;&#160;&#160;0x9000</td></tr>
-<tr class="separator:a8c7b7be5dd3dcbaa85f9d9536fc93f55"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8090991038bd6da6bbcfd2caf8766a82" id="r_a8090991038bd6da6bbcfd2caf8766a82"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="io_8c.html#a8090991038bd6da6bbcfd2caf8766a82">SW_WRONG_RESPONSE_LENGTH</a>&#160;&#160;&#160;0xB000</td></tr>
-<tr class="separator:a8090991038bd6da6bbcfd2caf8766a82"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:aff1fdfdf81efbcf45780e77e16a0a0f4" id="r_aff1fdfdf81efbcf45780e77e16a0a0f4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="macros_8h.html#ad1480e9557edcc543498ca259cee6c7d">WEAK</a> void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="io_8c.html#aff1fdfdf81efbcf45780e77e16a0a0f4">app_ticker_event_callback</a> (void)</td></tr>
@@ -168,39 +163,6 @@ Variables</h2></td></tr>
 <tr class="memitem:a012f5105ea201fef83bb210ef6a9a123" id="r_a012f5105ea201fef83bb210ef6a9a123"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="io_8c.html#a012f5105ea201fef83bb210ef6a9a123">G_io_seproxyhal_spi_buffer</a> [OS_IO_SEPH_BUFFER_SIZE]</td></tr>
 <tr class="separator:a012f5105ea201fef83bb210ef6a9a123"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Macro Definition Documentation</h2>
-<a id="a8c7b7be5dd3dcbaa85f9d9536fc93f55" name="a8c7b7be5dd3dcbaa85f9d9536fc93f55"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8c7b7be5dd3dcbaa85f9d9536fc93f55">&#9670;&#160;</a></span>SW_OK</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define SW_OK&#160;&#160;&#160;0x9000</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="io_8c_source.html#l00048">48</a> of file <a class="el" href="io_8c_source.html">io.c</a>.</p>
-
-</div>
-</div>
-<a id="a8090991038bd6da6bbcfd2caf8766a82" name="a8090991038bd6da6bbcfd2caf8766a82"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8090991038bd6da6bbcfd2caf8766a82">&#9670;&#160;</a></span>SW_WRONG_RESPONSE_LENGTH</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define SW_WRONG_RESPONSE_LENGTH&#160;&#160;&#160;0xB000</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="io_8c_source.html#l00049">49</a> of file <a class="el" href="io_8c_source.html">io.c</a>.</p>
-
-</div>
-</div>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="aff1fdfdf81efbcf45780e77e16a0a0f4" name="aff1fdfdf81efbcf45780e77e16a0a0f4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aff1fdfdf81efbcf45780e77e16a0a0f4">&#9670;&#160;</a></span>app_ticker_event_callback()</h2>
@@ -219,7 +181,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 <p>Function to be declared by the application to trigger execute code upon SEPROXYHAL_TAG_TICKER_EVENT </p>
 
-<p class="definition">Definition at line <a class="el" href="io_8c_source.html#l00063">63</a> of file <a class="el" href="io_8c_source.html">io.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="io_8c_source.html#l00060">60</a> of file <a class="el" href="io_8c_source.html">io.c</a>.</p>
 
 </div>
 </div>
@@ -241,7 +203,7 @@ Variables</h2></td></tr>
 <p>IO callback called when an interrupt based channel has received data to be processed. This function is responsible of forwarding received events to the UX lib.</p>
 <dl class="section return"><dt>Returns</dt><dd>1 if success, 0 otherwise. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="io_8c_source.html#l00065">65</a> of file <a class="el" href="io_8c_source.html">io.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="io_8c_source.html#l00062">62</a> of file <a class="el" href="io_8c_source.html">io.c</a>.</p>
 
 </div>
 </div>
@@ -263,7 +225,7 @@ Variables</h2></td></tr>
 <p>Initialize the APDU I/O state.</p>
 <p>This function must be called before calling any other I/O function. </p>
 
-<p class="definition">Definition at line <a class="el" href="io_8c_source.html#l00089">89</a> of file <a class="el" href="io_8c_source.html">io.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="io_8c_source.html#l00086">86</a> of file <a class="el" href="io_8c_source.html">io.c</a>.</p>
 
 </div>
 </div>
@@ -285,7 +247,7 @@ Variables</h2></td></tr>
 <p>Receive APDU command in G_io_apdu_buffer.</p>
 <dl class="section return"><dt>Returns</dt><dd>zero or positive integer if success, -1 otherwise. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="io_8c_source.html#l00094">94</a> of file <a class="el" href="io_8c_source.html">io.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="io_8c_source.html#l00091">91</a> of file <a class="el" href="io_8c_source.html">io.c</a>.</p>
 
 </div>
 </div>
@@ -331,7 +293,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>zero or positive integer if success, -1 otherwise. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="io_8c_source.html#l00119">119</a> of file <a class="el" href="io_8c_source.html">io.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="io_8c_source.html#l00116">116</a> of file <a class="el" href="io_8c_source.html">io.c</a>.</p>
 
 </div>
 </div>
@@ -348,7 +310,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="io_8c_source.html#l00053">53</a> of file <a class="el" href="io_8c_source.html">io.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="io_8c_source.html#l00050">50</a> of file <a class="el" href="io_8c_source.html">io.c</a>.</p>
 
 </div>
 </div>
