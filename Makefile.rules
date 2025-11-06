@@ -48,7 +48,7 @@ endef
 
 define check_duplicate =
   $(eval LIST := $(sort $(foreach file_h, $(notdir $1), $(notdir $(shell find $2 -name $(file_h))))))
-  $(if $(LIST), $(info [WARNING] Found duplicate files in SDK and APP: ${LIST}))
+  $(if $(LIST), $(error [ERROR] Found duplicate files in SDK and APP: ${LIST}))
 endef
 
 SDK_SOURCE_PATH += io io_legacy protocol lib_u2f_legacy
