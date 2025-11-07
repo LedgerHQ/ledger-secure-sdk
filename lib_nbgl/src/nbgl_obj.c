@@ -482,7 +482,7 @@ static void draw_button(nbgl_button_t *obj, nbgl_obj_t *prevObj, bool computePos
         rectArea.x0 = obj->obj.area.x0;
         rectArea.y0 = obj->obj.area.y0;
         // Only one line of text
-        rectArea.height = nbgl_getFontHeight(obj->fontId);
+        rectArea.height = nbgl_getFontLineHeight(obj->fontId);
         rectArea.y0 += (obj->obj.area.height - rectArea.height) / 2;
         rectArea.width = obj->obj.area.width;
         if (obj->icon != NULL) {
@@ -1131,7 +1131,12 @@ static void draw_textArea(nbgl_text_area_t *obj, nbgl_obj_t *prevObj, bool compu
 
     textHeight = (nbLines - 1) * lineHeight + fontHeight;
 
-    midHeight = (obj->obj.area.height - textHeight) / 2;
+    if (obj->obj.area.height >= textHeight) {
+        midHeight = (obj->obj.area.height - textHeight) / 2;
+    }
+    else {
+        midHeight = 0;
+    }
 #ifdef SCREEN_SIZE_NANO
     if (obj->style == INVERTED_COLORS) {
         midHeight--;
