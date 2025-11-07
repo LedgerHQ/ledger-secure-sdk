@@ -8,5 +8,6 @@ var searchData=
   ['arch_5flittle_5fendian_5',['ARCH_LITTLE_ENDIAN',['../lcx__common_8h.html#a1c8ed4b72dac6929d882e2aeb0261081',1,'lcx_common.h']]],
   ['array_5flength_6',['ARRAY_LENGTH',['../macros_8h.html#a7539f9740177f669ce68a77ae64f38b5',1,'macros.h']]],
   ['assign64_7',['ASSIGN64',['../cx__utils_8h.html#a660b5a3766209ed109e4508c6b6c5521',1,'cx_utils.h']]],
-  ['available_5fwidth_8',['AVAILABLE_WIDTH',['../nbgl__layout_8h.html#a7cbe9f98ad52749210b99e1ed27ac2b9',1,'nbgl_layout.h']]]
+  ['available_5fwidth_8',['AVAILABLE_WIDTH',['../nbgl__layout_8h.html#a7cbe9f98ad52749210b99e1ed27ac2b9',1,'nbgl_layout.h']]],
+  ['average_5fchar_5fwidth_9',['AVERAGE_CHAR_WIDTH',['../nbgl__draw__text_8c.html#a8ebe98fb260719a1cdb510353e567ccb',1,'nbgl_draw_text.c']]]
 ];
