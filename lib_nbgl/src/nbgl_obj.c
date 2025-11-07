@@ -482,7 +482,7 @@ static void draw_button(nbgl_button_t *obj, nbgl_obj_t *prevObj, bool computePos
         rectArea.x0 = obj->obj.area.x0;
         rectArea.y0 = obj->obj.area.y0;
         // Only one line of text
-        rectArea.height = nbgl_getFontHeight(obj->fontId);
+        rectArea.height = nbgl_getFontLineHeight(obj->fontId);
         rectArea.y0 += (obj->obj.area.height - rectArea.height) / 2;
         rectArea.width = obj->obj.area.width;
         if (obj->icon != NULL) {
