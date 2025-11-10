@@ -79,7 +79,7 @@ int nbgl_layoutAddKeypad(nbgl_layout_t     *layout,
     textArea->obj.area.height = 12;
     textArea->wrapping        = false;
     textArea->obj.alignment   = TOP_MIDDLE;
-    textArea->obj.alignmentMarginY = 3;
+    textArea->obj.alignmentMarginY = 2;
     // set this new obj as child of main container
     layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
 
