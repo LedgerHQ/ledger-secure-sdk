@@ -28,7 +28,12 @@ typedef enum {
     BLE_LEDGER_PROFILE_U2F  = 0x0004,
 } ble_ledger_profile_mask_e;
 
+#define BLE_ADDRESS_SET_MSB (0xC0)
+
 /* Exported defines   --------------------------------------------------------*/
+// Random static address is specified at
+// https://wiki.st.com/stm32mcu/wiki/Connectivity:STM32WB-WBA_BLE_Privacy#Random_static_address
+// In particular, the two most significant bits need to be set to 1.
 #define LEDGER_BLE_get_mac_address(address)                    \
     {                                                          \
         unsigned char se_serial[8] = {0};                      \
@@ -44,7 +49,7 @@ typedef enum {
         }                                                      \
         uid        = cx_crc16(se_serial, 8);                   \
         address[4] = uid;                                      \
-        address[5] = uid >> 8;                                 \
+        address[5] = (uid >> 8) | BLE_ADDRESS_SET_MSB;         \
     }
 
 #define BLE_SLAVE_CONN_INTERVAL_MIN 12  // 15ms
