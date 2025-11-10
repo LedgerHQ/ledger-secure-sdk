@@ -404,7 +404,7 @@ int nbgl_layoutAddMenuList(nbgl_layout_t *layout, nbgl_layoutMenuList_t *list)
         textArea->text                 = list->callback(i);
         textArea->textAlignment        = CENTER;
         textArea->obj.area.width       = AVAILABLE_WIDTH;
-        textArea->obj.area.height      = 12;
+        textArea->obj.area.height      = 16;
         textArea->style                = NO_STYLE;
         textArea->obj.alignment        = CENTER;
         textArea->obj.alignmentMarginY = ((i - list->selectedChoice) * 16);
