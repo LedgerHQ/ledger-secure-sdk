@@ -222,6 +222,10 @@
         {
           "object": "TOP_RIGHT_BUTTON",
           "page": "share-addr-02"
+        },
+        {
+          "object": "CHOICE_1",
+          "page": "share-addr-04"
         }
       ]
     },
@@ -232,11 +236,24 @@
           "object": "CONTROLS,0",
           "page": "share-addr-03",
           "comment": "view addr details (alias)"
+        },
+        {
+          "object": "BACK_BUTTON",
+          "page": "share-addr-01"
         }
       ]
     },
     {
       "name": "share-addr-03",
+      "targets": [
+        {
+          "object": "BACK_BUTTON",
+          "page": "share-addr-02"
+        }
+      ]
+    },
+    {
+      "name": "share-addr-04",
       "targets": [
       ]
     }
