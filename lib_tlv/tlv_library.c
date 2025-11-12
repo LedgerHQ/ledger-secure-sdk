@@ -37,7 +37,7 @@
  */
 bool get_uint64_t_from_tlv_data(const tlv_data_t *data, uint64_t *value)
 {
-    if (data == NULL || value == NULL || data->value == NULL) {
+    if (data == NULL || value == NULL) {
         PRINTF("Received NULL parameter\n");
         return false;
     }
@@ -128,7 +128,7 @@ bool get_buffer_from_tlv_data(const tlv_data_t *data,
                               uint16_t          min_size,
                               uint16_t          max_size)
 {
-    if (data == NULL || out == NULL || data->value == NULL) {
+    if (data == NULL || out == NULL) {
         PRINTF("Received NULL parameter\n");
         return false;
     }
@@ -153,7 +153,7 @@ bool get_string_from_tlv_data(const tlv_data_t *data,
                               uint16_t          min_length,
                               uint16_t          out_size)
 {
-    if (data == NULL || out == NULL || data->value == NULL) {
+    if (data == NULL || out == NULL) {
         PRINTF("Received NULL parameter\n");
         return false;
     }
