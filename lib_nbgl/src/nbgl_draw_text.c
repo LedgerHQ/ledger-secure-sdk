@@ -35,7 +35,7 @@
 #define COMBINED_HEIGHT 9
 
 // Maximum number of pixels used for RLE COPY
-#define MAX_RLE_COPY_PIXELS 6
+#define MAX_RLE_COPY_PIXELS 5
 
 /**********************
  *      TYPEDEFS
@@ -44,6 +44,7 @@
 typedef struct {
     uint32_t       unicode;
     const uint8_t *buffer;
+    const uint8_t *patterns;
     uint16_t       byte_cnt;
     int16_t        x_min;
     int16_t        y_min;
@@ -66,11 +67,13 @@ typedef struct {
     uint32_t       read_cnt;
     uint32_t       buffer_len;
     const uint8_t *buffer;
+    const uint8_t *patterns;
     uint8_t        byte;
+    uint8_t        nb_bits;
     // Part containing the decoded pixels
     uint8_t nb_pix;
     uint8_t color;                        // if color <= 15 it is a FILL, else a COPY
-    uint8_t pixels[MAX_RLE_COPY_PIXELS];  // Maximum 6 pixels (COPY)
+    uint8_t pixels[MAX_RLE_COPY_PIXELS];  // Maximum 5 pixels (COPY)
 
 } rle_context_t;
 
@@ -206,58 +209,177 @@ static void nbgl_draw1BPPImageRle(nbgl_area_t   *area,
     }
 }
 
+// Get next quartet and update Rle_context content
+static inline uint8_t get_next_quartet(rle_context_t *context)
+{
+    uint8_t quartet = 0;
+
+    // We have either 8 or 4 bits remaining to read
+    if (context->nb_bits == 8) {
+        quartet          = context->byte >> 4;
+        context->nb_bits = 4;
+    }
+    else if (context->nb_bits == 4) {
+        quartet = context->byte & 0x0F;
+        // Update byte with next 2 quartets
+        if (context->read_cnt < context->buffer_len) {
+            context->byte    = context->buffer[context->read_cnt++];
+            context->nb_bits = 8;
+        }
+        else {
+            context->nb_bits = 0;
+        }
+    }
+
+    // That quartet will contain a command, a value, a repeat count or an index
+    return quartet;
+}
+
 // Get next pixel(s) and update Rle_context content
 static inline void get_next_pixels(rle_context_t *context, size_t remaining_width)
 {
-    // Is there still remaining data to read?
-    if (context->read_cnt >= context->buffer_len) {
+    // Get next command
+    uint8_t cmd = get_next_quartet(context);
+
+    // Was it the last quartet?
+    if (!cmd && context->read_cnt >= context->buffer_len && !context->nb_bits) {
         // Just return the number of pixels to skip
         context->nb_pix = remaining_width;
         context->color  = 0xF;  // Background color, which is considered as transparent
         return;
     }
 
-    // Uncompress next data
-    uint8_t byte = context->buffer[context->read_cnt++];
-
-    if (byte & 0x80) {
-        if (byte & 0x40) {
-            // CMD=11 + RRRRRR => FILL White (max=63+1)
-            context->nb_pix = (byte & 0x3F) + 1;
-            context->color  = 0x0F;
-        }
-        else {
-            // CMD=10 + RR + VVVV + WWWWXXXX + YYYYZZZZ + QQQQ0000 : COPY Quartets x Repeat+1
-            // - RR is repeat count - 3 of quartets (max=3+3 => 6 quartets)
+    // Update nb_pix & color depending on command
+    switch (cmd) {
+        // Is it a COPY command?
+        case 0x00:
+        case 0x01:
+        case 0x02:
+        case 0x03:
+            // CMD=00RR + VVVV + WWWW + XXXX + YYYY + ZZZZ => COPY Quartets
+            // - RR is repeat count - 2 of quartets (max=2+3 => 5 quartets)
             // - VVVV: value of 1st 4BPP pixel
             // - WWWW: value of 2nd 4BPP pixel
             // - XXXX: value of 3rd 4BPP pixel
             // - YYYY: value of 4th 4BPP pixel
             // - ZZZZ: value of 5th 4BPP pixel
-            // - QQQQ: value of 6th 4BPP pixel
-            context->nb_pix = ((byte & 0x30) >> 4);
-            context->nb_pix += 3;
-            context->pixels[0] = byte & 0x0F;  // Store VVVV
-            byte               = context->buffer[context->read_cnt++];
-            context->pixels[1] = byte >> 4;    // Store WWWW
-            context->pixels[2] = byte & 0x0F;  // Store XXXX
-            if (context->nb_pix >= 4) {
-                byte               = context->buffer[context->read_cnt++];
-                context->pixels[3] = byte >> 4;    // Store YYYY
-                context->pixels[4] = byte & 0x0F;  // Store ZZZZ
-                if (context->nb_pix >= 6) {
-                    byte               = context->buffer[context->read_cnt++];
-                    context->pixels[5] = byte >> 4;  // Store QQQQ
-                }
+            cmd += 2;
+            context->nb_pix = cmd;
+            for (uint8_t i = 0; i < cmd; i++) {
+                context->pixels[i] = get_next_quartet(context);
             }
             context->color = 0x10;  // COPY command + pixels offset=0
+            break;
+
+        // Is it a FILL command?
+
+        // CMD=0100 + VVVV + RRRR => FILL Value x Repeat+3 (max=18)
+        case 0x04:
+            context->color  = get_next_quartet(context);
+            context->nb_pix = get_next_quartet(context) + 3;
+            break;
+
+        // CMD=0101 + VVVV => FILL Value x 2
+        case 0x05:
+            context->color  = get_next_quartet(context);
+            context->nb_pix = 2;
+            break;
+
+        // CMD=1100 + RRRR => FILL Black (max=16)
+        case 0x0C:
+            context->color  = 0;
+            context->nb_pix = get_next_quartet(context) + 1;
+            break;
+
+        // CMD=1101 + VVVV => Fill Value x 1
+        case 0x0D:
+            context->color  = get_next_quartet(context);
+            context->nb_pix = 1;
+            break;
+
+        // CMD=111R + RRRR => FILL White (max=32)
+        case 0x0E:
+            context->color  = 0x0F;
+            context->nb_pix = get_next_quartet(context) + 1;
+            break;
+
+        // CMD=111R + RRRR => FILL White (max=32)
+        case 0x0F:
+            context->color  = 0x0F;
+            context->nb_pix = get_next_quartet(context) + 16 + 1;
+            break;
+
+        // Is it a PATTERN related command?
+
+        // CMD=0110 + IIII => Double Pattern Indexed Black to White: 0x00, Val1, val2, 0x0F
+        case 0x06: {
+            uint8_t index   = get_next_quartet(context);
+            uint8_t pattern = context->patterns[index];
+
+            context->pixels[0] = 0x00;
+            context->pixels[1] = pattern >> 4;
+            context->pixels[2] = pattern & 0x0F;
+            context->pixels[3] = 0x0F;
+            context->nb_pix    = 4;
+            context->color     = 0x10;  // COPY command + pixels offset=0
+            break;
         }
-    }
-    else {
-        // CMD=0 + RRR + VVVV : FILL Value x Repeat+1 (max=7+1)
-        context->nb_pix = (byte & 0x70) >> 4;
-        context->nb_pix += 1;
-        context->color = byte & 0x0F;
+
+        // CMD=0111 + IIII => Double Pattern Indexed White to Black: 0x0F, Val2, Val1, 0x00
+        case 0x07: {
+            uint8_t index   = get_next_quartet(context);
+            uint8_t pattern = context->patterns[index];
+
+            context->pixels[0] = 0x0F;
+            context->pixels[1] = pattern & 0x0F;
+            context->pixels[2] = pattern >> 4;
+            context->pixels[3] = 0x00;
+            context->nb_pix    = 4;
+            context->color     = 0x10;  // COPY command + pixels offset=0
+            break;
+        }
+
+        // CMD=1000 + VVVV => Simple Pattern Black to White: 0x00, VVVV, 0x0F
+        case 0x08: {
+            context->pixels[0] = 0x00;
+            context->pixels[1] = get_next_quartet(context);
+            context->pixels[2] = 0x0F;
+            context->nb_pix    = 3;
+            context->color     = 0x10;  // COPY command + pixels offset=0
+            break;
+        }
+
+        // CMD=1001 + VVVV => Simple Pattern White to Black: 0x0F, VVVV, 0x00
+        case 0x09: {
+            context->pixels[0] = 0x0F;
+            context->pixels[1] = get_next_quartet(context);
+            context->pixels[2] = 0x00;
+            context->nb_pix    = 3;
+            context->color     = 0x10;  // COPY command + pixels offset=0
+            break;
+        }
+
+        // CMD=1010 + VVVV + WWWW => Double Pattern Black to White: 0x00, VVVV, WWWW, 0x0F
+        case 0x0A: {
+            context->pixels[0] = 0x00;
+            context->pixels[1] = get_next_quartet(context);
+            context->pixels[2] = get_next_quartet(context);
+            context->pixels[3] = 0x0F;
+            context->nb_pix    = 4;
+            context->color     = 0x10;  // COPY command + pixels offset=0
+            break;
+        }
+
+        // CMD=1011 + VVVV + WWWW => Double Pattern White to Black: 0x0F, WWWW, VVVV, 0x00
+        case 0x0B: {
+            context->pixels[0] = 0x0F;
+            context->pixels[2] = get_next_quartet(context);
+            context->pixels[1] = get_next_quartet(context);
+            context->pixels[3] = 0x00;
+            context->nb_pix    = 4;
+            context->color     = 0x10;  // COPY command + pixels offset=0
+            break;
+        }
     }
 }
 
@@ -267,24 +389,26 @@ static inline void get_next_pixels(rle_context_t *context, size_t remaining_widt
  *
  * 4BPP RLE Decoder - The provided bytes contains:
  *
- *   11RRRRRR
- *   10RRVVVV WWWWXXXX YYYYZZZZ QQQQ0000
- *   0RRRVVVV
+ *       1000 + VVVV => Simple Pattern Black to White: 0x0, VVVV, 0xF
+ *       1001 + VVVV => Simple Pattern White to Black: 0xF, VVVV, 0x0
+ *       1010 + VVVV + WWWW => Double Pattern Black to White: 0x0, VVVV, WWWW, 0xF
+ *       1011 + VVVV + WWWW => Double Pattern White to Black: 0xF, VVVV, WWWW, 0x0
+ *       111R + RRRR => FILL White (max=32)
+ *       1100 + RRRR => FILL Black (max=16)
+ *       1101 + VVVV => Fill Value x 1
  *
- *   With:
- *   * 11RRRRRR
- *       - RRRRRRR is repeat count - 1 of White (0xF) quartets (max=63+1)
- *   * 10RRVVVV WWWWXXXX YYYYZZZZ QQQQ0000
- *       - RR is repeat count - 3 of quartets (max=3+3 => 6 quartets)
+ *       00RR + VVVV + WWWW + XXXX + YYYY + ZZZZ => COPY Quartets
+ *      - RR is repeat count - 2 of quartets (max=2+3 => 5 quartets)
  *       - VVVV: value of 1st 4BPP pixel
  *       - WWWW: value of 2nd 4BPP pixel
  *       - XXXX: value of 3rd 4BPP pixel
  *       - YYYY: value of 4th 4BPP pixel
  *       - ZZZZ: value of 5th 4BPP pixel
- *       - QQQQ: value of 6th 4BPP pixel
- *   * 0RRRVVVV
- *       - RRR: repeat count - 1 => allow to store 1 to 8 repeat counts
- *       - VVVV: value of the 4BPP pixel
+ *
+ *       0100 + VVVV + RRRR => FILL Value x Repeat+3 (max=18)
+ *       0101 + VVVV => FILL Value x 2
+ *       0110 + IIII => Double Pattern Indexed Black to White: 0x0, Val1, val2, 0xF
+ *       0111 + IIII => Double Pattern Indexed White to Black: 0xF, Val2, Val1, 0x0
  *
  * @param area area information about where to display the text
  * @param buffer buffer of RLE-encoded data
@@ -296,6 +420,7 @@ static inline void get_next_pixels(rle_context_t *context, size_t remaining_widt
 static void nbgl_draw4BPPImageRle(nbgl_area_t   *area,
                                   const uint8_t *buffer,
                                   uint32_t       buffer_len,
+                                  const uint8_t *patterns,
                                   nbgl_area_t   *buf_area,
                                   uint8_t       *dst,
                                   uint8_t        nb_skipped_bytes)
@@ -317,8 +442,13 @@ static void nbgl_draw4BPPImageRle(nbgl_area_t   *area,
     assert((buf_area->height & 7) == 0);
 #endif  // BUILD_SCREENSHOTS
 
+    // Init RLE context
     context.buffer     = buffer;
     context.buffer_len = buffer_len;
+    context.patterns   = patterns;
+    context.byte       = buffer[0];
+    context.read_cnt   = 1;
+    context.nb_bits    = 8;
 
     // Handle 'transparent' pixels
     if (nb_skipped_bytes) {
@@ -434,6 +564,7 @@ static void nbgl_draw4BPPImageRle(nbgl_area_t   *area,
  * @param text_area area information about where to display the text
  * @param buffer buffer of RLE-encoded data
  * @param buffer_len length of buffer
+ * @param patterns address of RLE patterns
  * @param buf_area of the RAM buffer
  * @param dst RAM buffer on which the glyph will be drawn
  * @param nb_skipped_bytes number of bytes that was cropped
@@ -442,12 +573,14 @@ static void nbgl_draw4BPPImageRle(nbgl_area_t   *area,
 static void nbgl_drawImageRle(nbgl_area_t   *text_area,
                               const uint8_t *buffer,
                               uint32_t       buffer_len,
+                              const uint8_t *patterns,
                               nbgl_area_t   *buf_area,
                               uint8_t       *dst,
                               uint8_t        nb_skipped_bytes)
 {
     if (text_area->bpp == NBGL_BPP_4) {
-        nbgl_draw4BPPImageRle(text_area, buffer, buffer_len, buf_area, dst, nb_skipped_bytes);
+        nbgl_draw4BPPImageRle(
+            text_area, buffer, buffer_len, patterns, buf_area, dst, nb_skipped_bytes);
     }
     else if (text_area->bpp == NBGL_BPP_1) {
         nbgl_draw1BPPImageRle(text_area, buffer, buffer_len, buf_area, dst, nb_skipped_bytes);
@@ -812,8 +945,9 @@ static void update_char_info(character_info_t   *char_info,
             update_char_info(char_info, text, textLen, unicode_ctx, font);
             return;
         }
-        char_info->width  = unicodeCharacter->width;
-        char_info->buffer = unicode_ctx->bitmap;
+        char_info->width    = unicodeCharacter->width;
+        char_info->patterns = unicode_ctx->bitmap;
+        char_info->buffer   = unicode_ctx->bitmap;
         char_info->buffer += unicodeCharacter->bitmap_offset;
 
         char_info->x_max = char_info->width;
@@ -872,6 +1006,7 @@ static void update_char_info(character_info_t   *char_info,
         const nbgl_font_character_t *character = (const nbgl_font_character_t *) PIC(
             &font->characters[char_info->unicode - font->first_char]);
 
+        char_info->patterns      = (const uint8_t *) PIC(font->bitmap);
         char_info->buffer        = (const uint8_t *) PIC(&font->bitmap[character->bitmap_offset]);
         char_info->width         = character->width;
         char_info->encoding      = character->encoding;
@@ -1172,6 +1307,7 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
             nbgl_drawImageRle(&current_area,
                               current_char.buffer,
                               current_char.byte_cnt,
+                              current_char.patterns,
                               &buf_area,
                               ramBuffer,
                               current_char.nb_skipped_bytes);
