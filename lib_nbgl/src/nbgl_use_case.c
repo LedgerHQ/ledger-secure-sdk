@@ -1804,6 +1804,12 @@ static void layoutTouchCallback(int token, uint8_t index)
             }
         }
     }
+    // choice buttons
+    else if (token == CHOICE_TOKEN) {
+        if (onChoice != NULL) {
+            onChoice((index == 0) ? true : false);
+        }
+    }
 }
 
 // called when skip button is touched in footer, during forward only review
