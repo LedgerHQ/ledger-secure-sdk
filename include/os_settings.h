@@ -74,6 +74,39 @@ typedef enum os_setting_v1_e {
     OS_SETTING_LAST_V1,
 } os_setting_v1_t;
 
+typedef enum os_setting_v2_e {
+    OS_SETTING_BRIGHTNESS_V2,
+    OS_SETTING_INVERT_V2,
+    OS_SETTING_ROTATION_V2,
+    OS_SETTING_MCU_UPGRADE_V2 = OS_SETTING_ROTATION_V2,
+    OS_SETTING_AUTO_LOCK_DELAY_V2,
+    OS_SETTING_SCREEN_LOCK_DELAY_V2,
+    OS_SETTING_POWER_OFF_DELAY_V2,
+
+    OS_SETTING_PLANEMODE_V2,
+
+    // default off
+    OS_SETTING_PRIVACY_MODE_V2,
+
+    OS_SETTING_LANGUAGE_V2,
+
+    OS_SETTING_PIEZO_SOUND_V2,
+
+    // before that value, all settings are only making use of the length value with a null buffer to
+    // be set, and are returned through the return value with a maxlength = 0 in the get.
+    OS_SETTING_LAST_INT_V2,
+
+    // screen saver string to display
+    OS_SETTING_SAVER_STRING_V2 = OS_SETTING_LAST_INT_V2,
+    OS_SETTING_DEVICENAME_V2,
+    OS_SETTING_BLUETOOTH_NAME_V2,
+
+    OS_SETTING_NFC_TAG_CONTENT_V2,
+    OS_SETTING_FEATURES_V2,
+
+    OS_SETTING_LAST_V2,
+} os_setting_v2_t;
+
 typedef enum os_setting_e {
     OS_SETTING_BRIGHTNESS,
     OS_SETTING_INVERT,
@@ -102,6 +135,7 @@ typedef enum os_setting_e {
     OS_SETTING_BLUETOOTH_NAME,
 
     OS_SETTING_NFC_TAG_CONTENT,
+    OS_SETTING_BLE_ADDRESS_RANDOMIZED,
     OS_SETTING_FEATURES,
 
     OS_SETTING_LAST,
