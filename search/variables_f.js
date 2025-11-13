@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['qrcode_0',['qrcode',['../structQrCodeBuffer__t.html#acfc814f2fa52c45e8af5213b53689811',1,'QrCodeBuffer_t::qrcode'],['../structnbgl__genericDetails__s.html#a56b2d9baa6875e7ea97db4118747bc0f',1,'nbgl_genericDetails_s::qrCode']]],
+  ['qrcode_0',['qrcode',['../structnbgl__genericDetails__s.html#a56b2d9baa6875e7ea97db4118747bc0f',1,'nbgl_genericDetails_s::qrCode'],['../structQrCodeBuffer__t.html#acfc814f2fa52c45e8af5213b53689811',1,'QrCodeBuffer_t::qrcode']]],
   ['qrcodebuttontext_1',['qrCodeButtonText',['../structnbgl__pageAddressConfirmationDescription__s.html#adf64458f7b43b18c350e940cf457acd2',1,'nbgl_pageAddressConfirmationDescription_s']]],
   ['qrdrawbuffer_2',['QrDrawBuffer',['../structQrCodeBuffer__t.html#a35f265ac47e0e83380eeaa2d5f0721be',1,'QrCodeBuffer_t']]],
   ['quitbutton_3',['quitButton',['../structnbgl__pageNavWithButtons__s.html#a8a773903357755d52c7b683ecf29e02c',1,'nbgl_pageNavWithButtons_s']]],
