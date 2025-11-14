@@ -1,3 +1,3 @@
 #pragma once
 
-typedef unsigned short UX_LOC_STRINGS_INDEX;
+#include "ux_loc_nbgl.h"
