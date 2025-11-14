@@ -20,7 +20,6 @@
 
 #include "nbgl_types.h"
 
-#if defined(HAVE_LANGUAGE_PACK)
 // Structure used for language packs:
 typedef struct language_pack {
     uint32_t target_id;             // 0x33000004:NanoX, 0x31100004:NanoS 1.5.x etc
@@ -59,5 +58,3 @@ unless we plan to integrate dialects (>7000) => use a u_int16_t;
 */
 
 typedef unsigned short UX_LOC_STRINGS_INDEX;
-
-#endif  // defined(HAVE_LANGUAGE_PACK)
