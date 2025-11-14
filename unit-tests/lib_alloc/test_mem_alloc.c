@@ -72,7 +72,7 @@ static void test_alloc(void **state __attribute__((unused)))
     assert_state(ctx, 1, 0);
 
     // ask too much and expect NULL
-    chunk1 = mem_alloc(ctx, 1 << 14);
+    chunk1 = mem_alloc(ctx, (4096 + 96) * 4);
     assert_null(chunk1);
 }
 
@@ -188,7 +188,6 @@ static void test_fragmentation(void **state __attribute__((unused)))
 
 static void test_init(void **state __attribute__((unused)))
 {
-    char     *small_chunks[16];
     mem_ctx_t ctx;
 
     // try with too big
