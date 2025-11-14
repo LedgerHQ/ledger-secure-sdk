@@ -1,28 +1,10 @@
 <map id="lib_cxng/include/lcx_ecfp.h" name="lib_cxng/include/lcx_ecfp.h">
-<area shape="rect" id="Node000001" title="Key pair generation based on elliptic curves." alt="" coords="571,5,722,45"/>
-<area shape="rect" id="Node000002" href="$lcx__eddsa_8h.html" title="EDDSA (Edwards Curve Digital Signature Algorithm)" alt="" coords="446,93,597,133"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="609,56,551,95,548,91,606,51"/>
-<area shape="rect" id="Node000003" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="218,181,409,207"/>
-<area shape="poly" id="edge11_Node000001_Node000003" title=" " alt="" coords="559,49,496,68,435,96,402,117,371,141,326,183,322,179,367,137,398,112,432,91,494,63,557,44"/>
-<area shape="rect" id="Node000005" href="$cx__ram_8h.html" title=" " alt="" coords="565,350,728,375"/>
-<area shape="poly" id="edge13_Node000001_Node000005" title=" " alt="" coords="649,59,649,350,644,350,644,59"/>
-<area shape="rect" id="Node000011" href="$cx__ecfp_8h.html" title=" " alt="" coords="684,101,849,126"/>
-<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="686,51,752,98,749,103,683,56"/>
-<area shape="rect" id="Node000012" href="$ux__bagl_8h.html" title=" " alt="" coords="873,101,1052,126"/>
-<area shape="poly" id="edge14_Node000001_Node000012" title=" " alt="" coords="730,46,921,98,920,103,728,52"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="460,141,345,184,343,179,458,136"/>
-<area shape="rect" id="Node000010" href="$cx__eddsa_8h.html" title=" " alt="" coords="433,181,609,207"/>
-<area shape="poly" id="edge10_Node000002_Node000010" title=" " alt="" coords="524,147,524,181,519,181,519,147"/>
-<area shape="rect" id="Node000004" href="$lcx__rng_8h.html" title="Random Number Generation." alt="" coords="238,255,389,295"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="308,220,308,254,303,255,302,220"/>
-<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="320,241,317,207,323,207,325,241"/>
-<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="400,295,603,347,602,353,399,301"/>
-<area shape="rect" id="Node000007" href="$cx__rng__rfc6979_8h.html" title=" " alt="" coords="5,343,152,383"/>
-<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="250,302,131,345,129,340,248,297"/>
-<area shape="rect" id="Node000008" href="$nbgl__layout_8c.html" title="Implementation of predefined layouts management for Applications." alt="" coords="176,350,363,375"/>
-<area shape="poly" id="edge8_Node000004_Node000008" title=" " alt="" coords="300,308,278,351,273,348,295,306"/>
-<area shape="rect" id="Node000009" href="$nbgl__obj__keypad_8c.html" title="The construction and touch management of a keypad object." alt="" coords="387,343,541,383"/>
-<area shape="poly" id="edge9_Node000004_Node000009" title=" " alt="" coords="359,299,432,340,430,345,357,304"/>
-<area shape="rect" id="Node000006" href="$cx__ram_8c.html" title=" " alt="" coords="565,431,728,456"/>
-<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="649,389,649,430,644,430,644,389"/>
+<area shape="rect" id="Node000001" title="Key pair generation based on elliptic curves." alt="" coords="119,5,269,45"/>
+<area shape="rect" id="Node000002" href="$lcx__eddsa_8h.html" title="EDDSA (Edwards Curve Digital Signature Algorithm)" alt="" coords="5,93,156,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,56,107,95,104,91,157,52"/>
+<area shape="rect" id="Node000003" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="41,181,232,207"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="191,60,171,134,146,182,142,180,166,132,186,59"/>
+<area shape="rect" id="Node000004" href="$ux__bagl_8h.html" title=" " alt="" coords="231,101,410,126"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="235,51,305,98,302,103,232,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="104,143,130,179,126,183,100,146"/>
 </map>
