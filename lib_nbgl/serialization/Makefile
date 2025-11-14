@@ -1,10 +1,13 @@
 
-INC := -I . -I ../include
-DEFINES := -DLINUX_SIMU -DHAVE_LANGUAGE_PACK -DNBGL_GENERATE_DATA_TEST
+INC := -I . -I ../include -I ../../include -I ../../lib_ux_nbgl
+DEFINES := -DLINUX_SIMU -DHAVE_LANGUAGE_PACK -DNBGL_GENERATE_DATA_TEST -DHAVE_NBGL -DHAVE_BOLOS
 
 ifdef TARGET_STAX
 DEFINES += -DHAVE_SE_TOUCH
 DEFINES += -DSCREEN_SIZE_WALLET
+INC += -I ../../target/stax/include
+else
+INC += -I ../../target/nanox/include
 endif
 
 default: generate_data_test.c

@@ -14,9 +14,7 @@
 #include "os_helpers.h"
 #include "os_pic.h"
 #include "os_task.h"
-#if defined(HAVE_LANGUAGE_PACK)
 #include "ux_loc.h"
-#endif  // defined(HAVE_LANGUAGE_PACK)
 
 /*********************
  *      DEFINES
@@ -33,17 +31,13 @@
 /**********************
  *  STATIC VARIABLES
  **********************/
-#ifdef HAVE_UNICODE_SUPPORT
 static nbgl_unicode_ctx_t unicodeCtx = {0};
-#endif  // HAVE_UNICODE_SUPPORT
 
 /**********************
  *      VARIABLES
  **********************/
 
-#ifdef HAVE_LANGUAGE_PACK
 static const LANGUAGE_PACK *language_pack;
-#endif  // HAVE_LANGUAGE_PACK
 
 #if SMALL_FONT_HEIGHT == 24
 #include "nbgl_font_inter_regular_24.inc"
@@ -78,19 +72,6 @@ __attribute__((section("._nbgl_fonts_"))) const unsigned int C_nbgl_fonts_count
     = sizeof(C_nbgl_fonts) / sizeof(C_nbgl_fonts[0]);
 
 #if (defined(HAVE_BOLOS) && !defined(BOLOS_OS_UPGRADER_APP))
-#if !defined(HAVE_LANGUAGE_PACK)
-const nbgl_font_unicode_t *const C_nbgl_fonts_unicode[] = {
-
-#include "nbgl_font_unicode_rom_struct.inc"
-
-};
-
-// All Unicode fonts MUST have the same number of characters!
-const unsigned int C_unicode_characters_count
-    = (sizeof(charactersOPEN_SANS_REGULAR_11PX_UNICODE)
-       / sizeof(charactersOPEN_SANS_REGULAR_11PX_UNICODE[0]));
-
-#endif  //! defined(HAVE_LANGUAGE_PACK)
 #endif  // HAVE_BOLOS
 
 #ifdef BUILD_SCREENSHOTS
@@ -203,7 +184,6 @@ uint32_t nbgl_popUnicodeChar(const uint8_t **text, uint16_t *textLen, bool *is_u
 static uint8_t getCharWidth(const nbgl_font_t *font, uint32_t unicode, bool is_unicode)
 {
     if (is_unicode) {
-#ifdef HAVE_UNICODE_SUPPORT
         const nbgl_font_unicode_character_t *unicodeCharacter
             = nbgl_getUnicodeFontCharacter(unicode);
         if (!unicodeCharacter) {
@@ -216,9 +196,6 @@ static uint8_t getCharWidth(const nbgl_font_t *font, uint32_t unicode, bool is_u
         }
 #endif  // SCREEN_SIZE_WALLET
         return unicodeCharacter->width - font->char_kerning;
-#else   // HAVE_UNICODE_SUPPORT
-        return 0;
-#endif  // HAVE_UNICODE_SUPPORT
     }
     else {
         const nbgl_font_character_t *character;  // non-unicode char
@@ -249,13 +226,11 @@ static uint16_t getTextWidth(nbgl_font_id_e fontId,
 #ifdef BUILD_SCREENSHOTS
     uint16_t nb_lines = 0;
 #endif  // BUILD_SCREENSHOTS
-    uint16_t           line_width = 0;
-    uint16_t           max_width  = 0;
-    const nbgl_font_t *font       = nbgl_getFont(fontId);
-    uint16_t           textLen    = MIN(strlen(text), maxLen);
-#ifdef HAVE_UNICODE_SUPPORT
+    uint16_t            line_width  = 0;
+    uint16_t            max_width   = 0;
+    const nbgl_font_t  *font        = nbgl_getFont(fontId);
+    uint16_t            textLen     = MIN(strlen(text), maxLen);
     nbgl_unicode_ctx_t *unicode_ctx = NULL;
-#endif  // HAVE_UNICODE_SUPPORT
 
 #ifdef BUILD_SCREENSHOTS
     last_bold_state      = fontId == BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;  // True if Bold
@@ -273,11 +248,9 @@ static uint16_t getTextWidth(nbgl_font_id_e fontId,
         if (!unicode) {
             break;
         }
-#ifdef HAVE_UNICODE_SUPPORT
         if (is_unicode && !unicode_ctx) {
             unicode_ctx = nbgl_getUnicodeFont(fontId);
         }
-#endif
         if (unicode == '\n') {
             if (breakOnLineEnd) {
                 break;
@@ -289,21 +262,17 @@ static uint16_t getTextWidth(nbgl_font_id_e fontId,
         // if \b, switch fontId
         else if (unicode == '\b') {
             if (fontId == BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp) {  // switch to bold
-                fontId = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
-#ifdef HAVE_UNICODE_SUPPORT
+                fontId      = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
                 unicode_ctx = NULL;
-#endif  // HAVE_UNICODE_SUPPORT
-                font = nbgl_getFont(fontId);
+                font        = nbgl_getFont(fontId);
 #ifdef BUILD_SCREENSHOTS
                 next_bold_state = true;
 #endif  // BUILD_SCREENSHOTS
             }
             else if (fontId == BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp) {  // switch to regular
-                fontId = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
-#ifdef HAVE_UNICODE_SUPPORT
+                fontId      = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
                 unicode_ctx = NULL;
-#endif  // HAVE_UNICODE_SUPPORT
-                font = nbgl_getFont(fontId);
+                font        = nbgl_getFont(fontId);
 #ifdef BUILD_SCREENSHOTS
                 next_bold_state = false;
 #endif  // BUILD_SCREENSHOTS
@@ -380,20 +349,16 @@ uint16_t nbgl_getTextWidth(nbgl_font_id_e fontId, const char *text)
  */
 uint8_t nbgl_getCharWidth(nbgl_font_id_e fontId, const char *text)
 {
-    const nbgl_font_t *font = nbgl_getFont(fontId);
-    uint32_t           unicode;
-    bool               is_unicode;
-    uint16_t           textLen = 4;  // max len for a char
-#ifdef HAVE_UNICODE_SUPPORT
+    const nbgl_font_t  *font = nbgl_getFont(fontId);
+    uint32_t            unicode;
+    bool                is_unicode;
+    uint16_t            textLen     = 4;  // max len for a char
     nbgl_unicode_ctx_t *unicode_ctx = NULL;
-#endif  // HAVE_UNICODE_SUPPORT
 
     unicode = nbgl_popUnicodeChar((const uint8_t **) &text, &textLen, &is_unicode);
-#ifdef HAVE_UNICODE_SUPPORT
     if (is_unicode && !unicode_ctx) {
         unicode_ctx = nbgl_getUnicodeFont(fontId);
     }
-#endif
 
     return getCharWidth(font, unicode, is_unicode);
 }
@@ -406,14 +371,15 @@ uint8_t nbgl_getCharWidth(nbgl_font_id_e fontId, const char *text)
  */
 uint8_t nbgl_getFontHeight(nbgl_font_id_e fontId)
 {
-#ifdef HAVE_UNICODE_SUPPORT
     // Unicode combined fonts can be higher than normal ones, due to supperposition of 'accents'
     nbgl_unicode_ctx_t *unicode_ctx = nbgl_getUnicodeFont(fontId);
-    return unicode_ctx->font->height;
-#else   // HAVE_UNICODE_SUPPORT
-    const nbgl_font_t *font = nbgl_getFont(fontId);
-    return font->height;
-#endif  // HAVE_UNICODE_SUPPORT
+    if (unicode_ctx) {
+        return unicode_ctx->font->height;
+    }
+    else {
+        const nbgl_font_t *font = nbgl_getFont(fontId);
+        return font->height;
+    }
 }
 
 /**
@@ -424,14 +390,15 @@ uint8_t nbgl_getFontHeight(nbgl_font_id_e fontId)
  */
 uint8_t nbgl_getFontLineHeight(nbgl_font_id_e fontId)
 {
-#ifdef HAVE_UNICODE_SUPPORT
     // Unicode combined fonts can be higher than normal ones, due to supperposition of 'accents'
     nbgl_unicode_ctx_t *unicode_ctx = nbgl_getUnicodeFont(fontId);
-    return unicode_ctx->font->line_height;
-#else   // HAVE_UNICODE_SUPPORT
-    const nbgl_font_t *font = nbgl_getFont(fontId);
-    return font->line_height;
-#endif  // HAVE_UNICODE_SUPPORT
+    if (unicode_ctx) {
+        return unicode_ctx->font->line_height;
+    }
+    else {
+        const nbgl_font_t *font = nbgl_getFont(fontId);
+        return font->line_height;
+    }
 }
 
 /**
@@ -507,12 +474,10 @@ void nbgl_getTextMaxLenAndWidth(nbgl_font_id_e fontId,
                                 uint16_t      *width,
                                 bool           wrapping)
 {
-    const nbgl_font_t *font               = nbgl_getFont(fontId);
-    uint16_t           textLen            = nbgl_getTextLength(text);
-    uint32_t           lenAtLastDelimiter = 0, widthAtlastDelimiter = 0;
-#ifdef HAVE_UNICODE_SUPPORT
+    const nbgl_font_t  *font               = nbgl_getFont(fontId);
+    uint16_t            textLen            = nbgl_getTextLength(text);
+    uint32_t            lenAtLastDelimiter = 0, widthAtlastDelimiter = 0;
     nbgl_unicode_ctx_t *unicode_ctx = NULL;
-#endif  // HAVE_UNICODE_SUPPORT
 
     *width = 0;
     *len   = 0;
@@ -523,11 +488,9 @@ void nbgl_getTextMaxLenAndWidth(nbgl_font_id_e fontId,
         uint16_t curTextLen = textLen;
 
         unicode = nbgl_popUnicodeChar((const uint8_t **) &text, &textLen, &is_unicode);
-#ifdef HAVE_UNICODE_SUPPORT
         if (is_unicode && !unicode_ctx) {
             unicode_ctx = nbgl_getUnicodeFont(fontId);
         }
-#endif
         // if EOS or \f or \n, exit loop
         if (!unicode || (unicode == '\f') || (unicode == '\n')) {
             *len += curTextLen - textLen;
@@ -536,18 +499,14 @@ void nbgl_getTextMaxLenAndWidth(nbgl_font_id_e fontId,
         // if \b, switch fontId
         else if (unicode == '\b') {
             if (fontId == BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp) {  // switch to bold
-                fontId = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
-#ifdef HAVE_UNICODE_SUPPORT
+                fontId      = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
                 unicode_ctx = NULL;
-#endif  // HAVE_UNICODE_SUPPORT
-                font = nbgl_getFont(fontId);
+                font        = nbgl_getFont(fontId);
             }
             else if (fontId == BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp) {  // switch to regular
-                fontId = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
-#ifdef HAVE_UNICODE_SUPPORT
+                fontId      = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
                 unicode_ctx = NULL;
-#endif  // HAVE_UNICODE_SUPPORT
-                font = nbgl_getFont(fontId);
+                font        = nbgl_getFont(fontId);
             }
             *len += curTextLen - textLen;
             continue;
@@ -597,16 +556,14 @@ bool nbgl_getTextMaxLenInNbLines(nbgl_font_id_e fontId,
                                  uint16_t      *len,
                                  bool           wrapping)
 {
-    const nbgl_font_t *font               = nbgl_getFont(fontId);
-    uint16_t           textLen            = strlen(text);
-    uint16_t           width              = 0;
-    const char        *lastDelimiter      = NULL;
-    uint32_t           lenAtLastDelimiter = 0;
-    const char        *origText           = text;
-    const char        *previousText;
-#ifdef HAVE_UNICODE_SUPPORT
+    const nbgl_font_t  *font               = nbgl_getFont(fontId);
+    uint16_t            textLen            = strlen(text);
+    uint16_t            width              = 0;
+    const char         *lastDelimiter      = NULL;
+    uint32_t            lenAtLastDelimiter = 0;
+    const char         *origText           = text;
+    const char         *previousText;
     nbgl_unicode_ctx_t *unicode_ctx = NULL;
-#endif  // HAVE_UNICODE_SUPPORT
 
     while ((textLen) && (maxNbLines > 0)) {
         uint8_t  char_width;
@@ -615,11 +572,9 @@ bool nbgl_getTextMaxLenInNbLines(nbgl_font_id_e fontId,
 
         previousText = text;
         unicode      = nbgl_popUnicodeChar((const uint8_t **) &text, &textLen, &is_unicode);
-#ifdef HAVE_UNICODE_SUPPORT
         if (is_unicode && !unicode_ctx) {
             unicode_ctx = nbgl_getUnicodeFont(fontId);
         }
-#endif
         // memorize cursors at last found delimiter
         if ((wrapping == true) && (IS_WORD_DELIM(unicode))) {
             lastDelimiter      = text;
@@ -645,18 +600,14 @@ bool nbgl_getTextMaxLenInNbLines(nbgl_font_id_e fontId,
         // if \b, switch fontId
         else if (unicode == '\b') {
             if (fontId == BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp) {  // switch to bold
-                fontId = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
-#ifdef HAVE_UNICODE_SUPPORT
+                fontId      = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
                 unicode_ctx = NULL;
-#endif  // HAVE_UNICODE_SUPPORT
-                font = nbgl_getFont(fontId);
+                font        = nbgl_getFont(fontId);
             }
             else if (fontId == BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp) {  // switch to regular
-                fontId = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
-#ifdef HAVE_UNICODE_SUPPORT
+                fontId      = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
                 unicode_ctx = NULL;
-#endif  // HAVE_UNICODE_SUPPORT
-                font = nbgl_getFont(fontId);
+                font        = nbgl_getFont(fontId);
             }
             continue;
         }
@@ -762,13 +713,11 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
 #else   // SCREEN_SIZE_NANO
     uint16_t nbLines = 1;
 #endif  // SCREEN_SIZE_NANO
-    uint16_t    textLen            = strlen(text);
-    const char *lastDelimiter      = NULL;
-    uint32_t    lenAtLastDelimiter = 0;
-    const char *prevText           = NULL;
-#ifdef HAVE_UNICODE_SUPPORT
-    nbgl_unicode_ctx_t *unicode_ctx = NULL;
-#endif  // HAVE_UNICODE_SUPPORT
+    uint16_t            textLen            = strlen(text);
+    const char         *lastDelimiter      = NULL;
+    uint32_t            lenAtLastDelimiter = 0;
+    const char         *prevText           = NULL;
+    nbgl_unicode_ctx_t *unicode_ctx        = NULL;
 
 #ifdef BUILD_SCREENSHOTS
     hard_caesura         = false;
@@ -787,11 +736,9 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
         // memorize the last char
         prevText = text;
         unicode  = nbgl_popUnicodeChar((const uint8_t **) &text, &textLen, &is_unicode);
-#ifdef HAVE_UNICODE_SUPPORT
         if (is_unicode && !unicode_ctx) {
             unicode_ctx = nbgl_getUnicodeFont(fontId);
         }
-#endif
 
         // memorize cursors at last found space
         if ((wrapping == true) && (IS_WORD_DELIM(unicode))) {
@@ -824,21 +771,17 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
         // if \b, switch fontId
         else if (unicode == '\b') {
             if (fontId == BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp) {  // switch to bold
-                fontId = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
-#ifdef HAVE_UNICODE_SUPPORT
+                fontId      = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
                 unicode_ctx = NULL;
-#endif  // HAVE_UNICODE_SUPPORT
-                font = nbgl_getFont(fontId);
+                font        = nbgl_getFont(fontId);
 #ifdef BUILD_SCREENSHOTS
                 next_bold_state = true;
 #endif  // BUILD_SCREENSHOTS
             }
             else if (fontId == BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp) {  // switch to regular
-                fontId = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
-#ifdef HAVE_UNICODE_SUPPORT
+                fontId      = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
                 unicode_ctx = NULL;
-#endif  // HAVE_UNICODE_SUPPORT
-                font = nbgl_getFont(fontId);
+                font        = nbgl_getFont(fontId);
 #ifdef BUILD_SCREENSHOTS
                 next_bold_state = false;
 #endif  // BUILD_SCREENSHOTS
@@ -909,17 +852,15 @@ uint8_t nbgl_getTextNbPagesInWidth(nbgl_font_id_e fontId,
                                    uint8_t        nbLinesPerPage,
                                    uint16_t       maxWidth)
 {
-    const nbgl_font_t *font               = nbgl_getFont(fontId);
-    uint16_t           width              = 0;
-    uint16_t           nbLines            = 0;
-    uint8_t            nbPages            = 1;
-    uint16_t           textLen            = strlen(text);
-    const char        *lastDelimiter      = NULL;
-    uint32_t           lenAtLastDelimiter = 0;
-    const char        *prevText           = NULL;
-#ifdef HAVE_UNICODE_SUPPORT
-    nbgl_unicode_ctx_t *unicode_ctx = NULL;
-#endif  // HAVE_UNICODE_SUPPORT
+    const nbgl_font_t  *font               = nbgl_getFont(fontId);
+    uint16_t            width              = 0;
+    uint16_t            nbLines            = 0;
+    uint8_t             nbPages            = 1;
+    uint16_t            textLen            = strlen(text);
+    const char         *lastDelimiter      = NULL;
+    uint32_t            lenAtLastDelimiter = 0;
+    const char         *prevText           = NULL;
+    nbgl_unicode_ctx_t *unicode_ctx        = NULL;
 
 #ifdef BUILD_SCREENSHOTS
     last_nb_lines        = nbLines;
@@ -936,11 +877,9 @@ uint8_t nbgl_getTextNbPagesInWidth(nbgl_font_id_e fontId,
         // memorize the last char
         prevText = text;
         unicode  = nbgl_popUnicodeChar((const uint8_t **) &text, &textLen, &is_unicode);
-#ifdef HAVE_UNICODE_SUPPORT
         if (is_unicode && !unicode_ctx) {
             unicode_ctx = nbgl_getUnicodeFont(fontId);
         }
-#endif
 
         // memorize cursors at last found space
         if (IS_WORD_DELIM(unicode)) {
@@ -986,21 +925,17 @@ uint8_t nbgl_getTextNbPagesInWidth(nbgl_font_id_e fontId,
         // if \b, switch fontId
         else if (unicode == '\b') {
             if (fontId == BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp) {  // switch to bold
-                fontId = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
-#ifdef HAVE_UNICODE_SUPPORT
+                fontId      = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
                 unicode_ctx = NULL;
-#endif  // HAVE_UNICODE_SUPPORT
-                font = nbgl_getFont(fontId);
+                font        = nbgl_getFont(fontId);
 #ifdef BUILD_SCREENSHOTS
                 next_bold_state = true;
 #endif  // BUILD_SCREENSHOTS
             }
             else if (fontId == BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp) {  // switch to regular
-                fontId = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
-#ifdef HAVE_UNICODE_SUPPORT
+                fontId      = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
                 unicode_ctx = NULL;
-#endif  // HAVE_UNICODE_SUPPORT
-                font = nbgl_getFont(fontId);
+                font        = nbgl_getFont(fontId);
 #ifdef BUILD_SCREENSHOTS
                 next_bold_state = false;
 #endif  // BUILD_SCREENSHOTS
@@ -1089,18 +1024,15 @@ uint16_t nbgl_getTextHeightInWidth(nbgl_font_id_e fontId,
  */
 void nbgl_textWrapOnNbLines(nbgl_font_id_e fontId, char *text, uint16_t maxWidth, uint8_t nbLines)
 {
-    const nbgl_font_t *font               = nbgl_getFont(fontId);
-    uint16_t           textLen            = nbgl_getTextLength(text);
-    uint16_t           width              = 0;
-    uint8_t            currentNbLines     = 1;
-    char              *lastDelimiter      = NULL;
-    uint32_t           lenAtLastDelimiter = 0;
-    char              *prevText[4]        = {0};  // queue of last positions
-    uint16_t           prevWidth[2]       = {0};  // queue of last widths
-
-#ifdef HAVE_UNICODE_SUPPORT
-    nbgl_unicode_ctx_t *unicode_ctx = NULL;
-#endif  // HAVE_UNICODE_SUPPORT
+    const nbgl_font_t  *font               = nbgl_getFont(fontId);
+    uint16_t            textLen            = nbgl_getTextLength(text);
+    uint16_t            width              = 0;
+    uint8_t             currentNbLines     = 1;
+    char               *lastDelimiter      = NULL;
+    uint32_t            lenAtLastDelimiter = 0;
+    char               *prevText[4]        = {0};  // queue of last positions
+    uint16_t            prevWidth[2]       = {0};  // queue of last widths
+    nbgl_unicode_ctx_t *unicode_ctx        = NULL;
 
     while (*text) {
         uint8_t  char_width;
@@ -1121,11 +1053,9 @@ void nbgl_textWrapOnNbLines(nbgl_font_id_e fontId, char *text, uint16_t maxWidth
             lastDelimiter = NULL;
             continue;
         }
-#ifdef HAVE_UNICODE_SUPPORT
         if (is_unicode && !unicode_ctx) {
             unicode_ctx = nbgl_getUnicodeFont(fontId);
         }
-#endif
         char_width = getCharWidth(font, unicode, is_unicode);
         if (char_width == 0) {
             continue;
@@ -1263,7 +1193,6 @@ void nbgl_textReduceOnNbLines(nbgl_font_id_e fontId,
     reducedText[j] = '\0';
 }
 
-#ifdef HAVE_UNICODE_SUPPORT
 /**
  * @brief Get the font entry for the given font id (sparse font array support)
  *
@@ -1280,7 +1209,6 @@ nbgl_unicode_ctx_t *nbgl_getUnicodeFont(nbgl_font_id_e fontId)
     if ((unicodeCtx.font != NULL) && (unicodeCtx.font->font_id == fontId)) {
         return &unicodeCtx;
     }
-#if defined(HAVE_LANGUAGE_PACK)
     // Be sure we need to change font
     const uint8_t             *ptr  = (const uint8_t *) language_pack;
     const nbgl_font_unicode_t *font = (const void *) (ptr + language_pack->fonts_offset);
@@ -1301,7 +1229,6 @@ nbgl_unicode_ctx_t *nbgl_getUnicodeFont(nbgl_font_id_e fontId)
         unicodeCtx.characters += language_pack->nb_characters;
         font++;
     }
-#endif  // defined(HAVE_LANGUAGE_PACK)
     // id not found
     return NULL;
 }
@@ -1321,7 +1248,6 @@ const nbgl_font_unicode_character_t *nbgl_getUnicodeFontCharacter(uint32_t unico
     if (os_sched_current_task() != TASK_BOLOS_UX) {
         return NULL;
     }
-#if defined(HAVE_LANGUAGE_PACK)
     const nbgl_font_unicode_character_t *characters
         = (const nbgl_font_unicode_character_t *) PIC(unicodeCtx.characters);
     uint32_t n = language_pack->nb_characters;
@@ -1345,11 +1271,6 @@ const nbgl_font_unicode_character_t *nbgl_getUnicodeFontCharacter(uint32_t unico
     unicodeCtx.unicode_character_byte_count
         = unicodeCtx.font->bitmap_len - characters->bitmap_offset;
     return characters;
-#else   // defined(HAVE_LANGUAGE_PACK)
-    UNUSED(unicode);
-    // id not found
-    return NULL;
-#endif  // defined(HAVE_LANGUAGE_PACK)
 }
 
 /**
@@ -1364,14 +1285,9 @@ uint32_t nbgl_getUnicodeFontCharacterByteCount(void)
     if (os_sched_current_task() != TASK_BOLOS_UX) {
         return 0;
     }
-#ifdef HAVE_LANGUAGE_PACK
     return unicodeCtx.unicode_character_byte_count;
-#else   // defined(HAVE_LANGUAGE_PACK)
-    return 0;
-#endif  // HAVE_LANGUAGE_PACK
 }
 
-#ifdef HAVE_LANGUAGE_PACK
 /**
  * @brief Function to be called when a change on the current language pack is notified by the OS,
  * to be sure that the current unicodeCtx variable will be set again at next @ref
@@ -1385,6 +1301,3 @@ void nbgl_refreshUnicodeFont(const LANGUAGE_PACK *lp)
     unicodeCtx.font       = NULL;
     unicodeCtx.characters = NULL;
 }
-#endif  // HAVE_LANGUAGE_PACK
-
-#endif  // HAVE_UNICODE_SUPPORT
