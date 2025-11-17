@@ -34,13 +34,14 @@ var searchData=
   ['iov_5fbase_31',['iov_base',['../structcx__iovec__t.html#a3231b4389b63289832e244d2983b1376',1,'cx_iovec_t']]],
   ['iov_5flen_32',['iov_len',['../structcx__iovec__t.html#a68cdcd1652fe045ab929c9b29d604fa3',1,'cx_iovec_t']]],
   ['is_5ffee_33',['is_fee',['../structget__printable__amount__parameters__s.html#a66c606a5fd3f8d4025836a801279c0ca',1,'get_printable_amount_parameters_s']]],
-  ['isfile_34',['isFile',['../structnbgl__icon__details__s.html#a01bd596edc2d6826707ab15cd3018bf4',1,'nbgl_icon_details_s']]],
-  ['islastpressedobjvalid_35',['isLastPressedObjValid',['../structnbgl__touchCtx__s.html#a3349b98a57fc93f0bcbd31b0d91af10a',1,'nbgl_touchCtx_s']]],
-  ['isswipeable_36',['isSwipeable',['../structnbgl__pageInfoDescription__s.html#a8dd3b125bcf88df142fb4407edb6b969',1,'nbgl_pageInfoDescription_s']]],
-  ['istouchabletitle_37',['isTouchableTitle',['../structnbgl__pageContent__s.html#aed42f3810935bcf3a204f1ad3f57b2bb',1,'nbgl_pageContent_s']]],
-  ['isused_38',['isUsed',['../structnbgl__layoutInternal__s.html#a71016d9cf10619fe1ee6820dd9ed74d7',1,'nbgl_layoutInternal_s']]],
-  ['isuxscreen_39',['isUxScreen',['../structnbgl__screen__s.html#a629e556fab58e772ec6a5c0973a509c9',1,'nbgl_screen_s']]],
-  ['item_40',['item',['../structnbgl__contentTagValue__t.html#ae8394cc87634df5504b7a224efeb48e2',1,'nbgl_contentTagValue_t']]],
-  ['iv_41',['iv',['../structcx__cipher__context__t.html#acc1309a88aa4c23544d8fc1c606792c0',1,'cx_cipher_context_t']]],
-  ['iv_5fsize_42',['iv_size',['../structcx__cipher__info__t.html#a353f1c5bba3b25779bba458d61c0f717',1,'cx_cipher_info_t::iv_size'],['../structcx__cipher__context__t.html#a47fa6a41627ebf8a7168b481c5812d65',1,'cx_cipher_context_t::iv_size']]]
+  ['is_5funicode_34',['is_unicode',['../structcharacter__info__t.html#aa8d12e03bcd85d1b5857ee75709282a1',1,'character_info_t']]],
+  ['isfile_35',['isFile',['../structnbgl__icon__details__s.html#a01bd596edc2d6826707ab15cd3018bf4',1,'nbgl_icon_details_s']]],
+  ['islastpressedobjvalid_36',['isLastPressedObjValid',['../structnbgl__touchCtx__s.html#a3349b98a57fc93f0bcbd31b0d91af10a',1,'nbgl_touchCtx_s']]],
+  ['isswipeable_37',['isSwipeable',['../structnbgl__pageInfoDescription__s.html#a8dd3b125bcf88df142fb4407edb6b969',1,'nbgl_pageInfoDescription_s']]],
+  ['istouchabletitle_38',['isTouchableTitle',['../structnbgl__pageContent__s.html#aed42f3810935bcf3a204f1ad3f57b2bb',1,'nbgl_pageContent_s']]],
+  ['isused_39',['isUsed',['../structnbgl__layoutInternal__s.html#a71016d9cf10619fe1ee6820dd9ed74d7',1,'nbgl_layoutInternal_s']]],
+  ['isuxscreen_40',['isUxScreen',['../structnbgl__screen__s.html#a629e556fab58e772ec6a5c0973a509c9',1,'nbgl_screen_s']]],
+  ['item_41',['item',['../structnbgl__contentTagValue__t.html#ae8394cc87634df5504b7a224efeb48e2',1,'nbgl_contentTagValue_t']]],
+  ['iv_42',['iv',['../structcx__cipher__context__t.html#acc1309a88aa4c23544d8fc1c606792c0',1,'cx_cipher_context_t']]],
+  ['iv_5fsize_43',['iv_size',['../structcx__cipher__info__t.html#a353f1c5bba3b25779bba458d61c0f717',1,'cx_cipher_info_t::iv_size'],['../structcx__cipher__context__t.html#a47fa6a41627ebf8a7168b481c5812d65',1,'cx_cipher_context_t::iv_size']]]
 ];
