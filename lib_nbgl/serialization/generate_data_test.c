@@ -90,7 +90,6 @@ void test_draw_nbgl_text_area()
                              .textAlignment    = BOTTOM_RIGHT,
                              .style            = NO_STYLE,
                              .fontId           = BAGL_FONT_INTER_MEDIUM_32px,
-                             .localized        = false,
                              .autoHideLongLine = true,
                              .text             = "arthur"};
 
@@ -217,10 +216,14 @@ void test_draw_nbgl_button()
         .innerColor      = WHITE,
         .borderColor     = DARK_GRAY,
         .foregroundColor = LIGHT_GRAY,
-        .radius          = RADIUS_40_PIXELS,
-        .fontId          = BAGL_FONT_INTER_MEDIUM_32px,
-        .localized       = true,
-        .text            = "Test button",
+#ifdef HAVE_SE_TOUCH
+        .radius = RADIUS_40_PIXELS,
+#else   // HAVE_SE_TOUCH
+        .radius = RADIUS_3_PIXELS,
+#endif  // HAVE_SE_TOUCH
+        .fontId    = BAGL_FONT_INTER_MEDIUM_32px,
+        .localized = true,
+        .text      = "Test button",
     };
 
     SERIALIZE_AND_PRINT(&button, NBGL_DRAW_OBJ);
@@ -262,7 +265,7 @@ void test_draw_nbgl_keyboard()
         .casing = 0,
         .mode   = MODE_DIGITS,
 #else   // HAVE_SE_TOUCH
-        .mode = MODE_UPPER_LETTERS,
+        .mode   = MODE_UPPER_LETTERS,
 #endif  // HAVE_SE_TOUCH
         .keyMask = 0x12345678,
     };
@@ -339,6 +342,11 @@ void test_refresh_area()
     };
 
     SERIALIZE_AND_PRINT(&area, NBGL_REFRESH_AREA);
+}
+
+void *pic_shared(const void *linked_address)
+{
+    return (void *) linked_address;
 }
 
 int main()

@@ -798,10 +798,10 @@ static void update_char_info(character_info_t   *char_info,
 
     // Retrieves information depending on whether it is an ASCII character or not.
     if (char_info->is_unicode) {
-#ifdef HAVE_UNICODE_SUPPORT
         const nbgl_font_unicode_character_t *unicodeCharacter
             = nbgl_getUnicodeFontCharacter(char_info->unicode);
-        // if not supported char, go to next one (this should never happen!!)
+        // if not supported char, go to next one (this should never happen, except in Apps, if a
+        // unicode is used !!)
         if (unicodeCharacter == NULL) {
 #ifdef BUILD_SCREENSHOTS
             fprintf(stdout,
@@ -812,8 +812,7 @@ static void update_char_info(character_info_t   *char_info,
             update_char_info(char_info, text, textLen, unicode_ctx, font);
             return;
         }
-        char_info->width = unicodeCharacter->width;
-#if defined(HAVE_LANGUAGE_PACK)
+        char_info->width  = unicodeCharacter->width;
         char_info->buffer = unicode_ctx->bitmap;
         char_info->buffer += unicodeCharacter->bitmap_offset;
 
@@ -853,10 +852,6 @@ static void update_char_info(character_info_t   *char_info,
         char_info->byte_cnt = nbgl_getUnicodeFontCharacterByteCount();
         char_info->encoding = unicodeCharacter->encoding;
         char_info->height   = char_info->y_max - char_info->y_min;
-#endif  // defined(HAVE_LANGUAGE_PACK)
-#else   // HAVE_UNICODE_SUPPORT
-        return;
-#endif  // HAVE_UNICODE_SUPPORT
     }
     else {
         // Special character: nothing special to do here
@@ -923,15 +918,11 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
 {
     // text is a series of characters, each character being a bitmap
     // we need to align bitmaps on width multiple of 4 limitation.
-    int16_t            x = area->x0;
-    nbgl_area_t        current_area;
-    character_info_t   current_char = {0};
-    const nbgl_font_t *font         = nbgl_getFont(fontId);
-#ifdef HAVE_UNICODE_SUPPORT
-    nbgl_unicode_ctx_t *unicode_ctx = nbgl_getUnicodeFont(fontId);
-#else   // HAVE_UNICODE_SUPPORT
-    nbgl_unicode_ctx_t *unicode_ctx = NULL;
-#endif  // HAVE_UNICODE_SUPPORT
+    int16_t             x = area->x0;
+    nbgl_area_t         current_area;
+    character_info_t    current_char = {0};
+    const nbgl_font_t  *font         = nbgl_getFont(fontId);
+    nbgl_unicode_ctx_t *unicode_ctx  = nbgl_getUnicodeFont(fontId);
 #ifdef SCREEN_SIZE_WALLET
     int16_t          next_x        = x;
     character_info_t previous_char = {0};
@@ -954,11 +945,13 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
     // TODO Investigate why area->bpp is not always initialized correctly
     buf_area.bpp = (nbgl_bpp_t) font->bpp;
     // Width & Height are rotated 90° on Flex/Stax
-#ifdef HAVE_UNICODE_SUPPORT
-    buf_area.width = (unicode_ctx->font->line_height + 7) & 0xFFF8;  // Modulo 8 is better for 1BPP
-#else                                                                // HAVE_UNICODE_SUPPORT
-    buf_area.width = (MAX_FONT_HEIGHT + 7) & 0xFFF8;  // Modulo 8 is better for 1BPP
-#endif                                                               // HAVE_UNICODE_SUPPORT
+    if (unicode_ctx) {
+        buf_area.width
+            = (unicode_ctx->font->line_height + 7) & 0xFFF8;  // Modulo 8 is better for 1BPP
+    }
+    else {
+        buf_area.width = (MAX_FONT_HEIGHT + 7) & 0xFFF8;  // Modulo 8 is better for 1BPP
+    }
     buf_area.height = ((3 * AVERAGE_CHAR_WIDTH / 2) + 7) & 0xFFF8;
     if (buf_area.bpp == NBGL_BPP_4) {
         buf_area.backgroundColor = 0xF;  // This will be the transparent color
@@ -1005,18 +998,14 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
             // if \b, switch fontId
             if (current_char.unicode == '\b') {
                 if (fontId == BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp) {  // switch to bold
-                    fontId = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
-#ifdef HAVE_UNICODE_SUPPORT
+                    fontId      = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
                     unicode_ctx = nbgl_getUnicodeFont(fontId);
-#endif  // HAVE_UNICODE_SUPPORT
-                    font = (const nbgl_font_t *) nbgl_getFont(fontId);
+                    font        = (const nbgl_font_t *) nbgl_getFont(fontId);
                 }
                 else if (fontId == BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp) {  // switch to regular
-                    fontId = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
-#ifdef HAVE_UNICODE_SUPPORT
+                    fontId      = BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp;
                     unicode_ctx = nbgl_getUnicodeFont(fontId);
-#endif  // HAVE_UNICODE_SUPPORT
-                    font = (const nbgl_font_t *) nbgl_getFont(fontId);
+                    font        = (const nbgl_font_t *) nbgl_getFont(fontId);
                 }
                 continue;
             }

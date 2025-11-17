@@ -15,19 +15,13 @@ extern "C" {
  *      INCLUDES
  *********************/
 #include "nbgl_types.h"
-#ifdef HAVE_LANGUAGE_PACK
-#include "ux_loc_nbgl.h"
-#endif  // HAVE_LANGUAGE_PACK
+#include "ux_loc.h"
 
 /*********************
  *      DEFINES
  *********************/
 #define PIC_CHAR(x) ((const nbgl_font_character_t *) PIC(x))
 #define PIC_BMP(x)  ((uint8_t const *) PIC(x))
-
-#ifndef HAVE_LANGUAGE_PACK
-#define LANGUAGE_PACK void
-#endif  // HAVE_LANGUAGE_PACK
 
 /**
  * @brief fonts nicknames to be used for various wallet size targets (non-Nano)
@@ -133,12 +127,6 @@ typedef struct {
     uint8_t  crop;          ///< If false, x_min_offset+y_min_offset=bytes to skip
     uint8_t  y_min;         ///< Most top Y coordinate of any char in the font
     uint8_t  unused[3];     ///< for alignment
-#if !defined(HAVE_LANGUAGE_PACK)
-    // When using language packs, those 2 pointers does not exists
-    const nbgl_font_unicode_character_t
-        *const     characters;  ///< array containing definitions of all characters
-    uint8_t const *bitmap;      ///< array containing bitmaps of all characters
-#endif                          //! defined(HAVE_LANGUAGE_PACK)
 } nbgl_font_unicode_t;
 
 typedef enum {
@@ -221,12 +209,10 @@ uint8_t nbgl_getTextNbPagesInWidth(nbgl_font_id_e fontId,
                                    uint16_t       maxWidth);
 
 uint32_t nbgl_popUnicodeChar(const uint8_t **text, uint16_t *text_length, bool *is_unicode);
-#ifdef HAVE_UNICODE_SUPPORT
 nbgl_unicode_ctx_t                  *nbgl_getUnicodeFont(nbgl_font_id_e font_id);
 const nbgl_font_unicode_character_t *nbgl_getUnicodeFontCharacter(uint32_t unicode);
 uint32_t                             nbgl_getUnicodeFontCharacterByteCount(void);
 void                                 nbgl_refreshUnicodeFont(const LANGUAGE_PACK *lp);
-#endif  // HAVE_UNICODE_SUPPORT
 
 /**********************
  *      MACROS
