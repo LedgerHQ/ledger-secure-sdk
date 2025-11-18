@@ -96,6 +96,8 @@ def parse_bip32_path(path):
     for element in elements:
         if element.endswith("\'"):
             value = 0x80000000 | int(element[:-1])
+        elif element == "*":
+            value = 0x7fffffff
         else:
             value = int(element)
         result += struct.pack(">I", value)
