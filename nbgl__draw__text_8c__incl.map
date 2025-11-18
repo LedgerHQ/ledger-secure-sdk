@@ -1,0 +1,37 @@
+<map id="lib_nbgl/src/nbgl_draw_text.c" name="lib_nbgl/src/nbgl_draw_text.c">
+<area shape="rect" id="Node000001" title="Implementation of middle&#45;level API to draw text." alt="" coords="277,5,443,45"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="49,93,119,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="295,48,134,93,132,88,293,43"/>
+<area shape="rect" id="Node000003" href="$nbgl__front_8h.html" title="Font screen low&#45;Level driver API, to draw elementary forms." alt="" coords="38,167,138,192"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="315,48,216,96,162,129,116,161,113,156,159,124,213,91,313,43"/>
+<area shape="rect" id="Node000010" href="$nbgl__draw_8h.html" title="Middle Level API of the new BOLOS Graphical Library." alt="" coords="246,93,346,119"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="347,47,316,84,312,81,342,44"/>
+<area shape="rect" id="Node000011" href="$nbgl__fonts_8h.html" title=" " alt="" coords="334,167,437,192"/>
+<area shape="poly" id="edge14_Node000001_Node000011" title=" " alt="" coords="431,43,466,62,482,76,494,92,499,104,499,115,486,135,463,151,436,164,434,159,460,147,482,132,493,114,494,105,490,95,478,80,463,67,429,48"/>
+<area shape="rect" id="Node000013" href="$nbgl__debug_8h.html" title="debug traces management" alt="" coords="371,93,480,119"/>
+<area shape="poly" id="edge15_Node000001_Node000013" title=" " alt="" coords="378,44,409,81,405,84,374,47"/>
+<area shape="rect" id="Node000014" href="$nbgl__side_8h.html" title="Side screen low&#45;Level driver API, to draw elementary forms." alt="" coords="163,167,259,192"/>
+<area shape="poly" id="edge16_Node000001_Node000014" title=" " alt="" coords="304,48,268,67,237,95,222,123,215,153,210,152,217,122,233,92,265,63,301,43"/>
+<area shape="rect" id="Node000015" title=" " alt="" coords="555,93,629,119"/>
+<area shape="poly" id="edge18_Node000001_Node000015" title=" " alt="" coords="416,43,546,86,544,91,415,48"/>
+<area shape="rect" id="Node000016" title=" " alt="" coords="654,93,738,119"/>
+<area shape="poly" id="edge19_Node000001_Node000016" title=" " alt="" coords="441,43,641,89,640,94,440,48"/>
+<area shape="rect" id="Node000004" href="$nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="189,240,294,265"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="114,190,205,232,203,237,112,194"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="5,313,80,339"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="210,268,89,311,87,306,209,263"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="105,313,175,339"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="227,268,169,307,166,303,224,263"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="200,313,283,339"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="244,266,244,300,239,300,239,266"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="307,313,411,339"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="262,263,329,304,326,308,259,268"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="435,313,549,339"/>
+<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="282,263,439,307,437,312,281,268"/>
+<area shape="poly" id="edge10_Node000010_Node000004" title=" " alt="" coords="296,120,273,193,257,229,252,227,268,191,291,118"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="312,117,362,156,358,160,309,121"/>
+<area shape="poly" id="edge12_Node000011_Node000004" title=" " alt="" coords="363,194,278,236,276,231,361,190"/>
+<area shape="rect" id="Node000012" title=" " alt="" coords="347,240,423,265"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="388,192,388,226,383,226,383,192"/>
+<area shape="poly" id="edge17_Node000014_Node000004" title=" " alt="" coords="218,191,233,227,229,229,213,193"/>
+</map>

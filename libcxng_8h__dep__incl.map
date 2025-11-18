@@ -1,0 +1,16 @@
+<map id="lib_cxng/include/libcxng.h" name="lib_cxng/include/libcxng.h">
+<area shape="rect" id="Node000001" title="Include cryptography files." alt="" coords="265,5,455,31"/>
+<area shape="rect" id="Node000002" href="$lcx__rng_8h.html" title="Random Number Generation." alt="" coords="285,79,435,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="354,44,355,78,350,79,349,44"/>
+<area shape="poly" id="edge2_Node000002_Node000001" title=" " alt="" coords="366,65,364,31,369,31,372,65"/>
+<area shape="rect" id="Node000003" href="$cx__ram_8h.html" title=" " alt="" coords="5,174,168,199"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="288,125,124,177,122,171,286,120"/>
+<area shape="rect" id="Node000005" href="$cx__rng__rfc6979_8h.html" title=" " alt="" coords="192,167,339,207"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="331,130,288,168,284,164,327,126"/>
+<area shape="rect" id="Node000006" href="$nbgl__layout_8c.html" title="Implementation of predefined layouts management for Applications." alt="" coords="363,174,549,199"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="393,126,445,172,441,176,390,130"/>
+<area shape="rect" id="Node000007" href="$nbgl__obj__keypad_8c.html" title="The construction and touch management of a keypad object." alt="" coords="573,167,728,207"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="437,120,588,164,586,169,436,125"/>
+<area shape="rect" id="Node000004" href="$cx__ram_8c.html" title=" " alt="" coords="5,255,168,280"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="89,213,89,254,84,254,84,213"/>
+</map>
