@@ -55,6 +55,8 @@
 #define GET_PREV(_heap, _ptr) ((header_t *) (((uint8_t *) _heap) + ((_ptr)->fprev << 3)))
 #define GET_NEXT(_heap, _ptr) ((header_t *) (((uint8_t *) _heap) + ((_ptr)->fnext << 3)))
 
+#define GET_SEGMENT(_size) MAX(NB_LINEAR_SEGMENTS, (31 - __builtin_clz(size)))
+
 /**********************
  *      TYPEDEFS
  **********************/
@@ -93,9 +95,16 @@ static inline int seglist_index(heap_t *heap, size_t size)
     size_t  seg;
     uint8_t sub_segment;
 
-    seg = MAX(NB_LINEAR_SEGMENTS, (31 - __builtin_clz(size)));
-    // sub segment size is 1/(NB_SUB_SEGMENTS*2) of the size of the segment
-    sub_segment = (size >> (seg - 2)) & 0x3;
+    seg = GET_SEGMENT(size);
+    if (seg == NB_LINEAR_SEGMENTS) {
+        // for the aggregated segment, the sub-segmant size is 1/NB_SUB_SEGMENTS of the size of the
+        // segment
+        sub_segment = (size >> (seg - 1)) & 0x3;
+    }
+    else {
+        // sub segment size is 1/(NB_SUB_SEGMENTS*2) of the size of the segment
+        sub_segment = (size >> (seg - 2)) & 0x3;
+    }
     // from size in [0 : 63[, segment is 0 to 5 but is forced to 0
     // from size in [2^6 : 2^13[, segment is [6 : 12] but is forced to [1 : 7]
     seg -= NB_LINEAR_SEGMENTS;
@@ -114,16 +123,31 @@ static inline int seglist_index_up(heap_t *heap, size_t size)
     uint8_t sub_segment;
     size_t  sub_segment_size;
 
-    seg = MAX(NB_LINEAR_SEGMENTS, (31 - __builtin_clz(size)));
-    // sub segment size is 1/(NB_SUB_SEGMENTS*2) of the size of the segment
-    sub_segment_size = (1 << (seg - 2));
+    seg = GET_SEGMENT(size);
+    if (seg == NB_LINEAR_SEGMENTS) {
+        // for the aggregated segment, the sub-segmant size is 1/NB_SUB_SEGMENTS of the size of the
+        // segment
+        sub_segment_size = (1 << (seg - 1));
+    }
+    else {
+        // sub segment size is 1/(NB_SUB_SEGMENTS*2) of the size of the segment
+        sub_segment_size = (1 << (seg - 2));
+    }
 
     // round size to next sub-segment
     size += sub_segment_size - 1;
     size &= ~(sub_segment_size - 1);
 
-    seg         = MAX(NB_LINEAR_SEGMENTS, (31 - __builtin_clz(size)));
-    sub_segment = (size >> (seg - 2)) & 0x3;
+    seg = GET_SEGMENT(size);
+    if (seg == NB_LINEAR_SEGMENTS) {
+        // for the aggregated segment, the sub-segmant size is 1/NB_SUB_SEGMENTS of the size of the
+        // segment
+        sub_segment = (size >> (seg - 1)) & 0x3;
+    }
+    else {
+        // sub segment size is 1/(NB_SUB_SEGMENTS*2) of the size of the segment
+        sub_segment = (size >> (seg - 2)) & 0x3;
+    }
 
     // from size in [0 : 63[, segment is 0 to 5 but is forced to 0
     // from size in [2^6 : 2^13[, segment is [6 : 12] but is forced to [1 : 7]
