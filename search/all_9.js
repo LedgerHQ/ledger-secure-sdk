@@ -30,13 +30,14 @@ var searchData=
   ['get_5fprintable_5famount_5fparameters_5fs_27',['get_printable_amount_parameters_s',['../structget__printable__amount__parameters__s.html',1,'']]],
   ['get_5fprintable_5famount_5fparameters_5ft_28',['get_printable_amount_parameters_t',['../swap__lib__calls_8h.html#a36af800bd16616fd12d49b085c6676d7',1,'swap_lib_calls.h']]],
   ['get_5fptr_29',['GET_PTR',['../mem__alloc_8c.html#a1bac9dc8b7ada4a309e4d7df48007417',1,'mem_alloc.c']]],
-  ['getting_20a_20new_20layout_30',['Getting a new layout',['../nbgl_layout.html#create_layout',1,'']]],
-  ['gl_20api_31',['Advanced BOLOS GL API',['../nbgl_obj.html',1,'nbgl_mainpage']]],
-  ['glogger_32',['gLogger',['../nbgl__debug_8h.html#a1c4c999c90f14a32c65dd4ef82ead9cf',1,'nbgl_debug.h']]],
-  ['graphic_20api_20for_20stax_20flex_33',['New BOLOS Graphic API for Stax/Flex',['../nbgl_mainpage.html',1,'index']]],
-  ['graphic_20objects_34',['graphic objects',['../nbgl_obj.html#create_objects',1,'Creating graphic objects'],['../nbgl_obj.html#draw_objects',1,'Drawing graphic objects']]],
-  ['graphic_20objects_20hierarchy_35',['Graphic objects hierarchy',['../nbgl_obj.html#obj_hierarchy',1,'']]],
-  ['graphical_20library_20for_20nanos_36',['User Experience (graphical) library for Nanos',['../ux_mainpage.html',1,'index']]],
-  ['grayedout_37',['grayedOut',['../structnbgl__layoutKeyboardContent__t.html#afa889e376078dc29ef04306f2c335512',1,'nbgl_layoutKeyboardContent_t']]],
-  ['gzlib_5funcompressed_5fchunk_38',['GZLIB_UNCOMPRESSED_CHUNK',['../nbgl__types_8h.html#a808a311dc872fc2ed54ae995ebba0c30',1,'nbgl_types.h']]]
+  ['get_5fsegment_30',['GET_SEGMENT',['../mem__alloc_8c.html#a7648f1952eabe534ca9a37ae8cca57e1',1,'mem_alloc.c']]],
+  ['getting_20a_20new_20layout_31',['Getting a new layout',['../nbgl_layout.html#create_layout',1,'']]],
+  ['gl_20api_32',['Advanced BOLOS GL API',['../nbgl_obj.html',1,'nbgl_mainpage']]],
+  ['glogger_33',['gLogger',['../nbgl__debug_8h.html#a1c4c999c90f14a32c65dd4ef82ead9cf',1,'nbgl_debug.h']]],
+  ['graphic_20api_20for_20stax_20flex_34',['New BOLOS Graphic API for Stax/Flex',['../nbgl_mainpage.html',1,'index']]],
+  ['graphic_20objects_35',['graphic objects',['../nbgl_obj.html#create_objects',1,'Creating graphic objects'],['../nbgl_obj.html#draw_objects',1,'Drawing graphic objects']]],
+  ['graphic_20objects_20hierarchy_36',['Graphic objects hierarchy',['../nbgl_obj.html#obj_hierarchy',1,'']]],
+  ['graphical_20library_20for_20nanos_37',['User Experience (graphical) library for Nanos',['../ux_mainpage.html',1,'index']]],
+  ['grayedout_38',['grayedOut',['../structnbgl__layoutKeyboardContent__t.html#afa889e376078dc29ef04306f2c335512',1,'nbgl_layoutKeyboardContent_t']]],
+  ['gzlib_5funcompressed_5fchunk_39',['GZLIB_UNCOMPRESSED_CHUNK',['../nbgl__types_8h.html#a808a311dc872fc2ed54ae995ebba0c30',1,'nbgl_types.h']]]
 ];

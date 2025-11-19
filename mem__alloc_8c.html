@@ -162,6 +162,8 @@ Macros</h2></td></tr>
 <tr class="separator:af479eb4b0bb80da4bd499d3c381e2448"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a14df2aa367304a7af4a6e9683ceacc7b" id="r_a14df2aa367304a7af4a6e9683ceacc7b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem__alloc_8c.html#a14df2aa367304a7af4a6e9683ceacc7b">GET_NEXT</a>(_heap,  _ptr)&#160;&#160;&#160;((<a class="el" href="mem__alloc_8c.html#a4eb4dd7e74c119ccddb3032242467d65">header_t</a> *) (((uint8_t *) _heap) + ((_ptr)-&gt;fnext &lt;&lt; 3)))</td></tr>
 <tr class="separator:a14df2aa367304a7af4a6e9683ceacc7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7648f1952eabe534ca9a37ae8cca57e1" id="r_a7648f1952eabe534ca9a37ae8cca57e1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem__alloc_8c.html#a7648f1952eabe534ca9a37ae8cca57e1">GET_SEGMENT</a>(_size)&#160;&#160;&#160;<a class="el" href="nbgl__types_8h.html#aacc3ee1a7f283f8ef65cea31f4436a95">MAX</a>(<a class="el" href="mem__alloc_8c.html#a8058fbf7d82fe708211303742403267d">NB_LINEAR_SEGMENTS</a>, (31 - __builtin_clz(size)))</td></tr>
+<tr class="separator:a7648f1952eabe534ca9a37ae8cca57e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -343,6 +345,26 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a7648f1952eabe534ca9a37ae8cca57e1" name="a7648f1952eabe534ca9a37ae8cca57e1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7648f1952eabe534ca9a37ae8cca57e1">&#9670;&#160;</a></span>GET_SEGMENT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define GET_SEGMENT</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">_size</td><td>)</td>
+          <td>&#160;&#160;&#160;<a class="el" href="nbgl__types_8h.html#aacc3ee1a7f283f8ef65cea31f4436a95">MAX</a>(<a class="el" href="mem__alloc_8c.html#a8058fbf7d82fe708211303742403267d">NB_LINEAR_SEGMENTS</a>, (31 - __builtin_clz(size)))</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00058">58</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
+
+</div>
+</div>
 <a id="a9ebf5b594d31378d8f5cc22c6d8f7a95" name="a9ebf5b594d31378d8f5cc22c6d8f7a95"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9ebf5b594d31378d8f5cc22c6d8f7a95">&#9670;&#160;</a></span>HEAP_HEADER_SIZE</h2>
 
@@ -492,7 +514,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>either a valid address if successful, or NULL if failed (no more memory or invalid nb_bytes) </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00322">322</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00346">346</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
 
 </div>
 </div>
@@ -531,7 +553,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00408">408</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00432">432</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
 
 </div>
 </div>
@@ -571,7 +593,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the context to use for further calls, or NULL if failling </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00285">285</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00309">309</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
 
 </div>
 </div>
@@ -617,7 +639,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00441">441</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00465">465</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
 
 </div>
 </div>
@@ -656,7 +678,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00479">479</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00503">503</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
 
 </div>
 </div>
