@@ -1,13 +1,23 @@
 <map id="lib_cxng/include/lcx_cipher.h" name="lib_cxng/include/lcx_cipher.h">
-<area shape="rect" id="Node000001" title="API for block ciphers." alt="" coords="129,5,280,45"/>
-<area shape="rect" id="Node000002" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="5,93,196,119"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="170,56,118,95,115,91,167,51"/>
-<area shape="rect" id="Node000003" href="$cx__cipher_8h.html" title=" " alt="" coords="221,93,397,119"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="242,51,295,91,291,95,239,56"/>
-<area shape="rect" id="Node000004" href="$cx__cipher_8c.html" title=" " alt="" coords="125,167,300,192"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="284,129,230,169,227,164,281,125"/>
-<area shape="rect" id="Node000005" href="$cx__ram_8h.html" title=" " alt="" coords="325,167,487,192"/>
-<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="337,125,392,164,389,169,334,129"/>
-<area shape="rect" id="Node000006" href="$cx__ram_8c.html" title=" " alt="" coords="325,240,487,265"/>
-<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="409,206,409,240,403,240,403,206"/>
+<area shape="rect" id="Node000001" title="API for block ciphers." alt="" coords="190,5,341,45"/>
+<area shape="rect" id="Node000002" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="170,93,361,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="268,59,268,93,263,93,263,59"/>
+<area shape="rect" id="Node000004" href="$cx__ram_8h.html" title=" " alt="" coords="5,262,168,287"/>
+<area shape="poly" id="edge11_Node000001_Node000004" title=" " alt="" coords="211,54,183,72,159,95,131,139,111,187,91,263,86,261,106,185,126,137,155,92,180,68,208,50"/>
+<area shape="rect" id="Node000009" href="$cx__cipher_8h.html" title=" " alt="" coords="385,93,561,119"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="329,48,444,91,442,96,327,53"/>
+<area shape="rect" id="Node000003" href="$lcx__rng_8h.html" title="Random Number Generation." alt="" coords="190,167,341,207"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="260,132,260,166,255,167,254,132"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="272,153,269,119,275,119,277,153"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="215,215,112,264,109,260,213,210"/>
+<area shape="rect" id="Node000006" href="$cx__rng__rfc6979_8h.html" title=" " alt="" coords="192,255,339,295"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="268,221,268,254,263,254,263,221"/>
+<area shape="rect" id="Node000007" href="$nbgl__layout_8c.html" title="Implementation of predefined layouts management for Applications." alt="" coords="363,262,549,287"/>
+<area shape="poly" id="edge7_Node000003_Node000007" title=" " alt="" coords="321,210,432,260,430,264,319,215"/>
+<area shape="rect" id="Node000008" href="$nbgl__obj__keypad_8c.html" title="The construction and touch management of a keypad object." alt="" coords="573,255,728,295"/>
+<area shape="poly" id="edge8_Node000003_Node000008" title=" " alt="" coords="355,205,574,254,573,259,354,210"/>
+<area shape="rect" id="Node000005" href="$cx__ram_8c.html" title=" " alt="" coords="5,343,168,368"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="89,301,89,342,84,342,84,301"/>
+<area shape="rect" id="Node000010" href="$cx__cipher_8c.html" title=" " alt="" coords="386,174,561,199"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="476,132,476,174,471,174,471,132"/>
 </map>
