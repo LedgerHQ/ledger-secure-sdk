@@ -270,8 +270,8 @@ void io_seproxyhal_init(void)
 #endif  // TARGET_FLEX
 #if defined(TARGET_APEX_P)
     init_io.usb.pid = USBD_LEDGER_INVERTED_PRODUCT_APEX_P;
-#endif  // TARGET_APEX_M
-#if defined(TARGET_FLEX)
+#endif  // TARGET_APEX_P
+#if defined(TARGET_APEX_M)
     init_io.usb.pid = USBD_LEDGER_INVERTED_PRODUCT_APEX_M;
 #endif  // TARGET_APEX_M
 #endif  // HAVE_LEGACY_PID
