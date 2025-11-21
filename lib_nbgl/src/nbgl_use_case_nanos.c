@@ -1919,7 +1919,7 @@ static void displayWarningStep(void)
                           warningNavigate,
                           NULL,
                           reviewWithWarnCtx.warning->prelude->title,
-                          NULL,
+                          reviewWithWarnCtx.warning->prelude->description,
                           REGULAR_INFO,
                           false);
         nbgl_refresh();
