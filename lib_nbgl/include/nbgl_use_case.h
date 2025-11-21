@@ -275,6 +275,7 @@ typedef enum {
     W3C_THREAT_DETECTED_WARN,  ///< Web3 Checks: Threat detected (see reportRisk field)
     W3C_NO_THREAT_WARN,        ///< Web3 Checks: No Threat detected
     BLIND_SIGNING_WARN,        ///< Blind signing
+    GATED_SIGNING_WARN,        ///< Gated signing
     NB_WARNING_TYPES
 } nbgl_warningType_t;
 
