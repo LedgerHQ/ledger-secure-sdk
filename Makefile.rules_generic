@@ -62,7 +62,7 @@ clean:
 	rm -fr $(BUILD_DIR) bin debug
 
 clean_target:
-	rm -fr $(TARGET_BUILD_DIR)
+	rm -fr $(TARGET_BUILD_DIR) $(TARGET_SCAN_DIR)
 
 BUILD_DEPENDENCIES  = $(GLYPH_DESTH) $(GLYPH_DESTC) Makefile
 BUILD_DEPENDENCIES += $(APP_CUSTOM_BUILD_DEPENDENCIES)
@@ -208,7 +208,7 @@ as_cmdline = $(AS) -c $(AFLAGS) $(addprefix -I,$(1)) -o $(3) $(2)
 
 # Run Clang Static Analyzer
 SCAN_BUILD ?= scan-build
-SCAN_BUILD_OUTPUT ?= $(CURDIR)/output-scan-build
+SCAN_BUILD_OUTPUT ?= $(TARGET_SCAN_DIR)/output-scan
 .PHONY: scan-build
 scan-build:
-	$(SCAN_BUILD) --use-cc=$(CC) -analyze-headers -enable-checker security -enable-checker unix -enable-checker valist --status-bugs -o $(SCAN_BUILD_OUTPUT) $(MAKE)
+	$(SCAN_BUILD) --use-cc=$(CC) -analyze-headers -enable-checker security -enable-checker unix -enable-checker valist --status-bugs -o $(SCAN_BUILD_OUTPUT) $(MAKE) RUN_SCAN=true

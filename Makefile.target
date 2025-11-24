@@ -48,6 +48,15 @@ SDK_HASH := "None"
 endif
 
 BUILD_DIR := build
+SCAN_DIR := $(BUILD_DIR)/scan
+TARGET_SCAN_DIR := $(SCAN_DIR)/$(TARGET)
+
+RUN_SCAN ?= false
+ifeq ($(RUN_SCAN),true)
+# Override BUILD_DIR to use 'scan' subdirectory
+BUILD_DIR := $(SCAN_DIR)
+endif
+
 TARGET_BUILD_DIR := $(BUILD_DIR)/$(TARGET)
 BIN_DIR := $(TARGET_BUILD_DIR)/bin
 OBJ_DIR := $(TARGET_BUILD_DIR)/obj
