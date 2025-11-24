@@ -2421,17 +2421,9 @@ static void displaySecurityReport(uint32_t set)
     nbgl_layoutFooter_t      footerDesc
         = {.type = FOOTER_EMPTY, .separationLine = false, .emptySpace.height = 0};
     uint8_t     i;
-    uint8_t     nbWarnings = 0;
     const char *provider;
 
     reviewWithWarnCtx.modalLayout = nbgl_layoutGet(&layoutDescription);
-
-    // count the number of warnings
-    for (i = 0; i < NB_WARNING_TYPES; i++) {
-        if ((set & (1 << i)) && (i != W3C_NO_THREAT_WARN)) {
-            nbWarnings++;
-        }
-    }
 
     // display a list of touchable bars in some conditions:
     // - we must be in the first level of security report
@@ -2439,7 +2431,9 @@ static void displaySecurityReport(uint32_t set)
     //
     if ((reviewWithWarnCtx.securityReportLevel == 1) && (!reviewWithWarnCtx.isIntro)) {
         for (i = 0; i < NB_WARNING_TYPES; i++) {
-            if (reviewWithWarnCtx.warning->predefinedSet & (1 << i)) {
+            // Skip GATED_SIGNING_WARN from security report bars
+            if ((i != GATED_SIGNING_WARN)
+                && (reviewWithWarnCtx.warning->predefinedSet & (1 << i))) {
                 nbgl_layoutBar_t bar = {0};
                 if ((i == BLIND_SIGNING_WARN) || (i == W3C_NO_THREAT_WARN) || (i == W3C_ISSUE_WARN)
                     || (reviewWithWarnCtx.warning->providerMessage == NULL)) {
@@ -2561,6 +2555,8 @@ static void displayInitialWarning(void)
     uint32_t                   set         = reviewWithWarnCtx.warning->predefinedSet
                    & ~((1 << W3C_NO_THREAT_WARN) | (1 << W3C_ISSUE_WARN));
 
+    bool isBlindSigningOnly
+        = (set != 0) && ((set & ~((1 << BLIND_SIGNING_WARN) | (1 << GATED_SIGNING_WARN))) == 0);
     reviewWithWarnCtx.isIntro = true;
 
     layoutDescription.modal          = false;
@@ -2574,11 +2570,11 @@ static void displayInitialWarning(void)
 
     nbgl_layoutAddHeader(reviewWithWarnCtx.layoutCtx, &headerDesc);
     if (reviewWithWarnCtx.warning->predefinedSet != 0) {
-        nbgl_layoutAddTopRightButton(
-            reviewWithWarnCtx.layoutCtx,
-            (set == (1 << BLIND_SIGNING_WARN)) ? &INFO_I_ICON : &QRCODE_ICON,
-            WARNING_BUTTON_TOKEN,
-            TUNE_TAP_CASUAL);
+        // icon is different in casee of Blind Siging or Gated Signing
+        nbgl_layoutAddTopRightButton(reviewWithWarnCtx.layoutCtx,
+                                     isBlindSigningOnly ? &INFO_I_ICON : &QRCODE_ICON,
+                                     WARNING_BUTTON_TOKEN,
+                                     TUNE_TAP_CASUAL);
     }
     else if (reviewWithWarnCtx.warning->introTopRightIcon != NULL) {
         nbgl_layoutAddTopRightButton(reviewWithWarnCtx.layoutCtx,
@@ -2596,8 +2592,8 @@ static void displayInitialWarning(void)
         // default icon
         info.icon = &LARGE_WARNING_ICON;
 
-        // use small title only if not Blind signing only
-        if (set != (1 << BLIND_SIGNING_WARN)) {
+        // use small title only if not Blind signing and not Gated signing
+        if (isBlindSigningOnly == false) {
             if (reviewWithWarnCtx.warning->reportProvider) {
                 provider = reviewWithWarnCtx.warning->reportProvider;
             }
@@ -2608,12 +2604,21 @@ static void displayInitialWarning(void)
             snprintf(tmpString, W3C_DESCRIPTION_MAX_LEN, "Detected by %s", provider);
         }
 
-        if (set == (1 << BLIND_SIGNING_WARN)) {
+        // If Blind Signing or Gated Signing
+        if (isBlindSigningOnly) {
             info.title = "Blind signing ahead";
-            info.description
-                = "This transaction's details are not fully verifiable. If you sign, you could "
-                  "lose all your assets.";
-            buttonsInfo.bottomText = "Continue anyway";
+            if (set & (1 << GATED_SIGNING_WARN)) {
+                info.description
+                    = "If you sign this transaction, you could loose all your assets. "
+                      "Explore safer alternatives: ledger.com/integrated-apps";
+                buttonsInfo.bottomText = "Accept risk and continue";
+            }
+            else {
+                info.description
+                    = "This transaction's details are not fully verifiable. If you sign, you could "
+                      "lose all your assets.";
+                buttonsInfo.bottomText = "Continue anyway";
+            }
 #ifdef HAVE_PIEZO_SOUND
             tune = TUNE_NEUTRAL;
 #endif  // HAVE_PIEZO_SOUND
