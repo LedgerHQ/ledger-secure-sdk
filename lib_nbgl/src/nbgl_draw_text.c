@@ -37,6 +37,24 @@
 // Maximum number of pixels used for RLE COPY
 #define MAX_RLE_COPY_PIXELS 5
 
+// New RLE Custom commands (all possible quartets from 0000 to 1111)
+#define RLE_CMD_COPY_2               0x00
+#define RLE_CMD_COPY_3               0x01
+#define RLE_CMD_COPY_4               0x02
+#define RLE_CMD_COPY_5               0x03
+#define RLE_CMD_FILL_3               0x04
+#define RLE_CMD_FILL_2               0x05
+#define RLE_CMD_2PATTERN_INDEXED_B2W 0x06
+#define RLE_CMD_2PATTERN_INDEXED_W2B 0x07
+#define RLE_CMD_1PATTERN_B2W         0x08
+#define RLE_CMD_1PATTERN_W2B         0x09
+#define RLE_CMD_2PATTERN_B2W         0x0A
+#define RLE_CMD_2PATTERN_W2B         0x0B
+#define RLE_CMD_FILL_BLACK           0x0C
+#define RLE_CMD_FILL_1               0x0D
+#define RLE_CMD_FILL_WHITE           0x0E
+#define RLE_CMD_FILL_WHITE_16        0x0F
+
 /**********************
  *      TYPEDEFS
  **********************/
@@ -251,11 +269,12 @@ static inline void get_next_pixels(rle_context_t *context, size_t remaining_widt
 
     // Update nb_pix & color depending on command
     switch (cmd) {
-        // Is it a COPY command?
-        case 0x00:
-        case 0x01:
-        case 0x02:
-        case 0x03:
+            // Is it a COPY command?
+
+        case RLE_CMD_COPY_2:
+        case RLE_CMD_COPY_3:
+        case RLE_CMD_COPY_4:
+        case RLE_CMD_COPY_5:
             // CMD=00RR + VVVV + WWWW + XXXX + YYYY + ZZZZ => COPY Quartets
             // - RR is repeat count - 2 of quartets (max=2+3 => 5 quartets)
             // - VVVV: value of 1st 4BPP pixel
@@ -274,37 +293,37 @@ static inline void get_next_pixels(rle_context_t *context, size_t remaining_widt
         // Is it a FILL command?
 
         // CMD=0100 + VVVV + RRRR => FILL Value x Repeat+3 (max=18)
-        case 0x04:
+        case RLE_CMD_FILL_3:
             context->color  = get_next_quartet(context);
             context->nb_pix = get_next_quartet(context) + 3;
             break;
 
         // CMD=0101 + VVVV => FILL Value x 2
-        case 0x05:
+        case RLE_CMD_FILL_2:
             context->color  = get_next_quartet(context);
             context->nb_pix = 2;
             break;
 
         // CMD=1100 + RRRR => FILL Black (max=16)
-        case 0x0C:
+        case RLE_CMD_FILL_BLACK:
             context->color  = 0;
             context->nb_pix = get_next_quartet(context) + 1;
             break;
 
         // CMD=1101 + VVVV => Fill Value x 1
-        case 0x0D:
+        case RLE_CMD_FILL_1:
             context->color  = get_next_quartet(context);
             context->nb_pix = 1;
             break;
 
         // CMD=111R + RRRR => FILL White (max=32)
-        case 0x0E:
+        case RLE_CMD_FILL_WHITE:
             context->color  = 0x0F;
             context->nb_pix = get_next_quartet(context) + 1;
             break;
 
         // CMD=111R + RRRR => FILL White (max=32)
-        case 0x0F:
+        case RLE_CMD_FILL_WHITE_16:
             context->color  = 0x0F;
             context->nb_pix = get_next_quartet(context) + 16 + 1;
             break;
@@ -312,7 +331,7 @@ static inline void get_next_pixels(rle_context_t *context, size_t remaining_widt
         // Is it a PATTERN related command?
 
         // CMD=0110 + IIII => Double Pattern Indexed Black to White: 0x00, Val1, val2, 0x0F
-        case 0x06: {
+        case RLE_CMD_2PATTERN_INDEXED_B2W: {
             uint8_t index   = get_next_quartet(context);
             uint8_t pattern = context->patterns[index];
 
@@ -326,7 +345,7 @@ static inline void get_next_pixels(rle_context_t *context, size_t remaining_widt
         }
 
         // CMD=0111 + IIII => Double Pattern Indexed White to Black: 0x0F, Val2, Val1, 0x00
-        case 0x07: {
+        case RLE_CMD_2PATTERN_INDEXED_W2B: {
             uint8_t index   = get_next_quartet(context);
             uint8_t pattern = context->patterns[index];
 
@@ -340,7 +359,7 @@ static inline void get_next_pixels(rle_context_t *context, size_t remaining_widt
         }
 
         // CMD=1000 + VVVV => Simple Pattern Black to White: 0x00, VVVV, 0x0F
-        case 0x08: {
+        case RLE_CMD_1PATTERN_B2W: {
             context->pixels[0] = 0x00;
             context->pixels[1] = get_next_quartet(context);
             context->pixels[2] = 0x0F;
@@ -350,7 +369,7 @@ static inline void get_next_pixels(rle_context_t *context, size_t remaining_widt
         }
 
         // CMD=1001 + VVVV => Simple Pattern White to Black: 0x0F, VVVV, 0x00
-        case 0x09: {
+        case RLE_CMD_1PATTERN_W2B: {
             context->pixels[0] = 0x0F;
             context->pixels[1] = get_next_quartet(context);
             context->pixels[2] = 0x00;
@@ -360,7 +379,7 @@ static inline void get_next_pixels(rle_context_t *context, size_t remaining_widt
         }
 
         // CMD=1010 + VVVV + WWWW => Double Pattern Black to White: 0x00, VVVV, WWWW, 0x0F
-        case 0x0A: {
+        case RLE_CMD_2PATTERN_B2W: {
             context->pixels[0] = 0x00;
             context->pixels[1] = get_next_quartet(context);
             context->pixels[2] = get_next_quartet(context);
@@ -371,7 +390,7 @@ static inline void get_next_pixels(rle_context_t *context, size_t remaining_widt
         }
 
         // CMD=1011 + VVVV + WWWW => Double Pattern White to Black: 0x0F, WWWW, VVVV, 0x00
-        case 0x0B: {
+        case RLE_CMD_2PATTERN_W2B: {
             context->pixels[0] = 0x0F;
             context->pixels[2] = get_next_quartet(context);
             context->pixels[1] = get_next_quartet(context);
@@ -388,6 +407,8 @@ static inline void get_next_pixels(rle_context_t *context, size_t remaining_widt
  * (we handle transparency, meaning when resulting pixel is 0xF we don't store it)
  *
  * 4BPP RLE Decoder - The provided bytes contains:
+ *
+ *       CMD + DATA:
  *
  *       1000 + VVVV => Simple Pattern Black to White: 0x0, VVVV, 0xF
  *       1001 + VVVV => Simple Pattern White to Black: 0xF, VVVV, 0x0
