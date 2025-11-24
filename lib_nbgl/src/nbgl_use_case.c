@@ -2421,17 +2421,9 @@ static void displaySecurityReport(uint32_t set)
     nbgl_layoutFooter_t      footerDesc
         = {.type = FOOTER_EMPTY, .separationLine = false, .emptySpace.height = 0};
     uint8_t     i;
-    uint8_t     nbWarnings = 0;
     const char *provider;
 
     reviewWithWarnCtx.modalLayout = nbgl_layoutGet(&layoutDescription);
-
-    // count the number of warnings
-    for (i = 0; i < NB_WARNING_TYPES; i++) {
-        if ((set & (1 << i)) && (i != W3C_NO_THREAT_WARN)) {
-            nbWarnings++;
-        }
-    }
 
     // display a list of touchable bars in some conditions:
     // - we must be in the first level of security report
