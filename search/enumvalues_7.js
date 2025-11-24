@@ -1,14 +1,17 @@
 var searchData=
 [
-  ['icon_5fillustration_0',['ICON_ILLUSTRATION',['../nbgl__content_8h.html#a264c6a334bd2d1849a4e3e07a598c6d4afdc84edea40179178612d3a5d6978baf',1,'nbgl_content.h']]],
-  ['image_1',['IMAGE',['../nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7a3501d25cdde2b141c20edb67965fb692',1,'nbgl_types.h']]],
-  ['image_5ffile_2',['IMAGE_FILE',['../nbgl__types_8h.html#aabda6232106281a9b84f3464fb43f8a7a42c5262cb189a2f53ef92e0168437809',1,'nbgl_types.h']]],
-  ['info_5fbutton_3',['INFO_BUTTON',['../nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203af4924e029416352949b8726ad12153e1',1,'nbgl_content.h']]],
-  ['info_5ficon_4',['INFO_ICON',['../nbgl__page_8h.html#afb48cdeef2dbc001c1091fdfc2c95d3da2e92a30d6b756794ab30789425279e19',1,'nbgl_page.h']]],
-  ['info_5flist_5falias_5',['INFO_LIST_ALIAS',['../nbgl__content_8h.html#aa4402a878699462ea2897df1048f16eba0eb3677cf8d363fb8f40dc136c62c1db',1,'nbgl_content.h']]],
-  ['info_5flong_5fpress_6',['INFO_LONG_PRESS',['../nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203a2b62aad3b320b6e0073e7be25da19a72',1,'nbgl_content.h']]],
-  ['infos_5flist_7',['INFOS_LIST',['../nbgl__content_8h.html#a9010d75a386dacb48d7a31667d7cf203ad372699e9303e56cf4622a00eea34032',1,'nbgl_content.h']]],
-  ['init_5frefresh_8',['INIT_REFRESH',['../nbgl__types_8h.html#af1925267fed387ae0d3cb4b13064f449aa5814decaddfd11d4514d0c985073042',1,'nbgl_types.h']]],
-  ['input_5findex_9',['INPUT_INDEX',['../nbgl__layout__keypad_8c.html#a157d5577a5b2f5986037d0d09c7dc77dab1441ec49dbb9efca912e3f0d875bc4b',1,'nbgl_layout_keypad.c']]],
-  ['invalid_5fbutton_5fevent_10',['INVALID_BUTTON_EVENT',['../nbgl__obj_8h.html#a6f2dbe3e3c1d075e918962ec93755759ae5e962a15509d9c94fe084121ef99faa',1,'nbgl_obj.h']]]
+  ['hardware_5fswipe_5fdown_0',['HARDWARE_SWIPE_DOWN',['../nbgl__types_8h.html#aa46b0267d63d4d7ce935d65571fb06f5ad8730cf6ee5b872ec6e41957408af4fb',1,'nbgl_types.h']]],
+  ['hardware_5fswipe_5fleft_1',['HARDWARE_SWIPE_LEFT',['../nbgl__types_8h.html#aa46b0267d63d4d7ce935d65571fb06f5abcc0ed7c6fe1f8934c7898e817009cf2',1,'nbgl_types.h']]],
+  ['hardware_5fswipe_5fright_2',['HARDWARE_SWIPE_RIGHT',['../nbgl__types_8h.html#aa46b0267d63d4d7ce935d65571fb06f5a0fa40bf554996ba8a3859e1245671161',1,'nbgl_types.h']]],
+  ['hardware_5fswipe_5fup_3',['HARDWARE_SWIPE_UP',['../nbgl__types_8h.html#aa46b0267d63d4d7ce935d65571fb06f5af44e5cd4c3540079ea98afd35b16668c',1,'nbgl_types.h']]],
+  ['header_5fback_5fand_5fprogress_4',['HEADER_BACK_AND_PROGRESS',['../nbgl__layout_8h.html#a9879d9ceabe625bd287de2af3ca3b52aa1c238c97367b2a81d3835decdb7e15d2',1,'nbgl_layout.h']]],
+  ['header_5fback_5fand_5ftext_5',['HEADER_BACK_AND_TEXT',['../nbgl__layout_8h.html#a9879d9ceabe625bd287de2af3ca3b52aa98155fa3797a7ca12d107b3d8dbdc344',1,'nbgl_layout.h']]],
+  ['header_5fback_5ficon_5fand_5ftext_6',['HEADER_BACK_ICON_AND_TEXT',['../nbgl__layout_8h.html#a9879d9ceabe625bd287de2af3ca3b52aac12291ca5db59aedeb608b22b36bd6af',1,'nbgl_layout.h']]],
+  ['header_5fempty_7',['HEADER_EMPTY',['../nbgl__layout_8h.html#a9879d9ceabe625bd287de2af3ca3b52aa5cd35e7818c32b37a740e4622f0c39da',1,'nbgl_layout.h']]],
+  ['header_5fextended_5fback_8',['HEADER_EXTENDED_BACK',['../nbgl__layout_8h.html#a9879d9ceabe625bd287de2af3ca3b52aa71d2e9e742eb4eaafd9eee8a086c34f8',1,'nbgl_layout.h']]],
+  ['header_5findex_9',['HEADER_INDEX',['../nbgl__layout__internal_8h.html#afa231099d07583c3ed0981e0bb665f55a8b95510e5598b54516669f8f630c58d8',1,'nbgl_layout_internal.h']]],
+  ['header_5fright_5ftext_10',['HEADER_RIGHT_TEXT',['../nbgl__layout_8h.html#a9879d9ceabe625bd287de2af3ca3b52aaa5a21a56ce492b550be922310ef733ed',1,'nbgl_layout.h']]],
+  ['header_5ftitle_11',['HEADER_TITLE',['../nbgl__layout_8h.html#a9879d9ceabe625bd287de2af3ca3b52aa18ca44b6d4c4edf3c14b4a4f2683acdb',1,'nbgl_layout.h']]],
+  ['horizontal_12',['HORIZONTAL',['../nbgl__types_8h.html#a45c8941c6bef8b2e44b38f1c66c1a5d8a4dd51ad73508d6fc83a502966779e48e',1,'nbgl_types.h']]],
+  ['horizontal_5fnav_13',['HORIZONTAL_NAV',['../nbgl__layout_8h.html#a2c0a3234a9015214367700ea41d45eedae7a28095c569a3f2ac639e852d6f9149',1,'nbgl_layout.h']]]
 ];
