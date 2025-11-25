@@ -91,8 +91,31 @@ endif
 #####################################################################
 #                               DEBUG                               #
 #####################################################################
+
 ifneq ($(DEBUG), 0)
+    ifneq ($(DEBUG_OVER_USB), 0)
+        $(error Can't set both DEBUG & DEBUG_OVER_USB)
+    endif
     DEFINES += HAVE_PRINTF
+endif
+
+ifneq ($(DEBUG_OVER_USB), 0)
+    DEFINES += HAVE_PRINTF
+    DEFINES += HAVE_PRINTF_CDC
+    DEFINES += HAVE_CDCUSB
+    DISABLE_OS_IO_STACK_USE = 1
+    ifeq ($(TARGET_NAME), TARGET_NANOS2)
+        ifeq (,$(filter $(DEFINES),HAVE_IO_U2F))
+            DISABLE_STANDARD_WEBUSB = 1
+            DISABLE_STANDARD_U2F = 1
+        else
+            DEFINES += HAVE_NOT_USB_HID
+            DISABLE_STANDARD_WEBUSB = 1
+        endif
+    endif
+endif
+
+ifneq (,$(filter $(DEFINES),HAVE_PRINTF))
     DEFINES += PRINTF=mcu_usb_printf
     ifneq ($(DISABLE_DEBUG_LEDGER_ASSERT), 1)
         DEFINES += HAVE_LEDGER_ASSERT_DISPLAY
@@ -102,7 +125,7 @@ ifneq ($(DEBUG), 0)
         DEFINES += HAVE_DEBUG_THROWS
     endif
 else
-        DEFINES += PRINTF\(...\)=
+    DEFINES += PRINTF\(...\)=
 endif
 
 #####################################################################
@@ -166,7 +189,7 @@ ifneq ($(DISABLE_STANDARD_SNPRINTF), 1)
 endif
 
 ifneq ($(DISABLE_STANDARD_USB), 1)
-    DEFINES += HAVE_IO_USB HAVE_L4_USBLIB IO_USB_MAX_ENDPOINTS=4 HAVE_USB_APDU
+    DEFINES += HAVE_IO_USB HAVE_L4_USBLIB IO_USB_MAX_ENDPOINTS=6 HAVE_USB_APDU
     DEFINES += USB_SEGMENT_SIZE=64
     SDK_SOURCE_PATH += lib_stusb
     SDK_SOURCE_PATH += lib_stusb_impl
@@ -179,11 +202,9 @@ ifneq ($(DISABLE_STANDARD_WEBUSB), 1)
     DEFINES += HAVE_WEBUSB WEBUSB_URL_SIZE_B=$(WEBUSB_URL_SIZE_B) WEBUSB_URL=$(WEBUSB_URL)
 endif
 
-ifneq ($(TARGET_NAME),$(filter $(TARGET_NAME), TARGET_NANOS2))
 ifneq ($(DISABLE_STANDARD_U2F), 1)
     DEFINES += HAVE_IO_U2F
     SDK_SOURCE_PATH += lib_u2f
-endif
 endif
 
 ifeq ($(ENABLE_USB_CCID), 1)

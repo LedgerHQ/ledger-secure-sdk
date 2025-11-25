@@ -28,12 +28,29 @@ enum ledger_cdc_state_t {
     LEDGER_CDC_STATE_BUSY,
 };
 /* Private defines------------------------------------------------------------*/
-#define LEDGER_CDC_DATA_EPIN_ADDR  (0x81)
-#define LEDGER_CDC_DATA_EPIN_SIZE  (0x40)
-#define LEDGER_CDC_DATA_EPOUT_ADDR (0x01)
+#if defined(TARGET_NANOS2)
+#define LEDGER_CDC_DATA_EPIN_ADDR (0x83)
+#else  // !TARGET_NANOS2
+#define LEDGER_CDC_DATA_EPIN_ADDR (0x85)
+#endif  // !TARGET_NANOS2
+#define LEDGER_CDC_DATA_EPIN_SIZE (0x40)
+
+#if defined(TARGET_NANOS2)
+#define LEDGER_CDC_DATA_EPOUT_ADDR (0x03)
+#else  // !TARGET_NANOS2
+#define LEDGER_CDC_DATA_EPOUT_ADDR (0x05)
+#endif  // !TARGET_NANOS2
 #define LEDGER_CDC_DATA_EPOUT_SIZE (0x40)
 
+#if defined(TARGET_NANOS2)
+#ifdef HAVE_IO_U2F
+#define LEDGER_CDC_CONTROL_EPIN_ADDR (0x82)
+#else   // ! HAVE_IO_U2F
+#define LEDGER_CDC_CONTROL_EPIN_ADDR (0x81)
+#endif  // !HAVE_IO_U2F
+#else   // !TARGET_NANOS2
 #define LEDGER_CDC_CONTROL_EPIN_ADDR (0x84)
+#endif  // !TARGET_NANOS2
 #define LEDGER_CDC_CONTROL_EPIN_SIZE (0x08)
 
 #define LEDGER_CDC_SET_LINE_CODING (0x20U)
@@ -56,6 +73,7 @@ typedef struct {
     line_coding_t line_coding;
     uint8_t       alt_setting;
     uint8_t       tx_in_progress;
+    uint16_t      rx_length;
 } ledger_cdc_handle_t;
 
 /* Private macros-------------------------------------------------------------*/
@@ -85,7 +103,7 @@ const uint8_t LEDGER_CDC_Data_descriptors[23] = {
     USB_DESC_TYPE_INTERFACE,  // bDescriptorType    : interface
     0x00,                     // bInterfaceNumber   : 0 (dynamic)
     0x00,                     // bAlternateSetting  : 0
-    0x02,                     // bNumEndpoints      : 1
+    0x02,                     // bNumEndpoints      : 2
     0x0A,                     // bInterfaceClass    : CDC Data
     0x00,                     // bInterfaceSubClass : Unused
     0x00,                     // bInterfaceProtocol : None
@@ -163,16 +181,16 @@ const uint8_t LEDGER_CDC_Control_descriptors[35] = {
     /************** CDC Header Functional Descriptor ******************/
     0x05,  // bLength
     0x24,  // bDescriptorType    : CDC
-    0x01,  // bDescriptorSubtype : Header
+    0x00,  // bDescriptorSubtype : Header
+    0x10,  // bcdCDC             : Specification release number
     0x01,  // bcdCDC             : Specification release number
-    0x00,  // bcdCDC             : Specification release number
 
     /************** CDC Call Management Functional Descriptor *********/
     0x05,  // bLength
     0x24,  // bDescriptorType    : CDC
     0x01,  // bDescriptorSubtype : Call Management
     0x00,  // bmCapabilities     : none
-    0x00,  // bDataInterface     : 0 (dynamic)
+    0x01,  // bDataInterface     : 0 (dynamic)
 
     /************** CDC ACM Functional Descriptor *********************/
     0x04,  // bLength
@@ -185,7 +203,7 @@ const uint8_t LEDGER_CDC_Control_descriptors[35] = {
     0x24,  // bDescriptorType    : CDC
     0x06,  // bDescriptorSubtype : Union
     0x00,  // bMasterInterface   : 0 (dynamic)
-    0x00,  // bSlaveInterface    : 0 (dynamic)
+    0x01,  // bSlaveInterface    : 0 (dynamic)
 
     /************** Endpoint descriptor *******************************/
     0x07,                          // bLength
@@ -429,16 +447,22 @@ USBD_StatusTypeDef USBD_LEDGER_CDC_data_out(USBD_HandleTypeDef *pdev,
                                             uint16_t            packet_length)
 {
     USBD_StatusTypeDef status = USBD_FAIL;
-    if (!pdev) {
+    if (!pdev || !cookie || !packet) {
         goto error;
     }
 
-    UNUSED(cookie);
+    ledger_cdc_handle_t *handle = (ledger_cdc_handle_t *) PIC(cookie);
 
-    memset(USBD_LEDGER_io_buffer, 0, packet_length);
-    memcpy(USBD_LEDGER_io_buffer, packet, packet_length);
-    G_io_app.apdu_length = packet_length;
-    G_io_app.apdu_media  = IO_APDU_MEDIA_CDC;
+    if (handle->rx_length + packet_length >= sizeof(USBD_LEDGER_io_buffer)) {
+        memcpy(&USBD_LEDGER_io_buffer[handle->rx_length],
+               packet,
+               sizeof(USBD_LEDGER_io_buffer) - handle->rx_length);
+        handle->rx_length = sizeof(USBD_LEDGER_io_buffer);
+    }
+    else {
+        memcpy(&USBD_LEDGER_io_buffer[handle->rx_length], packet, packet_length);
+        handle->rx_length += packet_length;
+    }
 
     if (ep_num == LEDGER_CDC_DATA_EPOUT_ADDR) {
         status = USBD_LL_PrepareReceive(
@@ -510,15 +534,16 @@ int32_t USBD_LEDGER_CDC_data_ready(USBD_HandleTypeDef *pdev,
     }
 
     ledger_cdc_handle_t *handle = (ledger_cdc_handle_t *) PIC(cookie);
-    if (handle->tx_in_progress == LEDGER_CDC_STATE_IDLE) {
+    if ((handle->tx_in_progress == LEDGER_CDC_STATE_IDLE) && (handle->rx_length != 0)) {
         buffer[0] = OS_IO_PACKET_TYPE_AT_CMD;
-        if (G_io_app.apdu_length < (max_length - 1)) {
-            memmove(buffer + 1, USBD_LEDGER_io_buffer, G_io_app.apdu_length);
-            status = G_io_app.apdu_length + 1;
+        if (handle->rx_length < (max_length - 1)) {
+            memmove(buffer + 1, USBD_LEDGER_io_buffer, handle->rx_length);
+            status = handle->rx_length + 1;
         }
+        handle->rx_length = 0;
     }
     else {
-        status = 1;
+        status = 0;
     }
 
     return status;

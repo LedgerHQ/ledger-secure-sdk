@@ -279,7 +279,9 @@ void io_seproxyhal_init(void)
     init_io.usb.class_mask = 0;
     memset(init_io.usb.name, 0, sizeof(init_io.usb.name));
 #ifdef HAVE_IO_USB
+#ifndef HAVE_NOT_USB_HID
     init_io.usb.class_mask = USBD_LEDGER_CLASS_HID;
+#endif  // HAVE_NOT_USB_HID
 #ifdef HAVE_WEBUSB
     init_io.usb.class_mask |= USBD_LEDGER_CLASS_WEBUSB;
 #endif  // HAVE_WEBUSB
@@ -302,6 +304,9 @@ void io_seproxyhal_init(void)
 #ifdef HAVE_USB_HIDKBD
     init_io.usb.class_mask |= USBD_LEDGER_CLASS_HID_KBD;
 #endif  // HAVE_USB_HIDKBD
+#ifdef HAVE_CDCUSB
+    init_io.usb.class_mask |= USBD_LEDGER_CLASS_CDC;
+#endif
 #endif  // !HAVE_IO_USB
 
     init_io.ble.profile_mask = 0;
@@ -453,6 +458,7 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
                 }
                 break;
             case OS_IO_PACKET_TYPE_AT_CMD:
+                memmove(G_io_apdu_buffer, &G_io_rx_buffer[1], status);
                 break;
 
             default:
