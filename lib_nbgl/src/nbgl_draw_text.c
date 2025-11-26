@@ -803,7 +803,7 @@ static void update_char_info(character_info_t   *char_info,
         // if not supported char, go to next one (this should never happen, except in Apps, if a
         // unicode is used !!)
         if (unicodeCharacter == NULL) {
-#ifdef BUILD_SCREENSHOTS
+#ifdef BUILD_SCREENSHOTSO
             fprintf(stdout,
                     "Inside update_char_info, unicode (%c)[0x%X] is not supported!\n",
                     char_info->unicode,
@@ -860,7 +860,7 @@ static void update_char_info(character_info_t   *char_info,
         }
         // if not supported char, go to next one (this should never happen!!)
         if ((char_info->unicode < font->first_char) || (char_info->unicode > font->last_char)) {
-#ifdef BUILD_SCREENSHOTS
+#ifdef BUILD_SCREENSHOTSO
             fprintf(stdout,
                     "Inside update_char_info, unicode (%c)[0x%X] is not supported!\n",
                     char_info->unicode,
