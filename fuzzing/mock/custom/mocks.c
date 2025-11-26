@@ -2,6 +2,35 @@
 #include <string.h>
 #include "usbd_core.h"
 
+size_t strlcat(char *dst, const char *src, size_t size)
+{
+    char       *d = dst;
+    const char *s = src;
+    size_t      n = size;
+    size_t      dsize;
+
+    while (n-- != 0 && *d != '\0') {
+        d++;
+    }
+    dsize = d - dst;
+    n     = size - dsize;
+
+    if (n == 0) {
+        return (dsize + strlen(s));
+    }
+
+    while (*s != '\0') {
+        if (n != 1) {
+            *d++ = *s;
+            n--;
+        }
+        s++;
+    }
+    *d = '\0';
+
+    return (dsize + (s - src));
+}
+
 size_t strlcpy(char *dst, const char *src, size_t size)
 {
     size_t i = 0;
