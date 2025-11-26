@@ -1011,6 +1011,7 @@ uint16_t nbgl_getTextHeightInWidth(nbgl_font_id_e fontId,
     return (nbgl_getTextNbLinesInWidth(fontId, text, maxWidth, wrapping) * font->line_height);
 }
 
+#ifndef OS_UNIT_TEST
 /**
  * @brief Modifies the given text to wrap it on the given max width (in pixels), in the given
  * nbLines If possible,
@@ -1110,6 +1111,7 @@ void nbgl_textWrapOnNbLines(nbgl_font_id_e fontId, char *text, uint16_t maxWidth
         width += char_width;
     }
 }
+#endif  // OS_UNIT_TEST
 
 /**
  * @brief Create a reduced version of given ASCII text to wrap it on the given max width (in

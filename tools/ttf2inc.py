@@ -849,6 +849,9 @@ class TTF2INC:
             skipped_bytes = 0
             size = 0
 
+        # Store original img_data
+        info['img_data'] = img_data
+
         # Number of bytes that was skipped at the beginning of data
         info['skipped'] = skipped_bytes
 
@@ -890,6 +893,29 @@ class TTF2INC:
             sys.stderr.write(f"self.char_topmost_y={self.char_topmost_y}, info={info}\n")
             sys.stderr.write(f"Font ID: {self.font_id_name} ({self.font_name[info['index']]})")
             sys.exit(3)
+
+
+    # -------------------------------------------------------------------------
+    def optimize(self, char):
+        """
+        """
+        info = self.char_info[char]
+        img_data = info['img_data']
+        if img_data is not None:
+            method, compressed_data = RLECustom.encode(img_data, self.bpp)
+            # Is compressed size really better?
+            # (for the moment, we enforce RLE even if it is a little bigger)
+            if len(compressed_data) < len(img_data) or True:
+                img_data = compressed_data
+                size = len(img_data)
+                encoding = method
+        else:
+            encoding = 0
+            size = 0
+
+        info['encoding'] = encoding
+        info['bitmap'] = img_data
+        info['size'] = size
 
     # -------------------------------------------------------------------------
     def save_nbgl_font(self, inc, crop, suffix, first_char, last_char):
@@ -1531,6 +1557,14 @@ if __name__ == "__main__":
                                      f" size {ttf.font_size}: {error}\n")
                     return 1
 
+            # Do a second pass of compression, to improve results
+            bitmap = bytes()
+            if ttf.rle and ttf.bpp == 4:
+                # start of bitmap is an array of best patterns values (16 bytes)
+                bitmap = RLECustom.optimize()
+                for char in string:
+                    ttf.optimize(char)
+
             if args.verbose:
                 sys.stdout.write(f"Font {ttf.basename.upper()}: "
                                  f"ascent={ttf.ascent}, descent={ttf.descent}"
@@ -1608,9 +1642,17 @@ if __name__ == "__main__":
                     inc.write(
                         f"const unsigned char bitmap{ttf.basename.upper()}"
                         f"{suffix}[] = {{\n")
-                offset = 0
                 first_char = None
-                ttf.ttf_info_dictionary["bitmap"] = bytes()
+                ttf.ttf_info_dictionary["bitmap"] = bitmap
+                offset = len(bitmap)
+                # Do we have a double pattern array at the beginning of bitmap?
+                if len(bitmap):
+                    inc.write("// Double pattern array\n")
+                    for i in range(0, len(bitmap), 8):
+                        inc.write("  " + ", ".join("0x{0:02X}".format(c) for c
+                                                   in bitmap[i:i+8]) + ",")
+                        inc.write("\n")
+
                 # Write the bitmap part of each character
                 for char, info in sorted(ttf.char_info.items()):
                     image_data = info["bitmap"]
