@@ -163,7 +163,7 @@ $(BIN_DIR)/app.elf: $(LINK_DEPENDENCIES)
 # this target while it needs to be run only once.
 $(BIN_DIR)/app.hex $(DBG_DIR)/app.map $(DBG_DIR)/app.asm: $(BIN_DIR)/app.elf
 
-$(BIN_DIR)/app.apdu: bin/app.hex debug/app.map
+$(BIN_DIR)/app.apdu: $(BIN_DIR)/app.hex $(DBG_DIR)/app.map
 	$(L)python3 -m ledgerblue.loadApp $(APP_LOAD_PARAMS) --offline $(BIN_DIR)/app.apdu | grep "Application" | cut -f5 -d' ' > $(BIN_DIR)/app.sha256
 
 # This target is generated along $(BIN_DIR)/app.apdu but we can't make them co-target
