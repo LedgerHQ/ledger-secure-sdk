@@ -30,6 +30,13 @@ def mark_params_unused(signature: str) -> str:
         return signature
 
     prefix, param_str = signature.split('(', 1)
+    if "__attribute__" in prefix:
+        # Special case where an attribute is in the prefix
+        prefix = prefix.split(' ', 1)[0]
+        param_str = param_str.split(' ', 1)[1]
+        fct_signature = f"{prefix} {param_str}"
+        prefix, param_str = fct_signature.split('(', 1)
+
     param_str, suffix = param_str.rsplit(')', 1)
     params = [p.strip() for p in param_str.split(',')]
     NUM_WRITTEN_MOCKS += 1
