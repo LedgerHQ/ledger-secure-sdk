@@ -153,14 +153,13 @@ class TTF2INC:
     def update_font_info(self, index):
         """
         Update the font related variables according to index value.
-        WARNING: some values depends on which kind of data we will generate (ASCII/UNICOE)
+        WARNING: some values depends on which kind of data we will generate (ASCII/UNICODE)
         """
         self.font_index = index
         self.font = self.fonts[index]
         self.ttfont = self.ttfonts[index]
         self.name = self.font_name[index]
         self.font_size = self.font_sizes[index]
-        self.line_size = self.line_sizes[index]
 
         # Get font metrics:
         # - ascent: distance from the baseline to the highest outline point.
@@ -174,6 +173,8 @@ class TTF2INC:
         # if self.unicode_needed is not False, then we want to generate UNICODE data
         if index == 0 and self.unicode_needed and len(self.rles) > 1:
             index = 1   # Use rle & crop values from first section after main
+
+        self.line_size = self.line_sizes[index]
 
         self.rle = self.rles[index]
         self.crop = self.crops[index]
@@ -919,7 +920,7 @@ class TTF2INC:
             f"  {self.font_id_name}, // font id\n"
             f"  (uint8_t) NBGL_BPP_{self.bpp}, // bpp\n"
             f"  {self.real_height}, // height of all characters in pixels\n"
-            f"  {self.line_size}, // line height in pixels\n"
+            f"  {self.line_sizes[self.unicode_index]}, // line height in pixels\n"
             f"  {self.kerning}, // kerning\n"
             f"  {crop}, // crop enabled (1) or not (0)\n"
             f"  {self.char_topmost_y}, // Most top Y coordinate of any char\n"
@@ -1024,7 +1025,7 @@ class TTF2INC:
             f"  {self.font_id_name}, // font id\n"
             f"  (uint8_t) NBGL_BPP_{self.bpp}, // bpp\n"
             f"  {self.real_height}, // height of all characters in pixels\n"
-            f"  {self.line_size}, // line height in pixels\n"
+            f"  {self.line_sizes[self.unicode_index]}, // line height in pixels\n"
             f"  {self.kerning}, // kerning in pixels\n"
             f"  {crop}, // crop enabled (1) or not (0)\n"
             f"  {self.char_topmost_y}, // Most top Y coordinate of any char\n"
@@ -1686,7 +1687,7 @@ if __name__ == "__main__":
                         "bpp": ttf.bpp,
                         "height": ttf.real_height,
                         "baseline": ttf.baseline,
-                        "line_height": ttf.line_size,
+                        "line_height": ttf.line_sizes[ttf.unicode_index],
                         "char_kerning": ttf.kerning,
                         "crop": crop,
                         "nb_characters": len(ttf.char_info),

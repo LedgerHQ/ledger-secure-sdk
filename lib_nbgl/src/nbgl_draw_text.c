@@ -1144,7 +1144,7 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
                 }
                 else if (previous_char.unicode >= 0x0E31 && previous_char.unicode <= 0x0E37) {
                     // Take in account the height of previous character
-                    buf_area.x0 = buf_x_min - (current_char.y_max - current_char.y_min) - 1;
+                    buf_area.x0 = buf_x_min - (current_char.y_max - current_char.y_min);
                 }
                 else if (current_char.unicode == 0x0E4B && previous_char.unicode == 0x0E1B) {
                     // We must shift 0x0E4B to the left or we will overwrite 0x0E1B
