@@ -17,6 +17,7 @@
  ********************************************************************************/
 
 #include <stdarg.h>
+#include <stdint.h>
 #include <string.h>
 #include "app_config.h"
 #include "decorators.h"
@@ -74,7 +75,7 @@ void screen_printf(const char *format, ...) __attribute__((weak, alias("mcu_usb_
 void mcu_usb_printf(const char *format, ...)
 {
     unsigned long ulIdx, ulValue, ulPos, ulCount, ulBase, ulNeg, ulStrlen, ulCap;
-    char         *pcStr, pcBuf[16], cFill;
+    char         *pcStr, pcBuf[32], cFill;
     va_list       vaArgP;
     char          cStrlenSet;
 
@@ -240,6 +241,102 @@ void mcu_usb_printf(const char *format, ...)
                     // Convert the value to ASCII.
                     //
                     goto convert;
+                }
+
+                case 'l': {
+                    if (*format == 'l'
+                        && (*(format + 1) == 'u' || *(format + 1) == 'd' || *(format + 1) == 'x'
+                            || *(format + 1) == 'X')) {
+                        format++;  // skip second 'l'
+
+                        // Get the int64_t/uint64_t value from varargs
+                        int64_t  slValue64 = va_arg(vaArgP, int64_t);
+                        uint64_t ulValue64 = 0;
+
+                        // Reset position
+                        ulPos = 0;
+
+                        // Determine base and handle sign for %lld
+                        if (*format == 'd') {
+                            ulBase = 10;
+                            format++;
+
+                            // Handle negative values
+                            if (slValue64 < 0) {
+                                ulNeg     = 1;
+                                ulValue64 = (uint64_t) (-slValue64);
+                            }
+                            else {
+                                ulNeg     = 0;
+                                ulValue64 = (uint64_t) slValue64;
+                            }
+                        }
+                        else if (*format == 'u') {
+                            ulBase = 10;
+                            format++;
+                            ulNeg     = 0;
+                            ulValue64 = (uint64_t) slValue64;
+                        }
+                        else if (*format == 'x') {
+                            ulBase = 16;
+                            ulCap  = 0;
+                            format++;
+                            ulNeg     = 0;
+                            ulValue64 = (uint64_t) slValue64;
+                        }
+                        else if (*format == 'X') {
+                            ulBase = 16;
+                            ulCap  = 1;
+                            format++;
+                            ulNeg     = 0;
+                            ulValue64 = (uint64_t) slValue64;
+                        }
+
+                        // Convert uint64_t to ASCII
+                        uint64_t ulIdx64;
+                        for (ulIdx64 = 1; (((ulIdx64 * ulBase) <= ulValue64)
+                                           && (((ulIdx64 * ulBase) / ulBase) == ulIdx64));
+                             ulIdx64 *= ulBase, ulCount--) {
+                        }
+
+                        // If negative, reduce padding count
+                        if (ulNeg) {
+                            ulCount--;
+                        }
+
+                        // If negative and zero-padded, place minus sign first
+                        if (ulNeg && (cFill == '0')) {
+                            pcBuf[ulPos++] = '-';
+                            ulNeg          = 0;
+                        }
+
+                        // Padding
+                        if ((ulCount > 1) && (ulCount < 32)) {
+                            for (ulCount--; ulCount; ulCount--) {
+                                pcBuf[ulPos++] = cFill;
+                            }
+                        }
+
+                        // If still negative, place minus sign
+                        if (ulNeg) {
+                            pcBuf[ulPos++] = '-';
+                        }
+
+                        // Convert value into string
+                        for (; ulIdx64; ulIdx64 /= ulBase) {
+                            if (!ulCap) {
+                                pcBuf[ulPos++] = g_pcHex[(ulValue64 / ulIdx64) % ulBase];
+                            }
+                            else {
+                                pcBuf[ulPos++] = g_pcHex_cap[(ulValue64 / ulIdx64) % ulBase];
+                            }
+                        }
+
+                        // Write the string (for printf version)
+                        os_io_seph_cmd_printf(pcBuf, ulPos);
+                        break;
+                    }
+                    goto error;
                 }
 
                 //
