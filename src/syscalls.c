@@ -3,7 +3,6 @@
 #if defined(HAVE_BOLOS)
 #include "bolos_privileged_ux.h"
 #include "cert_privileged.h"
-#include "endorsement_privileged.h"
 #endif  // HAVE_BOLOS
 
 #include "bolos_target.h"
@@ -2002,16 +2001,6 @@ void CERT_erase(void)
     return;
 }
 #endif  // HAVE_CUSTOM_CA_DETAILS_IN_SETTINGS
-
-#ifdef HAVE_BOLOS
-bolos_err_t ENDORSEMENT_revoke_slot(ENDORSEMENT_revoke_id_t revoke_id)
-{
-    unsigned int parameters[1];
-    parameters[0]    = (unsigned int) revoke_id;
-    bolos_bool_t ret = SVC_Call(SYSCALL_ENDORSEMENT_revoke_slot_ID, parameters);
-    return ret;
-}
-#endif  // HAVE_BOLOS
 
 unsigned int os_seph_serial(unsigned char *serial, unsigned int maxlength)
 {
