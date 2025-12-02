@@ -20,39 +20,50 @@ jobs:
       - name: Clone
         uses: actions/checkout@v4
 
-      - name: Build unit tests
+      - name: Find test directories
+        id: find-tests
+        working-directory: unit-tests
         run: |
-          cd unit-tests/lib_standard_app/
-          cmake -Bbuild -H. && make -C build && make -C build test
-          cd ../lib_nbgl/
-          cmake -Bbuild -H. && make -C build && CTEST_OUTPUT_ON_FAILURE=1 make -C build test
-          STAX=1 cmake -Bbuild -H. && make -C build && CTEST_OUTPUT_ON_FAILURE=1 make -C build test
-          cd ../app_storage/
-          cmake -Bbuild -H. && make -C build && make -C build test
-          cd ../lib_alloc/
-          cmake -Bbuild -H. && make -C build && make -C build test
+          # Find all directories with CMakeLists.txt, excluding mock
+          TEST_DIRS=$(find . -maxdepth 2 -name CMakeLists.txt -not -path "*/mock/*" -exec dirname {} \; | sed 's|^\./||' | sort | tr '\n' ' ')
+          echo "Test directories found: ${TEST_DIRS}"
+          echo "test_dirs=${TEST_DIRS}" >> "${GITHUB_OUTPUT}"
+
+      - name: Build & Run Unit Tests
+        working-directory: unit-tests
+        run: |
+          for dir in ${{ steps.find-tests.outputs.test_dirs }}; do
+            echo "::group::Building tests in ${dir}"
+            (cd "${dir}" && cmake -Bbuild -H. && make -C build && CTEST_OUTPUT_ON_FAILURE=1 make -C build test)
+            echo "::endgroup::"
+          done
+
+          # Special case for lib_nbgl with STAX
+          if [ -d "lib_nbgl" ]; then
+            echo "::group::Building lib_nbgl with STAX"
+            (cd lib_nbgl && STAX=1 cmake -Bbuild -H. && make -C build && CTEST_OUTPUT_ON_FAILURE=1 make -C build test)
+            echo "::endgroup::"
+          fi
 
       - name: Generate code coverage
+        working-directory: unit-tests
         run: |
-          cd unit-tests/lib_standard_app/
-          ../gen_coverage.sh
-          cd ../lib_nbgl/
-          ../gen_coverage.sh
-          cd ../app_storage/
-          ../gen_coverage.sh
-          cd ../lib_alloc/
-          ../gen_coverage.sh
+          for dir in ${{ steps.find-tests.outputs.test_dirs }}; do
+            echo "::group::Generating coverage for ${dir}"
+            (cd "${dir}" && ../gen_coverage.sh)
+            echo "::endgroup::"
+          done
 
       - uses: actions/upload-artifact@v4
         with:
           name: code-coverage
-          path: unit-tests/lib_*/coverage
+          path: unit-tests/*/coverage
 
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./unit-tests/lib_standard_app/coverage.info,./unit-tests/lib_nbgl/coverage.info,./unit-tests/app_storage/coverage.info
+          directory: ./unit-tests
           flags: unittests
           name: codecov-ledger-secure-sdk
           fail_ci_if_error: true
