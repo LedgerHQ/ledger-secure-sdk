@@ -186,6 +186,7 @@ SECTIONS
   ledger.sdk_version (INFO): { KEEP(*(ledger.sdk_version)) }
   ledger.sdk_hash (INFO): { KEEP(*(ledger.sdk_hash)) }
   ledger.sdk_graphics (INFO): { KEEP(*(ledger.sdk_graphics)) }
+  ledger.app_flags (INFO): { KEEP(*(ledger.app_flags)) }
 }
 
 PROVIDE(_nvram = ABSOLUTE(_nvram_start));
