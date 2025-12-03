@@ -366,7 +366,7 @@ static void test_version_too_high(void **state)
     size_t  offset = 0;
 
     append_tlv_uint8(payload, &offset, 0x01, TLV_STRUCTURE_TYPE_TRUSTED_NAME);
-    append_tlv_uint8(payload, &offset, 0x02, 0x03);  // Version 3 (unsupported)
+    append_tlv_uint8(payload, &offset, 0x02, CURRENT_TRUSTED_NAME_SPEC_VERSION + 1);
     append_tlv_uint8(payload, &offset, 0x70, TLV_TRUSTED_NAME_TYPE_EOA);
     append_tlv_uint8(payload, &offset, 0x71, TLV_TRUSTED_NAME_SOURCE_CRYPTO_ASSET_LIST);
     append_tlv_string(payload, &offset, 0x20, "Ledger");
