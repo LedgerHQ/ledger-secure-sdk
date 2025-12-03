@@ -17,78 +17,143 @@
  ********************************************************************************/
 
 #include <stdarg.h>
+#include <stdint.h>
 #include <string.h>
 #include "app_config.h"
 #include "decorators.h"
 #include "os_math.h"
 
-#if defined(HAVE_BOLOS)
-#include "bolos_target.h"
-#endif  // HAVE_BOLOS
-
 #if defined(HAVE_PRINTF) || defined(HAVE_SPRINTF)
 
+// Buffer size for printed numbers
+// Must be sufficient to contain a whole 64-bit number in binary plus sign and padding
+#define PCBUF_SIZE 32
+
+// Output function type
+typedef void (*output_func_t)(const char *data, size_t len, void *context);
+
+// Context for sprintf
+typedef struct {
+    char  *str;
+    size_t str_size;
+    int    written;
+} sprintf_ctx_t;
+
+// clang-format off
 static const char g_pcHex[] = {
-    '0',
-    '1',
-    '2',
-    '3',
-    '4',
-    '5',
-    '6',
-    '7',
-    '8',
-    '9',
-    'a',
-    'b',
-    'c',
-    'd',
-    'e',
-    'f',
+    '0', '1', '2', '3', '4', '5', '6', '7',
+    '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
 };
 static const char g_pcHex_cap[] = {
-    '0',
-    '1',
-    '2',
-    '3',
-    '4',
-    '5',
-    '6',
-    '7',
-    '8',
-    '9',
-    'A',
-    'B',
-    'C',
-    'D',
-    'E',
-    'F',
+    '0', '1', '2', '3', '4', '5', '6', '7',
+    '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
 };
-#endif  // defined(HAVE_PRINTF) || defined(HAVE_SPRINTF)
+// clang-format on
 
 #ifdef HAVE_PRINTF
 #include "os_io_seph_cmd.h"
 
-void screen_printf(const char *format, ...) __attribute__((weak, alias("mcu_usb_printf")));
-
-void mcu_usb_printf(const char *format, ...)
+static void printf_output(const char *data, size_t len, void *context)
 {
-    unsigned long ulIdx, ulValue, ulPos, ulCount, ulBase, ulNeg, ulStrlen, ulCap;
-    char         *pcStr, pcBuf[16], cFill;
-    va_list       vaArgP;
-    char          cStrlenSet;
+    (void) context;
+    os_io_seph_cmd_printf(data, len);
+}
+#endif
 
-    //
-    // Check the arguments.
-    //
-    if (format == 0) {
+#ifdef HAVE_SPRINTF
+static void sprintf_output(const char *data, size_t len, void *context)
+{
+    sprintf_ctx_t *ctx = (sprintf_ctx_t *) context;
+
+    // Always count characters that would be written (even if buffer is full)
+    ctx->written += len;
+
+    if (ctx->str_size == 0) {
         return;
     }
 
-    //
-    // Start the varargs processing.
-    //
-    va_start(vaArgP, format);
+    len = MIN(len, ctx->str_size);
+    memmove(ctx->str, data, len);
+    ctx->str += len;
+    ctx->str_size -= len;
+}
+#endif
+
+// Helper function to apply padding and sign
+static void apply_padding_output(char          *pcBuf,
+                                 unsigned long *ulPos,
+                                 unsigned long  ulWidth,
+                                 unsigned long *ulNeg,
+                                 char           cFill,
+                                 unsigned long  ulNumLen,
+                                 output_func_t  output,
+                                 void          *output_ctx)
+{
+    unsigned long ulPaddingNeeded = 0;
+    unsigned long ulActualLen     = ulNumLen;
+
+    // If the number is negative, it will take one more character for the sign
+    if (*ulNeg) {
+        ulActualLen++;
+    }
+
+    // Calculate the necessary padding: Requested Width - Actual Width
+    // If the requested width is 0 (e.g., %llu), the result is 0.
+    if (ulWidth > ulActualLen) {
+        ulPaddingNeeded = ulWidth - ulActualLen;
+    }
+    // If we're using '0' padding and the number is negative,
+    // place the minus sign first, then add zeros
+    if (*ulNeg && (cFill == '0')) {
+        pcBuf[(*ulPos)++] = '-';
+        *ulNeg            = 0;
+    }
+
+    // Output padding in chunks if it's larger than buffer
+    while (ulPaddingNeeded > 0) {
+        unsigned long chunkSize   = ulPaddingNeeded;
+        unsigned long bufferSpace = PCBUF_SIZE - *ulPos;
+
+        // If padding doesn't fit in current buffer, fill buffer and flush
+        if (chunkSize > bufferSpace) {
+            chunkSize = bufferSpace;
+        }
+
+        // Fill buffer with padding
+        for (unsigned long i = 0; i < chunkSize; i++) {
+            pcBuf[(*ulPos)++] = cFill;
+        }
+        ulPaddingNeeded -= chunkSize;
+
+        // If buffer is full and we still have padding to add, flush it
+        if (*ulPos >= PCBUF_SIZE && ulPaddingNeeded > 0) {
+            output(pcBuf, *ulPos, output_ctx);
+            *ulPos = 0;  // Reset buffer position
+        }
+    }
+
+    // If negative and we haven't added the sign yet (space padding case),
+    // add it now before the digits
+    if (*ulNeg) {
+        // Make sure there's space for the sign
+        if (*ulPos >= PCBUF_SIZE) {
+            output(pcBuf, *ulPos, output_ctx);
+            *ulPos = 0;
+        }
+        pcBuf[(*ulPos)++] = '-';
+    }
+}
+
+// Common formatting function
+static int vformat_internal(output_func_t output,
+                            void         *output_ctx,
+                            const char   *format,
+                            va_list       vaArgP)
+{
+    unsigned long ulIdx, ulValue, ulPos, ulCount, ulBase, ulNeg, ulStrlen, ulCap;
+    char         *pcStr, pcBuf[PCBUF_SIZE], cFill;
+    char          cStrlenSet;
+    unsigned long ulLen;
 
     //
     // Loop while there are more characters in the string.
@@ -103,7 +168,9 @@ void mcu_usb_printf(const char *format, ...)
         //
         // Write this portion of the string.
         //
-        os_io_seph_cmd_printf(format, ulIdx);
+        if (ulIdx > 0) {
+            output(format, ulIdx, output_ctx);
+        }
 
         //
         // Skip the portion of the string that was written.
@@ -129,14 +196,9 @@ void mcu_usb_printf(const char *format, ...)
             cStrlenSet = 0;
             ulCap      = 0;
             ulBase     = 10;
+            ulNeg      = 0;
 
-            //
-            // It may be necessary to get back here to process more characters.
-            // Goto's aren't pretty, but effective.  I feel extremely dirty for
-            // using not one but two of the beasts.
-            //
         again:
-
             //
             // Determine how to handle the next character.
             //
@@ -154,114 +216,150 @@ void mcu_usb_printf(const char *format, ...)
                 case '7':
                 case '8':
                 case '9': {
-                    //
                     // If this is a zero, and it is the first digit, then the
                     // fill character is a zero instead of a space.
-                    //
                     if ((format[-1] == '0') && (ulCount == 0)) {
                         cFill = '0';
                     }
-
-                    //
-                    // Update the digit count.
-                    //
                     ulCount *= 10;
                     ulCount += format[-1] - '0';
-
-                    //
-                    // Get the next character.
-                    //
                     goto again;
                 }
 
-                //
-                // Handle the %c command.
-                //
                 case 'c': {
-                    //
-                    // Get the value from the varargs.
-                    //
                     ulValue = va_arg(vaArgP, unsigned long);
-
-                    //
-                    // Print out the character.
-                    //
-                    os_io_seph_cmd_printf((char *) &ulValue, 1);
-
-                    //
-                    // This command has been handled.
-                    //
+                    output((char *) &ulValue, 1, output_ctx);
                     break;
                 }
 
-                //
-                // Handle the %d command.
-                //
                 case 'd': {
-                    //
-                    // Get the value from the varargs.
-                    //
-                    ulValue = va_arg(vaArgP, unsigned long);
+                    ulValue = va_arg(vaArgP, unsigned int);
+                    ulPos   = 0;
 
-                    //
-                    // Reset the buffer position.
-                    //
-                    ulPos = 0;
-
-                    //
-                    // If the value is negative, make it positive and indicate
-                    // that a minus sign is needed.
-                    //
                     if ((long) ulValue < 0) {
-                        //
-                        // Make the value positive.
-                        //
-                        ulValue = -(long) ulValue;
-
-                        //
-                        // Indicate that the value is negative.
-                        //
-                        ulNeg = 1;
+                        // Explicit cast to handle sign extension correctly
+                        ulValue = -(long) ((int) ulValue);
+                        ulNeg   = 1;
                     }
                     else {
-                        //
-                        // Indicate that the value is positive so that a minus
-                        // sign isn't inserted.
-                        //
                         ulNeg = 0;
                     }
 
-                    //
-                    // Set the base to 10.
-                    //
                     ulBase = 10;
-
-                    //
-                    // Convert the value to ASCII.
-                    //
                     goto convert;
                 }
 
-                //
-                // Handle the %.*s command
-                // special %.*H or %.*h format to print a given length of hex digits (case: H UPPER,
-                // h lower)
-                //
+#ifdef HAVE_SNPRINTF_FORMAT_LL
+                case 'l': {
+                    // Check if this is a 64-bit format: %ll followed by u, d, x, or X
+                    if (*format == 'l'
+                        && (*(format + 1) == 'u' || *(format + 1) == 'd' || *(format + 1) == 'x'
+                            || *(format + 1) == 'X')) {
+                        format++;  // skip second 'l' to point to the format specifier
+
+                        // Get the 64-bit value from varargs
+                        // Note: we always read as int64_t, then cast to uint64_t if needed
+                        int64_t  slValue64 = va_arg(vaArgP, int64_t);
+                        uint64_t ulValue64 = 0;
+
+                        // Reset buffer position
+                        ulPos = 0;
+                        ulLen = 1;
+
+                        // Determine the conversion base and handle signed values
+                        if (*format == 'd') {
+                            // %lld: signed decimal
+                            ulBase = 10;
+                            format++;
+                            if (slValue64 < 0) {
+                                ulNeg = 1;  // Mark as negative
+                                ulValue64
+                                    = (uint64_t) (-slValue64);  // Convert to positive for display
+                            }
+                            else {
+                                ulNeg     = 0;
+                                ulValue64 = (uint64_t) slValue64;
+                            }
+                        }
+                        else if (*format == 'u') {
+                            // %llu: unsigned decimal
+                            ulBase = 10;
+                            format++;
+                            ulNeg     = 0;                     // Unsigned, no sign
+                            ulValue64 = (uint64_t) slValue64;  // Reinterpret as unsigned
+                        }
+                        else if (*format == 'x') {
+                            // %llx: hexadecimal lowercase
+                            ulBase = 16;
+                            ulCap  = 0;  // Use lowercase hex digits
+                            format++;
+                            ulNeg     = 0;
+                            ulValue64 = (uint64_t) slValue64;
+                        }
+                        else if (*format == 'X') {
+                            // %llX: hexadecimal uppercase
+                            ulBase = 16;
+                            ulCap  = 1;  // Use uppercase hex digits
+                            format++;
+                            ulNeg     = 0;
+                            ulValue64 = (uint64_t) slValue64;
+                        }
+
+                        // Calculate the highest power of base needed for conversion
+                        // This loop finds ulIdx64 such that ulIdx64 * base > value
+                        // The second condition prevents overflow:
+                        // if (ulIdx64 * base) / base != ulIdx64,
+                        // then we've overflowed and should stop
+                        uint64_t ulIdx64;
+                        for (ulIdx64 = 1; (((ulIdx64 * ulBase) <= ulValue64)
+                                           && (((ulIdx64 * ulBase) / ulBase) == ulIdx64));
+                             ulIdx64 *= ulBase) {
+                            ulLen++;
+                        }
+
+                        // Apply padding using helper function
+                        apply_padding_output(
+                            pcBuf, &ulPos, ulCount, &ulNeg, cFill, ulLen, output, output_ctx);
+
+                        // Convert the number to ASCII digits
+                        // We work from most significant to least significant digit
+                        // ulIdx64 starts at the highest power of base (e.g., 1000000 for base 10)
+                        // and divides down to 1
+                        for (; ulIdx64; ulIdx64 /= ulBase) {
+                            // Check if buffer is full, flush and reset
+                            if (ulPos >= PCBUF_SIZE) {
+                                output(pcBuf, ulPos, output_ctx);
+                                ulPos = 0;
+                            }
+
+                            // Extract the digit at this position: (value / power) % base
+                            // Example: for 12345, power=10000: (12345/10000)%10 = 1
+                            if (!ulCap) {
+                                pcBuf[ulPos++] = g_pcHex[(ulValue64 / ulIdx64) % ulBase];
+                            }
+                            else {
+                                pcBuf[ulPos++] = g_pcHex_cap[(ulValue64 / ulIdx64) % ulBase];
+                            }
+                        }
+
+                        // Output the formatted string
+                        if (ulPos > 0) {
+                            output(pcBuf, ulPos, output_ctx);
+                        }
+                        break;
+                    }
+                    goto error;
+                }
+#endif  // HAVE_SNPRINTF_FORMAT_LL
+
                 case '.': {
-                    // ensure next char is '*' and next one is 's'
                     if (format[0] == '*'
                         && (format[1] == 's' || format[1] == 'H' || format[1] == 'h')) {
-                        // skip '*' char
                         format++;
-
                         ulStrlen   = va_arg(vaArgP, unsigned long);
                         cStrlenSet = 1;
-
-                        // interpret next char (H/h/s)
                         goto again;
                     }
-
-                    // does not support %.2x for example
                     goto error;
                 }
 
@@ -271,74 +369,49 @@ void mcu_usb_printf(const char *format, ...)
                         cStrlenSet = 2;
                         goto again;
                     }
-
                     goto error;
                 }
 
-                case '-':  // -XXs
-                {
+                case '-': {
                     cStrlenSet = 0;
-                    // read a number of space to post pad with ' ' the string to display
                     goto again;
                 }
 
-                //
-                // Handle the %s command.
-                // %H and %h also
                 case 'H':
-                    ulCap  = 1;  // uppercase base 16
+                    ulCap  = 1;
                     ulBase = 16;
                     goto case_s;
                 case 'h':
                     ulCap  = 0;
-                    ulBase = 16;  // lowercase base 16
+                    ulBase = 16;
                     goto case_s;
                 case 's':
                 case_s : {
-                    //
-                    // Get the string pointer from the varargs.
-                    //
                     pcStr = va_arg(vaArgP, char *);
 
-                    //
-                    // Determine the length of the string. (if not specified using .*)
-                    //
                     switch (cStrlenSet) {
-                        // compute length with strlen
                         case 0:
                             for (ulIdx = 0; pcStr[ulIdx] != '\0'; ulIdx++) {
                             }
                             break;
-
-                        // use given length
                         case 1:
                             ulIdx = ulStrlen;
                             break;
-
-                        // printout prepad
                         case 2:
-                            // if string is empty, then, ' ' padding
                             if (pcStr[0] == '\0') {
-                                // pad with ulStrlen white spaces
-                                do {
-                                    os_io_seph_cmd_printf(" ", 1);
-                                } while (ulStrlen-- > 0);
-
+                                for (ulCount = 0; ulCount < ulStrlen; ulCount++) {
+                                    output(" ", 1, output_ctx);
+                                }
                                 goto s_pad;
                             }
-                            goto error;  // unsupported if replicating the same string multiple
-                                         // times
+                            goto error;
                         case 3:
-                            // skip '-' still buggy ...
                             goto again;
                     }
 
-                    //
-                    // Write the string.
-                    //
                     switch (ulBase) {
                         default:
-                            os_io_seph_cmd_printf(pcStr, ulIdx);
+                            output(pcStr, ulIdx, output_ctx);
                             break;
                         case 16: {
                             unsigned char nibble1, nibble2;
@@ -346,167 +419,84 @@ void mcu_usb_printf(const char *format, ...)
                             for (ulCount = 0; ulCount < ulIdx; ulCount++) {
                                 nibble1 = (pcStr[ulCount] >> 4) & 0xF;
                                 nibble2 = pcStr[ulCount] & 0xF;
-                                switch (ulCap) {
-                                    case 0:
-                                        pcBuf[idx++] = g_pcHex[nibble1];
-                                        pcBuf[idx++] = g_pcHex[nibble2];
-                                        break;
-                                    case 1:
-                                        pcBuf[idx++] = g_pcHex_cap[nibble1];
-                                        pcBuf[idx++] = g_pcHex_cap[nibble2];
-                                        break;
+                                if (ulCap) {
+                                    pcBuf[idx++] = g_pcHex_cap[nibble1];
+                                    pcBuf[idx++] = g_pcHex_cap[nibble2];
+                                }
+                                else {
+                                    pcBuf[idx++] = g_pcHex[nibble1];
+                                    pcBuf[idx++] = g_pcHex[nibble2];
                                 }
                                 if (idx + 1 >= sizeof(pcBuf)) {
-                                    os_io_seph_cmd_printf(pcBuf, idx);
+                                    output(pcBuf, idx, output_ctx);
                                     idx = 0;
                                 }
                             }
                             if (idx != 0) {
-                                os_io_seph_cmd_printf(pcBuf, idx);
+                                output(pcBuf, idx, output_ctx);
                             }
                             break;
                         }
                     }
 
                 s_pad:
-                    //
-                    // Write any required padding spaces
-                    //
                     if (ulCount > ulIdx) {
                         ulCount -= ulIdx;
                         while (ulCount--) {
-                            os_io_seph_cmd_printf(" ", 1);
+                            output(" ", 1, output_ctx);
                         }
                     }
-                    //
-                    // This command has been handled.
-                    //
                     break;
                 }
 
-                //
-                // Handle the %u command.
-                //
+#ifdef HAVE_SNPRINTF_FORMAT_U
                 case 'u': {
-                    //
-                    // Get the value from the varargs.
-                    //
-                    ulValue = va_arg(vaArgP, unsigned long);
-
-                    //
-                    // Reset the buffer position.
-                    //
-                    ulPos = 0;
-
-                    //
-                    // Set the base to 10.
-                    //
-                    ulBase = 10;
-
-                    //
-                    // Indicate that the value is positive so that a minus sign
-                    // isn't inserted.
-                    //
-                    ulNeg = 0;
-
-                    //
-                    // Convert the value to ASCII.
-                    //
+                    ulValue = va_arg(vaArgP, unsigned int);
+                    ulPos   = 0;
+                    ulBase  = 10;
+                    ulNeg   = 0;
                     goto convert;
                 }
+#endif  // HAVE_SNPRINTF_FORMAT_U
 
-                //
-                // Handle the %x and %X commands.  Note that they are treated
-                // identically; i.e. %X will use lower case letters for a-f
-                // instead of the upper case letters is should use.  We also
-                // alias %p to %x.
-                //
                 case 'X':
                     ulCap = 1;
                     FALL_THROUGH;
                 case 'x':
                 case 'p': {
-                    //
-                    // Get the value from the varargs.
-                    //
-                    ulValue = va_arg(vaArgP, unsigned long);
-
-                    //
-                    // Reset the buffer position.
-                    //
-                    ulPos = 0;
-
-                    //
-                    // Set the base to 16.
-                    //
+                    // Note : 'p' is generally a long/pointer, so we can separate 'p' if we want to
+                    // be strict, but 'unsigned long' for 'p' is correct on PC (64bit) and ARM
+                    // (32bit). For 'x' and 'X', it is necessary to use int.
+                    if (*(format - 1) == 'p') {
+                        ulValue = va_arg(vaArgP, unsigned long);  // %p is a pointer (native size)
+                    }
+                    else {
+                        ulValue = va_arg(vaArgP, unsigned int);  // %x is a 32-bit integer
+                    }
+                    ulPos  = 0;
                     ulBase = 16;
+                    ulNeg  = 0;
 
-                    //
-                    // Indicate that the value is positive so that a minus sign
-                    // isn't inserted.
-                    //
-                    ulNeg = 0;
-
-                    //
-                    // Determine the number of digits in the string version of
-                    // the value.
-                    //
                 convert:
+                    ulLen = 1;
                     for (ulIdx = 1;
                          (((ulIdx * ulBase) <= ulValue) && (((ulIdx * ulBase) / ulBase) == ulIdx));
-                         ulIdx *= ulBase, ulCount--) {
+                         ulIdx *= ulBase) {
+                        ulLen++;
                     }
 
-                    //
-                    // If the value is negative, reduce the count of padding
-                    // characters needed.
-                    //
-                    if (ulNeg) {
-                        ulCount--;
-                    }
+                    // Apply padding using helper function
+                    apply_padding_output(
+                        pcBuf, &ulPos, ulCount, &ulNeg, cFill, ulLen, output, output_ctx);
 
-                    //
-                    // If the value is negative and the value is padded with
-                    // zeros, then place the minus sign before the padding.
-                    //
-                    if (ulNeg && (cFill == '0')) {
-                        //
-                        // Place the minus sign in the output buffer.
-                        //
-                        pcBuf[ulPos++] = '-';
-
-                        //
-                        // The minus sign has been placed, so turn off the
-                        // negative flag.
-                        //
-                        ulNeg = 0;
-                    }
-
-                    //
-                    // Provide additional padding at the beginning of the
-                    // string conversion if needed.
-                    //
-                    if ((ulCount > 1) && (ulCount < 16)) {
-                        for (ulCount--; ulCount; ulCount--) {
-                            pcBuf[ulPos++] = cFill;
-                        }
-                    }
-
-                    //
-                    // If the value is negative, then place the minus sign
-                    // before the number.
-                    //
-                    if (ulNeg) {
-                        //
-                        // Place the minus sign in the output buffer.
-                        //
-                        pcBuf[ulPos++] = '-';
-                    }
-
-                    //
-                    // Convert the value into a string.
-                    //
+                    // Convert 32-bit value to string
                     for (; ulIdx; ulIdx /= ulBase) {
+                        // Check if buffer is full, flush and reset
+                        if (ulPos >= PCBUF_SIZE) {
+                            output(pcBuf, ulPos, output_ctx);
+                            ulPos = 0;
+                        }
+
                         if (!ulCap) {
                             pcBuf[ulPos++] = g_pcHex[(ulValue / ulIdx) % ulBase];
                         }
@@ -515,621 +505,78 @@ void mcu_usb_printf(const char *format, ...)
                         }
                     }
 
-                    //
-                    // Write the string.
-                    //
-                    os_io_seph_cmd_printf(pcBuf, ulPos);
-
-                    //
-                    // This command has been handled.
-                    //
+                    if (ulPos > 0) {
+                        output(pcBuf, ulPos, output_ctx);
+                    }
                     break;
                 }
 
-                //
-                // Handle the %% command.
-                //
                 case '%': {
-                    //
-                    // Simply write a single %.
-                    //
-                    os_io_seph_cmd_printf(format - 1, 1);
-
-                    //
-                    // This command has been handled.
-                    //
+                    output("%", 1, output_ctx);
                     break;
                 }
 
                 error:
-                //
-                // Handle all other commands.
-                //
                 default: {
-                    //
-                    // Indicate an error.
-                    //
-                    os_io_seph_cmd_printf("ERROR", 5);
-
-                    //
-                    // This command has been handled.
-                    //
-                    break;
+#ifdef HAVE_SNPRINTF_DEBUG
+                    output("ERROR", 5, output_ctx);
+#endif
+                    return -1;
                 }
             }
         }
     }
 
-    //
-    // End the varargs processing.
-    //
+    return 0;
+}
+
+#ifdef HAVE_PRINTF
+void screen_printf(const char *format, ...) __attribute__((weak, alias("mcu_usb_printf")));
+
+void mcu_usb_printf(const char *format, ...)
+{
+    va_list vaArgP;
+
+    if (format == NULL) {
+        return;
+    }
+
+    va_start(vaArgP, format);
+    (void) vformat_internal(printf_output, NULL, format, vaArgP);
     va_end(vaArgP);
 }
 
 #endif  // HAVE_PRINTF
 
 #ifdef HAVE_SPRINTF
-// unsigned int snprintf(unsigned char * str, unsigned int str_size, const char* format, ...)
 int snprintf(char *str, size_t str_size, const char *format, ...)
 {
-    unsigned int ulIdx, ulValue, ulPos, ulCount, ulBase, ulNeg, ulStrlen, ulCap;
-    char        *pcStr, pcBuf[16], cFill;
-    va_list      vaArgP;
-    char         cStrlenSet;
+    va_list       vaArgP;
+    sprintf_ctx_t ctx;
+    int           result;
 
-    //
-    // Check the arguments.
-    //
     if (str == NULL || str_size < 1) {
-        return 0;
+        return -1;  // Error: invalid arguments
     }
 
-    // ensure terminating string with a \0
     memset(str, 0, str_size);
+    // Reserve space for null terminator
     str_size--;
 
-    //
-    // Check if there is still space left for data in the buffer.
-    //
-    if (str_size < 1) {
-        return 0;
-    }
+    ctx.str      = str;
+    ctx.str_size = str_size;
+    ctx.written  = 0;  // Initialize counter
 
-    //
-    // Start the varargs processing.
-    //
     va_start(vaArgP, format);
-
-    //
-    // Loop while there are more characters in the string.
-    //
-    while (*format) {
-        //
-        // Find the first non-% character, or the end of the string.
-        //
-        for (ulIdx = 0; (format[ulIdx] != '%') && (format[ulIdx] != '\0'); ulIdx++) {
-        }
-
-        //
-        // Write this portion of the string.
-        //
-        ulIdx = MIN(ulIdx, str_size);
-        memmove(str, format, ulIdx);
-        str += ulIdx;
-        str_size -= ulIdx;
-        if (str_size == 0) {
-            va_end(vaArgP);
-            return 0;
-        }
-
-        //
-        // Skip the portion of the string that was written.
-        //
-        format += ulIdx;
-
-        //
-        // See if the next character is a %.
-        //
-        if (*format == '%') {
-            //
-            // Skip the %.
-            //
-            format++;
-
-            //
-            // Set the digit count to zero, and the fill character to space
-            // (i.e. to the defaults).
-            //
-            ulCount    = 0;
-            cFill      = ' ';
-            ulStrlen   = 0;
-            cStrlenSet = 0;
-            ulCap      = 0;
-            ulBase     = 10;
-
-            //
-            // It may be necessary to get back here to process more characters.
-            // Goto's aren't pretty, but effective.  I feel extremely dirty for
-            // using not one but two of the beasts.
-            //
-        again:
-
-            //
-            // Determine how to handle the next character.
-            //
-            switch (*format++) {
-                //
-                // Handle the digit characters.
-                //
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9': {
-                    //
-                    // If this is a zero, and it is the first digit, then the
-                    // fill character is a zero instead of a space.
-                    //
-                    if ((format[-1] == '0') && (ulCount == 0)) {
-                        cFill = '0';
-                    }
-
-                    //
-                    // Update the digit count.
-                    //
-                    ulCount *= 10;
-                    ulCount += format[-1] - '0';
-
-                    //
-                    // Get the next character.
-                    //
-                    goto again;
-                }
-
-                //
-                // Handle the %c command.
-                //
-                case 'c': {
-                    //
-                    // Get the value from the varargs.
-                    //
-                    ulValue = va_arg(vaArgP, unsigned long);
-
-                    //
-                    // Print out the character.
-                    //
-                    str[0] = ulValue;
-                    str++;
-                    str_size -= 1;
-                    if (str_size == 0) {
-                        va_end(vaArgP);
-                        return 0;
-                    }
-
-                    //
-                    // This command has been handled.
-                    //
-                    break;
-                }
-
-                //
-                // Handle the %d command.
-                //
-                case 'd': {
-                    //
-                    // Get the value from the varargs.
-                    //
-                    ulValue = va_arg(vaArgP, unsigned long);
-
-                    //
-                    // Reset the buffer position.
-                    //
-                    ulPos = 0;
-
-                    //
-                    // If the value is negative, make it positive and indicate
-                    // that a minus sign is needed.
-                    //
-                    if ((long) ulValue < 0) {
-                        //
-                        // Make the value positive.
-                        //
-                        ulValue = -(long) ulValue;
-
-                        //
-                        // Indicate that the value is negative.
-                        //
-                        ulNeg = 1;
-                    }
-                    else {
-                        //
-                        // Indicate that the value is positive so that a minus
-                        // sign isn't inserted.
-                        //
-                        ulNeg = 0;
-                    }
-
-                    //
-                    // Set the base to 10.
-                    //
-                    ulBase = 10;
-
-                    //
-                    // Convert the value to ASCII.
-                    //
-                    goto convert;
-                }
-
-                //
-                // Handle the %.*s command
-                // special %.*H or %.*h format to print a given length of hex digits (case: H UPPER,
-                // h lower)
-                //
-                case '.': {
-                    // ensure next char is '*' and next one is 's'/'h'/'H'
-                    if (format[0] == '*'
-                        && (format[1] == 's' || format[1] == 'H' || format[1] == 'h')) {
-                        // skip '*' char
-                        format++;
-
-                        ulStrlen   = va_arg(vaArgP, unsigned long);
-                        cStrlenSet = 1;
-
-                        // interpret next char (H/h/s)
-                        goto again;
-                    }
-
-                    // does not support %.2x for example
-                    goto error;
-                }
-
-                case '*': {
-                    if (*format == 's') {
-                        ulStrlen   = va_arg(vaArgP, unsigned long);
-                        cStrlenSet = 2;
-                        goto again;
-                    }
-
-                    goto error;
-                }
-
-                case '-':  // -XXs
-                {
-                    cStrlenSet = 0;
-                    // read a number of space to post pad with ' ' the string to display
-                    goto again;
-                }
-
-                //
-                // Handle the %s command.
-                // %H and %h also
-                case 'H':
-                    ulCap  = 1;  // uppercase base 16
-                    ulBase = 16;
-                    goto case_s;
-                case 'h':
-                    ulBase = 16;  // lowercase base 16
-                    goto case_s;
-                case 's':
-                case_s : {
-                    //
-                    // Get the string pointer from the varargs.
-                    //
-                    pcStr = va_arg(vaArgP, char *);
-
-                    //
-                    // Determine the length of the string. (if not specified using .*)
-                    //
-                    switch (cStrlenSet) {
-                        // compute length with strlen
-                        case 0:
-                            for (ulIdx = 0; pcStr[ulIdx] != '\0'; ulIdx++) {
-                            }
-                            break;
-
-                        // use given length
-                        case 1:
-                            ulIdx = ulStrlen;
-                            break;
-
-                        // printout prepad
-                        case 2:
-                            // if string is empty, then, ' ' padding
-                            if (pcStr[0] == '\0') {
-                                // pad with ulStrlen white spaces
-                                ulStrlen = MIN(ulStrlen, str_size);
-                                memset(str, ' ', ulStrlen);
-                                str += ulStrlen;
-                                str_size -= ulStrlen;
-                                if (str_size == 0) {
-                                    va_end(vaArgP);
-                                    return 0;
-                                }
-
-                                goto s_pad;
-                            }
-                            goto error;  // unsupported if replicating the same string multiple
-                                         // times
-                        case 3:
-                            // skip '-' still buggy ...
-                            goto again;
-                    }
-
-                    //
-                    // Write the string.
-                    //
-                    switch (ulBase) {
-                        default:
-                            ulIdx = MIN(ulIdx, str_size);
-                            memmove(str, pcStr, ulIdx);
-                            str += ulIdx;
-                            str_size -= ulIdx;
-                            if (str_size == 0) {
-                                va_end(vaArgP);
-                                return 0;
-                            }
-                            break;
-                        case 16: {
-                            unsigned char nibble1, nibble2;
-                            for (ulCount = 0; ulCount < ulIdx; ulCount++) {
-                                nibble1 = (pcStr[ulCount] >> 4) & 0xF;
-                                nibble2 = pcStr[ulCount] & 0xF;
-                                if (str_size < 2) {
-                                    va_end(vaArgP);
-                                    return 0;
-                                }
-                                switch (ulCap) {
-                                    case 0:
-                                        str[0] = g_pcHex[nibble1];
-                                        str[1] = g_pcHex[nibble2];
-                                        break;
-                                    case 1:
-                                        str[0] = g_pcHex_cap[nibble1];
-                                        str[1] = g_pcHex_cap[nibble2];
-                                        break;
-                                }
-                                str += 2;
-                                str_size -= 2;
-                                if (str_size == 0) {
-                                    va_end(vaArgP);
-                                    return 0;
-                                }
-                            }
-                            break;
-                        }
-                    }
-
-                s_pad:
-                    //
-                    // Write any required padding spaces
-                    //
-                    if (ulCount > ulIdx) {
-                        ulCount -= ulIdx;
-                        ulCount = MIN(ulCount, str_size);
-                        memset(str, ' ', ulCount);
-                        str += ulCount;
-                        str_size -= ulCount;
-                        if (str_size == 0) {
-                            va_end(vaArgP);
-                            return 0;
-                        }
-                    }
-                    //
-                    // This command has been handled.
-                    //
-                    break;
-                }
-
-#ifdef HAVE_SNPRINTF_FORMAT_U
-                //
-                // Handle the %u command.
-                //
-                case 'u': {
-                    //
-                    // Get the value from the varargs.
-                    //
-                    ulValue = va_arg(vaArgP, unsigned long);
-
-                    //
-                    // Reset the buffer position.
-                    //
-                    ulPos = 0;
-
-                    //
-                    // Set the base to 10.
-                    //
-                    ulBase = 10;
-
-                    //
-                    // Indicate that the value is positive so that a minus sign
-                    // isn't inserted.
-                    //
-                    ulNeg = 0;
-
-                    //
-                    // Convert the value to ASCII.
-                    //
-                    goto convert;
-                }
-#endif  // HAVE_SNPRINTF_FORMAT_U
-
-                //
-                // Handle the %x and %X commands.  Note that they are treated
-                // identically; i.e. %X will use lower case letters for a-f
-                // instead of the upper case letters is should use.  We also
-                // alias %p to %x.
-                //
-                case 'X':
-                    ulCap = 1;
-                    FALL_THROUGH;
-                case 'x':
-                case 'p': {
-                    //
-                    // Get the value from the varargs.
-                    //
-                    ulValue = va_arg(vaArgP, unsigned long);
-
-                    //
-                    // Reset the buffer position.
-                    //
-                    ulPos = 0;
-
-                    //
-                    // Set the base to 16.
-                    //
-                    ulBase = 16;
-
-                    //
-                    // Indicate that the value is positive so that a minus sign
-                    // isn't inserted.
-                    //
-                    ulNeg = 0;
-
-                    //
-                    // Determine the number of digits in the string version of
-                    // the value.
-                    //
-                convert:
-                    for (ulIdx = 1;
-                         (((ulIdx * ulBase) <= ulValue) && (((ulIdx * ulBase) / ulBase) == ulIdx));
-                         ulIdx *= ulBase, ulCount--) {
-                    }
-
-                    //
-                    // If the value is negative, reduce the count of padding
-                    // characters needed.
-                    //
-                    if (ulNeg) {
-                        ulCount--;
-                    }
-
-                    //
-                    // If the value is negative and the value is padded with
-                    // zeros, then place the minus sign before the padding.
-                    //
-                    if (ulNeg && (cFill == '0')) {
-                        //
-                        // Place the minus sign in the output buffer.
-                        //
-                        pcBuf[ulPos++] = '-';
-
-                        //
-                        // The minus sign has been placed, so turn off the
-                        // negative flag.
-                        //
-                        ulNeg = 0;
-                    }
-
-                    //
-                    // Provide additional padding at the beginning of the
-                    // string conversion if needed.
-                    //
-                    if ((ulCount > 1) && (ulCount < 16)) {
-                        for (ulCount--; ulCount; ulCount--) {
-                            pcBuf[ulPos++] = cFill;
-                        }
-                    }
-
-                    //
-                    // If the value is negative, then place the minus sign
-                    // before the number.
-                    //
-                    if (ulNeg) {
-                        //
-                        // Place the minus sign in the output buffer.
-                        //
-                        pcBuf[ulPos++] = '-';
-                    }
-
-                    //
-                    // Convert the value into a string.
-                    //
-                    for (; ulIdx; ulIdx /= ulBase) {
-                        if (!ulCap) {
-                            pcBuf[ulPos++] = g_pcHex[(ulValue / ulIdx) % ulBase];
-                        }
-                        else {
-                            pcBuf[ulPos++] = g_pcHex_cap[(ulValue / ulIdx) % ulBase];
-                        }
-                    }
-
-                    //
-                    // Write the string.
-                    //
-                    ulPos = MIN(ulPos, str_size);
-                    memmove(str, pcBuf, ulPos);
-                    str += ulPos;
-                    str_size -= ulPos;
-                    if (str_size == 0) {
-                        va_end(vaArgP);
-                        return 0;
-                    }
-
-                    //
-                    // This command has been handled.
-                    //
-                    break;
-                }
-
-                //
-                // Handle the %% command.
-                //
-                case '%': {
-                    //
-                    // Simply write a single %.
-                    //
-                    str[0] = '%';
-                    str++;
-                    str_size--;
-                    if (str_size == 0) {
-                        va_end(vaArgP);
-                        return 0;
-                    }
-
-                    //
-                    // This command has been handled.
-                    //
-                    break;
-                }
-
-                error:
-                //
-                // Handle all other commands.
-                //
-                default: {
-#ifdef HAVE_SNPRINTF_DEBUG
-                    //
-                    // Indicate an error.
-                    //
-                    ulPos = MIN(strlen("ERROR"), str_size);
-                    memmove(str, "ERROR", ulPos);
-                    str += ulPos;
-                    str_size -= ulPos;
-                    if (str_size == 0) {
-                        va_end(vaArgP);
-                        return 0;
-                    }
-#endif  // HAVE_SNPRINTF_DEBUG
-
-                    //
-                    // This command has been handled.
-                    //
-                    break;
-                }
-            }
-        }
-    }
-
-    //
-    // End the varargs processing.
-    //
+    result = vformat_internal(sprintf_output, &ctx, format, vaArgP);
     va_end(vaArgP);
 
-    return 0;
+    // If format error, return -1
+    if (result < 0) {
+        return -1;
+    }
+    return ctx.written;  // Return number of characters written
 }
 #endif  // HAVE_SPRINTF
+
+#endif  // defined(HAVE_PRINTF) || defined(HAVE_SPRINTF)
