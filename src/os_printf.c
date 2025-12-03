@@ -36,6 +36,7 @@ typedef void (*output_func_t)(const char *data, size_t len, void *context);
 typedef struct {
     char  *str;
     size_t str_size;
+    int    written;
 } sprintf_ctx_t;
 
 // clang-format off
@@ -63,6 +64,9 @@ static void printf_output(const char *data, size_t len, void *context)
 static void sprintf_output(const char *data, size_t len, void *context)
 {
     sprintf_ctx_t *ctx = (sprintf_ctx_t *) context;
+
+    // Always count characters that would be written (even if buffer is full)
+    ctx->written += len;
 
     if (ctx->str_size == 0) {
         return;
@@ -517,7 +521,7 @@ static int vformat_internal(output_func_t output,
 #ifdef HAVE_SNPRINTF_DEBUG
                     output("ERROR", 5, output_ctx);
 #endif
-                    break;
+                    return -1;
                 }
             }
         }
@@ -533,12 +537,12 @@ void mcu_usb_printf(const char *format, ...)
 {
     va_list vaArgP;
 
-    if (format == 0) {
+    if (format == NULL) {
         return;
     }
 
     va_start(vaArgP, format);
-    vformat_internal(printf_output, NULL, format, vaArgP);
+    (void) vformat_internal(printf_output, NULL, format, vaArgP);
     va_end(vaArgP);
 }
 
@@ -549,26 +553,29 @@ int snprintf(char *str, size_t str_size, const char *format, ...)
 {
     va_list       vaArgP;
     sprintf_ctx_t ctx;
+    int           result;
 
     if (str == NULL || str_size < 1) {
-        return 0;
+        return -1;  // Error: invalid arguments
     }
 
     memset(str, 0, str_size);
+    // Reserve space for null terminator
     str_size--;
-
-    if (str_size < 1) {
-        return 0;
-    }
 
     ctx.str      = str;
     ctx.str_size = str_size;
+    ctx.written  = 0;  // Initialize counter
 
     va_start(vaArgP, format);
-    vformat_internal(sprintf_output, &ctx, format, vaArgP);
+    result = vformat_internal(sprintf_output, &ctx, format, vaArgP);
     va_end(vaArgP);
 
-    return 0;
+    // If format error, return -1
+    if (result < 0) {
+        return -1;
+    }
+    return ctx.written;  // Return number of characters written
 }
 #endif  // HAVE_SPRINTF
 
