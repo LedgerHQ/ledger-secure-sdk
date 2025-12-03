@@ -34,8 +34,8 @@
 #define TRUSTED_NAME_STRINGS_MAX_SIZE 64
 #define NFT_ID_SIZE                   32
 
-// source_contract_received field exists from version 3
-#define SOURCE_CONTRACT_RECEIVED_MIN_VERSION 3
+// source_contract_received field exists from version 2
+#define SOURCE_CONTRACT_RECEIVED_MIN_VERSION 2
 #define CURRENT_TRUSTED_NAME_SPEC_VERSION    3
 
 #define SEMVER_SIZE 3
