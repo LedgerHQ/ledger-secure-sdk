@@ -277,7 +277,8 @@ static tlv_trusted_name_status_t verify_struct(const tlv_extracted_t *tlv_extrac
                                  TAG_SIGNER_KEY_ID,
                                  TAG_SIGNER_ALGORITHM,
                                  TAG_DER_SIGNATURE)) {
-        PRINTF("Error: missing required fields in struct version 2\n");
+        PRINTF("Error: missing required fields in struct version %d\n",
+               CURRENT_TRUSTED_NAME_SPEC_VERSION);
         return TLV_TRUSTED_NAME_MISSING_TAG;
     }
 
@@ -291,13 +292,16 @@ static tlv_trusted_name_status_t verify_struct(const tlv_extracted_t *tlv_extrac
     tlv_extracted->output->not_valid_after_received
         = TLV_CHECK_RECEIVED_TAGS(tlv_extracted->received_tags, TAG_NOT_VALID_AFTER);
 
-    if (tlv_extracted->output->version == 0 || tlv_extracted->output->version > 2) {
+    if (tlv_extracted->output->version == 0
+        || tlv_extracted->output->version > CURRENT_TRUSTED_NAME_SPEC_VERSION) {
         PRINTF("Error: unsupported struct version %d\n", tlv_extracted->output->version);
         return TLV_TRUSTED_NAME_UNKNOWN_VERSION;
     }
 
-    if (tlv_extracted->output->source_contract_received && tlv_extracted->output->version < 2) {
-        PRINTF("Error: source_contract_received is only supported in v >= 2\n");
+    if (tlv_extracted->output->source_contract_received
+        && tlv_extracted->output->version < SOURCE_CONTRACT_RECEIVED_MIN_VERSION) {
+        PRINTF("Error: source_contract_received is only supported in v >= %d\n",
+               SOURCE_CONTRACT_RECEIVED_MIN_VERSION);
         return TLV_TRUSTED_NAME_UNSUPPORTED_TAG;
     }
 
