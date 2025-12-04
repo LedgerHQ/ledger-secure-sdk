@@ -1,22 +1,7 @@
 <map id="lib_cxng/include/lcx_hash.h" name="lib_cxng/include/lcx_hash.h">
-<area shape="rect" id="Node000001" title="Hash functions." alt="" coords="211,5,362,45"/>
-<area shape="rect" id="Node000002" href="$lcx__rng_8h.html" title="Random Number Generation." alt="" coords="269,93,419,133"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="309,56,334,92,329,95,305,58"/>
-<area shape="rect" id="Node000003" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="193,189,383,214"/>
-<area shape="poly" id="edge9_Node000001_Node000003" title=" " alt="" coords="272,59,260,94,257,113,260,133,270,163,283,187,278,189,265,165,255,134,252,113,255,93,267,57"/>
-<area shape="rect" id="Node000004" href="$cx__ram_8h.html" title=" " alt="" coords="5,189,168,214"/>
-<area shape="poly" id="edge11_Node000001_Node000004" title=" " alt="" coords="256,57,102,190,98,186,253,53"/>
-<area shape="rect" id="Node000009" href="$cx__hkdf_8h.html" title=" " alt="" coords="444,101,609,126"/>
-<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="353,47,496,98,494,103,351,52"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="318,146,292,190,287,187,314,143"/>
-<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="275,140,122,191,120,186,274,135"/>
-<area shape="rect" id="Node000006" href="$cx__rng__rfc6979_8h.html" title=" " alt="" coords="408,181,555,221"/>
-<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="387,139,453,179,450,184,385,143"/>
-<area shape="rect" id="Node000007" href="$nbgl__layout_8c.html" title="Implementation of predefined layouts management for Applications." alt="" coords="579,189,765,214"/>
-<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="430,134,629,186,628,191,429,139"/>
-<area shape="rect" id="Node000008" href="$nbgl__obj__keypad_8c.html" title="The construction and touch management of a keypad object." alt="" coords="789,181,944,221"/>
-<area shape="poly" id="edge8_Node000002_Node000008" title=" " alt="" coords="433,131,608,155,778,179,790,181,789,186,777,184,607,160,433,136"/>
-<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="308,176,337,132,341,135,313,179"/>
-<area shape="rect" id="Node000005" href="$cx__ram_8c.html" title=" " alt="" coords="5,269,168,295"/>
-<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="89,228,89,269,84,269,84,228"/>
+<area shape="rect" id="Node000001" title="Hash functions." alt="" coords="127,5,277,45"/>
+<area shape="rect" id="Node000002" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="5,93,196,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,56,117,95,114,91,165,52"/>
+<area shape="rect" id="Node000003" href="$cx__hkdf_8h.html" title=" " alt="" coords="221,93,386,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="239,52,290,91,287,95,236,56"/>
 </map>

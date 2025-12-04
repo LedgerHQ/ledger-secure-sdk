@@ -15,6 +15,5 @@ var searchData=
   ['get_5fprev_12',['GET_PREV',['../mem__alloc_8c.html#af479eb4b0bb80da4bd499d3c381e2448',1,'mem_alloc.c']]],
   ['get_5fprintable_5famount_13',['GET_PRINTABLE_AMOUNT',['../swap__lib__calls_8h.html#aedb655e6739881f3a8f840d6d72d133d',1,'swap_lib_calls.h']]],
   ['get_5fptr_14',['GET_PTR',['../mem__alloc_8c.html#a1bac9dc8b7ada4a309e4d7df48007417',1,'mem_alloc.c']]],
-  ['get_5fsegment_15',['GET_SEGMENT',['../mem__alloc_8c.html#a7648f1952eabe534ca9a37ae8cca57e1',1,'mem_alloc.c']]],
-  ['gzlib_5funcompressed_5fchunk_16',['GZLIB_UNCOMPRESSED_CHUNK',['../nbgl__types_8h.html#a808a311dc872fc2ed54ae995ebba0c30',1,'nbgl_types.h']]]
+  ['gzlib_5funcompressed_5fchunk_15',['GZLIB_UNCOMPRESSED_CHUNK',['../nbgl__types_8h.html#a808a311dc872fc2ed54ae995ebba0c30',1,'nbgl_types.h']]]
 ];
