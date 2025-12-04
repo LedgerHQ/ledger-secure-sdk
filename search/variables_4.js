@@ -12,7 +12,7 @@ var searchData=
   ['enablemasking_9',['enableMasking',['../structnbgl__mask__control__s.html#a494c1429b3e6fdcc97414f128a0a0f52',1,'nbgl_mask_control_s']]],
   ['enablevalidate_10',['enableValidate',['../structnbgl__keypad__s.html#a9b30fa4389daad9d25c9d61f920f3915',1,'nbgl_keypad_s']]],
   ['enc_5ffunc_11',['enc_func',['../structcx__cipher__base__t.html#a03aee64b7e5fdeeefb7cb37f878bb93f',1,'cx_cipher_base_t']]],
-  ['encoding_12',['encoding',['../structnbgl__font__character__t.html#a4267aedd5f4c261cfbea4f70af78f8af',1,'nbgl_font_character_t::encoding'],['../structnbgl__font__unicode__character__t.html#a24d092056c5e50cbba4a0756122a530a',1,'nbgl_font_unicode_character_t::encoding']]],
+  ['encoding_12',['encoding',['../structnbgl__font__unicode__character__t.html#a24d092056c5e50cbba4a0756122a530a',1,'nbgl_font_unicode_character_t::encoding'],['../structcharacter__info__t.html#a7e85b2f9fabee22a72e8a35a552bdc43',1,'character_info_t::encoding'],['../structnbgl__font__character__t.html#a4267aedd5f4c261cfbea4f70af78f8af',1,'nbgl_font_character_t::encoding']]],
   ['end_13',['end',['../structheap__t.html#a3c98d9c5a892a4aa68da2bb079259b88',1,'heap_t']]],
   ['error_14',['error',['../structu2f__transport__t.html#ab2f4ab1e0b95acc96bafbfefab440890',1,'u2f_transport_t']]],
   ['error_5fflow_15',['error_flow',['../structux__flow__step__s.html#a51876ecf4bbc7baa17d221c5664b29ed',1,'ux_flow_step_s']]],
