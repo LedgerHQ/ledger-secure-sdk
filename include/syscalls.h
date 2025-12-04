@@ -1,5 +1,16 @@
+/**
+ * @file syscalls.h
+ * @brief Public header file related to the syscalls provided by the OS.
+ */
 #pragma once
 
+/*********************
+ *      INCLUDES
+ *********************/
+
+/*********************
+ *      DEFINES
+ *********************/
 // the number of parameters of a syscall is stored in the syscall id
 #define SYSCALL_NUMBER_OF_PARAMETERS(id) (((id) >> 24) & 0xf)
 
@@ -212,8 +223,8 @@
 #define SYSCALL_CERT_erase_ID 0x00000CA1
 #endif  // HAVE_CUSTOM_CA_DETAILS_IN_SETTINGS
 
-#define SYSCALL_ENDORSEMENT_revoke_slot_ID 0x010001ED
-
+#define SYSCALL_ENDORSEMENT_revoke_slot_ID  0x010001ED
+#define SYSCALL_RESERVED_1_ID               0x010001EE
 #define SYSCALL_ENDORSEMENT_get_metadata_ID 0x02000138
 
 #if defined(HAVE_VAULT_RECOVERY_ALGO)
@@ -305,3 +316,19 @@
 #endif
 
 #endif  // HAVE_SE_TOUCH
+
+/**********************
+ *      TYPEDEFS
+ **********************/
+
+/**********************
+ * STATIC VARIABLES
+ **********************/
+
+/**********************
+ * STATIC INLINE
+ **********************/
+
+/**********************
+ * GLOBAL PROTOTYPES
+ **********************/

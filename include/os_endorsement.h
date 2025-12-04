@@ -3,14 +3,14 @@
  * @brief Header file containing all prototypes related to endorsement feature
  */
 
-#ifndef OS_ENDORSEMENT_H_
-#define OS_ENDORSEMENT_H_
+#pragma once
 
 /*********************
  *      INCLUDES
  *********************/
+#include <stdint.h>
+#include <stddef.h>
 
-#include "bolos_target.h"
 #include "decorators.h"
 #include "os_types.h"
 #include "lcx_sha256.h"
@@ -20,20 +20,23 @@
  *********************/
 
 #define ENDORSEMENT_HASH_LENGTH          CX_SHA256_SIZE
-#define ENDORSEMENT_METADATA_LENGTH      8
-#define ENDORSEMENT_PUBLIC_KEY_LENGTH    65
-#define ENDORSEMENT_APP_SECRET_LENGTH    64
-#define ENDORSEMENT_MAX_ASN1_LENGTH      72
+#define ENDORSEMENT_METADATA_LENGTH      8U
+#define ENDORSEMENT_PUBLIC_KEY_LENGTH    65U
+#define ENDORSEMENT_APP_SECRET_LENGTH    64U
+#define ENDORSEMENT_MAX_ASN1_LENGTH      72U
 #define ENDORSEMENT_SIGNATURE_MAX_LENGTH ENDORSEMENT_MAX_ASN1_LENGTH
 
 /**********************
  *      TYPEDEFS
  **********************/
 
-typedef enum {
-    ENDORSEMENT_SLOT_1 = 1,
-    ENDORSEMENT_SLOT_2
-} ENDORSEMENT_slot_t;
+enum ENDORSEMENT_slot_e {
+    ENDORSEMENT_SLOT_INVALID,
+    ENDORSEMENT_SLOT_1 = 1U,
+    ENDORSEMENT_SLOT_2 = 2U
+};
+
+typedef uint8_t ENDORSEMENT_slot_t;
 
 /**********************
  * GLOBAL PROTOTYPES
@@ -243,5 +246,3 @@ os_endorsement_get_metadata(unsigned char index, unsigned char *buffer PLENGTH(8
 /**********************
  *      MACROS
  **********************/
-
-#endif  // OS_ENDORSEMENT_H_
