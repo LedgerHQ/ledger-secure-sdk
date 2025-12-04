@@ -31,6 +31,12 @@
 #define AVERAGE_CHAR_WIDTH 24
 #endif  // SCREEN_SIZE_WALLET
 
+#ifndef UNIT_TESTING
+#define STATIC static
+#else
+#define STATIC
+#endif
+
 // Additional height for displaying combined characters
 #define COMBINED_HEIGHT 9
 
@@ -58,26 +64,6 @@
 /**********************
  *      TYPEDEFS
  **********************/
-// Structure used to hold character information
-typedef struct {
-    uint32_t       unicode;
-    const uint8_t *buffer;
-    const uint8_t *patterns;
-    uint16_t       byte_cnt;
-    int16_t        x_min;
-    int16_t        y_min;
-    int16_t        x_max;
-    int16_t        y_max;
-    uint16_t       width;
-    uint16_t       height;
-    int16_t        real_y_min;
-    uint16_t       real_height;
-    uint8_t        encoding;
-    uint8_t        nb_skipped_bytes;
-    bool           is_unicode;
-    bool           over_previous;
-
-} character_info_t;
 
 // Structure used to handle RLE context
 typedef struct {
@@ -438,7 +424,7 @@ static inline void get_next_pixels(rle_context_t *context, size_t remaining_widt
  * @param dst RAM buffer on which the glyph will be drawn
  * @param nb_skipped_bytes number of bytes that was cropped
  */
-static void nbgl_draw4BPPImageRle(nbgl_area_t   *area,
+STATIC void nbgl_draw4BPPImageRle(nbgl_area_t   *area,
                                   const uint8_t *buffer,
                                   uint32_t       buffer_len,
                                   const uint8_t *patterns,
@@ -937,7 +923,7 @@ static void display_ram_buffer(int16_t            x_min,
 }
 #endif  // SCREEN_SIZE_WALLET
 
-static void update_char_info(character_info_t   *char_info,
+STATIC void update_char_info(character_info_t   *char_info,
                              const uint8_t     **text,
                              uint16_t           *textLen,
                              nbgl_unicode_ctx_t *unicode_ctx,

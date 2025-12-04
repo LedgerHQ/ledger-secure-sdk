@@ -28,6 +28,27 @@ extern "C" {
  *      TYPEDEFS
  **********************/
 
+// Structure used to hold character information
+typedef struct {
+    uint32_t       unicode;
+    const uint8_t *buffer;
+    const uint8_t *patterns;
+    uint16_t       byte_cnt;
+    int16_t        x_min;
+    int16_t        y_min;
+    int16_t        x_max;
+    int16_t        y_max;
+    uint16_t       width;
+    uint16_t       height;
+    int16_t        real_y_min;
+    uint16_t       real_height;
+    uint8_t        encoding;
+    uint8_t        nb_skipped_bytes;
+    bool           is_unicode;
+    bool           over_previous;
+
+} character_info_t;
+
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
