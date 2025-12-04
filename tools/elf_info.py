@@ -38,6 +38,9 @@ def elf_parser(input: str) -> None:
     logger.info("target_id:    '%s'", binary.sections.target_id)
     logger.info("target_name:  '%s'", binary.sections.target_name)
 
+    print("---")
+    logger.info("app_flags:    '%s'", binary.sections.app_flags)
+
 
 # ===============================================================================
 #          Parameters
