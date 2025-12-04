@@ -76,6 +76,10 @@ CREATE_METADATA_STRING_ITEM("bagl", sdk_graphics)
 CREATE_METADATA_STRING_ITEM("nbgl", sdk_graphics)
 #endif
 
+#if defined(APP_FLAGS_APP_LOAD_PARAMS)
+CREATE_METADATA_STRING_ITEM_FROM_INT(APP_FLAGS_APP_LOAD_PARAMS, app_flags)
+#endif
+
 #ifdef APP_INSTALL_PARAMS_DATA
 __attribute__((section(".install_parameters"))) const uint8_t install_parameters[]
     = {APP_INSTALL_PARAMS_DATA};

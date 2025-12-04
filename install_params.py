@@ -28,16 +28,11 @@ BOLOS_TAG_ICON = 3
 BOLOS_TAG_DERIVEPATH = 4
 BOLOS_TAG_DEPENDENCY = 6
 
-
 CURVE_SECP256K1 = 1 << 0
 CURVE_PRIME256R1 = 1 << 1
 CURVE_ED25519 = 1 << 2
 CURVE_SLIP21 = 1 << 3
 CURVE_BLS12381G1 = 1 << 4
-
-
-def auto_int(x):
-    return int(x, 0)
 
 
 def string_to_bytes(x):
