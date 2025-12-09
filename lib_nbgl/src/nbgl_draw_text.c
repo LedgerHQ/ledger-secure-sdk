@@ -76,7 +76,9 @@ typedef struct {
     uint8_t        nb_bits;
     // Part containing the decoded pixels
     uint8_t nb_pix;
-    uint8_t color;                        // if color <= 15 it is a FILL, else a COPY
+    bool    copy;                         // when True, COPY command, otherwise FILL command
+    uint8_t offset;                       // offset value, for COPY command
+    uint8_t color;                        // Color to use for the FILL, from 0 to 15
     uint8_t pixels[MAX_RLE_COPY_PIXELS];  // Maximum 5 pixels (COPY)
 
 } rle_context_t;
@@ -249,6 +251,7 @@ static inline void get_next_pixels(rle_context_t *context, size_t remaining_widt
     if (!cmd && context->read_cnt >= context->buffer_len && !context->nb_bits) {
         // Just return the number of pixels to skip
         context->nb_pix = remaining_width;
+        context->copy   = false;
         context->color  = 0xF;  // Background color, which is considered as transparent
         return;
     }
@@ -273,43 +276,50 @@ static inline void get_next_pixels(rle_context_t *context, size_t remaining_widt
             for (uint8_t i = 0; i < cmd; i++) {
                 context->pixels[i] = get_next_quartet(context);
             }
-            context->color = 0x10;  // COPY command + pixels offset=0
+            context->copy   = true;  // COPY command
+            context->offset = 0;     // pixels offset=0
             break;
 
         // Is it a FILL command?
 
         // CMD=0100 + VVVV + RRRR => FILL Value x Repeat+3 (max=18)
         case RLE_CMD_FILL_3:
+            context->copy   = false;
             context->color  = get_next_quartet(context);
             context->nb_pix = get_next_quartet(context) + 3;
             break;
 
         // CMD=0101 + VVVV => FILL Value x 2
         case RLE_CMD_FILL_2:
+            context->copy   = false;
             context->color  = get_next_quartet(context);
             context->nb_pix = 2;
             break;
 
         // CMD=1100 + RRRR => FILL Black (max=16)
         case RLE_CMD_FILL_BLACK:
+            context->copy   = false;
             context->color  = 0;
             context->nb_pix = get_next_quartet(context) + 1;
             break;
 
         // CMD=1101 + VVVV => Fill Value x 1
         case RLE_CMD_FILL_1:
+            context->copy   = false;
             context->color  = get_next_quartet(context);
             context->nb_pix = 1;
             break;
 
         // CMD=111R + RRRR => FILL White (max=32)
         case RLE_CMD_FILL_WHITE:
+            context->copy   = false;
             context->color  = 0x0F;
             context->nb_pix = get_next_quartet(context) + 1;
             break;
 
         // CMD=111R + RRRR => FILL White (max=32)
         case RLE_CMD_FILL_WHITE_16:
+            context->copy   = false;
             context->color  = 0x0F;
             context->nb_pix = get_next_quartet(context) + 16 + 1;
             break;
@@ -326,7 +336,8 @@ static inline void get_next_pixels(rle_context_t *context, size_t remaining_widt
             context->pixels[2] = pattern & 0x0F;
             context->pixels[3] = 0x0F;
             context->nb_pix    = 4;
-            context->color     = 0x10;  // COPY command + pixels offset=0
+            context->copy      = true;  // COPY command
+            context->offset    = 0;     // pixels offset=0
             break;
         }
 
@@ -340,7 +351,8 @@ static inline void get_next_pixels(rle_context_t *context, size_t remaining_widt
             context->pixels[2] = pattern >> 4;
             context->pixels[3] = 0x00;
             context->nb_pix    = 4;
-            context->color     = 0x10;  // COPY command + pixels offset=0
+            context->copy      = true;  // COPY command
+            context->offset    = 0;     // pixels offset=0
             break;
         }
 
@@ -350,7 +362,8 @@ static inline void get_next_pixels(rle_context_t *context, size_t remaining_widt
             context->pixels[1] = get_next_quartet(context);
             context->pixels[2] = 0x0F;
             context->nb_pix    = 3;
-            context->color     = 0x10;  // COPY command + pixels offset=0
+            context->copy      = true;  // COPY command
+            context->offset    = 0;     // pixels offset=0
             break;
         }
 
@@ -360,7 +373,8 @@ static inline void get_next_pixels(rle_context_t *context, size_t remaining_widt
             context->pixels[1] = get_next_quartet(context);
             context->pixels[2] = 0x00;
             context->nb_pix    = 3;
-            context->color     = 0x10;  // COPY command + pixels offset=0
+            context->copy      = true;  // COPY command
+            context->offset    = 0;     // pixels offset=0
             break;
         }
 
@@ -371,7 +385,8 @@ static inline void get_next_pixels(rle_context_t *context, size_t remaining_widt
             context->pixels[2] = get_next_quartet(context);
             context->pixels[3] = 0x0F;
             context->nb_pix    = 4;
-            context->color     = 0x10;  // COPY command + pixels offset=0
+            context->copy      = true;  // COPY command
+            context->offset    = 0;     // pixels offset=0
             break;
         }
 
@@ -382,7 +397,8 @@ static inline void get_next_pixels(rle_context_t *context, size_t remaining_widt
             context->pixels[1] = get_next_quartet(context);
             context->pixels[3] = 0x00;
             context->nb_pix    = 4;
-            context->color     = 0x10;  // COPY command + pixels offset=0
+            context->copy      = true;  // COPY command
+            context->offset    = 0;     // pixels offset=0
             break;
         }
     }
@@ -461,6 +477,7 @@ STATIC void nbgl_draw4BPPImageRle(nbgl_area_t   *area,
     if (nb_skipped_bytes) {
         context.nb_pix = nb_skipped_bytes * 2;
         context.color  = 0xF;  // Background color, which is considered as transparent
+        context.copy   = false;
     }
 
     dst += buf_area->y0 * buf_area->width / 2;
@@ -484,9 +501,9 @@ STATIC void nbgl_draw4BPPImageRle(nbgl_area_t   *area,
             nb_pix = remaining_width;
         }
 
-        // if color <= 0x0F it is a FILL command, else it is a COPY
-        if (context.color <= 0x0F) {
-            // Do we need to just skip transparent pixels?
+        // if copy is true, it is a COPY command, else it is a FILL command
+        if (context.copy == false) {
+            // It is a FILL command: do we need to just skip transparent pixels?
             if (context.color == 0x0F) {
                 dst[dst_index] = dst_pixel;
                 dst_index += nb_pix / 2;
@@ -497,9 +514,9 @@ STATIC void nbgl_draw4BPPImageRle(nbgl_area_t   *area,
                     }
                 }
                 dst_pixel = dst[dst_index];
-                // FILL nb_pix pixels with context.color
             }
             else {
+                // FILL nb_pix pixels with context.color
                 for (uint8_t i = 0; i < nb_pix; i++) {
                     dst_pixel &= ~(0x0F << dst_shift);
                     dst_pixel |= context.color << dst_shift;
@@ -515,8 +532,8 @@ STATIC void nbgl_draw4BPPImageRle(nbgl_area_t   *area,
         }
         else {
             uint8_t *pixels = context.pixels;
-            // LSB of context.color contains the offset of the pixels to copy
-            pixels += context.color & 0x0F;
+            // Add current offset of the pixels to copy
+            pixels += context.offset;
 
             // We can consider there is at least 1 used pixel, otherwise it would be a FILL!
             // COPY nb_pix pixels from &context.pixels[i]
@@ -536,7 +553,7 @@ STATIC void nbgl_draw4BPPImageRle(nbgl_area_t   *area,
                 }
             }
             // Update offset of the pixels to copy
-            context.color += nb_pix;
+            context.offset += nb_pix;
         }
 
         // Take in account displayed pixels
