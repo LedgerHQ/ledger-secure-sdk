@@ -1,119 +1,44 @@
 <map id="lib_nbgl/src/nbgl_obj_keypad.c" name="lib_nbgl/src/nbgl_obj_keypad.c">
-<area shape="rect" id="Node000001" title="The construction and touch management of a keypad object." alt="" coords="421,5,575,45"/>
-<area shape="rect" id="Node000002" href="$nbgl__debug_8h.html" title="debug traces management" alt="" coords="94,93,203,119"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="421,47,213,93,212,88,420,41"/>
+<area shape="rect" id="Node000001" title="The construction and touch management of a keypad object." alt="" coords="286,5,441,45"/>
+<area shape="rect" id="Node000002" href="$nbgl__debug_8h.html" title="debug traces management" alt="" coords="19,93,129,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="295,48,130,92,129,87,293,43"/>
 <area shape="rect" id="Node000003" href="$nbgl__front_8h.html" title="Font screen low&#45;Level driver API, to draw elementary forms." alt="" coords="5,167,105,192"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="421,48,346,69,267,96,216,121,103,165,101,160,214,116,265,91,344,64,420,43"/>
-<area shape="rect" id="Node000010" href="$nbgl__draw_8h.html" title="Middle Level API of the new BOLOS Graphical Library." alt="" coords="217,167,317,192"/>
-<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="482,47,445,83,397,121,354,145,312,164,310,159,352,140,394,116,441,79,479,43"/>
-<area shape="rect" id="Node000011" href="$nbgl__fonts_8h.html" title=" " alt="" coords="283,240,385,265"/>
-<area shape="poly" id="edge18_Node000001_Node000011" title=" " alt="" coords="499,46,485,116,469,157,445,194,416,219,384,237,381,232,413,215,441,190,464,154,480,114,494,45"/>
-<area shape="rect" id="Node000013" href="$nbgl__obj_8h.html" title="API to draw all basic graphic objects." alt="" coords="341,167,431,192"/>
-<area shape="poly" id="edge14_Node000001_Node000013" title=" " alt="" coords="490,47,443,120,410,158,406,155,439,117,485,44"/>
-<area shape="rect" id="Node000014" href="$nbgl__touch_8h.html" title=" " alt="" coords="279,93,384,119"/>
-<area shape="poly" id="edge19_Node000001_Node000014" title=" " alt="" coords="459,48,369,90,367,85,457,43"/>
-<area shape="rect" id="Node000015" title=" " alt="" coords="1365,93,1442,119"/>
-<area shape="poly" id="edge22_Node000001_Node000015" title=" " alt="" coords="576,26,909,44,1127,63,1351,91,1350,96,1127,68,909,50,575,32"/>
-<area shape="rect" id="Node000016" title=" " alt="" coords="1466,93,1607,119"/>
-<area shape="poly" id="edge23_Node000001_Node000016" title=" " alt="" coords="576,28,949,49,1197,67,1453,91,1452,96,1197,73,949,55,575,33"/>
-<area shape="rect" id="Node000017" title=" " alt="" coords="1632,93,1761,119"/>
-<area shape="poly" id="edge24_Node000001_Node000017" title=" " alt="" coords="575,26,1014,45,1312,64,1618,91,1618,96,1311,70,1014,51,575,32"/>
-<area shape="rect" id="Node000018" href="$lcx__rng_8h.html" title="Random Number Generation." alt="" coords="1259,93,1340,119"/>
-<area shape="poly" id="edge25_Node000001_Node000018" title=" " alt="" coords="576,32,1245,97,1245,102,575,37"/>
-<area shape="rect" id="Node000004" href="$nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="175,313,280,339"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="65,191,90,225,126,263,159,286,191,305,189,310,156,291,123,267,86,229,61,194"/>
-<area shape="rect" id="Node000005" title=" " alt="" coords="481,387,555,412"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="275,336,468,383,467,388,273,341"/>
-<area shape="rect" id="Node000006" title=" " alt="" coords="385,387,456,412"/>
-<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="259,336,377,379,376,384,257,341"/>
-<area shape="rect" id="Node000007" title=" " alt="" coords="150,387,233,412"/>
-<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="224,340,206,376,201,373,219,338"/>
-<area shape="rect" id="Node000008" title=" " alt="" coords="257,387,361,412"/>
-<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="242,337,287,376,283,380,239,341"/>
-<area shape="rect" id="Node000009" title=" " alt="" coords="11,387,126,412"/>
-<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="203,341,108,383,106,379,201,336"/>
-<area shape="poly" id="edge10_Node000010_Node000004" title=" " alt="" coords="258,194,242,215,229,241,224,271,226,299,220,300,219,270,223,239,237,212,254,191"/>
-<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="280,191,316,228,312,232,276,194"/>
-<area shape="poly" id="edge12_Node000011_Node000004" title=" " alt="" coords="318,268,258,308,255,303,315,263"/>
-<area shape="rect" id="Node000012" title=" " alt="" coords="313,313,389,339"/>
-<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="339,265,348,300,343,301,334,266"/>
-<area shape="poly" id="edge15_Node000013_Node000004" title=" " alt="" coords="352,195,311,213,272,242,251,271,238,301,233,299,247,268,268,238,308,209,349,190"/>
-<area shape="poly" id="edge16_Node000013_Node000011" title=" " alt="" coords="380,194,353,230,348,227,375,191"/>
-<area shape="poly" id="edge17_Node000013_Node000012" title=" " alt="" coords="394,192,403,225,404,246,401,266,390,287,376,305,372,302,385,284,395,264,399,246,398,226,388,193"/>
-<area shape="poly" id="edge20_Node000014_Node000004" title=" " alt="" coords="280,120,239,138,221,151,207,168,199,184,196,201,197,237,206,271,217,300,212,302,200,273,191,237,190,200,194,182,202,165,217,147,236,134,278,115"/>
-<area shape="poly" id="edge21_Node000014_Node000013" title=" " alt="" coords="342,117,371,154,367,157,338,121"/>
-<area shape="rect" id="Node000019" href="$lcx__wrappers_8h.html" title=" " alt="" coords="2434,313,2554,339"/>
-<area shape="poly" id="edge26_Node000018_Node000019" title=" " alt="" coords="1341,114,1353,116,1518,135,1657,146,1895,154,2134,155,2441,164,2573,163,2741,152,2932,138,3132,126,3328,125,3420,129,3507,138,3585,153,3654,174,3712,202,3757,238,3764,253,3757,267,3710,276,3599,285,3254,302,2568,325,2568,320,3254,296,3598,280,3709,271,3754,263,3758,253,3753,242,3709,207,3652,179,3584,158,3506,144,3420,134,3328,130,3132,132,2932,143,2741,157,2573,168,2441,169,2134,160,1895,159,1657,151,1517,140,1352,121,1340,119"/>
-<area shape="rect" id="Node000022" href="$lcx__hash_8h.html" title="Hash functions." alt="" coords="3653,240,3743,265"/>
-<area shape="poly" id="edge29_Node000018_Node000022" title=" " alt="" coords="1341,114,1353,116,1511,130,1776,146,2482,180,3188,213,3612,237,3640,240,3639,246,3611,243,3188,219,2481,186,1775,151,1511,135,1352,121,1340,119"/>
-<area shape="rect" id="Node000023" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="2021,167,2103,192"/>
-<area shape="poly" id="edge30_Node000018_Node000023" title=" " alt="" coords="1340,116,1341,116,1532,140,1722,156,2008,173,2007,179,1721,162,1532,145,1340,121,1340,121"/>
-<area shape="rect" id="Node000020" title=" " alt="" coords="2377,387,2483,412"/>
-<area shape="poly" id="edge27_Node000019_Node000020" title=" " alt="" coords="2485,341,2451,378,2447,375,2481,337"/>
-<area shape="rect" id="Node000021" title=" " alt="" coords="2507,387,2611,412"/>
-<area shape="poly" id="edge28_Node000019_Node000021" title=" " alt="" coords="2507,337,2541,375,2538,378,2503,341"/>
-<area shape="poly" id="edge45_Node000023_Node000018" title=" " alt="" coords="2021,179,1745,162,1557,145,1364,121,1353,119,1354,114,1365,116,1557,140,1746,157,2021,173"/>
-<area shape="poly" id="edge35_Node000023_Node000022" title=" " alt="" coords="2103,179,2833,197,3294,215,3488,225,3634,237,3639,238,3639,243,3634,243,3488,231,3294,220,2833,203,2103,184"/>
-<area shape="rect" id="Node000024" title=" " alt="" coords="2370,240,2421,265"/>
-<area shape="poly" id="edge31_Node000023_Node000024" title=" " alt="" coords="2103,186,2352,237,2357,239,2356,244,2351,243,2102,191"/>
-<area shape="rect" id="Node000025" href="$lcx__common_8h.html" title="Cryptography flags." alt="" coords="433,313,550,339"/>
-<area shape="poly" id="edge32_Node000023_Node000025" title=" " alt="" coords="2021,183,1690,185,1192,193,944,201,729,211,573,225,525,233,502,242,494,254,489,268,489,299,484,299,484,267,489,252,499,238,524,228,572,220,728,206,943,195,1192,188,1690,180,2021,178"/>
-<area shape="rect" id="Node000026" href="$lcx__ripemd160_8h.html" title="RIPEMD&#45;160 hash function." alt="" coords="2567,240,2698,265"/>
-<area shape="poly" id="edge36_Node000023_Node000026" title=" " alt="" coords="2103,183,2554,237,2553,242,2103,188"/>
-<area shape="rect" id="Node000027" href="$lcx__sha256_8h.html" title="SHA&#45;2 (Secure Hash Algorithm 2)" alt="" coords="2722,240,2829,265"/>
-<area shape="poly" id="edge37_Node000023_Node000027" title=" " alt="" coords="2103,181,2354,200,2528,216,2709,237,2708,243,2528,222,2354,205,2102,186"/>
-<area shape="rect" id="Node000028" href="$lcx__sha512_8h.html" title="SHA&#45;2 (Secure Hash Algorithm 2)" alt="" coords="2853,240,2959,265"/>
-<area shape="poly" id="edge38_Node000023_Node000028" title=" " alt="" coords="2103,180,2405,197,2618,214,2840,237,2839,243,2618,219,2405,202,2103,185"/>
-<area shape="rect" id="Node000029" href="$lcx__sha3_8h.html" title="SHA&#45;3 (Secure Hash Algorithm 3)" alt="" coords="2983,240,3074,265"/>
-<area shape="poly" id="edge39_Node000023_Node000029" title=" " alt="" coords="2103,179,2456,193,2708,210,2970,237,2969,243,2707,215,2455,198,2103,184"/>
-<area shape="rect" id="Node000030" href="$lcx__blake2_8h.html" title="BLAKE2 crypographic hash function." alt="" coords="3099,240,3201,265"/>
-<area shape="poly" id="edge40_Node000023_Node000030" title=" " alt="" coords="2103,179,2500,192,2787,210,3085,237,3085,243,2786,215,2499,197,2103,184"/>
-<area shape="rect" id="Node000031" href="$lcx__groestl_8h.html" title="GROESTL hash function." alt="" coords="3225,240,3331,265"/>
-<area shape="poly" id="edge41_Node000023_Node000031" title=" " alt="" coords="2103,178,2277,181,2547,190,2873,207,3212,237,3211,243,2873,213,2547,195,2276,186,2103,184"/>
-<area shape="rect" id="Node000032" href="$lcx__blake3_8h.html" title="BLAKE3 hash function." alt="" coords="3355,240,3457,265"/>
-<area shape="poly" id="edge42_Node000023_Node000032" title=" " alt="" coords="2103,178,2294,180,2596,187,2962,205,3153,219,3341,237,3341,243,3152,224,2961,210,2596,192,2294,185,2103,183"/>
-<area shape="rect" id="Node000033" href="$lcx__hmac_8h.html" title="HMAC (Keyed&#45;Hash Message Authentication Code)" alt="" coords="3482,240,3578,265"/>
-<area shape="poly" id="edge43_Node000023_Node000033" title=" " alt="" coords="2103,178,2310,178,2644,184,3048,202,3260,217,3469,237,3468,243,3259,222,3048,207,2644,189,2310,183,2103,183"/>
-<area shape="rect" id="Node000034" href="$lcx__pbkdf2_8h.html" title="PBKDF2 (Password&#45;Based Key Derivation Function)" alt="" coords="512,240,617,265"/>
-<area shape="poly" id="edge44_Node000023_Node000034" title=" " alt="" coords="2021,183,1811,184,1472,191,1060,209,844,223,631,243,631,237,844,218,1059,203,1471,185,1810,179,2021,178"/>
-<area shape="rect" id="Node000035" href="$lcx__math_8h.html" title="Basic arithmetic." alt="" coords="641,240,736,265"/>
-<area shape="poly" id="edge46_Node000023_Node000035" title=" " alt="" coords="2021,183,1826,184,1516,191,1140,209,944,223,750,243,750,237,944,218,1140,203,1516,186,1826,179,2021,178"/>
-<area shape="rect" id="Node000036" href="$lcx__chacha_8h.html" title="Chacha cipher." alt="" coords="761,240,867,265"/>
-<area shape="poly" id="edge47_Node000023_Node000036" title=" " alt="" coords="2021,184,1842,187,1561,195,1225,213,881,243,881,243,880,237,880,237,1225,208,1561,190,1841,181,2021,178"/>
-<area shape="rect" id="Node000037" href="$lcx__cipher_8h.html" title="API for block ciphers." alt="" coords="2197,240,2295,265"/>
-<area shape="poly" id="edge48_Node000023_Node000037" title=" " alt="" coords="2093,190,2204,232,2202,237,2091,195"/>
-<area shape="rect" id="Node000039" href="$lcx__aes_8h.html" title="AES (Advanced Encryption Standard)." alt="" coords="2247,313,2330,339"/>
-<area shape="poly" id="edge54_Node000023_Node000039" title=" " alt="" coords="2103,182,2220,200,2275,216,2295,227,2309,238,2316,254,2317,270,2306,302,2301,300,2311,270,2311,255,2305,242,2293,231,2273,221,2219,206,2102,187"/>
-<area shape="rect" id="Node000040" href="$lcx__cmac_8h.html" title="CMAC (Cipher&#45;based Message Authentication Code)." alt="" coords="892,240,987,265"/>
-<area shape="poly" id="edge53_Node000023_Node000040" title=" " alt="" coords="2021,184,1860,187,1611,196,1312,213,1001,243,1001,237,1311,208,1610,190,1860,181,2021,178"/>
-<area shape="rect" id="Node000041" href="$lcx__aes__gcm_8h.html" title="AES in Galois/Counter Mode (AES&#45;GCM)" alt="" coords="1011,240,1129,265"/>
-<area shape="poly" id="edge55_Node000023_Node000041" title=" " alt="" coords="2021,185,1665,201,1409,218,1143,243,1143,237,1409,213,1664,196,2021,179"/>
-<area shape="rect" id="Node000042" href="$lcx__aes__siv_8h.html" title="Advanced Encryption Standard with Synthetic Initialization Vector (AES&#45;SIV)." alt="" coords="1153,240,1261,265"/>
-<area shape="poly" id="edge56_Node000023_Node000042" title=" " alt="" coords="2021,185,1716,203,1500,219,1275,243,1275,237,1499,214,1715,197,2021,180"/>
-<area shape="rect" id="Node000043" href="$lcx__aead_8h.html" title="Authenticated Encryption with Associated Data (AEAD)" alt="" coords="1285,240,1377,265"/>
-<area shape="poly" id="edge57_Node000023_Node000043" title=" " alt="" coords="2021,185,1760,203,1579,220,1391,243,1390,237,1579,215,1760,198,2021,180"/>
-<area shape="rect" id="Node000044" href="$lcx__poly1305_8h.html" title="POLY1305 Message Authentication Code." alt="" coords="1402,240,1522,265"/>
-<area shape="poly" id="edge58_Node000023_Node000044" title=" " alt="" coords="2021,187,1817,209,1536,242,1535,237,1817,203,2021,182"/>
-<area shape="rect" id="Node000045" href="$lcx__chacha__poly_8h.html" title="CHACHA20_POLY1305 Authenticated Encryption with Additional Data (AEAD)" alt="" coords="1546,240,1685,265"/>
-<area shape="poly" id="edge59_Node000023_Node000045" title=" " alt="" coords="2022,190,1699,241,1698,236,2021,184"/>
-<area shape="rect" id="Node000046" href="$lcx__rsa_8h.html" title="RSA algorithm." alt="" coords="1709,240,1789,265"/>
-<area shape="poly" id="edge60_Node000023_Node000046" title=" " alt="" coords="2022,193,1803,242,1802,237,2020,187"/>
-<area shape="rect" id="Node000047" href="$lcx__ecfp_8h.html" title="Key pair generation based on elliptic curves." alt="" coords="3074,313,3162,339"/>
-<area shape="poly" id="edge61_Node000023_Node000047" title=" " alt="" coords="2103,179,2927,200,3380,217,3529,227,3572,232,3592,238,3599,250,3597,262,3587,272,3571,281,3522,295,3457,305,3307,320,3176,326,3176,321,3307,314,3457,300,3521,289,3569,276,3584,268,3592,260,3594,251,3588,242,3571,237,3528,232,3380,223,2927,205,2103,184"/>
-<area shape="rect" id="Node000048" href="$lcx__ecdsa_8h.html" title="ECDSA (Elliptic Curve Digital Signature Algorithm)." alt="" coords="1813,240,1911,265"/>
-<area shape="poly" id="edge62_Node000023_Node000048" title=" " alt="" coords="2031,195,1909,238,1907,233,2029,190"/>
-<area shape="rect" id="Node000049" href="$lcx__eddsa_8h.html" title="EDDSA (Edwards Curve Digital Signature Algorithm)" alt="" coords="2445,240,2543,265"/>
-<area shape="poly" id="edge63_Node000023_Node000049" title=" " alt="" coords="2104,184,2431,237,2431,242,2103,190"/>
-<area shape="rect" id="Node000050" href="$lcx__ecschnorr_8h.html" title="ECSDSA (Elliptic Curve&#45;based Schnorr Digital Signature Algorithm)." alt="" coords="1935,240,2058,265"/>
-<area shape="poly" id="edge66_Node000023_Node000050" title=" " alt="" coords="2053,194,2018,232,2015,228,2049,191"/>
-<area shape="rect" id="Node000051" href="$lcx__ecdh_8h.html" title="ECDH (Elliptic Curve Diffie Hellman) key exchange." alt="" coords="2082,240,2173,265"/>
-<area shape="poly" id="edge67_Node000023_Node000051" title=" " alt="" coords="2075,191,2109,228,2106,232,2071,194"/>
-<area shape="poly" id="edge34_Node000025_Node000005" title=" " alt="" coords="498,338,511,373,506,375,493,340"/>
-<area shape="poly" id="edge33_Node000025_Node000006" title=" " alt="" coords="482,341,444,379,440,375,478,337"/>
-<area shape="poly" id="edge52_Node000037_Node000005" title=" " alt="" coords="2197,266,2185,268,1942,297,1694,322,1216,361,819,386,570,399,569,393,819,381,1216,356,1693,317,1941,292,2184,263,2196,261"/>
-<area shape="poly" id="edge49_Node000037_Node000019" title=" " alt="" coords="2287,263,2441,307,2440,312,2285,268"/>
-<area shape="poly" id="edge50_Node000037_Node000025" title=" " alt="" coords="2197,266,2185,268,2034,280,1835,291,1359,309,564,326,564,321,1359,303,1835,286,2034,275,2184,263,2196,261"/>
-<area shape="poly" id="edge51_Node000037_Node000039" title=" " alt="" coords="2255,264,2277,300,2273,303,2251,267"/>
-<area shape="poly" id="edge65_Node000049_Node000019" title=" " alt="" coords="2497,266,2497,300,2491,300,2491,266"/>
-<area shape="poly" id="edge64_Node000049_Node000047" title=" " alt="" coords="2544,261,2556,263,2839,297,3060,317,3060,323,2838,302,2555,268,2543,266"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="323,48,221,96,90,162,88,158,218,91,320,43"/>
+<area shape="rect" id="Node000010" href="$nbgl__draw_8h.html" title="Middle Level API of the new BOLOS Graphical Library." alt="" coords="129,167,229,192"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="325,48,287,69,250,95,220,126,197,157,192,154,216,123,247,91,284,64,322,43"/>
+<area shape="rect" id="Node000011" href="$nbgl__fonts_8h.html" title=" " alt="" coords="192,240,295,265"/>
+<area shape="poly" id="edge17_Node000001_Node000011" title=" " alt="" coords="356,47,258,229,254,226,351,44"/>
+<area shape="rect" id="Node000012" href="$nbgl__obj_8h.html" title="API to draw all basic graphic objects." alt="" coords="305,167,395,192"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="359,46,347,94,347,119,350,153,345,153,342,119,342,93,354,45"/>
+<area shape="rect" id="Node000014" href="$nbgl__touch_8h.html" title=" " alt="" coords="356,93,461,119"/>
+<area shape="poly" id="edge18_Node000001_Node000014" title=" " alt="" coords="377,44,397,80,393,83,372,47"/>
+<area shape="rect" id="Node000015" title=" " alt="" coords="485,93,562,119"/>
+<area shape="poly" id="edge21_Node000001_Node000015" title=" " alt="" coords="403,43,489,85,486,90,400,48"/>
+<area shape="rect" id="Node000016" title=" " alt="" coords="586,93,727,119"/>
+<area shape="poly" id="edge22_Node000001_Node000016" title=" " alt="" coords="434,43,601,87,600,92,433,48"/>
+<area shape="rect" id="Node000017" title=" " alt="" coords="752,93,881,119"/>
+<area shape="poly" id="edge23_Node000001_Node000017" title=" " alt="" coords="441,37,739,89,738,94,440,43"/>
+<area shape="rect" id="Node000018" href="$lcx__rng_8h.html" title="Random Number Generation." alt="" coords="905,93,987,119"/>
+<area shape="poly" id="edge24_Node000001_Node000018" title=" " alt="" coords="441,32,642,54,892,90,891,96,641,60,441,37"/>
+<area shape="rect" id="Node000004" href="$nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="191,313,296,339"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="72,190,219,303,216,307,69,195"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="7,387,82,412"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="212,341,91,384,89,379,211,336"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="107,387,177,412"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="229,341,171,381,168,376,226,336"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="202,387,285,412"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="246,339,246,373,241,373,241,339"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="309,387,413,412"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="264,336,331,377,328,382,261,341"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="437,387,551,412"/>
+<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="284,336,441,380,439,385,283,341"/>
+<area shape="poly" id="edge10_Node000010_Node000004" title=" " alt="" coords="179,192,176,226,178,246,183,264,197,286,216,303,212,307,193,289,178,266,173,247,171,226,174,192"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="192,191,226,228,222,232,188,194"/>
+<area shape="poly" id="edge12_Node000011_Node000004" title=" " alt="" coords="246,266,246,300,241,300,241,266"/>
+<area shape="poly" id="edge14_Node000012_Node000004" title=" " alt="" coords="348,193,333,228,309,267,271,307,267,303,305,264,328,225,343,191"/>
+<area shape="poly" id="edge15_Node000012_Node000011" title=" " alt="" coords="334,194,274,235,271,230,331,190"/>
+<area shape="rect" id="Node000013" title=" " alt="" coords="371,240,447,265"/>
+<area shape="poly" id="edge16_Node000012_Node000013" title=" " alt="" coords="362,191,393,228,389,231,358,194"/>
+<area shape="poly" id="edge19_Node000014_Node000004" title=" " alt="" coords="421,117,442,146,464,184,471,205,474,227,471,248,461,267,437,284,400,298,310,318,309,313,398,293,435,280,457,264,466,246,469,227,466,207,459,186,438,148,417,120"/>
+<area shape="poly" id="edge20_Node000014_Node000012" title=" " alt="" coords="401,121,370,158,366,155,397,117"/>
 </map>
