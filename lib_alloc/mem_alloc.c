@@ -429,6 +429,92 @@ void *mem_alloc(mem_ctx_t ctx, size_t nb_bytes)
 }
 
 /**
+ * @brief Reallocates a buffer to a new size
+ * @note The new size can be either smaller or bigger than the original one.
+ * The content is preserved up to the minimum of the old and new sizes.
+ * If ptr is NULL, this function behaves like @ref mem_alloc.
+ * If size is 0, this function behaves like @ref mem_free and returns NULL.
+ *
+ * @param ctx allocator context (returned by @ref mem_init())
+ * @param ptr buffer previously allocated with @ref mem_alloc
+ * @param size new requested size in bytes
+ * @return address of the reallocated buffer (may be the same or different), or NULL on failure
+ */
+void *mem_realloc(mem_ctx_t ctx, void *ptr, size_t size)
+{
+    heap_t *heap = (heap_t *) ctx;
+
+    // Use mem_alloc if original pointer is NULL
+    if (ptr == NULL) {
+        return mem_alloc(ctx, size);
+    }
+
+    // Free the original block if new size is zero
+    if (size == 0) {
+        mem_free(ctx, ptr);
+        return NULL;
+    }
+
+    // Get the header of the current block
+    uint8_t  *block  = ((uint8_t *) ptr) - ALLOC_CHUNK_HEADER_SIZE;
+    header_t *header = (header_t *) block;
+
+    // Ensure this is a valid chunk before we try to read its size.
+    ensure_chunk_valid(heap, header);
+
+    // Save the size of the old block
+    size_t old_block_size = header->size;
+    // Save the size of the data portion of the old block
+    size_t old_payload_size = old_block_size - ALLOC_CHUNK_HEADER_SIZE;
+    // Set the size of the new block
+    size_t new_block_size = size + ALLOC_CHUNK_HEADER_SIZE;
+
+    // If the old block is already big enough, return the same pointer
+    if (old_payload_size >= size) {
+        // Shrink optimization : split the original block in two
+        // if remaining size is enough for a free chunk
+        size_t remainder = old_block_size - new_block_size;
+        if (remainder >= FREE_CHUNK_HEADER_SIZE) {
+            // Save pointer to next physical chunk
+            header_t *next = (header_t *) &block[old_block_size];
+            // Create new free chunk in the remaining space,
+            // located just after the resized block
+            header_t *new_free = (header_t *) &block[new_block_size];
+            new_free->size     = remainder;
+            // The new chunk predecessor is the resized chunk (still the same)
+            new_free->phys_prev = GET_IDX(heap, header);
+            // Link the current next physical chunk to this new chunk (if existing)
+            if ((void *) next < heap->end) {
+                next->phys_prev = GET_IDX(heap, new_free);
+            }
+            list_push(heap, new_free);
+            // Adjust the size of the allocated block
+            header->size = new_block_size;
+        }
+
+        // Return the original block pointer as it is still valid
+        return ptr;
+    }
+
+    // Allocate new block
+    void *new_ptr = mem_alloc(ctx, size);
+    if (new_ptr == NULL) {
+        return NULL;
+    }
+
+    // We copy only the amount of data that existed in the OLD block.
+    // Since we know old_payload_size < size, we copy old_payload_size.
+    // This guarantees we never read past the end of the old allocated buffer.
+    memcpy(new_ptr, ptr, old_payload_size);
+
+    // Free the old block
+    mem_free(ctx, ptr);
+
+    // Return the new block pointer
+    return new_ptr;
+}
+
+/**
  * @brief frees the given buffer
  *
  * @param ctx allocator context (returned by @ref mem_init())

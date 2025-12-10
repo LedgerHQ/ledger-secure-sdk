@@ -14,7 +14,7 @@ This function takes as parameters
 
 It returns a memory context (@ref mem_ctx_t) that will be used by other functions
 
-Then, chunks can be allocated with @ref mem_alloc() and released with @ref mem_free()
+Then, chunks can be allocated with @ref mem_alloc(), reallocated with @ref mem_realloc() and released with @ref mem_free()
 
 Both of these function take the memory context as first parameter.
 

@@ -77,6 +77,108 @@ static void test_alloc(void **state __attribute__((unused)))
     assert_null(chunk1);
 }
 
+static void test_re_alloc(void **state __attribute__((unused)))
+{
+    malloc_buffer_size = sizeof(malloc_buffer);
+    mem_ctx_t ctx      = mem_init(malloc_buffer, malloc_buffer_size);
+
+    // Assert only one big empty chunk
+    assert_state(ctx, 1, 0);
+
+    // Allocate a chunk
+    char *chunk1 = mem_alloc(ctx, 64);
+    assert_non_null(chunk1);
+    /**
+     * Expect 2 chunks:
+     * - original from init,
+     * - allocated
+     * Expect 1 allocated :
+     * - the allocated chunk
+     */
+    assert_state(ctx, 2, 1);
+
+    // Reallocate to a bigger size
+    char *chunk2 = mem_realloc(ctx, chunk1, 128);
+    assert_non_null(chunk2);
+    /**
+     * Expect 3 chunks :
+     * - original from init,
+     * - allocated,
+     * - free leftover.
+     * Expect 1 allocated :
+     * - the allocated chunk
+     */
+    assert_state(ctx, 3, 1);
+
+    // Reallocate to a smaller size but not enough to split
+    char *chunk3 = mem_realloc(ctx, chunk2, 127);
+    assert_non_null(chunk3);
+    assert_ptr_equal(chunk3, chunk2);
+    /**
+     * Expect 3 chunks :
+     * - original chunk from init,
+     * - reallocated,
+     * - free leftover (from previous realloc).
+     * Expect 1 allocated :
+     * - the reallocated chunk
+     */
+    assert_state(ctx, 3, 1);
+
+    // Reallocate to a smaller size
+    char *chunk4 = mem_realloc(ctx, chunk3, 32);
+    assert_non_null(chunk4);
+    assert_ptr_equal(chunk4, chunk3);
+    /**
+     * Expect 4 chunks :
+     * - original chunk from init,
+     * - reallocated,
+     * - split free leftover (from shrink optimization),
+     * - free leftover (from previous realloc).
+     * Expect 1 allocated :
+     * - the reallocated chunk
+     *
+     * Free function not called so no coalescing done.
+     */
+    assert_state(ctx, 4, 1);
+
+    // Reallocate with size 0 to free
+    char *chunk5 = mem_realloc(ctx, chunk4, 0);
+    assert_null(chunk5);
+    /**
+     * Expect 2 chunks :
+     * - original chunk from init,
+     * - free leftover coalesced.
+     * Expect 0 allocated.
+     */
+    assert_state(ctx, 2, 0);
+
+    // Reallocate NULL pointer to allocate
+    char *chunk6 = mem_realloc(ctx, NULL, 256);
+    assert_non_null(chunk6);
+    /**
+     * Expect 3 chunks:
+     * - original from init,
+     * - free leftover coalesced (from previous realloc),
+     * - allocated
+     * Expect 1 allocated :
+     * - the allocated chunk
+     */
+    assert_state(ctx, 3, 1);
+
+    // Reallocate with too big size should return NULL and not change state
+    char *chunk7 = mem_realloc(ctx, chunk6, malloc_buffer_size * 2);
+    assert_null(chunk7);
+    /**
+     * Expect 3 chunks:
+     * - original from init,
+     * - free leftover coalesced (from previous realloc),
+     * - allocated
+     * Expect 1 allocated :
+     * - the allocated chunk (from previous realloc)
+     */
+    assert_state(ctx, 3, 1);
+}
+
 static void test_corrupt_invalid(void **state __attribute__((unused)))
 {
     uint32_t throw_raised_code = 0;
@@ -385,6 +487,7 @@ int main(int argc, char **argv)
 {
     const struct CMUnitTest tests[] = {// Original mem_alloc tests
                                        cmocka_unit_test(test_alloc),
+                                       cmocka_unit_test(test_re_alloc),
                                        cmocka_unit_test(test_corrupt_invalid),
                                        cmocka_unit_test(test_corrupt_overflow),
                                        cmocka_unit_test(test_fragmentation),
