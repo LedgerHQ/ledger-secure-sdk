@@ -30,7 +30,11 @@
 /* Exported types, structures, unions ----------------------------------------*/
 
 /* Exported defines   --------------------------------------------------------*/
-#define USBD_MAX_NUM_INTERFACES    (4)
+#if defined(TARGET_NANOS2)
+#define USBD_MAX_NUM_INTERFACES (4)
+#else  // !TARGET_NANOS2
+#define USBD_MAX_NUM_INTERFACES (6)
+#endif  // !TARGET_NANOS2
 #define USBD_MAX_NUM_CONFIGURATION (1)
 #define USBD_MAX_STR_DESC_SIZ      (48)
 

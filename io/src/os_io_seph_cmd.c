@@ -195,6 +195,14 @@ int os_io_seph_cmd_set_ship_mode(void)
 #endif  // HAVE_SHIP_MODE
 
 #ifdef HAVE_PRINTF
+#ifdef HAVE_PRINTF_CDC
+void os_io_seph_cmd_printf(const char *str, uint16_t charcount)
+{
+    if (charcount) {
+        os_io_tx_cmd(OS_IO_PACKET_TYPE_USB_CDC_RAW, (const uint8_t *) str, charcount, NULL);
+    }
+}
+#else   // ! HAVE_PRINTF_CDC
 void os_io_seph_cmd_printf(const char *str, uint16_t charcount)
 {
     if (charcount) {
@@ -206,6 +214,7 @@ void os_io_seph_cmd_printf(const char *str, uint16_t charcount)
         os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, (const uint8_t *) str, charcount, NULL);
     }
 }
+#endif  // ! HAVE_PRINTF_CDC
 #endif  // HAVE_PRINTF
 
 #ifdef HAVE_SE_TOUCH
