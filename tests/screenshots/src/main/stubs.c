@@ -30,7 +30,6 @@
 #include "os_app.h"
 #include "os_halt.h"
 #include "os_io_seproxyhal.h"
-#include "os_registry.h"
 #include "os_screen.h"
 #include "os_task.h"
 #include "os_helpers.h"

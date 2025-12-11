@@ -165,8 +165,8 @@
 #define SYSCALL_os_global_pin_check_ID                     0x020000a1
 #define SYSCALL_os_global_pin_invalidate_ID                0x0000005d
 #define SYSCALL_os_global_pin_retries_ID                   0x0000005e
-#define SYSCALL_os_registry_count_ID                       0x0000005f
-#define SYSCALL_os_registry_get_ID                         0x02000122
+#define SYSCALL_RESERVED_3_ID                              0x0000005f
+#define SYSCALL_RESERVED_4_ID                              0x02000122
 #define SYSCALL_os_ux_ID                                   0x01000064
 #define SYSCALL_os_lib_call_ID                             0x01000067
 #define SYSCALL_os_lib_end_ID                              0x00000068
@@ -179,9 +179,9 @@
 #define SYSCALL_os_factory_setting_get_ID                  0x0300014c
 #define SYSCALL_os_setting_get_ID                          0x03000070
 #define SYSCALL_os_setting_set_ID                          0x03000071
-#define SYSCALL_os_registry_get_tag_ID                     0x06000123
+#define SYSCALL_RESERVED_5_ID                              0x06000123
 #define SYSCALL_os_registry_get_current_app_tag_ID         0x03000074
-#define SYSCALL_os_registry_delete_all_apps_ID             0x00000125
+#define SYSCALL_RESERVED_6_ID                              0x00000125
 #define SYSCALL_os_sched_exec_ID                           0x01000126
 #define SYSCALL_os_sched_exit_ID                           0x0100009a
 #define SYSCALL_os_sched_is_running_ID                     0x0100009b
