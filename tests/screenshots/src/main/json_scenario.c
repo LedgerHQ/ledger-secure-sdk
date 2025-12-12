@@ -19,7 +19,6 @@
 #include "json_scenario.h"
 #include "nbgl_touch.h"
 #include "nbgl_driver.h"
-#include "os_registry.h"
 #include "os_settings.h"
 #include "os_id.h"
 #include "apps_api.h"

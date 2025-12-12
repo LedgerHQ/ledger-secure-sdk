@@ -35,7 +35,6 @@
 #include "os_pin.h"
 #include "os_random.h"
 #include "os_print.h"
-#include "os_registry.h"
 #include "os_screen.h"
 #include "os_seed.h"
 #include "os_settings.h"
