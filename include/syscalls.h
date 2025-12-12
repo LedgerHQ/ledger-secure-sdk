@@ -266,14 +266,6 @@
 #define SYSCALL_os_stack_operations_ID 0x01000199
 #endif  // DEBUG_OS_STACK_CONSUMPTION
 
-#ifdef BOLOS_DEBUG
-#define SYSCALL_log_debug_ID        0x0100011e
-#define SYSCALL_log_debug_nw_ID     0x0100011f
-#define SYSCALL_log_debug_int_ID    0x02000080
-#define SYSCALL_log_debug_int_nw_ID 0x02000081
-#define SYSCALL_log_mem_ID          0x02000120
-#endif  // BOLOS_DEBUG
-
 // Stax syscalls
 #ifdef HAVE_NBGL
 #define SYSCALL_nbgl_front_draw_rect_ID            0x01fa0000
