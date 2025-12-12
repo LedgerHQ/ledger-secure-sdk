@@ -27,7 +27,6 @@
 #include "os_id.h"
 #include "os_nvm.h"
 #include "os_pic.h"
-#include "os_app.h"
 #include "os_halt.h"
 #include "os_io_seproxyhal.h"
 #include "os_screen.h"
