@@ -18,10 +18,6 @@
 
 #pragma once
 
-#if defined(HAVE_BOLOS)
-#include "bolos_privileged_ux.h"
-#endif  // HAVE_BOLOS
-
 #include "os_math.h"
 #include "os_ux.h"
 #include "os_task.h"

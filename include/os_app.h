@@ -10,8 +10,6 @@
 /* -                       APPLICATION FUNCTIONS                         - */
 /* ----------------------------------------------------------------------- */
 
-typedef void (*appmain_t)(void);
-
 #define BOLOS_TAG_APPNAME    0x01
 #define BOLOS_TAG_APPVERSION 0x02
 #define BOLOS_TAG_ICON       0x03
@@ -26,38 +24,3 @@ typedef void (*appmain_t)(void);
 #define BOLOS_TAG_RFU        0x07
 // first autorised tag value for user data
 #define BOLOS_TAG_USER_TAG   0x20
-
-// application slot description
-typedef struct application_s {
-    // special flags for this application
-    uint64_t flags;
-
-    // nvram start address for this application (to check overlap when loading, and mpu lock)
-    unsigned char *nvram_begin;
-    // nvram stop address (exclusive) for this application (to check overlap when loading, and mpu
-    // lock)
-    unsigned char *nvram_end;
-
-    // address of the main address, must be set according to BLX spec ( ORed with 1 when jumping
-    // into Thumb code
-    appmain_t main;
-
-    // Memory organization: [ code (RX) |alignpage| data (RW) |alignpage| install params (R) ]
-
-    // length of the code section of the application (RX)
-    unsigned int code_length;
-
-    // NOTE: code_length+params_length must be a multiple of PAGE_SIZE
-    // Length of the DATA section of the application. (RW)
-    unsigned int data_length;
-
-    // NOTE: code_length+params_length must be a multiple of PAGE_SIZE
-    // length of the parameters sections of the application (R)
-    unsigned int params_length;
-
-    // Intermediate hash of the application's loaded code and data segments
-    unsigned char sha256_code_data[32];
-    // Hash of the application's loaded code, data and instantiation parameters
-    unsigned char sha256_full[32];
-
-} application_t;
