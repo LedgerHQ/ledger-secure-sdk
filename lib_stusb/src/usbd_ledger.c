@@ -32,6 +32,7 @@
 #include "lcx_rng.h"
 #endif  // !HAVE_BOLOS
 #include "os_io_seph_cmd.h"
+#include "os_print.h"
 #include "seproxyhal_protocol.h"
 
 /* Private enumerations ------------------------------------------------------*/
@@ -508,41 +509,41 @@ void USBD_LEDGER_start(void)
 
         // Fill the name
         if (!strnlen(usbd_ledger_init_data.name, sizeof(usbd_ledger_init_data.name))) {
-            strlcpy(usbd_ledger_init_data.name,
+            strlcpy_utf8(usbd_ledger_init_data.name,
                     USBD_BLUE_PRODUCT_STRING,
                     sizeof(usbd_ledger_data.name));
 #if defined(TARGET_NANOX)
-            strlcpy(usbd_ledger_init_data.name,
+            strlcpy_utf8(usbd_ledger_init_data.name,
                     USBD_NANOX_PRODUCT_STRING,
                     sizeof(usbd_ledger_data.name));
 #endif  // TARGET_NANOX
 #if defined(TARGET_NANOS2)
-            strlcpy(usbd_ledger_init_data.name,
+            strlcpy_utf8(usbd_ledger_init_data.name,
                     USBD_NANOS_PLUS_PRODUCT_STRING,
                     sizeof(usbd_ledger_data.name));
 #endif  // TARGET_NANOS2
 #if defined(TARGET_FATSTACKS) || defined(TARGET_STAX)
-            strlcpy(usbd_ledger_init_data.name,
+            strlcpy_utf8(usbd_ledger_init_data.name,
                     USBD_STAX_PRODUCT_STRING,
                     sizeof(usbd_ledger_data.name));
 #endif  // TARGET_FATSTACKS || TARGET_STAX
 #if defined(TARGET_FLEX)
-            strlcpy(usbd_ledger_init_data.name,
+            strlcpy_utf8(usbd_ledger_init_data.name,
                     USBD_FLEX_PRODUCT_STRING,
                     sizeof(usbd_ledger_data.name));
 #endif  // TARGET_FLEX
 #if defined(TARGET_APEX_P)
-            strlcpy(usbd_ledger_init_data.name,
+            strlcpy_utf8(usbd_ledger_init_data.name,
                     USBD_APEX_P_PRODUCT_STRING,
                     sizeof(usbd_ledger_data.name));
 #endif  // TARGET_APEX_P
 #if defined(TARGET_APEX_M)
-            strlcpy(usbd_ledger_init_data.name,
+            strlcpy_utf8(usbd_ledger_init_data.name,
                     USBD_APEX_M_PRODUCT_STRING,
                     sizeof(usbd_ledger_data.name));
 #endif  // TARGET_APEX_M
         }
-        strlcpy(usbd_ledger_data.name, usbd_ledger_init_data.name, sizeof(usbd_ledger_data.name));
+        strlcpy_utf8(usbd_ledger_data.name, usbd_ledger_init_data.name, sizeof(usbd_ledger_data.name));
 
         // Fill the product type
         usbd_ledger_data.product = USBD_LEDGER_PRODUCT_BLUE;

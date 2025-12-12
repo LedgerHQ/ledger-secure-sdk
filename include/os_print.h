@@ -15,3 +15,7 @@ void mcu_usb_printf(const char *format, ...);
 #else  // !HAVE_PRINTF
 #define PRINTF(...)
 #endif  // !HAVE_PRINTF
+
+// Prototypes
+size_t find_invalid_trailing_bytes(const char *data, size_t len);
+size_t strlcpy_utf8(char *dst, const char *src, size_t dstlen);

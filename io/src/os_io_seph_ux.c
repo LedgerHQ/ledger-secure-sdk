@@ -17,6 +17,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "os.h"
 #include "os_io.h"
+#include "os_print.h"
 #include "ux.h"
 #include "os_io_seph_cmd.h"
 #include "os_io_seph_ux.h"
@@ -252,7 +253,7 @@ void io_seph_ux_display_bagl_element(const bagl_element_t *element)
                 // ...let's use an intermediate buffer to store txt
 #ifdef HAVE_LANGUAGE_PACK
                 char txt_buffer[128];
-                strlcpy(txt_buffer, txt, sizeof(txt_buffer));
+                strlcpy_utf8(txt_buffer, txt, sizeof(txt_buffer));
 #else   // HAVE_LANGUAGE_PACK
                 const char *txt_buffer = txt;
 #endif  // HAVE_LANGUAGE_PACK
