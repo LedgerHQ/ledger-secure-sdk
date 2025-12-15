@@ -139,8 +139,6 @@ Include dependency graph for nbgl_draw_text.c:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcharacter__info__t.html">character_info_t</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structrle__context__t.html">rle_context_t</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -150,13 +148,52 @@ Macros</h2></td></tr>
 <tr class="separator:a9756bb015de87364ff26f2909f2d99ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8ebe98fb260719a1cdb510353e567ccb" id="r_a8ebe98fb260719a1cdb510353e567ccb"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw__text_8c.html#a8ebe98fb260719a1cdb510353e567ccb">AVERAGE_CHAR_WIDTH</a>&#160;&#160;&#160;40</td></tr>
 <tr class="separator:a8ebe98fb260719a1cdb510353e567ccb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a10b2d890d871e1489bb02b7e70d9bdfb" id="r_a10b2d890d871e1489bb02b7e70d9bdfb"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw__text_8c.html#a10b2d890d871e1489bb02b7e70d9bdfb">STATIC</a>&#160;&#160;&#160;static</td></tr>
+<tr class="separator:a10b2d890d871e1489bb02b7e70d9bdfb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8db33a9a2e802cdbf1fd2f1ee92a47cc" id="r_a8db33a9a2e802cdbf1fd2f1ee92a47cc"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw__text_8c.html#a8db33a9a2e802cdbf1fd2f1ee92a47cc">COMBINED_HEIGHT</a>&#160;&#160;&#160;9</td></tr>
 <tr class="separator:a8db33a9a2e802cdbf1fd2f1ee92a47cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:addf4cff640626214e219798f9ead7892" id="r_addf4cff640626214e219798f9ead7892"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw__text_8c.html#addf4cff640626214e219798f9ead7892">MAX_RLE_COPY_PIXELS</a>&#160;&#160;&#160;6</td></tr>
+<tr class="memitem:addf4cff640626214e219798f9ead7892" id="r_addf4cff640626214e219798f9ead7892"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw__text_8c.html#addf4cff640626214e219798f9ead7892">MAX_RLE_COPY_PIXELS</a>&#160;&#160;&#160;5</td></tr>
 <tr class="separator:addf4cff640626214e219798f9ead7892"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0b371bb5124033880030bbfcb2e65b1" id="r_ac0b371bb5124033880030bbfcb2e65b1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw__text_8c.html#ac0b371bb5124033880030bbfcb2e65b1">RLE_CMD_COPY_2</a>&#160;&#160;&#160;0x00</td></tr>
+<tr class="separator:ac0b371bb5124033880030bbfcb2e65b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1c43c25cfff0fcdb88689ef666d2965b" id="r_a1c43c25cfff0fcdb88689ef666d2965b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw__text_8c.html#a1c43c25cfff0fcdb88689ef666d2965b">RLE_CMD_COPY_3</a>&#160;&#160;&#160;0x01</td></tr>
+<tr class="separator:a1c43c25cfff0fcdb88689ef666d2965b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e605efd7707ad27e5bc09758c6ca596" id="r_a6e605efd7707ad27e5bc09758c6ca596"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw__text_8c.html#a6e605efd7707ad27e5bc09758c6ca596">RLE_CMD_COPY_4</a>&#160;&#160;&#160;0x02</td></tr>
+<tr class="separator:a6e605efd7707ad27e5bc09758c6ca596"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac740d2c6888eb1c598974c177ef3cc2d" id="r_ac740d2c6888eb1c598974c177ef3cc2d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw__text_8c.html#ac740d2c6888eb1c598974c177ef3cc2d">RLE_CMD_COPY_5</a>&#160;&#160;&#160;0x03</td></tr>
+<tr class="separator:ac740d2c6888eb1c598974c177ef3cc2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a77f44b58bdd7ec29cf82c25f5acde9b4" id="r_a77f44b58bdd7ec29cf82c25f5acde9b4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw__text_8c.html#a77f44b58bdd7ec29cf82c25f5acde9b4">RLE_CMD_FILL_3</a>&#160;&#160;&#160;0x04</td></tr>
+<tr class="separator:a77f44b58bdd7ec29cf82c25f5acde9b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac376c76469a80f4231b62966c5ace1f0" id="r_ac376c76469a80f4231b62966c5ace1f0"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw__text_8c.html#ac376c76469a80f4231b62966c5ace1f0">RLE_CMD_FILL_2</a>&#160;&#160;&#160;0x05</td></tr>
+<tr class="separator:ac376c76469a80f4231b62966c5ace1f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1dcf9da5a4d2b3af7ede47d711435000" id="r_a1dcf9da5a4d2b3af7ede47d711435000"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw__text_8c.html#a1dcf9da5a4d2b3af7ede47d711435000">RLE_CMD_2PATTERN_INDEXED_B2W</a>&#160;&#160;&#160;0x06</td></tr>
+<tr class="separator:a1dcf9da5a4d2b3af7ede47d711435000"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6911710b50e9a142c4b976b083f7ebc3" id="r_a6911710b50e9a142c4b976b083f7ebc3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw__text_8c.html#a6911710b50e9a142c4b976b083f7ebc3">RLE_CMD_2PATTERN_INDEXED_W2B</a>&#160;&#160;&#160;0x07</td></tr>
+<tr class="separator:a6911710b50e9a142c4b976b083f7ebc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae92b7abca5732845cde73acd6a830d8c" id="r_ae92b7abca5732845cde73acd6a830d8c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw__text_8c.html#ae92b7abca5732845cde73acd6a830d8c">RLE_CMD_1PATTERN_B2W</a>&#160;&#160;&#160;0x08</td></tr>
+<tr class="separator:ae92b7abca5732845cde73acd6a830d8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8f6534c880420c0a51279959450924f0" id="r_a8f6534c880420c0a51279959450924f0"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw__text_8c.html#a8f6534c880420c0a51279959450924f0">RLE_CMD_1PATTERN_W2B</a>&#160;&#160;&#160;0x09</td></tr>
+<tr class="separator:a8f6534c880420c0a51279959450924f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af1d0c268af034d58dd5f9adf6b6b2762" id="r_af1d0c268af034d58dd5f9adf6b6b2762"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw__text_8c.html#af1d0c268af034d58dd5f9adf6b6b2762">RLE_CMD_2PATTERN_B2W</a>&#160;&#160;&#160;0x0A</td></tr>
+<tr class="separator:af1d0c268af034d58dd5f9adf6b6b2762"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a386dc65ce883c43f9cd28459abe64485" id="r_a386dc65ce883c43f9cd28459abe64485"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw__text_8c.html#a386dc65ce883c43f9cd28459abe64485">RLE_CMD_2PATTERN_W2B</a>&#160;&#160;&#160;0x0B</td></tr>
+<tr class="separator:a386dc65ce883c43f9cd28459abe64485"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a303aff9873d382eede5db1787c8b8512" id="r_a303aff9873d382eede5db1787c8b8512"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw__text_8c.html#a303aff9873d382eede5db1787c8b8512">RLE_CMD_FILL_BLACK</a>&#160;&#160;&#160;0x0C</td></tr>
+<tr class="separator:a303aff9873d382eede5db1787c8b8512"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a392851a46e5a6f3d66322217ad99e1c4" id="r_a392851a46e5a6f3d66322217ad99e1c4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw__text_8c.html#a392851a46e5a6f3d66322217ad99e1c4">RLE_CMD_FILL_1</a>&#160;&#160;&#160;0x0D</td></tr>
+<tr class="separator:a392851a46e5a6f3d66322217ad99e1c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad0758fb6a5ab2cef84aadb65be56e2d7" id="r_ad0758fb6a5ab2cef84aadb65be56e2d7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw__text_8c.html#ad0758fb6a5ab2cef84aadb65be56e2d7">RLE_CMD_FILL_WHITE</a>&#160;&#160;&#160;0x0E</td></tr>
+<tr class="separator:ad0758fb6a5ab2cef84aadb65be56e2d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a657bce3da7b3aa591662520434fba56f" id="r_a657bce3da7b3aa591662520434fba56f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw__text_8c.html#a657bce3da7b3aa591662520434fba56f">RLE_CMD_FILL_WHITE_16</a>&#160;&#160;&#160;0x0F</td></tr>
+<tr class="separator:a657bce3da7b3aa591662520434fba56f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a333ca703264fce1f893f156b79c53d66" id="r_a333ca703264fce1f893f156b79c53d66"><td class="memItemLeft" align="right" valign="top"><a class="el" href="nbgl__draw__text_8c.html#a10b2d890d871e1489bb02b7e70d9bdfb">STATIC</a> void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw__text_8c.html#a333ca703264fce1f893f156b79c53d66">nbgl_draw4BPPImageRle</a> (<a class="el" href="nbgl__types_8h.html#ad8d6b26cf49117bcc4373dc05a2f52a8">nbgl_area_t</a> *area, const uint8_t *buffer, uint32_t buffer_len, const uint8_t *patterns, <a class="el" href="nbgl__types_8h.html#ad8d6b26cf49117bcc4373dc05a2f52a8">nbgl_area_t</a> *buf_area, uint8_t *dst, uint8_t nb_skipped_bytes)</td></tr>
+<tr class="memdesc:a333ca703264fce1f893f156b79c53d66"><td class="mdescLeft">&#160;</td><td class="mdescRight">Uncompress a 4BPP RLE-encoded glyph and draw it in a RAM buffer (we handle transparency, meaning when resulting pixel is 0xF we don't store it)  <br /></td></tr>
+<tr class="separator:a333ca703264fce1f893f156b79c53d66"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad7331740cd8492f81fbba7559304968c" id="r_ad7331740cd8492f81fbba7559304968c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="nbgl__draw__text_8c.html#a10b2d890d871e1489bb02b7e70d9bdfb">STATIC</a> void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw__text_8c.html#ad7331740cd8492f81fbba7559304968c">update_char_info</a> (<a class="el" href="structcharacter__info__t.html">character_info_t</a> *char_info, const uint8_t **text, uint16_t *textLen, <a class="el" href="nbgl__fonts_8h.html#a0bb10eabc14057b053c238ea7cd4c8f5">nbgl_unicode_ctx_t</a> *unicode_ctx, const <a class="el" href="structnbgl__font__t.html">nbgl_font_t</a> *font)</td></tr>
+<tr class="separator:ad7331740cd8492f81fbba7559304968c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5c0c9558779857ae86c0d570e301a60c" id="r_a5c0c9558779857ae86c0d570e301a60c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__draw__text_8c.html#a5c0c9558779857ae86c0d570e301a60c">nbgl_drawText</a> (const <a class="el" href="nbgl__types_8h.html#ad8d6b26cf49117bcc4373dc05a2f52a8">nbgl_area_t</a> *area, const char *text, uint16_t textLen, <a class="el" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, <a class="el" href="nbgl__types_8h.html#a0a8ef1b5e1941b7257e545cc33405ff1">color_t</a> fontColor)</td></tr>
 <tr class="memdesc:a5c0c9558779857ae86c0d570e301a60c"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function draws the given single-line text, with the given parameters.  <br /></td></tr>
 <tr class="separator:a5c0c9558779857ae86c0d570e301a60c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -194,7 +231,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__draw__text_8c_source.html#l00035">35</a> of file <a class="el" href="nbgl__draw__text_8c_source.html">nbgl_draw_text.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__draw__text_8c_source.html#l00041">41</a> of file <a class="el" href="nbgl__draw__text_8c_source.html">nbgl_draw_text.c</a>.</p>
 
 </div>
 </div>
@@ -221,16 +258,383 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define MAX_RLE_COPY_PIXELS&#160;&#160;&#160;6</td>
+          <td class="memname">#define MAX_RLE_COPY_PIXELS&#160;&#160;&#160;5</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="nbgl__draw__text_8c_source.html#l00038">38</a> of file <a class="el" href="nbgl__draw__text_8c_source.html">nbgl_draw_text.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__draw__text_8c_source.html#l00044">44</a> of file <a class="el" href="nbgl__draw__text_8c_source.html">nbgl_draw_text.c</a>.</p>
+
+</div>
+</div>
+<a id="ae92b7abca5732845cde73acd6a830d8c" name="ae92b7abca5732845cde73acd6a830d8c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae92b7abca5732845cde73acd6a830d8c">&#9670;&#160;</a></span>RLE_CMD_1PATTERN_B2W</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RLE_CMD_1PATTERN_B2W&#160;&#160;&#160;0x08</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="nbgl__draw__text_8c_source.html#l00055">55</a> of file <a class="el" href="nbgl__draw__text_8c_source.html">nbgl_draw_text.c</a>.</p>
+
+</div>
+</div>
+<a id="a8f6534c880420c0a51279959450924f0" name="a8f6534c880420c0a51279959450924f0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8f6534c880420c0a51279959450924f0">&#9670;&#160;</a></span>RLE_CMD_1PATTERN_W2B</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RLE_CMD_1PATTERN_W2B&#160;&#160;&#160;0x09</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="nbgl__draw__text_8c_source.html#l00056">56</a> of file <a class="el" href="nbgl__draw__text_8c_source.html">nbgl_draw_text.c</a>.</p>
+
+</div>
+</div>
+<a id="af1d0c268af034d58dd5f9adf6b6b2762" name="af1d0c268af034d58dd5f9adf6b6b2762"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af1d0c268af034d58dd5f9adf6b6b2762">&#9670;&#160;</a></span>RLE_CMD_2PATTERN_B2W</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RLE_CMD_2PATTERN_B2W&#160;&#160;&#160;0x0A</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="nbgl__draw__text_8c_source.html#l00057">57</a> of file <a class="el" href="nbgl__draw__text_8c_source.html">nbgl_draw_text.c</a>.</p>
+
+</div>
+</div>
+<a id="a1dcf9da5a4d2b3af7ede47d711435000" name="a1dcf9da5a4d2b3af7ede47d711435000"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1dcf9da5a4d2b3af7ede47d711435000">&#9670;&#160;</a></span>RLE_CMD_2PATTERN_INDEXED_B2W</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RLE_CMD_2PATTERN_INDEXED_B2W&#160;&#160;&#160;0x06</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="nbgl__draw__text_8c_source.html#l00053">53</a> of file <a class="el" href="nbgl__draw__text_8c_source.html">nbgl_draw_text.c</a>.</p>
+
+</div>
+</div>
+<a id="a6911710b50e9a142c4b976b083f7ebc3" name="a6911710b50e9a142c4b976b083f7ebc3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6911710b50e9a142c4b976b083f7ebc3">&#9670;&#160;</a></span>RLE_CMD_2PATTERN_INDEXED_W2B</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RLE_CMD_2PATTERN_INDEXED_W2B&#160;&#160;&#160;0x07</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="nbgl__draw__text_8c_source.html#l00054">54</a> of file <a class="el" href="nbgl__draw__text_8c_source.html">nbgl_draw_text.c</a>.</p>
+
+</div>
+</div>
+<a id="a386dc65ce883c43f9cd28459abe64485" name="a386dc65ce883c43f9cd28459abe64485"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a386dc65ce883c43f9cd28459abe64485">&#9670;&#160;</a></span>RLE_CMD_2PATTERN_W2B</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RLE_CMD_2PATTERN_W2B&#160;&#160;&#160;0x0B</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="nbgl__draw__text_8c_source.html#l00058">58</a> of file <a class="el" href="nbgl__draw__text_8c_source.html">nbgl_draw_text.c</a>.</p>
+
+</div>
+</div>
+<a id="ac0b371bb5124033880030bbfcb2e65b1" name="ac0b371bb5124033880030bbfcb2e65b1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac0b371bb5124033880030bbfcb2e65b1">&#9670;&#160;</a></span>RLE_CMD_COPY_2</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RLE_CMD_COPY_2&#160;&#160;&#160;0x00</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="nbgl__draw__text_8c_source.html#l00047">47</a> of file <a class="el" href="nbgl__draw__text_8c_source.html">nbgl_draw_text.c</a>.</p>
+
+</div>
+</div>
+<a id="a1c43c25cfff0fcdb88689ef666d2965b" name="a1c43c25cfff0fcdb88689ef666d2965b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1c43c25cfff0fcdb88689ef666d2965b">&#9670;&#160;</a></span>RLE_CMD_COPY_3</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RLE_CMD_COPY_3&#160;&#160;&#160;0x01</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="nbgl__draw__text_8c_source.html#l00048">48</a> of file <a class="el" href="nbgl__draw__text_8c_source.html">nbgl_draw_text.c</a>.</p>
+
+</div>
+</div>
+<a id="a6e605efd7707ad27e5bc09758c6ca596" name="a6e605efd7707ad27e5bc09758c6ca596"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6e605efd7707ad27e5bc09758c6ca596">&#9670;&#160;</a></span>RLE_CMD_COPY_4</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RLE_CMD_COPY_4&#160;&#160;&#160;0x02</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="nbgl__draw__text_8c_source.html#l00049">49</a> of file <a class="el" href="nbgl__draw__text_8c_source.html">nbgl_draw_text.c</a>.</p>
+
+</div>
+</div>
+<a id="ac740d2c6888eb1c598974c177ef3cc2d" name="ac740d2c6888eb1c598974c177ef3cc2d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac740d2c6888eb1c598974c177ef3cc2d">&#9670;&#160;</a></span>RLE_CMD_COPY_5</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RLE_CMD_COPY_5&#160;&#160;&#160;0x03</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="nbgl__draw__text_8c_source.html#l00050">50</a> of file <a class="el" href="nbgl__draw__text_8c_source.html">nbgl_draw_text.c</a>.</p>
+
+</div>
+</div>
+<a id="a392851a46e5a6f3d66322217ad99e1c4" name="a392851a46e5a6f3d66322217ad99e1c4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a392851a46e5a6f3d66322217ad99e1c4">&#9670;&#160;</a></span>RLE_CMD_FILL_1</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RLE_CMD_FILL_1&#160;&#160;&#160;0x0D</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="nbgl__draw__text_8c_source.html#l00060">60</a> of file <a class="el" href="nbgl__draw__text_8c_source.html">nbgl_draw_text.c</a>.</p>
+
+</div>
+</div>
+<a id="ac376c76469a80f4231b62966c5ace1f0" name="ac376c76469a80f4231b62966c5ace1f0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac376c76469a80f4231b62966c5ace1f0">&#9670;&#160;</a></span>RLE_CMD_FILL_2</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RLE_CMD_FILL_2&#160;&#160;&#160;0x05</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="nbgl__draw__text_8c_source.html#l00052">52</a> of file <a class="el" href="nbgl__draw__text_8c_source.html">nbgl_draw_text.c</a>.</p>
+
+</div>
+</div>
+<a id="a77f44b58bdd7ec29cf82c25f5acde9b4" name="a77f44b58bdd7ec29cf82c25f5acde9b4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a77f44b58bdd7ec29cf82c25f5acde9b4">&#9670;&#160;</a></span>RLE_CMD_FILL_3</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RLE_CMD_FILL_3&#160;&#160;&#160;0x04</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="nbgl__draw__text_8c_source.html#l00051">51</a> of file <a class="el" href="nbgl__draw__text_8c_source.html">nbgl_draw_text.c</a>.</p>
+
+</div>
+</div>
+<a id="a303aff9873d382eede5db1787c8b8512" name="a303aff9873d382eede5db1787c8b8512"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a303aff9873d382eede5db1787c8b8512">&#9670;&#160;</a></span>RLE_CMD_FILL_BLACK</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RLE_CMD_FILL_BLACK&#160;&#160;&#160;0x0C</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="nbgl__draw__text_8c_source.html#l00059">59</a> of file <a class="el" href="nbgl__draw__text_8c_source.html">nbgl_draw_text.c</a>.</p>
+
+</div>
+</div>
+<a id="ad0758fb6a5ab2cef84aadb65be56e2d7" name="ad0758fb6a5ab2cef84aadb65be56e2d7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad0758fb6a5ab2cef84aadb65be56e2d7">&#9670;&#160;</a></span>RLE_CMD_FILL_WHITE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RLE_CMD_FILL_WHITE&#160;&#160;&#160;0x0E</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="nbgl__draw__text_8c_source.html#l00061">61</a> of file <a class="el" href="nbgl__draw__text_8c_source.html">nbgl_draw_text.c</a>.</p>
+
+</div>
+</div>
+<a id="a657bce3da7b3aa591662520434fba56f" name="a657bce3da7b3aa591662520434fba56f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a657bce3da7b3aa591662520434fba56f">&#9670;&#160;</a></span>RLE_CMD_FILL_WHITE_16</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RLE_CMD_FILL_WHITE_16&#160;&#160;&#160;0x0F</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="nbgl__draw__text_8c_source.html#l00062">62</a> of file <a class="el" href="nbgl__draw__text_8c_source.html">nbgl_draw_text.c</a>.</p>
+
+</div>
+</div>
+<a id="a10b2d890d871e1489bb02b7e70d9bdfb" name="a10b2d890d871e1489bb02b7e70d9bdfb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a10b2d890d871e1489bb02b7e70d9bdfb">&#9670;&#160;</a></span>STATIC</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define STATIC&#160;&#160;&#160;static</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="nbgl__draw__text_8c_source.html#l00035">35</a> of file <a class="el" href="nbgl__draw__text_8c_source.html">nbgl_draw_text.c</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="a333ca703264fce1f893f156b79c53d66" name="a333ca703264fce1f893f156b79c53d66"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a333ca703264fce1f893f156b79c53d66">&#9670;&#160;</a></span>nbgl_draw4BPPImageRle()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="nbgl__draw__text_8c.html#a10b2d890d871e1489bb02b7e70d9bdfb">STATIC</a> void nbgl_draw4BPPImageRle </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="nbgl__types_8h.html#ad8d6b26cf49117bcc4373dc05a2f52a8">nbgl_area_t</a> *&#160;</td>
+          <td class="paramname"><em>area</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>buffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>buffer_len</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>patterns</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="nbgl__types_8h.html#ad8d6b26cf49117bcc4373dc05a2f52a8">nbgl_area_t</a> *&#160;</td>
+          <td class="paramname"><em>buf_area</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>dst</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>nb_skipped_bytes</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Uncompress a 4BPP RLE-encoded glyph and draw it in a RAM buffer (we handle transparency, meaning when resulting pixel is 0xF we don't store it) </p>
+<p>4BPP RLE Decoder - The provided bytes contains: </p><pre class="fragment">  CMD + DATA:
+
+  1000 + VVVV =&gt; Simple Pattern Black to White: 0x0, VVVV, 0xF
+  1001 + VVVV =&gt; Simple Pattern White to Black: 0xF, VVVV, 0x0
+  1010 + VVVV + WWWW =&gt; Double Pattern Black to White: 0x0, VVVV, WWWW, 0xF
+  1011 + VVVV + WWWW =&gt; Double Pattern White to Black: 0xF, VVVV, WWWW, 0x0
+  111R + RRRR =&gt; FILL White (max=32)
+  1100 + RRRR =&gt; FILL Black (max=16)
+  1101 + VVVV =&gt; Fill Value x 1
+
+  00RR + VVVV + WWWW + XXXX + YYYY + ZZZZ =&gt; COPY Quartets
+ - RR is repeat count - 2 of quartets (max=2+3 =&gt; 5 quartets)
+  - VVVV: value of 1st 4BPP pixel
+  - WWWW: value of 2nd 4BPP pixel
+  - XXXX: value of 3rd 4BPP pixel
+  - YYYY: value of 4th 4BPP pixel
+  - ZZZZ: value of 5th 4BPP pixel
+
+  0100 + VVVV + RRRR =&gt; FILL Value x Repeat+3 (max=18)
+  0101 + VVVV =&gt; FILL Value x 2
+  0110 + IIII =&gt; Double Pattern Indexed Black to White: 0x0, Val1, val2, 0xF
+  0111 + IIII =&gt; Double Pattern Indexed White to Black: 0xF, Val2, Val1, 0x0
+</pre> <dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">area</td><td>area information about where to display the text </td></tr>
+    <tr><td class="paramname">buffer</td><td>buffer of RLE-encoded data </td></tr>
+    <tr><td class="paramname">buffer_len</td><td>length of buffer </td></tr>
+    <tr><td class="paramname">buf_area</td><td>of the RAM buffer </td></tr>
+    <tr><td class="paramname">dst</td><td>RAM buffer on which the glyph will be drawn </td></tr>
+    <tr><td class="paramname">nb_skipped_bytes</td><td>number of bytes that was cropped </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__draw__text_8c_source.html#l00443">443</a> of file <a class="el" href="nbgl__draw__text_8c_source.html">nbgl_draw_text.c</a>.</p>
+
+</div>
+</div>
 <a id="a5c0c9558779857ae86c0d570e301a60c" name="a5c0c9558779857ae86c0d570e301a60c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a5c0c9558779857ae86c0d570e301a60c">&#9670;&#160;</a></span>nbgl_drawText()</h2>
 
@@ -287,7 +691,55 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__draw__text_8c_source.html#l00913">913</a> of file <a class="el" href="nbgl__draw__text_8c_source.html">nbgl_draw_text.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__draw__text_8c_source.html#l01072">1072</a> of file <a class="el" href="nbgl__draw__text_8c_source.html">nbgl_draw_text.c</a>.</p>
+
+</div>
+</div>
+<a id="ad7331740cd8492f81fbba7559304968c" name="ad7331740cd8492f81fbba7559304968c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad7331740cd8492f81fbba7559304968c">&#9670;&#160;</a></span>update_char_info()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="nbgl__draw__text_8c.html#a10b2d890d871e1489bb02b7e70d9bdfb">STATIC</a> void update_char_info </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structcharacter__info__t.html">character_info_t</a> *&#160;</td>
+          <td class="paramname"><em>char_info</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t **&#160;</td>
+          <td class="paramname"><em>text</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t *&#160;</td>
+          <td class="paramname"><em>textLen</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="nbgl__fonts_8h.html#a0bb10eabc14057b053c238ea7cd4c8f5">nbgl_unicode_ctx_t</a> *&#160;</td>
+          <td class="paramname"><em>unicode_ctx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structnbgl__font__t.html">nbgl_font_t</a> *&#160;</td>
+          <td class="paramname"><em>font</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="nbgl__draw__text_8c_source.html#l00943">943</a> of file <a class="el" href="nbgl__draw__text_8c_source.html">nbgl_draw_text.c</a>.</p>
 
 </div>
 </div>

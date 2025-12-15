@@ -961,272 +961,274 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l01012" name="l01012"></a><span class="lineno"> 1012</span>}</div>
 </div>
 <div class="line"><a id="l01013" name="l01013"></a><span class="lineno"> 1013</span> </div>
-<div class="foldopen" id="foldopen01025" data-start="{" data-end="}">
-<div class="line"><a id="l01025" name="l01025"></a><span class="lineno"><a class="line" href="nbgl__fonts_8h.html#a1b6f02e2d978505dbc0407b6f098c9cc"> 1025</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__fonts_8c.html#a1b6f02e2d978505dbc0407b6f098c9cc">nbgl_textWrapOnNbLines</a>(<a class="code hl_enumeration" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, <span class="keywordtype">char</span> *text, uint16_t maxWidth, uint8_t nbLines)</div>
-<div class="line"><a id="l01026" name="l01026"></a><span class="lineno"> 1026</span>{</div>
-<div class="line"><a id="l01027" name="l01027"></a><span class="lineno"> 1027</span>    <span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__font__t.html">nbgl_font_t</a>  *font               = <a class="code hl_function" href="nbgl__fonts_8h.html#ad52bcaf36b3247a1d37d9a1913fddeba">nbgl_getFont</a>(fontId);</div>
-<div class="line"><a id="l01028" name="l01028"></a><span class="lineno"> 1028</span>    uint16_t            textLen            = <a class="code hl_function" href="nbgl__fonts_8c.html#acfdb04054ef0e04067e1d29980fd04a9">nbgl_getTextLength</a>(text);</div>
-<div class="line"><a id="l01029" name="l01029"></a><span class="lineno"> 1029</span>    uint16_t            width              = 0;</div>
-<div class="line"><a id="l01030" name="l01030"></a><span class="lineno"> 1030</span>    uint8_t             currentNbLines     = 1;</div>
-<div class="line"><a id="l01031" name="l01031"></a><span class="lineno"> 1031</span>    <span class="keywordtype">char</span>               *lastDelimiter      = NULL;</div>
-<div class="line"><a id="l01032" name="l01032"></a><span class="lineno"> 1032</span>    uint32_t            lenAtLastDelimiter = 0;</div>
-<div class="line"><a id="l01033" name="l01033"></a><span class="lineno"> 1033</span>    <span class="keywordtype">char</span>               *prevText[4]        = {0};  <span class="comment">// queue of last positions</span></div>
-<div class="line"><a id="l01034" name="l01034"></a><span class="lineno"> 1034</span>    uint16_t            prevWidth[2]       = {0};  <span class="comment">// queue of last widths</span></div>
-<div class="line"><a id="l01035" name="l01035"></a><span class="lineno"> 1035</span>    <a class="code hl_struct" href="structnbgl__unicode__ctx__s.html">nbgl_unicode_ctx_t</a> *unicode_ctx        = NULL;</div>
-<div class="line"><a id="l01036" name="l01036"></a><span class="lineno"> 1036</span> </div>
-<div class="line"><a id="l01037" name="l01037"></a><span class="lineno"> 1037</span>    <span class="keywordflow">while</span> (*text) {</div>
-<div class="line"><a id="l01038" name="l01038"></a><span class="lineno"> 1038</span>        uint8_t  char_width;</div>
-<div class="line"><a id="l01039" name="l01039"></a><span class="lineno"> 1039</span>        uint32_t unicode;</div>
-<div class="line"><a id="l01040" name="l01040"></a><span class="lineno"> 1040</span>        <span class="keywordtype">bool</span>     is_unicode;</div>
-<div class="line"><a id="l01041" name="l01041"></a><span class="lineno"> 1041</span> </div>
-<div class="line"><a id="l01042" name="l01042"></a><span class="lineno"> 1042</span>        <span class="comment">// memorize the last positions in the queue</span></div>
-<div class="line"><a id="l01043" name="l01043"></a><span class="lineno"> 1043</span>        <span class="comment">// the oldest is at the highest index</span></div>
-<div class="line"><a id="l01044" name="l01044"></a><span class="lineno"> 1044</span>        prevText[3] = prevText[2];</div>
-<div class="line"><a id="l01045" name="l01045"></a><span class="lineno"> 1045</span>        prevText[2] = prevText[1];</div>
-<div class="line"><a id="l01046" name="l01046"></a><span class="lineno"> 1046</span>        prevText[1] = prevText[0];</div>
-<div class="line"><a id="l01047" name="l01047"></a><span class="lineno"> 1047</span>        prevText[0] = text;</div>
-<div class="line"><a id="l01048" name="l01048"></a><span class="lineno"> 1048</span>        unicode     = <a class="code hl_function" href="nbgl__fonts_8c.html#ab956854ae9a95d3320c81ed5acfd9742">nbgl_popUnicodeChar</a>((<span class="keyword">const</span> uint8_t **) &amp;text, &amp;textLen, &amp;is_unicode);</div>
-<div class="line"><a id="l01049" name="l01049"></a><span class="lineno"> 1049</span>        <span class="comment">// if \n, reset width</span></div>
-<div class="line"><a id="l01050" name="l01050"></a><span class="lineno"> 1050</span>        <span class="keywordflow">if</span> (unicode == <span class="charliteral">&#39;\n&#39;</span>) {</div>
-<div class="line"><a id="l01051" name="l01051"></a><span class="lineno"> 1051</span>            width = 0;</div>
-<div class="line"><a id="l01052" name="l01052"></a><span class="lineno"> 1052</span>            currentNbLines++;</div>
-<div class="line"><a id="l01053" name="l01053"></a><span class="lineno"> 1053</span>            lastDelimiter = NULL;</div>
-<div class="line"><a id="l01054" name="l01054"></a><span class="lineno"> 1054</span>            <span class="keywordflow">continue</span>;</div>
-<div class="line"><a id="l01055" name="l01055"></a><span class="lineno"> 1055</span>        }</div>
-<div class="line"><a id="l01056" name="l01056"></a><span class="lineno"> 1056</span>        <span class="keywordflow">if</span> (is_unicode &amp;&amp; !unicode_ctx) {</div>
-<div class="line"><a id="l01057" name="l01057"></a><span class="lineno"> 1057</span>            unicode_ctx = <a class="code hl_function" href="nbgl__fonts_8c.html#a6e816ab2f6b603fee884bd51aea02d0b">nbgl_getUnicodeFont</a>(fontId);</div>
-<div class="line"><a id="l01058" name="l01058"></a><span class="lineno"> 1058</span>        }</div>
-<div class="line"><a id="l01059" name="l01059"></a><span class="lineno"> 1059</span>        char_width = getCharWidth(font, unicode, is_unicode);</div>
-<div class="line"><a id="l01060" name="l01060"></a><span class="lineno"> 1060</span>        <span class="keywordflow">if</span> (char_width == 0) {</div>
-<div class="line"><a id="l01061" name="l01061"></a><span class="lineno"> 1061</span>            <span class="keywordflow">continue</span>;</div>
-<div class="line"><a id="l01062" name="l01062"></a><span class="lineno"> 1062</span>        }</div>
-<div class="line"><a id="l01063" name="l01063"></a><span class="lineno"> 1063</span> </div>
-<div class="line"><a id="l01064" name="l01064"></a><span class="lineno"> 1064</span>        <span class="comment">// memorize cursors at last found space</span></div>
-<div class="line"><a id="l01065" name="l01065"></a><span class="lineno"> 1065</span>        <span class="keywordflow">if</span> (<a class="code hl_define" href="nbgl__fonts_8c.html#a8b180f4b00670ca3f6766b16eb799cfc">IS_WORD_DELIM</a>(unicode)) {</div>
-<div class="line"><a id="l01066" name="l01066"></a><span class="lineno"> 1066</span>            lastDelimiter      = prevText[0];</div>
-<div class="line"><a id="l01067" name="l01067"></a><span class="lineno"> 1067</span>            lenAtLastDelimiter = textLen + 1;</div>
-<div class="line"><a id="l01068" name="l01068"></a><span class="lineno"> 1068</span>        }</div>
-<div class="line"><a id="l01069" name="l01069"></a><span class="lineno"> 1069</span>        <span class="comment">// if the width is about to overpass maxWidth, do something</span></div>
-<div class="line"><a id="l01070" name="l01070"></a><span class="lineno"> 1070</span>        <span class="keywordflow">if</span> ((width + char_width) &gt; maxWidth) {</div>
-<div class="line"><a id="l01071" name="l01071"></a><span class="lineno"> 1071</span>            <span class="comment">// if the max number of lines has not been reached, try to wrap on last space</span></div>
-<div class="line"><a id="l01072" name="l01072"></a><span class="lineno"> 1072</span>            <span class="comment">// encountered</span></div>
-<div class="line"><a id="l01073" name="l01073"></a><span class="lineno"> 1073</span>            <span class="keywordflow">if</span> (currentNbLines &lt; nbLines) {</div>
-<div class="line"><a id="l01074" name="l01074"></a><span class="lineno"> 1074</span>                currentNbLines++;</div>
-<div class="line"><a id="l01075" name="l01075"></a><span class="lineno"> 1075</span>                <span class="comment">// replace last found space by a \n</span></div>
-<div class="line"><a id="l01076" name="l01076"></a><span class="lineno"> 1076</span>                <span class="keywordflow">if</span> (lastDelimiter != NULL) {</div>
-<div class="line"><a id="l01077" name="l01077"></a><span class="lineno"> 1077</span>                    *lastDelimiter++ = <span class="charliteral">&#39;\n&#39;</span>;</div>
-<div class="line"><a id="l01078" name="l01078"></a><span class="lineno"> 1078</span>                    text             = lastDelimiter;</div>
-<div class="line"><a id="l01079" name="l01079"></a><span class="lineno"> 1079</span>                    lastDelimiter    = NULL;</div>
-<div class="line"><a id="l01080" name="l01080"></a><span class="lineno"> 1080</span>                    textLen          = lenAtLastDelimiter - 1;</div>
-<div class="line"><a id="l01081" name="l01081"></a><span class="lineno"> 1081</span>                }</div>
-<div class="line"><a id="l01082" name="l01082"></a><span class="lineno"> 1082</span>                <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l01083" name="l01083"></a><span class="lineno"> 1083</span>                    textLen += text - prevText[0];</div>
-<div class="line"><a id="l01084" name="l01084"></a><span class="lineno"> 1084</span>                    text = prevText[0];</div>
-<div class="line"><a id="l01085" name="l01085"></a><span class="lineno"> 1085</span>                }</div>
-<div class="line"><a id="l01086" name="l01086"></a><span class="lineno"> 1086</span>                <span class="comment">// reset width for next line</span></div>
-<div class="line"><a id="l01087" name="l01087"></a><span class="lineno"> 1087</span>                width = 0;</div>
-<div class="line"><a id="l01088" name="l01088"></a><span class="lineno"> 1088</span>                <span class="keywordflow">continue</span>;</div>
-<div class="line"><a id="l01089" name="l01089"></a><span class="lineno"> 1089</span>            }</div>
-<div class="line"><a id="l01090" name="l01090"></a><span class="lineno"> 1090</span>            <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l01091" name="l01091"></a><span class="lineno"> 1091</span>                uint32_t i;</div>
-<div class="line"><a id="l01092" name="l01092"></a><span class="lineno"> 1092</span>                <span class="comment">// replace the 1, 2 or 3 last chars by &#39;...&#39;</span></div>
-<div class="line"><a id="l01093" name="l01093"></a><span class="lineno"> 1093</span>                <span class="comment">// try at first with 1, then with 2, if it fits</span></div>
-<div class="line"><a id="l01094" name="l01094"></a><span class="lineno"> 1094</span>                <span class="keywordflow">for</span> (i = 0; i &lt; 2; i++) {</div>
-<div class="line"><a id="l01095" name="l01095"></a><span class="lineno"> 1095</span>                    <span class="keywordflow">if</span> ((prevText[i + 1] != NULL)</div>
-<div class="line"><a id="l01096" name="l01096"></a><span class="lineno"> 1096</span>                        &amp;&amp; ((prevWidth[i] + (3 * getCharWidth(font, <span class="charliteral">&#39;.&#39;</span>, <span class="keyword">false</span>))) &lt;= maxWidth)) {</div>
-<div class="line"><a id="l01097" name="l01097"></a><span class="lineno"> 1097</span>                        <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l01098" name="l01098"></a><span class="lineno"> 1098</span>                    }</div>
-<div class="line"><a id="l01099" name="l01099"></a><span class="lineno"> 1099</span>                }</div>
-<div class="line"><a id="l01100" name="l01100"></a><span class="lineno"> 1100</span>                <span class="comment">// at worth we are sure it works by replacing the 3 last chars (if i ==2)</span></div>
-<div class="line"><a id="l01101" name="l01101"></a><span class="lineno"> 1101</span>                <span class="keywordflow">if</span> (prevText[i + 1] != NULL) {</div>
-<div class="line"><a id="l01102" name="l01102"></a><span class="lineno"> 1102</span>                    memcpy(prevText[i + 1], <span class="stringliteral">&quot;...&quot;</span>, 4);</div>
-<div class="line"><a id="l01103" name="l01103"></a><span class="lineno"> 1103</span>                }</div>
-<div class="line"><a id="l01104" name="l01104"></a><span class="lineno"> 1104</span>                <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l01105" name="l01105"></a><span class="lineno"> 1105</span>            }</div>
-<div class="line"><a id="l01106" name="l01106"></a><span class="lineno"> 1106</span>        }</div>
-<div class="line"><a id="l01107" name="l01107"></a><span class="lineno"> 1107</span>        <span class="comment">// memorize the 2 last widths in a queue</span></div>
-<div class="line"><a id="l01108" name="l01108"></a><span class="lineno"> 1108</span>        prevWidth[1] = prevWidth[0];</div>
-<div class="line"><a id="l01109" name="l01109"></a><span class="lineno"> 1109</span>        prevWidth[0] = width;</div>
-<div class="line"><a id="l01110" name="l01110"></a><span class="lineno"> 1110</span>        width += char_width;</div>
-<div class="line"><a id="l01111" name="l01111"></a><span class="lineno"> 1111</span>    }</div>
-<div class="line"><a id="l01112" name="l01112"></a><span class="lineno"> 1112</span>}</div>
+<div class="line"><a id="l01014" name="l01014"></a><span class="lineno"> 1014</span><span class="preprocessor">#ifndef OS_UNIT_TEST</span></div>
+<div class="foldopen" id="foldopen01026" data-start="{" data-end="}">
+<div class="line"><a id="l01026" name="l01026"></a><span class="lineno"><a class="line" href="nbgl__fonts_8h.html#a1b6f02e2d978505dbc0407b6f098c9cc"> 1026</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__fonts_8c.html#a1b6f02e2d978505dbc0407b6f098c9cc">nbgl_textWrapOnNbLines</a>(<a class="code hl_enumeration" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId, <span class="keywordtype">char</span> *text, uint16_t maxWidth, uint8_t nbLines)</div>
+<div class="line"><a id="l01027" name="l01027"></a><span class="lineno"> 1027</span>{</div>
+<div class="line"><a id="l01028" name="l01028"></a><span class="lineno"> 1028</span>    <span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__font__t.html">nbgl_font_t</a>  *font               = <a class="code hl_function" href="nbgl__fonts_8h.html#ad52bcaf36b3247a1d37d9a1913fddeba">nbgl_getFont</a>(fontId);</div>
+<div class="line"><a id="l01029" name="l01029"></a><span class="lineno"> 1029</span>    uint16_t            textLen            = <a class="code hl_function" href="nbgl__fonts_8c.html#acfdb04054ef0e04067e1d29980fd04a9">nbgl_getTextLength</a>(text);</div>
+<div class="line"><a id="l01030" name="l01030"></a><span class="lineno"> 1030</span>    uint16_t            width              = 0;</div>
+<div class="line"><a id="l01031" name="l01031"></a><span class="lineno"> 1031</span>    uint8_t             currentNbLines     = 1;</div>
+<div class="line"><a id="l01032" name="l01032"></a><span class="lineno"> 1032</span>    <span class="keywordtype">char</span>               *lastDelimiter      = NULL;</div>
+<div class="line"><a id="l01033" name="l01033"></a><span class="lineno"> 1033</span>    uint32_t            lenAtLastDelimiter = 0;</div>
+<div class="line"><a id="l01034" name="l01034"></a><span class="lineno"> 1034</span>    <span class="keywordtype">char</span>               *prevText[4]        = {0};  <span class="comment">// queue of last positions</span></div>
+<div class="line"><a id="l01035" name="l01035"></a><span class="lineno"> 1035</span>    uint16_t            prevWidth[2]       = {0};  <span class="comment">// queue of last widths</span></div>
+<div class="line"><a id="l01036" name="l01036"></a><span class="lineno"> 1036</span>    <a class="code hl_struct" href="structnbgl__unicode__ctx__s.html">nbgl_unicode_ctx_t</a> *unicode_ctx        = NULL;</div>
+<div class="line"><a id="l01037" name="l01037"></a><span class="lineno"> 1037</span> </div>
+<div class="line"><a id="l01038" name="l01038"></a><span class="lineno"> 1038</span>    <span class="keywordflow">while</span> (*text) {</div>
+<div class="line"><a id="l01039" name="l01039"></a><span class="lineno"> 1039</span>        uint8_t  char_width;</div>
+<div class="line"><a id="l01040" name="l01040"></a><span class="lineno"> 1040</span>        uint32_t unicode;</div>
+<div class="line"><a id="l01041" name="l01041"></a><span class="lineno"> 1041</span>        <span class="keywordtype">bool</span>     is_unicode;</div>
+<div class="line"><a id="l01042" name="l01042"></a><span class="lineno"> 1042</span> </div>
+<div class="line"><a id="l01043" name="l01043"></a><span class="lineno"> 1043</span>        <span class="comment">// memorize the last positions in the queue</span></div>
+<div class="line"><a id="l01044" name="l01044"></a><span class="lineno"> 1044</span>        <span class="comment">// the oldest is at the highest index</span></div>
+<div class="line"><a id="l01045" name="l01045"></a><span class="lineno"> 1045</span>        prevText[3] = prevText[2];</div>
+<div class="line"><a id="l01046" name="l01046"></a><span class="lineno"> 1046</span>        prevText[2] = prevText[1];</div>
+<div class="line"><a id="l01047" name="l01047"></a><span class="lineno"> 1047</span>        prevText[1] = prevText[0];</div>
+<div class="line"><a id="l01048" name="l01048"></a><span class="lineno"> 1048</span>        prevText[0] = text;</div>
+<div class="line"><a id="l01049" name="l01049"></a><span class="lineno"> 1049</span>        unicode     = <a class="code hl_function" href="nbgl__fonts_8c.html#ab956854ae9a95d3320c81ed5acfd9742">nbgl_popUnicodeChar</a>((<span class="keyword">const</span> uint8_t **) &amp;text, &amp;textLen, &amp;is_unicode);</div>
+<div class="line"><a id="l01050" name="l01050"></a><span class="lineno"> 1050</span>        <span class="comment">// if \n, reset width</span></div>
+<div class="line"><a id="l01051" name="l01051"></a><span class="lineno"> 1051</span>        <span class="keywordflow">if</span> (unicode == <span class="charliteral">&#39;\n&#39;</span>) {</div>
+<div class="line"><a id="l01052" name="l01052"></a><span class="lineno"> 1052</span>            width = 0;</div>
+<div class="line"><a id="l01053" name="l01053"></a><span class="lineno"> 1053</span>            currentNbLines++;</div>
+<div class="line"><a id="l01054" name="l01054"></a><span class="lineno"> 1054</span>            lastDelimiter = NULL;</div>
+<div class="line"><a id="l01055" name="l01055"></a><span class="lineno"> 1055</span>            <span class="keywordflow">continue</span>;</div>
+<div class="line"><a id="l01056" name="l01056"></a><span class="lineno"> 1056</span>        }</div>
+<div class="line"><a id="l01057" name="l01057"></a><span class="lineno"> 1057</span>        <span class="keywordflow">if</span> (is_unicode &amp;&amp; !unicode_ctx) {</div>
+<div class="line"><a id="l01058" name="l01058"></a><span class="lineno"> 1058</span>            unicode_ctx = <a class="code hl_function" href="nbgl__fonts_8c.html#a6e816ab2f6b603fee884bd51aea02d0b">nbgl_getUnicodeFont</a>(fontId);</div>
+<div class="line"><a id="l01059" name="l01059"></a><span class="lineno"> 1059</span>        }</div>
+<div class="line"><a id="l01060" name="l01060"></a><span class="lineno"> 1060</span>        char_width = getCharWidth(font, unicode, is_unicode);</div>
+<div class="line"><a id="l01061" name="l01061"></a><span class="lineno"> 1061</span>        <span class="keywordflow">if</span> (char_width == 0) {</div>
+<div class="line"><a id="l01062" name="l01062"></a><span class="lineno"> 1062</span>            <span class="keywordflow">continue</span>;</div>
+<div class="line"><a id="l01063" name="l01063"></a><span class="lineno"> 1063</span>        }</div>
+<div class="line"><a id="l01064" name="l01064"></a><span class="lineno"> 1064</span> </div>
+<div class="line"><a id="l01065" name="l01065"></a><span class="lineno"> 1065</span>        <span class="comment">// memorize cursors at last found space</span></div>
+<div class="line"><a id="l01066" name="l01066"></a><span class="lineno"> 1066</span>        <span class="keywordflow">if</span> (<a class="code hl_define" href="nbgl__fonts_8c.html#a8b180f4b00670ca3f6766b16eb799cfc">IS_WORD_DELIM</a>(unicode)) {</div>
+<div class="line"><a id="l01067" name="l01067"></a><span class="lineno"> 1067</span>            lastDelimiter      = prevText[0];</div>
+<div class="line"><a id="l01068" name="l01068"></a><span class="lineno"> 1068</span>            lenAtLastDelimiter = textLen + 1;</div>
+<div class="line"><a id="l01069" name="l01069"></a><span class="lineno"> 1069</span>        }</div>
+<div class="line"><a id="l01070" name="l01070"></a><span class="lineno"> 1070</span>        <span class="comment">// if the width is about to overpass maxWidth, do something</span></div>
+<div class="line"><a id="l01071" name="l01071"></a><span class="lineno"> 1071</span>        <span class="keywordflow">if</span> ((width + char_width) &gt; maxWidth) {</div>
+<div class="line"><a id="l01072" name="l01072"></a><span class="lineno"> 1072</span>            <span class="comment">// if the max number of lines has not been reached, try to wrap on last space</span></div>
+<div class="line"><a id="l01073" name="l01073"></a><span class="lineno"> 1073</span>            <span class="comment">// encountered</span></div>
+<div class="line"><a id="l01074" name="l01074"></a><span class="lineno"> 1074</span>            <span class="keywordflow">if</span> (currentNbLines &lt; nbLines) {</div>
+<div class="line"><a id="l01075" name="l01075"></a><span class="lineno"> 1075</span>                currentNbLines++;</div>
+<div class="line"><a id="l01076" name="l01076"></a><span class="lineno"> 1076</span>                <span class="comment">// replace last found space by a \n</span></div>
+<div class="line"><a id="l01077" name="l01077"></a><span class="lineno"> 1077</span>                <span class="keywordflow">if</span> (lastDelimiter != NULL) {</div>
+<div class="line"><a id="l01078" name="l01078"></a><span class="lineno"> 1078</span>                    *lastDelimiter++ = <span class="charliteral">&#39;\n&#39;</span>;</div>
+<div class="line"><a id="l01079" name="l01079"></a><span class="lineno"> 1079</span>                    text             = lastDelimiter;</div>
+<div class="line"><a id="l01080" name="l01080"></a><span class="lineno"> 1080</span>                    lastDelimiter    = NULL;</div>
+<div class="line"><a id="l01081" name="l01081"></a><span class="lineno"> 1081</span>                    textLen          = lenAtLastDelimiter - 1;</div>
+<div class="line"><a id="l01082" name="l01082"></a><span class="lineno"> 1082</span>                }</div>
+<div class="line"><a id="l01083" name="l01083"></a><span class="lineno"> 1083</span>                <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l01084" name="l01084"></a><span class="lineno"> 1084</span>                    textLen += text - prevText[0];</div>
+<div class="line"><a id="l01085" name="l01085"></a><span class="lineno"> 1085</span>                    text = prevText[0];</div>
+<div class="line"><a id="l01086" name="l01086"></a><span class="lineno"> 1086</span>                }</div>
+<div class="line"><a id="l01087" name="l01087"></a><span class="lineno"> 1087</span>                <span class="comment">// reset width for next line</span></div>
+<div class="line"><a id="l01088" name="l01088"></a><span class="lineno"> 1088</span>                width = 0;</div>
+<div class="line"><a id="l01089" name="l01089"></a><span class="lineno"> 1089</span>                <span class="keywordflow">continue</span>;</div>
+<div class="line"><a id="l01090" name="l01090"></a><span class="lineno"> 1090</span>            }</div>
+<div class="line"><a id="l01091" name="l01091"></a><span class="lineno"> 1091</span>            <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l01092" name="l01092"></a><span class="lineno"> 1092</span>                uint32_t i;</div>
+<div class="line"><a id="l01093" name="l01093"></a><span class="lineno"> 1093</span>                <span class="comment">// replace the 1, 2 or 3 last chars by &#39;...&#39;</span></div>
+<div class="line"><a id="l01094" name="l01094"></a><span class="lineno"> 1094</span>                <span class="comment">// try at first with 1, then with 2, if it fits</span></div>
+<div class="line"><a id="l01095" name="l01095"></a><span class="lineno"> 1095</span>                <span class="keywordflow">for</span> (i = 0; i &lt; 2; i++) {</div>
+<div class="line"><a id="l01096" name="l01096"></a><span class="lineno"> 1096</span>                    <span class="keywordflow">if</span> ((prevText[i + 1] != NULL)</div>
+<div class="line"><a id="l01097" name="l01097"></a><span class="lineno"> 1097</span>                        &amp;&amp; ((prevWidth[i] + (3 * getCharWidth(font, <span class="charliteral">&#39;.&#39;</span>, <span class="keyword">false</span>))) &lt;= maxWidth)) {</div>
+<div class="line"><a id="l01098" name="l01098"></a><span class="lineno"> 1098</span>                        <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l01099" name="l01099"></a><span class="lineno"> 1099</span>                    }</div>
+<div class="line"><a id="l01100" name="l01100"></a><span class="lineno"> 1100</span>                }</div>
+<div class="line"><a id="l01101" name="l01101"></a><span class="lineno"> 1101</span>                <span class="comment">// at worth we are sure it works by replacing the 3 last chars (if i ==2)</span></div>
+<div class="line"><a id="l01102" name="l01102"></a><span class="lineno"> 1102</span>                <span class="keywordflow">if</span> (prevText[i + 1] != NULL) {</div>
+<div class="line"><a id="l01103" name="l01103"></a><span class="lineno"> 1103</span>                    memcpy(prevText[i + 1], <span class="stringliteral">&quot;...&quot;</span>, 4);</div>
+<div class="line"><a id="l01104" name="l01104"></a><span class="lineno"> 1104</span>                }</div>
+<div class="line"><a id="l01105" name="l01105"></a><span class="lineno"> 1105</span>                <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l01106" name="l01106"></a><span class="lineno"> 1106</span>            }</div>
+<div class="line"><a id="l01107" name="l01107"></a><span class="lineno"> 1107</span>        }</div>
+<div class="line"><a id="l01108" name="l01108"></a><span class="lineno"> 1108</span>        <span class="comment">// memorize the 2 last widths in a queue</span></div>
+<div class="line"><a id="l01109" name="l01109"></a><span class="lineno"> 1109</span>        prevWidth[1] = prevWidth[0];</div>
+<div class="line"><a id="l01110" name="l01110"></a><span class="lineno"> 1110</span>        prevWidth[0] = width;</div>
+<div class="line"><a id="l01111" name="l01111"></a><span class="lineno"> 1111</span>        width += char_width;</div>
+<div class="line"><a id="l01112" name="l01112"></a><span class="lineno"> 1112</span>    }</div>
+<div class="line"><a id="l01113" name="l01113"></a><span class="lineno"> 1113</span>}</div>
 </div>
-<div class="line"><a id="l01113" name="l01113"></a><span class="lineno"> 1113</span> </div>
-<div class="foldopen" id="foldopen01129" data-start="{" data-end="}">
-<div class="line"><a id="l01129" name="l01129"></a><span class="lineno"><a class="line" href="nbgl__fonts_8h.html#aa4167a32a65f3106c498b4ce894207b8"> 1129</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__fonts_8c.html#aa4167a32a65f3106c498b4ce894207b8">nbgl_textReduceOnNbLines</a>(<a class="code hl_enumeration" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId,</div>
-<div class="line"><a id="l01130" name="l01130"></a><span class="lineno"> 1130</span>                              <span class="keyword">const</span> <span class="keywordtype">char</span>    *origText,</div>
-<div class="line"><a id="l01131" name="l01131"></a><span class="lineno"> 1131</span>                              uint16_t       maxWidth,</div>
-<div class="line"><a id="l01132" name="l01132"></a><span class="lineno"> 1132</span>                              uint8_t        nbLines,</div>
-<div class="line"><a id="l01133" name="l01133"></a><span class="lineno"> 1133</span>                              <span class="keywordtype">char</span>          *reducedText,</div>
-<div class="line"><a id="l01134" name="l01134"></a><span class="lineno"> 1134</span>                              uint16_t       reducedTextLen)</div>
-<div class="line"><a id="l01135" name="l01135"></a><span class="lineno"> 1135</span>{</div>
-<div class="line"><a id="l01136" name="l01136"></a><span class="lineno"> 1136</span>    <span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__font__t.html">nbgl_font_t</a> *font           = <a class="code hl_function" href="nbgl__fonts_8h.html#ad52bcaf36b3247a1d37d9a1913fddeba">nbgl_getFont</a>(fontId);</div>
-<div class="line"><a id="l01137" name="l01137"></a><span class="lineno"> 1137</span>    uint16_t           textLen        = strlen(origText);</div>
-<div class="line"><a id="l01138" name="l01138"></a><span class="lineno"> 1138</span>    uint16_t           width          = 0;</div>
-<div class="line"><a id="l01139" name="l01139"></a><span class="lineno"> 1139</span>    uint8_t            currentNbLines = 1;</div>
-<div class="line"><a id="l01140" name="l01140"></a><span class="lineno"> 1140</span>    uint32_t           i = 0, j = 0;</div>
-<div class="line"><a id="l01141" name="l01141"></a><span class="lineno"> 1141</span>    <span class="keyword">const</span> uint16_t     halfWidth = (maxWidth - <a class="code hl_function" href="nbgl__fonts_8c.html#abec07ec3c911850ce5f63537c77ee524">nbgl_getTextWidth</a>(fontId, <span class="stringliteral">&quot; ... &quot;</span>)) / 2;</div>
-<div class="line"><a id="l01142" name="l01142"></a><span class="lineno"> 1142</span> </div>
-<div class="line"><a id="l01143" name="l01143"></a><span class="lineno"> 1143</span>    <span class="keywordflow">if</span> ((nbLines &amp; 0x1) == 0) {</div>
-<div class="line"><a id="l01144" name="l01144"></a><span class="lineno"> 1144</span>        <a class="code hl_define" href="nbgl__debug_8h.html#a642c9caa0896b4a1e950fc32341dad92">LOG_FATAL</a>(<a class="code hl_enumvalue" href="nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635ad4fa1132179cb4c7d82614846a005ddf">MISC_LOGGER</a>, <span class="stringliteral">&quot;nbgl_textReduceOnNbLines: the number of line must be odd\n&quot;</span>);</div>
-<div class="line"><a id="l01145" name="l01145"></a><span class="lineno"> 1145</span>        <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l01146" name="l01146"></a><span class="lineno"> 1146</span>    }</div>
-<div class="line"><a id="l01147" name="l01147"></a><span class="lineno"> 1147</span>    <span class="keywordflow">while</span> ((i &lt; textLen) &amp;&amp; (j &lt; reducedTextLen)) {</div>
-<div class="line"><a id="l01148" name="l01148"></a><span class="lineno"> 1148</span>        uint8_t char_width;</div>
-<div class="line"><a id="l01149" name="l01149"></a><span class="lineno"> 1149</span>        <span class="keywordtype">char</span>    curChar;</div>
-<div class="line"><a id="l01150" name="l01150"></a><span class="lineno"> 1150</span> </div>
-<div class="line"><a id="l01151" name="l01151"></a><span class="lineno"> 1151</span>        curChar = origText[i];</div>
+<div class="line"><a id="l01114" name="l01114"></a><span class="lineno"> 1114</span><span class="preprocessor">#endif  </span><span class="comment">// OS_UNIT_TEST</span></div>
+<div class="line"><a id="l01115" name="l01115"></a><span class="lineno"> 1115</span> </div>
+<div class="foldopen" id="foldopen01131" data-start="{" data-end="}">
+<div class="line"><a id="l01131" name="l01131"></a><span class="lineno"><a class="line" href="nbgl__fonts_8h.html#aa4167a32a65f3106c498b4ce894207b8"> 1131</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__fonts_8c.html#aa4167a32a65f3106c498b4ce894207b8">nbgl_textReduceOnNbLines</a>(<a class="code hl_enumeration" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId,</div>
+<div class="line"><a id="l01132" name="l01132"></a><span class="lineno"> 1132</span>                              <span class="keyword">const</span> <span class="keywordtype">char</span>    *origText,</div>
+<div class="line"><a id="l01133" name="l01133"></a><span class="lineno"> 1133</span>                              uint16_t       maxWidth,</div>
+<div class="line"><a id="l01134" name="l01134"></a><span class="lineno"> 1134</span>                              uint8_t        nbLines,</div>
+<div class="line"><a id="l01135" name="l01135"></a><span class="lineno"> 1135</span>                              <span class="keywordtype">char</span>          *reducedText,</div>
+<div class="line"><a id="l01136" name="l01136"></a><span class="lineno"> 1136</span>                              uint16_t       reducedTextLen)</div>
+<div class="line"><a id="l01137" name="l01137"></a><span class="lineno"> 1137</span>{</div>
+<div class="line"><a id="l01138" name="l01138"></a><span class="lineno"> 1138</span>    <span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__font__t.html">nbgl_font_t</a> *font           = <a class="code hl_function" href="nbgl__fonts_8h.html#ad52bcaf36b3247a1d37d9a1913fddeba">nbgl_getFont</a>(fontId);</div>
+<div class="line"><a id="l01139" name="l01139"></a><span class="lineno"> 1139</span>    uint16_t           textLen        = strlen(origText);</div>
+<div class="line"><a id="l01140" name="l01140"></a><span class="lineno"> 1140</span>    uint16_t           width          = 0;</div>
+<div class="line"><a id="l01141" name="l01141"></a><span class="lineno"> 1141</span>    uint8_t            currentNbLines = 1;</div>
+<div class="line"><a id="l01142" name="l01142"></a><span class="lineno"> 1142</span>    uint32_t           i = 0, j = 0;</div>
+<div class="line"><a id="l01143" name="l01143"></a><span class="lineno"> 1143</span>    <span class="keyword">const</span> uint16_t     halfWidth = (maxWidth - <a class="code hl_function" href="nbgl__fonts_8c.html#abec07ec3c911850ce5f63537c77ee524">nbgl_getTextWidth</a>(fontId, <span class="stringliteral">&quot; ... &quot;</span>)) / 2;</div>
+<div class="line"><a id="l01144" name="l01144"></a><span class="lineno"> 1144</span> </div>
+<div class="line"><a id="l01145" name="l01145"></a><span class="lineno"> 1145</span>    <span class="keywordflow">if</span> ((nbLines &amp; 0x1) == 0) {</div>
+<div class="line"><a id="l01146" name="l01146"></a><span class="lineno"> 1146</span>        <a class="code hl_define" href="nbgl__debug_8h.html#a642c9caa0896b4a1e950fc32341dad92">LOG_FATAL</a>(<a class="code hl_enumvalue" href="nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635ad4fa1132179cb4c7d82614846a005ddf">MISC_LOGGER</a>, <span class="stringliteral">&quot;nbgl_textReduceOnNbLines: the number of line must be odd\n&quot;</span>);</div>
+<div class="line"><a id="l01147" name="l01147"></a><span class="lineno"> 1147</span>        <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l01148" name="l01148"></a><span class="lineno"> 1148</span>    }</div>
+<div class="line"><a id="l01149" name="l01149"></a><span class="lineno"> 1149</span>    <span class="keywordflow">while</span> ((i &lt; textLen) &amp;&amp; (j &lt; reducedTextLen)) {</div>
+<div class="line"><a id="l01150" name="l01150"></a><span class="lineno"> 1150</span>        uint8_t char_width;</div>
+<div class="line"><a id="l01151" name="l01151"></a><span class="lineno"> 1151</span>        <span class="keywordtype">char</span>    curChar;</div>
 <div class="line"><a id="l01152" name="l01152"></a><span class="lineno"> 1152</span> </div>
-<div class="line"><a id="l01153" name="l01153"></a><span class="lineno"> 1153</span>        char_width = getCharWidth(font, curChar, <span class="keyword">false</span>);</div>
-<div class="line"><a id="l01154" name="l01154"></a><span class="lineno"> 1154</span>        <span class="keywordflow">if</span> (char_width == 0) {</div>
-<div class="line"><a id="l01155" name="l01155"></a><span class="lineno"> 1155</span>            reducedText[j] = curChar;</div>
-<div class="line"><a id="l01156" name="l01156"></a><span class="lineno"> 1156</span>            j++;</div>
-<div class="line"><a id="l01157" name="l01157"></a><span class="lineno"> 1157</span>            i++;</div>
-<div class="line"><a id="l01158" name="l01158"></a><span class="lineno"> 1158</span>            <span class="keywordflow">continue</span>;</div>
-<div class="line"><a id="l01159" name="l01159"></a><span class="lineno"> 1159</span>        }</div>
-<div class="line"><a id="l01160" name="l01160"></a><span class="lineno"> 1160</span> </div>
-<div class="line"><a id="l01161" name="l01161"></a><span class="lineno"> 1161</span>        <span class="comment">// if the width is about to exceed maxWidth, increment number of lines</span></div>
-<div class="line"><a id="l01162" name="l01162"></a><span class="lineno"> 1162</span>        <span class="keywordflow">if</span> ((width + char_width) &gt; maxWidth) {</div>
-<div class="line"><a id="l01163" name="l01163"></a><span class="lineno"> 1163</span>            currentNbLines++;</div>
-<div class="line"><a id="l01164" name="l01164"></a><span class="lineno"> 1164</span>            <span class="comment">// reset width for next line</span></div>
-<div class="line"><a id="l01165" name="l01165"></a><span class="lineno"> 1165</span>            width = 0;</div>
-<div class="line"><a id="l01166" name="l01166"></a><span class="lineno"> 1166</span>            <span class="keywordflow">continue</span>;</div>
-<div class="line"><a id="l01167" name="l01167"></a><span class="lineno"> 1167</span>        }</div>
-<div class="line"><a id="l01168" name="l01168"></a><span class="lineno"> 1168</span>        <span class="keywordflow">else</span> <span class="keywordflow">if</span> ((currentNbLines == ((nbLines / 2) + 1)) &amp;&amp; ((width + char_width) &gt; halfWidth)) {</div>
-<div class="line"><a id="l01169" name="l01169"></a><span class="lineno"> 1169</span>            uint32_t halfFullWidth = (nbLines / 2) * maxWidth + halfWidth;</div>
-<div class="line"><a id="l01170" name="l01170"></a><span class="lineno"> 1170</span>            uint32_t countDown     = textLen;</div>
-<div class="line"><a id="l01171" name="l01171"></a><span class="lineno"> 1171</span>            <span class="comment">// if this if the central line, we have to insert the &#39;...&#39; in the middle of it</span></div>
-<div class="line"><a id="l01172" name="l01172"></a><span class="lineno"> 1172</span>            reducedText[j - 1] = <span class="charliteral">&#39;.&#39;</span>;</div>
-<div class="line"><a id="l01173" name="l01173"></a><span class="lineno"> 1173</span>            reducedText[j]     = <span class="charliteral">&#39;.&#39;</span>;</div>
-<div class="line"><a id="l01174" name="l01174"></a><span class="lineno"> 1174</span>            reducedText[j + 1] = <span class="charliteral">&#39;.&#39;</span>;</div>
-<div class="line"><a id="l01175" name="l01175"></a><span class="lineno"> 1175</span>            <span class="comment">// then start from the end</span></div>
-<div class="line"><a id="l01176" name="l01176"></a><span class="lineno"> 1176</span>            width = 0;</div>
-<div class="line"><a id="l01177" name="l01177"></a><span class="lineno"> 1177</span>            <span class="keywordflow">while</span> (width &lt; halfFullWidth) {</div>
-<div class="line"><a id="l01178" name="l01178"></a><span class="lineno"> 1178</span>                countDown--;</div>
-<div class="line"><a id="l01179" name="l01179"></a><span class="lineno"> 1179</span>                curChar    = origText[countDown];</div>
-<div class="line"><a id="l01180" name="l01180"></a><span class="lineno"> 1180</span>                char_width = getCharWidth(font, curChar, <span class="keyword">false</span>);</div>
-<div class="line"><a id="l01181" name="l01181"></a><span class="lineno"> 1181</span>                width += char_width;</div>
-<div class="line"><a id="l01182" name="l01182"></a><span class="lineno"> 1182</span>            }</div>
-<div class="line"><a id="l01183" name="l01183"></a><span class="lineno"> 1183</span>            memcpy(&amp;reducedText[j + 2], &amp;origText[countDown + 1], textLen - countDown + 1);</div>
-<div class="line"><a id="l01184" name="l01184"></a><span class="lineno"> 1184</span>            <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l01185" name="l01185"></a><span class="lineno"> 1185</span>        }</div>
-<div class="line"><a id="l01186" name="l01186"></a><span class="lineno"> 1186</span>        <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l01187" name="l01187"></a><span class="lineno"> 1187</span>            reducedText[j] = curChar;</div>
-<div class="line"><a id="l01188" name="l01188"></a><span class="lineno"> 1188</span>            j++;</div>
-<div class="line"><a id="l01189" name="l01189"></a><span class="lineno"> 1189</span>            i++;</div>
-<div class="line"><a id="l01190" name="l01190"></a><span class="lineno"> 1190</span>        }</div>
-<div class="line"><a id="l01191" name="l01191"></a><span class="lineno"> 1191</span>        width += char_width;</div>
-<div class="line"><a id="l01192" name="l01192"></a><span class="lineno"> 1192</span>    }</div>
-<div class="line"><a id="l01193" name="l01193"></a><span class="lineno"> 1193</span>    reducedText[j] = <span class="charliteral">&#39;\0&#39;</span>;</div>
-<div class="line"><a id="l01194" name="l01194"></a><span class="lineno"> 1194</span>}</div>
+<div class="line"><a id="l01153" name="l01153"></a><span class="lineno"> 1153</span>        curChar = origText[i];</div>
+<div class="line"><a id="l01154" name="l01154"></a><span class="lineno"> 1154</span> </div>
+<div class="line"><a id="l01155" name="l01155"></a><span class="lineno"> 1155</span>        char_width = getCharWidth(font, curChar, <span class="keyword">false</span>);</div>
+<div class="line"><a id="l01156" name="l01156"></a><span class="lineno"> 1156</span>        <span class="keywordflow">if</span> (char_width == 0) {</div>
+<div class="line"><a id="l01157" name="l01157"></a><span class="lineno"> 1157</span>            reducedText[j] = curChar;</div>
+<div class="line"><a id="l01158" name="l01158"></a><span class="lineno"> 1158</span>            j++;</div>
+<div class="line"><a id="l01159" name="l01159"></a><span class="lineno"> 1159</span>            i++;</div>
+<div class="line"><a id="l01160" name="l01160"></a><span class="lineno"> 1160</span>            <span class="keywordflow">continue</span>;</div>
+<div class="line"><a id="l01161" name="l01161"></a><span class="lineno"> 1161</span>        }</div>
+<div class="line"><a id="l01162" name="l01162"></a><span class="lineno"> 1162</span> </div>
+<div class="line"><a id="l01163" name="l01163"></a><span class="lineno"> 1163</span>        <span class="comment">// if the width is about to exceed maxWidth, increment number of lines</span></div>
+<div class="line"><a id="l01164" name="l01164"></a><span class="lineno"> 1164</span>        <span class="keywordflow">if</span> ((width + char_width) &gt; maxWidth) {</div>
+<div class="line"><a id="l01165" name="l01165"></a><span class="lineno"> 1165</span>            currentNbLines++;</div>
+<div class="line"><a id="l01166" name="l01166"></a><span class="lineno"> 1166</span>            <span class="comment">// reset width for next line</span></div>
+<div class="line"><a id="l01167" name="l01167"></a><span class="lineno"> 1167</span>            width = 0;</div>
+<div class="line"><a id="l01168" name="l01168"></a><span class="lineno"> 1168</span>            <span class="keywordflow">continue</span>;</div>
+<div class="line"><a id="l01169" name="l01169"></a><span class="lineno"> 1169</span>        }</div>
+<div class="line"><a id="l01170" name="l01170"></a><span class="lineno"> 1170</span>        <span class="keywordflow">else</span> <span class="keywordflow">if</span> ((currentNbLines == ((nbLines / 2) + 1)) &amp;&amp; ((width + char_width) &gt; halfWidth)) {</div>
+<div class="line"><a id="l01171" name="l01171"></a><span class="lineno"> 1171</span>            uint32_t halfFullWidth = (nbLines / 2) * maxWidth + halfWidth;</div>
+<div class="line"><a id="l01172" name="l01172"></a><span class="lineno"> 1172</span>            uint32_t countDown     = textLen;</div>
+<div class="line"><a id="l01173" name="l01173"></a><span class="lineno"> 1173</span>            <span class="comment">// if this if the central line, we have to insert the &#39;...&#39; in the middle of it</span></div>
+<div class="line"><a id="l01174" name="l01174"></a><span class="lineno"> 1174</span>            reducedText[j - 1] = <span class="charliteral">&#39;.&#39;</span>;</div>
+<div class="line"><a id="l01175" name="l01175"></a><span class="lineno"> 1175</span>            reducedText[j]     = <span class="charliteral">&#39;.&#39;</span>;</div>
+<div class="line"><a id="l01176" name="l01176"></a><span class="lineno"> 1176</span>            reducedText[j + 1] = <span class="charliteral">&#39;.&#39;</span>;</div>
+<div class="line"><a id="l01177" name="l01177"></a><span class="lineno"> 1177</span>            <span class="comment">// then start from the end</span></div>
+<div class="line"><a id="l01178" name="l01178"></a><span class="lineno"> 1178</span>            width = 0;</div>
+<div class="line"><a id="l01179" name="l01179"></a><span class="lineno"> 1179</span>            <span class="keywordflow">while</span> (width &lt; halfFullWidth) {</div>
+<div class="line"><a id="l01180" name="l01180"></a><span class="lineno"> 1180</span>                countDown--;</div>
+<div class="line"><a id="l01181" name="l01181"></a><span class="lineno"> 1181</span>                curChar    = origText[countDown];</div>
+<div class="line"><a id="l01182" name="l01182"></a><span class="lineno"> 1182</span>                char_width = getCharWidth(font, curChar, <span class="keyword">false</span>);</div>
+<div class="line"><a id="l01183" name="l01183"></a><span class="lineno"> 1183</span>                width += char_width;</div>
+<div class="line"><a id="l01184" name="l01184"></a><span class="lineno"> 1184</span>            }</div>
+<div class="line"><a id="l01185" name="l01185"></a><span class="lineno"> 1185</span>            memcpy(&amp;reducedText[j + 2], &amp;origText[countDown + 1], textLen - countDown + 1);</div>
+<div class="line"><a id="l01186" name="l01186"></a><span class="lineno"> 1186</span>            <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l01187" name="l01187"></a><span class="lineno"> 1187</span>        }</div>
+<div class="line"><a id="l01188" name="l01188"></a><span class="lineno"> 1188</span>        <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l01189" name="l01189"></a><span class="lineno"> 1189</span>            reducedText[j] = curChar;</div>
+<div class="line"><a id="l01190" name="l01190"></a><span class="lineno"> 1190</span>            j++;</div>
+<div class="line"><a id="l01191" name="l01191"></a><span class="lineno"> 1191</span>            i++;</div>
+<div class="line"><a id="l01192" name="l01192"></a><span class="lineno"> 1192</span>        }</div>
+<div class="line"><a id="l01193" name="l01193"></a><span class="lineno"> 1193</span>        width += char_width;</div>
+<div class="line"><a id="l01194" name="l01194"></a><span class="lineno"> 1194</span>    }</div>
+<div class="line"><a id="l01195" name="l01195"></a><span class="lineno"> 1195</span>    reducedText[j] = <span class="charliteral">&#39;\0&#39;</span>;</div>
+<div class="line"><a id="l01196" name="l01196"></a><span class="lineno"> 1196</span>}</div>
 </div>
-<div class="line"><a id="l01195" name="l01195"></a><span class="lineno"> 1195</span> </div>
-<div class="foldopen" id="foldopen01203" data-start="{" data-end="}">
-<div class="line"><a id="l01203" name="l01203"></a><span class="lineno"><a class="line" href="nbgl__fonts_8h.html#a4c3cd5fb63b2ff1e5d0849fde09a7406"> 1203</a></span><a class="code hl_struct" href="structnbgl__unicode__ctx__s.html">nbgl_unicode_ctx_t</a> *<a class="code hl_function" href="nbgl__fonts_8c.html#a6e816ab2f6b603fee884bd51aea02d0b">nbgl_getUnicodeFont</a>(<a class="code hl_enumeration" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId)</div>
-<div class="line"><a id="l01204" name="l01204"></a><span class="lineno"> 1204</span>{</div>
-<div class="line"><a id="l01205" name="l01205"></a><span class="lineno"> 1205</span>    <span class="comment">// if in Apps, do not support unicode</span></div>
-<div class="line"><a id="l01206" name="l01206"></a><span class="lineno"> 1206</span>    <span class="keywordflow">if</span> (os_sched_current_task() != TASK_BOLOS_UX) {</div>
-<div class="line"><a id="l01207" name="l01207"></a><span class="lineno"> 1207</span>        <span class="keywordflow">return</span> NULL;</div>
-<div class="line"><a id="l01208" name="l01208"></a><span class="lineno"> 1208</span>    }</div>
-<div class="line"><a id="l01209" name="l01209"></a><span class="lineno"> 1209</span>    <span class="keywordflow">if</span> ((unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#adb148df3d06ac070cd4794fd0979d272">font</a> != NULL) &amp;&amp; (unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#adb148df3d06ac070cd4794fd0979d272">font</a>-&gt;<a class="code hl_variable" href="structnbgl__font__unicode__t.html#abb1114526767cdac0294bcc22e8d35d3">font_id</a> == fontId)) {</div>
-<div class="line"><a id="l01210" name="l01210"></a><span class="lineno"> 1210</span>        <span class="keywordflow">return</span> &amp;unicodeCtx;</div>
-<div class="line"><a id="l01211" name="l01211"></a><span class="lineno"> 1211</span>    }</div>
-<div class="line"><a id="l01212" name="l01212"></a><span class="lineno"> 1212</span>    <span class="comment">// Be sure we need to change font</span></div>
-<div class="line"><a id="l01213" name="l01213"></a><span class="lineno"> 1213</span>    <span class="keyword">const</span> uint8_t             *ptr  = (<span class="keyword">const</span> uint8_t *) language_pack;</div>
-<div class="line"><a id="l01214" name="l01214"></a><span class="lineno"> 1214</span>    <span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__font__unicode__t.html">nbgl_font_unicode_t</a> *font = (<span class="keyword">const</span> <span class="keywordtype">void</span> *) (ptr + language_pack-&gt;fonts_offset);</div>
-<div class="line"><a id="l01215" name="l01215"></a><span class="lineno"> 1215</span>    unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#ac909c1774e6ca3eba6febea2d552cbfe">characters</a></div>
-<div class="line"><a id="l01216" name="l01216"></a><span class="lineno"> 1216</span>        = (<span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__font__unicode__character__t.html">nbgl_font_unicode_character_t</a> *) (ptr + language_pack-&gt;characters_offset);</div>
-<div class="line"><a id="l01217" name="l01217"></a><span class="lineno"> 1217</span>    unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#afa3df7b1331e3d1f41bcbf3dc224d3c3">bitmap</a> = (<span class="keyword">const</span> uint8_t *) (ptr + language_pack-&gt;bitmaps_offset);</div>
-<div class="line"><a id="l01218" name="l01218"></a><span class="lineno"> 1218</span> </div>
-<div class="line"><a id="l01219" name="l01219"></a><span class="lineno"> 1219</span>    <span class="keywordflow">for</span> (uint32_t i = 0; i &lt; language_pack-&gt;nb_fonts; i++) {</div>
-<div class="line"><a id="l01220" name="l01220"></a><span class="lineno"> 1220</span>        <span class="keywordflow">if</span> (font-&gt;<a class="code hl_variable" href="structnbgl__font__unicode__t.html#abb1114526767cdac0294bcc22e8d35d3">font_id</a> == fontId) {</div>
-<div class="line"><a id="l01221" name="l01221"></a><span class="lineno"> 1221</span>            <span class="comment">// Update all other global variables</span></div>
-<div class="line"><a id="l01222" name="l01222"></a><span class="lineno"> 1222</span>            unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#adb148df3d06ac070cd4794fd0979d272">font</a> = font;</div>
-<div class="line"><a id="l01223" name="l01223"></a><span class="lineno"> 1223</span>            <span class="keywordflow">return</span> &amp;unicodeCtx;</div>
-<div class="line"><a id="l01224" name="l01224"></a><span class="lineno"> 1224</span>        }</div>
-<div class="line"><a id="l01225" name="l01225"></a><span class="lineno"> 1225</span>        <span class="comment">// Compute next Bitmap offset</span></div>
-<div class="line"><a id="l01226" name="l01226"></a><span class="lineno"> 1226</span>        unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#afa3df7b1331e3d1f41bcbf3dc224d3c3">bitmap</a> += font-&gt;<a class="code hl_variable" href="structnbgl__font__unicode__t.html#a81b8741acf6212c779ec715f5089dbb7">bitmap_len</a>;</div>
-<div class="line"><a id="l01227" name="l01227"></a><span class="lineno"> 1227</span> </div>
-<div class="line"><a id="l01228" name="l01228"></a><span class="lineno"> 1228</span>        <span class="comment">// Update all pointers for next font</span></div>
-<div class="line"><a id="l01229" name="l01229"></a><span class="lineno"> 1229</span>        unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#ac909c1774e6ca3eba6febea2d552cbfe">characters</a> += language_pack-&gt;nb_characters;</div>
-<div class="line"><a id="l01230" name="l01230"></a><span class="lineno"> 1230</span>        font++;</div>
-<div class="line"><a id="l01231" name="l01231"></a><span class="lineno"> 1231</span>    }</div>
-<div class="line"><a id="l01232" name="l01232"></a><span class="lineno"> 1232</span>    <span class="comment">// id not found</span></div>
-<div class="line"><a id="l01233" name="l01233"></a><span class="lineno"> 1233</span>    <span class="keywordflow">return</span> NULL;</div>
-<div class="line"><a id="l01234" name="l01234"></a><span class="lineno"> 1234</span>}</div>
+<div class="line"><a id="l01197" name="l01197"></a><span class="lineno"> 1197</span> </div>
+<div class="foldopen" id="foldopen01205" data-start="{" data-end="}">
+<div class="line"><a id="l01205" name="l01205"></a><span class="lineno"><a class="line" href="nbgl__fonts_8h.html#a4c3cd5fb63b2ff1e5d0849fde09a7406"> 1205</a></span><a class="code hl_struct" href="structnbgl__unicode__ctx__s.html">nbgl_unicode_ctx_t</a> *<a class="code hl_function" href="nbgl__fonts_8c.html#a6e816ab2f6b603fee884bd51aea02d0b">nbgl_getUnicodeFont</a>(<a class="code hl_enumeration" href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a> fontId)</div>
+<div class="line"><a id="l01206" name="l01206"></a><span class="lineno"> 1206</span>{</div>
+<div class="line"><a id="l01207" name="l01207"></a><span class="lineno"> 1207</span>    <span class="comment">// if in Apps, do not support unicode</span></div>
+<div class="line"><a id="l01208" name="l01208"></a><span class="lineno"> 1208</span>    <span class="keywordflow">if</span> (os_sched_current_task() != TASK_BOLOS_UX) {</div>
+<div class="line"><a id="l01209" name="l01209"></a><span class="lineno"> 1209</span>        <span class="keywordflow">return</span> NULL;</div>
+<div class="line"><a id="l01210" name="l01210"></a><span class="lineno"> 1210</span>    }</div>
+<div class="line"><a id="l01211" name="l01211"></a><span class="lineno"> 1211</span>    <span class="keywordflow">if</span> ((unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#adb148df3d06ac070cd4794fd0979d272">font</a> != NULL) &amp;&amp; (unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#adb148df3d06ac070cd4794fd0979d272">font</a>-&gt;<a class="code hl_variable" href="structnbgl__font__unicode__t.html#abb1114526767cdac0294bcc22e8d35d3">font_id</a> == fontId)) {</div>
+<div class="line"><a id="l01212" name="l01212"></a><span class="lineno"> 1212</span>        <span class="keywordflow">return</span> &amp;unicodeCtx;</div>
+<div class="line"><a id="l01213" name="l01213"></a><span class="lineno"> 1213</span>    }</div>
+<div class="line"><a id="l01214" name="l01214"></a><span class="lineno"> 1214</span>    <span class="comment">// Be sure we need to change font</span></div>
+<div class="line"><a id="l01215" name="l01215"></a><span class="lineno"> 1215</span>    <span class="keyword">const</span> uint8_t             *ptr  = (<span class="keyword">const</span> uint8_t *) language_pack;</div>
+<div class="line"><a id="l01216" name="l01216"></a><span class="lineno"> 1216</span>    <span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__font__unicode__t.html">nbgl_font_unicode_t</a> *font = (<span class="keyword">const</span> <span class="keywordtype">void</span> *) (ptr + language_pack-&gt;fonts_offset);</div>
+<div class="line"><a id="l01217" name="l01217"></a><span class="lineno"> 1217</span>    unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#ac909c1774e6ca3eba6febea2d552cbfe">characters</a></div>
+<div class="line"><a id="l01218" name="l01218"></a><span class="lineno"> 1218</span>        = (<span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__font__unicode__character__t.html">nbgl_font_unicode_character_t</a> *) (ptr + language_pack-&gt;characters_offset);</div>
+<div class="line"><a id="l01219" name="l01219"></a><span class="lineno"> 1219</span>    unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#afa3df7b1331e3d1f41bcbf3dc224d3c3">bitmap</a> = (<span class="keyword">const</span> uint8_t *) (ptr + language_pack-&gt;bitmaps_offset);</div>
+<div class="line"><a id="l01220" name="l01220"></a><span class="lineno"> 1220</span> </div>
+<div class="line"><a id="l01221" name="l01221"></a><span class="lineno"> 1221</span>    <span class="keywordflow">for</span> (uint32_t i = 0; i &lt; language_pack-&gt;nb_fonts; i++) {</div>
+<div class="line"><a id="l01222" name="l01222"></a><span class="lineno"> 1222</span>        <span class="keywordflow">if</span> (font-&gt;<a class="code hl_variable" href="structnbgl__font__unicode__t.html#abb1114526767cdac0294bcc22e8d35d3">font_id</a> == fontId) {</div>
+<div class="line"><a id="l01223" name="l01223"></a><span class="lineno"> 1223</span>            <span class="comment">// Update all other global variables</span></div>
+<div class="line"><a id="l01224" name="l01224"></a><span class="lineno"> 1224</span>            unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#adb148df3d06ac070cd4794fd0979d272">font</a> = font;</div>
+<div class="line"><a id="l01225" name="l01225"></a><span class="lineno"> 1225</span>            <span class="keywordflow">return</span> &amp;unicodeCtx;</div>
+<div class="line"><a id="l01226" name="l01226"></a><span class="lineno"> 1226</span>        }</div>
+<div class="line"><a id="l01227" name="l01227"></a><span class="lineno"> 1227</span>        <span class="comment">// Compute next Bitmap offset</span></div>
+<div class="line"><a id="l01228" name="l01228"></a><span class="lineno"> 1228</span>        unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#afa3df7b1331e3d1f41bcbf3dc224d3c3">bitmap</a> += font-&gt;<a class="code hl_variable" href="structnbgl__font__unicode__t.html#a81b8741acf6212c779ec715f5089dbb7">bitmap_len</a>;</div>
+<div class="line"><a id="l01229" name="l01229"></a><span class="lineno"> 1229</span> </div>
+<div class="line"><a id="l01230" name="l01230"></a><span class="lineno"> 1230</span>        <span class="comment">// Update all pointers for next font</span></div>
+<div class="line"><a id="l01231" name="l01231"></a><span class="lineno"> 1231</span>        unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#ac909c1774e6ca3eba6febea2d552cbfe">characters</a> += language_pack-&gt;nb_characters;</div>
+<div class="line"><a id="l01232" name="l01232"></a><span class="lineno"> 1232</span>        font++;</div>
+<div class="line"><a id="l01233" name="l01233"></a><span class="lineno"> 1233</span>    }</div>
+<div class="line"><a id="l01234" name="l01234"></a><span class="lineno"> 1234</span>    <span class="comment">// id not found</span></div>
+<div class="line"><a id="l01235" name="l01235"></a><span class="lineno"> 1235</span>    <span class="keywordflow">return</span> NULL;</div>
+<div class="line"><a id="l01236" name="l01236"></a><span class="lineno"> 1236</span>}</div>
 </div>
-<div class="line"><a id="l01235" name="l01235"></a><span class="lineno"> 1235</span> </div>
-<div class="foldopen" id="foldopen01245" data-start="{" data-end="}">
-<div class="line"><a id="l01245" name="l01245"></a><span class="lineno"><a class="line" href="nbgl__fonts_8h.html#a501cb59b4ec95083317e7f36fcb1faf0"> 1245</a></span><span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__font__unicode__character__t.html">nbgl_font_unicode_character_t</a> *<a class="code hl_function" href="nbgl__fonts_8c.html#a501cb59b4ec95083317e7f36fcb1faf0">nbgl_getUnicodeFontCharacter</a>(uint32_t unicode)</div>
-<div class="line"><a id="l01246" name="l01246"></a><span class="lineno"> 1246</span>{</div>
-<div class="line"><a id="l01247" name="l01247"></a><span class="lineno"> 1247</span>    <span class="comment">// if in Apps, do not support unicode</span></div>
-<div class="line"><a id="l01248" name="l01248"></a><span class="lineno"> 1248</span>    <span class="keywordflow">if</span> (os_sched_current_task() != TASK_BOLOS_UX) {</div>
-<div class="line"><a id="l01249" name="l01249"></a><span class="lineno"> 1249</span>        <span class="keywordflow">return</span> NULL;</div>
-<div class="line"><a id="l01250" name="l01250"></a><span class="lineno"> 1250</span>    }</div>
-<div class="line"><a id="l01251" name="l01251"></a><span class="lineno"> 1251</span>    <span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__font__unicode__character__t.html">nbgl_font_unicode_character_t</a> *characters</div>
-<div class="line"><a id="l01252" name="l01252"></a><span class="lineno"> 1252</span>        = (<span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__font__unicode__character__t.html">nbgl_font_unicode_character_t</a> *) PIC(unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#ac909c1774e6ca3eba6febea2d552cbfe">characters</a>);</div>
-<div class="line"><a id="l01253" name="l01253"></a><span class="lineno"> 1253</span>    uint32_t n = language_pack-&gt;nb_characters;</div>
-<div class="line"><a id="l01254" name="l01254"></a><span class="lineno"> 1254</span>    <span class="keywordflow">if</span> (characters == NULL) {</div>
-<div class="line"><a id="l01255" name="l01255"></a><span class="lineno"> 1255</span>        <span class="keywordflow">return</span> NULL;</div>
-<div class="line"><a id="l01256" name="l01256"></a><span class="lineno"> 1256</span>    }</div>
-<div class="line"><a id="l01257" name="l01257"></a><span class="lineno"> 1257</span>    <span class="comment">// For the moment, let just parse the full array, but at the end let use</span></div>
-<div class="line"><a id="l01258" name="l01258"></a><span class="lineno"> 1258</span>    <span class="comment">// binary search as data are sorted by unicode value !</span></div>
-<div class="line"><a id="l01259" name="l01259"></a><span class="lineno"> 1259</span>    <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> i = 0; i &lt; n - 1; i++, characters++) {</div>
-<div class="line"><a id="l01260" name="l01260"></a><span class="lineno"> 1260</span>        <span class="keywordflow">if</span> (characters-&gt;<a class="code hl_variable" href="structnbgl__font__unicode__character__t.html#a25e4a8a0ec7c7a42cdfe183d60c5bb11">char_unicode</a> == unicode) {</div>
-<div class="line"><a id="l01261" name="l01261"></a><span class="lineno"> 1261</span>            <span class="comment">// Compute &amp; store the number of bytes used to display this character</span></div>
-<div class="line"><a id="l01262" name="l01262"></a><span class="lineno"> 1262</span>            unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#ae909e895ade4bfc141d6dbabf25b3d66">unicode_character_byte_count</a></div>
-<div class="line"><a id="l01263" name="l01263"></a><span class="lineno"> 1263</span>                = (characters + 1)-&gt;bitmap_offset - characters-&gt;<a class="code hl_variable" href="structnbgl__font__unicode__character__t.html#a8eff739919307c11ad14f9dd68ec3cc7">bitmap_offset</a>;</div>
-<div class="line"><a id="l01264" name="l01264"></a><span class="lineno"> 1264</span>            <span class="keywordflow">return</span> characters;</div>
-<div class="line"><a id="l01265" name="l01265"></a><span class="lineno"> 1265</span>        }</div>
-<div class="line"><a id="l01266" name="l01266"></a><span class="lineno"> 1266</span>    }</div>
-<div class="line"><a id="l01267" name="l01267"></a><span class="lineno"> 1267</span>    <span class="comment">// By default, let&#39;s use the last Unicode character, which should be the</span></div>
-<div class="line"><a id="l01268" name="l01268"></a><span class="lineno"> 1268</span>    <span class="comment">// 0x00FFFD one, used to replace unrecognized or unrepresentable character.</span></div>
-<div class="line"><a id="l01269" name="l01269"></a><span class="lineno"> 1269</span> </div>
-<div class="line"><a id="l01270" name="l01270"></a><span class="lineno"> 1270</span>    <span class="comment">// Compute &amp; store the number of bytes used to display this character</span></div>
-<div class="line"><a id="l01271" name="l01271"></a><span class="lineno"> 1271</span>    unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#ae909e895ade4bfc141d6dbabf25b3d66">unicode_character_byte_count</a></div>
-<div class="line"><a id="l01272" name="l01272"></a><span class="lineno"> 1272</span>        = unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#adb148df3d06ac070cd4794fd0979d272">font</a>-&gt;<a class="code hl_variable" href="structnbgl__font__unicode__t.html#a81b8741acf6212c779ec715f5089dbb7">bitmap_len</a> - characters-&gt;<a class="code hl_variable" href="structnbgl__font__unicode__character__t.html#a8eff739919307c11ad14f9dd68ec3cc7">bitmap_offset</a>;</div>
-<div class="line"><a id="l01273" name="l01273"></a><span class="lineno"> 1273</span>    <span class="keywordflow">return</span> characters;</div>
-<div class="line"><a id="l01274" name="l01274"></a><span class="lineno"> 1274</span>}</div>
+<div class="line"><a id="l01237" name="l01237"></a><span class="lineno"> 1237</span> </div>
+<div class="foldopen" id="foldopen01247" data-start="{" data-end="}">
+<div class="line"><a id="l01247" name="l01247"></a><span class="lineno"><a class="line" href="nbgl__fonts_8h.html#a501cb59b4ec95083317e7f36fcb1faf0"> 1247</a></span><span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__font__unicode__character__t.html">nbgl_font_unicode_character_t</a> *<a class="code hl_function" href="nbgl__fonts_8c.html#a501cb59b4ec95083317e7f36fcb1faf0">nbgl_getUnicodeFontCharacter</a>(uint32_t unicode)</div>
+<div class="line"><a id="l01248" name="l01248"></a><span class="lineno"> 1248</span>{</div>
+<div class="line"><a id="l01249" name="l01249"></a><span class="lineno"> 1249</span>    <span class="comment">// if in Apps, do not support unicode</span></div>
+<div class="line"><a id="l01250" name="l01250"></a><span class="lineno"> 1250</span>    <span class="keywordflow">if</span> (os_sched_current_task() != TASK_BOLOS_UX) {</div>
+<div class="line"><a id="l01251" name="l01251"></a><span class="lineno"> 1251</span>        <span class="keywordflow">return</span> NULL;</div>
+<div class="line"><a id="l01252" name="l01252"></a><span class="lineno"> 1252</span>    }</div>
+<div class="line"><a id="l01253" name="l01253"></a><span class="lineno"> 1253</span>    <span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__font__unicode__character__t.html">nbgl_font_unicode_character_t</a> *characters</div>
+<div class="line"><a id="l01254" name="l01254"></a><span class="lineno"> 1254</span>        = (<span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__font__unicode__character__t.html">nbgl_font_unicode_character_t</a> *) PIC(unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#ac909c1774e6ca3eba6febea2d552cbfe">characters</a>);</div>
+<div class="line"><a id="l01255" name="l01255"></a><span class="lineno"> 1255</span>    uint32_t n = language_pack-&gt;nb_characters;</div>
+<div class="line"><a id="l01256" name="l01256"></a><span class="lineno"> 1256</span>    <span class="keywordflow">if</span> (characters == NULL) {</div>
+<div class="line"><a id="l01257" name="l01257"></a><span class="lineno"> 1257</span>        <span class="keywordflow">return</span> NULL;</div>
+<div class="line"><a id="l01258" name="l01258"></a><span class="lineno"> 1258</span>    }</div>
+<div class="line"><a id="l01259" name="l01259"></a><span class="lineno"> 1259</span>    <span class="comment">// For the moment, let just parse the full array, but at the end let use</span></div>
+<div class="line"><a id="l01260" name="l01260"></a><span class="lineno"> 1260</span>    <span class="comment">// binary search as data are sorted by unicode value !</span></div>
+<div class="line"><a id="l01261" name="l01261"></a><span class="lineno"> 1261</span>    <span class="keywordflow">for</span> (<span class="keywordtype">unsigned</span> i = 0; i &lt; n - 1; i++, characters++) {</div>
+<div class="line"><a id="l01262" name="l01262"></a><span class="lineno"> 1262</span>        <span class="keywordflow">if</span> (characters-&gt;<a class="code hl_variable" href="structnbgl__font__unicode__character__t.html#a25e4a8a0ec7c7a42cdfe183d60c5bb11">char_unicode</a> == unicode) {</div>
+<div class="line"><a id="l01263" name="l01263"></a><span class="lineno"> 1263</span>            <span class="comment">// Compute &amp; store the number of bytes used to display this character</span></div>
+<div class="line"><a id="l01264" name="l01264"></a><span class="lineno"> 1264</span>            unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#ae909e895ade4bfc141d6dbabf25b3d66">unicode_character_byte_count</a></div>
+<div class="line"><a id="l01265" name="l01265"></a><span class="lineno"> 1265</span>                = (characters + 1)-&gt;bitmap_offset - characters-&gt;<a class="code hl_variable" href="structnbgl__font__unicode__character__t.html#a8eff739919307c11ad14f9dd68ec3cc7">bitmap_offset</a>;</div>
+<div class="line"><a id="l01266" name="l01266"></a><span class="lineno"> 1266</span>            <span class="keywordflow">return</span> characters;</div>
+<div class="line"><a id="l01267" name="l01267"></a><span class="lineno"> 1267</span>        }</div>
+<div class="line"><a id="l01268" name="l01268"></a><span class="lineno"> 1268</span>    }</div>
+<div class="line"><a id="l01269" name="l01269"></a><span class="lineno"> 1269</span>    <span class="comment">// By default, let&#39;s use the last Unicode character, which should be the</span></div>
+<div class="line"><a id="l01270" name="l01270"></a><span class="lineno"> 1270</span>    <span class="comment">// 0x00FFFD one, used to replace unrecognized or unrepresentable character.</span></div>
+<div class="line"><a id="l01271" name="l01271"></a><span class="lineno"> 1271</span> </div>
+<div class="line"><a id="l01272" name="l01272"></a><span class="lineno"> 1272</span>    <span class="comment">// Compute &amp; store the number of bytes used to display this character</span></div>
+<div class="line"><a id="l01273" name="l01273"></a><span class="lineno"> 1273</span>    unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#ae909e895ade4bfc141d6dbabf25b3d66">unicode_character_byte_count</a></div>
+<div class="line"><a id="l01274" name="l01274"></a><span class="lineno"> 1274</span>        = unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#adb148df3d06ac070cd4794fd0979d272">font</a>-&gt;<a class="code hl_variable" href="structnbgl__font__unicode__t.html#a81b8741acf6212c779ec715f5089dbb7">bitmap_len</a> - characters-&gt;<a class="code hl_variable" href="structnbgl__font__unicode__character__t.html#a8eff739919307c11ad14f9dd68ec3cc7">bitmap_offset</a>;</div>
+<div class="line"><a id="l01275" name="l01275"></a><span class="lineno"> 1275</span>    <span class="keywordflow">return</span> characters;</div>
+<div class="line"><a id="l01276" name="l01276"></a><span class="lineno"> 1276</span>}</div>
 </div>
-<div class="line"><a id="l01275" name="l01275"></a><span class="lineno"> 1275</span> </div>
-<div class="foldopen" id="foldopen01282" data-start="{" data-end="}">
-<div class="line"><a id="l01282" name="l01282"></a><span class="lineno"><a class="line" href="nbgl__fonts_8h.html#aee89b2fff962e09b7ea4825619f5c62b"> 1282</a></span>uint32_t <a class="code hl_function" href="nbgl__fonts_8c.html#aee89b2fff962e09b7ea4825619f5c62b">nbgl_getUnicodeFontCharacterByteCount</a>(<span class="keywordtype">void</span>)</div>
-<div class="line"><a id="l01283" name="l01283"></a><span class="lineno"> 1283</span>{</div>
-<div class="line"><a id="l01284" name="l01284"></a><span class="lineno"> 1284</span>    <span class="comment">// if in Apps, do not support unicode</span></div>
-<div class="line"><a id="l01285" name="l01285"></a><span class="lineno"> 1285</span>    <span class="keywordflow">if</span> (os_sched_current_task() != TASK_BOLOS_UX) {</div>
-<div class="line"><a id="l01286" name="l01286"></a><span class="lineno"> 1286</span>        <span class="keywordflow">return</span> 0;</div>
-<div class="line"><a id="l01287" name="l01287"></a><span class="lineno"> 1287</span>    }</div>
-<div class="line"><a id="l01288" name="l01288"></a><span class="lineno"> 1288</span>    <span class="keywordflow">return</span> unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#ae909e895ade4bfc141d6dbabf25b3d66">unicode_character_byte_count</a>;</div>
-<div class="line"><a id="l01289" name="l01289"></a><span class="lineno"> 1289</span>}</div>
+<div class="line"><a id="l01277" name="l01277"></a><span class="lineno"> 1277</span> </div>
+<div class="foldopen" id="foldopen01284" data-start="{" data-end="}">
+<div class="line"><a id="l01284" name="l01284"></a><span class="lineno"><a class="line" href="nbgl__fonts_8h.html#aee89b2fff962e09b7ea4825619f5c62b"> 1284</a></span>uint32_t <a class="code hl_function" href="nbgl__fonts_8c.html#aee89b2fff962e09b7ea4825619f5c62b">nbgl_getUnicodeFontCharacterByteCount</a>(<span class="keywordtype">void</span>)</div>
+<div class="line"><a id="l01285" name="l01285"></a><span class="lineno"> 1285</span>{</div>
+<div class="line"><a id="l01286" name="l01286"></a><span class="lineno"> 1286</span>    <span class="comment">// if in Apps, do not support unicode</span></div>
+<div class="line"><a id="l01287" name="l01287"></a><span class="lineno"> 1287</span>    <span class="keywordflow">if</span> (os_sched_current_task() != TASK_BOLOS_UX) {</div>
+<div class="line"><a id="l01288" name="l01288"></a><span class="lineno"> 1288</span>        <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a id="l01289" name="l01289"></a><span class="lineno"> 1289</span>    }</div>
+<div class="line"><a id="l01290" name="l01290"></a><span class="lineno"> 1290</span>    <span class="keywordflow">return</span> unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#ae909e895ade4bfc141d6dbabf25b3d66">unicode_character_byte_count</a>;</div>
+<div class="line"><a id="l01291" name="l01291"></a><span class="lineno"> 1291</span>}</div>
 </div>
-<div class="line"><a id="l01290" name="l01290"></a><span class="lineno"> 1290</span> </div>
-<div class="foldopen" id="foldopen01298" data-start="{" data-end="}">
-<div class="line"><a id="l01298" name="l01298"></a><span class="lineno"><a class="line" href="nbgl__fonts_8h.html#a6bc6e217c86330b1489fd2f5eac1562a"> 1298</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__fonts_8c.html#a6bc6e217c86330b1489fd2f5eac1562a">nbgl_refreshUnicodeFont</a>(<span class="keyword">const</span> LANGUAGE_PACK *lp)</div>
-<div class="line"><a id="l01299" name="l01299"></a><span class="lineno"> 1299</span>{</div>
-<div class="line"><a id="l01300" name="l01300"></a><span class="lineno"> 1300</span>    language_pack         = lp;</div>
-<div class="line"><a id="l01301" name="l01301"></a><span class="lineno"> 1301</span>    unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#adb148df3d06ac070cd4794fd0979d272">font</a>       = NULL;</div>
-<div class="line"><a id="l01302" name="l01302"></a><span class="lineno"> 1302</span>    unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#ac909c1774e6ca3eba6febea2d552cbfe">characters</a> = NULL;</div>
-<div class="line"><a id="l01303" name="l01303"></a><span class="lineno"> 1303</span>}</div>
+<div class="line"><a id="l01292" name="l01292"></a><span class="lineno"> 1292</span> </div>
+<div class="foldopen" id="foldopen01300" data-start="{" data-end="}">
+<div class="line"><a id="l01300" name="l01300"></a><span class="lineno"><a class="line" href="nbgl__fonts_8h.html#a6bc6e217c86330b1489fd2f5eac1562a"> 1300</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="nbgl__fonts_8c.html#a6bc6e217c86330b1489fd2f5eac1562a">nbgl_refreshUnicodeFont</a>(<span class="keyword">const</span> LANGUAGE_PACK *lp)</div>
+<div class="line"><a id="l01301" name="l01301"></a><span class="lineno"> 1301</span>{</div>
+<div class="line"><a id="l01302" name="l01302"></a><span class="lineno"> 1302</span>    language_pack         = lp;</div>
+<div class="line"><a id="l01303" name="l01303"></a><span class="lineno"> 1303</span>    unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#adb148df3d06ac070cd4794fd0979d272">font</a>       = NULL;</div>
+<div class="line"><a id="l01304" name="l01304"></a><span class="lineno"> 1304</span>    unicodeCtx.<a class="code hl_variable" href="structnbgl__unicode__ctx__s.html#ac909c1774e6ca3eba6febea2d552cbfe">characters</a> = NULL;</div>
+<div class="line"><a id="l01305" name="l01305"></a><span class="lineno"> 1305</span>}</div>
 </div>
 <div class="ttc" id="anbgl__debug_8h_html"><div class="ttname"><a href="nbgl__debug_8h.html">nbgl_debug.h</a></div><div class="ttdoc">debug traces management</div></div>
 <div class="ttc" id="anbgl__debug_8h_html_a642c9caa0896b4a1e950fc32341dad92"><div class="ttname"><a href="nbgl__debug_8h.html#a642c9caa0896b4a1e950fc32341dad92">LOG_FATAL</a></div><div class="ttdeci">#define LOG_FATAL(__logger,...)</div><div class="ttdef"><b>Definition</b> <a href="nbgl__debug_8h_source.html#l00088">nbgl_debug.h:88</a></div></div>
 <div class="ttc" id="anbgl__debug_8h_html_a726ca809ffd3d67ab4b8476646f26635ad4fa1132179cb4c7d82614846a005ddf"><div class="ttname"><a href="nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635ad4fa1132179cb4c7d82614846a005ddf">MISC_LOGGER</a></div><div class="ttdeci">@ MISC_LOGGER</div><div class="ttdef"><b>Definition</b> <a href="nbgl__debug_8h_source.html#l00039">nbgl_debug.h:39</a></div></div>
 <div class="ttc" id="anbgl__draw_8h_html"><div class="ttname"><a href="nbgl__draw_8h.html">nbgl_draw.h</a></div><div class="ttdoc">Middle Level API of the new BOLOS Graphical Library.</div></div>
-<div class="ttc" id="anbgl__fonts_8c_html_a1b6f02e2d978505dbc0407b6f098c9cc"><div class="ttname"><a href="nbgl__fonts_8c.html#a1b6f02e2d978505dbc0407b6f098c9cc">nbgl_textWrapOnNbLines</a></div><div class="ttdeci">void nbgl_textWrapOnNbLines(nbgl_font_id_e fontId, char *text, uint16_t maxWidth, uint8_t nbLines)</div><div class="ttdoc">Modifies the given text to wrap it on the given max width (in pixels), in the given nbLines If possib...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l01025">nbgl_fonts.c:1025</a></div></div>
+<div class="ttc" id="anbgl__fonts_8c_html_a1b6f02e2d978505dbc0407b6f098c9cc"><div class="ttname"><a href="nbgl__fonts_8c.html#a1b6f02e2d978505dbc0407b6f098c9cc">nbgl_textWrapOnNbLines</a></div><div class="ttdeci">void nbgl_textWrapOnNbLines(nbgl_font_id_e fontId, char *text, uint16_t maxWidth, uint8_t nbLines)</div><div class="ttdoc">Modifies the given text to wrap it on the given max width (in pixels), in the given nbLines If possib...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l01026">nbgl_fonts.c:1026</a></div></div>
 <div class="ttc" id="anbgl__fonts_8c_html_a1e07d9ffc4f9d2fb49cd44a458e50406"><div class="ttname"><a href="nbgl__fonts_8c.html#a1e07d9ffc4f9d2fb49cd44a458e50406">nbgl_getTextMaxLenAndWidth</a></div><div class="ttdeci">void nbgl_getTextMaxLenAndWidth(nbgl_font_id_e fontId, const char *text, uint16_t maxWidth, uint16_t *len, uint16_t *width, bool wrapping)</div><div class="ttdoc">compute the max width of the first line of the given text fitting in maxWidth</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l00470">nbgl_fonts.c:470</a></div></div>
 <div class="ttc" id="anbgl__fonts_8c_html_a1ffa0e9ebf67a047a8422270da8f8f2f"><div class="ttname"><a href="nbgl__fonts_8c.html#a1ffa0e9ebf67a047a8422270da8f8f2f">nbgl_getTextNbLines</a></div><div class="ttdeci">uint16_t nbgl_getTextNbLines(const char *text)</div><div class="ttdoc">return the number of lines in the given text, according to the found ' 's</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l00410">nbgl_fonts.c:410</a></div></div>
 <div class="ttc" id="anbgl__fonts_8c_html_a28acd66d24773d35a69b8729199e01fc"><div class="ttname"><a href="nbgl__fonts_8c.html#a28acd66d24773d35a69b8729199e01fc">nbgl_getTextNbPagesInWidth</a></div><div class="ttdeci">uint8_t nbgl_getTextNbPagesInWidth(nbgl_font_id_e fontId, const char *text, uint8_t nbLinesPerPage, uint16_t maxWidth)</div><div class="ttdoc">compute the number of pages of nbLinesPerPage lines per page of the given text fitting in the given m...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l00850">nbgl_fonts.c:850</a></div></div>
-<div class="ttc" id="anbgl__fonts_8c_html_a501cb59b4ec95083317e7f36fcb1faf0"><div class="ttname"><a href="nbgl__fonts_8c.html#a501cb59b4ec95083317e7f36fcb1faf0">nbgl_getUnicodeFontCharacter</a></div><div class="ttdeci">const nbgl_font_unicode_character_t * nbgl_getUnicodeFontCharacter(uint32_t unicode)</div><div class="ttdoc">Get the unicode character object matching the given unicode (a unicode character is encoded on max of...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l01245">nbgl_fonts.c:1245</a></div></div>
+<div class="ttc" id="anbgl__fonts_8c_html_a501cb59b4ec95083317e7f36fcb1faf0"><div class="ttname"><a href="nbgl__fonts_8c.html#a501cb59b4ec95083317e7f36fcb1faf0">nbgl_getUnicodeFontCharacter</a></div><div class="ttdeci">const nbgl_font_unicode_character_t * nbgl_getUnicodeFontCharacter(uint32_t unicode)</div><div class="ttdoc">Get the unicode character object matching the given unicode (a unicode character is encoded on max of...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l01247">nbgl_fonts.c:1247</a></div></div>
 <div class="ttc" id="anbgl__fonts_8c_html_a60eb9bc6aef38c003e9db088af465da4"><div class="ttname"><a href="nbgl__fonts_8c.html#a60eb9bc6aef38c003e9db088af465da4">nbgl_getSingleLineTextWidth</a></div><div class="ttdeci">uint16_t nbgl_getSingleLineTextWidth(nbgl_font_id_e fontId, const char *text)</div><div class="ttdoc">return the max width in pixels of the given text until the first   or \0 is encountered</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l00312">nbgl_fonts.c:312</a></div></div>
 <div class="ttc" id="anbgl__fonts_8c_html_a6ba04cbe83073baf45f6cbd6c54ffcf7"><div class="ttname"><a href="nbgl__fonts_8c.html#a6ba04cbe83073baf45f6cbd6c54ffcf7">nbgl_getCharWidth</a></div><div class="ttdeci">uint8_t nbgl_getCharWidth(nbgl_font_id_e fontId, const char *text)</div><div class="ttdoc">return the width in pixels of the given UTF-8 character</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l00350">nbgl_fonts.c:350</a></div></div>
-<div class="ttc" id="anbgl__fonts_8c_html_a6bc6e217c86330b1489fd2f5eac1562a"><div class="ttname"><a href="nbgl__fonts_8c.html#a6bc6e217c86330b1489fd2f5eac1562a">nbgl_refreshUnicodeFont</a></div><div class="ttdeci">void nbgl_refreshUnicodeFont(const LANGUAGE_PACK *lp)</div><div class="ttdoc">Function to be called when a change on the current language pack is notified by the OS,...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l01298">nbgl_fonts.c:1298</a></div></div>
-<div class="ttc" id="anbgl__fonts_8c_html_a6e816ab2f6b603fee884bd51aea02d0b"><div class="ttname"><a href="nbgl__fonts_8c.html#a6e816ab2f6b603fee884bd51aea02d0b">nbgl_getUnicodeFont</a></div><div class="ttdeci">nbgl_unicode_ctx_t * nbgl_getUnicodeFont(nbgl_font_id_e fontId)</div><div class="ttdoc">Get the font entry for the given font id (sparse font array support)</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l01203">nbgl_fonts.c:1203</a></div></div>
+<div class="ttc" id="anbgl__fonts_8c_html_a6bc6e217c86330b1489fd2f5eac1562a"><div class="ttname"><a href="nbgl__fonts_8c.html#a6bc6e217c86330b1489fd2f5eac1562a">nbgl_refreshUnicodeFont</a></div><div class="ttdeci">void nbgl_refreshUnicodeFont(const LANGUAGE_PACK *lp)</div><div class="ttdoc">Function to be called when a change on the current language pack is notified by the OS,...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l01300">nbgl_fonts.c:1300</a></div></div>
+<div class="ttc" id="anbgl__fonts_8c_html_a6e816ab2f6b603fee884bd51aea02d0b"><div class="ttname"><a href="nbgl__fonts_8c.html#a6e816ab2f6b603fee884bd51aea02d0b">nbgl_getUnicodeFont</a></div><div class="ttdeci">nbgl_unicode_ctx_t * nbgl_getUnicodeFont(nbgl_font_id_e fontId)</div><div class="ttdoc">Get the font entry for the given font id (sparse font array support)</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l01205">nbgl_fonts.c:1205</a></div></div>
 <div class="ttc" id="anbgl__fonts_8c_html_a773963bf2012303637df6d7bc8c138e1"><div class="ttname"><a href="nbgl__fonts_8c.html#a773963bf2012303637df6d7bc8c138e1">nbgl_getTextMaxLenInNbLines</a></div><div class="ttdeci">bool nbgl_getTextMaxLenInNbLines(nbgl_font_id_e fontId, const char *text, uint16_t maxWidth, uint16_t maxNbLines, uint16_t *len, bool wrapping)</div><div class="ttdoc">compute the len of the given text (in bytes) fitting in the given maximum nb lines,...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l00552">nbgl_fonts.c:552</a></div></div>
 <div class="ttc" id="anbgl__fonts_8c_html_a7d81cb9664d3e8c85b11a98d5a9fa67c"><div class="ttname"><a href="nbgl__fonts_8c.html#a7d81cb9664d3e8c85b11a98d5a9fa67c">nbgl_getTextMaxLenAndWidthFromEnd</a></div><div class="ttdeci">bool nbgl_getTextMaxLenAndWidthFromEnd(nbgl_font_id_e fontId, const char *text, uint16_t maxWidth, uint16_t *len, uint16_t *width)</div><div class="ttdoc">compute the len and width of the given text fitting in the maxWidth, starting from end of text</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l00654">nbgl_fonts.c:654</a></div></div>
 <div class="ttc" id="anbgl__fonts_8c_html_a8b180f4b00670ca3f6766b16eb799cfc"><div class="ttname"><a href="nbgl__fonts_8c.html#a8b180f4b00670ca3f6766b16eb799cfc">IS_WORD_DELIM</a></div><div class="ttdeci">#define IS_WORD_DELIM(c)</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l00025">nbgl_fonts.c:25</a></div></div>
 <div class="ttc" id="anbgl__fonts_8c_html_a9c273c8b135138abff8df69be805bf5a"><div class="ttname"><a href="nbgl__fonts_8c.html#a9c273c8b135138abff8df69be805bf5a">PIC_FONT</a></div><div class="ttdeci">#define PIC_FONT(x)</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l00022">nbgl_fonts.c:22</a></div></div>
 <div class="ttc" id="anbgl__fonts_8c_html_aa19c77fc8638c058fcef97642436c153"><div class="ttname"><a href="nbgl__fonts_8c.html#aa19c77fc8638c058fcef97642436c153">nbgl_getFontHeight</a></div><div class="ttdeci">uint8_t nbgl_getFontHeight(nbgl_font_id_e fontId)</div><div class="ttdoc">return the height in pixels of the font with the given font ID</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l00372">nbgl_fonts.c:372</a></div></div>
-<div class="ttc" id="anbgl__fonts_8c_html_aa4167a32a65f3106c498b4ce894207b8"><div class="ttname"><a href="nbgl__fonts_8c.html#aa4167a32a65f3106c498b4ce894207b8">nbgl_textReduceOnNbLines</a></div><div class="ttdeci">void nbgl_textReduceOnNbLines(nbgl_font_id_e fontId, const char *origText, uint16_t maxWidth, uint8_t nbLines, char *reducedText, uint16_t reducedTextLen)</div><div class="ttdoc">Create a reduced version of given ASCII text to wrap it on the given max width (in pixels),...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l01129">nbgl_fonts.c:1129</a></div></div>
+<div class="ttc" id="anbgl__fonts_8c_html_aa4167a32a65f3106c498b4ce894207b8"><div class="ttname"><a href="nbgl__fonts_8c.html#aa4167a32a65f3106c498b4ce894207b8">nbgl_textReduceOnNbLines</a></div><div class="ttdeci">void nbgl_textReduceOnNbLines(nbgl_font_id_e fontId, const char *origText, uint16_t maxWidth, uint8_t nbLines, char *reducedText, uint16_t reducedTextLen)</div><div class="ttdoc">Create a reduced version of given ASCII text to wrap it on the given max width (in pixels),...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l01131">nbgl_fonts.c:1131</a></div></div>
 <div class="ttc" id="anbgl__fonts_8c_html_ab956854ae9a95d3320c81ed5acfd9742"><div class="ttname"><a href="nbgl__fonts_8c.html#ab956854ae9a95d3320c81ed5acfd9742">nbgl_popUnicodeChar</a></div><div class="ttdeci">uint32_t nbgl_popUnicodeChar(const uint8_t **text, uint16_t *textLen, bool *is_unicode)</div><div class="ttdoc">Get the coming unicode value on the given UTF-8 string. If the value is a simple ASCII character,...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l00126">nbgl_fonts.c:126</a></div></div>
 <div class="ttc" id="anbgl__fonts_8c_html_abec07ec3c911850ce5f63537c77ee524"><div class="ttname"><a href="nbgl__fonts_8c.html#abec07ec3c911850ce5f63537c77ee524">nbgl_getTextWidth</a></div><div class="ttdeci">uint16_t nbgl_getTextWidth(nbgl_font_id_e fontId, const char *text)</div><div class="ttdoc">return the max width in pixels of the given text (can be multiline)</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l00338">nbgl_fonts.c:338</a></div></div>
 <div class="ttc" id="anbgl__fonts_8c_html_ac6f26ed49bfffc9873425fbb2e48cb1f"><div class="ttname"><a href="nbgl__fonts_8c.html#ac6f26ed49bfffc9873425fbb2e48cb1f">nbgl_getTextHeightInWidth</a></div><div class="ttdeci">uint16_t nbgl_getTextHeightInWidth(nbgl_font_id_e fontId, const char *text, uint16_t maxWidth, bool wrapping)</div><div class="ttdoc">return the height of the given multiline text, with the given font.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l01005">nbgl_fonts.c:1005</a></div></div>
@@ -1236,7 +1238,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="anbgl__fonts_8c_html_ad6c99cf28fe0773bff759a0c6169f047"><div class="ttname"><a href="nbgl__fonts_8c.html#ad6c99cf28fe0773bff759a0c6169f047">nbgl_getTextHeight</a></div><div class="ttdeci">uint16_t nbgl_getTextHeight(nbgl_font_id_e fontId, const char *text)</div><div class="ttdoc">return the height of the given multiline text, with the given font.</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l00429">nbgl_fonts.c:429</a></div></div>
 <div class="ttc" id="anbgl__fonts_8c_html_adde9824521c7cd297d5058f8d55f34cf"><div class="ttname"><a href="nbgl__fonts_8c.html#adde9824521c7cd297d5058f8d55f34cf">nbgl_getFontLineHeight</a></div><div class="ttdeci">uint8_t nbgl_getFontLineHeight(nbgl_font_id_e fontId)</div><div class="ttdoc">return the height in pixels of the line of font with the given font ID</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l00391">nbgl_fonts.c:391</a></div></div>
 <div class="ttc" id="anbgl__fonts_8c_html_ae1c2e5b79d0e9ade9a81141196e521e2"><div class="ttname"><a href="nbgl__fonts_8c.html#ae1c2e5b79d0e9ade9a81141196e521e2">nbgl_getSingleLineTextWidthInLen</a></div><div class="ttdeci">uint16_t nbgl_getSingleLineTextWidthInLen(nbgl_font_id_e fontId, const char *text, uint16_t maxLen)</div><div class="ttdoc">return the max width in pixels of the given text until the first   or \0 is encountered,...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l00326">nbgl_fonts.c:326</a></div></div>
-<div class="ttc" id="anbgl__fonts_8c_html_aee89b2fff962e09b7ea4825619f5c62b"><div class="ttname"><a href="nbgl__fonts_8c.html#aee89b2fff962e09b7ea4825619f5c62b">nbgl_getUnicodeFontCharacterByteCount</a></div><div class="ttdeci">uint32_t nbgl_getUnicodeFontCharacterByteCount(void)</div><div class="ttdoc">Get the bitmap byte count of the latest used unicode character. (the one returned by nbgl_getUnicodeF...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l01282">nbgl_fonts.c:1282</a></div></div>
+<div class="ttc" id="anbgl__fonts_8c_html_aee89b2fff962e09b7ea4825619f5c62b"><div class="ttname"><a href="nbgl__fonts_8c.html#aee89b2fff962e09b7ea4825619f5c62b">nbgl_getUnicodeFontCharacterByteCount</a></div><div class="ttdeci">uint32_t nbgl_getUnicodeFontCharacterByteCount(void)</div><div class="ttdoc">Get the bitmap byte count of the latest used unicode character. (the one returned by nbgl_getUnicodeF...</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l01284">nbgl_fonts.c:1284</a></div></div>
 <div class="ttc" id="anbgl__fonts_8c_html_af64d6b2f3814b25984291ea1aad3ad4c"><div class="ttname"><a href="nbgl__fonts_8c.html#af64d6b2f3814b25984291ea1aad3ad4c">__attribute__</a></div><div class="ttdeci">__attribute__((section(&quot;._nbgl_fonts_&quot;))) const</div><div class="ttdoc">return the non-unicode font corresponding to the given font ID</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l00066">nbgl_fonts.c:66</a></div></div>
 <div class="ttc" id="anbgl__fonts_8h_html"><div class="ttname"><a href="nbgl__fonts_8h.html">nbgl_fonts.h</a></div></div>
 <div class="ttc" id="anbgl__fonts_8h_html_a7bd484b153b5224974b47a78712d7c0b"><div class="ttname"><a href="nbgl__fonts_8h.html#a7bd484b153b5224974b47a78712d7c0b">nbgl_font_id_e</a></div><div class="ttdeci">nbgl_font_id_e</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8h_source.html#l00132">nbgl_fonts.h:132</a></div></div>

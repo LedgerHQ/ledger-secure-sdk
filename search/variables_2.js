@@ -36,10 +36,11 @@ var searchData=
   ['contentcenter_33',['contentCenter',['../structnbgl__contentExtendedCenter__t.html#ae6a89c5c33178c76f6a77654c3014e82',1,'nbgl_contentExtendedCenter_t']]],
   ['contentgettercallback_34',['contentGetterCallback',['../structnbgl__genericContents__t.html#a81b9757bffce319e61c62c603dcc9a65',1,'nbgl_genericContents_t']]],
   ['contentslist_35',['contentsList',['../structnbgl__genericContents__t.html#a5cca760808bb3ea7c33585b5a44f7e56',1,'nbgl_genericContents_t']]],
-  ['create_5ftransaction_36',['create_transaction',['../structlibargs__s.html#adc317aceed21595e5801aab04354dd9d',1,'libargs_s']]],
-  ['crop_37',['crop',['../structnbgl__font__t.html#a48e86198fcda3f6eee40d0a46e4aae37',1,'nbgl_font_t::crop'],['../structnbgl__font__unicode__t.html#a7a0863129d88333e6cc4cfa153848f77',1,'nbgl_font_unicode_t::crop']]],
-  ['ctr_5ffunc_38',['ctr_func',['../structcx__cipher__base__t.html#ae2e7a3b635af96d9fde1232a230b95a9',1,'cx_cipher_base_t']]],
-  ['ctx_5freset_39',['ctx_reset',['../structcx__cipher__base__t.html#a8e5f7d6934ea486763fe2656ba4b9459',1,'cx_cipher_base_t']]],
-  ['current_5fentry_40',['current_entry',['../structux__menu__state__s.html#aaec209236d5d93860ffeb8f396fd84a6',1,'ux_menu_state_s']]],
-  ['current_5fstep_41',['current_step',['../structux__turner__state__s.html#a3bce1e60d6e26daece048ad87afa6baa',1,'ux_turner_state_s']]]
+  ['copy_36',['copy',['../structrle__context__t.html#adebeddb999f961b2ee85267af32b705d',1,'rle_context_t']]],
+  ['create_5ftransaction_37',['create_transaction',['../structlibargs__s.html#adc317aceed21595e5801aab04354dd9d',1,'libargs_s']]],
+  ['crop_38',['crop',['../structnbgl__font__t.html#a48e86198fcda3f6eee40d0a46e4aae37',1,'nbgl_font_t::crop'],['../structnbgl__font__unicode__t.html#a7a0863129d88333e6cc4cfa153848f77',1,'nbgl_font_unicode_t::crop']]],
+  ['ctr_5ffunc_39',['ctr_func',['../structcx__cipher__base__t.html#ae2e7a3b635af96d9fde1232a230b95a9',1,'cx_cipher_base_t']]],
+  ['ctx_5freset_40',['ctx_reset',['../structcx__cipher__base__t.html#a8e5f7d6934ea486763fe2656ba4b9459',1,'cx_cipher_base_t']]],
+  ['current_5fentry_41',['current_entry',['../structux__menu__state__s.html#aaec209236d5d93860ffeb8f396fd84a6',1,'ux_menu_state_s']]],
+  ['current_5fstep_42',['current_step',['../structux__turner__state__s.html#a3bce1e60d6e26daece048ad87afa6baa',1,'ux_turner_state_s']]]
 ];
