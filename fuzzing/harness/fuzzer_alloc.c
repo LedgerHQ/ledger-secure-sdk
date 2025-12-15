@@ -71,6 +71,40 @@ void exec_alloc(mem_ctx_t *allocator, size_t len)
     assert(insert_alloc(ptr, len) == true);
 }
 
+void exec_realloc(mem_ctx_t *allocator, size_t index, size_t len)
+{
+    struct alloc *alloc = NULL;
+    if (!get_alloc(index, &alloc)) {
+        return;
+    }
+#ifdef DEBUG_CRASH
+    printf(
+        "[REALLOC_INIT] ptr = %p | length = %lu | new_length = %lu\n", alloc->ptr, alloc->len, len);
+#endif
+    for (size_t i = 0; i < alloc->len; i++) {
+        assert(((uint8_t *) alloc->ptr)[i] == alloc->len & 0xff);
+    }
+    memset(alloc->ptr, 0, alloc->len);
+
+    void *ptr = mem_realloc(allocator, alloc->ptr, len);
+#ifdef DEBUG_CRASH
+    printf("[REALLOC_FINI] ptr = %p | length = %lu\n", ptr, len);
+#endif
+    if (ptr == NULL) {
+        assert(remove_alloc(alloc->ptr) == true);
+        return;
+    }
+
+    assert(remove_alloc(alloc->ptr) == true);
+
+    for (size_t i = 0; i < len; i++) {
+        assert(((uint8_t *) ptr)[i] == 0);
+    }
+
+    memset(ptr, len & 0xff, len);
+    assert(insert_alloc(ptr, len) == true);
+}
+
 void exec_free(mem_ctx_t *allocator, size_t index)
 {
     struct alloc *alloc = NULL;
@@ -107,7 +141,11 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         return 0;
     }
 
-    size_t offset = 0;
+    size_t  offset = 0;
+    uint8_t high   = 0;
+    uint8_t low    = 0;
+    size_t  index  = 0;
+    size_t  len    = 0;
     while (offset < size) {
         mem_stat_t stat = {0};
         mem_stat(allocator, &stat);
@@ -126,17 +164,27 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                 if (offset >= size) {
                     return 0;
                 }
-                size_t len = data[offset++];
+                len = data[offset++];
                 exec_alloc(allocator, len);
                 break;
             case 'F':
                 if (offset + 1 >= size) {
                     return 0;
                 }
-                uint8_t high  = data[offset++];
-                uint8_t low   = data[offset++];
-                size_t  index = (high << 8) + low;
+                high  = data[offset++];
+                low   = data[offset++];
+                index = (high << 8) + low;
                 exec_free(allocator, index);
+                break;
+            case 'R':
+                if (offset + 2 >= size) {
+                    return 0;
+                }
+                high  = data[offset++];
+                low   = data[offset++];
+                len   = data[offset++];
+                index = (high << 8) + low;
+                exec_realloc(allocator, index, len);
                 break;
             default:
                 return 0;
