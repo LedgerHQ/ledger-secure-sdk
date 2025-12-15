@@ -7,10 +7,11 @@
 #ifndef OS_UNIT_TEST
 #define PIC(x) pic_shared((const void *) x)
 void *pic_shared(const void *linked_address);
-#else  // !OS_UNIT_TEST
-#define PIC(x) (x)
 #endif  // !OS_UNIT_TEST
 #endif
+#ifdef OS_UNIT_TEST
+#define PIC(x) ((const void *) x)
+#endif  // OS_UNIT_TEST
 #ifndef PIC
 #define PIC(x) pic((void *) x)
 void *pic(void *linked_address);
