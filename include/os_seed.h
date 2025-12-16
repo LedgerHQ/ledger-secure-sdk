@@ -7,95 +7,10 @@
 #include "lcx_ecfp.h"
 #include "os_types.h"
 
-/* ----------------------------------------------------------------------- */
-/* -                             SEED FEATURE                            - */
-/* ----------------------------------------------------------------------- */
-
-#define BOLOS_UX_ONBOARDING_ALGORITHM_BIP39    1
-#define BOLOS_UX_ONBOARDING_ALGORITHM_ELECTRUM 2
-#if defined(HAVE_VAULT_RECOVERY_ALGO)
-#define BOLOS_UX_ONBOARDING_ALGORITHM_BIP39_VAULT_REC_MSK 3
-#define BOLOS_VAULT_RECOVERY_WORK_BUFFER_SIZE             64
-#endif  // HAVE_VAULT_RECOVERY_ALGO
-#define BOLOS_MASTER_SEED_LEN (32)
-
-typedef enum {
-    SET_SEED = 0,
-    SET_STATE,
-    GET_STATE
-} os_action_t;
-
-/**
- * Set the persisted seed if none yet, else override the volatile seed (in RAM)
- */
-SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_perso_set_seed(unsigned int identity,
-                                                                     unsigned int algorithm,
-                                                                     unsigned char *seed
-                                                                                  PLENGTH(length),
-                                                                     unsigned int length);
-
-SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_perso_derive_and_set_seed(
-    unsigned char          identity,
-    const char *prefix     PLENGTH(prefix_length),
-    unsigned int           prefix_length,
-    const char *passphrase PLENGTH(passphrase_length),
-    unsigned int           passphrase_length,
-    const char *words      PLENGTH(words_length),
-    unsigned int           words_length);
-
-#if defined(HAVE_VAULT_RECOVERY_ALGO)
-SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_perso_derive_and_prepare_seed(
-    const char  *words,
-    unsigned int words_length,
-    uint8_t     *vault_recovery_work_buffer);
-SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_perso_derive_and_xor_seed(
-    uint8_t *vault_recovery_work_buffer);
-SYSCALL       PERMISSION(APPLICATION_FLAG_BOLOS_UX)
-unsigned char os_perso_get_seed_algorithm(void);
-#endif  // HAVE_VAULT_RECOVERY_ALGO
-
-SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_perso_set_words(const unsigned char *words
-                                                                                   PLENGTH(length),
-                                                                      unsigned int length);
-SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_perso_finalize(uint8_t disable_io);
-
-SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_perso_master_seed(uint8_t *master_seed
-                                                                                    PLENGTH(length),
-                                                                        size_t      length,
-                                                                        os_action_t action);
-
-#if defined(HAVE_RECOVER)
-SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_perso_recover_state(uint8_t    *state,
-                                                                          os_action_t action);
-#endif  // HAVE_RECOVER
-
 // checked in the ux flow to avoid asking the pin for example
 // NBA : could also be checked by applications running in insecure mode - thus unprivilegied
 // @return BOLOS_UX_OK when perso is onboarded.
 SYSCALL bolos_bool_t os_perso_isonboarded(void);
-
-enum {
-    ONBOARDING_STATUS_WELCOME = 0,
-    ONBOARDING_STATUS_WELCOME_STEP2,
-    ONBOARDING_STATUS_WELCOME_STEP5,
-    ONBOARDING_STATUS_WELCOME_STEP6,
-    ONBOARDING_STATUS_WELCOME_REMEMBER,
-    ONBOARDING_STATUS_SETUP_CHOICE,
-    ONBOARDING_STATUS_PIN,
-    ONBOARDING_STATUS_NEW_DEVICE,
-    ONBOARDING_STATUS_NEW_DEVICE_CONFIRMING,
-    ONBOARDING_STATUS_RESTORE_SEED,
-    ONBOARDING_STATUS_SAFETY_WARNINGS,
-    ONBOARDING_STATUS_READY,
-    ONBOARDING_STATUS_CHOOSE_NAME,
-    ONBOARDING_STATUS_RECOVER_RESTORE_SEED,
-    ONBOARDING_STATUS_SETUP_CHOICE_RESTORE_SEED,
-    ONBOARDING_STATUS_CHECKING,
-    ONBOARDING_STATUS_RESTORE_WITH_RK  // 0x10
-};
-SYSCALL void os_perso_set_onboarding_status(unsigned int state,
-                                            unsigned int count,
-                                            unsigned int total);
 
 // derive the seed for the requested BIP32 path
 // Deprecated : see "os_derive_bip32_no_throw"
@@ -286,18 +201,6 @@ WARN_UNUSED_RESULT static inline cx_err_t os_derive_eip2333_no_throw(
 
     return error;
 }
-
-/**
- * Generate a seed based cookie
- * seed => derivation (path 0xda7aba5e/0xc1a551c5) => priv key =SECP256K1=> pubkey => sha512 =>
- * cookie
- */
-
-#if defined(HAVE_SEED_COOKIE)
-// seed_cookie length has to be CX_SHA512_SIZE.
-// return BOLOS_TRUE if the seed has been generated, return BOLOS_FALSE otherwise.
-SYSCALL bolos_bool_t os_perso_seed_cookie(unsigned char *seed_cookie PLENGTH(CX_SHA512_SIZE));
-#endif  // HAVE_SEED_COOKIE
 
 SYSCALL bolos_err_t os_perso_get_master_key_identifier(uint8_t *identifier,
                                                        size_t   identifier_length);

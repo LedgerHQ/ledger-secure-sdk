@@ -129,26 +129,22 @@
 #define SYSCALL_cx_get_random_bytes_ID     0x02000107
 #define SYSCALL_cx_trng_get_random_data_ID 0x02000106
 
-#define SYSCALL_os_perso_erase_all_ID                 0x0000004b
-#define SYSCALL_os_perso_set_seed_ID                  0x0400004e
-#define SYSCALL_os_perso_derive_and_set_seed_ID       0x0700004f
-#define SYSCALL_os_perso_set_words_ID                 0x02000050
-#define SYSCALL_os_perso_finalize_ID                  0x01000051
+#define SYSCALL_RESERVED_7_ID                         0x0000004b
+#define SYSCALL_RESERVED_8_ID                         0x0400004e
+#define SYSCALL_RESERVED_9_ID                         0x0700004f
+#define SYSCALL_RESERVED_10_ID                        0x02000050
+#define SYSCALL_RESERVED_11_ID                        0x01000051
 #define SYSCALL_os_perso_is_pin_set_ID                0x0000009e
 #define SYSCALL_os_perso_isonboarded_ID               0x0000009f
-#define SYSCALL_os_perso_setonboardingstatus_ID       0x03000094
+#define SYSCALL_RESERVED_12_ID                        0x03000094
 #define SYSCALL_os_perso_derive_node_bip32_ID         0x05000053
 #define SYSCALL_os_perso_derive_node_with_seed_key_ID 0x080000a6
 #define SYSCALL_os_perso_derive_eip2333_ID            0x040000a7
 
-#define SYSCALL_os_perso_master_seed_ID 0x02000052
+#define SYSCALL_RESERVED_13_ID 0x02000052
 #ifdef HAVE_RECOVER
-#define SYSCALL_os_perso_recover_state_ID 0x02000054
+#define SYSCALL_RESERVED_14_ID 0x02000054
 #endif  // HAVE_RECOVER
-
-#if defined(HAVE_SEED_COOKIE)
-#define SYSCALL_os_perso_seed_cookie_ID 0x010000a8
-#endif  // HAVE_SEED_COOKIE
 
 #define SYSCALL_os_perso_get_master_key_identifier_ID 0x02000055
 
@@ -159,8 +155,8 @@
 #define SYSCALL_ENDORSEMENT_key1_sign_data_ID              0x04000059
 #define SYSCALL_ENDORSEMENT_key2_derive_and_sign_data_ID   0x0400005a
 #define SYSCALL_ENDORSEMENT_key1_sign_without_code_hash_ID 0x0400005b
-#define SYSCALL_os_perso_set_pin_ID                        0x0400004c
-#define SYSCALL_os_perso_set_current_identity_pin_ID       0x0200004d
+#define SYSCALL_RESERVED_15_ID                             0x0400004c
+#define SYSCALL_RESERVED_16_ID                             0x0200004d
 #define SYSCALL_os_global_pin_is_validated_ID              0x000000a0
 #define SYSCALL_os_global_pin_check_ID                     0x020000a1
 #define SYSCALL_os_global_pin_invalidate_ID                0x0000005d
@@ -228,9 +224,9 @@
 #define SYSCALL_ENDORSEMENT_get_metadata_ID 0x02000138
 
 #if defined(HAVE_VAULT_RECOVERY_ALGO)
-#define SYSCALL_os_perso_derive_and_prepare_seed_ID 0x02000137
-#define SYSCALL_os_perso_derive_and_xor_seed_ID     0x00000149
-#define SYSCALL_os_perso_get_seed_algorithm_ID      0x00000152
+#define SYSCALL_RESERVED_17_ID 0x02000137
+#define SYSCALL_RESERVED_18_ID 0x00000149
+#define SYSCALL_RESERVED_19_ID 0x00000152
 #endif  // HAVE_VAULT_RECOVERY_ALGO
 
 #ifdef HAVE_SE_SCREEN

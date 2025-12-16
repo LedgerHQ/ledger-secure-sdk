@@ -44,6 +44,8 @@
 static bolos_err_t get_version(uint8_t *buffer_out, size_t *buffer_out_length);
 
 #if defined(HAVE_SEED_COOKIE)
+// TODO: Remove seed cookie APDU handling
+#include "perso_private_syscalls.h"
 static bolos_err_t get_seed_cookie(uint8_t *buffer_out, size_t *buffer_out_length);
 #endif  // HAVE_SEED_COOKIE
 #if defined(DEBUG_OS_STACK_CONSUMPTION)

@@ -25,11 +25,6 @@ SUDOCALL void nvm_write_page(unsigned int page_adr, bool force);
 // erase a nvm page at given address, only callable by the privileged APIs
 SUDOCALL unsigned int nvm_erase_page(unsigned int page_adr);
 
-// any application can wipe the global pin, global seed, user's keys
-// disabled for security reasons // SYSCALL                                       void
-// os_perso_wipe(void); erase seed, settings AND applications
-SYSCALL void os_perso_erase_all(void);
-
 #ifndef BOLOS_OS_UPGRADER_APP
 // Wipe all data from N_application_registry.applications,
 // except language packs / background img
