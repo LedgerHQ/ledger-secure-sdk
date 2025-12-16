@@ -310,6 +310,11 @@ mem_ctx_t mem_init(void *heap_start, size_t heap_size)
 {
     heap_t *heap = (heap_t *) heap_start;
 
+    // heap_start must not be NULL
+    if (heap_start == NULL) {
+        return NULL;
+    }
+
     // size must be a multiple of 8, and at least 200 bytes
     if ((heap_size & (FREE_CHUNK_HEADER_SIZE - 1)) || (heap_size < 200)
         || (heap_size > (0x7FF8 + HEAP_HEADER_SIZE))) {
