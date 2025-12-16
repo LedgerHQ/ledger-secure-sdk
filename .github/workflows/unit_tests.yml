@@ -20,6 +20,9 @@ jobs:
       - name: Clone
         uses: actions/checkout@v4
 
+      - name: Install package libbsd-dev
+        run: apt-get install -y libbsd-dev
+
       - name: Find test directories
         id: find-tests
         working-directory: unit-tests
