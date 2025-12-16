@@ -973,6 +973,7 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
     nbgl_container_t      *mainContainer, *container;
     nbgl_text_area_t      *textArea;
     nbgl_image_t          *image;
+    int                    ret = 0;
 
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutUpdateKeyboardContent():\n");
     if (layout == NULL) {
@@ -1049,6 +1050,12 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
         button->text = content->confirmationButton.text;
 
         if (content->confirmationButton.active) {
+#if NB_COLOR_BITS == 4
+            // if the button was inactive (in grey), a non-fast refresh will be necessary
+            if (button->innerColor == INACTIVE_COLOR) {
+                ret = 1;
+            }
+#endif
             button->innerColor    = BLACK;
             button->borderColor   = BLACK;
             button->obj.touchMask = (1 << TOUCHED);
@@ -1064,9 +1071,9 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
     // if the entered text doesn't fit, indicate it by returning 1 instead of 0, for different
     // refresh
     if (nbgl_getSingleLineTextWidth(textArea->fontId, content->text) > textArea->obj.area.width) {
-        return 1;
+        ret = 1;
     }
-    return 0;
+    return ret;
 }
 
 #endif  // NBGL_KEYBOARD
