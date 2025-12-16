@@ -15,3 +15,6 @@ void mcu_usb_printf(const char *format, ...);
 #else  // !HAVE_PRINTF
 #define PRINTF(...)
 #endif  // !HAVE_PRINTF
+
+// Prototype
+size_t strlcpy_utf8(char *dst, const char *src, size_t dstlen);

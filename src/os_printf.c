@@ -22,6 +22,106 @@
 #include "app_config.h"
 #include "decorators.h"
 #include "os_math.h"
+#include "os_print.h"
+
+// Handle UTF-8 decoding (RFC3629): (https://www.ietf.org/rfc/rfc3629.txt
+// Char. number range  |        UTF-8 octet sequence
+// (hexadecimal)    |              (binary)
+// --------------------+---------------------------------------------
+// 0000 0000-0000 007F | 0xxxxxxx
+// 0000 0080-0000 07FF | 110xxxxx 10xxxxxx
+// 0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
+// 0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+
+// This function returns the number of invalid trailing bytes that need to be ignored
+// (may happen when a multi-bytes UTF-8 character is truncated)
+
+static size_t find_invalid_trailing_bytes(const char *data, size_t len)
+{
+    size_t expected = 0;
+
+    // Be sure parameters are fine
+    if (!data || len < 1) {
+        return 0;
+    }
+
+    // Check if last byte is part of UTF-8 multi-bytes character
+    size_t  index = len - 1;
+    uint8_t c     = data[index];
+
+    if (!(c & 0x80)) {
+        return 0;  // That's an ASCII character => we can keep everything!
+    }
+
+    // Now, we need to find the first multi-bytes character
+    while (index >= 1 && c < 0xC0) {
+        if (!(c & 0x80)) {  // This is not expected...
+            // If we are here, then it could be because:
+            // - index = 0 & we didn't found the first multi-bytes character
+            // - (c & 0x80) = 0 & we didn't found the first multi-bytes character
+            // => this is not a valid UTF-8 multi-bytes sequence
+            // Could be some binary data stored in a string? Dont know.
+            // The choice here is to skip everything or to skip nothing.
+            // As the purpose of this function is to properly cut truncated UTF-8 characters
+            // and as we don't know the kind of data stored here, just do nothing!
+            return 0;
+        }
+        --index;
+        c = data[index];
+    }
+    // c is supposed to be the first multi-bytes character: compute total expected bytes
+    if (c >= 0xF0) {
+        expected = 4;  // 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+    }
+    else if (c >= 0xE0) {
+        expected = 3;  // 1110xxxx 10xxxxxx 10xxxxxx
+    }
+    else if (c >= 0xC0) {
+        expected = 2;  // 110xxxxx 10xxxxxx
+    }
+    else {
+        return 0;  // This is not expected...
+    }
+    // Compute the number of bytes we may have to skip
+    size_t nb_multibytes = len - index;
+
+    // We need to find if this multi-bytes UTF-8 char is complete or truncated
+    if (expected > nb_multibytes) {
+        // The UTF-8 character was truncated => skip all the partial multi-bytes
+        return nb_multibytes;
+    }
+    // That UTF-8 character is complete, no need to skip bytes
+    return 0;
+}
+
+// strlcpy function that takes care of UTF-8 encoding
+// Return the total length of the src string, even if it was truncated
+
+size_t strlcpy_utf8(char *dst, const char *src, size_t dstlen)
+{
+    // Security checks
+    if (src == NULL) {
+        return 0;
+    }
+
+    if ((dst == NULL) || (dstlen == 0)) {
+        return strlen(src);
+    }
+
+    // srclen will be equal to strlen(src), whether truncation occurred or not.
+    size_t srclen = strlcpy(dst, src, dstlen);
+
+    // Check if the end of the copied string is correct, whether truncation occurred or not.
+    size_t len                = MIN(dstlen - 1, srclen);  // dstlen includes the terminating '\0'
+    size_t nb_truncated_bytes = find_invalid_trailing_bytes(dst, len);
+    if (nb_truncated_bytes) {
+        len -= nb_truncated_bytes;
+        dst[len] = '\0';
+    }
+
+    // Return the total length of the src string, even if it was truncated
+    return srclen;
+}
 
 #if defined(HAVE_PRINTF) || defined(HAVE_SPRINTF)
 
@@ -50,6 +150,7 @@ static const char g_pcHex_cap[] = {
 };
 // clang-format on
 
+#ifndef BUILD_SCREENSHOTS
 #ifdef HAVE_PRINTF
 #include "os_io_seph_cmd.h"
 
@@ -58,9 +159,11 @@ static void printf_output(const char *data, size_t len, void *context)
     (void) context;
     os_io_seph_cmd_printf(data, len);
 }
-#endif
+#endif  // HAVE_PRINTF
+#endif  // BUILD_SCREENSHOTS
 
 #ifdef HAVE_SPRINTF
+
 static void sprintf_output(const char *data, size_t len, void *context)
 {
     sprintf_ctx_t *ctx = (sprintf_ctx_t *) context;
@@ -71,8 +174,17 @@ static void sprintf_output(const char *data, size_t len, void *context)
     if (ctx->str_size == 0) {
         return;
     }
+    if (len > ctx->str_size) {
+        // No enough room, the string will be truncated
+        len = ctx->str_size;
+    }
+    // Check if last character is part of a truncated UTF-8 multi-bytes character
+    size_t nb_truncated_bytes = find_invalid_trailing_bytes(data, len);
 
-    len = MIN(len, ctx->str_size);
+    // Update values with the number of bytes that need to be skipped from the end
+    len -= nb_truncated_bytes;
+    ctx->str_size -= nb_truncated_bytes;
+
     memmove(ctx->str, data, len);
     ctx->str += len;
     ctx->str_size -= len;
@@ -530,6 +642,7 @@ static int vformat_internal(output_func_t output,
     return 0;
 }
 
+#ifndef BUILD_SCREENSHOTS
 #ifdef HAVE_PRINTF
 void screen_printf(const char *format, ...) __attribute__((weak, alias("mcu_usb_printf")));
 
@@ -547,6 +660,7 @@ void mcu_usb_printf(const char *format, ...)
 }
 
 #endif  // HAVE_PRINTF
+#endif  // BUILD_SCREENSHOTS
 
 #ifdef HAVE_SPRINTF
 int snprintf(char *str, size_t str_size, const char *format, ...)

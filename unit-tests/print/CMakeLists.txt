@@ -40,6 +40,7 @@ add_executable(
 target_include_directories(
   ${TEST_APP}
   PRIVATE
+          /usr/include/bsd
           ./
           ${SDK_BASE}/target/stax/include
           ${SDK_BASE}/include
@@ -50,6 +51,7 @@ target_link_libraries(
   PRIVATE
           cmocka
           gcov
+          bsd
 )
 
 target_compile_options(
@@ -66,6 +68,7 @@ target_compile_options(
 target_compile_definitions(
   ${TEST_APP}
   PRIVATE
+          LIBBSD_OVERLAY
           UNIT_TESTING
           HAVE_PRINTF
           HAVE_SPRINTF

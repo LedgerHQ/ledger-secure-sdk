@@ -5,7 +5,7 @@ include(${BOLOS_SDK}/fuzzing/libs/lib_io.cmake)
 include(${BOLOS_SDK}/fuzzing/libs/lib_nfc.cmake)
 include(${BOLOS_SDK}/fuzzing/mock/mock.cmake)
 
-file(GLOB LIB_STANDARD_APP_SOURCES "${BOLOS_SDK}/lib_standard_app/*.c")
+file(GLOB LIB_STANDARD_APP_SOURCES "${BOLOS_SDK}/lib_standard_app/*.c" "${BOLOS_SDK}/src/os_printf.c")
 list(REMOVE_ITEM LIB_STANDARD_APP_SOURCES
      "${BOLOS_SDK}/lib_standard_app/main.c")
 add_library(standard_app ${LIB_STANDARD_APP_SOURCES})
