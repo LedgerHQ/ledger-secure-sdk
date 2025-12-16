@@ -119,6 +119,10 @@ APP_LOAD_PARAMS += --tlv
 APP_LOAD_PARAMS += --dataSize $$((0x`cat debug/app.map | grep _envram_data | tr -s ' ' | cut -f2 -d' ' |cut -f2 -d'x' ` - 0x`cat debug/app.map | grep _nvram_data | tr -s ' ' | cut -f2 -d' ' | cut -f2 -d'x'`))
 APP_LOAD_PARAMS += --installparamsSize $$((0x`cat debug/app.map | grep _einstall_parameters | tr -s ' ' | cut -f2 -d' ' |cut -f2 -d'x'` - 0x`cat debug/app.map | grep _install_parameters | tr -s ' ' | cut -f2 -d' ' |cut -f2 -d'x'`))
 
+ifeq ($(HAVE_APPLICATION_FLAG_COMPRESSED_BINARY), 1)
+APP_LOAD_PARAMS += --compress
+endif
+
 ifeq ($(ENABLE_NOCRC_APP_LOAD_PARAMS), 1)
     APP_LOAD_PARAMS += --nocrc
 endif
