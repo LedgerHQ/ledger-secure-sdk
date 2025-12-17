@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "mem_alloc.h"
+#include "app_mem_utils.h"
 #include "errors.h"
 
 #define UNUSED(x) (void) x
@@ -211,12 +212,193 @@ static void test_init(void **state __attribute__((unused)))
     assert_null(ctx);
 }
 
+// New tests using app_mem_utils wrapper
+
+static void test_utils_init(void **state __attribute__((unused)))
+{
+    // Test successful initialization
+    bool result = mem_utils_init(malloc_buffer, sizeof(malloc_buffer));
+    assert_true(result);
+
+    // Test NULL pointer
+    result = mem_utils_init(NULL, sizeof(malloc_buffer));
+    assert_false(result);
+}
+
+static void test_utils_basic_alloc(void **state __attribute__((unused)))
+{
+    mem_utils_init(malloc_buffer, sizeof(malloc_buffer));
+
+    void *ptr1 = APP_MEM_ALLOC(64);
+    assert_non_null(ptr1);
+
+    void *ptr2 = APP_MEM_ALLOC(128);
+    assert_non_null(ptr2);
+
+    void *ptr3 = APP_MEM_ALLOC(256);
+    assert_non_null(ptr3);
+
+    // Free in different order
+    APP_MEM_FREE(ptr2);
+    APP_MEM_FREE(ptr1);
+    APP_MEM_FREE(ptr3);
+}
+
+static void test_utils_zero_size(void **state __attribute__((unused)))
+{
+    mem_utils_init(malloc_buffer, sizeof(malloc_buffer));
+
+    void *ptr = APP_MEM_ALLOC(0);
+    assert_null(ptr);
+}
+
+static void test_utils_buffer_allocate(void **state __attribute__((unused)))
+{
+    mem_utils_init(malloc_buffer, sizeof(malloc_buffer));
+
+    void *buffer = NULL;
+    bool  result = APP_MEM_CALLOC(&buffer, 100);
+    assert_true(result);
+    assert_non_null(buffer);
+
+    // Check zero-initialization
+    uint8_t *byte_buffer = (uint8_t *) buffer;
+    for (size_t i = 0; i < 100; i++) {
+        assert_int_equal(byte_buffer[i], 0);
+    }
+
+    APP_MEM_FREE_AND_NULL(&buffer);
+    assert_null(buffer);
+}
+
+static void test_utils_buffer_realloc(void **state __attribute__((unused)))
+{
+    mem_utils_init(malloc_buffer, sizeof(malloc_buffer));
+
+    void *buffer = NULL;
+    bool  result = APP_MEM_CALLOC(&buffer, 64);
+    assert_true(result);
+    assert_non_null(buffer);
+
+    // Realloc to larger size
+    result = APP_MEM_CALLOC(&buffer, 128);
+    assert_true(result);
+    assert_non_null(buffer);
+
+    APP_MEM_FREE_AND_NULL(&buffer);
+    assert_null(buffer);
+}
+
+static void test_utils_buffer_zero_size(void **state __attribute__((unused)))
+{
+    mem_utils_init(malloc_buffer, sizeof(malloc_buffer));
+
+    void *buffer = NULL;
+    bool  result = APP_MEM_CALLOC(&buffer, 100);
+    assert_true(result);
+    assert_non_null(buffer);
+
+    // Realloc to zero size should free the buffer
+    result = APP_MEM_CALLOC(&buffer, 0);
+    assert_true(result);
+    assert_null(buffer);
+}
+
+static void test_utils_strdup(void **state __attribute__((unused)))
+{
+    mem_utils_init(malloc_buffer, sizeof(malloc_buffer));
+
+    const char *original  = "Hello, World!";
+    const char *duplicate = APP_MEM_STRDUP(original);
+    assert_non_null(duplicate);
+    assert_string_equal(duplicate, original);
+    assert_ptr_not_equal(duplicate, original);
+
+    APP_MEM_FREE((void *) duplicate);
+}
+
+static void test_utils_large_alloc(void **state __attribute__((unused)))
+{
+    mem_utils_init(malloc_buffer, sizeof(malloc_buffer));
+
+    void *large = APP_MEM_ALLOC(sizeof(malloc_buffer) / 2);
+    assert_non_null(large);
+
+    APP_MEM_FREE(large);
+}
+
+static void test_utils_out_of_memory(void **state __attribute__((unused)))
+{
+    mem_utils_init(malloc_buffer, sizeof(malloc_buffer));
+
+    void *blocks[100];
+    int   count = 0;
+
+    for (int i = 0; i < 100; i++) {
+        blocks[i] = APP_MEM_ALLOC(512);
+        if (blocks[i] == NULL) {
+            break;
+        }
+        count++;
+    }
+
+    assert_true(count > 0);
+    assert_true(count < 100);
+
+    void *should_fail = APP_MEM_ALLOC(512);
+    assert_null(should_fail);
+
+    for (int i = 0; i < count; i++) {
+        APP_MEM_FREE(blocks[i]);
+    }
+}
+
+static void test_utils_stress(void **state __attribute__((unused)))
+{
+    mem_utils_init(malloc_buffer, sizeof(malloc_buffer));
+
+    for (int iteration = 0; iteration < 50; iteration++) {
+        void *ptrs[20];
+
+        for (int i = 0; i < 20; i++) {
+            size_t size = 16 + (i * 32);
+            ptrs[i]     = APP_MEM_ALLOC(size);
+            if (ptrs[i] != NULL) {
+                memset(ptrs[i], i, size);
+            }
+        }
+
+        for (int i = 19; i >= 0; i -= 2) {
+            if (ptrs[i] != NULL) {
+                APP_MEM_FREE(ptrs[i]);
+            }
+        }
+        for (int i = 0; i < 20; i += 2) {
+            if (ptrs[i] != NULL) {
+                APP_MEM_FREE(ptrs[i]);
+            }
+        }
+    }
+}
+
 int main(int argc, char **argv)
 {
-    const struct CMUnitTest tests[] = {cmocka_unit_test(test_alloc),
+    const struct CMUnitTest tests[] = {// Original mem_alloc tests
+                                       cmocka_unit_test(test_alloc),
                                        cmocka_unit_test(test_corrupt_invalid),
                                        cmocka_unit_test(test_corrupt_overflow),
                                        cmocka_unit_test(test_fragmentation),
-                                       cmocka_unit_test(test_init)};
+                                       cmocka_unit_test(test_init),
+                                       // New app_mem_utils tests
+                                       cmocka_unit_test(test_utils_init),
+                                       cmocka_unit_test(test_utils_basic_alloc),
+                                       cmocka_unit_test(test_utils_zero_size),
+                                       cmocka_unit_test(test_utils_buffer_allocate),
+                                       cmocka_unit_test(test_utils_buffer_realloc),
+                                       cmocka_unit_test(test_utils_buffer_zero_size),
+                                       cmocka_unit_test(test_utils_strdup),
+                                       cmocka_unit_test(test_utils_large_alloc),
+                                       cmocka_unit_test(test_utils_out_of_memory),
+                                       cmocka_unit_test(test_utils_stress)};
     return cmocka_run_group_tests(tests, NULL, NULL);
 }
