@@ -18,4 +18,127 @@ Then, chunks can be allocated with @ref mem_alloc() and released with @ref mem_f
 
 Both of these function take the memory context as first parameter.
 
+@section mem_alloc_high_level High-Level Memory Utilities
+
+For application developers, a set of high-level wrapper functions is provided in `app_mem_utils.h`.
+These functions simplify memory management by hiding the memory context and providing additional safety features.
+
+@subsection mem_alloc_initialization Initialization
+
+Initialize the application heap with @ref mem_utils_init():
+
+@code{.c}
+static uint32_t heap_buffer[2048];  // 8KB heap
+
+if (!mem_utils_init(heap_buffer, sizeof(heap_buffer))) {
+    // Initialization failed
+}
+@endcode
+
+@subsection mem_alloc_basic_usage Basic Allocation
+
+Use @ref APP_MEM_ALLOC() and @ref APP_MEM_FREE() for simple allocations:
+
+@code{.c}
+void *ptr = APP_MEM_ALLOC(128);
+if (ptr != NULL) {
+    // Use the allocated memory
+    APP_MEM_FREE(ptr);
+}
+@endcode
+
+@subsection mem_alloc_buffer_management Buffer Management
+
+For buffers that need reallocation or safe cleanup, use @ref APP_MEM_CALLOC() and @ref mem_utils_buffer_cleanup().
+The allocated buffers are always zero-initialized.
+The cleanup function frees the buffer and sets the pointer to NULL to avoid dangling pointers.
+
+@code{.c}
+void *buffer = NULL;
+
+// Allocate zero-initialized buffer
+if (APP_MEM_CALLOC(&buffer, 256)) {
+    // Buffer is ready to use and zeroed
+
+    // Reallocate to different size
+    APP_MEM_CALLOC(&buffer, 512);  // Old buffer freed automatically
+
+    // Safe cleanup (frees and sets buffer = NULL)
+    mem_utils_buffer_cleanup(&buffer);
+}
+@endcode
+
+@subsection mem_alloc_string_operations String Operations
+
+Duplicate strings with @ref APP_MEM_STRDUP():
+
+@code{.c}
+const char *original = "Hello, World!";
+char *copy = APP_MEM_STRDUP(original);
+if (copy != NULL) {
+    // Use the duplicated string
+    APP_MEM_FREE(copy);
+}
+@endcode
+
+@section mem_alloc_profiling Memory Profiling
+
+The allocator supports memory profiling to detect leaks and track allocations during development.
+
+@subsection mem_alloc_profiling_enable Enabling Profiling
+
+Compile your application with the flag `HAVE_MEMORY_PROFILING`.
+
+When profiling is enabled, all allocation and deallocation operations are logged with file and line information.
+
+@subsection mem_alloc_profiling_analysis Analyzing Profiling Data
+
+Use the `tools/valground.py` script to analyze memory profiling logs from Speculos:
+
+@code{.sh}
+# Run tests and pipe output to valground.py
+pytest --device nanosp -s -k test_name 2>&1 | ./tools/valground.py
+
+# Quiet mode (only errors and summary)
+pytest --device nanosp -s 2>&1 | ./tools/valground.py
+@endcode
+
+The tool detects:
+- **Memory leaks**: Allocated blocks never freed
+- **Double free errors**: Freeing the same pointer twice
+- **Invalid free**: Freeing unallocated pointers
+- **Persistent allocations**: Blocks that persist across test boundaries
+- **Memory statistics**: Total/max allocation, heap utilization percentage
+
+@subsection mem_alloc_profiling_output Example Output
+
+@code{.txt}
+[1/5] - test_basic_alloc PASSED
+=== Summary ===
+Total overtime = 512 bytes
+Max overtime = 256 bytes (12.50% full)
+Allocations = 8
+No memory leak detected, congrats!
+
+=== Global ===
+Higher Max overtime = 256 bytes
+@endcode
+
+Exit code is 0 if no errors detected, 1 if leaks or free errors found.
+
+@subsection mem_alloc_profiling_persistent Persistent Allocations
+
+Persistent allocations are those that are intentionally kept without being freed (@ref mem_buffer_persistent()).
+Such buffers will not be reported as leaks.
+
+@code{.c}
+void *persistent_buffer = NULL;
+bool success;
+success = mem_buffer_persistent(&persistent_buffer, 1024);
+// This allocation will be flagged in profiling reports
+// but won't be counted as a leak
+@endcode
+
+This is useful for long-lived buffers that are intentionally kept across multiple operations.
+
 */
