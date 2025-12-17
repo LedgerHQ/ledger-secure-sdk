@@ -1567,22 +1567,6 @@ unsigned int os_global_pin_retries(void)
     return (unsigned int) SVC_Call(SYSCALL_os_global_pin_retries_ID, parameters);
 }
 
-unsigned int os_registry_count(void)
-{
-    unsigned int parameters[2];
-    parameters[1] = 0;
-    return (unsigned int) SVC_Call(SYSCALL_os_registry_count_ID, parameters);
-}
-
-void os_registry_get(unsigned int app_idx, application_t *out_application_entry)
-{
-    unsigned int parameters[2];
-    parameters[0] = (unsigned int) app_idx;
-    parameters[1] = (unsigned int) out_application_entry;
-    SVC_Call(SYSCALL_os_registry_get_ID, parameters);
-    return;
-}
-
 unsigned int os_ux(bolos_ux_params_t *params)
 {
     unsigned int parameters[2];
@@ -1722,23 +1706,6 @@ void os_setting_set(unsigned int setting_id, unsigned char *value, unsigned int 
     return;
 }
 
-unsigned int os_registry_get_tag(unsigned int  app_idx,
-                                 unsigned int *tlvoffset,
-                                 unsigned int  tag,
-                                 unsigned int  value_offset,
-                                 void         *buffer,
-                                 unsigned int  maxlength)
-{
-    unsigned int parameters[6];
-    parameters[0] = (unsigned int) app_idx;
-    parameters[1] = (unsigned int) tlvoffset;
-    parameters[2] = (unsigned int) tag;
-    parameters[3] = (unsigned int) value_offset;
-    parameters[4] = (unsigned int) buffer;
-    parameters[5] = (unsigned int) maxlength;
-    return (unsigned int) SVC_Call(SYSCALL_os_registry_get_tag_ID, parameters);
-}
-
 unsigned int os_registry_get_current_app_tag(unsigned int   tag,
                                              unsigned char *buffer,
                                              unsigned int   maxlen)
@@ -1748,14 +1715,6 @@ unsigned int os_registry_get_current_app_tag(unsigned int   tag,
     parameters[1] = (unsigned int) buffer;
     parameters[2] = (unsigned int) maxlen;
     return (unsigned int) SVC_Call(SYSCALL_os_registry_get_current_app_tag_ID, parameters);
-}
-
-void os_registry_delete_all_apps(void)
-{
-    unsigned int parameters[2];
-    parameters[1] = 0;
-    SVC_Call(SYSCALL_os_registry_delete_all_apps_ID, parameters);
-    return;
 }
 
 void os_sched_exec(unsigned int app_idx)
