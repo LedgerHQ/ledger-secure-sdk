@@ -35,13 +35,18 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 endif()
 
 add_compile_definitions(TEST)
+set(SDK_SRC ../..)
 
 include_directories(.)
-include_directories(../../target/stax/include)
-include_directories(../../include)
-include_directories(../../lib_alloc)
+include_directories(${SDK_SRC}/target/stax/include)
+include_directories(${SDK_SRC}/include)
+include_directories(${SDK_SRC}/lib_alloc)
 
-add_executable(test_mem_alloc test_mem_alloc.c ../../lib_alloc/mem_alloc.c)
+add_executable(test_mem_alloc
+  test_mem_alloc.c
+  ${SDK_SRC}/lib_alloc/mem_alloc.c
+  ${SDK_SRC}/lib_alloc/app_mem_utils.c
+)
 
 target_link_libraries(test_mem_alloc PUBLIC cmocka gcov)
 
