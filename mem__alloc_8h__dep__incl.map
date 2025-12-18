@@ -1,5 +1,7 @@
 <map id="lib_alloc/mem_alloc.h" name="lib_alloc/mem_alloc.h">
-<area shape="rect" id="Node000001" title="Dynamic memory allocation API." alt="" coords="5,5,169,31"/>
-<area shape="rect" id="Node000002" href="$mem__alloc_8c.html" title="Dynamic memory allocation implementation." alt="" coords="6,79,169,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="90,44,90,79,85,79,85,44"/>
+<area shape="rect" id="Node000001" title="Dynamic memory allocation API." alt="" coords="119,5,283,31"/>
+<area shape="rect" id="Node000002" href="$app__mem__utils_8c.html" title=" " alt="" coords="5,79,196,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="175,41,119,81,115,76,172,36"/>
+<area shape="rect" id="Node000003" href="$mem__alloc_8c.html" title="Dynamic memory allocation implementation." alt="" coords="221,79,383,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="230,36,287,76,284,81,227,41"/>
 </map>

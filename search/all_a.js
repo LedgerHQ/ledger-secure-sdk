@@ -28,11 +28,12 @@ var searchData=
   ['hideendoflastline_25',['hideendoflastline',['../structnbgl__text__area__s.html#ab098abb7a96dcf1f11ad3a437a0c22da',1,'nbgl_text_area_s::hideEndOfLastLine'],['../structnbgl__contentTagValueList__s.html#a6fb9b86caf36fab2f23cd996d38c3d0d',1,'nbgl_contentTagValueList_s::hideEndOfLastLine']]],
   ['hierarchy_26',['Graphic objects hierarchy',['../nbgl_obj.html#obj_hierarchy',1,'']]],
   ['high_20level_20api_27',['High-Level API',['../nbgl_mainpage.html#nbgl_high_level_api_1',1,'']]],
-  ['home_20settings_20pages_28',['Example 2: home &amp; settings pages',['../nbgl_app_use_case.html#nbgl_use_case_example_2',1,'']]],
-  ['home_20settings_20screen_20use_20case_29',['Home &amp; Settings screen Use Case',['../nbgl_app_use_case.html#use_case_home_settings',1,'']]],
-  ['home_20settings_20screen_20with_20action_20button_20use_20case_30',['Home &amp; Settings screen with action button Use Case',['../nbgl_app_use_case.html#use_case_home_settings_with_action',1,'']]],
-  ['horizontal_31',['HORIZONTAL',['../nbgl__types_8h.html#a45c8941c6bef8b2e44b38f1c66c1a5d8a4dd51ad73508d6fc83a502966779e48e',1,'nbgl_types.h']]],
-  ['horizontal_5fnav_32',['HORIZONTAL_NAV',['../nbgl__layout_8h.html#a2c0a3234a9015214367700ea41d45eedae7a28095c569a3f2ac639e852d6f9149',1,'nbgl_layout.h']]],
-  ['horizontalbuttons_33',['horizontalButtons',['../structnbgl__layoutUpFooter__t.html#ad2e20b0b136fae32bb112b88032c9c3b',1,'nbgl_layoutUpFooter_t']]],
-  ['htole32_34',['htole32',['../cx__utils_8h.html#a336f132f175f47bfab3fa57f6a00276d',1,'cx_utils.h']]]
+  ['high_20level_20memory_20utilities_28',['High-Level Memory Utilities',['../mem_alloc_mainpage.html#mem_alloc_high_level',1,'']]],
+  ['home_20settings_20pages_29',['Example 2: home &amp; settings pages',['../nbgl_app_use_case.html#nbgl_use_case_example_2',1,'']]],
+  ['home_20settings_20screen_20use_20case_30',['Home &amp; Settings screen Use Case',['../nbgl_app_use_case.html#use_case_home_settings',1,'']]],
+  ['home_20settings_20screen_20with_20action_20button_20use_20case_31',['Home &amp; Settings screen with action button Use Case',['../nbgl_app_use_case.html#use_case_home_settings_with_action',1,'']]],
+  ['horizontal_32',['HORIZONTAL',['../nbgl__types_8h.html#a45c8941c6bef8b2e44b38f1c66c1a5d8a4dd51ad73508d6fc83a502966779e48e',1,'nbgl_types.h']]],
+  ['horizontal_5fnav_33',['HORIZONTAL_NAV',['../nbgl__layout_8h.html#a2c0a3234a9015214367700ea41d45eedae7a28095c569a3f2ac639e852d6f9149',1,'nbgl_layout.h']]],
+  ['horizontalbuttons_34',['horizontalButtons',['../structnbgl__layoutUpFooter__t.html#ad2e20b0b136fae32bb112b88032c9c3b',1,'nbgl_layoutUpFooter_t']]],
+  ['htole32_35',['htole32',['../cx__utils_8h.html#a336f132f175f47bfab3fa57f6a00276d',1,'cx_utils.h']]]
 ];

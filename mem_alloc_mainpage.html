@@ -88,7 +88,98 @@ Introduction</h1>
 </ul>
 <p>It returns a memory context (<a class="el" href="mem__alloc_8h.html#a050ea486d898e406141fa11ba55c9b45">mem_ctx_t</a>) that will be used by other functions</p>
 <p>Then, chunks can be allocated with <a class="el" href="mem__alloc_8c.html#a8ca42ac1233a5468f1791fc7d60882c0">mem_alloc()</a> and released with <a class="el" href="mem__alloc_8c.html#ab42bab8f03928e356d0b16928783e364">mem_free()</a></p>
-<p>Both of these function take the memory context as first parameter. </p>
+<p>Both of these function take the memory context as first parameter.</p>
+<h1><a class="anchor" id="mem_alloc_high_level"></a>
+High-Level Memory Utilities</h1>
+<p>For application developers, a set of high-level wrapper functions is provided in <code><a class="el" href="app__mem__utils_8h.html">app_mem_utils.h</a></code>. These functions simplify memory management by hiding the memory context and providing additional safety features.</p>
+<h2><a class="anchor" id="mem_alloc_initialization"></a>
+Initialization</h2>
+<p>Initialize the application heap with <a class="el" href="app__mem__utils_8c.html#a854ae8508a928d4362958b5e25a866e0">mem_utils_init()</a>:</p>
+<div class="fragment"><div class="line"><span class="keyword">static</span> uint32_t heap_buffer[2048];  <span class="comment">// 8KB heap</span></div>
+<div class="line"> </div>
+<div class="line"><span class="keywordflow">if</span> (!<a class="code hl_function" href="app__mem__utils_8c.html#a854ae8508a928d4362958b5e25a866e0">mem_utils_init</a>(heap_buffer, <span class="keyword">sizeof</span>(heap_buffer))) {</div>
+<div class="line">    <span class="comment">// Initialization failed</span></div>
+<div class="line">}</div>
+<div class="ttc" id="aapp__mem__utils_8c_html_a854ae8508a928d4362958b5e25a866e0"><div class="ttname"><a href="app__mem__utils_8c.html#a854ae8508a928d4362958b5e25a866e0">mem_utils_init</a></div><div class="ttdeci">bool mem_utils_init(void *heap_start, size_t heap_size)</div><div class="ttdoc">Initializes the App heap buffer.</div><div class="ttdef"><b>Definition</b> <a href="app__mem__utils_8c_source.html#l00030">app_mem_utils.c:30</a></div></div>
+</div><!-- fragment --><h2><a class="anchor" id="mem_alloc_basic_usage"></a>
+Basic Allocation</h2>
+<p>Use <a class="el" href="app__mem__utils_8h.html#ae210fa57ea4083aecaa59ace6246e394">APP_MEM_ALLOC()</a> and <a class="el" href="app__mem__utils_8h.html#ab5d9700e4ac2df6fe5f66f5c9f1ce7dd">APP_MEM_FREE()</a> for simple allocations:</p>
+<div class="fragment"><div class="line"><span class="keywordtype">void</span> *ptr = <a class="code hl_define" href="app__mem__utils_8h.html#ae210fa57ea4083aecaa59ace6246e394">APP_MEM_ALLOC</a>(128);</div>
+<div class="line"><span class="keywordflow">if</span> (ptr != NULL) {</div>
+<div class="line">    <span class="comment">// Use the allocated memory</span></div>
+<div class="line">    <a class="code hl_define" href="app__mem__utils_8h.html#ab5d9700e4ac2df6fe5f66f5c9f1ce7dd">APP_MEM_FREE</a>(ptr);</div>
+<div class="line">}</div>
+<div class="ttc" id="aapp__mem__utils_8h_html_ab5d9700e4ac2df6fe5f66f5c9f1ce7dd"><div class="ttname"><a href="app__mem__utils_8h.html#ab5d9700e4ac2df6fe5f66f5c9f1ce7dd">APP_MEM_FREE</a></div><div class="ttdeci">#define APP_MEM_FREE(ptr)</div><div class="ttdef"><b>Definition</b> <a href="app__mem__utils_8h_source.html#l00017">app_mem_utils.h:17</a></div></div>
+<div class="ttc" id="aapp__mem__utils_8h_html_ae210fa57ea4083aecaa59ace6246e394"><div class="ttname"><a href="app__mem__utils_8h.html#ae210fa57ea4083aecaa59ace6246e394">APP_MEM_ALLOC</a></div><div class="ttdeci">#define APP_MEM_ALLOC(size)</div><div class="ttdef"><b>Definition</b> <a href="app__mem__utils_8h_source.html#l00016">app_mem_utils.h:16</a></div></div>
+</div><!-- fragment --><h2><a class="anchor" id="mem_alloc_buffer_management"></a>
+Buffer Management</h2>
+<p>For buffers that need reallocation or safe cleanup, use <a class="el" href="app__mem__utils_8h.html#a1ff7399226317cce30d2333352fbd309">APP_MEM_CALLOC()</a> and mem_utils_buffer_cleanup(). The allocated buffers are always zero-initialized. The cleanup function frees the buffer and sets the pointer to NULL to avoid dangling pointers.</p>
+<div class="fragment"><div class="line"><span class="keywordtype">void</span> *buffer = NULL;</div>
+<div class="line"> </div>
+<div class="line"><span class="comment">// Allocate zero-initialized buffer</span></div>
+<div class="line"><span class="keywordflow">if</span> (<a class="code hl_define" href="app__mem__utils_8h.html#a1ff7399226317cce30d2333352fbd309">APP_MEM_CALLOC</a>(&amp;buffer, 256)) {</div>
+<div class="line">    <span class="comment">// Buffer is ready to use and zeroed</span></div>
+<div class="line"> </div>
+<div class="line">    <span class="comment">// Reallocate to different size</span></div>
+<div class="line">    <a class="code hl_define" href="app__mem__utils_8h.html#a1ff7399226317cce30d2333352fbd309">APP_MEM_CALLOC</a>(&amp;buffer, 512);  <span class="comment">// Old buffer freed automatically</span></div>
+<div class="line"> </div>
+<div class="line">    <span class="comment">// Safe cleanup (frees and sets buffer = NULL)</span></div>
+<div class="line">    mem_utils_buffer_cleanup(&amp;buffer);</div>
+<div class="line">}</div>
+<div class="ttc" id="aapp__mem__utils_8h_html_a1ff7399226317cce30d2333352fbd309"><div class="ttname"><a href="app__mem__utils_8h.html#a1ff7399226317cce30d2333352fbd309">APP_MEM_CALLOC</a></div><div class="ttdeci">#define APP_MEM_CALLOC(ptr, size)</div><div class="ttdef"><b>Definition</b> <a href="app__mem__utils_8h_source.html#l00020">app_mem_utils.h:20</a></div></div>
+</div><!-- fragment --><h2><a class="anchor" id="mem_alloc_string_operations"></a>
+String Operations</h2>
+<p>Duplicate strings with <a class="el" href="app__mem__utils_8h.html#a6bd427f02ca99989314e5c469550b00a">APP_MEM_STRDUP()</a>:</p>
+<div class="fragment"><div class="line"><span class="keyword">const</span> <span class="keywordtype">char</span> *original = <span class="stringliteral">&quot;Hello, World!&quot;</span>;</div>
+<div class="line"><span class="keywordtype">char</span> *copy = <a class="code hl_define" href="app__mem__utils_8h.html#a6bd427f02ca99989314e5c469550b00a">APP_MEM_STRDUP</a>(original);</div>
+<div class="line"><span class="keywordflow">if</span> (copy != NULL) {</div>
+<div class="line">    <span class="comment">// Use the duplicated string</span></div>
+<div class="line">    <a class="code hl_define" href="app__mem__utils_8h.html#ab5d9700e4ac2df6fe5f66f5c9f1ce7dd">APP_MEM_FREE</a>(copy);</div>
+<div class="line">}</div>
+<div class="ttc" id="aapp__mem__utils_8h_html_a6bd427f02ca99989314e5c469550b00a"><div class="ttname"><a href="app__mem__utils_8h.html#a6bd427f02ca99989314e5c469550b00a">APP_MEM_STRDUP</a></div><div class="ttdeci">#define APP_MEM_STRDUP(ptr)</div><div class="ttdef"><b>Definition</b> <a href="app__mem__utils_8h_source.html#l00019">app_mem_utils.h:19</a></div></div>
+</div><!-- fragment --><h1><a class="anchor" id="mem_alloc_profiling"></a>
+Memory Profiling</h1>
+<p>The allocator supports memory profiling to detect leaks and track allocations during development.</p>
+<h2><a class="anchor" id="mem_alloc_profiling_enable"></a>
+Enabling Profiling</h2>
+<p>Compile your application with the flag <code>HAVE_MEMORY_PROFILING</code>.</p>
+<p>When profiling is enabled, all allocation and deallocation operations are logged with file and line information.</p>
+<h2><a class="anchor" id="mem_alloc_profiling_analysis"></a>
+Analyzing Profiling Data</h2>
+<p>Use the <code>tools/valground.py</code> script to analyze memory profiling logs from Speculos:</p>
+<div class="fragment"><div class="line"># Run tests and pipe output to valground.py</div>
+<div class="line">pytest --device nanosp -s -k test_name 2&gt;&amp;1 | ./tools/valground.py</div>
+<div class="line"> </div>
+<div class="line"># Quiet mode (only errors and summary)</div>
+<div class="line">pytest --device nanosp -s 2&gt;&amp;1 | ./tools/valground.py</div>
+</div><!-- fragment --><p>The tool detects:</p><ul>
+<li><b>Memory leaks</b>: Allocated blocks never freed</li>
+<li><b>Double free errors</b>: Freeing the same pointer twice</li>
+<li><b>Invalid free</b>: Freeing unallocated pointers</li>
+<li><b>Persistent allocations</b>: Blocks that persist across test boundaries</li>
+<li><b>Memory statistics</b>: Total/max allocation, heap utilization percentage</li>
+</ul>
+<h2><a class="anchor" id="mem_alloc_profiling_output"></a>
+Example Output</h2>
+<div class="fragment"><div class="line">[1/5] - test_basic_alloc PASSED</div>
+<div class="line">=== Summary ===</div>
+<div class="line">Total overtime = 512 bytes</div>
+<div class="line">Max overtime = 256 bytes (12.50% full)</div>
+<div class="line">Allocations = 8</div>
+<div class="line">No memory leak detected, congrats!</div>
+<div class="line"> </div>
+<div class="line">=== Global ===</div>
+<div class="line">Higher Max overtime = 256 bytes</div>
+</div><!-- fragment --><p>Exit code is 0 if no errors detected, 1 if leaks or free errors found.</p>
+<h2><a class="anchor" id="mem_alloc_profiling_persistent"></a>
+Persistent Allocations</h2>
+<p>Persistent allocations are those that are intentionally kept without being freed (mem_buffer_persistent()). Such buffers will not be reported as leaks.</p>
+<div class="fragment"><div class="line"><span class="keywordtype">void</span> *persistent_buffer = NULL;</div>
+<div class="line"><span class="keywordtype">bool</span> success;</div>
+<div class="line">success = mem_buffer_persistent(&amp;persistent_buffer, 1024);</div>
+<div class="line"><span class="comment">// This allocation will be flagged in profiling reports</span></div>
+<div class="line"><span class="comment">// but won&#39;t be counted as a leak</span></div>
+</div><!-- fragment --><p>This is useful for long-lived buffers that are intentionally kept across multiple operations. </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 <!-- start footer part -->
