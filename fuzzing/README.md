@@ -127,17 +127,19 @@ cmake --build build
 
 One can still use his own modified `ledgere-secure-sdk`. If it doesn't contain a .target, you can pass it in the compilation
 parameters:
-```console
+
+```bash
 cmake -S . -B build -DCMAKE_C_COMPILER=clang -DSANITIZER=address -G Ninja -DTARGET=stax
 ```
 
 ### Run
 
-```console
+```bash
 ./build/fuzz_apdu_parser
 ./build/fuzz_base58
 ./build/fuzz_bip32
 ./build/fuzz_qrcodegen
 ./build/fuzz_alloc
+./build/fuzz_alloc_utils
 ./build/fuzz_nfc_ndef
 ```
