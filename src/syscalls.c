@@ -1172,131 +1172,11 @@ void cx_trng_get_random_data(uint8_t *buf, size_t size)
     SVC_cx_call(SYSCALL_cx_trng_get_random_data_ID, parameters);
 }
 
-void os_perso_erase_all(void)
-{
-    unsigned int parameters[2];
-    parameters[1] = 0;
-    SVC_Call(SYSCALL_os_perso_erase_all_ID, parameters);
-    return;
-}
-
-void os_perso_set_seed(unsigned int   identity,
-                       unsigned int   algorithm,
-                       unsigned char *seed,
-                       unsigned int   length)
-{
-    unsigned int parameters[4];
-    parameters[0] = (unsigned int) identity;
-    parameters[1] = (unsigned int) algorithm;
-    parameters[2] = (unsigned int) seed;
-    parameters[3] = (unsigned int) length;
-    SVC_Call(SYSCALL_os_perso_set_seed_ID, parameters);
-    return;
-}
-
-void os_perso_derive_and_set_seed(unsigned char identity,
-                                  const char   *prefix,
-                                  unsigned int  prefix_length,
-                                  const char   *passphrase,
-                                  unsigned int  passphrase_length,
-                                  const char   *words,
-                                  unsigned int  words_length)
-{
-    unsigned int parameters[7];
-    parameters[0] = (unsigned int) identity;
-    parameters[1] = (unsigned int) prefix;
-    parameters[2] = (unsigned int) prefix_length;
-    parameters[3] = (unsigned int) passphrase;
-    parameters[4] = (unsigned int) passphrase_length;
-    parameters[5] = (unsigned int) words;
-    parameters[6] = (unsigned int) words_length;
-    SVC_Call(SYSCALL_os_perso_derive_and_set_seed_ID, parameters);
-    return;
-}
-
-#if defined(HAVE_VAULT_RECOVERY_ALGO)
-void os_perso_derive_and_prepare_seed(const char  *words,
-                                      unsigned int words_length,
-                                      uint8_t     *vault_recovery_work_buffer)
-{
-    unsigned int parameters[3];
-    parameters[0] = (unsigned int) words;
-    parameters[1] = (unsigned int) words_length;
-    parameters[2] = (unsigned int) vault_recovery_work_buffer;
-    SVC_Call(SYSCALL_os_perso_derive_and_prepare_seed_ID, parameters);
-    return;
-}
-
-void os_perso_derive_and_xor_seed(uint8_t *vault_recovery_work_buffer)
-{
-    unsigned int parameters[2];
-    parameters[0] = (unsigned int) vault_recovery_work_buffer;
-    SVC_Call(SYSCALL_os_perso_derive_and_xor_seed_ID, parameters);
-    return;
-}
-
-unsigned char os_perso_get_seed_algorithm(void)
-{
-    unsigned int parameters[2];
-    parameters[1] = 0;
-    return (unsigned char) SVC_Call(SYSCALL_os_perso_get_seed_algorithm_ID, parameters);
-}
-#endif  // HAVE_VAULT_RECOVERY_ALGO
-
-void os_perso_master_seed(uint8_t *master_seed, size_t length, os_action_t action)
-{
-    unsigned int parameters[3];
-    parameters[0] = (unsigned int) master_seed;
-    parameters[1] = (unsigned int) length;
-    parameters[2] = (unsigned int) action;
-    SVC_Call(SYSCALL_os_perso_master_seed_ID, parameters);
-    return;
-}
-
-#if defined(HAVE_RECOVER)
-void os_perso_recover_state(uint8_t *state, os_action_t action)
-{
-    unsigned int parameters[2];
-    parameters[0] = (unsigned int) state;
-    parameters[1] = (unsigned int) action;
-    SVC_Call(SYSCALL_os_perso_recover_state_ID, parameters);
-    return;
-}
-
-#endif  // HAVE_RECOVER
-
-void os_perso_set_words(const unsigned char *words, unsigned int length)
-{
-    unsigned int parameters[2];
-    parameters[0] = (unsigned int) words;
-    parameters[1] = (unsigned int) length;
-    SVC_Call(SYSCALL_os_perso_set_words_ID, parameters);
-    return;
-}
-
-void os_perso_finalize(uint8_t disable_io)
-{
-    unsigned int parameters[2];
-    parameters[0] = disable_io;
-    SVC_Call(SYSCALL_os_perso_finalize_ID, parameters);
-    return;
-}
-
 bolos_bool_t os_perso_isonboarded(void)
 {
     unsigned int parameters[2];
     parameters[1] = 0;
     return (bolos_bool_t) SVC_Call(SYSCALL_os_perso_isonboarded_ID, parameters);
-}
-
-void os_perso_set_onboarding_status(unsigned int state, unsigned int count, unsigned int total)
-{
-    unsigned int parameters[3];
-    parameters[0] = (unsigned int) state;
-    parameters[1] = (unsigned int) count;
-    parameters[2] = (unsigned int) total;
-    SVC_Call(SYSCALL_os_perso_setonboardingstatus_ID, parameters);
-    return;
 }
 
 void os_set_ux_time_ms(unsigned int ux_ms)
@@ -1358,15 +1238,6 @@ void os_perso_derive_eip2333(cx_curve_t          curve,
     SVC_Call(SYSCALL_os_perso_derive_eip2333_ID, parameters);
     return;
 }
-
-#if defined(HAVE_SEED_COOKIE)
-bolos_bool_t os_perso_seed_cookie(unsigned char *seed_cookie)
-{
-    unsigned int parameters[1];
-    parameters[0] = (unsigned int) seed_cookie;
-    return (bolos_bool_t) SVC_Call(SYSCALL_os_perso_seed_cookie_ID, parameters);
-}
-#endif  // HAVE_SEED_COOKIE
 
 bolos_err_t os_perso_get_master_key_identifier(uint8_t *identifier, size_t identifier_length)
 {
@@ -1505,29 +1376,6 @@ bolos_err_t ENDORSEMENT_get_metadata(ENDORSEMENT_slot_t slot,
     parameters[1] = (unsigned int) out_metadata;
     parameters[2] = (unsigned int) out_metadata_length;
     return (bolos_err_t) SVC_Call(SYSCALL_ENDORSEMENT_get_metadata_ID, parameters);
-}
-
-void os_perso_set_pin(unsigned int         identity,
-                      const unsigned char *pin,
-                      unsigned int         length,
-                      bool                 update_crc)
-{
-    unsigned int parameters[4];
-    parameters[0] = (unsigned int) identity;
-    parameters[1] = (unsigned int) pin;
-    parameters[2] = (unsigned int) length;
-    parameters[3] = (unsigned int) update_crc;
-    SVC_Call(SYSCALL_os_perso_set_pin_ID, parameters);
-    return;
-}
-
-void os_perso_set_current_identity_pin(unsigned char *pin, unsigned int length)
-{
-    unsigned int parameters[2];
-    parameters[0] = (unsigned int) pin;
-    parameters[1] = (unsigned int) length;
-    SVC_Call(SYSCALL_os_perso_set_current_identity_pin_ID, parameters);
-    return;
 }
 
 bolos_bool_t os_perso_is_pin_set(void)
