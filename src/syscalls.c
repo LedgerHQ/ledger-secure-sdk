@@ -2,7 +2,6 @@
 
 #if defined(HAVE_BOLOS)
 #include "bolos_privileged_ux.h"
-#include "cert_privileged.h"
 #endif  // HAVE_BOLOS
 
 #include "bolos_target.h"
@@ -1756,25 +1755,6 @@ unsigned int os_deny_protected_flash(void)
     parameters[1] = 0;
     return (unsigned int) SVC_Call(SYSCALL_os_deny_protected_flash_ID, parameters);
 }
-
-#ifdef HAVE_CUSTOM_CA_DETAILS_IN_SETTINGS
-
-bolos_bool_t CERT_get(CERT_info_t *custom_ca)
-{
-    unsigned int parameters[2];
-    parameters[0]    = (unsigned int) custom_ca;
-    bolos_bool_t ret = (bolos_bool_t) SVC_Call(SYSCALL_CERT_get_ID, parameters);
-    return ret;
-}
-
-void CERT_erase(void)
-{
-    unsigned int parameters[1];
-    parameters[0] = 0;
-    SVC_Call(SYSCALL_CERT_erase_ID, parameters);
-    return;
-}
-#endif  // HAVE_CUSTOM_CA_DETAILS_IN_SETTINGS
 
 unsigned int os_seph_serial(unsigned char *serial, unsigned int maxlength)
 {
