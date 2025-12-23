@@ -118,21 +118,4 @@ bolos_err_t delete_background_img(void);
 
 extern ux_seph_os_and_app_t G_ux_os;
 
-#if defined(HAVE_LANGUAGE_PACK)
-const char *get_ux_loc_string(UX_LOC_STRINGS_INDEX index);
-void        bolos_ux_select_language(uint16_t language);
-void        bolos_ux_refresh_language(void);
-
-typedef struct ux_loc_language_pack_infos {
-    unsigned char available;
-
-} UX_LOC_LANGUAGE_PACK_INFO;
-
-// To populate infos about language packs
-SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void list_language_packs(
-    UX_LOC_LANGUAGE_PACK_INFO *packs PLENGTH(NB_LANG * sizeof(UX_LOC_LANGUAGE_PACK_INFO)));
-SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) const LANGUAGE_PACK *get_language_pack(
-    unsigned int language);
-#endif  // defined(HAVE_LANGUAGE_PACK)
-
 #include "glyphs.h"

@@ -253,10 +253,8 @@
 
 #define SYSCALL_os_seph_serial_ID 0x0200006d
 
-#if defined(HAVE_LANGUAGE_PACK)
-#define SYSCALL_list_language_packs_ID 0x01000153
-#define SYSCALL_get_language_pack_ID   0x01000154
-#endif  // defined(HAVE_LANGUAGE_PACK)
+#define SYSCALL_RESERVED_26_ID 0x01000153
+#define SYSCALL_RESERVED_27_ID 0x01000154
 
 #ifdef DEBUG_OS_STACK_CONSUMPTION
 #define SYSCALL_os_stack_operations_ID 0x01000199

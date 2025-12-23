@@ -20,9 +20,6 @@
 #include "ox_ec.h"
 #include "ox_bn.h"
 #include "syscalls.h"
-#if defined(HAVE_LANGUAGE_PACK)
-#include "ux.h"
-#endif  // defined(HAVE_LANGUAGE_PACK)
 #ifdef HAVE_NBGL
 #include "nbgl_types.h"
 #include "nbgl_fonts.h"
@@ -1865,21 +1862,6 @@ unsigned int io_button_read(void)
     return (unsigned int) SVC_Call(SYSCALL_io_button_read_ID, parameters);
 }
 #endif  // HAVE_SE_BUTTON
-
-#if defined(HAVE_LANGUAGE_PACK)
-void list_language_packs(UX_LOC_LANGUAGE_PACK_INFO *packs)
-{
-    unsigned int parameters[1];
-    parameters[0] = (unsigned int) packs;
-    SVC_Call(SYSCALL_list_language_packs_ID, parameters);
-}
-const LANGUAGE_PACK *get_language_pack(unsigned int language)
-{
-    unsigned int parameters[1];
-    parameters[0] = language;
-    return (LANGUAGE_PACK *) SVC_Call(SYSCALL_get_language_pack_ID, parameters);
-}
-#endif  // defined(HAVE_LANGUAGE_PACK)
 
 #if defined(HAVE_BACKGROUND_IMG)
 uint8_t *fetch_background_img(bool allow_candidate)
