@@ -1423,39 +1423,6 @@ unsigned int os_ux(bolos_ux_params_t *params)
     return (unsigned int) SVC_Call(SYSCALL_os_ux_ID, parameters);
 }
 
-void os_dashboard_mbx(uint32_t cmd, uint32_t param)
-{
-    unsigned int parameters[2];
-    parameters[0] = (unsigned int) cmd;
-    parameters[1] = (unsigned int) param;
-    SVC_Call(SYSCALL_os_dashboard_mbx_ID, parameters);
-}
-
-void os_ux_set_global(uint8_t param_type, uint8_t *param, size_t param_len)
-{
-    unsigned int parameters[3];
-    parameters[0] = (unsigned int) param_type;
-    parameters[1] = (unsigned int) param;
-    parameters[2] = (unsigned int) param_len;
-    SVC_Call(SYSCALL_os_ux_set_global_ID, parameters);
-}
-
-#ifdef HAVE_CHARON
-void RK_set_backup_state(RK_backup_state_t state)
-{
-    unsigned int parameters[1];
-    parameters[0] = (unsigned int) state;
-    SVC_Call(SYSCALL_os_rk_set_backup_state_ID, parameters);
-}
-
-void RK_set_update_state(RK_update_state_t state)
-{
-    unsigned int parameters[1];
-    parameters[0] = (unsigned int) state;
-    SVC_Call(SYSCALL_os_rk_set_update_state_ID, parameters);
-}
-#endif  // HAVE_CHARON
-
 void os_lib_call(unsigned int *call_parameters)
 {
     unsigned int parameters[2];
