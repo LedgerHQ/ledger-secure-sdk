@@ -5,13 +5,16 @@
  *
  * @param[in,out] list pointer to the list
  * @param[out] node new node to add
+ * @return true on success, false on error
  */
-void c_list_push_front(c_list_node_t **list, c_list_node_t *node)
+bool c_list_push_front(c_list_node_t **list, c_list_node_t *node)
 {
-    if ((list != NULL) && (node != NULL)) {
-        node->next = *list;
-        *list      = node;
+    if ((list == NULL) || (node == NULL) || (node->next != NULL)) {
+        return false;
     }
+    node->next = *list;
+    *list      = node;
+    return true;
 }
 
 /**
@@ -40,24 +43,25 @@ void c_list_pop_front(c_list_node_t **list, f_list_node_del func)
  *
  * @param[in,out] list pointer to the list
  * @param[in,out] node new node to add
+ * @return true on success, false on error
  */
-void c_list_push_back(c_list_node_t **list, c_list_node_t *node)
+bool c_list_push_back(c_list_node_t **list, c_list_node_t *node)
 {
     c_list_node_t *tmp = NULL;
 
-    if ((list != NULL) && (node != NULL)) {
-        if (*list == NULL) {
-            *list = node;
-        }
-        else {
-            tmp = *list;
-            if (tmp != NULL) {
-                for (; tmp->next != NULL; tmp = tmp->next)
-                    ;
-                tmp->next = node;
-            }
-        }
+    if ((list == NULL) || (node == NULL) || (node->next != NULL)) {
+        return false;
     }
+    if (*list == NULL) {
+        *list = node;
+    }
+    else {
+        tmp = *list;
+        for (; tmp->next != NULL; tmp = tmp->next)
+            ;
+        tmp->next = node;
+    }
+    return true;
 }
 
 /**
@@ -94,13 +98,16 @@ void c_list_pop_back(c_list_node_t **list, f_list_node_del func)
  *
  * @param[in,out] ref reference node
  * @param[in,out] node new node to add
+ * @return true on success, false on error
  */
-void c_list_insert_after(c_list_node_t *ref, c_list_node_t *node)
+bool c_list_insert_after(c_list_node_t *ref, c_list_node_t *node)
 {
-    if ((ref != NULL) && (node != NULL)) {
-        node->next = ref->next;
-        ref->next  = node;
+    if ((ref == NULL) || (node == NULL) || (node->next != NULL)) {
+        return false;
     }
+    node->next = ref->next;
+    ref->next  = node;
+    return true;
 }
 
 /**
@@ -109,28 +116,32 @@ void c_list_insert_after(c_list_node_t *ref, c_list_node_t *node)
  * @param[in,out] list pointer to the list
  * @param[in,out] ref reference node
  * @param[in,out] node new node to add
+ * @return true on success, false on error
  */
-void c_list_insert_before(c_list_node_t **list, c_list_node_t *ref, c_list_node_t *node)
+bool c_list_insert_before(c_list_node_t **list, c_list_node_t *ref, c_list_node_t *node)
 {
     c_list_node_t *it = NULL;
 
-    if ((list != NULL) && (ref != NULL) && (node != NULL)) {
-        if (*list == ref) {
-            // insert at front
-            c_list_push_front(list, node);
-        }
-        else {
-            it = *list;
-            if (it != NULL) {
-                for (; (it->next != ref) && (it->next != NULL); it = it->next)
-                    ;
-                if (it->next == ref) {
-                    node->next = ref;
-                    it->next   = node;
-                }
-            }
-        }
+    if ((list == NULL) || (ref == NULL) || (node == NULL) || (node->next != NULL)) {
+        return false;
     }
+    if (*list == ref) {
+        // insert at front
+        return c_list_push_front(list, node);
+    }
+    it = *list;
+    if (it == NULL) {
+        return false;
+    }
+    for (; (it->next != ref) && (it->next != NULL); it = it->next)
+        ;
+    if (it->next != ref) {
+        // ref not found in list
+        return false;
+    }
+    node->next = ref;
+    it->next   = node;
+    return true;
 }
 
 /**
