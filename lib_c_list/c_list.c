@@ -22,20 +22,21 @@ bool c_list_push_front(c_list_node_t **list, c_list_node_t *node)
  *
  * @param[in,out] list pointer to the list
  * @param[in] func pointer to the node deletion function
+ * @return true on success, false if list is empty or NULL
  */
-void c_list_pop_front(c_list_node_t **list, f_list_node_del func)
+bool c_list_pop_front(c_list_node_t **list, f_list_node_del func)
 {
     c_list_node_t *tmp = NULL;
 
-    if (list != NULL) {
-        tmp = *list;
-        if (tmp != NULL) {
-            *list = tmp->next;
-            if (func != NULL) {
-                func(tmp);
-            }
-        }
+    if ((list == NULL) || (*list == NULL)) {
+        return false;
     }
+    tmp   = *list;
+    *list = tmp->next;
+    if (func != NULL) {
+        func(tmp);
+    }
+    return true;
 }
 
 /**
@@ -69,28 +70,27 @@ bool c_list_push_back(c_list_node_t **list, c_list_node_t *node)
  *
  * @param[in,out] list pointer to the list
  * @param[in] func pointer to the node deletion function
+ * @return true on success, false if list is empty or NULL
  */
-void c_list_pop_back(c_list_node_t **list, f_list_node_del func)
+bool c_list_pop_back(c_list_node_t **list, f_list_node_del func)
 {
     c_list_node_t *tmp = NULL;
 
-    if (list != NULL) {
-        tmp = *list;
-        if (tmp != NULL) {
-            // only one element
-            if (tmp->next == NULL) {
-                c_list_pop_front(list, func);
-            }
-            else {
-                for (; tmp->next->next != NULL; tmp = tmp->next)
-                    ;
-                if (func != NULL) {
-                    func(tmp->next);
-                }
-                tmp->next = NULL;
-            }
-        }
+    if ((list == NULL) || (*list == NULL)) {
+        return false;
     }
+    tmp = *list;
+    // only one element
+    if (tmp->next == NULL) {
+        return c_list_pop_front(list, func);
+    }
+    for (; tmp->next->next != NULL; tmp = tmp->next)
+        ;
+    if (func != NULL) {
+        func(tmp->next);
+    }
+    tmp->next = NULL;
+    return true;
 }
 
 /**
@@ -150,34 +150,33 @@ bool c_list_insert_before(c_list_node_t **list, c_list_node_t *ref, c_list_node_
  * @param[in,out] list pointer to the list
  * @param[out] node node to remove
  * @param[in] func pointer to the node deletion function
+ * @return true on success, false if node not found or invalid parameters
  */
-void c_list_remove(c_list_node_t **list, c_list_node_t *node, f_list_node_del func)
+bool c_list_remove(c_list_node_t **list, c_list_node_t *node, f_list_node_del func)
 {
     c_list_node_t *it  = NULL;
     c_list_node_t *tmp = NULL;
 
-    if ((list != NULL) && (node != NULL)) {
-        if (node == *list) {
-            // first element
-            c_list_pop_front(list, func);
-        }
-        else {
-            it = *list;
-            if (it != NULL) {
-                for (; (it->next != node) && (it->next != NULL); it = it->next)
-                    ;
-                if (it->next == NULL) {
-                    // node not found
-                    return;
-                }
-                tmp = it->next->next;
-                if (func != NULL) {
-                    func(it->next);
-                }
-                it->next = tmp;
-            }
-        }
+    if ((list == NULL) || (node == NULL) || (*list == NULL)) {
+        return false;
     }
+    if (node == *list) {
+        // first element
+        return c_list_pop_front(list, func);
+    }
+    it = *list;
+    for (; (it->next != node) && (it->next != NULL); it = it->next)
+        ;
+    if (it->next == NULL) {
+        // node not found
+        return false;
+    }
+    tmp = it->next->next;
+    if (func != NULL) {
+        func(it->next);
+    }
+    it->next = tmp;
+    return true;
 }
 
 /**
@@ -185,23 +184,26 @@ void c_list_remove(c_list_node_t **list, c_list_node_t *node, f_list_node_del fu
  *
  * @param[in,out] list pointer to the list
  * @param[in] func pointer to the node deletion function
+ * @return true on success, false if list is NULL
  */
-void c_list_clear(c_list_node_t **list, f_list_node_del func)
+bool c_list_clear(c_list_node_t **list, f_list_node_del func)
 {
     c_list_node_t *tmp  = NULL;
     c_list_node_t *next = NULL;
 
-    if (list != NULL) {
-        tmp = *list;
-        while (tmp != NULL) {
-            next = tmp->next;
-            if (func != NULL) {
-                func(tmp);
-            }
-            tmp = next;
-        }
-        *list = NULL;
+    if (list == NULL) {
+        return false;
     }
+    tmp = *list;
+    while (tmp != NULL) {
+        next = tmp->next;
+        if (func != NULL) {
+            func(tmp);
+        }
+        tmp = next;
+    }
+    *list = NULL;
+    return true;
 }
 
 /**
@@ -209,29 +211,32 @@ void c_list_clear(c_list_node_t **list, f_list_node_del func)
  *
  * @param[in,out] list pointer to the list
  * @param[in] func pointer to the node comparison function
+ * @return true on success, false if invalid parameters
  */
-void c_list_sort(c_list_node_t **list, f_list_node_cmp func)
+bool c_list_sort(c_list_node_t **list, f_list_node_cmp func)
 {
     c_list_node_t **tmp    = NULL;
     c_list_node_t  *a      = NULL;
     c_list_node_t  *b      = NULL;
     bool            sorted = false;
 
-    if ((list != NULL) && (func != NULL)) {
-        do {
-            sorted = true;
-            for (tmp = list; (*tmp != NULL) && ((*tmp)->next != NULL); tmp = &(*tmp)->next) {
-                a = *tmp;
-                b = a->next;
-                if (func(a, b) == false) {
-                    *tmp    = b;
-                    a->next = b->next;
-                    b->next = a;
-                    sorted  = false;
-                }
-            }
-        } while (!sorted);
+    if ((list == NULL) || (func == NULL)) {
+        return false;
     }
+    do {
+        sorted = true;
+        for (tmp = list; (*tmp != NULL) && ((*tmp)->next != NULL); tmp = &(*tmp)->next) {
+            a = *tmp;
+            b = a->next;
+            if (func(a, b) == false) {
+                *tmp    = b;
+                a->next = b->next;
+                b->next = a;
+                sorted  = false;
+            }
+        }
+    } while (!sorted);
+    return true;
 }
 
 /**
