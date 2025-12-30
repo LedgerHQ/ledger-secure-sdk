@@ -118,6 +118,7 @@ if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
     secure_sdk
     INTERFACE macros
               alloc
+              c_list
               cxng
               io
               nbgl
