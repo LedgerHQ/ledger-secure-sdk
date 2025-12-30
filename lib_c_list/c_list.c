@@ -58,8 +58,9 @@ bool c_list_push_back(c_list_node_t **list, c_list_node_t *node)
     }
     else {
         tmp = *list;
-        for (; tmp->next != NULL; tmp = tmp->next)
-            ;
+        while (tmp->next != NULL) {
+            tmp = tmp->next;
+        }
         tmp->next = node;
     }
     return true;
@@ -84,8 +85,9 @@ bool c_list_pop_back(c_list_node_t **list, f_list_node_del func)
     if (tmp->next == NULL) {
         return c_list_pop_front(list, func);
     }
-    for (; tmp->next->next != NULL; tmp = tmp->next)
-        ;
+    while (tmp->next->next != NULL) {
+        tmp = tmp->next;
+    }
     if (func != NULL) {
         func(tmp->next);
     }
@@ -122,7 +124,8 @@ bool c_list_insert_before(c_list_node_t **list, c_list_node_t *ref, c_list_node_
 {
     c_list_node_t *it = NULL;
 
-    if ((list == NULL) || (ref == NULL) || (node == NULL) || (node->next != NULL)) {
+    if ((list == NULL) || (*list == NULL) || (ref == NULL) || (node == NULL)
+        || (node->next != NULL)) {
         return false;
     }
     if (*list == ref) {
@@ -130,11 +133,9 @@ bool c_list_insert_before(c_list_node_t **list, c_list_node_t *ref, c_list_node_
         return c_list_push_front(list, node);
     }
     it = *list;
-    if (it == NULL) {
-        return false;
+    while ((it->next != ref) && (it->next != NULL)) {
+        it = it->next;
     }
-    for (; (it->next != ref) && (it->next != NULL); it = it->next)
-        ;
     if (it->next != ref) {
         // ref not found in list
         return false;
@@ -165,8 +166,9 @@ bool c_list_remove(c_list_node_t **list, c_list_node_t *node, f_list_node_del fu
         return c_list_pop_front(list, func);
     }
     it = *list;
-    for (; (it->next != node) && (it->next != NULL); it = it->next)
-        ;
+    while ((it->next != node) && (it->next != NULL)) {
+        it = it->next;
+    }
     if (it->next == NULL) {
         // node not found
         return false;
