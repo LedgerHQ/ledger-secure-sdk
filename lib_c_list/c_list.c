@@ -104,6 +104,37 @@ void c_list_insert_after(c_list_node_t *ref, c_list_node_t *node)
 }
 
 /**
+ * @brief Insert a new node before a given list node (reference)
+ *
+ * @param[in,out] list pointer to the list
+ * @param[in,out] ref reference node
+ * @param[in,out] node new node to add
+ */
+void c_list_insert_before(c_list_node_t **list, c_list_node_t *ref, c_list_node_t *node)
+{
+    c_list_node_t *it = NULL;
+
+    if ((list != NULL) && (ref != NULL) && (node != NULL)) {
+        if (*list == ref) {
+            // insert at front
+            node->next = *list;
+            *list      = node;
+        }
+        else {
+            it = *list;
+            if (it != NULL) {
+                for (; (it->next != ref) && (it->next != NULL); it = it->next)
+                    ;
+                if (it->next == ref) {
+                    node->next = ref;
+                    it->next   = node;
+                }
+            }
+        }
+    }
+}
+
+/**
  * @brief Remove a given node from the list
  *
  * @param[in,out] list pointer to the list
