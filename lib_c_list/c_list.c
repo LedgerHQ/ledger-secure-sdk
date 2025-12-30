@@ -117,8 +117,7 @@ void c_list_insert_before(c_list_node_t **list, c_list_node_t *ref, c_list_node_
     if ((list != NULL) && (ref != NULL) && (node != NULL)) {
         if (*list == ref) {
             // insert at front
-            node->next = *list;
-            *list      = node;
+            c_list_push_front(list, node);
         }
         else {
             it = *list;
