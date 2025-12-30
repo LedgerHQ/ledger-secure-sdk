@@ -453,6 +453,12 @@ void *mem_realloc(mem_ctx_t ctx, void *ptr, size_t size)
         return mem_alloc(ctx, size);
     }
 
+    // Check ptr is valid
+    if (ptr < (void *) (((uint8_t *) heap) + HEAP_HEADER_SIZE) || ptr >= (void *) heap->end) {
+        PRINTF("invalid pointer passed to realloc: 0x%p!\n", ptr);
+        return NULL;
+    }
+
     // Free the original block if new size is zero
     if (size == 0) {
         mem_free(ctx, ptr);

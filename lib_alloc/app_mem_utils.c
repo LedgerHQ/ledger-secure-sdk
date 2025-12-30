@@ -65,6 +65,34 @@ void *mem_utils_alloc(size_t size, bool permanent, const char *file, int line)
 }
 
 /**
+ * @brief Internal implementation of memory reallocation
+ *
+ * @param[in] ptr previously allocated or NULL (equivalent to alloc)
+ * @param[in] size new size in bytes to allocate. Can be 0 (equivalent to free).
+ * @param[in] file source file requesting the allocation (for profiling only)
+ * @param[in] line line in the source file requesting the allocation (for profiling only)
+ * @return either a valid address if successful, or NULL if failed or size is 0.
+ */
+void *mem_utils_realloc(void *ptr, size_t size, const char *file, int line)
+{
+    UNUSED(file);
+    UNUSED(line);
+    void *new_ptr;
+    new_ptr = mem_realloc(mem_utils_ctx, ptr, size);
+
+#ifdef HAVE_MEMORY_PROFILING
+    if (new_ptr != NULL) {
+        // Log the realloc event (ptr might be different now)
+        if (ptr != NULL && ptr != new_ptr) {
+            PRINTF(MP_LOG_PREFIX "free;0x%p;%s:%u\n", ptr, file, line);
+        }
+        PRINTF(MP_LOG_PREFIX "alloc;%u;0x%p;%s:%u\n", size, new_ptr, file, line);
+    }
+#endif
+    return new_ptr;
+}
+
+/**
  * @brief Internal implementation of memory free
  *
  * @param[in] ptr previously allocated

@@ -26,7 +26,8 @@ This test suite covers both low-level allocator functions (`mem_alloc.c`) and hi
 - `test_utils_basic_alloc` - Basic allocation and free operations
 - `test_utils_zero_size` - Zero-size allocation handling
 - `test_utils_buffer_allocate` - Zero-initialized buffer allocation
-- `test_utils_buffer_realloc` - Buffer reallocation
+- `test_utils_buffer_calloc` - Zero-initialized buffer reallocation
+- `test_utils_buffer_realloc` - Buffer reallocation with data preservation
 - `test_utils_buffer_zero_size` - Zero-size buffer cleanup
 - `test_utils_strdup` - String duplication
 - `test_utils_format_uint` - Integer formatting
