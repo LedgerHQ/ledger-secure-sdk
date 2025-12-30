@@ -87,6 +87,20 @@ typedef struct {
 /**********************
  *   LOCAL FUNCTIONS
  **********************/
+static inline size_t align_alloc_size(size_t size)
+{
+    // Add alignment - 1 to prepare for rounding up if needed
+    // This trick ensures already aligned sizes are not changed
+    size += PAYLOAD_ALIGNEMENT - 1;
+    // Mask off lower bits to align size down to nearest alignment boundary
+    size &= ~(PAYLOAD_ALIGNEMENT - 1);
+    // Either add 4 bytes (if size is 8N+4) or 8 bytes (if size is 8N) so the full
+    // 8-byte header structure fits while preserving alignment.
+    size += (size & PAYLOAD_ALIGNEMENT) ? ALLOC_CHUNK_HEADER_SIZE
+                                        : ALLOC_CHUNK_HEADER_SIZE + PAYLOAD_ALIGNEMENT;
+    return size;
+}
+
 // This function returns the index into the array segregated explicit free lists
 // corresponding to the given size.
 // For 2^n <= size < 2^(n+1), this function returns n.
@@ -359,17 +373,7 @@ void *mem_alloc(mem_ctx_t ctx, size_t nb_bytes)
     }
 
     // Adjust size to include header and satisfy alignment requirements, etc.
-    nb_bytes += PAYLOAD_ALIGNEMENT - 1;
-    nb_bytes &= ~(PAYLOAD_ALIGNEMENT - 1);
-
-    // if nb_bytes = 8N + 4, just add 4 for header
-    if (nb_bytes & PAYLOAD_ALIGNEMENT) {
-        nb_bytes += ALLOC_CHUNK_HEADER_SIZE;  // for header (size +  prev_chunk)
-    }
-    else {
-        // if nb_bytes = 8N, add 8 for header + unused footer
-        nb_bytes += ALLOC_CHUNK_HEADER_SIZE + PAYLOAD_ALIGNEMENT;
-    }
+    nb_bytes = align_alloc_size(nb_bytes);
 
     // get the segment sure to be holding this size
     // if nb_bytes == 2^n , all chunks in [2^n: 2^(n+1)[ are ok
@@ -466,8 +470,8 @@ void *mem_realloc(mem_ctx_t ctx, void *ptr, size_t size)
     size_t old_block_size = header->size;
     // Save the size of the data portion of the old block
     size_t old_payload_size = old_block_size - ALLOC_CHUNK_HEADER_SIZE;
-    // Set the size of the new block
-    size_t new_block_size = size + ALLOC_CHUNK_HEADER_SIZE;
+    // Adjust size of the new block to include header and satisfy alignment requirements, etc.
+    size_t new_block_size = align_alloc_size(size);
 
     // If the old block is already big enough, return the same pointer
     if (old_payload_size >= size) {
