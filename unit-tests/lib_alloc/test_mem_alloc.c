@@ -373,7 +373,7 @@ static void test_utils_buffer_allocate(void **state __attribute__((unused)))
     assert_null(buffer);
 }
 
-static void test_utils_buffer_realloc(void **state __attribute__((unused)))
+static void test_utils_buffer_calloc(void **state __attribute__((unused)))
 {
     mem_utils_init(malloc_buffer, sizeof(malloc_buffer));
 
@@ -389,6 +389,44 @@ static void test_utils_buffer_realloc(void **state __attribute__((unused)))
 
     APP_MEM_FREE_AND_NULL(&buffer);
     assert_null(buffer);
+}
+
+static void test_utils_buffer_realloc(void **state __attribute__((unused)))
+{
+    mem_utils_init(malloc_buffer, sizeof(malloc_buffer));
+
+    // Realloc to invalid pointer should return NULL
+    void *result_invalid = APP_MEM_REALLOC((void *) 0x12345678, 100);
+    assert_null(result_invalid);
+
+    // Realloc NULL pointer should behave like alloc
+    void *result1 = APP_MEM_REALLOC(NULL, 50);
+    assert_non_null(result1);
+    // Write some data
+    memset(result1, 0xAB, 50);
+
+    // Realloc to larger size
+    void *result2 = APP_MEM_REALLOC(result1, 150);
+    assert_non_null(result2);
+    assert_non_null(result1);
+    // Check previous data is intact
+    uint8_t *byte_buffer = (uint8_t *) result2;
+    for (size_t i = 0; i < 50; i++) {
+        assert_int_equal(byte_buffer[i], 0xAB);
+    }
+
+    // Realloc to really tiny size (should shrink
+    // and trigger alignment logic)
+    void *result3 = APP_MEM_REALLOC(result2, 1);
+    assert_non_null(result3);
+    assert_non_null(result2);
+    // Check previous data is intact
+    byte_buffer = (uint8_t *) result3;
+    assert_int_equal(byte_buffer[0], 0xAB);
+
+    // Realloc to zero size should free the buffer
+    void *result4 = APP_MEM_REALLOC(result3, 0);
+    assert_null(result4);
 }
 
 static void test_utils_buffer_zero_size(void **state __attribute__((unused)))
@@ -497,6 +535,7 @@ int main(int argc, char **argv)
                                        cmocka_unit_test(test_utils_basic_alloc),
                                        cmocka_unit_test(test_utils_zero_size),
                                        cmocka_unit_test(test_utils_buffer_allocate),
+                                       cmocka_unit_test(test_utils_buffer_calloc),
                                        cmocka_unit_test(test_utils_buffer_realloc),
                                        cmocka_unit_test(test_utils_buffer_zero_size),
                                        cmocka_unit_test(test_utils_strdup),
