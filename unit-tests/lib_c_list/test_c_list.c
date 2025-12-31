@@ -127,6 +127,30 @@ static void test_push_back(void **state)
     c_list_clear(&list, delete_node);
 }
 
+// Test: push_back error cases
+static void test_push_back_errors(void **state)
+{
+    (void) state;
+    c_list_node_t *list = NULL;
+    test_node_t   *node;
+
+    // NULL list pointer
+    node = create_node(1);
+    assert_false(c_list_push_back(NULL, &node->node));
+    free(node);
+
+    // NULL node pointer
+    assert_false(c_list_push_back(&list, NULL));
+
+    // Node already linked
+    node             = create_node(1);
+    test_node_t *tmp = create_node(2);
+    node->node.next  = &tmp->node;
+    assert_false(c_list_push_back(&list, &node->node));
+    free(node);
+    free(tmp);
+}
+
 // Test: pop_front basic functionality
 static void test_pop_front(void **state)
 {
@@ -216,6 +240,36 @@ static void test_insert_after(void **state)
     assert_int_equal(current->value, 2);
     current = (test_node_t *) current->node.next;
     assert_int_equal(current->value, 3);
+
+    // Cleanup
+    c_list_clear(&list, delete_node);
+}
+
+// Test: insert_after error cases
+static void test_insert_after_errors(void **state)
+{
+    (void) state;
+    c_list_node_t *list = NULL;
+    test_node_t   *node1, *node2;
+
+    node1 = create_node(1);
+    c_list_push_back(&list, &node1->node);
+
+    // NULL prev pointer
+    node2 = create_node(2);
+    assert_false(c_list_insert_after(NULL, &node2->node));
+    free(node2);
+
+    // NULL node pointer
+    assert_false(c_list_insert_after(&node1->node, NULL));
+
+    // Node already linked
+    node2            = create_node(2);
+    test_node_t *tmp = create_node(3);
+    node2->node.next = &tmp->node;
+    assert_false(c_list_insert_after(&node1->node, &node2->node));
+    free(node2);
+    free(tmp);
 
     // Cleanup
     c_list_clear(&list, delete_node);
@@ -420,6 +474,26 @@ static void test_sort_single(void **state)
     c_list_clear(&list, delete_node);
 }
 
+// Test: sort error cases
+static void test_sort_errors(void **state)
+{
+    (void) state;
+    c_list_node_t *list = NULL;
+
+    // Create a list
+    test_node_t *node = create_node(1);
+    c_list_push_back(&list, &node->node);
+
+    // NULL list pointer
+    assert_false(c_list_sort(NULL, compare_ascending));
+
+    // NULL compare function
+    assert_false(c_list_sort(&list, NULL));
+
+    // Cleanup
+    c_list_clear(&list, delete_node);
+}
+
 // Test: size
 static void test_size(void **state)
 {
@@ -438,6 +512,15 @@ static void test_size(void **state)
 
     // Cleanup
     c_list_clear(&list, delete_node);
+}
+
+// Test: size with NULL pointer
+static void test_size_null(void **state)
+{
+    (void) state;
+
+    // NULL list pointer should return 0
+    assert_int_equal(c_list_size(NULL), 0);
 }
 
 // Test: list traversal and manipulation
@@ -473,22 +556,16 @@ static void test_traversal(void **state)
 int main(void)
 {
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_push_front),
-        cmocka_unit_test(test_push_front_errors),
-        cmocka_unit_test(test_push_back),
-        cmocka_unit_test(test_pop_front),
-        cmocka_unit_test(test_pop_back),
-        cmocka_unit_test(test_insert_after),
-        cmocka_unit_test(test_insert_before),
-        cmocka_unit_test(test_insert_before_errors),
-        cmocka_unit_test(test_remove),
-        cmocka_unit_test(test_remove_not_found),
-        cmocka_unit_test(test_clear),
-        cmocka_unit_test(test_sort),
-        cmocka_unit_test(test_sort_empty),
-        cmocka_unit_test(test_sort_single),
-        cmocka_unit_test(test_size),
-        cmocka_unit_test(test_traversal),
+        cmocka_unit_test(test_push_front),    cmocka_unit_test(test_push_front_errors),
+        cmocka_unit_test(test_push_back),     cmocka_unit_test(test_push_back_errors),
+        cmocka_unit_test(test_pop_front),     cmocka_unit_test(test_pop_back),
+        cmocka_unit_test(test_insert_after),  cmocka_unit_test(test_insert_after_errors),
+        cmocka_unit_test(test_insert_before), cmocka_unit_test(test_insert_before_errors),
+        cmocka_unit_test(test_remove),        cmocka_unit_test(test_remove_not_found),
+        cmocka_unit_test(test_clear),         cmocka_unit_test(test_sort),
+        cmocka_unit_test(test_sort_empty),    cmocka_unit_test(test_sort_single),
+        cmocka_unit_test(test_sort_errors),   cmocka_unit_test(test_size),
+        cmocka_unit_test(test_size_null),     cmocka_unit_test(test_traversal),
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }
