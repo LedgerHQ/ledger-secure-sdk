@@ -82,7 +82,7 @@ void exec_realloc(mem_ctx_t *allocator, size_t index, size_t len)
         "[REALLOC_INIT] ptr = %p | length = %lu | new_length = %lu\n", alloc->ptr, alloc->len, len);
 #endif
     for (size_t i = 0; i < alloc->len; i++) {
-        assert(((uint8_t *) alloc->ptr)[i] == alloc->len & 0xff);
+        assert(((uint8_t *) alloc->ptr)[i] == (alloc->len & 0xff));
     }
     memset(alloc->ptr, 0, alloc->len);
 
@@ -115,7 +115,7 @@ void exec_free(mem_ctx_t *allocator, size_t index)
     printf("[FREE] ptr = %p | length = %lu\n", alloc->ptr, alloc->len);
 #endif
     for (size_t i = 0; i < alloc->len; i++) {
-        assert(((uint8_t *) alloc->ptr)[i] == alloc->len & 0xff);
+        assert(((uint8_t *) alloc->ptr)[i] == (alloc->len & 0xff));
     }
     memset(alloc->ptr, 0, alloc->len);
     mem_free(allocator, alloc->ptr);
