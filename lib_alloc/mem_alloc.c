@@ -501,7 +501,6 @@ void *mem_realloc(mem_ctx_t ctx, void *ptr, size_t size)
             // Adjust the size of the allocated block
             header->size = new_block_size;
         }
-
         // Return the original block pointer as it is still valid
         return ptr;
     }
