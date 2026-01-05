@@ -81,12 +81,17 @@ void *mem_utils_realloc(void *ptr, size_t size, const char *file, int line)
     new_ptr = mem_realloc(mem_utils_ctx, ptr, size);
 
 #ifdef HAVE_MEMORY_PROFILING
-    if (new_ptr != NULL) {
-        // Log the realloc event (ptr might be different now)
-        if (ptr != NULL && ptr != new_ptr) {
-            PRINTF(MP_LOG_PREFIX "free;0x%p;%s:%u\n", ptr, file, line);
+    if (ptr != NULL && size == 0) {
+        PRINTF(MP_LOG_PREFIX "free;0x%p;%s:%u\n", ptr, file, line);
+    }
+    else if (new_ptr != NULL) {
+        if (ptr == NULL) {
+            PRINTF(MP_LOG_PREFIX "alloc;%u;0x%p;%s:%u\n", size, new_ptr, file, line);
         }
-        PRINTF(MP_LOG_PREFIX "alloc;%u;0x%p;%s:%u\n", size, new_ptr, file, line);
+        else if (ptr != new_ptr) {
+            PRINTF(MP_LOG_PREFIX "free;0x%p;%s:%u\n", ptr, file, line);
+            PRINTF(MP_LOG_PREFIX "alloc;%u;0x%p;%s:%u\n", size, new_ptr, file, line);
+        }
     }
 #endif
     return new_ptr;
