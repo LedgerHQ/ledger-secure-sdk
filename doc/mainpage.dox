@@ -19,8 +19,8 @@ The @subpage mem_alloc_mainpage page contains all information necessary to inter
 
 @section nbgl_presentation Screen drawing API
 
-The @subpage nbgl_mainpage page contains all information necessary to understand the Graphical Library for
-\b Stax, \b Flex, \b NanoX and \b NanoS+ applications development.
+The @subpage nbgl_mainpage page contains all information necessary to understand the Graphical Library (NBGL) for
+Applications development.
 
 @section nfc_presentation NFC Interface
 

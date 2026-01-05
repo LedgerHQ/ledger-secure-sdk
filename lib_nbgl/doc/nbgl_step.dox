@@ -1,4 +1,3 @@
-#ifdef NBGL_STEP
 /** @page nbgl_step Predefined Step API
 
 @section nbgl_step_intro Introduction
@@ -127,4 +126,3 @@ This argument (of type @ref nbgl_stepPosition_t) can take the following values:
 - @ref NEITHER_FIRST_NOR_LAST_STEP, if this is the neither the first nor the last step in a multiple steps flow
 
 */
-#endif // NBGL_STEP

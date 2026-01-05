@@ -1,5 +1,4 @@
-#ifndef HAVE_SE_TOUCH
-/** @page nbgl_layout Complex objects layout API
+/** @page nbgl_layout_nano Complex objects layout API
 
 @section nbgl_layout_intro Introduction
 This chapter describes briefly the mid level API of Advanced BOLOS Graphic Library.
@@ -313,4 +312,3 @@ objects.
 
 
 */
-#endif // HAVE_SE_TOUCH

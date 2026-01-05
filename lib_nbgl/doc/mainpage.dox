@@ -1,61 +1,100 @@
-#ifdef HAVE_SE_TOUCH
-/** @page nbgl_mainpage New BOLOS Graphic API for Stax/Flex
+/** @page nbgl_mainpage New BOLOS Graphic Library (NBGL)
 
 @section nbgl_mainpage_intro Introduction
 
-This documentation describes the different interfaces of <b>NBGL</b>, the library that
-is targeted to be integrated in Stax or Flex product.
+This documentation describes the different interfaces of <b>NBGL</b> (New BOLOS Graphic Library),
+the graphics engine used for all Ledger devices.
 
-<b>NBGL Engine</b> is responsible for constructing screens and handling Touchscreen input.
+<b>NBGL Engine</b> is responsible for constructing screens and handling user input (<i>touchscreen</i> on \b Stax / \b Flex / \b Apex, <i>buttons</i> on \b Nano devices).
 
-@section mainpage_overall_archi Overall architecture
+@section nbgl_devices Supported Devices
 
-<b>NBGL Engine</b> is a library to be integrated in SDK.
-It is intended to replace existing BAGL/FLOW Graphical Engine (used on Nanos/Blue products)
+NBGL supports two categories of devices with different input methods:
+
+| Category     | Devices                              | Input Method         | Screen Type              |
+|--------------|--------------------------------------|----------------------|--------------------------|
+| \b Touchable | \b Stax, \b Flex, \b Apex            | Touchscreen          | Large display            |
+| \b Nano      | \b Nano \b X, \b Nano \b S+          | Buttons (left/right) | Small monochrome display |
+
+@section mainpage_overall_archi Overall Architecture
+
+<b>NBGL Engine</b> is a library integrated in SDK.
+It replaces the existing \b BAGL Graphical Engine (used on legacy \b Nano \b S product).
 
 \image{inline} html NBGLArchi.png "caption" height=600
 
-@section nbgl_drawing_api Screen drawing APIs
+@section nbgl_drawing_api Screen Drawing APIs
 
-@subsection nbgl_app_use_case_api_1 Application Use-cases API
-This is the most preferred API level to write an embedded Application.
+NBGL provides multiple API levels, from high-level use-cases to low-level object manipulation.
 
-The @subpage nbgl_app_use_case page contains all information necessary to understand
-and use \b NBGL Application Use cases API
+@subsection nbgl_app_use_case_api_1 Application Use-cases API (Recommended)
+
+This is the most preferred API level to write an embedded Application. It provides ready-to-use screens for common scenarios.
+
+| Device Category                          | Documentation                    |
+|------------------------------------------|----------------------------------|
+| Touchable (\b Stax / \b Flex / \b Apex)  | @subpage nbgl_app_use_case       |
+| Nano (\b Nano \b X / \b S+)              | @subpage nbgl_app_use_case_nanos |
 
 @subsection nbgl_high_level_api_1 High-Level API
-The @subpage nbgl_page page contains all information necessary to understand
-and use \b NBGL High-Level API, using predefined pages
 
-@subsection nbgl_mid_level_api_1 Mid-Level API
-The @subpage nbgl_layout page contains all information necessary to understand
-and use \b NBGL Mid-Level API, using complex objects
+Provides predefined screen templates with automatic navigation.
+
+| Device Category                          | API       | Documentation      |
+|------------------------------------------|-----------|--------------------|
+| Touchable (\b Stax / \b Flex / \b Apex)  | Pages API | @subpage nbgl_page |
+| Nano (\b Nano \b X / \b S+)              | Step API  | @subpage nbgl_step |
+| Nano (\b Nano \b X / \b S+)              | Flow API  | @subpage nbgl_flow |
+
+@subsection nbgl_mid_level_api_1 Mid-Level API (Layout)
+
+Offers a simplified view of a screen page using complex (aggregated) objects.
+
+| Device Category                          | Documentation              |
+|------------------------------------------|----------------------------|
+| Touchable (\b Stax / \b Flex / \b Apex)  | @subpage nbgl_layout_touch |
+| Nano (\b Nano \b X / \b S+)              | @subpage nbgl_layout_nano  |
 
 @subsection nbgl_low_level_api_1 Low-Level API
+
 The @subpage nbgl_obj page contains all information necessary to understand
-and use \b NBGL Low-Level API
+and use \b NBGL Low-Level API (common to all devices).
 
-@section nbgl_screen_objs Screen and objects management
+@section nbgl_screen_objs Screen and Objects Management
+
 The @subpage nbgl_screens_and_objs page contains all information necessary to understand
-how \b NBGL manages the screens stack and the dynamically allocated objects
+how \b NBGL manages the screens stack and the dynamically allocated objects.
 
-@section nbgl_touch_api Touchscreen events management
+@section nbgl_touch_api Touchscreen Events Management (Stax/Flex/Apex only)
+
 The @subpage nbgl_touchscreen page contains all information necessary to understand
-how \b NBGL manages the touchscreen events and how to receive and process these events.
+how \b NBGL manages the touchscreen events on \b Stax, \b Flex, and \b Apex devices.
 
-@section nbgl_building Compilation options
+@section nbgl_building Compilation Options
+
 In order to reduce the footprint (RAM+Flash), some features are only activated if some building options are defined.
 
-Define        | Meaning       | Default state
-------------- | ------------- | -------------
-\b NBGL_PAGE     | Activate High-Level API  | Active in SDK, not in OS
-\b NBGL_USE_CASE | Activate Use Case API    | Active in SDK, not in OS
-\b NBGL_KEYBOARD | Activate Keyboard object | Active in OS, not in SDK
-\b NBGL_KEYPAD   | Activate Keypad object   | Active in OS, not in SDK
-\b NBGL_QRCODE   | Activate QRCode object   | Active in OS, not in SDK
+@subsection nbgl_building_touch Touchable devices (Stax / Flex / Apex)
+
+Define           | Meaning                         | Default state
+-----------------| ------------------------------- | -------------
+\b NBGL_PAGE     | Activate Pages API (High-Level) | Active in SDK, not in OS
+\b NBGL_USE_CASE | Activate Use Case API           | Active in SDK, not in OS
+\b NBGL_KEYBOARD | Activate Keyboard object        | Active in OS, not in SDK
+\b NBGL_KEYPAD   | Activate Keypad object          | Active in OS, not in SDK
+\b NBGL_QRCODE   | Activate QRCode object          | Active in OS, not in SDK
+
+@subsection nbgl_building_nano Nano devices (Nano X / Nano S+)
+
+Define           | Meaning                        | Default state
+---------------- | ------------------------------ | -------------
+\b NBGL_STEP     | Activate Step API (High-Level) | Active in SDK and OS
+\b NBGL_USE_CASE | Activate Use Case API          | Active in SDK, not in OS
+\b NBGL_KEYBOARD | Activate Keyboard object       | Active in OS, not in SDK
+\b NBGL_KEYPAD   | Activate Keypad object         | Active in OS, not in SDK
+\b NBGL_QRCODE   | Activate QRCode object         | Active in OS, not in SDK
 
 Applications are free to define \b NBGL_KEYBOARD, \b NBGL_KEYPAD or \b NBGL_QRCODE in their own Makefile if they need to use these
 "rare" objects.
 
 */
-#endif // HAVE_SE_TOUCH
