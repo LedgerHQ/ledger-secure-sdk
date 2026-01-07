@@ -1,4 +1,3 @@
-#ifdef NBGL_STEP
 /** @page nbgl_flow Flow API
 
 @section nbgl_flow_intro Introduction
@@ -101,4 +100,3 @@ objects.
 
 
 */
-#endif // NBGL_STEP
