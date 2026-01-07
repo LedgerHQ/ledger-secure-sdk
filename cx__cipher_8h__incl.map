@@ -1,9 +1,7 @@
 <map id="lib_cxng/src/cx_cipher.h" name="lib_cxng/src/cx_cipher.h">
-<area shape="rect" id="Node000001" title=" " alt="" coords="295,5,471,31"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="239,5,415,31"/>
 <area shape="rect" id="Node000002" href="$lcx__cipher_8h.html" title="API for block ciphers." alt="" coords="278,79,377,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="376,33,347,69,343,66,372,29"/>
-<area shape="rect" id="Node000011" title=" " alt="" coords="401,79,481,104"/>
-<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="395,29,425,66,421,70,391,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="330,31,330,65,325,65,325,31"/>
 <area shape="rect" id="Node000003" title=" " alt="" coords="5,152,100,177"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="284,107,111,151,110,146,283,101"/>
 <area shape="rect" id="Node000004" href="$lcx__wrappers_8h.html" title=" " alt="" coords="125,152,245,177"/>

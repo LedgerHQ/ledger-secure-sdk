@@ -139,9 +139,6 @@ Functions</h2></td></tr>
 <tr class="memitem:a8ca42ac1233a5468f1791fc7d60882c0" id="r_a8ca42ac1233a5468f1791fc7d60882c0"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem__alloc_8h.html#a8ca42ac1233a5468f1791fc7d60882c0">mem_alloc</a> (<a class="el" href="mem__alloc_8h.html#a050ea486d898e406141fa11ba55c9b45">mem_ctx_t</a> ctx, size_t nb_bytes)</td></tr>
 <tr class="memdesc:a8ca42ac1233a5468f1791fc7d60882c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">allocates a buffer of the given size, if possible  <br /></td></tr>
 <tr class="separator:a8ca42ac1233a5468f1791fc7d60882c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4c57925660b12ca6b2973e1d3e2e1efa" id="r_a4c57925660b12ca6b2973e1d3e2e1efa"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem__alloc_8h.html#a4c57925660b12ca6b2973e1d3e2e1efa">mem_realloc</a> (<a class="el" href="mem__alloc_8h.html#a050ea486d898e406141fa11ba55c9b45">mem_ctx_t</a> ctx, void *ptr, size_t size)</td></tr>
-<tr class="memdesc:a4c57925660b12ca6b2973e1d3e2e1efa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reallocates a buffer to a new size.  <br /></td></tr>
-<tr class="separator:a4c57925660b12ca6b2973e1d3e2e1efa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab42bab8f03928e356d0b16928783e364" id="r_ab42bab8f03928e356d0b16928783e364"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem__alloc_8h.html#ab42bab8f03928e356d0b16928783e364">mem_free</a> (<a class="el" href="mem__alloc_8h.html#a050ea486d898e406141fa11ba55c9b45">mem_ctx_t</a> ctx, void *ptr)</td></tr>
 <tr class="memdesc:ab42bab8f03928e356d0b16928783e364"><td class="mdescLeft">&#160;</td><td class="mdescRight">frees the given buffer  <br /></td></tr>
 <tr class="separator:ab42bab8f03928e356d0b16928783e364"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -241,7 +238,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>either a valid address if successful, or NULL if failed (no more memory or invalid nb_bytes) </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00365">365</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00351">351</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
 
 </div>
 </div>
@@ -280,7 +277,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00532">532</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00437">437</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
 
 </div>
 </div>
@@ -320,7 +317,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the context to use for further calls, or NULL if failling </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00323">323</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00309">309</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
 
 </div>
 </div>
@@ -366,55 +363,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00565">565</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
-
-</div>
-</div>
-<a id="a4c57925660b12ca6b2973e1d3e2e1efa" name="a4c57925660b12ca6b2973e1d3e2e1efa"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4c57925660b12ca6b2973e1d3e2e1efa">&#9670;&#160;</a></span>mem_realloc()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void * mem_realloc </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="mem__alloc_8h.html#a050ea486d898e406141fa11ba55c9b45">mem_ctx_t</a>&#160;</td>
-          <td class="paramname"><em>ctx</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>ptr</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>size</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Reallocates a buffer to a new size. </p>
-<dl class="section note"><dt>Note</dt><dd>The new size can be either smaller or bigger than the original one. The content is preserved up to the minimum of the old and new sizes. If ptr is NULL, this function behaves like <a class="el" href="mem__alloc_8c.html#a8ca42ac1233a5468f1791fc7d60882c0">mem_alloc</a>. If size is 0, this function behaves like <a class="el" href="mem__alloc_8c.html#ab42bab8f03928e356d0b16928783e364">mem_free</a> and returns NULL.</dd></dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">ctx</td><td>allocator context (returned by <a class="el" href="mem__alloc_8c.html#a7a8534aa760f79a5da5f92cd194f8e14">mem_init()</a>) </td></tr>
-    <tr><td class="paramname">ptr</td><td>buffer previously allocated with <a class="el" href="mem__alloc_8c.html#a8ca42ac1233a5468f1791fc7d60882c0">mem_alloc</a> </td></tr>
-    <tr><td class="paramname">size</td><td>new requested size in bytes </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>address of the reallocated buffer (may be the same or different), or NULL on failure </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00447">447</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00470">470</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
 
 </div>
 </div>
@@ -453,7 +402,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00603">603</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00508">508</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
 
 </div>
 </div>
