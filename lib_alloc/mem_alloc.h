@@ -58,6 +58,7 @@ typedef struct {
 
 mem_ctx_t mem_init(void *heap_start, size_t heap_size);
 void     *mem_alloc(mem_ctx_t ctx, size_t nb_bytes);
+void     *mem_realloc(mem_ctx_t ctx, void *ptr, size_t size);
 void      mem_free(mem_ctx_t ctx, void *ptr);
 void      mem_parse(mem_ctx_t ctx, mem_parse_callback_t callback, void *dat);
 void      mem_stat(mem_ctx_t *ctx, mem_stat_t *stat);

@@ -145,7 +145,7 @@ void exec_free(size_t index)
 
     // Verify memory content
     for (size_t i = 0; i < entry->len; i++) {
-        if (entry->type != 1) {  // Don't check buffers as they might be zero-init
+        if (entry->type == 0) {  // Only check for simple allocs
             assert(((uint8_t *) entry->ptr)[i] == (entry->len & 0xff));
         }
     }

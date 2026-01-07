@@ -2,3 +2,4 @@
 PRINTF(...)=
 # Breaks pic mock function
 USE_OS_IO_STACK
+NDEBUG

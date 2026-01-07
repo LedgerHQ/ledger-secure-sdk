@@ -77,6 +77,108 @@ static void test_alloc(void **state __attribute__((unused)))
     assert_null(chunk1);
 }
 
+static void test_re_alloc(void **state __attribute__((unused)))
+{
+    malloc_buffer_size = sizeof(malloc_buffer);
+    mem_ctx_t ctx      = mem_init(malloc_buffer, malloc_buffer_size);
+
+    // Assert only one big empty chunk
+    assert_state(ctx, 1, 0);
+
+    // Allocate a chunk
+    char *chunk1 = mem_alloc(ctx, 64);
+    assert_non_null(chunk1);
+    /**
+     * Expect 2 chunks:
+     * - original from init,
+     * - allocated
+     * Expect 1 allocated :
+     * - the allocated chunk
+     */
+    assert_state(ctx, 2, 1);
+
+    // Reallocate to a bigger size
+    char *chunk2 = mem_realloc(ctx, chunk1, 128);
+    assert_non_null(chunk2);
+    /**
+     * Expect 3 chunks :
+     * - original from init,
+     * - allocated,
+     * - free leftover.
+     * Expect 1 allocated :
+     * - the allocated chunk
+     */
+    assert_state(ctx, 3, 1);
+
+    // Reallocate to a smaller size but not enough to split
+    char *chunk3 = mem_realloc(ctx, chunk2, 127);
+    assert_non_null(chunk3);
+    assert_ptr_equal(chunk3, chunk2);
+    /**
+     * Expect 3 chunks :
+     * - original chunk from init,
+     * - reallocated,
+     * - free leftover (from previous realloc).
+     * Expect 1 allocated :
+     * - the reallocated chunk
+     */
+    assert_state(ctx, 3, 1);
+
+    // Reallocate to a smaller size
+    char *chunk4 = mem_realloc(ctx, chunk3, 32);
+    assert_non_null(chunk4);
+    assert_ptr_equal(chunk4, chunk3);
+    /**
+     * Expect 4 chunks :
+     * - original chunk from init,
+     * - reallocated,
+     * - split free leftover (from shrink optimization),
+     * - free leftover (from previous realloc).
+     * Expect 1 allocated :
+     * - the reallocated chunk
+     *
+     * Free function not called so no coalescing done.
+     */
+    assert_state(ctx, 4, 1);
+
+    // Reallocate with size 0 to free
+    char *chunk5 = mem_realloc(ctx, chunk4, 0);
+    assert_null(chunk5);
+    /**
+     * Expect 2 chunks :
+     * - original chunk from init,
+     * - free leftover coalesced.
+     * Expect 0 allocated.
+     */
+    assert_state(ctx, 2, 0);
+
+    // Reallocate NULL pointer to allocate
+    char *chunk6 = mem_realloc(ctx, NULL, 256);
+    assert_non_null(chunk6);
+    /**
+     * Expect 3 chunks:
+     * - original from init,
+     * - free leftover coalesced (from previous realloc),
+     * - allocated
+     * Expect 1 allocated :
+     * - the allocated chunk
+     */
+    assert_state(ctx, 3, 1);
+
+    // Reallocate with too big size should return NULL and not change state
+    char *chunk7 = mem_realloc(ctx, chunk6, malloc_buffer_size * 2);
+    assert_null(chunk7);
+    /**
+     * Expect 3 chunks:
+     * - original from init,
+     * - free leftover coalesced (from previous realloc),
+     * - allocated
+     * Expect 1 allocated :
+     * - the allocated chunk (from previous realloc)
+     */
+    assert_state(ctx, 3, 1);
+}
+
 static void test_corrupt_invalid(void **state __attribute__((unused)))
 {
     uint32_t throw_raised_code = 0;
@@ -271,7 +373,7 @@ static void test_utils_buffer_allocate(void **state __attribute__((unused)))
     assert_null(buffer);
 }
 
-static void test_utils_buffer_realloc(void **state __attribute__((unused)))
+static void test_utils_buffer_calloc(void **state __attribute__((unused)))
 {
     mem_utils_init(malloc_buffer, sizeof(malloc_buffer));
 
@@ -287,6 +389,44 @@ static void test_utils_buffer_realloc(void **state __attribute__((unused)))
 
     APP_MEM_FREE_AND_NULL(&buffer);
     assert_null(buffer);
+}
+
+static void test_utils_buffer_realloc(void **state __attribute__((unused)))
+{
+    mem_utils_init(malloc_buffer, sizeof(malloc_buffer));
+
+    // Realloc to invalid pointer should return NULL
+    void *result_invalid = APP_MEM_REALLOC((void *) 0x12345678, 100);
+    assert_null(result_invalid);
+
+    // Realloc NULL pointer should behave like alloc
+    void *result1 = APP_MEM_REALLOC(NULL, 50);
+    assert_non_null(result1);
+    // Write some data
+    memset(result1, 0xAB, 50);
+
+    // Realloc to larger size
+    void *result2 = APP_MEM_REALLOC(result1, 150);
+    assert_non_null(result2);
+    assert_non_null(result1);
+    // Check previous data is intact
+    uint8_t *byte_buffer = (uint8_t *) result2;
+    for (size_t i = 0; i < 50; i++) {
+        assert_int_equal(byte_buffer[i], 0xAB);
+    }
+
+    // Realloc to really tiny size (should shrink
+    // and trigger alignment logic)
+    void *result3 = APP_MEM_REALLOC(result2, 1);
+    assert_non_null(result3);
+    assert_non_null(result2);
+    // Check previous data is intact
+    byte_buffer = (uint8_t *) result3;
+    assert_int_equal(byte_buffer[0], 0xAB);
+
+    // Realloc to zero size should free the buffer
+    void *result4 = APP_MEM_REALLOC(result3, 0);
+    assert_null(result4);
 }
 
 static void test_utils_buffer_zero_size(void **state __attribute__((unused)))
@@ -385,6 +525,7 @@ int main(int argc, char **argv)
 {
     const struct CMUnitTest tests[] = {// Original mem_alloc tests
                                        cmocka_unit_test(test_alloc),
+                                       cmocka_unit_test(test_re_alloc),
                                        cmocka_unit_test(test_corrupt_invalid),
                                        cmocka_unit_test(test_corrupt_overflow),
                                        cmocka_unit_test(test_fragmentation),
@@ -394,6 +535,7 @@ int main(int argc, char **argv)
                                        cmocka_unit_test(test_utils_basic_alloc),
                                        cmocka_unit_test(test_utils_zero_size),
                                        cmocka_unit_test(test_utils_buffer_allocate),
+                                       cmocka_unit_test(test_utils_buffer_calloc),
                                        cmocka_unit_test(test_utils_buffer_realloc),
                                        cmocka_unit_test(test_utils_buffer_zero_size),
                                        cmocka_unit_test(test_utils_strdup),
