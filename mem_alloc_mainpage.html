@@ -87,7 +87,7 @@ Introduction</h1>
 <li>and the size of this buffer</li>
 </ul>
 <p>It returns a memory context (<a class="el" href="mem__alloc_8h.html#a050ea486d898e406141fa11ba55c9b45">mem_ctx_t</a>) that will be used by other functions</p>
-<p>Then, chunks can be allocated with <a class="el" href="mem__alloc_8c.html#a8ca42ac1233a5468f1791fc7d60882c0">mem_alloc()</a> and released with <a class="el" href="mem__alloc_8c.html#ab42bab8f03928e356d0b16928783e364">mem_free()</a></p>
+<p>Then, chunks can be allocated with <a class="el" href="mem__alloc_8c.html#a8ca42ac1233a5468f1791fc7d60882c0">mem_alloc()</a>, reallocated with <a class="el" href="mem__alloc_8c.html#a4c57925660b12ca6b2973e1d3e2e1efa">mem_realloc()</a> and released with <a class="el" href="mem__alloc_8c.html#ab42bab8f03928e356d0b16928783e364">mem_free()</a></p>
 <p>Both of these function take the memory context as first parameter.</p>
 <h1><a class="anchor" id="mem_alloc_high_level"></a>
 High-Level Memory Utilities</h1>
@@ -109,7 +109,7 @@ Basic Allocation</h2>
 <div class="line">    <span class="comment">// Use the allocated memory</span></div>
 <div class="line">    <a class="code hl_define" href="app__mem__utils_8h.html#ab5d9700e4ac2df6fe5f66f5c9f1ce7dd">APP_MEM_FREE</a>(ptr);</div>
 <div class="line">}</div>
-<div class="ttc" id="aapp__mem__utils_8h_html_ab5d9700e4ac2df6fe5f66f5c9f1ce7dd"><div class="ttname"><a href="app__mem__utils_8h.html#ab5d9700e4ac2df6fe5f66f5c9f1ce7dd">APP_MEM_FREE</a></div><div class="ttdeci">#define APP_MEM_FREE(ptr)</div><div class="ttdef"><b>Definition</b> <a href="app__mem__utils_8h_source.html#l00017">app_mem_utils.h:17</a></div></div>
+<div class="ttc" id="aapp__mem__utils_8h_html_ab5d9700e4ac2df6fe5f66f5c9f1ce7dd"><div class="ttname"><a href="app__mem__utils_8h.html#ab5d9700e4ac2df6fe5f66f5c9f1ce7dd">APP_MEM_FREE</a></div><div class="ttdeci">#define APP_MEM_FREE(ptr)</div><div class="ttdef"><b>Definition</b> <a href="app__mem__utils_8h_source.html#l00018">app_mem_utils.h:18</a></div></div>
 <div class="ttc" id="aapp__mem__utils_8h_html_ae210fa57ea4083aecaa59ace6246e394"><div class="ttname"><a href="app__mem__utils_8h.html#ae210fa57ea4083aecaa59ace6246e394">APP_MEM_ALLOC</a></div><div class="ttdeci">#define APP_MEM_ALLOC(size)</div><div class="ttdef"><b>Definition</b> <a href="app__mem__utils_8h_source.html#l00016">app_mem_utils.h:16</a></div></div>
 </div><!-- fragment --><h2><a class="anchor" id="mem_alloc_buffer_management"></a>
 Buffer Management</h2>
@@ -126,7 +126,7 @@ Buffer Management</h2>
 <div class="line">    <span class="comment">// Safe cleanup (frees and sets buffer = NULL)</span></div>
 <div class="line">    mem_utils_buffer_cleanup(&amp;buffer);</div>
 <div class="line">}</div>
-<div class="ttc" id="aapp__mem__utils_8h_html_a1ff7399226317cce30d2333352fbd309"><div class="ttname"><a href="app__mem__utils_8h.html#a1ff7399226317cce30d2333352fbd309">APP_MEM_CALLOC</a></div><div class="ttdeci">#define APP_MEM_CALLOC(ptr, size)</div><div class="ttdef"><b>Definition</b> <a href="app__mem__utils_8h_source.html#l00020">app_mem_utils.h:20</a></div></div>
+<div class="ttc" id="aapp__mem__utils_8h_html_a1ff7399226317cce30d2333352fbd309"><div class="ttname"><a href="app__mem__utils_8h.html#a1ff7399226317cce30d2333352fbd309">APP_MEM_CALLOC</a></div><div class="ttdeci">#define APP_MEM_CALLOC(ptr, size)</div><div class="ttdef"><b>Definition</b> <a href="app__mem__utils_8h_source.html#l00021">app_mem_utils.h:21</a></div></div>
 </div><!-- fragment --><h2><a class="anchor" id="mem_alloc_string_operations"></a>
 String Operations</h2>
 <p>Duplicate strings with <a class="el" href="app__mem__utils_8h.html#a6bd427f02ca99989314e5c469550b00a">APP_MEM_STRDUP()</a>:</p>
@@ -136,7 +136,7 @@ String Operations</h2>
 <div class="line">    <span class="comment">// Use the duplicated string</span></div>
 <div class="line">    <a class="code hl_define" href="app__mem__utils_8h.html#ab5d9700e4ac2df6fe5f66f5c9f1ce7dd">APP_MEM_FREE</a>(copy);</div>
 <div class="line">}</div>
-<div class="ttc" id="aapp__mem__utils_8h_html_a6bd427f02ca99989314e5c469550b00a"><div class="ttname"><a href="app__mem__utils_8h.html#a6bd427f02ca99989314e5c469550b00a">APP_MEM_STRDUP</a></div><div class="ttdeci">#define APP_MEM_STRDUP(ptr)</div><div class="ttdef"><b>Definition</b> <a href="app__mem__utils_8h_source.html#l00019">app_mem_utils.h:19</a></div></div>
+<div class="ttc" id="aapp__mem__utils_8h_html_a6bd427f02ca99989314e5c469550b00a"><div class="ttname"><a href="app__mem__utils_8h.html#a6bd427f02ca99989314e5c469550b00a">APP_MEM_STRDUP</a></div><div class="ttdeci">#define APP_MEM_STRDUP(ptr)</div><div class="ttdef"><b>Definition</b> <a href="app__mem__utils_8h_source.html#l00020">app_mem_utils.h:20</a></div></div>
 </div><!-- fragment --><h1><a class="anchor" id="mem_alloc_profiling"></a>
 Memory Profiling</h1>
 <p>The allocator supports memory profiling to detect leaks and track allocations during development.</p>

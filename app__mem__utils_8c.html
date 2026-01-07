@@ -125,6 +125,9 @@ Functions</h2></td></tr>
 <tr class="memitem:aab5603000ff2f789156babf3669e68bc" id="r_aab5603000ff2f789156babf3669e68bc"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="app__mem__utils_8c.html#aab5603000ff2f789156babf3669e68bc">mem_utils_alloc</a> (size_t size, bool permanent, const char *file, int line)</td></tr>
 <tr class="memdesc:aab5603000ff2f789156babf3669e68bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Internal implementation of memory allocation.  <br /></td></tr>
 <tr class="separator:aab5603000ff2f789156babf3669e68bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a559ba5ffabafcd0b3e27fd3ce366e346" id="r_a559ba5ffabafcd0b3e27fd3ce366e346"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="app__mem__utils_8c.html#a559ba5ffabafcd0b3e27fd3ce366e346">mem_utils_realloc</a> (void *ptr, size_t size, const char *file, int line)</td></tr>
+<tr class="memdesc:a559ba5ffabafcd0b3e27fd3ce366e346"><td class="mdescLeft">&#160;</td><td class="mdescRight">Internal implementation of memory reallocation.  <br /></td></tr>
+<tr class="separator:a559ba5ffabafcd0b3e27fd3ce366e346"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aba8789960e40f0a9d5b69d2a48e78799" id="r_aba8789960e40f0a9d5b69d2a48e78799"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="app__mem__utils_8c.html#aba8789960e40f0a9d5b69d2a48e78799">mem_utils_free</a> (void *ptr, const char *file, int line)</td></tr>
 <tr class="memdesc:aba8789960e40f0a9d5b69d2a48e78799"><td class="mdescLeft">&#160;</td><td class="mdescRight">Internal implementation of memory free.  <br /></td></tr>
 <tr class="separator:aba8789960e40f0a9d5b69d2a48e78799"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -250,7 +253,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the allocation was successful, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="app__mem__utils_8c_source.html#l00095">95</a> of file <a class="el" href="app__mem__utils_8c_source.html">app_mem_utils.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="app__mem__utils_8c_source.html#l00128">128</a> of file <a class="el" href="app__mem__utils_8c_source.html">app_mem_utils.c</a>.</p>
 
 </div>
 </div>
@@ -296,7 +299,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="app__mem__utils_8c_source.html#l00074">74</a> of file <a class="el" href="app__mem__utils_8c_source.html">app_mem_utils.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="app__mem__utils_8c_source.html#l00107">107</a> of file <a class="el" href="app__mem__utils_8c_source.html">app_mem_utils.c</a>.</p>
 
 </div>
 </div>
@@ -342,7 +345,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="app__mem__utils_8c_source.html#l00124">124</a> of file <a class="el" href="app__mem__utils_8c_source.html">app_mem_utils.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="app__mem__utils_8c_source.html#l00157">157</a> of file <a class="el" href="app__mem__utils_8c_source.html">app_mem_utils.c</a>.</p>
 
 </div>
 </div>
@@ -384,6 +387,60 @@ Functions</h2></td></tr>
 <dl class="section note"><dt>Note</dt><dd>Size must be a multiple of 8, and at least 200 B, but less than 32kB </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="app__mem__utils_8c_source.html#l00030">30</a> of file <a class="el" href="app__mem__utils_8c_source.html">app_mem_utils.c</a>.</p>
+
+</div>
+</div>
+<a id="a559ba5ffabafcd0b3e27fd3ce366e346" name="a559ba5ffabafcd0b3e27fd3ce366e346"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a559ba5ffabafcd0b3e27fd3ce366e346">&#9670;&#160;</a></span>mem_utils_realloc()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void * mem_utils_realloc </td>
+          <td>(</td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>ptr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>file</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>line</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Internal implementation of memory reallocation. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">ptr</td><td>previously allocated or NULL (equivalent to alloc) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>new size in bytes to allocate. Can be 0 (equivalent to free). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">file</td><td>source file requesting the allocation (for profiling only) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">line</td><td>line in the source file requesting the allocation (for profiling only) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>either a valid address if successful, or NULL if failed or size is 0. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="app__mem__utils_8c_source.html#l00076">76</a> of file <a class="el" href="app__mem__utils_8c_source.html">app_mem_utils.c</a>.</p>
 
 </div>
 </div>
@@ -430,7 +487,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>either a valid address if successful, or NULL if failed </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="app__mem__utils_8c_source.html#l00140">140</a> of file <a class="el" href="app__mem__utils_8c_source.html">app_mem_utils.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="app__mem__utils_8c_source.html#l00173">173</a> of file <a class="el" href="app__mem__utils_8c_source.html">app_mem_utils.c</a>.</p>
 
 </div>
 </div>
