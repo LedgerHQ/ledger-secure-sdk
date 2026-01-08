@@ -830,6 +830,8 @@ INPUT                  = \
                          lib_cxng/doc \
                          lib_cxng/include \
                          lib_cxng/src \
+                         lib_c_list \
+                         lib_c_list/doc \
                          lib_nbgl/doc \
                          lib_nbgl/include \
                          lib_nbgl/src \
