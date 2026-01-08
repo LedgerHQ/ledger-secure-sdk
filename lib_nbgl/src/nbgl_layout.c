@@ -1049,6 +1049,96 @@ static nbgl_container_t *addContentCenter(nbgl_layoutInternal_t      *layoutInt,
     return container;
 }
 
+/**
+ * @brief Creates a container on the center of the main panel, with a possible icon,
+ * and possible texts under it
+ *
+ * @param layout the current layout
+ * @param info structure giving the description of the Content Center
+ * @return the created container
+ */
+static nbgl_container_t *addContentClock(nbgl_layoutInternal_t      *layoutInt,
+                                          const nbgl_contentCenter_t *info)
+{
+    nbgl_container_t *container;
+    nbgl_text_area_t *textArea   = NULL;
+    nbgl_image_t     *image      = NULL;
+    uint16_t          fullHeight = 0;
+
+    container = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
+
+    // get container children
+    container->nbChildren = 0;
+    // the max number is: icon + anim + title + small title + description + sub-text
+    container->children = nbgl_containerPoolGet(4, layoutInt->layer);
+
+    // add icon or animation if present
+    if (info->icon != NULL) {
+        image                       = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
+        image->foregroundColor      = (layoutInt->invertedColors) ? WHITE : BLACK;
+        image->buffer               = PIC(info->icon);
+        image->obj.alignment        = CENTER;
+        image->obj.alignmentMarginY = -190;
+        image->obj.alignmentMarginX = -70;
+
+        fullHeight += image->buffer->height + info->iconHug;
+        container->children[container->nbChildren] = (nbgl_obj_t *) image;
+        container->nbChildren++;
+    }
+
+    if (info->icon2 != NULL) {
+        image                       = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
+        image->foregroundColor      = (layoutInt->invertedColors) ? WHITE : BLACK;
+        image->buffer               = PIC(info->icon2);
+        image->obj.alignment        = CENTER;
+        image->obj.alignmentMarginY = -190;
+        image->obj.alignmentMarginX = 70;
+
+        fullHeight += image->buffer->height + info->iconHug;
+        container->children[container->nbChildren] = (nbgl_obj_t *) image;
+        container->nbChildren++;
+    }
+
+    // if (info->icon3 != NULL) {
+    //     image                       = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
+    //     image->foregroundColor      = (layoutInt->invertedColors) ? WHITE : BLACK;
+    //     image->buffer               = PIC(info->icon3);
+    //     image->obj.alignment        = CENTER;
+    //     image->obj.alignmentMarginY = 10;
+    //     image->obj.alignmentMarginX = -70;
+
+    //     fullHeight += image->buffer->height + info->iconHug;
+    //     container->children[container->nbChildren] = (nbgl_obj_t *) image;
+    //     container->nbChildren++;
+    // }
+
+    // if (info->icon4 != NULL) {
+    //     image                       = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
+    //     image->foregroundColor      = (layoutInt->invertedColors) ? WHITE : BLACK;
+    //     image->buffer               = PIC(info->icon4);
+    //     image->obj.alignment        = CENTER;
+    //     image->obj.alignmentMarginY = 10;
+    //     image->obj.alignmentMarginX = 70;
+
+    //     fullHeight += image->buffer->height + info->iconHug;
+    //     container->children[container->nbChildren] = (nbgl_obj_t *) image;
+    //     container->nbChildren++;
+    // }
+    
+    container->layout          = VERTICAL;
+    container->obj.alignment   = CENTER;
+    container->obj.area.width  = AVAILABLE_WIDTH;
+    container->obj.area.height = fullHeight;
+    if (info->padding) {
+        container->obj.area.height += 40;
+    }
+
+    // set this new container as child of main container
+    layoutAddObject(layoutInt, (nbgl_obj_t *) container);
+
+    return container;
+}
+
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
@@ -1600,6 +1690,52 @@ int nbgl_layoutAddTextContent(nbgl_layout_t *layout,
     return layoutInt->container->obj.area.height;
 }
 
+
+/**
+ * @brief Creates in the main container three text areas:
+ * - a first one in black large case, with title param
+ * - a second one under it, in black small case, with description param
+ * - a last one at the bottom of the container, in gray, with info param
+ *
+ * @param layout the current layout
+ * @param title main text (in large bold font)
+ * @param description description under main text (in small regular font)
+ * @param info description at bottom (in small gray)
+ * @return height of the control if OK
+ */
+int nbgl_layoutClock(nbgl_layout_t *layout,
+                              const char    *title,
+                              const char    *description,
+                              const char    *info)
+{
+    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
+    nbgl_text_area_t      *textArea;
+
+    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutClock():\n");
+    if (layout == NULL) {
+        return -1;
+    }
+
+    // create title
+    textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+    textArea->textColor     = BLACK;
+    textArea->text          = PIC(title);
+    textArea->textAlignment = MID_LEFT;
+    textArea->fontId        = LARGE_MEDIUM_FONT;
+    textArea->style         = NO_STYLE;
+    textArea->wrapping      = true;
+    textArea->obj.alignment = NO_ALIGNMENT;
+    textArea->obj.alignmentMarginX = BORDER_MARGIN;
+    textArea->obj.alignmentMarginY = PRE_TITLE_MARGIN;
+    textArea->obj.area.width       = AVAILABLE_WIDTH;
+    textArea->obj.area.height      = nbgl_getTextHeightInWidth(
+        textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
+    // set this new obj as child of main container
+    layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
+
+    return layoutInt->container->obj.area.height;
+}
+
 /**
  * @brief Creates a list of radio buttons (on the right)
  *
@@ -1693,6 +1829,45 @@ int nbgl_layoutAddRadioChoice(nbgl_layout_t *layout, const nbgl_layoutRadioChoic
     }
 
     return 0;
+}
+
+/**
+ * @brief Creates an area on the center of the main panel, with a possible icon/image,
+ * a possible text in black under it, and a possible text in gray under it
+ *
+ * @param layout the current layout
+ * @param info structure giving the description of buttons (texts, icons, layout)
+ * @return >= 0 if OK
+ */
+int nbgl_layoutAddClockInfo(nbgl_layout_t *layout, const nbgl_layoutCenteredInfo_t *info)
+{
+    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
+    nbgl_container_t      *container;
+    nbgl_contentCenter_t   centeredInfo = {0};
+
+    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddCenteredInfo():\n");
+    if (layout == NULL) {
+        return -1;
+    }
+
+    centeredInfo.icon        = info->icon;
+    centeredInfo.icon2        = info->icon2;
+    centeredInfo.icon3        = info->icon3;
+    centeredInfo.icon4        = info->icon4;
+    centeredInfo.illustrType = ICON_ILLUSTRATION;
+
+    container = addContentClock(layoutInt, &centeredInfo);
+
+    if (info->onTop) {
+        container->obj.alignmentMarginX = BORDER_MARGIN;
+        container->obj.alignmentMarginY = BORDER_MARGIN + info->offsetY;
+        container->obj.alignment        = NO_ALIGNMENT;
+    }
+    else {
+        container->obj.alignmentMarginY = info->offsetY;
+    }
+
+    return container->obj.area.height;
 }
 
 /**
@@ -2374,7 +2549,7 @@ int nbgl_layoutAddButton(nbgl_layout_t *layout, const nbgl_layoutButton_t *butto
     }
 
     button->obj.alignmentMarginX = BORDER_MARGIN;
-    button->obj.alignmentMarginY = 12;
+    button->obj.alignmentMarginY = 0;
     button->obj.alignment        = NO_ALIGNMENT;
     if (buttonInfo->style == BLACK_BACKGROUND) {
         button->innerColor      = BLACK;
@@ -2413,6 +2588,7 @@ int nbgl_layoutAddButton(nbgl_layout_t *layout, const nbgl_layoutButton_t *butto
         button->obj.area.height = BUTTON_DIAMETER;
         button->radius          = BUTTON_RADIUS;
     }
+    button->obj.area.height = 16;
     button->obj.alignTo   = NULL;
     button->obj.touchMask = (1 << TOUCHED);
     button->obj.touchId   = (buttonInfo->fittingContent) ? EXTRA_BUTTON_ID : SINGLE_BUTTON_ID;

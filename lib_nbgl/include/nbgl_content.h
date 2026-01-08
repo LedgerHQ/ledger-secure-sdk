@@ -61,6 +61,9 @@ typedef struct {
     const char *text3;                      ///< third text (can be null)
 #endif                                      // HAVE_SE_TOUCH
     const nbgl_icon_details_t      *icon;   ///< a buffer containing the 1BPP icon
+    const nbgl_icon_details_t      *icon2;   ///< a buffer containing the 1BPP icon
+    const nbgl_icon_details_t      *icon3;   ///< a buffer containing the 1BPP icon
+    const nbgl_icon_details_t      *icon4;   ///< a buffer containing the 1BPP icon
     bool                            onTop;  ///< if set to true, align only horizontally
     nbgl_contentCenteredInfoStyle_t style;  ///< style to apply to this info
 #ifdef HAVE_SE_TOUCH
@@ -90,6 +93,9 @@ typedef enum {
 typedef struct {
     nbgl_contentIllustrationType_t illustrType;
     const nbgl_icon_details_t     *icon;  ///< the icon (can be null)
+    const nbgl_icon_details_t     *icon2;  ///< the icon (can be null)
+    const nbgl_icon_details_t     *icon3;  ///< the icon (can be null)
+    const nbgl_icon_details_t     *icon4;  ///< the icon (can be null)
     const nbgl_animation_t
         *animation;  ///< the animation (can be null), used if illustrType is @ref ANIM_ILLUSTRATION
     uint16_t animOffsetX;  ///< horizontal offset of animation in icon if integrated (but usually 0)

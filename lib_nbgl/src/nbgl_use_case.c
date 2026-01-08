@@ -3501,6 +3501,91 @@ void nbgl_useCaseHomeAndSettings(
  * @param isSuccess if true, message is drawn in a Ledger style (with corners)
  * @param quitCallback callback called when quit timer times out or status is manually dismissed
  */
+void nbgl_useClock(const nbgl_icon_details_t *h1,
+    const nbgl_icon_details_t *h2,
+    const nbgl_icon_details_t *m1,
+    const nbgl_icon_details_t *m2,
+    bool isSuccess, nbgl_callback_t quitCallback)
+{
+    nbgl_screenTickerConfiguration_t ticker = {.tickerCallback  = &tickerCallback,
+                                               .tickerIntervale = 0,  // not periodic
+                                               .tickerValue     = 1000};
+    nbgl_pageInfoDescription_t       info   = {0};
+
+    reset_callbacks_and_context();
+
+    onQuit = quitCallback;
+    if (isSuccess) {
+#ifdef HAVE_PIEZO_SOUND
+        os_io_seph_cmd_piezo_play_tune(TUNE_LEDGER_MOMENT);
+#endif  // HAVE_PIEZO_SOUND
+    }
+    info.centeredInfo.icon  = h1;
+    info.centeredInfo.icon2  = h2;
+    info.centeredInfo.icon3  = m1;
+    info.centeredInfo.icon4  = m2;
+    info.centeredInfo.style = LARGE_CASE_INFO;
+    info.centeredInfo.text1 = "";
+    info.tapActionText      = "";
+    info.tapActionToken     = QUIT_TOKEN;
+    info.tuneId             = TUNE_TAP_CASUAL;
+    
+    nbgl_layout_t           *layout;
+    nbgl_layoutDescription_t layoutDescription = {0};
+    layoutDescription.modal          = false;
+    layoutDescription.withLeftBorder = true;
+
+    layoutDescription.onActionCallback = &pageCallback;
+    if (!info.isSwipeable) {
+        layoutDescription.tapActionText  = info.tapActionText;
+        layoutDescription.tapActionToken = info.tapActionToken;
+        layoutDescription.tapTuneId      = info.tuneId;
+    }
+
+    layoutDescription.ticker.tickerCallback  = ticker.tickerCallback;
+    layoutDescription.ticker.tickerIntervale = ticker.tickerIntervale;
+    layoutDescription.ticker.tickerValue     = ticker.tickerValue;
+
+
+    layout = nbgl_layoutGet(&layoutDescription);
+    nbgl_layoutAddClockInfo(layout, &info.centeredInfo);
+
+    // TODO HERE
+    nbgl_layoutButton_t buttonInfo = {.fittingContent = true,
+                                          .icon           = NULL,//info.actionButtonIcon,
+                                          .onBottom       = false,
+                                          .style          = BLACK_BACKGROUND, //info.actionButtonStyle,
+                                          .text           = "QUIT", //info.actionButtonText,
+                                          .token          = info.bottomButtonsToken,
+                                          .tuneId         = info.tuneId};
+    nbgl_layoutAddButton(layout, &buttonInfo);
+
+
+    // nbgl_layoutChoiceButtons_t buttonsInfo = {.topText    = info.actionButtonText,
+    //                                                   .bottomText = "Quit app",
+    //                                                   .token      = info.bottomButtonsToken,
+    //                                                   .tuneId     = info.tuneId,
+    //                                                   .topIcon    = info.actionButtonIcon};
+    // buttonsInfo.style                      = (info.actionButtonStyle == BLACK_BACKGROUND)
+    //                                                 ? STRONG_ACTION_AND_FOOTER_STYLE
+    //                                                 : SOFT_ACTION_AND_FOOTER_STYLE;
+    // nbgl_layoutAddChoiceButtons(layout, &buttonsInfo);
+    
+    nbgl_layoutDraw(layout);
+
+    
+    //return (nbgl_page_t *) layout;
+    //pageContext             = nbgl_pageDrawInfo(&pageCallback, &ticker, &info);
+    nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
+}
+
+/**
+ * @brief Draws a transient (3s) status page, either of success or failure, with the given message
+ *
+ * @param message string to set in middle of page (Upper case for success)
+ * @param isSuccess if true, message is drawn in a Ledger style (with corners)
+ * @param quitCallback callback called when quit timer times out or status is manually dismissed
+ */
 void nbgl_useCaseStatus(const char *message, bool isSuccess, nbgl_callback_t quitCallback)
 {
     nbgl_screenTickerConfiguration_t ticker = {.tickerCallback  = &tickerCallback,

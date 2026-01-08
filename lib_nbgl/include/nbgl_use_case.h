@@ -488,6 +488,12 @@ void nbgl_useCaseChoiceWithDetails(const nbgl_icon_details_t *icon,
                                    nbgl_choiceCallback_t      callback);
 void nbgl_useCaseStatus(const char *message, bool isSuccess, nbgl_callback_t quitCallback);
 
+void nbgl_useClock(const nbgl_icon_details_t *h1,
+    const nbgl_icon_details_t *h2,
+    const nbgl_icon_details_t *m1,
+    const nbgl_icon_details_t *m2,
+    bool isSuccess, nbgl_callback_t quitCallback);
+
 void nbgl_useCaseConfirm(const char     *message,
                          const char     *subMessage,
                          const char     *confirmText,
