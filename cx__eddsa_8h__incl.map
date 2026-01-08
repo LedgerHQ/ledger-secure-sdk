@@ -1,0 +1,13 @@
+<map id="lib_cxng/src/cx_eddsa.h" name="lib_cxng/src/cx_eddsa.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="25,5,201,31"/>
+<area shape="rect" id="Node000002" href="$lcx__eddsa_8h.html" title="EDDSA (Edwards Curve Digital Signature Algorithm)" alt="" coords="64,79,163,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="116,31,116,65,111,65,111,31"/>
+<area shape="rect" id="Node000003" href="$lcx__ecfp_8h.html" title="Key pair generation based on elliptic curves." alt="" coords="5,152,93,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="105,106,71,144,67,140,101,103"/>
+<area shape="rect" id="Node000004" href="$lcx__wrappers_8h.html" title=" " alt="" coords="117,152,237,177"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="126,103,160,140,156,144,122,106"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="59,225,165,251"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="169,179,134,217,130,213,165,176"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="189,225,293,251"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="190,176,224,213,220,217,186,179"/>
+</map>
