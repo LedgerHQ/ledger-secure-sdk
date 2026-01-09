@@ -18,7 +18,13 @@
 
 #include <stdarg.h>
 #include <stdint.h>
+
+#ifdef UNIT_TESTING
+#include <bsd/string.h>
+#else
 #include <string.h>
+#endif
+
 #include "app_config.h"
 #include "decorators.h"
 #include "os_math.h"
