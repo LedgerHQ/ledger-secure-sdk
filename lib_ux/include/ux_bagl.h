@@ -116,21 +116,6 @@ const bagl_icon_details_t *get_glyphs_icon(unsigned char id);
 const char                *get_string_buffer(unsigned char id);
 const char                *get_ux_loc_string(UX_LOC_STRINGS_INDEX index);
 #endif  // defined(HAVE_INDEXED_STRINGS)
-#if defined(HAVE_LANGUAGE_PACK)
-void bolos_ux_select_language(uint16_t language);
-void bolos_ux_refresh_language(void);
-
-typedef struct ux_loc_language_pack_infos {
-    unsigned char available;
-
-} UX_LOC_LANGUAGE_PACK_INFO;
-
-// To populate infos about language packs
-SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void list_language_packs(
-    UX_LOC_LANGUAGE_PACK_INFO *packs PLENGTH(NB_LANG * sizeof(UX_LOC_LANGUAGE_PACK_INFO)));
-SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) const LANGUAGE_PACK *get_language_pack(
-    unsigned int language);
-#endif  // defined(HAVE_LANGUAGE_PACK)
 
 #ifndef BUTTON_FAST_THRESHOLD_CS
 #define BUTTON_FAST_THRESHOLD_CS 8  // x100MS
