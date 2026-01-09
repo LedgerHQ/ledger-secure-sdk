@@ -8,14 +8,17 @@
  *      INCLUDES
  *********************/
 #include <string.h>
+
 #include "nbgl_debug.h"
 #include "nbgl_flow.h"
 #include "glyphs.h"
 #include "os_pic.h"
 #include "ux.h"
-#ifdef HAVE_LANGUAGE_PACK
+
+#ifdef HAVE_BOLOS
 #include "bolos_ux_loc_strings.h"
-#endif  // HAVE_LANGUAGE_PACK
+#include "localization.h"
+#endif  // HAVE_BOLOS
 
 /*********************
  *      DEFINES
