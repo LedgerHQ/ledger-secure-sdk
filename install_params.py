@@ -95,6 +95,8 @@ def parse_bip32_path(path):
             value = 0x7fffffff
         else:
             value = int(element)
+            if value == 0x7fffffff:
+                raise Exception(f"BIP32 path element {element} is reserved for wildcard symbol")
         result += struct.pack(">I", value)
     return result
 
