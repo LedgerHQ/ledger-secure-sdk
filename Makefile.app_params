@@ -94,6 +94,9 @@ APP_INSTALL_PARAMS += $(foreach dep, $(DEP_APP_LOAD_PARAMS), --dep $(dep))
 # Compute install_params tlv binary blob then expose it via a define to
 # src/app_metadata.c so that it is inserted in the binary at link time
 APP_INSTALL_PARAMS_DATA := $(shell python3 $(BOLOS_SDK)/install_params.py $(APP_INSTALL_PARAMS))
+ifneq ($(.SHELLSTATUS),0)
+$(error install_params.py failed)
+endif
 DEFINES += APP_INSTALL_PARAMS_DATA=$(APP_INSTALL_PARAMS_DATA)
 ifneq ($(APP_FLAGS_APP_LOAD_PARAMS),)
 	DEFINES += APP_FLAGS_APP_LOAD_PARAMS=$(APP_FLAGS_APP_LOAD_PARAMS)

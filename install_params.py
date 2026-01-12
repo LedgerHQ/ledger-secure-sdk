@@ -21,6 +21,8 @@ import struct
 import argparse
 import binascii
 
+from sys import exit, stderr
+
 
 BOLOS_TAG_APPNAME = 1
 BOLOS_TAG_APPVERSION = 2
@@ -97,6 +99,8 @@ def parse_bip32_path(path):
             value = int(element)
             if value == 0x7fffffff:
                 raise Exception(f"BIP32 path element {element} is reserved for wildcard symbol")
+            elif value > 0x7fffffff:
+                raise Exception(f"BIP32 path element {element} is too large. For hardened paths, use the quote symbol")
         result += struct.pack(">I", value)
     return result
 
@@ -149,43 +153,47 @@ repeated""", action='append')
 
 if __name__ == '__main__':
 
-    args = get_argparser().parse_args()
+    try:
+        args = get_argparser().parse_args()
 
-    # Build install parameters
-    install_params = b""
+        # Build install parameters
+        install_params = b""
 
-    # express dependency
-    if args.dep:
-        for dep in args.dep:
-            app_name, app_version = dep, None
+        # express dependency
+        if args.dep:
+            for dep in args.dep:
+                app_name, app_version = dep, None
 
-            # split if version is specified
-            if ":" in dep:
-                app_name, app_version = dep.split(":")
+                # split if version is specified
+                if ":" in dep:
+                    app_name, app_version = dep.split(":")
 
-            dep_value = encodelv(string_to_bytes(app_name))
-            if app_version:
-                dep_value += encodelv(string_to_bytes(app_version))
-            install_params += encodetlv(BOLOS_TAG_DEPENDENCY, dep_value)
+                dep_value = encodelv(string_to_bytes(app_name))
+                if app_version:
+                    dep_value += encodelv(string_to_bytes(app_version))
+                install_params += encodetlv(BOLOS_TAG_DEPENDENCY, dep_value)
 
-    # Add raw install parameters as requested
-    if args.tlvraw:
-        for tlvraw in args.tlvraw:
-            hextag, hexvalue = tlvraw.split(":")
-            install_params += encodetlv(int(hextag, 16), binascii.unhexlify(hexvalue))
+        # Add raw install parameters as requested
+        if args.tlvraw:
+            for tlvraw in args.tlvraw:
+                hextag, hexvalue = tlvraw.split(":")
+                install_params += encodetlv(int(hextag, 16), binascii.unhexlify(hexvalue))
 
-    # App name is mandatory
-    install_params += encodetlv(BOLOS_TAG_APPNAME, string_to_bytes(args.appName))
+        # App name is mandatory
+        install_params += encodetlv(BOLOS_TAG_APPNAME, string_to_bytes(args.appName))
 
-    if args.appVersion:
-        install_params += encodetlv(BOLOS_TAG_APPVERSION, string_to_bytes(args.appVersion))
+        if args.appVersion:
+            install_params += encodetlv(BOLOS_TAG_APPVERSION, string_to_bytes(args.appVersion))
 
-    if args.icon:
-        install_params += encodetlv(BOLOS_TAG_ICON, bytes.fromhex(args.icon))
+        if args.icon:
+            install_params += encodetlv(BOLOS_TAG_ICON, bytes.fromhex(args.icon))
 
-    serialized_path = get_serialized_path(args.curve, args.path, args.path_slip21)
-    if len(serialized_path) > 0:
-        install_params += encodetlv(BOLOS_TAG_DERIVEPATH, serialized_path)
+        serialized_path = get_serialized_path(args.curve, args.path, args.path_slip21)
+        if len(serialized_path) > 0:
+            install_params += encodetlv(BOLOS_TAG_DERIVEPATH, serialized_path)
 
-    output = ",".join(f"0x{i:02x}" for i in install_params)
-    print(output)
+        output = ",".join(f"0x{i:02x}" for i in install_params)
+        print(output)
+    except Exception as e:
+        print(f"Error: {e}", file=stderr)
+        exit(1)
