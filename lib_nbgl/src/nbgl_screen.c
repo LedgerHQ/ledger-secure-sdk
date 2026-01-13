@@ -195,7 +195,7 @@ static int nbgl_screenSetAt(uint8_t                                 screenIndex,
 #else   // HAVE_SE_TOUCH
     screenStack[screenIndex].buttonCallback                     = callback;
 #endif  // HAVE_SE_TOUCH
-    if (ticker != NULL) {
+    if ((ticker != NULL) && (ticker->tickerCallback != NULL)) {
         screenStack[screenIndex].ticker.tickerCallback
             = (nbgl_tickerCallback_t) PIC(ticker->tickerCallback);
         screenStack[screenIndex].ticker.tickerIntervale = ticker->tickerIntervale;

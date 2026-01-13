@@ -226,11 +226,16 @@ static uint16_t getTextWidth(nbgl_font_id_e fontId,
 #ifdef BUILD_SCREENSHOTS
     uint16_t nb_lines = 0;
 #endif  // BUILD_SCREENSHOTS
-    uint16_t            line_width  = 0;
-    uint16_t            max_width   = 0;
-    const nbgl_font_t  *font        = nbgl_getFont(fontId);
-    uint16_t            textLen     = MIN(strlen(text), maxLen);
+    uint16_t            line_width = 0;
+    uint16_t            max_width  = 0;
+    const nbgl_font_t  *font       = nbgl_getFont(fontId);
+    uint16_t            textLen;
     nbgl_unicode_ctx_t *unicode_ctx = NULL;
+
+    if (text == NULL) {
+        return 0;
+    }
+    textLen = MIN(strlen(text), maxLen);
 
 #ifdef BUILD_SCREENSHOTS
     last_bold_state      = fontId == BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;  // True if Bold
@@ -349,15 +354,14 @@ uint16_t nbgl_getTextWidth(nbgl_font_id_e fontId, const char *text)
  */
 uint8_t nbgl_getCharWidth(nbgl_font_id_e fontId, const char *text)
 {
-    const nbgl_font_t  *font = nbgl_getFont(fontId);
-    uint32_t            unicode;
-    bool                is_unicode;
-    uint16_t            textLen     = 4;  // max len for a char
-    nbgl_unicode_ctx_t *unicode_ctx = NULL;
+    const nbgl_font_t *font = nbgl_getFont(fontId);
+    uint32_t           unicode;
+    bool               is_unicode;
+    uint16_t           textLen = 4;  // max len for a char
 
     unicode = nbgl_popUnicodeChar((const uint8_t **) &text, &textLen, &is_unicode);
-    if (is_unicode && !unicode_ctx) {
-        unicode_ctx = nbgl_getUnicodeFont(fontId);
+    if (is_unicode) {
+        nbgl_getUnicodeFont(fontId);
     }
 
     return getCharWidth(font, unicode, is_unicode);
@@ -568,7 +572,7 @@ bool nbgl_getTextMaxLenInNbLines(nbgl_font_id_e fontId,
     while ((textLen) && (maxNbLines > 0)) {
         uint8_t  char_width;
         uint32_t unicode;
-        bool     is_unicode;
+        bool     is_unicode = false;
 
         previousText = text;
         unicode      = nbgl_popUnicodeChar((const uint8_t **) &text, &textLen, &is_unicode);
@@ -713,7 +717,7 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
 #else   // SCREEN_SIZE_NANO
     uint16_t nbLines = 1;
 #endif  // SCREEN_SIZE_NANO
-    uint16_t            textLen            = strlen(text);
+    uint16_t            textLen;
     const char         *lastDelimiter      = NULL;
     uint32_t            lenAtLastDelimiter = 0;
     const char         *prevText           = NULL;
@@ -727,11 +731,15 @@ uint16_t nbgl_getTextNbLinesInWidth(nbgl_font_id_e fontId,
     bool next_bold_state = last_bold_state;
 #endif  // BUILD_SCREENSHOTS
 
+    if (text == NULL) {
+        return 1;
+    }
+    textLen = strlen(text);
     // end loop when a '\0' is uncountered
     while (textLen) {
         uint8_t  char_width;
         uint32_t unicode;
-        bool     is_unicode;
+        bool     is_unicode = false;
 
         // memorize the last char
         prevText = text;
