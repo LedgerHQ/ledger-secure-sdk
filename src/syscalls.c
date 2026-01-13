@@ -1863,20 +1863,6 @@ unsigned int io_button_read(void)
 }
 #endif  // HAVE_SE_BUTTON
 
-#if defined(HAVE_BACKGROUND_IMG)
-uint8_t *fetch_background_img(bool allow_candidate)
-{
-    uint8_t parameters[1] = {(uint8_t) allow_candidate};
-    return (uint8_t *) SVC_Call(SYSCALL_fetch_background_img, parameters);
-}
-
-bolos_err_t delete_background_img(void)
-{
-    unsigned int parameters[1] = {0};
-    return SVC_Call(SYSCALL_delete_background_img, parameters);
-}
-#endif
-
 #ifdef HAVE_SE_TOUCH
 void touch_get_last_info(io_touch_info_t *info)
 {
