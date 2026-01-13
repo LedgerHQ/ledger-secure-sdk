@@ -955,6 +955,9 @@ STATIC void update_char_info(character_info_t   *char_info,
 
     // Retrieves information depending on whether it is an ASCII character or not.
     if (char_info->is_unicode) {
+        if (unicode_ctx == NULL) {
+            return;
+        }
         const nbgl_font_unicode_character_t *unicodeCharacter
             = nbgl_getUnicodeFontCharacter(char_info->unicode);
         // if not supported char, go to next one (this should never happen, except in Apps, if a
@@ -1079,9 +1082,9 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
     // we need to align bitmaps on width multiple of 4 limitation.
     int16_t             x = area->x0;
     nbgl_area_t         current_area;
-    character_info_t    current_char = {0};
-    const nbgl_font_t  *font         = nbgl_getFont(fontId);
-    nbgl_unicode_ctx_t *unicode_ctx  = nbgl_getUnicodeFont(fontId);
+    character_info_t    current_char;
+    const nbgl_font_t  *font        = nbgl_getFont(fontId);
+    nbgl_unicode_ctx_t *unicode_ctx = nbgl_getUnicodeFont(fontId);
 #ifdef SCREEN_SIZE_WALLET
     int16_t          next_x        = x;
     character_info_t previous_char = {0};
@@ -1230,10 +1233,6 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
                                    fontColor);
                 // Reset that flag
                 redraw_buf_area = 0;
-                buf_x_min       = AVERAGE_CHAR_WIDTH;
-                buf_y_min       = MAX_FONT_HEIGHT;
-                buf_x_max       = 0;
-                buf_y_max       = 0;
             }
             // To handle transparency, ramBuffer must be filled with background color
             // => Fill ramBuffer with background color (0x0F for 4bpp & 0 for 1bpp)
