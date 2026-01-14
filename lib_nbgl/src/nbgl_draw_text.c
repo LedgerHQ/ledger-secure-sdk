@@ -1147,6 +1147,7 @@ nbgl_font_id_e nbgl_drawText(const nbgl_area_t *area,
     current_area.bpp             = (nbgl_bpp_t) font->bpp;
 
 #ifndef SCREEN_SIZE_WALLET
+    memset(&current_char, 0, sizeof(current_char));
     while (textLen > 0) {
         // Get info for current character
         update_char_info(&current_char, (const uint8_t **) &text, &textLen, unicode_ctx, font);

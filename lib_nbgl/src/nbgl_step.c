@@ -293,10 +293,16 @@ static void displayTextPage(StepContext_t *ctx, uint8_t textPage)
                                          TMP_STRING_MAX_LEN);
             }
             else {
-                // simply copy
-                memcpy(
-                    ctx->textContext.tmpString, ctx->textContext.txtStart, TMP_STRING_MAX_LEN - 1);
-                ctx->textContext.tmpString[TMP_STRING_MAX_LEN - 1] = 0;
+                if (ctx->textContext.txtStart != NULL) {
+                    // simply copy
+                    memcpy(ctx->textContext.tmpString,
+                           ctx->textContext.txtStart,
+                           TMP_STRING_MAX_LEN - 1);
+                    ctx->textContext.tmpString[TMP_STRING_MAX_LEN - 1] = 0;
+                }
+                else {
+                    ctx->textContext.tmpString[0] = 0;
+                }
             }
         }
         else {
