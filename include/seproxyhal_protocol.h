@@ -34,8 +34,7 @@ typedef struct seph_s {
 
 static inline size_t seph_get_header_size(void)
 {
-    seph_t tmp = {0};
-    return sizeof(tmp.tag) + sizeof(tmp.size);
+    return sizeof(((seph_t *) 0)->tag) + sizeof(((seph_t *) 0)->size);
 }
 
 static inline bool seph_parse_header(const uint8_t *buf, size_t size, seph_t *seph)

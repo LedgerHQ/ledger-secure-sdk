@@ -560,14 +560,20 @@ bool nbgl_getTextMaxLenInNbLines(nbgl_font_id_e fontId,
                                  uint16_t      *len,
                                  bool           wrapping)
 {
-    const nbgl_font_t  *font               = nbgl_getFont(fontId);
-    uint16_t            textLen            = strlen(text);
+    const nbgl_font_t  *font = nbgl_getFont(fontId);
+    uint16_t            textLen;
     uint16_t            width              = 0;
     const char         *lastDelimiter      = NULL;
     uint32_t            lenAtLastDelimiter = 0;
     const char         *origText           = text;
     const char         *previousText;
     nbgl_unicode_ctx_t *unicode_ctx = NULL;
+
+    if (text == NULL) {
+        *len = 0;
+        return false;
+    }
+    textLen = strlen(text);
 
     while ((textLen) && (maxNbLines > 0)) {
         uint8_t  char_width;
@@ -860,11 +866,11 @@ uint8_t nbgl_getTextNbPagesInWidth(nbgl_font_id_e fontId,
                                    uint8_t        nbLinesPerPage,
                                    uint16_t       maxWidth)
 {
-    const nbgl_font_t  *font               = nbgl_getFont(fontId);
-    uint16_t            width              = 0;
-    uint16_t            nbLines            = 0;
-    uint8_t             nbPages            = 1;
-    uint16_t            textLen            = strlen(text);
+    const nbgl_font_t  *font    = nbgl_getFont(fontId);
+    uint16_t            width   = 0;
+    uint16_t            nbLines = 0;
+    uint8_t             nbPages = 1;
+    uint16_t            textLen;
     const char         *lastDelimiter      = NULL;
     uint32_t            lenAtLastDelimiter = 0;
     const char         *prevText           = NULL;
@@ -876,11 +882,17 @@ uint8_t nbgl_getTextNbPagesInWidth(nbgl_font_id_e fontId,
     last_bold_state      = fontId == BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;  // True if Bold
     bool next_bold_state = last_bold_state;
 #endif  // BUILD_SCREENSHOTS
+
+    if (text == NULL) {
+        return 1;
+    }
+    textLen = strlen(text);
+
     // end loop when a '\0' is uncountered
     while (textLen) {
         uint8_t  char_width;
         uint32_t unicode;
-        bool     is_unicode;
+        bool     is_unicode = false;
 
         // memorize the last char
         prevText = text;
