@@ -1,0 +1,344 @@
+/** @page c_list_mainpage Generic Linked List Library
+
+@section c_list_mainpage_intro Introduction
+
+This page describes the Generic Linked List library available for Applications.
+
+The `lib_c_list` provides a simple and efficient singly-linked list implementation with
+a generic node structure that can be embedded in any data structure.
+
+The list is implemented as a singly-linked list where each node contains only a pointer
+to the next node. This minimizes memory overhead, which is crucial for embedded systems
+like Ledger devices.
+
+@section c_list_node_structure Node Structure
+
+The basic node structure is defined as:
+
+@code{.c}
+typedef struct c_list_node_s {
+    struct c_list_node_s *next;
+} c_list_node_t;
+@endcode
+
+To use this library, embed `c_list_node_t` as the first member of your custom structure:
+
+@code{.c}
+typedef struct my_data_s {
+    c_list_node_t node;  // Must be first member
+    int value;
+    char name[32];
+} my_data_t;
+@endcode
+
+The list head is a pointer to the first node:
+
+@code{.c}
+c_list_node_t *my_list = NULL;  // Empty list
+@endcode
+
+@section c_list_complexity Understanding Time Complexity
+
+The documentation uses **Big O notation** to describe algorithm performance:
+
+- **O(1) - Constant time**: The operation takes the same time regardless of list size
+  - Example: Adding to the front of the list always requires the same steps
+  - Performance: Excellent for embedded systems ✓
+
+- **O(n) - Linear time**: Time increases proportionally with the number of elements (n)
+  - Example: Finding the last element requires traversing all n elements
+  - Performance: Acceptable for small to medium lists
+
+- **O(n²) - Quadratic time**: Time increases with the square of the number of elements
+  - Example: Bubble sort compares elements multiple times
+  - Performance: Avoid for large lists in embedded systems
+
+**Concrete examples:**
+| List Size | O(1)      | O(n)           | O(n²)              |
+|-----------|-----------|----------------|--------------------|
+| 10 items  | 1 step    | 10 steps       | 100 steps          |
+| 100 items | 1 step    | 100 steps      | 10,000 steps       |
+| 1000 items| 1 step    | 1,000 steps    | 1,000,000 steps    |
+
+**Best practice:** Always prefer O(1) operations when possible for optimal performance.
+
+@section c_list_operations Basic Operations
+
+@subsection c_list_insertion Insertion Operations
+
+All insertion functions return `bool` to indicate success or failure.
+
+**Push Front** - Add a node at the beginning (O(1)):
+
+@code{.c}
+my_data_t *data = malloc(sizeof(my_data_t));
+data->node.next = NULL;  // Must be NULL before insertion
+data->value = 42;
+
+if (c_list_push_front(&my_list, &data->node)) {
+    // Successfully inserted
+}
+@endcode
+
+**Push Back** - Add a node at the end (O(n)):
+
+@code{.c}
+my_data_t *data = malloc(sizeof(my_data_t));
+data->node.next = NULL;
+
+if (c_list_push_back(&my_list, &data->node)) {
+    // Successfully inserted
+}
+@endcode
+
+**Insert After** - Insert a node after a reference node (O(1)):
+
+@code{.c}
+my_data_t *new_data = malloc(sizeof(my_data_t));
+new_data->node.next = NULL;
+
+if (c_list_insert_after(&ref_node, &new_data->node)) {
+    // Successfully inserted after ref_node
+}
+@endcode
+
+**Insert Before** - Insert a node before a reference node (O(n)):
+
+@code{.c}
+my_data_t *new_data = malloc(sizeof(my_data_t));
+new_data->node.next = NULL;
+
+if (c_list_insert_before(&my_list, &ref_node, &new_data->node)) {
+    // Successfully inserted before ref_node
+}
+@endcode
+
+@subsection c_list_removal Removal Operations
+
+All removal functions return `bool` to indicate success or failure.
+They take an optional deletion callback function to clean up node data.
+
+**Pop Front** - Remove the first node (O(1)):
+
+@code{.c}
+void my_delete_func(c_list_node_t *node) {
+    my_data_t *data = (my_data_t *)node;
+    // Clean up data if needed
+    free(data);
+}
+
+if (c_list_pop_front(&my_list, my_delete_func)) {
+    // First node was removed and freed
+}
+@endcode
+
+**Pop Back** - Remove the last node (O(n)):
+
+@code{.c}
+if (c_list_pop_back(&my_list, my_delete_func)) {
+    // Last node was removed and freed
+}
+@endcode
+
+**Remove** - Remove a specific node (O(n)):
+
+@code{.c}
+if (c_list_remove(&my_list, &node_to_remove, my_delete_func)) {
+    // Node was found and removed
+}
+@endcode
+
+**Clear** - Remove all nodes (O(n)):
+
+@code{.c}
+if (c_list_clear(&my_list, my_delete_func)) {
+    // All nodes were removed and list is now empty
+}
+@endcode
+
+@subsection c_list_utilities Utility Operations
+
+**Get Size** - Count the number of nodes (O(n)):
+
+@code{.c}
+size_t count = c_list_size(&my_list);
+@endcode
+
+**Sort** - Sort the list using a comparison function (O(n²)):
+
+@code{.c}
+bool my_compare_func(const c_list_node_t *a, const c_list_node_t *b) {
+    my_data_t *data_a = (my_data_t *)a;
+    my_data_t *data_b = (my_data_t *)b;
+    return data_a->value <= data_b->value;  // true if in correct order
+}
+
+if (c_list_sort(&my_list, my_compare_func)) {
+    // List is now sorted
+}
+@endcode
+
+@section c_list_traversal List Traversal
+
+To iterate through the list:
+
+@code{.c}
+for (c_list_node_t *node = my_list; node != NULL; node = node->next) {
+    my_data_t *data = (my_data_t *)node;
+    // Process data
+    printf("Value: %d\n", data->value);
+}
+@endcode
+
+@section c_list_safety Safety and Error Handling
+
+The library implements several safety checks:
+
+1. **NULL pointer checks**: All functions validate their parameters
+2. **Node state validation**: Insertion functions verify that `node->next == NULL` to prevent:
+   - Creating cycles in the list
+   - Accidentally linking nodes from different lists
+   - Losing track of existing node chains
+
+3. **Return value checking**: All mutating operations return `bool`:
+   - `true`: Operation succeeded
+   - `false`: Invalid parameters or operation failed (e.g., node not found)
+
+**Common error scenarios:**
+
+@code{.c}
+my_data_t *data = malloc(sizeof(my_data_t));
+data->node.next = some_other_node;  // Already linked!
+
+if (!c_list_push_front(&my_list, &data->node)) {
+    // ERROR: node->next was not NULL
+    // This prevents accidentally breaking another list
+}
+@endcode
+
+@section c_list_best_practices Best Practices
+
+1. **Always initialize `node->next` to NULL** before insertion:
+   @code{.c}
+   my_data_t *data = malloc(sizeof(my_data_t));
+   data->node.next = NULL;  // Critical!
+   @endcode
+
+2. **Check return values** to detect errors:
+   @code{.c}
+   if (!c_list_push_front(&my_list, &data->node)) {
+       // Handle error
+   }
+   @endcode
+
+3. **Use the deletion callback** to prevent memory leaks:
+   @code{.c}
+   c_list_clear(&my_list, my_delete_func);
+   @endcode
+
+4. **Prefer `c_list_push_front`** when order doesn't matter (O(1) vs O(n))
+
+5. **Don't reuse nodes** across multiple lists without proper unlinking
+
+@section c_list_examples Complete Examples
+
+@subsection c_list_example_basic Basic Usage Example
+
+@code{.c}
+#include "c_list.h"
+#include <stdlib.h>
+#include <stdio.h>
+
+typedef struct person_s {
+    c_list_node_t node;
+    char name[32];
+    int age;
+} person_t;
+
+void delete_person(c_list_node_t *node) {
+    person_t *person = (person_t *)node;
+    printf("Deleting: %s\n", person->name);
+    free(person);
+}
+
+int main(void) {
+    c_list_node_t *people = NULL;
+
+    // Add some people
+    person_t *alice = malloc(sizeof(person_t));
+    alice->node.next = NULL;
+    strcpy(alice->name, "Alice");
+    alice->age = 30;
+    c_list_push_front(&people, &alice->node);
+
+    person_t *bob = malloc(sizeof(person_t));
+    bob->node.next = NULL;
+    strcpy(bob->name, "Bob");
+    bob->age = 25;
+    c_list_push_back(&people, &bob->node);
+
+    // Print all people
+    for (c_list_node_t *node = people; node != NULL; node = node->next) {
+        person_t *p = (person_t *)node;
+        printf("%s is %d years old\n", p->name, p->age);
+    }
+
+    // Clean up
+    c_list_clear(&people, delete_person);
+
+    return 0;
+}
+@endcode
+
+@subsection c_list_example_sort Sorting Example
+
+@code{.c}
+bool compare_age(const c_list_node_t *a, const c_list_node_t *b) {
+    const person_t *pa = (const person_t *)a;
+    const person_t *pb = (const person_t *)b;
+    return pa->age <= pb->age;  // Sort by age ascending
+}
+
+// Sort the list
+if (c_list_sort(&people, compare_age)) {
+    printf("List sorted by age\n");
+}
+@endcode
+
+@section c_list_performance Performance Characteristics
+
+| Operation              | Time Complexity | Notes                            |
+|------------------------|-----------------|----------------------------------|
+| `c_list_push_front`    | O(1)            | Constant time                    |
+| `c_list_pop_front`     | O(1)            | Constant time                    |
+| `c_list_push_back`     | O(n)            | Must traverse entire list        |
+| `c_list_pop_back`      | O(n)            | Must find second-to-last node    |
+| `c_list_insert_after`  | O(1)            | Constant time if reference known |
+| `c_list_insert_before` | O(n)            | Must find previous node          |
+| `c_list_remove`        | O(n)            | Must search for node             |
+| `c_list_clear`         | O(n)            | Must visit all nodes             |
+| `c_list_sort`          | O(n²)           | Bubble sort implementation       |
+| `c_list_size`          | O(n)            | Must count all nodes             |
+
+**Memory overhead:** Only 4-8 bytes per node (one pointer), depending on architecture.
+
+@section c_list_limitations Limitations
+
+1. **Singly-linked**: No backward traversal. Operations requiring access to previous nodes are O(n).
+
+2. **No tail pointer**: `push_back` and `pop_back` are O(n). For frequent tail operations, consider maintaining a separate tail pointer in your application.
+
+3. **Bubble sort**: The sort implementation is O(n²). For large lists, consider using an external sorting algorithm.
+
+4. **No built-in search**: Searching requires manual traversal. Implement application-specific search functions.
+
+@section c_list_alternatives When to Use Alternatives
+
+Consider alternatives if you need:
+- **Frequent tail operations**: Use doubly-linked list or maintain tail pointer
+- **Fast random access**: Use array-based structures
+- **Bidirectional traversal**: Use doubly-linked list
+- **Efficient sorting**: Pre-sort data before insertion or use different data structure
+- **Memory profiling**: Use `lib_alloc` for allocation tracking
+
+*/

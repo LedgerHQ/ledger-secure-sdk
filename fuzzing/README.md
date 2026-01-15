@@ -3,6 +3,7 @@
 ## Manual usage based on Ledger container
 
 ### About Fuzzing Framework
+
 The code is divided into the following folders:
 
 ```bash
@@ -49,23 +50,22 @@ export BOLOS_SDK=/app
 
 cd fuzzing # You must run it from the fuzzing folder
 
-./local_run.sh --build=1 --fuzzer=build/fuzz_bip32 --j=4 --run-fuzzer=1 --compute-coverage=1 --BOLOS_SDK=${BOLOS_SDK}
+./local_run.sh --BOLOS_SDK=${BOLOS_SDK} --j=4 --build=1 --fuzzer=build/fuzz_bip32 --run-fuzzer=1 --compute-coverage=1
 ```
 
 ### About local_run.sh
 
-| Parameter              | Type                | Description                                                          |
-| :--------------------- | :------------------ | :------------------------------------------------------------------- |
-| `--BOLOS_SDK`          | `PATH TO BOLOS SDK` | **Required**. Path to the BOLOS SDK                                  |
-| `--build`              | `bool`              | **Optional**. Whether to build the project (default: 0)              |
-| `--fuzzer`             | `PATH`              | **Required**. Path to the fuzzer binary                              |
-| `--compute-coverage`   | `bool`              | **Optional**. Whether to compute coverage after fuzzing (default: 0) |
-| `--run-fuzzer`         | `bool`              | **Optional**. Whether to run or not the fuzzer (default: 0)          |
-| `--run-crash`          | `FILENAME`          | **Optional**. Run the fuzzer on a specific crash input file (default: 0) |
-| `--sanitizer`          | `address or memory` | **Optional**. Compile fuzzer with sanitizer (default: address)       |
+| Parameter              | Type                | Description                                                                   |
+| :--------------------- | :------------------ | :------------------------------------------------------------------- ---------|
+| `--BOLOS_SDK`          | `PATH TO BOLOS SDK` | **Required**. Path to the BOLOS SDK                                           |
+| `--build`              | `bool`              | **Optional**. Whether to build the project (default: 0)                       |
+| `--fuzzer`             | `PATH`              | **Required**. Path to the fuzzer binary                                       |
+| `--compute-coverage`   | `bool`              | **Optional**. Whether to compute coverage after fuzzing (default: 0)          |
+| `--run-fuzzer`         | `bool`              | **Optional**. Whether to run or not the fuzzer (default: 0)                   |
+| `--run-crash`          | `FILENAME`          | **Optional**. Run the fuzzer on a specific crash input file (default: 0)      |
+| `--sanitizer`          | `address or memory` | **Optional**. Compile fuzzer with sanitizer (default: address)                |
 | `--j`                  | `int`               | **Optional**. Number of parallel jobs/CPUs for build and fuzzing (default: 1) |
-| `--help`               |                     | **Optional**. Display help message                                   |
-
+| `--help`               |                     | **Optional**. Display help message                                            |
 
 ### Writing your Harness
 
@@ -138,6 +138,7 @@ cmake -S . -B build -DCMAKE_C_COMPILER=clang -DSANITIZER=address -G Ninja -DTARG
 ./build/fuzz_apdu_parser
 ./build/fuzz_base58
 ./build/fuzz_bip32
+./build/fuzz_c_list
 ./build/fuzz_qrcodegen
 ./build/fuzz_alloc
 ./build/fuzz_alloc_utils
