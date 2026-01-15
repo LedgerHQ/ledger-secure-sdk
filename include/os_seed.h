@@ -145,6 +145,13 @@ WARN_UNUSED_RESULT static inline cx_err_t os_derive_bip32_no_throw(
 }
 
 #ifdef HAVE_SECP256K1_CURVE
+
+// Maximum supported number of derivation steps in os_derive_slip21_key
+#define SLIP21_MAX_LABELS 10
+
+// Maximum total length of all labels in os_derive_slip21_key
+#define SLIP21_MAX_TOTAL_LENGTH 256
+
 /**
  * @brief   Derives a SLIP-21 key from a list of labels.
  *
@@ -168,8 +175,11 @@ WARN_UNUSED_RESULT static inline cx_err_t os_derive_slip21_key(const char  **lab
                                                                unsigned int  labels_count,
                                                                unsigned char key[static 32])
 {
+    // Make sure the caller doesn't use uninitialized data. Will be overwritten on success.
+    explicit_bzero(key, 32);
+
     // Up to 10 labels are supported
-    if (labels_count == 0 || labels_count > 10) {
+    if (labels_count == 0 || labels_count > SLIP21_MAX_LABELS) {
         return CX_INVALID_PARAMETER;
     }
 
@@ -181,8 +191,9 @@ WARN_UNUSED_RESULT static inline cx_err_t os_derive_slip21_key(const char  **lab
     // Aligned to 4 bytes as this is later passed as a (const unsigned int *) pointer
     // Make sure that the buffer is large enough (account for 1 extra byte per label for the \x00
     // prefix, and the 1 byte for the '/' separator after the first label).
-    unsigned char path_buffer[256 + 2 * 10 - 1] __attribute__((aligned(4)));
-    unsigned int  pos = 0;
+    unsigned char path_buffer[SLIP21_MAX_TOTAL_LENGTH + 2 * SLIP21_MAX_LABELS - 1]
+        __attribute__((aligned(4)));
+    unsigned int pos = 0;
 
     for (unsigned int i = 0; i < labels_count; i++) {
         const char *label = labels[i];
@@ -239,10 +250,6 @@ WARN_UNUSED_RESULT static inline cx_err_t os_derive_slip21_key(const char  **lab
     if (error == CX_OK) {
         // Return only the first 32 bytes
         memcpy(key, raw_privkey, 32);
-    }
-    else {
-        // Make sure the caller doesn't use uninitialized data
-        explicit_bzero(key, 32);
     }
 
     // Clear sensitive data
