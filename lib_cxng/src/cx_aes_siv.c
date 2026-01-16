@@ -28,7 +28,13 @@ cx_err_t cx_aes_siv_reset(cx_aes_siv_context_t *ctx)
     if (ctx->cipher_ctx == NULL) {
         goto end;
     }
+    if (ctx->cipher_ctx->cipher_info == NULL) {
+        goto clear_ctx;
+    }
+
     CX_CHECK(ctx->cipher_ctx->cipher_info->base->ctx_reset());
+
+clear_ctx:
     cx_cipher_reset(ctx->cipher_ctx);
 
 end:
