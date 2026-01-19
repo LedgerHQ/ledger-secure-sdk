@@ -11,8 +11,10 @@ function.
 --8<-- [end:swap_lib_calls_intro]
 */
 
-#include "stdbool.h"
-#include "stdint.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "swap_caller_app.h"
+#include "chain_config.h"
 
 // The os_lib_calls commands that can be called by the Exchange application.
 // They are handled by the lib_standard_app main() function.
@@ -117,13 +119,14 @@ typedef struct create_transaction_parameters_s {
 // Parameter given through os_lib_call() to the Coin application by the Exchange application.
 // They are handled by the lib_standard_app main() function.
 typedef struct libargs_s {
-    unsigned int id;
-    unsigned int command;
-    unsigned int unused;
+    unsigned int         id;
+    unsigned int         command;
+    coin_chain_config_t *chain_config;
     union {
         check_address_parameters_t        *check_address;
         create_transaction_parameters_t   *create_transaction;
         get_printable_amount_parameters_t *get_printable_amount;
+        swap_caller_app_t                 *swap_caller_app;
     };
 } libargs_t;
 // --8<-- [end:libargs_t]
