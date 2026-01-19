@@ -21,9 +21,12 @@
 #include "os.h"
 #include "io.h"
 #include "ledger_assert.h"
+#include "macros.h"
+#include "main_std_app.h"
 
 #ifdef HAVE_SWAP
 #include "swap.h"
+#include "swap_caller_app.h"
 #include "swap_error_code_helpers.h"
 #endif  // HAVE_SWAP
 
@@ -33,6 +36,10 @@
 
 ux_state_t        G_ux;
 bolos_ux_params_t G_ux_params;
+#ifdef HAVE_SWAP
+const coin_chain_config_t *coin_chain_config;
+swap_caller_app_t         *swap_caller_app = NULL;
+#endif  // HAVE_SWAP
 
 /**
  * Exit the application and go back to the dashboard.
@@ -43,6 +50,11 @@ WEAK void __attribute__((noreturn)) app_exit(void)
     os_io_stop();
 #endif  // USE_OS_IO_STACK
     os_sched_exit(-1);
+}
+
+WEAK void common_app_setup(bool lib_mode)
+{
+    UNUSED(lib_mode);
 }
 
 WEAK void common_app_init(void)
@@ -56,13 +68,35 @@ WEAK void common_app_init(void)
 #endif  // #ifdef HAVE_APP_STORAGE
 }
 
-WEAK void standalone_app_main(void)
+WEAK void standalone_app_main(libargs_t *args)
 {
+    UNUSED(args);
     PRINTF("standalone_app_main\n");
 #ifdef HAVE_SWAP
+    coin_chain_config_t config = {0};
+
     G_called_from_swap                  = false;
     G_swap_response_ready               = false;
     G_swap_signing_return_value_address = NULL;
+
+    if (args) {
+        if (args->chain_config != NULL) {
+            coin_chain_config = args->chain_config;
+        }
+        swap_caller_app = args->swap_caller_app;
+        if (swap_caller_app != NULL) {
+            if (coin_chain_config != NULL) {
+                swap_caller_app->type = SWAP_CALLER_TYPE_CLONE;
+            }
+            else {
+                swap_caller_app->type = SWAP_CALLER_TYPE_PLUGIN;
+            }
+        }
+    }
+    if (coin_chain_config == NULL) {
+        swap_init_coin_config(&config);
+        coin_chain_config = &config;
+    }
 #endif  // HAVE_SWAP
 
     BEGIN_TRY
@@ -70,6 +104,7 @@ WEAK void standalone_app_main(void)
         TRY
         {
             common_app_init();
+            common_app_setup(false);
 
             app_main();
         }
@@ -112,38 +147,36 @@ WEAK void standalone_app_main(void)
  */
 WEAK void library_app_main(libargs_t *args)
 {
+    bool                success     = false;
+    coin_chain_config_t coin_config = {0};
+    if (args->chain_config == NULL) {
+        // We have been started directly by Exchange, not by a Clone. Init default chain
+        swap_init_coin_config(&coin_config);
+        args->chain_config = &coin_config;
+    }
+
     BEGIN_TRY
     {
         TRY
         {
             PRINTF("Inside library\n");
             switch (args->command) {
-                case SIGN_TRANSACTION: {
+                case SIGN_TRANSACTION:
                     // Backup up transaction parameters and wipe BSS to avoid collusion with
                     // app-exchange BSS data.
-                    bool success = swap_copy_transaction_parameters(args->create_transaction);
+                    success = swap_copy_transaction_parameters_ext(args->create_transaction,
+                                                                   args->chain_config);
                     if (success) {
-                        // BSS was wiped, we can now init these globals
-                        G_called_from_swap    = true;
-                        G_swap_response_ready = false;
-                        // Keep the address at which we'll reply the signing status
-                        G_swap_signing_return_value_address = &args->create_transaction->result;
-
-                        common_app_init();
-
-#ifdef HAVE_NBGL
-                        nbgl_useCaseSpinner("Signing");
-#endif  // HAVE_NBGL
-
-                        app_main();
+                        swap_handle_sign_transaction_ext(args->create_transaction,
+                                                         args->chain_config);
                     }
                     break;
-                }
                 case CHECK_ADDRESS:
-                    swap_handle_check_address(args->check_address);
+                    swap_handle_check_address_ext(args->check_address, args->chain_config);
                     break;
                 case GET_PRINTABLE_AMOUNT:
-                    swap_handle_get_printable_amount(args->get_printable_amount);
+                    swap_handle_get_printable_amount_ext(args->get_printable_amount,
+                                                         args->chain_config);
                     break;
                 default:
                     break;
@@ -166,6 +199,12 @@ WEAK void library_app_main(libargs_t *args)
 
 WEAK __attribute__((section(".boot"))) int main(int arg0)
 {
+#if defined HAVE_CLONES || defined HAVE_SWAP
+    libargs_t *args = (libargs_t *) arg0;
+#endif  // HAVE_CLONES || HAVE_SWAP
+#ifdef HAVE_CLONES
+    clone_app_main(args);
+#else
     // exit critical section
     __asm volatile("cpsie i");
 
@@ -174,20 +213,26 @@ WEAK __attribute__((section(".boot"))) int main(int arg0)
 
     if (arg0 == 0) {
         // Called from dashboard as standalone App
-        standalone_app_main();
+        standalone_app_main(NULL);
     }
 #ifdef HAVE_SWAP
     else {
         // Called as library from another app
-        libargs_t *args = (libargs_t *) arg0;
-        if (args->id == 0x100) {
-            library_app_main(args);
-        }
-        else {
+        if (args->id != 0x100) {
             app_exit();
+            return 0;  // never reached
+        }
+        switch (args->command) {
+            case RUN_APPLICATION:
+                // called as CoinApp from altcoin or plugin
+                standalone_app_main(args);
+                break;
+            default:
+                // called as CoinApp or altcoin library
+                library_app_main(args);
         }
     }
 #endif  // HAVE_SWAP
-
+#endif  // HAVE_CLONES
     return 0;
 }
