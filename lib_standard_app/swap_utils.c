@@ -19,6 +19,8 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "macros.h"
+#include "chain_config.h"
 
 volatile bool G_called_from_swap;
 volatile bool G_swap_response_ready;
@@ -63,6 +65,21 @@ bool swap_parse_config(const uint8_t *config,
     }
     *decimals = config[offset];
     return true;
+}
+
+/** @brief Initialize the chain configuration with default values
+ *
+ * @param[out] coin_config Pointer to the chain configuration to initialize
+ */
+WEAK void swap_init_coin_config(coin_chain_config_t *coin_config)
+{
+    memset(coin_config, 0, sizeof(coin_chain_config_t));
+#if defined(APP_TICKER) && defined(APP_CHAIN_ID)
+    _Static_assert(strlen(APP_TICKER) <= sizeof(coin_config->coinName),
+                   "APP_TICKER is too long for coinName buffer");
+    strncpy(coin_config->coinName, APP_TICKER, sizeof(coin_config->coinName) - 1);
+    coin_config->chainId = APP_CHAIN_ID;
+#endif  // defined(APP_TICKER) && defined(APP_CHAIN_ID)
 }
 
 #endif  // HAVE_SWAP
