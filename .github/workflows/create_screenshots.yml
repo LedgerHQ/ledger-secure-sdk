@@ -24,6 +24,7 @@ jobs:
       - name: Install prerequisites
         run: |
           pip install pillow
+          sudo apt update
           sudo apt install -y libbsd-dev build-essential libpng-dev libjson-c-dev
           echo '["nanox", "nanosp", "stax", "flex", "apex_p"]' > targets.json
 
