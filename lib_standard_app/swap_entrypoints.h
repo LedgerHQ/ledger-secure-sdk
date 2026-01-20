@@ -21,34 +21,61 @@
 
 #include "swap_lib_calls.h"
 
+// ################################################################################################
+
 /*
---8<-- [start:swap_entry_point_intro]
+--8<-- [start:coin_api_intro]
 The handle functions must be defined by each Coin application implementing the SWAP feature.
 
-Handlers are called by Exchange through the `os_lib_call` API, and dispatched by the `main()`
-and `library_app_main()` functions of the lib_standard_app.
+Handlers are called by Exchange through the `os_lib_call` API, and their commands must be fulfilled
+by the Coin application.
 
 The Exchange application is responsible for handling the flow and sequencing of the SWAP.
+--8<-- [end:coin_api_intro]
+*/
+
+// ################################################################################################
+
+/*
+--8<-- [start:swap_entry_point_intro]
+## C applications
+For C applications, the lib_standard_app dispatches the command through the `main()` and
+`library_app_main()` functions to the Coin application defined handler.
 --8<-- [end:swap_entry_point_intro]
 */
 
+// ################################################################################################
+
+/*
+--8<-- [start:swap_handle_check_address_brief]
+This handle is called when the Exchange application wants to ensure that a
+given address belongs to the device.
+
+If the address does belong to the device, result is set to 1. Otherwise it
+is set to 0.
+--8<-- [end:swap_handle_check_address_brief]
+*/
+
+// ################################################################################################
+
 // --8<-- [start:swap_handle_check_address]
-/* This handle is called when the Exchange application wants to ensure that a
- * given address belongs to the device.
- *
- * If the address does belong to the device, result is set to 1. Otherwise it
- * is set to 0.
- */
+// This callback must be defined in Coin Applications that use the SWAP feature.
+
 void swap_handle_check_address(check_address_parameters_t *params);
 // --8<-- [end:swap_handle_check_address]
 
+/*
+--8<-- [start:swap_handle_get_printable_amount_brief]
+This handle is called when the Exchange application wants to format for
+display an amount + ticker of a currency known by this application
+
+If the formatting succeeds, result is set to the formatted string. Otherwise
+it is set to '\0'.
+--8<-- [end:swap_handle_get_printable_amount_brief]
+*/
+
 // --8<-- [start:swap_handle_get_printable_amount]
-/* This handle is called when the Exchange application wants to format for
- * display an amount + ticker of a currency known by this application
- *
- * If the formatting succeeds, result is set to the formatted string. Otherwise
- * it is set to '\0'.
- */
+// This callback must be defined in Coin Applications that use the SWAP feature.
 void swap_handle_get_printable_amount(get_printable_amount_parameters_t *params);
 // --8<-- [end:swap_handle_get_printable_amount]
 
