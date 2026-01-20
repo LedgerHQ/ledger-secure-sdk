@@ -138,47 +138,6 @@ void nbgl_frontRefreshArea(nbgl_area_t        *area,
     return;
 }
 
-void nbgl_sideDrawRect(nbgl_area_t *area)
-{
-    unsigned int parameters[1];
-    parameters[0] = (unsigned int) area;
-    SVC_Call(SYSCALL_nbgl_side_draw_rect_ID, parameters);
-    return;
-}
-
-void nbgl_sideDrawHorizontalLine(nbgl_area_t *area, uint8_t mask, color_t lineColor)
-{
-    unsigned int parameters[3];
-    parameters[0] = (unsigned int) area;
-    parameters[1] = (unsigned int) mask;
-    parameters[2] = (unsigned int) lineColor;
-    SVC_Call(SYSCALL_nbgl_side_draw_horizontal_line_ID, parameters);
-    return;
-}
-
-void nbgl_sideDrawImage(nbgl_area_t          *area,
-                        uint8_t              *buffer,
-                        nbgl_transformation_t transformation,
-                        nbgl_color_map_t      colorMap)
-{
-    unsigned int parameters[4];
-    parameters[0] = (unsigned int) area;
-    parameters[1] = (unsigned int) buffer;
-    parameters[2] = (unsigned int) transformation;
-    parameters[3] = (unsigned int) colorMap;
-    SVC_Call(SYSCALL_nbgl_side_draw_img_ID, parameters);
-    return;
-}
-
-void nbgl_sideRefreshArea(nbgl_area_t *area, nbgl_post_refresh_t post_refresh)
-{
-    unsigned int parameters[2];
-    parameters[0] = (unsigned int) area;
-    parameters[1] = (unsigned int) post_refresh;
-    SVC_Call(SYSCALL_nbgl_side_refresh_area_ID, parameters);
-    return;
-}
-
 void nbgl_screen_reinit(void)
 {
     unsigned int parameters[1];
