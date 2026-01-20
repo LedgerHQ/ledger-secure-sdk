@@ -1519,15 +1519,6 @@ void os_setting_set(unsigned int setting_id, unsigned char *value, unsigned int 
     return;
 }
 
-void os_sched_exec(unsigned int app_idx)
-{
-    unsigned int parameters[2];
-    parameters[0] = (unsigned int) app_idx;
-    parameters[1] = 0;
-    SVC_Call(SYSCALL_os_sched_exec_ID, parameters);
-    return;
-}
-
 void __attribute__((noreturn)) os_sched_exit(bolos_task_status_t exit_code)
 {
     unsigned int parameters[2];

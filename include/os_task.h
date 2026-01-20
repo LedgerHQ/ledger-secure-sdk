@@ -24,9 +24,6 @@ enum task_unsecure_id_e {
     TASK_MAXCOUNT,  // must be last in the structure
 };
 
-// execute the given application index in the registry, this function kills the current app task
-SYSCALL TASKSWITCH PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_sched_exec(unsigned int app_idx);
-
 // exit the current task
 #ifdef HAVE_BOLOS
 SYSCALL void os_sched_exit(bolos_task_status_t exit_code);
