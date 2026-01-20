@@ -4,11 +4,6 @@
 #include "decorators.h"
 #include "os_types.h"
 
-// SYSCALL void screen_write_frame(unsigned char* framebuffer PLENGTH(BAGL_WIDTH*BAGL_HEIGHT/8));
-/**
- * Initialize the screen driver and blank the screen.
- */
-void screen_init(void);
 /**
  * Blank the screen buffer but don't update the screen driver just yet.
  */
@@ -18,10 +13,6 @@ SYSCALL void screen_clear(void);
  */
 SYSCALL void screen_update(void);
 
-/**
- * Set screen brightness
- */
-SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void screen_set_brightness(unsigned int percent);
 /**
  * Require a specific zone not to be cleared/drawn by any graphic HAL to implement screen overlay
  */

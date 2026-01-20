@@ -229,12 +229,10 @@
 #endif  // HAVE_VAULT_RECOVERY_ALGO
 
 #ifdef HAVE_SE_SCREEN
-#define SYSCALL_screen_clear_ID       0x00000079
-#define SYSCALL_screen_update_ID      0x0000007a
-#define SYSCALL_screen_set_keepout_ID 0x0400007b
-#ifdef HAVE_BRIGHTNESS_SYSCALL
-#define SYSCALL_screen_set_brightness_ID 0x0100008c
-#endif  // HAVE_BRIGHTNESS_SYSCALL
+#define SYSCALL_screen_clear_ID                     0x00000079
+#define SYSCALL_screen_update_ID                    0x0000007a
+#define SYSCALL_screen_set_keepout_ID               0x0400007b
+#define SYSCALL_RESERVED_35_ID                      0x0400007b
 #define SYSCALL_bagl_hal_draw_bitmap_within_rect_ID 0x0900007c
 #define SYSCALL_bagl_hal_draw_rect_ID               0x0500007d
 #endif  // HAVE_SE_SCREEN
