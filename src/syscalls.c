@@ -1760,16 +1760,6 @@ void screen_update(void)
     return;
 }
 
-#ifdef HAVE_BRIGHTNESS_SYSCALL
-void screen_set_brightness(unsigned int percent)
-{
-    unsigned int parameters[2];
-    parameters[0] = (unsigned int) percent;
-    SVC_Call(SYSCALL_screen_set_brightness_ID, parameters);
-    return;
-}
-#endif  // HAVE_BRIGHTNESS_SYSCALL
-
 void screen_set_keepout(unsigned int x, unsigned int y, unsigned int width, unsigned int height)
 {
     unsigned int parameters[4];
