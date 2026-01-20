@@ -2,34 +2,69 @@
 
 ## Overview
 
-This fuzzer tests the generic linked list library (`lib_c_list`) for memory safety issues, edge cases, and potential crashes. It exercises all list operations including insertion, removal, sorting, and traversal.
+This fuzzer tests the generic linked list library (`lib_c_list`) for memory safety issues, edge cases, and potential crashes. It exercises both **forward lists** (`c_flist_*`) and **doubly-linked lists** (`c_dlist_*`) with all available operations including insertion, removal, sorting, reversing, and traversal.
+
+## List Type Selection
+
+The **first byte** determines which type of list to test:
+
+- **Bit 7 = 0**: Forward list (singly-linked)
+- **Bit 7 = 1**: Doubly-linked list
+
+This allows the fuzzer to test both implementations independently within a single harness.
 
 ## Operations Tested
+
+### Forward List Operations (c_flist_*)
 
 The fuzzer uses the lower 4 bits of each input byte to select operations:
 
 | Op Code | Operation         | Description                                    |
 |---------|-------------------|------------------------------------------------|
-| 0x00    | `push_front`      | Add node at the beginning                      |
-| 0x01    | `push_back`       | Add node at the end                            |
-| 0x02    | `pop_front`       | Remove first node                              |
-| 0x03    | `pop_back`        | Remove last node                               |
-| 0x04    | `insert_after`    | Insert node after reference node               |
-| 0x05    | `insert_before`   | Insert node before reference node              |
-| 0x06    | `remove`          | Remove specific node                           |
-| 0x07    | `clear`           | Remove all nodes                               |
-| 0x08    | `sort`            | Sort list by node ID                           |
-| 0x09    | `size`            | Get list size                                  |
-| 0x0A    | `traverse`        | Traverse and verify integrity (cycle detection)|
+| 0x00    | `push_front`      | Add node at the beginning (O(1))               |
+| 0x01    | `push_back`       | Add node at the end (O(n))                     |
+| 0x02    | `pop_front`       | Remove first node (O(1))                       |
+| 0x03    | `pop_back`        | Remove last node (O(n))                        |
+| 0x04    | `insert_after`    | Insert node after reference node (O(1))        |
+| 0x05    | `remove`          | Remove specific node (O(n))                    |
+| 0x06    | `clear`           | Remove all nodes (O(n))                        |
+| 0x07    | `sort`            | Sort list by node ID (O(n²))                   |
+| 0x08    | `size`            | Get list size (O(n))                           |
+| 0x09    | `reverse`         | Reverse list order (O(n))                      |
+| 0x0A    | `empty`           | Check if list is empty (O(1))                  |
+
+### Doubly-Linked List Operations (c_dlist_*)
+
+| Op Code | Operation         | Description                                    |
+|---------|-------------------|------------------------------------------------|
+| 0x00    | `push_front`      | Add node at the beginning (O(1))               |
+| 0x01    | `push_back`       | Add node at the end (O(1) ⚡)                   |
+| 0x02    | `pop_front`       | Remove first node (O(1) ⚡)                     |
+| 0x03    | `pop_back`        | Remove last node (O(1) ⚡)                      |
+| 0x04    | `insert_after`    | Insert node after reference (O(1))             |
+| 0x05    | `insert_before`   | Insert node before reference (O(1) ⚡)          |
+| 0x06    | `remove`          | Remove specific node (O(1) ⚡)                  |
+| 0x07    | `clear`           | Remove all nodes (O(n))                        |
+| 0x08    | `sort`            | Sort list by node ID (O(n²))                   |
+| 0x09    | `size`            | Get list size (O(n))                           |
+| 0x0A    | `reverse`         | Reverse list order (O(n))                      |
+| 0x0B    | `empty`           | Check if list is empty (O(1))                  |
 
 ## Features
 
+### Dual List Testing
+
+The fuzzer tests both list implementations:
+
+- **Forward Lists** (`c_flist_node_t`): Singly-linked, minimal memory overhead
+- **Doubly-Linked Lists** (`c_dlist_node_t`): Bidirectional traversal, O(1) operations
+
 ### Safety Checks
 
-- **Cycle detection**: Prevents infinite loops in traversal
+- **Type safety**: Separate tracking for forward and doubly-linked nodes
 - **Node tracking**: All allocated nodes are tracked for cleanup
 - **Memory leak prevention**: Automatic cleanup at end of fuzzing iteration
-- **Integrity verification**: Validates list structure during traversal
+- **Size limits**: Prevents excessive memory usage
 
 ### Test Data
 
@@ -37,13 +72,13 @@ Each node contains:
 
 - Unique ID (auto-incremented)
 - 16 bytes of fuzzer-provided data
-- Standard list node structure
+- Standard list node structure (with or without prev pointer)
 
 ### Limits
 
 - `MAX_NODES`: 1000 (prevents excessive memory usage)
 - `MAX_TRACKERS`: 100 (limits number of tracked nodes)
-- Maximum input length: 256 bytes (configurable)
+- Minimum input length: 2 bytes (1 for type selection, 1+ for operations)
 
 ## Building
 
@@ -97,9 +132,45 @@ fuzzing/harness/fuzz_c_list/
 
 Example corpus files:
 
-- Simple operations: `\x00\x00...` (push_front operations)
-- Mixed operations: `\x00...\x01...\x02` (push_front, push_back, pop_front)
-- Complex sequences: Various operation combinations
+**Forward list operations** (first byte < 0x80):
+
+```bash
+# Simple forward list operations
+00 00 <16 bytes>  # push_front
+00 01 <16 bytes>  # push_back
+00 02             # pop_front
+
+# Complex forward list sequence
+00 00 <16 bytes> 01 <16 bytes> 07 09  # push_front, push_back, sort, reverse
+```
+
+**Doubly-linked list operations** (first byte >= 0x80):
+
+```bash
+# Simple doubly-linked operations
+80 00 <16 bytes>  # push_front
+80 01 <16 bytes>  # push_back (O(1) - fast!)
+80 05 00 <16 bytes>  # insert_before (unique to doubly-linked)
+
+# Complex doubly-linked sequence
+80 00 <16 bytes> 01 <16 bytes> 08 0A  # push_front, push_back, sort, reverse
+```
+
+## Input Format
+
+```bash
+Byte 0:    [1 bit: list type] [7 bits: unused]
+           - Bit 7 = 0: Forward list
+           - Bit 7 = 1: Doubly-linked list
+
+Byte 1+:   [Operation code] [Optional parameters]
+           - Lower 4 bits: operation type (0x00-0x0F)
+           - Upper 4 bits: unused
+
+Parameters:
+- Node creation: 16 bytes of data
+- Node reference: 1 byte index (for insert/remove operations)
+```
 
 ## Debugging
 
