@@ -72,12 +72,15 @@ def get_curve_mask(curves, slip21_paths):
                 curve_mask |= CURVE_PRIME256R1
             elif curve == 'ed25519':
                 curve_mask |= CURVE_ED25519
+            elif curve == 'slip21':  # not a real curve, but used to indicate SLIP-21 derivations
+                curve_mask |= CURVE_SLIP21
             elif curve == 'bls12381g1':
                 curve_mask |= CURVE_BLS12381G1
             else:
                 raise Exception("Unknown curve " + curve)
 
         if slip21_paths:
+            # if slip21 paths are specified, ensure the curve mask includes SLIP21 even if not explicitly mentioned
             curve_mask |= CURVE_SLIP21
     else:
         curve_mask = 0xff
