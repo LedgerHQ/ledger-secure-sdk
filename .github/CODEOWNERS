@@ -1,0 +1,47 @@
+# Global owners for entire repo
+* @tjoly-ledger @jarevalo-ledger
+
+# Top folders owners
+/.github/ISSUE_TEMPLATE/* @tjoly-ledger
+/.github/pull_request_template.md @tjoly-ledger
+/.github/workflows/* @tjoly-ledger
+/arch @tjoly-ledger
+/doc @tjoly-ledger
+
+# Lib specific owners
+# /io/*: @tjoly-ledger @jarevalo-ledger
+# /io_legacy/*: @tjoly-ledger @jarevalo-ledger
+/lib_blewbxx/*: @jarevalo-ledger
+/lib_blewbxx_impl/*: @jarevalo-ledger
+/lib_ccid/*: @jarevalo-ledger
+/lib_cxng/*: @jarevalo-ledger
+/lib_nfc/*: @jarevalo-ledger
+/lib_pki/*: @tjoly-ledger
+# /lib_standard_app/*: @tjoly-ledger @jarevalo-ledger
+/lib_stusb/*: @jarevalo-ledger
+/lib_stusb_impl/*: @jarevalo-ledger
+/lib_tlv/*: @tjoly-ledger
+# /lib_u2f/*: @tjoly-ledger @jarevalo-ledger
+/lib_u2f_legacy/*: @jarevalo-ledger
+/lib_ux/*: @jarevalo-ledger
+/lib_ux_nbgl/*: @jarevalo-ledger
+/protocol/*: @jarevalo-ledger
+/qrcode/*: @jarevalo-ledger
+
+# Source-specific owners
+/src/app_metadata.c: @tjoly-ledger
+/src/checks.c: @tjoly-ledger
+/src/cx_hash_iovec.c: @tjoly-ledger
+/src/cx_stubs.S: @jarevalo-ledger
+/src/cx_wrappers.c: @tjoly-ledger
+/src/ledger_assert.c: @tjoly-ledger
+/src/nbgl_stubs.S: @jarevalo-ledger
+# /src/os.c: @tjoly-ledger @jarevalo-ledger
+# /src/os_printf.c: @tjoly-ledger @jarevalo-ledger
+/src/pic.c: @jarevalo-ledger
+/src/retrocompatibility_endorsement.c: @jarevalo-ledger
+/src/stack_protector.c: @tjoly-ledger @jarevalo-ledger
+# /src/stack_protector_init.S: @tjoly-ledger @jarevalo-ledger
+/src/svc_call.s: @jarevalo-ledger
+/src/svc_cx_call.s: @jarevalo-ledger
+/src/syscalls.c: @jarevalo-ledger
