@@ -1,59 +1,65 @@
-#include "c_list.h"
-
 /**
- * @brief Add a new node at the front of the list
+ * @file
+ * @brief Generic linked list implementation
  *
- * @param[in,out] list pointer to the list
- * @param[out] node new node to add
- * @return true on success, false on error
+ * Provides both singly-linked (c_flist) and doubly-linked (c_list) implementations.
  */
-bool c_list_push_front(c_list_node_t **list, c_list_node_t *node)
+
+#include "c_list.h"
+#include "os_helpers.h"
+
+// ============================================================================
+// Internal shared functions with strict validation
+// ============================================================================
+
+static bool push_front_internal(c_flist_node_t **list, c_flist_node_t *node, bool doubly_linked)
 {
-    if ((list == NULL) || (node == NULL) || (node->next != NULL)) {
+    if ((list == NULL) || (node == NULL)) {
         return false;
     }
     node->next = *list;
     *list      = node;
+    if (doubly_linked) {
+        if (node->next != NULL) {
+            ((c_dlist_node_t *) node->next)->prev = (c_dlist_node_t *) node;
+        }
+        ((c_dlist_node_t *) node)->prev = NULL;
+    }
     return true;
 }
 
-/**
- * @brief Remove the first node from the list
- *
- * @param[in,out] list pointer to the list
- * @param[in] func pointer to the node deletion function
- * @return true on success, false if list is empty or NULL
- */
-bool c_list_pop_front(c_list_node_t **list, f_list_node_del func)
+static bool pop_front_internal(c_flist_node_t **list, c_list_node_del del_func, bool doubly_linked)
 {
-    c_list_node_t *tmp = NULL;
+    c_flist_node_t *tmp;
 
     if ((list == NULL) || (*list == NULL)) {
         return false;
     }
     tmp   = *list;
     *list = tmp->next;
-    if (func != NULL) {
-        func(tmp);
+    if (del_func != NULL) {
+        del_func(tmp);
+    }
+    if (doubly_linked) {
+        if (*list != NULL) {
+            (*(c_dlist_node_t **) list)->prev = NULL;
+        }
     }
     return true;
 }
 
-/**
- * @brief Add a new node at the back of the list
- *
- * @param[in,out] list pointer to the list
- * @param[in,out] node new node to add
- * @return true on success, false on error
- */
-bool c_list_push_back(c_list_node_t **list, c_list_node_t *node)
+static bool push_back_internal(c_flist_node_t **list, c_flist_node_t *node, bool doubly_linked)
 {
-    c_list_node_t *tmp = NULL;
+    c_flist_node_t *tmp;
 
-    if ((list == NULL) || (node == NULL) || (node->next != NULL)) {
+    if ((list == NULL) || (node == NULL)) {
         return false;
     }
+    node->next = NULL;
     if (*list == NULL) {
+        if (doubly_linked) {
+            ((c_dlist_node_t *) node)->prev = NULL;
+        }
         *list = node;
     }
     else {
@@ -61,109 +67,44 @@ bool c_list_push_back(c_list_node_t **list, c_list_node_t *node)
         while (tmp->next != NULL) {
             tmp = tmp->next;
         }
+        if (doubly_linked) {
+            ((c_dlist_node_t *) node)->prev = (c_dlist_node_t *) tmp;
+        }
         tmp->next = node;
     }
     return true;
 }
 
-/**
- * @brief Remove the last node from the list
- *
- * @param[in,out] list pointer to the list
- * @param[in] func pointer to the node deletion function
- * @return true on success, false if list is empty or NULL
- */
-bool c_list_pop_back(c_list_node_t **list, f_list_node_del func)
+static bool insert_after_internal(c_flist_node_t *ref, c_flist_node_t *node, bool doubly_linked)
 {
-    c_list_node_t *tmp = NULL;
-
-    if ((list == NULL) || (*list == NULL)) {
+    if ((ref == NULL) || (node == NULL)) {
         return false;
     }
-    tmp = *list;
-    // only one element
-    if (tmp->next == NULL) {
-        return c_list_pop_front(list, func);
-    }
-    while (tmp->next->next != NULL) {
-        tmp = tmp->next;
-    }
-    if (func != NULL) {
-        func(tmp->next);
-    }
-    tmp->next = NULL;
-    return true;
-}
-
-/**
- * @brief Insert a new node after a given list node (reference)
- *
- * @param[in,out] ref reference node
- * @param[in,out] node new node to add
- * @return true on success, false on error
- */
-bool c_list_insert_after(c_list_node_t *ref, c_list_node_t *node)
-{
-    if ((ref == NULL) || (node == NULL) || (node->next != NULL)) {
-        return false;
+    if (doubly_linked) {
+        if (ref->next != NULL) {
+            ((c_dlist_node_t *) (ref->next))->prev = (c_dlist_node_t *) node;
+        }
+        ((c_dlist_node_t *) node)->prev = (c_dlist_node_t *) ref;
     }
     node->next = ref->next;
     ref->next  = node;
     return true;
 }
 
-/**
- * @brief Insert a new node before a given list node (reference)
- *
- * @param[in,out] list pointer to the list
- * @param[in,out] ref reference node
- * @param[in,out] node new node to add
- * @return true on success, false on error
- */
-bool c_list_insert_before(c_list_node_t **list, c_list_node_t *ref, c_list_node_t *node)
+static bool remove_internal(c_flist_node_t **list,
+                            c_flist_node_t  *node,
+                            c_list_node_del  del_func,
+                            bool             doubly_linked)
 {
-    c_list_node_t *it = NULL;
-
-    if ((list == NULL) || (*list == NULL) || (ref == NULL) || (node == NULL)
-        || (node->next != NULL)) {
-        return false;
-    }
-    if (*list == ref) {
-        // insert at front
-        return c_list_push_front(list, node);
-    }
-    it = *list;
-    while ((it->next != ref) && (it->next != NULL)) {
-        it = it->next;
-    }
-    if (it->next != ref) {
-        // ref not found in list
-        return false;
-    }
-    node->next = ref;
-    it->next   = node;
-    return true;
-}
-
-/**
- * @brief Remove a given node from the list
- *
- * @param[in,out] list pointer to the list
- * @param[out] node node to remove
- * @param[in] func pointer to the node deletion function
- * @return true on success, false if node not found or invalid parameters
- */
-bool c_list_remove(c_list_node_t **list, c_list_node_t *node, f_list_node_del func)
-{
-    c_list_node_t *it  = NULL;
-    c_list_node_t *tmp = NULL;
+    c_flist_node_t *it;
+    c_flist_node_t *tmp;
 
     if ((list == NULL) || (node == NULL) || (*list == NULL)) {
         return false;
     }
     if (node == *list) {
         // first element
-        return c_list_pop_front(list, func);
+        return pop_front_internal(list, del_func, doubly_linked);
     }
     it = *list;
     while ((it->next != node) && (it->next != NULL)) {
@@ -174,55 +115,50 @@ bool c_list_remove(c_list_node_t **list, c_list_node_t *node, f_list_node_del fu
         return false;
     }
     tmp = it->next->next;
-    if (func != NULL) {
-        func(it->next);
+    if (doubly_linked) {
+        if (tmp != NULL) {
+            ((c_dlist_node_t *) tmp)->prev = ((c_dlist_node_t *) node)->prev;
+        }
+    }
+    if (del_func != NULL) {
+        del_func(it->next);
     }
     it->next = tmp;
     return true;
 }
 
-/**
- * @brief Remove all nodes from the list
- *
- * @param[in,out] list pointer to the list
- * @param[in] func pointer to the node deletion function
- * @return true on success, false if list is NULL
- */
-bool c_list_clear(c_list_node_t **list, f_list_node_del func)
+static size_t remove_if_internal(c_flist_node_t **list,
+                                 c_list_node_pred pred_func,
+                                 c_list_node_del  del_func,
+                                 bool             doubly_linked)
 {
-    c_list_node_t *tmp  = NULL;
-    c_list_node_t *next = NULL;
+    c_flist_node_t *node;
+    c_flist_node_t *tmp;
+    size_t          count = 0;
 
-    if (list == NULL) {
-        return false;
+    if ((list == NULL) || (pred_func == NULL)) {
+        return 0;
     }
-    tmp = *list;
-    while (tmp != NULL) {
-        next = tmp->next;
-        if (func != NULL) {
-            func(tmp);
+    node = *list;
+    while (node != NULL) {
+        tmp = node->next;
+        if (pred_func(node)) {
+            if (remove_internal(list, node, del_func, doubly_linked)) {
+                count += 1;
+            }
         }
-        tmp = next;
+        node = tmp;
     }
-    *list = NULL;
-    return true;
+    return count;
 }
 
-/**
- * @brief Sort the list
- *
- * @param[in,out] list pointer to the list
- * @param[in] func pointer to the node comparison function
- * @return true on success, false if invalid parameters
- */
-bool c_list_sort(c_list_node_t **list, f_list_node_cmp func)
+static bool sort_internal(c_flist_node_t **list, c_list_node_cmp cmp_func, bool doubly_linked)
 {
-    c_list_node_t **tmp    = NULL;
-    c_list_node_t  *a      = NULL;
-    c_list_node_t  *b      = NULL;
-    bool            sorted = false;
+    c_flist_node_t **tmp;
+    c_flist_node_t  *a, *b;
+    bool             sorted;
 
-    if ((list == NULL) || (func == NULL)) {
+    if ((list == NULL) || (cmp_func == NULL)) {
         return false;
     }
     do {
@@ -230,30 +166,267 @@ bool c_list_sort(c_list_node_t **list, f_list_node_cmp func)
         for (tmp = list; (*tmp != NULL) && ((*tmp)->next != NULL); tmp = &(*tmp)->next) {
             a = *tmp;
             b = a->next;
-            if (func(a, b) == false) {
+            if (cmp_func(a, b) == false) {
                 *tmp    = b;
                 a->next = b->next;
                 b->next = a;
-                sorted  = false;
+                if (doubly_linked) {
+                    ((c_dlist_node_t *) b)->prev = ((c_dlist_node_t *) a)->prev;
+                    ((c_dlist_node_t *) a)->prev = (c_dlist_node_t *) b;
+                    if (a->next != NULL) {
+                        ((c_dlist_node_t *) a->next)->prev = (c_dlist_node_t *) a;
+                    }
+                }
+                sorted = false;
             }
         }
     } while (!sorted);
     return true;
 }
 
-/**
- * @brief Get the list size
- *
- * @param[in] list pointer to the list
- */
-size_t c_list_size(c_list_node_t *const *list)
+static size_t unique_internal(c_flist_node_t     **list,
+                              c_list_node_bin_pred pred_func,
+                              c_list_node_del      del_func,
+                              bool                 doubly_linked)
+{
+    size_t count = 0;
+
+    if ((list == NULL) || (pred_func == NULL)) {
+        return 0;
+    }
+    for (c_flist_node_t *ref = *list; ref != NULL; ref = ref->next) {
+        c_flist_node_t *node = ref->next;
+        while ((node != NULL) && (pred_func(ref, node))) {
+            c_flist_node_t *tmp = node->next;
+            if (remove_internal(list, node, del_func, doubly_linked)) {
+                count += 1;
+            }
+            node = tmp;
+        }
+    }
+    return count;
+}
+
+static bool reverse_internal(c_flist_node_t **list, bool doubly_linked)
+{
+    c_flist_node_t *node;
+    c_flist_node_t *prev = NULL;
+    c_flist_node_t *next;
+
+    if (list == NULL) {
+        return false;
+    }
+    node = *list;
+    while (node != NULL) {
+        next       = node->next;
+        node->next = prev;
+        if (doubly_linked) {
+            ((c_dlist_node_t *) node)->prev = (c_dlist_node_t *) next;
+        }
+        *list = node;
+        prev  = node;
+        node  = next;
+    }
+    return true;
+}
+
+// ============================================================================
+// Forward list (singly-linked) functions
+// ============================================================================
+
+bool c_flist_push_front(c_flist_node_t **list, c_flist_node_t *node)
+{
+    return push_front_internal(list, node, false);
+}
+
+bool c_flist_pop_front(c_flist_node_t **list, c_list_node_del del_func)
+{
+    return pop_front_internal(list, del_func, false);
+}
+
+bool c_flist_push_back(c_flist_node_t **list, c_flist_node_t *node)
+{
+    return push_back_internal(list, node, false);
+}
+
+bool c_flist_pop_back(c_flist_node_t **list, c_list_node_del del_func)
+{
+    c_flist_node_t *tmp;
+
+    if ((list == NULL) || (*list == NULL)) {
+        return false;
+    }
+    tmp = *list;
+    // only one element
+    if (tmp->next == NULL) {
+        return c_flist_pop_front(list, del_func);
+    }
+    while (tmp->next->next != NULL) {
+        tmp = tmp->next;
+    }
+    if (del_func != NULL) {
+        del_func(tmp->next);
+    }
+    tmp->next = NULL;
+    return true;
+}
+
+bool c_flist_insert_after(c_flist_node_t **list, c_flist_node_t *ref, c_flist_node_t *node)
+{
+    UNUSED(list);
+    return insert_after_internal(ref, node, false);
+}
+
+bool c_flist_remove(c_flist_node_t **list, c_flist_node_t *node, c_list_node_del del_func)
+{
+    return remove_internal(list, node, del_func, false);
+}
+
+size_t c_flist_remove_if(c_flist_node_t **list,
+                         c_list_node_pred pred_func,
+                         c_list_node_del  del_func)
+{
+    return remove_if_internal(list, pred_func, del_func, false);
+}
+
+bool c_flist_clear(c_flist_node_t **list, c_list_node_del del_func)
+{
+    c_flist_node_t *tmp;
+    c_flist_node_t *next;
+
+    if (list == NULL) {
+        return false;
+    }
+    tmp = *list;
+    while (tmp != NULL) {
+        next = tmp->next;
+        if (del_func != NULL) {
+            del_func(tmp);
+        }
+        tmp = next;
+    }
+    *list = NULL;
+    return true;
+}
+
+size_t c_flist_size(c_flist_node_t *const *list)
 {
     size_t size = 0;
 
     if (list != NULL) {
-        for (c_list_node_t *tmp = *list; tmp != NULL; tmp = tmp->next) {
+        for (c_flist_node_t *tmp = *list; tmp != NULL; tmp = tmp->next) {
             size += 1;
         }
     }
     return size;
+}
+
+bool c_flist_empty(c_flist_node_t *const *list)
+{
+    return c_flist_size(list) == 0;
+}
+
+bool c_flist_sort(c_flist_node_t **list, c_list_node_cmp cmp_func)
+{
+    return sort_internal(list, cmp_func, false);
+}
+
+size_t c_flist_unique(c_flist_node_t     **list,
+                      c_list_node_bin_pred pred_func,
+                      c_list_node_del      del_func)
+{
+    return unique_internal(list, pred_func, del_func, false);
+}
+
+bool c_flist_reverse(c_flist_node_t **list)
+{
+    return reverse_internal(list, false);
+}
+
+// ============================================================================
+// Doubly-linked list functions
+// ============================================================================
+
+bool c_dlist_push_front(c_dlist_node_t **list, c_dlist_node_t *node)
+{
+    return push_front_internal((c_flist_node_t **) list, (c_flist_node_t *) node, true);
+}
+
+bool c_dlist_pop_front(c_dlist_node_t **list, c_list_node_del del_func)
+{
+    return pop_front_internal((c_flist_node_t **) list, del_func, true);
+}
+
+bool c_dlist_push_back(c_dlist_node_t **list, c_dlist_node_t *node)
+{
+    return push_back_internal((c_flist_node_t **) list, (c_flist_node_t *) node, true);
+}
+
+bool c_dlist_pop_back(c_dlist_node_t **list, c_list_node_del del_func)
+{
+    return c_flist_pop_back((c_flist_node_t **) list, del_func);
+}
+
+bool c_dlist_insert_before(c_dlist_node_t **list, c_dlist_node_t *ref, c_dlist_node_t *node)
+{
+    if ((ref == NULL) || (node == NULL)) {
+        return false;
+    }
+    if (ref->prev == NULL) {
+        if ((list != NULL) && (*list == ref)) {
+            return c_dlist_push_front(list, node);
+        }
+        return false;
+    }
+    return c_dlist_insert_after(list, ref->prev, node);
+}
+
+bool c_dlist_insert_after(c_dlist_node_t **list, c_dlist_node_t *ref, c_dlist_node_t *node)
+{
+    UNUSED(list);
+    return insert_after_internal((c_flist_node_t *) ref, (c_flist_node_t *) node, true);
+}
+
+bool c_dlist_remove(c_dlist_node_t **list, c_dlist_node_t *node, c_list_node_del del_func)
+{
+    return remove_internal((c_flist_node_t **) list, (c_flist_node_t *) node, del_func, true);
+}
+
+size_t c_dlist_remove_if(c_dlist_node_t **list,
+                         c_list_node_pred pred_func,
+                         c_list_node_del  del_func)
+{
+    return remove_if_internal((c_flist_node_t **) list, pred_func, del_func, true);
+}
+
+bool c_dlist_clear(c_dlist_node_t **list, c_list_node_del del_func)
+{
+    return c_flist_clear((c_flist_node_t **) list, del_func);
+}
+
+size_t c_dlist_size(c_dlist_node_t *const *list)
+{
+    return c_flist_size((c_flist_node_t **) list);
+}
+
+bool c_dlist_empty(c_dlist_node_t *const *list)
+{
+    return c_dlist_size(list) == 0;
+}
+
+bool c_dlist_sort(c_dlist_node_t **list, c_list_node_cmp cmp_func)
+{
+    return sort_internal((c_flist_node_t **) list, cmp_func, true);
+}
+
+size_t c_dlist_unique(c_dlist_node_t     **list,
+                      c_list_node_bin_pred pred_func,
+                      c_list_node_del      del_func)
+{
+    return unique_internal((c_flist_node_t **) list, pred_func, del_func, true);
+}
+
+bool c_dlist_reverse(c_dlist_node_t **list)
+{
+    return reverse_internal((c_flist_node_t **) list, true);
 }
