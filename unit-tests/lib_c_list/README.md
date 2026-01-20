@@ -8,48 +8,44 @@
 
 ## Overview
 
-This test suite covers all functions provided by the Generic Linked List library (`c_list.c`).
+This test suite covers all functions provided by the Generic Linked List library (`c_list.c`), which supports both:
+
+- **Forward lists** (`c_flist_*`) - Singly-linked lists (4-8 bytes/node)
+- **Doubly-linked lists** (`c_dlist_*`) - Doubly-linked lists (8-16 bytes/node)
 
 ### Test Coverage
 
-The test suite includes **16 comprehensive tests** covering:
+The test suite includes **24 comprehensive tests** covering:
 
-**Insertion Operations (3 tests):**
+**Forward Lists (c_flist_*) - 11 tests:**
 
-- `test_push_front` - Add nodes at the beginning
-- `test_push_front_errors` - Error handling for push_front
-- `test_push_back` - Add nodes at the end
+- `test_c_flist_push_front` - Add nodes at the beginning
+- `test_c_flist_push_back` - Add nodes at the end
+- `test_c_flist_pop_front` - Remove nodes from the beginning
+- `test_c_flist_pop_back` - Remove nodes from the end
+- `test_c_flist_insert_after` - Insert after a reference node
+- `test_c_flist_remove` - Remove specific nodes
+- `test_c_flist_remove_if` - Remove nodes matching predicate
+- `test_c_flist_clear` - Clear entire list
+- `test_c_flist_sort` - Sort list with comparison function
+- `test_c_flist_unique` - Remove duplicate consecutive nodes
+- `test_c_flist_reverse` - Reverse list order
 
-**Removal Operations (2 tests):**
+**Doubly-Linked Lists (c_dlist_*) - 13 tests:**
 
-- `test_pop_front` - Remove nodes from the beginning
-- `test_pop_back` - Remove nodes from the end
-
-**Advanced Insertion (3 tests):**
-
-- `test_insert_after` - Insert after a reference node
-- `test_insert_before` - Insert before a reference node
-- `test_insert_before_errors` - Error handling for insert_before
-
-**Node Removal (2 tests):**
-
-- `test_remove` - Remove specific nodes
-- `test_remove_not_found` - Handle removal of non-existent nodes
-
-**List Operations (1 test):**
-
-- `test_clear` - Clear entire list
-
-**Sorting (3 tests):**
-
-- `test_sort` - Sort list with comparison function
-- `test_sort_empty` - Sort empty list
-- `test_sort_single` - Sort single-element list
-
-**Utilities (2 tests):**
-
-- `test_size` - Count nodes in list
-- `test_traversal` - Traverse and manipulate list
+- `test_c_dlist_push_front` - Add nodes at the beginning
+- `test_c_dlist_push_back` - Add nodes at the end
+- `test_c_dlist_pop_front` - Remove nodes from the beginning
+- `test_c_dlist_pop_back` - Remove nodes from the end
+- `test_c_dlist_insert_after` - Insert after a reference node
+- `test_c_dlist_insert_before` - Insert before a reference node
+- `test_c_dlist_remove` - Remove specific nodes
+- `test_c_dlist_remove_if` - Remove nodes matching predicate
+- `test_c_dlist_clear` - Clear entire list
+- `test_c_dlist_sort` - Sort list with comparison function
+- `test_c_dlist_unique` - Remove duplicate consecutive nodes
+- `test_c_dlist_reverse` - Reverse list order
+- `test_c_dlist_backward_traversal` - Traverse list backward using prev pointers
 
 ## Building and Running Tests
 
@@ -93,24 +89,28 @@ xdg-open coverage_html/index.html
 ### Safety Features Tested
 
 1. **NULL pointer validation** - All functions check for NULL parameters
-2. **Node state validation** - Insertion functions verify `node->next == NULL`
+2. **Node state validation** - Insertion functions verify `node->next == NULL` (flist) or `node->_list.next == NULL && node->prev == NULL` (dlist)
 3. **Return value checking** - All mutating operations return bool for success/failure
-4. **Node not found** - Functions handle missing nodes gracefully
-5. **Empty list operations** - Safe handling of operations on empty lists
+4. **Empty list operations** - Safe handling of operations on empty lists
+5. **Predicate filtering** - remove_if tests validate callback-based filtering
+6. **Duplicate removal** - unique tests validate consecutive duplicate handling
+7. **Bidirectional traversal** - dlist tests validate both forward and backward traversal
 
 ### Example Test Output
 
 ```bash
-[==========] Running 16 test(s).
-[ RUN      ] test_push_front
-[       OK ] test_push_front
-[ RUN      ] test_push_front_errors
-[       OK ] test_push_front_errors
-[ RUN      ] test_push_back
-[       OK ] test_push_back
+[==========] Running 24 test(s).
+[ RUN      ] test_c_flist_push_front
+[       OK ] test_c_flist_push_front
+[ RUN      ] test_c_flist_push_back
+[       OK ] test_c_flist_push_back
+[ RUN      ] test_c_flist_pop_front
+[       OK ] test_c_flist_pop_front
 ...
-[==========] 16 test(s) run.
-[  PASSED  ] 16 test(s).
+[ RUN      ] test_c_dlist_backward_traversal
+[       OK ] test_c_dlist_backward_traversal
+[==========] 24 test(s) run.
+[  PASSED  ] 24 test(s).
 ```
 
 ## Memory Safety
@@ -133,7 +133,23 @@ These tests should be run:
 
 To add new tests:
 
-1. Add test function following the pattern:
+1. Define test node structures for the appropriate list type:
+
+```c
+// For forward lists
+typedef struct test_flist_node_s {
+    c_flist_node_t _list;
+    int value;
+} test_flist_node_t;
+
+// For doubly-linked lists
+typedef struct test_dlist_node_s {
+    c_dlist_node_t _list;
+    int value;
+} test_dlist_node_t;
+```
+
+2. Add test function following the pattern:
 
 ```c
 static void test_new_feature(void **state)
@@ -143,13 +159,13 @@ static void test_new_feature(void **state)
 }
 ```
 
-2. Register in main():
+3. Register in main():
 
 ```c
 cmocka_unit_test(test_new_feature),
 ```
 
-3. Rebuild and run tests
+4. Rebuild and run tests
 
 ## Known Limitations
 
