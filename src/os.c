@@ -37,12 +37,6 @@ void os_boot(void)
 }
 #endif  // BOLOS_OS_UPGRADER_APP
 
-void os_memset4(void *dst, unsigned int initval, unsigned int nbintval)
-{
-    while (nbintval--) {
-        ((unsigned int *) dst)[nbintval] = initval;
-    }
-}
 
 void os_xor(void *dst, void *src1, void *src2, unsigned int length)
 {
@@ -265,26 +259,6 @@ void os_reset(void)
     os_io_seph_cmd_se_reset();
     for (;;) {
     }
-}
-
-void *os_memmove(void *dest, const void *src, size_t n)
-{
-    return memmove(dest, src, n);
-}
-
-void *os_memcpy(void *dest, const void *src, size_t n)
-{
-    return memmove(dest, src, n);
-}
-
-int os_memcmp(const void *s1, const void *s2, size_t n)
-{
-    return memcmp(s1, s2, n);
-}
-
-void *os_memset(void *s, int c, size_t n)
-{
-    return memset(s, c, n);
 }
 
 int bytes_to_hex(char *out, size_t outl, const void *value, size_t len)
