@@ -59,7 +59,7 @@ listinfo:
 	@echo SDK_HASH=$(SDK_HASH)
 
 clean:
-	rm -fr $(BUILD_DIR) bin debug
+	rm -fr $(BUILD_DIR)
 
 clean_target:
 	rm -fr $(TARGET_BUILD_DIR) $(TARGET_SCAN_DIR)
@@ -69,7 +69,7 @@ BUILD_DEPENDENCIES += $(APP_CUSTOM_BUILD_DEPENDENCIES)
 
 prepare:
 	$(L)echo Prepare directories
-	@mkdir -p $(BIN_DIR) $(OBJ_DIR) $(OBJECTS_DIR) $(DBG_DIR) $(DEP_DIR) $(DEPEND_DIR) $(GEN_SRC_DIR) bin debug
+	@mkdir -p $(BIN_DIR) $(OBJ_DIR) $(OBJECTS_DIR) $(DBG_DIR) $(DEP_DIR) $(DEPEND_DIR) $(GEN_SRC_DIR)
 
 $(BUILD_DEPENDENCIES): prepare
 
@@ -80,10 +80,9 @@ $(APP_USE_CASES):
 	@$(MAKE) --no-print-directory $(call get_flags_for_use_case,$@)
 endif
 
-BIN_TARGETS := bin/app.elf bin/app.apdu bin/app.sha256 bin/app.hex
-DBG_TARGETS := debug/app.map debug/app.asm
+BIN_TARGETS := $(BIN_DIR)/app.apdu
 
-default: $(BIN_TARGETS) $(DBG_TARGETS)
+default: $(BIN_TARGETS)
 
 # Glyphs target
 $(GEN_SRC_DIR)/%.o: $(GEN_SRC_DIR)/%.c $(BUILD_DEPENDENCIES) prepare
@@ -158,30 +157,8 @@ $(BIN_DIR)/app.elf: $(LINK_DEPENDENCIES)
 	$(L)$(GCCPATH)arm-none-eabi-objcopy -O ihex -S $(BIN_DIR)/app.elf $(BIN_DIR)/app.hex
 	$(L)$(GCCPATH)arm-none-eabi-objdump -S -d $(BIN_DIR)/app.elf > $(DBG_DIR)/app.asm
 
-# This targets are generated along $(OBJ_DIR)/app.elf but we can't make them co-target
-# otherwise building with `make -j` fails due to multiple threads running simultaneously
-# this target while it needs to be run only once.
-$(BIN_DIR)/app.hex $(DBG_DIR)/app.map $(DBG_DIR)/app.asm: $(BIN_DIR)/app.elf
-
-$(BIN_DIR)/app.apdu: bin/app.hex debug/app.map
+$(BIN_DIR)/app.apdu: $(BIN_DIR)/app.elf
 	$(L)python3 -m ledgerblue.loadApp $(APP_LOAD_PARAMS) --offline $(BIN_DIR)/app.apdu | grep "Application" | cut -f5 -d' ' > $(BIN_DIR)/app.sha256
-
-# This target is generated along $(BIN_DIR)/app.apdu but we can't make them co-target
-# otherwise building with `make -j` ends up with multiple threads running simultaneously
-# this target while it needs to be run only once.
-$(BIN_DIR)/app.sha256: $(BIN_DIR)/app.apdu
-
-# Set PHONY to force the copy to bin in case we rebuild a previous TARGET
-.PHONY: bin/app.elf bin/app.hex bin/app.apdu bin/app.sha256
-bin/app.elf bin/app.hex bin/app.apdu bin/app.sha256: bin/app.%: $(BIN_DIR)/app.%
-	@echo "[CP] $< => $@"
-	$(L)cp $< $@
-
-# Set PHONY to force the copy to debug in case we rebuild a previous TARGET
-.PHONY: debug/app.map debug/app.asm
-debug/app.map debug/app.asm: debug/app.%: $(DBG_DIR)/app.%
-	@echo "[CP] $< => $@"
-	$(L)cp $< $@
 
 ### BEGIN GCC COMPILER RULES
 
