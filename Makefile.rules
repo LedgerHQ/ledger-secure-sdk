@@ -32,6 +32,8 @@ ifeq ($(ENABLE_DYNAMIC_ALLOC), 1)
   SDK_SOURCE_PATH += lib_alloc
 endif
 
+SDK_SOURCE_PATH += lib_c_list
+
 ifneq ($(IS_STANDARD_APP),1)
 ifneq ($(DISABLE_OS_IO_STACK_USE), 1)
 ifeq (,$(filter $(DEFINES),HAVE_LEGACY_PID))
