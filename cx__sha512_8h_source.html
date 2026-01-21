@@ -117,9 +117,13 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="keyword">extern</span> <span class="keyword">const</span> cx_hash_info_t cx_sha512_info;</div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="preprocessor">#endif  </span><span class="comment">// HAVE_SHA512</span></div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="preprocessor">#endif  </span><span class="comment">// defined(HAVE_SHA512) || defined(HAVE_SHA384)</span></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span> </div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="preprocessor">#endif  </span><span class="comment">// CX_SHA512_H</span></div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>WARN_UNUSED_RESULT cx_err_t cx_sha512_update(cx_sha512_t *ctx, <span class="keyword">const</span> uint8_t *data, <span class="keywordtype">size_t</span> len);</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="comment">// No need to add WARN_UNUSED_RESULT to cx_sha512_final(), it always returns CX_OK</span></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>cx_err_t cx_sha512_final(cx_sha512_t *ctx, uint8_t *digest);</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="preprocessor">#endif  </span><span class="comment">// defined(HAVE_SHA512) || defined(HAVE_SHA384)</span></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="preprocessor">#endif  </span><span class="comment">// CX_SHA512_H</span></div>
 <div class="ttc" id="alcx__sha512_8h_html"><div class="ttname"><a href="lcx__sha512_8h.html">lcx_sha512.h</a></div><div class="ttdoc">SHA-2 (Secure Hash Algorithm 2)</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
