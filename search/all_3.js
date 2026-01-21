@@ -77,7 +77,7 @@ var searchData=
   ['app_5fstorage_2ec_74',['app_storage.c',['../app__storage_8c.html',1,'']]],
   ['app_5fstorage_5finternal_2eh_75',['app_storage_internal.h',['../app__storage__internal_8h.html',1,'']]],
   ['app_5fticker_5fevent_5fcallback_76',['app_ticker_event_callback',['../io_8h.html#aff1fdfdf81efbcf45780e77e16a0a0f4',1,'app_ticker_event_callback(void):&#160;io.c'],['../io_8c.html#aff1fdfdf81efbcf45780e77e16a0a0f4',1,'app_ticker_event_callback(void):&#160;io.c']]],
-  ['application_20framework_77',['application framework',['../standard_app_mainpage.html',1,'Standard Application Framework'],['../index.html#standard_app_presentation',1,'Standard Application Framework']]],
+  ['application_20framework_77',['application framework',['../index.html#standard_app_presentation',1,'Standard Application Framework'],['../standard_app_mainpage.html',1,'Standard Application Framework']]],
   ['application_20use_20cases_20api_78',['application use cases api',['../nbgl_mainpage.html#nbgl_app_use_case_api_1',1,'Application Use-cases API'],['../nbgl_app_use_case.html',1,'Predefined Application Use-cases API']]],
   ['applications_20using_20b_20nbgl_79',['User eXperience on Applications using \b NBGL',['../index.html#ux_nbgl_presentation',1,'']]],
   ['arch_5flittle_5fendian_80',['ARCH_LITTLE_ENDIAN',['../lcx__common_8h.html#a1c8ed4b72dac6929d882e2aeb0261081',1,'lcx_common.h']]],
@@ -87,5 +87,6 @@ var searchData=
   ['assign64_84',['ASSIGN64',['../cx__utils_8h.html#a660b5a3766209ed109e4508c6b6c5521',1,'cx_utils.h']]],
   ['autohidelongline_85',['autoHideLongLine',['../structnbgl__text__area__s.html#acc3478a72d26ae679bd71fef564b6804',1,'nbgl_text_area_s']]],
   ['automatic_20allocation_20and_20release_86',['Automatic allocation and release',['../nbgl_screens_and_objs.html#nbgl_objs_mngt_automatic',1,'']]],
-  ['available_5fwidth_87',['AVAILABLE_WIDTH',['../nbgl__layout_8h.html#a7cbe9f98ad52749210b99e1ed27ac2b9',1,'nbgl_layout.h']]]
+  ['available_5fwidth_87',['AVAILABLE_WIDTH',['../nbgl__layout_8h.html#a7cbe9f98ad52749210b99e1ed27ac2b9',1,'nbgl_layout.h']]],
+  ['average_5fchar_5fwidth_88',['AVERAGE_CHAR_WIDTH',['../nbgl__draw__text_8c.html#a8ebe98fb260719a1cdb510353e567ccb',1,'nbgl_draw_text.c']]]
 ];
