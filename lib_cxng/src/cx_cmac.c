@@ -4,6 +4,7 @@
 #include "cx_utils.h"
 #include "cx_ram.h"
 #include "cx_cmac.h"
+#include "os_math.h"
 #include <string.h>
 
 #define CMAC_CONSTANT_R_64  (0x1B)
@@ -58,7 +59,7 @@ cx_err_t cx_cmac_update(cx_cipher_context_t *ctx, const uint8_t *input, size_t i
     n = (in_len + ctx->cipher_info->block_size - 1) / ctx->cipher_info->block_size;
 
     for (i = 1; i < n; i++) {
-        cx_memxor(ctx->cmac_ctx->state, input, ctx->cipher_info->block_size);
+        cx_memxor(ctx->cmac_ctx->state, input, MIN(in_len, ctx->cipher_info->block_size));
         CX_CHECK(cx_cipher_update(ctx,
                                   ctx->cmac_ctx->state,
                                   ctx->cipher_info->block_size,
