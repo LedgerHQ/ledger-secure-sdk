@@ -17,4 +17,5 @@ jobs:
         name: Build all Rust apps with the reusable workflow
         uses: LedgerHQ/ledger-device-rust-sdk/.github/workflows/reusable_build_all_apps.yml@master
         with:
-            c_sdk_branch: '${{ github.head_ref }}'
+            c_sdk_branch: ${{ github.event.inputs.c_sdk_branch || github.head_ref }}
+            c_sdk_repo: ${{ github.event.inputs.c_sdk_repo || github.event.pull_request.head.repo.full_name }}
