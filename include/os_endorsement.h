@@ -197,52 +197,6 @@ SYSCALL bolos_err_t ENDORSEMENT_get_metadata(ENDORSEMENT_slot_t slot,
                                              uint8_t           *out_metadata,
                                              uint8_t           *out_metadata_length);
 
-// Deprecated function prototypes
-
-__attribute__((__deprecated__("Please use `ENDORSEMENT_get_code_hash` instead.")))
-SYSCALL unsigned int
-os_endorsement_get_code_hash(unsigned char *buffer PLENGTH(32));
-
-__attribute__((__deprecated__("Please use `ENDORSEMENT_get_public_key` instead.")))
-SYSCALL unsigned int
-os_endorsement_get_public_key(unsigned char         index,
-                              unsigned char *buffer PLENGTH(65),
-                              unsigned char *length PLENGTH(1));
-
-__attribute__((__deprecated__("Please use `ENDORSEMENT_get_public_key_certificate` instead.")))
-SYSCALL unsigned int
-os_endorsement_get_public_key_certificate(unsigned char index,
-                                          unsigned char *buffer
-                                              PLENGTH(ENDORSEMENT_MAX_ASN1_LENGTH),
-                                          unsigned char *length PLENGTH(1));
-
-__attribute__((__deprecated__("Please use `ENDORSEMENT_key1_get_app_secret` instead.")))
-SYSCALL unsigned int
-os_endorsement_key1_get_app_secret(unsigned char *buffer PLENGTH(64));
-
-__attribute__((__deprecated__("Please use `ENDORSEMENT_key1_sign_data` instead.")))
-SYSCALL unsigned int
-os_endorsement_key1_sign_data(unsigned char *src       PLENGTH(srcLength),
-                              unsigned int             srcLength,
-                              unsigned char *signature PLENGTH(ENDORSEMENT_MAX_ASN1_LENGTH));
-
-__attribute__((__deprecated__("Please use `ENDORSEMENT_key1_sign_without_code_hash` instead.")))
-SYSCALL unsigned int
-os_endorsement_key1_sign_without_code_hash(unsigned char *src PLENGTH(srcLength),
-                                           unsigned int       srcLength,
-                                           unsigned char *signature
-                                               PLENGTH(ENDORSEMENT_MAX_ASN1_LENGTH));
-
-__attribute__((__deprecated__("Please use `ENDORSEMENT_key2_derive_sign_data` instead.")))
-SYSCALL unsigned int
-os_endorsement_key2_derive_sign_data(unsigned char *src       PLENGTH(srcLength),
-                                     unsigned int             srcLength,
-                                     unsigned char *signature PLENGTH(ENDORSEMENT_MAX_ASN1_LENGTH));
-
-__attribute__((__deprecated__("Please use `ENDORSEMENT_get_metadata` instead.")))
-SYSCALL unsigned int
-os_endorsement_get_metadata(unsigned char index, unsigned char *buffer PLENGTH(8));
-
 /**********************
  *      MACROS
  **********************/
