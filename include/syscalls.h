@@ -148,13 +148,13 @@
 
 #define SYSCALL_os_perso_get_master_key_identifier_ID 0x02000055
 
-#define SYSCALL_ENDORSEMENT_get_code_hash_ID               0x01000055
-#define SYSCALL_ENDORSEMENT_get_public_key_ID              0x03000056
-#define SYSCALL_ENDORSEMENT_get_public_key_certificate_ID  0x03000057
-#define SYSCALL_ENDORSEMENT_key1_get_app_secret_ID         0x01000058
-#define SYSCALL_ENDORSEMENT_key1_sign_data_ID              0x04000059
-#define SYSCALL_ENDORSEMENT_key2_derive_and_sign_data_ID   0x0400005a
-#define SYSCALL_ENDORSEMENT_key1_sign_without_code_hash_ID 0x0400005b
+#define SYSCALL_ENDORSEMENT_GET_CODE_HASH_ID               0x01000055
+#define SYSCALL_ENDORSEMENT_GET_PUB_KEY_ID                 0x03000056
+#define SYSCALL_ENDORSEMENT_GET_PUB_KEY_SIG_ID             0x03000057
+#define SYSCALL_ENDORSEMENT_KEY1_GET_APP_SECRET_ID         0x01000058
+#define SYSCALL_ENDORSEMENT_KEY1_SIGN_DATA_ID              0x04000059
+#define SYSCALL_ENDORSEMENT_KEY2_DERIVE_AND_SIGN_DATA_ID   0x0400005a
+#define SYSCALL_ENDORSEMENT_KEY1_SIGN_WITHOUT_CODE_HASH_ID 0x0400005b
 #define SYSCALL_RESERVED_15_ID                             0x0400004c
 #define SYSCALL_RESERVED_16_ID                             0x0200004d
 #define SYSCALL_os_global_pin_is_validated_ID              0x000000a0
@@ -220,7 +220,7 @@
 
 #define SYSCALL_RESERVED_2_ID               0x010001ED
 #define SYSCALL_RESERVED_1_ID               0x010001EE
-#define SYSCALL_ENDORSEMENT_get_metadata_ID 0x02000138
+#define SYSCALL_ENDORSEMENT_GET_METADATA_ID 0x02000138
 
 #if defined(HAVE_VAULT_RECOVERY_ALGO)
 #define SYSCALL_RESERVED_17_ID 0x02000137
