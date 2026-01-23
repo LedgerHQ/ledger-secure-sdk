@@ -1237,7 +1237,7 @@ void os_perso_derive_eip2333(cx_curve_t          curve,
     return;
 }
 
-bolos_err_t HDKEY_derive(uint32_t        derivation_mode,
+bolos_err_t HDKEY_derive(HDKEY_derive_mode_t derivation_mode,
                          cx_curve_t      curve,
                          const uint32_t *path,
                          size_t          path_len,
