@@ -33,7 +33,7 @@
 #define XOR(v, w)    ((v) ^ (w))
 #define PLUS(v, w)   ((uint32_t) (v + w))
 
-static const uint8_t constants[16] = "expand 32-byte k";
+static const uint8_t constants[] = "expand 32-byte k";
 
 /* Chacha-20 quarter round function */
 STATIC void cx_chacha_quarter_round(uint32_t *a, uint32_t *b, uint32_t *c, uint32_t *d)
