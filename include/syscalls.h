@@ -178,7 +178,7 @@
 #define SYSCALL_RESERVED_5_ID                              0x06000123
 #define SYSCALL_os_registry_get_current_app_tag_ID         0x03000074
 #define SYSCALL_RESERVED_6_ID                              0x00000125
-#define SYSCALL_os_sched_exec_ID                           0x01000126
+#define SYSCALL_RESERVED_34_ID                             0x01000126
 #define SYSCALL_os_sched_exit_ID                           0x0100009a
 #define SYSCALL_os_sched_is_running_ID                     0x0100009b
 #define SYSCALL_os_sched_create_ID                         0x0700011b
