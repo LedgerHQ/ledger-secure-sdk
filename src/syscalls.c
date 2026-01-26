@@ -1517,17 +1517,6 @@ void os_setting_set(unsigned int setting_id, unsigned char *value, unsigned int 
     return;
 }
 
-unsigned int os_registry_get_current_app_tag(unsigned int   tag,
-                                             unsigned char *buffer,
-                                             unsigned int   maxlen)
-{
-    unsigned int parameters[3];
-    parameters[0] = (unsigned int) tag;
-    parameters[1] = (unsigned int) buffer;
-    parameters[2] = (unsigned int) maxlen;
-    return (unsigned int) SVC_Call(SYSCALL_os_registry_get_current_app_tag_ID, parameters);
-}
-
 void os_sched_exec(unsigned int app_idx)
 {
     unsigned int parameters[2];
