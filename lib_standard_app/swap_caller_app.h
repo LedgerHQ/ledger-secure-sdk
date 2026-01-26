@@ -1,5 +1,5 @@
 /*******************************************************************************
- *   (c) 2023 Ledger
+ *   (c) 2026 Ledger
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,23 +13,24 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  ********************************************************************************/
+
 #pragma once
 
-#include <stddef.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include "chain_config.h"
+#ifdef HAVE_NBGL
+#include "nbgl_types.h"
+#endif
 
-extern volatile bool G_called_from_swap;
-extern volatile bool G_swap_response_ready;
-// Don't use in application, SDK only
-extern volatile uint8_t *G_swap_signing_return_value_address;
+typedef enum {
+    SWAP_CALLER_TYPE_CLONE,
+    SWAP_CALLER_TYPE_PLUGIN
+} swap_caller_type_t;
 
-bool swap_str_to_u64(const uint8_t *src, size_t length, uint64_t *result);
-bool swap_parse_config(const uint8_t *config,
-                       uint8_t        config_len,
-                       char          *ticker,
-                       uint8_t        ticker_buf_len,
-                       uint8_t       *decimals);
+typedef struct {
+    const char *name;
+#ifdef HAVE_NBGL
+    const nbgl_icon_details_t *icon;
+#endif
+    char type;  // does not have to be set by the caller app
+} swap_caller_app_t;
 
-void swap_init_coin_config(coin_chain_config_t *coin_config);
+extern swap_caller_app_t *swap_caller_app;

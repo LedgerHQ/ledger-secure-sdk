@@ -8,3 +8,5 @@
 #define WEAK __attribute((weak))
 
 #define ARRAY_LENGTH(array) (sizeof((array)) / sizeof((array)[0]))
+
+#define NORETURN __attribute((noreturn))

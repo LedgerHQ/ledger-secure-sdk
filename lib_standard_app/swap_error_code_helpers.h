@@ -48,6 +48,8 @@ The remaining bytes of the data are application-specific and can include, but ar
 - Field values (e.g., expected vs actual amounts, destination, fees).
 - More specific error codes tailored to the application's context.
 
+## Helpers API
+
 The standard application library define several helper function to return error codes from the Coin
 application.
 --8<-- [end:intro]
