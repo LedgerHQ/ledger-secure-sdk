@@ -14,10 +14,11 @@ target_include_directories(
   nbgl
   PUBLIC "${LIB_NBGL_FONT_DIRS}"
          "${BOLOS_SDK}/fuzzing/glyphs/"
-         "${BOLOS_SDK}/lib_nbgl/include/fonts/"
+         "${NBGL_SHARED_DIR}/include/fonts/"
          "${BOLOS_SDK}/lib_cxng/include/"
          "${BOLOS_SDK}/include/"
          "${BOLOS_SDK}/lib_ux_nbgl/"
          "${BOLOS_SDK}/lib_nbgl/include/"
+         "${NBGL_SHARED_DIR}/src/"
          "${BOLOS_SDK}/lib_nbgl/src/"
          "${BOLOS_SDK}/target/${TARGET}/include")

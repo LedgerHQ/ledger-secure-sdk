@@ -9,4 +9,4 @@ target_compile_options(fuzz_base58 PUBLIC ${COMPILATION_FLAGS})
 target_link_options(fuzz_base58 PUBLIC ${LINK_FLAGS})
 
 # Link with required libraries
-target_link_libraries(fuzz_base58 PUBLIC standard_app)
+target_link_libraries(fuzz_base58 PUBLIC standard_app nbgl_shared)

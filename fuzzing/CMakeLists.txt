@@ -101,7 +101,17 @@ else()
   set(LINK_FLAGS "$ENV{LIB_FUZZING_ENGINE} $ENV{CFLAGS}")
   separate_arguments(COMPILATION_FLAGS)
   separate_arguments(LINK_FLAGS)
+  set(LINK_FLAGS ${LINK_FLAGS} -fuse-ld=lld)
 endif()
+
+# NBGL shared library is generated in Bolos, from NBGL sources from Bolos
+set(NBGL_SHARED_LIB ../../tests/screenshots/shared_libs/libnbgl_shared_${TARGET}.a)
+add_library(nbgl_shared STATIC IMPORTED)
+set_target_properties(
+    nbgl_shared
+      PROPERTIES
+      IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/shared_libs/libnbgl_shared_${TARGET}.a"
+  )
 
 # Fuzzing an APP
 if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})

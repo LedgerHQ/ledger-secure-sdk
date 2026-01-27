@@ -41,13 +41,6 @@ jobs:
             echo "::endgroup::"
           done
 
-          # Special case for lib_nbgl with STAX
-          if [ -d "lib_nbgl" ]; then
-            echo "::group::Building lib_nbgl with STAX"
-            (cd lib_nbgl && STAX=1 cmake -Bbuild -H. && make -C build && CTEST_OUTPUT_ON_FAILURE=1 make -C build test)
-            echo "::endgroup::"
-          fi
-
       - name: Generate code coverage
         working-directory: unit-tests
         run: |

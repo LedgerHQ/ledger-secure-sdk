@@ -1,6 +1,9 @@
 
 #include <string.h>
 #include "usbd_core.h"
+#include "nbgl_types.h"
+
+unsigned long gLogger;
 
 size_t strlcat(char *dst, const char *src, size_t size)
 {
@@ -59,4 +62,15 @@ uint32_t USBD_LL_GetRxDataSize(USBD_HandleTypeDef *pdev __attribute__((unused)),
                                uint8_t             ep_addr __attribute__((unused)))
 {
     return 0;
+}
+
+void nbgl_frontControlAreaMasking(uint8_t mask_index, nbgl_area_t *masked_area_or_null)
+{
+    (void) mask_index;
+    (void) masked_area_or_null;
+}
+
+void mainExit(int exitCode)
+{
+    (void) exitCode;
 }
