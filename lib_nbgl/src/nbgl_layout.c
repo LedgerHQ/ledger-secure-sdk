@@ -1547,55 +1547,61 @@ int nbgl_layoutAddTextContent(nbgl_layout_t *layout,
     }
 
     // create title
-    textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-    textArea->textColor     = BLACK;
-    textArea->text          = PIC(title);
-    textArea->textAlignment = MID_LEFT;
-    textArea->fontId        = LARGE_MEDIUM_FONT;
-    textArea->style         = NO_STYLE;
-    textArea->wrapping      = true;
-    textArea->obj.alignment = NO_ALIGNMENT;
-    textArea->obj.alignmentMarginX = BORDER_MARGIN;
-    textArea->obj.alignmentMarginY = PRE_TITLE_MARGIN;
-    textArea->obj.area.width       = AVAILABLE_WIDTH;
-    textArea->obj.area.height      = nbgl_getTextHeightInWidth(
-        textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
-    // set this new obj as child of main container
-    layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
+    if (title != NULL) {
+        textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+        textArea->textColor     = BLACK;
+        textArea->text          = PIC(title);
+        textArea->textAlignment = MID_LEFT;
+        textArea->fontId        = LARGE_MEDIUM_FONT;
+        textArea->style         = NO_STYLE;
+        textArea->wrapping      = true;
+        textArea->obj.alignment = NO_ALIGNMENT;
+        textArea->obj.alignmentMarginX = BORDER_MARGIN;
+        textArea->obj.alignmentMarginY = PRE_TITLE_MARGIN;
+        textArea->obj.area.width       = AVAILABLE_WIDTH;
+        textArea->obj.area.height      = nbgl_getTextHeightInWidth(
+            textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
+        // set this new obj as child of main container
+        layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
+    }
 
     // create description
-    textArea                  = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-    textArea->textColor       = BLACK;
-    textArea->text            = PIC(description);
-    textArea->fontId          = SMALL_REGULAR_FONT;
-    textArea->style           = NO_STYLE;
-    textArea->wrapping        = true;
-    textArea->obj.area.width  = AVAILABLE_WIDTH;
-    textArea->obj.area.height = nbgl_getTextHeightInWidth(
-        textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
-    textArea->textAlignment        = MID_LEFT;
-    textArea->obj.alignment        = NO_ALIGNMENT;
-    textArea->obj.alignmentMarginX = BORDER_MARGIN;
-    textArea->obj.alignmentMarginY = PRE_DESCRIPTION_MARGIN;
-    // set this new obj as child of main container
-    layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
+    if (description != NULL) {
+        textArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+        textArea->textColor = BLACK;
+        textArea->text      = PIC(description);
+        textArea->fontId    = SMALL_REGULAR_FONT;
+        textArea->style     = NO_STYLE;
+        textArea->wrapping  = true;
+        textArea->obj.area.width  = AVAILABLE_WIDTH;
+        textArea->obj.area.height = nbgl_getTextHeightInWidth(
+            textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
+        textArea->textAlignment        = MID_LEFT;
+        textArea->obj.alignment        = NO_ALIGNMENT;
+        textArea->obj.alignmentMarginX = BORDER_MARGIN;
+        textArea->obj.alignmentMarginY = PRE_DESCRIPTION_MARGIN;
+        // set this new obj as child of main container
+        layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
+    }
 
     // create info on the bottom
-    textArea                  = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-    textArea->textColor       = LIGHT_TEXT_COLOR;
-    textArea->text            = PIC(info);
-    textArea->fontId          = SMALL_REGULAR_FONT;
-    textArea->style           = NO_STYLE;
-    textArea->wrapping        = true;
-    textArea->obj.area.width  = AVAILABLE_WIDTH;
-    textArea->obj.area.height = nbgl_getTextHeightInWidth(
-        textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
-    textArea->textAlignment        = MID_LEFT;
-    textArea->obj.alignment        = BOTTOM_LEFT;
-    textArea->obj.alignmentMarginX = BORDER_MARGIN;
-    textArea->obj.alignmentMarginY = 40;
-    // set this new obj as child of main container
-    layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
+    if (info != NULL) {
+        textArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+        textArea->textColor = LIGHT_TEXT_COLOR;
+        textArea->text      = PIC(info);
+        textArea->fontId    = SMALL_REGULAR_FONT;
+        textArea->style     = NO_STYLE;
+        textArea->wrapping  = true;
+        textArea->obj.area.width  = AVAILABLE_WIDTH;
+        textArea->obj.area.height = nbgl_getTextHeightInWidth(
+            textArea->fontId, textArea->text, textArea->obj.area.width, textArea->wrapping);
+        textArea->textAlignment        = MID_LEFT;
+        textArea->obj.alignment        = BOTTOM_LEFT;
+        textArea->obj.alignmentMarginX = BORDER_MARGIN;
+        textArea->obj.alignmentMarginY = 40;
+        // set this new obj as child of main container
+        layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
+    }
 
     return layoutInt->container->obj.area.height;
 }
