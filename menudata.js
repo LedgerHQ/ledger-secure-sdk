@@ -127,7 +127,6 @@ var menudata={children:[
 {text:"Typedefs",url:"globals_type.html",children:[
 {text:"b",url:"globals_type.html#index_b"},
 {text:"c",url:"globals_type.html#index_c"},
-{text:"d",url:"globals_type.html#index_d"},
 {text:"g",url:"globals_type.html#index_g"},
 {text:"h",url:"globals_type.html#index_h"},
 {text:"k",url:"globals_type.html#index_k"},
@@ -139,7 +138,6 @@ var menudata={children:[
 {text:"Enumerations",url:"globals_enum.html",children:[
 {text:"c",url:"globals_enum.html#index_c"},
 {text:"e",url:"globals_enum.html#index_e"},
-{text:"h",url:"globals_enum.html#index_h"},
 {text:"k",url:"globals_enum.html#index_k"},
 {text:"l",url:"globals_enum.html#index_l"},
 {text:"n",url:"globals_enum.html#index_n"},

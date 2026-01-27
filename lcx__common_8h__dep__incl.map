@@ -1,30 +1,28 @@
 <map id="lib_cxng/include/lcx_common.h" name="lib_cxng/include/lcx_common.h">
-<area shape="rect" id="Node000001" title="Cryptography flags." alt="" coords="522,5,673,45"/>
-<area shape="rect" id="Node000002" href="$lcx__cipher_8h.html" title="API for block ciphers." alt="" coords="522,93,673,133"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="600,59,600,93,595,93,595,59"/>
-<area shape="rect" id="Node000003" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="369,181,559,207"/>
-<area shape="poly" id="edge13_Node000001_Node000003" title=" " alt="" coords="556,55,532,73,511,95,496,117,485,141,470,182,465,180,480,139,492,115,507,92,529,69,553,51"/>
-<area shape="rect" id="Node000012" href="$cx__utils_8h.html" title=" " alt="" coords="765,101,931,126"/>
-<area shape="poly" id="edge14_Node000001_Node000012" title=" " alt="" coords="666,47,815,98,814,103,665,52"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="555,143,485,183,482,179,552,138"/>
-<area shape="rect" id="Node000005" href="$cx__ram_8h.html" title=" " alt="" coords="565,350,728,375"/>
-<area shape="poly" id="edge12_Node000002_Node000005" title=" " alt="" coords="603,147,610,215,625,294,644,349,639,351,620,295,605,216,597,148"/>
-<area shape="rect" id="Node000010" href="$cx__cipher_8h.html" title=" " alt="" coords="635,181,811,207"/>
-<area shape="poly" id="edge10_Node000002_Node000010" title=" " alt="" coords="641,139,706,179,703,183,638,143"/>
-<area shape="rect" id="Node000004" href="$lcx__rng_8h.html" title="Random Number Generation." alt="" coords="389,255,539,295"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="458,220,459,254,454,255,453,220"/>
-<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="470,241,468,207,473,207,476,241"/>
-<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="518,298,623,348,621,352,515,303"/>
+<area shape="rect" id="Node000001" title="Cryptography flags." alt="" coords="359,5,510,45"/>
+<area shape="rect" id="Node000002" href="$lcx__cipher_8h.html" title="API for block ciphers." alt="" coords="359,93,510,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="437,59,437,93,432,93,432,59"/>
+<area shape="rect" id="Node000003" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="206,181,397,207"/>
+<area shape="poly" id="edge12_Node000001_Node000003" title=" " alt="" coords="393,55,370,73,349,95,334,117,322,141,307,182,302,180,317,139,329,115,345,92,366,69,390,51"/>
+<area shape="rect" id="Node000011" href="$cx__utils_8h.html" title=" " alt="" coords="603,101,768,126"/>
+<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="504,47,653,98,651,103,502,52"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="392,143,322,183,320,179,390,138"/>
+<area shape="rect" id="Node000005" href="$cx__ram_8h.html" title=" " alt="" coords="387,350,549,375"/>
+<area shape="poly" id="edge11_Node000002_Node000005" title=" " alt="" coords="442,147,469,350,464,350,436,147"/>
+<area shape="rect" id="Node000009" href="$cx__cipher_8h.html" title=" " alt="" coords="472,181,648,207"/>
+<area shape="poly" id="edge9_Node000002_Node000009" title=" " alt="" coords="478,139,543,179,540,183,475,143"/>
+<area shape="rect" id="Node000004" href="$lcx__rng_8h.html" title="Random Number Generation." alt="" coords="226,255,377,295"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="296,220,296,254,291,255,290,220"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="308,241,305,207,311,207,313,241"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="351,299,447,348,445,352,349,303"/>
 <area shape="rect" id="Node000007" href="$cx__rng__rfc6979_8h.html" title=" " alt="" coords="5,343,152,383"/>
-<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="376,298,153,348,152,342,375,293"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="241,302,128,345,126,340,239,297"/>
 <area shape="rect" id="Node000008" href="$nbgl__layout_8c.html" title="Implementation of predefined layouts management for Applications." alt="" coords="176,350,363,375"/>
-<area shape="poly" id="edge8_Node000004_Node000008" title=" " alt="" coords="410,303,296,352,294,348,408,298"/>
-<area shape="rect" id="Node000009" href="$nbgl__obj__keypad_8c.html" title="The construction and touch management of a keypad object." alt="" coords="387,343,541,383"/>
-<area shape="poly" id="edge9_Node000004_Node000009" title=" " alt="" coords="467,309,467,342,461,342,461,309"/>
-<area shape="rect" id="Node000006" href="$cx__ram_8c.html" title=" " alt="" coords="565,431,728,456"/>
-<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="649,389,649,430,644,430,644,389"/>
-<area shape="rect" id="Node000011" href="$cx__cipher_8c.html" title=" " alt="" coords="635,262,810,287"/>
-<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="725,220,725,262,720,262,720,220"/>
-<area shape="rect" id="Node000013" href="$cx__utils_8c.html" title=" " alt="" coords="835,181,999,207"/>
-<area shape="poly" id="edge15_Node000012_Node000013" title=" " alt="" coords="869,135,909,179,905,183,865,138"/>
+<area shape="poly" id="edge8_Node000004_Node000008" title=" " alt="" coords="292,309,276,350,271,349,287,307"/>
+<area shape="rect" id="Node000006" href="$cx__ram_8c.html" title=" " alt="" coords="387,431,549,456"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="471,389,471,430,465,430,465,389"/>
+<area shape="rect" id="Node000010" href="$cx__cipher_8c.html" title=" " alt="" coords="473,262,647,287"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="563,220,563,262,557,262,557,220"/>
+<area shape="rect" id="Node000012" href="$cx__utils_8c.html" title=" " alt="" coords="673,181,837,207"/>
+<area shape="poly" id="edge14_Node000011_Node000012" title=" " alt="" coords="707,135,746,179,742,183,703,138"/>
 </map>
