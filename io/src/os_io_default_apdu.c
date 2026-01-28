@@ -85,27 +85,35 @@ static bolos_err_t get_version(uint8_t *buffer_out, size_t *buffer_out_length)
     const char *version = APPVERSION;
 #endif
 
-    size_t name_len    = strlen(name);
-    size_t version_len = strlen(version);
+    size_t  out_len     = 0;
+    uint8_t name_len    = (uint8_t) strlen(name);
+    uint8_t version_len = (uint8_t) strlen(version);
 
-    if (max_buffer_out_length >= (name_len + version_len + 3 + 2)) {
-        buffer_out[(*buffer_out_length)++] = 1;  // format ID
+    if (max_buffer_out_length >= (name_len + version_len + 5)) {
+        buffer_out[out_len] = 1;  // format ID
+        out_len += sizeof(uint8_t);
 
-        // Copy name
-        buffer_out[(*buffer_out_length)++] = name_len;
-        memcpy((char *) (&buffer_out[*buffer_out_length]), name, name_len);
-        *buffer_out_length += name_len;
+        // Copy name: Length, value
+        buffer_out[out_len] = (uint8_t) name_len;
+        out_len += sizeof(uint8_t);
+        memcpy(&buffer_out[out_len], name, name_len);
+        out_len += name_len;
 
-        // Copy version
-        buffer_out[(*buffer_out_length)++] = version_len;
-        memcpy((char *) (&buffer_out[*buffer_out_length]), version, version_len);
-        *buffer_out_length += version_len;
+        // Copy version: Length, value
+        buffer_out[out_len] = (uint8_t) version_len;
+        out_len += sizeof(uint8_t);
+        memcpy(&buffer_out[out_len], version, version_len);
+        out_len += version_len;
 
-        // Copy os flags
-        buffer_out[(*buffer_out_length)++] = 1;
-        buffer_out[(*buffer_out_length)++] = os_flags();
+        // Copy os flags: Length, value
+        buffer_out[out_len] = 1;
+        out_len += sizeof(uint8_t);
+        buffer_out[out_len] = (uint8_t) os_flags();
+        out_len += sizeof(uint8_t);
 
-        err = SWO_SUCCESS;
+        // Success
+        *buffer_out_length = out_len;
+        err                = SWO_SUCCESS;
     }
 
     return err;
