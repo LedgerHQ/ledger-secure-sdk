@@ -261,15 +261,6 @@ ifeq ($(HAVE_APPLICATION_FLAG_NOT_REVIEWED), 1)
 STANDARD_APP_FLAGS := $(shell echo $$(($(STANDARD_APP_FLAGS) + 0x20000)))
 endif
 
-
-# deprecated
-# Pending review flag
-# use HAVE_APPLICATION_FLAG_NOT_REVIEWED flag instead
-ifeq ($(ENABLE_PENDING_REVIEW_SCREEN), 1)
-    TLVRAW_APP_LOAD_PARAMS += 9F:01
-    DEFINES += HAVE_PENDING_REVIEW_SCREEN
-endif
-
 APP_FLAGS_APP_LOAD_PARAMS = $(shell printf '0x%x' $$(( $(STANDARD_APP_FLAGS) + $(CUSTOM_APP_FLAGS) )) )
 
 #####################################################################
