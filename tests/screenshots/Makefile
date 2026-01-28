@@ -197,7 +197,6 @@ SRCS       := $(shell find $(APP_PATH) -type f -name '*.c')
 SRCS       += $(shell find $(SRC_DIR)/uzlib -type f -name '*.c')
 SRCS       += $(shell find $(SRC_DIR)/main -type f -name '*.c')
 LIB_SRCS   := $(shell find $(NBGL_PATH)/src -type f -name '*.c')
-LIB_SRCS   += $(shell find $(NBGL_PATH)/fonts -type f -name '*.c')
 LIB_SRCS   += $(shell find $(PUBLIC_SDK_DIR)/qrcode/src -type f -name '*.c')
 
 ifneq (, $(filter $(TARGET_DEFINES), SCREEN_SIZE_WALLET))

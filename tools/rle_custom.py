@@ -2322,7 +2322,7 @@ if __name__ == "__main__":
         """
         Main method.
         """
-        # Regular (ASCII) JSON files are at public_sdk/lib_nbgl/include/fonts/
+        # Regular (ASCII) JSON files are at se/shared/nbgl/include/fonts/
         # nbgl_font_inter_regular_28.json
         # nbgl_font_inter_regular_28_1bpp.json
         # nbgl_font_inter_medium_36.json
@@ -2440,8 +2440,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "-j", "--json",
         dest="json_filename", type=str,
-        default="lib_nbgl/include/fonts/nbgl_font_inter_medium_36.json",
-        help="Full path of JSON filename containing bitmap/char info ('%(default)s' by default)")
+        default=None,
+        help="Full path of JSON filename containing bitmap/char info")
 
     parser.add_argument(
         "-v", "--verbose",
