@@ -89,7 +89,7 @@ static bolos_err_t get_version(uint8_t *buffer_out, size_t *buffer_out_length)
     uint8_t name_len    = (uint8_t) strlen(name);
     uint8_t version_len = (uint8_t) strlen(version);
 
-    if (max_buffer_out_length >= (name_len + version_len + 5)) {
+    if (max_buffer_out_length >= (size_t) (name_len + version_len + 5)) {
         buffer_out[out_len] = 1;  // format ID
         out_len += sizeof(uint8_t);
 
