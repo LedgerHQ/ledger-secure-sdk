@@ -22,7 +22,7 @@ jobs:
               uses: actions/checkout@v4
               with:
                   repository: LedgerHQ/ledger-device-rust-sdk
-                  ref: master
+                  ref: y333/update_swap_arg
                   path: rust_sdk
             - name: Build Rust SDK
               working-directory: rust_sdk/ledger_device_sdk

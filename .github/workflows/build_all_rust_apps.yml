@@ -28,3 +28,4 @@ jobs:
         with:
             c_sdk_branch: ${{ github.event.inputs.c_sdk_branch || github.head_ref }}
             c_sdk_repo: ${{ github.event.inputs.c_sdk_repo || github.event.pull_request.head.repo.full_name }}
+            rust_sdk_branch: y333/update_swap_arg

@@ -62,6 +62,8 @@ is set to 0.
 // This callback must be defined in Coin Applications that use the SWAP feature.
 
 void swap_handle_check_address(check_address_parameters_t *params);
+void swap_handle_check_address_ext(check_address_parameters_t *params,
+                                   const coin_chain_config_t  *chain_config);
 // --8<-- [end:swap_handle_check_address]
 
 /*
@@ -77,6 +79,8 @@ it is set to '\0'.
 // --8<-- [start:swap_handle_get_printable_amount]
 // This callback must be defined in Coin Applications that use the SWAP feature.
 void swap_handle_get_printable_amount(get_printable_amount_parameters_t *params);
+void swap_handle_get_printable_amount_ext(get_printable_amount_parameters_t *params,
+                                          const coin_chain_config_t         *chain_config);
 // --8<-- [end:swap_handle_get_printable_amount]
 
 // --8<-- [start:swap_copy_transaction_parameters]
@@ -90,5 +94,16 @@ void swap_handle_get_printable_amount(get_printable_amount_parameters_t *params)
  *
  * return false on error, true otherwise
  */
-bool swap_copy_transaction_parameters(create_transaction_parameters_t *sign_transaction_params);
+bool swap_copy_transaction_parameters(create_transaction_parameters_t *params);
+bool swap_copy_transaction_parameters_ext(create_transaction_parameters_t *params,
+                                          const coin_chain_config_t       *chain_config);
 // --8<-- [end:swap_copy_transaction_parameters]
+
+// --8<-- [start:swap_handle_sign_transaction]
+/* This handle is called when the Exchange application wants the Coin
+ * application to sign the transaction after user validation.
+ */
+void swap_handle_sign_transaction(create_transaction_parameters_t *params);
+void swap_handle_sign_transaction_ext(create_transaction_parameters_t *params,
+                                      const coin_chain_config_t       *chain_config);
+// --8<-- [end:swap_handle_sign_transaction]
