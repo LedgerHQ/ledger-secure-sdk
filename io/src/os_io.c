@@ -6,7 +6,6 @@
 #include "os_io_seph_cmd.h"
 #include "os_io_seph_ux.h"
 #include "seproxyhal_protocol.h"
-#include "checks.h"
 #include "errors.h"
 
 #ifdef HAVE_IO_USB
@@ -175,10 +174,6 @@ int os_io_init(os_io_init_t *init)
 #if (!defined(HAVE_BOLOS) && defined(HAVE_MCU_PROTECT))
     os_io_seph_cmd_mcu_protect();
 #endif  // (!HAVE_BOLOS && HAVE_MCU_PROTECT)
-
-#if !defined(HAVE_BOLOS) && defined(HAVE_PENDING_REVIEW_SCREEN)
-    check_audited_app();
-#endif  // !HAVE_BOLOS && HAVE_PENDING_REVIEW_SCREEN
 
 #ifdef HAVE_IO_USB
     USBD_LEDGER_init(&init->usb, force_restart);
