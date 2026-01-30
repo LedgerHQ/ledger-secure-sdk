@@ -64,7 +64,7 @@ For example:
         .alignmentMarginY = 20,                   // Vertical margin (see layout & alignment)
         .alignment = TOP_LEFT,                    // Type of alignment (see layout & alignment)
         .alignTo = NULL,                          // Alignment reference, if NULL, use parent (see layout & alignment)
-        .touchMask = (1<<VALUE_CHANGED)           // Types of touchscreen events that we want to receive
+        .touchMask = (1<<TOUCHED)                 // Types of touchscreen events that we want to receive
         };
 @endcode
 

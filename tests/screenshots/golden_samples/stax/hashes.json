@@ -4,7 +4,7 @@
             "Entry.png": "",
             "classic-01.png": "378288d1b818139b40daa2796a453f3c436bb577e311a79f96d612677edfe005",
             "classic-02.png": "f1b08cc29f291b4984d479b23ed89ccfd592313dbdab1352f515a7524634f865",
-            "classic-qr_code.png": "ebe51b5cb6099cc83b113dc952a3f9b320b748d8144bd6c6d075cfb20a553f27",
+            "classic-qr_code.png": "bf94f76b11f90ad3d9c63ba31c9997667741fce1b6e51193809d5bd542b6c840",
             "classic-verified.png": "61ccfdac1923f49c05225fbe59ee5fd62ef5810000764f17dbd636d4a07a0883",
             "classic-cancelled.png": "474d71576e21a4c3022978bcb1018fda81b4b5b23071c49c2cefd65f66a06df6",
             "without_settings-01.png": "dabb718a5e30b66bb031d82927b08bc94b2e3ccf62ca91564f9bb9f79dc4fd63",
@@ -14,12 +14,12 @@
             "long_address-03.png": "3debad32ce59f48e89049afb8e56d1c513e5ce98b3341e9f7275734becf94093",
             "multi-sig-01.png": "1b71dd078b8e2752da3a250623515e068e08a3012646f1b296b07508e56a6cb2",
             "multi-sig-02.png": "4ee181cfad761c47d73e05b735fd51312a4d7d6642ef3853b6773fc3c2ab2eab",
-            "multi-sig-qr_code.png": "80c151ffe41e379ce36f42a6583886d3f3ce5120f65f01e024332ee4e92a4cca",
+            "multi-sig-qr_code.png": "8778c1f18c405a65b3735ff3b0f259cb078d03d7697bf97a98c558094595e0b9",
             "multi-sig-signers-01.png": "19c59f8924a164fa0f58c59443cc09687055e63bd681d52e9535f1f950be658b",
             "multi-sig-signers-02.png": "10513a935896a29297e4579f2c7dbff39a08b99498cc8cc5e824f5ae2d743fff",
             "share-addr-01.png": "58b954b916b73b2951c01d2073fa7755cf2f0f36fd0af55123914f866f6eb4c2",
             "share-addr-02.png": "7b7d0d2279710186073e7bd2847e23afcc39e6f0d904fa04982448c910c9a470",
-            "share-addr-03.png": "e6f4eb358632d9266aeeff5a29c6ba3d91760206c3040be0d485bc6036dfd46e",
+            "share-addr-03.png": "ab2806a6f1ad6ab8575183ef14aa3f9124c8c82020981d99f2bc811129620568",
             "share-addr-04.png": "61ccfdac1923f49c05225fbe59ee5fd62ef5810000764f17dbd636d4a07a0883"
         },
         "w3c_blind": {
