@@ -959,10 +959,6 @@ static void displayExtensionStep(nbgl_stepPosition_t pos)
         }
 
         switch (context.review.extension->aliasType) {
-            case ENS_ALIAS:
-                text    = context.review.extension->title;
-                subText = context.review.extension->fullValue;
-                break;
             case INFO_LIST_ALIAS:
                 infoList = context.review.extension->infolist;
                 text     = PIC(infoList->infoTypes[context.review.currentExtensionPage]);
@@ -974,6 +970,8 @@ static void displayExtensionStep(nbgl_stepPosition_t pos)
                 subText      = PIC(tagValueList->pairs[context.review.currentExtensionPage].value);
                 break;
             default:
+                text    = context.review.extension->title;
+                subText = context.review.extension->fullValue;
                 break;
         }
         if (text != NULL) {
@@ -1018,9 +1016,6 @@ static void displayAliasFullValue(void)
     context.review.extensionStepCtx     = NULL;
     // create a modal flow to display this extension
     switch (context.review.extension->aliasType) {
-        case ENS_ALIAS:
-            context.review.nbExtensionPages = 2;
-            break;
         case INFO_LIST_ALIAS:
             context.review.nbExtensionPages = context.review.extension->infolist->nbInfos + 1;
             break;
@@ -1028,10 +1023,8 @@ static void displayAliasFullValue(void)
             context.review.nbExtensionPages = context.review.extension->tagValuelist->nbPairs + 1;
             break;
         default:
-            LOG_WARN(USE_CASE_LOGGER,
-                     "displayAliasFullValue: unsupported alias type %d\n",
-                     context.review.extension->aliasType);
-            return;
+            context.review.nbExtensionPages = 2;
+            break;
     }
     displayExtensionStep(FORWARD_DIRECTION);
 }
