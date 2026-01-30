@@ -308,7 +308,6 @@ int nbgl_layoutAddText(nbgl_layout_t                  *layout,
             uint16_t       textWidth;
             uint16_t       len   = 0;
             uint16_t       width = 0;
-            static char    tmpString[NB_MAX_CHAR_IN_LINE];
 
             button->foregroundColor = BLACK;
             button->innerColor      = WHITE;
@@ -321,6 +320,7 @@ int nbgl_layoutAddText(nbgl_layout_t                  *layout,
 
             textWidth = nbgl_getTextWidth(button->fontId, button->text);
             if ((textWidth + BUTTON_MARGIN_Y) >= AVAILABLE_WIDTH) {
+                static char tmpString[NB_MAX_CHAR_IN_LINE];
                 nbgl_getTextMaxLenAndWidth(button->fontId,
                                            button->text,
                                            AVAILABLE_WIDTH - BUTTON_MARGIN_Y,
@@ -345,18 +345,36 @@ int nbgl_layoutAddText(nbgl_layout_t                  *layout,
             // if too long text, draw a second button under the first one, with the remaining text
             if (width > 0) {
                 button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layoutInt->layer);
-                button->foregroundColor = BLACK;
-                button->innerColor      = WHITE;
-                button->borderColor     = WHITE;
-                button->radius          = RADIUS_3_PIXELS;
-                button->text            = (const char *) PIC(subText) + len;
-                button->fontId          = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
-                button->obj.area.height = 14;
-                button->obj.area.width
-                    = nbgl_getTextWidth(button->fontId, button->text) + BUTTON_MARGIN_Y;
+                button->foregroundColor      = BLACK;
+                button->innerColor           = WHITE;
+                button->borderColor          = WHITE;
+                button->radius               = RADIUS_3_PIXELS;
+                button->text                 = (const char *) PIC(subText) + len;
+                button->fontId               = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
+                button->obj.area.height      = 14;
                 button->obj.alignment        = CENTER;
                 button->obj.alignmentMarginY = 8 + 7;
-                container->children[2]       = (nbgl_obj_t *) button;
+                textWidth                    = nbgl_getTextWidth(button->fontId, button->text);
+                if ((textWidth + BUTTON_MARGIN_Y) >= AVAILABLE_WIDTH) {
+                    static char tmpString2[NB_MAX_CHAR_IN_LINE];
+                    nbgl_getTextMaxLenAndWidth(button->fontId,
+                                               button->text,
+                                               AVAILABLE_WIDTH - BUTTON_MARGIN_Y,
+                                               &len,
+                                               &width,
+                                               true);
+                    button->obj.area.width = width + BUTTON_MARGIN_Y;
+                    // copy the first 'len' chars in the tmp string buffer (max is
+                    // NB_MAX_CHAR_IN_LINE-1)
+                    memcpy(tmpString2, button->text, MIN(len, (NB_MAX_CHAR_IN_LINE - 1)));
+                    // NULL termination
+                    tmpString2[MIN(len, (NB_MAX_CHAR_IN_LINE - 1))] = '\0';
+                    button->text                                    = PIC(tmpString2);
+                }
+                else {
+                    button->obj.area.width = textWidth + BUTTON_MARGIN_Y;
+                }
+                container->children[2] = (nbgl_obj_t *) button;
             }
 
             fullHeight += 44;
