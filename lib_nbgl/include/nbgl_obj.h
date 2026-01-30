@@ -353,19 +353,16 @@ typedef void (*nbgl_touchCallback_t)(void *obj, nbgl_touchType_t eventType);
 typedef struct PACKED__ nbgl_obj_s {
     nbgl_area_t area;  ///< absolute position, backGround color and size of the object. DO NOT MOVE
                        ///< THIS FIELD
-    int16_t
-        rel_x0;  ///< horizontal position of top-left corner relative to parent's top-left corner
-    int16_t rel_y0;  ///< vertical position of top-left corner relative to parent's top-left corner,
-                     ///< must be multiple of 4
-    struct nbgl_obj_s *parent;            ///< parent of this object
-    struct nbgl_obj_s *alignTo;           ///< object to align to (parent by default)
+    nbgl_obj_type_t    type;              ///< type of the graphical object, must be explicitly set
     nbgl_aligment_t    alignment;         ///< type of alignment
+    struct nbgl_obj_s *parent;            ///< parent of this object (automatically set)
+    struct nbgl_obj_s *alignTo;           ///< object to align to (parent if NULL)
     int16_t            alignmentMarginX;  ///< horizontal margin when aligning
     int16_t            alignmentMarginY;  ///< vertical margin when aligning
-    nbgl_obj_type_t    type;              ///< type of the graphical object, must be explicitly set
     uint16_t touchMask;  ///< bit mask to tell engine which touch events are handled by this object
     uint8_t  touchId;  ///< a unique identifier (by screen) to be used by external test environment
                        ///< (TTYT or Screenshots)
+    uint8_t objId;     ///< id of the obj in the screen (only used externally)
 } nbgl_obj_t;
 
 /**
@@ -375,11 +372,11 @@ typedef struct PACKED__ nbgl_obj_s {
  *
  */
 typedef struct PACKED__ nbgl_container_s {
-    nbgl_obj_t          obj;     ///< common part
-    nbgl_direction_t    layout;  ///< layout of children inside this object
-    uint8_t             nbChildren;
-    bool                forceClean;  ///< if set to true, a paint will be done with background color
-    struct nbgl_obj_s **children;    ///< children of this object (nbChildren size)
+    nbgl_obj_t       obj;       ///< common part
+    nbgl_obj_t     **children;  ///< children of this object (nbChildren size)
+    nbgl_direction_t layout;    ///< layout of children inside this object
+    uint8_t          nbChildren;
+    bool             forceClean;  ///< if set to true, a paint will be done with background color
 } nbgl_container_t;
 
 /**
@@ -409,15 +406,15 @@ typedef nbgl_icon_details_t *(*onImageDrawCallback_t)(uint8_t token);
  *
  */
 typedef struct PACKED__ nbgl_image_s {
-    nbgl_obj_t obj;           // common part
-    color_t foregroundColor;  ///< color set to '1' bits, for 1PBB images. '0' are set to background
-                              ///< color.
-    nbgl_transformation_t      transformation;  ///< usually NO_TRANSFORMATION
+    nbgl_obj_t                 obj;        // common part
     const nbgl_icon_details_t *buffer;     ///< buffer containing bitmap, with exact same size as
                                            ///< object (width*height*bpp/8 bytes)
     onImageDrawCallback_t onDrawCallback;  ///< function called if buffer is NULL, with above token
                                            ///< as parameter. Can be NULL
-    uint8_t token;                         ///< token to use as param of onDrawCallback
+    color_t foregroundColor;  ///< color set to '1' bits, for 1PBB images. '0' are set to background
+                              ///< color.
+    nbgl_transformation_t transformation;  ///< usually NO_TRANSFORMATION
+    uint8_t               token;           ///< token to use as param of onDrawCallback
 } nbgl_image_t;
 
 /**
@@ -435,12 +432,12 @@ typedef struct PACKED__ nbgl_image_file_s {
  *
  */
 typedef struct PACKED__ nbgl_qrcode_s {
-    nbgl_obj_t obj;           // common part
+    nbgl_obj_t  obj;          // common part
+    const char *text;         ///< text single line (NULL terminated)
     color_t foregroundColor;  ///< color set to '1' bits, for 1PBB images. '0' are set to background
                               ///< color.
     nbgl_qrcode_version_t version;  ///< requested version, if V10, size will be fixed to 228*228,
                                     ///< if V4, size will be fixed to 132*132
-    const char *text;               ///< text single line (NULL terminated)
 } nbgl_qrcode_t;
 
 /**
@@ -520,19 +517,19 @@ typedef char *(*onTextDrawCallback_t)(uint8_t token);
  *
  */
 typedef struct PACKED__ nbgl_button_s {
-    nbgl_obj_t obj;                  ///< common part
-    color_t    innerColor;           ///< color set inside of the button
-    color_t    borderColor;          ///< color set to button's border
-    color_t    foregroundColor;      ///< color set to '1' bits in icon, and text. '0' are set to
-                                     ///< innerColor color.
-    nbgl_radius_t        radius;     ///< radius of the corners, must be a multiple of 4.
-    nbgl_font_id_e       fontId;     ///< id of the font to use, if any
-    bool                 localized;  ///< unused, kept for compatibility
-    const char          *text;       ///< single line UTF-8 text (NULL terminated)
+    nbgl_obj_t           obj;             ///< common part
+    const char          *text;            ///< single line UTF-8 text (NULL terminated)
     onTextDrawCallback_t onDrawCallback;  ///< function called if not NULL, with above token as
-                                          ///< parameter to get the text of the button
-    uint8_t                    token;     ///< token to use as param of onDrawCallback
     const nbgl_icon_details_t *icon;  ///< buffer containing icons bitmap. Set to NULL when no icon
+    color_t                    innerColor;   ///< color set inside of the button
+    color_t                    borderColor;  ///< color set to button's border
+    color_t foregroundColor;   ///< color set to '1' bits in icon, and text. '0' are set to
+                               ///< innerColor color.
+    nbgl_radius_t  radius;     ///< radius of the corners, must be a multiple of 4.
+    nbgl_font_id_e fontId;     ///< id of the font to use, if any
+    bool           localized;  ///< unused, kept for compatibility
+                               ///< parameter to get the text of the button
+    uint8_t token;             ///< token to use as param of onDrawCallback
 } nbgl_button_t;
 
 /**
@@ -563,9 +560,9 @@ typedef struct PACKED__ nbgl_text_area_s {
  */
 typedef struct PACKED__ nbgl_text_entry_s {
     nbgl_obj_t     obj;      ///< common part
+    const char    *text;     ///< text to display (up to nbChars chars).
     nbgl_font_id_e fontId;   ///< id of the font to use
     uint8_t        nbChars;  ///< number of char placeholders to display (8 or 9 chars).
-    const char    *text;     ///< text to display (up to nbChars chars).
 } nbgl_text_entry_t;
 
 typedef struct PACKED__ nbgl_mask_control_s {
@@ -713,7 +710,6 @@ bool     nbgl_objIsUx(nbgl_obj_t *obj);
 
 void         nbgl_objPoolRelease(uint8_t layer);
 nbgl_obj_t  *nbgl_objPoolGet(nbgl_obj_type_t type, uint8_t layer);
-nbgl_obj_t  *nbgl_objPoolGetPrevious(nbgl_obj_t *obj, uint8_t layer);
 uint8_t      nbgl_objPoolGetId(nbgl_obj_t *obj);
 int          nbgl_objPoolGetArray(nbgl_obj_type_t type,
                                   uint8_t         nbObjs,
