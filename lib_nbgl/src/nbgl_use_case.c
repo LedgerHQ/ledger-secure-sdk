@@ -1429,6 +1429,7 @@ static void displayFullValuePage(const char                   *backText,
                                  const char                   *aliasText,
                                  const nbgl_contentValueExt_t *extension)
 {
+    UNUSED(aliasText);
     const char *modalTitle
         = (extension->backText != NULL) ? PIC(extension->backText) : PIC(backText);
     if (extension->aliasType == INFO_LIST_ALIAS) {
@@ -1478,7 +1479,7 @@ static void displayFullValuePage(const char                   *backText,
                 info = extension->explanation;
             }
             nbgl_layoutAddTextContent(
-                genericContext.modalLayout, aliasText, extension->fullValue, info);
+                genericContext.modalLayout, extension->title, extension->fullValue, info);
         }
         // draw & refresh
         nbgl_layoutDraw(genericContext.modalLayout);
