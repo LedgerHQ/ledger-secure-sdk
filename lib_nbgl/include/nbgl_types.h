@@ -268,7 +268,6 @@ typedef enum {
                      ///< been pressed.
     TOUCH_RELEASED,  ///< corresponding to an object that was touched and where the finger has been
                      ///< released.
-    VALUE_CHANGED,   ///< corresponding to a change of state of the object (indirect event)
     SWIPED_UP,
     SWIPED_DOWN,
     SWIPED_RIGHT,

@@ -135,9 +135,9 @@ enum {
  *      VARIABLES
  **********************/
 
-static nbgl_button_t *choiceButtons[NB_MAX_SUGGESTION_BUTTONS];
-static char           numText[5];
-static uint8_t        nbActiveButtons;
+static const char *choiceTexts[NB_MAX_SUGGESTION_BUTTONS];
+static char        numText[5];
+static uint8_t     nbActiveButtons;
 #ifdef USE_PARTIAL_BUTTONS
 static nbgl_image_t *partialButtonImages[2];
 #endif  // USE_PARTIAL_BUTTONS
@@ -162,16 +162,16 @@ static bool updateSuggestionButtons(nbgl_container_t *container,
         // shift all buttons on the left if there are still at least
         // NB_MAX_VISIBLE_SUGGESTION_BUTTONS buttons to display
         currentLeftButtonIndex += NB_MAX_VISIBLE_SUGGESTION_BUTTONS;
-        container->children[FIRST_BUTTON_INDEX]
-            = (nbgl_obj_t *) choiceButtons[currentLeftButtonIndex];
+        ((nbgl_button_t *) container->children[FIRST_BUTTON_INDEX])->text
+            = choiceTexts[currentLeftButtonIndex];
 
         for (i = 1; i < NB_MAX_VISIBLE_SUGGESTION_BUTTONS; i++) {
             if (currentLeftButtonIndex < (uint32_t) (nbActiveButtons - i)) {
-                container->children[FIRST_BUTTON_INDEX + i]
-                    = (nbgl_obj_t *) choiceButtons[currentLeftButtonIndex + i];
+                ((nbgl_button_t *) container->children[FIRST_BUTTON_INDEX + i])->text
+                    = choiceTexts[currentLeftButtonIndex + i];
             }
             else {
-                container->children[FIRST_BUTTON_INDEX + i] = NULL;
+                ((nbgl_button_t *) container->children[FIRST_BUTTON_INDEX + i])->text = NULL;
             }
         }
         page        = currentLeftButtonIndex / NB_MAX_VISIBLE_SUGGESTION_BUTTONS;
@@ -183,8 +183,8 @@ static bool updateSuggestionButtons(nbgl_container_t *container,
         // NB_MAX_VISIBLE_SUGGESTION_BUTTONS first ones
         currentLeftButtonIndex -= NB_MAX_VISIBLE_SUGGESTION_BUTTONS;
         for (i = 0; i < NB_MAX_VISIBLE_SUGGESTION_BUTTONS; i++) {
-            container->children[FIRST_BUTTON_INDEX + i]
-                = (nbgl_obj_t *) choiceButtons[currentLeftButtonIndex + i];
+            ((nbgl_button_t *) container->children[FIRST_BUTTON_INDEX + i])->text
+                = choiceTexts[currentLeftButtonIndex + i];
         }
         page        = currentLeftButtonIndex / NB_MAX_VISIBLE_SUGGESTION_BUTTONS;
         needRefresh = true;
@@ -262,12 +262,12 @@ bool keyboardSwipeCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
     suggestionsContainer = (nbgl_container_t *) container->children[1];
     // try if suggestions buttons (more than NB_MAX_VISIBLE_SUGGESTION_BUTTONS)
     if (((eventType == SWIPED_LEFT) || (eventType == SWIPED_RIGHT))
-        && (suggestionsContainer->nbChildren == (nbActiveButtons + FIRST_BUTTON_INDEX))
+        && (suggestionsContainer->nbChildren == NB_SUGGESTION_CHILDREN)
         && (nbActiveButtons > NB_MAX_VISIBLE_SUGGESTION_BUTTONS)) {
         uint32_t i = 0;
         while (i < (uint32_t) nbActiveButtons) {
-            if (suggestionsContainer->children[FIRST_BUTTON_INDEX]
-                == (nbgl_obj_t *) choiceButtons[i]) {
+            if (((nbgl_button_t *) suggestionsContainer->children[FIRST_BUTTON_INDEX])->text
+                == choiceTexts[i]) {
                 break;
             }
             i++;
@@ -422,7 +422,7 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
     // 1 row of buttons + 24px + page indicator
     suggestionsContainer->obj.area.height = SUGGESTION_CONTAINER_HEIGHT;
 #endif  // USE_PARTIAL_BUTTONS
-    suggestionsContainer->nbChildren = nbActiveButtons + FIRST_BUTTON_INDEX;
+    suggestionsContainer->nbChildren = NB_SUGGESTION_CHILDREN;
     suggestionsContainer->children
         = (nbgl_obj_t **) nbgl_containerPoolGet(NB_SUGGESTION_CHILDREN, layoutInt->layer);
 
@@ -431,31 +431,27 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
     suggestionsContainer->obj.alignment        = BOTTOM_MIDDLE;
 
     // create all possible suggestion buttons, even if not displayed at first
-    nbgl_objPoolGetArray(
-        BUTTON, NB_MAX_SUGGESTION_BUTTONS, layoutInt->layer, (nbgl_obj_t **) &choiceButtons);
-    for (int i = 0; i < NB_MAX_SUGGESTION_BUTTONS; i++) {
-        obj = layoutAddCallbackObj(
-            layoutInt, (nbgl_obj_t *) choiceButtons[i], firstButtonToken + i, tuneId);
+    for (int i = 0; i < NB_MAX_VISIBLE_SUGGESTION_BUTTONS; i++) {
+        nbgl_button_t *button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layoutInt->layer);
+
+        obj = layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) button, firstButtonToken + i, tuneId);
         if (obj == NULL) {
             return NULL;
         }
 
-        choiceButtons[i]->innerColor      = BLACK;
-        choiceButtons[i]->borderColor     = BLACK;
-        choiceButtons[i]->foregroundColor = WHITE;
-        choiceButtons[i]->obj.area.width
+        button->innerColor      = BLACK;
+        button->borderColor     = BLACK;
+        button->foregroundColor = WHITE;
+        button->obj.area.width
             = (SCREEN_WIDTH - (2 * SUGGESTION_BUTTONS_SIDE_MARGIN) - INTERNAL_MARGIN) / 2;
-        choiceButtons[i]->obj.area.height = SMALL_BUTTON_HEIGHT;
-        choiceButtons[i]->radius          = SMALL_BUTTON_RADIUS_INDEX;
-        choiceButtons[i]->fontId          = SMALL_BOLD_1BPP_FONT;
-        choiceButtons[i]->text            = buttonTexts[i];
-        choiceButtons[i]->obj.touchMask   = (1 << TOUCHED);
-        choiceButtons[i]->obj.touchId     = CONTROLS_ID + i;
-        // some buttons may not be visible
-        if (i < MIN(NB_MAX_VISIBLE_SUGGESTION_BUTTONS, nbActiveButtons)) {
-            suggestionsContainer->children[i + FIRST_BUTTON_INDEX]
-                = (nbgl_obj_t *) choiceButtons[i];
-        }
+        button->obj.area.height = SMALL_BUTTON_HEIGHT;
+        button->radius          = SMALL_BUTTON_RADIUS_INDEX;
+        button->fontId          = SMALL_BOLD_1BPP_FONT;
+        button->text            = buttonTexts[i];
+        button->obj.touchMask   = (1 << TOUCHED);
+        button->obj.touchId     = CONTROLS_ID + i;
+
+        suggestionsContainer->children[i + FIRST_BUTTON_INDEX] = (nbgl_obj_t *) button;
     }
     // The first child is used by the progress indicator, if more that
     // NB_MAX_VISIBLE_SUGGESTION_BUTTONS buttons
@@ -1012,21 +1008,25 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
     }
 
     if (content->type == KEYBOARD_WITH_SUGGESTIONS) {
+        uint8_t i       = 0;
         nbActiveButtons = content->suggestionButtons.nbUsedButtons;
         nbgl_container_t *suggestionsContainer
             = (nbgl_container_t *) layoutInt->container->children[1];
-        suggestionsContainer->nbChildren = nbActiveButtons + FIRST_BUTTON_INDEX;
 
+        // update suggestion texts
+        for (i = 0; i < NB_MAX_SUGGESTION_BUTTONS; i++) {
+            choiceTexts[i] = content->suggestionButtons.buttons[i];
+        }
         // update suggestion buttons
-        for (int i = 0; i < NB_MAX_SUGGESTION_BUTTONS; i++) {
-            choiceButtons[i]->text = content->suggestionButtons.buttons[i];
+        for (i = 0; i < NB_MAX_VISIBLE_SUGGESTION_BUTTONS; i++) {
             // some buttons may not be visible
-            if (i < MIN(NB_MAX_VISIBLE_SUGGESTION_BUTTONS, nbActiveButtons)) {
-                suggestionsContainer->children[i + FIRST_BUTTON_INDEX]
-                    = (nbgl_obj_t *) choiceButtons[i];
+            if (i < nbActiveButtons) {
+                ((nbgl_button_t *) suggestionsContainer->children[i + FIRST_BUTTON_INDEX])->text
+                    = choiceTexts[i];
             }
             else {
-                suggestionsContainer->children[i + FIRST_BUTTON_INDEX] = NULL;
+                ((nbgl_button_t *) suggestionsContainer->children[i + FIRST_BUTTON_INDEX])->text
+                    = NULL;
             }
         }
         suggestionsContainer->forceClean = true;
