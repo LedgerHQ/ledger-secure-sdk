@@ -8,16 +8,16 @@
 
 ## Overview
 
-This test suite covers all functions provided by the Generic Linked List library (`c_list.c`), which supports both:
+This test suite covers all functions provided by the Generic Linked List library (`lists.c`), which supports both:
 
-- **Forward lists** (`c_flist_*`) - Singly-linked lists (4-8 bytes/node)
-- **Doubly-linked lists** (`c_dlist_*`) - Doubly-linked lists (8-16 bytes/node)
+- **Forward lists** (`flist_*`) - Singly-linked lists (4-8 bytes/node)
+- **Doubly-linked lists** (`list_*`) - Doubly-linked lists (8-16 bytes/node)
 
 ### Test Coverage
 
 The test suite includes **24 comprehensive tests** covering:
 
-**Forward Lists (c_flist_*) - 11 tests:**
+**Forward Lists (flist_*) - 11 tests:**
 
 - `test_c_flist_push_front` - Add nodes at the beginning
 - `test_c_flist_push_back` - Add nodes at the end
@@ -31,28 +31,28 @@ The test suite includes **24 comprehensive tests** covering:
 - `test_c_flist_unique` - Remove duplicate consecutive nodes
 - `test_c_flist_reverse` - Reverse list order
 
-**Doubly-Linked Lists (c_dlist_*) - 13 tests:**
+**Doubly-Linked Lists (list_*) - 13 tests:**
 
-- `test_c_dlist_push_front` - Add nodes at the beginning
-- `test_c_dlist_push_back` - Add nodes at the end
-- `test_c_dlist_pop_front` - Remove nodes from the beginning
-- `test_c_dlist_pop_back` - Remove nodes from the end
-- `test_c_dlist_insert_after` - Insert after a reference node
-- `test_c_dlist_insert_before` - Insert before a reference node
-- `test_c_dlist_remove` - Remove specific nodes
-- `test_c_dlist_remove_if` - Remove nodes matching predicate
-- `test_c_dlist_clear` - Clear entire list
-- `test_c_dlist_sort` - Sort list with comparison function
-- `test_c_dlist_unique` - Remove duplicate consecutive nodes
-- `test_c_dlist_reverse` - Reverse list order
-- `test_c_dlist_backward_traversal` - Traverse list backward using prev pointers
+- `test_list_push_front` - Add nodes at the beginning
+- `test_list_push_back` - Add nodes at the end
+- `test_list_pop_front` - Remove nodes from the beginning
+- `test_list_pop_back` - Remove nodes from the end
+- `test_list_insert_after` - Insert after a reference node
+- `test_list_insert_before` - Insert before a reference node
+- `test_list_remove` - Remove specific nodes
+- `test_list_remove_if` - Remove nodes matching predicate
+- `test_list_clear` - Clear entire list
+- `test_list_sort` - Sort list with comparison function
+- `test_list_unique` - Remove duplicate consecutive nodes
+- `test_list_reverse` - Reverse list order
+- `test_list_backward_traversal` - Traverse list backward using prev pointers
 
 ## Building and Running Tests
 
 ### Quick Start
 
 ```bash
-cd unit-tests/lib_c_list
+cd unit-tests/lib_lists
 mkdir build && cd build
 cmake -DCMAKE_C_COMPILER=/usr/bin/gcc ..
 make
@@ -65,7 +65,7 @@ make
 make test
 
 # Or run directly with verbose output
-./test_c_list
+./test_list
 ```
 
 ### Generate Code Coverage
@@ -89,12 +89,12 @@ xdg-open coverage_html/index.html
 ### Safety Features Tested
 
 1. **NULL pointer validation** - All functions check for NULL parameters
-2. **Node state validation** - Insertion functions verify `node->next == NULL` (flist) or `node->_list.next == NULL && node->prev == NULL` (dlist)
+2. **Node state validation** - Insertion functions verify `node->next == NULL` (flist) or `node->_list.next == NULL && node->prev == NULL` (list)
 3. **Return value checking** - All mutating operations return bool for success/failure
 4. **Empty list operations** - Safe handling of operations on empty lists
 5. **Predicate filtering** - remove_if tests validate callback-based filtering
 6. **Duplicate removal** - unique tests validate consecutive duplicate handling
-7. **Bidirectional traversal** - dlist tests validate both forward and backward traversal
+7. **Bidirectional traversal** - list tests validate both forward and backward traversal
 
 ### Example Test Output
 
@@ -107,8 +107,8 @@ xdg-open coverage_html/index.html
 [ RUN      ] test_c_flist_pop_front
 [       OK ] test_c_flist_pop_front
 ...
-[ RUN      ] test_c_dlist_backward_traversal
-[       OK ] test_c_dlist_backward_traversal
+[ RUN      ] test_list_backward_traversal
+[       OK ] test_list_backward_traversal
 [==========] 24 test(s) run.
 [  PASSED  ] 24 test(s).
 ```
@@ -125,7 +125,7 @@ All tests use cmocka's memory leak detection to ensure:
 
 These tests should be run:
 
-- Before committing changes to lib_c_list
+- Before committing changes to lib_lists
 - As part of the CI/CD pipeline
 - When modifying list-related code in applications
 
@@ -137,16 +137,16 @@ To add new tests:
 
 ```c
 // For forward lists
-typedef struct test_flist_node_s {
-    c_flist_node_t _list;
+typedef struct test_flist_node_t {
+    flist_node_t _list;
     int value;
 } test_flist_node_t;
 
 // For doubly-linked lists
-typedef struct test_dlist_node_s {
-    c_dlist_node_t _list;
+typedef struct test_list_node_t {
+    list_node_t _list;
     int value;
-} test_dlist_node_t;
+} test_list_node_t;
 ```
 
 2. Add test function following the pattern:

@@ -1,8 +1,8 @@
-# Fuzzing lib_c_list
+# Fuzzing lib_lists
 
 ## Overview
 
-This fuzzer tests the generic linked list library (`lib_c_list`) for memory safety issues, edge cases, and potential crashes. It exercises both **forward lists** (`c_flist_*`) and **doubly-linked lists** (`c_dlist_*`) with all available operations including insertion, removal, sorting, reversing, and traversal.
+This fuzzer tests the generic linked list library (`lib_lists`) for memory safety issues, edge cases, and potential crashes. It exercises both **forward lists** (`flist_*`) and **doubly-linked lists** (`list_*`) with all available operations including insertion, removal, sorting, reversing, and traversal.
 
 ## List Type Selection
 
@@ -15,7 +15,7 @@ This allows the fuzzer to test both implementations independently within a singl
 
 ## Operations Tested
 
-### Forward List Operations (c_flist_*)
+### Forward List Operations (flist_*)
 
 The fuzzer uses the lower 4 bits of each input byte to select operations:
 
@@ -33,7 +33,7 @@ The fuzzer uses the lower 4 bits of each input byte to select operations:
 | 0x09    | `reverse`         | Reverse list order (O(n))                      |
 | 0x0A    | `empty`           | Check if list is empty (O(1))                  |
 
-### Doubly-Linked List Operations (c_dlist_*)
+### Doubly-Linked List Operations (list_*)
 
 | Op Code | Operation         | Description                                    |
 |---------|-------------------|------------------------------------------------|
@@ -56,8 +56,8 @@ The fuzzer uses the lower 4 bits of each input byte to select operations:
 
 The fuzzer tests both list implementations:
 
-- **Forward Lists** (`c_flist_node_t`): Singly-linked, minimal memory overhead
-- **Doubly-Linked Lists** (`c_dlist_node_t`): Bidirectional traversal, O(1) operations
+- **Forward Lists** (`flist_node_t`): Singly-linked, minimal memory overhead
+- **Doubly-Linked Lists** (`list_node_t`): Bidirectional traversal, O(1) operations
 
 ### Safety Checks
 
@@ -88,7 +88,7 @@ From the SDK root:
 cd fuzzing
 mkdir -p build && cd build
 cmake -S .. -B . -DCMAKE_C_COMPILER=clang -DSANITIZER=address -DBOLOS_SDK=/path/to/sdk
-cmake --build . --target fuzz_c_list
+cmake --build . --target fuzz_list
 ```
 
 ## Running
@@ -96,30 +96,30 @@ cmake --build . --target fuzz_c_list
 ### Basic run
 
 ```bash
-./fuzz_c_list
+./fuzz_list
 ```
 
 ### With specific options
 
 ```bash
 # Run for 10000 iterations
-./fuzz_c_list -runs=10000
+./fuzz_list -runs=10000
 
 # Limit input size to 128 bytes
-./fuzz_c_list -max_len=128
+./fuzz_list -max_len=128
 
 # Use corpus directory
-./fuzz_c_list corpus/
+./fuzz_list corpus/
 
 # Timeout per input (in seconds)
-./fuzz_c_list -timeout=10
+./fuzz_list -timeout=10
 ```
 
 ### Using the helper script
 
 ```bash
 cd /path/to/sdk/fuzzing
-./local_run.sh --build=1 --fuzzer=build/fuzz_c_list --j=4 --run-fuzzer=1 --BOLOS_SDK=/path/to/sdk
+./local_run.sh --build=1 --fuzzer=build/fuzz_list --j=4 --run-fuzzer=1 --BOLOS_SDK=/path/to/sdk
 ```
 
 ## Corpus
@@ -127,7 +127,7 @@ cd /path/to/sdk/fuzzing
 Initial corpus files can be placed in:
 
 ```bash
-fuzzing/harness/fuzz_c_list/
+fuzzing/harness/fuzz_list/
 ```
 
 Example corpus files:
@@ -174,7 +174,7 @@ Parameters:
 
 ## Debugging
 
-Enable debug output by uncommenting `#define DEBUG_CRASH` in `fuzzer_c_list.c`:
+Enable debug output by uncommenting `#define DEBUG_CRASH` in `fuzzer_lists.c`:
 
 ```c
 #define DEBUG_CRASH
@@ -195,11 +195,11 @@ If a crash is found:
 2. Reproduce the crash:
 
    ```bash
-   ./fuzz_c_list crash-HASH
+   ./fuzz_list crash-HASH
    ```
 
 3. Debug with AddressSanitizer output
-4. Fix the issue in `lib_c_list/c_list.c`
+4. Fix the issue in `lib_lists/lists.c`
 5. Verify fix by re-running fuzzer
 
 ## Expected Behavior
@@ -221,7 +221,7 @@ None currently. If you find a crash, please report it!
 To generate coverage report:
 
 ```bash
-./local_run.sh --build=1 --fuzzer=build/fuzz_c_list --compute-coverage=1 --BOLOS_SDK=/path/to/sdk
+./local_run.sh --build=1 --fuzzer=build/fuzz_list --compute-coverage=1 --BOLOS_SDK=/path/to/sdk
 ```
 
 Coverage files will be in `fuzzing/out/coverage/`.
