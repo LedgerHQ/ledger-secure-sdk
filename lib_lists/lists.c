@@ -5,6 +5,8 @@
  * Provides both singly-linked (flist) and doubly-linked (list) implementations.
  */
 
+#if !defined(HAVE_ETH2) && !defined(USE_LIB_ETHEREUM) || defined(HAVE_SDK_LL_LIB)
+
 #include "lists.h"
 #include "os_helpers.h"
 
@@ -422,3 +424,5 @@ bool list_reverse(list_node_t **list)
 {
     return reverse_internal((flist_node_t **) list, true);
 }
+
+#endif  // !defined(HAVE_ETH2) || defined(HAVE_SDK_LL_LIB)
