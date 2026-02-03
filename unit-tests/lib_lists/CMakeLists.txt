@@ -40,13 +40,13 @@ set(SDK_SRC ../..)
 include_directories(.)
 include_directories(${SDK_SRC}/target/stax/include)
 include_directories(${SDK_SRC}/include)
-include_directories(${SDK_SRC}/lib_c_list)
+include_directories(${SDK_SRC}/lib_lists)
 
-add_executable(test_c_list
-  test_c_list.c
-  ${SDK_SRC}/lib_c_list/c_list.c
+add_executable(test_lists
+  test_lists.c
+  ${SDK_SRC}/lib_lists/lists.c
 )
 
-target_link_libraries(test_c_list PUBLIC cmocka gcov)
+target_link_libraries(test_lists PUBLIC cmocka gcov)
 
-add_test(test_c_list test_c_list)
+add_test(test_lists test_lists)
