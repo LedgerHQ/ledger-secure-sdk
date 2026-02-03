@@ -138,7 +138,7 @@ cmake -S . -B build -DCMAKE_C_COMPILER=clang -DSANITIZER=address -G Ninja -DTARG
 ./build/fuzz_apdu_parser
 ./build/fuzz_base58
 ./build/fuzz_bip32
-./build/fuzz_c_list
+./build/fuzz_lists
 ./build/fuzz_qrcodegen
 ./build/fuzz_alloc
 ./build/fuzz_alloc_utils

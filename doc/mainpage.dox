@@ -15,7 +15,7 @@ The @subpage cxng_mainpage page contains all information necessary to understand
 
 @section list_presentation Generic Linked List Library
 
-The @subpage c_list_mainpage page contains all information necessary to use the Generic Linked List library.
+The @subpage list_mainpage page contains all information necessary to use the Generic Linked List library.
 
 @section mem_presentation Dynamic Memory Allocator Interface
 

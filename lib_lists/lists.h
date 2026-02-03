@@ -12,37 +12,37 @@
 #include <stdbool.h>
 
 /**
- * @struct c_flist_node_s
+ * @struct flist_node_t
  * @brief Forward list node structure (singly-linked)
  *
  * This structure represents a node in a forward list (singly-linked list).
  * It contains only a pointer to the next node, making it memory-efficient (4-8 bytes per node).
  *
  * @note Memory footprint: 4 bytes (32-bit) or 8 bytes (64-bit)
- * @see c_dlist_node_t for doubly-linked list with backward traversal support
+ * @see list_node_t for doubly-linked list with backward traversal support
  */
-typedef struct c_flist_node_s {
-    struct c_flist_node_s *next; /**< Pointer to the next node (NULL if last) */
-} c_flist_node_t;
+typedef struct flist_node_t {
+    struct flist_node_t *next; /**< Pointer to the next node (NULL if last) */
+} flist_node_t;
 
 /**
- * @struct c_dlist_node_s
+ * @struct list_node_t
  * @brief Doubly-linked list node structure
  *
  * This structure represents a node in a doubly-linked list.
- * It embeds a c_flist_node_t and adds a previous pointer for bidirectional traversal.
+ * It embeds a flist_node_t and adds a previous pointer for bidirectional traversal.
  *
  * @note Memory footprint: 8 bytes (32-bit) or 16 bytes (64-bit)
  * @note The _list member provides forward traversal compatibility
- * @see c_flist_node_t for lighter singly-linked alternative
+ * @see flist_node_t for lighter singly-linked alternative
  */
-typedef struct c_dlist_node_s {
-    c_flist_node_t         _list; /**< Forward list node (contains next pointer) */
-    struct c_dlist_node_s *prev;  /**< Pointer to the previous node (NULL if first) */
-} c_dlist_node_t;
+typedef struct list_node_t {
+    flist_node_t        _list; /**< Forward list node (contains next pointer) */
+    struct list_node_t *prev;  /**< Pointer to the previous node (NULL if first) */
+} list_node_t;
 
 /**
- * @typedef c_list_node_del
+ * @typedef f_list_node_del
  * @brief Callback function to delete/free a node
  *
  * This function is called when a node needs to be deleted from the list.
@@ -53,13 +53,13 @@ typedef struct c_dlist_node_s {
  * @note If NULL is passed to list functions, nodes are removed but not freed
  * @note This function should handle the complete node lifecycle cleanup
  */
-typedef void (*c_list_node_del)(c_flist_node_t *node);
+typedef void (*f_list_node_del)(flist_node_t *node);
 
 /**
- * @typedef c_list_node_cmp
+ * @typedef f_list_node_cmp
  * @brief Callback function to compare two nodes for sorting
  *
- * This function is used by c_flist_sort() and c_dlist_sort() to determine node order.
+ * This function is used by flist_sort() and list_sort() to determine node order.
  * It should return true if node 'a' should come before node 'b' in the sorted list.
  *
  * @param[in] a First node to compare
@@ -69,13 +69,13 @@ typedef void (*c_list_node_del)(c_flist_node_t *node);
  * @note Both parameters are never NULL when called by list functions
  * @note Use consistent comparison logic for stable sorting
  */
-typedef bool (*c_list_node_cmp)(const c_flist_node_t *a, const c_flist_node_t *b);
+typedef bool (*f_list_node_cmp)(const flist_node_t *a, const flist_node_t *b);
 
 /**
- * @typedef c_list_node_pred
+ * @typedef f_list_node_pred
  * @brief Callback function to test a single node (unary predicate)
  *
- * This function is used by c_flist_remove_if() and c_dlist_remove_if() to determine
+ * This function is used by flist_remove_if() and list_remove_if() to determine
  * which nodes should be removed from the list.
  *
  * @param[in] node The node to test
@@ -83,13 +83,13 @@ typedef bool (*c_list_node_cmp)(const c_flist_node_t *a, const c_flist_node_t *b
  *
  * @note The parameter is never NULL when called by list functions
  */
-typedef bool (*c_list_node_pred)(const c_flist_node_t *node);
+typedef bool (*f_list_node_pred)(const flist_node_t *node);
 
 /**
- * @typedef c_list_node_bin_pred
+ * @typedef f_list_node_bin_pred
  * @brief Callback function to test two nodes for equality (binary predicate)
  *
- * This function is used by c_flist_unique() and c_dlist_unique() to determine
+ * This function is used by flist_unique() and list_unique() to determine
  * if two consecutive nodes are considered equal and should be deduplicated.
  *
  * @param[in] a First node to compare
@@ -99,7 +99,7 @@ typedef bool (*c_list_node_pred)(const c_flist_node_t *node);
  * @note Both parameters are never NULL when called by list functions
  * @note Typically used after sorting to remove consecutive duplicates
  */
-typedef bool (*c_list_node_bin_pred)(const c_flist_node_t *a, const c_flist_node_t *b);
+typedef bool (*f_list_node_bin_pred)(const flist_node_t *a, const flist_node_t *b);
 
 // ============================================================================
 // Forward list (singly-linked) functions
@@ -112,7 +112,7 @@ typedef bool (*c_list_node_bin_pred)(const c_flist_node_t *a, const c_flist_node
  * @return true on success, false on error
  * @note Time complexity: O(1)
  */
-bool c_flist_push_front(c_flist_node_t **list, c_flist_node_t *node);
+bool flist_push_front(flist_node_t **list, flist_node_t *node);
 
 /**
  * @brief Remove and delete the first node from the forward list
@@ -121,7 +121,7 @@ bool c_flist_push_front(c_flist_node_t **list, c_flist_node_t *node);
  * @return true on success, false if list is empty or NULL
  * @note Time complexity: O(1)
  */
-bool c_flist_pop_front(c_flist_node_t **list, c_list_node_del del_func);
+bool flist_pop_front(flist_node_t **list, f_list_node_del del_func);
 
 /**
  * @brief Add a node at the end of the forward list
@@ -130,7 +130,7 @@ bool c_flist_pop_front(c_flist_node_t **list, c_list_node_del del_func);
  * @return true on success, false on error
  * @note Time complexity: O(n)
  */
-bool c_flist_push_back(c_flist_node_t **list, c_flist_node_t *node);
+bool flist_push_back(flist_node_t **list, flist_node_t *node);
 
 /**
  * @brief Remove and delete the last node from the forward list
@@ -139,7 +139,7 @@ bool c_flist_push_back(c_flist_node_t **list, c_flist_node_t *node);
  * @return true on success, false if list is empty or NULL
  * @note Time complexity: O(n)
  */
-bool c_flist_pop_back(c_flist_node_t **list, c_list_node_del del_func);
+bool flist_pop_back(flist_node_t **list, f_list_node_del del_func);
 
 /**
  * @brief Insert a node after a reference node in the forward list
@@ -149,7 +149,7 @@ bool c_flist_pop_back(c_flist_node_t **list, c_list_node_del del_func);
  * @return true on success, false on error
  * @note Time complexity: O(1)
  */
-bool c_flist_insert_after(c_flist_node_t **list, c_flist_node_t *ref, c_flist_node_t *node);
+bool flist_insert_after(flist_node_t **list, flist_node_t *ref, flist_node_t *node);
 
 /**
  * @brief Remove and delete a specific node from the forward list
@@ -159,7 +159,7 @@ bool c_flist_insert_after(c_flist_node_t **list, c_flist_node_t *ref, c_flist_no
  * @return true on success, false if node not found or error
  * @note Time complexity: O(n)
  */
-bool c_flist_remove(c_flist_node_t **list, c_flist_node_t *node, c_list_node_del del_func);
+bool flist_remove(flist_node_t **list, flist_node_t *node, f_list_node_del del_func);
 
 /**
  * @brief Remove all nodes matching a predicate from the forward list
@@ -169,9 +169,7 @@ bool c_flist_remove(c_flist_node_t **list, c_flist_node_t *node, c_list_node_del
  * @return Number of nodes removed
  * @note Time complexity: O(n)
  */
-size_t c_flist_remove_if(c_flist_node_t **list,
-                         c_list_node_pred pred_func,
-                         c_list_node_del  del_func);
+size_t flist_remove_if(flist_node_t **list, f_list_node_pred pred_func, f_list_node_del del_func);
 
 /**
  * @brief Remove and delete all nodes from the forward list
@@ -180,7 +178,7 @@ size_t c_flist_remove_if(c_flist_node_t **list,
  * @return true on success, false on error
  * @note Time complexity: O(n)
  */
-bool c_flist_clear(c_flist_node_t **list, c_list_node_del del_func);
+bool flist_clear(flist_node_t **list, f_list_node_del del_func);
 
 /**
  * @brief Get the number of nodes in the forward list
@@ -188,7 +186,7 @@ bool c_flist_clear(c_flist_node_t **list, c_list_node_del del_func);
  * @return Number of nodes (0 if list is NULL or empty)
  * @note Time complexity: O(n)
  */
-size_t c_flist_size(c_flist_node_t *const *list);
+size_t flist_size(flist_node_t *const *list);
 
 /**
  * @brief Check if the forward list is empty
@@ -196,7 +194,7 @@ size_t c_flist_size(c_flist_node_t *const *list);
  * @return true if empty or NULL, false otherwise
  * @note Time complexity: O(1)
  */
-bool c_flist_empty(c_flist_node_t *const *list);
+bool flist_empty(flist_node_t *const *list);
 
 /**
  * @brief Sort the forward list using a comparison function
@@ -205,7 +203,7 @@ bool c_flist_empty(c_flist_node_t *const *list);
  * @return true on success, false on error
  * @note Time complexity: O(n log n) - merge sort algorithm
  */
-bool c_flist_sort(c_flist_node_t **list, c_list_node_cmp cmp_func);
+bool flist_sort(flist_node_t **list, f_list_node_cmp cmp_func);
 
 /**
  * @brief Remove consecutive duplicate nodes from the forward list
@@ -216,9 +214,7 @@ bool c_flist_sort(c_flist_node_t **list, c_list_node_cmp cmp_func);
  * @note Time complexity: O(n)
  * @note List should be sorted first for best results
  */
-size_t c_flist_unique(c_flist_node_t     **list,
-                      c_list_node_bin_pred pred_func,
-                      c_list_node_del      del_func);
+size_t flist_unique(flist_node_t **list, f_list_node_bin_pred pred_func, f_list_node_del del_func);
 
 /**
  * @brief Reverse the order of nodes in the forward list
@@ -226,7 +222,7 @@ size_t c_flist_unique(c_flist_node_t     **list,
  * @return true on success, false on error
  * @note Time complexity: O(n)
  */
-bool c_flist_reverse(c_flist_node_t **list);
+bool flist_reverse(flist_node_t **list);
 
 // ============================================================================
 // Doubly-linked list functions
@@ -239,7 +235,7 @@ bool c_flist_reverse(c_flist_node_t **list);
  * @return true on success, false on error
  * @note Time complexity: O(1)
  */
-bool c_dlist_push_front(c_dlist_node_t **list, c_dlist_node_t *node);
+bool list_push_front(list_node_t **list, list_node_t *node);
 
 /**
  * @brief Remove and delete the first node from the doubly-linked list
@@ -248,7 +244,7 @@ bool c_dlist_push_front(c_dlist_node_t **list, c_dlist_node_t *node);
  * @return true on success, false if list is empty or NULL
  * @note Time complexity: O(1)
  */
-bool c_dlist_pop_front(c_dlist_node_t **list, c_list_node_del del_func);
+bool list_pop_front(list_node_t **list, f_list_node_del del_func);
 
 /**
  * @brief Add a node at the end of the doubly-linked list
@@ -257,7 +253,7 @@ bool c_dlist_pop_front(c_dlist_node_t **list, c_list_node_del del_func);
  * @return true on success, false on error
  * @note Time complexity: O(n)
  */
-bool c_dlist_push_back(c_dlist_node_t **list, c_dlist_node_t *node);
+bool list_push_back(list_node_t **list, list_node_t *node);
 
 /**
  * @brief Remove and delete the last node from the doubly-linked list
@@ -266,7 +262,7 @@ bool c_dlist_push_back(c_dlist_node_t **list, c_dlist_node_t *node);
  * @return true on success, false if list is empty or NULL
  * @note Time complexity: O(n)
  */
-bool c_dlist_pop_back(c_dlist_node_t **list, c_list_node_del del_func);
+bool list_pop_back(list_node_t **list, f_list_node_del del_func);
 
 /**
  * @brief Insert a node before a reference node in the doubly-linked list
@@ -277,7 +273,7 @@ bool c_dlist_pop_back(c_dlist_node_t **list, c_list_node_del del_func);
  * @note Time complexity: O(1)
  * @note This function is only available for doubly-linked lists
  */
-bool c_dlist_insert_before(c_dlist_node_t **list, c_dlist_node_t *ref, c_dlist_node_t *node);
+bool list_insert_before(list_node_t **list, list_node_t *ref, list_node_t *node);
 
 /**
  * @brief Insert a node after a reference node in the doubly-linked list
@@ -287,7 +283,7 @@ bool c_dlist_insert_before(c_dlist_node_t **list, c_dlist_node_t *ref, c_dlist_n
  * @return true on success, false on error
  * @note Time complexity: O(1)
  */
-bool c_dlist_insert_after(c_dlist_node_t **list, c_dlist_node_t *ref, c_dlist_node_t *node);
+bool list_insert_after(list_node_t **list, list_node_t *ref, list_node_t *node);
 
 /**
  * @brief Remove and delete a specific node from the doubly-linked list
@@ -297,7 +293,7 @@ bool c_dlist_insert_after(c_dlist_node_t **list, c_dlist_node_t *ref, c_dlist_no
  * @return true on success, false if node not found or error
  * @note Time complexity: O(n)
  */
-bool c_dlist_remove(c_dlist_node_t **list, c_dlist_node_t *node, c_list_node_del del_func);
+bool list_remove(list_node_t **list, list_node_t *node, f_list_node_del del_func);
 
 /**
  * @brief Remove all nodes matching a predicate from the doubly-linked list
@@ -307,9 +303,7 @@ bool c_dlist_remove(c_dlist_node_t **list, c_dlist_node_t *node, c_list_node_del
  * @return Number of nodes removed
  * @note Time complexity: O(n)
  */
-size_t c_dlist_remove_if(c_dlist_node_t **list,
-                         c_list_node_pred pred_func,
-                         c_list_node_del  del_func);
+size_t list_remove_if(list_node_t **list, f_list_node_pred pred_func, f_list_node_del del_func);
 
 /**
  * @brief Remove and delete all nodes from the doubly-linked list
@@ -318,7 +312,7 @@ size_t c_dlist_remove_if(c_dlist_node_t **list,
  * @return true on success, false on error
  * @note Time complexity: O(n)
  */
-bool c_dlist_clear(c_dlist_node_t **list, c_list_node_del del_func);
+bool list_clear(list_node_t **list, f_list_node_del del_func);
 
 /**
  * @brief Get the number of nodes in the doubly-linked list
@@ -326,7 +320,7 @@ bool c_dlist_clear(c_dlist_node_t **list, c_list_node_del del_func);
  * @return Number of nodes (0 if list is NULL or empty)
  * @note Time complexity: O(n)
  */
-size_t c_dlist_size(c_dlist_node_t *const *list);
+size_t list_size(list_node_t *const *list);
 
 /**
  * @brief Check if the doubly-linked list is empty
@@ -334,7 +328,7 @@ size_t c_dlist_size(c_dlist_node_t *const *list);
  * @return true if empty or NULL, false otherwise
  * @note Time complexity: O(1)
  */
-bool c_dlist_empty(c_dlist_node_t *const *list);
+bool list_empty(list_node_t *const *list);
 
 /**
  * @brief Sort the doubly-linked list using a comparison function
@@ -343,7 +337,7 @@ bool c_dlist_empty(c_dlist_node_t *const *list);
  * @return true on success, false on error
  * @note Time complexity: O(n log n) - merge sort algorithm
  */
-bool c_dlist_sort(c_dlist_node_t **list, c_list_node_cmp cmp_func);
+bool list_sort(list_node_t **list, f_list_node_cmp cmp_func);
 
 /**
  * @brief Remove consecutive duplicate nodes from the doubly-linked list
@@ -354,9 +348,7 @@ bool c_dlist_sort(c_dlist_node_t **list, c_list_node_cmp cmp_func);
  * @note Time complexity: O(n)
  * @note List should be sorted first for best results
  */
-size_t c_dlist_unique(c_dlist_node_t     **list,
-                      c_list_node_bin_pred pred_func,
-                      c_list_node_del      del_func);
+size_t list_unique(list_node_t **list, f_list_node_bin_pred pred_func, f_list_node_del del_func);
 
 /**
  * @brief Reverse the order of nodes in the doubly-linked list
@@ -364,4 +356,4 @@ size_t c_dlist_unique(c_dlist_node_t     **list,
  * @return true on success, false on error
  * @note Time complexity: O(n)
  */
-bool c_dlist_reverse(c_dlist_node_t **list);
+bool list_reverse(list_node_t **list);
