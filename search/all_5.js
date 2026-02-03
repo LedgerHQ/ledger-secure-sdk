@@ -32,7 +32,7 @@ var searchData=
   ['check_5faddress_29',['check_address',['../structlibargs__s.html#af10affb0f751eb85cc387942e530ada6',1,'libargs_s::check_address'],['../swap__lib__calls_8h.html#a9feb73153e18c06be99d44ec325fb7e9',1,'CHECK_ADDRESS:&#160;swap_lib_calls.h']]],
   ['check_5faddress_5fparameters_5fs_30',['check_address_parameters_s',['../structcheck__address__parameters__s.html',1,'']]],
   ['check_5faddress_5fparameters_5ft_31',['check_address_parameters_t',['../swap__lib__calls_8h.html#a654e13ea343c11316d6df94968234fdf',1,'swap_lib_calls.h']]],
-  ['children_32',['children',['../structnbgl__container__s.html#a0ef62f84ab2749620ba9d629a8bac8cb',1,'nbgl_container_s::children'],['../structnbgl__layoutInternal__s.html#ad4846cb10d349ace47fe65623bb80108',1,'nbgl_layoutInternal_s::children']]],
+  ['children_32',['children',['../structnbgl__container__s.html#aee37bfe34cc1e5c0041029f6d259aef9',1,'nbgl_container_s::children'],['../structnbgl__layoutInternal__s.html#ad4846cb10d349ace47fe65623bb80108',1,'nbgl_layoutInternal_s::children']]],
   ['choice_20buttons_33',['Choice buttons',['../nbgl_layout.html#choice_buttons',1,'']]],
   ['choice_20use_20case_34',['Choice Use Case',['../nbgl_app_use_case.html#use_case_choice',1,'']]],
   ['choice_5f1_5fid_35',['CHOICE_1_ID',['../nbgl__obj_8h.html#aac34dfe6c6b73b43a4656c9dce041034a0061b6f13540a928afc512c2d610af4f',1,'nbgl_obj.h']]],
