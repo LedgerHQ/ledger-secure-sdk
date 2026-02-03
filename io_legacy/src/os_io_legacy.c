@@ -244,7 +244,6 @@ unsigned short io_exchange(unsigned char channel_and_flags, unsigned short tx_le
         status = io_legacy_apdu_rx(1);
     }
     G_io_app.apdu_length = status;
-    PRINTF("io_exchange end");
 
     return status;
 }
