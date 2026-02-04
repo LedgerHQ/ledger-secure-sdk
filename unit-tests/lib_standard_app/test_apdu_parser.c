@@ -35,14 +35,9 @@ static void test_apdu_parser(void **state)
     assert_int_equal(cmd.lc, 0);
     assert_null(cmd.data);
 
+    // ISO 7816-4: Lc=0 with Lc byte present is invalid
     memset(&cmd, 0, sizeof(cmd));
-    assert_true(apdu_parser(&cmd, apdu_no_data, sizeof(apdu_no_data)));
-    assert_int_equal(cmd.cla, 0xE0);
-    assert_int_equal(cmd.ins, 0x03);
-    assert_int_equal(cmd.p1, 0x01);
-    assert_int_equal(cmd.p2, 0x02);
-    assert_int_equal(cmd.lc, 0);
-    assert_null(cmd.data);
+    assert_false(apdu_parser(&cmd, apdu_no_data, sizeof(apdu_no_data)));
 
     memset(&cmd, 0, sizeof(cmd));
     assert_true(apdu_parser(&cmd, apdu, sizeof(apdu)));
