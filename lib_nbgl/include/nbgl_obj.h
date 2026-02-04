@@ -708,17 +708,17 @@ void     nbgl_objAllowDrawing(bool enable);
 uint8_t *nbgl_objGetRAMBuffer(void);
 bool     nbgl_objIsUx(nbgl_obj_t *obj);
 
-void         nbgl_objPoolRelease(uint8_t layer);
+void         nbgl_objPoolRelease(nbgl_obj_t *obj);
 nbgl_obj_t  *nbgl_objPoolGet(nbgl_obj_type_t type, uint8_t layer);
 uint8_t      nbgl_objPoolGetId(nbgl_obj_t *obj);
 int          nbgl_objPoolGetArray(nbgl_obj_type_t type,
                                   uint8_t         nbObjs,
                                   uint8_t         layer,
                                   nbgl_obj_t    **objArray);
-uint8_t      nbgl_objPoolGetNbUsed(uint8_t layer);
-void         nbgl_containerPoolRelease(uint8_t layer);
+void         nbgl_containerPoolRelease(nbgl_obj_t **obj);
 nbgl_obj_t **nbgl_containerPoolGet(uint8_t nbObjs, uint8_t layer);
-uint8_t      nbgl_containerPoolGetNbUsed(uint8_t layer);
+void         nbgl_objPoolStat(size_t *allocated_size, uint32_t *nb_allocated);
+void         nbgl_objPoolReset(void);
 
 // for internal use
 void nbgl_objDrawKeyboard(nbgl_keyboard_t *kbd);
