@@ -30,12 +30,18 @@ bool apdu_parser(command_t *cmd, uint8_t *buf, size_t buf_len)
     }
 
     if (buf_len == OFFSET_LC) {
-        // Lc field not specified, implies lc = 0
+        // Case 1: Lc field not specified, implies lc = 0
         cmd->lc = 0;
     }
     else {
         // Lc field specified, check value against received length
         cmd->lc = buf[OFFSET_LC];
+        
+        // ISO 7816-4 compliance: Lc=0 is invalid when Lc byte is present
+        if (cmd->lc == 0) {
+            return false;
+        }
+        
         if (buf_len - OFFSET_CDATA != cmd->lc) {
             return false;
         }
