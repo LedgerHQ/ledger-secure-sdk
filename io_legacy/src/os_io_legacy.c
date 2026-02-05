@@ -48,9 +48,6 @@
 /* Private defines------------------------------------------------------------*/
 
 /* Private macros-------------------------------------------------------------*/
-#ifdef HAVE_BOLOS_APP_STACK_CANARY
-#define APP_STACK_CANARY_MAGIC 0xDEAD0031
-#endif  // HAVE_BOLOS_APP_STACK_CANARY
 
 /* Private functions prototypes ----------------------------------------------*/
 #ifdef HAVE_NFC_READER

@@ -66,6 +66,10 @@ uint8_t G_io_init_syscall;
 
 /* Private variables ---------------------------------------------------------*/
 
+#ifdef HAVE_BOLOS_APP_STACK_CANARY
+extern unsigned int app_stack_canary;
+#endif  // HAVE_BOLOS_APP_STACK_CANARY
+
 /* Private functions ---------------------------------------------------------*/
 #ifndef USE_OS_IO_STACK
 static int process_itc_event(uint8_t *buffer_in, size_t buffer_in_length)
@@ -135,6 +139,10 @@ static int process_itc_event(uint8_t *buffer_in, size_t buffer_in_length)
 #ifndef USE_OS_IO_STACK
 int os_io_init(os_io_init_t *init)
 {
+#ifdef HAVE_BOLOS_APP_STACK_CANARY
+    app_stack_canary = APP_STACK_CANARY_MAGIC;
+#endif  // HAVE_BOLOS_APP_STACK_CANARY
+
     if (!init) {
         return -1;
     }
@@ -235,6 +243,13 @@ int os_io_rx_evt(unsigned char *buffer,
 {
     int      status = 0;
     uint16_t length = 0;
+
+#ifdef HAVE_BOLOS_APP_STACK_CANARY
+    // if the canary is corrupted, reset the device
+    if (app_stack_canary != APP_STACK_CANARY_MAGIC) {
+        os_sched_exit(APP_STACK_CANARY_CORRUPTED_EXIT_VALUE);
+    }
+#endif
 
     if (!G_io_seph_buffer_size) {
         status = os_io_seph_se_rx_event(G_io_seph_buffer,
@@ -347,6 +362,13 @@ int os_io_tx_cmd(uint8_t                     type,
                  unsigned short              length,
                  unsigned int               *timeout_ms)
 {
+#ifdef HAVE_BOLOS_APP_STACK_CANARY
+    // if the canary is corrupted, reset the device
+    if (app_stack_canary != APP_STACK_CANARY_MAGIC) {
+        os_sched_exit(APP_STACK_CANARY_CORRUPTED_EXIT_VALUE);
+    }
+#endif
+
     int status = 0;
     switch (type) {
 #ifdef HAVE_IO_USB
