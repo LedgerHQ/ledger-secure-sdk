@@ -13,6 +13,10 @@ The @subpage ble_mainpage page contains all information necessary to interact wi
 
 The @subpage cxng_mainpage page contains all information necessary to understand Cryptographic Library
 
+@section list_presentation Generic Linked List Library
+
+The @subpage list_mainpage page contains all information necessary to use the Generic Linked List library.
+
 @section mem_presentation Dynamic Memory Allocator Interface
 
 The @subpage mem_alloc_mainpage page contains all information necessary to interact with Dynamic Memory Allocator.
