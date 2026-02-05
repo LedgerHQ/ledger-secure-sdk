@@ -304,6 +304,11 @@ class TTF2INC:
                 self.font_name[index] = filename
                 continue
 
+            filename = os.path.join("../../se/lfs_poc", font_name)
+            if os.path.exists(filename):
+                self.font_name[index] = filename
+                continue
+
         # If we didn't found the specified font, let pillow search by itself
         # (it looks in system directories too)
 
