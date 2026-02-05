@@ -30,7 +30,9 @@ typedef enum HDKEY_derive_auth_e {
     HDKEY_DERIVE_AUTH_ED25519    = 0x04u,  // Authorizes BIP32-like derivation with ED25519
     HDKEY_DERIVE_AUTH_SLIP21     = 0x08u,  // Authorizes SLIP21 derivation
     HDKEY_DERIVE_AUTH_BLS12381G1 = 0x10u,  // Authorizes EIP2333 derivation
-    HDKEY_DERIVE_AUTH_BLS12377G1 = 0x20u   // Authorizes BIP32-live derivation with BLS12-377
+    HDKEY_DERIVE_AUTH_BLS12377G1 = 0x20u,  // Authorizes BIP32-live derivation with BLS12-377
+    HDKEY_DERIVE_AUTH_ZIP32
+        = 0x40u,  // Authorizes ZIP32 Sapling derivation with Jubjub and Orchard derivation
 } HDKEY_derive_auth_t;
 
 /**
@@ -41,7 +43,9 @@ typedef enum HDKEY_derive_mode_e {
     HDKEY_DERIVE_MODE_ED25519_SLIP10 = 0x01u,  // SLIP10 derivation with ED25519
     HDKEY_DERIVE_MODE_SLIP21         = 0x02u,  // SLIP21 derivation
     HDKEY_DERIVE_MODE_RESERVED       = 0x04u,  // Derivation mode reserved to the OS
-    HDKEY_DERIVE_MODE_BLS12377_ALEO  = 0x08u   // BIP32-like derivation with BLS12-377
+    HDKEY_DERIVE_MODE_BLS12377_ALEO  = 0x08u,  // BIP32-like derivation with BLS12-377
+    HDKEY_DERIVE_MODE_ZIP32_SAPLING  = 0x10u,  // ZIP32 Sapling hardened derivation
+    HDKEY_DERIVE_MODE_ZIP32_ORCHARD  = 0x20u,  // ZIP32 Orchard derivation
 } HDKEY_derive_mode_t;
 
 /**********************
