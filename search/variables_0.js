@@ -1,32 +1,4 @@
 var searchData=
 [
-  ['actionbuttonicon_0',['actionButtonIcon',['../structnbgl__pageInfoDescription__s.html#aa6bf33b11e78bcbad433ef4653cc8cb4',1,'nbgl_pageInfoDescription_s']]],
-  ['actionbuttonstyle_1',['actionButtonStyle',['../structnbgl__pageInfoDescription__s.html#a0478ec47aa56761709ca9e6a99193577',1,'nbgl_pageInfoDescription_s']]],
-  ['actionbuttontext_2',['actionButtonText',['../structnbgl__pageInfoDescription__s.html#a0a87c25273a4952ad3d9b324c0ddac9a',1,'nbgl_pageInfoDescription_s']]],
-  ['actioncallback_3',['actionCallback',['../structnbgl__contentTagValueList__s.html#af0347b1fdd41e5d2e8403865aac279f3',1,'nbgl_contentTagValueList_s']]],
-  ['actionicon_4',['actionIcon',['../structnbgl__layoutHeader__t.html#a4e97f869c13f5dc35cf924dd3837720a',1,'nbgl_layoutHeader_t']]],
-  ['actiontoken_5',['actionToken',['../structnbgl__layoutHeader__t.html#a5af1b09421f7599bffb54d7cac4f5935',1,'nbgl_layoutHeader_t']]],
-  ['active_6',['active',['../structnbgl__layoutConfirmationButton__t.html#ab70ec5cb748c6d08de6a082fa5ce8e7f',1,'nbgl_layoutConfirmationButton_t']]],
-  ['activecolor_7',['activeColor',['../structnbgl__radio__s.html#a1bcfdd55a02704f4931479c0f8803e45',1,'nbgl_radio_s']]],
-  ['activepage_8',['activepage',['../structnbgl__navigation__bar__s.html#a404542465ba7a3c1ace42bc0369deee1',1,'nbgl_navigation_bar_s::activePage'],['../structnbgl__layoutInternal__s.html#a0af0eb823e369681e9e3bcf9217c535a',1,'nbgl_layoutInternal_s::activePage'],['../structnbgl__pageMultiScreensDescription__s.html#ab52e21ae0a1a561e165e16bf860697f8',1,'nbgl_pageMultiScreensDescription_s::activePage'],['../structnbgl__layoutHeader__t.html#af16b153855dc2f4a4454e57212dc85c9',1,'nbgl_layoutHeader_t::activePage'],['../structnbgl__layoutNavigationBar__t.html#a4fb8bceb1ca0fc033769e49aa1d9bd60',1,'nbgl_layoutNavigationBar_t::activePage']]],
-  ['add_5fpadding_9',['add_padding',['../structcx__cipher__context__t.html#a57d9cdc573de8a788889002b34b8e141',1,'cx_cipher_context_t']]],
-  ['address_10',['address',['../structnbgl__pageAddressConfirmationDescription__s.html#aef421fa445dd75f53eaf5879a7ddc720',1,'nbgl_pageAddressConfirmationDescription_s']]],
-  ['address_5fparameters_11',['address_parameters',['../structcheck__address__parameters__s.html#aa7c598068fba0cd5025001518ccf7b8f',1,'check_address_parameters_s']]],
-  ['address_5fparameters_5flength_12',['address_parameters_length',['../structcheck__address__parameters__s.html#a7a1dca258789107dbd022e0d8ff598da',1,'check_address_parameters_s']]],
-  ['address_5fto_5fcheck_13',['address_to_check',['../structcheck__address__parameters__s.html#ad823fc0b146e00ed2d11a0bec1d8373d',1,'check_address_parameters_s']]],
-  ['aliastype_14',['aliasType',['../structnbgl__contentValueExt__t.html#a03a9a37a86dd3823620ca3eb0e66b419',1,'nbgl_contentValueExt_t']]],
-  ['aliasvalue_15',['aliasValue',['../structnbgl__contentTagValue__t.html#a16ee97b1fe4c01a34c5c188752241520',1,'nbgl_contentTagValue_t']]],
-  ['alignment_16',['alignment',['../structnbgl__obj__s.html#afe5d9c5e4931bf3418e7b8086453f212',1,'nbgl_obj_s']]],
-  ['alignmentmarginx_17',['alignmentMarginX',['../structnbgl__obj__s.html#af206ec5ded5d10386d5e3da4aca07242',1,'nbgl_obj_s']]],
-  ['alignmentmarginy_18',['alignmentMarginY',['../structnbgl__obj__s.html#ad29d4168a831a331c310914bddc91f05',1,'nbgl_obj_s']]],
-  ['alignto_19',['alignTo',['../structnbgl__obj__s.html#aefb1f9062f9bfd1767fa67ea8e2323e3',1,'nbgl_obj_s']]],
-  ['allocated_20',['allocated',['../structheader__s.html#ae262d3026b8a85a78b3a62eff53b7b0d',1,'header_s']]],
-  ['allocated_5fsize_21',['allocated_size',['../structmem__stat__t.html#a15a69ec3d1ffa1012f992a030de7c2e4',1,'mem_stat_t']]],
-  ['amount_22',['amount',['../structcreate__transaction__parameters__s.html#a1b7880a8a36593e330401209123732a9',1,'create_transaction_parameters_s::amount'],['../structget__printable__amount__parameters__s.html#a0cbe2399e939da98253d1d294ad5bde7',1,'get_printable_amount_parameters_s::amount']]],
-  ['amount_5flength_23',['amount_length',['../structget__printable__amount__parameters__s.html#aab30ed138a61ffa794d96f524632db8b',1,'get_printable_amount_parameters_s::amount_length'],['../structcreate__transaction__parameters__s.html#a8d63a12003948f1bb82ece064ef7962a',1,'create_transaction_parameters_s::amount_length']]],
-  ['animation_24',['animation',['../structnbgl__contentCenter__t.html#aa6d59f82bf42655e334fa4d6ffbfa68e',1,'nbgl_contentCenter_t::animation'],['../structnbgl__layoutInternal__s.html#ae14f8f32e61446f0e964b9f1eb3cf668',1,'nbgl_layoutInternal_s::animation']]],
-  ['animoffsetx_25',['animOffsetX',['../structnbgl__contentCenter__t.html#aecdfa6d57c7096939a433a28bcb71a74',1,'nbgl_contentCenter_t']]],
-  ['animoffsety_26',['animOffsetY',['../structnbgl__contentCenter__t.html#a87eb8ea8ff93f4dbb46fc865e77978e5',1,'nbgl_contentCenter_t']]],
-  ['area_27',['area',['../structnbgl__obj__s.html#ade96249b762ae348501b96c67e19e25e',1,'nbgl_obj_s']]],
-  ['autohidelongline_28',['autoHideLongLine',['../structnbgl__text__area__s.html#acc3478a72d26ae679bd71fef564b6804',1,'nbgl_text_area_s']]]
+  ['_5flist_0',['_list',['../structlist__node__t.html#a364ec28eec122d63d3999b85fbec858a',1,'list_node_t']]]
 ];

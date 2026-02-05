@@ -1,8 +1,27 @@
 var searchData=
 [
-  ['qrcode_0',['qrCode',['../structnbgl__genericDetails__s.html#a56b2d9baa6875e7ea97db4118747bc0f',1,'nbgl_genericDetails_s']]],
-  ['qrcodebuttontext_1',['qrCodeButtonText',['../structnbgl__pageAddressConfirmationDescription__s.html#adf64458f7b43b18c350e940cf457acd2',1,'nbgl_pageAddressConfirmationDescription_s']]],
-  ['quitbutton_2',['quitButton',['../structnbgl__pageNavWithButtons__s.html#a8a773903357755d52c7b683ecf29e02c',1,'nbgl_pageNavWithButtons_s']]],
-  ['quittext_3',['quittext',['../structnbgl__pageNavWithTap__s.html#a072e77612e1b144f017190cfc8ea2bc4',1,'nbgl_pageNavWithTap_s::quitText'],['../structnbgl__pageNavWithButtons__s.html#aab3cb5a406653bb82f3a14f12d667fa7',1,'nbgl_pageNavWithButtons_s::quitText']]],
-  ['quittoken_4',['quitToken',['../structnbgl__pageMultiScreensDescription__s.html#a1e59e52757b681121b2aa44b713af9f7',1,'nbgl_pageMultiScreensDescription_s']]]
+  ['p1_0',['p1',['../structcommand__t.html#ac45894b6d0d9432911596eceba002558',1,'command_t']]],
+  ['p2_1',['p2',['../structcommand__t.html#ad0fa3b941f229a545ecf0d4903b94735',1,'command_t']]],
+  ['padding_2',['padding',['../structnbgl__contentCenter__t.html#a981b19a90f236da0f0970030001c3e2c',1,'nbgl_contentCenter_t']]],
+  ['pairs_3',['pairs',['../structnbgl__contentTagValueList__s.html#a1ec6fd56640cc98f8bf097daf6cb6462',1,'nbgl_contentTagValueList_s']]],
+  ['params_4',['params',['../structux__state__s.html#a376b31f2ec7068cf2ca274fce01c80b8',1,'ux_state_s::params'],['../structux__flow__step__s.html#a04830e7bfc1fc949e889208c73407fc0',1,'ux_flow_step_s::params']]],
+  ['parent_5',['parent',['../structnbgl__obj__s.html#a4d8154a63e17916af8080f954c2a68f6',1,'nbgl_obj_s']]],
+  ['parsing_6',['parsing',['../structnbgl__animation__s.html#af51c6ee98fe271ebd8c6ad4376fe92e0',1,'nbgl_animation_s']]],
+  ['partialredraw_7',['partialRedraw',['../structnbgl__progress__bar__s.html#ac46d8a1b8f801421d290aeb0bc17eef0',1,'nbgl_progress_bar_s']]],
+  ['patterns_8',['patterns',['../structcharacter__info__t.html#a41d905c9a10df02841a0f5faec588ecf',1,'character_info_t']]],
+  ['percentage_9',['percentage',['../structnbgl__layoutProgressBar__t.html#a02f6a73067feb2d09af5cfc23ac96693',1,'nbgl_layoutProgressBar_t']]],
+  ['phys_5fprev_10',['phys_prev',['../structheader__s.html#a7c9f9b96621c21b806c138f5dfef8fde',1,'header_s']]],
+  ['position_11',['position',['../structnbgl__spinner__s.html#ab0f3a65e710d1894d5a893a59dbc3f71',1,'nbgl_spinner_s']]],
+  ['predefinedset_12',['predefinedSet',['../structnbgl__warning__t.html#a4f80d55ce48ce054f0f552db18667182',1,'nbgl_warning_t']]],
+  ['prelude_13',['prelude',['../structnbgl__warning__t.html#a03213ae867f85e1cc0bc13a3075c4a76',1,'nbgl_warning_t']]],
+  ['prev_14',['prev',['../structlist__node__t.html#a77501f97ec2ef65d96e5282b03720389',1,'list_node_t']]],
+  ['prev_5findex_15',['prev_index',['../structux__flow__state__t.html#a5885e799a8fc91ec479d683b9a6665d4',1,'ux_flow_state_t']]],
+  ['previous_16',['previous',['../structnbgl__screen__s.html#a8d7675d438ef9b8f23fbb931206986b3',1,'nbgl_screen_s']]],
+  ['previouswidth_17',['previousWidth',['../structnbgl__progress__bar__s.html#ac3d18a413d7cbdbe6a0d069bed870336',1,'nbgl_progress_bar_s']]],
+  ['printable_5famount_18',['printable_amount',['../structget__printable__amount__parameters__s.html#a44d4142fbbd90d6d71b2c0e03bdf15b7',1,'get_printable_amount_parameters_s']]],
+  ['printf_5felement_19',['printf_element',['../ux__legacy_8c.html#ac9644e28db227a101f55c72859da57c0',1,'ux_legacy.c']]],
+  ['progressandback_20',['progressAndBack',['../structnbgl__layoutHeader__t.html#aeb6e6942235fc0e44f15b5adba2312ec',1,'nbgl_layoutHeader_t']]],
+  ['progressindicator_21',['progressIndicator',['../structnbgl__pageMultiScreensDescription__s.html#ab5733fc8113f7ba5e9891cb97bf4a295',1,'nbgl_pageMultiScreensDescription_s']]],
+  ['providermessage_22',['providerMessage',['../structnbgl__warning__t.html#a5762c212a9013f5aad2fc9ecbe2b5944',1,'nbgl_warning_t']]],
+  ['ptr_23',['ptr',['../structbuffer__t.html#a0477d73e0c041cc3cf557c4fdd091931',1,'buffer_t']]]
 ];

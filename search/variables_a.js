@@ -1,25 +1,6 @@
 var searchData=
 [
-  ['l_0',['l',['../structuint64__s.html#a552ecaab703e1315820eec1999cc56ab',1,'uint64_s']]],
-  ['large_1',['large',['../structnbgl__layoutBar__t.html#a5e5f6c6984a1802217c66fe3ccc42db1',1,'nbgl_layoutBar_t::large'],['../structlistItem__t.html#a63d47534beda6a4d5d3471fbeb6e9bba',1,'listItem_t::large']]],
-  ['largetext1_2',['largeText1',['../structnbgl__layoutQRCode__t.html#a411f6bb3cfc5f0093ddfac4cbafa7d68',1,'nbgl_layoutQRCode_t']]],
-  ['last_5fchar_3',['last_char',['../structnbgl__font__t.html#ac2ad155fa2f135506362b73ab9f4b650',1,'nbgl_font_t']]],
-  ['layer_4',['layer',['../structnbgl__layoutInternal__s.html#a0c2882dd7b99d857cc319964cf8eafd7',1,'nbgl_layoutInternal_s']]],
-  ['layout_5',['layout',['../structnbgl__container__s.html#a923ad2858bdd0032ec9ff21fb81b1a59',1,'nbgl_container_s']]],
-  ['lc_6',['lc',['../structcommand__t.html#a50fc9b5edd597609168ebb652e7b73c1',1,'command_t']]],
-  ['lefticon_7',['leftIcon',['../structnbgl__layoutHorizontalButtons__t.html#a80a3b724c199ccdd7b9e3fe67f7f047b',1,'nbgl_layoutHorizontalButtons_t']]],
-  ['lefttext_8',['leftText',['../structnbgl__layoutFooter__t.html#a43936aaaaac7f736c69d707a8e4c68ae',1,'nbgl_layoutFooter_t']]],
-  ['lefttoken_9',['lefttoken',['../structnbgl__layoutHorizontalButtons__t.html#aae0aea716f5ae779d06eac2738b95d9a',1,'nbgl_layoutHorizontalButtons_t::leftToken'],['../structnbgl__layoutFooter__t.html#a618457883bee98327351e0be67ce5ef0',1,'nbgl_layoutFooter_t::leftToken']]],
-  ['len_10',['len',['../structnbgl__text__area__s.html#a3828ad866f0de539d3440890c6c0974b',1,'nbgl_text_area_s']]],
-  ['length_11',['length',['../structux__flow__state__t.html#a67d7d4c38b57ce5ebc01fbc615ee2dc4',1,'ux_flow_state_t']]],
-  ['lettersonly_12',['lettersonly',['../structnbgl__keyboard__s.html#ab8e22e6c2b44d1d5ef4fba90545ef1ea',1,'nbgl_keyboard_s::lettersOnly'],['../structnbgl__layoutKbd__t.html#ab5d4bd9930dcc2fe925b93ec2d0b161a',1,'nbgl_layoutKbd_t::lettersOnly']]],
-  ['line1_13',['line1',['../structux__menu__entry__s.html#a450a790c03e61423230de03fcbd3ba3a',1,'ux_menu_entry_s::line1'],['../structux__turner__step__s.html#ad5402ea5cd85c8996b3f753da1bac9f7',1,'ux_turner_step_s::line1']]],
-  ['line2_14',['line2',['../structux__menu__entry__s.html#a55aa2f7711298c18adb9caf02d25961e',1,'ux_menu_entry_s::line2'],['../structux__turner__step__s.html#aeeb94df0a73453cc620be3d5f49d8def',1,'ux_turner_step_s::line2']]],
-  ['line_5fheight_15',['line_height',['../structnbgl__font__t.html#ab25190673a2a36fcc5cc5bda2d163004',1,'nbgl_font_t::line_height'],['../structnbgl__font__unicode__t.html#af5c8479b44567ee1b963989e3845dabd',1,'nbgl_font_unicode_t::line_height']]],
-  ['linecolor_16',['lineColor',['../structnbgl__line__s.html#a1248bc1c9b257924ed83e2d4903e72e2',1,'nbgl_line_s']]],
-  ['lines_17',['lines',['../structux__layout__strings__params__s.html#a4c6da8b15480ac4d6c167921117dc9da',1,'ux_layout_strings_params_s::lines'],['../structux__layout__icon__strings__params__s.html#ae71bcb2a11aa88706136e089a9755347',1,'ux_layout_icon_strings_params_s::lines']]],
-  ['localized_18',['localized',['../structnbgl__contentRadioChoice__t.html#a7e84c7755f5d7ca0878c83242dc3ae88',1,'nbgl_contentRadioChoice_t::localized'],['../structnbgl__button__s.html#ae444af062f5598329f845f0b0508d5b7',1,'nbgl_button_s::localized']]],
-  ['longpress_19',['longPress',['../structnbgl__layoutUpFooter__t.html#a6f9130eb6c65b48f7c09ff731002a899',1,'nbgl_layoutUpFooter_t']]],
-  ['longpresstext_20',['longPressText',['../structnbgl__contentInfoLongPress__t.html#a45d19232faebafc785259699a748f338',1,'nbgl_contentInfoLongPress_t']]],
-  ['longpresstoken_21',['longPressToken',['../structnbgl__contentInfoLongPress__t.html#a435a2990f3ab8f7980854429b95fa0ca',1,'nbgl_contentInfoLongPress_t']]]
+  ['key_5fbitlen_0',['key_bitlen',['../structcx__cipher__info__t.html#a9a22b31d6119ee15df624fbb7c713a99',1,'cx_cipher_info_t::key_bitlen'],['../structcx__cipher__context__t.html#a7a878fda4042e63f3ad18f6e39599d06',1,'cx_cipher_context_t::key_bitlen']]],
+  ['keymask_1',['keymask',['../structnbgl__layoutKbd__t.html#a08fd8d030876a6f3e36273806efc6f90',1,'nbgl_layoutKbd_t::keyMask'],['../structnbgl__keyboard__s.html#aa26f055d1cf7ebc34bcd8fcd162c6248',1,'nbgl_keyboard_s::keyMask']]],
+  ['keys_2',['keys',['../structcipher__key__t.html#a15d83f9ea14cf9a3e64fbe01cc44cf4c',1,'cipher_key_t']]]
 ];

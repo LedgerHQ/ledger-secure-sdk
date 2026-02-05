@@ -1,9 +1,9 @@
 var searchData=
 [
-  ['y_0',['y',['../structnbgl__touchStatePosition__t.html#a4acc9859c0a9be664c7fe0b97e93d1a7',1,'nbgl_touchStatePosition_t']]],
-  ['y0_1',['y0',['../structnbgl__area__s.html#a78b24658afa136303be66a2af6553558',1,'nbgl_area_s']]],
-  ['y_5fmax_2',['y_max',['../structcharacter__info__t.html#a1697bde6e17837f07948bb7e0df58197',1,'character_info_t']]],
-  ['y_5fmax_5foffset_3',['y_max_offset',['../structnbgl__font__character__t.html#af156bbe0fb269a260e3b5c4b708562a8',1,'nbgl_font_character_t::y_max_offset'],['../structnbgl__font__unicode__character__t.html#a5cfb01f034423a77be1c42dcdd5a1b5e',1,'nbgl_font_unicode_character_t::y_max_offset']]],
-  ['y_5fmin_4',['y_min',['../structcharacter__info__t.html#a438ae2742c1680cad160ec9178701af1',1,'character_info_t::y_min'],['../structnbgl__font__t.html#ac604c8b8e51aaac50d5dd68f7b966930',1,'nbgl_font_t::y_min'],['../structnbgl__font__unicode__t.html#a7bc5dcc4d5c20b4f8333aa6c8b92c6ce',1,'nbgl_font_unicode_t::y_min']]],
-  ['y_5fmin_5foffset_5',['y_min_offset',['../structnbgl__font__character__t.html#ae85152a93f578dd576e39ee55bd91e18',1,'nbgl_font_character_t::y_min_offset'],['../structnbgl__font__unicode__character__t.html#a59ea1d4097f5e37d9cb1c69a19a848cb',1,'nbgl_font_unicode_character_t::y_min_offset']]]
+  ['x_0',['x',['../structnbgl__touchStatePosition__t.html#ab9c033c90bee58f832b3ec51fc7b5800',1,'nbgl_touchStatePosition_t']]],
+  ['x0_1',['x0',['../structnbgl__area__s.html#aafeffb97068547f1d5532fca9e8b4420',1,'nbgl_area_s']]],
+  ['x_5fmax_2',['x_max',['../structcharacter__info__t.html#a1180ec8722f14ae0353ad90b0c4229f9',1,'character_info_t']]],
+  ['x_5fmax_5foffset_3',['x_max_offset',['../structnbgl__font__character__t.html#aec6184a81346c3fded139805a392f054',1,'nbgl_font_character_t::x_max_offset'],['../structnbgl__font__unicode__character__t.html#a8cc3d81be3c5356b386970bc51e169c8',1,'nbgl_font_unicode_character_t::x_max_offset']]],
+  ['x_5fmin_4',['x_min',['../structcharacter__info__t.html#ac941fd2529728cbbe20d96f8e427c965',1,'character_info_t']]],
+  ['x_5fmin_5foffset_5',['x_min_offset',['../structnbgl__font__character__t.html#ad241525a485e8e94e4256f23cb661f2c',1,'nbgl_font_character_t::x_min_offset'],['../structnbgl__font__unicode__character__t.html#a40d3cef6d392debb3ff7216e172a9478',1,'nbgl_font_unicode_character_t::x_min_offset']]]
 ];
