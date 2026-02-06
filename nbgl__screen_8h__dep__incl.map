@@ -1,21 +1,15 @@
 <map id="lib_nbgl/include/nbgl_screen.h" name="lib_nbgl/include/nbgl_screen.h">
-<area shape="rect" id="Node000001" title="API to manage screens." alt="" coords="1063,5,1219,45"/>
+<area shape="rect" id="Node000001" title="API to manage screens." alt="" coords="953,5,1109,45"/>
 <area shape="rect" id="Node000002" href="$nbgl__layout_8h.html" title="API of the Advanced BOLOS Graphical Library, for predefined layouts." alt="" coords="389,93,545,133"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1050,41,545,105,545,99,1050,36"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="939,43,545,103,544,98,939,38"/>
 <area shape="rect" id="Node000009" href="$nbgl__layout_8c.html" title="Implementation of predefined layouts management for Applications." alt="" coords="569,277,756,302"/>
-<area shape="poly" id="edge13_Node000001_Node000009" title=" " alt="" coords="1063,52,997,74,921,104,843,140,770,184,740,207,712,233,673,278,669,275,708,230,736,203,766,179,841,135,919,99,995,69,1061,47"/>
+<area shape="poly" id="edge13_Node000001_Node000009" title=" " alt="" coords="981,54,880,109,824,145,770,183,714,234,674,278,670,275,710,231,766,179,821,140,877,105,978,49"/>
 <area shape="rect" id="Node000010" href="$nbgl__layout__keyboard_8c.html" title="Implementation of predefined keyboard related layouts management." alt="" coords="980,269,1156,309"/>
-<area shape="poly" id="edge14_Node000001_Node000010" title=" " alt="" coords="1099,55,1079,73,1065,95,1057,117,1052,141,1051,190,1057,234,1065,269,1060,270,1052,235,1046,190,1047,140,1052,116,1060,92,1075,70,1095,51"/>
+<area shape="poly" id="edge14_Node000001_Node000010" title=" " alt="" coords="1038,58,1068,269,1063,269,1033,59"/>
 <area shape="rect" id="Node000011" href="$nbgl__layout__keypad_8c.html" title="Implementation of keypad management of predefined layouts management for Applications." alt="" coords="1180,269,1356,309"/>
-<area shape="poly" id="edge15_Node000001_Node000011" title=" " alt="" coords="1122,58,1107,95,1105,114,1109,132,1135,175,1169,213,1205,244,1238,267,1235,271,1202,248,1165,217,1130,179,1104,134,1100,114,1102,93,1117,56"/>
-<area shape="rect" id="Node000014" href="$nbgl__obj_8c.html" title="Implementation of API to draw all basic graphic objects." alt="" coords="1119,101,1286,126"/>
-<area shape="poly" id="edge16_Node000001_Node000014" title=" " alt="" coords="1165,55,1196,99,1192,102,1161,58"/>
-<area shape="rect" id="Node000015" href="$nbgl__screen_8c.html" title="Implementation of screens management API." alt="" coords="1311,101,1500,126"/>
-<area shape="poly" id="edge17_Node000001_Node000015" title=" " alt="" coords="1213,47,1371,98,1369,103,1212,52"/>
-<area shape="rect" id="Node000016" href="$nbgl__touch_8c.html" title=" " alt="" coords="1525,101,1707,126"/>
-<area shape="poly" id="edge18_Node000001_Node000016" title=" " alt="" coords="1234,41,1553,98,1552,103,1233,46"/>
-<area shape="rect" id="Node000017" href="$ux__nbgl_8h.html" title=" " alt="" coords="1732,101,1895,126"/>
-<area shape="poly" id="edge19_Node000001_Node000017" title=" " alt="" coords="1234,32,1456,55,1720,91,1761,98,1760,103,1720,96,1455,61,1233,38"/>
+<area shape="poly" id="edge15_Node000001_Node000011" title=" " alt="" coords="1052,55,1109,132,1183,209,1248,267,1244,271,1179,212,1105,135,1048,58"/>
+<area shape="rect" id="Node000014" href="$ux__nbgl_8h.html" title=" " alt="" coords="1119,101,1281,126"/>
+<area shape="poly" id="edge16_Node000001_Node000014" title=" " alt="" coords="1081,49,1179,98,1176,103,1079,54"/>
 <area shape="rect" id="Node000003" href="$nbgl__page_8h.html" title="API of the Advanced BOLOS Graphical Library, for predefined pages." alt="" coords="209,181,365,221"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="416,142,327,184,325,179,414,137"/>
 <area shape="rect" id="Node000006" href="$nbgl__step_8h.html" title="Step construction API of NBGL." alt="" coords="389,181,545,221"/>
