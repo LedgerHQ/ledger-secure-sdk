@@ -35,6 +35,8 @@ CURVE_PRIME256R1 = 1 << 1
 CURVE_ED25519 = 1 << 2
 CURVE_SLIP21 = 1 << 3
 CURVE_BLS12381G1 = 1 << 4
+CURVE_BLS12377G1 = 1 << 5
+CURVE_ZIP32 = 1 << 6
 
 
 def string_to_bytes(x):
@@ -78,6 +80,11 @@ def get_curve_mask(curves, slip21_paths):
                 curve_mask |= CURVE_SLIP21
             elif curve == 'bls12381g1':
                 curve_mask |= CURVE_BLS12381G1
+            elif curve == 'bls12377g1':
+                curve_mask |= CURVE_BLS12377G1
+            elif curve == 'jubjub':
+                # Allow Sapling and Orchard ZIP32 derivations
+                curve_mask |= CURVE_ZIP32
             else:
                 raise Exception("Unknown curve " + curve)
 
