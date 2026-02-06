@@ -1,7 +1,7 @@
 <map id="nbgl_container_s" name="nbgl_container_s">
-<area shape="rect" id="Node000001" title="struct to represent a container (CONTAINER type)" alt="" coords="5,185,137,211"/>
+<area shape="rect" id="Node000001" title="struct to represent a container (CONTAINER type)" alt="" coords="5,200,137,225"/>
 <area shape="rect" id="Node000002" href="$structnbgl__obj__s.html" title="Common structure for all graphical objects." alt="" coords="26,95,117,121"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="74,134,74,185,69,185,69,134"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="74,135,74,200,69,200,69,135"/>
 <area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="131,98,139,102,143,108,135,117,117,119,116,114,133,112,138,108,136,106,129,103"/>
 <area shape="rect" id="Node000003" href="$structnbgl__area__s.html" title="Represents a rectangle area of the screen." alt="" coords="21,5,121,31"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="74,44,74,95,69,95,69,44"/>

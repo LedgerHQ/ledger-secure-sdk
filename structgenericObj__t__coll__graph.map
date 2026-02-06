@@ -1,0 +1,44 @@
+<map id="genericObj_t" name="genericObj_t">
+<area shape="rect" id="Node000001" title=" " alt="" coords="704,351,808,377"/>
+<area shape="rect" id="Node000002" href="$structnbgl__obj__s.html" title="Common structure for all graphical objects." alt="" coords="187,351,277,377"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="230,337,231,289,240,227,249,195,261,164,278,134,299,109,345,70,392,42,439,24,486,17,534,20,583,34,632,57,682,91,697,110,711,139,733,215,748,294,756,351,750,351,742,295,728,217,706,141,693,113,678,95,629,62,581,39,533,25,486,22,440,29,394,47,349,74,303,113,282,137,266,166,254,197,245,228,236,289,235,337"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="214,337,220,328,232,325,243,327,249,334,248,351,242,351,244,336,240,332,232,330,223,333,219,340"/>
+<area shape="rect" id="Node000004" href="$structnbgl__text__area__s.html" title="struct to represent a text area (TEXT_AREA type)" alt="" coords="400,105,533,130"/>
+<area shape="poly" id="edge5_Node000004_Node000002" title=" " alt="" coords="232,338,236,298,247,250,267,201,282,178,300,158,322,142,347,130,399,117,401,122,349,135,325,146,303,162,286,181,272,203,252,251,242,299,237,338"/>
+<area shape="rect" id="Node000005" href="$structnbgl__progress__bar__s.html" title="struct to represent a progress bar (PROGRESS_BAR type)" alt="" coords="389,154,544,179"/>
+<area shape="poly" id="edge7_Node000005_Node000002" title=" " alt="" coords="235,337,242,307,255,272,273,236,300,206,320,192,342,182,388,169,390,174,344,187,322,197,303,210,278,239,259,274,247,309,240,339"/>
+<area shape="rect" id="Node000006" href="$structnbgl__container__s.html" title="struct to represent a container (CONTAINER type)" alt="" coords="401,203,533,229"/>
+<area shape="poly" id="edge9_Node000006_Node000002" title=" " alt="" coords="244,337,268,303,300,270,348,242,399,225,401,230,351,247,303,274,272,306,249,340"/>
+<area shape="rect" id="Node000007" href="$structnbgl__image__s.html" title="struct to represent an image (IMAGE type)" alt="" coords="411,253,523,278"/>
+<area shape="poly" id="edge11_Node000007_Node000002" title=" " alt="" coords="257,340,300,312,356,290,410,274,411,279,357,295,303,317,260,345"/>
+<area shape="rect" id="Node000008" href="$structnbgl__button__s.html" title="struct to represent a button (BUTTON type) that can contain a text and/or an icon" alt="" coords="410,302,523,327"/>
+<area shape="poly" id="edge13_Node000008_Node000002" title=" " alt="" coords="290,347,301,344,409,322,410,327,302,349,291,352"/>
+<area shape="rect" id="Node000009" href="$structnbgl__switch__s.html" title="struct to represent a switch (size is fixed) (SWITCH type)" alt="" coords="410,351,523,377"/>
+<area shape="poly" id="edge15_Node000009_Node000002" title=" " alt="" coords="291,361,410,361,410,367,291,367"/>
+<area shape="rect" id="Node000010" href="$structnbgl__radio__s.html" title="struct to represent a radio button (RADIO_BUTTON type)" alt="" coords="415,401,519,426"/>
+<area shape="poly" id="edge17_Node000010_Node000002" title=" " alt="" coords="287,378,302,381,415,403,414,408,301,387,286,383"/>
+<area shape="rect" id="Node000011" href="$structnbgl__navigation__bar__s.html" title="struct to represent a navigation bar (PAGE_INDICATOR type) There can be up to 5 page indicators,..." alt="" coords="383,450,551,475"/>
+<area shape="poly" id="edge19_Node000011_Node000002" title=" " alt="" coords="259,383,303,412,353,433,404,447,402,453,351,438,300,417,256,388"/>
+<area shape="rect" id="Node000012" href="$structnbgl__line__s.html" title="struct to represent a vertical or horizontal line" alt="" coords="419,499,514,525"/>
+<area shape="poly" id="edge21_Node000012_Node000002" title=" " alt="" coords="249,388,272,422,303,454,331,471,361,485,420,502,418,507,359,490,328,476,300,458,268,425,244,391"/>
+<area shape="rect" id="Node000013" href="$structnbgl__spinner__s.html" title="struct to represent a &quot;spinner&quot;, represented by the Ledger corners, in gray, with one of the corners ..." alt="" coords="407,549,526,574"/>
+<area shape="poly" id="edge23_Node000013_Node000002" title=" " alt="" coords="242,389,263,446,281,477,303,503,327,521,353,534,408,551,406,556,351,539,324,525,300,507,276,480,259,449,237,391"/>
+<area shape="rect" id="Node000014" href="$structnbgl__keyboard__s.html" title="struct to represent a keyboard (KEYBOARD type)" alt="" coords="401,598,532,623"/>
+<area shape="poly" id="edge25_Node000014_Node000002" title=" " alt="" coords="238,390,244,427,255,472,274,517,303,557,325,574,350,587,402,602,400,607,348,592,322,578,299,561,270,520,250,473,238,428,233,391"/>
+<area shape="rect" id="Node000015" href="$structnbgl__keypad__s.html" title="struct to represent a keypad (KEYPAD type)" alt="" coords="407,647,526,673"/>
+<area shape="poly" id="edge27_Node000015_Node000002" title=" " alt="" coords="235,390,238,437,247,496,268,557,283,585,303,610,326,628,352,641,408,654,407,660,351,646,323,632,299,614,279,588,263,560,242,498,232,438,230,391"/>
+<area shape="rect" id="Node000003" href="$structnbgl__area__s.html" title="Represents a rectangle area of the screen." alt="" coords="5,351,105,377"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="119,361,186,361,186,367,119,367"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="547,108,582,110,617,116,651,128,682,147,704,170,721,197,743,255,754,310,757,351,752,351,749,311,738,256,716,199,699,173,678,151,649,133,616,121,581,115,547,113"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="558,161,622,172,653,183,682,201,699,217,714,236,736,278,749,319,755,350,750,352,744,321,731,280,709,239,695,220,678,205,651,188,621,177,557,166"/>
+<area shape="poly" id="edge8_Node000001_Node000006" title=" " alt="" coords="547,215,615,228,649,240,681,256,706,278,727,304,752,350,747,353,722,307,703,282,679,261,647,245,614,233,546,221"/>
+<area shape="poly" id="edge10_Node000001_Node000007" title=" " alt="" coords="537,269,608,281,681,306,716,327,743,349,740,353,713,331,679,310,606,287,536,274"/>
+<area shape="poly" id="edge12_Node000001_Node000008" title=" " alt="" coords="538,320,680,343,708,349,706,354,680,348,537,326"/>
+<area shape="poly" id="edge14_Node000001_Node000009" title=" " alt="" coords="538,361,704,361,704,367,538,367"/>
+<area shape="poly" id="edge16_Node000001_Node000010" title=" " alt="" coords="532,404,679,381,710,374,711,379,681,387,533,409"/>
+<area shape="poly" id="edge18_Node000001_Node000011" title=" " alt="" coords="564,450,622,437,679,418,713,397,740,375,743,379,716,401,681,422,623,443,565,455"/>
+<area shape="poly" id="edge20_Node000001_Node000012" title=" " alt="" coords="527,509,603,498,642,486,679,467,703,446,722,421,747,375,752,378,727,424,706,450,681,472,644,490,604,503,528,514"/>
+<area shape="poly" id="edge22_Node000001_Node000013" title=" " alt="" coords="540,563,575,560,611,554,647,542,678,523,695,508,709,489,731,448,744,407,750,376,755,378,749,409,736,450,714,492,699,511,682,527,649,547,612,559,575,565,540,568"/>
+<area shape="poly" id="edge24_Node000001_Node000014" title=" " alt="" coords="546,616,580,615,615,609,649,598,678,579,700,557,717,531,729,502,739,473,749,417,752,377,757,377,754,418,744,474,734,504,721,533,704,560,682,583,651,602,616,614,581,620,546,621"/>
+<area shape="poly" id="edge26_Node000001_Node000015" title=" " alt="" coords="540,668,575,668,612,664,647,653,678,634,692,615,705,587,727,511,742,433,750,376,756,377,747,434,732,512,710,589,697,618,682,638,650,658,613,669,576,674,540,673"/>
+</map>
