@@ -20,7 +20,7 @@ Both of these function take the memory context as first parameter.
 
 @section mem_alloc_high_level High-Level Memory Utilities
 
-For application developers, a set of high-level wrapper functions is provided in `app_mem_utils.h`.
+For <b>application developers</b>, a set of high-level wrapper functions is provided in `app_mem_utils.h`.
 These functions simplify memory management by hiding the memory context and providing additional safety features.
 
 @subsection mem_alloc_initialization Initialization
@@ -47,9 +47,9 @@ if (ptr != NULL) {
 }
 @endcode
 
-@subsection mem_alloc_buffer_management Buffer Management
+@subsection mem_alloc_buffer_management Reallocation and Safe Cleanup
 
-For buffers that need reallocation or safe cleanup, use @ref APP_MEM_CALLOC() and @ref mem_utils_buffer_cleanup().
+For buffers that need reallocation or safe cleanup, use @ref APP_MEM_CALLOC() and @ref APP_MEM_FREE_AND_NULL().
 The allocated buffers are always zero-initialized.
 The cleanup function frees the buffer and sets the pointer to NULL to avoid dangling pointers.
 
@@ -64,7 +64,7 @@ if (APP_MEM_CALLOC(&buffer, 256)) {
     APP_MEM_CALLOC(&buffer, 512);  // Old buffer freed automatically
 
     // Safe cleanup (frees and sets buffer = NULL)
-    mem_utils_buffer_cleanup(&buffer);
+    APP_MEM_FREE_AND_NULL(&buffer);
 }
 @endcode
 
@@ -93,7 +93,8 @@ When profiling is enabled, all allocation and deallocation operations are logged
 
 @subsection mem_alloc_profiling_analysis Analyzing Profiling Data
 
-Use the `tools/valground.py` script to analyze memory profiling logs from Speculos:
+Use the `tools/valground.py` script to analyze memory profiling logs from Speculos.
+This is typically done by running Application tests with pytest and piping the output to the script:
 
 @code{.sh}
 # Run tests and pipe output to valground.py
@@ -134,7 +135,7 @@ Such buffers will not be reported as leaks.
 @code{.c}
 void *persistent_buffer = NULL;
 bool success;
-success = mem_buffer_persistent(&persistent_buffer, 1024);
+success = APP_MEM_PERMANENT(&persistent_buffer, 1024);
 // This allocation will be flagged in profiling reports
 // but won't be counted as a leak
 @endcode
