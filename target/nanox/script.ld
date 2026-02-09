@@ -109,10 +109,10 @@ SECTIONS
     /**
      * Place RAM uninitialized variables
      */
-    _bss = .;
     __stack_chk_guard = .;
     PROVIDE(__stack_chk_guard = .);
     . += 4;
+    _bss = .;
     *(.bss*)
     _ebss = .;
 
