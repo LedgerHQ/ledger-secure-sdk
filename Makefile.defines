@@ -94,8 +94,8 @@ CFLAGS   += -fropi
 CFLAGS   += -fno-jump-tables # avoid jump tables for switch to avoid problems with invalid PIC access
 
 LDFLAGS  += -Wall
-LDFLAGS  += -fno-common -ffunction-sections -fdata-sections -fwhole-program
-LDFLAGS  += -mno-unaligned-access
+LDFLAGS  += -fno-common -ffunction-sections -fdata-sections -fwhole-program -fuse-ld=lld-21
+LDFLAGS  += -mno-unaligned-access 
 LDFLAGS  += -Wl,--gc-sections -Wl,-Map,$(DBG_DIR)/app.map
 LDFLAGS  += -nostdlib -nodefaultlibs
 
