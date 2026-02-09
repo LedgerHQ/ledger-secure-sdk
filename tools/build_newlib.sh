@@ -56,13 +56,15 @@ INSTALL="${WORKDIR}/arm_none_eabi_install"
 mkdir -p "${BUILD}" "${INSTALL}"
 cd "${BUILD}"
 
-CFLAGS_FOR_TARGET="-ffunction-sections -fdata-sections -fshort-wchar -DPREFER_SIZE_OVER_SPEED -mcpu=${TARGET_CPU} -mthumb -mlittle-endian" \
+CC_FOR_TARGET="clang" \
+CFLAGS_FOR_TARGET="--target=arm-none-eabi -ffunction-sections -fdata-sections -DPREFER_SIZE_OVER_SPEED -mcpu=${TARGET_CPU} -mthumb -mlittle-endian -fropi -frwpi -fshort-enums -fshort-wchar " \
     ../configure  \
     `# Setup` \
     --host=x86_64-linux-gnu `# Host` \
     --target=arm-none-eabi ` # Target` \
     --disable-multilib `# Building only one library` \
     --prefix="${INSTALL}" `#  Installation prefix` \
+    --disable-libgloss \
     `# Options` \
     --disable-silent-rules `# verbose build output (undo: "make V=0")` \
     --disable-dependency-tracking `# speeds up one-time build` \
