@@ -26,7 +26,7 @@
 
 #define CREATE_METADATA_STRING_ITEM(ITEM_NAME, section_name) \
     __attribute__((section("ledger." #section_name)))        \
-    const char section_name[sizeof(ITEM_NAME) - 1]           \
+    const char section_name[sizeof(ITEM_NAME)]               \
         = ITEM_NAME;
 
 #define CREATE_METADATA_STRING_ITEM_FROM_INT(ITEM_NAME, section_name) \
