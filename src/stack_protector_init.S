@@ -10,6 +10,11 @@
 .global __wrap___stack_chk_init
 .thumb_func
 __wrap___stack_chk_init:
+    // if r0 != 0, skip initialization and jump directly to main
+    // (don't overwrite parent canary during a libcall)
+    cmp r0, #0
+    bne 1f
+
     // save arguments passed to main
     push {r0-r3}
 
