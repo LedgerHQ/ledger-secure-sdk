@@ -131,6 +131,12 @@ typedef struct {
 #define OS_IO_BUFFER_SIZE OS_IO_SEPH_BUFFER_SIZE
 #endif  // !CUSTOM_IO_APDU_BUFFER_SIZE
 
+#ifdef HAVE_BOLOS_APP_STACK_CANARY
+#define APP_STACK_CANARY_MAGIC                0xDEAD0031
+// apps will exit with this value if canary corruption is detected
+#define APP_STACK_CANARY_CORRUPTED_EXIT_VALUE 42
+#endif  // HAVE_BOLOS_APP_STACK_CANARY
+
 /* Exported macros------------------------------------------------------------*/
 
 /* Exported variables --------------------------------------------------------*/
