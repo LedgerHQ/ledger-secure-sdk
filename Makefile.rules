@@ -42,11 +42,7 @@ endif
 endif
 endif
 
-define uniq =
-  $(eval seen :=)
-  $(foreach _,$1,$(if $(filter $_,${seen}),,$(eval seen += $_)))
-  ${seen}
-endef
+uniq = $(if $1,$(firstword $1) $(call uniq,$(filter-out $(firstword $1),$1)))
 
 define check_duplicate =
   $(eval LIST := $(sort $(foreach file_h, $(notdir $1), $(notdir $(shell find $2 -name $(file_h))))))
