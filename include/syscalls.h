@@ -140,8 +140,10 @@
 #define SYSCALL_os_perso_derive_node_bip32_ID         0x05000053
 #define SYSCALL_os_perso_derive_node_with_seed_key_ID 0x080000a6
 #define SYSCALL_os_perso_derive_eip2333_ID            0x040000a7
+#define SYSCALL_HDKEY_derive_ID                       0x0a000002
 
 #define SYSCALL_RESERVED_13_ID 0x02000052
+
 #ifdef HAVE_RECOVER
 #define SYSCALL_RESERVED_14_ID 0x02000054
 #endif  // HAVE_RECOVER
