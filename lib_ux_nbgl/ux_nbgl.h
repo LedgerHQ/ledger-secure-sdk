@@ -109,13 +109,6 @@ typedef struct ux_seph_s {
 #endif  // HAVE_BOLOS
 } ux_seph_os_and_app_t;
 
-#ifdef HAVE_BACKGROUND_IMG
-SYSCALL     PERMISSION(APPLICATION_FLAG_BOLOS_UX)
-uint8_t    *fetch_background_img(bool allow_candidate);
-SYSCALL     PERMISSION(APPLICATION_FLAG_BOLOS_UX)
-bolos_err_t delete_background_img(void);
-#endif
-
 extern ux_seph_os_and_app_t G_ux_os;
 
 #include "glyphs.h"
