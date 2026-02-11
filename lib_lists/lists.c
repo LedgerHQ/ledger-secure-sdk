@@ -309,7 +309,7 @@ size_t flist_size(flist_node_t *const *list)
 
 bool flist_empty(flist_node_t *const *list)
 {
-    return flist_size(list) == 0;
+    return (list == NULL) || (*list == NULL);
 }
 
 void flist_sort(flist_node_t **list, f_list_node_cmp cmp_func)
@@ -393,7 +393,7 @@ size_t list_size(list_node_t *const *list)
 
 bool list_empty(list_node_t *const *list)
 {
-    return list_size(list) == 0;
+    return flist_empty((flist_node_t *const *) list);
 }
 
 void list_sort(list_node_t **list, f_list_node_cmp cmp_func)
