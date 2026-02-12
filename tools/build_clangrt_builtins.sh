@@ -36,8 +36,7 @@ sed -i 's/^\(Types: deb\)$/\1 deb-src/g' /etc/apt/sources.list.d/debian.sources
 apt update
 
 apt install -y --no-install-recommends \
-    dpkg-dev \
-    llvm-dev
+    dpkg-dev
 
 LLVM_VERSION="21.1.8~++20251221033036+2078da43e25a"
 LLVM_MAJOR_VERSION=$(echo "$LLVM_VERSION" | cut -d. -f1)
@@ -73,8 +72,8 @@ cmake ../compiler-rt/lib/builtins \
      -DCOMPILER_RT_DEFAULT_TARGET_ONLY=ON \
      -DLLVM_CMAKE_DIR="/usr/lib/llvm-21/lib/cmake/llvm" \
      -DCOMPILER_RT_HAS_FPIC_FLAG=OFF \
-     -DCMAKE_C_FLAGS="-mcpu=${TARGET_CPU} -mlittle-endian -mthumb -Oz -g0 -fropi -frwpi -fshort-wchar -fshort-enums -ffixed-r9 -mno-movt -fno-direct-access-external-data -fno-common -isystem ${SYSROOT}/include" \
-     -DCMAKE_ASM_FLAGS="-mcpu=${TARGET_CPU} -mlittle-endian -mthumb -fropi -frwpi -fshort-wchar -fshort-enums -ffixed-r9 -mno-movt -fno-direct-access-external-data -fno-common " \
+     -DCMAKE_C_FLAGS="-mcpu=${TARGET_CPU} -mlittle-endian -mthumb -Oz -g0 -fropi -frwpi -fshort-wchar -fshort-enums -ffixed-r9 -mno-movt -isystem ${SYSROOT}/include" \
+     -DCMAKE_ASM_FLAGS="-mcpu=${TARGET_CPU} -mlittle-endian -mthumb -fropi -frwpi -fshort-wchar -fshort-enums -ffixed-r9 -mno-movt " \
      -DCMAKE_SYSROOT="$SYSROOT"
 
 make -j
