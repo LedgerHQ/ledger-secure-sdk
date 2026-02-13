@@ -133,6 +133,8 @@ if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
               io
               nbgl
               nfc
+              pki
+              tlv
               qrcode
               standard_app
               mock)
