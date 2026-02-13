@@ -229,12 +229,10 @@
 #endif  // HAVE_VAULT_RECOVERY_ALGO
 
 #ifdef HAVE_SE_SCREEN
-#define SYSCALL_screen_clear_ID       0x00000079
-#define SYSCALL_screen_update_ID      0x0000007a
-#define SYSCALL_screen_set_keepout_ID 0x0400007b
-#ifdef HAVE_BRIGHTNESS_SYSCALL
-#define SYSCALL_screen_set_brightness_ID 0x0100008c
-#endif  // HAVE_BRIGHTNESS_SYSCALL
+#define SYSCALL_screen_clear_ID                     0x00000079
+#define SYSCALL_screen_update_ID                    0x0000007a
+#define SYSCALL_screen_set_keepout_ID               0x0400007b
+#define SYSCALL_RESERVED_35_ID                      0x0400007b
 #define SYSCALL_bagl_hal_draw_bitmap_within_rect_ID 0x0900007c
 #define SYSCALL_bagl_hal_draw_rect_ID               0x0500007d
 #endif  // HAVE_SE_SCREEN
@@ -266,10 +264,10 @@
 #define SYSCALL_nbgl_front_draw_img_ID             0x04fa0002
 #define SYSCALL_nbgl_front_refresh_area_ID         0x03fa0003
 #define SYSCALL_nbgl_front_draw_img_file_ID        0x05fa0004
-#define SYSCALL_nbgl_side_draw_rect_ID             0x01fa0005
-#define SYSCALL_nbgl_side_draw_horizontal_line_ID  0x03fa0006
-#define SYSCALL_nbgl_side_draw_img_ID              0x04fa0007
-#define SYSCALL_nbgl_side_refresh_area_ID          0x02fa0008
+#define SYSCALL_RESERVED_30_ID                     0x01fa0005
+#define SYSCALL_RESERVED_31_ID                     0x03fa0006
+#define SYSCALL_RESERVED_32_ID                     0x04fa0007
+#define SYSCALL_RESERVED_33_ID                     0x02fa0008
 #define SYSCALL_nbgl_screen_reinit_ID              0x00fa000d
 #define SYSCALL_nbgl_front_draw_img_rle_ID         0x05fa0010
 #define SYSCALL_nbgl_front_control_area_masking_ID 0x03fa0012

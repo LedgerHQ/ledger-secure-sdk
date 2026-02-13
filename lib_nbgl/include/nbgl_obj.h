@@ -693,6 +693,12 @@ enum {
 };
 
 /**********************
+ *  GLOBAL VARIABLES
+ **********************/
+
+extern uint8_t ramBuffer[];
+
+/**********************
  * GLOBAL PROTOTYPES
  **********************/
 
