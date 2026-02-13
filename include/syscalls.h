@@ -287,10 +287,8 @@
 #endif  // HAVE_STAX_CONFIG_DISPLAY_FAST_MODE
 #endif  // HAVE_NBGL
 
-#ifdef HAVE_BACKGROUND_IMG
-#define SYSCALL_fetch_background_img  0x01fa0009
-#define SYSCALL_delete_background_img 0x01fa000a
-#endif
+#define SYSCALL_RESERVED_28_ID 0x00fa0009
+#define SYSCALL_RESERVED_29_ID 0x00fa000a
 
 #ifdef HAVE_SE_TOUCH
 #define SYSCALL_touch_get_last_info_ID   0x01fa000b
