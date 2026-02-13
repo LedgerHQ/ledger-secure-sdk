@@ -13,7 +13,6 @@
 #include <unistd.h>
 #include "properties.h"
 #include "nbgl_driver.h"
-#include "nbgl_side.h"
 #include "nbgl_draw.h"
 #include "nbgl_screen.h"
 #include "nbgl_fonts.h"
@@ -280,13 +279,6 @@ uint8_t touch_exclude_borders(uint8_t excluded_borders)
     return excluded_borders;
 }
 #endif  // HAVE_SE_TOUCH
-
-#ifdef HAVE_SE_SCREEN
-void screen_set_brightness(unsigned int percent)
-{
-    UNUSED(percent);
-}
-#endif  // HAVE_SE_SCREEN
 
 void *pic(void *linked_address)
 {
