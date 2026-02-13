@@ -23,11 +23,14 @@
 #include "read.h"
 #include "varint.h"
 #include "bip32.h"
+#include "write.h"
 
 bool buffer_can_read(const buffer_t *buffer, size_t n)
 {
     return buffer->size - buffer->offset >= n;
 }
+
+#define buffer_has_space buffer_can_read
 
 bool buffer_seek_set(buffer_t *buffer, size_t offset)
 {
@@ -169,5 +172,108 @@ bool buffer_move(buffer_t *buffer, uint8_t *out, size_t out_len)
 
     buffer_seek_cur(buffer, out_len);
 
+    return true;
+}
+
+bool buffer_peek(const buffer_t *buffer, uint8_t *value)
+{
+    return buffer_peek_n(buffer, 0, value);
+}
+
+bool buffer_peek_n(const buffer_t *buffer, size_t n, uint8_t *value)
+{
+    if (buffer->size - buffer->offset < n + 1) {
+        return false;
+    }
+
+    *value = buffer->ptr[buffer->offset + n];
+
+    return true;
+}
+
+WEAK bool buffer_read_bytes(buffer_t *buffer, uint8_t *out, size_t n)
+{
+    if (buffer->size - buffer->offset < n) {
+        return false;
+    }
+
+    memmove(out, buffer->ptr + buffer->offset, n);
+    buffer_seek_cur(buffer, n);
+
+    return true;
+}
+
+bool buffer_write_u8(buffer_t *buffer, uint8_t value)
+{
+    if (!buffer_has_space(buffer, 1)) {
+        return false;
+    }
+
+    (buffer->ptr)[buffer->offset] = value;
+    buffer_seek_cur(buffer, 1);
+
+    return true;
+}
+
+bool buffer_write_u16(buffer_t *buffer, uint16_t value, endianness_t endianness)
+{
+    if (!buffer_has_space(buffer, 2)) {
+        return false;
+    }
+
+    if (endianness == BE) {
+        write_u16_be(buffer->ptr, buffer->offset, value);
+    }
+    else {
+        write_u16_le(buffer->ptr, buffer->offset, value);
+    }
+    buffer_seek_cur(buffer, 2);
+
+    return true;
+}
+
+bool buffer_write_u32(buffer_t *buffer, uint32_t value, endianness_t endianness)
+{
+    if (!buffer_has_space(buffer, 4)) {
+        return false;
+    }
+
+    if (endianness == BE) {
+        write_u32_be(buffer->ptr, buffer->offset, value);
+    }
+    else {
+        write_u32_le(buffer->ptr, buffer->offset, value);
+    }
+    buffer_seek_cur(buffer, 4);
+
+    return true;
+}
+
+bool buffer_write_u64(buffer_t *buffer, uint64_t value, endianness_t endianness)
+{
+    if (!buffer_has_space(buffer, 8)) {
+        return false;
+    }
+
+    if (endianness == BE) {
+        write_u64_be(buffer->ptr, buffer->offset, value);
+    }
+    else {
+        write_u64_le(buffer->ptr, buffer->offset, value);
+    }
+
+    buffer_seek_cur(buffer, 8);
+
+    return true;
+}
+
+bool buffer_write_bytes(buffer_t *buffer, const uint8_t *data, size_t n)
+{
+    if (!buffer_has_space(buffer, n)) {
+        return false;
+    }
+
+    memmove(buffer->ptr + buffer->offset, data, n);
+    buffer_seek_cur(buffer, n);
     return true;
 }
