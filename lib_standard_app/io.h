@@ -79,7 +79,7 @@ WEAK int io_send_response_buffers(const buffer_t *rdatalist, size_t count, uint1
 static inline int io_send_response_pointer(const uint8_t *ptr, size_t size, uint16_t sw)
 {
     return io_send_response_buffers(
-        &(const buffer_t){.ptr = ptr, .size = size, .offset = 0}, 1, sw);
+        &(const buffer_t){.ptr = (uint8_t *) ptr, .size = size, .offset = 0}, 1, sw);
 }
 
 /**
