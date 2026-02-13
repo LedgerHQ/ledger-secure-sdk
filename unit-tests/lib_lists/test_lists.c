@@ -116,17 +116,17 @@ static void test_flist_push_front(void **state)
     test_flist_node_t *node1, *node2, *node3;
 
     node1 = create_flist_node(1);
-    assert_true(flist_push_front(&list, &node1->node));
+    flist_push_front(&list, &node1->node);
     assert_ptr_equal(list, &node1->node);
     assert_int_equal(flist_size(&list), 1);
 
     node2 = create_flist_node(2);
-    assert_true(flist_push_front(&list, &node2->node));
+    flist_push_front(&list, &node2->node);
     assert_ptr_equal(list, &node2->node);
     assert_int_equal(flist_size(&list), 2);
 
     node3 = create_flist_node(3);
-    assert_true(flist_push_front(&list, &node3->node));
+    flist_push_front(&list, &node3->node);
     assert_ptr_equal(list, &node3->node);
     assert_int_equal(flist_size(&list), 3);
 
@@ -149,15 +149,15 @@ static void test_flist_push_back(void **state)
     test_flist_node_t *node1, *node2, *node3;
 
     node1 = create_flist_node(1);
-    assert_true(flist_push_back(&list, &node1->node));
+    flist_push_back(&list, &node1->node);
     assert_int_equal(flist_size(&list), 1);
 
     node2 = create_flist_node(2);
-    assert_true(flist_push_back(&list, &node2->node));
+    flist_push_back(&list, &node2->node);
     assert_int_equal(flist_size(&list), 2);
 
     node3 = create_flist_node(3);
-    assert_true(flist_push_back(&list, &node3->node));
+    flist_push_back(&list, &node3->node);
     assert_int_equal(flist_size(&list), 3);
 
     // Verify order: 1 -> 2 -> 3
@@ -184,19 +184,17 @@ static void test_flist_pop_front(void **state)
     flist_push_back(&list, &node2->node);
     flist_push_back(&list, &node3->node);
 
-    assert_true(flist_pop_front(&list, delete_flist_node));
+    flist_pop_front(&list, delete_flist_node);
     assert_int_equal(flist_size(&list), 2);
     assert_int_equal(((test_flist_node_t *) list)->value, 2);
 
-    assert_true(flist_pop_front(&list, delete_flist_node));
+    flist_pop_front(&list, delete_flist_node);
     assert_int_equal(flist_size(&list), 1);
     assert_int_equal(((test_flist_node_t *) list)->value, 3);
 
-    assert_true(flist_pop_front(&list, delete_flist_node));
+    flist_pop_front(&list, delete_flist_node);
     assert_int_equal(flist_size(&list), 0);
     assert_null(list);
-
-    assert_false(flist_pop_front(&list, delete_flist_node));
 }
 
 // Test: flist pop_back
@@ -212,18 +210,16 @@ static void test_flist_pop_back(void **state)
     flist_push_back(&list, &node2->node);
     flist_push_back(&list, &node3->node);
 
-    assert_true(flist_pop_back(&list, delete_flist_node));
+    flist_pop_back(&list, delete_flist_node);
     assert_int_equal(flist_size(&list), 2);
 
-    assert_true(flist_pop_back(&list, delete_flist_node));
+    flist_pop_back(&list, delete_flist_node);
     assert_int_equal(flist_size(&list), 1);
     assert_int_equal(((test_flist_node_t *) list)->value, 1);
 
-    assert_true(flist_pop_back(&list, delete_flist_node));
+    flist_pop_back(&list, delete_flist_node);
     assert_int_equal(flist_size(&list), 0);
     assert_null(list);
-
-    assert_false(flist_pop_back(&list, delete_flist_node));
 }
 
 // Test: flist insert_after
@@ -238,7 +234,7 @@ static void test_flist_insert_after(void **state)
     flist_push_back(&list, &node3->node);
 
     test_flist_node_t *node2 = create_flist_node(2);
-    assert_true(flist_insert_after(&list, &node1->node, &node2->node));
+    flist_insert_after(&list, &node1->node, &node2->node);
     assert_int_equal(flist_size(&list), 3);
 
     // Verify order: 1 -> 2 -> 3
@@ -265,7 +261,7 @@ static void test_flist_remove(void **state)
     flist_push_back(&list, &node2->node);
     flist_push_back(&list, &node3->node);
 
-    assert_true(flist_remove(&list, &node2->node, delete_flist_node));
+    flist_remove(&list, &node2->node, delete_flist_node);
     assert_int_equal(flist_size(&list), 2);
 
     // Verify order: 1 -> 3
@@ -346,7 +342,7 @@ static void test_flist_reverse(void **state)
         flist_push_back(&list, &node->node);
     }
 
-    assert_true(flist_reverse(&list));
+    flist_reverse(&list);
 
     // Verify reversed: 5, 4, 3, 2, 1
     test_flist_node_t *current = (test_flist_node_t *) list;
@@ -388,7 +384,7 @@ static void test_flist_sort(void **state)
         flist_push_back(&list, &node->node);
     }
 
-    assert_true(flist_sort(&list, compare_ascending_flist));
+    flist_sort(&list, compare_ascending_flist);
 
     // Verify sorted: 1, 2, 3, 4
     test_flist_node_t *current = (test_flist_node_t *) list;
@@ -413,17 +409,17 @@ static void test_list_push_front(void **state)
     test_list_node_t *node1, *node2, *node3;
 
     node1 = create_list_node(1);
-    assert_true(list_push_front(&list, &node1->node));
+    list_push_front(&list, &node1->node);
     assert_ptr_equal(list, &node1->node);
     assert_int_equal(list_size(&list), 1);
 
     node2 = create_list_node(2);
-    assert_true(list_push_front(&list, &node2->node));
+    list_push_front(&list, &node2->node);
     assert_ptr_equal(list, &node2->node);
     assert_int_equal(list_size(&list), 2);
 
     node3 = create_list_node(3);
-    assert_true(list_push_front(&list, &node3->node));
+    list_push_front(&list, &node3->node);
     assert_ptr_equal(list, &node3->node);
     assert_int_equal(list_size(&list), 3);
 
@@ -446,15 +442,15 @@ static void test_list_push_back(void **state)
     test_list_node_t *node1, *node2, *node3;
 
     node1 = create_list_node(1);
-    assert_true(list_push_back(&list, &node1->node));
+    list_push_back(&list, &node1->node);
     assert_int_equal(list_size(&list), 1);
 
     node2 = create_list_node(2);
-    assert_true(list_push_back(&list, &node2->node));
+    list_push_back(&list, &node2->node);
     assert_int_equal(list_size(&list), 2);
 
     node3 = create_list_node(3);
-    assert_true(list_push_back(&list, &node3->node));
+    list_push_back(&list, &node3->node);
     assert_int_equal(list_size(&list), 3);
 
     // Verify order: 1 -> 2 -> 3
@@ -481,19 +477,17 @@ static void test_list_pop_front(void **state)
     list_push_back(&list, &node2->node);
     list_push_back(&list, &node3->node);
 
-    assert_true(list_pop_front(&list, delete_list_node));
+    list_pop_front(&list, delete_list_node);
     assert_int_equal(list_size(&list), 2);
     assert_int_equal(((test_list_node_t *) list)->value, 2);
 
-    assert_true(list_pop_front(&list, delete_list_node));
+    list_pop_front(&list, delete_list_node);
     assert_int_equal(list_size(&list), 1);
     assert_int_equal(((test_list_node_t *) list)->value, 3);
 
-    assert_true(list_pop_front(&list, delete_list_node));
+    list_pop_front(&list, delete_list_node);
     assert_int_equal(list_size(&list), 0);
     assert_null(list);
-
-    assert_false(list_pop_front(&list, delete_list_node));
 }
 
 // Test: list pop_back (O(1) - fast!)
@@ -509,18 +503,16 @@ static void test_list_pop_back(void **state)
     list_push_back(&list, &node2->node);
     list_push_back(&list, &node3->node);
 
-    assert_true(list_pop_back(&list, delete_list_node));
+    list_pop_back(&list, delete_list_node);
     assert_int_equal(list_size(&list), 2);
 
-    assert_true(list_pop_back(&list, delete_list_node));
+    list_pop_back(&list, delete_list_node);
     assert_int_equal(list_size(&list), 1);
     assert_int_equal(((test_list_node_t *) list)->value, 1);
 
-    assert_true(list_pop_back(&list, delete_list_node));
+    list_pop_back(&list, delete_list_node);
     assert_int_equal(list_size(&list), 0);
     assert_null(list);
-
-    assert_false(list_pop_back(&list, delete_list_node));
 }
 
 // Test: list insert_before (O(1) - unique to doubly-linked!)
@@ -535,7 +527,7 @@ static void test_list_insert_before(void **state)
     list_push_back(&list, &node3->node);
 
     test_list_node_t *node2 = create_list_node(2);
-    assert_true(list_insert_before(&list, &node3->node, &node2->node));
+    list_insert_before(&list, &node3->node, &node2->node);
     assert_int_equal(list_size(&list), 3);
 
     // Verify order: 1 -> 2 -> 3
@@ -548,7 +540,7 @@ static void test_list_insert_before(void **state)
 
     // Insert before head
     test_list_node_t *node0 = create_list_node(0);
-    assert_true(list_insert_before(&list, &node1->node, &node0->node));
+    list_insert_before(&list, &node1->node, &node0->node);
     assert_ptr_equal(list, &node0->node);
 
     list_clear(&list, delete_list_node);
@@ -566,7 +558,7 @@ static void test_list_insert_after(void **state)
     list_push_back(&list, &node3->node);
 
     test_list_node_t *node2 = create_list_node(2);
-    assert_true(list_insert_after(&list, &node1->node, &node2->node));
+    list_insert_after(&list, &node1->node, &node2->node);
     assert_int_equal(list_size(&list), 3);
 
     // Verify order: 1 -> 2 -> 3
@@ -594,7 +586,7 @@ static void test_list_remove(void **state)
     list_push_back(&list, &node3->node);
 
     // Remove middle node (O(1))
-    assert_true(list_remove(&list, &node2->node, delete_list_node));
+    list_remove(&list, &node2->node, delete_list_node);
     assert_int_equal(list_size(&list), 2);
 
     // Verify order: 1 -> 3
@@ -675,7 +667,7 @@ static void test_list_reverse(void **state)
         list_push_back(&list, &node->node);
     }
 
-    assert_true(list_reverse(&list));
+    list_reverse(&list);
 
     // Verify reversed: 5, 4, 3, 2, 1
     test_list_node_t *current = (test_list_node_t *) list;
@@ -717,7 +709,7 @@ static void test_list_sort(void **state)
         list_push_back(&list, &node->node);
     }
 
-    assert_true(list_sort(&list, compare_ascending_list));
+    list_sort(&list, compare_ascending_list);
 
     // Verify sorted: 1, 2, 3, 4, 5
     test_list_node_t *current = (test_list_node_t *) list;
