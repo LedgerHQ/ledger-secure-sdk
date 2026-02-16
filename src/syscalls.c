@@ -1207,18 +1207,18 @@ bolos_err_t sys_hdkey_derive(HDKEY_derive_mode_t derivation_mode,
                              uint8_t            *seed,
                              size_t              seed_len)
 {
-    unsigned int parameters[10] = {0};
+    uint32_t parameters[10] = {0};
 
-    parameters[0] = (unsigned int) derivation_mode;
-    parameters[1] = (unsigned int) curve;
-    parameters[2] = (unsigned int) path;
-    parameters[3] = (unsigned int) path_len;
-    parameters[4] = (unsigned int) private_key;
-    parameters[5] = (unsigned int) private_key_len;
-    parameters[6] = (unsigned int) chain_code;
-    parameters[7] = (unsigned int) chain_code_len;
-    parameters[8] = (unsigned int) seed;
-    parameters[9] = (unsigned int) seed_len;
+    parameters[0] = derivation_mode;
+    parameters[1] = curve;
+    parameters[2] = (uintptr_t) path;
+    parameters[3] = path_len;
+    parameters[4] = (uintptr_t) private_key;
+    parameters[5] = private_key_len;
+    parameters[6] = (uintptr_t) chain_code;
+    parameters[7] = chain_code_len;
+    parameters[8] = (uintptr_t) seed;
+    parameters[9] = seed_len;
     return SVC_Call(SYSCALL_HDKEY_DERIVE_ID, parameters);
 }
 

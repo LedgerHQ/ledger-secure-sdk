@@ -53,13 +53,17 @@ typedef enum HDKEY_derive_mode_e {
  * @param[in] derivation_mode Derivation mode of type HDKEY_derive_mode_t. Application must have the
  * authorization to use that derivation mode.
  * @param[in] curve Curve required by the derivation algorithm.
- * @param[in] path Pointer to the derivation path buffer. Each index is a 32-bit value.
+ * @param[in] path Pointer to the derivation path buffer. Each index is a 32-bit value. path can be
+ * NULL
  * @param[in] path_len Path buffer length.
- * @param[out] private_key Pointer to the private key buffer of length private_key_len.
+ * @param[out] private_key Pointer to the private key buffer of length private_key_len. private_key
+ * must not be NULL.
  * @param[in] private_key_len Private key buffer length.
- * @param[out] chain_code Pointer to the chain code buffer of length chain_code_len.
+ * @param[out] chain_code Pointer to the chain code buffer of length chain_code_len. chain_code can
+ * be NULL.
  * @param[in] chain_code_len Chain code buffer length.
- * @param[in] seed (Optional) Pointer to a seed buffer used to expand the BIP39 seed.
+ * @param[in] seed (Optional) Pointer to a seed buffer used to expand the BIP39 seed. Seed can be
+ * NULL.
  * @param[in] seed_len Seed buffer length.
  * @return bolos_err_t
  * @retval 0x0000 Success
