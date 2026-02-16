@@ -23,5 +23,5 @@ var searchData=
   ['progressandback_20',['progressAndBack',['../structnbgl__layoutHeader__t.html#aeb6e6942235fc0e44f15b5adba2312ec',1,'nbgl_layoutHeader_t']]],
   ['progressindicator_21',['progressIndicator',['../structnbgl__pageMultiScreensDescription__s.html#ab5733fc8113f7ba5e9891cb97bf4a295',1,'nbgl_pageMultiScreensDescription_s']]],
   ['providermessage_22',['providerMessage',['../structnbgl__warning__t.html#a5762c212a9013f5aad2fc9ecbe2b5944',1,'nbgl_warning_t']]],
-  ['ptr_23',['ptr',['../structbuffer__t.html#a0477d73e0c041cc3cf557c4fdd091931',1,'buffer_t']]]
+  ['ptr_23',['ptr',['../structbuffer__t.html#a00fecdedd9fe55964767a35b33f78faf',1,'buffer_t']]]
 ];

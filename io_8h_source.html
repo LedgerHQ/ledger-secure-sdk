@@ -110,7 +110,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keywordtype">int</span> io_send_response_pointer(<span class="keyword">const</span> uint8_t *ptr, <span class="keywordtype">size_t</span> size, uint16_t sw)</div>
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>{</div>
 <div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    <span class="keywordflow">return</span> <a class="code hl_function" href="io_8h.html#abac4e0aba4ae7b7344e4788ee7c71d15">io_send_response_buffers</a>(</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>        &amp;(<span class="keyword">const</span> <a class="code hl_struct" href="structbuffer__t.html">buffer_t</a>){.ptr = ptr, .size = size, .offset = 0}, 1, sw);</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>        &amp;(<span class="keyword">const</span> <a class="code hl_struct" href="structbuffer__t.html">buffer_t</a>){.ptr = (uint8_t *) ptr, .size = size, .offset = 0}, 1, sw);</div>
 <div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>}</div>
 <div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span> </div>
 <div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keywordtype">int</span> io_send_response_buffer(<span class="keyword">const</span> <a class="code hl_struct" href="structbuffer__t.html">buffer_t</a> *rdata, uint16_t sw)</div>
@@ -131,7 +131,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="amacros_8h_html"><div class="ttname"><a href="macros_8h.html">macros.h</a></div></div>
 <div class="ttc" id="amacros_8h_html_ad1480e9557edcc543498ca259cee6c7d"><div class="ttname"><a href="macros_8h.html#ad1480e9557edcc543498ca259cee6c7d">WEAK</a></div><div class="ttdeci">#define WEAK</div><div class="ttdef"><b>Definition</b> <a href="macros_8h_source.html#l00008">macros.h:8</a></div></div>
 <div class="ttc" id="astructbagl__element__e_html"><div class="ttname"><a href="structbagl__element__e.html">bagl_element_e</a></div><div class="ttdef"><b>Definition</b> <a href="ux__bagl_8h_source.html#l00057">ux_bagl.h:57</a></div></div>
-<div class="ttc" id="astructbuffer__t_html"><div class="ttname"><a href="structbuffer__t.html">buffer_t</a></div><div class="ttdef"><b>Definition</b> <a href="buffer_8h_source.html#l00018">buffer.h:18</a></div></div>
+<div class="ttc" id="astructbuffer__t_html"><div class="ttname"><a href="structbuffer__t.html">buffer_t</a></div><div class="ttdef"><b>Definition</b> <a href="buffer_8h_source.html#l00020">buffer.h:20</a></div></div>
 <div class="ttc" id="aux__bagl_8h_html_a92a444d36e654eabcae8118f754599db"><div class="ttname"><a href="ux__bagl_8h.html#a92a444d36e654eabcae8118f754599db">io_seproxyhal_display</a></div><div class="ttdeci">void io_seproxyhal_display(const bagl_element_t *element)</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->

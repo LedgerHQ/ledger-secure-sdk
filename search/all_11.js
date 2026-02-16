@@ -78,5 +78,5 @@ var searchData=
   ['prop_5ferr_5funknown_5fcommand_75',['PROP_ERR_UNKNOWN_COMMAND',['../u2f__types_8h.html#aa5fe2089e82d28b6b26545d2e4f4df95a9c6535429a70fe2db24a549824ab24c1',1,'u2f_types.h']]],
   ['prop_5ferr_5funsupported_5fmsg_5fapdu_76',['PROP_ERR_UNSUPPORTED_MSG_APDU',['../u2f__types_8h.html#aa5fe2089e82d28b6b26545d2e4f4df95a001b11aec20bccdcaca1a05ada10ccdc',1,'u2f_types.h']]],
   ['providermessage_77',['providerMessage',['../structnbgl__warning__t.html#a5762c212a9013f5aad2fc9ecbe2b5944',1,'nbgl_warning_t']]],
-  ['ptr_78',['ptr',['../structbuffer__t.html#a0477d73e0c041cc3cf557c4fdd091931',1,'buffer_t']]]
+  ['ptr_78',['ptr',['../structbuffer__t.html#a00fecdedd9fe55964767a35b33f78faf',1,'buffer_t']]]
 ];
