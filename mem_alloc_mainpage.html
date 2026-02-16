@@ -112,7 +112,7 @@ Basic Allocation</h2>
 <div class="ttc" id="aapp__mem__utils_8h_html_ab5d9700e4ac2df6fe5f66f5c9f1ce7dd"><div class="ttname"><a href="app__mem__utils_8h.html#ab5d9700e4ac2df6fe5f66f5c9f1ce7dd">APP_MEM_FREE</a></div><div class="ttdeci">#define APP_MEM_FREE(ptr)</div><div class="ttdef"><b>Definition</b> <a href="app__mem__utils_8h_source.html#l00018">app_mem_utils.h:18</a></div></div>
 <div class="ttc" id="aapp__mem__utils_8h_html_ae210fa57ea4083aecaa59ace6246e394"><div class="ttname"><a href="app__mem__utils_8h.html#ae210fa57ea4083aecaa59ace6246e394">APP_MEM_ALLOC</a></div><div class="ttdeci">#define APP_MEM_ALLOC(size)</div><div class="ttdef"><b>Definition</b> <a href="app__mem__utils_8h_source.html#l00016">app_mem_utils.h:16</a></div></div>
 </div><!-- fragment --><h2><a class="anchor" id="mem_alloc_buffer_management"></a>
-Reallocation and Safe Cleanup</h2>
+Buffer Management</h2>
 <p>For buffers that need reallocation or safe cleanup, use <a class="el" href="app__mem__utils_8h.html#a1ff7399226317cce30d2333352fbd309">APP_MEM_CALLOC()</a> and <a class="el" href="app__mem__utils_8h.html#ac5d0d93fe88f024bb367c912591639e1">APP_MEM_FREE_AND_NULL()</a>. The allocated buffers are always zero-initialized. The cleanup function frees the buffer and sets the pointer to NULL to avoid dangling pointers.</p>
 <div class="fragment"><div class="line"><span class="keywordtype">void</span> *buffer = NULL;</div>
 <div class="line"> </div>
