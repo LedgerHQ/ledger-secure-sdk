@@ -16,7 +16,7 @@ enum task_unsecure_id_e {
     TASK_SUBTASKS_START,
     TASK_SUBTASK_0 = TASK_SUBTASKS_START,
 #ifdef TARGET_NANOX
-    TASK_SUBTASK_1,
+    TASK_SUBTASK_1,  // TODO: Remove
     TASK_SUBTASK_2,
     TASK_SUBTASK_3,
 #endif  // TARGET_NANOX
@@ -58,27 +58,3 @@ SUDOCALL TASKSWITCH void os_sched_switch(unsigned int task_idx, bolos_task_statu
  * Function that returns the currently running task identifier.
  */
 SUDOCALL unsigned int os_sched_current_task(void);
-
-/**
- * Create a new task with the given parameters and return its task identifier.
- * The newly created task is chrooted in the given nvram/ram1/ram2 segments
- * and its task pointer is set at the end of ram1 segment.
- * The task is bound to the currently running application.
- * The task identifiers are not guaranteed to be the same after a power cycle.
- * At least valid main, nvram segment, ram0 segment and stack segment must be provided with.
- * @param main The main function address to start the task with.
- * @param nvram The nvram segment address start
- * @param nvram_length The nvram segment length
- * @param ram0 /ram0_length the first RAM segment description
- * @param stack /stack_length the task's stack RAM segment description
- */
-SYSCALL unsigned int os_sched_create(void *main   PLENGTH(4),
-                                     void *nvram  PLENGTH(nvram_length),
-                                     unsigned int nvram_length,
-                                     void *ram0   PLENGTH(ram0_length),
-                                     unsigned int ram0_length,
-                                     void *stack  PLENGTH(stack_length),
-                                     unsigned int stack_length);
-
-// kill a task
-SYSCALL void os_sched_kill(unsigned int taskidx);
