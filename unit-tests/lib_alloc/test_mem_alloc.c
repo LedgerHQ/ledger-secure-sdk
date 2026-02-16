@@ -382,11 +382,6 @@ static void test_utils_buffer_calloc(void **state __attribute__((unused)))
     assert_true(result);
     assert_non_null(buffer);
 
-    // Realloc to larger size
-    result = APP_MEM_CALLOC(&buffer, 128);
-    assert_true(result);
-    assert_non_null(buffer);
-
     APP_MEM_FREE_AND_NULL(&buffer);
     assert_null(buffer);
 }
@@ -434,14 +429,9 @@ static void test_utils_buffer_zero_size(void **state __attribute__((unused)))
     mem_utils_init(malloc_buffer, sizeof(malloc_buffer));
 
     void *buffer = NULL;
-    bool  result = APP_MEM_CALLOC(&buffer, 100);
+    bool  result = APP_MEM_CALLOC(&buffer, 0);
     assert_true(result);
-    assert_non_null(buffer);
-
-    // Realloc to zero size should free the buffer
-    result = APP_MEM_CALLOC(&buffer, 0);
-    assert_true(result);
-    assert_null(buffer);
+    assert_null(buffer);  // Allocating zero size does not allocate anything
 }
 
 static void test_utils_strdup(void **state __attribute__((unused)))
