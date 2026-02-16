@@ -47,7 +47,7 @@ if (ptr != NULL) {
 }
 @endcode
 
-@subsection mem_alloc_buffer_management Reallocation and Safe Cleanup
+@subsection mem_alloc_buffer_management Buffer Management
 
 For buffers that need reallocation or safe cleanup, use @ref APP_MEM_CALLOC() and @ref APP_MEM_FREE_AND_NULL().
 The allocated buffers are always zero-initialized.
