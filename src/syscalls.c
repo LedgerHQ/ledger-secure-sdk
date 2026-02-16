@@ -1533,14 +1533,6 @@ void __attribute__((noreturn)) os_sched_exit(bolos_task_status_t exit_code)
     __builtin_unreachable();
 }
 
-bolos_bool_t os_sched_is_running(unsigned int task_idx)
-{
-    unsigned int parameters[2];
-    parameters[0] = (unsigned int) task_idx;
-    parameters[1] = 0;
-    return (bolos_bool_t) SVC_Call(SYSCALL_os_sched_is_running_ID, parameters);
-}
-
 int os_io_seph_tx(const unsigned char *buffer, unsigned short length, unsigned int *timeout_ms)
 {
     unsigned int parameters[3];
@@ -1650,31 +1642,6 @@ bolos_task_status_t os_sched_last_status(unsigned int task_idx)
     parameters[0] = (unsigned int) task_idx;
     parameters[1] = 0;
     return (bolos_task_status_t) SVC_Call(SYSCALL_os_sched_last_status_ID, parameters);
-}
-
-void os_sched_yield(bolos_task_status_t status)
-{
-    unsigned int parameters[2];
-    parameters[0] = (unsigned int) status;
-    parameters[1] = 0;
-    SVC_Call(SYSCALL_os_sched_yield_ID, parameters);
-    return;
-}
-
-void os_sched_switch(unsigned int task_idx, bolos_task_status_t status)
-{
-    unsigned int parameters[2];
-    parameters[0] = (unsigned int) task_idx;
-    parameters[1] = (unsigned int) status;
-    SVC_Call(SYSCALL_os_sched_switch_ID, parameters);
-    return;
-}
-
-unsigned int os_sched_current_task(void)
-{
-    unsigned int parameters[2];
-    parameters[1] = 0;
-    return (unsigned int) SVC_Call(SYSCALL_os_sched_current_task_ID, parameters);
 }
 
 unsigned int os_allow_protected_ram(void)

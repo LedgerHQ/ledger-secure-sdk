@@ -182,7 +182,7 @@
 #define SYSCALL_RESERVED_6_ID                              0x00000125
 #define SYSCALL_RESERVED_34_ID                             0x01000126
 #define SYSCALL_os_sched_exit_ID                           0x0100009a
-#define SYSCALL_os_sched_is_running_ID                     0x0100009b
+#define SYSCALL_RESERVED_36_ID                             0x0100009b
 #define SYSCALL_os_io_seph_tx_ID                           0x03000082
 #define SYSCALL_os_io_seph_se_rx_event_ID                  0x05000083
 #define SYSCALL_os_io_init_ID                              0x01000084
@@ -195,9 +195,9 @@
 #define SYSCALL_try_context_get_ID                         0x00000087
 #define SYSCALL_try_context_set_ID                         0x0100010b
 #define SYSCALL_os_sched_last_status_ID                    0x0100009c
-#define SYSCALL_os_sched_yield_ID                          0x0100009d
+#define SYSCALL_RESERVED_35_ID                             0x0100009d
 #define SYSCALL_os_sched_switch_ID                         0x0200009e
-#define SYSCALL_os_sched_current_task_ID                   0x0000008b
+#define SYSCALL_RESERVED_37_ID                             0x0000008b
 #define SYSCALL_os_allow_protected_flash_ID                0x0000008e
 #define SYSCALL_os_deny_protected_flash_ID                 0x00000091
 #define SYSCALL_os_allow_protected_ram_ID                  0x00000092
