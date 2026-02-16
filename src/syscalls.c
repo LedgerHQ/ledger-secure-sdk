@@ -1207,7 +1207,8 @@ bolos_err_t sys_hdkey_derive(HDKEY_derive_mode_t derivation_mode,
                              uint8_t            *seed,
                              size_t              seed_len)
 {
-    unsigned int parameters[10];
+    unsigned int parameters[10] = {0};
+
     parameters[0] = (unsigned int) derivation_mode;
     parameters[1] = (unsigned int) curve;
     parameters[2] = (unsigned int) path;
@@ -1218,7 +1219,7 @@ bolos_err_t sys_hdkey_derive(HDKEY_derive_mode_t derivation_mode,
     parameters[7] = (unsigned int) chain_code_len;
     parameters[8] = (unsigned int) seed;
     parameters[9] = (unsigned int) seed_len;
-    return SVC_Call(SYSCALL_HDKEY_derive_ID, parameters);
+    return SVC_Call(SYSCALL_HDKEY_DERIVE_ID, parameters);
 }
 
 bolos_err_t os_perso_get_master_key_identifier(uint8_t *identifier, size_t identifier_length)
