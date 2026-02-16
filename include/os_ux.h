@@ -97,8 +97,3 @@ SYSCALL void os_ux_set_status(unsigned int ux_id, unsigned int status);
 
 SYSCALL unsigned int os_ux_get_status(unsigned int ux_id);
 #endif  // HAVE_BLE
-
-SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_dashboard_mbx(uint32_t cmd, uint32_t param);
-SYSCALL PERMISSION(APPLICATION_FLAG_BOLOS_UX) void os_ux_set_global(uint8_t  param_type,
-                                                                    uint8_t *param,
-                                                                    size_t   param_len);
