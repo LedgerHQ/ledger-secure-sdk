@@ -108,7 +108,7 @@ typedef bool (*f_list_node_bin_pred)(const flist_node_t *a, const flist_node_t *
 /**
  * @brief Add a node at the beginning of the forward list
  * @param[in,out] list Pointer to the list head
- * @param[in] node Node to add (must have node->next == NULL)
+ * @param[in] node Node to add (must not already be part of a list)
  * @note If @p list or @p node is NULL, the function performs no action.
  * @note Time complexity: O(1)
  */
@@ -126,7 +126,7 @@ void flist_pop_front(flist_node_t **list, f_list_node_del del_func);
 /**
  * @brief Add a node at the end of the forward list
  * @param[in,out] list Pointer to the list head
- * @param[in] node Node to add (must have node->next == NULL)
+ * @param[in] node Node to add (must not already be part of a list)
  * @note If @p list or @p node is NULL, the function performs no action.
  * @note Time complexity: O(n)
  */
@@ -145,7 +145,7 @@ void flist_pop_back(flist_node_t **list, f_list_node_del del_func);
  * @brief Insert a node after a reference node in the forward list
  * @param[in,out] list Pointer to the list head
  * @param[in] ref Reference node (must be in list)
- * @param[in] node Node to insert (must have node->next == NULL)
+ * @param[in] node Node to insert (must not already be part of a list)
  * @note If @p ref or @p node is NULL, the function performs no action.
  * @note Time complexity: O(1)
  */
@@ -231,7 +231,7 @@ void flist_reverse(flist_node_t **list);
 /**
  * @brief Add a node at the beginning of the doubly-linked list
  * @param[in,out] list Pointer to the list head
- * @param[in] node Node to add (must have node->_list.next == NULL and node->prev == NULL)
+ * @param[in] node Node to add (must not already be part of a list)
  * @note If @p list or @p node is NULL, the function performs no action.
  * @note Time complexity: O(1)
  */
@@ -249,7 +249,7 @@ void list_pop_front(list_node_t **list, f_list_node_del del_func);
 /**
  * @brief Add a node at the end of the doubly-linked list
  * @param[in,out] list Pointer to the list head
- * @param[in] node Node to add (must have node->_list.next == NULL and node->prev == NULL)
+ * @param[in] node Node to add (must not already be part of a list)
  * @note If @p list or @p node is NULL, the function performs no action.
  * @note Time complexity: O(n)
  */
@@ -268,7 +268,7 @@ void list_pop_back(list_node_t **list, f_list_node_del del_func);
  * @brief Insert a node before a reference node in the doubly-linked list
  * @param[in,out] list Pointer to the list head
  * @param[in] ref Reference node (must be in list)
- * @param[in] node Node to insert (must have node->_list.next == NULL and node->prev == NULL)
+ * @param[in] node Node to insert (must not already be part of a list)
  * @note If @p list or @p ref or @p node is NULL, the function performs no action.
  * @note Time complexity: O(1)
  */
@@ -278,7 +278,7 @@ void list_insert_before(list_node_t **list, list_node_t *ref, list_node_t *node)
  * @brief Insert a node after a reference node in the doubly-linked list
  * @param[in,out] list Pointer to the list head
  * @param[in] ref Reference node (must be in list)
- * @param[in] node Node to insert (must have node->_list.next == NULL and node->prev == NULL)
+ * @param[in] node Node to insert (must not already be part of a list)
  * @note If @p ref or @p node is NULL, the function performs no action.
  * @note Time complexity: O(1)
  */
