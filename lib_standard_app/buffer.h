@@ -4,6 +4,8 @@
 #include <stddef.h>   // size_t
 #include <stdbool.h>  // bool
 
+#include "macros.h"
+
 /**
  * Enumeration for endianness.
  */
@@ -16,9 +18,9 @@ typedef enum {
  * Struct for buffer with size and offset.
  */
 typedef struct {
-    const uint8_t *ptr;     /// Pointer to byte buffer
-    size_t         size;    /// Size of byte buffer
-    size_t         offset;  /// Offset in byte buffer
+    uint8_t *ptr;     /// Pointer to byte buffer
+    size_t   size;    /// Size of byte buffer
+    size_t   offset;  /// Offset in byte buffer
 } buffer_t;
 
 /**
@@ -190,3 +192,152 @@ bool buffer_copy(const buffer_t *buffer, uint8_t *out, size_t out_len);
  *
  */
 bool buffer_move(buffer_t *buffer, uint8_t *out, size_t out_len);
+
+/**
+ * Returns the pointer to byte in the current position of the buffer.
+ *
+ * @param[in] buffer
+ *   Pointer to input buffer struct.
+ *
+ * @return the pointer to the current position.
+ *
+ */
+static inline uint8_t *buffer_get_cur(const buffer_t *buffer)
+{
+    return (uint8_t *) (buffer->ptr + buffer->offset);
+}
+
+/**
+ * Read 1 byte from buffer into uint8_t without advancing the current position in the buffer.
+ * Returns `true` on success, `false` if the buffer was empty; `value` is not changed in case of
+ * failure.
+ *
+ * @param[in]  buffer
+ *   Pointer to input buffer struct.
+ * @param[out]  value
+ *   Pointer to 8-bit unsigned integer read from buffer.
+ *
+ * @return true if success, false otherwise.
+ */
+bool buffer_peek(const buffer_t *buffer, uint8_t *value);
+
+/**
+ * Read 1 byte at position `n` from buffer into uint8_t without advancing the current position in
+ * the buffer. Returns `true` on success, `false` if the buffer is not large enough; `value` is not
+ * changed in case of failure.
+ *
+ * @param[in]  buffer
+ *   Pointer to input buffer struct.
+ * @param[in]  n
+ *   Index of the byte to read, where the immediate next byte has index 0.
+ * @param[out]  value
+ *   Pointer to 8-bit unsigned integer read from buffer.
+ *
+ * @return true if success, false otherwise.
+ */
+bool buffer_peek_n(const buffer_t *buffer, size_t n, uint8_t *value);
+
+/**
+ * Read n bytes from buffer, and stores them in out.
+ *
+ * @param[in,out]  buffer
+ *   Pointer to input buffer struct.
+ * @param[out]     out
+ *   Pointer to output buffer. It is the responsibility of the caller to make sure that the output
+ * buffer is at least n bytes long.
+ * @param[in]      n
+ *   Number of bytes to read from buffer.
+ *
+ * @return true if success, false otherwise.
+ *
+ */
+WEAK bool buffer_read_bytes(buffer_t *buffer, uint8_t *out, size_t n);
+
+/**
+ * Write a uint8_t into a buffer.
+ *
+ * @param[in,out]  buffer
+ *   Pointer to output buffer struct.
+ * @param[in]     value
+ *   Value to be written.
+ *
+ * @return true if success, false if not enough space left in the buffer.
+ *
+ */
+bool buffer_write_u8(buffer_t *buffer, uint8_t value);
+
+/**
+ * Write a uint16_t into the buffer as 2 bytes, with the given endianness.
+ *
+ * @param[in,out]  buffer
+ *   Pointer to output buffer struct.
+ * @param[in]     value
+ *   Value to be written.
+ * @param[in]      endianness
+ *   Either BE (Big Endian) or LE (Little Endian).
+ *
+ * @return true if success, false if not enough space left in the buffer.
+ *
+ */
+bool buffer_write_u16(buffer_t *buffer, uint16_t value, endianness_t endianness);
+
+/**
+ * Write a uint32_t into the buffer as 4 bytes, with the given endianness.
+ *
+ * @param[in,out]  buffer
+ *   Pointer to output buffer struct.
+ * @param[in]     value
+ *   Value to be written.
+ * @param[in]      endianness
+ *   Either BE (Big Endian) or LE (Little Endian).
+ *
+ * @return true if success, false if not enough space left in the buffer.
+ *
+ */
+bool buffer_write_u32(buffer_t *buffer, uint32_t value, endianness_t endianness);
+
+/**
+ * Write a uint64_t into the buffer as 8 bytes, with the given endianness.
+ *
+ * @param[in,out]  buffer
+ *   Pointer to output buffer struct.
+ * @param[in]     value
+ *   Value to be written.
+ * @param[in]      endianness
+ *   Either BE (Big Endian) or LE (Little Endian).
+ *
+ * @return true if success, false if not enough space left in the buffer.
+ *
+ */
+bool buffer_write_u64(buffer_t *buffer, uint64_t value, endianness_t endianness);
+
+/**
+ * Write a number of bytes to a buffer.
+ *
+ * @param[in,out]  buffer
+ *   Pointer to output buffer struct.
+ * @param[in]      data
+ *   Pointer to bytes to be written.
+ * @param[in]      n
+ *   Size of bytes to be written.
+ *
+ * @return true if success, false if not enough space left in the buffer.
+ *
+ */
+bool buffer_write_bytes(buffer_t *buffer, const uint8_t *data, size_t n);
+
+/**
+ * Creates a buffer pointing at ptr and with the given size; the initial offset is 0.
+ *
+ * @param[in]  ptr
+ *   Pointer to the buffer's data.
+ * @param[in]  size
+ *   Size of the buffer.
+ *
+ * @return the new buffer with the given pointer and size.
+ *
+ */
+static inline buffer_t buffer_create(void *ptr, size_t size)
+{
+    return (buffer_t){.ptr = ptr, .size = size, .offset = 0};
+}
