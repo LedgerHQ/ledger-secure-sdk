@@ -1541,34 +1541,6 @@ bolos_bool_t os_sched_is_running(unsigned int task_idx)
     return (bolos_bool_t) SVC_Call(SYSCALL_os_sched_is_running_ID, parameters);
 }
 
-unsigned int os_sched_create(void        *main,
-                             void        *nvram,
-                             unsigned int nvram_length,
-                             void        *ram0,
-                             unsigned int ram0_length,
-                             void        *stack,
-                             unsigned int stack_length)
-{
-    unsigned int parameters[7];
-    parameters[0] = (unsigned int) main;
-    parameters[1] = (unsigned int) nvram;
-    parameters[2] = (unsigned int) nvram_length;
-    parameters[3] = (unsigned int) ram0;
-    parameters[4] = (unsigned int) ram0_length;
-    parameters[5] = (unsigned int) stack;
-    parameters[6] = (unsigned int) stack_length;
-    return (unsigned int) SVC_Call(SYSCALL_os_sched_create_ID, parameters);
-}
-
-void os_sched_kill(unsigned int taskidx)
-{
-    unsigned int parameters[2];
-    parameters[0] = (unsigned int) taskidx;
-    parameters[1] = 0;
-    SVC_Call(SYSCALL_os_sched_kill_ID, parameters);
-    return;
-}
-
 int os_io_seph_tx(const unsigned char *buffer, unsigned short length, unsigned int *timeout_ms)
 {
     unsigned int parameters[3];

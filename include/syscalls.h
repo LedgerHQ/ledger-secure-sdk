@@ -183,8 +183,6 @@
 #define SYSCALL_RESERVED_34_ID                             0x01000126
 #define SYSCALL_os_sched_exit_ID                           0x0100009a
 #define SYSCALL_os_sched_is_running_ID                     0x0100009b
-#define SYSCALL_os_sched_create_ID                         0x0700011b
-#define SYSCALL_os_sched_kill_ID                           0x01000078
 #define SYSCALL_os_io_seph_tx_ID                           0x03000082
 #define SYSCALL_os_io_seph_se_rx_event_ID                  0x05000083
 #define SYSCALL_os_io_init_ID                              0x01000084
