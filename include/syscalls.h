@@ -195,7 +195,7 @@
 #define SYSCALL_try_context_get_ID                         0x00000087
 #define SYSCALL_try_context_set_ID                         0x0100010b
 #define SYSCALL_os_sched_last_status_ID                    0x0100009c
-#define SYSCALL_RESERVED_35_ID                             0x0100009d
+#define SYSCALL_RESERVED_38_ID                             0x0100009d
 #define SYSCALL_os_sched_switch_ID                         0x0200009e
 #define SYSCALL_RESERVED_37_ID                             0x0000008b
 #define SYSCALL_os_allow_protected_flash_ID                0x0000008e
