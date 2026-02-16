@@ -1,7 +1,7 @@
 var searchData=
 [
   ['radius_0',['radius',['../structnbgl__button__s.html#a7337da5fdcea64b75498c36975bdc954',1,'nbgl_button_s']]],
-  ['rambuffer_1',['ramBuffer',['../nbgl__side_8h.html#a6497152f43ae6756fbfcfddb5d9308f4',1,'nbgl_side.h']]],
+  ['rambuffer_1',['ramBuffer',['../nbgl__obj_8h.html#a6497152f43ae6756fbfcfddb5d9308f4',1,'nbgl_obj.h']]],
   ['real_5fheight_2',['real_height',['../structcharacter__info__t.html#a7096bc1a44d9ab8280bcfb9d719324ab',1,'character_info_t']]],
   ['real_5fy_5fmin_3',['real_y_min',['../structcharacter__info__t.html#a7c652a9e799f0db3da7c0e01f27c575c',1,'character_info_t']]],
   ['reportprovider_4',['reportProvider',['../structnbgl__warning__t.html#a9ce33a503a54b1f5e42c56bf85bb94cb',1,'nbgl_warning_t']]],

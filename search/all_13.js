@@ -10,7 +10,7 @@ var searchData=
   ['radius_5f40_5fpixels_7',['RADIUS_40_PIXELS',['../nbgl__types_8h.html#a2f721ef814c9914e8082f9329aeeda11afca18d1e73e02feb9daaa443e2c2142f',1,'nbgl_types.h']]],
   ['radius_5f44_5fpixels_8',['RADIUS_44_PIXELS',['../nbgl__types_8h.html#a2f721ef814c9914e8082f9329aeeda11a9f0fdc378598cbfb38913e22bce15220',1,'nbgl_types.h']]],
   ['radius_5fmax_9',['RADIUS_MAX',['../nbgl__types_8h.html#a2f721ef814c9914e8082f9329aeeda11a140e147c0c0ebdc8d4165005950dd960',1,'nbgl_types.h']]],
-  ['rambuffer_10',['ramBuffer',['../nbgl__side_8h.html#a6497152f43ae6756fbfcfddb5d9308f4',1,'nbgl_side.h']]],
+  ['rambuffer_10',['ramBuffer',['../nbgl__obj_8h.html#a6497152f43ae6756fbfcfddb5d9308f4',1,'nbgl_obj.h']]],
   ['read_2ec_11',['read.c',['../read_8c.html',1,'']]],
   ['read_2eh_12',['read.h',['../read_8h.html',1,'']]],
   ['read_5fu16_5fbe_13',['read_u16_be',['../read_8c.html#ad6e65e64cfa7e889806cb5ebaa49c661',1,'read_u16_be(const uint8_t *ptr, size_t offset):&#160;read.c'],['../read_8h.html#ad6e65e64cfa7e889806cb5ebaa49c661',1,'read_u16_be(const uint8_t *ptr, size_t offset):&#160;read.c']]],
