@@ -108,6 +108,9 @@ void mem_utils_free(void *ptr, const char *file, int line)
 {
     UNUSED(file);
     UNUSED(line);
+    if (ptr == NULL) {
+        return;
+    }
 #ifdef HAVE_MEMORY_PROFILING
     PRINTF(MP_LOG_PREFIX "free;0x%p;%s:%u\n", ptr, file, line);
 #endif
@@ -116,7 +119,6 @@ void mem_utils_free(void *ptr, const char *file, int line)
 
 /**
  * @brief Internal implementation of memory allocation of a zero-initialized buffer
- * freeing any existing allocation
  *
  * @param[out] buffer pointer to the buffer to allocate
  * @param[in] size (in bytes) to allocate
@@ -127,12 +129,6 @@ void mem_utils_free(void *ptr, const char *file, int line)
  */
 bool mem_utils_calloc(void **buffer, uint16_t size, bool permanent, const char *file, int line)
 {
-    // Check if the buffer is already allocated
-    if (*buffer != NULL) {
-        PRINTF("Buffer already allocated, freeing it before reallocating\n");
-        mem_utils_free(*buffer, file, line);
-        *buffer = NULL;
-    }
     if (size == 0) {
         // Nothing to allocate, but cleanup was done if needed
         PRINTF("Requested buffer size is zero\n");
