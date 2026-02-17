@@ -121,7 +121,7 @@ extern "C" {
     ((_warning->predefinedSet                                            \
       & ((1 << W3C_THREAT_DETECTED_WARN) | (1 << W3C_RISK_DETECTED_WARN) \
          | (1 << BLIND_SIGNING_WARN)))                                   \
-     || (_warning->introDetails != NULL))
+     || (_warning->info != NULL))
 
 /**********************
  *      MACROS
