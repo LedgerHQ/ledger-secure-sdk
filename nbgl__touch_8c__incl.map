@@ -1,0 +1,37 @@
+<map id="lib_nbgl/src/nbgl_touch.c" name="lib_nbgl/src/nbgl_touch.c">
+<area shape="rect" id="Node000001" title=" " alt="" coords="282,5,465,31"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,372,109,397"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="282,30,166,49,117,63,84,81,69,99,62,117,60,163,60,239,60,358,55,358,55,239,55,163,57,116,64,96,81,77,115,58,165,44,282,25"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="411,79,482,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="387,29,427,67,423,71,384,33"/>
+<area shape="rect" id="Node000004" href="$nbgl__obj_8h.html" title="API to draw all basic graphic objects." alt="" coords="271,152,361,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="373,32,350,105,332,141,328,139,346,103,368,30"/>
+<area shape="rect" id="Node000012" href="$nbgl__debug_8h.html" title="debug traces management" alt="" coords="507,79,616,104"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="404,28,519,71,517,76,403,33"/>
+<area shape="rect" id="Node000013" href="$nbgl__touch_8h.html" title=" " alt="" coords="95,79,201,104"/>
+<area shape="poly" id="edge14_Node000001_Node000013" title=" " alt="" coords="338,33,198,77,197,72,336,28"/>
+<area shape="rect" id="Node000014" href="$nbgl__screen_8h.html" title="API to manage screens." alt="" coords="224,79,336,104"/>
+<area shape="poly" id="edge17_Node000001_Node000014" title=" " alt="" coords="360,33,308,72,304,68,357,29"/>
+<area shape="rect" id="Node000015" title=" " alt="" coords="640,79,715,104"/>
+<area shape="poly" id="edge20_Node000001_Node000015" title=" " alt="" coords="423,28,627,76,626,81,422,33"/>
+<area shape="rect" id="Node000005" href="$nbgl__types_8h.html" title="common types for Graphical Library" alt="" coords="257,299,362,324"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="322,177,328,210,328,251,320,286,315,285,323,250,322,211,316,178"/>
+<area shape="rect" id="Node000010" href="$nbgl__fonts_8h.html" title=" " alt="" coords="389,225,491,251"/>
+<area shape="poly" id="edge10_Node000004_Node000010" title=" " alt="" coords="337,175,409,216,407,221,335,180"/>
+<area shape="rect" id="Node000011" title=" " alt="" coords="237,225,313,251"/>
+<area shape="poly" id="edge12_Node000004_Node000011" title=" " alt="" coords="311,179,291,215,286,212,307,176"/>
+<area shape="poly" id="edge8_Node000005_Node000002" title=" " alt="" coords="270,327,112,371,111,366,268,321"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="272,372,347,397"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="312,324,312,358,307,358,307,324"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="371,372,442,397"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="327,322,381,361,378,366,323,326"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="467,372,549,397"/>
+<area shape="poly" id="edge7_Node000005_Node000008" title=" " alt="" coords="342,322,463,365,462,370,340,327"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="133,372,248,397"/>
+<area shape="poly" id="edge9_Node000005_Node000009" title=" " alt="" coords="292,326,223,367,221,362,289,322"/>
+<area shape="poly" id="edge11_Node000010_Node000005" title=" " alt="" coords="420,253,344,294,341,290,418,248"/>
+<area shape="poly" id="edge16_Node000013_Node000004" title=" " alt="" coords="176,102,277,144,275,149,174,106"/>
+<area shape="poly" id="edge15_Node000013_Node000005" title=" " alt="" coords="153,104,171,170,189,211,214,249,240,273,270,290,267,295,237,277,210,252,184,214,166,172,148,105"/>
+<area shape="poly" id="edge19_Node000014_Node000004" title=" " alt="" coords="288,103,306,138,302,141,284,106"/>
+<area shape="poly" id="edge18_Node000014_Node000005" title=" " alt="" coords="272,106,252,133,232,169,220,210,221,230,228,249,246,273,271,290,268,294,243,277,223,252,216,231,215,209,227,167,247,130,268,103"/>
+</map>

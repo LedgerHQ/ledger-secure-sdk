@@ -1,0 +1,5 @@
+<map id="lib_nbgl/include/nbgl_side.h" name="lib_nbgl/include/nbgl_side.h">
+<area shape="rect" id="Node000001" title="Side screen low&#45;Level driver API, to draw elementary forms." alt="" coords="16,5,172,45"/>
+<area shape="rect" id="Node000002" href="$nbgl__draw_8c.html" title="Implementation of middle&#45;level API to draw rich forms like rounded rectangle." alt="" coords="5,93,183,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="97,59,97,93,91,93,91,59"/>
+</map>
