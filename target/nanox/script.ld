@@ -104,21 +104,15 @@ SECTIONS
 
   ASSERT( (_edata - _data) <= 0, ".data section must be empty" )
 
-  /* The .init_array is initialized with functions with the constructor
-   * attribute. Discard this section since there's no loader. */
-  /DISCARD/ : {
-    *(.init_array)
-  }
-
   .bss :
   {
     /**
      * Place RAM uninitialized variables
      */
-    _bss = .;
     __stack_chk_guard = .;
     PROVIDE(__stack_chk_guard = .);
     . += 4;
+    _bss = .;
     *(.bss*)
     _ebss = .;
 
@@ -138,6 +132,12 @@ SECTIONS
   } > SRAM
 
   ASSERT( (_estack - _stack) >= STACK_MIN_SIZE, "stack section too small" )
+
+  /* The .init_array is initialized with functions with the constructor
+   * attribute. Discard this section since there's no loader. */
+  /DISCARD/ : {
+    *(.init_array)
+  }
 
   /****************************************************************/
   /* DEBUG                                                        */

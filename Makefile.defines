@@ -47,7 +47,7 @@ log = $(if $(strip $(VERBOSE)),$1,@$1) # kept for retrocompat
 L = $(if $(strip $(VERBOSE)),,@)
 
 ifeq ($(CC),)
-CC        = clang
+CC        = clang-19
 endif
 
 SYSROOT = $(shell $(GCCPATH)arm-none-eabi-gcc -print-sysroot)
@@ -77,7 +77,7 @@ CFLAGS   += -std=gnu99
 
 CFLAGS   += -Wall -Wextra
 CFLAGS   += -Wno-main
-CFLAGS   += -Werror=int-to-pointer-cast
+CFLAGS   += -Werror=int-to-pointer-cast -Wno-implicit-function-declaration
 
 # Additional Clang warnings
 CFLAGS   += -Wno-error=int-conversion -Wimplicit-fallthrough
@@ -98,6 +98,10 @@ LDFLAGS  += -fno-common -ffunction-sections -fdata-sections -fwhole-program
 LDFLAGS  += -mno-unaligned-access
 LDFLAGS  += -Wl,--gc-sections -Wl,-Map,$(DBG_DIR)/app.map
 LDFLAGS  += -nostdlib -nodefaultlibs
+
+LDLIBS   += -Wl,--wrap=__stack_chk_fail -Wl,--wrap=__stack_chk_init
+AFLAGS   += -fstack-protector-strong
+CFLAGS   += -fstack-protector-strong
 
 ifeq ($(TARGET_NAME),TARGET_NANOX)
     CPU       = cortex-m3
