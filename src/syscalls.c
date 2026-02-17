@@ -33,6 +33,8 @@
 #include "os_endorsement.h"
 #include <string.h>
 
+#include "os_hdkey.h"
+
 unsigned int SVC_Call(unsigned int syscall_id, void *parameters);
 unsigned int SVC_cx_call(unsigned int syscall_id, unsigned int *parameters);
 
@@ -1192,6 +1194,32 @@ void os_perso_derive_eip2333(cx_curve_t          curve,
     parameters[3] = (unsigned int) privateKey;
     SVC_Call(SYSCALL_os_perso_derive_eip2333_ID, parameters);
     return;
+}
+
+bolos_err_t sys_hdkey_derive(HDKEY_derive_mode_t derivation_mode,
+                             cx_curve_t          curve,
+                             const uint32_t     *path,
+                             size_t              path_len,
+                             uint8_t            *private_key,
+                             size_t              private_key_len,
+                             uint8_t            *chain_code,
+                             size_t              chain_code_len,
+                             uint8_t            *seed,
+                             size_t              seed_len)
+{
+    uint32_t parameters[10] = {0};
+
+    parameters[0] = derivation_mode;
+    parameters[1] = curve;
+    parameters[2] = (uintptr_t) path;
+    parameters[3] = path_len;
+    parameters[4] = (uintptr_t) private_key;
+    parameters[5] = private_key_len;
+    parameters[6] = (uintptr_t) chain_code;
+    parameters[7] = chain_code_len;
+    parameters[8] = (uintptr_t) seed;
+    parameters[9] = seed_len;
+    return SVC_Call(SYSCALL_HDKEY_DERIVE_ID, parameters);
 }
 
 bolos_err_t os_perso_get_master_key_identifier(uint8_t *identifier, size_t identifier_length)
