@@ -57,7 +57,7 @@ mkdir -p "${BUILD}" "${INSTALL}"
 cd "${BUILD}"
 
 CC_FOR_TARGET="clang" \
-CFLAGS_FOR_TARGET="--target=arm-none-eabi -ffunction-sections -fdata-sections -DPREFER_SIZE_OVER_SPEED -mcpu=${TARGET_CPU} -mthumb -mlittle-endian -fropi -frwpi -fshort-enums -fshort-wchar " \
+CFLAGS_FOR_TARGET="--target=arm-none-eabi -ffunction-sections -fdata-sections -fshort-wchar -DPREFER_SIZE_OVER_SPEED -mcpu=${TARGET_CPU} -mthumb -mlittle-endian -fropi -frwpi" \
     ../configure  \
     `# Setup` \
     --host=x86_64-linux-gnu `# Host` \

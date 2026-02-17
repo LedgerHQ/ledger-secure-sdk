@@ -88,14 +88,14 @@ ifneq ($(ENABLE_SDK_WERROR),0)
     CFLAGS   += -Werror
 endif
 
-CFLAGS   += -fdata-sections -ffunction-sections -funsigned-char -fshort-enums
+CFLAGS   += -fdata-sections -ffunction-sections -funsigned-char -fshort-enums -fstack-usage
 CFLAGS   += -mno-unaligned-access
 CFLAGS   += -fropi
 CFLAGS   += -fno-jump-tables # avoid jump tables for switch to avoid problems with invalid PIC access
 
 LDFLAGS  += -Wall
-LDFLAGS  += -fno-common -ffunction-sections -fdata-sections -fwhole-program -fuse-ld=lld-21
-LDFLAGS  += -mno-unaligned-access 
+LDFLAGS  += -fno-common -ffunction-sections -fdata-sections -fwhole-program -fuse-ld=lld
+LDFLAGS  += -mno-unaligned-access
 LDFLAGS  += -Wl,--gc-sections -Wl,-Map,$(DBG_DIR)/app.map
 LDFLAGS  += -nostdlib -nodefaultlibs
 
