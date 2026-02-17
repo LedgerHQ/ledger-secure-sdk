@@ -9,7 +9,23 @@ on:
         default: ''
   pull_request:
 
+# NOTE : changes made to this file in the context of  this PR will be reverted
+#        these are just for the sake of testing the PR
+
 jobs:
+  build-docker:
+    name: Build ledger-app-builder-lite
+    uses: LedgerHQ/ledger-app-workflows/.github/workflows/reusable_docker_deployment.yml@v1
+    with:
+      app_repository: LedgerHQ/ledger-app-builder
+      app_ref: mbr/clang-21
+      image_name: ledger-app-builder-lite
+      dockerfile_path: lite/Dockerfile
+      dry_run: true
+      outputs: "type=docker,dest=/tmp/ledger-app-builder-lite.tar"
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
+
   prepare-matrix:
     name: Retrieve C apps
     runs-on: ubuntu-latest
@@ -40,14 +56,12 @@ jobs:
 
   test-build:
     name: Build for all targets
-    needs: [prepare-matrix]
+    needs: [prepare-matrix, build-docker]
     strategy:
       fail-fast: false
       matrix:
         apps: ${{ fromJSON(needs.prepare-matrix.outputs.c_apps) }}
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
 
     steps:
       - name: Clone App
@@ -62,41 +76,63 @@ jobs:
           path: sdk
           ref: ${{ inputs.sdk_branch }}
 
-      - name: Install prerequisites
-        run: pip install --break-system-packages ledgered
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ledger-app-builder-lite
+          path: /tmp
+
+      - name: Load Docker image and start build container
+        run: |
+          LOADED_IMAGE=$(docker load -i /tmp/ledger-app-builder-lite.tar | grep "Loaded image" | head -1 | awk '{print $NF}')
+          docker run -d --name builder -v $GITHUB_WORKSPACE:/workspace "$LOADED_IMAGE" sleep infinity
+          docker exec builder pip install --break-system-packages ledgered
 
       - name: Build App for Nano X
         if: contains(matrix.apps.devices, 'nanox')
         run: |
-          cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
-          echo "Building for Nano X"
-          make clean
-          make TARGET=nanox BOLOS_SDK=$GITHUB_WORKSPACE/sdk
+          docker exec builder bash -c "
+            cd /workspace/${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }} &&
+            echo 'Building for Nano X' &&
+            make clean &&
+            make TARGET=nanox BOLOS_SDK=/workspace/sdk
+          "
       - name: Build App for Nano S+
         if: contains(matrix.apps.devices, 'nanos+')
         run: |
-          cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
-          echo "Building for Nano S+"
-          make clean
-          make TARGET=nanos2 BOLOS_SDK=$GITHUB_WORKSPACE/sdk
+          docker exec builder bash -c "
+            cd /workspace/${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }} &&
+            echo 'Building for Nano S+' &&
+            make clean &&
+            make TARGET=nanos2 BOLOS_SDK=/workspace/sdk
+          "
       - name: Build App for Stax
         if: contains(matrix.apps.devices, 'stax')
         run: |
-          cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
-          echo "Building for Stax"
-          make clean
-          make TARGET=stax BOLOS_SDK=$GITHUB_WORKSPACE/sdk
+          docker exec builder bash -c "
+            cd /workspace/${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }} &&
+            echo 'Building for Stax' &&
+            make clean &&
+            make TARGET=stax BOLOS_SDK=/workspace/sdk
+          "
       - name: Build App for Flex
         if: contains(matrix.apps.devices, 'flex')
         run: |
-          cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
-          echo "Building for Flex"
-          make clean
-          make TARGET=flex BOLOS_SDK=$GITHUB_WORKSPACE/sdk
+          docker exec builder bash -c "
+            cd /workspace/${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }} &&
+            echo 'Building for Flex' &&
+            make clean &&
+            make TARGET=flex BOLOS_SDK=/workspace/sdk
+          "
       - name: Build App for Apex+
         if: contains(matrix.apps.devices, 'apex_p')
         run: |
-          cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
-          echo "Building for Apex+"
-          make clean
-          make TARGET=apex_p BOLOS_SDK=$GITHUB_WORKSPACE/sdk
+          docker exec builder bash -c "
+            cd /workspace/${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }} &&
+            echo 'Building for Apex+' &&
+            make clean &&
+            make TARGET=apex_p BOLOS_SDK=/workspace/sdk
+          "
+      - name: Cleanup
+        if: always()
+        run: docker rm -f builder || true
