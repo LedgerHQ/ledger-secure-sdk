@@ -95,7 +95,7 @@ CFLAGS   += -fno-jump-tables # avoid jump tables for switch to avoid problems wi
 
 LDFLAGS  += -Wall
 LDFLAGS  += -fno-common -ffunction-sections -fdata-sections -fwhole-program -fuse-ld=lld-21
-LDFLAGS  += -mno-unaligned-access 
+LDFLAGS  += -mno-unaligned-access
 LDFLAGS  += -Wl,--gc-sections -Wl,-Map,$(DBG_DIR)/app.map
 LDFLAGS  += -nostdlib -nodefaultlibs
 
