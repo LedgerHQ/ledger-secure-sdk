@@ -1976,8 +1976,17 @@ static void displayWarningStep(void)
 static void displayInitialWarning(void)
 {
     // draw the main warning page
-    reviewWithWarnCtx.warningPage      = 0;
-    reviewWithWarnCtx.nbWarningPages   = 2;
+    reviewWithWarnCtx.warningPage = 0;
+    if ((reviewWithWarnCtx.warning->predefinedSet & (1 << BLIND_SIGNING_WARN))
+        || ((reviewWithWarnCtx.warning->introDetails)
+            && (reviewWithWarnCtx.warning->introDetails->type == CENTERED_INFO_WARNING))) {
+        reviewWithWarnCtx.nbWarningPages = 2;
+    }
+    else {
+        // if no intro details and not Blind Signing warning, only one page
+        reviewWithWarnCtx.nbWarningPages = 1;
+    }
+
     reviewWithWarnCtx.firstWarningPage = 0;
     displayWarningStep();
 }
@@ -1986,8 +1995,16 @@ static void displayInitialWarning(void)
 static void displayPrelude(void)
 {
     // draw the main warning page
-    reviewWithWarnCtx.warningPage      = 0;
-    reviewWithWarnCtx.nbWarningPages   = 3;
+    reviewWithWarnCtx.warningPage = 0;
+    if ((reviewWithWarnCtx.warning->predefinedSet & (1 << BLIND_SIGNING_WARN))
+        || ((reviewWithWarnCtx.warning->introDetails)
+            && (reviewWithWarnCtx.warning->introDetails->type == CENTERED_INFO_WARNING))) {
+        reviewWithWarnCtx.nbWarningPages = 3;
+    }
+    else {
+        // if no intro details and not Blind Signing warning, only 2 pages
+        reviewWithWarnCtx.nbWarningPages = 2;
+    }
     reviewWithWarnCtx.firstWarningPage = 1;
     displayWarningStep();
 }
@@ -2338,7 +2355,7 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
 
     // if no warning at all, it's a simple review
     if ((warning == NULL)
-        || ((warning->predefinedSet == 0) && (warning->introDetails == NULL)
+        || ((warning->predefinedSet == 0) && (warning->info == NULL)
             && (warning->reviewDetails == NULL) && (warning->prelude == NULL))) {
         useCaseReview(type,
                       operationType,
@@ -2698,7 +2715,7 @@ void nbgl_useCaseAdvancedReviewStreamingStart(nbgl_operationType_t       operati
 
     // if no warning at all, it's a simple review
     if ((warning == NULL)
-        || ((warning->predefinedSet == 0) && (warning->introDetails == NULL)
+        || ((warning->predefinedSet == 0) && (warning->info == NULL)
             && (warning->reviewDetails == NULL) && (warning->prelude == NULL))) {
         displayStreamingReviewPage(FORWARD_DIRECTION);
         return;
