@@ -72,8 +72,8 @@ cmake ../compiler-rt/lib/builtins \
      -DCOMPILER_RT_DEFAULT_TARGET_ONLY=ON \
      -DLLVM_CMAKE_DIR="/usr/lib/llvm-21/lib/cmake/llvm" \
      -DCOMPILER_RT_HAS_FPIC_FLAG=OFF \
-     -DCMAKE_C_FLAGS="-mcpu=${TARGET_CPU} -mlittle-endian -mthumb -Oz -g0 -fropi -frwpi -fshort-wchar -fshort-enums -ffixed-r9 -mno-movt -isystem ${SYSROOT}/include" \
-     -DCMAKE_ASM_FLAGS="-mcpu=${TARGET_CPU} -mlittle-endian -mthumb -fropi -frwpi -fshort-wchar -fshort-enums -ffixed-r9 -mno-movt " \
+     -DCMAKE_C_FLAGS="-mcpu=${TARGET_CPU} -mlittle-endian -mthumb -Oz -g0 -fropi -frwpi -isystem ${SYSROOT}/include" \
+     -DCMAKE_ASM_FLAGS="-mcpu=${TARGET_CPU} -mlittle-endian -mthumb" \
      -DCMAKE_SYSROOT="$SYSROOT"
 
 make -j
