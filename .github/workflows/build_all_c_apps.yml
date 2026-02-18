@@ -365,7 +365,7 @@ jobs:
               echo "N/A"
               return
             fi
-            arm-none-eabi-size "$file" | tail -n1 | awk '{printf "%d", $1+$2}'
+            arm-none-eabi-size "$file" 2>/dev/null | tail -n1 | awk '{printf "%d", $1+$2}'
           }
           
           # Function to get section sizes
@@ -375,12 +375,19 @@ jobs:
               echo "N/A|N/A|N/A|N/A"
               return
             fi
-            arm-none-eabi-size -A "$file" | awk '
-              /\.text/ {text=$2}
-              /\.data/ {data=$2}
-              /\.bss/ {bss=$2}
-              /\.rodata/ {rodata=$2}
-              END {printf "%s|%s|%s|%s", text, data, bss, rodata}
+            arm-none-eabi-size -A "$file" 2>/dev/null | awk '
+              BEGIN {text=0; data=0; bss=0; rodata=0}
+              /^\.text/ {text=$2}
+              /^\.data/ {data=$2}
+              /^\.bss/ {bss=$2}
+              /^\.rodata/ {rodata=$2}
+              END {
+                printf "%s|%s|%s|%s", 
+                  (text ? text : "0"), 
+                  (data ? data : "0"), 
+                  (bss ? bss : "0"), 
+                  (rodata ? rodata : "0")
+              }
             '
           }
           
@@ -391,8 +398,12 @@ jobs:
               echo "N/A"
               return
             fi
-            # Extract total size from map file
-            grep -E "^\s+\.(text|data|rodata|bss)" "$file" | awk '{sum+=$2} END {printf "%d", sum}'
+            # Try to get the total from different map file formats
+            local total=$(grep -E "^\s*\.(text|data|rodata|bss)" "$file" 2>/dev/null | awk '{sum+=$2} END {print sum}')
+            if [ -z "$total" ] || [ "$total" = "0" ]; then
+              total=$(grep "ROM_SIZE" "$file" 2>/dev/null | awk '{print $NF}')
+            fi
+            echo "${total:-N/A}"
           }
           
           # Create comparison table header
@@ -400,7 +411,7 @@ jobs:
           echo "|-----------|--------|-------------|-------|-------|------|---------|-----------|" >> $GITHUB_STEP_SUMMARY
           
           # Process each device
-          for device_key in nanox nanosp stax flex apex_p; do
+          for device_key in flex stax nanosp nanox apex_p; do
             # Check if device is in the app's supported devices
             if [[ "$DEVICES" == *"$device_key"* ]] || [[ "$device_key" == "nanosp" && "$DEVICES" == *"nanos+"* ]]; then
               
@@ -417,6 +428,11 @@ jobs:
                 flex) DEVICE_NAME="Flex" ;;
                 apex_p) DEVICE_NAME="Apex+" ;;
               esac
+              
+              # Skip if neither file exists
+              if [ ! -f "$OFFICIAL_ELF" ] && [ ! -f "$CUSTOM_ELF" ]; then
+                continue
+              fi
               
               # Official build (clang-14)
               if [ -f "$OFFICIAL_ELF" ]; then
@@ -444,11 +460,17 @@ jobs:
                   DIFF=$((SIZE_CUST - SIZE_OFF))
                   if [ $DIFF -gt 0 ]; then
                     DIFF_STR="+$DIFF"
-                  else
+                  elif [ $DIFF -lt 0 ]; then
                     DIFF_STR="$DIFF"
+                  else
+                    DIFF_STR="0"
                   fi
-                  PERCENT=$(awk "BEGIN {printf \"%.2f\", ($DIFF / $SIZE_OFF) * 100}")
-                  echo "| _Δ_ | | $DIFF_STR ($PERCENT%) | | | | | |" >> $GITHUB_STEP_SUMMARY
+                  if [ $SIZE_OFF -ne 0 ]; then
+                    PERCENT=$(awk "BEGIN {printf \"%.2f\", ($DIFF / $SIZE_OFF) * 100}")
+                    echo "| _Δ_ | | $DIFF_STR ($PERCENT%) | | | | | |" >> $GITHUB_STEP_SUMMARY
+                  else
+                    echo "| _Δ_ | | $DIFF_STR | | | | | |" >> $GITHUB_STEP_SUMMARY
+                  fi
                 fi
               fi
               
