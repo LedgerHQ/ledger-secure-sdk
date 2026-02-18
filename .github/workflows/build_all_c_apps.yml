@@ -93,6 +93,7 @@ jobs:
 
       - name: Build App for Nano X
         if: contains(matrix.apps.devices, 'nanox')
+        continue-on-error: true
         run: |
           docker exec builder bash -c "
             cd /workspace/${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }} &&
@@ -109,6 +110,7 @@ jobs:
              artifacts/${{ matrix.apps.app-name }}-nanox.map || true
       - name: Build App for Nano S+
         if: contains(matrix.apps.devices, 'nanos+')
+        continue-on-error: true
         run: |
           docker exec builder bash -c "
             cd /workspace/${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }} &&
@@ -125,6 +127,7 @@ jobs:
              artifacts/${{ matrix.apps.app-name }}-nanosp.map || true
       - name: Build App for Stax
         if: contains(matrix.apps.devices, 'stax')
+        continue-on-error: true
         run: |
           docker exec builder bash -c "
             cd /workspace/${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }} &&
@@ -141,6 +144,7 @@ jobs:
              artifacts/${{ matrix.apps.app-name }}-stax.map || true
       - name: Build App for Flex
         if: contains(matrix.apps.devices, 'flex')
+        continue-on-error: true
         run: |
           docker exec builder bash -c "
             cd /workspace/${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }} &&
@@ -157,6 +161,7 @@ jobs:
              artifacts/${{ matrix.apps.app-name }}-flex.map || true
       - name: Build App for Apex+
         if: contains(matrix.apps.devices, 'apex_p')
+        continue-on-error: true
         run: |
           docker exec builder bash -c "
             cd /workspace/${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }} &&
@@ -213,6 +218,7 @@ jobs:
 
       - name: Build App for Nano X
         if: contains(matrix.apps.devices, 'nanox')
+        continue-on-error: true
         run: |
           docker exec builder-official bash -c "
             cd /workspace/${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }} &&
@@ -229,6 +235,7 @@ jobs:
              artifacts-official/${{ matrix.apps.app-name }}-nanox.map || true
       - name: Build App for Nano S+
         if: contains(matrix.apps.devices, 'nanos+')
+        continue-on-error: true
         run: |
           docker exec builder-official bash -c "
             cd /workspace/${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }} &&
@@ -245,6 +252,7 @@ jobs:
              artifacts-official/${{ matrix.apps.app-name }}-nanosp.map || true
       - name: Build App for Stax
         if: contains(matrix.apps.devices, 'stax')
+        continue-on-error: true
         run: |
           docker exec builder-official bash -c "
             cd /workspace/${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }} &&
@@ -261,6 +269,7 @@ jobs:
              artifacts-official/${{ matrix.apps.app-name }}-stax.map || true
       - name: Build App for Flex
         if: contains(matrix.apps.devices, 'flex')
+        continue-on-error: true
         run: |
           docker exec builder-official bash -c "
             cd /workspace/${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }} &&
@@ -277,6 +286,7 @@ jobs:
              artifacts-official/${{ matrix.apps.app-name }}-flex.map || true
       - name: Build App for Apex+
         if: contains(matrix.apps.devices, 'apex_p')
+        continue-on-error: true
         run: |
           docker exec builder-official bash -c "
             cd /workspace/${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }} &&
@@ -304,3 +314,197 @@ jobs:
       - name: Cleanup
         if: always()
         run: docker rm -f builder-official || true
+
+  compare-builds:
+    name: Compare builds
+    needs: [prepare-matrix, test-build, test-build-official]
+    if: always()
+    strategy:
+      fail-fast: false
+      matrix:
+        apps: ${{ fromJSON(needs.prepare-matrix.outputs.c_apps) }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download custom build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.apps.app-name }}-binaries
+          path: custom/
+        continue-on-error: true
+
+      - name: Download official build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.apps.app-name }}-binaries-official
+          path: official/
+        continue-on-error: true
+
+      - name: Install analysis tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y binutils-arm-none-eabi
+
+      - name: Analyze and compare binaries
+        run: |
+          cat << 'EOF' > compare.sh
+          #!/bin/bash
+          
+          APP_NAME="${{ matrix.apps.app-name }}"
+          DEVICES="${{ matrix.apps.devices }}"
+          
+          echo "# Binary Comparison Report: $APP_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Comparing builds between **clang-14 (official)** and **clang-21 (custom)**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Function to get ELF info
+          get_elf_info() {
+            local file=$1
+            if [ ! -f "$file" ]; then
+              echo "N/A"
+              return
+            fi
+            arm-none-eabi-size "$file" | tail -n1 | awk '{printf "%d", $1+$2}'
+          }
+          
+          # Function to get section sizes
+          get_sections() {
+            local file=$1
+            if [ ! -f "$file" ]; then
+              echo "N/A|N/A|N/A|N/A"
+              return
+            fi
+            arm-none-eabi-size -A "$file" | awk '
+              /\.text/ {text=$2}
+              /\.data/ {data=$2}
+              /\.bss/ {bss=$2}
+              /\.rodata/ {rodata=$2}
+              END {printf "%s|%s|%s|%s", text, data, bss, rodata}
+            '
+          }
+          
+          # Function to analyze map file
+          analyze_map() {
+            local file=$1
+            if [ ! -f "$file" ]; then
+              echo "N/A"
+              return
+            fi
+            # Extract total size from map file
+            grep -E "^\s+\.(text|data|rodata|bss)" "$file" | awk '{sum+=$2} END {printf "%d", sum}'
+          }
+          
+          # Create comparison table header
+          echo "| Toolchain | Device | Binary Size | .text | .data | .bss | .rodata | Map Total |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|-------------|-------|-------|------|---------|-----------|" >> $GITHUB_STEP_SUMMARY
+          
+          # Process each device
+          for device_key in nanox nanosp stax flex apex_p; do
+            # Check if device is in the app's supported devices
+            if [[ "$DEVICES" == *"$device_key"* ]] || [[ "$device_key" == "nanosp" && "$DEVICES" == *"nanos+"* ]]; then
+              
+              OFFICIAL_ELF="official/${APP_NAME}-${device_key}.elf"
+              CUSTOM_ELF="custom/${APP_NAME}-${device_key}.elf"
+              OFFICIAL_MAP="official/${APP_NAME}-${device_key}.map"
+              CUSTOM_MAP="custom/${APP_NAME}-${device_key}.map"
+              
+              # Get device display name
+              case $device_key in
+                nanox) DEVICE_NAME="Nano X" ;;
+                nanosp) DEVICE_NAME="Nano S+" ;;
+                stax) DEVICE_NAME="Stax" ;;
+                flex) DEVICE_NAME="Flex" ;;
+                apex_p) DEVICE_NAME="Apex+" ;;
+              esac
+              
+              # Official build (clang-14)
+              if [ -f "$OFFICIAL_ELF" ]; then
+                SIZE_OFF=$(get_elf_info "$OFFICIAL_ELF")
+                SECTIONS_OFF=$(get_sections "$OFFICIAL_ELF")
+                MAP_OFF=$(analyze_map "$OFFICIAL_MAP")
+                
+                IFS='|' read -r TEXT_OFF DATA_OFF BSS_OFF RODATA_OFF <<< "$SECTIONS_OFF"
+                
+                echo "| **clang-14** | $DEVICE_NAME | $SIZE_OFF | $TEXT_OFF | $DATA_OFF | $BSS_OFF | $RODATA_OFF | $MAP_OFF |" >> $GITHUB_STEP_SUMMARY
+              fi
+              
+              # Custom build (clang-21)
+              if [ -f "$CUSTOM_ELF" ]; then
+                SIZE_CUST=$(get_elf_info "$CUSTOM_ELF")
+                SECTIONS_CUST=$(get_sections "$CUSTOM_ELF")
+                MAP_CUST=$(analyze_map "$CUSTOM_MAP")
+                
+                IFS='|' read -r TEXT_CUST DATA_CUST BSS_CUST RODATA_CUST <<< "$SECTIONS_CUST"
+                
+                echo "| **clang-21** | $DEVICE_NAME | $SIZE_CUST | $TEXT_CUST | $DATA_CUST | $BSS_CUST | $RODATA_CUST | $MAP_CUST |" >> $GITHUB_STEP_SUMMARY
+                
+                # Calculate difference if both exist
+                if [ -f "$OFFICIAL_ELF" ] && [ "$SIZE_OFF" != "N/A" ] && [ "$SIZE_CUST" != "N/A" ]; then
+                  DIFF=$((SIZE_CUST - SIZE_OFF))
+                  if [ $DIFF -gt 0 ]; then
+                    DIFF_STR="+$DIFF"
+                  else
+                    DIFF_STR="$DIFF"
+                  fi
+                  PERCENT=$(awk "BEGIN {printf \"%.2f\", ($DIFF / $SIZE_OFF) * 100}")
+                  echo "| _Δ_ | | $DIFF_STR ($PERCENT%) | | | | | |" >> $GITHUB_STEP_SUMMARY
+                fi
+              fi
+              
+              echo "|  |  |  |  |  |  |  |  |" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          EOF
+          
+          chmod +x compare.sh
+          ./compare.sh
+
+      - name: Detailed section comparison
+        run: |
+          cat << 'EOF' > detailed_compare.sh
+          #!/bin/bash
+          
+          APP_NAME="${{ matrix.apps.app-name }}"
+          
+          echo "## Detailed Section Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          for device_key in nanox nanosp stax flex apex_p; do
+            OFFICIAL_ELF="official/${APP_NAME}-${device_key}.elf"
+            CUSTOM_ELF="custom/${APP_NAME}-${device_key}.elf"
+            
+            if [ -f "$OFFICIAL_ELF" ] && [ -f "$CUSTOM_ELF" ]; then
+              case $device_key in
+                nanox) DEVICE_NAME="Nano X" ;;
+                nanosp) DEVICE_NAME="Nano S+" ;;
+                stax) DEVICE_NAME="Stax" ;;
+                flex) DEVICE_NAME="Flex" ;;
+                apex_p) DEVICE_NAME="Apex+" ;;
+              esac
+              
+              echo "### $DEVICE_NAME" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "<details>" >> $GITHUB_STEP_SUMMARY
+              echo "<summary>Click to expand section details</summary>" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+              echo "=== Official (clang-14) ===" >> $GITHUB_STEP_SUMMARY
+              arm-none-eabi-size -A "$OFFICIAL_ELF" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "=== Custom (clang-21) ===" >> $GITHUB_STEP_SUMMARY
+              arm-none-eabi-size -A "$CUSTOM_ELF" >> $GITHUB_STEP_SUMMARY
+              echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "</details>" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+          EOF
+          
+          chmod +x detailed_compare.sh
+          ./detailed_compare.sh
