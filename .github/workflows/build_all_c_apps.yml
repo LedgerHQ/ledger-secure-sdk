@@ -347,9 +347,6 @@ jobs:
 
       - name: Analyze and compare binaries
         run: |
-          cat << 'EOF' > compare.sh
-          #!/bin/bash
-          
           APP_NAME="${{ matrix.apps.app-name }}"
           DEVICES="${{ matrix.apps.devices }}"
           
@@ -358,57 +355,17 @@ jobs:
           echo "Comparing builds between **clang-14 (official)** and **clang-21 (custom)**" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          # Function to get ELF info
-          get_elf_info() {
-            local file=$1
-            if [ ! -f "$file" ]; then
-              echo "N/A"
-              return
-            fi
-            arm-none-eabi-size "$file" 2>/dev/null | tail -n1 | awk '{printf "%d", $1+$2}'
-          }
-          
-          # Function to get section sizes
-          get_sections() {
-            local file=$1
-            if [ ! -f "$file" ]; then
-              echo "N/A|N/A|N/A|N/A"
-              return
-            fi
-            arm-none-eabi-size -A "$file" 2>/dev/null | awk '
-              BEGIN {text=0; data=0; bss=0; rodata=0}
-              /^\.text/ {text=$2}
-              /^\.data/ {data=$2}
-              /^\.bss/ {bss=$2}
-              /^\.rodata/ {rodata=$2}
-              END {
-                printf "%s|%s|%s|%s", 
-                  (text ? text : "0"), 
-                  (data ? data : "0"), 
-                  (bss ? bss : "0"), 
-                  (rodata ? rodata : "0")
-              }
-            '
-          }
-          
-          # Function to analyze map file
-          analyze_map() {
-            local file=$1
-            if [ ! -f "$file" ]; then
-              echo "N/A"
-              return
-            fi
-            # Try to get the total from different map file formats
-            local total=$(grep -E "^\s*\.(text|data|rodata|bss)" "$file" 2>/dev/null | awk '{sum+=$2} END {print sum}')
-            if [ -z "$total" ] || [ "$total" = "0" ]; then
-              total=$(grep "ROM_SIZE" "$file" 2>/dev/null | awk '{print $NF}')
-            fi
-            echo "${total:-N/A}"
-          }
+          # Debug: List available files
+          echo "**Available files:**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          ls -la custom/ official/ 2>&1 | head -20 >> $GITHUB_STEP_SUMMARY || echo "No files found" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
           
           # Create comparison table header
-          echo "| Toolchain | Device | Binary Size | .text | .data | .bss | .rodata | Map Total |" >> $GITHUB_STEP_SUMMARY
-          echo "|-----------|--------|-------------|-------|-------|------|---------|-----------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Toolchain | Device | Binary Size | .text | .data | .bss | .rodata |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|-------------|-------|-------|------|---------|" >> $GITHUB_STEP_SUMMARY
           
           # Process each device
           for device_key in flex stax nanosp nanox apex_p; do
@@ -417,8 +374,6 @@ jobs:
               
               OFFICIAL_ELF="official/${APP_NAME}-${device_key}.elf"
               CUSTOM_ELF="custom/${APP_NAME}-${device_key}.elf"
-              OFFICIAL_MAP="official/${APP_NAME}-${device_key}.map"
-              CUSTOM_MAP="custom/${APP_NAME}-${device_key}.map"
               
               # Get device display name
               case $device_key in
@@ -436,27 +391,35 @@ jobs:
               
               # Official build (clang-14)
               if [ -f "$OFFICIAL_ELF" ]; then
-                SIZE_OFF=$(get_elf_info "$OFFICIAL_ELF")
-                SECTIONS_OFF=$(get_sections "$OFFICIAL_ELF")
-                MAP_OFF=$(analyze_map "$OFFICIAL_MAP")
+                SIZE_OUTPUT=$(arm-none-eabi-size "$OFFICIAL_ELF" 2>&1)
+                SIZE_OFF=$(echo "$SIZE_OUTPUT" | tail -n1 | awk '{print $1+$2}')
+                TEXT_OFF=$(echo "$SIZE_OUTPUT" | tail -n1 | awk '{print $1}')
+                DATA_OFF=$(echo "$SIZE_OUTPUT" | tail -n1 | awk '{print $2}')
+                BSS_OFF=$(echo "$SIZE_OUTPUT" | tail -n1 | awk '{print $3}')
                 
-                IFS='|' read -r TEXT_OFF DATA_OFF BSS_OFF RODATA_OFF <<< "$SECTIONS_OFF"
+                # Get rodata from detailed output
+                RODATA_OFF=$(arm-none-eabi-size -A "$OFFICIAL_ELF" 2>&1 | grep "^\.rodata" | awk '{print $2}')
+                RODATA_OFF=${RODATA_OFF:-0}
                 
-                echo "| **clang-14** | $DEVICE_NAME | $SIZE_OFF | $TEXT_OFF | $DATA_OFF | $BSS_OFF | $RODATA_OFF | $MAP_OFF |" >> $GITHUB_STEP_SUMMARY
+                echo "| **clang-14** | $DEVICE_NAME | $SIZE_OFF | $TEXT_OFF | $DATA_OFF | $BSS_OFF | $RODATA_OFF |" >> $GITHUB_STEP_SUMMARY
               fi
               
               # Custom build (clang-21)
               if [ -f "$CUSTOM_ELF" ]; then
-                SIZE_CUST=$(get_elf_info "$CUSTOM_ELF")
-                SECTIONS_CUST=$(get_sections "$CUSTOM_ELF")
-                MAP_CUST=$(analyze_map "$CUSTOM_MAP")
+                SIZE_OUTPUT=$(arm-none-eabi-size "$CUSTOM_ELF" 2>&1)
+                SIZE_CUST=$(echo "$SIZE_OUTPUT" | tail -n1 | awk '{print $1+$2}')
+                TEXT_CUST=$(echo "$SIZE_OUTPUT" | tail -n1 | awk '{print $1}')
+                DATA_CUST=$(echo "$SIZE_OUTPUT" | tail -n1 | awk '{print $2}')
+                BSS_CUST=$(echo "$SIZE_OUTPUT" | tail -n1 | awk '{print $3}')
                 
-                IFS='|' read -r TEXT_CUST DATA_CUST BSS_CUST RODATA_CUST <<< "$SECTIONS_CUST"
+                # Get rodata from detailed output
+                RODATA_CUST=$(arm-none-eabi-size -A "$CUSTOM_ELF" 2>&1 | grep "^\.rodata" | awk '{print $2}')
+                RODATA_CUST=${RODATA_CUST:-0}
                 
-                echo "| **clang-21** | $DEVICE_NAME | $SIZE_CUST | $TEXT_CUST | $DATA_CUST | $BSS_CUST | $RODATA_CUST | $MAP_CUST |" >> $GITHUB_STEP_SUMMARY
+                echo "| **clang-21** | $DEVICE_NAME | $SIZE_CUST | $TEXT_CUST | $DATA_CUST | $BSS_CUST | $RODATA_CUST |" >> $GITHUB_STEP_SUMMARY
                 
                 # Calculate difference if both exist
-                if [ -f "$OFFICIAL_ELF" ] && [ "$SIZE_OFF" != "N/A" ] && [ "$SIZE_CUST" != "N/A" ]; then
+                if [ -f "$OFFICIAL_ELF" ] && [ -n "$SIZE_OFF" ] && [ -n "$SIZE_CUST" ]; then
                   DIFF=$((SIZE_CUST - SIZE_OFF))
                   if [ $DIFF -gt 0 ]; then
                     DIFF_STR="+$DIFF"
@@ -467,24 +430,23 @@ jobs:
                   fi
                   if [ $SIZE_OFF -ne 0 ]; then
                     PERCENT=$(awk "BEGIN {printf \"%.2f\", ($DIFF / $SIZE_OFF) * 100}")
-                    echo "| _Δ_ | | $DIFF_STR ($PERCENT%) | | | | | |" >> $GITHUB_STEP_SUMMARY
+                    echo "| _Δ_ | | $DIFF_STR ($PERCENT%) | | | | |" >> $GITHUB_STEP_SUMMARY
                   else
-                    echo "| _Δ_ | | $DIFF_STR | | | | | |" >> $GITHUB_STEP_SUMMARY
+                    echo "| _Δ_ | | $DIFF_STR | | | | |" >> $GITHUB_STEP_SUMMARY
                   fi
                 fi
               fi
               
-              echo "|  |  |  |  |  |  |  |  |" >> $GITHUB_STEP_SUMMARY
+              # Add spacer row
+              if [ -f "$OFFICIAL_ELF" ] || [ -f "$CUSTOM_ELF" ]; then
+                echo "| | | | | | | |" >> $GITHUB_STEP_SUMMARY
+              fi
             fi
           done
           
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "---" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          EOF
-          
-          chmod +x compare.sh
-          ./compare.sh
 
       - name: Detailed section comparison
         run: |
