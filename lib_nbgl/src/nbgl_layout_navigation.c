@@ -76,6 +76,9 @@ static void configButtons(nbgl_container_t *navContainer, uint8_t navNbPages, ui
     if (navNbPages > 1) {
         buttonNext->foregroundColor = (navActivePage == (navNbPages - 1)) ? INACTIVE_COLOR : BLACK;
     }
+    else {
+        buttonNext->foregroundColor = INACTIVE_COLOR;
+    }
 }
 
 /**********************
@@ -114,7 +117,7 @@ bool layoutNavigationCallback(nbgl_obj_t      *obj,
             }
         }
         else if (obj == navContainer->children[NEXT_PAGE_INDEX]) {
-            if ((nbPages < 2) || (*activePage < (nbPages - 1))) {
+            if ((nbPages >= 2) && (*activePage < (nbPages - 1))) {
                 *activePage = *activePage + 1;
                 configButtons(navContainer, nbPages, *activePage);
                 return true;
@@ -130,7 +133,7 @@ bool layoutNavigationCallback(nbgl_obj_t      *obj,
         }
     }
     else if (eventType == SWIPED_LEFT) {
-        if ((nbPages < 2) || (*activePage < (nbPages - 1))) {
+        if ((nbPages >= 2) && (*activePage < (nbPages - 1))) {
             *activePage = *activePage + 1;
             configButtons((nbgl_container_t *) obj, nbPages, *activePage);
             return true;
