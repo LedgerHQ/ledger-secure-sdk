@@ -368,80 +368,74 @@ jobs:
           echo "|-----------|--------|-------------|-------|-------|------|---------|" >> $GITHUB_STEP_SUMMARY
           
           # Process each device
-          for device_key in flex stax nanosp nanox apex_p; do
-            # Check if device is in the app's supported devices
-            if [[ "$DEVICES" == *"$device_key"* ]] || [[ "$device_key" == "nanosp" && "$DEVICES" == *"nanos+"* ]]; then
+          for device_key in nanox nanosp stax flex apex_p; do
+            OFFICIAL_ELF="official/${APP_NAME}-${device_key}.elf"
+            CUSTOM_ELF="custom/${APP_NAME}-${device_key}.elf"
+            
+            # Skip if neither file exists
+            if [ ! -f "$OFFICIAL_ELF" ] && [ ! -f "$CUSTOM_ELF" ]; then
+              continue
+            fi
+            
+            # Get device display name
+            case $device_key in
+              nanox) DEVICE_NAME="Nano X" ;;
+              nanosp) DEVICE_NAME="Nano S+" ;;
+              stax) DEVICE_NAME="Stax" ;;
+              flex) DEVICE_NAME="Flex" ;;
+              apex_p) DEVICE_NAME="Apex+" ;;
+            esac
+            
+            # Official build (clang-14)
+            if [ -f "$OFFICIAL_ELF" ]; then
+              SIZE_OUTPUT=$(arm-none-eabi-size "$OFFICIAL_ELF" 2>&1)
+              SIZE_OFF=$(echo "$SIZE_OUTPUT" | tail -n1 | awk '{print $1+$2}')
+              TEXT_OFF=$(echo "$SIZE_OUTPUT" | tail -n1 | awk '{print $1}')
+              DATA_OFF=$(echo "$SIZE_OUTPUT" | tail -n1 | awk '{print $2}')
+              BSS_OFF=$(echo "$SIZE_OUTPUT" | tail -n1 | awk '{print $3}')
               
-              OFFICIAL_ELF="official/${APP_NAME}-${device_key}.elf"
-              CUSTOM_ELF="custom/${APP_NAME}-${device_key}.elf"
+              # Get rodata from detailed output
+              RODATA_OFF=$(arm-none-eabi-size -A "$OFFICIAL_ELF" 2>&1 | grep "^\.rodata" | awk '{print $2}')
+              RODATA_OFF=${RODATA_OFF:-0}
               
-              # Get device display name
-              case $device_key in
-                nanox) DEVICE_NAME="Nano X" ;;
-                nanosp) DEVICE_NAME="Nano S+" ;;
-                stax) DEVICE_NAME="Stax" ;;
-                flex) DEVICE_NAME="Flex" ;;
-                apex_p) DEVICE_NAME="Apex+" ;;
-              esac
+              echo "| **clang-14** | $DEVICE_NAME | $SIZE_OFF | $TEXT_OFF | $DATA_OFF | $BSS_OFF | $RODATA_OFF |" >> $GITHUB_STEP_SUMMARY
+            fi
+            
+            # Custom build (clang-21)
+            if [ -f "$CUSTOM_ELF" ]; then
+              SIZE_OUTPUT=$(arm-none-eabi-size "$CUSTOM_ELF" 2>&1)
+              SIZE_CUST=$(echo "$SIZE_OUTPUT" | tail -n1 | awk '{print $1+$2}')
+              TEXT_CUST=$(echo "$SIZE_OUTPUT" | tail -n1 | awk '{print $1}')
+              DATA_CUST=$(echo "$SIZE_OUTPUT" | tail -n1 | awk '{print $2}')
+              BSS_CUST=$(echo "$SIZE_OUTPUT" | tail -n1 | awk '{print $3}')
               
-              # Skip if neither file exists
-              if [ ! -f "$OFFICIAL_ELF" ] && [ ! -f "$CUSTOM_ELF" ]; then
-                continue
-              fi
+              # Get rodata from detailed output
+              RODATA_CUST=$(arm-none-eabi-size -A "$CUSTOM_ELF" 2>&1 | grep "^\.rodata" | awk '{print $2}')
+              RODATA_CUST=${RODATA_CUST:-0}
               
-              # Official build (clang-14)
-              if [ -f "$OFFICIAL_ELF" ]; then
-                SIZE_OUTPUT=$(arm-none-eabi-size "$OFFICIAL_ELF" 2>&1)
-                SIZE_OFF=$(echo "$SIZE_OUTPUT" | tail -n1 | awk '{print $1+$2}')
-                TEXT_OFF=$(echo "$SIZE_OUTPUT" | tail -n1 | awk '{print $1}')
-                DATA_OFF=$(echo "$SIZE_OUTPUT" | tail -n1 | awk '{print $2}')
-                BSS_OFF=$(echo "$SIZE_OUTPUT" | tail -n1 | awk '{print $3}')
-                
-                # Get rodata from detailed output
-                RODATA_OFF=$(arm-none-eabi-size -A "$OFFICIAL_ELF" 2>&1 | grep "^\.rodata" | awk '{print $2}')
-                RODATA_OFF=${RODATA_OFF:-0}
-                
-                echo "| **clang-14** | $DEVICE_NAME | $SIZE_OFF | $TEXT_OFF | $DATA_OFF | $BSS_OFF | $RODATA_OFF |" >> $GITHUB_STEP_SUMMARY
-              fi
+              echo "| **clang-21** | $DEVICE_NAME | $SIZE_CUST | $TEXT_CUST | $DATA_CUST | $BSS_CUST | $RODATA_CUST |" >> $GITHUB_STEP_SUMMARY
               
-              # Custom build (clang-21)
-              if [ -f "$CUSTOM_ELF" ]; then
-                SIZE_OUTPUT=$(arm-none-eabi-size "$CUSTOM_ELF" 2>&1)
-                SIZE_CUST=$(echo "$SIZE_OUTPUT" | tail -n1 | awk '{print $1+$2}')
-                TEXT_CUST=$(echo "$SIZE_OUTPUT" | tail -n1 | awk '{print $1}')
-                DATA_CUST=$(echo "$SIZE_OUTPUT" | tail -n1 | awk '{print $2}')
-                BSS_CUST=$(echo "$SIZE_OUTPUT" | tail -n1 | awk '{print $3}')
-                
-                # Get rodata from detailed output
-                RODATA_CUST=$(arm-none-eabi-size -A "$CUSTOM_ELF" 2>&1 | grep "^\.rodata" | awk '{print $2}')
-                RODATA_CUST=${RODATA_CUST:-0}
-                
-                echo "| **clang-21** | $DEVICE_NAME | $SIZE_CUST | $TEXT_CUST | $DATA_CUST | $BSS_CUST | $RODATA_CUST |" >> $GITHUB_STEP_SUMMARY
-                
-                # Calculate difference if both exist
-                if [ -f "$OFFICIAL_ELF" ] && [ -n "$SIZE_OFF" ] && [ -n "$SIZE_CUST" ]; then
-                  DIFF=$((SIZE_CUST - SIZE_OFF))
-                  if [ $DIFF -gt 0 ]; then
-                    DIFF_STR="+$DIFF"
-                  elif [ $DIFF -lt 0 ]; then
-                    DIFF_STR="$DIFF"
-                  else
-                    DIFF_STR="0"
-                  fi
-                  if [ $SIZE_OFF -ne 0 ]; then
-                    PERCENT=$(awk "BEGIN {printf \"%.2f\", ($DIFF / $SIZE_OFF) * 100}")
-                    echo "| _Δ_ | | $DIFF_STR ($PERCENT%) | | | | |" >> $GITHUB_STEP_SUMMARY
-                  else
-                    echo "| _Δ_ | | $DIFF_STR | | | | |" >> $GITHUB_STEP_SUMMARY
-                  fi
+              # Calculate difference if both exist
+              if [ -f "$OFFICIAL_ELF" ] && [ -n "$SIZE_OFF" ] && [ -n "$SIZE_CUST" ]; then
+                DIFF=$((SIZE_CUST - SIZE_OFF))
+                if [ $DIFF -gt 0 ]; then
+                  DIFF_STR="+$DIFF"
+                elif [ $DIFF -lt 0 ]; then
+                  DIFF_STR="$DIFF"
+                else
+                  DIFF_STR="0"
+                fi
+                if [ $SIZE_OFF -ne 0 ]; then
+                  PERCENT=$(awk "BEGIN {printf \"%.2f\", ($DIFF / $SIZE_OFF) * 100}")
+                  echo "| _Δ_ | | $DIFF_STR ($PERCENT%) | | | | |" >> $GITHUB_STEP_SUMMARY
+                else
+                  echo "| _Δ_ | | $DIFF_STR | | | | |" >> $GITHUB_STEP_SUMMARY
                 fi
               fi
-              
-              # Add spacer row
-              if [ -f "$OFFICIAL_ELF" ] || [ -f "$CUSTOM_ELF" ]; then
-                echo "| | | | | | | |" >> $GITHUB_STEP_SUMMARY
-              fi
             fi
+            
+            # Add spacer row
+            echo "| | | | | | | |" >> $GITHUB_STEP_SUMMARY
           done
           
           echo "" >> $GITHUB_STEP_SUMMARY
