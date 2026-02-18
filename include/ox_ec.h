@@ -263,6 +263,10 @@ enum cx_curve_e {
 #endif  // HAVE_ECC_MONTGOMERY
 };
 
+#if defined(HAVE_SECP256R1_CURVE) || defined(HAVE_SECP256K1_CURVE)
+#define CX_SECP256_PUB_KEY_SIZE (65U)
+#endif
+
 /** Convenience type. See #cx_curve_e. */
 typedef enum cx_curve_e cx_curve_t;
 
