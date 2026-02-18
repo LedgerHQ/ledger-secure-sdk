@@ -105,6 +105,8 @@ jobs:
         run: |
           cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/nanox/bin/app.elf \
              artifacts/${{ matrix.apps.app-name }}-nanox.elf || true
+          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/nanox/bin/app.map \
+             artifacts/${{ matrix.apps.app-name }}-nanox.map || true
       - name: Build App for Nano S+
         if: contains(matrix.apps.devices, 'nanos+')
         run: |
@@ -119,6 +121,8 @@ jobs:
         run: |
           cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/nanos2/bin/app.elf \
              artifacts/${{ matrix.apps.app-name }}-nanosp.elf || true
+          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/nanos2/bin/app.map \
+             artifacts/${{ matrix.apps.app-name }}-nanosp.map || true
       - name: Build App for Stax
         if: contains(matrix.apps.devices, 'stax')
         run: |
@@ -133,6 +137,8 @@ jobs:
         run: |
           cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/stax/bin/app.elf \
              artifacts/${{ matrix.apps.app-name }}-stax.elf || true
+          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/stax/bin/app.map \
+             artifacts/${{ matrix.apps.app-name }}-stax.map || true
       - name: Build App for Flex
         if: contains(matrix.apps.devices, 'flex')
         run: |
@@ -147,6 +153,8 @@ jobs:
         run: |
           cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/flex/bin/app.elf \
              artifacts/${{ matrix.apps.app-name }}-flex.elf || true
+          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/flex/bin/app.map \
+             artifacts/${{ matrix.apps.app-name }}-flex.map || true
       - name: Build App for Apex+
         if: contains(matrix.apps.devices, 'apex_p')
         run: |
@@ -161,6 +169,8 @@ jobs:
         run: |
           cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/apex_p/bin/app.elf \
              artifacts/${{ matrix.apps.app-name }}-apex_p.elf || true
+          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/apex_p/bin/app.map \
+             artifacts/${{ matrix.apps.app-name }}-apex_p.map || true
 
       - name: Upload app binaries
         if: always()
@@ -174,3 +184,123 @@ jobs:
       - name: Cleanup
         if: always()
         run: docker rm -f builder || true
+
+  test-build-official:
+    name: Build for all targets (official image)
+    needs: [prepare-matrix]
+    strategy:
+      fail-fast: false
+      matrix:
+        apps: ${{ fromJSON(needs.prepare-matrix.outputs.c_apps) }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone App
+        uses: actions/checkout@v4
+        with:
+          repository: LedgerHQ/${{ matrix.apps.app-name }}
+          submodules: recursive
+          path: ${{ matrix.apps.app-name }}
+
+      - name: Pull official Docker image and start build container
+        run: |
+          docker pull ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-lite:5.0.2
+          docker run -d --name builder-official -v $GITHUB_WORKSPACE:/workspace ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-lite:5.0.2 sleep infinity
+          docker exec builder-official pip install --break-system-packages ledgered
+
+      - name: Create artifacts directory
+        run: mkdir -p $GITHUB_WORKSPACE/artifacts-official
+
+      - name: Build App for Nano X
+        if: contains(matrix.apps.devices, 'nanox')
+        run: |
+          docker exec builder-official bash -c "
+            cd /workspace/${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }} &&
+            echo 'Building for Nano X' &&
+            make clean &&
+            make TARGET=nanox BOLOS_SDK=/opt/nanox-secure-sdk
+          "
+      - name: Collect Nano X binary
+        if: contains(matrix.apps.devices, 'nanox')
+        run: |
+          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/nanox/bin/app.elf \
+             artifacts-official/${{ matrix.apps.app-name }}-nanox.elf || true
+          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/nanox/bin/app.map \
+             artifacts-official/${{ matrix.apps.app-name }}-nanox.map || true
+      - name: Build App for Nano S+
+        if: contains(matrix.apps.devices, 'nanos+')
+        run: |
+          docker exec builder-official bash -c "
+            cd /workspace/${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }} &&
+            echo 'Building for Nano S+' &&
+            make clean &&
+            make TARGET=nanos2 BOLOS_SDK=/opt/nanosplus-secure-sdk
+          "
+      - name: Collect Nano S+ binary
+        if: contains(matrix.apps.devices, 'nanos+')
+        run: |
+          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/nanos2/bin/app.elf \
+             artifacts-official/${{ matrix.apps.app-name }}-nanosp.elf || true
+          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/nanos2/bin/app.map \
+             artifacts-official/${{ matrix.apps.app-name }}-nanosp.map || true
+      - name: Build App for Stax
+        if: contains(matrix.apps.devices, 'stax')
+        run: |
+          docker exec builder-official bash -c "
+            cd /workspace/${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }} &&
+            echo 'Building for Stax' &&
+            make clean &&
+            make TARGET=stax BOLOS_SDK=/opt/stax-secure-sdk
+          "
+      - name: Collect Stax binary
+        if: contains(matrix.apps.devices, 'stax')
+        run: |
+          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/stax/bin/app.elf \
+             artifacts-official/${{ matrix.apps.app-name }}-stax.elf || true
+          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/stax/bin/app.map \
+             artifacts-official/${{ matrix.apps.app-name }}-stax.map || true
+      - name: Build App for Flex
+        if: contains(matrix.apps.devices, 'flex')
+        run: |
+          docker exec builder-official bash -c "
+            cd /workspace/${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }} &&
+            echo 'Building for Flex' &&
+            make clean &&
+            make TARGET=flex BOLOS_SDK=/opt/flex-secure-sdk
+          "
+      - name: Collect Flex binary
+        if: contains(matrix.apps.devices, 'flex')
+        run: |
+          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/flex/bin/app.elf \
+             artifacts-official/${{ matrix.apps.app-name }}-flex.elf || true
+          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/flex/bin/app.map \
+             artifacts-official/${{ matrix.apps.app-name }}-flex.map || true
+      - name: Build App for Apex+
+        if: contains(matrix.apps.devices, 'apex_p')
+        run: |
+          docker exec builder-official bash -c "
+            cd /workspace/${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }} &&
+            echo 'Building for Apex+' &&
+            make clean &&
+            make TARGET=apex_p BOLOS_SDK=/opt/apex-secure-sdk
+          "
+      - name: Collect Apex+ binary
+        if: contains(matrix.apps.devices, 'apex_p')
+        run: |
+          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/apex_p/bin/app.elf \
+             artifacts-official/${{ matrix.apps.app-name }}-apex_p.elf || true
+          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/apex_p/bin/app.map \
+             artifacts-official/${{ matrix.apps.app-name }}-apex_p.map || true
+
+      - name: Upload app binaries
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.apps.app-name }}-binaries-official
+          path: artifacts-official/
+          if-no-files-found: ignore
+          retention-days: 1
+
+      - name: Cleanup
+        if: always()
+        run: docker rm -f builder-official || true
