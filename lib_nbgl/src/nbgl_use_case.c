@@ -55,6 +55,7 @@
 // macros to ease access to shared contexts
 #define sharedContext        genericContext.sharedCtx
 #define keypadContext        sharedContext.keypad
+#define keyboardContext      sharedContext.keyboard
 #define reviewWithWarnCtx    sharedContext.reviewWithWarning
 #define choiceWithDetailsCtx sharedContext.choiceWithDetails
 
@@ -105,6 +106,8 @@ enum {
     DISMISS_WARNING_TOKEN,
     DISMISS_DETAILS_TOKEN,
     PRELUDE_CHOICE_TOKEN,
+    KEYBOARD_BUTTON_TOKEN,
+    KEYBOARD_CROSS_TOKEN,
     FIRST_WARN_BAR_TOKEN,
     LAST_WARN_BAR_TOKEN = (FIRST_WARN_BAR_TOKEN + NB_WARNING_TYPES - 1),
 };
@@ -143,6 +146,18 @@ typedef struct KeypadContext_s {
 } KeypadContext_t;
 #endif
 
+#ifdef NBGL_KEYBOARD
+typedef struct KeyboardContext_s {
+    nbgl_layoutConfirmationButton_t confirmButton;
+    nbgl_layoutKeyboardContent_t    keyboardContent;
+    char                           *entry;
+    uint8_t                         maxChars;
+    int                             keyboardIndex;
+    keyboardCase_t                  casing;
+    nbgl_layout_t                  *layoutCtx;
+} KeyboardContext_t;
+#endif
+
 typedef struct ReviewWithWarningContext_s {
     bool                              isStreaming;
     nbgl_operationType_t              operationType;
@@ -178,6 +193,9 @@ typedef struct {
     union {
 #ifdef NBGL_KEYPAD
         KeypadContext_t keypad;
+#endif
+#ifdef NBGL_KEYBOARD
+        KeyboardContext_t keyboard;
 #endif
         ReviewWithWarningContext_t reviewWithWarning;
         ChoiceWithDetailsContext_t choiceWithDetails;
@@ -1926,6 +1944,64 @@ static void keypadGeneric_cb(int token, uint8_t index)
         return;
     }
     onQuit();
+}
+#endif
+
+#ifdef NBGL_KEYBOARD
+// called when a key is touched on the keyboard
+static void keyboardCallback(char touchedKey)
+{
+    uint32_t mask    = 0;
+    size_t   textLen = strlen(keyboardContext.entry);
+    PRINTF("[keyboardCallback] touchedKey: %c\n", touchedKey);
+    if (touchedKey == BACKSPACE_KEY) {
+        if (textLen == 0) {
+            return;
+        }
+        keyboardContext.entry[--textLen] = '\0';
+    }
+    else {
+        keyboardContext.entry[textLen]   = touchedKey;
+        keyboardContext.entry[++textLen] = '\0';
+    }
+    if (textLen >= keyboardContext.maxChars) {
+        // password name length can't be greater, so we mask every characters
+        mask = -1;
+    }
+    nbgl_layoutUpdateKeyboardContent(keyboardContext.layoutCtx, &keyboardContext.keyboardContent);
+    nbgl_layoutUpdateKeyboard(keyboardContext.layoutCtx,
+                              keyboardContext.keyboardIndex,
+                              mask,
+                              false,
+                              keyboardContext.casing);
+    nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_REFRESH, POST_REFRESH_FORCE_POWER_ON);
+}
+
+static void keyboardGeneric_cb(int token, uint8_t index)
+{
+    UNUSED(index);
+    switch (token) {
+        case BACK_TOKEN:
+            onQuit();
+            break;
+        case KEYBOARD_CROSS_TOKEN:
+            keyboardContext.entry[0] = '\0';
+            nbgl_layoutUpdateKeyboardContent(keyboardContext.layoutCtx,
+                                             &keyboardContext.keyboardContent);
+            nbgl_layoutUpdateKeyboard(keyboardContext.layoutCtx,
+                                      keyboardContext.keyboardIndex,
+                                      0,
+                                      false,
+                                      keyboardContext.casing);
+            nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_REFRESH,
+                                               POST_REFRESH_FORCE_POWER_ON);
+            break;
+        case KEYBOARD_BUTTON_TOKEN:
+            onAction();
+            break;
+        default:
+            break;
+    }
 }
 #endif
 
@@ -4581,8 +4657,7 @@ void nbgl_useCaseKeypad(const char             *title,
     nbgl_layoutHeader_t      headerDesc        = {.type               = HEADER_BACK_AND_TEXT,
                                                   .separationLine     = true,
                                                   .backAndText.token  = BACK_TOKEN,
-                                                  .backAndText.tuneId = TUNE_TAP_CASUAL,
-                                                  .backAndText.text   = NULL};
+                                                  .backAndText.tuneId = TUNE_TAP_CASUAL};
     int                      status            = -1;
 
     if ((minDigits > KEYPAD_MAX_DIGITS) || (maxDigits > KEYPAD_MAX_DIGITS)) {
@@ -4614,7 +4689,6 @@ void nbgl_useCaseKeypad(const char             *title,
     // add keypad content
     status = nbgl_layoutAddKeypadContent(
         keypadContext.layoutCtx, title, keypadContext.hidden, maxDigits, "");
-
     if (status < 0) {
         return;
     }
@@ -4629,6 +4703,95 @@ void nbgl_useCaseKeypad(const char             *title,
     nbgl_refreshSpecialWithPostRefresh(FULL_COLOR_CLEAN_REFRESH, POST_REFRESH_FORCE_POWER_ON);
 }
 #endif  // NBGL_KEYPAD
+
+#ifdef NBGL_KEYBOARD
+/**
+ * @brief draws a standard keyboard modal page. It contains
+ *        - a navigation bar at the top
+ *        - a title
+ *        - an entry area for the text to be entered
+ *        - the keyboard at the bottom
+ *
+ * @note callbacks allow to control the behavior.
+ *
+ * @param title string to set
+ * @param minDigits pin minimum number of digits
+ * @param maxDigits maximum number of digits to be displayed
+ * @param shuffled if set to true, digits are shuffled in keyboard
+ * @param hidden if set to true, digits are hidden in keyboard
+ * @param validatePinCallback function calledto validate the pin code
+ * @param backCallback callback called title is pressed
+ */
+void nbgl_useCaseKeyboard(const char     *title,
+                          const char     *buttonText,
+                          char           *entryBuffer,
+                          uint8_t         entryMaxLen,
+                          bool            lettersOnly,
+                          keyboardMode_t  mode,
+                          keyboardCase_t  casing,
+                          nbgl_callback_t keyboardButtonCallback,
+                          nbgl_callback_t backCallback)
+{
+    // clang-format off
+    nbgl_layoutDescription_t layoutDescription = {.onActionCallback = keyboardGeneric_cb};
+    nbgl_layoutHeader_t      headerDesc        = {.type               = HEADER_BACK_AND_TEXT,
+                                                  .backAndText.token  = BACK_TOKEN,
+                                                  .backAndText.tuneId = TUNE_TAP_CASUAL};
+    nbgl_layoutKbd_t         kbdInfo           = {.callback = &keyboardCallback,
+                                                  .lettersOnly = lettersOnly,
+                                                  .mode = mode,
+                                                  .casing = casing};
+    int status = -1;
+    // clang-format on
+
+    reset_callbacks_and_context();
+    // reset the keyboard context
+    memset(&keyboardContext, 0, sizeof(KeyboardContext_t));
+
+    // memorize context
+    onQuit   = backCallback;
+    onAction = keyboardButtonCallback;
+
+    // get a layout
+    keyboardContext.layoutCtx = nbgl_layoutGet(&layoutDescription);
+
+    // set back key in header
+    nbgl_layoutAddHeader(keyboardContext.layoutCtx, &headerDesc);
+
+    // Add keyboard
+    status = nbgl_layoutAddKeyboard(keyboardContext.layoutCtx, &kbdInfo);
+    if (status < 0) {
+        return;
+    }
+    keyboardContext.keyboardIndex = status;
+    keyboardContext.casing        = casing;
+    keyboardContext.entry         = entryBuffer;
+    keyboardContext.maxChars      = entryMaxLen;
+    keyboardContext.entry[0]      = '\0';
+    // add keyboard content
+    keyboardContext.confirmButton = (nbgl_layoutConfirmationButton_t){
+        .text   = buttonText,
+        .token  = KEYBOARD_BUTTON_TOKEN,
+        .active = true,
+    };
+    keyboardContext.keyboardContent = (nbgl_layoutKeyboardContent_t){
+        .type               = KEYBOARD_WITH_BUTTON,
+        .title              = title,
+        .text               = keyboardContext.entry,
+        .textToken          = KEYBOARD_CROSS_TOKEN,
+        .confirmationButton = keyboardContext.confirmButton,
+        .tuneId             = TUNE_TAP_CASUAL,
+    };
+    status = nbgl_layoutAddKeyboardContent(keyboardContext.layoutCtx,
+                                           &keyboardContext.keyboardContent);
+    if (status < 0) {
+        return;
+    }
+
+    nbgl_layoutDraw(keyboardContext.layoutCtx);
+    nbgl_refreshSpecialWithPostRefresh(FULL_COLOR_CLEAN_REFRESH, POST_REFRESH_FORCE_POWER_ON);
+}
+#endif  // NBGL_KEYBOARD
 
 #endif  // HAVE_SE_TOUCH
 #endif  // NBGL_USE_CASE
