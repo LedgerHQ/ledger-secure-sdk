@@ -128,6 +128,9 @@ extern "C" {
 #error Undefined target
 #endif  // TARGETS
 
+#define TAG_VALUE_INTERVALE  4
+#define VALUE_ICON_INTERVALE 12
+
 #define AVAILABLE_WIDTH (SCREEN_WIDTH - 2 * BORDER_MARGIN)
 
 // not really used
@@ -142,6 +145,8 @@ extern "C" {
 #endif  // HAVE_SE_TOUCH
 
 #define SPINNER_FIXED 0xFF  ///< position to use for a "fixed" spinner
+
+#define NB_MAX_DESCRIPTIONS 3  ///< max number of descriptions in @ref nbgl_layoutTextContent_t
 
 /**********************
  *      TYPEDEFS
@@ -261,6 +266,19 @@ typedef struct {
     bool         centered;  ///< DEPRECATED, not used
     tune_index_e tuneId;    ///< if not @ref NBGL_NO_TUNE, a tune will be played
 } nbgl_layoutBar_t;
+
+/**
+ * @brief This structure contains info for Text content, to be set with @ref
+ * nbgl_layoutAddTextContent
+ *
+ */
+typedef struct {
+    const char *title;                              ///< main text (in large bold font)
+    const char *info;                               ///< description at bottom (in small gray)
+    const char *descriptions[NB_MAX_DESCRIPTIONS];  ///< array of descriptions under main text (in
+                                                    ///< small regular font)
+    uint8_t nbDescriptions;                         ///< number of used descriptions in above array
+} nbgl_layoutTextContent_t;
 
 /**
  * @brief Deprecated, kept for retro compatibility
@@ -680,10 +698,7 @@ int nbgl_layoutAddHorizontalButtons(nbgl_layout_t                        *layout
                                     const nbgl_layoutHorizontalButtons_t *info);
 int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueList_t *list);
 int nbgl_layoutAddLargeCaseText(nbgl_layout_t *layout, const char *text, bool grayedOut);
-int nbgl_layoutAddTextContent(nbgl_layout_t *layout,
-                              const char    *title,
-                              const char    *description,
-                              const char    *info);
+int nbgl_layoutAddTextContent(nbgl_layout_t *layout, nbgl_layoutTextContent_t *content);
 int nbgl_layoutAddSeparationLine(nbgl_layout_t *layout);
 
 int nbgl_layoutAddButton(nbgl_layout_t *layout, const nbgl_layoutButton_t *buttonInfo);

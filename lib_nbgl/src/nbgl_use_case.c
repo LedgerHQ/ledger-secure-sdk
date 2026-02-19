@@ -1466,19 +1466,23 @@ static void displayFullValuePage(const char                   *backText,
 #endif  // NBGL_QRCODE
         }
         else {
-            const char *info;
-            // add full value text
+            nbgl_layoutTextContent_t content = {0};
+            content.title                    = aliasText;
             if (extension->aliasType == ENS_ALIAS) {
-                info = "ENS names are resolved by Ledger backend.";
+                content.info = "ENS names are resolved by Ledger backend.";
             }
-            else if (extension->aliasType == ADDRESS_BOOK_ALIAS) {
-                info = "This account label comes from your Address Book in Ledger Wallet.";
+            else if ((extension->aliasType == ADDRESS_BOOK_ALIAS)
+                     && (extension->aliasSubName != NULL)) {
+                content.descriptions[content.nbDescriptions] = extension->aliasSubName;
+                content.nbDescriptions++;
             }
             else {
-                info = extension->explanation;
+                content.info = extension->explanation;
             }
-            nbgl_layoutAddTextContent(
-                genericContext.modalLayout, aliasText, extension->fullValue, info);
+            // add full value text
+            content.descriptions[content.nbDescriptions] = extension->fullValue;
+            content.nbDescriptions++;
+            nbgl_layoutAddTextContent(genericContext.modalLayout, &content);
         }
         // draw & refresh
         nbgl_layoutDraw(genericContext.modalLayout);
@@ -2002,7 +2006,7 @@ static uint8_t getNbTagValuesInPage(uint8_t                           nbPairs,
         currentHeight += nbgl_getTextHeightInWidth(
             SMALL_REGULAR_FONT, pair->item, AVAILABLE_WIDTH, tagValueList->wrapping);
         // space between tag and value
-        currentHeight += 4;
+        currentHeight += TAG_VALUE_INTERVALE;
         // set value font
         if (tagValueList->smallCaseForValue) {
             value_font = SMALL_REGULAR_FONT;
@@ -2013,6 +2017,11 @@ static uint8_t getNbTagValuesInPage(uint8_t                           nbPairs,
         // value height
         currentHeight += nbgl_getTextHeightInWidth(
             value_font, pair->value, AVAILABLE_WIDTH, tagValueList->wrapping);
+
+        // potential subAlias text
+        if ((pair->aliasValue) && (pair->extension->aliasSubName)) {
+            currentHeight += TAG_VALUE_INTERVALE + nbgl_getFontLineHeight(SMALL_REGULAR_FONT);
+        }
         // nb lines for value
         nbLines = nbgl_getTextNbLinesInWidth(
             value_font, pair->value, AVAILABLE_WIDTH, tagValueList->wrapping);

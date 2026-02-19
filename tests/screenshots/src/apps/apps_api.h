@@ -83,7 +83,7 @@ void app_fullEthereum(void);
 void app_fullEthereum2(void);
 void app_ethereumSignMessage(void);
 void app_ethereumSignForwardOnlyMessage(void);
-void app_ethereumSignUnknownLengthMessage(void);
+void app_ethereumAddressBookReview(void);
 void app_ethereumReviewBlindSigningTransaction(void);
 void app_ethereumReviewENSTransaction(void);
 void app_ethereumReviewDappTransaction(void);

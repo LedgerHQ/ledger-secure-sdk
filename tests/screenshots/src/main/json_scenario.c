@@ -46,7 +46,8 @@ Event_t appEvents[] = {
     {"BTC_SHARE_ADDR",      BTC_SHARE_ADDR     },
     {"RECOV_OPEN",          RECOV_OPEN         },
     {"DOGE_SIGN",           DOGE_SIGN          },
-    {"DOGE_PRELUDE_SIGN",   DOGE_PRELUDE_SIGN  }
+    {"DOGE_PRELUDE_SIGN",   DOGE_PRELUDE_SIGN  },
+    {"ETH_ADDR_BOOK_SIGN",  ETH_ADDR_BOOK_SIGN }
 };
 
 // =--------------------------------------------------------------------------=
@@ -696,6 +697,9 @@ static int scenario_get_action(void)
                 break;
             case DOGE_PRELUDE_SIGN:
                 app_dogecoinSignWithPrelude();
+                break;
+            case ETH_ADDR_BOOK_SIGN:
+                app_ethereumAddressBookReview();
                 break;
             default:
                 // error
