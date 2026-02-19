@@ -28,6 +28,7 @@
 #include "os_seed.h"
 #include "os_app.h"
 #include "os_pki.h"
+#include "os_registry.h"
 #include "os_io_default_apdu.h"
 #include "status_words.h"
 
@@ -61,60 +62,47 @@ static bolos_err_t pki_load_certificate(uint8_t *buffer, size_t buffer_len, uint
 /* Private variables ---------------------------------------------------------*/
 
 /* Private functions ---------------------------------------------------------*/
-
-#ifndef APPNAME
-#define APPNAME "Unknown"
-#endif
-
-#ifndef APPVERSION
-#define APPVERSION "Unknown"
-#endif
-
 static bolos_err_t get_version(uint8_t *buffer_out, size_t *buffer_out_length)
 {
     bolos_err_t err                   = SWO_CONDITIONS_NOT_SATISFIED;
     size_t      max_buffer_out_length = *buffer_out_length;
+    int         str_length            = 0;
 
     *buffer_out_length = 0;
 
 #if defined(HAVE_BOLOS)
-    const char *name    = "BOLOS";
-    const char *version = VERSION;
-#else
-    const char *name    = APPNAME;
-    const char *version = APPVERSION;
-#endif
-
-    size_t  out_len     = 0;
-    uint8_t name_len    = (uint8_t) strlen(name);
-    uint8_t version_len = (uint8_t) strlen(version);
-
-    if (max_buffer_out_length >= (size_t) (name_len + version_len + 5)) {
-        buffer_out[out_len] = 1;  // format ID
-        out_len += sizeof(uint8_t);
-
-        // Copy name: Length, value
-        buffer_out[out_len] = (uint8_t) name_len;
-        out_len += sizeof(uint8_t);
-        memcpy(&buffer_out[out_len], name, name_len);
-        out_len += name_len;
-
-        // Copy version: Length, value
-        buffer_out[out_len] = (uint8_t) version_len;
-        out_len += sizeof(uint8_t);
-        memcpy(&buffer_out[out_len], version, version_len);
-        out_len += version_len;
-
-        // Copy os flags: Length, value
-        buffer_out[out_len] = 1;
-        out_len += sizeof(uint8_t);
-        buffer_out[out_len] = (uint8_t) os_flags();
-        out_len += sizeof(uint8_t);
-
-        // Success
-        *buffer_out_length = out_len;
-        err                = SWO_SUCCESS;
+    if (max_buffer_out_length >= (strlen("BOLOS") + strlen(VERSION) + 3 + 2)) {
+        buffer_out[(*buffer_out_length)++] = 1;  // format ID
+        str_length                         = strlen("BOLOS");
+        buffer_out[(*buffer_out_length)++] = str_length;
+        strcpy((char *) (&buffer_out[*buffer_out_length]), "BOLOS");
+        *buffer_out_length += str_length;
+        str_length                         = strlen(VERSION);
+        buffer_out[(*buffer_out_length)++] = str_length;
+        strcpy((char *) (&buffer_out[*buffer_out_length]), VERSION);
+        *buffer_out_length += str_length;
+        err = SWO_SUCCESS;
     }
+#else   // !HAVE_BOLOS
+    if (max_buffer_out_length >= 3) {
+        buffer_out[(*buffer_out_length)++] = 1;  // format ID
+        str_length
+            = os_registry_get_current_app_tag(BOLOS_TAG_APPNAME,
+                                              &buffer_out[(*buffer_out_length) + 1],
+                                              max_buffer_out_length - *buffer_out_length - 3);
+        buffer_out[(*buffer_out_length)++] = str_length;
+        *buffer_out_length += str_length;
+        str_length
+            = os_registry_get_current_app_tag(BOLOS_TAG_APPVERSION,
+                                              &buffer_out[(*buffer_out_length) + 1],
+                                              max_buffer_out_length - *buffer_out_length - 3);
+        buffer_out[(*buffer_out_length)++] = str_length;
+        *buffer_out_length += str_length;
+        buffer_out[(*buffer_out_length)++] = 1;
+        buffer_out[(*buffer_out_length)++] = os_flags();
+        err                                = SWO_SUCCESS;
+    }
+#endif  // !HAVE_BOLOS
 
     return err;
 }
