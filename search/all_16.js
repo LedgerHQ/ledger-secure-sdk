@@ -343,7 +343,7 @@ var searchData=
   ['ux_5fticker_5fevent_340',['ux_ticker_event',['../ux__nbgl_8h.html#a75d5e0968b44c539e8bd22324f19c722',1,'UX_TICKER_EVENT:&#160;ux_nbgl.h'],['../ux__bagl_8h.html#a75d5e0968b44c539e8bd22324f19c722',1,'UX_TICKER_EVENT:&#160;ux_bagl.h']]],
   ['ux_5fturner_341',['ux_turner',['../ux__bagl_8h.html#ab461db076368a71670f2d7f617d8a99f',1,'ux_bagl.h']]],
   ['ux_5fturner_5fcallback_5ft_342',['ux_turner_callback_t',['../ux__bagl_8h.html#a727c7a2f9a0029a8a02ee243d9f368ce',1,'ux_bagl.h']]],
-  ['ux_5fturner_5fdisplay_343',['ux_turner_display',['../ux__bagl_8h.html#a39db92987be3de85051d0e960d62275d',1,'UX_TURNER_DISPLAY:&#160;ux_bagl.h'],['../ux__bagl_8h.html#a46256eb39cfea6fe89028ae77347023c',1,'ux_turner_display(unsigned int current_step, const ux_turner_step_t *steps, unsigned int steps_count, button_push_callback_t button_callback):&#160;ux_bagl.h']]],
+  ['ux_5fturner_5fdisplay_343',['ux_turner_display',['../ux__bagl_8h.html#a46256eb39cfea6fe89028ae77347023c',1,'ux_turner_display(unsigned int current_step, const ux_turner_step_t *steps, unsigned int steps_count, button_push_callback_t button_callback):&#160;ux_bagl.h'],['../ux__bagl_8h.html#a39db92987be3de85051d0e960d62275d',1,'UX_TURNER_DISPLAY:&#160;ux_bagl.h']]],
   ['ux_5fturner_5finit_344',['UX_TURNER_INIT',['../ux__bagl_8h.html#af6d92559c7446ce429dafa701b874e69',1,'ux_bagl.h']]],
   ['ux_5fturner_5fstate_5fs_345',['ux_turner_state_s',['../structux__turner__state__s.html',1,'']]],
   ['ux_5fturner_5fstate_5ft_346',['ux_turner_state_t',['../ux__bagl_8h.html#a2a5d0b17c0dd7d3a73ec8c161ecfbeea',1,'ux_bagl.h']]],
