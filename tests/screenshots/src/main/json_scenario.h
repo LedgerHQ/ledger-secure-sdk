@@ -69,7 +69,8 @@ enum {
     BTC_SHARE_ADDR,
     RECOV_OPEN,
     DOGE_SIGN,
-    DOGE_PRELUDE_SIGN
+    DOGE_PRELUDE_SIGN,
+    ETH_ADDR_BOOK_SIGN
 };
 
 /**********************

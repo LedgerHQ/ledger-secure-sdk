@@ -57,6 +57,7 @@
 #define INTER_PARAGRAPHS_MARGIN          40
 #define PRE_TITLE_MARGIN                 24
 #define PRE_DESCRIPTION_MARGIN           16
+#define INTER_DESCRIPTIONS_MARGIN        16
 #define PRE_FIRST_ROW_MARGIN             32
 #define INTER_ROWS_MARGIN                16
 #define QR_PRE_TEXT_MARGIN               24
@@ -88,6 +89,7 @@
 #define INTER_PARAGRAPHS_MARGIN          24
 #define PRE_TITLE_MARGIN                 16
 #define PRE_DESCRIPTION_MARGIN           24
+#define INTER_DESCRIPTIONS_MARGIN        24
 #define PRE_FIRST_ROW_MARGIN             32
 #define INTER_ROWS_MARGIN                24
 #define QR_PRE_TEXT_MARGIN               24
@@ -119,6 +121,7 @@
 #define INTER_PARAGRAPHS_MARGIN          16
 #define PRE_TITLE_MARGIN                 16
 #define PRE_DESCRIPTION_MARGIN           12
+#define INTER_DESCRIPTIONS_MARGIN        12
 #define PRE_FIRST_ROW_MARGIN             24
 #define INTER_ROWS_MARGIN                12
 #define QR_PRE_TEXT_MARGIN               16
@@ -1532,18 +1535,14 @@ int nbgl_layoutAddLargeCaseText(nbgl_layout_t *layout, const char *text, bool gr
  * - a last one at the bottom of the container, in gray, with info param
  *
  * @param layout the current layout
- * @param title main text (in large bold font)
- * @param description description under main text (in small regular font)
- * @param info description at bottom (in small gray)
+ * @param content structure describing the content to add
  * @return height of the control if OK
  */
-int nbgl_layoutAddTextContent(nbgl_layout_t *layout,
-                              const char    *title,
-                              const char    *description,
-                              const char    *info)
+int nbgl_layoutAddTextContent(nbgl_layout_t *layout, nbgl_layoutTextContent_t *content)
 {
     nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
     nbgl_text_area_t      *textArea;
+    uint8_t                i;
 
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddTextContent():\n");
     if (layout == NULL) {
@@ -1551,10 +1550,10 @@ int nbgl_layoutAddTextContent(nbgl_layout_t *layout,
     }
 
     // create title
-    if (title != NULL) {
+    if (content->title != NULL) {
         textArea                = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
         textArea->textColor     = BLACK;
-        textArea->text          = PIC(title);
+        textArea->text          = PIC(content->title);
         textArea->textAlignment = MID_LEFT;
         textArea->fontId        = LARGE_MEDIUM_FONT;
         textArea->style         = NO_STYLE;
@@ -1569,11 +1568,11 @@ int nbgl_layoutAddTextContent(nbgl_layout_t *layout,
         layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
     }
 
-    // create description
-    if (description != NULL) {
+    // create descriptions
+    for (i = 0; i < content->nbDescriptions; i++) {
         textArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
         textArea->textColor = BLACK;
-        textArea->text      = PIC(description);
+        textArea->text      = PIC(content->descriptions[i]);
         textArea->fontId    = SMALL_REGULAR_FONT;
         textArea->style     = NO_STYLE;
         textArea->wrapping  = true;
@@ -1583,16 +1582,17 @@ int nbgl_layoutAddTextContent(nbgl_layout_t *layout,
         textArea->textAlignment        = MID_LEFT;
         textArea->obj.alignment        = NO_ALIGNMENT;
         textArea->obj.alignmentMarginX = BORDER_MARGIN;
-        textArea->obj.alignmentMarginY = PRE_DESCRIPTION_MARGIN;
+        textArea->obj.alignmentMarginY
+            = (i == 0) ? PRE_DESCRIPTION_MARGIN : INTER_DESCRIPTIONS_MARGIN;
         // set this new obj as child of main container
         layoutAddObject(layoutInt, (nbgl_obj_t *) textArea);
     }
 
     // create info on the bottom
-    if (info != NULL) {
+    if (content->info != NULL) {
         textArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
         textArea->textColor = LIGHT_TEXT_COLOR;
-        textArea->text      = PIC(info);
+        textArea->text      = PIC(content->info);
         textArea->fontId    = SMALL_REGULAR_FONT;
         textArea->style     = NO_STYLE;
         textArea->wrapping  = true;
@@ -2063,8 +2063,6 @@ int nbgl_layoutAddHorizontalButtons(nbgl_layout_t                        *layout
 int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueList_t *list)
 {
     nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
-    nbgl_text_area_t      *itemTextArea;
-    nbgl_text_area_t      *valueTextArea;
     nbgl_container_t      *container;
     uint8_t                i;
 
@@ -2077,7 +2075,11 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
         const nbgl_layoutTagValue_t *pair;
         uint16_t                     fullHeight = 0;
         const nbgl_icon_details_t   *valueIcon  = NULL;
+        nbgl_text_area_t            *itemTextArea;
+        nbgl_text_area_t            *valueTextArea;
+        uint8_t                      nbChildren = 2;
 
+        // Retrieve pair
         if (list->pairs != NULL) {
             pair = &list->pairs[i];
         }
@@ -2087,9 +2089,16 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
 
         container = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
 
-        // get container children (max 3 if a valueIcon, otherwise 2)
-        container->children
-            = nbgl_containerPoolGet((pair->valueIcon != NULL) ? 3 : 2, layoutInt->layer);
+        // tune container number of children (max 4 if a valueIcon and aliasSubName)
+        if (pair->valueIcon != NULL) {
+            nbChildren++;
+            // if it's a alias with a subName, add a child
+            if ((pair->aliasValue) && (pair->extension->aliasSubName)) {
+                nbChildren++;
+            }
+        }
+        // get container children
+        container->children = nbgl_containerPoolGet(nbChildren, layoutInt->layer);
 
         itemTextArea  = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
         valueTextArea = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
@@ -2103,11 +2112,6 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
         itemTextArea->obj.area.width  = AVAILABLE_WIDTH;
         itemTextArea->obj.area.height = nbgl_getTextHeightInWidth(
             itemTextArea->fontId, itemTextArea->text, AVAILABLE_WIDTH, itemTextArea->wrapping);
-        itemTextArea->style                        = NO_STYLE;
-        itemTextArea->obj.alignment                = NO_ALIGNMENT;
-        itemTextArea->obj.alignmentMarginX         = 0;
-        itemTextArea->obj.alignmentMarginY         = 0;
-        itemTextArea->obj.alignTo                  = NULL;
         container->children[container->nbChildren] = (nbgl_obj_t *) itemTextArea;
         container->nbChildren++;
 
@@ -2136,7 +2140,8 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
                 valueIcon = PIC(pair->valueIcon);
             }
             // decrease the available width for value text
-            valueTextArea->obj.area.width = AVAILABLE_WIDTH - valueIcon->width - 12;
+            valueTextArea->obj.area.width
+                = AVAILABLE_WIDTH - valueIcon->width - VALUE_ICON_INTERVALE;
         }
 
         // handle the nbMaxLinesForValue parameter, used to automatically keep only
@@ -2153,9 +2158,8 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
         }
         const nbgl_font_t *font                    = nbgl_getFont(valueTextArea->fontId);
         valueTextArea->obj.area.height             = nbLines * font->line_height;
-        valueTextArea->style                       = NO_STYLE;
         valueTextArea->obj.alignment               = BOTTOM_LEFT;
-        valueTextArea->obj.alignmentMarginY        = 4;
+        valueTextArea->obj.alignmentMarginY        = TAG_VALUE_INTERVALE;
         valueTextArea->obj.alignTo                 = (nbgl_obj_t *) itemTextArea;
         valueTextArea->wrapping                    = list->wrapping;
         container->children[container->nbChildren] = (nbgl_obj_t *) valueTextArea;
@@ -2171,7 +2175,7 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
             image->foregroundColor      = BLACK;
             image->buffer               = valueIcon;
             image->obj.alignment        = RIGHT_TOP;
-            image->obj.alignmentMarginX = 12;
+            image->obj.alignmentMarginX = VALUE_ICON_INTERVALE;
             image->obj.alignTo          = (nbgl_obj_t *) valueTextArea;
             // set the container as touchable, not only the image
             container->obj.touchMask = (1 << TOUCHED);
@@ -2179,6 +2183,26 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
 
             container->children[container->nbChildren] = (nbgl_obj_t *) image;
             container->nbChildren++;
+
+            // if an aliasSubName is provided, display it under value
+            if ((pair->aliasValue) && (pair->extension->aliasSubName)) {
+                nbgl_text_area_t *textArea
+                    = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
+                textArea->textColor            = BLACK;
+                textArea->text                 = PIC(pair->extension->aliasSubName);
+                textArea->textAlignment        = MID_LEFT;
+                textArea->nbMaxLines           = 1;
+                textArea->fontId               = SMALL_REGULAR_FONT;
+                textArea->obj.area.height      = nbgl_getFontLineHeight(textArea->fontId);
+                textArea->obj.area.width       = valueTextArea->obj.area.width;
+                textArea->obj.alignment        = BOTTOM_LEFT;
+                textArea->obj.alignmentMarginY = TAG_VALUE_INTERVALE;
+                textArea->obj.alignTo          = (nbgl_obj_t *) valueTextArea;
+                textArea->wrapping             = list->wrapping;
+                container->children[container->nbChildren] = (nbgl_obj_t *) textArea;
+                container->nbChildren++;
+                fullHeight += textArea->obj.area.height + textArea->obj.alignmentMarginY;
+            }
         }
 
         container->obj.area.width       = AVAILABLE_WIDTH;

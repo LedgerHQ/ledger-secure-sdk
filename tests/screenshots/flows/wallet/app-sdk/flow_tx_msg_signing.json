@@ -395,6 +395,59 @@
     {
       "name": "prelude_sign_3",
       "targets": [
+        {
+          "app_event": "ETH_ADDR_BOOK_SIGN",
+          "page": "address_book_1"
+        }
+      ]
+    },
+    {
+      "name": "address_book_1",
+      "targets": [
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "address_book_2"
+        }
+      ]
+    },
+    {
+      "name": "address_book_2",
+      "targets": [
+        {
+          "object": "VALUE_BUTTON_1",
+          "page": "address_book_2.1"
+        },
+        {
+          "object": "VALUE_BUTTON_3",
+          "page": "address_book_2.2"
+        },
+        {
+          "object": "RIGHT_BUTTON",
+          "page": "address_book_3"
+        }
+      ]
+    },
+    {
+      "name": "address_book_2.1",
+      "targets": [
+        {
+          "object": "BACK_BUTTON",
+          "page": "address_book_2"
+        }
+      ]
+    },
+    {
+      "name": "address_book_2.2",
+      "targets": [
+        {
+          "object": "BACK_BUTTON",
+          "page": "address_book_2"
+        }
+      ]
+    },
+    {
+      "name": "address_book_3",
+      "targets": [
       ]
     }
   ]

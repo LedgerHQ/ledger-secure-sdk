@@ -59,6 +59,37 @@ static nbgl_contentTagValue_t pairs[] = {
     {.item = "Amount", .value = "8.127467 ETH"}
 };
 
+#ifdef SCREEN_SIZE_WALLET
+static nbgl_contentValueExt_t extensionAddrBook1
+    = {.fullValue    = "0x8aE57A027c63fcA8070D1Bf38622321dE8004c67",
+       .aliasSubName = NULL,
+       .explanation  = NULL,
+       .aliasType    = ADDRESS_BOOK_ALIAS};
+static nbgl_contentValueExt_t extensionAddrBook2
+    = {.fullValue    = "0x8aE57A027c63fcA8070D1Bf38622321dE8004c67",
+       .aliasSubName = "Main Ethereum",
+       .explanation  = NULL,
+       .aliasType    = ADDRESS_BOOK_ALIAS};
+#endif
+static nbgl_contentTagValue_t pairsAddrBook[] = {
+    {.item  = "From",
+     .value = "My main Eth",
+#ifdef SCREEN_SIZE_WALLET
+     .aliasValue = 1,
+     .extension  = &extensionAddrBook1
+#endif
+    },
+    {.item = "Amount", .value = "1.01067 ETH"},
+    {.item  = "To",
+     .value = "Brian",
+#ifdef SCREEN_SIZE_WALLET
+     .aliasValue = 1,
+     .extension  = &extensionAddrBook2
+#endif
+    },
+    {.item = "Fees", .value = "0.001 ETH"},
+};
+
 static nbgl_contentTagValue_t pairsBS[] = {
     {.item = "Hash",     .value = "0xC6F0A719DB049E7BC8A6205AF89222DD2078D0EF68A8E2D209E2BC85DF8C8BD4"},
     {.item = "From",     .value = "0x123Aje763D2ee523a2206206994597C13D83de33"                        },
@@ -228,11 +259,18 @@ void app_ethereumSignForwardOnlyMessage(void)
                                      onTransactionContinue);
 }
 
-void app_ethereumSignUnknownLengthMessage(void)
+void app_ethereumAddressBookReview(void)
 {
-    nbPairsSent = 0;
-    nbgl_useCaseReviewStreamingStart(
-        TYPE_MESSAGE, &ETH_MAIN_ICON, "Review message", NULL, onTransactionContinue);
+    pairList.wrapping = false;
+    pairList.pairs    = pairsAddrBook;
+    pairList.nbPairs  = 4;
+    nbgl_useCaseReview(TYPE_TRANSACTION,
+                       &pairList,
+                       &ETH_MAIN_ICON,
+                       "Review transaction\nto send Etherum",
+                       NULL,
+                       "Sign transaction to\nsend Etherum?",
+                       onMessageAccept);
 }
 
 /**

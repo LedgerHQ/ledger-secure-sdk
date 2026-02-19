@@ -146,9 +146,10 @@ typedef enum {
  *        to be able to build a screen to display these additions (for alias)
  */
 typedef struct {
-    const char *fullValue;    ///< full string of the value when used as an alias
-    const char *explanation;  ///< string displayed in gray, explaing where the alias comes from
-                              ///< only used if aliasType is @ref NO_ALIAS_TYPE
+    const char *fullValue;     ///< full string of the value when used as an alias
+    const char *aliasSubName;  ///< string displayed under alias and in details view
+    const char *explanation;   ///< string displayed in gray, explaing where the alias comes from
+                               ///< only used if aliasType is @ref NO_ALIAS_TYPE
     const char *title;  ///< if not NULL and aliasType is @ref QR_CODE_ALIAS, is used as title of
                         ///< the QR Code
     const char
