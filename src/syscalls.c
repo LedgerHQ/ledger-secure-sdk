@@ -1506,6 +1506,17 @@ void os_setting_set(unsigned int setting_id, unsigned char *value, unsigned int 
     return;
 }
 
+unsigned int os_registry_get_current_app_tag(unsigned int   tag,
+                                             unsigned char *buffer,
+                                             unsigned int   maxlen)
+{
+    unsigned int parameters[3];
+    parameters[0] = (unsigned int) tag;
+    parameters[1] = (unsigned int) buffer;
+    parameters[2] = (unsigned int) maxlen;
+    return (unsigned int) SVC_Call(SYSCALL_os_registry_get_current_app_tag_ID, parameters);
+}
+
 void __attribute__((noreturn)) os_sched_exit(bolos_task_status_t exit_code)
 {
     unsigned int parameters[2];
