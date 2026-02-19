@@ -33,6 +33,14 @@
 #include "lcx_wrappers.h"
 #include "lcx_ecfp.h"
 
+// DER SIGNATURE FORMAT
+// TAG(0x30) | TOT_LEN | TAG(0x02) | R_LEN | R | TAG(0x02) | S_LEN | S
+// Min sig length (no padding): 1 + 1 + 2 * (1 + 1 + 32)
+#define CX_ECDSA_SHA256_SIG_MIN_ASN1_LENGTH (70U)
+
+// Max sig length (padding) : 1 + 1 + 2 * (1 + 1 + 33)
+#define CX_ECDSA_SHA256_SIG_MAX_ASN1_LENGTH (72U)
+
 /** @internal Backward compatibility */
 #define cx_ecdsa_init_public_key  cx_ecfp_init_public_key_no_throw
 /** @internal Backward compatibility */
