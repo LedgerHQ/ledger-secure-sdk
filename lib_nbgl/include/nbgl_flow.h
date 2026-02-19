@@ -58,13 +58,14 @@ typedef struct nbgl_stepDesc_s {
 typedef struct nbgl_pageContent_s {
     nbgl_contentType_t type;  ///< type of page content in the following union
     union {
-        nbgl_contentCenteredInfo_t centeredInfo;  ///< @ref CENTERED_INFO type
-        nbgl_contentInfoButton_t   infoButton;    ///< @ref INFO_BUTTON type
-        nbgl_contentTagValueList_t tagValueList;  ///< @ref TAG_VALUE_LIST type
-        nbgl_contentSwitchesList_t switchesList;  ///< @ref SWITCHES_LIST type
-        nbgl_contentInfoList_t     infosList;     ///< @ref INFOS_LIST type
-        nbgl_contentRadioChoice_t  choicesList;   ///< @ref CHOICES_LIST type
-        nbgl_contentBarsList_t     barsList;      ///< @ref BARS_LIST type
+        nbgl_contentCenteredInfo_t    centeredInfo;     ///< @ref CENTERED_INFO type
+        nbgl_contentInfoButton_t      infoButton;       ///< @ref INFO_BUTTON type
+        nbgl_contentTagValueList_t    tagValueList;     ///< @ref TAG_VALUE_LIST type
+        nbgl_contentTagValueConfirm_t tagValueConfirm;  ///< @ref TAG_VALUE_CONFIRM type
+        nbgl_contentSwitchesList_t    switchesList;     ///< @ref SWITCHES_LIST type
+        nbgl_contentInfoList_t        infosList;        ///< @ref INFOS_LIST type
+        nbgl_contentRadioChoice_t     choicesList;      ///< @ref CHOICES_LIST type
+        nbgl_contentBarsList_t        barsList;         ///< @ref BARS_LIST type
     };
 } nbgl_pageContent_t;
 

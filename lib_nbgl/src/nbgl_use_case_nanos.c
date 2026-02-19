@@ -144,6 +144,7 @@ typedef struct UseCaseContext_s {
     uint8_t              nbPages;
     int8_t               currentPage;
     int8_t               firstPairPage;
+    bool                 forceAction;
     nbgl_stepCallback_t
         stepCallback;  ///< if not NULL, function to be called on "double-key" action
     union {
@@ -167,6 +168,7 @@ typedef struct PageContent_s {
     const nbgl_contentValueExt_t *extension;
     nbgl_state_t                  state;
     bool                          isCenteredInfo;
+    bool                          isAction;
 } PageContent_t;
 
 typedef struct ReviewWithWarningContext_s {
@@ -238,6 +240,9 @@ static uint8_t getContentNbElement(const nbgl_content_t *content)
             return 1;
         case TAG_VALUE_LIST:
             return content->content.tagValueList.nbPairs;
+        case TAG_VALUE_CONFIRM:
+            // last element is for Confirm page
+            return content->content.tagValueConfirm.tagValueList.nbPairs + 1;
         case SWITCHES_LIST:
             return content->content.switchesList.nbSwitches;
         case INFOS_LIST:
@@ -283,6 +288,9 @@ static const nbgl_content_t *getContentAtIdx(const nbgl_genericContents_t *gener
                         break;
                     case TAG_VALUE_LIST:
                         content->content.tagValueList = pageContent.tagValueList;
+                        break;
+                    case TAG_VALUE_CONFIRM:
+                        content->content.tagValueConfirm = pageContent.tagValueConfirm;
                         break;
                     case SWITCHES_LIST:
                         content->content.switchesList = pageContent.switchesList;
@@ -617,7 +625,7 @@ static void drawStep(nbgl_stepPosition_t        pos,
         info.text1 = txt;
         info.text2 = subTxt;
         info.onTop = false;
-        if ((subTxt != NULL) || (context.stepCallback != NULL)) {
+        if ((subTxt != NULL) || (context.stepCallback != NULL) || context.forceAction) {
             info.style = BOLD_TEXT1_INFO;
         }
         else {
@@ -703,6 +711,14 @@ static bool buttonGenericCallback(nbgl_buttonEvent_t event, nbgl_stepPosition_t 
                         case CHOICES_LIST:
                             token = p_content->content.choicesList.token;
                             index = context.currentPage;
+                            break;
+                        case TAG_VALUE_LIST:
+                            return false;
+                        case TAG_VALUE_CONFIRM:
+                            if (elemIdx < p_content->content.tagValueConfirm.tagValueList.nbPairs) {
+                                return false;
+                            }
+                            token = p_content->content.tagValueConfirm.confirmationToken;
                             break;
                         default:
                             break;
@@ -1367,6 +1383,22 @@ static void getContentPage(bool toogle_state, PageContent_t *contentPage)
                         &contentPage->icon,
                         &contentPage->isCenteredInfo);
             break;
+        case TAG_VALUE_CONFIRM:
+            if (elemIdx < p_content->content.tagValueConfirm.tagValueList.nbPairs) {
+                getPairData(&p_content->content.tagValueConfirm.tagValueList,
+                            elemIdx,
+                            &contentPage->text,
+                            &contentPage->subText,
+                            &contentPage->extension,
+                            &contentPage->icon,
+                            &contentPage->isCenteredInfo);
+            }
+            else {
+                contentPage->text     = p_content->content.tagValueConfirm.confirmationText;
+                contentPage->icon     = &C_icon_validate_14;
+                contentPage->isAction = true;
+            }
+            break;
         case SWITCHES_LIST:
             contentPage->isSwitch = true;
             contentSwitch         = &(
@@ -1728,6 +1760,7 @@ static void displayContent(nbgl_stepPosition_t pos, bool toogle_state)
         if (contentPage.isCenteredInfo) {
             forcedType = FORCE_CENTERED_INFO;
         }
+        context.forceAction = contentPage.isAction;
     }
     else {  // last page is for quit
         if (context.content.rejectText) {
@@ -1758,7 +1791,7 @@ static void displayContent(nbgl_stepPosition_t pos, bool toogle_state)
                  false,
                  forcedType);
     }
-
+    context.forceAction = false;
     nbgl_refresh();
 }
 
