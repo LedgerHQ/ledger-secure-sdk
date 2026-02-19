@@ -546,6 +546,18 @@ void nbgl_useCaseKeypad(const char             *title,
                         nbgl_callback_t         backCallback);
 #endif  // NBGL_KEYPAD
 
+#ifdef NBGL_KEYBOARD
+void nbgl_useCaseKeyboard(const char     *title,
+                          const char     *buttonText,
+                          char           *entryBuffer,
+                          uint8_t         entryMaxLen,
+                          bool            lettersOnly,
+                          keyboardMode_t  mode,
+                          keyboardCase_t  casing,
+                          nbgl_callback_t keyboardButtonCallback,
+                          nbgl_callback_t backCallback);
+#endif  // NBGL_KEYBOARD
+
 #ifdef HAVE_SE_TOUCH
 // use case drawing
 DEPRECATED void nbgl_useCaseHome(const char                *appName,
