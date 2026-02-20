@@ -163,6 +163,14 @@ typedef void (*nbgl_actionCallback_t)(uint8_t page);
 typedef void (*nbgl_pinValidCallback_t)(const uint8_t *pin, uint8_t pinLen);
 
 /**
+ * @brief prototype of keyboard buttons callback function
+ * @param content content to fill
+ * @param mask of keys to activate/deactivate on keyboard
+ */
+typedef void (*nbgl_keyboardButtonsCallback_t)(nbgl_layoutKeyboardContent_t *content,
+                                               uint32_t                     *mask);
+
+/**
  * @brief prototype of content navigation callback function
  * @param contentIndex content index (0->(nbContents-1)) that is needed by the lib
  * @param content content to fill
@@ -547,15 +555,44 @@ void nbgl_useCaseKeypad(const char             *title,
 #endif  // NBGL_KEYPAD
 
 #ifdef NBGL_KEYBOARD
-void nbgl_useCaseKeyboard(const char     *title,
-                          const char     *buttonText,
-                          char           *entryBuffer,
-                          uint8_t         entryMaxLen,
-                          bool            lettersOnly,
-                          keyboardMode_t  mode,
-                          keyboardCase_t  casing,
-                          nbgl_callback_t keyboardButtonCallback,
-                          nbgl_callback_t backCallback);
+typedef struct {
+    const char     *buttonText;
+    nbgl_callback_t onButtonCallback;
+} nbgl_kbdButtonParams_t;
+
+typedef struct {
+    const char **buttons;           ///< array of 4 strings for buttons (last ones can be NULL)
+    int          firstButtonToken;  ///< first token used for buttons, provided in onButtonCallback
+    nbgl_layoutTouchCallback_t
+        onButtonCallback;  ///< callback to call when one of the buttons is pressed
+    nbgl_keyboardButtonsCallback_t
+        updateButtonsCallback;  ///< callback to call when a key is pressed to update suggestions
+} nbgl_kbdSuggestParams_t;
+
+typedef struct {
+    nbgl_layoutKeyboardContentType_t type;         ///< type of content
+    const char                      *title;        ///< centered title explaining the screen
+    char                            *entryBuffer;  ///< already entered text
+    uint8_t                          entryMaxLen;  ///< maximum length of text that can be entered
+    bool           numbered;     ///< if set to true, the text is preceded on the left by 'number.'
+    uint8_t        number;       ///< if numbered is true, number used to build 'number.' text
+    bool           lettersOnly;  ///< if true, only display letter keys and Backspace
+    keyboardMode_t mode;         ///< keyboard mode to start with
+#ifdef HAVE_SE_TOUCH
+    keyboardCase_t casing;  ///< keyboard casing mode (lower, upper once or upper locked)
+#else                       // HAVE_SE_TOUCH
+    bool    enableBackspace;  ///< if true, Backspace key is enabled
+    bool    enableValidate;   ///< if true, Validate key is enabled
+    uint8_t selectedCharIndex;
+#endif                      // HAVE_SE_TOUCH
+    union {
+        nbgl_kbdSuggestParams_t
+                               suggestionParams;  /// used if type is @ref KEYBOARD_WITH_SUGGESTIONS
+        nbgl_kbdButtonParams_t confirmationParams;  /// used if type is @ref KEYBOARD_WITH_BUTTON
+    };
+} nbgl_keyboardParams_t;
+
+void nbgl_useCaseKeyboard(const nbgl_keyboardParams_t *params, nbgl_callback_t backCallback);
 #endif  // NBGL_KEYBOARD
 
 #ifdef HAVE_SE_TOUCH
