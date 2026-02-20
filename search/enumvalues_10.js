@@ -12,6 +12,7 @@ var searchData=
   ['right_5farrow_9',['RIGHT_ARROW',['../nbgl__layout_8h.html#a3b6b5b5431729fa60ae177c8abe731a2a67842bdd9404946ad33353a26fac6f32',1,'nbgl_layout.h']]],
   ['right_5fbottom_10',['RIGHT_BOTTOM',['../nbgl__types_8h.html#a82db45397671e5a06f32c857ed8980c6aee0189be1e9c2df7a06f26b9b145b8df',1,'nbgl_types.h']]],
   ['right_5fbutton_5fid_11',['RIGHT_BUTTON_ID',['../nbgl__obj_8h.html#aac34dfe6c6b73b43a4656c9dce041034a9fa8ba74d72e9d38aae7b28fd6c3df26',1,'nbgl_obj.h']]],
-  ['right_5ftop_12',['RIGHT_TOP',['../nbgl__types_8h.html#a82db45397671e5a06f32c857ed8980c6a9b2883e2bfd004a9f220d7a73baeccac',1,'nbgl_types.h']]],
-  ['rounded_5fand_5ffooter_5fstyle_13',['ROUNDED_AND_FOOTER_STYLE',['../nbgl__layout_8h.html#aab86a9d202df5a9f485ac2c164e294e4ac86b4918c86ef6fedc9133ecd70d368e',1,'nbgl_layout.h']]]
+  ['right_5fhalf_12',['RIGHT_HALF',['../nbgl__draw_8c.html#afd109ef1b4544a38efb47a2a83ba77d9a1ad609f4a66da4511bcec405de71fc6c',1,'nbgl_draw.c']]],
+  ['right_5ftop_13',['RIGHT_TOP',['../nbgl__types_8h.html#a82db45397671e5a06f32c857ed8980c6a9b2883e2bfd004a9f220d7a73baeccac',1,'nbgl_types.h']]],
+  ['rounded_5fand_5ffooter_5fstyle_14',['ROUNDED_AND_FOOTER_STYLE',['../nbgl__layout_8h.html#aab86a9d202df5a9f485ac2c164e294e4ac86b4918c86ef6fedc9133ecd70d368e',1,'nbgl_layout.h']]]
 ];

@@ -1,24 +1,16 @@
 <map id="lib_cxng/include/lcx_aes.h" name="lib_cxng/include/lcx_aes.h">
-<area shape="rect" id="Node000001" title="AES (Advanced Encryption Standard)." alt="" coords="291,5,442,45"/>
-<area shape="rect" id="Node000002" href="$lcx__cipher_8h.html" title="API for block ciphers." alt="" coords="354,93,505,133"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="391,55,418,92,413,95,387,58"/>
-<area shape="rect" id="Node000003" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="206,181,397,207"/>
-<area shape="poly" id="edge12_Node000001_Node000003" title=" " alt="" coords="357,59,308,182,303,180,352,57"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="388,143,322,183,319,179,386,138"/>
-<area shape="rect" id="Node000005" href="$cx__ram_8h.html" title=" " alt="" coords="387,350,549,375"/>
-<area shape="poly" id="edge11_Node000002_Node000005" title=" " alt="" coords="437,147,469,350,464,350,432,148"/>
-<area shape="rect" id="Node000009" href="$cx__cipher_8h.html" title=" " alt="" coords="472,181,648,207"/>
-<area shape="poly" id="edge9_Node000002_Node000009" title=" " alt="" coords="474,138,542,179,539,183,471,143"/>
-<area shape="rect" id="Node000004" href="$lcx__rng_8h.html" title="Random Number Generation." alt="" coords="226,255,377,295"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="296,220,296,254,291,255,290,220"/>
-<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="308,241,305,207,311,207,313,241"/>
-<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="351,299,447,348,445,352,349,303"/>
-<area shape="rect" id="Node000007" href="$cx__rng__rfc6979_8h.html" title=" " alt="" coords="5,343,152,383"/>
-<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="241,302,128,345,126,340,239,297"/>
-<area shape="rect" id="Node000008" href="$nbgl__layout_8c.html" title="Implementation of predefined layouts management for Applications." alt="" coords="176,350,363,375"/>
-<area shape="poly" id="edge8_Node000004_Node000008" title=" " alt="" coords="292,309,276,350,271,349,287,307"/>
-<area shape="rect" id="Node000006" href="$cx__ram_8c.html" title=" " alt="" coords="387,431,549,456"/>
-<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="471,389,471,430,465,430,465,389"/>
-<area shape="rect" id="Node000010" href="$cx__cipher_8c.html" title=" " alt="" coords="473,262,647,287"/>
-<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="563,220,563,262,557,262,557,220"/>
+<area shape="rect" id="Node000001" title="AES (Advanced Encryption Standard)." alt="" coords="81,5,232,45"/>
+<area shape="rect" id="Node000002" href="$lcx__cipher_8h.html" title="API for block ciphers." alt="" coords="139,93,289,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,56,204,92,199,95,175,58"/>
+<area shape="rect" id="Node000003" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="5,181,196,207"/>
+<area shape="poly" id="edge7_Node000001_Node000003" title=" " alt="" coords="143,59,129,94,114,142,106,181,100,180,109,141,123,92,139,57"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="177,143,119,183,116,179,174,139"/>
+<area shape="rect" id="Node000004" href="$cx__cipher_8h.html" title=" " alt="" coords="221,181,397,207"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="249,140,296,179,293,183,246,144"/>
+<area shape="rect" id="Node000005" href="$cx__cipher_8c.html" title=" " alt="" coords="125,255,300,280"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="284,217,230,257,227,252,281,213"/>
+<area shape="rect" id="Node000006" href="$cx__ram_8h.html" title=" " alt="" coords="325,255,487,280"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="337,213,392,252,389,257,334,217"/>
+<area shape="rect" id="Node000007" href="$cx__ram_8c.html" title=" " alt="" coords="325,328,487,353"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="409,294,409,328,403,328,403,294"/>
 </map>
