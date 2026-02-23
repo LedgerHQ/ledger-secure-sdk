@@ -60,7 +60,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: sdk
-          ref: ${{ inputs.sdk_branch }}
+          ref: ${{ inputs.sdk_branch || github.head_ref }}
 
       - name: Install prerequisites
         run: pip install --break-system-packages ledgered
