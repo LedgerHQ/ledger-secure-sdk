@@ -106,7 +106,7 @@ jobs:
         run: |
           cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/nanox/bin/app.elf \
              artifacts/${{ matrix.apps.app-name }}-nanox.elf || true
-          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/nanox/bin/app.map \
+          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/nanox/dbg/app.map \
              artifacts/${{ matrix.apps.app-name }}-nanox.map || true
       - name: Build App for Nano S+
         if: contains(matrix.apps.devices, 'nanos+')
@@ -123,7 +123,7 @@ jobs:
         run: |
           cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/nanos2/bin/app.elf \
              artifacts/${{ matrix.apps.app-name }}-nanosp.elf || true
-          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/nanos2/bin/app.map \
+          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/nanos2/dbg/app.map \
              artifacts/${{ matrix.apps.app-name }}-nanosp.map || true
       - name: Build App for Stax
         if: contains(matrix.apps.devices, 'stax')
@@ -140,7 +140,7 @@ jobs:
         run: |
           cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/stax/bin/app.elf \
              artifacts/${{ matrix.apps.app-name }}-stax.elf || true
-          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/stax/bin/app.map \
+          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/stax/dbg/app.map \
              artifacts/${{ matrix.apps.app-name }}-stax.map || true
       - name: Build App for Flex
         if: contains(matrix.apps.devices, 'flex')
@@ -157,7 +157,7 @@ jobs:
         run: |
           cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/flex/bin/app.elf \
              artifacts/${{ matrix.apps.app-name }}-flex.elf || true
-          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/flex/bin/app.map \
+          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/flex/dbg/app.map \
              artifacts/${{ matrix.apps.app-name }}-flex.map || true
       - name: Build App for Apex+
         if: contains(matrix.apps.devices, 'apex_p')
@@ -174,7 +174,7 @@ jobs:
         run: |
           cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/apex_p/bin/app.elf \
              artifacts/${{ matrix.apps.app-name }}-apex_p.elf || true
-          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/apex_p/bin/app.map \
+          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/apex_p/dbg/app.map \
              artifacts/${{ matrix.apps.app-name }}-apex_p.map || true
 
       - name: Upload app binaries
@@ -231,7 +231,7 @@ jobs:
         run: |
           cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/nanox/bin/app.elf \
              artifacts-official/${{ matrix.apps.app-name }}-nanox.elf || true
-          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/nanox/bin/app.map \
+          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/nanox/dbg/app.map \
              artifacts-official/${{ matrix.apps.app-name }}-nanox.map || true
       - name: Build App for Nano S+
         if: contains(matrix.apps.devices, 'nanos+')
@@ -248,7 +248,7 @@ jobs:
         run: |
           cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/nanos2/bin/app.elf \
              artifacts-official/${{ matrix.apps.app-name }}-nanosp.elf || true
-          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/nanos2/bin/app.map \
+          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/nanos2/dbg/app.map \
              artifacts-official/${{ matrix.apps.app-name }}-nanosp.map || true
       - name: Build App for Stax
         if: contains(matrix.apps.devices, 'stax')
@@ -265,7 +265,7 @@ jobs:
         run: |
           cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/stax/bin/app.elf \
              artifacts-official/${{ matrix.apps.app-name }}-stax.elf || true
-          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/stax/bin/app.map \
+          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/stax/dbg/app.map \
              artifacts-official/${{ matrix.apps.app-name }}-stax.map || true
       - name: Build App for Flex
         if: contains(matrix.apps.devices, 'flex')
@@ -282,7 +282,7 @@ jobs:
         run: |
           cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/flex/bin/app.elf \
              artifacts-official/${{ matrix.apps.app-name }}-flex.elf || true
-          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/flex/bin/app.map \
+          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/flex/dbg/app.map \
              artifacts-official/${{ matrix.apps.app-name }}-flex.map || true
       - name: Build App for Apex+
         if: contains(matrix.apps.devices, 'apex_p')
@@ -299,7 +299,7 @@ jobs:
         run: |
           cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/apex_p/bin/app.elf \
              artifacts-official/${{ matrix.apps.app-name }}-apex_p.elf || true
-          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/apex_p/bin/app.map \
+          cp ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/build/apex_p/dbg/app.map \
              artifacts-official/${{ matrix.apps.app-name }}-apex_p.map || true
 
       - name: Upload app binaries
@@ -344,6 +344,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y binutils-arm-none-eabi
+          wget -q https://github.com/google/bloaty/releases/download/v1.1/bloaty-1.1-linux-x86_64.tar.gz
+          tar xf bloaty-1.1-linux-x86_64.tar.gz
+          sudo mv bloaty /usr/local/bin/bloaty
 
       - name: Analyze and compare binaries
         run: |
@@ -486,3 +489,64 @@ jobs:
           
           chmod +x detailed_compare.sh
           ./detailed_compare.sh
+
+      - name: Generate bloaty diff reports
+        run: |
+          APP_NAME="${{ matrix.apps.app-name }}"
+          mkdir -p bloaty-reports
+
+          for device_key in nanox nanosp stax flex apex_p; do
+            OFFICIAL_ELF="official/${APP_NAME}-${device_key}.elf"
+            CUSTOM_ELF="custom/${APP_NAME}-${device_key}.elf"
+
+            if [ ! -f "$OFFICIAL_ELF" ] || [ ! -f "$CUSTOM_ELF" ]; then
+              continue
+            fi
+
+            case $device_key in
+              nanox)  DEVICE_NAME="Nano X" ;;
+              nanosp) DEVICE_NAME="Nano S+" ;;
+              stax)   DEVICE_NAME="Stax" ;;
+              flex)   DEVICE_NAME="Flex" ;;
+              apex_p) DEVICE_NAME="Apex+" ;;
+            esac
+
+            REPORT="bloaty-reports/${APP_NAME}-${device_key}.md"
+
+            {
+              echo "# Bloaty diff: ${APP_NAME} — ${DEVICE_NAME}"
+              echo ""
+              echo "**Baseline:** clang-14 (official image)  "
+              echo "**New build:** clang-21 (custom image)  "
+              echo "**Generated:** $(date -u '+%Y-%m-%d %H:%M UTC')"
+              echo ""
+              echo "## By section"
+              echo '```'
+              bloaty --diff-base="$OFFICIAL_ELF" "$CUSTOM_ELF" \
+                -d sections -n 0 2>&1 || echo "(bloaty failed)"
+              echo '```'
+              echo ""
+              echo "## By compile unit"
+              echo '```'
+              bloaty --diff-base="$OFFICIAL_ELF" "$CUSTOM_ELF" \
+                -d compileunits -n 0 2>&1 || echo "(bloaty failed)"
+              echo '```'
+              echo ""
+              echo "## By compile unit → symbol"
+              echo '```'
+              bloaty --diff-base="$OFFICIAL_ELF" "$CUSTOM_ELF" \
+                -d compileunits,symbols -n 0 2>&1 || echo "(bloaty failed)"
+              echo '```'
+            } > "$REPORT"
+
+            echo "Generated: $REPORT"
+          done
+
+      - name: Upload bloaty reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.apps.app-name }}-bloaty-reports
+          path: bloaty-reports/
+          if-no-files-found: ignore
+          retention-days: 7
