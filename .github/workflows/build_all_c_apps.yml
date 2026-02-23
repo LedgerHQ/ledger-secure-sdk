@@ -26,6 +26,48 @@ jobs:
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
 
+  build-docker-full:
+    name: Build ledger-app-builder
+    needs: [build-docker]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout ledger-app-builder
+        uses: actions/checkout@v4
+        with:
+          repository: LedgerHQ/ledger-app-builder
+          ref: mbr/clang-21
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download ledger-app-builder-lite image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ledger-app-builder-lite
+          path: /tmp
+
+      - name: Load ledger-app-builder-lite image
+        run: docker load -i /tmp/ledger-app-builder-lite.tar
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker
+
+      - name: Build ledger-app-builder image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: full/Dockerfile
+          push: false
+          tags: ledger-app-builder:latest
+          outputs: type=docker,dest=/tmp/ledger-app-builder.tar
+
+      - name: Upload ledger-app-builder image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ledger-app-builder
+          path: /tmp/ledger-app-builder.tar
+          retention-days: 1
+
   prepare-matrix:
     name: Retrieve C apps
     runs-on: ubuntu-latest
@@ -56,7 +98,7 @@ jobs:
 
   test-build:
     name: Build for all targets
-    needs: [prepare-matrix, build-docker]
+    needs: [prepare-matrix, build-docker-full]
     strategy:
       fail-fast: false
       matrix:
@@ -79,12 +121,12 @@ jobs:
       - name: Download Docker image artifact
         uses: actions/download-artifact@v4
         with:
-          name: ledger-app-builder-lite
+          name: ledger-app-builder
           path: /tmp
 
       - name: Load Docker image and start build container
         run: |
-          LOADED_IMAGE=$(docker load -i /tmp/ledger-app-builder-lite.tar | grep "Loaded image" | head -1 | awk '{print $NF}')
+          LOADED_IMAGE=$(docker load -i /tmp/ledger-app-builder.tar | grep "Loaded image" | head -1 | awk '{print $NF}')
           docker run -d --name builder -v $GITHUB_WORKSPACE:/workspace "$LOADED_IMAGE" sleep infinity
           docker exec builder pip install --break-system-packages ledgered
 
@@ -209,8 +251,8 @@ jobs:
 
       - name: Pull official Docker image and start build container
         run: |
-          docker pull ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-lite:5.0.2
-          docker run -d --name builder-official -v $GITHUB_WORKSPACE:/workspace ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-lite:5.0.2 sleep infinity
+          docker pull ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:5.0.2
+          docker run -d --name builder-official -v $GITHUB_WORKSPACE:/workspace ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:5.0.2 sleep infinity
           docker exec builder-official pip install --break-system-packages ledgered
 
       - name: Create artifacts directory
