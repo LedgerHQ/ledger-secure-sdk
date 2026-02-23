@@ -340,10 +340,15 @@ jobs:
           path: official/
         continue-on-error: true
 
-      - name: Generate map comparison reports
+      - name: Install analysis tools
         run: |
-          cat << 'PYEOF' > compare_maps.py
-          import re, os, sys
+          sudo apt-get update -qq
+          sudo apt-get install -y binutils-arm-none-eabi
+
+      - name: Generate comparison reports
+        run: |
+          cat << 'PYEOF' > compare.py
+          import re, os, subprocess
           from pathlib import Path
           from collections import defaultdict
           from datetime import datetime, timezone
@@ -359,18 +364,30 @@ jobs:
           APP = os.environ['APP_NAME']
           SUMMARY = os.environ.get('GITHUB_STEP_SUMMARY', '/dev/stdout')
 
+          def elf_sections(elf):
+              """Returns {section: size} from arm-none-eabi-size -A (real ELF sizes, incl. padding)."""
+              try:
+                  out = subprocess.check_output(['arm-none-eabi-size', '-A', str(elf)],
+                                                stderr=subprocess.DEVNULL, text=True)
+              except Exception:
+                  return {}
+              result = {}
+              for line in out.splitlines():
+                  m = re.match(r'^(\.\w[\w.]*)\s+(\d+)', line)
+                  if m:
+                      result[m.group(1)] = int(m.group(2))
+              return result
+
           def parse_map(path):
-              """Returns {section: {obj: size}} by parsing GNU ld map file."""
+              """Returns {section: {obj: size}} — object-level breakdown from GNU ld map."""
               result = defaultdict(lambda: defaultdict(int))
               current_section = None
               with open(path) as f:
                   for line in f:
-                      # Top-level section line (no trailing object path)
                       m = re.match(r'^(\.\w[\w.]*)\s+0x[0-9a-f]+\s+0x([0-9a-f]+)\s*$', line.strip(), re.I)
                       if m:
                           current_section = m.group(1)
                           continue
-                      # Input section contribution with object path
                       m = re.match(r'^\s+(\.\w[\w.]*)\s+0x[0-9a-f]+\s+0x([0-9a-f]+)\s+(\S+)', line, re.I)
                       if m and current_section and m.group(1) == current_section:
                           result[current_section][m.group(3)] += int(m.group(2), 16)
@@ -384,50 +401,80 @@ jobs:
           os.makedirs('map-reports', exist_ok=True)
 
           with open(SUMMARY, 'a') as summary:
-              summary.write(f'# Map comparison: {APP}\n\n')
+              summary.write(f'# Binary comparison: {APP}\n\n')
               summary.write('Comparing **clang-14 (official)** vs **clang-21 (custom)**\n\n')
+              summary.write('> Sizes from ELF section headers (include alignment padding).\n')
+              summary.write('> Per-object breakdown available in the downloadable report.\n\n')
 
               for dev_key, dev_name in DEVICES:
+                  old_elf = Path(f'official/{APP}-{dev_key}.elf')
+                  new_elf = Path(f'custom/{APP}-{dev_key}.elf')
                   old_map = Path(f'official/{APP}-{dev_key}.map')
                   new_map = Path(f'custom/{APP}-{dev_key}.map')
-                  if not old_map.exists() or not new_map.exists():
+
+                  has_elf  = old_elf.exists() and new_elf.exists()
+                  has_map  = old_map.exists() and new_map.exists()
+                  if not has_elf and not has_map:
                       continue
 
-                  old = parse_map(old_map)
-                  new = parse_map(new_map)
+                  # ── ELF-based sizes ──────────────────────────────────────────
+                  old_sz = elf_sections(old_elf) if has_elf else {}
+                  new_sz = elf_sections(new_elf) if has_elf else {}
 
+                  # ── Map-based per-object breakdown ───────────────────────────
+                  old_map_data = parse_map(old_map) if has_map else {}
+                  new_map_data = parse_map(new_map) if has_map else {}
+
+                  # ── Job summary (ELF sizes) ──────────────────────────────────
+                  summary.write(f'## {dev_name}\n\n')
+                  if has_elf:
+                      summary.write('| Section | clang-14 | clang-21 | Delta |\n')
+                      summary.write('|---------|----------|----------|-------|\n')
+                      for sec in SECTIONS:
+                          o = old_sz.get(sec, 0)
+                          n = new_sz.get(sec, 0)
+                          summary.write(f'| `{sec}` | {o} | {n} | {fmt_delta(n-o, o)} |\n')
+                      summary.write('\n')
+                  else:
+                      summary.write('_ELF not available for this device._\n\n')
+
+                  # ── Downloadable report ──────────────────────────────────────
+                  if not has_map:
+                      continue
                   report_path = Path(f'map-reports/{APP}-{dev_key}.md')
                   with open(report_path, 'w') as rep:
                       ts = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')
-                      rep.write(f'# Map diff: {APP} — {dev_name}\n\n')
+                      rep.write(f'# Comparison: {APP} — {dev_name}\n\n')
                       rep.write(f'**Baseline:** clang-14 (official image)  \n')
                       rep.write(f'**New build:** clang-21 (custom image)  \n')
                       rep.write(f'**Generated:** {ts}\n\n')
 
-                      # Section summary table
-                      rep.write('## Section summary\n\n')
-                      rep.write('| Section | clang-14 | clang-21 | Delta |\n')
-                      rep.write('|---------|----------|----------|-------|\n')
-                      for sec in SECTIONS:
-                          o = sum(old[sec].values())
-                          n = sum(new[sec].values())
-                          rep.write(f'| `{sec}` | {o} | {n} | {fmt_delta(n-o, o)} |\n')
-                      rep.write('\n')
+                      # Section summary from ELF (real sizes)
+                      if has_elf:
+                          rep.write('## Section summary (ELF — incl. alignment padding)\n\n')
+                          rep.write('| Section | clang-14 | clang-21 | Delta |\n')
+                          rep.write('|---------|----------|----------|-------|\n')
+                          for sec in SECTIONS:
+                              o = old_sz.get(sec, 0)
+                              n = new_sz.get(sec, 0)
+                              rep.write(f'| `{sec}` | {o} | {n} | {fmt_delta(n-o, o)} |\n')
+                          rep.write('\n')
 
-                      # Per-section top variations
+                      # Per-object breakdown from map
                       for sec in SECTIONS:
-                          all_objs = set(old[sec]) | set(new[sec])
+                          all_objs = set(old_map_data[sec]) | set(new_map_data[sec])
                           rows = sorted(
                               [{'obj': obj,
-                                'old': old[sec].get(obj, 0),
-                                'new': new[sec].get(obj, 0),
-                                'd': new[sec].get(obj, 0) - old[sec].get(obj, 0)}
-                               for obj in all_objs if new[sec].get(obj, 0) - old[sec].get(obj, 0) != 0],
+                                'old': old_map_data[sec].get(obj, 0),
+                                'new': new_map_data[sec].get(obj, 0),
+                                'd':   new_map_data[sec].get(obj, 0) - old_map_data[sec].get(obj, 0)}
+                               for obj in all_objs
+                               if new_map_data[sec].get(obj, 0) - old_map_data[sec].get(obj, 0) != 0],
                               key=lambda x: abs(x['d']), reverse=True
                           )
                           if not rows:
                               continue
-                          rep.write(f'## `{sec}` — variations by object\n\n')
+                          rep.write(f'## `{sec}` — variations by object (map)\n\n')
                           rep.write('| Object | clang-14 | clang-21 | Delta |\n')
                           rep.write('|--------|----------|----------|-------|\n')
                           for r in rows:
@@ -435,18 +482,8 @@ jobs:
                           rep.write('\n')
 
                   print(f'Generated: {report_path}')
-
-                  # Write device summary to job summary
-                  summary.write(f'## {dev_name}\n\n')
-                  summary.write('| Section | clang-14 | clang-21 | Delta |\n')
-                  summary.write('|---------|----------|----------|-------|\n')
-                  for sec in SECTIONS:
-                      o = sum(old[sec].values())
-                      n = sum(new[sec].values())
-                      summary.write(f'| `{sec}` | {o} | {n} | {fmt_delta(n-o, o)} |\n')
-                  summary.write('\n')
           PYEOF
-          python3 compare_maps.py
+          python3 compare.py
         env:
           APP_NAME: ${{ matrix.apps.app-name }}
 
