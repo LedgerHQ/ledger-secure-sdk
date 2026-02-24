@@ -45,7 +45,9 @@ jobs:
           path: /tmp
 
       - name: Load ledger-app-builder-lite image
-        run: docker load -i /tmp/ledger-app-builder-lite-local.tar
+        run: |
+          docker load -i /tmp/ledger-app-builder-lite-local.tar
+          docker tag ledger-app-builder-lite-local:latest ledger-app-builder-lite:latest
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -61,7 +63,7 @@ jobs:
           tags: ledger-app-builder-local:latest
 
       - name: Export ledger-app-builder image to tar
-        run: docker save ledger-app-builder:latest -o /tmp/ledger-app-builder-local.tar
+        run: docker save ledger-app-builder-local:latest -o /tmp/ledger-app-builder-local.tar
 
       - name: Upload ledger-app-builder image artifact
         uses: actions/upload-artifact@v4
