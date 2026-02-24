@@ -12,7 +12,10 @@ enum task_unsecure_id_e {
     TASK_SYSCALL,    // can call os
     TASK_USER,       // must call syscalls to reach os, locked in app ram
     TASK_BOLOS_UX,   // must call syscalls to reach os
-    TASK_MAXCOUNT    // must be last in the structure
+#ifdef HAVE_UNPRIVILEGED_TASK
+    TASK_UNPRIVILEGED,  // must call syscalls to reach os
+#endif                  // HAVE_UNPRIVILEGED_TASK
+    TASK_MAXCOUNT       // must be last in the structure
 };
 
 // exit the current task
