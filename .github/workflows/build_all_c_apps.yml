@@ -46,8 +46,8 @@ jobs:
 
       - name: Load ledger-app-builder-lite image
         run: |
-          docker load -i /tmp/ledger-app-builder-lite-local.tar
-          docker tag ledger-app-builder-lite-local:latest ledger-app-builder-lite:latest
+          LOADED_IMAGE=$(docker load -i /tmp/ledger-app-builder-lite-local.tar | grep "Loaded image" | head -1 | awk '{print $NF}')
+          docker tag "$LOADED_IMAGE" ledger-app-builder-lite:latest
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
