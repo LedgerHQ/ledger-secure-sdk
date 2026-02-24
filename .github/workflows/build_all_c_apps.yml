@@ -19,7 +19,7 @@ jobs:
     with:
       app_repository: LedgerHQ/ledger-app-builder
       app_ref: mbr/clang-21
-      image_name: ledger-app-builder-lite
+      image_name: ledger-app-builder-lite-local
       dockerfile_path: lite/Dockerfile
       dry_run: true
       outputs: "type=docker,dest=/tmp/ledger-app-builder-lite-local.tar"
