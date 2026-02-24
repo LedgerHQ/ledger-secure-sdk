@@ -22,7 +22,7 @@ jobs:
       image_name: ledger-app-builder-lite
       dockerfile_path: lite/Dockerfile
       dry_run: true
-      outputs: "type=docker,dest=/tmp/ledger-app-builder-lite.tar"
+      outputs: "type=docker,dest=/tmp/ledger-app-builder-lite-local.tar"
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -45,7 +45,7 @@ jobs:
           path: /tmp
 
       - name: Load ledger-app-builder-lite image
-        run: docker load -i /tmp/ledger-app-builder-lite.tar
+        run: docker load -i /tmp/ledger-app-builder-lite-local.tar
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -58,16 +58,16 @@ jobs:
           context: .
           file: full/Dockerfile
           push: false
-          tags: ledger-app-builder:latest
+          tags: ledger-app-builder-local:latest
 
       - name: Export ledger-app-builder image to tar
-        run: docker save ledger-app-builder:latest -o /tmp/ledger-app-builder.tar
+        run: docker save ledger-app-builder:latest -o /tmp/ledger-app-builder-local.tar
 
       - name: Upload ledger-app-builder image artifact
         uses: actions/upload-artifact@v4
         with:
           name: ledger-app-builder
-          path: /tmp/ledger-app-builder.tar
+          path: /tmp/ledger-app-builder-local.tar
           retention-days: 1
 
   check-clang-version-custom:
@@ -83,7 +83,7 @@ jobs:
 
       - name: Check clang version
         run: |
-          LOADED_IMAGE=$(docker load -i /tmp/ledger-app-builder.tar | grep "Loaded image" | head -1 | awk '{print $NF}')
+          LOADED_IMAGE=$(docker load -i /tmp/ledger-app-builder-local.tar | grep "Loaded image" | head -1 | awk '{print $NF}')
           CLANG_VERSION=$(docker run --rm "$LOADED_IMAGE" clang --version)
           echo "$CLANG_VERSION"
           echo "## clang version (custom image)" >> $GITHUB_STEP_SUMMARY
@@ -162,7 +162,7 @@ jobs:
 
       - name: Load Docker image and start build container
         run: |
-          LOADED_IMAGE=$(docker load -i /tmp/ledger-app-builder.tar | grep "Loaded image" | head -1 | awk '{print $NF}')
+          LOADED_IMAGE=$(docker load -i /tmp/ledger-app-builder-local.tar | grep "Loaded image" | head -1 | awk '{print $NF}')
           docker run -d --name builder -v $GITHUB_WORKSPACE:/workspace "$LOADED_IMAGE" sleep infinity
           docker exec builder pip install --break-system-packages ledgered
 
