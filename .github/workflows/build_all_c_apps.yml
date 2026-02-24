@@ -59,7 +59,9 @@ jobs:
           file: full/Dockerfile
           push: false
           tags: ledger-app-builder:latest
-          outputs: type=docker,dest=/tmp/ledger-app-builder.tar
+
+      - name: Export ledger-app-builder image to tar
+        run: docker save ledger-app-builder:latest -o /tmp/ledger-app-builder.tar
 
       - name: Upload ledger-app-builder image artifact
         uses: actions/upload-artifact@v4
