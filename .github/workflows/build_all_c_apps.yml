@@ -41,7 +41,7 @@ jobs:
       - name: Download ledger-app-builder-lite image artifact
         uses: actions/download-artifact@v4
         with:
-          name: ledger-app-builder-lite
+          name: ledger-app-builder-lite-local
           path: /tmp
 
       - name: Load ledger-app-builder-lite image
