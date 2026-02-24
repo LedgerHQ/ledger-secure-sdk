@@ -70,6 +70,40 @@ jobs:
           path: /tmp/ledger-app-builder.tar
           retention-days: 1
 
+  check-clang-version-custom:
+    name: Check clang version (custom image)
+    needs: [build-docker-full]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download ledger-app-builder image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ledger-app-builder
+          path: /tmp
+
+      - name: Check clang version
+        run: |
+          LOADED_IMAGE=$(docker load -i /tmp/ledger-app-builder.tar | grep "Loaded image" | head -1 | awk '{print $NF}')
+          CLANG_VERSION=$(docker run --rm "$LOADED_IMAGE" clang --version)
+          echo "$CLANG_VERSION"
+          echo "## clang version (custom image)" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "$CLANG_VERSION" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+  check-clang-version-official:
+    name: Check clang version (official image)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check clang version
+        run: |
+          CLANG_VERSION=$(docker run --rm ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:5.0.2 clang --version)
+          echo "$CLANG_VERSION"
+          echo "## clang version (official image)" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "$CLANG_VERSION" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
   prepare-matrix:
     name: Retrieve C apps
     runs-on: ubuntu-latest
@@ -530,3 +564,134 @@ jobs:
 
           chmod +x detailed_compare.sh
           ./detailed_compare.sh
+
+  compare-mapfiles:
+    name: Compare map files
+    needs: [prepare-matrix, test-build, test-build-official]
+    if: always()
+    strategy:
+      fail-fast: false
+      matrix:
+        apps: ${{ fromJSON(needs.prepare-matrix.outputs.c_apps) }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download custom build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.apps.app-name }}-binaries
+          path: custom/
+        continue-on-error: true
+
+      - name: Download official build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.apps.app-name }}-binaries-official
+          path: official/
+        continue-on-error: true
+
+      - name: Analyze map files
+        run: |
+          cat << 'PYEOF' > parse_maps.py
+          import re, os, sys
+          from pathlib import Path
+          from collections import defaultdict
+
+          DEVICES = [
+              ('nanox',  'Nano X'),
+              ('nanosp', 'Nano S+'),
+              ('stax',   'Stax'),
+              ('flex',   'Flex'),
+              ('apex_p', 'Apex+'),
+          ]
+          SECTIONS = ['.text', '.rodata', '.data', '.bss']
+          APP = os.environ['APP_NAME']
+          SUMMARY = os.environ.get('GITHUB_STEP_SUMMARY', '/dev/stdout')
+
+          def parse_map(path):
+              """Returns {section: {obj: size}} from a GNU ld map file."""
+              result = defaultdict(lambda: defaultdict(int))
+              current_section = None
+              try:
+                  with open(path) as f:
+                      for line in f:
+                          # Top-level section definition: ".text   0x...  0x..."
+                          m = re.match(r'^(\.\w[\w.]*)\s+0x[0-9a-f]+\s+0x([0-9a-f]+)\s*$', line.strip(), re.I)
+                          if m:
+                              current_section = m.group(1)
+                              continue
+                          # Input section contribution: " .text  0x...  0x<size>  path/to/file.o"
+                          m = re.match(r'^\s+(\.\w[\w.]*)\s+0x[0-9a-f]+\s+0x([0-9a-f]+)\s+(\S+)', line, re.I)
+                          if m and current_section and m.group(1).startswith(current_section.split('.')[1] if '.' in current_section[1:] else current_section[1:]):
+                              size = int(m.group(2), 16)
+                              if size > 0:
+                                  obj = Path(m.group(3)).name
+                                  result[current_section][obj] += size
+              except Exception as e:
+                  print(f"Warning: could not parse {path}: {e}", file=sys.stderr)
+              return result
+
+          def fmt_delta(d, ref):
+              sign = '+' if d >= 0 else ''
+              pct = f' ({sign}{d/ref*100:.1f}%)' if ref else ''
+              return f'{sign}{d}{pct}'
+
+          with open(SUMMARY, 'a') as out:
+              out.write(f'# Map file comparison: {APP}\n\n')
+              out.write('Comparing symbol sizes between **clang-14 (official)** and **clang-21 (custom)**\n\n')
+
+              found_any = False
+              for dev_key, dev_name in DEVICES:
+                  old_map = Path(f'official/{APP}-{dev_key}.map')
+                  new_map = Path(f'custom/{APP}-{dev_key}.map')
+
+                  if not old_map.exists() and not new_map.exists():
+                      continue
+
+                  found_any = True
+                  out.write(f'## {dev_name}\n\n')
+
+                  if not old_map.exists():
+                      out.write('_No official map file available for this device._\n\n')
+                      continue
+                  if not new_map.exists():
+                      out.write('_No custom map file available for this device._\n\n')
+                      continue
+
+                  old_data = parse_map(old_map)
+                  new_data = parse_map(new_map)
+
+                  for sec in SECTIONS:
+                      all_objs = set(old_data[sec]) | set(new_data[sec])
+                      if not all_objs:
+                          continue
+
+                      rows = []
+                      for obj in all_objs:
+                          o = old_data[sec].get(obj, 0)
+                          n = new_data[sec].get(obj, 0)
+                          d = n - o
+                          if d != 0:
+                              rows.append((obj, o, n, d))
+
+                      rows.sort(key=lambda x: abs(x[3]), reverse=True)
+
+                      if not rows:
+                          continue
+
+                      out.write(f'<details>\n')
+                      out.write(f'<summary><code>{sec}</code> — {len(rows)} object(s) changed</summary>\n\n')
+                      out.write('| Object | clang-14 | clang-21 | Δ |\n')
+                      out.write('|--------|----------|----------|---|\n')
+                      for obj, o, n, d in rows:
+                          out.write(f'| `{obj}` | {o} | {n} | {fmt_delta(d, o)} |\n')
+                      out.write('\n</details>\n\n')
+
+                  out.write('---\n\n')
+
+              if not found_any:
+                  out.write('_No map files found for any device._\n\n')
+          PYEOF
+          python3 parse_maps.py
+        env:
+          APP_NAME: ${{ matrix.apps.app-name }}
