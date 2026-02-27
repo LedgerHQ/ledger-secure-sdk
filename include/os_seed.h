@@ -5,6 +5,7 @@
 #include "appflags.h"
 #include "decorators.h"
 #include "lcx_ecfp.h"
+#include "ox_ec.h"
 #include "os_types.h"
 
 // checked in the ux flow to avoid asking the pin for example
@@ -142,6 +143,121 @@ WARN_UNUSED_RESULT static inline cx_err_t os_derive_bip32_no_throw(
     return os_derive_bip32_with_seed_no_throw(
         HDW_NORMAL, curve, path, path_len, raw_privkey, chain_code, NULL, 0);
 }
+
+#ifdef HAVE_SECP256K1_CURVE
+
+// Maximum supported number of derivation steps in os_derive_slip21_key
+#define SLIP21_MAX_LABELS 10
+
+// Maximum total length of all labels in os_derive_slip21_key
+#define SLIP21_MAX_TOTAL_LENGTH 256
+
+/**
+ * @brief   Derives a SLIP-21 key from a list of labels.
+ *
+ * @details At most 10 labels are allowed. Each label must not contain the '/' character and must
+ * not be empty. The total length of the labels must not exceed 256 bytes. The derivation must be
+ * one of the allowed ones in the application's Makefile.
+ *
+ * @param[in]  labels          Array of null-terminated label strings.
+ *
+ * @param[in]  labels_count    Number of labels in the array. At least 1 and most 10 labels are
+ * allowed.
+ *
+ * @param[out] key             Buffer where to store the derived key (32 bytes).
+ *
+ * @return                     Error code:
+ *                             - CX_OK on success
+ *                             - CX_INVALID_PARAMETER if any constraint is violated
+ *                             - CX_INTERNAL_ERROR
+ */
+WARN_UNUSED_RESULT static inline cx_err_t os_derive_slip21_key(const char  **labels,
+                                                               unsigned int  labels_count,
+                                                               unsigned char key[static 32])
+{
+    // Make sure the caller doesn't use uninitialized data. Will be overwritten on success.
+    explicit_bzero(key, 32);
+
+    // Up to 10 labels are supported
+    if (labels_count == 0 || labels_count > SLIP21_MAX_LABELS) {
+        return CX_INVALID_PARAMETER;
+    }
+
+    if (labels == NULL) {
+        return CX_INVALID_PARAMETER;
+    }
+
+    // Build the SLIP-21 path string
+    // Aligned to 4 bytes as this is later passed as a (const unsigned int *) pointer
+    // Make sure that the buffer is large enough (account for 1 extra byte per label for the \x00
+    // prefix, and the 1 byte for the '/' separator after the first label).
+    unsigned char path_buffer[SLIP21_MAX_TOTAL_LENGTH + 2 * SLIP21_MAX_LABELS - 1]
+        __attribute__((aligned(4)));
+    unsigned int pos = 0;
+
+    for (unsigned int i = 0; i < labels_count; i++) {
+        const char *label = labels[i];
+
+        // Check if individual label is NULL
+        if (label == NULL) {
+            return CX_INVALID_PARAMETER;
+        }
+
+        unsigned int label_len = strlen(label);
+
+        // Reject empty labels
+        if (label_len == 0) {
+            return CX_INVALID_PARAMETER;
+        }
+
+        // Check for '/' character
+        if (strchr(label, '/') != NULL) {
+            return CX_INVALID_PARAMETER;
+        }
+
+        // Check if we would exceed buffer size
+        // Need space for: potential '/' separator + \x00 + label
+        unsigned int needed = (i > 0 ? 1 : 0) + 1 + label_len;  // \x00 prefix + label
+
+        if (pos + needed > sizeof(path_buffer)) {
+            return CX_INVALID_PARAMETER;
+        }
+
+        // Add separator if not first element
+        if (i > 0) {
+            path_buffer[pos++] = '/';
+        }
+
+        // Add \x00 prefix
+        path_buffer[pos++] = 0x00;
+
+        // Copy the label (excluding the null terminator)
+        memcpy(&path_buffer[pos], label, label_len);
+        pos += label_len;
+    }
+
+    // Derive the key using SLIP-21
+    unsigned char raw_privkey[64];
+    cx_err_t      error = os_derive_bip32_with_seed_no_throw(HDW_SLIP21,
+                                                        CX_CURVE_SECP256K1,
+                                                        (const unsigned int *) path_buffer,
+                                                        pos,
+                                                        raw_privkey,
+                                                        NULL,
+                                                        NULL,
+                                                        0);
+
+    if (error == CX_OK) {
+        // Return only the first 32 bytes
+        memcpy(key, raw_privkey, 32);
+    }
+
+    // Clear sensitive data
+    explicit_bzero(raw_privkey, sizeof(raw_privkey));
+
+    return error;
+}
+#endif  // HAVE_SECP256K1_CURVE
 
 // Deprecated : see "os_derive_eip2333_no_throw"
 #ifndef HAVE_BOLOS
