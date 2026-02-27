@@ -237,6 +237,8 @@ void os_sched_exit(bolos_task_status_t status_code)
     exit(-1);
 }
 
+unsigned int os_sched_current_task(void);
+
 unsigned int os_sched_current_task(void)
 {
     return TASK_USER;
