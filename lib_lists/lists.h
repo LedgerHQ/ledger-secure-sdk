@@ -108,58 +108,58 @@ typedef bool (*f_list_node_bin_pred)(const flist_node_t *a, const flist_node_t *
 /**
  * @brief Add a node at the beginning of the forward list
  * @param[in,out] list Pointer to the list head
- * @param[in] node Node to add (must have node->next == NULL)
- * @return true on success, false on error
+ * @param[in] node Node to add (must not already be part of a list)
+ * @note If @p list or @p node is NULL, the function performs no action.
  * @note Time complexity: O(1)
  */
-bool flist_push_front(flist_node_t **list, flist_node_t *node);
+void flist_push_front(flist_node_t **list, flist_node_t *node);
 
 /**
  * @brief Remove and delete the first node from the forward list
  * @param[in,out] list Pointer to the list head
  * @param[in] del_func Function to delete the node (can be NULL)
- * @return true on success, false if list is empty or NULL
+ * @note If @p list is NULL, the function performs no action.
  * @note Time complexity: O(1)
  */
-bool flist_pop_front(flist_node_t **list, f_list_node_del del_func);
+void flist_pop_front(flist_node_t **list, f_list_node_del del_func);
 
 /**
  * @brief Add a node at the end of the forward list
  * @param[in,out] list Pointer to the list head
- * @param[in] node Node to add (must have node->next == NULL)
- * @return true on success, false on error
+ * @param[in] node Node to add (must not already be part of a list)
+ * @note If @p list or @p node is NULL, the function performs no action.
  * @note Time complexity: O(n)
  */
-bool flist_push_back(flist_node_t **list, flist_node_t *node);
+void flist_push_back(flist_node_t **list, flist_node_t *node);
 
 /**
  * @brief Remove and delete the last node from the forward list
  * @param[in,out] list Pointer to the list head
  * @param[in] del_func Function to delete the node (can be NULL)
- * @return true on success, false if list is empty or NULL
+ * @note If @p list is NULL, the function performs no action.
  * @note Time complexity: O(n)
  */
-bool flist_pop_back(flist_node_t **list, f_list_node_del del_func);
+void flist_pop_back(flist_node_t **list, f_list_node_del del_func);
 
 /**
  * @brief Insert a node after a reference node in the forward list
  * @param[in,out] list Pointer to the list head
  * @param[in] ref Reference node (must be in list)
- * @param[in] node Node to insert (must have node->next == NULL)
- * @return true on success, false on error
+ * @param[in] node Node to insert (must not already be part of a list)
+ * @note If @p ref or @p node is NULL, the function performs no action.
  * @note Time complexity: O(1)
  */
-bool flist_insert_after(flist_node_t **list, flist_node_t *ref, flist_node_t *node);
+void flist_insert_after(flist_node_t **list, flist_node_t *ref, flist_node_t *node);
 
 /**
  * @brief Remove and delete a specific node from the forward list
  * @param[in,out] list Pointer to the list head
  * @param[in] node Node to remove (must be in list)
  * @param[in] del_func Function to delete the node (can be NULL)
- * @return true on success, false if node not found or error
+ * @note If @p list or @p node is NULL, the function performs no action.
  * @note Time complexity: O(n)
  */
-bool flist_remove(flist_node_t **list, flist_node_t *node, f_list_node_del del_func);
+void flist_remove(flist_node_t **list, flist_node_t *node, f_list_node_del del_func);
 
 /**
  * @brief Remove all nodes matching a predicate from the forward list
@@ -175,10 +175,10 @@ size_t flist_remove_if(flist_node_t **list, f_list_node_pred pred_func, f_list_n
  * @brief Remove and delete all nodes from the forward list
  * @param[in,out] list Pointer to the list head
  * @param[in] del_func Function to delete each node (can be NULL)
- * @return true on success, false on error
+ * @note If @p list is NULL, the function performs no action.
  * @note Time complexity: O(n)
  */
-bool flist_clear(flist_node_t **list, f_list_node_del del_func);
+void flist_clear(flist_node_t **list, f_list_node_del del_func);
 
 /**
  * @brief Get the number of nodes in the forward list
@@ -200,10 +200,10 @@ bool flist_empty(flist_node_t *const *list);
  * @brief Sort the forward list using a comparison function
  * @param[in,out] list Pointer to the list head
  * @param[in] cmp_func Comparison function (returns true if a < b)
- * @return true on success, false on error
- * @note Time complexity: O(n log n) - merge sort algorithm
+ * @note If @p list or @p cmp_func is NULL, the function performs no action.
+ * @note Time complexity: O(n²) - bubble sort algorithm
  */
-bool flist_sort(flist_node_t **list, f_list_node_cmp cmp_func);
+void flist_sort(flist_node_t **list, f_list_node_cmp cmp_func);
 
 /**
  * @brief Remove consecutive duplicate nodes from the forward list
@@ -219,10 +219,10 @@ size_t flist_unique(flist_node_t **list, f_list_node_bin_pred pred_func, f_list_
 /**
  * @brief Reverse the order of nodes in the forward list
  * @param[in,out] list Pointer to the list head
- * @return true on success, false on error
+ * @note If @p list is NULL, the function performs no action.
  * @note Time complexity: O(n)
  */
-bool flist_reverse(flist_node_t **list);
+void flist_reverse(flist_node_t **list);
 
 // ============================================================================
 // Doubly-linked list functions
@@ -231,69 +231,68 @@ bool flist_reverse(flist_node_t **list);
 /**
  * @brief Add a node at the beginning of the doubly-linked list
  * @param[in,out] list Pointer to the list head
- * @param[in] node Node to add (must have node->_list.next == NULL and node->prev == NULL)
- * @return true on success, false on error
+ * @param[in] node Node to add (must not already be part of a list)
+ * @note If @p list or @p node is NULL, the function performs no action.
  * @note Time complexity: O(1)
  */
-bool list_push_front(list_node_t **list, list_node_t *node);
+void list_push_front(list_node_t **list, list_node_t *node);
 
 /**
  * @brief Remove and delete the first node from the doubly-linked list
  * @param[in,out] list Pointer to the list head
  * @param[in] del_func Function to delete the node (can be NULL)
- * @return true on success, false if list is empty or NULL
+ * @note If @p list is NULL, the function performs no action.
  * @note Time complexity: O(1)
  */
-bool list_pop_front(list_node_t **list, f_list_node_del del_func);
+void list_pop_front(list_node_t **list, f_list_node_del del_func);
 
 /**
  * @brief Add a node at the end of the doubly-linked list
  * @param[in,out] list Pointer to the list head
- * @param[in] node Node to add (must have node->_list.next == NULL and node->prev == NULL)
- * @return true on success, false on error
+ * @param[in] node Node to add (must not already be part of a list)
+ * @note If @p list or @p node is NULL, the function performs no action.
  * @note Time complexity: O(n)
  */
-bool list_push_back(list_node_t **list, list_node_t *node);
+void list_push_back(list_node_t **list, list_node_t *node);
 
 /**
  * @brief Remove and delete the last node from the doubly-linked list
  * @param[in,out] list Pointer to the list head
  * @param[in] del_func Function to delete the node (can be NULL)
- * @return true on success, false if list is empty or NULL
+ * @note If @p list is NULL, the function performs no action.
  * @note Time complexity: O(n)
  */
-bool list_pop_back(list_node_t **list, f_list_node_del del_func);
+void list_pop_back(list_node_t **list, f_list_node_del del_func);
 
 /**
  * @brief Insert a node before a reference node in the doubly-linked list
  * @param[in,out] list Pointer to the list head
  * @param[in] ref Reference node (must be in list)
- * @param[in] node Node to insert (must have node->_list.next == NULL and node->prev == NULL)
- * @return true on success, false on error
+ * @param[in] node Node to insert (must not already be part of a list)
+ * @note If @p list or @p ref or @p node is NULL, the function performs no action.
  * @note Time complexity: O(1)
- * @note This function is only available for doubly-linked lists
  */
-bool list_insert_before(list_node_t **list, list_node_t *ref, list_node_t *node);
+void list_insert_before(list_node_t **list, list_node_t *ref, list_node_t *node);
 
 /**
  * @brief Insert a node after a reference node in the doubly-linked list
  * @param[in,out] list Pointer to the list head
  * @param[in] ref Reference node (must be in list)
- * @param[in] node Node to insert (must have node->_list.next == NULL and node->prev == NULL)
- * @return true on success, false on error
+ * @param[in] node Node to insert (must not already be part of a list)
+ * @note If @p ref or @p node is NULL, the function performs no action.
  * @note Time complexity: O(1)
  */
-bool list_insert_after(list_node_t **list, list_node_t *ref, list_node_t *node);
+void list_insert_after(list_node_t **list, list_node_t *ref, list_node_t *node);
 
 /**
  * @brief Remove and delete a specific node from the doubly-linked list
  * @param[in,out] list Pointer to the list head
  * @param[in] node Node to remove (must be in list)
  * @param[in] del_func Function to delete the node (can be NULL)
- * @return true on success, false if node not found or error
+ * @note If @p list or @p node is NULL, the function performs no action.
  * @note Time complexity: O(n)
  */
-bool list_remove(list_node_t **list, list_node_t *node, f_list_node_del del_func);
+void list_remove(list_node_t **list, list_node_t *node, f_list_node_del del_func);
 
 /**
  * @brief Remove all nodes matching a predicate from the doubly-linked list
@@ -309,10 +308,10 @@ size_t list_remove_if(list_node_t **list, f_list_node_pred pred_func, f_list_nod
  * @brief Remove and delete all nodes from the doubly-linked list
  * @param[in,out] list Pointer to the list head
  * @param[in] del_func Function to delete each node (can be NULL)
- * @return true on success, false on error
+ * @note If @p list is NULL, the function performs no action.
  * @note Time complexity: O(n)
  */
-bool list_clear(list_node_t **list, f_list_node_del del_func);
+void list_clear(list_node_t **list, f_list_node_del del_func);
 
 /**
  * @brief Get the number of nodes in the doubly-linked list
@@ -334,10 +333,10 @@ bool list_empty(list_node_t *const *list);
  * @brief Sort the doubly-linked list using a comparison function
  * @param[in,out] list Pointer to the list head
  * @param[in] cmp_func Comparison function (returns true if a < b)
- * @return true on success, false on error
- * @note Time complexity: O(n log n) - merge sort algorithm
+ * @note If @p list or @p cmp_func is NULL, the function performs no action.
+ * @note Time complexity: O(n²) - bubble sort algorithm
  */
-bool list_sort(list_node_t **list, f_list_node_cmp cmp_func);
+void list_sort(list_node_t **list, f_list_node_cmp cmp_func);
 
 /**
  * @brief Remove consecutive duplicate nodes from the doubly-linked list
@@ -353,7 +352,7 @@ size_t list_unique(list_node_t **list, f_list_node_bin_pred pred_func, f_list_no
 /**
  * @brief Reverse the order of nodes in the doubly-linked list
  * @param[in,out] list Pointer to the list head
- * @return true on success, false on error
+ * @note If @p list is NULL, the function performs no action.
  * @note Time complexity: O(n)
  */
-bool list_reverse(list_node_t **list);
+void list_reverse(list_node_t **list);

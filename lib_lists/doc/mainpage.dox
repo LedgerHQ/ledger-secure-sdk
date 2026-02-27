@@ -24,11 +24,11 @@ typedef struct flist_node_t {
 } flist_node_t;
 @endcode
 
-**Usage:** Embed `flist_node_t` as the first member of your structure:
+**Usage:** Embed `flist_node_t` as the first member of your structure, its name is irrelevant:
 
 @code{.c}
 typedef struct my_data_s {
-    flist_node_t node;  // Must be first member
+    flist_node_t _node;  // Must be first member
     int value;
     char name[32];
 } my_data_t;
@@ -49,16 +49,16 @@ typedef struct list_node_t {
 } list_node_t;
 @endcode
 
-**Usage:** Embed `list_node_t` as the first member of your structure:
+**Usage:** Embed `list_node_t` as the first member of your structure, its name is irrelevant:
 
 @code{.c}
 typedef struct my_data_s {
-    list_node_t node;  // Must be first member
+    list_node_t _node;  // Must be first member
     int value;
     char name[32];
 } my_data_t;
 
-list_node_t *my_list = NULL;  // Empty doubly-linked list
+my_data_t *my_list = NULL;  // Empty doubly-linked list
 @endcode
 
 **Memory overhead:** 8-16 bytes per node (two pointers)
@@ -66,14 +66,14 @@ list_node_t *my_list = NULL;  // Empty doubly-linked list
 @subsection list_choosing Choosing Between Forward Lists and Doubly-Linked Lists
 
 | Feature                  | Forward List (`flist`) | Doubly-Linked (`list`) |
-|--------------------------|------------------------|--------------------------|
-| Memory per node          | 4-8 bytes              | 8-16 bytes               |
-| Insert/remove at front   | O(1)                   | O(1)                     |
-| Insert/remove at back    | O(n)                   | O(1) ⚡                   |
-| Insert after node        | O(1)                   | O(1)                     |
-| Insert before node       | Not available          | O(1) ⚡                   |
-| Backward traversal       | No                     | Yes ⚡                    |
-| Reverse operation        | O(n)                   | O(n)                     |
+|--------------------------|------------------------|------------------------|
+| Memory per node          | 4-8 bytes              | 8-16 bytes             |
+| Insert/remove at front   | O(1) ⚡                | O(1) ⚡                |
+| Insert/remove at back    | O(n)                   | O(n)                   |
+| Insert after node        | O(1) ⚡                | O(1) ⚡                |
+| Insert before node       | Not available          | O(1) ⚡                |
+| Backward traversal       | No                     | Yes                    |
+| Reverse operation        | O(n)                   | O(n)                   |
 
 **Best practice:** Use forward lists when memory is critical and you don't need backward
 traversal or frequent tail operations. Use doubly-linked lists when you need bidirectional
@@ -110,57 +110,47 @@ All operations are available for both forward lists and doubly-linked lists with
 - Forward list functions: `flist_*`
 - Doubly-linked list functions: `list_*`
 
-All mutating functions return `bool` to indicate success or failure.
-
 @subsection list_insertion Insertion Operations
 
 **Push Front** - Add a node at the beginning (O(1) for both types):
 
 @code{.c}
 // Forward list example
-my_data_t *data = malloc(sizeof(my_data_t));
-data->node.next = NULL;  // Must be NULL before insertion
-data->value = 42;
-
-if (flist_push_front(&my_flist, &data->node)) {
+my_data_t *data = malloc(sizeof(*data));
+if (data != NULL) {
+    memset(data, 0, sizeof(*data));
+    data->value = 42;
+    flist_push_front((flist_node_t**)&my_flist, (flist_node_t*)data);
     // Successfully inserted
 }
 
 // Doubly-linked list example
-my_data_t *data2 = malloc(sizeof(my_data_t));
-data2->node._list.next = NULL;
-data2->node.prev = NULL;  // Both pointers must be NULL
-data2->value = 43;
-
-if (list_push_front(&my_list, &data2->node)) {
+my_data_t *data2 = malloc(sizeof(*data2));
+if (data2 != NULL) {
+    memset(data2, 0, sizeof(*data2));
+    data2->value = 43;
+    list_push_front((list_node_t**)&my_list, (list_node_t*)data2);
     // Successfully inserted
 }
 @endcode
 
-**Push Back** - Add a node at the end:
-- Forward list: O(n) - must traverse entire list
-- Doubly-linked: O(1) - direct access via prev pointer ⚡
+**Push Back** - Add a node at the end, O(n) - must traverse entire list:
 
 @code{.c}
-// Forward list: O(n)
-if (flist_push_back(&my_flist, &data->node)) {
-    // Successfully inserted
-}
+// Forward list
+flist_push_back((flist_node_t **)&my_flist, (flist_node_t*)data);
 
-// Doubly-linked: O(1) - faster!
-if (list_push_back(&my_list, &data->node)) {
-    // Successfully inserted
-}
+// Doubly-linked
+list_push_back((list_node_t**)&my_list, (list_node_t*)data);
 @endcode
 
-**Insert After** - Insert a node after a reference node (O(1) for both):
+**Insert After** - Insert a node after a reference node, O(1):
 
 @code{.c}
-my_data_t *new_data = malloc(sizeof(my_data_t));
-new_data->node._list.next = NULL;
-new_data->node.prev = NULL;
-
-if (list_insert_after(&my_list, &ref_node, &new_data->node)) {
+my_data_t *new_data = malloc(sizeof(*new_data));
+if (new_data != NULL) {
+    memset(new_data, 0, sizeof(*new_data));
+    list_insert_after((list_node_t**)&my_list, (list_node_t*)ref_node, (list_node_t*)new_data);
     // Successfully inserted after ref_node
 }
 @endcode
@@ -171,156 +161,125 @@ if (list_insert_after(&my_list, &ref_node, &new_data->node)) {
 
 @code{.c}
 // Only available for doubly-linked lists
-my_data_t *new_data = malloc(sizeof(my_data_t));
-new_data->node._list.next = NULL;
-new_data->node.prev = NULL;
-
-if (list_insert_before(&my_list, &ref_node, &new_data->node)) {
+my_data_t *new_data = malloc(sizeof(*new_data));
+if (new_data != NULL) {
+    memset(new_data, 0, sizeof(*new_data));
+    list_insert_before((list_node_t**)&my_list, (list_node_t*)ref_node, (list_node_t*)new_data);
     // Successfully inserted before ref_node
 }
 @endcode
 
 @subsection list_removal Removal Operations
 
-All removal functions return `bool` to indicate success or failure (except `remove_if`).
 They accept an optional deletion callback to clean up node data.
 
 **Pop Front** - Remove the first node (O(1) for both):
 
 @code{.c}
-void my_delete_func(flist_node_t *node) {
-    my_data_t *data = (my_data_t *)node;
+void my_delete_func(my_data_t *node) {
     // Clean up data if needed
-    free(data);
+    free(node);
 }
 
 // Forward list
-if (flist_pop_front(&my_flist, my_delete_func)) {
-    // First node was removed and freed
-}
+flist_pop_front((flist_node_t**)&my_flist, (f_list_node_del)&my_delete_func);
 
 // Doubly-linked list
-if (list_pop_front(&my_list, (f_list_node_del)my_delete_func)) {
-    // First node was removed and freed
-}
+list_pop_front((list_node_t**)&my_list, (f_list_node_del)&my_delete_func);
 @endcode
 
-**Pop Back** - Remove the last node:
-- Forward list: O(n) - must find second-to-last node
-- Doubly-linked: O(1) - direct access via prev pointer ⚡
+**Pop Back** - Remove the last node, O(n) - must find second-to-last node:
 
 @code{.c}
-// Forward list: O(n)
-if (flist_pop_back(&my_flist, my_delete_func)) {
-    // Last node was removed
-}
+// Forward list
+flist_pop_back((flist_node_t**)&my_flist, (f_list_node_del)&my_delete_func);
 
-// Doubly-linked: O(1) - faster!
-if (list_pop_back(&my_list, (f_list_node_del)my_delete_func)) {
-    // Last node was removed
-}
+// Doubly-linked
+list_pop_back((list_node_t**)&my_list, (f_list_node_del)&my_delete_func);
 @endcode
 
-**Remove** - Remove a specific node (O(n) for forward, O(1) for doubly-linked):
+**Remove** - Remove a specific node, O(n) - must find previous node
 
 @code{.c}
-// Forward list: O(n) - must find previous node
-if (flist_remove(&my_flist, &node_to_remove, my_delete_func)) {
-    // Node was found and removed
-}
+// Forward list
+flist_remove((flist_node_t**)&my_flist, (flist_node_t*)node_to_remove, (f_list_node_del)&my_delete_func);
 
-// Doubly-linked: O(1) - direct access via prev pointer ⚡
-if (list_remove(&my_list, &node_to_remove, (f_list_node_del)my_delete_func)) {
-    // Node was removed instantly
-}
+// Doubly-linked
+list_remove((list_node_t**)&my_list, (list_node_t*)node_to_remove, (f_list_node_del)&my_delete_func);
 @endcode
 
-**Remove If** - Remove all nodes matching a predicate (O(n) for both):
+**Remove If** - Remove all nodes matching a predicate, O(n):
 
 @code{.c}
-bool is_negative(const flist_node_t *node) {
-    const my_data_t *data = (const my_data_t *)node;
-    return data->value < 0;
+bool is_negative(const my_data_t *node) {
+    return node->value < 0;
 }
 
 // Returns the number of removed nodes
-size_t removed = flist_remove_if(&my_flist, is_negative, my_delete_func);
+size_t removed = flist_remove_if((flist_node_t**)&my_flist, (f_list_node_pred)&is_negative, (f_list_node_del)&my_delete_func);
 printf("Removed %zu negative values\n", removed);
 @endcode
 
-**Clear** - Remove all nodes (O(n) for both):
+**Clear** - Remove all nodes, O(n):
 
 @code{.c}
-if (flist_clear(&my_flist, my_delete_func)) {
-    // All nodes were removed and list is now empty
-}
+flist_clear((flist_node_t**)&my_flist, (f_list_node_del)&my_delete_func);
+// All nodes were removed and list is now empty
 @endcode
 
 @subsection list_utilities Utility Operations
 
-**Get Size** - Count the number of nodes (O(n) for both):
+**Get Size** - Count the number of nodes, O(n):
 
 @code{.c}
-size_t count = flist_size(&my_flist);
-size_t count2 = list_size(&my_list);
+size_t count = flist_size((flist_node_t**)&my_flist);
+size_t count2 = list_size((list_node_t**)&my_list);
 @endcode
 
-**Check Empty** - Test if list is empty (O(1) for both):
+**Check Empty** - Test if list is empty, O(1):
 
 @code{.c}
-if (flist_empty(&my_flist)) {
+if (flist_empty((flist_node_t**)&my_flist)) {
     printf("Forward list is empty\n");
 }
 
-if (list_empty(&my_list)) {
+if (list_empty((list_node_t**)&my_list)) {
     printf("Doubly-linked list is empty\n");
 }
 @endcode
 
-**Sort** - Sort the list using a comparison function (O(n²) for both):
+**Sort** - Sort the list using a comparison function, O(n²):
 
 @code{.c}
-bool my_compare_func(const flist_node_t *a, const flist_node_t *b) {
-    my_data_t *data_a = (my_data_t *)a;
-    my_data_t *data_b = (my_data_t *)b;
-    return data_a->value <= data_b->value;  // true if in correct order
+bool my_compare_func(const my_data_t *a, const my_data_t *b) {
+    return a->value <= b->value;  // true if in correct order
 }
 
 // Forward list
-if (flist_sort(&my_flist, my_compare_func)) {
-    // List is now sorted
-}
+flist_sort((flist_node_t**)&my_flist, (f_list_node_cmp)&my_compare_func);
 
 // Doubly-linked list
-if (list_sort(&my_list, my_compare_func)) {
-    // List is now sorted
-}
+list_sort((list_node_t**)&my_list, (f_list_node_cmp)&my_compare_func);
 @endcode
 
-**Unique** - Remove consecutive duplicate nodes (O(n) for both):
+**Unique** - Remove consecutive duplicate nodes, O(n):
 
 @code{.c}
-bool are_equal(const flist_node_t *a, const flist_node_t *b) {
-    const my_data_t *data_a = (const my_data_t *)a;
-    const my_data_t *data_b = (const my_data_t *)b;
-    return data_a->value == data_b->value;
+bool are_equal(const my_data_t *a, const my_data_t *b) {
+    return a->value == b->value;
 }
 
 // Returns the number of removed duplicates
-size_t removed = flist_unique(&my_flist, are_equal, my_delete_func);
+size_t removed = flist_unique((flist_node_t**)&my_flist, (f_list_node_bin_pred)&are_equal, (f_list_node_del)&my_delete_func);
 printf("Removed %zu duplicates\n", removed);
 @endcode
 
-**Reverse** - Reverse the order of nodes (O(n) for both):
+**Reverse** - Reverse the order of nodes, O(n):
 
 @code{.c}
-if (flist_reverse(&my_flist)) {
-    // List is now reversed
-}
+flist_reverse((flist_node_t**)&my_flist);
 
-if (list_reverse(&my_list)) {
-    // List is now reversed
-}
+list_reverse((list_node_t**)&my_list);
 @endcode
 
 @section list_traversal List Traversal
@@ -339,7 +298,7 @@ for (flist_node_t *node = my_flist; node != NULL; node = node->next) {
 
 @code{.c}
 // Forward iteration
-for (list_node_t *node = my_list; node != NULL; node = (list_node_t *)node->_list.next) {
+for (list_node_t *node = my_list; node != NULL; node = (list_node_t *)((flist_node_t*)node)->next) {
     my_data_t *data = (my_data_t *)node;
     printf("Value: %d\n", data->value);
 }
@@ -348,8 +307,8 @@ for (list_node_t *node = my_list; node != NULL; node = (list_node_t *)node->_lis
 list_node_t *tail = my_list;
 if (tail != NULL) {
     // Find the tail
-    while (tail->_list.next != NULL) {
-        tail = (list_node_t *)tail->_list.next;
+    while (((flist_node_t*)tail)->next != NULL) {
+        tail = (list_node_t *)((flist_node_t*)tail)->next;
     }
     // Traverse backward
     for (list_node_t *node = tail; node != NULL; node = node->prev) {
@@ -365,76 +324,49 @@ The library implements several safety checks:
 
 1. **NULL pointer checks**: All functions validate their parameters
 2. **Node state validation**:
-   - Forward list: Insertion functions verify that `node->next == NULL`
-   - Doubly-linked: Insertion functions verify that both `node->_list.next` and `node->prev` are NULL
-   - This prevents:
+   - Forward list: Insertion functions correctly initialize and update `node->next` to link the node into the list (for example, to the current head for `push_front`, or to `NULL` when inserting at the end)
+   - Doubly-linked: Insertion functions correctly initialize and update both `node->next` and `node->prev` to link the node between its neighbors in the list
+   - This consistent pointer management prevents:
      - Creating cycles in the list
      - Accidentally linking nodes from different lists
      - Losing track of existing node chains
 
-3. **Return value checking**: All mutating operations return `bool`:
-   - `true`: Operation succeeded
-   - `false`: Invalid parameters or operation failed (e.g., node not found)
-
-4. **Counter operations**: `remove_if`, `unique`, and `size` return `size_t` with count information
-
-**Common error scenarios:**
-
-@code{.c}
-// Forward list error
-my_data_t *data = malloc(sizeof(my_data_t));
-data->node.next = some_other_node;  // Already linked!
-
-if (!flist_push_front(&my_flist, &data->node)) {
-    // ERROR: node->next was not NULL
-    // This prevents accidentally breaking another list
-}
-
-// Doubly-linked list error
-my_data_t *data2 = malloc(sizeof(my_data_t));
-data2->node.prev = some_node;  // Already linked!
-
-if (!list_push_front(&my_list, &data2->node)) {
-    // ERROR: node->prev was not NULL
-}
-@endcode
+3. **Counter operations**: `remove_if`, `unique`, and `size` return `size_t` with count information
 
 @section list_best_practices Best Practices
 
-1. **Always initialize node pointers to NULL** before insertion:
+1. **Always initialize nodes** before insertion:
    @code{.c}
    // Forward list
-   my_data_t *data = malloc(sizeof(my_data_t));
-   data->node.next = NULL;  // Critical!
+   my_data_t *data = malloc(sizeof(*data));
+   if (data != NULL) {
+       memset(data, 0, sizeof(*data));
+       // insertion
+   }
 
    // Doubly-linked list
-   my_data_t *data2 = malloc(sizeof(my_data_t));
-   data2->node._list.next = NULL;  // Critical!
-   data2->node.prev = NULL;        // Critical!
-   @endcode
-
-2. **Check return values** to detect errors:
-   @code{.c}
-   if (!flist_push_front(&my_flist, &data->node)) {
-       // Handle error
+   my_data_t *data2 = malloc(sizeof(*data2));
+   if (data2 != NULL) {
+       memset(data2, 0, sizeof(*data2));
+       // insertion
    }
    @endcode
 
-3. **Use the deletion callback** to prevent memory leaks:
+2. **Use the deletion callback** to prevent memory leaks:
    @code{.c}
-   flist_clear(&my_flist, my_delete_func);
+   flist_clear((flist_node_t**)&my_flist, (f_list_node_del)&my_delete_func);
    @endcode
 
-4. **Choose the right list type:**
+3. **Choose the right list type:**
    - Use `flist` (forward list) for minimal memory usage
-   - Use `list` (doubly-linked) for bidirectional access or frequent tail operations
+   - Use `list` (doubly-linked) for bidirectional access
 
-5. **Prefer front operations** when order doesn't matter:
+4. **Prefer front operations** when order doesn't matter:
    - `flist_push_front` is O(1)
    - `list_push_front` is O(1)
    - Both are faster than push_back for forward lists
 
-6. **Don't reuse nodes** across multiple lists without proper unlinking
+5. **Don't reuse nodes** across multiple lists without proper unlinking
 
 @section list_examples Complete Examples
 
@@ -444,43 +376,47 @@ if (!list_push_front(&my_list, &data2->node)) {
 #include "lists.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 typedef struct person_s {
-    flist_node_t node;
+    flist_node_t _node;
     char name[32];
     int age;
 } person_t;
 
-void delete_person(flist_node_t *node) {
-    person_t *person = (person_t *)node;
+void delete_person(person_t *person) {
     printf("Deleting: %s\n", person->name);
     free(person);
 }
 
 int main(void) {
-    flist_node_t *people = NULL;
+    person_t *people = NULL;
 
     // Add some people
-    person_t *alice = malloc(sizeof(person_t));
-    alice->node.next = NULL;
-    strcpy(alice->name, "Alice");
-    alice->age = 30;
-    flist_push_front(&people, &alice->node);
+    person_t *alice = malloc(sizeof(*alice));
+    if (alice != NULL) {
+        memset(alice, 0, sizeof(*alice));
+        strcpy(alice->name, "Alice");
+        alice->age = 30;
+        flist_push_front((flist_node_t**)&people, (flist_node_t*)alice);
+    }
 
-    person_t *bob = malloc(sizeof(person_t));
-    bob->node.next = NULL;
-    strcpy(bob->name, "Bob");
-    bob->age = 25;
-    flist_push_back(&people, &bob->node);
+    person_t *bob = malloc(sizeof(*bob));
+    if (bob != NULL) {
+        memset(bob, 0, sizeof(*bob));
+        strcpy(bob->name, "Bob");
+        bob->age = 25;
+        flist_push_back((flist_node_t**)&people, (flist_node_t*)bob);
+    }
 
     // Print all people
-    for (flist_node_t *node = people; node != NULL; node = node->next) {
+    for (flist_node_t *node = (flist_node_t*)people; node != NULL; node = node->next) {
         person_t *p = (person_t *)node;
         printf("%s is %d years old\n", p->name, p->age);
     }
 
     // Clean up
-    flist_clear(&people, delete_person);
+    flist_clear((flist_node_t**)&people, (f_list_node_del)&delete_person);
 
     return 0;
 }
@@ -494,55 +430,56 @@ int main(void) {
 #include <stdio.h>
 
 typedef struct person_s {
-    list_node_t node;
+    list_node_t _node;
     char name[32];
     int age;
 } person_t;
 
-void delete_person_dl(flist_node_t *node) {
-    person_t *person = (person_t *)node;
+void delete_person_dl(person_t *person) {
     printf("Deleting: %s\n", person->name);
     free(person);
 }
 
 int main(void) {
-    list_node_t *people = NULL;
+    person_t *people = NULL;
 
-    // Add people (O(1) for both front and back!)
-    person_t *alice = malloc(sizeof(person_t));
-    alice->node._list.next = NULL;
-    alice->node.prev = NULL;
-    strcpy(alice->name, "Alice");
-    alice->age = 30;
-    list_push_back(&people, &alice->node);  // O(1) - fast!
+    // Add people
+    person_t *alice = malloc(sizeof(*alice));
+    if (alice != NULL) {
+        memset(alice, 0, sizeof(*alice));
+        strcpy(alice->name, "Alice");
+        alice->age = 30;
+        list_push_back((list_node_t**)&people, (list_node_t*)alice);
+    }
 
-    person_t *bob = malloc(sizeof(person_t));
-    bob->node._list.next = NULL;
-    bob->node.prev = NULL;
-    strcpy(bob->name, "Bob");
-    bob->age = 25;
-    list_push_back(&people, &bob->node);  // O(1) - fast!
+    person_t *bob = malloc(sizeof(*bob));
+    if (bob != NULL) {
+        memset(bob, 0, sizeof(*bob));
+        strcpy(bob->name, "Bob");
+        bob->age = 25;
+        list_push_back((list_node_t**)&people, (list_node_t*)bob);
+    }
 
     // Forward traversal
     printf("Forward:\n");
-    for (list_node_t *node = people; node != NULL; node = (list_node_t *)node->_list.next) {
+    for (flist_node_t *node = (flist_node_t*)people; node != NULL; node = node->next) {
         person_t *p = (person_t *)node;
         printf("  %s is %d years old\n", p->name, p->age);
     }
 
     // Backward traversal - only possible with doubly-linked!
     printf("Backward:\n");
-    list_node_t *tail = people;
-    while (tail && tail->_list.next) {
-        tail = (list_node_t *)tail->_list.next;
+    flist_node_t *tail = (flist_node_t*)people;
+    while (tail && tail->next) {
+        tail = tail->next;
     }
-    for (list_node_t *node = tail; node != NULL; node = node->prev) {
+    for (list_node_t *node = (list_node_t*)tail; node != NULL; node = node->prev) {
         person_t *p = (person_t *)node;
         printf("  %s is %d years old\n", p->name, p->age);
     }
 
     // Clean up
-    list_clear(&people, delete_person_dl);
+    list_clear((list_node_t**)&people, (f_list_node_del)&delete_person_dl);
 
     return 0;
 }
@@ -551,49 +488,39 @@ int main(void) {
 @subsection list_example_sort Sorting Example
 
 @code{.c}
-bool compare_age(const flist_node_t *a, const flist_node_t *b) {
-    const person_t *pa = (const person_t *)a;
-    const person_t *pb = (const person_t *)b;
-    return pa->age <= pb->age;  // Sort by age ascending
+bool compare_age(const person_t *a, const person_t *b) {
+    return a->age <= b->age;  // Sort by age ascending
 }
 
 // Sort forward list
-if (flist_sort(&people, compare_age)) {
-    printf("Forward list sorted by age\n");
-}
+flist_sort((flist_node_t**)&people, (f_list_node_cmp)&compare_age);
 
 // Sort doubly-linked list
-if (list_sort(&people_dl, compare_age)) {
-    printf("Doubly-linked list sorted by age\n");
-}
+list_sort((list_node_t**)&people_dl, (f_list_node_cmp)&compare_age);
 @endcode
 
 @subsection list_example_advanced Advanced: Remove Duplicates and Reverse
 
 @code{.c}
 // Remove consecutive duplicates after sorting
-bool are_equal(const flist_node_t *a, const flist_node_t *b) {
-    const person_t *pa = (const person_t *)a;
-    const person_t *pb = (const person_t *)b;
-    return pa->age == pb->age;
+bool are_equal(const person_t *a, const person_t *b) {
+    return a->age == b->age;
 }
 
-flist_sort(&people, compare_age);
-size_t removed = flist_unique(&people, are_equal, delete_person);
+flist_sort((flist_node_t**)&people, (f_list_node_cmp)&compare_age);
+size_t removed = flist_unique((flist_node_t**)&people, (f_list_node_bin_pred)&are_equal, (f_list_node_del)&delete_person);
 printf("Removed %zu duplicates\n", removed);
 
 // Reverse the list
-if (flist_reverse(&people)) {
-    printf("List reversed (now descending order)\n");
-}
+flist_reverse((flist_node_t**)&people);
+printf("List reversed (now descending order)\n");
 
 // Remove all minors
-bool is_minor(const flist_node_t *node) {
-    const person_t *p = (const person_t *)node;
+bool is_minor(const person_t *p) {
     return p->age < 18;
 }
 
-size_t removed_minors = flist_remove_if(&people, is_minor, delete_person);
+size_t removed_minors = flist_remove_if((flist_node_t**)&people, (f_list_node_pred)&is_minor, (f_list_node_del)&delete_person);
 printf("Removed %zu minors\n", removed_minors);
 @endcode
 
@@ -601,18 +528,18 @@ printf("Removed %zu minors\n", removed_minors);
 
 @subsection flist_performance Forward List Performance
 
-| Operation                 | Time Complexity | Notes                            |
-|---------------------------|-----------------|----------------------------------|
-| `flist_push_front`      | O(1)            | Constant time                    |
-| `flist_pop_front`       | O(1)            | Constant time                    |
+| Operation               | Time Complexity | Notes                            |
+|-------------------------|-----------------|----------------------------------|
+| `flist_push_front`      | O(1) ⚡         | Constant time                    |
+| `flist_pop_front`       | O(1) ⚡         | Constant time                    |
 | `flist_push_back`       | O(n)            | Must traverse entire list        |
 | `flist_pop_back`        | O(n)            | Must find second-to-last node    |
-| `flist_insert_after`    | O(1)            | Constant time if reference known |
+| `flist_insert_after`    | O(1) ⚡         | Constant time if reference known |
 | `flist_remove`          | O(n)            | Must find previous node          |
 | `flist_remove_if`       | O(n)            | Traverses list once              |
 | `flist_clear`           | O(n)            | Must visit all nodes             |
 | `flist_size`            | O(n)            | Must count all nodes             |
-| `flist_empty`           | O(1)            | Just checks if head is NULL      |
+| `flist_empty`           | O(1) ⚡         | Just checks if head is NULL      |
 | `flist_sort`            | O(n²)           | Bubble sort implementation       |
 | `flist_unique`          | O(n)            | Single pass after sorting        |
 | `flist_reverse`         | O(n)            | Single pass, reverses pointers   |
@@ -621,19 +548,19 @@ printf("Removed %zu minors\n", removed_minors);
 
 @subsection list_performance Doubly-Linked List Performance
 
-| Operation                 | Time Complexity | Notes                             |
-|---------------------------|-----------------|-----------------------------------|
-| `list_push_front`       | O(1) ⚡          | Constant time                    |
-| `list_pop_front`        | O(1) ⚡          | Constant time                    |
-| `list_push_back`        | O(1) ⚡          | **Direct access via prev!**      |
-| `list_pop_back`         | O(1) ⚡          | **Direct access via prev!**      |
-| `list_insert_before`    | O(1) ⚡          | **Direct access via prev!**      |
-| `list_insert_after`     | O(1) ⚡          | Constant time                    |
-| `list_remove`           | O(1) ⚡          | **Direct access via prev!**      |
+| Operation               | Time Complexity | Notes                            |
+|-------------------------|-----------------|----------------------------------|
+| `list_push_front`       | O(1) ⚡         | Constant time                    |
+| `list_pop_front`        | O(1) ⚡         | Constant time                    |
+| `list_push_back`        | O(n)            | Must traverse entire list        |
+| `list_pop_back`         | O(n)            | Must find second-to-last node    |
+| `list_insert_before`    | O(1) ⚡         | **Direct access via prev!**      |
+| `list_insert_after`     | O(1) ⚡         | Constant time                    |
+| `list_remove`           | O(n)            | Must find previous node          |
 | `list_remove_if`        | O(n)            | Traverses list once              |
 | `list_clear`            | O(n)            | Must visit all nodes             |
 | `list_size`             | O(n)            | Must count all nodes             |
-| `list_empty`            | O(1) ⚡          | Just checks if head is NULL      |
+| `list_empty`            | O(1) ⚡         | Just checks if head is NULL      |
 | `list_sort`             | O(n²)           | Bubble sort implementation       |
 | `list_unique`           | O(n)            | Single pass after sorting        |
 | `list_reverse`          | O(n)            | Single pass, swaps pointers      |
@@ -649,8 +576,6 @@ printf("Removed %zu minors\n", removed_minors);
 - Example: Stack-like data structures, one-directional iteration
 
 **When to use doubly-linked lists (`list`):**
-- Need frequent tail operations (O(1) vs O(n) ⚡)
-- Need to insert/remove at known positions efficiently
 - Need bidirectional traversal
 - Memory overhead is acceptable
 - Example: LRU caches, undo/redo systems, navigation histories
@@ -661,25 +586,19 @@ printf("Removed %zu minors\n", removed_minors);
 
 1. **No backward traversal**: Cannot iterate backward through the list.
 
-2. **No tail pointer**: `push_back` and `pop_back` are O(n). For frequent tail operations,
-   use doubly-linked lists instead.
-
-3. **No insert_before**: Cannot insert before a node without traversing from head.
+2. **No insert_before**: Cannot insert before a node without traversing from head.
    Use doubly-linked lists for O(1) insert_before.
 
-4. **Bubble sort**: The sort implementation is O(n²). For large lists, consider using
+3. **Bubble sort**: The sort implementation is O(n²). For large lists, consider using
    an external sorting algorithm.
 
 @subsection list_limitations Doubly-Linked List Limitations
 
-1. **Memory overhead**: Uses twice the memory per node compared to forward lists
+1. **Memory overhead**: Uses twice the memory overhead per node compared to forward lists
    (two pointers instead of one).
 
 2. **Bubble sort**: The sort implementation is O(n²). For large lists, consider using
    an external sorting algorithm.
-
-3. **No tail caching**: While tail operations are O(1), finding the tail initially
-   requires traversal. For repeated tail access, cache the tail pointer in your application.
 
 @subsection list_common_limitations Common Limitations (Both Types)
 
@@ -692,12 +611,13 @@ printf("Removed %zu minors\n", removed_minors);
 3. **No automatic memory management**: Applications must manage node allocation and provide
    deletion callbacks.
 
+4. **No tail pointer**: `push_back` and `pop_back` are O(n).
+
 @section list_alternatives When to Use Alternatives
 
 Consider alternatives if you need:
 
 **Instead of forward lists (`flist`):**
-- **Frequent tail operations**: Use doubly-linked list (`list`) for O(1) tail access ⚡
 - **Bidirectional traversal**: Use doubly-linked list (`list`)
 - **Insert before operation**: Use doubly-linked list (`list`) for O(1) insert_before ⚡
 

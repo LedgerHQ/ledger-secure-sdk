@@ -282,7 +282,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                     }
                     fuzz_list_node_t *node = create_tracked_list_node(&data[offset], 16);
                     offset += 16;
-                    if (node && list_push_front(&dlist, &node->node)) {
+                    if (node) {
+                        list_push_front(&dlist, &node->node);
                         mark_in_list(node);
                     }
                     break;
@@ -294,7 +295,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                     }
                     fuzz_list_node_t *node = create_tracked_list_node(&data[offset], 16);
                     offset += 16;
-                    if (node && list_push_back(&dlist, &node->node)) {
+                    if (node) {
+                        list_push_back(&dlist, &node->node);
                         mark_in_list(node);
                     }
                     break;
@@ -318,7 +320,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                     fuzz_list_node_t *ref     = get_tracked_node(ref_idx, true, true);
                     if (ref) {
                         fuzz_list_node_t *node = create_tracked_list_node(&data[offset], 16);
-                        if (node && list_insert_after(&dlist, &ref->node, &node->node)) {
+                        if (node) {
+                            list_insert_after(&dlist, &ref->node, &node->node);
                             mark_in_list(node);
                         }
                     }
@@ -334,7 +337,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                     fuzz_list_node_t *ref     = get_tracked_node(ref_idx, true, true);
                     if (ref) {
                         fuzz_list_node_t *node = create_tracked_list_node(&data[offset], 16);
-                        if (node && list_insert_before(&dlist, &ref->node, &node->node)) {
+                        if (node) {
+                            list_insert_before(&dlist, &ref->node, &node->node);
                             mark_in_list(node);
                         }
                     }
@@ -398,7 +402,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                     }
                     fuzz_flist_node_t *node = create_tracked_flist_node(&data[offset], 16);
                     offset += 16;
-                    if (node && flist_push_front(&flist, &node->node)) {
+                    if (node) {
+                        flist_push_front(&flist, &node->node);
                         mark_in_list(node);
                     }
                     break;
@@ -410,7 +415,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                     }
                     fuzz_flist_node_t *node = create_tracked_flist_node(&data[offset], 16);
                     offset += 16;
-                    if (node && flist_push_back(&flist, &node->node)) {
+                    if (node) {
+                        flist_push_back(&flist, &node->node);
                         mark_in_list(node);
                     }
                     break;
@@ -434,7 +440,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                     fuzz_flist_node_t *ref     = get_tracked_node(ref_idx, true, false);
                     if (ref) {
                         fuzz_flist_node_t *node = create_tracked_flist_node(&data[offset], 16);
-                        if (node && flist_insert_after(&flist, &ref->node, &node->node)) {
+                        if (node) {
+                            flist_insert_after(&flist, &ref->node, &node->node);
                             mark_in_list(node);
                         }
                     }
