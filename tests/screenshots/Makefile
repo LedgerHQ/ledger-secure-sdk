@@ -177,6 +177,7 @@ INC:=                  \
                        $(SRC_DIR)/uzlib \
                        $(PUBLIC_SDK_DIR)/target/$(TARGET_PRODUCT_NAME)/include \
                        $(PUBLIC_SDK_DIR)/include \
+                       $(PUBLIC_SDK_DIR)/lib_alloc \
                        $(PUBLIC_SDK_DIR)/lib_ux_nbgl \
                        $(PUBLIC_SDK_DIR)/lib_cxng/include \
                        $(PUBLIC_SDK_DIR)/io/include \
@@ -198,6 +199,7 @@ SRCS       += $(shell find $(SRC_DIR)/uzlib -type f -name '*.c')
 SRCS       += $(shell find $(SRC_DIR)/main -type f -name '*.c')
 LIB_SRCS   := $(shell find $(NBGL_PATH)/src -type f -name '*.c')
 LIB_SRCS   += $(shell find $(PUBLIC_SDK_DIR)/qrcode/src -type f -name '*.c')
+LIB_SRCS   += $(PUBLIC_SDK_DIR)/lib_alloc/mem_alloc.c
 
 ifneq (, $(filter $(TARGET_DEFINES), SCREEN_SIZE_WALLET))
 APP_GLYPHS_PATH := $(APP_PATH)/glyphs/$(APP_ICON_SIZE)/

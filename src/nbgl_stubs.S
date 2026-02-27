@@ -41,6 +41,7 @@ NBGL_TRAMPOLINE _NR_nbgl_screenReset                         nbgl_screenReset
 NBGL_TRAMPOLINE _NR_nbgl_screenHandler                       nbgl_screenHandler
 NBGL_TRAMPOLINE _NR_nbgl_objPoolGet                          nbgl_objPoolGet
 NBGL_TRAMPOLINE _NR_nbgl_objPoolGetArray                     nbgl_objPoolGetArray
+NBGL_TRAMPOLINE _NR_nbgl_objPoolStat                         nbgl_objPoolStat
 NBGL_TRAMPOLINE _NR_nbgl_containerPoolGet                    nbgl_containerPoolGet
 NBGL_TRAMPOLINE _NR_nbgl_getCharWidth                        nbgl_getCharWidth
 NBGL_TRAMPOLINE _NR_nbgl_getFont                             nbgl_getFont
