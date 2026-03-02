@@ -35,7 +35,8 @@ CURVE_PRIME256R1 = 1 << 1
 CURVE_ED25519 = 1 << 2
 CURVE_SLIP21 = 1 << 3
 CURVE_BLS12381G1 = 1 << 4
-
+CURVE_BLS12377G1 = 1 << 5
+CURVE_JUBJUB_ZIP32 = 1 << 6
 
 def string_to_bytes(x):
     return bytes(x, 'ascii')
@@ -78,6 +79,11 @@ def get_curve_mask(curves, slip21_paths):
                 curve_mask |= CURVE_SLIP21
             elif curve == 'bls12381g1':
                 curve_mask |= CURVE_BLS12381G1
+            elif curve == 'bls12377g1':
+                curve_mask |= CURVE_BLS12377G1
+            elif curve == 'jubjub':
+                # Jubjub enables all Zip32 modes: Sapling, Orchard, Registered
+                curve_mask |= CURVE_JUBJUB_ZIP32
             else:
                 raise Exception("Unknown curve " + curve)
 
@@ -144,7 +150,7 @@ def get_argparser():
     parser.add_argument("--appVersion", help="The application version (as a string)")
     parser.add_argument("--icon", help="The icon content to use (hex encoded)")
     parser.add_argument("--curve", help="""A curve on which BIP 32 derivation is locked ("secp256k1", "secp256r1",
-"ed25519" or "bls12381g1"), can be repeated""", action='append')
+"ed25519", "bls12381g1", "bls12377g1", "jubjub"), can be repeated""", action='append')
     parser.add_argument("--path", help="""A BIP 32 path to which derivation is locked (format decimal a'/b'/c), can be
 repeated""", action='append')
     parser.add_argument("--path_slip21", help="""A SLIP 21 path to which derivation is locked""", action='append')
