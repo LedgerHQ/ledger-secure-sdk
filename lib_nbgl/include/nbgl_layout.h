@@ -368,7 +368,9 @@ typedef struct {
         nbgl_layoutConfirmationButton_t
             confirmationButton;  /// used if type is @ref KEYBOARD_WITH_BUTTON
     };
+#ifdef HAVE_SE_TOUCH
     tune_index_e tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played
+#endif
 } nbgl_layoutKeyboardContent_t;
 
 #ifdef HAVE_SE_TOUCH
