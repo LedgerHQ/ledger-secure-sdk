@@ -664,8 +664,8 @@ jobs:
 
           with open(OUT, 'w') as out:
               out.write(f'# Stack usage comparison: {APP}\n\n')
-              out.write('Symbols where **clang-21 (custom)** stack > **clang-14 (official)** stack.\n\n')
-              out.write('Only functions with a positive delta are listed.\n\n')
+              out.write('Functions whose stack usage differs between **clang-14 (official)** and **clang-21 (custom)**.\n\n')
+              out.write('Only functions with a non-zero delta are listed, sorted by delta (descending).\n\n')
 
               found_any = False
               for dev_key, dev_name in DEVICES:
@@ -679,7 +679,7 @@ jobs:
                       old_sz = old_data.get(func, 0)
                       new_sz = new_data.get(func, 0)
                       delta = new_sz - old_sz
-                      if delta > 0:
+                      if delta != 0:
                           rows.append((func, old_sz, new_sz, delta))
                   rows.sort(key=lambda x: x[3], reverse=True)
 
@@ -691,8 +691,9 @@ jobs:
                       out.write('| Function | clang-14 (bytes) | clang-21 (bytes) | Δ (bytes) |\n')
                       out.write('|----------|-----------------|-----------------|----------|\n')
                       for func, old_sz, new_sz, delta in rows:
-                          pct = f' (+{delta/old_sz*100:.1f}%)' if old_sz else ''
-                          out.write(f'| `{func}` | {old_sz} | {new_sz} | +{delta}{pct} |\n')
+                          sign = '+' if delta > 0 else ''
+                          pct = f' ({sign}{delta/old_sz*100:.1f}%)' if old_sz else ''
+                          out.write(f'| `{func}` | {old_sz} | {new_sz} | {sign}{delta}{pct} |\n')
                       out.write('\n')
                   out.write('---\n\n')
 
