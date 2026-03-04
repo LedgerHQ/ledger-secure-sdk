@@ -332,6 +332,55 @@ typedef struct {
         *prelude;  ///< if not null, means that the review can start by a prelude
 } nbgl_warning_t;
 
+#ifdef NBGL_KEYBOARD
+/**
+ * @brief Structure containing configuration for keyboard with confirmation button
+ */
+typedef struct {
+#ifdef HAVE_SE_TOUCH
+    const char *buttonText;  ///< button title
+#endif
+    nbgl_callback_t onButtonCallback;  ///< callback to call when the button is pressed
+} nbgl_kbdButtonParams_t;
+
+/**
+ * @brief Structure containing configuration for keyboard with suggestion buttons
+ */
+typedef struct {
+    const char **buttons;           ///< array of strings for buttons (last ones can be NULL)
+    int          firstButtonToken;  ///< first token used for buttons, provided in onButtonCallback
+    nbgl_layoutTouchCallback_t
+        onButtonCallback;  ///< callback to call when one of the buttons is pressed
+    nbgl_keyboardButtonsCallback_t
+        updateButtonsCallback;  ///< callback to call when a key is pressed to update suggestions
+} nbgl_kbdSuggestParams_t;
+
+/**
+ * @brief Structure containing all parameters for keyboard use case
+ *
+ * This structure is used to configure the keyboard modal page, including the title,
+ * input buffer, keyboard mode, and the type of content (with button or suggestions).
+ */
+typedef struct {
+    nbgl_layoutKeyboardContentType_t type;         ///< type of content
+    const char                      *title;        ///< centered title explaining the screen
+    char                            *entryBuffer;  ///< already entered text
+    uint8_t                          entryMaxLen;  ///< maximum length of text that can be entered
+    keyboardMode_t                   mode;         ///< keyboard mode to start with
+    bool lettersOnly;  ///< if true, only display letter keys and Backspace
+#ifdef HAVE_SE_TOUCH
+    bool           numbered;  ///< if set to true, the text is preceded on the left by 'number.'
+    uint8_t        number;    ///< if numbered is true, number used to build 'number.' text
+    keyboardCase_t casing;    ///< keyboard casing mode (lower, upper once or upper locked)
+#endif
+    union {
+        nbgl_kbdSuggestParams_t
+                               suggestionParams;  /// used if type is @ref KEYBOARD_WITH_SUGGESTIONS
+        nbgl_kbdButtonParams_t confirmationParams;  /// used if type is @ref KEYBOARD_WITH_BUTTON
+    };
+} nbgl_keyboardParams_t;
+#endif  // NBGL_KEYBOARD
+
 /**
  * @brief The different types of operation to review
  *
@@ -555,43 +604,6 @@ void nbgl_useCaseKeypad(const char             *title,
 #endif  // NBGL_KEYPAD
 
 #ifdef NBGL_KEYBOARD
-typedef struct {
-    const char     *buttonText;
-    nbgl_callback_t onButtonCallback;
-} nbgl_kbdButtonParams_t;
-
-typedef struct {
-    const char **buttons;           ///< array of 4 strings for buttons (last ones can be NULL)
-    int          firstButtonToken;  ///< first token used for buttons, provided in onButtonCallback
-    nbgl_layoutTouchCallback_t
-        onButtonCallback;  ///< callback to call when one of the buttons is pressed
-    nbgl_keyboardButtonsCallback_t
-        updateButtonsCallback;  ///< callback to call when a key is pressed to update suggestions
-} nbgl_kbdSuggestParams_t;
-
-typedef struct {
-    nbgl_layoutKeyboardContentType_t type;         ///< type of content
-    const char                      *title;        ///< centered title explaining the screen
-    char                            *entryBuffer;  ///< already entered text
-    uint8_t                          entryMaxLen;  ///< maximum length of text that can be entered
-    bool           numbered;     ///< if set to true, the text is preceded on the left by 'number.'
-    uint8_t        number;       ///< if numbered is true, number used to build 'number.' text
-    bool           lettersOnly;  ///< if true, only display letter keys and Backspace
-    keyboardMode_t mode;         ///< keyboard mode to start with
-#ifdef HAVE_SE_TOUCH
-    keyboardCase_t casing;  ///< keyboard casing mode (lower, upper once or upper locked)
-#else                       // HAVE_SE_TOUCH
-    bool    enableBackspace;  ///< if true, Backspace key is enabled
-    bool    enableValidate;   ///< if true, Validate key is enabled
-    uint8_t selectedCharIndex;
-#endif                      // HAVE_SE_TOUCH
-    union {
-        nbgl_kbdSuggestParams_t
-                               suggestionParams;  /// used if type is @ref KEYBOARD_WITH_SUGGESTIONS
-        nbgl_kbdButtonParams_t confirmationParams;  /// used if type is @ref KEYBOARD_WITH_BUTTON
-    };
-} nbgl_keyboardParams_t;
-
 void nbgl_useCaseKeyboard(const nbgl_keyboardParams_t *params, nbgl_callback_t backCallback);
 #endif  // NBGL_KEYBOARD
 
