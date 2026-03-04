@@ -100,7 +100,7 @@ jobs:
     steps:
       - name: Check clang version
         run: |
-          CLANG_VERSION=$(docker run --rm ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:5.0.2 clang --version)
+          CLANG_VERSION=$(docker run --rm ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:5.0.3 clang --version)
           echo "$CLANG_VERSION"
           echo "## clang version (official image)" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
@@ -290,8 +290,8 @@ jobs:
 
       - name: Pull official Docker image and start build container
         run: |
-          docker pull ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:5.0.2
-          docker run -d --name builder-official -v $GITHUB_WORKSPACE:/workspace ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:5.0.2 sleep infinity
+          docker pull ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:5.0.3
+          docker run -d --name builder-official -v $GITHUB_WORKSPACE:/workspace ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:5.0.3 sleep infinity
           docker exec builder-official pip install --break-system-packages ledgered
 
       - name: Patch SDK Makefile.defines to add -fstack-usage
