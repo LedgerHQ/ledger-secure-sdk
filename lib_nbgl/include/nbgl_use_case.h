@@ -29,7 +29,7 @@ extern "C" {
  *  @brief when using controls in page content (@ref nbgl_pageContent_t), this is the first token
  * value usable for these controls
  */
-#define FIRST_USER_TOKEN 20
+#define FIRST_USER_TOKEN 50
 
 /**
  *  @brief value of page parameter used with navigation callback when "skip" button is touched, to
