@@ -69,7 +69,7 @@ int nbgl_layoutAddKeyboard(nbgl_layout_t *layout, const nbgl_layoutKbd_t *kbdInf
         keyboard->mode              = MODE_LOWER_LETTERS;
     }
     else {
-        keyboard->mode = MODE_NONE;
+        keyboard->mode = kbdInfo->mode;
     }
     keyboard->callback    = PIC(kbdInfo->callback);
     keyboard->lettersOnly = kbdInfo->lettersOnly;
