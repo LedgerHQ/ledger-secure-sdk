@@ -67,8 +67,10 @@
 #include "decorators.h"
 
 /** Block size of the AES in bytes. */
-#define CX_AES_BLOCK_SIZE  16
-#define CX_AES_128_KEY_LEN 16
+#define CX_AES_BLOCK_SIZE  (16U)
+#define CX_AES_128_KEY_LEN (16U)
+#define CX_AES_256_KEY_LEN (32U)
+#define CX_AES_MAX_KEY_LEN CX_AES_256_KEY_LEN
 
 /**
  * @brief   AES key container.
@@ -76,8 +78,8 @@
  * @details Such container should be initialized with #cx_aes_init_key_no_throw.
  */
 struct cx_aes_key_s {
-    uint32_t size;      ///< key size
-    uint8_t  keys[32];  ///< key value
+    uint32_t size;                      ///< key size
+    uint8_t  keys[CX_AES_MAX_KEY_LEN];  ///< key value
 };
 /** Convenience type. See #cx_aes_key_s. */
 typedef struct cx_aes_key_s cx_aes_key_t;
