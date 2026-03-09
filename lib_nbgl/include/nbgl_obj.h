@@ -48,6 +48,10 @@ extern "C" {
 #define KEYBOARD_KEY_WIDTH  14
 #define KEYBOARD_KEY_HEIGHT 14
 #define KEYBOARD_WIDTH      (5 * KEYBOARD_KEY_WIDTH)
+
+#define BACKSPACE_KEY_INDEX 26
+#define VALIDATE_INDEX      27
+#define SHIFT_KEY_INDEX     28
 #endif  // SCREEN_SIZE_WALLET
 #endif  // NBGL_KEYBOARD
 
