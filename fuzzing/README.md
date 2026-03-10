@@ -56,13 +56,13 @@ cd fuzzing # You must run it from the fuzzing folder
 ### About local_run.sh
 
 | Parameter              | Type                | Description                                                                   |
-| :--------------------- | :------------------ | :------------------------------------------------------------------- ---------|
+| :--------------------- | :------------------ | :---------------------------------------------------------------------------- |
 | `--BOLOS_SDK`          | `PATH TO BOLOS SDK` | **Required**. Path to the BOLOS SDK                                           |
 | `--build`              | `bool`              | **Optional**. Whether to build the project (default: 0)                       |
 | `--fuzzer`             | `PATH`              | **Required**. Path to the fuzzer binary                                       |
 | `--compute-coverage`   | `bool`              | **Optional**. Whether to compute coverage after fuzzing (default: 0)          |
 | `--run-fuzzer`         | `bool`              | **Optional**. Whether to run or not the fuzzer (default: 0)                   |
-| `--run-crash`          | `FILENAME`          | **Optional**. Run the fuzzer on a specific crash input file (default: 0)      |
+| `--run-crash`          | `FILENAME`          | **Optional**. Run the fuzzer on a specific crash input file                   |
 | `--sanitizer`          | `address or memory` | **Optional**. Compile fuzzer with sanitizer (default: address)                |
 | `--j`                  | `int`               | **Optional**. Number of parallel jobs/CPUs for build and fuzzing (default: 1) |
 | `--help`               |                     | **Optional**. Display help message                                            |
@@ -78,23 +78,59 @@ When writing your harness, keep the following points in mind:
   macros/exclude_macros.txt and rerunning it, or directly change the generated macros/generated/macros.txt.
 - A typical harness looks like this:
 
-  ```console
-
+  ```c
   int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
-    if (sigsetjmp(fuzz_exit_jump_ctx.jmp_buf, 1)) return 0;
-
-    ### harness code ###
-
-    return 0;
+      /* harness code */
+      return 0;
   }
-
   ```
-
-  This allows a return point when the `os_sched_exit()` function is mocked.
 
 - To provide an SDK interface, we automatically generate syscall mock functions located in
   `SECURE_SDK_PATH/fuzzing/mock/generated/generated_syscalls.c`, if you need a more specific mock,
   you can define it in `APP_PATH/fuzzing/mock` with the same name and without the WEAK attribute.
+
+### Fuzzing TLV use cases
+
+The SDK provides a grammar-aware TLV custom mutator (`tlv_mutator.c`) that generates
+structurally valid TLV messages. Each harness defines its own tag grammar; the mutator
+handles structural mutations (build, append, delete, duplicate, corrupt length, truncate).
+
+SDK reference fuzzers:
+- `fuzz_tlv_trusted_name` — Trusted Name (`fuzzer_tlv_trusted_name.c`)
+- `fuzz_tlv_dynamic_descriptor` — Dynamic Descriptor (`fuzzer_tlv_dynamic_descriptor.c`)
+
+#### Using the TLV mutator from your application
+
+1. Define the tag grammar as a `tlv_tag_info_t` array and set it in `LLVMFuzzerInitialize`:
+
+```c
+#include "tlv_mutator.h"
+
+static const tlv_tag_info_t MY_TAGS[] = {
+    {0x01, 1, 1},    // TAG_TYPE    : uint8
+    {0x02, 1, 32},   // TAG_NAME    : string
+    {0x03, 20, 20},  // TAG_ADDRESS : fixed 20 bytes
+};
+
+int LLVMFuzzerInitialize(int *argc, char ***argv) {
+    (void) argc; (void) argv;
+    current_tlv_fuzz_config.tags_info = MY_TAGS;
+    current_tlv_fuzz_config.num_tags  = sizeof(MY_TAGS) / sizeof(MY_TAGS[0]);
+    return 0;
+}
+```
+
+2. Compile `tlv_mutator.c` alongside your harness and link with `secure_sdk`:
+
+```cmake
+add_executable(fuzz_my_tlv my_harness.c ${BOLOS_SDK}/fuzzing/harness/tlv_mutator.c)
+target_link_libraries(fuzz_my_tlv PUBLIC secure_sdk)
+```
+
+3. If your use case calls `check_signature_with_pki`, also compile
+   `fuzz_tlv_common_mocks.c` to bypass PKI verification during fuzzing.
+
+See `fuzzer_tlv_trusted_name.c` and `lib_tlv_trusted_name.cmake` as complete examples.
 
 ### Adding an initial Corpus
 
@@ -143,4 +179,6 @@ cmake -S . -B build -DCMAKE_C_COMPILER=clang -DSANITIZER=address -G Ninja -DTARG
 ./build/fuzz_alloc
 ./build/fuzz_alloc_utils
 ./build/fuzz_nfc_ndef
+./build/fuzz_tlv_trusted_name
+./build/fuzz_tlv_dynamic_descriptor
 ```
