@@ -55,6 +55,7 @@
 // macros to ease access to shared contexts
 #define sharedContext        genericContext.sharedCtx
 #define keypadContext        sharedContext.keypad
+#define keyboardContext      sharedContext.keyboard
 #define reviewWithWarnCtx    sharedContext.reviewWithWarning
 #define choiceWithDetailsCtx sharedContext.choiceWithDetails
 
@@ -105,9 +106,12 @@ enum {
     DISMISS_WARNING_TOKEN,
     DISMISS_DETAILS_TOKEN,
     PRELUDE_CHOICE_TOKEN,
+    KEYBOARD_BUTTON_TOKEN,
+    KEYBOARD_CROSS_TOKEN,
     FIRST_WARN_BAR_TOKEN,
     LAST_WARN_BAR_TOKEN = (FIRST_WARN_BAR_TOKEN + NB_WARNING_TYPES - 1),
 };
+CCASSERT(NBGL_TOKENS, LAST_WARN_BAR_TOKEN + 1 < FIRST_USER_TOKEN);
 
 typedef enum {
     REVIEW_NAV = 0,
@@ -134,13 +138,26 @@ typedef struct AddressConfirmationContext_s {
 
 #ifdef NBGL_KEYPAD
 typedef struct KeypadContext_s {
-    uint8_t        pinEntry[KEYPAD_MAX_DIGITS];
-    uint8_t        pinLen;
-    uint8_t        pinMinDigits;
-    uint8_t        pinMaxDigits;
-    nbgl_layout_t *layoutCtx;
-    bool           hidden;
+    uint8_t                 pinEntry[KEYPAD_MAX_DIGITS];
+    uint8_t                 pinLen;
+    uint8_t                 pinMinDigits;
+    uint8_t                 pinMaxDigits;
+    nbgl_layout_t          *layoutCtx;
+    bool                    hidden;
+    nbgl_pinValidCallback_t onValidatePin;
 } KeypadContext_t;
+#endif
+
+#ifdef NBGL_KEYBOARD
+typedef struct KeyboardContext_s {
+    nbgl_layoutKeyboardContent_t   keyboardContent;
+    char                          *entryBuffer;
+    uint8_t                        entryMaxLen;
+    int                            keyboardIndex;
+    keyboardCase_t                 casing;
+    nbgl_layout_t                 *layoutCtx;
+    nbgl_keyboardButtonsCallback_t getSuggestionButtons;
+} KeyboardContext_t;
 #endif
 
 typedef struct ReviewWithWarningContext_s {
@@ -178,6 +195,9 @@ typedef struct {
     union {
 #ifdef NBGL_KEYPAD
         KeypadContext_t keypad;
+#endif
+#ifdef NBGL_KEYBOARD
+        KeyboardContext_t keyboard;
 #endif
         ReviewWithWarningContext_t reviewWithWarning;
         ChoiceWithDetailsContext_t choiceWithDetails;
@@ -266,9 +286,6 @@ static nbgl_layoutTouchCallback_t   onControls;
 static nbgl_contentActionCallback_t onContentAction;
 static nbgl_choiceCallback_t        onChoice;
 static nbgl_callback_t              onModalConfirm;
-#ifdef NBGL_KEYPAD
-static nbgl_pinValidCallback_t onValidatePin;
-#endif
 
 // contexts for background and modal pages
 static nbgl_page_t *pageContext;
@@ -420,9 +437,6 @@ static void reset_callbacks_and_context(void)
     onControls      = NULL;
     onContentAction = NULL;
     onChoice        = NULL;
-#ifdef NBGL_KEYPAD
-    onValidatePin = NULL;
-#endif
     memset(&genericContext, 0, sizeof(genericContext));
 }
 
@@ -1908,7 +1922,7 @@ static void keypadCallback(char touchedKey)
             nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_FAST_REFRESH,
                                                POST_REFRESH_FORCE_POWER_ON);
 
-            onValidatePin(keypadContext.pinEntry, keypadContext.pinLen);
+            keypadContext.onValidatePin(keypadContext.pinEntry, keypadContext.pinLen);
             break;
 
         default:
@@ -1930,6 +1944,68 @@ static void keypadGeneric_cb(int token, uint8_t index)
         return;
     }
     onQuit();
+}
+#endif
+
+#ifdef NBGL_KEYBOARD
+// called when a key is touched on the keyboard
+static void keyboardCallback(char touchedKey)
+{
+    uint32_t mask    = 0;
+    size_t   textLen = strlen(keyboardContext.entryBuffer);
+    if (touchedKey == BACKSPACE_KEY) {
+        if (textLen == 0) {
+            // No action
+            return;
+        }
+        keyboardContext.entryBuffer[--textLen] = '\0';
+    }
+    else {
+        keyboardContext.entryBuffer[textLen]   = touchedKey;
+        keyboardContext.entryBuffer[++textLen] = '\0';
+    }
+    if (keyboardContext.keyboardContent.type == KEYBOARD_WITH_SUGGESTIONS) {
+        // if suggestions are displayed, we update them at each key press
+        keyboardContext.getSuggestionButtons(&keyboardContext.keyboardContent, &mask);
+    }
+    else if (textLen >= keyboardContext.entryMaxLen) {
+        // entry length can't be greater, so we mask every characters
+        mask = -1;
+    }
+    nbgl_layoutUpdateKeyboardContent(keyboardContext.layoutCtx, &keyboardContext.keyboardContent);
+    nbgl_layoutUpdateKeyboard(keyboardContext.layoutCtx,
+                              keyboardContext.keyboardIndex,
+                              mask,
+                              false,
+                              keyboardContext.casing);
+    nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_REFRESH, POST_REFRESH_FORCE_POWER_ON);
+}
+
+static void keyboardGeneric_cb(int token, uint8_t index)
+{
+    UNUSED(index);
+    switch (token) {
+        case BACK_TOKEN:
+            onQuit();
+            break;
+        case KEYBOARD_CROSS_TOKEN:
+            // Simulate a word of a single letter 'a' and trigger the backspace action
+            keyboardContext.entryBuffer[0] = 'a';
+            keyboardContext.entryBuffer[1] = '\0';
+            keyboardCallback(BACKSPACE_KEY);
+            break;
+        case KEYBOARD_BUTTON_TOKEN:
+            if (keyboardContext.keyboardContent.type == KEYBOARD_WITH_BUTTON) {
+                onAction();
+            }
+            break;
+        default:
+            if ((keyboardContext.keyboardContent.type == KEYBOARD_WITH_SUGGESTIONS)
+                && (token >= keyboardContext.keyboardContent.suggestionButtons.firstButtonToken)) {
+                onControls(token, index);
+            }
+            break;
+    }
 }
 #endif
 
@@ -4590,8 +4666,7 @@ void nbgl_useCaseKeypad(const char             *title,
     nbgl_layoutHeader_t      headerDesc        = {.type               = HEADER_BACK_AND_TEXT,
                                                   .separationLine     = true,
                                                   .backAndText.token  = BACK_TOKEN,
-                                                  .backAndText.tuneId = TUNE_TAP_CASUAL,
-                                                  .backAndText.text   = NULL};
+                                                  .backAndText.tuneId = TUNE_TAP_CASUAL};
     int                      status            = -1;
 
     if ((minDigits > KEYPAD_MAX_DIGITS) || (maxDigits > KEYPAD_MAX_DIGITS)) {
@@ -4623,13 +4698,12 @@ void nbgl_useCaseKeypad(const char             *title,
     // add keypad content
     status = nbgl_layoutAddKeypadContent(
         keypadContext.layoutCtx, title, keypadContext.hidden, maxDigits, "");
-
     if (status < 0) {
         return;
     }
 
     // validation pin callback
-    onValidatePin = validatePinCallback;
+    keypadContext.onValidatePin = validatePinCallback;
     // pin code acceptable lengths
     keypadContext.pinMinDigits = minDigits;
     keypadContext.pinMaxDigits = maxDigits;
@@ -4638,6 +4712,112 @@ void nbgl_useCaseKeypad(const char             *title,
     nbgl_refreshSpecialWithPostRefresh(FULL_COLOR_CLEAN_REFRESH, POST_REFRESH_FORCE_POWER_ON);
 }
 #endif  // NBGL_KEYPAD
+
+#ifdef NBGL_KEYBOARD
+/**
+ * @brief Draws a standard keyboard modal page for text input. It contains:
+ *        - a navigation bar at the top (with back button)
+ *        - a centered title
+ *        - an entry area for the text being entered
+ *        - the keyboard at the bottom
+ *        - either a confirmation button or suggestion buttons above the keyboard (depending on
+ * type)
+ *
+ * @note The keyboard supports different modes (lowercase, uppercase, digits, special characters)
+ *       and can be configured to show only letters or all characters.
+ *
+ * @param params pointer to a structure containing:
+ *          - type: KEYBOARD_WITH_BUTTON or KEYBOARD_WITH_SUGGESTIONS
+ *          - title: string to display as page title
+ *          - entryBuffer: buffer to store the entered text
+ *          - entryMaxLen: maximum length of text that can be entered
+ *          - mode: initial keyboard mode (MODE_LOWER, MODE_UPPER, MODE_DIGITS, MODE_SPECIAL)
+ *          - lettersOnly: if true, only letter keys and Backspace are shown
+ *          - numbered: (Touch only) if true, text is preceded by 'number.'
+ *          - number: (Touch only) number used to build 'number.' prefix
+ *          - casing: (Touch only) keyboard casing mode
+ *          - confirmationParams: (if type is KEYBOARD_WITH_BUTTON) button configuration
+ *          - suggestionParams: (if type is KEYBOARD_WITH_SUGGESTIONS) suggestions configuration
+ * @param backCallback callback called when the back button is pressed
+ */
+void nbgl_useCaseKeyboard(const nbgl_keyboardParams_t *params, nbgl_callback_t backCallback)
+{
+    // clang-format off
+    nbgl_layoutDescription_t layoutDescription = {.onActionCallback = keyboardGeneric_cb};
+    nbgl_layoutHeader_t      headerDesc        = {.type               = HEADER_BACK_AND_TEXT,
+                                                  .backAndText.token  = BACK_TOKEN,
+                                                  .backAndText.tuneId = TUNE_TAP_CASUAL};
+    nbgl_layoutKbd_t         kbdInfo           = {.callback = &keyboardCallback,
+                                                  .lettersOnly = params->lettersOnly,
+                                                  .mode = params->mode,
+                                                  .casing = params->casing};
+    int status = -1;
+    // clang-format on
+
+    reset_callbacks_and_context();
+    // reset the keyboard context
+    memset(&keyboardContext, 0, sizeof(KeyboardContext_t));
+
+    // memorize context
+    onQuit = backCallback;
+
+    // get a layout
+    keyboardContext.layoutCtx = nbgl_layoutGet(&layoutDescription);
+
+    // set back key in header
+    nbgl_layoutAddHeader(keyboardContext.layoutCtx, &headerDesc);
+
+    // Add keyboard
+    status = nbgl_layoutAddKeyboard(keyboardContext.layoutCtx, &kbdInfo);
+    if (status < 0) {
+        return;
+    }
+    keyboardContext.keyboardIndex  = status;
+    keyboardContext.casing         = params->casing;
+    keyboardContext.entryBuffer    = PIC(params->entryBuffer);
+    keyboardContext.entryMaxLen    = params->entryMaxLen;
+    keyboardContext.entryBuffer[0] = '\0';
+    // add keyboard content
+    keyboardContext.keyboardContent = (nbgl_layoutKeyboardContent_t){
+        .type      = params->type,
+        .title     = PIC(params->title),
+        .numbered  = params->numbered,
+        .number    = params->number,
+        .text      = keyboardContext.entryBuffer,
+        .textToken = KEYBOARD_CROSS_TOKEN,
+        .tuneId    = TUNE_TAP_CASUAL,
+    };
+    switch (params->type) {
+        case KEYBOARD_WITH_BUTTON:
+            onAction = PIC(params->confirmationParams.onButtonCallback);
+            keyboardContext.keyboardContent.confirmationButton = (nbgl_layoutConfirmationButton_t){
+                .text   = PIC(params->confirmationParams.buttonText),
+                .token  = KEYBOARD_BUTTON_TOKEN,
+                .active = true,
+            };
+            break;
+        case KEYBOARD_WITH_SUGGESTIONS:
+            onControls = PIC(params->suggestionParams.onButtonCallback);
+            keyboardContext.getSuggestionButtons
+                = PIC(params->suggestionParams.updateButtonsCallback);
+            keyboardContext.keyboardContent.suggestionButtons = (nbgl_layoutSuggestionButtons_t){
+                .buttons          = PIC(params->suggestionParams.buttons),
+                .firstButtonToken = params->suggestionParams.firstButtonToken,
+            };
+            break;
+        default:
+            return;
+    }
+    status = nbgl_layoutAddKeyboardContent(keyboardContext.layoutCtx,
+                                           &keyboardContext.keyboardContent);
+    if (status < 0) {
+        return;
+    }
+
+    nbgl_layoutDraw(keyboardContext.layoutCtx);
+    nbgl_refreshSpecialWithPostRefresh(FULL_COLOR_CLEAN_REFRESH, POST_REFRESH_FORCE_POWER_ON);
+}
+#endif  // NBGL_KEYBOARD
 
 #endif  // HAVE_SE_TOUCH
 #endif  // NBGL_USE_CASE

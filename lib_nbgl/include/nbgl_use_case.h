@@ -29,7 +29,7 @@ extern "C" {
  *  @brief when using controls in page content (@ref nbgl_pageContent_t), this is the first token
  * value usable for these controls
  */
-#define FIRST_USER_TOKEN 20
+#define FIRST_USER_TOKEN 50
 
 /**
  *  @brief value of page parameter used with navigation callback when "skip" button is touched, to
@@ -161,6 +161,14 @@ typedef void (*nbgl_actionCallback_t)(uint8_t page);
  * @param pinLen pin length
  */
 typedef void (*nbgl_pinValidCallback_t)(const uint8_t *pin, uint8_t pinLen);
+
+/**
+ * @brief prototype of keyboard buttons callback function
+ * @param content content to fill
+ * @param mask of keys to activate/deactivate on keyboard
+ */
+typedef void (*nbgl_keyboardButtonsCallback_t)(nbgl_layoutKeyboardContent_t *content,
+                                               uint32_t                     *mask);
 
 /**
  * @brief prototype of content navigation callback function
@@ -323,6 +331,55 @@ typedef struct {
     const nbgl_preludeDetails_t
         *prelude;  ///< if not null, means that the review can start by a prelude
 } nbgl_warning_t;
+
+#ifdef NBGL_KEYBOARD
+/**
+ * @brief Structure containing configuration for keyboard with confirmation button
+ */
+typedef struct {
+#ifdef HAVE_SE_TOUCH
+    const char *buttonText;  ///< button title
+#endif
+    nbgl_callback_t onButtonCallback;  ///< callback to call when the button is pressed
+} nbgl_kbdButtonParams_t;
+
+/**
+ * @brief Structure containing configuration for keyboard with suggestion buttons
+ */
+typedef struct {
+    const char **buttons;           ///< array of strings for buttons (last ones can be NULL)
+    int          firstButtonToken;  ///< first token used for buttons, provided in onButtonCallback
+    nbgl_layoutTouchCallback_t
+        onButtonCallback;  ///< callback to call when one of the buttons is pressed
+    nbgl_keyboardButtonsCallback_t
+        updateButtonsCallback;  ///< callback to call when a key is pressed to update suggestions
+} nbgl_kbdSuggestParams_t;
+
+/**
+ * @brief Structure containing all parameters for keyboard use case
+ *
+ * This structure is used to configure the keyboard modal page, including the title,
+ * input buffer, keyboard mode, and the type of content (with button or suggestions).
+ */
+typedef struct {
+    nbgl_layoutKeyboardContentType_t type;         ///< type of content
+    const char                      *title;        ///< centered title explaining the screen
+    char                            *entryBuffer;  ///< already entered text
+    uint8_t                          entryMaxLen;  ///< maximum length of text that can be entered
+    keyboardMode_t                   mode;         ///< keyboard mode to start with
+    bool lettersOnly;  ///< if true, only display letter keys and Backspace
+#ifdef HAVE_SE_TOUCH
+    bool           numbered;  ///< if set to true, the text is preceded on the left by 'number.'
+    uint8_t        number;    ///< if numbered is true, number used to build 'number.' text
+    keyboardCase_t casing;    ///< keyboard casing mode (lower, upper once or upper locked)
+#endif
+    union {
+        nbgl_kbdSuggestParams_t
+                               suggestionParams;  /// used if type is @ref KEYBOARD_WITH_SUGGESTIONS
+        nbgl_kbdButtonParams_t confirmationParams;  /// used if type is @ref KEYBOARD_WITH_BUTTON
+    };
+} nbgl_keyboardParams_t;
+#endif  // NBGL_KEYBOARD
 
 /**
  * @brief The different types of operation to review
@@ -545,6 +602,10 @@ void nbgl_useCaseKeypad(const char             *title,
                         nbgl_pinValidCallback_t validatePinCallback,
                         nbgl_callback_t         backCallback);
 #endif  // NBGL_KEYPAD
+
+#ifdef NBGL_KEYBOARD
+void nbgl_useCaseKeyboard(const nbgl_keyboardParams_t *params, nbgl_callback_t backCallback);
+#endif  // NBGL_KEYBOARD
 
 #ifdef HAVE_SE_TOUCH
 // use case drawing

@@ -57,6 +57,8 @@ A few APIs are available to draw typical Use-Cases, such as:
  - @ref nbgl_useCaseAddressReview() to draw an address confirmation page, with a possibility to see it as QR Code and some extra tag/value pairs (see @subpage use_case_addr_review)
 - for keypad:
  - @ref nbgl_useCaseKeypad() to draw a default keypad implementation (see @subpage use_case_keypad)
+- for keyboard:
+ - @ref nbgl_useCaseKeyboard() to draw a keyboard for text input (see @subpage use_case_keyboard)
 - for generic navigable content:
  - @ref nbgl_useCaseNavigableContent() to draw a level of generic content navigable pages
 
@@ -726,6 +728,160 @@ void ui_menu_pinentry_display(unsigned int value) {
                        true,
                        validate_pin,
                        quit_cb);
+}
+@endcode
+
+@subsection use_case_keyboard Keyboard Use Case
+
+When text input is required (not just digits), a full keyboard can be displayed.
+The keyboard supports different modes (lowercase, uppercase, digits, special characters) and can be configured
+with either a confirmation button or dynamic suggestion buttons.
+
+As shown in the examples below, the keyboard page consists of:
+
+- a navigation bar at the top with a back button
+- a title area
+- an entry area displaying the text being entered
+- the keyboard at the bottom (navigable with touch or buttons depending on device)
+- either a confirmation button or suggestion buttons above the keyboard
+
+The @ref nbgl_useCaseKeyboard() function enables to create such page, with the following parameters:
+
+- a pointer to @ref nbgl_keyboardParams_t structure containing:
+  - \b type: either @ref KEYBOARD_WITH_BUTTON or @ref KEYBOARD_WITH_SUGGESTIONS
+  - \b title: the page title
+  - \b entryBuffer: buffer to store the entered text
+  - \b entryMaxLen: maximum length of text
+  - \b mode: initial keyboard mode (@ref MODE_LETTERS, @ref MODE_DIGITS, @ref MODE_SPECIAL)
+  - \b lettersOnly: if true, only letter keys and Backspace are shown
+  - \b numbered: (Touch only) if true, text is preceded by a number
+  - \b number: (Touch only) the number to display
+  - \b casing: (Touch only) keyboard casing mode
+  - \b confirmationParams or \b suggestionParams: depending on the type
+- a callback for the back button
+
+@subsubsection use_case_keyboard_button Keyboard with Confirmation Button
+
+This variant is used when you simply need to validate the entered text with a button.
+
+Here is an example code to create a password nickname:
+
+@code
+static char password_name[MAX_METANAME + 1] = {0};
+
+static void create_password(void) {
+    // Process the entered password name
+    if (strlen(password_name) == 0) {
+        nbgl_useCaseStatus("The nickname\ncan't be empty", false, &display_menu);
+    } else {
+        // Create the password with the entered name
+        // ...
+    }
+}
+
+static void back_to_menu(void) {
+    // Return to main menu
+}
+
+void display_create_pwd(void) {
+    nbgl_kbdButtonParams_t confirmParams = {
+        .buttonText = "Create password",
+        .onButtonCallback = &create_password,
+    };
+
+    nbgl_keyboardParams_t keyboardParams = {
+        .type = KEYBOARD_WITH_BUTTON,
+        .title = "New password nickname",
+        .entryBuffer = password_name,
+        .entryMaxLen = sizeof(password_name),
+        .lettersOnly = false,
+        .mode = MODE_LETTERS,
+        .casing = LOWER_CASE,
+        .confirmationParams = confirmParams,
+    };
+    password_name[0] = '\0';
+    nbgl_useCaseKeyboard(&keyboardParams, &back_to_menu);
+}
+@endcode
+
+@subsubsection use_case_keyboard_suggestions Keyboard with Suggestions
+
+This variant is used when you want to provide dynamic suggestions as the user types.
+This is particularly useful for word-by-word input, like entering a BIP39 recovery phrase.
+
+Here is an example code for entering BIP39 words:
+
+@code
+#define MAX_WORD_LENGTH 8
+#define NB_MAX_SUGGESTION_BUTTONS 4
+
+static char textToEnter[MAX_WORD_LENGTH + 1] = {0};
+static char wordCandidates[(MAX_WORD_LENGTH + 1) * NB_MAX_SUGGESTION_BUTTONS] = {0};
+static const char *buttonTexts[NB_MAX_SUGGESTION_BUTTONS] = {0};
+
+enum {
+    FIRST_SUGGESTION_TOKEN = FIRST_USER_TOKEN + 10,
+};
+
+static void keyboard_dispatcher(const int token, uint8_t index) {
+    if (token >= FIRST_SUGGESTION_TOKEN) {
+        int buttonIndex = token - FIRST_SUGGESTION_TOKEN;
+        // Process the selected suggestion
+        add_word_to_phrase(buttonTexts[buttonIndex]);
+        // Continue to next word or finish
+        // ...
+    }
+}
+
+static void update_buttons_callback(nbgl_layoutKeyboardContent_t *content, uint32_t *mask) {
+    size_t textLen = strlen(textToEnter);
+    content->number = get_current_word_number() + 1;
+
+    if (textLen < 2) {
+        // No suggestions for less than 2 characters
+        content->suggestionButtons.nbUsedButtons = 0;
+    } else {
+        // Fill suggestions based on BIP39 word list
+        const size_t nbMatchingWords = bolos_ux_bip39_fill_with_candidates(
+            (unsigned char *)textToEnter,
+            textLen,
+            wordCandidates,
+            buttonTexts);
+        content->suggestionButtons.nbUsedButtons = nbMatchingWords;
+    }
+    if (textLen > 0) {
+        // Update keyboard mask to show only valid next characters
+        *mask = bolos_ux_bip39_get_keyboard_mask((unsigned char *)textToEnter, textLen);
+    }
+}
+
+static void keyboard_back(void) {
+    // Handle back action
+}
+
+void display_keyboard_page(void) {
+    nbgl_kbdSuggestParams_t suggestParams = {
+        .buttons = buttonTexts,
+        .firstButtonToken = FIRST_SUGGESTION_TOKEN,
+        .onButtonCallback = &keyboard_dispatcher,
+        .updateButtonsCallback = &update_buttons_callback,
+    };
+    nbgl_keyboardParams_t keyboardParams = {
+        .type = KEYBOARD_WITH_SUGGESTIONS,
+        .title = "Enter word #1",
+        .entryBuffer = textToEnter,
+        .entryMaxLen = sizeof(textToEnter),
+        .numbered = true,
+        .number = 1,
+        .mode = MODE_LETTERS,
+        .casing = LOWER_CASE,
+        .lettersOnly = true,
+        .suggestionParams = suggestParams,
+    };
+    textToEnter[0] = '\0';
+    memset(buttonTexts, 0, sizeof(buttonTexts[0]) * NB_MAX_SUGGESTION_BUTTONS);
+
+    nbgl_useCaseKeyboard(&keyboardParams, &keyboard_back);
 }
 @endcode
 
