@@ -105,6 +105,9 @@ static io_apdu_media_t get_media_from_apdu_type(apdu_type_t apdu_type)
     if (apdu_type == APDU_TYPE_NFC) {
         return IO_APDU_MEDIA_NFC;
     }
+    if (apdu_type == APDU_TYPE_IAP) {
+        return IO_APDU_MEDIA_IAP;
+    }
     return IO_APDU_MEDIA_NONE;
 }
 
@@ -153,6 +156,7 @@ void io_seproxyhal_io_heartbeat(void)
             case OS_IO_PACKET_TYPE_USB_U2F_HID_APDU:
             case OS_IO_PACKET_TYPE_BLE_APDU:
             case OS_IO_PACKET_TYPE_NFC_APDU:
+            case OS_IO_PACKET_TYPE_USB_IAP_APDU:
                 os_io_tx_cmd(G_io_rx_buffer[0], err_buffer, sizeof(err_buffer), 0);
                 break;
 
@@ -392,6 +396,7 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
             case OS_IO_PACKET_TYPE_USB_U2F_HID_RAW:
             case OS_IO_PACKET_TYPE_BLE_APDU:
             case OS_IO_PACKET_TYPE_NFC_APDU:
+            case OS_IO_PACKET_TYPE_USB_IAP_APDU:
                 io_os_legacy_apdu_type = G_io_rx_buffer[0];
                 if (os_perso_is_pin_set() == BOLOS_TRUE
                     && os_global_pin_is_validated() != BOLOS_TRUE) {
