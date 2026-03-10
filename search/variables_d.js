@@ -20,7 +20,7 @@ var searchData=
   ['nbinfos_17',['nbInfos',['../structnbgl__contentInfoList__s.html#ac6d6eda91180a06b78b3265c1b284a6b',1,'nbgl_contentInfoList_s']]],
   ['nbmaxlines_18',['nbMaxLines',['../structnbgl__text__area__s.html#a9f809cf8b0b2581af4d95497ca848c38',1,'nbgl_text_area_s']]],
   ['nbmaxlinesforvalue_19',['nbMaxLinesForValue',['../structnbgl__contentTagValueList__s.html#a62aef00665fae1eccac527fe4d361102',1,'nbgl_contentTagValueList_s']]],
-  ['nbpages_20',['nbpages',['../structnbgl__layoutNavigationBar__t.html#ae849b5d02421160099745e4e6b2a43d4',1,'nbgl_layoutNavigationBar_t::nbPages'],['../structnbgl__layoutHeader__t.html#a300f1cf275d338f57c671832098cda9c',1,'nbgl_layoutHeader_t::nbPages'],['../structnbgl__navigation__bar__s.html#a9b475095601d896ceab35c9ac7ffac6c',1,'nbgl_navigation_bar_s::nbPages'],['../structnbgl__pageMultiScreensDescription__s.html#a01d5d9458c2cc4524329e89683c5f3d1',1,'nbgl_pageMultiScreensDescription_s::nbPages'],['../structnbgl__layoutInternal__s.html#aa57c893d5cdb708e37a45190c9f8ba75',1,'nbgl_layoutInternal_s::nbPages']]],
+  ['nbpages_20',['nbpages',['../structnbgl__layoutHeader__t.html#a300f1cf275d338f57c671832098cda9c',1,'nbgl_layoutHeader_t::nbPages'],['../structnbgl__navigation__bar__s.html#a9b475095601d896ceab35c9ac7ffac6c',1,'nbgl_navigation_bar_s::nbPages'],['../structnbgl__pageMultiScreensDescription__s.html#a01d5d9458c2cc4524329e89683c5f3d1',1,'nbgl_pageMultiScreensDescription_s::nbPages'],['../structnbgl__layoutInternal__s.html#aa57c893d5cdb708e37a45190c9f8ba75',1,'nbgl_layoutInternal_s::nbPages'],['../structnbgl__layoutNavigationBar__t.html#ae849b5d02421160099745e4e6b2a43d4',1,'nbgl_layoutNavigationBar_t::nbPages']]],
   ['nbpairs_21',['nbPairs',['../structnbgl__contentTagValueList__s.html#af2cd30ee768ec8ff56ab2b986d3e0f59',1,'nbgl_contentTagValueList_s']]],
   ['nbrows_22',['nbRows',['../structnbgl__layoutLeftContent__t.html#a2bcee20ca360f9c36b0ed84ea83819e6',1,'nbgl_layoutLeftContent_t']]],
   ['nbswitches_23',['nbSwitches',['../structnbgl__pageSwitchesList__s.html#a1036d245c6954223009c4706a15a0ef0',1,'nbgl_pageSwitchesList_s']]],
@@ -32,6 +32,6 @@ var searchData=
   ['next_5fstep_5fms_29',['next_step_ms',['../structux__turner__step__s.html#afe0f1f45e871a26e65c30cd4e1d562be',1,'ux_turner_step_s']]],
   ['nextpagetext_30',['nextPageText',['../structnbgl__pageNavWithTap__s.html#ab41069d6551a412d4a1934f5596bf0bc',1,'nbgl_pageNavWithTap_s']]],
   ['nextpagetoken_31',['nextPageToken',['../structnbgl__pageNavWithTap__s.html#a1b32422b3030f5e6fd867290770b2eca',1,'nbgl_pageNavWithTap_s']]],
-  ['number_32',['number',['../structnbgl__layoutKeyboardContent__t.html#a06d7ac8920d5003444406c73888e9313',1,'nbgl_layoutKeyboardContent_t']]],
-  ['numbered_33',['numbered',['../structnbgl__layoutKeyboardContent__t.html#af818aa900271f23627215a420c65d34d',1,'nbgl_layoutKeyboardContent_t']]]
+  ['number_32',['number',['../structnbgl__layoutKeyboardContent__t.html#a06d7ac8920d5003444406c73888e9313',1,'nbgl_layoutKeyboardContent_t::number'],['../structnbgl__keyboardParams__t.html#af3a9c89e1caf85633cbeeaa0304b79b4',1,'nbgl_keyboardParams_t::number']]],
+  ['numbered_33',['numbered',['../structnbgl__layoutKeyboardContent__t.html#af818aa900271f23627215a420c65d34d',1,'nbgl_layoutKeyboardContent_t::numbered'],['../structnbgl__keyboardParams__t.html#a78cc6671a9243248e1a2425a2d7d0839',1,'nbgl_keyboardParams_t::numbered']]]
 ];

@@ -3,7 +3,7 @@ var searchData=
   ['fee_5famount_0',['fee_amount',['../structcreate__transaction__parameters__s.html#ad9466664707a1435d783e7cb46bfc55b',1,'create_transaction_parameters_s']]],
   ['fee_5famount_5flength_1',['fee_amount_length',['../structcreate__transaction__parameters__s.html#a7704e4d197bffe61ab787ee8edb9e8ee',1,'create_transaction_parameters_s']]],
   ['first_5fchar_2',['first_char',['../structnbgl__font__t.html#a6be1976d1d58d40e3d9b6cb4296f07f0',1,'nbgl_font_t']]],
-  ['firstbuttontoken_3',['firstButtonToken',['../structnbgl__layoutSuggestionButtons__t.html#a6ae7f0b9b8c82ae03b014f4fc26f34f7',1,'nbgl_layoutSuggestionButtons_t']]],
+  ['firstbuttontoken_3',['firstbuttontoken',['../structnbgl__layoutSuggestionButtons__t.html#a6ae7f0b9b8c82ae03b014f4fc26f34f7',1,'nbgl_layoutSuggestionButtons_t::firstButtonToken'],['../structnbgl__kbdSuggestParams__t.html#aedbab04f3f7aafebf9e00b19cbce54ac',1,'nbgl_kbdSuggestParams_t::firstButtonToken']]],
   ['fittingcontent_4',['fittingContent',['../structnbgl__layoutButton__t.html#ada9d81f8769da115260ff1db45c4679e',1,'nbgl_layoutButton_t']]],
   ['fnext_5',['fnext',['../structheader__s.html#aaf312eb7ea1ffaf9811b0063bb645995',1,'header_s']]],
   ['font_6',['font',['../structnbgl__unicode__ctx__s.html#adb148df3d06ac070cd4794fd0979d272',1,'nbgl_unicode_ctx_s']]],

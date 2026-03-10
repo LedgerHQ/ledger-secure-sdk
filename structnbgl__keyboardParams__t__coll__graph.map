@@ -1,0 +1,13 @@
+<map id="nbgl_keyboardParams_t" name="nbgl_keyboardParams_t">
+<area shape="rect" id="Node000001" title="Structure containing all parameters for keyboard use case." alt="" coords="269,269,446,295"/>
+<area shape="rect" id="Node000002" href="$structnbgl__kbdSuggestParams__t.html" title="Structure containing configuration for keyboard with suggestion buttons." alt="" coords="154,181,347,207"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="276,214,312,243,343,267,340,271,309,247,273,218"/>
+<area shape="rect" id="Node000003" href="$structnbgl__layoutKeyboardContent__t.html" title="This structure contains info to build a keyboard content (controls that are linked to keyboard)" alt="" coords="139,93,362,119"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="253,133,253,181,248,181,248,133"/>
+<area shape="rect" id="Node000004" href="$structnbgl__layoutSuggestionButtons__t.html" title="This structure contains info to build suggestion buttons." alt="" coords="5,5,237,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="151,36,235,91,232,95,148,40"/>
+<area shape="rect" id="Node000005" href="$structnbgl__layoutConfirmationButton__t.html" title="This structure contains info to build a confirmation button." alt="" coords="261,5,499,31"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="362,42,327,72,281,96,279,91,324,67,358,38"/>
+<area shape="rect" id="Node000006" href="$structnbgl__kbdButtonParams__t.html" title="Structure containing configuration for keyboard with confirmation button." alt="" coords="372,181,556,207"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="456,221,437,247,416,261,395,272,393,267,414,257,433,243,452,218"/>
+</map>

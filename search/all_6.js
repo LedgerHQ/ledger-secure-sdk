@@ -6,7 +6,7 @@ var searchData=
   ['dec_5ffunc_3',['dec_func',['../structcx__cipher__base__t.html#a3d6564e72d2979a4d8d68fc1ffd87053',1,'cx_cipher_base_t']]],
   ['defined_20review_20status_20use_20case_4',['Pre-defined review status Use Case',['../nbgl_app_use_case.html#use_case_review_status',1,'']]],
   ['delayms_5',['delayMs',['../structnbgl__animation__s.html#a637094c5aafc3180096c0bd8972bad87',1,'nbgl_animation_s']]],
-  ['delete_5findex_6',['DELETE_INDEX',['../nbgl__layout__keyboard_8c.html#ac205be2172292384dd687b5471a87eddae313fca897cb9a8694e998955b3118ea',1,'nbgl_layout_keyboard.c']]],
+  ['delete_5findex_6',['DELETE_INDEX',['../nbgl__layout__keyboard_8c.html#a1fb9092bcdeada2d206bdc74afbbe122ae313fca897cb9a8694e998955b3118ea',1,'nbgl_layout_keyboard.c']]],
   ['deprecated_20list_7',['Deprecated List',['../deprecated.html',1,'']]],
   ['description_8',['description',['../structnbgl__contentCenter__t.html#a1908111efeebaaa84962496207967781',1,'nbgl_contentCenter_t::description'],['../structnbgl__preludeDetails__s.html#acf9da7d2c980facbbb991c8751030de0',1,'nbgl_preludeDetails_s::description']]],
   ['descriptions_9',['descriptions',['../structnbgl__layoutTextContent__t.html#a6c68f6af883b56137515b5842ae94429',1,'nbgl_layoutTextContent_t']]],

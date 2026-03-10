@@ -24,7 +24,8 @@ var searchData=
   ['subtext_21',['subtext',['../structnbgl__contentCenter__t.html#a5cc558c5811e3ed3b4823794138b2b95',1,'nbgl_contentCenter_t::subText'],['../structlistItem__t.html#a794b08e59d3f94f062825608025d9635',1,'listItem_t::subText'],['../structnbgl__layoutProgressBar__t.html#ac6a3aa021ba6d23a0bbeea8ac85c2d83',1,'nbgl_layoutProgressBar_t::subText'],['../structnbgl__layoutHeader__t.html#a4ab4a90513d802152af07fdbee55afc9',1,'nbgl_layoutHeader_t::subText'],['../structnbgl__layoutBar__t.html#a5f1c4e6266af1b838ba0d31f2ac72d5f',1,'nbgl_layoutBar_t::subText'],['../structnbgl__stepDesc__s.html#a4cf4027717ea528e4a3520eaa337b74b',1,'nbgl_stepDesc_s::subText'],['../structnbgl__contentSwitch__t.html#af123d747279050d8071e815d5e3599ac',1,'nbgl_contentSwitch_t::subText']]],
   ['subtexts_22',['subTexts',['../structnbgl__genericBarList__t.html#a74f9ba0d9df10244ace0696d9f1c9f92',1,'nbgl_genericBarList_t']]],
   ['suggestionbuttons_23',['suggestionButtons',['../structnbgl__layoutKeyboardContent__t.html#a8516d1636ff2140c523d725a184ed94e',1,'nbgl_layoutKeyboardContent_t']]],
-  ['swipeusage_24',['swipeUsage',['../structnbgl__layoutInternal__s.html#a3d31b155f3f10a2f993b2b60fde0e134',1,'nbgl_layoutInternal_s']]],
-  ['switches_25',['switches',['../structnbgl__pageSwitchesList__s.html#aa47e779185b7e81acff583db1f806060',1,'nbgl_pageSwitchesList_s']]],
-  ['switcheslist_26',['switcheslist',['../unionnbgl__content__u.html#abc36dfa9d42e152185ac985e42b69bde',1,'nbgl_content_u::switchesList'],['../structnbgl__pageContent__s.html#a554e8d0ea42334e48c198509453f935c',1,'nbgl_pageContent_s::switchesList']]]
+  ['suggestionparams_24',['suggestionParams',['../structnbgl__keyboardParams__t.html#a26410aae595f239deebbd4a7612a4e7a',1,'nbgl_keyboardParams_t']]],
+  ['swipeusage_25',['swipeUsage',['../structnbgl__layoutInternal__s.html#a3d31b155f3f10a2f993b2b60fde0e134',1,'nbgl_layoutInternal_s']]],
+  ['switches_26',['switches',['../structnbgl__pageSwitchesList__s.html#aa47e779185b7e81acff583db1f806060',1,'nbgl_pageSwitchesList_s']]],
+  ['switcheslist_27',['switcheslist',['../unionnbgl__content__u.html#abc36dfa9d42e152185ac985e42b69bde',1,'nbgl_content_u::switchesList'],['../structnbgl__pageContent__s.html#a554e8d0ea42334e48c198509453f935c',1,'nbgl_pageContent_s::switchesList']]]
 ];
