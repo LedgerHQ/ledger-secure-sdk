@@ -134,10 +134,12 @@ extern "C" {
 #define NB_MAX_LINES 12
 
 #else  // HAVE_SE_TOUCH
+// maximum suggestion buttons for keyboard
+#define NB_MAX_SUGGESTION_BUTTONS 8
 // 7 pixels on each side
-#define AVAILABLE_WIDTH (SCREEN_WIDTH - 2 * 7)
+#define AVAILABLE_WIDTH           (SCREEN_WIDTH - 2 * 7)
 // maximum number of lines in screen
-#define NB_MAX_LINES    4
+#define NB_MAX_LINES              4
 
 #endif  // HAVE_SE_TOUCH
 
@@ -318,6 +320,59 @@ typedef struct {
     const nbgl_icon_details_t **rowIcons;  ///< array of nbRows icon
 } nbgl_layoutLeftContent_t;
 
+/**
+ * @brief The different types of keyboard contents
+ *
+ */
+typedef enum {
+    KEYBOARD_WITH_SUGGESTIONS,  ///< text entry area + suggestion buttons
+    KEYBOARD_WITH_BUTTON,       ///< text entry area + confirmation button
+    NB_KEYBOARD_CONTENT_TYPES
+} nbgl_layoutKeyboardContentType_t;
+
+/**
+ * @brief This structure contains info to build suggestion buttons
+ */
+typedef struct {
+    const char **buttons;  ///< array of 4 strings for buttons (last ones can be NULL)
+    int firstButtonToken;  ///< first token used for buttons, provided in onActionCallback (the next
+                           ///< 3 values will be used for other buttons)
+    uint8_t nbUsedButtons;  ///< the number of actually used buttons
+} nbgl_layoutSuggestionButtons_t;
+
+/**
+ * @brief This structure contains info to build a confirmation button
+ */
+typedef struct {
+    const char *text;    ///< text of the button
+    int         token;   ///< token of the button
+    bool        active;  ///< if true, button is active, otherwise inactive (grayed-out)
+} nbgl_layoutConfirmationButton_t;
+
+/**
+ * @brief This structure contains info to build a keyboard content (controls that are linked to
+ * keyboard)
+ */
+typedef struct {
+    nbgl_layoutKeyboardContentType_t type;   ///< type of content
+    const char                      *title;  ///< centered title explaining the screen
+    const char                      *text;   ///< already entered text
+    bool    numbered;   ///< if set to true, the text is preceded on the left by 'number.'
+    uint8_t number;     ///< if numbered is true, number used to build 'number.' text
+    bool    grayedOut;  ///< (unused, kept for compatibility)
+    int     textToken;  ///< the token that will be used as argument of the callback when "cross"
+                        ///< button is touched (when text is not empty)
+    union {
+        nbgl_layoutSuggestionButtons_t
+            suggestionButtons;  /// used if type is @ref KEYBOARD_WITH_SUGGESTIONS
+        nbgl_layoutConfirmationButton_t
+            confirmationButton;  /// used if type is @ref KEYBOARD_WITH_BUTTON
+    };
+#ifdef HAVE_SE_TOUCH
+    tune_index_e tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played
+#endif
+} nbgl_layoutKeyboardContent_t;
+
 #ifdef HAVE_SE_TOUCH
 
 /**
@@ -399,57 +454,6 @@ typedef struct {
                           ///< previous object
     tune_index_e tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played
 } nbgl_layoutButton_t;
-
-/**
- * @brief The different types of keyboard contents
- *
- */
-typedef enum {
-    KEYBOARD_WITH_SUGGESTIONS,  ///< text entry area + suggestion buttons
-    KEYBOARD_WITH_BUTTON,       ///< text entry area + confirmation button
-    NB_KEYBOARD_CONTENT_TYPES
-} nbgl_layoutKeyboardContentType_t;
-
-/**
- * @brief This structure contains info to build suggestion buttons
- */
-typedef struct {
-    const char **buttons;  ///< array of 4 strings for buttons (last ones can be NULL)
-    int firstButtonToken;  ///< first token used for buttons, provided in onActionCallback (the next
-                           ///< 3 values will be used for other buttons)
-    uint8_t nbUsedButtons;  ///< the number of actually used buttons
-} nbgl_layoutSuggestionButtons_t;
-
-/**
- * @brief This structure contains info to build a confirmation button
- */
-typedef struct {
-    const char *text;    ///< text of the button
-    int         token;   ///< token of the button
-    bool        active;  ///< if true, button is active, otherwise inactive (grayed-out)
-} nbgl_layoutConfirmationButton_t;
-
-/**
- * @brief This structure contains info to build a keyboard content (controls that are linked to
- * keyboard)
- */
-typedef struct {
-    nbgl_layoutKeyboardContentType_t type;   ///< type of content
-    const char                      *title;  ///< centered title explaining the screen
-    const char                      *text;   ///< already entered text
-    bool    numbered;   ///< if set to true, the text is preceded on the left by 'number.'
-    uint8_t number;     ///< if numbered is true, number used to build 'number.' text
-    bool    grayedOut;  ///< (unused, kept for compatibility)
-    int     textToken;  ///< the token that will be used as argument of the callback when "cross"
-                        ///< button is touched (when text is not empty)
-    union {
-        nbgl_layoutSuggestionButtons_t
-            suggestionButtons;  /// used if type is @ref KEYBOARD_WITH_SUGGESTIONS
-        nbgl_layoutConfirmationButton_t
-            confirmationButton;  /// used if type is @ref KEYBOARD_WITH_BUTTON
-    };
-    tune_index_e tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played
-} nbgl_layoutKeyboardContent_t;
 
 /**
  * @brief The different types of extended header

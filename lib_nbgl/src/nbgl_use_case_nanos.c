@@ -14,6 +14,7 @@
 #include "nbgl_use_case.h"
 #include "glyphs.h"
 #include "os_pic.h"
+#include "os_print.h"
 #include "os_helpers.h"
 #include "ux.h"
 
@@ -117,6 +118,21 @@ typedef struct KeypadContext_s {
 } KeypadContext_t;
 #endif
 
+#ifdef NBGL_KEYBOARD
+typedef struct KeyboardContext_s {
+    nbgl_layoutKeyboardContent_t   content;
+    char                          *entryBuffer;
+    uint16_t                       entryMaxLen;
+    nbgl_layout_t                 *layoutCtx;
+    uint8_t                        keyboardIndex;
+    uint8_t                        textIndex;
+    nbgl_callback_t                actionCallback;
+    nbgl_callback_t                backCallback;
+    nbgl_keyboardButtonsCallback_t getSuggestButtons;
+    nbgl_layoutTouchCallback_t     onButtonCallback;
+} KeyboardContext_t;
+#endif
+
 typedef enum {
     NONE_USE_CASE,
     SPINNER_USE_CASE,
@@ -130,6 +146,7 @@ typedef enum {
     STATUS_USE_CASE,
     CONFIRM_USE_CASE,
     KEYPAD_USE_CASE,
+    KEYBOARD_USE_CASE,
     HOME_USE_CASE,
     INFO_USE_CASE,
     SETTINGS_USE_CASE,
@@ -155,6 +172,9 @@ typedef struct UseCaseContext_s {
         ContentContext_t content;
 #ifdef NBGL_KEYPAD
         KeypadContext_t keypad;
+#endif
+#ifdef NBGL_KEYBOARD
+        KeyboardContext_t keyboard;
 #endif
         ActionContext_t action;
     };
@@ -1883,6 +1903,100 @@ static void keypadCallback(char touchedKey)
 }
 #endif  // NBGL_KEYPAD
 
+#ifdef NBGL_KEYBOARD
+// Saved keyboard context for suggestion selection
+// (needed because switching to CONTENT_USE_CASE overwrites the union context)
+static struct {
+    const char               **buttons;
+    int                        firstButtonToken;
+    uint8_t                    nbUsedButtons;
+    nbgl_layoutTouchCallback_t onButtonCallback;
+    nbgl_callback_t            backCallback;
+} savedKeyboardContext;
+
+// Navigation callback to fill the suggestion choices page
+static bool suggestionNavCallback(uint8_t page, nbgl_pageContent_t *content)
+{
+    UNUSED(page);
+    content->type                   = CHOICES_LIST;
+    content->choicesList.names      = savedKeyboardContext.buttons;
+    content->choicesList.token      = savedKeyboardContext.firstButtonToken;
+    content->choicesList.initChoice = 0;
+    content->choicesList.nbChoices  = savedKeyboardContext.nbUsedButtons;
+    return true;
+}
+
+// Display suggestion selection page
+static void displaySuggestionSelection(void)
+{
+    char title[20] = {0};
+    // Save keyboard context before it gets overwritten
+    savedKeyboardContext.buttons = context.keyboard.content.suggestionButtons.buttons;
+    savedKeyboardContext.firstButtonToken
+        = context.keyboard.content.suggestionButtons.firstButtonToken;
+    savedKeyboardContext.nbUsedButtons = context.keyboard.content.suggestionButtons.nbUsedButtons;
+    savedKeyboardContext.onButtonCallback = context.keyboard.onButtonCallback;
+    savedKeyboardContext.backCallback     = context.keyboard.backCallback;
+
+    // Release the keyboard layout
+    nbgl_layoutRelease(context.keyboard.layoutCtx);
+    context.keyboard.layoutCtx = NULL;
+
+    snprintf(title, sizeof(title), "Select word #%d", context.keyboard.content.number);
+    nbgl_useCaseNavigableContent(title,
+                                 0,
+                                 1,
+                                 savedKeyboardContext.backCallback,
+                                 suggestionNavCallback,
+                                 savedKeyboardContext.onButtonCallback);
+}
+
+// called when a key is touched on the keyboard
+static void keyboardCallback(char touchedKey)
+{
+    uint32_t mask    = 0;
+    size_t   textLen = strlen(context.keyboard.entryBuffer);
+    PRINTF("[keyboardCallback] touchedKey: '%c'\n", touchedKey);
+    if (touchedKey == BACKSPACE_KEY) {
+        if (textLen == 0) {
+            // Used to exit the keyboard when backspace is pressed on an empty entry
+            context.keyboard.backCallback();
+            return;
+        }
+        context.keyboard.entryBuffer[--textLen] = '\0';
+    }
+    else if (touchedKey == VALIDATE_KEY) {
+        context.keyboard.actionCallback();
+        return;
+    }
+    else {
+        context.keyboard.entryBuffer[textLen]   = touchedKey;
+        context.keyboard.entryBuffer[++textLen] = '\0';
+    }
+    // Set the keyMask to disable some keys
+    if (context.keyboard.content.type == KEYBOARD_WITH_SUGGESTIONS) {
+        // if suggestions are displayed, we update them at each key press
+        context.keyboard.getSuggestButtons(&context.keyboard.content, &mask);
+        if ((context.keyboard.content.suggestionButtons.nbUsedButtons > 0)
+            && (context.keyboard.content.suggestionButtons.nbUsedButtons
+                < NB_MAX_SUGGESTION_BUTTONS)) {
+            // On Nano, when we have few suggestions, display a selection page
+            // instead of continuing with keyboard entry
+            displaySuggestionSelection();
+            return;  // Don't update keyboard, we're in suggestion mode
+        }
+    }
+    else if (textLen >= context.keyboard.entryMaxLen) {
+        // entry length can't be greater, so we mask every characters
+        mask = -1;
+    }
+    nbgl_layoutUpdateKeyboard(context.keyboard.layoutCtx, context.keyboard.keyboardIndex, mask);
+    nbgl_layoutUpdateEnteredText(
+        context.keyboard.layoutCtx, context.keyboard.textIndex, context.keyboard.entryBuffer);
+    nbgl_refresh();
+}
+#endif
+
 // this is the function called to start the actual review, from the initial warning pages
 static void launchReviewAfterWarning(void)
 {
@@ -3055,6 +3169,104 @@ void nbgl_useCaseKeypad(const char             *title,
     nbgl_refresh();
 }
 #endif  // NBGL_KEYPAD
+
+#ifdef NBGL_KEYBOARD
+/**
+ * @brief Draws a standard keyboard modal page for text input (Nano version). It contains:
+ *        - navigation arrows (left/right)
+ *        - a centered title at the top
+ *        - an entry area for the text being entered
+ *        - the keyboard navigable with buttons
+ *        - either a confirmation button or suggestion buttons (depending on type)
+ *
+ * @note On Nano devices, the keyboard is navigated using physical buttons.
+ *       The keyboard supports different modes (lowercase, uppercase, digits, special characters)
+ *       and can be configured to show only letters or all characters.
+ *
+ * @param params pointer to a structure containing:
+ *          - type: KEYBOARD_WITH_BUTTON or KEYBOARD_WITH_SUGGESTIONS
+ *          - title: string to display as page title
+ *          - entryBuffer: buffer to store the entered text
+ *          - entryMaxLen: maximum length of text that can be entered
+ *          - mode: initial keyboard mode (MODE_LOWER, MODE_UPPER, MODE_DIGITS, MODE_SPECIAL)
+ *          - lettersOnly: if true, only letter keys and Backspace are shown
+ *          - confirmationParams: (if type is KEYBOARD_WITH_BUTTON) button configuration
+ *          - suggestionParams: (if type is KEYBOARD_WITH_SUGGESTIONS) suggestions configuration
+ * @param backCallback callback called when the back action is triggered
+ */
+void nbgl_useCaseKeyboard(const nbgl_keyboardParams_t *params, nbgl_callback_t backCallback)
+{
+    // clang-format off
+    nbgl_layoutDescription_t  layoutDescription = {0};
+    nbgl_layoutCenteredInfo_t centeredInfo      = {.text1 = params->title,
+                                                   .onTop = true};
+    nbgl_layoutNavigation_t   navInfo           = {.direction = HORIZONTAL_NAV,
+                                                   .indication = LEFT_ARROW | RIGHT_ARROW};
+    nbgl_layoutKbd_t          kbdInfo           = {.callback = &keyboardCallback,
+                                                   .mode = params->mode,
+                                                   .lettersOnly = params->lettersOnly};
+    int status = -1;
+    // clang-format on
+
+    // reset the keypad context
+    memset(&context, 0, sizeof(UseCaseContext_t));
+    context.type                    = KEYBOARD_USE_CASE;
+    context.currentPage             = 0;
+    context.nbPages                 = 1;
+    context.keyboard.entryBuffer    = PIC(params->entryBuffer);
+    context.keyboard.entryMaxLen    = params->entryMaxLen;
+    context.keyboard.entryBuffer[0] = '\0';
+
+    context.keyboard.content.type = params->type;
+
+    // memorize context
+    context.keyboard.backCallback = PIC(backCallback);
+
+    switch (params->type) {
+        case KEYBOARD_WITH_BUTTON:
+            context.keyboard.actionCallback = PIC(params->confirmationParams.onButtonCallback);
+            break;
+        case KEYBOARD_WITH_SUGGESTIONS:
+            // No need for 'Validate' or 'Case switch' buttons
+            kbdInfo.keyMask = (1 << VALIDATE_INDEX) | (1 << SHIFT_KEY_INDEX);
+            context.keyboard.getSuggestButtons
+                = PIC(params->suggestionParams.updateButtonsCallback);
+            context.keyboard.onButtonCallback = PIC(params->suggestionParams.onButtonCallback);
+            context.keyboard.content.suggestionButtons = (nbgl_layoutSuggestionButtons_t){
+                .buttons          = PIC(params->suggestionParams.buttons),
+                .firstButtonToken = params->suggestionParams.firstButtonToken,
+            };
+            break;
+        default:
+            return;
+    }
+
+    // get a layout
+    context.keyboard.layoutCtx = nbgl_layoutGet(&layoutDescription);
+
+    // add description
+    nbgl_layoutAddCenteredInfo(context.keyboard.layoutCtx, &centeredInfo);
+
+    // Add keyboard
+    status = nbgl_layoutAddKeyboard(context.keyboard.layoutCtx, &kbdInfo);
+    if (status < 0) {
+        return;
+    }
+    context.keyboard.keyboardIndex = status;
+
+    // add empty entered text
+    status = nbgl_layoutAddEnteredText(context.keyboard.layoutCtx, "", true);
+    if (status < 0) {
+        return;
+    }
+    context.keyboard.textIndex = status;
+
+    nbgl_layoutAddNavigation(context.keyboard.layoutCtx, &navInfo);
+
+    nbgl_layoutDraw(context.keyboard.layoutCtx);
+    nbgl_refresh();
+}
+#endif  // NBGL_KEYBOARD
 
 #endif  // HAVE_SE_TOUCH
 #endif  // NBGL_USE_CASE
