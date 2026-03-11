@@ -59,6 +59,8 @@ error:
     return status;
 }
 
+#define SEPROXYHAL_TAG_INVALID (0x00)
+
 ////////////
 // EVENTS //
 ////////////
