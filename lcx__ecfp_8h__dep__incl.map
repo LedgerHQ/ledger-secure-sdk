@@ -1,26 +1,10 @@
 <map id="lib_cxng/include/lcx_ecfp.h" name="lib_cxng/include/lcx_ecfp.h">
-<area shape="rect" id="Node000001" title="Key pair generation based on elliptic curves." alt="" coords="493,5,643,45"/>
-<area shape="rect" id="Node000002" href="$lcx__eddsa_8h.html" title="EDDSA (Edwards Curve Digital Signature Algorithm)" alt="" coords="367,93,518,133"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="530,56,472,95,469,91,527,51"/>
-<area shape="rect" id="Node000003" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="139,181,330,207"/>
-<area shape="poly" id="edge10_Node000001_Node000003" title=" " alt="" coords="480,49,418,68,356,96,323,117,292,141,247,183,244,179,289,137,320,112,353,91,416,63,479,44"/>
-<area shape="rect" id="Node000005" href="$cx__ram_8h.html" title=" " alt="" coords="453,350,616,375"/>
-<area shape="poly" id="edge12_Node000001_Node000005" title=" " alt="" coords="567,59,538,350,533,349,562,59"/>
-<area shape="rect" id="Node000010" href="$cx__ecfp_8h.html" title=" " alt="" coords="605,101,771,126"/>
-<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="607,51,673,98,670,103,604,56"/>
-<area shape="rect" id="Node000011" href="$ux__bagl_8h.html" title=" " alt="" coords="795,101,973,126"/>
-<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="651,46,843,98,841,103,650,52"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="381,141,266,184,264,179,379,136"/>
-<area shape="rect" id="Node000009" href="$cx__eddsa_8h.html" title=" " alt="" coords="355,181,531,207"/>
-<area shape="poly" id="edge9_Node000002_Node000009" title=" " alt="" coords="445,147,445,181,440,181,440,147"/>
-<area shape="rect" id="Node000004" href="$lcx__rng_8h.html" title="Random Number Generation." alt="" coords="159,255,310,295"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="229,220,230,254,224,255,224,220"/>
-<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="241,241,239,207,244,207,246,241"/>
-<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="314,296,495,347,494,353,313,301"/>
-<area shape="rect" id="Node000007" href="$cx__rng__rfc6979_8h.html" title=" " alt="" coords="5,343,152,383"/>
-<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="190,304,114,345,112,340,187,299"/>
-<area shape="rect" id="Node000008" href="$nbgl__layout_8c.html" title="Implementation of predefined layouts management for Applications." alt="" coords="176,350,363,375"/>
-<area shape="poly" id="edge8_Node000004_Node000008" title=" " alt="" coords="250,307,267,349,262,351,245,309"/>
-<area shape="rect" id="Node000006" href="$cx__ram_8c.html" title=" " alt="" coords="453,431,616,456"/>
-<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="537,389,537,430,532,430,532,389"/>
+<area shape="rect" id="Node000001" title="Key pair generation based on elliptic curves." alt="" coords="119,5,269,45"/>
+<area shape="rect" id="Node000002" href="$lcx__eddsa_8h.html" title="EDDSA (Edwards Curve Digital Signature Algorithm)" alt="" coords="5,93,156,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,56,107,95,104,91,157,52"/>
+<area shape="rect" id="Node000003" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="41,181,232,207"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="191,60,171,134,146,182,142,180,166,132,186,59"/>
+<area shape="rect" id="Node000004" href="$ux__bagl_8h.html" title=" " alt="" coords="231,101,410,126"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="235,51,305,98,302,103,232,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="104,143,130,179,126,183,100,146"/>
 </map>
