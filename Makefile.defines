@@ -88,7 +88,7 @@ ifneq ($(ENABLE_SDK_WERROR),0)
     CFLAGS   += -Werror -Werror=\#pragma-messages
 endif
 
-CFLAGS   += -fdata-sections -ffunction-sections -funsigned-char -fshort-enums -fstack-usage
+CFLAGS   += -fdata-sections -ffunction-sections -funsigned-char -fshort-enums -fstack-usage -fstack-protector-strong
 CFLAGS   += -mno-unaligned-access
 CFLAGS   += -fropi
 CFLAGS   += -fno-jump-tables # avoid jump tables for switch to avoid problems with invalid PIC access
