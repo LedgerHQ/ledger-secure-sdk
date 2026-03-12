@@ -1,0 +1,83 @@
+<map id="lib_cxng/include/lcx_rng.h" name="lib_cxng/include/lcx_rng.h">
+<area shape="rect" id="Node000001" title="Random Number Generation." alt="" coords="1228,5,1378,45"/>
+<area shape="rect" id="Node000002" href="$lcx__wrappers_8h.html" title=" " alt="" coords="1011,240,1131,265"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1227,32,937,44,550,69,361,87,198,110,131,123,76,137,36,152,13,168,8,179,13,190,26,196,54,202,147,213,429,230,749,241,998,247,997,253,749,247,429,235,146,218,53,207,24,201,9,194,3,179,9,165,34,148,74,132,130,118,197,105,361,82,549,64,937,38,1227,26"/>
+<area shape="rect" id="Node000005" href="$lcx__hash_8h.html" title="Hash functions." alt="" coords="23,167,114,192"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="1228,36,767,84,452,123,128,169,127,164,452,118,767,79,1227,31"/>
+<area shape="rect" id="Node000006" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="1674,93,1756,119"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="1379,40,1661,93,1660,98,1378,45"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="954,313,1060,339"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1062,267,1028,305,1024,301,1058,264"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="1084,313,1188,339"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="1084,264,1119,301,1115,305,1080,267"/>
+<area shape="poly" id="edge20_Node000006_Node000001" title=" " alt="" coords="1674,98,1392,45,1393,40,1675,93"/>
+<area shape="poly" id="edge10_Node000006_Node000005" title=" " alt="" coords="1674,111,948,127,482,145,283,156,128,169,127,164,282,151,482,140,948,122,1674,105"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="2828,167,2879,192"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="1756,104,1925,104,2185,110,2494,128,2654,143,2810,164,2815,165,2814,170,2809,169,2653,149,2493,133,2184,115,1925,109,1756,109"/>
+<area shape="rect" id="Node000008" href="$lcx__common_8h.html" title="Cryptography flags." alt="" coords="2815,240,2932,265"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="1756,106,2294,123,2594,140,2703,151,2767,164,2793,177,2817,193,2856,228,2852,232,2814,198,2790,182,2765,169,2702,157,2593,146,2294,128,1756,111"/>
+<area shape="rect" id="Node000011" href="$lcx__ripemd160_8h.html" title="RIPEMD&#45;160 hash function." alt="" coords="2903,167,3034,192"/>
+<area shape="poly" id="edge11_Node000006_Node000011" title=" " alt="" coords="1756,105,2209,119,2543,137,2890,164,2889,169,2542,142,2209,125,1756,111"/>
+<area shape="rect" id="Node000012" href="$lcx__sha256_8h.html" title="SHA&#45;2 (Secure Hash Algorithm 2)" alt="" coords="3058,167,3164,192"/>
+<area shape="poly" id="edge12_Node000006_Node000012" title=" " alt="" coords="1756,105,1953,106,2268,114,2648,132,2848,146,3045,164,3044,169,2847,151,2648,137,2267,119,1953,112,1756,110"/>
+<area shape="rect" id="Node000013" href="$lcx__sha512_8h.html" title="SHA&#45;2 (Secure Hash Algorithm 2)" alt="" coords="3188,167,3295,192"/>
+<area shape="poly" id="edge13_Node000006_Node000013" title=" " alt="" coords="1756,104,1970,105,2316,111,2737,129,2958,144,3175,164,3175,169,2957,150,2737,135,2316,117,1970,110,1756,110"/>
+<area shape="rect" id="Node000014" href="$lcx__sha3_8h.html" title="SHA&#45;3 (Secure Hash Algorithm 3)" alt="" coords="3319,167,3410,192"/>
+<area shape="poly" id="edge14_Node000006_Node000014" title=" " alt="" coords="1756,105,2484,122,2950,140,3150,151,3305,164,3305,169,3150,156,2950,145,2484,127,1756,111"/>
+<area shape="rect" id="Node000015" href="$lcx__blake2_8h.html" title="BLAKE2 crypographic hash function." alt="" coords="138,167,241,192"/>
+<area shape="poly" id="edge15_Node000006_Node000015" title=" " alt="" coords="1674,110,1460,110,1114,116,693,134,472,149,255,169,254,164,472,144,692,128,1113,110,1460,104,1674,104"/>
+<area shape="rect" id="Node000016" href="$lcx__groestl_8h.html" title="GROESTL hash function." alt="" coords="265,167,370,192"/>
+<area shape="poly" id="edge16_Node000006_Node000016" title=" " alt="" coords="1674,110,1476,111,1162,119,780,136,581,151,384,169,384,164,581,145,780,131,1161,113,1476,106,1674,105"/>
+<area shape="rect" id="Node000017" href="$lcx__blake3_8h.html" title="BLAKE3 hash function." alt="" coords="394,167,497,192"/>
+<area shape="poly" id="edge17_Node000006_Node000017" title=" " alt="" coords="1674,110,1494,113,1210,121,867,139,688,152,511,169,510,164,688,147,867,133,1210,115,1494,107,1674,105"/>
+<area shape="rect" id="Node000018" href="$lcx__hmac_8h.html" title="HMAC (Keyed&#45;Hash Message Authentication Code)" alt="" coords="522,167,618,192"/>
+<area shape="poly" id="edge18_Node000006_Node000018" title=" " alt="" coords="1674,110,1509,113,1255,122,949,140,632,169,631,164,949,134,1254,117,1509,108,1674,105"/>
+<area shape="rect" id="Node000019" href="$lcx__pbkdf2_8h.html" title="PBKDF2 (Password&#45;Based Key Derivation Function)" alt="" coords="642,167,748,192"/>
+<area shape="poly" id="edge19_Node000006_Node000019" title=" " alt="" coords="1674,111,1304,125,1038,143,762,169,761,164,1038,137,1304,120,1674,106"/>
+<area shape="rect" id="Node000020" href="$lcx__math_8h.html" title="Basic arithmetic." alt="" coords="772,167,866,192"/>
+<area shape="poly" id="edge21_Node000006_Node000020" title=" " alt="" coords="1674,111,1350,127,1120,144,881,169,880,164,1119,139,1349,122,1674,106"/>
+<area shape="rect" id="Node000021" href="$lcx__chacha_8h.html" title="Chacha cipher." alt="" coords="891,167,998,192"/>
+<area shape="poly" id="edge22_Node000006_Node000021" title=" " alt="" coords="1675,112,1401,131,1210,147,1012,169,1011,164,1210,142,1400,125,1674,107"/>
+<area shape="rect" id="Node000022" href="$lcx__cipher_8h.html" title="API for block ciphers." alt="" coords="2655,167,2754,192"/>
+<area shape="poly" id="edge23_Node000006_Node000022" title=" " alt="" coords="1756,106,2118,122,2374,139,2637,164,2642,165,2641,170,2636,169,2374,144,2118,127,1756,111"/>
+<area shape="rect" id="Node000024" href="$lcx__aes_8h.html" title="AES (Advanced Encryption Standard)." alt="" coords="2538,240,2620,265"/>
+<area shape="poly" id="edge30_Node000006_Node000024" title=" " alt="" coords="1756,104,1948,104,2215,110,2346,118,2461,128,2547,144,2576,153,2594,165,2602,180,2604,196,2595,228,2590,227,2598,196,2597,181,2590,168,2574,158,2546,149,2460,134,2346,123,2214,116,1948,110,1756,110"/>
+<area shape="rect" id="Node000025" href="$lcx__cmac_8h.html" title="CMAC (Cipher&#45;based Message Authentication Code)." alt="" coords="1145,167,1240,192"/>
+<area shape="poly" id="edge29_Node000006_Node000025" title=" " alt="" coords="1674,114,1496,135,1254,169,1253,164,1495,130,1674,109"/>
+<area shape="rect" id="Node000026" href="$lcx__aes__gcm_8h.html" title="AES in Galois/Counter Mode (AES&#45;GCM)" alt="" coords="1264,167,1382,192"/>
+<area shape="poly" id="edge31_Node000006_Node000026" title=" " alt="" coords="1675,117,1396,168,1395,162,1674,112"/>
+<area shape="rect" id="Node000027" href="$lcx__aes__siv_8h.html" title="Advanced Encryption Standard with Synthetic Initialization Vector (AES&#45;SIV)." alt="" coords="1406,167,1514,192"/>
+<area shape="poly" id="edge32_Node000006_Node000027" title=" " alt="" coords="1675,121,1515,166,1514,160,1673,116"/>
+<area shape="rect" id="Node000028" href="$lcx__aead_8h.html" title="Authenticated Encryption with Associated Data (AEAD)" alt="" coords="1538,167,1630,192"/>
+<area shape="poly" id="edge33_Node000006_Node000028" title=" " alt="" coords="1695,121,1619,162,1616,158,1693,116"/>
+<area shape="rect" id="Node000029" href="$lcx__poly1305_8h.html" title="POLY1305 Message Authentication Code." alt="" coords="1655,167,1775,192"/>
+<area shape="poly" id="edge34_Node000006_Node000029" title=" " alt="" coords="1718,119,1718,153,1712,153,1712,119"/>
+<area shape="rect" id="Node000030" href="$lcx__chacha__poly_8h.html" title="CHACHA20_POLY1305 Authenticated Encryption with Additional Data (AEAD)" alt="" coords="1799,167,1938,192"/>
+<area shape="poly" id="edge35_Node000006_Node000030" title=" " alt="" coords="1741,116,1832,158,1830,163,1739,121"/>
+<area shape="rect" id="Node000031" href="$lcx__rsa_8h.html" title="RSA algorithm." alt="" coords="1962,167,2042,192"/>
+<area shape="poly" id="edge36_Node000006_Node000031" title=" " alt="" coords="1757,115,1949,162,1948,167,1755,120"/>
+<area shape="rect" id="Node000032" href="$lcx__ecfp_8h.html" title="Key pair generation based on elliptic curves." alt="" coords="1595,240,1683,265"/>
+<area shape="poly" id="edge37_Node000006_Node000032" title=" " alt="" coords="1756,106,1832,110,1922,119,2004,136,2035,149,2056,165,2062,179,2056,194,2031,212,1994,226,1948,237,1897,244,1790,253,1697,255,1697,249,1789,247,1896,239,1947,231,1992,221,2028,207,2052,190,2057,179,2052,168,2032,154,2002,142,1921,124,1831,115,1756,111"/>
+<area shape="rect" id="Node000033" href="$lcx__ecdsa_8h.html" title="ECDSA (Elliptic Curve Digital Signature Algorithm)." alt="" coords="2116,167,2215,192"/>
+<area shape="poly" id="edge38_Node000006_Node000033" title=" " alt="" coords="1756,111,2098,164,2103,165,2102,170,2097,169,1755,116"/>
+<area shape="rect" id="Node000034" href="$lcx__eddsa_8h.html" title="EDDSA (Edwards Curve Digital Signature Algorithm)" alt="" coords="1022,167,1120,192"/>
+<area shape="poly" id="edge39_Node000006_Node000034" title=" " alt="" coords="1674,113,1449,133,1134,169,1134,164,1448,128,1674,108"/>
+<area shape="rect" id="Node000035" href="$lcx__ecschnorr_8h.html" title="ECSDSA (Elliptic Curve&#45;based Schnorr Digital Signature Algorithm)." alt="" coords="2239,167,2362,192"/>
+<area shape="poly" id="edge42_Node000006_Node000035" title=" " alt="" coords="1757,109,1954,131,2225,164,2225,169,1954,136,1756,114"/>
+<area shape="rect" id="Node000036" href="$lcx__ecdh_8h.html" title="ECDH (Elliptic Curve Diffie Hellman) key exchange." alt="" coords="2386,167,2476,192"/>
+<area shape="poly" id="edge43_Node000006_Node000036" title=" " alt="" coords="1756,107,2012,125,2189,142,2372,164,2372,169,2188,147,2012,130,1756,112"/>
+<area shape="rect" id="Node000037" href="$lcx__crc_8h.html" title="CRC (Cyclic Redundancy Check)." alt="" coords="2501,167,2580,192"/>
+<area shape="poly" id="edge44_Node000006_Node000037" title=" " alt="" coords="1756,106,2057,121,2268,138,2488,164,2487,169,2268,143,2056,126,1756,111"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="2838,313,2909,339"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="2876,266,2876,300,2871,300,2871,266"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="2679,313,2754,339"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="2850,268,2755,310,2753,305,2847,263"/>
+<area shape="poly" id="edge25_Node000022_Node000002" title=" " alt="" coords="2655,189,2593,195,2163,220,1743,237,1145,253,1145,247,1743,231,2163,214,2592,189,2655,184"/>
+<area shape="poly" id="edge26_Node000022_Node000008" title=" " alt="" coords="2733,190,2834,232,2832,237,2731,194"/>
+<area shape="poly" id="edge28_Node000022_Node000010" title=" " alt="" coords="2701,193,2688,226,2685,245,2687,265,2703,301,2698,303,2682,266,2680,245,2683,224,2696,191"/>
+<area shape="rect" id="Node000023" title=" " alt="" coords="2696,240,2790,265"/>
+<area shape="poly" id="edge24_Node000022_Node000023" title=" " alt="" coords="2713,191,2733,227,2728,229,2708,194"/>
+<area shape="poly" id="edge27_Node000022_Node000024" title=" " alt="" coords="2686,194,2613,235,2610,231,2683,190"/>
+<area shape="poly" id="edge41_Node000034_Node000002" title=" " alt="" coords="1074,192,1074,226,1068,226,1068,192"/>
+<area shape="poly" id="edge40_Node000034_Node000032" title=" " alt="" coords="1121,187,1134,189,1383,222,1582,243,1581,248,1383,227,1133,195,1120,193"/>
+</map>
