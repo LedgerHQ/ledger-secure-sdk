@@ -159,8 +159,8 @@ typedef struct UseCaseContext_s {
     ContextType_t        type;
     nbgl_operationType_t operationType;
     uint8_t              nbPages;
-    int8_t               currentPage;
-    int8_t               firstPairPage;
+    uint8_t              currentPage;
+    uint8_t              firstPairPage;
     bool                 forceAction;
     nbgl_stepCallback_t
         stepCallback;  ///< if not NULL, function to be called on "double-key" action
@@ -279,11 +279,11 @@ static uint8_t getContentNbElement(const nbgl_content_t *content)
 // Helper to retrieve the content inside a nbgl_genericContents_t using
 // either the contentsList or using the contentGetterCallback
 static const nbgl_content_t *getContentAtIdx(const nbgl_genericContents_t *genericContents,
-                                             int8_t                        contentIdx,
+                                             uint8_t                       contentIdx,
                                              nbgl_content_t               *content)
 {
     nbgl_pageContent_t pageContent = {0};
-    if (contentIdx < 0 || contentIdx >= genericContents->nbContents) {
+    if (contentIdx >= genericContents->nbContents) {
         LOG_DEBUG(USE_CASE_LOGGER, "No content available at %d\n", contentIdx);
         return NULL;
     }
@@ -369,7 +369,7 @@ static const nbgl_content_t *getContentElemAtIdx(uint8_t         elemIdx,
         default:
             return NULL;
     }
-    for (int i = 0; i < genericContents->nbContents; i++) {
+    for (uint i = 0; i < genericContents->nbContents; i++) {
         p_content   = getContentAtIdx(genericContents, i, content);
         elemNbPages = getContentNbElement(p_content);
         if (nbPages + elemNbPages > elemIdx) {
@@ -1577,7 +1577,7 @@ static void startUseCaseSettingsAtPage(uint8_t initSettingPage)
     }
 
     context.nbPages = 1;  // For back screen
-    for (int i = 0; i < context.home.settingContents->nbContents; i++) {
+    for (uint i = 0; i < context.home.settingContents->nbContents; i++) {
         p_content = getContentAtIdx(context.home.settingContents, i, &content);
         context.nbPages += getContentNbElement(p_content);
     }
