@@ -310,7 +310,11 @@ void io_seproxyhal_init(void)
 
     init_io.ble.profile_mask = 0;
 #ifdef HAVE_BLE
+#ifdef BLE_INIT_PROFILE_MASK
+    init_io.ble.profile_mask = BLE_INIT_PROFILE_MASK;
+#else
     init_io.ble.profile_mask = BLE_LEDGER_PROFILE_APDU;
+#endif  // BLE_INIT_PROFILE_MASK
 #endif  // !HAVE_BLE
 
 #ifdef HAVE_NFC_READER
@@ -452,6 +456,10 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
                     else if (io_os_legacy_apdu_type == APDU_TYPE_NFC) {
                         G_io_u2f.media      = U2F_MEDIA_NFC;
                         G_io_app.apdu_state = APDU_U2F;
+                    }
+                    else if (io_os_legacy_apdu_type == APDU_TYPE_BLE_U2F) {
+                        G_io_u2f.media      = U2F_MEDIA_BLE;
+                        G_io_app.apdu_state = APDU_U2F_CBOR;
                     }
 #endif  // HAVE_IO_U2F
                 }

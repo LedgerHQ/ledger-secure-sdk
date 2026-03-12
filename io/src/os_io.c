@@ -388,6 +388,11 @@ int os_io_tx_cmd(uint8_t                     type,
         case OS_IO_PACKET_TYPE_BLE_APDU:
             BLE_LEDGER_send(BLE_LEDGER_PROFILE_APDU, buffer, length, 0);
             break;
+#ifdef HAVE_IO_U2F
+        case OS_IO_PACKET_TYPE_BLE_U2F_APDU:
+            BLE_LEDGER_send(BLE_LEDGER_PROFILE_U2F, buffer, length, 0);
+            break;
+#endif  // HAVE_IO_U2F
 #endif  // HAVE_BLE
 
 #ifdef HAVE_NFC
@@ -477,6 +482,7 @@ unsigned int os_io_handle_ux_event_reject_apdu(void)
             case OS_IO_PACKET_TYPE_USB_U2F_HID_APDU:
             case OS_IO_PACKET_TYPE_USB_CCID_APDU:
             case OS_IO_PACKET_TYPE_BLE_APDU:
+            case OS_IO_PACKET_TYPE_BLE_U2F_APDU:
             case OS_IO_PACKET_TYPE_NFC_APDU:
                 os_io_tx_cmd(G_io_tx_buffer[0], err_buffer, sizeof(err_buffer), 0);
                 break;

@@ -109,6 +109,7 @@ typedef enum ble_aci_cmd_codes_e {
 typedef enum ble_ad_types_e {
     BLE_AD_TYPE_FLAGS                  = 0x01,
     BLE_AD_TYPE_COMPLETE_LOCAL_NAME    = 0x09,
+    BLE_AD_AD_TYPE_16_BIT_SERV_UUID    = 0x02,
     BLE_AD_AD_TYPE_128_BIT_SERV_UUID   = 0x06,
     BLE_AD_AD_TYPE_SLAVE_CONN_INTERVAL = 0x12,
 } ble_ad_types_t;

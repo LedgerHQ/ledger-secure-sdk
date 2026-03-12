@@ -31,6 +31,9 @@
 #include "ble_ledger.h"
 #include "ble_ledger_types.h"
 #include "ble_ledger_profile_apdu.h"
+#ifdef HAVE_IO_U2F
+#include "ble_ledger_profile_u2f.h"
+#endif  // HAVE_IO_U2F
 
 /* Private enumerations ------------------------------------------------------*/
 typedef enum ble_state_e {
@@ -383,15 +386,28 @@ static void start_advertising_mngr(uint16_t opcode)
             break;
 
         case BLE_START_ADV_STEP_SET_SCAN_RSP_DATAS: {
-            ble_profile_info_t *profile_info = NULL;
-            // TODO_IO : should handle every profile in the future
-            if (ble_ledger_data.nb_of_profile) {
-                profile_info = ble_ledger_data.profile[0];
-                // Incomplete List of 128-bit Service UUIDs
-                buffer[index++] = 16 + 1;
-                buffer[index++] = BLE_AD_AD_TYPE_128_BIT_SERV_UUID;
-                memcpy(&buffer[index], (uint8_t *) PIC(profile_info->service_uuid.value), 16);
-                index += 16;
+            // Advertise service UUIDs for all registered profiles
+            for (uint8_t p = 0; p < ble_ledger_data.nb_of_profile; p++) {
+                ble_profile_info_t *pi = ble_ledger_data.profile[p];
+                if (pi == NULL) {
+                    continue;
+                }
+                pi = (ble_profile_info_t *) PIC(pi);
+                if (pi->service_uuid.type == BLE_GATT_UUID_TYPE_128) {
+                    // Incomplete List of 128-bit Service UUIDs
+                    buffer[index++] = 16 + 1;
+                    buffer[index++] = BLE_AD_AD_TYPE_128_BIT_SERV_UUID;
+                    memcpy(&buffer[index],
+                           (uint8_t *) PIC(pi->service_uuid.value), 16);
+                    index += 16;
+                } else if (pi->service_uuid.type == BLE_GATT_UUID_TYPE_16) {
+                    // Incomplete List of 16-bit Service UUIDs
+                    buffer[index++] = 2 + 1;
+                    buffer[index++] = BLE_AD_AD_TYPE_16_BIT_SERV_UUID;
+                    memcpy(&buffer[index],
+                           (uint8_t *) PIC(pi->service_uuid.value), 2);
+                    index += 2;
+                }
             }
 
             // Slave Connection Interval Range
@@ -1002,8 +1018,8 @@ void BLE_LEDGER_start(void)
 #ifdef HAVE_IO_U2F
         else if (ble_ledger_init_data.profile_mask & BLE_LEDGER_PROFILE_U2F) {
             LOG_IO("U2F ");
-            // ble_ledger_data.profile[ble_ledger_data.nb_of_profile++] =
-            // (ble_profile_info_t*)PIC(&BLE_LEDGER_PROFILE_u2f_info);
+            ble_ledger_data.profile[ble_ledger_data.nb_of_profile++] =
+            (ble_profile_info_t*)PIC(&BLE_LEDGER_PROFILE_u2f_info);
         }
         LOG_IO("\n");
 #endif  // HAVE_IO_U2F
