@@ -229,8 +229,8 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>    ContextType_t        type;</div>
 <div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>    <a class="code hl_typedef" href="nbgl__use__case_8h.html#a2a61232bd0b7a090272a1fd43f3b9f26">nbgl_operationType_t</a> operationType;</div>
 <div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>    uint8_t              nbPages;</div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>    int8_t               currentPage;</div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>    int8_t               firstPairPage;</div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>    uint8_t              currentPage;</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>    uint8_t              firstPairPage;</div>
 <div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>    <span class="keywordtype">bool</span>                 forceAction;</div>
 <div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>    <a class="code hl_typedef" href="nbgl__flow_8h.html#a0fb75554851dff537b0612f50f88a9f1">nbgl_stepCallback_t</a></div>
 <div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>        stepCallback;  </div>
@@ -349,11 +349,11 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span><span class="comment">// Helper to retrieve the content inside a nbgl_genericContents_t using</span></div>
 <div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span><span class="comment">// either the contentsList or using the contentGetterCallback</span></div>
 <div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span><span class="keyword">static</span> <span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__content__t.html">nbgl_content_t</a> *getContentAtIdx(<span class="keyword">const</span> <a class="code hl_struct" href="structnbgl__genericContents__t.html">nbgl_genericContents_t</a> *genericContents,</div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>                                             int8_t                        contentIdx,</div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>                                             uint8_t                       contentIdx,</div>
 <div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>                                             <a class="code hl_struct" href="structnbgl__content__t.html">nbgl_content_t</a>               *content)</div>
 <div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>{</div>
 <div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>    <a class="code hl_struct" href="structnbgl__pageContent__s.html">nbgl_pageContent_t</a> pageContent = {0};</div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>    <span class="keywordflow">if</span> (contentIdx &lt; 0 || contentIdx &gt;= genericContents-&gt;<a class="code hl_variable" href="structnbgl__genericContents__t.html#a3e5838be4502eff97637a460aae2f7e0">nbContents</a>) {</div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>    <span class="keywordflow">if</span> (contentIdx &gt;= genericContents-&gt;<a class="code hl_variable" href="structnbgl__genericContents__t.html#a3e5838be4502eff97637a460aae2f7e0">nbContents</a>) {</div>
 <div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>        <a class="code hl_define" href="nbgl__debug_8h.html#a61645b47e5d1c89f5b9a5d3dff58b74c">LOG_DEBUG</a>(<a class="code hl_enumvalue" href="nbgl__debug_8h.html#a726ca809ffd3d67ab4b8476646f26635a2aba8ceddb55fc3eb020c5f2ac2f0bf5">USE_CASE_LOGGER</a>, <span class="stringliteral">&quot;No content available at %d\n&quot;</span>, contentIdx);</div>
 <div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>        <span class="keywordflow">return</span> NULL;</div>
 <div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>    }</div>
@@ -439,7 +439,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>        <span class="keywordflow">default</span>:</div>
 <div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>            <span class="keywordflow">return</span> NULL;</div>
 <div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span>    }</div>
-<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; genericContents-&gt;<a class="code hl_variable" href="structnbgl__genericContents__t.html#a3e5838be4502eff97637a460aae2f7e0">nbContents</a>; i++) {</div>
+<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>    <span class="keywordflow">for</span> (uint i = 0; i &lt; genericContents-&gt;<a class="code hl_variable" href="structnbgl__genericContents__t.html#a3e5838be4502eff97637a460aae2f7e0">nbContents</a>; i++) {</div>
 <div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>        p_content   = getContentAtIdx(genericContents, i, content);</div>
 <div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>        elemNbPages = getContentNbElement(p_content);</div>
 <div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>        <span class="keywordflow">if</span> (nbPages + elemNbPages &gt; elemIdx) {</div>
@@ -1647,7 +1647,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l01577" name="l01577"></a><span class="lineno"> 1577</span>    }</div>
 <div class="line"><a id="l01578" name="l01578"></a><span class="lineno"> 1578</span> </div>
 <div class="line"><a id="l01579" name="l01579"></a><span class="lineno"> 1579</span>    context.nbPages = 1;  <span class="comment">// For back screen</span></div>
-<div class="line"><a id="l01580" name="l01580"></a><span class="lineno"> 1580</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; context.home.settingContents-&gt;nbContents; i++) {</div>
+<div class="line"><a id="l01580" name="l01580"></a><span class="lineno"> 1580</span>    <span class="keywordflow">for</span> (uint i = 0; i &lt; context.home.settingContents-&gt;nbContents; i++) {</div>
 <div class="line"><a id="l01581" name="l01581"></a><span class="lineno"> 1581</span>        p_content = getContentAtIdx(context.home.settingContents, i, &amp;content);</div>
 <div class="line"><a id="l01582" name="l01582"></a><span class="lineno"> 1582</span>        context.nbPages += getContentNbElement(p_content);</div>
 <div class="line"><a id="l01583" name="l01583"></a><span class="lineno"> 1583</span>    }</div>
