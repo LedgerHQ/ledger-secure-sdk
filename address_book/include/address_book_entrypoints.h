@@ -19,6 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "external_address.h"
+#include "ledger_account.h"
 
 /*
 The handle functions must be defined by each Coin application implementing the Address Book feature.
@@ -39,3 +40,16 @@ when processing the APDU, in order to validate the content of the payload.
  * @return whether the external address is valid or not
  */
 bool handle_check_external_address(external_address_t *params);
+
+/* This handle is called to validate the external address.
+ *
+ * If the address does belong to the device, result is set to 1. Otherwise it
+ * is set to 0.
+ */
+/**
+ * @brief Handle called to validate the received ledger account.
+ *
+ * @param[in] params buffer_t with the complete TLV payload
+ * @return whether the ledger account is valid or not
+ */
+bool handle_check_ledger_account(ledger_account_t *params);
