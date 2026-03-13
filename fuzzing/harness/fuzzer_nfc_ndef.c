@@ -24,7 +24,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     memset(out_string, 0, sizeof(out_string));
     memcpy(in_buffer, data, size);
 
-    os_parse_ndef(in_buffer, &parsed);
+    os_parse_ndef(in_buffer, (uint16_t) size, &parsed);
     os_ndef_to_string(&parsed, out_string);
     free(in_buffer);
 
