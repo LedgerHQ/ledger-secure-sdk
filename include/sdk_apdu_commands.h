@@ -58,6 +58,29 @@
 #endif
 
 #if defined(DEBUG_OS_STACK_CONSUMPTION)
+/**
+ * @brief Instruction code with CLA = 0xB0 to get information
+ *  about maximum call stack usage of the running application.
+ * @details This APDU must be sent a first time with P1=0 to
+ * initialize the measurement, and then with P1=1 to get the maximum stack
+ * usage since the last initialization. P2 is used to choose between Syscall
+ * and Application Call Stacks
+ *
+ * - Command APDU
+ * |FIELD |LENGTH |VALUE |DESCRIPTION       |
+ * |------|-------|------|------------------|
+ * |CLA   |0x01   |0xB0  |Instruction class |
+ * |INS   |0x01   |0x57  |Instruction code  |
+ * |P1    |0x01   |MODE  |0 = INIT, 1 = RETRIEVE |
+ * |P2    |0x01   |TYPE  |0 = SYSCALL, 1 = APP   |
+ * |LC    |0x01   |0x00  |No data           |
+ *
+ * - Response APDU
+ * |DATA        |LENGTH | DESCRIPTION                    |
+ * |------------|-------|--------------------------------|
+ * |MAX_USED_CALL_STACK | 0x4  | Max used Call Stack in bytes (U32BE) |
+ * |STATUS_WORD |0x02   | 0x9000 on success              |
+ */
 #define DEFAULT_APDU_INS_STACK_CONSUMPTION 0x57
 #endif  // DEBUG_OS_STACK_CONSUMPTION
 
