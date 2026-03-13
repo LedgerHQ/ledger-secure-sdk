@@ -59,6 +59,20 @@ ifeq ($(ENABLE_TESTING_SWAP), 1)
 endif
 
 #####################################################################
+#                            ADDRESS BOOK                           #
+#####################################################################
+ifeq ($(ENABLE_ADDRESS_BOOK), 1)
+    # Address book receives APDU formatted as TLV
+    ENABLE_TLV_LIBRARY = 1
+    DEFINES += HAVE_ADDRESS_BOOK
+    SDK_SOURCE_PATH += address_book
+    ifeq ($(ENABLE_ADDRESS_BOOK_LEDGER_ACCOUNT), 1)
+        # Address Book feature activable for Ledger accounts (if requested by App)
+        DEFINES += HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT
+    endif
+endif
+
+#####################################################################
 #                            TLV LIBRARY                            #
 #####################################################################
 ifeq ($(ENABLE_TLV_LIBRARY), 1)
