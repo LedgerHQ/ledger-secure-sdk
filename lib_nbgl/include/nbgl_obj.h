@@ -232,23 +232,25 @@ extern "C" {
 
 // common large icons
 #if LARGE_ICON_SIZE == 64
-#define CHECK_CIRCLE_ICON     C_Check_Circle_64px
-#define DENIED_CIRCLE_ICON    C_Denied_Circle_64px
-#define IMPORTANT_CIRCLE_ICON C_Important_Circle_64px
-#define LARGE_WARNING_ICON    C_Warning_64px
-#define INFO_CIRCLE_ICON      C_Info_Circle_64px
-#define LARGE_REVIEW_ICON     C_Review_64px
-#define LARGE_LOGIN_ICON      C_Login_64px
-#define LARGE_TRASH_ICON      C_Trash_64px
+#define CHECK_CIRCLE_ICON       C_Check_Circle_64px
+#define DENIED_CIRCLE_ICON      C_Denied_Circle_64px
+#define IMPORTANT_CIRCLE_ICON   C_Important_Circle_64px
+#define LARGE_WARNING_ICON      C_Warning_64px
+#define INFO_CIRCLE_ICON        C_Info_Circle_64px
+#define LARGE_REVIEW_ICON       C_Review_64px
+#define LARGE_LOGIN_ICON        C_Login_64px
+#define LARGE_TRASH_ICON        C_Trash_64px
+#define LARGE_ADDRESS_BOOK_ICON C_Address_Book_64px
 #elif LARGE_ICON_SIZE == 48
-#define CHECK_CIRCLE_ICON     C_Check_Circle_48px
-#define DENIED_CIRCLE_ICON    C_Denied_Circle_48px
-#define IMPORTANT_CIRCLE_ICON C_Important_Circle_48px
-#define LARGE_WARNING_ICON    C_Warning_48px
-#define INFO_CIRCLE_ICON      C_Info_Circle_48px
-#define LARGE_REVIEW_ICON     C_Review_48px
-#define LARGE_LOGIN_ICON      C_Login_48px
-#define LARGE_TRASH_ICON      C_Trash_48px
+#define CHECK_CIRCLE_ICON       C_Check_Circle_48px
+#define DENIED_CIRCLE_ICON      C_Denied_Circle_48px
+#define IMPORTANT_CIRCLE_ICON   C_Important_Circle_48px
+#define LARGE_WARNING_ICON      C_Warning_48px
+#define INFO_CIRCLE_ICON        C_Info_Circle_48px
+#define LARGE_REVIEW_ICON       C_Review_48px
+#define LARGE_LOGIN_ICON        C_Login_48px
+#define LARGE_TRASH_ICON        C_Trash_48px
+#define LARGE_ADDRESS_BOOK_ICON C_Address_Book_48px
 #else  // LARGE_ICON_SIZE
 #error Undefined LARGE_ICON_SIZE
 #endif  // LARGE_ICON_SIZE
