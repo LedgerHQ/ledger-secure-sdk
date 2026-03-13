@@ -121,8 +121,9 @@ SECTIONS
     . += 4;
     _stack = .;
     PROVIDE( _stack = .);
-    _estack = ABSOLUTE(END_STACK);
-    PROVIDE( _estack = ABSOLUTE(END_STACK) );
+    . = END_STACK;
+    _estack = .;
+    PROVIDE(_estack = .);
 
   } > SRAM = 0x00
 

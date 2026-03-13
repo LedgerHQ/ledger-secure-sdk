@@ -16,10 +16,10 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include <string.h>
+#include <stdint.h>
 #include "exceptions.h"
 #include "lcx_hash.h"
 #include "lcx_sha512.h"
-// #include "os_errors.h"
 #include "os_utils.h"
 #include "os_apdu.h"
 #include "os_debug.h"
@@ -31,33 +31,25 @@
 #include "os_registry.h"
 #include "os_io_default_apdu.h"
 #include "status_words.h"
+#if defined(HAVE_SEED_COOKIE)
+// TODO: Remove seed cookie APDU handling
+#include "perso_private_syscalls.h"
+#endif  // HAVE_SEED_COOKIE
 
 /* Private enumerations ------------------------------------------------------*/
 
 /* Private types, structures, unions -----------------------------------------*/
 
 /* Private defines------------------------------------------------------------*/
+#define OS_STACK_INIT_VALUE 0xFF
 
 /* Private macros-------------------------------------------------------------*/
 
 /* Private functions prototypes ----------------------------------------------*/
-static bolos_err_t get_version(uint8_t *buffer_out, size_t *buffer_out_length);
-
-#if defined(HAVE_SEED_COOKIE)
-// TODO: Remove seed cookie APDU handling
-#include "perso_private_syscalls.h"
-static bolos_err_t get_seed_cookie(uint8_t *buffer_out, size_t *buffer_out_length);
-#endif  // HAVE_SEED_COOKIE
-#if defined(DEBUG_OS_STACK_CONSUMPTION)
-static bolos_err_t get_stack_consumption(uint8_t  mode,
-                                         uint8_t *buffer_out,
-                                         size_t  *buffer_out_length);
-#endif  // DEBUG_OS_STACK_CONSUMPTION
-#if defined(HAVE_LEDGER_PKI)
-static bolos_err_t pki_load_certificate(uint8_t *buffer, size_t buffer_len, uint8_t key_usage);
-#endif  // HAVE_LEDGER_PKI
 
 /* Exported variables --------------------------------------------------------*/
+extern void _stack;
+extern void _estack;
 
 /* Private variables ---------------------------------------------------------*/
 
@@ -135,19 +127,64 @@ static bolos_err_t get_seed_cookie(uint8_t *buffer_out, size_t *buffer_out_lengt
 
 #if defined(DEBUG_OS_STACK_CONSUMPTION)
 static bolos_err_t get_stack_consumption(uint8_t  mode,
+                                         uint8_t  stack_type,
                                          uint8_t *buffer_out,
                                          size_t  *buffer_out_length)
 {
     bolos_err_t err    = SWO_CONDITIONS_NOT_SATISFIED;
-    int         status = os_stack_operations(mode);
+    int         status = -1;
 
     *buffer_out_length = 0;
+    if (stack_type == SYSCALL_STACK_TYPE) {
+        status = os_stack_operations(mode);
+    }
+    else if (stack_type == APP_STACK_TYPE) {
+        uint8_t  *st;
+        uintptr_t stack_lowest;
+        uintptr_t stack_current;
+        uintptr_t stack_length;
+
+        // Application stack is allocated between _stack (lowest address) and _estack (highest);
+        // measure usage in this range based on the current frame address.
+        stack_lowest  = (uintptr_t) &_stack;
+        stack_current = (uintptr_t) __builtin_frame_address(0);
+        stack_length  = (uintptr_t) &_estack - (uintptr_t) &_stack;
+        switch (mode) {
+            case MODE_INITIALIZATION:
+                // We initialize the stack up from lowest address to the current location of the
+                // stack pointer, except the canary. We do not call the dedicated function for this,
+                // otherwise it might smash its own portion of stack.
+                for (st = (unsigned char *) (stack_lowest;
+                     st < (unsigned char *) stack_current;
+                     st++) {
+                    *st = OS_STACK_INIT_VALUE;
+                }
+                status = 0;
+                break;
+
+            case MODE_RETRIEVAL:
+                // The goal is to output the length of the used stack since the last initialization.
+                for (st = (unsigned char *) (stack_lowest;
+                     st < (unsigned char *) stack_current;
+                     st++) {
+                    if (*st != OS_STACK_INIT_VALUE) {
+                        break;
+                    }
+                }
+
+                status = (int) (stack_lowest + stack_length - (uintptr_t) st + sizeof(char));
+                break;
+
+            default:
+                // result is already initialized.
+                break;
+        }
+    }
     if (status != -1) {
         U4BE_ENCODE(buffer_out, 0x00, status);
         *buffer_out_length += 4;
         err = SWO_SUCCESS;
     }
-
     return err;
 }
 #endif  // DEBUG_OS_STACK_CONSUMPTION
@@ -210,12 +247,19 @@ bolos_err_t os_io_handle_default_apdu(uint8_t                  *buffer_in,
 
 #if defined(DEBUG_OS_STACK_CONSUMPTION)
             case DEFAULT_APDU_INS_STACK_CONSUMPTION:
-                if (!buffer_in[APDU_OFF_P2] && !buffer_in[APDU_OFF_LC]) {
-                    err = get_stack_consumption(
-                        buffer_in[APDU_OFF_P1], buffer_out, buffer_out_length);
+                if ((buffer_in[APDU_OFF_P1] > MODE_RETRIEVAL)
+                    || (buffer_in[APDU_OFF_P2] > APP_STACK_TYPE)) {
+                    err = SWO_WRONG_P1_P2;
+                    goto end;
+                }
+                if (!buffer_in[APDU_OFF_LC]) {
+                    err = get_stack_consumption(buffer_in[APDU_OFF_P1],
+                                                buffer_in[APDU_OFF_P2],
+                                                buffer_out,
+                                                buffer_out_length);
                 }
                 else {
-                    err = SWO_INVALID_CLA;
+                    err = SWO_INCORRECT_P3_LENGTH;
                     goto end;
                 }
                 break;
