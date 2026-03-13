@@ -334,10 +334,39 @@ void os_explicit_zero_BSS_segment(void)
     explicit_bzero(&_bss, ((uintptr_t) &_ebss) - ((uintptr_t) &_bss));
 }
 
+/**
+ * @brief Checks if a string contains only printable ASCII characters
+ *
+ * This function determines if all characters in the provided string are within the
+ * range of displayable ASCII characters (from 0x20 to 0x7E).
+ *
+ * @param[in] str A pointer to the string to be checked
+ * @param[in] len The length of the string to be checked
+ */
 bool is_printable_string(const char *str, size_t len)
 {
     for (size_t i = 0; i < len; i++) {
         if (!isprint((unsigned char) str[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * @brief Checks if a buffer contains only zero bytes
+ *
+ * This function iterates through the provided buffer and checks if all bytes are zero.
+ *
+ * @param[in] buf A pointer to the buffer to be checked
+ * @param[in] n The number of bytes in the buffer to be checked
+ * @return true if all bytes in the buffer are zero, false otherwise
+ */
+bool is_zeroes_buffer(const void *buf, size_t n)
+{
+    uint8_t *p = (uint8_t *) buf;
+    for (size_t i = 0; i < n; ++i) {
+        if (p[i] != 0) {
             return false;
         }
     }
