@@ -41,7 +41,8 @@
  * @brief Internal macro — creates a flag enum for mapping tags to their reception flag.
  * @note Do not use directly.
  */
-#define __X_DEFINE_TLV__TAG_FLAG(value, name, callback, unicity) name##_FLAG = (1U << name##_INDEX),
+#define __X_DEFINE_TLV__TAG_FLAG(value, name, callback, unicity) \
+    name##_FLAG = ((TLV_flag_t) 1 << name##_INDEX),
 
 /**
  * @brief Internal macro — expands to a switch case that maps a tag to its flag.
