@@ -26,6 +26,28 @@
 #define DER_LONG_FORM_FLAG        0x80  // 8th bit set
 #define DER_FIRST_BYTE_VALUE_MASK 0x7f
 
+/**
+ * @brief Enforce that a TLV data contains the expected uint8 value.
+ *
+ * @param[in] data TLV data to check
+ * @param[in] expected_value Expected uint8 value
+ * @return true if the value matches, false otherwise
+ */
+bool tlv_enforce_u8_value(const tlv_data_t *data, uint8_t expected_value)
+{
+    uint8_t value = 0;
+    if (!get_uint8_t_from_tlv_data(data, &value)) {
+        PRINTF("Failed to extract uint8 value from TLV data (tag 0x%x)\n", data->tag);
+        return false;
+    }
+    if (value != expected_value) {
+        PRINTF(
+            "Value mismatch for tag 0x%x: expected %u, got %u\n", data->tag, expected_value, value);
+        return false;
+    }
+    return true;
+}
+
 /** Parse uint64 value
  *
  * Parses a uint64 value
