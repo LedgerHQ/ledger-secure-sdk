@@ -59,6 +59,16 @@ ifeq ($(ENABLE_TESTING_SWAP), 1)
 endif
 
 #####################################################################
+#                            ADDRESS BOOK                            #
+#####################################################################
+ifeq ($(ENABLE_ADDRESS_BOOK), 1)
+    ENABLE_TLV_LIBRARY = 1
+    ENABLE_PKI_LIBRARY = 1
+    DEFINES += HAVE_ADDRESS_BOOK
+    SDK_SOURCE_PATH += address_book
+endif
+
+#####################################################################
 #                            TLV LIBRARY                            #
 #####################################################################
 ifeq ($(ENABLE_TLV_LIBRARY), 1)
