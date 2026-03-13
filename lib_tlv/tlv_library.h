@@ -195,6 +195,22 @@ TAG_LIST(X) \
     }
 // clang-format on
 
+/** Parse and check the STRUCTURE_TYPE value.
+ *
+ * @param[in] data to handle
+ * @param[in] expected value
+ * @return whether the handling was successful
+ */
+bool tlv_check_structure_type(const tlv_data_t *data, uint8_t expected);
+
+/** Parse and check the STRUCTURE_VERSION value.
+ *
+ * @param[in] data to handle
+ * @param[in] expected value
+ * @return whether the handling was successful
+ */
+bool tlv_check_structure_version(const tlv_data_t *data, uint8_t expected);
+
 /**
  * Get a uint from tlv data
  *
