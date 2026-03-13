@@ -199,6 +199,15 @@ TAG_LIST(X) \
 // clang-format on
 
 /**
+ * @brief Enforce that a TLV data contains the expected uint8 value.
+ *
+ * @param[in] data TLV data to check
+ * @param[in] expected_value Expected uint8 value
+ * @return true if the value matches, false otherwise
+ */
+bool tlv_enforce_u8_value(const tlv_data_t *data, uint8_t expected_value);
+
+/**
  * Get a uint from tlv data
  *
  * This function extracts an unsigned N-bit integer from the TLV data.
