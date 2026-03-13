@@ -19,7 +19,6 @@
 #include "exceptions.h"
 #include "lcx_hash.h"
 #include "lcx_sha512.h"
-// #include "os_errors.h"
 #include "os_utils.h"
 #include "os_apdu.h"
 #include "os_debug.h"
@@ -31,6 +30,9 @@
 #include "os_registry.h"
 #include "os_io_default_apdu.h"
 #include "status_words.h"
+#if defined(HAVE_ADDRESS_BOOK)
+#include "address_book.h"
+#endif
 
 /* Private enumerations ------------------------------------------------------*/
 
@@ -251,6 +253,16 @@ bolos_err_t os_io_handle_default_apdu(uint8_t                  *buffer_in,
                     &buffer_in[APDU_OFF_LC + 1], buffer_in[APDU_OFF_LC], buffer_in[APDU_OFF_P1]);
                 break;
 #endif  // HAVE_LEDGER_PKI
+
+#if defined(HAVE_ADDRESS_BOOK)
+            case DEFAULT_APDU_INS_ADDRESS_BOOK:
+                *buffer_out_length = 0;
+                err                = addr_book_handle_apdu(&buffer_in[APDU_OFF_DATA],
+                                            buffer_in[APDU_OFF_LC],
+                                            buffer_in[APDU_OFF_P1],
+                                            buffer_in[APDU_OFF_P2]);
+                break;
+#endif  // HAVE_ADDRESS_BOOK
 
             default:
                 err = SWO_INVALID_CLA;
