@@ -415,6 +415,9 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
                     if (err != SWO_SUCCESS) {
                         buffer_out_length = 0;
                     }
+                    if (err == SWO_NO_RESPONSE) {
+                        return SWO_NO_RESPONSE;
+                    }
                     G_io_tx_buffer[buffer_out_length++] = err >> 8;
                     G_io_tx_buffer[buffer_out_length++] = err;
                     status                              = os_io_tx_cmd(
