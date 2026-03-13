@@ -26,6 +26,48 @@
 #define DER_LONG_FORM_FLAG        0x80  // 8th bit set
 #define DER_FIRST_BYTE_VALUE_MASK 0x7f
 
+/**
+ * @brief Parse and check the STRUCTURE_TYPE value.
+ *
+ * @param[in] data to handle
+ * @param[in] expected value
+ * @return whether the handling was successful
+ */
+bool tlv_check_structure_type(const tlv_data_t *data, uint8_t expected)
+{
+    uint8_t value = 0;
+    if (!get_uint8_t_from_tlv_data(data, &value)) {
+        PRINTF("STRUCTURE_TYPE: failed to extract\n");
+        return false;
+    }
+    if (value != expected) {
+        PRINTF("STRUCTURE_TYPE Value mismatch!\n");
+        return false;
+    }
+    return true;
+}
+
+/**
+ * @brief Parse and check the STRUCTURE_VERSION value.
+ *
+ * @param[in] data to handle
+ * @param[in] expected value
+ * @return whether the handling was successful
+ */
+bool tlv_check_structure_version(const tlv_data_t *data, uint8_t expected)
+{
+    uint8_t value = 0;
+    if (!get_uint8_t_from_tlv_data(data, &value)) {
+        PRINTF("STRUCTURE_VERSION: failed to extract\n");
+        return false;
+    }
+    if (value != expected) {
+        PRINTF("STRUCTURE_VERSION Value mismatch!\n");
+        return false;
+    }
+    return true;
+}
+
 /** Parse uint64 value
  *
  * Parses a uint64 value
