@@ -64,6 +64,46 @@ DEFINE_TLV_PARSER(THIRD_TAGS, common_handler, third_parser)
 
 DEFINE_TLV_PARSER(MANY_TAGS, NULL, many_parser)
 
+/* clang-format off */
+/* Fifth parser with 33 tags to validate 64-bit flag support (index >= 32) */
+#define LARGE_TAGS(X)                           \
+    X(0x100, TAG_L00, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x101, TAG_L01, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x102, TAG_L02, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x103, TAG_L03, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x104, TAG_L04, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x105, TAG_L05, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x106, TAG_L06, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x107, TAG_L07, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x108, TAG_L08, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x109, TAG_L09, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x10A, TAG_L10, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x10B, TAG_L11, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x10C, TAG_L12, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x10D, TAG_L13, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x10E, TAG_L14, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x10F, TAG_L15, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x110, TAG_L16, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x111, TAG_L17, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x112, TAG_L18, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x113, TAG_L19, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x114, TAG_L20, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x115, TAG_L21, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x116, TAG_L22, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x117, TAG_L23, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x118, TAG_L24, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x119, TAG_L25, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x11A, TAG_L26, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x11B, TAG_L27, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x11C, TAG_L28, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x11D, TAG_L29, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x11E, TAG_L30, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x11F, TAG_L31, NULL, ENFORCE_UNIQUE_TAG) \
+    X(0x120, TAG_L32, NULL, ENFORCE_UNIQUE_TAG)
+/* clang-format on */
+
+DEFINE_TLV_PARSER(LARGE_TAGS, NULL, large_parser)
+
 /* -------------------------------------------------------------------------- */
 /* Dummy handler implementations                                              */
 /* -------------------------------------------------------------------------- */
@@ -169,10 +209,10 @@ static void test_tag_flag_values(void **state)
 {
     (void) state;
 
-    /* Test that TAG_FLAG macro correctly computes (1U << INDEX) */
-    assert_int_equal(TAG_ALPHA_FLAG, 1U << TAG_ALPHA_INDEX);
-    assert_int_equal(TAG_BETA_FLAG, 1U << TAG_BETA_INDEX);
-    assert_int_equal(TAG_GAMMA_FLAG, 1U << TAG_GAMMA_INDEX);
+    /* Test that TAG_FLAG macro correctly computes ((TLV_flag_t)1 << INDEX) */
+    assert_int_equal(TAG_ALPHA_FLAG, (TLV_flag_t) 1 << TAG_ALPHA_INDEX);
+    assert_int_equal(TAG_BETA_FLAG, (TLV_flag_t) 1 << TAG_BETA_INDEX);
+    assert_int_equal(TAG_GAMMA_FLAG, (TLV_flag_t) 1 << TAG_GAMMA_INDEX);
 
     /* Verify specific flag values */
     assert_int_equal(TAG_ALPHA_FLAG, 0x01); /* 1 << 0 */
@@ -190,7 +230,7 @@ static void test_tag_flags_are_unique(void **state)
     assert_true((TAG_BETA_FLAG & TAG_GAMMA_FLAG) == 0);
 
     /* Verify OR combination creates unique patterns */
-    uint32_t combined = TAG_ALPHA_FLAG | TAG_BETA_FLAG;
+    TLV_flag_t combined = TAG_ALPHA_FLAG | TAG_BETA_FLAG;
     assert_int_equal(combined, 0x03);
 
     combined = TAG_ALPHA_FLAG | TAG_GAMMA_FLAG;
@@ -202,13 +242,13 @@ static void test_tag_flags_multiple_parsers(void **state)
     (void) state;
 
     /* Test that flags from different parsers don't collide */
-    assert_int_equal(TAG_FOO_FLAG, 1U << TAG_FOO_INDEX);
-    assert_int_equal(TAG_BAR_FLAG, 1U << TAG_BAR_INDEX);
-    assert_int_equal(TAG_DELTA_FLAG, 1U << TAG_DELTA_INDEX);
+    assert_int_equal(TAG_FOO_FLAG, (TLV_flag_t) 1 << TAG_FOO_INDEX);
+    assert_int_equal(TAG_BAR_FLAG, (TLV_flag_t) 1 << TAG_BAR_INDEX);
+    assert_int_equal(TAG_DELTA_FLAG, (TLV_flag_t) 1 << TAG_DELTA_INDEX);
 
     /* Test many flags */
-    assert_int_equal(TAG_A0_FLAG, 1U << TAG_A0_INDEX);
-    assert_int_equal(TAG_A7_FLAG, 1U << TAG_A7_INDEX);
+    assert_int_equal(TAG_A0_FLAG, (TLV_flag_t) 1 << TAG_A0_INDEX);
+    assert_int_equal(TAG_A7_FLAG, (TLV_flag_t) 1 << TAG_A7_INDEX);
     assert_int_equal(TAG_A7_FLAG, 0x80); /* 1 << 7 */
 }
 
@@ -309,9 +349,9 @@ static void test_enum_consistency(void **state)
     assert_int_equal(TAG_BETA, 0x02);
     assert_int_equal(TAG_GAMMA, 0x03);
 
-    assert_int_equal(TAG_ALPHA_FLAG, 1U << TAG_ALPHA_INDEX);
-    assert_int_equal(TAG_BETA_FLAG, 1U << TAG_BETA_INDEX);
-    assert_int_equal(TAG_GAMMA_FLAG, 1U << TAG_GAMMA_INDEX);
+    assert_int_equal(TAG_ALPHA_FLAG, (TLV_flag_t) 1 << TAG_ALPHA_INDEX);
+    assert_int_equal(TAG_BETA_FLAG, (TLV_flag_t) 1 << TAG_BETA_INDEX);
+    assert_int_equal(TAG_GAMMA_FLAG, (TLV_flag_t) 1 << TAG_GAMMA_INDEX);
 
     assert_int_equal(test_parser_TAG_COUNT, 3);
 }
@@ -339,7 +379,7 @@ static void test_all_flags_can_be_combined(void **state)
     (void) state;
 
     /* Test that all flags can be OR'd together without collision */
-    uint32_t all_flags = TAG_ALPHA_FLAG | TAG_BETA_FLAG | TAG_GAMMA_FLAG;
+    TLV_flag_t all_flags = TAG_ALPHA_FLAG | TAG_BETA_FLAG | TAG_GAMMA_FLAG;
     assert_int_equal(all_flags, 0x07); /* 0b111 */
 
     /* Verify each flag is still distinguishable */
@@ -381,7 +421,7 @@ static void test_flag_computation_correctness(void **state)
 
     /* Verify flag computation for various index values */
     for (int i = 0; i < 8; i++) {
-        uint32_t expected_flag = 1U << i;
+        TLV_flag_t expected_flag = (TLV_flag_t) 1 << i;
         /* We can't dynamically test this, but we verify the pattern */
         if (i == TAG_ALPHA_INDEX) {
             assert_int_equal(TAG_ALPHA_FLAG, expected_flag);
@@ -393,6 +433,60 @@ static void test_flag_computation_correctness(void **state)
             assert_int_equal(TAG_GAMMA_FLAG, expected_flag);
         }
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Tests for 64-bit flag support (tags at index >= 32)                        */
+/* -------------------------------------------------------------------------- */
+
+static void test_large_parser_tag_count(void **state)
+{
+    (void) state;
+    assert_int_equal(large_parser_TAG_COUNT, 33);
+}
+
+static void test_flag_above_32bit_boundary(void **state)
+{
+    (void) state;
+
+    /* TAG_L32 is at index 32 — this is the exact case that was broken with 1U << 32 */
+    assert_int_equal(TAG_L32_INDEX, 32);
+    assert_true(TAG_L32_FLAG == ((TLV_flag_t) 1 << 32));
+    assert_true(TAG_L32_FLAG != 0); /* was 0 with the old 1U << 32 (UB) */
+
+    /* Verify a few lower indices are still correct */
+    assert_true(TAG_L00_FLAG == ((TLV_flag_t) 1 << 0));
+    assert_true(TAG_L31_FLAG == ((TLV_flag_t) 1 << 31));
+}
+
+static void test_large_parser_flags_are_unique(void **state)
+{
+    (void) state;
+
+    /* Verify that no two flags in the large parser share bits */
+    TLV_flag_t all     = 0;
+    TLV_flag_t flags[] = {
+        TAG_L00_FLAG, TAG_L01_FLAG, TAG_L02_FLAG, TAG_L03_FLAG, TAG_L04_FLAG, TAG_L05_FLAG,
+        TAG_L06_FLAG, TAG_L07_FLAG, TAG_L08_FLAG, TAG_L09_FLAG, TAG_L10_FLAG, TAG_L11_FLAG,
+        TAG_L12_FLAG, TAG_L13_FLAG, TAG_L14_FLAG, TAG_L15_FLAG, TAG_L16_FLAG, TAG_L17_FLAG,
+        TAG_L18_FLAG, TAG_L19_FLAG, TAG_L20_FLAG, TAG_L21_FLAG, TAG_L22_FLAG, TAG_L23_FLAG,
+        TAG_L24_FLAG, TAG_L25_FLAG, TAG_L26_FLAG, TAG_L27_FLAG, TAG_L28_FLAG, TAG_L29_FLAG,
+        TAG_L30_FLAG, TAG_L31_FLAG, TAG_L32_FLAG,
+    };
+    for (size_t i = 0; i < sizeof(flags) / sizeof(flags[0]); i++) {
+        assert_true((all & flags[i]) == 0); /* no overlap */
+        all |= flags[i];
+    }
+}
+
+static void test_large_parser_tag_to_flag(void **state)
+{
+    (void) state;
+
+    assert_true(large_parser_tag_to_flag(TAG_L00) == TAG_L00_FLAG);
+    assert_true(large_parser_tag_to_flag(TAG_L31) == TAG_L31_FLAG);
+    assert_true(large_parser_tag_to_flag(TAG_L32) == TAG_L32_FLAG);
+    assert_true(large_parser_tag_to_flag(0xFF) == 0);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -433,6 +527,12 @@ int main(int argc, char **argv)
         cmocka_unit_test(test_tag_values_are_preserved),
         cmocka_unit_test(test_index_enumeration_starts_at_zero),
         cmocka_unit_test(test_flag_computation_correctness),
+
+        /* 64-bit flag support tests */
+        cmocka_unit_test(test_large_parser_tag_count),
+        cmocka_unit_test(test_flag_above_32bit_boundary),
+        cmocka_unit_test(test_large_parser_flags_are_unique),
+        cmocka_unit_test(test_large_parser_tag_to_flag),
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }

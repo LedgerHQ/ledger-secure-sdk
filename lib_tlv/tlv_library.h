@@ -153,6 +153,9 @@ TAG_LIST(X) \
         PARSE_FUNCTION_NAME##_TAG_COUNT,                                                 \
     };                                                                                   \
                                                                                          \
+    _Static_assert(PARSE_FUNCTION_NAME##_TAG_COUNT <= sizeof(TLV_flag_t) * 8,            \
+                   "Too many tags: exceeds the number of bits in TLV_flag_t");            \
+                                                                                         \
     /* Create an enum associating tags with their flags (for internal use). */           \
     enum {                                                                               \
         TAG_LIST(__X_DEFINE_TLV__TAG_FLAG)                                               \
