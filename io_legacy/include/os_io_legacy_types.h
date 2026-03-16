@@ -54,18 +54,6 @@ typedef enum {
     APDU_USB_WEBUSB,
 } io_apdu_state_e;
 
-#ifdef HAVE_NFC_READER
-enum card_tech {
-    NFC_A,
-    NFC_B
-};
-
-enum nfc_event {
-    CARD_DETECTED,
-    CARD_REMOVED,
-};
-#endif  // HAVE_NFC_READER
-
 /* Exported types, structures, unions ----------------------------------------*/
 typedef struct {
     io_apdu_state_e apdu_state;   // by default
@@ -76,31 +64,6 @@ typedef struct {
     unsigned int plane_mode;
 #endif  // HAVE_BLE
 } io_seph_app_t;
-
-#ifdef HAVE_NFC_READER
-struct card_info {
-    enum card_tech tech;
-    uint8_t        nfcid[7];
-    size_t         nfcid_len;
-};
-
-typedef void (*nfc_evt_callback_t)(enum nfc_event event, struct card_info *info);
-typedef void (*nfc_resp_callback_t)(bool error, bool timeout, uint8_t *resp_data, size_t resp_len);
-
-struct nfc_reader_context {
-    nfc_resp_callback_t resp_callback;
-    nfc_evt_callback_t  evt_callback;
-    bool                reader_mode;
-    bool                event_happened;
-    bool                response_received;
-    unsigned int        remaining_ms;
-    enum nfc_event      last_event;
-    struct card_info    card;
-    uint8_t            *apdu_rx;
-    size_t              apdu_rx_len;       // Used length
-    size_t              apdu_rx_max_size;  // Max size of buffer
-};
-#endif  // HAVE_NFC_READER
 
 /* Exported defines   --------------------------------------------------------*/
 #ifdef IO_SEPROXYHAL_BUFFER_SIZE_B
