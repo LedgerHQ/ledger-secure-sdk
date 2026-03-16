@@ -47,7 +47,7 @@
  *
  * 2/ An info containing the PC and LR of the instruction that failed.
  *    This can be used to locate the failing code and flow using the following
- *    command: `arm-none-eabi-addr2line --exe bin/app.elf -pf 0xC0DE586B`
+ *    command: `arm-none-eabi-addr2line --exe build/<device>/bin/app.elf -pf 0xC0DE586B`
  *    => This is enabled when `LEDGER_ASSERT_CONFIG_LR_AND_PC_INFO` is defined.
  *
  * 3/ An info displaying the `LEDGER_ASSERT` message passed as parameter.
