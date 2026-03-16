@@ -5,6 +5,7 @@ The Ultimate WCS Auditor (Objdump + AST Bridges)
 Uses objdump for mathematically perfect direct-call resolution,
 ingests AST-generated bridges.json for perfect indirect-call resolution,
 and maps every function back to its original .c source file.
+Displays the Top 3 heaviest call paths.
 """
 
 import sys
@@ -126,21 +127,21 @@ def print_syscall_wrappers(graph: Dict[str, Set[str]]) -> Set[str]:
         print("No functions calling syscall wrappers found.")
     return targets
 
-def print_max_stack_path(
+def print_top_stack_paths(
     graph: Dict[str, Set[str]],
     targets: Set[str],
     stack_info: Dict[str, Tuple[int, str]]
 ) -> None:
     print("\n" + "=" * 70)
-    print("SECTION 2: MAXIMUM STACK CONSUMPTION")
+    print("SECTION 2: TOP 3 HEAVIEST STACK CONSUMPTION PATHS")
     print("=" * 70)
 
-    memo: Dict[str, Tuple[int, List[str]]] = {}
+    memo: Dict[str, List[Tuple[int, List[str]]]] = {}
     visiting: Set[str] = set()
 
-    def get_wcsu(node: str) -> Tuple[int, List[str]]:
+    def get_all_paths(node: str) -> List[Tuple[int, List[str]]]:
         if node in visiting:
-            return -1, []
+            return []
         if node in memo:
             return memo[node]
 
@@ -148,30 +149,32 @@ def print_max_stack_path(
 
         # Unpack the weight from our new tuple structure (defaults to 0 if not found)
         node_weight = stack_info.get(node, (0, ""))[0]
-        max_child_bytes = -1
-        best_child_path = []
+
+        all_child_paths = []
 
         if node in targets:
-            max_child_bytes = 0
-            best_child_path = []
+            # Base case: Hit a syscall, weight is 0 from here down
+            all_child_paths.append((0, []))
 
         for neighbor in sorted(graph.get(node, [])):
-            child_bytes, child_path = get_wcsu(neighbor)
-            if child_bytes != -1:
-                if child_bytes > max_child_bytes:
-                    max_child_bytes = child_bytes
-                    best_child_path = child_path
+            neighbor_paths = get_all_paths(neighbor)
+            all_child_paths.extend(neighbor_paths)
 
         visiting.remove(node)
 
-        if max_child_bytes == -1:
-            memo[node] = (-1, [])
-            return -1, []
+        # Build paths for this node
+        final_paths = []
+        for child_bytes, child_path in all_child_paths:
+            total_bytes = node_weight + child_bytes
+            final_path = [node] + child_path
+            final_paths.append((total_bytes, final_path))
 
-        total_bytes = node_weight + max_child_bytes
-        final_path = [node] + best_child_path
-        memo[node] = (total_bytes, final_path)
-        return total_bytes, final_path
+        # Sort and keep only the top 3 paths to prevent memory explosion
+        final_paths.sort(key=lambda x: x[0], reverse=True)
+        final_paths = final_paths[:3]
+
+        memo[node] = final_paths
+        return final_paths
 
     entry_points = ["main", "app_main", "Reset_Handler", "_start"]
     start_nodes = [n for n in entry_points if n in graph]
@@ -179,36 +182,51 @@ def print_max_stack_path(
     if not start_nodes:
         start_nodes = sorted(graph.keys())
 
-    print("Calculating heaviest paths via dynamic programming...")
+    print("Calculating paths via dynamic programming...")
 
-    global_max_bytes = -1
-    global_best_path = []
-
+    all_valid_paths = []
     for start_node in start_nodes:
-        path_bytes, path = get_wcsu(start_node)
-        if path_bytes > global_max_bytes:
-            global_max_bytes = path_bytes
-            global_best_path = path
+        paths_from_node = get_all_paths(start_node)
+        all_valid_paths.extend(paths_from_node)
 
-    if global_max_bytes != -1:
-        print(f"\n\033[92mWORST-CASE STACK USAGE (WCSU): {global_max_bytes} Bytes\033[0m")
-        print("\nWorst-Case Path Breakdown:")
+    # Sort all collected paths globally and slice the top 3
+    all_valid_paths.sort(key=lambda x: x[0], reverse=True)
 
-        running_total = 0
-        for fn in global_best_path:
-            # Unpack both the weight and the source file name
-            w, file_name = stack_info.get(fn, (0, "unknown"))
-            running_total += w
+    # Filter out exact duplicate paths that might arise from different entry points
+    unique_paths = []
+    seen_signatures = set()
+    for weight, path in all_valid_paths:
+        path_sig = tuple(path)
+        if path_sig not in seen_signatures:
+            seen_signatures.add(path_sig)
+            unique_paths.append((weight, path))
+            if len(unique_paths) == 3:
+                break
 
-            # Format nicely: function_name [file.c]
-            fn_display = f"{fn} \033[36m[{file_name}]\033[0m"
+    if unique_paths:
+        for rank, (total_bytes, path) in enumerate(unique_paths, 1):
+            if rank == 1:
+                print(f"\n\033[91m[{rank}] WORST-CASE STACK USAGE (WCSU): {total_bytes} Bytes\033[0m")
+            elif rank == 2:
+                print(f"\n\033[93m[{rank}] 2nd Heaviest Path: {total_bytes} Bytes\033[0m")
+            else:
+                print(f"\n\033[93m[{rank}] 3rd Heaviest Path: {total_bytes} Bytes\033[0m")
 
-            # Adjusted padding to account for the file name lengths + ANSI color codes
-            print(f"  -> {fn_display.ljust(65)} \033[90m(+{str(w).rjust(3)}B) [Total: {str(running_total).rjust(4)}B]\033[0m")
+            print("Path Breakdown:")
 
-        print(f"  -> \033[96m[SYSCALL WRAPPER]\033[0m")
+            running_total = 0
+            for fn in path:
+                w, file_name = stack_info.get(fn, (0, "unknown"))
+                running_total += w
+
+                fn_display = f"{fn} \033[36m[{file_name}]\033[0m"
+                # Adjusted padding to 65
+                print(f"  -> {fn_display.ljust(65)} \033[90m(+{str(w).rjust(3)}B) [Total: {str(running_total).rjust(4)}B]\033[0m")
+
+            print(f"  -> \033[96m[SYSCALL WRAPPER]\033[0m")
     else:
         print("\nNo valid paths to syscall wrappers were found.")
+
     print("\n" + "=" * 70 + "\n")
 
 def main():
@@ -230,9 +248,9 @@ def main():
     # 3. Apply the AST hints for indirect branches
     apply_ast_bridges(graph, args.bridges)
 
-    # 4. Find the heaviest path
+    # 4. Find the 3 heaviest path
     targets = print_syscall_wrappers(graph)
-    print_max_stack_path(graph, targets, stack_info)
+    print_top_stack_paths(graph, targets, stack_info)
 
 if __name__ == "__main__":
     main()
