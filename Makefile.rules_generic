@@ -215,7 +215,8 @@ scan-build:
 
 # Generate Compilation Database (compile_commands.json) using bear
 BEAR ?= bear
-BEAR_OUTPUT ?= debug/compile_commands.json
+AUDIT_DIR ?= debug/$(TARGET)
+BEAR_OUTPUT ?= $(AUDIT_DIR)/compile_commands.json
 
 ifeq ($(ENABLE_STACK_USAGE),1)
 CFLAGS += -fstack-usage
@@ -223,7 +224,7 @@ endif
 
 .PHONY: audit
 audit: clean
-	@mkdir -p $(dir $(BEAR_OUTPUT))
+	@mkdir -p $(AUDIT_DIR)
 	$(BEAR) --output $(BEAR_OUTPUT) -- $(MAKE) default ENABLE_STACK_USAGE=1
-	python3 $(BOLOS_SDK)/tools/generate_ast_bridges.py ./debug/compile_commands.json --out ./debug/bridges.json
-	python3 $(BOLOS_SDK)/tools/wcs_auditor.py ./$(TARGET_BUILD_DIR)/bin/app.elf --su-dir ./$(TARGET_BUILD_DIR)/obj/app/src/ --bridges ./debug/bridges.json
+	python3 $(BOLOS_SDK)/tools/generate_ast_bridges.py $(AUDIT_DIR)/compile_commands.json --out $(AUDIT_DIR)/bridges.json
+	python3 $(BOLOS_SDK)/tools/wcs_auditor.py ./$(TARGET_BUILD_DIR)/bin/app.elf --su-dir ./$(TARGET_BUILD_DIR)/obj/ --bridges $(AUDIT_DIR)/bridges.json
