@@ -86,7 +86,12 @@ def generate_ast_bridges(compile_cmds_path: str, output_file: str):
         except Exception:
             continue
 
-        def traverse(node, current_func=None, parent_kind=None):
+        # Iterative AST traversal to avoid hitting Python's recursion limit
+        # Stack items: (node, current_func, parent_kind)
+        work_stack = [(tu.cursor, None, None)]
+        while work_stack:
+            node, current_func, parent_kind = work_stack.pop()
+
             if node.kind == CursorKind.FUNCTION_DECL and node.is_definition():
                 current_func = node.spelling
 
@@ -113,9 +118,7 @@ def generate_ast_bridges(compile_cmds_path: str, output_file: str):
                                 indirect_callers[sig].add(current_func)
 
             for child in node.get_children():
-                traverse(child, current_func, node.kind)
-
-        traverse(tu.cursor)
+                work_stack.append((child, current_func, node.kind))
 
     sys.stdout.write("\n")
 
