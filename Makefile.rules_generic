@@ -212,3 +212,18 @@ SCAN_BUILD_OUTPUT ?= $(TARGET_SCAN_DIR)/output-scan
 .PHONY: scan-build
 scan-build:
 	$(SCAN_BUILD) --use-cc=$(CC) -analyze-headers -enable-checker security -enable-checker unix -enable-checker valist --status-bugs -o $(SCAN_BUILD_OUTPUT) $(MAKE) RUN_SCAN=true
+
+# Generate Compilation Database (compile_commands.json) using bear
+BEAR ?= bear
+BEAR_OUTPUT ?= debug/compile_commands.json
+
+ifeq ($(ENABLE_STACK_USAGE),1)
+CFLAGS += -fstack-usage
+endif
+
+.PHONY: audit
+audit: clean
+	@mkdir -p $(dir $(BEAR_OUTPUT))
+	$(BEAR) --output $(BEAR_OUTPUT) -- $(MAKE) default ENABLE_STACK_USAGE=1
+	python3 $(BOLOS_SDK)/tools/generate_ast_bridges.py ./debug/compile_commands.json --out ./debug/bridges.json
+	python3 $(BOLOS_SDK)/tools/wcs_auditor.py ./$(TARGET_BUILD_DIR)/bin/app.elf --su-dir ./$(TARGET_BUILD_DIR)/obj/app/src/ --bridges ./debug/bridges.json
