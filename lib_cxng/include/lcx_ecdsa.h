@@ -35,10 +35,12 @@
 
 // DER SIGNATURE FORMAT
 // TAG(0x30) | TOT_LEN | TAG(0x02) | R_LEN | R | TAG(0x02) | S_LEN | S
-// Min sig length (no padding): 1 + 1 + 2 * (1 + 1 + 32)
-#define CX_ECDSA_SHA256_SIG_MIN_ASN1_LENGTH (70U)
+// Min sig length: 1 + 1 + 2 * (1 + 1 + 31) = 68 bytes (when R and S have leading zero bit)
+// Typical min: 1 + 1 + (1 + 1 + 31) + (1 + 1 + 32) = 69 bytes (one value with leading zero)
+// Common case: 1+ 1 + 2 * (1 + 1 + 32) = 70 bytes (no leading zero bits)
+#define CX_ECDSA_SHA256_SIG_MIN_ASN1_LENGTH (68U)
 
-// Max sig length (padding) : 1 + 1 + 2 * (1 + 1 + 33)
+// Max sig length (with 0x00 padding for sign bit): 1 + 1 + 2 * (1 + 1 + 33)
 #define CX_ECDSA_SHA256_SIG_MAX_ASN1_LENGTH (72U)
 
 /** @internal Backward compatibility */
