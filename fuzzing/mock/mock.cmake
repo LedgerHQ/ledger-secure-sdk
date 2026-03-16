@@ -48,6 +48,7 @@ target_compile_options(mock PUBLIC ${COMPILATION_FLAGS}
 target_include_directories(
   mock
   PUBLIC "${BOLOS_SDK}/lib_cxng/include/"
+         "${BOLOS_SDK}/lib_alloc/"
          "${BOLOS_SDK}/target/${TARGET}/include/"
          "${BOLOS_SDK}/lib_standard_app/"
          "${BOLOS_SDK}/include/"
