@@ -36,6 +36,15 @@ typedef enum {
 #define DEFAULT_APDU_INS_STACK_CONSUMPTION (0x57)
 #define DEFAULT_APDU_INS_APP_EXIT          (0xA7)
 
+#define DEFAULT_APDU_INS_STR(x)                                      \
+    (x == DEFAULT_APDU_INS_GET_VERSION         ? "GET_VERSION"       \
+     : x == DEFAULT_APDU_INS_GET_SEED_COOKIE   ? "GET_SEED_COOKIE"   \
+     : x == DEFAULT_APDU_INS_LOAD_CERTIFICATE  ? "LOAD_CERTIFICATE"  \
+     : x == DEFAULT_APDU_INS_ADDRESS_BOOK      ? "ADDRESS_BOOK"      \
+     : x == DEFAULT_APDU_INS_STACK_CONSUMPTION ? "STACK_CONSUMPTION" \
+     : x == DEFAULT_APDU_INS_APP_EXIT          ? "APP_EXIT"          \
+                                               : "UNKNOWN")
+
 /* Exported macros------------------------------------------------------------*/
 
 /* Exported variables --------------------------------------------------------*/
