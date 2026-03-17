@@ -183,6 +183,15 @@ bolos_err_t os_io_handle_default_apdu(uint8_t                  *buffer_in,
     }
 
     if (DEFAULT_APDU_CLA == buffer_in[APDU_OFF_CLA]) {
+        PRINTF("[DEFAULT_APDU] => CLA=%02x, INS=%02x (%s), P1=%02x, P2=%02x, LC=%02x, CDATA=%.*h\n",
+               buffer_in[APDU_OFF_CLA],
+               buffer_in[APDU_OFF_INS],
+               DEFAULT_APDU_INS_STR(buffer_in[APDU_OFF_INS]),
+               buffer_in[APDU_OFF_P1],
+               buffer_in[APDU_OFF_P2],
+               buffer_in[APDU_OFF_LC],
+               buffer_in[APDU_OFF_LC],
+               &buffer_in[APDU_OFF_DATA]);
         switch (buffer_in[APDU_OFF_INS]) {
             case DEFAULT_APDU_INS_GET_VERSION:
                 if (!buffer_in[APDU_OFF_P1] && !buffer_in[APDU_OFF_P2]) {
