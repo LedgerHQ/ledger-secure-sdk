@@ -28,30 +28,7 @@ typedef enum {
     BLE_LEDGER_PROFILE_U2F  = 0x0004,
 } ble_ledger_profile_mask_e;
 
-#define BLE_ADDRESS_SET_MSB (0xC0)
-
 /* Exported defines   --------------------------------------------------------*/
-// Random static address is specified at
-// https://wiki.st.com/stm32mcu/wiki/Connectivity:STM32WB-WBA_BLE_Privacy#Random_static_address
-// In particular, the two most significant bits need to be set to 1.
-#define LEDGER_BLE_get_mac_address(address)                    \
-    {                                                          \
-        unsigned char se_serial[8] = {0};                      \
-        os_serial(se_serial, sizeof(se_serial));               \
-        unsigned int uid = cx_crc16(se_serial, 4);             \
-        address[0]       = uid;                                \
-        address[1]       = uid >> 8;                           \
-        uid              = cx_crc16(se_serial + 4, 4);         \
-        address[2]       = uid;                                \
-        address[3]       = uid >> 8;                           \
-        for (unsigned int i = 0; i < sizeof(se_serial); i++) { \
-            se_serial[i] = ~se_serial[i];                      \
-        }                                                      \
-        uid        = cx_crc16(se_serial, 8);                   \
-        address[4] = uid;                                      \
-        address[5] = (uid >> 8) | BLE_ADDRESS_SET_MSB;         \
-    }
-
 #define BLE_SLAVE_CONN_INTERVAL_MIN 12  // 15ms
 #define BLE_SLAVE_CONN_INTERVAL_MAX 24  // 30ms
 
@@ -72,6 +49,14 @@ void BLE_LEDGER_stop(void);
 void BLE_LEDGER_reset_pairings(void);
 void BLE_LEDGER_accept_pairing(uint8_t status);
 void BLE_LEDGER_name_changed(void);
+
+/**
+ * @brief Derives the BLE MAC address from the product serial number.
+ *
+ * @param address_buf Pointer to a buffer of at least 6 bytes.
+ * @param buf_len     Length of the provided buffer.
+ */
+void LEDGER_BLE_get_mac_address(uint8_t *address_buf, size_t buf_len);
 
 // Rx
 int BLE_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
