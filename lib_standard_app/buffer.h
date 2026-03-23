@@ -5,6 +5,7 @@
 #include <stdbool.h>  // bool
 
 #include "macros.h"
+#include "bip32.h"
 
 /**
  * Enumeration for endianness.
@@ -162,6 +163,19 @@ bool buffer_read_varint(buffer_t *buffer, uint64_t *value);
  *
  */
 bool buffer_read_bip32_path(buffer_t *buffer, uint32_t *out, size_t out_len);
+
+/**
+ * Read BIP32 path from buffer into path_bip32_t struct.
+ *
+ * @param[in,out]  buffer
+ *   Pointer to input buffer struct.
+ * @param[out]     bip32
+ *   Pointer to output path_bip32_t struct to store the BIP32 path.
+ *
+ * @return true if success, false otherwise.
+ *
+ */
+bool buffer_get_path_bip32(buffer_t *buffer, path_bip32_t *bip32);
 
 /**
  * Copy bytes from buffer without moving offset.
