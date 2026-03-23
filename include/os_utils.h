@@ -76,6 +76,28 @@ static inline void U4LE_ENCODE(uint8_t *buf, size_t off, uint32_t value)
     buf[off + 1] = (value >> 8) & 0xFF;
     buf[off + 0] = value & 0xFF;
 }
+static inline void U8BE_ENCODE(uint8_t *buf, size_t off, uint64_t value)
+{
+    buf[off + 0] = (value >> 56) & 0xFF;
+    buf[off + 1] = (value >> 48) & 0xFF;
+    buf[off + 2] = (value >> 40) & 0xFF;
+    buf[off + 3] = (value >> 32) & 0xFF;
+    buf[off + 4] = (value >> 24) & 0xFF;
+    buf[off + 5] = (value >> 16) & 0xFF;
+    buf[off + 6] = (value >> 8) & 0xFF;
+    buf[off + 7] = value & 0xFF;
+}
+static inline void U8LE_ENCODE(uint8_t *buf, size_t off, uint64_t value)
+{
+    buf[off + 7] = (value >> 56) & 0xFF;
+    buf[off + 6] = (value >> 48) & 0xFF;
+    buf[off + 5] = (value >> 40) & 0xFF;
+    buf[off + 4] = (value >> 32) & 0xFF;
+    buf[off + 3] = (value >> 24) & 0xFF;
+    buf[off + 2] = (value >> 16) & 0xFF;
+    buf[off + 1] = (value >> 8) & 0xFF;
+    buf[off + 0] = value & 0xFF;
+}
 
 void u4be_encode(unsigned char *buffer, unsigned int offset, unsigned int value);
 void u4le_encode(unsigned char *buffer, unsigned int offset, unsigned int value);
