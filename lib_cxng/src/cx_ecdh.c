@@ -84,6 +84,14 @@ cx_err_t cx_ecdh_no_throw(const cx_ecfp_private_key_t *key,
     CX_CHECK(cx_bn_lock(sz, 0));
     CX_CHECK(cx_ecpoint_alloc(&W, curve));
     CX_CHECK(cx_ecpoint_init(&W, public_point + 1, sz, public_point + 1 + sz, sz));
+
+    bool is_on_curve;
+    CX_CHECK(cx_ecpoint_is_on_curve(&W, &is_on_curve));
+    if (!is_on_curve) {
+        error = CX_EC_INVALID_POINT;
+        goto end;
+    }
+
     // Scalar multiplication with random projective coordinates and additive splitting
     if (CX_CURVE_RANGE(curve, WEIERSTRASS)) {
         CX_CHECK(cx_ecpoint_rnd_fixed_scalarmul(&W, key->d, key->d_len));
