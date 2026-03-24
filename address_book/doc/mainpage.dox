@@ -1,0 +1,236 @@
+/** @page address_book_mainpage Address Book API
+
+@section address_book_intro Introduction
+
+This documentation describes the Address Book feature, which allows secure storage and management
+of external addresses and Ledger accounts. The Address Book provides:
+
+- Secure storage of cryptocurrency addresses validated by coin-specific applications
+- Support for both external addresses and Ledger-managed accounts
+- End-to-end encryption with AES-256-GCM
+- PKI signature verification for host-to-device communication
+- User confirmation flow with visual validation
+
+@section address_book_architecture Architecture
+
+The Address Book implementation is split between the SDK and coin applications:
+
+- **SDK Core**: TLV parsing, PKI verification, encryption/decryption, UI flow
+- **Coin Application**: Address format validation, blockchain-specific checks
+
+@section address_book_flow Command Flow
+
+The following sequence diagram illustrates the complete flow for adding an external address or Ledger account.
+
+@note For a standalone Markdown version of this flow diagram (viewable on GitHub/GitLab), see address_book/doc/flow.md
+
+@mermaid
+sequenceDiagram
+    participant Host as Host (Wallet)
+    participant SDK as SDK (Address Book)
+    participant App as Coin App
+    participant User as User (Device)
+
+    Note over Host,User: 1. Request Phase (Host → Device)
+
+    Host->>SDK: APDU Command<br/>TLV Payload (signed by Ledger PKI)
+    Note right of Host: TLV Structure:<br/>• structure_type (0x11/0x12)<br/>• version<br/>• contact_name<br/>• address_name (ext) / account_name (ledger)<br/>• derivation_path<br/>• address_raw (ext only)<br/>• derivation_scheme (ledger only)<br/>• chain_id<br/>• blockchain_family<br/>• DER signature
+
+    SDK->>SDK: Parse TLV
+    SDK->>SDK: Verify PKI signature<br/>(SECP256R1)
+
+    alt Signature Invalid
+        SDK-->>Host: Error: Security Violation
+    end
+
+    Note over SDK,App: 2. Application Validation
+
+    SDK->>App: handle_check_external_address()<br/>Delegate address validation
+    Note right of App: App-specific logic:<br/>• Verify address format<br/>• Check blockchain family<br/>• Validate chain_id
+
+    App-->>SDK: Valid / Invalid
+
+    alt Address Invalid
+        SDK-->>Host: Error: Invalid Address
+    end
+
+    Note over User: 3. User Confirmation
+
+    SDK->>User: Display Review Screen<br/>• Contact name<br/>• Address name<br/>• Address<br/>• Blockchain/Chain ID
+
+    User-->>SDK: Confirm / Reject
+
+    alt User Rejects
+        SDK-->>Host: Error: User Rejected
+    end
+
+    Note over SDK: 4. Response Construction
+
+    SDK->>SDK: Derive BIP32 key (SECP256R1)<br/>from derivation_path
+    SDK->>SDK: Build name_payload<br/>len(1) | contact_name
+    SDK->>SDK: Build remaining_payload<br/>WITHOUT type field
+    SDK->>SDK: Derive AES-256 key<br/>from private key
+    SDK->>SDK: Encrypt name<br/>(AES-256-GCM)
+    SDK->>SDK: Encrypt remaining<br/>(AES-256-GCM)
+
+    Note over Host,SDK: 5. Response Phase (Device → Host)
+
+    SDK-->>Host: APDU Response<br/>type(1) | name_block | remaining_block
+
+    Note left of SDK: Response Structure:<br/>• type (0x11/0x12) CLEARTEXT<br/>• name_encrypted_block:<br/>  - len(1)<br/>  - ciphertext(≤33)<br/>  - len_iv(1) + iv(12)<br/>  - len_tag(1) + tag(16)<br/>• remaining_encrypted_block:<br/>  - len(1)<br/>  - ciphertext(≤108)<br/>  - len_iv(1) + iv(12)<br/>  - len_tag(1) + tag(16)
+@endmermaid
+
+@section address_book_data_structures Data Structures
+
+@subsection address_book_input Input (Host → Device)
+
+TLV Payload structure, signed by Ledger PKI:
+- <b>structure_type</b>: 0x11 (External Address) or 0x12 (Ledger Account)
+- <b>version</b>: 0x01
+- <b>contact_name</b>: String (max 32 bytes)
+- <b>address_name/account_name</b>: String (max 32 bytes)
+- <b>derivation_path</b>: BIP32 path for encryption key derivation
+- <b>address_raw</b>: Binary (max 64 bytes) - External addresses only
+- <b>derivation_scheme</b>: uint8 - Ledger accounts only (BIP44/BIP84/BIP86/Generic)
+- <b>chain_id</b>: uint64 - Required for Ethereum family
+- <b>blockchain_family</b>: uint8 - Required for all types
+- <b>signature</b>: DER ECDSA (70-72 bytes)
+
+@subsection address_book_output Output (Device → Host)
+
+APDU Response format:
+@code
+type(1 byte, cleartext) | name_encrypted_block | remaining_encrypted_block
+@endcode
+
+Each encrypted block contains:
+- <b>len</b>: 1 byte (ciphertext length)
+- <b>ciphertext</b>: Encrypted payload
+- <b>len_iv</b>: 1 byte (always 12)
+- <b>iv</b>: 12 bytes (AES-GCM initialization vector)
+- <b>len_tag</b>: 1 byte (always 16)
+- <b>tag</b>: 16 bytes (AES-GCM authentication tag)
+
+@subsubsection address_book_payload_content Payload Content
+
+<b>Name block</b> (encrypted):
+@code
+len(1) | contact_name
+@endcode
+
+<b>Remaining block</b> (encrypted):
+
+For External Addresses (type 0x11):
+@code
+len(1) | address_name | len(1) | address_raw | chain_id(8) | blockchain_family(1)
+@endcode
+
+For Ledger Accounts (type 0x12):
+@code
+len(1) | derivation_path(40) | derivation_scheme(1) | chain_id(8) | blockchain_family(1)
+@endcode
+
+@section address_book_processing SDK Processing Steps
+
+-# <b>Parse & Verify</b>: TLV parsing and PKI signature verification (SECP256R1)
+-# <b>Delegate</b>: Call application-specific validation callback
+-# <b>UI</b>: Display review screen for user confirmation
+-# <b>Crypto</b>:
+   - Derive SECP256R1 private key from BIP32 derivation path
+   - Derive AES-256 key using SHA256(salt || privkey)
+   - Encrypt name and remaining payloads independently with AES-256-GCM
+
+@section address_book_crypto Cryptographic Design
+
+@subsection address_book_kdf Key Derivation
+
+AES-256 encryption key is derived using a simple KDF:
+@code
+AES_KEY = SHA256("AddressBook-AES-256-Key" || BIP32_PRIVKEY)
+@endcode
+
+This approach is suitable because:
+- The BIP32 private key is already cryptographically strong (256 bits)
+- Each derivation path generates a unique encryption key
+- The salt isolates this usage from other potential uses of the same private key
+
+@subsection address_book_encryption Encryption
+
+- <b>Algorithm</b>: AES-256-GCM
+- <b>IV</b>: 12 bytes, randomly generated for each encryption
+- <b>Tag</b>: 16 bytes, provides authenticated encryption
+- <b>AAD</b>: None (no additional authenticated data)
+
+@section address_book_design Key Design Decisions
+
+-# <b>Type in Cleartext</b>: The message type (0x11/0x12) is sent unencrypted, allowing the host
+   to identify the message type before decryption
+-# <b>Dual Encryption</b>: Name and remaining data are encrypted in separate blocks for modularity
+   and flexibility
+-# <b>BIP32 Derivation</b>: The same derivation path used in the input is used to derive the
+   encryption key, ensuring host and device use the same key
+-# <b>PKI Verification</b>: All inputs are verified with Ledger PKI (SECP256R1) to prevent
+   unauthorized address injection
+-# <b>App Validation</b>: Coin-specific validation logic is delegated to the application via
+   callback, maintaining separation of concerns
+-# <b>User Confirmation</b>: Mandatory review screen ensures users explicitly approve each address
+   before it is stored encrypted
+
+@section address_book_types Supported Types
+
+@subsection address_book_external_address External Address (0x11)
+
+External addresses represent cryptocurrency addresses not managed by the Ledger device.
+These can be used for frequently-used recipient addresses.
+
+Fields:
+- Contact name
+- Address name (label for this specific address)
+- Raw address (chain-specific format, max 64 bytes)
+- Chain ID (for multi-chain blockchains like Ethereum)
+- Blockchain family (e.g., Bitcoin, Ethereum)
+
+@subsection address_book_ledger_account Ledger Account (0x12)
+
+Ledger accounts represent addresses that can be derived from the device's seed.
+These are useful for managing multiple accounts or cross-device synchronization.
+
+Fields:
+- Contact name
+- Account name
+- Derivation path (BIP32 path)
+- Derivation scheme (BIP44, BIP84, BIP86, Generic)
+- Chain ID (for multi-chain blockchains like Ethereum)
+- Blockchain family (e.g., Bitcoin, Ethereum)
+
+@section address_book_api API Reference
+
+@subsection address_book_callbacks Application Callbacks
+
+Applications must implement the following callback to support Address Book:
+
+@code{.c}
+bool handle_check_external_address(const external_address_t *address);
+@endcode
+
+This callback receives the parsed external address structure and must return:
+- \c true if the address is valid for the blockchain
+- \c false if the address is invalid or unsupported
+
+The callback should validate:
+- Address format (e.g., base58, bech32, hex)
+- Blockchain family compatibility
+- Chain ID validity
+- Any other chain-specific requirements
+
+@subsection address_book_functions Core Functions
+
+Key functions provided by the Address Book module:
+
+- address_book_encrypt_and_send(): Encrypt and send response to host
+- address_book_decrypt(): Decrypt incoming contact name from host
+- build_name_payload(): Construct length-prefixed name payload
+
+See the source files for detailed API documentation.
+
+*/
