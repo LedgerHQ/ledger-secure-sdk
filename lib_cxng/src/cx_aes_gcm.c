@@ -306,6 +306,10 @@ cx_err_t cx_aes_gcm_finish(cx_aes_gcm_context_t *ctx, uint8_t *tag, size_t tag_l
 {
     cx_err_t error;
 
+    if (tag_len > AES_GCM_TAG_LEN) {
+        return CX_INVALID_PARAMETER_SIZE;
+    }
+
     STORE64BE(ctx->aad_len * 8, ctx->J0);
     STORE64BE(ctx->len * 8, ctx->J0 + 8);
     cx_gcm_xor_block(ctx->processed, ctx->processed, ctx->J0, AES_BLOCK_BYTES);
