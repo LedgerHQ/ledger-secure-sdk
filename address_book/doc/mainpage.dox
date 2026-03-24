@@ -1,0 +1,219 @@
+/** @page address_book_mainpage Address Book API
+
+@section address_book_intro Introduction
+
+The Address Book feature allows a Ledger device to securely associate human-readable names
+with blockchain identifiers or Ledger-managed accounts.  The device is stateless: nothing is
+stored persistently.  On registration the device generates a random @b group_id (@c gid,
+32 bytes), authenticates it as a @b group_handle (64 bytes), and returns two independent
+HMAC Proofs of Registration that the wallet stores alongside the contact record.
+
+The feature provides:
+
+- Binding a contact name and scope to an external identifier (e.g. an Ethereum address) via
+  the @b Register @b Identity flow
+- Binding an account name to a BIP32 derivation path managed by the device via the
+  @b Register @b Ledger @b Account flow
+- Updating existing bindings (name, identifier, scope) via dedicated @b Edit flows — each
+  verified by presenting the stored @c group_handle and the relevant HMAC proof(s)
+- Cryptographic resistance to @b proof @b splicing: the wallet cannot mix HMAC proofs from
+  different contacts because the device generates and authenticates @c gid itself
+- No plaintext secrets leave the device: the host receives only the HMAC proofs
+
+@section address_book_architecture Architecture
+
+The Address Book implementation is split between the SDK and coin applications:
+
+- @b SDK @b Core: TLV parsing, group handle generation and verification, HMAC key derivation,
+  HMAC computation and verification, Edit UI flows
+- @b Coin @b Application: identifier / account validation, blockchain-specific checks,
+  Register Identity and Register Ledger Account UI, tag-value pairs for Edit Identifier
+
+@section address_book_commands Sub-Commands
+
+The Address Book APDU (@c CLA=0xB0, @c INS=0x10) dispatches on P1:
+
+| P1   | Sub-command             | Struct type | Guard                             |
+|------|-------------------------|-------------|-----------------------------------|
+| 0x01 | Register Identity       | 0x2d        | HAVE_ADDRESS_BOOK                 |
+| 0x02 | Edit Contact Name       | 0x2e        | HAVE_ADDRESS_BOOK                 |
+| 0x03 | Edit Identifier         | 0x31        | HAVE_ADDRESS_BOOK                 |
+| 0x04 | Edit Scope              | 0x32        | HAVE_ADDRESS_BOOK                 |
+| 0x11 | Register Ledger Account | 0x2f        | HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT  |
+| 0x12 | Edit Ledger Account     | 0x30        | HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT  |
+| 0x20 | Provide Contact         | 0x33        | HAVE_ADDRESS_BOOK                 |
+
+@section address_book_flow Command Flows
+
+Sequence diagrams for Register Identity (P1=0x01) and Register Ledger Account (P1=0x11)
+are available in Mermaid format in @c address_book/doc/address_book_spec.md (viewable on GitHub/GitLab).
+
+@section address_book_data_structures Data Structures
+
+@subsection address_book_tlv_tags TLV Tags
+
+| Tag  | Name                  | Description                                              | Max size |
+|------|-----------------------|----------------------------------------------------------|----------|
+| 0x01 | STRUCT_TYPE           | Sub-command type discriminator (0x2d–0x33)               | 1 B      |
+| 0x02 | STRUCT_VERSION        | Always 0x01                                              | 1 B      |
+| 0xf0 | CONTACT_NAME          | Human-readable contact/account name                      | 32 B     |
+| 0xf1 | SCOPE                 | Scope/namespace for the identifier                       | 32 B     |
+| 0xf3 | PREVIOUS_CONTACT_NAME | Previous name (Edit Contact Name only)                   | 32 B     |
+| 0xf2 | ACCOUNT_IDENTIFIER    | Opaque identifier (e.g. 20-byte Ethereum address)        | 80 B     |
+| 0xf4 | PREVIOUS_IDENTIFIER   | Previous identifier (Edit Identifier only)               | 80 B     |
+| 0xf5 | PREVIOUS_SCOPE        | Previous scope (Edit Scope only)                         | 32 B     |
+| 0xf6 | GROUP_HANDLE          | Device-generated token: gid(32) + HMAC-SHA256(K_group, gid)(32) | 64 B |
+| 0x21 | DERIVATION_PATH       | BIP32 path for HMAC key derivation                       | 43 B     |
+| 0x23 | CHAIN_ID              | Chain ID (mandatory for Ethereum family)                 | 8 B      |
+| 0x51 | BLOCKCHAIN_FAMILY     | Blockchain family enum                                   | 1 B      |
+| 0x29 | HMAC_PROOF            | HMAC-SHA256 over gid + contact name                      | 32 B     |
+| 0xf7 | HMAC_REST             | HMAC-SHA256 over gid + scope + identifier + network      | 32 B     |
+
+@subsection address_book_output Response Formats
+
+@code
+// Register Identity (0x2d):  129 bytes
+type(1) | group_handle(64) | hmac_proof(32) | hmac_rest(32)
+
+// Edit Contact Name (0x2e):   33 bytes  — new HMAC_PROOF
+// Edit Identifier  (0x31):   33 bytes  — new HMAC_REST
+// Edit Scope       (0x32):   33 bytes  — new HMAC_REST
+type(1) | hmac(32)
+
+// Register Ledger Account (0x2f):  33 bytes
+// Edit Ledger Account     (0x30):  33 bytes
+type(1) | hmac_proof(32)
+
+// Provide Contact (0x33):  no data
+9000
+@endcode
+
+@section address_book_crypto Cryptographic Design
+
+@subsection address_book_group_handle Group Handle
+
+At registration the device generates a random 32-byte Group ID (@c gid) and authenticates
+it with a separate device key:
+
+@code
+K_group      = SHA256("AddressBook-Group" || BIP32_PRIVKEY.d)
+group_handle = gid(32) || HMAC-SHA256(K_group, gid)(32)
+@endcode
+
+The wallet stores @c group_handle opaquely.  For each Edit operation the wallet re-sends the
+full @c group_handle; the device verifies the MAC in constant time and — only on success —
+extracts @c gid to authenticate the HMAC proofs.
+
+This closes the @b proof @b splicing attack: a wallet that registers two contacts cannot mix
+@c HMAC_PROOF from one with @c HMAC_REST from the other, because neither can fabricate a valid
+@c group_handle for an arbitrary @c gid.
+
+@subsection address_book_kdf Key Derivation
+
+Three independent KDFs prevent cross-feature key reuse:
+
+@code
+// Group handle MAC key
+K_group   = SHA256("AddressBook-Group"         || BIP32_PRIVKEY.d)
+
+// Identity HMAC key (Register Identity + all Identity Edit flows)
+K_identity = SHA256("AddressBook-Identity"      || BIP32_PRIVKEY.d)
+
+// Ledger Account HMAC key
+K_account  = SHA256("AddressBook-LedgerAccount" || BIP32_PRIVKEY.d)
+@endcode
+
+@subsection address_book_hmac HMAC Message Formats
+
+<b>Identity — HMAC_PROOF</b> (covers name only):
+@code
+message = gid(32) | name_len(1) | contact_name
+hmac_proof = HMAC-SHA256(K_identity, message)
+@endcode
+
+<b>Identity — HMAC_REST</b> (covers scope, identifier, and network):
+@code
+message = gid(32) | scope_len(1) | scope | id_len(1) | identifier | family(1) [| chain_id(8)]
+hmac_rest = HMAC-SHA256(K_identity, message)
+@endcode
+
+chain_id is included only when @c BLOCKCHAIN_FAMILY = 1 (Ethereum), encoded as 8 bytes big-endian.
+
+<b>Ledger Account — HMAC_PROOF</b>:
+@code
+message = name_len(1) | account_name | blockchain_family(1) [| chain_id(8)]
+hmac_proof = HMAC-SHA256(K_account, message)
+@endcode
+
+@section address_book_design Key Design Decisions
+
+-# <b>Device-generated gid</b>: The device generates @c gid randomly rather than accepting a
+   wallet-chosen contact ID.  Combined with the authenticated @c group_handle, this prevents
+   proof splicing attacks where a malicious wallet mixes proofs from different contacts.
+-# <b>Two independent Identity HMACs</b>: @c HMAC_PROOF covers only @c gid + name, while
+   @c HMAC_REST covers @c gid + scope + identifier + network.  This allows the wallet to rename
+   a contact without re-presenting the identifier or scope, and vice-versa.
+-# <b>Triple KDF</b>: Separate salts for Group Handle, Identity, and Ledger Account prevent
+   cross-feature key reuse even at the same BIP32 derivation path.
+-# <b>No secrets leave the device</b>: The BIP32 private key, KDF keys, and @c gid are
+   computed on-device.  The host receives only the opaque @c group_handle and HMAC proofs.
+-# <b>App validation</b>: Coin-specific validation logic is delegated to the application via
+   callbacks, maintaining separation of concerns.
+-# <b>User confirmation</b>: A mandatory review screen ensures users explicitly approve each
+   registration before the HMAC proofs are sent.
+
+@section address_book_api API Reference
+
+@subsection address_book_callbacks Application Callbacks
+
+Applications must implement the following callbacks to support Address Book:
+
+<b>Register Identity</b>:
+@code{.c}
+bool handle_check_identity(identity_t *params);
+nbgl_contentTagValue_t *get_register_identity_tagValue(nbgl_contentTagValue_t *pair, uint8_t index);
+void finalize_ui_register_identity(void);
+@endcode
+
+<b>Edit Identifier</b>:
+@code{.c}
+bool handle_check_edit_identifier(edit_identifier_t *params);
+nbgl_contentTagValue_t *get_edit_identifier_tagValue(nbgl_contentTagValue_t *pair, uint8_t index);
+void finalize_ui_edit_identifier(void);
+@endcode
+
+<b>Edit Contact Name / Edit Scope</b> (SDK handles display):
+@code{.c}
+void finalize_ui_edit_contact_name(void);
+void finalize_ui_edit_scope(void);
+@endcode
+
+<b>Register Ledger Account</b> (requires @c HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT):
+@code{.c}
+bool handle_check_ledger_account(ledger_account_t *params);
+void display_register_ledger_account_review(nbgl_choiceCallback_t choice_callback);
+void finalize_ui_register_ledger_account(void);
+void finalize_ui_edit_ledger_account(void);
+@endcode
+
+<b>Provide Contact</b>:
+@code{.c}
+bool handle_provide_contact(const identity_t *contact);
+@endcode
+
+@subsection address_book_functions Core Crypto Functions
+
+Key functions provided by the Address Book module:
+
+- address_book_generate_group_handle(): Generate gid and compute authenticated group_handle
+- address_book_verify_group_handle(): Verify group_handle MAC and extract gid
+- address_book_compute_hmac_name(): Compute HMAC_PROOF over (gid, name)
+- address_book_verify_hmac_name(): Verify HMAC_PROOF (constant-time)
+- address_book_compute_hmac_rest(): Compute HMAC_REST over (gid, scope, identifier, network)
+- address_book_verify_hmac_rest(): Verify HMAC_REST (constant-time)
+- address_book_send_register_identity_response(): Send type(1) | group_handle(64) | hmac_proof(32) | hmac_rest(32)
+- address_book_send_hmac_proof(): Send type(1) | hmac(32) for Edit responses
+
+See the source files for detailed API documentation.
+
+*/
