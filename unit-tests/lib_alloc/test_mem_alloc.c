@@ -165,8 +165,8 @@ static void test_re_alloc(void **state __attribute__((unused)))
      */
     assert_state(ctx, 3, 1);
 
-    // Reallocate with too big size should return NULL and not change state
-    char *chunk7 = mem_realloc(ctx, chunk6, malloc_buffer_size * 2);
+    // Reallocate with an overflowing size should return NULL and not change state
+    char *chunk7 = mem_realloc(ctx, chunk6, (size_t) -1);
     assert_null(chunk7);
     /**
      * Expect 3 chunks:
@@ -312,6 +312,24 @@ static void test_init(void **state __attribute__((unused)))
     malloc_buffer_size = 201;
     ctx                = mem_init(malloc_buffer, malloc_buffer_size);
     assert_null(ctx);
+}
+
+static void test_alloc_oversized_request(void **state __attribute__((unused)))
+{
+    malloc_buffer_size = sizeof(malloc_buffer);
+    mem_ctx_t ctx      = mem_init(malloc_buffer, malloc_buffer_size);
+
+    assert_non_null(ctx);
+
+    // Requests larger than the maximum representable chunk must fail
+    // instead of wrapping into a tiny allocation.
+    assert_null(mem_alloc(ctx, (size_t) -1));
+    assert_state(ctx, 1, 0);
+
+    // The allocator should remain usable after rejecting the request.
+    void *ptr = mem_alloc(ctx, 12);
+    assert_non_null(ptr);
+    assert_state(ctx, 2, 1);
 }
 
 // New tests using app_mem_utils wrapper
@@ -520,6 +538,7 @@ int main(int argc, char **argv)
                                        cmocka_unit_test(test_corrupt_overflow),
                                        cmocka_unit_test(test_fragmentation),
                                        cmocka_unit_test(test_init),
+                                       cmocka_unit_test(test_alloc_oversized_request),
                                        // New app_mem_utils tests
                                        cmocka_unit_test(test_utils_init),
                                        cmocka_unit_test(test_utils_basic_alloc),
