@@ -1,0 +1,300 @@
+/** @page address_book_mainpage Address Book API
+
+@section address_book_intro Introduction
+
+This documentation describes the Address Book feature, which allows secure association
+of human-readable names with cryptographic identifiers or Ledger accounts. The Address
+Book provides:
+
+- Binding a contact name and scope to an external identifier (e.g. an Ethereum address)
+  via the **Register Identity** flow
+- Binding a contact name to a BIP32 derivation path managed by the device via the
+  **Register Ledger Account** flow
+- Renaming existing bindings via the **Rename Identity** and **Rename Ledger Account** flows
+- Cryptographic Proof of Registration: an HMAC returned to the host, allowing it to
+  verify that the user confirmed the registration on the device
+- No plaintext secrets leave the device: the host receives only the HMAC proof
+
+@section address_book_architecture Architecture
+
+The Address Book implementation is split between the SDK and coin applications:
+
+- **SDK Core**: TLV parsing, HMAC key derivation, HMAC computation, UI flow
+- **Coin Application**: Identifier / account validation, blockchain-specific checks,
+  UI tag-value pairs
+
+@section address_book_commands Sub-Commands
+
+The Address Book APDU (CLA=0xB0, INS=0x10) dispatches on P1:
+
+| P1   | Sub-command              | Struct type | Guard                             |
+|------|--------------------------|-------------|-----------------------------------|
+| 0x01 | Register Identity        | 0x11        | HAVE_ADDRESS_BOOK                 |
+| 0x02 | Rename Identity          | 0x12        | HAVE_ADDRESS_BOOK                 |
+| 0x03 | Register Ledger Account  | 0x13        | HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT  |
+| 0x04 | Rename Ledger Account    | 0x14        | HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT  |
+
+@section address_book_flow_register_identity Command Flow: Register Identity (P1=0x01)
+
+@note For a standalone Markdown version of this flow diagram (viewable on GitHub/GitLab), see address_book/doc/flow.md
+
+@mermaid
+sequenceDiagram
+    participant Host as Host (Wallet)
+    participant SDK as SDK (Address Book)
+    participant App as Coin App
+    participant User as User (Device)
+
+    Note over Host,User: 1. Request Phase (Host → Device)
+
+    Host->>SDK: APDU (P1=0x01)<br/>TLV Payload
+    Note right of Host: TLV Structure:<br/>• struct_type (0x11)<br/>• struct_version (0x01)<br/>• contact_name (≤32 B)<br/>• contact_scope (≤32 B)<br/>• identifier (≤80 B)<br/>• derivation_path<br/>• chain_id (Ethereum only)<br/>• blockchain_family
+
+    SDK->>SDK: Parse TLV
+    SDK->>SDK: Verify mandatory fields
+
+    Note over SDK,App: 2. Application Validation
+
+    SDK->>App: handle_check_identity()
+    Note right of App: App-specific logic:<br/>• Verify identifier format<br/>• Check blockchain family<br/>• Validate chain_id
+
+    App-->>SDK: Valid / Invalid
+
+    alt Identity Invalid
+        SDK-->>Host: Error: Wrong Parameter Value
+    end
+
+    Note over User: 3. User Confirmation
+
+    SDK->>User: Display Review Screen<br/>• Contact name<br/>• Contact scope<br/>• Identifier<br/>• Network / Chain ID
+
+    User-->>SDK: Confirm / Reject
+
+    alt User Rejects
+        SDK-->>Host: Error: User Rejected
+    end
+
+    Note over SDK: 4. HMAC Proof Construction
+
+    SDK->>SDK: Derive BIP32 key (SECP256R1)<br/>from derivation_path
+    SDK->>SDK: KDF: SHA256("AddressBook-Identity" || privkey.d)
+    SDK->>SDK: HMAC-SHA256(key,<br/>name_len|name|scope_len|scope|id_len|identifier)
+
+    Note over Host,SDK: 5. Response Phase (Device → Host)
+
+    SDK-->>Host: APDU Response<br/>type(1) | hmac_proof(32)
+
+    Note left of SDK: Response Structure:<br/>• type (0x11) CLEARTEXT<br/>• hmac_proof: 32 bytes
+@endmermaid
+
+@section address_book_flow_register_ledger_account Command Flow: Register Ledger Account (P1=0x03)
+
+@mermaid
+sequenceDiagram
+    participant Host as Host (Wallet)
+    participant SDK as SDK (Address Book)
+    participant App as Coin App
+    participant User as User (Device)
+
+    Note over Host,User: 1. Request Phase (Host → Device)
+
+    Host->>SDK: APDU (P1=0x03)<br/>TLV Payload
+    Note right of Host: TLV Structure:<br/>• struct_type (0x13)<br/>• struct_version (0x01)<br/>• contact_name (≤32 B)<br/>• derivation_path<br/>• chain_id (Ethereum only)<br/>• blockchain_family
+
+    SDK->>SDK: Parse TLV
+    SDK->>SDK: Verify mandatory fields
+
+    Note over SDK,App: 2. Application Validation
+
+    SDK->>App: handle_check_ledger_account()
+    Note right of App: App-specific logic:<br/>• Verify derivation path<br/>• Validate chain_id
+
+    App-->>SDK: Valid / Invalid
+
+    alt Account Invalid
+        SDK-->>Host: Error: Wrong Parameter Value
+    end
+
+    Note over User: 3. User Confirmation
+
+    SDK->>User: Display Review Screen<br/>• Account name<br/>• Derived address<br/>• Network / Chain ID
+
+    User-->>SDK: Confirm / Reject
+
+    alt User Rejects
+        SDK-->>Host: Error: User Rejected
+    end
+
+    Note over SDK: 4. HMAC Proof Construction
+
+    SDK->>SDK: Derive BIP32 key (SECP256R1)<br/>from derivation_path
+    SDK->>SDK: KDF: SHA256("AddressBook-LedgerAccount" || privkey.d)
+    SDK->>SDK: HMAC-SHA256(key,<br/>name_len|name|family(1)|chain_id_be(8))
+
+    Note over Host,SDK: 5. Response Phase (Device → Host)
+
+    SDK-->>Host: APDU Response<br/>type(1) | hmac_proof(32)
+
+    Note left of SDK: Response Structure:<br/>• type (0x13) CLEARTEXT<br/>• hmac_proof: 32 bytes
+@endmermaid
+
+@section address_book_data_structures Data Structures
+
+@subsection address_book_tlv_tags TLV Tags
+
+| Tag  | Name                  | Description                              | Max size |
+|------|-----------------------|------------------------------------------|----------|
+| 0x01 | STRUCT_TYPE           | Sub-command type (0x11–0x14)             | 1 B      |
+| 0x02 | STRUCT_VERSION        | Always 0x01                              | 1 B      |
+| 0x0A | CONTACT_NAME          | Human-readable contact/account name      | 32 B     |
+| 0x0B | CONTACT_SCOPE         | Scope/namespace for the identifier       | 32 B     |
+| 0x0C | PREVIOUS_CONTACT_NAME | Previous name (Rename commands only)     | 32 B     |
+| 0x0F | IDENTIFIER            | Opaque identifier (e.g. Ethereum address)| 80 B     |
+| 0x21 | DERIVATION_PATH       | BIP32 path for HMAC key derivation       | 43 B     |
+| 0x23 | CHAIN_ID              | Chain ID (mandatory for Ethereum family) | 8 B      |
+| 0x26 | HMAC_PROOF            | HMAC proof (Rename commands only)        | 32 B     |
+| 0x51 | BLOCKCHAIN_FAMILY     | Blockchain family enum                   | 1 B      |
+
+@subsection address_book_input_register_identity Register Identity Input (Host → Device)
+
+TLV payload for P1=0x01:
+- <b>struct_type</b>: 0x11
+- <b>struct_version</b>: 0x01
+- <b>contact_name</b>: String (max 32 bytes, printable ASCII)
+- <b>contact_scope</b>: String (max 32 bytes, printable ASCII) — mandatory
+- <b>identifier</b>: Binary (max 80 bytes)
+- <b>derivation_path</b>: BIP32 path for HMAC key derivation
+- <b>chain_id</b>: uint64 — mandatory for FAMILY_ETHEREUM
+- <b>blockchain_family</b>: uint8 (FAMILY_BITCOIN=0, FAMILY_ETHEREUM=1, ...)
+
+@subsection address_book_input_register_ledger_account Register Ledger Account Input (Host → Device)
+
+TLV payload for P1=0x03:
+- <b>struct_type</b>: 0x13
+- <b>struct_version</b>: 0x01
+- <b>contact_name</b>: String (max 32 bytes, printable ASCII)
+- <b>derivation_path</b>: BIP32 path for the account and HMAC key derivation
+- <b>chain_id</b>: uint64 — mandatory for FAMILY_ETHEREUM
+- <b>blockchain_family</b>: uint8
+
+@subsection address_book_output Output (Device → Host)
+
+APDU Response format for all sub-commands:
+@code
+type(1 byte, cleartext) | hmac_proof(32 bytes)
+@endcode
+
+- <b>type</b>: Struct type byte (0x11–0x14), sent in cleartext so the host
+  can identify the response before processing it
+- <b>hmac_proof</b>: 32-byte HMAC-SHA256 Proof of Registration
+
+@section address_book_crypto Cryptographic Design
+
+@subsection address_book_kdf Key Derivation
+
+Two independent KDFs derive separate HMAC keys from the BIP32 private key,
+preventing cross-feature key reuse even when the same derivation path is used:
+
+@code
+// Register Identity / Rename Identity
+HMAC_KEY = SHA256("AddressBook-Identity" || BIP32_PRIVKEY.d)
+
+// Register Ledger Account / Rename Ledger Account
+HMAC_KEY = SHA256("AddressBook-LedgerAccount" || BIP32_PRIVKEY.d)
+@endcode
+
+@subsection address_book_hmac HMAC Proof Construction
+
+<b>Identity (0x11 / 0x12)</b>:
+@code
+message = name_len(1) | contact_name | scope_len(1) | contact_scope | id_len(1) | identifier
+hmac_proof = HMAC-SHA256(HMAC_KEY, message)
+@endcode
+
+<b>Ledger Account (0x13 / 0x14)</b>:
+@code
+message = name_len(1) | account_name | blockchain_family(1) [| chain_id_be(8)]
+hmac_proof = HMAC-SHA256(HMAC_KEY, message)
+@endcode
+
+chain_id is always encoded as 8 bytes big-endian (0 for non-Ethereum families).
+
+@section address_book_design Key Design Decisions
+
+-# <b>Type in Cleartext</b>: The message type (0x11–0x14) is sent unencrypted,
+   allowing the host to identify the sub-command before processing the response
+-# <b>HMAC Proof</b>: The HMAC binds the user confirmation to the specific
+   (name, scope/path, identifier/family, chain_id) tuple; the host can verify
+   the proof using the same KDF
+-# <b>Dual KDF</b>: Separate salts for Identity and Ledger Account prevent
+   cross-feature key reuse even at the same BIP32 derivation path
+-# <b>No secrets leave the device</b>: The BIP32 private key and HMAC key are
+   computed on-device and never transmitted
+-# <b>App Validation</b>: Coin-specific validation logic is delegated to the
+   application via callback, maintaining separation of concerns
+-# <b>User Confirmation</b>: Mandatory review screen ensures users explicitly
+   approve each registration before the HMAC proof is sent
+
+@section address_book_types Supported Types
+
+@subsection address_book_register_identity Register Identity (0x11)
+
+Binds a human-readable (contact_name, contact_scope) pair to an external
+identifier (e.g. an Ethereum address, public key, or any opaque byte string).
+The host stores the HMAC proof and can use it to authenticate future operations
+referencing the same contact.
+
+Fields:
+- Contact name (label for the contact)
+- Contact scope (namespace, e.g. "Ethereum", application name)
+- Identifier (opaque bytes, e.g. 20-byte Ethereum address)
+- Derivation path (BIP32 path used to derive the HMAC key)
+- Chain ID (Ethereum family only)
+- Blockchain family
+
+@subsection address_book_register_ledger_account Register Ledger Account (0x13)
+
+Binds a human-readable account name to a BIP32 derivation path managed by the
+device's seed. The host can use this to name accounts across devices or
+synchronize contact names for Ledger-managed addresses.
+
+Fields:
+- Account name (label for this derivation path)
+- Derivation path (BIP32 path for both the account and HMAC key derivation)
+- Chain ID (Ethereum family only)
+- Blockchain family
+
+@section address_book_api API Reference
+
+@subsection address_book_callbacks Application Callbacks
+
+Applications must implement the following callbacks to support Address Book.
+
+<b>Register Identity</b>:
+@code{.c}
+bool handle_check_identity(identity_t *params);
+void finalize_ui_register_identity(void);
+nbgl_contentTagValue_t *get_register_identity_tagValue(uint8_t pairIndex);
+@endcode
+
+<b>Register Ledger Account</b> (requires HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT):
+@code{.c}
+bool handle_check_ledger_account(ledger_account_t *params);
+nbgl_contentTagValue_t *get_register_ledger_account_tagValue(uint8_t pairIndex);
+const nbgl_icon_details_t *get_ledger_account_icon(void);
+void finalize_ui_register_ledger_account(void);
+@endcode
+
+@subsection address_book_functions Core Functions
+
+Key functions provided by the Address Book module:
+
+- address_book_compute_hmac_proof(): Compute HMAC proof for Identity
+- address_book_verify_hmac_proof(): Verify HMAC proof for Identity (Rename flow)
+- address_book_compute_hmac_proof_ledger_account(): Compute HMAC proof for Ledger Account
+- address_book_verify_hmac_proof_ledger_account(): Verify HMAC proof for Ledger Account
+- address_book_send_hmac_proof(): Serialize and send type(1) | hmac(32) response
+
+See the source files for detailed API documentation.
+
+*/
