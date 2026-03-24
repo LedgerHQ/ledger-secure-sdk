@@ -102,52 +102,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span> </div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="preprocessor">#pragma once</span></div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span> </div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#include &quot;<a class="code" href="nbgl__types_8h.html">nbgl_types.h</a>&quot;</span></div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#if defined(HAVE_LANGUAGE_PACK)</span></div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="comment">// Structure used for language packs:</span></div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="keyword">typedef</span> <span class="keyword">struct </span>language_pack {</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    uint32_t target_id;             <span class="comment">// 0x33000004:NanoX, 0x31100004:NanoS 1.5.x etc</span></div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    uint16_t language;              <span class="comment">// Language contained in this pack (&lt;NB_LANG)</span></div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    uint16_t nb_strings;            <span class="comment">// MUST be the same than NB_BOLOS_UX_LOC_STRINGS</span></div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    uint16_t nb_fonts;              <span class="comment">// Number of fonts</span></div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    uint16_t nb_characters;         <span class="comment">// Number of unicode characters in each font</span></div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    uint16_t characters_offset;     <span class="comment">// Offset to the characters x nb_fonts</span></div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    uint16_t fonts_offset;          <span class="comment">// Offset to the nbgl_font_unicode_t structures</span></div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    uint16_t bitmaps_offset;        <span class="comment">// Offset to the bitmaps x nb_fonts</span></div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    uint16_t bolos_version_offset;  <span class="comment">// Offset to the Bolos version number string</span></div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    uint16_t pack_version_offset;   <span class="comment">// Offset to the Language Pack version number string</span></div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    uint16_t unused;                <span class="comment">// for alignment</span></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    uint32_t offsets[];             <span class="comment">// Offsets from the BEGINNING of the language pack</span></div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>} <a class="code hl_define" href="nbgl__fonts_8h.html#abfcf96b04860f96ac36bdf7dad14fc28">LANGUAGE_PACK</a>;</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="comment">// A language pack is a binary file containing:</span></div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="comment">/*</span></div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="comment">- the language pack header, including infos about used fonts &amp; glyphs</span></div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="comment">- offsets for each string (2 x nb_strings), from the beginning of the pack!</span></div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="comment">- 2 bytes padding if nb_strings is odd</span></div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="comment">- nbgl_font_unicode_character_t x nb_characters x 4 fonts</span></div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="comment">- nbgl_font_unicode_t x 4 fonts</span></div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="comment">- bitmap data for font 1</span></div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="comment">- bitmap data for font 2</span></div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span><span class="comment">- bitmap data for font 3</span></div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="comment">- bitmap data for font 4</span></div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="comment">- a NULL terminated string containing Bolos version number</span></div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="comment">- a NULL terminated string containing Language Pack version number</span></div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="comment">- all strings, concatenated.</span></div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span><span class="comment"></span> </div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><span class="comment">NB:</span></div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span><span class="comment">- there are 197 countries in the world, so 1 byte might be enough to store language information,</span></div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span><span class="comment">unless we plan to integrate dialects (&gt;7000) =&gt; use a u_int16_t;</span></div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span><span class="comment">- we may store some CRC, to check language pack&#39;s integrity.</span></div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span><span class="comment">*/</span></div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span> <a class="code hl_typedef" href="ux__loc__layouts_8h.html#a7be188a35c0288d9524c2eabaffae10d">UX_LOC_STRINGS_INDEX</a>;</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span><span class="preprocessor">#endif  </span><span class="comment">// defined(HAVE_LANGUAGE_PACK)</span></div>
-<div class="ttc" id="anbgl__fonts_8h_html_abfcf96b04860f96ac36bdf7dad14fc28"><div class="ttname"><a href="nbgl__fonts_8h.html#abfcf96b04860f96ac36bdf7dad14fc28">LANGUAGE_PACK</a></div><div class="ttdeci">#define LANGUAGE_PACK</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8h_source.html#l00029">nbgl_fonts.h:29</a></div></div>
-<div class="ttc" id="anbgl__types_8h_html"><div class="ttname"><a href="nbgl__types_8h.html">nbgl_types.h</a></div><div class="ttdoc">common types for Graphical Library</div></div>
-<div class="ttc" id="aux__loc__layouts_8h_html_a7be188a35c0288d9524c2eabaffae10d"><div class="ttname"><a href="ux__loc__layouts_8h.html#a7be188a35c0288d9524c2eabaffae10d">UX_LOC_STRINGS_INDEX</a></div><div class="ttdeci">BOLOS_UX_LOC_STRINGS UX_LOC_STRINGS_INDEX</div><div class="ttdef"><b>Definition</b> <a href="ux__loc__layouts_8h_source.html#l00025">ux_loc_layouts.h:25</a></div></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#include &quot;ux_loc.h&quot;</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
