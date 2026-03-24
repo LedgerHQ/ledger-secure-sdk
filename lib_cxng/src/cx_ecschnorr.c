@@ -121,7 +121,8 @@ cx_err_t cx_ecschnorr_sign_no_throw(const cx_ecfp_private_key_t *pv_key,
         CX_CHECK(cx_hash_no_throw((cx_hash_t *) &H, 0, sig, size, NULL, 0));
         CX_CHECK(cx_ecpoint_export(&Q, P, size, NULL, 0));
         CX_CHECK(cx_hash_no_throw((cx_hash_t *) &H, 0, P, size, NULL, 0));
-        CX_CHECK(cx_hash_no_throw((cx_hash_t *) &H, CX_LAST | CX_NO_REINIT, msg, msg_len, sig, size));
+        CX_CHECK(
+            cx_hash_no_throw((cx_hash_t *) &H, CX_LAST | CX_NO_REINIT, msg, msg_len, sig, size));
     }
 
     // generate random
