@@ -378,6 +378,9 @@ cx_err_t cx_pkcs1_emsa_pss_encode_with_salt_len(cx_md_t        hID,
     }
     mDBlen = emLen - (1 + hLen);
 
+    if (mSaltLen > sizeof(salt)) {
+        return CX_INVALID_PARAMETER;
+    }
     if ((hLen + mSaltLen + 2) >= emLen) {
         return CX_INVALID_PARAMETER;
     }
