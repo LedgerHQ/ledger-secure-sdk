@@ -510,6 +510,10 @@ cx_err_t cx_rsa_decrypt_no_throw(const cx_rsa_private_key_t *key,
     switch (mode & CX_MASK_PAD) {
         case CX_PAD_PKCS1_1o5:
             *dec_len = cx_pkcs1_eme_v1o5_decode(hashID, dec, key->size, dec, *dec_len);
+            if (*dec_len == (size_t) -1) {
+                error = CX_INVALID_PARAMETER;
+                goto end;
+            }
             break;
         case CX_PAD_PKCS1_OAEP:
             CX_CHECK(cx_pkcs1_eme_oaep_decode(hashID, dec, key->size, dec, dec_len));
