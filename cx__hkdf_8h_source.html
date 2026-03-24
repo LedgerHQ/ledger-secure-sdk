@@ -87,7 +87,23 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span> </div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &quot;<a class="code" href="lcx__hash_8h.html">lcx_hash.h</a>&quot;</span></div>
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span> </div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#endif  </span><span class="comment">// CX_HKDF_H</span></div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno"><a class="line" href="cx__hkdf_8h.html#a2b403db82ba0776048c5ba772c75ebe4">    6</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="cx__hkdf_8h.html#a2b403db82ba0776048c5ba772c75ebe4">cx_hkdf_extract</a>(<span class="keyword">const</span> cx_md_t        hash_id,</div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span>                     <span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> *ikm,</div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span>                     <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>         ikm_len,</div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span>                     <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span>       *salt,</div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span>                     <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>         salt_len,</div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>                     <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span>       *prk);</div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno"><a class="line" href="cx__hkdf_8h.html#a866ee66443e92b888941aaabed36dee9">   12</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="cx__hkdf_8h.html#a866ee66443e92b888941aaabed36dee9">cx_hkdf_expand</a>(<span class="keyword">const</span> cx_md_t        hash_id,</div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>                    <span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> *prk,</div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>                    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>         prk_len,</div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>                    <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span>       *info,</div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>                    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>         info_len,</div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>                    <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span>       *okm,</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>                    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>         okm_len);</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#endif  </span><span class="comment">// CX_HKDF_H</span></div>
+<div class="ttc" id="acx__hkdf_8h_html_a2b403db82ba0776048c5ba772c75ebe4"><div class="ttname"><a href="cx__hkdf_8h.html#a2b403db82ba0776048c5ba772c75ebe4">cx_hkdf_extract</a></div><div class="ttdeci">void cx_hkdf_extract(const cx_md_t hash_id, const unsigned char *ikm, unsigned int ikm_len, unsigned char *salt, unsigned int salt_len, unsigned char *prk)</div></div>
+<div class="ttc" id="acx__hkdf_8h_html_a866ee66443e92b888941aaabed36dee9"><div class="ttname"><a href="cx__hkdf_8h.html#a866ee66443e92b888941aaabed36dee9">cx_hkdf_expand</a></div><div class="ttdeci">void cx_hkdf_expand(const cx_md_t hash_id, const unsigned char *prk, unsigned int prk_len, unsigned char *info, unsigned int info_len, unsigned char *okm, unsigned int okm_len)</div></div>
 <div class="ttc" id="alcx__hash_8h_html"><div class="ttname"><a href="lcx__hash_8h.html">lcx_hash.h</a></div><div class="ttdoc">Hash functions.</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
