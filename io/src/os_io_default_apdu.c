@@ -154,8 +154,7 @@ static bolos_err_t get_stack_consumption(uint8_t  mode,
                 // We initialize the stack up from lowest address to the current location of the
                 // stack pointer, except the canary. We do not call the dedicated function for this,
                 // otherwise it might smash its own portion of stack.
-                for (st = (unsigned char *) (stack_lowest;
-                     st < (unsigned char *) stack_current;
+                for (st = (unsigned char *) stack_lowest; st < (unsigned char *) stack_current;
                      st++) {
                     *st = OS_STACK_INIT_VALUE;
                 }
@@ -164,8 +163,7 @@ static bolos_err_t get_stack_consumption(uint8_t  mode,
 
             case MODE_RETRIEVAL:
                 // The goal is to output the length of the used stack since the last initialization.
-                for (st = (unsigned char *) (stack_lowest;
-                     st < (unsigned char *) stack_current;
+                for (st = (unsigned char *) stack_lowest; st < (unsigned char *) stack_current;
                      st++) {
                     if (*st != OS_STACK_INIT_VALUE) {
                         break;
