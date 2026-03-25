@@ -266,9 +266,9 @@ APP_FLAGS_APP_LOAD_PARAMS = $(shell printf '0x%x' $$(( $(STANDARD_APP_FLAGS) + $
 #####################################################################
 #                         COMPILER SETTINGS                         #
 #####################################################################
-CC       = $(CLANGPATH)clang
-AS       = $(CLANGPATH)clang
-LD       = $(CLANGPATH)clang
+CC       = $(CLANGPATH)clang-19
+AS       = $(CLANGPATH)clang-19
+LD       = $(CLANGPATH)clang-19
 LDLIBS  += -lclang_rt.builtins
 
 AFLAGS  += --target=arm-none-eabi
