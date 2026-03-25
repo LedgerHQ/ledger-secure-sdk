@@ -62,7 +62,7 @@ cd fuzzing # You must run it from the fuzzing folder
 | `--fuzzer`             | `PATH`              | **Required**. Path to the fuzzer binary                                       |
 | `--compute-coverage`   | `bool`              | **Optional**. Whether to compute coverage after fuzzing (default: 0)          |
 | `--run-fuzzer`         | `bool`              | **Optional**. Whether to run or not the fuzzer (default: 0)                   |
-| `--run-crash`          | `FILENAME`          | **Optional**. Run the fuzzer on a specific crash input file                   |
+| `--run-crash`          | `FILENAME`          | **Optional**. Run the fuzzer on a specific crash input file (default: 0)      |
 | `--sanitizer`          | `address or memory` | **Optional**. Compile fuzzer with sanitizer (default: address)                |
 | `--j`                  | `int`               | **Optional**. Number of parallel jobs/CPUs for build and fuzzing (default: 1) |
 | `--help`               |                     | **Optional**. Display help message                                            |
@@ -128,7 +128,7 @@ target_link_libraries(fuzz_my_tlv PUBLIC secure_sdk)
 ```
 
 3. If your use case calls `check_signature_with_pki`, also compile
-   `fuzz_tlv_common_mocks.c` to bypass PKI verification during fuzzing.
+   `fuzzing/mock/mock_check_signature_with_pki.c` to bypass PKI verification during fuzzing.
 
 See `fuzzer_tlv_trusted_name.c` and `lib_tlv_trusted_name.cmake` as complete examples.
 

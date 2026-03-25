@@ -2,4 +2,7 @@
 PRINTF(...)=
 # Breaks pic mock function
 USE_OS_IO_STACK
+# Host fuzzing does not build the ARM assembly SHA-512 alternate path.
+HAVE_SHA512_WITH_BLOCK_ALT_METHOD
+HAVE_SHA512_WITH_BLOCK_ALT_METHOD_M0
 NDEBUG

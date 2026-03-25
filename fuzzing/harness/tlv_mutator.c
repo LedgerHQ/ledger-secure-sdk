@@ -1,11 +1,22 @@
 #include "tlv_mutator.h"
-#include <string.h>
 #include <stdbool.h>
+#include <string.h>
 
 extern size_t LLVMFuzzerMutate(uint8_t *Data, size_t Size, size_t MaxSize);
 
 tlv_fuzz_config_t current_tlv_fuzz_config = {0};
-static bool       is_recursing            = false;
+
+// Pick a valid value length for one grammar tag.
+static size_t pick_tag_length(const tlv_tag_info_t *t, unsigned int Seed)
+{
+    size_t range = 1;
+
+    if (t->max_len >= t->min_len) {
+        range = (size_t) t->max_len - (size_t) t->min_len + 1u;
+    }
+
+    return (size_t) t->min_len + ((size_t) Seed % range);
+}
 
 // Pick a random TLV entry in the buffer. Returns false if none found.
 static bool pick_entry(const uint8_t *Data,
@@ -49,15 +60,14 @@ static size_t build_complete(uint8_t *Data, size_t MaxSize, unsigned int Seed)
     size_t pos = 0;
     for (size_t i = 0; i < current_tlv_fuzz_config.num_tags; i++) {
         const tlv_tag_info_t *t   = &current_tlv_fuzz_config.tags_info[i];
-        uint8_t               rng = (t->max_len >= t->min_len) ? (t->max_len - t->min_len + 1) : 1;
-        uint8_t               len = t->min_len + (Seed % rng);
+        size_t                len = pick_tag_length(t, Seed);
 
         if (pos + 2 + len > MaxSize) {
             break;
         }
         Data[pos]     = t->tag;
-        Data[pos + 1] = len;
-        for (uint8_t j = 0; j < len; j++) {
+        Data[pos + 1] = (uint8_t) len;
+        for (size_t j = 0; j < len; j++) {
             Data[pos + 2 + j] = (uint8_t) (Seed >> ((j + i) % 24));
         }
         pos += 2 + len;
@@ -71,15 +81,14 @@ static size_t append_tag(uint8_t *Data, size_t Size, size_t MaxSize, unsigned in
 {
     const tlv_tag_info_t *t
         = &current_tlv_fuzz_config.tags_info[Seed % current_tlv_fuzz_config.num_tags];
-    uint8_t rng = (t->max_len >= t->min_len) ? (t->max_len - t->min_len + 1) : 1;
-    uint8_t len = t->min_len + ((Seed >> 8) % rng);
+    size_t len = pick_tag_length(t, Seed >> 8);
 
     if (Size + 2 + len > MaxSize) {
         return Size;
     }
     Data[Size]     = t->tag;
-    Data[Size + 1] = len;
-    for (uint8_t i = 0; i < len; i++) {
+    Data[Size + 1] = (uint8_t) len;
+    for (size_t i = 0; i < len; i++) {
         Data[Size + 2 + i] = (uint8_t) (Seed >> (i % 8));
     }
     return Size + 2 + len;
@@ -103,7 +112,7 @@ static size_t duplicate_entry(uint8_t *Data, size_t Size, size_t MaxSize, unsign
     if (!pick_entry(Data, Size, Seed, &off, &len) || Size + len > MaxSize) {
         return Size;
     }
-    memcpy(&Data[Size], &Data[off], len);
+    memmove(&Data[Size], &Data[off], len);
     return Size + len;
 }
 
@@ -128,20 +137,9 @@ static size_t truncate_buf(size_t Size, unsigned int Seed)
 
 size_t LLVMFuzzerCustomMutator(uint8_t *Data, size_t Size, size_t MaxSize, unsigned int Seed)
 {
-    // Guard against recursion from LLVMFuzzerMutate
-    if (is_recursing) {
-        if (Size > 0) {
-            Data[Seed % Size] ^= (Seed >> 8) & 0xFF;
-        }
-        return Size;
-    }
-
     // Fallback to default mutator if no grammar is set
     if (current_tlv_fuzz_config.num_tags == 0) {
-        is_recursing = true;
-        Size         = LLVMFuzzerMutate(Data, Size, MaxSize);
-        is_recursing = false;
-        return Size;
+        return LLVMFuzzerMutate(Data, Size, MaxSize);
     }
 
     unsigned int roll = Seed % 100;
@@ -162,10 +160,7 @@ size_t LLVMFuzzerCustomMutator(uint8_t *Data, size_t Size, size_t MaxSize, unsig
 
     // 50% error-inducing (let the default mutator hit parser error paths)
     if (roll < 80) {
-        is_recursing = true;
-        Size         = LLVMFuzzerMutate(Data, Size, MaxSize);
-        is_recursing = false;
-        return Size;
+        return LLVMFuzzerMutate(Data, Size, MaxSize);
     }
     if (roll < 90) {
         return corrupt_length(Data, Size, Seed);

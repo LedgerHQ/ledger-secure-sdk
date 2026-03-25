@@ -1,9 +1,10 @@
 /**
- * Shared mocks for TLV fuzzers.
+ * Shared mock for fuzzing: `check_signature_with_pki` always succeeds.
  *
- * Overrides the weak mock of check_signature_with_pki to always return success.
- * This allows fuzzers to reach all code paths past signature verification,
- * which is the interesting attack surface for TLV parsing bugs.
+ * Link this translation unit into a fuzz target (alongside the real PKI library)
+ * to reach code paths past signature verification — the interesting surface for
+ * many TLV and parsing fuzzers. Also useful for any other harness that calls PKI
+ * verification without a real certificate chain.
  */
 
 #include "ledger_pki.h"
