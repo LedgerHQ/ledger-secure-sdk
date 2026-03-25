@@ -27,6 +27,8 @@
 #define ALLOC_CHUNK_HEADER_SIZE 4
 // sizeof of header for a free chunk
 #define FREE_CHUNK_HEADER_SIZE  8
+// maximum block size storable in the 15-bit header size field
+#define MAX_BLOCK_SIZE          0x7FFF
 // size of heap header
 #define HEAP_HEADER_SIZE \
     ((sizeof(heap_t) + PAYLOAD_DATA_ALIGNEMENT - 1) & ~(PAYLOAD_DATA_ALIGNEMENT - 1))
@@ -372,6 +374,13 @@ void *mem_alloc(mem_ctx_t ctx, size_t nb_bytes)
         return NULL;
     }
 
+    // Reject sizes that would overflow the unsigned arithmetic below
+    // or exceed the maximum chunk size storable in the header.
+    if (nb_bytes > MAX_BLOCK_SIZE
+                       - (PAYLOAD_ALIGNEMENT - 1 + ALLOC_CHUNK_HEADER_SIZE + PAYLOAD_ALIGNEMENT)) {
+        return NULL;
+    }
+
     // Adjust size to include header and satisfy alignment requirements, etc.
     nb_bytes = align_alloc_size(nb_bytes);
 
@@ -462,6 +471,14 @@ void *mem_realloc(mem_ctx_t ctx, void *ptr, size_t size)
     // Free the original block if new size is zero
     if (size == 0) {
         mem_free(ctx, ptr);
+        return NULL;
+    }
+
+    // Reject sizes that would overflow the unsigned arithmetic in
+    // align_alloc_size (which adds up to PAYLOAD_ALIGNEMENT - 1 +
+    // ALLOC_CHUNK_HEADER_SIZE + PAYLOAD_ALIGNEMENT bytes of overhead).
+    if (size > MAX_BLOCK_SIZE
+                   - (PAYLOAD_ALIGNEMENT - 1 + ALLOC_CHUNK_HEADER_SIZE + PAYLOAD_ALIGNEMENT)) {
         return NULL;
     }
 
