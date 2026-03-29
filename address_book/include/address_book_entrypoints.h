@@ -89,3 +89,71 @@ const nbgl_icon_details_t *get_ledger_account_icon(void);
  * @brief Handle called to finalize the UI flow for registering a Ledger Account.
  */
 void finalize_ui_ledger_account(void);
+
+#ifdef HAVE_ADDRESS_BOOK_CONTACTS
+#include "contact.h"
+#include "verify_address.h"
+
+/*************** Exported functions prototypes: Register Contact (V2) *********/
+
+/**
+ * @brief Handle called to validate the identity public key of a Contact.
+ *
+ * The coin app may reject an identity key that is structurally invalid for
+ * the chain (e.g. not on the expected curve), or accept any well-formed key.
+ * The default implementation should return true for any valid compressed
+ * secp256r1 point.
+ *
+ * @param[in] params Parsed contact data (name + identity_pubkey + bip32_path)
+ * @return true if the identity key is acceptable, false to reject
+ */
+bool handle_check_contact(contact_t *params);
+
+/**
+ * @brief Handle called to finalize the UI flow for registering a Contact.
+ */
+void finalize_ui_register_contact(void);
+
+/**
+ * @brief Callback to retrieve a tag-value pair for the Register Contact UI.
+ *
+ * Expected pairs: 0 = contact name, 1 = identity public key (hex).
+ *
+ * @param[in] pairIndex The index of the tag-value pair to retrieve.
+ * @return Pointer to the tag-value pair structure, or NULL if index is invalid.
+ */
+nbgl_contentTagValue_t *get_register_contact_tagValue(uint8_t pairIndex);
+
+/*************** Exported functions prototypes: Verify Signed Address (V2) ****/
+
+/**
+ * @brief Handle called to validate a signed address for a known Contact.
+ *
+ * Called after the device has verified both:
+ *   - the HMAC Proof of Registration (contact was registered on this device)
+ *   - the ECDSA signature of the address by the contact's identity key
+ *
+ * The coin app should at minimum validate the address format for the chain.
+ * It may also perform additional chain-specific checks (e.g. checksum).
+ *
+ * @param[in] params Parsed verify-address data
+ * @return true if the address is acceptable, false to reject
+ */
+bool handle_check_verified_address(verify_address_t *params);
+
+/**
+ * @brief Handle called to finalize the UI flow for verifying a signed address.
+ */
+void finalize_ui_verify_address(void);
+
+/**
+ * @brief Callback to retrieve a tag-value pair for the Verify Address UI.
+ *
+ * Expected pairs: 0 = contact name, 1 = address.
+ *
+ * @param[in] pairIndex The index of the tag-value pair to retrieve.
+ * @return Pointer to the tag-value pair structure, or NULL if index is invalid.
+ */
+nbgl_contentTagValue_t *get_verify_address_tagValue(uint8_t pairIndex);
+
+#endif  // HAVE_ADDRESS_BOOK_CONTACTS

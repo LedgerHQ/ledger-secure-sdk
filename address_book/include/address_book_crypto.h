@@ -48,4 +48,54 @@ bool address_book_decrypt(const buffer_t     *buffer,
                           const path_bip32_t *bip32_path,
                           char               *output_name);
 
+#ifdef HAVE_ADDRESS_BOOK_CONTACTS
+
+/**
+ * @brief Compute an HMAC-SHA256 Proof of Registration for a Contact.
+ *
+ * The HMAC key is derived as SHA256("AddressBook-HMAC-Key" || privkey.d)
+ * where privkey is the secp256r1 key at bip32_path.
+ *
+ * The message is: name_len(1) | name | identity_pubkey(33)
+ *
+ * @param[in]  bip32_path      BIP32 path used at registration
+ * @param[in]  name            Contact name (null-terminated)
+ * @param[in]  identity_pubkey Compressed secp256r1 identity public key (33 bytes)
+ * @param[out] hmac_out        Output buffer for the 32-byte HMAC proof
+ * @return true if successful, false otherwise
+ */
+bool address_book_compute_hmac_proof(const path_bip32_t *bip32_path,
+                                     const char         *name,
+                                     const uint8_t       identity_pubkey[33],
+                                     uint8_t             hmac_out[32]);
+
+/**
+ * @brief Verify an HMAC Proof of Registration for a Contact.
+ *
+ * Re-derives and compares the HMAC. Constant-time comparison is used.
+ *
+ * @param[in] bip32_path      BIP32 path used at registration
+ * @param[in] name            Contact name (null-terminated)
+ * @param[in] identity_pubkey Compressed secp256r1 identity public key (33 bytes)
+ * @param[in] hmac_expected   32-byte HMAC proof to verify against
+ * @return true if the proof is valid, false otherwise
+ */
+bool address_book_verify_hmac_proof(const path_bip32_t *bip32_path,
+                                    const char         *name,
+                                    const uint8_t       identity_pubkey[33],
+                                    const uint8_t       hmac_expected[32]);
+
+/**
+ * @brief Send an HMAC Proof of Registration response to the host.
+ *
+ * Response format: type(1) | hmac(32)
+ *
+ * @param[in] type      Message type (TYPE_REGISTER_CONTACT)
+ * @param[in] hmac_proof 32-byte HMAC proof
+ * @return true if sent successfully, false otherwise
+ */
+bool address_book_send_hmac_proof(uint8_t type, const uint8_t hmac_proof[32]);
+
+#endif  // HAVE_ADDRESS_BOOK_CONTACTS
+
 #endif  // HAVE_ADDRESS_BOOK

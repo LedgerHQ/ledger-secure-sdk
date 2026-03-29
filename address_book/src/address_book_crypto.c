@@ -467,4 +467,137 @@ end:
     return success;
 }
 
+#ifdef HAVE_ADDRESS_BOOK_CONTACTS
+
+#include "lcx_hmac.h"
+#include "contact.h"
+
+/* Constants -----------------------------------------------------------------*/
+#define HMAC_PROOF_LENGTH 32
+
+/**
+ * @brief Derive HMAC-SHA256 key from secp256r1 private key
+ *
+ * Simple KDF: SHA256("AddressBook-HMAC-Key" || privkey.d)
+ * Uses a distinct salt from the AES key to prevent key reuse.
+ */
+static bool address_book_derive_hmac_key(const cx_ecfp_256_private_key_t *privkey,
+                                         uint8_t                          hmac_key[CX_SHA256_SIZE])
+{
+    cx_sha256_t   hash_ctx             = {0};
+    uint8_t       hash[CX_SHA256_SIZE] = {0};
+    const uint8_t salt[]               = "AddressBook-HMAC-Key";
+    cx_err_t      error                = CX_INTERNAL_ERROR;
+    bool          success              = false;
+
+    cx_sha256_init(&hash_ctx);
+    CX_CHECK(cx_hash_no_throw((cx_hash_t *) &hash_ctx, 0, salt, sizeof(salt) - 1, NULL, 0));
+    CX_CHECK(cx_hash_no_throw(
+        (cx_hash_t *) &hash_ctx, CX_LAST, privkey->d, privkey->d_len, hash, sizeof(hash)));
+    memmove(hmac_key, hash, CX_SHA256_SIZE);
+    success = true;
+
+end:
+    explicit_bzero(hash, sizeof(hash));
+    return success;
+}
+
+/**
+ * @brief Compute HMAC-SHA256 over: name_len(1) | name | identity_pubkey(33)
+ */
+static bool compute_hmac(const uint8_t hmac_key[CX_SHA256_SIZE],
+                         const char   *name,
+                         const uint8_t identity_pubkey[IDENTITY_PUBKEY_LENGTH],
+                         uint8_t       hmac_out[HMAC_PROOF_LENGTH])
+{
+    cx_hmac_sha256_t hmac_ctx = {0};
+    cx_err_t         error    = CX_INTERNAL_ERROR;
+    bool             success  = false;
+    uint8_t          name_len = (uint8_t) strlen(name);
+
+    CX_CHECK(cx_hmac_sha256_init_no_throw(&hmac_ctx, hmac_key, CX_SHA256_SIZE));
+    CX_CHECK(cx_hmac_no_throw((cx_hmac_t *) &hmac_ctx, 0, &name_len, 1, NULL, 0));
+    CX_CHECK(
+        cx_hmac_no_throw((cx_hmac_t *) &hmac_ctx, 0, (const uint8_t *) name, name_len, NULL, 0));
+    CX_CHECK(cx_hmac_no_throw((cx_hmac_t *) &hmac_ctx,
+                              CX_LAST,
+                              identity_pubkey,
+                              IDENTITY_PUBKEY_LENGTH,
+                              hmac_out,
+                              HMAC_PROOF_LENGTH));
+    success = true;
+
+end:
+    return success;
+}
+
+bool address_book_compute_hmac_proof(const path_bip32_t *bip32_path,
+                                     const char         *name,
+                                     const uint8_t       identity_pubkey[IDENTITY_PUBKEY_LENGTH],
+                                     uint8_t             hmac_out[HMAC_PROOF_LENGTH])
+{
+    cx_ecfp_256_private_key_t private_key              = {0};
+    uint8_t                   hmac_key[CX_SHA256_SIZE] = {0};
+    cx_err_t                  error                    = CX_INTERNAL_ERROR;
+    bool                      success                  = false;
+
+    CX_CHECK(bip32_derive_init_privkey_256(
+        CX_CURVE_SECP256R1, bip32_path->path, bip32_path->length, &private_key, NULL));
+
+    if (!address_book_derive_hmac_key(&private_key, hmac_key)) {
+        goto end;
+    }
+    if (!compute_hmac(hmac_key, name, identity_pubkey, hmac_out)) {
+        goto end;
+    }
+    success = true;
+
+end:
+    explicit_bzero(&private_key, sizeof(private_key));
+    explicit_bzero(hmac_key, sizeof(hmac_key));
+    return success;
+}
+
+bool address_book_verify_hmac_proof(const path_bip32_t *bip32_path,
+                                    const char         *name,
+                                    const uint8_t       identity_pubkey[IDENTITY_PUBKEY_LENGTH],
+                                    const uint8_t       hmac_expected[HMAC_PROOF_LENGTH])
+{
+    uint8_t hmac_computed[HMAC_PROOF_LENGTH] = {0};
+    bool    success                          = false;
+
+    if (!address_book_compute_hmac_proof(bip32_path, name, identity_pubkey, hmac_computed)) {
+        goto end;
+    }
+    // Constant-time comparison to avoid timing attacks
+    uint8_t diff = 0;
+    for (size_t i = 0; i < HMAC_PROOF_LENGTH; i++) {
+        diff |= hmac_computed[i] ^ hmac_expected[i];
+    }
+    if (diff != 0) {
+        PRINTF("HMAC proof mismatch\n");
+        goto end;
+    }
+    success = true;
+
+end:
+    explicit_bzero(hmac_computed, sizeof(hmac_computed));
+    return success;
+}
+
+bool address_book_send_hmac_proof(uint8_t type, const uint8_t hmac_proof[HMAC_PROOF_LENGTH])
+{
+    size_t tx = 0;
+
+    // Response format: type(1) | hmac(32)
+    G_io_tx_buffer[tx++] = type;
+    memmove(&G_io_tx_buffer[tx], hmac_proof, HMAC_PROOF_LENGTH);
+    tx += HMAC_PROOF_LENGTH;
+
+    io_send_response_pointer(G_io_tx_buffer, tx, SWO_SUCCESS);
+    return true;
+}
+
+#endif  // HAVE_ADDRESS_BOOK_CONTACTS
+
 #endif  // HAVE_ADDRESS_BOOK

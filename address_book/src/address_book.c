@@ -20,6 +20,10 @@
 #include "status_words.h"
 #include "external_address.h"
 #include "ledger_account.h"
+#ifdef HAVE_ADDRESS_BOOK_CONTACTS
+#include "contact.h"
+#include "verify_address.h"
+#endif
 
 #if defined(HAVE_ADDRESS_BOOK)
 
@@ -28,11 +32,16 @@
 /* Private types, structures, unions -----------------------------------------*/
 
 /* Private defines------------------------------------------------------------*/
+// V1 - address-centric (initial spec)
 #define P1_ADD_EXTERNAL_ADDRESS    0x00
 #define P1_EDIT_EXTERNAL_ADDRESS   0x01
 #define P1_EDIT_CONTACT            0x02
 #define P1_REGISTER_LEDGER_ACCOUNT 0x03
 #define P1_RENAME_LEDGER_ACCOUNT   0x04
+
+// V2 - identity-key-centric ("Contacts" proposal, requires HAVE_ADDRESS_BOOK_CONTACTS)
+#define P1_REGISTER_CONTACT      0x05
+#define P1_VERIFY_SIGNED_ADDRESS 0x06
 
 /* Private macros-------------------------------------------------------------*/
 
@@ -67,6 +76,16 @@ bolos_err_t addr_book_handle_apdu(uint8_t *buffer, size_t buffer_len, uint8_t p1
 
         case P1_RENAME_LEDGER_ACCOUNT:
             break;
+
+#ifdef HAVE_ADDRESS_BOOK_CONTACTS
+        case P1_REGISTER_CONTACT:
+            err = register_contact(buffer, buffer_len);
+            break;
+
+        case P1_VERIFY_SIGNED_ADDRESS:
+            err = verify_signed_address(buffer, buffer_len);
+            break;
+#endif  // HAVE_ADDRESS_BOOK_CONTACTS
 
         default:
             break;
