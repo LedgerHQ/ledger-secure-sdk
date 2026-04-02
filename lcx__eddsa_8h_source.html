@@ -202,18 +202,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>                          <span class="keyword">const</span> uint8_t              *signature,</div>
 <div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>                          <span class="keywordtype">size_t</span>                      signature_len);</div>
 <div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span> </div>
-<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>WARN_UNUSED_RESULT cx_err_t cx_eddsa_get_public_key_internal(<span class="keyword">const</span> cx_ecfp_private_key_t *pv_key,</div>
-<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>                                                             cx_md_t                      hashID,</div>
-<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>                                                             cx_ecfp_public_key_t        *pu_key,</div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>                                                             uint8_t                     *a,</div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>                                                             <span class="keywordtype">size_t</span>                       a_len,</div>
-<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>                                                             uint8_t                     *h,</div>
-<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>                                                             <span class="keywordtype">size_t</span>                       h_len,</div>
-<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>                                                             uint8_t *scal <span class="comment">/*temp uint8[114]*/</span>);</div>
-<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span> </div>
-<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span><span class="preprocessor">#endif  </span><span class="comment">// HAVE_EDDSA</span></div>
-<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span> </div>
-<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span><span class="preprocessor">#endif  </span><span class="comment">// LCX_EDDSA_H</span></div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span><span class="preprocessor">#endif  </span><span class="comment">// HAVE_EDDSA</span></div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span> </div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span><span class="preprocessor">#endif  </span><span class="comment">// LCX_EDDSA_H</span></div>
 <div class="ttc" id="alcx__ecfp_8h_html"><div class="ttname"><a href="lcx__ecfp_8h.html">lcx_ecfp.h</a></div><div class="ttdoc">Key pair generation based on elliptic curves.</div></div>
 <div class="ttc" id="alcx__wrappers_8h_html"><div class="ttname"><a href="lcx__wrappers_8h.html">lcx_wrappers.h</a></div></div>
 <div class="ttc" id="alcx__wrappers_8h_html_a3f138a371c5202063cbd27fd41379cab"><div class="ttname"><a href="lcx__wrappers_8h.html#a3f138a371c5202063cbd27fd41379cab">CX_THROW</a></div><div class="ttdeci">#define CX_THROW(call)</div><div class="ttdef"><b>Definition</b> <a href="lcx__wrappers_8h_source.html#l00015">lcx_wrappers.h:15</a></div></div>
