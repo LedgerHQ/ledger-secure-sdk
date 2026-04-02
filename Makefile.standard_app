@@ -100,9 +100,6 @@ ifneq ($(DEBUG), 0)
 endif
 
 ifeq ($(DEBUG_OS_STACK_CONSUMPTION), 1)
-    ifneq ($(DEBUG), 1)
-        $(error DEBUG must be set to 1 to enable DEBUG_OS_STACK_CONSUMPTION)
-    endif
     DEFINES += DEBUG_OS_STACK_CONSUMPTION=1
 endif
 

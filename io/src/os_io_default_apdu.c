@@ -145,9 +145,12 @@ static bolos_err_t get_stack_consumption(uint8_t  mode,
         uintptr_t stack_length;
 
         // Application stack is allocated between _stack (lowest address) and _estack (highest);
-        // measure usage in this range based on the current frame address.
-        stack_lowest  = (uintptr_t) &_stack;
-        stack_current = (uintptr_t) __builtin_frame_address(0);
+        // measure usage in this range based on the direct stack pointer value
+        // to avoid corruption when called without its own stack frame.
+        stack_lowest = (uintptr_t) &_stack;
+        uintptr_t sp_val;
+        __asm__ volatile("mov %0, sp" : "=r"(sp_val));
+        stack_current = sp_val;
         stack_length  = (uintptr_t) &_estack - (uintptr_t) &_stack;
         switch (mode) {
             case MODE_INITIALIZATION:
