@@ -28,7 +28,11 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Delete branch
-      run: git push origin --delete ${{ github.head_ref }}
+      run: |
+        # Check if branch exists before deleting
+        if git ls-remote --heads origin ${{ github.head_ref }} | grep -q .; then
+          git push origin --delete ${{ github.head_ref }}
+        fi
 
   PR_Check:
     runs-on: ubuntu-latest
