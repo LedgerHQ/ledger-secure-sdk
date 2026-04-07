@@ -206,6 +206,7 @@ typedef struct ReviewWithWarningContext_s {
     uint8_t                           warningPage;
     uint8_t                           nbWarningPages;
     uint8_t                           firstWarningPage;
+    uint8_t                           barDetailIdx;  // index of the bar whose detail is displayed
 } ReviewWithWarningContext_t;
 
 typedef enum {
@@ -2015,10 +2016,39 @@ static void launchReviewAfterWarning(void)
     }
 }
 
+// callback used when navigating in a bar detail sub-page
+static void barDetailNavigate(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
+{
+    UNUSED(stepCtx);
+    if (event == BUTTON_LEFT_PRESSED) {
+        displayWarningStep();
+    }
+}
+
+// display a bar detail sub-page (CENTERED_INFO_WARNING type)
+static void displayBarDetailStep(void)
+{
+    const nbgl_genericDetails_t *detail
+        = &reviewWithWarnCtx.warning->introDetails->barList.details[reviewWithWarnCtx.barDetailIdx];
+
+    if (detail->type == CENTERED_INFO_WARNING) {
+        nbgl_layoutCenteredInfo_t info = {0};
+        info.icon                      = detail->centeredInfo.icon;
+        info.text1                     = detail->centeredInfo.title;
+        info.text2                     = detail->centeredInfo.description;
+        info.style                     = BOLD_TEXT1_INFO;
+        // LAST_STEP: only left arrow shown, pressing LEFT goes back via barDetailNavigate
+        nbgl_stepDrawCenteredInfo(
+            LAST_STEP | BACKWARD_DIRECTION, barDetailNavigate, NULL, &info, false);
+        nbgl_refresh();
+    }
+}
+
 // this is the callback used when navigating in warning pages
 static void warningNavigate(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
 {
     UNUSED(stepCtx);
+    uint8_t barIdx = 0;
 
     if (event == BUTTON_LEFT_PRESSED) {
         // only decrement page if we are not at the first page
@@ -2049,6 +2079,19 @@ static void warningNavigate(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
         }
         return;
     }
+    else if ((event == BUTTON_BOTH_PRESSED) && (reviewWithWarnCtx.warning->introDetails != NULL)
+             && (reviewWithWarnCtx.warning->introDetails->type == BAR_LIST_WARNING)
+             && (reviewWithWarnCtx.warningPage > reviewWithWarnCtx.firstWarningPage)) {
+        // enter the detail sub-page for the current bar (if it has one)
+        barIdx = reviewWithWarnCtx.warningPage - reviewWithWarnCtx.firstWarningPage - 1;
+        if ((reviewWithWarnCtx.warning->introDetails->barList.details != NULL)
+            && (reviewWithWarnCtx.warning->introDetails->barList.details[barIdx].type
+                != NO_TYPE_WARNING)) {
+            reviewWithWarnCtx.barDetailIdx = barIdx;
+            displayBarDetailStep();
+        }
+        return;
+    }
     else {
         return;
     }
@@ -2058,8 +2101,9 @@ static void warningNavigate(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
 // function used to display the initial warning pages when starting a "review with warning"
 static void displayWarningStep(void)
 {
-    nbgl_layoutCenteredInfo_t info = {0};
-    nbgl_stepPosition_t       pos  = 0;
+    nbgl_layoutCenteredInfo_t info   = {0};
+    nbgl_stepPosition_t       pos    = 0;
+    uint8_t                   barIdx = 0;
     if ((reviewWithWarnCtx.warning->prelude) && (reviewWithWarnCtx.warningPage == 0)) {
         // for prelude, only draw text as a single step
         nbgl_stepDrawText(FIRST_STEP | FORWARD_DIRECTION,
@@ -2097,8 +2141,22 @@ static void displayWarningStep(void)
                                                                    : NEITHER_FIRST_NOR_LAST_STEP;
             pos |= FORWARD_DIRECTION;
         }
+        else if ((reviewWithWarnCtx.warning->introDetails != NULL)
+                 && (reviewWithWarnCtx.warning->introDetails->type == BAR_LIST_WARNING)) {
+            // intermediate or last bar page
+            barIdx = reviewWithWarnCtx.warningPage - reviewWithWarnCtx.firstWarningPage - 1;
+            if (reviewWithWarnCtx.warning->introDetails->barList.icons) {
+                info.icon = reviewWithWarnCtx.warning->introDetails->barList.icons[barIdx];
+            }
+            info.text1 = reviewWithWarnCtx.warning->introDetails->barList.texts[barIdx];
+            if (reviewWithWarnCtx.warning->introDetails->barList.subTexts) {
+                info.text2 = reviewWithWarnCtx.warning->introDetails->barList.subTexts[barIdx];
+            }
+            pos = NEITHER_FIRST_NOR_LAST_STEP;
+        }
         else if (reviewWithWarnCtx.warningPage == (reviewWithWarnCtx.nbWarningPages - 1)) {
-            if (reviewWithWarnCtx.warning->introDetails->type == CENTERED_INFO_WARNING) {
+            if ((reviewWithWarnCtx.warning->introDetails != NULL)
+                && (reviewWithWarnCtx.warning->introDetails->type == CENTERED_INFO_WARNING)) {
                 info.icon  = reviewWithWarnCtx.warning->introDetails->centeredInfo.icon;
                 info.text1 = reviewWithWarnCtx.warning->introDetails->centeredInfo.title;
                 info.text2 = reviewWithWarnCtx.warning->introDetails->centeredInfo.description;
@@ -2128,6 +2186,11 @@ static void displayInitialWarning(void)
         || ((reviewWithWarnCtx.warning->introDetails)
             && (reviewWithWarnCtx.warning->introDetails->type == CENTERED_INFO_WARNING))) {
         reviewWithWarnCtx.nbWarningPages = 2;
+    }
+    else if ((reviewWithWarnCtx.warning->introDetails)
+             && (reviewWithWarnCtx.warning->introDetails->type == BAR_LIST_WARNING)) {
+        reviewWithWarnCtx.nbWarningPages
+            = reviewWithWarnCtx.warning->introDetails->barList.nbBars + 1;
     }
     else {
         // if no intro details and not Blind Signing warning, only one page
