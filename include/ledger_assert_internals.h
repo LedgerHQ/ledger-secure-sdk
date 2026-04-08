@@ -188,7 +188,7 @@ void __attribute__((noreturn)) assert_display_exit(void);
 
 #else  // HAVE_LEDGER_ASSERT_DISPLAY
 
-void assert_exit(bool confirm);
+void __attribute__((noreturn)) assert_exit(bool confirm);
 #define LEDGER_ASSERT_EXIT() assert_exit(true)
 
 #endif  // HAVE_LEDGER_ASSERT_DISPLAY
