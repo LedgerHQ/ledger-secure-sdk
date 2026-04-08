@@ -106,7 +106,7 @@ void throw_print_lr(int e, int lr)
 /*******************
  * Common app exit *
  ******************/
-void assert_exit(bool confirm)
+void __attribute__((noreturn)) assert_exit(bool confirm)
 {
     UNUSED(confirm);
     os_sched_exit(-1);
