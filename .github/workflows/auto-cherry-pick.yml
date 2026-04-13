@@ -28,10 +28,12 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Delete branch
+      env:
+        HEAD_REF: ${{ github.head_ref }}
       run: |
         # Check if branch exists before deleting
-        if git ls-remote --heads origin ${{ github.head_ref }} | grep -q .; then
-          git push origin --delete ${{ github.head_ref }}
+        if git ls-remote --heads origin "$HEAD_REF" | grep -q .; then
+          git push origin --delete "$HEAD_REF"
         fi
 
   PR_Check:
