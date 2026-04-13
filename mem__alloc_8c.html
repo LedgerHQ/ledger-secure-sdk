@@ -146,8 +146,6 @@ Macros</h2></td></tr>
 <tr class="separator:a33e0cf3fef0f595a3fb9b97904a00b19"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab2cceee15a46df351abbe99b24353bf6" id="r_ab2cceee15a46df351abbe99b24353bf6"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem__alloc_8c.html#ab2cceee15a46df351abbe99b24353bf6">FREE_CHUNK_HEADER_SIZE</a>&#160;&#160;&#160;8</td></tr>
 <tr class="separator:ab2cceee15a46df351abbe99b24353bf6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa8bad2cd89820cdaf2a7f26392774014" id="r_aa8bad2cd89820cdaf2a7f26392774014"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem__alloc_8c.html#aa8bad2cd89820cdaf2a7f26392774014">MAX_BLOCK_SIZE</a>&#160;&#160;&#160;0x7FFF</td></tr>
-<tr class="separator:aa8bad2cd89820cdaf2a7f26392774014"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9ebf5b594d31378d8f5cc22c6d8f7a95" id="r_a9ebf5b594d31378d8f5cc22c6d8f7a95"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem__alloc_8c.html#a9ebf5b594d31378d8f5cc22c6d8f7a95">HEAP_HEADER_SIZE</a>&#160;&#160;&#160;    ((sizeof(<a class="el" href="structheap__t.html">heap_t</a>) + <a class="el" href="mem__alloc_8c.html#adc0eda6f62e7558b85a9fe60ebd50e2b">PAYLOAD_DATA_ALIGNEMENT</a> - 1) &amp; ~(<a class="el" href="mem__alloc_8c.html#adc0eda6f62e7558b85a9fe60ebd50e2b">PAYLOAD_DATA_ALIGNEMENT</a> - 1))</td></tr>
 <tr class="separator:a9ebf5b594d31378d8f5cc22c6d8f7a95"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8058fbf7d82fe708211303742403267d" id="r_a8058fbf7d82fe708211303742403267d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem__alloc_8c.html#a8058fbf7d82fe708211303742403267d">NB_LINEAR_SEGMENTS</a>&#160;&#160;&#160;5</td></tr>
@@ -256,7 +254,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00056">56</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00054">54</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
 
 </div>
 </div>
@@ -286,7 +284,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00058">58</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00056">56</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
 
 </div>
 </div>
@@ -316,7 +314,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00057">57</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00055">55</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
 
 </div>
 </div>
@@ -346,7 +344,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00055">55</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00053">53</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
 
 </div>
 </div>
@@ -366,7 +364,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00060">60</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00058">58</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
 
 </div>
 </div>
@@ -378,22 +376,6 @@ Functions</h2></td></tr>
       <table class="memname">
         <tr>
           <td class="memname">#define HEAP_HEADER_SIZE&#160;&#160;&#160;    ((sizeof(<a class="el" href="structheap__t.html">heap_t</a>) + <a class="el" href="mem__alloc_8c.html#adc0eda6f62e7558b85a9fe60ebd50e2b">PAYLOAD_DATA_ALIGNEMENT</a> - 1) &amp; ~(<a class="el" href="mem__alloc_8c.html#adc0eda6f62e7558b85a9fe60ebd50e2b">PAYLOAD_DATA_ALIGNEMENT</a> - 1))</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00033">33</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
-
-</div>
-</div>
-<a id="aa8bad2cd89820cdaf2a7f26392774014" name="aa8bad2cd89820cdaf2a7f26392774014"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa8bad2cd89820cdaf2a7f26392774014">&#9670;&#160;</a></span>MAX_BLOCK_SIZE</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define MAX_BLOCK_SIZE&#160;&#160;&#160;0x7FFF</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -414,7 +396,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00037">37</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00035">35</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
 
 </div>
 </div>
@@ -430,7 +412,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00050">50</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00048">48</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
 
 </div>
 </div>
@@ -446,7 +428,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00052">52</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00050">50</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
 
 </div>
 </div>
@@ -535,7 +517,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>either a valid address if successful, or NULL if failed (no more memory or invalid nb_bytes) </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00367">367</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00365">365</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
 
 </div>
 </div>
@@ -574,7 +556,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00549">549</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00532">532</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
 
 </div>
 </div>
@@ -614,7 +596,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the context to use for further calls, or NULL if failling </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00325">325</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00323">323</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
 
 </div>
 </div>
@@ -660,7 +642,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00582">582</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00565">565</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
 
 </div>
 </div>
@@ -708,7 +690,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>address of the reallocated buffer (may be the same or different), or NULL on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00456">456</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00447">447</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
 
 </div>
 </div>
@@ -747,7 +729,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00620">620</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mem__alloc_8c_source.html#l00603">603</a> of file <a class="el" href="mem__alloc_8c_source.html">mem_alloc.c</a>.</p>
 
 </div>
 </div>
