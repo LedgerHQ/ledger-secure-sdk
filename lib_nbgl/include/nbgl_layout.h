@@ -375,6 +375,7 @@ typedef struct {
     nbgl_layoutKeyboardContentType_t type;   ///< type of content
     const char                      *title;  ///< centered title explaining the screen
     const char                      *text;   ///< already entered text
+    bool                             obfuscated;
     bool    numbered;   ///< if set to true, the text is preceded on the left by 'number.'
     uint8_t number;     ///< if numbered is true, number used to build 'number.' text
     bool    grayedOut;  ///< (unused, kept for compatibility)
@@ -670,6 +671,7 @@ typedef struct {
 #else                       // HAVE_SE_TOUCH
     bool    enableBackspace;  ///< if true, Backspace key is enabled
     bool    enableValidate;   ///< if true, Validate key is enabled
+    bool    obfuscated;
     uint8_t selectedCharIndex;
 #endif                      // HAVE_SE_TOUCH
 } nbgl_layoutKbd_t;
@@ -807,6 +809,10 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
 #else   // HAVE_SE_TOUCH
 int nbgl_layoutUpdateKeyboard(nbgl_layout_t *layout, uint8_t index, uint32_t keyMask);
 int nbgl_layoutAddEnteredText(nbgl_layout_t *layout, const char *text, bool lettersOnly);
+int nbgl_layoutAddEnteredTextAdvanced(nbgl_layout_t *layout,
+                                      const char    *text,
+                                      bool           lettersOnly,
+                                      bool           obfuscated);
 int nbgl_layoutUpdateEnteredText(nbgl_layout_t *layout, uint8_t index, const char *text);
 #endif  // HAVE_SE_TOUCH
 #endif  // NBGL_KEYBOARD
