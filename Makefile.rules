@@ -58,8 +58,15 @@ SDK_SOURCE_PATH += io io_legacy protocol lib_u2f_legacy
 # adding the correct target header to sources
 SDK_SOURCE_PATH += target/$(TARGET)/include
 
+# Retrieve APP header filenames
+INCLUDES_APP += $(shell find $(APP_SOURCE_PATH) -name '*.h')
+# Append application paths to includes before any SDK path
+INCLUDES_PATH += $(dir $(INCLUDES_APP))
+
 # Expose all SDK header files with their full relative path to the SDK root folder
-INCLUDES_PATH  += ${BOLOS_SDK}
+INCLUDES_PATH  += $(BOLOS_SDK)
+# Warn if a same header filename is found in both APP and SDK
+$(call check_duplicate, $(INCLUDES_APP), $(BOLOS_SDK))
 
 #include the lib_cxng definition by default if not asked otherwise
 ifeq ($(NO_CXNG),)
@@ -92,12 +99,8 @@ SOURCES_APP += $(filter-out %.pb.c, $(abspath $(SOURCE_FILES) $(foreach libdir, 
 SOURCES_GEN += $(GLYPH_DESTC) $(APP_SRC_GEN)
 VPATH += $(call uniq, $(dir $(SOURCES_SDK) $(SOURCES_APP) $(GLYPH_DESTC)))
 
-# Retrieve APP header filenames
-INCLUDES_APP += $(shell find $(APP_SOURCE_PATH) -name '*.h')
-# Warn if a same header filename is found in both APP and SDK
-$(call check_duplicate, $(INCLUDES_APP), $(BOLOS_SDK))
 # Compute header directories list
-INCLUDES_PATH += $(call uniq, $(dir $(foreach libdir, $(SDK_SOURCE_PATH) $(NBGL_INCLUDE_PATH), $(dir $(shell find $(BOLOS_SDK)/$(libdir) -name '*.h')))) include $(BOLOS_SDK)/include $(BOLOS_SDK)/include/arm $(dir $(INCLUDES_APP)) $(GLYPH_SRC_DIR))
+INCLUDES_PATH += $(call uniq, $(dir $(foreach libdir, $(SDK_SOURCE_PATH) $(NBGL_INCLUDE_PATH), $(dir $(shell find $(BOLOS_SDK)/$(libdir) -name '*.h')))) include $(BOLOS_SDK)/include $(BOLOS_SDK)/include/arm $(GLYPH_SRC_DIR))
 
 # Separate object files from SDK and APP to avoid name conflicts
 OBJECTS_SDK += $(sort $(subst $(BOLOS_SDK), $(OBJ_DIR)/sdk, $(addsuffix .o, $(basename $(SOURCES_SDK)))))
