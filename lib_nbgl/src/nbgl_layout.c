@@ -290,7 +290,7 @@ static void touchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
         && (obj->type == CONTAINER)) {
 #ifdef NBGL_KEYBOARD
         if (layout->swipeUsage == SWIPE_USAGE_SUGGESTIONS) {
-            keyboardSwipeCallback(obj, eventType);
+            keyboardSwipeCallback(layout, obj, eventType);
             return;
         }
 #endif  // NBGL_KEYBOARD
@@ -638,6 +638,34 @@ layoutObj_t *layoutAddCallbackObj(nbgl_layoutInternal_t *layout,
     }
 
     return layoutObj;
+}
+
+/**
+ * @brief Update the token associated with a specific object in a layout.
+ *
+ * This function updates the token for a given object in the layout's callback object pool.
+ * @param[in] layout The layout object for which the token is to be updated.
+ * @param[in] obj The object whose token needs to be updated.
+ * @param[in] token The new token to be set for the object.
+ */
+void layoutUpdateCallbackObjToken(nbgl_layoutInternal_t *layout, nbgl_obj_t *obj, uint8_t token)
+{
+    if (layout == NULL) {
+        return;
+    }
+
+    if (obj == NULL) {
+        return;
+    }
+
+    layoutObj_t *layoutObj = NULL;
+    for (size_t i = 0; i < layout->nbUsedCallbackObjs; i++) {
+        layoutObj = &layout->callbackObjPool[i];
+        if (layoutObj->obj == obj) {
+            layoutObj->token = token;
+            return;
+        }
+    }
 }
 
 /**

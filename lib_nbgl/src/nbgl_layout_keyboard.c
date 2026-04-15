@@ -142,6 +142,7 @@ enum {
 static const char *choiceTexts[NB_MAX_SUGGESTION_BUTTONS];
 static char        numText[5];
 static uint8_t     nbActiveButtons;
+static uint8_t     currentFirstButtonToken;
 #ifdef USE_PARTIAL_BUTTONS
 static nbgl_image_t *partialButtonImages[2];
 #endif  // USE_PARTIAL_BUTTONS
@@ -152,13 +153,15 @@ static nbgl_image_t *partialButtonImages[2];
 
 // function used on Flex to display (or not) beginning of next button and/or end of
 // previous button, and update buttons when swipping
-static bool updateSuggestionButtons(nbgl_container_t *container,
-                                    nbgl_touchType_t  eventType,
-                                    uint8_t           currentLeftButtonIndex)
+static bool updateSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
+                                    nbgl_container_t      *container,
+                                    nbgl_touchType_t       eventType,
+                                    uint8_t                currentLeftButtonIndex)
 {
-    bool     needRefresh = false;
-    uint8_t  page        = 0;
-    uint32_t i;
+    bool           needRefresh = false;
+    uint8_t        page        = 0;
+    uint32_t       i           = 0;
+    nbgl_button_t *button      = NULL;
 
     if ((eventType == SWIPED_LEFT)
         && (currentLeftButtonIndex
@@ -166,16 +169,28 @@ static bool updateSuggestionButtons(nbgl_container_t *container,
         // shift all buttons on the left if there are still at least
         // NB_MAX_VISIBLE_SUGGESTION_BUTTONS buttons to display
         currentLeftButtonIndex += NB_MAX_VISIBLE_SUGGESTION_BUTTONS;
-        ((nbgl_button_t *) container->children[FIRST_BUTTON_INDEX])->text
-            = choiceTexts[currentLeftButtonIndex];
+
+        // Button to be updated
+        button = (nbgl_button_t *) container->children[FIRST_BUTTON_INDEX];
+
+        // Update button text and touch token
+        button->text = choiceTexts[currentLeftButtonIndex];
+        layoutUpdateCallbackObjToken(
+            layoutInt, (nbgl_obj_t *) button, currentFirstButtonToken + currentLeftButtonIndex);
 
         for (i = 1; i < NB_MAX_VISIBLE_SUGGESTION_BUTTONS; i++) {
+            // Button to be updated
+            button = (nbgl_button_t *) container->children[FIRST_BUTTON_INDEX + i];
+
             if (currentLeftButtonIndex < (uint32_t) (nbActiveButtons - i)) {
-                ((nbgl_button_t *) container->children[FIRST_BUTTON_INDEX + i])->text
-                    = choiceTexts[currentLeftButtonIndex + i];
+                button->text = choiceTexts[currentLeftButtonIndex + i];
+                layoutUpdateCallbackObjToken(layoutInt,
+                                             (nbgl_obj_t *) button,
+                                             currentFirstButtonToken + currentLeftButtonIndex + i);
             }
             else {
-                ((nbgl_button_t *) container->children[FIRST_BUTTON_INDEX + i])->text = NULL;
+                button->text = NULL;
+                layoutUpdateCallbackObjToken(layoutInt, (nbgl_obj_t *) button, NBGL_INVALID_TOKEN);
             }
         }
         page        = currentLeftButtonIndex / NB_MAX_VISIBLE_SUGGESTION_BUTTONS;
@@ -187,8 +202,14 @@ static bool updateSuggestionButtons(nbgl_container_t *container,
         // NB_MAX_VISIBLE_SUGGESTION_BUTTONS first ones
         currentLeftButtonIndex -= NB_MAX_VISIBLE_SUGGESTION_BUTTONS;
         for (i = 0; i < NB_MAX_VISIBLE_SUGGESTION_BUTTONS; i++) {
-            ((nbgl_button_t *) container->children[FIRST_BUTTON_INDEX + i])->text
-                = choiceTexts[currentLeftButtonIndex + i];
+            // Button to be updated
+            button = (nbgl_button_t *) container->children[FIRST_BUTTON_INDEX + i];
+
+            // Update button text and touch token
+            button->text = choiceTexts[currentLeftButtonIndex + i];
+            layoutUpdateCallbackObjToken(layoutInt,
+                                         (nbgl_obj_t *) button,
+                                         currentFirstButtonToken + currentLeftButtonIndex + i);
         }
         page        = currentLeftButtonIndex / NB_MAX_VISIBLE_SUGGESTION_BUTTONS;
         needRefresh = true;
@@ -255,7 +276,9 @@ static bool updateSuggestionButtons(nbgl_container_t *container,
  *   GLOBAL INTERNAL FUNCTIONS
  **********************/
 
-bool keyboardSwipeCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
+bool keyboardSwipeCallback(nbgl_layoutInternal_t *layoutInt,
+                           nbgl_obj_t            *obj,
+                           nbgl_touchType_t       eventType)
 {
     nbgl_container_t *container = (nbgl_container_t *) obj;
     nbgl_container_t *suggestionsContainer;
@@ -278,7 +301,7 @@ bool keyboardSwipeCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
         }
 
         if (i < (uint32_t) nbActiveButtons) {
-            if (updateSuggestionButtons(suggestionsContainer, eventType, i)) {
+            if (updateSuggestionButtons(layoutInt, suggestionsContainer, eventType, i)) {
                 os_io_seph_cmd_piezo_play_tune(TUNE_TAP_CASUAL);
                 nbgl_objDraw((nbgl_obj_t *) suggestionsContainer);
                 nbgl_refreshSpecial(FULL_COLOR_PARTIAL_REFRESH);
@@ -422,8 +445,9 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
     nbgl_container_t *suggestionsContainer;
     layoutObj_t      *obj;
 
-    nbActiveButtons      = nbUsedButtons;
-    suggestionsContainer = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
+    nbActiveButtons         = nbUsedButtons;
+    currentFirstButtonToken = firstButtonToken;
+    suggestionsContainer    = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
     suggestionsContainer->layout         = VERTICAL;
     suggestionsContainer->obj.area.width = SCREEN_WIDTH;
 #ifndef USE_PARTIAL_BUTTONS
@@ -493,7 +517,7 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
     partialButtonImages[1]->obj.alignment   = TOP_RIGHT;
     partialButtonImages[1]->foregroundColor = BLACK;
     partialButtonImages[1]->transformation  = NO_TRANSFORMATION;
-    updateSuggestionButtons(suggestionsContainer, 0, 0);
+    updateSuggestionButtons(layoutInt, suggestionsContainer, 0, 0);
 #endif  // USE_PARTIAL_BUTTONS
 
     return suggestionsContainer;
@@ -552,7 +576,7 @@ static nbgl_button_t *addConfirmationButton(nbgl_layoutInternal_t *layoutInt,
 int nbgl_layoutAddKeyboard(nbgl_layout_t *layout, const nbgl_layoutKbd_t *kbdInfo)
 {
     nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
-    nbgl_keyboard_t       *keyboard;
+    nbgl_keyboard_t       *keyboard  = NULL;
 
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddKeyboard():\n");
     if (layout == NULL) {
@@ -939,6 +963,7 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
                                    content->suggestionButtons.firstButtonToken,
                                    content->tuneId,
                                    content->obfuscated);
+
         // set this container as second child of the main layout container
         layoutInt->container->children[1] = (nbgl_obj_t *) suggestionsContainer;
         // the main container is swipable on Flex
@@ -1039,13 +1064,19 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
         // update suggestion buttons
         for (i = 0; i < NB_MAX_VISIBLE_SUGGESTION_BUTTONS; i++) {
             // some buttons may not be visible
+            // Button to be updated
+            nbgl_button_t *button
+                = (nbgl_button_t *) suggestionsContainer->children[i + FIRST_BUTTON_INDEX];
+
             if (i < nbActiveButtons) {
-                ((nbgl_button_t *) suggestionsContainer->children[i + FIRST_BUTTON_INDEX])->text
-                    = choiceTexts[i];
+                // Update button text and touch token
+                button->text = choiceTexts[i];
+                layoutUpdateCallbackObjToken(
+                    layoutInt, (nbgl_obj_t *) button, currentFirstButtonToken + i);
             }
             else {
-                ((nbgl_button_t *) suggestionsContainer->children[i + FIRST_BUTTON_INDEX])->text
-                    = NULL;
+                button->text = NULL;
+                layoutUpdateCallbackObjToken(layoutInt, (nbgl_obj_t *) button, NBGL_INVALID_TOKEN);
             }
         }
         suggestionsContainer->forceClean = true;
@@ -1056,7 +1087,7 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
         indicator->nbPages = (nbActiveButtons + NB_MAX_VISIBLE_SUGGESTION_BUTTONS - 1)
                              / NB_MAX_VISIBLE_SUGGESTION_BUTTONS;
         indicator->activePage = 0;
-        updateSuggestionButtons(suggestionsContainer, 0, 0);
+        updateSuggestionButtons(layoutInt, suggestionsContainer, 0, 0);
 
         nbgl_objDraw((nbgl_obj_t *) suggestionsContainer);
     }
