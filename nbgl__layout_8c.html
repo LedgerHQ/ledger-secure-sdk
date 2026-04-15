@@ -268,6 +268,9 @@ Enumerations</h2></td></tr>
 Functions</h2></td></tr>
 <tr class="memitem:afe97ea48698a6e69b008ca3f3ba64da8" id="r_afe97ea48698a6e69b008ca3f3ba64da8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structlayoutObj__t.html">layoutObj_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout_8c.html#afe97ea48698a6e69b008ca3f3ba64da8">layoutAddCallbackObj</a> (<a class="el" href="nbgl__layout__internal_8h.html#afcfe3309b3bb8f29ef88010cfe1f8ef5">nbgl_layoutInternal_t</a> *layout, <a class="el" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *obj, uint8_t token, tune_index_e tuneId)</td></tr>
 <tr class="separator:afe97ea48698a6e69b008ca3f3ba64da8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac37d645489d86743a6cd144f5d001616" id="r_ac37d645489d86743a6cd144f5d001616"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout_8c.html#ac37d645489d86743a6cd144f5d001616">layoutUpdateCallbackObjToken</a> (<a class="el" href="nbgl__layout__internal_8h.html#afcfe3309b3bb8f29ef88010cfe1f8ef5">nbgl_layoutInternal_t</a> *layout, <a class="el" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *obj, uint8_t token)</td></tr>
+<tr class="memdesc:ac37d645489d86743a6cd144f5d001616"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update the token associated with a specific object in a layout.  <br /></td></tr>
+<tr class="separator:ac37d645489d86743a6cd144f5d001616"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab4e9b48a284d010876aa0973a1703807" id="r_ab4e9b48a284d010876aa0973a1703807"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="nbgl__layout_8c.html#ab4e9b48a284d010876aa0973a1703807">layoutAddObject</a> (<a class="el" href="nbgl__layout__internal_8h.html#afcfe3309b3bb8f29ef88010cfe1f8ef5">nbgl_layoutInternal_t</a> *layout, <a class="el" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *obj)</td></tr>
 <tr class="memdesc:ab4e9b48a284d010876aa0973a1703807"><td class="mdescLeft">&#160;</td><td class="mdescRight">adds the given obj to the main container  <br /></td></tr>
 <tr class="separator:ab4e9b48a284d010876aa0973a1703807"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -580,7 +583,53 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l00649">649</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l00677">677</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+
+</div>
+</div>
+<a id="ac37d645489d86743a6cd144f5d001616" name="ac37d645489d86743a6cd144f5d001616"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac37d645489d86743a6cd144f5d001616">&#9670;&#160;</a></span>layoutUpdateCallbackObjToken()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void layoutUpdateCallbackObjToken </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="nbgl__layout__internal_8h.html#afcfe3309b3bb8f29ef88010cfe1f8ef5">nbgl_layoutInternal_t</a> *&#160;</td>
+          <td class="paramname"><em>layout</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="nbgl__obj_8h.html#af579f3c2ec9b53d8a3046dcf213d856a">nbgl_obj_t</a> *&#160;</td>
+          <td class="paramname"><em>obj</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>token</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Update the token associated with a specific object in a layout. </p>
+<p>This function updates the token for a given object in the layout's callback object pool. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">layout</td><td>The layout object for which the token is to be updated. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">obj</td><td>The object whose token needs to be updated. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">token</td><td>The new token to be set for the object. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l00651">651</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -642,7 +691,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01319">1319</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01347">1347</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -682,7 +731,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02367">2367</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02395">2395</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -722,7 +771,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01716">1716</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01744">1744</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -762,7 +811,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02019">2019</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02047">2047</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -802,7 +851,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the size of the area if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01776">1776</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01804">1804</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -842,7 +891,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>height of the control if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02885">2885</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02913">2913</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -896,7 +945,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>height of the control if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02496">2496</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02524">2524</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -937,7 +986,7 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>height of the control if OK </dd></dl>
 <p>shift all centered objects</p>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02549">2549</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02577">2577</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -977,7 +1026,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02042">2042</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02070">2070</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1024,7 +1073,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01495">1495</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01523">1523</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1064,7 +1113,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01798">1798</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01826">1826</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1118,7 +1167,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02468">2468</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02496">2496</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1158,7 +1207,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the height of the control if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01293">1293</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01321">1321</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1215,7 +1264,7 @@ Functions</h2></td></tr>
 </ul>
 </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02247">2247</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02275">2275</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1284,7 +1333,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the height of the control if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l03597">3597</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l03625">3625</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1324,7 +1373,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>height of the control if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01890">1890</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01918">1918</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1364,7 +1413,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01620">1620</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01648">1648</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1393,7 +1442,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02348">2348</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02376">2376</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1447,7 +1496,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l03628">3628</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l03656">3656</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1515,7 +1564,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>height of the control if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02523">2523</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02551">2551</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1576,7 +1625,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01181">1181</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01209">1209</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1616,7 +1665,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>height of the control if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01384">1384</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01412">1412</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1656,7 +1705,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02063">2063</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l02091">2091</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1703,7 +1752,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>height of the control if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01422">1422</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01450">1450</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1748,7 +1797,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>height of the control if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01541">1541</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01569">1569</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1812,7 +1861,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>height of the control if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01457">1457</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01485">1485</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1866,7 +1915,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01248">1248</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01276">1276</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1906,7 +1955,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the height of the bar if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01345">1345</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01373">1373</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1946,7 +1995,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>height of the control if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l03296">3296</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l03324">3324</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -1975,7 +2024,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>a pointer to the corresponding layout </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l03811">3811</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l03839">3839</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -2004,7 +2053,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>a pointer to the corresponding layout </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01069">1069</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01097">1097</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -2033,7 +2082,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01216">1216</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l01244">1244</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -2062,7 +2111,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>&gt;= 0 if OK </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l03841">3841</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l03869">3869</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
@@ -2120,7 +2169,7 @@ Functions</h2></td></tr>
 </ul>
 </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l03735">3735</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="nbgl__layout_8c_source.html#l03763">3763</a> of file <a class="el" href="nbgl__layout_8c_source.html">nbgl_layout.c</a>.</p>
 
 </div>
 </div>
