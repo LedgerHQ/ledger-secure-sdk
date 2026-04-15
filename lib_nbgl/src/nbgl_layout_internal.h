@@ -113,19 +113,22 @@ typedef struct nbgl_layoutInternal_s {
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
-bool         keyboardSwipeCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType);
+bool         keyboardSwipeCallback(nbgl_layoutInternal_t *layoutInt,
+                                   nbgl_obj_t            *obj,
+                                   nbgl_touchType_t       eventType);
 void         layoutAddObject(nbgl_layoutInternal_t *layout, nbgl_obj_t *obj);
 layoutObj_t *layoutAddCallbackObj(nbgl_layoutInternal_t *layout,
                                   nbgl_obj_t            *obj,
                                   uint8_t                token,
                                   tune_index_e           tuneId);
-void         layoutNavigationPopulate(nbgl_container_t                 *navContainer,
-                                      const nbgl_layoutNavigationBar_t *navConfig,
-                                      uint8_t                           layer);
-bool         layoutNavigationCallback(nbgl_obj_t      *obj,
-                                      nbgl_touchType_t eventType,
-                                      uint8_t          nbPages,
-                                      uint8_t         *activePage);
+void layoutUpdateCallbackObjToken(nbgl_layoutInternal_t *layout, nbgl_obj_t *obj, uint8_t token);
+void layoutNavigationPopulate(nbgl_container_t                 *navContainer,
+                              const nbgl_layoutNavigationBar_t *navConfig,
+                              uint8_t                           layer);
+bool layoutNavigationCallback(nbgl_obj_t      *obj,
+                              nbgl_touchType_t eventType,
+                              uint8_t          nbPages,
+                              uint8_t         *activePage);
 
 /**********************
  *      MACROS
