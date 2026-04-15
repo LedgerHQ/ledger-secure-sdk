@@ -57,50 +57,54 @@ enum {
 };
 
 #if defined(TARGET_STAX)
-#define TEXT_ENTRY_NORMAL_HEIGHT  64
-#define TEXT_ENTRY_COMPACT_HEIGHT 64
-#define BOTTOM_NORMAL_MARGIN      24
-#define BOTTOM_CONFIRM_MARGIN     24
-#define BOTTOM_COMPACT_MARGIN     24
-#define TOP_NORMAL_MARGIN         20
-#define TOP_CONFIRM_MARGIN        20
-#define TOP_COMPACT_MARGIN        20
-#define TITLE_ENTRY_MARGIN_Y      4
-#define TEXT_ENTRY_FONT           LARGE_MEDIUM_1BPP_FONT
+#define TEXT_ENTRY_NORMAL_HEIGHT   64
+#define TEXT_ENTRY_COMPACT_HEIGHT  64
+#define BOTTOM_NORMAL_MARGIN       24
+#define BOTTOM_CONFIRM_MARGIN      24
+#define BOTTOM_COMPACT_MARGIN      24
+#define TOP_NORMAL_MARGIN          20
+#define TOP_CONFIRM_MARGIN         20
+#define TOP_COMPACT_MARGIN         20
+#define TITLE_ENTRY_MARGIN_Y       4
+#define TEXT_ENTRY_FONT            LARGE_MEDIUM_1BPP_FONT
+#define TEXT_ENTRY_FONT_OBFUSCATED LARGE_OBFUSCATED_MEDIUM_1BPP_FONT
+// #define TEXT_ENTRY_FONT_OBFUSCATED LARGE_MEDIUM_
 // space between number and text
-#define NUMBER_TEXT_SPACE         8
-#define NUMBER_WIDTH              56
-#define DELETE_ICON               C_Close_32px
+#define NUMBER_TEXT_SPACE          8
+#define NUMBER_WIDTH               56
+#define DELETE_ICON                C_Close_32px
 #elif defined(TARGET_FLEX)
-#define TEXT_ENTRY_NORMAL_HEIGHT  72
-#define TEXT_ENTRY_COMPACT_HEIGHT 56
-#define BOTTOM_NORMAL_MARGIN      24
-#define BOTTOM_CONFIRM_MARGIN     24
-#define BOTTOM_COMPACT_MARGIN     12
-#define TOP_NORMAL_MARGIN         20
-#define TOP_CONFIRM_MARGIN        20
-#define TOP_COMPACT_MARGIN        12
-#define TITLE_ENTRY_MARGIN_Y      4
-#define TEXT_ENTRY_FONT           LARGE_MEDIUM_1BPP_FONT
+#define TEXT_ENTRY_NORMAL_HEIGHT   72
+#define TEXT_ENTRY_COMPACT_HEIGHT  56
+#define BOTTOM_NORMAL_MARGIN       24
+#define BOTTOM_CONFIRM_MARGIN      24
+#define BOTTOM_COMPACT_MARGIN      12
+#define TOP_NORMAL_MARGIN          20
+#define TOP_CONFIRM_MARGIN         20
+#define TOP_COMPACT_MARGIN         12
+#define TITLE_ENTRY_MARGIN_Y       4
+#define TEXT_ENTRY_FONT            LARGE_MEDIUM_1BPP_FONT
+#define TEXT_ENTRY_FONT_OBFUSCATED LARGE_OBFUSCATED_MEDIUM_1BPP_FONT
 // space between number and text
-#define NUMBER_TEXT_SPACE         8
-#define NUMBER_WIDTH              56
-#define DELETE_ICON               C_Close_40px
+#define NUMBER_TEXT_SPACE          8
+#define NUMBER_WIDTH               56
+#define DELETE_ICON                C_Close_40px
 #elif defined(TARGET_APEX)
-#define TEXT_ENTRY_NORMAL_HEIGHT  44
-#define TEXT_ENTRY_COMPACT_HEIGHT 44
-#define BOTTOM_NORMAL_MARGIN      20
-#define BOTTOM_CONFIRM_MARGIN     16
-#define BOTTOM_COMPACT_MARGIN     8
-#define TOP_NORMAL_MARGIN         20
-#define TOP_CONFIRM_MARGIN        12
-#define TOP_COMPACT_MARGIN        8
-#define TITLE_ENTRY_MARGIN_Y      4
-#define TEXT_ENTRY_FONT           LARGE_MEDIUM_1BPP_FONT
+#define TEXT_ENTRY_NORMAL_HEIGHT   44
+#define TEXT_ENTRY_COMPACT_HEIGHT  44
+#define BOTTOM_NORMAL_MARGIN       20
+#define BOTTOM_CONFIRM_MARGIN      16
+#define BOTTOM_COMPACT_MARGIN      8
+#define TOP_NORMAL_MARGIN          20
+#define TOP_CONFIRM_MARGIN         12
+#define TOP_COMPACT_MARGIN         8
+#define TITLE_ENTRY_MARGIN_Y       4
+#define TEXT_ENTRY_FONT            LARGE_MEDIUM_1BPP_FONT
+#define TEXT_ENTRY_FONT_OBFUSCATED LARGE_OBFUSCATED_MEDIUM_1BPP_FONT
 // space between number and text
-#define NUMBER_TEXT_SPACE         4
-#define NUMBER_WIDTH              40
-#define DELETE_ICON               C_Close_Tiny_24px
+#define NUMBER_TEXT_SPACE          4
+#define NUMBER_WIDTH               40
+#define DELETE_ICON                C_Close_Tiny_24px
 #endif  // TARGETS
 
 #ifdef USE_PARTIAL_BUTTONS
@@ -292,7 +296,8 @@ static nbgl_container_t *addTextEntry(nbgl_layoutInternal_t *layoutInt,
                                       bool                   numbered,
                                       uint8_t                number,
                                       int                    textToken,
-                                      bool                   compactMode)
+                                      bool                   compactMode,
+                                      bool                   obfuscated)
 {
     nbgl_container_t *mainContainer, *container;
     nbgl_text_area_t *textArea;
@@ -345,12 +350,17 @@ static nbgl_container_t *addTextEntry(nbgl_layoutInternal_t *layoutInt,
         container->children[NUMBER_INDEX] = (nbgl_obj_t *) textArea;
     }
 
+    nbgl_font_id_e enteredTextFont = TEXT_ENTRY_FONT;
+    if (obfuscated) {
+        enteredTextFont = TEXT_ENTRY_FONT_OBFUSCATED;
+    }
+
     // create text area for entered text
     textArea                 = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
     textArea->textColor      = BLACK;
     textArea->text           = text;
     textArea->textAlignment  = MID_LEFT;
-    textArea->fontId         = TEXT_ENTRY_FONT;
+    textArea->fontId         = enteredTextFont;
     textArea->obj.area.width = AVAILABLE_WIDTH - DELETE_ICON.width - NUMBER_TEXT_SPACE;
     if (numbered) {
         textArea->obj.alignmentMarginX = NUMBER_TEXT_SPACE;
@@ -406,7 +416,8 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
                                               uint8_t                nbUsedButtons,
                                               const char           **buttonTexts,
                                               int                    firstButtonToken,
-                                              tune_index_e           tuneId)
+                                              tune_index_e           tuneId,
+                                              bool                   obfuscated)
 {
     nbgl_container_t *suggestionsContainer;
     layoutObj_t      *obj;
@@ -430,6 +441,11 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
     suggestionsContainer->obj.alignmentMarginY = BOTTOM_NORMAL_MARGIN;
     suggestionsContainer->obj.alignment        = BOTTOM_MIDDLE;
 
+    nbgl_font_id_e suggestionsFontId = SMALL_BOLD_1BPP_FONT;
+    if (obfuscated) {
+        suggestionsFontId = SMALL_OBFUSCATED_BOLD_1BPP_FONT;
+    }
+
     // create all possible suggestion buttons, even if not displayed at first
     for (int i = 0; i < NB_MAX_VISIBLE_SUGGESTION_BUTTONS; i++) {
         nbgl_button_t *button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layoutInt->layer);
@@ -446,7 +462,7 @@ static nbgl_container_t *addSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
             = (SCREEN_WIDTH - (2 * SUGGESTION_BUTTONS_SIDE_MARGIN) - INTERNAL_MARGIN) / 2;
         button->obj.area.height = SMALL_BUTTON_HEIGHT;
         button->radius          = SMALL_BUTTON_RADIUS_INDEX;
-        button->fontId          = SMALL_BOLD_1BPP_FONT;
+        button->fontId          = suggestionsFontId;
         button->text            = buttonTexts[i];
         button->obj.touchMask   = (1 << TOUCHED);
         button->obj.touchId     = CONTROLS_ID + i;
@@ -702,7 +718,7 @@ int nbgl_layoutAddEnteredText(nbgl_layout_t *layout,
     UNUSED(offsetY);
     UNUSED(grayedOut);
 
-    container = addTextEntry(layoutInt, NULL, text, numbered, number, token, compactMode);
+    container = addTextEntry(layoutInt, NULL, text, numbered, number, token, compactMode, false);
 
     // set this container as first or 2nd child of the main layout container
     layoutInt->container->children[enteredTextIndex] = (nbgl_obj_t *) container;
@@ -909,7 +925,8 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
                                       content->numbered,
                                       content->number,
                                       content->textToken,
-                                      compactMode);
+                                      compactMode,
+                                      content->obfuscated);
 
     // set this container as first child of the main layout container
     layoutInt->container->children[0] = (nbgl_obj_t *) textEntryContainer;
@@ -920,7 +937,8 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
                                    content->suggestionButtons.nbUsedButtons,
                                    content->suggestionButtons.buttons,
                                    content->suggestionButtons.firstButtonToken,
-                                   content->tuneId);
+                                   content->tuneId,
+                                   content->obfuscated);
         // set this container as second child of the main layout container
         layoutInt->container->children[1] = (nbgl_obj_t *) suggestionsContainer;
         // the main container is swipable on Flex
@@ -988,8 +1006,9 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
     }
 
     // get text area for entered text
-    textArea       = (nbgl_text_area_t *) container->children[TEXT_INDEX];
-    textArea->text = content->text;
+    textArea         = (nbgl_text_area_t *) container->children[TEXT_INDEX];
+    textArea->text   = content->text;
+    textArea->fontId = content->obfuscated ? TEXT_ENTRY_FONT_OBFUSCATED : TEXT_ENTRY_FONT;
     nbgl_objDraw((nbgl_obj_t *) textArea);
 
     // get delete cross

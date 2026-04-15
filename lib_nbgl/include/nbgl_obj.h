@@ -556,6 +556,7 @@ typedef struct PACKED__ nbgl_text_area_s {
     onTextDrawCallback_t
             onDrawCallback;  ///< function called if not NULL to get the text of the text area
     uint8_t token;           ///< token to use as param of onDrawCallback
+    bool    obfuscated;
 } nbgl_text_area_t;
 
 /**
@@ -635,6 +636,7 @@ typedef struct PACKED__ nbgl_keyboard_s {
 #else                       // SCREEN_SIZE_WALLET
     bool    enableBackspace;   ///< if true, Backspace key is enabled
     bool    enableValidate;    ///< if true, Validate key is enabled
+    bool    obfuscated;
     uint8_t selectedCharIndex;
 #endif                      // SCREEN_SIZE_WALLET
     keyboardMode_t mode;    ///< keyboard mode to start with
