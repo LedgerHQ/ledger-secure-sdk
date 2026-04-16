@@ -25,6 +25,7 @@
 #include "os.h"
 #include "os_io_seph_cmd.h"
 #include <string.h>
+#include <ctype.h>
 
 #ifndef BOLOS_OS_UPGRADER_APP
 void os_boot(void)
@@ -205,4 +206,14 @@ extern void *_ebss;
 void os_explicit_zero_BSS_segment(void)
 {
     explicit_bzero(&_bss, ((uintptr_t) &_ebss) - ((uintptr_t) &_bss));
+}
+
+bool is_printable_string(const char *str, size_t len)
+{
+    for (size_t i = 0; i < len; i++) {
+        if (!isprint((unsigned char) str[i])) {
+            return false;
+        }
+    }
+    return true;
 }
