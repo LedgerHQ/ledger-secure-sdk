@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include "arch.h"
 #include "decorators.h"
 
@@ -98,6 +99,9 @@ void os_xor(void *dst, void *src1, void *src2, unsigned int length);
 
 // Secure memory comparison
 char os_secure_memcmp(const void *src1, const void *src2, size_t length);
+
+// Check that a string contains only printable ASCII characters
+bool is_printable_string(const char *str, size_t len);
 
 // Alignement-related
 #define UPPER_ALIGN(adr, align, type)                                                       \

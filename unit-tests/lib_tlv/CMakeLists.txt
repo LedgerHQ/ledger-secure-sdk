@@ -41,6 +41,7 @@ set(COMMON_SOURCES
 set(USE_CASE_SOURCES
   ../../lib_tlv/use_cases/tlv_use_case_dynamic_descriptor.c
   ../../lib_tlv/use_cases/tlv_use_case_trusted_name.c
+  ../../lib_tlv/use_cases/tlv_use_case_transaction_check.c
 )
 
 # Common include directories
@@ -87,6 +88,7 @@ set(COMMON_DEFINITIONS
   HAVE_LEDGER_PKI
   HAVE_ECC
   HAVE_ECC_TWISTED_EDWARDS
+  HAVE_ECDSA
   WITH_STDIO
   HAVE_APP_STORAGE
   APP_STORAGE_SIZE=5555
@@ -109,6 +111,9 @@ function(add_tlv_test TEST_NAME TEST_SOURCE)
 
   if(ARG_USE_CASE)
     add_executable(${TEST_NAME} ${TEST_SOURCE} ${COMMON_SOURCES} ${USE_CASE_SOURCES})
+    target_compile_options(${TEST_NAME} PRIVATE
+      -include ${CMAKE_CURRENT_SOURCE_DIR}/mock_strlcpy.h
+    )
   else()
     add_executable(${TEST_NAME} ${TEST_SOURCE} ${COMMON_SOURCES})
   endif()
@@ -127,3 +132,4 @@ add_tlv_test(test_tlv_helpers test_tlv_helpers.c)
 add_tlv_test(test_tlv_macros test_tlv_macros.c)
 add_tlv_test(test_tlv_use_case_dynamic_descriptor test_tlv_use_case_dynamic_descriptor.c USE_CASE)
 add_tlv_test(test_tlv_use_case_trusted_name test_tlv_use_case_trusted_name.c USE_CASE)
+add_tlv_test(test_tlv_use_case_transaction_check test_tlv_use_case_transaction_check.c USE_CASE)
