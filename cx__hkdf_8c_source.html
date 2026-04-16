@@ -83,9 +83,9 @@ $(document).ready(function() { init_codefold(0); });
 </div><!--header-->
 <div class="contents">
 <a href="cx__hkdf_8c.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#ifdef HAVE_HMAC</span></div>
-<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#include &quot;<a class="code" href="lcx__hash_8h.html">lcx_hash.h</a>&quot;</span></div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#include &quot;<a class="code" href="cx__hkdf_8h.html">cx_hkdf.h</a>&quot;</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="preprocessor">#include &quot;<a class="code" href="cx__hash_8h.html">cx_hash.h</a>&quot;</span></div>
-<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &quot;<a class="code" href="lcx__hmac_8h.html">lcx_hmac.h</a>&quot;</span></div>
+<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &quot;<a class="code" href="cx__hmac_8h.html">cx_hmac.h</a>&quot;</span></div>
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &quot;<a class="code" href="cx__ram_8h.html">cx_ram.h</a>&quot;</span></div>
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span> </div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#include &lt;string.h&gt;</span></div>
@@ -93,7 +93,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="comment">// HMAC-Based Key Kerivation Function defined at https://tools.ietf.org/html/rfc5869</span></div>
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="comment">// Used to implement the EIP-2333 for BLS12-381 key generation</span></div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span> </div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="keywordtype">void</span> cx_hkdf_extract(<span class="keyword">const</span> cx_md_t        hash_id,</div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="keywordtype">void</span> <a class="code hl_function" href="cx__hkdf_8h.html#a2b403db82ba0776048c5ba772c75ebe4">cx_hkdf_extract</a>(<span class="keyword">const</span> cx_md_t        hash_id,</div>
 <div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>                     <span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> *ikm,</div>
 <div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>                     <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>         ikm_len,</div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>                     <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span>       *salt,</div>
@@ -121,7 +121,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    }</div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>}</div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="keywordtype">void</span> cx_hkdf_expand(<span class="keyword">const</span> cx_md_t        hash_id,</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="keywordtype">void</span> <a class="code hl_function" href="cx__hkdf_8h.html#a866ee66443e92b888941aaabed36dee9">cx_hkdf_expand</a>(<span class="keyword">const</span> cx_md_t        hash_id,</div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>                    <span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> *prk,</div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>                    <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>         prk_len,</div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>                    <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span>       *info,</div>
@@ -163,10 +163,12 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>}</div>
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span><span class="preprocessor">#endif  </span><span class="comment">// HAVE_HMAC</span></div>
 <div class="ttc" id="acx__hash_8h_html"><div class="ttname"><a href="cx__hash_8h.html">cx_hash.h</a></div></div>
+<div class="ttc" id="acx__hkdf_8h_html"><div class="ttname"><a href="cx__hkdf_8h.html">cx_hkdf.h</a></div></div>
+<div class="ttc" id="acx__hkdf_8h_html_a2b403db82ba0776048c5ba772c75ebe4"><div class="ttname"><a href="cx__hkdf_8h.html#a2b403db82ba0776048c5ba772c75ebe4">cx_hkdf_extract</a></div><div class="ttdeci">void cx_hkdf_extract(const cx_md_t hash_id, const unsigned char *ikm, unsigned int ikm_len, unsigned char *salt, unsigned int salt_len, unsigned char *prk)</div></div>
+<div class="ttc" id="acx__hkdf_8h_html_a866ee66443e92b888941aaabed36dee9"><div class="ttname"><a href="cx__hkdf_8h.html#a866ee66443e92b888941aaabed36dee9">cx_hkdf_expand</a></div><div class="ttdeci">void cx_hkdf_expand(const cx_md_t hash_id, const unsigned char *prk, unsigned int prk_len, unsigned char *info, unsigned int info_len, unsigned char *okm, unsigned int okm_len)</div></div>
+<div class="ttc" id="acx__hmac_8h_html"><div class="ttname"><a href="cx__hmac_8h.html">cx_hmac.h</a></div></div>
 <div class="ttc" id="acx__ram_8c_html_a4f3e87f678360b441337da0df48876f9"><div class="ttname"><a href="cx__ram_8c.html#a4f3e87f678360b441337da0df48876f9">G_cx</a></div><div class="ttdeci">union cx_u G_cx</div><div class="ttdef"><b>Definition</b> <a href="cx__ram_8c_source.html#l00021">cx_ram.c:21</a></div></div>
 <div class="ttc" id="acx__ram_8h_html"><div class="ttname"><a href="cx__ram_8h.html">cx_ram.h</a></div></div>
-<div class="ttc" id="alcx__hash_8h_html"><div class="ttname"><a href="lcx__hash_8h.html">lcx_hash.h</a></div><div class="ttdoc">Hash functions.</div></div>
-<div class="ttc" id="alcx__hmac_8h_html"><div class="ttname"><a href="lcx__hmac_8h.html">lcx_hmac.h</a></div><div class="ttdoc">HMAC (Keyed-Hash Message Authentication Code)</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

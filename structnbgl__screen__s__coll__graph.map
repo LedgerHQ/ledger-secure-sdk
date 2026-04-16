@@ -1,13 +1,13 @@
 <map id="nbgl_screen_s" name="nbgl_screen_s">
-<area shape="rect" id="Node000001" title="struct to represent a screen (SCREEN type)" alt="" coords="119,275,234,301"/>
-<area shape="poly" id="edge6_Node000001_Node000001" title=" " alt="" coords="249,279,261,288,252,296,234,299,234,294,250,291,255,288,246,284"/>
-<area shape="rect" id="Node000002" href="$structnbgl__container__s.html" title="struct to represent a container (CONTAINER type)" alt="" coords="5,185,137,211"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="97,217,165,273,161,277,94,222"/>
+<area shape="rect" id="Node000001" title="struct to represent a screen (SCREEN type)" alt="" coords="119,290,234,315"/>
+<area shape="poly" id="edge6_Node000001_Node000001" title=" " alt="" coords="249,294,261,302,252,311,234,314,234,308,250,306,255,303,246,298"/>
+<area shape="rect" id="Node000002" href="$structnbgl__container__s.html" title="struct to represent a container (CONTAINER type)" alt="" coords="5,200,137,225"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="97,232,165,288,161,292,94,236"/>
 <area shape="rect" id="Node000003" href="$structnbgl__obj__s.html" title="Common structure for all graphical objects." alt="" coords="26,95,117,121"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="74,134,74,185,69,185,69,134"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="74,135,74,200,69,200,69,135"/>
 <area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="131,98,139,102,143,108,135,117,117,119,116,114,133,112,138,108,136,106,129,103"/>
 <area shape="rect" id="Node000004" href="$structnbgl__area__s.html" title="Represents a rectangle area of the screen." alt="" coords="21,5,121,31"/>
 <area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="74,44,74,95,69,95,69,44"/>
-<area shape="rect" id="Node000005" href="$structnbgl__screenTickerConfiguration__s.html" title="struct to configure a screen layer" alt="" coords="162,185,402,211"/>
-<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="259,222,192,277,189,273,256,217"/>
+<area shape="rect" id="Node000005" href="$structnbgl__screenTickerConfiguration__s.html" title="struct to configure a screen layer" alt="" coords="162,200,402,225"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="259,236,192,292,189,288,256,232"/>
 </map>
