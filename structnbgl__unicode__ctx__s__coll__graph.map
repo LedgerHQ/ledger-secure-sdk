@@ -1,7 +1,8 @@
 <map id="nbgl_unicode_ctx_s" name="nbgl_unicode_ctx_s">
-<area shape="rect" id="Node000001" title=" " alt="" coords="113,93,262,119"/>
-<area shape="rect" id="Node000002" href="$structnbgl__font__unicode__t.html" title="structure defining a unicode font" alt="" coords="5,5,159,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,37,175,91,171,95,105,41"/>
-<area shape="rect" id="Node000003" href="$structnbgl__font__unicode__character__t.html" title="structure defining a unicode character (except the bitmap)" alt="" coords="183,5,405,31"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="271,41,203,95,200,91,267,37"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="75,181,224,207"/>
+<area shape="rect" id="Node000002" href="$structnbgl__font__unicode__t.html" title="structure defining a unicode font" alt="" coords="193,93,346,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="243,129,167,183,164,179,240,125"/>
+<area shape="rect" id="Node000003" href="$structnbgl__font__unicode__character__t.html" title="structure defining a unicode character (except the bitmap)" alt="" coords="5,5,227,31"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="112,45,107,80,111,118,125,152,142,179,138,182,120,155,105,119,102,80,107,44"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="150,35,250,91,247,95,147,40"/>
 </map>
