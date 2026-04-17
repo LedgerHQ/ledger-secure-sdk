@@ -108,7 +108,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span> </div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="preprocessor">#define APP_STORAGE_ERASE_BLOCK_SIZE 256</span></div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span> </div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>CONST app_storage_t app_storage_real <a class="code hl_function" href="nbgl__fonts_8c.html#af64d6b2f3814b25984291ea1aad3ad4c">__attribute__</a>((section(<span class="stringliteral">&quot;.storage_section&quot;</span>)));</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>CONST app_storage_t app_storage_real <a class="code hl_function" href="nfc__ndef_8h.html#a6c3b3640509f89b35e7a615e76713605">__attribute__</a>((section(<span class="stringliteral">&quot;.storage_section&quot;</span>)));</div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="preprocessor">#define app_storage (*(volatile app_storage_t *) PIC(&amp;app_storage_real))</span></div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>STATIC int32_t app_storage_is_initalized(<span class="keywordtype">void</span>)</div>
@@ -304,7 +304,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span><span class="preprocessor">#endif  </span><span class="comment">// HAVE_APP_STORAGE</span></div>
 <div class="ttc" id="aapp__storage__internal_8h_html"><div class="ttname"><a href="app__storage__internal_8h.html">app_storage_internal.h</a></div></div>
 <div class="ttc" id="alcx__crc_8h_html"><div class="ttname"><a href="lcx__crc_8h.html">lcx_crc.h</a></div><div class="ttdoc">CRC (Cyclic Redundancy Check).</div></div>
-<div class="ttc" id="anbgl__fonts_8c_html_af64d6b2f3814b25984291ea1aad3ad4c"><div class="ttname"><a href="nbgl__fonts_8c.html#af64d6b2f3814b25984291ea1aad3ad4c">__attribute__</a></div><div class="ttdeci">__attribute__((section(&quot;._nbgl_fonts_&quot;))) const</div><div class="ttdoc">return the non-unicode font corresponding to the given font ID</div><div class="ttdef"><b>Definition</b> <a href="nbgl__fonts_8c_source.html#l00072">nbgl_fonts.c:72</a></div></div>
+<div class="ttc" id="anfc__ndef_8h_html_a6c3b3640509f89b35e7a615e76713605"><div class="ttname"><a href="nfc__ndef_8h.html#a6c3b3640509f89b35e7a615e76713605">__attribute__</a></div><div class="ttdeci">struct __attribute__((packed)) ndef_struct_s</div><div class="ttdoc">Structure to store an NDEF message.</div><div class="ttdef"><b>Definition</b> <a href="nfc__ndef_8h_source.html#l00001">nfc_ndef.h:102</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
