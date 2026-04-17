@@ -5,6 +5,11 @@
 #include <stdbool.h>  // bool
 
 /**
+ * Hardening mask for BIP32 path elements
+ */
+#define BIP32_HARDENED_MASK 0x80000000u
+
+/**
  * Maximum length of BIP32 path allowed.
  */
 #define MAX_BIP32_PATH 10
