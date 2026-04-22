@@ -67,8 +67,12 @@ int nbgl_layoutAddKeyboard(nbgl_layout_t *layout, const nbgl_layoutKbd_t *kbdInf
     keyboard->obfuscated           = kbdInfo->obfuscated;
 
     if (kbdInfo->lettersOnly) {
+#ifdef KEYBOARD_NOT_SHUFFLED
+        keyboard->selectedCharIndex = 0;
+#else
         keyboard->selectedCharIndex = cx_rng_u32() % 26;
-        keyboard->mode              = MODE_LOWER_LETTERS;
+#endif
+        keyboard->mode = MODE_LOWER_LETTERS;
     }
     else {
         keyboard->mode = kbdInfo->mode;
@@ -107,12 +111,16 @@ int nbgl_layoutUpdateKeyboard(nbgl_layout_t *layout, uint8_t index, uint32_t key
         return -1;
     }
     if (keyboard->lettersOnly) {
+#ifdef KEYBOARD_NOT_SHUFFLED
+        keyboard->selectedCharIndex = 0;
+#else
         if (keyMask & (1 << 26)) {
             keyboard->selectedCharIndex = cx_rng_u32() % 26;
         }
         else {
             keyboard->selectedCharIndex = 0;
         }
+#endif
     }
     else {
         // if current keyMask was O and new one filters all keys,
