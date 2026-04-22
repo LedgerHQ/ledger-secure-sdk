@@ -57,10 +57,10 @@
  * - extensive use of * and arch specific C modifier
  */
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include "os_apilevel.h"
-
-#include "arch.h"
-
 #include "decorators.h"
 
 /* ----------------------------------------------------------------------- */
