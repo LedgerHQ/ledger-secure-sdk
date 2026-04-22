@@ -52,6 +52,7 @@ extern "C" {
 #define BACKSPACE_KEY_INDEX 26
 #define VALIDATE_INDEX      27
 #define SHIFT_KEY_INDEX     28
+#define KEYBOARD_MAX_TITLE  20
 #endif  // SCREEN_SIZE_WALLET
 #endif  // NBGL_KEYBOARD
 

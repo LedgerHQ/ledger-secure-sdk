@@ -1913,6 +1913,7 @@ static struct {
     uint8_t                    nbUsedButtons;
     nbgl_layoutTouchCallback_t onButtonCallback;
     nbgl_callback_t            backCallback;
+    char                       title[KEYBOARD_MAX_TITLE];
 } savedKeyboardContext;
 
 // Navigation callback to fill the suggestion choices page
@@ -1930,7 +1931,6 @@ static bool suggestionNavCallback(uint8_t page, nbgl_pageContent_t *content)
 // Display suggestion selection page
 static void displaySuggestionSelection(void)
 {
-    char title[20] = {0};
     // Save keyboard context before it gets overwritten
     savedKeyboardContext.buttons = context.keyboard.content.suggestionButtons.buttons;
     savedKeyboardContext.firstButtonToken
@@ -1943,8 +1943,11 @@ static void displaySuggestionSelection(void)
     nbgl_layoutRelease(context.keyboard.layoutCtx);
     context.keyboard.layoutCtx = NULL;
 
-    snprintf(title, sizeof(title), "Select word #%d", context.keyboard.content.number);
-    nbgl_useCaseNavigableContent(title,
+    snprintf(savedKeyboardContext.title,
+             sizeof(savedKeyboardContext.title),
+             "Select word #%d",
+             context.keyboard.content.number);
+    nbgl_useCaseNavigableContent(savedKeyboardContext.title,
                                  0,
                                  1,
                                  savedKeyboardContext.backCallback,
