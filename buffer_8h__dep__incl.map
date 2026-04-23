@@ -1,11 +1,35 @@
 <map id="lib_standard_app/buffer.h" name="lib_standard_app/buffer.h">
-<area shape="rect" id="Node000001" title=" " alt="" coords="103,5,290,31"/>
-<area shape="rect" id="Node000002" href="$buffer_8c.html" title=" " alt="" coords="5,79,191,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,41,116,81,113,76,168,36"/>
-<area shape="rect" id="Node000003" href="$io_8h.html" title=" " alt="" coords="215,79,376,104"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="225,36,281,76,278,81,222,41"/>
-<area shape="rect" id="Node000004" href="$io_8c.html" title=" " alt="" coords="118,152,278,177"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="270,114,215,154,212,150,267,110"/>
-<area shape="rect" id="Node000005" href="$main_8c.html" title=" " alt="" coords="302,152,483,177"/>
-<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="324,110,378,150,375,154,321,114"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="705,5,892,31"/>
+<area shape="rect" id="Node000002" href="$address__book__common_8c.html" title="Shared helpers for all Address Book sub&#45;commands." alt="" coords="359,79,550,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="736,36,538,81,537,76,735,31"/>
+<area shape="rect" id="Node000003" href="$identity__edit__contact__name_8c.html" title="Edit Contact Name flow (P1=0x02, struct type 0x2e)" alt="" coords="5,167,195,207"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="727,37,667,55,608,81,595,91,586,101,577,112,563,121,512,141,468,153,427,159,389,161,308,161,261,163,207,169,195,171,194,166,206,164,261,158,308,156,389,156,427,154,466,148,510,136,560,116,574,108,582,98,591,87,605,76,666,50,726,31"/>
+<area shape="rect" id="Node000004" href="$identity__edit__identifier_8c.html" title="Edit Identifier flow (P1=0x03, struct type 0x31)" alt="" coords="219,167,408,207"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="753,38,706,57,659,81,634,101,624,111,608,121,572,134,522,147,409,171,407,166,521,142,570,129,606,116,620,107,631,97,656,76,704,52,751,33"/>
+<area shape="rect" id="Node000005" href="$identity__edit__scope_8c.html" title="Edit Scope flow (P1=0x04, struct type 0x32)" alt="" coords="432,167,621,207"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="775,41,722,79,659,121,568,169,566,164,656,116,719,75,772,37"/>
+<area shape="rect" id="Node000006" href="$identity__provide__contact_8c.html" title="Provide Contact flow (P1=0x20, struct type 0x33)" alt="" coords="1065,79,1255,119"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="865,31,1074,76,1073,81,864,36"/>
+<area shape="rect" id="Node000007" href="$identity__register_8c.html" title="Register Identity flow (P1=0x01, struct type 0x2d)" alt="" coords="645,167,835,207"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="786,44,768,80,754,126,745,167,740,166,749,125,763,78,781,41"/>
+<area shape="rect" id="Node000008" href="$ledger__account__edit_8c.html" title="Edit Ledger Account flow (P1=0x12, struct type 0x30)" alt="" coords="1465,167,1645,207"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="848,33,899,52,952,76,981,98,993,108,1010,116,1074,137,1130,148,1180,154,1227,155,1326,154,1385,157,1452,164,1465,166,1464,171,1452,169,1384,162,1326,159,1227,160,1179,159,1129,154,1073,142,1008,121,990,112,978,102,949,81,897,57,847,38"/>
+<area shape="rect" id="Node000009" href="$ledger__account__register_8c.html" title="Register Ledger Account flow (P1=0x11, struct type 0x2f)" alt="" coords="1669,167,1849,207"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="869,31,934,50,1000,76,1016,87,1027,98,1038,108,1054,116,1141,144,1217,158,1285,163,1350,162,1486,155,1565,156,1658,164,1669,166,1668,171,1657,169,1565,161,1486,160,1350,167,1285,168,1216,163,1140,149,1052,121,1035,112,1024,102,1013,91,997,81,932,55,868,36"/>
+<area shape="rect" id="Node000010" href="$buffer_8c.html" title=" " alt="" coords="1279,86,1465,111"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="906,29,1267,76,1311,83,1310,89,1266,81,905,34"/>
+<area shape="rect" id="Node000011" href="$io_8h.html" title=" " alt="" coords="778,86,939,111"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="818,40,852,84,848,87,814,43"/>
+<area shape="poly" id="edge12_Node000011_Node000003" title=" " alt="" coords="764,110,512,133,207,169,195,171,194,166,206,164,512,128,764,105"/>
+<area shape="poly" id="edge13_Node000011_Node000004" title=" " alt="" coords="768,116,420,169,409,171,408,166,420,164,767,111"/>
+<area shape="poly" id="edge14_Node000011_Node000005" title=" " alt="" coords="802,117,600,169,599,164,800,112"/>
+<area shape="poly" id="edge15_Node000011_Node000007" title=" " alt="" coords="833,122,768,169,765,164,830,117"/>
+<area shape="poly" id="edge16_Node000011_Node000008" title=" " alt="" coords="929,111,959,116,1097,132,1206,140,1314,148,1452,164,1465,166,1464,171,1452,169,1313,153,1205,146,1097,138,958,121,928,116"/>
+<area shape="poly" id="edge17_Node000011_Node000009" title=" " alt="" coords="953,110,1010,116,1192,130,1334,137,1476,145,1658,164,1669,166,1668,171,1657,169,1475,150,1334,142,1191,136,1009,121,953,115"/>
+<area shape="rect" id="Node000012" href="$address__book__crypto_8c.html" title="HMAC Proof of Registration for Address Book contacts." alt="" coords="859,167,1050,207"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="883,118,935,165,932,169,880,122"/>
+<area shape="rect" id="Node000013" href="$io_8c.html" title=" " alt="" coords="1075,174,1235,199"/>
+<area shape="poly" id="edge18_Node000011_Node000013" title=" " alt="" coords="912,113,1116,171,1114,176,911,118"/>
+<area shape="rect" id="Node000014" href="$main_8c.html" title=" " alt="" coords="1259,174,1440,199"/>
+<area shape="poly" id="edge19_Node000011_Node000014" title=" " alt="" coords="932,111,959,116,1247,164,1288,171,1287,177,1246,169,958,121,931,116"/>
 </map>

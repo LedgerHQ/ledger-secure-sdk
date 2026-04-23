@@ -1,0 +1,9 @@
+<map id="address_book/include/ledger_account.h" name="address_book/include/ledger_account.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="229,5,391,45"/>
+<area shape="rect" id="Node000002" href="$address__book__crypto_8c.html" title="HMAC Proof of Registration for Address Book contacts." alt="" coords="5,93,196,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="252,53,148,96,145,91,250,48"/>
+<area shape="rect" id="Node000003" href="$ledger__account__edit_8c.html" title="Edit Ledger Account flow (P1=0x12, struct type 0x30)" alt="" coords="220,93,400,133"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="313,59,313,93,307,93,307,59"/>
+<area shape="rect" id="Node000004" href="$ledger__account__register_8c.html" title="Register Ledger Account flow (P1=0x11, struct type 0x2f)" alt="" coords="424,93,604,133"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="368,48,470,91,468,96,366,53"/>
+</map>
