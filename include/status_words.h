@@ -8,6 +8,9 @@
 #define SWO_SEC_PIN_15 0x5515
 #endif  // !HAVE_BOLOS
 
+// Specific error codes to indicate that the APDU was correctly processed but the answer will come
+// later (e.g., after user approval)
+#define SWO_NO_RESPONSE                      0x0000
 // 61 -- Normal processing, lower byte indicates the amount of data to be retrieved
 #define SWO_RESPONSE_BYTES_AVAILABLE         0x6100
 // 62 -- Warning, the state of persistent memory is unchanged. The command succeeded, possibly with
