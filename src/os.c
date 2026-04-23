@@ -238,7 +238,7 @@ bool is_printable_string(const char *str, size_t len)
  */
 bool is_zeroes_buffer(const void *buf, size_t n)
 {
-    uint8_t *p = (uint8_t *) buf;
+    const uint8_t *p = buf;
     for (size_t i = 0; i < n; ++i) {
         if (p[i] != 0) {
             return false;
