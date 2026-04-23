@@ -8,7 +8,7 @@ include(${BOLOS_SDK}/fuzzing/mock/mock.cmake)
 file(GLOB LIB_NBGL_SOURCES "${BOLOS_SDK}/lib_nbgl/src/*.c"
      "${BOLOS_SDK}/lib_ux_nbgl/*.c")
 add_library(nbgl ${LIB_NBGL_SOURCES})
-target_link_libraries(nbgl PUBLIC macros glyphs qrcode mock io)
+target_link_libraries(nbgl PUBLIC macros glyphs qrcode mock io nbgl_shared)
 target_compile_options(nbgl PUBLIC ${COMPILATION_FLAGS})
 target_include_directories(
   nbgl
