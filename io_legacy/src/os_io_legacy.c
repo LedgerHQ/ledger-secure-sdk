@@ -399,6 +399,10 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
                     G_io_tx_buffer[0] = err >> 8;
                     G_io_tx_buffer[1] = err;
                     status            = os_io_tx_cmd(io_os_legacy_apdu_type, G_io_tx_buffer, 2, 0);
+                    io_os_legacy_apdu_type = APDU_TYPE_NONE;
+                    if (status > 0) {
+                        status = 0;
+                    }
                 }
 #ifndef HAVE_BOLOS_NO_DEFAULT_APDU
                 else if (G_io_rx_buffer[APDU_OFF_CLA + 1] == DEFAULT_APDU_CLA) {
