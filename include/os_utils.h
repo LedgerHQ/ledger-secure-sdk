@@ -76,12 +76,36 @@ static inline void U4LE_ENCODE(uint8_t *buf, size_t off, uint32_t value)
     buf[off + 1] = (value >> 8) & 0xFF;
     buf[off + 0] = value & 0xFF;
 }
+static inline void U8BE_ENCODE(uint8_t *buf, size_t off, uint64_t value)
+{
+    buf[off + 0] = (value >> 56) & 0xFF;
+    buf[off + 1] = (value >> 48) & 0xFF;
+    buf[off + 2] = (value >> 40) & 0xFF;
+    buf[off + 3] = (value >> 32) & 0xFF;
+    buf[off + 4] = (value >> 24) & 0xFF;
+    buf[off + 5] = (value >> 16) & 0xFF;
+    buf[off + 6] = (value >> 8) & 0xFF;
+    buf[off + 7] = value & 0xFF;
+}
+static inline void U8LE_ENCODE(uint8_t *buf, size_t off, uint64_t value)
+{
+    buf[off + 7] = (value >> 56) & 0xFF;
+    buf[off + 6] = (value >> 48) & 0xFF;
+    buf[off + 5] = (value >> 40) & 0xFF;
+    buf[off + 4] = (value >> 32) & 0xFF;
+    buf[off + 3] = (value >> 24) & 0xFF;
+    buf[off + 2] = (value >> 16) & 0xFF;
+    buf[off + 1] = (value >> 8) & 0xFF;
+    buf[off + 0] = value & 0xFF;
+}
 
 void u4be_encode(unsigned char *buffer, unsigned int offset, unsigned int value);
 void u4le_encode(unsigned char *buffer, unsigned int offset, unsigned int value);
 
-int bytes_to_hex(char *out, size_t outl, const void *value, size_t len);
-int bytes_to_lowercase_hex(char *out, size_t outl, const void *value, size_t len);
+int  bytes_to_hex(char *out, size_t outl, const void *value, size_t len);
+int  bytes_to_lowercase_hex(char *out, size_t outl, const void *value, size_t len);
+bool is_printable_string(const char *str, size_t len);
+bool is_zeroes_buffer(const void *buf, size_t n);
 
 #define ARRAYLEN(array) (sizeof(array) / sizeof(array[0]))
 #define INARRAY(elementptr, array)                     \
