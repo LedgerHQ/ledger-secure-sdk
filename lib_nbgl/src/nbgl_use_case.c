@@ -2452,9 +2452,21 @@ static nbgl_layout_t *displayModalDetails(const nbgl_warningDetails_t *details, 
             nbgl_layoutBar_t bar;
             bar.text    = details->barList.texts[i];
             bar.subText = details->barList.subTexts[i];
-            bar.iconRight
-                = (details->barList.details[i].type != NO_TYPE_WARNING) ? &PUSH_ICON : NULL;
-            bar.iconLeft = details->barList.icons[i];
+            // Only assign a right icon if the bar is clickable (i.e. has details to display)
+            if ((details->barList.details)
+                && (details->barList.details[i].type != NO_TYPE_WARNING)) {
+                bar.iconRight = &PUSH_ICON;
+            }
+            else {
+                bar.iconRight = NULL;
+            }
+            // Left icon is optional, only set if provided by the warning details
+            if (details->barList.icons != NULL) {
+                bar.iconLeft = details->barList.icons[i];
+            }
+            else {
+                bar.iconLeft = NULL;
+            }
             bar.token    = FIRST_WARN_BAR_TOKEN + i;
             bar.tuneId   = TUNE_TAP_CASUAL;
             bar.large    = false;
