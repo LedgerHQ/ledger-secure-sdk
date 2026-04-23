@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Installing PIP dependencies
         run: pip install pylint PyGithub GitPython ledgered
       - name: Lint Python code
@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Installing PIP dependencies
         run: pip install mypy PyGithub GitPython ledgered
       - name: Mypy type checking

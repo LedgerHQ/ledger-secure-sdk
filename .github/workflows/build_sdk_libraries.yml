@@ -34,7 +34,7 @@ jobs:
             se: st33k1
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           sparse-checkout: |
             tools/build_clangrt_builtins.sh
@@ -45,7 +45,7 @@ jobs:
 
       - run: ./tools/build_newlib.sh -t ${{ matrix.target.core }} -o artifact/arch/${{ matrix.target.se }}/lib
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: arch-${{ matrix.target.se }}
           path: artifact/
@@ -70,7 +70,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           # by default the action uses fetch-depth = 1, which creates
           # shallow repositories from which we can't push
@@ -78,7 +78,7 @@ jobs:
           ref: ${{ inputs.target_sdk_branch }}
 
       - name: Download Binaries artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: arch
 
