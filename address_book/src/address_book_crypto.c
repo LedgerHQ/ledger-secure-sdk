@@ -107,7 +107,7 @@ static bool init_hmac_ctx(const path_bip32_t *bip32_path,
     bool                      success                  = false;
 
     CX_CHECK(bip32_derive_init_privkey_256(
-        CX_CURVE_SECP256R1, bip32_path->path, bip32_path->length, &private_key, NULL));
+        CX_CURVE_SECP256K1, bip32_path->path, bip32_path->length, &private_key, NULL));
     if (!address_book_derive_hmac_key(&private_key, salt, salt_len, hmac_key)) {
         goto end;
     }
