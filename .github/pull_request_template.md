@@ -25,7 +25,7 @@ Please post additional comments in this section if you have them, otherwise dele
 If requested to port the commits from this PR on a dedicated _API_LEVEL_ branch,
 select the targeted one(s), or add new references if not listed:
 
-[ ] TARGET_API_LEVEL: API_LEVEL_26
+- [ ] TARGET_API_LEVEL: API_LEVEL_26
 
 This will only create the PR with cherry-picks, ready to be reviewed and merged.
 
