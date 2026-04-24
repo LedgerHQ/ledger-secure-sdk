@@ -270,10 +270,11 @@ extern "C" {
 // number of spinner positions
 #define NB_SPINNER_POSITIONS 4
 #else  // SCREEN_SIZE_WALLET
-#define WARNING_ICON C_icon_warning
-#define REVIEW_ICON  C_icon_certificate
-#define LOGIN_ICON   C_Login_14px
-#define TRASH_ICON   C_Trash_14px
+#define WARNING_ICON            C_icon_warning
+#define REVIEW_ICON             C_icon_certificate
+#define LOGIN_ICON              C_Login_14px
+#define TRASH_ICON              C_Trash_14px
+#define LARGE_ADDRESS_BOOK_ICON C_Address_Book_14px
 #endif  // SCREEN_SIZE_WALLET
 
 #if NB_COLOR_BITS == 1
