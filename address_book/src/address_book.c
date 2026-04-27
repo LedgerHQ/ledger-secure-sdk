@@ -25,9 +25,10 @@
  *  - P1 0x02  → Edit Contact Name       (always active, single APDU)
  *  - P1 0x03  → Edit Identifier         (always active, multi-chunk)
  *  - P1 0x04  → Edit Scope              (always active, multi-chunk)
- *  - P1 0x11  → Register Ledger Account (HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT)
- *  - P1 0x12  → Edit Ledger Account     (HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT)
- *  - P1 0x20  → Provide Contact         (always active, multi-chunk)
+ *  - P1 0x11  → Register Ledger Account          (HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT)
+ *  - P1 0x12  → Edit Ledger Account              (HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT)
+ *  - P1 0x20  → Provide Contact                  (always active, multi-chunk)
+ *  - P1 0x21  → Provide Ledger Account Contact   (HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT, multi-chunk)
  *
  * Multi-chunk reassembly
  * ----------------------
@@ -62,8 +63,9 @@
 #define P1_PROVIDE_CONTACT   0x20
 
 #ifdef HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT
-#define P1_REGISTER_LEDGER_ACCOUNT 0x11
-#define P1_EDIT_LEDGER_ACCOUNT     0x12
+#define P1_REGISTER_LEDGER_ACCOUNT        0x11
+#define P1_EDIT_LEDGER_ACCOUNT            0x12
+#define P1_PROVIDE_LEDGER_ACCOUNT_CONTACT 0x21
 #endif
 
 /** P2 value for the first (or only) APDU chunk of a multi-chunk command. */
@@ -229,6 +231,22 @@ bolos_err_t addr_book_handle_apdu(uint8_t *buffer, size_t buffer_len, uint8_t p1
                     break;
             }
             break;
+
+#ifdef HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT
+        case P1_PROVIDE_LEDGER_ACCOUNT_CONTACT:
+            switch (reassemble_chunks(buffer, buffer_len, p2, &payload, &payload_len)) {
+                case REASSEMBLY_ERROR:
+                    err = SWO_INCORRECT_DATA;
+                    break;
+                case REASSEMBLY_PENDING:
+                    err = SWO_SUCCESS;
+                    break;
+                case REASSEMBLY_COMPLETE:
+                    err = provide_ledger_account_contact(payload, payload_len);
+                    break;
+            }
+            break;
+#endif  // HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT
 
         default:
             break;
