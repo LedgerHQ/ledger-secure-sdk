@@ -22,9 +22,10 @@
 #include "bip32.h"
 
 /* Exported defines   --------------------------------------------------------*/
-#define TYPE_REGISTER_LEDGER_ACCOUNT 0x2f
-#define TYPE_EDIT_LEDGER_ACCOUNT     0x30
-#define ACCOUNT_NAME_LENGTH          33  ///< max 32 printable chars + null terminator
+#define TYPE_REGISTER_LEDGER_ACCOUNT        0x2f
+#define TYPE_EDIT_LEDGER_ACCOUNT            0x30
+#define TYPE_PROVIDE_LEDGER_ACCOUNT_CONTACT 0x34
+#define ACCOUNT_NAME_LENGTH                 33  ///< max 32 printable chars + null terminator
 
 /* Exported types, structures, unions ----------------------------------------*/
 
@@ -53,3 +54,4 @@ typedef struct {
 /* Exported functions prototypes--------------------------------------------- */
 bolos_err_t register_ledger_account(uint8_t *buffer_in, size_t buffer_in_length);
 bolos_err_t edit_ledger_account(uint8_t *buffer_in, size_t buffer_in_length);
+bolos_err_t provide_ledger_account_contact(uint8_t *buffer_in, size_t buffer_in_length);

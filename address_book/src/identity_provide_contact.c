@@ -226,7 +226,7 @@ static bool handle_blockchain_family(const tlv_data_t *data, s_provide_contact_c
 }
 
 /**
- * @brief Handler for tag \ref HMAC_PROOF (TAG 0x54)
+ * @brief Handler for tag \ref HMAC_PROOF
  *
  * @param[in]  data    the tlv data
  * @param[out] context the received payload
@@ -245,7 +245,7 @@ static bool handle_hmac_proof(const tlv_data_t *data, s_provide_contact_ctx *con
 }
 
 /**
- * @brief Handler for tag \ref HMAC_REST (TAG 0x55)
+ * @brief Handler for tag \ref HMAC_REST
  *
  * @param[in]  data    the tlv data
  * @param[out] context the received payload
