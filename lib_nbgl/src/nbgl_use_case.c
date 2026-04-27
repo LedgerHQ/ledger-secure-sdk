@@ -1485,10 +1485,11 @@ static void displayFullValuePage(const char                   *backText,
             if (extension->aliasType == ENS_ALIAS) {
                 content.info = "ENS names are resolved by Ledger backend.";
             }
-            else if ((extension->aliasType == ADDRESS_BOOK_ALIAS)
-                     && (extension->aliasSubName != NULL)) {
-                content.descriptions[content.nbDescriptions] = extension->aliasSubName;
-                content.nbDescriptions++;
+            else if (extension->aliasType == ADDRESS_BOOK_ALIAS) {
+                if (extension->aliasSubName != NULL) {
+                    content.descriptions[content.nbDescriptions] = extension->aliasSubName;
+                    content.nbDescriptions++;
+                }
             }
             else {
                 content.info = extension->explanation;
@@ -1496,6 +1497,11 @@ static void displayFullValuePage(const char                   *backText,
             // add full value text
             content.descriptions[content.nbDescriptions] = extension->fullValue;
             content.nbDescriptions++;
+            // add trusted name if present (combined Address Book+Trusted Name case)
+            if ((extension->aliasType == ADDRESS_BOOK_ALIAS) && (extension->explanation != NULL)) {
+                content.descriptions[content.nbDescriptions] = extension->explanation;
+                content.nbDescriptions++;
+            }
             nbgl_layoutAddTextContent(genericContext.modalLayout, &content);
         }
         // draw & refresh
