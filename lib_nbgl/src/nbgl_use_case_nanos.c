@@ -1000,6 +1000,23 @@ static void displayExtensionStep(nbgl_stepPosition_t pos)
                 text    = context.review.extension->title;
                 subText = context.review.extension->fullValue;
                 break;
+            case ADDRESS_BOOK_ALIAS: {
+                bool    has_scope = (context.review.extension->aliasSubName != NULL);
+                bool    has_tn    = (context.review.extension->explanation != NULL);
+                uint8_t page      = context.review.currentExtensionPage;
+                if (page == 0) {
+                    text    = context.review.extension->title;
+                    subText = has_scope ? context.review.extension->aliasSubName
+                                        : context.review.extension->fullValue;
+                }
+                else if (has_scope && page == 1) {
+                    text = context.review.extension->fullValue;
+                }
+                else if (has_tn) {
+                    text = context.review.extension->explanation;
+                }
+                break;
+            }
             case INFO_LIST_ALIAS:
                 infoList = context.review.extension->infolist;
                 text     = PIC(infoList->infoTypes[context.review.currentExtensionPage]);
@@ -1057,6 +1074,11 @@ static void displayAliasFullValue(void)
     switch (context.review.extension->aliasType) {
         case ENS_ALIAS:
             context.review.nbExtensionPages = 2;
+            break;
+        case ADDRESS_BOOK_ALIAS:
+            context.review.nbExtensionPages
+                = 2 + ((context.review.extension->aliasSubName != NULL) ? 1 : 0)
+                  + ((context.review.extension->explanation != NULL) ? 1 : 0);
             break;
         case INFO_LIST_ALIAS:
             context.review.nbExtensionPages = context.review.extension->infolist->nbInfos + 1;
