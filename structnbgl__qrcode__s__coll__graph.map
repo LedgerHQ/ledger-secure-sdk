@@ -1,0 +1,8 @@
+<map id="nbgl_qrcode_s" name="nbgl_qrcode_s">
+<area shape="rect" id="Node000001" title="struct to represent a QR code (QR_CODE type), whose size is fixed" alt="" coords="5,185,120,211"/>
+<area shape="rect" id="Node000002" href="$structnbgl__obj__s.html" title="Common structure for all graphical objects." alt="" coords="17,95,108,121"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="65,134,65,185,60,185,60,134"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="122,98,131,102,135,108,126,117,108,119,108,114,124,112,129,108,127,106,121,103"/>
+<area shape="rect" id="Node000003" href="$structnbgl__area__s.html" title="Represents a rectangle area of the screen." alt="" coords="13,5,113,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="65,44,65,95,60,95,60,44"/>
+</map>

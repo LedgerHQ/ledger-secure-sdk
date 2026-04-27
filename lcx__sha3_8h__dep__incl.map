@@ -1,0 +1,19 @@
+<map id="lib_cxng/include/lcx_sha3.h" name="lib_cxng/include/lcx_sha3.h">
+<area shape="rect" id="Node000001" title="SHA&#45;3 (Secure Hash Algorithm 3)" alt="" coords="476,5,627,45"/>
+<area shape="rect" id="Node000002" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="389,93,580,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="528,58,497,95,493,91,524,54"/>
+<area shape="rect" id="Node000005" href="$cx__ram_8h.html" title=" " alt="" coords="602,262,765,287"/>
+<area shape="poly" id="edge9_Node000001_Node000005" title=" " alt="" coords="573,56,594,92,680,261,675,263,589,95,568,59"/>
+<area shape="rect" id="Node000003" href="$lcx__rng_8h.html" title="Random Number Generation." alt="" coords="409,167,560,207"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="479,132,480,166,474,167,474,132"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="491,153,489,119,494,119,496,153"/>
+<area shape="rect" id="Node000004" href="$address__book__crypto_8c.html" title="HMAC Proof of Registration for Address Book contacts." alt="" coords="5,255,196,295"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="397,210,185,257,184,252,395,205"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="542,210,658,260,656,264,540,215"/>
+<area shape="rect" id="Node000007" href="$cx__rng__rfc6979_8h.html" title=" " alt="" coords="221,255,367,295"/>
+<area shape="poly" id="edge7_Node000003_Node000007" title=" " alt="" coords="431,215,337,257,335,252,429,210"/>
+<area shape="rect" id="Node000008" href="$nbgl__layout_8c.html" title="Implementation of predefined layouts management for Applications." alt="" coords="391,262,578,287"/>
+<area shape="poly" id="edge8_Node000003_Node000008" title=" " alt="" coords="487,221,487,262,482,262,482,221"/>
+<area shape="rect" id="Node000006" href="$cx__ram_8c.html" title=" " alt="" coords="602,343,765,368"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="686,301,686,342,681,342,681,301"/>
+</map>
