@@ -1,0 +1,9 @@
+<map id="lib_ux/include/ux_layouts.h" name="lib_ux/include/ux_layouts.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="199,5,398,31"/>
+<area shape="rect" id="Node000002" href="$ux__bagl_8h.html" title=" " alt="" coords="5,86,184,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="257,38,125,88,123,83,255,33"/>
+<area shape="rect" id="Node000003" href="$ux__layout__paging__compute_8h.html" title=" " alt="" coords="209,79,389,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="301,44,301,79,296,79,296,44"/>
+<area shape="rect" id="Node000004" href="$ux__layout__paging__compute_8c.html" title=" " alt="" coords="413,79,565,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="340,33,445,76,442,81,338,38"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="nbgl_switch_s" name="nbgl_switch_s">
+<area shape="rect" id="Node000001" title="struct to represent a switch (size is fixed) (SWITCH type)" alt="" coords="5,185,119,211"/>
+<area shape="rect" id="Node000002" href="$structnbgl__obj__s.html" title="Common structure for all graphical objects." alt="" coords="17,95,107,121"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="65,134,65,185,59,185,59,134"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="122,98,130,102,134,108,126,117,108,119,107,114,123,112,129,108,127,106,120,103"/>
+<area shape="rect" id="Node000003" href="$structnbgl__area__s.html" title="Represents a rectangle area of the screen." alt="" coords="12,5,112,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="65,44,65,95,59,95,59,44"/>
+</map>

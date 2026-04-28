@@ -1,0 +1,8 @@
+<map id="nbgl_text_entry_s" name="nbgl_text_entry_s">
+<area shape="rect" id="Node000001" title="struct to represent a text entry area (TEXT_ENTRY type)" alt="" coords="5,185,144,211"/>
+<area shape="rect" id="Node000002" href="$structnbgl__obj__s.html" title="Common structure for all graphical objects." alt="" coords="29,95,120,121"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="77,134,77,185,72,185,72,134"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="134,98,143,102,147,108,138,117,120,119,120,114,136,112,141,108,139,106,133,103"/>
+<area shape="rect" id="Node000003" href="$structnbgl__area__s.html" title="Represents a rectangle area of the screen." alt="" coords="25,5,125,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="77,44,77,95,72,95,72,44"/>
+</map>

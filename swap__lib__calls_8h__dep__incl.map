@@ -1,0 +1,8 @@
+<map id="lib_standard_app/swap_lib_calls.h" name="lib_standard_app/swap_lib_calls.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="11,5,182,45"/>
+<area shape="rect" id="Node000002" href="$swap_8h.html" title=" " alt="" coords="5,181,188,207"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="79,58,63,94,60,113,63,133,75,159,89,180,85,183,70,161,58,134,55,113,58,93,74,56"/>
+<area shape="rect" id="Node000003" href="$swap__entrypoints_8h.html" title=" " alt="" coords="73,93,243,133"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="120,55,147,92,142,95,116,58"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="137,146,108,183,104,179,133,143"/>
+</map>

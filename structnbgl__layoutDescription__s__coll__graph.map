@@ -1,0 +1,5 @@
+<map id="nbgl_layoutDescription_s" name="nbgl_layoutDescription_s">
+<area shape="rect" id="Node000001" title="Structure containing all information when creating a layout. This structure must be passed as argumen..." alt="" coords="32,93,219,119"/>
+<area shape="rect" id="Node000002" href="$structnbgl__screenTickerConfiguration__s.html" title="struct to configure a screen layer" alt="" coords="5,5,245,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="128,45,128,93,123,93,123,45"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="nbgl_contentExtendedCenter_t" name="nbgl_contentExtendedCenter_t">
+<area shape="rect" id="Node000001" title="This structure contains data to build a EXTENDED_CENTER content." alt="" coords="68,181,291,207"/>
+<area shape="rect" id="Node000002" href="$structnbgl__contentCenter__t.html" title="This structure contains info to build a centered (vertically and horizontally) area,..." alt="" coords="5,93,167,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,126,168,179,165,183,107,130"/>
+<area shape="rect" id="Node000003" href="$structnbgl__animation__s.html" title="Represents all information about an animation (succession of icons)" alt="" coords="17,5,155,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="89,45,89,93,83,93,83,45"/>
+<area shape="rect" id="Node000004" href="$structnbgl__contentTipBox__t.html" title="This structure contains data to build a tip&#45;box, on top of a footer, on bottom of a content center." alt="" coords="191,93,354,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="264,133,244,159,208,183,205,179,240,155,259,129"/>
+</map>

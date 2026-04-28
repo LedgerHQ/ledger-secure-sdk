@@ -1,0 +1,17 @@
+<map id="app_features/address_book/include/ledger_account.h" name="app_features/address_book/include/ledger_account.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="62,5,225,60"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,181,97,207"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,62,89,84,71,109,60,139,55,168,50,167,55,137,66,107,85,80,107,58"/>
+<area shape="rect" id="Node000003" href="$address__book_8h.html" title=" " alt="" coords="81,108,205,133"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="146,60,146,94,141,94,141,60"/>
+<area shape="rect" id="Node000005" href="$bip32_8h.html" title=" " alt="" coords="229,108,300,133"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="182,58,238,98,235,102,179,62"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="130,135,79,175,75,171,127,131"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="126,181,201,207"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="149,133,159,167,154,169,144,134"/>
+<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="250,136,193,175,190,171,247,131"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="227,181,297,207"/>
+<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="267,134,266,168,260,168,262,134"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="322,181,405,207"/>
+<area shape="poly" id="edge8_Node000005_Node000007" title=" " alt="" coords="282,131,338,171,335,175,279,136"/>
+</map>

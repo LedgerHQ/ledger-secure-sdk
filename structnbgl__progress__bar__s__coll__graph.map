@@ -1,0 +1,8 @@
+<map id="nbgl_progress_bar_s" name="nbgl_progress_bar_s">
+<area shape="rect" id="Node000001" title="struct to represent a progress bar (PROGRESS_BAR type)" alt="" coords="5,185,160,211"/>
+<area shape="rect" id="Node000002" href="$structnbgl__obj__s.html" title="Common structure for all graphical objects." alt="" coords="37,95,128,121"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="85,134,85,185,80,185,80,134"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="142,98,151,102,155,108,146,117,128,119,128,114,144,112,149,108,147,106,141,103"/>
+<area shape="rect" id="Node000003" href="$structnbgl__area__s.html" title="Represents a rectangle area of the screen." alt="" coords="33,5,133,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="85,44,85,95,80,95,80,44"/>
+</map>

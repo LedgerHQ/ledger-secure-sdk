@@ -1,0 +1,31 @@
+<map id="lib_cxng/include/lcx_wrappers.h" name="lib_cxng/include/lcx_wrappers.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="439,5,590,45"/>
+<area shape="rect" id="Node000002" href="$lcx__cipher_8h.html" title="API for block ciphers." alt="" coords="249,93,399,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="461,53,367,96,365,91,459,49"/>
+<area shape="rect" id="Node000004" href="$lcx__rng_8h.html" title="Random Number Generation." alt="" coords="345,255,495,295"/>
+<area shape="poly" id="edge16_Node000001_Node000004" title=" " alt="" coords="584,48,648,76,707,114,729,135,742,158,743,183,730,208,715,221,692,233,632,250,563,262,496,270,495,265,562,257,631,245,690,228,712,217,726,205,738,182,736,160,725,138,704,118,646,81,582,53"/>
+<area shape="rect" id="Node000012" href="$lcx__eddsa_8h.html" title="EDDSA (Edwards Curve Digital Signature Algorithm)" alt="" coords="439,93,590,133"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="517,59,517,93,512,93,512,59"/>
+<area shape="rect" id="Node000003" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="325,181,515,207"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="359,140,407,179,404,183,356,144"/>
+<area shape="rect" id="Node000006" href="$cx__ram_8h.html" title=" " alt="" coords="5,357,168,383"/>
+<area shape="poly" id="edge12_Node000002_Node000006" title=" " alt="" coords="236,123,203,131,170,143,139,160,114,183,100,204,91,227,82,277,83,323,87,357,82,357,77,323,77,276,86,226,96,201,110,180,136,156,168,138,201,126,235,118"/>
+<area shape="rect" id="Node000010" href="$cx__cipher_8h.html" title=" " alt="" coords="124,181,300,207"/>
+<area shape="poly" id="edge10_Node000002_Node000010" title=" " alt="" coords="287,143,230,183,227,179,284,139"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="414,220,415,254,410,255,409,220"/>
+<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="426,241,424,207,429,207,432,241"/>
+<area shape="rect" id="Node000005" href="$address__book__crypto_8c.html" title="HMAC Proof of Registration for Address Book contacts." alt="" coords="573,343,752,397"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="483,297,595,340,593,345,481,302"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="340,301,181,345,128,360,127,355,179,340,338,296"/>
+<area shape="rect" id="Node000008" href="$cx__rng__rfc6979_8h.html" title=" " alt="" coords="192,350,339,390"/>
+<area shape="poly" id="edge8_Node000004_Node000008" title=" " alt="" coords="378,304,298,352,295,348,376,299"/>
+<area shape="rect" id="Node000009" href="$nbgl__layout_8c.html" title="Implementation of predefined layouts management for Applications." alt="" coords="363,357,549,383"/>
+<area shape="poly" id="edge9_Node000004_Node000009" title=" " alt="" coords="435,307,454,356,449,358,430,309"/>
+<area shape="rect" id="Node000007" href="$cx__ram_8c.html" title=" " alt="" coords="5,445,168,471"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="89,397,89,445,84,445,84,397"/>
+<area shape="rect" id="Node000011" href="$cx__cipher_8c.html" title=" " alt="" coords="125,262,299,287"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="215,220,215,262,209,262,209,220"/>
+<area shape="poly" id="edge14_Node000012_Node000003" title=" " alt="" coords="483,144,436,183,432,179,479,140"/>
+<area shape="rect" id="Node000013" href="$cx__eddsa_8h.html" title=" " alt="" coords="540,181,716,207"/>
+<area shape="poly" id="edge15_Node000012_Node000013" title=" " alt="" coords="555,139,613,179,610,183,552,143"/>
+</map>

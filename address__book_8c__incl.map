@@ -1,0 +1,23 @@
+<map id="app_features/address_book/src/address_book.c" name="app_features/address_book/src/address_book.c">
+<area shape="rect" id="Node000001" title="Address Book APDU dispatcher." alt="" coords="345,5,534,45"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,93,76,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="345,46,90,96,89,91,344,41"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="101,93,189,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="369,48,202,92,201,87,368,43"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="213,93,317,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="399,48,304,90,302,85,396,43"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="341,93,428,119"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="428,47,403,84,398,80,424,44"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="452,93,536,119"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="455,44,480,80,476,84,450,47"/>
+<area shape="rect" id="Node000007" href="$address__book_8h.html" title=" " alt="" coords="560,93,684,119"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="484,43,583,85,581,90,482,48"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="709,93,829,119"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="519,43,708,88,707,93,518,48"/>
+<area shape="rect" id="Node000011" href="$identity_8h.html" title="Register / Edit Contact Name / Edit Scope / Edit Identifier." alt="" coords="853,93,935,119"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="534,39,839,90,838,96,534,44"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="530,167,605,192"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="615,121,587,157,582,154,611,117"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="629,167,721,192"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="633,117,661,154,656,157,629,121"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="lib_standard_app/swap_entrypoints.h" name="lib_standard_app/swap_entrypoints.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="83,5,253,45"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,93,80,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="139,48,74,88,71,84,136,43"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="127,167,209,192"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="160,46,147,80,144,99,145,118,158,154,153,155,140,119,139,99,142,79,155,45"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="234,167,305,192"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="235,43,270,63,285,76,297,92,302,108,301,125,288,156,284,154,296,124,297,109,292,95,281,80,267,67,233,48"/>
+<area shape="rect" id="Node000005" href="$swap__lib__calls_8h.html" title=" " alt="" coords="155,93,283,119"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="183,44,206,80,201,83,178,47"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="212,121,186,157,182,154,208,117"/>
+<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="229,117,255,154,251,157,225,121"/>
+</map>

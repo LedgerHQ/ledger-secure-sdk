@@ -1,0 +1,13 @@
+<map id="lib_nbgl/include/nbgl_types.h" name="lib_nbgl/include/nbgl_types.h">
+<area shape="rect" id="Node000001" title="common types for Graphical Library" alt="" coords="163,5,319,45"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,93,80,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,48,85,91,83,86,193,43"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="105,93,175,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="218,48,168,87,165,82,215,43"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="200,93,283,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="244,46,244,79,239,79,239,46"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="307,93,411,119"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="271,43,332,84,329,88,268,48"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="435,93,549,119"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="302,43,443,87,442,92,301,48"/>
+</map>

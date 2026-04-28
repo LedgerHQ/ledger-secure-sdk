@@ -1,0 +1,8 @@
+<map id="nbgl_image_s" name="nbgl_image_s">
+<area shape="rect" id="Node000001" title="struct to represent an image (IMAGE type)" alt="" coords="5,185,117,211"/>
+<area shape="rect" id="Node000002" href="$structnbgl__obj__s.html" title="Common structure for all graphical objects." alt="" coords="16,95,107,121"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="64,134,64,185,59,185,59,134"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="121,98,129,102,133,108,125,117,107,119,106,114,123,112,128,108,126,106,119,103"/>
+<area shape="rect" id="Node000003" href="$structnbgl__area__s.html" title="Represents a rectangle area of the screen." alt="" coords="11,5,111,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="64,44,64,95,59,95,59,44"/>
+</map>

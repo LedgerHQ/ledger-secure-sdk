@@ -1,0 +1,8 @@
+<map id="lib_u2f/include/u2f_transport.h" name="lib_u2f/include/u2f_transport.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,148,45"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="41,167,112,192"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="72,46,63,80,62,118,70,153,65,154,57,119,58,79,67,45"/>
+<area shape="rect" id="Node000003" href="$u2f__types_8h.html" title=" " alt="" coords="71,93,170,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="90,44,110,80,105,83,85,47"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="116,120,93,156,89,154,111,118"/>
+</map>

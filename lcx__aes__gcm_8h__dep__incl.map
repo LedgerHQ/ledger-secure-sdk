@@ -1,0 +1,18 @@
+<map id="lib_cxng/include/lcx_aes_gcm.h" name="lib_cxng/include/lcx_aes_gcm.h">
+<area shape="rect" id="Node000001" title="AES in Galois/Counter Mode (AES&#45;GCM)" alt="" coords="303,5,454,45"/>
+<area shape="rect" id="Node000002" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="283,93,474,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="381,59,381,93,376,93,376,59"/>
+<area shape="rect" id="Node000003" href="$lcx__rng_8h.html" title="Random Number Generation." alt="" coords="303,167,454,207"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="373,132,374,166,368,167,368,132"/>
+<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="385,153,383,119,388,119,390,153"/>
+<area shape="rect" id="Node000004" href="$address__book__crypto_8c.html" title="HMAC Proof of Registration for Address Book contacts." alt="" coords="5,255,184,309"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="309,213,175,257,174,252,308,208"/>
+<area shape="rect" id="Node000005" href="$cx__ram_8h.html" title=" " alt="" coords="208,269,371,295"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="353,218,303,271,299,267,349,215"/>
+<area shape="rect" id="Node000007" href="$cx__rng__rfc6979_8h.html" title=" " alt="" coords="395,262,541,302"/>
+<area shape="poly" id="edge7_Node000003_Node000007" title=" " alt="" coords="408,215,452,260,448,264,404,218"/>
+<area shape="rect" id="Node000008" href="$nbgl__layout_8c.html" title="Implementation of predefined layouts management for Applications." alt="" coords="565,269,752,295"/>
+<area shape="poly" id="edge8_Node000003_Node000008" title=" " alt="" coords="449,208,625,267,623,272,447,213"/>
+<area shape="rect" id="Node000006" href="$cx__ram_8c.html" title=" " alt="" coords="208,357,371,383"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="292,309,292,357,287,357,287,309"/>
+</map>
