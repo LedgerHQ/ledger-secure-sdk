@@ -198,7 +198,7 @@ endif # USE_NBGL
 endif # TARGET_NANOX / TARGET_NANOS2
 
 ifeq ($(ENABLE_ADDRESS_BOOK), 1)
-# Address book requires a larger buffer. See address_book/include/address_book.h for details.
+# Address book requires a larger buffer. See app_features/address_book/include/address_book.h for details.
 DEFINES += OS_IO_SEPH_BUFFER_SIZE=448
 else
 DEFINES += OS_IO_SEPH_BUFFER_SIZE=272

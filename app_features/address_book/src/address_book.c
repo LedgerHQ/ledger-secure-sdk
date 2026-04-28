@@ -78,11 +78,11 @@
  * Mirrors the OS_IO_BUFFER_SIZE selection from os_io.h: prefer
  * CUSTOM_IO_APDU_BUFFER_SIZE when an app defines it, otherwise fall back to
  * OS_IO_SEPH_BUFFER_SIZE (set in Makefile.defines — see the sizing rationale
- * in address_book/include/address_book.h).
+ * in address_book.h).
  *
  * Subtract 8 = 3 B (SEPROXYHAL SPI framing) + 5 B (CLA INS P1 P2 Lc).
  * Coherence with OS_IO_SEPH_BUFFER_SIZE is enforced by the _Static_assert in
- * address_book/include/address_book.h. */
+ * address_book.h. */
 #ifdef CUSTOM_IO_APDU_BUFFER_SIZE
 #define ADDRESS_BOOK_MAX_CHUNKED_PAYLOAD (CUSTOM_IO_APDU_BUFFER_SIZE - 3 - 5)
 #else
