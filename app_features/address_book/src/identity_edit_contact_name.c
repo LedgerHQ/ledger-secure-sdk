@@ -328,6 +328,7 @@ bolos_err_t edit_contact_name(uint8_t *buffer_in, size_t buffer_in_length)
 
     // Init the structure
     ctx.edit = &EDIT_CONTACT_NAME;
+    memset(&EDIT_CONTACT_NAME, 0, sizeof(EDIT_CONTACT_NAME));
 
     // Parse using SDK TLV parser
     if (!edit_contact_name_tlv_parser(&payload, &ctx, &ctx.received_tags)) {

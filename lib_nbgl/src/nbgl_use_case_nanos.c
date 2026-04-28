@@ -1707,7 +1707,12 @@ static void displayChoicePage(nbgl_stepPosition_t pos)
     const char                *subText = NULL;
     const nbgl_icon_details_t *icon    = NULL;
     // set to 1 if there is only one page for intro (if either icon or subMessage is NULL)
+    // acceptPage = number of intro pages:
+    //   0 if no message, 1 if message with icon OR subMessage only, 2 if both icon and subMessage
     uint8_t acceptPage = 0;
+    // nbDetailPages = number of BAR_LIST bar pages shown before confirm/cancel (0 if none)
+    // Page order: intro(s) | bar pages | confirm | cancel
+    uint8_t nbDetailPages = 0;
 
     if (context.choice.message != NULL) {
         if ((context.choice.icon == NULL) || (context.choice.subMessage == NULL)) {
@@ -1716,6 +1721,9 @@ static void displayChoicePage(nbgl_stepPosition_t pos)
         else {
             acceptPage = 2;
         }
+    }
+    if ((context.choice.details != NULL) && (context.choice.details->type == BAR_LIST_WARNING)) {
+        nbDetailPages = context.choice.details->barList.nbBars;
     }
     context.stepCallback = NULL;
 
@@ -1730,29 +1738,32 @@ static void displayChoicePage(nbgl_stepPosition_t pos)
             }
         }
         else if ((acceptPage == 2) && (context.currentPage == 1)) {  // sub-title page
-            // displayed only if there is both icon and submessage
+            // displayed only if there is both icon and subMessage
             text    = context.choice.message;
             subText = context.choice.subMessage;
         }
     }
-    else if (context.currentPage == acceptPage) {  // confirm page
+    else if (context.currentPage < (acceptPage + nbDetailPages)) {
+        // BAR_LIST detail pages, shown before confirm/cancel (one page per bar)
+        uint8_t idx = context.currentPage - acceptPage;
+        text        = (context.choice.details->barList.texts != NULL)
+                          ? context.choice.details->barList.texts[idx]
+                          : NULL;
+        subText     = (context.choice.details->barList.subTexts != NULL)
+                          ? context.choice.details->barList.subTexts[idx]
+                          : NULL;
+    }
+    else if (context.currentPage == (acceptPage + nbDetailPages)) {  // confirm page
         icon                 = &C_icon_validate_14;
         text                 = context.choice.confirmText;
         context.stepCallback = onChoiceAccept;
     }
-    else if (context.currentPage == (acceptPage + 1)) {  // cancel page
+    else {  // cancel page (last page)
         icon                 = &C_icon_crossmark;
         text                 = context.choice.cancelText;
         context.stepCallback = onChoiceReject;
     }
-    else if (context.choice.details != NULL) {
-        // only the first level of details and BAR_LIST type are supported
-        if (context.choice.details->type == BAR_LIST_WARNING) {
-            text = context.choice.details->barList.texts[context.currentPage - (acceptPage + 2)];
-            subText
-                = context.choice.details->barList.subTexts[context.currentPage - (acceptPage + 2)];
-        }
-    }
+    // other detail types (non-BAR_LIST) are not navigated on Nano
 
     drawStep(pos, icon, text, subText, genericChoiceCallback, false, NO_FORCED_TYPE);
     nbgl_refresh();

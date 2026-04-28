@@ -366,6 +366,7 @@ bolos_err_t register_identity(uint8_t *buffer_in, size_t buffer_in_length)
 
     // Init the structure
     ctx.identity = &IDENTITY;
+    memset(&IDENTITY, 0, sizeof(IDENTITY));
 
     // Parse using SDK TLV parser
     if (!identity_tlv_parser(&payload, &ctx, &ctx.received_tags)) {

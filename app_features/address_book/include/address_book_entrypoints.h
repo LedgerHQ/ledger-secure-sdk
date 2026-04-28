@@ -170,8 +170,9 @@ bool handle_check_ledger_account(ledger_account_t *params);
  * @brief Handle called to display the Ledger Account registration review screen.
  *
  * Called after handle_check_ledger_account() succeeds. The app must display
- * the review UI and call the appropriate SDK response function on confirmation
- * or rejection. The app owns the UI flow from this point.
+ * the review UI and invoke @p choice_callback on confirmation or rejection.
+ * The app owns the UI flow from this point and is responsible for adapting
+ * the display to the target device (touch vs Nano).
  */
 void display_register_ledger_account_review(nbgl_choiceCallback_t choice_callback);
 
@@ -194,6 +195,22 @@ void finalize_ui_register_ledger_account(void);
  * The app should release any UI resources and return the device to idle.
  */
 void finalize_ui_edit_ledger_account(void);
+
+/*************** Exported functions prototypes: Provide Ledger Account Contact */
+
+/**
+ * @brief Handle called to store a verified Ledger Account contact.
+ *
+ * Called after TLV parsing and HMAC Proof of Registration verification.
+ * No UI is shown; the app must derive the address from the BIP32 path and
+ * store the contact for later use (e.g. address substitution during
+ * transaction review). Return false to reject and abort with an error.
+ *
+ * @param[in] account Verified Ledger Account (account_name, bip32_path,
+ *                    chain_id, blockchain_family)
+ * @return true if the contact was accepted and stored, false to reject
+ */
+bool handle_provide_ledger_account_contact(const ledger_account_t *account);
 
 #endif  // HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT
 
