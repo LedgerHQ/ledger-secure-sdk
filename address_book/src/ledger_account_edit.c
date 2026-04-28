@@ -363,6 +363,7 @@ bolos_err_t edit_ledger_account(uint8_t *buffer_in, size_t buffer_in_length)
 
     // Init the structure
     ctx.edit = &EDIT_LEDGER_ACCOUNT;
+    memset(&EDIT_LEDGER_ACCOUNT, 0, sizeof(EDIT_LEDGER_ACCOUNT));
 
     // Parse using SDK TLV parser
     if (!edit_ledger_account_tlv_parser(&payload, &ctx, &ctx.received_tags)) {

@@ -438,6 +438,7 @@ bolos_err_t edit_identifier(uint8_t *buffer_in, size_t buffer_in_length)
 
     // Init the structure
     ctx.edit = &EDIT_IDENTIFIER;
+    memset(&EDIT_IDENTIFIER, 0, sizeof(EDIT_IDENTIFIER));
 
     // Parse using SDK TLV parser
     if (!edit_identifier_tlv_parser(&payload, &ctx, &ctx.received_tags)) {

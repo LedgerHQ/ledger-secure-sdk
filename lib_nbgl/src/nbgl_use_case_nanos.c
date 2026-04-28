@@ -1746,12 +1746,12 @@ static void displayChoicePage(nbgl_stepPosition_t pos)
     else if (context.currentPage < (acceptPage + nbDetailPages)) {
         // BAR_LIST detail pages, shown before confirm/cancel (one page per bar)
         uint8_t idx = context.currentPage - acceptPage;
-        if (context.choice.details->barList.texts != NULL) {
-            text = context.choice.details->barList.texts[idx];
-        }
-        if (context.choice.details->barList.subTexts != NULL) {
-            subText = context.choice.details->barList.subTexts[idx];
-        }
+        text        = (context.choice.details->barList.texts != NULL)
+                          ? context.choice.details->barList.texts[idx]
+                          : NULL;
+        subText     = (context.choice.details->barList.subTexts != NULL)
+                          ? context.choice.details->barList.subTexts[idx]
+                          : NULL;
     }
     else if (context.currentPage == (acceptPage + nbDetailPages)) {  // confirm page
         icon                 = &C_icon_validate_14;

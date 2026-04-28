@@ -289,6 +289,7 @@ bolos_err_t register_ledger_account(uint8_t *buffer_in, size_t buffer_in_length)
 
     // Init the structure
     ctx.ledger_account = &LEDGER_ACCOUNT;
+    memset(&LEDGER_ACCOUNT, 0, sizeof(LEDGER_ACCOUNT));
 
     // Parse using SDK TLV parser
     if (!ledger_account_tlv_parser(&payload, &ctx, &ctx.received_tags)) {
