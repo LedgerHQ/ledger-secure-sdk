@@ -12,6 +12,8 @@ The feature provides:
 
 - Binding a contact name and scope to an external identifier (e.g. an Ethereum address) via
   the @b Register @b Identity flow
+- Linking @b multiple @b addresses to a single contact by re-calling Register Identity with
+  an existing @c group_handle — all addresses then share the same name and rename atomically
 - Binding an account name to a BIP32 derivation path managed by the device via the
   @b Register @b Ledger @b Account flow
 - Updating existing bindings (name, identifier, scope) via dedicated @b Edit flows — each
@@ -155,6 +157,11 @@ hmac_proof = HMAC-SHA256(K_account, message)
 -# <b>Two independent Identity HMACs</b>: @c HMAC_PROOF covers only @c gid + name, while
    @c HMAC_REST covers @c gid + scope + identifier + network.  This allows the wallet to rename
    a contact without re-presenting the identifier or scope, and vice-versa.
+-# <b>Multi-address contacts</b>: Register Identity can be called with an existing
+   @c group_handle + @c HMAC_PROOF to link a second @c (scope, identifier) pair to the same
+   @c gid.  The device verifies ownership before issuing a new @c HMAC_REST.  Because all
+   addresses share the same @c gid, a single Edit Contact Name invalidates the @c HMAC_PROOF
+   for every address in the group simultaneously.
 -# <b>Triple KDF</b>: Separate salts for Group Handle, Identity, and Ledger Account prevent
    cross-feature key reuse even at the same BIP32 derivation path.
 -# <b>No secrets leave the device</b>: The BIP32 private key, KDF keys, and @c gid are

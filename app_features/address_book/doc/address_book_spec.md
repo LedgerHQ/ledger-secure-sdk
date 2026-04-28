@@ -126,6 +126,7 @@ Commands that require multi-chunk transport:
 - **Edit Identifier** (§5.3, up to 428 B)
 - **Edit Scope** (§5.4, up to 380 B)
 - **Provide Contact** (§5.7, up to 362 B)
+- **Register Identity** (§5.1, up to 312 B) — only when `GROUP_HANDLE` + `HMAC_PROOF` are present **and** the identifier exceeds ~38 bytes (i.e. non-Ethereum chains); Ethereum stays within 255 B ✓
 
 ---
 
@@ -247,27 +248,42 @@ Registers a `(name, scope, identifier)` tuple on the device. The `ACCOUNT_IDENTI
 
 The response contains two independent **HMAC Proofs of Registration** (`HMAC_PROOF` and `HMAC_REST`) that cryptographically bind the contact to this device.
 
+#### Two operating modes
+
+**New group (default):** `GROUP_HANDLE` and `HMAC_PROOF` are omitted. The device generates a fresh `gid`, computes a new `group_handle`, and returns `group_handle + HMAC_PROOF + HMAC_REST`. The wallet stores all three alongside the first `(scope, identifier)` record.
+
+**Link to existing group (optional):** `GROUP_HANDLE` and `HMAC_PROOF` are both provided. The device verifies the `group_handle` MAC and the `HMAC_PROOF` (proving the wallet owns the contact), then computes only a new `HMAC_REST` for the new `(scope, identifier)`. The response echoes back the same `group_handle` and `HMAC_PROOF`, with a freshly computed `HMAC_REST`.
+
+> Both optional tags must be present together or both absent — providing only one is rejected.
+
+This allows a wallet to register multiple addresses for the same contact (e.g. the same person's Ethereum Mainnet and Base addresses) under a single `group_handle`. A subsequent rename via Edit Contact Name then invalidates the shared `HMAC_PROOF` for all addresses at once.
+
 #### TLV payload
 
-| Tag Name           | Value | Mandatory | Max size | Description                                                           |
-|--------------------|-------|-----------|----------|-----------------------------------------------------------------------|
-| STRUCT_TYPE        | 0x01  | Yes       | 1 B      | 0x2d (`TYPE_REGISTER_IDENTITY`)                                       |
-| STRUCT_VERSION     | 0x02  | Yes       | 1 B      | 0x01                                                                  |
-| CONTACT_NAME       | 0xf0  | Yes       | 32 B     | Contact name (max 32 printable ASCII chars)                           |
-| SCOPE              | 0xf1  | Yes       | 32 B     | Context string (e.g. "Ethereum", "Bitcoin legacy", "Solana USDC")     |
-| ACCOUNT_IDENTIFIER | 0xf2  | Yes       | 80 B     | Blockchain identifier (address or pubkey, chain-dependent)            |
-| DERIVATION_PATH    | 0x21  | Yes       | 41 B     | BIP32 derivation path (used to derive the HMAC key)                   |
-| CHAIN_ID           | 0x23  | Cond.     | 8 B      | Chain ID (mandatory for Ethereum)                                     |
-| BLOCKCHAIN_FAMILY  | 0x51  | Yes       | 1 B      | Blockchain family                                                     |
+| Tag Name           | Value | Mandatory | Max size | Description                                                                          |
+|--------------------|-------|-----------|----------|--------------------------------------------------------------------------------------|
+| STRUCT_TYPE        | 0x01  | Yes       | 1 B      | 0x2d (`TYPE_REGISTER_IDENTITY`)                                                      |
+| STRUCT_VERSION     | 0x02  | Yes       | 1 B      | 0x01                                                                                 |
+| CONTACT_NAME       | 0xf0  | Yes       | 32 B     | Contact name (max 32 printable ASCII chars)                                          |
+| SCOPE              | 0xf1  | Yes       | 32 B     | Context string (e.g. "Ethereum", "Bitcoin legacy", "Solana USDC")                    |
+| ACCOUNT_IDENTIFIER | 0xf2  | Yes       | 80 B     | Blockchain identifier (address or pubkey, chain-dependent)                           |
+| DERIVATION_PATH    | 0x21  | Yes       | 41 B     | BIP32 derivation path (used to derive the HMAC key)                                  |
+| CHAIN_ID           | 0x23  | Cond.     | 8 B      | Chain ID (mandatory for Ethereum)                                                    |
+| BLOCKCHAIN_FAMILY  | 0x51  | Yes       | 1 B      | Blockchain family                                                                    |
+| GROUP_HANDLE       | 0xf6  | Optional  | 64 B     | Existing group handle — links this identifier to an existing contact group           |
+| HMAC_PROOF         | 0x29  | Optional  | 32 B     | `HMAC_PROOF` for the existing group — required when `GROUP_HANDLE` is present        |
 
-> **Payload size:** worst case (Ethereum, max path depth, max identifier, with scope) = **212 B** — fits in a single short APDU ✓
+> **Payload size (new group):** worst case (max identifier, max path depth) = **212 B** — fits in a single short APDU ✓
+>
+> **Payload size (existing group):** adds `GROUP_HANDLE` (66 B with TLV overhead) + `HMAC_PROOF` (34 B) = up to **312 B** for a maximum-size identifier. For Ethereum (20-byte address) the total remains within 255 B ✓. For other chains with large identifiers, multi-chunk transport (see §3) is required.
 
 #### Flow
 
 1. Parse TLV payload.
-2. Call `handle_check_identity()` (coin-app entrypoint) for chain-specific validation.
-3. Display to user: contact_name + scope + identifier.
-4. On confirm: generate `gid`, compute `group_handle`, `HMAC_PROOF`, and `HMAC_REST`, return all three.
+2. If `GROUP_HANDLE` is present: verify its MAC (constant-time), extract `gid`, re-derive `HMAC_PROOF` over `(gid, contact_name)` and compare (constant-time) — proves the wallet owns the existing group.
+3. Call `handle_check_identity()` (coin-app entrypoint) for chain-specific validation.
+4. Display to user: contact_name + scope + identifier.
+5. On confirm: generate `gid` and compute `group_handle` + `HMAC_PROOF` (new group), or reuse the verified `gid` and echo them back (existing group); then compute `HMAC_REST` for the new `(scope, identifier)`.
 
 ```mermaid
 sequenceDiagram
@@ -275,17 +291,24 @@ sequenceDiagram
     participant D as Device
     participant U as User
 
-    W->>D: CMD_REGISTER_IDENTITY (contact_name + scope + identifier + path + ...)
+    W->>D: CMD_REGISTER_IDENTITY (contact_name + scope + identifier + path [+ group_handle + hmac_proof] + ...)
     D->>D: Parse TLV
+    alt GROUP_HANDLE + HMAC_PROOF provided (existing group)
+        D->>D: Verify group_handle MAC, extract gid
+        D->>D: Re-derive HMAC_PROOF(gid, contact_name), compare — proves wallet owns the group
+    end
     D->>D: handle_check_identity() [coin-app]
     D->>U: Display: contact_name / scope / identifier
     U->>D: Confirm
-    D->>D: Generate gid (32 random bytes)
-    D->>D: group_handle = gid || HMAC-SHA256(K_group, gid)
-    D->>D: HMAC_PROOF = HMAC-SHA256(key, gid|name_len|name)
+    alt New group
+        D->>D: Generate gid, compute group_handle = gid || HMAC-SHA256(K_group, gid)
+        D->>D: HMAC_PROOF = HMAC-SHA256(key, gid|name_len|name)
+    else Existing group
+        Note right of D: Echo back received group_handle and hmac_proof
+    end
     D->>D: HMAC_REST = HMAC-SHA256(key, gid|scope_len|scope|id_len|identifier|family[|chain_id])
     D->>W: 0x2d | group_handle(64) | hmac_proof(32) | hmac_rest(32)  [9000]
-    W->>W: Store group_handle + hmac_proof + hmac_rest with contact record
+    W->>W: Store group_handle + hmac_proof + hmac_rest with (scope, identifier) record
 ```
 
 #### Response (on confirm)
@@ -295,9 +318,9 @@ type(1) | group_handle(64) | hmac_proof(32) | hmac_rest(32)  — total 129 bytes
 ```
 
 - `type` = `0x2d` (`TYPE_REGISTER_IDENTITY`)
-- `group_handle` = `gid(32) | HMAC-SHA256(K_group, gid)(32)` — opaque token to re-send on edits
-- `hmac_proof` = HMAC-SHA256 over: `gid(32) | name_len(1) | contact_name`
-- `hmac_rest` = HMAC-SHA256 over: `gid(32) | scope_len(1) | scope | identifier_len(1) | identifier | family(1) [ | chain_id(8) ]`
+- `group_handle` = `gid(32) | HMAC-SHA256(K_group, gid)(32)` — opaque token to re-send on edits; freshly generated (new group) or echoed back (existing group)
+- `hmac_proof` = HMAC-SHA256 over: `gid(32) | name_len(1) | contact_name` — freshly computed (new group) or echoed back (existing group)
+- `hmac_rest` = HMAC-SHA256 over: `gid(32) | scope_len(1) | scope | identifier_len(1) | identifier | family(1) [ | chain_id(8) ]` — always freshly computed for the new `(scope, identifier)` pair
 
 ### 5.2 Edit Contact Name
 
