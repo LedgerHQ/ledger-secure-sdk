@@ -47,7 +47,7 @@ The Address Book APDU (@c CLA=0xB0, @c INS=0x10) dispatches on P1:
 @section address_book_flow Command Flows
 
 Sequence diagrams for Register Identity (P1=0x01) and Register Ledger Account (P1=0x11)
-are available in Mermaid format in @c address_book/doc/address_book_spec.md (viewable on GitHub/GitLab).
+are available in Mermaid format in @c app_features/address_book/doc/address_book_spec.md (viewable on GitHub/GitLab).
 
 @section address_book_data_structures Data Structures
 
