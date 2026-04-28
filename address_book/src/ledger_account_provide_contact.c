@@ -30,7 +30,7 @@
  * Flow:
  *  1. Receive fully assembled payload (multi-chunk reassembly handled by
  *     address_book.c)
- *  2. Parse TLVpayload (contact_name + derivation_path + chain_id + blockchain_family
+ *  2. Parse TLV payload (contact_name + derivation_path + chain_id + blockchain_family
  *     + hmac_proof)
  *  3. Verify HMAC Proof of Registration
  *  4. Call handle_provide_ledger_account_contact() so the coin app can store the contact
@@ -72,7 +72,7 @@ typedef struct {
     X(0x21, TAG_DERIVATION_PATH, handle_derivation_path, ENFORCE_UNIQUE_TAG)     \
     X(0x23, TAG_CHAIN_ID, handle_chain_id, ENFORCE_UNIQUE_TAG)                   \
     X(0x51, TAG_BLOCKCHAIN_FAMILY, handle_blockchain_family, ENFORCE_UNIQUE_TAG) \
-    X(0x29, HMAC_PROOF, handle_hmac_proof, ENFORCE_UNIQUE_TAG)
+    X(0x29, TAG_HMAC_PROOF, handle_hmac_proof, ENFORCE_UNIQUE_TAG)
 
 /* Private variables ---------------------------------------------------------*/
 static ledger_account_t PROVIDE_LEDGER_ACCOUNT = {0};
@@ -202,7 +202,7 @@ static bool verify_fields(const s_provide_ledger_account_ctx *context)
                                           TAG_CONTACT_NAME,
                                           TAG_DERIVATION_PATH,
                                           TAG_BLOCKCHAIN_FAMILY,
-                                          HMAC_PROOF);
+                                          TAG_HMAC_PROOF);
     if (!result) {
         PRINTF("[Provide Ledger Account] Missing mandatory fields!\n");
         return false;
@@ -265,7 +265,9 @@ bolos_err_t provide_ledger_account_contact(uint8_t *buffer_in, size_t buffer_in_
     const buffer_t               payload = {.ptr = buffer_in, .size = buffer_in_length};
     s_provide_ledger_account_ctx ctx     = {0};
 
+    // Init the structure
     ctx.ledger_account = &PROVIDE_LEDGER_ACCOUNT;
+    memset(&PROVIDE_LEDGER_ACCOUNT, 0, sizeof(PROVIDE_LEDGER_ACCOUNT));
 
     // Parse using SDK TLV parser
     if (!provide_ledger_account_tlv_parser(&payload, &ctx, &ctx.received_tags)) {

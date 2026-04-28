@@ -447,6 +447,7 @@ bolos_err_t edit_scope(uint8_t *buffer_in, size_t buffer_in_length)
 
     // Init the structure
     ctx.edit = &EDIT_SCOPE;
+    memset(&EDIT_SCOPE, 0, sizeof(EDIT_SCOPE));
 
     // Parse using SDK TLV parser
     if (!edit_scope_tlv_parser(&payload, &ctx, &ctx.received_tags)) {
