@@ -17,6 +17,7 @@
    - 5.5 [Register Ledger Account](#55-register-ledger-account)
    - 5.6 [Edit Ledger Account](#56-edit-ledger-account)
    - 5.7 [Provide Contact](#57-provide-contact)
+   - 5.8 [Provide Ledger Account Contact](#58-provide-ledger-account-contact)
 6. [Coin-app entrypoints](#6-coin-app-entrypoints)
 7. [Status words](#7-status-words)
 
@@ -94,15 +95,16 @@ CLA  INS  P1          P2    Lc        Data
 
 ### Sub-command table
 
-| P1   | Sub-command              | Guard                                                     |
-|------|--------------------------|-----------------------------------------------------------|
-| 0x01 | Register Identity        | `HAVE_ADDRESS_BOOK`                                       |
-| 0x02 | Edit Contact Name        | `HAVE_ADDRESS_BOOK`                                       |
-| 0x03 | Edit Identifier          | `HAVE_ADDRESS_BOOK`                                       |
-| 0x04 | Edit Scope               | `HAVE_ADDRESS_BOOK`                                       |
-| 0x11 | Register Ledger Account  | `HAVE_ADDRESS_BOOK` && `HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT` |
-| 0x12 | Edit Ledger Account      | `HAVE_ADDRESS_BOOK` && `HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT` |
-| 0x20 | Provide Contact          | `HAVE_ADDRESS_BOOK`                                       |
+| P1   | Sub-command                    | Guard                                                     |
+|------|--------------------------------|-----------------------------------------------------------|
+| 0x01 | Register Identity              | `HAVE_ADDRESS_BOOK`                                       |
+| 0x02 | Edit Contact Name              | `HAVE_ADDRESS_BOOK`                                       |
+| 0x03 | Edit Identifier                | `HAVE_ADDRESS_BOOK`                                       |
+| 0x04 | Edit Scope                     | `HAVE_ADDRESS_BOOK`                                       |
+| 0x11 | Register Ledger Account        | `HAVE_ADDRESS_BOOK` && `HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT` |
+| 0x12 | Edit Ledger Account            | `HAVE_ADDRESS_BOOK` && `HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT` |
+| 0x20 | Provide Contact                | `HAVE_ADDRESS_BOOK`                                       |
+| 0x21 | Provide Ledger Account Contact | `HAVE_ADDRESS_BOOK` && `HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT` |
 
 ### Multi-chunk transport
 
@@ -164,15 +166,16 @@ Multi-byte integer values are encoded **big-endian, minimum length** (no leading
 
 #### STRUCT_TYPE summary
 
-| STRUCT_TYPE | Constant                       | Sub-command              |
-|-------------|--------------------------------|--------------------------|
-| 0x2d        | `TYPE_REGISTER_IDENTITY`       | Register Identity        |
-| 0x2e        | `TYPE_EDIT_CONTACT_NAME`       | Edit Contact Name        |
-| 0x2f        | `TYPE_REGISTER_LEDGER_ACCOUNT` | Register Ledger Account  |
-| 0x30        | `TYPE_EDIT_LEDGER_ACCOUNT`     | Edit Ledger Account      |
-| 0x31        | `TYPE_EDIT_IDENTIFIER`         | Edit Identifier          |
-| 0x32        | `TYPE_EDIT_SCOPE`              | Edit Scope               |
-| 0x33        | `TYPE_PROVIDE_CONTACT`         | Provide Contact          |
+| STRUCT_TYPE | Constant                              | Sub-command                    |
+|-------------|---------------------------------------|--------------------------------|
+| 0x2d        | `TYPE_REGISTER_IDENTITY`              | Register Identity              |
+| 0x2e        | `TYPE_EDIT_CONTACT_NAME`              | Edit Contact Name              |
+| 0x2f        | `TYPE_REGISTER_LEDGER_ACCOUNT`        | Register Ledger Account        |
+| 0x30        | `TYPE_EDIT_LEDGER_ACCOUNT`            | Edit Ledger Account            |
+| 0x31        | `TYPE_EDIT_IDENTIFIER`                | Edit Identifier                |
+| 0x32        | `TYPE_EDIT_SCOPE`                     | Edit Scope                     |
+| 0x33        | `TYPE_PROVIDE_CONTACT`                | Provide Contact                |
+| 0x34        | `TYPE_PROVIDE_LEDGER_ACCOUNT_CONTACT` | Provide Ledger Account Contact |
 
 ### 4.3 Cryptographic KDF
 
@@ -222,7 +225,7 @@ The tag `HMAC_PROOF` is also used by Ledger Account commands (single HMAC, same 
 hmac_key = SHA256("AddressBook-LedgerAccount" || privkey.d)
 ```
 
-Used by Register Ledger Account and Edit Ledger Account.
+Used by Register Ledger Account, Edit Ledger Account, and Provide Ledger Account Contact.
 
 ---
 
@@ -664,23 +667,78 @@ sequenceDiagram
 
 ---
 
+### 5.8 Provide Ledger Account Contact
+
+- **Sub-command:** P1 = `0x21`
+- **Structure type:** `0x34` (`TYPE_PROVIDE_LEDGER_ACCOUNT_CONTACT`)
+- **Guard:** `HAVE_ADDRESS_BOOK` && `HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT`
+
+Sent by the wallet **before a transaction** to let the device substitute the human-readable account name for the raw Ethereum address of a previously-registered Ledger Account. Unlike Provide Contact (§5.7), there is no external identifier, no `group_handle`, no `scope`, and no `HMAC_REST` — the only proof required is the `HMAC_PROOF` returned by Register Ledger Account.
+
+The device verifies the HMAC Proof of Registration, then derives the Ethereum address from the BIP32 path and exposes the validated `(address → name)` mapping to the coin app via `handle_provide_ledger_account_contact()`.
+
+#### TLV payload
+
+| Tag Name          | Value | Mandatory | Max size | Description                                                          |
+|-------------------|-------|-----------|----------|----------------------------------------------------------------------|
+| STRUCT_TYPE       | 0x01  | Yes       | 1 B      | `0x34` (`TYPE_PROVIDE_LEDGER_ACCOUNT_CONTACT`)                       |
+| STRUCT_VERSION    | 0x02  | Yes       | 1 B      | `0x01`                                                               |
+| CONTACT_NAME      | 0xf0  | Yes       | 32 B     | Account name (must match value used at registration)                 |
+| DERIVATION_PATH   | 0x21  | Yes       | 41 B     | BIP32 derivation path (same as at registration)                      |
+| CHAIN_ID          | 0x23  | Cond.     | 8 B      | Chain ID (mandatory for Ethereum)                                    |
+| BLOCKCHAIN_FAMILY | 0x51  | Yes       | 1 B      | Blockchain family                                                    |
+| HMAC_PROOF        | 0x29  | Yes       | 32 B     | `HMAC_PROOF` from Register Ledger Account — proves the account name  |
+
+> **Payload size:** worst case (Ethereum, max path depth, max name) = **130 B** — fits in a single short APDU ✓
+
+#### Flow
+
+1. Parse TLV payload.
+2. Re-derive HMAC over `(account_name, family [, chain_id])` at the given BIP32 path and compare with `hmac_proof` (constant-time) — proves the account was registered on this device.
+3. Call `handle_provide_ledger_account_contact()` (coin-app entrypoint) — the app derives the Ethereum address from the BIP32 path, stores the `(address → name)` mapping for use during the upcoming transaction review.
+4. Return `9000` (no data).
+
+```mermaid
+sequenceDiagram
+    participant W as Wallet
+    participant D as Device
+
+    Note over W: Has: account_name, bip32_path, chain_id, hmac_proof (from registration)
+    W->>D: CMD_PROVIDE_LEDGER_ACCOUNT_CONTACT (account_name + bip32_path + chain_id + family + hmac_proof)
+    D->>D: Parse TLV
+    D->>D: Re-derive HMAC(account_name, family[, chain_id]) at bip32_path, compare with hmac_proof
+    Note right of D: Proof valid — account legitimately registered on this device
+    D->>D: handle_provide_ledger_account_contact() [coin-app] — derive address, store mapping
+    D->>W: 9000
+    Note over W: Wallet sends the transaction APDU next
+```
+
+#### Response
+
+```text
+9000  (no data)
+```
+
+---
+
 ## 6. Coin-app entrypoints
 
-| Entrypoint                              | Signature                       | Guard                              | Called when                               | Expected return                      |
-|-----------------------------------------|---------------------------------|------------------------------------|-------------------------------------------|--------------------------------------|
-| `handle_check_identity`                 | `(identity_t *)`                | `HAVE_ADDRESS_BOOK`                | Before displaying Register Identity       | `true` to proceed, `false` to reject |
-| `get_register_identity_tagValue`        | `(pair *, index)`               | `HAVE_ADDRESS_BOOK`                | NBGL tag-value callback during review     | Fills pair for display               |
-| `finalize_ui_register_identity`         | `(void)`                        | `HAVE_ADDRESS_BOOK`                | After user choice                         | Cleanup + return to idle             |
-| `finalize_ui_edit_contact_name`         | `(void)`                        | `HAVE_ADDRESS_BOOK`                | After Edit Contact Name user choice       | Return to idle (SDK handles display) |
-| `handle_check_edit_identifier`          | `(edit_identifier_t *)`         | `HAVE_ADDRESS_BOOK`                | Before displaying Edit Identifier         | `true` to proceed, `false` to reject |
-| `get_edit_identifier_tagValue`          | `(pair *, index)`               | `HAVE_ADDRESS_BOOK`                | NBGL tag-value callback during review     | Fills pair for display               |
-| `finalize_ui_edit_identifier`           | `(void)`                        | `HAVE_ADDRESS_BOOK`                | After user choice                         | Cleanup + return to idle             |
-| `finalize_ui_edit_scope`                | `(void)`                        | `HAVE_ADDRESS_BOOK`                | After Edit Scope user choice              | Return to idle (SDK handles display) |
-| `handle_check_ledger_account`           | `(ledger_account_t *)`          | `HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT` | Before displaying Register Ledger Account | `true` to proceed, `false` to reject |
-| `display_register_ledger_account_review`| `(nbgl_choiceCallback_t)`       | `HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT` | App owns full review UI                   | Calls SDK callback on confirm/reject |
-| `finalize_ui_register_ledger_account`   | `(void)`                        | `HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT` | After user choice                         | Cleanup + return to idle             |
-| `finalize_ui_edit_ledger_account`       | `(void)`                        | `HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT` | After Edit Ledger Account user choice     | Return to idle (SDK handles display) |
-| `handle_provide_contact`                | `(const identity_t *)`          | `HAVE_ADDRESS_BOOK`                | After Provide Contact HMAC verification   | `true` to accept, `false` to reject  |
+| Entrypoint                               | Signature                      | Guard                              | Called when                                                    | Expected return                      |
+|------------------------------------------|--------------------------------|------------------------------------|----------------------------------------------------------------|--------------------------------------|
+| `handle_check_identity`                  | `(identity_t *)`               | `HAVE_ADDRESS_BOOK`                | Before displaying Register Identity                            | `true` to proceed, `false` to reject |
+| `get_register_identity_tagValue`         | `(pair *, index)`              | `HAVE_ADDRESS_BOOK`                | NBGL tag-value callback during review                          | Fills pair for display               |
+| `finalize_ui_register_identity`          | `(void)`                       | `HAVE_ADDRESS_BOOK`                | After user choice                                              | Cleanup + return to idle             |
+| `finalize_ui_edit_contact_name`          | `(void)`                       | `HAVE_ADDRESS_BOOK`                | After Edit Contact Name user choice                            | Return to idle (SDK handles display) |
+| `handle_check_edit_identifier`           | `(edit_identifier_t *)`        | `HAVE_ADDRESS_BOOK`                | Before displaying Edit Identifier                              | `true` to proceed, `false` to reject |
+| `get_edit_identifier_tagValue`           | `(pair *, index)`              | `HAVE_ADDRESS_BOOK`                | NBGL tag-value callback during review                          | Fills pair for display               |
+| `finalize_ui_edit_identifier`            | `(void)`                       | `HAVE_ADDRESS_BOOK`                | After user choice                                              | Cleanup + return to idle             |
+| `finalize_ui_edit_scope`                 | `(void)`                       | `HAVE_ADDRESS_BOOK`                | After Edit Scope user choice                                   | Return to idle (SDK handles display) |
+| `handle_check_ledger_account`            | `(ledger_account_t *)`         | `HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT` | Before displaying Register Ledger Account                      | `true` to proceed, `false` to reject |
+| `display_register_ledger_account_review` | `(nbgl_choiceCallback_t)`      | `HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT` | App owns full review UI                                        | Calls SDK callback on confirm/reject |
+| `finalize_ui_register_ledger_account`    | `(void)`                       | `HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT` | After user choice                                              | Cleanup + return to idle             |
+| `finalize_ui_edit_ledger_account`        | `(void)`                       | `HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT` | After Edit Ledger Account user choice                          | Return to idle (SDK handles display) |
+| `handle_provide_contact`                 | `(const identity_t *)`         | `HAVE_ADDRESS_BOOK`                | After Provide Contact HMAC verification                        | `true` to accept, `false` to reject  |
+| `handle_provide_ledger_account_contact`  | `(const ledger_account_t *)`   | `HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT` | After Provide Ledger Account Contact HMAC verification         | `true` to accept, `false` to reject  |
 
 ---
 

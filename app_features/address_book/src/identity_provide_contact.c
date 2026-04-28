@@ -226,7 +226,7 @@ static bool handle_blockchain_family(const tlv_data_t *data, s_provide_contact_c
 }
 
 /**
- * @brief Handler for tag \ref HMAC_PROOF (TAG 0x54)
+ * @brief Handler for tag \ref HMAC_PROOF
  *
  * @param[in]  data    the tlv data
  * @param[out] context the received payload
@@ -245,7 +245,7 @@ static bool handle_hmac_proof(const tlv_data_t *data, s_provide_contact_ctx *con
 }
 
 /**
- * @brief Handler for tag \ref HMAC_REST (TAG 0x55)
+ * @brief Handler for tag \ref HMAC_REST
  *
  * @param[in]  data    the tlv data
  * @param[out] context the received payload
@@ -334,7 +334,9 @@ bolos_err_t provide_contact(uint8_t *buffer_in, size_t buffer_in_length)
     const buffer_t        payload = {.ptr = buffer_in, .size = buffer_in_length};
     s_provide_contact_ctx ctx     = {0};
 
+    // Init the structure
     ctx.identity = &PROVIDE_CONTACT_IDENTITY;
+    memset(&PROVIDE_CONTACT_IDENTITY, 0, sizeof(PROVIDE_CONTACT_IDENTITY));
 
     // Parse using SDK TLV parser
     if (!provide_contact_tlv_parser(&payload, &ctx, &ctx.received_tags)) {

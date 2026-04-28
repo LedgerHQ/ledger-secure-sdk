@@ -33,20 +33,21 @@ The Address Book implementation is split between the SDK and coin applications:
 
 The Address Book APDU (@c CLA=0xB0, @c INS=0x10) dispatches on P1:
 
-| P1   | Sub-command             | Struct type | Guard                             |
-|------|-------------------------|-------------|-----------------------------------|
-| 0x01 | Register Identity       | 0x2d        | HAVE_ADDRESS_BOOK                 |
-| 0x02 | Edit Contact Name       | 0x2e        | HAVE_ADDRESS_BOOK                 |
-| 0x03 | Edit Identifier         | 0x31        | HAVE_ADDRESS_BOOK                 |
-| 0x04 | Edit Scope              | 0x32        | HAVE_ADDRESS_BOOK                 |
-| 0x11 | Register Ledger Account | 0x2f        | HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT  |
-| 0x12 | Edit Ledger Account     | 0x30        | HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT  |
-| 0x20 | Provide Contact         | 0x33        | HAVE_ADDRESS_BOOK                 |
+| P1   | Sub-command                    | Struct type | Guard                             |
+|------|--------------------------------|-------------|-----------------------------------|
+| 0x01 | Register Identity              | 0x2d        | HAVE_ADDRESS_BOOK                 |
+| 0x02 | Edit Contact Name              | 0x2e        | HAVE_ADDRESS_BOOK                 |
+| 0x03 | Edit Identifier                | 0x31        | HAVE_ADDRESS_BOOK                 |
+| 0x04 | Edit Scope                     | 0x32        | HAVE_ADDRESS_BOOK                 |
+| 0x11 | Register Ledger Account        | 0x2f        | HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT  |
+| 0x12 | Edit Ledger Account            | 0x30        | HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT  |
+| 0x20 | Provide Contact                | 0x33        | HAVE_ADDRESS_BOOK                 |
+| 0x21 | Provide Ledger Account Contact | 0x34        | HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT  |
 
 @section address_book_flow Command Flows
 
 Sequence diagrams for Register Identity (P1=0x01) and Register Ledger Account (P1=0x11)
-are available in Mermaid format in @c address_book/doc/address_book_spec.md (viewable on GitHub/GitLab).
+are available in Mermaid format in @c app_features/address_book/doc/address_book_spec.md (viewable on GitHub/GitLab).
 
 @section address_book_data_structures Data Structures
 
@@ -85,6 +86,7 @@ type(1) | hmac(32)
 type(1) | hmac_proof(32)
 
 // Provide Contact (0x33):  no data
+// Provide Ledger Account Contact (0x34):  no data
 9000
 @endcode
 
@@ -119,7 +121,7 @@ K_group   = SHA256("AddressBook-Group"         || BIP32_PRIVKEY.d)
 // Identity HMAC key (Register Identity + all Identity Edit flows)
 K_identity = SHA256("AddressBook-Identity"      || BIP32_PRIVKEY.d)
 
-// Ledger Account HMAC key
+// Ledger Account HMAC key (Register, Edit, and Provide Ledger Account Contact)
 K_account  = SHA256("AddressBook-LedgerAccount" || BIP32_PRIVKEY.d)
 @endcode
 
@@ -199,6 +201,11 @@ void finalize_ui_edit_ledger_account(void);
 <b>Provide Contact</b>:
 @code{.c}
 bool handle_provide_contact(const identity_t *contact);
+@endcode
+
+<b>Provide Ledger Account Contact</b> (requires @c HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT):
+@code{.c}
+bool handle_provide_ledger_account_contact(const ledger_account_t *account);
 @endcode
 
 @subsection address_book_functions Core Crypto Functions
