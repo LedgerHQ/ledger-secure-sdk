@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include "decorators.h"
 
+#define WIDE
+
 /**
  * Helper to perform compilation time assertions
  */
