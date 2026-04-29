@@ -1,4 +1,0 @@
-var searchData=
-[
-  ['_5f_5fattribute_5f_5f_0',['__attribute__',['../nfc__ndef_8h.html#a6c3b3640509f89b35e7a615e76713605',1,'__attribute__((packed)) ndef_struct_s:&#160;nfc_ndef.h'],['../main_8c.html#ac515f0533c5ab83ac8cc134050f583de',1,'__attribute__((noreturn)):&#160;main.c'],['../main_8c.html#a6f58a006474f9997715932e01d69404c',1,'__attribute__((section(&quot;.boot&quot;))):&#160;main.c'],['../main__std__app_8h.html#af765eb4107635dcde96acca2d2b27cb5',1,'__attribute__((noreturn)) app_exit(void):&#160;main.c']]]
-];

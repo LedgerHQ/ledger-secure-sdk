@@ -1,7 +1,0 @@
-<map id="nbgl_unicode_ctx_s" name="nbgl_unicode_ctx_s">
-<area shape="rect" id="Node000001" title=" " alt="" coords="113,93,262,119"/>
-<area shape="rect" id="Node000002" href="$structnbgl__font__unicode__t.html" title="structure defining a unicode font" alt="" coords="5,5,159,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,37,175,91,171,95,105,41"/>
-<area shape="rect" id="Node000003" href="$structnbgl__font__unicode__character__t.html" title="structure defining a unicode character (except the bitmap)" alt="" coords="183,5,405,31"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="271,41,203,95,200,91,267,37"/>
-</map>

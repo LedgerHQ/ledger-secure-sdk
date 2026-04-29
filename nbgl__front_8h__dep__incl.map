@@ -1,9 +1,0 @@
-<map id="lib_nbgl/include/nbgl_front.h" name="lib_nbgl/include/nbgl_front.h">
-<area shape="rect" id="Node000001" title="Font screen low&#45;Level driver API, to draw elementary forms." alt="" coords="226,5,382,45"/>
-<area shape="rect" id="Node000002" href="$nbgl__layout_8c.html" title="Implementation of predefined layouts management for Applications." alt="" coords="5,101,192,126"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="248,53,127,103,125,98,246,48"/>
-<area shape="rect" id="Node000003" href="$nbgl__layout__keyboard_8c.html" title="Implementation of predefined keyboard related layouts management." alt="" coords="216,93,392,133"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="307,59,307,93,301,93,301,59"/>
-<area shape="rect" id="Node000004" href="$nbgl__layout__keypad_8c.html" title="Implementation of keypad management of predefined layouts management for Applications." alt="" coords="416,93,592,133"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="362,48,461,91,459,96,359,53"/>
-</map>
