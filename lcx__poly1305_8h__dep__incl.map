@@ -1,21 +1,19 @@
 <map id="lib_cxng/include/lcx_poly1305.h" name="lib_cxng/include/lcx_poly1305.h">
-<area shape="rect" id="Node000001" title="POLY1305 Message Authentication Code." alt="" coords="562,5,713,45"/>
-<area shape="rect" id="Node000002" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="377,93,567,119"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="587,54,498,96,495,91,584,49"/>
-<area shape="rect" id="Node000005" href="$cx__ram_8h.html" title=" " alt="" coords="589,269,752,295"/>
-<area shape="poly" id="edge10_Node000001_Node000005" title=" " alt="" coords="644,58,672,269,666,269,639,59"/>
-<area shape="rect" id="Node000009" href="$cx__poly1305_8h.html" title=" " alt="" coords="675,93,872,119"/>
-<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="683,50,755,91,752,95,681,55"/>
-<area shape="rect" id="Node000003" href="$lcx__rng_8h.html" title="Random Number Generation." alt="" coords="397,167,547,207"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="466,132,467,166,462,167,461,132"/>
-<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="478,153,476,119,481,119,484,153"/>
-<area shape="rect" id="Node000004" href="$address__book__crypto_8c.html" title="HMAC Proof of Registration for Address Book contacts." alt="" coords="5,255,184,309"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="384,212,197,257,185,260,184,255,195,252,383,206"/>
-<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="526,210,647,267,645,272,523,215"/>
-<area shape="rect" id="Node000007" href="$cx__rng__rfc6979_8h.html" title=" " alt="" coords="208,262,355,302"/>
-<area shape="poly" id="edge7_Node000003_Node000007" title=" " alt="" coords="422,215,321,264,319,260,420,210"/>
-<area shape="rect" id="Node000008" href="$nbgl__layout_8c.html" title="Implementation of predefined layouts management for Applications." alt="" coords="379,269,565,295"/>
-<area shape="poly" id="edge8_Node000003_Node000008" title=" " alt="" coords="475,221,475,269,469,269,469,221"/>
-<area shape="rect" id="Node000006" href="$cx__ram_8c.html" title=" " alt="" coords="589,357,752,383"/>
-<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="673,309,673,357,668,357,668,309"/>
+<area shape="rect" id="Node000001" title="POLY1305 Message Authentication Code." alt="" coords="375,5,526,45"/>
+<area shape="rect" id="Node000002" href="$libcxng_8h.html" title="Include cryptography files." alt="" coords="206,93,397,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="404,54,325,96,322,91,402,49"/>
+<area shape="rect" id="Node000004" href="$cx__ram_8h.html" title=" " alt="" coords="387,262,549,287"/>
+<area shape="poly" id="edge9_Node000001_Node000004" title=" " alt="" coords="456,59,470,262,465,262,450,59"/>
+<area shape="rect" id="Node000008" href="$cx__poly1305_8h.html" title=" " alt="" coords="488,93,685,119"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="497,50,568,91,565,95,494,55"/>
+<area shape="rect" id="Node000003" href="$lcx__rng_8h.html" title="Random Number Generation." alt="" coords="226,167,377,207"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="296,132,296,166,291,167,290,132"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="308,153,305,119,311,119,313,153"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="351,211,447,260,445,264,349,215"/>
+<area shape="rect" id="Node000006" href="$cx__rng__rfc6979_8h.html" title=" " alt="" coords="5,255,152,295"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="241,214,128,257,126,252,239,209"/>
+<area shape="rect" id="Node000007" href="$nbgl__layout_8c.html" title="Implementation of predefined layouts management for Applications." alt="" coords="176,262,363,287"/>
+<area shape="poly" id="edge7_Node000003_Node000007" title=" " alt="" coords="292,221,276,262,271,261,287,219"/>
+<area shape="rect" id="Node000005" href="$cx__ram_8c.html" title=" " alt="" coords="387,343,549,368"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="471,301,471,342,465,342,465,301"/>
 </map>

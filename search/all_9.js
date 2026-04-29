@@ -26,7 +26,7 @@ var searchData=
   ['get_5fpadding_23',['get_padding',['../structcx__cipher__context__t.html#ad86476629c0e8dfce3951a7c25cec245',1,'cx_cipher_context_t']]],
   ['get_5fpos_5fof_5fstep_24',['GET_POS_OF_STEP',['../nbgl__step_8h.html#a0db5b0c81ebcaefa97eabc6bf345dfc7',1,'nbgl_step.h']]],
   ['get_5fprev_25',['GET_PREV',['../mem__alloc_8c.html#af479eb4b0bb80da4bd499d3c381e2448',1,'mem_alloc.c']]],
-  ['get_5fprintable_5famount_26',['get_printable_amount',['../structlibargs__s.html#a7ed258cea1cb0000fc6f101567950cc6',1,'libargs_s::get_printable_amount'],['../swap__lib__calls_8h.html#aedb655e6739881f3a8f840d6d72d133d',1,'GET_PRINTABLE_AMOUNT:&#160;swap_lib_calls.h']]],
+  ['get_5fprintable_5famount_26',['get_printable_amount',['../swap__lib__calls_8h.html#aedb655e6739881f3a8f840d6d72d133d',1,'GET_PRINTABLE_AMOUNT:&#160;swap_lib_calls.h'],['../structlibargs__s.html#a7ed258cea1cb0000fc6f101567950cc6',1,'libargs_s::get_printable_amount']]],
   ['get_5fprintable_5famount_5fparameters_5fs_27',['get_printable_amount_parameters_s',['../structget__printable__amount__parameters__s.html',1,'']]],
   ['get_5fprintable_5famount_5fparameters_5ft_28',['get_printable_amount_parameters_t',['../swap__lib__calls_8h.html#a36af800bd16616fd12d49b085c6676d7',1,'swap_lib_calls.h']]],
   ['get_5fptr_29',['GET_PTR',['../mem__alloc_8c.html#a1bac9dc8b7ada4a309e4d7df48007417',1,'mem_alloc.c']]],
@@ -39,6 +39,5 @@ var searchData=
   ['graphic_20objects_20hierarchy_36',['Graphic objects hierarchy',['../nbgl_obj.html#obj_hierarchy',1,'']]],
   ['graphical_20library_20for_20nanos_37',['User Experience (graphical) library for Nanos',['../ux_mainpage.html',1,'index']]],
   ['grayedout_38',['grayedOut',['../structnbgl__layoutKeyboardContent__t.html#afa889e376078dc29ef04306f2c335512',1,'nbgl_layoutKeyboardContent_t']]],
-  ['group_20handle_39',['Group Handle',['../address_book_mainpage.html#address_book_group_handle',1,'']]],
-  ['gzlib_5funcompressed_5fchunk_40',['GZLIB_UNCOMPRESSED_CHUNK',['../nbgl__types_8h.html#a808a311dc872fc2ed54ae995ebba0c30',1,'nbgl_types.h']]]
+  ['gzlib_5funcompressed_5fchunk_39',['GZLIB_UNCOMPRESSED_CHUNK',['../nbgl__types_8h.html#a808a311dc872fc2ed54ae995ebba0c30',1,'nbgl_types.h']]]
 ];

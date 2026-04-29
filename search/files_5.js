@@ -30,12 +30,8 @@ var searchData=
   ['lcx_5fsha3_2eh_27',['lcx_sha3.h',['../lcx__sha3_8h.html',1,'']]],
   ['lcx_5fsha512_2eh_28',['lcx_sha512.h',['../lcx__sha512_8h.html',1,'']]],
   ['lcx_5fwrappers_2eh_29',['lcx_wrappers.h',['../lcx__wrappers_8h.html',1,'']]],
-  ['ledger_5faccount_2eh_30',['ledger_account.h',['../ledger__account_8h.html',1,'']]],
-  ['ledger_5faccount_5fedit_2ec_31',['ledger_account_edit.c',['../ledger__account__edit_8c.html',1,'']]],
-  ['ledger_5faccount_5fprovide_5fcontact_2ec_32',['ledger_account_provide_contact.c',['../ledger__account__provide__contact_8c.html',1,'']]],
-  ['ledger_5faccount_5fregister_2ec_33',['ledger_account_register.c',['../ledger__account__register_8c.html',1,'']]],
-  ['ledger_5fble_2eh_34',['ledger_ble.h',['../ledger__ble_8h.html',1,'']]],
-  ['libcxng_2eh_35',['libcxng.h',['../libcxng_8h.html',1,'']]],
-  ['lists_2ec_36',['lists.c',['../lists_8c.html',1,'']]],
-  ['lists_2eh_37',['lists.h',['../lists_8h.html',1,'']]]
+  ['ledger_5fble_2eh_30',['ledger_ble.h',['../ledger__ble_8h.html',1,'']]],
+  ['libcxng_2eh_31',['libcxng.h',['../libcxng_8h.html',1,'']]],
+  ['lists_2ec_32',['lists.c',['../lists_8c.html',1,'']]],
+  ['lists_2eh_33',['lists.h',['../lists_8h.html',1,'']]]
 ];

@@ -122,9 +122,6 @@ Functions</h2></td></tr>
 <tr class="separator:a7f63c17ef0f1204d641ff8f404a72050"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5c7856665e5c668345a9f87071c64600" id="r_a5c7856665e5c668345a9f87071c64600"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="bip32_8c.html#a5c7856665e5c668345a9f87071c64600">bip32_path_format</a> (const uint32_t *bip32_path, size_t bip32_path_len, char *out, size_t out_len)</td></tr>
 <tr class="separator:a5c7856665e5c668345a9f87071c64600"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7aaf78c2349c26b5fcc2988623576895" id="r_a7aaf78c2349c26b5fcc2988623576895"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="bip32_8c.html#a7aaf78c2349c26b5fcc2988623576895">bip32_path_format_simple</a> (<a class="el" href="structpath__bip32__t.html">path_bip32_t</a> *bip32, char *out, size_t out_len)</td></tr>
-<tr class="memdesc:a7aaf78c2349c26b5fcc2988623576895"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format a BIP32 path as a string.  <br /></td></tr>
-<tr class="separator:a7aaf78c2349c26b5fcc2988623576895"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="a5c7856665e5c668345a9f87071c64600" name="a5c7856665e5c668345a9f87071c64600"></a>
@@ -169,62 +166,14 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">bip32_path</td><td>Pointer to 32-bit integer input buffer. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">bip32_path_len</td><td>Maximum number of BIP32 paths in the input buffer. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">out</td><td>Pointer to output string. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">out</td><td>string Pointer to output string. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">out_len</td><td>Length of the output string.</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if success, false otherwise. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="bip32_8c_source.html#l00049">49</a> of file <a class="el" href="bip32_8c_source.html">bip32.c</a>.</p>
-
-</div>
-</div>
-<a id="a7aaf78c2349c26b5fcc2988623576895" name="a7aaf78c2349c26b5fcc2988623576895"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7aaf78c2349c26b5fcc2988623576895">&#9670;&#160;</a></span>bip32_path_format_simple()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool bip32_path_format_simple </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structpath__bip32__t.html">path_bip32_t</a> *&#160;</td>
-          <td class="paramname"><em>bip32</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">char *&#160;</td>
-          <td class="paramname"><em>out</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>out_len</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Format a BIP32 path as a string. </p>
-<p>Convenience wrapper around <a class="el" href="bip32_8h.html#a5c7856665e5c668345a9f87071c64600">bip32_path_format()</a> for the <a class="el" href="structpath__bip32__t.html">path_bip32_t</a> structure.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">bip32</td><td>The BIP32 path structure. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">out</td><td>The output buffer to store the formatted string. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">out_len</td><td>The length of the output buffer. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>true if the BIP32 path was successfully formatted, false otherwise. </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="bip32_8c_source.html#l00092">92</a> of file <a class="el" href="bip32_8c_source.html">bip32.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="bip32_8c_source.html#l00045">45</a> of file <a class="el" href="bip32_8c_source.html">bip32.c</a>.</p>
 
 </div>
 </div>
