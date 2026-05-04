@@ -55,10 +55,10 @@ endfunction()
 ledger_fuzz_validate_app_files()
 
 # ── Absolution dependency ────────────────────────────────────────────────────
-# By default, fetch the latest Linux release zip from GitHub at configure time.
-# To skip the download (offline / unreleased Absolution), set either the CMake
-# variable or env var LEDGER_FUZZ_ABSOLUTION_LOCAL_DIR to a directory that
-# contains bin/absolution and lib/cmake/Absolution/.
+# By default, fetch the pinned Absolution Linux release zip from GitHub at
+# configure time. To skip the download (offline / unreleased Absolution), set
+# either the CMake variable or env var LEDGER_FUZZ_ABSOLUTION_LOCAL_DIR to a
+# directory that contains bin/absolution and lib/cmake/Absolution/.
 function(_ledger_fuzz_resolve_absolution)
   set(_local "${LEDGER_FUZZ_ABSOLUTION_LOCAL_DIR}")
   if(NOT _local AND DEFINED ENV{LEDGER_FUZZ_ABSOLUTION_LOCAL_DIR})
@@ -76,12 +76,13 @@ function(_ledger_fuzz_resolve_absolution)
     message(STATUS "LedgerFuzz: using local Absolution at ${_root}")
   else()
     include(FetchContent)
+    set(LEDGER_FUZZ_ABSOLUTION_VERSION "v1.1.0")
     FetchContent_Declare(absolution
-      URL https://github.com/Ledger-Donjon/absolution/releases/latest/download/release-ubuntu-latest-ReleaseFast.zip
+      URL https://github.com/Ledger-Donjon/absolution/releases/download/${LEDGER_FUZZ_ABSOLUTION_VERSION}/release-ubuntu-latest-ReleaseFast.zip
       DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
     FetchContent_MakeAvailable(absolution)
     set(_root "${absolution_SOURCE_DIR}")
-    message(STATUS "LedgerFuzz: fetched Absolution into ${_root}")
+    message(STATUS "LedgerFuzz: fetched Absolution ${LEDGER_FUZZ_ABSOLUTION_VERSION} into ${_root}")
   endif()
 
   set(Absolution_DIR "${_root}/lib/cmake/Absolution"

@@ -164,8 +164,8 @@ the input ABI changes in a way that invalidates older corpora.
 
 Apps include the SDK CMake module, call `ledger_fuzz_setup()`, then add
 their fuzzer target with `ledger_fuzz_add_app_target()`.
-`ledger_fuzz_setup()` fetches the latest Absolution Linux release zip from
-GitHub on first configure; set `LEDGER_FUZZ_ABSOLUTION_LOCAL_DIR` (CMake
+`ledger_fuzz_setup()` fetches the pinned Absolution `v1.1.0` Linux release zip
+from GitHub on first configure; set `LEDGER_FUZZ_ABSOLUTION_LOCAL_DIR` (CMake
 variable or env var) to skip the download for offline / unreleased
 Absolution. Recommended shape:
 

@@ -58,11 +58,10 @@ WORKERS=4`). To cap machine load without editing the script, use
 ### Absolution dependency
 
 Absolution is a CMake `FetchContent` dependency of `ledger_fuzz_setup()`. On
-first configure, CMake downloads the latest Linux release zip from
-`https://github.com/Ledger-Donjon/absolution/releases/latest` into the build
-directory and sets `Absolution_DIR`, `ABSOLUTION_EXECUTABLE`, and the
-build/install RPATHs accordingly. No script flag, env var, or sibling
-checkout is involved.
+first configure, CMake downloads the pinned `v1.1.0` Linux release zip from
+GitHub into the build directory and sets `Absolution_DIR`,
+`ABSOLUTION_EXECUTABLE`, and the build/install RPATHs accordingly. No script
+flag, env var, or sibling checkout is involved.
 
 To skip the download (offline machines, unreleased Absolution), set the
 CMake variable or env var `LEDGER_FUZZ_ABSOLUTION_LOCAL_DIR` to a directory

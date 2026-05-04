@@ -109,8 +109,8 @@ and how to configure / sync / run LibFuzzer without `app-campaign.sh`:
 ## Prerequisites
 
 - Clang ≥ 14 with `llvm-profdata` and `llvm-cov` (for coverage reports).
-- Network access on first configure: CMake fetches the latest Absolution
-  Linux release automatically. Set `LEDGER_FUZZ_ABSOLUTION_LOCAL_DIR` (CMake
+- Network access on first configure: CMake fetches the pinned Absolution
+  `v1.1.0` Linux release automatically. Set `LEDGER_FUZZ_ABSOLUTION_LOCAL_DIR` (CMake
   variable or env var) to a local Absolution install to skip the download
   (offline / unreleased Absolution).
 - `BOLOS_SDK` pointing at a checkout of this SDK.
