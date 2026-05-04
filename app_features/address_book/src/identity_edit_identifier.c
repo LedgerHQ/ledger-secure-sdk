@@ -384,6 +384,7 @@ static void review_choice(bool confirm)
 {
     if (confirm) {
         if (build_and_send_response()) {
+            on_edit_identifier_applied(&EDIT_IDENTIFIER);
             if (EDIT_IDENTIFIER.identity.blockchain_family == FAMILY_ETHEREUM) {
                 nbgl_useCaseStatus("Address changed", true, finalize_ui_edit_identifier);
             }
@@ -423,6 +424,20 @@ static void ui_display(void)
 }
 
 /* Exported functions --------------------------------------------------------*/
+
+/**
+ * @brief Return a read-only pointer to the parsed Edit Identifier data.
+ *
+ * The returned pointer is valid from the moment edit_identifier() has
+ * finished parsing until the next call to edit_identifier(), which
+ * overwrites the static buffer.
+ *
+ * @return Pointer to the current EDIT_IDENTIFIER static (never NULL)
+ */
+const edit_identifier_t *get_edit_identifier(void)
+{
+    return &EDIT_IDENTIFIER;
+}
 
 /**
  * @brief Edit the IDENTIFIER of an existing Identity contact.

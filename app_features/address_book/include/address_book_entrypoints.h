@@ -70,6 +70,29 @@ void finalize_ui_register_identity(void);
  */
 nbgl_contentTagValue_t *get_register_identity_tagValue(uint8_t pairIndex);
 
+/*************** Exported functions prototypes: Edit Contact Name **************/
+
+/**
+ * @brief Handle called to finalize the UI flow for editing a contact name.
+ *
+ * Called after the user has confirmed or rejected the edit.
+ * The new HMAC proof has already been sent to the host at this point.
+ * The app should release any UI resources and return the device to idle.
+ */
+void finalize_ui_edit_contact_name(void);
+
+/**
+ * @brief Notification that a contact name edit was successfully applied.
+ *
+ * Called only when the user confirmed the edit and the new HMAC proof was
+ * successfully sent to the host. The app should use this to update in place
+ * all cached contacts whose name matches @p edit->previous_contact_name,
+ * replacing it with @p edit->contact_name so that no re-provide is needed.
+ *
+ * @param[in] edit Parsed edit data (previous_contact_name, contact_name)
+ */
+void on_edit_contact_name_applied(const edit_contact_name_t *edit);
+
 /*************** Exported functions prototypes: Edit Identifier ***************/
 
 /**
@@ -110,16 +133,18 @@ nbgl_contentTagValue_t *get_edit_identifier_tagValue(uint8_t pairIndex);
  */
 void finalize_ui_edit_identifier(void);
 
-/*************** Exported functions prototypes: Edit Contact Name **************/
-
 /**
- * @brief Handle called to finalize the UI flow for editing a contact name.
+ * @brief Notification that an identifier edit was successfully applied.
  *
- * Called after the user has confirmed or rejected the edit.
- * The new HMAC proof has already been sent to the host at this point.
- * The app should release any UI resources and return the device to idle.
+ * Called only when the user confirmed the edit and the new HMAC proof was
+ * successfully sent to the host. The app should use this to update in place
+ * the cached contact entry for (@p edit->previous_identifier,
+ * @p edit->identity.chain_id), replacing the identifier with
+ * @p edit->identity.identifier so that no re-provide is needed.
+ *
+ * @param[in] edit Parsed edit data (previous_identifier, identity)
  */
-void finalize_ui_edit_contact_name(void);
+void on_edit_identifier_applied(const edit_identifier_t *edit);
 
 /*************** Exported functions prototypes: Edit Scope ****************/
 
@@ -131,6 +156,19 @@ void finalize_ui_edit_contact_name(void);
  * The app should release any UI resources and return the device to idle.
  */
 void finalize_ui_edit_scope(void);
+
+/**
+ * @brief Notification that a scope edit was successfully applied.
+ *
+ * Called only when the user confirmed the edit and the new HMAC proof was
+ * successfully sent to the host. The app should use this to update in place
+ * the cached contact entry for (@p edit->identity.identifier,
+ * @p edit->identity.chain_id), replacing the scope with @p edit->identity.scope
+ * so that no re-provide is needed.
+ *
+ * @param[in] edit Parsed edit data (previous_scope, identity)
+ */
+void on_edit_scope_applied(const edit_scope_t *edit);
 
 /*************** Exported functions prototypes: Provide Contact ***********/
 
@@ -195,6 +233,19 @@ void finalize_ui_register_ledger_account(void);
  * The app should release any UI resources and return the device to idle.
  */
 void finalize_ui_edit_ledger_account(void);
+
+/**
+ * @brief Notification that a Ledger Account edit was successfully applied.
+ *
+ * Called only when the user confirmed the edit and the new HMAC proof was
+ * successfully sent to the host. The app should use this to update in place
+ * the cached Ledger Account contact derived from @p edit->ledger_account,
+ * replacing the account name with @p edit->ledger_account.account_name so
+ * that no re-provide is needed.
+ *
+ * @param[in] edit Parsed edit data (previous_account_name, ledger_account)
+ */
+void on_edit_ledger_account_applied(const edit_ledger_account_t *edit);
 
 /*************** Exported functions prototypes: Provide Ledger Account Contact */
 
