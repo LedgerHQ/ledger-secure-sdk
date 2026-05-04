@@ -106,4 +106,34 @@ bolos_err_t edit_identifier(uint8_t *buffer_in, size_t buffer_in_length);
 bolos_err_t edit_scope(uint8_t *buffer_in, size_t buffer_in_length);
 bolos_err_t provide_contact(uint8_t *buffer_in, size_t buffer_in_length);
 
+/**
+ * @brief Return a read-only pointer to the parsed Edit Contact Name data.
+ *
+ * Valid from the moment edit_contact_name() has finished parsing until the
+ * next call to edit_contact_name(), which overwrites the static buffer.
+ *
+ * @return Pointer to the current EDIT_CONTACT_NAME static (never NULL)
+ */
+const edit_contact_name_t *get_edit_contact_name(void);
+
+/**
+ * @brief Return a read-only pointer to the parsed Edit Identifier data.
+ *
+ * Valid from the moment edit_identifier() has finished parsing until the
+ * next call to edit_identifier(), which overwrites the static buffer.
+ *
+ * @return Pointer to the current EDIT_IDENTIFIER static (never NULL)
+ */
+const edit_identifier_t *get_edit_identifier(void);
+
+/**
+ * @brief Return a read-only pointer to the parsed Edit Scope data.
+ *
+ * Valid from the moment edit_scope() has finished parsing until the
+ * next call to edit_scope(), which overwrites the static buffer.
+ *
+ * @return Pointer to the current EDIT_SCOPE static (never NULL)
+ */
+const edit_scope_t *get_edit_scope(void);
+
 #endif  // HAVE_ADDRESS_BOOK

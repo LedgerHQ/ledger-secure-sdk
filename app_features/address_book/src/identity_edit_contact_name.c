@@ -271,6 +271,7 @@ static void review_choice(bool confirm)
 {
     if (confirm) {
         if (build_and_send_response()) {
+            on_edit_contact_name_applied(&EDIT_CONTACT_NAME);
             nbgl_useCaseStatus("Contact name changed", true, finalize_ui_edit_contact_name);
         }
         else {
@@ -313,6 +314,20 @@ static void ui_display(void)
 }
 
 /* Exported functions --------------------------------------------------------*/
+
+/**
+ * @brief Return a read-only pointer to the parsed Edit Contact Name data.
+ *
+ * The returned pointer is valid from the moment edit_contact_name() has
+ * finished parsing until the next call to edit_contact_name(), which
+ * overwrites the static buffer.
+ *
+ * @return Pointer to the current EDIT_CONTACT_NAME static (never NULL)
+ */
+const edit_contact_name_t *get_edit_contact_name(void)
+{
+    return &EDIT_CONTACT_NAME;
+}
 
 /**
  * @brief Edit the CONTACT_NAME of an existing Identity contact.

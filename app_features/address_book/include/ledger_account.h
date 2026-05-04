@@ -55,3 +55,13 @@ typedef struct {
 bolos_err_t register_ledger_account(uint8_t *buffer_in, size_t buffer_in_length);
 bolos_err_t edit_ledger_account(uint8_t *buffer_in, size_t buffer_in_length);
 bolos_err_t provide_ledger_account_contact(uint8_t *buffer_in, size_t buffer_in_length);
+
+/**
+ * @brief Return a read-only pointer to the parsed Edit Ledger Account data.
+ *
+ * Valid from the moment edit_ledger_account() has finished parsing until the
+ * next call to edit_ledger_account(), which overwrites the static buffer.
+ *
+ * @return Pointer to the current EDIT_LEDGER_ACCOUNT static (never NULL)
+ */
+const edit_ledger_account_t *get_edit_ledger_account(void);
