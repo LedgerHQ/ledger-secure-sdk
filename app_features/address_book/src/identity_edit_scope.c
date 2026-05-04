@@ -412,7 +412,7 @@ static void ui_display(void)
     ui_pairs[nbPairs].item  = "Contact name";
     ui_pairs[nbPairs].value = EDIT_SCOPE.identity.contact_name;
     nbPairs++;
-    ui_pairs[nbPairs].item  = "Previous address name";
+    ui_pairs[nbPairs].item  = "Old address name";
     ui_pairs[nbPairs].value = EDIT_SCOPE.previous_scope;
     nbPairs++;
     ui_pairs[nbPairs].item  = "New address name";
