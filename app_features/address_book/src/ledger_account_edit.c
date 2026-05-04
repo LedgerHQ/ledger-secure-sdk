@@ -306,6 +306,7 @@ static void review_choice(bool confirm)
 {
     if (confirm) {
         if (build_and_send_response()) {
+            on_edit_ledger_account_applied(&EDIT_LEDGER_ACCOUNT);
             nbgl_useCaseStatus("Account name changed", true, finalize_ui_edit_ledger_account);
         }
         else {
@@ -348,6 +349,20 @@ static void ui_display(void)
 }
 
 /* Exported functions --------------------------------------------------------*/
+
+/**
+ * @brief Return a read-only pointer to the parsed Edit Ledger Account data.
+ *
+ * The returned pointer is valid from the moment edit_ledger_account() has
+ * finished parsing until the next call to edit_ledger_account(), which
+ * overwrites the static buffer.
+ *
+ * @return Pointer to the current EDIT_LEDGER_ACCOUNT static (never NULL)
+ */
+const edit_ledger_account_t *get_edit_ledger_account(void)
+{
+    return &EDIT_LEDGER_ACCOUNT;
+}
 
 /**
  * @brief Edit the name of an existing Ledger Account

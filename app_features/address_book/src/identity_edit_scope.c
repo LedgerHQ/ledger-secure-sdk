@@ -382,6 +382,7 @@ static void review_choice(bool confirm)
 {
     if (confirm) {
         if (build_and_send_response()) {
+            on_edit_scope_applied(&EDIT_SCOPE);
             if (EDIT_SCOPE.identity.blockchain_family == FAMILY_BITCOIN) {
                 nbgl_useCaseStatus("Scope changed", true, finalize_ui_edit_scope);
             }
@@ -412,7 +413,7 @@ static void ui_display(void)
     ui_pairs[nbPairs].item  = "Contact name";
     ui_pairs[nbPairs].value = EDIT_SCOPE.identity.contact_name;
     nbPairs++;
-    ui_pairs[nbPairs].item  = "Previous address name";
+    ui_pairs[nbPairs].item  = "Old address name";
     ui_pairs[nbPairs].value = EDIT_SCOPE.previous_scope;
     nbPairs++;
     ui_pairs[nbPairs].item  = "New address name";
@@ -432,6 +433,20 @@ static void ui_display(void)
 }
 
 /* Exported functions --------------------------------------------------------*/
+
+/**
+ * @brief Return a read-only pointer to the parsed Edit Scope data.
+ *
+ * The returned pointer is valid from the moment edit_scope() has finished
+ * parsing until the next call to edit_scope(), which overwrites the static
+ * buffer.
+ *
+ * @return Pointer to the current EDIT_SCOPE static (never NULL)
+ */
+const edit_scope_t *get_edit_scope(void)
+{
+    return &EDIT_SCOPE;
+}
 
 /**
  * @brief Edit the SCOPE of an existing Identity contact.
