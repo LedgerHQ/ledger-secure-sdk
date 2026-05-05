@@ -304,7 +304,7 @@ static void ui_display(void)
     ui_pairsList.nbPairs  = nbPairs;  // old name + new name
     ui_pairsList.wrapping = true;
 
-    nbgl_useCaseReviewLight(TYPE_OPERATION,
+    nbgl_useCaseReviewLight(TYPE_OPERATION | ADDRESS_BOOK_OPERATION,
                             &ui_pairsList,
                             &LARGE_ADDRESS_BOOK_ICON,
                             "Review change to contact details",

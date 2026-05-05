@@ -109,13 +109,6 @@ extern "C" {
 ///< Duration of status screens, automatically closing after this timeout (3s)
 #define STATUS_SCREEN_DURATION 3000
 
-/**
- * @brief This is the mask to apply on @ref nbgl_operationType_t to get the real type provided by
- * app
- *
- */
-#define REAL_TYPE_MASK 0x7
-
 // returns true if the given warning structure requires display of an initial page (internal usage)
 #define HAS_INITIAL_WARNING(_warning)                                    \
     ((_warning->predefinedSet                                            \
@@ -394,11 +387,25 @@ typedef enum {
 } nbgl_opType_t;
 
 /**
+ * @brief Mask to apply on @ref nbgl_operationType_t to extract the base @ref nbgl_opType_t.
+ * Bits 0-3 are reserved for the type (up to 15 distinct values); bits 4 and above are modifier
+ * flags. @ref SKIPPABLE_OPERATION is defined as the first bit above this mask.
+ */
+#define REAL_TYPE_MASK 0xF
+
+/**
  * @brief This is to use in @ref nbgl_operationType_t when the operation is skippable.
  * This is used
  *
  */
 #define SKIPPABLE_OPERATION (1 << 4)
+
+/* Compile-time invariants: nbgl_opType_t values must fit within REAL_TYPE_MASK, and the first
+ * modifier flag must start at the very next bit so that type bits and flag bits never overlap. */
+_Static_assert(TYPE_OPERATION <= REAL_TYPE_MASK,
+               "nbgl_opType_t max value exceeds REAL_TYPE_MASK — update the mask");
+_Static_assert(SKIPPABLE_OPERATION == (REAL_TYPE_MASK + 1),
+               "SKIPPABLE_OPERATION must be the first bit above REAL_TYPE_MASK");
 
 /**
  * @brief This is to use in @ref nbgl_operationType_t when the operation is "blind"

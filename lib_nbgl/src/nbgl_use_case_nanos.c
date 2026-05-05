@@ -1086,7 +1086,8 @@ static void getLastPageInfo(bool approve, const nbgl_icon_details_t **icon, cons
     if (approve) {
         // Approve page
         *icon = &C_icon_validate_14;
-        if (context.type == ADDRESS_REVIEW_USE_CASE) {
+        if ((context.type == ADDRESS_REVIEW_USE_CASE)
+            || (context.operationType & ADDRESS_BOOK_OPERATION)) {
             *text = "Confirm";
         }
         else {
@@ -1128,7 +1129,8 @@ static void getLastPageInfo(bool approve, const nbgl_icon_details_t **icon, cons
     else {
         // Reject page
         *icon = &C_icon_crossmark;
-        if (context.type == ADDRESS_REVIEW_USE_CASE) {
+        if ((context.type == ADDRESS_REVIEW_USE_CASE)
+            || (context.operationType & ADDRESS_BOOK_OPERATION)) {
             *text = "Cancel";
         }
         else if ((context.operationType & REAL_TYPE_MASK) == TYPE_TRANSACTION) {

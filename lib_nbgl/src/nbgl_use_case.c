@@ -584,15 +584,22 @@ static void prepareReviewLightLastPage(nbgl_operationType_t       operationType,
                                        const nbgl_icon_details_t *icon,
                                        const char                *finishTitle)
 {
-    infoButton->text        = getFinishTitle(operationType, finishTitle);
-    infoButton->icon        = icon;
-    infoButton->buttonText  = "Approve";
+    infoButton->text = getFinishTitle(operationType, finishTitle);
+    infoButton->icon = icon;
+    if (operationType & ADDRESS_BOOK_OPERATION) {
+        infoButton->buttonText = "Confirm";
+    }
+    else {
+        infoButton->buttonText = "Approve";
+    }
     infoButton->buttonToken = CONFIRM_TOKEN;
 }
 
 static const char *getRejectReviewText(nbgl_operationType_t operationType)
 {
-    UNUSED(operationType);
+    if (operationType & ADDRESS_BOOK_OPERATION) {
+        return "Cancel";
+    }
     return "Reject";
 }
 
