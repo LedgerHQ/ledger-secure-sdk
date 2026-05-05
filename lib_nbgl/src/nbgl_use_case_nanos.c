@@ -3133,6 +3133,26 @@ void nbgl_useCaseChoiceWithDetails(const nbgl_icon_details_t *icon,
     displayChoicePage(FORWARD_DIRECTION);
 };
 
+// On Nano, the advanced variant falls back to the basic one:
+// - title     → message  (first text line)
+// - message   → subMessage (second text line; subMessage/gray address is not shown)
+// - headerIcon is ignored (no top-right button on Nano)
+void nbgl_useCaseAdvancedChoiceWithDetails(const nbgl_icon_details_t *centerIcon,
+                                           const nbgl_icon_details_t *headerIcon,
+                                           const char                *title,
+                                           const char                *message,
+                                           const char                *subMessage,
+                                           const char                *confirmText,
+                                           const char                *cancelText,
+                                           nbgl_genericDetails_t     *details,
+                                           nbgl_choiceCallback_t      callback)
+{
+    UNUSED(headerIcon);
+    UNUSED(subMessage);
+    nbgl_useCaseChoiceWithDetails(
+        centerIcon, title, message, confirmText, cancelText, details, callback);
+}
+
 /**
  * @brief Draws a page to confirm or not an action, described in a centered info (with info icon),
  * thanks to a button and a footer at the bottom of the page. The given callback is called if the
