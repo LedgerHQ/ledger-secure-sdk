@@ -369,7 +369,7 @@ static bool build_and_send_response(void)
         }
         // group_handle layout: gid(32) | MAC(K_group, gid)(32) — use only the GID prefix here
         const uint8_t *gid = group_handle;
-        if (!address_book_compute_hmac_name(
+        if (!address_book_compute_hmac_proof(
                 &REG.identity.bip32_path, gid, REG.identity.contact_name, hmac_proof)) {
             PRINTF("[Register Identity] Error: Failed to compute HMAC_PROOF\n");
             goto end;
@@ -473,12 +473,12 @@ bolos_err_t register_identity(uint8_t *buffer_in, size_t buffer_in_length)
         if (!address_book_verify_group_handle(
                 &REG.identity.bip32_path, REG.group_handle, REG.gid)) {
             PRINTF("[Register Identity] Error: Group handle verification failed\n");
-            return SWO_INCORRECT_DATA;
+            return SWO_SECURITY_CONDITION_NOT_SATISFIED;
         }
-        if (!address_book_verify_hmac_name(
+        if (!address_book_verify_hmac_proof(
                 &REG.identity.bip32_path, REG.gid, REG.identity.contact_name, REG.hmac_proof)) {
             PRINTF("[Register Identity] Error: HMAC_PROOF verification failed\n");
-            return SWO_INCORRECT_DATA;
+            return SWO_SECURITY_CONDITION_NOT_SATISFIED;
         }
     }
 

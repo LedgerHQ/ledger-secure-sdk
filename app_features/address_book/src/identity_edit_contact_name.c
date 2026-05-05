@@ -19,15 +19,15 @@
  * @brief Edit Contact Name flow (P1=0x02, struct type 0x2e)
  *
  * Allows changing the CONTACT_NAME of an existing Identity contact.
- * Because HMAC_NAME covers only (gid, name), the wallet does not need
+ * Because HMAC_PROOF covers only (gid, name), the wallet does not need
  * to transmit the identifier, scope, or network fields.
  *
  * Flow:
  *  1. Parse TLV payload (gid + new_name + previous_name +
  *     derivation_path + hmac_proof)
- *  2. Verify HMAC_NAME over (gid, previous_name)
+ *  2. Verify HMAC_PROOF over (gid, previous_name)
  *  3. Display UI: old name → new name
- *  4. On confirm: compute new HMAC_NAME over (gid, new_name) and send
+ *  4. On confirm: compute new HMAC_PROOF over (gid, new_name) and send
  *
  * Active under HAVE_ADDRESS_BOOK.
  */
@@ -58,7 +58,7 @@
 typedef struct {
     edit_contact_name_t *edit;
     TLV_reception_t      received_tags;
-    uint8_t              hmac_proof[CX_SHA256_SIZE];  ///< HMAC_NAME of the previous registration
+    uint8_t              hmac_proof[CX_SHA256_SIZE];  ///< HMAC_PROOF of the previous registration
     uint8_t group_handle[GROUP_HANDLE_SIZE];          ///< Group handle from wallet (verified later)
 } s_edit_contact_name_ctx;
 
@@ -70,7 +70,7 @@ typedef struct {
     X(0xf3, TAG_PREVIOUS_NAME, handle_previous_name, ENFORCE_UNIQUE_TAG)      \
     X(0xf6, TAG_GROUP_HANDLE, handle_group_handle, ENFORCE_UNIQUE_TAG)        \
     X(0x21, TAG_DERIVATION_PATH, handle_derivation_path, ENFORCE_UNIQUE_TAG)  \
-    X(0x29, TAG_HMAC_NAME, handle_hmac_proof, ENFORCE_UNIQUE_TAG)
+    X(0x29, TAG_HMAC_PROOF, handle_hmac_proof, ENFORCE_UNIQUE_TAG)
 
 /* Private variables ---------------------------------------------------------*/
 static edit_contact_name_t        EDIT_CONTACT_NAME = {0};
@@ -215,7 +215,7 @@ static bool verify_fields(const s_edit_contact_name_ctx *context)
                                           TAG_PREVIOUS_NAME,
                                           TAG_GROUP_HANDLE,
                                           TAG_DERIVATION_PATH,
-                                          TAG_HMAC_NAME);
+                                          TAG_HMAC_PROOF);
     if (!result) {
         PRINTF("[Edit Contact Name] Missing mandatory fields!\n");
     }
@@ -247,18 +247,18 @@ static void print_payload(const s_edit_contact_name_ctx *context)
  */
 static bool build_and_send_response(void)
 {
-    uint8_t hmac_name[CX_SHA256_SIZE] = {0};
+    uint8_t hmac_proof[CX_SHA256_SIZE] = {0};
 
-    if (!address_book_compute_hmac_name(&EDIT_CONTACT_NAME.bip32_path,
-                                        EDIT_CONTACT_NAME.gid,
-                                        EDIT_CONTACT_NAME.contact_name,
-                                        hmac_name)) {
-        PRINTF("[Edit Contact Name] Error: Failed to compute new HMAC_NAME\n");
+    if (!address_book_compute_hmac_proof(&EDIT_CONTACT_NAME.bip32_path,
+                                         EDIT_CONTACT_NAME.gid,
+                                         EDIT_CONTACT_NAME.contact_name,
+                                         hmac_proof)) {
+        PRINTF("[Edit Contact Name] Error: Failed to compute new HMAC_PROOF\n");
         return false;
     }
 
-    bool ok = address_book_send_hmac_proof(TYPE_EDIT_CONTACT_NAME, hmac_name);
-    explicit_bzero(hmac_name, sizeof(hmac_name));
+    bool ok = address_book_send_hmac_proof(TYPE_EDIT_CONTACT_NAME, hmac_proof);
+    explicit_bzero(hmac_proof, sizeof(hmac_proof));
     return ok;
 }
 
@@ -362,12 +362,12 @@ bolos_err_t edit_contact_name(uint8_t *buffer_in, size_t buffer_in_length)
         return SWO_SECURITY_CONDITION_NOT_SATISFIED;
     }
 
-    // Verify the wallet holds a valid HMAC_NAME for the previous name
-    if (!address_book_verify_hmac_name(&EDIT_CONTACT_NAME.bip32_path,
-                                       EDIT_CONTACT_NAME.gid,
-                                       EDIT_CONTACT_NAME.previous_contact_name,
-                                       ctx.hmac_proof)) {
-        PRINTF("[Edit Contact Name] HMAC_NAME verification failed\n");
+    // Verify the wallet holds a valid HMAC_PROOF for the previous name
+    if (!address_book_verify_hmac_proof(&EDIT_CONTACT_NAME.bip32_path,
+                                        EDIT_CONTACT_NAME.gid,
+                                        EDIT_CONTACT_NAME.previous_contact_name,
+                                        ctx.hmac_proof)) {
+        PRINTF("[Edit Contact Name] HMAC_PROOF verification failed\n");
         return SWO_SECURITY_CONDITION_NOT_SATISFIED;
     }
 

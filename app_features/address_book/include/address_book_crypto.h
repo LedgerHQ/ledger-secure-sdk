@@ -32,15 +32,15 @@ bool address_book_verify_group_handle(const path_bip32_t *bip32_path,
                                       const uint8_t       group_handle[GROUP_HANDLE_SIZE],
                                       uint8_t             gid_out[GID_SIZE]);
 
-bool address_book_compute_hmac_name(const path_bip32_t *bip32_path,
+bool address_book_compute_hmac_proof(const path_bip32_t *bip32_path,
+                                     const uint8_t       gid[GID_SIZE],
+                                     const char         *name,
+                                     uint8_t             hmac_out[CX_SHA256_SIZE]);
+
+bool address_book_verify_hmac_proof(const path_bip32_t *bip32_path,
                                     const uint8_t       gid[GID_SIZE],
                                     const char         *name,
-                                    uint8_t             hmac_out[CX_SHA256_SIZE]);
-
-bool address_book_verify_hmac_name(const path_bip32_t *bip32_path,
-                                   const uint8_t       gid[GID_SIZE],
-                                   const char         *name,
-                                   const uint8_t       hmac_expected[CX_SHA256_SIZE]);
+                                    const uint8_t       hmac_expected[CX_SHA256_SIZE]);
 
 bool address_book_compute_hmac_rest(const path_bip32_t *bip32_path,
                                     const uint8_t       gid[GID_SIZE],
@@ -79,9 +79,9 @@ bool address_book_verify_hmac_proof_ledger_account(const path_bip32_t *bip32_pat
 /** type(1) | hmac(32) — for Edit operations. */
 bool address_book_send_hmac_proof(uint8_t type, const uint8_t hmac_proof[CX_SHA256_SIZE]);
 
-/** type(1) | group_handle(64) | hmac_name(32) | hmac_rest(32) = 129 B — for Register Identity. */
+/** type(1) | group_handle(64) | hmac_proof(32) | hmac_rest(32) = 129 B — for Register Identity. */
 bool address_book_send_register_identity_response(const uint8_t group_handle[GROUP_HANDLE_SIZE],
-                                                  const uint8_t hmac_name[CX_SHA256_SIZE],
+                                                  const uint8_t hmac_proof[CX_SHA256_SIZE],
                                                   const uint8_t hmac_rest[CX_SHA256_SIZE]);
 
 #endif  // HAVE_ADDRESS_BOOK
