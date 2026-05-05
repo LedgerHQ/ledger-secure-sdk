@@ -287,28 +287,25 @@ This allows a wallet to register multiple addresses for the same contact (e.g. t
 
 ```mermaid
 sequenceDiagram
-    participant W as Wallet
-    participant D as Device
-    participant U as User
 
-    W->>D: CMD_REGISTER_IDENTITY (contact_name + scope + identifier + path [+ group_handle + hmac_proof] + ...)
-    D->>D: Parse TLV
+    Wallet->>Device: CMD_REGISTER_IDENTITY (contact_name + scope + identifier + path [+ group_handle + hmac_proof] + ...)
+    Device->>Device: Parse TLV
     alt GROUP_HANDLE + HMAC_PROOF provided (existing group)
-        D->>D: Verify group_handle MAC, extract gid
-        D->>D: Re-derive HMAC_PROOF(gid, contact_name), compare — proves wallet owns the group
+        Device->>Device: Verify group_handle MAC, extract gid
+        Device->>Device: Re-derive HMAC_PROOF(gid, contact_name), compare — proves wallet owns the group
     end
-    D->>D: handle_check_identity() [coin-app]
-    D->>U: Display: contact_name / scope / identifier
-    U->>D: Confirm
+    Device->>Device: handle_check_register_identity() [coin-app]
+    Device->>User: Display: contact_name / scope / identifier
+    User->>Device: Confirm
     alt New group
-        D->>D: Generate gid, compute group_handle = gid || HMAC-SHA256(K_group, gid)
-        D->>D: HMAC_PROOF = HMAC-SHA256(key, gid|name_len|name)
+        Device->>Device: Generate gid, compute group_handle = gid || HMAC-SHA256(K_group, gid)
+        Device->>Device: HMAC_PROOF = HMAC-SHA256(key, gid|name_len|name)
     else Existing group
-        Note right of D: Echo back received group_handle and hmac_proof
+        Note right of Device: Echo back received group_handle and hmac_proof
     end
-    D->>D: HMAC_REST = HMAC-SHA256(key, gid|scope_len|scope|id_len|identifier|family[|chain_id])
-    D->>W: 0x2d | group_handle(64) | hmac_proof(32) | hmac_rest(32)  [9000]
-    W->>W: Store group_handle + hmac_proof + hmac_rest with (scope, identifier) record
+    Device->>Device: HMAC_REST = HMAC-SHA256(key, gid|scope_len|scope|id_len|identifier|family[|chain_id])
+    Device->>Wallet: 0x2d | group_handle(64) | hmac_proof(32) | hmac_rest(32)  [9000]
+    Wallet->>Wallet: Store group_handle + hmac_proof + hmac_rest with (scope, identifier) record
 ```
 
 #### Response (on confirm)
@@ -354,21 +351,19 @@ Changes the `CONTACT_NAME` of an existing contact. Because `HMAC_PROOF` covers o
 
 ```mermaid
 sequenceDiagram
-    participant W as Wallet
-    participant D as Device
-    participant U as User
 
-    Note over W: Has: group_handle, previous_name, hmac_proof (from registration)
-    W->>D: CMD_EDIT_CONTACT_NAME (group_handle + previous_name + new_name + hmac_proof + path)
-    D->>D: Parse TLV
-    D->>D: Verify group_handle MAC, extract gid
-    D->>D: Re-derive HMAC_PROOF(gid, previous_name), compare with hmac_proof
-    Note right of D: Proves contact registered on this device
-    D->>U: Display: previous_name → new_name
-    U->>D: Confirm
-    D->>D: HMAC_PROOF = HMAC-SHA256(key, gid|name_len|new_name)
-    D->>W: 0x2e | hmac_proof(32)  [9000]
-    W->>W: Replace stored hmac_proof and contact name
+    Note over Wallet: Has: group_handle, previous_name, hmac_proof (from registration)
+    Wallet->>Device: CMD_EDIT_CONTACT_NAME (group_handle + previous_name + new_name + hmac_proof + path)
+    Device->>Device: Parse TLV
+    Device->>Device: Verify group_handle MAC, extract gid
+    Device->>Device: Re-derive HMAC_PROOF(gid, previous_name), compare with hmac_proof
+    Note right of Device: Proves contact registered on this device
+    Device->>User: Display: previous_name → new_name
+    User->>Device: Confirm
+    Device->>Device: HMAC_PROOF = HMAC-SHA256(key, gid|name_len|new_name)
+    Device->>Wallet: 0x2e | hmac_proof(32)  [9000]
+    Device->>Device: on_edit_contact_name_applied() [coin-app] — update cached name in place
+    Wallet->>Wallet: Replace stored hmac_proof and contact name
 ```
 
 #### Response (on confirm)
@@ -419,23 +414,21 @@ Changes the `IDENTIFIER` of an existing contact while keeping the same `contact_
 
 ```mermaid
 sequenceDiagram
-    participant W as Wallet
-    participant D as Device
-    participant U as User
 
-    Note over W: Has: group_handle, contact_name, previous_identifier, hmac_proof, hmac_rest (from registration)
-    W->>D: CMD_EDIT_IDENTIFIER (group_handle + contact_name + new_identifier + previous_identifier + hmac_proof + hmac_rest + path + ...)
-    D->>D: Parse TLV
-    D->>D: Verify group_handle MAC, extract gid
-    D->>D: Re-derive HMAC_PROOF(gid, contact_name), compare with hmac_proof
-    D->>D: Re-derive HMAC_REST(gid, scope, previous_identifier, family[, chain_id]), compare with hmac_rest
-    Note right of D: Proves contact (name + identifier) registered on this device
-    D->>D: handle_check_edit_identifier() [coin-app]
-    D->>U: Display: contact_name / previous_identifier → new_identifier
-    U->>D: Confirm
-    D->>D: HMAC_REST = HMAC-SHA256(key, gid|scope_len|scope|id_len|new_identifier|family[|chain_id])
-    D->>W: 0x31 | hmac_rest(32)  [9000]
-    W->>W: Replace stored hmac_rest and identifier with new values
+    Note over Wallet: Has: group_handle, contact_name, previous_identifier, hmac_proof, hmac_rest (from registration)
+    Wallet->>Device: CMD_EDIT_IDENTIFIER (group_handle + contact_name + new_identifier + previous_identifier + hmac_proof + hmac_rest + path + ...)
+    Device->>Device: Parse TLV
+    Device->>Device: Verify group_handle MAC, extract gid
+    Device->>Device: Re-derive HMAC_PROOF(gid, contact_name), compare with hmac_proof
+    Device->>Device: Re-derive HMAC_REST(gid, scope, previous_identifier, family[, chain_id]), compare with hmac_rest
+    Note right of Device: Proves contact (name + identifier) registered on this device
+    Device->>Device: handle_check_edit_identifier() [coin-app]
+    Device->>User: Display: contact_name / previous_identifier → new_identifier
+    User->>Device: Confirm
+    Device->>Device: HMAC_REST = HMAC-SHA256(key, gid|scope_len|scope|id_len|new_identifier|family[|chain_id])
+    Device->>Wallet: 0x31 | hmac_rest(32)  [9000]
+    Device->>Device: on_edit_identifier_applied() [coin-app] — update cached identifier in place
+    Wallet->>Wallet: Replace stored hmac_rest and identifier with new values
 ```
 
 #### Response (on confirm)
@@ -485,22 +478,20 @@ Changes the `SCOPE` of an existing contact while keeping the same `contact_name`
 
 ```mermaid
 sequenceDiagram
-    participant W as Wallet
-    participant D as Device
-    participant U as User
 
-    Note over W: Has: group_handle, contact_name, previous_scope, hmac_proof, hmac_rest (from registration)
-    W->>D: CMD_EDIT_SCOPE (group_handle + contact_name + new_scope + previous_scope + hmac_proof + hmac_rest + identifier + path + ...)
-    D->>D: Parse TLV
-    D->>D: Verify group_handle MAC, extract gid
-    D->>D: Re-derive HMAC_PROOF(gid, contact_name), compare with hmac_proof
-    D->>D: Re-derive HMAC_REST(gid, previous_scope, identifier, family[, chain_id]), compare with hmac_rest
-    Note right of D: Proves contact (name + scope) registered on this device
-    D->>U: Display: contact_name / previous_scope → new_scope
-    U->>D: Confirm
-    D->>D: HMAC_REST = HMAC-SHA256(key, gid|scope_len|new_scope|id_len|identifier|family[|chain_id])
-    D->>W: 0x32 | hmac_rest(32)  [9000]
-    W->>W: Replace stored hmac_rest and contact scope
+    Note over Wallet: Has: group_handle, contact_name, previous_scope, hmac_proof, hmac_rest (from registration)
+    Wallet->>Device: CMD_EDIT_SCOPE (group_handle + contact_name + new_scope + previous_scope + hmac_proof + hmac_rest + identifier + path + ...)
+    Device->>Device: Parse TLV
+    Device->>Device: Verify group_handle MAC, extract gid
+    Device->>Device: Re-derive HMAC_PROOF(gid, contact_name), compare with hmac_proof
+    Device->>Device: Re-derive HMAC_REST(gid, previous_scope, identifier, family[, chain_id]), compare with hmac_rest
+    Note right of Device: Proves contact (name + scope) registered on this device
+    Device->>User: Display: contact_name / previous_scope → new_scope
+    User->>Device: Confirm
+    Device->>Device: HMAC_REST = HMAC-SHA256(key, gid|scope_len|new_scope|id_len|identifier|family[|chain_id])
+    Device->>Wallet: 0x32 | hmac_rest(32)  [9000]
+    Device->>Device: on_edit_scope_applied() [coin-app] — update cached scope in place
+    Wallet->>Wallet: Replace stored hmac_rest and contact scope
 ```
 
 #### Response (on confirm)
@@ -542,20 +533,17 @@ Registers a name for a Ledger-owned account, identified by its derivation path a
 
 ```mermaid
 sequenceDiagram
-    participant W as Wallet
-    participant D as Device
-    participant U as User
 
-    W->>D: CMD_REGISTER_LEDGER_ACCOUNT (contact_name + path + family + ...)
-    D->>D: Parse TLV
-    D->>D: handle_check_ledger_account() [coin-app]
-    D->>D: display_register_ledger_account_review() [coin-app]
-    D->>U: Display: account name + address
-    U->>D: Confirm
-    D->>D: Derive HMAC key at BIP32 path (Ledger Account KDF)
-    D->>D: HMAC-SHA256(key, name_len|name|family[|chain_id])
-    D->>W: 0x2f | hmac_proof(32)  [9000]
-    W->>W: Store hmac_proof with account record
+    Wallet->>Device: CMD_REGISTER_LEDGER_ACCOUNT (contact_name + path + family + ...)
+    Device->>Device: Parse TLV
+    Device->>Device: handle_check_register_ledger_account() [coin-app]
+    Device->>Device: display_register_ledger_account_review() [coin-app]
+    Device->>User: Display: account name + address
+    User->>Device: Confirm
+    Device->>Device: Derive HMAC key at BIP32 path (Ledger Account KDF)
+    Device->>Device: HMAC-SHA256(key, name_len|name|family[|chain_id])
+    Device->>Wallet: 0x2f | hmac_proof(32)  [9000]
+    Wallet->>Wallet: Store hmac_proof with account record
 ```
 
 #### Response (on confirm)
@@ -603,20 +591,18 @@ Display is handled entirely by the SDK. The coin app only provides `finalize_ui_
 
 ```mermaid
 sequenceDiagram
-    participant W as Wallet
-    participant D as Device
-    participant U as User
 
-    Note over W: Has: previous_name, hmac_proof (from registration)
-    W->>D: CMD_EDIT_LEDGER_ACCOUNT (previous_name + new_name + hmac_proof + path + family + ...)
-    D->>D: Parse TLV
-    D->>D: Re-derive HMAC(previous_name, family[, chain_id]), compare with hmac_proof
-    Note right of D: Proves account registered on this device
-    D->>U: Display: previous_name → new_name
-    U->>D: Confirm
-    D->>D: HMAC-SHA256(key, new_name_len|new_name|family[|chain_id])
-    D->>W: 0x30 | hmac_proof(32)  [9000]
-    W->>W: Replace stored hmac_proof with new account record
+    Note over Wallet: Has: previous_name, hmac_proof (from registration)
+    Wallet->>Device: CMD_EDIT_LEDGER_ACCOUNT (previous_name + new_name + hmac_proof + path + family + ...)
+    Device->>Device: Parse TLV
+    Device->>Device: Re-derive HMAC(previous_name, family[, chain_id]), compare with hmac_proof
+    Note right of Device: Proves account registered on this device
+    Device->>User: Display: previous_name → new_name
+    User->>Device: Confirm
+    Device->>Device: HMAC-SHA256(key, new_name_len|new_name|family[|chain_id])
+    Device->>Wallet: 0x30 | hmac_proof(32)  [9000]
+    Device->>Device: on_edit_ledger_account_applied() [coin-app] — update cached account name in place
+    Wallet->>Wallet: Replace stored hmac_proof with new account record
 ```
 
 #### Response (on confirm)
@@ -667,19 +653,17 @@ Sent by the wallet **before a transaction** to let the device substitute a human
 
 ```mermaid
 sequenceDiagram
-    participant W as Wallet
-    participant D as Device
 
-    Note over W: Has: group_handle, contact_name, scope, identifier, hmac_proof, hmac_rest
-    W->>D: CMD_PROVIDE_CONTACT (group_handle + contact_name + scope + identifier + hmac_proof + hmac_rest + path + ...)
-    D->>D: Parse TLV
-    D->>D: Verify group_handle MAC, extract gid
-    D->>D: Re-derive HMAC_PROOF(gid, contact_name), compare with hmac_proof
-    D->>D: Re-derive HMAC_REST(gid, scope, identifier, family[, chain_id]), compare with hmac_rest
-    Note right of D: Both proofs valid — contact legitimately registered on this device
-    D->>D: handle_provide_contact() [coin-app] — store contact data for transaction review
-    D->>W: 9000
-    Note over W: Wallet sends the transaction APDU next
+    Note over Wallet: Has: group_handle, contact_name, scope, identifier, hmac_proof, hmac_rest
+    Wallet->>Device: CMD_PROVIDE_CONTACT (group_handle + contact_name + scope + identifier + hmac_proof + hmac_rest + path + ...)
+    Device->>Device: Parse TLV
+    Device->>Device: Verify group_handle MAC, extract gid
+    Device->>Device: Re-derive HMAC_PROOF(gid, contact_name), compare with hmac_proof
+    Device->>Device: Re-derive HMAC_REST(gid, scope, identifier, family[, chain_id]), compare with hmac_rest
+    Note right of Device: Both proofs valid — contact legitimately registered on this device
+    Device->>Device: handle_provide_identity() [coin-app] — store contact data for transaction review
+    Device->>Wallet: 9000
+    Note over Wallet: Wallet sends the transaction APDU next
 ```
 
 #### Response
@@ -723,17 +707,15 @@ The device verifies the HMAC Proof of Registration, then derives the Ethereum ad
 
 ```mermaid
 sequenceDiagram
-    participant W as Wallet
-    participant D as Device
 
-    Note over W: Has: account_name, bip32_path, chain_id, hmac_proof (from registration)
-    W->>D: CMD_PROVIDE_LEDGER_ACCOUNT_CONTACT (account_name + bip32_path + chain_id + family + hmac_proof)
-    D->>D: Parse TLV
-    D->>D: Re-derive HMAC(account_name, family[, chain_id]) at bip32_path, compare with hmac_proof
-    Note right of D: Proof valid — account legitimately registered on this device
-    D->>D: handle_provide_ledger_account_contact() [coin-app] — derive address, store mapping
-    D->>W: 9000
-    Note over W: Wallet sends the transaction APDU next
+    Note over Wallet: Has: account_name, bip32_path, chain_id, hmac_proof (from registration)
+    Wallet->>Device: CMD_PROVIDE_LEDGER_ACCOUNT_CONTACT (account_name + bip32_path + chain_id + family + hmac_proof)
+    Device->>Device: Parse TLV
+    Device->>Device: Re-derive HMAC(account_name, family[, chain_id]) at bip32_path, compare with hmac_proof
+    Note right of Device: Proof valid — account legitimately registered on this device
+    Device->>Device: handle_provide_ledger_account() [coin-app] — derive address, store mapping
+    Device->>Wallet: 9000
+    Note over Wallet: Wallet sends the transaction APDU next
 ```
 
 #### Response
@@ -746,22 +728,34 @@ sequenceDiagram
 
 ## 6. Coin-app entrypoints
 
-| Entrypoint                               | Signature                      | Guard                              | Called when                                                    | Expected return                      |
-|------------------------------------------|--------------------------------|------------------------------------|----------------------------------------------------------------|--------------------------------------|
-| `handle_check_identity`                  | `(identity_t *)`               | `HAVE_ADDRESS_BOOK`                | Before displaying Register Identity                            | `true` to proceed, `false` to reject |
-| `get_register_identity_tagValue`         | `(pair *, index)`              | `HAVE_ADDRESS_BOOK`                | NBGL tag-value callback during review                          | Fills pair for display               |
-| `finalize_ui_register_identity`          | `(void)`                       | `HAVE_ADDRESS_BOOK`                | After user choice                                              | Cleanup + return to idle             |
-| `finalize_ui_edit_contact_name`          | `(void)`                       | `HAVE_ADDRESS_BOOK`                | After Edit Contact Name user choice                            | Return to idle (SDK handles display) |
-| `handle_check_edit_identifier`           | `(edit_identifier_t *)`        | `HAVE_ADDRESS_BOOK`                | Before displaying Edit Identifier                              | `true` to proceed, `false` to reject |
-| `get_edit_identifier_tagValue`           | `(pair *, index)`              | `HAVE_ADDRESS_BOOK`                | NBGL tag-value callback during review                          | Fills pair for display               |
-| `finalize_ui_edit_identifier`            | `(void)`                       | `HAVE_ADDRESS_BOOK`                | After user choice                                              | Cleanup + return to idle             |
-| `finalize_ui_edit_scope`                 | `(void)`                       | `HAVE_ADDRESS_BOOK`                | After Edit Scope user choice                                   | Return to idle (SDK handles display) |
-| `handle_check_ledger_account`            | `(ledger_account_t *)`         | `HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT` | Before displaying Register Ledger Account                      | `true` to proceed, `false` to reject |
-| `display_register_ledger_account_review` | `(nbgl_choiceCallback_t)`      | `HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT` | App owns full review UI                                        | Calls SDK callback on confirm/reject |
-| `finalize_ui_register_ledger_account`    | `(void)`                       | `HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT` | After user choice                                              | Cleanup + return to idle             |
-| `finalize_ui_edit_ledger_account`        | `(void)`                       | `HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT` | After Edit Ledger Account user choice                          | Return to idle (SDK handles display) |
-| `handle_provide_contact`                 | `(const identity_t *)`         | `HAVE_ADDRESS_BOOK`                | After Provide Contact HMAC verification                        | `true` to accept, `false` to reject  |
-| `handle_provide_ledger_account_contact`  | `(const ledger_account_t *)`   | `HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT` | After Provide Ledger Account Contact HMAC verification         | `true` to accept, `false` to reject  |
+The SDK calls coin-app functions following four naming patterns:
+
+| Pattern                       | Role                                                                   | Return                                   |
+|-------------------------------|------------------------------------------------------------------------|------------------------------------------|
+| `handle_check_XXX(params)`    | Chain-specific validation after TLV parsing, before review display     | `true` to proceed, `false` to reject     |
+| `get_XXX_tagValue(index)`     | NBGL review callback — return one tag-value pair by index              | Tag-value pair, `NULL` when out of range |
+| `finalize_ui_XXX()`           | Post-choice cleanup and return to idle (confirm and reject)            | —                                        |
+| `on_edit_XXX_applied(edit)`   | Update cached contact in place (confirmed edits only, after HMAC sent) | —                                        |
+
+The required callbacks depend on the sub-command.
+
+| Sub-command                 | `handle_check` | `get_tagValue` | `finalize_ui` | `on_edit_applied` |
+|-----------------------------|:--------------:|:--------------:|:-------------:|:-----------------:|
+| `register_identity`         | ✓              | ✓              | ✓             | —                 |
+| `edit_contact_name`         | —              | —              | ✓             | ✓                 |
+| `edit_identifier`           | ✓              | ✓              | ✓             | ✓                 |
+| `edit_scope`                | —              | —              | ✓             | ✓                 |
+| `register_ledger_account`   | ✓ ¹            | — ¹            | ✓             | —                 |
+| `edit_ledger_account`       | —              | —              | ✓             | ✓                 |
+
+> ¹ Register Ledger Account replaces the `handle_check` + `get_tagValue` pair with a single `display_register_ledger_account_review` callback — the coin app owns the full review UI and calls the SDK-provided choice callback on confirm or reject.
+
+Two additional entrypoints handle contact provisioning (no UI, called silently before a transaction):
+
+| Entrypoint                      | Called when                                            | Return                             |
+|---------------------------------|--------------------------------------------------------|------------------------------------|
+| `handle_provide_identity`       | After Provide Identity Contact HMAC verification       | `true` to store, `false` to reject |
+| `handle_provide_ledger_account` | After Provide Ledger Account Contact HMAC verification | `true` to store, `false` to reject |
 
 ---
 
@@ -770,7 +764,7 @@ sequenceDiagram
 | Value  | Constant                               | Meaning                                                  |
 |--------|----------------------------------------|----------------------------------------------------------|
 | 0x9000 | `SWO_SUCCESS`                          | Operation successful                                     |
-| 0x6A80 | `SWO_INCORRECT_DATA`                   | Malformed TLV, user rejection, or failed HMAC            |
-| 0x6982 | `SWO_SECURITY_CONDITION_NOT_SATISFIED` | HMAC verification failed                                 |
+| 0x6A80 | `SWO_INCORRECT_DATA`                   | Malformed TLV, invalid group handle, or user rejection   |
+| 0x6982 | `SWO_SECURITY_CONDITION_NOT_SATISFIED` | HMAC_PROOF or HMAC_REST proof verification failed        |
 | 0x6984 | `SWO_CONDITIONS_NOT_SATISFIED`         | Unknown sub-command or unsupported configuration         |
 | 0x6B00 | `SWO_WRONG_PARAMETER_VALUE`            | Coin-app rejected the data (chain, address format, etc.) |
