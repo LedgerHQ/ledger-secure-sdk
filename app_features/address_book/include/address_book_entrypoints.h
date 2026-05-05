@@ -47,7 +47,7 @@ in order to validate the content of the payload, or finalize/cleanup the UI flow
  *                   identifier, identifier_len, bip32_path)
  * @return true if the identity is acceptable, false to reject
  */
-bool handle_check_identity(identity_t *params);
+bool handle_check_register_identity(identity_t *params);
 
 /**
  * @brief Handle called to finalize the UI flow for registering an Identity.
@@ -184,7 +184,7 @@ void on_edit_scope_applied(const edit_scope_t *edit);
  *                    identifier_len, blockchain_family, chain_id)
  * @return true if the contact was accepted and stored, false to reject
  */
-bool handle_provide_contact(const identity_t *contact);
+bool handle_provide_identity(const identity_t *contact);
 
 #ifdef HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT
 
@@ -202,12 +202,12 @@ bool handle_provide_contact(const identity_t *contact);
  *                   chain_id, blockchain_family)
  * @return true if the account is acceptable, false to reject
  */
-bool handle_check_ledger_account(ledger_account_t *params);
+bool handle_check_register_ledger_account(ledger_account_t *params);
 
 /**
  * @brief Handle called to display the Ledger Account registration review screen.
  *
- * Called after handle_check_ledger_account() succeeds. The app must display
+ * Called after handle_check_register_ledger_account() succeeds. The app must display
  * the review UI and invoke @p choice_callback on confirmation or rejection.
  * The app owns the UI flow from this point and is responsible for adapting
  * the display to the target device (touch vs Nano).
@@ -261,7 +261,7 @@ void on_edit_ledger_account_applied(const edit_ledger_account_t *edit);
  *                    chain_id, blockchain_family)
  * @return true if the contact was accepted and stored, false to reject
  */
-bool handle_provide_ledger_account_contact(const ledger_account_t *account);
+bool handle_provide_ledger_account(const ledger_account_t *account);
 
 #endif  // HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT
 

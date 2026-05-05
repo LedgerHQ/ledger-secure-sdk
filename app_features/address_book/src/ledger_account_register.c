@@ -21,7 +21,7 @@
  * Flow:
  *  1. Parse TLV payload (account name + derivation path + chain ID +
  *     blockchain family)
- *  2. Coin-app validation: handle_check_ledger_account()
+ *  2. Coin-app validation: handle_check_register_ledger_account()
  *  3. Display UI: account name + derivation path
  *  4. On confirm: compute HMAC Proof of Registration and send to host
  *
@@ -302,7 +302,7 @@ bolos_err_t register_ledger_account(uint8_t *buffer_in, size_t buffer_in_length)
     print_payload(&ctx);
 
     // Check the account validity according to the Coin application logic
-    if (!handle_check_ledger_account(ctx.ledger_account)) {
+    if (!handle_check_register_ledger_account(ctx.ledger_account)) {
         PRINTF("[Ledger Account] Error: Account rejected by coin application\n");
         return SWO_WRONG_PARAMETER_VALUE;
     }

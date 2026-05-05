@@ -179,7 +179,7 @@ Applications must implement the following callbacks to support Address Book:
 
 <b>Register Identity</b>:
 @code{.c}
-bool handle_check_identity(identity_t *params);
+bool handle_check_register_identity(identity_t *params);
 nbgl_contentTagValue_t *get_register_identity_tagValue(nbgl_contentTagValue_t *pair, uint8_t index);
 void finalize_ui_register_identity(void);
 @endcode
@@ -199,7 +199,7 @@ void finalize_ui_edit_scope(void);
 
 <b>Register Ledger Account</b> (requires @c HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT):
 @code{.c}
-bool handle_check_ledger_account(ledger_account_t *params);
+bool handle_check_register_ledger_account(ledger_account_t *params);
 void display_register_ledger_account_review(nbgl_choiceCallback_t choice_callback);
 void finalize_ui_register_ledger_account(void);
 void finalize_ui_edit_ledger_account(void);
@@ -207,12 +207,12 @@ void finalize_ui_edit_ledger_account(void);
 
 <b>Provide Contact</b>:
 @code{.c}
-bool handle_provide_contact(const identity_t *contact);
+bool handle_provide_identity(const identity_t *contact);
 @endcode
 
 <b>Provide Ledger Account Contact</b> (requires @c HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT):
 @code{.c}
-bool handle_provide_ledger_account_contact(const ledger_account_t *account);
+bool handle_provide_ledger_account(const ledger_account_t *account);
 @endcode
 
 @subsection address_book_functions Core Crypto Functions
