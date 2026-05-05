@@ -52,20 +52,21 @@
 
 /* Private types, structures, unions -----------------------------------------*/
 
+// Single persistent state for the Register Identity flow.
+// Lives from register_identity() through the review_choice() callback.
 typedef struct {
-    identity_t     *identity;
-    TLV_reception_t received_tags;
-    uint8_t         group_handle[GROUP_HANDLE_SIZE];  ///< Optional: existing group handle
-    uint8_t         hmac_name[CX_SHA256_SIZE];        ///< Optional: HMAC_NAME for existing group
-} s_identity_ctx;
-
-// Persistent data for the optional "link to existing group" extension.
-// Populated in register_identity() and consumed by the review_choice() callback.
-typedef struct {
+    identity_t identity;
+    // optional "link to existing group" extension:
     uint8_t group_handle[GROUP_HANDLE_SIZE];
-    uint8_t hmac_name[CX_SHA256_SIZE];
+    uint8_t hmac_proof[CX_SHA256_SIZE];
+    uint8_t gid[GID_SIZE];  ///< GID extracted by pre-UI group-handle verification
     bool    active;
-} s_reg_ext_t;
+} s_register_state_t;
+
+typedef struct {
+    s_register_state_t *state;
+    TLV_reception_t     received_tags;
+} s_identity_ctx;
 
 /* Private macros-------------------------------------------------------------*/
 #define REGISTER_IDENTITY_TAGS(X)                                                \
@@ -78,11 +79,10 @@ typedef struct {
     X(0x23, TAG_CHAIN_ID, handle_chain_id, ENFORCE_UNIQUE_TAG)                   \
     X(0x51, TAG_BLOCKCHAIN_FAMILY, handle_blockchain_family, ENFORCE_UNIQUE_TAG) \
     X(0xf6, TAG_GROUP_HANDLE, handle_group_handle, ENFORCE_UNIQUE_TAG)           \
-    X(0x29, TAG_HMAC_NAME, handle_hmac_name, ENFORCE_UNIQUE_TAG)
+    X(0x29, TAG_HMAC_PROOF, handle_hmac_proof, ENFORCE_UNIQUE_TAG)
 
 /* Private variables ---------------------------------------------------------*/
-static identity_t                 IDENTITY     = {0};
-static s_reg_ext_t                REG_EXT      = {0};
+static s_register_state_t         REG          = {0};
 static nbgl_contentTagValueList_t ui_pairsList = {0};
 
 /* Private functions ---------------------------------------------------------*/
@@ -130,8 +130,9 @@ static bool handle_struct_version(const tlv_data_t *data, s_identity_ctx *contex
  */
 static bool handle_contact_name(const tlv_data_t *data, s_identity_ctx *context)
 {
-    if (!address_book_handle_printable_string(
-            data, context->identity->contact_name, sizeof(context->identity->contact_name))) {
+    if (!address_book_handle_printable_string(data,
+                                              context->state->identity.contact_name,
+                                              sizeof(context->state->identity.contact_name))) {
         PRINTF("CONTACT_NAME: failed to parse\n");
         return false;
     }
@@ -148,7 +149,7 @@ static bool handle_contact_name(const tlv_data_t *data, s_identity_ctx *context)
 static bool handle_scope(const tlv_data_t *data, s_identity_ctx *context)
 {
     if (!address_book_handle_printable_string(
-            data, context->identity->scope, sizeof(context->identity->scope))) {
+            data, context->state->identity.scope, sizeof(context->state->identity.scope))) {
         PRINTF("SCOPE: failed to parse\n");
         return false;
     }
@@ -169,8 +170,8 @@ static bool handle_identifier(const tlv_data_t *data, s_identity_ctx *context)
         PRINTF("IDENTIFIER: failed to extract\n");
         return false;
     }
-    memmove(context->identity->identifier, buf.ptr, buf.size);
-    context->identity->identifier_len = (uint8_t) buf.size;
+    memmove(context->state->identity.identifier, buf.ptr, buf.size);
+    context->state->identity.identifier_len = (uint8_t) buf.size;
     return true;
 }
 
@@ -183,7 +184,7 @@ static bool handle_identifier(const tlv_data_t *data, s_identity_ctx *context)
  */
 static bool handle_derivation_path(const tlv_data_t *data, s_identity_ctx *context)
 {
-    return address_book_handle_derivation_path(data, &context->identity->bip32_path);
+    return address_book_handle_derivation_path(data, &context->state->identity.bip32_path);
 }
 
 /**
@@ -195,7 +196,7 @@ static bool handle_derivation_path(const tlv_data_t *data, s_identity_ctx *conte
  */
 static bool handle_chain_id(const tlv_data_t *data, s_identity_ctx *context)
 {
-    return address_book_handle_chain_id(data, &context->identity->chain_id);
+    return address_book_handle_chain_id(data, &context->state->identity.chain_id);
 }
 
 /**
@@ -207,7 +208,7 @@ static bool handle_chain_id(const tlv_data_t *data, s_identity_ctx *context)
  */
 static bool handle_blockchain_family(const tlv_data_t *data, s_identity_ctx *context)
 {
-    return address_book_handle_blockchain_family(data, &context->identity->blockchain_family);
+    return address_book_handle_blockchain_family(data, &context->state->identity.blockchain_family);
 }
 
 /**
@@ -225,26 +226,26 @@ static bool handle_group_handle(const tlv_data_t *data, s_identity_ctx *context)
                GROUP_HANDLE_SIZE);
         return false;
     }
-    memmove(context->group_handle, buf.ptr, GROUP_HANDLE_SIZE);
+    memmove(context->state->group_handle, buf.ptr, GROUP_HANDLE_SIZE);
     return true;
 }
 
 /**
- * @brief Handler for tag \ref HMAC_NAME (optional — proves ownership of an existing group)
+ * @brief Handler for tag \ref HMAC_PROOF (optional — proves ownership of an existing group)
  *
  * @param[in] data the tlv data
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_hmac_name(const tlv_data_t *data, s_identity_ctx *context)
+static bool handle_hmac_proof(const tlv_data_t *data, s_identity_ctx *context)
 {
     buffer_t buf = {0};
     if (!get_buffer_from_tlv_data(data, &buf, CX_SHA256_SIZE, CX_SHA256_SIZE)) {
-        PRINTF("[Register Identity] HMAC_NAME: invalid length (expected %d bytes)\n",
+        PRINTF("[Register Identity] HMAC_PROOF: invalid length (expected %d bytes)\n",
                CX_SHA256_SIZE);
         return false;
     }
-    memmove(context->hmac_name, buf.ptr, CX_SHA256_SIZE);
+    memmove(context->state->hmac_proof, buf.ptr, CX_SHA256_SIZE);
     return true;
 }
 
@@ -270,18 +271,18 @@ static bool verify_fields(const s_identity_ctx *context)
         PRINTF("Missing mandatory fields in Register Identity descriptor!\n");
         return false;
     }
-    if (context->identity->blockchain_family == FAMILY_ETHEREUM) {
+    if (context->state->identity.blockchain_family == FAMILY_ETHEREUM) {
         result = TLV_CHECK_RECEIVED_TAGS(context->received_tags, TAG_CHAIN_ID);
         if (!result) {
             PRINTF("Missing CHAIN_ID for Ethereum family in Register Identity descriptor!\n");
             return false;
         }
     }
-    // GROUP_HANDLE and HMAC_NAME are optional, but must be provided together
+    // GROUP_HANDLE and HMAC_PROOF are optional, but must be provided together
     bool has_group_handle = TLV_CHECK_RECEIVED_TAGS(context->received_tags, TAG_GROUP_HANDLE);
-    bool has_hmac_name    = TLV_CHECK_RECEIVED_TAGS(context->received_tags, TAG_HMAC_NAME);
-    if (has_group_handle != has_hmac_name) {
-        PRINTF("GROUP_HANDLE and HMAC_NAME must be provided together!\n");
+    bool has_hmac_proof   = TLV_CHECK_RECEIVED_TAGS(context->received_tags, TAG_HMAC_PROOF);
+    if (has_group_handle != has_hmac_proof) {
+        PRINTF("GROUP_HANDLE and HMAC_PROOF must be provided together!\n");
         return false;
     }
     return true;
@@ -300,23 +301,26 @@ static void print_payload(const s_identity_ctx *context)
 
     PRINTF("****************************************************************************\n");
     PRINTF("[Register Identity] - Retrieved Descriptor:\n");
-    PRINTF("[Register Identity] -    Contact name:        %s\n", context->identity->contact_name);
-    if (context->identity->scope[0] != '\0') {
-        PRINTF("[Register Identity] -    Contact scope:       %s\n", context->identity->scope);
+    PRINTF("[Register Identity] -    Contact name:        %s\n",
+           context->state->identity.contact_name);
+    if (context->state->identity.scope[0] != '\0') {
+        PRINTF("[Register Identity] -    Contact scope:       %s\n",
+               context->state->identity.scope);
     }
-    if (bip32_path_format_simple(&context->identity->bip32_path, out, sizeof(out))) {
+    if (bip32_path_format_simple(&context->state->identity.bip32_path, out, sizeof(out))) {
         PRINTF("[Register Identity] -    Derivation path[%d]: %s\n",
-               context->identity->bip32_path.length,
+               context->state->identity.bip32_path.length,
                out);
     }
     else {
         PRINTF("[Register Identity] -    Derivation path length[%d] (failed to format)\n",
-               context->identity->bip32_path.length);
+               context->state->identity.bip32_path.length);
     }
     PRINTF("[Register Identity] -    Blockchain family:   %s\n",
-           FAMILY_AS_STR(context->identity->blockchain_family));
-    if (context->identity->blockchain_family == FAMILY_ETHEREUM) {
-        PRINTF("[Register Identity] -    Chain ID:            %llu\n", context->identity->chain_id);
+           FAMILY_AS_STR(context->state->identity.blockchain_family));
+    if (context->state->identity.blockchain_family == FAMILY_ETHEREUM) {
+        PRINTF("[Register Identity] -    Chain ID:            %llu\n",
+               context->state->identity.chain_id);
     }
 }
 
@@ -324,11 +328,11 @@ static void print_payload(const s_identity_ctx *context)
  * @brief Build and send response
  *
  * Two paths depending on whether an existing group was provided:
- *  - New group: generate group_handle, compute hmac_name + hmac_rest.
- *  - Existing group: verify received group_handle + hmac_name, then compute only hmac_rest
- *    for the new (scope, identifier) pair.
+ *  - New group: generate group_handle, compute hmac_proof + hmac_rest.
+ *  - Existing group: group_handle + hmac_proof already verified pre-UI; echo them back and
+ *    compute only hmac_rest for the new (scope, identifier) pair.
  *
- * Response format: TYPE_REGISTER_IDENTITY(1) | group_handle(64) | hmac_name(32) | hmac_rest(32)
+ * Response format: TYPE_REGISTER_IDENTITY(1) | group_handle(64) | hmac_proof(32) | hmac_rest(32)
  * = 129 B
  *
  * @return true if successful, false otherwise
@@ -336,69 +340,58 @@ static void print_payload(const s_identity_ctx *context)
 static bool build_and_send_response(void)
 {
     uint8_t group_handle[GROUP_HANDLE_SIZE] = {0};
-    uint8_t hmac_name[CX_SHA256_SIZE]       = {0};
+    uint8_t hmac_proof[CX_SHA256_SIZE]      = {0};
     uint8_t hmac_rest[CX_SHA256_SIZE]       = {0};
-    uint8_t gid[GID_SIZE]                   = {0};
     bool    ok                              = false;
 
-    if (REG_EXT.active) {
-        // Verify the provided group handle and extract the GID
-        if (!address_book_verify_group_handle(&IDENTITY.bip32_path, REG_EXT.group_handle, gid)) {
-            PRINTF("[Register Identity] Error: Group handle verification failed\n");
-            goto end;
-        }
-        // Verify that the caller owns the group (proves knowledge of contact_name + gid)
-        if (!address_book_verify_hmac_name(
-                &IDENTITY.bip32_path, gid, IDENTITY.contact_name, REG_EXT.hmac_name)) {
-            PRINTF("[Register Identity] Error: HMAC_NAME verification failed\n");
-            goto end;
-        }
-        // Compute hmac_rest for the new (scope, identifier) pair under the existing group
-        if (!address_book_compute_hmac_rest(&IDENTITY.bip32_path,
-                                            gid,
-                                            IDENTITY.scope,
-                                            IDENTITY.identifier,
-                                            IDENTITY.identifier_len,
-                                            IDENTITY.blockchain_family,
-                                            IDENTITY.chain_id,
+    if (REG.active) {
+        // group_handle and HMAC_PROOF were already verified before the UI — use the
+        // pre-extracted GID directly and only compute the new HMAC_REST.
+        if (!address_book_compute_hmac_rest(&REG.identity.bip32_path,
+                                            REG.gid,
+                                            REG.identity.scope,
+                                            REG.identity.identifier,
+                                            REG.identity.identifier_len,
+                                            REG.identity.blockchain_family,
+                                            REG.identity.chain_id,
                                             hmac_rest)) {
             PRINTF("[Register Identity] Error: Failed to compute HMAC_REST for new address\n");
             goto end;
         }
-        // Echo back the verified group_handle and hmac_name; only hmac_rest is new
-        memmove(group_handle, REG_EXT.group_handle, GROUP_HANDLE_SIZE);
-        memmove(hmac_name, REG_EXT.hmac_name, CX_SHA256_SIZE);
+        // Echo back the verified group_handle and hmac_proof; only hmac_rest is new
+        memmove(group_handle, REG.group_handle, GROUP_HANDLE_SIZE);
+        memmove(hmac_proof, REG.hmac_proof, CX_SHA256_SIZE);
     }
     else {
-        if (!address_book_generate_group_handle(&IDENTITY.bip32_path, group_handle)) {
+        if (!address_book_generate_group_handle(&REG.identity.bip32_path, group_handle)) {
             PRINTF("[Register Identity] Error: Failed to generate group handle\n");
             goto end;
         }
-        // gid is the first GID_SIZE bytes of group_handle
+        // group_handle layout: gid(32) | MAC(K_group, gid)(32) — use only the GID prefix here
+        const uint8_t *gid = group_handle;
         if (!address_book_compute_hmac_name(
-                &IDENTITY.bip32_path, group_handle, IDENTITY.contact_name, hmac_name)) {
-            PRINTF("[Register Identity] Error: Failed to compute HMAC_NAME\n");
+                &REG.identity.bip32_path, gid, REG.identity.contact_name, hmac_proof)) {
+            PRINTF("[Register Identity] Error: Failed to compute HMAC_PROOF\n");
             goto end;
         }
-        if (!address_book_compute_hmac_rest(&IDENTITY.bip32_path,
-                                            group_handle,
-                                            IDENTITY.scope,
-                                            IDENTITY.identifier,
-                                            IDENTITY.identifier_len,
-                                            IDENTITY.blockchain_family,
-                                            IDENTITY.chain_id,
+        if (!address_book_compute_hmac_rest(&REG.identity.bip32_path,
+                                            gid,
+                                            REG.identity.scope,
+                                            REG.identity.identifier,
+                                            REG.identity.identifier_len,
+                                            REG.identity.blockchain_family,
+                                            REG.identity.chain_id,
                                             hmac_rest)) {
             PRINTF("[Register Identity] Error: Failed to compute HMAC_REST\n");
             goto end;
         }
     }
-    ok = address_book_send_register_identity_response(group_handle, hmac_name, hmac_rest);
+    ok = address_book_send_register_identity_response(group_handle, hmac_proof, hmac_rest);
 
 end:
     explicit_bzero(group_handle, sizeof(group_handle));
-    explicit_bzero(hmac_name, sizeof(hmac_name));
+    explicit_bzero(hmac_proof, sizeof(hmac_proof));
     explicit_bzero(hmac_rest, sizeof(hmac_rest));
-    explicit_bzero(gid, sizeof(gid));
     return ok;
 }
 
@@ -458,11 +451,11 @@ bolos_err_t register_identity(uint8_t *buffer_in, size_t buffer_in_length)
     const buffer_t payload = {.ptr = buffer_in, .size = buffer_in_length};
     s_identity_ctx ctx     = {0};
 
-    memset(&IDENTITY, 0, sizeof(IDENTITY));
-    memset(&REG_EXT, 0, sizeof(REG_EXT));
-    ctx.identity = &IDENTITY;
+    // Init the structure
+    memset(&REG, 0, sizeof(REG));
+    ctx.state = &REG;
 
-    // Parse using SDK TLV parser
+    // Parse using SDK TLV parser — handlers write directly into REG via ctx.state
     if (!identity_tlv_parser(&payload, &ctx, &ctx.received_tags)) {
         PRINTF("[Register Identity] Failed to parse TLV payload\n");
         return SWO_INCORRECT_DATA;
@@ -472,15 +465,25 @@ bolos_err_t register_identity(uint8_t *buffer_in, size_t buffer_in_length)
     }
     print_payload(&ctx);
 
-    // Copy optional group extension data into the persistent static before ctx goes out of scope
+    // Validate group-handle integrity and caller ownership before showing the UI.
+    // These are input checks (wallet-supplied data) — failing here returns an error
+    // immediately; only internal crypto operations remain post-confirm.
     if (TLV_CHECK_RECEIVED_TAGS(ctx.received_tags, TAG_GROUP_HANDLE)) {
-        REG_EXT.active = true;
-        memmove(REG_EXT.group_handle, ctx.group_handle, GROUP_HANDLE_SIZE);
-        memmove(REG_EXT.hmac_name, ctx.hmac_name, CX_SHA256_SIZE);
+        REG.active = true;
+        if (!address_book_verify_group_handle(
+                &REG.identity.bip32_path, REG.group_handle, REG.gid)) {
+            PRINTF("[Register Identity] Error: Group handle verification failed\n");
+            return SWO_INCORRECT_DATA;
+        }
+        if (!address_book_verify_hmac_name(
+                &REG.identity.bip32_path, REG.gid, REG.identity.contact_name, REG.hmac_proof)) {
+            PRINTF("[Register Identity] Error: HMAC_PROOF verification failed\n");
+            return SWO_INCORRECT_DATA;
+        }
     }
 
     // Check the Identity validity according to the Coin application logic
-    if (!handle_check_register_identity(ctx.identity)) {
+    if (!handle_check_register_identity(&REG.identity)) {
         PRINTF("[Register Identity] Error: Identity rejected by coin application\n");
         return SWO_WRONG_PARAMETER_VALUE;
     }
