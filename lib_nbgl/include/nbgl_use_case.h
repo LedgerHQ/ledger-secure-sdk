@@ -408,8 +408,30 @@ typedef enum {
 #define BLIND_OPERATION (1 << 5)
 
 /**
+ * @brief This is to use in @ref nbgl_operationType_t when the operation is concerned by an internal
+ * warning. This is used to indicate a warning with a top-right button in review first & last page
+ *
+ */
+#define RISKY_OPERATION (1 << 6)
+
+/**
+ * @brief This is to use in @ref nbgl_operationType_t when the operation is concerned by an internal
+ * information. This is used to indicate an info with a top-right button in review first & last page
+ *
+ */
+#define NO_THREAT_OPERATION (1 << 7)
+
+/**
+ * @brief This is to use in @ref nbgl_operationType_t when the operation is related to "Address
+ * Book" to adapt wordings.
+ *
+ */
+#define ADDRESS_BOOK_OPERATION (1 << 8)
+
+/**
  * @brief This mask is used to describe the type of operation to review with additional options
  * It is a mask of @ref nbgl_opType_t [| @ref SKIPPABLE_OPERATION] [| @ref BLIND_OPERATION]
+ * [| @ref RISKY_OPERATION] [| @ref NO_THREAT_OPERATION] [| @ref ADDRESS_BOOK_OPERATION]
  *
  */
 typedef uint32_t nbgl_operationType_t;
