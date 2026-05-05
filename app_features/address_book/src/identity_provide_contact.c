@@ -31,7 +31,7 @@
  *  3. Verify group_handle → extract gid
  *  4. Verify HMAC_PROOF over (gid, contact_name)
  *  5. Verify HMAC_REST over (gid, scope, identifier, family[, chain_id])
- *  6. Call handle_provide_contact() so the coin app can store the contact
+ *  6. Call handle_provide_identity() so the coin app can store the contact
  *  7. Return SWO_SUCCESS (9000, no data)
  *
  * Active under HAVE_ADDRESS_BOOK.
@@ -378,7 +378,7 @@ bolos_err_t provide_contact(uint8_t *buffer_in, size_t buffer_in_length)
     }
 
     // Pass verified contact to the coin app for storage
-    if (!handle_provide_contact(&PROVIDE_CONTACT_IDENTITY)) {
+    if (!handle_provide_identity(&PROVIDE_CONTACT_IDENTITY)) {
         PRINTF("[Provide Contact] Rejected by coin application\n");
         return SWO_WRONG_PARAMETER_VALUE;
     }

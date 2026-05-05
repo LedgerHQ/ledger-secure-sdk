@@ -281,7 +281,7 @@ This allows a wallet to register multiple addresses for the same contact (e.g. t
 
 1. Parse TLV payload.
 2. If `GROUP_HANDLE` is present: verify its MAC (constant-time), extract `gid`, re-derive `HMAC_PROOF` over `(gid, contact_name)` and compare (constant-time) — proves the wallet owns the existing group.
-3. Call `handle_check_identity()` (coin-app entrypoint) for chain-specific validation.
+3. Call `handle_check_register_identity()` (coin-app entrypoint) for chain-specific validation.
 4. Display to user: contact_name + scope + identifier.
 5. On confirm: generate `gid` and compute `group_handle` + `HMAC_PROOF` (new group), or reuse the verified `gid` and echo them back (existing group); then compute `HMAC_REST` for the new `(scope, identifier)`.
 
@@ -536,7 +536,7 @@ Registers a name for a Ledger-owned account, identified by its derivation path a
 #### Flow
 
 1. Parse TLV payload.
-2. Call `handle_check_ledger_account()` (coin-app entrypoint).
+2. Call `handle_check_register_ledger_account()` (coin-app entrypoint).
 3. Call `display_register_ledger_account_review()` (coin-app entrypoint) — the app owns the UI.
 4. On confirm: compute HMAC Proof of Registration and return it.
 
@@ -636,7 +636,7 @@ type(1) | hmac_proof(32)
 - **Structure type:** `0x33` (`TYPE_PROVIDE_CONTACT`)
 - **Guard:** `HAVE_ADDRESS_BOOK`
 
-Sent by the wallet **before a transaction** to let the device substitute a human-readable contact name (and scope) for a raw blockchain address on the review screen. The device verifies both HMAC proofs to guarantee that the contact was legitimately registered on this device, then exposes the validated data to the coin app via the `handle_provide_contact()` callback.
+Sent by the wallet **before a transaction** to let the device substitute a human-readable contact name (and scope) for a raw blockchain address on the review screen. The device verifies both HMAC proofs to guarantee that the contact was legitimately registered on this device, then exposes the validated data to the coin app via the `handle_provide_identity()` callback.
 
 #### TLV payload
 
@@ -662,7 +662,7 @@ Sent by the wallet **before a transaction** to let the device substitute a human
 2. Verify `group_handle` MAC (constant-time) and extract `gid`.
 3. Re-derive `HMAC_PROOF` over `(gid, contact_name)` and compare with `hmac_proof` (constant-time) — proves the name was registered on this device.
 4. Re-derive `HMAC_REST` over `(gid, scope, identifier, family [, chain_id])` and compare with `hmac_rest` (constant-time) — proves the scope and identifier were registered on this device.
-5. Call `handle_provide_contact()` (coin-app entrypoint) — passes the validated contact data for the app to store and use during the upcoming transaction review.
+5. Call `handle_provide_identity()` (coin-app entrypoint) — passes the validated contact data for the app to store and use during the upcoming transaction review.
 6. Return `9000` (no data).
 
 ```mermaid
@@ -698,7 +698,7 @@ sequenceDiagram
 
 Sent by the wallet **before a transaction** to let the device substitute the human-readable account name for the raw Ethereum address of a previously-registered Ledger Account. Unlike Provide Contact (§5.7), there is no external identifier, no `group_handle`, no `scope`, and no `HMAC_REST` — the only proof required is the `HMAC_PROOF` returned by Register Ledger Account.
 
-The device verifies the HMAC Proof of Registration, then derives the Ethereum address from the BIP32 path and exposes the validated `(address → name)` mapping to the coin app via `handle_provide_ledger_account_contact()`.
+The device verifies the HMAC Proof of Registration, then derives the Ethereum address from the BIP32 path and exposes the validated `(address → name)` mapping to the coin app via `handle_provide_ledger_account()`.
 
 #### TLV payload
 
@@ -718,7 +718,7 @@ The device verifies the HMAC Proof of Registration, then derives the Ethereum ad
 
 1. Parse TLV payload.
 2. Re-derive HMAC over `(account_name, family [, chain_id])` at the given BIP32 path and compare with `hmac_proof` (constant-time) — proves the account was registered on this device.
-3. Call `handle_provide_ledger_account_contact()` (coin-app entrypoint) — the app derives the Ethereum address from the BIP32 path, stores the `(address → name)` mapping for use during the upcoming transaction review.
+3. Call `handle_provide_ledger_account()` (coin-app entrypoint) — the app derives the Ethereum address from the BIP32 path, stores the `(address → name)` mapping for use during the upcoming transaction review.
 4. Return `9000` (no data).
 
 ```mermaid

@@ -20,7 +20,7 @@
  *
  * Flow:
  *  1. Parse TLV payload (name + scope + identifier + derivation_path)
- *  2. Coin-app validation: handle_check_identity()
+ *  2. Coin-app validation: handle_check_register_identity()
  *  3. Display UI: contact name + identifier
  *  4. On confirm: compute HMAC Proof of Registration and send to host
  *
@@ -480,7 +480,7 @@ bolos_err_t register_identity(uint8_t *buffer_in, size_t buffer_in_length)
     }
 
     // Check the Identity validity according to the Coin application logic
-    if (!handle_check_identity(ctx.identity)) {
+    if (!handle_check_register_identity(ctx.identity)) {
         PRINTF("[Register Identity] Error: Identity rejected by coin application\n");
         return SWO_WRONG_PARAMETER_VALUE;
     }
