@@ -31,7 +31,7 @@
  *  3. Verify group_handle → extract gid
  *  4. Verify HMAC_PROOF over (gid, contact_name)
  *  5. Verify HMAC_REST over (gid, scope, identifier, family[, chain_id])
- *  6. Call handle_provide_contact() so the coin app can store the contact
+ *  6. Call handle_provide_identity() so the coin app can store the contact
  *  7. Return SWO_SUCCESS (9000, no data)
  *
  * Active under HAVE_ADDRESS_BOOK.
@@ -75,7 +75,7 @@ typedef struct {
     X(0x21, TAG_DERIVATION_PATH, handle_derivation_path, ENFORCE_UNIQUE_TAG)     \
     X(0x23, TAG_CHAIN_ID, handle_chain_id, ENFORCE_UNIQUE_TAG)                   \
     X(0x51, TAG_BLOCKCHAIN_FAMILY, handle_blockchain_family, ENFORCE_UNIQUE_TAG) \
-    X(0x29, TAG_HMAC_NAME, handle_hmac_proof, ENFORCE_UNIQUE_TAG)                \
+    X(0x29, TAG_HMAC_PROOF, handle_hmac_proof, ENFORCE_UNIQUE_TAG)               \
     X(0xf7, TAG_HMAC_REST, handle_hmac_rest, ENFORCE_UNIQUE_TAG)
 
 /* Private variables ---------------------------------------------------------*/
@@ -281,7 +281,7 @@ static bool verify_fields(const s_provide_contact_ctx *context)
                                           TAG_GROUP_HANDLE,
                                           TAG_DERIVATION_PATH,
                                           TAG_BLOCKCHAIN_FAMILY,
-                                          TAG_HMAC_NAME,
+                                          TAG_HMAC_PROOF,
                                           TAG_HMAC_REST);
     if (!result) {
         PRINTF("[Provide Contact] Missing mandatory fields!\n");
@@ -356,10 +356,10 @@ bolos_err_t provide_contact(uint8_t *buffer_in, size_t buffer_in_length)
     }
 
     // Verify HMAC_PROOF over (gid, contact_name)
-    if (!address_book_verify_hmac_name(&PROVIDE_CONTACT_IDENTITY.bip32_path,
-                                       PROVIDE_CONTACT_IDENTITY.gid,
-                                       PROVIDE_CONTACT_IDENTITY.contact_name,
-                                       ctx.hmac_proof)) {
+    if (!address_book_verify_hmac_proof(&PROVIDE_CONTACT_IDENTITY.bip32_path,
+                                        PROVIDE_CONTACT_IDENTITY.gid,
+                                        PROVIDE_CONTACT_IDENTITY.contact_name,
+                                        ctx.hmac_proof)) {
         PRINTF("[Provide Contact] HMAC_PROOF verification failed\n");
         return SWO_SECURITY_CONDITION_NOT_SATISFIED;
     }
@@ -378,7 +378,7 @@ bolos_err_t provide_contact(uint8_t *buffer_in, size_t buffer_in_length)
     }
 
     // Pass verified contact to the coin app for storage
-    if (!handle_provide_contact(&PROVIDE_CONTACT_IDENTITY)) {
+    if (!handle_provide_identity(&PROVIDE_CONTACT_IDENTITY)) {
         PRINTF("[Provide Contact] Rejected by coin application\n");
         return SWO_WRONG_PARAMETER_VALUE;
     }

@@ -26,8 +26,8 @@
  *     address_book.c)
  *  2. Parse TLV payload (contact_name + scope + new_identifier +
  *     previous_identifier + gid + derivation_path +
- *     hmac_name_proof + hmac_rest_proof)
- *  3. Verify HMAC_NAME over (gid, contact_name)
+ *     hmac_proof + hmac_rest)
+ *  3. Verify HMAC_PROOF over (gid, contact_name)
  *  4. Verify HMAC_REST over (gid, scope, previous_identifier, family[, chain_id])
  *  5. Coin-app notification: handle_check_edit_identifier()
  *  6. Display UI: contact name, previous identifier → new identifier
@@ -61,9 +61,9 @@
 typedef struct {
     edit_identifier_t *edit;
     TLV_reception_t    received_tags;
-    uint8_t            hmac_name[CX_SHA256_SIZE];  ///< HMAC_NAME — verifies contact name
-    uint8_t            hmac_rest[CX_SHA256_SIZE];  ///< HMAC_REST — verifies previous identifier
-    uint8_t group_handle[GROUP_HANDLE_SIZE];       ///< Group handle from wallet (verified later)
+    uint8_t            hmac_proof[CX_SHA256_SIZE];  ///< HMAC_PROOF — verifies contact name
+    uint8_t            hmac_rest[CX_SHA256_SIZE];   ///< HMAC_REST — verifies previous identifier
+    uint8_t group_handle[GROUP_HANDLE_SIZE];        ///< Group handle from wallet (verified later)
 } s_edit_ctx;
 
 /* Private macros-------------------------------------------------------------*/
@@ -77,7 +77,7 @@ typedef struct {
     X(0xf6, TAG_GROUP_HANDLE, handle_group_handle, ENFORCE_UNIQUE_TAG)               \
     X(0x21, TAG_DERIVATION_PATH, handle_derivation_path, ENFORCE_UNIQUE_TAG)         \
     X(0x23, TAG_CHAIN_ID, handle_chain_id, ENFORCE_UNIQUE_TAG)                       \
-    X(0x29, TAG_HMAC_NAME, handle_hmac_name, ENFORCE_UNIQUE_TAG)                     \
+    X(0x29, TAG_HMAC_PROOF, handle_hmac_proof, ENFORCE_UNIQUE_TAG)                   \
     X(0xf7, TAG_HMAC_REST, handle_hmac_rest, ENFORCE_UNIQUE_TAG)                     \
     X(0x51, TAG_BLOCKCHAIN_FAMILY, handle_blockchain_family, ENFORCE_UNIQUE_TAG)
 
@@ -252,20 +252,21 @@ static bool handle_blockchain_family(const tlv_data_t *data, s_edit_ctx *context
 }
 
 /**
- * @brief Handler for tag \ref HMAC_NAME
+ * @brief Handler for tag \ref HMAC_PROOF
  *
  * @param[in] data the tlv data
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_hmac_name(const tlv_data_t *data, s_edit_ctx *context)
+static bool handle_hmac_proof(const tlv_data_t *data, s_edit_ctx *context)
 {
     buffer_t buf = {0};
     if (!get_buffer_from_tlv_data(data, &buf, CX_SHA256_SIZE, CX_SHA256_SIZE)) {
-        PRINTF("[Edit Identifier] HMAC_NAME: invalid length (expected %d bytes)\n", CX_SHA256_SIZE);
+        PRINTF("[Edit Identifier] HMAC_PROOF: invalid length (expected %d bytes)\n",
+               CX_SHA256_SIZE);
         return false;
     }
-    memmove(context->hmac_name, buf.ptr, CX_SHA256_SIZE);
+    memmove(context->hmac_proof, buf.ptr, CX_SHA256_SIZE);
     return true;
 }
 
@@ -306,7 +307,7 @@ static bool verify_fields(const s_edit_ctx *context)
                                           TAG_GROUP_HANDLE,
                                           TAG_DERIVATION_PATH,
                                           TAG_BLOCKCHAIN_FAMILY,
-                                          TAG_HMAC_NAME,
+                                          TAG_HMAC_PROOF,
                                           TAG_HMAC_REST);
     if (!result) {
         PRINTF("[Edit Identifier] Missing mandatory fields!\n");
@@ -384,6 +385,7 @@ static void review_choice(bool confirm)
 {
     if (confirm) {
         if (build_and_send_response()) {
+            on_edit_identifier_applied(&EDIT_IDENTIFIER);
             if (EDIT_IDENTIFIER.identity.blockchain_family == FAMILY_ETHEREUM) {
                 nbgl_useCaseStatus("Address changed", true, finalize_ui_edit_identifier);
             }
@@ -425,6 +427,20 @@ static void ui_display(void)
 /* Exported functions --------------------------------------------------------*/
 
 /**
+ * @brief Return a read-only pointer to the parsed Edit Identifier data.
+ *
+ * The returned pointer is valid from the moment edit_identifier() has
+ * finished parsing until the next call to edit_identifier(), which
+ * overwrites the static buffer.
+ *
+ * @return Pointer to the current EDIT_IDENTIFIER static (never NULL)
+ */
+const edit_identifier_t *get_edit_identifier(void)
+{
+    return &EDIT_IDENTIFIER;
+}
+
+/**
  * @brief Edit the IDENTIFIER of an existing Identity contact.
  *
  * @param[in] buffer_in        the fully assembled TLV payload
@@ -457,12 +473,12 @@ bolos_err_t edit_identifier(uint8_t *buffer_in, size_t buffer_in_length)
         return SWO_SECURITY_CONDITION_NOT_SATISFIED;
     }
 
-    // Verify that the wallet holds a valid HMAC_NAME for the contact name
-    if (!address_book_verify_hmac_name(&EDIT_IDENTIFIER.identity.bip32_path,
-                                       EDIT_IDENTIFIER.identity.gid,
-                                       EDIT_IDENTIFIER.identity.contact_name,
-                                       ctx.hmac_name)) {
-        PRINTF("[Edit Identifier] HMAC_NAME verification failed\n");
+    // Verify that the wallet holds a valid HMAC_PROOF for the contact name
+    if (!address_book_verify_hmac_proof(&EDIT_IDENTIFIER.identity.bip32_path,
+                                        EDIT_IDENTIFIER.identity.gid,
+                                        EDIT_IDENTIFIER.identity.contact_name,
+                                        ctx.hmac_proof)) {
+        PRINTF("[Edit Identifier] HMAC_PROOF verification failed\n");
         return SWO_SECURITY_CONDITION_NOT_SATISFIED;
     }
 

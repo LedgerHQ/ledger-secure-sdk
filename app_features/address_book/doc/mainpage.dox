@@ -12,6 +12,8 @@ The feature provides:
 
 - Binding a contact name and scope to an external identifier (e.g. an Ethereum address) via
   the @b Register @b Identity flow
+- Linking @b multiple @b addresses to a single contact by re-calling Register Identity with
+  an existing @c group_handle — all addresses then share the same name and rename atomically
 - Binding an account name to a BIP32 derivation path managed by the device via the
   @b Register @b Ledger @b Account flow
 - Updating existing bindings (name, identifier, scope) via dedicated @b Edit flows — each
@@ -155,6 +157,11 @@ hmac_proof = HMAC-SHA256(K_account, message)
 -# <b>Two independent Identity HMACs</b>: @c HMAC_PROOF covers only @c gid + name, while
    @c HMAC_REST covers @c gid + scope + identifier + network.  This allows the wallet to rename
    a contact without re-presenting the identifier or scope, and vice-versa.
+-# <b>Multi-address contacts</b>: Register Identity can be called with an existing
+   @c group_handle + @c HMAC_PROOF to link a second @c (scope, identifier) pair to the same
+   @c gid.  The device verifies ownership before issuing a new @c HMAC_REST.  Because all
+   addresses share the same @c gid, a single Edit Contact Name invalidates the @c HMAC_PROOF
+   for every address in the group simultaneously.
 -# <b>Triple KDF</b>: Separate salts for Group Handle, Identity, and Ledger Account prevent
    cross-feature key reuse even at the same BIP32 derivation path.
 -# <b>No secrets leave the device</b>: The BIP32 private key, KDF keys, and @c gid are
@@ -172,7 +179,7 @@ Applications must implement the following callbacks to support Address Book:
 
 <b>Register Identity</b>:
 @code{.c}
-bool handle_check_identity(identity_t *params);
+bool handle_check_register_identity(identity_t *params);
 nbgl_contentTagValue_t *get_register_identity_tagValue(nbgl_contentTagValue_t *pair, uint8_t index);
 void finalize_ui_register_identity(void);
 @endcode
@@ -192,7 +199,7 @@ void finalize_ui_edit_scope(void);
 
 <b>Register Ledger Account</b> (requires @c HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT):
 @code{.c}
-bool handle_check_ledger_account(ledger_account_t *params);
+bool handle_check_register_ledger_account(ledger_account_t *params);
 void display_register_ledger_account_review(nbgl_choiceCallback_t choice_callback);
 void finalize_ui_register_ledger_account(void);
 void finalize_ui_edit_ledger_account(void);
@@ -200,12 +207,12 @@ void finalize_ui_edit_ledger_account(void);
 
 <b>Provide Contact</b>:
 @code{.c}
-bool handle_provide_contact(const identity_t *contact);
+bool handle_provide_identity(const identity_t *contact);
 @endcode
 
 <b>Provide Ledger Account Contact</b> (requires @c HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT):
 @code{.c}
-bool handle_provide_ledger_account_contact(const ledger_account_t *account);
+bool handle_provide_ledger_account(const ledger_account_t *account);
 @endcode
 
 @subsection address_book_functions Core Crypto Functions
@@ -214,8 +221,8 @@ Key functions provided by the Address Book module:
 
 - address_book_generate_group_handle(): Generate gid and compute authenticated group_handle
 - address_book_verify_group_handle(): Verify group_handle MAC and extract gid
-- address_book_compute_hmac_name(): Compute HMAC_PROOF over (gid, name)
-- address_book_verify_hmac_name(): Verify HMAC_PROOF (constant-time)
+- address_book_compute_hmac_proof(): Compute HMAC_PROOF over (gid, name)
+- address_book_verify_hmac_proof(): Verify HMAC_PROOF (constant-time)
 - address_book_compute_hmac_rest(): Compute HMAC_REST over (gid, scope, identifier, network)
 - address_book_verify_hmac_rest(): Verify HMAC_REST (constant-time)
 - address_book_send_register_identity_response(): Send type(1) | group_handle(64) | hmac_proof(32) | hmac_rest(32)
