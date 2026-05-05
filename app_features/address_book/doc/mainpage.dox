@@ -221,8 +221,8 @@ Key functions provided by the Address Book module:
 
 - address_book_generate_group_handle(): Generate gid and compute authenticated group_handle
 - address_book_verify_group_handle(): Verify group_handle MAC and extract gid
-- address_book_compute_hmac_name(): Compute HMAC_PROOF over (gid, name)
-- address_book_verify_hmac_name(): Verify HMAC_PROOF (constant-time)
+- address_book_compute_hmac_proof(): Compute HMAC_PROOF over (gid, name)
+- address_book_verify_hmac_proof(): Verify HMAC_PROOF (constant-time)
 - address_book_compute_hmac_rest(): Compute HMAC_REST over (gid, scope, identifier, network)
 - address_book_verify_hmac_rest(): Verify HMAC_REST (constant-time)
 - address_book_send_register_identity_response(): Send type(1) | group_handle(64) | hmac_proof(32) | hmac_rest(32)

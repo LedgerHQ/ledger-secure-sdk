@@ -26,7 +26,7 @@
  *
  * HMAC messages:
  *  - Group KDF:          SHA256("AddressBook-Group"         || privkey.d)
- *  - Identity HMAC_NAME: gid(32) | name_len(1) | name
+ *  - Identity HMAC_PROOF: gid(32) | name_len(1) | name
  *  - Identity HMAC_REST: gid(32) | scope_len(1) | scope | id_len(1) | identifier |
  *                        family(1) [| chain_id(8) for FAMILY_ETHEREUM]
  *  - Ledger Account:     name_len(1) | name | family(1) [| chain_id(8) for FAMILY_ETHEREUM]
@@ -147,16 +147,16 @@ bool address_book_send_hmac_proof(uint8_t type, const uint8_t hmac_proof[CX_SHA2
 /**
  * @brief Send the Register Identity response carrying the group handle and both HMACs
  *
- * Response format: TYPE_REGISTER_IDENTITY(1) | group_handle(64) | hmac_name(32) | hmac_rest(32)
+ * Response format: TYPE_REGISTER_IDENTITY(1) | group_handle(64) | hmac_proof(32) | hmac_rest(32)
  * = 129 B
  *
  * @param[in] group_handle Device-authenticated group handle (gid || MAC)
- * @param[in] hmac_name    HMAC over (gid, name)
+ * @param[in] hmac_proof    HMAC over (gid, name)
  * @param[in] hmac_rest    HMAC over (gid, scope, identifier, family [, chain_id])
  * @return true if sent successfully, false otherwise
  */
 bool address_book_send_register_identity_response(const uint8_t group_handle[GROUP_HANDLE_SIZE],
-                                                  const uint8_t hmac_name[CX_SHA256_SIZE],
+                                                  const uint8_t hmac_proof[CX_SHA256_SIZE],
                                                   const uint8_t hmac_rest[CX_SHA256_SIZE])
 {
     size_t tx = 0;
@@ -164,7 +164,7 @@ bool address_book_send_register_identity_response(const uint8_t group_handle[GRO
     G_io_tx_buffer[tx++] = TYPE_REGISTER_IDENTITY;
     memmove(&G_io_tx_buffer[tx], group_handle, GROUP_HANDLE_SIZE);
     tx += GROUP_HANDLE_SIZE;
-    memmove(&G_io_tx_buffer[tx], hmac_name, CX_SHA256_SIZE);
+    memmove(&G_io_tx_buffer[tx], hmac_proof, CX_SHA256_SIZE);
     tx += CX_SHA256_SIZE;
     memmove(&G_io_tx_buffer[tx], hmac_rest, CX_SHA256_SIZE);
     tx += CX_SHA256_SIZE;
@@ -248,7 +248,7 @@ end:
 }
 
 /**
- * @brief Compute HMAC_NAME for an Identity contact.
+ * @brief Compute HMAC_PROOF for an Identity contact.
  *
  * HMAC key: SHA256("AddressBook-Identity" || privkey.d)
  * HMAC message: gid(32) | name_len(1) | name
@@ -259,10 +259,10 @@ end:
  * @param[out] hmac_out    Output buffer for the 32-byte HMAC
  * @return true if successful, false otherwise
  */
-bool address_book_compute_hmac_name(const path_bip32_t *bip32_path,
-                                    const uint8_t       gid[GID_SIZE],
-                                    const char         *name,
-                                    uint8_t             hmac_out[CX_SHA256_SIZE])
+bool address_book_compute_hmac_proof(const path_bip32_t *bip32_path,
+                                     const uint8_t       gid[GID_SIZE],
+                                     const char         *name,
+                                     uint8_t             hmac_out[CX_SHA256_SIZE])
 {
     static const uint8_t salt[]   = "AddressBook-Identity";
     cx_hmac_sha256_t     hmac_ctx = {0};
@@ -290,7 +290,7 @@ end:
 }
 
 /**
- * @brief Verify HMAC_NAME for an Identity contact.
+ * @brief Verify HMAC_PROOF for an Identity contact.
  *
  * @param[in] bip32_path   BIP32 path used at registration
  * @param[in] gid          32-byte contact ID
@@ -298,19 +298,19 @@ end:
  * @param[in] hmac_expected 32-byte HMAC to verify against
  * @return true if valid, false otherwise
  */
-bool address_book_verify_hmac_name(const path_bip32_t *bip32_path,
-                                   const uint8_t       gid[GID_SIZE],
-                                   const char         *name,
-                                   const uint8_t       hmac_expected[CX_SHA256_SIZE])
+bool address_book_verify_hmac_proof(const path_bip32_t *bip32_path,
+                                    const uint8_t       gid[GID_SIZE],
+                                    const char         *name,
+                                    const uint8_t       hmac_expected[CX_SHA256_SIZE])
 {
     uint8_t hmac_computed[CX_SHA256_SIZE] = {0};
     bool    success                       = false;
 
-    if (!address_book_compute_hmac_name(bip32_path, gid, name, hmac_computed)) {
+    if (!address_book_compute_hmac_proof(bip32_path, gid, name, hmac_computed)) {
         goto end;
     }
     if (os_secure_memcmp(hmac_computed, hmac_expected, CX_SHA256_SIZE) != 0) {
-        PRINTF("HMAC_NAME mismatch\n");
+        PRINTF("HMAC_PROOF mismatch\n");
         goto end;
     }
     success = true;
