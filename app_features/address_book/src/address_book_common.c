@@ -115,7 +115,7 @@ bool address_book_handle_printable_string(const tlv_data_t *data,
                                           size_t            buffer_size)
 {
     // Extract the string (with null terminator added by get_string_from_tlv_data)
-    if (!get_string_from_tlv_data(data, output_buffer, 1, buffer_size - 1)) {
+    if (!get_string_from_tlv_data(data, output_buffer, 1, buffer_size)) {
         PRINTF("String extraction failed\n");
         return false;
     }
