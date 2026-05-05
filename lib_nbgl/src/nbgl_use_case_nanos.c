@@ -24,20 +24,6 @@
 #define WITH_HORIZONTAL_CHOICES_LIST
 #define WITH_HORIZONTAL_BARS_LIST
 
-/**
- * @brief This is to use in @ref nbgl_operationType_t when the operation is concerned by an internal
- * warning This is used to indicate a warning with a top-right button in review first & last page
- *
- */
-#define RISKY_OPERATION (1 << 6)
-
-/**
- * @brief This is to use in @ref nbgl_operationType_t when the operation is concerned by an internal
- * information. This is used to indicate an info with a top-right button in review first & last page
- *
- */
-#define NO_THREAT_OPERATION (1 << 7)
-
 /**********************
  *      TYPEDEFS
  **********************/
