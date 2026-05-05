@@ -26,8 +26,8 @@
  *     address_book.c)
  *  2. Parse TLV payload (contact_name + new_scope + previous_scope +
  *     identifier + gid + derivation_path + chain_id +
- *     blockchain_family + hmac_name_proof + hmac_rest_proof)
- *  3. Verify HMAC_NAME over (gid, contact_name)
+ *     blockchain_family + hmac_proof + hmac_rest)
+ *  3. Verify HMAC_PROOF over (gid, contact_name)
  *  4. Verify HMAC_REST over (gid, previous_scope, identifier, family[, chain_id])
  *  5. Display UI: old scope → new scope
  *  6. On confirm: compute new HMAC_REST over (gid, new_scope, identifier,
@@ -60,7 +60,7 @@
 typedef struct {
     edit_scope_t   *edit;
     TLV_reception_t received_tags;
-    uint8_t         hmac_name[CX_SHA256_SIZE];        ///< HMAC_NAME — verifies contact name
+    uint8_t         hmac_proof[CX_SHA256_SIZE];       ///< HMAC_PROOF — verifies contact name
     uint8_t         hmac_rest[CX_SHA256_SIZE];        ///< HMAC_REST — verifies previous scope
     uint8_t         group_handle[GROUP_HANDLE_SIZE];  ///< Group handle from wallet (verified later)
 } s_edit_scope_ctx;
@@ -76,7 +76,7 @@ typedef struct {
     X(0xf6, TAG_GROUP_HANDLE, handle_group_handle, ENFORCE_UNIQUE_TAG)        \
     X(0x21, TAG_DERIVATION_PATH, handle_derivation_path, ENFORCE_UNIQUE_TAG)  \
     X(0x23, TAG_CHAIN_ID, handle_chain_id, ENFORCE_UNIQUE_TAG)                \
-    X(0x29, TAG_HMAC_NAME, handle_hmac_name, ENFORCE_UNIQUE_TAG)              \
+    X(0x29, TAG_HMAC_PROOF, handle_hmac_proof, ENFORCE_UNIQUE_TAG)            \
     X(0xf7, TAG_HMAC_REST, handle_hmac_rest, ENFORCE_UNIQUE_TAG)              \
     X(0x51, TAG_BLOCKCHAIN_FAMILY, handle_blockchain_family, ENFORCE_UNIQUE_TAG)
 
@@ -252,20 +252,20 @@ static bool handle_blockchain_family(const tlv_data_t *data, s_edit_scope_ctx *c
 }
 
 /**
- * @brief Handler for tag \ref HMAC_NAME
+ * @brief Handler for tag \ref HMAC_PROOF
  *
  * @param[in] data the tlv data
  * @param[in] context the received payload
  * @return whether the handling was successful
  */
-static bool handle_hmac_name(const tlv_data_t *data, s_edit_scope_ctx *context)
+static bool handle_hmac_proof(const tlv_data_t *data, s_edit_scope_ctx *context)
 {
     buffer_t buf = {0};
     if (!get_buffer_from_tlv_data(data, &buf, CX_SHA256_SIZE, CX_SHA256_SIZE)) {
-        PRINTF("[Edit Scope] HMAC_NAME: invalid length (expected %d bytes)\n", CX_SHA256_SIZE);
+        PRINTF("[Edit Scope] HMAC_PROOF: invalid length (expected %d bytes)\n", CX_SHA256_SIZE);
         return false;
     }
-    memmove(context->hmac_name, buf.ptr, CX_SHA256_SIZE);
+    memmove(context->hmac_proof, buf.ptr, CX_SHA256_SIZE);
     return true;
 }
 
@@ -307,7 +307,7 @@ static bool verify_fields(const s_edit_scope_ctx *context)
                                           TAG_GROUP_HANDLE,
                                           TAG_DERIVATION_PATH,
                                           TAG_BLOCKCHAIN_FAMILY,
-                                          TAG_HMAC_NAME,
+                                          TAG_HMAC_PROOF,
                                           TAG_HMAC_REST);
     if (!result) {
         PRINTF("[Edit Scope] Missing mandatory fields!\n");
@@ -382,6 +382,7 @@ static void review_choice(bool confirm)
 {
     if (confirm) {
         if (build_and_send_response()) {
+            on_edit_scope_applied(&EDIT_SCOPE);
             if (EDIT_SCOPE.identity.blockchain_family == FAMILY_BITCOIN) {
                 nbgl_useCaseStatus("Scope changed", true, finalize_ui_edit_scope);
             }
@@ -412,7 +413,7 @@ static void ui_display(void)
     ui_pairs[nbPairs].item  = "Contact name";
     ui_pairs[nbPairs].value = EDIT_SCOPE.identity.contact_name;
     nbPairs++;
-    ui_pairs[nbPairs].item  = "Previous address name";
+    ui_pairs[nbPairs].item  = "Old address name";
     ui_pairs[nbPairs].value = EDIT_SCOPE.previous_scope;
     nbPairs++;
     ui_pairs[nbPairs].item  = "New address name";
@@ -432,6 +433,20 @@ static void ui_display(void)
 }
 
 /* Exported functions --------------------------------------------------------*/
+
+/**
+ * @brief Return a read-only pointer to the parsed Edit Scope data.
+ *
+ * The returned pointer is valid from the moment edit_scope() has finished
+ * parsing until the next call to edit_scope(), which overwrites the static
+ * buffer.
+ *
+ * @return Pointer to the current EDIT_SCOPE static (never NULL)
+ */
+const edit_scope_t *get_edit_scope(void)
+{
+    return &EDIT_SCOPE;
+}
 
 /**
  * @brief Edit the SCOPE of an existing Identity contact.
@@ -466,12 +481,12 @@ bolos_err_t edit_scope(uint8_t *buffer_in, size_t buffer_in_length)
         return SWO_SECURITY_CONDITION_NOT_SATISFIED;
     }
 
-    // Verify that the wallet holds a valid HMAC_NAME for the contact name
-    if (!address_book_verify_hmac_name(&EDIT_SCOPE.identity.bip32_path,
-                                       EDIT_SCOPE.identity.gid,
-                                       EDIT_SCOPE.identity.contact_name,
-                                       ctx.hmac_name)) {
-        PRINTF("[Edit Scope] HMAC_NAME verification failed\n");
+    // Verify that the wallet holds a valid HMAC_PROOF for the contact name
+    if (!address_book_verify_hmac_proof(&EDIT_SCOPE.identity.bip32_path,
+                                        EDIT_SCOPE.identity.gid,
+                                        EDIT_SCOPE.identity.contact_name,
+                                        ctx.hmac_proof)) {
+        PRINTF("[Edit Scope] HMAC_PROOF verification failed\n");
         return SWO_SECURITY_CONDITION_NOT_SATISFIED;
     }
 

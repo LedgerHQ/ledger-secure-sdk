@@ -33,7 +33,7 @@
  *  2. Parse TLV payload (contact_name + derivation_path + chain_id + blockchain_family
  *     + hmac_proof)
  *  3. Verify HMAC Proof of Registration
- *  4. Call handle_provide_ledger_account_contact() so the coin app can store the contact
+ *  4. Call handle_provide_ledger_account() so the coin app can store the contact
  *  5. Return SWO_SUCCESS (9000, no data)
  *
  * Active under HAVE_ADDRESS_BOOK && HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT.
@@ -290,7 +290,7 @@ bolos_err_t provide_ledger_account_contact(uint8_t *buffer_in, size_t buffer_in_
     }
 
     // Pass verified contact to the coin app for storage
-    if (!handle_provide_ledger_account_contact(&PROVIDE_LEDGER_ACCOUNT)) {
+    if (!handle_provide_ledger_account(&PROVIDE_LEDGER_ACCOUNT)) {
         PRINTF("[Provide Ledger Account] Rejected by coin application\n");
         return SWO_WRONG_PARAMETER_VALUE;
     }
