@@ -572,6 +572,15 @@ void nbgl_useCaseChoiceWithDetails(const nbgl_icon_details_t *icon,
                                    const char                *cancelText,
                                    nbgl_warningDetails_t     *details,
                                    nbgl_choiceCallback_t      callback);
+void nbgl_useCaseAdvancedChoiceWithDetails(const nbgl_icon_details_t *centerIcon,
+                                           const nbgl_icon_details_t *headerIcon,
+                                           const char                *title,
+                                           const char                *message,
+                                           const char                *subMessage,
+                                           const char                *confirmText,
+                                           const char                *cancelText,
+                                           nbgl_warningDetails_t     *details,
+                                           nbgl_choiceCallback_t      callback);
 void nbgl_useCaseStatus(const char *message, bool isSuccess, nbgl_callback_t quitCallback);
 
 void nbgl_useCaseConfirm(const char     *message,
