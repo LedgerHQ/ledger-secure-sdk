@@ -78,6 +78,8 @@ int os_io_seph_cmd_piezo_play_tune(tune_index_e tune_index);
 void os_io_seph_cmd_serialized_nbgl(const uint8_t *buffer, uint16_t length);
 #endif  // HAVE_SERIALIZED_NBGL
 
+void os_io_seph_cmd_send_speculos_text_line(const char *text, size_t length);
+
 #ifdef HAVE_NOR_FLASH
 void os_io_seph_cmd_spi_cs(uint8_t select);
 #endif  // HAVE_NOR_FLASH

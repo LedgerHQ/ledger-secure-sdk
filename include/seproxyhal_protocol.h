@@ -295,6 +295,9 @@ enum seph_protocol_cmd_usb_prepare_type {
 // DBG : SCREEN DISPLAY
 #define SEPROXYHAL_TAG_DBG_SCREEN_DISPLAY_STATUS (0x5E)
 
+// CMD:  SEND SPECULOS CHAR
+#define SEPROXYHAL_TAG_NBGL_SEND_SPECULOS_TEXT_LINE (0x5A)
+
 ////////////
 // STATUS //
 ////////////
