@@ -1,0 +1,8 @@
+<map id="nbgl_line_s" name="nbgl_line_s">
+<area shape="rect" id="Node000001" title="struct to represent a vertical or horizontal line" alt="" coords="8,185,103,211"/>
+<area shape="rect" id="Node000002" href="$structnbgl__obj__s.html" title="Common structure for all graphical objects." alt="" coords="10,95,101,121"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="58,134,58,185,53,185,53,134"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="115,98,123,102,127,108,119,117,101,119,100,114,117,112,122,108,120,106,113,103"/>
+<area shape="rect" id="Node000003" href="$structnbgl__area__s.html" title="Represents a rectangle area of the screen." alt="" coords="5,5,105,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="58,44,58,95,53,95,53,44"/>
+</map>

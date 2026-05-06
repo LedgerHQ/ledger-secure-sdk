@@ -1,0 +1,20 @@
+<map id="lib_cxng/include/lcx_cipher.h" name="lib_cxng/include/lcx_cipher.h">
+<area shape="rect" id="Node000001" title="API for block ciphers." alt="" coords="252,5,403,45"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,93,100,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="262,48,107,92,105,87,261,43"/>
+<area shape="rect" id="Node000003" href="$lcx__wrappers_8h.html" title=" " alt="" coords="125,93,245,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="294,48,219,89,216,84,292,43"/>
+<area shape="rect" id="Node000006" href="$lcx__common_8h.html" title="Cryptography flags." alt="" coords="269,93,386,119"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="330,46,330,79,325,79,325,46"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="386,167,461,192"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="355,43,379,65,400,92,414,123,422,152,417,154,409,124,396,95,375,69,351,47"/>
+<area shape="rect" id="Node000009" href="$lcx__aes_8h.html" title="AES (Advanced Encryption Standard)." alt="" coords="461,93,543,119"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="370,43,465,85,463,90,368,48"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="17,167,123,192"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="168,121,102,162,99,157,165,116"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="147,167,251,192"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="190,118,197,153,192,154,184,120"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="291,167,361,192"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="330,119,329,153,324,153,324,119"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="344,117,398,156,395,160,341,121"/>
+</map>

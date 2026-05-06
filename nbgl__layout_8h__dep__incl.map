@@ -1,0 +1,25 @@
+<map id="lib_nbgl/include/nbgl_layout.h" name="lib_nbgl/include/nbgl_layout.h">
+<area shape="rect" id="Node000001" title="API of the Advanced BOLOS Graphical Library, for predefined layouts." alt="" coords="489,5,645,45"/>
+<area shape="rect" id="Node000002" href="$nbgl__page_8h.html" title="API of the Advanced BOLOS Graphical Library, for predefined pages." alt="" coords="197,93,353,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="491,52,340,96,339,91,490,47"/>
+<area shape="rect" id="Node000005" href="$nbgl__step_8h.html" title="Step construction API of NBGL." alt="" coords="392,93,548,133"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="537,56,493,95,490,91,534,52"/>
+<area shape="rect" id="Node000007" href="$nbgl__layout__internal_8h.html" title="Internal functions/constants of NBGL layout layer." alt="" coords="678,93,854,133"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="625,48,724,91,721,96,622,53"/>
+<area shape="rect" id="Node000012" href="$nbgl__layout__internal__nanos_8h.html" title="Internal functions/constants of NBGL layout layer." alt="" coords="878,93,1054,133"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="659,44,879,91,878,96,658,49"/>
+<area shape="rect" id="Node000003" href="$nbgl__use__case_8h.html" title="API of the Advanced BOLOS Graphical Library, for typical application use&#45;cases." alt="" coords="5,181,161,221"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="222,141,126,184,124,179,220,137"/>
+<area shape="rect" id="Node000004" href="$nbgl__page_8c.html" title="Implementation of predefined pages management for Applications." alt="" coords="186,189,365,214"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="278,147,278,188,273,188,273,147"/>
+<area shape="rect" id="Node000006" href="$nbgl__flow_8h.html" title="Flow construction API of NBGL." alt="" coords="389,181,545,221"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="472,147,471,181,465,181,466,147"/>
+<area shape="rect" id="Node000008" href="$nbgl__layout_8c.html" title="Implementation of predefined layouts management for Applications." alt="" coords="570,189,757,214"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="734,144,679,190,676,186,731,140"/>
+<area shape="rect" id="Node000009" href="$nbgl__layout__keyboard_8c.html" title="Implementation of predefined keyboard related layouts management." alt="" coords="781,181,957,221"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="801,140,848,179,844,183,798,144"/>
+<area shape="rect" id="Node000010" href="$nbgl__layout__keypad_8c.html" title="Implementation of keypad management of predefined layouts management for Applications." alt="" coords="981,181,1157,221"/>
+<area shape="poly" id="edge9_Node000007_Node000010" title=" " alt="" coords="847,135,1003,179,1002,184,845,140"/>
+<area shape="rect" id="Node000011" href="$nbgl__layout__navigation_8c.html" title="The construction of a navigation bar with buttons super&#45;object." alt="" coords="1181,181,1357,221"/>
+<area shape="poly" id="edge10_Node000007_Node000011" title=" " alt="" coords="868,131,1169,179,1181,181,1180,186,1168,184,867,136"/>
+</map>

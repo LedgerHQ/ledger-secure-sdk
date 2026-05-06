@@ -1,0 +1,8 @@
+<map id="nbgl_radio_s" name="nbgl_radio_s">
+<area shape="rect" id="Node000001" title="struct to represent a radio button (RADIO_BUTTON type)" alt="" coords="5,185,109,211"/>
+<area shape="rect" id="Node000002" href="$structnbgl__obj__s.html" title="Common structure for all graphical objects." alt="" coords="12,95,103,121"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="60,134,60,185,55,185,55,134"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="117,98,125,102,129,108,121,117,103,119,102,114,119,112,124,108,122,106,115,103"/>
+<area shape="rect" id="Node000003" href="$structnbgl__area__s.html" title="Represents a rectangle area of the screen." alt="" coords="7,5,107,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="60,44,60,95,55,95,55,44"/>
+</map>

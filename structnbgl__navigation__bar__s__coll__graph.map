@@ -1,0 +1,8 @@
+<map id="nbgl_navigation_bar_s" name="nbgl_navigation_bar_s">
+<area shape="rect" id="Node000001" title="struct to represent a navigation bar (PAGE_INDICATOR type) There can be up to 5 page indicators,..." alt="" coords="5,185,173,211"/>
+<area shape="rect" id="Node000002" href="$structnbgl__obj__s.html" title="Common structure for all graphical objects." alt="" coords="44,95,135,121"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="92,134,92,185,87,185,87,134"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="149,98,157,102,161,108,153,117,135,119,134,114,151,112,156,108,154,106,147,103"/>
+<area shape="rect" id="Node000003" href="$structnbgl__area__s.html" title="Represents a rectangle area of the screen." alt="" coords="39,5,139,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="92,44,92,95,87,95,87,44"/>
+</map>

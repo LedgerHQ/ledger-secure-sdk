@@ -1,0 +1,7 @@
+<map id="lib_nbgl/include/nbgl_page.h" name="lib_nbgl/include/nbgl_page.h">
+<area shape="rect" id="Node000001" title="API of the Advanced BOLOS Graphical Library, for predefined pages." alt="" coords="101,5,257,45"/>
+<area shape="rect" id="Node000002" href="$nbgl__use__case_8h.html" title="API of the Advanced BOLOS Graphical Library, for typical application use&#45;cases." alt="" coords="5,93,161,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="149,57,106,95,103,91,146,53"/>
+<area shape="rect" id="Node000003" href="$nbgl__page_8c.html" title="Implementation of predefined pages management for Applications." alt="" coords="186,101,365,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="213,53,264,98,260,102,209,57"/>
+</map>

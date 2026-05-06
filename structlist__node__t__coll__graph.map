@@ -1,0 +1,7 @@
+<map id="list_node_t" name="list_node_t">
+<area shape="rect" id="Node000001" title="Doubly&#45;linked list node structure." alt="" coords="7,93,101,119"/>
+<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="116,97,127,106,119,114,101,117,101,111,117,109,122,106,113,102"/>
+<area shape="rect" id="Node000002" href="$structflist__node__t.html" title="Forward list node structure (singly&#45;linked)" alt="" coords="5,5,103,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="57,45,57,93,51,93,51,45"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="118,9,129,18,121,26,103,29,103,23,119,21,124,18,115,14"/>
+</map>

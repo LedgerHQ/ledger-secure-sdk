@@ -1,0 +1,11 @@
+<map id="lib_standard_app/buffer.h" name="lib_standard_app/buffer.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="103,5,290,31"/>
+<area shape="rect" id="Node000002" href="$buffer_8c.html" title=" " alt="" coords="5,79,191,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,41,116,81,113,76,168,36"/>
+<area shape="rect" id="Node000003" href="$io_8h.html" title=" " alt="" coords="215,79,376,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="225,36,281,76,278,81,222,41"/>
+<area shape="rect" id="Node000004" href="$io_8c.html" title=" " alt="" coords="118,152,278,177"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="270,114,215,154,212,150,267,110"/>
+<area shape="rect" id="Node000005" href="$main_8c.html" title=" " alt="" coords="302,152,483,177"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="324,110,378,150,375,154,321,114"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="ux_menu_state_s" name="ux_menu_state_s">
+<area shape="rect" id="Node000001" title=" " alt="" coords="165,108,301,133"/>
+<area shape="rect" id="Node000002" href="$structux__menu__entry__s.html" title=" " alt="" coords="5,5,143,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="99,38,158,82,205,106,203,110,155,86,96,42"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="157,8,165,12,169,18,161,27,143,30,142,25,159,22,164,18,162,16,155,13"/>
+<area shape="rect" id="Node000003" href="$structbagl__element__e.html" title=" " alt="" coords="232,5,359,31"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="283,44,242,109,238,107,279,41"/>
+</map>

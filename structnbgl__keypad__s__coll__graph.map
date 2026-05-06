@@ -1,0 +1,8 @@
+<map id="nbgl_keypad_s" name="nbgl_keypad_s">
+<area shape="rect" id="Node000001" title="struct to represent a keypad (KEYPAD type)" alt="" coords="5,185,124,211"/>
+<area shape="rect" id="Node000002" href="$structnbgl__obj__s.html" title="Common structure for all graphical objects." alt="" coords="19,95,110,121"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="67,134,67,185,62,185,62,134"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="124,98,133,102,137,108,128,117,110,119,110,114,126,112,131,108,129,106,123,103"/>
+<area shape="rect" id="Node000003" href="$structnbgl__area__s.html" title="Represents a rectangle area of the screen." alt="" coords="15,5,115,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="67,44,67,95,62,95,62,44"/>
+</map>

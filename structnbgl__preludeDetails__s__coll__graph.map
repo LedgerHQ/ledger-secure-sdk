@@ -1,0 +1,14 @@
+<map id="nbgl_preludeDetails_s" name="nbgl_preludeDetails_s">
+<area shape="rect" id="Node000001" title="The necessary parameters to build the prelude of a review use&#45;case." alt="" coords="5,269,172,295"/>
+<area shape="rect" id="Node000002" href="$structnbgl__genericDetails__s.html" title="The necessary parameters to build the page(s) displayed when the top&#45;right button is touched in intro..." alt="" coords="115,181,281,207"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,216,136,233,99,271,96,267,132,229,159,211"/>
+<area shape="rect" id="Node000006" href="$structnbgl__genericBarList__t.html" title="The necessary parameters to build a list of touchable bars, to display sub&#45;pages." alt="" coords="197,269,359,295"/>
+<area shape="poly" id="edge6_Node000006_Node000002" title=" " alt="" coords="193,220,192,233,196,244,209,257,226,267,224,272,206,262,192,247,187,234,187,220"/>
+<area shape="rect" id="Node000003" href="$structnbgl__contentCenter__t.html" title="This structure contains info to build a centered (vertically and horizontally) area,..." alt="" coords="24,93,185,119"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="129,126,187,179,183,183,126,130"/>
+<area shape="rect" id="Node000004" href="$structnbgl__animation__s.html" title="Represents all information about an animation (succession of icons)" alt="" coords="36,5,173,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="107,45,107,93,102,93,102,45"/>
+<area shape="rect" id="Node000005" href="$structnbgl__layoutQRCode__t.html" title="This structure contains info to build a centered (vertically and horizontally) area,..." alt="" coords="210,93,373,119"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="277,131,252,159,219,183,216,179,248,155,273,128"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="265,259,247,232,217,209,220,205,251,229,269,256"/>
+</map>
