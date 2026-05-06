@@ -40,6 +40,9 @@
 
 #ifdef HAVE_ADDRESS_BOOK
 
+ab_payload_u g_ab_payload = {0};
+ab_ui_t      g_ab_ui      = {0};
+
 /**
  * @brief Generic handler for BIP32 derivation path
  *
@@ -132,27 +135,25 @@ bool address_book_handle_printable_string(const tlv_data_t *data,
 /**
  * @brief Display a confirmation review for an Address Book operation.
  *
- * Wraps @ref nbgl_useCaseReviewLight() with the operation type and sub-title
- * common to every Address Book flow (TYPE_OPERATION | ADDRESS_BOOK_OPERATION,
- * no review sub-title).
+ * Uses @ref g_ab_ui.list as the tag/value list (already populated by the caller).
+ * Sets wrapping = true and delegates to @ref nbgl_useCaseReviewLight().
  *
  * @param[in] icon            Icon shown on the title page (typically
  *                            &LARGE_ADDRESS_BOOK_ICON, may be NULL)
- * @param[in] pairs           Tag/value pairs to display
  * @param[in] reviewTitle     Title of the review
  * @param[in] confirmText     Text shown on the confirmation page
  * @param[in] choiceCallback  Callback invoked with the user's choice
  */
-void address_book_display_review(const nbgl_icon_details_t        *icon,
-                                 const nbgl_contentTagValueList_t *pairs,
-                                 const char                       *reviewTitle,
-                                 const char                       *confirmText,
-                                 nbgl_choiceCallback_t             choiceCallback)
+void address_book_display_review(const nbgl_icon_details_t *icon,
+                                 const char                *reviewTitle,
+                                 const char                *confirmText,
+                                 nbgl_choiceCallback_t      choiceCallback)
 {
+    g_ab_ui.list.wrapping = true;
     // NB: no subtitle for address book reviews, as the content is already quite long
     // Indicate the flag ADDRESS_BOOK_OPERATION to force wording in review screens
     nbgl_useCaseReviewLight(TYPE_OPERATION | ADDRESS_BOOK_OPERATION,
-                            pairs,
+                            &g_ab_ui.list,
                             icon,
                             reviewTitle,
                             NULL,

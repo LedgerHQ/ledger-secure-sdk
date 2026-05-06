@@ -79,7 +79,6 @@ typedef struct {
     X(0xf7, TAG_HMAC_REST, handle_hmac_rest, ENFORCE_UNIQUE_TAG)
 
 /* Private variables ---------------------------------------------------------*/
-static identity_t PROVIDE_CONTACT_IDENTITY = {0};
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -335,8 +334,8 @@ bolos_err_t provide_contact(uint8_t *buffer_in, size_t buffer_in_length)
     s_provide_contact_ctx ctx     = {0};
 
     // Init the structure
-    ctx.identity = &PROVIDE_CONTACT_IDENTITY;
-    memset(&PROVIDE_CONTACT_IDENTITY, 0, sizeof(PROVIDE_CONTACT_IDENTITY));
+    ctx.identity = &g_ab_payload.provide_contact;
+    memset(&g_ab_payload.provide_contact, 0, sizeof(g_ab_payload.provide_contact));
 
     // Parse using SDK TLV parser
     if (!provide_contact_tlv_parser(&payload, &ctx, &ctx.received_tags)) {
@@ -349,36 +348,37 @@ bolos_err_t provide_contact(uint8_t *buffer_in, size_t buffer_in_length)
     print_payload(&ctx);
 
     // Verify the group handle and extract the gid
-    if (!address_book_verify_group_handle(
-            &PROVIDE_CONTACT_IDENTITY.bip32_path, ctx.group_handle, PROVIDE_CONTACT_IDENTITY.gid)) {
+    if (!address_book_verify_group_handle(&g_ab_payload.provide_contact.bip32_path,
+                                          ctx.group_handle,
+                                          g_ab_payload.provide_contact.gid)) {
         PRINTF("[Provide Contact] Group handle verification failed\n");
         return SWO_SECURITY_CONDITION_NOT_SATISFIED;
     }
 
     // Verify HMAC_PROOF over (gid, contact_name)
-    if (!address_book_verify_hmac_proof(&PROVIDE_CONTACT_IDENTITY.bip32_path,
-                                        PROVIDE_CONTACT_IDENTITY.gid,
-                                        PROVIDE_CONTACT_IDENTITY.contact_name,
+    if (!address_book_verify_hmac_proof(&g_ab_payload.provide_contact.bip32_path,
+                                        g_ab_payload.provide_contact.gid,
+                                        g_ab_payload.provide_contact.contact_name,
                                         ctx.hmac_proof)) {
         PRINTF("[Provide Contact] HMAC_PROOF verification failed\n");
         return SWO_SECURITY_CONDITION_NOT_SATISFIED;
     }
 
     // Verify HMAC_REST over (gid, scope, identifier, family[, chain_id])
-    if (!address_book_verify_hmac_rest(&PROVIDE_CONTACT_IDENTITY.bip32_path,
-                                       PROVIDE_CONTACT_IDENTITY.gid,
-                                       PROVIDE_CONTACT_IDENTITY.scope,
-                                       PROVIDE_CONTACT_IDENTITY.identifier,
-                                       PROVIDE_CONTACT_IDENTITY.identifier_len,
-                                       PROVIDE_CONTACT_IDENTITY.blockchain_family,
-                                       PROVIDE_CONTACT_IDENTITY.chain_id,
+    if (!address_book_verify_hmac_rest(&g_ab_payload.provide_contact.bip32_path,
+                                       g_ab_payload.provide_contact.gid,
+                                       g_ab_payload.provide_contact.scope,
+                                       g_ab_payload.provide_contact.identifier,
+                                       g_ab_payload.provide_contact.identifier_len,
+                                       g_ab_payload.provide_contact.blockchain_family,
+                                       g_ab_payload.provide_contact.chain_id,
                                        ctx.hmac_rest)) {
         PRINTF("[Provide Contact] HMAC_REST verification failed\n");
         return SWO_SECURITY_CONDITION_NOT_SATISFIED;
     }
 
     // Pass verified contact to the coin app for storage
-    if (!handle_provide_identity(&PROVIDE_CONTACT_IDENTITY)) {
+    if (!handle_provide_identity(&g_ab_payload.provide_contact)) {
         PRINTF("[Provide Contact] Rejected by coin application\n");
         return SWO_WRONG_PARAMETER_VALUE;
     }

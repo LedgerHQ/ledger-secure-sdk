@@ -81,9 +81,6 @@ typedef struct {
     X(0x51, TAG_BLOCKCHAIN_FAMILY, handle_blockchain_family, ENFORCE_UNIQUE_TAG)
 
 /* Private variables ---------------------------------------------------------*/
-static edit_scope_t               EDIT_SCOPE   = {0};
-static nbgl_contentTagValue_t     ui_pairs[3]  = {0};
-static nbgl_contentTagValueList_t ui_pairsList = {0};
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -356,13 +353,13 @@ static bool build_and_send_response(void)
 {
     uint8_t hmac_rest[CX_SHA256_SIZE] = {0};
 
-    if (!address_book_compute_hmac_rest(&EDIT_SCOPE.identity.bip32_path,
-                                        EDIT_SCOPE.identity.gid,
-                                        EDIT_SCOPE.identity.scope,
-                                        EDIT_SCOPE.identity.identifier,
-                                        EDIT_SCOPE.identity.identifier_len,
-                                        EDIT_SCOPE.identity.blockchain_family,
-                                        EDIT_SCOPE.identity.chain_id,
+    if (!address_book_compute_hmac_rest(&g_ab_payload.edit_scope.identity.bip32_path,
+                                        g_ab_payload.edit_scope.identity.gid,
+                                        g_ab_payload.edit_scope.identity.scope,
+                                        g_ab_payload.edit_scope.identity.identifier,
+                                        g_ab_payload.edit_scope.identity.identifier_len,
+                                        g_ab_payload.edit_scope.identity.blockchain_family,
+                                        g_ab_payload.edit_scope.identity.chain_id,
                                         hmac_rest)) {
         PRINTF("[Edit Scope] Error: Failed to compute new HMAC_REST\n");
         return false;
@@ -381,12 +378,13 @@ static bool build_and_send_response(void)
 static void review_choice(bool confirm)
 {
     if (confirm) {
-        bool        ok         = build_and_send_response();
-        const char *successMsg = (EDIT_SCOPE.identity.blockchain_family == FAMILY_BITCOIN)
-                                     ? "Scope changed"
-                                     : "Address name changed";
+        bool        ok = build_and_send_response();
+        const char *successMsg
+            = (g_ab_payload.edit_scope.identity.blockchain_family == FAMILY_BITCOIN)
+                  ? "Scope changed"
+                  : "Address name changed";
         if (ok) {
-            on_edit_scope_applied(&EDIT_SCOPE);
+            on_edit_scope_applied(&g_ab_payload.edit_scope);
         }
         else {
             PRINTF("[Edit Scope] Error: Failed to build and send HMAC proof\n");
@@ -403,44 +401,29 @@ static void review_choice(bool confirm)
  */
 static void ui_display(void)
 {
-    uint8_t nbPairs = 0;
-    memset(&ui_pairsList, 0, sizeof(ui_pairsList));
-    memset(ui_pairs, 0, sizeof(ui_pairs));
-    ui_pairs[nbPairs].item  = "Contact name";
-    ui_pairs[nbPairs].value = EDIT_SCOPE.identity.contact_name;
-    nbPairs++;
-    ui_pairs[nbPairs].item  = "Old address name";
-    ui_pairs[nbPairs].value = EDIT_SCOPE.old_scope;
-    nbPairs++;
-    ui_pairs[nbPairs].item  = "New address name";
-    ui_pairs[nbPairs].value = EDIT_SCOPE.identity.scope;
-    nbPairs++;
-    ui_pairsList.pairs    = ui_pairs;
-    ui_pairsList.nbPairs  = nbPairs;
-    ui_pairsList.wrapping = true;
+    uint8_t nbPairs   = 0;
+    bool    isBitcoin = (g_ab_payload.edit_scope.identity.blockchain_family == FAMILY_BITCOIN);
 
+    memset(&g_ab_ui.list, 0, sizeof(g_ab_ui.list));
+    memset(g_ab_ui.pairs, 0, sizeof(g_ab_ui.pairs));
+    g_ab_ui.pairs[nbPairs].item  = "Contact name";
+    g_ab_ui.pairs[nbPairs].value = g_ab_payload.edit_scope.identity.contact_name;
+    nbPairs++;
+    g_ab_ui.pairs[nbPairs].item  = isBitcoin ? "Old scope" : "Old address name";
+    g_ab_ui.pairs[nbPairs].value = g_ab_payload.edit_scope.old_scope;
+    nbPairs++;
+    g_ab_ui.pairs[nbPairs].item  = isBitcoin ? "New scope" : "New address name";
+    g_ab_ui.pairs[nbPairs].value = g_ab_payload.edit_scope.identity.scope;
+    nbPairs++;
+    g_ab_ui.list.pairs   = g_ab_ui.pairs;
+    g_ab_ui.list.nbPairs = nbPairs;
     address_book_display_review(&LARGE_ADDRESS_BOOK_ICON,
-                                &ui_pairsList,
                                 "Review change to contact details",
                                 "Confirm change?",
                                 review_choice);
 }
 
 /* Exported functions --------------------------------------------------------*/
-
-/**
- * @brief Return a read-only pointer to the parsed Edit Scope data.
- *
- * The returned pointer is valid from the moment edit_scope() has finished
- * parsing until the next call to edit_scope(), which overwrites the static
- * buffer.
- *
- * @return Pointer to the current EDIT_SCOPE static (never NULL)
- */
-const edit_scope_t *get_edit_scope(void)
-{
-    return &EDIT_SCOPE;
-}
 
 /**
  * @brief Edit the SCOPE of an existing Identity contact.
@@ -455,8 +438,8 @@ bolos_err_t edit_scope(uint8_t *buffer_in, size_t buffer_in_length)
     s_edit_scope_ctx ctx     = {0};
 
     // Init the structure
-    ctx.edit = &EDIT_SCOPE;
-    memset(&EDIT_SCOPE, 0, sizeof(EDIT_SCOPE));
+    ctx.edit = &g_ab_payload.edit_scope;
+    memset(&g_ab_payload.edit_scope, 0, sizeof(g_ab_payload.edit_scope));
 
     // Parse using SDK TLV parser
     if (!edit_scope_tlv_parser(&payload, &ctx, &ctx.received_tags)) {
@@ -469,29 +452,30 @@ bolos_err_t edit_scope(uint8_t *buffer_in, size_t buffer_in_length)
     print_payload(&ctx);
 
     // Verify the group handle and extract the gid
-    if (!address_book_verify_group_handle(
-            &EDIT_SCOPE.identity.bip32_path, ctx.group_handle, EDIT_SCOPE.identity.gid)) {
+    if (!address_book_verify_group_handle(&g_ab_payload.edit_scope.identity.bip32_path,
+                                          ctx.group_handle,
+                                          g_ab_payload.edit_scope.identity.gid)) {
         PRINTF("[Edit Scope] Group handle verification failed\n");
         return SWO_SECURITY_CONDITION_NOT_SATISFIED;
     }
 
     // Verify that the wallet holds a valid HMAC_PROOF for the contact name
-    if (!address_book_verify_hmac_proof(&EDIT_SCOPE.identity.bip32_path,
-                                        EDIT_SCOPE.identity.gid,
-                                        EDIT_SCOPE.identity.contact_name,
+    if (!address_book_verify_hmac_proof(&g_ab_payload.edit_scope.identity.bip32_path,
+                                        g_ab_payload.edit_scope.identity.gid,
+                                        g_ab_payload.edit_scope.identity.contact_name,
                                         ctx.hmac_proof)) {
         PRINTF("[Edit Scope] HMAC_PROOF verification failed\n");
         return SWO_SECURITY_CONDITION_NOT_SATISFIED;
     }
 
     // Verify that the wallet holds a valid HMAC_REST for the previous scope
-    if (!address_book_verify_hmac_rest(&EDIT_SCOPE.identity.bip32_path,
-                                       EDIT_SCOPE.identity.gid,
-                                       EDIT_SCOPE.old_scope,
-                                       EDIT_SCOPE.identity.identifier,
-                                       EDIT_SCOPE.identity.identifier_len,
-                                       EDIT_SCOPE.identity.blockchain_family,
-                                       EDIT_SCOPE.identity.chain_id,
+    if (!address_book_verify_hmac_rest(&g_ab_payload.edit_scope.identity.bip32_path,
+                                       g_ab_payload.edit_scope.identity.gid,
+                                       g_ab_payload.edit_scope.old_scope,
+                                       g_ab_payload.edit_scope.identity.identifier,
+                                       g_ab_payload.edit_scope.identity.identifier_len,
+                                       g_ab_payload.edit_scope.identity.blockchain_family,
+                                       g_ab_payload.edit_scope.identity.chain_id,
                                        ctx.hmac_rest)) {
         PRINTF("[Edit Scope] HMAC_REST verification failed\n");
         return SWO_SECURITY_CONDITION_NOT_SATISFIED;
