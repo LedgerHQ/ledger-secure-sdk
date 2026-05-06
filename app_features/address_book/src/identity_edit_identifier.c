@@ -25,12 +25,12 @@
  *  1. Receive fully assembled payload (multi-chunk reassembly handled by
  *     address_book.c)
  *  2. Parse TLV payload (contact_name + scope + new_identifier +
- *     previous_identifier + gid + derivation_path +
+ *     old_identifier + gid + derivation_path +
  *     hmac_proof + hmac_rest)
  *  3. Verify HMAC_PROOF over (gid, contact_name)
- *  4. Verify HMAC_REST over (gid, scope, previous_identifier, family[, chain_id])
+ *  4. Verify HMAC_REST over (gid, scope, old_identifier, family[, chain_id])
  *  5. Coin-app notification: handle_check_edit_identifier()
- *  6. Display UI: contact name, previous identifier → new identifier
+ *  6. Display UI: contact name, old identifier → new identifier
  *  7. On confirm: compute new HMAC_REST over (gid, scope, new_identifier,
  *     family[, chain_id]) and send to host
  *
@@ -62,7 +62,7 @@ typedef struct {
     edit_identifier_t *edit;
     TLV_reception_t    received_tags;
     uint8_t            hmac_proof[CX_SHA256_SIZE];  ///< HMAC_PROOF — verifies contact name
-    uint8_t            hmac_rest[CX_SHA256_SIZE];   ///< HMAC_REST — verifies previous identifier
+    uint8_t            hmac_rest[CX_SHA256_SIZE];   ///< HMAC_REST — verifies old identifier
     uint8_t group_handle[GROUP_HANDLE_SIZE];        ///< Group handle from wallet (verified later)
 } s_edit_ctx;
 
@@ -191,8 +191,8 @@ static bool handle_previous_identifier(const tlv_data_t *data, s_edit_ctx *conte
         PRINTF("[Edit Identifier] PREVIOUS_IDENTIFIER: failed to extract\n");
         return false;
     }
-    memmove(context->edit->previous_identifier, buf.ptr, buf.size);
-    context->edit->previous_identifier_len = (uint8_t) buf.size;
+    memmove(context->edit->old_identifier, buf.ptr, buf.size);
+    context->edit->old_identifier_len = (uint8_t) buf.size;
     return true;
 }
 
@@ -334,16 +334,14 @@ static void print_payload(const s_edit_ctx *context)
     UNUSED(context);
     PRINTF("****************************************************************************\n");
     PRINTF("[Edit Identifier] - Retrieved Descriptor:\n");
-    PRINTF("[Edit Identifier] -    Contact name:        %s\n",
-           context->edit->identity.contact_name);
+    PRINTF("[Edit Identifier] -    Contact name:       %s\n", context->edit->identity.contact_name);
     if (context->edit->identity.scope[0] != '\0') {
-        PRINTF("[Edit Identifier] -    Scope:               %s\n", context->edit->identity.scope);
+        PRINTF("[Edit Identifier] -    Scope:              %s\n", context->edit->identity.scope);
     }
-    PRINTF("[Edit Identifier] -    New identifier len:  %d\n",
+    PRINTF("[Edit Identifier] -    New identifier len: %d\n",
            context->edit->identity.identifier_len);
-    PRINTF("[Edit Identifier] -    Prev identifier len: %d\n",
-           context->edit->previous_identifier_len);
-    PRINTF("[Edit Identifier] -    Blockchain family:   %s\n",
+    PRINTF("[Edit Identifier] -    Old identifier len: %d\n", context->edit->old_identifier_len);
+    PRINTF("[Edit Identifier] -    Blockchain family:  %s\n",
            FAMILY_AS_STR(context->edit->identity.blockchain_family));
 }
 
@@ -486,8 +484,8 @@ bolos_err_t edit_identifier(uint8_t *buffer_in, size_t buffer_in_length)
     if (!address_book_verify_hmac_rest(&EDIT_IDENTIFIER.identity.bip32_path,
                                        EDIT_IDENTIFIER.identity.gid,
                                        EDIT_IDENTIFIER.identity.scope,
-                                       EDIT_IDENTIFIER.previous_identifier,
-                                       EDIT_IDENTIFIER.previous_identifier_len,
+                                       EDIT_IDENTIFIER.old_identifier,
+                                       EDIT_IDENTIFIER.old_identifier_len,
                                        EDIT_IDENTIFIER.identity.blockchain_family,
                                        EDIT_IDENTIFIER.identity.chain_id,
                                        ctx.hmac_rest)) {

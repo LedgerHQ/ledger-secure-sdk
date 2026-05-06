@@ -24,11 +24,11 @@
  * Flow:
  *  1. Receive fully assembled payload (multi-chunk reassembly handled by
  *     address_book.c)
- *  2. Parse TLV payload (contact_name + new_scope + previous_scope +
+ *  2. Parse TLV payload (contact_name + new_scope + old_scope +
  *     identifier + gid + derivation_path + chain_id +
  *     blockchain_family + hmac_proof + hmac_rest)
  *  3. Verify HMAC_PROOF over (gid, contact_name)
- *  4. Verify HMAC_REST over (gid, previous_scope, identifier, family[, chain_id])
+ *  4. Verify HMAC_REST over (gid, old_scope, identifier, family[, chain_id])
  *  5. Display UI: old scope → new scope
  *  6. On confirm: compute new HMAC_REST over (gid, new_scope, identifier,
  *     family[, chain_id]) and send to host
@@ -61,7 +61,7 @@ typedef struct {
     edit_scope_t   *edit;
     TLV_reception_t received_tags;
     uint8_t         hmac_proof[CX_SHA256_SIZE];       ///< HMAC_PROOF — verifies contact name
-    uint8_t         hmac_rest[CX_SHA256_SIZE];        ///< HMAC_REST — verifies previous scope
+    uint8_t         hmac_rest[CX_SHA256_SIZE];        ///< HMAC_REST — verifies old scope
     uint8_t         group_handle[GROUP_HANDLE_SIZE];  ///< Group handle from wallet (verified later)
 } s_edit_scope_ctx;
 
@@ -189,7 +189,7 @@ static bool handle_identifier(const tlv_data_t *data, s_edit_scope_ctx *context)
 static bool handle_previous_scope(const tlv_data_t *data, s_edit_scope_ctx *context)
 {
     if (!address_book_handle_printable_string(
-            data, context->edit->previous_scope, sizeof(context->edit->previous_scope))) {
+            data, context->edit->old_scope, sizeof(context->edit->old_scope))) {
         PRINTF("[Edit Scope] PREVIOUS_SCOPE: failed to parse\n");
         return false;
     }
@@ -335,7 +335,7 @@ static void print_payload(const s_edit_scope_ctx *context)
     PRINTF("****************************************************************************\n");
     PRINTF("[Edit Scope] - Retrieved Descriptor:\n");
     PRINTF("[Edit Scope] -    Contact name:      %s\n", context->edit->identity.contact_name);
-    PRINTF("[Edit Scope] -    Previous scope:    %s\n", context->edit->previous_scope);
+    PRINTF("[Edit Scope] -    Old scope:         %s\n", context->edit->old_scope);
     PRINTF("[Edit Scope] -    New scope:         %s\n", context->edit->identity.scope);
     PRINTF("[Edit Scope] -    Blockchain family: %s\n",
            FAMILY_AS_STR(context->edit->identity.blockchain_family));
@@ -414,13 +414,13 @@ static void ui_display(void)
     ui_pairs[nbPairs].value = EDIT_SCOPE.identity.contact_name;
     nbPairs++;
     ui_pairs[nbPairs].item  = "Old address name";
-    ui_pairs[nbPairs].value = EDIT_SCOPE.previous_scope;
+    ui_pairs[nbPairs].value = EDIT_SCOPE.old_scope;
     nbPairs++;
     ui_pairs[nbPairs].item  = "New address name";
     ui_pairs[nbPairs].value = EDIT_SCOPE.identity.scope;
     nbPairs++;
     ui_pairsList.pairs    = ui_pairs;
-    ui_pairsList.nbPairs  = nbPairs;  // old name + new name
+    ui_pairsList.nbPairs  = nbPairs;
     ui_pairsList.wrapping = true;
 
     nbgl_useCaseReviewLight(TYPE_OPERATION | ADDRESS_BOOK_OPERATION,
@@ -493,7 +493,7 @@ bolos_err_t edit_scope(uint8_t *buffer_in, size_t buffer_in_length)
     // Verify that the wallet holds a valid HMAC_REST for the previous scope
     if (!address_book_verify_hmac_rest(&EDIT_SCOPE.identity.bip32_path,
                                        EDIT_SCOPE.identity.gid,
-                                       EDIT_SCOPE.previous_scope,
+                                       EDIT_SCOPE.old_scope,
                                        EDIT_SCOPE.identity.identifier,
                                        EDIT_SCOPE.identity.identifier_len,
                                        EDIT_SCOPE.identity.blockchain_family,

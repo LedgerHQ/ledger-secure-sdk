@@ -44,7 +44,7 @@ typedef struct {
  */
 typedef struct {
     ledger_account_t ledger_account;  ///< New account (account_name = new name)
-    char             previous_account_name[ACCOUNT_NAME_LENGTH];  ///< Name being replaced
+    char             old_account_name[ACCOUNT_NAME_LENGTH];  ///< Name being replaced
 } edit_ledger_account_t;
 
 /* Exported macros------------------------------------------------------------*/

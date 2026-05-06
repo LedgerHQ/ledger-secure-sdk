@@ -73,19 +73,19 @@ typedef struct {
  * @brief Data extracted from an Edit Identifier TLV payload.
  */
 typedef struct {
-    identity_t identity;                                    ///< Updated identity (identifier = new)
-    uint8_t    previous_identifier[IDENTIFIER_MAX_LENGTH];  ///< Identifier being replaced
-    uint8_t    previous_identifier_len;                     ///< Length of the previous identifier
+    identity_t identity;                               ///< Updated identity (identifier = new)
+    uint8_t    old_identifier[IDENTIFIER_MAX_LENGTH];  ///< Identifier being replaced
+    uint8_t    old_identifier_len;                     ///< Length of the old identifier
 } edit_identifier_t;
 
 /**
  * @brief Data extracted from an Edit Contact Name TLV payload.
  */
 typedef struct {
-    uint8_t      gid[GID_SIZE];                      ///< Group ID extracted from group_handle
-    char         contact_name[CONTACT_NAME_LENGTH];  ///< New contact name
-    char         previous_contact_name[CONTACT_NAME_LENGTH];  ///< Previous contact name
-    path_bip32_t bip32_path;                                  ///< BIP32 derivation path
+    uint8_t      gid[GID_SIZE];                          ///< Group ID extracted from group_handle
+    char         contact_name[CONTACT_NAME_LENGTH];      ///< New contact name
+    char         old_contact_name[CONTACT_NAME_LENGTH];  ///< old contact name
+    path_bip32_t bip32_path;                             ///< BIP32 derivation path
 } edit_contact_name_t;
 
 /**
@@ -95,8 +95,8 @@ typedef struct {
  * contact_name and identifier.
  */
 typedef struct {
-    identity_t identity;                      ///< New identity (scope = new)
-    char       previous_scope[SCOPE_LENGTH];  ///< Scope being replaced
+    identity_t identity;                 ///< New identity (scope = new)
+    char       old_scope[SCOPE_LENGTH];  ///< Scope being replaced
 } edit_scope_t;
 
 /* Exported functions prototypes --------------------------------------------- */

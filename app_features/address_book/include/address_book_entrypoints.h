@@ -86,10 +86,10 @@ void finalize_ui_edit_contact_name(void);
  *
  * Called only when the user confirmed the edit and the new HMAC proof was
  * successfully sent to the host. The app should use this to update in place
- * all cached contacts whose name matches @p edit->previous_contact_name,
+ * all cached contacts whose name matches @p edit->old_contact_name,
  * replacing it with @p edit->contact_name so that no re-provide is needed.
  *
- * @param[in] edit Parsed edit data (previous_contact_name, contact_name)
+ * @param[in] edit Parsed edit data (old_contact_name, contact_name)
  */
 void on_edit_contact_name_applied(const edit_contact_name_t *edit);
 
@@ -103,7 +103,7 @@ void on_edit_contact_name_applied(const edit_contact_name_t *edit);
  * checksum, encoding) and copy the data it needs for display.
  * Return false to reject and abort the flow.
  *
- * @param[in] params Contact name, previous identifier, and new identity data
+ * @param[in] params Contact name, old identifier, and new identity data
  * @return true if the edit is acceptable, false to reject
  */
 bool handle_check_edit_identifier(const edit_identifier_t *params);
@@ -114,7 +114,7 @@ bool handle_check_edit_identifier(const edit_identifier_t *params);
  * Called by NBGL during the review flow to populate the display.
  * Typical mapping:
  *  - index 0: "Contact name" → contact name (unchanged)
- *  - index 1: "Old address"  → previous identifier (hex)
+ *  - index 1: "Old address"  → old identifier (hex)
  *  - index 2: "New address"  → new identifier (hex)
  *  - index 3: "Scope"        → contact scope (if non-empty)
  * Return NULL for out-of-range indices.
@@ -138,11 +138,11 @@ void finalize_ui_edit_identifier(void);
  *
  * Called only when the user confirmed the edit and the new HMAC proof was
  * successfully sent to the host. The app should use this to update in place
- * the cached contact entry for (@p edit->previous_identifier,
+ * the cached contact entry for (@p edit->old_identifier,
  * @p edit->identity.chain_id), replacing the identifier with
  * @p edit->identity.identifier so that no re-provide is needed.
  *
- * @param[in] edit Parsed edit data (previous_identifier, identity)
+ * @param[in] edit Parsed edit data (old_identifier, identity)
  */
 void on_edit_identifier_applied(const edit_identifier_t *edit);
 
@@ -166,7 +166,7 @@ void finalize_ui_edit_scope(void);
  * @p edit->identity.chain_id), replacing the scope with @p edit->identity.scope
  * so that no re-provide is needed.
  *
- * @param[in] edit Parsed edit data (previous_scope, identity)
+ * @param[in] edit Parsed edit data (old_scope, identity)
  */
 void on_edit_scope_applied(const edit_scope_t *edit);
 
@@ -243,7 +243,7 @@ void finalize_ui_edit_ledger_account(void);
  * replacing the account name with @p edit->ledger_account.account_name so
  * that no re-provide is needed.
  *
- * @param[in] edit Parsed edit data (previous_account_name, ledger_account)
+ * @param[in] edit Parsed edit data (old_account_name, ledger_account)
  */
 void on_edit_ledger_account_applied(const edit_ledger_account_t *edit);
 

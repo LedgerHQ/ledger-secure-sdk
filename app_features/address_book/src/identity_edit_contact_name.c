@@ -139,9 +139,8 @@ static bool handle_contact_name(const tlv_data_t *data, s_edit_contact_name_ctx 
  */
 static bool handle_previous_name(const tlv_data_t *data, s_edit_contact_name_ctx *context)
 {
-    if (!address_book_handle_printable_string(data,
-                                              context->edit->previous_contact_name,
-                                              sizeof(context->edit->previous_contact_name))) {
+    if (!address_book_handle_printable_string(
+            data, context->edit->old_contact_name, sizeof(context->edit->old_contact_name))) {
         PRINTF("[Edit Contact Name] PREVIOUS_CONTACT_NAME: failed to parse\n");
         return false;
     }
@@ -233,8 +232,8 @@ static void print_payload(const s_edit_contact_name_ctx *context)
     UNUSED(context);
     PRINTF("****************************************************************************\n");
     PRINTF("[Edit Contact Name] - Retrieved Descriptor:\n");
-    PRINTF("[Edit Contact Name] -    Previous name: %s\n", context->edit->previous_contact_name);
-    PRINTF("[Edit Contact Name] -    New name:      %s\n", context->edit->contact_name);
+    PRINTF("[Edit Contact Name] -    Old name: %s\n", context->edit->old_contact_name);
+    PRINTF("[Edit Contact Name] -    New name: %s\n", context->edit->contact_name);
 }
 
 /**
@@ -294,14 +293,14 @@ static void ui_display(void)
     uint8_t nbPairs = 0;
     memset(&ui_pairsList, 0, sizeof(ui_pairsList));
     memset(ui_pairs, 0, sizeof(ui_pairs));
-    ui_pairs[nbPairs].item  = "Previous name";
-    ui_pairs[nbPairs].value = EDIT_CONTACT_NAME.previous_contact_name;
+    ui_pairs[nbPairs].item  = "Old name";
+    ui_pairs[nbPairs].value = EDIT_CONTACT_NAME.old_contact_name;
     nbPairs++;
     ui_pairs[nbPairs].item  = "New name";
     ui_pairs[nbPairs].value = EDIT_CONTACT_NAME.contact_name;
     nbPairs++;
     ui_pairsList.pairs    = ui_pairs;
-    ui_pairsList.nbPairs  = nbPairs;  // old name + new name
+    ui_pairsList.nbPairs  = nbPairs;
     ui_pairsList.wrapping = true;
 
     nbgl_useCaseReviewLight(TYPE_OPERATION | ADDRESS_BOOK_OPERATION,
@@ -365,7 +364,7 @@ bolos_err_t edit_contact_name(uint8_t *buffer_in, size_t buffer_in_length)
     // Verify the wallet holds a valid HMAC_PROOF for the previous name
     if (!address_book_verify_hmac_proof(&EDIT_CONTACT_NAME.bip32_path,
                                         EDIT_CONTACT_NAME.gid,
-                                        EDIT_CONTACT_NAME.previous_contact_name,
+                                        EDIT_CONTACT_NAME.old_contact_name,
                                         ctx.hmac_proof)) {
         PRINTF("[Edit Contact Name] HMAC_PROOF verification failed\n");
         return SWO_SECURITY_CONDITION_NOT_SATISFIED;
