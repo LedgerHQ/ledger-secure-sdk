@@ -381,24 +381,20 @@ static bool build_and_send_response(void)
 static void review_choice(bool confirm)
 {
     if (confirm) {
-        if (build_and_send_response()) {
+        bool        ok         = build_and_send_response();
+        const char *successMsg = (EDIT_SCOPE.identity.blockchain_family == FAMILY_BITCOIN)
+                                     ? "Scope changed"
+                                     : "Address name changed";
+        if (ok) {
             on_edit_scope_applied(&EDIT_SCOPE);
-            if (EDIT_SCOPE.identity.blockchain_family == FAMILY_BITCOIN) {
-                nbgl_useCaseStatus("Scope changed", true, finalize_ui_edit_scope);
-            }
-            else {
-                nbgl_useCaseStatus("Address name changed", true, finalize_ui_edit_scope);
-            }
         }
         else {
             PRINTF("[Edit Scope] Error: Failed to build and send HMAC proof\n");
-            io_send_sw(SWO_INCORRECT_DATA);
-            nbgl_useCaseStatus("Error during update", false, finalize_ui_edit_scope);
         }
+        address_book_finalize_review(ok, successMsg, "Error during update", finalize_ui_edit_scope);
     }
     else {
-        io_send_sw(SWO_INCORRECT_DATA);
-        nbgl_useCaseReviewStatus(STATUS_TYPE_OPERATION_REJECTED, finalize_ui_edit_scope);
+        address_book_handle_review_rejected(finalize_ui_edit_scope);
     }
 }
 
@@ -423,13 +419,11 @@ static void ui_display(void)
     ui_pairsList.nbPairs  = nbPairs;
     ui_pairsList.wrapping = true;
 
-    nbgl_useCaseReviewLight(TYPE_OPERATION | ADDRESS_BOOK_OPERATION,
-                            &ui_pairsList,
-                            &LARGE_ADDRESS_BOOK_ICON,
-                            "Review change to contact details",
-                            NULL,
-                            "Confirm change?",
-                            review_choice);
+    address_book_display_review(&LARGE_ADDRESS_BOOK_ICON,
+                                &ui_pairsList,
+                                "Review change to contact details",
+                                "Confirm change?",
+                                review_choice);
 }
 
 /* Exported functions --------------------------------------------------------*/

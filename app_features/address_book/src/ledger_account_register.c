@@ -257,19 +257,15 @@ static bool build_and_send_response(void)
 static void review_choice(bool confirm)
 {
     if (confirm) {
-        if (build_and_send_response()) {
-            nbgl_useCaseStatus("Name confirmed", true, finalize_ui_register_ledger_account);
-        }
-        else {
+        bool ok = build_and_send_response();
+        if (!ok) {
             PRINTF("[Ledger Account] Error: Failed to build and send response\n");
-            io_send_sw(SWO_INCORRECT_DATA);
-            nbgl_useCaseStatus("Error saving account", false, finalize_ui_register_ledger_account);
         }
+        address_book_finalize_review(
+            ok, "Name confirmed", "Error saving account", finalize_ui_register_ledger_account);
     }
     else {
-        io_send_sw(SWO_INCORRECT_DATA);
-        nbgl_useCaseReviewStatus(STATUS_TYPE_OPERATION_REJECTED,
-                                 finalize_ui_register_ledger_account);
+        address_book_handle_review_rejected(finalize_ui_register_ledger_account);
     }
 }
 

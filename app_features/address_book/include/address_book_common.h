@@ -22,6 +22,7 @@
 #include "tlv_library.h"
 #include "bip32.h"
 #include "address_book.h"
+#include "nbgl_use_case.h"
 
 bool address_book_handle_derivation_path(const tlv_data_t *data, path_bip32_t *bip32_path);
 
@@ -32,5 +33,18 @@ bool address_book_handle_blockchain_family(const tlv_data_t *data, blockchain_fa
 bool address_book_handle_printable_string(const tlv_data_t *data,
                                           char             *output_buffer,
                                           size_t            buffer_size);
+
+void address_book_display_review(const nbgl_icon_details_t        *icon,
+                                 const nbgl_contentTagValueList_t *pairs,
+                                 const char                       *reviewTitle,
+                                 const char                       *confirmText,
+                                 nbgl_choiceCallback_t             choiceCallback);
+
+void address_book_handle_review_rejected(nbgl_callback_t finalize);
+
+void address_book_finalize_review(bool            success,
+                                  const char     *successMsg,
+                                  const char     *errorMsg,
+                                  nbgl_callback_t finalize);
 
 #endif  // ADDRESS_BOOK_COMMON_H

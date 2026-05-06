@@ -403,18 +403,17 @@ end:
 static void review_choice(bool confirm)
 {
     if (confirm) {
-        if (build_and_send_response()) {
-            nbgl_useCaseStatus("Saved to your Contacts", true, finalize_ui_register_identity);
-        }
-        else {
+        bool ok = build_and_send_response();
+        if (!ok) {
             PRINTF("[Register Identity] Error: Failed to build and send HMAC proof\n");
-            io_send_sw(SWO_INCORRECT_DATA);
-            nbgl_useCaseStatus("Error during registration", false, finalize_ui_register_identity);
         }
+        address_book_finalize_review(ok,
+                                     "Saved to your Contacts",
+                                     "Error during registration",
+                                     finalize_ui_register_identity);
     }
     else {
-        io_send_sw(SWO_INCORRECT_DATA);
-        nbgl_useCaseReviewStatus(STATUS_TYPE_OPERATION_REJECTED, finalize_ui_register_identity);
+        address_book_handle_review_rejected(finalize_ui_register_identity);
     }
 }
 
@@ -428,13 +427,11 @@ static void ui_display(void)
     ui_pairsList.callback = get_register_identity_tagValue;
     ui_pairsList.wrapping = true;
 
-    nbgl_useCaseReviewLight(TYPE_OPERATION | ADDRESS_BOOK_OPERATION,
-                            &ui_pairsList,
-                            &LARGE_ADDRESS_BOOK_ICON,
-                            "Review contact details",
-                            NULL,
-                            "Confirm contact details?",
-                            review_choice);
+    address_book_display_review(&LARGE_ADDRESS_BOOK_ICON,
+                                &ui_pairsList,
+                                "Review contact details",
+                                "Confirm contact details?",
+                                review_choice);
 }
 
 /* Exported functions --------------------------------------------------------*/
