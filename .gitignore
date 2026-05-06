@@ -24,3 +24,6 @@ fuzzing/mock/_generated/
 .fuzz-artifacts/
 *.profraw
 *.profdata
+
+# LSP
+compile_commands.json
