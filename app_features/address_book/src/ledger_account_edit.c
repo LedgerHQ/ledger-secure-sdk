@@ -303,19 +303,18 @@ static bool build_and_send_response(void)
 static void review_choice(bool confirm)
 {
     if (confirm) {
-        if (build_and_send_response()) {
+        bool ok = build_and_send_response();
+        if (ok) {
             on_edit_ledger_account_applied(&EDIT_LEDGER_ACCOUNT);
-            nbgl_useCaseStatus("Account name changed", true, finalize_ui_edit_ledger_account);
         }
         else {
             PRINTF("[Edit Ledger Account] Error: Failed to build and send HMAC proof\n");
-            io_send_sw(SWO_INCORRECT_DATA);
-            nbgl_useCaseStatus("Error editing account", false, finalize_ui_edit_ledger_account);
         }
+        address_book_finalize_review(
+            ok, "Account name changed", "Error during update", finalize_ui_edit_ledger_account);
     }
     else {
-        io_send_sw(SWO_INCORRECT_DATA);
-        nbgl_useCaseReviewStatus(STATUS_TYPE_OPERATION_REJECTED, finalize_ui_edit_ledger_account);
+        address_book_handle_review_rejected(finalize_ui_edit_ledger_account);
     }
 }
 
@@ -337,13 +336,8 @@ static void ui_display(void)
     ui_pairsList.nbPairs  = nbPairs;
     ui_pairsList.wrapping = true;
 
-    nbgl_useCaseReviewLight(TYPE_OPERATION | ADDRESS_BOOK_OPERATION,
-                            &ui_pairsList,
-                            NULL,
-                            "Edit account name",
-                            NULL,
-                            "Confirm edit?",
-                            review_choice);
+    address_book_display_review(
+        NULL, &ui_pairsList, "Edit account name", "Confirm edit?", review_choice);
 }
 
 /* Exported functions --------------------------------------------------------*/

@@ -269,19 +269,18 @@ static bool build_and_send_response(void)
 static void review_choice(bool confirm)
 {
     if (confirm) {
-        if (build_and_send_response()) {
+        bool ok = build_and_send_response();
+        if (ok) {
             on_edit_contact_name_applied(&EDIT_CONTACT_NAME);
-            nbgl_useCaseStatus("Contact name changed", true, finalize_ui_edit_contact_name);
         }
         else {
             PRINTF("[Edit Contact Name] Error: Failed to build and send HMAC proof\n");
-            io_send_sw(SWO_INCORRECT_DATA);
-            nbgl_useCaseStatus("Error during update", false, finalize_ui_edit_contact_name);
         }
+        address_book_finalize_review(
+            ok, "Contact name changed", "Error during update", finalize_ui_edit_contact_name);
     }
     else {
-        io_send_sw(SWO_INCORRECT_DATA);
-        nbgl_useCaseReviewStatus(STATUS_TYPE_OPERATION_REJECTED, finalize_ui_edit_contact_name);
+        address_book_handle_review_rejected(finalize_ui_edit_contact_name);
     }
 }
 
@@ -303,13 +302,11 @@ static void ui_display(void)
     ui_pairsList.nbPairs  = nbPairs;
     ui_pairsList.wrapping = true;
 
-    nbgl_useCaseReviewLight(TYPE_OPERATION | ADDRESS_BOOK_OPERATION,
-                            &ui_pairsList,
-                            &LARGE_ADDRESS_BOOK_ICON,
-                            "Review change to contact details",
-                            NULL,
-                            "Confirm change?",
-                            review_choice);
+    address_book_display_review(&LARGE_ADDRESS_BOOK_ICON,
+                                &ui_pairsList,
+                                "Review change to contact details",
+                                "Confirm change?",
+                                review_choice);
 }
 
 /* Exported functions --------------------------------------------------------*/

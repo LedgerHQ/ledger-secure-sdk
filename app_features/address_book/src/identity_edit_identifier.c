@@ -382,24 +382,21 @@ static bool build_and_send_response(void)
 static void review_choice(bool confirm)
 {
     if (confirm) {
-        if (build_and_send_response()) {
+        bool        ok         = build_and_send_response();
+        const char *successMsg = (EDIT_IDENTIFIER.identity.blockchain_family == FAMILY_ETHEREUM)
+                                     ? "Address changed"
+                                     : "Identifier changed";
+        if (ok) {
             on_edit_identifier_applied(&EDIT_IDENTIFIER);
-            if (EDIT_IDENTIFIER.identity.blockchain_family == FAMILY_ETHEREUM) {
-                nbgl_useCaseStatus("Address changed", true, finalize_ui_edit_identifier);
-            }
-            else {
-                nbgl_useCaseStatus("Identifier changed", true, finalize_ui_edit_identifier);
-            }
         }
         else {
             PRINTF("[Edit Identifier] Error: Failed to build and send HMAC proof\n");
-            io_send_sw(SWO_INCORRECT_DATA);
-            nbgl_useCaseStatus("Error during update", false, finalize_ui_edit_identifier);
         }
+        address_book_finalize_review(
+            ok, successMsg, "Error during update", finalize_ui_edit_identifier);
     }
     else {
-        io_send_sw(SWO_INCORRECT_DATA);
-        nbgl_useCaseReviewStatus(STATUS_TYPE_OPERATION_REJECTED, finalize_ui_edit_identifier);
+        address_book_handle_review_rejected(finalize_ui_edit_identifier);
     }
 }
 
@@ -413,13 +410,11 @@ static void ui_display(void)
     ui_pairsList.callback = get_edit_identifier_tagValue;
     ui_pairsList.wrapping = true;
 
-    nbgl_useCaseReviewLight(TYPE_OPERATION | ADDRESS_BOOK_OPERATION,
-                            &ui_pairsList,
-                            &LARGE_ADDRESS_BOOK_ICON,
-                            "Review change to contact details",
-                            NULL,
-                            "Confirm change?",
-                            review_choice);
+    address_book_display_review(&LARGE_ADDRESS_BOOK_ICON,
+                                &ui_pairsList,
+                                "Review change to contact details",
+                                "Confirm change?",
+                                review_choice);
 }
 
 /* Exported functions --------------------------------------------------------*/
