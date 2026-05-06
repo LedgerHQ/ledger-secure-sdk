@@ -73,9 +73,6 @@ typedef struct {
     X(0x29, TAG_HMAC_PROOF, handle_hmac_proof, ENFORCE_UNIQUE_TAG)
 
 /* Private variables ---------------------------------------------------------*/
-static edit_contact_name_t        EDIT_CONTACT_NAME = {0};
-static nbgl_contentTagValue_t     ui_pairs[2]       = {0};
-static nbgl_contentTagValueList_t ui_pairsList      = {0};
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -248,9 +245,9 @@ static bool build_and_send_response(void)
 {
     uint8_t hmac_proof[CX_SHA256_SIZE] = {0};
 
-    if (!address_book_compute_hmac_proof(&EDIT_CONTACT_NAME.bip32_path,
-                                         EDIT_CONTACT_NAME.gid,
-                                         EDIT_CONTACT_NAME.contact_name,
+    if (!address_book_compute_hmac_proof(&g_ab_payload.edit_contact_name.bip32_path,
+                                         g_ab_payload.edit_contact_name.gid,
+                                         g_ab_payload.edit_contact_name.contact_name,
                                          hmac_proof)) {
         PRINTF("[Edit Contact Name] Error: Failed to compute new HMAC_PROOF\n");
         return false;
@@ -271,7 +268,7 @@ static void review_choice(bool confirm)
     if (confirm) {
         bool ok = build_and_send_response();
         if (ok) {
-            on_edit_contact_name_applied(&EDIT_CONTACT_NAME);
+            on_edit_contact_name_applied(&g_ab_payload.edit_contact_name);
         }
         else {
             PRINTF("[Edit Contact Name] Error: Failed to build and send HMAC proof\n");
@@ -290,40 +287,23 @@ static void review_choice(bool confirm)
 static void ui_display(void)
 {
     uint8_t nbPairs = 0;
-    memset(&ui_pairsList, 0, sizeof(ui_pairsList));
-    memset(ui_pairs, 0, sizeof(ui_pairs));
-    ui_pairs[nbPairs].item  = "Old name";
-    ui_pairs[nbPairs].value = EDIT_CONTACT_NAME.old_contact_name;
+    memset(&g_ab_ui.list, 0, sizeof(g_ab_ui.list));
+    memset(g_ab_ui.pairs, 0, sizeof(g_ab_ui.pairs));
+    g_ab_ui.pairs[nbPairs].item  = "Old name";
+    g_ab_ui.pairs[nbPairs].value = g_ab_payload.edit_contact_name.old_contact_name;
     nbPairs++;
-    ui_pairs[nbPairs].item  = "New name";
-    ui_pairs[nbPairs].value = EDIT_CONTACT_NAME.contact_name;
+    g_ab_ui.pairs[nbPairs].item  = "New name";
+    g_ab_ui.pairs[nbPairs].value = g_ab_payload.edit_contact_name.contact_name;
     nbPairs++;
-    ui_pairsList.pairs    = ui_pairs;
-    ui_pairsList.nbPairs  = nbPairs;
-    ui_pairsList.wrapping = true;
-
+    g_ab_ui.list.pairs   = g_ab_ui.pairs;
+    g_ab_ui.list.nbPairs = nbPairs;
     address_book_display_review(&LARGE_ADDRESS_BOOK_ICON,
-                                &ui_pairsList,
                                 "Review change to contact details",
                                 "Confirm change?",
                                 review_choice);
 }
 
 /* Exported functions --------------------------------------------------------*/
-
-/**
- * @brief Return a read-only pointer to the parsed Edit Contact Name data.
- *
- * The returned pointer is valid from the moment edit_contact_name() has
- * finished parsing until the next call to edit_contact_name(), which
- * overwrites the static buffer.
- *
- * @return Pointer to the current EDIT_CONTACT_NAME static (never NULL)
- */
-const edit_contact_name_t *get_edit_contact_name(void)
-{
-    return &EDIT_CONTACT_NAME;
-}
 
 /**
  * @brief Edit the CONTACT_NAME of an existing Identity contact.
@@ -338,8 +318,8 @@ bolos_err_t edit_contact_name(uint8_t *buffer_in, size_t buffer_in_length)
     s_edit_contact_name_ctx ctx     = {0};
 
     // Init the structure
-    ctx.edit = &EDIT_CONTACT_NAME;
-    memset(&EDIT_CONTACT_NAME, 0, sizeof(EDIT_CONTACT_NAME));
+    ctx.edit = &g_ab_payload.edit_contact_name;
+    memset(&g_ab_payload.edit_contact_name, 0, sizeof(g_ab_payload.edit_contact_name));
 
     // Parse using SDK TLV parser
     if (!edit_contact_name_tlv_parser(&payload, &ctx, &ctx.received_tags)) {
@@ -352,16 +332,17 @@ bolos_err_t edit_contact_name(uint8_t *buffer_in, size_t buffer_in_length)
     print_payload(&ctx);
 
     // Verify the group handle and extract the gid
-    if (!address_book_verify_group_handle(
-            &EDIT_CONTACT_NAME.bip32_path, ctx.group_handle, EDIT_CONTACT_NAME.gid)) {
+    if (!address_book_verify_group_handle(&g_ab_payload.edit_contact_name.bip32_path,
+                                          ctx.group_handle,
+                                          g_ab_payload.edit_contact_name.gid)) {
         PRINTF("[Edit Contact Name] Group handle verification failed\n");
         return SWO_SECURITY_CONDITION_NOT_SATISFIED;
     }
 
     // Verify the wallet holds a valid HMAC_PROOF for the previous name
-    if (!address_book_verify_hmac_proof(&EDIT_CONTACT_NAME.bip32_path,
-                                        EDIT_CONTACT_NAME.gid,
-                                        EDIT_CONTACT_NAME.old_contact_name,
+    if (!address_book_verify_hmac_proof(&g_ab_payload.edit_contact_name.bip32_path,
+                                        g_ab_payload.edit_contact_name.gid,
+                                        g_ab_payload.edit_contact_name.old_contact_name,
                                         ctx.hmac_proof)) {
         PRINTF("[Edit Contact Name] HMAC_PROOF verification failed\n");
         return SWO_SECURITY_CONDITION_NOT_SATISFIED;

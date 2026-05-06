@@ -226,6 +226,20 @@ void finalize_ui_register_ledger_account(void);
 /*************** Exported functions prototypes: Edit Ledger Account **********/
 
 /**
+ * @brief Handle called to validate the Edit Ledger Account parameters.
+ *
+ * Called after TLV parsing and HMAC proof verification, before displaying the
+ * review UI. The coin app must derive the Ethereum address from
+ * @p params->ledger_account.bip32_path and store it in @p params->address so
+ * that on_edit_ledger_account_applied() can locate the cache entry without
+ * re-deriving. Return false to reject and abort the edit flow.
+ *
+ * @param[in,out] params Parsed edit data; coin app fills params->address
+ * @return true if the edit is acceptable, false to reject
+ */
+bool handle_check_edit_ledger_account(edit_ledger_account_t *params);
+
+/**
  * @brief Handle called to finalize the UI flow for editing a Ledger Account.
  *
  * Called after the user has confirmed or rejected the edit.

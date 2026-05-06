@@ -72,9 +72,6 @@ typedef struct {
     X(0x51, TAG_BLOCKCHAIN_FAMILY, handle_blockchain_family, ENFORCE_UNIQUE_TAG)
 
 /* Private variables ---------------------------------------------------------*/
-static edit_ledger_account_t      EDIT_LEDGER_ACCOUNT = {0};
-static nbgl_contentTagValue_t     ui_pairs[2]         = {0};
-static nbgl_contentTagValueList_t ui_pairsList        = {0};
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -281,10 +278,10 @@ static bool build_and_send_response(void)
     uint8_t hmac_proof[CX_SHA256_SIZE] = {0};
 
     if (!address_book_compute_hmac_proof_ledger_account(
-            &EDIT_LEDGER_ACCOUNT.ledger_account.bip32_path,
-            (const char *) EDIT_LEDGER_ACCOUNT.ledger_account.account_name,
-            EDIT_LEDGER_ACCOUNT.ledger_account.blockchain_family,
-            EDIT_LEDGER_ACCOUNT.ledger_account.chain_id,
+            &g_ab_payload.edit_ledger_account.ledger_account.bip32_path,
+            (const char *) g_ab_payload.edit_ledger_account.ledger_account.account_name,
+            g_ab_payload.edit_ledger_account.ledger_account.blockchain_family,
+            g_ab_payload.edit_ledger_account.ledger_account.chain_id,
             hmac_proof)) {
         PRINTF("[Edit Ledger Account] Error: Failed to compute new HMAC proof\n");
         return false;
@@ -305,7 +302,7 @@ static void review_choice(bool confirm)
     if (confirm) {
         bool ok = build_and_send_response();
         if (ok) {
-            on_edit_ledger_account_applied(&EDIT_LEDGER_ACCOUNT);
+            on_edit_ledger_account_applied(&g_ab_payload.edit_ledger_account);
         }
         else {
             PRINTF("[Edit Ledger Account] Error: Failed to build and send HMAC proof\n");
@@ -324,37 +321,20 @@ static void review_choice(bool confirm)
 static void ui_display(void)
 {
     uint8_t nbPairs = 0;
-    memset(&ui_pairsList, 0, sizeof(ui_pairsList));
-    memset(ui_pairs, 0, sizeof(ui_pairs));
-    ui_pairs[nbPairs].item  = "Old name";
-    ui_pairs[nbPairs].value = EDIT_LEDGER_ACCOUNT.old_account_name;
+    memset(&g_ab_ui.list, 0, sizeof(g_ab_ui.list));
+    memset(g_ab_ui.pairs, 0, sizeof(g_ab_ui.pairs));
+    g_ab_ui.pairs[nbPairs].item  = "Old name";
+    g_ab_ui.pairs[nbPairs].value = g_ab_payload.edit_ledger_account.old_account_name;
     nbPairs++;
-    ui_pairs[nbPairs].item  = "New name";
-    ui_pairs[nbPairs].value = EDIT_LEDGER_ACCOUNT.ledger_account.account_name;
+    g_ab_ui.pairs[nbPairs].item  = "New name";
+    g_ab_ui.pairs[nbPairs].value = g_ab_payload.edit_ledger_account.ledger_account.account_name;
     nbPairs++;
-    ui_pairsList.pairs    = ui_pairs;
-    ui_pairsList.nbPairs  = nbPairs;
-    ui_pairsList.wrapping = true;
-
-    address_book_display_review(
-        NULL, &ui_pairsList, "Edit account name", "Confirm edit?", review_choice);
+    g_ab_ui.list.pairs   = g_ab_ui.pairs;
+    g_ab_ui.list.nbPairs = nbPairs;
+    address_book_display_review(NULL, "Edit account name", "Confirm edit?", review_choice);
 }
 
 /* Exported functions --------------------------------------------------------*/
-
-/**
- * @brief Return a read-only pointer to the parsed Edit Ledger Account data.
- *
- * The returned pointer is valid from the moment edit_ledger_account() has
- * finished parsing until the next call to edit_ledger_account(), which
- * overwrites the static buffer.
- *
- * @return Pointer to the current EDIT_LEDGER_ACCOUNT static (never NULL)
- */
-const edit_ledger_account_t *get_edit_ledger_account(void)
-{
-    return &EDIT_LEDGER_ACCOUNT;
-}
 
 /**
  * @brief Edit the name of an existing Ledger Account
@@ -369,8 +349,8 @@ bolos_err_t edit_ledger_account(uint8_t *buffer_in, size_t buffer_in_length)
     s_edit_ledger_account_ctx ctx     = {0};
 
     // Init the structure
-    ctx.edit = &EDIT_LEDGER_ACCOUNT;
-    memset(&EDIT_LEDGER_ACCOUNT, 0, sizeof(EDIT_LEDGER_ACCOUNT));
+    ctx.edit = &g_ab_payload.edit_ledger_account;
+    memset(&g_ab_payload.edit_ledger_account, 0, sizeof(g_ab_payload.edit_ledger_account));
 
     // Parse using SDK TLV parser
     if (!edit_ledger_account_tlv_parser(&payload, &ctx, &ctx.received_tags)) {
@@ -384,13 +364,19 @@ bolos_err_t edit_ledger_account(uint8_t *buffer_in, size_t buffer_in_length)
 
     // Verify that the host holds a valid proof from the previous registration
     if (!address_book_verify_hmac_proof_ledger_account(
-            &EDIT_LEDGER_ACCOUNT.ledger_account.bip32_path,
-            EDIT_LEDGER_ACCOUNT.old_account_name,
-            EDIT_LEDGER_ACCOUNT.ledger_account.blockchain_family,
-            EDIT_LEDGER_ACCOUNT.ledger_account.chain_id,
+            &g_ab_payload.edit_ledger_account.ledger_account.bip32_path,
+            g_ab_payload.edit_ledger_account.old_account_name,
+            g_ab_payload.edit_ledger_account.ledger_account.blockchain_family,
+            g_ab_payload.edit_ledger_account.ledger_account.chain_id,
             ctx.hmac_proof)) {
         PRINTF("[Edit Ledger Account] HMAC proof verification failed\n");
         return SWO_SECURITY_CONDITION_NOT_SATISFIED;
+    }
+
+    // Coin-app validation: derive and cache the address
+    if (!handle_check_edit_ledger_account(&g_ab_payload.edit_ledger_account)) {
+        PRINTF("[Edit Ledger Account] Coin-app rejected edit\n");
+        return SWO_INCORRECT_DATA;
     }
 
     // Display confirmation UI
