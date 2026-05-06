@@ -139,9 +139,8 @@ static bool handle_contact_name(const tlv_data_t *data, s_edit_ledger_account_ct
  */
 static bool handle_previous_name(const tlv_data_t *data, s_edit_ledger_account_ctx *context)
 {
-    if (!address_book_handle_printable_string(data,
-                                              context->edit->previous_account_name,
-                                              sizeof(context->edit->previous_account_name))) {
+    if (!address_book_handle_printable_string(
+            data, context->edit->old_account_name, sizeof(context->edit->old_account_name))) {
         PRINTF("PREVIOUS_NAME: failed to parse\n");
         return false;
     }
@@ -249,8 +248,7 @@ static void print_payload(const s_edit_ledger_account_ctx *context)
 
     PRINTF("****************************************************************************\n");
     PRINTF("[Edit Ledger Account] - Retrieved Descriptor:\n");
-    PRINTF("[Edit Ledger Account] -    Previous name:       %s\n",
-           context->edit->previous_account_name);
+    PRINTF("[Edit Ledger Account] -    Old name:            %s\n", context->edit->old_account_name);
     PRINTF("[Edit Ledger Account] -    New name:            %s\n",
            context->edit->ledger_account.account_name);
     if (bip32_path_format_simple(&context->edit->ledger_account.bip32_path, out, sizeof(out))) {
@@ -329,14 +327,14 @@ static void ui_display(void)
     uint8_t nbPairs = 0;
     memset(&ui_pairsList, 0, sizeof(ui_pairsList));
     memset(ui_pairs, 0, sizeof(ui_pairs));
-    ui_pairs[nbPairs].item  = "Previous name";
-    ui_pairs[nbPairs].value = EDIT_LEDGER_ACCOUNT.previous_account_name;
+    ui_pairs[nbPairs].item  = "Old name";
+    ui_pairs[nbPairs].value = EDIT_LEDGER_ACCOUNT.old_account_name;
     nbPairs++;
     ui_pairs[nbPairs].item  = "New name";
     ui_pairs[nbPairs].value = EDIT_LEDGER_ACCOUNT.ledger_account.account_name;
     nbPairs++;
     ui_pairsList.pairs    = ui_pairs;
-    ui_pairsList.nbPairs  = nbPairs;  // previous name + new name
+    ui_pairsList.nbPairs  = nbPairs;
     ui_pairsList.wrapping = true;
 
     nbgl_useCaseReviewLight(TYPE_OPERATION | ADDRESS_BOOK_OPERATION,
@@ -393,7 +391,7 @@ bolos_err_t edit_ledger_account(uint8_t *buffer_in, size_t buffer_in_length)
     // Verify that the host holds a valid proof from the previous registration
     if (!address_book_verify_hmac_proof_ledger_account(
             &EDIT_LEDGER_ACCOUNT.ledger_account.bip32_path,
-            EDIT_LEDGER_ACCOUNT.previous_account_name,
+            EDIT_LEDGER_ACCOUNT.old_account_name,
             EDIT_LEDGER_ACCOUNT.ledger_account.blockchain_family,
             EDIT_LEDGER_ACCOUNT.ledger_account.chain_id,
             ctx.hmac_proof)) {

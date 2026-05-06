@@ -54,7 +54,7 @@ typedef enum {
  *   + 34 (contact_name, max 32 B)
  *   + 34 (scope, max 32 B)
  *   + 82 (new identifier, max 80 B)
- *   + 82 (previous identifier, max 80 B)
+ *   + 82 (old identifier, max 80 B)
  *   + 34 (hmac_proof, 32 B)
  *   + 34 (hmac_rest, 32 B)
  *   + 43 (derivation_path: depth(1) + 10×4 B)

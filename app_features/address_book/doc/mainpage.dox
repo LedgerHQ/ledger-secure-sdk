@@ -55,22 +55,22 @@ are available in Mermaid format in @c app_features/address_book/doc/address_book
 
 @subsection address_book_tlv_tags TLV Tags
 
-| Tag  | Name                  | Description                                              | Max size |
-|------|-----------------------|----------------------------------------------------------|----------|
-| 0x01 | STRUCT_TYPE           | Sub-command type discriminator (0x2d–0x33)               | 1 B      |
-| 0x02 | STRUCT_VERSION        | Always 0x01                                              | 1 B      |
-| 0xf0 | CONTACT_NAME          | Human-readable contact/account name                      | 32 B     |
-| 0xf1 | SCOPE                 | Scope/namespace for the identifier                       | 32 B     |
-| 0xf3 | PREVIOUS_CONTACT_NAME | Previous name (Edit Contact Name only)                   | 32 B     |
-| 0xf2 | ACCOUNT_IDENTIFIER    | Opaque identifier (e.g. 20-byte Ethereum address)        | 80 B     |
-| 0xf4 | PREVIOUS_IDENTIFIER   | Previous identifier (Edit Identifier only)               | 80 B     |
-| 0xf5 | PREVIOUS_SCOPE        | Previous scope (Edit Scope only)                         | 32 B     |
-| 0xf6 | GROUP_HANDLE          | Device-generated token: gid(32) + HMAC-SHA256(K_group, gid)(32) | 64 B |
-| 0x21 | DERIVATION_PATH       | BIP32 path for HMAC key derivation                       | 43 B     |
-| 0x23 | CHAIN_ID              | Chain ID (mandatory for Ethereum family)                 | 8 B      |
-| 0x51 | BLOCKCHAIN_FAMILY     | Blockchain family enum                                   | 1 B      |
-| 0x29 | HMAC_PROOF            | HMAC-SHA256 over gid + contact name                      | 32 B     |
-| 0xf7 | HMAC_REST             | HMAC-SHA256 over gid + scope + identifier + network      | 32 B     |
+| Tag  | Name                  | Description                                                     | Max size |
+|------|-----------------------|-----------------------------------------------------------------|----------|
+| 0x01 | STRUCT_TYPE           | Sub-command type discriminator (0x2d–0x33)                      | 1 B      |
+| 0x02 | STRUCT_VERSION        | Always 0x01                                                     | 1 B      |
+| 0xf0 | CONTACT_NAME          | Human-readable contact/account name                             | 32 B     |
+| 0xf1 | SCOPE                 | Scope/namespace for the identifier                              | 32 B     |
+| 0xf3 | PREVIOUS_CONTACT_NAME | old name (Edit Contact Name only)                               | 32 B     |
+| 0xf2 | ACCOUNT_IDENTIFIER    | Opaque identifier (e.g. 20-byte Ethereum address)               | 80 B     |
+| 0xf4 | PREVIOUS_IDENTIFIER   | old identifier (Edit Identifier only)                           | 80 B     |
+| 0xf5 | PREVIOUS_SCOPE        | old scope (Edit Scope only)                                     | 32 B     |
+| 0xf6 | GROUP_HANDLE          | Device-generated token: gid(32) + HMAC-SHA256(K_group, gid)(32) | 64 B     |
+| 0x21 | DERIVATION_PATH       | BIP32 path for HMAC key derivation                              | 43 B     |
+| 0x23 | CHAIN_ID              | Chain ID (mandatory for Ethereum family)                        | 8 B      |
+| 0x51 | BLOCKCHAIN_FAMILY     | Blockchain family enum                                          | 1 B      |
+| 0x29 | HMAC_PROOF            | HMAC-SHA256 over gid + contact name                             | 32 B     |
+| 0xf7 | HMAC_REST             | HMAC-SHA256 over gid + scope + identifier + network             | 32 B     |
 
 @subsection address_book_output Response Formats
 
