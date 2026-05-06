@@ -25,6 +25,11 @@
 #define APPLICATION_FLAG_LIBRARY 0x800
 
 /**
+ * Application is persistent and shall not be deleted
+ */
+#define APPLICATION_FLAG_PERSISTENT 0x20
+
+/**
  * Reserved
  */
 #define APPLICATION_FLAG_RESERVED 0x40000
