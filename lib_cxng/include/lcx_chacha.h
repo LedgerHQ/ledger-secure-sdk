@@ -20,7 +20,7 @@
  * @file    lcx_chacha.h
  * @brief   Chacha cipher
  *
- * @section Description
+ * @details
  *
  * The Chacha cipher is a stream cipher which generates a key stream of at most 2^70 bytes
  * composed of blocks of size 512 bits. The possible key sizes are 128 bits and 256 bits and

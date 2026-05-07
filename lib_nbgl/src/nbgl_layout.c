@@ -3764,7 +3764,7 @@ int nbgl_layoutAddSpinner(nbgl_layout_t *layout,
  * @param layout the current layout
  * @param text text to draw under the spinner
  * @param subText text to draw under the text (can be NULL)
- * @param initPosition position of the spinner (cannot be fixed)
+ * @param position position of the spinner (cannot be fixed)
  * @return - 0 if no refresh needed
  *         - 1 if partial B&W refresh needed
  *         - 2 if partial color refresh needed
