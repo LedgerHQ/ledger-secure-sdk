@@ -23,7 +23,7 @@
  * raw derived address during transaction review.
  *
  * Unlike the Identity Provide Contact flow (P1=0x20), a Ledger Account has no
- * external address, no group_handle, no scope, and no hmac_rest.  The only
+ * external address, no group_handle, no scope, and no hmac_rest. The only
  * proof required is the HMAC Proof of Registration returned by
  * register_ledger_account (P1=0x11).
  *
@@ -75,7 +75,6 @@ typedef struct {
     X(0x29, TAG_HMAC_PROOF, handle_hmac_proof, ENFORCE_UNIQUE_TAG)
 
 /* Private variables ---------------------------------------------------------*/
-static ledger_account_t PROVIDE_LEDGER_ACCOUNT = {0};
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -266,8 +265,8 @@ bolos_err_t provide_ledger_account_contact(uint8_t *buffer_in, size_t buffer_in_
     s_provide_ledger_account_ctx ctx     = {0};
 
     // Init the structure
-    ctx.ledger_account = &PROVIDE_LEDGER_ACCOUNT;
-    memset(&PROVIDE_LEDGER_ACCOUNT, 0, sizeof(PROVIDE_LEDGER_ACCOUNT));
+    ctx.ledger_account = &g_ab_payload.ledger_account;
+    memset(&g_ab_payload.ledger_account, 0, sizeof(g_ab_payload.ledger_account));
 
     // Parse using SDK TLV parser
     if (!provide_ledger_account_tlv_parser(&payload, &ctx, &ctx.received_tags)) {
@@ -280,17 +279,18 @@ bolos_err_t provide_ledger_account_contact(uint8_t *buffer_in, size_t buffer_in_
     print_payload(&ctx);
 
     // Verify HMAC Proof of Registration: HMAC(bip32_path, account_name, family, chain_id)
-    if (!address_book_verify_hmac_proof_ledger_account(&PROVIDE_LEDGER_ACCOUNT.bip32_path,
-                                                       PROVIDE_LEDGER_ACCOUNT.account_name,
-                                                       PROVIDE_LEDGER_ACCOUNT.blockchain_family,
-                                                       PROVIDE_LEDGER_ACCOUNT.chain_id,
-                                                       ctx.hmac_proof)) {
+    if (!address_book_verify_hmac_proof_ledger_account(
+            &g_ab_payload.ledger_account.bip32_path,
+            g_ab_payload.ledger_account.account_name,
+            g_ab_payload.ledger_account.blockchain_family,
+            g_ab_payload.ledger_account.chain_id,
+            ctx.hmac_proof)) {
         PRINTF("[Provide Ledger Account] HMAC proof verification failed\n");
         return SWO_SECURITY_CONDITION_NOT_SATISFIED;
     }
 
     // Pass verified contact to the coin app for storage
-    if (!handle_provide_ledger_account(&PROVIDE_LEDGER_ACCOUNT)) {
+    if (!handle_provide_ledger_account(&g_ab_payload.ledger_account)) {
         PRINTF("[Provide Ledger Account] Rejected by coin application\n");
         return SWO_WRONG_PARAMETER_VALUE;
     }

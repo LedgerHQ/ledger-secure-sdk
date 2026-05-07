@@ -155,9 +155,9 @@ Multi-byte integer values are encoded **big-endian, minimum length** (no leading
 | 0xf0 | CONTACT_NAME           | Human-readable name label (printable ASCII, max 32 chars)                             |
 | 0xf1 | SCOPE                  | Context string for the identifier (printable ASCII, max 32 chars)                     |
 | 0xf2 | ACCOUNT_IDENTIFIER     | Blockchain identifier — address (Ethereum, Solana) or public key (Bitcoin); max 80 B  |
-| 0xf3 | PREVIOUS_CONTACT_NAME  | Previous contact name, for display and HMAC verification (Edit Contact Name only)     |
-| 0xf4 | PREVIOUS_IDENTIFIER    | Previous identifier, for HMAC verification (Edit Identifier only)                     |
-| 0xf5 | PREVIOUS_SCOPE         | Previous scope, for display and HMAC verification (Edit Scope only)                   |
+| 0xf3 | PREVIOUS_CONTACT_NAME  | Old contact name, for display and HMAC verification (Edit Contact Name only)          |
+| 0xf4 | PREVIOUS_IDENTIFIER    | Old identifier, for HMAC verification (Edit Identifier only)                          |
+| 0xf5 | PREVIOUS_SCOPE         | Old scope, for display and HMAC verification (Edit Scope only)                        |
 | 0xf6 | GROUP_HANDLE           | Device-generated opaque token: `gid(32) + HMAC-SHA256(K_group, gid)(32)`; see §4.3    |
 | 0x21 | DERIVATION_PATH        | BIP32 path (packed: depth(1) + indices(4 each))                                       |
 | 0x23 | CHAIN_ID               | Chain ID — mandatory for `BLOCKCHAIN_FAMILY = 1` (Ethereum); omitted for others       |
@@ -325,19 +325,19 @@ type(1) | group_handle(64) | hmac_proof(32) | hmac_rest(32)  — total 129 bytes
 - **Structure type:** `0x2e` (`TYPE_EDIT_CONTACT_NAME`)
 - **Guard:** `HAVE_ADDRESS_BOOK`
 
-Changes the `CONTACT_NAME` of an existing contact. Because `HMAC_PROOF` covers only `gid + name`, the wallet does **not** need to re-present the identifier, scope, or network — it only provides `group_handle`, the previous name, and the `HMAC_PROOF` returned at registration. The device verifies the group handle, verifies the proof, displays `old_name → new_name`, and returns a new `HMAC_PROOF` for the updated name.
+Changes the `CONTACT_NAME` of an existing contact. Because `HMAC_PROOF` covers only `gid + name`, the wallet does **not** need to re-present the identifier, scope, or network — it only provides `group_handle`, the old name, and the `HMAC_PROOF` returned at registration. The device verifies the group handle, verifies the proof, displays `old_name → new_name`, and returns a new `HMAC_PROOF` for the updated name.
 
 #### TLV payload
 
-| Tag Name              | Value | Mandatory | Max size | Description                                                           |
-|-----------------------|-------|-----------|----------|-----------------------------------------------------------------------|
-| STRUCT_TYPE           | 0x01  | Yes       | 1 B      | 0x2e (`TYPE_EDIT_CONTACT_NAME`)                                       |
-| STRUCT_VERSION        | 0x02  | Yes       | 1 B      | 0x01                                                                  |
-| PREVIOUS_CONTACT_NAME | 0xf3  | Yes       | 32 B     | Previous contact name (must match value used at registration)         |
-| CONTACT_NAME          | 0xf0  | Yes       | 32 B     | New contact name (max 32 printable ASCII chars)                       |
-| GROUP_HANDLE          | 0xf6  | Yes       | 64 B     | Opaque token from Register Identity response                          |
-| DERIVATION_PATH       | 0x21  | Yes       | 41 B     | BIP32 derivation path (same as at registration)                       |
-| HMAC_PROOF            | 0x29  | Yes       | 32 B     | `HMAC_PROOF` returned by the original Register Identity               |
+| Tag Name              | Value | Mandatory | Max size | Description                                              |
+|-----------------------|-------|-----------|----------|----------------------------------------------------------|
+| STRUCT_TYPE           | 0x01  | Yes       | 1 B      | 0x2e (`TYPE_EDIT_CONTACT_NAME`)                          |
+| STRUCT_VERSION        | 0x02  | Yes       | 1 B      | 0x01                                                     |
+| PREVIOUS_CONTACT_NAME | 0xf3  | Yes       | 32 B     | Old contact name (must match value used at registration) |
+| CONTACT_NAME          | 0xf0  | Yes       | 32 B     | New contact name (max 32 printable ASCII chars)          |
+| GROUP_HANDLE          | 0xf6  | Yes       | 64 B     | Opaque token from Register Identity response             |
+| DERIVATION_PATH       | 0x21  | Yes       | 41 B     | BIP32 derivation path (same as at registration)          |
+| HMAC_PROOF            | 0x29  | Yes       | 32 B     | `HMAC_PROOF` returned by the original Register Identity  |
 
 > **Payload size:** worst case (max path depth, max names) = **217 B** — fits in a single short APDU ✓
 
@@ -381,24 +381,24 @@ type(1) | hmac_proof(32)
 - **Structure type:** `0x31` (`TYPE_EDIT_IDENTIFIER`)
 - **Guard:** `HAVE_ADDRESS_BOOK`
 
-Changes the `IDENTIFIER` of an existing contact while keeping the same `contact_name` and `scope`. The wallet provides the *previous identifier* and the stored `hmac_proof`, allowing the device to verify the prior registration, display `old_identifier → new_identifier` to the user, and return a new proof for the updated identifier.
+Changes the `IDENTIFIER` of an existing contact while keeping the same `contact_name` and `scope`. The wallet provides the *old identifier* and the stored `hmac_proof`, allowing the device to verify the prior registration, display `old_identifier → new_identifier` to the user, and return a new proof for the updated identifier.
 
 #### TLV payload
 
-| Tag Name            | Value | Mandatory | Max size | Description                                                              |
-|---------------------|-------|-----------|----------|--------------------------------------------------------------------------|
-| STRUCT_TYPE         | 0x01  | Yes       | 1 B      | 0x31 (`TYPE_EDIT_IDENTIFIER`)                                            |
-| STRUCT_VERSION      | 0x02  | Yes       | 1 B      | 0x01                                                                     |
-| CONTACT_NAME        | 0xf0  | Yes       | 32 B     | Contact name (unchanged from registration)                               |
-| SCOPE               | 0xf1  | Yes       | 32 B     | Context string (unchanged from registration)                             |
-| ACCOUNT_IDENTIFIER  | 0xf2  | Yes       | 80 B     | New blockchain identifier (replacing the previous one)                   |
-| PREVIOUS_IDENTIFIER | 0xf4  | Yes       | 80 B     | Previous identifier (to verify the HMAC from the prior registration)     |
-| GROUP_HANDLE        | 0xf6  | Yes       | 64 B     | Opaque token from Register Identity response                             |
-| DERIVATION_PATH     | 0x21  | Yes       | 41 B     | BIP32 derivation path (same as at registration)                          |
-| CHAIN_ID            | 0x23  | Cond.     | 8 B      | Chain ID (mandatory for Ethereum)                                        |
-| BLOCKCHAIN_FAMILY   | 0x51  | Yes       | 1 B      | Blockchain family                                                        |
-| HMAC_PROOF          | 0x29  | Yes       | 32 B     | `HMAC_PROOF` from Register Identity (verifies the contact name)          |
-| HMAC_REST           | 0xf7  | Yes       | 32 B     | `HMAC_REST` from Register Identity (verifies the previous identifier)    |
+| Tag Name            | Value | Mandatory | Max size | Description                                                      |
+|---------------------|-------|-----------|----------|------------------------------------------------------------------|
+| STRUCT_TYPE         | 0x01  | Yes       | 1 B      | 0x31 (`TYPE_EDIT_IDENTIFIER`)                                    |
+| STRUCT_VERSION      | 0x02  | Yes       | 1 B      | 0x01                                                             |
+| CONTACT_NAME        | 0xf0  | Yes       | 32 B     | Contact name (unchanged from registration)                       |
+| SCOPE               | 0xf1  | Yes       | 32 B     | Context string (unchanged from registration)                     |
+| ACCOUNT_IDENTIFIER  | 0xf2  | Yes       | 80 B     | New blockchain identifier (replacing the old one)                |
+| PREVIOUS_IDENTIFIER | 0xf4  | Yes       | 80 B     | old identifier (to verify the HMAC from the prior registration)  |
+| GROUP_HANDLE        | 0xf6  | Yes       | 64 B     | Opaque token from Register Identity response                     |
+| DERIVATION_PATH     | 0x21  | Yes       | 41 B     | BIP32 derivation path (same as at registration)                  |
+| CHAIN_ID            | 0x23  | Cond.     | 8 B      | Chain ID (mandatory for Ethereum)                                |
+| BLOCKCHAIN_FAMILY   | 0x51  | Yes       | 1 B      | Blockchain family                                                |
+| HMAC_PROOF          | 0x29  | Yes       | 32 B     | `HMAC_PROOF` from Register Identity (verifies the contact name)  |
+| HMAC_REST           | 0xf7  | Yes       | 32 B     | `HMAC_REST` from Register Identity (verifies the old identifier) |
 
 > **Payload size:** worst case (Ethereum, max path depth, max identifiers, with scope) = **428 B** — exceeds the 255 B short APDU limit. Multi-chunk transport is required (see §3).
 
@@ -407,23 +407,23 @@ Changes the `IDENTIFIER` of an existing contact while keeping the same `contact_
 1. Parse TLV payload.
 2. Verify `group_handle` MAC (constant-time) and extract `gid`.
 3. Re-derive `HMAC_PROOF` over `(gid, contact_name)` and compare with `hmac_proof` (constant-time) — proves the name was registered on this device.
-4. Re-derive `HMAC_REST` over `(gid, scope, previous_identifier, family [, chain_id])` and compare with `hmac_rest` (constant-time) — proves the identifier was registered on this device.
+4. Re-derive `HMAC_REST` over `(gid, scope, old_identifier, family [, chain_id])` and compare with `hmac_rest` (constant-time) — proves the identifier was registered on this device.
 5. Call `handle_check_edit_identifier()` (coin-app entrypoint) for chain-specific validation of the new identifier.
-6. Display to user: `contact_name` / `previous_identifier → new_identifier`.
+6. Display to user: `contact_name` / `old_identifier → new_identifier`.
 7. On confirm: compute new `HMAC_REST` over `(gid, scope, new_identifier, family [, chain_id])` and return it.
 
 ```mermaid
 sequenceDiagram
 
-    Note over Wallet: Has: group_handle, contact_name, previous_identifier, hmac_proof, hmac_rest (from registration)
-    Wallet->>Device: CMD_EDIT_IDENTIFIER (group_handle + contact_name + new_identifier + previous_identifier + hmac_proof + hmac_rest + path + ...)
+    Note over Wallet: Has: group_handle, contact_name, old_identifier, hmac_proof, hmac_rest (from registration)
+    Wallet->>Device: CMD_EDIT_IDENTIFIER (group_handle + contact_name + new_identifier + old_identifier + hmac_proof + hmac_rest + path + ...)
     Device->>Device: Parse TLV
     Device->>Device: Verify group_handle MAC, extract gid
     Device->>Device: Re-derive HMAC_PROOF(gid, contact_name), compare with hmac_proof
-    Device->>Device: Re-derive HMAC_REST(gid, scope, previous_identifier, family[, chain_id]), compare with hmac_rest
+    Device->>Device: Re-derive HMAC_REST(gid, scope, old_identifier, family[, chain_id]), compare with hmac_rest
     Note right of Device: Proves contact (name + identifier) registered on this device
     Device->>Device: handle_check_edit_identifier() [coin-app]
-    Device->>User: Display: contact_name / previous_identifier → new_identifier
+    Device->>User: Display: contact_name / old_identifier → new_identifier
     User->>Device: Confirm
     Device->>Device: HMAC_REST = HMAC-SHA256(key, gid|scope_len|scope|id_len|new_identifier|family[|chain_id])
     Device->>Wallet: 0x31 | hmac_rest(32)  [9000]
@@ -446,24 +446,24 @@ type(1) | hmac_rest(32)
 - **Structure type:** `0x32` (`TYPE_EDIT_SCOPE`)
 - **Guard:** `HAVE_ADDRESS_BOOK`
 
-Changes the `SCOPE` of an existing contact while keeping the same `contact_name` and `identifier`. The wallet provides the *previous scope* and the stored `hmac_proof`, allowing the device to verify the prior registration, display `old_scope → new_scope` to the user, and return a new proof for the updated scope.
+Changes the `SCOPE` of an existing contact while keeping the same `contact_name` and `identifier`. The wallet provides the *old scope* and the stored `hmac_proof`, allowing the device to verify the prior registration, display `old_scope → new_scope` to the user, and return a new proof for the updated scope.
 
 #### TLV payload
 
-| Tag Name               | Value | Mandatory | Max size | Description                                                           |
-|------------------------|-------|-----------|----------|-----------------------------------------------------------------------|
-| STRUCT_TYPE            | 0x01  | Yes       | 1 B      | 0x32 (`TYPE_EDIT_SCOPE`)                                              |
-| STRUCT_VERSION         | 0x02  | Yes       | 1 B      | 0x01                                                                  |
-| CONTACT_NAME           | 0xf0  | Yes       | 32 B     | Contact name (unchanged from registration)                            |
-| SCOPE                  | 0xf1  | Yes       | 32 B     | New scope (max 32 printable ASCII chars)                              |
-| ACCOUNT_IDENTIFIER     | 0xf2  | Yes       | 80 B     | Blockchain identifier (unchanged from registration)                   |
-| PREVIOUS_SCOPE         | 0xf5  | Yes       | 32 B     | Previous scope (must match value used at registration)                |
-| GROUP_HANDLE           | 0xf6  | Yes       | 64 B     | Opaque token from Register Identity response                          |
-| DERIVATION_PATH        | 0x21  | Yes       | 41 B     | BIP32 derivation path (same as at registration)                       |
-| CHAIN_ID               | 0x23  | Cond.     | 8 B      | Chain ID (mandatory for Ethereum)                                     |
-| BLOCKCHAIN_FAMILY      | 0x51  | Yes       | 1 B      | Blockchain family                                                     |
-| HMAC_PROOF             | 0x29  | Yes       | 32 B     | `HMAC_PROOF` from Register Identity, proves the contact name          |
-| HMAC_REST              | 0xf7  | Yes       | 32 B     | `HMAC_REST` from Register Identity, proves the scope                  |
+| Tag Name               | Value | Mandatory | Max size | Description                                                  |
+|------------------------|-------|-----------|----------|--------------------------------------------------------------|
+| STRUCT_TYPE            | 0x01  | Yes       | 1 B      | 0x32 (`TYPE_EDIT_SCOPE`)                                     |
+| STRUCT_VERSION         | 0x02  | Yes       | 1 B      | 0x01                                                         |
+| CONTACT_NAME           | 0xf0  | Yes       | 32 B     | Contact name (unchanged from registration)                   |
+| SCOPE                  | 0xf1  | Yes       | 32 B     | New scope (max 32 printable ASCII chars)                     |
+| ACCOUNT_IDENTIFIER     | 0xf2  | Yes       | 80 B     | Blockchain identifier (unchanged from registration)          |
+| PREVIOUS_SCOPE         | 0xf5  | Yes       | 32 B     | old scope (must match value used at registration)            |
+| GROUP_HANDLE           | 0xf6  | Yes       | 64 B     | Opaque token from Register Identity response                 |
+| DERIVATION_PATH        | 0x21  | Yes       | 41 B     | BIP32 derivation path (same as at registration)              |
+| CHAIN_ID               | 0x23  | Cond.     | 8 B      | Chain ID (mandatory for Ethereum)                            |
+| BLOCKCHAIN_FAMILY      | 0x51  | Yes       | 1 B      | Blockchain family                                            |
+| HMAC_PROOF             | 0x29  | Yes       | 32 B     | `HMAC_PROOF` from Register Identity, proves the contact name |
+| HMAC_REST              | 0xf7  | Yes       | 32 B     | `HMAC_REST` from Register Identity, proves the scope         |
 
 > **Payload size:** worst case (Ethereum, max path depth, max identifier) = **380 B** — exceeds the 255 B short APDU limit. Multi-chunk transport is required (see §3).
 
@@ -472,21 +472,21 @@ Changes the `SCOPE` of an existing contact while keeping the same `contact_name`
 1. Parse TLV payload.
 2. Verify `group_handle` MAC (constant-time) and extract `gid`.
 3. Re-derive `HMAC_PROOF` over `(gid, contact_name)` and compare with `hmac_proof` (constant-time) — proves the name was registered on this device.
-4. Re-derive `HMAC_REST` over `(gid, previous_scope, identifier, family [, chain_id])` and compare with `hmac_rest` (constant-time) — proves the scope/identifier were registered on this device.
-5. Display to user: `contact_name` / `previous_scope → new_scope`.
+4. Re-derive `HMAC_REST` over `(gid, old_scope, identifier, family [, chain_id])` and compare with `hmac_rest` (constant-time) — proves the scope/identifier were registered on this device.
+5. Display to user: `contact_name` / `old_scope → new_scope`.
 6. On confirm: compute new `HMAC_REST` over `(gid, new_scope, identifier, family [, chain_id])` and return it.
 
 ```mermaid
 sequenceDiagram
 
-    Note over Wallet: Has: group_handle, contact_name, previous_scope, hmac_proof, hmac_rest (from registration)
-    Wallet->>Device: CMD_EDIT_SCOPE (group_handle + contact_name + new_scope + previous_scope + hmac_proof + hmac_rest + identifier + path + ...)
+    Note over Wallet: Has: group_handle, contact_name, old_scope, hmac_proof, hmac_rest (from registration)
+    Wallet->>Device: CMD_EDIT_SCOPE (group_handle + contact_name + new_scope + old_scope + hmac_proof + hmac_rest + identifier + path + ...)
     Device->>Device: Parse TLV
     Device->>Device: Verify group_handle MAC, extract gid
     Device->>Device: Re-derive HMAC_PROOF(gid, contact_name), compare with hmac_proof
-    Device->>Device: Re-derive HMAC_REST(gid, previous_scope, identifier, family[, chain_id]), compare with hmac_rest
+    Device->>Device: Re-derive HMAC_REST(gid, old_scope, identifier, family[, chain_id]), compare with hmac_rest
     Note right of Device: Proves contact (name + scope) registered on this device
-    Device->>User: Display: contact_name / previous_scope → new_scope
+    Device->>User: Display: contact_name / old_scope → new_scope
     User->>Device: Confirm
     Device->>Device: HMAC_REST = HMAC-SHA256(key, gid|scope_len|new_scope|id_len|identifier|family[|chain_id])
     Device->>Wallet: 0x32 | hmac_rest(32)  [9000]
@@ -563,22 +563,22 @@ type(1) | hmac_proof(32)
 - **Structure type:** `0x30` (`TYPE_EDIT_LEDGER_ACCOUNT`)
 - **Guard:** `HAVE_ADDRESS_BOOK` && `HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT`
 
-Edits the name of an existing Ledger account. The wallet provides the previous name and the stored `hmac_proof`, allowing the device to verify the prior registration, display `old_name → new_name` to the user, and return a new proof for the updated name.
+Edits the name of an existing Ledger account. The wallet provides the old name and the stored `hmac_proof`, allowing the device to verify the prior registration, display `old_name → new_name` to the user, and return a new proof for the updated name.
 
 Display is handled entirely by the SDK. The coin app only provides `finalize_ui_edit_ledger_account()` to return the device to idle.
 
 #### TLV payload
 
-| Tag Name              | Value | Mandatory | Max size | Description                                                           |
-|-----------------------|-------|-----------|----------|-----------------------------------------------------------------------|
-| STRUCT_TYPE           | 0x01  | Yes       | 1 B      | 0x30 (`TYPE_EDIT_LEDGER_ACCOUNT`)                                     |
-| STRUCT_VERSION        | 0x02  | Yes       | 1 B      | 0x01                                                                  |
-| PREVIOUS_CONTACT_NAME | 0xf3  | Yes       | 32 B     | Previous account name (must match value used at registration)         |
-| CONTACT_NAME          | 0xf0  | Yes       | 32 B     | New account name (max 32 printable ASCII chars)                       |
-| HMAC_PROOF            | 0x29  | Yes       | 32 B     | HMAC Proof of Registration returned by Register Ledger Account        |
-| DERIVATION_PATH       | 0x21  | Yes       | 41 B     | BIP32 derivation path (same as at registration)                       |
-| CHAIN_ID              | 0x23  | Cond.     | 8 B      | Chain ID (mandatory for Ethereum)                                     |
-| BLOCKCHAIN_FAMILY     | 0x51  | Yes       | 1 B      | Blockchain family                                                     |
+| Tag Name              | Value | Mandatory | Max size | Description                                                    |
+|-----------------------|-------|-----------|----------|----------------------------------------------------------------|
+| STRUCT_TYPE           | 0x01  | Yes       | 1 B      | 0x30 (`TYPE_EDIT_LEDGER_ACCOUNT`)                              |
+| STRUCT_VERSION        | 0x02  | Yes       | 1 B      | 0x01                                                           |
+| PREVIOUS_CONTACT_NAME | 0xf3  | Yes       | 32 B     | old account name (must match value used at registration)       |
+| CONTACT_NAME          | 0xf0  | Yes       | 32 B     | New account name (max 32 printable ASCII chars)                |
+| HMAC_PROOF            | 0x29  | Yes       | 32 B     | HMAC Proof of Registration returned by Register Ledger Account |
+| DERIVATION_PATH       | 0x21  | Yes       | 41 B     | BIP32 derivation path (same as at registration)                |
+| CHAIN_ID              | 0x23  | Cond.     | 8 B      | Chain ID (mandatory for Ethereum)                              |
+| BLOCKCHAIN_FAMILY     | 0x51  | Yes       | 1 B      | Blockchain family                                              |
 
 > **Payload size:** worst case (Ethereum, max path depth) = **164 B** — fits in a single short APDU ✓
 

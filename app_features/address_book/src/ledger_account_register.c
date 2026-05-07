@@ -69,7 +69,6 @@ typedef struct {
     X(0x51, TAG_BLOCKCHAIN_FAMILY, handle_blockchain_family, ENFORCE_UNIQUE_TAG)
 
 /* Private variables ---------------------------------------------------------*/
-static ledger_account_t LEDGER_ACCOUNT = {0};
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -235,11 +234,12 @@ static bool build_and_send_response(void)
 {
     uint8_t hmac_proof[CX_SHA256_SIZE] = {0};
 
-    if (!address_book_compute_hmac_proof_ledger_account(&LEDGER_ACCOUNT.bip32_path,
-                                                        (const char *) LEDGER_ACCOUNT.account_name,
-                                                        LEDGER_ACCOUNT.blockchain_family,
-                                                        LEDGER_ACCOUNT.chain_id,
-                                                        hmac_proof)) {
+    if (!address_book_compute_hmac_proof_ledger_account(
+            &g_ab_payload.ledger_account.bip32_path,
+            (const char *) g_ab_payload.ledger_account.account_name,
+            g_ab_payload.ledger_account.blockchain_family,
+            g_ab_payload.ledger_account.chain_id,
+            hmac_proof)) {
         PRINTF("[Ledger Account] Error: Failed to compute HMAC proof\n");
         return false;
     }
@@ -257,19 +257,15 @@ static bool build_and_send_response(void)
 static void review_choice(bool confirm)
 {
     if (confirm) {
-        if (build_and_send_response()) {
-            nbgl_useCaseStatus("Name confirmed", true, finalize_ui_register_ledger_account);
-        }
-        else {
+        bool ok = build_and_send_response();
+        if (!ok) {
             PRINTF("[Ledger Account] Error: Failed to build and send response\n");
-            io_send_sw(SWO_INCORRECT_DATA);
-            nbgl_useCaseStatus("Error saving account", false, finalize_ui_register_ledger_account);
         }
+        address_book_finalize_review(
+            ok, "Name confirmed", "Error saving account", finalize_ui_register_ledger_account);
     }
     else {
-        io_send_sw(SWO_INCORRECT_DATA);
-        nbgl_useCaseReviewStatus(STATUS_TYPE_OPERATION_REJECTED,
-                                 finalize_ui_register_ledger_account);
+        address_book_handle_review_rejected(finalize_ui_register_ledger_account);
     }
 }
 
@@ -288,8 +284,8 @@ bolos_err_t register_ledger_account(uint8_t *buffer_in, size_t buffer_in_length)
     s_ledger_account_ctx ctx     = {0};
 
     // Init the structure
-    ctx.ledger_account = &LEDGER_ACCOUNT;
-    memset(&LEDGER_ACCOUNT, 0, sizeof(LEDGER_ACCOUNT));
+    ctx.ledger_account = &g_ab_payload.ledger_account;
+    memset(&g_ab_payload.ledger_account, 0, sizeof(g_ab_payload.ledger_account));
 
     // Parse using SDK TLV parser
     if (!ledger_account_tlv_parser(&payload, &ctx, &ctx.received_tags)) {

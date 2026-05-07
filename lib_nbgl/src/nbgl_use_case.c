@@ -62,20 +62,6 @@
 /* max length of the string displaying the description of the Web3 Checks report */
 #define W3C_DESCRIPTION_MAX_LEN 128
 
-/**
- * @brief This is to use in @ref nbgl_operationType_t when the operation is concerned by an internal
- * warning This is used to indicate a warning with a top-right button in review first & last page
- *
- */
-#define RISKY_OPERATION (1 << 6)
-
-/**
- * @brief This is to use in @ref nbgl_operationType_t when the operation is concerned by an internal
- * information. This is used to indicate an info with a top-right button in review first & last page
- *
- */
-#define NO_THREAT_OPERATION (1 << 7)
-
 /**********************
  *      TYPEDEFS
  **********************/
@@ -598,15 +584,22 @@ static void prepareReviewLightLastPage(nbgl_operationType_t       operationType,
                                        const nbgl_icon_details_t *icon,
                                        const char                *finishTitle)
 {
-    infoButton->text        = getFinishTitle(operationType, finishTitle);
-    infoButton->icon        = icon;
-    infoButton->buttonText  = "Approve";
+    infoButton->text = getFinishTitle(operationType, finishTitle);
+    infoButton->icon = icon;
+    if (operationType & ADDRESS_BOOK_OPERATION) {
+        infoButton->buttonText = "Confirm";
+    }
+    else {
+        infoButton->buttonText = "Approve";
+    }
     infoButton->buttonToken = CONFIRM_TOKEN;
 }
 
 static const char *getRejectReviewText(nbgl_operationType_t operationType)
 {
-    UNUSED(operationType);
+    if (operationType & ADDRESS_BOOK_OPERATION) {
+        return "Cancel";
+    }
     return "Reject";
 }
 
@@ -3741,6 +3734,49 @@ void nbgl_useCaseChoiceWithDetails(const nbgl_icon_details_t *icon,
                                    nbgl_genericDetails_t     *details,
                                    nbgl_choiceCallback_t      callback)
 {
+    nbgl_useCaseAdvancedChoiceWithDetails(icon,
+                                          (details != NULL) ? &SEARCH_ICON : NULL,
+                                          message,
+                                          subMessage,
+                                          NULL,
+                                          confirmText,
+                                          cancelText,
+                                          details,
+                                          callback);
+}
+
+/**
+ * @brief Variant of @ref nbgl_useCaseChoiceWithDetails with three content lines and a
+ *        configurable top-right icon.
+ *
+ * Displays a centered-info page with:
+ *  - @p centerIcon  — icon in the center of the page
+ *  - @p title        — bold black text (first line)
+ *  - @p message      — regular black text (second line, can be NULL)
+ *  - @p subMessage   — gray text (third line, can be NULL)
+ *  - @p headerIcon  — icon for the top-right button that opens the @p details modal (can be NULL)
+ *  - Confirm / Cancel buttons at the bottom
+ *
+ * @param centerIcon  icon to set in center of page (can be NULL)
+ * @param headerIcon  icon for the top-right details button (can be NULL — no button shown)
+ * @param title        bold black string displayed first (can be NULL)
+ * @param message      regular black string displayed under title (can be NULL)
+ * @param subMessage   gray string displayed under message (can be NULL)
+ * @param confirmText  string to set in button, to confirm (cannot be NULL)
+ * @param cancelText   string to set in footer, to reject (cannot be NULL)
+ * @param details      details to be displayed when pressing top-right button (can be NULL)
+ * @param callback     callback called when button or footer is touched
+ */
+void nbgl_useCaseAdvancedChoiceWithDetails(const nbgl_icon_details_t *centerIcon,
+                                           const nbgl_icon_details_t *headerIcon,
+                                           const char                *title,
+                                           const char                *message,
+                                           const char                *subMessage,
+                                           const char                *confirmText,
+                                           const char                *cancelText,
+                                           nbgl_warningDetails_t     *details,
+                                           nbgl_choiceCallback_t      callback)
+{
     nbgl_layoutDescription_t   layoutDescription;
     nbgl_layoutChoiceButtons_t buttonsInfo  = {.bottomText = cancelText,
                                                .token      = CHOICE_TOKEN,
@@ -3752,20 +3788,17 @@ void nbgl_useCaseChoiceWithDetails(const nbgl_icon_details_t *icon,
                                                .separationLine    = false,
                                                .emptySpace.height = MEDIUM_CENTERING_HEADER};
 
-    // check params
     if ((confirmText == NULL) || (cancelText == NULL)) {
         return;
     }
 
     reset_callbacks_and_context();
 
-    onChoice                         = callback;
-    layoutDescription.modal          = false;
-    layoutDescription.withLeftBorder = true;
-
-    layoutDescription.onActionCallback = layoutTouchCallback;
-    layoutDescription.tapActionText    = NULL;
-
+    onChoice                                = callback;
+    layoutDescription.modal                 = false;
+    layoutDescription.withLeftBorder        = true;
+    layoutDescription.onActionCallback      = layoutTouchCallback;
+    layoutDescription.tapActionText         = NULL;
     layoutDescription.ticker.tickerCallback = NULL;
     sharedContext.usage                     = SHARE_CTX_CHOICE_WITH_DETAILS;
     choiceWithDetailsCtx.layoutCtx          = nbgl_layoutGet(&layoutDescription);
@@ -3773,14 +3806,15 @@ void nbgl_useCaseChoiceWithDetails(const nbgl_icon_details_t *icon,
 
     nbgl_layoutAddHeader(choiceWithDetailsCtx.layoutCtx, &headerDesc);
     nbgl_layoutAddChoiceButtons(choiceWithDetailsCtx.layoutCtx, &buttonsInfo);
-    centeredInfo.icon        = icon;
-    centeredInfo.title       = message;
-    centeredInfo.description = subMessage;
+    centeredInfo.icon        = centerIcon;
+    centeredInfo.title       = title;
+    centeredInfo.description = message;
+    centeredInfo.subText     = subMessage;
     nbgl_layoutAddContentCenter(choiceWithDetailsCtx.layoutCtx, &centeredInfo);
 
-    if (details != NULL) {
+    if ((details != NULL) && (headerIcon != NULL)) {
         nbgl_layoutAddTopRightButton(
-            choiceWithDetailsCtx.layoutCtx, &SEARCH_ICON, CHOICE_DETAILS_TOKEN, TUNE_TAP_CASUAL);
+            choiceWithDetailsCtx.layoutCtx, headerIcon, CHOICE_DETAILS_TOKEN, TUNE_TAP_CASUAL);
     }
 
     nbgl_layoutDraw(choiceWithDetailsCtx.layoutCtx);

@@ -24,20 +24,6 @@
 #define WITH_HORIZONTAL_CHOICES_LIST
 #define WITH_HORIZONTAL_BARS_LIST
 
-/**
- * @brief This is to use in @ref nbgl_operationType_t when the operation is concerned by an internal
- * warning This is used to indicate a warning with a top-right button in review first & last page
- *
- */
-#define RISKY_OPERATION (1 << 6)
-
-/**
- * @brief This is to use in @ref nbgl_operationType_t when the operation is concerned by an internal
- * information. This is used to indicate an info with a top-right button in review first & last page
- *
- */
-#define NO_THREAT_OPERATION (1 << 7)
-
 /**********************
  *      TYPEDEFS
  **********************/
@@ -1100,7 +1086,8 @@ static void getLastPageInfo(bool approve, const nbgl_icon_details_t **icon, cons
     if (approve) {
         // Approve page
         *icon = &C_icon_validate_14;
-        if (context.type == ADDRESS_REVIEW_USE_CASE) {
+        if ((context.type == ADDRESS_REVIEW_USE_CASE)
+            || (context.operationType & ADDRESS_BOOK_OPERATION)) {
             *text = "Confirm";
         }
         else {
@@ -1142,7 +1129,8 @@ static void getLastPageInfo(bool approve, const nbgl_icon_details_t **icon, cons
     else {
         // Reject page
         *icon = &C_icon_crossmark;
-        if (context.type == ADDRESS_REVIEW_USE_CASE) {
+        if ((context.type == ADDRESS_REVIEW_USE_CASE)
+            || (context.operationType & ADDRESS_BOOK_OPERATION)) {
             *text = "Cancel";
         }
         else if ((context.operationType & REAL_TYPE_MASK) == TYPE_TRANSACTION) {
@@ -3144,6 +3132,26 @@ void nbgl_useCaseChoiceWithDetails(const nbgl_icon_details_t *icon,
 
     displayChoicePage(FORWARD_DIRECTION);
 };
+
+// On Nano, the advanced variant falls back to the basic one:
+// - title     → message  (first text line)
+// - message   → subMessage (second text line; subMessage/gray address is not shown)
+// - headerIcon is ignored (no top-right button on Nano)
+void nbgl_useCaseAdvancedChoiceWithDetails(const nbgl_icon_details_t *centerIcon,
+                                           const nbgl_icon_details_t *headerIcon,
+                                           const char                *title,
+                                           const char                *message,
+                                           const char                *subMessage,
+                                           const char                *confirmText,
+                                           const char                *cancelText,
+                                           nbgl_genericDetails_t     *details,
+                                           nbgl_choiceCallback_t      callback)
+{
+    UNUSED(headerIcon);
+    UNUSED(subMessage);
+    nbgl_useCaseChoiceWithDetails(
+        centerIcon, title, message, confirmText, cancelText, details, callback);
+}
 
 /**
  * @brief Draws a page to confirm or not an action, described in a centered info (with info icon),

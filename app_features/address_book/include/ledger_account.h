@@ -20,6 +20,7 @@
 #include "os_types.h"
 #include "address_book.h"
 #include "bip32.h"
+#include "identity.h"  // IDENTIFIER_MAX_LENGTH
 
 /* Exported defines   --------------------------------------------------------*/
 #define TYPE_REGISTER_LEDGER_ACCOUNT        0x2f
@@ -44,7 +45,10 @@ typedef struct {
  */
 typedef struct {
     ledger_account_t ledger_account;  ///< New account (account_name = new name)
-    char             previous_account_name[ACCOUNT_NAME_LENGTH];  ///< Name being replaced
+    char             old_account_name[ACCOUNT_NAME_LENGTH];  ///< Name being replaced
+    uint8_t          address[IDENTIFIER_MAX_LENGTH];  ///< Raw address derived by the coin app in
+                                                      ///< handle_check_edit_ledger_account()
+    uint8_t address_len;                              ///< Length of address in bytes
 } edit_ledger_account_t;
 
 /* Exported macros------------------------------------------------------------*/
@@ -55,13 +59,3 @@ typedef struct {
 bolos_err_t register_ledger_account(uint8_t *buffer_in, size_t buffer_in_length);
 bolos_err_t edit_ledger_account(uint8_t *buffer_in, size_t buffer_in_length);
 bolos_err_t provide_ledger_account_contact(uint8_t *buffer_in, size_t buffer_in_length);
-
-/**
- * @brief Return a read-only pointer to the parsed Edit Ledger Account data.
- *
- * Valid from the moment edit_ledger_account() has finished parsing until the
- * next call to edit_ledger_account(), which overwrites the static buffer.
- *
- * @return Pointer to the current EDIT_LEDGER_ACCOUNT static (never NULL)
- */
-const edit_ledger_account_t *get_edit_ledger_account(void);

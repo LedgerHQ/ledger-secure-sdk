@@ -44,6 +44,7 @@ A few APIs are available to draw typical Use-Cases, such as:
 - For Individual pages:
  - @ref nbgl_useCaseConfirm() to draw a typical confirmation page, for example when rejecting a transaction (see @subpage use_case_confirm)
  - @ref nbgl_useCaseChoice() to draw a typical dual choice page (see @subpage use_case_choice)
+ - @ref nbgl_useCaseAdvancedChoiceWithDetails() to draw a choice page with an optional details modal (see @subpage use_case_advanced_choice_with_details)
  - @ref nbgl_useCaseStatus() to draw a transient status page, without control, for example when a transaction is successfully signed (see @subpage use_case_status)
  - @ref nbgl_useCaseSpinner() to draw an infinite spinner page (see @subpage use_case_spinner)
 - For most used reviews:
@@ -229,6 +230,54 @@ void onRejectTransaction(void) {
                      "I understand, confirm",
                      "Cancel",
                      onChoice);
+}
+@endcode
+
+@subsection use_case_advanced_choice_with_details Advanced Choice with Details Use Case
+
+A variant of the @ref use_case_choice with an optional *details* modal page, accessible by an extra navigation step.
+The @ref nbgl_useCaseAdvancedChoiceWithDetails() function enables to create such a sequence.
+
+On Nano, the *header_icon* and *subMessage* arguments are ignored (no top-right icon button, and only one text line
+below the title is displayed). When *details* is non-NULL, an additional page is inserted in the navigation to display
+the details content.
+
+The *callback* argument is called when a choice is done. Its argument is a boolean which is *true* upon confirmation,
+else *false*.
+
+Here is an example of usage:
+
+@code
+static void onChoice(bool confirm) {
+  if (confirm) {
+    // confirmed
+  }
+  else {
+    // cancelled
+  }
+}
+
+static const char *detailTexts[]    = {"Address"};
+static const char *detailSubTexts[] = {"0x1234...5678"};
+
+static nbgl_warningDetails_t details = {
+  .title             = "My Ledger Account",
+  .type              = BAR_LIST_WARNING,
+  .barList.nbBars    = 1,
+  .barList.texts     = detailTexts,
+  .barList.subTexts  = detailSubTexts,
+};
+
+void displayAccountConfirm(void) {
+  nbgl_useCaseAdvancedChoiceWithDetails(&C_ethereum_64px,
+                                        NULL,
+                                        "Confirm name?",
+                                        "My Ledger Account",
+                                        NULL,
+                                        "Confirm",
+                                        "Cancel",
+                                        &details,
+                                        onChoice);
 }
 @endcode
 
