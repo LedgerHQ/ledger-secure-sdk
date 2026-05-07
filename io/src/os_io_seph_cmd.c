@@ -18,6 +18,7 @@
 #include "os.h"
 #include "os_io.h"
 #include "os_io_seph_cmd.h"
+#include "seproxyhal_protocol.h"
 
 /* Private enumerations ------------------------------------------------------*/
 
@@ -284,6 +285,16 @@ void os_io_seph_cmd_serialized_nbgl(const uint8_t *buffer, uint16_t length)
     }
 }
 #endif  // HAVE_SERIALIZED_NBGL
+
+void os_io_seph_cmd_send_speculos_text_line(const char *text, size_t length)
+{
+    uint8_t buf[3] = {0};
+    buf[0]         = SEPROXYHAL_TAG_NBGL_SEND_SPECULOS_TEXT_LINE;
+    buf[1]         = length >> 8;
+    buf[2]         = length;
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buf, 3, NULL);
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, (const uint8_t *) text, length, NULL);
+}
 
 #ifdef HAVE_NOR_FLASH
 void os_io_seph_cmd_spi_cs(uint8_t select)
