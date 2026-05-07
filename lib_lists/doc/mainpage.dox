@@ -335,7 +335,7 @@ for (flist_node_t *node = my_flist; node != NULL; node = node->next) {
 }
 @endcode
 
-@subsection list_traversal Doubly-Linked List Traversal (Both Directions)
+@subsection list_traversal_dlist Doubly-Linked List Traversal (Both Directions)
 
 @code{.c}
 // Forward iteration
@@ -619,7 +619,7 @@ printf("Removed %zu minors\n", removed_minors);
 
 **Memory overhead:** 4-8 bytes per node (one pointer)
 
-@subsection list_performance Doubly-Linked List Performance
+@subsection list_performance_dlist Doubly-Linked List Performance
 
 | Operation                 | Time Complexity | Notes                             |
 |---------------------------|-----------------|-----------------------------------|
@@ -670,7 +670,7 @@ printf("Removed %zu minors\n", removed_minors);
 4. **Bubble sort**: The sort implementation is O(n²). For large lists, consider using
    an external sorting algorithm.
 
-@subsection list_limitations Doubly-Linked List Limitations
+@subsection list_limitations_dlist Doubly-Linked List Limitations
 
 1. **Memory overhead**: Uses twice the memory per node compared to forward lists
    (two pointers instead of one).

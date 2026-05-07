@@ -20,7 +20,7 @@
  * @file    lcx_aes_gcm.h
  * @brief   AES in Galois/Counter Mode (AES-GCM)
  *
- * @section Description
+ * @details
  *
  * The Galois/Counter Mode (GCM) is an authenticated encryption algorithm
  * designed to provide both data authenticity (integrity) and confidentiality.
