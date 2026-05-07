@@ -34,8 +34,14 @@
 #include "tlv_library.h"
 #include "bip32.h"
 #include "address_book.h"
+#include "io.h"
+#include "status_words.h"
+#include "nbgl_use_case.h"
 
 #ifdef HAVE_ADDRESS_BOOK
+
+ab_payload_u g_ab_payload = {0};
+ab_ui_t      g_ab_ui      = {0};
 
 /**
  * @brief Generic handler for BIP32 derivation path
@@ -115,7 +121,7 @@ bool address_book_handle_printable_string(const tlv_data_t *data,
                                           size_t            buffer_size)
 {
     // Extract the string (with null terminator added by get_string_from_tlv_data)
-    if (!get_string_from_tlv_data(data, output_buffer, 1, buffer_size - 1)) {
+    if (!get_string_from_tlv_data(data, output_buffer, 1, buffer_size)) {
         PRINTF("String extraction failed\n");
         return false;
     }
@@ -124,6 +130,76 @@ bool address_book_handle_printable_string(const tlv_data_t *data,
         return false;
     }
     return true;
+}
+
+/**
+ * @brief Display a confirmation review for an Address Book operation.
+ *
+ * Uses @ref g_ab_ui.list as the tag/value list (already populated by the caller).
+ * Sets wrapping = true and delegates to @ref nbgl_useCaseReviewLight().
+ *
+ * @param[in] icon            Icon shown on the title page (typically
+ *                            &LARGE_ADDRESS_BOOK_ICON, may be NULL)
+ * @param[in] reviewTitle     Title of the review
+ * @param[in] confirmText     Text shown on the confirmation page
+ * @param[in] choiceCallback  Callback invoked with the user's choice
+ */
+void address_book_display_review(const nbgl_icon_details_t *icon,
+                                 const char                *reviewTitle,
+                                 const char                *confirmText,
+                                 nbgl_choiceCallback_t      choiceCallback)
+{
+    g_ab_ui.list.wrapping = true;
+    // NB: no subtitle for address book reviews, as the content is already quite long
+    // Indicate the flag ADDRESS_BOOK_OPERATION to force wording in review screens
+    nbgl_useCaseReviewLight(TYPE_OPERATION | ADDRESS_BOOK_OPERATION,
+                            &g_ab_ui.list,
+                            icon,
+                            reviewTitle,
+                            NULL,
+                            confirmText,
+                            choiceCallback);
+}
+
+/**
+ * @brief Common handling of a rejected Address Book review.
+ *
+ * Sends @ref SWO_INCORRECT_DATA and displays the standard
+ * @ref STATUS_TYPE_OPERATION_REJECTED status, then invokes @p finalize.
+ *
+ * @param[in] finalize Callback invoked once the status screen is dismissed
+ */
+void address_book_handle_review_rejected(nbgl_callback_t finalize)
+{
+    io_send_sw(SWO_INCORRECT_DATA);
+    nbgl_useCaseReviewStatus(STATUS_TYPE_OPERATION_REJECTED, finalize);
+}
+
+/**
+ * @brief Common handling of a confirmed Address Book review's outcome.
+ *
+ * On success, displays a success status with @p successMsg.
+ * On failure, sends @ref SWO_INCORRECT_DATA and displays an error status
+ * with @p errorMsg. In both cases @p finalize is invoked once the status
+ * screen is dismissed.
+ *
+ * @param[in] success    Result of the operation (e.g. HMAC build & send)
+ * @param[in] successMsg Status message to display on success
+ * @param[in] errorMsg   Status message to display on failure
+ * @param[in] finalize   Callback invoked once the status screen is dismissed
+ */
+void address_book_finalize_review(bool            success,
+                                  const char     *successMsg,
+                                  const char     *errorMsg,
+                                  nbgl_callback_t finalize)
+{
+    if (success) {
+        nbgl_useCaseStatus(successMsg, true, finalize);
+    }
+    else {
+        io_send_sw(SWO_INCORRECT_DATA);
+        nbgl_useCaseStatus(errorMsg, false, finalize);
+    }
 }
 
 #endif  // HAVE_ADDRESS_BOOK

@@ -44,6 +44,7 @@ A few APIs are available to draw typical Use-Cases, such as:
 - for Individual pages:
  - @ref nbgl_useCaseConfirm() to draw a typical confirmation page, for example when rejecting a transaction (see @subpage use_case_confirm)
  - @ref nbgl_useCaseChoice() to draw a typical dual choice page (see @subpage use_case_choice)
+ - @ref nbgl_useCaseAdvancedChoiceWithDetails() to draw a choice page with three content lines, a configurable top-right icon and an optional details modal (see @subpage use_case_advanced_choice_with_details)
  - @ref nbgl_useCaseStatus() to draw a transient status page, without control, for example when a transaction is successfully signed (see @subpage use_case_status)
  - @ref nbgl_useCaseSpinner() to draw an infinite spinner page (see @subpage use_case_spinner)
 - for most used reviews:
@@ -222,6 +223,59 @@ void onRejectTransaction(void) {
                      "Yes, erase",
                      "No, don't erase",
                      onChoice);
+}
+@endcode
+
+@subsection use_case_advanced_choice_with_details Advanced Choice with Details Use Case
+
+\image{inline} html UseCase-AdvancedChoiceWithDetails.png "caption" height=300
+
+A variant of the Choice use-case that displays three content lines and an optional top-right icon button
+that opens a details modal. The @ref nbgl_useCaseAdvancedChoiceWithDetails() function enables to create such a page.
+
+The page layout is:
+- a centered icon (*center_icon*, can be NULL)
+- a bold title (*title*)
+- a regular black message (*message*, can be NULL)
+- a gray sub-message (*subMessage*, can be NULL)
+- a top-right icon button (*header_icon*) that opens the *details* modal — shown only when both *details* and *header_icon* are non-NULL
+- Confirm / Cancel buttons at the bottom
+
+The *callback* argument is called when the button or the footer is touched. Its argument is a boolean which is *true* when the
+Confirm button is touched, *false* when the Cancel footer is touched.
+
+Here is the code to display the example picture
+
+@code
+static void onChoice(bool confirm) {
+  if (confirm) {
+    // confirmed
+  } else {
+    // cancelled
+  }
+}
+
+static const char *detailTexts[]    = {"Address"};
+static const char *detailSubTexts[] = {"0x1234...5678"};
+
+static nbgl_warningDetails_t details = {
+  .title             = "My Ledger Account",
+  .type              = BAR_LIST_WARNING,
+  .barList.nbBars    = 1,
+  .barList.texts     = detailTexts,
+  .barList.subTexts  = detailSubTexts,
+};
+
+void displayAccountConfirm(void) {
+  nbgl_useCaseAdvancedChoiceWithDetails(&C_ethereum_64px,
+                                        &INFO_I_ICON,
+                                        "Confirm name?",
+                                        "My Ledger Account",
+                                        "0x1234...5678",
+                                        "Confirm",
+                                        "Cancel",
+                                        &details,
+                                        onChoice);
 }
 @endcode
 

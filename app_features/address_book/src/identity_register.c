@@ -52,17 +52,6 @@
 
 /* Private types, structures, unions -----------------------------------------*/
 
-// Single persistent state for the Register Identity flow.
-// Lives from register_identity() through the review_choice() callback.
-typedef struct {
-    identity_t identity;
-    // optional "link to existing group" extension:
-    uint8_t group_handle[GROUP_HANDLE_SIZE];
-    uint8_t hmac_proof[CX_SHA256_SIZE];
-    uint8_t gid[GID_SIZE];  ///< GID extracted by pre-UI group-handle verification
-    bool    active;
-} s_register_state_t;
-
 typedef struct {
     s_register_state_t *state;
     TLV_reception_t     received_tags;
@@ -82,8 +71,6 @@ typedef struct {
     X(0x29, TAG_HMAC_PROOF, handle_hmac_proof, ENFORCE_UNIQUE_TAG)
 
 /* Private variables ---------------------------------------------------------*/
-static s_register_state_t         REG          = {0};
-static nbgl_contentTagValueList_t ui_pairsList = {0};
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -344,43 +331,46 @@ static bool build_and_send_response(void)
     uint8_t hmac_rest[CX_SHA256_SIZE]       = {0};
     bool    ok                              = false;
 
-    if (REG.active) {
+    if (g_ab_payload.reg.active) {
         // group_handle and HMAC_PROOF were already verified before the UI — use the
         // pre-extracted GID directly and only compute the new HMAC_REST.
-        if (!address_book_compute_hmac_rest(&REG.identity.bip32_path,
-                                            REG.gid,
-                                            REG.identity.scope,
-                                            REG.identity.identifier,
-                                            REG.identity.identifier_len,
-                                            REG.identity.blockchain_family,
-                                            REG.identity.chain_id,
+        if (!address_book_compute_hmac_rest(&g_ab_payload.reg.identity.bip32_path,
+                                            g_ab_payload.reg.gid,
+                                            g_ab_payload.reg.identity.scope,
+                                            g_ab_payload.reg.identity.identifier,
+                                            g_ab_payload.reg.identity.identifier_len,
+                                            g_ab_payload.reg.identity.blockchain_family,
+                                            g_ab_payload.reg.identity.chain_id,
                                             hmac_rest)) {
             PRINTF("[Register Identity] Error: Failed to compute HMAC_REST for new address\n");
             goto end;
         }
         // Echo back the verified group_handle and hmac_proof; only hmac_rest is new
-        memmove(group_handle, REG.group_handle, GROUP_HANDLE_SIZE);
-        memmove(hmac_proof, REG.hmac_proof, CX_SHA256_SIZE);
+        memmove(group_handle, g_ab_payload.reg.group_handle, GROUP_HANDLE_SIZE);
+        memmove(hmac_proof, g_ab_payload.reg.hmac_proof, CX_SHA256_SIZE);
     }
     else {
-        if (!address_book_generate_group_handle(&REG.identity.bip32_path, group_handle)) {
+        if (!address_book_generate_group_handle(&g_ab_payload.reg.identity.bip32_path,
+                                                group_handle)) {
             PRINTF("[Register Identity] Error: Failed to generate group handle\n");
             goto end;
         }
         // group_handle layout: gid(32) | MAC(K_group, gid)(32) — use only the GID prefix here
         const uint8_t *gid = group_handle;
-        if (!address_book_compute_hmac_proof(
-                &REG.identity.bip32_path, gid, REG.identity.contact_name, hmac_proof)) {
+        if (!address_book_compute_hmac_proof(&g_ab_payload.reg.identity.bip32_path,
+                                             gid,
+                                             g_ab_payload.reg.identity.contact_name,
+                                             hmac_proof)) {
             PRINTF("[Register Identity] Error: Failed to compute HMAC_PROOF\n");
             goto end;
         }
-        if (!address_book_compute_hmac_rest(&REG.identity.bip32_path,
+        if (!address_book_compute_hmac_rest(&g_ab_payload.reg.identity.bip32_path,
                                             gid,
-                                            REG.identity.scope,
-                                            REG.identity.identifier,
-                                            REG.identity.identifier_len,
-                                            REG.identity.blockchain_family,
-                                            REG.identity.chain_id,
+                                            g_ab_payload.reg.identity.scope,
+                                            g_ab_payload.reg.identity.identifier,
+                                            g_ab_payload.reg.identity.identifier_len,
+                                            g_ab_payload.reg.identity.blockchain_family,
+                                            g_ab_payload.reg.identity.chain_id,
                                             hmac_rest)) {
             PRINTF("[Register Identity] Error: Failed to compute HMAC_REST\n");
             goto end;
@@ -403,18 +393,17 @@ end:
 static void review_choice(bool confirm)
 {
     if (confirm) {
-        if (build_and_send_response()) {
-            nbgl_useCaseStatus("Saved to your Contacts", true, finalize_ui_register_identity);
-        }
-        else {
+        bool ok = build_and_send_response();
+        if (!ok) {
             PRINTF("[Register Identity] Error: Failed to build and send HMAC proof\n");
-            io_send_sw(SWO_INCORRECT_DATA);
-            nbgl_useCaseStatus("Error during registration", false, finalize_ui_register_identity);
         }
+        address_book_finalize_review(ok,
+                                     "Saved to your Contacts",
+                                     "Error during registration",
+                                     finalize_ui_register_identity);
     }
     else {
-        io_send_sw(SWO_INCORRECT_DATA);
-        nbgl_useCaseReviewStatus(STATUS_TYPE_OPERATION_REJECTED, finalize_ui_register_identity);
+        address_book_handle_review_rejected(finalize_ui_register_identity);
     }
 }
 
@@ -423,18 +412,13 @@ static void review_choice(bool confirm)
  */
 static void ui_display(void)
 {
-    memset(&ui_pairsList, 0, sizeof(ui_pairsList));
-    ui_pairsList.nbPairs  = 4;  // name + scope + identifier + network
-    ui_pairsList.callback = get_register_identity_tagValue;
-    ui_pairsList.wrapping = true;
-
-    nbgl_useCaseReviewLight(TYPE_OPERATION,
-                            &ui_pairsList,
-                            &LARGE_ADDRESS_BOOK_ICON,
-                            "Review contact details",
-                            NULL,
-                            "Confirm contact details?",
-                            review_choice);
+    memset(&g_ab_ui.list, 0, sizeof(g_ab_ui.list));
+    g_ab_ui.list.nbPairs  = 4;  // name + scope + identifier + network
+    g_ab_ui.list.callback = get_register_identity_tagValue;
+    address_book_display_review(&LARGE_ADDRESS_BOOK_ICON,
+                                "Review contact details",
+                                "Confirm contact details?",
+                                review_choice);
 }
 
 /* Exported functions --------------------------------------------------------*/
@@ -452,10 +436,10 @@ bolos_err_t register_identity(uint8_t *buffer_in, size_t buffer_in_length)
     s_identity_ctx ctx     = {0};
 
     // Init the structure
-    memset(&REG, 0, sizeof(REG));
-    ctx.state = &REG;
+    memset(&g_ab_payload.reg, 0, sizeof(g_ab_payload.reg));
+    ctx.state = &g_ab_payload.reg;
 
-    // Parse using SDK TLV parser — handlers write directly into REG via ctx.state
+    // Parse using SDK TLV parser — handlers write directly into g_ab_payload.reg via ctx.state
     if (!identity_tlv_parser(&payload, &ctx, &ctx.received_tags)) {
         PRINTF("[Register Identity] Failed to parse TLV payload\n");
         return SWO_INCORRECT_DATA;
@@ -469,21 +453,24 @@ bolos_err_t register_identity(uint8_t *buffer_in, size_t buffer_in_length)
     // These are input checks (wallet-supplied data) — failing here returns an error
     // immediately; only internal crypto operations remain post-confirm.
     if (TLV_CHECK_RECEIVED_TAGS(ctx.received_tags, TAG_GROUP_HANDLE)) {
-        REG.active = true;
-        if (!address_book_verify_group_handle(
-                &REG.identity.bip32_path, REG.group_handle, REG.gid)) {
+        g_ab_payload.reg.active = true;
+        if (!address_book_verify_group_handle(&g_ab_payload.reg.identity.bip32_path,
+                                              g_ab_payload.reg.group_handle,
+                                              g_ab_payload.reg.gid)) {
             PRINTF("[Register Identity] Error: Group handle verification failed\n");
             return SWO_SECURITY_CONDITION_NOT_SATISFIED;
         }
-        if (!address_book_verify_hmac_proof(
-                &REG.identity.bip32_path, REG.gid, REG.identity.contact_name, REG.hmac_proof)) {
+        if (!address_book_verify_hmac_proof(&g_ab_payload.reg.identity.bip32_path,
+                                            g_ab_payload.reg.gid,
+                                            g_ab_payload.reg.identity.contact_name,
+                                            g_ab_payload.reg.hmac_proof)) {
             PRINTF("[Register Identity] Error: HMAC_PROOF verification failed\n");
             return SWO_SECURITY_CONDITION_NOT_SATISFIED;
         }
     }
 
     // Check the Identity validity according to the Coin application logic
-    if (!handle_check_register_identity(&REG.identity)) {
+    if (!handle_check_register_identity(&g_ab_payload.reg.identity)) {
         PRINTF("[Register Identity] Error: Identity rejected by coin application\n");
         return SWO_WRONG_PARAMETER_VALUE;
     }

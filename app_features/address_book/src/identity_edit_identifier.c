@@ -25,12 +25,12 @@
  *  1. Receive fully assembled payload (multi-chunk reassembly handled by
  *     address_book.c)
  *  2. Parse TLV payload (contact_name + scope + new_identifier +
- *     previous_identifier + gid + derivation_path +
+ *     old_identifier + gid + derivation_path +
  *     hmac_proof + hmac_rest)
  *  3. Verify HMAC_PROOF over (gid, contact_name)
- *  4. Verify HMAC_REST over (gid, scope, previous_identifier, family[, chain_id])
+ *  4. Verify HMAC_REST over (gid, scope, old_identifier, family[, chain_id])
  *  5. Coin-app notification: handle_check_edit_identifier()
- *  6. Display UI: contact name, previous identifier → new identifier
+ *  6. Display UI: contact name, old identifier → new identifier
  *  7. On confirm: compute new HMAC_REST over (gid, scope, new_identifier,
  *     family[, chain_id]) and send to host
  *
@@ -62,7 +62,7 @@ typedef struct {
     edit_identifier_t *edit;
     TLV_reception_t    received_tags;
     uint8_t            hmac_proof[CX_SHA256_SIZE];  ///< HMAC_PROOF — verifies contact name
-    uint8_t            hmac_rest[CX_SHA256_SIZE];   ///< HMAC_REST — verifies previous identifier
+    uint8_t            hmac_rest[CX_SHA256_SIZE];   ///< HMAC_REST — verifies old identifier
     uint8_t group_handle[GROUP_HANDLE_SIZE];        ///< Group handle from wallet (verified later)
 } s_edit_ctx;
 
@@ -82,8 +82,6 @@ typedef struct {
     X(0x51, TAG_BLOCKCHAIN_FAMILY, handle_blockchain_family, ENFORCE_UNIQUE_TAG)
 
 /* Private variables ---------------------------------------------------------*/
-static edit_identifier_t          EDIT_IDENTIFIER = {0};
-static nbgl_contentTagValueList_t ui_pairsList    = {0};
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -191,8 +189,8 @@ static bool handle_previous_identifier(const tlv_data_t *data, s_edit_ctx *conte
         PRINTF("[Edit Identifier] PREVIOUS_IDENTIFIER: failed to extract\n");
         return false;
     }
-    memmove(context->edit->previous_identifier, buf.ptr, buf.size);
-    context->edit->previous_identifier_len = (uint8_t) buf.size;
+    memmove(context->edit->old_identifier, buf.ptr, buf.size);
+    context->edit->old_identifier_len = (uint8_t) buf.size;
     return true;
 }
 
@@ -334,16 +332,14 @@ static void print_payload(const s_edit_ctx *context)
     UNUSED(context);
     PRINTF("****************************************************************************\n");
     PRINTF("[Edit Identifier] - Retrieved Descriptor:\n");
-    PRINTF("[Edit Identifier] -    Contact name:        %s\n",
-           context->edit->identity.contact_name);
+    PRINTF("[Edit Identifier] -    Contact name:       %s\n", context->edit->identity.contact_name);
     if (context->edit->identity.scope[0] != '\0') {
-        PRINTF("[Edit Identifier] -    Scope:               %s\n", context->edit->identity.scope);
+        PRINTF("[Edit Identifier] -    Scope:              %s\n", context->edit->identity.scope);
     }
-    PRINTF("[Edit Identifier] -    New identifier len:  %d\n",
+    PRINTF("[Edit Identifier] -    New identifier len: %d\n",
            context->edit->identity.identifier_len);
-    PRINTF("[Edit Identifier] -    Prev identifier len: %d\n",
-           context->edit->previous_identifier_len);
-    PRINTF("[Edit Identifier] -    Blockchain family:   %s\n",
+    PRINTF("[Edit Identifier] -    Old identifier len: %d\n", context->edit->old_identifier_len);
+    PRINTF("[Edit Identifier] -    Blockchain family:  %s\n",
            FAMILY_AS_STR(context->edit->identity.blockchain_family));
 }
 
@@ -359,13 +355,13 @@ static bool build_and_send_response(void)
 {
     uint8_t hmac_rest[CX_SHA256_SIZE] = {0};
 
-    if (!address_book_compute_hmac_rest(&EDIT_IDENTIFIER.identity.bip32_path,
-                                        EDIT_IDENTIFIER.identity.gid,
-                                        EDIT_IDENTIFIER.identity.scope,
-                                        EDIT_IDENTIFIER.identity.identifier,
-                                        EDIT_IDENTIFIER.identity.identifier_len,
-                                        EDIT_IDENTIFIER.identity.blockchain_family,
-                                        EDIT_IDENTIFIER.identity.chain_id,
+    if (!address_book_compute_hmac_rest(&g_ab_payload.edit_identifier.identity.bip32_path,
+                                        g_ab_payload.edit_identifier.identity.gid,
+                                        g_ab_payload.edit_identifier.identity.scope,
+                                        g_ab_payload.edit_identifier.identity.identifier,
+                                        g_ab_payload.edit_identifier.identity.identifier_len,
+                                        g_ab_payload.edit_identifier.identity.blockchain_family,
+                                        g_ab_payload.edit_identifier.identity.chain_id,
                                         hmac_rest)) {
         PRINTF("[Edit Identifier] Error: Failed to compute new HMAC_REST\n");
         return false;
@@ -384,24 +380,22 @@ static bool build_and_send_response(void)
 static void review_choice(bool confirm)
 {
     if (confirm) {
-        if (build_and_send_response()) {
-            on_edit_identifier_applied(&EDIT_IDENTIFIER);
-            if (EDIT_IDENTIFIER.identity.blockchain_family == FAMILY_ETHEREUM) {
-                nbgl_useCaseStatus("Address changed", true, finalize_ui_edit_identifier);
-            }
-            else {
-                nbgl_useCaseStatus("Identifier changed", true, finalize_ui_edit_identifier);
-            }
+        bool        ok = build_and_send_response();
+        const char *successMsg
+            = (g_ab_payload.edit_identifier.identity.blockchain_family == FAMILY_BITCOIN)
+                  ? "Identifier changed"
+                  : "Address changed";
+        if (ok) {
+            on_edit_identifier_applied(&g_ab_payload.edit_identifier);
         }
         else {
             PRINTF("[Edit Identifier] Error: Failed to build and send HMAC proof\n");
-            io_send_sw(SWO_INCORRECT_DATA);
-            nbgl_useCaseStatus("Error during update", false, finalize_ui_edit_identifier);
         }
+        address_book_finalize_review(
+            ok, successMsg, "Error during update", finalize_ui_edit_identifier);
     }
     else {
-        io_send_sw(SWO_INCORRECT_DATA);
-        nbgl_useCaseReviewStatus(STATUS_TYPE_OPERATION_REJECTED, finalize_ui_edit_identifier);
+        address_book_handle_review_rejected(finalize_ui_edit_identifier);
     }
 }
 
@@ -410,35 +404,16 @@ static void review_choice(bool confirm)
  */
 static void ui_display(void)
 {
-    memset(&ui_pairsList, 0, sizeof(ui_pairsList));
-    ui_pairsList.nbPairs  = 4;  // name + scope + old identifier + new identifier
-    ui_pairsList.callback = get_edit_identifier_tagValue;
-    ui_pairsList.wrapping = true;
-
-    nbgl_useCaseReviewLight(TYPE_OPERATION,
-                            &ui_pairsList,
-                            &LARGE_ADDRESS_BOOK_ICON,
-                            "Review change to contact details",
-                            NULL,
-                            "Confirm change?",
-                            review_choice);
+    memset(&g_ab_ui.list, 0, sizeof(g_ab_ui.list));
+    g_ab_ui.list.nbPairs  = 4;  // name + scope + old identifier + new identifier
+    g_ab_ui.list.callback = get_edit_identifier_tagValue;
+    address_book_display_review(&LARGE_ADDRESS_BOOK_ICON,
+                                "Review change to contact details",
+                                "Confirm change?",
+                                review_choice);
 }
 
 /* Exported functions --------------------------------------------------------*/
-
-/**
- * @brief Return a read-only pointer to the parsed Edit Identifier data.
- *
- * The returned pointer is valid from the moment edit_identifier() has
- * finished parsing until the next call to edit_identifier(), which
- * overwrites the static buffer.
- *
- * @return Pointer to the current EDIT_IDENTIFIER static (never NULL)
- */
-const edit_identifier_t *get_edit_identifier(void)
-{
-    return &EDIT_IDENTIFIER;
-}
 
 /**
  * @brief Edit the IDENTIFIER of an existing Identity contact.
@@ -453,8 +428,8 @@ bolos_err_t edit_identifier(uint8_t *buffer_in, size_t buffer_in_length)
     s_edit_ctx     ctx     = {0};
 
     // Init the structure
-    ctx.edit = &EDIT_IDENTIFIER;
-    memset(&EDIT_IDENTIFIER, 0, sizeof(EDIT_IDENTIFIER));
+    ctx.edit = &g_ab_payload.edit_identifier;
+    memset(&g_ab_payload.edit_identifier, 0, sizeof(g_ab_payload.edit_identifier));
 
     // Parse using SDK TLV parser
     if (!edit_identifier_tlv_parser(&payload, &ctx, &ctx.received_tags)) {
@@ -467,36 +442,37 @@ bolos_err_t edit_identifier(uint8_t *buffer_in, size_t buffer_in_length)
     print_payload(&ctx);
 
     // Verify the group handle and extract the gid
-    if (!address_book_verify_group_handle(
-            &EDIT_IDENTIFIER.identity.bip32_path, ctx.group_handle, EDIT_IDENTIFIER.identity.gid)) {
+    if (!address_book_verify_group_handle(&g_ab_payload.edit_identifier.identity.bip32_path,
+                                          ctx.group_handle,
+                                          g_ab_payload.edit_identifier.identity.gid)) {
         PRINTF("[Edit Identifier] Group handle verification failed\n");
         return SWO_SECURITY_CONDITION_NOT_SATISFIED;
     }
 
     // Verify that the wallet holds a valid HMAC_PROOF for the contact name
-    if (!address_book_verify_hmac_proof(&EDIT_IDENTIFIER.identity.bip32_path,
-                                        EDIT_IDENTIFIER.identity.gid,
-                                        EDIT_IDENTIFIER.identity.contact_name,
+    if (!address_book_verify_hmac_proof(&g_ab_payload.edit_identifier.identity.bip32_path,
+                                        g_ab_payload.edit_identifier.identity.gid,
+                                        g_ab_payload.edit_identifier.identity.contact_name,
                                         ctx.hmac_proof)) {
         PRINTF("[Edit Identifier] HMAC_PROOF verification failed\n");
         return SWO_SECURITY_CONDITION_NOT_SATISFIED;
     }
 
     // Verify that the wallet holds a valid HMAC_REST for the previous identifier
-    if (!address_book_verify_hmac_rest(&EDIT_IDENTIFIER.identity.bip32_path,
-                                       EDIT_IDENTIFIER.identity.gid,
-                                       EDIT_IDENTIFIER.identity.scope,
-                                       EDIT_IDENTIFIER.previous_identifier,
-                                       EDIT_IDENTIFIER.previous_identifier_len,
-                                       EDIT_IDENTIFIER.identity.blockchain_family,
-                                       EDIT_IDENTIFIER.identity.chain_id,
+    if (!address_book_verify_hmac_rest(&g_ab_payload.edit_identifier.identity.bip32_path,
+                                       g_ab_payload.edit_identifier.identity.gid,
+                                       g_ab_payload.edit_identifier.identity.scope,
+                                       g_ab_payload.edit_identifier.old_identifier,
+                                       g_ab_payload.edit_identifier.old_identifier_len,
+                                       g_ab_payload.edit_identifier.identity.blockchain_family,
+                                       g_ab_payload.edit_identifier.identity.chain_id,
                                        ctx.hmac_rest)) {
         PRINTF("[Edit Identifier] HMAC_REST verification failed\n");
         return SWO_SECURITY_CONDITION_NOT_SATISFIED;
     }
 
     // Notify the coin app so it can validate and store display data
-    if (!handle_check_edit_identifier(&EDIT_IDENTIFIER)) {
+    if (!handle_check_edit_identifier(&g_ab_payload.edit_identifier)) {
         PRINTF("[Edit Identifier] Rejected by coin application\n");
         return SWO_WRONG_PARAMETER_VALUE;
     }
