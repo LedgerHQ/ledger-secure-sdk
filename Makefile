@@ -33,17 +33,17 @@ doc: | $(BUILD_DIR)
 	@echo "HTML doc for '$(TARGET)' can be found in '$(BUILD_DIR)/doc/html/index.html'"
 
 doc-wallet:
-	@$(MAKE) TARGET=stax doc
+	@$(MAKE) --no-print-directory TARGET=stax doc
 
 doc-nano:
-	@$(MAKE) TARGET=nanox doc
+	@$(MAKE) --no-print-directory TARGET=nanox doc
 
 doc-all:
 	@mkdir -p $(DOC_SITE_DIR)
-	@$(MAKE) TARGET=stax doc
+	@$(MAKE) --no-print-directory TARGET=stax doc
 	@mkdir -p $(DOC_SITE_DIR)/wallet
 	@cp -a $(BUILD_DIR)/doc/html/. $(DOC_SITE_DIR)/wallet/
-	@$(MAKE) TARGET=nanox doc
+	@$(MAKE) --no-print-directory TARGET=nanox doc
 	@mkdir -p $(DOC_SITE_DIR)/nano
 	@cp -a $(BUILD_DIR)/doc/html/. $(DOC_SITE_DIR)/nano/
 	@cp doc/landing.html $(DOC_SITE_DIR)/index.html
