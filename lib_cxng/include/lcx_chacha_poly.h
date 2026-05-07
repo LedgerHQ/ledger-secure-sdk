@@ -20,7 +20,7 @@
  * @file    lcx_chacha_poly.h
  * @brief   CHACHA20_POLY1305 Authenticated Encryption with Additional Data (AEAD)
  *
- * @section Description
+ * @details
  *
  * @author  Ledger
  * @version 1.0

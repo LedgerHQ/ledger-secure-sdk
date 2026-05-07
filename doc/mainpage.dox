@@ -13,7 +13,7 @@ or Ledger-managed accounts.
 
 @section ble_presentation BlueTooth Low-Energy Interface
 
-The @subpage ble_mainpage page contains all information necessary to interact with BLE stack.
+This section contains the interfaces necessary to interact with the BLE stack.
 
 @section cxng_presentation Cryptographic Library
 
@@ -27,7 +27,7 @@ The @subpage list_mainpage page contains all information necessary to use the Ge
 
 The @subpage mem_alloc_mainpage page contains all information necessary to interact with Dynamic Memory Allocator.
 
-@section nbgl_presentation Screen drawing API
+@section nbgl_presentation Display & Screen drawing API
 
 The @subpage nbgl_mainpage page contains all information necessary to understand the Graphical Library for
 \b Stax, \b Flex, \b NanoX and \b NanoS+ applications development.
@@ -44,15 +44,15 @@ The @subpage standard_app_mainpage page contains all information necessary to us
 
 @subsection usb_core_presentation USB Core
 
-The @subpage usb_mainpage page contains all information necessary to use the USB Core.
+This section contains all information necessary to use the USB Core.
 
 @subsection usb_impl_presentation USB Classes API
 
-The @subpage usb_impl_mainpage page contains all information necessary to use the USB Classes API.
+This section contains all information necessary to use the USB Classes API.
 
 @subsection u2f_presentation U2F (Universal 2nd Factor) API
 
-The @subpage u2f_mainpage page contains all information necessary to use the U2F API.
+This section contains all information necessary to use the U2F API.
 
 @section ux_presentation User eXperience
 

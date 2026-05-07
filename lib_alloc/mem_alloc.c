@@ -575,8 +575,10 @@ void mem_free(mem_ctx_t ctx, void *ptr)
 /**
  * @brief parse the heap
  *
+ * Iterates over blocks managed by @ref mem_alloc and @ref mem_free.
+ *
  * @param ctx allocator context (returned by @ref mem_init())
- * @param ptr buffer previously allocated with @ref mem_alloc
+ * @param callback callback called for each block while parsing
  * @param data context data, passed to given callback
  */
 void mem_parse(mem_ctx_t ctx, mem_parse_callback_t callback, void *data)
@@ -614,8 +616,10 @@ void mem_parse(mem_ctx_t ctx, mem_parse_callback_t callback, void *data)
  * @brief function used to get statistics (nb chunks, nb allocated chunks, total size)  about the
  * heap
  *
+ * Statistics are computed from the heap used by @ref mem_alloc and @ref mem_free.
+ *
  * @param ctx allocator context (returned by @ref mem_init())
- * @param ptr buffer previously allocated with @ref mem_alloc
+ * @param stat output statistics structure
  */
 void mem_stat(mem_ctx_t *ctx, mem_stat_t *stat)
 {

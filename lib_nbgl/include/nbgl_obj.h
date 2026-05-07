@@ -304,13 +304,11 @@ extern "C" {
  * @brief The different pressed buttons
  *
  */
-#define LEFT_BUTTON   0x01  ///< Left button event
-#define RIGHT_BUTTON  0x02  ///< Right button event
-#define BOTH_BUTTONS  0x03  ///< Both buttons event
-#define RELEASED_MASK 0x80  ///< released (see LSB bits to know what buttons are released)
-#define CONTINUOUS_MASK \
-    0x40  ///< if set, means that the button(s) is continuously pressed (this event is sent every
-          ///< 300ms after the first 800ms)
+#define LEFT_BUTTON     0x01  ///< Left button event
+#define RIGHT_BUTTON    0x02  ///< Right button event
+#define BOTH_BUTTONS    0x03  ///< Both buttons event
+#define RELEASED_MASK   0x80  ///< released (see LSB bits to know what buttons are released)
+#define CONTINUOUS_MASK 0x40  ///< if set, the button(s) is continuously pressed
 
 typedef enum {
     BUTTON_LEFT_PRESSED = 0,          ///< Sent when Left button is released
