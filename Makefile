@@ -18,6 +18,13 @@ NBGL_DEFINES_nano := \
 
 NBGL_DEFINES := $(NBGL_DEFINES_$(TARGET))
 
+# For nano-family targets (nano, nanox, nanosplus, etc.), default to nano defines.
+ifeq ($(strip $(NBGL_DEFINES)),)
+ifneq ($(filter nano%,$(TARGET)),)
+NBGL_DEFINES := $(NBGL_DEFINES_nano)
+endif
+endif
+
 export NBGL_DEFINES
 
 doc: | $(BUILD_DIR)
