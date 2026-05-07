@@ -147,6 +147,8 @@ WARN_UNUSED_RESULT static inline cx_err_t bip32_derive_get_pubkey_256(cx_curve_t
  *
  * @param[in]  path_len        Bip32 path length.
  *
+ * @param[in]  sign_mode       Signature mode flags forwarded to cx_ecdsa_sign.
+ *
  * @param[in]  hashID          Message digest algorithm identifier.
  *
  * @param[in]  hash            Digest of the message to be signed.
@@ -197,6 +199,8 @@ WARN_UNUSED_RESULT cx_err_t bip32_derive_with_seed_ecdsa_sign_hash_256(unsigned 
  * @param[in]  path            Bip32 path to use for derivation.
  *
  * @param[in]  path_len        Bip32 path length.
+ *
+ * @param[in]  sign_mode       Signature mode flags forwarded to cx_ecdsa_sign.
  *
  * @param[in]  hashID          Message digest algorithm identifier.
  *
@@ -257,6 +261,8 @@ WARN_UNUSED_RESULT static inline cx_err_t bip32_derive_ecdsa_sign_hash_256(cx_cu
  * @param[in]  path            Bip32 path to use for derivation.
  *
  * @param[in]  path_len        Bip32 path length.
+ *
+ * @param[in]  sign_mode       Signature mode flags forwarded to cx_ecdsa_sign.
  *
  * @param[in]  hashID          Message digest algorithm identifier.
  *

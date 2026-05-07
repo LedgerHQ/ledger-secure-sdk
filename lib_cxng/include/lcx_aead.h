@@ -20,7 +20,7 @@
  * @file    lcx_aead.h
  * @brief   Authenticated Encryption with Associated Data (AEAD)
  *
- * @section Description
+ * @details
  *
  * Authenticated encryption provides confidentiality for the plaintext
  * and integrity and authenticity checks. Authentication Encryption with

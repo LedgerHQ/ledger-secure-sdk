@@ -129,7 +129,8 @@ Exit code is 0 if no errors detected, 1 if leaks or free errors found.
 
 @subsection mem_alloc_profiling_persistent Persistent Allocations
 
-Persistent allocations are those that are intentionally kept without being freed (@ref mem_buffer_persistent()).
+Persistent allocations are those that are intentionally kept without being freed,
+for example by using @ref APP_MEM_PERMANENT.
 Such buffers will not be reported as leaks.
 
 @code{.c}

@@ -692,7 +692,7 @@ The @ref nbgl_useCaseKeyboard() function enables to create such page, with the f
   - \b title: the page title
   - \b entryBuffer: buffer to store the entered text
   - \b entryMaxLen: maximum length of text
-  - \b mode: initial keyboard mode (@ref MODE_LETTERS, @ref MODE_DIGITS, @ref MODE_SPECIAL, @ref MODE_NONE)
+  - \b mode: initial keyboard mode (@ref MODE_LOWER_LETTERS, @ref MODE_UPPER_LETTERS, @ref MODE_DIGITS_AND_SPECIALS, @ref MODE_NONE)
   - \b lettersOnly: if true, only letter keys and Backspace are shown
   - \b confirmationParams or \b suggestionParams: depending on the type
 - A callback for the back action

@@ -19,7 +19,7 @@
  * @file  lcx_blake3.h
  * @brief BLAKE3 hash function.
  *
- * @section Description
+ * @details
  *
  * BLAKE3 is a cryptographic algorithm which is an evolution of
  * BLAKE2 cryptographic hash function. It provides keyed hashing and
