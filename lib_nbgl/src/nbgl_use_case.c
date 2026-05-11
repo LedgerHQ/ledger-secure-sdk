@@ -1152,9 +1152,13 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
                 p_tagValueList = &pageContent->tagValueConfirm.tagValueList;
             }
             else {
-                // else display it as a TAG_VALUE_LIST
-                pageContent->type = TAG_VALUE_LIST;
-                p_tagValueList    = &pageContent->tagValueList;
+                // else display it as a TAG_VALUE_LIST: preserve list-level
+                // settings (nbMaxLinesForValue, wrapping, smallCaseForValue,
+                // hideEndOfLastLine, token...) so intermediate pages render
+                // identically to the last page
+                pageContent->type         = TAG_VALUE_LIST;
+                pageContent->tagValueList = p_content->content.tagValueConfirm.tagValueList;
+                p_tagValueList            = &pageContent->tagValueList;
             }
             p_tagValueList->nbPairs = nbElementsInPage;
             p_tagValueList->pairs
@@ -2089,17 +2093,26 @@ static uint8_t getNbTagValuesInPage(uint8_t                           nbPairs,
         else {
             value_font = LARGE_MEDIUM_FONT;
         }
-        // value height
-        currentHeight += nbgl_getTextHeightInWidth(
+        // nb lines for value
+        nbLines = nbgl_getTextNbLinesInWidth(
             value_font, pair->value, AVAILABLE_WIDTH, tagValueList->wrapping);
+        // honor list-level nbMaxLinesForValue: when set, the value will be
+        // displayed truncated to that many lines, so account for its
+        // truncated height rather than its full height
+        if ((tagValueList->nbMaxLinesForValue > 0)
+            && (nbLines > tagValueList->nbMaxLinesForValue)) {
+            nbLines = tagValueList->nbMaxLinesForValue;
+            currentHeight += nbLines * nbgl_getFontLineHeight(value_font);
+        }
+        else {
+            currentHeight += nbgl_getTextHeightInWidth(
+                value_font, pair->value, AVAILABLE_WIDTH, tagValueList->wrapping);
+        }
 
         // potential subAlias text
         if ((pair->aliasValue) && (pair->extension->aliasSubName)) {
             currentHeight += TAG_VALUE_INTERVALE + nbgl_getFontLineHeight(SMALL_REGULAR_FONT);
         }
-        // nb lines for value
-        nbLines = nbgl_getTextNbLinesInWidth(
-            value_font, pair->value, AVAILABLE_WIDTH, tagValueList->wrapping);
         if ((currentHeight >= maxUsableHeight) || (nbLines > NB_MAX_LINES_IN_REVIEW)) {
             if (nbPairsInPage == 0) {
                 // Pair too long to fit in a single screen
@@ -2113,17 +2126,19 @@ static uint8_t getNbTagValuesInPage(uint8_t                           nbPairs,
     }
     // if this is a TAG_VALUE_CONFIRM and we have reached the last pairs,
     // let's check if it still fits with a CONFIRMATION button, and if not,
-    // remove the last pair
+    // remove the last pair (but never below 1, otherwise the pagination
+    // loop in getNbPagesForContent would spin forever — the lone oversized
+    // pair must still occupy this page and will be truncated at display time)
     if (hasConfirmationButton && (nbPairsInPage == nbPairs)) {
         maxUsableHeight -= UP_FOOTER_BUTTON_HEIGHT;
-        if (currentHeight > maxUsableHeight) {
+        if ((currentHeight > maxUsableHeight) && (nbPairsInPage > 1)) {
             nbPairsInPage--;
         }
     }
     // do the same with just a details button
     else if (hasDetailsButton) {
         maxUsableHeight -= (SMALL_BUTTON_RADIUS * 2);
-        if (currentHeight > maxUsableHeight) {
+        if ((currentHeight > maxUsableHeight) && (nbPairsInPage > 1)) {
             nbPairsInPage--;
         }
     }
@@ -2274,10 +2289,38 @@ static void prepareAddressConfirmationPages(const char                       *ad
                                             nbgl_content_t                   *secondPageContent)
 {
     nbgl_contentTagValueConfirm_t *tagValueConfirm;
+    uint8_t                        nbAddressChunks;
 
-    addressConfirmationContext.tagValuePairs[0].item  = "Address";
-    addressConfirmationContext.tagValuePairs[0].value = address;
-    addressConfirmationContext.nbPairs                = 1;
+    // Split the address into one or more chunks, each occupying its own page.
+    // Each chunk-pair points into `address` at the chunk's start offset; the
+    // list-level nbMaxLinesForValue (set further down when nbAddressChunks > 1)
+    // bounds the rendered slice to NB_MAX_LINES_IN_REVIEW lines, so successive
+    // chunks visually pick up where the previous left off. forcePageStart on
+    // all but the first chunk ensures each chunk starts a fresh page.
+    nbAddressChunks = nbgl_getTextNbPagesInWidth(
+        LARGE_MEDIUM_FONT, address, NB_MAX_LINES_IN_REVIEW, AVAILABLE_WIDTH);
+    if (nbAddressChunks > ADDR_VERIF_NB_PAIRS) {
+        nbAddressChunks = ADDR_VERIF_NB_PAIRS;
+    }
+    {
+        const char *chunkStart = address;
+        for (uint8_t i = 0; i < nbAddressChunks; i++) {
+            addressConfirmationContext.tagValuePairs[i].item           = "Address";
+            addressConfirmationContext.tagValuePairs[i].value          = chunkStart;
+            addressConfirmationContext.tagValuePairs[i].forcePageStart = (i > 0);
+            if (i + 1 < nbAddressChunks) {
+                uint16_t len = 0;
+                nbgl_getTextMaxLenInNbLines(LARGE_MEDIUM_FONT,
+                                            chunkStart,
+                                            AVAILABLE_WIDTH,
+                                            NB_MAX_LINES_IN_REVIEW,
+                                            &len,
+                                            false);
+                chunkStart += len;
+            }
+        }
+    }
+    addressConfirmationContext.nbPairs = nbAddressChunks;
 
     // First page
     firstPageContent->type = TAG_VALUE_CONFIRM;
@@ -2285,8 +2328,10 @@ static void prepareAddressConfirmationPages(const char                       *ad
 
 #ifdef NBGL_QRCODE
     tagValueConfirm->detailsButtonIcon = &QRCODE_ICON;
-    // only use "Show as QR" when address & pairs are not fitting in a single page
-    if ((tagValueList != NULL) && (tagValueList->nbPairs < ADDR_VERIF_NB_PAIRS)) {
+    // only pack extras on the address page when the address itself fits on a
+    // single page; for multi-chunk addresses, extras go to their own second page
+    if ((tagValueList != NULL) && (nbAddressChunks == 1)
+        && (tagValueList->nbPairs < ADDR_VERIF_NB_PAIRS)) {
         nbgl_contentTagValueList_t tmpList;
         bool                       flag;
         // copy in intermediate structure
@@ -2315,16 +2360,23 @@ static void prepareAddressConfirmationPages(const char                       *ad
     tagValueConfirm->detailsButtonText = NULL;
     tagValueConfirm->detailsButtonIcon = NULL;
 #endif  // NBGL_QRCODE
-    tagValueConfirm->tuneId                          = TUNE_TAP_CASUAL;
-    tagValueConfirm->tagValueList.nbPairs            = addressConfirmationContext.nbPairs;
-    tagValueConfirm->tagValueList.pairs              = addressConfirmationContext.tagValuePairs;
-    tagValueConfirm->tagValueList.smallCaseForValue  = false;
-    tagValueConfirm->tagValueList.nbMaxLinesForValue = 0;
-    tagValueConfirm->tagValueList.wrapping           = false;
-    // if it's an extended address verif, it takes 2 pages, so display a "Tap to continue", and
-    // no confirmation button
-    if ((tagValueList != NULL)
-        && (tagValueList->nbPairs > (addressConfirmationContext.nbPairs - 1))) {
+    tagValueConfirm->tuneId                         = TUNE_TAP_CASUAL;
+    tagValueConfirm->tagValueList.nbPairs           = addressConfirmationContext.nbPairs;
+    tagValueConfirm->tagValueList.pairs             = addressConfirmationContext.tagValuePairs;
+    tagValueConfirm->tagValueList.smallCaseForValue = false;
+    // when the address spans multiple chunks, cap each pair's rendered value
+    // at NB_MAX_LINES_IN_REVIEW lines so each chunk-pair occupies exactly one page
+    tagValueConfirm->tagValueList.nbMaxLinesForValue
+        = (nbAddressChunks > 1) ? NB_MAX_LINES_IN_REVIEW : 0;
+    tagValueConfirm->tagValueList.hideEndOfLastLine = false;
+    tagValueConfirm->tagValueList.wrapping          = false;
+
+    // Number of extras left to place on a second page
+    uint8_t extrasPlaced
+        = (tagValueList != NULL) ? (addressConfirmationContext.nbPairs - nbAddressChunks) : 0;
+    bool extrasNeedSecondPage = (tagValueList != NULL) && (tagValueList->nbPairs > extrasPlaced);
+
+    if (extrasNeedSecondPage) {
         tagValueConfirm->detailsButtonText = "Show as QR";
         tagValueConfirm->confirmationText  = NULL;
         // the second page is dedicated to the extended tag/value pairs
@@ -2336,10 +2388,8 @@ static void prepareAddressConfirmationPages(const char                       *ad
         tagValueConfirm->detailsButtonIcon = NULL;
         tagValueConfirm->tuneId            = TUNE_TAP_CASUAL;
         memcpy(&tagValueConfirm->tagValueList, tagValueList, sizeof(nbgl_contentTagValueList_t));
-        tagValueConfirm->tagValueList.nbPairs
-            = tagValueList->nbPairs - (addressConfirmationContext.nbPairs - 1);
-        tagValueConfirm->tagValueList.pairs
-            = &tagValueList->pairs[addressConfirmationContext.nbPairs - 1];
+        tagValueConfirm->tagValueList.nbPairs = tagValueList->nbPairs - extrasPlaced;
+        tagValueConfirm->tagValueList.pairs   = &tagValueList->pairs[extrasPlaced];
     }
     else {
         // otherwise no tap to continue but a confirmation button
