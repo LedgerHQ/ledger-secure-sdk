@@ -1156,10 +1156,9 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
                 // settings (nbMaxLinesForValue, wrapping, smallCaseForValue,
                 // hideEndOfLastLine, token...) so intermediate pages render
                 // identically to the last page
-                pageContent->type    = TAG_VALUE_LIST;
-                pageContent->tagValueList
-                    = p_content->content.tagValueConfirm.tagValueList;
-                p_tagValueList       = &pageContent->tagValueList;
+                pageContent->type         = TAG_VALUE_LIST;
+                pageContent->tagValueList = p_content->content.tagValueConfirm.tagValueList;
+                p_tagValueList            = &pageContent->tagValueList;
             }
             p_tagValueList->nbPairs = nbElementsInPage;
             p_tagValueList->pairs
@@ -2375,8 +2374,7 @@ static void prepareAddressConfirmationPages(const char                       *ad
     // Number of extras left to place on a second page
     uint8_t extrasPlaced
         = (tagValueList != NULL) ? (addressConfirmationContext.nbPairs - nbAddressChunks) : 0;
-    bool extrasNeedSecondPage
-        = (tagValueList != NULL) && (tagValueList->nbPairs > extrasPlaced);
+    bool extrasNeedSecondPage = (tagValueList != NULL) && (tagValueList->nbPairs > extrasPlaced);
 
     if (extrasNeedSecondPage) {
         tagValueConfirm->detailsButtonText = "Show as QR";
