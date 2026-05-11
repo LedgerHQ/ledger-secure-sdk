@@ -2298,36 +2298,28 @@ static void prepareAddressConfirmationPages(const char                       *ad
     // bounds the rendered slice to NB_MAX_LINES_IN_REVIEW lines, so successive
     // chunks visually pick up where the previous left off. forcePageStart on
     // all but the first chunk ensures each chunk starts a fresh page.
+    nbAddressChunks = nbgl_getTextNbPagesInWidth(
+        LARGE_MEDIUM_FONT, address, NB_MAX_LINES_IN_REVIEW, AVAILABLE_WIDTH);
+    if (nbAddressChunks > ADDR_VERIF_NB_PAIRS) {
+        nbAddressChunks = ADDR_VERIF_NB_PAIRS;
+    }
     {
         const char *chunkStart = address;
-        uint8_t     i          = 0;
-        do {
-            uint16_t chunkLines = nbgl_getTextNbLinesInWidth(
-                LARGE_MEDIUM_FONT, chunkStart, AVAILABLE_WIDTH, false);
+        for (uint8_t i = 0; i < nbAddressChunks; i++) {
             addressConfirmationContext.tagValuePairs[i].item           = "Address";
             addressConfirmationContext.tagValuePairs[i].value          = chunkStart;
-            addressConfirmationContext.tagValuePairs[i].forcePageStart = (i > 0) ? 1 : 0;
-            addressConfirmationContext.tagValuePairs[i].centeredInfo   = 0;
-            addressConfirmationContext.tagValuePairs[i].aliasValue     = 0;
-            i++;
-            if (chunkLines <= NB_MAX_LINES_IN_REVIEW) {
-                break;
+            addressConfirmationContext.tagValuePairs[i].forcePageStart = (i > 0);
+            if (i + 1 < nbAddressChunks) {
+                uint16_t len = 0;
+                nbgl_getTextMaxLenInNbLines(LARGE_MEDIUM_FONT,
+                                            chunkStart,
+                                            AVAILABLE_WIDTH,
+                                            NB_MAX_LINES_IN_REVIEW,
+                                            &len,
+                                            false);
+                chunkStart += len;
             }
-            // there is still content beyond this chunk: compute the next start offset
-            uint16_t len = 0;
-            nbgl_getTextMaxLenInNbLines(LARGE_MEDIUM_FONT,
-                                        chunkStart,
-                                        AVAILABLE_WIDTH,
-                                        NB_MAX_LINES_IN_REVIEW,
-                                        &len,
-                                        false);
-            if (len == 0) {
-                // safety net: should not happen for non-empty text
-                break;
-            }
-            chunkStart += len;
-        } while (i < ADDR_VERIF_NB_PAIRS);
-        nbAddressChunks = i;
+        }
     }
     addressConfirmationContext.nbPairs = nbAddressChunks;
 
