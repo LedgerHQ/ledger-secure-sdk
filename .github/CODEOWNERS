@@ -1,0 +1,10 @@
+# fallback owners
+* @LedgerHQ/embedded-apps
+
+# OS owned components
+/lib_nfc/                           @LedgerHQ/embedded-os
+/lib_cxng/                          @LedgerHQ/embedded-os
+/io/                                @LedgerHQ/embedded-os
+/io_legacy/                         @LedgerHQ/embedded-os
+/lib_blewbxx*/                      @LedgerHQ/embedded-os
+/lib_stusb*/                        @LedgerHQ/embedded-os
