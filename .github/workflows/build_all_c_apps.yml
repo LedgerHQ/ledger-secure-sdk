@@ -28,7 +28,51 @@ jobs:
         id: get_c_apps
         run: |
           python .github/workflows/scripts/get_c_apps.py ${{ secrets.GITHUB_TOKEN }}
-          echo "c_apps=$(cat c_apps.json)" >> $GITHUB_OUTPUT
+          python - <<'PY'
+          import json
+
+          REQUIRED_APPS = [
+            "app-bitcoin-new",
+            "app-ethereum",
+            "app-solana",
+            "app-exchange",
+          ]
+          MAX_APPS = 10
+
+          with open("c_apps.json", "r", encoding="utf-8") as f:
+            all_apps = json.load(f)
+
+          if not isinstance(all_apps, list):
+            raise SystemExit("Expected c_apps.json to contain a JSON array")
+
+          by_name = {app.get("app-name"): app for app in all_apps if isinstance(app, dict)}
+          selected = []
+          missing_required = []
+
+          for app_name in REQUIRED_APPS:
+            app = by_name.get(app_name)
+            if app is None:
+              missing_required.append(app_name)
+            else:
+              selected.append(app)
+
+          if missing_required:
+            raise SystemExit(
+              "Missing required apps in matrix source: " + ", ".join(missing_required)
+            )
+
+          for app in all_apps:
+            if len(selected) >= MAX_APPS:
+              break
+            app_name = app.get("app-name") if isinstance(app, dict) else None
+            if app_name in REQUIRED_APPS:
+              continue
+            selected.append(app)
+
+          with open("c_apps_limited.json", "w", encoding="utf-8") as f:
+            json.dump(selected, f)
+          PY
+          echo "c_apps=$(cat c_apps_limited.json)" >> $GITHUB_OUTPUT
 
   print-matrix:
     needs: [prepare-matrix]
