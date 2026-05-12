@@ -106,7 +106,7 @@ jobs:
       - name: Build App for Nano X
         if: contains(matrix.apps.devices, 'nanox')
         run: |
-          cd $GITHUB_WORKSPACE/sdk && git status && cd -
+          cd $GITHUB_WORKSPACE/sdk && git --no-pager log -1 && cd -
           cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
           echo "Building for Nano X"
           make clean
@@ -114,7 +114,7 @@ jobs:
       - name: Build App for Nano S+
         if: contains(matrix.apps.devices, 'nanos+')
         run: |
-          cd $GITHUB_WORKSPACE/sdk && git status && cd -
+          cd $GITHUB_WORKSPACE/sdk && git --no-pager log -1 && cd -
           cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
           echo "Building for Nano S+"
           make clean
@@ -122,7 +122,7 @@ jobs:
       - name: Build App for Stax
         if: contains(matrix.apps.devices, 'stax')
         run: |
-          cd $GITHUB_WORKSPACE/sdk && git status && cd -
+          cd $GITHUB_WORKSPACE/sdk && git --no-pager log -1 && cd -
           cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
           echo "Building for Stax"
           make clean
@@ -130,7 +130,7 @@ jobs:
       - name: Build App for Flex
         if: contains(matrix.apps.devices, 'flex')
         run: |
-          cd $GITHUB_WORKSPACE/sdk && git status && cd -
+          cd $GITHUB_WORKSPACE/sdk && git --no-pager log -1 && cd -
           cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
           echo "Building for Flex"
           make clean
@@ -138,7 +138,7 @@ jobs:
       - name: Build App for Apex+
         if: contains(matrix.apps.devices, 'apex_p')
         run: |
-          cd $GITHUB_WORKSPACE/sdk && git status && cd -
+          cd $GITHUB_WORKSPACE/sdk && git --no-pager log -1 && cd -
           cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
           echo "Building for Apex+"
           make clean
