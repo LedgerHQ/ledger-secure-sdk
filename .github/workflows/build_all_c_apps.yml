@@ -45,9 +45,12 @@ jobs:
       fail-fast: false
       matrix:
         apps: ${{ fromJSON(needs.prepare-matrix.outputs.c_apps) }}
+        builder_image:
+          - ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
+          - ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-clang21-testing:latest
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
+      image: ${{ matrix.builder_image }}
 
     steps:
       - name: Clone App
@@ -60,7 +63,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: sdk
-          ref: ${{ inputs.sdk_branch || github.head_ref }}
+          ref: ${{ inputs.sdk_branch || (matrix.builder_image == 'ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-clang21-testing:latest' && 'mbr/poc-stack-protection' || github.head_ref) }}
 
       - name: Install prerequisites
         run: pip install --break-system-packages ledgered
@@ -68,6 +71,7 @@ jobs:
       - name: Build App for Nano X
         if: contains(matrix.apps.devices, 'nanox')
         run: |
+          cd $GITHUB_WORKSPACE/sdk && git status && cd -
           cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
           echo "Building for Nano X"
           make clean
@@ -75,6 +79,7 @@ jobs:
       - name: Build App for Nano S+
         if: contains(matrix.apps.devices, 'nanos+')
         run: |
+          cd $GITHUB_WORKSPACE/sdk && git status && cd -
           cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
           echo "Building for Nano S+"
           make clean
@@ -82,6 +87,7 @@ jobs:
       - name: Build App for Stax
         if: contains(matrix.apps.devices, 'stax')
         run: |
+          cd $GITHUB_WORKSPACE/sdk && git status && cd -
           cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
           echo "Building for Stax"
           make clean
@@ -89,6 +95,7 @@ jobs:
       - name: Build App for Flex
         if: contains(matrix.apps.devices, 'flex')
         run: |
+          cd $GITHUB_WORKSPACE/sdk && git status && cd -
           cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
           echo "Building for Flex"
           make clean
@@ -96,6 +103,7 @@ jobs:
       - name: Build App for Apex+
         if: contains(matrix.apps.devices, 'apex_p')
         run: |
+          cd $GITHUB_WORKSPACE/sdk && git status && cd -
           cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
           echo "Building for Apex+"
           make clean
