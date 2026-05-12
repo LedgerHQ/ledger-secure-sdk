@@ -37,7 +37,6 @@ jobs:
             "app-solana",
             "app-exchange",
           ]
-          MAX_APPS = 10
 
           with open("c_apps.json", "r", encoding="utf-8") as f:
             all_apps = json.load(f)
@@ -60,14 +59,6 @@ jobs:
             raise SystemExit(
               "Missing required apps in matrix source: " + ", ".join(missing_required)
             )
-
-          for app in all_apps:
-            if len(selected) >= MAX_APPS:
-              break
-            app_name = app.get("app-name") if isinstance(app, dict) else None
-            if app_name in REQUIRED_APPS:
-              continue
-            selected.append(app)
 
           with open("c_apps_limited.json", "w", encoding="utf-8") as f:
             json.dump(selected, f)
