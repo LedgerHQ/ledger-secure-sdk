@@ -80,12 +80,16 @@ jobs:
       fail-fast: false
       matrix:
         apps: ${{ fromJSON(needs.prepare-matrix.outputs.c_apps) }}
-        builder_image:
-          - ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
-          - ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-clang21-testing:latest
+        builder:
+          - name: gcc-latest
+            image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
+            sdk_ref: API_LEVEL_26
+          - name: clang21-testing
+            image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-clang21-testing:latest
+            sdk_ref: mbr/stack-protection
     runs-on: ubuntu-latest
     container:
-      image: ${{ matrix.builder_image }}
+      image: ${{ matrix.builder.image }}
 
     steps:
       - name: Clone App
@@ -98,7 +102,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: sdk
-          ref: ${{ inputs.sdk_branch || (matrix.builder_image == 'ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest' && 'API_LEVEL_26' || matrix.builder_image == 'ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-clang21-testing:latest' && 'mbr/stack-protection' || github.head_ref) }}
+          ref: ${{ matrix.builder.sdk_ref }}
 
       - name: Install prerequisites
         run: pip install --break-system-packages ledgered
@@ -111,6 +115,13 @@ jobs:
           echo "Building for Nano X"
           make clean
           make TARGET=nanox BOLOS_SDK=$GITHUB_WORKSPACE/sdk
+      - name: Upload Nano X ELF
+        if: contains(matrix.apps.devices, 'nanox')
+        uses: actions/upload-artifact@v4
+        with:
+          name: elf-${{ matrix.apps.app-name }}-nanox-${{ matrix.builder.name }}
+          path: ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/**/*.elf
+          if-no-files-found: error
       - name: Build App for Nano S+
         if: contains(matrix.apps.devices, 'nanos+')
         run: |
@@ -119,6 +130,13 @@ jobs:
           echo "Building for Nano S+"
           make clean
           make TARGET=nanos2 BOLOS_SDK=$GITHUB_WORKSPACE/sdk
+      - name: Upload Nano S+ ELF
+        if: contains(matrix.apps.devices, 'nanos+')
+        uses: actions/upload-artifact@v4
+        with:
+          name: elf-${{ matrix.apps.app-name }}-nanos2-${{ matrix.builder.name }}
+          path: ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/**/*.elf
+          if-no-files-found: error
       - name: Build App for Stax
         if: contains(matrix.apps.devices, 'stax')
         run: |
@@ -127,6 +145,13 @@ jobs:
           echo "Building for Stax"
           make clean
           make TARGET=stax BOLOS_SDK=$GITHUB_WORKSPACE/sdk
+      - name: Upload Stax ELF
+        if: contains(matrix.apps.devices, 'stax')
+        uses: actions/upload-artifact@v4
+        with:
+          name: elf-${{ matrix.apps.app-name }}-stax-${{ matrix.builder.name }}
+          path: ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/**/*.elf
+          if-no-files-found: error
       - name: Build App for Flex
         if: contains(matrix.apps.devices, 'flex')
         run: |
@@ -135,6 +160,13 @@ jobs:
           echo "Building for Flex"
           make clean
           make TARGET=flex BOLOS_SDK=$GITHUB_WORKSPACE/sdk
+      - name: Upload Flex ELF
+        if: contains(matrix.apps.devices, 'flex')
+        uses: actions/upload-artifact@v4
+        with:
+          name: elf-${{ matrix.apps.app-name }}-flex-${{ matrix.builder.name }}
+          path: ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/**/*.elf
+          if-no-files-found: error
       - name: Build App for Apex+
         if: contains(matrix.apps.devices, 'apex_p')
         run: |
@@ -143,3 +175,10 @@ jobs:
           echo "Building for Apex+"
           make clean
           make TARGET=apex_p BOLOS_SDK=$GITHUB_WORKSPACE/sdk
+      - name: Upload Apex+ ELF
+        if: contains(matrix.apps.devices, 'apex_p')
+        uses: actions/upload-artifact@v4
+        with:
+          name: elf-${{ matrix.apps.app-name }}-apex_p-${{ matrix.builder.name }}
+          path: ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/**/*.elf
+          if-no-files-found: error
