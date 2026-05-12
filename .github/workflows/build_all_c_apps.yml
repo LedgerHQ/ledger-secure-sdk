@@ -98,7 +98,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: sdk
-          ref: ${{ inputs.sdk_branch || (matrix.builder_image == 'ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-clang21-testing:latest' && 'mbr/poc-stack-protection' || github.head_ref) }}
+          ref: ${{ inputs.sdk_branch || (matrix.builder_image == 'ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest' && 'API_LEVEL_26' || matrix.builder_image == 'ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-clang21-testing:latest' && 'mbr/stack-protection' || github.head_ref) }}
 
       - name: Install prerequisites
         run: pip install --break-system-packages ledgered
