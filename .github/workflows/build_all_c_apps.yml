@@ -81,7 +81,7 @@ jobs:
       matrix:
         apps: ${{ fromJSON(needs.prepare-matrix.outputs.c_apps) }}
         builder:
-          - name: gcc-latest
+          - name: app-builder-latest
             image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
             sdk_ref: API_LEVEL_26
           - name: clang21-testing
@@ -120,7 +120,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: elf-${{ matrix.apps.app-name }}-nanox-${{ matrix.builder.name }}
-          path: ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/**/*.elf
+          path: ${{ matrix.apps.app-name }}/**/*.elf
           if-no-files-found: error
       - name: Build App for Nano S+
         if: contains(matrix.apps.devices, 'nanos+')
@@ -135,7 +135,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: elf-${{ matrix.apps.app-name }}-nanos2-${{ matrix.builder.name }}
-          path: ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/**/*.elf
+          path: ${{ matrix.apps.app-name }}/**/*.elf
           if-no-files-found: error
       - name: Build App for Stax
         if: contains(matrix.apps.devices, 'stax')
@@ -150,7 +150,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: elf-${{ matrix.apps.app-name }}-stax-${{ matrix.builder.name }}
-          path: ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/**/*.elf
+          path: ${{ matrix.apps.app-name }}/**/*.elf
           if-no-files-found: error
       - name: Build App for Flex
         if: contains(matrix.apps.devices, 'flex')
@@ -165,7 +165,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: elf-${{ matrix.apps.app-name }}-flex-${{ matrix.builder.name }}
-          path: ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/**/*.elf
+          path: ${{ matrix.apps.app-name }}/**/*.elf
           if-no-files-found: error
       - name: Build App for Apex+
         if: contains(matrix.apps.devices, 'apex_p')
@@ -180,5 +180,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: elf-${{ matrix.apps.app-name }}-apex_p-${{ matrix.builder.name }}
-          path: ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}/**/*.elf
+          path: ${{ matrix.apps.app-name }}/**/*.elf
           if-no-files-found: error
