@@ -120,7 +120,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: elf-${{ matrix.apps.app-name }}-nanox-${{ matrix.builder.name }}
-          path: ${{ matrix.apps.app-name }}/**/*.elf
+          path: ${{ matrix.apps.app-name }}/build
       - name: Build App for Nano S+
         if: contains(matrix.apps.devices, 'nanos+')
         run: |
@@ -134,7 +134,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: elf-${{ matrix.apps.app-name }}-nanos2-${{ matrix.builder.name }}
-          path: ${{ matrix.apps.app-name }}/**/*.elf
+          path: ${{ matrix.apps.app-name }}/build
       - name: Build App for Stax
         if: contains(matrix.apps.devices, 'stax')
         run: |
@@ -148,7 +148,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: elf-${{ matrix.apps.app-name }}-stax-${{ matrix.builder.name }}
-          path: ${{ matrix.apps.app-name }}/**/*.elf
+          path: ${{ matrix.apps.app-name }}/build
       - name: Build App for Flex
         if: contains(matrix.apps.devices, 'flex')
         run: |
@@ -162,7 +162,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: elf-${{ matrix.apps.app-name }}-flex-${{ matrix.builder.name }}
-          path: ${{ matrix.apps.app-name }}/**/*.elf
+          path: ${{ matrix.apps.app-name }}/build
       - name: Build App for Apex+
         if: contains(matrix.apps.devices, 'apex_p')
         run: |
@@ -176,22 +176,70 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: elf-${{ matrix.apps.app-name }}-apex_p-${{ matrix.builder.name }}
-          path: ${{ matrix.apps.app-name }}/**/*.elf
+          path: ${{ matrix.apps.app-name }}/build
 
   merge-artifacts:
     name: Merge artifacts
     runs-on: ubuntu-latest
+    needs: [test-build]
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          name: elf-*-*-*
+          pattern: elf-*-*-*
+          path: downloaded_artifacts
+
+      - name: install dependencies
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends tree
       - name: Merge into single zip
         run: |
-          mkdir merged_artifacts
-          for artifact in *.zip; do
-            unzip -o "$artifact" -d "merged_artifacts/${artifact%.zip}"
+          echo "Listing downloaded artifacts tree"
+          tree downloaded_artifacts
+
+          mkdir -p merged_artifacts
+          shopt -s nullglob
+
+          for artifact_dir in downloaded_artifacts/elf-*-*-*; do
+            artifact_name=$(basename "$artifact_dir")
+
+            builder=""
+            for b in app-builder-latest clang21-testing; do
+              if [[ "$artifact_name" == *-"$b" ]]; then
+                builder="$b"
+                break
+              fi
+            done
+            if [[ -z "$builder" ]]; then
+              echo "Skipping unknown artifact format: $artifact_name"
+              continue
+            fi
+
+            no_prefix="${artifact_name#elf-}"
+            no_builder="${no_prefix%-${builder}}"
+
+            target=""
+            for t in nanox nanos2 stax flex apex_p; do
+              if [[ "$no_builder" == *-"$t" ]]; then
+                target="$t"
+                break
+              fi
+            done
+            if [[ -z "$target" ]]; then
+              echo "Skipping unknown target in artifact: $artifact_name"
+              continue
+            fi
+
+            app_name="${no_builder%-${target}}"
+            app_name="${app_name%-}"
+
+            dest="merged_artifacts/${app_name}/${builder}/${target}"
+            mkdir -p "$dest"
+            cp -a "$artifact_dir"/. "$dest"/
           done
+
+          echo "Merged tree:"
+          tree merged_artifacts
+
           cd merged_artifacts && zip -r ../all_builds.zip .
       - name: Upload merged artifacts
         uses: actions/upload-artifact@v4
@@ -218,23 +266,95 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          name: elf-*-*-*
+          pattern: elf-*-*-*
+          path: downloaded_artifacts
       - name: install apt dependencies
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends binutils tree
 
       - name: Compare .text section sizes
         run: |
-          for artifact in *.zip; do
-            unzip -o "$artifact" -d "${artifact%.zip}"
-          done
-          echo "App name, Target, Builder, .text size (bytes)" > build_sizes.md
-          for elf in */**/*.elf; do
-            app_name=$(echo "$elf" | cut -d'/' -f1)
-            target=$(echo "$elf" | cut -d'/' -f2)
-            builder=$(echo "$elf" | cut -d'/' -f3)
-            text_size=$(size -A "$elf" | grep " .text " | awk '{print $2}')
-            echo "$app_name, $target, $builder, $text_size" >> build_sizes.md
-          done
+          python3 - <<'PY'
+          import pathlib
+          import re
+          import subprocess
+
+          artifacts_root = pathlib.Path("downloaded_artifacts")
+          target_pattern = "nanox|nanos2|stax|flex|apex_p"
+          name_re = re.compile(rf"^elf-(?P<app>.+)-(?P<target>{target_pattern})-(?P<builder>.+)$")
+
+          # (app, target) -> {builder: text_size}
+          rows = {}
+
+          for artifact_dir in sorted(artifacts_root.glob("elf-*-*-*")):
+              if not artifact_dir.is_dir():
+                  continue
+
+              m = name_re.match(artifact_dir.name)
+              if not m:
+                  continue
+
+              app = m.group("app")
+              target = m.group("target")
+              builder = m.group("builder")
+
+              elf_files = sorted(artifact_dir.rglob("*.elf"))
+              if not elf_files:
+                  continue
+
+              # One artifact is expected to contain one final ELF. If there are many,
+              # keep the first one in lexical order for stable results.
+              elf = elf_files[0]
+              out = subprocess.check_output(["size", "-A", str(elf)], text=True)
+
+              text_size = None
+              for line in out.splitlines():
+                  cols = line.split()
+                  if len(cols) >= 2 and cols[0] == ".text":
+                      text_size = int(cols[1])
+                      break
+              if text_size is None:
+                  continue
+
+              rows.setdefault((app, target), {})[builder] = text_size
+
+          preferred = ["app-builder-latest", "clang21-testing"]
+          builders = []
+          seen = set()
+          for b in preferred:
+              for data in rows.values():
+                  if b in data and b not in seen:
+                      builders.append(b)
+                      seen.add(b)
+          for data in rows.values():
+              for b in sorted(data):
+                  if b not in seen:
+                      builders.append(b)
+                      seen.add(b)
+
+          header = ["App name", "Target"] + [f"{b} .text size" for b in builders]
+          header.append("Size difference")
+
+          md_lines = [
+              "| " + " | ".join(header) + " |",
+              "| " + " | ".join(["---"] * len(header)) + " |",
+          ]
+
+          for app, target in sorted(rows):
+              data = rows[(app, target)]
+              values = [data.get(b) for b in builders]
+
+              diff = "N/A"
+              if "app-builder-latest" in data and "clang21-testing" in data:
+                  base = data["app-builder-latest"]
+                  other = data["clang21-testing"]
+                  delta = other - base
+                  diff = f"{delta:+d} bytes"
+
+              row = [app, target] + [str(v) if v is not None else "N/A" for v in values] + [diff]
+              md_lines.append("| " + " | ".join(row) + " |")
+
+          pathlib.Path("build_sizes.md").write_text("\n".join(md_lines) + "\n", encoding="utf-8")
+          PY
           cat build_sizes.md
 
       - name: Upload comparison results
