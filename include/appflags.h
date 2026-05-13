@@ -7,6 +7,12 @@
 #define APPLICATION_FLAG_DERIVE_MASTER 0x10
 
 /**
+ * If the application is loaded by a trusted issuer, it can be loaded in onboarding phase
+ * (using recovery mode), without being deleted when the device boots in normal mode.
+ */
+#define APPLICATION_FLAG_PRELOADED 0x20
+
+/**
  * Application is allowed to ask user pin.
  */
 #define APPLICATION_FLAG_GLOBAL_PIN 0x40
