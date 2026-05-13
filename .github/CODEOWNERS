@@ -1,44 +1,17 @@
 # fallback owners
-* @LedgerHQ/embedded-os @LedgerHQ/embedded-apps
+* @LedgerHQ/embedded-apps @LedgerHQ/embedded-os
 
-# top folders specific owners
-/.github/            @LedgerHQ/embedded-apps
-/arch/               @LedgerHQ/embedded-apps
-/doc/                @LedgerHQ/embedded-apps
-/include/            @LedgerHQ/embedded-os
-/tests/              @LedgerHQ/embedded-os
-/unit-tests/         @LedgerHQ/embedded-os
+# top-level directories
+/.github/ISSUE_TEMPLATE/            @LedgerHQ/embedded-apps
+/.github/workflows/                 @LedgerHQ/embedded-apps
+/.github/pull_request_template.md   @LedgerHQ/embedded-apps
+/arch/                              @LedgerHQ/embedded-apps
 
 # sdk components specific owners
-/app_features/       @LedgerHQ/embedded-os
-/fuzzing/            @LedgerHQ/embedded-os
-/lib_alloc/          @LedgerHQ/embedded-os
-/lib_bagl/           @LedgerHQ/embedded-os
-/lib_blewbxx/        @LedgerHQ/embedded-os
-/lib_blewbxx_impl/   @LedgerHQ/embedded-os
-/lib_ccid/           @LedgerHQ/embedded-os
-/lib_cxng/           @LedgerHQ/embedded-os
-/lib_lists/          @LedgerHQ/embedded-os
-/lib_nbgl/           @LedgerHQ/embedded-os
-/lib_nfc/            @LedgerHQ/embedded-os
-/lib_pki/            @LedgerHQ/embedded-apps
-/lib_stusb/          @LedgerHQ/embedded-os
-/lib_stusb_impl/     @LedgerHQ/embedded-os
-/lib_tlv/            @LedgerHQ/embedded-apps
-/lib_u2f_legacy/     @LedgerHQ/embedded-os
-/lib_ux/             @LedgerHQ/embedded-os
-/lib_ux_nbgl/        @LedgerHQ/embedded-os
-/protocol/           @LedgerHQ/embedded-os
-/qrcode/             @LedgerHQ/embedded-os
-
-# source files specific owners
-/src/app_metadata.c                   @LedgerHQ/embedded-apps
-/src/cx_hash_iovec.c                  @LedgerHQ/embedded-apps
-/src/cx_stubs.S                       @LedgerHQ/embedded-os
-/src/cx_wrappers.c                    @LedgerHQ/embedded-apps
-/src/ledger_assert.c                  @LedgerHQ/embedded-apps
-/src/nbgl_stubs.S                     @LedgerHQ/embedded-os
-/src/pic.c                            @LedgerHQ/embedded-os
-/src/svc_call.s                       @LedgerHQ/embedded-os
-/src/svc_cx_call.s                    @LedgerHQ/embedded-os
-/src/syscalls.c                       @LedgerHQ/embedded-os
+/app_features/                      @LedgerHQ/embedded-apps
+/lib_tlv/                           @LedgerHQ/embedded-apps
+/lib_alloc/                         @LedgerHQ/embedded-apps
+/lib_lists/                         @LedgerHQ/embedded-apps
+/lib_nfc/                           @LedgerHQ/embedded-os
+/lib_pki/                           @LedgerHQ/embedded-apps
+/lib_ux/                            @LedgerHQ/embedded-apps
