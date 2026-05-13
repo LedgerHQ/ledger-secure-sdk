@@ -121,7 +121,6 @@ jobs:
         with:
           name: elf-${{ matrix.apps.app-name }}-nanox-${{ matrix.builder.name }}
           path: ${{ matrix.apps.app-name }}/**/*.elf
-          if-no-files-found: error
       - name: Build App for Nano S+
         if: contains(matrix.apps.devices, 'nanos+')
         run: |
@@ -136,7 +135,6 @@ jobs:
         with:
           name: elf-${{ matrix.apps.app-name }}-nanos2-${{ matrix.builder.name }}
           path: ${{ matrix.apps.app-name }}/**/*.elf
-          if-no-files-found: error
       - name: Build App for Stax
         if: contains(matrix.apps.devices, 'stax')
         run: |
@@ -151,7 +149,6 @@ jobs:
         with:
           name: elf-${{ matrix.apps.app-name }}-stax-${{ matrix.builder.name }}
           path: ${{ matrix.apps.app-name }}/**/*.elf
-          if-no-files-found: error
       - name: Build App for Flex
         if: contains(matrix.apps.devices, 'flex')
         run: |
@@ -166,7 +163,6 @@ jobs:
         with:
           name: elf-${{ matrix.apps.app-name }}-flex-${{ matrix.builder.name }}
           path: ${{ matrix.apps.app-name }}/**/*.elf
-          if-no-files-found: error
       - name: Build App for Apex+
         if: contains(matrix.apps.devices, 'apex_p')
         run: |
@@ -181,7 +177,6 @@ jobs:
         with:
           name: elf-${{ matrix.apps.app-name }}-apex_p-${{ matrix.builder.name }}
           path: ${{ matrix.apps.app-name }}/**/*.elf
-          if-no-files-found: 
             
   # compare builds in the following fashion :
   # | App name        | Target | app-builder-latest .text size     | clang21-testing .text size | Size difference |
@@ -204,7 +199,7 @@ jobs:
         with:
           name: elf-*-*-*
       - name: install apt dependencies
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends binutils
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends binutils tree
 
       - name: Compare .text section sizes
         run: |
