@@ -114,6 +114,7 @@ endif
 
 # Common to all targets
 CFLAGS   += --target=arm-none-eabi -mcpu=$(CPU) -mlittle-endian -mthumb
+CFLAGS   += $(EXTRA_CFLAGS)
 # no --target in case arm-none-eabi-gcc is used
 AFLAGS   += -mcpu=$(CPU) -mlittle-endian -mthumb
 # LD is set to $(CC) (clang)

@@ -84,9 +84,15 @@ jobs:
           - name: app-builder-latest
             image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
             sdk_ref: API_LEVEL_26
+            extra_flags: ''
           - name: clang21-testing
             image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-clang21-testing:latest
             sdk_ref: mbr/stack-protection
+            extra_flags: ''
+          - name: clang21-stack-protector
+            image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-clang21-testing:latest
+            sdk_ref: mbr/stack-protection
+            extra_flags: '-fstack-protector-strong'
     runs-on: ubuntu-latest
     container:
       image: ${{ matrix.builder.image }}
@@ -114,7 +120,7 @@ jobs:
           cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
           echo "Building for Nano X"
           make clean
-          make TARGET=nanox BOLOS_SDK=$GITHUB_WORKSPACE/sdk
+          make TARGET=nanox BOLOS_SDK=$GITHUB_WORKSPACE/sdk ${{ matrix.builder.extra_flags && format('EXTRA_CFLAGS={0}', matrix.builder.extra_flags) || '' }}
       - name: Upload Nano X ELF
         if: contains(matrix.apps.devices, 'nanox')
         uses: actions/upload-artifact@v4
@@ -128,7 +134,7 @@ jobs:
           cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
           echo "Building for Nano S+"
           make clean
-          make TARGET=nanos2 BOLOS_SDK=$GITHUB_WORKSPACE/sdk
+          make TARGET=nanos2 BOLOS_SDK=$GITHUB_WORKSPACE/sdk ${{ matrix.builder.extra_flags && format('EXTRA_CFLAGS={0}', matrix.builder.extra_flags) || '' }}
       - name: Upload Nano S+ ELF
         if: contains(matrix.apps.devices, 'nanos+')
         uses: actions/upload-artifact@v4
@@ -142,7 +148,7 @@ jobs:
           cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
           echo "Building for Stax"
           make clean
-          make TARGET=stax BOLOS_SDK=$GITHUB_WORKSPACE/sdk
+          make TARGET=stax BOLOS_SDK=$GITHUB_WORKSPACE/sdk ${{ matrix.builder.extra_flags && format('EXTRA_CFLAGS={0}', matrix.builder.extra_flags) || '' }}
       - name: Upload Stax ELF
         if: contains(matrix.apps.devices, 'stax')
         uses: actions/upload-artifact@v4
@@ -156,7 +162,7 @@ jobs:
           cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
           echo "Building for Flex"
           make clean
-          make TARGET=flex BOLOS_SDK=$GITHUB_WORKSPACE/sdk
+          make TARGET=flex BOLOS_SDK=$GITHUB_WORKSPACE/sdk ${{ matrix.builder.extra_flags && format('EXTRA_CFLAGS={0}', matrix.builder.extra_flags) || '' }}
       - name: Upload Flex ELF
         if: contains(matrix.apps.devices, 'flex')
         uses: actions/upload-artifact@v4
@@ -170,7 +176,7 @@ jobs:
           cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
           echo "Building for Apex+"
           make clean
-          make TARGET=apex_p BOLOS_SDK=$GITHUB_WORKSPACE/sdk
+          make TARGET=apex_p BOLOS_SDK=$GITHUB_WORKSPACE/sdk ${{ matrix.builder.extra_flags && format('EXTRA_CFLAGS={0}', matrix.builder.extra_flags) || '' }}
       - name: Upload Apex+ ELF
         if: contains(matrix.apps.devices, 'apex_p')
         uses: actions/upload-artifact@v4
@@ -203,7 +209,7 @@ jobs:
             artifact_name=$(basename "$artifact_dir")
 
             builder=""
-            for b in app-builder-latest clang21-testing; do
+            for b in app-builder-latest clang21-stack-protector clang21-testing; do
               if [[ "$artifact_name" == *-"$b" ]]; then
                 builder="$b"
                 break
@@ -317,7 +323,7 @@ jobs:
 
               rows.setdefault((app, target), {})[builder] = text_size
 
-          preferred = ["app-builder-latest", "clang21-testing"]
+          preferred = ["app-builder-latest", "clang21-testing", "clang21-stack-protector"]
           builders = []
           seen = set()
           for b in preferred:
@@ -332,7 +338,8 @@ jobs:
                       seen.add(b)
 
           header = ["App name", "Target"] + [f"{b} .text size" for b in builders]
-          header.append("Size difference")
+          header.append("clang21-testing vs baseline")
+          header.append("clang21-stack-protector vs baseline")
 
           md_lines = [
               "| " + " | ".join(header) + " |",
@@ -343,14 +350,19 @@ jobs:
               data = rows[(app, target)]
               values = [data.get(b) for b in builders]
 
-              diff = "N/A"
+              diff_clang = "N/A"
               if "app-builder-latest" in data and "clang21-testing" in data:
                   base = data["app-builder-latest"]
-                  other = data["clang21-testing"]
-                  delta = other - base
-                  diff = f"{delta:+d} bytes"
+                  delta = data["clang21-testing"] - base
+                  diff_clang = f"{delta:+d} bytes"
 
-              row = [app, target] + [str(v) if v is not None else "N/A" for v in values] + [diff]
+              diff_sp = "N/A"
+              if "app-builder-latest" in data and "clang21-stack-protector" in data:
+                  base = data["app-builder-latest"]
+                  delta = data["clang21-stack-protector"] - base
+                  diff_sp = f"{delta:+d} bytes"
+
+              row = [app, target] + [str(v) if v is not None else "N/A" for v in values] + [diff_clang, diff_sp]
               md_lines.append("| " + " | ".join(row) + " |")
 
           pathlib.Path("build_sizes.md").write_text("\n".join(md_lines) + "\n", encoding="utf-8")
