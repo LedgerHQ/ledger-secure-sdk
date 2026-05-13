@@ -181,4 +181,51 @@ jobs:
         with:
           name: elf-${{ matrix.apps.app-name }}-apex_p-${{ matrix.builder.name }}
           path: ${{ matrix.apps.app-name }}/**/*.elf
-          if-no-files-found: error
+          if-no-files-found: 
+            
+  # compare builds in the following fashion :
+  # | App name        | Target | app-builder-latest .text size     | clang21-testing .text size | Size difference |
+  # | app-bitcoin-new | flex   | X                                 | Y                          | +k bytes        |
+  # | app-bitcoin-new | stax   | X                                 | Y                          | -1%             |
+  # | app-bitcoin-new | apex_p | X                                 | Y                          | +0.5%           |
+  # | app-bitcoin-new | nanox  | X                                 | Y                          | +1%             |
+  # | app-bitcoin-new | nanos+ | X                                 | Y                          | +0.5%           |
+  # | app-ethereum    | flex   | X                                 | Y                          | +3%             |
+  # | app-ethereum    | stax   | X                                 | Y                          | +1%             |
+  # | app-ethereum    | apex_p | X                                 | Y                          | +0.5%           |
+  # etc.
+  compare-builds:
+    name: Compare builds
+    needs: [test-build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: elf-*-*-*
+      - name: install apt dependencies
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends binutils
+
+      - name: Compare .text section sizes
+        run: |
+          for artifact in *.zip; do
+            unzip -o "$artifact" -d "${artifact%.zip}"
+          done
+          echo "App name, Target, Builder, .text size (bytes)" > build_sizes.md
+          for elf in */**/*.elf; do
+            app_name=$(echo "$elf" | cut -d'/' -f1)
+            target=$(echo "$elf" | cut -d'/' -f2)
+            builder=$(echo "$elf" | cut -d'/' -f3)
+            text_size=$(size -A "$elf" | grep " .text " | awk '{print $2}')
+            echo "$app_name, $target, $builder, $text_size" >> build_sizes.md
+          done
+          cat build_sizes.md
+
+      - name: Upload comparison results
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-size-comparison
+          path: build_sizes.md
+
+      - name: Print build_size comparison in workflow summary
+        run: cat build_sizes.md >> $GITHUB_STEP_SUMMARY
