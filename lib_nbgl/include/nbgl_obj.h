@@ -52,6 +52,7 @@ extern "C" {
 #define BACKSPACE_KEY_INDEX 26
 #define VALIDATE_INDEX      27
 #define SHIFT_KEY_INDEX     28
+#define KEYBOARD_MAX_TITLE  20
 #endif  // SCREEN_SIZE_WALLET
 #endif  // NBGL_KEYBOARD
 
@@ -231,23 +232,25 @@ extern "C" {
 
 // common large icons
 #if LARGE_ICON_SIZE == 64
-#define CHECK_CIRCLE_ICON     C_Check_Circle_64px
-#define DENIED_CIRCLE_ICON    C_Denied_Circle_64px
-#define IMPORTANT_CIRCLE_ICON C_Important_Circle_64px
-#define LARGE_WARNING_ICON    C_Warning_64px
-#define INFO_CIRCLE_ICON      C_Info_Circle_64px
-#define LARGE_REVIEW_ICON     C_Review_64px
-#define LARGE_LOGIN_ICON      C_Login_64px
-#define LARGE_TRASH_ICON      C_Trash_64px
+#define CHECK_CIRCLE_ICON       C_Check_Circle_64px
+#define DENIED_CIRCLE_ICON      C_Denied_Circle_64px
+#define IMPORTANT_CIRCLE_ICON   C_Important_Circle_64px
+#define LARGE_WARNING_ICON      C_Warning_64px
+#define INFO_CIRCLE_ICON        C_Info_Circle_64px
+#define LARGE_REVIEW_ICON       C_Review_64px
+#define LARGE_LOGIN_ICON        C_Login_64px
+#define LARGE_TRASH_ICON        C_Trash_64px
+#define LARGE_ADDRESS_BOOK_ICON C_Address_Book_64px
 #elif LARGE_ICON_SIZE == 48
-#define CHECK_CIRCLE_ICON     C_Check_Circle_48px
-#define DENIED_CIRCLE_ICON    C_Denied_Circle_48px
-#define IMPORTANT_CIRCLE_ICON C_Important_Circle_48px
-#define LARGE_WARNING_ICON    C_Warning_48px
-#define INFO_CIRCLE_ICON      C_Info_Circle_48px
-#define LARGE_REVIEW_ICON     C_Review_48px
-#define LARGE_LOGIN_ICON      C_Login_48px
-#define LARGE_TRASH_ICON      C_Trash_48px
+#define CHECK_CIRCLE_ICON       C_Check_Circle_48px
+#define DENIED_CIRCLE_ICON      C_Denied_Circle_48px
+#define IMPORTANT_CIRCLE_ICON   C_Important_Circle_48px
+#define LARGE_WARNING_ICON      C_Warning_48px
+#define INFO_CIRCLE_ICON        C_Info_Circle_48px
+#define LARGE_REVIEW_ICON       C_Review_48px
+#define LARGE_LOGIN_ICON        C_Login_48px
+#define LARGE_TRASH_ICON        C_Trash_48px
+#define LARGE_ADDRESS_BOOK_ICON C_Address_Book_48px
 #else  // LARGE_ICON_SIZE
 #error Undefined LARGE_ICON_SIZE
 #endif  // LARGE_ICON_SIZE
@@ -267,10 +270,11 @@ extern "C" {
 // number of spinner positions
 #define NB_SPINNER_POSITIONS 4
 #else  // SCREEN_SIZE_WALLET
-#define WARNING_ICON C_icon_warning
-#define REVIEW_ICON  C_icon_certificate
-#define LOGIN_ICON   C_Login_14px
-#define TRASH_ICON   C_Trash_14px
+#define WARNING_ICON            C_icon_warning
+#define REVIEW_ICON             C_icon_certificate
+#define LOGIN_ICON              C_Login_14px
+#define TRASH_ICON              C_Trash_14px
+#define LARGE_ADDRESS_BOOK_ICON C_Address_Book_14px
 #endif  // SCREEN_SIZE_WALLET
 
 #if NB_COLOR_BITS == 1
@@ -300,13 +304,11 @@ extern "C" {
  * @brief The different pressed buttons
  *
  */
-#define LEFT_BUTTON   0x01  ///< Left button event
-#define RIGHT_BUTTON  0x02  ///< Right button event
-#define BOTH_BUTTONS  0x03  ///< Both buttons event
-#define RELEASED_MASK 0x80  ///< released (see LSB bits to know what buttons are released)
-#define CONTINUOUS_MASK \
-    0x40  ///< if set, means that the button(s) is continuously pressed (this event is sent every
-          ///< 300ms after the first 800ms)
+#define LEFT_BUTTON     0x01  ///< Left button event
+#define RIGHT_BUTTON    0x02  ///< Right button event
+#define BOTH_BUTTONS    0x03  ///< Both buttons event
+#define RELEASED_MASK   0x80  ///< released (see LSB bits to know what buttons are released)
+#define CONTINUOUS_MASK 0x40  ///< if set, the button(s) is continuously pressed
 
 typedef enum {
     BUTTON_LEFT_PRESSED = 0,          ///< Sent when Left button is released

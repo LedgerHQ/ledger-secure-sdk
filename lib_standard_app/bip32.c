@@ -25,6 +25,10 @@
 
 bool bip32_path_read(const uint8_t *in, size_t in_len, uint32_t *out, size_t out_len)
 {
+    if (in == 0 || in_len == 0) {
+        return false;
+    }
+
     if (out_len == 0 || out_len > MAX_BIP32_PATH) {
         return false;
     }
@@ -83,4 +87,12 @@ bool bip32_path_format(const uint32_t *bip32_path, size_t bip32_path_len, char *
     }
 
     return true;
+}
+
+bool bip32_path_format_simple(path_bip32_t *bip32, char *out, size_t out_len)
+{
+    if (bip32 == NULL || out == NULL || out_len == 0) {
+        return false;
+    }
+    return bip32_path_format(bip32->path, bip32->length, out, out_len);
 }

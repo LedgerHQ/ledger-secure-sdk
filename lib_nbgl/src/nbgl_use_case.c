@@ -62,20 +62,6 @@
 /* max length of the string displaying the description of the Web3 Checks report */
 #define W3C_DESCRIPTION_MAX_LEN 128
 
-/**
- * @brief This is to use in @ref nbgl_operationType_t when the operation is concerned by an internal
- * warning This is used to indicate a warning with a top-right button in review first & last page
- *
- */
-#define RISKY_OPERATION (1 << 6)
-
-/**
- * @brief This is to use in @ref nbgl_operationType_t when the operation is concerned by an internal
- * information. This is used to indicate an info with a top-right button in review first & last page
- *
- */
-#define NO_THREAT_OPERATION (1 << 7)
-
 /**********************
  *      TYPEDEFS
  **********************/
@@ -598,15 +584,22 @@ static void prepareReviewLightLastPage(nbgl_operationType_t       operationType,
                                        const nbgl_icon_details_t *icon,
                                        const char                *finishTitle)
 {
-    infoButton->text        = getFinishTitle(operationType, finishTitle);
-    infoButton->icon        = icon;
-    infoButton->buttonText  = "Approve";
+    infoButton->text = getFinishTitle(operationType, finishTitle);
+    infoButton->icon = icon;
+    if (operationType & ADDRESS_BOOK_OPERATION) {
+        infoButton->buttonText = "Confirm";
+    }
+    else {
+        infoButton->buttonText = "Approve";
+    }
     infoButton->buttonToken = CONFIRM_TOKEN;
 }
 
 static const char *getRejectReviewText(nbgl_operationType_t operationType)
 {
-    UNUSED(operationType);
+    if (operationType & ADDRESS_BOOK_OPERATION) {
+        return "Cancel";
+    }
     return "Reject";
 }
 
@@ -1159,9 +1152,13 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
                 p_tagValueList = &pageContent->tagValueConfirm.tagValueList;
             }
             else {
-                // else display it as a TAG_VALUE_LIST
-                pageContent->type = TAG_VALUE_LIST;
-                p_tagValueList    = &pageContent->tagValueList;
+                // else display it as a TAG_VALUE_LIST: preserve list-level
+                // settings (nbMaxLinesForValue, wrapping, smallCaseForValue,
+                // hideEndOfLastLine, token...) so intermediate pages render
+                // identically to the last page
+                pageContent->type         = TAG_VALUE_LIST;
+                pageContent->tagValueList = p_content->content.tagValueConfirm.tagValueList;
+                p_tagValueList            = &pageContent->tagValueList;
             }
             p_tagValueList->nbPairs = nbElementsInPage;
             p_tagValueList->pairs
@@ -1485,10 +1482,11 @@ static void displayFullValuePage(const char                   *backText,
             if (extension->aliasType == ENS_ALIAS) {
                 content.info = "ENS names are resolved by Ledger backend.";
             }
-            else if ((extension->aliasType == ADDRESS_BOOK_ALIAS)
-                     && (extension->aliasSubName != NULL)) {
-                content.descriptions[content.nbDescriptions] = extension->aliasSubName;
-                content.nbDescriptions++;
+            else if (extension->aliasType == ADDRESS_BOOK_ALIAS) {
+                if (extension->aliasSubName != NULL) {
+                    content.descriptions[content.nbDescriptions] = extension->aliasSubName;
+                    content.nbDescriptions++;
+                }
             }
             else {
                 content.info = extension->explanation;
@@ -1496,6 +1494,11 @@ static void displayFullValuePage(const char                   *backText,
             // add full value text
             content.descriptions[content.nbDescriptions] = extension->fullValue;
             content.nbDescriptions++;
+            // add trusted name if present (combined Address Book+Trusted Name case)
+            if ((extension->aliasType == ADDRESS_BOOK_ALIAS) && (extension->explanation != NULL)) {
+                content.descriptions[content.nbDescriptions] = extension->explanation;
+                content.nbDescriptions++;
+            }
             nbgl_layoutAddTextContent(genericContext.modalLayout, &content);
         }
         // draw & refresh
@@ -2090,17 +2093,26 @@ static uint8_t getNbTagValuesInPage(uint8_t                           nbPairs,
         else {
             value_font = LARGE_MEDIUM_FONT;
         }
-        // value height
-        currentHeight += nbgl_getTextHeightInWidth(
+        // nb lines for value
+        nbLines = nbgl_getTextNbLinesInWidth(
             value_font, pair->value, AVAILABLE_WIDTH, tagValueList->wrapping);
+        // honor list-level nbMaxLinesForValue: when set, the value will be
+        // displayed truncated to that many lines, so account for its
+        // truncated height rather than its full height
+        if ((tagValueList->nbMaxLinesForValue > 0)
+            && (nbLines > tagValueList->nbMaxLinesForValue)) {
+            nbLines = tagValueList->nbMaxLinesForValue;
+            currentHeight += nbLines * nbgl_getFontLineHeight(value_font);
+        }
+        else {
+            currentHeight += nbgl_getTextHeightInWidth(
+                value_font, pair->value, AVAILABLE_WIDTH, tagValueList->wrapping);
+        }
 
         // potential subAlias text
         if ((pair->aliasValue) && (pair->extension->aliasSubName)) {
             currentHeight += TAG_VALUE_INTERVALE + nbgl_getFontLineHeight(SMALL_REGULAR_FONT);
         }
-        // nb lines for value
-        nbLines = nbgl_getTextNbLinesInWidth(
-            value_font, pair->value, AVAILABLE_WIDTH, tagValueList->wrapping);
         if ((currentHeight >= maxUsableHeight) || (nbLines > NB_MAX_LINES_IN_REVIEW)) {
             if (nbPairsInPage == 0) {
                 // Pair too long to fit in a single screen
@@ -2114,17 +2126,19 @@ static uint8_t getNbTagValuesInPage(uint8_t                           nbPairs,
     }
     // if this is a TAG_VALUE_CONFIRM and we have reached the last pairs,
     // let's check if it still fits with a CONFIRMATION button, and if not,
-    // remove the last pair
+    // remove the last pair (but never below 1, otherwise the pagination
+    // loop in getNbPagesForContent would spin forever — the lone oversized
+    // pair must still occupy this page and will be truncated at display time)
     if (hasConfirmationButton && (nbPairsInPage == nbPairs)) {
         maxUsableHeight -= UP_FOOTER_BUTTON_HEIGHT;
-        if (currentHeight > maxUsableHeight) {
+        if ((currentHeight > maxUsableHeight) && (nbPairsInPage > 1)) {
             nbPairsInPage--;
         }
     }
     // do the same with just a details button
     else if (hasDetailsButton) {
         maxUsableHeight -= (SMALL_BUTTON_RADIUS * 2);
-        if (currentHeight > maxUsableHeight) {
+        if ((currentHeight > maxUsableHeight) && (nbPairsInPage > 1)) {
             nbPairsInPage--;
         }
     }
@@ -2275,10 +2289,38 @@ static void prepareAddressConfirmationPages(const char                       *ad
                                             nbgl_content_t                   *secondPageContent)
 {
     nbgl_contentTagValueConfirm_t *tagValueConfirm;
+    uint8_t                        nbAddressChunks;
 
-    addressConfirmationContext.tagValuePairs[0].item  = "Address";
-    addressConfirmationContext.tagValuePairs[0].value = address;
-    addressConfirmationContext.nbPairs                = 1;
+    // Split the address into one or more chunks, each occupying its own page.
+    // Each chunk-pair points into `address` at the chunk's start offset; the
+    // list-level nbMaxLinesForValue (set further down when nbAddressChunks > 1)
+    // bounds the rendered slice to NB_MAX_LINES_IN_REVIEW lines, so successive
+    // chunks visually pick up where the previous left off. forcePageStart on
+    // all but the first chunk ensures each chunk starts a fresh page.
+    nbAddressChunks = nbgl_getTextNbPagesInWidth(
+        LARGE_MEDIUM_FONT, address, NB_MAX_LINES_IN_REVIEW, AVAILABLE_WIDTH);
+    if (nbAddressChunks > ADDR_VERIF_NB_PAIRS) {
+        nbAddressChunks = ADDR_VERIF_NB_PAIRS;
+    }
+    {
+        const char *chunkStart = address;
+        for (uint8_t i = 0; i < nbAddressChunks; i++) {
+            addressConfirmationContext.tagValuePairs[i].item           = "Address";
+            addressConfirmationContext.tagValuePairs[i].value          = chunkStart;
+            addressConfirmationContext.tagValuePairs[i].forcePageStart = (i > 0);
+            if (i + 1 < nbAddressChunks) {
+                uint16_t len = 0;
+                nbgl_getTextMaxLenInNbLines(LARGE_MEDIUM_FONT,
+                                            chunkStart,
+                                            AVAILABLE_WIDTH,
+                                            NB_MAX_LINES_IN_REVIEW,
+                                            &len,
+                                            false);
+                chunkStart += len;
+            }
+        }
+    }
+    addressConfirmationContext.nbPairs = nbAddressChunks;
 
     // First page
     firstPageContent->type = TAG_VALUE_CONFIRM;
@@ -2286,8 +2328,10 @@ static void prepareAddressConfirmationPages(const char                       *ad
 
 #ifdef NBGL_QRCODE
     tagValueConfirm->detailsButtonIcon = &QRCODE_ICON;
-    // only use "Show as QR" when address & pairs are not fitting in a single page
-    if ((tagValueList != NULL) && (tagValueList->nbPairs < ADDR_VERIF_NB_PAIRS)) {
+    // only pack extras on the address page when the address itself fits on a
+    // single page; for multi-chunk addresses, extras go to their own second page
+    if ((tagValueList != NULL) && (nbAddressChunks == 1)
+        && (tagValueList->nbPairs < ADDR_VERIF_NB_PAIRS)) {
         nbgl_contentTagValueList_t tmpList;
         bool                       flag;
         // copy in intermediate structure
@@ -2316,16 +2360,23 @@ static void prepareAddressConfirmationPages(const char                       *ad
     tagValueConfirm->detailsButtonText = NULL;
     tagValueConfirm->detailsButtonIcon = NULL;
 #endif  // NBGL_QRCODE
-    tagValueConfirm->tuneId                          = TUNE_TAP_CASUAL;
-    tagValueConfirm->tagValueList.nbPairs            = addressConfirmationContext.nbPairs;
-    tagValueConfirm->tagValueList.pairs              = addressConfirmationContext.tagValuePairs;
-    tagValueConfirm->tagValueList.smallCaseForValue  = false;
-    tagValueConfirm->tagValueList.nbMaxLinesForValue = 0;
-    tagValueConfirm->tagValueList.wrapping           = false;
-    // if it's an extended address verif, it takes 2 pages, so display a "Tap to continue", and
-    // no confirmation button
-    if ((tagValueList != NULL)
-        && (tagValueList->nbPairs > (addressConfirmationContext.nbPairs - 1))) {
+    tagValueConfirm->tuneId                         = TUNE_TAP_CASUAL;
+    tagValueConfirm->tagValueList.nbPairs           = addressConfirmationContext.nbPairs;
+    tagValueConfirm->tagValueList.pairs             = addressConfirmationContext.tagValuePairs;
+    tagValueConfirm->tagValueList.smallCaseForValue = false;
+    // when the address spans multiple chunks, cap each pair's rendered value
+    // at NB_MAX_LINES_IN_REVIEW lines so each chunk-pair occupies exactly one page
+    tagValueConfirm->tagValueList.nbMaxLinesForValue
+        = (nbAddressChunks > 1) ? NB_MAX_LINES_IN_REVIEW : 0;
+    tagValueConfirm->tagValueList.hideEndOfLastLine = false;
+    tagValueConfirm->tagValueList.wrapping          = false;
+
+    // Number of extras left to place on a second page
+    uint8_t extrasPlaced
+        = (tagValueList != NULL) ? (addressConfirmationContext.nbPairs - nbAddressChunks) : 0;
+    bool extrasNeedSecondPage = (tagValueList != NULL) && (tagValueList->nbPairs > extrasPlaced);
+
+    if (extrasNeedSecondPage) {
         tagValueConfirm->detailsButtonText = "Show as QR";
         tagValueConfirm->confirmationText  = NULL;
         // the second page is dedicated to the extended tag/value pairs
@@ -2337,10 +2388,8 @@ static void prepareAddressConfirmationPages(const char                       *ad
         tagValueConfirm->detailsButtonIcon = NULL;
         tagValueConfirm->tuneId            = TUNE_TAP_CASUAL;
         memcpy(&tagValueConfirm->tagValueList, tagValueList, sizeof(nbgl_contentTagValueList_t));
-        tagValueConfirm->tagValueList.nbPairs
-            = tagValueList->nbPairs - (addressConfirmationContext.nbPairs - 1);
-        tagValueConfirm->tagValueList.pairs
-            = &tagValueList->pairs[addressConfirmationContext.nbPairs - 1];
+        tagValueConfirm->tagValueList.nbPairs = tagValueList->nbPairs - extrasPlaced;
+        tagValueConfirm->tagValueList.pairs   = &tagValueList->pairs[extrasPlaced];
     }
     else {
         // otherwise no tap to continue but a confirmation button
@@ -2461,9 +2510,21 @@ static nbgl_layout_t *displayModalDetails(const nbgl_warningDetails_t *details, 
             nbgl_layoutBar_t bar;
             bar.text    = details->barList.texts[i];
             bar.subText = details->barList.subTexts[i];
-            bar.iconRight
-                = (details->barList.details[i].type != NO_TYPE_WARNING) ? &PUSH_ICON : NULL;
-            bar.iconLeft = details->barList.icons[i];
+            // Only assign a right icon if the bar is clickable (i.e. has details to display)
+            if ((details->barList.details)
+                && (details->barList.details[i].type != NO_TYPE_WARNING)) {
+                bar.iconRight = &PUSH_ICON;
+            }
+            else {
+                bar.iconRight = NULL;
+            }
+            // Left icon is optional, only set if provided by the warning details
+            if (details->barList.icons != NULL) {
+                bar.iconLeft = details->barList.icons[i];
+            }
+            else {
+                bar.iconLeft = NULL;
+            }
             bar.token    = FIRST_WARN_BAR_TOKEN + i;
             bar.tuneId   = TUNE_TAP_CASUAL;
             bar.large    = false;
@@ -3723,6 +3784,49 @@ void nbgl_useCaseChoiceWithDetails(const nbgl_icon_details_t *icon,
                                    nbgl_genericDetails_t     *details,
                                    nbgl_choiceCallback_t      callback)
 {
+    nbgl_useCaseAdvancedChoiceWithDetails(icon,
+                                          (details != NULL) ? &SEARCH_ICON : NULL,
+                                          message,
+                                          subMessage,
+                                          NULL,
+                                          confirmText,
+                                          cancelText,
+                                          details,
+                                          callback);
+}
+
+/**
+ * @brief Variant of @ref nbgl_useCaseChoiceWithDetails with three content lines and a
+ *        configurable top-right icon.
+ *
+ * Displays a centered-info page with:
+ *  - @p centerIcon  — icon in the center of the page
+ *  - @p title        — bold black text (first line)
+ *  - @p message      — regular black text (second line, can be NULL)
+ *  - @p subMessage   — gray text (third line, can be NULL)
+ *  - @p headerIcon  — icon for the top-right button that opens the @p details modal (can be NULL)
+ *  - Confirm / Cancel buttons at the bottom
+ *
+ * @param centerIcon  icon to set in center of page (can be NULL)
+ * @param headerIcon  icon for the top-right details button (can be NULL — no button shown)
+ * @param title        bold black string displayed first (can be NULL)
+ * @param message      regular black string displayed under title (can be NULL)
+ * @param subMessage   gray string displayed under message (can be NULL)
+ * @param confirmText  string to set in button, to confirm (cannot be NULL)
+ * @param cancelText   string to set in footer, to reject (cannot be NULL)
+ * @param details      details to be displayed when pressing top-right button (can be NULL)
+ * @param callback     callback called when button or footer is touched
+ */
+void nbgl_useCaseAdvancedChoiceWithDetails(const nbgl_icon_details_t *centerIcon,
+                                           const nbgl_icon_details_t *headerIcon,
+                                           const char                *title,
+                                           const char                *message,
+                                           const char                *subMessage,
+                                           const char                *confirmText,
+                                           const char                *cancelText,
+                                           nbgl_warningDetails_t     *details,
+                                           nbgl_choiceCallback_t      callback)
+{
     nbgl_layoutDescription_t   layoutDescription;
     nbgl_layoutChoiceButtons_t buttonsInfo  = {.bottomText = cancelText,
                                                .token      = CHOICE_TOKEN,
@@ -3734,20 +3838,17 @@ void nbgl_useCaseChoiceWithDetails(const nbgl_icon_details_t *icon,
                                                .separationLine    = false,
                                                .emptySpace.height = MEDIUM_CENTERING_HEADER};
 
-    // check params
     if ((confirmText == NULL) || (cancelText == NULL)) {
         return;
     }
 
     reset_callbacks_and_context();
 
-    onChoice                         = callback;
-    layoutDescription.modal          = false;
-    layoutDescription.withLeftBorder = true;
-
-    layoutDescription.onActionCallback = layoutTouchCallback;
-    layoutDescription.tapActionText    = NULL;
-
+    onChoice                                = callback;
+    layoutDescription.modal                 = false;
+    layoutDescription.withLeftBorder        = true;
+    layoutDescription.onActionCallback      = layoutTouchCallback;
+    layoutDescription.tapActionText         = NULL;
     layoutDescription.ticker.tickerCallback = NULL;
     sharedContext.usage                     = SHARE_CTX_CHOICE_WITH_DETAILS;
     choiceWithDetailsCtx.layoutCtx          = nbgl_layoutGet(&layoutDescription);
@@ -3755,14 +3856,15 @@ void nbgl_useCaseChoiceWithDetails(const nbgl_icon_details_t *icon,
 
     nbgl_layoutAddHeader(choiceWithDetailsCtx.layoutCtx, &headerDesc);
     nbgl_layoutAddChoiceButtons(choiceWithDetailsCtx.layoutCtx, &buttonsInfo);
-    centeredInfo.icon        = icon;
-    centeredInfo.title       = message;
-    centeredInfo.description = subMessage;
+    centeredInfo.icon        = centerIcon;
+    centeredInfo.title       = title;
+    centeredInfo.description = message;
+    centeredInfo.subText     = subMessage;
     nbgl_layoutAddContentCenter(choiceWithDetailsCtx.layoutCtx, &centeredInfo);
 
-    if (details != NULL) {
+    if ((details != NULL) && (headerIcon != NULL)) {
         nbgl_layoutAddTopRightButton(
-            choiceWithDetailsCtx.layoutCtx, &SEARCH_ICON, CHOICE_DETAILS_TOKEN, TUNE_TAP_CASUAL);
+            choiceWithDetailsCtx.layoutCtx, headerIcon, CHOICE_DETAILS_TOKEN, TUNE_TAP_CASUAL);
     }
 
     nbgl_layoutDraw(choiceWithDetailsCtx.layoutCtx);

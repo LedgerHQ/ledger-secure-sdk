@@ -18,6 +18,8 @@
 #include "os.h"
 #include "os_io.h"
 #include "os_io_seph_cmd.h"
+#include "os_utils.h"
+#include "seproxyhal_protocol.h"
 
 /* Private enumerations ------------------------------------------------------*/
 
@@ -284,6 +286,36 @@ void os_io_seph_cmd_serialized_nbgl(const uint8_t *buffer, uint16_t length)
     }
 }
 #endif  // HAVE_SERIALIZED_NBGL
+
+#ifdef HAVE_SPECULOS
+void os_io_seph_cmd_send_speculos_text_line(const char        *text,
+                                            size_t             text_length,
+                                            const nbgl_area_t *area)
+{
+    uint8_t buf[3] = {0};
+    size_t  length = text_length + 4 * sizeof(uint16_t);
+    buf[0]         = SEPROXYHAL_TAG_NBGL_SEND_SPECULOS_TEXT_LINE;
+    buf[1]         = length >> 8;
+    buf[2]         = length;
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buf, 3, NULL);
+
+    // Text
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, (const uint8_t *) text, text_length, NULL);
+
+    // Send coordinates
+    U2BE_ENCODE(buf, 0, area->x0);
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buf, sizeof(area->x0), NULL);
+
+    U2BE_ENCODE(buf, 0, area->y0);
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buf, sizeof(area->y0), NULL);
+
+    U2BE_ENCODE(buf, 0, area->width);
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buf, sizeof(area->width), NULL);
+
+    U2BE_ENCODE(buf, 0, area->height);
+    os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buf, sizeof(area->height), NULL);
+}
+#endif  // HAVE_SPECULOS
 
 #ifdef HAVE_NOR_FLASH
 void os_io_seph_cmd_spi_cs(uint8_t select)

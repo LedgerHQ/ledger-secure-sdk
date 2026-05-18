@@ -21,13 +21,13 @@ jobs:
 
     steps:
       - name: Clone Boilerplate
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: LedgerHQ/app-boilerplate
           ref: master
 
       - name: Clone SDK
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: sdk
 
@@ -41,7 +41,7 @@ jobs:
           make scan-build -j ENABLE_SDK_WERROR=1 DEBUG=${{ matrix.debug }}
 
       - name: Upload scan result
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: failure()
         with:
           name: scan-build

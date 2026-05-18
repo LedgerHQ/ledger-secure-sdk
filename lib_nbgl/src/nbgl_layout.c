@@ -2184,6 +2184,12 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
             valueTextArea->nbMaxLines        = list->nbMaxLinesForValue;
             valueTextArea->hideEndOfLastLine = list->hideEndOfLastLine;
         }
+        // alias values (named addresses): always cap at 2 lines with ellipsis
+        if (pair->aliasValue && (nbLines > 2)) {
+            nbLines                          = 2;
+            valueTextArea->nbMaxLines        = 2;
+            valueTextArea->hideEndOfLastLine = true;
+        }
         const nbgl_font_t *font                    = nbgl_getFont(valueTextArea->fontId);
         valueTextArea->obj.area.height             = nbLines * font->line_height;
         valueTextArea->obj.alignment               = BOTTOM_LEFT;
@@ -2227,6 +2233,9 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
                 textArea->obj.alignmentMarginY = TAG_VALUE_INTERVALE;
                 textArea->obj.alignTo          = (nbgl_obj_t *) valueTextArea;
                 textArea->wrapping             = list->wrapping;
+                textArea->hideEndOfLastLine
+                    = (nbgl_getSingleLineTextWidth(textArea->fontId, textArea->text)
+                       > textArea->obj.area.width);
                 container->children[container->nbChildren] = (nbgl_obj_t *) textArea;
                 container->nbChildren++;
                 fullHeight += textArea->obj.area.height + textArea->obj.alignmentMarginY;
@@ -3755,7 +3764,7 @@ int nbgl_layoutAddSpinner(nbgl_layout_t *layout,
  * @param layout the current layout
  * @param text text to draw under the spinner
  * @param subText text to draw under the text (can be NULL)
- * @param initPosition position of the spinner (cannot be fixed)
+ * @param position position of the spinner (cannot be fixed)
  * @return - 0 if no refresh needed
  *         - 1 if partial B&W refresh needed
  *         - 2 if partial color refresh needed

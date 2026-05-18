@@ -272,6 +272,47 @@ static TLV_flag_t tag_to_flag_function(TLV_tag_t tag)
     }
 }
 
+static void test_tlv_enforce_u8_value(void **state)
+{
+    (void) state;
+
+    uint8_t    buffer[TLV_HEADER_SIZE + MAX_TLV_SIZE] = {0};
+    tlv_data_t tlv;
+
+    // Matching value
+    tlv = create_tlv_data(buffer, 0x01, 1, 0x42);
+    assert_true(tlv_enforce_u8_value(&tlv, 0x42));
+
+    // Matching boundary values
+    tlv = create_tlv_data(buffer, 0x01, 1, 0x00);
+    assert_true(tlv_enforce_u8_value(&tlv, 0x00));
+
+    tlv = create_tlv_data(buffer, 0x01, 1, 0xFF);
+    assert_true(tlv_enforce_u8_value(&tlv, 0xFF));
+
+    // Value encoded on more than 1 byte but still fits uint8_t (e.g. 8-byte encoding of 0x42)
+    tlv = create_tlv_data(buffer, 0x01, 8, 0x42);
+    assert_true(tlv_enforce_u8_value(&tlv, 0x42));
+
+    // Value mismatch
+    tlv = create_tlv_data(buffer, 0x01, 1, 0x42);
+    assert_false(tlv_enforce_u8_value(&tlv, 0x43));
+
+    tlv = create_tlv_data(buffer, 0x01, 1, 0x00);
+    assert_false(tlv_enforce_u8_value(&tlv, 0x01));
+
+    // Value does not fit in uint8_t (get_uint8_t_from_tlv_data fails)
+    tlv = create_tlv_data(buffer, 0x01, 2, 0xFF00);
+    assert_false(tlv_enforce_u8_value(&tlv, 0x00));
+
+    // Empty TLV value (size 0, get_uint8_t_from_tlv_data fails)
+    tlv = create_tlv_data(buffer, 0x01, 0, 0x00);
+    assert_false(tlv_enforce_u8_value(&tlv, 0x00));
+
+    // NULL data pointer
+    assert_false(tlv_enforce_u8_value(NULL, 0x42));
+}
+
 static void test_tlv_check_received_tags(void **state)
 {
     (void) state;
@@ -306,6 +347,7 @@ int main(int argc, char **argv)
         cmocka_unit_test(test_unsigned_tlv_integer_readers),
         cmocka_unit_test(test_unsigned_tlv_buffer_readers),
         cmocka_unit_test(test_unsigned_tlv_string_readers),
+        cmocka_unit_test(test_tlv_enforce_u8_value),
         cmocka_unit_test(test_tlv_check_received_tags),
     };
     return cmocka_run_group_tests(tests, NULL, NULL);

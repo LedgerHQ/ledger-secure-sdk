@@ -24,20 +24,6 @@
 #define WITH_HORIZONTAL_CHOICES_LIST
 #define WITH_HORIZONTAL_BARS_LIST
 
-/**
- * @brief This is to use in @ref nbgl_operationType_t when the operation is concerned by an internal
- * warning This is used to indicate a warning with a top-right button in review first & last page
- *
- */
-#define RISKY_OPERATION (1 << 6)
-
-/**
- * @brief This is to use in @ref nbgl_operationType_t when the operation is concerned by an internal
- * information. This is used to indicate an info with a top-right button in review first & last page
- *
- */
-#define NO_THREAT_OPERATION (1 << 7)
-
 /**********************
  *      TYPEDEFS
  **********************/
@@ -1000,6 +986,23 @@ static void displayExtensionStep(nbgl_stepPosition_t pos)
                 text    = context.review.extension->title;
                 subText = context.review.extension->fullValue;
                 break;
+            case ADDRESS_BOOK_ALIAS: {
+                bool    has_scope = (context.review.extension->aliasSubName != NULL);
+                bool    has_tn    = (context.review.extension->explanation != NULL);
+                uint8_t page      = context.review.currentExtensionPage;
+                if (page == 0) {
+                    text    = context.review.extension->title;
+                    subText = has_scope ? context.review.extension->aliasSubName
+                                        : context.review.extension->fullValue;
+                }
+                else if (has_scope && page == 1) {
+                    text = context.review.extension->fullValue;
+                }
+                else if (has_tn) {
+                    text = context.review.extension->explanation;
+                }
+                break;
+            }
             case INFO_LIST_ALIAS:
                 infoList = context.review.extension->infolist;
                 text     = PIC(infoList->infoTypes[context.review.currentExtensionPage]);
@@ -1058,6 +1061,11 @@ static void displayAliasFullValue(void)
         case ENS_ALIAS:
             context.review.nbExtensionPages = 2;
             break;
+        case ADDRESS_BOOK_ALIAS:
+            context.review.nbExtensionPages
+                = 2 + ((context.review.extension->aliasSubName != NULL) ? 1 : 0)
+                  + ((context.review.extension->explanation != NULL) ? 1 : 0);
+            break;
         case INFO_LIST_ALIAS:
             context.review.nbExtensionPages = context.review.extension->infolist->nbInfos + 1;
             break;
@@ -1078,7 +1086,8 @@ static void getLastPageInfo(bool approve, const nbgl_icon_details_t **icon, cons
     if (approve) {
         // Approve page
         *icon = &C_icon_validate_14;
-        if (context.type == ADDRESS_REVIEW_USE_CASE) {
+        if ((context.type == ADDRESS_REVIEW_USE_CASE)
+            || (context.operationType & ADDRESS_BOOK_OPERATION)) {
             *text = "Confirm";
         }
         else {
@@ -1120,7 +1129,8 @@ static void getLastPageInfo(bool approve, const nbgl_icon_details_t **icon, cons
     else {
         // Reject page
         *icon = &C_icon_crossmark;
-        if (context.type == ADDRESS_REVIEW_USE_CASE) {
+        if ((context.type == ADDRESS_REVIEW_USE_CASE)
+            || (context.operationType & ADDRESS_BOOK_OPERATION)) {
             *text = "Cancel";
         }
         else if ((context.operationType & REAL_TYPE_MASK) == TYPE_TRANSACTION) {
@@ -1685,7 +1695,12 @@ static void displayChoicePage(nbgl_stepPosition_t pos)
     const char                *subText = NULL;
     const nbgl_icon_details_t *icon    = NULL;
     // set to 1 if there is only one page for intro (if either icon or subMessage is NULL)
+    // acceptPage = number of intro pages:
+    //   0 if no message, 1 if message with icon OR subMessage only, 2 if both icon and subMessage
     uint8_t acceptPage = 0;
+    // nbDetailPages = number of BAR_LIST bar pages shown before confirm/cancel (0 if none)
+    // Page order: intro(s) | bar pages | confirm | cancel
+    uint8_t nbDetailPages = 0;
 
     if (context.choice.message != NULL) {
         if ((context.choice.icon == NULL) || (context.choice.subMessage == NULL)) {
@@ -1694,6 +1709,9 @@ static void displayChoicePage(nbgl_stepPosition_t pos)
         else {
             acceptPage = 2;
         }
+    }
+    if ((context.choice.details != NULL) && (context.choice.details->type == BAR_LIST_WARNING)) {
+        nbDetailPages = context.choice.details->barList.nbBars;
     }
     context.stepCallback = NULL;
 
@@ -1708,29 +1726,32 @@ static void displayChoicePage(nbgl_stepPosition_t pos)
             }
         }
         else if ((acceptPage == 2) && (context.currentPage == 1)) {  // sub-title page
-            // displayed only if there is both icon and submessage
+            // displayed only if there is both icon and subMessage
             text    = context.choice.message;
             subText = context.choice.subMessage;
         }
     }
-    else if (context.currentPage == acceptPage) {  // confirm page
+    else if (context.currentPage < (acceptPage + nbDetailPages)) {
+        // BAR_LIST detail pages, shown before confirm/cancel (one page per bar)
+        uint8_t idx = context.currentPage - acceptPage;
+        text        = (context.choice.details->barList.texts != NULL)
+                          ? context.choice.details->barList.texts[idx]
+                          : NULL;
+        subText     = (context.choice.details->barList.subTexts != NULL)
+                          ? context.choice.details->barList.subTexts[idx]
+                          : NULL;
+    }
+    else if (context.currentPage == (acceptPage + nbDetailPages)) {  // confirm page
         icon                 = &C_icon_validate_14;
         text                 = context.choice.confirmText;
         context.stepCallback = onChoiceAccept;
     }
-    else if (context.currentPage == (acceptPage + 1)) {  // cancel page
+    else {  // cancel page (last page)
         icon                 = &C_icon_crossmark;
         text                 = context.choice.cancelText;
         context.stepCallback = onChoiceReject;
     }
-    else if (context.choice.details != NULL) {
-        // only the first level of details and BAR_LIST type are supported
-        if (context.choice.details->type == BAR_LIST_WARNING) {
-            text = context.choice.details->barList.texts[context.currentPage - (acceptPage + 2)];
-            subText
-                = context.choice.details->barList.subTexts[context.currentPage - (acceptPage + 2)];
-        }
-    }
+    // other detail types (non-BAR_LIST) are not navigated on Nano
 
     drawStep(pos, icon, text, subText, genericChoiceCallback, false, NO_FORCED_TYPE);
     nbgl_refresh();
@@ -1913,6 +1934,7 @@ static struct {
     uint8_t                    nbUsedButtons;
     nbgl_layoutTouchCallback_t onButtonCallback;
     nbgl_callback_t            backCallback;
+    char                       title[KEYBOARD_MAX_TITLE];
 } savedKeyboardContext;
 
 // Navigation callback to fill the suggestion choices page
@@ -1930,7 +1952,6 @@ static bool suggestionNavCallback(uint8_t page, nbgl_pageContent_t *content)
 // Display suggestion selection page
 static void displaySuggestionSelection(void)
 {
-    char title[20] = {0};
     // Save keyboard context before it gets overwritten
     savedKeyboardContext.buttons = context.keyboard.content.suggestionButtons.buttons;
     savedKeyboardContext.firstButtonToken
@@ -1943,8 +1964,11 @@ static void displaySuggestionSelection(void)
     nbgl_layoutRelease(context.keyboard.layoutCtx);
     context.keyboard.layoutCtx = NULL;
 
-    snprintf(title, sizeof(title), "Select word #%d", context.keyboard.content.number);
-    nbgl_useCaseNavigableContent(title,
+    snprintf(savedKeyboardContext.title,
+             sizeof(savedKeyboardContext.title),
+             "Select word #%d",
+             context.keyboard.content.number);
+    nbgl_useCaseNavigableContent(savedKeyboardContext.title,
                                  0,
                                  1,
                                  savedKeyboardContext.backCallback,
@@ -3108,6 +3132,26 @@ void nbgl_useCaseChoiceWithDetails(const nbgl_icon_details_t *icon,
 
     displayChoicePage(FORWARD_DIRECTION);
 };
+
+// On Nano, the advanced variant falls back to the basic one:
+// - title     → message  (first text line)
+// - message   → subMessage (second text line; subMessage/gray address is not shown)
+// - headerIcon is ignored (no top-right button on Nano)
+void nbgl_useCaseAdvancedChoiceWithDetails(const nbgl_icon_details_t *centerIcon,
+                                           const nbgl_icon_details_t *headerIcon,
+                                           const char                *title,
+                                           const char                *message,
+                                           const char                *subMessage,
+                                           const char                *confirmText,
+                                           const char                *cancelText,
+                                           nbgl_genericDetails_t     *details,
+                                           nbgl_choiceCallback_t      callback)
+{
+    UNUSED(headerIcon);
+    UNUSED(subMessage);
+    nbgl_useCaseChoiceWithDetails(
+        centerIcon, title, message, confirmText, cancelText, details, callback);
+}
 
 /**
  * @brief Draws a page to confirm or not an action, described in a centered info (with info icon),

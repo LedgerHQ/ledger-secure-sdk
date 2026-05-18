@@ -430,7 +430,88 @@ static void test_buffer_write(void **state) {
     assert_int_equal(small_data[3], 0x44);  // last byte must remain unchanged
 }
 
-static void test_buffer_create(void **state) {
+static void test_buffer_get_path_bip32(void **state)
+{
+    (void) state;
+
+    // clang-format off
+    uint8_t temp[] = {
+        0x05,                            // length = 5
+        0x80, 0x00, 0x00, 0x2C,          // 44'
+        0x80, 0x00, 0x00, 0x01,          // 1'
+        0x80, 0x00, 0x00, 0x00,          // 0'
+        0x00, 0x00, 0x00, 0x00,          // 0
+        0x00, 0x00, 0x00, 0x00,          // 0
+        0xAB,                            // extra byte (should not be consumed)
+    };
+    // clang-format on
+
+    buffer_t     buf         = {.ptr = temp, .size = sizeof(temp), .offset = 0};
+    path_bip32_t bip32       = {0};
+    uint32_t     expected[5] = {0x8000002C, 0x80000001, 0x80000000, 0, 0};
+
+    assert_true(buffer_get_path_bip32(&buf, &bip32));
+    assert_int_equal(bip32.length, 5);
+    assert_memory_equal(bip32.path, expected, 5 * sizeof(uint32_t));
+    // offset must advance past length byte (1) + 5 components * 4 bytes = 21
+    assert_int_equal(buf.offset, 21);
+    // extra byte is still available
+    assert_true(buffer_can_read(&buf, 1));
+}
+
+static void test_bad_buffer_get_path_bip32(void **state)
+{
+    (void) state;
+
+    // clang-format off
+    uint8_t temp[21] = {
+        0x05,
+        0x80, 0x00, 0x00, 0x2C,
+        0x80, 0x00, 0x00, 0x01,
+        0x80, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+    };
+    // clang-format on
+
+    buffer_t     buf   = {.ptr = temp, .size = sizeof(temp), .offset = 0};
+    path_bip32_t bip32 = {0};
+
+    // NULL buffer
+    assert_false(buffer_get_path_bip32(NULL, &bip32));
+
+    // NULL path output
+    assert_false(buffer_get_path_bip32(&buf, NULL));
+
+    // Empty buffer (no bytes at all)
+    buffer_t empty = {.ptr = temp, .size = 0, .offset = 0};
+    assert_false(buffer_get_path_bip32(&empty, &bip32));
+
+    // Buffer fully consumed (offset == size)
+    buf.offset = buf.size;
+    assert_false(buffer_get_path_bip32(&buf, &bip32));
+    buf.offset = 0;
+
+    // Length byte present but not enough data for the declared components
+    uint8_t  short_data[] = {0x05, 0x80, 0x00, 0x00};  // only 3 bytes of path
+    buffer_t short_buf    = {.ptr = short_data, .size = sizeof(short_data), .offset = 0};
+    assert_false(buffer_get_path_bip32(&short_buf, &bip32));
+
+    // length == 0 (rejected by bip32_path_read)
+    uint8_t  zero_len[] = {0x00};
+    buffer_t zero_buf   = {.ptr = zero_len, .size = sizeof(zero_len), .offset = 0};
+    assert_false(buffer_get_path_bip32(&zero_buf, &bip32));
+
+    // length > MAX_BIP32_PATH (rejected by bip32_path_read even with enough data)
+    uint8_t too_long[1 + (MAX_BIP32_PATH + 1) * 4];
+    memset(too_long, 0, sizeof(too_long));
+    too_long[0]           = MAX_BIP32_PATH + 1;
+    buffer_t too_long_buf = {.ptr = too_long, .size = sizeof(too_long), .offset = 0};
+    assert_false(buffer_get_path_bip32(&too_long_buf, &bip32));
+}
+
+static void test_buffer_create(void **state)
+{
     (void) state;
 
     uint8_t data[32];
@@ -442,7 +523,8 @@ static void test_buffer_create(void **state) {
     assert_int_equal(buffer.offset, 0);
 }
 
-int main() {
+int main()
+{
     const struct CMUnitTest tests[] = {cmocka_unit_test(test_buffer_get_cur),
                                        cmocka_unit_test(test_buffer_can_read),
                                        cmocka_unit_test(test_buffer_seek),
@@ -452,6 +534,8 @@ int main() {
                                        cmocka_unit_test(test_buffer_peek),
                                        cmocka_unit_test(test_buffer_peek_n),
                                        cmocka_unit_test(test_buffer_write),
+                                       cmocka_unit_test(test_buffer_get_path_bip32),
+                                       cmocka_unit_test(test_bad_buffer_get_path_bip32),
                                        cmocka_unit_test(test_buffer_create)};
 
     return cmocka_run_group_tests(tests, NULL, NULL);

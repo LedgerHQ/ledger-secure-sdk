@@ -171,7 +171,7 @@ typedef struct {
     union {
         const nbgl_icon_details_t
             *valueIcon;  ///< - if alias, a buffer containing the 1BPP icon for icon
-                         ///< on right of value, on Stax/Flex (can be NULL)
+                         ///< on right of value, on Stax/Flex/Apex (can be NULL)
                          ///< - if centeredInfo, it's the icon of the centered info (can be NULL)
         const nbgl_contentValueExt_t
             *extension;  ///< if not NULL, gives additional info on value field

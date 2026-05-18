@@ -35,6 +35,9 @@
 // TODO: Remove seed cookie APDU handling
 #include "perso_private_syscalls.h"
 #endif  // HAVE_SEED_COOKIE
+#if defined(HAVE_ADDRESS_BOOK)
+#include "address_book.h"
+#endif
 
 /* Private enumerations ------------------------------------------------------*/
 
@@ -223,6 +226,15 @@ bolos_err_t os_io_handle_default_apdu(uint8_t                  *buffer_in,
     }
 
     if (DEFAULT_APDU_CLA == buffer_in[APDU_OFF_CLA]) {
+        PRINTF("[DEFAULT_APDU] => CLA=%02x, INS=%02x (%s), P1=%02x, P2=%02x, LC=%02x, CDATA=%.*h\n",
+               buffer_in[APDU_OFF_CLA],
+               buffer_in[APDU_OFF_INS],
+               DEFAULT_APDU_INS_STR(buffer_in[APDU_OFF_INS]),
+               buffer_in[APDU_OFF_P1],
+               buffer_in[APDU_OFF_P2],
+               buffer_in[APDU_OFF_LC],
+               buffer_in[APDU_OFF_LC],
+               &buffer_in[APDU_OFF_DATA]);
         switch (buffer_in[APDU_OFF_INS]) {
             case DEFAULT_APDU_INS_GET_VERSION:
                 if (!buffer_in[APDU_OFF_P1] && !buffer_in[APDU_OFF_P2]) {
@@ -289,6 +301,16 @@ bolos_err_t os_io_handle_default_apdu(uint8_t                  *buffer_in,
                     &buffer_in[APDU_OFF_LC + 1], buffer_in[APDU_OFF_LC], buffer_in[APDU_OFF_P1]);
                 break;
 #endif  // HAVE_LEDGER_PKI
+
+#if defined(HAVE_ADDRESS_BOOK)
+            case DEFAULT_APDU_INS_ADDRESS_BOOK:
+                *buffer_out_length = 0;
+                err                = addr_book_handle_apdu(&buffer_in[APDU_OFF_DATA],
+                                            buffer_in[APDU_OFF_LC],
+                                            buffer_in[APDU_OFF_P1],
+                                            buffer_in[APDU_OFF_P2]);
+                break;
+#endif  // HAVE_ADDRESS_BOOK
 
             default:
                 err = SWO_INVALID_CLA;

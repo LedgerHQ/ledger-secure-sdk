@@ -270,8 +270,8 @@ typedef struct {
 } nbgl_layoutBar_t;
 
 /**
- * @brief This structure contains info for Text content, to be set with @ref
- * nbgl_layoutAddTextContent
+ * @brief This structure contains info for Text content, to be set with
+ * nbgl_layoutAddTextContent().
  *
  */
 typedef struct {

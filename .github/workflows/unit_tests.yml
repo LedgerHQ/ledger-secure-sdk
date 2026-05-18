@@ -18,10 +18,10 @@ jobs:
 
     steps:
       - name: Clone
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install package libbsd-dev
-        run: apt-get install -y libbsd-dev
+        run: apt-get install -y libbsd-dev curl gpg
 
       - name: Find test directories
         id: find-tests
@@ -50,13 +50,13 @@ jobs:
             echo "::endgroup::"
           done
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: code-coverage
           path: unit-tests/*/coverage
 
       - name: Upload to codecov.io
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: ./unit-tests

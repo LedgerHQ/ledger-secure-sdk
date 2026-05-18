@@ -4,7 +4,7 @@
  * @file    lcx_aes_siv.h
  * @brief   Advanced Encryption Standard with Synthetic Initialization Vector (AES-SIV).
  *
- * @section Description
+ * @details
  *          AES-SIV is an algorithm which provides both authentication and encryption.
  *          It uses AES in CMAC mode to compute a synthetic initialization vector
  *          which is further used by the AES in counter mode to encrypt

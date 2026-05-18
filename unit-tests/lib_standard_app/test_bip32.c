@@ -90,11 +90,90 @@ static void test_bad_bip32_read(void **state) {
     assert_false(bip32_path_read(input, sizeof(input), output, 20));
 }
 
+static void test_bip32_format_simple(void **state)
+{
+    (void) state;
+
+    char output[30];
+    bool b = false;
+
+    path_bip32_t bip32 = {
+        .path   = {0x8000002C, 0x80000000, 0x80000000, 0, 0},
+        .length = 5,
+    };
+    b = bip32_path_format_simple(&bip32, output, sizeof(output));
+    assert_true(b);
+    assert_string_equal(output, "44'/0'/0'/0/0");
+
+    path_bip32_t bip32_2 = {
+        .path   = {0x8000002C, 0x80000001, 0x80000000, 0, 0},
+        .length = 5,
+    };
+    b = bip32_path_format_simple(&bip32_2, output, sizeof(output));
+    assert_true(b);
+    assert_string_equal(output, "44'/1'/0'/0/0");
+
+    // Single-component path
+    path_bip32_t bip32_single = {
+        .path   = {0x80000000},
+        .length = 1,
+    };
+    b = bip32_path_format_simple(&bip32_single, output, sizeof(output));
+    assert_true(b);
+    assert_string_equal(output, "0'");
+}
+
+static void test_bad_bip32_format_simple(void **state)
+{
+    (void) state;
+
+    char output[30];
+    bool b = true;
+
+    path_bip32_t bip32 = {
+        .path   = {0x8000002C},
+        .length = 1,
+    };
+
+    // NULL bip32
+    b = bip32_path_format_simple(NULL, output, sizeof(output));
+    assert_false(b);
+
+    // NULL output buffer
+    b = bip32_path_format_simple(&bip32, NULL, sizeof(output));
+    assert_false(b);
+
+    // Zero-length output buffer
+    b = bip32_path_format_simple(&bip32, output, 0);
+    assert_false(b);
+
+    // length == 0 (rejected by bip32_path_format)
+    path_bip32_t bip32_zero = {.path = {0}, .length = 0};
+    b = bip32_path_format_simple(&bip32_zero, output, sizeof(output));
+    assert_false(b);
+
+    // length > MAX_BIP32_PATH (rejected by bip32_path_format)
+    path_bip32_t bip32_too_long = {.path = {0}, .length = MAX_BIP32_PATH + 1};
+    b = bip32_path_format_simple(&bip32_too_long, output, sizeof(output));
+    assert_false(b);
+
+    // Output buffer too small to hold the formatted string
+    path_bip32_t bip32_long = {
+        .path   = {0x8000002C, 0x80000000, 0x80000000, 0, 0},
+        .length = 5,
+    };
+    char tiny[5];
+    b = bip32_path_format_simple(&bip32_long, tiny, sizeof(tiny));
+    assert_false(b);
+}
+
 int main() {
     const struct CMUnitTest tests[] = {cmocka_unit_test(test_bip32_format),
                                        cmocka_unit_test(test_bad_bip32_format),
                                        cmocka_unit_test(test_bip32_read),
-                                       cmocka_unit_test(test_bad_bip32_read)};
+                                       cmocka_unit_test(test_bad_bip32_read),
+                                       cmocka_unit_test(test_bip32_format_simple),
+                                       cmocka_unit_test(test_bad_bip32_format_simple)};
 
     return cmocka_run_group_tests(tests, NULL, NULL);
 }

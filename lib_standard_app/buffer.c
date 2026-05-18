@@ -22,7 +22,6 @@
 #include "buffer.h"
 #include "read.h"
 #include "varint.h"
-#include "bip32.h"
 #include "write.h"
 
 bool buffer_can_read(const buffer_t *buffer, size_t n)
@@ -149,6 +148,31 @@ bool buffer_read_bip32_path(buffer_t *buffer, uint32_t *out, size_t out_len)
     }
 
     buffer_seek_cur(buffer, sizeof(*out) * out_len);
+
+    return true;
+}
+
+bool buffer_get_path_bip32(buffer_t *buffer, path_bip32_t *bip32)
+{
+    if ((buffer == NULL) || (bip32 == NULL) || !buffer_can_read(buffer, 1)) {
+        return false;
+    }
+
+    bip32->length = buffer->ptr[buffer->offset];
+    buffer->offset++;
+
+    if (!buffer_can_read(buffer, sizeof(uint32_t) * bip32->length)) {
+        return false;
+    }
+
+    if (!bip32_path_read(buffer->ptr + buffer->offset,
+                         buffer->size - buffer->offset,
+                         bip32->path,
+                         bip32->length)) {
+        return false;
+    }
+
+    buffer_seek_cur(buffer, sizeof(*bip32->path) * bip32->length);
 
     return true;
 }

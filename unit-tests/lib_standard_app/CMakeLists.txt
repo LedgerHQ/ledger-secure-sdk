@@ -35,7 +35,11 @@ endif()
 
 add_compile_definitions(TEST)
 
-include_directories(../../lib_standard_app/)
+include_directories(
+  ../../lib_standard_app
+  ../../include
+  ../../target/stax/include
+)
 
 add_executable(test_base58 test_base58.c)
 add_executable(test_bip32 test_bip32.c)
