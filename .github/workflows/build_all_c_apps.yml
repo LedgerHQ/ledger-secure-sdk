@@ -293,7 +293,9 @@ jobs:
           name_re = re.compile(rf"^elf-(?P<app>.+)-(?P<target>{target_pattern})-(?P<builder>.+)$")
 
           # (app, target) -> {builder: text_size}
-          rows = {}
+          text_rows = {}
+          # (app, target) -> {builder: stack_size}
+          stack_rows = {}
 
           for artifact_dir in sorted(artifacts_root.glob("elf-*-*-*")):
               if not artifact_dir.is_dir():
@@ -322,37 +324,87 @@ jobs:
                   if len(cols) >= 2 and cols[0] == ".text":
                       text_size = int(cols[1])
                       break
-              if text_size is None:
-                  continue
+              if text_size is not None:
+                  text_rows.setdefault((app, target), {})[builder] = text_size
 
-              rows.setdefault((app, target), {})[builder] = text_size
+              # Extract stack size from _estack - _stack symbols
+              nm_out = subprocess.check_output(["arm-none-eabi-nm", str(elf)], text=True)
+              symbols = {}
+              for line in nm_out.splitlines():
+                  parts = line.split()
+                  if len(parts) >= 3:
+                      symbols[parts[2]] = int(parts[0], 16)
+              if "_estack" in symbols and "_stack" in symbols:
+                  stack_size = symbols["_estack"] - symbols["_stack"]
+                  stack_rows.setdefault((app, target), {})[builder] = stack_size
 
-          preferred = ["app-builder-latest", "clang21-no-sp", "clang21-sp-small", "clang21-sp"]
+          preferred = ["app-builder-latest", "clang21-no-sp", "clang21-sp", "clang21-sp-small"]
           builders = []
           seen = set()
           for b in preferred:
-              for data in rows.values():
+              for data in text_rows.values():
                   if b in data and b not in seen:
                       builders.append(b)
                       seen.add(b)
-          for data in rows.values():
+          for data in text_rows.values():
               for b in sorted(data):
                   if b not in seen:
                       builders.append(b)
                       seen.add(b)
 
+          # --- .text size table ---
           header = ["App name", "Target"] + [f"{b} .text size" for b in builders]
           header.append("clang21-no-sp vs baseline")
           header.append("clang21-sp vs baseline")
           header.append("clang21-sp-small vs baseline")
 
           md_lines = [
+              "## .text section sizes",
+              "",
               "| " + " | ".join(header) + " |",
               "| " + " | ".join(["---"] * len(header)) + " |",
           ]
 
-          for app, target in sorted(rows):
-              data = rows[(app, target)]
+          for app, target in sorted(text_rows):
+              data = text_rows[(app, target)]
+              values = [data.get(b) for b in builders]
+
+              diff_no_sp = "N/A"
+              if "app-builder-latest" in data and "clang21-no-sp" in data:
+                  base = data["app-builder-latest"]
+                  delta = data["clang21-no-sp"] - base
+                  diff_no_sp = f"{delta:+d} bytes"
+
+              diff_sp = "N/A"
+              if "app-builder-latest" in data and "clang21-sp" in data:
+                  base = data["app-builder-latest"]
+                  delta = data["clang21-sp"] - base
+                  diff_sp = f"{delta:+d} bytes"
+
+              diff_sp_small = "N/A"
+              if "app-builder-latest" in data and "clang21-sp-small" in data:
+                  base = data["app-builder-latest"]
+                  delta = data["clang21-sp-small"] - base
+                  diff_sp_small = f"{delta:+d} bytes"
+
+              row = [app, target] + [str(v) if v is not None else "N/A" for v in values] + [diff_no_sp, diff_sp, diff_sp_small]
+              md_lines.append("| " + " | ".join(row) + " |")
+
+          # --- Stack size table ---
+          md_lines.append("")
+          md_lines.append("## Stack sizes (_estack - _stack)")
+          md_lines.append("")
+
+          header2 = ["App name", "Target"] + [f"{b} stack size" for b in builders]
+          header2.append("clang21-no-sp vs baseline")
+          header2.append("clang21-sp vs baseline")
+          header2.append("clang21-sp-small vs baseline")
+
+          md_lines.append("| " + " | ".join(header2) + " |")
+          md_lines.append("| " + " | ".join(["---"] * len(header2)) + " |")
+
+          for app, target in sorted(stack_rows):
+              data = stack_rows[(app, target)]
               values = [data.get(b) for b in builders]
 
               diff_no_sp = "N/A"
