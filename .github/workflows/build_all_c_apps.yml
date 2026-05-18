@@ -93,6 +93,10 @@ jobs:
             image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-clang21-testing:latest
             sdk_ref: mbr/stack-protection
             extra_flags: ''
+          - name: clang21-sp-small
+            image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-clang21-testing:latest
+            sdk_ref: mbr/stack-protection-small
+            extra_flags: ''
     runs-on: ubuntu-latest
     container:
       image: ${{ matrix.builder.image }}
@@ -209,7 +213,7 @@ jobs:
             artifact_name=$(basename "$artifact_dir")
 
             builder=""
-            for b in app-builder-latest clang21-no-sp clang21-sp; do
+            for b in app-builder-latest clang21-no-sp clang21-sp-small clang21-sp; do
               if [[ "$artifact_name" == *-"$b" ]]; then
                 builder="$b"
                 break
@@ -323,7 +327,7 @@ jobs:
 
               rows.setdefault((app, target), {})[builder] = text_size
 
-          preferred = ["app-builder-latest", "clang21-no-sp", "clang21-sp"]
+          preferred = ["app-builder-latest", "clang21-no-sp", "clang21-sp-small", "clang21-sp"]
           builders = []
           seen = set()
           for b in preferred:
@@ -340,6 +344,7 @@ jobs:
           header = ["App name", "Target"] + [f"{b} .text size" for b in builders]
           header.append("clang21-no-sp vs baseline")
           header.append("clang21-sp vs baseline")
+          header.append("clang21-sp-small vs baseline")
 
           md_lines = [
               "| " + " | ".join(header) + " |",
@@ -362,7 +367,13 @@ jobs:
                   delta = data["clang21-sp"] - base
                   diff_sp = f"{delta:+d} bytes"
 
-              row = [app, target] + [str(v) if v is not None else "N/A" for v in values] + [diff_no_sp, diff_sp]
+              diff_sp_small = "N/A"
+              if "app-builder-latest" in data and "clang21-sp-small" in data:
+                  base = data["app-builder-latest"]
+                  delta = data["clang21-sp-small"] - base
+                  diff_sp_small = f"{delta:+d} bytes"
+
+              row = [app, target] + [str(v) if v is not None else "N/A" for v in values] + [diff_no_sp, diff_sp, diff_sp_small]
               md_lines.append("| " + " | ".join(row) + " |")
 
           pathlib.Path("build_sizes.md").write_text("\n".join(md_lines) + "\n", encoding="utf-8")
