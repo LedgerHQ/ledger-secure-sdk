@@ -100,8 +100,8 @@ LDFLAGS  += -Wl,--gc-sections -Wl,-Map,$(DBG_DIR)/app.map
 LDFLAGS  += -nostdlib -nodefaultlibs
 
 LDLIBS   += -Wl,--wrap=__stack_chk_fail -Wl,--wrap=__stack_chk_init
-AFLAGS   += -fstack-protector-strong
-CFLAGS   += -fstack-protector-strong
+AFLAGS   += -fstack-protector
+CFLAGS   += -fstack-protector
 
 ifeq ($(TARGET_NAME),TARGET_NANOX)
     CPU       = cortex-m3
