@@ -85,15 +85,14 @@ jobs:
             image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
             sdk_ref: API_LEVEL_26
             extra_flags: ''
-          - name: clang21-testing
+          - name: clang21-no-sp
+            image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-clang21-testing:latest
+            sdk_ref: mbr/clang-21-no-sp
+            extra_flags: ''
+          - name: clang21-sp
             image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-clang21-testing:latest
             sdk_ref: mbr/stack-protection
             extra_flags: ''
-          # - name: clang21-stack-protector
-          #   image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-clang21-testing:latest
-          #   sdk_ref: mbr/stack-protection
-          #   extra_flags: '-fstack-protector-strong'
-            # -Wl,--wrap=__stack_chk_fail -Wl,--wrap=__stack_chk_init
     runs-on: ubuntu-latest
     container:
       image: ${{ matrix.builder.image }}
@@ -210,7 +209,7 @@ jobs:
             artifact_name=$(basename "$artifact_dir")
 
             builder=""
-            for b in app-builder-latest clang21-stack-protector clang21-testing; do
+            for b in app-builder-latest clang21-no-sp clang21-sp; do
               if [[ "$artifact_name" == *-"$b" ]]; then
                 builder="$b"
                 break
@@ -324,7 +323,7 @@ jobs:
 
               rows.setdefault((app, target), {})[builder] = text_size
 
-          preferred = ["app-builder-latest", "clang21-testing", "clang21-stack-protector"]
+          preferred = ["app-builder-latest", "clang21-no-sp", "clang21-sp"]
           builders = []
           seen = set()
           for b in preferred:
@@ -339,8 +338,8 @@ jobs:
                       seen.add(b)
 
           header = ["App name", "Target"] + [f"{b} .text size" for b in builders]
-          header.append("clang21-testing vs baseline")
-          header.append("clang21-stack-protector vs baseline")
+          header.append("clang21-no-sp vs baseline")
+          header.append("clang21-sp vs baseline")
 
           md_lines = [
               "| " + " | ".join(header) + " |",
@@ -351,19 +350,19 @@ jobs:
               data = rows[(app, target)]
               values = [data.get(b) for b in builders]
 
-              diff_clang = "N/A"
-              if "app-builder-latest" in data and "clang21-testing" in data:
+              diff_no_sp = "N/A"
+              if "app-builder-latest" in data and "clang21-no-sp" in data:
                   base = data["app-builder-latest"]
-                  delta = data["clang21-testing"] - base
-                  diff_clang = f"{delta:+d} bytes"
+                  delta = data["clang21-no-sp"] - base
+                  diff_no_sp = f"{delta:+d} bytes"
 
               diff_sp = "N/A"
-              if "app-builder-latest" in data and "clang21-stack-protector" in data:
+              if "app-builder-latest" in data and "clang21-sp" in data:
                   base = data["app-builder-latest"]
-                  delta = data["clang21-stack-protector"] - base
+                  delta = data["clang21-sp"] - base
                   diff_sp = f"{delta:+d} bytes"
 
-              row = [app, target] + [str(v) if v is not None else "N/A" for v in values] + [diff_clang, diff_sp]
+              row = [app, target] + [str(v) if v is not None else "N/A" for v in values] + [diff_no_sp, diff_sp]
               md_lines.append("| " + " | ".join(row) + " |")
 
           pathlib.Path("build_sizes.md").write_text("\n".join(md_lines) + "\n", encoding="utf-8")
