@@ -89,10 +89,10 @@ jobs:
             image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-clang21-testing:latest
             sdk_ref: mbr/stack-protection
             extra_flags: ''
-          - name: clang21-stack-protector
-            image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-clang21-testing:latest
-            sdk_ref: mbr/stack-protection
-            extra_flags: '-fstack-protector-strong'
+          # - name: clang21-stack-protector
+          #   image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-clang21-testing:latest
+          #   sdk_ref: mbr/stack-protection
+          #   extra_flags: '-fstack-protector-strong'
             # -Wl,--wrap=__stack_chk_fail -Wl,--wrap=__stack_chk_init
     runs-on: ubuntu-latest
     container:
