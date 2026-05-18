@@ -2755,7 +2755,7 @@ static void displayInitialWarning(void)
             info.title = "Blind signing ahead";
             if (set & (1 << GATED_SIGNING_WARN)) {
                 info.description
-                    = "If you sign this transaction, you could loose your assets. "
+                    = "If you sign this transaction, you could lose your assets. "
                       "Explore safer alternatives: ledger.com/integrated-apps";
                 buttonsInfo.bottomText = "Accept risk and continue";
             }
