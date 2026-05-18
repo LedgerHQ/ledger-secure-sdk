@@ -1,5 +1,5 @@
 include_guard()
-include(${BOLOS_SDK}/fuzzing/macros/macros.cmake)
+include(${BOLOS_SDK}/fuzzing/v2/macros/macros.cmake)
 
 find_package(Python3 REQUIRED)
 
@@ -36,10 +36,10 @@ add_custom_command(
   COMMENT "Generating glyphs..."
   VERBATIM)
 
-add_library(glyphs STATIC EXCLUDE_FROM_ALL ${GLYPHS_C})
+add_library(ledger_fuzz_glyphs STATIC EXCLUDE_FROM_ALL ${GLYPHS_C})
 target_include_directories(
-  glyphs
+  ledger_fuzz_glyphs
   PUBLIC "${GEN_GLYPHS_DIR}" "${BOLOS_SDK}/include/"
          "${BOLOS_SDK}/target/${TARGET}/include"
          "${BOLOS_SDK}/lib_nbgl/include")
-target_link_libraries(glyphs macros)
+target_link_libraries(ledger_fuzz_glyphs ledger_fuzz_macros)

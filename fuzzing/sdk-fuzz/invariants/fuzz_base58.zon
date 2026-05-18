@@ -126,7 +126,7 @@
     },
     .{
         .name = "bn_pool",
-        .source_file = "../mock/cx/cx_bn_ec.c",
+        .source_file = "../v2/mock/cx/cx_bn_ec.c",
         .size_bytes = 1152,
         .is_static = true,
         .dims = .{.{ .len = 16, .stride_bytes = 72 }},
@@ -148,7 +148,7 @@
     },
     .{
         .name = "bn_next_slot",
-        .source_file = "../mock/cx/cx_bn_ec.c",
+        .source_file = "../v2/mock/cx/cx_bn_ec.c",
         .size_bytes = 4,
         .is_static = true,
         .dims = .{},
@@ -384,7 +384,7 @@
     },
     .{
         .name = "fuzz_mock_crypto_fail",
-        .source_file = "../mock/cx/cx_crypto.c",
+        .source_file = "../v2/mock/cx/cx_crypto.c",
         .size_bytes = 1,
         .is_static = false,
         .dims = .{},
@@ -399,7 +399,7 @@
     },
     .{
         .name = "ram_buffer",
-        .source_file = "../mock/nbgl/nbgl_runtime.c",
+        .source_file = "../v2/mock/nbgl/nbgl_runtime.c",
         .size_bytes = 512,
         .is_static = true,
         .dims = .{.{ .len = 512, .stride_bytes = 1 }},
@@ -414,7 +414,7 @@
     },
     .{
         .name = "obj_pool",
-        .source_file = "../mock/nbgl/nbgl_runtime.c",
+        .source_file = "../v2/mock/nbgl/nbgl_runtime.c",
         .size_bytes = 34304,
         .is_static = true,
         .dims = .{.{ .len = 512, .stride_bytes = 67 }},
@@ -429,7 +429,7 @@
     },
     .{
         .name = "obj_pool_idx",
-        .source_file = "../mock/nbgl/nbgl_runtime.c",
+        .source_file = "../v2/mock/nbgl/nbgl_runtime.c",
         .size_bytes = 2,
         .is_static = true,
         .dims = .{},
@@ -444,7 +444,7 @@
     },
     .{
         .name = "container_ptr_pool",
-        .source_file = "../mock/nbgl/nbgl_runtime.c",
+        .source_file = "../v2/mock/nbgl/nbgl_runtime.c",
         .size_bytes = 16384,
         .is_static = true,
         .dims = .{.{ .len = 2048, .stride_bytes = 8 }},
@@ -459,7 +459,7 @@
     },
     .{
         .name = "container_ptr_pool_idx",
-        .source_file = "../mock/nbgl/nbgl_runtime.c",
+        .source_file = "../v2/mock/nbgl/nbgl_runtime.c",
         .size_bytes = 2,
         .is_static = true,
         .dims = .{},
@@ -474,7 +474,7 @@
     },
     .{
         .name = "screen_elements",
-        .source_file = "../mock/nbgl/nbgl_runtime.c",
+        .source_file = "../v2/mock/nbgl/nbgl_runtime.c",
         .size_bytes = 256,
         .is_static = true,
         .dims = .{ .{ .len = 4, .stride_bytes = 64 }, .{ .len = 8, .stride_bytes = 8 } },
@@ -489,7 +489,7 @@
     },
     .{
         .name = "screen_stack_idx",
-        .source_file = "../mock/nbgl/nbgl_runtime.c",
+        .source_file = "../v2/mock/nbgl/nbgl_runtime.c",
         .size_bytes = 1,
         .is_static = true,
         .dims = .{},
@@ -504,7 +504,7 @@
     },
     .{
         .name = "fuzz_mock_nbgl_reject",
-        .source_file = "../mock/nbgl/nbgl_use_case.c",
+        .source_file = "../v2/mock/nbgl/nbgl_use_case.c",
         .size_bytes = 1,
         .is_static = false,
         .dims = .{},
@@ -519,7 +519,7 @@
     },
     .{
         .name = "G_exception_context",
-        .source_file = "../mock/os/os_exceptions.c",
+        .source_file = "../v2/mock/os/os_exceptions.c",
         .size_bytes = 8,
         .is_static = false,
         .dims = .{},
@@ -534,7 +534,7 @@
     },
     .{
         .name = "mock_memory",
-        .source_file = "../mock/os/os_runtime.c",
+        .source_file = "../v2/mock/os/os_runtime.c",
         .size_bytes = 510,
         .is_static = false,
         .dims = .{},
@@ -556,7 +556,7 @@
     },
     .{
         .name = "_bss",
-        .source_file = "../mock/os/os_runtime.c",
+        .source_file = "../v2/mock/os/os_runtime.c",
         .size_bytes = 8,
         .is_static = false,
         .dims = .{},
@@ -571,7 +571,7 @@
     },
     .{
         .name = "_ebss",
-        .source_file = "../mock/os/os_runtime.c",
+        .source_file = "../v2/mock/os/os_runtime.c",
         .size_bytes = 8,
         .is_static = false,
         .dims = .{},

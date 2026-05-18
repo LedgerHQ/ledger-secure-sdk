@@ -16,7 +16,7 @@
 
 #include "buffer.h"
 #include "use_cases/tlv_use_case_dynamic_descriptor.h"
-#include "tlv_mutator.h" /* from fuzzing/include/ */
+#include "tlv_mutator.h" /* from fuzzing/v2/include/ */
 
 #define FUZZ_PREFIX_SIZE_FALLBACK 0
 #define FUZZ_CTRL_OFF             SCEN_CTRL_OFF

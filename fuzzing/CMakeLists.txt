@@ -1,6 +1,10 @@
 include_guard()
 cmake_minimum_required(VERSION 3.14)
 
+if(${CMAKE_VERSION} VERSION_LESS 3.14)
+  cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
+endif()
+
 # project information
 project(
   SDKFuzzer
@@ -49,10 +53,6 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
   )
 endif()
 
-option(FUZZ_ENABLE_SOURCE_COVERAGE
-       "Enable LLVM source coverage instrumentation for replay reporting."
-       ON)
-
 # compatible with ClusterFuzzLite
 if(NOT DEFINED ENV{LIB_FUZZING_ENGINE})
   set(COMPILATION_FLAGS
@@ -71,53 +71,22 @@ if(NOT DEFINED ENV{LIB_FUZZING_ENGINE})
       -Wwrite-strings
       -ffunction-sections
       -fdata-sections
+      -fprofile-instr-generate
+      -fcoverage-mapping
       -funsigned-char
       -fshort-enums)
 
-  set(LINK_FLAGS -fuse-ld=lld)
-  if(FUZZ_ENABLE_SOURCE_COVERAGE)
-    list(APPEND COMPILATION_FLAGS -fprofile-instr-generate -fcoverage-mapping)
-    list(APPEND LINK_FLAGS -fprofile-instr-generate -fcoverage-mapping)
-  endif()
-  # Compile-time carve-outs for benign UBSan hits (vtable polymorphism,
-  # crypto wrapping arithmetic, allocator sign-change, etc.).
-  set(_FUZZ_IGNORELIST
-      "-fsanitize-ignorelist=${BOLOS_SDK}/fuzzing/sanitizers/ubsan-ignorelist.txt")
-
+  set(LINK_FLAGS -fprofile-instr-generate -fcoverage-mapping -fuse-ld=lld)
   if(SANITIZER MATCHES "address")
-    # Full sanitizer stack for memory-corruption hunting on BOLOS-targeted code.
-    # Groups: ASan + the complete UBSan 'undefined' set + 'integer' (catches
-    # implicit truncation/sign-change in length math) + 'nullability' (proven
-    # valuable: memcpy(NULL,0)) + 'local-bounds' (stack OOB, not in 'undefined')
-    # + 'float-divide-by-zero' (not in 'undefined'; no HW FPU on device).
-    #
-    # -fno-sanitize=alignment: the BOLOS allocator (lib_alloc) returns 4-byte
-    # aligned memory; structs with pointers need 8.  Cortex-M33 handles
-    # unaligned access natively, so this is safe on the target -- not a
-    # security concern.  Keeping it enabled drowns real findings in 100k+
-    # noise per campaign.
-    set(_FUZZ_SAN
-        fuzzer,address,undefined,integer,nullability,local-bounds,float-divide-by-zero)
-    list(APPEND COMPILATION_FLAGS
-        -fsanitize=${_FUZZ_SAN}
-        -fno-sanitize=alignment
-        -fsanitize-recover=unsigned-integer-overflow
-        ${_FUZZ_IGNORELIST})
-    list(APPEND LINK_FLAGS
-        -fsanitize=${_FUZZ_SAN}
-        -fno-sanitize=alignment
-        -fsanitize-recover=unsigned-integer-overflow
-        ${_FUZZ_IGNORELIST})
+    set(COMPILATION_FLAGS ${COMPILATION_FLAGS}
+                          -fsanitize=fuzzer,address,undefined)
+    set(LINK_FLAGS ${LINK_FLAGS} -fsanitize=fuzzer,address,undefined)
   elseif(SANITIZER MATCHES "memory")
     set(COMPILATION_FLAGS
         ${COMPILATION_FLAGS} -fsanitize=fuzzer,memory,undefined
-        -fno-sanitize=alignment
-        -fsanitize-memory-track-origins -fsanitize=fuzzer-no-link
-        ${_FUZZ_IGNORELIST})
+        -fsanitize-memory-track-origins -fsanitize=fuzzer-no-link)
     set(LINK_FLAGS ${LINK_FLAGS} -fsanitize=fuzzer,memory,undefined
-                   -fno-sanitize=alignment
-                   -fsanitize-memory-track-origins -fsanitize=fuzzer-no-link
-                   ${_FUZZ_IGNORELIST})
+                   -fsanitize-memory-track-origins -fsanitize=fuzzer-no-link)
   else()
     message(
       FATAL_ERROR
@@ -127,29 +96,29 @@ else()
   execute_process(COMMAND clang --version OUTPUT_VARIABLE CLANG_VERSION)
   message(STATUS "Clang version: ${CLANG_VERSION}")
 
-  set(COMPILATION_FLAGS "$ENV{CFLAGS}")
-  set(LINK_FLAGS "$ENV{CFLAGS} $ENV{LIB_FUZZING_ENGINE}")
+  execute_process(COMMAND ldd --version OUTPUT_VARIABLE LDD_VERSION)
+  set(COMPILATION_FLAGS "$ENV{LIB_FUZZING_ENGINE} $ENV{CFLAGS}")
+  set(LINK_FLAGS "$ENV{LIB_FUZZING_ENGINE} $ENV{CFLAGS}")
   separate_arguments(COMPILATION_FLAGS)
   separate_arguments(LINK_FLAGS)
-  list(APPEND COMPILATION_FLAGS
-      "-fsanitize-ignorelist=${BOLOS_SDK}/fuzzing/sanitizers/ubsan-ignorelist.txt")
-  list(APPEND LINK_FLAGS
-      "-fsanitize-ignorelist=${BOLOS_SDK}/fuzzing/sanitizers/ubsan-ignorelist.txt")
-  if(FUZZ_ENABLE_SOURCE_COVERAGE)
-    list(APPEND COMPILATION_FLAGS -fprofile-instr-generate -fcoverage-mapping)
-    list(APPEND LINK_FLAGS -fprofile-instr-generate -fcoverage-mapping)
-  endif()
   set(LINK_FLAGS ${LINK_FLAGS} -fuse-ld=lld)
 endif()
 
-# When configured from outside fuzzing/ (an app or sdk-fuzz), expose a
-# secure_sdk INTERFACE target aggregating every SDK library, the mock layer,
-# macro definitions, and the framework include path. Apps add
-# `target_link_libraries(<my_fuzzer> PRIVATE secure_sdk)` and get the full
-# SDK fuzz environment without touching per-lib CMake modules.
+# NBGL shared library is generated in Bolos, from NBGL sources from Bolos
+set(NBGL_SHARED_LIB ../../tests/screenshots/shared_libs/libnbgl_shared_${TARGET}.a)
+add_library(nbgl_shared STATIC IMPORTED)
+set_target_properties(
+    nbgl_shared
+      PROPERTIES
+      IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/shared_libs/libnbgl_shared_${TARGET}.a"
+  )
+
+# Fuzzing an APP
 if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
-  foreach(_lib alloc cxng glyphs io lists nbgl nfc pki qrcode standard_app tlv)
-    include("${BOLOS_SDK}/fuzzing/libs/lib_${_lib}.cmake")
+  file(GLOB LIBS "${BOLOS_SDK}/fuzzing/libs/*.cmake")
+
+  foreach(file IN LISTS LIBS)
+    include(${file})
   endforeach()
 
   add_library(secure_sdk INTERFACE)
@@ -160,7 +129,6 @@ if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
     INTERFACE macros
               alloc
               lists
-              mock
               cxng
               io
               nbgl
@@ -168,7 +136,17 @@ if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
               pki
               tlv
               qrcode
-              standard_app)
+              standard_app
+              mock)
 
-  target_include_directories(secure_sdk INTERFACE "${BOLOS_SDK}/fuzzing/include")
+  # Fuzzing the SDK
+else()
+  set(BOLOS_SDK ${CMAKE_SOURCE_DIR})
+  get_filename_component(BOLOS_SDK ${CMAKE_SOURCE_DIR} DIRECTORY)
+  # Include harness cmake files
+  file(GLOB cmake_extra_files "extra/*.cmake")
+  foreach(file IN LISTS cmake_extra_files)
+    include(${file})
+  endforeach()
+
 endif()

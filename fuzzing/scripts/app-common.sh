@@ -200,7 +200,7 @@ sync_invariant() {
   local sdk_dir="${BOLOS_SDK:?BOLOS_SDK must be set}"
 
   local -a extra_args=()
-  local fw_zeros="${sdk_dir}/fuzzing/invariants/sdk-zero-symbols.txt"
+  local fw_zeros="${sdk_dir}/fuzzing/v2/invariants/sdk-zero-symbols.txt"
   if [[ -f "${fw_zeros}" ]]; then
     extra_args+=(--framework-zeros "${fw_zeros}")
   fi

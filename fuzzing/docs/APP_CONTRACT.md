@@ -40,7 +40,7 @@ enough for coverage-guided fuzzing.
 LibFuzzer
   └─> LLVMFuzzerTestOneInput   (Absolution-generated)
         └─> fuzz_entry         (app, in harness/fuzz_dispatcher.c)
-              └─> fuzz_harness_entry   (SDK, fuzzing/include/fuzz_harness.h)
+              └─> fuzz_harness_entry   (SDK, fuzzing/v2/include/fuzz_harness.h)
                     ├─ pick a fuzz_command_spec_t
                     ├─ build a command_t from the tail
                     └─> fuzz_app_dispatch  (app)
@@ -204,7 +204,7 @@ ledger_fuzz_add_app_target(
 - `HARNESS   ${CMAKE_SOURCE_DIR}/harness/fuzz_dispatcher.c`
 - `ENTRY     fuzz_entry`
 - `INVARIANT ${CMAKE_SOURCE_DIR}/invariants/fuzz_globals.zon`
-- Links `secure_sdk` and any `EXTRA_TARGETS` the app requests.
+- Links `ledger_fuzz_secure_sdk` and any `EXTRA_TARGETS` the app requests.
 
 Apps with non-standard layouts can pass any of the above explicitly, or
 bypass the helper and call `absolution_add_fuzzer()` directly.
@@ -300,7 +300,7 @@ void os_explicit_zero_BSS_segment(void) {
 ```
 
 Do not reimplement SDK-level semantic mocks here; those live under
-`ledger-secure-sdk/fuzzing/mock/` and are linked via `secure_sdk`.
+`ledger-secure-sdk/fuzzing/v2/mock/` and are linked via `ledger_fuzz_secure_sdk`.
 
 ## `mock/scenario_layout.h`
 

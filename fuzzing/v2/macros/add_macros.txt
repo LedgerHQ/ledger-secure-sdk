@@ -1,0 +1,3 @@
+# Standard macros for fuzzer builds
+FUZZ
+FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION=1

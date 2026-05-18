@@ -71,7 +71,7 @@ BUILD_TYPE="${BUILD_TYPE:-RelWithDebInfo}"
 EXTRA_CORPUS="${EXTRA_CORPUS:-}"
 
 # shellcheck disable=SC1091
-source "${FUZZ_DIR}/sanitizers/load-options.sh"
+source "${BOLOS_SDK}/fuzzing/v2/sanitizers/load-options.sh"
 
 SKIP_INVARIANT_SYNC="${SKIP_INVARIANT_SYNC:-0}"
 

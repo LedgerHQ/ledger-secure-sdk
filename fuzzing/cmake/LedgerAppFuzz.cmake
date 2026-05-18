@@ -8,15 +8,16 @@ include_guard()
 # See ${BOLOS_SDK}/fuzzing/docs/APP_CONTRACT.md for the full contract.
 
 set(LEDGER_FUZZ_DIR "${CMAKE_CURRENT_LIST_DIR}/.." CACHE PATH "SDK fuzzing root")
+set(LEDGER_FUZZ_V2_DIR "${CMAKE_CURRENT_LIST_DIR}/../v2" CACHE PATH "SDK v2 fuzzing root")
 
 # Optional mutator sources — apps add these to their target's SOURCES /
 # EXTRA_TARGETS to opt into a grammar-aware mutator.
-set(LEDGER_FUZZ_TLV_MUTATOR_SOURCE "${LEDGER_FUZZ_DIR}/mock/tlv_mutator.c"
+set(LEDGER_FUZZ_TLV_MUTATOR_SOURCE "${LEDGER_FUZZ_V2_DIR}/mock/tlv_mutator.c"
     CACHE PATH "TLV grammar-aware mutator source")
 
 # Header validation
-if(NOT EXISTS "${BOLOS_SDK}/fuzzing/include/fuzz_mutator.h")
-  message(FATAL_ERROR "SDK fuzz headers not found at ${BOLOS_SDK}/fuzzing/include/")
+if(NOT EXISTS "${LEDGER_FUZZ_V2_DIR}/include/fuzz_mutator.h")
+  message(FATAL_ERROR "SDK fuzz headers not found at ${LEDGER_FUZZ_V2_DIR}/include/")
 endif()
 
 # Interface version — apps can set LEDGER_FUZZ_MIN_VERSION to require a minimum.
@@ -106,8 +107,8 @@ endfunction()
 macro(ledger_fuzz_setup)
   _ledger_fuzz_resolve_absolution()
   add_subdirectory(
-    ${BOLOS_SDK}/fuzzing
-    ${CMAKE_CURRENT_BINARY_DIR}/ledger-secure-sdk
+    ${LEDGER_FUZZ_V2_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}/ledger-secure-sdk-v2
     EXCLUDE_FROM_ALL)
   find_package(Absolution REQUIRED CONFIG)
 endmacro()
@@ -156,6 +157,6 @@ function(ledger_fuzz_add_app_target)
     INVARIANT           ${F_INVARIANT}
     INCLUDE_DIRECTORIES ${F_INCLUDE_DIRECTORIES}
     COMPILE_DEFINITIONS ${F_COMPILE_DEFINITIONS}
-    LINK_LIBRARIES      secure_sdk
+    LINK_LIBRARIES      ledger_fuzz_secure_sdk
   )
 endfunction()

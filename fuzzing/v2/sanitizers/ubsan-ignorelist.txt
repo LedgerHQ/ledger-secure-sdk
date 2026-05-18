@@ -40,7 +40,7 @@ src:*/lib_cxng/src/*
 src:*/lib_standard_app/buffer.c
 
 # tlv_mutator PRNG uses `Seed * 1103515245u + 12345u` — wrapping by design.
-src:*/fuzzing/mock/tlv_mutator.c
+src:*/fuzzing/v2/mock/tlv_mutator.c
 
 # SHA-256 mock (ROTR + modular-add round function): W schedule and
 # compression loop rely on wrapping uint32_t arithmetic, identical to the

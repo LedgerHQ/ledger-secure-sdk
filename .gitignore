@@ -20,7 +20,10 @@ unit-tests/lib_*/build/
 build
 fuzzing/build/
 fuzzing/out/
-fuzzing/mock/_generated/
+# v1 framework build output (cd fuzzing && cmake -S . -B build)
+fuzzing/mock/generated/
+# v2 framework build output (LedgerAppFuzz.cmake → add_subdirectory(fuzzing/v2))
+fuzzing/v2/mock/_generated/
 .fuzz-artifacts/
 *.profraw
 *.profdata

@@ -2,7 +2,7 @@
 
 The SDK mock layer replaces hardware-dependent SDK code with host-side
 implementations so fuzz builds link and run on Linux. Apps consume it
-through `secure_sdk`; nothing in this directory is copied into apps.
+through `ledger_fuzz_secure_sdk`; nothing in this directory is copied into apps.
 
 ## Layout
 
@@ -14,7 +14,7 @@ through `secure_sdk`; nothing in this directory is copied into apps.
 | `_generated/`  | Weak syscall stubs produced by `gen_mock.py` from `src/syscalls.c`  |
 | `tlv_mutator.c`| Optional TLV grammar-aware mutator source (opt-in per app)          |
 | `gen_mock.py`  | Generator that scans SDK syscalls and emits the weak stubs above    |
-| `mock.cmake`   | Builds the `mock` library and its include / link graph              |
+| `mock.cmake`   | Builds the `ledger_fuzz_mock` library and its include / link graph  |
 
 ## Strong vs weak overrides
 
@@ -51,19 +51,20 @@ streaming) and `app-ethereum/fuzzing/mock/`.
 
 ## CMake graph
 
-`mock.cmake` is included once by `fuzzing/libs/lib_*.cmake` aggregators.
-It builds a single `mock` static library from the lists above plus
-`src/os.c`, `src/ledger_assert.c`, and `src/cx_wrappers.c` from the SDK
+`mock.cmake` is included once by `fuzzing/v2/libs/lib_*.cmake` aggregators.
+It builds a single `ledger_fuzz_mock` static library from the lists above
+plus `src/os.c`, `src/ledger_assert.c`, and `src/cx_wrappers.c` from the SDK
 itself. Apps inherit the library through `target_link_libraries(...
-secure_sdk)`.
+ledger_fuzz_secure_sdk)`.
 
 The library's include path is intentionally minimal:
 
-- `mock/_generated/` for the generated syscall declarations.
+- `fuzzing/v2/mock/_generated/` for the generated syscall declarations.
 - `target/${TARGET}/` for device-specific headers used by mocks.
 
 App or SDK headers needed to compile mocks are pulled in transitively
-through `cxng`, `nbgl`, `standard_app`, and `macros`.
+through `ledger_fuzz_cxng`, `ledger_fuzz_nbgl`, `ledger_fuzz_standard_app`,
+and `ledger_fuzz_macros`.
 
 ## Adding a new strong override
 

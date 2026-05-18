@@ -48,7 +48,7 @@ absolution_add_fuzzer(
     ENTRY fuzz_entry
     INVARIANT ${CMAKE_SOURCE_DIR}/invariants/fuzz_alloc.zon
     INCLUDE_DIRECTORIES ${SDK_FUZZ_INCLUDE_DIRS}
-    LINK_LIBRARIES secure_sdk
+    LINK_LIBRARIES ledger_fuzz_secure_sdk
 )
 
 absolution_add_fuzzer(
@@ -60,7 +60,7 @@ absolution_add_fuzzer(
     ENTRY fuzz_entry
     INVARIANT ${CMAKE_SOURCE_DIR}/invariants/fuzz_alloc_utils.zon
     INCLUDE_DIRECTORIES ${SDK_FUZZ_INCLUDE_DIRS}
-    LINK_LIBRARIES secure_sdk
+    LINK_LIBRARIES ledger_fuzz_secure_sdk
 )
 
 absolution_add_fuzzer(
@@ -72,7 +72,7 @@ absolution_add_fuzzer(
     ENTRY fuzz_entry
     INVARIANT ${CMAKE_SOURCE_DIR}/invariants/fuzz_lists.zon
     INCLUDE_DIRECTORIES ${SDK_FUZZ_INCLUDE_DIRS}
-    LINK_LIBRARIES secure_sdk
+    LINK_LIBRARIES ledger_fuzz_secure_sdk
 )
 
 # ── Stateless targets ────────────────────────────────────────────────────────
@@ -86,7 +86,7 @@ absolution_add_fuzzer(
     ENTRY fuzz_entry
     INVARIANT ${CMAKE_SOURCE_DIR}/invariants/fuzz_apdu_parser.zon
     INCLUDE_DIRECTORIES ${SDK_FUZZ_INCLUDE_DIRS}
-    LINK_LIBRARIES secure_sdk
+    LINK_LIBRARIES ledger_fuzz_secure_sdk
 )
 
 absolution_add_fuzzer(
@@ -98,7 +98,7 @@ absolution_add_fuzzer(
     ENTRY fuzz_entry
     INVARIANT ${CMAKE_SOURCE_DIR}/invariants/fuzz_base58.zon
     INCLUDE_DIRECTORIES ${SDK_FUZZ_INCLUDE_DIRS}
-    LINK_LIBRARIES secure_sdk
+    LINK_LIBRARIES ledger_fuzz_secure_sdk
 )
 
 absolution_add_fuzzer(
@@ -110,7 +110,7 @@ absolution_add_fuzzer(
     ENTRY fuzz_entry
     INVARIANT ${CMAKE_SOURCE_DIR}/invariants/fuzz_bip32.zon
     INCLUDE_DIRECTORIES ${SDK_FUZZ_INCLUDE_DIRS}
-    LINK_LIBRARIES secure_sdk
+    LINK_LIBRARIES ledger_fuzz_secure_sdk
 )
 
 absolution_add_fuzzer(
@@ -122,7 +122,7 @@ absolution_add_fuzzer(
     ENTRY fuzz_entry
     INVARIANT ${CMAKE_SOURCE_DIR}/invariants/fuzz_qrcodegen.zon
     INCLUDE_DIRECTORIES ${SDK_FUZZ_INCLUDE_DIRS}
-    LINK_LIBRARIES secure_sdk
+    LINK_LIBRARIES ledger_fuzz_secure_sdk
 )
 
 # ── TLV targets ──────────────────────────────────────────────────────────────
@@ -140,7 +140,7 @@ absolution_add_fuzzer(
         ${SDK_FUZZ_INCLUDE_DIRS}
         ${CMAKE_SOURCE_DIR}/harness/
     COMPILE_DEFINITIONS APPNAME="Fuzzing"
-    LINK_LIBRARIES secure_sdk
+    LINK_LIBRARIES ledger_fuzz_secure_sdk
 )
 
 absolution_add_fuzzer(
@@ -156,7 +156,7 @@ absolution_add_fuzzer(
         ${SDK_FUZZ_INCLUDE_DIRS}
         ${CMAKE_SOURCE_DIR}/harness/
     COMPILE_DEFINITIONS APPNAME="Fuzzing"
-    LINK_LIBRARIES secure_sdk
+    LINK_LIBRARIES ledger_fuzz_secure_sdk
 )
 
 # ── NFC target ───────────────────────────────────────────────────────────────
@@ -170,5 +170,5 @@ absolution_add_fuzzer(
     ENTRY fuzz_entry
     INVARIANT ${CMAKE_SOURCE_DIR}/invariants/fuzz_nfc_ndef.zon
     INCLUDE_DIRECTORIES ${SDK_FUZZ_INCLUDE_DIRS}
-    LINK_LIBRARIES secure_sdk
+    LINK_LIBRARIES ledger_fuzz_secure_sdk
 )
