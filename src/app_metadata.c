@@ -24,8 +24,9 @@
 #define STR_IMPL_(x) #x
 #define STRINGIFY(x) STR_IMPL_(x)
 
-#define CREATE_METADATA_STRING_ITEM(ITEM_NAME, section_name)                                          \
-    __attribute__((section("ledger." #section_name))) const char section_name[sizeof(ITEM_NAME) - 1] \
+#define CREATE_METADATA_STRING_ITEM(ITEM_NAME, section_name)     \
+    __attribute__((section("ledger." #section_name), nonstring)) \
+    const char section_name[sizeof(ITEM_NAME) - 1]               \
         = ITEM_NAME;
 
 #define CREATE_METADATA_STRING_ITEM_FROM_INT(ITEM_NAME, section_name) \
