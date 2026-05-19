@@ -373,19 +373,19 @@ jobs:
               if "app-builder-latest" in data and "clang21-no-sp" in data:
                   base = data["app-builder-latest"]
                   delta = data["clang21-no-sp"] - base
-                  diff_no_sp = f"{delta:+d} bytes"
+                  diff_no_sp = f"{delta:+d} "
 
               diff_sp = "N/A"
               if "app-builder-latest" in data and "clang21-sp" in data:
                   base = data["app-builder-latest"]
                   delta = data["clang21-sp"] - base
-                  diff_sp = f"{delta:+d} bytes"
+                  diff_sp = f"{delta:+d} "
 
               diff_sp_small = "N/A"
               if "app-builder-latest" in data and "clang21-sp-small" in data:
                   base = data["app-builder-latest"]
                   delta = data["clang21-sp-small"] - base
-                  diff_sp_small = f"{delta:+d} bytes"
+                  diff_sp_small = f"{delta:+d} "
 
               row = [app, target] + [str(v) if v is not None else "N/A" for v in values] + [diff_no_sp, diff_sp, diff_sp_small]
               md_lines.append("| " + " | ".join(row) + " |")
@@ -411,19 +411,19 @@ jobs:
               if "app-builder-latest" in data and "clang21-no-sp" in data:
                   base = data["app-builder-latest"]
                   delta = data["clang21-no-sp"] - base
-                  diff_no_sp = f"{delta:+d} bytes"
+                  diff_no_sp = f"{delta:+d} "
 
               diff_sp = "N/A"
               if "app-builder-latest" in data and "clang21-sp" in data:
                   base = data["app-builder-latest"]
                   delta = data["clang21-sp"] - base
-                  diff_sp = f"{delta:+d} bytes"
+                  diff_sp = f"{delta:+d} "
 
               diff_sp_small = "N/A"
               if "app-builder-latest" in data and "clang21-sp-small" in data:
                   base = data["app-builder-latest"]
                   delta = data["clang21-sp-small"] - base
-                  diff_sp_small = f"{delta:+d} bytes"
+                  diff_sp_small = f"{delta:+d} "
 
               row = [app, target] + [str(v) if v is not None else "N/A" for v in values] + [diff_no_sp, diff_sp, diff_sp_small]
               md_lines.append("| " + " | ".join(row) + " |")
