@@ -996,7 +996,8 @@ static void displayExtensionStep(nbgl_stepPosition_t pos)
                                         : context.review.extension->fullValue;
                 }
                 else if (has_scope && page == 1) {
-                    text = context.review.extension->fullValue;
+                    text    = context.review.extension->title;
+                    subText = context.review.extension->fullValue;
                 }
                 else if (has_tn) {
                     text = context.review.extension->explanation;
