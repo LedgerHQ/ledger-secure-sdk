@@ -328,7 +328,7 @@ jobs:
                   text_rows.setdefault((app, target), {})[builder] = text_size
 
               # Extract stack size from _estack - _stack symbols
-              nm_out = subprocess.check_output(["arm-none-eabi-nm", str(elf)], text=True)
+              nm_out = subprocess.check_output(["nm", str(elf)], text=True)
               symbols = {}
               for line in nm_out.splitlines():
                   parts = line.split()
