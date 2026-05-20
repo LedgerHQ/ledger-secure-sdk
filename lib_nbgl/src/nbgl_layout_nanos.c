@@ -35,6 +35,9 @@
 // this is the maximum number of chars fitting in a line
 #define NB_MAX_CHAR_IN_LINE 20
 
+#define ELLIPSIS      "..."
+#define ELLIPSIS_SIZE sizeof(ELLIPSIS)  // includes '\0'
+
 /**********************
  *      MACROS
  **********************/
@@ -356,20 +359,20 @@ int nbgl_layoutAddText(nbgl_layout_t                  *layout,
                 button->obj.alignmentMarginY = 8 + 7;
                 textWidth                    = nbgl_getTextWidth(button->fontId, button->text);
                 if ((textWidth + BUTTON_MARGIN_Y) >= AVAILABLE_WIDTH) {
-                    static char tmpString2[NB_MAX_CHAR_IN_LINE];
+                    static char    tmpString2[NB_MAX_CHAR_IN_LINE];
+                    const uint16_t ellipsisWidth = nbgl_getTextWidth(button->fontId, ELLIPSIS);
                     nbgl_getTextMaxLenAndWidth(button->fontId,
                                                button->text,
-                                               AVAILABLE_WIDTH - BUTTON_MARGIN_Y,
+                                               AVAILABLE_WIDTH - BUTTON_MARGIN_Y - ellipsisWidth,
                                                &len,
                                                &width,
                                                true);
-                    button->obj.area.width = width + BUTTON_MARGIN_Y;
-                    // copy the first 'len' chars in the tmp string buffer (max is
-                    // NB_MAX_CHAR_IN_LINE-1)
-                    memcpy(tmpString2, button->text, MIN(len, (NB_MAX_CHAR_IN_LINE - 1)));
-                    // NULL termination
-                    tmpString2[MIN(len, (NB_MAX_CHAR_IN_LINE - 1))] = '\0';
-                    button->text                                    = PIC(tmpString2);
+                    button->obj.area.width = width + ellipsisWidth + BUTTON_MARGIN_Y;
+                    // copy the first 'len' chars then append ELLIPSIS (ELLIPSIS_SIZE includes '\0')
+                    uint16_t copyLen = MIN(len, (NB_MAX_CHAR_IN_LINE - ELLIPSIS_SIZE));
+                    memcpy(tmpString2, button->text, copyLen);
+                    memcpy(tmpString2 + copyLen, ELLIPSIS, ELLIPSIS_SIZE);
+                    button->text = PIC(tmpString2);
                 }
                 else {
                     button->obj.area.width = textWidth + BUTTON_MARGIN_Y;

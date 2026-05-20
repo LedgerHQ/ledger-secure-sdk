@@ -331,7 +331,14 @@ static void ui_display(void)
     nbPairs++;
     g_ab_ui.list.pairs   = g_ab_ui.pairs;
     g_ab_ui.list.nbPairs = nbPairs;
-    address_book_display_review(NULL, "Edit account name", "Confirm edit?", review_choice);
+    address_book_display_review(NULL,
+                                "Edit account name",
+#ifdef SCREEN_SIZE_WALLET
+                                "Confirm edit?",
+#else
+                                "Confirm edit",
+#endif
+                                review_choice);
 }
 
 /* Exported functions --------------------------------------------------------*/
