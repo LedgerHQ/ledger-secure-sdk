@@ -417,7 +417,11 @@ static void ui_display(void)
     g_ab_ui.list.callback = get_register_identity_tagValue;
     address_book_display_review(&LARGE_ADDRESS_BOOK_ICON,
                                 "Review contact details",
+#ifdef SCREEN_SIZE_WALLET
                                 "Confirm contact details?",
+#else
+                                "Confirm contact details",
+#endif
                                 review_choice);
 }
 
