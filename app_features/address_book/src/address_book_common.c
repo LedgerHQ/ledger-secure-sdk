@@ -172,7 +172,7 @@ void address_book_display_review(const nbgl_icon_details_t *icon,
 void address_book_handle_review_rejected(nbgl_callback_t finalize)
 {
     io_send_sw(SWO_INCORRECT_DATA);
-    nbgl_useCaseReviewStatus(STATUS_TYPE_OPERATION_REJECTED, finalize);
+    nbgl_useCaseStatus("Canceled", false, finalize);
 }
 
 /**

@@ -3844,6 +3844,10 @@ void nbgl_useCaseAdvancedChoiceWithDetails(const nbgl_icon_details_t *centerIcon
 
     reset_callbacks_and_context();
 
+#ifdef HAVE_PIEZO_SOUND
+    os_io_seph_cmd_piezo_play_tune(TUNE_LOOK_AT_ME);
+#endif  // HAVE_PIEZO_SOUND
+
     onChoice                                = callback;
     layoutDescription.modal                 = false;
     layoutDescription.withLeftBorder        = true;
