@@ -26,8 +26,8 @@ static uint32_t reverse_32_bits(uint32_t value)
     uint32_t reverse_val = 0;
 
     for (uint8_t i = 0; i < 32; i++) {
-        if ((value & (1 << i))) {
-            reverse_val |= 1 << ((32 - 1) - i);
+        if ((value & ((uint32_t) 1 << i))) {
+            reverse_val |= (uint32_t) 1 << ((32 - 1) - i);
         }
     }
     return reverse_val;
