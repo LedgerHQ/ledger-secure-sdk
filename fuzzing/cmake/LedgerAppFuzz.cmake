@@ -132,6 +132,51 @@ macro(ledger_fuzz_setup)
   find_package(Absolution REQUIRED CONFIG)
 endmacro()
 
+# Resolves the `-fsanitize=` argument set the Absolution-managed app target
+# must compile and link with. Three regimes:
+#
+#   1. CFL / OSS-Fuzz drives the build → `LIB_FUZZING_ENGINE` env var is set.
+#      The runner pre-populated `CFLAGS` / `CXXFLAGS` with the chosen
+#      sanitizer (`address`, `memory`, `undefined`, …) plus
+#      `-fsanitize=fuzzer-no-link`, and `LIB_FUZZING_ENGINE` carries
+#      `-fsanitize=fuzzer` (or the libFuzzer object). Mirror the
+#      sanitizer part so Absolution does not append a conflicting
+#      `-fsanitize=fuzzer,address` default — `clang` rejects mixed
+#      address+memory or memory+undefined on the same TU.
+#
+#   2. App developer sets `SANITIZER=address|memory|undefined|coverage` from
+#      the shell or `app-campaign.sh` → mirror that exact choice.
+#
+#   3. No hints → fall back to Absolution's historical `fuzzer,address`
+#      default so existing dev workflows keep working unchanged.
+function(_ledger_fuzz_resolve_sanitizers out_var)
+  set(_san "")
+  if(DEFINED ENV{LIB_FUZZING_ENGINE})
+    set(_cflags "$ENV{CFLAGS} $ENV{CXXFLAGS}")
+    if(_cflags MATCHES "-fsanitize=([a-zA-Z0-9_,-]+)")
+      set(_san_raw "${CMAKE_MATCH_1}")
+      string(REPLACE "," ";" _san_list "${_san_raw}")
+      list(REMOVE_ITEM _san_list "fuzzer" "fuzzer-no-link")
+      list(JOIN _san_list "," _san_clean)
+      if(_san_clean)
+        set(_san "fuzzer,${_san_clean}")
+      endif()
+    endif()
+    if(NOT _san)
+      set(_san "fuzzer")
+    endif()
+  elseif(DEFINED SANITIZER AND NOT SANITIZER STREQUAL "")
+    if(SANITIZER STREQUAL "coverage")
+      set(_san "fuzzer,address")
+    else()
+      set(_san "fuzzer,${SANITIZER}")
+    endif()
+  else()
+    set(_san "fuzzer,address")
+  endif()
+  set(${out_var} "${_san}" PARENT_SCOPE)
+endfunction()
+
 # ── App-target helper ────────────────────────────────────────────────────────
 # Convenience wrapper over absolution_add_fuzzer() for the common single-target
 # shape that all Ledger apps share.  Apps pass sources / includes / defines as
@@ -146,12 +191,16 @@ endmacro()
 #     [HARNESS            ${CMAKE_SOURCE_DIR}/harness/fuzz_dispatcher.c]
 #     [ENTRY              fuzz_entry]
 #     [INVARIANT          ${CMAKE_SOURCE_DIR}/invariants/fuzz_globals.zon]
+#     [SANITIZERS         "fuzzer,address"]   # explicit override
 #   )
 #
+# When SANITIZERS is omitted the helper picks the right value automatically:
+# CFLAGS / LIB_FUZZING_ENGINE under ClusterFuzzLite, the `SANITIZER` CMake
+# variable under `app-campaign.sh`, or `fuzzer,address` as a last resort.
 function(ledger_fuzz_add_app_target)
   cmake_parse_arguments(F
     ""
-    "NAME;HARNESS;ENTRY;INVARIANT"
+    "NAME;HARNESS;ENTRY;INVARIANT;SANITIZERS"
     "SOURCES;INCLUDE_DIRECTORIES;COMPILE_DEFINITIONS;EXTRA_TARGETS"
     ${ARGN})
 
@@ -167,6 +216,10 @@ function(ledger_fuzz_add_app_target)
   if(NOT F_INVARIANT)
     set(F_INVARIANT "${CMAKE_SOURCE_DIR}/invariants/fuzz_globals.zon")
   endif()
+  if(NOT F_SANITIZERS)
+    _ledger_fuzz_resolve_sanitizers(F_SANITIZERS)
+  endif()
+  message(STATUS "LedgerFuzz: ${F_NAME} using -fsanitize=${F_SANITIZERS}")
 
   absolution_add_fuzzer(
     NAME                ${F_NAME}
@@ -174,6 +227,7 @@ function(ledger_fuzz_add_app_target)
     HARNESS             ${F_HARNESS}
     ENTRY               ${F_ENTRY}
     INVARIANT           ${F_INVARIANT}
+    SANITIZERS          ${F_SANITIZERS}
     INCLUDE_DIRECTORIES ${F_INCLUDE_DIRECTORIES}
     COMPILE_DEFINITIONS ${F_COMPILE_DEFINITIONS}
     LINK_LIBRARIES      secure_sdk
