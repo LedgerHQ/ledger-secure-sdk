@@ -1087,8 +1087,15 @@ static void getLastPageInfo(bool approve, const nbgl_icon_details_t **icon, cons
     if (approve) {
         // Approve page
         *icon = &C_icon_validate_14;
-        if ((context.type == ADDRESS_REVIEW_USE_CASE)
-            || (context.operationType & ADDRESS_BOOK_OPERATION)) {
+        if (context.operationType & ADDRESS_BOOK_OPERATION) {
+            if ((context.type == REVIEW_USE_CASE) && (context.review.finishTitle != NULL)) {
+                *text = context.review.finishTitle;
+            }
+            else {
+                *text = "Confirm contact details";
+            }
+        }
+        else if (context.type == ADDRESS_REVIEW_USE_CASE) {
             *text = "Confirm";
         }
         else {
