@@ -1,0 +1,45 @@
+# Minimal fuzz manifest template.
+#
+# Copy to <APP_SRC>/fuzzing/fuzz-manifest.toml, then compare with
+# app-boilerplate/fuzzing/fuzz-manifest.toml for a filled example.
+
+[target]
+fuzzer = "fuzz_globals"
+harness_version = "6"        # bump when the input ABI changes
+
+[coverage]
+key_files = [
+    # Paths relative to APP_SRC.
+    # "src/handler/my_handler.c",
+]
+exclude_regexes = [
+    '.*ledger-secure-sdk.*',
+    '.*fuzz_dispatcher\.c',
+    '.*fuzzer\.c',
+    '.*fuzzing/mock/.*',
+    '.*src/app_main\.c',
+    '.*src/ui/menu_nbgl\.c',
+]
+
+# [layout]
+# extra_args = []            # Advanced apps only (see Bitcoin).
+
+[dictionary]
+tokens = [
+    # { name = "cla_app", value = "\\xE0" },
+    # { name = "get_version", value = "\\xE0\\x03\\x00\\x00" },
+]
+
+[seeds]
+cla = 0xE0
+ins = [0x01]
+
+[seeds.generic]
+enabled = true
+
+[seeds.custom]
+enabled = false
+# script = "my-seed-gen.py"
+
+[mocks]
+override_sources = []

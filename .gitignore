@@ -20,4 +20,13 @@ unit-tests/lib_*/build/
 build
 fuzzing/build/
 fuzzing/out/
-fuzzing/mock/generated/
+fuzzing/mock/_generated/
+# SDK self-fuzz Absolution artifacts regenerated per build/sanitizer.
+fuzzing/sdk-fuzz/invariants/*.zon
+fuzzing/sdk-fuzz/mock/scenario_layout.h
+.fuzz-artifacts/
+*.profraw
+*.profdata
+
+# LSP
+compile_commands.json

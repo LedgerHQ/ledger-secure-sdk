@@ -1,0 +1,2 @@
+# Extra macros for SDK self-fuzz targets.
+HAVE_NDEF_SUPPORT

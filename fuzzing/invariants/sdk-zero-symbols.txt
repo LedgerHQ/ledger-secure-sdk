@@ -1,0 +1,95 @@
+# Framework-owned SDK and NBGL zero-symbol policy.
+#
+# Globals listed here are zeroed in every app's invariant, removing them
+# from the fuzzable prefix (zero-cost fixed domain).  These are SDK,
+# UI, and mock-infrastructure state that is irrelevant to app-level
+# fuzzing.  Apps can add extra symbols via their local zero-symbols.txt.
+#
+# Syntax: plain name, or name@source_substring for disambiguation.
+
+# ── SDK I/O layer ─────────────────────────────────────────────────────────
+G_io_app
+G_io_seproxyhal_spi_buffer
+G_io_rx_buffer
+G_io_tx_buffer
+G_io_asynch_ux_callback
+
+# ── UX / NBGL state ──────────────────────────────────────────────────────
+G_ux
+G_ux_params
+G_ux_os
+gLogger
+
+# ── NBGL layout / object pools (mock and SDK sources) ────────────────────
+ram_buffer@nbgl_runtime.c
+obj_pool@nbgl_runtime.c
+obj_pool_idx@nbgl_runtime.c
+container_ptr_pool@nbgl_runtime.c
+container_ptr_pool_idx@nbgl_runtime.c
+screen_elements@nbgl_runtime.c
+screen_stack_idx@nbgl_runtime.c
+gLayout
+topLayout
+nbTouchableControls
+navText
+tmpString
+
+# ── NBGL use-case state / callbacks (nbgl_use_case.c) ────────────────────
+onQuit@nbgl_use_case.c
+onContinue@nbgl_use_case.c
+onAction@nbgl_use_case.c
+onNav@nbgl_use_case.c
+onControls@nbgl_use_case.c
+onContentAction@nbgl_use_case.c
+onChoice@nbgl_use_case.c
+onModalConfirm@nbgl_use_case.c
+onValidatePin@nbgl_use_case.c
+pageContext@nbgl_use_case.c
+modalPageContext@nbgl_use_case.c
+pageTitle@nbgl_use_case.c
+navInfo@nbgl_use_case.c
+forwardNavOnly@nbgl_use_case.c
+navType@nbgl_use_case.c
+detailsContext@nbgl_use_case.c
+addressConfirmationContext@nbgl_use_case.c
+genericContext@nbgl_use_case.c
+localContentsList@nbgl_use_case.c
+genericContextPagesInfo@nbgl_use_case.c
+modalContextPagesInfo@nbgl_use_case.c
+bundleNavContext@nbgl_use_case.c
+reducedAddress@nbgl_use_case.c
+
+# ── SDK mock infrastructure ───────────────────────────────────────────────
+mock_memory
+bn_pool
+bn_next_slot
+G_exception_context
+mem_utils_ctx
+
+# ── USB transport (lib_stusb) ────────────────────────────────────────────
+# Mocked out entirely; random bytes in transport structs cannot reach app
+# code and waste ~1400B of prefix space.
+usbd_ledger_data@usbd_ledger.c
+usbd_ledger_init_data@usbd_ledger.c
+usbd_ledger_descriptor@usbd_ledger.c
+USBD_LEDGER_io_buffer
+USBD_LEDGER_protocol_chunk_buffer
+ledger_hid_handle@usbd_ledger_hid.c
+ledger_hid_u2f_handle@usbd_ledger_hid_u2f.c
+u2f_transport_packet_buffer@usbd_ledger_hid_u2f.c
+ledger_webusb_handle@usbd_ledger_webusb.c
+USBD_desc_device_desc_patched@usbd_desc.c
+USBD_StringSerial@usbd_desc.c
+USBD_StrDesc@usbd_desc.c
+
+# ── BLE transport (lib_blewbxx) ──────────────────────────────────────────
+# Same rationale as USB — BLE stack is fully mocked, ~800B wasted.
+ble_ledger_data@ble_ledger.c
+ledger_apdu_profile_handle@ble_ledger_profile_apdu.c
+ble_ledger_protocol_chunk_buffer@ble_ledger_profile_apdu.c
+BLE_LEDGER_apdu_buffer@ble_ledger_profile_apdu.c
+
+# ── Framework harness globals (reset by fuzz_app_reset) ───────────────────
+fuzz_exit_jump_ctx
+fuzz_tail_ptr
+fuzz_tail_len

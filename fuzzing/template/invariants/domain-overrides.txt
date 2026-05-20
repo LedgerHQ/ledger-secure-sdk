@@ -1,0 +1,9 @@
+# Optional domain overrides.
+#
+# Add entries here after the first invariant sync when some state fields should
+# be constrained to valid enum values instead of remaining fully fuzzable.
+#
+# Examples:
+# G_context.state = values \x00 \x01 \x02
+# some_flag. = values \x00 \x01
+# some_counter. = top

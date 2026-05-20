@@ -1,0 +1,102 @@
+# Compile-time sanitizer carve-outs (LLVM SanitizerSpecialCaseList format).
+# Single source of truth for per-TU suppressions.
+# Ref: https://clang.llvm.org/docs/SanitizerSpecialCaseList.html
+#
+# Prefer this file over runtime suppressions (ubsan-suppressions.txt) — it
+# avoids instrumentation entirely, so there is zero overhead and no need for
+# debug info at the call site.
+#
+# NOTE: alignment checks are disabled globally via -fno-sanitize=alignment in
+# CMakeLists.txt.  The BOLOS allocator (lib_alloc) returns 4-byte aligned
+# memory; many structs with pointers need 8.  Cortex-M33 handles unaligned
+# access natively, so this is safe on the target hardware.
+
+# === function-type-mismatch ===================================================
+# C-style vtable polymorphism: typed init/update/final callbacks cast to the
+# base cx_hash_t.  Not a real bug; ABI-compatible on all target platforms.
+[function]
+src:*/lib_cxng/src/*
+
+# lib_tlv uses the same DEFINE_TLV_HANDLER pattern; _parse_tlv_internal
+# dispatches typed callbacks through a generic tlv_handler_cb_t.
+src:*/lib_tlv/*
+
+# lib_lists dispatches typed comparison/equality callbacks through generic
+# flist_cmp_cb_t / flist_equal_cb_t.  Same polymorphism pattern.
+src:*/lib_lists/*
+
+# === unsigned integer overflow / shift ========================================
+# Crypto round functions (SHA-256, SHA-3, cx_utils byte-swap) use wrapping
+# unsigned arithmetic and shifts by design.  These are not UB in C (unsigned
+# overflow wraps per the standard) but -fsanitize=integer flags them.
+# Silenced only for lib_cxng — remains active for app code, IO, buffer-length
+# math, and every other SDK library.
+[unsigned-integer-overflow]
+src:*/lib_cxng/src/*
+
+# buffer_seek_cur/buffer_seek_end use unsigned wrap to detect overflow:
+#   if (offset + n < offset)  →  wraps intentionally as the guard condition.
+# Correct defensive code; not a bug.
+src:*/lib_standard_app/buffer.c
+
+# tlv_mutator PRNG uses `Seed * 1103515245u + 12345u` — wrapping by design.
+src:*/fuzzing/mock/tlv_mutator.c
+
+# SHA-256 mock (ROTR + modular-add round function): W schedule and
+# compression loop rely on wrapping uint32_t arithmetic, identical to the
+# on-device SHA-256 implementation.
+src:*/app-bitcoin-new/fuzzing/mock/fuzz_sha256.c
+
+# Bech32 reference implementation (BIP-0173): convert_bits uses
+# `while (inlen--)` underflow as loop sentinel and wraps val<<inbits
+# into a uint32_t accumulator by design.
+src:*/src/common/segwit_addr.c
+
+# Big-integer libraries (uint128/uint256): sub128, add128, divmod256 etc.
+# use wrapping unsigned arithmetic for carry/borrow propagation.
+# NOT buffer-length math; these are multi-word integer primitives.
+src:*/src/uint128.c
+src:*/src/uint256.c
+
+[unsigned-shift-base]
+src:*/lib_cxng/src/*
+src:*/app-bitcoin-new/fuzzing/mock/fuzz_sha256.c
+src:*/src/common/segwit_addr.c
+
+# Big-integer libraries: shift/shiftl128, shiftr128 intentionally shift
+# uint64_t values past their width for carry propagation.
+src:*/src/uint128.c
+
+[shift-base]
+src:*/lib_cxng/src/*
+src:*/app-bitcoin-new/fuzzing/mock/fuzz_sha256.c
+src:*/src/common/segwit_addr.c
+src:*/src/uint128.c
+
+# === implicit-integer-sign-change =============================================
+# lib_alloc size/offset arithmetic: alignment rounding, bitwise-NOT on size_t,
+# segment index computation via __builtin_clz.  All intentional allocator math.
+[implicit-integer-sign-change]
+src:*/lib_alloc/*
+
+# Bech32 polymod step uses `-((b >> i) & 1) & 0x...UL` as a branchless
+# mask — intentional sign-extension idiom from the BIP-0173 reference.
+src:*/src/common/segwit_addr.c
+
+# === implicit-unsigned-integer-truncation =====================================
+# APDU status word byte extraction:  err >> 8  from uint16_t to uint8_t.
+[implicit-unsigned-integer-truncation]
+src:*/io_legacy/*
+
+# RIPEMD-160 round: rotl32 + modular-add into uint32_t accumulators. Same
+# wrapping-arithmetic pattern as the other crypto primitives in lib_cxng.
+src:*/lib_cxng/src/cx_ripemd160.c
+
+# === implicit-signed-integer-truncation =======================================
+# os_sched_exit(-1) is the SDK's canonical "exit with error" sentinel. The
+# parameter type bolos_task_status_t is unsigned char; the implicit conversion
+# from the int literal -1 to 255 is intentional and matches every SDK call
+# site (ledger_assert, qrcodegen, lib_standard_app, io_legacy, ...) as well
+# as the equivalent idiom in app code.
+[implicit-signed-integer-truncation]
+fun:check_and_sign_swap_tx

@@ -1,0 +1,213 @@
+# SDK self-fuzz manifest (multi-target).
+#
+# Each [[targets]] entry is a separate fuzzer binary exercising one SDK library.
+# Run all:   app-campaign.sh --app-dir $SDK --fuzz-subdir fuzzing/sdk-fuzz
+# Run some:  ... --target fuzz_alloc --target fuzz_lists
+
+[sdk]
+harness_version = "2"
+
+[coverage]
+exclude_regexes = [
+    '.*fuzzing/mock/.*',
+    '.*fuzzing/sdk-fuzz/mock/.*',
+    '.*fuzzer\.c',
+    '.*fuzz_dispatcher\.c',
+]
+
+# ── Stateful targets ─────────────────────────────────────────────────────────
+
+[[targets]]
+fuzzer = "fuzz_alloc"
+key_files = ["lib_alloc/mem_alloc.c"]
+seeds = { cla = 0x00, ins = [0x01] }
+
+[targets.dictionary]
+tokens = [
+    { name = "op_alloc",   value = "M" },
+    { name = "op_free",    value = "F" },
+    { name = "op_realloc", value = "R" },
+    { name = "op_stat",    value = "S" },
+    { name = "op_parse",   value = "P" },
+    { name = "sz_zero",    value = "\\x00\\x00" },
+    { name = "sz_one",     value = "\\x01\\x00" },
+    { name = "sz_8",       value = "\\x08\\x00" },
+    { name = "sz_256",     value = "\\x00\\x01" },
+    { name = "sz_max",     value = "\\xF0\\x7F" },
+]
+
+[[targets]]
+fuzzer = "fuzz_alloc_utils"
+key_files = ["lib_alloc/app_mem_utils.c"]
+seeds = { cla = 0x00, ins = [0x01] }
+
+[targets.dictionary]
+tokens = [
+    { name = "op0_alloc",   value = "\\x00" },
+    { name = "op1_calloc",  value = "\\x01" },
+    { name = "op2_strdup",  value = "\\x02" },
+    { name = "op3_free",    value = "\\x03" },
+    { name = "op4_freenul", value = "\\x04" },
+]
+
+[[targets]]
+fuzzer = "fuzz_lists"
+key_files = ["lib_lists/lists.c"]
+seeds = { cla = 0x00, ins = [0x01] }
+
+[targets.dictionary]
+tokens = [
+    { name = "op_push_front",    value = "\\x00" },
+    { name = "op_push_back",     value = "\\x01" },
+    { name = "op_pop_front",     value = "\\x02" },
+    { name = "op_pop_back",      value = "\\x03" },
+    { name = "op_insert_after",  value = "\\x04" },
+    { name = "op_insert_before", value = "\\x05" },
+    { name = "op_remove",        value = "\\x06" },
+    { name = "op_clear",         value = "\\x07" },
+    { name = "op_sort",          value = "\\x08" },
+    { name = "op_size",          value = "\\x09" },
+    { name = "op_reverse",       value = "\\x0A" },
+    { name = "op_empty",         value = "\\x0B" },
+    { name = "op_remove_if",     value = "\\x0C" },
+    { name = "op_unique",        value = "\\x0D" },
+    { name = "doubly_flag",      value = "\\x80" },
+]
+
+# ── Stateless targets ────────────────────────────────────────────────────────
+
+[[targets]]
+fuzzer = "fuzz_apdu_parser"
+key_files = ["lib_standard_app/parser.c"]
+seeds = { cla = 0xE0, ins = [0x01, 0x02, 0x03] }
+
+[targets.dictionary]
+tokens = [
+    { name = "apdu_min",       value = "\\xE0\\x01\\x00\\x00" },
+    { name = "apdu_with_lc0",  value = "\\xE0\\x01\\x00\\x00\\x00" },
+    { name = "apdu_with_lc1",  value = "\\xE0\\x01\\x00\\x00\\x01\\xAA" },
+]
+
+[[targets]]
+fuzzer = "fuzz_base58"
+key_files = ["lib_standard_app/base58.c"]
+seeds = { cla = 0x00, ins = [0x01, 0x02, 0x03] }
+
+[targets.dictionary]
+tokens = [
+    { name = "b58_1",  value = "1" },
+    { name = "b58_2",  value = "2" },
+    { name = "b58_9",  value = "9" },
+    { name = "b58_A",  value = "A" },
+    { name = "b58_H",  value = "H" },
+    { name = "b58_Z",  value = "Z" },
+    { name = "b58_a",  value = "a" },
+    { name = "b58_k",  value = "k" },
+    { name = "b58_z",  value = "z" },
+    { name = "b58_leading", value = "11111" },
+    { name = "b58_addr",    value = "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa" },
+]
+
+[[targets]]
+fuzzer = "fuzz_bip32"
+key_files = ["lib_standard_app/bip32.c"]
+seeds = { cla = 0x00, ins = [0x01, 0x02, 0x03] }
+
+[targets.dictionary]
+tokens = [
+    { name = "bip32_44h",     value = "\\x80\\x00\\x00\\x2C" },
+    { name = "bip32_0h",      value = "\\x80\\x00\\x00\\x00" },
+    { name = "bip32_0",       value = "\\x00\\x00\\x00\\x00" },
+    { name = "bip32_1",       value = "\\x00\\x00\\x00\\x01" },
+    { name = "bip32_60h",     value = "\\x80\\x00\\x00\\x3C" },
+    { name = "bip32_ffff",    value = "\\xFF\\xFF\\xFF\\xFF" },
+]
+
+[[targets]]
+fuzzer = "fuzz_qrcodegen"
+key_files = ["qrcode/src/qrcodegen.c"]
+seeds = { cla = 0x00, ins = [0x01] }
+
+[targets.dictionary]
+tokens = [
+    { name = "ecc_low",     value = "\\x00" },
+    { name = "ecc_medium",  value = "\\x01" },
+    { name = "ecc_quarter", value = "\\x02" },
+    { name = "ecc_high",    value = "\\x03" },
+    { name = "mode_bin",    value = "\\x00" },
+    { name = "mode_text",   value = "\\x01" },
+    { name = "numeric_str", value = "0123456789" },
+    { name = "alphanum",    value = "HELLO WORLD" },
+]
+
+# ── TLV targets (grammar-aware mutator) ──────────────────────────────────────
+
+[[targets]]
+fuzzer = "fuzz_tlv_dynamic_descriptor"
+key_files = ["lib_tlv/tlv_library.c", "lib_tlv/use_cases/tlv_use_case_dynamic_descriptor.c"]
+seeds = { cla = 0x00, ins = [0x01] }
+
+[targets.dictionary]
+tokens = [
+    { name = "tag_struct_type",  value = "\\x01" },
+    { name = "tag_version",      value = "\\x02" },
+    { name = "tag_coin_type",    value = "\\x03" },
+    { name = "tag_app_name",     value = "\\x04" },
+    { name = "tag_ticker",       value = "\\x05" },
+    { name = "tag_magnitude",    value = "\\x06" },
+    { name = "tag_tuid",         value = "\\x07" },
+    { name = "tag_signature",    value = "\\x08" },
+    { name = "der_short_len",    value = "\\x04" },
+    { name = "der_long_1b",      value = "\\x81" },
+    { name = "der_long_2b",      value = "\\x82" },
+    { name = "type_dyn_token",   value = "\\x90" },
+    { name = "struct_v0",        value = "\\x01\\x01\\x00" },
+    { name = "struct_v1",        value = "\\x01\\x01\\x01" },
+]
+
+[[targets]]
+fuzzer = "fuzz_tlv_trusted_name"
+key_files = ["lib_tlv/tlv_library.c", "lib_tlv/use_cases/tlv_use_case_trusted_name.c"]
+seeds = { cla = 0x00, ins = [0x01] }
+
+[targets.dictionary]
+tokens = [
+    { name = "tag_struct_type",    value = "\\x01" },
+    { name = "tag_version",        value = "\\x02" },
+    { name = "tag_not_valid",      value = "\\x10" },
+    { name = "tag_challenge",      value = "\\x12" },
+    { name = "tag_signer_key",     value = "\\x13" },
+    { name = "tag_signer_algo",    value = "\\x14" },
+    { name = "tag_der_sig",        value = "\\x15" },
+    { name = "tag_trusted_name",   value = "\\x20" },
+    { name = "tag_address",        value = "\\x22" },
+    { name = "tag_chain_id",       value = "\\x23" },
+    { name = "tag_tn_type",        value = "\\x70" },
+    { name = "tag_tn_source",      value = "\\x71" },
+    { name = "tag_nft_id",         value = "\\x72" },
+    { name = "tag_src_contract",   value = "\\x73" },
+    { name = "der_long_1b",        value = "\\x81" },
+    { name = "der_long_2b",        value = "\\x82" },
+]
+
+# ── NFC target ────────────────────────────────────────────────────────────────
+
+[[targets]]
+fuzzer = "fuzz_nfc_ndef"
+key_files = ["lib_nfc/src/nfc_ndef.c"]
+seeds = { cla = 0x00, ins = [0x01] }
+
+[targets.dictionary]
+tokens = [
+    { name = "ndef_text",    value = "\\x01" },
+    { name = "ndef_uri",     value = "\\x02" },
+    { name = "uri_http",     value = "\\x01" },
+    { name = "uri_https",    value = "\\x02" },
+    { name = "uri_http_www", value = "\\x03" },
+    { name = "uri_https_www", value = "\\x04" },
+    { name = "uri_tel",      value = "\\x05" },
+    { name = "uri_mailto",   value = "\\x06" },
+    { name = "uri_ftp",      value = "\\x0D" },
+    { name = "uri_ftps",     value = "\\x0E" },
+    { name = "uri_max",      value = "\\x23" },
+]

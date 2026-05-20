@@ -1,0 +1,9 @@
+# App-local symbols to zero out in the invariant (one per line).
+#
+# These are merged with the framework's default SDK/NBGL zero list.
+# Use plain symbol names or name@source_substring for disambiguation:
+#
+#   my_ui_state
+#   ram_buffer@my_mock.c
+#
+# Lines starting with # are ignored.  Blank lines are ignored.

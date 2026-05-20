@@ -1,0 +1,4 @@
+# Compile-time carve-outs live in fuzzing/sanitizers/ubsan-ignorelist.txt.
+# Add a runtime suppression here only when the target cannot be recompiled
+# (e.g. prebuilt .so).  Runtime suppressions require debug info and only
+# work for recoverable checks; prefer the ignorelist.
