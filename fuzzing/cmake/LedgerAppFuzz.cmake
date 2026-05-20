@@ -132,8 +132,8 @@ macro(ledger_fuzz_setup)
   find_package(Absolution REQUIRED CONFIG)
 endmacro()
 
-# Resolves the `-fsanitize=` argument set the Absolution-managed app target
-# must compile and link with. Three regimes:
+# Resolves the `-fsanitize=` argument set every Absolution-managed fuzz
+# target must compile and link with. Three regimes:
 #
 #   1. CFL / OSS-Fuzz drives the build → `LIB_FUZZING_ENGINE` env var is set.
 #      The runner pre-populated `CFLAGS` / `CXXFLAGS` with the chosen
@@ -177,6 +177,16 @@ function(_ledger_fuzz_resolve_sanitizers out_var)
   set(${out_var} "${_san}" PARENT_SCOPE)
 endfunction()
 
+# Cache the resolved default once so every call site (apps via
+# `ledger_fuzz_add_app_target()` AND SDK self-fuzz, which uses
+# `absolution_add_fuzzer()` directly) picks the same value without having
+# to re-derive it. Apps that genuinely want a different sanitizer per
+# target can still override by passing `SANITIZERS` explicitly.
+_ledger_fuzz_resolve_sanitizers(_LEDGER_FUZZ_DEFAULT_SANITIZERS)
+set(LEDGER_FUZZ_DEFAULT_SANITIZERS "${_LEDGER_FUZZ_DEFAULT_SANITIZERS}"
+    CACHE STRING "Sanitizer set passed to absolution_add_fuzzer() by default")
+unset(_LEDGER_FUZZ_DEFAULT_SANITIZERS)
+
 # ── App-target helper ────────────────────────────────────────────────────────
 # Convenience wrapper over absolution_add_fuzzer() for the common single-target
 # shape that all Ledger apps share.  Apps pass sources / includes / defines as
@@ -217,7 +227,7 @@ function(ledger_fuzz_add_app_target)
     set(F_INVARIANT "${CMAKE_SOURCE_DIR}/invariants/fuzz_globals.zon")
   endif()
   if(NOT F_SANITIZERS)
-    _ledger_fuzz_resolve_sanitizers(F_SANITIZERS)
+    set(F_SANITIZERS "${LEDGER_FUZZ_DEFAULT_SANITIZERS}")
   endif()
   message(STATUS "LedgerFuzz: ${F_NAME} using -fsanitize=${F_SANITIZERS}")
 
