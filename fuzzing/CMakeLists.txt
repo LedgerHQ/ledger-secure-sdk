@@ -118,10 +118,24 @@ if(NOT DEFINED ENV{LIB_FUZZING_ENGINE})
                    -fno-sanitize=alignment
                    -fsanitize-memory-track-origins -fsanitize=fuzzer-no-link
                    ${_FUZZ_IGNORELIST})
+  elseif(SANITIZER MATCHES "undefined")
+    # Match CFL's standalone UBSan job closely enough for local reproduction
+    # without also enabling ASan/MSan.
+    set(_FUZZ_SAN fuzzer,undefined,unsigned-integer-overflow)
+    list(APPEND COMPILATION_FLAGS
+        -fsanitize=${_FUZZ_SAN}
+        -fno-sanitize=alignment
+        -fsanitize-recover=unsigned-integer-overflow
+        ${_FUZZ_IGNORELIST})
+    list(APPEND LINK_FLAGS
+        -fsanitize=${_FUZZ_SAN}
+        -fno-sanitize=alignment
+        -fsanitize-recover=unsigned-integer-overflow
+        ${_FUZZ_IGNORELIST})
   else()
     message(
       FATAL_ERROR
-        "Unknown sanitizer type. It must be set to `address` or `memory`.")
+        "Unknown sanitizer type. It must be set to `address`, `memory`, or `undefined`.")
   endif()
 else()
   execute_process(COMMAND clang --version OUTPUT_VARIABLE CLANG_VERSION)

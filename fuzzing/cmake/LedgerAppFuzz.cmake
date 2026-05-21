@@ -242,4 +242,13 @@ function(ledger_fuzz_add_app_target)
     COMPILE_DEFINITIONS ${F_COMPILE_DEFINITIONS}
     LINK_LIBRARIES      secure_sdk
   )
+
+  # Absolution declares application globals as weak byte arrays in the generated
+  # sampler, then the linker resolves those names to the app's real strong
+  # globals. The generated TU can therefore overestimate alignment and emit
+  # aligned vector stores for memset/memcpy, which SIGSEGVs when the real global
+  # has weaker alignment (notably in standalone UBSan builds).
+  set_source_files_properties(
+    "${CMAKE_CURRENT_BINARY_DIR}/_absolution/${F_NAME}/fuzzer.c"
+    PROPERTIES COMPILE_OPTIONS "-fno-builtin-memset;-fno-builtin-memcpy")
 endfunction()
