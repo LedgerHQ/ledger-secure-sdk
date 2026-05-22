@@ -53,26 +53,32 @@ option(FUZZ_ENABLE_SOURCE_COVERAGE
        "Enable LLVM source coverage instrumentation for replay reporting."
        ON)
 
+# Ledger app ABI / warning flags that must apply in every environment.
+# ClusterFuzzLite supplies sanitizer/optimization flags through CFLAGS, but not
+# target ABI flags such as -fshort-enums; dropping them changes enum sizes and
+# can create sanitizer-only false positives that cannot exist on-device.
+set(_FUZZ_BASE_COMPILATION_FLAGS
+    -fno-common
+    -std=gnu99
+    -Wall
+    -Wextra
+    -Wno-main
+    -Wno-error=int-conversion
+    -Wimplicit-fallthrough
+    -Wvla
+    -Wundef
+    -Wshadow
+    -Wformat=2
+    -Wformat-security
+    -Wwrite-strings
+    -ffunction-sections
+    -fdata-sections
+    -funsigned-char
+    -fshort-enums)
+
 # compatible with ClusterFuzzLite
 if(NOT DEFINED ENV{LIB_FUZZING_ENGINE})
-  set(COMPILATION_FLAGS
-      -fno-common
-      -std=gnu99
-      -Wall
-      -Wextra
-      -Wno-main
-      -Wno-error=int-conversion
-      -Wimplicit-fallthrough
-      -Wvla
-      -Wundef
-      -Wshadow
-      -Wformat=2
-      -Wformat-security
-      -Wwrite-strings
-      -ffunction-sections
-      -fdata-sections
-      -funsigned-char
-      -fshort-enums)
+  set(COMPILATION_FLAGS ${_FUZZ_BASE_COMPILATION_FLAGS})
 
   set(LINK_FLAGS -fuse-ld=lld)
   if(FUZZ_ENABLE_SOURCE_COVERAGE)
@@ -145,6 +151,7 @@ else()
   set(LINK_FLAGS "$ENV{CFLAGS} $ENV{LIB_FUZZING_ENGINE}")
   separate_arguments(COMPILATION_FLAGS)
   separate_arguments(LINK_FLAGS)
+  set(COMPILATION_FLAGS ${_FUZZ_BASE_COMPILATION_FLAGS} ${COMPILATION_FLAGS})
   list(APPEND COMPILATION_FLAGS
       "-fsanitize-ignorelist=${BOLOS_SDK}/fuzzing/sanitizers/ubsan-ignorelist.txt")
   list(APPEND LINK_FLAGS
