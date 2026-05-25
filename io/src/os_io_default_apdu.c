@@ -218,7 +218,7 @@ bolos_err_t os_io_handle_default_apdu(uint8_t                  *buffer_in,
 {
     bolos_err_t err = SWO_CONDITIONS_NOT_SATISFIED;
 
-    if (!buffer_in || !buffer_in_length || !buffer_out || !buffer_out_length) {
+    if (!buffer_in || buffer_in_length == 0 || !buffer_out || !buffer_out_length) {
         return *post_action;
     }
     // Every case below assumes at least a 4-byte header (CLA/INS/P1/P2).
@@ -243,7 +243,7 @@ bolos_err_t os_io_handle_default_apdu(uint8_t                  *buffer_in,
                &buffer_in[APDU_OFF_DATA]);
         switch (buffer_in[APDU_OFF_INS]) {
             case DEFAULT_APDU_INS_GET_VERSION:
-                if (!buffer_in[APDU_OFF_P1] && !buffer_in[APDU_OFF_P2]) {
+                if (buffer_in[APDU_OFF_P1] == 0 && buffer_in[APDU_OFF_P2] == 0) {
                     err = get_version(buffer_out, buffer_out_length);
                 }
                 else {
@@ -254,7 +254,7 @@ bolos_err_t os_io_handle_default_apdu(uint8_t                  *buffer_in,
 
 #if defined(HAVE_SEED_COOKIE)
             case DEFAULT_APDU_INS_GET_SEED_COOKIE:
-                if (!buffer_in[APDU_OFF_P1] && !buffer_in[APDU_OFF_P2]) {
+                if (buffer_in[APDU_OFF_P1] == 0 && buffer_in[APDU_OFF_P2] == 0) {
                     err = get_seed_cookie(buffer_out, buffer_out_length);
                 }
                 else {
@@ -277,7 +277,7 @@ bolos_err_t os_io_handle_default_apdu(uint8_t                  *buffer_in,
                 // actually-received APDU bytes - which differs per app and
                 // returns SWO_INCORRECT_P3_LENGTH (0x6c00) non-deterministically
                 // for `CLA INS P1 P2` with no Le.
-                if (buffer_in_length <= APDU_OFF_LC || !buffer_in[APDU_OFF_LC]) {
+                if (buffer_in_length <= APDU_OFF_LC || buffer_in[APDU_OFF_LC] == 0) {
                     err = get_stack_consumption(buffer_in[APDU_OFF_P1],
                                                 buffer_in[APDU_OFF_P2],
                                                 buffer_out,
@@ -291,7 +291,7 @@ bolos_err_t os_io_handle_default_apdu(uint8_t                  *buffer_in,
 #endif  // DEBUG_OS_STACK_CONSUMPTION
 
             case DEFAULT_APDU_INS_APP_EXIT:
-                if (!buffer_in[APDU_OFF_P1] && !buffer_in[APDU_OFF_P2]) {
+                if (buffer_in[APDU_OFF_P1] == 0 && buffer_in[APDU_OFF_P2] == 0) {
                     *buffer_out_length = 0;
 #if !defined(HAVE_BOLOS)
                     if (post_action) {
