@@ -221,6 +221,12 @@ bolos_err_t os_io_handle_default_apdu(uint8_t                  *buffer_in,
     if (!buffer_in || !buffer_in_length || !buffer_out || !buffer_out_length) {
         return *post_action;
     }
+    // Every case below assumes at least a 4-byte header (CLA/INS/P1/P2).
+    // Without this guard, P1/P2 reads (and worse, Lc/data reads in some cases)
+    // would access bytes past the actually-received APDU.
+    if (buffer_in_length < APDU_OFF_LC) {
+        return SWO_WRONG_LENGTH;
+    }
     if (post_action) {
         *post_action = OS_IO_APDU_POST_ACTION_NONE;
     }
@@ -265,7 +271,13 @@ bolos_err_t os_io_handle_default_apdu(uint8_t                  *buffer_in,
                     err = SWO_WRONG_P1_P2;
                     goto end;
                 }
-                if (!buffer_in[APDU_OFF_LC]) {
+                // Case-1 APDU (no Lc) is equivalent to Lc=0. Bounds-check
+                // before reading APDU_OFF_LC, otherwise the result depends on
+                // whatever stale byte sits in G_io_rx_buffer past the
+                // actually-received APDU bytes - which differs per app and
+                // returns SWO_INCORRECT_P3_LENGTH (0x6c00) non-deterministically
+                // for `CLA INS P1 P2` with no Le.
+                if (buffer_in_length <= APDU_OFF_LC || !buffer_in[APDU_OFF_LC]) {
                     err = get_stack_consumption(buffer_in[APDU_OFF_P1],
                                                 buffer_in[APDU_OFF_P2],
                                                 buffer_out,
@@ -296,14 +308,31 @@ bolos_err_t os_io_handle_default_apdu(uint8_t                  *buffer_in,
 
 #if defined(HAVE_LEDGER_PKI)
             case DEFAULT_APDU_INS_LOAD_CERTIFICATE:
+                // Reject case-1 / truncated APDUs: the loader needs a real Lc
+                // plus Lc bytes of payload. Without these guards, Lc and data
+                // would be read from uninitialized G_io_rx_buffer past the
+                // actually-received APDU.
+                if (buffer_in_length <= APDU_OFF_LC
+                    || buffer_in_length
+                           < (size_t) APDU_OFF_DATA + (size_t) buffer_in[APDU_OFF_LC]) {
+                    err = SWO_INCORRECT_P3_LENGTH;
+                    goto end;
+                }
                 *buffer_out_length = 0;
                 err                = pki_load_certificate(
-                    &buffer_in[APDU_OFF_LC + 1], buffer_in[APDU_OFF_LC], buffer_in[APDU_OFF_P1]);
+                    &buffer_in[APDU_OFF_DATA], buffer_in[APDU_OFF_LC], buffer_in[APDU_OFF_P1]);
                 break;
 #endif  // HAVE_LEDGER_PKI
 
 #if defined(HAVE_ADDRESS_BOOK)
             case DEFAULT_APDU_INS_ADDRESS_BOOK:
+                // Same bounds discipline as LOAD_CERTIFICATE above.
+                if (buffer_in_length <= APDU_OFF_LC
+                    || buffer_in_length
+                           < (size_t) APDU_OFF_DATA + (size_t) buffer_in[APDU_OFF_LC]) {
+                    err = SWO_INCORRECT_P3_LENGTH;
+                    goto end;
+                }
                 *buffer_out_length = 0;
                 err                = addr_book_handle_apdu(&buffer_in[APDU_OFF_DATA],
                                             buffer_in[APDU_OFF_LC],
