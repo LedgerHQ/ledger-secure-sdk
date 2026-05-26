@@ -65,6 +65,12 @@ typedef struct {
     nbgl_contentCenteredInfoStyle_t style;  ///< style to apply to this info
 #ifdef HAVE_SE_TOUCH
     int16_t offsetY;  ///< vertical shift to apply to this info (if >0, shift to bottom)
+#else                 // HAVE_SE_TOUCH
+    bool bottomIcon;   ///< Nano only: when true and @ref icon is non-NULL, the icon is rendered at
+                       ///< the bottom of the screen (BOTTOM_MIDDLE) instead of above @ref text1.
+                       ///< Incompatible with @ref onTop: when both are set, @ref onTop is ignored
+                       ///< (text is laid out via the standard text path and the icon stays pinned
+                       ///< to the screen bottom).
 #endif                // HAVE_SE_TOUCH
 } nbgl_contentCenteredInfo_t;
 

@@ -467,6 +467,29 @@ int nbgl_layoutAddCenteredInfo(nbgl_layout_t *layout, const nbgl_layoutCenteredI
         return -1;
     }
 
+    // When the caller asks for the icon to be at the screen bottom (and a
+    // primary text is provided), render the texts via nbgl_layoutAddText so
+    // the exact same geometry is used as on non-bottomIcon pages (sibling
+    // CHOICES_LIST entries reach the layout through nbgl_stepDrawText, which
+    // also calls nbgl_layoutAddText). The icon is then appended as a
+    // standalone BOTTOM_MIDDLE element. Falling back to the regular path
+    // when text1 is NULL keeps nbgl_layoutAddText's "main text mandatory"
+    // contract.
+    // Note: nbgl_layoutAddText always centers its container, so this branch
+    // ignores info->onTop — the combination bottomIcon=true && onTop=true is
+    // documented as incompatible on nbgl_contentCenteredInfo_t::bottomIcon.
+    if ((info->icon != NULL) && info->bottomIcon && (info->text1 != NULL)) {
+        nbgl_layoutAddText(layout, info->text1, info->text2, info->style);
+        image                  = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
+        image->foregroundColor = WHITE;
+        image->buffer          = PIC(info->icon);
+        image->obj.area.bpp    = NBGL_BPP_1;
+        image->obj.alignment   = BOTTOM_MIDDLE;
+        image->obj.alignTo     = NULL;
+        layoutAddObject(layoutInt, (nbgl_obj_t *) image);
+        return 0;
+    }
+
     container = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
 
     // 3 children at max
