@@ -65,6 +65,12 @@ typedef struct {
     nbgl_contentCenteredInfoStyle_t style;  ///< style to apply to this info
 #ifdef HAVE_SE_TOUCH
     int16_t offsetY;  ///< vertical shift to apply to this info (if >0, shift to bottom)
+#else                 // HAVE_SE_TOUCH
+    bool bottomIcon;   ///< Nano only: when true and @ref icon is non-NULL, the icon is rendered at
+                       ///< the bottom of the screen (BOTTOM_MIDDLE) instead of above @ref text1.
+                       ///< Incompatible with @ref onTop: when both are set, @ref onTop is ignored
+                       ///< (text is laid out via the standard text path and the icon stays pinned
+                       ///< to the screen bottom).
 #endif                // HAVE_SE_TOUCH
 } nbgl_contentCenteredInfo_t;
 
@@ -126,6 +132,11 @@ typedef struct {
                           ///< long pressed
     tune_index_e
         tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played when button is touched
+#ifndef HAVE_SE_TOUCH
+    bool bottomIcon;  ///< Nano only: when true and @ref icon is non-NULL, the icon is rendered at
+                      ///< the bottom of the screen (BOTTOM_MIDDLE) instead of above @ref text.
+                      ///< Same semantics as nbgl_contentCenteredInfo_t::bottomIcon.
+#endif                // HAVE_SE_TOUCH
 } nbgl_contentInfoButton_t;
 
 /**
@@ -312,6 +323,23 @@ typedef struct {
     uint8_t token;       ///< the token that will be used as argument of the callback
     tune_index_e
         tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played when selecting a radio button)
+#ifndef HAVE_SE_TOUCH
+    bool vertical;  ///< Nano only: if true, render as a vertical menu list with radio buttons
+                    ///< (all choices visible) instead of the default one-choice-per-page
+                    ///< horizontal flow. Default false preserves existing behaviour.
+    const nbgl_icon_details_t
+        *selectionIcon;  ///< Nano only and used in the horizontal flow (i.e. @ref vertical is
+                         ///< false): optional small icon drawn underneath the choice label on the
+                         ///< page corresponding to @ref initChoice, so the user can tell which
+                         ///< item is currently selected. NULL (default) means no marker.
+    /**
+     * @brief Nano only and used in the horizontal flow (i.e. @ref vertical is false): per-content
+     * header text shown above the choice label, e.g. "Keyboard layout". When NULL the SDK falls
+     * back to context.home.appName (the app name) or context.content.title depending on the use
+     * case.
+     */
+    const char *title;
+#endif  // HAVE_SE_TOUCH
 
 } nbgl_contentRadioChoice_t;
 
@@ -323,6 +351,16 @@ typedef struct {
     const uint8_t     *tokens;    ///< array of tokens, one for each bar (nbBars items)
     uint8_t            nbBars;    ///< number of elements in barTexts and tokens array
     tune_index_e tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played when a bar is touched
+#ifndef HAVE_SE_TOUCH
+    bool vertical;  ///< Nano only: if true, render as a vertical menu list (all bars visible)
+                    ///< instead of the default one-bar-per-page horizontal flow. Default false
+                    ///< preserves existing behaviour.
+    /**
+     * @brief Nano only and used in the horizontal flow: per-content header text. Same semantics
+     * as nbgl_contentRadioChoice_t::title.
+     */
+    const char *title;
+#endif  // HAVE_SE_TOUCH
 } nbgl_contentBarsList_t;
 
 /**

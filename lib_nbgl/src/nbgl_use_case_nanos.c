@@ -21,8 +21,6 @@
 /*********************
  *      DEFINES
  *********************/
-#define WITH_HORIZONTAL_CHOICES_LIST
-#define WITH_HORIZONTAL_BARS_LIST
 
 /**********************
  *      TYPEDEFS
@@ -175,6 +173,9 @@ typedef struct PageContent_s {
     nbgl_state_t                  state;
     bool                          isCenteredInfo;
     bool                          isAction;
+    bool                          bottomIcon;  ///< if set alongside @ref icon, render the icon at
+                                               ///< the bottom of the screen instead of above the
+                                               ///< texts; forwarded to nbgl_layoutCenteredInfo_t
 } PageContent_t;
 
 typedef struct ReviewWithWarningContext_s {
@@ -428,17 +429,40 @@ static void onChoiceSelected(uint8_t choiceIndex)
         case BARS_LIST:
             contentBars = ((nbgl_contentBarsList_t *) PIC(&p_content->content.barsList));
             if (choiceIndex < contentBars->nbBars) {
-                token = contentBars->tokens[choiceIndex];
+                token = ((const uint8_t *) PIC(contentBars->tokens))[choiceIndex];
             }
             break;
         default:
             // Not supported as vertical MenuList
             break;
     }
-    if ((token != 255) && (context.content.controlsCallback != NULL)) {
-        context.content.controlsCallback(token, 0);
+    if (token != 255) {
+        // Prefer the per-content action callback (used by settings/content
+        // flows). Forward both the choice index and the absolute page so the
+        // app can react identically to the horizontal flow.
+        if (p_content->contentActionCallback != NULL) {
+            nbgl_contentActionCallback_t actionCallback = PIC(p_content->contentActionCallback);
+            actionCallback(token, choiceIndex, context.currentPage);
+            return;
+        }
+        if (context.content.controlsCallback != NULL) {
+            context.content.controlsCallback(token, choiceIndex);
+            return;
+        }
     }
-    else if (context.content.quitCallback != NULL) {
+    // Back entry (the extra item appended by drawStep at index nbChoices) or
+    // unknown selection: mirror the horizontal-flow Back behaviour in
+    // displaySettingsPage so SETTINGS_USE_CASE / GENERIC_SETTINGS / content
+    // callers all exit consistently.
+    if ((context.type == GENERIC_SETTINGS) && (context.home.quitCallback != NULL)) {
+        context.home.quitCallback();
+        return;
+    }
+    if (context.type == SETTINGS_USE_CASE) {
+        startUseCaseHome();
+        return;
+    }
+    if (context.content.quitCallback != NULL) {
         context.content.quitCallback();
     }
 }
@@ -563,7 +587,8 @@ static void drawStep(nbgl_stepPosition_t        pos,
                      const char                *subTxt,
                      nbgl_stepButtonCallback_t  onActionCallback,
                      bool                       modal,
-                     ForcedType_t               forcedType)
+                     ForcedType_t               forcedType,
+                     bool                       bottomIcon)
 {
     uint8_t                           elemIdx;
     nbgl_step_t                       newStep        = NULL;
@@ -628,10 +653,11 @@ static void drawStep(nbgl_stepPosition_t        pos,
     }
     else {
         nbgl_layoutCenteredInfo_t info;
-        info.icon  = icon;
-        info.text1 = txt;
-        info.text2 = subTxt;
-        info.onTop = false;
+        info.icon       = icon;
+        info.text1      = txt;
+        info.text2      = subTxt;
+        info.onTop      = false;
+        info.bottomIcon = bottomIcon;
         if ((subTxt != NULL) || (context.stepCallback != NULL) || context.forceAction) {
             info.style = BOLD_TEXT1_INFO;
         }
@@ -713,11 +739,13 @@ static bool buttonGenericCallback(nbgl_buttonEvent_t event, nbgl_stepPosition_t 
                             token = p_content->content.switchesList.switches->token;
                             break;
                         case BARS_LIST:
-                            token = p_content->content.barsList.tokens[context.currentPage];
+                            token = ((const uint8_t *) PIC(
+                                p_content->content.barsList.tokens))[elemIdx];
+                            index = elemIdx;
                             break;
                         case CHOICES_LIST:
                             token = p_content->content.choicesList.token;
-                            index = context.currentPage;
+                            index = elemIdx;
                             break;
                         case TAG_VALUE_LIST:
                             return false;
@@ -731,11 +759,38 @@ static bool buttonGenericCallback(nbgl_buttonEvent_t event, nbgl_stepPosition_t 
                             break;
                     }
 
-                    if ((p_content) && (p_content->contentActionCallback != NULL)) {
-                        p_content->contentActionCallback(token, 0, context.currentPage);
+                    bool used_action_callback
+                        = (p_content != NULL) && (p_content->contentActionCallback != NULL);
+                    ContextType_t prev_type = context.type;
+                    if (used_action_callback) {
+                        nbgl_contentActionCallback_t actionCallback
+                            = (nbgl_contentActionCallback_t) PIC(p_content->contentActionCallback);
+                        actionCallback(token, index, context.currentPage);
                     }
                     else if (context.content.controlsCallback != NULL) {
                         context.content.controlsCallback(token, index);
+                    }
+                    // If the callback swapped the use case (e.g. by entering
+                    // a new screen via display_home_page / nbgl_useCaseXxx),
+                    // the global context has already been reset — leave it
+                    // alone, do not try to redraw the previous layout.
+                    if (context.type != prev_type) {
+                        return false;
+                    }
+                    // After a CHOICES_LIST or BARS_LIST selection that went
+                    // through the per-content action callback (settings-style
+                    // flows), request a redraw of the current page so any
+                    // visual side effect of the pick (e.g. the selectionIcon
+                    // moving below the new initChoice) becomes visible.
+                    // The controlsCallback path (navigable content, generic
+                    // review, ...) is excluded because such callbacks
+                    // commonly route to a brand-new use case (review,
+                    // warning, ...) that owns the screen without resetting
+                    // context.type — forcing a redraw there would clobber it.
+                    if (used_action_callback
+                        && ((p_content->type == CHOICES_LIST) || (p_content->type == BARS_LIST))) {
+                        *pos = FORWARD_DIRECTION;
+                        return true;
                     }
                 }
             }
@@ -1258,7 +1313,7 @@ static void displayReviewPage(nbgl_stepPosition_t pos)
         }
     }
 
-    drawStep(pos, icon, text, subText, reviewCallback, false, forcedType);
+    drawStep(pos, icon, text, subText, reviewCallback, false, forcedType, false);
     nbgl_refresh();
 }
 
@@ -1355,7 +1410,7 @@ static void displayStreamingReviewPage(nbgl_stepPosition_t pos)
             break;
     }
 
-    drawStep(pos, icon, text, subText, streamingReviewCallback, false, forcedType);
+    drawStep(pos, icon, text, subText, streamingReviewCallback, false, forcedType, false);
     nbgl_refresh();
 }
 
@@ -1380,25 +1435,21 @@ static void displayInfoPage(nbgl_stepPosition_t pos)
         context.stepCallback = startUseCaseHome;
     }
 
-    drawStep(pos, icon, text, subText, infoCallback, false, FORCE_CENTERED_INFO);
+    drawStep(pos, icon, text, subText, infoCallback, false, FORCE_CENTERED_INFO, false);
     nbgl_refresh();
 }
 
 // function used to get the current page content
 static void getContentPage(bool toogle_state, PageContent_t *contentPage)
 {
-    uint8_t               elemIdx       = 0;
-    const nbgl_content_t *p_content     = NULL;
-    nbgl_content_t        content       = {0};
-    nbgl_contentSwitch_t *contentSwitch = NULL;
-#ifdef WITH_HORIZONTAL_CHOICES_LIST
+    uint8_t                    elemIdx        = 0;
+    const nbgl_content_t      *p_content      = NULL;
+    nbgl_content_t             content        = {0};
+    nbgl_contentSwitch_t      *contentSwitch  = NULL;
     nbgl_contentRadioChoice_t *contentChoices = NULL;
     char                     **names          = NULL;
-#endif
-#ifdef WITH_HORIZONTAL_BARS_LIST
-    nbgl_contentBarsList_t *contentBars = NULL;
-    char                  **texts       = NULL;
-#endif
+    nbgl_contentBarsList_t    *contentBars    = NULL;
+    char                     **texts          = NULL;
     p_content = getContentElemAtIdx(context.currentPage, &elemIdx, &content);
     if (p_content == NULL) {
         return;
@@ -1409,9 +1460,10 @@ static void getContentPage(bool toogle_state, PageContent_t *contentPage)
             contentPage->subText = PIC(p_content->content.centeredInfo.text2);
             break;
         case INFO_BUTTON:
-            contentPage->icon    = PIC(p_content->content.infoButton.icon);
-            contentPage->text    = PIC(p_content->content.infoButton.text);
-            contentPage->subText = PIC(p_content->content.infoButton.buttonText);
+            contentPage->icon       = PIC(p_content->content.infoButton.icon);
+            contentPage->text       = PIC(p_content->content.infoButton.text);
+            contentPage->subText    = PIC(p_content->content.infoButton.buttonText);
+            contentPage->bottomIcon = p_content->content.infoButton.bottomIcon;
             break;
         case TAG_VALUE_LIST:
             getPairData(&p_content->content.tagValueList,
@@ -1457,27 +1509,62 @@ static void getContentPage(bool toogle_state, PageContent_t *contentPage)
                 = ((const char *const *) PIC(p_content->content.infosList.infoContents))[elemIdx];
             break;
         case CHOICES_LIST:
-#ifdef WITH_HORIZONTAL_CHOICES_LIST
             contentChoices = (nbgl_contentRadioChoice_t *) PIC(&p_content->content.choicesList);
-            names          = (char **) PIC(contentChoices->names);
-            if ((context.type == CONTENT_USE_CASE) && (context.content.title != NULL)) {
+            // When the content opts into the vertical layout, leave
+            // contentPage->text NULL so drawStep falls through to the menu-list
+            // rendering (all choices visible, with a radio button on
+            // initChoice). Default is the horizontal one-page-per-choice flow.
+            if (contentChoices->vertical) {
+                break;
+            }
+            names = (char **) PIC(contentChoices->names);
+            // The caller-provided per-content title wins over the contextual
+            // fallback (app name / use case title).
+            if (contentChoices->title != NULL) {
+                contentPage->text    = PIC(contentChoices->title);
+                contentPage->subText = (const char *) PIC(names[elemIdx]);
+            }
+            else if ((context.type == CONTENT_USE_CASE) && (context.content.title != NULL)) {
                 contentPage->text    = PIC(context.content.title);
                 contentPage->subText = (const char *) PIC(names[elemIdx]);
             }
-            else if ((context.type == GENERIC_SETTINGS) && (context.home.appName != NULL)) {
+            else if (((context.type == GENERIC_SETTINGS) || (context.type == SETTINGS_USE_CASE))
+                     && (context.home.appName != NULL)) {
+                // Both nbgl_useCaseGenericSettings (GENERIC_SETTINGS) and
+                // nbgl_useCaseHomeAndSettings -> Settings (SETTINGS_USE_CASE)
+                // populate context.home.appName, so use it as the page title
+                // for the latter too -- otherwise a horizontally-paged
+                // CHOICES_LIST would render the choice name only with no
+                // contextual header at all.
                 contentPage->text    = PIC(context.home.appName);
                 contentPage->subText = (const char *) PIC(names[elemIdx]);
             }
             else {
                 contentPage->text = (const char *) PIC(names[elemIdx]);
             }
-#endif
+            // Mark the currently-selected choice with the caller-provided icon
+            // placed at the bottom of the screen (see contentCenteredInfo
+            // bottomIcon handling in nbgl_layoutAddCenteredInfo). Skipped when
+            // the caller did not opt in.
+            if ((contentChoices->selectionIcon != NULL)
+                && (elemIdx == contentChoices->initChoice)) {
+                contentPage->icon       = PIC(contentChoices->selectionIcon);
+                contentPage->bottomIcon = true;
+            }
             break;
         case BARS_LIST:
-#ifdef WITH_HORIZONTAL_BARS_LIST
             contentBars = (nbgl_contentBarsList_t *) PIC(&p_content->content.barsList);
-            texts       = (char **) PIC(contentBars->barTexts);
-            if ((context.type == CONTENT_USE_CASE) && (context.content.title != NULL)) {
+            if (contentBars->vertical) {
+                break;  // see CHOICES_LIST comment above
+            }
+            texts = (char **) PIC(contentBars->barTexts);
+            // Same precedence as CHOICES_LIST: caller-provided title overrides
+            // the contextual fallback.
+            if (contentBars->title != NULL) {
+                contentPage->text    = PIC(contentBars->title);
+                contentPage->subText = PIC(texts[elemIdx]);
+            }
+            else if ((context.type == CONTENT_USE_CASE) && (context.content.title != NULL)) {
                 contentPage->text    = PIC(context.content.title);
                 contentPage->subText = PIC(texts[elemIdx]);
             }
@@ -1488,7 +1575,14 @@ static void getContentPage(bool toogle_state, PageContent_t *contentPage)
             else {
                 contentPage->text = PIC(texts[elemIdx]);
             }
-#endif
+            // Sub-menu indicator: always pinned at the bottom of every bar's
+            // page. Mirrors the hardcoded PUSH_ICON ('>') that Stax/Flex draw
+            // on the right of touchable bars (see nbgl_page.c). On Nano the
+            // right button is reserved for navigation, so we pick a downward
+            // chevron and place it at the screen bottom via the centeredInfo
+            // bottomIcon path.
+            contentPage->icon       = &C_icon_down;
+            contentPage->bottomIcon = true;
             break;
         default:
             break;
@@ -1527,7 +1621,8 @@ static void displaySettingsPage(nbgl_stepPosition_t pos, bool toogle_state)
                  contentPage.subText,
                  settingsCallback,
                  false,
-                 NO_FORCED_TYPE);
+                 NO_FORCED_TYPE,
+                 contentPage.bottomIcon);
     }
 
     nbgl_refresh();
@@ -1692,7 +1787,7 @@ static void displayHomePage(nbgl_stepPosition_t pos)
         context.stepCallback = context.home.quitCallback;
     }
 
-    drawStep(pos, icon, text, subText, homeCallback, false, NO_FORCED_TYPE);
+    drawStep(pos, icon, text, subText, homeCallback, false, NO_FORCED_TYPE, false);
     nbgl_refresh();
 }
 
@@ -1761,7 +1856,7 @@ static void displayChoicePage(nbgl_stepPosition_t pos)
     }
     // other detail types (non-BAR_LIST) are not navigated on Nano
 
-    drawStep(pos, icon, text, subText, genericChoiceCallback, false, NO_FORCED_TYPE);
+    drawStep(pos, icon, text, subText, genericChoiceCallback, false, NO_FORCED_TYPE, false);
     nbgl_refresh();
 }
 
@@ -1793,7 +1888,7 @@ static void displayConfirm(nbgl_stepPosition_t pos)
             break;
     }
 
-    drawStep(pos, icon, text, subText, genericConfirmCallback, true, NO_FORCED_TYPE);
+    drawStep(pos, icon, text, subText, genericConfirmCallback, true, NO_FORCED_TYPE, false);
     nbgl_refresh();
 }
 
@@ -1839,7 +1934,8 @@ static void displayContent(nbgl_stepPosition_t pos, bool toogle_state)
                  contentPage.subText,
                  contentCallback,
                  false,
-                 forcedType);
+                 forcedType,
+                 contentPage.bottomIcon);
     }
     context.forceAction = false;
     nbgl_refresh();
@@ -1847,7 +1943,7 @@ static void displayContent(nbgl_stepPosition_t pos, bool toogle_state)
 
 static void displaySpinner(const char *text)
 {
-    drawStep(SINGLE_STEP, &C_icon_processing, text, NULL, NULL, false, false);
+    drawStep(SINGLE_STEP, &C_icon_processing, text, NULL, NULL, false, NO_FORCED_TYPE, false);
     nbgl_refresh();
 }
 
@@ -2810,7 +2906,8 @@ void nbgl_useCaseStatus(const char *message, bool isSuccess, nbgl_callback_t qui
              NULL,
              statusButtonCallback,
              false,
-             NO_FORCED_TYPE);
+             NO_FORCED_TYPE,
+             false);
 }
 
 /**
