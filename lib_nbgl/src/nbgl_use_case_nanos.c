@@ -759,11 +759,38 @@ static bool buttonGenericCallback(nbgl_buttonEvent_t event, nbgl_stepPosition_t 
                             break;
                     }
 
-                    if ((p_content) && (p_content->contentActionCallback != NULL)) {
-                        p_content->contentActionCallback(token, index, context.currentPage);
+                    bool used_action_callback
+                        = (p_content != NULL) && (p_content->contentActionCallback != NULL);
+                    ContextType_t prev_type = context.type;
+                    if (used_action_callback) {
+                        nbgl_contentActionCallback_t actionCallback
+                            = (nbgl_contentActionCallback_t) PIC(p_content->contentActionCallback);
+                        actionCallback(token, index, context.currentPage);
                     }
                     else if (context.content.controlsCallback != NULL) {
                         context.content.controlsCallback(token, index);
+                    }
+                    // If the callback swapped the use case (e.g. by entering
+                    // a new screen via display_home_page / nbgl_useCaseXxx),
+                    // the global context has already been reset — leave it
+                    // alone, do not try to redraw the previous layout.
+                    if (context.type != prev_type) {
+                        return false;
+                    }
+                    // After a CHOICES_LIST or BARS_LIST selection that went
+                    // through the per-content action callback (settings-style
+                    // flows), request a redraw of the current page so any
+                    // visual side effect of the pick (e.g. the selectionIcon
+                    // moving below the new initChoice) becomes visible.
+                    // The controlsCallback path (navigable content, generic
+                    // review, ...) is excluded because such callbacks
+                    // commonly route to a brand-new use case (review,
+                    // warning, ...) that owns the screen without resetting
+                    // context.type — forcing a redraw there would clobber it.
+                    if (used_action_callback
+                        && ((p_content->type == CHOICES_LIST) || (p_content->type == BARS_LIST))) {
+                        *pos = FORWARD_DIRECTION;
+                        return true;
                     }
                 }
             }
