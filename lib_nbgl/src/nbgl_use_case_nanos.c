@@ -1485,7 +1485,13 @@ static void getContentPage(bool toogle_state, PageContent_t *contentPage)
                 break;
             }
             names = (char **) PIC(contentChoices->names);
-            if ((context.type == CONTENT_USE_CASE) && (context.content.title != NULL)) {
+            // The caller-provided per-content title wins over the contextual
+            // fallback (app name / use case title).
+            if (contentChoices->title != NULL) {
+                contentPage->text    = PIC(contentChoices->title);
+                contentPage->subText = (const char *) PIC(names[elemIdx]);
+            }
+            else if ((context.type == CONTENT_USE_CASE) && (context.content.title != NULL)) {
                 contentPage->text    = PIC(context.content.title);
                 contentPage->subText = (const char *) PIC(names[elemIdx]);
             }
@@ -1510,7 +1516,13 @@ static void getContentPage(bool toogle_state, PageContent_t *contentPage)
                 break;  // see CHOICES_LIST comment above
             }
             texts = (char **) PIC(contentBars->barTexts);
-            if ((context.type == CONTENT_USE_CASE) && (context.content.title != NULL)) {
+            // Same precedence as CHOICES_LIST: caller-provided title overrides
+            // the contextual fallback.
+            if (contentBars->title != NULL) {
+                contentPage->text    = PIC(contentBars->title);
+                contentPage->subText = PIC(texts[elemIdx]);
+            }
+            else if ((context.type == CONTENT_USE_CASE) && (context.content.title != NULL)) {
                 contentPage->text    = PIC(context.content.title);
                 contentPage->subText = PIC(texts[elemIdx]);
             }

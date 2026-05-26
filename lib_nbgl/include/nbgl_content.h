@@ -316,7 +316,14 @@ typedef struct {
     bool vertical;  ///< Nano only: if true, render as a vertical menu list with radio buttons
                     ///< (all choices visible) instead of the default one-choice-per-page
                     ///< horizontal flow. Default false preserves existing behaviour.
-#endif              // HAVE_SE_TOUCH
+    /**
+     * @brief Nano only and used in the horizontal flow (i.e. @ref vertical is false): per-content
+     * header text shown above the choice label, e.g. "Keyboard layout". When NULL the SDK falls
+     * back to context.home.appName (the app name) or context.content.title depending on the use
+     * case.
+     */
+    const char *title;
+#endif  // HAVE_SE_TOUCH
 
 } nbgl_contentRadioChoice_t;
 
@@ -332,7 +339,12 @@ typedef struct {
     bool vertical;  ///< Nano only: if true, render as a vertical menu list (all bars visible)
                     ///< instead of the default one-bar-per-page horizontal flow. Default false
                     ///< preserves existing behaviour.
-#endif              // HAVE_SE_TOUCH
+    /**
+     * @brief Nano only and used in the horizontal flow: per-content header text. Same semantics
+     * as nbgl_contentRadioChoice_t::title.
+     */
+    const char *title;
+#endif  // HAVE_SE_TOUCH
 } nbgl_contentBarsList_t;
 
 /**
