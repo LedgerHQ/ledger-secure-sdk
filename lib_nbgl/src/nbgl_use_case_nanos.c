@@ -428,17 +428,40 @@ static void onChoiceSelected(uint8_t choiceIndex)
         case BARS_LIST:
             contentBars = ((nbgl_contentBarsList_t *) PIC(&p_content->content.barsList));
             if (choiceIndex < contentBars->nbBars) {
-                token = contentBars->tokens[choiceIndex];
+                token = ((const uint8_t *) PIC(contentBars->tokens))[choiceIndex];
             }
             break;
         default:
             // Not supported as vertical MenuList
             break;
     }
-    if ((token != 255) && (context.content.controlsCallback != NULL)) {
-        context.content.controlsCallback(token, 0);
+    if (token != 255) {
+        // Prefer the per-content action callback (used by settings/content
+        // flows). Forward both the choice index and the absolute page so the
+        // app can react identically to the horizontal flow.
+        if (p_content->contentActionCallback != NULL) {
+            nbgl_contentActionCallback_t actionCallback = PIC(p_content->contentActionCallback);
+            actionCallback(token, choiceIndex, context.currentPage);
+            return;
+        }
+        if (context.content.controlsCallback != NULL) {
+            context.content.controlsCallback(token, choiceIndex);
+            return;
+        }
     }
-    else if (context.content.quitCallback != NULL) {
+    // Back entry (the extra item appended by drawStep at index nbChoices) or
+    // unknown selection: mirror the horizontal-flow Back behaviour in
+    // displaySettingsPage so SETTINGS_USE_CASE / GENERIC_SETTINGS / content
+    // callers all exit consistently.
+    if ((context.type == GENERIC_SETTINGS) && (context.home.quitCallback != NULL)) {
+        context.home.quitCallback();
+        return;
+    }
+    if (context.type == SETTINGS_USE_CASE) {
+        startUseCaseHome();
+        return;
+    }
+    if (context.content.quitCallback != NULL) {
         context.content.quitCallback();
     }
 }
