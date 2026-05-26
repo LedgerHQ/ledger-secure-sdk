@@ -1466,7 +1466,14 @@ static void getContentPage(bool toogle_state, PageContent_t *contentPage)
                 contentPage->text    = PIC(context.content.title);
                 contentPage->subText = (const char *) PIC(names[elemIdx]);
             }
-            else if ((context.type == GENERIC_SETTINGS) && (context.home.appName != NULL)) {
+            else if (((context.type == GENERIC_SETTINGS) || (context.type == SETTINGS_USE_CASE))
+                     && (context.home.appName != NULL)) {
+                // Both nbgl_useCaseGenericSettings (GENERIC_SETTINGS) and
+                // nbgl_useCaseHomeAndSettings -> Settings (SETTINGS_USE_CASE)
+                // populate context.home.appName, so use it as the page title
+                // for the latter too -- otherwise a horizontally-paged
+                // CHOICES_LIST would render the choice name only with no
+                // contextual header at all.
                 contentPage->text    = PIC(context.home.appName);
                 contentPage->subText = (const char *) PIC(names[elemIdx]);
             }
