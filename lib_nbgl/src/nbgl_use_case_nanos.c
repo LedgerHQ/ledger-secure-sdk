@@ -713,11 +713,13 @@ static bool buttonGenericCallback(nbgl_buttonEvent_t event, nbgl_stepPosition_t 
                             token = p_content->content.switchesList.switches->token;
                             break;
                         case BARS_LIST:
-                            token = p_content->content.barsList.tokens[context.currentPage];
+                            token = ((const uint8_t *) PIC(
+                                p_content->content.barsList.tokens))[elemIdx];
+                            index = elemIdx;
                             break;
                         case CHOICES_LIST:
                             token = p_content->content.choicesList.token;
-                            index = context.currentPage;
+                            index = elemIdx;
                             break;
                         case TAG_VALUE_LIST:
                             return false;
@@ -732,7 +734,7 @@ static bool buttonGenericCallback(nbgl_buttonEvent_t event, nbgl_stepPosition_t 
                     }
 
                     if ((p_content) && (p_content->contentActionCallback != NULL)) {
-                        p_content->contentActionCallback(token, 0, context.currentPage);
+                        p_content->contentActionCallback(token, index, context.currentPage);
                     }
                     else if (context.content.controlsCallback != NULL) {
                         context.content.controlsCallback(token, index);
