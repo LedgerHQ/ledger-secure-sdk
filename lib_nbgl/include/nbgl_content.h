@@ -312,6 +312,11 @@ typedef struct {
     uint8_t token;       ///< the token that will be used as argument of the callback
     tune_index_e
         tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played when selecting a radio button)
+#ifndef HAVE_SE_TOUCH
+    bool vertical;  ///< Nano only: if true, render as a vertical menu list with radio buttons
+                    ///< (all choices visible) instead of the default one-choice-per-page
+                    ///< horizontal flow. Default false preserves existing behaviour.
+#endif              // HAVE_SE_TOUCH
 
 } nbgl_contentRadioChoice_t;
 
@@ -323,6 +328,11 @@ typedef struct {
     const uint8_t     *tokens;    ///< array of tokens, one for each bar (nbBars items)
     uint8_t            nbBars;    ///< number of elements in barTexts and tokens array
     tune_index_e tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played when a bar is touched
+#ifndef HAVE_SE_TOUCH
+    bool vertical;  ///< Nano only: if true, render as a vertical menu list (all bars visible)
+                    ///< instead of the default one-bar-per-page horizontal flow. Default false
+                    ///< preserves existing behaviour.
+#endif              // HAVE_SE_TOUCH
 } nbgl_contentBarsList_t;
 
 /**

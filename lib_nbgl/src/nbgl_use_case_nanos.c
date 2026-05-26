@@ -21,8 +21,6 @@
 /*********************
  *      DEFINES
  *********************/
-#define WITH_HORIZONTAL_CHOICES_LIST
-#define WITH_HORIZONTAL_BARS_LIST
 
 /**********************
  *      TYPEDEFS
@@ -1412,18 +1410,14 @@ static void displayInfoPage(nbgl_stepPosition_t pos)
 // function used to get the current page content
 static void getContentPage(bool toogle_state, PageContent_t *contentPage)
 {
-    uint8_t               elemIdx       = 0;
-    const nbgl_content_t *p_content     = NULL;
-    nbgl_content_t        content       = {0};
-    nbgl_contentSwitch_t *contentSwitch = NULL;
-#ifdef WITH_HORIZONTAL_CHOICES_LIST
+    uint8_t                    elemIdx        = 0;
+    const nbgl_content_t      *p_content      = NULL;
+    nbgl_content_t             content        = {0};
+    nbgl_contentSwitch_t      *contentSwitch  = NULL;
     nbgl_contentRadioChoice_t *contentChoices = NULL;
     char                     **names          = NULL;
-#endif
-#ifdef WITH_HORIZONTAL_BARS_LIST
-    nbgl_contentBarsList_t *contentBars = NULL;
-    char                  **texts       = NULL;
-#endif
+    nbgl_contentBarsList_t    *contentBars    = NULL;
+    char                     **texts          = NULL;
     p_content = getContentElemAtIdx(context.currentPage, &elemIdx, &content);
     if (p_content == NULL) {
         return;
@@ -1482,9 +1476,15 @@ static void getContentPage(bool toogle_state, PageContent_t *contentPage)
                 = ((const char *const *) PIC(p_content->content.infosList.infoContents))[elemIdx];
             break;
         case CHOICES_LIST:
-#ifdef WITH_HORIZONTAL_CHOICES_LIST
             contentChoices = (nbgl_contentRadioChoice_t *) PIC(&p_content->content.choicesList);
-            names          = (char **) PIC(contentChoices->names);
+            // When the content opts into the vertical layout, leave
+            // contentPage->text NULL so drawStep falls through to the menu-list
+            // rendering (all choices visible, with a radio button on
+            // initChoice). Default is the horizontal one-page-per-choice flow.
+            if (contentChoices->vertical) {
+                break;
+            }
+            names = (char **) PIC(contentChoices->names);
             if ((context.type == CONTENT_USE_CASE) && (context.content.title != NULL)) {
                 contentPage->text    = PIC(context.content.title);
                 contentPage->subText = (const char *) PIC(names[elemIdx]);
@@ -1503,12 +1503,13 @@ static void getContentPage(bool toogle_state, PageContent_t *contentPage)
             else {
                 contentPage->text = (const char *) PIC(names[elemIdx]);
             }
-#endif
             break;
         case BARS_LIST:
-#ifdef WITH_HORIZONTAL_BARS_LIST
             contentBars = (nbgl_contentBarsList_t *) PIC(&p_content->content.barsList);
-            texts       = (char **) PIC(contentBars->barTexts);
+            if (contentBars->vertical) {
+                break;  // see CHOICES_LIST comment above
+            }
+            texts = (char **) PIC(contentBars->barTexts);
             if ((context.type == CONTENT_USE_CASE) && (context.content.title != NULL)) {
                 contentPage->text    = PIC(context.content.title);
                 contentPage->subText = PIC(texts[elemIdx]);
@@ -1520,7 +1521,6 @@ static void getContentPage(bool toogle_state, PageContent_t *contentPage)
             else {
                 contentPage->text = PIC(texts[elemIdx]);
             }
-#endif
             break;
         default:
             break;
