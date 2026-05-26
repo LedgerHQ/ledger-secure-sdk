@@ -1514,6 +1514,15 @@ static void getContentPage(bool toogle_state, PageContent_t *contentPage)
             else {
                 contentPage->text = (const char *) PIC(names[elemIdx]);
             }
+            // Mark the currently-selected choice with the caller-provided icon
+            // placed at the bottom of the screen (see contentCenteredInfo
+            // bottomIcon handling in nbgl_layoutAddCenteredInfo). Skipped when
+            // the caller did not opt in.
+            if ((contentChoices->selectionIcon != NULL)
+                && (elemIdx == contentChoices->initChoice)) {
+                contentPage->icon       = PIC(contentChoices->selectionIcon);
+                contentPage->bottomIcon = true;
+            }
             break;
         case BARS_LIST:
             contentBars = (nbgl_contentBarsList_t *) PIC(&p_content->content.barsList);

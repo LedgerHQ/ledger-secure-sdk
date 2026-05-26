@@ -322,6 +322,11 @@ typedef struct {
     bool vertical;  ///< Nano only: if true, render as a vertical menu list with radio buttons
                     ///< (all choices visible) instead of the default one-choice-per-page
                     ///< horizontal flow. Default false preserves existing behaviour.
+    const nbgl_icon_details_t
+        *selectionIcon;  ///< Nano only and used in the horizontal flow (i.e. @ref vertical is
+                         ///< false): optional small icon drawn underneath the choice label on the
+                         ///< page corresponding to @ref initChoice, so the user can tell which
+                         ///< item is currently selected. NULL (default) means no marker.
     /**
      * @brief Nano only and used in the horizontal flow (i.e. @ref vertical is false): per-content
      * header text shown above the choice label, e.g. "Keyboard layout". When NULL the SDK falls
