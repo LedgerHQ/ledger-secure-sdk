@@ -173,6 +173,9 @@ typedef struct PageContent_s {
     nbgl_state_t                  state;
     bool                          isCenteredInfo;
     bool                          isAction;
+    bool                          bottomIcon;  ///< if set alongside @ref icon, render the icon at
+                                               ///< the bottom of the screen instead of above the
+                                               ///< texts; forwarded to nbgl_layoutCenteredInfo_t
 } PageContent_t;
 
 typedef struct ReviewWithWarningContext_s {
@@ -584,7 +587,8 @@ static void drawStep(nbgl_stepPosition_t        pos,
                      const char                *subTxt,
                      nbgl_stepButtonCallback_t  onActionCallback,
                      bool                       modal,
-                     ForcedType_t               forcedType)
+                     ForcedType_t               forcedType,
+                     bool                       bottomIcon)
 {
     uint8_t                           elemIdx;
     nbgl_step_t                       newStep        = NULL;
@@ -649,10 +653,11 @@ static void drawStep(nbgl_stepPosition_t        pos,
     }
     else {
         nbgl_layoutCenteredInfo_t info;
-        info.icon  = icon;
-        info.text1 = txt;
-        info.text2 = subTxt;
-        info.onTop = false;
+        info.icon       = icon;
+        info.text1      = txt;
+        info.text2      = subTxt;
+        info.onTop      = false;
+        info.bottomIcon = bottomIcon;
         if ((subTxt != NULL) || (context.stepCallback != NULL) || context.forceAction) {
             info.style = BOLD_TEXT1_INFO;
         }
@@ -1281,7 +1286,7 @@ static void displayReviewPage(nbgl_stepPosition_t pos)
         }
     }
 
-    drawStep(pos, icon, text, subText, reviewCallback, false, forcedType);
+    drawStep(pos, icon, text, subText, reviewCallback, false, forcedType, false);
     nbgl_refresh();
 }
 
@@ -1378,7 +1383,7 @@ static void displayStreamingReviewPage(nbgl_stepPosition_t pos)
             break;
     }
 
-    drawStep(pos, icon, text, subText, streamingReviewCallback, false, forcedType);
+    drawStep(pos, icon, text, subText, streamingReviewCallback, false, forcedType, false);
     nbgl_refresh();
 }
 
@@ -1403,7 +1408,7 @@ static void displayInfoPage(nbgl_stepPosition_t pos)
         context.stepCallback = startUseCaseHome;
     }
 
-    drawStep(pos, icon, text, subText, infoCallback, false, FORCE_CENTERED_INFO);
+    drawStep(pos, icon, text, subText, infoCallback, false, FORCE_CENTERED_INFO, false);
     nbgl_refresh();
 }
 
@@ -1571,7 +1576,8 @@ static void displaySettingsPage(nbgl_stepPosition_t pos, bool toogle_state)
                  contentPage.subText,
                  settingsCallback,
                  false,
-                 NO_FORCED_TYPE);
+                 NO_FORCED_TYPE,
+                 contentPage.bottomIcon);
     }
 
     nbgl_refresh();
@@ -1736,7 +1742,7 @@ static void displayHomePage(nbgl_stepPosition_t pos)
         context.stepCallback = context.home.quitCallback;
     }
 
-    drawStep(pos, icon, text, subText, homeCallback, false, NO_FORCED_TYPE);
+    drawStep(pos, icon, text, subText, homeCallback, false, NO_FORCED_TYPE, false);
     nbgl_refresh();
 }
 
@@ -1805,7 +1811,7 @@ static void displayChoicePage(nbgl_stepPosition_t pos)
     }
     // other detail types (non-BAR_LIST) are not navigated on Nano
 
-    drawStep(pos, icon, text, subText, genericChoiceCallback, false, NO_FORCED_TYPE);
+    drawStep(pos, icon, text, subText, genericChoiceCallback, false, NO_FORCED_TYPE, false);
     nbgl_refresh();
 }
 
@@ -1837,7 +1843,7 @@ static void displayConfirm(nbgl_stepPosition_t pos)
             break;
     }
 
-    drawStep(pos, icon, text, subText, genericConfirmCallback, true, NO_FORCED_TYPE);
+    drawStep(pos, icon, text, subText, genericConfirmCallback, true, NO_FORCED_TYPE, false);
     nbgl_refresh();
 }
 
@@ -1883,7 +1889,8 @@ static void displayContent(nbgl_stepPosition_t pos, bool toogle_state)
                  contentPage.subText,
                  contentCallback,
                  false,
-                 forcedType);
+                 forcedType,
+                 contentPage.bottomIcon);
     }
     context.forceAction = false;
     nbgl_refresh();
@@ -1891,7 +1898,7 @@ static void displayContent(nbgl_stepPosition_t pos, bool toogle_state)
 
 static void displaySpinner(const char *text)
 {
-    drawStep(SINGLE_STEP, &C_icon_processing, text, NULL, NULL, false, false);
+    drawStep(SINGLE_STEP, &C_icon_processing, text, NULL, NULL, false, NO_FORCED_TYPE, false);
     nbgl_refresh();
 }
 
@@ -2854,7 +2861,8 @@ void nbgl_useCaseStatus(const char *message, bool isSuccess, nbgl_callback_t qui
              NULL,
              statusButtonCallback,
              false,
-             NO_FORCED_TYPE);
+             NO_FORCED_TYPE,
+             false);
 }
 
 /**
