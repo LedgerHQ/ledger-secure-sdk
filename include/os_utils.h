@@ -1,8 +1,11 @@
 #pragma once
 
 #include <stdbool.h>
-#include "arch.h"
+#include <stddef.h>
+#include <stdint.h>
 #include "decorators.h"
+
+#define WIDE
 
 /**
  * Helper to perform compilation time assertions
