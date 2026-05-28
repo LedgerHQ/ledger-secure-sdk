@@ -739,6 +739,9 @@ static bool buttonGenericCallback(nbgl_buttonEvent_t event, nbgl_stepPosition_t 
                             token = p_content->content.switchesList.switches->token;
                             break;
                         case BARS_LIST:
+                            if (elemIdx >= p_content->content.barsList.nbBars) {
+                                return false;
+                            }
                             token = ((const uint8_t *) PIC(
                                 p_content->content.barsList.tokens))[elemIdx];
                             index = elemIdx;
@@ -1456,8 +1459,10 @@ static void getContentPage(bool toogle_state, PageContent_t *contentPage)
     }
     switch (p_content->type) {
         case CENTERED_INFO:
-            contentPage->text    = PIC(p_content->content.centeredInfo.text1);
-            contentPage->subText = PIC(p_content->content.centeredInfo.text2);
+            contentPage->text       = PIC(p_content->content.centeredInfo.text1);
+            contentPage->subText    = PIC(p_content->content.centeredInfo.text2);
+            contentPage->icon       = PIC(p_content->content.centeredInfo.icon);
+            contentPage->bottomIcon = p_content->content.centeredInfo.bottomIcon;
             break;
         case INFO_BUTTON:
             contentPage->icon       = PIC(p_content->content.infoButton.icon);

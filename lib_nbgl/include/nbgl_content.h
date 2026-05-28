@@ -71,6 +71,12 @@ typedef struct {
                        ///< Incompatible with @ref onTop: when both are set, @ref onTop is ignored
                        ///< (text is laid out via the standard text path and the icon stays pinned
                        ///< to the screen bottom).
+                       ///< Designed for short contextual hints (selection marker, sub-menu
+                       ///< chevron, ...): the icon should be small (~14 px) and @ref text1 /
+                       ///< @ref text2 should stay short. The Nano screen is only 64 px tall, so
+                       ///< the caller is responsible for keeping text1 + text2 + icon within
+                       ///< that budget — multi-line text1 combined with text2 will clip at the
+                       ///< top and overlap the icon at the bottom.
 #endif                // HAVE_SE_TOUCH
 } nbgl_contentCenteredInfo_t;
 
@@ -135,7 +141,9 @@ typedef struct {
 #ifndef HAVE_SE_TOUCH
     bool bottomIcon;  ///< Nano only: when true and @ref icon is non-NULL, the icon is rendered at
                       ///< the bottom of the screen (BOTTOM_MIDDLE) instead of above @ref text.
-                      ///< Same semantics as nbgl_contentCenteredInfo_t::bottomIcon.
+                      ///< Same semantics and same size budget as
+                      ///< nbgl_contentCenteredInfo_t::bottomIcon — keep @ref text and
+                      ///< @ref buttonText short to avoid clipping/overlap on the 64 px screen.
 #endif                // HAVE_SE_TOUCH
 } nbgl_contentInfoButton_t;
 
