@@ -132,6 +132,11 @@ typedef struct {
                           ///< long pressed
     tune_index_e
         tuneId;  ///< if not @ref NBGL_NO_TUNE, a tune will be played when button is touched
+#ifndef HAVE_SE_TOUCH
+    bool bottomIcon;  ///< Nano only: when true and @ref icon is non-NULL, the icon is rendered at
+                      ///< the bottom of the screen (BOTTOM_MIDDLE) instead of above @ref text.
+                      ///< Same semantics as nbgl_contentCenteredInfo_t::bottomIcon.
+#endif                // HAVE_SE_TOUCH
 } nbgl_contentInfoButton_t;
 
 /**

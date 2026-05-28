@@ -1460,9 +1460,10 @@ static void getContentPage(bool toogle_state, PageContent_t *contentPage)
             contentPage->subText = PIC(p_content->content.centeredInfo.text2);
             break;
         case INFO_BUTTON:
-            contentPage->icon    = PIC(p_content->content.infoButton.icon);
-            contentPage->text    = PIC(p_content->content.infoButton.text);
-            contentPage->subText = PIC(p_content->content.infoButton.buttonText);
+            contentPage->icon       = PIC(p_content->content.infoButton.icon);
+            contentPage->text       = PIC(p_content->content.infoButton.text);
+            contentPage->subText    = PIC(p_content->content.infoButton.buttonText);
+            contentPage->bottomIcon = p_content->content.infoButton.bottomIcon;
             break;
         case TAG_VALUE_LIST:
             getPairData(&p_content->content.tagValueList,
