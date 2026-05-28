@@ -1575,6 +1575,14 @@ static void getContentPage(bool toogle_state, PageContent_t *contentPage)
             else {
                 contentPage->text = PIC(texts[elemIdx]);
             }
+            // Sub-menu indicator: always pinned at the bottom of every bar's
+            // page. Mirrors the hardcoded PUSH_ICON ('>') that Stax/Flex draw
+            // on the right of touchable bars (see nbgl_page.c). On Nano the
+            // right button is reserved for navigation, so we pick a downward
+            // chevron and place it at the screen bottom via the centeredInfo
+            // bottomIcon path.
+            contentPage->icon       = &C_icon_down;
+            contentPage->bottomIcon = true;
             break;
         default:
             break;

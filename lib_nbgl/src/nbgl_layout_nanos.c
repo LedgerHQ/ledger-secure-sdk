@@ -479,7 +479,17 @@ int nbgl_layoutAddCenteredInfo(nbgl_layout_t *layout, const nbgl_layoutCenteredI
     // ignores info->onTop — the combination bottomIcon=true && onTop=true is
     // documented as incompatible on nbgl_contentCenteredInfo_t::bottomIcon.
     if ((info->icon != NULL) && info->bottomIcon && (info->text1 != NULL)) {
-        nbgl_layoutAddText(layout, info->text1, info->text2, info->style);
+        // bottomIcon pages put the meaningful content in text1 (the icon is
+        // only a contextual hint at the bottom — selection marker, sub-menu
+        // chevron, ...). Force BOLD_TEXT1_INFO when only text1 is set so the
+        // primary content is visually prominent; when text2 is also set, keep
+        // the caller's style (BOLD_TEXT1_INFO is already implied by the
+        // standard drawStep style selection in that case).
+        nbgl_contentCenteredInfoStyle_t style = info->style;
+        if ((style == REGULAR_INFO) && (info->text2 == NULL)) {
+            style = BOLD_TEXT1_INFO;
+        }
+        nbgl_layoutAddText(layout, info->text1, info->text2, style);
         image                  = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
         image->foregroundColor = WHITE;
         image->buffer          = PIC(info->icon);
