@@ -357,7 +357,7 @@ static const nbgl_content_t *getContentElemAtIdx(uint8_t         elemIdx,
         default:
             return NULL;
     }
-    for (uint i = 0; i < genericContents->nbContents; i++) {
+    for (unsigned int i = 0; i < genericContents->nbContents; i++) {
         p_content   = getContentAtIdx(genericContents, i, content);
         elemNbPages = getContentNbElement(p_content);
         if (nbPages + elemNbPages > elemIdx) {
@@ -1696,7 +1696,7 @@ static void startUseCaseSettingsAtPage(uint8_t initSettingPage)
     }
 
     context.nbPages = 1;  // For back screen
-    for (uint i = 0; i < context.home.settingContents->nbContents; i++) {
+    for (unsigned int i = 0; i < context.home.settingContents->nbContents; i++) {
         p_content = getContentAtIdx(context.home.settingContents, i, &content);
         context.nbPages += getContentNbElement(p_content);
     }
