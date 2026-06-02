@@ -50,7 +50,7 @@ ifeq ($(CC),)
 CC        = clang
 endif
 
-SYSROOT = $(shell $(GCCPATH)arm-none-eabi-gcc -print-sysroot)
+SYSROOT = $(shell arm-none-eabi-gcc -print-sysroot)
 ifeq ($(SYSROOT),)
     # path for Debian-based systems
     SYSROOT = /usr/lib/arm-none-eabi
