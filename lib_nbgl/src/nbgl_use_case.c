@@ -4842,6 +4842,7 @@ void nbgl_useCaseKeypad(const char             *title,
  *          - numbered: (Touch only) if true, text is preceded by 'number.'
  *          - number: (Touch only) number used to build 'number.' prefix
  *          - casing: (Touch only) keyboard casing mode
+ *          - obfuscated: (Touch only) if true, entered text and suggestions use the obfuscated font
  *          - confirmationParams: (if type is KEYBOARD_WITH_BUTTON) button configuration
  *          - suggestionParams: (if type is KEYBOARD_WITH_SUGGESTIONS) suggestions configuration
  * @param backCallback callback called when the back button is pressed
@@ -4885,13 +4886,14 @@ void nbgl_useCaseKeyboard(const nbgl_keyboardParams_t *params, nbgl_callback_t b
     keyboardContext.entryBuffer[0] = '\0';
     // add keyboard content
     keyboardContext.keyboardContent = (nbgl_layoutKeyboardContent_t){
-        .type      = params->type,
-        .title     = PIC(params->title),
-        .numbered  = params->numbered,
-        .number    = params->number,
-        .text      = keyboardContext.entryBuffer,
-        .textToken = KEYBOARD_CROSS_TOKEN,
-        .tuneId    = TUNE_TAP_CASUAL,
+        .type       = params->type,
+        .title      = PIC(params->title),
+        .numbered   = params->numbered,
+        .number     = params->number,
+        .obfuscated = params->obfuscated,
+        .text       = keyboardContext.entryBuffer,
+        .textToken  = KEYBOARD_CROSS_TOKEN,
+        .tuneId     = TUNE_TAP_CASUAL,
     };
     switch (params->type) {
         case KEYBOARD_WITH_BUTTON:
