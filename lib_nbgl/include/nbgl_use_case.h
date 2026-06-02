@@ -362,9 +362,10 @@ typedef struct {
     keyboardMode_t                   mode;         ///< keyboard mode to start with
     bool lettersOnly;  ///< if true, only display letter keys and Backspace
 #ifdef HAVE_SE_TOUCH
-    bool           numbered;  ///< if set to true, the text is preceded on the left by 'number.'
-    uint8_t        number;    ///< if numbered is true, number used to build 'number.' text
-    keyboardCase_t casing;    ///< keyboard casing mode (lower, upper once or upper locked)
+    bool           numbered;    ///< if set to true, the text is preceded on the left by 'number.'
+    uint8_t        number;      ///< if numbered is true, number used to build 'number.' text
+    keyboardCase_t casing;      ///< keyboard casing mode (lower, upper once or upper locked)
+    bool           obfuscated;  ///< if true, entered text and suggestions use the obfuscated font
 #endif
     union {
         nbgl_kbdSuggestParams_t
