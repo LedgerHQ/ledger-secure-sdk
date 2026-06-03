@@ -107,7 +107,7 @@ static void drawStep(FlowContext_t             *ctx,
                      const char                *txt,
                      const char                *subTxt)
 {
-    nbgl_layoutCenteredInfo_t info;
+    nbgl_layoutCenteredInfo_t info = {0};
     if ((ctx->loop) && (ctx->nbSteps > 1)) {
         pos |= NEITHER_FIRST_NOR_LAST_STEP;
     }
