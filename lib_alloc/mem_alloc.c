@@ -202,11 +202,11 @@ static inline void list_remove(heap_t *heap, uint16_t *first_free, uint16_t elem
 // add item in LIFO
 static inline void list_push(heap_t *heap, header_t *header)
 {
-    int      seg_index = seglist_index(heap, header->size);
-    uint16_t first_idx = heap->free_segments[seg_index];
+    int seg_index = seglist_index(heap, header->size);
     if (seg_index < 0) {
         return;
     }
+    uint16_t first_idx = heap->free_segments[seg_index];
     // if it's already the first item, nothing to do
     if (first_idx == GET_IDX(heap, header)) {
         return;
@@ -258,9 +258,11 @@ static header_t *coalesce(heap_t *heap, header_t *header, header_t *neighbour)
 
     // if not allocated, coalesce
     if (!neighbour->allocated) {
+        int seg_index = seglist_index(heap, neighbour->size);
         // remove this neighbour from its free list
-        list_remove(
-            heap, &heap->free_segments[seglist_index(heap, neighbour->size)], neighbour_idx);
+        if (seg_index >= 0) {
+            list_remove(heap, &heap->free_segments[seg_index], neighbour_idx);
+        }
         // link the current next physical chunk (if existing) to this new chunk
         header_t *next;
         if (header < neighbour) {
