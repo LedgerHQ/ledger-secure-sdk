@@ -5,6 +5,7 @@
  */
 
 #include "app_config.h"
+#include "nbgl_types.h"
 
 #ifdef HAVE_SE_TOUCH
 /*********************
@@ -726,9 +727,18 @@ static nbgl_container_t *addListItem(nbgl_layoutInternal_t *layoutInt, const lis
     layoutObj_t      *obj;
     nbgl_text_area_t *textArea = NULL;
     nbgl_container_t *container;
-    color_t color = ((itemDesc->type == TOUCHABLE_BAR_ITEM) && (itemDesc->state == OFF_STATE))
-                        ? INACTIVE_TEXT_COLOR
-                        : BLACK;
+
+    color_t common_color     = WHITE;  // Color of all elements, excepted right icon
+    color_t right_icon_color = WHITE;  // Color of right icon, only
+    if ((itemDesc->type == TOUCHABLE_BAR_ITEM) && (itemDesc->state == OFF_STATE)) {
+        common_color     = INACTIVE_TEXT_COLOR;
+        right_icon_color = INACTIVE_ARROW_COLOR;
+    }
+    else {
+        common_color     = BLACK;
+        right_icon_color = BLACK;
+    }
+
     nbgl_font_id_e fontId
         = ((itemDesc->type == TOUCHABLE_BAR_ITEM) && (itemDesc->state == OFF_STATE))
               ? INACTIVE_SMALL_FONT
@@ -768,7 +778,7 @@ static nbgl_container_t *addListItem(nbgl_layoutInternal_t *layoutInt, const lis
     // allocate main text if not NULL
     if (itemDesc->text != NULL) {
         textArea            = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
-        textArea->textColor = color;
+        textArea->textColor = common_color;
         textArea->text      = PIC(itemDesc->text);
         textArea->onDrawCallback = NULL;
         textArea->fontId         = fontId;
@@ -807,7 +817,7 @@ static nbgl_container_t *addListItem(nbgl_layoutInternal_t *layoutInt, const lis
     // allocate left icon if present
     if (itemDesc->iconLeft != NULL) {
         nbgl_image_t *imageLeft    = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
-        imageLeft->foregroundColor = color;
+        imageLeft->foregroundColor = common_color;
         imageLeft->buffer          = PIC(itemDesc->iconLeft);
         // align at the left of text
         imageLeft->obj.alignment                   = MID_LEFT;
@@ -823,7 +833,7 @@ static nbgl_container_t *addListItem(nbgl_layoutInternal_t *layoutInt, const lis
     // allocate right icon if present
     if (itemDesc->iconRight != NULL) {
         nbgl_image_t *imageRight    = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, layoutInt->layer);
-        imageRight->foregroundColor = color;
+        imageRight->foregroundColor = right_icon_color;
         imageRight->buffer          = PIC(itemDesc->iconRight);
         // align at the right of text
         imageRight->obj.alignment        = MID_RIGHT;
@@ -850,7 +860,7 @@ static nbgl_container_t *addListItem(nbgl_layoutInternal_t *layoutInt, const lis
         nbgl_text_area_t *subTextArea
             = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
 
-        subTextArea->textColor     = color;
+        subTextArea->textColor     = common_color;
         subTextArea->text          = PIC(itemDesc->subText);
         subTextArea->textAlignment = MID_LEFT;
         subTextArea->fontId        = SMALL_REGULAR_FONT;
