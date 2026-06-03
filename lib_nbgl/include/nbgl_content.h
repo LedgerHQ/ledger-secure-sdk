@@ -195,13 +195,13 @@ typedef struct {
         const nbgl_contentValueExt_t
             *extension;  ///< if not NULL, gives additional info on value field
     };
-    int8_t forcePageStart : 1;  ///< if set to 1, the tag will be displayed at the top of a new
-                                ///< review page
-    int8_t centeredInfo : 1;    ///< if set to 1, the tag will be displayed as a centered info
-    int8_t aliasValue : 1;      ///< if set to 1, the value represents an alias
-                                ///< - On wallet size, a > icon enables to
-                                ///< view the full value (extension field in union)
-                                ///< - On Nano, the value is displayed in white
+    uint8_t forcePageStart : 1;  ///< if set to 1, the tag will be displayed at the top of a new
+                                 ///< review page
+    uint8_t centeredInfo : 1;    ///< if set to 1, the tag will be displayed as a centered info
+    uint8_t aliasValue : 1;      ///< if set to 1, the value represents an alias
+                                 ///< - On wallet size, a > icon enables to
+                                 ///< view the full value (extension field in union)
+                                 ///< - On Nano, the value is displayed in white
 } nbgl_contentTagValue_t;
 
 /**
