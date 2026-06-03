@@ -14,12 +14,14 @@
  *  limitations under the License.
  *****************************************************************************/
 
-#include <os_utils.h>
-#include <os_pic.h>
-#include <cx.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
+
+#include "os_utils.h"
+#include "os_pic.h"
+#include "cx.h"
 
 #include "tlv_library.h"
 
