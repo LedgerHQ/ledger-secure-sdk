@@ -75,7 +75,7 @@ CFLAGS   += -std=gnu99
 
 CFLAGS   += -Wall -Wextra
 CFLAGS   += -Wno-main
-CFLAGS   += -Werror=int-to-pointer-cast
+CFLAGS   += -Werror=int-to-pointer-cast -Wno-implicit-function-declaration
 
 # Additional Clang warnings
 CFLAGS   += -Wno-error=int-conversion -Wimplicit-fallthrough
@@ -96,6 +96,13 @@ LDFLAGS  += -fno-common -ffunction-sections -fdata-sections -fwhole-program -fus
 LDFLAGS  += -mno-unaligned-access
 LDFLAGS  += -Wl,--gc-sections -Wl,-Map,$(DBG_DIR)/app.map
 LDFLAGS  += -nostdlib -nodefaultlibs
+
+ENABLE_STACK_PROTECTOR ?= 0
+ifneq ($(ENABLE_STACK_PROTECTOR),0)
+	LDLIBS   += -Wl,--wrap=__stack_chk_fail -Wl,--wrap=__stack_chk_init
+	AFLAGS   += -fstack-protector-strong
+	CFLAGS   += -fstack-protector-strong
+endif
 
 ifeq ($(TARGET_NAME),TARGET_NANOX)
     CPU       = cortex-m3
