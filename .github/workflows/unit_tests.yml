@@ -20,8 +20,10 @@ jobs:
       - name: Clone
         uses: actions/checkout@v6
 
-      - name: Install package libbsd-dev
-        run: apt-get install -y libbsd-dev curl gpg
+      - name: Install curl
+        run: |
+          apt-get update
+          apt-get install -y curl
 
       - name: Find test directories
         id: find-tests
