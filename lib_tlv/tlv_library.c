@@ -183,7 +183,10 @@ bool get_string_from_tlv_data(const tlv_data_t *data,
     }
 
     // Reject TLV strings with embedded null bytes
-    size_t actual_length = strnlen((const char *) data->value.ptr, data->value.size);
+    size_t actual_length = 0;
+    if (data->value.size > 0) {
+        actual_length = strnlen((const char *) data->value.ptr, data->value.size);
+    }
     if (actual_length != data->value.size) {
         PRINTF("Embedded null byte at offset %u\n", (unsigned) actual_length);
         return false;
@@ -199,7 +202,9 @@ bool get_string_from_tlv_data(const tlv_data_t *data,
         return false;
     }
 
-    memcpy(out, data->value.ptr, data->value.size);
+    if (data->value.size > 0) {
+        memcpy(out, data->value.ptr, data->value.size);
+    }
     out[data->value.size] = '\0';
 
     return true;
