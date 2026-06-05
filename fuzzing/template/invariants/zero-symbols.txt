@@ -1,0 +1,1 @@
+# App-local symbols to zero out in the invariant (one per line; name or name@source_substring).
