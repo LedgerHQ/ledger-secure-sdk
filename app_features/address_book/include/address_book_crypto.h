@@ -22,6 +22,7 @@
 #include "lcx_sha256.h"
 #include "address_book.h"
 #include "identity.h"
+#include "os_address_book.h"
 
 #ifdef HAVE_ADDRESS_BOOK
 

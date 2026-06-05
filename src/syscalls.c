@@ -29,12 +29,16 @@
 #if defined(HAVE_VSS)
 #include "ox_vss.h"
 #endif  // HAVE_VSS
+#ifdef HAVE_ADDRESS_BOOK
+#include "os_address_book.h"
+#endif  // HAVE_ADDRESS_BOOK
 #include "os_seed.h"
 #include "ox_crc.h"
 #include "os_endorsement.h"
 #include <string.h>
 
 #include "os_hdkey.h"
+#include "os_address_book.h"
 
 unsigned int SVC_Call(unsigned int syscall_id, void *parameters);
 unsigned int SVC_cx_call(unsigned int syscall_id, unsigned int *parameters);
@@ -1879,3 +1883,37 @@ int os_stack_operations(unsigned char mode)
     return (unsigned int) SVC_Call(SYSCALL_os_stack_operations_ID, parameters);
 }
 #endif  // DEBUG_OS_STACK_CONSUMPTION
+
+bool sys_address_book_hmac(const uint32_t        *bip32_path,
+                           size_t                 bip32_path_len,
+                           ADDRESS_BOOK_salt_id_t salt_id,
+                           const uint8_t         *message,
+                           size_t                 message_len,
+                           uint8_t               *hmac_out)
+{
+    unsigned int parameters[6];
+    parameters[0] = (unsigned int) bip32_path;
+    parameters[1] = (unsigned int) bip32_path_len;
+    parameters[2] = (unsigned int) salt_id;
+    parameters[3] = (unsigned int) message;
+    parameters[4] = (unsigned int) message_len;
+    parameters[5] = (unsigned int) hmac_out;
+    return (bool) SVC_Call(SYSCALL_ADDRESS_BOOK_HMAC_ID, parameters);
+}
+
+bool sys_address_book_hmac_verify(const uint32_t        *bip32_path,
+                                  size_t                 bip32_path_len,
+                                  ADDRESS_BOOK_salt_id_t salt_id,
+                                  const uint8_t         *message,
+                                  size_t                 message_len,
+                                  const uint8_t         *hmac_expected)
+{
+    unsigned int parameters[6];
+    parameters[0] = (unsigned int) bip32_path;
+    parameters[1] = (unsigned int) bip32_path_len;
+    parameters[2] = (unsigned int) salt_id;
+    parameters[3] = (unsigned int) message;
+    parameters[4] = (unsigned int) message_len;
+    parameters[5] = (unsigned int) hmac_expected;
+    return (bool) SVC_Call(SYSCALL_ADDRESS_BOOK_HMAC_VERIFY_ID, parameters);
+}
