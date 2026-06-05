@@ -228,6 +228,8 @@ static const uint64bits_t primeSqrt[] = {
     _64BITS(0x4cc5d4be, 0xcb3e42b6), _64BITS(0x597f299c, 0xfc657e2a),
     _64BITS(0x5fcb6fab, 0x3ad6faec), _64BITS(0x6c44198c, 0x4a475817)};
 
+__attribute__((no_sanitize("unsigned-integer-overflow"))) 
+// Integer wraparound is correct in the context of hash computation
 void cx_sha512_block(cx_sha512_t *hash)
 {
     uint8_t      j;
