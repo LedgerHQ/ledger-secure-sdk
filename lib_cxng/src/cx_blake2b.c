@@ -31,16 +31,40 @@
 #endif
 #endif
 
-const cx_hash_info_t cx_blake2b_info
-    = {CX_BLAKE2B,
-       0,
-       BLAKE2B_BLOCKBYTES,
-       sizeof(cx_blake2b_t),
-       NULL,
-       (cx_err_t(*)(cx_hash_t * ctx, const uint8_t *data, size_t len)) cx_blake2b_update,
-       (cx_err_t(*)(cx_hash_t * ctx, uint8_t *digest)) cx_blake2b_final,
-       (cx_err_t(*)(cx_hash_t * ctx, size_t output_size)) cx_blake2b_init_no_throw,
-       (size_t(*)(const cx_hash_t *ctx)) cx_blake2b_get_output_size};
+/* Trampolines matching cx_hash_info_t's function-pointer types exactly, so that
+ * dispatch through ctx->info->{update,finish,init_ex,output_size}_func is not a
+ * call through an incompatible function-pointer type (C11 6.3.2.3p8 /
+ * -fsanitize=function). The cast to the concrete context is safe: cx_hash_header_s
+ * is the first member of cx_blake2b_t, so the addresses coincide. */
+static cx_err_t blake2b_update_func(cx_hash_t *ctx, const uint8_t *data, size_t len)
+{
+    return cx_blake2b_update((cx_blake2b_t *) ctx, data, len);
+}
+
+static cx_err_t blake2b_final_func(cx_hash_t *ctx, uint8_t *digest)
+{
+    return cx_blake2b_final((cx_blake2b_t *) ctx, digest);
+}
+
+static cx_err_t blake2b_init_ex_func(cx_hash_t *ctx, size_t output_size)
+{
+    return cx_blake2b_init_no_throw((cx_blake2b_t *) ctx, output_size);
+}
+
+static size_t blake2b_output_size_func(const cx_hash_t *ctx)
+{
+    return cx_blake2b_get_output_size((const cx_blake2b_t *) ctx);
+}
+
+const cx_hash_info_t cx_blake2b_info = {CX_BLAKE2B,
+                                        0,
+                                        BLAKE2B_BLOCKBYTES,
+                                        sizeof(cx_blake2b_t),
+                                        NULL,
+                                        blake2b_update_func,
+                                        blake2b_final_func,
+                                        blake2b_init_ex_func,
+                                        blake2b_output_size_func};
 
 cx_err_t cx_blake2b_init_no_throw(cx_blake2b_t *hash, size_t size)
 {

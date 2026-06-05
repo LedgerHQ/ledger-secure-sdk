@@ -29,16 +29,35 @@
 
 #define RIPEMD_BLOCK_SIZE 64
 
-const cx_hash_info_t cx_ripemd160_info
-    = {CX_RIPEMD160,
-       CX_RIPEMD160_SIZE,
-       RIPEMD_BLOCK_SIZE,
-       sizeof(cx_ripemd160_t),
-       (cx_err_t(*)(cx_hash_t * ctx)) cx_ripemd160_init_no_throw,
-       (cx_err_t(*)(cx_hash_t * ctx, const uint8_t *data, size_t len)) cx_ripemd160_update,
-       (cx_err_t(*)(cx_hash_t * ctx, uint8_t *digest)) cx_ripemd160_final,
-       NULL,
-       NULL};
+/* Trampolines matching cx_hash_info_t's function-pointer types exactly, so that
+ * dispatch through ctx->info->{init,update,finish}_func is not a call through an
+ * incompatible function-pointer type (C11 6.3.2.3p8 / -fsanitize=function). The
+ * cast to the concrete context is safe: cx_hash_header_s is the first member of
+ * cx_ripemd160_t, so the addresses coincide. */
+static cx_err_t ripemd160_init_func(cx_hash_t *ctx)
+{
+    return cx_ripemd160_init_no_throw((cx_ripemd160_t *) ctx);
+}
+
+static cx_err_t ripemd160_update_func(cx_hash_t *ctx, const uint8_t *data, size_t len)
+{
+    return cx_ripemd160_update((cx_ripemd160_t *) ctx, data, len);
+}
+
+static cx_err_t ripemd160_final_func(cx_hash_t *ctx, uint8_t *digest)
+{
+    return cx_ripemd160_final((cx_ripemd160_t *) ctx, digest);
+}
+
+const cx_hash_info_t cx_ripemd160_info = {CX_RIPEMD160,
+                                          CX_RIPEMD160_SIZE,
+                                          RIPEMD_BLOCK_SIZE,
+                                          sizeof(cx_ripemd160_t),
+                                          ripemd160_init_func,
+                                          ripemd160_update_func,
+                                          ripemd160_final_func,
+                                          NULL,
+                                          NULL};
 
 /* ----------------------------------------------------------------------- */
 /*                                                                         */

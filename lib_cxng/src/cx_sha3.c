@@ -33,49 +33,85 @@
 #error sha3 require 64 bits support at compiler level (NATIVE_64BITS option)
 #endif
 
-const cx_hash_info_t cx_sha3_info
-    = {CX_SHA3,
-       0,
-       0,
-       sizeof(cx_sha3_t),
-       NULL,
-       (cx_err_t(*)(cx_hash_t * ctx, const uint8_t *data, size_t len)) cx_sha3_update,
-       (cx_err_t(*)(cx_hash_t * ctx, uint8_t *digest)) cx_sha3_final,
-       (cx_err_t(*)(cx_hash_t * ctx, size_t output_size)) cx_sha3_init_no_throw,
-       (size_t(*)(const cx_hash_t *ctx)) cx_sha3_get_output_size};
+/* Trampolines matching cx_hash_info_t's function-pointer types exactly, so that
+ * dispatch through ctx->info->{update,finish,init_ex,output_size}_func is not a
+ * call through an incompatible function-pointer type (C11 6.3.2.3p8 /
+ * -fsanitize=function). The cast to the concrete context is safe: cx_hash_header_s
+ * is the first member of cx_sha3_t, so the addresses coincide. */
+static cx_err_t sha3_update_func(cx_hash_t *ctx, const uint8_t *data, size_t len)
+{
+    return cx_sha3_update((cx_sha3_t *) ctx, data, len);
+}
 
-const cx_hash_info_t cx_keccak_info
-    = {CX_KECCAK,
-       0,
-       0,
-       sizeof(cx_sha3_t),
-       NULL,
-       (cx_err_t(*)(cx_hash_t * ctx, const uint8_t *data, size_t len)) cx_sha3_update,
-       (cx_err_t(*)(cx_hash_t * ctx, uint8_t *digest)) cx_sha3_final,
-       (cx_err_t(*)(cx_hash_t * ctx, size_t output_size)) cx_keccak_init_no_throw,
-       (size_t(*)(const cx_hash_t *ctx)) cx_sha3_get_output_size};
+static cx_err_t sha3_final_func(cx_hash_t *ctx, uint8_t *digest)
+{
+    return cx_sha3_final((cx_sha3_t *) ctx, digest);
+}
 
-const cx_hash_info_t cx_shake128_info
-    = {CX_SHAKE128,
-       0,
-       0,
-       sizeof(cx_sha3_t),
-       NULL,
-       (cx_err_t(*)(cx_hash_t * ctx, const uint8_t *data, size_t len)) cx_sha3_update,
-       (cx_err_t(*)(cx_hash_t * ctx, uint8_t *digest)) cx_sha3_final,
-       (cx_err_t(*)(cx_hash_t * ctx, size_t output_size)) cx_shake128_init_no_throw,
-       (size_t(*)(const cx_hash_t *ctx)) cx_sha3_get_output_size};
+static size_t sha3_output_size_func(const cx_hash_t *ctx)
+{
+    return cx_sha3_get_output_size((const cx_sha3_t *) ctx);
+}
 
-const cx_hash_info_t cx_shake256_info
-    = {CX_SHAKE256,
-       0,
-       0,
-       sizeof(cx_sha3_t),
-       NULL,
-       (cx_err_t(*)(cx_hash_t * ctx, const uint8_t *data, size_t len)) cx_sha3_update,
-       (cx_err_t(*)(cx_hash_t * ctx, uint8_t *digest)) cx_sha3_final,
-       (cx_err_t(*)(cx_hash_t * ctx, size_t output_size)) cx_shake256_init_no_throw,
-       (size_t(*)(const cx_hash_t *ctx)) cx_sha3_get_output_size};
+static cx_err_t sha3_init_ex_func(cx_hash_t *ctx, size_t output_size)
+{
+    return cx_sha3_init_no_throw((cx_sha3_t *) ctx, output_size);
+}
+
+static cx_err_t keccak_init_ex_func(cx_hash_t *ctx, size_t output_size)
+{
+    return cx_keccak_init_no_throw((cx_sha3_t *) ctx, output_size);
+}
+
+static cx_err_t shake128_init_ex_func(cx_hash_t *ctx, size_t output_size)
+{
+    return cx_shake128_init_no_throw((cx_sha3_t *) ctx, output_size);
+}
+
+static cx_err_t shake256_init_ex_func(cx_hash_t *ctx, size_t output_size)
+{
+    return cx_shake256_init_no_throw((cx_sha3_t *) ctx, output_size);
+}
+
+const cx_hash_info_t cx_sha3_info = {CX_SHA3,
+                                     0,
+                                     0,
+                                     sizeof(cx_sha3_t),
+                                     NULL,
+                                     sha3_update_func,
+                                     sha3_final_func,
+                                     sha3_init_ex_func,
+                                     sha3_output_size_func};
+
+const cx_hash_info_t cx_keccak_info = {CX_KECCAK,
+                                       0,
+                                       0,
+                                       sizeof(cx_sha3_t),
+                                       NULL,
+                                       sha3_update_func,
+                                       sha3_final_func,
+                                       keccak_init_ex_func,
+                                       sha3_output_size_func};
+
+const cx_hash_info_t cx_shake128_info = {CX_SHAKE128,
+                                         0,
+                                         0,
+                                         sizeof(cx_sha3_t),
+                                         NULL,
+                                         sha3_update_func,
+                                         sha3_final_func,
+                                         shake128_init_ex_func,
+                                         sha3_output_size_func};
+
+const cx_hash_info_t cx_shake256_info = {CX_SHAKE256,
+                                         0,
+                                         0,
+                                         sizeof(cx_sha3_t),
+                                         NULL,
+                                         sha3_update_func,
+                                         sha3_final_func,
+                                         shake256_init_ex_func,
+                                         sha3_output_size_func};
 
 // Assume state is a uint64_t array
 #define S64(x, y)    state[x + 5 * y]

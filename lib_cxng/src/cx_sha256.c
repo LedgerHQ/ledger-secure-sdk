@@ -27,30 +27,53 @@
 #include <stdint.h>
 #include <string.h>
 
+/* Trampolines matching cx_hash_info_t's function-pointer types exactly, so that
+ * dispatch through ctx->info->{init,update,finish}_func is not a call through an
+ * incompatible function-pointer type (C11 6.3.2.3p8 / -fsanitize=function). The
+ * cast to the concrete context is safe: cx_hash_header_s is the first member of
+ * cx_sha256_t, so the addresses coincide. */
+static cx_err_t sha256_update_func(cx_hash_t *ctx, const uint8_t *data, size_t len)
+{
+    return cx_sha256_update((cx_sha256_t *) ctx, data, len);
+}
+
+static cx_err_t sha256_final_func(cx_hash_t *ctx, uint8_t *digest)
+{
+    return cx_sha256_final((cx_sha256_t *) ctx, digest);
+}
+
 #ifdef HAVE_SHA224
-const cx_hash_info_t cx_sha224_info
-    = {CX_SHA224,
-       CX_SHA224_SIZE,
-       SHA256_BLOCK_SIZE,
-       sizeof(cx_sha256_t),
-       (cx_err_t(*)(cx_hash_t * ctx)) cx_sha224_init_no_throw,
-       (cx_err_t(*)(cx_hash_t * ctx, const uint8_t *data, size_t len)) cx_sha256_update,
-       (cx_err_t(*)(cx_hash_t * ctx, uint8_t *digest)) cx_sha256_final,
-       NULL,
-       NULL};
+static cx_err_t sha224_init_func(cx_hash_t *ctx)
+{
+    return cx_sha224_init_no_throw((cx_sha256_t *) ctx);
+}
+
+const cx_hash_info_t cx_sha224_info = {CX_SHA224,
+                                       CX_SHA224_SIZE,
+                                       SHA256_BLOCK_SIZE,
+                                       sizeof(cx_sha256_t),
+                                       sha224_init_func,
+                                       sha256_update_func,
+                                       sha256_final_func,
+                                       NULL,
+                                       NULL};
 #endif  // HAVE_SHA224
 
 #ifdef HAVE_SHA256
-const cx_hash_info_t cx_sha256_info
-    = {CX_SHA256,
-       CX_SHA256_SIZE,
-       SHA256_BLOCK_SIZE,
-       sizeof(cx_sha256_t),
-       (cx_err_t(*)(cx_hash_t * ctx)) cx_sha256_init_no_throw,
-       (cx_err_t(*)(cx_hash_t * ctx, const uint8_t *data, size_t len)) cx_sha256_update,
-       (cx_err_t(*)(cx_hash_t * ctx, uint8_t *digest)) cx_sha256_final,
-       NULL,
-       NULL};
+static cx_err_t sha256_init_func(cx_hash_t *ctx)
+{
+    return cx_sha256_init_no_throw((cx_sha256_t *) ctx);
+}
+
+const cx_hash_info_t cx_sha256_info = {CX_SHA256,
+                                       CX_SHA256_SIZE,
+                                       SHA256_BLOCK_SIZE,
+                                       sizeof(cx_sha256_t),
+                                       sha256_init_func,
+                                       sha256_update_func,
+                                       sha256_final_func,
+                                       NULL,
+                                       NULL};
 #endif  // HAVE_SHA256
 
 static const uint32_t primeSqrt[] = {
