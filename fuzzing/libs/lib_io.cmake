@@ -20,8 +20,8 @@ file(
 
 add_library(io ${LIB_IO_SOURCES})
 target_link_libraries(io PUBLIC nbgl cxng macros nfc)
-target_compile_options(io PUBLIC ${COMPILATION_FLAGS}
-                                 -Wno-implicit-function-declaration)
+target_compile_options(io PRIVATE ${COMPILATION_FLAGS})
+target_compile_options(io PUBLIC -Wno-implicit-function-declaration)
 target_include_directories(
   io
   PUBLIC "${BOLOS_SDK}/include/"
@@ -36,4 +36,6 @@ target_include_directories(
          "${BOLOS_SDK}/lib_stusb_impl/include"
          "${BOLOS_SDK}/lib_u2f/include"
          "${BOLOS_SDK}/lib_u2f_legacy/include"
-         "${BOLOS_SDK}/protocol/include")
+         "${BOLOS_SDK}/protocol/include"
+         # os_io_default_apdu.c includes address_book.h under HAVE_ADDRESS_BOOK.
+         "${BOLOS_SDK}/app_features/address_book/include")

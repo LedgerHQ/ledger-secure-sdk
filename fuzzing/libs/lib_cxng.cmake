@@ -4,8 +4,8 @@ include(${BOLOS_SDK}/fuzzing/mock/mock.cmake)
 
 file(GLOB LIB_CXNG_SOURCES "${BOLOS_SDK}/lib_cxng/src/*.c")
 
-add_library(cxng ${LIB_CXNG_SOURCES})
-target_compile_options(cxng PUBLIC ${COMPILATION_FLAGS})
+add_library(cxng ${LIB_CXNG_SOURCES} "${BOLOS_SDK}/src/cx_hash_iovec.c")
+target_compile_options(cxng PRIVATE ${COMPILATION_FLAGS})
 target_compile_definitions(cxng PUBLIC HAVE_FIXED_SCALAR_LENGTH)
 target_link_libraries(cxng PUBLIC macros mock)
 target_include_directories(
