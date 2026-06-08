@@ -80,6 +80,8 @@ extern unsigned int app_stack_canary;
 // Variable containing the type of the APDU response to send back.
 static apdu_type_t io_os_legacy_apdu_type;
 static uint8_t     need_to_start_io;
+// TOCTOU latch
+static bool io_reply_pending;
 
 /* Private functions ---------------------------------------------------------*/
 static io_apdu_media_t get_media_from_apdu_type(apdu_type_t apdu_type)
@@ -392,6 +394,22 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
             case OS_IO_PACKET_TYPE_USB_U2F_HID_RAW:
             case OS_IO_PACKET_TYPE_BLE_APDU:
             case OS_IO_PACKET_TYPE_NFC_APDU:
+                // TOCTOU: reject a new command while a previous one still awaits its reply.
+                // CANCEL/RAW are pure U2F transport frames and never touch the latch; CBOR is
+                // exempt from rejection here but still arms/clears it like a normal command.
+                if ((G_io_rx_buffer[0] != OS_IO_PACKET_TYPE_USB_U2F_HID_CANCEL)
+                    && (G_io_rx_buffer[0] != OS_IO_PACKET_TYPE_USB_U2F_HID_RAW)
+                    && (G_io_rx_buffer[0] != OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR)
+                    && os_io_reply_pending()) {
+                    bolos_err_t err   = SWO_COMMAND_NOT_ACCEPTED;
+                    G_io_tx_buffer[0] = err >> 8;
+                    G_io_tx_buffer[1] = err;
+                    status            = os_io_tx_cmd(G_io_rx_buffer[0], G_io_tx_buffer, 2, 0);
+                    if (status > 0) {
+                        status = 0;
+                    }
+                    break;
+                }
                 io_os_legacy_apdu_type = G_io_rx_buffer[0];
                 if (os_perso_is_pin_set() == BOLOS_TRUE
                     && os_global_pin_is_validated() != BOLOS_TRUE) {
@@ -435,6 +453,12 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
                 }
 #endif  // HAVE_BOLOS_NO_DEFAULT_APDU
                 else {
+                    // Arm the TOCTOU latch. CANCEL/RAW are transport-only frames with no app
+                    // reply to clear it, so they don't arm; CBOR does (it replies like a command).
+                    if ((G_io_rx_buffer[0] != OS_IO_PACKET_TYPE_USB_U2F_HID_CANCEL)
+                        && (G_io_rx_buffer[0] != OS_IO_PACKET_TYPE_USB_U2F_HID_RAW)) {
+                        os_io_set_reply_pending(true);
+                    }
                     G_io_app.apdu_media = get_media_from_apdu_type(io_os_legacy_apdu_type);
                     status -= 1;
                     memmove(G_io_apdu_buffer, &G_io_rx_buffer[1], status);
@@ -476,10 +500,22 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
     return status;
 }
 
+void os_io_set_reply_pending(bool pending)
+{
+    io_reply_pending = pending;
+}
+
+bool os_io_reply_pending(void)
+{
+    return io_reply_pending;
+}
+
 int io_legacy_apdu_tx(const unsigned char *buffer, unsigned short length)
 {
     int status = os_io_tx_cmd(io_os_legacy_apdu_type, buffer, length, 0);
 
+    // TOCTOU: the app answered the command - release the latch.
+    os_io_set_reply_pending(false);
     G_io_app.apdu_media    = IO_APDU_MEDIA_NONE;
     io_os_legacy_apdu_type = APDU_TYPE_NONE;
 #ifdef HAVE_IO_U2F
