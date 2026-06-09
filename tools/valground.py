@@ -52,6 +52,11 @@ class Memory:
     test_name: str
     free_errors: list[str]
 
+    # Shared across instances: name of the last test whose summary printed its header. A test can
+    # span several Memory segments (each in-test heap reset starts a new one); keying on this lets
+    # the name be printed only once, on the test's first segment.
+    printed_test_name: Optional[str] = None
+
     def __init__(self, addr: int, size: int, test_name: str) -> None:
         self.allocs = {}
         self.persists = {}
@@ -85,10 +90,21 @@ class Memory:
             self.allocd_current -= self.persists[ptr].size
             del self.persists[ptr]
 
-    def summary(self, quiet: bool = False) -> bool:
-        print("")
-        if self.test_name:
+    def summary(self, quiet: bool = False, reclaimed_by_reset: bool = False) -> bool:
+        # Print the test name on its first summary only (see printed_test_name above): this keeps
+        # the name attached to that test's first content-bearing segment rather than landing on a
+        # trailing empty segment left by a post-test heap reset.
+        show_name = bool(self.test_name and self.test_name != Memory.printed_test_name)
+
+        # Leading blank line is a separator before the report. In quiet mode a segment with nothing
+        # to show (no name, no free error, no leak) prints nothing at all, so skip the separator
+        # too -- otherwise the empty segments left by in-test/post-test heap resets pile up blanks.
+        if not quiet or show_name or self.free_errors or self.allocs:
+            print("")
+
+        if show_name:
             print(f"{COLORS['fg_blue']}{COLORS['bg_white']}{self.test_name}{COLORS['all_reset']}")
+            Memory.printed_test_name = self.test_name
 
         if len(self.free_errors) == 0:
             if not quiet:
@@ -103,7 +119,14 @@ class Memory:
             if not quiet:
                 print(f"{COLORS['fg_green']}No memory leak detected, congrats!{COLORS['all_reset']}")
         else:
-            print(f"{COLORS['fg_red']}Memory leaks:")
+            if reclaimed_by_reset:
+                # An in-test "init" reset the whole heap in bulk, so these still-live allocations
+                # were freed by mem_utils_reset_app_heap() -> warning, not a failure.
+                print(f"{COLORS['fg_yellow']}Memory leaks (warning, reclaimed by heap reset):")
+            else:
+                # Final summary, or a new test started without the previous one cleaning up:
+                # these allocations are a genuine leak, fails.
+                print(f"{COLORS['fg_red']}Memory leaks:")
             for addr, info in self.allocs.items():
                 print("- [0x%.08x] %u bytes from %s" % (addr,
                                                         info.size,
@@ -128,7 +151,13 @@ class Memory:
                     del self.persists[addr]
                 print(f"{COLORS['all_reset']}", end='')
 
-        return len(self.allocs) + len(self.free_errors) == 0
+        # Free errors (free without malloc / double free) always fail. Leaks fail at the final
+        # summary and at a test boundary (a new test had to reset the heap to reclaim them); leaks
+        # seen at an in-test "init" are reclaimed by that bulk reset and are warnings only.
+        ok = len(self.free_errors) == 0
+        if not reclaimed_by_reset:
+            ok = ok and len(self.allocs) == 0
+        return ok
 
 
 # ===============================================================================
@@ -230,13 +259,23 @@ def main() -> None:
                 assert len(words) > 2
 
                 if words[0] == "init":
-                    # Print summary of previous test if exists
+                    # An "init" resets the app heap. If it happens within the current test, the
+                    # previous segment's still-live allocations were reclaimed in bulk by that
+                    # reset -> warning only. If a new test has started (test_name changed since
+                    # this Memory was created), the previous test's allocations were never cleaned
+                    # up by that test and only survive thanks to this new test's reset -> genuine
+                    # leak, fail.
                     if mem is not None:
-                        if mem.summary(args.quiet) is False:
+                        reclaimed_by_reset = mem.test_name == test_name
+                        if mem.summary(args.quiet, reclaimed_by_reset) is False:
                             ret_code = 1
                     mem = Memory(int(words[1], base=0), int(words[2], base=0), test_name)
                 elif words[0] in ("alloc", "persist"):
-                    mem.alloc(int(words[2], base=0), int(words[1], base=0), words[3], words[0] == "persist")
+                    addr = int(words[2], base=0)
+                    # A failed allocation (out of memory) may be logged with address 0x0; it is not
+                    # a live allocation and has nothing to free, so skip it to avoid a phantom leak.
+                    if addr != 0:
+                        mem.alloc(addr, int(words[1], base=0), words[3], words[0] == "persist")
                 elif words[0] == "free":
                     mem.free(int(words[1], base=0), words[2])
                 else:
