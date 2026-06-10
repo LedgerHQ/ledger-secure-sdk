@@ -2515,20 +2515,12 @@ static nbgl_layout_t *displayModalDetails(const nbgl_warningDetails_t *details, 
                 && (details->barList.details[i].type != NO_TYPE_WARNING)) {
                 bar.iconRight = &PUSH_ICON;
             }
-            else {
-                bar.iconRight = NULL;
-            }
             // Left icon is optional, only set if provided by the warning details
             if (details->barList.icons != NULL) {
                 bar.iconLeft = details->barList.icons[i];
             }
-            else {
-                bar.iconLeft = NULL;
-            }
-            bar.token    = FIRST_WARN_BAR_TOKEN + i;
-            bar.tuneId   = TUNE_TAP_CASUAL;
-            bar.large    = false;
-            bar.inactive = false;
+            bar.token  = FIRST_WARN_BAR_TOKEN + i;
+            bar.tuneId = TUNE_TAP_CASUAL;
             nbgl_layoutAddTouchableBar(layout, &bar);
             nbgl_layoutAddSeparationLine(layout);
         }
@@ -2689,6 +2681,7 @@ static void displayInitialWarning(void)
 #ifdef HAVE_PIEZO_SOUND
     tune_index_e tune = TUNE_RESERVED;
 #endif  // HAVE_PIEZO_SOUND
+    // clang-format off
     nbgl_layoutDescription_t   layoutDescription = {0};
     nbgl_layoutChoiceButtons_t buttonsInfo       = {.bottomText = "Continue anyway",
                                                     .token      = WARNING_CHOICE_TOKEN,
@@ -2696,23 +2689,17 @@ static void displayInitialWarning(void)
                                                     .style      = ROUNDED_AND_FOOTER_STYLE,
                                                     .tuneId     = TUNE_TAP_CASUAL};
     nbgl_layoutHeader_t        headerDesc        = {.type              = HEADER_EMPTY,
-                                                    .separationLine    = false,
                                                     .emptySpace.height = MEDIUM_CENTERING_HEADER};
-    uint32_t                   set               = reviewWithWarnCtx.warning->predefinedSet
-                   & ~((1 << W3C_NO_THREAT_WARN) | (1 << W3C_ISSUE_WARN));
+    uint32_t set = reviewWithWarnCtx.warning->predefinedSet & ~((1 << W3C_NO_THREAT_WARN) | (1 << W3C_ISSUE_WARN));
+    // clang-format on
 
     bool isBlindSigningOnly
         = (set != 0) && ((set & ~((1 << BLIND_SIGNING_WARN) | (1 << GATED_SIGNING_WARN))) == 0);
     reviewWithWarnCtx.isIntro = true;
 
-    layoutDescription.modal          = false;
-    layoutDescription.withLeftBorder = true;
-
+    layoutDescription.withLeftBorder   = true;
     layoutDescription.onActionCallback = layoutTouchCallback;
-    layoutDescription.tapActionText    = NULL;
-
-    layoutDescription.ticker.tickerCallback = NULL;
-    reviewWithWarnCtx.layoutCtx             = nbgl_layoutGet(&layoutDescription);
+    reviewWithWarnCtx.layoutCtx        = nbgl_layoutGet(&layoutDescription);
 
     nbgl_layoutAddHeader(reviewWithWarnCtx.layoutCtx, &headerDesc);
     if (reviewWithWarnCtx.warning->predefinedSet != 0) {
@@ -2819,6 +2806,7 @@ static void displayInitialWarning(void)
 // function used to display the prelude when starting a "review with warning"
 static void displayPrelude(void)
 {
+    // clang-format off
     nbgl_layoutDescription_t   layoutDescription = {0};
     nbgl_layoutChoiceButtons_t buttonsInfo
         = {.bottomText = reviewWithWarnCtx.warning->prelude->footerText,
@@ -2827,17 +2815,14 @@ static void displayPrelude(void)
            .style      = ROUNDED_AND_FOOTER_STYLE,
            .tuneId     = TUNE_TAP_CASUAL};
     nbgl_layoutHeader_t headerDesc = {.type              = HEADER_EMPTY,
-                                      .separationLine    = false,
                                       .emptySpace.height = MEDIUM_CENTERING_HEADER};
+    // clang-format on
 
     reviewWithWarnCtx.isIntro = true;
 
-    layoutDescription.modal                 = false;
-    layoutDescription.withLeftBorder        = true;
-    layoutDescription.onActionCallback      = layoutTouchCallback;
-    layoutDescription.tapActionText         = NULL;
-    layoutDescription.ticker.tickerCallback = NULL;
-    reviewWithWarnCtx.layoutCtx             = nbgl_layoutGet(&layoutDescription);
+    layoutDescription.withLeftBorder   = true;
+    layoutDescription.onActionCallback = layoutTouchCallback;
+    reviewWithWarnCtx.layoutCtx        = nbgl_layoutGet(&layoutDescription);
 
     nbgl_layoutAddHeader(reviewWithWarnCtx.layoutCtx, &headerDesc);
     // add centered content
@@ -3827,6 +3812,7 @@ void nbgl_useCaseAdvancedChoiceWithDetails(const nbgl_icon_details_t *centerIcon
                                            nbgl_warningDetails_t     *details,
                                            nbgl_choiceCallback_t      callback)
 {
+    // clang-format off
     nbgl_layoutDescription_t   layoutDescription = {0};
     nbgl_layoutChoiceButtons_t buttonsInfo       = {.bottomText = cancelText,
                                                     .token      = CHOICE_TOKEN,
@@ -3835,8 +3821,8 @@ void nbgl_useCaseAdvancedChoiceWithDetails(const nbgl_icon_details_t *centerIcon
                                                     .tuneId     = TUNE_TAP_CASUAL};
     nbgl_contentCenter_t       centeredInfo      = {0};
     nbgl_layoutHeader_t        headerDesc        = {.type              = HEADER_EMPTY,
-                                                    .separationLine    = false,
                                                     .emptySpace.height = MEDIUM_CENTERING_HEADER};
+    // clang-format on
 
     if ((confirmText == NULL) || (cancelText == NULL)) {
         return;
@@ -3848,15 +3834,12 @@ void nbgl_useCaseAdvancedChoiceWithDetails(const nbgl_icon_details_t *centerIcon
     os_io_seph_cmd_piezo_play_tune(TUNE_LOOK_AT_ME);
 #endif  // HAVE_PIEZO_SOUND
 
-    onChoice                                = callback;
-    layoutDescription.modal                 = false;
-    layoutDescription.withLeftBorder        = true;
-    layoutDescription.onActionCallback      = layoutTouchCallback;
-    layoutDescription.tapActionText         = NULL;
-    layoutDescription.ticker.tickerCallback = NULL;
-    sharedContext.usage                     = SHARE_CTX_CHOICE_WITH_DETAILS;
-    choiceWithDetailsCtx.layoutCtx          = nbgl_layoutGet(&layoutDescription);
-    choiceWithDetailsCtx.details            = details;
+    onChoice                           = callback;
+    layoutDescription.withLeftBorder   = true;
+    layoutDescription.onActionCallback = layoutTouchCallback;
+    sharedContext.usage                = SHARE_CTX_CHOICE_WITH_DETAILS;
+    choiceWithDetailsCtx.layoutCtx     = nbgl_layoutGet(&layoutDescription);
+    choiceWithDetailsCtx.details       = details;
 
     nbgl_layoutAddHeader(choiceWithDetailsCtx.layoutCtx, &headerDesc);
     nbgl_layoutAddChoiceButtons(choiceWithDetailsCtx.layoutCtx, &buttonsInfo);
@@ -4788,8 +4771,6 @@ void nbgl_useCaseKeypad(const char             *title,
 
     // get a layout
     layoutDescription.onActionCallback = keypadGeneric_cb;
-    layoutDescription.modal            = false;
-    layoutDescription.withLeftBorder   = false;
     keypadContext.layoutCtx            = nbgl_layoutGet(&layoutDescription);
     keypadContext.hidden               = hidden;
 
