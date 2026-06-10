@@ -656,7 +656,6 @@ static void drawStep(nbgl_stepPosition_t        pos,
         info.icon                      = icon;
         info.text1                     = txt;
         info.text2                     = subTxt;
-        info.onTop                     = false;
         info.bottomIcon                = bottomIcon;
         if ((subTxt != NULL) || (context.stepCallback != NULL) || context.forceAction) {
             info.style = BOLD_TEXT1_INFO;

@@ -1320,16 +1320,15 @@ int nbgl_layoutAddTopRightButton(nbgl_layout_t             *layout,
  */
 int nbgl_layoutAddNavigationBar(nbgl_layout_t *layout, const nbgl_layoutNavigationBar_t *info)
 {
-    nbgl_layoutFooter_t footerDesc          = {0};
-    footerDesc.type                         = FOOTER_NAV;
-    footerDesc.separationLine               = info->withSeparationLine;
-    footerDesc.navigation.activePage        = info->activePage;
-    footerDesc.navigation.nbPages           = info->nbPages;
-    footerDesc.navigation.withExitKey       = info->withExitKey;
-    footerDesc.navigation.withBackKey       = info->withBackKey;
-    footerDesc.navigation.withPageIndicator = false;
-    footerDesc.navigation.token             = info->token;
-    footerDesc.navigation.tuneId            = info->tuneId;
+    nbgl_layoutFooter_t footerDesc    = {0};
+    footerDesc.type                   = FOOTER_NAV;
+    footerDesc.separationLine         = info->withSeparationLine;
+    footerDesc.navigation.activePage  = info->activePage;
+    footerDesc.navigation.nbPages     = info->nbPages;
+    footerDesc.navigation.withExitKey = info->withExitKey;
+    footerDesc.navigation.withBackKey = info->withBackKey;
+    footerDesc.navigation.token       = info->token;
+    footerDesc.navigation.tuneId      = info->tuneId;
     return nbgl_layoutAddExtendedFooter(layout, &footerDesc);
 }
 
@@ -1351,15 +1350,13 @@ int nbgl_layoutAddBottomButton(nbgl_layout_t             *layout,
                                tune_index_e               tuneId)
 {
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddBottomButton():\n");
-    nbgl_layoutFooter_t footerDesc   = {0};
-    footerDesc.type                  = FOOTER_SIMPLE_BUTTON;
-    footerDesc.separationLine        = separationLine;
-    footerDesc.button.fittingContent = false;
-    footerDesc.button.icon           = PIC(icon);
-    footerDesc.button.text           = NULL;
-    footerDesc.button.token          = token;
-    footerDesc.button.tuneId         = tuneId;
-    footerDesc.button.style          = WHITE_BACKGROUND;
+    nbgl_layoutFooter_t footerDesc = {0};
+    footerDesc.type                = FOOTER_SIMPLE_BUTTON;
+    footerDesc.separationLine      = separationLine;
+    footerDesc.button.icon         = PIC(icon);
+    footerDesc.button.token        = token;
+    footerDesc.button.tuneId       = tuneId;
+    footerDesc.button.style        = WHITE_BACKGROUND;
     return nbgl_layoutAddExtendedFooter(layout, &footerDesc);
 }
 
@@ -1429,7 +1426,6 @@ int nbgl_layoutAddSwitch(nbgl_layout_t *layout, const nbgl_layoutSwitch_t *switc
     itemDesc.token   = switchLayout->token;
     itemDesc.tuneId  = switchLayout->tuneId;
     itemDesc.state   = switchLayout->initState;
-    itemDesc.large   = false;
     itemDesc.type    = SWITCH_ITEM;
     container        = addListItem(layoutInt, &itemDesc);
 
@@ -2048,7 +2044,6 @@ int nbgl_layoutAddChoiceButtons(nbgl_layout_t *layout, const nbgl_layoutChoiceBu
 {
     nbgl_layoutFooter_t footerDesc      = {0};
     footerDesc.type                     = FOOTER_CHOICE_BUTTONS;
-    footerDesc.separationLine           = false;
     footerDesc.choiceButtons.bottomText = info->bottomText;
     footerDesc.choiceButtons.token      = info->token;
     footerDesc.choiceButtons.topText    = info->topText;
@@ -2417,7 +2412,6 @@ int nbgl_layoutAddButton(nbgl_layout_t *layout, const nbgl_layoutButton_t *butto
         if (layoutInt->footerContainer == NULL) {
             nbgl_layoutFooter_t footerDesc = {0};
             footerDesc.type                = FOOTER_SIMPLE_BUTTON;
-            footerDesc.separationLine      = false;
             footerDesc.button.text         = buttonInfo->text;
             footerDesc.button.token        = buttonInfo->token;
             footerDesc.button.tuneId       = buttonInfo->tuneId;
@@ -2539,7 +2533,6 @@ int nbgl_layoutAddFooter(nbgl_layout_t *layout,
     footerDesc.type                = FOOTER_SIMPLE_TEXT;
     footerDesc.separationLine      = true;
     footerDesc.simpleText.text     = text;
-    footerDesc.simpleText.mutedOut = false;
     footerDesc.simpleText.token    = token;
     footerDesc.simpleText.tuneId   = tuneId;
     return nbgl_layoutAddExtendedFooter(layout, &footerDesc);
