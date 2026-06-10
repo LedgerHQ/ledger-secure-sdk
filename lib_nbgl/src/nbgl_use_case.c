@@ -1247,7 +1247,7 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
 static void displayGenericContextPage(uint8_t pageIdx, bool forceFullRefresh)
 {
     // Retrieve next page parameters
-    nbgl_content_t        content;
+    nbgl_content_t        content = {0};
     uint8_t               nbElementsInPage;
     bool                  flag;
     const nbgl_content_t *p_content = NULL;
@@ -2266,7 +2266,7 @@ static uint8_t getNbPagesForGenericContents(const nbgl_genericContents_t *generi
                                             bool                          isSkippable)
 {
     uint8_t               nbPages = 0;
-    nbgl_content_t        content;
+    nbgl_content_t        content = {0};
     const nbgl_content_t *p_content;
 
     for (int i = 0; i < genericContents->nbContents; i++) {
@@ -2332,7 +2332,7 @@ static void prepareAddressConfirmationPages(const char                       *ad
     // single page; for multi-chunk addresses, extras go to their own second page
     if ((tagValueList != NULL) && (nbAddressChunks == 1)
         && (tagValueList->nbPairs < ADDR_VERIF_NB_PAIRS)) {
-        nbgl_contentTagValueList_t tmpList;
+        nbgl_contentTagValueList_t tmpList = {0};
         bool                       flag;
         // copy in intermediate structure
         for (uint8_t i = 0; i < tagValueList->nbPairs; i++) {
@@ -2507,9 +2507,9 @@ static nbgl_layout_t *displayModalDetails(const nbgl_warningDetails_t *details, 
     if (details->type == BAR_LIST_WARNING) {
         // if more than one warning, so use a list of touchable bars
         for (i = 0; i < details->barList.nbBars; i++) {
-            nbgl_layoutBar_t bar;
-            bar.text    = details->barList.texts[i];
-            bar.subText = details->barList.subTexts[i];
+            nbgl_layoutBar_t bar = {0};
+            bar.text             = details->barList.texts[i];
+            bar.subText          = details->barList.subTexts[i];
             // Only assign a right icon if the bar is clickable (i.e. has details to display)
             if ((details->barList.details)
                 && (details->barList.details[i].type != NO_TYPE_WARNING)) {
@@ -2689,16 +2689,16 @@ static void displayInitialWarning(void)
 #ifdef HAVE_PIEZO_SOUND
     tune_index_e tune = TUNE_RESERVED;
 #endif  // HAVE_PIEZO_SOUND
-    nbgl_layoutDescription_t   layoutDescription;
-    nbgl_layoutChoiceButtons_t buttonsInfo = {.bottomText = "Continue anyway",
-                                              .token      = WARNING_CHOICE_TOKEN,
-                                              .topText    = "Back to safety",
-                                              .style      = ROUNDED_AND_FOOTER_STYLE,
-                                              .tuneId     = TUNE_TAP_CASUAL};
-    nbgl_layoutHeader_t        headerDesc  = {.type              = HEADER_EMPTY,
-                                              .separationLine    = false,
-                                              .emptySpace.height = MEDIUM_CENTERING_HEADER};
-    uint32_t                   set         = reviewWithWarnCtx.warning->predefinedSet
+    nbgl_layoutDescription_t   layoutDescription = {0};
+    nbgl_layoutChoiceButtons_t buttonsInfo       = {.bottomText = "Continue anyway",
+                                                    .token      = WARNING_CHOICE_TOKEN,
+                                                    .topText    = "Back to safety",
+                                                    .style      = ROUNDED_AND_FOOTER_STYLE,
+                                                    .tuneId     = TUNE_TAP_CASUAL};
+    nbgl_layoutHeader_t        headerDesc        = {.type              = HEADER_EMPTY,
+                                                    .separationLine    = false,
+                                                    .emptySpace.height = MEDIUM_CENTERING_HEADER};
+    uint32_t                   set               = reviewWithWarnCtx.warning->predefinedSet
                    & ~((1 << W3C_NO_THREAT_WARN) | (1 << W3C_ISSUE_WARN));
 
     bool isBlindSigningOnly
@@ -2819,7 +2819,7 @@ static void displayInitialWarning(void)
 // function used to display the prelude when starting a "review with warning"
 static void displayPrelude(void)
 {
-    nbgl_layoutDescription_t   layoutDescription;
+    nbgl_layoutDescription_t   layoutDescription = {0};
     nbgl_layoutChoiceButtons_t buttonsInfo
         = {.bottomText = reviewWithWarnCtx.warning->prelude->footerText,
            .token      = PRELUDE_CHOICE_TOKEN,
@@ -3827,16 +3827,16 @@ void nbgl_useCaseAdvancedChoiceWithDetails(const nbgl_icon_details_t *centerIcon
                                            nbgl_warningDetails_t     *details,
                                            nbgl_choiceCallback_t      callback)
 {
-    nbgl_layoutDescription_t   layoutDescription;
-    nbgl_layoutChoiceButtons_t buttonsInfo  = {.bottomText = cancelText,
-                                               .token      = CHOICE_TOKEN,
-                                               .topText    = confirmText,
-                                               .style      = ROUNDED_AND_FOOTER_STYLE,
-                                               .tuneId     = TUNE_TAP_CASUAL};
-    nbgl_contentCenter_t       centeredInfo = {0};
-    nbgl_layoutHeader_t        headerDesc   = {.type              = HEADER_EMPTY,
-                                               .separationLine    = false,
-                                               .emptySpace.height = MEDIUM_CENTERING_HEADER};
+    nbgl_layoutDescription_t   layoutDescription = {0};
+    nbgl_layoutChoiceButtons_t buttonsInfo       = {.bottomText = cancelText,
+                                                    .token      = CHOICE_TOKEN,
+                                                    .topText    = confirmText,
+                                                    .style      = ROUNDED_AND_FOOTER_STYLE,
+                                                    .tuneId     = TUNE_TAP_CASUAL};
+    nbgl_contentCenter_t       centeredInfo      = {0};
+    nbgl_layoutHeader_t        headerDesc        = {.type              = HEADER_EMPTY,
+                                                    .separationLine    = false,
+                                                    .emptySpace.height = MEDIUM_CENTERING_HEADER};
 
     if ((confirmText == NULL) || (cancelText == NULL)) {
         return;

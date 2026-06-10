@@ -652,12 +652,12 @@ static void drawStep(nbgl_stepPosition_t        pos,
         newStep = nbgl_stepDrawText(pos, onActionCallback, p_ticker, txt, subTxt, style, modal);
     }
     else {
-        nbgl_layoutCenteredInfo_t info;
-        info.icon       = icon;
-        info.text1      = txt;
-        info.text2      = subTxt;
-        info.onTop      = false;
-        info.bottomIcon = bottomIcon;
+        nbgl_layoutCenteredInfo_t info = {0};
+        info.icon                      = icon;
+        info.text1                     = txt;
+        info.text2                     = subTxt;
+        info.onTop                     = false;
+        info.bottomIcon                = bottomIcon;
         if ((subTxt != NULL) || (context.stepCallback != NULL) || context.forceAction) {
             info.style = BOLD_TEXT1_INFO;
         }
@@ -678,7 +678,7 @@ static void drawSwitchStep(nbgl_stepPosition_t       pos,
                            nbgl_stepButtonCallback_t onActionCallback,
                            bool                      modal)
 {
-    nbgl_layoutSwitch_t switchInfo;
+    nbgl_layoutSwitch_t switchInfo = {0};
 
     pos |= GET_POS_OF_STEP(context.currentPage, context.nbPages);
     switchInfo.initState = state;

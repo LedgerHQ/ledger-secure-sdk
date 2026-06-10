@@ -259,9 +259,9 @@ static void displayTextPage(StepContext_t *ctx, uint8_t textPage)
     else {
         ctx->textContext.nextPageStart = NULL;
     }
-    nbgl_layoutDescription_t layoutDescription;
-    nbgl_layoutNavigation_t  navInfo = {
-         .direction = HORIZONTAL_NAV,
+    nbgl_layoutDescription_t layoutDescription = {0};
+    nbgl_layoutNavigation_t  navInfo           = {
+                   .direction = HORIZONTAL_NAV,
     };
 
     layoutDescription.modal                  = ctx->modal;
@@ -463,7 +463,7 @@ nbgl_step_t nbgl_stepDrawText(nbgl_stepPosition_t               pos,
 {
 #ifdef BUILD_SCREENSHOTS
     // Initialize a default area
-    nbgl_area_t area;
+    nbgl_area_t area = {0};
     area.x0 = area.y0 = 0;
     area.width        = AVAILABLE_WIDTH;
     area.height = NB_MAX_LINES * nbgl_getFontLineHeight(BAGL_FONT_OPEN_SANS_REGULAR_11px_1bpp);

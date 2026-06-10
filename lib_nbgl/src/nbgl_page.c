@@ -68,7 +68,7 @@ static void addContent(nbgl_pageContent_t *content,
         }
         case INFO_BUTTON: {
             nbgl_contentCenter_t centeredInfo = {0};
-            nbgl_layoutButton_t  buttonInfo;
+            nbgl_layoutButton_t  buttonInfo   = {0};
 
             centeredInfo.icon        = content->infoButton.icon;
             centeredInfo.title       = content->infoButton.text;
@@ -121,7 +121,7 @@ static void addContent(nbgl_pageContent_t *content,
                 addEmptyHeader(layout, SMALL_CENTERING_HEADER);
             }
             // display a button under tag/value
-            nbgl_layoutButton_t buttonInfo;
+            nbgl_layoutButton_t buttonInfo = {0};
             content->tagValueDetails.tagValueList.nbMaxLinesForValue -= 3;
             nbgl_layoutAddTagValueList(layout, &content->tagValueDetails.tagValueList);
             buttonInfo.fittingContent = true;
@@ -135,7 +135,7 @@ static void addContent(nbgl_pageContent_t *content,
             break;
         }
         case TAG_VALUE_CONFIRM: {
-            nbgl_layoutButton_t buttonInfo;
+            nbgl_layoutButton_t buttonInfo = {0};
             if (!headerAdded) {
                 addEmptyHeader(layout, SMALL_CENTERING_HEADER);
             }
@@ -220,15 +220,15 @@ static void addContent(nbgl_pageContent_t *content,
         case BARS_LIST: {
             uint8_t i;
             for (i = 0; i < content->barsList.nbBars; i++) {
-                nbgl_layoutBar_t bar;
-                bar.text      = content->barsList.barTexts[i];
-                bar.subText   = NULL;
-                bar.iconRight = &PUSH_ICON;
-                bar.iconLeft  = NULL;
-                bar.token     = content->barsList.tokens[i];
-                bar.tuneId    = content->barsList.tuneId;
-                bar.large     = false;
-                bar.inactive  = false;
+                nbgl_layoutBar_t bar = {0};
+                bar.text             = content->barsList.barTexts[i];
+                bar.subText          = NULL;
+                bar.iconRight        = &PUSH_ICON;
+                bar.iconLeft         = NULL;
+                bar.token            = content->barsList.tokens[i];
+                bar.tuneId           = content->barsList.tuneId;
+                bar.large            = false;
+                bar.inactive         = false;
                 availableHeight -= nbgl_layoutAddTouchableBar(layout, &bar);
                 // do not draw a separation line if too low in the container
                 if (availableHeight > 10) {
@@ -258,7 +258,7 @@ nbgl_page_t *nbgl_pageDrawLedgerInfo(nbgl_layoutTouchCallback_t              onA
                                      const char                             *text,
                                      int                                     tapActionToken)
 {
-    nbgl_layoutDescription_t  layoutDescription;
+    nbgl_layoutDescription_t  layoutDescription = {0};
     nbgl_layout_t            *layout;
     nbgl_layoutCenteredInfo_t centeredInfo = {.text1   = text,
                                               .text2   = NULL,
@@ -442,7 +442,7 @@ nbgl_page_t *nbgl_pageDrawInfo(nbgl_layoutTouchCallback_t              onActionC
 nbgl_page_t *nbgl_pageDrawConfirmation(nbgl_layoutTouchCallback_t                onActionCallback,
                                        const nbgl_pageConfirmationDescription_t *info)
 {
-    nbgl_layoutDescription_t   layoutDescription;
+    nbgl_layoutDescription_t   layoutDescription = {0};
     nbgl_layout_t             *layout;
     nbgl_layoutChoiceButtons_t buttonsInfo
         = {.bottomText = (info->cancelText != NULL) ? PIC(info->cancelText) : "Cancel",
@@ -485,7 +485,7 @@ nbgl_page_t *nbgl_pageDrawGenericContentExt(nbgl_layoutTouchCallback_t       onA
                                             nbgl_pageContent_t              *content,
                                             bool                             modal)
 {
-    nbgl_layoutDescription_t layoutDescription;
+    nbgl_layoutDescription_t layoutDescription = {0};
     nbgl_layout_t           *layout;
     uint16_t                 availableHeight = SCREEN_HEIGHT;
     bool                     headerAdded     = false;
@@ -530,7 +530,7 @@ nbgl_page_t *nbgl_pageDrawGenericContentExt(nbgl_layoutTouchCallback_t       onA
             }
         }
         else if (nav->navType == NAV_WITH_BUTTONS) {
-            nbgl_layoutFooter_t footerDesc;
+            nbgl_layoutFooter_t footerDesc = {0};
             bool                drawFooter = true;
 
             if (nav->skipText != NULL) {
