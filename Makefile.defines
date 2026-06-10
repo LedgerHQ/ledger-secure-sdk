@@ -100,7 +100,7 @@ LDFLAGS  += -nostdlib -nodefaultlibs
 ENABLE_STACK_PROTECTOR ?= 0
 ifneq ($(ENABLE_STACK_PROTECTOR),0)
 	LDLIBS   += -Wl,--wrap=__stack_chk_fail -Wl,--wrap=__stack_chk_init
-	AFLAGS   += -fstack-protector-strong
+	AFLAGS   += -fstack-protector-strong -Wno-unused-command-line-argument
 	CFLAGS   += -fstack-protector-strong
 endif
 
