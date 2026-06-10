@@ -123,7 +123,6 @@ static void drawStep(FlowContext_t             *ctx,
         info.icon    = icon;
         info.text1   = txt;
         info.text2   = subTxt;
-        info.onTop   = false;
         info.style   = REGULAR_INFO;
         ctx->stepCtx = nbgl_stepDrawCenteredInfo(pos, actionCallback, NULL, &info, modal);
     }
