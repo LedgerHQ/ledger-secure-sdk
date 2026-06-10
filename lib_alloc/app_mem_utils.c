@@ -54,11 +54,16 @@ void *mem_utils_alloc(size_t size, bool permanent, const char *file, int line)
 
     ptr = mem_alloc(mem_utils_ctx, size);
 #ifdef HAVE_MEMORY_PROFILING
-    if (permanent) {
-        PRINTF(MP_LOG_PREFIX "persist;%u;0x%p;%s:%u\n", size, ptr, file, line);
-    }
-    else {
-        PRINTF(MP_LOG_PREFIX "alloc;%u;0x%p;%s:%u\n", size, ptr, file, line);
+    // Only log successful allocations. A failed allocation (ptr == NULL, e.g. out of memory) must
+    // not be recorded, otherwise the profiler tracks a phantom live allocation at address 0x0 that
+    // is never freed (there is nothing to free) and reports it as a spurious memory leak.
+    if (ptr != NULL) {
+        if (permanent) {
+            PRINTF(MP_LOG_PREFIX "persist;%u;0x%p;%s:%u\n", size, ptr, file, line);
+        }
+        else {
+            PRINTF(MP_LOG_PREFIX "alloc;%u;0x%p;%s:%u\n", size, ptr, file, line);
+        }
     }
 #endif
     return ptr;
