@@ -938,7 +938,7 @@ static nbgl_container_t *addContentCenter(nbgl_layoutInternal_t      *layoutInt,
             layoutInt->iconIdxInAnim = 0;
 
             // update ticker to update the animation periodically
-            nbgl_screenTickerConfiguration_t tickerCfg;
+            nbgl_screenTickerConfiguration_t tickerCfg = {0};
 
             tickerCfg.tickerIntervale = info->animation->delayMs;  // ms
             tickerCfg.tickerValue     = info->animation->delayMs;  // ms
@@ -1184,11 +1184,11 @@ nbgl_layout_t *nbgl_layoutGet(const nbgl_layoutDescription_t *description)
         layout->container->obj.touchId   = WHOLE_SCREEN_ID;
 
         if (strlen(tapActionText) > 0) {
-            nbgl_layoutUpFooter_t footerDesc;
-            footerDesc.type        = UP_FOOTER_TEXT;
-            footerDesc.text.text   = tapActionText;
-            footerDesc.text.token  = description->tapActionToken;
-            footerDesc.text.tuneId = description->tapTuneId;
+            nbgl_layoutUpFooter_t footerDesc = {0};
+            footerDesc.type                  = UP_FOOTER_TEXT;
+            footerDesc.text.text             = tapActionText;
+            footerDesc.text.token            = description->tapActionToken;
+            footerDesc.text.tuneId           = description->tapTuneId;
             nbgl_layoutAddUpFooter((nbgl_layout_t *) layout, &footerDesc);
         }
     }
@@ -1320,7 +1320,7 @@ int nbgl_layoutAddTopRightButton(nbgl_layout_t             *layout,
  */
 int nbgl_layoutAddNavigationBar(nbgl_layout_t *layout, const nbgl_layoutNavigationBar_t *info)
 {
-    nbgl_layoutFooter_t footerDesc;
+    nbgl_layoutFooter_t footerDesc          = {0};
     footerDesc.type                         = FOOTER_NAV;
     footerDesc.separationLine               = info->withSeparationLine;
     footerDesc.navigation.activePage        = info->activePage;
@@ -1351,7 +1351,7 @@ int nbgl_layoutAddBottomButton(nbgl_layout_t             *layout,
                                tune_index_e               tuneId)
 {
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddBottomButton():\n");
-    nbgl_layoutFooter_t footerDesc;
+    nbgl_layoutFooter_t footerDesc   = {0};
     footerDesc.type                  = FOOTER_SIMPLE_BUTTON;
     footerDesc.separationLine        = separationLine;
     footerDesc.button.fittingContent = false;
@@ -2046,7 +2046,7 @@ int nbgl_layoutAddQRCode(nbgl_layout_t *layout, const nbgl_layoutQRCode_t *info)
  */
 int nbgl_layoutAddChoiceButtons(nbgl_layout_t *layout, const nbgl_layoutChoiceButtons_t *info)
 {
-    nbgl_layoutFooter_t footerDesc;
+    nbgl_layoutFooter_t footerDesc      = {0};
     footerDesc.type                     = FOOTER_CHOICE_BUTTONS;
     footerDesc.separationLine           = false;
     footerDesc.choiceButtons.bottomText = info->bottomText;
@@ -2415,24 +2415,24 @@ int nbgl_layoutAddButton(nbgl_layout_t *layout, const nbgl_layoutButton_t *butto
     // Add in footer if matching
     if ((buttonInfo->onBottom) && (!buttonInfo->fittingContent)) {
         if (layoutInt->footerContainer == NULL) {
-            nbgl_layoutFooter_t footerDesc;
-            footerDesc.type           = FOOTER_SIMPLE_BUTTON;
-            footerDesc.separationLine = false;
-            footerDesc.button.text    = buttonInfo->text;
-            footerDesc.button.token   = buttonInfo->token;
-            footerDesc.button.tuneId  = buttonInfo->tuneId;
-            footerDesc.button.icon    = buttonInfo->icon;
-            footerDesc.button.style   = buttonInfo->style;
+            nbgl_layoutFooter_t footerDesc = {0};
+            footerDesc.type                = FOOTER_SIMPLE_BUTTON;
+            footerDesc.separationLine      = false;
+            footerDesc.button.text         = buttonInfo->text;
+            footerDesc.button.token        = buttonInfo->token;
+            footerDesc.button.tuneId       = buttonInfo->tuneId;
+            footerDesc.button.icon         = buttonInfo->icon;
+            footerDesc.button.style        = buttonInfo->style;
             return nbgl_layoutAddExtendedFooter(layout, &footerDesc);
         }
         else {
-            nbgl_layoutUpFooter_t upFooterDesc;
-            upFooterDesc.type          = UP_FOOTER_BUTTON;
-            upFooterDesc.button.text   = buttonInfo->text;
-            upFooterDesc.button.token  = buttonInfo->token;
-            upFooterDesc.button.tuneId = buttonInfo->tuneId;
-            upFooterDesc.button.icon   = buttonInfo->icon;
-            upFooterDesc.button.style  = buttonInfo->style;
+            nbgl_layoutUpFooter_t upFooterDesc = {0};
+            upFooterDesc.type                  = UP_FOOTER_BUTTON;
+            upFooterDesc.button.text           = buttonInfo->text;
+            upFooterDesc.button.token          = buttonInfo->token;
+            upFooterDesc.button.tuneId         = buttonInfo->tuneId;
+            upFooterDesc.button.icon           = buttonInfo->icon;
+            upFooterDesc.button.style          = buttonInfo->style;
             return nbgl_layoutAddUpFooter(layout, &upFooterDesc);
         }
     }
@@ -2535,7 +2535,7 @@ int nbgl_layoutAddFooter(nbgl_layout_t *layout,
                          uint8_t        token,
                          tune_index_e   tuneId)
 {
-    nbgl_layoutFooter_t footerDesc;
+    nbgl_layoutFooter_t footerDesc = {0};
     footerDesc.type                = FOOTER_SIMPLE_TEXT;
     footerDesc.separationLine      = true;
     footerDesc.simpleText.text     = text;
@@ -2564,7 +2564,7 @@ int nbgl_layoutAddSplitFooter(nbgl_layout_t *layout,
                               uint8_t        rightToken,
                               tune_index_e   tuneId)
 {
-    nbgl_layoutFooter_t footerDesc;
+    nbgl_layoutFooter_t footerDesc   = {0};
     footerDesc.type                  = FOOTER_DOUBLE_TEXT;
     footerDesc.separationLine        = true;
     footerDesc.doubleText.leftText   = leftText;
@@ -3747,7 +3747,7 @@ int nbgl_layoutAddSpinner(nbgl_layout_t *layout,
 
     if (initPosition != SPINNER_FIXED) {
         // update ticker to update the spinner periodically
-        nbgl_screenTickerConfiguration_t tickerCfg;
+        nbgl_screenTickerConfiguration_t tickerCfg = {0};
 
         tickerCfg.tickerIntervale = SPINNER_REFRESH_PERIOD;  // ms
         tickerCfg.tickerValue     = SPINNER_REFRESH_PERIOD;  // ms
