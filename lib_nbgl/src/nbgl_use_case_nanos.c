@@ -2110,11 +2110,22 @@ static void keyboardCallback(char touchedKey)
     if (context.keyboard.content.type == KEYBOARD_WITH_SUGGESTIONS) {
         // if suggestions are displayed, we update them at each key press
         context.keyboard.getSuggestButtons(&context.keyboard.content, &mask);
-        if ((context.keyboard.content.suggestionButtons.nbUsedButtons > 0)
-            && (context.keyboard.content.suggestionButtons.nbUsedButtons
-                < NB_MAX_SUGGESTION_BUTTONS)) {
-            // On Nano, when we have few suggestions, display a selection page
-            // instead of continuing with keyboard entry
+        const nbgl_layoutSuggestionButtons_t *suggestions
+            = &context.keyboard.content.suggestionButtons;
+        // On Nano, when all the matching candidates can be displayed, switch to a selection page
+        // instead of continuing with keyboard entry. When the caller provides the real number of
+        // candidates (nbCandidates != 0), rely on it: this lets a fully-typed word that is also
+        // the prefix of other words (e.g. "can") be selected even though the displayed buttons are
+        // capped at NB_MAX_SUGGESTION_BUTTONS. Otherwise fall back to the legacy heuristic based on
+        // the number of displayed buttons.
+        bool allCandidatesFit;
+        if (suggestions->nbCandidates != 0) {
+            allCandidatesFit = (suggestions->nbCandidates <= NB_MAX_SUGGESTION_BUTTONS);
+        }
+        else {
+            allCandidatesFit = (suggestions->nbUsedButtons < NB_MAX_SUGGESTION_BUTTONS);
+        }
+        if ((suggestions->nbUsedButtons > 0) && allCandidatesFit) {
             displaySuggestionSelection();
             return;  // Don't update keyboard, we're in suggestion mode
         }
