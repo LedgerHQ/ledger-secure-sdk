@@ -36,19 +36,31 @@ sed -i 's/^\(Types: deb\)$/\1 deb-src/g' /etc/apt/sources.list.d/debian.sources
 apt update
 
 apt install -y --no-install-recommends \
-    dpkg-dev \
-    llvm-dev
+    dpkg-dev
 
-LLVM_VERSION=$(clang --version | head -n1 | rev | cut -d" " -f1 | rev)
-LLVM_MAJOR_VERSION=$(echo "$LLVM_VERSION" | cut -d. -f1)
+# when using nightly build of llvm, output of clang --version looks like this:
+# Debian clang version 21.1.8 (++20251221033036+2078da43e25a-1~exp1~20251221153213.50)
+# when using version from apt repositories, output of clang --version looks like this:
+# Debian clang version 14.0.6
+LLVM_VERSION=$(clang --version | head -n 1)
+if [[ "$LLVM_VERSION" =~ Debian\ clang\ version\ ([0-9]+)\. ]]
+then
+    LLVM_MAJOR_VERSION="${BASH_REMATCH[1]}"
+else
+    echo "Unable to determine LLVM major version from clang --version output: $LLVM_VERSION"
+    exit 1
+fi
 
 cd /tmp
 
-LLVM_DIR="llvm-toolchain-$LLVM_MAJOR_VERSION-$LLVM_VERSION"
-if [ ! -d "$LLVM_DIR" ]
+apt source "llvm-toolchain-$LLVM_MAJOR_VERSION"
+
+LLVM_DIR=$(find /tmp/ -type d -name "llvm-toolchain-$LLVM_MAJOR_VERSION*")
+
+if [ -z "$LLVM_DIR" ]
 then
-    # install Debian source package
-    apt source "llvm-toolchain-$LLVM_MAJOR_VERSION"
+    echo "Unable to find any llvm-toolchain-$LLVM_MAJOR_VERSION source directory in /tmp"
+    exit 1
 fi
 
 cd "$LLVM_DIR"
@@ -70,6 +82,9 @@ cmake ../compiler-rt \
     -DCOMPILER_RT_BUILD_PROFILE=OFF \
     -DCOMPILER_RT_BUILD_MEMPROF=OFF \
     -DCOMPILER_RT_BUILD_ORC=OFF \
+    -DCOMPILER_RT_BUILD_CTX_PROFILE=OFF \
+    -DCOMPILER_RT_BUILD_SCUDO_STANDALONE=OFF \
+    -DCOMPILER_RT_BUILD_SCUDO_STANDALONE_WITH_LLVM_LIBC=OFF \
     -DCMAKE_C_COMPILER="$(which clang)" \
     -DCMAKE_C_COMPILER_TARGET="${TARGET}" \
     -DCMAKE_ASM_COMPILER_TARGET="${TARGET}" \
