@@ -355,7 +355,12 @@ typedef struct {
     const char **buttons;  ///< array of 4 strings for buttons (last ones can be NULL)
     int firstButtonToken;  ///< first token used for buttons, provided in onActionCallback (the next
                            ///< 3 values will be used for other buttons)
-    uint8_t nbUsedButtons;  ///< the number of actually used buttons
+    uint8_t  nbUsedButtons;  ///< the number of actually used (displayed) buttons
+    uint16_t nbCandidates;   ///< total number of matching candidates, which may be greater than
+                             ///< @ref nbUsedButtons when the displayed buttons are capped. On Nano
+                             ///< it is used to decide when the whole candidate list fits in the
+                             ///< selection page. If left to 0, @ref nbUsedButtons is used instead
+                             ///< (legacy behaviour).
 } nbgl_layoutSuggestionButtons_t;
 
 /**
