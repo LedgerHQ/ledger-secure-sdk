@@ -47,7 +47,7 @@ jobs:
         apps: ${{ fromJSON(needs.prepare-matrix.outputs.c_apps) }}
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
+      image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-lite-no-gcc-arm-none-eabi:latest
 
     steps:
       - name: Clone App
