@@ -133,6 +133,7 @@ SECTIONS
   } > SRAM = 0x00
 
   ASSERT( (_estack - _stack) >= STACK_MIN_SIZE, "stack section too small" )
+  ASSERT( __stack_chk_guard == _bss, "__stack_chk_guard must be the first variable in .bss" )
 
   /* The .init_array is initialized with functions with the constructor
    * attribute. Discard this section since there's no loader. */
