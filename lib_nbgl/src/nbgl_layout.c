@@ -728,7 +728,7 @@ static nbgl_container_t *addListItem(nbgl_layoutInternal_t *layoutInt, const lis
     nbgl_text_area_t *textArea = NULL;
     nbgl_container_t *container;
 
-    color_t common_color     = WHITE;  // Color of all elements, excepted right icon
+    color_t common_color     = WHITE;  // Color of all elements, except the right icon
     color_t right_icon_color = WHITE;  // Color of right icon, only
     if ((itemDesc->type == TOUCHABLE_BAR_ITEM) && (itemDesc->state == OFF_STATE)) {
         common_color     = INACTIVE_TEXT_COLOR;
