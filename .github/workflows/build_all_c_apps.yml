@@ -48,6 +48,15 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
+    defaults:
+      run:
+        shell: bash
+    env:
+      # Some C apps embed a Rust component pinned (via rust-toolchain.toml) to a
+      # toolchain that differs from the one the builder image exports through
+      # RUSTUP_TOOLCHAIN. A set RUSTUP_TOOLCHAIN overrides that pin and breaks
+      # the build, so it is unset before make for these apps (see build steps).
+      RUSTUP_TOOLCHAIN_UNSET_APPS: "app-avalanche app-icp app-namada app-oasis app-stacks"
 
     steps:
       - name: Clone App
@@ -70,6 +79,7 @@ jobs:
         run: |
           cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
           echo "Building for Nano X"
+          if [[ " $RUSTUP_TOOLCHAIN_UNSET_APPS " == *" ${{ matrix.apps.app-name }} "* ]]; then unset RUSTUP_TOOLCHAIN; fi
           make clean
           make TARGET=nanox BOLOS_SDK=$GITHUB_WORKSPACE/sdk
       - name: Build App for Nano S+
@@ -77,6 +87,7 @@ jobs:
         run: |
           cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
           echo "Building for Nano S+"
+          if [[ " $RUSTUP_TOOLCHAIN_UNSET_APPS " == *" ${{ matrix.apps.app-name }} "* ]]; then unset RUSTUP_TOOLCHAIN; fi
           make clean
           make TARGET=nanos2 BOLOS_SDK=$GITHUB_WORKSPACE/sdk
       - name: Build App for Stax
@@ -84,6 +95,7 @@ jobs:
         run: |
           cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
           echo "Building for Stax"
+          if [[ " $RUSTUP_TOOLCHAIN_UNSET_APPS " == *" ${{ matrix.apps.app-name }} "* ]]; then unset RUSTUP_TOOLCHAIN; fi
           make clean
           make TARGET=stax BOLOS_SDK=$GITHUB_WORKSPACE/sdk
       - name: Build App for Flex
@@ -91,6 +103,7 @@ jobs:
         run: |
           cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
           echo "Building for Flex"
+          if [[ " $RUSTUP_TOOLCHAIN_UNSET_APPS " == *" ${{ matrix.apps.app-name }} "* ]]; then unset RUSTUP_TOOLCHAIN; fi
           make clean
           make TARGET=flex BOLOS_SDK=$GITHUB_WORKSPACE/sdk
       - name: Build App for Apex+
@@ -98,5 +111,6 @@ jobs:
         run: |
           cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
           echo "Building for Apex+"
+          if [[ " $RUSTUP_TOOLCHAIN_UNSET_APPS " == *" ${{ matrix.apps.app-name }} "* ]]; then unset RUSTUP_TOOLCHAIN; fi
           make clean
           make TARGET=apex_p BOLOS_SDK=$GITHUB_WORKSPACE/sdk
