@@ -125,7 +125,6 @@ Paths are relative to `${BOLOS_SDK}/fuzzing/`.
 |--------------------|-------------------------------------------------------------------------------------------|
 | `cmake/`           | `LedgerAppFuzz.cmake` — the CMake module apps include                                     |
 | `docs/`            | App contract, campaign workflow, and SDK-specific fuzz target notes                       |
-| `template/`        | Minimal app fuzzing scaffold; copy into a new app as `fuzzing/`                           |
 | `scripts/`         | Campaign pipeline (`app-campaign.sh`, seed generators, invariant / layout sync)           |
 | `sdk-fuzz/`        | Self-fuzz targets exercising the framework with the same app contract                     |
 | `include/`         | Framework headers + optional TLV grammar-aware mutator                                    |
@@ -141,8 +140,13 @@ Paths are relative to `${BOLOS_SDK}/fuzzing/`.
 
 ## For app developers
 
-Start from [`template/`](template/README.md) and follow
-[`docs/APP_CONTRACT.md`](docs/APP_CONTRACT.md). The app owns its `fuzzing/`
-folder: manifest, CMake file, harness, app-local mocks, invariants, macros,
-and optional seeds. Shared SDK mocks and libraries come from
-`include(${BOLOS_SDK}/fuzzing/cmake/LedgerAppFuzz.cmake)`.
+Start from the **app-boilerplate** reference implementation — the `fuzzing/`
+folder in the [app-boilerplate repository](https://github.com/LedgerHQ/app-boilerplate) —
+and follow [`docs/APP_CONTRACT.md`](docs/APP_CONTRACT.md). Copy that folder into
+your app as `fuzzing/` and adapt it. The app owns its `fuzzing/` folder:
+manifest, CMake file, harness, app-local mocks, invariants, macros, and optional
+seeds. Shared SDK mocks and libraries come from
+`include(${BOLOS_SDK}/fuzzing/cmake/LedgerAppFuzz.cmake)`. The framework
+bootstraps the minimal `invariants/fuzz_globals.zon` and `mock/scenario_layout.h`
+on first configure; everything else lives in the app, following the boilerplate
+example.

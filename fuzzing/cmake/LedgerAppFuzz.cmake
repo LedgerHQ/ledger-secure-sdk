@@ -22,36 +22,37 @@ if(DEFINED LEDGER_FUZZ_MIN_VERSION)
   endif()
 endif()
 
-# Bootstraps a contract file (from template or literal content) that Absolution refines on first build.
-function(ledger_fuzz_bootstrap_file path template_path content)
+# Writes `content` to `path` if it does not exist yet, so Absolution refines it on first build.
+function(ledger_fuzz_bootstrap_file path content)
   if(EXISTS "${path}")
     return()
   endif()
   get_filename_component(_dir "${path}" DIRECTORY)
   file(MAKE_DIRECTORY "${_dir}")
-  if(template_path AND EXISTS "${template_path}")
-    configure_file("${template_path}" "${path}" COPYONLY)
-  else()
-    file(WRITE "${path}" "${content}")
-  endif()
+  file(WRITE "${path}" "${content}")
   message(STATUS "LedgerFuzz: bootstrapped ${path}")
 endfunction()
 
-# Bootstraps fuzz_globals.zon/scenario_layout.h from the SDK template; mocks.h is app-owned and stays a hard requirement.
+# Bootstraps fuzz_globals.zon/scenario_layout.h to minimal stubs; mocks.h is app-owned and stays a hard requirement.
 function(ledger_fuzz_validate_app_files)
   set(_fuzz_dir "${CMAKE_SOURCE_DIR}")
   ledger_fuzz_bootstrap_file(
     "${_fuzz_dir}/invariants/fuzz_globals.zon"
-    "${BOLOS_SDK}/fuzzing/template/invariants/fuzz_globals.zon"
     ".{}\n")
   ledger_fuzz_bootstrap_file(
     "${_fuzz_dir}/mock/scenario_layout.h"
-    "${BOLOS_SDK}/fuzzing/template/mock/scenario_layout.h"
-    "")
+    [=[
+#pragma once
+
+/* Bootstrap layout; scripts/update-scenario-layout.py rewrites these after the first build. */
+#define SCEN_PREFIX_SIZE 64
+#define SCEN_CTRL_OFF    0
+#define SCEN_CTRL_LEN    16
+]=])
   if(NOT EXISTS "${_fuzz_dir}/mock/mocks.h")
     message(FATAL_ERROR
       "Missing: ${_fuzz_dir}/mock/mocks.h\n"
-      "Hint: copy from ${BOLOS_SDK}/fuzzing/template/mock/mocks.h")
+      "Hint: copy from the app-boilerplate reference (app-boilerplate/fuzzing/mock/mocks.h)")
   endif()
   message(STATUS "LedgerFuzz: app files validated in ${_fuzz_dir}")
 endfunction()

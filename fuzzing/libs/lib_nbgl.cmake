@@ -13,8 +13,7 @@ target_link_libraries(nbgl PUBLIC macros glyphs qrcode mock io)
 target_compile_options(nbgl PRIVATE ${COMPILATION_FLAGS})
 target_include_directories(
   nbgl
-  PUBLIC "${BOLOS_SDK}/fuzzing/glyphs/"
-         "${BOLOS_SDK}/lib_cxng/include/"
+  PUBLIC "${BOLOS_SDK}/lib_cxng/include/"
          "${BOLOS_SDK}/include/"
          "${BOLOS_SDK}/lib_ux_nbgl/"
          "${BOLOS_SDK}/lib_nbgl/include/"

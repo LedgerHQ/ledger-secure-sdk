@@ -21,7 +21,7 @@ if [[ ! -d "${APP_FUZZ_DIR}" ]]; then
 fi
 if [[ ! -f "${SCENARIO_LAYOUT_HEADER}" ]]; then
   echo "warning: scenario_layout.h not found at ${SCENARIO_LAYOUT_HEADER}" >&2
-  echo "hint: copy from \${BOLOS_SDK}/fuzzing/template/mock/scenario_layout.h" >&2
+  echo "hint: it is bootstrapped on first CMake configure; see the app-boilerplate reference (app-boilerplate/fuzzing/mock/scenario_layout.h)." >&2
 fi
 
 _APP_MANIFEST="${APP_FUZZ_DIR}/fuzz-manifest.toml"
@@ -29,7 +29,7 @@ export _APP_MANIFEST
 
 if [[ ! -f "${_APP_MANIFEST}" ]]; then
   echo "error: fuzz-manifest.toml not found at ${_APP_MANIFEST}" >&2
-  echo "hint: create one from \${BOLOS_SDK}/fuzzing/template/fuzz-manifest.toml" >&2
+  echo "hint: create one from the app-boilerplate reference (app-boilerplate/fuzzing/fuzz-manifest.toml)" >&2
   exit 1
 fi
 

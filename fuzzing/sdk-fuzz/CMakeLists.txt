@@ -29,7 +29,6 @@ foreach(_fuzzer
         fuzz_tlv_trusted_name)
   ledger_fuzz_bootstrap_file(
     "${CMAKE_SOURCE_DIR}/invariants/${_fuzzer}.zon"
-    ""
     ".{}\n")
 endforeach()
 
