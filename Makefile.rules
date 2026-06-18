@@ -20,25 +20,29 @@ ifeq ($(USE_NBGL),0)
     SDK_SOURCE_PATH += lib_bagl lib_ux
 else
     SDK_SOURCE_PATH += lib_ux_nbgl
-    NBGL_SOURCES := $(shell find $(BOLOS_SDK)/lib_nbgl/src -name 'nbgl_layout*.[csS]')
-    NBGL_SOURCES += $(shell find $(BOLOS_SDK)/lib_nbgl/src -name 'nbgl_page*.[csS]')
-    NBGL_SOURCES += $(shell find $(BOLOS_SDK)/lib_nbgl/src -name 'nbgl_step*.[csS]')
-    NBGL_SOURCES += $(shell find $(BOLOS_SDK)/lib_nbgl/src -name 'nbgl_use_case*.[csS]')
-    NBGL_INCLUDE_PATH := lib_nbgl
+    # Only the high-level NBGL layer is compiled into the app (the low-level NBGL is
+    # provided by the OS), so individual source files are listed instead of adding
+    # the whole lib_nbgl directory to SDK_SOURCE_PATH.
+    SDK_SOURCE_FILES += $(shell find $(BOLOS_SDK)/lib_nbgl/src -name 'nbgl_layout*.[csS]')
+    SDK_SOURCE_FILES += $(shell find $(BOLOS_SDK)/lib_nbgl/src -name 'nbgl_page*.[csS]')
+    SDK_SOURCE_FILES += $(shell find $(BOLOS_SDK)/lib_nbgl/src -name 'nbgl_step*.[csS]')
+    SDK_SOURCE_FILES += $(shell find $(BOLOS_SDK)/lib_nbgl/src -name 'nbgl_use_case*.[csS]')
+    # lib_nbgl headers must be reachable even though not all its sources are compiled.
+    SDK_HEADER_PATH += lib_nbgl
 endif
 
 ifneq ($(IS_STANDARD_APP),1)
 ifneq ($(DISABLE_OS_IO_STACK_USE), 1)
 ifeq (,$(filter $(DEFINES),HAVE_LEGACY_PID))
-DEFINES += USE_OS_IO_STACK
+    DEFINES += USE_OS_IO_STACK
 endif
 endif
 endif
 
 define uniq =
-  $(eval seen :=)
-  $(foreach _,$1,$(if $(filter $_,${seen}),,$(eval seen += $_)))
-  ${seen}
+    $(eval seen :=)
+    $(foreach _,$1,$(if $(filter $_,${seen}),,$(eval seen += $_)))
+    ${seen}
 endef
 
 define check_duplicate =
@@ -57,48 +61,67 @@ INCLUDES_PATH_SDK_BASE += ${BOLOS_SDK}
 
 #include the lib_cxng definition by default if not asked otherwise
 ifeq ($(NO_CXNG),)
-INCLUDES_PATH_SDK_BASE += $(BOLOS_SDK)/lib_cxng/include
+    INCLUDES_PATH_SDK_BASE += $(BOLOS_SDK)/lib_cxng/include
 endif
 
 # Get absolute App root directory to ensure correct stem replacement
 APP_DIR := $(shell git rev-parse --show-toplevel)
 ifeq ($(APP_DIR),)
-MSG := "[ERROR] You should be inside a git repo (you can use 'git init')"
+    MSG := "[ERROR] You should be inside a git repo (you can use 'git init')"
 ifneq ($(ENABLE_SDK_WERROR),0)
-$(error $(MSG))
+    $(error $(MSG))
 else
-$(warning $(MSG))
+    $(warning $(MSG))
 endif
 endif
 
-# Extract BOLOS_SDK source files added by the App Makefile
-APP_SRC_FROM_SDK = $(filter $(BOLOS_SDK)/%, $(APP_SOURCE_FILES))
+# Extract/Filter BOLOS_SDK source files added by the App Makefile
+SDK_SOURCE_FROM_APP = $(filter $(BOLOS_SDK)/%, $(APP_SOURCE_FILES))
+
 # Extract generated and glyphs source files added by the App Makefile
-APP_SRC_GEN = $(filter $(GEN_SRC_DIR)/%, $(APP_SOURCE_FILES))
-# Extract proto source files added by the App Makefile
-APP_SRC_PROTOC = $(filter %.pb.c, $(APP_SOURCE_FILES) $(SOURCE_FILES)) $(shell find $(APP_SOURCE_PATH) -name '*.pb.c')
-# Filter remaining real source files from App (proto filtered globally hereafter)
-APP_SRC_FILTER = $(filter-out $(APP_SRC_FROM_SDK) $(APP_SRC_GEN), $(APP_SOURCE_FILES))
+APP_SOURCE_GEN = $(filter $(GEN_SRC_DIR)/%, $(APP_SOURCE_FILES))
+# Extract proto source files added by the App Makefile (explicitly listed ones, plus
+# those discovered under APP_SOURCE_PATH)
+APP_PROTOC_FOUND = $(shell find $(APP_SOURCE_PATH) -name '*.pb.c')
+APP_SOURCE_PROTOC = $(filter %.pb.c, $(APP_SOURCE_FILES) $(SOURCE_FILES)) $(APP_PROTOC_FOUND)
+# Remaining real App source files (SDK/gen extracted above, proto filtered globally hereafter)
+APP_SOURCE_OWN = $(filter-out $(SDK_SOURCE_FROM_APP) $(APP_SOURCE_GEN), $(APP_SOURCE_FILES))
 
 # Separate SDK and APP and GEN sources
-SOURCES_SDK += $(foreach libdir, src $(SDK_SOURCE_PATH), $(shell find $(BOLOS_SDK)/$(libdir) -name '*.[csS]')) $(APP_SRC_FROM_SDK) $(NBGL_SOURCES)
-SOURCES_APP += $(filter-out %.pb.c, $(abspath $(SOURCE_FILES) $(foreach libdir, $(SOURCE_PATH) $(APP_SOURCE_PATH), $(shell find $(libdir) -name '*.[csS]')) $(APP_SRC_FILTER)))
-SOURCES_GEN += $(GLYPH_DESTC) $(APP_SRC_GEN)
+SOURCES_SDK += \
+    $(foreach libdir, src $(SDK_SOURCE_PATH), $(shell find $(BOLOS_SDK)/$(libdir) -name '*.[csS]')) \
+    $(SDK_SOURCE_FROM_APP) \
+    $(SDK_SOURCE_FILES)
+
+SOURCES_APP += $(filter-out %.pb.c, $(abspath \
+    $(SOURCE_FILES) \
+    $(foreach libdir, $(SOURCE_PATH) $(APP_SOURCE_PATH), $(shell find $(libdir) -name '*.[csS]')) \
+    $(APP_SOURCE_OWN)))
+
+SOURCES_GEN += $(GLYPH_DESTC) $(APP_SOURCE_GEN)
 VPATH += $(call uniq, $(dir $(SOURCES_SDK) $(SOURCES_APP) $(GLYPH_DESTC)))
 
 # Retrieve APP header filenames
-INCLUDES_APP += $(shell find $(APP_SOURCE_PATH) -name '*.h')
+HEADERS_APP += $(shell find $(APP_SOURCE_PATH) -name '*.h')
 # Warn if a same header filename is found in both APP and SDK
-$(call check_duplicate, $(INCLUDES_APP), $(BOLOS_SDK))
+$(call check_duplicate, $(HEADERS_APP), $(BOLOS_SDK))
 
 # SDK header directories discovered from the SDK source paths (computed once).
-INCLUDES_PATH_SDK_BASE += $(dir $(foreach libdir, $(SDK_SOURCE_PATH) $(NBGL_INCLUDE_PATH), $(dir $(shell find $(BOLOS_SDK)/$(libdir) -name '*.h')))) $(BOLOS_SDK)/include $(BOLOS_SDK)/include/arm
+# For each SDK lib, $(dir ...) of the headers found gives the directories holding them.
+INCLUDES_PATH_SDK_BASE += \
+    $(foreach libdir, $(SDK_SOURCE_PATH) $(SDK_HEADER_PATH), $(dir $(shell find $(BOLOS_SDK)/$(libdir) -name '*.h'))) \
+    $(BOLOS_SDK)/include \
+    $(BOLOS_SDK)/include/arm
 
 # App header directories. RECURSIVELY expanded (=) on purpose: app Makefiles may add
 # include dirs (INCLUDES_PATH += ...) or extra sources (APP_SOURCE_PATH += ..., which
-# feeds INCLUDES_APP) AFTER this file is included; lazy expansion captures them at
+# feeds HEADERS_APP) AFTER this file is included; lazy expansion captures them at
 # build time. $(GLYPH_SRC_DIR) holds the generated glyphs.h.
-INCLUDES_PATH_APP_DIRS = $(INCLUDES_PATH) include $(dir $(INCLUDES_APP)) $(GLYPH_SRC_DIR)
+INCLUDES_PATH_APP_BASE = \
+    $(INCLUDES_PATH) \
+    include \
+    $(dir $(HEADERS_APP)) \
+    $(GLYPH_SRC_DIR)
 
 # Final include paths: same set of directories, but in opposite priority order, so
 # that the command-line search order is correct for each kind of source.
@@ -106,14 +129,16 @@ INCLUDES_PATH_APP_DIRS = $(INCLUDES_PATH) include $(dir $(INCLUDES_APP)) $(GLYPH
 #    dirs kept only as a fallback, needed e.g. for the generated glyphs.h included by
 #    SDK NBGL sources, or for headers force-included via 'CFLAGS += -include ...'.
 #  - APP sources: app headers FIRST, SDK headers as fallback.
-INCLUDES_PATH_SDK = $(call uniq, $(INCLUDES_PATH_SDK_BASE) $(INCLUDES_PATH_APP_DIRS))
-INCLUDES_PATH_APP = $(call uniq, $(INCLUDES_PATH_APP_DIRS) $(INCLUDES_PATH_SDK_BASE))
+INCLUDES_PATH_SDK = $(call uniq, $(INCLUDES_PATH_SDK_BASE) $(INCLUDES_PATH_APP_BASE))
+INCLUDES_PATH_APP = $(call uniq, $(INCLUDES_PATH_APP_BASE) $(INCLUDES_PATH_SDK_BASE))
 
 # Separate object files from SDK and APP to avoid name conflicts
 OBJECTS_SDK += $(sort $(subst $(BOLOS_SDK), $(OBJ_DIR)/sdk, $(addsuffix .o, $(basename $(SOURCES_SDK)))))
-OBJECTS_APP += $(sort $(addprefix $(OBJ_DIR)/app, $(addsuffix .o, $(basename $(foreach f, $(SOURCES_APP), $(shell echo $(f) | sed "s|$(APP_DIR)||" 2>/dev/null))))))
+# App object path = $(OBJ_DIR)/app/<source path relative to APP_DIR>.o
+OBJECTS_APP += $(sort $(addprefix $(OBJ_DIR)/app, $(addsuffix .o, $(basename \
+    $(foreach f, $(SOURCES_APP), $(shell echo $(f) | sed "s|$(APP_DIR)||" 2>/dev/null))))))
 OBJECTS_GEN += $(sort $(SOURCES_GEN:%c=%o))
-OBJECTS_PROTOC += $(sort $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(basename $(APP_SRC_PROTOC)))))
+OBJECTS_PROTOC += $(sort $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(basename $(APP_SOURCE_PROTOC)))))
 OBJECT_FILES = $(OBJECTS_GEN) $(OBJECTS_PROTOC) $(OBJECTS_APP) $(OBJECTS_SDK)
 OBJECTS_DIR += $(sort $(dir $(OBJECT_FILES)))
 
@@ -125,13 +150,13 @@ DEPEND_DIR += $(sort $(dir $(DEPEND_FILES)))
 APP_MANIFEST_FILE := $(APP_DIR)/ledger_app.toml
 # If the TOML file exists, retrieve the use-cases
 ifneq ($(wildcard $(APP_MANIFEST_FILE)),)
-  # Retrieve the use-cases from the TOML file
-  APP_USE_CASES := $(shell ledger-manifest "$(APP_MANIFEST_FILE)" -ouc -j | jq -r 'keys | join(" ")')
+    # Retrieve the use-cases from the TOML file
+    APP_USE_CASES := $(shell ledger-manifest "$(APP_MANIFEST_FILE)" -ouc -j | jq -r 'keys | join(" ")')
 
-  # Function to extract flags for a specific use case
-  define get_flags_for_use_case
-    $(shell ledger-manifest "$(APP_MANIFEST_FILE)" -ouc $1)
-  endef
+    # Function to extract flags for a specific use case
+    define get_flags_for_use_case
+        $(shell ledger-manifest "$(APP_MANIFEST_FILE)" -ouc $1)
+    endef
 endif
 
 include $(BOLOS_SDK)/Makefile.rules_generic
