@@ -1,0 +1,19 @@
+:cmock:
+  :mock_prefix: Mock
+  :mock_path: '@CMOCK_GEN_DIR@'
+  :verbosity: 2
+  :strippables:
+    - 'SYSCALL'
+    - 'SUDOCALL'
+    - 'TASKSWITCH'
+    - 'PLENGTH\([^)]*\)'
+    - '__attribute__\(\([^)]*\)\)'
+    - 'DEPRECATED'
+    - 'WARN_UNUSED_RESULT'
+    - 'WEAK'
+    - 'void io_seproxyhal_display\([^)]*\);'
+    - 'NORETURN'
+  :plugins:
+    - :ignore
+    - :expect_any_args
+    - :callback
