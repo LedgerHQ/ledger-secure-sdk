@@ -96,15 +96,24 @@ SOURCES_APP += $(filter-out %.pb.c, $(abspath \
 SOURCES_GEN += $(GLYPH_DESTC) $(APP_SOURCE_GEN)
 VPATH += $(call uniq, $(dir $(SOURCES_SDK) $(SOURCES_APP) $(GLYPH_DESTC)))
 
-# Retrieve APP header filenames
-HEADERS_APP += $(shell find $(APP_SOURCE_PATH) -name '*.h')
+# Retrieve APP header filenames. Memoized: on first use (build time, after parsing, so
+# late APP_SOURCE_PATH additions are captured) the find runs once and the result is
+# reused, instead of re-scanning the app source tree for every object compiled.
+# (HEADERS_APP is never expanded during parsing, so the memoization can't freeze early.)
+HEADERS_APP = $(eval HEADERS_APP := $(shell find $(APP_SOURCE_PATH) -name '*.h'))$(HEADERS_APP)
 
-# SDK header directories discovered from the SDK source paths (computed once).
-# For each SDK lib, $(dir ...) of the headers found gives the directories holding them.
-INCLUDES_PATH_SDK_BASE += \
+# SDK header directories discovered from the SDK source paths.
+# Frozen with := so the (expensive) find over the SDK tree runs ONCE: the SDK source
+# paths are fixed at this point, so the result is computed here and reused. The app
+# include list below stays lazy to still capture late APP_SOURCE_PATH/INCLUDES_PATH
+# additions. For each SDK lib, $(dir ...) of the headers found gives their directories.
+# $(GLYPH_SRC_DIR) holds the generated glyphs.h: a build artifact (not an app source
+# header) included by SDK NBGL/UX sources, so it belongs to the SDK set.
+INCLUDES_PATH_SDK_BASE := $(INCLUDES_PATH_SDK_BASE) \
     $(foreach libdir, $(SDK_SOURCE_PATH) $(SDK_HEADER_PATH), $(dir $(shell find $(BOLOS_SDK)/$(libdir) -name '*.h'))) \
     $(BOLOS_SDK)/include \
-    $(BOLOS_SDK)/include/arm
+    $(BOLOS_SDK)/include/arm \
+    $(GLYPH_SRC_DIR)
 
 # App header directories. RECURSIVELY expanded (=) on purpose: app Makefiles may add
 # include dirs (INCLUDES_PATH += ...) or extra sources (APP_SOURCE_PATH += ..., which
@@ -116,14 +125,16 @@ INCLUDES_PATH_APP_BASE = \
     $(dir $(HEADERS_APP)) \
     $(GLYPH_SRC_DIR)
 
-# Final include paths: same set of directories, but in opposite priority order, so
-# that the command-line search order is correct for each kind of source.
-#  - SDK sources: SDK headers FIRST (an app header can never shadow an SDK one); app
-#    dirs kept only as a fallback, needed e.g. for the generated glyphs.h included by
-#    SDK NBGL sources, or for headers force-included via 'CFLAGS += -include ...'.
+# Final include paths.
+#  - SDK sources: SDK headers ONLY (incl. the generated glyphs.h). App header
+#    directories are intentionally NOT exposed, so the SDK builds independently of the
+#    app. Apps must therefore not rely on app headers being visible to SDK sources
+#    (e.g. no 'CFLAGS += -include <app_header>' resolved through the include path).
 #  - APP sources: app headers FIRST, SDK headers as fallback.
-INCLUDES_PATH_SDK = $(call uniq, $(INCLUDES_PATH_SDK_BASE) $(INCLUDES_PATH_APP_BASE))
-INCLUDES_PATH_APP = $(call uniq, $(INCLUDES_PATH_APP_BASE) $(INCLUDES_PATH_SDK_BASE))
+# INCLUDES_PATH_SDK is frozen (:=) since INCLUDES_PATH_SDK_BASE is; INCLUDES_PATH_APP
+# stays lazy (=) to capture late app additions, while reusing the frozen SDK list.
+INCLUDES_PATH_SDK := $(call uniq, $(INCLUDES_PATH_SDK_BASE))
+INCLUDES_PATH_APP  = $(call uniq, $(INCLUDES_PATH_APP_BASE) $(INCLUDES_PATH_SDK_BASE))
 
 # Separate object files from SDK and APP to avoid name conflicts
 OBJECTS_SDK += $(sort $(subst $(BOLOS_SDK), $(OBJ_DIR)/sdk, $(addsuffix .o, $(basename $(SOURCES_SDK)))))
