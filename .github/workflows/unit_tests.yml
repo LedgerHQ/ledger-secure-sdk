@@ -23,14 +23,14 @@ jobs:
       - name: Install curl
         run: |
           apt-get update
-          apt-get install -y curl
+          apt-get install -y curl ruby
 
       - name: Find test directories
         id: find-tests
         working-directory: unit-tests
         run: |
-          # Find all directories with CMakeLists.txt, excluding mock
-          TEST_DIRS=$(find . -maxdepth 2 -name CMakeLists.txt -not -path "*/mock/*" -exec dirname {} \; | sed 's|^\./||' | sort | tr '\n' ' ')
+          # Find all sub-directories with a CMakeLists.txt, excluding mock and
+          TEST_DIRS=$(find . -mindepth 2 -maxdepth 2 -name CMakeLists.txt -not -path "*/mock/*" -exec dirname {} \; | sed 's|^\./||' | sort | tr '\n' ' ')
           echo "Test directories found: ${TEST_DIRS}"
           echo "test_dirs=${TEST_DIRS}" >> "${GITHUB_OUTPUT}"
 
