@@ -51,12 +51,13 @@ SDK_SOURCE_PATH += io io_legacy protocol lib_u2f_legacy
 # adding the correct target header to sources
 SDK_SOURCE_PATH += target/$(TARGET)/include
 
+# --- SDK include directories base (computed once, app-independent) ---
 # Expose all SDK header files with their full relative path to the SDK root folder
-INCLUDES_PATH  += ${BOLOS_SDK}
+INCLUDES_PATH_SDK_BASE += ${BOLOS_SDK}
 
 #include the lib_cxng definition by default if not asked otherwise
 ifeq ($(NO_CXNG),)
-INCLUDES_PATH += $(BOLOS_SDK)/lib_cxng/include
+INCLUDES_PATH_SDK_BASE += $(BOLOS_SDK)/lib_cxng/include
 endif
 
 # Get absolute App root directory to ensure correct stem replacement
@@ -89,8 +90,24 @@ VPATH += $(call uniq, $(dir $(SOURCES_SDK) $(SOURCES_APP) $(GLYPH_DESTC)))
 INCLUDES_APP += $(shell find $(APP_SOURCE_PATH) -name '*.h')
 # Warn if a same header filename is found in both APP and SDK
 $(call check_duplicate, $(INCLUDES_APP), $(BOLOS_SDK))
-# Compute header directories list
-INCLUDES_PATH += $(call uniq, $(dir $(foreach libdir, $(SDK_SOURCE_PATH) $(NBGL_INCLUDE_PATH), $(dir $(shell find $(BOLOS_SDK)/$(libdir) -name '*.h')))) include $(BOLOS_SDK)/include $(BOLOS_SDK)/include/arm $(dir $(INCLUDES_APP)) $(GLYPH_SRC_DIR))
+
+# SDK header directories discovered from the SDK source paths (computed once).
+INCLUDES_PATH_SDK_BASE += $(dir $(foreach libdir, $(SDK_SOURCE_PATH) $(NBGL_INCLUDE_PATH), $(dir $(shell find $(BOLOS_SDK)/$(libdir) -name '*.h')))) $(BOLOS_SDK)/include $(BOLOS_SDK)/include/arm
+
+# App header directories. RECURSIVELY expanded (=) on purpose: app Makefiles may add
+# include dirs (INCLUDES_PATH += ...) or extra sources (APP_SOURCE_PATH += ..., which
+# feeds INCLUDES_APP) AFTER this file is included; lazy expansion captures them at
+# build time. $(GLYPH_SRC_DIR) holds the generated glyphs.h.
+INCLUDES_PATH_APP_DIRS = $(INCLUDES_PATH) include $(dir $(INCLUDES_APP)) $(GLYPH_SRC_DIR)
+
+# Final include paths: same set of directories, but in opposite priority order, so
+# that the command-line search order is correct for each kind of source.
+#  - SDK sources: SDK headers FIRST (an app header can never shadow an SDK one); app
+#    dirs kept only as a fallback, needed e.g. for the generated glyphs.h included by
+#    SDK NBGL sources, or for headers force-included via 'CFLAGS += -include ...'.
+#  - APP sources: app headers FIRST, SDK headers as fallback.
+INCLUDES_PATH_SDK = $(call uniq, $(INCLUDES_PATH_SDK_BASE) $(INCLUDES_PATH_APP_DIRS))
+INCLUDES_PATH_APP = $(call uniq, $(INCLUDES_PATH_APP_DIRS) $(INCLUDES_PATH_SDK_BASE))
 
 # Separate object files from SDK and APP to avoid name conflicts
 OBJECTS_SDK += $(sort $(subst $(BOLOS_SDK), $(OBJ_DIR)/sdk, $(addsuffix .o, $(basename $(SOURCES_SDK)))))
