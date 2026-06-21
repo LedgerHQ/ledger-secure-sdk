@@ -86,12 +86,16 @@ Register Identity, Edit Contact Name, Edit Identifier, and Edit Scope are always
 
 ## 3. APDU interface
 
-All Address Book commands share a single APDU:
+All Address Book commands share the same APDU layout:
 
 ```text
-CLA  INS  P1          P2    Lc        Data
-0xB0 0x10 <sub-cmd>   0x00  <length>  <TLV payload>
+CLA  INS  P1          P2            Lc           Data
+0xB0 0x10 <sub-cmd>   0x00 | 0x80   <chunk_len>  <chunk>
 ```
+
+P1 selects the sub-command; P2 is the chunk flag (`0x00` first chunk, `0x80`
+continuation). The payload is always carried with the chunked framing described
+below, even when it fits in a single chunk.
 
 ### Sub-command table
 
@@ -106,9 +110,10 @@ CLA  INS  P1          P2    Lc        Data
 | 0x20 | Provide Contact                | `HAVE_ADDRESS_BOOK`                                       |
 | 0x21 | Provide Ledger Account Contact | `HAVE_ADDRESS_BOOK` && `HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT` |
 
-### Multi-chunk transport
+### Chunked transport
 
-Some payloads exceed the 255-byte limit of a single short APDU (see payload size notes in §5). These are transported as multiple APDUs using a **P2-based chunking scheme**.
+**Every** command — regardless of payload size — uses the same **P2-based chunking scheme**.
+A single uniform format avoids special-casing small payloads and eases future evolutions (e.g. larger payloads on new chains).
 
 ```text
 First chunk  (P2 = 0x00):  | total_length(2, BE) | first_data_slice |
@@ -119,14 +124,14 @@ Next  chunks (P2 = 0x80):  | next_data_slice     |
 - Each chunk carries at most 255 bytes of APDU data (including the 2-byte length header for the first chunk).
 - All intermediate chunks are answered synchronously by the device with `9000`.
 - The last chunk triggers the processing and UI flow on the device; the host must await the asynchronous response.
-- A payload that fits in a single chunk uses `P2 = 0x00` and is treated as a complete transfer.
+- A payload that fits in a single chunk uses `P2 = 0x00` and is a complete transfer (still prefixed with its 2-byte `total_length`).
 
-Commands that require multi-chunk transport:
+Payloads that exceed 255 bytes simply span several chunks; the framing is identical to the single-chunk case. The largest payloads (see size notes in §5) are:
 
 - **Edit Identifier** (§5.3, up to 428 B)
 - **Edit Scope** (§5.4, up to 380 B)
 - **Provide Contact** (§5.7, up to 362 B)
-- **Register Identity** (§5.1, up to 312 B) — only when `GROUP_HANDLE` + `HMAC_PROOF` are present **and** the identifier exceeds ~38 bytes (i.e. non-Ethereum chains); Ethereum stays within 255 B ✓
+- **Register Identity** (§5.1, up to 312 B) when `GROUP_HANDLE` + `HMAC_PROOF` are present and the identifier exceeds ~38 bytes (non-Ethereum chains)
 
 ---
 
