@@ -200,6 +200,10 @@ bolos_err_t addr_book_handle_apdu(uint8_t *buffer, size_t buffer_len, uint8_t p1
             err = edit_scope(payload, payload_len);
             break;
 
+        case P1_PROVIDE_CONTACT:
+            err = provide_contact(payload, payload_len);
+            break;
+
 #ifdef HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT
         case P1_REGISTER_LEDGER_ACCOUNT:
             err = register_ledger_account(payload, payload_len);
@@ -208,13 +212,7 @@ bolos_err_t addr_book_handle_apdu(uint8_t *buffer, size_t buffer_len, uint8_t p1
         case P1_EDIT_LEDGER_ACCOUNT:
             err = edit_ledger_account(payload, payload_len);
             break;
-#endif  // HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT
 
-        case P1_PROVIDE_CONTACT:
-            err = provide_contact(payload, payload_len);
-            break;
-
-#ifdef HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT
         case P1_PROVIDE_LEDGER_ACCOUNT_CONTACT:
             err = provide_ledger_account_contact(payload, payload_len);
             break;

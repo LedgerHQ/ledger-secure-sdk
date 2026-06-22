@@ -262,10 +262,10 @@ static void review_choice(bool confirm)
             PRINTF("[Ledger Account] Error: Failed to build and send response\n");
         }
         address_book_finalize_review(
-            ok, "Name confirmed", "Error saving account", finalize_ui_register_ledger_account);
+            ok, "Name confirmed", "Error saving account", finalize_ui_ledger_account);
     }
     else {
-        address_book_handle_review_rejected(finalize_ui_register_ledger_account);
+        address_book_handle_review_rejected(finalize_ui_ledger_account);
     }
 }
 

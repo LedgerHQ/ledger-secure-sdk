@@ -201,8 +201,7 @@ void finalize_ui_edit_scope(void);
 @code{.c}
 bool handle_check_register_ledger_account(ledger_account_t *params);
 void display_register_ledger_account_review(nbgl_choiceCallback_t choice_callback);
-void finalize_ui_register_ledger_account(void);
-void finalize_ui_edit_ledger_account(void);
+void finalize_ui_ledger_account(void);
 @endcode
 
 <b>Provide Contact</b>:
