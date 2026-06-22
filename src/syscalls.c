@@ -1377,28 +1377,28 @@ bolos_bool_t os_global_pin_is_validated(void)
     return (bolos_bool_t) SVC_Call(SYSCALL_os_global_pin_is_validated_ID, parameters);
 }
 
-bolos_bool_t os_global_pin_check(unsigned char *pin_buffer, unsigned char pin_length)
-{
-    unsigned int parameters[2];
-    parameters[0] = (unsigned int) pin_buffer;
-    parameters[1] = (unsigned int) pin_length;
-    return (bolos_bool_t) SVC_Call(SYSCALL_os_global_pin_check_ID, parameters);
-}
-
-void os_global_pin_invalidate(void)
-{
-    unsigned int parameters[2];
-    parameters[1] = 0;
-    SVC_Call(SYSCALL_os_global_pin_invalidate_ID, parameters);
-    return;
-}
-
-unsigned int os_global_pin_retries(void)
-{
-    unsigned int parameters[2];
-    parameters[1] = 0;
-    return (unsigned int) SVC_Call(SYSCALL_os_global_pin_retries_ID, parameters);
-}
+// bolos_bool_t os_global_pin_check(unsigned char *pin_buffer, unsigned char pin_length)
+// {
+//     unsigned int parameters[2];
+//     parameters[0] = (unsigned int) pin_buffer;
+//     parameters[1] = (unsigned int) pin_length;
+//     return (bolos_bool_t) SVC_Call(SYSCALL_os_global_pin_check_ID, parameters);
+// }
+//
+// void os_global_pin_invalidate(void)
+// {
+//     unsigned int parameters[2];
+//     parameters[1] = 0;
+//     SVC_Call(SYSCALL_os_global_pin_invalidate_ID, parameters);
+//     return;
+// }
+//
+// unsigned int os_global_pin_retries(void)
+// {
+//     unsigned int parameters[2];
+//     parameters[1] = 0;
+//     return (unsigned int) SVC_Call(SYSCALL_os_global_pin_retries_ID, parameters);
+// }
 
 unsigned int os_ux(bolos_ux_params_t *params)
 {
