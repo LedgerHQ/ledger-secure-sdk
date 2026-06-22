@@ -215,13 +215,14 @@ bool handle_check_register_ledger_account(ledger_account_t *params);
 void display_register_ledger_account_review(nbgl_choiceCallback_t choice_callback);
 
 /**
- * @brief Handle called to finalize the UI flow for registering a Ledger Account.
+ * @brief Handle called to finalize the UI flow for a Ledger Account operation.
  *
- * Called after the user has confirmed or rejected the registration.
- * The HMAC proof has already been sent to the host at this point.
- * The app should release any UI resources and return the device to idle.
+ * Shared by the Register and Edit flows (they use the same review UI). Called
+ * after the user has confirmed or rejected the operation; the HMAC proof has
+ * already been sent to the host at this point. The app should release any UI
+ * resources and return the device to idle.
  */
-void finalize_ui_register_ledger_account(void);
+void finalize_ui_ledger_account(void);
 
 /*************** Exported functions prototypes: Edit Ledger Account **********/
 
@@ -238,15 +239,6 @@ void finalize_ui_register_ledger_account(void);
  * @return true if the edit is acceptable, false to reject
  */
 bool handle_check_edit_ledger_account(edit_ledger_account_t *params);
-
-/**
- * @brief Handle called to finalize the UI flow for editing a Ledger Account.
- *
- * Called after the user has confirmed or rejected the edit.
- * The new HMAC proof has already been sent to the host at this point.
- * The app should release any UI resources and return the device to idle.
- */
-void finalize_ui_edit_ledger_account(void);
 
 /**
  * @brief Notification that a Ledger Account edit was successfully applied.

@@ -24,7 +24,8 @@
  *  2. Parse TLV payload (previous_name + new_name + derivation_path +
  *     chain_id + blockchain_family + hmac_proof)
  *  3. Verify HMAC proof of the previous registration
- *  4. Display UI: old name → new name
+ *  4. Display UI: reuse the Register Ledger Account review
+ *     (display_register_ledger_account_review)
  *  5. On confirm: compute new HMAC Proof of Registration and send to host
  *
  * Active under HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT.
@@ -308,37 +309,11 @@ static void review_choice(bool confirm)
             PRINTF("[Edit Ledger Account] Error: Failed to build and send HMAC proof\n");
         }
         address_book_finalize_review(
-            ok, "Account name changed", "Error during update", finalize_ui_edit_ledger_account);
+            ok, "Account name changed", "Error during update", finalize_ui_ledger_account);
     }
     else {
-        address_book_handle_review_rejected(finalize_ui_edit_ledger_account);
+        address_book_handle_review_rejected(finalize_ui_ledger_account);
     }
-}
-
-/**
- * @brief Display the Edit Ledger Account review screen
- */
-static void ui_display(void)
-{
-    uint8_t nbPairs = 0;
-    memset(&g_ab_ui.list, 0, sizeof(g_ab_ui.list));
-    memset(g_ab_ui.pairs, 0, sizeof(g_ab_ui.pairs));
-    g_ab_ui.pairs[nbPairs].item  = "Old name";
-    g_ab_ui.pairs[nbPairs].value = g_ab_payload.edit_ledger_account.old_account_name;
-    nbPairs++;
-    g_ab_ui.pairs[nbPairs].item  = "New name";
-    g_ab_ui.pairs[nbPairs].value = g_ab_payload.edit_ledger_account.ledger_account.account_name;
-    nbPairs++;
-    g_ab_ui.list.pairs   = g_ab_ui.pairs;
-    g_ab_ui.list.nbPairs = nbPairs;
-    address_book_display_review(NULL,
-                                "Edit account name",
-#ifdef SCREEN_SIZE_WALLET
-                                "Confirm edit?",
-#else
-                                "Confirm edit",
-#endif
-                                review_choice);
 }
 
 /* Exported functions --------------------------------------------------------*/
@@ -386,8 +361,8 @@ bolos_err_t edit_ledger_account(uint8_t *buffer_in, size_t buffer_in_length)
         return SWO_INCORRECT_DATA;
     }
 
-    // Display confirmation UI
-    ui_display();
+    // Display confirmation UI — reuse the Register Ledger Account review
+    display_register_ledger_account_review(review_choice);
     return SWO_NO_RESPONSE;
 }
 
