@@ -21,23 +21,23 @@
  * Entry point for all Address Book sub-commands. Routes each APDU to the
  * appropriate handler based on P1:
  *
- *  - P1 0x01  → Register Identity       (always active)
- *  - P1 0x02  → Edit Contact Name       (always active, single APDU)
- *  - P1 0x03  → Edit Identifier         (always active, multi-chunk)
- *  - P1 0x04  → Edit Scope              (always active, multi-chunk)
- *  - P1 0x11  → Register Ledger Account          (HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT)
- *  - P1 0x12  → Edit Ledger Account              (HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT)
- *  - P1 0x20  → Provide Contact                  (always active, multi-chunk)
- *  - P1 0x21  → Provide Ledger Account Contact   (HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT, multi-chunk)
+ *  - P1 0x01  → Register Identity               (always active)
+ *  - P1 0x02  → Edit Contact Name               (always active)
+ *  - P1 0x03  → Edit Identifier                 (always active)
+ *  - P1 0x04  → Edit Scope                      (always active)
+ *  - P1 0x11  → Register Ledger Account         (HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT)
+ *  - P1 0x12  → Edit Ledger Account             (HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT)
+ *  - P1 0x20  → Provide Contact                 (always active)
+ *  - P1 0x21  → Provide Ledger Account Contact  (HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT)
  *
- * Multi-chunk reassembly
- * ----------------------
- * Sub-commands that carry large payloads (Rename *) split them across several
- * APDUs.  The first chunk (P2=0x00) is prefixed with a 2-byte big-endian total
- * payload length; continuation chunks (P2=0x80) are appended directly.
- * reassemble_chunks() accumulates the data and returns the assembled buffer
- * once complete.  All other sub-commands pass their single buffer through
- * unchanged.
+ * Chunked transport
+ * -----------------
+ * Every sub-command uses the same chunked transport, regardless of payload size.
+ * The first chunk (P2=0x00) is prefixed with a 2-byte big-endian total payload length.
+ * Continuation chunks (P2=0x80) are appended directly.
+ * The function reassemble_chunks() accumulates the data and returns the assembled buffer.
+ * Once complete, the handler is then dispatched on P1.
+ * A uniform format keeps the protocol consistent and eases future payload-size evolutions.
  */
 
 /* Includes ------------------------------------------------------------------*/
@@ -68,7 +68,7 @@
 #define P1_PROVIDE_LEDGER_ACCOUNT_CONTACT 0x21
 #endif
 
-/** P2 value for the first (or only) APDU chunk of a multi-chunk command. */
+/** P2 value for the first (or only) APDU chunk. */
 #define P2_FIRST_CHUNK 0x00
 /** P2 value for continuation APDU chunks. */
 #define P2_NEXT_CHUNK  0x80
@@ -171,80 +171,50 @@ bolos_err_t addr_book_handle_apdu(uint8_t *buffer, size_t buffer_len, uint8_t p1
     uint8_t    *payload     = NULL;
     size_t      payload_len = 0;
 
+    // All sub-commands share the same chunked transport: reassemble the full
+    // payload first, then dispatch on P1. Intermediate chunks return success
+    // (an intermediate SW is sent) and wait for the next chunk.
+    switch (reassemble_chunks(buffer, buffer_len, p2, &payload, &payload_len)) {
+        case REASSEMBLY_ERROR:
+            return SWO_INCORRECT_DATA;
+        case REASSEMBLY_PENDING:
+            return SWO_SUCCESS;
+        case REASSEMBLY_COMPLETE:
+            break;
+    }
+
     switch (p1) {
         case P1_REGISTER_IDENTITY:
-            err = register_identity(buffer, buffer_len);
+            err = register_identity(payload, payload_len);
             break;
 
         case P1_EDIT_CONTACT_NAME:
-            err = edit_contact_name(buffer, buffer_len);
+            err = edit_contact_name(payload, payload_len);
             break;
 
         case P1_EDIT_IDENTIFIER:
-            switch (reassemble_chunks(buffer, buffer_len, p2, &payload, &payload_len)) {
-                case REASSEMBLY_ERROR:
-                    err = SWO_INCORRECT_DATA;
-                    break;
-                case REASSEMBLY_PENDING:
-                    err = SWO_SUCCESS;
-                    break;
-                case REASSEMBLY_COMPLETE:
-                    err = edit_identifier(payload, payload_len);
-                    break;
-            }
+            err = edit_identifier(payload, payload_len);
             break;
 
         case P1_EDIT_SCOPE:
-            switch (reassemble_chunks(buffer, buffer_len, p2, &payload, &payload_len)) {
-                case REASSEMBLY_ERROR:
-                    err = SWO_INCORRECT_DATA;
-                    break;
-                case REASSEMBLY_PENDING:
-                    err = SWO_SUCCESS;
-                    break;
-                case REASSEMBLY_COMPLETE:
-                    err = edit_scope(payload, payload_len);
-                    break;
-            }
+            err = edit_scope(payload, payload_len);
+            break;
+
+        case P1_PROVIDE_CONTACT:
+            err = provide_contact(payload, payload_len);
             break;
 
 #ifdef HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT
         case P1_REGISTER_LEDGER_ACCOUNT:
-            err = register_ledger_account(buffer, buffer_len);
+            err = register_ledger_account(payload, payload_len);
             break;
 
         case P1_EDIT_LEDGER_ACCOUNT:
-            err = edit_ledger_account(buffer, buffer_len);
-            break;
-#endif  // HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT
-
-        case P1_PROVIDE_CONTACT:
-            switch (reassemble_chunks(buffer, buffer_len, p2, &payload, &payload_len)) {
-                case REASSEMBLY_ERROR:
-                    err = SWO_INCORRECT_DATA;
-                    break;
-                case REASSEMBLY_PENDING:
-                    err = SWO_SUCCESS;
-                    break;
-                case REASSEMBLY_COMPLETE:
-                    err = provide_contact(payload, payload_len);
-                    break;
-            }
+            err = edit_ledger_account(payload, payload_len);
             break;
 
-#ifdef HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT
         case P1_PROVIDE_LEDGER_ACCOUNT_CONTACT:
-            switch (reassemble_chunks(buffer, buffer_len, p2, &payload, &payload_len)) {
-                case REASSEMBLY_ERROR:
-                    err = SWO_INCORRECT_DATA;
-                    break;
-                case REASSEMBLY_PENDING:
-                    err = SWO_SUCCESS;
-                    break;
-                case REASSEMBLY_COMPLETE:
-                    err = provide_ledger_account_contact(payload, payload_len);
-                    break;
-            }
+            err = provide_ledger_account_contact(payload, payload_len);
             break;
 #endif  // HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT
 
