@@ -568,9 +568,9 @@ type(1) | hmac_proof(32)
 - **Structure type:** `0x30` (`TYPE_EDIT_LEDGER_ACCOUNT`)
 - **Guard:** `HAVE_ADDRESS_BOOK` && `HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT`
 
-Edits the name of an existing Ledger account. The wallet provides the old name and the stored `hmac_proof`, allowing the device to verify the prior registration, display `old_name → new_name` to the user, and return a new proof for the updated name.
+Edits the name of an existing Ledger account. The wallet provides the old name and the stored `hmac_proof`, allowing the device to verify the prior registration, display the review to the user, and return a new proof for the updated name.
 
-Display is handled entirely by the SDK. The coin app only provides `finalize_ui_edit_ledger_account()` to return the device to idle.
+The Edit flow reuses the Register review UI: the coin app provides `handle_check_edit_ledger_account()` to validate and prepare the shared review context, `display_register_ledger_account_review()` for the review, `finalize_ui_ledger_account()` to return the device to idle, and `on_edit_ledger_account_applied()` to update the cached contact.
 
 #### TLV payload
 
