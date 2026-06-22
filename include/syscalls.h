@@ -161,7 +161,6 @@
 #define SYSCALL_RESERVED_16_ID                             0x0200004d
 #define SYSCALL_os_global_pin_is_validated_ID              0x000000a0
 #define SYSCALL_os_global_pin_check_ID                     0x020000a1
-#define SYSCALL_os_global_pin_invalidate_ID                0x0000005d
 #define SYSCALL_os_global_pin_retries_ID                   0x0000005e
 #define SYSCALL_RESERVED_3_ID                              0x0000005f
 #define SYSCALL_RESERVED_4_ID                              0x02000122
@@ -224,6 +223,11 @@
 #define SYSCALL_RESERVED_2_ID               0x010001ED
 #define SYSCALL_RESERVED_1_ID               0x010001EE
 #define SYSCALL_ENDORSEMENT_GET_METADATA_ID 0x02000138
+
+#define SYSCALL_RESERVED_38_ID   0x02000300
+#define SYSCALL_RESERVED_39_ID   0x02000301
+#define SYSCALL_RESERVED_40_ID   0x04000302
+#define SYSCALL_IDENTITY_LOG_OUT 0x00000303
 
 #if defined(HAVE_VAULT_RECOVERY_ALGO)
 #define SYSCALL_RESERVED_17_ID 0x02000137

@@ -1363,6 +1363,12 @@ bolos_err_t sys_endorsement_get_metadata(ENDORSEMENT_slot_t slot,
     return (bolos_err_t) SVC_Call(SYSCALL_ENDORSEMENT_GET_METADATA_ID, parameters);
 }
 
+void sys_identity_log_out(void)
+{
+    uint32_t parameters = 0;
+    SVC_Call(SYSCALL_IDENTITY_LOG_OUT, &parameters);
+}
+
 bolos_bool_t os_perso_is_pin_set(void)
 {
     unsigned int parameters[2];
@@ -1383,14 +1389,6 @@ bolos_bool_t os_global_pin_check(unsigned char *pin_buffer, unsigned char pin_le
     parameters[0] = (unsigned int) pin_buffer;
     parameters[1] = (unsigned int) pin_length;
     return (bolos_bool_t) SVC_Call(SYSCALL_os_global_pin_check_ID, parameters);
-}
-
-void os_global_pin_invalidate(void)
-{
-    unsigned int parameters[2];
-    parameters[1] = 0;
-    SVC_Call(SYSCALL_os_global_pin_invalidate_ID, parameters);
-    return;
 }
 
 unsigned int os_global_pin_retries(void)
