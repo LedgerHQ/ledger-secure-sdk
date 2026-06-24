@@ -38,6 +38,16 @@
 /*---------------------------------------------------------------------------
  * Internal: KeyGen_internal (FIPS 204, Algorithm 6)
  *---------------------------------------------------------------------------*/
+/*
+ * Low-RAM key generation.
+ *
+ * The matrix A and the secret vector s1 are never stored as full vectors.
+ * t = A*s1 + s2 is computed one output row at a time; within a row the
+ * inner product is accumulated element-by-element, re-expanding A[i][j]
+ * and s1[j] on the fly.  Each produced polynomial (s1, s2, t0, t1) is
+ * packed straight into the pk/sk output buffers, so no unpacked polyvec
+ * is ever held in memory.
+ */
 cx_err_t MLDSA_internal_keygen(uint8_t      *pk,
                                size_t        pk_len,
                                uint8_t      *sk,
@@ -50,10 +60,9 @@ cx_err_t MLDSA_internal_keygen(uint8_t      *pk,
     uint8_t                   seedbuf[2U * MLDSA_SEEDBYTES + MLDSA_CRHBYTES] = {0};
     uint8_t                   buf[MLDSA_SEEDBYTES + 2U]                      = {0};
     uint8_t                   tr[MLDSA_TRBYTES]                              = {0};
-    mldsa_polyvecl            s1                                             = {0};
-    mldsa_polyveck            t                                              = {0};
-    mldsa_poly                tmp_poly                                       = {0};
-    mldsa_poly                t0_row                                         = {0};
+    mldsa_poly                tA                                             = {0};
+    mldsa_poly                tB                                             = {0};
+    mldsa_poly                tC                                             = {0};
 
     if ((pk == NULL) || (sk == NULL) || (seed == NULL)) {
         error = CX_INVALID_PARAMETER;
@@ -73,7 +82,7 @@ cx_err_t MLDSA_internal_keygen(uint8_t      *pk,
     }
 
     // Expand seed to (rho, rhoprime, K) using SHAKE256
-    (void) memcpy(buf, seed, MLDSA_SEEDBYTES);
+    memcpy(buf, seed, MLDSA_SEEDBYTES);
     buf[MLDSA_SEEDBYTES]      = p->k;
     buf[MLDSA_SEEDBYTES + 1U] = p->l;
     MLDSA_UTIL_shake256(seedbuf, sizeof(seedbuf), buf, MLDSA_SEEDBYTES + 2U);
@@ -82,61 +91,49 @@ cx_err_t MLDSA_internal_keygen(uint8_t      *pk,
     const uint8_t *rhoprime = &seedbuf[MLDSA_SEEDBYTES];
     const uint8_t *K        = &seedbuf[MLDSA_SEEDBYTES + MLDSA_CRHBYTES];
 
-    // Expand matrix A on the fly and compute t = A*NTT(s1)
-    for (uint8_t i = 0U; i < p->l; i++) {
-        MLDSA_SAMPLE_eta(&s1.vec[i], rhoprime, i, p->eta);
-    }
+    // Secret-key section offsets.
+    const size_t s1_off = 2U * MLDSA_SEEDBYTES + MLDSA_TRBYTES;
+    const size_t s2_off = s1_off + (size_t) p->l * p->polyeta_packed_bytes;
+    const size_t t0_off = s1_off + (size_t) (p->l + p->k) * p->polyeta_packed_bytes;
 
-    MLDSA_POLYVEC_ntt_l(&s1, p->l);
-    MLDSA_POLYMAT_expand_and_multiply(&t, rho, &s1, p);
+    memcpy(sk, rho, MLDSA_SEEDBYTES);
+    memcpy(&sk[MLDSA_SEEDBYTES], K, MLDSA_SEEDBYTES);
+    memcpy(pk, rho, MLDSA_SEEDBYTES);
 
-    // Re-sample s1 in normal form (deterministic, same rhoprime + nonces)
-    for (uint8_t i = 0U; i < p->l; i++) {
-        MLDSA_SAMPLE_eta(&s1.vec[i], rhoprime, i, p->eta);
-    }
-
-    MLDSA_POLYVEC_reduce_k(&t, p->k);
-    MLDSA_POLYVEC_invntt_tomont_k(&t, p->k);
-
-    // Streamed s2: sample row, add to t row, and pack row directly into sk.
+    // Optimization: compute t = A*s1 + s2 one row at a time, holding only 3 polynomials.
     for (uint8_t i = 0U; i < p->k; i++) {
-        MLDSA_SAMPLE_eta(&tmp_poly, rhoprime, (uint16_t) (p->l + i), p->eta);
-        MLDSA_POLY_add(&t.vec[i], &tmp_poly);
-        MLDSA_POLY_caddq_all(&t.vec[i]);
-        MLDSA_PACK_polyeta(
-            &sk[(2U * MLDSA_SEEDBYTES + MLDSA_TRBYTES) + (size_t) p->l * p->polyeta_packed_bytes
-                + (size_t) i * p->polyeta_packed_bytes],
-            &tmp_poly,
-            p->eta);
+        for (uint8_t j = 0U; j < p->l; j++) {
+            // Expand s1[j] on the fly; pack it once (first output row only).
+            MLDSA_SAMPLE_eta(&tC, rhoprime, j, p->eta);
+            if (i == 0U) {
+                MLDSA_PACK_polyeta(&sk[s1_off + (size_t) j * p->polyeta_packed_bytes], &tC, p->eta);
+            }
+            MLDSA_POLY_ntt(&tC);
+
+            // Expand A[i][j] on the fly and accumulate into the row.
+            uint16_t nonce = ((uint16_t) i << 8U) | (uint16_t) j;
+            MLDSA_SAMPLE_uniform(&tB, rho, nonce);
+            MLDSA_POLY_pointwise_montgomery(&tA, &tB, &tC, (j == 0U) ? 1 : 0);
+        }
+
+        MLDSA_POLY_reduce(&tA);
+        MLDSA_POLY_invntt_tomont(&tA);
+
+        // Sample and pack the error term s2[i], then add it to the row.
+        MLDSA_SAMPLE_eta(&tB, rhoprime, (uint16_t) (p->l + i), p->eta);
+        MLDSA_PACK_polyeta(&sk[s2_off + (size_t) i * p->polyeta_packed_bytes], &tB, p->eta);
+        MLDSA_POLY_add(&tA, &tB);
+        MLDSA_POLY_caddq_all(&tA);
+
+        // Split into (t1, t0)
+        MLDSA_ROUNDING_poly_power2round(&tC, &tB, &tA);
+        MLDSA_PACK_polyt0(&sk[t0_off + (size_t) i * MLDSA_POLYT0_PACKEDBYTES], &tB);
+        MLDSA_PACK_polyt1(&pk[MLDSA_SEEDBYTES + (size_t) i * MLDSA_POLYT1_PACKEDBYTES], &tC);
     }
 
-    // Streamed power2round: keep t1 in t[i], pack t0 row directly into sk.
-    for (uint8_t i = 0U; i < p->k; i++) {
-        MLDSA_ROUNDING_poly_power2round(&t.vec[i], &t0_row, &t.vec[i]);
-        MLDSA_PACK_polyt0(&sk[(2U * MLDSA_SEEDBYTES + MLDSA_TRBYTES)
-                              + (size_t) (p->l + p->k) * p->polyeta_packed_bytes
-                              + (size_t) i * MLDSA_POLYT0_PACKEDBYTES],
-                          &t0_row);
-    }
-
-    // Pack public key: pk = (rho, t1)
-    MLDSA_PACK_pk(pk, rho, t.vec, p);
-
-    // Compute tr = H(pk) = SHAKE256(pk, 64)
+    // Compute tr = H(pk) = SHAKE256(pk, 64) and store it in the secret key.
     MLDSA_UTIL_shake256(tr, MLDSA_TRBYTES, pk, p->pk_bytes);
-
-    // Fill secret key header and streamed s1 section.
-    (void) memcpy(sk, rho, MLDSA_SEEDBYTES);
-    (void) memcpy(&sk[MLDSA_SEEDBYTES], K, MLDSA_SEEDBYTES);
-    (void) memcpy(&sk[2U * MLDSA_SEEDBYTES], tr, MLDSA_TRBYTES);
-
-    for (uint8_t i = 0U; i < p->l; i++) {
-        MLDSA_SAMPLE_eta(&s1.vec[i], rhoprime, i, p->eta);
-        MLDSA_PACK_polyeta(
-            &sk[(2U * MLDSA_SEEDBYTES + MLDSA_TRBYTES) + (size_t) i * p->polyeta_packed_bytes],
-            &s1.vec[i],
-            p->eta);
-    }
+    memcpy(&sk[2U * MLDSA_SEEDBYTES], tr, MLDSA_TRBYTES);
 
     error = CX_OK;
 
@@ -144,9 +141,9 @@ cleanup:
     // Zeroize sensitive intermediates
     explicit_bzero(seedbuf, sizeof(seedbuf));
     explicit_bzero(buf, sizeof(buf));
-    explicit_bzero(&s1, sizeof(s1));
-    explicit_bzero(&tmp_poly, sizeof(tmp_poly));
-    explicit_bzero(&t0_row, sizeof(t0_row));
+    explicit_bzero(&tA, sizeof(tA));
+    explicit_bzero(&tB, sizeof(tB));
+    explicit_bzero(&tC, sizeof(tC));
     explicit_bzero(tr, sizeof(tr));
 
     return error;
