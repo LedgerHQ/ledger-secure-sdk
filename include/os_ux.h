@@ -84,8 +84,6 @@ void bolos_test_ux_apdu(void);
 // is not processed. when returning !0 the application must send a general status (or continue its
 // command flow)
 SYSCALL TASKSWITCH unsigned int os_ux(bolos_ux_params_t *params PLENGTH(sizeof(bolos_ux_params_t)));
-// read parameters back from the UX app. useful to read keyboard type or such
-SYSCALL void os_ux_result(bolos_ux_params_t *params PLENGTH(sizeof(bolos_ux_params_t)));
 
 // process all possible messages while waiting for a ux to finish,
 // unprocessed messages are replied with a generic general status

@@ -74,3 +74,10 @@ void mainExit(int exitCode)
 {
     (void) exitCode;
 }
+
+unsigned int os_sched_current_task(void);
+
+unsigned int os_sched_current_task(void)
+{
+    return TASK_USER;
+}
