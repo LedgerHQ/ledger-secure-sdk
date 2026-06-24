@@ -148,6 +148,6 @@ enum sdk_generic_identifiers {
 #define EXCEPTION_IO_STATE    0x11  // keep original value // SWO_MUI_UNK_15
 #define EXCEPTION_CXPORT      0x12  // keep original value // SWO_MUI_UNK_16
 #define EXCEPTION_SYSTEM      0x13  // keep original value // SWO_MUI_UNK_17
-#define EXCEPTION_CORRUPT     0x14
+#define EXCEPTION_CORRUPT     0x14  // dynamic memory corruption detected
 
 #endif  // ERRORS_H

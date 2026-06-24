@@ -75,10 +75,6 @@ typedef struct bolos_ux_params_s {
 /* ----------------------------------------------------------------------- */
 /* -                             UX-RELATED                              - */
 /* ----------------------------------------------------------------------- */
-#if defined(BOLOS_TEST_APDUS_UX)
-void bolos_test_ux_apdu(void);
-#endif  // defined(BOLOS_TEST_APDUS_UX)
-
 // return !0 when ux scenario has ended, else 0
 // while not ended, all display/touch/ticker and other events are to be processed by the ux. only io
 // is not processed. when returning !0 the application must send a general status (or continue its

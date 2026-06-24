@@ -284,3 +284,16 @@ void *pic(void *linked_address)
 {
     return linked_address;
 }
+
+//===================================================
+// Exception-related functions. Exceptions are not handled, functions are just defined so that tests
+// can compile.
+try_context_t *try_context_get(void)
+{
+    return NULL;
+}
+
+void os_longjmp(uint32_t exception)
+{
+    longjmp(try_context_get()->jmp_buf, exception);
+}
