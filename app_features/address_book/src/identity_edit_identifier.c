@@ -75,7 +75,7 @@ typedef struct {
     X(0xf2, TAG_ACCOUNT_IDENTIFIER, handle_identifier, ENFORCE_UNIQUE_TAG)           \
     X(0xf4, TAG_PREVIOUS_IDENTIFIER, handle_previous_identifier, ENFORCE_UNIQUE_TAG) \
     X(0xf6, TAG_GROUP_HANDLE, handle_group_handle, ENFORCE_UNIQUE_TAG)               \
-    X(0x21, TAG_DERIVATION_PATH, handle_derivation_path, ENFORCE_UNIQUE_TAG)         \
+    X(0x69, TAG_DERIVATION_PATH, handle_derivation_path, ENFORCE_UNIQUE_TAG)         \
     X(0x23, TAG_CHAIN_ID, handle_chain_id, ENFORCE_UNIQUE_TAG)                       \
     X(0x29, TAG_HMAC_PROOF, handle_hmac_proof, ENFORCE_UNIQUE_TAG)                   \
     X(0xf7, TAG_HMAC_REST, handle_hmac_rest, ENFORCE_UNIQUE_TAG)                     \

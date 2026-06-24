@@ -69,7 +69,7 @@ typedef struct {
     X(0xf0, TAG_CONTACT_NAME, handle_contact_name, ENFORCE_UNIQUE_TAG)        \
     X(0xf3, TAG_PREVIOUS_NAME, handle_previous_name, ENFORCE_UNIQUE_TAG)      \
     X(0xf6, TAG_GROUP_HANDLE, handle_group_handle, ENFORCE_UNIQUE_TAG)        \
-    X(0x21, TAG_DERIVATION_PATH, handle_derivation_path, ENFORCE_UNIQUE_TAG)  \
+    X(0x69, TAG_DERIVATION_PATH, handle_derivation_path, ENFORCE_UNIQUE_TAG)  \
     X(0x29, TAG_HMAC_PROOF, handle_hmac_proof, ENFORCE_UNIQUE_TAG)
 
 /* Private variables ---------------------------------------------------------*/
