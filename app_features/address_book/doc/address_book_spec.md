@@ -164,7 +164,7 @@ Multi-byte integer values are encoded **big-endian, minimum length** (no leading
 | 0xf4 | PREVIOUS_IDENTIFIER    | Old identifier, for HMAC verification (Edit Identifier only)                          |
 | 0xf5 | PREVIOUS_SCOPE         | Old scope, for display and HMAC verification (Edit Scope only)                        |
 | 0xf6 | GROUP_HANDLE           | Device-generated opaque token: `gid(32) + HMAC-SHA256(K_group, gid)(32)`; see §4.3    |
-| 0x21 | DERIVATION_PATH        | BIP32 path (packed: depth(1) + indices(4 each))                                       |
+| 0x69 | DERIVATION_PATH        | BIP32 path (packed: depth(1) + indices(4 each))                                       |
 | 0x23 | CHAIN_ID               | Chain ID — mandatory for `BLOCKCHAIN_FAMILY = 1` (Ethereum); omitted for others       |
 | 0x51 | BLOCKCHAIN_FAMILY      | Blockchain family (0=Bitcoin, 1=Ethereum, 2=Solana, 3=Polkadot, 4=Cosmos, 5=Cardano)  |
 | 0x29 | HMAC_PROOF             | 32-byte HMAC-SHA256 name-binding proof: covers `gid(32) + name` (§4.3)                |
@@ -272,7 +272,7 @@ This allows a wallet to register multiple addresses for the same contact (e.g. t
 | CONTACT_NAME       | 0xf0  | Yes       | 32 B     | Contact name (max 32 printable ASCII chars)                                          |
 | SCOPE              | 0xf1  | Yes       | 32 B     | Context string (e.g. "Ethereum", "Bitcoin legacy", "Solana USDC")                    |
 | ACCOUNT_IDENTIFIER | 0xf2  | Yes       | 80 B     | Blockchain identifier (address or pubkey, chain-dependent)                           |
-| DERIVATION_PATH    | 0x21  | Yes       | 41 B     | BIP32 derivation path (used to derive the HMAC key)                                  |
+| DERIVATION_PATH    | 0x69  | Yes       | 41 B     | BIP32 derivation path (used to derive the HMAC key)                                  |
 | CHAIN_ID           | 0x23  | Cond.     | 8 B      | Chain ID (mandatory for Ethereum)                                                    |
 | BLOCKCHAIN_FAMILY  | 0x51  | Yes       | 1 B      | Blockchain family                                                                    |
 | GROUP_HANDLE       | 0xf6  | Optional  | 64 B     | Existing group handle — links this identifier to an existing contact group           |
@@ -341,7 +341,7 @@ Changes the `CONTACT_NAME` of an existing contact. Because `HMAC_PROOF` covers o
 | PREVIOUS_CONTACT_NAME | 0xf3  | Yes       | 32 B     | Old contact name (must match value used at registration) |
 | CONTACT_NAME          | 0xf0  | Yes       | 32 B     | New contact name (max 32 printable ASCII chars)          |
 | GROUP_HANDLE          | 0xf6  | Yes       | 64 B     | Opaque token from Register Identity response             |
-| DERIVATION_PATH       | 0x21  | Yes       | 41 B     | BIP32 derivation path (same as at registration)          |
+| DERIVATION_PATH       | 0x69  | Yes       | 41 B     | BIP32 derivation path (same as at registration)          |
 | HMAC_PROOF            | 0x29  | Yes       | 32 B     | `HMAC_PROOF` returned by the original Register Identity  |
 
 > **Payload size:** worst case (max path depth, max names) = **217 B** — fits in a single short APDU ✓
@@ -399,7 +399,7 @@ Changes the `IDENTIFIER` of an existing contact while keeping the same `contact_
 | ACCOUNT_IDENTIFIER  | 0xf2  | Yes       | 80 B     | New blockchain identifier (replacing the old one)                |
 | PREVIOUS_IDENTIFIER | 0xf4  | Yes       | 80 B     | old identifier (to verify the HMAC from the prior registration)  |
 | GROUP_HANDLE        | 0xf6  | Yes       | 64 B     | Opaque token from Register Identity response                     |
-| DERIVATION_PATH     | 0x21  | Yes       | 41 B     | BIP32 derivation path (same as at registration)                  |
+| DERIVATION_PATH     | 0x69  | Yes       | 41 B     | BIP32 derivation path (same as at registration)                  |
 | CHAIN_ID            | 0x23  | Cond.     | 8 B      | Chain ID (mandatory for Ethereum)                                |
 | BLOCKCHAIN_FAMILY   | 0x51  | Yes       | 1 B      | Blockchain family                                                |
 | HMAC_PROOF          | 0x29  | Yes       | 32 B     | `HMAC_PROOF` from Register Identity (verifies the contact name)  |
@@ -464,7 +464,7 @@ Changes the `SCOPE` of an existing contact while keeping the same `contact_name`
 | ACCOUNT_IDENTIFIER     | 0xf2  | Yes       | 80 B     | Blockchain identifier (unchanged from registration)          |
 | PREVIOUS_SCOPE         | 0xf5  | Yes       | 32 B     | old scope (must match value used at registration)            |
 | GROUP_HANDLE           | 0xf6  | Yes       | 64 B     | Opaque token from Register Identity response                 |
-| DERIVATION_PATH        | 0x21  | Yes       | 41 B     | BIP32 derivation path (same as at registration)              |
+| DERIVATION_PATH        | 0x69  | Yes       | 41 B     | BIP32 derivation path (same as at registration)              |
 | CHAIN_ID               | 0x23  | Cond.     | 8 B      | Chain ID (mandatory for Ethereum)                            |
 | BLOCKCHAIN_FAMILY      | 0x51  | Yes       | 1 B      | Blockchain family                                            |
 | HMAC_PROOF             | 0x29  | Yes       | 32 B     | `HMAC_PROOF` from Register Identity, proves the contact name |
@@ -523,7 +523,7 @@ Registers a name for a Ledger-owned account, identified by its derivation path a
 | STRUCT_TYPE       | 0x01  | Yes       | 1 B      | 0x2f (`TYPE_REGISTER_LEDGER_ACCOUNT`)       |
 | STRUCT_VERSION    | 0x02  | Yes       | 1 B      | 0x01                                        |
 | CONTACT_NAME      | 0xf0  | Yes       | 32 B     | Account name (max 32 printable ASCII chars) |
-| DERIVATION_PATH   | 0x21  | Yes       | 41 B     | BIP32 derivation path                       |
+| DERIVATION_PATH   | 0x69  | Yes       | 41 B     | BIP32 derivation path                       |
 | CHAIN_ID          | 0x23  | Cond.     | 8 B      | Chain ID (mandatory for Ethereum)           |
 | BLOCKCHAIN_FAMILY | 0x51  | Yes       | 1 B      | Blockchain family                           |
 
@@ -581,7 +581,7 @@ The Edit flow reuses the Register review UI: the coin app provides `handle_check
 | PREVIOUS_CONTACT_NAME | 0xf3  | Yes       | 32 B     | old account name (must match value used at registration)       |
 | CONTACT_NAME          | 0xf0  | Yes       | 32 B     | New account name (max 32 printable ASCII chars)                |
 | HMAC_PROOF            | 0x29  | Yes       | 32 B     | HMAC Proof of Registration returned by Register Ledger Account |
-| DERIVATION_PATH       | 0x21  | Yes       | 41 B     | BIP32 derivation path (same as at registration)                |
+| DERIVATION_PATH       | 0x69  | Yes       | 41 B     | BIP32 derivation path (same as at registration)                |
 | CHAIN_ID              | 0x23  | Cond.     | 8 B      | Chain ID (mandatory for Ethereum)                              |
 | BLOCKCHAIN_FAMILY     | 0x51  | Yes       | 1 B      | Blockchain family                                              |
 
@@ -639,7 +639,7 @@ Sent by the wallet **before a transaction** to let the device substitute a human
 | SCOPE              | 0xf1  | Yes       | 32 B     | Contact scope (must match value used at registration)                  |
 | ACCOUNT_IDENTIFIER | 0xf2  | Yes       | 80 B     | Blockchain identifier (unchanged from registration)                    |
 | GROUP_HANDLE       | 0xf6  | Yes       | 64 B     | Opaque token from Register Identity response                           |
-| DERIVATION_PATH    | 0x21  | Yes       | 41 B     | BIP32 derivation path (same as at registration)                        |
+| DERIVATION_PATH    | 0x69  | Yes       | 41 B     | BIP32 derivation path (same as at registration)                        |
 | CHAIN_ID           | 0x23  | Cond.     | 8 B      | Chain ID (mandatory for Ethereum)                                      |
 | BLOCKCHAIN_FAMILY  | 0x51  | Yes       | 1 B      | Blockchain family                                                      |
 | HMAC_PROOF         | 0x29  | Yes       | 32 B     | `HMAC_PROOF` from Register Identity — proves contact name              |
@@ -696,7 +696,7 @@ The device verifies the HMAC Proof of Registration, then derives the Ethereum ad
 | STRUCT_TYPE       | 0x01  | Yes       | 1 B      | `0x34` (`TYPE_PROVIDE_LEDGER_ACCOUNT_CONTACT`)                       |
 | STRUCT_VERSION    | 0x02  | Yes       | 1 B      | `0x01`                                                               |
 | CONTACT_NAME      | 0xf0  | Yes       | 32 B     | Account name (must match value used at registration)                 |
-| DERIVATION_PATH   | 0x21  | Yes       | 41 B     | BIP32 derivation path (same as at registration)                      |
+| DERIVATION_PATH   | 0x69  | Yes       | 41 B     | BIP32 derivation path (same as at registration)                      |
 | CHAIN_ID          | 0x23  | Cond.     | 8 B      | Chain ID (mandatory for Ethereum)                                    |
 | BLOCKCHAIN_FAMILY | 0x51  | Yes       | 1 B      | Blockchain family                                                    |
 | HMAC_PROOF        | 0x29  | Yes       | 32 B     | `HMAC_PROOF` from Register Ledger Account — proves the account name  |

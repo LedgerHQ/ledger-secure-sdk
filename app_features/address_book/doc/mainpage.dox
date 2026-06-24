@@ -66,7 +66,7 @@ are available in Mermaid format in @c app_features/address_book/doc/address_book
 | 0xf4 | PREVIOUS_IDENTIFIER   | old identifier (Edit Identifier only)                           | 80 B     |
 | 0xf5 | PREVIOUS_SCOPE        | old scope (Edit Scope only)                                     | 32 B     |
 | 0xf6 | GROUP_HANDLE          | Device-generated token: gid(32) + HMAC-SHA256(K_group, gid)(32) | 64 B     |
-| 0x21 | DERIVATION_PATH       | BIP32 path for HMAC key derivation                              | 43 B     |
+| 0x69 | DERIVATION_PATH       | BIP32 path for HMAC key derivation                              | 43 B     |
 | 0x23 | CHAIN_ID              | Chain ID (mandatory for Ethereum family)                        | 8 B      |
 | 0x51 | BLOCKCHAIN_FAMILY     | Blockchain family enum                                          | 1 B      |
 | 0x29 | HMAC_PROOF            | HMAC-SHA256 over gid + contact name                             | 32 B     |
