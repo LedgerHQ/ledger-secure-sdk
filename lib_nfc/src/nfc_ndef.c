@@ -134,24 +134,43 @@ uint16_t os_get_uri_header(uint8_t uri_id, char *uri_header)
  * @brief deserializes an encoded NDEF message to an ndef_struct_t
  *
  * @param in_buffer input buffer to deseialize
+ * @param in_buffer_length input buffer length
  * @param parsed deserialized output
  * @return bolos error
  */
-uint8_t os_parse_ndef(uint8_t *in_buffer, ndef_struct_t *parsed)
+uint8_t os_parse_ndef(uint8_t *in_buffer, uint16_t in_buffer_length, ndef_struct_t *parsed)
 {
     uint8_t text_length, info_length;
+
+    if (in_buffer == NULL || parsed == NULL) {
+        return 1;
+    }
+    if (in_buffer_length <= APDU_OFF_DATA) {
+        return 1;
+    }
+
     parsed->ndef_type = in_buffer[APDU_OFF_P1];
     parsed->uri_id    = in_buffer[APDU_OFF_P2];
     text_length       = in_buffer[APDU_OFF_DATA];
     if (text_length > NFC_TEXT_MAX_LEN) {
         return 1;
     }
+
+    if (in_buffer_length < (uint16_t) (APDU_OFF_DATA + 1 + text_length + 1)) {
+        return 1;
+    }
+
     memcpy(parsed->text, &in_buffer[APDU_OFF_DATA + 1], text_length);
     parsed->text[text_length] = '\0';
     info_length               = in_buffer[APDU_OFF_DATA + 1 + text_length];
     if (info_length > NFC_INFO_MAX_LEN) {
         return 1;
     }
+
+    if (in_buffer_length < (uint16_t) (APDU_OFF_DATA + 1 + text_length + 1 + info_length)) {
+        return 1;
+    }
+
     if (info_length) {
         memcpy(parsed->info, &in_buffer[APDU_OFF_DATA + 1 + text_length + 1], info_length);
         parsed->info[info_length] = '\0';
