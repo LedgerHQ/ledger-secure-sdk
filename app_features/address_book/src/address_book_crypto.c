@@ -48,6 +48,80 @@
 #define HMAC_MSG_MAX_SIZE \
     (GID_SIZE + 1U + (SCOPE_LENGTH - 1U) + 1U + IDENTIFIER_MAX_LENGTH + 1U + 8U)
 
+/** Buffer size for HMAC_PROOF message: gid(32) | name_len(1) | name(max 32) */
+#define HMAC_PROOF_MSG_SIZE (GID_SIZE + 1U + (CONTACT_NAME_LENGTH - 1U))
+
+/** Buffer size for Ledger Account message: name_len(1) | name(max 32) | family(1) | chain_id(8) */
+#define HMAC_LEDGER_MSG_SIZE (1U + (ACCOUNT_NAME_LENGTH - 1U) + 1U + 8U)
+
+/* Private functions ---------------------------------------------------------*/
+
+/**
+ * @brief Serialize an HMAC message from optional fields.
+ *
+ * Builds the message by concatenating present fields in order:
+ *   1. gid (32 bytes)                         — if gid != NULL
+ *   2. strlen(str1) as uint8 + str1 content   — if str1 != NULL
+ *   3. raw_len as uint8 + raw bytes           — if raw != NULL
+ *   4. family as uint8 [+ chain_id big-endian] — if include_family == true
+ *
+ * @param[out] msg             Output buffer (caller must ensure sufficient size)
+ * @param[in]  gid             32-byte group ID, or NULL to skip
+ * @param[in]  str1            Null-terminated string (length-prefixed in output), or NULL to skip
+ * @param[in]  raw             Raw bytes (length-prefixed in output), or NULL to skip
+ * @param[in]  raw_len         Length of @p raw in bytes (ignored if raw == NULL)
+ * @param[in]  include_family  Whether to append family and optional chain_id
+ * @param[in]  family          Blockchain family (used only if include_family == true)
+ * @param[in]  chain_id        Chain ID, appended only for FAMILY_ETHEREUM
+ *
+ * @return Number of bytes written to msg
+ */
+static size_t serialize_hmac_msg(uint8_t            *msg,
+                                 const uint8_t      *gid,
+                                 const char         *str1,
+                                 const uint8_t      *raw,
+                                 uint8_t             raw_len,
+                                 bool                include_family,
+                                 blockchain_family_e family,
+                                 uint64_t            chain_id)
+{
+    size_t offset = 0;
+
+    // Optional 32-byte GID prefix
+    if (gid != NULL) {
+        memmove(&msg[offset], gid, GID_SIZE);
+        offset += GID_SIZE;
+    }
+
+    // Optional length-prefixed string
+    if (str1 != NULL) {
+        uint8_t len   = (uint8_t) strlen(str1);
+        msg[offset++] = len;
+        if (len > 0) {
+            memmove(&msg[offset], str1, len);
+            offset += len;
+        }
+    }
+
+    // Optional length-prefixed raw bytes
+    if (raw != NULL) {
+        msg[offset++] = raw_len;
+        memmove(&msg[offset], raw, raw_len);
+        offset += raw_len;
+    }
+
+    // Optional family byte + chain_id
+    if (include_family) {
+        msg[offset++] = (uint8_t) family;
+        if (family == FAMILY_ETHEREUM) {
+            U8BE_ENCODE(msg, offset, chain_id);
+            offset += 8U;
+        }
+    }
+
+    return offset;
+}
+
 /* Exported functions --------------------------------------------------------*/
 
 /**
@@ -177,24 +251,15 @@ bool address_book_compute_hmac_proof(const path_bip32_t *bip32_path,
                                      const char         *name,
                                      uint8_t             hmac_out[CX_SHA256_SIZE])
 {
-    uint8_t msg[GID_SIZE + 1U + (CONTACT_NAME_LENGTH - 1U)] = {0};
-    size_t  offset                                          = 0;
-    bool    success                                         = false;
-    uint8_t name_len                                        = (uint8_t) strlen(name);
-
-    // gid(32)
-    memmove(&msg[offset], gid, GID_SIZE);
-    offset += GID_SIZE;
-    // name_len(1) | name
-    msg[offset++] = name_len;
-    memmove(&msg[offset], name, name_len);
-    offset += name_len;
+    uint8_t msg[HMAC_PROOF_MSG_SIZE] = {0};
+    bool    success                  = false;
+    size_t  msg_len                  = serialize_hmac_msg(msg, gid, name, NULL, 0, false, 0, 0);
 
     if (!sys_address_book_hmac(bip32_path->path,
                                bip32_path->length,
                                ADDRESS_BOOK_SALT_IDENTITY,
                                msg,
-                               offset,
+                               msg_len,
                                hmac_out)) {
         goto end;
     }
@@ -219,23 +284,15 @@ bool address_book_verify_hmac_proof(const path_bip32_t *bip32_path,
                                     const char         *name,
                                     const uint8_t       hmac_expected[CX_SHA256_SIZE])
 {
-    uint8_t msg[GID_SIZE + 1U + (CONTACT_NAME_LENGTH - 1U)] = {0};
-    size_t  offset                                          = 0;
-    bool    success                                         = false;
-    uint8_t name_len                                        = (uint8_t) strlen(name);
-
-    // gid(32) | name_len(1) | name
-    memmove(&msg[offset], gid, GID_SIZE);
-    offset += GID_SIZE;
-    msg[offset++] = name_len;
-    memmove(&msg[offset], name, name_len);
-    offset += name_len;
+    uint8_t msg[HMAC_PROOF_MSG_SIZE] = {0};
+    bool    success                  = false;
+    size_t  msg_len                  = serialize_hmac_msg(msg, gid, name, NULL, 0, false, 0, 0);
 
     if (!sys_address_book_hmac_verify(bip32_path->path,
                                       bip32_path->length,
                                       ADDRESS_BOOK_SALT_IDENTITY,
                                       msg,
-                                      offset,
+                                      msg_len,
                                       hmac_expected)) {
         PRINTF("HMAC_PROOF mismatch\n");
         goto end;
@@ -274,36 +331,15 @@ bool address_book_compute_hmac_rest(const path_bip32_t *bip32_path,
                                     uint8_t             hmac_out[CX_SHA256_SIZE])
 {
     uint8_t msg[HMAC_MSG_MAX_SIZE] = {0};
-    size_t  offset                 = 0;
     bool    success                = false;
-    uint8_t scope_len              = (scope != NULL) ? (uint8_t) strlen(scope) : 0;
-
-    // gid(32)
-    memmove(&msg[offset], gid, GID_SIZE);
-    offset += GID_SIZE;
-    // scope_len(1) | scope
-    msg[offset++] = scope_len;
-    if (scope_len > 0) {
-        memmove(&msg[offset], scope, scope_len);
-        offset += scope_len;
-    }
-    // id_len(1) | identifier
-    msg[offset++] = identifier_len;
-    memmove(&msg[offset], identifier, identifier_len);
-    offset += identifier_len;
-    // family(1)
-    msg[offset++] = (uint8_t) family;
-    // chain_id(8) — Ethereum only
-    if (family == FAMILY_ETHEREUM) {
-        U8BE_ENCODE(msg, offset, chain_id);
-        offset += 8U;
-    }
+    size_t  msg_len
+        = serialize_hmac_msg(msg, gid, scope, identifier, identifier_len, true, family, chain_id);
 
     if (!sys_address_book_hmac(bip32_path->path,
                                bip32_path->length,
                                ADDRESS_BOOK_SALT_IDENTITY,
                                msg,
-                               offset,
+                               msg_len,
                                hmac_out)) {
         goto end;
     }
@@ -337,32 +373,15 @@ bool address_book_verify_hmac_rest(const path_bip32_t *bip32_path,
                                    const uint8_t       hmac_expected[CX_SHA256_SIZE])
 {
     uint8_t msg[HMAC_MSG_MAX_SIZE] = {0};
-    size_t  offset                 = 0;
     bool    success                = false;
-    uint8_t scope_len              = (scope != NULL) ? (uint8_t) strlen(scope) : 0;
-
-    // gid(32) | scope_len(1) | scope | id_len(1) | identifier | family(1) [| chain_id(8)]
-    memmove(&msg[offset], gid, GID_SIZE);
-    offset += GID_SIZE;
-    msg[offset++] = scope_len;
-    if (scope_len > 0) {
-        memmove(&msg[offset], scope, scope_len);
-        offset += scope_len;
-    }
-    msg[offset++] = identifier_len;
-    memmove(&msg[offset], identifier, identifier_len);
-    offset += identifier_len;
-    msg[offset++] = (uint8_t) family;
-    if (family == FAMILY_ETHEREUM) {
-        U8BE_ENCODE(msg, offset, chain_id);
-        offset += 8U;
-    }
+    size_t  msg_len
+        = serialize_hmac_msg(msg, gid, scope, identifier, identifier_len, true, family, chain_id);
 
     if (!sys_address_book_hmac_verify(bip32_path->path,
                                       bip32_path->length,
                                       ADDRESS_BOOK_SALT_IDENTITY,
                                       msg,
-                                      offset,
+                                      msg_len,
                                       hmac_expected)) {
         PRINTF("HMAC_REST mismatch\n");
         goto end;
@@ -395,28 +414,15 @@ bool address_book_compute_hmac_proof_ledger_account(const path_bip32_t *bip32_pa
                                                     uint64_t            chain_id,
                                                     uint8_t             hmac_out[CX_SHA256_SIZE])
 {
-    uint8_t msg[1U + (ACCOUNT_NAME_LENGTH - 1U) + 1U + 8U] = {0};
-    size_t  offset                                         = 0;
-    bool    success                                        = false;
-    uint8_t name_len                                       = (uint8_t) strlen(name);
-
-    // name_len(1) | name
-    msg[offset++] = name_len;
-    memmove(&msg[offset], name, name_len);
-    offset += name_len;
-    // family(1)
-    msg[offset++] = (uint8_t) family;
-    // chain_id(8) — Ethereum only
-    if (family == FAMILY_ETHEREUM) {
-        U8BE_ENCODE(msg, offset, chain_id);
-        offset += 8U;
-    }
+    uint8_t msg[HMAC_LEDGER_MSG_SIZE] = {0};
+    bool    success                   = false;
+    size_t  msg_len = serialize_hmac_msg(msg, NULL, name, NULL, 0, true, family, chain_id);
 
     if (!sys_address_book_hmac(bip32_path->path,
                                bip32_path->length,
                                ADDRESS_BOOK_SALT_LEDGER_ACCOUNT,
                                msg,
-                               offset,
+                               msg_len,
                                hmac_out)) {
         goto end;
     }
@@ -443,26 +449,15 @@ bool address_book_verify_hmac_proof_ledger_account(const path_bip32_t *bip32_pat
                                                    uint64_t            chain_id,
                                                    const uint8_t hmac_expected[CX_SHA256_SIZE])
 {
-    uint8_t msg[1U + (ACCOUNT_NAME_LENGTH - 1U) + 1U + 8U] = {0};
-    size_t  offset                                         = 0;
-    bool    success                                        = false;
-    uint8_t name_len                                       = (uint8_t) strlen(name);
-
-    // name_len(1) | name | family(1) [| chain_id(8)]
-    msg[offset++] = name_len;
-    memmove(&msg[offset], name, name_len);
-    offset += name_len;
-    msg[offset++] = (uint8_t) family;
-    if (family == FAMILY_ETHEREUM) {
-        U8BE_ENCODE(msg, offset, chain_id);
-        offset += 8U;
-    }
+    uint8_t msg[HMAC_LEDGER_MSG_SIZE] = {0};
+    bool    success                   = false;
+    size_t  msg_len = serialize_hmac_msg(msg, NULL, name, NULL, 0, true, family, chain_id);
 
     if (!sys_address_book_hmac_verify(bip32_path->path,
                                       bip32_path->length,
                                       ADDRESS_BOOK_SALT_LEDGER_ACCOUNT,
                                       msg,
-                                      offset,
+                                      msg_len,
                                       hmac_expected)) {
         PRINTF("HMAC proof mismatch\n");
         goto end;
