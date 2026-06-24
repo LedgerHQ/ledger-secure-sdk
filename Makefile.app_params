@@ -112,15 +112,15 @@ endif
 APP_LOAD_PARAMS = --targetId $(TARGET_ID)
 APP_LOAD_PARAMS += --targetVersion="$(TARGET_VERSION)"
 APP_LOAD_PARAMS += --apiLevel $(API_LEVEL)
-APP_LOAD_PARAMS += --fileName bin/app.hex
+APP_LOAD_PARAMS += --fileName $(BIN_DIR)/app.hex
 APP_LOAD_PARAMS += --appName $(APPNAME)
 ifneq ($(APP_FLAGS_APP_LOAD_PARAMS),)
 	APP_LOAD_PARAMS += --appFlags $(lastword $(APP_FLAGS_APP_LOAD_PARAMS))
 endif
 APP_LOAD_PARAMS += --delete
 APP_LOAD_PARAMS += --tlv
-APP_LOAD_PARAMS += --dataSize $$((0x`cat debug/app.map | grep _envram_data | tr -s ' ' | cut -f2 -d' ' |cut -f2 -d'x' ` - 0x`cat debug/app.map | grep _nvram_data | tr -s ' ' | cut -f2 -d' ' | cut -f2 -d'x'`))
-APP_LOAD_PARAMS += --installparamsSize $$((0x`cat debug/app.map | grep _einstall_parameters | tr -s ' ' | cut -f2 -d' ' |cut -f2 -d'x'` - 0x`cat debug/app.map | grep _install_parameters | tr -s ' ' | cut -f2 -d' ' |cut -f2 -d'x'`))
+APP_LOAD_PARAMS += --dataSize $$((0x`cat $(DBG_DIR)/app.map | grep _envram_data | tr -s ' ' | cut -f2 -d' ' |cut -f2 -d'x' ` - 0x`cat $(DBG_DIR)/app.map | grep _nvram_data | tr -s ' ' | cut -f2 -d' ' | cut -f2 -d'x'`))
+APP_LOAD_PARAMS += --installparamsSize $$((0x`cat $(DBG_DIR)/app.map | grep _einstall_parameters | tr -s ' ' | cut -f2 -d' ' |cut -f2 -d'x'` - 0x`cat $(DBG_DIR)/app.map | grep _install_parameters | tr -s ' ' | cut -f2 -d' ' |cut -f2 -d'x'`))
 
 ifeq ($(ENABLE_NOCRC_APP_LOAD_PARAMS), 1)
     APP_LOAD_PARAMS += --nocrc
