@@ -95,10 +95,6 @@ void cx_printa(char *prefix, const unsigned char *r, unsigned short len)
     cx_printf(("\n"));
 }
 
-#ifdef ST31
-#include "product.h"
-#endif
-
 int cx_st_onefail(void)
 {
     volatile int i = 1;  // avoid inline
