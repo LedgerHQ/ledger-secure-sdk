@@ -1,6 +1,5 @@
-/*******************************************************************************
- *   Ledger Nano S - Secure firmware
- *   (c) 2022 Ledger
+/*****************************************************************************
+ *   (c) 2026 Ledger SAS.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,8 +12,7 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- ********************************************************************************/
-
+ *****************************************************************************/
 /**
  * @file    cx_mldsa_sample.c
  * @brief   ML-DSA sampling operations (FIPS 204).
@@ -226,7 +224,8 @@ void MLDSA_SAMPLE_challenge(mldsa_poly *c, const uint8_t *seed, size_t seedlen, 
         // Sample j uniformly from [0, i]
         do {
             if (pos >= sizeof(buf)) {
-                // Buffer exhausted (unlikely with 272 bytes)
+                // Buffer exhausted (unlikely with 272 bytes); default to no-op swap
+                j = i;
                 break;
             }
             j = (uint32_t) buf[pos++];
