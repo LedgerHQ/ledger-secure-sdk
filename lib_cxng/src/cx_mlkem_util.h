@@ -1,6 +1,5 @@
-/*******************************************************************************
- *   Ledger Nano S - Secure firmware
- *   (c) 2022 Ledger
+/*****************************************************************************
+ *   (c) 2026 Ledger SAS.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,11 +12,16 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- ********************************************************************************/
+ *****************************************************************************/
+
 #ifndef CX_MLKEM_UTIL_H
 #define CX_MLKEM_UTIL_H
 
+#include <stddef.h>
 #include <stdint.h>
+
+#include "cx_errors.h"
+#include "lcx_mlkem.h"
 #include "lcx_sha3.h"
 
 /**
@@ -51,7 +55,7 @@ void MLKEM_UTIL_hash_j(uint8_t *out, const uint8_t *in, size_t inlen);
 void MLKEM_UTIL_prf(uint8_t *out, size_t outlen, const uint8_t *key, uint8_t nonce);
 
 /**
- * @brief   Computes the XOF function (SHAKE256) as defined in FIPS 203.
+ * @brief   Computes the XOF function (SHAKE128) as defined in FIPS 203.
  *
  * @param[out] out     Output buffer.
  * @param[in]  outlen  Number of bytes to produce.
