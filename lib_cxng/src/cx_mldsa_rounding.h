@@ -1,6 +1,5 @@
-/*******************************************************************************
- *   Ledger Nano S - Secure firmware
- *   (c) 2022 Ledger
+/*****************************************************************************
+ *   (c) 2026 Ledger SAS.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +12,7 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- ********************************************************************************/
+ *****************************************************************************/
 #ifndef CX_MLDSA_ROUNDING_H
 #define CX_MLDSA_ROUNDING_H
 
@@ -44,8 +43,8 @@ int32_t MLDSA_ROUNDING_power2round(int32_t a, int32_t *a0);
 int32_t MLDSA_ROUNDING_decompose(int32_t a, int32_t *a0, int32_t gamma2);
 
 /**
- * @brief   Compute hint bit. Returns 1 if adding ct0 to w - ct0 does
- *          not change the high bits.
+ * @brief   Compute hint bit. Returns 1 if adding ct0 to w - ct0 would
+ *          change the high bits (i.e., the verifier must correct them).
  *
  * @param[in] a0      Low part.
  * @param[in] a1      High part.

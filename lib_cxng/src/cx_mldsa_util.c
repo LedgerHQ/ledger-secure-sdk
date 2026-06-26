@@ -1,6 +1,5 @@
-/*******************************************************************************
- *   Ledger Nano S - Secure firmware
- *   (c) 2022 Ledger
+/*****************************************************************************
+ *   (c) 2026 Ledger SAS.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,8 +12,7 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- ********************************************************************************/
-
+ *****************************************************************************/
 /**
  * @file    cx_mldsa_util.c
  * @brief   ML-DSA utility functions (FIPS 204).
@@ -83,6 +81,9 @@ void MLDSA_UTIL_shake128_seed_nonce(uint8_t       *out,
                                     uint16_t       nonce)
 {
     uint8_t buf[MLDSA_SEEDBYTES + 2U] = {0};
+    if (seedlen > MLDSA_SEEDBYTES) {
+        seedlen = MLDSA_SEEDBYTES;
+    }
     memcpy(buf, seed, seedlen);
     buf[seedlen]      = (uint8_t) (nonce & 0xFFU);
     buf[seedlen + 1U] = (uint8_t) (nonce >> 8U);
@@ -97,6 +98,9 @@ void MLDSA_UTIL_shake256_seed_nonce(uint8_t       *out,
                                     uint16_t       nonce)
 {
     uint8_t buf[MLDSA_CRHBYTES + 2U] = {0};
+    if (seedlen > MLDSA_CRHBYTES) {
+        seedlen = MLDSA_CRHBYTES;
+    }
     memcpy(buf, seed, seedlen);
     buf[seedlen]      = (uint8_t) (nonce & 0xFFU);
     buf[seedlen + 1U] = (uint8_t) (nonce >> 8U);

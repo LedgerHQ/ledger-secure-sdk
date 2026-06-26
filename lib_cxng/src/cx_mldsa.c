@@ -1,6 +1,5 @@
-/*******************************************************************************
- *   Ledger Nano S - Secure firmware
- *   (c) 2022 Ledger
+/*****************************************************************************
+ *   (c) 2026 Ledger SAS.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,8 +12,7 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- ********************************************************************************/
-
+ *****************************************************************************/
 /**
  * @file    cx_mldsa.c
  * @brief   ML-DSA digital signature algorithm (FIPS 204).
@@ -72,12 +70,12 @@ typedef struct MLDSA_prehash_info_s {
 } MLDSA_prehash_info_t;
 
 /**
- * Format structure of M' = 0x01 (1b)|| context_len (1b) || context (225b) || OID || PH_M.
+ * Format structure of M' = 0x01 (1b)|| context_len (1b) || context (255b) || OID || PH_M.
  * (FIPS 204, Section 5.4)
  */
 typedef struct MLDSA_formatted_message_s {
     uint8_t prefix[2U + 255U + MLDSA_PREHASH_OID_LEN]; /**< Prefix = 0x01 (1b)|| context_len (1b) ||
-                                                          context (225b) || OID */
+                                                          context (255b) || OID */
     size_t         prefix_len;                         /**< Prefix length */
     const uint8_t *payload;                            /**< Pre-hash PH_M */
     size_t         payload_len /**< Pre-hash length */;
