@@ -1,6 +1,5 @@
-/*******************************************************************************
- *   Ledger Nano S - Secure firmware
- *   (c) 2022 Ledger
+/*****************************************************************************
+ *   (c) 2026 Ledger SAS.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +12,8 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- ********************************************************************************/
+ *****************************************************************************/
+
 #ifndef CX_MLKEM_SAMPLE_H
 #define CX_MLKEM_SAMPLE_H
 

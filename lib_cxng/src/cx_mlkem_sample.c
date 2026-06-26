@@ -1,6 +1,5 @@
-/*******************************************************************************
- *   Ledger Nano S - Secure firmware
- *   (c) 2022 Ledger
+/*****************************************************************************
+ *   (c) 2026 Ledger SAS.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,8 +12,7 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- ********************************************************************************/
-
+ *****************************************************************************/
 /**
  * @file    cx_mlkem_sample.c
  * @brief   ML-KEM sampling routines (FIPS 203).
@@ -97,14 +95,15 @@ void MLKEM_SAMPLE_getnoise(poly *r, const uint8_t *seed, uint8_t nonce, uint8_t 
     explicit_bzero(buf, sizeof(buf));
 }
 
+#define REJ_UNIFORM_BUFLEN_EXT (REJ_UNIFORM_BUFLEN + (XOF_BLOCKBYTES * 3U))
+
 void MLKEM_SAMPLE_rej_uniform(poly *r, const uint8_t *seed, uint8_t x, uint8_t y)
 {
-    uint8_t  buf[REJ_UNIFORM_BUFLEN]   = {0};
-    uint8_t  buf2[XOF_BLOCKBYTES * 3U] = {0};
-    uint32_t ctr                       = 0U;
-    uint32_t pos                       = 0U;
+    uint8_t  buf[REJ_UNIFORM_BUFLEN_EXT] = {0};
+    uint32_t ctr                         = 0U;
+    uint32_t pos                         = 0U;
 
-    MLKEM_UTIL_xof_squeeze(buf, REJ_UNIFORM_BUFLEN, seed, x, y);
+    MLKEM_UTIL_xof_squeeze(buf, sizeof(buf), seed, x, y);
 
     while ((ctr < MLKEM_N) && ((pos + 3U) <= REJ_UNIFORM_BUFLEN)) {
         int16_t val0 = (int16_t) (((buf[pos] >> 0U) | ((uint16_t) buf[pos + 1U] << 8U)) & 0xFFFU);
@@ -120,24 +119,19 @@ void MLKEM_SAMPLE_rej_uniform(poly *r, const uint8_t *seed, uint8_t x, uint8_t y
         }
     }
 
-    if (ctr < MLKEM_N) {
-        MLKEM_UTIL_xof_squeeze(buf2, sizeof(buf2), seed, x, y);
-        pos = 0U;
-        while ((ctr < MLKEM_N) && ((pos + 3U) <= sizeof(buf2))) {
-            int16_t val0
-                = (int16_t) (((buf2[pos] >> 0U) | ((uint16_t) buf2[pos + 1U] << 8U)) & 0xFFFU);
-            int16_t val1
-                = (int16_t) (((buf2[pos + 1U] >> 4U) | ((uint16_t) buf2[pos + 2U] << 4U)) & 0xFFFU);
-            pos += 3U;
-            if ((val0 < MLKEM_Q) && (ctr < MLKEM_N)) {
-                r->coeffs[ctr++] = val0;
-            }
-            if ((ctr < MLKEM_N) && (val1 < MLKEM_Q)) {
-                r->coeffs[ctr++] = val1;
-            }
+    // Fallback: continue consuming the tail of the XOF output
+    while ((ctr < MLKEM_N) && ((pos + 3U) <= REJ_UNIFORM_BUFLEN_EXT)) {
+        int16_t val0 = (int16_t) (((buf[pos] >> 0U) | ((uint16_t) buf[pos + 1U] << 8U)) & 0xFFFU);
+        int16_t val1
+            = (int16_t) (((buf[pos + 1U] >> 4U) | ((uint16_t) buf[pos + 2U] << 4U)) & 0xFFFU);
+        pos += 3U;
+        if ((val0 < MLKEM_Q) && (ctr < MLKEM_N)) {
+            r->coeffs[ctr++] = val0;
+        }
+        if ((ctr < MLKEM_N) && (val1 < MLKEM_Q)) {
+            r->coeffs[ctr++] = val1;
         }
     }
 
     explicit_bzero(buf, sizeof(buf));
-    explicit_bzero(buf2, sizeof(buf2));
 }

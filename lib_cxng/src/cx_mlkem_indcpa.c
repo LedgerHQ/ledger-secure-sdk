@@ -1,6 +1,5 @@
-/*******************************************************************************
- *   Ledger Nano S - Secure firmware
- *   (c) 2022 Ledger
+/*****************************************************************************
+ *   (c) 2026 Ledger SAS.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,8 +12,7 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- ********************************************************************************/
-
+ *****************************************************************************/
 /**
  * @file    cx_mlkem_indcpa.c
  * @brief   ML-KEM IND-CPA key encapsulation (FIPS 203).
@@ -48,8 +46,13 @@ cx_err_t MLKEM_INDCPA_keypair_derand(uint8_t                  *pk,
     polyvec        pkpv                              = {0};
     polyvec        skpv                              = {0};
 
-    (void) pk_len;
-    (void) sk_len;
+    if ((pk == NULL) || (sk == NULL) || (coins == NULL) || (p == NULL)) {
+        return CX_INVALID_PARAMETER;
+    }
+
+    if ((pk_len < p->indcpa_pk_bytes) || (sk_len < p->indcpa_sk_bytes)) {
+        return CX_INVALID_PARAMETER_SIZE;
+    }
 
     memcpy(coins_with_k, coins, MLKEM_SYMBYTES);
     coins_with_k[MLKEM_SYMBYTES] = p->k;
@@ -112,10 +115,13 @@ cx_err_t MLKEM_INDCPA_enc(uint8_t                  *c,
     poly    k                    = {0};
     poly    epp                  = {0};
 
-    // TODO: check lengths
-    (void) c_len;
-    (void) m_len;
-    (void) pk_len;
+    if ((c == NULL) || (m == NULL) || (pk == NULL) || (coins == NULL) || (p == NULL)) {
+        return CX_INVALID_PARAMETER;
+    }
+
+    if ((m_len < MLKEM_SYMBYTES) || (pk_len < p->indcpa_pk_bytes) || (c_len < p->indcpa_ct_bytes)) {
+        return CX_INVALID_PARAMETER_SIZE;
+    }
 
     MLKEM_POLYVEC_frombytes(&pkpv, pk, p->k);
     memcpy(seed, pk + p->polyvec_bytes, MLKEM_SYMBYTES);
@@ -183,10 +189,13 @@ cx_err_t MLKEM_INDCPA_dec(uint8_t                  *m,
     poly    v    = {0};
     poly    sb   = {0};
 
-    // TODO: check lengths
-    (void) c_len;
-    (void) m_len;
-    (void) sk_len;
+    if ((m == NULL) || (c == NULL) || (sk == NULL) || (p == NULL)) {
+        return CX_INVALID_PARAMETER;
+    }
+
+    if ((m_len < MLKEM_SYMBYTES) || (c_len < p->indcpa_ct_bytes) || (sk_len < p->indcpa_sk_bytes)) {
+        return CX_INVALID_PARAMETER_SIZE;
+    }
 
     MLKEM_POLYVEC_decompress(&b, c, p->k, p->du);
 
