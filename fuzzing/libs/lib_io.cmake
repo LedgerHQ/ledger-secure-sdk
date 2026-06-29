@@ -36,4 +36,6 @@ target_include_directories(
          "${BOLOS_SDK}/lib_stusb_impl/include"
          "${BOLOS_SDK}/lib_u2f/include"
          "${BOLOS_SDK}/lib_u2f_legacy/include"
-         "${BOLOS_SDK}/protocol/include")
+         "${BOLOS_SDK}/protocol/include"
+         # os_io_default_apdu.c includes address_book.h under HAVE_ADDRESS_BOOK.
+         "${BOLOS_SDK}/app_features/address_book/include")
