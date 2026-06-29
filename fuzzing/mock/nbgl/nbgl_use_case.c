@@ -107,6 +107,23 @@ void nbgl_useCaseChoiceWithDetails(const nbgl_icon_details_t *icon __attribute__
     }
 }
 
+void nbgl_useCaseAdvancedChoiceWithDetails(const nbgl_icon_details_t *centerIcon
+                                           __attribute__((unused)),
+                                           const nbgl_icon_details_t *headerIcon
+                                           __attribute__((unused)),
+                                           const char *title __attribute__((unused)),
+                                           const char *message __attribute__((unused)),
+                                           const char *subMessage __attribute__((unused)),
+                                           const char *confirmText __attribute__((unused)),
+                                           const char *cancelText __attribute__((unused)),
+                                           nbgl_warningDetails_t *details __attribute__((unused)),
+                                           nbgl_choiceCallback_t  callback)
+{
+    if (callback) {
+        callback(_nbgl_approve());
+    }
+}
+
 void nbgl_useCaseReviewStreamingStart(nbgl_operationType_t operationType __attribute__((unused)),
                                       const nbgl_icon_details_t *icon __attribute__((unused)),
                                       const char           *reviewTitle __attribute__((unused)),
