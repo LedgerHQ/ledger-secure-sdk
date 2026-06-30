@@ -24,9 +24,10 @@
 #define STR_IMPL_(x) #x
 #define STRINGIFY(x) STR_IMPL_(x)
 
-#define CREATE_METADATA_STRING_ITEM(ITEM_NAME, section_name)     \
-    __attribute__((section("ledger." #section_name), nonstring)) \
-    const char section_name[sizeof(ITEM_NAME) - 1]               \
+// used + retain to keep in case of LTO
+#define CREATE_METADATA_STRING_ITEM(ITEM_NAME, section_name)                   \
+    __attribute__((section("ledger." #section_name), nonstring, used, retain)) \
+    const char section_name[sizeof(ITEM_NAME) - 1]                             \
         = ITEM_NAME;
 
 #define CREATE_METADATA_STRING_ITEM_FROM_INT(ITEM_NAME, section_name) \
@@ -81,7 +82,7 @@ CREATE_METADATA_STRING_ITEM_FROM_INT(APP_FLAGS_APP_LOAD_PARAMS, app_flags)
 #endif
 
 #ifdef APP_INSTALL_PARAMS_DATA
-__attribute__((section(".install_parameters"))) const uint8_t install_parameters[]
+__attribute__((section(".install_parameters"), used, retain)) const uint8_t install_parameters[]
     = {APP_INSTALL_PARAMS_DATA};
 #endif
 
