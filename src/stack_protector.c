@@ -4,10 +4,19 @@
 
 #include "os_task.h"
 
-__attribute__((noreturn)) void __wrap___stack_chk_fail(void)
+// used and retain attributes to avoid LTO removing it
+__attribute__((noreturn, used, retain)) void __wrap___stack_chk_fail(void)
 {
-    // this magic value is an hint for developers
     os_sched_exit(37);
 }
+
+// in case of LTO build, __stack_chk_fail gets optimized out before it is redirected to
+// __wrap___stack_chk_fail, so it needs to be defined.
+#if defined(HAS_LTO)
+__attribute__((noreturn, used, retain, weak)) void __stack_chk_fail(void)
+{
+    os_sched_exit(37);
+}
+#endif
 
 #endif

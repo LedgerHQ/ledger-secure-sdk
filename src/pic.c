@@ -47,16 +47,16 @@ void *pic(void *link_address)
     void *n, *en;
 
     // check if in the LINKED TEXT zone
-    __asm volatile("ldr %0, =_nvram" : "=r"(n));
-    __asm volatile("ldr %0, =_envram" : "=r"(en));
+    __asm volatile("movw %0, #:lower16:_nvram\n\tmovt %0, #:upper16:_nvram" : "=r"(n));
+    __asm volatile("movw %0, #:lower16:_envram\n\tmovt %0, #:upper16:_envram" : "=r"(en));
     if (link_address >= n && link_address <= en) {
         link_address = pic_internal(link_address);
     }
 
 #ifndef BOLOS_OS_UPGRADER_APP
     // check if in the LINKED RAM zone
-    __asm volatile("ldr %0, =_bss" : "=r"(n));
-    __asm volatile("ldr %0, =_estack" : "=r"(en));
+    __asm volatile("movw %0, #:lower16:_bss\n\tmovt %0, #:upper16:_bss" : "=r"(n));
+    __asm volatile("movw %0, #:lower16:_estack\n\tmovt %0, #:upper16:_estack" : "=r"(en));
     if (link_address >= n && link_address <= en) {
         __asm volatile("mov %0, r9" : "=r"(en));
         // deref into the RAM therefore add the RAM offset from R9
