@@ -47,17 +47,7 @@ uint32_t cx_swap_uint32(uint32_t v)
 void cx_swap_buffer32(uint32_t *v, size_t len)
 {
     while (len--) {
-#ifdef ST31
-        unsigned int tmp;
-        tmp                                = ((unsigned char *) v)[len * 4 + 3];
-        ((unsigned char *) v)[len * 4 + 3] = ((unsigned char *) v)[len * 4];
-        ((unsigned char *) v)[len * 4]     = tmp;
-        tmp                                = ((unsigned char *) v)[len * 4 + 2];
-        ((unsigned char *) v)[len * 4 + 2] = ((unsigned char *) v)[len * 4 + 1];
-        ((unsigned char *) v)[len * 4 + 1] = tmp;
-#else
         v[len] = cx_swap_uint32(v[len]);
-#endif
     }
 }
 
