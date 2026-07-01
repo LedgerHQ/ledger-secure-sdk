@@ -2098,10 +2098,21 @@ static uint8_t getNbTagValuesInPage(uint8_t                           nbPairs,
             value_font, pair->value, AVAILABLE_WIDTH, tagValueList->wrapping);
         // honor list-level nbMaxLinesForValue: when set, the value will be
         // displayed truncated to that many lines, so account for its
-        // truncated height rather than its full height
-        if ((tagValueList->nbMaxLinesForValue > 0)
-            && (nbLines > tagValueList->nbMaxLinesForValue)) {
-            nbLines = tagValueList->nbMaxLinesForValue;
+        // truncated height rather than its full height.
+        // Caveat: review TAG_VALUE_LIST/TAG_VALUE_DETAILS pages always render
+        // up to NB_MAX_LINES_IN_REVIEW lines, because the display path forces
+        // nbMaxLinesForValue back to NB_MAX_LINES_IN_REVIEW (see
+        // genericContextPreparePageContent / displayReviewPage). So a list-level
+        // value smaller than NB_MAX_LINES_IN_REVIEW must NOT shorten the height
+        // estimate here, otherwise the page gets under-allocated and content is
+        // drawn off-screen. Only honor a value that the display will actually
+        // apply (i.e. >= NB_MAX_LINES_IN_REVIEW).
+        uint8_t effectiveMaxLines = tagValueList->nbMaxLinesForValue;
+        if ((effectiveMaxLines > 0) && (effectiveMaxLines < NB_MAX_LINES_IN_REVIEW)) {
+            effectiveMaxLines = 0;
+        }
+        if ((effectiveMaxLines > 0) && (nbLines > effectiveMaxLines)) {
+            nbLines = effectiveMaxLines;
             currentHeight += nbLines * nbgl_getFontLineHeight(value_font);
         }
         else {
