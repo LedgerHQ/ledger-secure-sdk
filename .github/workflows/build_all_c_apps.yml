@@ -28,7 +28,36 @@ jobs:
         id: get_c_apps
         run: |
           python .github/workflows/scripts/get_c_apps.py ${{ secrets.GITHUB_TOKEN }}
-          echo "c_apps=$(cat c_apps.json)" >> $GITHUB_OUTPUT
+          # PoC LTO: restrict to a small set of tier-1 apps to keep the matrix cheap.
+          python - <<'PY'
+          import json
+
+          REQUIRED_APPS = [
+              "app-bitcoin-new",
+              "app-ethereum",
+              "app-solana",
+              "app-exchange",
+          ]
+
+          with open("c_apps.json", encoding="utf-8") as f:
+              all_apps = json.load(f)
+
+          by_name = {a.get("app-name"): a for a in all_apps if isinstance(a, dict)}
+          selected, missing = [], []
+          for name in REQUIRED_APPS:
+              app = by_name.get(name)
+              if app is None:
+                  missing.append(name)
+              else:
+                  selected.append(app)
+
+          if missing:
+              raise SystemExit("Missing required apps in matrix source: " + ", ".join(missing))
+
+          with open("c_apps_limited.json", "w", encoding="utf-8") as f:
+              json.dump(selected, f)
+          PY
+          echo "c_apps=$(cat c_apps_limited.json)" >> $GITHUB_OUTPUT
 
   print-matrix:
     needs: [prepare-matrix]
@@ -45,18 +74,21 @@ jobs:
       fail-fast: false
       matrix:
         apps: ${{ fromJSON(needs.prepare-matrix.outputs.c_apps) }}
+        # PoC LTO: same image & SDK ref for every config, only the make flags differ,
+        # so size and (indicative) build-time deltas are attributable to LTO.
+        config:
+          - name: baseline
+            make_flags: ''
+          - name: lto
+            make_flags: 'ENABLE_LINK_TIME_OPTIMIZATION=1 ENABLE_STACK_PROTECTOR=0'
+          - name: lto-sp
+            make_flags: 'ENABLE_LINK_TIME_OPTIMIZATION=1 ENABLE_STACK_PROTECTOR=1'
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
     defaults:
       run:
         shell: bash
-    env:
-      # Some C apps embed a Rust component pinned (via rust-toolchain.toml) to a
-      # toolchain that differs from the one the builder image exports through
-      # RUSTUP_TOOLCHAIN. A set RUSTUP_TOOLCHAIN overrides that pin and breaks
-      # the build, so it is unset before make for these apps (see build steps).
-      RUSTUP_TOOLCHAIN_UNSET_APPS: "app-namada app-stacks"
 
     steps:
       - name: Clone App
@@ -69,48 +101,87 @@ jobs:
         uses: actions/checkout@v6
         with:
           path: sdk
-          ref: ${{ inputs.sdk_branch || github.head_ref }}
+          ref: ${{ inputs.sdk_branch || 'mbr/lto' }}
 
       - name: Install prerequisites
         run: pip install --break-system-packages ledgered
 
       - name: Build App for Nano X
         if: contains(matrix.apps.devices, 'nanox')
-        run: |
-          cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
-          echo "Building for Nano X"
-          if [[ " $RUSTUP_TOOLCHAIN_UNSET_APPS " == *" ${{ matrix.apps.app-name }} "* ]]; then unset RUSTUP_TOOLCHAIN; fi
-          make clean
-          make TARGET=nanox BOLOS_SDK=$GITHUB_WORKSPACE/sdk
+        run: bash "$GITHUB_WORKSPACE/sdk/.github/workflows/scripts/poc_lto_build_target.sh" nanox '${{ matrix.config.make_flags }}'
+        working-directory: ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
+      - name: Upload Nano X build
+        if: always() && contains(matrix.apps.devices, 'nanox')
+        uses: actions/upload-artifact@v4
+        with:
+          name: elf-${{ matrix.apps.app-name }}-nanox-${{ matrix.config.name }}
+          path: poc_out/nanox
+
       - name: Build App for Nano S+
         if: contains(matrix.apps.devices, 'nanos+')
-        run: |
-          cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
-          echo "Building for Nano S+"
-          if [[ " $RUSTUP_TOOLCHAIN_UNSET_APPS " == *" ${{ matrix.apps.app-name }} "* ]]; then unset RUSTUP_TOOLCHAIN; fi
-          make clean
-          make TARGET=nanos2 BOLOS_SDK=$GITHUB_WORKSPACE/sdk
+        run: bash "$GITHUB_WORKSPACE/sdk/.github/workflows/scripts/poc_lto_build_target.sh" nanos2 '${{ matrix.config.make_flags }}'
+        working-directory: ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
+      - name: Upload Nano S+ build
+        if: always() && contains(matrix.apps.devices, 'nanos+')
+        uses: actions/upload-artifact@v4
+        with:
+          name: elf-${{ matrix.apps.app-name }}-nanos2-${{ matrix.config.name }}
+          path: poc_out/nanos2
+
       - name: Build App for Stax
         if: contains(matrix.apps.devices, 'stax')
-        run: |
-          cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
-          echo "Building for Stax"
-          if [[ " $RUSTUP_TOOLCHAIN_UNSET_APPS " == *" ${{ matrix.apps.app-name }} "* ]]; then unset RUSTUP_TOOLCHAIN; fi
-          make clean
-          make TARGET=stax BOLOS_SDK=$GITHUB_WORKSPACE/sdk
+        run: bash "$GITHUB_WORKSPACE/sdk/.github/workflows/scripts/poc_lto_build_target.sh" stax '${{ matrix.config.make_flags }}'
+        working-directory: ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
+      - name: Upload Stax build
+        if: always() && contains(matrix.apps.devices, 'stax')
+        uses: actions/upload-artifact@v4
+        with:
+          name: elf-${{ matrix.apps.app-name }}-stax-${{ matrix.config.name }}
+          path: poc_out/stax
+
       - name: Build App for Flex
         if: contains(matrix.apps.devices, 'flex')
-        run: |
-          cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
-          echo "Building for Flex"
-          if [[ " $RUSTUP_TOOLCHAIN_UNSET_APPS " == *" ${{ matrix.apps.app-name }} "* ]]; then unset RUSTUP_TOOLCHAIN; fi
-          make clean
-          make TARGET=flex BOLOS_SDK=$GITHUB_WORKSPACE/sdk
+        run: bash "$GITHUB_WORKSPACE/sdk/.github/workflows/scripts/poc_lto_build_target.sh" flex '${{ matrix.config.make_flags }}'
+        working-directory: ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
+      - name: Upload Flex build
+        if: always() && contains(matrix.apps.devices, 'flex')
+        uses: actions/upload-artifact@v4
+        with:
+          name: elf-${{ matrix.apps.app-name }}-flex-${{ matrix.config.name }}
+          path: poc_out/flex
+
       - name: Build App for Apex+
         if: contains(matrix.apps.devices, 'apex_p')
-        run: |
-          cd ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
-          echo "Building for Apex+"
-          if [[ " $RUSTUP_TOOLCHAIN_UNSET_APPS " == *" ${{ matrix.apps.app-name }} "* ]]; then unset RUSTUP_TOOLCHAIN; fi
-          make clean
-          make TARGET=apex_p BOLOS_SDK=$GITHUB_WORKSPACE/sdk
+        run: bash "$GITHUB_WORKSPACE/sdk/.github/workflows/scripts/poc_lto_build_target.sh" apex_p '${{ matrix.config.make_flags }}'
+        working-directory: ${{ matrix.apps.app-name }}/${{ matrix.apps.build-directory }}
+      - name: Upload Apex+ build
+        if: always() && contains(matrix.apps.devices, 'apex_p')
+        uses: actions/upload-artifact@v4
+        with:
+          name: elf-${{ matrix.apps.app-name }}-apex_p-${{ matrix.config.name }}
+          path: poc_out/apex_p
+
+  compare-builds:
+    name: Compare builds (size & time)
+    needs: [test-build]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: elf-*-*-*
+          path: downloaded_artifacts
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends binutils
+      - name: Build comparison tables
+        run: python3 .github/workflows/scripts/poc_lto_compare.py downloaded_artifacts poc_lto.md
+      - name: Publish to summary
+        run: cat poc_lto.md >> $GITHUB_STEP_SUMMARY
+      - name: Upload comparison
+        uses: actions/upload-artifact@v4
+        with:
+          name: poc-lto-comparison
+          path: poc_lto.md
