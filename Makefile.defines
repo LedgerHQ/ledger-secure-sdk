@@ -104,6 +104,12 @@ ifneq ($(ENABLE_STACK_PROTECTOR),0)
 	CFLAGS   += -fstack-protector-strong
 endif
 
+ENABLE_LINK_TIME_OPTIMIZATION ?= 0
+ifneq ($(ENABLE_LINK_TIME_OPTIMIZATION),0)
+	LDFLAGS  += -Wl,-mllvm,-relocation-model=ropi-rwpi -flto
+	CFLAGS   += -flto -DHAS_LTO
+endif
+
 ifeq ($(TARGET_NAME),TARGET_NANOX)
     CPU       = cortex-m3
     CFLAGS   += -frwpi
