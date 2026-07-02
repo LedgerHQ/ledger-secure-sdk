@@ -1463,6 +1463,9 @@ static void getContentPage(bool toogle_state, PageContent_t *contentPage)
     char                     **texts          = NULL;
     p_content = getContentElemAtIdx(context.currentPage, &elemIdx, &content);
     if (p_content == NULL) {
+        LOG_WARN(USE_CASE_LOGGER,
+                 "getContentPage(): p_content is NULL for page %d\n",
+                 context.currentPage);
         return;
     }
     switch (p_content->type) {

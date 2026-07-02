@@ -1067,7 +1067,16 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
 
     // get top container from main container (it shall be the 1st object)
     mainContainer = (nbgl_container_t *) layoutInt->container->children[0];
-    container     = (nbgl_container_t *) mainContainer->children[1];
+    if ((mainContainer == NULL) || (mainContainer->obj.type != CONTAINER)) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateKeyboardContent(): main container not found\n");
+        return -1;
+    }
+    container = (nbgl_container_t *) mainContainer->children[1];
+    if ((container == NULL) || (container->obj.type != CONTAINER)) {
+        LOG_WARN(LAYOUT_LOGGER,
+                 "nbgl_layoutUpdateKeyboardContent(): text entry container not found\n");
+        return -1;
+    }
 
     if (content->numbered) {
         // get Word number typed text
@@ -1102,6 +1111,11 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
         nbActiveButtons = content->suggestionButtons.nbUsedButtons;
         nbgl_container_t *suggestionsContainer
             = (nbgl_container_t *) layoutInt->container->children[1];
+        if ((suggestionsContainer == NULL) || (suggestionsContainer->obj.type != CONTAINER)) {
+            LOG_WARN(LAYOUT_LOGGER,
+                     "nbgl_layoutUpdateKeyboardContent(): suggestions container not found\n");
+            return -1;
+        }
 
         // update suggestion texts
         for (i = 0; i < NB_MAX_SUGGESTION_BUTTONS; i++) {
