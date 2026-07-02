@@ -356,8 +356,11 @@ int nbgl_layoutUpdateHiddenDigits(nbgl_layout_t *layout, uint8_t index, uint8_t 
             if (nbActive == container->nbChildren) {
                 return 0;
             }
-            // deactivate the next digit
-            image                  = (nbgl_image_t *) container->children[nbActive];
+            // deactivate the next digit — guard against the underline object at children[nbDigits]
+            image = (nbgl_image_t *) container->children[nbActive];
+            if ((image == NULL) || (image->obj.type != IMAGE)) {
+                return 0;
+            }
             image->foregroundColor = WHITE;
         }
         else {

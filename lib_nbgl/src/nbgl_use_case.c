@@ -3858,6 +3858,8 @@ void nbgl_useCaseAdvancedChoiceWithDetails(const nbgl_icon_details_t *centerIcon
     // clang-format on
 
     if ((confirmText == NULL) || (cancelText == NULL)) {
+        LOG_WARN(USE_CASE_LOGGER,
+                 "nbgl_useCaseAdvancedChoiceWithDetails(): confirmText or cancelText is NULL\n");
         return;
     }
 
