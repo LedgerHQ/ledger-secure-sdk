@@ -11,46 +11,41 @@ if(NOT WIN32)
   string(ASCII 27 Esc)
   set(Blue "${Esc}[34m")
   set(ColourReset "${Esc}[m")
-  set(White "${Esc}[37m")
 endif()
 
-# --- Setup generation paths ---
-set(GEN_SYSCALLS_DIR "${BOLOS_SDK}/fuzzing/mock/generated")
+set(GEN_SYSCALLS_DIR "${BOLOS_SDK}/fuzzing/mock/_generated")
 file(MAKE_DIRECTORY ${GEN_SYSCALLS_DIR})
 set(GEN_SYSCALLS_OUTPUT "${GEN_SYSCALLS_DIR}/generated_syscalls.c")
 
-# --- Custom command to generate syscall mocks ---
 add_custom_command(
   OUTPUT ${GEN_SYSCALLS_OUTPUT}
   COMMAND ${Python3_EXECUTABLE} ${BOLOS_SDK}/fuzzing/mock/gen_mock.py
           ${BOLOS_SDK}/src/syscalls.c ${GEN_SYSCALLS_OUTPUT}
-  COMMENT "${Blue}Generating syscalls...${ColourReset}"
+  COMMENT "${Blue}Generating syscall mocks...${ColourReset}"
   VERBATIM)
 
-# --- Custom target to group generation ---
-add_custom_target(generate_syscalls_only DEPENDS ${GEN_SYSCALLS_OUTPUT})
-
-# --- List mock sources (exclude GLOB on custom mocks) ---
-file(GLOB CUSTOM_MOCK_SOURCES "${BOLOS_SDK}/fuzzing/mock/custom/*.c")
+add_custom_target(generate_syscalls DEPENDS ${GEN_SYSCALLS_OUTPUT})
 
 set(LIB_MOCK_SOURCES
-    ${BOLOS_SDK}/src/os.c ${BOLOS_SDK}/src/ledger_assert.c
-    ${BOLOS_SDK}/src/cx_wrappers.c ${BOLOS_SDK}/src/cx_hash_iovec.c
-    ${CUSTOM_MOCK_SOURCES} ${GEN_SYSCALLS_OUTPUT})
+    ${BOLOS_SDK}/fuzzing/mock/cx/cx_bn_ec.c
+    ${BOLOS_SDK}/fuzzing/mock/cx/cx_crypto.c
+    ${BOLOS_SDK}/fuzzing/mock/nbgl/nbgl_runtime.c
+    ${BOLOS_SDK}/fuzzing/mock/nbgl/nbgl_use_case.c
+    ${BOLOS_SDK}/fuzzing/mock/os/os_exceptions.c
+    ${BOLOS_SDK}/fuzzing/mock/os/os_runtime.c
+    ${BOLOS_SDK}/fuzzing/mock/os/pic.c
+    ${BOLOS_SDK}/src/os.c
+    ${BOLOS_SDK}/src/ledger_assert.c
+    ${BOLOS_SDK}/src/cx_wrappers.c
+    ${GEN_SYSCALLS_OUTPUT})
 
-# --- Add library and hook up dependencies ---
 add_library(mock ${LIB_MOCK_SOURCES})
-add_dependencies(mock generate_syscalls_only)
+add_dependencies(mock generate_syscalls)
 
 target_link_libraries(mock PUBLIC macros cxng nbgl standard_app)
-target_compile_options(mock PUBLIC ${COMPILATION_FLAGS}
-                                   -Wno-pointer-to-int-cast)
+target_compile_options(mock PRIVATE ${COMPILATION_FLAGS})
+target_compile_options(mock PUBLIC -Wno-pointer-to-int-cast)
 target_include_directories(
   mock
-  PUBLIC "${BOLOS_SDK}/lib_cxng/include/"
-         "${BOLOS_SDK}/target/${TARGET}/include/"
-         "${BOLOS_SDK}/lib_standard_app/"
-         "${BOLOS_SDK}/include/"
-         "${BOLOS_SDK}/fuzzing/mock/custom/"
-         "${BOLOS_SDK}/fuzzing/mock/generated/"
-         "${BOLOS_SDK}/target/${TARGET}/")
+  PRIVATE "${BOLOS_SDK}/fuzzing/mock/_generated"
+          "${BOLOS_SDK}/target/${TARGET}")
