@@ -95,6 +95,7 @@ int nbgl_layoutAddKeypad(nbgl_layout_t *layout, keyboardCallback_t callback, boo
     }
     // footer must be empty
     if (layoutInt->footerContainer != NULL) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddKeypad(): footer already set\n");
         return -1;
     }
 
@@ -167,6 +168,7 @@ int nbgl_layoutUpdateKeypad(nbgl_layout_t *layout,
     // get existing keypad (in the footer container)
     keypad = (nbgl_keypad_t *) layoutInt->footerContainer->children[0];
     if ((keypad == NULL) || (keypad->obj.type != KEYPAD)) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateKeypad(): keypad not found at index %d\n", index);
         return -1;
     }
     // partial redraw only if only validate and backspace have changed
@@ -203,6 +205,7 @@ int nbgl_layoutUpdateKeypadValidation(nbgl_layout_t *layout, bool softValidation
     // get existing keypad (in the footer container)
     keypad = (nbgl_keypad_t *) layoutInt->footerContainer->children[0];
     if ((keypad == NULL) || (keypad->obj.type != KEYPAD)) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateKeypadValidation(): keypad not found\n");
         return -1;
     }
     keypad->softValidation = softValidation;
@@ -321,15 +324,21 @@ int nbgl_layoutUpdateHiddenDigits(nbgl_layout_t *layout, uint8_t index, uint8_t 
     container = (nbgl_container_t *) layoutInt->container->children[index];
     // sanity check
     if ((container == NULL) || (container->obj.type != CONTAINER)) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateHiddenDigits(): container not found\n");
         return -1;
     }
     if (nbActive > container->nbChildren) {
+        LOG_WARN(LAYOUT_LOGGER,
+                 "nbgl_layoutUpdateHiddenDigits(): nbActive %d > nbChildren %d\n",
+                 nbActive,
+                 container->nbChildren);
         return -1;
     }
     if (nbActive == 0) {
         // deactivate the first digit
         image = (nbgl_image_t *) container->children[0];
         if ((image == NULL) || (image->obj.type != IMAGE)) {
+            LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateHiddenDigits(): image not found\n");
             return -1;
         }
         image->foregroundColor = WHITE;
@@ -337,6 +346,7 @@ int nbgl_layoutUpdateHiddenDigits(nbgl_layout_t *layout, uint8_t index, uint8_t 
     else {
         image = (nbgl_image_t *) container->children[nbActive - 1];
         if ((image == NULL) || (image->obj.type != IMAGE)) {
+            LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateHiddenDigits(): image not found\n");
             return -1;
         }
         // if the last "active" is already active, it means that we are decreasing the number of
@@ -423,6 +433,10 @@ int nbgl_layoutAddKeypadContent(nbgl_layout_t *layout,
         uint8_t           space;
 
         if (nbDigits > KEYPAD_MAX_DIGITS) {
+            LOG_WARN(LAYOUT_LOGGER,
+                     "nbgl_layoutAddKeypadContent(): nbDigits %d > KEYPAD_MAX_DIGITS %d\n",
+                     nbDigits,
+                     KEYPAD_MAX_DIGITS);
             return -1;
         }
         // space between "digits"
@@ -550,15 +564,21 @@ int nbgl_layoutUpdateKeypadContent(nbgl_layout_t *layout,
                         ->children[1];
         // sanity check
         if ((container == NULL) || (container->obj.type != CONTAINER)) {
+            LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateKeypadContent(): container not found\n");
             return -1;
         }
         if (nbActiveDigits > container->nbChildren) {
+            LOG_WARN(LAYOUT_LOGGER,
+                     "nbgl_layoutUpdateKeypadContent(): nbActive %d > nbChildren %d\n",
+                     nbActiveDigits,
+                     container->nbChildren);
             return -1;
         }
         if (nbActiveDigits == 0) {
             // deactivate the first digit
             image = (nbgl_image_t *) container->children[0];
             if ((image == NULL) || (image->obj.type != IMAGE)) {
+                LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateKeypadContent(): image not found\n");
                 return -1;
             }
             image->foregroundColor = WHITE;
@@ -566,6 +586,7 @@ int nbgl_layoutUpdateKeypadContent(nbgl_layout_t *layout,
         else {
             image = (nbgl_image_t *) container->children[nbActiveDigits - 1];
             if ((image == NULL) || (image->obj.type != IMAGE)) {
+                LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateKeypadContent(): image not found\n");
                 return -1;
             }
             // if the last "active" is already active, it means that we are decreasing the number of
@@ -593,6 +614,7 @@ int nbgl_layoutUpdateKeypadContent(nbgl_layout_t *layout,
             = (nbgl_text_area_t *) ((nbgl_container_t *) layoutInt->container->children[0])
                   ->children[1];
         if ((textArea == NULL) || (textArea->obj.type != TEXT_AREA)) {
+            LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateKeypadContent(): text area not found\n");
             return -1;
         }
         textArea->text          = text;
