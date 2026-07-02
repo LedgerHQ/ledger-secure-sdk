@@ -1334,7 +1334,7 @@ int nbgl_layoutAddNavigationBar(nbgl_layout_t *layout, const nbgl_layoutNavigati
 
 /**
  * @brief Creates a centered button at bottom of main container
- * @brief incompatible with navigation bar
+ * @note incompatible with navigation bar
  *
  * @param layout the current layout
  * @param icon icon inside the round button
