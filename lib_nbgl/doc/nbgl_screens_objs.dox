@@ -5,7 +5,8 @@ This chapter describes briefly how \b NBGL manages the screens stack and the dyn
 
 @section nbgl_screens_mngt Screens stack management
 
-All windows are full screens, some of them are considered as modals when they are displayed on top of existing ones, catching all user events (on Touchscreen), and giving back the display (and the focus) once they are dismissed.
+All windows are full screens, some of them are considered as modals when they are displayed on top of existing ones,
+catching all user events (on Touchscreen), and giving back the display (and the focus) once they are dismissed.
 
 Let's take the simple example of pin-validation window, which is displayed automatically after a period of inactivity, when the wallet is locked:
 
@@ -17,7 +18,8 @@ That's why it is created in a separate layer, called *screen*.
 
 *Screens* are organized in a stack. The top of the stack is recovering the previous screen, which is recovering the previous one, and so on.
 
-Even if its size is static, the screens stack is considered as empty at start-up. Then most of windows (and even all of them for applications) are simply created in the background layer of the stack (index 0), by using @ref nbgl_screenSet() function.
+Even if its size is static, the screens stack is considered as empty at start-up. Then most of windows (and even all of them for applications)
+are simply created in the background layer of the stack (index 0), by using @ref nbgl_screenSet() function.
 
 When a modal window needs to be displayed, a new screen is pushed on the stack and graphical objects are attached to this new screen as its children (@ref nbgl_screenPush() function)
 

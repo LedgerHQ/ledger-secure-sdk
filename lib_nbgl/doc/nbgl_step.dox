@@ -38,6 +38,7 @@ A few APIs are available to draw typical pages, like:
 - @ref nbgl_stepDrawText() to draw a text and a sub-text on one or several lines/pages, with navigation
 - @ref nbgl_stepDrawCenteredInfo() to draw an icon, a text and a sub-text in a single page, with navigation
 - @ref nbgl_stepDrawMenuList() to draw a menu list, with navigation
+- @ref nbgl_stepDrawSwitch() to draw a toggle switch with its name and description, with navigation
 
 @subsection step_typical_types Typical step types
 
@@ -98,6 +99,26 @@ The API to insert such an object is @ref nbgl_stepDrawMenuList() with:
 - A potential ticker configuration.
 - The menu list description structure
 - The position of the step in a flow (see @subpage step_positioning)
+- A boolean to indicate whether this step is modal or not
+
+To retrieve the index of the item currently selected in a menu list step, use @ref nbgl_stepGetMenuListCurrent() with:
+
+- The step context returned by @ref nbgl_stepDrawMenuList()
+
+It returns the zero-based index of the currently highlighted menu entry.
+
+@subsubsection step_switch_type Switch Step
+
+This type is intended to draw a single toggle switch with its name and an optional description, in a single page, with navigation arrows.
+
+@note The switch name must fit on one line; the description may span at most two lines.
+
+The API to insert such an object is @ref nbgl_stepDrawSwitch() with:
+
+- The position of the step in a flow (see @subpage step_positioning)
+- A callback to handle the actions on buttons (left, right or both)
+- A potential ticker configuration.
+- A pointer to the switch description structure (@ref nbgl_layoutSwitch_t), containing the switch name, description and initial state
 - A boolean to indicate whether this step is modal or not
 
 @subsection step_release Releasing a step
