@@ -136,6 +136,7 @@ static void actionCallback(nbgl_step_t stepCtx, nbgl_buttonEvent_t event)
     FlowContext_t      *ctx = getContextFromStepCtx(stepCtx);
 
     if (!ctx) {
+        LOG_WARN(FLOW_LOGGER, "actionCallback(): ctx not found\n");
         return;
     }
     LOG_DEBUG(FLOW_LOGGER, "actionCallback: event = 0x%X, step = %d\n", event, ctx->curStep);
@@ -208,6 +209,7 @@ nbgl_flow_t nbgl_flowDraw(const nbgl_stepDesc_t *steps,
     FlowContext_t      *ctx = getFreeContext(modal);
 
     if (!ctx) {
+        LOG_WARN(FLOW_LOGGER, "nbgl_flowDraw(): no free context\n");
         return NULL;
     }
 

@@ -345,6 +345,7 @@ static void actionCallback(nbgl_layout_t *layout, nbgl_buttonEvent_t event)
     StepContext_t *ctx = getContextFromLayout(layout);
 
     if (!ctx) {
+        LOG_WARN(STEP_LOGGER, "actionCallback(): ctx not found\n");
         return;
     }
     if (event == BUTTON_LEFT_PRESSED) {
@@ -415,6 +416,7 @@ static void menuListActionCallback(nbgl_layout_t *layout, nbgl_buttonEvent_t eve
 {
     StepContext_t *ctx = getContextFromLayout(layout);
     if (!ctx) {
+        LOG_WARN(STEP_LOGGER, "menuListActionCallback(): ctx not found\n");
         return;
     }
 
@@ -470,6 +472,7 @@ nbgl_step_t nbgl_stepDrawText(nbgl_stepPosition_t               pos,
 #endif  // BUILD_SCREENSHOTS
     StepContext_t *ctx = getFreeContext(TEXT_STEP, modal);
     if (!ctx) {
+        LOG_WARN(STEP_LOGGER, "nbgl_stepDrawText(): no free context\n");
         return NULL;
     }
     // initialize context (already set to 0 by getFreeContext())
@@ -574,6 +577,7 @@ nbgl_step_t nbgl_stepDrawCenteredInfo(nbgl_stepPosition_t               pos,
     };
     StepContext_t *ctx = getFreeContext(CENTERED_INFO_STEP, modal);
     if (!ctx) {
+        LOG_WARN(STEP_LOGGER, "nbgl_stepDrawCenteredInfo(): no free context\n");
         return NULL;
     }
 
@@ -623,6 +627,7 @@ nbgl_step_t nbgl_stepDrawMenuList(nbgl_stepMenuListCallback_t       onActionCall
 {
     StepContext_t *ctx = getFreeContext(MENU_LIST_STEP, modal);
     if (!ctx) {
+        LOG_WARN(STEP_LOGGER, "nbgl_stepDrawMenuList(): no free context\n");
         return NULL;
     }
 
@@ -685,6 +690,7 @@ nbgl_step_t nbgl_stepDrawSwitch(nbgl_stepPosition_t               pos,
     };
     StepContext_t *ctx = getFreeContext(CENTERED_INFO_STEP, modal);
     if (!ctx) {
+        LOG_WARN(STEP_LOGGER, "nbgl_stepDrawSwitch(): no free context\n");
         return NULL;
     }
 

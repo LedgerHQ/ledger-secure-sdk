@@ -382,6 +382,9 @@ static const char *getChoiceName(uint8_t choiceIndex)
 
     p_content = getContentElemAtIdx(context.currentPage, &elemIdx, &content);
     if (p_content == NULL) {
+        LOG_WARN(USE_CASE_LOGGER,
+                 "getChoiceName(): p_content is NULL for page %d\n",
+                 context.currentPage);
         return NULL;
     }
     switch (p_content->type) {
@@ -417,6 +420,9 @@ static void onChoiceSelected(uint8_t choiceIndex)
 
     p_content = getContentElemAtIdx(context.currentPage, &elemIdx, &content);
     if (p_content == NULL) {
+        LOG_WARN(USE_CASE_LOGGER,
+                 "onChoiceSelected(): p_content is NULL for page %d\n",
+                 context.currentPage);
         return;
     }
     switch (p_content->type) {
@@ -553,6 +559,9 @@ static void onSwitchAction(void)
 
     p_content = getContentElemAtIdx(context.currentPage, &elemIdx, &content);
     if ((p_content == NULL) || (p_content->type != SWITCHES_LIST)) {
+        LOG_WARN(USE_CASE_LOGGER,
+                 "onSwitchAction(): p_content is NULL or not a switches list for page %d\n",
+                 context.currentPage);
         return;
     }
     contentSwitch
@@ -3379,12 +3388,16 @@ void nbgl_useCaseKeypad(const char             *title,
     // add keypad
     status = nbgl_layoutAddKeypad(context.keypad.layoutCtx, keypadCallback, title, shuffled);
     if (status < 0) {
+        LOG_WARN(
+            USE_CASE_LOGGER, "nbgl_useCaseKeypad(): layout setup failed (status=%d)\n", status);
         return;
     }
     context.keypad.keypadIndex = status;
     // add digits
     status = nbgl_layoutAddKeypadContent(context.keypad.layoutCtx, hidden, maxDigits, "");
     if (status < 0) {
+        LOG_WARN(
+            USE_CASE_LOGGER, "nbgl_useCaseKeypad(): layout setup failed (status=%d)\n", status);
         return;
     }
 
@@ -3477,6 +3490,8 @@ void nbgl_useCaseKeyboard(const nbgl_keyboardParams_t *params, nbgl_callback_t b
     // Add keyboard
     status = nbgl_layoutAddKeyboard(context.keyboard.layoutCtx, &kbdInfo);
     if (status < 0) {
+        LOG_WARN(
+            USE_CASE_LOGGER, "nbgl_useCaseKeyboard(): layout setup failed (status=%d)\n", status);
         return;
     }
     context.keyboard.keyboardIndex = status;
@@ -3484,6 +3499,8 @@ void nbgl_useCaseKeyboard(const nbgl_keyboardParams_t *params, nbgl_callback_t b
     // add empty entered text
     status = nbgl_layoutAddEnteredText(context.keyboard.layoutCtx, "", true);
     if (status < 0) {
+        LOG_WARN(
+            USE_CASE_LOGGER, "nbgl_useCaseKeyboard(): layout setup failed (status=%d)\n", status);
         return;
     }
     context.keyboard.textIndex = status;

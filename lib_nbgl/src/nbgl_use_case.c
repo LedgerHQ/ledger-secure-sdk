@@ -840,7 +840,11 @@ static void displaySettingsPage(uint8_t page, bool forceFullRefresh)
 {
     nbgl_pageContent_t content = {0};
 
-    if ((onNav == NULL) || (onNav(page, &content) == false)) {
+    if (onNav == NULL) {
+        LOG_WARN(USE_CASE_LOGGER, "displaySettingsPage(): onNav callback is NULL\n");
+        return;
+    }
+    if (onNav(page, &content) == false) {
         return;
     }
 
@@ -871,7 +875,11 @@ static void displayReviewPage(uint8_t page, bool forceFullRefresh)
         return;
     }
     navInfo.activePage = page;
-    if ((onNav == NULL) || (onNav(navInfo.activePage, &content) == false)) {
+    if (onNav == NULL) {
+        LOG_WARN(USE_CASE_LOGGER, "displayReviewPage(): onNav callback is NULL\n");
+        return;
+    }
+    if (onNav(navInfo.activePage, &content) == false) {
         return;
     }
 
@@ -3747,6 +3755,7 @@ void nbgl_useCaseChoice(const nbgl_icon_details_t *icon,
     nbgl_pageConfirmationDescription_t info = {0};
     // check params
     if ((confirmText == NULL) || (cancelText == NULL)) {
+        LOG_WARN(USE_CASE_LOGGER, "nbgl_useCaseChoice(): confirmText or cancelText is NULL\n");
         return;
     }
     reset_callbacks_and_context();
@@ -4777,6 +4786,11 @@ void nbgl_useCaseKeypad(const char             *title,
     int                      status            = -1;
 
     if ((minDigits > KEYPAD_MAX_DIGITS) || (maxDigits > KEYPAD_MAX_DIGITS)) {
+        LOG_WARN(USE_CASE_LOGGER,
+                 "nbgl_useCaseKeypad(): digits out of range (%d/%d > %d)\n",
+                 minDigits,
+                 maxDigits,
+                 KEYPAD_MAX_DIGITS);
         return;
     }
 
@@ -4798,12 +4812,16 @@ void nbgl_useCaseKeypad(const char             *title,
     // add keypad
     status = nbgl_layoutAddKeypad(keypadContext.layoutCtx, keypadCallback, shuffled);
     if (status < 0) {
+        LOG_WARN(
+            USE_CASE_LOGGER, "nbgl_useCaseKeypad(): layout setup failed (status=%d)\n", status);
         return;
     }
     // add keypad content
     status = nbgl_layoutAddKeypadContent(
         keypadContext.layoutCtx, title, keypadContext.hidden, maxDigits, "");
     if (status < 0) {
+        LOG_WARN(
+            USE_CASE_LOGGER, "nbgl_useCaseKeypad(): layout setup failed (status=%d)\n", status);
         return;
     }
 
@@ -4876,6 +4894,8 @@ void nbgl_useCaseKeyboard(const nbgl_keyboardParams_t *params, nbgl_callback_t b
     // Add keyboard
     status = nbgl_layoutAddKeyboard(keyboardContext.layoutCtx, &kbdInfo);
     if (status < 0) {
+        LOG_WARN(
+            USE_CASE_LOGGER, "nbgl_useCaseKeyboard(): layout setup failed (status=%d)\n", status);
         return;
     }
     keyboardContext.keyboardIndex  = status;
@@ -4918,6 +4938,8 @@ void nbgl_useCaseKeyboard(const nbgl_keyboardParams_t *params, nbgl_callback_t b
     status = nbgl_layoutAddKeyboardContent(keyboardContext.layoutCtx,
                                            &keyboardContext.keyboardContent);
     if (status < 0) {
+        LOG_WARN(
+            USE_CASE_LOGGER, "nbgl_useCaseKeyboard(): layout setup failed (status=%d)\n", status);
         return;
     }
 
