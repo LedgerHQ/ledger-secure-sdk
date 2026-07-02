@@ -2115,6 +2115,10 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
     if (layout == NULL) {
         return -1;
     }
+    if ((list->pairs == NULL) && (list->callback == NULL)) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddTagValueList(): pairs and callback are both NULL\n");
+        return -1;
+    }
 
     for (i = 0; i < list->nbPairs; i++) {
         const nbgl_layoutTagValue_t *pair;
@@ -2130,6 +2134,12 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
         }
         else {
             pair = list->callback(list->startIndex + i);
+            if (pair == NULL) {
+                LOG_WARN(LAYOUT_LOGGER,
+                         "nbgl_layoutAddTagValueList(): callback returned NULL for index %d\n",
+                         i);
+                return -1;
+            }
         }
 
         container = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
@@ -2139,7 +2149,8 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
         if ((pair->valueIcon != NULL) || pair->aliasValue) {
             nbChildren++;
             // if it's a alias with a subName, add a child
-            if ((pair->aliasValue) && (pair->extension->aliasSubName)) {
+            if ((pair->aliasValue) && (pair->extension != NULL)
+                && (pair->extension->aliasSubName)) {
                 nbChildren++;
             }
         }
@@ -2237,7 +2248,8 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
             container->nbChildren++;
 
             // if an aliasSubName is provided, display it under value
-            if ((pair->aliasValue) && (pair->extension->aliasSubName)) {
+            if ((pair->aliasValue) && (pair->extension != NULL)
+                && (pair->extension->aliasSubName)) {
                 nbgl_text_area_t *textArea
                     = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, layoutInt->layer);
                 textArea->textColor            = BLACK;
@@ -2621,7 +2633,7 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
     layoutInt->headerContainer->obj.area.width = SCREEN_WIDTH;
     layoutInt->headerContainer->layout         = VERTICAL;
     layoutInt->headerContainer->children
-        = (nbgl_obj_t **) nbgl_containerPoolGet(5, layoutInt->layer);
+        = (nbgl_obj_t **) nbgl_containerPoolGet(6, layoutInt->layer);
     layoutInt->headerContainer->obj.alignment = TOP_MIDDLE;
 
     switch (headerDesc->type) {
@@ -2759,7 +2771,7 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
 
                 actionButton->obj.alignment = MID_RIGHT;
                 actionButton->innerColor    = WHITE;
-                button->foregroundColor
+                actionButton->foregroundColor
                     = (headerDesc->extendedBack.actionToken != NBGL_INVALID_TOKEN) ? BLACK
                                                                                    : LIGHT_GRAY;
                 actionButton->borderColor     = WHITE;

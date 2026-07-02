@@ -3186,6 +3186,12 @@ static void displayTagValueListModal(const nbgl_contentTagValueList_t *tagValues
     nbElements = tagValues->nbPairs;
 
     while (nbElements > 0) {
+        if (detailsContext.nbPages >= MAX_MODAL_PAGE_NB) {
+            LOG_WARN(USE_CASE_LOGGER,
+                     "displayTagValueListModal(): too many pages, truncating at %d\n",
+                     MAX_MODAL_PAGE_NB);
+            break;
+        }
         nbElementsInPage = getNbTagValuesInDetailsPage(nbElements, tagValues, elemIdx);
 
         elemIdx += nbElementsInPage;
@@ -3259,11 +3265,11 @@ uint8_t nbgl_useCaseGetNbInfosInPage(uint8_t                       nbInfos,
                                      uint8_t                       startIndex,
                                      bool                          withNav)
 {
-    uint8_t            nbInfosInPage = 0;
-    uint16_t           currentHeight = 0;
-    uint16_t           previousHeight;
-    uint16_t           navHeight    = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
-    const char *const *infoContents = PIC(infosList->infoContents);
+    uint8_t            nbInfosInPage  = 0;
+    uint16_t           currentHeight  = 0;
+    uint16_t           previousHeight = 0;
+    uint16_t           navHeight      = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
+    const char *const *infoContents   = PIC(infosList->infoContents);
 
     while (nbInfosInPage < nbInfos) {
         // The type string must be a 1 liner and its height is LIST_ITEM_MIN_TEXT_HEIGHT
@@ -3355,10 +3361,10 @@ uint8_t nbgl_useCaseGetNbBarsInPage(uint8_t                       nbBars,
                                     uint8_t                       startIndex,
                                     bool                          withNav)
 {
-    uint8_t  nbBarsInPage  = 0;
-    uint16_t currentHeight = 0;
-    uint16_t previousHeight;
-    uint16_t navHeight = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
+    uint8_t  nbBarsInPage   = 0;
+    uint16_t currentHeight  = 0;
+    uint16_t previousHeight = 0;
+    uint16_t navHeight      = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
 
     UNUSED(barsList);
     UNUSED(startIndex);
@@ -3396,8 +3402,8 @@ uint8_t nbgl_useCaseGetNbChoicesInPage(uint8_t                          nbChoice
 {
     uint8_t  nbChoicesInPage = 0;
     uint16_t currentHeight   = 0;
-    uint16_t previousHeight;
-    uint16_t navHeight = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
+    uint16_t previousHeight  = 0;
+    uint16_t navHeight       = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
 
     UNUSED(choicesList);
     UNUSED(startIndex);
