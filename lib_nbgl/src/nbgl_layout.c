@@ -2123,7 +2123,8 @@ int nbgl_layoutAddTagValueList(nbgl_layout_t *layout, const nbgl_layoutTagValueL
         container = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
 
         // tune container number of children (max 4 if a valueIcon and aliasSubName)
-        if (pair->valueIcon != NULL) {
+        // aliasValue also adds an icon (MINI_PUSH_ICON), so count it the same way
+        if ((pair->valueIcon != NULL) || pair->aliasValue) {
             nbChildren++;
             // if it's a alias with a subName, add a child
             if ((pair->aliasValue) && (pair->extension->aliasSubName)) {

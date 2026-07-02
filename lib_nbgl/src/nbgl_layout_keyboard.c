@@ -163,9 +163,8 @@ static bool updateSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
     uint32_t       i           = 0;
     nbgl_button_t *button      = NULL;
 
-    if ((eventType == SWIPED_LEFT)
-        && (currentLeftButtonIndex
-            < (uint32_t) (nbActiveButtons - NB_MAX_VISIBLE_SUGGESTION_BUTTONS))) {
+    if ((eventType == SWIPED_LEFT) && (nbActiveButtons > NB_MAX_VISIBLE_SUGGESTION_BUTTONS)
+        && (currentLeftButtonIndex < (nbActiveButtons - NB_MAX_VISIBLE_SUGGESTION_BUTTONS))) {
         // shift all buttons on the left if there are still at least
         // NB_MAX_VISIBLE_SUGGESTION_BUTTONS buttons to display
         currentLeftButtonIndex += NB_MAX_VISIBLE_SUGGESTION_BUTTONS;
@@ -182,7 +181,7 @@ static bool updateSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
             // Button to be updated
             button = (nbgl_button_t *) container->children[FIRST_BUTTON_INDEX + i];
 
-            if (currentLeftButtonIndex < (uint32_t) (nbActiveButtons - i)) {
+            if ((uint32_t) currentLeftButtonIndex + i < (uint32_t) nbActiveButtons) {
                 button->text = choiceTexts[currentLeftButtonIndex + i];
                 layoutUpdateCallbackObjToken(layoutInt,
                                              (nbgl_obj_t *) button,
@@ -262,7 +261,8 @@ static bool updateSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
         container->children[LEFT_HALF_INDEX] = NULL;
     }
     // if not on the last button, display beginning of next button
-    if (currentLeftButtonIndex < (nbActiveButtons - NB_MAX_VISIBLE_SUGGESTION_BUTTONS)) {
+    if ((nbActiveButtons > NB_MAX_VISIBLE_SUGGESTION_BUTTONS)
+        && (currentLeftButtonIndex < (nbActiveButtons - NB_MAX_VISIBLE_SUGGESTION_BUTTONS))) {
         container->children[RIGHT_HALF_INDEX] = (nbgl_obj_t *) partialButtonImages[1];
     }
     else {
