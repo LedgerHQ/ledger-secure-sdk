@@ -25,7 +25,7 @@ set(_SDK_FUZZ_SAN "${LEDGER_FUZZ_DEFAULT_SANITIZERS}")
 set(SDK_FUZZ_TARGETS
     fuzz_alloc fuzz_alloc_utils fuzz_apdu_parser fuzz_base58 fuzz_bip32
     fuzz_lists fuzz_nfc_ndef fuzz_qrcodegen fuzz_tlv_dynamic_descriptor
-    fuzz_tlv_trusted_name)
+    fuzz_tlv_trusted_name fuzz_nbgl_page)
 
 # Per-target invariants are .gitignored and regenerated each build; bootstrap missing ones to `.{}` so Absolution can refine them on first configure.
 foreach(_fuzzer ${SDK_FUZZ_TARGETS})
@@ -185,6 +185,25 @@ absolution_add_fuzzer(
     INVARIANT ${CMAKE_SOURCE_DIR}/invariants/fuzz_nfc_ndef.zon
     SANITIZERS ${_SDK_FUZZ_SAN}
     INCLUDE_DIRECTORIES ${SDK_FUZZ_INCLUDE_DIRS}
+    LINK_LIBRARIES secure_sdk
+)
+
+# nbgl page/layout builders. secure_sdk already links the nbgl lib + its HAL
+# mock; add the nbgl headers so the harness can build nbgl_pageContent_t.
+absolution_add_fuzzer(
+    NAME fuzz_nbgl_page
+    TARGETS
+        ${SDK_FUZZ_MOCK_SOURCES}
+    HARNESS
+        ${CMAKE_SOURCE_DIR}/harness/fuzz_nbgl_page.c
+    ENTRY fuzz_entry
+    INVARIANT ${CMAKE_SOURCE_DIR}/invariants/fuzz_nbgl_page.zon
+    SANITIZERS ${_SDK_FUZZ_SAN}
+    INCLUDE_DIRECTORIES
+        ${SDK_FUZZ_INCLUDE_DIRS}
+        ${BOLOS_SDK}/lib_nbgl/include/
+        ${BOLOS_SDK}/lib_ux_nbgl/
+    COMPILE_DEFINITIONS APPNAME="Fuzzing"
     LINK_LIBRARIES secure_sdk
 )
 
