@@ -1964,8 +1964,14 @@ static void keyboardCallback(char touchedKey)
         keyboardContext.entryBuffer[--textLen] = '\0';
     }
     else {
-        keyboardContext.entryBuffer[textLen]   = touchedKey;
-        keyboardContext.entryBuffer[++textLen] = '\0';
+        if (textLen >= keyboardContext.entryMaxLen) {
+            // entry length can't be greater, so we mask every characters
+            mask = -1;
+        }
+        else {
+            keyboardContext.entryBuffer[textLen]   = touchedKey;
+            keyboardContext.entryBuffer[++textLen] = '\0';
+        }
     }
     if (keyboardContext.keyboardContent.type == KEYBOARD_WITH_SUGGESTIONS) {
         // if suggestions are displayed, we update them at each key press
@@ -2310,7 +2316,8 @@ static void prepareAddressConfirmationPages(const char                       *ad
     // all but the first chunk ensures each chunk starts a fresh page.
     nbAddressChunks = nbgl_getTextNbPagesInWidth(
         LARGE_MEDIUM_FONT, address, NB_MAX_LINES_IN_REVIEW, AVAILABLE_WIDTH);
-    if (nbAddressChunks > ADDR_VERIF_NB_PAIRS) {
+    bool addressTruncated = (nbAddressChunks > ADDR_VERIF_NB_PAIRS);
+    if (addressTruncated) {
         nbAddressChunks = ADDR_VERIF_NB_PAIRS;
     }
     {
@@ -2379,7 +2386,7 @@ static void prepareAddressConfirmationPages(const char                       *ad
     // at NB_MAX_LINES_IN_REVIEW lines so each chunk-pair occupies exactly one page
     tagValueConfirm->tagValueList.nbMaxLinesForValue
         = (nbAddressChunks > 1) ? NB_MAX_LINES_IN_REVIEW : 0;
-    tagValueConfirm->tagValueList.hideEndOfLastLine = false;
+    tagValueConfirm->tagValueList.hideEndOfLastLine = addressTruncated;
     tagValueConfirm->tagValueList.wrapping          = false;
 
     // Number of extras left to place on a second page
