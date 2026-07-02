@@ -442,8 +442,6 @@ USBD_StatusTypeDef USBD_LEDGER_HID_data_out(USBD_HandleTypeDef *pdev,
         goto error;
     }
 
-    USBD_LL_PrepareReceive(pdev, LEDGER_HID_EPOUT_ADDR, NULL, LEDGER_HID_EPOUT_SIZE);
-
     status = USBD_OK;
 
 error:

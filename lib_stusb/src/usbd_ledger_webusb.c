@@ -410,7 +410,7 @@ USBD_StatusTypeDef USBD_LEDGER_WEBUSB_data_out(USBD_HandleTypeDef *pdev,
         goto error;
     }
 
-    status = USBD_LL_PrepareReceive(pdev, LEDGER_WEBUSB_EPOUT_ADDR, NULL, LEDGER_WEBUSB_EPOUT_SIZE);
+    status = USBD_OK;
 
 error:
     return status;

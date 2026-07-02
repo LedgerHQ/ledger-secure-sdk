@@ -772,6 +772,21 @@ void USBD_LEDGER_rx_evt_data_out(uint8_t ep_num, uint8_t *buffer, uint16_t lengt
     }
     usbd_ledger_data.usb_ep_xfer_len[ep_num & 0x7F]    = length;
     usbd_ledger_data.usb_ep_xfer_buffer[ep_num & 0x7F] = buffer;
+
+    // Re-arm the OUT endpoint before protocol processing so the host can
+    // pipeline the next packet while the SE handles the current one.
+    for (uint8_t i = 0; i < usbd_ledger_data.nb_of_class; i++) {
+        usbd_class_info_t           *ci = usbd_ledger_data.class[i];
+        const usbd_end_point_info_t *ep = (const usbd_end_point_info_t *) PIC(ci->end_point);
+        if ((ep->ep_out_addr & 0x7F) == (ep_num & 0x7F)) {
+            USBD_LL_PrepareReceive(&usbd_ledger_data.usbd_handle,
+                                   ep->ep_out_addr,
+                                   NULL,
+                                   ep->ep_out_size);
+            break;
+        }
+    }
+
     USBD_LL_DataOutStage(&usbd_ledger_data.usbd_handle, ep_num, buffer);
 }
 

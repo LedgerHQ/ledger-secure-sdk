@@ -467,10 +467,7 @@ USBD_StatusTypeDef USBD_LEDGER_CDC_data_out(USBD_HandleTypeDef *pdev,
         handle->rx_length += packet_length;
     }
 
-    if (ep_num == LEDGER_CDC_DATA_EPOUT_ADDR) {
-        status = USBD_LL_PrepareReceive(
-            pdev, LEDGER_CDC_DATA_EPOUT_ADDR, NULL, LEDGER_CDC_DATA_EPOUT_SIZE);
-    }
+    status = USBD_OK;
 
 error:
     return status;

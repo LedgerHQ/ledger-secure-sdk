@@ -344,8 +344,6 @@ USBD_StatusTypeDef USBD_LEDGER_CCID_data_out(USBD_HandleTypeDef *pdev,
 
     CCID_TRANSPORT_rx(&handle->device.transport, packet, packet_length);
 
-    USBD_LL_PrepareReceive(pdev, LEDGER_CCID_BULK_EPOUT_ADDR, NULL, LEDGER_CCID_BULK_EPOUT_SIZE);
-
     return USBD_OK;
 }
 

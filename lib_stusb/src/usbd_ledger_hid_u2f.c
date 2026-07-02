@@ -398,8 +398,6 @@ USBD_StatusTypeDef USBD_LEDGER_HID_U2F_data_out(USBD_HandleTypeDef *pdev,
 
     U2F_TRANSPORT_rx(&handle->transport_data, packet, packet_length);
 
-    USBD_LL_PrepareReceive(pdev, LEDGER_HID_U2F_EPOUT_ADDR, NULL, LEDGER_HID_U2F_EPOUT_SIZE);
-
     return USBD_OK;
 }
 
