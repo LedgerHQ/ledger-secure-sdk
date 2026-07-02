@@ -4,7 +4,8 @@
 @section nbgl_use_case_intro Introduction
 This chapter describes the Application Use-cases API of Advanced BOLOS Graphic Library.
 
-This layer offers a simplified view of some typical use-cases of display in an Application running on Stax.
+This layer offers a simplified view of some typical use-cases of display in an Application
+running on Nano devices.
 For example, a use-case can be:
 
 - Reviewing a transaction/message
@@ -15,50 +16,83 @@ A full description of each predefined use-case can be found in this document
 
 @section nbgl_use_case_concepts Concepts
 
-This layer uses the high-level API described in @ref nbgl_step, but offers to developer more than a single step.
+This layer uses the high-level API described in @ref nbgl_step, but offers to developer more than
+a single step.
 
-The goal is to simplify the usage of NBGL, but also to offer a better homogeneity across applications, by pushing
-developers to use common API for common use-cases.
+The goal is to simplify the usage of NBGL, but also to offer a better homogeneity across
+applications, by pushing developers to use common API for common use-cases.
 
-So that not only the look of the pages but also their transitions look the same. Which should be a real help
-for end-users, getting more and more familiar with the user experience of applications.
+So that not only the look of the pages but also their transitions look the same. Which should be a
+real help for end-users, getting more and more familiar with the user experience of applications.
 
 @subsection nbgl_use_case_example_1 Example 1: transaction review
 
 \image{inline} html UseCase-Nano-Review-ex.png "caption" width=1000
 
-In this example, a transaction review consists in 5 successive pages, and can be seen as a use-case
+In this example, a transaction review consists in 5 successive pages, and can be seen as a
+use-case
 
 @subsection nbgl_use_case_example_2 Example 2: Settings pages
 
 \image{inline} html UseCase-Nano-Settings-ex.png "caption" width=750
 
-In this example, the settings (accessed from *Settings* in Home, single level) consists in 3 pages, and can be seen as another use-case.
+In this example, the settings (accessed from *Settings* in Home, single level) consists in 3
+pages, and can be seen as another use-case.
 
 @section nbgl_use_cases Use Cases
 
 A few APIs are available to draw typical Use-Cases, such as:
 
 - For Home Screen & Settings:
- - @ref nbgl_useCaseHomeAndSettings() to draw the home page and settings/info pages (see @subpage use_case_home_settings)
+ - @ref nbgl_useCaseHomeAndSettings() to draw the home page and settings/info pages
+   (see @subpage use_case_home_settings)
+ - @ref nbgl_useCaseGenericSettings() to draw only settings and info pages, without a home page
+   (see @subpage use_case_generic_settings)
+ - @ref nbgl_useCaseGenericConfiguration() to draw a generic set of configuration pages with a
+   title and a quit callback (see @subpage use_case_generic_configuration)
 - For Individual pages:
- - @ref nbgl_useCaseConfirm() to draw a typical confirmation page, for example when rejecting a transaction (see @subpage use_case_confirm)
+ - @ref nbgl_useCaseConfirm() to draw a typical confirmation page, for example when rejecting a
+   transaction (see @subpage use_case_confirm)
  - @ref nbgl_useCaseChoice() to draw a typical dual choice page (see @subpage use_case_choice)
- - @ref nbgl_useCaseAdvancedChoiceWithDetails() to draw a choice page with an optional details modal (see @subpage use_case_advanced_choice_with_details)
- - @ref nbgl_useCaseStatus() to draw a transient status page, without control, for example when a transaction is successfully signed (see @subpage use_case_status)
+ - @ref nbgl_useCaseChoiceWithDetails() to draw a choice page with an optional details sequence
+   (see @subpage use_case_choice_with_details)
+ - @ref nbgl_useCaseAdvancedChoiceWithDetails() to draw a choice page with an optional details
+   modal (see @subpage use_case_advanced_choice_with_details)
+ - @ref nbgl_useCaseAction() to draw a single action page with a centered icon, a message and an
+   action button (see @subpage use_case_action)
+ - @ref nbgl_useCaseStatus() to draw a transient status page, without control, for example when a
+   transaction is successfully signed (see @subpage use_case_status)
  - @ref nbgl_useCaseSpinner() to draw an infinite spinner page (see @subpage use_case_spinner)
 - For most used reviews:
- - @ref nbgl_useCaseReview() to draw the pages of a regular coin transaction review, when all info are available from the beginning (see @subpage use_case_review)
- - @ref nbgl_useCaseReviewLight() to draw the pages of a transaction review with a simple button confirmation, when all info are available from the beginning (see @subpage use_case_review_light)
- - @ref nbgl_useCaseReviewStreamingStart() to draw the pages of a regular coin transaction review, when all info are not available from the beginning (see @subpage use_case_review_streaming)
+ - @ref nbgl_useCaseReview() to draw the pages of a regular coin transaction review, when all info
+   are available from the beginning (see @subpage use_case_review)
+ - @ref nbgl_useCaseReviewBlindSigning() to draw the pages of a blind-signing review with a
+   warning prolog (see @subpage use_case_review_blind_signing)
+ - @ref nbgl_useCaseReviewLight() to draw the pages of a transaction review with a simple button
+   confirmation, when all info are available from the beginning
+   (see @subpage use_case_review_light)
+ - @ref nbgl_useCaseGenericReview() to draw a review from a generic contents list, with a
+   configurable reject footer (see @subpage use_case_generic_review)
+ - @ref nbgl_useCaseReviewStreamingStart() to draw the pages of a regular coin transaction review,
+   when all info are not available from the beginning (see @subpage use_case_review_streaming)
+ - @ref nbgl_useCaseReviewStreamingBlindSigningStart() to start a blind-signing streaming review
+   preceded by a warning page (see @subpage use_case_review_streaming)
+ - @ref nbgl_useCaseAdvancedReviewStreamingStart() to start a streaming review with a warning
+   prolog, when all info are not available from the beginning
+   (see @subpage use_case_review_streaming)
 - for reviews with a warning prolog:
- - @ref nbgl_useCaseAdvancedReview() to draw the pages of a regular coin transaction review, when all info are available from the beginning, but with an identified risk requiring a warning prolog (see @subpage use_case_review_with_warning)
+ - @ref nbgl_useCaseAdvancedReview() to draw the pages of a regular coin transaction review, when
+   all info are available from the beginning, but with an identified risk requiring a warning
+   prolog (see @subpage use_case_review_with_warning)
 - For address verification:
- - @ref nbgl_useCaseAddressReview() to draw an address confirmation page, with a possibility to see some extra tag/value pairs (see @subpage use_case_addr_review)
+ - @ref nbgl_useCaseAddressReview() to draw an address confirmation page, with a possibility to
+   see some extra tag/value pairs (see @subpage use_case_addr_review)
 - For keypad:
- - @ref nbgl_useCaseKeypad() to draw a default keypad implementation (see @subpage use_case_keypad)
+ - @ref nbgl_useCaseKeypad() to draw a default keypad implementation
+   (see @subpage use_case_keypad)
 - For keyboard:
- - @ref nbgl_useCaseKeyboard() to draw a keyboard for text input (see @subpage use_case_keyboard)
+ - @ref nbgl_useCaseKeyboard() to draw a keyboard for text input
+   (see @subpage use_case_keyboard)
 - For generic navigable content:
  - @ref nbgl_useCaseNavigableContent() to draw a level of generic content navigable pages
 
@@ -66,8 +100,9 @@ A few APIs are available to draw typical Use-Cases, such as:
 
 \image{inline} html UseCase-Nano-Home.png "caption" width=1000
 
-Ledger would like all application to have the same layout for home screen and settings/info, so the @ref nbgl_useCaseHomeAndSettings() function enables to
-create such a set of page, the configurable parameters being:
+Ledger would like all application to have the same layout for home screen and settings/info, so
+the @ref nbgl_useCaseHomeAndSettings() function enables to create such a set of page, the
+configurable parameters being:
 
 - The application name (appName)
 - The application icon (appIcon)
@@ -158,8 +193,8 @@ For some rare applications, one may need an action button in the Home screen, to
 - The main action of the Application
 - Or an side-action, as to display an address
 
-The \b action argument of @ref nbgl_useCaseHomeAndSettings() can be used for that. This structure (@ref nbgl_homeAction_t)
-enables to specify:
+The \b action argument of @ref nbgl_useCaseHomeAndSettings() can be used for that. This structure
+(@ref nbgl_homeAction_t) enables to specify:
 
 - A text
 - An optional icon
@@ -209,7 +244,8 @@ A choice use-case consists in a 4-page sequence:
 
 The @ref nbgl_useCaseChoice() function enables to create such a page.
 
-The *callback* argument is called when a choice is done. Its argument is a boolean which is *true* upon confirmation, else *false*.
+The *callback* argument is called when a choice is done. Its argument is a boolean which is *true*
+upon confirmation, else *false*.
 
 Here is the code to display the example picture
 
@@ -233,17 +269,71 @@ void onRejectTransaction(void) {
 }
 @endcode
 
+@subsection use_case_choice_with_details Choice with Details Use Case
+
+A variant of @ref use_case_choice that adds an optional details page. When *details* is non-NULL,
+an extra navigation step is inserted in the sequence to display the details content.
+
+@note On Nano devices there is no top-right icon button. Instead, when *details* is non-NULL, an
+additional page is appended to the navigation flow so the user can reach the details by pressing
+the right button.
+
+The @ref nbgl_useCaseChoiceWithDetails() function accepts the same parameters as
+@ref nbgl_useCaseChoice() plus:
+
+- *details* (@ref nbgl_warningDetails_t): description of the details page. If NULL, the sequence
+  behaves exactly like @ref nbgl_useCaseChoice().
+
+The *callback* argument works the same way as in @ref use_case_choice.
+
+@note For a richer layout supporting a sub-message and a configurable header icon,
+see @ref use_case_advanced_choice_with_details.
+
+Here is an example:
+
+@code
+static void onChoice(bool confirm) {
+  if (confirm) {
+    // confirmed
+  } else {
+    // cancelled
+  }
+}
+
+static const char *detailTexts[]    = {"Risk"};
+static const char *detailSubTexts[] = {"This action is irreversible."};
+
+static nbgl_warningDetails_t choiceDetails = {
+  .title              = "More information",
+  .type               = BAR_LIST_WARNING,
+  .barList.nbBars     = 1,
+  .barList.texts      = detailTexts,
+  .barList.subTexts   = detailSubTexts,
+};
+
+void displayConfirmWithDetails(void) {
+  nbgl_useCaseChoiceWithDetails(&C_warning_64px,
+                                "Delete all credentials?",
+                                "This cannot be undone.",
+                                "Yes, delete",
+                                "No, keep",
+                                &choiceDetails,
+                                onChoice);
+}
+@endcode
+
 @subsection use_case_advanced_choice_with_details Advanced Choice with Details Use Case
 
-A variant of the @ref use_case_choice with an optional *details* modal page, accessible by an extra navigation step.
+A variant of the @ref use_case_choice with an optional *details* modal page, accessible by an
+extra navigation step.
 The @ref nbgl_useCaseAdvancedChoiceWithDetails() function enables to create such a sequence.
 
-On Nano, the *header_icon* and *subMessage* arguments are ignored (no top-right icon button, and only one text line
-below the title is displayed). When *details* is non-NULL, an additional page is inserted in the navigation to display
-the details content.
+On Nano, the *header_icon* and *subMessage* arguments are ignored (no top-right icon button, and
+only one text line below the title is displayed). When *details* is non-NULL, an additional page
+is inserted in the navigation to display the details content.
 
-The *callback* argument is called when a choice is done. Its argument is a boolean which is *true* upon confirmation,
-else *false*.
+The *callback* argument is called when a choice is done. Its argument is a boolean which is *true*
+upon confirmation, else *false*.
 
 Here is an example of usage:
 
@@ -281,12 +371,41 @@ void displayAccountConfirm(void) {
 }
 @endcode
 
+@subsection use_case_action Action Use Case
+
+An action page consists of a centered info (icon + message) and a single action button at the
+bottom. The given callback is called when both buttons are pressed on the action page.
+
+The @ref nbgl_useCaseAction() function accepts the following parameters:
+
+- *icon*: icon to display in the centered info
+- *message*: text to display in the centered info
+- *actionText*: label of the action button
+- *callback*: function called when the action button is pressed
+
+Here is an example:
+
+@code
+static void onAction(void) {
+  // perform the action
+}
+
+void displayActionPage(void) {
+  nbgl_useCaseAction(&C_app_64px,
+                     "Connect to companion\napp to get started",
+                     "Open app",
+                     onAction);
+}
+@endcode
+
 @subsection use_case_status Status Use Case
 
 \image{inline} html UseCase-Nano-Status.png "caption" width=600
 
-A status is a transient page, without control, to display during a short time, for example when a transaction is successfully signed.
-The @ref nbgl_useCaseStatus() function enables to create such a page, with the following arguments:
+A status is a transient page, without control, to display during a short time, for example when a
+transaction is successfully signed.
+The @ref nbgl_useCaseStatus() function enables to create such a page, with the following
+arguments:
 
 - A message string to set in middle of page
 - A boolean to indicate if true (to determine the icon)
@@ -296,8 +415,10 @@ The @ref nbgl_useCaseStatus() function enables to create such a page, with the f
 
 \image{inline} html UseCase-Nano-Review-Status.png "caption" width=600
 
-Similar as @subpage use_case_status, this is used to display transient page, without control, during a short time, for example when a transaction is successfully signed.
-The @ref nbgl_useCaseReviewStatus() function enables to create such a page, with the following arguments:
+Similar as @ref use_case_status, this is used to display transient page, without control, during a
+short time, for example when a transaction is successfully signed.
+The @ref nbgl_useCaseReviewStatus() function enables to create such a page, with the following
+arguments:
 
 - A type of status (with predefined message and icon)
 - A quit callback, called when timer times out (or both buttons are pressed)
@@ -308,19 +429,23 @@ The @ref nbgl_useCaseReviewStatus() function enables to create such a page, with
 
 In most cases, the developer may know all tag/value pairs of a transaction when it is submitted.
 
-Thus, the number of pages is computed automatically and pages can be navigated forward and backward.
+Thus, the number of pages is computed automatically and pages can be navigated forward and
+backward.
 
-@note In case of a tag/value pair too long to be fully displayed, the value is automatically split on successive pages, adding an indication `(n/m)` in the name.
+@note In case of a tag/value pair too long to be fully displayed, the value is automatically split
+on successive pages, adding an indication `(n/m)` in the name.
 
 At the end of the review flow, the user has 2 pages to *Approve* or *Reject* the transaction.
-Finally, the given callback is called and it's up to app's developer to call @ref nbgl_useCaseReviewStatus().
+Finally, the given callback is called and it's up to app's developer to call
+@ref nbgl_useCaseReviewStatus().
 
 The API to initiate the display of the series of pages is @ref nbgl_useCaseReview(), providing:
 
 - The type of operation to review (*transaction*, *message* or generic *operation*)
 - The title and icon for the presentation page
 - The list of tag/value pairs (or a callback to get them one by one)
-- A callback called when the review is *Approved* or *Rejected*. The callback's param is *true* for approval, *false* for rejection.
+- A callback called when the review is *Approved* or *Rejected*. The callback's param is *true*
+  for approval, *false* for rejection.
 
 Here is the code to display something similar to example picture:
 
@@ -422,41 +547,223 @@ void startReview(void) {
 
 Not really useful on Nano devices, and thus, directly mapped to @subpage use_case_review.
 
+@subsection use_case_review_blind_signing Blind Signing Review Use Case
+
+A blind-signing review behaves exactly like @ref use_case_review, but the review is automatically
+preceded by a mandatory blind-signing warning page.
+
+@note On Nano devices, the optional tip-box parameter is ignored.
+
+The API to initiate the display is @ref nbgl_useCaseReviewBlindSigning(), providing:
+
+- the type of operation to review (transaction, message or generic operation)
+- the list of tag/value pairs (or a callback to get them one by one)
+- the icon to use on the first and last pages
+- the title and optional sub-title of the first page
+- the title of the last page (with the approve/reject pages)
+- an optional tip-box (@ref nbgl_tipBox_t) — ignored on Nano
+- a callback called when the review is *Approved* or *Rejected*. The callback's param is *true*
+  for confirmation, *false* for rejection.
+
+Here is a minimal example:
+
+@code
+// 4 pairs of tag/value to display
+static nbgl_layoutTagValue_t pairs[4];
+
+static const nbgl_contentTagValueList_t pairList = {
+  .nbMaxLinesForValue = 0,
+  .nbPairs = 4,
+  .pairs = (nbgl_layoutTagValue_t*)pairs
+};
+
+// called when review is approved or rejected
+static void onReviewResult(bool confirm) {
+  if (confirm) {
+    nbgl_useCaseReviewStatus(STATUS_TYPE_TRANSACTION_SIGNED, appMain);
+  }
+  else {
+    nbgl_useCaseReviewStatus(STATUS_TYPE_TRANSACTION_REJECTED, appMain);
+  }
+}
+
+void startBlindSigningReview(void) {
+  nbgl_useCaseReviewBlindSigning(TYPE_TRANSACTION, // type of operation
+                                 &pairList,         // list of tag/value pairs
+                                 coinIcon,           // icon on first and last pages
+                                 "Review transaction\nto send coin", // title of first page
+                                 NULL,               // no sub-title
+                                 "Sign transaction to\nsend coin?",  // title of last page
+                                 NULL,               // no tip-box (ignored on Nano)
+                                 onReviewResult);    // callback on result
+}
+@endcode
+
+@subsection use_case_generic_review Generic Review Use Case
+
+A generic review displays a flow of pages built from a @ref nbgl_genericContents_t list. Unlike
+@ref use_case_review, the developer is responsible for building every page explicitly; NBGL handles
+pagination and navigation automatically.
+
+The API is @ref nbgl_useCaseGenericReview(), providing:
+
+- the generic contents list to display
+- the text to use in the reject page
+- a callback called when the reject page is confirmed
+
+Here is a minimal example:
+
+@code
+static const nbgl_content_t contentsList[1] = {
+  {.type = TAG_VALUE_LIST,
+   .content.tagValueList = { .nbPairs = 2,
+                              .pairs   = myPairs }}
+};
+
+static const nbgl_genericContents_t reviewContents = {
+  .contentsList = contentsList,
+  .nbContents   = 1
+};
+
+static void onReject(void) {
+  nbgl_useCaseReviewStatus(STATUS_TYPE_OPERATION_REJECTED, appMain);
+}
+
+void startGenericReview(void) {
+  nbgl_useCaseGenericReview(&reviewContents,
+                             "Reject",
+                             onReject);
+}
+@endcode
+
+@subsection use_case_generic_configuration Generic Configuration Use Case
+
+Displays a set of configuration pages with automatic pagination. The user can navigate with the
+physical buttons and quit by pressing both buttons on the last page.
+
+The API is @ref nbgl_useCaseGenericConfiguration(), providing:
+
+- the title string displayed in the header
+- the page index to start on (0-based)
+- the generic contents list to display
+- a callback called when the quit action is triggered
+
+Here is a minimal example:
+
+@code
+static const nbgl_content_t confContentsList[1] = {
+  {.type = SWITCHES_LIST,
+   .content.switchesList = { .nbSwitches = 2,
+                              .switches   = mySwitches },
+   .contentActionCallback = onSwitchToggle}
+};
+
+static const nbgl_genericContents_t confContents = {
+  .contentsList = confContentsList,
+  .nbContents   = 1
+};
+
+static void onQuit(void) {
+  appMain();
+}
+
+void startConfiguration(void) {
+  nbgl_useCaseGenericConfiguration("My Configuration",
+                                   0,               // start on first page
+                                   &confContents,
+                                   onQuit);
+}
+@endcode
+
+@subsection use_case_generic_settings Generic Settings Use Case
+
+Like @ref use_case_home_settings but without the home page: only the settings contents and the
+app-info pages are displayed. This is useful for sub-setting screens that must be reachable
+without going through the home page.
+
+The API is @ref nbgl_useCaseGenericSettings(), providing:
+
+- the app name (used as page title)
+- the page index to start on (0-based)
+- the settings contents (can be NULL if only info pages are needed)
+- the info list (version, developer, …)
+- a callback called when the quit action is triggered
+
+Here is a minimal example:
+
+@code
+static const char *infoTypes[]    = {"Version", "Developer"};
+static const char *infoContents[] = {"1.0.0", "Ledger"};
+
+static const nbgl_contentInfoList_t eth_infosList = {
+  .nbInfos       = 2,
+  .infoTypes     = infoTypes,
+  .infoContents  = infoContents
+};
+
+static void onQuit(void) {
+  appMain();
+}
+
+void displaySettings(uint8_t settingPage) {
+  nbgl_useCaseGenericSettings("Ethereum",
+                              settingPage,
+                              &eth_settingContents, // defined elsewhere
+                              &eth_infosList,
+                              onQuit);
+}
+@endcode
+
 @subsection use_case_review_streaming Streaming review Use Case
 
 \image{inline} html UseCase-Nano-Streaming.png "caption" width=1000
 
-In some cases, the application cannot know all tag/value pairs of a transaction when the review is started.
+In some cases, the application cannot know all tag/value pairs of a transaction when the review is
+started.
 
-In this case, what we call a *streaming* review can be used. The pages to display for each *stream* are computed automatically
-and pages can be navigated forward and backward.
+In this case, what we call a *streaming* review can be used. The pages to display for each
+*stream* are computed automatically and pages can be navigated forward and backward.
 
 In case of a tag/value pair too long to be fully displayed, the value is automatically split on
 successive pages, adding an indication `(n/m)` in the name.
 
 At the end of the review flow, the user has 2 pages to *Approve* or *Reject* the transaction.
-Finally, the given callback is called and it's up to app's developer to call @ref nbgl_useCaseReviewStatus().
+Finally, the given callback is called and it's up to app's developer to call
+@ref nbgl_useCaseReviewStatus().
 
-The API to initiate the display of the series of pages is @ref nbgl_useCaseReviewStreamingStart(), providing:
+The API to initiate the display of the series of pages is @ref nbgl_useCaseReviewStreamingStart(),
+providing:
 
 - The type of operation to review (transaction, message or generic operation)
 - The title and icon for the presentation page
 - A callback with one boolean parameter:
   - If this parameter is *false*, it means that the transaction is rejected.
-  - If this parameter is *true*, it means that NBGL is waiting for new data, sent with @ref nbgl_useCaseReviewStreamingContinue()
+  - If this parameter is *true*, it means that NBGL is waiting for new data, sent with
+    @ref nbgl_useCaseReviewStreamingContinue()
 
-As long as there are new tag/value pairs to send, the API to call is @ref nbgl_useCaseReviewStreamingContinue(), providing:
+As long as there are new tag/value pairs to send, the API to call is
+@ref nbgl_useCaseReviewStreamingContinue(), providing:
 
 - The list of tag/value pairs (or a callback to get them one by one)
 - A callback with one boolean parameter:
   - If this parameter is *false*, it means that the transaction is rejected.
-  - If this parameter is *true*, it means that NBGL is waiting for new data, to be sent with @ref nbgl_useCaseReviewStreamingContinue()
+  - If this parameter is *true*, it means that NBGL is waiting for new data, to be sent with
+    @ref nbgl_useCaseReviewStreamingContinue()
 
-@note Considering *skip* is not available on Nano device, @ref nbgl_useCaseReviewStreamingContinueExt() is useless and directly mapped to @ref nbgl_useCaseReviewStreamingContinue()
+@note Considering *skip* is not available on Nano device,
+@ref nbgl_useCaseReviewStreamingContinueExt() is useless and directly mapped to
+@ref nbgl_useCaseReviewStreamingContinue()
 
-When there is no more data to send, the API to call is @ref nbgl_useCaseReviewStreamingFinish(), providing:
+When there is no more data to send, the API to call is
+@ref nbgl_useCaseReviewStreamingFinish(), providing:
 
-- A callback called when the review is *Approved* or *Rejected*. The callback's param is *true* for approval, *false* for rejection.
+- A callback called when the review is *Approved* or *Rejected*. The callback's param is *true*
+  for approval, *false* for rejection.
+
+@ref nbgl_useCaseReviewStreamingBlindSigningStart() and
+@ref nbgl_useCaseAdvancedReviewStreamingStart() behave like
+@ref nbgl_useCaseReviewStreamingStart() but automatically prepend a warning page before the first
+stream. The continuation and finish APIs are the same.
 
 Here is the code to display something similar to example picture:
 
@@ -509,16 +816,20 @@ The review itself behaves like in @subpage use_case_review. The main differences
 
 - The review itself is preceded by a warning page
 
-The API to initiate the display of the series of pages is @ref nbgl_useCaseAdvancedReview(), providing:
+The API to initiate the display of the series of pages is @ref nbgl_useCaseAdvancedReview(),
+providing:
 
 - the type of operation to review (transaction, message or generic operation)
 - the list of tag/value pairs (or a callback to get them one by one)
 - the texts/icon to use in presentation page and in last page
 - the configuration to use for the warning (see @ref nbgl_warning_t structure)
-- a callback called when the long press button on last page or reject confirmation is used. The callback's param is *true* for confirmation, *false* for rejection.
+- a callback called when the long press button on last page or reject confirmation is used.
+  The callback's param is *true* for confirmation, *false* for rejection.
 
-@note the recommended configuration for warning is the predefined one. In this case, one just has to fill the *predefinedSet* field of @ref nbgl_warning_t with the appropriate warning
-causes (bitfield) and the *reportProvider* field with the name of the 3rd party providing the Web3Checks report, if necessary.
+@note the recommended configuration for warning is the predefined one. In this case, one just has
+to fill the *predefinedSet* field of @ref nbgl_warning_t with the appropriate warning causes
+(bitfield) and the *reportProvider* field with the name of the 3rd party providing the Web3Checks
+report, if necessary.
 
 Here is a code sample:
 
@@ -570,15 +881,19 @@ When an address needs to be confirmed, it can be displayed in a Address Review U
 
 After a title page, a second page is displayed with the raw address (as text).
 
-Moreover, if extra information need to be displayed, in the form of tags/values, they are show in successive pages.
+Moreover, if extra information need to be displayed, in the form of tags/values, they are show in
+successive pages.
 
-@note In case of a tag/value pair too long to be fully displayed, the value is automatically split on successive pages, adding an indication `(n/m)` in the name.
+@note In case of a tag/value pair too long to be fully displayed, the value is automatically split
+on successive pages, adding an indication `(n/m)` in the name.
 
 
 At the end of the review flow, the user has 2 pages to *Approve* or *Reject* the review.
-Finally, the given callback is called and it's up to app's developer to call @ref nbgl_useCaseReviewStatus().
+Finally, the given callback is called and it's up to app's developer to call
+@ref nbgl_useCaseReviewStatus().
 
-The @ref nbgl_useCaseAddressReview() function enables to create such a set of pages, with the following parameters:
+The @ref nbgl_useCaseAddressReview() function enables to create such a set of pages, with the
+following parameters:
 
 - The address to confirm (NULL terminated string)
 - A callback called when the review is *Approved* or *Rejected*
@@ -681,18 +996,21 @@ void ui_menu_pinentry_display(unsigned int value) {
 @subsection use_case_keyboard Keyboard Use Case
 
 When text input is required (not just digits), a full keyboard can be displayed on Nano devices.
-The keyboard is navigable using the physical buttons, and supports different modes (lowercase, uppercase, digits, special characters).
+The keyboard is navigable using the physical buttons, and supports different modes (lowercase,
+uppercase, digits, special characters).
 
 The keyboard can be configured with either a confirmation button or dynamic suggestion buttons.
 
-The @ref nbgl_useCaseKeyboard() function enables to create such page, with the following parameters:
+The @ref nbgl_useCaseKeyboard() function enables to create such page, with the following
+parameters:
 
 - A pointer to @ref nbgl_keyboardParams_t structure containing:
   - \b type: either @ref KEYBOARD_WITH_BUTTON or @ref KEYBOARD_WITH_SUGGESTIONS
   - \b title: the page title
   - \b entryBuffer: buffer to store the entered text
   - \b entryMaxLen: maximum length of text
-  - \b mode: initial keyboard mode (@ref MODE_LOWER_LETTERS, @ref MODE_UPPER_LETTERS, @ref MODE_DIGITS_AND_SPECIALS, @ref MODE_NONE)
+  - \b mode: initial keyboard mode (@ref MODE_LOWER_LETTERS, @ref MODE_UPPER_LETTERS,
+    @ref MODE_DIGITS_AND_SPECIALS, @ref MODE_NONE)
   - \b lettersOnly: if true, only letter keys and Backspace are shown
   - \b confirmationParams or \b suggestionParams: depending on the type
 - A callback for the back action
@@ -820,10 +1138,42 @@ void display_keyboard_page(void) {
 }
 @endcode
 
+@section use_case_utils Utility functions
+
+The following functions compute how many items of a given type fit in a single review or settings
+page. They are useful when building custom paginated content with @ref nbgl_useCaseGenericReview()
+or similar APIs.
+
+- @ref nbgl_useCaseGetNbTagValuesInPage() — returns the number of tag/value pairs that fit in one
+  page starting at a given index. Sets the *requireSpecificDisplay* output flag when the pair needs
+  special rendering (centeredInfo flag or value too long).
+
+- @ref nbgl_useCaseGetNbTagValuesInPageExt() — same as above but also accounts for a potential
+  *skip* header when *isSkippable* is true.
+
+- @ref nbgl_useCaseGetNbInfosInPage() — returns the number of info items (type/content string
+  pairs) that fit in one page starting at a given index.
+
+- @ref nbgl_useCaseGetNbSwitchesInPage() — returns the number of switch items that fit in one
+  page starting at a given index.
+
+- @ref nbgl_useCaseGetNbBarsInPage() — returns the number of touchable bar items that fit in one
+  page starting at a given index.
+
+- @ref nbgl_useCaseGetNbChoicesInPage() — returns the number of radio-choice items that fit in
+  one page starting at a given index.
+
+- @ref nbgl_useCaseGetNbPagesForTagValueList() — returns the total number of pages required to
+  display a complete @ref nbgl_contentTagValueList_t. Useful to pre-compute navigation structures
+  before starting a review.
+
+All functions take the navigation bar into account: when a navigation footer is present the
+available area is reduced accordingly.
+
 @section use_case_refresh_page Refreshing screen
 
-After having drawn graphic objects in **framebuffer**, all functions of this API automatically refresh the screen.
-So no need to call @ref nbgl_refresh().
+After having drawn graphic objects in **framebuffer**, all functions of this API automatically
+refresh the screen. So no need to call @ref nbgl_refresh().
 
 */
 #endif // HAVE_SE_TOUCH
