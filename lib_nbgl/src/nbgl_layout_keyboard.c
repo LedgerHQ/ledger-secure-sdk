@@ -749,6 +749,10 @@ int nbgl_layoutAddEnteredText(nbgl_layout_t *layout,
     UNUSED(grayedOut);
 
     container = addTextEntry(layoutInt, NULL, text, numbered, number, token, compactMode, false);
+    if (container == NULL) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddEnteredText(): addTextEntry failed\n");
+        return -1;
+    }
 
     // set this container as first or 2nd child of the main layout container
     layoutInt->container->children[enteredTextIndex] = (nbgl_obj_t *) container;
@@ -813,12 +817,21 @@ int nbgl_layoutUpdateEnteredText(nbgl_layout_t *layout,
     UNUSED(index);
 
     // update text entry area
-    container = (nbgl_container_t *) layoutInt->container->children[enteredTextIndex];
-    if ((container == NULL) || (container->obj.type != CONTAINER)) {
-        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateEnteredText(): container not found\n");
+    // container->children[enteredTextIndex] is the mainContainer built by addTextEntry(),
+    // which has 2 children: [0]=title (optional) and [1]=inner text-entry container.
+    // The inner container holds NUMBER_INDEX, TEXT_INDEX, DELETE_INDEX, LINE_INDEX children.
+    nbgl_container_t *mainContainer
+        = (nbgl_container_t *) layoutInt->container->children[enteredTextIndex];
+    if ((mainContainer == NULL) || (mainContainer->obj.type != CONTAINER)) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateEnteredText(): main container not found\n");
         return -1;
     }
-    textArea = (nbgl_text_area_t *) container->children[2];
+    container = (nbgl_container_t *) mainContainer->children[1];
+    if ((container == NULL) || (container->obj.type != CONTAINER)) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateEnteredText(): text entry container not found\n");
+        return -1;
+    }
+    textArea = (nbgl_text_area_t *) container->children[TEXT_INDEX];
     if ((textArea == NULL) || (textArea->obj.type != TEXT_AREA)) {
         LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateEnteredText(): text area not found\n");
         return -1;
@@ -830,8 +843,11 @@ int nbgl_layoutUpdateEnteredText(nbgl_layout_t *layout,
 
     // update number text area
     if (numbered) {
-        // it is the previously created object
-        textArea = (nbgl_text_area_t *) layoutInt->container->children[1];
+        textArea = (nbgl_text_area_t *) container->children[NUMBER_INDEX];
+        if ((textArea == NULL) || (textArea->obj.type != TEXT_AREA)) {
+            LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateEnteredText(): number area not found\n");
+            return -1;
+        }
         snprintf(numText, sizeof(numText), "%d.", number);
         textArea->text = numText;
         nbgl_objDraw((nbgl_obj_t *) textArea);
@@ -871,6 +887,11 @@ int nbgl_layoutAddConfirmationButton(nbgl_layout_t *layout,
     }
 
     button = addConfirmationButton(layoutInt, active, text, token, tuneId, compactMode);
+    if (button == NULL) {
+        LOG_WARN(LAYOUT_LOGGER,
+                 "nbgl_layoutAddConfirmationButton(): addConfirmationButton failed\n");
+        return -1;
+    }
     // set this button as second child of the main layout container
     layoutInt->container->children[enteredTextIndex + 1] = (nbgl_obj_t *) button;
     if (layoutInt->container->children[enteredTextIndex] != NULL) {
@@ -960,6 +981,10 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
                                       content->textToken,
                                       compactMode,
                                       content->obfuscated);
+    if (textEntryContainer == NULL) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddKeyboardContent(): addTextEntry failed\n");
+        return -1;
+    }
 
     // set this container as first child of the main layout container
     layoutInt->container->children[0] = (nbgl_obj_t *) textEntryContainer;
@@ -972,6 +997,11 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
                                    content->suggestionButtons.firstButtonToken,
                                    content->tuneId,
                                    content->obfuscated);
+        if (suggestionsContainer == NULL) {
+            LOG_WARN(LAYOUT_LOGGER,
+                     "nbgl_layoutAddKeyboardContent(): addSuggestionButtons failed\n");
+            return -1;
+        }
 
         // set this container as second child of the main layout container
         layoutInt->container->children[1] = (nbgl_obj_t *) suggestionsContainer;
@@ -997,6 +1027,11 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
                                                       content->confirmationButton.token,
                                                       content->tuneId,
                                                       (content->title != NULL));
+        if (button == NULL) {
+            LOG_WARN(LAYOUT_LOGGER,
+                     "nbgl_layoutAddKeyboardContent(): addConfirmationButton failed\n");
+            return -1;
+        }
         // set this button as second child of the main layout container
         layoutInt->container->children[1] = (nbgl_obj_t *) button;
         textEntryContainer->obj.alignmentMarginY
