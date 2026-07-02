@@ -584,6 +584,7 @@ int nbgl_layoutAddKeyboard(nbgl_layout_t *layout, const nbgl_layoutKbd_t *kbdInf
     }
     // footer must be empty
     if (layoutInt->footerContainer != NULL) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddKeyboard(): footer already set\n");
         return -1;
     }
 
@@ -660,6 +661,8 @@ int nbgl_layoutUpdateKeyboard(nbgl_layout_t *layout,
     // get existing keyboard (in the footer container)
     keyboard = (nbgl_keyboard_t *) layoutInt->footerContainer->children[0];
     if ((keyboard == NULL) || (keyboard->obj.type != KEYBOARD)) {
+        LOG_WARN(
+            LAYOUT_LOGGER, "nbgl_layoutUpdateKeyboard(): keyboard not found at index %d\n", index);
         return -1;
     }
     keyboard->keyMask = keyMask;
@@ -693,6 +696,9 @@ bool nbgl_layoutKeyboardNeedsRefresh(nbgl_layout_t *layout, uint8_t index)
     // get existing keyboard (in the footer container)
     keyboard = (nbgl_keyboard_t *) layoutInt->footerContainer->children[0];
     if ((keyboard == NULL) || (keyboard->obj.type != KEYBOARD)) {
+        LOG_WARN(LAYOUT_LOGGER,
+                 "nbgl_layoutKeyboardNeedsRefresh(): keyboard not found at index %d\n",
+                 index);
         return -1;
     }
     if (keyboard->needsRefresh) {
@@ -809,10 +815,12 @@ int nbgl_layoutUpdateEnteredText(nbgl_layout_t *layout,
     // update text entry area
     container = (nbgl_container_t *) layoutInt->container->children[enteredTextIndex];
     if ((container == NULL) || (container->obj.type != CONTAINER)) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateEnteredText(): container not found\n");
         return -1;
     }
     textArea = (nbgl_text_area_t *) container->children[2];
     if ((textArea == NULL) || (textArea->obj.type != TEXT_AREA)) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateEnteredText(): text area not found\n");
         return -1;
     }
     textArea->text          = text;
@@ -906,6 +914,7 @@ int nbgl_layoutUpdateConfirmationButton(nbgl_layout_t *layout,
     // update main text area
     button = (nbgl_button_t *) layoutInt->container->children[enteredTextIndex + 1];
     if ((button == NULL) || (button->obj.type != BUTTON)) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateConfirmationButton(): button not found\n");
         return -1;
     }
     button->text = text;
@@ -969,6 +978,8 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
         // the main container is swipable on Flex
         if (layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) layoutInt->container, 0, NBGL_NO_TUNE)
             == NULL) {
+            LOG_WARN(LAYOUT_LOGGER,
+                     "nbgl_layoutAddKeyboardContent(): cannot add callback object\n");
             return -1;
         }
         layoutInt->container->obj.touchMask = (1 << SWIPED_LEFT) | (1 << SWIPED_RIGHT);
@@ -1095,6 +1106,7 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
         // update main text area
         nbgl_button_t *button = (nbgl_button_t *) layoutInt->container->children[1];
         if ((button == NULL) || (button->obj.type != BUTTON)) {
+            LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateKeyboardContent(): button not found\n");
             return -1;
         }
         button->text = content->confirmationButton.text;

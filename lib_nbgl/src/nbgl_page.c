@@ -375,6 +375,9 @@ nbgl_page_t *nbgl_pageDrawInfo(nbgl_layoutTouchCallback_t              onActionC
             icon = &CLOSE_ICON;
         }
         else {
+            LOG_WARN(PAGE_LOGGER,
+                     "nbgl_pageDrawInfo(): unknown topRightStyle %d\n",
+                     info->topRightStyle);
             return NULL;
         }
         nbgl_layoutAddTopRightButton(layout, PIC(icon), info->topRightToken, info->tuneId);
@@ -408,6 +411,9 @@ nbgl_page_t *nbgl_pageDrawInfo(nbgl_layoutTouchCallback_t              onActionC
             icon = &CLOSE_ICON;
         }
         else {
+            LOG_WARN(PAGE_LOGGER,
+                     "nbgl_pageDrawInfo(): unknown bottomButtonStyle %d\n",
+                     info->bottomButtonStyle);
             return NULL;
         }
         nbgl_layoutAddBottomButton(

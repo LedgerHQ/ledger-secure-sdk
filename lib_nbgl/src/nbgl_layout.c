@@ -269,6 +269,7 @@ static void touchCallback(nbgl_obj_t *obj, nbgl_touchType_t eventType)
     bool                   needRefresh = false;
 
     if (obj == NULL) {
+        LOG_WARN(LAYOUT_LOGGER, "touchCallback(): obj not found\n");
         return;
     }
     LOG_DEBUG(LAYOUT_LOGGER, "touchCallback(): eventType = %d, obj = %p\n", eventType, obj);
@@ -651,10 +652,12 @@ layoutObj_t *layoutAddCallbackObj(nbgl_layoutInternal_t *layout,
 void layoutUpdateCallbackObjToken(nbgl_layoutInternal_t *layout, nbgl_obj_t *obj, uint8_t token)
 {
     if (layout == NULL) {
+        LOG_WARN(LAYOUT_LOGGER, "layoutUpdateCallbackObjToken(): layout is NULL\n");
         return;
     }
 
     if (obj == NULL) {
+        LOG_WARN(LAYOUT_LOGGER, "layoutUpdateCallbackObjToken(): obj is NULL\n");
         return;
     }
 
@@ -701,11 +704,13 @@ static int addSwipeInternal(nbgl_layoutInternal_t *layoutInt,
     layoutObj_t *obj;
 
     if ((swipesMask & SWIPE_MASK) == 0) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddSwipe(): invalid swipesMask 0x%x\n", swipesMask);
         return -1;
     }
 
     obj = layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) layoutInt->container, token, tuneId);
     if (obj == NULL) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddSwipe(): no more callback obj\n");
         return -1;
     }
     layoutInt->container->obj.touchMask = swipesMask;
@@ -740,6 +745,7 @@ static nbgl_container_t *addListItem(nbgl_layoutInternal_t *layoutInt, const lis
     obj       = layoutAddCallbackObj(
         layoutInt, (nbgl_obj_t *) container, itemDesc->token, itemDesc->tuneId);
     if (obj == NULL) {
+        LOG_WARN(LAYOUT_LOGGER, "addListItem(): no more callback obj\n");
         return NULL;
     }
     obj->index = itemDesc->index;
@@ -1289,6 +1295,7 @@ int nbgl_layoutAddTopRightButton(nbgl_layout_t             *layout,
     button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layoutInt->layer);
     obj    = layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) button, token, tuneId);
     if (obj == NULL) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddTopRightButton(): no more callback obj\n");
         return -1;
     }
 
@@ -1394,6 +1401,7 @@ int nbgl_layoutAddTouchableBar(nbgl_layout_t *layout, const nbgl_layoutBar_t *ba
     container          = addListItem(layoutInt, &itemDesc);
 
     if (container == NULL) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddTouchableBar(): addListItem failed\n");
         return -1;
     }
     return container->obj.area.height;
@@ -1430,6 +1438,7 @@ int nbgl_layoutAddSwitch(nbgl_layout_t *layout, const nbgl_layoutSwitch_t *switc
     container        = addListItem(layoutInt, &itemDesc);
 
     if (container == NULL) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddSwitch(): addListItem failed\n");
         return -1;
     }
     return container->obj.area.height;
@@ -1462,6 +1471,7 @@ int nbgl_layoutAddText(nbgl_layout_t *layout, const char *text, const char *subT
     container        = addListItem(layoutInt, &itemDesc);
 
     if (container == NULL) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddText(): addListItem failed\n");
         return -1;
     }
     return container->obj.area.height;
@@ -1503,6 +1513,7 @@ int nbgl_layoutAddTextWithAlias(nbgl_layout_t *layout,
     container          = addListItem(layoutInt, &itemDesc);
 
     if (container == NULL) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddTextWithAlias(): addListItem failed\n");
         return -1;
     }
     return container->obj.area.height;
@@ -1664,6 +1675,7 @@ int nbgl_layoutAddRadioChoice(nbgl_layout_t *layout, const nbgl_layoutRadioChoic
         obj = layoutAddCallbackObj(
             layoutInt, (nbgl_obj_t *) container, choices->token, choices->tuneId);
         if (obj == NULL) {
+            LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddRadioChoice(): no more callback obj\n");
             return -1;
         }
 
@@ -2436,6 +2448,7 @@ int nbgl_layoutAddButton(nbgl_layout_t *layout, const nbgl_layoutButton_t *butto
     obj    = layoutAddCallbackObj(
         layoutInt, (nbgl_obj_t *) button, buttonInfo->token, buttonInfo->tuneId);
     if (obj == NULL) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddButton(): no more callback obj\n");
         return -1;
     }
 
@@ -2627,6 +2640,9 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
                                                ? headerDesc->extendedBack.tuneId
                                                : headerDesc->backAndText.tuneId);
                 if (obj == NULL) {
+                    LOG_WARN(LAYOUT_LOGGER,
+                             "nbgl_layoutAddHeader(): no more callback obj for type %d\n",
+                             headerDesc->type);
                     return -1;
                 }
             }
@@ -2665,6 +2681,9 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
                                                headerDesc->extendedBack.textToken,
                                                headerDesc->extendedBack.tuneId);
                     if (obj == NULL) {
+                        LOG_WARN(LAYOUT_LOGGER,
+                                 "nbgl_layoutAddHeader(): no more callback obj for type %d\n",
+                                 headerDesc->type);
                         return -1;
                     }
                     textArea->obj.touchMask = (1 << TOUCHED);
@@ -2720,6 +2739,9 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
                                                headerDesc->extendedBack.actionToken,
                                                headerDesc->extendedBack.tuneId);
                     if (obj == NULL) {
+                        LOG_WARN(LAYOUT_LOGGER,
+                                 "nbgl_layoutAddHeader(): no more callback obj for type %d\n",
+                                 headerDesc->type);
                         return -1;
                     }
                     actionButton->obj.touchMask = (1 << TOUCHED);
@@ -2799,6 +2821,9 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
                                            headerDesc->progressAndBack.token,
                                            headerDesc->progressAndBack.tuneId);
                 if (obj == NULL) {
+                    LOG_WARN(LAYOUT_LOGGER,
+                             "nbgl_layoutAddHeader(): no more callback obj for type %d\n",
+                             headerDesc->type);
                     return -1;
                 }
 
@@ -2862,6 +2887,9 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
                                        headerDesc->rightText.token,
                                        headerDesc->rightText.tuneId);
             if (obj == NULL) {
+                LOG_WARN(LAYOUT_LOGGER,
+                         "nbgl_layoutAddHeader(): no more callback obj for type %d\n",
+                         headerDesc->type);
                 return -1;
             }
             textArea->obj.alignment        = MID_RIGHT;
@@ -2948,6 +2976,7 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
                                        footerDesc->simpleText.token,
                                        footerDesc->simpleText.tuneId);
             if (obj == NULL) {
+                LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddFooter(): no more callback obj\n");
                 return -1;
             }
 
@@ -2975,6 +3004,7 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
                                        footerDesc->doubleText.leftToken,
                                        footerDesc->doubleText.tuneId);
             if (obj == NULL) {
+                LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddFooter(): no more callback obj\n");
                 return -1;
             }
             textArea->obj.alignment   = BOTTOM_LEFT;
@@ -2998,6 +3028,7 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
                                        footerDesc->doubleText.rightToken,
                                        footerDesc->doubleText.tuneId);
             if (obj == NULL) {
+                LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddFooter(): no more callback obj\n");
                 return -1;
             }
 
@@ -3037,6 +3068,7 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
                                        footerDesc->textAndNav.token,
                                        footerDesc->textAndNav.tuneId);
             if (obj == NULL) {
+                LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddFooter(): no more callback obj\n");
                 return -1;
             }
             textArea->obj.alignment   = BOTTOM_LEFT;
@@ -3070,6 +3102,7 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
                                        footerDesc->textAndNav.navigation.token,
                                        footerDesc->textAndNav.navigation.tuneId);
             if (obj == NULL) {
+                LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddFooter(): no more callback obj\n");
                 return -1;
             }
 
@@ -3102,6 +3135,7 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
                                        footerDesc->navigation.token,
                                        footerDesc->navigation.tuneId);
             if (obj == NULL) {
+                LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddFooter(): no more callback obj\n");
                 return -1;
             }
 
@@ -3116,6 +3150,7 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
                                        footerDesc->button.token,
                                        footerDesc->button.tuneId);
             if (obj == NULL) {
+                LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddFooter(): no more callback obj\n");
                 return -1;
             }
 
@@ -3165,6 +3200,8 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
             // texts cannot be NULL
             if ((footerDesc->choiceButtons.bottomText == NULL)
                 || (footerDesc->choiceButtons.topText == NULL)) {
+                LOG_WARN(LAYOUT_LOGGER,
+                         "nbgl_layoutAddFooter(): FOOTER_CHOICE_BUTTONS texts cannot be NULL\n");
                 return -1;
             }
 
@@ -3175,6 +3212,7 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
                                        footerDesc->choiceButtons.token,
                                        footerDesc->choiceButtons.tuneId);
             if (obj == NULL) {
+                LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddFooter(): no more callback obj\n");
                 return -1;
             }
             // associate with with index 1
@@ -3224,6 +3262,7 @@ int nbgl_layoutAddExtendedFooter(nbgl_layout_t *layout, const nbgl_layoutFooter_
                                        footerDesc->choiceButtons.token,
                                        footerDesc->choiceButtons.tuneId);
             if (obj == NULL) {
+                LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddFooter(): no more callback obj\n");
                 return -1;
             }
             // associate with with index 0
@@ -3359,6 +3398,7 @@ int nbgl_layoutAddUpFooter(nbgl_layout_t *layout, const nbgl_layoutUpFooter_t *u
                                        upFooterDesc->longPress.token,
                                        upFooterDesc->longPress.tuneId);
             if (obj == NULL) {
+                LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddUpFooter(): no more callback obj\n");
                 return -1;
             }
             layoutInt->upFooterContainer->nbChildren      = 4;
@@ -3415,6 +3455,7 @@ int nbgl_layoutAddUpFooter(nbgl_layout_t *layout, const nbgl_layoutUpFooter_t *u
                                        upFooterDesc->button.token,
                                        upFooterDesc->button.tuneId);
             if (obj == NULL) {
+                LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddUpFooter(): no more callback obj\n");
                 return -1;
             }
 
@@ -3458,6 +3499,9 @@ int nbgl_layoutAddUpFooter(nbgl_layout_t *layout, const nbgl_layoutUpFooter_t *u
             // icon & text cannot be NULL
             if ((upFooterDesc->horizontalButtons.leftIcon == NULL)
                 || (upFooterDesc->horizontalButtons.rightText == NULL)) {
+                LOG_WARN(LAYOUT_LOGGER,
+                         "nbgl_layoutAddUpFooter(): UP_FOOTER_HORIZONTAL_BUTTONS fields cannot be "
+                         "NULL\n");
                 return -1;
             }
 
@@ -3471,6 +3515,7 @@ int nbgl_layoutAddUpFooter(nbgl_layout_t *layout, const nbgl_layoutUpFooter_t *u
                                        upFooterDesc->horizontalButtons.leftToken,
                                        upFooterDesc->horizontalButtons.tuneId);
             if (obj == NULL) {
+                LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddUpFooter(): no more callback obj\n");
                 return -1;
             }
             // associate with with index 1
@@ -3496,6 +3541,7 @@ int nbgl_layoutAddUpFooter(nbgl_layout_t *layout, const nbgl_layoutUpFooter_t *u
                                        upFooterDesc->horizontalButtons.rightToken,
                                        upFooterDesc->horizontalButtons.tuneId);
             if (obj == NULL) {
+                LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddUpFooter(): no more callback obj\n");
                 return -1;
             }
             // associate with with index 0
@@ -3518,6 +3564,8 @@ int nbgl_layoutAddUpFooter(nbgl_layout_t *layout, const nbgl_layoutUpFooter_t *u
         case UP_FOOTER_TIP_BOX: {
             // text cannot be NULL
             if (upFooterDesc->tipBox.text == NULL) {
+                LOG_WARN(LAYOUT_LOGGER,
+                         "nbgl_layoutAddUpFooter(): UP_FOOTER_TIP_BOX text cannot be NULL\n");
                 return -1;
             }
             obj = layoutAddCallbackObj(layoutInt,
@@ -3525,6 +3573,7 @@ int nbgl_layoutAddUpFooter(nbgl_layout_t *layout, const nbgl_layoutUpFooter_t *u
                                        upFooterDesc->tipBox.token,
                                        upFooterDesc->tipBox.tuneId);
             if (obj == NULL) {
+                LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddUpFooter(): no more callback obj\n");
                 return -1;
             }
             layoutInt->upFooterContainer->nbChildren    = 3;
@@ -3575,6 +3624,7 @@ int nbgl_layoutAddUpFooter(nbgl_layout_t *layout, const nbgl_layoutUpFooter_t *u
                                        upFooterDesc->text.token,
                                        upFooterDesc->text.tuneId);
             if (obj == NULL) {
+                LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddUpFooter(): no more callback obj\n");
                 return -1;
             }
             layoutInt->upFooterContainer->nbChildren      = 1;
@@ -3781,11 +3831,15 @@ int nbgl_layoutUpdateSpinner(nbgl_layout_t *layout,
 
     container = (nbgl_container_t *) layoutInt->container->children[0];
     if ((container->obj.type != CONTAINER) || (container->nbChildren < 2)) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateSpinner(): unexpected container state\n");
         return -1;
     }
 
     spinner = (nbgl_spinner_t *) container->children[0];
     if (spinner->obj.type != SPINNER) {
+        LOG_WARN(LAYOUT_LOGGER,
+                 "nbgl_layoutUpdateSpinner(): expected SPINNER, got type %d\n",
+                 spinner->obj.type);
         return -1;
     }
     // if position is different, redraw
@@ -3798,6 +3852,9 @@ int nbgl_layoutUpdateSpinner(nbgl_layout_t *layout,
     // update text area if necessary
     textArea = (nbgl_text_area_t *) container->children[1];
     if (textArea->obj.type != TEXT_AREA) {
+        LOG_WARN(LAYOUT_LOGGER,
+                 "nbgl_layoutUpdateSpinner(): expected TEXT_AREA, got type %d\n",
+                 textArea->obj.type);
         return -1;
     }
     const char *newText    = PIC(text);
@@ -3813,10 +3870,16 @@ int nbgl_layoutUpdateSpinner(nbgl_layout_t *layout,
         nbgl_text_area_t *subTextArea;
 
         if (container->nbChildren != 3) {
+            LOG_WARN(LAYOUT_LOGGER,
+                     "nbgl_layoutUpdateSpinner(): expected 3 children for subText, got %d\n",
+                     container->nbChildren);
             return -1;
         }
         subTextArea = (nbgl_text_area_t *) container->children[2];
         if (subTextArea->obj.type != TEXT_AREA) {
+            LOG_WARN(LAYOUT_LOGGER,
+                     "nbgl_layoutUpdateSpinner(): expected TEXT_AREA for subText, got type %d\n",
+                     subTextArea->obj.type);
             return -1;
         }
         const char *newSubText    = PIC(subText);
@@ -3844,6 +3907,7 @@ int nbgl_layoutDraw(nbgl_layout_t *layoutParam)
     nbgl_layoutInternal_t *layout = (nbgl_layoutInternal_t *) layoutParam;
 
     if (layout == NULL) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutDraw(): layout is NULL\n");
         return -1;
     }
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutDraw(): layout->isUsed = %d\n", layout->isUsed);
