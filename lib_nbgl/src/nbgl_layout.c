@@ -2651,37 +2651,35 @@ int nbgl_layoutAddHeader(nbgl_layout_t *layout, const nbgl_layoutHeader_t *heade
                                               ? headerDesc->extendedBack.backToken
                                               : headerDesc->backAndText.token;
             nbgl_button_t *actionButton = NULL;
-            // add back button
-            button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layoutInt->layer);
-            // only make it active if valid token
+            // add back button only if token is valid
             if (backToken != NBGL_INVALID_TOKEN) {
-                obj = layoutAddCallbackObj(layoutInt,
+                button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, layoutInt->layer);
+                obj    = layoutAddCallbackObj(layoutInt,
                                            (nbgl_obj_t *) button,
                                            backToken,
                                            (headerDesc->type == HEADER_EXTENDED_BACK)
-                                               ? headerDesc->extendedBack.tuneId
-                                               : headerDesc->backAndText.tuneId);
+                                                  ? headerDesc->extendedBack.tuneId
+                                                  : headerDesc->backAndText.tuneId);
                 if (obj == NULL) {
                     LOG_WARN(LAYOUT_LOGGER,
                              "nbgl_layoutAddHeader(): no more callback obj for type %d\n",
                              headerDesc->type);
                     return -1;
                 }
+                button->obj.alignment   = MID_LEFT;
+                button->innerColor      = WHITE;
+                button->foregroundColor = BLACK;
+                button->borderColor     = WHITE;
+                button->obj.area.width  = BACK_KEY_WIDTH;
+                button->obj.area.height = TOUCHABLE_HEADER_BAR_HEIGHT;
+                button->text            = NULL;
+                button->icon            = PIC(&LEFT_ARROW_ICON);
+                button->obj.touchMask   = (1 << TOUCHED);
+                button->obj.touchId     = BACK_BUTTON_ID;
+                layoutInt->headerContainer->children[layoutInt->headerContainer->nbChildren]
+                    = (nbgl_obj_t *) button;
+                layoutInt->headerContainer->nbChildren++;
             }
-
-            button->obj.alignment   = MID_LEFT;
-            button->innerColor      = WHITE;
-            button->foregroundColor = (backToken != NBGL_INVALID_TOKEN) ? BLACK : WHITE;
-            button->borderColor     = WHITE;
-            button->obj.area.width  = BACK_KEY_WIDTH;
-            button->obj.area.height = TOUCHABLE_HEADER_BAR_HEIGHT;
-            button->text            = NULL;
-            button->icon            = PIC(&LEFT_ARROW_ICON);
-            button->obj.touchMask   = (backToken != NBGL_INVALID_TOKEN) ? (1 << TOUCHED) : 0;
-            button->obj.touchId     = BACK_BUTTON_ID;
-            layoutInt->headerContainer->children[layoutInt->headerContainer->nbChildren]
-                = (nbgl_obj_t *) button;
-            layoutInt->headerContainer->nbChildren++;
 
             // add optional text if needed
             if (text != NULL) {
