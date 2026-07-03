@@ -108,6 +108,8 @@ int nbgl_layoutUpdateKeyboard(nbgl_layout_t *layout, uint8_t index, uint32_t key
     // get keyboard at given index
     keyboard = (nbgl_keyboard_t *) layoutInt->children[index];
     if ((keyboard == NULL) || (keyboard->obj.type != KEYBOARD)) {
+        LOG_WARN(
+            LAYOUT_LOGGER, "nbgl_layoutUpdateKeyboard(): keyboard not found at index %d\n", index);
         return -1;
     }
     if (keyboard->lettersOnly) {
@@ -221,6 +223,7 @@ int nbgl_layoutUpdateEnteredText(nbgl_layout_t *layout, uint8_t index, const cha
     // update main text area
     textEntry = (nbgl_text_entry_t *) layoutInt->children[index];
     if ((textEntry == NULL) || (textEntry->obj.type != TEXT_ENTRY)) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateEnteredText(): text entry not found\n");
         return -1;
     }
     textEntry->text = text;

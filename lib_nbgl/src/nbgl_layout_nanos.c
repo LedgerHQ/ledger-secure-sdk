@@ -735,7 +735,8 @@ int nbgl_layoutAddSwitch(nbgl_layout_t *layout, const nbgl_layoutSwitch_t *switc
         = nbgl_getTextNbLinesInWidth(textArea->fontId, textArea->text, AVAILABLE_WIDTH, true);
     // if more than 1 line on screen
     if (nbLines > 1) {
-        // TODO: warning for screenshots
+        LOG_WARN(
+            LAYOUT_LOGGER, "nbgl_layoutAddSwitch(): item text too long (%d lines > 1)\n", nbLines);
         return -1;
     }
     textArea->obj.area.height      = nbgl_getFontLineHeight(textArea->fontId);
@@ -757,7 +758,9 @@ int nbgl_layoutAddSwitch(nbgl_layout_t *layout, const nbgl_layoutSwitch_t *switc
             = nbgl_getTextNbLinesInWidth(textArea->fontId, textArea->text, AVAILABLE_WIDTH, true);
         // if more than 2 lines on screen
         if (nbLines > 2) {
-            // TODO: warning for screenshots
+            LOG_WARN(LAYOUT_LOGGER,
+                     "nbgl_layoutAddSwitch(): sub text too long (%d lines > 2)\n",
+                     nbLines);
             return -1;
         }
         textArea->obj.alignment        = CENTER;
@@ -795,6 +798,7 @@ int nbgl_layoutDraw(nbgl_layout_t *layoutParam)
     nbgl_layoutInternal_t *layout = (nbgl_layoutInternal_t *) layoutParam;
 
     if (layout == NULL) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutDraw(): layout is NULL\n");
         return -1;
     }
     LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutDraw(): layout->nbChildren = %d\n", layout->nbChildren);

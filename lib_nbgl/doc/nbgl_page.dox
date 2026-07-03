@@ -52,10 +52,11 @@ A few APIs are available to draw typical pages, like:
 - @ref nbgl_pageDrawInfo() to draw a centered info with potential footer (or bottom button), "tapable" container and top-right button
 - @ref nbgl_pageDrawConfirmation() to draw a typical confirmation screen, for example when rejecting a transaction (with 1 button for confirmation)
 
-In addition, in order to factorize some code, a generic function is available to draw generic content, either for a single page
+In addition, in order to factorize some code, generic functions are available to draw generic content, either for a single page
 or for a multi-pages configuration.
 
 - @ref nbgl_pageDrawGenericContent()
+- @ref nbgl_pageDrawGenericContentExt() when a modal display is needed
 
 @subsection page_typical_types Typical page types
 
@@ -177,6 +178,11 @@ The API to create such a page is @ref nbgl_pageDrawGenericContent().
 - The first parameter provides the action callback (for all controls)
 - The second one, if not NULL, provides the navigation parameters (see next chapter)
 - The last one provides the content of the page itself
+
+When the page must be displayed as a modal (on top of an existing page), use @ref nbgl_pageDrawGenericContentExt() instead.
+It accepts the same parameters as @ref nbgl_pageDrawGenericContent(), plus an additional \b modal boolean as the last argument.
+Setting \b modal to true causes the page to be rendered on top of the current screen rather than replacing it.
+Passing \b modal as false makes it behave identically to @ref nbgl_pageDrawGenericContent().
 
 @subsubsection page_generic_navigation Generic content page navigation
 

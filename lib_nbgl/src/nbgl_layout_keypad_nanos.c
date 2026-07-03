@@ -293,15 +293,21 @@ int nbgl_layoutUpdateKeypadContent(nbgl_layout_t *layout,
         container = (nbgl_container_t *) layoutInt->children[2];
         // sanity check
         if ((container == NULL) || (container->obj.type != CONTAINER)) {
+            LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateKeypadContent(): container not found\n");
             return -1;
         }
         if (nbActiveDigits > container->nbChildren) {
+            LOG_WARN(LAYOUT_LOGGER,
+                     "nbgl_layoutUpdateKeypadContent(): nbActive %d > nbChildren %d\n",
+                     nbActiveDigits,
+                     container->nbChildren);
             return -1;
         }
         if (nbActiveDigits == 0) {
             // deactivate the first digit
             image = (nbgl_image_t *) container->children[0];
             if ((image == NULL) || (image->obj.type != IMAGE)) {
+                LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateKeypadContent(): image not found\n");
                 return -1;
             }
             image->buffer = &C_pin_bullet_empty;
@@ -309,6 +315,7 @@ int nbgl_layoutUpdateKeypadContent(nbgl_layout_t *layout,
         else {
             image = (nbgl_image_t *) container->children[nbActiveDigits - 1];
             if ((image == NULL) || (image->obj.type != IMAGE)) {
+                LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateKeypadContent(): image not found\n");
                 return -1;
             }
             // if the last "active" is already active, it means that we are decreasing the number of
@@ -333,6 +340,7 @@ int nbgl_layoutUpdateKeypadContent(nbgl_layout_t *layout,
         // update main text area (second child of the main container)
         nbgl_text_area_t *textArea = (nbgl_text_area_t *) layoutInt->children[2];
         if ((textArea == NULL) || (textArea->obj.type != TEXT_AREA)) {
+            LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateKeypadContent(): text area not found\n");
             return -1;
         }
         textArea->text = text;
