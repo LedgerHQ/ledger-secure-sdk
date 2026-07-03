@@ -156,6 +156,58 @@ A thin vertical separation is drawn between both text areas.
 
 \warning This object is incompatible with navigation bar or bottom button, for example
 
+@subsection extended_footer Extended footer
+
+This object is a richly-configurable footer placed at the very bottom of the screen, outside the main container.
+It is a superset of @ref nbgl_layoutAddFooter() and @ref nbgl_layoutAddSplitFooter() and covers all @ref nbgl_layoutFooterType_t variants:
+
+- @ref FOOTER_EMPTY: empty space (for better vertical centering of the main content)
+- @ref FOOTER_SIMPLE_TEXT: a single touchable bold text, optionally grayed-out
+- @ref FOOTER_DOUBLE_TEXT: two horizontally-adjacent touchable texts separated by a vertical line
+- @ref FOOTER_TEXT_AND_NAV: a touchable text on the left with a navigation bar on the right
+- @ref FOOTER_NAV: a full navigation bar (see also @ref nbgl_layoutAddNavigationBar())
+- @ref FOOTER_SIMPLE_BUTTON: a single rounded button (black or white, see @ref nbgl_layoutButtonStyle_t)
+- @ref FOOTER_CHOICE_BUTTONS: a pair of stacked choice buttons (same as @ref nbgl_layoutAddChoiceButtons())
+
+The API to insert such an object is @ref nbgl_layoutAddExtendedFooter(), using @ref nbgl_layoutFooter_t structure.
+
+A thin horizontal separation line can optionally be added on top by setting the \b separationLine field to true.
+
+\warning This object is incompatible with navigation bar or bottom button.
+
+@subsection up_footer Up-footer area
+
+This object places a control area immediately above the footer (or above the bottom of the main container when no footer is present).
+It is not part of the main container. It covers all @ref nbgl_layoutUpFooterType_t variants:
+
+- @ref UP_FOOTER_LONG_PRESS: a long-press button (equivalent to @ref nbgl_layoutAddLongPressButton())
+- @ref UP_FOOTER_BUTTON: a single rounded button
+- @ref UP_FOOTER_HORIZONTAL_BUTTONS: a pair of horizontal buttons (equivalent to @ref nbgl_layoutAddHorizontalButtons())
+- @ref UP_FOOTER_TIP_BOX: a tip-box information area
+- @ref UP_FOOTER_TEXT: a grayed-out touchable text (e.g. "Tap to continue")
+
+The API to insert such an object is @ref nbgl_layoutAddUpFooter(), using @ref nbgl_layoutUpFooter_t structure.
+
+@subsection navigation_bar Navigation bar
+
+This object places a classic bottom navigation bar at the very bottom of the screen, outside the main container.
+It provides optional back and forward arrow buttons as well as an optional exit key. It is a convenience wrapper
+around @ref nbgl_layoutAddExtendedFooter() with type @ref FOOTER_NAV, and is the lower-level alternative to the navigation embedded in @ref nbgl_layoutAddExtendedFooter().
+
+The parameters of @ref nbgl_layoutNavigationBar_t include:
+
+- \b nbPages: total number of pages (if 0, no page indicator)
+- \b activePage: index of the currently active page (from 0 to nbPages-1)
+- \b withExitKey: if true, an exit (X) button is drawn on the left
+- \b withBackKey: if true, a back arrow button is drawn
+- \b withSeparationLine: if true, a horizontal line is drawn on top of the bar
+- \b token: token passed to the action callback when a navigation key is pressed; for the exit key, \b index is @ref EXIT_PAGE
+- \b tuneId: optional tune to play on key press
+
+The API to insert such an object is @ref nbgl_layoutAddNavigationBar(), using @ref nbgl_layoutNavigationBar_t structure.
+
+\warning This object is incompatible with footer or bottom button.
+
 @subsection centered_info Centered info area
 
 \image{inline} html stax_layout1.png "caption" height=300
@@ -176,6 +228,37 @@ The colors and fonts for the texts depends of the \b style field used in @ref nb
 
 - if @ref LARGE_CASE_INFO, main text is in @ref BLACK and large case (INTER 32px), subText in @ref BLACK in INTER 24px
 - if @ref NORMAL_INFO, icon in black and main text in INTER 24px in @ref BLACK under it, subText in INTER 24px in @ref DARK_GRAY under it
+
+@subsection content_center Centered content area
+
+This object is a richer alternative to the @ref centered_info area. It uses the @ref nbgl_contentCenter_t structure and supports
+more illustration types (icon, image, Lottie animation) as well as an optional small title, a description text, and a sub-text.
+
+The fields of @ref nbgl_contentCenter_t include:
+
+- \b illustrType: the type of illustration (icon, image…)
+- \b icon or \b image pointer, depending on \b illustrType
+- \b title: main text in large bold font (optional)
+- \b smallTitle: secondary title text in smaller bold font (optional)
+- \b description: description text in regular font (optional)
+- \b subText: sub-description in gray (optional)
+
+The whole object is centered horizontally in the page.
+
+The API to insert such an object is @ref nbgl_layoutAddContentCenter(), using @ref nbgl_contentCenter_t structure.
+
+@subsection left_content Left-aligned content area
+
+This object displays a bold title followed by a list of rows, each row made of an icon and a text, all left-aligned.
+
+The fields of @ref nbgl_layoutLeftContent_t include:
+
+- \b title: bold title drawn above the rows
+- \b nbRows: number of rows
+- \b rowTexts: array of \b nbRows text strings (displayed in regular font)
+- \b rowIcons: array of \b nbRows icon pointers
+
+The API to insert such an object is @ref nbgl_layoutAddLeftContent(), using @ref nbgl_layoutLeftContent_t structure.
 
 @subsection choice_buttons Choice buttons
 
@@ -201,7 +284,8 @@ The API to insert such an object is @ref nbgl_layoutAddChoiceButtons(), with @re
 
 This object is made of a single button, in @ref BLACK. The text and optional icon are in @ref WHITE
 
-This button occupies the full width of the screen, except if \b fittingContent field of @ref nbgl_layoutButton_t is true, and is put at the bottom of the main container, on top of a potential navigation bar or bottom button.
+This button occupies the full width of the screen, except if \b fittingContent field of @ref nbgl_layoutButton_t is true,
+and is put at the bottom of the main container, on top of a potential navigation bar or bottom button.
 
 The API to insert such an object is @ref nbgl_layoutAddButton(), with @ref nbgl_layoutButton_t structure.
 
@@ -217,6 +301,21 @@ and the action callback is called with the given \b token.
 This button occupies the full width of the screen and is put at the bottom of the main container, on top of a potential navigation bar or bottom button.
 
 The API to insert such an object is @ref nbgl_layoutAddLongPressButton(), with the button text and token as parameters.
+
+@subsection horizontal_buttons Horizontal buttons pair
+
+This object places a small round icon-only button on the left and a full text button on the right, both on the same horizontal line.
+It is implemented internally via @ref nbgl_layoutAddUpFooter() with type @ref UP_FOOTER_HORIZONTAL_BUTTONS.
+
+The fields of @ref nbgl_layoutHorizontalButtons_t include:
+
+- \b leftIcon: 1BPP icon for the left round button
+- \b leftToken: token reported when the left button is pressed
+- \b rightText: text of the right button
+- \b rightToken: token reported when the right button is pressed
+- \b tuneId: optional tune to play on press
+
+The API to insert such an object is @ref nbgl_layoutAddHorizontalButtons(), using @ref nbgl_layoutHorizontalButtons_t structure.
 
 @subsection item_values Tag/value list
 
@@ -242,6 +341,49 @@ fitting length)
 This area is displayed in the main container, under the previously inserted complex object.
 
 The API to insert such an object is @ref nbgl_layoutAddTagValueList(), with @ref nbgl_layoutTagValueList_t structure
+
+@subsection text_block Text block
+
+This object adds a text area with an optional sub-text below it. Both texts are left-aligned and auto-wrap.
+The main text uses a small bold font; the sub-text uses a small regular font.
+
+The API to insert such an object is @ref nbgl_layoutAddText(), which takes the main \b text and an optional \b subText as parameters.
+
+@subsection text_with_alias Touchable text block with alias
+
+This object is similar to the @ref text_block but adds a small chevron icon (>) on the right of the main text, making the entire row touchable.
+When touched, the provided \b token is reported to the action callback together with the given \b index.
+
+The API to insert such an object is @ref nbgl_layoutAddTextWithAlias().
+
+@subsection large_case_text Large-case text
+
+This object adds a single multi-line text displayed in a large (32 px) font, left-aligned and auto-wrapping.
+The text is rendered in @ref BLACK by default; if the \b grayedOut parameter is true, it is rendered in light gray instead.
+
+The API to insert such an object is @ref nbgl_layoutAddLargeCaseText().
+
+@subsection text_content Composite text content
+
+This object adds a composite block that can contain up to three layers of text, all left-aligned:
+
+- A bold title in a large font (optional)
+- Up to @ref NB_MAX_DESCRIPTIONS description paragraphs in a small regular font (optional)
+- An info text in gray anchored to the bottom of the container (optional)
+
+The fields of @ref nbgl_layoutTextContent_t include:
+
+- \b title: main bold large-font text
+- \b nbDescriptions / \b descriptions: array of regular-font description paragraphs
+- \b info: gray informational text placed at the bottom
+
+The API to insert such an object is @ref nbgl_layoutAddTextContent(), using @ref nbgl_layoutTextContent_t structure.
+
+@subsection separation_line Horizontal separation line
+
+This object adds a thin horizontal line directly below the previously inserted object in the main container. It can be used to visually separate groups of items.
+
+The API to insert such an object is @ref nbgl_layoutAddSeparationLine().
 
 @subsection touchable_bar Touchable bar
 
@@ -278,7 +420,8 @@ This object is made of:
 
 This area is displayed in the main container, under the previously inserted complex object.
 
-When touched, if not inactivated, the \b token provided in @ref nbgl_layoutSwitch_t is used with the action callback. \b index parameter meaning is 0 for inactive, 1 for active.
+When touched, if not inactivated, the \b token provided in @ref nbgl_layoutSwitch_t is used with the action callback.
+\b index parameter meaning is 0 for inactive, 1 for active.
 
 The API to insert such an object is @ref nbgl_layoutAddSwitch(), with @ref nbgl_layoutSwitch_t structure
 
@@ -314,6 +457,10 @@ The API to insert such an object is @ref nbgl_layoutAddSpinner().
 
 \warning No other object shall be inserted beside this one.
 
+@note Once a spinner layout has been drawn, the spinner position and texts can be updated in-place (without a full redraw)
+using @ref nbgl_layoutUpdateSpinner(). Pass the new \b position, \b text and optional \b subText.
+The function returns 0 if nothing changed, 1 if a partial black-and-white refresh is needed, or 2 if a partial color refresh is needed.
+
 @subsection progress_indicator Progress indicator
 
 \image{inline} html layout5.png "caption" height=300
@@ -336,6 +483,19 @@ The API to insert such an object is @ref nbgl_layoutAddProgressIndicator().
 \warning This object is incompatible with top-right button and page selector.
 \warning This object is deprecated.
 
+@subsection progress_bar Progress bar
+
+This object adds a centered progress bar with a percentage completion, a title text above it, and an optional sub-text below it.
+It is distinct from the deprecated @ref progress_indicator.
+
+The parameters of @ref nbgl_layoutAddProgressBar() are:
+
+- \b percentage: completion level from 0 to 100
+- \b text: title text displayed in large bold font, centered above the bar
+- \b subText: optional description in small regular font, centered below the bar (can be NULL)
+
+The API to insert such an object is @ref nbgl_layoutAddProgressBar().
+
 @subsection qr_code QR Code
 
 \image{inline} html stax_layout13.png "caption" height=300
@@ -351,6 +511,28 @@ The parameters to build this object are:
 The API to insert such an object is @ref nbgl_layoutAddQRCode(), with @ref nbgl_layoutQRCode_t structure as parameter.
 
 \warning This object is incompatible with top-right button and progress indicator.
+
+@subsection swipe Swipe gesture handler
+
+This object registers a swipe gesture on the main container. When the user swipes in one of the enabled directions
+(described by the \b swipesMask bitmask), the action callback is called with the given \b token.
+
+An optional gray label text can be displayed at the bottom of the container (e.g. "Swipe to continue") by providing a non-NULL \b text parameter.
+
+The parameters of @ref nbgl_layoutAddSwipe() are:
+
+- \b swipesMask: bitmask of swipe directions to handle
+- \b text: optional gray text drawn at the bottom of the container (can be NULL)
+- \b token: token passed to the action callback when a swipe is detected
+- \b tuneId: optional tune to play when a swipe is detected
+
+The API to register such a gesture is @ref nbgl_layoutAddSwipe().
+
+@subsection invert_background Background color inversion
+
+This utility inverts the page background from white to black (dark mode). Any "Tap to continue" text in the up-footer area is also adjusted for contrast.
+
+The API to apply this inversion is @ref nbgl_layoutInvertBackground().
 
 @subsection keyboard_section Keyboard-related objects
 
@@ -388,6 +570,9 @@ used to modify the mask of an existing keyboard.
 - If mask[1] bit is 1, the 'w' key is invalid
 - And so on in "qwertyuiopasdfghjklzxcvbnm" string.
 - "space" key has index 29.
+
+@note After calling @ref nbgl_layoutUpdateKeyboard() with a new key mask, use @ref nbgl_layoutKeyboardNeedsRefresh()
+to query whether the keyboard widget has actually been redrawn and therefore requires a screen refresh. It returns true if a refresh is needed (and clears the internal flag).
 
 @subsubsection keyboard_sub_section_2 Adding/Updating Keyboard Content
 
@@ -480,7 +665,7 @@ static void keyboardCallback(char touchedKey) {
     textToEnter[textLen-1] = '\0';
   }
   // be sure to redraw the text
-  nbgl_layoutUpdateKeyboardContent(layout,textIndex,false,0,textToEnter,false);
+  nbgl_layoutUpdateKeyboardContent(layout, &kbdContent);
 }
 
 void app_keyboard(void) {
@@ -557,7 +742,7 @@ static void layoutTouchCallback(int token, uint8_t index) {
   else if (token == KBD_TEXT_TOKEN) {
     // Delete entered text
     textToEnter[0] = '\0';
-    nbgl_layoutKbdContent_t kbdContent = {
+    nbgl_layoutKeyboardContent_t kbdContent = {
       .title                              = headerText,
       .type                               = KEYBOARD_WITH_SUGGESTIONS,
       .numbered                           = true,
@@ -571,7 +756,7 @@ static void layoutTouchCallback(int token, uint8_t index) {
       .suggestionButtons.nbUsedButtons    = 0
     };
     // update keyboard content
-    nbgl_layoutUpdateKeyboardContent(&kbdContent);
+    nbgl_layoutUpdateKeyboardContent(layout, &kbdContent);
 
     // and refresh screen
     nbgl_refresh();
@@ -588,7 +773,7 @@ static void layoutTouchCallback(int token, uint8_t index) {
 
 // function called when a key of keyboard is touched
 static void keyboardCallback(char touchedKey) {
-  nbgl_layoutKbdContent_t kbdContent = {
+  nbgl_layoutKeyboardContent_t kbdContent = {
     .title                              = headerText,
     .type                               = KEYBOARD_WITH_SUGGESTIONS,
     .numbered                           = true,
@@ -617,7 +802,7 @@ static void keyboardCallback(char touchedKey) {
     // remove any suggestion buttons because empty string
     bdContent.suggestionButtons.nbUsedButtons    = 0;
     // clear keyboard mask
-    nbgl_layoutUpdateKeyboard(layout,keyboardIndex, 0x0, LOWER_CASE);
+    nbgl_layoutUpdateKeyboard(layout, keyboardIndex, 0x0, false, LOWER_CASE);
   }
   else {
     // find up to NB_MAX_SUGGESTION_BUTTONS words beginning with textToEnter
@@ -627,7 +812,7 @@ static void keyboardCallback(char touchedKey) {
     // get keys to mask on keyboard for possible next letters
     uint32_t mask = getKeyboardMask(textToEnter);
     // use it for keyboard
-    nbgl_layoutUpdateKeyboard(layout,keyboardIndex, mask, LOWER_CASE);
+    nbgl_layoutUpdateKeyboard(layout, keyboardIndex, mask, false, LOWER_CASE);
   }
   // update keyboard content
   nbgl_layoutUpdateKeyboardContent(&kbdContent);
@@ -648,7 +833,7 @@ void app_keyboard(void) {
       .mode = MODE_LETTERS, // start in letters mode
       .upperCase = false    // start with lower case letters
     };
-    nbgl_layoutKbdContent_t kbdContent = {
+    nbgl_layoutKeyboardContent_t kbdContent = {
       .title                              = headerText,
       .type                               = KEYBOARD_WITH_SUGGESTIONS,
       .numbered                           = true,
@@ -708,6 +893,9 @@ The API to insert such an object is @ref nbgl_layoutAddKeypad().
 
 This function returns a positive integer (if successful) to be used as an index in @ref nbgl_layoutUpdateKeypad() function,
 used to modify the mask (active keys) of an existing keypad.
+
+@note To switch the keypad between a hard validation key (check icon) and a soft validation key (arrow icon),
+call @ref nbgl_layoutUpdateKeypadValidation() with \b softValidation set to true or false. This function updates the keypad widget without triggering a redraw.
 
 @subsubsection keypad_sub_section_2 Adding/Updating keypad content
 

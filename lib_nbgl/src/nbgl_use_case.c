@@ -840,7 +840,11 @@ static void displaySettingsPage(uint8_t page, bool forceFullRefresh)
 {
     nbgl_pageContent_t content = {0};
 
-    if ((onNav == NULL) || (onNav(page, &content) == false)) {
+    if (onNav == NULL) {
+        LOG_WARN(USE_CASE_LOGGER, "displaySettingsPage(): onNav callback is NULL\n");
+        return;
+    }
+    if (onNav(page, &content) == false) {
         return;
     }
 
@@ -871,7 +875,11 @@ static void displayReviewPage(uint8_t page, bool forceFullRefresh)
         return;
     }
     navInfo.activePage = page;
-    if ((onNav == NULL) || (onNav(navInfo.activePage, &content) == false)) {
+    if (onNav == NULL) {
+        LOG_WARN(USE_CASE_LOGGER, "displayReviewPage(): onNav callback is NULL\n");
+        return;
+    }
+    if (onNav(navInfo.activePage, &content) == false) {
         return;
     }
 
@@ -1964,8 +1972,14 @@ static void keyboardCallback(char touchedKey)
         keyboardContext.entryBuffer[--textLen] = '\0';
     }
     else {
-        keyboardContext.entryBuffer[textLen]   = touchedKey;
-        keyboardContext.entryBuffer[++textLen] = '\0';
+        if (textLen >= keyboardContext.entryMaxLen) {
+            // entry length can't be greater, so we mask every characters
+            mask = -1;
+        }
+        else {
+            keyboardContext.entryBuffer[textLen]   = touchedKey;
+            keyboardContext.entryBuffer[++textLen] = '\0';
+        }
     }
     if (keyboardContext.keyboardContent.type == KEYBOARD_WITH_SUGGESTIONS) {
         // if suggestions are displayed, we update them at each key press
@@ -2310,7 +2324,8 @@ static void prepareAddressConfirmationPages(const char                       *ad
     // all but the first chunk ensures each chunk starts a fresh page.
     nbAddressChunks = nbgl_getTextNbPagesInWidth(
         LARGE_MEDIUM_FONT, address, NB_MAX_LINES_IN_REVIEW, AVAILABLE_WIDTH);
-    if (nbAddressChunks > ADDR_VERIF_NB_PAIRS) {
+    bool addressTruncated = (nbAddressChunks > ADDR_VERIF_NB_PAIRS);
+    if (addressTruncated) {
         nbAddressChunks = ADDR_VERIF_NB_PAIRS;
     }
     {
@@ -2379,7 +2394,7 @@ static void prepareAddressConfirmationPages(const char                       *ad
     // at NB_MAX_LINES_IN_REVIEW lines so each chunk-pair occupies exactly one page
     tagValueConfirm->tagValueList.nbMaxLinesForValue
         = (nbAddressChunks > 1) ? NB_MAX_LINES_IN_REVIEW : 0;
-    tagValueConfirm->tagValueList.hideEndOfLastLine = false;
+    tagValueConfirm->tagValueList.hideEndOfLastLine = addressTruncated;
     tagValueConfirm->tagValueList.wrapping          = false;
 
     // Number of extras left to place on a second page
@@ -3171,6 +3186,12 @@ static void displayTagValueListModal(const nbgl_contentTagValueList_t *tagValues
     nbElements = tagValues->nbPairs;
 
     while (nbElements > 0) {
+        if (detailsContext.nbPages >= MAX_MODAL_PAGE_NB) {
+            LOG_WARN(USE_CASE_LOGGER,
+                     "displayTagValueListModal(): too many pages, truncating at %d\n",
+                     MAX_MODAL_PAGE_NB);
+            break;
+        }
         nbElementsInPage = getNbTagValuesInDetailsPage(nbElements, tagValues, elemIdx);
 
         elemIdx += nbElementsInPage;
@@ -3244,11 +3265,11 @@ uint8_t nbgl_useCaseGetNbInfosInPage(uint8_t                       nbInfos,
                                      uint8_t                       startIndex,
                                      bool                          withNav)
 {
-    uint8_t            nbInfosInPage = 0;
-    uint16_t           currentHeight = 0;
-    uint16_t           previousHeight;
-    uint16_t           navHeight    = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
-    const char *const *infoContents = PIC(infosList->infoContents);
+    uint8_t            nbInfosInPage  = 0;
+    uint16_t           currentHeight  = 0;
+    uint16_t           previousHeight = 0;
+    uint16_t           navHeight      = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
+    const char *const *infoContents   = PIC(infosList->infoContents);
 
     while (nbInfosInPage < nbInfos) {
         // The type string must be a 1 liner and its height is LIST_ITEM_MIN_TEXT_HEIGHT
@@ -3340,10 +3361,10 @@ uint8_t nbgl_useCaseGetNbBarsInPage(uint8_t                       nbBars,
                                     uint8_t                       startIndex,
                                     bool                          withNav)
 {
-    uint8_t  nbBarsInPage  = 0;
-    uint16_t currentHeight = 0;
-    uint16_t previousHeight;
-    uint16_t navHeight = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
+    uint8_t  nbBarsInPage   = 0;
+    uint16_t currentHeight  = 0;
+    uint16_t previousHeight = 0;
+    uint16_t navHeight      = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
 
     UNUSED(barsList);
     UNUSED(startIndex);
@@ -3381,8 +3402,8 @@ uint8_t nbgl_useCaseGetNbChoicesInPage(uint8_t                          nbChoice
 {
     uint8_t  nbChoicesInPage = 0;
     uint16_t currentHeight   = 0;
-    uint16_t previousHeight;
-    uint16_t navHeight = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
+    uint16_t previousHeight  = 0;
+    uint16_t navHeight       = withNav ? SIMPLE_FOOTER_HEIGHT : 0;
 
     UNUSED(choicesList);
     UNUSED(startIndex);
@@ -3740,6 +3761,7 @@ void nbgl_useCaseChoice(const nbgl_icon_details_t *icon,
     nbgl_pageConfirmationDescription_t info = {0};
     // check params
     if ((confirmText == NULL) || (cancelText == NULL)) {
+        LOG_WARN(USE_CASE_LOGGER, "nbgl_useCaseChoice(): confirmText or cancelText is NULL\n");
         return;
     }
     reset_callbacks_and_context();
@@ -3836,6 +3858,8 @@ void nbgl_useCaseAdvancedChoiceWithDetails(const nbgl_icon_details_t *centerIcon
     // clang-format on
 
     if ((confirmText == NULL) || (cancelText == NULL)) {
+        LOG_WARN(USE_CASE_LOGGER,
+                 "nbgl_useCaseAdvancedChoiceWithDetails(): confirmText or cancelText is NULL\n");
         return;
     }
 
@@ -4770,6 +4794,11 @@ void nbgl_useCaseKeypad(const char             *title,
     int                      status            = -1;
 
     if ((minDigits > KEYPAD_MAX_DIGITS) || (maxDigits > KEYPAD_MAX_DIGITS)) {
+        LOG_WARN(USE_CASE_LOGGER,
+                 "nbgl_useCaseKeypad(): digits out of range (%d/%d > %d)\n",
+                 minDigits,
+                 maxDigits,
+                 KEYPAD_MAX_DIGITS);
         return;
     }
 
@@ -4791,12 +4820,16 @@ void nbgl_useCaseKeypad(const char             *title,
     // add keypad
     status = nbgl_layoutAddKeypad(keypadContext.layoutCtx, keypadCallback, shuffled);
     if (status < 0) {
+        LOG_WARN(
+            USE_CASE_LOGGER, "nbgl_useCaseKeypad(): layout setup failed (status=%d)\n", status);
         return;
     }
     // add keypad content
     status = nbgl_layoutAddKeypadContent(
         keypadContext.layoutCtx, title, keypadContext.hidden, maxDigits, "");
     if (status < 0) {
+        LOG_WARN(
+            USE_CASE_LOGGER, "nbgl_useCaseKeypad(): layout setup failed (status=%d)\n", status);
         return;
     }
 
@@ -4869,6 +4902,8 @@ void nbgl_useCaseKeyboard(const nbgl_keyboardParams_t *params, nbgl_callback_t b
     // Add keyboard
     status = nbgl_layoutAddKeyboard(keyboardContext.layoutCtx, &kbdInfo);
     if (status < 0) {
+        LOG_WARN(
+            USE_CASE_LOGGER, "nbgl_useCaseKeyboard(): layout setup failed (status=%d)\n", status);
         return;
     }
     keyboardContext.keyboardIndex  = status;
@@ -4911,6 +4946,8 @@ void nbgl_useCaseKeyboard(const nbgl_keyboardParams_t *params, nbgl_callback_t b
     status = nbgl_layoutAddKeyboardContent(keyboardContext.layoutCtx,
                                            &keyboardContext.keyboardContent);
     if (status < 0) {
+        LOG_WARN(
+            USE_CASE_LOGGER, "nbgl_useCaseKeyboard(): layout setup failed (status=%d)\n", status);
         return;
     }
 

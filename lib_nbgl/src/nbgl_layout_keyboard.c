@@ -163,9 +163,8 @@ static bool updateSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
     uint32_t       i           = 0;
     nbgl_button_t *button      = NULL;
 
-    if ((eventType == SWIPED_LEFT)
-        && (currentLeftButtonIndex
-            < (uint32_t) (nbActiveButtons - NB_MAX_VISIBLE_SUGGESTION_BUTTONS))) {
+    if ((eventType == SWIPED_LEFT) && (nbActiveButtons > NB_MAX_VISIBLE_SUGGESTION_BUTTONS)
+        && (currentLeftButtonIndex < (nbActiveButtons - NB_MAX_VISIBLE_SUGGESTION_BUTTONS))) {
         // shift all buttons on the left if there are still at least
         // NB_MAX_VISIBLE_SUGGESTION_BUTTONS buttons to display
         currentLeftButtonIndex += NB_MAX_VISIBLE_SUGGESTION_BUTTONS;
@@ -182,7 +181,7 @@ static bool updateSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
             // Button to be updated
             button = (nbgl_button_t *) container->children[FIRST_BUTTON_INDEX + i];
 
-            if (currentLeftButtonIndex < (uint32_t) (nbActiveButtons - i)) {
+            if ((uint32_t) currentLeftButtonIndex + i < (uint32_t) nbActiveButtons) {
                 button->text = choiceTexts[currentLeftButtonIndex + i];
                 layoutUpdateCallbackObjToken(layoutInt,
                                              (nbgl_obj_t *) button,
@@ -262,7 +261,8 @@ static bool updateSuggestionButtons(nbgl_layoutInternal_t *layoutInt,
         container->children[LEFT_HALF_INDEX] = NULL;
     }
     // if not on the last button, display beginning of next button
-    if (currentLeftButtonIndex < (nbActiveButtons - NB_MAX_VISIBLE_SUGGESTION_BUTTONS)) {
+    if ((nbActiveButtons > NB_MAX_VISIBLE_SUGGESTION_BUTTONS)
+        && (currentLeftButtonIndex < (nbActiveButtons - NB_MAX_VISIBLE_SUGGESTION_BUTTONS))) {
         container->children[RIGHT_HALF_INDEX] = (nbgl_obj_t *) partialButtonImages[1];
     }
     else {
@@ -584,6 +584,7 @@ int nbgl_layoutAddKeyboard(nbgl_layout_t *layout, const nbgl_layoutKbd_t *kbdInf
     }
     // footer must be empty
     if (layoutInt->footerContainer != NULL) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddKeyboard(): footer already set\n");
         return -1;
     }
 
@@ -660,6 +661,8 @@ int nbgl_layoutUpdateKeyboard(nbgl_layout_t *layout,
     // get existing keyboard (in the footer container)
     keyboard = (nbgl_keyboard_t *) layoutInt->footerContainer->children[0];
     if ((keyboard == NULL) || (keyboard->obj.type != KEYBOARD)) {
+        LOG_WARN(
+            LAYOUT_LOGGER, "nbgl_layoutUpdateKeyboard(): keyboard not found at index %d\n", index);
         return -1;
     }
     keyboard->keyMask = keyMask;
@@ -693,6 +696,9 @@ bool nbgl_layoutKeyboardNeedsRefresh(nbgl_layout_t *layout, uint8_t index)
     // get existing keyboard (in the footer container)
     keyboard = (nbgl_keyboard_t *) layoutInt->footerContainer->children[0];
     if ((keyboard == NULL) || (keyboard->obj.type != KEYBOARD)) {
+        LOG_WARN(LAYOUT_LOGGER,
+                 "nbgl_layoutKeyboardNeedsRefresh(): keyboard not found at index %d\n",
+                 index);
         return -1;
     }
     if (keyboard->needsRefresh) {
@@ -743,6 +749,10 @@ int nbgl_layoutAddEnteredText(nbgl_layout_t *layout,
     UNUSED(grayedOut);
 
     container = addTextEntry(layoutInt, NULL, text, numbered, number, token, compactMode, false);
+    if (container == NULL) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddEnteredText(): addTextEntry failed\n");
+        return -1;
+    }
 
     // set this container as first or 2nd child of the main layout container
     layoutInt->container->children[enteredTextIndex] = (nbgl_obj_t *) container;
@@ -807,12 +817,23 @@ int nbgl_layoutUpdateEnteredText(nbgl_layout_t *layout,
     UNUSED(index);
 
     // update text entry area
-    container = (nbgl_container_t *) layoutInt->container->children[enteredTextIndex];
-    if ((container == NULL) || (container->obj.type != CONTAINER)) {
+    // container->children[enteredTextIndex] is the mainContainer built by addTextEntry(),
+    // which has 2 children: [0]=title (optional) and [1]=inner text-entry container.
+    // The inner container holds NUMBER_INDEX, TEXT_INDEX, DELETE_INDEX, LINE_INDEX children.
+    nbgl_container_t *mainContainer
+        = (nbgl_container_t *) layoutInt->container->children[enteredTextIndex];
+    if ((mainContainer == NULL) || (mainContainer->obj.type != CONTAINER)) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateEnteredText(): main container not found\n");
         return -1;
     }
-    textArea = (nbgl_text_area_t *) container->children[2];
+    container = (nbgl_container_t *) mainContainer->children[1];
+    if ((container == NULL) || (container->obj.type != CONTAINER)) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateEnteredText(): text entry container not found\n");
+        return -1;
+    }
+    textArea = (nbgl_text_area_t *) container->children[TEXT_INDEX];
     if ((textArea == NULL) || (textArea->obj.type != TEXT_AREA)) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateEnteredText(): text area not found\n");
         return -1;
     }
     textArea->text          = text;
@@ -822,8 +843,11 @@ int nbgl_layoutUpdateEnteredText(nbgl_layout_t *layout,
 
     // update number text area
     if (numbered) {
-        // it is the previously created object
-        textArea = (nbgl_text_area_t *) layoutInt->container->children[1];
+        textArea = (nbgl_text_area_t *) container->children[NUMBER_INDEX];
+        if ((textArea == NULL) || (textArea->obj.type != TEXT_AREA)) {
+            LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateEnteredText(): number area not found\n");
+            return -1;
+        }
         snprintf(numText, sizeof(numText), "%d.", number);
         textArea->text = numText;
         nbgl_objDraw((nbgl_obj_t *) textArea);
@@ -863,6 +887,11 @@ int nbgl_layoutAddConfirmationButton(nbgl_layout_t *layout,
     }
 
     button = addConfirmationButton(layoutInt, active, text, token, tuneId, compactMode);
+    if (button == NULL) {
+        LOG_WARN(LAYOUT_LOGGER,
+                 "nbgl_layoutAddConfirmationButton(): addConfirmationButton failed\n");
+        return -1;
+    }
     // set this button as second child of the main layout container
     layoutInt->container->children[enteredTextIndex + 1] = (nbgl_obj_t *) button;
     if (layoutInt->container->children[enteredTextIndex] != NULL) {
@@ -906,6 +935,7 @@ int nbgl_layoutUpdateConfirmationButton(nbgl_layout_t *layout,
     // update main text area
     button = (nbgl_button_t *) layoutInt->container->children[enteredTextIndex + 1];
     if ((button == NULL) || (button->obj.type != BUTTON)) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateConfirmationButton(): button not found\n");
         return -1;
     }
     button->text = text;
@@ -951,6 +981,10 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
                                       content->textToken,
                                       compactMode,
                                       content->obfuscated);
+    if (textEntryContainer == NULL) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutAddKeyboardContent(): addTextEntry failed\n");
+        return -1;
+    }
 
     // set this container as first child of the main layout container
     layoutInt->container->children[0] = (nbgl_obj_t *) textEntryContainer;
@@ -963,12 +997,19 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
                                    content->suggestionButtons.firstButtonToken,
                                    content->tuneId,
                                    content->obfuscated);
+        if (suggestionsContainer == NULL) {
+            LOG_WARN(LAYOUT_LOGGER,
+                     "nbgl_layoutAddKeyboardContent(): addSuggestionButtons failed\n");
+            return -1;
+        }
 
         // set this container as second child of the main layout container
         layoutInt->container->children[1] = (nbgl_obj_t *) suggestionsContainer;
         // the main container is swipable on Flex
         if (layoutAddCallbackObj(layoutInt, (nbgl_obj_t *) layoutInt->container, 0, NBGL_NO_TUNE)
             == NULL) {
+            LOG_WARN(LAYOUT_LOGGER,
+                     "nbgl_layoutAddKeyboardContent(): cannot add callback object\n");
             return -1;
         }
         layoutInt->container->obj.touchMask = (1 << SWIPED_LEFT) | (1 << SWIPED_RIGHT);
@@ -986,6 +1027,11 @@ int nbgl_layoutAddKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardCont
                                                       content->confirmationButton.token,
                                                       content->tuneId,
                                                       (content->title != NULL));
+        if (button == NULL) {
+            LOG_WARN(LAYOUT_LOGGER,
+                     "nbgl_layoutAddKeyboardContent(): addConfirmationButton failed\n");
+            return -1;
+        }
         // set this button as second child of the main layout container
         layoutInt->container->children[1] = (nbgl_obj_t *) button;
         textEntryContainer->obj.alignmentMarginY
@@ -1021,7 +1067,16 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
 
     // get top container from main container (it shall be the 1st object)
     mainContainer = (nbgl_container_t *) layoutInt->container->children[0];
-    container     = (nbgl_container_t *) mainContainer->children[1];
+    if ((mainContainer == NULL) || (mainContainer->obj.type != CONTAINER)) {
+        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateKeyboardContent(): main container not found\n");
+        return -1;
+    }
+    container = (nbgl_container_t *) mainContainer->children[1];
+    if ((container == NULL) || (container->obj.type != CONTAINER)) {
+        LOG_WARN(LAYOUT_LOGGER,
+                 "nbgl_layoutUpdateKeyboardContent(): text entry container not found\n");
+        return -1;
+    }
 
     if (content->numbered) {
         // get Word number typed text
@@ -1056,6 +1111,11 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
         nbActiveButtons = content->suggestionButtons.nbUsedButtons;
         nbgl_container_t *suggestionsContainer
             = (nbgl_container_t *) layoutInt->container->children[1];
+        if ((suggestionsContainer == NULL) || (suggestionsContainer->obj.type != CONTAINER)) {
+            LOG_WARN(LAYOUT_LOGGER,
+                     "nbgl_layoutUpdateKeyboardContent(): suggestions container not found\n");
+            return -1;
+        }
 
         // update suggestion texts
         for (i = 0; i < NB_MAX_SUGGESTION_BUTTONS; i++) {
@@ -1095,6 +1155,7 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
         // update main text area
         nbgl_button_t *button = (nbgl_button_t *) layoutInt->container->children[1];
         if ((button == NULL) || (button->obj.type != BUTTON)) {
+            LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateKeyboardContent(): button not found\n");
             return -1;
         }
         button->text = content->confirmationButton.text;

@@ -4,7 +4,8 @@
 @section nbgl_use_case_intro Introduction
 This chapter describes the Application Use-cases API of Advanced BOLOS Graphic Library.
 
-This layer offers a simplified view of some typical use-cases of display in an Application running on Stax.
+This layer offers a simplified view of some typical use-cases of display in an Application
+running on Stax.
 For example, a use-case can be:
 
 - Reviewing a transaction/message
@@ -15,51 +16,89 @@ A full description of each predefined use-case can be found in this document
 
 @section nbgl_use_case_concepts Concepts
 
-This layer uses the high-level API described in @ref nbgl_page, but offers to developer more than a single page.
+This layer uses the high-level API described in @ref nbgl_page, but offers to developer more than
+a single page.
 
-The goal is to simplify the usage of NBGL, but also to offer a better homogeneity across applications, by pushing
-developers to use common API for common use-cases.
+The goal is to simplify the usage of NBGL, but also to offer a better homogeneity across
+applications, by pushing developers to use common API for common use-cases.
 
-So that not only the look of the pages but also their transitions look the same. Which should be a real help
-for end-users, getting more and more familiar with the user experience of applications.
+So that not only the look of the pages but also their transitions look the same. Which should be a
+real help for end-users, getting more and more familiar with the user experience of applications.
 
 @subsection nbgl_use_case_example_1 Example 1: transaction review
 
 \image{inline} html UseCase-Review.png "caption" height=300
 
-In this example, a transaction review consists in 3 successive pages, and can be seen as a use-case
+In this example, a transaction review consists in 3 successive pages, and can be seen as a
+use-case
 
 @subsection nbgl_use_case_example_2 Example 2: home & settings pages
 
 \image{inline} html UseCase-HomeSettings.png "caption" height=300
 
-In this other example, displaying home page, then the settings and info consists in 3 pages, and can be seen as another use-case.
+In this other example, displaying home page, then the settings and info consists in 3 pages, and
+can be seen as another use-case.
 
 @section nbgl_use_cases Use Cases
 
 A few APIs are available to draw typical Use-Cases, such as:
 
 - for Home Screen & Settings:
- - @ref nbgl_useCaseHomeAndSettings() to draw the home page and settings/info pages (see @subpage use_case_home_settings)
+ - @ref nbgl_useCaseHomeAndSettings() to draw the home page and settings/info pages
+   (see @subpage use_case_home_settings)
+ - @ref nbgl_useCaseGenericSettings() to draw only settings and info pages, without a home page
+   (see @subpage use_case_generic_settings)
+ - @ref nbgl_useCaseGenericConfiguration() to draw a generic set of configuration pages with a
+   title and a quit callback (see @subpage use_case_generic_configuration)
 - for Individual pages:
- - @ref nbgl_useCaseConfirm() to draw a typical confirmation page, for example when rejecting a transaction (see @subpage use_case_confirm)
+ - @ref nbgl_useCaseConfirm() to draw a typical confirmation page, for example when rejecting a
+   transaction (see @subpage use_case_confirm)
  - @ref nbgl_useCaseChoice() to draw a typical dual choice page (see @subpage use_case_choice)
- - @ref nbgl_useCaseAdvancedChoiceWithDetails() to draw a choice page with three content lines, a configurable top-right icon and an optional details modal (see @subpage use_case_advanced_choice_with_details)
- - @ref nbgl_useCaseStatus() to draw a transient status page, without control, for example when a transaction is successfully signed (see @subpage use_case_status)
+ - @ref nbgl_useCaseChoiceWithDetails() to draw a choice page with a top-right button that opens
+   a details modal (see @subpage use_case_choice_with_details)
+ - @ref nbgl_useCaseAdvancedChoiceWithDetails() to draw a choice page with three content lines, a
+   configurable top-right icon and an optional details modal
+   (see @subpage use_case_advanced_choice_with_details)
+ - @ref nbgl_useCaseAction() to draw a single action page with a centered icon, a message and an
+   action button (see @subpage use_case_action)
+ - @ref nbgl_useCaseStatus() to draw a transient status page, without control, for example when a
+   transaction is successfully signed (see @subpage use_case_status)
  - @ref nbgl_useCaseSpinner() to draw an infinite spinner page (see @subpage use_case_spinner)
 - for most used reviews:
- - @ref nbgl_useCaseReview() to draw the pages of a regular coin transaction review, when all info are available from the beginning (see @subpage use_case_review)
- - @ref nbgl_useCaseReviewLight() to draw the pages of a transaction review with a simple button confirmation, when all info are available from the beginning (see @subpage use_case_review_light)
- - @ref nbgl_useCaseReviewStreamingStart() to draw the pages of a regular coin transaction review, when all info are not available from the beginning (see @subpage use_case_review_streaming)
+ - @ref nbgl_useCaseReview() to draw the pages of a regular coin transaction review, when all
+   info are available from the beginning (see @subpage use_case_review)
+ - @ref nbgl_useCaseReviewBlindSigning() to draw the pages of a blind-signing review with a
+   warning prolog and an optional tip-box (see @subpage use_case_review_blind_signing)
+ - @ref nbgl_useCaseReviewLight() to draw the pages of a transaction review with a simple button
+   confirmation, when all info are available from the beginning
+   (see @subpage use_case_review_light)
+ - @ref nbgl_useCaseGenericReview() to draw a review from a generic contents list, with a
+   configurable reject footer (see @subpage use_case_generic_review)
+ - @ref nbgl_useCaseReviewStreamingStart() to draw the pages of a regular coin transaction
+   review, when all info are not available from the beginning
+   (see @subpage use_case_review_streaming)
+ - @ref nbgl_useCaseReviewStreamingBlindSigningStart() to start a blind-signing streaming review
+   preceded by a warning page (see @subpage use_case_review_streaming)
+ - @ref nbgl_useCaseAdvancedReviewStreamingStart() to start a streaming review with a warning
+   prolog, when all info are not available from the beginning
+   (see @subpage use_case_review_streaming)
 - for reviews with a warning prolog:
- - @ref nbgl_useCaseAdvancedReview() to draw the pages of a regular coin transaction review, when all info are available from the beginning, but with an identified risk requiring a warning prolog (see @subpage use_case_review_with_warning)
- - @ref nbgl_useCaseAdvancedReviewStreamingStart() to draw the pages of a regular coin transaction review, when all info are not available from the beginning, but with an identified risk requiring a warning prolog (see @subpage use_case_review_with_warning and @subpage use_case_review_streaming)
+ - @ref nbgl_useCaseAdvancedReview() to draw the pages of a regular coin transaction review, when
+   all info are available from the beginning, but with an identified risk requiring a warning
+   prolog (see @subpage use_case_review_with_warning)
+ - @ref nbgl_useCaseAdvancedReviewStreamingStart() to draw the pages of a regular coin
+   transaction review, when all info are not available from the beginning, but with an identified
+   risk requiring a warning prolog
+   (see @subpage use_case_review_with_warning and @subpage use_case_review_streaming)
 - for address verification:
- - @ref nbgl_useCaseAddressReview() to draw an address confirmation page, with a possibility to see it as QR Code and some extra tag/value pairs (see @subpage use_case_addr_review)
+ - @ref nbgl_useCaseAddressReview() to draw an address confirmation page, with a possibility to
+   see it as QR Code and some extra tag/value pairs (see @subpage use_case_addr_review)
 - for keypad:
- - @ref nbgl_useCaseKeypad() to draw a default keypad implementation (see @subpage use_case_keypad)
+ - @ref nbgl_useCaseKeypad() to draw a default keypad implementation
+   (see @subpage use_case_keypad)
 - for keyboard:
- - @ref nbgl_useCaseKeyboard() to draw a keyboard for text input (see @subpage use_case_keyboard)
+ - @ref nbgl_useCaseKeyboard() to draw a keyboard for text input
+   (see @subpage use_case_keyboard)
 - for generic navigable content:
  - @ref nbgl_useCaseNavigableContent() to draw a level of generic content navigable pages
 
@@ -67,18 +106,23 @@ Some APIs have also been kept for backward compatibility, and for some rare case
 
 - for most used reviews:
  - @ref nbgl_useCaseReviewStart() to draw the cover page of a review (initial page, without data)
- - @ref nbgl_useCaseStaticReview() to draw the data pages of a regular review, when all info are available from the beginning (all pages but the cover one)
+ - @ref nbgl_useCaseStaticReview() to draw the data pages of a regular review, when all info are
+   available from the beginning (all pages but the cover one)
+ - @ref nbgl_useCaseStaticReviewLight() to draw the data pages of a regular review with a simple
+   button/footer pair instead of a long press button (all pages but the cover one)
 
 @subsection use_case_home_settings Home & Settings screen Use Case
 
 \image{inline} html UseCase-HomeSettingsAPI.png "caption" height=300
 
-Ledger would like all application to have the same layout for home screen and settings/info, so the @ref nbgl_useCaseHomeAndSettings() function enables to
-create such a set of page, the configurable parameters being:
+Ledger would like all application to have the same layout for home screen and settings/info, so
+the @ref nbgl_useCaseHomeAndSettings() function enables to create such a set of page, the
+configurable parameters being:
 
 - the application name (appName)
 - the application icon (appIcon)
-- the tagline, a text under app name (if NULL, it will be "This app enables signing transactions on the <appName> network.")
+- the tagline, a text under app name (if NULL, it will be "This app enables signing transactions
+  on the <appName> network.")
 - the callback when touching *quit application* button
 
 @code
@@ -160,23 +204,26 @@ For some rare applications, one may need an action button in the Home screen, to
 - The main action of the Application
 - Or an side-action, as to display an address
 
-The \b action argument of @ref nbgl_useCaseHomeAndSettings() can be used for that. This structure (@ref nbgl_homeAction_t)
-enables to specify:
+The \b action argument of @ref nbgl_useCaseHomeAndSettings() can be used for that. This structure
+(@ref nbgl_homeAction_t) enables to specify:
 
 - A text & an icon for the button
 - A function to be called when the button is touched
-- The type of button (either @ref STRONG_HOME_ACTION for main action, in black, or @ref SOFT_HOME_ACTION for side action, in white)
+- The type of button (either @ref STRONG_HOME_ACTION for main action, in black, or
+  @ref SOFT_HOME_ACTION for side action, in white)
 
 @subsection use_case_confirm Confirmation Use Case
 
 \image{inline} html UseCase-Confirm.png "caption" height=300
 
-A confirmation use-case consists in a single modal page containing a fixed icon, a configurable message, a black button and a footer to make
-the choice, with configuration texts. The @ref nbgl_useCaseConfirm() function enables to create such a page.
+A confirmation use-case consists in a single modal page containing a fixed icon, a configurable
+message, a black button and a footer to make the choice, with configuration texts.
+The @ref nbgl_useCaseConfirm() function enables to create such a page.
 
 The *callback* argument is called when the button is touched.
 
-When the footer is touched, this modal screen is simply dismissed, revealing the previous page on background.
+When the footer is touched, this modal screen is simply dismissed, revealing the previous page on
+background.
 
 Here is the code to display the example picture (and a status page for confirmation)
 
@@ -188,6 +235,7 @@ static void confirmationCallback(void) {
 
 void onRejectTransaction(void) {
   nbgl_useCaseConfirm("Reject transaction?",
+                      NULL,
                       "Yes, Reject",
                       "Go back to transaction",
                       confirmationCallback);
@@ -198,11 +246,12 @@ void onRejectTransaction(void) {
 
 \image{inline} html UseCase-Choice.png "caption" height=300
 
-A choice use-case consists in a single page containing a fixed icon, a configurable icon, a configurable message, a black button and a footer to make
-the choice, with configuration texts. The @ref nbgl_useCaseChoice() function enables to create such a page.
+A choice use-case consists in a single page containing a fixed icon, a configurable icon, a
+configurable message, a black button and a footer to make the choice, with configuration texts.
+The @ref nbgl_useCaseChoice() function enables to create such a page.
 
-The *callback* argument is called when the button or the footer is touched. Its argument is a boolean which is *true* when button is
-touched, *false* when footer is touched.
+The *callback* argument is called when the button or the footer is touched. Its argument is a
+boolean which is *true* when button is touched, *false* when footer is touched.
 
 Here is the code to display the example picture
 
@@ -230,19 +279,22 @@ void onRejectTransaction(void) {
 
 \image{inline} html UseCase-AdvancedChoiceWithDetails.png "caption" height=300
 
-A variant of the Choice use-case that displays three content lines and an optional top-right icon button
-that opens a details modal. The @ref nbgl_useCaseAdvancedChoiceWithDetails() function enables to create such a page.
+A variant of the Choice use-case that displays three content lines and an optional top-right icon
+button that opens a details modal.
+The @ref nbgl_useCaseAdvancedChoiceWithDetails() function enables to create such a page.
 
 The page layout is:
 - a centered icon (*center_icon*, can be NULL)
 - a bold title (*title*)
 - a regular black message (*message*, can be NULL)
 - a gray sub-message (*subMessage*, can be NULL)
-- a top-right icon button (*header_icon*) that opens the *details* modal — shown only when both *details* and *header_icon* are non-NULL
+- a top-right icon button (*header_icon*) that opens the *details* modal — shown only when both
+  *details* and *header_icon* are non-NULL
 - Confirm / Cancel buttons at the bottom
 
-The *callback* argument is called when the button or the footer is touched. Its argument is a boolean which is *true* when the
-Confirm button is touched, *false* when the Cancel footer is touched.
+The *callback* argument is called when the button or the footer is touched. Its argument is a
+boolean which is *true* when the Confirm button is touched, *false* when the Cancel footer is
+touched.
 
 Here is the code to display the example picture
 
@@ -283,11 +335,14 @@ void displayAccountConfirm(void) {
 
 \image{inline} html UseCase-Status.png "caption" height=300
 
-A status is a transient page, without control, to display during a short time, for example when a transaction is successfully signed.
-The @ref nbgl_useCaseStatus() function enables to create such a page, with the following arguments:
+A status is a transient page, without control, to display during a short time, for example when a
+transaction is successfully signed.
+The @ref nbgl_useCaseStatus() function enables to create such a page, with the following
+arguments:
 
 - a message string to set in middle of page
-- a boolean to indicate if true, that the message is drawn in a Ledger style (with corners) and select the icon
+- a boolean to indicate if true, that the message is drawn in a Ledger style (with corners) and
+  select the icon
 - a quit callback, called when timer times out (or the page is "tapped")
 
 If it's a success status, a *success* tune will be automatically played.
@@ -296,8 +351,10 @@ If it's a success status, a *success* tune will be automatically played.
 
 \image{inline} html UseCase-Review-Status.png "caption" height=300
 
-Similar as @subpage use_case_status, this is used to display transient page, without control, during a short time, for example when a transaction is successfully signed.
-The @ref nbgl_useCaseReviewStatus() function enables to create such a page, with the following arguments:
+Similar as @ref use_case_status, this is used to display transient page, without control, during a
+short time, for example when a transaction is successfully signed.
+The @ref nbgl_useCaseReviewStatus() function enables to create such a page, with the following
+arguments:
 
 - a type of status (with predefined message)
 - a quit callback, called when timer times out (or the page is "tapped")
@@ -310,21 +367,24 @@ If it's a success status, a *success* tune will be automatically played.
 
 In most cases, the developer may know all tag/value pairs of a transaction when it is submitted.
 
-Thus, the number of pages is computed automatically and pages can be navigated forward and backward.
+Thus, the number of pages is computed automatically and pages can be navigated forward and
+backward.
 
-In case of a tag/value pair too long to be fully displayed, the *more* button will be automatically drawn and its handling
-automatically performed by NBGL by building a detailed modal view.
+In case of a tag/value pair too long to be fully displayed, the *more* button will be
+automatically drawn and its handling automatically performed by NBGL by building a detailed modal
+view.
 
-When the user taps on *Reject* in any page, a confirmation page is automatically drawned to let user confirm that he rejects
-the transaction. In this case, the given callback is called and it's up to app's developer to call @ref nbgl_useCaseReviewStatus(), as in
-case of long-press.
+When the user taps on *Reject* in any page, a confirmation page is automatically drawned to let
+user confirm that he rejects the transaction. In this case, the given callback is called and it's
+up to app's developer to call @ref nbgl_useCaseReviewStatus(), as in case of long-press.
 
 The API to initiate the display of the series of pages is @ref nbgl_useCaseReview(), providing:
 
 - the type of operation to review (transaction, message or generic operation)
 - the list of tag/value pairs (or a callback to get them one by one)
 - the texts/icon to use in presentation page and in last page
-- a callback called when the long press button on last page or reject confirmation is used. The callback's param is *true* for confirmation, *false* for rejection.
+- a callback called when the long press button on last page or reject confirmation is used.
+  The callback's param is *true* for confirmation, *false* for rejection.
 
 Here is the code to display something similar to example picture:
 
@@ -425,51 +485,62 @@ void startReview(void) {
 
 @subsection use_case_review_light Light review Use Case
 
-In some cases, the developer may want to display a review but with a less intense confirmation than a long-press button. A simple button is used in this
-case.
+In some cases, the developer may want to display a review but with a less intense confirmation
+than a long-press button. A simple button is used in this case.
 
-The API to initiate the display of the series of pages is @ref nbgl_useCaseReviewLight(), providing:
+The API to initiate the display of the series of pages is @ref nbgl_useCaseReviewLight(),
+providing:
 
 - the list of tag/value pairs (or a callback to get them one by one)
 - the texts/icon to use in presentation page and in last page
-- a callback called when the long press button on last page or reject confirmation is used. The callback's param is *true* for confirmation, *false* for rejection.
+- a callback called when the long press button on last page or reject confirmation is used.
+  The callback's param is *true* for confirmation, *false* for rejection.
 
 @subsection use_case_review_streaming Streaming review Use Case
 
 \image{inline} html UseCase-Streaming.png "caption" height=300
 
-In some cases, the application cannot know all tag/value pairs of a transaction when the review is started.
+In some cases, the application cannot know all tag/value pairs of a transaction when the review
+is started.
 
-In this case, what we call a *streaming* review can be used. The pages to display for each *stream* are computed automatically and pages can be navigated forward
-and backward (only within a *stream* for backward).
+In this case, what we call a *streaming* review can be used. The pages to display for each
+*stream* are computed automatically and pages can be navigated forward and backward (only within
+a *stream* for backward).
 
-In case of a tag/value pair too long to be fully displayed, the *more* button will be automatically drawn and its handling
-automatically performed by NBGL by building a detailed modal view.
+In case of a tag/value pair too long to be fully displayed, the *more* button will be
+automatically drawn and its handling automatically performed by NBGL by building a detailed modal
+view.
 
-When the user taps on *Reject* in any page, a confirmation page is automatically drawned to let user confirm that he rejects
-the transaction. In this case, the given callback is called and it's up to app's developer to call @ref nbgl_useCaseReviewStatus(), as in
-case of long-press.
+When the user taps on *Reject* in any page, a confirmation page is automatically drawned to let
+user confirm that he rejects the transaction. In this case, the given callback is called and it's
+up to app's developer to call @ref nbgl_useCaseReviewStatus(), as in case of long-press.
 
-The API to initiate the display of the series of pages is @ref nbgl_useCaseReviewStreamingStart(), providing:
+The API to initiate the display of the series of pages is
+@ref nbgl_useCaseReviewStreamingStart(), providing:
 
 - the type of operation to review (transaction, message or generic operation)
 - the texts/icon to use in presentation page
 - a callback with one boolean parameter:
   - If this parameter is *false*, it means that the transaction is rejected.
-  - If this parameter is *true*, it means that NBGL is waiting for new data, sent with @ref nbgl_useCaseReviewStreamingContinue() or @ref nbgl_useCaseReviewStreamingContinueExt()
+  - If this parameter is *true*, it means that NBGL is waiting for new data, sent with
+    @ref nbgl_useCaseReviewStreamingContinue() or @ref nbgl_useCaseReviewStreamingContinueExt()
 
-As long as there are new tag/value pairs to send, the API to call is either @ref nbgl_useCaseReviewStreamingContinueExt() (if skip is possible) or
+As long as there are new tag/value pairs to send, the API to call is either
+@ref nbgl_useCaseReviewStreamingContinueExt() (if skip is possible) or
 @ref nbgl_useCaseReviewStreamingContinue(), providing:
 
 - the list of tag/value pairs (or a callback to get them one by one)
 - a callback with one boolean parameter:
   - If this parameter is *false*, it means that the transaction is rejected.
-  - If this parameter is *true*, it means that NBGL is waiting for new data, to be sent with @ref nbgl_useCaseReviewStreamingContinue() or @ref nbgl_useCaseReviewStreamingContinueExt()
+  - If this parameter is *true*, it means that NBGL is waiting for new data, to be sent with
+    @ref nbgl_useCaseReviewStreamingContinue() or @ref nbgl_useCaseReviewStreamingContinueExt()
 
-When there is no more data to send, the API to call is @ref nbgl_useCaseReviewStreamingFinish(), providing:
+When there is no more data to send, the API to call is
+@ref nbgl_useCaseReviewStreamingFinish(), providing:
 
 - the title to use for last page (with long-press button)
-- a callback called when the long press button on last page or reject confirmation is used. The callback's param is *true* for confirmation, *false* for rejection.
+- a callback called when the long press button on last page or reject confirmation is used.
+  The callback's param is *true* for confirmation, *false* for rejection.
 
 Here is the code to display something similar to example picture:
 
@@ -521,19 +592,25 @@ void startReview(void) {
 
 The review itself behaves like in @subpage use_case_review. The main differences are:
 
-- The review itself is preceded by a warning page offering the possibility to cancel the review ("Back to safety") or to start it ("Continue anyway")
-- In the first and last pages of the actual review, a top-right button offers the possibility to get more information about the warning
+- The review itself is preceded by a warning page offering the possibility to cancel the review
+  ("Back to safety") or to start it ("Continue anyway")
+- In the first and last pages of the actual review, a top-right button offers the possibility to
+  get more information about the warning
 
-The API to initiate the display of the series of pages is @ref nbgl_useCaseAdvancedReview(), providing:
+The API to initiate the display of the series of pages is @ref nbgl_useCaseAdvancedReview(),
+providing:
 
 - the type of operation to review (transaction, message or generic operation)
 - the list of tag/value pairs (or a callback to get them one by one)
 - the texts/icon to use in presentation page and in last page
 - the configuration to use for the warning (see @ref nbgl_warning_t structure)
-- a callback called when the long press button on last page or reject confirmation is used. The callback's param is *true* for confirmation, *false* for rejection.
+- a callback called when the long press button on last page or reject confirmation is used.
+  The callback's param is *true* for confirmation, *false* for rejection.
 
-@note the recommended configuration for warning is the predefined one. In this case, one just has to fill the *predefinedSet* field of @ref nbgl_warning_t with the appropriate warning
-causes (bitfield) and the *reportProvider* field with the name of the 3rd party providing the Web3Checks report, if necessary.
+@note the recommended configuration for warning is the predefined one. In this case, one just has
+to fill the *predefinedSet* field of @ref nbgl_warning_t with the appropriate warning causes
+(bitfield) and the *reportProvider* field with the name of the 3rd party providing the Web3Checks
+report, if necessary.
 
 Here is the code to display something similar to example picture:
 
@@ -612,7 +689,7 @@ static const struct nbgl_warningDetails_s barListIntroDetails[]  = {
 static const struct nbgl_warningDetails_s barListIntroDetails[]  = {
     {.title  = "Back",
      .type   = CENTERED_INFO_WARNING,
-     .centeredInfo = {.icon = &C_Warning_64px, .title = "Blind signing", .description = "This transaction’s details are not fully verifiable. If you sign it, you could lose all your assets.\n\nLearn about blind signing:
+     .centeredInfo = {.icon = &C_Warning_64px, .title = "Blind signing", .description = "This transaction's details are not fully verifiable. If you sign it, you could lose all your assets.\n\nLearn about blind signing:
 ledger.com/e8"}},
     {.title        = "Back",
      .type         = CENTERED_INFO_WARNING,
@@ -623,7 +700,7 @@ ledger.com/e8"}},
 static const nbgl_contentCenter_t warningInfo = {
   .icon          = &C_Warning_64px,
   .title         = "Dangerous transaction",
-  .description   = "This transaction cannot be fully decoded, and was marked risky by Web3 Checks."
+  .description   = "This transaction cannot be fully decoded, and was marked risky by Web3 Checks."
 };
 
 // first level warning details in prolog
@@ -687,11 +764,14 @@ void staticReview(void) {
 \image{inline} html UseCase-AddressReview.png "caption" height=500
 
 When an address needs to be confirmed, it can be displayed in a Address Review Use Case.
-After a title page, a second page is displayed with the raw address (as text). An extra button under the raw address enables to open a modal page to see the address as a QR code.
-Moreover, if extra information need to be displayed, for example a derivation path, it is provided in a second page, also containing
-a black button/Footer pair to choose to confirm or reject the address.
+After a title page, a second page is displayed with the raw address (as text). An extra button
+under the raw address enables to open a modal page to see the address as a QR code.
+Moreover, if extra information need to be displayed, for example a derivation path, it is provided
+in a second page, also containing a black button/Footer pair to choose to confirm or reject the
+address.
 
-The @ref nbgl_useCaseAddressReview() function enables to create such a set of pages, with the following parameters:
+The @ref nbgl_useCaseAddressReview() function enables to create such a set of pages, with the
+following parameters:
 
 - the address to confirm (NULL terminated string)
 - a callback called when button or footer is touched (if true, confirm, if false reject)
@@ -721,12 +801,11 @@ static void displayAddressCallback(bool confirm) {
 
 void app_ethereumVerifyAddress(void) {
   nbgl_useCaseAddressReview("bc1pkdcufjh6dxjaaa05hudvxqg5fhspfmwmp8g92gq8cv4gwwnmgrfqfd4jlg",
-                            &pairList
+                            &pairList,
                             myAppIcon,
                             "Verify MyCoin\naddress",
                             NULL,
-                            "Cancel",
-                            appMain);
+                            displayAddressCallback);
 }
 @endcode
 
@@ -788,8 +867,8 @@ void ui_menu_pinentry_display(unsigned int value) {
 @subsection use_case_keyboard Keyboard Use Case
 
 When text input is required (not just digits), a full keyboard can be displayed.
-The keyboard supports different modes (lowercase, uppercase, digits, special characters) and can be configured
-with either a confirmation button or dynamic suggestion buttons.
+The keyboard supports different modes (lowercase, uppercase, digits, special characters) and can
+be configured with either a confirmation button or dynamic suggestion buttons.
 
 As shown in the examples below, the keyboard page consists of:
 
@@ -799,7 +878,8 @@ As shown in the examples below, the keyboard page consists of:
 - the keyboard at the bottom (navigable with touch or buttons depending on device)
 - either a confirmation button or suggestion buttons above the keyboard
 
-The @ref nbgl_useCaseKeyboard() function enables to create such page, with the following parameters:
+The @ref nbgl_useCaseKeyboard() function enables to create such page, with the following
+parameters:
 
 - a pointer to @ref nbgl_keyboardParams_t structure containing:
   - \b type: either @ref KEYBOARD_WITH_BUTTON or @ref KEYBOARD_WITH_SUGGESTIONS
@@ -939,10 +1019,288 @@ void display_keyboard_page(void) {
 }
 @endcode
 
+@subsection use_case_review_blind_signing Blind Signing Review Use Case
+
+A blind-signing review behaves exactly like @ref use_case_review, but the review is automatically
+preceded by a mandatory blind-signing warning page. The first page of the review may also display
+an optional tip-box (e.g. to point the user to a companion app that can decode the transaction).
+
+The API to initiate the display is @ref nbgl_useCaseReviewBlindSigning(), providing:
+
+- the type of operation to review (transaction, message or generic operation)
+- the list of tag/value pairs (or a callback to get them one by one)
+- the icon to use on the first and last pages
+- the title and optional sub-title of the first page
+- the title of the last page (with long-press button)
+- an optional tip-box (@ref nbgl_tipBox_t) shown in the first page of the review (can be NULL)
+- a callback called when the long-press button or the reject confirmation is used. The callback's
+  param is *true* for confirmation, *false* for rejection.
+
+Here is a minimal example:
+
+@code
+// 4 pairs of tag/value to display
+static nbgl_layoutTagValue_t pairs[4];
+
+static const nbgl_contentTagValueList_t pairList = {
+  .nbMaxLinesForValue = 0,
+  .nbPairs = 4,
+  .pairs = (nbgl_layoutTagValue_t*)pairs
+};
+
+// called when long press button is long-touched or when reject footer is touched
+static void onReviewResult(bool confirm) {
+  if (confirm) {
+    nbgl_useCaseReviewStatus(STATUS_TYPE_TRANSACTION_SIGNED, appMain);
+  }
+  else {
+    nbgl_useCaseReviewStatus(STATUS_TYPE_TRANSACTION_REJECTED, appMain);
+  }
+}
+
+void startBlindSigningReview(void) {
+  nbgl_useCaseReviewBlindSigning(TYPE_TRANSACTION, // type of operation
+                                 &pairList,         // list of tag/value pairs
+                                 coinIcon,           // icon on first and last pages
+                                 "Review transaction\nto send coin", // title of first page
+                                 NULL,               // no sub-title
+                                 "Sign transaction to\nsend coin?",  // title of last page
+                                 NULL,               // no tip-box
+                                 onReviewResult);    // callback on result
+}
+@endcode
+
+@subsection use_case_generic_review Generic Review Use Case
+
+A generic review displays a flow of pages built from a @ref nbgl_genericContents_t list. Unlike
+@ref use_case_review, the developer is responsible for building every page explicitly; NBGL handles
+pagination and navigation automatically.
+
+The API is @ref nbgl_useCaseGenericReview(), providing:
+
+- the generic contents list to display
+- the text to use in the reject footer
+- a callback called when the footer is touched
+
+Here is a minimal example:
+
+@code
+static const nbgl_content_t contentsList[1] = {
+  {.type = TAG_VALUE_LIST,
+   .content.tagValueList = { .nbPairs = 2,
+                              .pairs   = myPairs }}
+};
+
+static const nbgl_genericContents_t reviewContents = {
+  .contentsList = contentsList,
+  .nbContents   = 1
+};
+
+static void onReject(void) {
+  nbgl_useCaseReviewStatus(STATUS_TYPE_OPERATION_REJECTED, appMain);
+}
+
+void startGenericReview(void) {
+  nbgl_useCaseGenericReview(&reviewContents,
+                             "Reject",
+                             onReject);
+}
+@endcode
+
+@subsection use_case_generic_configuration Generic Configuration Use Case
+
+Displays a set of configuration pages with automatic pagination. A touchable title bar at the
+top acts as a quit/back button.
+
+The API is @ref nbgl_useCaseGenericConfiguration(), providing:
+
+- the title string displayed in the touchable header
+- the page index to start on (0-based)
+- the generic contents list to display
+- a callback called when the title is pressed
+
+Here is a minimal example:
+
+@code
+static const nbgl_content_t confContentsList[1] = {
+  {.type = SWITCHES_LIST,
+   .content.switchesList = { .nbSwitches = 2,
+                              .switches   = mySwitches },
+   .contentActionCallback = onSwitchToggle}
+};
+
+static const nbgl_genericContents_t confContents = {
+  .contentsList = confContentsList,
+  .nbContents   = 1
+};
+
+static void onQuit(void) {
+  appMain();
+}
+
+void startConfiguration(void) {
+  nbgl_useCaseGenericConfiguration("My Configuration",
+                                   0,               // start on first page
+                                   &confContents,
+                                   onQuit);
+}
+@endcode
+
+@subsection use_case_generic_settings Generic Settings Use Case
+
+Like @ref use_case_home_settings but without the home page: only the settings contents and the
+app-info pages are displayed. This is useful for sub-setting screens that must be reachable
+without going through the home page.
+
+The API is @ref nbgl_useCaseGenericSettings(), providing:
+
+- the app name (used as page title)
+- the page index to start on (0-based)
+- the settings contents (can be NULL if only info pages are needed)
+- the info list (version, developer, …)
+- a callback called when the quit button or title is pressed
+
+Here is a minimal example:
+
+@code
+static const char *infoTypes[]    = {"Version", "Developer"};
+static const char *infoContents[] = {"1.0.0", "Ledger"};
+
+static const nbgl_contentInfoList_t eth_infosList = {
+  .nbInfos       = 2,
+  .infoTypes     = infoTypes,
+  .infoContents  = infoContents
+};
+
+static void onQuit(void) {
+  appMain();
+}
+
+void displaySettings(uint8_t settingPage) {
+  nbgl_useCaseGenericSettings("Ethereum",
+                              settingPage,
+                              &eth_settingContents, // defined elsewhere
+                              &eth_infosList,
+                              onQuit);
+}
+@endcode
+
+@subsection use_case_choice_with_details Choice with Details Use Case
+
+A variant of @ref use_case_choice that adds a top-right icon button. When that button is
+touched, the modal page described by the @p details argument is displayed.
+
+The page layout is identical to @ref use_case_choice (centered icon, message, optional
+sub-message, confirm button, cancel footer) with the addition of the top-right button, which is
+shown only when the @p details argument is non-NULL.
+
+The @ref nbgl_useCaseChoiceWithDetails() function accepts the same parameters as
+@ref nbgl_useCaseChoice() plus:
+
+- *details* (@ref nbgl_warningDetails_t): description of the modal page to display when the
+  top-right button is touched. If NULL, no top-right button is shown.
+
+The *callback* argument works the same way as in @ref use_case_choice.
+
+@note For a richer layout supporting three content lines and a fully configurable top-right icon,
+see @ref use_case_advanced_choice_with_details.
+
+Here is an example:
+
+@code
+static void onChoice(bool confirm) {
+  if (confirm) {
+    // confirmed
+  } else {
+    // cancelled
+  }
+}
+
+static const char *detailTexts[]    = {"Risk"};
+static const char *detailSubTexts[] = {"This action is irreversible."};
+
+static nbgl_warningDetails_t choiceDetails = {
+  .title              = "More information",
+  .type               = BAR_LIST_WARNING,
+  .barList.nbBars     = 1,
+  .barList.texts      = detailTexts,
+  .barList.subTexts   = detailSubTexts,
+};
+
+void displayConfirmWithDetails(void) {
+  nbgl_useCaseChoiceWithDetails(&C_warning_64px,
+                                "Delete all credentials?",
+                                "This cannot be undone.",
+                                "Yes, delete",
+                                "No, keep",
+                                &choiceDetails,
+                                onChoice);
+}
+@endcode
+
+@subsection use_case_action Action Use Case
+
+An action page consists of a centered info (icon + message) and a single action button at the
+bottom. No footer is displayed. The given callback is called when the button is touched.
+
+The @ref nbgl_useCaseAction() function accepts the following parameters:
+
+- *icon*: icon to display in the centered info
+- *message*: text to display in the centered info
+- *actionText*: label of the action button
+- *callback*: function called when the action button is touched
+
+Here is an example:
+
+@code
+static void onAction(void) {
+  // perform the action
+}
+
+void displayActionPage(void) {
+  nbgl_useCaseAction(&C_app_64px,
+                     "Connect to companion\napp to get started",
+                     "Open app",
+                     onAction);
+}
+@endcode
+
+@section use_case_utils Utility functions
+
+The following functions compute how many items of a given type fit in a single review or settings
+page. They are useful when building custom paginated content with @ref nbgl_useCaseGenericReview()
+or similar APIs.
+
+- @ref nbgl_useCaseGetNbTagValuesInPage() — returns the number of tag/value pairs that fit in one
+  page starting at a given index. Sets the *requireSpecificDisplay* output flag when the pair needs
+  special rendering (centeredInfo flag or value too long).
+
+- @ref nbgl_useCaseGetNbTagValuesInPageExt() — same as above but also accounts for a potential
+  *skip* header when *isSkippable* is true.
+
+- @ref nbgl_useCaseGetNbInfosInPage() — returns the number of info items (type/content string
+  pairs) that fit in one page starting at a given index.
+
+- @ref nbgl_useCaseGetNbSwitchesInPage() — returns the number of switch items that fit in one
+  page starting at a given index.
+
+- @ref nbgl_useCaseGetNbBarsInPage() — returns the number of touchable bar items that fit in one
+  page starting at a given index.
+
+- @ref nbgl_useCaseGetNbChoicesInPage() — returns the number of radio-choice items that fit in
+  one page starting at a given index.
+
+- @ref nbgl_useCaseGetNbPagesForTagValueList() — returns the total number of pages required to
+  display a complete @ref nbgl_contentTagValueList_t. Useful to pre-compute navigation structures
+  before starting a review.
+
+All functions take the navigation bar into account: when a navigation footer is present the
+available area is reduced accordingly.
+
 @section use_case_refresh_page Refreshing screen
 
-After having drawn graphic objects in **framebuffer**, all functions of this API automatically refresh the screen.
-So no need to call @ref nbgl_refresh().
+After having drawn graphic objects in **framebuffer**, all functions of this API automatically
+refresh the screen. So no need to call @ref nbgl_refresh().
 
 */
 #endif // HAVE_SE_TOUCH

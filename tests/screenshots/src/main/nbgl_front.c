@@ -129,6 +129,15 @@ void nbgl_frontRefreshArea(const nbgl_area_t  *area,
     ((nbgl_area_t *) area)->x0 -= FULL_SCREEN_WIDTH - SCREEN_WIDTH;
 }
 
+/**
+ * @brief Draws a run-length encoded (RLE) bitmap with the given parameters.
+ *
+ * @param area position, size and color of the bitmap to draw
+ * @param buffer RLE-compressed bitmap buffer
+ * @param buffer_len size of the compressed buffer in bytes
+ * @param fore_color foreground color to apply on the image
+ * @param nb_skipped_bytes number of bytes to skip at the beginning of the buffer
+ */
 void nbgl_frontDrawImageRle(const nbgl_area_t *area,
                             const uint8_t     *buffer,
                             uint32_t           buffer_len,
@@ -141,6 +150,12 @@ void nbgl_frontDrawImageRle(const nbgl_area_t *area,
     ((nbgl_area_t *) area)->x0 -= FULL_SCREEN_WIDTH - SCREEN_WIDTH;
 }
 
+/**
+ * @brief Enables or disables area masking for a given mask index.
+ *
+ * @param mask_index index of the mask to control
+ * @param masked_area_or_null area to mask, or NULL to disable masking for this index
+ */
 void nbgl_frontControlAreaMasking(uint8_t mask_index, nbgl_area_t *masked_area_or_null)
 {
     if (masked_area_or_null == NULL) {
