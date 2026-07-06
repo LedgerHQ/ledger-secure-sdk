@@ -5,28 +5,28 @@
 #include "swap_utils.h"
 #include "os_print.h"
 
-__attribute__((noreturn)) void send_swap_error_simple(uint16_t status_word,
-                                                      uint8_t  common_error_code,
-                                                      uint8_t  application_specific_error_code)
+NORETURN void send_swap_error_simple(uint16_t status_word,
+                                     uint8_t  common_error_code,
+                                     uint8_t  application_specific_error_code)
 {
     send_swap_error_with_buffers(
         status_word, common_error_code, application_specific_error_code, NULL, 0);
 }
 
-__attribute__((noreturn)) void send_swap_error_with_buffer(uint16_t status_word,
-                                                           uint8_t  common_error_code,
-                                                           uint8_t  application_specific_error_code,
-                                                           const buffer_t buffer_data)
+NORETURN void send_swap_error_with_buffer(uint16_t       status_word,
+                                          uint8_t        common_error_code,
+                                          uint8_t        application_specific_error_code,
+                                          const buffer_t buffer_data)
 {
     send_swap_error_with_buffers(
         status_word, common_error_code, application_specific_error_code, &buffer_data, 1);
 }
 
-__attribute__((noreturn)) void send_swap_error_with_buffers(uint16_t status_word,
-                                                            uint8_t  common_error_code,
-                                                            uint8_t application_specific_error_code,
-                                                            const buffer_t *buffer_data,
-                                                            size_t          count)
+NORETURN void send_swap_error_with_buffers(uint16_t        status_word,
+                                           uint8_t         common_error_code,
+                                           uint8_t         application_specific_error_code,
+                                           const buffer_t *buffer_data,
+                                           size_t          count)
 {
     if (!G_called_from_swap) {
         PRINTF("Fatal error, send_swap_error_with_buffers called outside of swap context\n");

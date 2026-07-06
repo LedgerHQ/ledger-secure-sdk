@@ -37,7 +37,7 @@ bolos_ux_params_t G_ux_params;
 /**
  * Exit the application and go back to the dashboard.
  */
-WEAK void __attribute__((noreturn)) app_exit(void)
+WEAK NORETURN void app_exit(void)
 {
 #ifndef USE_OS_IO_STACK
     os_io_stop();
@@ -164,7 +164,7 @@ WEAK void library_app_main(libargs_t *args)
 // --8<-- [end:library_app_main]
 #endif  // HAVE_SWAP
 
-WEAK __attribute__((section(".boot"))) int main(int arg0)
+WEAK BOOT_SECTION int main(int arg0)
 {
     // exit critical section
     __asm volatile("cpsie i");
