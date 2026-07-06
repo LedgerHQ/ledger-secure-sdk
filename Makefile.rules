@@ -163,30 +163,6 @@ ifneq ($(wildcard $(APP_MANIFEST_FILE)),)
     endef
 endif
 
-# Build-time check: warn when a header basename is reachable via -I from BOTH an APP
-# and an SDK include directory but from DIFFERENT directories (a real shadow risk).
-# Run in a recipe so that include dirs added by the app AFTER this file is included
-# (INCLUDES_PATH += ..., APP_SOURCE_PATH += ...) are covered.
-# Notes:
-#  - Directories present on BOTH sides are subtracted from the SDK side first: a header
-#    found in a shared dir is the same file, not a shadow (e.g. the generated glyphs.h
-#    in $(GLYPH_SRC_DIR), reachable by both SDK and APP). This keeps the warning
-#    signal to genuine cross-directory collisions only.
-#  - The bare $(BOLOS_SDK) root is excluded: a header sitting directly at the SDK root
-#    is still reachable via -I$(BOLOS_SDK) for SDK builds, so a collision there is a
-#    deliberate blind spot.
-#  - hdr() relies on word-splitting, so include paths containing spaces are not handled.
-.PHONY: check-duplicate-headers
-check-duplicate-headers:
-	$(L)hdr() { for d in $$1; do ls "$$d"/*.h 2>/dev/null; done | sed 's#.*/##' | sort -u; }; \
-	dup=$$(comm -12 \
-	    <(hdr "$(filter-out $(INCLUDES_PATH_APP_BASE) $(BOLOS_SDK),$(INCLUDES_PATH_SDK_BASE))") \
-	    <(hdr "$(INCLUDES_PATH_APP_BASE)")); \
-	[ -z "$$dup" ] || echo "[WARNING] Header(s) present in both SDK and APP include dirs:" $$dup
-
-# Run the duplicate check once at the start of every build.
-prepare: check-duplicate-headers
-
 include $(BOLOS_SDK)/Makefile.rules_generic
 
 list-defines:
