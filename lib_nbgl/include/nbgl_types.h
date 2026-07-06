@@ -24,7 +24,19 @@ extern "C" {
  *      DEFINES
  *********************/
 /**
- * Width, height of the front screen in pixels and common sizes of icons and fonts
+ * Screen dimensions, icon sizes, font metrics and layout constants per device.
+ *
+ * | Device | Screen (W×H) | `SMALL_ICON_SIZE` | `LARGE_ICON_SIZE` |
+ * |--------|:------------:|:--------------------:|:--------------------:|
+ * | Stax   | 400×672      | 32 px                | 64 px                |
+ * | Flex   | 480×600      | 40 px                | 64 px                |
+ * | Apex   | 300×400      | 24 px                | 48 px                |
+ * | Nano   | 128×64       | —                    | —                    |
+ *
+ * `SMALL_ICON_SIZE` is used for icons in lists, choice pages, and address-book items.
+ * `LARGE_ICON_SIZE` is used for the centered app icon on the Home page and on the
+ * first/last pages of a review flow.
+ * On Nano devices, glyphs are typically 14×14 px — there is no fixed SMALL/LARGE convention.
  */
 #ifdef SCREEN_SIZE_WALLET
 #if defined(TARGET_STAX)
