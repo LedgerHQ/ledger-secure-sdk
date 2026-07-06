@@ -67,9 +67,23 @@ clean_target:
 BUILD_DEPENDENCIES  = $(GLYPH_DESTH) $(GLYPH_DESTC) Makefile
 BUILD_DEPENDENCIES += $(APP_CUSTOM_BUILD_DEPENDENCIES)
 
+# Warn when a header basename is reachable via -I from BOTH an APP and an SDK include
+# directory but from DIFFERENT directories (a real shadow risk). Inlined here rather
+# than a .PHONY prerequisite: a phony prereq would mark prepare as "updated now" on
+# every run, forcing all downstream .o files to always rebuild.
+# Notes:
+#  - Directories on BOTH sides are subtracted from the SDK side first so a header in a
+#    shared dir (e.g. the generated glyphs.h in $(GLYPH_SRC_DIR)) is not reported.
+#  - The bare $(BOLOS_SDK) root is excluded (deliberate blind spot).
+#  - hdr() relies on word-splitting; include paths with spaces are not handled.
 prepare:
 	$(L)echo Prepare directories
 	@mkdir -p $(BIN_DIR) $(OBJ_DIR) $(OBJECTS_DIR) $(DBG_DIR) $(DEP_DIR) $(DEPEND_DIR) $(GEN_SRC_DIR) bin debug
+	$(L)hdr() { for d in $$1; do ls "$$d"/*.h 2>/dev/null; done | sed 's#.*/##' | sort -u; }; \
+	dup=$$(comm -12 \
+	    <(hdr "$(filter-out $(INCLUDES_PATH_APP_BASE) $(BOLOS_SDK),$(INCLUDES_PATH_SDK_BASE))") \
+	    <(hdr "$(INCLUDES_PATH_APP_BASE)")); \
+	[ -z "$$dup" ] || echo "[WARNING] Header(s) present in both SDK and APP include dirs:" $$dup
 
 $(BUILD_DEPENDENCIES): prepare
 
