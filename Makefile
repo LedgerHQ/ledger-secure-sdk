@@ -26,7 +26,11 @@ NBGL_DEFINES := $(NBGL_DEFINES_nano)
 endif
 endif
 
+# Exclude BAGL UX header from wallet (touch) doc builds to avoid symbol conflicts with ux_nbgl.h
+UX_BAGL_EXCLUDE_stax := lib_ux/include/ux_bagl.h
+UX_BAGL_EXCLUDE      := $(UX_BAGL_EXCLUDE_$(TARGET))
 export NBGL_DEFINES
+export UX_BAGL_EXCLUDE
 
 doc: | $(BUILD_DIR)
 	@doxygen doc/Doxyfile

@@ -1,6 +1,8 @@
 #ifndef HAVE_SE_TOUCH
 /** @page nbgl_layout Complex objects layout API
 
+@tableofcontents
+
 @section nbgl_layout_intro Introduction
 This chapter describes briefly the mid level API of Advanced BOLOS Graphic Library.
 
@@ -17,7 +19,7 @@ Moreover, positions of objects in the page are mostly hidden and automatic.
 
 @subsection example_1 Example
 
-\image{inline} html layout_nanos_1.png "caption" height=300
+\image{inline} html layout_nanos_1.png height=300
 
 In this example, 2 "objects" are used and added to the page with dedicated APIs:
 
@@ -59,7 +61,7 @@ Once the layout is defined and retrieved with @ref nbgl_layoutGet(), the page ca
 
 @subsection centered_info Centered info area
 
-\image{inline} html layout_nanos_centered.png "caption" height=300
+\image{inline} html layout_nanos_centered.png height=300
 
 This object is made of:
 
@@ -80,11 +82,11 @@ The fonts for the texts depends of the \b style field used in @ref nbgl_layoutCe
 
 @subsection navigation Navigation area
 
-\image{inline} html layout_nanos_nav1.png "caption" height=300
+\image{inline} html layout_nanos_nav1.png height=300
 
 or
 
-\image{inline} html layout_nanos_nav2.png "caption" height=300
+\image{inline} html layout_nanos_nav2.png height=300
 
 
 This object is made of:
@@ -104,7 +106,7 @@ The "direction" and the number of arrows (left, right or both) to use are set in
 
 @subsection menu_list Menu List area
 
-\image{inline} html layout_nanos_menu_list.png "caption" height=300
+\image{inline} html layout_nanos_menu_list.png height=300
 
 On screen, the visible part of his object is made of up to 5 menu item elements (single line, centered horizontally)
 
@@ -125,7 +127,7 @@ The text to enter may be a generic string or a word (for example BIP39).
 
 Here is an example of these pages in Bolos UX:
 
-\image{inline} html layout_nanos_keyboard1.png "caption" height=300
+\image{inline} html layout_nanos_keyboard1.png height=300
 
 To build such screens, some dedicated APIs are necessary, which will be detailed in the sub-chapters.
 
@@ -239,7 +241,7 @@ The digits to enter are usually a PIN code, to enter or to confirm.
 
 Here are some example of these pages in Bolos UX:
 
-\image{inline} html layout_nanos_keypad1.png "caption" height=300
+\image{inline} html layout_nanos_keypad1.png height=300
 
 To build such screens, some dedicated APIs are necessary, which will be detailed in the sub-chapters.
 
