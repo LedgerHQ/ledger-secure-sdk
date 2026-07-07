@@ -1,6 +1,8 @@
 #ifndef HAVE_SE_TOUCH
 /** @page nbgl_app_use_case_nanos Predefined Application Use-cases API
 
+@tableofcontents
+
 @section nbgl_use_case_intro Introduction
 This chapter describes the Application Use-cases API of Advanced BOLOS Graphic Library.
 
@@ -27,17 +29,57 @@ real help for end-users, getting more and more familiar with the user experience
 
 @subsection nbgl_use_case_example_1 Example 1: transaction review
 
-\image{inline} html UseCase-Nano-Review-ex.png "caption" width=1000
+\image{inline} html UseCase-Nano-Review-ex.png width=1000
 
 In this example, a transaction review consists in 5 successive pages, and can be seen as a
 use-case
 
 @subsection nbgl_use_case_example_2 Example 2: Settings pages
 
-\image{inline} html UseCase-Nano-Settings-ex.png "caption" width=750
+\image{inline} html UseCase-Nano-Settings-ex.png width=750
 
 In this example, the settings (accessed from *Settings* in Home, single level) consists in 3
 pages, and can be seen as another use-case.
+
+@subsection nbgl_use_case_operation_type Operation Type
+
+All review Use-Cases take a @ref nbgl_operationType_t parameter that encodes both a **base type**
+and a set of optional **modifier flags**, combined with a bitwise OR.
+
+@par Base type (nbgl_opType_t)
+
+Value | Description
+----- | -----------
+@ref TYPE_TRANSACTION | Transfer of a coin or operation on an account (broadcast on-chain)
+@ref TYPE_MESSAGE | Signature of a message that will **not** be broadcast on the blockchain
+@ref TYPE_OPERATION | Any other type of operation (generic)
+
+@par Modifier flags
+
+Flag | Bit | Effect on UI
+---- | --- | ------------
+@ref SKIPPABLE_OPERATION | 4 | Adds a *Skip* button on the first review page
+@ref BLIND_OPERATION | 5 | Shows a blind-signing warning page before the review
+@ref RISKY_OPERATION | 6 | Adds a risk-warning indicator on the first and last review pages
+@ref NO_THREAT_OPERATION | 7 | Adds an information indicator when Ledger security checks found no threat
+@ref ADDRESS_BOOK_OPERATION | 8 | Adjusts UI wording for address-book flows
+
+@par Example
+
+@code{.c}
+// Blind-signed transaction that can be skipped
+nbgl_operationType_t opType = TYPE_TRANSACTION | BLIND_OPERATION | SKIPPABLE_OPERATION;
+nbgl_useCaseReview(opType, ...);
+@endcode
+
+@subsection nbgl_use_case_icon_sizes Icon sizes
+
+On Nano devices there is no `SMALL_ICON_SIZE` / `LARGE_ICON_SIZE` constant.
+All icons and glyphs passed to use-case functions are expected to be **14×14 px**,
+which matches the height of the standard Nano font and the internal SDK glyphs
+(e.g. `C_icon_validate_14`, `C_Information_circle_14px`).
+
+Application icons (`appIcon`) should therefore also be provided as 14×14 px bitmaps.
 
 @section nbgl_use_cases Use Cases
 
@@ -98,7 +140,7 @@ A few APIs are available to draw typical Use-Cases, such as:
 
 @subsection use_case_home_settings Home & Settings screen Use Case
 
-\image{inline} html UseCase-Nano-Home.png "caption" width=1000
+\image{inline} html UseCase-Nano-Home.png width=1000
 
 Ledger would like all application to have the same layout for home screen and settings/info, so
 the @ref nbgl_useCaseHomeAndSettings() function enables to create such a set of page, the
@@ -186,7 +228,7 @@ void appMain(void) {
 
 @subsubsection use_case_home_settings_with_action Home & Settings screen with action button Use Case
 
-\image{inline} html UseCase-Nano-Settings-Action.png "caption" width=1000
+\image{inline} html UseCase-Nano-Settings-Action.png width=1000
 
 For some rare applications, one may need an action button in the Home screen, to perform either:
 
@@ -202,7 +244,7 @@ The \b action argument of @ref nbgl_useCaseHomeAndSettings() can be used for tha
 
 @subsection use_case_confirm Confirmation Use Case
 
-\image{inline} html UseCase-Nano-Confirm.png "caption" width=750
+\image{inline} html UseCase-Nano-Confirm.png width=750
 
 A confirmation use-case consists in 3 modal pages sequence:
 
@@ -233,7 +275,7 @@ void onRejectTransaction(void) {
 
 @subsection use_case_choice Choice Use Case
 
-\image{inline} html UseCase-Nano-Choice.png "caption" width=800
+\image{inline} html UseCase-Nano-Choice.png width=800
 
 A choice use-case consists in a 4-page sequence:
 
@@ -400,7 +442,7 @@ void displayActionPage(void) {
 
 @subsection use_case_status Status Use Case
 
-\image{inline} html UseCase-Nano-Status.png "caption" width=600
+\image{inline} html UseCase-Nano-Status.png width=600
 
 A status is a transient page, without control, to display during a short time, for example when a
 transaction is successfully signed.
@@ -413,7 +455,7 @@ arguments:
 
 @subsection use_case_review_status Pre-defined review status Use Case
 
-\image{inline} html UseCase-Nano-Review-Status.png "caption" width=600
+\image{inline} html UseCase-Nano-Review-Status.png width=600
 
 Similar as @ref use_case_status, this is used to display transient page, without control, during a
 short time, for example when a transaction is successfully signed.
@@ -425,7 +467,7 @@ arguments:
 
 @subsection use_case_review Review Use Case
 
-\image{inline} html UseCase-Nano-Review.png "caption" height=300
+\image{inline} html UseCase-Nano-Review.png height=300
 
 In most cases, the developer may know all tag/value pairs of a transaction when it is submitted.
 
@@ -716,7 +758,7 @@ void displaySettings(uint8_t settingPage) {
 
 @subsection use_case_review_streaming Streaming review Use Case
 
-\image{inline} html UseCase-Nano-Streaming.png "caption" width=1000
+\image{inline} html UseCase-Nano-Streaming.png width=1000
 
 In some cases, the application cannot know all tag/value pairs of a transaction when the review is
 started.
@@ -875,7 +917,7 @@ void staticReview(void) {
 
 @subsection use_case_addr_review Address Review Use Case
 
-\image{inline} html UseCase-Nano-AddressReview.png "caption" width=1500
+\image{inline} html UseCase-Nano-AddressReview.png width=1500
 
 When an address needs to be confirmed, it can be displayed in a Address Review Use Case.
 
@@ -944,7 +986,7 @@ void app_ethereumVerifyAddress(void) {
 
 @subsection use_case_spinner Spinner Use Case
 
-\image{inline} html UseCase-Nano-Spinner.png "caption" width=300
+\image{inline} html UseCase-Nano-Spinner.png width=300
 
 This Use Case is simply to display a static *waiting page*
 
@@ -952,7 +994,7 @@ The @ref nbgl_useCaseSpinner() function enables to create such a page, without a
 
 @subsection use_case_keypad Keypad Use Case
 
-\image{inline} html UseCase-Nano-Keypad.png "caption" height=350
+\image{inline} html UseCase-Nano-Keypad.png height=350
 
 We have here 2 different variants, allowing to \b show or \b hide the entered digits.
 

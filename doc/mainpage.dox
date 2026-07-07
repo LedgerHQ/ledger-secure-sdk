@@ -56,16 +56,8 @@ This section contains all information necessary to use the U2F API.
 
 @section ux_presentation User eXperience
 
-@subsection ux_nanos_presentation User eXperience on Nanos
-
-The @subpage ux_mainpage page contains all information necessary to user the User eXperience (and partially Graphical Library) for
-\b Nanos applications development (using \b BAGL).
-
-@subsection ux_nbgl_presentation User eXperience on Applications using \b NBGL
-
-The @subpage ux_nbgl_mainpage page contains all information necessary to user the User eXperience for
-\b Stax, \b Flex, \b NanoX and \b NanoS+ applications development using \b NBGL (most recent ones).
-
+The @subpage ux_mainpage page contains all information necessary to the User eXperience (and partially Graphical Library) for
+applications development.
 
 @section fuzzing_presentation Fuzzing Framework
 

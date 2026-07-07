@@ -484,7 +484,7 @@ EXTRACT_PACKAGE        = NO
 # included in the documentation.
 # The default value is: NO.
 
-EXTRACT_STATIC         = NO
+EXTRACT_STATIC         = YES
 
 # If the EXTRACT_LOCAL_CLASSES tag is set to YES, classes (and structs) defined
 # locally in source files will be included in the documentation. If set to NO,
@@ -843,6 +843,7 @@ INPUT                  = \
                          lib_nfc/doc \
                          lib_nfc/include \
                          lib_nfc/src \
+                         include/app_storage.h \
                          lib_standard_app/doc \
                          lib_standard_app \
                          lib_stusb \
@@ -942,7 +943,8 @@ RECURSIVE              = NO
 # run.
 
 EXCLUDE                = app_features/address_book/doc/address_book_spec.md \
-                         doc/landing.html
+                         doc/landing.html \
+                         $(UX_BAGL_EXCLUDE)
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
@@ -2214,7 +2216,11 @@ INCLUDE_FILE_PATTERNS  =
 
 PREDEFINED             = NBGL_KEYBOARD \
                          NBGL_KEYPAD \
-                         $(NBGL_DEFINES)
+                         $(NBGL_DEFINES) \
+                         WEAK= \
+                         NORETURN= \
+                         BOOT_SECTION= \
+                         HAVE_SWAP
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this
 # tag can be used to specify a list of macro names that should be expanded. The

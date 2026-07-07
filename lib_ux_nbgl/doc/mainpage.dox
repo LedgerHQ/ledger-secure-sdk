@@ -1,9 +1,11 @@
-/** @page ux_nbgl_mainpage User Experience library for Stax
+#ifdef HAVE_SE_TOUCH
+/** @page ux_mainpage User Experience library for NBGL-based Applications
 
-@section ux_nbgl_mainpage_intro Introduction
+@section ux_mainpage_intro Introduction
 
 This page describes the UX (User eXperience) library, available on all products (except Nano S).
 
 @note TO BE COMPLETED
 
 */
+#endif // HAVE_SE_TOUCH

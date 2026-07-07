@@ -1,6 +1,8 @@
 #ifdef NBGL_PAGE
 /** @page nbgl_page Predefined Pages API
 
+@tableofcontents
+
 @section nbgl_page_intro Introduction
 This chapter describes briefly the high-level API of Advanced BOLOS Graphic Library.
 
@@ -17,7 +19,7 @@ Moreover, positions of objects in the page are mostly hidden and automatic.
 
 @subsection nbgl_page_example_1 Example 1
 
-\image{inline} html page1.png "caption" height=300
+\image{inline} html page1.png height=300
 
 In this example, a generic information page is used with some configurable fields:
 
@@ -27,7 +29,7 @@ In this example, a generic information page is used with some configurable field
 
 @subsection nbgl_page_example_2 Example 2
 
-\image{inline} html page2.png "caption" height=300
+\image{inline} html page2.png height=300
 
 In this more complex example, we use a multi-pages configuration. In this configuration, we decided to use
 the navigation between pages by "tapping" on container to go forward, use the "Back" arrow in progress indicator (top-left of the page)
@@ -62,7 +64,7 @@ or for a multi-pages configuration.
 
 @subsubsection page_ledger_info Ledger information
 
-\image{inline} html page3.png "caption" height=300
+\image{inline} html page3.png height=300
 
 This type is intended to draw a simple centered text in large case, with a round check icon (typically to provide the status of an action)
 
@@ -73,7 +75,7 @@ The API to insert such an object is @ref nbgl_pageDrawLedgerInfo() with:
 
 @subsubsection page_spinner Spinner
 
-\image{inline} html page4.png "caption" height=300
+\image{inline} html page4.png height=300
 
 This type is intended to to draw a spinner (typically a waiting screen)
 
@@ -83,7 +85,7 @@ The API to insert such an object is @ref nbgl_pageDrawSpinner() with:
 
 @subsubsection page_info Generic information
 
-\image{inline} html page_drawInfo1.png "caption" height=300
+\image{inline} html page_drawInfo1.png height=300
 
 This type is intended to draw a centered info.
 In addition of this centered info, this page can offer controls to interact with the info:
@@ -101,7 +103,7 @@ The API to insert such an object is @ref nbgl_pageDrawInfo() with the @ref nbgl_
 
 An optional "action" button can also be displayed for the following case:
 
-\image{inline} html page_drawInfo2.png "caption" height=300
+\image{inline} html page_drawInfo2.png height=300
 
 In this case, the \b actionButtonText field of @ref nbgl_pageInfoDescription_t can be used, and \b bottomButtonsToken is used in
 \b actionCallback param, with \b index = 0 for action button, and \b index = 1 for quit button.
@@ -109,7 +111,7 @@ In this case, the \b actionButtonText field of @ref nbgl_pageInfoDescription_t c
 
 @subsubsection page_confirmation Confirmation page
 
-\image{inline} html page6.png "caption" height=300
+\image{inline} html page6.png height=300
 
 This type is intended to draw a typical confirmation screen, for example when rejecting a transaction (with 1 button for confirmation).
 In addition of a centered info, this page offer control to interact with the info:
@@ -134,39 +136,39 @@ The different types of generic content are given in @ref nbgl_contentType_t enum
 - @ref INFO_BUTTON is used to draw a centered info and a simple black button. The structure containing data to build it is @ref nbgl_contentInfoButton_t
 - @ref TAG_VALUE_LIST is used to draw alist of tag/value pairs. The structure containing data to build it is @ref nbgl_contentTagValueList_t
 
-\image{inline} html page15.png "caption" height=300
+\image{inline} html page15.png height=300
 
 The \b smallCaseForValue field is used to indicate whether to use a 32px (false) or 24px (true) font for \b value text. Normally, the small font is
 supposed to be used only to display details.
 
 - @ref TAG_VALUE_DETAILS is used to draw a tag/value pair and a small button to get details on it. The structure containing data to build it is @ref nbgl_contentTagValueDetails_t
 
-\image{inline} html page14.png "caption" height=300
+\image{inline} html page14.png height=300
 
 The "details" button is only displayed if the \b value text is longer than 9 lines. And in this case, the \b value text is truncated at the 6th line, and
 "..." is used to show that the text is truncated.
 
 - @ref TAG_VALUE_CONFIRM is used to draw tag/value pairs and a potential confirmation button in the same page. The structure containing data to build it is @ref nbgl_contentTagValueConfirm_t
 
-\image{inline} html page-TagValueConfirm.png "caption" height=300
+\image{inline} html page-TagValueConfirm.png height=300
 
 The "details" button is only displayed if the \b detailsButtonText is not NULL.
 
 - @ref SWITCHES_LIST is used to draw a list of switches with descriptions. The structure containing data to build it is @ref nbgl_contentSwitchesList_t
 
-\image{inline} html page16.png "caption" height=300
+\image{inline} html page16.png height=300
 
 - @ref INFOS_LIST is used to draw a list of infos with titles. The structure containing data to build it is @ref nbgl_contentInfoList_t
 
-\image{inline} html page13.png "caption" height=300
+\image{inline} html page13.png height=300
 
 - @ref CHOICES_LIST is used to draw a list of choices through radio buttons. The structure containing data to build it is @ref nbgl_contentRadioChoice_t
 
-\image{inline} html page11.png "caption" height=300
+\image{inline} html page11.png height=300
 
 - @ref BARS_LIST is used to draw a list of touchable bars (with > on the right to go to sub-pages). The structure containing data to build it is @ref nbgl_contentBarsList_t
 
-\image{inline} html page17.png "caption" height=300
+\image{inline} html page17.png height=300
 
 @subsubsection page_generic_single Generic content page API
 
