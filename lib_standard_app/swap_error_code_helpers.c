@@ -53,7 +53,9 @@ __attribute__((noreturn)) void send_swap_error_with_buffers(uint16_t status_word
         count = SWAP_ERROR_HELPER_MAX_BUFFER_COUNT;
     }
     // We are only copying the buffer_t structure, not the content
-    memcpy(&response[1], buffer_data, count * sizeof(buffer_t));
+    if (count > 0) {
+        memcpy(&response[1], buffer_data, count * sizeof(buffer_t));
+    }
 
     // io_send_response_buffers will use the correct flag IO_RETURN_AFTER_TX
     io_send_response_buffers(response, count + 1, status_word);

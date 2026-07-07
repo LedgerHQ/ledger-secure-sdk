@@ -230,7 +230,9 @@ cx_err_t cx_sha256_update(cx_sha256_t *ctx, const uint8_t *data, size_t len)
     }
 
     // --- remind rest data---
-    memcpy(ctx->block + blen, data, len);
+    if (len > 0) {
+        memcpy(ctx->block + blen, data, len);
+    }
     blen += len;
     ctx->blen = blen;
     return CX_OK;

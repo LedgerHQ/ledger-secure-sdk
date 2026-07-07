@@ -1,22 +1,25 @@
 #!/bin/bash -e
 
-pushd fuzzing
-cmake -S . -B build -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Debug \
-            -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=On \
-            -DBOLOS_SDK=/src/ledger-secure-sdk/ -DTARGET=flex \
-            -DAPP_BUILD_PATH=/src/ledger-secure-sdk/
-# Generates .zip for initial corpus in clusterFuzz
-for dir in harness/*; do
-    if [ -d "$dir" ]; then
-        fuzzer_name=$(basename "$dir")
-        zip_name="${fuzzer_name}_seed_corpus.zip"
-        echo "Zipping corpus from $dir into $zip_name"
+# SDK self-fuzz targets under fuzzing/sdk-fuzz/ are Absolution-driven: absolution_add_fuzzer() regenerates each harness from the model, using the same app contract as real apps.
 
-        (cd "$dir" && zip -q -r "$zip_name" .)
+SDK_DIR="${SRC:-/src}/ledger-secure-sdk"
 
-        mv "$dir/$zip_name" "$OUT/"
-    fi
+pushd "${SDK_DIR}/fuzzing/sdk-fuzz"
+
+cmake -S . -B build-absolution \
+      -DCMAKE_C_COMPILER=clang \
+      -DCMAKE_BUILD_TYPE=Debug \
+      -G Ninja \
+      -DCMAKE_EXPORT_COMPILE_COMMANDS=On \
+      -DBOLOS_SDK="${SDK_DIR}" \
+      -DTARGET=flex \
+      -DAPP_BUILD_PATH="${SDK_DIR}"
+
+cmake --build build-absolution
+
+for fuzzer in ./build-absolution/fuzz_*; do
+    [[ -f "${fuzzer}" && -x "${fuzzer}" ]] || continue
+    cp "${fuzzer}" "${OUT}/"
 done
-cmake --build build
-mv ./build/fuzz_* "${OUT}"
+
 popd
