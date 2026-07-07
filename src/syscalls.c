@@ -1889,7 +1889,7 @@ bool sys_address_book_hmac(const uint32_t        *bip32_path,
                            ADDRESS_BOOK_salt_id_t salt_id,
                            const uint8_t         *message,
                            size_t                 message_len,
-                           uint8_t               *hmac_out)
+                           uint8_t                hmac_out[CX_SHA256_SIZE])
 {
     unsigned int parameters[6];
     parameters[0] = (unsigned int) bip32_path;
@@ -1906,7 +1906,7 @@ bool sys_address_book_hmac_verify(const uint32_t        *bip32_path,
                                   ADDRESS_BOOK_salt_id_t salt_id,
                                   const uint8_t         *message,
                                   size_t                 message_len,
-                                  const uint8_t         *hmac_expected)
+                                  const uint8_t          hmac_expected[CX_SHA256_SIZE])
 {
     unsigned int parameters[6];
     parameters[0] = (unsigned int) bip32_path;

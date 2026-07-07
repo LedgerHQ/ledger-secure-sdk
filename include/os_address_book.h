@@ -12,6 +12,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include "decorators.h"
+#include "lcx_sha256.h"
 
 /**
  * @brief Salt identifiers for Address Book HMAC key derivation.
@@ -55,7 +56,7 @@ SYSCALL bool sys_address_book_hmac(const uint32_t        *bip32_path,
                                    ADDRESS_BOOK_salt_id_t salt_id,
                                    const uint8_t         *message,
                                    size_t                 message_len,
-                                   uint8_t               *hmac_out);
+                                   uint8_t                hmac_out[CX_SHA256_SIZE]);
 
 /**
  * @brief Verifies an HMAC-SHA256 using a BIP32-derived key.
@@ -83,4 +84,4 @@ SYSCALL bool sys_address_book_hmac_verify(const uint32_t        *bip32_path,
                                           ADDRESS_BOOK_salt_id_t salt_id,
                                           const uint8_t         *message,
                                           size_t                 message_len,
-                                          const uint8_t         *hmac_expected);
+                                          const uint8_t          hmac_expected[CX_SHA256_SIZE]);
