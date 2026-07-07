@@ -1,0 +1,3 @@
+# SDK macros to exclude from the fuzz build.
+HAVE_SHA512_WITH_BLOCK_ALT_METHOD
+PRINTF(...)=

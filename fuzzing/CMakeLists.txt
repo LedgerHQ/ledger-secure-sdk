@@ -1,18 +1,12 @@
 include_guard()
 cmake_minimum_required(VERSION 3.14)
 
-if(${CMAKE_VERSION} VERSION_LESS 3.14)
-  cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
-endif()
-
-# project information
 project(
   SDKFuzzer
   VERSION 1.0
   DESCRIPTION "SDK Fuzzer"
   LANGUAGES C)
 
-# guard against bad build-type strings
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Debug")
 endif()
@@ -21,12 +15,10 @@ if(NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
   message(FATAL_ERROR "Fuzzer needs to be built with Clang")
 endif()
 
-# Check for BOLOS_SDK
 if(NOT BOLOS_SDK)
   message(WARNING "BOLOS_SDK not passed.")
 endif()
 
-# Check for .target in BOLOS_SDK
 if(EXISTS "${BOLOS_SDK}/.target")
   file(STRINGS "${BOLOS_SDK}/.target" TARGET)
   string(STRIP "${TARGET}" TARGET)
@@ -35,7 +27,6 @@ if(EXISTS "${BOLOS_SDK}/.target")
   else()
     message("Using TARGET=${TARGET} from ${BOLOS_SDK}/.target")
   endif()
-  # If no .target, checks for -DTARGET=
 else()
   message(WARNING "No .target file found in BOLOS_SDK=${BOLOS_SDK}")
   if(TARGET)
@@ -45,7 +36,6 @@ else()
   endif()
 endif()
 
-# guard against in-source builds
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
   message(
     FATAL_ERROR
@@ -53,100 +43,132 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
   )
 endif()
 
-# compatible with ClusterFuzzLite
-if(NOT DEFINED ENV{LIB_FUZZING_ENGINE})
-  set(COMPILATION_FLAGS
-      -fno-common
-      -std=gnu99
-      -Wall
-      -Wextra
-      -Wno-main
-      -Wno-error=int-conversion
-      -Wimplicit-fallthrough
-      -Wvla
-      -Wundef
-      -Wshadow
-      -Wformat=2
-      -Wformat-security
-      -Wwrite-strings
-      -ffunction-sections
-      -fdata-sections
-      -fprofile-instr-generate
-      -fcoverage-mapping
-      -funsigned-char
-      -fshort-enums)
+option(FUZZ_ENABLE_SOURCE_COVERAGE
+       "Enable LLVM source coverage instrumentation for replay reporting."
+       ON)
 
-  set(LINK_FLAGS -fprofile-instr-generate -fcoverage-mapping -fuse-ld=lld)
+# ABI/warning flags applied in every environment: CFL supplies sanitizer flags via CFLAGS but not target ABI flags like -fshort-enums, whose absence changes enum sizes and yields sanitizer-only false positives.
+set(_FUZZ_BASE_COMPILATION_FLAGS
+    -fno-common
+    -std=gnu99
+    -Wall
+    -Wextra
+    -Wno-main
+    -Wno-error=int-conversion
+    -Wimplicit-fallthrough
+    -Wvla
+    -Wundef
+    -Wshadow
+    -Wformat=2
+    -Wformat-security
+    -Wwrite-strings
+    -ffunction-sections
+    -fdata-sections
+    -funsigned-char
+    -fshort-enums)
+
+if(NOT DEFINED ENV{LIB_FUZZING_ENGINE})
+  set(COMPILATION_FLAGS ${_FUZZ_BASE_COMPILATION_FLAGS})
+
+  set(LINK_FLAGS -fuse-ld=lld)
+  if(FUZZ_ENABLE_SOURCE_COVERAGE)
+    list(APPEND COMPILATION_FLAGS -fprofile-instr-generate -fcoverage-mapping)
+    list(APPEND LINK_FLAGS -fprofile-instr-generate -fcoverage-mapping)
+  endif()
+  # Ignorelist carves out benign UBSan hits (vtable polymorphism, crypto wrapping arithmetic, allocator sign-change).
+  set(_FUZZ_IGNORELIST
+      "-fsanitize-ignorelist=${BOLOS_SDK}/fuzzing/sanitizers/ubsan-ignorelist.txt")
+
   if(SANITIZER MATCHES "address")
-    set(COMPILATION_FLAGS ${COMPILATION_FLAGS}
-                          -fsanitize=fuzzer,address,undefined)
-    set(LINK_FLAGS ${LINK_FLAGS} -fsanitize=fuzzer,address,undefined)
+    # -fno-sanitize=alignment: lib_alloc returns 4-byte-aligned memory and Cortex-M33 allows unaligned access, so alignment reports are on-device-safe noise.
+    set(_FUZZ_SAN
+        fuzzer,address,undefined,integer,nullability,local-bounds,float-divide-by-zero)
+    list(APPEND COMPILATION_FLAGS
+        -fsanitize=${_FUZZ_SAN}
+        -fno-sanitize=alignment
+        -fsanitize-recover=unsigned-integer-overflow
+        ${_FUZZ_IGNORELIST})
+    list(APPEND LINK_FLAGS
+        -fsanitize=${_FUZZ_SAN}
+        -fno-sanitize=alignment
+        -fsanitize-recover=unsigned-integer-overflow
+        ${_FUZZ_IGNORELIST})
   elseif(SANITIZER MATCHES "memory")
     set(COMPILATION_FLAGS
         ${COMPILATION_FLAGS} -fsanitize=fuzzer,memory,undefined
-        -fsanitize-memory-track-origins -fsanitize=fuzzer-no-link)
+        -fno-sanitize=alignment
+        -fsanitize-memory-track-origins -fsanitize=fuzzer-no-link
+        ${_FUZZ_IGNORELIST})
     set(LINK_FLAGS ${LINK_FLAGS} -fsanitize=fuzzer,memory,undefined
-                   -fsanitize-memory-track-origins -fsanitize=fuzzer-no-link)
+                   -fno-sanitize=alignment
+                   -fsanitize-memory-track-origins -fsanitize=fuzzer-no-link
+                   ${_FUZZ_IGNORELIST})
+  elseif(SANITIZER MATCHES "undefined")
+    # Mirror CFL's standalone UBSan job for local reproduction without ASan/MSan.
+    set(_FUZZ_SAN fuzzer,undefined,unsigned-integer-overflow)
+    list(APPEND COMPILATION_FLAGS
+        -fsanitize=${_FUZZ_SAN}
+        -fno-sanitize=alignment
+        -fsanitize-recover=unsigned-integer-overflow
+        ${_FUZZ_IGNORELIST})
+    list(APPEND LINK_FLAGS
+        -fsanitize=${_FUZZ_SAN}
+        -fno-sanitize=alignment
+        -fsanitize-recover=unsigned-integer-overflow
+        ${_FUZZ_IGNORELIST})
   else()
     message(
       FATAL_ERROR
-        "Unknown sanitizer type. It must be set to `address` or `memory`.")
+        "Unknown sanitizer type. It must be set to `address`, `memory`, or `undefined`.")
   endif()
 else()
   execute_process(COMMAND clang --version OUTPUT_VARIABLE CLANG_VERSION)
   message(STATUS "Clang version: ${CLANG_VERSION}")
 
-  execute_process(COMMAND ldd --version OUTPUT_VARIABLE LDD_VERSION)
-  set(COMPILATION_FLAGS "$ENV{LIB_FUZZING_ENGINE} $ENV{CFLAGS}")
-  set(LINK_FLAGS "$ENV{LIB_FUZZING_ENGINE} $ENV{CFLAGS}")
+  set(COMPILATION_FLAGS "$ENV{CFLAGS}")
+  set(LINK_FLAGS "$ENV{CFLAGS} $ENV{LIB_FUZZING_ENGINE}")
   separate_arguments(COMPILATION_FLAGS)
   separate_arguments(LINK_FLAGS)
+  set(COMPILATION_FLAGS ${_FUZZ_BASE_COMPILATION_FLAGS} ${COMPILATION_FLAGS})
+  list(APPEND COMPILATION_FLAGS
+      "-fsanitize-ignorelist=${BOLOS_SDK}/fuzzing/sanitizers/ubsan-ignorelist.txt")
+  list(APPEND LINK_FLAGS
+      "-fsanitize-ignorelist=${BOLOS_SDK}/fuzzing/sanitizers/ubsan-ignorelist.txt")
+  if(FUZZ_ENABLE_SOURCE_COVERAGE)
+    list(APPEND COMPILATION_FLAGS -fprofile-instr-generate -fcoverage-mapping)
+    list(APPEND LINK_FLAGS -fprofile-instr-generate -fcoverage-mapping)
+  endif()
   set(LINK_FLAGS ${LINK_FLAGS} -fuse-ld=lld)
 endif()
 
-# NBGL shared library is generated in Bolos, from NBGL sources from Bolos
-set(NBGL_SHARED_LIB ../../tests/screenshots/shared_libs/libnbgl_shared_${TARGET}.a)
-add_library(nbgl_shared STATIC IMPORTED)
-set_target_properties(
-    nbgl_shared
-      PROPERTIES
-      IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/shared_libs/libnbgl_shared_${TARGET}.a"
-  )
-
-# Fuzzing an APP
-if(NOT ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
-  file(GLOB LIBS "${BOLOS_SDK}/fuzzing/libs/*.cmake")
-
-  foreach(file IN LISTS LIBS)
-    include(${file})
-  endforeach()
-
-  add_library(secure_sdk INTERFACE)
-  target_compile_options(secure_sdk INTERFACE ${COMPILATION_FLAGS})
-  target_link_options(secure_sdk INTERFACE ${LINK_FLAGS})
-  target_link_libraries(
-    secure_sdk
-    INTERFACE macros
-              alloc
-              lists
-              cxng
-              io
-              nbgl
-              nfc
-              pki
-              tlv
-              qrcode
-              standard_app
-              mock)
-
-  # Fuzzing the SDK
-else()
-  set(BOLOS_SDK ${CMAKE_SOURCE_DIR})
-  get_filename_component(BOLOS_SDK ${CMAKE_SOURCE_DIR} DIRECTORY)
-  # Include harness cmake files
-  file(GLOB cmake_extra_files "extra/*.cmake")
-  foreach(file IN LISTS cmake_extra_files)
-    include(${file})
-  endforeach()
-
+if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
+  message(FATAL_ERROR
+    "fuzzing/ is not a standalone build entry point. Build the SDK self-fuzz "
+    "targets via fuzzing/sdk-fuzz, or an app via its own fuzzing/ directory.")
 endif()
+
+# Each lib_*.cmake aggregator pulls in mock.cmake (which defines `mock`).
+foreach(_lib alloc cxng glyphs io lists nbgl nfc pki qrcode standard_app tlv)
+  include("${BOLOS_SDK}/fuzzing/libs/lib_${_lib}.cmake")
+endforeach()
+
+add_library(secure_sdk INTERFACE)
+target_compile_options(secure_sdk INTERFACE ${COMPILATION_FLAGS})
+# `mock` is linked before the SDK libs so its strong overrides win; --allow-multiple-definition lets lld skip the SDK's duplicate definitions instead of erroring.
+target_link_options(secure_sdk INTERFACE ${LINK_FLAGS} -Wl,--allow-multiple-definition)
+target_link_libraries(
+  secure_sdk
+  INTERFACE macros
+            alloc
+            lists
+            mock
+            cxng
+            io
+            nbgl
+            nfc
+            pki
+            tlv
+            qrcode
+            standard_app)
+
+target_include_directories(secure_sdk INTERFACE "${BOLOS_SDK}/fuzzing/include")
