@@ -36,9 +36,19 @@ The @subpage nbgl_mainpage page contains all information necessary to understand
 
 The @subpage nfc_mainpage page contains all information necessary to interact with NFC stack.
 
+@section pki_presentation PKI Signature Verification
+
+The @subpage pki_mainpage page contains all information necessary to verify signatures
+using Ledger-issued PKI certificates.
+
 @section standard_app_presentation Standard Application Framework
 
 The @subpage standard_app_mainpage page contains all information necessary to use the Standard Application framework.
+
+@section tlv_presentation TLV Parsing Library
+
+The @subpage tlv_mainpage page contains all information necessary to define and use
+Tag-Length-Value parsers, including pre-built cross-application use cases.
 
 @section usb_presentation USB
 
