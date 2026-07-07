@@ -27,6 +27,7 @@
  */
 
 #include <string.h>
+#include <stdint.h>
 #include "address_book_crypto.h"
 #include "ledger_account.h"
 #include "identity.h"
@@ -66,6 +67,7 @@
  *   4. family as uint8 [+ chain_id big-endian] — if include_family == true
  *
  * @param[out] msg             Output buffer (caller must ensure sufficient size)
+ * @param[in]  msg_size        Size of @p msg in bytes (used for bounds checking)
  * @param[in]  gid             32-byte group ID, or NULL to skip
  * @param[in]  str1            Null-terminated string (length-prefixed in output), or NULL to skip
  * @param[in]  raw             Raw bytes (length-prefixed in output), or NULL to skip
@@ -74,9 +76,10 @@
  * @param[in]  family          Blockchain family (used only if include_family == true)
  * @param[in]  chain_id        Chain ID, appended only for FAMILY_ETHEREUM
  *
- * @return Number of bytes written to msg
+ * @return Number of bytes written to msg, or SIZE_MAX if @p msg_size is too small
  */
 static size_t serialize_hmac_msg(uint8_t            *msg,
+                                 size_t              msg_size,
                                  const uint8_t      *gid,
                                  const char         *str1,
                                  const uint8_t      *raw,
@@ -89,13 +92,19 @@ static size_t serialize_hmac_msg(uint8_t            *msg,
 
     // Optional 32-byte GID prefix
     if (gid != NULL) {
+        if (offset + GID_SIZE > msg_size) {
+            return SIZE_MAX;
+        }
         memmove(&msg[offset], gid, GID_SIZE);
         offset += GID_SIZE;
     }
 
     // Optional length-prefixed string
     if (str1 != NULL) {
-        uint8_t len   = (uint8_t) strlen(str1);
+        uint8_t len = (uint8_t) strlen(str1);
+        if (offset + 1U + (size_t) len > msg_size) {
+            return SIZE_MAX;
+        }
         msg[offset++] = len;
         if (len > 0) {
             memmove(&msg[offset], str1, len);
@@ -105,6 +114,9 @@ static size_t serialize_hmac_msg(uint8_t            *msg,
 
     // Optional length-prefixed raw bytes
     if (raw != NULL) {
+        if (offset + 1U + (size_t) raw_len > msg_size) {
+            return SIZE_MAX;
+        }
         msg[offset++] = raw_len;
         memmove(&msg[offset], raw, raw_len);
         offset += raw_len;
@@ -112,8 +124,14 @@ static size_t serialize_hmac_msg(uint8_t            *msg,
 
     // Optional family byte + chain_id
     if (include_family) {
+        if (offset + 1U > msg_size) {
+            return SIZE_MAX;
+        }
         msg[offset++] = (uint8_t) family;
         if (family == FAMILY_ETHEREUM) {
+            if (offset + 8U > msg_size) {
+                return SIZE_MAX;
+            }
             U8BE_ENCODE(msg, offset, chain_id);
             offset += 8U;
         }
@@ -253,8 +271,11 @@ bool address_book_compute_hmac_proof(const path_bip32_t *bip32_path,
 {
     uint8_t msg[HMAC_PROOF_MSG_SIZE] = {0};
     bool    success                  = false;
-    size_t  msg_len                  = serialize_hmac_msg(msg, gid, name, NULL, 0, false, 0, 0);
+    size_t  msg_len = serialize_hmac_msg(msg, sizeof(msg), gid, name, NULL, 0, false, 0, 0);
 
+    if (msg_len == SIZE_MAX) {
+        goto end;
+    }
     if (!sys_address_book_hmac(bip32_path->path,
                                bip32_path->length,
                                ADDRESS_BOOK_SALT_IDENTITY,
@@ -286,8 +307,11 @@ bool address_book_verify_hmac_proof(const path_bip32_t *bip32_path,
 {
     uint8_t msg[HMAC_PROOF_MSG_SIZE] = {0};
     bool    success                  = false;
-    size_t  msg_len                  = serialize_hmac_msg(msg, gid, name, NULL, 0, false, 0, 0);
+    size_t  msg_len = serialize_hmac_msg(msg, sizeof(msg), gid, name, NULL, 0, false, 0, 0);
 
+    if (msg_len == SIZE_MAX) {
+        goto end;
+    }
     if (!sys_address_book_hmac_verify(bip32_path->path,
                                       bip32_path->length,
                                       ADDRESS_BOOK_SALT_IDENTITY,
@@ -332,9 +356,12 @@ bool address_book_compute_hmac_rest(const path_bip32_t *bip32_path,
 {
     uint8_t msg[HMAC_MSG_MAX_SIZE] = {0};
     bool    success                = false;
-    size_t  msg_len
-        = serialize_hmac_msg(msg, gid, scope, identifier, identifier_len, true, family, chain_id);
+    size_t  msg_len                = serialize_hmac_msg(
+        msg, sizeof(msg), gid, scope, identifier, identifier_len, true, family, chain_id);
 
+    if (msg_len == SIZE_MAX) {
+        goto end;
+    }
     if (!sys_address_book_hmac(bip32_path->path,
                                bip32_path->length,
                                ADDRESS_BOOK_SALT_IDENTITY,
@@ -374,9 +401,12 @@ bool address_book_verify_hmac_rest(const path_bip32_t *bip32_path,
 {
     uint8_t msg[HMAC_MSG_MAX_SIZE] = {0};
     bool    success                = false;
-    size_t  msg_len
-        = serialize_hmac_msg(msg, gid, scope, identifier, identifier_len, true, family, chain_id);
+    size_t  msg_len                = serialize_hmac_msg(
+        msg, sizeof(msg), gid, scope, identifier, identifier_len, true, family, chain_id);
 
+    if (msg_len == SIZE_MAX) {
+        goto end;
+    }
     if (!sys_address_book_hmac_verify(bip32_path->path,
                                       bip32_path->length,
                                       ADDRESS_BOOK_SALT_IDENTITY,
@@ -416,8 +446,12 @@ bool address_book_compute_hmac_proof_ledger_account(const path_bip32_t *bip32_pa
 {
     uint8_t msg[HMAC_LEDGER_MSG_SIZE] = {0};
     bool    success                   = false;
-    size_t  msg_len = serialize_hmac_msg(msg, NULL, name, NULL, 0, true, family, chain_id);
+    size_t  msg_len
+        = serialize_hmac_msg(msg, sizeof(msg), NULL, name, NULL, 0, true, family, chain_id);
 
+    if (msg_len == SIZE_MAX) {
+        goto end;
+    }
     if (!sys_address_book_hmac(bip32_path->path,
                                bip32_path->length,
                                ADDRESS_BOOK_SALT_LEDGER_ACCOUNT,
@@ -451,8 +485,12 @@ bool address_book_verify_hmac_proof_ledger_account(const path_bip32_t *bip32_pat
 {
     uint8_t msg[HMAC_LEDGER_MSG_SIZE] = {0};
     bool    success                   = false;
-    size_t  msg_len = serialize_hmac_msg(msg, NULL, name, NULL, 0, true, family, chain_id);
+    size_t  msg_len
+        = serialize_hmac_msg(msg, sizeof(msg), NULL, name, NULL, 0, true, family, chain_id);
 
+    if (msg_len == SIZE_MAX) {
+        goto end;
+    }
     if (!sys_address_book_hmac_verify(bip32_path->path,
                                       bip32_path->length,
                                       ADDRESS_BOOK_SALT_LEDGER_ACCOUNT,
