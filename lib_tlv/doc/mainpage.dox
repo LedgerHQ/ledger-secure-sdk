@@ -1,0 +1,96 @@
+/** @page tlv_mainpage TLV parsing library
+
+@section tlv_intro Introduction
+
+`lib_tlv` is a Tag-Length-Value (TLV) parsing library. It lets applications
+define custom TLV parsers declaratively via an X-macro and then use them to
+extract typed fields from a binary payload.
+
+The library also ships three **pre-built use cases** for cross-application
+specifications maintained by Ledger:
+
+Use case | Description
+-------- | -----------
+@ref tlv_use_case_trusted_name.h | Associates a blockchain address with a trusted domain name (Ledger CAL)
+@ref tlv_use_case_transaction_check.h | Associates a transaction hash with a risk assessment from a security provider
+@ref tlv_use_case_dynamic_descriptor.h | Token dynamic descriptor (ticker, decimals, icon …)
+
+If your use case matches one of the above, use it directly. Otherwise, define
+your own parser with `DEFINE_TLV_PARSER` as described below.
+
+@section tlv_custom_parser Defining a custom parser
+
+@subsection tlv_step1 1. Define the output structure
+
+Declare a struct that will hold the parsed fields and a @ref TLV_reception_t
+field to track which tags were received:
+
+@code{.c}
+typedef struct {
+    TLV_reception_t received_tags;
+    uint8_t         version;
+    uint32_t        chain_id;
+} my_payload_t;
+@endcode
+
+@subsection tlv_step2 2. Write one handler per tag
+
+Each handler receives a @ref tlv_data_t containing the raw TLV value and a
+pointer to your output struct. Return `false` to abort parsing.
+
+@code{.c}
+static bool handle_version(const tlv_data_t *data, my_payload_t *out) {
+    return get_uint8_t_from_tlv_data(data, &out->version);
+}
+
+static bool handle_chain_id(const tlv_data_t *data, my_payload_t *out) {
+    return get_uint32_t_from_tlv_data(data, &out->chain_id);
+}
+@endcode
+
+@subsection tlv_step3 3. Declare the tag list and generate the parser
+
+The X-macro `MY_TAGS(X)` enumerates every tag: value, symbolic name, handler,
+and whether duplicates are allowed:
+
+@code{.c}
+#define MY_TAGS(X) \
+    X(0x01, TAG_VERSION,  handle_version,  ENFORCE_UNIQUE_TAG) \
+    X(0x02, TAG_CHAIN_ID, handle_chain_id, ENFORCE_UNIQUE_TAG)
+
+DEFINE_TLV_PARSER(MY_TAGS, NULL, my_tlv_parser)
+@endcode
+
+`DEFINE_TLV_PARSER` generates:
+- an `enum` mapping tag names to their numeric values,
+- an `enum` of per-tag index and flag constants used by @ref TLV_CHECK_RECEIVED_TAGS,
+- a `static inline bool my_tlv_parser(const buffer_t *, void *, TLV_reception_t *)` function.
+
+@subsection tlv_step4 4. Parse and verify
+
+@code{.c}
+bool parse_my_payload(buffer_t payload, my_payload_t *out) {
+    if (!my_tlv_parser(&payload, out, &out->received_tags)) {
+        return false;
+    }
+    // Ensure mandatory tags were present
+    return TLV_CHECK_RECEIVED_TAGS(out->received_tags, TAG_VERSION, TAG_CHAIN_ID);
+}
+@endcode
+
+@section tlv_helpers Value-extraction helpers
+
+Helper | Extracted type
+------ | --------------
+@ref get_uint8_t_from_tlv_data() | `uint8_t`
+@ref get_uint16_t_from_tlv_data() | `uint16_t`
+@ref get_uint32_t_from_tlv_data() | `uint32_t`
+@ref get_uint64_t_from_tlv_data() | `uint64_t`
+@ref get_bool_from_tlv_data() | `bool` (1-byte, value must be 0 or 1)
+@ref get_buffer_from_tlv_data() | `buffer_t` with size bounds check
+@ref get_string_from_tlv_data() | NUL-terminated `char[]` with size bounds check
+@ref tlv_enforce_u8_value() | Enforce that a `uint8_t` field equals an expected constant
+
+All helpers return `false` on error (wrong length, out-of-range value, etc.).
+
+*/

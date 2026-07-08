@@ -50,14 +50,16 @@ bool tlv_enforce_u8_value(const tlv_data_t *data, uint8_t expected_value)
     return true;
 }
 
-/** Parse uint64 value
+/**
+ * @brief Extract a uint64_t value from TLV data.
  *
- * Parses a uint64 value
- * https://en.wikipedia.org/wiki/X.690
+ * The value is interpreted as a big-endian unsigned integer.
+ * The TLV length must be between 1 and 8 bytes; shorter payloads are zero-padded.
+ * See also https://en.wikipedia.org/wiki/X.690 for DER encoding rules.
  *
- * @param[in] data the TLV data
- * @param[out] value the parsed value
- * @return whether it was successful
+ * @param[in]  data  TLV data to read from
+ * @param[out] value Parsed uint64_t value
+ * @return true on success, false if @p data is NULL or the length is out of range
  */
 bool get_uint64_t_from_tlv_data(const tlv_data_t *data, uint64_t *value)
 {
@@ -81,7 +83,15 @@ bool get_uint64_t_from_tlv_data(const tlv_data_t *data, uint64_t *value)
     return true;
 }
 
-/** Parse uint32 value from a TLV or fails
+/**
+ * @brief Extract a uint32_t value from TLV data.
+ *
+ * Delegates to get_uint64_t_from_tlv_data() and rejects values exceeding `UINT32_MAX`.
+ *
+ * @param[in]  data  TLV data to read from
+ * @param[out] value Parsed uint32_t value
+ * @return true on success, false if @p data is NULL, the length is invalid,
+ *         or the value overflows uint32_t
  */
 bool get_uint32_t_from_tlv_data(const tlv_data_t *data, uint32_t *value)
 {
@@ -97,7 +107,15 @@ bool get_uint32_t_from_tlv_data(const tlv_data_t *data, uint32_t *value)
     return true;
 }
 
-/** Parse uint16 value from a TLV or fails
+/**
+ * @brief Extract a uint16_t value from TLV data.
+ *
+ * Delegates to get_uint64_t_from_tlv_data() and rejects values exceeding `UINT16_MAX`.
+ *
+ * @param[in]  data  TLV data to read from
+ * @param[out] value Parsed uint16_t value
+ * @return true on success, false if @p data is NULL, the length is invalid,
+ *         or the value overflows uint16_t
  */
 bool get_uint16_t_from_tlv_data(const tlv_data_t *data, uint16_t *value)
 {
@@ -113,7 +131,15 @@ bool get_uint16_t_from_tlv_data(const tlv_data_t *data, uint16_t *value)
     return true;
 }
 
-/** Parse uint8 value from a TLV or fails
+/**
+ * @brief Extract a uint8_t value from TLV data.
+ *
+ * Delegates to get_uint64_t_from_tlv_data() and rejects values exceeding `UINT8_MAX`.
+ *
+ * @param[in]  data  TLV data to read from
+ * @param[out] value Parsed uint8_t value
+ * @return true on success, false if @p data is NULL, the length is invalid,
+ *         or the value overflows uint8_t
  */
 bool get_uint8_t_from_tlv_data(const tlv_data_t *data, uint8_t *value)
 {
@@ -129,7 +155,16 @@ bool get_uint8_t_from_tlv_data(const tlv_data_t *data, uint8_t *value)
     return true;
 }
 
-/** Parse a 0/1 uint8_t value from a TLV and cast it to boolean or fails
+/**
+ * @brief Extract a boolean value from TLV data.
+ *
+ * The TLV value must be exactly 1 byte with value 0 or 1.
+ * Any other value causes the function to return false.
+ *
+ * @param[in]  data  TLV data to read from
+ * @param[out] value Parsed boolean value
+ * @return true on success, false if @p data is NULL, the length is invalid,
+ *         or the byte is neither 0 nor 1
  */
 bool get_bool_from_tlv_data(const tlv_data_t *data, bool *value)
 {
@@ -145,7 +180,17 @@ bool get_bool_from_tlv_data(const tlv_data_t *data, bool *value)
     return true;
 }
 
-/** Parse a TLV data as a sized buffer or fails. O copy
+/**
+ * @brief Extract a sized buffer from TLV data (zero-copy).
+ *
+ * Populates @p out with a pointer into the TLV payload and its length.
+ * No data is copied; the caller must not outlive the original payload.
+ *
+ * @param[in]  data     TLV data to read from
+ * @param[out] out      `buffer_t` pointing into the TLV value bytes
+ * @param[in]  min_size Minimum acceptable length (0 to skip the lower-bound check)
+ * @param[in]  max_size Maximum acceptable length (0 to skip the upper-bound check)
+ * @return true on success, false if @p data is NULL or the length is outside the allowed range
  */
 bool get_buffer_from_tlv_data(const tlv_data_t *data,
                               buffer_t         *out,
@@ -170,7 +215,20 @@ bool get_buffer_from_tlv_data(const tlv_data_t *data,
     return true;
 }
 
-/** Parse and copies a C string from a TLV data or fails.
+/**
+ * @brief Copy a NUL-terminated string from TLV data.
+ *
+ * Copies the TLV bytes into @p out and appends a NUL terminator.
+ * The function rejects payloads that contain embedded NUL bytes.
+ *
+ * @param[in]  data       TLV data to read from
+ * @param[out] out        Destination buffer (must hold at least `value.size + 1` bytes)
+ * @param[in]  min_length Minimum acceptable string length in bytes, excluding NUL
+ *                        (0 to skip the lower-bound check)
+ * @param[in]  out_size   Size of @p out in bytes including the NUL terminator
+ *                        (0 to skip the upper-bound check)
+ * @return true on success, false if @p data is NULL, an embedded NUL is found,
+ *         or the length is outside the allowed range
  */
 bool get_string_from_tlv_data(const tlv_data_t *data,
                               char             *out,
@@ -254,7 +312,15 @@ static bool get_der_value_as_uint32(const buffer_t *payload, size_t *offset, uin
     }
 }
 
-/** Parse DER-encoded value and fits it in uint16_t or fails
+/**
+ * @brief Parse a DER-encoded value and fit it into a uint16_t, or fail.
+ *
+ * Delegates to get_der_value_as_uint32() and rejects values exceeding `UINT16_MAX`.
+ *
+ * @param[in]     payload DER-encoded buffer
+ * @param[in,out] offset  Current read position, advanced past the consumed bytes
+ * @param[out]    value   Parsed uint16_t value
+ * @return true on success, false if the underlying parse fails or the value overflows uint16_t
  */
 static bool get_der_value_as_uint16(const buffer_t *payload, size_t *offset, uint16_t *value)
 {
@@ -267,6 +333,13 @@ static bool get_der_value_as_uint16(const buffer_t *payload, size_t *offset, uin
     return true;
 }
 
+/**
+ * @brief Mark a tag as received in the reception flags, or fail if it was already set.
+ *
+ * @param[in,out] received_tags_flags Reception tracker to update
+ * @param[in]     tag                 Tag to mark as received
+ * @return true if the flag was freshly set, false if it was already present (duplicate tag)
+ */
 static bool set_tag(TLV_reception_t *received_tags_flags, TLV_tag_t tag)
 {
     TLV_flag_t flag = received_tags_flags->tag_to_flag_function(tag);
@@ -277,6 +350,19 @@ static bool set_tag(TLV_reception_t *received_tags_flags, TLV_tag_t tag)
     return true;
 }
 
+/**
+ * @brief Check that every tag in @p tags was received during parsing.
+ *
+ * Prefer the variadic macro @ref TLV_CHECK_RECEIVED_TAGS which wraps this function.
+ *
+ * @warning Do not mix tags belonging to different TLV use cases; the flag mapping is
+ *          use-case-specific and results would be undefined.
+ *
+ * @param[in] received   Tag-reception tracker filled in by the parser
+ * @param[in] tags       Array of tag values that must have been received
+ * @param[in] tag_count  Number of entries in @p tags
+ * @return true if every listed tag was received, false if any is missing
+ */
 bool tlv_check_received_tags(TLV_reception_t received, const TLV_tag_t *tags, size_t tag_count)
 {
     for (size_t i = 0; i < tag_count; i++) {
@@ -293,6 +379,14 @@ bool tlv_check_received_tags(TLV_reception_t received, const TLV_tag_t *tags, si
     return true;
 }
 
+/**
+ * @brief Find the handler registered for a given tag.
+ *
+ * @param[in] handlers        Array of tag handlers
+ * @param[in] handlers_count  Number of entries in @p handlers
+ * @param[in] tag             Tag value to look up
+ * @return Pointer to the matching handler, or NULL if no handler is registered for @p tag
+ */
 static const _internal_tlv_handler_t *find_handler(const _internal_tlv_handler_t *handlers,
                                                    uint8_t                        handlers_count,
                                                    TLV_tag_t                      tag)
@@ -312,6 +406,22 @@ typedef enum tlv_step_e {
     TLV_VALUE,
 } tlv_step_t;
 
+/**
+ * @brief Parse a raw TLV payload using a pre-built handler table.
+ *
+ * This is the internal engine behind every parser generated by `DEFINE_TLV_PARSER`.
+ * Prefer using the generated wrapper for your use case rather than calling this directly.
+ *
+ * @param[in]  handlers             Array of per-tag handlers
+ * @param[in]  handlers_count       Number of entries in @p handlers
+ * @param[in]  common_handler       Optional handler called for every tag before the specific one
+ *                                  (may be NULL)
+ * @param[in]  tag_to_flag_function Maps a tag value to its reception flag bit
+ * @param[in]  payload              Raw TLV bytes to parse
+ * @param[out] tlv_out              Output struct written into by the handlers
+ * @param[out] received_tags_flags  Reception tracker updated as tags are processed
+ * @return true on success, false on any parse error or handler failure
+ */
 bool _parse_tlv_internal(const _internal_tlv_handler_t *handlers,
                          uint8_t                        handlers_count,
                          tlv_handler_cb_t              *common_handler,

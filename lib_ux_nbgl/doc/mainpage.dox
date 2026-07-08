@@ -1,9 +1,76 @@
-/** @page ux_nbgl_mainpage User Experience library for Stax
+#ifdef HAVE_SE_TOUCH
+/** @page ux_mainpage User Experience library for NBGL-based Applications
 
-@section ux_nbgl_mainpage_intro Introduction
+@section ux_mainpage_intro Introduction
 
-This page describes the UX (User eXperience) library, available on all products (except Nano S).
+`lib_ux_nbgl` is the UX event-routing layer for touch-enabled Ledger devices
+(\b Stax, \b Flex, \b Apex).
+It sits between the SE Proxy HAL (SEPH) and the \b NBGL drawing engine,
+dispatching hardware events (finger touches, buttons, ticker, default) to the
+right internal handler and triggering screen redraws when the OS requests them.
 
-@note TO BE COMPLETED
+Applications do not interact with NBGL or SEPH directly for event processing —
+they use the macros and functions exposed by this library inside their main event loop.
+
+@section ux_mainpage_archi Architecture
+
+@verbatim
+ ┌─────────────────────────────────────────────────────────────┐
+ │  Application main event loop                                │
+ │                                                             │
+ │  UX_INIT()           UX_WAKE_UP()                           │
+ │  UX_FINGER_EVENT()   UX_BUTTON_PUSH_EVENT()                 │
+ │  UX_TICKER_EVENT()   UX_DEFAULT_EVENT()                     │
+ └────────────────────────────┬────────────────────────────────┘
+                              │
+                   ┌──────────▼──────────┐
+                   │    lib_ux_nbgl      │
+                   │  ux_process_*()     │
+                   └────────┬────────────┘
+               ┌────────────┼─────────────┐
+               │            │             │
+     ┌─────────▼──┐  ┌──────▼──────┐  ┌───▼─────────┐
+     │  NBGL      │  │  OS (os_ux) │  │  SEPH       │
+     │  (drawing) │  │  (BOLOS UX) │  │  (events)   │
+     └────────────┘  └─────────────┘  └─────────────┘
+@endverbatim
+
+@section ux_mainpage_init Initialization
+
+Call \c UX_INIT() once at application startup, before entering the event loop.
+It initializes the NBGL object system.
+
+@code{.c}
+void app_main(void) {
+    UX_INIT();
+    io_seproxyhal_general_status();
+    while (1) {
+        io_event(CHANNEL_APDU);
+    }
+}
+@endcode
+
+@section ux_mainpage_macros Event-routing macros
+
+Macro | Trigger | Action
+----- | ------- | ------
+\b UX_INIT() | Application startup | Calls \c nbgl_objInit()
+\b UX_WAKE_UP() | User activity | Sends \c BOLOS_UX_WAKE_UP to the OS to prevent screen lock
+\b UX_FINGER_EVENT(pkt) | \c SEPROXYHAL_TAG_FINGER_EVENT | Routes touch coordinates to NBGL via \c ux_process_finger_event()
+\b UX_BUTTON_PUSH_EVENT(pkt) | \c SEPROXYHAL_TAG_BUTTON_PUSH_EVENT | No-op on touch devices (physical buttons not present)
+\b UX_TICKER_EVENT(pkt, cb) | 100 ms system ticker | Calls \c ux_process_ticker_event()
+\b UX_DEFAULT_EVENT() | Any other SEPH event | Calls \c ux_process_default_event()
+
+@section ux_mainpage_state Global state
+
+The library exposes two global variables:
+
+- \ref G_ux (`ux_state_t`): holds the application exit code, a flag for PIN
+  validation requests from the Dashboard, and a shared 128-byte string buffer
+  for transient display strings.
+
+- \ref G_ux_params (`bolos_ux_params_t`): used internally to pass UX commands
+  to the OS via \c os_ux().
 
 */
+#endif // HAVE_SE_TOUCH

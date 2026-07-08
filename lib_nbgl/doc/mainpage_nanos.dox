@@ -3,17 +3,14 @@
 
 @section nbgl_mainpage_intro Introduction
 
-This documentation describes the different interfaces of <b>NBGL</b>, the library that
-is targeted to be integrated in Nano products (Nano X and Nano S+).
+This documentation describes the different interfaces of <b>NBGL</b> library,
+integrated in Nano products (Nano X and Nano S+).
 
 <b>NBGL Engine</b> is responsible for constructing screens and handling Buttons input.
 
 @section mainpage_overall_archi Overall architecture
 
-<b>NBGL Engine</b> is a library to be integrated in SDK.
-It is intended to replace existing BAGL/FLOW Graphical Engine (used on Nano S product)
-
-\image{inline} html NBGLArchi.png "caption" height=600
+\image{inline} html NBGLArchi.png height=600
 
 @section nbgl_drawing_api Screen drawing APIs
 

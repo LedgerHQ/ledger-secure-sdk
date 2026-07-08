@@ -396,8 +396,7 @@ typedef enum {
 
 /**
  * @brief This is to use in @ref nbgl_operationType_t when the operation is skippable.
- * This is used
- *
+ * This is used to add a *Skip* button on the first review page.
  */
 #define SKIPPABLE_OPERATION (1 << 4)
 

@@ -68,7 +68,7 @@ typedef struct {
 #else                 // HAVE_SE_TOUCH
     bool bottomIcon;   ///< Nano only: when true and @ref icon is non-NULL, the icon is rendered at
                        ///< the bottom of the screen (BOTTOM_MIDDLE) instead of above @ref text1.
-                       ///< Incompatible with @ref onTop: when both are set, @ref onTop is ignored
+                       ///< Incompatible with @ref onTop : when both are set, @ref onTop is ignored
                        ///< (text is laid out via the standard text path and the icon stays pinned
                        ///< to the screen bottom).
                        ///< Designed for short contextual hints (selection marker, sub-menu

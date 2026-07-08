@@ -198,99 +198,25 @@ TAG_LIST(X) \
     }
 // clang-format on
 
-/**
- * @brief Enforce that a TLV data contains the expected uint8 value.
- *
- * @param[in] data TLV data to check
- * @param[in] expected_value Expected uint8 value
- * @return true if the value matches, false otherwise
- */
 bool tlv_enforce_u8_value(const tlv_data_t *data, uint8_t expected_value);
 
-/**
- * Get a uint from tlv data
- *
- * This function extracts an unsigned N-bit integer from the TLV data.
- * The length of the data must not exceed the requested format.
- *
- * The data is padded with leading zeros if it is less than N-bits, and the resulting value is
- * converted to a N-bit unsigned integer in big-endian byte order.
- *
- * @param[in] data The TLV data containing the value to be extracted
- * @param[out] value Pointer to a uintN_t where the result will be stored
- * @return True if the extraction was successful, false otherwise (invalid length or data)
- */
 bool get_uint64_t_from_tlv_data(const tlv_data_t *data, uint64_t *value);
 bool get_uint32_t_from_tlv_data(const tlv_data_t *data, uint32_t *value);
 bool get_uint16_t_from_tlv_data(const tlv_data_t *data, uint16_t *value);
 bool get_uint8_t_from_tlv_data(const tlv_data_t *data, uint8_t *value);
 
-/**
- * Get a boolean from tlv data
- *
- * This function extracts a 1 byte boolean from the TLV data.
- *
- * The function will fail if the value is not 0 or 1.
- *
- * @param[in] data The TLV data containing the value to be extracted
- * @param[out] value Pointer to a boolean where the result will be stored
- * @return True if the extraction was successful, false otherwise (invalid length or data)
- */
 bool get_bool_from_tlv_data(const tlv_data_t *data, bool *value);
 
-/**
- * Get a buffer_t from tlv data
- *
- * This function extracts a `buffer_t` (circular buffer) from the TLV data, ensuring that the
- * extracted data's length is within the specified bounds (`min_size` and `max_size`).
- *
- * The `buffer_t` structure will be populated with the data's size and pointer to the actual bytes.
- *
- * @param[in] data The TLV data containing the value to be extracted
- * @param[out] out The `buffer_t` where the extracted value will be stored
- * @param[in] min_size The minimum acceptable size for the extracted data
- * @param[in] max_size The maximum acceptable size for the extracted data (0 if no upper limit)
- * @return True if the extraction was successful, false otherwise (data length is outside the
- * allowed range)
- */
 bool get_buffer_from_tlv_data(const tlv_data_t *data,
                               buffer_t         *out,
                               uint16_t          min_size,
                               uint16_t          max_size);
 
-/**
- * Get a string from tlv data
- *
- * This function extracts a `string` from the TLV data, ensuring that the
- * extracted data's length is within the specified bounds (`min_size` and `max_size`).
- *
- * A 0 copy API would be inconvenient for strings because they are not '\0' terminated in the TLV
- * reception format.
- *
- * @param[in] data The TLV data containing the value to be extracted
- * @param[out] out The `string` where the extracted value will be copied
- * @param[in] min_length The minimum acceptable size for the extracted data
- * @param[in] out_size The maximum acceptable size for the extracted data including the '\0' byte
- * @return True if the extraction was successful, false otherwise (data length is outside the
- * allowed range)
- */
 bool get_string_from_tlv_data(const tlv_data_t *data,
                               char             *out,
                               uint16_t          min_length,
                               uint16_t          out_size);
 
-/**
- * Checks if a given list of tags have been received by the parser-set tag reception tracker
- *
- * Please see CHECK_RECEIVED_TAGS below for a variadic (and more user friendly) variant
- *
- * @param[in] received The parser-set tag reception tracker
- * @param[in] tags The list of tags to check
- * @param[in] tag_count The number of tags in the tags list
- * @return True if all requested tags have been received
- *
- * Warning: do not mix and match tags of different TLV use cases. Undefined behavior.
- */
 bool tlv_check_received_tags(TLV_reception_t received, const TLV_tag_t *tags, size_t tag_count);
 
 /**
@@ -314,22 +240,6 @@ typedef struct {
     bool is_unique;
 } _internal_tlv_handler_t;
 
-/**
- * Parses a TLV payload
- *
- * Please use the DEFINE_TLV_PARSER to define a wrapper of _parse_tlv_internal dedicated for your
- * use case.
- *
- * @param[in] handlers array of handlers to use to parse the TLV
- * @param[in] handlers_count the number handlers given
- * @param[in] common_handler an optional handler to call for all tags in addition to the specific
- * one
- * @param[in] the function to map tags to flags
- * @param[in] payload the raw TLV payload
- * @param[out] tlv_out the parsed TLV data
- * @param[out] received_tags_flags the flags of all received tags
- * @return whether it was successful
- */
 bool _parse_tlv_internal(const _internal_tlv_handler_t *handlers,
                          uint8_t                        handlers_count,
                          tlv_handler_cb_t              *common_handler,

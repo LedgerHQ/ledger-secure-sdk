@@ -10,7 +10,7 @@ catching all user events (on Touchscreen), and giving back the display (and the 
 
 Let's take the simple example of pin-validation window, which is displayed automatically after a period of inactivity, when the wallet is locked:
 
-\image{inline} html LockUnlock.png "caption" height=300
+\image{inline} html LockUnlock.png height=300
 
 Pin-validation window doesn't want to take care of the current screen, and to restore it afterwards.
 
@@ -25,7 +25,7 @@ When a modal window needs to be displayed, a new screen is pushed on the stack a
 
 Then, once this modal window is dismissed, it calls @ref nbgl_screenPop() function to remove it from the stack (even if it is not top of stack anymore), and adapt top of stack if necessary.
 
-\image{inline} html Pop_screens.png "caption" height=400
+\image{inline} html Pop_screens.png height=400
 
 After any of these operations, @ref nbgl_screenRedraw() needs to be called to actually draw the objects on Display.
 

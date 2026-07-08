@@ -1,6 +1,8 @@
 #ifdef HAVE_SE_TOUCH
 /** @page nbgl_app_use_case Predefined Application Use-cases API
 
+@tableofcontents
+
 @section nbgl_use_case_intro Introduction
 This chapter describes the Application Use-cases API of Advanced BOLOS Graphic Library.
 
@@ -27,17 +29,67 @@ real help for end-users, getting more and more familiar with the user experience
 
 @subsection nbgl_use_case_example_1 Example 1: transaction review
 
-\image{inline} html UseCase-Review.png "caption" height=300
+\image{inline} html UseCase-Review.png height=600
 
 In this example, a transaction review consists in 3 successive pages, and can be seen as a
 use-case
 
 @subsection nbgl_use_case_example_2 Example 2: home & settings pages
 
-\image{inline} html UseCase-HomeSettings.png "caption" height=300
+\image{inline} html UseCase-HomeSettings.png height=450
 
 In this other example, displaying home page, then the settings and info consists in 3 pages, and
 can be seen as another use-case.
+
+@subsection nbgl_use_case_operation_type Operation Type
+
+All review Use-Cases take a @ref nbgl_operationType_t parameter that encodes both a **base type**
+and a set of optional **modifier flags**, combined with a bitwise OR.
+
+@par Base type (nbgl_opType_t)
+
+Value | Description
+----- | -----------
+@ref TYPE_TRANSACTION | Transfer of a coin or operation on an account (broadcast on-chain)
+@ref TYPE_MESSAGE | Signature of a message that will **not** be broadcast on the blockchain
+@ref TYPE_OPERATION | Any other type of operation (generic)
+
+@par Modifier flags
+
+Flag | Bit | Effect on UI
+---- | --- | ------------
+@ref SKIPPABLE_OPERATION | 4 | Adds a *Skip* button on the first review page
+@ref BLIND_OPERATION | 5 | Shows a blind-signing warning page before the review
+@ref RISKY_OPERATION | 6 | Adds a risk-warning button (top-right) on the first and last review pages
+@ref NO_THREAT_OPERATION | 7 | Adds an information button (top-right) when Ledger security checks found no threat
+@ref ADDRESS_BOOK_OPERATION | 8 | Adjusts UI wording for address-book flows
+
+@par Example
+
+@code{.c}
+// Blind-signed transaction that can be skipped
+nbgl_operationType_t opType = TYPE_TRANSACTION | BLIND_OPERATION | SKIPPABLE_OPERATION;
+nbgl_useCaseReview(opType, ...);
+@endcode
+
+@subsection nbgl_use_case_icon_sizes Icon sizes
+
+Icons passed to use-case functions must conform to the following size conventions.
+The exact pixel values are device-specific constants defined in @ref nbgl_types.h.
+
+| Use-case parameter | Expected size |
+|--------------------|:-------------:|
+| `appIcon` — Home page | `LARGE_ICON_SIZE` |
+| `icon` — Review first / last page | `LARGE_ICON_SIZE` |
+| `icon` — Choice, Action, centered-info pages | `SMALL_ICON_SIZE` |
+
+Per device:
+
+Device | `SMALL_ICON_SIZE` | `LARGE_ICON_SIZE`
+------ | :------------------: | :------------------:
+Stax   | 32 px                | 64 px
+Flex   | 40 px                | 64 px
+Apex   | 24 px                | 48 px
 
 @section nbgl_use_cases Use Cases
 
@@ -113,7 +165,7 @@ Some APIs have also been kept for backward compatibility, and for some rare case
 
 @subsection use_case_home_settings Home & Settings screen Use Case
 
-\image{inline} html UseCase-HomeSettingsAPI.png "caption" height=300
+\image{inline} html UseCase-HomeSettingsAPI.png height=450
 
 Ledger would like all application to have the same layout for home screen and settings/info, so
 the @ref nbgl_useCaseHomeAndSettings() function enables to create such a set of page, the
@@ -197,7 +249,7 @@ void appMain(void) {
 
 @subsubsection use_case_home_settings_with_action Home & Settings screen with action button Use Case
 
-\image{inline} html UseCase-HomeAction.png "caption" height=300
+\image{inline} html UseCase-HomeAction.png height=400
 
 For some rare applications, one may need an action button in the Home screen, to perform either:
 
@@ -214,7 +266,7 @@ The \b action argument of @ref nbgl_useCaseHomeAndSettings() can be used for tha
 
 @subsection use_case_confirm Confirmation Use Case
 
-\image{inline} html UseCase-Confirm.png "caption" height=300
+\image{inline} html UseCase-Confirm.png height=400
 
 A confirmation use-case consists in a single modal page containing a fixed icon, a configurable
 message, a black button and a footer to make the choice, with configuration texts.
@@ -244,7 +296,7 @@ void onRejectTransaction(void) {
 
 @subsection use_case_choice Choice Use Case
 
-\image{inline} html UseCase-Choice.png "caption" height=300
+\image{inline} html UseCase-Choice.png height=400
 
 A choice use-case consists in a single page containing a fixed icon, a configurable icon, a
 configurable message, a black button and a footer to make the choice, with configuration texts.
@@ -277,7 +329,7 @@ void onRejectTransaction(void) {
 
 @subsection use_case_advanced_choice_with_details Advanced Choice with Details Use Case
 
-\image{inline} html UseCase-AdvancedChoiceWithDetails.png "caption" height=300
+\image{inline} html UseCase-AdvancedChoiceWithDetails.png height=400
 
 A variant of the Choice use-case that displays three content lines and an optional top-right icon
 button that opens a details modal.
@@ -333,7 +385,7 @@ void displayAccountConfirm(void) {
 
 @subsection use_case_status Status Use Case
 
-\image{inline} html UseCase-Status.png "caption" height=300
+\image{inline} html UseCase-Status.png height=400
 
 A status is a transient page, without control, to display during a short time, for example when a
 transaction is successfully signed.
@@ -349,7 +401,7 @@ If it's a success status, a *success* tune will be automatically played.
 
 @subsection use_case_review_status Pre-defined review status Use Case
 
-\image{inline} html UseCase-Review-Status.png "caption" height=300
+\image{inline} html UseCase-Review-Status.png height=400
 
 Similar as @ref use_case_status, this is used to display transient page, without control, during a
 short time, for example when a transaction is successfully signed.
@@ -363,7 +415,7 @@ If it's a success status, a *success* tune will be automatically played.
 
 @subsection use_case_review Review Use Case
 
-\image{inline} html UseCase-Review.png "caption" height=300
+\image{inline} html UseCase-Review.png height=600
 
 In most cases, the developer may know all tag/value pairs of a transaction when it is submitted.
 
@@ -374,7 +426,7 @@ In case of a tag/value pair too long to be fully displayed, the *more* button wi
 automatically drawn and its handling automatically performed by NBGL by building a detailed modal
 view.
 
-When the user taps on *Reject* in any page, a confirmation page is automatically drawned to let
+When the user taps on *Reject* in any page, a confirmation page is automatically drawn to let
 user confirm that he rejects the transaction. In this case, the given callback is called and it's
 up to app's developer to call @ref nbgl_useCaseReviewStatus(), as in case of long-press.
 
@@ -498,7 +550,7 @@ providing:
 
 @subsection use_case_review_streaming Streaming review Use Case
 
-\image{inline} html UseCase-Streaming.png "caption" height=300
+\image{inline} html UseCase-Streaming.png height=450
 
 In some cases, the application cannot know all tag/value pairs of a transaction when the review
 is started.
@@ -588,7 +640,7 @@ void startReview(void) {
 
 @subsection use_case_review_with_warning Review with warning Use Case
 
-\image{inline} html UseCase-Review-With-Warning.png "caption" height=500
+\image{inline} html UseCase-Review-With-Warning.png height=800
 
 The review itself behaves like in @subpage use_case_review. The main differences are:
 
@@ -761,7 +813,7 @@ void staticReview(void) {
 
 @subsection use_case_addr_review Address Review Use Case
 
-\image{inline} html UseCase-AddressReview.png "caption" height=500
+\image{inline} html UseCase-AddressReview.png height=800
 
 When an address needs to be confirmed, it can be displayed in a Address Review Use Case.
 After a title page, a second page is displayed with the raw address (as text). An extra button
@@ -811,7 +863,7 @@ void app_ethereumVerifyAddress(void) {
 
 @subsection use_case_spinner Spinner Use Case
 
-\image{inline} html UseCase-Spinner.png "caption" height=300
+\image{inline} html UseCase-Spinner.png height=400
 
 This Use Case is simply to display a static *waiting page*
 
@@ -819,7 +871,7 @@ The @ref nbgl_useCaseSpinner() function enables to create such a page, without a
 
 @subsection use_case_keypad Keypad Use Case
 
-\image{inline} html UseCase-Keypad.png "caption" height=350
+\image{inline} html UseCase-Keypad.png height=400
 
 We have here 2 different variants, allowing to show or hide the entered digits.
 

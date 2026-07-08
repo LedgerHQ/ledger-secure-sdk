@@ -5,7 +5,7 @@
 /**
  * Exit the application and go back to the dashboard.
  */
-void __attribute__((noreturn)) app_exit(void);
+NORETURN void app_exit(void);
 
 /**
  * Common init of the App.

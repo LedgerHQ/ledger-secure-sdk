@@ -191,8 +191,8 @@ WARN_UNUSED_RESULT cx_err_t bip32_derive_with_seed_ecdsa_sign_hash_256(unsigned 
 
 /**
  * @brief   Sign a hash with ecdsa using the device seed derived from the specified bip32 path.
- *
- * @param[in]  derivation_mode Derivation mode, one of HDW_NORMAL / HDW_ED25519_SLIP10 / HDW_SLIP21.
+ *          Uses HDW_NORMAL derivation mode. See bip32_derive_with_seed_ecdsa_sign_hash_256() for
+ *          a variant that accepts a custom derivation mode and seed.
  *
  * @param[in]  curve           Curve identifier.
  *
@@ -304,13 +304,18 @@ bip32_derive_with_seed_ecdsa_sign_rs_hash_256(unsigned int    derivation_mode,
                                               size_t          seed_len);
 
 /**
- * @brief   Sign a hash with ecdsa using the device seed derived from the specified bip32 path.
+ * @brief   Sign a hash with ecdsa using the device seed derived from the specified bip32 path,
+ *          writing raw r and s values. Uses HDW_NORMAL derivation mode.
+ *          See bip32_derive_with_seed_ecdsa_sign_rs_hash_256() for a variant that accepts a
+ *          custom derivation mode and seed.
  *
  * @param[in]  curve           Curve identifier.
  *
  * @param[in]  path            Bip32 path to use for derivation.
  *
  * @param[in]  path_len        Bip32 path length.
+ *
+ * @param[in]  sign_mode       Signature mode flags forwarded to cx_ecdsa_sign.
  *
  * @param[in]  hashID          Message digest algorithm identifier.
  *

@@ -33,8 +33,17 @@
 /**
  * Common structure for applications to perform asynchronous UX aside IO operations
  */
+/** @brief Application UX state (touch-based devices) */
 typedef struct ux_state_s ux_state_t;
 
+/**
+ * @brief Global UX state shared between the application and the UX event handlers.
+ *
+ * Fields:
+ * - \c exit_code: set by the OS to signal a task status change
+ * - \c validate_pin_from_dashboard: set to \c true when \c BOLOS_UX_VALIDATE_PIN is received
+ * - \c string_buffer: 128-byte scratch buffer for transient display strings
+ */
 struct ux_state_s {
     bolos_task_status_t exit_code;
     bool validate_pin_from_dashboard;  // set to true when BOLOS_UX_VALIDATE_PIN is received from
@@ -43,7 +52,9 @@ struct ux_state_s {
     char string_buffer[128];
 };
 
-extern ux_state_t        G_ux;
+/** @brief Global UX state instance — see \ref ux_state_s */
+extern ux_state_t G_ux;
+/** @brief UX command parameters passed to the OS via \c os_ux() */
 extern bolos_ux_params_t G_ux_params;
 
 extern void ux_process_finger_event(const uint8_t seph_packet[]);

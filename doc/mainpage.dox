@@ -36,9 +36,19 @@ The @subpage nbgl_mainpage page contains all information necessary to understand
 
 The @subpage nfc_mainpage page contains all information necessary to interact with NFC stack.
 
+@section pki_presentation PKI Signature Verification
+
+The @subpage pki_mainpage page contains all information necessary to verify signatures
+using Ledger-issued PKI certificates.
+
 @section standard_app_presentation Standard Application Framework
 
 The @subpage standard_app_mainpage page contains all information necessary to use the Standard Application framework.
+
+@section tlv_presentation TLV Parsing Library
+
+The @subpage tlv_mainpage page contains all information necessary to define and use
+Tag-Length-Value parsers, including pre-built cross-application use cases.
 
 @section usb_presentation USB
 
@@ -56,15 +66,7 @@ This section contains all information necessary to use the U2F API.
 
 @section ux_presentation User eXperience
 
-@subsection ux_nanos_presentation User eXperience on Nanos
-
-The @subpage ux_mainpage page contains all information necessary to user the User eXperience (and partially Graphical Library) for
-\b Nanos applications development (using \b BAGL).
-
-@subsection ux_nbgl_presentation User eXperience on Applications using \b NBGL
-
-The @subpage ux_nbgl_mainpage page contains all information necessary to user the User eXperience for
-\b Stax, \b Flex, \b NanoX and \b NanoS+ applications development using \b NBGL (most recent ones).
-
+The @subpage ux_mainpage page contains all information necessary to the User eXperience (and partially Graphical Library) for
+applications development.
 
 */

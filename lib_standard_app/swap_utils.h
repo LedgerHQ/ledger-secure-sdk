@@ -19,9 +19,15 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+/** Set to @c true when the application is running as an Exchange library (swap mode). */
 extern volatile bool G_called_from_swap;
+
+/** Set to @c true by the coin application when the signing result is ready;
+ *  causes @ref io_send_response_buffers() to call @c os_lib_end() instead of returning. */
 extern volatile bool G_swap_response_ready;
-// Don't use in application, SDK only
+
+/** Internal SDK pointer to the @c result field in @ref create_transaction_parameters_t.
+ *  Do not use in application code. */
 extern volatile uint8_t *G_swap_signing_return_value_address;
 
 bool swap_str_to_u64(const uint8_t *src, size_t length, uint64_t *result);
