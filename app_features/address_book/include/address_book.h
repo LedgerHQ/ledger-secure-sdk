@@ -28,6 +28,7 @@ typedef enum {
     FAMILY_POLKADOT = 0x03,
     FAMILY_COSMOS   = 0x04,
     FAMILY_CARDANO  = 0x05,
+    FAMILY_TRON     = 0x06,
     FAMILY_COUNT
 } blockchain_family_e;
 
@@ -38,6 +39,7 @@ typedef enum {
      : x == FAMILY_POLKADOT ? "Polkadot" \
      : x == FAMILY_COSMOS   ? "Cosmos"   \
      : x == FAMILY_CARDANO  ? "Cardano"  \
+     : x == FAMILY_TRON     ? "Tron"     \
                             : "Unknown")
 
 /* Exported types, structures, unions ----------------------------------------*/
