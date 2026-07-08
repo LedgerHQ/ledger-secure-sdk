@@ -267,21 +267,6 @@ static bool get_der_value_as_uint16(const buffer_t *payload, size_t *offset, uin
     return true;
 }
 
-/** Parse DER-encoded value and fits it in uint8_t or fails
- */
-__attribute__((unused)) static bool get_der_value_as_uint8(const buffer_t *payload,
-                                                           size_t         *offset,
-                                                           uint8_t        *value)
-{
-    uint32_t tmp_value;
-    if (!get_der_value_as_uint32(payload, offset, &tmp_value) || (tmp_value > UINT8_MAX)) {
-        return false;
-    }
-
-    *value = (uint8_t) tmp_value;
-    return true;
-}
-
 static bool set_tag(TLV_reception_t *received_tags_flags, TLV_tag_t tag)
 {
     TLV_flag_t flag = received_tags_flags->tag_to_flag_function(tag);
