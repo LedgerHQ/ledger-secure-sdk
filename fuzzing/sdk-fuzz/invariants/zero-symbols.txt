@@ -1,1 +1,3 @@
 # SDK self-fuzz: symbols to zero out in the invariant (one per line).
+# tags_info pointer is always overwritten by fuzz_app_reset() before any dispatch
+current_tlv_fuzz_config
