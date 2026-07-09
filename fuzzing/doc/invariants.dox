@@ -1,0 +1,107 @@
+/** @page fuzzing_invariants Tuning invariants
+
+The prefix of every input is decoded into the app's global state
+(see @ref fuzzing_model). The **invariant** is the model of which prefix bytes
+map to which globals and what values they may take. The framework discovers it
+automatically; two small tracked files let you steer it. Tuning them is what
+turns a low-coverage first run into an effective campaign.
+
+@section inv_model fuzz_globals.zon (generated — never commit)
+
+`invariants/fuzz_globals.zon` (or `<target>.zon` for multi-target trees) is the
+generated model. It starts life as:
+
+@verbatim
+.{}
+@endverbatim
+
+During a campaign the framework builds a discovery binary, reads the layout
+Absolution produced, applies your `zero-symbols.txt`, rewrites the model, and
+finally applies `domain-overrides.txt`.
+
+This file is a **machine-local artifact and must be git-ignored.** Its byte
+offsets and sizes depend on the exact build — sanitizer choice, SDK revision,
+toolchain version, even absolute host paths — so a snapshot from one machine
+fails on another. Add it to the app's `.gitignore`:
+
+@verbatim
+fuzzing/invariants/fuzz_globals.zon
+@endverbatim
+
+The framework regenerates it on demand: `ledger_fuzz_setup()` bootstraps a
+missing file to `.{}`, and a campaign resets and re-syncs it when run with
+`--clean` or `BOOTSTRAP_INVARIANT=1`. Use `SKIP_INVARIANT_SYNC=1` to keep a
+hand-tuned model across runs.
+
+Only the two policy files below — and the bootstrap `scenario_layout.h` — are
+tracked.
+
+@section inv_names Finding global and field names
+
+The two policy files refer to globals (and their fields) by name. After a first
+campaign, open the generated `invariants/<target>.zon` and read the `.name`
+entries:
+
+- A `.name` that does **not** start with a dot is a **global**, e.g.
+  `"G_context"`.
+- A nested `.name` that starts with a dot is a **field** of the enclosing
+  global, e.g. `".state"`.
+
+So a field is addressed as `G_context.state`, and the global's own value (no
+sub-field) as `G_context.` — note the trailing dot. This inspect-then-tune loop
+is the normal way to write both files.
+
+@section inv_zero zero-symbols.txt
+
+Globals the prefix should **not** spend bytes on, so they are held at zero
+instead of being fuzzed. Removing them shortens the prefix and focuses the
+fuzzer on bytes that actually change app behaviour. Good candidates:
+
+- large scratch buffers (APDU staging, work buffers),
+- UI / NBGL bookkeeping not relevant to protocol logic,
+- display descriptors and similar framework state,
+- anything the SDK already resets deterministically.
+
+Format: one symbol per line; `#` starts a comment. Use `symbol@file.c` for a
+file-local (static) symbol:
+
+@verbatim
+# large scratch buffer, not worth fuzzing
+G_io_apdu_buffer
+# file-local UI state
+ram_buffer@nbgl_runtime.c
+@endverbatim
+
+A `@file.c` selector matches when that substring appears anywhere in the path,
+so `io_ext.c` still matches `/home/you/app/src/io_ext.c`.
+
+@section inv_domains domain-overrides.txt
+
+Per-field constraints applied after the model is generated. Use them when
+Absolution's default domain for a field is too wide to converge — typically
+enums, small state machines, and boolean flags, where only a handful of values
+are meaningful. Narrowing the domain stops the fuzzer wasting effort on values
+that can never occur.
+
+Each line is `<global>.<field> = <directive>`; `#` starts a comment. Two
+directives are supported:
+
+| Directive | Effect |
+|-----------|--------|
+| `values \xNN \xNN …` | Restrict the field to exactly these byte patterns |
+| `top`                | Reset the field to its full (unconstrained) domain |
+
+@verbatim
+# restrict an enum to its three valid states
+G_context.state = values \x00 \x01 \x02
+# a boolean flag: use the symbol's own value (trailing dot)
+G_called_from_swap. = values \x00 \x01
+# opt a field back out to the full range
+some_counter. = top
+@endverbatim
+
+A trailing `.` means "the value of this symbol" rather than one of its fields.
+The sync step writes these constraints into the model on every run, so they
+survive regeneration (unlike the model itself).
+
+*/

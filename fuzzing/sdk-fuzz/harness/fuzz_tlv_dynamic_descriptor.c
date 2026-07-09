@@ -23,6 +23,17 @@
 
 extern const size_t absolution_globals_size __attribute__((weak));
 
+static const tlv_tag_info_t DYNAMIC_DESCRIPTOR_TAGS[] = {
+    {0x01, 1,  1 }, /* TAG_STRUCTURE_TYPE */
+    {0x02, 1,  1 }, /* TAG_VERSION */
+    {0x03, 4,  4 }, /* TAG_COIN_TYPE */
+    {0x04, 1,  33}, /* TAG_APPLICATION_NAME */
+    {0x05, 1,  51}, /* TAG_TICKER */
+    {0x06, 1,  1 }, /* TAG_MAGNITUDE */
+    {0x07, 1,  64}, /* TAG_TUID */
+    {0x08, 70, 72}, /* TAG_SIGNATURE */
+};
+
 size_t LLVMFuzzerCustomMutator(uint8_t *data, size_t size, size_t max_size, unsigned int seed)
 {
     size_t prefix_size = FUZZ_PREFIX_SIZE_FALLBACK;
@@ -35,6 +46,12 @@ size_t LLVMFuzzerCustomMutator(uint8_t *data, size_t size, size_t max_size, unsi
     }
 
     if ((seed & 1U) == 0) {
+        /* Install the grammar for the mutator only. current_tlv_fuzz_config is a
+         * zero-symbol the invariant enforces on the test path, so it must never
+         * be left set there; sample_invariant() re-zeroes it before dispatch. */
+        current_tlv_fuzz_config.tags_info = DYNAMIC_DESCRIPTOR_TAGS;
+        current_tlv_fuzz_config.num_tags
+            = sizeof(DYNAMIC_DESCRIPTOR_TAGS) / sizeof(DYNAMIC_DESCRIPTOR_TAGS[0]);
         size_t tail_size = size - prefix_size;
         tail_size
             = tlv_custom_mutate(data + prefix_size, tail_size, max_size - prefix_size, seed >> 1);
@@ -46,17 +63,6 @@ size_t LLVMFuzzerCustomMutator(uint8_t *data, size_t size, size_t max_size, unsi
 
 #include "fuzz_harness.h"
 
-static const tlv_tag_info_t DYNAMIC_DESCRIPTOR_TAGS[] = {
-    {0x01, 1,  1 }, /* TAG_STRUCTURE_TYPE */
-    {0x02, 1,  1 }, /* TAG_VERSION */
-    {0x03, 4,  4 }, /* TAG_COIN_TYPE */
-    {0x04, 1,  33}, /* TAG_APPLICATION_NAME */
-    {0x05, 1,  51}, /* TAG_TICKER */
-    {0x06, 1,  1 }, /* TAG_MAGNITUDE */
-    {0x07, 1,  64}, /* TAG_TUID */
-    {0x08, 70, 72}, /* TAG_SIGNATURE */
-};
-
 const fuzz_command_spec_t fuzz_commands[] = {
     {.cla = 0x00, .ins = 0x01},
 };
@@ -64,9 +70,8 @@ const size_t fuzz_n_commands = 1;
 
 void fuzz_app_reset(void)
 {
-    current_tlv_fuzz_config.tags_info = DYNAMIC_DESCRIPTOR_TAGS;
-    current_tlv_fuzz_config.num_tags
-        = sizeof(DYNAMIC_DESCRIPTOR_TAGS) / sizeof(DYNAMIC_DESCRIPTOR_TAGS[0]);
+    /* Stateless dispatch: nothing to reset. The TLV grammar is installed by the
+     * mutator so current_tlv_fuzz_config stays zeroed on the test path. */
 }
 
 void fuzz_app_dispatch(void *cmd)

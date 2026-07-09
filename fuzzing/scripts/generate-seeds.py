@@ -11,10 +11,16 @@ sys.path.insert(0, SCRIPT_DIR)
 from fuzz_manifest import read_manifest, get_manifest_dir, get_target, _is_multi_target
 
 
-def run_generic_seeds(manifest, output_dir):
+def run_generic_seeds(manifest, output_dir, fuzzer_name=None):
     """Run the generic seed generator with CLA/INS from the manifest."""
     seeds_cfg = manifest["seeds"]
     env = dict(os.environ)
+    # The seed generator resolves the Absolution prefix from
+    # <build>/_absolution/<FUZZER>/fuzzer.c. Pin FUZZER to this target so the
+    # lookup does not fall back to the "fuzz_globals" default (which breaks any
+    # app whose fuzzer is named differently, e.g. every multi-target app).
+    if fuzzer_name:
+        env["FUZZER"] = fuzzer_name
     env["FUZZ_APP_CLA"] = hex(seeds_cfg["cla"])
 
     ins_list = seeds_cfg["ins"]
@@ -100,6 +106,9 @@ def main():
     else:
         view = get_target(manifest)
     seeds_cfg = view["seeds"]
+    # Prefer the resolved target's fuzzer name (works for single- and
+    # multi-target manifests) over the raw --fuzzer arg.
+    resolved_fuzzer = view.get("target", {}).get("fuzzer") or fuzzer_name
 
     total_before = len([f for f in os.listdir(output_dir)
                         if os.path.isfile(os.path.join(output_dir, f))]) \
@@ -107,7 +116,7 @@ def main():
 
     if seeds_cfg.get("generic", {}).get("enabled", True):
         print("--- Generic seeds ---")
-        run_generic_seeds(view, output_dir)
+        run_generic_seeds(view, output_dir, resolved_fuzzer)
 
     if seeds_cfg.get("custom", {}).get("enabled", False):
         print("--- Custom seeds ---")

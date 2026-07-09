@@ -40,7 +40,8 @@ void fuzz_app_dispatch(void *cmd)
     }
 
     uint8_t buf[NFC_NDEF_MAX_SIZE + 64];
-    size_t  copy_len = fuzz_tail_len < sizeof(buf) ? fuzz_tail_len : sizeof(buf);
+    memset(buf, 0, sizeof(buf));
+    size_t copy_len = fuzz_tail_len < sizeof(buf) ? fuzz_tail_len : sizeof(buf);
     memcpy(buf, fuzz_tail_ptr, copy_len);
 
     ndef_struct_t parsed;

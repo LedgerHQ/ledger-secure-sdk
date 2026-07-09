@@ -67,4 +67,9 @@ The @subpage ux_nbgl_mainpage page contains all information necessary to user th
 \b Stax, \b Flex, \b NanoX and \b NanoS+ applications development using \b NBGL (most recent ones).
 
 
+@section fuzzing_presentation Fuzzing Framework
+
+The @subpage fuzzing_mainpage page explains how to run, integrate, and maintain
+coverage-guided fuzzing for the SDK and Ledger applications.
+
 */

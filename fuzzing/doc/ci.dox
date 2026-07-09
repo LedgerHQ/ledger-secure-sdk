@@ -1,0 +1,77 @@
+/** @page fuzzing_ci CI and maintainability
+
+Fuzzing earns its keep in **continuous integration**. On every pull request CI
+fuzzes the changed code for a short budget, so a regression that introduces a
+crash, memory error, or undefined behaviour is caught in review — before it
+reaches `master` and ships in a release. The local campaign
+(@ref fuzzing_running) is for developing and reproducing; CI is where fuzzing
+runs continuously.
+
+@section ci_cfl ClusterFuzzLite
+
+CI runs through
+[ClusterFuzzLite](https://google.github.io/clusterfuzzlite/). An app ships a
+small `.clusterfuzzlite/` folder:
+
+| File | Purpose |
+|------|---------|
+| `build.sh`     | Builds the fuzz targets (a thin caller, below) |
+| `Dockerfile`   | The build image (based on the Ledger fuzz dev-tools image) |
+| `project.yaml` | ClusterFuzzLite project settings (`language: c`) |
+
+On a PR, ClusterFuzzLite builds the targets with `build.sh`, runs each one under
+a sanitizer for a time budget, and reports any crash on the PR with the input
+attached.
+
+@section ci_build The shared build script
+
+Every fuzz tree — apps and the SDK self-fuzz suite alike — builds through one
+shared script, `scripts/cfl-build.sh`. An app's `build.sh` only sets a few
+variables and delegates:
+
+@verbatim
+#!/bin/bash -eu
+export BOLOS_SDK="${SRC:-/src}/ledger-secure-sdk"
+export APP_DIR="${SRC:-/src}/<app>"
+exec "${BOLOS_SDK}/fuzzing/scripts/cfl-build.sh"
+@endverbatim
+
+Add `export APP_FUZZ_SUBDIR=tests/fuzzing` before the `exec` line for apps that
+keep their fuzzing tree outside the default `fuzzing/` folder.
+
+`cfl-build.sh` builds each target, rediscovers the invariant for the CI
+sanitizer, ships the binary, and packs its seed corpus — merging the promoted
+@ref fuzzing_corpus "base corpus" when its key matches. Because each sanitizer
+in the matrix shifts the global layout, CI builds always bootstrap the invariant
+from scratch (`BOOTSTRAP_INVARIANT=1`); the committed `.zon` models are never
+reused across CI entries.
+
+@section ci_sanitizers Sanitizers
+
+CI typically runs an **address**, an **undefined-behaviour**, and a **memory**
+sanitizer entry. Each catches a different class of bug and each has its own
+global layout, which is why the invariant is regenerated per entry rather than
+taken from a committed model.
+
+@section ci_maintain Keeping fuzzing healthy
+
+Fuzzing only guards what it can still build and interpret. As an app changes:
+
+- **When a PR fuzzer finds a crash**, download the input and replay it against
+  the local sanitizer binary to get a stack trace
+  (see @ref fuzzing_run_repro). Fix the bug and, ideally, keep the crashing
+  input as a regression seed.
+- **When the input meaning changes** (a new tail format, a reworked command
+  table), bump `harness_version` in the @ref fuzzing_manifest "manifest" so the
+  stale base corpus is retired instead of silently misinterpreted.
+- **Refresh the base corpus** after meaningful coverage gains or after a key
+  change retires the old one (@ref fuzzing_corpus). A good base corpus is what
+  makes a short CI run effective.
+- **Keep the harness in sync** with the real dispatcher: if the app adds a
+  command, add it to `fuzz_commands[]` (see @ref fuzzing_harness) so CI actually
+  exercises it.
+- **Keep coverage honest**: check the campaign's `key-files-coverage.txt` for
+  the files you care about; low numbers usually mean the prefix needs tuning
+  (@ref fuzzing_invariants) or the seeds/dictionary need work.
+
+*/
