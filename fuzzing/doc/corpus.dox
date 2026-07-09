@@ -1,0 +1,64 @@
+/** @page fuzzing_corpus Corpus and compatibility keys
+
+A campaign's merged **corpus** is its most valuable output: a compact set of
+inputs that together reach a lot of code. Promoting it into the app lets future
+runs and CI start from that coverage instead of rediscovering it every time.
+
+@section cor_promote Promoting a corpus
+
+After a good campaign, promote its merged corpus with `promote-corpus.sh`:
+
+@verbatim
+"$BOLOS_SDK"/fuzzing/scripts/promote-corpus.sh \
+  <app>/.fuzz-artifacts/<run>/targets/<target>/corpus \
+  <app>/fuzzing/base-corpus.zip
+@endverbatim
+
+This writes two tracked files next to each other:
+
+- `base-corpus.zip` — the inputs, packed with the Python standard library (no
+  `zip`/`unzip` tool required),
+- `base-corpus.compat-key` — the sidecar key that ties the archive to a build.
+
+The `.compat-key` is metadata, not a fuzz input, so it is stored **beside** the
+archive, never inside it.
+
+@section cor_reuse Reusing a corpus
+
+Reuse is automatic. On the next run the campaign (and CI) stage
+`base-corpus.zip` into the starting corpus — but only when its sidecar key
+matches the current build. A mismatch is reported and the stale corpus is
+skipped, so a changed binary is never fed inputs shaped for an old one. Set
+`BASE_CORPUS_ZIP=` (empty) to skip a promoted corpus for one run.
+
+The end-to-end loop:
+
+1. Run a campaign (@ref fuzzing_running).
+2. `promote-corpus.sh` its corpus to `fuzzing/base-corpus.zip`.
+3. Commit `base-corpus.zip` and `base-corpus.compat-key`.
+4. The next campaign and every CI run start from it automatically.
+
+@section cor_key The compatibility key
+
+The key is:
+
+@verbatim
+sha256( prefix_size || sha256(fuzz_globals.zon) || fuzzer || harness_version )
+@endverbatim
+
+So it changes when the prefix size changes, when the invariant model changes
+(a new sanitizer, an SDK/toolchain change that shifts globals), or when you bump
+`harness_version` in the @ref fuzzing_manifest "manifest". When the key changes,
+the old base corpus no longer matches: rerun a campaign and promote again to
+refresh it.
+
+@section cor_when When to promote
+
+- After a long run that reached coverage you want to keep.
+- Before relying on CI to guard a feature — a good base corpus makes short CI
+  runs meaningful.
+- After a change that invalidated the key (the previous corpus is now skipped).
+
+One promoted corpus per target is the intended shape.
+
+*/

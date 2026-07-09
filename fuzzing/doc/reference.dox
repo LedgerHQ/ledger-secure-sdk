@@ -1,0 +1,52 @@
+/** @page fuzzing_reference Reference
+
+@section ref_layout Framework layout
+
+Relative to `${BOLOS_SDK}/fuzzing/`:
+
+| Path | Purpose |
+|------|---------|
+| `cmake/`      | `LedgerAppFuzz.cmake` — the module apps include (@ref fuzzing_cmake) |
+| `include/`    | Public harness headers apps include |
+| `scripts/`    | Campaign, CI build, corpus, seed, and invariant/layout tooling |
+| `mock/`       | Host-side crypto / NBGL / OS mocks linked via `secure_sdk` |
+| `macros/`     | Compile-define extraction (@ref fuzzing_macros) |
+| `libs/`       | Per-library CMake aggregators for the instrumented SDK |
+| `sanitizers/` | Sanitizer ignore-lists |
+| `sdk-fuzz/`   | The SDK's own self-fuzz targets |
+| `doc/`        | This documentation |
+
+@section ref_headers Public headers
+
+Under `include/`:
+
+| Header | Purpose |
+|--------|---------|
+| `fuzz_harness.h`      | Default `fuzz_entry()` body and command dispatch (@ref fuzzing_harness) |
+| `fuzz_defs.h`         | Shared constants and the `fuzz_command_spec_t` type |
+| `fuzz_mutator.h`      | Prefix-aware custom mutator |
+| `fuzz_layout_check.h` | Compile-time checks on the prefix layout |
+| `tlv_mutator.h`       | Optional grammar-aware TLV mutator (opt-in) |
+
+@section ref_scripts Scripts
+
+Under `scripts/`. Most developers only invoke the first three directly; the
+rest are wired in by the campaign and CI.
+
+| Script | Purpose |
+|--------|---------|
+| `app-campaign.sh`   | Run a full campaign (@ref fuzzing_running) |
+| `promote-corpus.sh` | Promote a corpus to `base-corpus.zip` (@ref fuzzing_corpus) |
+| `corpus.py`         | Pack/unpack a corpus archive (stdlib only) |
+| `fuzz_manifest.py`  | Read/validate the manifest; emit dictionary and compat key |
+| `generate-seeds.py` | Generate the seed corpus from the manifest |
+| `sync-invariant.py` | Rewrite the model from the discovered layout |
+| `update-scenario-layout.py` | Refresh `mock/scenario_layout.h` after a build |
+| `tune-invariant-domains.py` | Apply `domain-overrides.txt` to the model |
+| `cfl-build.sh`      | Shared ClusterFuzzLite build (@ref fuzzing_ci) |
+
+@section ref_env Environment variables
+
+The campaign's environment variables are documented in @ref fuzzing_run_env.
+
+*/

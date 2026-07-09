@@ -827,6 +827,8 @@ INPUT                  = \
                          app_features/address_book/doc \
                          app_features/address_book/include \
                          app_features/address_book/src \
+                         fuzzing/doc \
+                         fuzzing/include \
                          lib_alloc \
                          lib_alloc/doc \
                          lib_cxng/doc \
