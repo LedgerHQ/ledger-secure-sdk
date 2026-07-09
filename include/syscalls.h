@@ -305,6 +305,9 @@
 
 #endif  // HAVE_SE_TOUCH
 
+#define SYSCALL_ADDRESS_BOOK_HMAC_ID        0x06000200
+#define SYSCALL_ADDRESS_BOOK_HMAC_VERIFY_ID 0x06000201
+
 /**********************
  *      TYPEDEFS
  **********************/

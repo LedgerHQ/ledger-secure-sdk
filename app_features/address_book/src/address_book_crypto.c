@@ -18,106 +18,126 @@
  * @file address_book_crypto.c
  * @brief HMAC Proof of Registration for Address Book contacts
  *
- * Provides HMAC-SHA256 based proofs that bind a registered contact to this
- * specific device. Two independent key derivations are used, one per feature:
+ * All HMAC key derivation and computation are delegated to two OS syscalls:
+ *   - sys_address_book_hmac()        — compute HMAC
+ *   - sys_address_book_hmac_verify() — verify HMAC (constant-time)
  *
- *  - Identity KDF:       SHA256("AddressBook-Identity"      || privkey.d)
- *  - Ledger Account KDF: SHA256("AddressBook-LedgerAccount" || privkey.d)
- *
- * HMAC messages:
- *  - Group KDF:          SHA256("AddressBook-Group"         || privkey.d)
- *  - Identity HMAC_PROOF: gid(32) | name_len(1) | name
- *  - Identity HMAC_REST: gid(32) | scope_len(1) | scope | id_len(1) | identifier |
- *                        family(1) [| chain_id(8) for FAMILY_ETHEREUM]
- *  - Ledger Account:     name_len(1) | name | family(1) [| chain_id(8) for FAMILY_ETHEREUM]
- *
- * The proof is stored by the host and re-verified during Rename operations to
- * confirm that the contact was registered on this device.
+ * This file is responsible only for serializing the HMAC message before
+ * calling the appropriate syscall.
  */
 
 #include <string.h>
+#include <stdint.h>
 #include "address_book_crypto.h"
 #include "ledger_account.h"
 #include "identity.h"
 #include "lcx_sha256.h"
-#include "lcx_hmac.h"
 #include "lcx_rng.h"
 #include "os_utils.h"
+#include "os_address_book.h"
 #include "io.h"
-#include "crypto_helpers.h"
 
 #ifdef HAVE_ADDRESS_BOOK
+
+/**
+ * @brief Maximum serialized HMAC message size.
+ *
+ * Worst case:
+ *   gid(32) + scope_len(1) + scope(32) + id_len(1) + identifier(80) + family(1) + chain_id(8)
+ *   = 155 bytes
+ */
+#define HMAC_MSG_MAX_SIZE \
+    (GID_SIZE + 1U + (SCOPE_LENGTH - 1U) + 1U + IDENTIFIER_MAX_LENGTH + 1U + 8U)
+
+/** Buffer size for HMAC_PROOF message: gid(32) | name_len(1) | name(max 32) */
+#define HMAC_PROOF_MSG_SIZE (GID_SIZE + 1U + (CONTACT_NAME_LENGTH - 1U))
+
+/** Buffer size for Ledger Account message: name_len(1) | name(max 32) | family(1) | chain_id(8) */
+#define HMAC_LEDGER_MSG_SIZE (1U + (ACCOUNT_NAME_LENGTH - 1U) + 1U + 8U)
 
 /* Private functions ---------------------------------------------------------*/
 
 /**
- * @brief Derive HMAC-SHA256 key from secp256r1 private key.
+ * @brief Serialize an HMAC message from optional fields.
  *
- * KDF: SHA256(salt || privkey.d)
+ * Builds the message by concatenating present fields in order:
+ *   1. gid (32 bytes)                         — if gid != NULL
+ *   2. strlen(str1) as uint8 + str1 content   — if str1 != NULL
+ *   3. raw_len as uint8 + raw bytes           — if raw != NULL
+ *   4. family as uint8 [+ chain_id big-endian] — if include_family == true
  *
- * @param[in]  privkey  secp256r1 private key
- * @param[in]  salt     Salt string (without null terminator)
- * @param[in]  salt_len Salt length
- * @param[out] hmac_key Derived HMAC key (32 bytes)
- * @return true if successful, false otherwise
+ * @param[out] msg             Output buffer (caller must ensure sufficient size)
+ * @param[in]  msg_size        Size of @p msg in bytes (used for bounds checking)
+ * @param[in]  gid             32-byte group ID, or NULL to skip
+ * @param[in]  str1            Null-terminated string (length-prefixed in output), or NULL to skip
+ * @param[in]  raw             Raw bytes (length-prefixed in output), or NULL to skip
+ * @param[in]  raw_len         Length of @p raw in bytes (ignored if raw == NULL)
+ * @param[in]  include_family  Whether to append family and optional chain_id
+ * @param[in]  family          Blockchain family (used only if include_family == true)
+ * @param[in]  chain_id        Chain ID, appended only for FAMILY_ETHEREUM
+ *
+ * @return Number of bytes written to msg, or SIZE_MAX if @p msg_size is too small
  */
-static bool address_book_derive_hmac_key(const cx_ecfp_256_private_key_t *privkey,
-                                         const uint8_t                   *salt,
-                                         size_t                           salt_len,
-                                         uint8_t                          hmac_key[CX_SHA256_SIZE])
+static size_t serialize_hmac_msg(uint8_t            *msg,
+                                 size_t              msg_size,
+                                 const uint8_t      *gid,
+                                 const char         *str1,
+                                 const uint8_t      *raw,
+                                 uint8_t             raw_len,
+                                 bool                include_family,
+                                 blockchain_family_e family,
+                                 uint64_t            chain_id)
 {
-    cx_sha256_t hash_ctx             = {0};
-    uint8_t     hash[CX_SHA256_SIZE] = {0};
-    cx_err_t    error                = CX_INTERNAL_ERROR;
-    bool        success              = false;
+    size_t offset = 0;
 
-    cx_sha256_init(&hash_ctx);
-    CX_CHECK(cx_hash_no_throw((cx_hash_t *) &hash_ctx, 0, salt, salt_len, NULL, 0));
-    CX_CHECK(cx_hash_no_throw(
-        (cx_hash_t *) &hash_ctx, CX_LAST, privkey->d, privkey->d_len, hash, sizeof(hash)));
-    memmove(hmac_key, hash, CX_SHA256_SIZE);
-    success = true;
-
-end:
-    explicit_bzero(hash, sizeof(hash));
-    return success;
-}
-
-/**
- * @brief Initialise a BIP32-derived HMAC-SHA256 context.
- *
- * Derives the secp256r1 private key from @p bip32_path, runs the KDF
- * (SHA256(salt || privkey.d)), initialises @p hmac_ctx, then zeroes the
- * intermediate key material before returning.
- *
- * @param[in]  bip32_path  BIP32 path
- * @param[in]  salt        KDF salt (without null terminator)
- * @param[in]  salt_len    Salt length
- * @param[out] hmac_ctx    Initialised HMAC-SHA256 context
- * @return true if successful, false otherwise
- */
-static bool init_hmac_ctx(const path_bip32_t *bip32_path,
-                          const uint8_t      *salt,
-                          size_t              salt_len,
-                          cx_hmac_sha256_t   *hmac_ctx)
-{
-    cx_ecfp_256_private_key_t private_key              = {0};
-    uint8_t                   hmac_key[CX_SHA256_SIZE] = {0};
-    cx_err_t                  error                    = CX_INTERNAL_ERROR;
-    bool                      success                  = false;
-
-    CX_CHECK(bip32_derive_init_privkey_256(
-        CX_CURVE_SECP256K1, bip32_path->path, bip32_path->length, &private_key, NULL));
-    if (!address_book_derive_hmac_key(&private_key, salt, salt_len, hmac_key)) {
-        goto end;
+    // Optional 32-byte GID prefix
+    if (gid != NULL) {
+        if (offset + GID_SIZE > msg_size) {
+            return SIZE_MAX;
+        }
+        memmove(&msg[offset], gid, GID_SIZE);
+        offset += GID_SIZE;
     }
-    CX_CHECK(cx_hmac_sha256_init_no_throw(hmac_ctx, hmac_key, CX_SHA256_SIZE));
-    success = true;
 
-end:
-    explicit_bzero(&private_key, sizeof(private_key));
-    explicit_bzero(hmac_key, sizeof(hmac_key));
-    return success;
+    // Optional length-prefixed string
+    if (str1 != NULL) {
+        uint8_t len = (uint8_t) strlen(str1);
+        if (offset + 1U + (size_t) len > msg_size) {
+            return SIZE_MAX;
+        }
+        msg[offset++] = len;
+        if (len > 0) {
+            memmove(&msg[offset], str1, len);
+            offset += len;
+        }
+    }
+
+    // Optional length-prefixed raw bytes
+    if (raw != NULL) {
+        if (offset + 1U + (size_t) raw_len > msg_size) {
+            return SIZE_MAX;
+        }
+        msg[offset++] = raw_len;
+        memmove(&msg[offset], raw, raw_len);
+        offset += raw_len;
+    }
+
+    // Optional family byte + chain_id
+    if (include_family) {
+        if (offset + 1U > msg_size) {
+            return SIZE_MAX;
+        }
+        msg[offset++] = (uint8_t) family;
+        if (family == FAMILY_ETHEREUM) {
+            if (offset + 8U > msg_size) {
+                return SIZE_MAX;
+            }
+            U8BE_ENCODE(msg, offset, chain_id);
+            offset += 8U;
+        }
+    }
+
+    return offset;
 }
 
 /* Exported functions --------------------------------------------------------*/
@@ -176,10 +196,8 @@ bool address_book_send_register_identity_response(const uint8_t group_handle[GRO
 /**
  * @brief Generate a device-authenticated group handle.
  *
- * Generates a random 32-byte gid, then authenticates it with a device-derived MAC:
+ * Generates a random 32-byte gid, then authenticates it via OS syscall:
  * group_handle = gid(32) || HMAC-SHA256(K_group, gid)(32)
- *
- * K_group = SHA256("AddressBook-Group" || privkey.d)
  *
  * @param[in]  bip32_path    BIP32 path used to derive K_group
  * @param[out] group_handle  Output buffer (64 bytes): gid || MAC
@@ -188,19 +206,15 @@ bool address_book_send_register_identity_response(const uint8_t group_handle[GRO
 bool address_book_generate_group_handle(const path_bip32_t *bip32_path,
                                         uint8_t             group_handle[GROUP_HANDLE_SIZE])
 {
-    static const uint8_t salt[]   = "AddressBook-Group";
-    cx_hmac_sha256_t     hmac_ctx = {0};
-    cx_err_t             error    = CX_INTERNAL_ERROR;
-    bool                 success  = false;
-    uint8_t             *gid      = group_handle;
-    uint8_t             *mac      = group_handle + GID_SIZE;
+    bool     success = false;
+    uint8_t *gid     = group_handle;
+    uint8_t *mac     = group_handle + GID_SIZE;
 
     cx_rng_no_throw(gid, GID_SIZE);
-    if (!init_hmac_ctx(bip32_path, salt, sizeof(salt) - 1, &hmac_ctx)) {
+    if (!sys_address_book_hmac(
+            bip32_path->path, bip32_path->length, ADDRESS_BOOK_SALT_GROUP, gid, GID_SIZE, mac)) {
         goto end;
     }
-    CX_CHECK(
-        cx_hmac_no_throw((cx_hmac_t *) &hmac_ctx, CX_LAST, gid, GID_SIZE, mac, CX_SHA256_SIZE));
     success = true;
 
 end:
@@ -210,7 +224,7 @@ end:
 /**
  * @brief Verify a group handle and extract the gid.
  *
- * Recomputes MAC(K_group, gid) and compares with the embedded MAC.
+ * Verifies MAC(K_group, gid) via OS syscall.
  * On success, copies gid into @p gid_out.
  *
  * @param[in]  bip32_path    BIP32 path used to derive K_group
@@ -222,20 +236,12 @@ bool address_book_verify_group_handle(const path_bip32_t *bip32_path,
                                       const uint8_t       group_handle[GROUP_HANDLE_SIZE],
                                       uint8_t             gid_out[GID_SIZE])
 {
-    static const uint8_t salt[]                       = "AddressBook-Group";
-    cx_hmac_sha256_t     hmac_ctx                     = {0};
-    uint8_t              mac_expected[CX_SHA256_SIZE] = {0};
-    cx_err_t             error                        = CX_INTERNAL_ERROR;
-    bool                 success                      = false;
-    const uint8_t       *gid                          = group_handle;
-    const uint8_t       *mac                          = group_handle + GID_SIZE;
+    bool           success = false;
+    const uint8_t *gid     = group_handle;
+    const uint8_t *mac     = group_handle + GID_SIZE;
 
-    if (!init_hmac_ctx(bip32_path, salt, sizeof(salt) - 1, &hmac_ctx)) {
-        goto end;
-    }
-    CX_CHECK(cx_hmac_no_throw(
-        (cx_hmac_t *) &hmac_ctx, CX_LAST, gid, GID_SIZE, mac_expected, CX_SHA256_SIZE));
-    if (os_secure_memcmp(mac, mac_expected, CX_SHA256_SIZE) != 0) {
+    if (!sys_address_book_hmac_verify(
+            bip32_path->path, bip32_path->length, ADDRESS_BOOK_SALT_GROUP, gid, GID_SIZE, mac)) {
         PRINTF("[Address Book] Group handle MAC verification failed\n");
         goto end;
     }
@@ -243,15 +249,14 @@ bool address_book_verify_group_handle(const path_bip32_t *bip32_path,
     success = true;
 
 end:
-    explicit_bzero(mac_expected, sizeof(mac_expected));
     return success;
 }
 
 /**
  * @brief Compute HMAC_PROOF for an Identity contact.
  *
- * HMAC key: SHA256("AddressBook-Identity" || privkey.d)
- * HMAC message: gid(32) | name_len(1) | name
+ * Serializes the HMAC message: gid(32) | name_len(1) | name
+ * Then delegates to the OS syscall.
  *
  * @param[in]  bip32_path  BIP32 path used at registration
  * @param[in]  gid         32-byte wallet-generated contact ID
@@ -264,28 +269,25 @@ bool address_book_compute_hmac_proof(const path_bip32_t *bip32_path,
                                      const char         *name,
                                      uint8_t             hmac_out[CX_SHA256_SIZE])
 {
-    static const uint8_t salt[]   = "AddressBook-Identity";
-    cx_hmac_sha256_t     hmac_ctx = {0};
-    cx_err_t             error    = CX_INTERNAL_ERROR;
-    bool                 success  = false;
-    uint8_t              name_len = (uint8_t) strlen(name);
+    uint8_t msg[HMAC_PROOF_MSG_SIZE] = {0};
+    bool    success                  = false;
+    size_t  msg_len = serialize_hmac_msg(msg, sizeof(msg), gid, name, NULL, 0, false, 0, 0);
 
-    if (!init_hmac_ctx(bip32_path, salt, sizeof(salt) - 1, &hmac_ctx)) {
+    if (msg_len == SIZE_MAX) {
         goto end;
     }
-    // gid(32)
-    CX_CHECK(cx_hmac_no_throw((cx_hmac_t *) &hmac_ctx, 0, gid, GID_SIZE, NULL, 0));
-    // name_len(1) | name
-    CX_CHECK(cx_hmac_no_throw((cx_hmac_t *) &hmac_ctx, 0, &name_len, 1, NULL, 0));
-    CX_CHECK(cx_hmac_no_throw((cx_hmac_t *) &hmac_ctx,
-                              CX_LAST,
-                              (const uint8_t *) name,
-                              name_len,
-                              hmac_out,
-                              CX_SHA256_SIZE));
+    if (!sys_address_book_hmac(bip32_path->path,
+                               bip32_path->length,
+                               ADDRESS_BOOK_SALT_IDENTITY,
+                               msg,
+                               msg_len,
+                               hmac_out)) {
+        goto end;
+    }
     success = true;
 
 end:
+    explicit_bzero(msg, sizeof(msg));
     return success;
 }
 
@@ -303,29 +305,35 @@ bool address_book_verify_hmac_proof(const path_bip32_t *bip32_path,
                                     const char         *name,
                                     const uint8_t       hmac_expected[CX_SHA256_SIZE])
 {
-    uint8_t hmac_computed[CX_SHA256_SIZE] = {0};
-    bool    success                       = false;
+    uint8_t msg[HMAC_PROOF_MSG_SIZE] = {0};
+    bool    success                  = false;
+    size_t  msg_len = serialize_hmac_msg(msg, sizeof(msg), gid, name, NULL, 0, false, 0, 0);
 
-    if (!address_book_compute_hmac_proof(bip32_path, gid, name, hmac_computed)) {
+    if (msg_len == SIZE_MAX) {
         goto end;
     }
-    if (os_secure_memcmp(hmac_computed, hmac_expected, CX_SHA256_SIZE) != 0) {
+    if (!sys_address_book_hmac_verify(bip32_path->path,
+                                      bip32_path->length,
+                                      ADDRESS_BOOK_SALT_IDENTITY,
+                                      msg,
+                                      msg_len,
+                                      hmac_expected)) {
         PRINTF("HMAC_PROOF mismatch\n");
         goto end;
     }
     success = true;
 
 end:
-    explicit_bzero(hmac_computed, sizeof(hmac_computed));
+    explicit_bzero(msg, sizeof(msg));
     return success;
 }
 
 /**
  * @brief Compute HMAC_REST for an Identity contact.
  *
- * HMAC key: SHA256("AddressBook-Identity" || privkey.d)
- * HMAC message: gid(32) | scope_len(1) | scope | id_len(1) | identifier |
- *               family(1) [| chain_id(8) for FAMILY_ETHEREUM]
+ * Serializes: gid(32) | scope_len(1) | scope | id_len(1) | identifier |
+ *             family(1) [| chain_id(8) for FAMILY_ETHEREUM]
+ * Then delegates to the OS syscall.
  *
  * @param[in]  bip32_path     BIP32 path used at registration
  * @param[in]  gid            32-byte contact ID
@@ -346,40 +354,26 @@ bool address_book_compute_hmac_rest(const path_bip32_t *bip32_path,
                                     uint64_t            chain_id,
                                     uint8_t             hmac_out[CX_SHA256_SIZE])
 {
-    static const uint8_t salt[]      = "AddressBook-Identity";
-    cx_hmac_sha256_t     hmac_ctx    = {0};
-    cx_err_t             error       = CX_INTERNAL_ERROR;
-    bool                 success     = false;
-    uint8_t              scope_len   = (scope != NULL) ? (uint8_t) strlen(scope) : 0;
-    uint8_t              family_byte = (uint8_t) family;
+    uint8_t msg[HMAC_MSG_MAX_SIZE] = {0};
+    bool    success                = false;
+    size_t  msg_len                = serialize_hmac_msg(
+        msg, sizeof(msg), gid, scope, identifier, identifier_len, true, family, chain_id);
 
-    if (!init_hmac_ctx(bip32_path, salt, sizeof(salt) - 1, &hmac_ctx)) {
+    if (msg_len == SIZE_MAX) {
         goto end;
     }
-    // gid(32)
-    CX_CHECK(cx_hmac_no_throw((cx_hmac_t *) &hmac_ctx, 0, gid, GID_SIZE, NULL, 0));
-    // scope_len(1) | scope
-    CX_CHECK(cx_hmac_no_throw((cx_hmac_t *) &hmac_ctx, 0, &scope_len, 1, NULL, 0));
-    if (scope_len > 0) {
-        CX_CHECK(cx_hmac_no_throw(
-            (cx_hmac_t *) &hmac_ctx, 0, (const uint8_t *) scope, scope_len, NULL, 0));
+    if (!sys_address_book_hmac(bip32_path->path,
+                               bip32_path->length,
+                               ADDRESS_BOOK_SALT_IDENTITY,
+                               msg,
+                               msg_len,
+                               hmac_out)) {
+        goto end;
     }
-    // id_len(1) | identifier
-    CX_CHECK(cx_hmac_no_throw((cx_hmac_t *) &hmac_ctx, 0, &identifier_len, 1, NULL, 0));
-    CX_CHECK(cx_hmac_no_throw((cx_hmac_t *) &hmac_ctx, 0, identifier, identifier_len, NULL, 0));
-    // family(1)
-    CX_CHECK(cx_hmac_no_throw((cx_hmac_t *) &hmac_ctx, 0, &family_byte, 1, NULL, 0));
-    // chain_id(8) — Ethereum only
-    if (family == FAMILY_ETHEREUM) {
-        uint8_t chain_id_be[8] = {0};
-        U8BE_ENCODE(chain_id_be, 0, chain_id);
-        CX_CHECK(cx_hmac_no_throw(
-            (cx_hmac_t *) &hmac_ctx, 0, chain_id_be, sizeof(chain_id_be), NULL, 0));
-    }
-    CX_CHECK(cx_hmac_no_throw((cx_hmac_t *) &hmac_ctx, CX_LAST, NULL, 0, hmac_out, CX_SHA256_SIZE));
     success = true;
 
 end:
+    explicit_bzero(msg, sizeof(msg));
     return success;
 }
 
@@ -405,21 +399,27 @@ bool address_book_verify_hmac_rest(const path_bip32_t *bip32_path,
                                    uint64_t            chain_id,
                                    const uint8_t       hmac_expected[CX_SHA256_SIZE])
 {
-    uint8_t hmac_computed[CX_SHA256_SIZE] = {0};
-    bool    success                       = false;
+    uint8_t msg[HMAC_MSG_MAX_SIZE] = {0};
+    bool    success                = false;
+    size_t  msg_len                = serialize_hmac_msg(
+        msg, sizeof(msg), gid, scope, identifier, identifier_len, true, family, chain_id);
 
-    if (!address_book_compute_hmac_rest(
-            bip32_path, gid, scope, identifier, identifier_len, family, chain_id, hmac_computed)) {
+    if (msg_len == SIZE_MAX) {
         goto end;
     }
-    if (os_secure_memcmp(hmac_computed, hmac_expected, CX_SHA256_SIZE) != 0) {
+    if (!sys_address_book_hmac_verify(bip32_path->path,
+                                      bip32_path->length,
+                                      ADDRESS_BOOK_SALT_IDENTITY,
+                                      msg,
+                                      msg_len,
+                                      hmac_expected)) {
         PRINTF("HMAC_REST mismatch\n");
         goto end;
     }
     success = true;
 
 end:
-    explicit_bzero(hmac_computed, sizeof(hmac_computed));
+    explicit_bzero(msg, sizeof(msg));
     return success;
 }
 
@@ -428,10 +428,8 @@ end:
 /**
  * @brief Compute an HMAC-SHA256 Proof of Registration for a Ledger Account.
  *
- * HMAC key: SHA256("AddressBook-LedgerAccount" || privkey.d)
- * HMAC message: name_len(1) | name | family(1) [| chain_id(8)]
- *
- * chain_id(8) is included only when family == FAMILY_ETHEREUM.
+ * Serializes: name_len(1) | name | family(1) [| chain_id(8)]
+ * Then delegates to the OS syscall.
  *
  * @param[in]  bip32_path  BIP32 path used at registration
  * @param[in]  name        Account name (null-terminated)
@@ -446,33 +444,26 @@ bool address_book_compute_hmac_proof_ledger_account(const path_bip32_t *bip32_pa
                                                     uint64_t            chain_id,
                                                     uint8_t             hmac_out[CX_SHA256_SIZE])
 {
-    static const uint8_t salt[]      = "AddressBook-LedgerAccount";
-    cx_hmac_sha256_t     hmac_ctx    = {0};
-    cx_err_t             error       = CX_INTERNAL_ERROR;
-    bool                 success     = false;
-    uint8_t              name_len    = (uint8_t) strlen(name);
-    uint8_t              family_byte = (uint8_t) family;
+    uint8_t msg[HMAC_LEDGER_MSG_SIZE] = {0};
+    bool    success                   = false;
+    size_t  msg_len
+        = serialize_hmac_msg(msg, sizeof(msg), NULL, name, NULL, 0, true, family, chain_id);
 
-    if (!init_hmac_ctx(bip32_path, salt, sizeof(salt) - 1, &hmac_ctx)) {
+    if (msg_len == SIZE_MAX) {
         goto end;
     }
-    // name_len(1) | name
-    CX_CHECK(cx_hmac_no_throw((cx_hmac_t *) &hmac_ctx, 0, &name_len, 1, NULL, 0));
-    CX_CHECK(
-        cx_hmac_no_throw((cx_hmac_t *) &hmac_ctx, 0, (const uint8_t *) name, name_len, NULL, 0));
-    // family(1)
-    CX_CHECK(cx_hmac_no_throw((cx_hmac_t *) &hmac_ctx, 0, &family_byte, 1, NULL, 0));
-    // chain_id(8) — Ethereum only
-    if (family == FAMILY_ETHEREUM) {
-        uint8_t chain_id_be[8] = {0};
-        U8BE_ENCODE(chain_id_be, 0, chain_id);
-        CX_CHECK(cx_hmac_no_throw(
-            (cx_hmac_t *) &hmac_ctx, 0, chain_id_be, sizeof(chain_id_be), NULL, 0));
+    if (!sys_address_book_hmac(bip32_path->path,
+                               bip32_path->length,
+                               ADDRESS_BOOK_SALT_LEDGER_ACCOUNT,
+                               msg,
+                               msg_len,
+                               hmac_out)) {
+        goto end;
     }
-    CX_CHECK(cx_hmac_no_throw((cx_hmac_t *) &hmac_ctx, CX_LAST, NULL, 0, hmac_out, CX_SHA256_SIZE));
     success = true;
 
 end:
+    explicit_bzero(msg, sizeof(msg));
     return success;
 }
 
@@ -492,21 +483,27 @@ bool address_book_verify_hmac_proof_ledger_account(const path_bip32_t *bip32_pat
                                                    uint64_t            chain_id,
                                                    const uint8_t hmac_expected[CX_SHA256_SIZE])
 {
-    uint8_t hmac_computed[CX_SHA256_SIZE] = {0};
-    bool    success                       = false;
+    uint8_t msg[HMAC_LEDGER_MSG_SIZE] = {0};
+    bool    success                   = false;
+    size_t  msg_len
+        = serialize_hmac_msg(msg, sizeof(msg), NULL, name, NULL, 0, true, family, chain_id);
 
-    if (!address_book_compute_hmac_proof_ledger_account(
-            bip32_path, name, family, chain_id, hmac_computed)) {
+    if (msg_len == SIZE_MAX) {
         goto end;
     }
-    if (os_secure_memcmp(hmac_computed, hmac_expected, CX_SHA256_SIZE) != 0) {
+    if (!sys_address_book_hmac_verify(bip32_path->path,
+                                      bip32_path->length,
+                                      ADDRESS_BOOK_SALT_LEDGER_ACCOUNT,
+                                      msg,
+                                      msg_len,
+                                      hmac_expected)) {
         PRINTF("HMAC proof mismatch\n");
         goto end;
     }
     success = true;
 
 end:
-    explicit_bzero(hmac_computed, sizeof(hmac_computed));
+    explicit_bzero(msg, sizeof(msg));
     return success;
 }
 
