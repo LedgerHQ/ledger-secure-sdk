@@ -169,15 +169,6 @@ LINK_DEPENDENCIES += $(APP_CUSTOM_LINK_DEPENDENCIES)
 $(BIN_DIR)/app.elf: $(LINK_DEPENDENCIES)
 	@echo "[LINK] $(BIN_DIR)/app.elf"
 	$(L)$(call link_cmdline,$(OBJECT_FILES) $(LDLIBS),$(BIN_DIR)/app.elf)
-ifneq ($(ENABLE_STACK_PROTECTOR),0)
-	@# Ensure __stack_chk_guard remains the very first symbol in .bss.
-	@BSS=$$(llvm-nm $(BIN_DIR)/app.elf | grep ' _bss$$' | cut -d' ' -f1); \
-	GUARD=$$(llvm-nm $(BIN_DIR)/app.elf | grep ' __stack_chk_guard$$' | cut -d' ' -f1); \
-	if [ -z "$$GUARD" ] || [ "$$GUARD" != "$$BSS" ]; then \
-		echo "[ERROR] __stack_chk_guard ($$GUARD) must be the first symbol in .bss ($$BSS)"; \
-		exit 1; \
-	fi
-endif
 	$(L)llvm-objcopy -O ihex -S $(BIN_DIR)/app.elf $(BIN_DIR)/app.hex
 	$(L)llvm-objdump -S -d $(BIN_DIR)/app.elf > $(DBG_DIR)/app.asm
 

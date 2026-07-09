@@ -198,7 +198,7 @@ int bytes_to_lowercase_hex(char *out, size_t outl, const void *value, size_t len
     return 0;
 }
 
-// BSS start and end defines addresses
+// BSS wipe bounds
 extern void *_bss;
 extern void *_ebss;
 

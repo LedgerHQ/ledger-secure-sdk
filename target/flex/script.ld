@@ -33,7 +33,8 @@ PAGE_SIZE  = 512;
 STACK_MIN_SIZE = DEFINED(stack_min_size) ? stack_min_size : 1500;
 END_STACK  = ORIGIN(SRAM) + LENGTH(SRAM);
 
-ENTRY(main);
+/* __entry == __stack_chk_init if SSP is enabled, else main */
+ENTRY(__entry);
 
 SECTIONS
 {
@@ -110,10 +111,11 @@ SECTIONS
     /**
      * Place RAM uninitialized variables
      */
-    _bss = .;
+    _ram = .;
     __stack_chk_guard = .;
     PROVIDE(__stack_chk_guard = .);
     . += 4;
+    _bss = .;
     *(.bss*)
     _ebss = .;
 
