@@ -23,29 +23,6 @@
 
 extern const size_t absolution_globals_size __attribute__((weak));
 
-size_t LLVMFuzzerCustomMutator(uint8_t *data, size_t size, size_t max_size, unsigned int seed)
-{
-    size_t prefix_size = FUZZ_PREFIX_SIZE_FALLBACK;
-    if (&absolution_globals_size != NULL && absolution_globals_size != 0) {
-        prefix_size = absolution_globals_size;
-    }
-
-    if (prefix_size == 0 || prefix_size >= max_size || size <= prefix_size) {
-        return fuzz_custom_mutator(data, size, max_size, seed);
-    }
-
-    if ((seed & 1U) == 0) {
-        size_t tail_size = size - prefix_size;
-        tail_size
-            = tlv_custom_mutate(data + prefix_size, tail_size, max_size - prefix_size, seed >> 1);
-        return prefix_size + tail_size;
-    }
-
-    return fuzz_custom_mutator(data, size, max_size, seed);
-}
-
-#include "fuzz_harness.h"
-
 static const tlv_tag_info_t TRUSTED_NAME_TAGS[] = {
     {0x01, 1,  1 }, /* TAG_STRUCTURE_TYPE */
     {0x02, 1,  1 }, /* TAG_VERSION */
@@ -63,6 +40,34 @@ static const tlv_tag_info_t TRUSTED_NAME_TAGS[] = {
     {0x15, 64, 72}, /* TAG_DER_SIGNATURE */
 };
 
+size_t LLVMFuzzerCustomMutator(uint8_t *data, size_t size, size_t max_size, unsigned int seed)
+{
+    size_t prefix_size = FUZZ_PREFIX_SIZE_FALLBACK;
+    if (&absolution_globals_size != NULL && absolution_globals_size != 0) {
+        prefix_size = absolution_globals_size;
+    }
+
+    if (prefix_size == 0 || prefix_size >= max_size || size <= prefix_size) {
+        return fuzz_custom_mutator(data, size, max_size, seed);
+    }
+
+    if ((seed & 1U) == 0) {
+        /* Install the grammar for the mutator only. current_tlv_fuzz_config is a
+         * zero-symbol the invariant enforces on the test path, so it must never
+         * be left set there; sample_invariant() re-zeroes it before dispatch. */
+        current_tlv_fuzz_config.tags_info = TRUSTED_NAME_TAGS;
+        current_tlv_fuzz_config.num_tags = sizeof(TRUSTED_NAME_TAGS) / sizeof(TRUSTED_NAME_TAGS[0]);
+        size_t tail_size                 = size - prefix_size;
+        tail_size
+            = tlv_custom_mutate(data + prefix_size, tail_size, max_size - prefix_size, seed >> 1);
+        return prefix_size + tail_size;
+    }
+
+    return fuzz_custom_mutator(data, size, max_size, seed);
+}
+
+#include "fuzz_harness.h"
+
 const fuzz_command_spec_t fuzz_commands[] = {
     {.cla = 0x00, .ins = 0x01},
 };
@@ -70,8 +75,8 @@ const size_t fuzz_n_commands = 1;
 
 void fuzz_app_reset(void)
 {
-    current_tlv_fuzz_config.tags_info = TRUSTED_NAME_TAGS;
-    current_tlv_fuzz_config.num_tags  = sizeof(TRUSTED_NAME_TAGS) / sizeof(TRUSTED_NAME_TAGS[0]);
+    /* Stateless dispatch: nothing to reset. The TLV grammar is installed by the
+     * mutator so current_tlv_fuzz_config stays zeroed on the test path. */
 }
 
 void fuzz_app_dispatch(void *cmd)

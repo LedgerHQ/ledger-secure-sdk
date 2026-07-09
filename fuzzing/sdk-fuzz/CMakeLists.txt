@@ -22,11 +22,13 @@ ledger_fuzz_setup()
 # Mirror the surrounding build's sanitizer; otherwise Absolution defaults to fuzzer,address and clang rejects it against CFL's -fsanitize=memory matrix.
 set(_SDK_FUZZ_SAN "${LEDGER_FUZZ_DEFAULT_SANITIZERS}")
 
+set(SDK_FUZZ_TARGETS
+    fuzz_alloc fuzz_alloc_utils fuzz_apdu_parser fuzz_base58 fuzz_bip32
+    fuzz_lists fuzz_nfc_ndef fuzz_qrcodegen fuzz_tlv_dynamic_descriptor
+    fuzz_tlv_trusted_name)
+
 # Per-target invariants are .gitignored and regenerated each build; bootstrap missing ones to `.{}` so Absolution can refine them on first configure.
-foreach(_fuzzer
-        fuzz_alloc fuzz_alloc_utils fuzz_apdu_parser fuzz_base58 fuzz_bip32
-        fuzz_lists fuzz_nfc_ndef fuzz_qrcodegen fuzz_tlv_dynamic_descriptor
-        fuzz_tlv_trusted_name)
+foreach(_fuzzer ${SDK_FUZZ_TARGETS})
   ledger_fuzz_bootstrap_file(
     "${CMAKE_SOURCE_DIR}/invariants/${_fuzzer}.zon"
     ".{}\n")
@@ -185,3 +187,9 @@ absolution_add_fuzzer(
     INCLUDE_DIRECTORIES ${SDK_FUZZ_INCLUDE_DIRS}
     LINK_LIBRARIES secure_sdk
 )
+
+# These targets call absolution_add_fuzzer() directly, so apply the same
+# generated-TU mitigations ledger_fuzz_add_app_target() gives app targets.
+foreach(_fuzzer ${SDK_FUZZ_TARGETS})
+  ledger_fuzz_harden_target(${_fuzzer})
+endforeach()
