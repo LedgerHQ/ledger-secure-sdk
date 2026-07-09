@@ -21,6 +21,7 @@ add_custom_command(
   OUTPUT ${GEN_SYSCALLS_OUTPUT}
   COMMAND ${Python3_EXECUTABLE} ${BOLOS_SDK}/fuzzing/mock/gen_mock.py
           ${BOLOS_SDK}/src/syscalls.c ${GEN_SYSCALLS_OUTPUT}
+  DEPENDS ${BOLOS_SDK}/src/syscalls.c ${BOLOS_SDK}/fuzzing/mock/gen_mock.py
   COMMENT "${Blue}Generating syscall mocks...${ColourReset}"
   VERBATIM)
 
@@ -34,6 +35,7 @@ set(LIB_MOCK_SOURCES
     ${BOLOS_SDK}/fuzzing/mock/os/os_exceptions.c
     ${BOLOS_SDK}/fuzzing/mock/os/os_runtime.c
     ${BOLOS_SDK}/fuzzing/mock/os/pic.c
+    ${BOLOS_SDK}/fuzzing/mock/fuzz_app_defaults.c
     ${BOLOS_SDK}/src/os.c
     ${BOLOS_SDK}/src/ledger_assert.c
     ${BOLOS_SDK}/src/cx_wrappers.c
