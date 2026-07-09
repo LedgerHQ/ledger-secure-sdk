@@ -16,7 +16,7 @@ export SCENARIO_LAYOUT_HEADER
 if [[ ! -d "${APP_FUZZ_DIR}" ]]; then
   echo "error: app fuzzing directory not found at ${APP_FUZZ_DIR}" >&2
   echo "hint: set APP_DIR to the app root directory (e.g. /path/to/app-boilerplate)." >&2
-  echo "      see \${BOLOS_SDK}/fuzzing/docs/APP_CONTRACT.md." >&2
+  echo "      see the Fuzzing Framework page in the SDK documentation." >&2
   exit 1
 fi
 if [[ ! -f "${SCENARIO_LAYOUT_HEADER}" ]]; then
@@ -88,16 +88,14 @@ load_target_config() {
   eval "${_vars}"
 }
 
-if [[ -z "${BASE_CORPUS_DIR+x}" ]]; then
-  BASE_CORPUS_DIR="${APP_FUZZ_DIR}/base-corpus"
-elif [[ -n "${BASE_CORPUS_DIR}" && ! -d "${BASE_CORPUS_DIR}" ]]; then
-  echo "error: BASE_CORPUS_DIR does not exist at ${BASE_CORPUS_DIR}" >&2
-  exit 1
+# Promoted base corpus: a zip of inputs plus a tracked compat-key sidecar.
+# Set BASE_CORPUS_ZIP= (empty) to skip it for a run.
+BASE_CORPUS_ZIP="${BASE_CORPUS_ZIP-${APP_FUZZ_DIR}/base-corpus.zip}"
+BASE_CORPUS_KEY="${BASE_CORPUS_KEY:-${APP_FUZZ_DIR}/base-corpus.compat-key}"
+if [[ -n "${BASE_CORPUS_ZIP}" && ! -f "${BASE_CORPUS_ZIP}" ]]; then
+  BASE_CORPUS_ZIP=""
 fi
-if [[ -n "${BASE_CORPUS_DIR}" && ! -d "${BASE_CORPUS_DIR}" ]]; then
-  BASE_CORPUS_DIR=""
-fi
-export BASE_CORPUS_DIR
+export BASE_CORPUS_ZIP BASE_CORPUS_KEY
 
 write_app_dictionary() {
   local manifest_path="${_APP_MANIFEST}"

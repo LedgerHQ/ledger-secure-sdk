@@ -272,3 +272,32 @@ check_build_dir_app_match() {
     return 1
   fi
 }
+
+# Unpacks BASE_CORPUS_ZIP into dest_dir when its sidecar compat-key matches the
+# current build. No-op when no base corpus is configured. Returns 1 (incompatible)
+# when the keys disagree so callers can decide whether that is fatal.
+stage_base_corpus() {
+  local dest_dir="${1:?missing dest dir}"
+  local compat_key="${2:-}"
+  local zip="${BASE_CORPUS_ZIP:-}"
+  local key_file="${BASE_CORPUS_KEY:-}"
+
+  [[ -n "${zip}" && -f "${zip}" ]] || return 0
+
+  if [[ -n "${compat_key}" ]]; then
+    if [[ ! -f "${key_file}" ]]; then
+      echo "error: base corpus ${zip} has no compat-key sidecar at ${key_file}" >&2
+      return 1
+    fi
+    local source_key
+    source_key=$(tr -d '[:space:]' < "${key_file}")
+    if [[ "${source_key}" != "${compat_key}" ]]; then
+      echo "error: base corpus ${zip} is incompatible with the current build" >&2
+      echo "  source compat_key:  ${source_key}" >&2
+      echo "  current compat_key: ${compat_key}" >&2
+      return 1
+    fi
+  fi
+
+  python3 "${SCRIPT_DIR}/corpus.py" unpack "${zip}" "${dest_dir}"
+}

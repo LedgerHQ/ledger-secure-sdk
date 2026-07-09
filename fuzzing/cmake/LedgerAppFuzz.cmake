@@ -4,22 +4,16 @@ include_guard()
 
 set(LEDGER_FUZZ_DIR "${CMAKE_CURRENT_LIST_DIR}/.." CACHE PATH "SDK fuzzing root")
 
-# Optional grammar-aware mutator source apps add to SOURCES/EXTRA_TARGETS to opt in.
+# Optional grammar-aware mutator source apps add to SOURCES to opt in.
 set(LEDGER_FUZZ_TLV_MUTATOR_SOURCE "${LEDGER_FUZZ_DIR}/mock/tlv_mutator.c"
     CACHE PATH "TLV grammar-aware mutator source")
 
+# Pinned Absolution release fetched when no local install is provided. Overridable with -D.
+set(LEDGER_FUZZ_ABSOLUTION_VERSION "v1.1.2"
+    CACHE STRING "Absolution release tag to fetch")
+
 if(NOT EXISTS "${LEDGER_FUZZ_DIR}/include/fuzz_mutator.h")
   message(FATAL_ERROR "SDK fuzz headers not found at ${LEDGER_FUZZ_DIR}/include/")
-endif()
-
-# Interface version — apps can set LEDGER_FUZZ_MIN_VERSION to require a minimum.
-set(LEDGER_FUZZ_INTERFACE_VERSION 2)
-if(DEFINED LEDGER_FUZZ_MIN_VERSION)
-  if(LEDGER_FUZZ_INTERFACE_VERSION LESS LEDGER_FUZZ_MIN_VERSION)
-    message(FATAL_ERROR
-      "SDK fuzz interface version ${LEDGER_FUZZ_INTERFACE_VERSION} "
-      "is older than required ${LEDGER_FUZZ_MIN_VERSION}. Update the SDK.")
-  endif()
 endif()
 
 # Writes `content` to `path` if it does not exist yet, so Absolution refines it on first build.
@@ -77,7 +71,6 @@ function(_ledger_fuzz_resolve_absolution)
     message(STATUS "LedgerFuzz: using local Absolution at ${_root}")
   else()
     include(FetchContent)
-    set(LEDGER_FUZZ_ABSOLUTION_VERSION "v1.1.0")
     FetchContent_Declare(absolution
       URL https://github.com/Ledger-Donjon/absolution/releases/download/${LEDGER_FUZZ_ABSOLUTION_VERSION}/release-ubuntu-latest-ReleaseFast.zip
       DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
@@ -142,12 +135,30 @@ set(LEDGER_FUZZ_DEFAULT_SANITIZERS "${_LEDGER_FUZZ_DEFAULT_SANITIZERS}"
     CACHE STRING "Sanitizer set passed to absolution_add_fuzzer() by default")
 unset(_LEDGER_FUZZ_DEFAULT_SANITIZERS)
 
+# Mitigations every Absolution-generated fuzzer needs, applied to the exported
+# target (set_source_files_properties() is directory-scoped and misses the TU
+# created inside absolution_add_fuzzer()). The generated TU overestimates global
+# alignment and emits aligned memset/memcpy vector stores that SIGSEGV on
+# weaker-aligned real globals, so drop those builtins; its global discovery can
+# also pick up libc's stdio externs as weak byte arrays that shadow the real
+# streams (libFuzzer Printf() null-derefs), so neutralise <stdio.h> and rename them.
+function(ledger_fuzz_harden_target target)
+  target_compile_options(${target} PRIVATE "-fno-builtin-memset" "-fno-builtin-memcpy")
+  target_compile_definitions(${target} PRIVATE
+    "_STDIO_H=1"
+    "stdin=absltn_libc_stdin"
+    "stdout=absltn_libc_stdout"
+    "stderr=absltn_libc_stderr"
+    "sys_nerr=absltn_libc_sys_nerr"
+    "sys_errlist=absltn_libc_sys_errlist")
+endfunction()
+
 # Convenience wrapper over absolution_add_fuzzer() for the single-target shape Ledger apps share; auto-resolves SANITIZERS when omitted.
 function(ledger_fuzz_add_app_target)
   cmake_parse_arguments(F
     ""
     "NAME;HARNESS;ENTRY;INVARIANT;SANITIZERS"
-    "SOURCES;INCLUDE_DIRECTORIES;COMPILE_DEFINITIONS;EXTRA_TARGETS"
+    "SOURCES;INCLUDE_DIRECTORIES;COMPILE_DEFINITIONS"
     ${ARGN})
 
   if(NOT F_NAME)
@@ -169,7 +180,7 @@ function(ledger_fuzz_add_app_target)
 
   absolution_add_fuzzer(
     NAME                ${F_NAME}
-    TARGETS             ${F_SOURCES} ${F_EXTRA_TARGETS}
+    TARGETS             ${F_SOURCES}
     HARNESS             ${F_HARNESS}
     ENTRY               ${F_ENTRY}
     INVARIANT           ${F_INVARIANT}
@@ -179,8 +190,5 @@ function(ledger_fuzz_add_app_target)
     LINK_LIBRARIES      secure_sdk
   )
 
-  # Absolution's generated TU can overestimate global alignment and emit aligned memset/memcpy vector stores that SIGSEGV on weaker-aligned real globals, so disable those builtins.
-  set_source_files_properties(
-    "${CMAKE_CURRENT_BINARY_DIR}/_absolution/${F_NAME}/fuzzer.c"
-    PROPERTIES COMPILE_OPTIONS "-fno-builtin-memset;-fno-builtin-memcpy")
+  ledger_fuzz_harden_target(${F_NAME})
 endfunction()
