@@ -1,0 +1,113 @@
+/** @page fuzzing_running Running a campaign
+
+This page assumes an app that already ships a `fuzzing/` folder. To add one,
+see @ref fuzzing_integrate.
+
+@section fuzzing_run_prereq Prerequisites
+
+The framework runs out of the box in the standard
+`ledger-app-builder/ledger-app-dev-tools` image, which ships Clang, the
+matching `llvm-*` tools, and Ninja. The only required setup is `BOLOS_SDK`
+pointing at an SDK checkout. On first configure, CMake downloads the pinned
+Absolution release; set `LEDGER_FUZZ_ABSOLUTION_LOCAL_DIR` to a local install
+to run offline (see @ref fuzzing_cmake).
+
+@section fuzzing_run_basic Basic usage
+
+Run the campaign script from the SDK, pointing it at the app. The last
+argument is an optional run name (a UTC timestamp is used if omitted):
+
+@verbatim
+BOLOS_SDK=/path/to/ledger-secure-sdk \
+  "$BOLOS_SDK"/fuzzing/scripts/app-campaign.sh \
+  --app-dir /path/to/app my-campaign
+@endverbatim
+
+Prefer an absolute `--app-dir` (or `export APP_DIR=...`) so the run does not
+depend on the current directory.
+
+The SDK's own targets are fuzzed the same way, by pointing at the SDK and its
+self-fuzz subtree:
+
+@verbatim
+"$BOLOS_SDK"/fuzzing/scripts/app-campaign.sh \
+  --app-dir "$BOLOS_SDK" \
+  --fuzz-subdir fuzzing/sdk-fuzz sdk-sanity
+@endverbatim
+
+@section fuzzing_run_output Reading the output
+
+Each run writes to `<app>/.fuzz-artifacts/<run-name>/`:
+
+| Path | Contents |
+|------|----------|
+| `report/index.html`            | Source-level coverage for the whole run |
+| `global-coverage.txt`          | One-line coverage summary (all files) |
+| `key-files-coverage.txt`       | Coverage restricted to the manifest's `key_files` |
+| `targets/<target>/corpus/`     | The merged corpus, plus its `.compat-key` |
+| `targets/<target>/crashes/`    | Any crash / timeout / OOM inputs found |
+| `targets/<target>/<target>.dict` | Dictionary used for the run |
+| `targets/<target>/meta.env`    | Build parameters (prefix size, build dirs, workers…) |
+| `targets/<target>/replay.log`  | Coverage-replay log |
+
+A clean run finds zero crashes. When a crash is found, its input is saved under
+`crashes/` and the summary is printed to the console.
+
+@section fuzzing_run_repro Reproducing a crash
+
+Replay a saved input against the sanitizer ("fast") binary to get the full
+stack trace:
+
+@verbatim
+"<build-dir-fast>/<target>" \
+  "<app>/.fuzz-artifacts/<run>/targets/<target>/crashes/crash-<hash>"
+@endverbatim
+
+`<build-dir-fast>` is reported in `meta.env` (default `<app>/build/fast`). The
+binary is an ordinary LibFuzzer executable, so all of its flags (`-runs=1`,
+`-help=1`, …) are available.
+
+@section fuzzing_run_cli Command-line flags
+
+| Flag | Description |
+|------|-------------|
+| `--app-dir DIR`     | Path to the app root (required) |
+| `--fuzz-subdir DIR` | Fuzzing subtree relative to the app (default `fuzzing`) |
+| `--target NAME`     | Restrict a multi-target app to one target (repeatable) |
+| `--clean`           | Delete build directories before configuring (full rebuild) |
+
+@section fuzzing_run_env Environment variables
+
+Short defaults keep the first run fast; raise durations and workers for real
+coverage growth.
+
+| Variable | Default | Meaning |
+|----------|---------|---------|
+| `WARMUP_SEC`        | `30`            | Warmup seconds per worker (wide, shallow exploration) |
+| `MAIN_SEC`          | `60`            | Main-phase seconds per worker (deeper mutation) |
+| `WORKERS`           | `min(2, nproc)` | Parallel LibFuzzer processes |
+| `BASE_CORPUS_ZIP`   | app's `fuzzing/base-corpus.zip` if present | Promoted seeds; set empty to skip |
+| `EXTRA_CORPUS`      | unset           | Colon-separated extra corpus directories to merge in |
+| `OVERWRITE`         | unset           | Set to `1` to overwrite an existing run directory |
+| `APP_TARGET`        | `flex`          | Device target passed to CMake (`flex`, `stax`, …) |
+| `BUILD_JOBS`        | from CPU count  | Parallel `cmake --build` jobs |
+| `SKIP_INVARIANT_SYNC` | unset         | Keep the current `.zon` instead of re-syncing it |
+| `BOOTSTRAP_INVARIANT` | `auto`        | Reset each `invariants/<target>.zon` to `.{}` before configure. `1` always, `0` never, `auto` only with `--clean`. CI should set `1` |
+| `ARTIFACTS_ROOT`    | `<app>/.fuzz-artifacts` | Root directory for run output |
+| `BUILD_DIR_FAST` / `BUILD_DIR_COV` | `<app>/build/fast` and `.../cov` | Sanitizer binary vs coverage-replay binary |
+| `LEDGER_FUZZ_ABSOLUTION_LOCAL_DIR` | unset | Local Absolution install; skips the download |
+
+@section fuzzing_run_longer Longer runs
+
+The defaults (30 s / 60 s, two workers) are a smoke test. For meaningful
+coverage growth or regression hunting, raise the budget, for example:
+
+@verbatim
+WARMUP_SEC=300 MAIN_SEC=3300 WORKERS=4 \
+  "$BOLOS_SDK"/fuzzing/scripts/app-campaign.sh --app-dir /path/to/app long-run
+@endverbatim
+
+When a long run finds good coverage, promote its corpus so the next run and CI
+start from it — see @ref fuzzing_corpus.
+
+*/

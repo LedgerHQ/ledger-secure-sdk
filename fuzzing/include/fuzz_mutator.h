@@ -1,6 +1,21 @@
 #pragma once
-/* Prefix-aware custom mutator; requires FUZZ_PREFIX_SIZE_FALLBACK, FUZZ_CTRL_OFF/LEN and
- * fuzz_lane_is_structured(). */
+/**
+ * @file fuzz_mutator.h
+ * @brief Prefix-aware LibFuzzer custom mutator.
+ *
+ * LibFuzzer's default mutator treats the input as a flat byte array and would
+ * silently corrupt the Absolution prefix that holds the app's restored global
+ * state.  This header provides @c fuzz_custom_mutator() which keeps prefix and
+ * tail as separate mutation regions: the control bytes are steered
+ * independently, the prefix is mutated in small windows to stay coherent, and
+ * the tail is mutated freely by @c LLVMFuzzerMutate().
+ *
+ * Wire it by defining @c FUZZ_PREFIX_SIZE_FALLBACK, @c FUZZ_CTRL_OFF/LEN, and
+ * @c fuzz_lane_is_structured() from @c mock/scenario_layout.h before including
+ * this header, then forwarding @c LLVMFuzzerCustomMutator() to
+ * @c fuzz_custom_mutator().  See @ref fuzzing_harness for the full pattern.
+ * For TLV-framed payloads see @c tlv_mutator.h.
+ */
 
 #include <stddef.h>
 #include <stdint.h>

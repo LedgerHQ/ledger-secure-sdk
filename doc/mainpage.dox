@@ -69,4 +69,9 @@ This section contains all information necessary to use the U2F API.
 The @subpage ux_mainpage page contains all information necessary to the User eXperience (and partially Graphical Library) for
 applications development.
 
+@section fuzzing_presentation Fuzzing Framework
+
+The @subpage fuzzing_mainpage page explains how to run, integrate, and maintain
+coverage-guided fuzzing for the SDK and Ledger applications.
+
 */

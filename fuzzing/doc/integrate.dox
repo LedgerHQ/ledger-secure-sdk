@@ -1,0 +1,83 @@
+/** @page fuzzing_integrate Integrating an app
+
+This page shows the `fuzzing/` folder an app adds to opt in, who owns each
+file, and the order to create them. Each file has its own reference page,
+linked below. The
+[app-boilerplate](https://github.com/LedgerHQ/app-boilerplate) `fuzzing/`
+folder is the reference to copy and adapt.
+
+@section integ_tree The fuzzing subtree
+
+An integrated app owns this subtree at its root:
+
+@verbatim
+<app>/fuzzing/
+  fuzz-manifest.toml       # what to fuzz: target, seeds, dictionary, coverage
+  CMakeLists.txt           # sources, include dirs, compile definitions
+  harness/
+    fuzz_dispatcher.c      # entry point + adapter to the real dispatcher
+  mock/
+    mocks.h  / mocks.c     # required fuzz symbols + any app-specific stubs
+    scenario_layout.h      # generated; committed with bootstrap values
+  invariants/
+    fuzz_globals.zon       # generated model; git-ignored, never committed
+    zero-symbols.txt       # globals kept out of the prefix
+    domain-overrides.txt   # optional per-field value constraints
+  macros/                  # optional
+    add_macros.txt         # extra -D defines for the fuzz build
+    exclude_macros.txt     # -D defines to drop from the fuzz build
+  base-corpus.zip          # optional promoted seeds (+ base-corpus.compat-key)
+@endverbatim
+
+@section integ_ownership Ownership at a glance
+
+"Owner" is who edits the file: **you** (the app author) or the **tooling**
+(generated, do not hand-edit).
+
+| File | Owner | Reference |
+|------|-------|-----------|
+| `fuzz-manifest.toml`              | you      | @ref fuzzing_manifest |
+| `CMakeLists.txt`                  | you      | @ref fuzzing_cmake |
+| `harness/fuzz_dispatcher.c`       | you      | @ref fuzzing_harness |
+| `mock/mocks.h` / `mocks.c`        | you      | @ref fuzzing_mocks |
+| `mock/scenario_layout.h`          | tooling  | @ref fuzzing_mocks |
+| `invariants/zero-symbols.txt`     | you      | @ref fuzzing_invariants |
+| `invariants/domain-overrides.txt` | you      | @ref fuzzing_invariants |
+| `invariants/fuzz_globals.zon`     | tooling  | @ref fuzzing_invariants |
+| `add_macros.txt` / `exclude_macros.txt` | you | @ref fuzzing_macros |
+| `base-corpus.zip` / `.compat-key` | you      | @ref fuzzing_corpus |
+
+Everything that is *not* app-specific — crypto, NBGL, OS, and SDK library
+mocks — comes from the framework through
+`include(${BOLOS_SDK}/fuzzing/cmake/LedgerAppFuzz.cmake)`. Do not reimplement
+it in the app.
+
+@section integ_steps Integration checklist
+
+1. Copy the boilerplate `fuzzing/` folder into your app and delete the parts
+   you do not need.
+2. Write the @ref fuzzing_manifest "manifest": name the target, list the APDU
+   `CLA`/`INS` to seed, and add a dictionary of meaningful byte tokens.
+3. Adjust the @ref fuzzing_cmake "CMakeLists.txt" so it compiles your app
+   sources (minus `main()`) and points at your include dirs.
+4. Fill in the @ref fuzzing_harness "harness": the command table and the
+   adapter to your real dispatcher.
+5. Provide the @ref fuzzing_mocks "mocks" for the required symbols and any
+   app stub the fuzz build needs (for example a `PRINTF` no-op).
+6. Run a first campaign (@ref fuzzing_running). The first build bootstraps the
+   generated files; expect low coverage until you tune the next step.
+7. Tune the @ref fuzzing_invariants "invariants" (`zero-symbols.txt`,
+   `domain-overrides.txt`) to shorten the prefix and focus the fuzzer.
+8. When coverage is good, @ref fuzzing_corpus "promote the corpus" and wire the
+   app into @ref fuzzing_ci "CI".
+
+@section integ_files File references
+
+- @subpage fuzzing_manifest
+- @subpage fuzzing_cmake
+- @subpage fuzzing_harness
+- @subpage fuzzing_mocks
+- @subpage fuzzing_invariants
+- @subpage fuzzing_macros
+
+*/
