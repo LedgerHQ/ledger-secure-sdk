@@ -5,5 +5,3 @@ const uint8_t *fuzz_tail_ptr = NULL;
 size_t         fuzz_tail_len = 0;
 
 void os_explicit_zero_BSS_segment(void) {}
-
-__attribute__((weak)) void fuzz_app_cleanup(void) {}
