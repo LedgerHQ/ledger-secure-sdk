@@ -1,23 +1,33 @@
 #pragma once
-/* Grammar-aware TLV custom mutator (tail-region only); set current_tlv_fuzz_config before calling
- * tlv_custom_mutate(). */
+/**
+ * @file tlv_mutator.h
+ * @brief Optional grammar-aware TLV mutator for the tail region.
+ *
+ * Keeps mutated tails valid TLV so the fuzzer spends its budget on values
+ * rather than on framing. Set @ref current_tlv_fuzz_config before calling
+ * @ref tlv_custom_mutate(). Opt in per app via LEDGER_FUZZ_TLV_MUTATOR_SOURCE.
+ */
 
 #include <stddef.h>
 #include <stdint.h>
 
+/** @brief Length bounds the mutator keeps for one TLV tag. */
 typedef struct {
-    uint8_t tag;
-    uint8_t min_len;
-    uint8_t max_len;
+    uint8_t tag;      ///< TLV tag byte.
+    uint8_t min_len;  ///< Minimum value length to emit.
+    uint8_t max_len;  ///< Maximum value length to emit.
 } tlv_tag_info_t;
 
+/** @brief The TLV grammar the mutator currently applies (one per command). */
 typedef struct {
-    const tlv_tag_info_t *tags_info;
-    size_t                num_tags;
+    const tlv_tag_info_t *tags_info;  ///< Array of allowed tags.
+    size_t                num_tags;   ///< Number of entries in @ref tags_info.
 } tlv_fuzz_config_t;
 
+/** Active grammar; set it before calling @ref tlv_custom_mutate(). */
 extern tlv_fuzz_config_t current_tlv_fuzz_config;
 
+/** @brief Mutate a TLV byte range in place, preserving valid framing. */
 size_t tlv_custom_mutate(uint8_t *data, size_t size, size_t max_size, unsigned int seed);
 
 /* Indexed-grammar dispatch helper: picks the active command's grammar from configs[] and mutates

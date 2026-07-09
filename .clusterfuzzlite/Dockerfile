@@ -3,7 +3,7 @@
 FROM gcr.io/oss-fuzz-base/base-builder:v1
 
 RUN pip3 install --break-system-packages --no-cache-dir pillow>=3.4.0
-RUN apt update && apt install -y ninja-build zip
+RUN apt update && apt install -y ninja-build
 
 COPY . $SRC/ledger-secure-sdk
 

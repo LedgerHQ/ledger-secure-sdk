@@ -1,6 +1,15 @@
 #pragma once
-/* Generic Absolution APDU harness providing the default fuzz_entry() body; the app supplies
- * fuzz_commands[]/fuzz_app_* and the fuzz_* symbols declared in its mocks.h. */
+/**
+ * @file fuzz_harness.h
+ * @brief Default APDU harness body for a fuzz target.
+ *
+ * Including this header gives a target the standard @c fuzz_harness_entry()
+ * implementation: it turns one fuzzer input into one APDU and dispatches it
+ * through the app. The app supplies the command table (@ref fuzz_commands), the
+ * required @c fuzz_app_reset() / @c fuzz_app_dispatch() callbacks, and the
+ * @c fuzz_* symbols from its mocks.h. @c fuzz_app_cleanup() is optional: the
+ * framework ships a weak no-op default that an app may override.
+ */
 
 #include <stddef.h>
 #include <stdint.h>
@@ -10,17 +19,20 @@
 #include "mocks.h"
 #include "parser.h"
 
-extern const fuzz_command_spec_t fuzz_commands[];
-extern const size_t              fuzz_n_commands;
-extern void                      fuzz_app_reset(void);
-extern void                      fuzz_app_dispatch(void *cmd);
-extern void                      fuzz_app_cleanup(void);
+extern const fuzz_command_spec_t fuzz_commands[];  ///< App command table.
+extern const size_t              fuzz_n_commands;  ///< Number of entries in @ref fuzz_commands.
+extern void fuzz_app_reset(void);          ///< Reset app state before each iteration (required).
+extern void fuzz_app_dispatch(void *cmd);  ///< Dispatch one @c command_t to the app (required).
+extern void fuzz_app_cleanup(
+    void);  ///< Optional per-iteration teardown; a weak no-op default is provided.
 
+/** @brief Whether control byte 0 selects the structured lane. */
 static inline int fuzz_use_structured_lane(void)
 {
     return fuzz_ctrl[0] > FUZZ_STRUCTURED_LANE_THRESHOLD;
 }
 
+/** @brief Clamp a raw P1/P2 byte to the command's declared maximum (0 = full range). */
 static inline uint8_t fuzz_clamp_p(uint8_t raw, uint8_t p_max)
 {
     if (p_max == 0) {
@@ -29,7 +41,7 @@ static inline uint8_t fuzz_clamp_p(uint8_t raw, uint8_t p_max)
     return raw % (p_max + 1);
 }
 
-/* Apps may override these macros before inclusion to install lane-specific command tables. */
+/** Apps may override these macros before inclusion to install lane-specific command tables. */
 #ifndef FUZZ_PICK_COMMAND_STRUCTURED
 #define FUZZ_PICK_COMMAND_STRUCTURED(data, size) (&fuzz_commands[fuzz_ctrl[1] % fuzz_n_commands])
 #endif
@@ -47,6 +59,13 @@ static void fuzz_harness_cleanup(void)
     memset(&fuzz_exit_jump_ctx, 0, sizeof(fuzz_exit_jump_ctx));
 }
 
+/**
+ * @brief Default @c fuzz_entry() body: run one fuzzer input as one APDU.
+ *
+ * Reads the first 4 bytes as CLA/INS/P1/P2 selectors, exposes the rest as the
+ * APDU payload, picks a command from @ref fuzz_commands, and dispatches it.
+ * @return 0 when the input was processed, -1 when it was too short to use.
+ */
 static int fuzz_harness_entry(const uint8_t *data, size_t size)
 {
     try_context_set(&fuzz_exit_jump_ctx);

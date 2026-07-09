@@ -1,0 +1,89 @@
+/** @page fuzzing_cmake The CMake integration
+
+An app's `fuzzing/CMakeLists.txt` includes one SDK module, calls
+`ledger_fuzz_setup()`, and registers its target with
+`ledger_fuzz_add_app_target()`. The module pulls in the whole SDK fuzz subtree
+(mocks, libraries, Absolution) so the app only lists its own sources.
+
+@section cm_shape Recommended shape
+
+@code{.cmake}
+cmake_minimum_required(VERSION 3.14)
+project(MyAppFuzzer VERSION 1.0 LANGUAGES C)
+
+if(NOT DEFINED BOLOS_SDK)
+  message(FATAL_ERROR "BOLOS_SDK must be defined")
+endif()
+
+include(${BOLOS_SDK}/fuzzing/cmake/LedgerAppFuzz.cmake)
+ledger_fuzz_setup()
+
+set(APP_SOURCE_DIR ${CMAKE_SOURCE_DIR}/..)
+file(GLOB_RECURSE C_SOURCES
+  "${APP_SOURCE_DIR}/src/*.c"
+  "${CMAKE_SOURCE_DIR}/mock/*.c")
+list(REMOVE_ITEM C_SOURCES "${APP_SOURCE_DIR}/src/main.c")   # LibFuzzer owns main()
+
+ledger_fuzz_add_app_target(
+    SOURCES             ${C_SOURCES}
+    INCLUDE_DIRECTORIES ${APP_SOURCE_DIR}/src/ ${CMAKE_SOURCE_DIR}/mock/ ${CMAKE_SOURCE_DIR}
+    COMPILE_DEFINITIONS HAVE_SWAP)     # app-specific flags only
+@endcode
+
+Always exclude the app's real `main()`: LibFuzzer provides the entry point.
+
+@section cm_setup ledger_fuzz_setup()
+
+Call once after `project()`. It:
+
+- resolves Absolution (downloads the pinned release, or uses a local install),
+- adds the SDK fuzz subtree (mocks + instrumented SDK libraries),
+- bootstraps missing generated files so a fresh checkout configures cleanly:
+  `invariants/fuzz_globals.zon` becomes `.{}` and `mock/scenario_layout.h`
+  gets sentinel values,
+- requires `mock/mocks.h` to exist (it is app-owned; see @ref fuzzing_mocks).
+
+@section cm_target ledger_fuzz_add_app_target()
+
+A thin wrapper over Absolution's `absolution_add_fuzzer()` for the shape Ledger
+apps share. It links `secure_sdk` automatically.
+
+| Argument | Type | Default | Meaning |
+|----------|------|---------|---------|
+| `NAME`                | one   | `fuzz_globals` | Target name; must match `[target].fuzzer` in the manifest |
+| `HARNESS`             | one   | `harness/fuzz_dispatcher.c` | Harness translation unit |
+| `ENTRY`               | one   | `fuzz_entry` | Entry function the generated fuzzer calls |
+| `INVARIANT`           | one   | `invariants/fuzz_globals.zon` | Absolution model file |
+| `SANITIZERS`          | one   | auto-resolved | `-fsanitize=` set (see below) |
+| `SOURCES`             | list  | —       | App + mock sources to instrument (add the opt-in TLV mutator source here) |
+| `INCLUDE_DIRECTORIES` | list  | —       | Include paths for the build |
+| `COMPILE_DEFINITIONS` | list  | —       | App-specific `-D` defines |
+
+`SANITIZERS` is normally left unset: in CI it mirrors ClusterFuzzLite's flags,
+otherwise it follows the `SANITIZER` variable, defaulting to `fuzzer,address`.
+Apps with a non-standard layout can pass any argument explicitly, or bypass the
+helper and call `absolution_add_fuzzer()` directly.
+
+@section cm_vars Configuration variables
+
+Set with `-D<VAR>=...` at configure time, or as environment variables where
+noted.
+
+| Variable | Default | Meaning |
+|----------|---------|---------|
+| `LEDGER_FUZZ_ABSOLUTION_VERSION`   | `v1.1.2` | Absolution release tag to fetch |
+| `LEDGER_FUZZ_ABSOLUTION_LOCAL_DIR` | unset | Local Absolution install (var **or** env); skips the download |
+| `LEDGER_FUZZ_TLV_MUTATOR_SOURCE`   | SDK `mock/tlv_mutator.c` | Source for the opt-in TLV mutator (see @ref fuzzing_harness) |
+
+@section cm_absolution Absolution and offline builds
+
+On first configure, `ledger_fuzz_setup()` downloads the pinned Absolution
+release with CMake `FetchContent` and wires up its CMake package and RPATHs.
+For offline machines or an unreleased Absolution, point at a local install
+containing `bin/absolution` and `lib/cmake/Absolution/`:
+
+@verbatim
+export LEDGER_FUZZ_ABSOLUTION_LOCAL_DIR=/absolute/path/to/absolution
+@endverbatim
+
+*/

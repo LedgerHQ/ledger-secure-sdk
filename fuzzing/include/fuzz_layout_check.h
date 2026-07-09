@@ -1,6 +1,11 @@
 #pragma once
-/* Compile-time layout consistency checks; include after scenario_layout.h and the FUZZ_* mutator
- * macros. */
+/**
+ * @file fuzz_layout_check.h
+ * @brief Compile-time assertions that the prefix layout is self-consistent.
+ *
+ * Include after scenario_layout.h and the FUZZ_* mutator macros so a bad
+ * control/app-data region is caught at build time rather than at runtime.
+ */
 
 #ifdef SCEN_PREFIX_SIZE
 

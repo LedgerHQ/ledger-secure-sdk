@@ -1,0 +1,85 @@
+/** @page fuzzing_mocks The mocks
+
+The `mock/` folder holds the small, app-owned host-side glue. Everything
+generic — crypto, NBGL, OS, syscalls, SDK libraries — is provided by the
+framework and linked through `secure_sdk`; do **not** reimplement it here.
+
+@section mck_required Required symbols
+
+`mock/mocks.h` declares the symbols the harness and framework read:
+
+@code{.c}
+#pragma once
+#include <stddef.h>
+#include <stdint.h>
+#include "fuzz_defs.h"
+#include "exceptions.h"
+
+extern try_context_t fuzz_exit_jump_ctx;   /* longjmp target used to unwind os_exit */
+
+#define FUZZ_CTRL_SIZE 16
+extern uint8_t        fuzz_ctrl[FUZZ_CTRL_SIZE];  /* control bytes (lane, command…) */
+extern const uint8_t *fuzz_tail_ptr;              /* APDU tail pointer */
+extern size_t         fuzz_tail_len;              /* APDU tail length */
+@endcode
+
+`mock/mocks.c` defines them:
+
+@code{.c}
+#include "mocks.h"
+
+uint8_t        fuzz_ctrl[FUZZ_CTRL_SIZE];
+const uint8_t *fuzz_tail_ptr = NULL;
+size_t         fuzz_tail_len = 0;
+@endcode
+
+@note `fuzz_app_cleanup()` is **not** required here. The framework ships a weak
+no-op default, so define it (in the harness or here) only if your target needs
+per-iteration teardown.
+
+@section mck_stubs Recommended stubs
+
+Most apps also add two small no-ops in `mocks.c`:
+
+@code{.c}
+#include <stdarg.h>
+
+/* PRINTF is removed from the macro set for fuzz builds (see the Build macros
+ * page) so app sources compile it as a real call. This keeps it a no-op. */
+int PRINTF(const char *format, ...) { (void) format; return 0; }
+
+/* Zeroing BSS would erase the prefix state Absolution restores each iteration. */
+void os_explicit_zero_BSS_segment(void) {}
+@endcode
+
+Add any other app-specific stub the fuzz build needs the same way (a hardware
+peripheral the host cannot provide, for instance). Keep them minimal and
+side-effect free.
+
+@section mck_layout mock/scenario_layout.h
+
+This header is **tooling-owned**. It records the prefix layout for the current
+build:
+
+@code{.c}
+#pragma once
+#define SCEN_PREFIX_SIZE 64
+#define SCEN_CTRL_OFF    0
+#define SCEN_CTRL_LEN    16
+@endcode
+
+`ledger_fuzz_setup()` bootstraps it with the sentinel values above on a fresh
+checkout, and `scripts/update-scenario-layout.py` rewrites the numbers after
+every build. Commit the bootstrap version so a clone configures cleanly, but do
+not stage the locally rewritten numbers — the harness reads the fresh values at
+build time. Advanced apps may append extra `SCEN_*` offsets via
+`[layout].extra_args` (see @ref fuzzing_manifest).
+
+@section mck_overrides Overriding a shared mock
+
+If an app must supply its own version of a symbol the shared mocks already
+provide, list the replacement source in the manifest's
+`[mocks].override_sources` (see @ref fuzzing_manifest) rather than editing the
+SDK. This is rarely needed.
+
+*/

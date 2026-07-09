@@ -1,0 +1,32 @@
+/** @page fuzzing_macros Build macros
+
+The fuzz build reuses the app's real compile-time `-D` defines so fuzzed code
+matches the device build. It extracts them from the app Makefile
+(`make list-defines`) and then lets you adjust the set for the host build. Both
+files are optional; most apps need neither.
+
+@section mac_add macros/add_macros.txt
+
+Extra `-D` defines appended to the extracted set. Use it when the fuzz build
+needs a flag the release build does not. One define per line; `#` starts a
+comment:
+
+@verbatim
+# enable a code path only exercised under fuzzing
+FUZZ_APP_EXTRA_FEATURE=1
+@endverbatim
+
+@section mac_exclude macros/exclude_macros.txt
+
+Defines to remove from the extracted set. Use it to strip a release-only shim
+that breaks on the host. One define per line; `#` starts a comment:
+
+@verbatim
+SOME_RELEASE_ONLY_FLAG
+@endverbatim
+
+At SDK level this is how `PRINTF(...)=` is removed so app sources compile real
+`PRINTF` calls, which the app then satisfies with a no-op stub in `mocks.c`
+(see @ref fuzzing_mocks).
+
+*/

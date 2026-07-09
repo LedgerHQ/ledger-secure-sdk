@@ -1,0 +1,137 @@
+/** @page fuzzing_mainpage Fuzzing Framework
+
+@section fuzzing_intro Introduction
+
+Fuzzing feeds an application a stream of automatically generated, mostly
+invalid inputs and watches for crashes, memory errors, and undefined
+behaviour. It is one of the cheapest ways to find the parsing and
+state-handling bugs that matter most on a signing device, because it explores
+inputs no hand-written test would think to try.
+
+This framework runs a Ledger app on a Linux host and fuzzes it with
+[LibFuzzer](https://llvm.org/docs/LibFuzzer.html) under Clang's
+address / undefined-behaviour / memory sanitizers. Each fuzz *target* is a
+single self-contained binary that drives one APDU (or one library entry point)
+through the **same** code the device runs. When a target hits a bug it stops,
+prints a report, and writes the offending input to a `crash-*` file so it can
+be replayed.
+
+The framework lives entirely in the SDK, under `${BOLOS_SDK}/fuzzing/`. An app
+opts in by adding a small `fuzzing/` folder and including one CMake module;
+nothing is copied out of the SDK. Its primary home is **continuous
+integration**: every pull request fuzzes the changed code so regressions are
+caught before they reach `master` and a release (see @ref fuzzing_ci).
+
+@note You do not need to understand the internal state engine to use the
+framework. These pages cover everything from an app developer's point of view.
+New to the framework? Read this page, then @ref fuzzing_running, then
+@ref fuzzing_integrate.
+
+@section fuzzing_concepts Key concepts
+
+- **Target** — one fuzz binary. Most apps ship a single target; the SDK's own
+  self-fuzz suite ships several (one per library under test).
+
+- **Campaign** — one fuzzing run of a target. The `app-campaign.sh` script
+  builds the target, generates starter inputs, runs a short **warmup** phase
+  (find coverage fast) followed by a longer **main** phase (dig deeper), then
+  replays the surviving inputs against a coverage build to produce an HTML
+  report. See @ref fuzzing_running.
+
+- **Seed** — a starter input handed to the fuzzer before it begins mutating.
+  Good seeds reach interesting code quickly. The framework generates seeds
+  automatically from the target's manifest.
+
+- **Corpus** — the set of inputs the fuzzer keeps because each one reached a
+  new code path. A campaign grows its corpus from the seeds; the fuzzer adds
+  interesting inputs and drops redundant ones as it runs.
+
+- **Base corpus** — a corpus promoted from a previous campaign and checked into
+  the app so future runs (and CI) start from known coverage instead of from
+  scratch. See @ref fuzzing_corpus.
+
+- **Compatibility key** — a short hash that ties a corpus to the build that
+  produced it (prefix size, invariant, target name, and manifest
+  `harness_version`). Tooling refuses to reuse a base corpus whose key does not
+  match the current build, which prevents feeding stale inputs to a changed
+  binary.
+
+@section fuzzing_model How an input is interpreted
+
+Every fuzzer input is two regions:
+
+@verbatim
+[ prefix | tail ]
+@endverbatim
+
+- The **prefix** (first N bytes) is decoded into the app's **global state**
+  before the app runs, so a single input can put the app into a state that
+  would normally take several messages to reach. The framework discovers which
+  bytes map to which globals automatically; you shape it with the
+  @ref fuzzing_invariants files, never by hand.
+
+- The **tail** is the data the app then processes — typically one APDU. The
+  standard harness reads the first 4 tail bytes as `CLA` / `INS` / `P1` / `P2`
+  and passes the rest as the APDU payload.
+
+The split point (prefix size) is recomputed after every build and written to
+`mock/scenario_layout.h`; you never edit it by hand.
+
+@subsection fuzzing_model_lanes Control bytes and lanes
+
+A small **control region** at the start of the prefix (`fuzz_ctrl`) steers the
+harness without spending tail bytes:
+
+- `fuzz_ctrl[0]` selects a **lane**.  Above the fixed threshold
+  `FUZZ_STRUCTURED_LANE_THRESHOLD` (102) the harness takes the *structured*
+  lane; at or below it the *raw* lane.
+- `fuzz_ctrl[1]` picks which entry of the command table to run in the
+  structured lane (the raw lane uses the second tail byte instead).
+
+**Structured lane** — the harness selects a command from the table, clamps
+P1/P2 to their declared maxima, and builds a syntactically correct APDU.
+It drives the happy path and multi-step flows efficiently.
+
+**Raw lane** — every APDU field, including the command selector, is taken
+directly from the tail bytes without clamping or correction.  It exercises
+parsing edges and error paths that well-formed inputs never reach.
+
+The threshold 102 divides the 0–255 range roughly 40 / 60 (raw / structured)
+so each lane gets a meaningful share of the corpus automatically.
+
+**Most apps need only one command table.**  Define a single `fuzz_commands[]`
+covering all your APDUs and both lanes will exercise every command: the
+structured lane via `fuzz_ctrl[1]`, the raw lane via the tail bytes.  You
+only need separate tables — and must override `FUZZ_PICK_COMMAND_STRUCTURED` /
+`FUZZ_PICK_COMMAND_RAW` — when two entry paths are structurally different enough
+to warrant it (for example a normal APDU handler and a swap callback that share
+no commands).  See @ref fuzzing_harness for the override macros.
+
+@subsection fuzzing_model_flow One iteration, end to end
+
+@verbatim
+LibFuzzer
+  |-> (Absolution-generated entry)      restore globals from the prefix
+        |-> fuzz_entry                  app, in harness/fuzz_dispatcher.c
+              |-> fuzz_harness_entry     SDK, fuzzing/include/fuzz_harness.h
+                    |- pick a command from fuzz_commands[]
+                    |- build one APDU from the tail
+                    |-> fuzz_app_dispatch    app adapter
+                          |-> the real app dispatcher (device code)
+@endverbatim
+
+Because state that would normally accumulate over several messages is restored
+directly into globals, one APDU per iteration is enough for coverage-guided
+fuzzing.
+
+@section fuzzing_guide Guide
+
+| Page | What it covers |
+|------|----------------|
+| @subpage fuzzing_running     | Run a campaign, read its output, tune duration and workers |
+| @subpage fuzzing_integrate   | Add fuzzing to an app: the `fuzzing/` tree and each file in it |
+| @subpage fuzzing_corpus      | Promote, reuse, and version a corpus |
+| @subpage fuzzing_ci          | How fuzzing runs in CI and how to keep it healthy |
+| @subpage fuzzing_reference   | Headers, scripts, environment variables, and layout |
+
+*/

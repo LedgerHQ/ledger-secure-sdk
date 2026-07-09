@@ -335,9 +335,7 @@ run_single_target() {
   echo "  Preparing bootstrap corpus for ${target_name}..."
   generate_app_seed_corpus "${bootstrap_dir}" "${target_name}"
 
-  if [[ -n "${BASE_CORPUS_DIR:-}" && -d "${BASE_CORPUS_DIR}" ]]; then
-    copy_bootstrap_corpus "${BASE_CORPUS_DIR}" "${bootstrap_dir}" "base corpus" "${compat_key}"
-  fi
+  stage_base_corpus "${bootstrap_dir}" "${compat_key}"
 
   if [[ -n "${EXTRA_CORPUS}" ]]; then
     local old_ifs="${IFS}"

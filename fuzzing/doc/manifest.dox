@@ -1,0 +1,169 @@
+/** @page fuzzing_manifest The fuzz manifest
+
+`fuzz-manifest.toml` is the declarative description of what to fuzz. The
+campaign and CI read it to generate seeds, build a dictionary, compute the
+corpus compatibility key, and drive the coverage report. It comes in two
+shapes; the tooling detects which one is in use.
+
+@section man_single Single-target manifest
+
+Most apps ship one fuzzer and use a `[target]` table:
+
+@verbatim
+[target]
+fuzzer = "fuzz_globals"      # target name; also the binary name
+harness_version = "1"        # bump to invalidate old corpora (see below)
+
+[coverage]
+key_files = ["src/handler/get_public_key.c"]   # files to report coverage for
+
+[seeds]
+cla = 0xE0                   # APDU class byte used for generated seeds
+ins = [0x01, 0x02, 0x03]     # one seed per instruction byte
+
+[dictionary]
+tokens = [
+    { name = "p2_first",  value = "\\x00" },
+    { name = "magic",     value = "BTC" },
+]
+@endverbatim
+
+Required: `[target].fuzzer`, `[target].harness_version`,
+`[coverage].key_files`, `[seeds].cla`, `[seeds].ins`. Everything else is
+optional.
+
+@section man_multi Multi-target manifest
+
+Trees with several fuzzers (the SDK self-fuzz suite, or an app that fuzzes
+several libraries) use a `[sdk]` table plus one `[[targets]]` entry per binary:
+
+@verbatim
+[sdk]
+harness_version = "2"        # inherited by every target unless overridden
+
+[coverage]
+exclude_regexes = [          # drop framework/harness files from the report
+    '.*fuzzing/mock/.*',
+    '.*fuzz_dispatcher\.c',
+]
+
+[[targets]]
+fuzzer = "fuzz_base58"
+key_files = ["lib_standard_app/base58.c"]
+seeds = { cla = 0x00, ins = [0x01, 0x02, 0x03] }
+
+[targets.dictionary]
+tokens = [
+    { name = "b58_addr", value = "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa" },
+]
+
+[[targets]]
+fuzzer = "fuzz_bip32"
+key_files = ["lib_standard_app/bip32.c"]
+seeds = { cla = 0x00, ins = [0x01] }
+@endverbatim
+
+Each `[[targets]]` entry inherits `harness_version` from `[sdk]` (and may
+override it), and `[coverage].exclude_regexes` is shared by all targets. A
+campaign runs every target, or a `--target`-filtered subset, and produces one
+combined coverage report.
+
+@note `[targets.dictionary]` is TOML's syntax for a sub-table of the *last*
+`[[targets]]` entry. Keep it directly under the entry it belongs to.
+
+@section man_fields Field reference
+
+@subsection man_target [target] / [sdk]
+
+| Key | Required | Meaning |
+|-----|----------|---------|
+| `fuzzer`          | yes | Target name, and the name of the built binary |
+| `harness_version` | yes | Opaque version string in the compatibility key |
+
+In a multi-target manifest, `harness_version` lives in `[sdk]` (or at the top
+level) and each `[[targets]]` entry provides its own `fuzzer`.
+
+@subsection man_coverage [coverage]
+
+| Key | Required | Meaning |
+|-----|----------|---------|
+| `key_files`       | yes (single) | Files the `key-files-coverage.txt` summary focuses on |
+| `exclude_regexes` | no  | Regexes of paths to drop from the report (mock/harness noise) |
+
+In a multi-target manifest `key_files` is set per `[[targets]]` entry.
+
+@subsection man_seeds [seeds]
+
+The generic seed generator turns these into starter APDUs.
+
+| Key | Required | Meaning |
+|-----|----------|---------|
+| `cla` | yes | APDU class byte |
+| `ins` | yes | Array of instruction bytes; one seed per value |
+| `generic.enabled` | no (default `true`)  | Emit generic APDU seeds |
+| `custom.enabled`  | no (default `false`) | Also run a custom generator (see below) |
+| `custom.script`   | when custom enabled  | Path to a `script.py <out_dir>` seed generator |
+
+A custom generator is resolved relative to the fuzzing folder, then `APP_DIR`,
+then the SDK scripts directory:
+
+@verbatim
+[seeds]
+cla = 0xE0
+ins = [0x01]
+
+[seeds.custom]
+enabled = true
+script  = "scripts/generate-seeds-eth.py"
+@endverbatim
+
+@subsection man_dictionary [dictionary]
+
+`tokens` become a LibFuzzer dictionary that biases mutation toward meaningful
+byte sequences (tags, magic strings, enum values). Each token is
+`{ name = "...", value = "..." }`. Use `\\xNN` in the TOML value to emit a
+`\xNN` byte in the dictionary:
+
+@verbatim
+[dictionary]
+tokens = [
+    { name = "tag_version", value = "\\x02" },
+    { name = "ticker",      value = "USD" },
+]
+@endverbatim
+
+@subsection man_mocks [mocks]
+
+| Key | Required | Meaning |
+|-----|----------|---------|
+| `override_sources` | no | App sources that replace an SDK mock for this target |
+
+Use this only when an app must supply its own version of a symbol the shared
+mocks already provide. Most apps leave it empty.
+
+@subsection man_layout [layout]
+
+| Key | Required | Meaning |
+|-----|----------|---------|
+| `extra_args` | no | Extra arguments passed to `update-scenario-layout.py` |
+
+Advanced apps use this to expose additional named globals in
+`scenario_layout.h` (for example an app-data window reused from both C and
+the layout tooling). Most apps do not need it.
+
+@section man_compat harness_version and the compatibility key
+
+`harness_version` is one input to the corpus **compatibility key**:
+
+@verbatim
+sha256( prefix_size || sha256(fuzz_globals.zon) || fuzzer || harness_version )
+@endverbatim
+
+A promoted @ref fuzzing_corpus "base corpus" is only reused when its key
+matches the current build. Bump `harness_version` whenever a change makes older
+corpora meaningless — for example when you change how the tail is parsed into an
+APDU, or change the command table in a way that shifts what an input means.
+Sanitizer, SDK, and toolchain changes are already captured by the other key
+components, so they do not need a manual bump.
+
+*/
