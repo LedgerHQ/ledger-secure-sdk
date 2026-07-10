@@ -689,10 +689,11 @@ void layoutAddObject(nbgl_layoutInternal_t *layout, nbgl_obj_t *obj)
 /**
  * @brief add the swipe feature to the main container
  *
- * @param layout the current layout
- * @param token the token that will be used as argument of the callback
+ * @param layoutInt the current layout
  * @param swipesMask the type of swipes to be handled by the container
  * @param usage usage of the swipe (custom or navigation)
+ * @param token the token that will be used as argument of the callback
+ * @param tuneId tune to play when a swipe is detected
  * @return >= 0 if OK
  */
 static int addSwipeInternal(nbgl_layoutInternal_t *layoutInt,
@@ -722,9 +723,9 @@ static int addSwipeInternal(nbgl_layoutInternal_t *layoutInt,
 /**
  * @brief Adds a item of a list. An item can be a touchable bar or a switch
  *
- * @param layout the current layout
- * @param barLayout the properties of the bar
- * @return the height of the bar if OK
+ * @param layoutInt the current layout
+ * @param itemDesc the properties of the item
+ * @return the created container if OK
  */
 static nbgl_container_t *addListItem(nbgl_layoutInternal_t *layoutInt, const listItem_t *itemDesc)
 {
@@ -896,7 +897,7 @@ static nbgl_container_t *addListItem(nbgl_layoutInternal_t *layoutInt, const lis
  * @brief Creates a container on the center of the main panel, with a possible icon,
  * and possible texts under it
  *
- * @param layout the current layout
+ * @param layoutInt the current layout
  * @param info structure giving the description of the Content Center
  * @return the created container
  */

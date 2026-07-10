@@ -1,10 +1,590 @@
 /** @page standard_app_mainpage Standard Application Framework
 
+@tableofcontents
+
 @section standard_app_mainpage_intro Introduction
 
-This page describes a framework of utilities to be used with a standard application. It includes the \b main() entry point,
-and many helpers like APDU parser skeleton, IO parser, and standard crypto (like derivation) and buffer management.
+`lib_standard_app` is a C framework that provides the common infrastructure
+every Ledger application needs:
+- An APDU I/O loop,
+- Command parsing,
+- Buffer and
+- Integer helpers,
+- BIP32 key derivation,
+- Cryptographic signing wrappers,
+- NVM storage, and
+- Exchange-swap integration.
 
-@note TO BE COMPLETED
+All public symbols that have a sensible default are declared `WEAK` so any
+application can override them without relinking the whole library.
+
+The only mandatory symbol an application must provide is:
+
+@code{.c}
+void app_main(void);
+@endcode
+
+<br>
+
+---
+
+@section standard_app_arch Architecture Overview
+
+@code
+ ┌────────────────────────────────────────────────────────────────────────────────────┐
+ │  BOOT  main.c · main_std_app.h                              [all symbols: WEAK]    │
+ │                                                                                    │
+ │  arg0 == 0 → standalone_app_main() → common_app_init() → app_main()                │
+ │  arg0 != 0 → library_app_main()  [HAVE_SWAP]                                       │
+ │               ├─ SIGN_TRANSACTION    → swap_copy_transaction_parameters()          │
+ │               ├─ CHECK_ADDRESS       → swap_handle_check_address()                 │
+ │               └─ GET_PRINTABLE_AMOUNT → swap_handle_get_printable_amount()         │
+ └──────────────────────────────────────────────────┬─────────────────────────────────┘
+                                                    │
+ ┌──────────────────────────────────────────────────▼─────────────────────────────────┐
+ │  APPLICATION  app_main()  — coin-application code (mandatory)                      │
+ │                                                                                    │
+ │   io_init()                                                                        │
+ │   for (;;) {                                                                       │
+ │       len = io_recv_command()                         ◄──── I/O layer              │
+ │       apdu_parser(buf, len)  →  command_t             ◄──── APDU Parser            │
+ │       dispatch(cmd)  →  handler()                                                  │
+ │       io_send_sw(sw) / io_send_response_*(…, sw)      ────► I/O layer              │
+ │   }                                                                                │
+ └──────────────────────┬───────────────────────────────┬─────────────────────────────┘
+                        │                               │
+    ┌───────────────────▼──────────────────┐  ┌─────────▼──────────────────────────┐    ┌───────────────────────────────────────────┐
+    │  I/O  io.h · io.c                    │  │  ┌──────────────────────────────┐  │    │  HELPERS                                  │
+    │                                      │  │  │  APDU PARSER  parser.h / .c  │  │    │                                           │
+    │  io_init()                           │  │  │                              │  │    │  ┌─────────────────────────────────────┐  │
+    │  io_recv_command()  → int            │  │  │  apdu_parser(cmd, buf, len)  │  │    │  │  BUFFER  buffer.h/.c                │  │
+    │  io_send_sw(sw)                      │  │  │  command_t {                 │  │    │  │  buffer_t { ptr, size, offset }     │  │
+    │  io_send_response_buffers(…, sw)     │  │  │    cla ins p1 p2 lc *data    │  │    │  │  buffer_create()                    │  │
+    │  io_send_response_pointer(…, sw)     │  │  │  }                           │  │    │  │  buffer_read_u8/u16/u32/u64()       │  │
+    │  io_send_response_buffer(…, sw)      │  │  │  offsets.h: OFFSET_*         │  │    │  │  buffer_read_varint/bip32_path()    │  │
+    │  app_ticker_event_callback()  [WEAK] │  │  └──────────────────────────────┘  │    │  │  buffer_read_bytes() · peek()       │  │
+    │                                      │  │                                    │    │  │  buffer_write_u8/u16/u32/u64()      │  │
+    │  ── transports ────────────────────  │  │  ┌──────────────────────────────┐  │    │  │  buffer_write_bytes()               │  │
+    │  USB · BLE · NFC · seproxyhal events │  │  │  SWAP  [HAVE_SWAP]           │  │    │  │  buffer_seek_set/cur/end()          │  │
+    └──────────────────────────────────────┘  │  │  swap.h                      │  │    │  │  buffer_copy() · buffer_move()      │  │
+                                              │  │  swap_utils.h/.c             │  │    │  └─────────────┬───────────────────────┘  │
+                                              │  │  swap_err_code_helpers.h/.c  │  │    │                │ uses                     │
+                                              │  │                              │  │    │  ┌─────────────▼───────────────────────┐  │
+                                              │  │  Coin app callbacks:         │  │    │  │  LOW-LEVEL R/W  (internal)          │  │
+                                              │  │    check_address()           │  │    │  │  read.h/.c · write.h/.c             │  │
+                                              │  │    get_printable_amount()    │  │    │  │  read/write_u16/u32/u64_be/le()     │  │
+                                              │  │    copy_tx_params()          │  │    │  │  (bounds-unchecked, internal)       │  │
+                                              │  │  Helpers:                    │  │    │  └─────────────────────────────────────┘  │
+                                              │  │    swap_str_to_u64()         │  │    │                                           │
+                                              │  │    swap_parse_config()       │  │    │  ┌─────────────────────────────────────┐  │
+                                              │  │    send_swap_error_*()       │  │    │  │  BIP32  bip32.h/.c                  │  │
+                                              │  └──────────────────────────────┘  │    │  │  path_bip32_t { len, path[10] }     │  │
+                                              └────────────────────────────────────┘    │  │  bip32_path_read()                  │  │
+                                                                                        │  │  bip32_path_format[_simple]()       │  │
+                                                                                        │  └─────────────────────────────────────┘  │
+                                                                                        │                                           │
+                                                                                        │  ┌─────────────────────────────────────┐  │
+                                                                                        │  │  ENCODING                           │  │
+                                                                                        │  │  base58.h/.c                        │  │
+                                                                                        │  │    base58_encode() / decode()       │  │
+                                                                                        │  │  varint.h/.c                        │  │
+                                                                                        │  │    varint_read/write/size()         │  │
+                                                                                        │  │  format.h/.c                        │  │
+                                                                                        │  │    format_i64() / format_u64()      │  │
+                                                                                        │  │    format_fpu64[_trimmed]()         │  │
+                                                                                        │  │    format_hex()                     │  │
+                                                                                        │  └─────────────────────────────────────┘  │
+                                                                                        │                                           │
+                                                                                        │  ┌─────────────────────────────────────┐  │
+                                                                                        │  │  CRYPTO  crypto_helpers.h/.c        │  │
+                                                                                        │  │  WARN_UNUSED_RESULT · cx_err_t      │  │
+                                                                                        │  │  explicit_bzero on success/fail     │  │
+                                                                                        │  │  bip32_derive_init_privkey_256()    │  │
+                                                                                        │  │  bip32_derive_get_pubkey_256()      │  │
+                                                                                        │  │  bip32_derive_ecdsa_sign_*256()     │  │
+                                                                                        │  │  bip32_derive_eddsa_sign_*256()     │  │
+                                                                                        │  │  [+ _with_seed_ variants]           │  │
+                                                                                        │  └─────────────────────────────────────┘  │
+                                                                                        │                                           │
+                                                                                        │  ┌─────────────────────────────────────┐  │
+                                                                                        │  │  NVM STORAGE [HAVE_APP_STORAGE]     │  │
+                                                                                        │  │  app_storage.h/.c                   │  │
+                                                                                        │  │  CRC32-protected NVM area           │  │
+                                                                                        │  │  app_storage_write/read/reset()     │  │
+                                                                                        │  │  get/incr_data_version()            │  │
+                                                                                        │  │  get_size() · get_properties()      │  │
+                                                                                        │  │  get_size() · get_properties()      │  │
+                                                                                        │  └─────────────────────────────────────┘  │
+                                                                                        └───────────────────────────────────────────┘
+@endcode
+
+<br>
+
+---
+
+@section standard_app_entry Application Entry Point
+
+<b>Files:</b> `main.c`, `main_std_app.h`
+
+Provides the `main()` entry point (placed in `.boot`). On startup it detects
+the launch mode:
+- <b>Standalone</b> (`arg0 == 0`):<br>
+  Calls `standalone_app_main()` → `common_app_init()` → `app_main()`.
+
+- <b>Exchange library</b> (`arg0 != 0`, requires `HAVE_SWAP`):<br>
+  Calls `library_app_main()` which dispatches `SIGN_TRANSACTION`, `CHECK_ADDRESS`, or `GET_PRINTABLE_AMOUNT` to the coin-application callbacks.
+
+| Function | Description |
+|---|---|
+| @ref app_exit() "app_exit()" | Stops I/O and returns to the dashboard via `os_sched_exit(-1)`. Declared `noreturn`. |
+| @ref common_app_init() "common_app_init()" | Initialises UX, seproxyhal I/O, and — when `HAVE_APP_STORAGE` is defined — NVM storage. |
+| @ref standalone_app_main() "standalone_app_main()" | Default standalone entry; resets swap globals, calls `common_app_init()` then `app_main()`. |
+| @ref library_app_main() "library_app_main()" | Exchange library dispatcher (requires `HAVE_SWAP`). |
+
+@note All four are `WEAK` and may be overridden by the application.
+
+<br>
+
+---
+
+@section standard_app_io I/O Layer
+
+<b>Files:</b> `io.h`, `io.c`
+
+A portable APDU I/O layer on top of seproxyhal.<br>The typical receive/dispatch
+loop in `app_main()` looks like:
+
+@code{.c}
+void app_main(void) {
+    io_init();
+    for (;;) {
+        int len = io_recv_command();
+        if (len < 0) break;
+        // parse and handle the APDU stored in G_io_apdu_buffer …
+        io_send_sw(SW_OK);
+    }
+}
+@endcode
+
+| Function | Description |
+|---|---|
+| @ref io_init() "io_init()" | Arms the deferred I/O start; must be called once before the first @ref io_recv_command(). |
+| @ref io_recv_command() "io_recv_command()" | Blocks until a full APDU is received into `G_io_apdu_buffer`; returns byte count or -1. |
+| @ref io_send_response_buffers() "io_send_response_buffers(rdatalist, count, sw)" | Assembles a response from an array of `buffer_t` fragments, appends `sw`, and transmits. |
+| @ref io_send_response_pointer() "io_send_response_pointer(ptr, size, sw)" | Convenience wrapper for a raw pointer. |
+| @ref io_send_response_buffer() "io_send_response_buffer(rdata, sw)" | Convenience wrapper for a single `buffer_t`. |
+| @ref io_send_sw() "io_send_sw(sw)" | Sends a status-word-only response (no data). |
+| @ref app_ticker_event_callback() "app_ticker_event_callback()" | Empty `WEAK` hook called on each ticker event; override to receive periodic ticks. |
+
+@note When `HAVE_SWAP` is active and `G_swap_response_ready == true`,
+`io_send_response_buffers()` signals Exchange and calls `os_lib_end()` instead
+of returning normally.
+
+<br>
+
+---
+
+@section standard_app_parser APDU Parser
+
+<b>Files:</b> `parser.h`, `parser.c`
+
+Parses a raw APDU byte buffer into a structured `command_t`:
+
+@code{.c}
+typedef struct {
+    uint8_t  cla;   ///< Instruction class
+    uint8_t  ins;   ///< Instruction code
+    uint8_t  p1;    ///< Parameter 1
+    uint8_t  p2;    ///< Parameter 2
+    uint8_t  lc;    ///< Command data length (0 when absent)
+    uint8_t *data;  ///< Pointer into the original buffer; NULL when lc == 0
+} command_t;
+@endcode
+
+| Function | Description |
+|---|---|
+| @ref apdu_parser() "apdu_parser(cmd, buf, buf_len)" | Fills `cmd` from `buf`. Returns `false` if the buffer is too short or the declared `Lc` doesn't match the actual remaining bytes. |
+
+Byte-offset constants (`OFFSET_CLA = 0`, `OFFSET_INS = 1`, … `OFFSET_CDATA = 5`) are
+defined in `offsets.h`.
+
+<br>
+
+---
+
+@section standard_app_buffer Buffer Abstraction
+
+<b>Files:</b> `buffer.h`, `buffer.c`
+
+A cursor-based byte-buffer API. All operations advance (or set) the internal
+`offset` field and return `false` on a bounds violation.
+
+@code{.c}
+typedef struct {
+    uint8_t *ptr;
+    size_t   size;
+    size_t   offset;  ///< read/write cursor
+} buffer_t;
+
+// Quick construction
+buffer_t b = buffer_create(my_array, sizeof(my_array));
+@endcode
+
+<b>Reading</b>
+
+| Function | Description |
+|---|---|
+| @ref buffer_can_read() "buffer_can_read(b, n)" | Returns `true` if at least `n` unread bytes remain. |
+| @ref buffer_read_u8() "buffer_read_u8/u16/u32/u64(b, val, endianness)" | Reads 1/2/4/8 bytes and advances the cursor. `endianness` is `BE` or `LE`. |
+| @ref buffer_read_varint() "buffer_read_varint(b, val)" | Reads a Bitcoin-style variable-length integer. |
+| @ref buffer_read_bip32_path() "buffer_read_bip32_path(b, out, out_len)" | Reads `out_len` big-endian 32-bit BIP32 path components. |
+| @ref buffer_get_path_bip32() "buffer_get_path_bip32(b, path)" | Reads a length-prefixed BIP32 path into a `path_bip32_t`. |
+| @ref buffer_read_bytes() "buffer_read_bytes(b, out, n)" | Reads `n` raw bytes. |
+| @ref buffer_peek() "buffer_peek(b, val)" | Reads the next byte without advancing. |
+| @ref buffer_peek_n() "buffer_peek_n(b, n, val)" | Reads byte at `offset+n` without advancing. |
+
+<b>Writing</b>
+
+| Function | Description |
+|---|---|
+| @ref buffer_write_u8() "buffer_write_u8/u16/u32/u64(b, val, endianness)" | Writes 1/2/4/8 bytes and advances. |
+| @ref buffer_write_bytes() "buffer_write_bytes(b, data, n)" | Writes `n` raw bytes and advances. |
+
+<b>Cursor control</b>
+
+| Function | Description |
+|---|---|
+| @ref buffer_seek_set() "buffer_seek_set(b, offset)" | Seeks to an absolute position. |
+| @ref buffer_seek_cur() "buffer_seek_cur(b, offset)" | Advances the cursor by `offset` bytes. |
+| @ref buffer_seek_end() "buffer_seek_end(b, offset)" | Sets the cursor to `size - offset`. |
+| @ref buffer_get_cur() "buffer_get_cur(b)" | Returns a pointer to the current position. |
+
+<b>Output</b>
+
+| Function | Description |
+|---|---|
+| @ref buffer_copy() "buffer_copy(b, out, out_len)" | Copies remaining bytes to `out` without advancing (used for APDU TX). Requires `size - offset <= out_len`. |
+| @ref buffer_move() "buffer_move(b, out, out_len)" | Copies remaining bytes and advances by `out_len`. |
+
+<br>
+
+---
+
+@section standard_app_bip32 BIP32 Path
+
+<b>Files:</b> `bip32.h`, `bip32.c`
+
+Parsing, serialisation, and formatting of BIP32 derivation paths.
+
+@code{.c}
+typedef struct {
+    uint8_t  length;                  ///< Number of path components
+    uint32_t path[MAX_BIP32_PATH];    ///< Raw path components (hardened bit included)
+} path_bip32_t;
+@endcode
+
+`MAX_BIP32_PATH` is 10. The hardened-child bit mask is `BIP32_HARDENED_MASK` (`0x80000000`).
+
+| Function | Description |
+|---|---|
+| @ref bip32_path_read() "bip32_path_read(in, in_len, out, out_len)" | Deserialises `out_len` big-endian 32-bit components from `in`. |
+| @ref bip32_path_format() "bip32_path_format(path, len, out, out_len)" | Formats the path as `"0'/1/2'"` (hardened components get a trailing `'`). |
+| @ref bip32_path_format_simple() "bip32_path_format_simple(bip32, out, out_len)" | Convenience wrapper for `path_bip32_t`. |
+
+<br>
+
+---
+
+@section standard_app_crypto Cryptographic Helpers
+
+<b>Files:</b> `crypto_helpers.h`, `crypto_helpers.c`
+
+High-level wrappers that combine BIP32 key derivation with cryptographic
+operations. Every function:
+- Returns a `cx_err_t` and is annotated `WARN_UNUSED_RESULT`,
+- Scrubs sensitive material with `explicit_bzero` on both success and failure,
+- Only supports curves with 32-byte domain parameters (secp256k1, secp256r1, …).
+
+<b>Key derivation</b>
+
+| Function | Description |
+|---|---|
+| @ref bip32_derive_init_privkey_256() "bip32_derive_init_privkey_256(curve, path, path_len, privkey, chain_code)" | Derives and initialises an ECFP private key. |
+| @ref bip32_derive_get_pubkey_256() "bip32_derive_get_pubkey_256(curve, path, path_len, raw_pubkey, chain_code, hashID)" | Derives the private key and generates the uncompressed 65-byte public key. |
+
+<b>ECDSA signing</b>
+
+| Function | Description |
+|---|---|
+| @ref bip32_derive_ecdsa_sign_hash_256() "bip32_derive_ecdsa_sign_hash_256(curve, path, path_len, sign_mode, hashID, hash, hash_len, sig, sig_len, info)" | Signs a pre-computed hash; output is DER-encoded (`30‖L‖02‖Lr‖r‖02‖Ls‖s`). |
+| @ref bip32_derive_ecdsa_sign_rs_hash_256() "bip32_derive_ecdsa_sign_rs_hash_256(curve, path, path_len, sign_mode, hashID, hash, hash_len, r, s)" | Like above but writes raw `r` and `s` into separate 32-byte buffers. |
+
+<b>EdDSA signing</b>
+
+| Function | Description |
+|---|---|
+| @ref bip32_derive_eddsa_sign_hash_256() "bip32_derive_eddsa_sign_hash_256(curve, path, path_len, hashID, hash, hash_len, sig, sig_len)" | Signs with EdDSA; `sig_len` is updated to `domain_param_size * 2`. |
+
+Each function has a `_with_seed_` variant that accepts a custom `seed`/`seed_len` for non-standard SLIP-21 derivations.<br>
+Pass `NULL, 0` to use the standard BIP32 device seed.
+
+<br>
+
+---
+
+@section standard_app_format Formatting Utilities
+
+<b>Files:</b> `format.h`, `format.c`
+
+Human-readable string formatting for display on device screens.
+
+| Function | Description |
+|---|---|
+| @ref format_i64() "format_i64(dst, dst_len, value)" | Formats a signed 64-bit integer as decimal. |
+| @ref format_u64() "format_u64(dst, dst_len, value)" | Formats an unsigned 64-bit integer as decimal. |
+| @ref format_fpu64() "format_fpu64(dst, dst_len, value, decimals)" | Fixed-point decimal with `decimals` fractional digits (e.g. `12345` with `decimals=2` → `"123.45"`). |
+| @ref format_fpu64_trimmed() "format_fpu64_trimmed(dst, dst_len, value, decimals)" | Like @ref format_fpu64() but trims trailing zeros and the decimal point. |
+| @ref format_hex() "format_hex(in, in_len, out, out_len)" | Uppercase hex dump; requires `out_len >= 2*in_len+1`. Returns bytes written or -1. |
+
+<br>
+
+---
+
+@section standard_app_encoding Encoding Helpers
+
+@subsection standard_app_encoding_base58 Base58
+
+<b>Files:</b> `base58.h`, `base58.c`
+
+Bitcoin Base58 alphabet encode/decode.
+
+| Function | Description |
+|---|---|
+| @ref base58_encode() "base58_encode(in, in_len, out, out_len)" | Binary → Base58 string; returns character count or -1. Max input: `MAX_ENC_INPUT_SIZE` (120 bytes). |
+| @ref base58_decode() "base58_decode(in, in_len, out, out_len)" | Base58 string → binary; returns byte count or -1. Max input: `MAX_DEC_INPUT_SIZE` (164 chars). |
+
+Leading zero bytes are encoded as the `'1'` character (Bitcoin convention).
+
+@subsection standard_app_encoding_varint Variable-length integer (varint)
+
+<b>Files:</b> `varint.h`, `varint.c`
+
+Bitcoin-protocol variable-length integer (1/3/5/9 bytes).
+
+| Function | Description |
+|---|---|
+| @ref varint_size() "varint_size(value)" | Returns the serialised byte count for `value`. |
+| @ref varint_read() "varint_read(in, in_len, value)" | Parses a varint; returns bytes consumed or -1. |
+| @ref varint_write() "varint_write(out, offset, value)" | Writes a varint at `out + offset`; returns bytes written or -1. |
+
+@subsection standard_app_encoding_readwrite Low-level integer read/write
+
+<b>Files:</b> `read.h`, `read.c`, `write.h`, `write.c`
+
+Bounds-unchecked integer accessors used internally by `buffer.c` and `varint.c`.
+All functions take a `(ptr, offset)` pair and read/write big-endian or little-endian
+integers of width 16, 32, or 64 bits.
+
+@note Callers are responsible for ensuring
+sufficient buffer space.
+
+<br>
+
+---
+
+@section standard_app_storage Application NVM Storage
+
+<b>Files:</b> `app_storage_internal.h`, `app_storage.c`
+
+Requires (in the application `Makefile`):
+@code{.c}
+#define HAVE_APP_STORAGE
+#define APP_STORAGE_SIZE <size_in_bytes>
+@endcode
+
+Provides a CRC32-protected persistent storage area in NVM (`nvm_write`),
+placed in the `.storage_section` linker section. The on-disk layout is:
+
+@code
+┌─────────────┬──────────────────────────┬────────────────────────────┐
+│  CRC32 (4B) │  app_storage_header_t    │  data[APP_STORAGE_SIZE]    │
+└─────────────┴──────────────────────────┴────────────────────────────┘
+@endcode
+
+The header carries
+- A `"NVRA"` tag,
+- Data size,
+- `struct_version`,
+- `properties` bitfield,
+- A `data_version` counter. The CRC is verified at every `init()`;
+
+if the check fails the storage is reset.
+
+| Function | Description |
+|---|---|
+| @ref app_storage_write() "app_storage_write(buf, nbyte, offset)" | Writes `nbyte` bytes and updates the CRC. Returns `nbyte` or a negative error code. |
+| @ref app_storage_read() "app_storage_read(buf, nbyte, offset)" | Reads `nbyte` bytes. Returns `APP_STORAGE_ERR_NO_DATA_AVAILABLE` if `offset+nbyte` exceeds the written size. |
+| @ref app_storage_reset() "app_storage_reset()" | Erases the entire data area and resets the header. |
+| @ref app_storage_get_size() "app_storage_get_size()" | Returns the current written data size. |
+| @ref app_storage_get_data_version() "app_storage_get_data_version()" | Returns the application data version counter. |
+| @ref app_storage_increment_data_version() "app_storage_increment_data_version()" | Increments (and wraps) the data version. |
+| @ref app_storage_get_properties() "app_storage_get_properties()" | Returns the properties bitfield (`APP_STORAGE_PROP_SETTINGS`, `APP_STORAGE_PROP_DATA`). |
+
+<b>Error codes:</b>
+- 0: `APP_STORAGE_SUCCESS`,
+- -1: `APP_STORAGE_ERR_INVALID_ARGUMENT`,
+- -2: `APP_STORAGE_ERR_NO_DATA_AVAILABLE`,
+- -3: `APP_STORAGE_ERR_OVERFLOW`,
+- -4: `APP_STORAGE_ERR_INVALID_HEADER`,
+- -5: `APP_STORAGE_ERR_CORRUPTED`.
+
+<br>
+
+---
+
+@section standard_app_swap Exchange Swap Integration
+
+<b>Files:</b> `swap.h` (umbrella), `swap_entrypoints.h`, `swap_lib_calls.h`,
+`swap_utils.h`, `swap_utils.c`, `swap_error_code_helpers.h`,
+`swap_error_code_helpers.c`
+
+Requires (in the application `Makefile`):
+@code{.c}
+#define HAVE_SWAP
+@endcode
+
+Integrates with the Ledger Exchange application for atomic cross-currency swaps.
+When launched in library mode, `main()` dispatches one of three commands:
+
+| Command constant | Value | Description |
+|---|---|---|
+| `CHECK_ADDRESS` | 3 | Verify an address belongs to this device. |
+| `GET_PRINTABLE_AMOUNT` | 4 | Format an amount for on-screen display. |
+| `SIGN_TRANSACTION` | 2 | Sign the swap output transaction. |
+
+@subsection standard_app_swap_callbacks Coin application callbacks
+
+The coin application <b>must</b> implement these three functions:
+
+@code{.c}
+// Set params->result to 1 if address belongs to this device, 0 otherwise.
+void swap_handle_check_address(check_address_parameters_t *params);
+
+// Fill params->printable_amount with the formatted amount string.
+void swap_handle_get_printable_amount(get_printable_amount_parameters_t *params);
+
+// Save Exchange-validated transaction parameters for later signing verification.
+// Called before BSS is reset — parameters must be heap-allocated.
+bool swap_copy_transaction_parameters(create_transaction_parameters_t *params);
+@endcode
+
+@subsection standard_app_swap_state Runtime state
+
+| Global | Type | Description |
+|---|---|---|
+| @ref G_called_from_swap | `volatile bool` | `true` when running as an Exchange library. |
+| @ref G_swap_response_ready | `volatile bool` | Set to `true` by the coin app when signing is complete; triggers `os_lib_end()` in `io.c`. |
+
+@subsection standard_app_swap_helpers Helper utilities
+
+| Function | Description |
+|---|---|
+| @ref swap_str_to_u64() "swap_str_to_u64(src, length, result)" | Converts a big-endian byte array (≤ 8 bytes) to a `uint64_t` amount. |
+| @ref swap_parse_config() "swap_parse_config(config, config_len, ticker, ticker_buf_len, decimals)" | Parses the `coin_configuration` blob: length-prefixed ticker string + decimals byte. |
+
+@subsection standard_app_swap_errors Structured error reporting
+
+| Function | Description |
+|---|---|
+| @ref send_swap_error_simple() "send_swap_error_simple(sw, common, app_specific)" | Sends a swap error APDU with a 2-byte structured error code and terminates (`noreturn`). |
+| @ref send_swap_error_with_buffer() "send_swap_error_with_buffer(sw, common, app_specific, buffer_data)" | Same with one extra data buffer. |
+| @ref send_swap_error_with_buffers() "send_swap_error_with_buffers(sw, common, app_specific, buffers, count)" | Same with up to 8 data buffers. |
+| `send_swap_error_with_string(sw, common, app_specific, format, ...)` | Same with a `printf`-style message (macro). |
+
+The 2-byte error code is
+@code{.c}
+(common_code << 8) | app_specific;
+@endcode
+Standard common codes are defined by `swap_error_common_code_t`:
+
+| Enumerator | Value | Meaning |
+|---|---|---|
+| `SWAP_EC_ERROR_INTERNAL` | 0x00 | Internal firmware error |
+| `SWAP_EC_ERROR_WRONG_AMOUNT` | 0x01 | Amount mismatch |
+| `SWAP_EC_ERROR_WRONG_DESTINATION` | 0x02 | Destination address mismatch |
+| `SWAP_EC_ERROR_WRONG_FEES` | 0x03 | Fee mismatch |
+| `SWAP_EC_ERROR_WRONG_METHOD` | 0x04 | Invalid method |
+| `SWAP_EC_ERROR_CROSSCHAIN_WRONG_MODE` | 0x05 | Unsupported cross-chain mode |
+| `SWAP_EC_ERROR_CROSSCHAIN_WRONG_METHOD` | 0x06 | Invalid cross-chain method |
+| `SWAP_EC_ERROR_CROSSCHAIN_WRONG_HASH` | 0x07 | Cross-chain hash mismatch |
+| `SWAP_EC_ERROR_GENERIC` | 0xFF | Generic / unspecified error |
+
+<br>
+
+---
+
+@section standard_app_macros Utility Macros
+
+<b>File:</b> `macros.h`
+
+| Macro | Description |
+|---|---|
+| @ref WEAK | `__attribute((weak))` — marks a function as overridable by application code. |
+| @ref MEMBER_SIZE "MEMBER_SIZE(type, member)" | Size of a struct member without an instance. |
+| @ref ARRAY_LENGTH "ARRAY_LENGTH(array)" | Number of elements in a statically allocated array. |
+
+<b>WEAK</b> — allow an application to override a default SDK implementation:
+
+@code{.c}
+// SDK default (in lib_standard_app/main.c)
+WEAK void common_app_init(void) {
+    UX_INIT();
+    io_seproxyhal_init();
+}
+
+// Application override — adds custom initialisation on top
+void common_app_init(void) {
+    UX_INIT();
+    io_seproxyhal_init();
+    my_app_nvm_init();
+}
+@endcode
+
+<b>MEMBER_SIZE</b> — size of a struct field without declaring a variable:
+
+@code{.c}
+typedef struct {
+    uint8_t tag[4];
+    uint32_t version;
+} header_t;
+
+// Safe: no instance needed, no VLA, evaluated at compile time
+uint8_t buf[MEMBER_SIZE(header_t, tag)];   // buf[4]
+@endcode
+
+<b>ARRAY_LENGTH</b> — number of elements in a stack or global array:
+
+@code{.c}
+static const uint32_t ALLOWED_PATH[] = {
+    0x8000002C,  // 44'
+    0x80000000,  // 0'
+};
+
+for (size_t i = 0; i < ARRAY_LENGTH(ALLOWED_PATH); i++) {
+    // iterate over every allowed path component
+}
+@endcode
+
+<br>
+
+---
+
+@section standard_app_tokens Token Constants
+
+<b>File:</b> `tokens.h`
+
+| Macro | Value | Description |
+|---|---|---|
+| `MAX_TICKER_SIZE` | 50 | Maximum buffer size for a token ticker string (including null terminator). |
 
 */

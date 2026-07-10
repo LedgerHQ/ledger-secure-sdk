@@ -78,9 +78,9 @@ typedef enum swap_error_common_code_e {
  * @param common_error_code Common error code defined in swap_error_common_code_t.
  * @param application_specific_error_code Application-specific error code.
  */
-__attribute__((noreturn)) void send_swap_error_simple(uint16_t status_word,
-                                                      uint8_t  common_error_code,
-                                                      uint8_t  application_specific_error_code);
+NORETURN void send_swap_error_simple(uint16_t status_word,
+                                     uint8_t  common_error_code,
+                                     uint8_t  application_specific_error_code);
 
 /**
  * Sends a swap error with one additional buffer data.
@@ -90,10 +90,10 @@ __attribute__((noreturn)) void send_swap_error_simple(uint16_t status_word,
  * @param application_specific_error_code Application-specific error code.
  * @param buffer_data Additional application-specific error details.
  */
-__attribute__((noreturn)) void send_swap_error_with_buffer(uint16_t status_word,
-                                                           uint8_t  common_error_code,
-                                                           uint8_t  application_specific_error_code,
-                                                           const buffer_t buffer_data);
+NORETURN void send_swap_error_with_buffer(uint16_t       status_word,
+                                          uint8_t        common_error_code,
+                                          uint8_t        application_specific_error_code,
+                                          const buffer_t buffer_data);
 
 /**
  * Sends a swap error with multiple buffers containing error details as data.
@@ -105,12 +105,11 @@ __attribute__((noreturn)) void send_swap_error_with_buffer(uint16_t status_word,
  * @param count Number of buffers provided.
  */
 #define SWAP_ERROR_HELPER_MAX_BUFFER_COUNT 8
-__attribute__((noreturn)) void send_swap_error_with_buffers(uint16_t status_word,
-                                                            uint8_t  common_error_code,
-                                                            uint8_t application_specific_error_code,
-                                                            const buffer_t *buffer_data,
-                                                            size_t          count);
-
+NORETURN void send_swap_error_with_buffers(uint16_t        status_word,
+                                           uint8_t         common_error_code,
+                                           uint8_t         application_specific_error_code,
+                                           const buffer_t *buffer_data,
+                                           size_t          count);
 /**
  * Macro to send a swap error with a formatted string as data.
  *

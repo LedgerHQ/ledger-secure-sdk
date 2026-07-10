@@ -1,10 +1,88 @@
-/** @page ux_mainpage User Experience (graphical) library for Nanos
+#ifndef HAVE_SE_TOUCH
+/** @page ux_mainpage User Experience (graphical) library for Nano devices
 
 @section ux_mainpage_intro Introduction
 
-This page describes the UX (User eXperience) library, available on \b NanoS, \b NanoS+ and \b NanoX products.
-This library offers API to draw steps and flows, respectively as arrays of BAGL objects or of UX Steps.
+`lib_ux` is the UX layer for button-based Ledger devices
+(\b Nano \b S, \b Nano \b S \b Plus, \b Nano \b X).
+It provides a \b flow \b engine to navigate between screens using the left and
+right physical buttons, and a collection of predefined \b layouts built on top of
+the \b BAGL (Basic Application Graphic Library) rendering engine.
 
-@note TO BE COMPLETED
+@section ux_mainpage_flow Flow engine
+
+The flow engine lets an application declare a sequence of screens as a static
+array of steps, and handles button navigation automatically.
+
+@subsection ux_mainpage_flow_declare Declaring a flow
+
+Steps are declared with the \c UX_STEP_* family of macros and assembled into a
+flow with \c UX_FLOW():
+
+@code{.c}
+// Display-only step (icon + two text lines)
+UX_STEP_NOCB(step_welcome, pnn,
+    { &C_icon_app, "Welcome", "MyApp" });
+
+// Step with a confirm callback (icon + bold line)
+UX_STEP_CB(step_approve, pb,
+    cb_approve(),
+    { &C_icon_validate_14, "Approve" });
+
+// Step with a reject callback
+UX_STEP_CB(step_reject, pb,
+    cb_reject(),
+    { &C_icon_crossmark, "Reject" });
+
+// Assemble into a flow
+UX_FLOW(flow_main,
+    &step_welcome,
+    &step_approve,
+    &step_reject);
+@endcode
+
+Then start the flow with:
+@code{.c}
+ux_flow_init(0, flow_main, NULL);
+@endcode
+
+@subsection ux_mainpage_flow_macros Step macros
+
+Macro | Description
+----- | -----------
+\b UX_STEP_NOCB | Display-only step, no action on validation
+\b UX_STEP_CB | Step with a C callback on validation (alias: \c UX_STEP_VALID)
+\b UX_STEP_FLOWCB | Step that jumps to another flow on validation
+\b UX_STEP_TIMEOUT | Step that auto-validates after a timeout (in ms)
+\b UX_STEP_INIT | Invisible step used to run code when the flow reaches this position
+\b UX_STEP_CB_INIT | Step with both a pre-init hook and a validate callback
+\b UX_STEP_NOCB_INIT | Display-only step with a pre-init hook
+\b UX_STEP_NOCB_POSTINIT | Display-only step with a post-init hook
+
+@subsection ux_mainpage_flow_nav Navigation
+
+Function | Description
+-------- | -----------
+\c ux_flow_init() | Start a flow on a given stack slot
+\c ux_flow_next() | Advance to the next step
+\c ux_flow_prev() | Go back to the previous step
+
+@section ux_mainpage_layouts Layouts
+
+A layout describes how text and icons are arranged on the device screen.
+The layout name encodes the content of each visible line using single letters:
+
+Letter | Content
+------ | -------
+\b p | Picture (icon)
+\b b | Bold text line
+\b n | Normal text line
+
+Examples: `pb` = picture + bold line, `bnnn` = bold line + 3 normal lines,
+`pbb` = picture + 2 bold lines, `nnbnn` = 2 normal lines + bold line + 2 normal lines.
+
+Paging layouts (\c paging, \c nn_paging, \c bn_paging, \c bb_paging …) automatically
+split long text across multiple sub-pages navigated with the buttons.
 
 */
+#endif // HAVE_SE_TOUCH

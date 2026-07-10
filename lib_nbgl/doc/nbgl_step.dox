@@ -1,6 +1,8 @@
 #ifdef NBGL_STEP
 /** @page nbgl_step Predefined Step API
 
+@tableofcontents
+
 @section nbgl_step_intro Introduction
 This chapter describes briefly the high-level API of Advanced BOLOS Graphic Library.
 
@@ -49,13 +51,13 @@ This type is intended to draw one or two centered (vertically and horizontally) 
 If there is no sub-text and the main-text doesn't fit in a single page (taking wrapping into account), the text is automatically split
 into several pages, and the navigation is set accordingly, and manage automatically between these internal pages. See first example.
 
-\image{inline} html layout_nanos_step_text1.png "caption" height=200
+\image{inline} html layout_nanos_step_text1.png height=200
 
 If there is a sub-text, the main-text must fit in a single line. The sub-text can be multi-pages, and in this case the main-text is
 considered as title, and an indication is automatically added to this "title" to show the current "page" and number of pages. See
 second example.
 
-\image{inline} html layout_nanos_step_text2.png "caption" height=200
+\image{inline} html layout_nanos_step_text2.png height=200
 
 The API to insert such an object is @ref nbgl_stepDrawText() with:
 
@@ -74,7 +76,7 @@ last page (right) for a multi-pages step.
 
 This type is intended to draw a centered info, with an icon, a main text and a sub-text in the screen. The texts are optional.
 
-\image{inline} html layout_nanos_step_centered.png "caption" height=200
+\image{inline} html layout_nanos_step_centered.png height=200
 
 The API to insert such an object is @ref nbgl_stepDrawCenteredInfo() with:
 
@@ -91,7 +93,7 @@ The API to insert such an object is @ref nbgl_stepDrawCenteredInfo() with:
 
 This type is intended to draw a menu list, and manage the navigation between the items of the list
 
-\image{inline} html layout_nanos_step_menu_list.png "caption" height=200
+\image{inline} html layout_nanos_step_menu_list.png height=200
 
 The API to insert such an object is @ref nbgl_stepDrawMenuList() with:
 

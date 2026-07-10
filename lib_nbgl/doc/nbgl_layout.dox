@@ -1,6 +1,8 @@
 #ifdef HAVE_SE_TOUCH
 /** @page nbgl_layout Complex objects layout API
 
+@tableofcontents
+
 @section nbgl_layout_intro Introduction
 This chapter describes briefly the mid level API of Advanced BOLOS Graphic Library.
 
@@ -17,7 +19,7 @@ Moreover, positions of objects in the page are mostly hidden and automatic.
 
 @subsection example_1 Example 1
 
-\image{inline} html stax_layout1.png "caption" height=300
+\image{inline} html stax_layout1.png height=300
 
 In this example, 3 "objects" are used and added to the page with dedicated APIs:
 
@@ -27,7 +29,7 @@ In this example, 3 "objects" are used and added to the page with dedicated APIs:
 
 @subsection example_2 Example 2
 
-\image{inline} html stax_layout9.png "caption" height=300
+\image{inline} html stax_layout9.png height=300
 
 In this more complex example, a "tapable" container is used for the whole screen, except the footer area and the progress indicator.
 
@@ -88,7 +90,7 @@ Otherwise objects are all added in the whole page.
 
 @subsection top_right_button Top-right button
 
-\image{inline} html stax_layout1.png "caption" height=300
+\image{inline} html stax_layout1.png height=300
 
 This object is made of a single round button, on top right of the screen.
 
@@ -103,7 +105,7 @@ The API to insert such an object is @ref nbgl_layoutAddTopRightButton()
 
 @subsection bottom_button Bottom centered button
 
-\image{inline} html stax_layout1.png "caption" height=300
+\image{inline} html stax_layout1.png height=300
 
 This object is made of a single round button, on middle bottom of the screen.
 
@@ -121,7 +123,7 @@ is true.
 
 @subsection footer Footer section
 
-\image{inline} html layout3.png "caption" height=300
+\image{inline} html layout3.png height=300
 
 This object acts as a full width text area at the bottom of the screen.
 
@@ -138,7 +140,7 @@ A thin horizontal separation is drawn on top of the text area.
 
 @subsection split_footer Split footer section
 
-\image{inline} html layout-SplitFooter.png "caption" height=300
+\image{inline} html layout-SplitFooter.png height=300
 
 This object acts as a two horizontally adjacent touchable text areas at the bottom of the screen.
 
@@ -161,13 +163,13 @@ A thin vertical separation is drawn between both text areas.
 This object is a richly-configurable footer placed at the very bottom of the screen, outside the main container.
 It is a superset of @ref nbgl_layoutAddFooter() and @ref nbgl_layoutAddSplitFooter() and covers all @ref nbgl_layoutFooterType_t variants:
 
-- @ref FOOTER_EMPTY: empty space (for better vertical centering of the main content)
-- @ref FOOTER_SIMPLE_TEXT: a single touchable bold text, optionally grayed-out
-- @ref FOOTER_DOUBLE_TEXT: two horizontally-adjacent touchable texts separated by a vertical line
-- @ref FOOTER_TEXT_AND_NAV: a touchable text on the left with a navigation bar on the right
-- @ref FOOTER_NAV: a full navigation bar (see also @ref nbgl_layoutAddNavigationBar())
-- @ref FOOTER_SIMPLE_BUTTON: a single rounded button (black or white, see @ref nbgl_layoutButtonStyle_t)
-- @ref FOOTER_CHOICE_BUTTONS: a pair of stacked choice buttons (same as @ref nbgl_layoutAddChoiceButtons())
+- @ref FOOTER_EMPTY : empty space (for better vertical centering of the main content)
+- @ref FOOTER_SIMPLE_TEXT : a single touchable bold text, optionally grayed-out
+- @ref FOOTER_DOUBLE_TEXT : two horizontally-adjacent touchable texts separated by a vertical line
+- @ref FOOTER_TEXT_AND_NAV : a touchable text on the left with a navigation bar on the right
+- @ref FOOTER_NAV : a full navigation bar (see also @ref nbgl_layoutAddNavigationBar())
+- @ref FOOTER_SIMPLE_BUTTON : a single rounded button (black or white, see @ref nbgl_layoutButtonStyle_t)
+- @ref FOOTER_CHOICE_BUTTONS : a pair of stacked choice buttons (same as @ref nbgl_layoutAddChoiceButtons())
 
 The API to insert such an object is @ref nbgl_layoutAddExtendedFooter(), using @ref nbgl_layoutFooter_t structure.
 
@@ -180,11 +182,11 @@ A thin horizontal separation line can optionally be added on top by setting the 
 This object places a control area immediately above the footer (or above the bottom of the main container when no footer is present).
 It is not part of the main container. It covers all @ref nbgl_layoutUpFooterType_t variants:
 
-- @ref UP_FOOTER_LONG_PRESS: a long-press button (equivalent to @ref nbgl_layoutAddLongPressButton())
-- @ref UP_FOOTER_BUTTON: a single rounded button
-- @ref UP_FOOTER_HORIZONTAL_BUTTONS: a pair of horizontal buttons (equivalent to @ref nbgl_layoutAddHorizontalButtons())
-- @ref UP_FOOTER_TIP_BOX: a tip-box information area
-- @ref UP_FOOTER_TEXT: a grayed-out touchable text (e.g. "Tap to continue")
+- @ref UP_FOOTER_LONG_PRESS : a long-press button (equivalent to @ref nbgl_layoutAddLongPressButton())
+- @ref UP_FOOTER_BUTTON : a single rounded button
+- @ref UP_FOOTER_HORIZONTAL_BUTTONS : a pair of horizontal buttons (equivalent to @ref nbgl_layoutAddHorizontalButtons())
+- @ref UP_FOOTER_TIP_BOX : a tip-box information area
+- @ref UP_FOOTER_TEXT : a grayed-out touchable text (e.g. "Tap to continue")
 
 The API to insert such an object is @ref nbgl_layoutAddUpFooter(), using @ref nbgl_layoutUpFooter_t structure.
 
@@ -210,7 +212,7 @@ The API to insert such an object is @ref nbgl_layoutAddNavigationBar(), using @r
 
 @subsection centered_info Centered info area
 
-\image{inline} html stax_layout1.png "caption" height=300
+\image{inline} html stax_layout1.png height=300
 
 This object is made of:
 
@@ -262,9 +264,9 @@ The API to insert such an object is @ref nbgl_layoutAddLeftContent(), using @ref
 
 @subsection choice_buttons Choice buttons
 
-\image{inline} html layout_choice_buttons1.png "caption" height=300
+\image{inline} html layout_choice_buttons1.png height=300
 
-\image{inline} html layout_choice_buttons2.png "caption" height=300
+\image{inline} html layout_choice_buttons2.png height=300
 
 This object is made of 2 buttons, aligned vertically, each containing a text.
 
@@ -280,7 +282,7 @@ The API to insert such an object is @ref nbgl_layoutAddChoiceButtons(), with @re
 
 @subsection single_button Single button
 
-\image{inline} html stax_layout6.png "caption" height=300
+\image{inline} html stax_layout6.png height=300
 
 This object is made of a single button, in @ref BLACK. The text and optional icon are in @ref WHITE
 
@@ -291,7 +293,7 @@ The API to insert such an object is @ref nbgl_layoutAddButton(), with @ref nbgl_
 
 @subsection long_press_button Long-press button
 
-\image{inline} html layout5.png "caption" height=300
+\image{inline} html layout5.png height=300
 
 This object is made of an area containing a progress-bar (empty at the initialization), a text describing the action, and a fake round @ref BLACK button
 
@@ -319,11 +321,11 @@ The API to insert such an object is @ref nbgl_layoutAddHorizontalButtons(), usin
 
 @subsection item_values Tag/value list
 
-\image{inline} html layout4.png "caption" height=300
+\image{inline} html layout4.png height=300
 
 A touchable icon can also be added on right of value:
 
-\image{inline} html layout4_bis.png "caption" height=300
+\image{inline} html layout4_bis.png height=300
 
 The parameters to draw such an item are:
 
@@ -387,7 +389,7 @@ The API to insert such an object is @ref nbgl_layoutAddSeparationLine().
 
 @subsection touchable_bar Touchable bar
 
-\image{inline} html stax_layout8.png "caption" height=300
+\image{inline} html stax_layout8.png height=300
 
 This horizontal bar object is made of:
 
@@ -410,7 +412,7 @@ The API to insert such an object is @ref nbgl_layoutAddTouchableBar(), with @ref
 
 @subsection switch Switch
 
-\image{inline} html stax_layout15.png "caption" height=300
+\image{inline} html stax_layout15.png height=300
 
 This object is made of:
 
@@ -427,7 +429,7 @@ The API to insert such an object is @ref nbgl_layoutAddSwitch(), with @ref nbgl_
 
 @subsection radio_choices Radio button choices
 
-\image{inline} html stax_layout11.png "caption" height=300
+\image{inline} html stax_layout11.png height=300
 
 This object is made of a vertical list of *nbChoices* items made of:
 
@@ -446,7 +448,7 @@ The API to insert such an object is @ref nbgl_layoutAddRadioChoice(), with @ref 
 
 @subsection spinner Spinner
 
-\image{inline} html layout2.png "caption" height=300
+\image{inline} html layout2.png height=300
 
 This object is a simple centered "Ledger" logo in @ref LIGHT_GRAY, with one of the corner in @ref BLACK, to
 emulate a spinner, with an explanation text under the spinner
@@ -463,7 +465,7 @@ The function returns 0 if nothing changed, 1 if a partial black-and-white refres
 
 @subsection progress_indicator Progress indicator
 
-\image{inline} html layout5.png "caption" height=300
+\image{inline} html layout5.png height=300
 
 This object, drawned in top of the screen, is essentially made of a discrete page progress bar (slashes or digits).
 An optional "back" button, symbolized with a left arrow, can also be drawned on the left of the page progress.
@@ -498,7 +500,7 @@ The API to insert such an object is @ref nbgl_layoutAddProgressBar().
 
 @subsection qr_code QR Code
 
-\image{inline} html stax_layout13.png "caption" height=300
+\image{inline} html stax_layout13.png height=300
 
 This object, centered in the main container, is made of a dynamically drawned QR Code (not a picture) and description texts under it.
 
@@ -544,7 +546,7 @@ In the second case, usually suggestion buttons are displayed to avoid issues wit
 
 Here are some example of these pages in Bolos UX:
 
-\image{inline} html keyboard-usages.png "caption" height=300
+\image{inline} html keyboard-usages.png height=300
 
 To build such screens, some dedicated APIs are necessary, which will be detailed in the sub-chapters.
 
@@ -605,7 +607,7 @@ This object can be modified with @ref nbgl_layoutUpdateKeyboardContent()
 
 @subsubsection keyboard_example_1 Example 1
 
-\image{inline} html keyboard-example1.png "caption" height=300
+\image{inline} html keyboard-example1.png height=300
 
 Here is the source code to display this first example:
 
@@ -714,7 +716,7 @@ void app_keyboard(void) {
 
 @subsubsection keyboard_example_2 Example 2
 
-\image{inline} html keyboard-example2.png "caption" height=300
+\image{inline} html keyboard-example2.png height=300
 
 Here is the source code to display this second example (with simulated transitions):
 
@@ -876,7 +878,7 @@ The digits to enter are usually a PIN code, to enter or to confirm.
 
 Here are some example of these pages in Bolos UX:
 
-\image{inline} html keypad-usages.png "caption" height=300
+\image{inline} html keypad-usages.png height=300
 
 To build such screens, some dedicated APIs are necessary, which will be detailed in the sub-chapters.
 
