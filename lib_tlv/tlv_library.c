@@ -267,16 +267,6 @@ static bool get_der_value_as_uint16(const buffer_t *payload, size_t *offset, uin
     return true;
 }
 
-static bool set_tag(TLV_reception_t *received_tags_flags, TLV_tag_t tag)
-{
-    TLV_flag_t flag = received_tags_flags->tag_to_flag_function(tag);
-    if (received_tags_flags->flags & flag) {
-        return false;
-    }
-    received_tags_flags->flags |= flag;
-    return true;
-}
-
 bool tlv_check_received_tags(TLV_reception_t received, const TLV_tag_t *tags, size_t tag_count)
 {
     for (size_t i = 0; i < tag_count; i++) {
@@ -327,6 +317,7 @@ bool _parse_tlv_internal(const _internal_tlv_handler_t *handlers,
     const _internal_tlv_handler_t *handler;
     tlv_handler_cb_t              *fptr;
     uint16_t                       size;
+    TLV_flag_t                     flag;
 
     explicit_bzero(received_tags_flags, sizeof(*received_tags_flags));
     received_tags_flags->tag_to_flag_function = PIC(tag_to_flag_function);
@@ -383,6 +374,13 @@ bool _parse_tlv_internal(const _internal_tlv_handler_t *handlers,
                 data.raw.ptr  = &payload->ptr[tag_start_offset];
                 data.raw.size = offset - tag_start_offset;
 
+                // Check for duplicate tag
+                flag = received_tags_flags->tag_to_flag_function(data.tag);
+                if (handler->is_unique && ((received_tags_flags->flags & flag) == flag)) {
+                    PRINTF("Tag = %d was already received and is flagged unique\n", data.tag);
+                    return false;
+                }
+
                 // Call the common handler if there is one
                 fptr = PIC(common_handler);
                 if (fptr != NULL && !(*fptr)(&data, tlv_out)) {
@@ -398,13 +396,7 @@ bool _parse_tlv_internal(const _internal_tlv_handler_t *handlers,
                 }
 
                 // Flag reception after handler callback in case the handler wants to check it
-                if (!set_tag(received_tags_flags, data.tag)) {
-                    // If set_tag failed it means that the flag was already received
-                    if (handler->is_unique) {
-                        PRINTF("Tag = %d was already received and is flagged unique\n", data.tag);
-                        return false;
-                    }
-                }
+                received_tags_flags->flags |= flag;
                 step = TLV_TAG;
                 break;
 
