@@ -13,6 +13,7 @@ extern "C" {
 
 #include "nbgl_types.h"
 #include "nbgl_fonts.h"
+#include "nbgl_icons.h"
 #include "ux_loc.h"
 
 /*********************
@@ -145,136 +146,13 @@ extern "C" {
 #define RADIO_HEIGHT 24
 #endif  // TARGETS
 
-// common small icons
-#if SMALL_ICON_SIZE == 32
-#define SPACE_ICON           C_Space_32px
-#define BACKSPACE_ICON       C_Erase_32px
-#define SHIFT_ICON           C_Maj_32px
-#define SHIFT_LOCKED_ICON    C_Maj_Lock_32px
-#define VALIDATE_ICON        C_Check_32px
-#define RADIO_OFF_ICON       C_radio_inactive_32px
-#define RADIO_ON_ICON        C_radio_active_32px
-#define PUSH_ICON            C_Chevron_32px
-#define LEFT_ARROW_ICON      C_Back_32px
-#define RIGHT_ARROW_ICON     C_Next_32px
-#define CHEVRON_BACK_ICON    C_Chevron_Back_32px
-#define CHEVRON_NEXT_ICON    C_Chevron_Next_32px
-#define CLOSE_ICON           C_Close_32px
-#define WHEEL_ICON           C_Settings_32px
-#define INFO_I_ICON          C_Info_32px
-#define QRCODE_ICON          C_QRCode_32px
-#define MINI_PUSH_ICON       C_Mini_Push_32px
-#define WARNING_ICON         C_Warning_32px
-#define ROUND_WARN_ICON      C_Important_Circle_32px
-#define PRIVACY_ICON         C_Privacy_32px
-#define EXCLAMATION_ICON     C_Exclamation_32px
-#define QUESTION_ICON        C_Question_32px
-#define DIGIT_ICON           C_round_24px
-#define QUESTION_CIRCLE_ICON C_Question_Mark_Circle_32px
-#define SEARCH_ICON          C_Search_32px
-#define SWITCH_ICON          C_switch_60_40
-#elif SMALL_ICON_SIZE == 40
-#define SPACE_ICON           C_Space_40px
-#define BACKSPACE_ICON       C_Erase_40px
-#define SHIFT_ICON           C_Maj_40px
-#define SHIFT_LOCKED_ICON    C_Maj_Lock_40px
-#define VALIDATE_ICON        C_Check_40px
-#define RADIO_OFF_ICON       C_radio_inactive_40px
-#define RADIO_ON_ICON        C_radio_active_40px
-#define PUSH_ICON            C_Chevron_40px
-#define LEFT_ARROW_ICON      C_Back_40px
-#define RIGHT_ARROW_ICON     C_Next_40px
-#define CHEVRON_BACK_ICON    C_Chevron_Back_40px
-#define CHEVRON_NEXT_ICON    C_Chevron_Next_40px
-#define CLOSE_ICON           C_Close_40px
-#define WHEEL_ICON           C_Settings_40px
-#define INFO_I_ICON          C_Info_40px
-#define QRCODE_ICON          C_QRCode_40px
-#define MINI_PUSH_ICON       C_Mini_Push_40px
-#define WARNING_ICON         C_Warning_40px
-#define ROUND_WARN_ICON      C_Important_Circle_40px
-#define PRIVACY_ICON         C_Privacy_40px
-#define EXCLAMATION_ICON     C_Exclamation_40px
-#define QUESTION_ICON        C_Question_40px
-#define DIGIT_ICON           C_pin_24
-#define QUESTION_CIRCLE_ICON C_Question_Mark_Circle_40px
-#define SEARCH_ICON          C_Search_40px
-#define SWITCH_ICON          C_switch_60_40
-#elif SMALL_ICON_SIZE == 24
-#define SPACE_ICON           C_Space_24px
-#define BACKSPACE_ICON       C_Erase_24px
-#define SHIFT_ICON           C_Maj_24px
-#define SHIFT_LOCKED_ICON    C_Maj_Lock_24px
-#define VALIDATE_ICON        C_Check_24px
-#define RADIO_OFF_ICON       C_radio_inactive_24px
-#define RADIO_ON_ICON        C_radio_active_24px
-#define PUSH_ICON            C_Chevron_24px
-#define LEFT_ARROW_ICON      C_Back_24px
-#define RIGHT_ARROW_ICON     C_Next_24px
-#define CHEVRON_BACK_ICON    C_Chevron_Back_24px
-#define CHEVRON_NEXT_ICON    C_Chevron_Next_24px
-#define CLOSE_ICON           C_Close_Tiny_24px
-#define WHEEL_ICON           C_Settings_24px
-#define INFO_I_ICON          C_Info_24px
-#define QRCODE_ICON          C_QRCode_24px
-#define MINI_PUSH_ICON       C_Mini_Push_24px
-#define WARNING_ICON         C_Warning_24px
-#define ROUND_WARN_ICON      C_Important_Circle_24px
-#define PRIVACY_ICON         C_Privacy_24px
-#define EXCLAMATION_ICON     C_Exclamation_24px
-#define DIGIT_ICON           C_Dot_16px
-#define QUESTION_CIRCLE_ICON C_Question_Mark_Circle_24px
-#define SEARCH_ICON          C_Search_24px
-#define SWITCH_ICON          C_switch_on_24px
-#else  // SMALL_ICON_SIZE
-#error Undefined SMALL_ICON_SIZE
-#endif  // SMALL_ICON_SIZE
-
-// common large icons
-#if LARGE_ICON_SIZE == 64
-#define CHECK_CIRCLE_ICON       C_Check_Circle_64px
-#define DENIED_CIRCLE_ICON      C_Denied_Circle_64px
-#define IMPORTANT_CIRCLE_ICON   C_Important_Circle_64px
-#define LARGE_WARNING_ICON      C_Warning_64px
-#define INFO_CIRCLE_ICON        C_Info_Circle_64px
-#define LARGE_REVIEW_ICON       C_Review_64px
-#define LARGE_LOGIN_ICON        C_Login_64px
-#define LARGE_TRASH_ICON        C_Trash_64px
-#define LARGE_ADDRESS_BOOK_ICON C_Address_Book_64px
-#elif LARGE_ICON_SIZE == 48
-#define CHECK_CIRCLE_ICON       C_Check_Circle_48px
-#define DENIED_CIRCLE_ICON      C_Denied_Circle_48px
-#define IMPORTANT_CIRCLE_ICON   C_Important_Circle_48px
-#define LARGE_WARNING_ICON      C_Warning_48px
-#define INFO_CIRCLE_ICON        C_Info_Circle_48px
-#define LARGE_REVIEW_ICON       C_Review_48px
-#define LARGE_LOGIN_ICON        C_Login_48px
-#define LARGE_TRASH_ICON        C_Trash_48px
-#define LARGE_ADDRESS_BOOK_ICON C_Address_Book_48px
-#else  // LARGE_ICON_SIZE
-#error Undefined LARGE_ICON_SIZE
-#endif  // LARGE_ICON_SIZE
-
-// For backward compatibility, to be remove later
-#define C_warning64px        _Pragma("GCC warning \"Deprecated constant!\"") C_Warning_64px
-#define C_round_warning_64px _Pragma("GCC warning \"Deprecated constant!\"") C_Important_Circle_64px
-#define C_round_check_64px   _Pragma("GCC warning \"Deprecated constant!\"") C_Check_Circle_64px
-#define C_Message_64px       _Pragma("GCC warning \"Deprecated constant!\"") C_Review_64px
-#define C_leftArrow32px      _Pragma("GCC warning \"Deprecated constant!\"") C_Back_32px
-#define C_Next32px           _Pragma("GCC warning \"Deprecated constant!\"") C_Next_32px
-#define C_round_cross_64px   _Pragma("GCC warning \"Deprecated constant!\"") C_Denied_Circle_64px
+// Icon defines are in nbgl_icons.h (included above)
 
 // max number of pages when nbgl_page_indicator_t uses dashes (above, it uses n / nb_pages)
 #define NB_MAX_PAGES_WITH_DASHES 6
 
 // number of spinner positions
 #define NB_SPINNER_POSITIONS 4
-#else  // SCREEN_SIZE_WALLET
-#define WARNING_ICON            C_icon_warning
-#define REVIEW_ICON             C_icon_certificate
-#define LOGIN_ICON              C_Login_14px
-#define TRASH_ICON              C_Trash_14px
-#define LARGE_ADDRESS_BOOK_ICON C_Address_Book_14px
 #endif  // SCREEN_SIZE_WALLET
 
 #if NB_COLOR_BITS == 1
