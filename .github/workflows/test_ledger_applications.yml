@@ -1,0 +1,102 @@
+name: Build and run functional tests of Ledger owned applications
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      golden_run:
+        type: choice
+        required: true
+        default: 'Raise an error (default)'
+        description: CI behavior if the test snaphots are different than expected.
+        options:
+          - 'Raise an error (default)'
+          - 'Open a PR'
+
+jobs:
+  dispatch:
+    name: Dispatch run workflow request
+    strategy:
+      fail-fast: false
+      matrix:
+        application:
+        - repo: app-boilerplate
+          branch: master
+          workflow: build_and_functional_tests.yml
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch
+        run: |
+          # Command line arguments
+          actions_url="https://api.github.com/repos/LedgerHQ/${{ matrix.application.repo }}/actions"
+          workflow_url="${actions_url}/workflows/${{ matrix.application.repo }}"
+
+          # Step 1: Trigger the workflow and capture the timestamp
+          TRIGGER_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          curl -X POST \
+               -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
+               -H "Accept: application/vnd.github.v3+json" \
+               "${workflow_url}/dispatches" \
+               -d "{
+                    \"ref\": \"${{ matrix.application.branch }}\",
+                    \"inputs\": {
+                      \"golden_run\": \"${{ inputs.golden_run }}\"
+                    }
+                  }"
+
+          # Step 2: Wait for GitHub to register the workflow run
+          echo "Waiting for workflow run to be registered..."
+
+          RUN_ID=""
+          RETRIES=50
+          while [[ -z "$RUN_ID" ]] && [[ $RETRIES -gt 0 ]]; do
+              sleep 1
+
+              # Filter runs by creation time and workflow name
+              RUN_ID=$(curl -s -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
+                  -H "Accept: application/vnd.github.v3+json" \
+                  "${workflow_url}/runs?branch=${{ matrix.application.branch }}" \
+                  | jq -r ".workflow_runs[] | select(.created_at >= \"$TRIGGER_TIME\") | .id" | head -n 1)
+
+              if [[ -n "$RUN_ID" ]]; then
+                  echo "Workflow Run ID: $RUN_ID"
+                  break
+              fi
+
+              RETRIES=$((RETRIES - 1))
+              echo "Retrying... Remaining attempts: $RETRIES"
+          done
+
+          if [[ -z "$RUN_ID" ]]; then
+              echo "Error: Could not retrieve workflow run ID. Exiting."
+              exit 1
+          fi
+
+          # Step 3: Poll the workflow status
+          while true; do
+              sleep 10
+
+              STATUS=$(curl -s -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
+                  -H "Accept: application/vnd.github.v3+json" \
+                  "${actions_url}/runs/$RUN_ID" \
+                  | jq -r '.status')
+              echo "Current Status: $STATUS"
+              if [[ "$STATUS" == "completed" ]]; then
+                  break
+              fi
+          done
+
+          CONCLUSION=$(curl -s -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "${actions_url}/runs/$RUN_ID" \
+              | jq -r '.conclusion')
+
+          echo "Workflow Conclusion: $CONCLUSION"
+
+          if [[ "$CONCLUSION" == "success" ]]; then
+              exit 0
+          else
+              exit 1
+          fi
