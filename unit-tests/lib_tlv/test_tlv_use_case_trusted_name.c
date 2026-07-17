@@ -153,6 +153,7 @@ static void test_valid_trusted_name_v1(void **state)
     assert_false(out.source_contract_received);
     assert_false(out.challenge_received);
     assert_false(out.not_valid_after_received);
+    assert_false(out.blockchain_family_received);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -184,6 +185,8 @@ static void test_valid_trusted_name_v2_with_optionals(void **state)
     // Optional: Not valid after (semver: major.minor.patch)
     uint8_t semver[4] = {0x01, 0x02, 0x03, 0x04};  // 1.2.772
     append_tlv(payload, &offset, 0x10, semver, sizeof(semver));
+    // Optional: Blockchain family
+    append_tlv_uint8(payload, &offset, 0x51, TLV_TRUSTED_NAME_BLOCKCHAIN_FAMILY_ETHEREUM);
     append_tlv_uint16(payload, &offset, 0x13, TLV_TRUSTED_NAME_SIGNER_KEY_ID_PROD);
     append_tlv_uint8(payload, &offset, 0x14, TLV_TRUSTED_NAME_SIGNER_ALGORITHM_ECDSA_SHA256);
     uint8_t signature[64] = {0};
@@ -206,6 +209,8 @@ static void test_valid_trusted_name_v2_with_optionals(void **state)
     assert_int_equal(out.not_valid_after.major, 1);
     assert_int_equal(out.not_valid_after.minor, 2);
     assert_int_equal(out.not_valid_after.patch, 0x0304);
+    assert_true(out.blockchain_family_received);
+    assert_int_equal(out.blockchain_family, TLV_TRUSTED_NAME_BLOCKCHAIN_FAMILY_ETHEREUM);
 }
 
 /* -------------------------------------------------------------------------- */
