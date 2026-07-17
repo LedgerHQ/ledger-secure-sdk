@@ -66,6 +66,16 @@ typedef enum tlv_trusted_name_source_e {
     TLV_TRUSTED_NAME_SOURCE_DYNAMIC_RESOLVER    = 0x06,
 } tlv_trusted_name_source_t;
 
+typedef enum tlv_trusted_name_blockchain_family_e {
+    TLV_TRUSTED_NAME_BLOCKCHAIN_FAMILY_BITCOIN  = 0x00,
+    TLV_TRUSTED_NAME_BLOCKCHAIN_FAMILY_ETHEREUM = 0x01,
+    TLV_TRUSTED_NAME_BLOCKCHAIN_FAMILY_SOLANA   = 0x02,
+    TLV_TRUSTED_NAME_BLOCKCHAIN_FAMILY_POLKADOT = 0x03,
+    TLV_TRUSTED_NAME_BLOCKCHAIN_FAMILY_COSMOS   = 0x04,
+    TLV_TRUSTED_NAME_BLOCKCHAIN_FAMILY_CARDANO  = 0x05,
+    TLV_TRUSTED_NAME_BLOCKCHAIN_FAMILY_TRON     = 0x06,
+} tlv_trusted_name_blockchain_family_t;
+
 typedef enum tlv_trusted_name_signer_key_id_e {
     TLV_TRUSTED_NAME_SIGNER_KEY_ID_TEST = 0x00,
     TLV_TRUSTED_NAME_SIGNER_KEY_ID_PROD = 0x07,
@@ -111,12 +121,15 @@ typedef struct tlv_trusted_name_out_s {
     uint32_t challenge;
     // A version date to revoke the trusted name validity.
     semver_t not_valid_after;
+    // The blockchain family of the network tlv_trusted_name_blockchain_family_t
+    uint8_t blockchain_family;
 
     // Flag optional tags reception
     bool nft_id_received;
     bool source_contract_received;
     bool challenge_received;
     bool not_valid_after_received;
+    bool blockchain_family_received;
 } tlv_trusted_name_out_t;
 
 typedef enum tlv_trusted_name_status_e {
