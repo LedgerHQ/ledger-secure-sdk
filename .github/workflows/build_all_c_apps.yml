@@ -56,7 +56,7 @@ jobs:
       # toolchain that differs from the one the builder image exports through
       # RUSTUP_TOOLCHAIN. A set RUSTUP_TOOLCHAIN overrides that pin and breaks
       # the build, so it is unset before make for these apps (see build steps).
-      RUSTUP_TOOLCHAIN_UNSET_APPS: "app-namada app-stacks"
+      RUSTUP_TOOLCHAIN_UNSET_APPS: "app-namada"
 
     steps:
       - name: Clone App
