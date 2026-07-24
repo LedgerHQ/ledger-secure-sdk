@@ -100,8 +100,13 @@ LDFLAGS  += -nostdlib -nodefaultlibs
 ENABLE_STACK_PROTECTOR ?= 0
 ifneq ($(ENABLE_STACK_PROTECTOR),0)
 	LDLIBS   += -Wl,--wrap=__stack_chk_fail -Wl,--wrap=__stack_chk_init
+	# Enter at __stack_chk_init (overrides ENTRY(main)) so the canary is randomized,
+	# including in sideloads; the init then reaches main via `b main`.
+	LDFLAGS  += -Wl,--defsym,__entry=__stack_chk_init
 	AFLAGS   += -fstack-protector-strong -Wno-unused-command-line-argument
 	CFLAGS   += -fstack-protector-strong
+else
+	LDFLAGS  += -Wl,--defsym,__entry=main
 endif
 
 ENABLE_LINK_TIME_OPTIMIZATION ?= 0

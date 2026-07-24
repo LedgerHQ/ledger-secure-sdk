@@ -39,7 +39,7 @@ void *pic(void *link_address)
 #elif defined(ST33) || defined(ST33K1M5)
 
 #if !defined(HAVE_BOLOS) || defined(BOLOS_OS_UPGRADER_APP)
-extern void _bss;
+extern void _ram;
 extern void _estack;
 
 void *pic(void *link_address)
@@ -55,7 +55,7 @@ void *pic(void *link_address)
 
 #ifndef BOLOS_OS_UPGRADER_APP
     // check if in the LINKED RAM zone
-    __asm volatile("movw %0, #:lower16:_bss\n\tmovt %0, #:upper16:_bss" : "=r"(n));
+    __asm volatile("movw %0, #:lower16:_ram\n\tmovt %0, #:upper16:_ram" : "=r"(n));
     __asm volatile("movw %0, #:lower16:_estack\n\tmovt %0, #:upper16:_estack" : "=r"(en));
     if (link_address >= n && link_address <= en) {
         __asm volatile("mov %0, r9" : "=r"(en));
