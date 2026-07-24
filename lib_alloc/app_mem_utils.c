@@ -132,7 +132,7 @@ void mem_utils_free(void *ptr, const char *file, int line)
  * @param[in] line line in the source file requesting the allocation (for profiling only)
  * @return true if the allocation was successful, false otherwise
  */
-bool mem_utils_calloc(void **buffer, uint16_t size, bool permanent, const char *file, int line)
+bool mem_utils_calloc(void **buffer, size_t size, bool permanent, const char *file, int line)
 {
     if (size == 0) {
         // Nothing to allocate, but cleanup was done if needed
