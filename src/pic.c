@@ -24,20 +24,6 @@ extern void _nvram;
 extern void _envram;
 #endif  // !defined(HAVE_BOLOS) || defined(BOLOS_OS_UPGRADER_APP)
 
-#if defined(ST31)
-
-void *pic(void *link_address)
-{
-    // check if in the LINKED TEXT zone
-    if (link_address >= &_nvram && link_address < &_envram) {
-        link_address = pic_internal(link_address);
-    }
-
-    return link_address;
-}
-
-#elif defined(ST33) || defined(ST33K1M5)
-
 #if !defined(HAVE_BOLOS) || defined(BOLOS_OS_UPGRADER_APP)
 extern void _bss;
 extern void _estack;
@@ -124,9 +110,3 @@ void pic_init(void *real_flash_start, void *real_ram_start)
 }
 
 #endif  // !defined(HAVE_BOLOS) || defined(BOLOS_OS_UPGRADER_APP)
-
-#else
-
-#error "invalid architecture"
-
-#endif
