@@ -34,6 +34,7 @@ typedef enum {
     IO_APDU_MEDIA_RAW,
     IO_APDU_MEDIA_U2F,
     IO_APDU_MEDIA_CDC,
+    IO_APDU_MEDIA_IAP,
 } io_apdu_media_t;
 
 typedef enum {

@@ -13,6 +13,9 @@
 #ifndef HAVE_CDCUSB
 #include "usbd_ledger_hid_u2f.h"
 #endif  // HAVE_CDCUSB
+#ifdef HAVE_IAPUSB
+#include "usb_iap.h"
+#endif  // HAVE_IAPUSB
 #endif  // HAVE_IO_USB
 
 #ifdef HAVE_BLE
@@ -177,6 +180,9 @@ int os_io_init(os_io_init_t *init)
 
 #ifdef HAVE_IO_USB
     USBD_LEDGER_init(&init->usb, force_restart);
+#ifdef HAVE_IAPUSB
+    USB_LEDGER_IAP_init();
+#endif  // HAVE_IAPUSB
 #endif  // HAVE_IO_USB
 
 #ifdef HAVE_BLE
@@ -282,6 +288,13 @@ int os_io_rx_evt(unsigned char *buffer,
         case SEPROXYHAL_TAG_USB_EP_XFER_EVENT:
             status = USBD_LEDGER_rx_seph_evt(G_io_seph_buffer, length, buffer, buffer_max_length);
             break;
+
+#ifdef HAVE_IAPUSB
+        case SEPROXYHAL_TAG_USB_IAP_EVENT:
+            status
+                = USB_LEDGER_iap_rx_seph_evt(G_io_seph_buffer, length, buffer, buffer_max_length);
+            break;
+#endif  // HAVE_IAPUSB
 #endif  // HAVE_IO_USB
 
 #ifdef HAVE_BLE
@@ -354,6 +367,12 @@ int os_io_tx_cmd(uint8_t                     type,
             // TODO_IO test error code
             USBD_LEDGER_send(USBD_LEDGER_CLASS_HID, type, buffer, length, 0);
             break;
+
+#ifdef HAVE_IAPUSB
+        case OS_IO_PACKET_TYPE_USB_IAP_APDU:
+            USB_LEDGER_IAP_send_apdu(buffer, length);
+            break;
+#endif  // HAVE_IAPUSB
 #ifdef HAVE_WEBUSB
         case OS_IO_PACKET_TYPE_USB_WEBUSB_APDU:
             USBD_LEDGER_send(USBD_LEDGER_CLASS_WEBUSB, type, buffer, length, 0);
@@ -473,6 +492,7 @@ unsigned int os_io_handle_ux_event_reject_apdu(void)
             case OS_IO_PACKET_TYPE_USB_CCID_APDU:
             case OS_IO_PACKET_TYPE_BLE_APDU:
             case OS_IO_PACKET_TYPE_NFC_APDU:
+            case OS_IO_PACKET_TYPE_USB_IAP_APDU:
                 os_io_tx_cmd(G_io_tx_buffer[0], err_buffer, sizeof(err_buffer), 0);
                 break;
 
