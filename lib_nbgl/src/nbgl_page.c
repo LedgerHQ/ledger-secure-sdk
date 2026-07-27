@@ -37,7 +37,7 @@ static void addEmptyHeader(nbgl_layout_t *layout, uint16_t height)
 
 static void addContent(nbgl_pageContent_t *content,
                        nbgl_layout_t      *layout,
-                       uint16_t            availableHeight,
+                       int                 availableHeight,
                        bool                headerAdded)
 {
     if (content->title != NULL) {
@@ -477,7 +477,7 @@ nbgl_page_t *nbgl_pageDrawGenericContentExt(nbgl_layoutTouchCallback_t       onA
 {
     nbgl_layoutDescription_t layoutDescription = {0};
     nbgl_layout_t           *layout;
-    uint16_t                 availableHeight = SCREEN_HEIGHT;
+    int                      availableHeight = SCREEN_HEIGHT;
     bool                     headerAdded     = false;
 
     layoutDescription.modal            = modal;
