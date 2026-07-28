@@ -27,4 +27,4 @@ void *mem_utils_realloc(void *ptr, size_t size, const char *file, int line);
 void  mem_utils_free(void *ptr, const char *file, int line);
 void  mem_utils_free_and_null(void **buffer, const char *file, int line);
 char *mem_utils_strdup(const char *s, const char *file, int line);
-bool  mem_utils_calloc(void **buffer, uint16_t size, bool permanent, const char *file, int line);
+bool  mem_utils_calloc(void **buffer, size_t size, bool permanent, const char *file, int line);

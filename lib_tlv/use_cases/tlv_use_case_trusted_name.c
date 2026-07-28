@@ -154,6 +154,11 @@ static bool handle_trusted_name_source(const tlv_data_t *data, tlv_extracted_t *
     return get_uint8_t_from_tlv_data(data, &tlv_extracted->output->trusted_name_source);
 }
 
+static bool handle_blockchain_family(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
+{
+    return get_uint8_t_from_tlv_data(data, &tlv_extracted->output->blockchain_family);
+}
+
 static bool handle_trusted_name(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
 {
     return get_buffer_from_tlv_data(
@@ -226,6 +231,7 @@ static bool handle_common(const tlv_data_t *data, tlv_extracted_t *tlv_extracted
     X(0x02, TAG_VERSION,             handle_version,             ENFORCE_UNIQUE_TAG) \
     X(0x70, TAG_TRUSTED_NAME_TYPE,   handle_trusted_name_type,   ENFORCE_UNIQUE_TAG) \
     X(0x71, TAG_TRUSTED_NAME_SOURCE, handle_trusted_name_source, ENFORCE_UNIQUE_TAG) \
+    X(0x51, TAG_BLOCKCHAIN_FAMILY,   handle_blockchain_family,   ENFORCE_UNIQUE_TAG) \
     X(0x20, TAG_TRUSTED_NAME,        handle_trusted_name,        ENFORCE_UNIQUE_TAG) \
     X(0x23, TAG_CHAIN_ID,            handle_chain_id,            ENFORCE_UNIQUE_TAG) \
     X(0x22, TAG_ADDRESS,             handle_address,             ENFORCE_UNIQUE_TAG) \
@@ -291,6 +297,8 @@ static tlv_trusted_name_status_t verify_struct(const tlv_extracted_t *tlv_extrac
         = TLV_CHECK_RECEIVED_TAGS(tlv_extracted->received_tags, TAG_CHALLENGE);
     tlv_extracted->output->not_valid_after_received
         = TLV_CHECK_RECEIVED_TAGS(tlv_extracted->received_tags, TAG_NOT_VALID_AFTER);
+    tlv_extracted->output->blockchain_family_received
+        = TLV_CHECK_RECEIVED_TAGS(tlv_extracted->received_tags, TAG_BLOCKCHAIN_FAMILY);
 
     if (tlv_extracted->output->version == 0
         || tlv_extracted->output->version > CURRENT_TRUSTED_NAME_SPEC_VERSION) {
