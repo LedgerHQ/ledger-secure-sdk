@@ -168,6 +168,7 @@
 #define LARGE_SAFE_ICON            C_Safe_64px
 #define LARGE_SECURITY_SHIELD_ICON C_SecurityShield_64px
 #define LARGE_SHIELD_BACKUP_ICON   C_Shield_Backup_64px
+#define LARGE_ROBOT_ICON           C_Robot_64px
 #elif LARGE_ICON_SIZE == 48
 #define CHECK_CIRCLE_ICON          C_Check_Circle_48px
 #define DENIED_CIRCLE_ICON         C_Denied_Circle_48px
@@ -188,6 +189,7 @@
 #define LARGE_SAFE_ICON            C_Safe_48px
 #define LARGE_SECURITY_SHIELD_ICON C_SecurityShield_48px
 #define LARGE_SHIELD_BACKUP_ICON   C_Shield_Backup_48px
+#define LARGE_ROBOT_ICON           C_Robot_48px
 #else  // LARGE_ICON_SIZE
 #error Undefined LARGE_ICON_SIZE
 #endif  // LARGE_ICON_SIZE
@@ -217,6 +219,7 @@
 #define EYE_ICON                   C_icon_eye
 #define LARGE_MULTISIG_ICON        C_Multisig_14px
 #define LARGE_CODE_ICON            C_Code_14px
+#define LARGE_ROBOT_ICON           C_Robot
 // Aliases: let code using wallet icon names compile on Nano
 #define LARGE_WARNING_ICON         WARNING_ICON
 #define LARGE_REVIEW_ICON          REVIEW_ICON
