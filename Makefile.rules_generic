@@ -155,7 +155,7 @@ LDFLAGS += -L$(BOLOS_SDK)/target/$(TARGET)
 ifeq ($(IS_PLUGIN),)
 SCRIPT_LD := $(BOLOS_SDK)/target/$(TARGET)/script.ld
 else
-SCRIPT_LD := $(BOLOS_SDK)/target/$(TARGET)/plugin_script.ld
+SCRIPT_LD := $(BOLOS_SDK)/target/plugin_script.ld
 $(info Using plugin link script: $(SCRIPT_LD))
 endif
 endif
