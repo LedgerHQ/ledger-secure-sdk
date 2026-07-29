@@ -1,6 +1,6 @@
 /*******************************************************************************
 *   Ledger - Secure firmware
-*   (c) 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023 Ledger
+*   (c) 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2026 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -15,8 +15,11 @@
 *  limitations under the License.
 ********************************************************************************/
 
-/* Reuse the main linker script */
+/* Reuse the per-target linker script.
+ * script.ld is resolved via -L$(BOLOS_SDK)/target/$(TARGET) in LDFLAGS. */
 INCLUDE script.ld
 
-/* No global variable allowed in plugins */
-ASSERT( (_ebss - _bss) <= 4, ".bss section must be empty for plugins" )
+/* No global variable allowed in plugins.
+ * _bss is placed after __stack_chk_guard, so _ebss - _bss reflects only
+ * application .bss* content and must be zero for a valid plugin. */
+ASSERT( (_ebss - _bss) <= 0, ".bss section must be empty for plugins" )
