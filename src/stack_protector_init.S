@@ -7,9 +7,12 @@
 
 .section .boot.ssp_init, "ax"
 
+.extern main
 .global __wrap___stack_chk_init
 .thumb_func
 __wrap___stack_chk_init:
+    // Relies on the OS contract for arg0 (r0): 0 on a standalone launch,
+    // non-zero (the libargs_t*) on a libcall.
     // if r0 != 0, skip initialization and jump directly to main
     // (don't overwrite parent canary during a libcall)
     cmp r0, #0
@@ -31,29 +34,11 @@ __wrap___stack_chk_init:
     // restore arguments
     pop {r0-r3}
 
-    // jump to the main function
-    b 1f
-
-// skip the constants pool
-.ltorg
-
+    // canary initialized; fall through to the shared exit below
 1:
+    b main
 
-#else
-
-// Force the following linker error if -fstack-protector is enabled for CFLAGS
-// but not for AFLAGS:
-//
-//     ld.lld: error: duplicate symbol: __stack_chk_fail
-//
-// It ensures that __stack_chk_init is always defined (and consequently
-// __stack_chk_guard is always initialized to a random value) when SSP is
-// enabled.
-//
-// This code will never end up in an app since the link step will fail.
-.global __stack_chk_fail
-.thumb_func
-__stack_chk_fail:
-    udf 255
+// place the constants pool after the unconditional branch, out of the exec path
+.ltorg
 
 #endif

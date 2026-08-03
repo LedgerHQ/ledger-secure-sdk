@@ -33,7 +33,8 @@ PAGE_SIZE  = 512;
 STACK_MIN_SIZE = DEFINED(stack_min_size) ? stack_min_size : 1500;
 END_STACK  = ORIGIN(SRAM) + LENGTH(SRAM);
 
-ENTRY(main);
+/* __entry == __stack_chk_init if SSP is enabled, else main */
+ENTRY(__entry);
 
 SECTIONS
 {
@@ -48,9 +49,9 @@ SECTIONS
     _text = .;
     _nvram_start = .;
 
-    /* ensure __stack_chk_init is always @ 0xC0D00000 */
+    /* ensure __stack_chk_init is always @ 0xC0DE0001 */
     KEEP(*(.boot.ssp_init))
-    /* ensure main directly follows __stack_chk_init */
+    /* main; reached via b main, adjacency not required */
     *(.boot*)
 
     /* place the other code and rodata defined BUT nvram variables that are displaced in a r/w area */
@@ -110,10 +111,11 @@ SECTIONS
     /**
      * Place RAM uninitialized variables
      */
-    _bss = .;
+    _ram = .;
     __stack_chk_guard = .;
     PROVIDE(__stack_chk_guard = .);
     . += 4;
+    _bss = .;
     *(.bss*)
     _ebss = .;
 
@@ -132,6 +134,9 @@ SECTIONS
     PROVIDE(_estack = .);
 
   } > SRAM = 0x00
+
+  /* SSP: canary is written via r9 (RAM base), so guard must be first in SRAM */
+  ASSERT( __stack_chk_guard == ORIGIN(SRAM), "__stack_chk_guard must be at the RAM base" )
 
   ASSERT( (_estack - _stack) >= STACK_MIN_SIZE, "stack section too small" )
 
