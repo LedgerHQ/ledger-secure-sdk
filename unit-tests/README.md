@@ -3,7 +3,9 @@
 ## Prerequisites
 
 - CMake >= 3.10
-- CMocka >= 1.1.5
+- **Ruby** — required by CMock to generate mock source files at configure time
+- **CMocka >= 1.1.5** — used by the older suites (`app_storage`, `lib_alloc`, `lib_lists`, `lib_standard_app`, `lib_tlv`, `print`)
+- **Unity + CMock** — used by `address_book/`; fetched automatically from GitHub when CMake runs, so the build machine needs network access
 - lcov >= 1.14 (for code coverage)
 
 All prerequisites are available in the `ledger-app-builder-lite` Docker image used by CI.
@@ -25,7 +27,8 @@ From any suite directory:
 ../gen_coverage.sh
 ```
 
-Outputs `coverage.total` and `coverage/index.html`.
+Produces `coverage.base` and `coverage.capture` (intermediate lcov tracefiles),
+merges them into `coverage.info`, then renders an HTML report in `coverage/index.html`.
 
 ## Test Suites
 
