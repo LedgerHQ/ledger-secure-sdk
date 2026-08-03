@@ -49,7 +49,7 @@ SECTIONS
     _text = .;
     _nvram_start = .;
 
-    /* ensure __stack_chk_init is always @ 0xC0D00000 */
+    /* ensure __stack_chk_init is always @ 0xC0DE0001 */
     KEEP(*(.boot.ssp_init))
     /* main; reached via b main, adjacency not required */
     *(.boot*)
@@ -133,7 +133,7 @@ SECTIONS
   } > SRAM = 0x00
 
   /* SSP: canary is written via r9 (RAM base), so guard must be first in SRAM */
-  ASSERT( __stack_chk_guard == _ram, "__stack_chk_guard must be at the RAM base (_ram)" )
+  ASSERT( __stack_chk_guard == ORIGIN(SRAM), "__stack_chk_guard must be at the RAM base" )
 
   ASSERT( (_estack - _stack) >= STACK_MIN_SIZE, "stack section too small" )
 
