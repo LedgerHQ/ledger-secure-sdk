@@ -41,21 +41,4 @@ __wrap___stack_chk_init:
 // place the constants pool after the unconditional branch, out of the exec path
 .ltorg
 
-#else
-
-// Force the following linker error if -fstack-protector is enabled for CFLAGS
-// but not for AFLAGS:
-//
-//     ld.lld: error: duplicate symbol: __stack_chk_fail
-//
-// It ensures that __stack_chk_init is always defined (and consequently
-// __stack_chk_guard is always initialized to a random value) when SSP is
-// enabled.
-//
-// This code will never end up in an app since the link step will fail.
-.weak __stack_chk_fail
-.thumb_func
-__stack_chk_fail:
-    udf 255
-
 #endif
