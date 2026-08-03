@@ -19,6 +19,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "lcx_sha3.h"
+#include "cx_errors.h"
 
 /**
  * @brief   SHAKE256 hash wrapper.
@@ -33,24 +34,24 @@ void MLDSA_UTIL_shake128(uint8_t *out, size_t outlen, const uint8_t *in, size_t 
 /**
  * @brief   SHAKE256 with two inputs concatenated.
  */
-void MLDSA_UTIL_shake256_two(uint8_t       *out,
-                             size_t         outlen,
-                             const uint8_t *in1,
-                             size_t         in1len,
-                             const uint8_t *in2,
-                             size_t         in2len);
+cx_err_t MLDSA_UTIL_shake256_two(uint8_t       *out,
+                                 size_t         outlen,
+                                 const uint8_t *in1,
+                                 size_t         in1len,
+                                 const uint8_t *in2,
+                                 size_t         in2len);
 
 /**
  * @brief   SHAKE256 with three inputs concatenated.
  */
-void MLDSA_UTIL_shake256_three(uint8_t       *out,
-                               size_t         outlen,
-                               const uint8_t *in1,
-                               size_t         in1len,
-                               const uint8_t *in2,
-                               size_t         in2len,
-                               const uint8_t *in3,
-                               size_t         in3len);
+cx_err_t MLDSA_UTIL_shake256_three(uint8_t       *out,
+                                   size_t         outlen,
+                                   const uint8_t *in1,
+                                   size_t         in1len,
+                                   const uint8_t *in2,
+                                   size_t         in2len,
+                                   const uint8_t *in3,
+                                   size_t         in3len);
 
 /**
  * @brief   SHAKE128 with seed || uint16_t nonce.
