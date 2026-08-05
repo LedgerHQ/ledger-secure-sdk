@@ -9,7 +9,7 @@
  * Marks a function or variable as a weak symbol, allowing application code to
  * override the default SDK implementation by providing a strong definition.
  */
-#define WEAK __attribute((weak))
+#define WEAK __attribute__((weak))
 
 /**
  * Marks a function as non-returning (e.g. loops forever or calls exit).
