@@ -112,6 +112,7 @@ function(ledger_unit_tests_add_test)
     cmake_parse_arguments(ARG "" "NAME" "SOURCES;MOCK_HEADERS;INCLUDE_DIRS;COMPILE_DEFS" ${ARGN})
 
     # for all MOCK_HEADERS, generate a mock source file if not already generated
+    set(_cmock_config ${CMAKE_CURRENT_BINARY_DIR}/cmock_config.yml)
     set(_mock_sources "")
     foreach(_header ${ARG_MOCK_HEADERS})
         get_filename_component(_basename ${_header} NAME_WE)
@@ -120,15 +121,21 @@ function(ledger_unit_tests_add_test)
 
         get_property(_already GLOBAL PROPERTY CMOCK_MOCKED_HEADERS)
         if(NOT "${_header}" IN_LIST _already)
-            add_custom_command(
-                OUTPUT ${_mock_c}
-                COMMAND ${RUBY_EXECUTABLE} ${CMOCK_DIR}/lib/cmock.rb
-                        -o${CMAKE_CURRENT_BINARY_DIR}/cmock_config.yml
-                        ${_header}
-                DEPENDS ${_header}
-                        ${CMAKE_CURRENT_BINARY_DIR}/cmock_config.yml
-                COMMENT "CMock: generating Mock${_basename}"
-                VERBATIM)
+            if(NOT EXISTS ${_mock_c}
+               OR ${_header} IS_NEWER_THAN ${_mock_c}
+               OR ${_cmock_config} IS_NEWER_THAN ${_mock_c})
+                message(STATUS "CMock: generating Mock${_basename}")
+                execute_process(
+                    COMMAND ${RUBY_EXECUTABLE} ${CMOCK_DIR}/lib/cmock.rb
+                            -o${_cmock_config}
+                            ${_header}
+                    RESULT_VARIABLE _res OUTPUT_QUIET)
+                if(NOT _res EQUAL 0)
+                    message(FATAL_ERROR "CMock failed on ${_header}")
+                endif()
+            endif()
+            # re-run cmake when a mocked header changes
+            set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${_header})
             set_property(GLOBAL APPEND PROPERTY CMOCK_MOCKED_HEADERS "${_header}")
         endif()
     endforeach()
