@@ -2,9 +2,9 @@ include_guard()
 include(${BOLOS_SDK}/fuzzing/macros/macros.cmake)
 include(${BOLOS_SDK}/fuzzing/libs/lib_cxng.cmake)
 
-file(GLOB LIB_PKI_SOURCES "${BOLOS_SDK}/lib_pki/*.c")
+file(GLOB LIB_PKI_SOURCES CONFIGURE_DEPENDS "${BOLOS_SDK}/lib_pki/*.c")
 
-add_library(pki ${LIB_PKI_SOURCES})
+add_library(pki STATIC ${LIB_PKI_SOURCES})
 target_compile_options(pki PRIVATE ${COMPILATION_FLAGS})
 target_link_libraries(pki PUBLIC macros mock cxng)
 target_include_directories(

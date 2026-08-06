@@ -75,3 +75,23 @@ BLE_LEDGER_apdu_buffer@ble_ledger_profile_apdu.c
 fuzz_exit_jump_ctx
 fuzz_tail_ptr
 fuzz_tail_len
+
+# Linker-script symbol on device; defined by mock/fuzz_runtime.c on the host.
+app_stack_canary
+
+# SEPH transport buffer. Every read is inside os_io_rx_evt() (io/src/os_io.c),
+# which each app's fuzzing mock replaces wholesale -- so no executing code reads
+# these, and Absolution was spending 281 of the bitcoin target's 490 prefix bytes
+# (57.3%) sampling them. Zeroing costs no coverage and makes every input 281 bytes
+# smaller.
+G_io_seph_buffer
+G_io_seph_buffer_size
+
+# USB/BLE descriptor tables. The transport layer never runs under the harness
+# (os_io_rx_evt is mocked), and usbd_bos_descriptor is a FUNCTION POINTER given a
+# `top` domain -- usbd_desc.c:176 calls it through PIC(), so eight fuzzer bytes
+# became an indirect call target. usbd_desc_product_str and the settings string
+# pointers are the same hazard. Unreachable in this target today; a guaranteed
+# spurious crash the moment any of those paths is driven.
+usbd_bos_descriptor
+usbd_desc_product_str
