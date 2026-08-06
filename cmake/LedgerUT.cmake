@@ -17,12 +17,12 @@ include(${LEDGER_UT_DIR}/ut_compile_defines.cmake)
 #######################################################################
 FetchContent_Declare(unity
     GIT_REPOSITORY https://github.com/ThrowTheSwitch/Unity
-    GIT_TAG        bbf8f3728a937c7627b8094de7ae13559d220ed5
+    GIT_TAG        b6763fbd9cedfacaa89e2ad9fd00d615a234e355
 )
 
 FetchContent_Declare(cmock
     GIT_REPOSITORY https://github.com/ThrowTheSwitch/CMock
-    GIT_TAG        3d4ddfdc4cd7fab87b5b45b5799ea3a5320024e2
+    GIT_TAG        6ea503340b1d3fdc0f2bcaf69273ba0160ec83af
 )
 
 FetchContent_MakeAvailable(unity cmock)
