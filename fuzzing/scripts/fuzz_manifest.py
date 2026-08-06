@@ -2,9 +2,19 @@
 """App manifest reader for the Ledger fuzz framework."""
 
 import hashlib
+import argparse
 import os
-import sys
 import tomllib
+
+#: Harness input bytes above the Absolution prefix that the campaign should offer.
+#:
+#: An APDU's Lc is a single byte, and fuzz_harness.h clamps cmd.lc to 255, so the
+#: default entry path can never dispatch more than 255 payload bytes however large
+#: -max_len is. 4 control bytes + 255 payload + slack covers it. An app whose harness
+#: builds its payload from a wider tail (per-scenario slots, for instance) declares
+#: what it actually reads as [target].tail_budget; bytes beyond that are inert, and
+#: inert bytes are where generic mutations go to die.
+DEFAULT_TAIL_BUDGET = 288
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 FUZZ_DIR = os.path.realpath(os.path.join(SCRIPT_DIR, ".."))
@@ -42,22 +52,19 @@ def _validate_single(manifest):
         raise ValueError("manifest [coverage].key_files must be a list")
 
     seeds = manifest["seeds"]
-    if "cla" not in seeds:
-        raise ValueError("manifest [seeds] missing 'cla'")
     if "ins" not in seeds:
         raise ValueError("manifest [seeds] missing 'ins'")
+    if not isinstance(seeds["ins"], list) or not seeds["ins"]:
+        raise ValueError("manifest [seeds].ins must be a non-empty list")
+
+    target.setdefault("tail_budget", DEFAULT_TAIL_BUDGET)
+    if not isinstance(target["tail_budget"], int) or target["tail_budget"] < 1:
+        raise ValueError("manifest [target].tail_budget must be a positive integer")
 
     manifest.setdefault("dictionary", {})
     manifest["dictionary"].setdefault("tokens", [])
     seeds.setdefault("generic", {"enabled": True})
     seeds.setdefault("custom", {"enabled": False})
-
-    mocks = manifest.setdefault("mocks", {})
-    mocks.setdefault("override_sources", [])
-
-    if not isinstance(mocks["override_sources"], list):
-        raise ValueError("manifest [mocks].override_sources must be a list")
-
 
     return manifest
 
@@ -86,12 +93,10 @@ def _validate_multi(manifest):
         t.setdefault("dictionary", {})
         t["dictionary"].setdefault("tokens", [])
 
-        seeds = t.setdefault("seeds", {"cla": 0x00, "ins": [0x01]})
+        seeds = t.setdefault("seeds", {"ins": [0x01]})
         seeds.setdefault("generic", {"enabled": True})
         seeds.setdefault("custom", {"enabled": False})
 
-        mocks = t.setdefault("mocks", {})
-        mocks.setdefault("override_sources", [])
 
     manifest.setdefault("coverage", {})
     manifest["coverage"].setdefault("exclude_regexes", [])
@@ -114,8 +119,6 @@ def get_target(manifest, fuzzer_name=None):
             "coverage": manifest["coverage"],
             "seeds": manifest["seeds"],
             "dictionary": manifest.get("dictionary", {"tokens": []}),
-            "mocks": manifest.get("mocks", {"override_sources": []}),
-            "layout": manifest.get("layout", {}),
         }
 
     if fuzzer_name is None:
@@ -127,17 +130,16 @@ def get_target(manifest, fuzzer_name=None):
                 "target": {
                     "fuzzer": t["fuzzer"],
                     "harness_version": t["harness_version"],
+                    "tail_budget": t.get("tail_budget", DEFAULT_TAIL_BUDGET),
                 },
                 "coverage": {
                     "key_files": t.get("key_files", []),
                     "exclude_regexes": manifest["coverage"].get("exclude_regexes", []),
                 },
-                "seeds": t.get("seeds", {"cla": 0x00, "ins": [0x01],
+                "seeds": t.get("seeds", {"ins": [0x01],
                                           "generic": {"enabled": True},
                                           "custom": {"enabled": False}}),
                 "dictionary": t.get("dictionary", {"tokens": []}),
-                "mocks": t.get("mocks", {"override_sources": []}),
-                "layout": t.get("layout", {}),
             }
 
     available = [t["fuzzer"] for t in manifest["targets"]]
@@ -156,6 +158,7 @@ def shell_export(view):
 
     lines = []
     lines.append(f'FUZZER="{target["fuzzer"]}"')
+    lines.append(f'TAIL_BUDGET={target.get("tail_budget", DEFAULT_TAIL_BUDGET)}')
 
     key_files = [f'"{f}"' for f in coverage.get("key_files", [])]
     lines.append(f'KEY_FILES_REL=({" ".join(key_files)})')
@@ -163,10 +166,6 @@ def shell_export(view):
     exclude_regexes = [f"'{r}'" for r in coverage.get("exclude_regexes", [])]
     lines.append(f'COVERAGE_EXCLUDE_REGEXES=({" ".join(exclude_regexes)})')
 
-    layout_extra = view.get("layout", {}).get("extra_args", [])
-    if layout_extra:
-        extra_parts = [f'"{a}"' for a in layout_extra]
-        lines.append(f'LAYOUT_UPDATE_EXTRA_ARGS=({" ".join(extra_parts)})')
 
     return "\n".join(lines)
 
@@ -201,89 +200,49 @@ def compute_compat_key(prefix_size, invariant_path, view):
     return hasher.hexdigest()
 
 
-def _parse_extra_args(argv, start=3):
-    """Parse --fuzzer NAME and other extra flags from argv[start:]."""
-    fuzzer_name = None
-    prefix_size = None
-    invariant_path = None
-    rest = []
-    i = start
-    while i < len(argv):
-        if argv[i] == "--fuzzer" and i + 1 < len(argv):
-            fuzzer_name = argv[i + 1]
-            i += 2
-        elif argv[i] == "--prefix-size" and i + 1 < len(argv):
-            prefix_size = int(argv[i + 1])
-            i += 2
-        elif argv[i] == "--invariant" and i + 1 < len(argv):
-            invariant_path = argv[i + 1]
-            i += 2
-        else:
-            rest.append(argv[i])
-            i += 1
-    return fuzzer_name, prefix_size, invariant_path, rest
-
-
 def main():
-    if len(sys.argv) < 3:
-        print(f"usage: {sys.argv[0]} --shell|--dict|--compat-key|--list-targets|--validate <manifest> [args...]",
-              file=sys.stderr)
-        sys.exit(1)
+    # argparse rather than a hand-rolled loop: the loop dropped anything it did not
+    # recognise into a "rest" list, so a misspelled --fuzzer was silently ignored and
+    # a multi-target manifest happily answered for the default target with exit 0.
+    ap = argparse.ArgumentParser(description=__doc__)
+    mode = ap.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--list-targets", action="store_true", help="print every target name")
+    mode.add_argument("--shell", action="store_true", help="print shell assignments to eval")
+    mode.add_argument("--dict", action="store_true", help="write the LibFuzzer dictionary to OUTPUT")
+    mode.add_argument("--compat-key", action="store_true", help="print the corpus compatibility key")
+    ap.add_argument("manifest")
+    ap.add_argument("output", nargs="?", help="destination path, for --dict")
+    ap.add_argument("--fuzzer", help="target name; required for a multi-target manifest")
+    ap.add_argument("--prefix-size", type=int, help="Absolution prefix size (--compat-key)")
+    ap.add_argument("--invariant", help="path to the .zon model (--compat-key)")
+    args = ap.parse_args()
 
-    mode = sys.argv[1]
-    manifest_path = sys.argv[2]
-    manifest = read_manifest(manifest_path)
+    manifest = read_manifest(args.manifest)
 
-    fuzzer_name, prefix_size, invariant_path, rest = _parse_extra_args(sys.argv)
-
-    if mode == "--list-targets":
+    if args.list_targets:
         for name in list_targets(manifest):
             print(name)
+        return
 
-    elif mode == "--shell":
-        view = get_target(manifest, fuzzer_name)
+    view = get_target(manifest, args.fuzzer)
+
+    if args.shell:
         print(shell_export(view))
-
-    elif mode == "--dict":
-        if not rest:
-            print("error: --dict requires output path", file=sys.stderr)
-            sys.exit(1)
-        view = get_target(manifest, fuzzer_name)
-        write_dictionary(view, rest[0])
-        print(f"Wrote dictionary to {rest[0]}")
-
-    elif mode == "--compat-key":
-        view = get_target(manifest, fuzzer_name)
-
-        if prefix_size is None:
-            print("error: --compat-key requires --prefix-size", file=sys.stderr)
-            sys.exit(1)
-        if invariant_path is None:
-            fuzz_dir = get_manifest_dir(manifest_path)
-            fuzzer = view["target"]["fuzzer"]
-            invariant_path = os.path.join(fuzz_dir, "invariants", f"{fuzzer}.zon")
-            if not os.path.exists(invariant_path):
-                invariant_path = os.path.join(fuzz_dir, "invariants", "fuzz_globals.zon")
-
-        key = compute_compat_key(prefix_size, invariant_path, view)
-        print(key)
-
-    elif mode == "--validate":
-        targets = list_targets(manifest)
-        for tname in targets:
-            view = get_target(manifest, tname)
-        if _is_multi_target(manifest):
-            print(f"Manifest OK: multi-target, {len(targets)} targets: {targets}")
-        else:
-            t = manifest["target"]
-            print(f"Manifest OK: fuzzer={t['fuzzer']}, "
-                  f"harness_version={t['harness_version']}, "
-                  f"key_files={len(manifest['coverage']['key_files'])}, "
-                  f"ins={manifest['seeds']['ins']}, ")
-
+    elif args.dict:
+        if args.output is None:
+            ap.error("--dict requires an output path")
+        write_dictionary(view, args.output)
+        print(f"Wrote dictionary to {args.output}")
     else:
-        print(f"error: unknown mode {mode}", file=sys.stderr)
-        sys.exit(1)
+        if args.prefix_size is None:
+            ap.error("--compat-key requires --prefix-size")
+        invariant_path = args.invariant
+        if invariant_path is None:
+            inv_dir = os.path.join(get_manifest_dir(args.manifest), "invariants")
+            invariant_path = os.path.join(inv_dir, f"{view['target']['fuzzer']}.zon")
+            if not os.path.exists(invariant_path):
+                invariant_path = os.path.join(inv_dir, "fuzz_globals.zon")
+        print(compute_compat_key(args.prefix_size, invariant_path, view))
 
 
 if __name__ == "__main__":
