@@ -99,6 +99,13 @@ unsigned char io_event(unsigned char channel);
 int io_legacy_apdu_rx(uint8_t handle_ux_events);
 int io_legacy_apdu_tx(const unsigned char *buffer, unsigned short length);
 
+// TOCTOU latch: armed when an APDU command is accepted, cleared when the app
+// replies (io_legacy_apdu_tx / u2f_message_reply). While armed,
+// io_legacy_apdu_rx rejects new commands (SWO_COMMAND_NOT_ACCEPTED) so a
+// transaction cannot be mutated behind an on-screen review.
+void os_io_set_reply_pending(bool pending);
+bool os_io_reply_pending(void);
+
 #ifdef HAVE_NFC_READER
 bool io_nfc_reader_send(const uint8_t      *cmd_data,
                         size_t              cmd_len,

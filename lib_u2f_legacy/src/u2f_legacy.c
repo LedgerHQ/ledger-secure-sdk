@@ -22,6 +22,7 @@
 #include "u2f_processing.h"
 #include "u2f_service.h"
 #include "os_io.h"
+#include "os_io_legacy.h"
 
 /* Private enumerations ------------------------------------------------------*/
 
@@ -58,6 +59,9 @@ void u2f_message_reply(u2f_service_t *service, uint8_t cmd, uint8_t *buffer, uin
     else {
         os_io_tx_cmd(cmd, buffer, len, 0);
     }
+    // TOCTOU: the CTAP2/U2F reply bypasses io_legacy_apdu_tx, so release the
+    // latch here too.
+    os_io_set_reply_pending(false);
 }
 
 void u2f_transport_ctap2_send_keepalive(u2f_service_t *service, uint8_t reason)
