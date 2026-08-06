@@ -123,10 +123,12 @@ static size_t fuzz_mutate_post_prefix(uint8_t *data, size_t size, size_t max_siz
     return LLVMFuzzerMutate(data, size, max_size);
 }
 
+#ifdef FUZZ_INJECT_TOKEN
 static int fuzz_should_inject_token(unsigned int seed)
 {
     return ((seed >> 4) & FUZZ_MUT_TOKEN_INJECT_MASK) == 0;
 }
+#endif
 
 #if FUZZ_APP_DATA_LEN > 0
 static void fuzz_mutate_app_data(uint8_t *data, unsigned int seed)
