@@ -46,12 +46,23 @@ Each run writes to `<app>/.fuzz-artifacts/<run-name>/`:
 | `key-files-coverage.txt`       | Coverage restricted to the manifest's `key_files` |
 | `targets/<target>/corpus/`     | The merged corpus, plus its `.compat-key` |
 | `targets/<target>/crashes/`    | Any crash / timeout / OOM inputs found |
+| `targets/<target>/sanitizer-reports.txt` | Recoverable sanitizer diagnostics, by site and count |
 | `targets/<target>/<target>.dict` | Dictionary used for the run |
 | `targets/<target>/meta.env`    | Build parameters (prefix size, build dirs, workers…) |
 | `targets/<target>/replay.log`  | Coverage-replay log |
 
 A clean run finds zero crashes. When a crash is found, its input is saved under
 `crashes/` and the summary is printed to the console.
+
+@warning Zero crashes does not mean zero findings. UndefinedBehaviorSanitizer
+diagnostics are *recoverable* by default: the program prints `runtime error: ...`
+and carries on, so libFuzzer never treats the input as a crash and writes no
+artifact. The campaign therefore scans the worker logs and prints every reporting
+site, also saving them to `sanitizer-reports.txt`. **Read that file** — a run can
+exit 0 while having reported real integer truncations or overflows. Unsigned
+overflow specifically is compiled with `-fsanitize-recover=unsigned-integer-overflow`
+because deliberate wrapping is common (PRNGs, hashing), so it will always appear
+here rather than as a crash.
 
 @section fuzzing_run_repro Reproducing a crash
 
@@ -78,16 +89,19 @@ binary is an ordinary LibFuzzer executable, so all of its flags (`-runs=1`,
 
 @section fuzzing_run_env Environment variables
 
-Short defaults keep the first run fast; raise durations and workers for real
-coverage growth.
+Short defaults keep the first run fast; raise the duration and workers for real
+coverage growth. Only the first three change what a campaign measures; the rest
+are plumbing. Values that decide *what* is measured but that nobody ever set --
+the LibFuzzer seed, the per-input timeout, value profiling, and the input-length
+budget -- are fixed constants in the script rather than environment variables, so
+two runs cannot silently differ.
 
 | Variable | Default | Meaning |
 |----------|---------|---------|
-| `WARMUP_SEC`        | `30`            | Warmup seconds per worker (wide, shallow exploration) |
-| `MAIN_SEC`          | `60`            | Main-phase seconds per worker (deeper mutation) |
+| `FUZZ_TIME`         | `90`            | Seconds of fuzzing per target, per worker |
 | `WORKERS`           | `min(2, nproc)` | Parallel LibFuzzer processes |
+| `BUILD_TYPE`        | `RelWithDebInfo` | CMake build type for both build trees |
 | `BASE_CORPUS_ZIP`   | app's `fuzzing/base-corpus.zip` if present | Promoted seeds; set empty to skip |
-| `EXTRA_CORPUS`      | unset           | Colon-separated extra corpus directories to merge in |
 | `OVERWRITE`         | unset           | Set to `1` to overwrite an existing run directory |
 | `APP_TARGET`        | `flex`          | Device target passed to CMake (`flex`, `stax`, …) |
 | `BUILD_JOBS`        | from CPU count  | Parallel `cmake --build` jobs |
@@ -99,15 +113,39 @@ coverage growth.
 
 @section fuzzing_run_longer Longer runs
 
-The defaults (30 s / 60 s, two workers) are a smoke test. For meaningful
-coverage growth or regression hunting, raise the budget, for example:
+The default (90 s, two workers) is a smoke test. For meaningful coverage growth
+or regression hunting, raise the budget, for example:
 
 @verbatim
-WARMUP_SEC=300 MAIN_SEC=3300 WORKERS=4 \
+FUZZ_TIME=3600 WORKERS=4 \
   "$BOLOS_SDK"/fuzzing/scripts/app-campaign.sh --app-dir /path/to/app long-run
 @endverbatim
 
 When a long run finds good coverage, promote its corpus so the next run and CI
 start from it — see @ref fuzzing_corpus.
+
+@section fuzzing_run_artifacts Artifact kinds
+
+libFuzzer names an artifact by what happened, and only one kind is a finding:
+
+| prefix | meaning |
+| ------ | ------- |
+| `crash-`   | a real finding: sanitizer report, assertion, or signal |
+| `oom-`     | the run hit `-rss_limit_mb` |
+| `timeout-` | one input exceeded `-timeout`, which also ends that worker |
+| `leak-`    | LeakSanitizer at exit |
+
+The campaign counts them separately; only the `crash-` count is reported as crashes.
+
+@section fuzzing_run_tuning Tunables
+
+`TIMEOUT_SEC` (default 2) bounds a single input. libFuzzer treats a timeout as an
+error: it writes an artifact and the worker exits, so a slow-but-valid input costs the
+rest of that worker's campaign. Raise it for long unattended runs; measured mean input
+cost on app-bitcoin-new is about 1 ms.
+
+`WORKERS` and `FUZZ_TIME` are the other two knobs. Each worker keeps a private corpus
+and they are merged at the end, so workers do not share finds during a run.
+
 
 */

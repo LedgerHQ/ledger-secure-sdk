@@ -70,38 +70,41 @@ Every fuzzer input is two regions:
   bytes map to which globals automatically; you shape it with the
   @ref fuzzing_invariants files, never by hand.
 
-- The **tail** is the data the app then processes — typically one APDU. The
-  standard harness reads the first 4 tail bytes as `CLA` / `INS` / `P1` / `P2`
-  and passes the rest as the APDU payload.
+- The **tail** is the harness input: 4 control bytes (lane, command, `P1`,
+  `P2`) followed by the APDU payload. `CLA` and `INS` come from the selected
+  command spec rather than the input, so the fuzzer never has to guess a valid
+  pair. See @ref fuzzing_harness for the byte-by-byte layout.
 
-The split point (prefix size) is recomputed after every build and written to
-`mock/scenario_layout.h`; you never edit it by hand.
+The split point (prefix size) is recomputed after every build and passed to the
+build as `-DFUZZ_PREFIX_SIZE`; it is the only layout fact anything outside
+Absolution knows, and nothing needs the offset of an individual global.
 
 @subsection fuzzing_model_lanes Control bytes and lanes
 
-A small **control region** at the start of the prefix (`fuzz_ctrl`) steers the
-harness without spending tail bytes:
+The first bytes of the harness input steer the harness rather than feeding the
+app:
 
-- `fuzz_ctrl[0]` selects a **lane**.  Above the fixed threshold
+- byte 0 selects a **lane**.  Above the fixed threshold
   `FUZZ_STRUCTURED_LANE_THRESHOLD` (102) the harness takes the *structured*
   lane; at or below it the *raw* lane.
-- `fuzz_ctrl[1]` picks which entry of the command table to run in the
-  structured lane (the raw lane uses the second tail byte instead).
+- byte 1 picks which entry of the command table to run.
+
+Because these are input bytes rather than restored globals, the mutator can flip
+lane or command directly — see @ref har_mutator.
 
 **Structured lane** — the harness selects a command from the table, clamps
 P1/P2 to their declared maxima, and builds a syntactically correct APDU.
 It drives the happy path and multi-step flows efficiently.
 
-**Raw lane** — every APDU field, including the command selector, is taken
-directly from the tail bytes without clamping or correction.  It exercises
-parsing edges and error paths that well-formed inputs never reach.
+**Raw lane** — `P1`/`P2` are passed through without clamping and the payload is
+whatever the fuzzer produced.  It exercises parsing edges and error paths that
+well-formed inputs never reach.
 
 The threshold 102 divides the 0–255 range roughly 40 / 60 (raw / structured)
 so each lane gets a meaningful share of the corpus automatically.
 
 **Most apps need only one command table.**  Define a single `fuzz_commands[]`
-covering all your APDUs and both lanes will exercise every command: the
-structured lane via `fuzz_ctrl[1]`, the raw lane via the tail bytes.  You
+covering all your APDUs and both lanes will exercise every command.  You
 only need separate tables — and must override `FUZZ_PICK_COMMAND_STRUCTURED` /
 `FUZZ_PICK_COMMAND_RAW` — when two entry paths are structurally different enough
 to warrant it (for example a normal APDU handler and a swap callback that share

@@ -13,7 +13,10 @@ if(NOT WIN32)
   set(ColourReset "${Esc}[m")
 endif()
 
-set(GEN_SYSCALLS_DIR "${BOLOS_SDK}/fuzzing/mock/_generated")
+# Generated into the build tree, not the shared SDK source tree: otherwise
+# concurrent builds race on one path and a read-only SDK checkout cannot
+# configure.
+set(GEN_SYSCALLS_DIR "${CMAKE_CURRENT_BINARY_DIR}/_generated")
 file(MAKE_DIRECTORY ${GEN_SYSCALLS_DIR})
 set(GEN_SYSCALLS_OUTPUT "${GEN_SYSCALLS_DIR}/generated_syscalls.c")
 
@@ -35,19 +38,23 @@ set(LIB_MOCK_SOURCES
     ${BOLOS_SDK}/fuzzing/mock/os/os_exceptions.c
     ${BOLOS_SDK}/fuzzing/mock/os/os_runtime.c
     ${BOLOS_SDK}/fuzzing/mock/os/pic.c
-    ${BOLOS_SDK}/fuzzing/mock/fuzz_app_defaults.c
+    ${BOLOS_SDK}/fuzzing/mock/fuzz_runtime.c
+    ${BOLOS_SDK}/fuzzing/mock/pki/ledger_pki_policy.c
     ${BOLOS_SDK}/src/os.c
     ${BOLOS_SDK}/src/ledger_assert.c
     ${BOLOS_SDK}/src/cx_wrappers.c
     ${GEN_SYSCALLS_OUTPUT})
 
-add_library(mock ${LIB_MOCK_SOURCES})
+add_library(mock STATIC ${LIB_MOCK_SOURCES})
 add_dependencies(mock generate_syscalls)
 
 target_link_libraries(mock PUBLIC macros cxng nbgl standard_app)
 target_compile_options(mock PRIVATE ${COMPILATION_FLAGS})
-target_compile_options(mock PUBLIC -Wno-pointer-to-int-cast)
+target_compile_options(mock PRIVATE -Wno-pointer-to-int-cast)
 target_include_directories(
   mock
   PRIVATE "${BOLOS_SDK}/fuzzing/mock/_generated"
-          "${BOLOS_SDK}/target/${TARGET}")
+          "${BOLOS_SDK}/target/${TARGET}"
+          # pki/ledger_pki_policy.c needs ledger_pki.h; lib_tlv comes with it.
+          "${BOLOS_SDK}/lib_pki"
+          "${BOLOS_SDK}/lib_tlv")

@@ -18,7 +18,7 @@ elseif(${TARGET} STREQUAL "stax")
   list(APPEND GLYPH_PATHS ${BOLOS_SDK}/lib_nbgl/glyphs/32px/*)
 endif()
 
-file(GLOB_RECURSE GLYPH_FILES ${GLYPH_PATHS})
+file(GLOB_RECURSE GLYPH_FILES CONFIGURE_DEPENDS ${GLYPH_PATHS})
 
 set(GLYPHS_C ${GEN_GLYPHS_DIR}/glyphs.c)
 set(GLYPHS_H ${GEN_GLYPHS_DIR}/glyphs.h)
@@ -41,4 +41,8 @@ target_include_directories(
   PUBLIC "${GEN_GLYPHS_DIR}" "${BOLOS_SDK}/include/"
          "${BOLOS_SDK}/target/${TARGET}/include"
          "${BOLOS_SDK}/lib_nbgl/include")
-target_link_libraries(glyphs macros)
+# glyphs was the only library without ${COMPILATION_FLAGS}: no sanitizers and,
+# more importantly, no -fshort-enums, whose absence changes enum sizes. Harmless
+# only while libglyphs.a goes unlinked; an ABI landmine the moment it is.
+target_compile_options(glyphs PRIVATE ${COMPILATION_FLAGS})
+target_link_libraries(glyphs PUBLIC macros)

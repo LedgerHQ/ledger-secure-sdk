@@ -1,37 +1,21 @@
 /** @page fuzzing_harness The harness
 
 `harness/fuzz_dispatcher.c` connects your app to the framework. It declares the
-commands the fuzzer may synthesise, adapts them to your real dispatcher, and
-wires the custom mutator. The SDK header `fuzz_harness.h` provides the standard
-body; a typical harness is short.
+commands the fuzzer may synthesise and adapts them to your real dispatcher. The
+SDK header `fuzz_harness.h` provides the standard body, the lane and command
+selection, and the custom mutator; a typical harness is short.
 
 @section har_pattern Standard pattern
 
 @code{.c}
 #include "mocks.h"
-#include "scenario_layout.h"
-
-/* Bind the mutator/harness to this build's prefix layout. */
-#define FUZZ_PREFIX_SIZE_FALLBACK SCEN_PREFIX_SIZE
-#define FUZZ_CTRL_OFF             SCEN_CTRL_OFF
-#define FUZZ_CTRL_LEN             SCEN_CTRL_LEN
-#define fuzz_lane_is_structured(data, ps) \
-    ((ps) > FUZZ_CTRL_OFF && (data)[FUZZ_CTRL_OFF] > FUZZ_STRUCTURED_LANE_THRESHOLD)
-
-#include "fuzz_mutator.h"        /* prefix-aware custom mutator */
-#include "fuzz_layout_check.h"   /* compile-time layout assertions */
-#include "fuzz_harness.h"        /* fuzz_harness_entry() */
-
-size_t LLVMFuzzerCustomMutator(uint8_t *data, size_t size,
-                               size_t max_size, unsigned int seed) {
-    return fuzz_custom_mutator(data, size, max_size, seed);
-}
+#include "fuzz_harness.h"
 
 const fuzz_command_spec_t fuzz_commands[] = {
     { .cla = CLA, .ins = INS_GET_VERSION },
     { .cla = CLA, .ins = INS_SIGN_TX, .p1_max = 3, .flags = FUZZ_CMD_HAS_DATA },
 };
-const size_t fuzz_n_commands = sizeof(fuzz_commands) / sizeof(fuzz_commands[0]);
+FUZZ_COMMAND_COUNT();
 
 void fuzz_app_reset(void) { /* clear per-iteration app state */ }
 void fuzz_app_dispatch(void *cmd) { apdu_dispatcher((const command_t *) cmd); }
@@ -41,19 +25,49 @@ int fuzz_entry(const uint8_t *data, size_t size) {
 }
 @endcode
 
+That is the whole contract. There is no layout to bind, no mutator to forward,
+and no command count to keep in sync: `FUZZ_COMMAND_COUNT()` derives
+`fuzz_n_commands` from the table, and `fuzz_harness.h` defines
+`LLVMFuzzerCustomMutator()` for you.
+
 @section har_symbols What the harness must provide
 
 | Symbol | Required | Purpose |
 |--------|----------|---------|
-| `fuzz_commands[]` / `fuzz_n_commands` | yes | The command table the harness draws from |
+| `fuzz_commands[]` + `FUZZ_COMMAND_COUNT()` | yes | The command table the harness draws from |
 | `fuzz_app_reset()`     | yes | Clear per-iteration app state before each input |
 | `fuzz_app_dispatch()`  | yes | Adapt one `command_t` to the real app dispatcher |
 | `fuzz_entry()`         | yes | LibFuzzer entry; normally `fuzz_harness_entry(data, size)` |
-| `LLVMFuzzerCustomMutator()` | recommended | Wire the prefix-aware mutator |
 | `fuzz_app_cleanup()`   | optional | Per-iteration teardown; a weak no-op default is provided |
+| `LLVMFuzzerCustomMutator()` | optional | Only when the app has its own input grammar; see @ref har_mutator |
 
-The `fuzz_*` data symbols (`fuzz_ctrl`, `fuzz_tail_ptr`, `fuzz_tail_len`,
+The `fuzz_*` data symbols (`fuzz_tail_ptr`, `fuzz_tail_len`,
 `fuzz_exit_jump_ctx`) come from `mocks.c`; see @ref fuzzing_mocks.
+
+@section har_input What the harness reads
+
+An input is `[ Absolution prefix | harness input ]`. `sample_invariant()`
+consumes the prefix and hands `fuzz_entry()` the rest, so every byte a harness
+sees is at a fixed offset from the start of *its own* input:
+
+| byte | meaning |
+|------|---------|
+| 0    | lane selector (see @ref har_lanes) |
+| 1    | command index, modulo the app's command count |
+| 2    | `P1`, clamped to the command's `p1_max` |
+| 3    | `P2`, clamped to the command's `p2_max` |
+| 4..  | app header, `FUZZ_APP_HEADER_LEN` bytes (0 by default) |
+| then | APDU payload, exposed as `fuzz_tail_ptr` / `fuzz_tail_len` |
+
+`CLA` and `INS` are *not* taken from the input: they come from the selected
+command spec, so the fuzzer cannot waste its budget guessing valid pairs.
+
+An app that needs its own control or entropy bytes defines
+`FUZZ_APP_HEADER_LEN` and reads them at `data[FUZZ_CTRL_LEN]`; the payload then
+starts after them, so builders keep a stable base at `fuzz_tail_ptr[0]`.
+
+Nothing here — and nothing in an app — needs to know where a global sits inside
+Absolution's prefix. State is Absolution's; bytes are the fuzzer's.
 
 @section har_commands The command table
 
@@ -67,26 +81,26 @@ Each entry is a @ref fuzz_command_spec_t with these fields:
 | `p2_max` | Upper bound for `P2` (`0` = full range) |
 | `flags`  | Bitfield; `FUZZ_CMD_HAS_DATA` marks a command that carries a payload |
 
-The standard `fuzz_harness_entry()` reads the first four tail bytes as
-`CLA`/`INS`/`P1`/`P2`, clamps `P1`/`P2` to the declared maxima, and passes the
-rest as the payload.
+Slot count is weight: repeating a command in the table makes the fuzzer pick it
+proportionally more often.
 
 @section har_lanes Lanes and command selection
 
-`fuzz_ctrl[0]` selects a lane (see @ref fuzzing_model_lanes). By default both
-lanes pick uniformly from `fuzz_commands[]` — the structured lane by
-`fuzz_ctrl[1]`, the raw lane by the second tail byte. An app that needs a
-different command set or weighting per lane overrides two macros **before**
-including `fuzz_harness.h`:
+Byte 0 selects a lane (see @ref fuzzing_model_lanes). By default both lanes pick
+uniformly from `fuzz_commands[]` by byte 1. An app that needs a different command
+set or weighting per lane overrides either macro **before** including
+`fuzz_harness.h`:
 
 @code{.c}
 #define FUZZ_PICK_COMMAND_RAW(data, size)        (&raw_commands[(data)[1] % raw_n])
-#define FUZZ_PICK_COMMAND_STRUCTURED(data, size) (&swap_commands[fuzz_ctrl[1] % swap_n])
+#define FUZZ_PICK_COMMAND_STRUCTURED(data, size) (&swap_commands[(data)[1] % swap_n])
 #include "fuzz_harness.h"
 @endcode
 
 Each macro must expand to a `const fuzz_command_spec_t *` from an app-owned
-table.
+table. `fuzz_app_reset()` and `fuzz_app_dispatch()` can branch on the lane with
+`fuzz_use_structured_lane()`, which is already set when they run — an app does
+not need to track the lane itself.
 
 @section har_mutator Mutators
 
@@ -94,30 +108,53 @@ table.
 
 LibFuzzer's built-in mutator treats the entire input as a flat byte array.
 That is fine for simple targets, but this framework splits every input into a
-**prefix** (app global state restored by Absolution) and a **tail** (the APDU
-the app then processes).  Letting LibFuzzer mutate both regions uniformly
-would frequently corrupt the prefix structure Absolution depends on, silently
-wasting coverage budget on inputs that never restore a valid app state.
+**prefix** (app global state restored by Absolution) and the **harness input**
+(the APDU the app then processes).  Letting LibFuzzer mutate both regions
+uniformly would frequently corrupt the prefix structure Absolution depends on,
+silently wasting coverage budget on inputs that never restore a valid app state.
 
 ### The standard prefix-aware mutator
 
-`fuzz_mutator.h` provides `fuzz_custom_mutator()`, which respects the prefix /
-tail boundary.  It applies three separate strategies:
+`fuzz_mutator.h` provides `fuzz_custom_mutator()`, which respects that boundary
+and applies three separate strategies:
 
-- **Control region** — mutated independently to steer lane selection and
-  command choice without touching state bytes.
+- **Control bytes** — mutated on their own, so a single mutation can switch lane
+  or command instead of waiting to hit those bytes by chance.
 - **Prefix window** — small, local mutations keep the global state coherent
   while still exploring different state combinations.
-- **Tail** — mutated freely by `LLVMFuzzerMutate()` so the APDU payload gets
-  the full LibFuzzer treatment.
+- **Harness input** — mutated freely by `LLVMFuzzerMutate()` so the APDU payload
+  gets the full LibFuzzer treatment.
 
-Wire it through `LLVMFuzzerCustomMutator()` as shown in @ref har_pattern
-"the standard pattern".  This is recommended for every app.
+It is wired by default; a harness that includes `fuzz_harness.h` gets it with no
+code of its own. The only layout fact it needs is the prefix *size*, which
+`app-campaign.sh` and `cfl-build.sh` read out of the generated fuzzer and pass as
+`-DFUZZ_PREFIX_SIZE`; both fail the build if they cannot determine it. At a size
+of 0 the mutator falls back to plain flat-byte mutation, so the check belongs in
+the build pipeline, where the number is actually produced.
+
+### Extending it
+
+- **Field-aware tweaks** on top of the default: define `FUZZ_APP_POST_MUTATE` to
+  a function-like macro `(input, size, max_size, seed)`. It runs after the
+  framework's mutation, on the harness input only.
+- **A whole input grammar**: define `FUZZ_APP_CUSTOM_MUTATOR` and provide
+  `LLVMFuzzerCustomMutator()` yourself, built on `fuzz_mutate_input_with()` so
+  the prefix arithmetic still stays in the framework:
+
+@code{.c}
+#define FUZZ_APP_CUSTOM_MUTATOR
+#include "fuzz_harness.h"
+
+size_t LLVMFuzzerCustomMutator(uint8_t *data, size_t size,
+                               size_t max_size, unsigned int seed) {
+    return fuzz_mutate_input_with(data, size, max_size, seed, my_grammar_mutate);
+}
+@endcode
 
 ### The optional TLV mutator
 
 For apps whose APDU payloads are TLV-encoded, an additional grammar-aware
-mutator keeps mutated tails syntactically valid TLV.  Without it the fuzzer
+mutator keeps mutated inputs syntactically valid TLV.  Without it the fuzzer
 spends a lot of its budget on inputs that fail at the TLV framing check and
 never reach the interesting parsing logic.
 
@@ -130,8 +167,9 @@ array.  It is off by default; most apps do not need it.
 
 An app may bypass `fuzz_harness_entry()` and implement `fuzz_entry()` itself —
 for example to reconstruct a multi-APDU exchange from one input. Such a harness
-must keep the same contract: the prefix stays owned by the framework, the tail
-is the app's to interpret, and the mutator/layout macros stay wired so the
-prefix/tail split is honoured.
+must keep the same contract: the prefix stays owned by Absolution, the harness
+input is the app's to interpret from byte 0 onwards, and mutation still goes
+through `fuzz_custom_mutator()` or `fuzz_mutate_input_with()` so the boundary is
+honoured.
 
 */

@@ -2,11 +2,11 @@ include_guard()
 include(${BOLOS_SDK}/fuzzing/macros/macros.cmake)
 include(${BOLOS_SDK}/fuzzing/libs/lib_cxng.cmake)
 
-file(GLOB LIB_TLV_SOURCES
+file(GLOB LIB_TLV_SOURCES CONFIGURE_DEPENDS
   "${BOLOS_SDK}/lib_tlv/*.c"
   "${BOLOS_SDK}/lib_tlv/use_cases/*.c")
 
-add_library(tlv ${LIB_TLV_SOURCES})
+add_library(tlv STATIC ${LIB_TLV_SOURCES})
 target_compile_options(tlv PRIVATE ${COMPILATION_FLAGS})
 target_link_libraries(tlv PUBLIC macros mock cxng)
 target_include_directories(

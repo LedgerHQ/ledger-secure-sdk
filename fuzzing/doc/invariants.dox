@@ -33,8 +33,7 @@ missing file to `.{}`, and a campaign resets and re-syncs it when run with
 `--clean` or `BOOTSTRAP_INVARIANT=1`. Use `SKIP_INVARIANT_SYNC=1` to keep a
 hand-tuned model across runs.
 
-Only the two policy files below — and the bootstrap `scenario_layout.h` — are
-tracked.
+Only the two policy files below are tracked.
 
 @section inv_names Finding global and field names
 
@@ -103,5 +102,17 @@ some_counter. = top
 A trailing `.` means "the value of this symbol" rather than one of its fields.
 The sync step writes these constraints into the model on every run, so they
 survive regeneration (unlike the model itself).
+
+@section inv_validation Validation
+
+A domain override that matches no field is a hard error: the selector is a typo or the
+symbol moved, and silently ignoring it leaves the field at whatever the sync produced.
+
+App zero-symbol selectors are checked the same way, but reported as a warning. A
+selector that matches nothing leaves the global it was meant to pin fuzzable, quietly
+spending prefix bytes. The framework list (`sdk-zero-symbols.txt`) is not checked: it is
+shared across apps and deliberately covers translation units a given app never parses,
+so non-matches there are normal.
+
 
 */
