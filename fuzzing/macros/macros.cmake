@@ -12,17 +12,36 @@ else()
   set(DEFINES_MAKEFILE_DIRECTORY "${BOLOS_SDK}/fuzzing/macros")
 endif()
 
+# `set -o pipefail` so make's exit status is not masked by awk's, and
+# RESULT_VARIABLE so a partial failure is caught: a make that emits some defines
+# and then fails would otherwise produce a truncated macro set and a successful
+# configure. ERROR_VARIABLE so the cause is reported.
 execute_process(
   COMMAND
     bash "-c"
-    "make list-defines BOLOS_SDK=${BOLOS_SDK} TARGET=${TARGET} | awk '/DEFINITIONS LIST/{flag=1;next}flag'"
+    "set -o pipefail; make list-defines BOLOS_SDK=${BOLOS_SDK} TARGET=${TARGET} | awk '/DEFINITIONS LIST/{flag=1;next}flag'"
   WORKING_DIRECTORY "${DEFINES_MAKEFILE_DIRECTORY}"
   OUTPUT_VARIABLE MACRO_OUTPUT
-  OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
+  ERROR_VARIABLE MACRO_STDERR
+  RESULT_VARIABLE MACRO_STATUS
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-if(NOT MACRO_OUTPUT)
-  message(FATAL_ERROR "Failed to extract macros via 'make list-defines'")
+if(NOT MACRO_STATUS EQUAL 0)
+  message(FATAL_ERROR
+    "'make list-defines' failed (status ${MACRO_STATUS}) in ${DEFINES_MAKEFILE_DIRECTORY}.\n"
+    "The fuzz build derives its macro set from the production Makefile, so a partial\n"
+    "extraction would silently fuzz a different configuration.\n--- stderr ---\n${MACRO_STDERR}")
 endif()
+if(NOT MACRO_OUTPUT)
+  message(FATAL_ERROR "'make list-defines' produced no definitions in ${DEFINES_MAKEFILE_DIRECTORY}")
+endif()
+
+# Re-run CMake when the production reference or either override list changes:
+# file(STRINGS) registers no configure dependency on its own.
+set_property(DIRECTORY "${CMAKE_SOURCE_DIR}" APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+  "${DEFINES_MAKEFILE_DIRECTORY}/Makefile"
+  "${CMAKE_CURRENT_LIST_DIR}/add_macros.txt"
+  "${CMAKE_CURRENT_LIST_DIR}/exclude_macros.txt")
 
 string(REPLACE "\n" ";" MACRO_LIST "${MACRO_OUTPUT}")
 

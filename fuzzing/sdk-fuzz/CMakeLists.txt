@@ -1,5 +1,4 @@
-include_guard()
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.20)
 
 if(${CMAKE_VERSION} VERSION_LESS 3.14)
   cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
@@ -47,7 +46,6 @@ set(SDK_FUZZ_INCLUDE_DIRS
 
 # TLV targets need a PKI stub and the custom mutator
 set(TLV_EXTRA_SOURCES
-    ${CMAKE_SOURCE_DIR}/mock/mock_check_signature_with_pki.c
     ${LEDGER_FUZZ_TLV_MUTATOR_SOURCE}
 )
 

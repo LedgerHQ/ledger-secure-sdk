@@ -1,5 +1,5 @@
 include_guard()
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.20)
 
 project(
   SDKFuzzer
@@ -19,24 +19,22 @@ if(NOT BOLOS_SDK)
   message(WARNING "BOLOS_SDK not passed.")
 endif()
 
-if(EXISTS "${BOLOS_SDK}/.target")
+# Precedence matches the production Makefile (Makefile.target): an explicitly
+# requested target wins, ${BOLOS_SDK}/.target is only the fallback.
+if(TARGET)
+  message(STATUS "LedgerFuzz: using requested TARGET=${TARGET}")
+elseif(EXISTS "${BOLOS_SDK}/.target")
   file(STRINGS "${BOLOS_SDK}/.target" TARGET)
   string(STRIP "${TARGET}" TARGET)
-  if(NOT "${TARGET}" STREQUAL "stax" AND NOT "${TARGET}" STREQUAL "flex")
-    message(FATAL_ERROR ".target must be 'flex' or 'stax' (found '${TARGET}')!")
-  else()
-    message("Using TARGET=${TARGET} from ${BOLOS_SDK}/.target")
-  endif()
+  message(STATUS "LedgerFuzz: using TARGET=${TARGET} from ${BOLOS_SDK}/.target")
 else()
-  message(WARNING "No .target file found in BOLOS_SDK=${BOLOS_SDK}")
-  if(TARGET)
-    message("Using -DTARGET=${TARGET}")
-  else()
-    message(FATAL_ERROR " No TARGET passed.")
-  endif()
+  message(FATAL_ERROR "No TARGET passed and no ${BOLOS_SDK}/.target to fall back on.")
+endif()
+if(NOT "${TARGET}" STREQUAL "stax" AND NOT "${TARGET}" STREQUAL "flex")
+  message(FATAL_ERROR "TARGET must be 'flex' or 'stax' (got '${TARGET}')")
 endif()
 
-if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
   message(
     FATAL_ERROR
       "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. You may need to remove CMakeCache.txt. "
@@ -75,11 +73,35 @@ if(NOT DEFINED ENV{LIB_FUZZING_ENGINE})
     list(APPEND COMPILATION_FLAGS -fprofile-instr-generate -fcoverage-mapping)
     list(APPEND LINK_FLAGS -fprofile-instr-generate -fcoverage-mapping)
   endif()
-  # Ignorelist carves out benign UBSan hits (vtable polymorphism, crypto wrapping arithmetic, allocator sign-change).
+  # Default so a plain `cmake -S <app>/fuzzing` works without the campaign
+  # scripts, which set SANITIZER themselves.
+  if(NOT SANITIZER)
+    set(SANITIZER "address")
+    message(STATUS "LedgerFuzz: SANITIZER not set, defaulting to 'address'")
+  endif()
+  if(NOT SANITIZER STREQUAL "address"
+     AND NOT SANITIZER STREQUAL "memory"
+     AND NOT SANITIZER STREQUAL "undefined")
+    message(FATAL_ERROR
+      "SANITIZER must be exactly 'address', 'memory' or 'undefined' (got '${SANITIZER}')")
+  endif()
+
+  # Ignorelist carves out benign UBSan hits (vtable polymorphism, crypto wrapping
+  # arithmetic, allocator sign-change). An app adds its own with
+  # -DLEDGER_FUZZ_APP_UBSAN_IGNORELIST=<file>; clang accepts the flag repeatedly.
   set(_FUZZ_IGNORELIST
       "-fsanitize-ignorelist=${BOLOS_SDK}/fuzzing/sanitizers/ubsan-ignorelist.txt")
+  if(LEDGER_FUZZ_APP_UBSAN_IGNORELIST)
+    if(NOT EXISTS "${LEDGER_FUZZ_APP_UBSAN_IGNORELIST}")
+      message(FATAL_ERROR
+        "LEDGER_FUZZ_APP_UBSAN_IGNORELIST does not exist: ${LEDGER_FUZZ_APP_UBSAN_IGNORELIST}")
+    endif()
+    list(APPEND _FUZZ_IGNORELIST
+         "-fsanitize-ignorelist=${LEDGER_FUZZ_APP_UBSAN_IGNORELIST}")
+    message(STATUS "LedgerFuzz: app UBSan ignorelist ${LEDGER_FUZZ_APP_UBSAN_IGNORELIST}")
+  endif()
 
-  if(SANITIZER MATCHES "address")
+  if(SANITIZER STREQUAL "address")
     # -fno-sanitize=alignment: lib_alloc returns 4-byte-aligned memory and Cortex-M33 allows unaligned access, so alignment reports are on-device-safe noise.
     set(_FUZZ_SAN
         fuzzer,address,undefined,integer,nullability,local-bounds,float-divide-by-zero)
@@ -93,7 +115,7 @@ if(NOT DEFINED ENV{LIB_FUZZING_ENGINE})
         -fno-sanitize=alignment
         -fsanitize-recover=unsigned-integer-overflow
         ${_FUZZ_IGNORELIST})
-  elseif(SANITIZER MATCHES "memory")
+  elseif(SANITIZER STREQUAL "memory")
     set(COMPILATION_FLAGS
         ${COMPILATION_FLAGS} -fsanitize=fuzzer,memory,undefined
         -fno-sanitize=alignment
@@ -103,7 +125,7 @@ if(NOT DEFINED ENV{LIB_FUZZING_ENGINE})
                    -fno-sanitize=alignment
                    -fsanitize-memory-track-origins -fsanitize=fuzzer-no-link
                    ${_FUZZ_IGNORELIST})
-  elseif(SANITIZER MATCHES "undefined")
+  elseif(SANITIZER STREQUAL "undefined")
     # Mirror CFL's standalone UBSan job for local reproduction without ASan/MSan.
     set(_FUZZ_SAN fuzzer,undefined,unsigned-integer-overflow)
     list(APPEND COMPILATION_FLAGS
@@ -154,8 +176,11 @@ endforeach()
 
 add_library(secure_sdk INTERFACE)
 target_compile_options(secure_sdk INTERFACE ${COMPILATION_FLAGS})
-# `mock` is linked before the SDK libs so its strong overrides win; --allow-multiple-definition lets lld skip the SDK's duplicate definitions instead of erroring.
-target_link_options(secure_sdk INTERFACE ${LINK_FLAGS} -Wl,--allow-multiple-definition)
+# No --allow-multiple-definition here: every mock that must beat a real SDK
+# definition goes through -Wl,--wrap (see ledger_fuzz_harden_target), which is
+# order-independent. Absolution's own module still passes the flag, so duplicates
+# are not a hard error yet.
+target_link_options(secure_sdk INTERFACE ${LINK_FLAGS})
 target_link_libraries(
   secure_sdk
   INTERFACE macros
