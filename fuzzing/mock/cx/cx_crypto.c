@@ -1,5 +1,9 @@
 /* Crypto and personalization mocks.
  * fuzz_mock_crypto_fail toggles selected success and failure paths.
+ *
+ * The four signing/keygen entry points are reached through -Wl,--wrap (see
+ * ledger_fuzz_harden_target), hence the __wrap_ prefixes: a wrap is explicit and
+ * order-independent, where a second definition would depend on link order.
  */
 
 #include <string.h>
@@ -59,15 +63,35 @@ cx_err_t cx_ecdomain_parameters_length(cx_curve_t cv __attribute__((unused)), si
     return CX_OK;
 }
 
-cx_err_t bip32_derive_with_seed_init_privkey_256(unsigned int derivation_mode
-                                                 __attribute__((unused)),
-                                                 cx_curve_t      curve __attribute__((unused)),
-                                                 const uint32_t *path __attribute__((unused)),
-                                                 size_t          path_len __attribute__((unused)),
-                                                 cx_ecfp_256_private_key_t *privkey,
-                                                 uint8_t                   *chain_code,
-                                                 unsigned char *seed __attribute__((unused)),
-                                                 size_t         seed_len __attribute__((unused)))
+/*
+ * Curve order in bits.
+ *
+ * Without this, the only definition is the auto-generated weak stub, which
+ * returns CX_OK and never writes *length -- so cx_ecdsa_verify_no_throw() reads
+ * an uninitialised domain_bit_length and shifts by it (lib_cxng/src/cx_ecdsa.c,
+ * via initialize_hash). CX_CHECK sees success, so the only symptom is
+ * nondeterministic behaviour, which for a fuzzer means irreproducible coverage.
+ *
+ */
+cx_err_t cx_ecdomain_size(cx_curve_t cv __attribute__((unused)), size_t *length)
+{
+    if (length == NULL) {
+        return CX_INVALID_PARAMETER;
+    }
+    *length = 256;
+    return CX_OK;
+}
+
+cx_err_t __wrap_bip32_derive_with_seed_init_privkey_256(unsigned int derivation_mode
+                                                        __attribute__((unused)),
+                                                        cx_curve_t curve __attribute__((unused)),
+                                                        const uint32_t *path
+                                                        __attribute__((unused)),
+                                                        size_t path_len __attribute__((unused)),
+                                                        cx_ecfp_256_private_key_t *privkey,
+                                                        uint8_t                   *chain_code,
+                                                        unsigned char *seed __attribute__((unused)),
+                                                        size_t seed_len __attribute__((unused)))
 {
     if (fuzz_mock_crypto_fail) {
         return CX_INTERNAL_ERROR;
@@ -84,10 +108,11 @@ cx_err_t bip32_derive_with_seed_init_privkey_256(unsigned int derivation_mode
     return CX_OK;
 }
 
-cx_err_t cx_ecfp_generate_pair_no_throw(cx_curve_t             curve __attribute__((unused)),
-                                        cx_ecfp_public_key_t  *pubkey,
-                                        cx_ecfp_private_key_t *privkey __attribute__((unused)),
-                                        bool                   keepprivate __attribute__((unused)))
+cx_err_t __wrap_cx_ecfp_generate_pair_no_throw(cx_curve_t             curve __attribute__((unused)),
+                                               cx_ecfp_public_key_t  *pubkey,
+                                               cx_ecfp_private_key_t *privkey
+                                               __attribute__((unused)),
+                                               bool keepprivate __attribute__((unused)))
 {
     if (pubkey != NULL) {
         memset(pubkey, 0, sizeof(*pubkey));
@@ -115,14 +140,14 @@ cx_err_t cx_ecpoint_export(const cx_ecpoint_t *p __attribute__((unused)),
     return CX_OK;
 }
 
-cx_err_t cx_ecdsa_sign_no_throw(const cx_ecfp_private_key_t *key __attribute__((unused)),
-                                uint32_t                     mode __attribute__((unused)),
-                                cx_md_t                      hashID __attribute__((unused)),
-                                const uint8_t               *hash __attribute__((unused)),
-                                size_t                       hash_len __attribute__((unused)),
-                                uint8_t                     *sig,
-                                size_t                      *sig_len,
-                                uint32_t                    *info)
+cx_err_t __wrap_cx_ecdsa_sign_no_throw(const cx_ecfp_private_key_t *key __attribute__((unused)),
+                                       uint32_t                     mode __attribute__((unused)),
+                                       cx_md_t                      hashID __attribute__((unused)),
+                                       const uint8_t               *hash __attribute__((unused)),
+                                       size_t    hash_len __attribute__((unused)),
+                                       uint8_t  *sig,
+                                       size_t   *sig_len,
+                                       uint32_t *info)
 {
     if (fuzz_mock_crypto_fail) {
         return CX_INTERNAL_ERROR;
@@ -148,13 +173,13 @@ cx_err_t cx_ecdsa_sign_no_throw(const cx_ecfp_private_key_t *key __attribute__((
     return CX_OK;
 }
 
-cx_err_t cx_ecschnorr_sign_no_throw(const cx_ecfp_private_key_t *key __attribute__((unused)),
-                                    uint32_t                     mode __attribute__((unused)),
-                                    cx_md_t                      hashID __attribute__((unused)),
-                                    const uint8_t               *msg __attribute__((unused)),
-                                    size_t                       msg_len __attribute__((unused)),
-                                    uint8_t                     *sig,
-                                    size_t                      *sig_len)
+cx_err_t __wrap_cx_ecschnorr_sign_no_throw(const cx_ecfp_private_key_t *key __attribute__((unused)),
+                                           uint32_t       mode __attribute__((unused)),
+                                           cx_md_t        hashID __attribute__((unused)),
+                                           const uint8_t *msg __attribute__((unused)),
+                                           size_t         msg_len __attribute__((unused)),
+                                           uint8_t       *sig,
+                                           size_t        *sig_len)
 {
     if (sig != NULL && sig_len != NULL && *sig_len >= 64) {
         memset(sig, 0x42, 64);

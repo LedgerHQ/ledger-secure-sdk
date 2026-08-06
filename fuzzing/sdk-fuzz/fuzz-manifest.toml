@@ -15,7 +15,7 @@ exclude_regexes = [
 [[targets]]
 fuzzer = "fuzz_alloc"
 key_files = ["lib_alloc/mem_alloc.c"]
-seeds = { cla = 0x00, ins = [0x01] }
+seeds = { ins = [0x01] }
 
 [targets.dictionary]
 tokens = [
@@ -34,7 +34,7 @@ tokens = [
 [[targets]]
 fuzzer = "fuzz_alloc_utils"
 key_files = ["lib_alloc/app_mem_utils.c"]
-seeds = { cla = 0x00, ins = [0x01] }
+seeds = { ins = [0x01] }
 
 [targets.dictionary]
 tokens = [
@@ -48,7 +48,7 @@ tokens = [
 [[targets]]
 fuzzer = "fuzz_lists"
 key_files = ["lib_lists/lists.c"]
-seeds = { cla = 0x00, ins = [0x01] }
+seeds = { ins = [0x01] }
 
 [targets.dictionary]
 tokens = [
@@ -72,7 +72,7 @@ tokens = [
 [[targets]]
 fuzzer = "fuzz_apdu_parser"
 key_files = ["lib_standard_app/parser.c"]
-seeds = { cla = 0xE0, ins = [0x01, 0x02, 0x03] }
+seeds = { ins = [0x01, 0x02, 0x03] }
 
 [targets.dictionary]
 tokens = [
@@ -84,7 +84,7 @@ tokens = [
 [[targets]]
 fuzzer = "fuzz_base58"
 key_files = ["lib_standard_app/base58.c"]
-seeds = { cla = 0x00, ins = [0x01, 0x02, 0x03] }
+seeds = { ins = [0x01, 0x02, 0x03] }
 
 [targets.dictionary]
 tokens = [
@@ -104,7 +104,7 @@ tokens = [
 [[targets]]
 fuzzer = "fuzz_bip32"
 key_files = ["lib_standard_app/bip32.c"]
-seeds = { cla = 0x00, ins = [0x01, 0x02, 0x03] }
+seeds = { ins = [0x01, 0x02, 0x03] }
 
 [targets.dictionary]
 tokens = [
@@ -119,7 +119,7 @@ tokens = [
 [[targets]]
 fuzzer = "fuzz_qrcodegen"
 key_files = ["qrcode/src/qrcodegen.c"]
-seeds = { cla = 0x00, ins = [0x01] }
+seeds = { ins = [0x01] }
 
 [targets.dictionary]
 tokens = [
@@ -136,7 +136,7 @@ tokens = [
 [[targets]]
 fuzzer = "fuzz_tlv_dynamic_descriptor"
 key_files = ["lib_tlv/tlv_library.c", "lib_tlv/use_cases/tlv_use_case_dynamic_descriptor.c"]
-seeds = { cla = 0x00, ins = [0x01] }
+seeds = { ins = [0x01] }
 
 [targets.dictionary]
 tokens = [
@@ -159,7 +159,7 @@ tokens = [
 [[targets]]
 fuzzer = "fuzz_tlv_trusted_name"
 key_files = ["lib_tlv/tlv_library.c", "lib_tlv/use_cases/tlv_use_case_trusted_name.c"]
-seeds = { cla = 0x00, ins = [0x01] }
+seeds = { ins = [0x01] }
 
 [targets.dictionary]
 tokens = [
@@ -184,7 +184,7 @@ tokens = [
 [[targets]]
 fuzzer = "fuzz_nfc_ndef"
 key_files = ["lib_nfc/src/nfc_ndef.c"]
-seeds = { cla = 0x00, ins = [0x01] }
+seeds = { ins = [0x01] }
 
 [targets.dictionary]
 tokens = [
@@ -317,7 +317,7 @@ tokens = [
 [[targets]]
 fuzzer = "fuzz_nbgl_page"
 key_files = ["lib_nbgl/src/nbgl_page.c", "lib_nbgl/src/nbgl_layout.c"]
-seeds = { cla = 0x00, ins = [0x01] }
+seeds = { ins = [0x01] }
 
 [targets.dictionary]
 tokens = [

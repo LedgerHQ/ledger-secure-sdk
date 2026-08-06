@@ -39,8 +39,7 @@ Call once after `project()`. It:
 - resolves Absolution (downloads the pinned release, or uses a local install),
 - adds the SDK fuzz subtree (mocks + instrumented SDK libraries),
 - bootstraps missing generated files so a fresh checkout configures cleanly:
-  `invariants/fuzz_globals.zon` becomes `.{}` and `mock/scenario_layout.h`
-  gets sentinel values,
+  `invariants/fuzz_globals.zon` becomes `.{}`,
 - requires `mock/mocks.h` to exist (it is app-owned; see @ref fuzzing_mocks).
 
 @section cm_target ledger_fuzz_add_app_target()

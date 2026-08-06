@@ -1,2 +1,8 @@
 # Standard macro for excluding code from a fuzzer build
 FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION=1
+# Selects cx_ecpoint_rnd_fixed_scalarmul() over cx_ecpoint_rnd_scalarmul() in
+# lib_cxng/src/cx_ecdsa.c, and gates a syscall stub in the generated mock. It is
+# in no production Makefile, so the fuzz build genuinely diverges here; recorded
+# in this list rather than injected PUBLIC from lib_cxng.cmake so the divergence
+# is visible where every other one is.
+HAVE_FIXED_SCALAR_LENGTH

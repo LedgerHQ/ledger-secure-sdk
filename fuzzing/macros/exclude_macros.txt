@@ -1,5 +1,28 @@
-# Fuzzing uses printf.
+# Drop production's -DPRINTF(...)= so PRINTF resolves through os_print.h instead.
+# Note this produces no output: HAVE_PRINTF is undefined, so os_print.h:16 supplies
+# an empty `#define PRINTF(...)`. Measured 0 call sites to the PRINTF symbol in a
+# built fuzzer -- the weak definition in mock/fuzz_runtime.c is a link-time safety
+# net for a TU that misses the header, not a logging path.
 PRINTF(...)=
 # Breaks pic mock function
 USE_OS_IO_STACK
-NDEBUG
+# Selects the ARM assembly SHA-512 block function (cx_sha512_alt_m0.s), which
+# cannot be assembled for the host. Every host build must exclude it, so it
+# belongs here rather than in each app's list.
+HAVE_SHA512_WITH_BLOCK_ALT_METHOD
+HAVE_SHA512_WITH_BLOCK_ALT_METHOD_M0
+
+# NDEBUG is deliberately NOT excluded.
+#
+# Production defines it, and the fuzz build keeps it, so assert() stays compiled
+# out. That matters for exactly one assert: Absolution's generated fuzzer ends
+# every iteration with `assert(check_invariant() == 0)`, which re-verifies that
+# the sampled globals still satisfy the invariant model *after* the app has run.
+#
+# That check suits an entrypoint which does not modify the modelled state. These
+# harnesses are the opposite case -- restoring state and then letting the app
+# mutate it is the point -- so the assertion fires within a couple of iterations.
+#
+# Do not remove NDEBUG here to re-enable the assertion: CMake's RelWithDebInfo
+# flags put -DNDEBUG straight back. Narrow the model to globals the entrypoint
+# must not touch instead; it is not a build-flag change.

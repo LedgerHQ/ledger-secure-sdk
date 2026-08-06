@@ -4,10 +4,10 @@ include(${BOLOS_SDK}/fuzzing/libs/lib_cxng.cmake)
 include(${BOLOS_SDK}/fuzzing/libs/lib_io.cmake)
 include(${BOLOS_SDK}/fuzzing/libs/lib_nfc.cmake)
 
-file(GLOB LIB_STANDARD_APP_SOURCES "${BOLOS_SDK}/lib_standard_app/*.c" "${BOLOS_SDK}/src/os_printf.c")
+file(GLOB LIB_STANDARD_APP_SOURCES CONFIGURE_DEPENDS "${BOLOS_SDK}/lib_standard_app/*.c" "${BOLOS_SDK}/src/os_printf.c")
 list(REMOVE_ITEM LIB_STANDARD_APP_SOURCES
      "${BOLOS_SDK}/lib_standard_app/main.c")
-add_library(standard_app ${LIB_STANDARD_APP_SOURCES})
+add_library(standard_app STATIC ${LIB_STANDARD_APP_SOURCES})
 target_link_libraries(standard_app PUBLIC macros mock cxng io nfc)
 target_compile_options(standard_app PRIVATE ${COMPILATION_FLAGS})
 target_include_directories(

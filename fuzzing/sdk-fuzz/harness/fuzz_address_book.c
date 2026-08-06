@@ -2,7 +2,6 @@
 
 #include "mocks.h"
 #include "parser.h"
-#include "scenario_layout.h"
 
 #include <stdint.h>
 #include <stddef.h>
@@ -16,18 +15,9 @@
 #include "lcx_rng.h"
 #include "tlv_mutator.h"
 
-/* ── Structured-lane / mutator macros ────────────────────────────────────── */
-
-#define FUZZ_PREFIX_SIZE_FALLBACK 0
-#define FUZZ_CTRL_OFF             SCEN_CTRL_OFF
-#define FUZZ_CTRL_LEN             SCEN_CTRL_LEN
-#define fuzz_lane_is_structured(data, ps) \
-    ((ps) > FUZZ_CTRL_OFF && (data)[FUZZ_CTRL_OFF] > FUZZ_STRUCTURED_LANE_THRESHOLD)
-
+/* This harness supplies its own LLVMFuzzerCustomMutator() below. */
+#define FUZZ_APP_CUSTOM_MUTATOR
 #include "fuzz_mutator.h"
-#include "fuzz_layout_check.h"
-
-extern const size_t absolution_globals_size __attribute__((weak));
 
 /* ── TLV grammar tables (one per P1 sub-command) ────────────────────────── */
 /* Used by the custom mutator to produce well-formed TLV inputs.  Each table
@@ -143,23 +133,21 @@ static const tlv_tag_info_t PROVIDE_LEDGER_ACCOUNT_TAGS[] = {
 };
 
 /* ── P1-aware custom mutator ─────────────────────────────────────────────── */
-/* Tail layout (after Absolution prefix): [ctrl][cmd][p1][p2][TLV payload...]
- * The harness strips the prefix before fuzz_harness_entry, so TLV bytes start
- * at data[ps+4].  We keep ctrl/cmd/p1/p2 intact and mutate only the TLV so
- * the grammar chosen here stays consistent with the P1 value.              */
-size_t LLVMFuzzerCustomMutator(uint8_t *data, size_t size, size_t max_size, unsigned int seed)
+/* Harness input: [ctrl][cmd][p1][p2][TLV payload...]. The framework hands this
+ * function the input with the sampled prefix already stripped, so only the four
+ * control bytes are stepped over here. They are preserved so the grammar picked
+ * from P1 stays consistent with the P1 the harness will dispatch.            */
+static size_t address_book_mutate_input(uint8_t     *input,
+                                        size_t       size,
+                                        size_t       max_size,
+                                        unsigned int seed)
 {
-    size_t ps = FUZZ_PREFIX_SIZE_FALLBACK;
-    if (&absolution_globals_size != NULL && absolution_globals_size != 0) {
-        ps = absolution_globals_size;
-    }
-
-    if (ps == 0 || ps + 4 >= max_size || size <= ps + 4 || (seed & 1U) != 0) {
-        return fuzz_custom_mutator(data, size, max_size, seed);
+    if (size <= FUZZ_CTRL_LEN || max_size <= FUZZ_CTRL_LEN) {
+        return size;
     }
 
     /* Select grammar based on the raw P1 byte; harness will clamp it. */
-    uint8_t               p1     = data[ps + 2];
+    uint8_t               p1     = input[2];
     const tlv_tag_info_t *tags   = NULL;
     size_t                n_tags = 0;
 
@@ -197,19 +185,26 @@ size_t LLVMFuzzerCustomMutator(uint8_t *data, size_t size, size_t max_size, unsi
             n_tags = N_TAGS(PROVIDE_LEDGER_ACCOUNT_TAGS);
             break;
         default:
-            return fuzz_custom_mutator(data, size, max_size, seed);
+            return size;
     }
 
     current_tlv_fuzz_config.tags_info = tags;
     current_tlv_fuzz_config.num_tags  = n_tags;
 
     /* Mutate only the TLV region; ctrl/cmd/p1/p2 are preserved. */
-    uint8_t *tlv_data     = data + ps + 4;
-    size_t   tlv_avail    = (size > ps + 4) ? size - (ps + 4) : 0;
-    size_t   tlv_max      = max_size - (ps + 4);
-    size_t   new_tlv_size = tlv_custom_mutate(tlv_data, tlv_avail, tlv_max, seed >> 2);
+    size_t tlv_size = tlv_custom_mutate(
+        input + FUZZ_CTRL_LEN, size - FUZZ_CTRL_LEN, max_size - FUZZ_CTRL_LEN, seed);
 
-    return ps + 4 + new_tlv_size;
+    return FUZZ_CTRL_LEN + tlv_size;
+}
+
+size_t LLVMFuzzerCustomMutator(uint8_t *data, size_t size, size_t max_size, unsigned int seed)
+{
+    if ((seed & 1U) != 0) {
+        return fuzz_custom_mutator(data, size, max_size, seed);
+    }
+
+    return fuzz_mutate_input_with(data, size, max_size, seed >> 1, address_book_mutate_input);
 }
 
 /* ── OS syscall stubs ────────────────────────────────────────────────────── */
@@ -360,7 +355,7 @@ bool handle_provide_ledger_account(const ledger_account_t *account)
 const fuzz_command_spec_t fuzz_commands[] = {
     {.cla = 0x00, .ins = 0x00, .p1_max = 0x21, .p2_max = 0x80},
 };
-const size_t fuzz_n_commands = 1;
+FUZZ_COMMAND_COUNT();
 
 /* Maximum payload per APDU chunk (mirrors address_book.c). */
 #define AB_MAX_CHUNK (OS_IO_SEPH_BUFFER_SIZE - 3 - 5)
@@ -417,9 +412,4 @@ void fuzz_app_dispatch(void *cmd)
             addr_book_handle_apdu(cont_buf, cont_len, c->p1, 0x80);
         }
     }
-}
-
-int fuzz_entry(const uint8_t *data, size_t size)
-{
-    return fuzz_harness_entry(data, size);
 }
