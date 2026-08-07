@@ -23,8 +23,8 @@
  * to transmit the identifier, scope, or network fields.
  *
  * Flow:
- *  1. Parse TLV payload (gid + new_name + previous_name +
- *     derivation_path + hmac_proof)
+ *  1. Parse TLV payload (gid + new_name + previous_name
+ *     [+ derivation_path] + hmac_proof)
  *  2. Verify HMAC_PROOF over (gid, previous_name)
  *  3. Display UI: old name → new name
  *  4. On confirm: compute new HMAC_PROOF over (gid, new_name) and send
@@ -172,7 +172,9 @@ static bool handle_group_handle(const tlv_data_t *data, s_edit_contact_name_ctx 
  */
 static bool handle_derivation_path(const tlv_data_t *data, s_edit_contact_name_ctx *context)
 {
-    return address_book_handle_derivation_path(data, &context->edit->bip32_path);
+    UNUSED(data);
+    UNUSED(context);
+    return true;
 }
 
 /**
@@ -210,7 +212,6 @@ static bool verify_fields(const s_edit_contact_name_ctx *context)
                                           TAG_CONTACT_NAME,
                                           TAG_PREVIOUS_NAME,
                                           TAG_GROUP_HANDLE,
-                                          TAG_DERIVATION_PATH,
                                           TAG_HMAC_PROOF);
     if (!result) {
         PRINTF("[Edit Contact Name] Missing mandatory fields!\n");
@@ -245,11 +246,11 @@ static bool build_and_send_response(void)
 {
     uint8_t hmac_proof[CX_SHA256_SIZE] = {0};
 
-    if (!address_book_compute_hmac_proof(&g_ab_payload.edit_contact_name.bip32_path,
-                                         g_ab_payload.edit_contact_name.gid,
+    if (!address_book_compute_hmac_proof(g_ab_payload.edit_contact_name.gid,
                                          g_ab_payload.edit_contact_name.contact_name,
                                          hmac_proof)) {
         PRINTF("[Edit Contact Name] Error: Failed to compute new HMAC_PROOF\n");
+        explicit_bzero(hmac_proof, sizeof(hmac_proof));
         return false;
     }
 
@@ -336,16 +337,13 @@ bolos_err_t edit_contact_name(uint8_t *buffer_in, size_t buffer_in_length)
     print_payload(&ctx);
 
     // Verify the group handle and extract the gid
-    if (!address_book_verify_group_handle(&g_ab_payload.edit_contact_name.bip32_path,
-                                          ctx.group_handle,
-                                          g_ab_payload.edit_contact_name.gid)) {
+    if (!address_book_verify_group_handle(ctx.group_handle, g_ab_payload.edit_contact_name.gid)) {
         PRINTF("[Edit Contact Name] Group handle verification failed\n");
         return SWO_SECURITY_CONDITION_NOT_SATISFIED;
     }
 
     // Verify the wallet holds a valid HMAC_PROOF for the previous name
-    if (!address_book_verify_hmac_proof(&g_ab_payload.edit_contact_name.bip32_path,
-                                        g_ab_payload.edit_contact_name.gid,
+    if (!address_book_verify_hmac_proof(g_ab_payload.edit_contact_name.gid,
                                         g_ab_payload.edit_contact_name.old_contact_name,
                                         ctx.hmac_proof)) {
         PRINTF("[Edit Contact Name] HMAC_PROOF verification failed\n");
