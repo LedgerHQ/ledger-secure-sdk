@@ -22,8 +22,6 @@ export APP_SANITIZER="${APP_SANITIZER:-${SANITIZER:-address}}"
 SCRIPT_DIR="${BOLOS_SDK}/fuzzing/scripts"
 # shellcheck source=/dev/null
 source "${SCRIPT_DIR}/app-common.sh"
-# shellcheck source=/dev/null
-source "${SCRIPT_DIR}/app-config.sh"
 
 BUILD_DIR="${APP_FUZZ_DIR}/build"
 export BUILD_DIR_FAST="${BUILD_DIR}"
@@ -32,8 +30,6 @@ ship_target() {
   local target="${1}"
   local inv seed_dir prefix_size compat_key min_size fuzzer_flag=""
   [[ "${IS_MULTI_TARGET}" == "1" ]] && fuzzer_flag="--fuzzer ${target}"
-
-  update_scenario_layout "${BUILD_DIR}" "${target}" "${SCENARIO_LAYOUT_HEADER}"
 
   inv="$(resolve_invariant_path "${target}")"
   prefix_size="$(prefix_size_from_generated_fuzzer "${BUILD_DIR}" "${target}")"

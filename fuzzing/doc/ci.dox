@@ -21,7 +21,17 @@ small `.clusterfuzzlite/` folder:
 
 On a PR, ClusterFuzzLite builds the targets with `build.sh`, runs each one under
 a sanitizer for a time budget, and reports any crash on the PR with the input
-attached.
+attached. It also replays the corpus against a coverage build and uploads the
+result to Codecov under the `fuzzing` flag, so the PR comment shows what share of
+the app the fuzzers currently reach.
+
+CI keeps its own corpus per target, as a build artifact and separate from the
+committed @ref fuzzing_corpus "base corpus". Every run downloads the newest one
+before fuzzing, so a PR starts from what the last campaign found rather than from
+seeds alone. Scheduled runs grow it and a pruning run then minimises it; because
+the newest upload is what later runs pick up, pruning always runs after them.
+Artifacts expire after about 90 days, so a repository left idle longer than that
+restarts from generated seeds plus the committed base corpus.
 
 @section ci_build The shared build script
 
@@ -70,8 +80,18 @@ Fuzzing only guards what it can still build and interpret. As an app changes:
 - **Keep the harness in sync** with the real dispatcher: if the app adds a
   command, add it to `fuzz_commands[]` (see @ref fuzzing_harness) so CI actually
   exercises it.
-- **Keep coverage honest**: check the campaign's `key-files-coverage.txt` for
-  the files you care about; low numbers usually mean the prefix needs tuning
-  (@ref fuzzing_invariants) or the seeds/dictionary need work.
+- **When Codecov reports a coverage drop** on your PR, the fuzzers are not
+  reaching the code you added. Add the new command to `fuzz_commands[]` and
+  dispatch it (@ref fuzzing_harness); that accounts for most drops. If the
+  feature only runs from a state the prefix cannot express, give the invariant the
+  globals it needs (@ref fuzzing_invariants) — but note that changing the
+  invariant changes the compatibility key, so the committed base corpus is skipped
+  from then on (@ref fuzzing_corpus). Finish by running a local campaign
+  (@ref fuzzing_running) and promoting its corpus: that restores the key and
+  re-establishes the coverage the report lost.
+- **Keep coverage honest locally too**: check the campaign's
+  `key-files-coverage.txt` for the files you care about; low numbers usually mean
+  the prefix needs tuning (@ref fuzzing_invariants) or the seeds/dictionary need
+  work.
 
 */

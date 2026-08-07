@@ -27,16 +27,27 @@ typedef struct {
 /** Active grammar; set it before calling @ref tlv_custom_mutate(). */
 extern tlv_fuzz_config_t current_tlv_fuzz_config;
 
+/** @brief Build a @ref tlv_fuzz_config_t from a @ref tlv_tag_info_t array. */
+#define TLV_CFG(arr)                                                   \
+    {                                                                  \
+        .tags_info = (arr), .num_tags = sizeof(arr) / sizeof((arr)[0]) \
+    }
+
 /** @brief Mutate a TLV byte range in place, preserving valid framing. */
 size_t tlv_custom_mutate(uint8_t *data, size_t size, size_t max_size, unsigned int seed);
 
-/* Indexed-grammar dispatch helper: picks the active command's grammar from configs[] and mutates
- * the TLV tail, else falls back to fuzz_custom_mutator(). */
-#if defined(FUZZ_PREFIX_SIZE_FALLBACK) && defined(FUZZ_CTRL_OFF) && defined(fuzz_lane_is_structured)
+/*
+ * Indexed-grammar dispatch helper: picks the active command's grammar from
+ * configs[] and mutates that command's TLV payload, falling back to the generic
+ * mutator otherwise.
+ *
+ * The command index is read from the harness input's control bytes (see
+ * fuzz_defs.h), the same bytes fuzz_harness_entry() uses to select the command,
+ * so the grammar chosen here always matches the command that will run.
+ */
+#include "fuzz_mutator.h"
 
-extern const size_t absolution_globals_size __attribute__((weak));
 extern const size_t fuzz_n_commands;
-size_t fuzz_custom_mutator(uint8_t *data, size_t size, size_t max_size, unsigned int seed);
 
 static inline size_t fuzz_tlv_dispatch_mutate(uint8_t                 *data,
                                               size_t                   size,
@@ -45,17 +56,15 @@ static inline size_t fuzz_tlv_dispatch_mutate(uint8_t                 *data,
                                               const tlv_fuzz_config_t *configs,
                                               size_t                   n_configs)
 {
-    size_t ps = FUZZ_PREFIX_SIZE_FALLBACK;
-    if (&absolution_globals_size != NULL && absolution_globals_size != 0) {
-        ps = absolution_globals_size;
-    }
+    const size_t ps = fuzz_prefix_size();
 
-    if (ps == 0 || ps + 6 >= max_size || size <= ps + 6) {
+    /* Need the prefix plus control bytes plus a 2-byte payload length header. */
+    if (ps == 0 || ps + FUZZ_CTRL_LEN + 2 >= max_size || size <= ps + FUZZ_CTRL_LEN + 2) {
         return fuzz_custom_mutator(data, size, max_size, seed);
     }
 
-    uint8_t cmd_byte = fuzz_lane_is_structured(data, ps) ? data[FUZZ_CTRL_OFF + 1] : data[ps + 1];
-    size_t  cmd_idx  = cmd_byte % fuzz_n_commands;
+    uint8_t *input   = data + ps;
+    size_t   cmd_idx = input[1] % fuzz_n_commands;
 
     if (cmd_idx >= n_configs || configs[cmd_idx].num_tags == 0 || (seed & 1U) != 0) {
         return fuzz_custom_mutator(data, size, max_size, seed);
@@ -63,21 +72,15 @@ static inline size_t fuzz_tlv_dispatch_mutate(uint8_t                 *data,
 
     current_tlv_fuzz_config = configs[cmd_idx];
 
-    uint8_t *payload      = data + ps + 4;
-    size_t   payload_size = size - ps - 4;
-    size_t   max_payload  = max_size - ps - 4;
+    uint8_t *payload      = input + FUZZ_CTRL_LEN;
+    size_t   payload_size = size - ps - FUZZ_CTRL_LEN;
+    size_t   max_payload  = max_size - ps - FUZZ_CTRL_LEN;
 
-    if (payload_size <= 2 || max_payload <= 2) {
-        return fuzz_custom_mutator(data, size, max_size, seed);
-    }
-
-    uint8_t *tlv_data = payload + 2;
-    size_t   tlv_size = tlv_custom_mutate(tlv_data, payload_size - 2, max_payload - 2, seed >> 2);
+    /* First two payload bytes carry the TLV length. */
+    size_t tlv_size = tlv_custom_mutate(payload + 2, payload_size - 2, max_payload - 2, seed >> 2);
 
     payload[0] = (uint8_t) (tlv_size >> 8);
     payload[1] = (uint8_t) (tlv_size & 0xFF);
 
-    return ps + 4 + 2 + tlv_size;
+    return ps + FUZZ_CTRL_LEN + 2 + tlv_size;
 }
-
-#endif

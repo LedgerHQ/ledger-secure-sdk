@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# This file locates its own siblings rather than trusting the caller to have set
+# SCRIPT_DIR: it is used in eight places here, including at source time now that
+# the manifest configuration lives at the bottom, and a caller that forgot it got
+# "python3: can't open file '/fuzz_manifest.py'" instead of a named cause.
+SCRIPT_DIR="${SCRIPT_DIR:-$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)}"
+
 pick_cmd() {
   local env_name="$1"
   local env_value="$2"
@@ -25,6 +31,32 @@ pick_cmd() {
 pick_clang() { pick_cmd CC "${CC:-}" clang clang-21; }
 pick_llvm_profdata() { pick_cmd LLVM_PROFDATA "${LLVM_PROFDATA:-}" llvm-profdata llvm-profdata-21; }
 pick_llvm_cov() { pick_cmd LLVM_COV "${LLVM_COV:-}" llvm-cov llvm-cov-21; }
+
+# LLVM's raw profile format is locked to the release that produced it: reading one
+# with a different llvm-profdata fails outright ("raw profile version mismatch:
+# Profile uses raw profile format version = 13; expected version = 10"). That used
+# to surface at the merge -- after a full build and a full campaign -- so the three
+# tools are compared up front instead.
+llvm_major() { "${1}" --version 2>/dev/null | sed -n 's/.*version \([0-9][0-9]*\).*/\1/p' | head -1; }
+
+check_llvm_versions() {
+  local cc="${1}" profdata="${2}" cov="${3}"
+  local cc_v profdata_v cov_v
+  cc_v="$(llvm_major "${cc}")"
+  profdata_v="$(llvm_major "${profdata}")"
+  cov_v="$(llvm_major "${cov}")"
+
+  if [[ -z "${cc_v}" || -z "${profdata_v}" || -z "${cov_v}" ]]; then
+    echo "warning: no version readable from ${cc} / ${profdata} / ${cov}; skipping the check" >&2
+    return 0
+  fi
+  if [[ "${profdata_v}" != "${cc_v}" || "${cov_v}" != "${cc_v}" ]]; then
+    echo "error: LLVM tools come from different releases -- coverage cannot work." >&2
+    echo "  ${cc}: ${cc_v}    ${profdata}: ${profdata_v}    ${cov}: ${cov_v}" >&2
+    echo "hint: set CC / LLVM_PROFDATA / LLVM_COV to one matching release." >&2
+    return 1
+  fi
+}
 
 cmake_bool() {
   local value="${1:-}"
@@ -74,7 +106,7 @@ resolve_invariant_path() {
 configure_fuzz_build() {
   local app_dir="${1:?missing app dir}"
   local build_dir="${2:?missing build dir}"
-  local build_type="${3:-${APP_FUZZ_BUILD_TYPE:-RelWithDebInfo}}"
+  local build_type="${3:-RelWithDebInfo}"
   local llvm_coverage
   local sdk_dir="${BOLOS_SDK:?BOLOS_SDK must be set}"
   local clang
@@ -98,6 +130,7 @@ configure_fuzz_build() {
     generator=(-G Ninja)
   fi
 
+  # The generated prefix size is compiled in, so it is part of the configure identity.
   local _config_key="${app_dir}|${fuzz_subdir}|${build_type}|${sdk_dir}|${target}|${sanitizer}|${llvm_coverage}"
   local _config_hash
   _config_hash=$(printf '%s' "${_config_key}" | sha256sum | cut -d' ' -f1)
@@ -151,38 +184,12 @@ prefix_size_from_generated_fuzzer() {
   grep -oP '#define ABSOLUTION_GLOBALS_SIZE \K[0-9]+' "${fuzzer_c}"
 }
 
+# -max_len = prefix + the app's declared tail budget. TAIL_BUDGET comes from the
+# manifest via fuzz_manifest.py --shell; the fallback matches its DEFAULT_TAIL_BUDGET
+# and is what the APDU protocol allows (4 control bytes + a 255-byte Lc + slack).
 default_max_len_for_prefix() {
   local prefix_size="${1:?missing prefix size}"
-  local tail_budget="${TAIL_BUDGET:-24576}"
-  local min_max_len="${MIN_MAX_LEN:-65536}"
-  local max_len=$((prefix_size + tail_budget))
-
-  if (( max_len < min_max_len )); then
-    max_len="${min_max_len}"
-  fi
-
-  echo "${max_len}"
-}
-
-update_scenario_layout() {
-  local build_dir="${1:?missing build dir}"
-  local fuzzer_name="${2:?missing fuzzer name}"
-  local layout_header="${3:?missing scenario_layout.h path}"
-  local fuzzer_c="${build_dir}/_absolution/${fuzzer_name}/fuzzer.c"
-  shift 3
-
-  if [[ ! -f "${fuzzer_c}" ]]; then
-    echo "warning: generated fuzzer.c not found at ${fuzzer_c}, skipping layout update" >&2
-    return 0
-  fi
-
-  if [[ ! -f "${layout_header}" ]]; then
-    echo "warning: scenario_layout.h not found at ${layout_header}, skipping layout update" >&2
-    return 0
-  fi
-
-  python3 "${SCRIPT_DIR}/update-scenario-layout.py" "${fuzzer_c}" "${layout_header}" "$@" \
-    "${LAYOUT_UPDATE_EXTRA_ARGS[@]}"
+  echo "$(( prefix_size + ${TAIL_BUDGET:-288} ))"
 }
 
 sync_invariant() {
@@ -229,15 +236,14 @@ sync_invariant() {
     fi
   fi
 
-  python3 "${SCRIPT_DIR}/sync-invariant.py" \
-    "${generated_zon}" "${app_invariant}" "${extra_args[@]}"
-
   local domain_overrides
   domain_overrides="$(dirname "${app_invariant}")/domain-overrides.txt"
   if [[ -f "${domain_overrides}" ]]; then
-    python3 "${SCRIPT_DIR}/tune-invariant-domains.py" \
-      "${app_invariant}" "${domain_overrides}"
+    extra_args+=(--domain-overrides "${domain_overrides}")
   fi
+
+  python3 "${SCRIPT_DIR}/invariant.py" \
+    "${generated_zon}" "${app_invariant}" "${extra_args[@]}"
 
   mkdir -p "$(dirname "${_inv_hash_file}")"
   echo "${_inv_hash}" > "${_inv_hash_file}"
@@ -300,4 +306,129 @@ stage_base_corpus() {
   fi
 
   python3 "${SCRIPT_DIR}/corpus.py" unpack "${zip}" "${dest_dir}"
+}
+
+# ── Manifest-derived campaign configuration ───────────────────────────────────
+# Everything below ran from a separate app-config.sh that both entry points
+# sourced on the line after this file, and that neither could work without.
+#
+# fuzz_manifest.py parses TOML with tomllib, so python3 must be 3.11 or newer;
+# checked here so a stale interpreter is named rather than arriving as a
+# ModuleNotFoundError traceback wrapped in "failed to list targets".
+if ! python3 -c 'import sys; sys.exit(0 if sys.version_info >= (3, 11) else 1)' 2>/dev/null; then
+  echo "error: python3 >= 3.11 is required (tomllib); found $(python3 --version 2>&1)" >&2
+  exit 1
+fi
+
+if [[ -z "${APP_DIR:-}" ]]; then
+  echo "error: APP_DIR is not set." >&2
+  echo "hint: export APP_DIR=/path/to/app or use --app-dir." >&2
+  exit 1
+fi
+
+APP_FUZZ_SUBDIR="${APP_FUZZ_SUBDIR:-fuzzing}"
+export APP_FUZZ_SUBDIR
+APP_FUZZ_DIR="${APP_DIR}/${APP_FUZZ_SUBDIR}"
+if [[ ! -d "${APP_FUZZ_DIR}" ]]; then
+  echo "error: app fuzzing directory not found at ${APP_FUZZ_DIR}" >&2
+  echo "hint: set APP_DIR to the app root directory (e.g. /path/to/app-boilerplate)." >&2
+  echo "      see the Fuzzing Framework page in the SDK documentation." >&2
+  exit 1
+fi
+
+_APP_MANIFEST="${APP_FUZZ_DIR}/fuzz-manifest.toml"
+export _APP_MANIFEST
+
+if [[ ! -f "${_APP_MANIFEST}" ]]; then
+  echo "error: fuzz-manifest.toml not found at ${_APP_MANIFEST}" >&2
+  echo "hint: create one from the app-boilerplate reference (app-boilerplate/fuzzing/fuzz-manifest.toml)" >&2
+  exit 1
+fi
+
+_target_list=$(python3 "${SCRIPT_DIR}/fuzz_manifest.py" --list-targets "${_APP_MANIFEST}" 2>&1) || {
+  echo "error: failed to list targets: ${_target_list}" >&2
+  exit 1
+}
+mapfile -t ALL_TARGETS <<< "${_target_list}"
+export ALL_TARGETS
+
+IS_MULTI_TARGET=0
+if (( ${#ALL_TARGETS[@]} > 1 )); then
+  IS_MULTI_TARGET=1
+fi
+export IS_MULTI_TARGET
+
+FUZZER="${FUZZER:-fuzz_globals}"
+KEY_FILES_REL=()
+COVERAGE_EXCLUDE_REGEXES=(
+  '.*ledger-secure-sdk.*'
+  '.*fuzz_dispatcher\.c'
+  '.*fuzzer\.c'
+  '.*fuzzing/mock/.*'
+  '.*src/main\.c'
+  '.*src/ui/menu_nbgl\.c'
+)
+
+if [[ "${IS_MULTI_TARGET}" == "0" ]]; then
+  _manifest_vars=$(python3 "${SCRIPT_DIR}/fuzz_manifest.py" --shell "${_APP_MANIFEST}" 2>&1) || {
+    echo "error: failed to read manifest: ${_manifest_vars}" >&2
+    exit 1
+  }
+  eval "${_manifest_vars}"
+  unset _manifest_vars
+else
+  # Coverage excludes are shared, so read them from the first target.
+  _manifest_vars=$(python3 "${SCRIPT_DIR}/fuzz_manifest.py" --shell "${_APP_MANIFEST}" \
+    --fuzzer "${ALL_TARGETS[0]}" 2>&1) || {
+    echo "error: failed to read manifest: ${_manifest_vars}" >&2
+    exit 1
+  }
+  eval "$(echo "${_manifest_vars}" | grep '^COVERAGE_EXCLUDE_REGEXES=')"
+  unset _manifest_vars
+fi
+
+load_target_config() {
+  local target_name="${1:?missing target name}"
+  local _vars
+
+  _vars=$(python3 "${SCRIPT_DIR}/fuzz_manifest.py" --shell "${_APP_MANIFEST}" \
+    --fuzzer "${target_name}" 2>&1) || {
+    echo "error: failed to load config for target '${target_name}': ${_vars}" >&2
+    return 1
+  }
+  eval "${_vars}"
+}
+
+# Promoted base corpus: a zip of inputs plus a tracked compat-key sidecar.
+# Set BASE_CORPUS_ZIP= (empty) to skip it for a run.
+BASE_CORPUS_ZIP="${BASE_CORPUS_ZIP-${APP_FUZZ_DIR}/base-corpus.zip}"
+BASE_CORPUS_KEY="${BASE_CORPUS_KEY:-${APP_FUZZ_DIR}/base-corpus.compat-key}"
+if [[ -n "${BASE_CORPUS_ZIP}" && ! -f "${BASE_CORPUS_ZIP}" ]]; then
+  BASE_CORPUS_ZIP=""
+fi
+export BASE_CORPUS_ZIP BASE_CORPUS_KEY
+
+write_app_dictionary() {
+  local manifest_path="${_APP_MANIFEST}"
+  local fuzzer_flag=""
+  if [[ "${IS_MULTI_TARGET}" == "1" && -n "${2:-}" ]]; then
+    fuzzer_flag="--fuzzer ${2}"
+  fi
+  # shellcheck disable=SC2086
+  python3 "${SCRIPT_DIR}/fuzz_manifest.py" --dict "${manifest_path}" "${1}" ${fuzzer_flag} >/dev/null
+}
+
+generate_app_seed_corpus() {
+  local output_dir="${1:?missing output dir}"
+  local fuzzer_flag=""
+  if [[ "${IS_MULTI_TARGET}" == "1" && -n "${2:-}" ]]; then
+    fuzzer_flag="--fuzzer ${2}"
+  fi
+  local build_fast="${BUILD_DIR_FAST:-${APP_DIR}/build/fast}"
+  APP_DIR="${APP_DIR}" \
+  BUILD_DIR_FAST="${build_fast}" \
+  BUILD_DIR="${build_fast}" \
+  BUILD_DIR_COV="${BUILD_DIR_COV:-${APP_DIR}/build/cov}" \
+  FUZZER="${FUZZER}" \
+  python3 "${SCRIPT_DIR}/seeds.py" "${_APP_MANIFEST}" "${output_dir}" ${fuzzer_flag}
 }

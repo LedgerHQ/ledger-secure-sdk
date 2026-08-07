@@ -18,10 +18,12 @@ file(
   "${BOLOS_SDK}/lib_u2f_legacy/src/*.c"
   "${BOLOS_SDK}/protocol/src/*.c")
 
-add_library(io ${LIB_IO_SOURCES})
+add_library(io STATIC ${LIB_IO_SOURCES})
 target_link_libraries(io PUBLIC nbgl cxng macros nfc)
 target_compile_options(io PRIVATE ${COMPILATION_FLAGS})
-target_compile_options(io PUBLIC -Wno-implicit-function-declaration)
+# PRIVATE, not PUBLIC: as PUBLIC it propagates through secure_sdk onto every TU
+# and hides genuinely wrong implicit declarations in app code.
+target_compile_options(io PRIVATE -Wno-implicit-function-declaration)
 target_include_directories(
   io
   PUBLIC "${BOLOS_SDK}/include/"

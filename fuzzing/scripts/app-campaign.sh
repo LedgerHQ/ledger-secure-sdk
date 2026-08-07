@@ -33,7 +33,6 @@ if [[ -n "${_CLI_FUZZ_SUBDIR}" ]]; then
 fi
 
 source "${SCRIPT_DIR}/app-common.sh"
-source "${SCRIPT_DIR}/app-config.sh"
 
 CAMPAIGN_TARGETS=()
 if (( ${#_CLI_TARGETS[@]} > 0 )); then
@@ -57,17 +56,20 @@ BUILD_DIR_FAST=$(realpath -m "${BUILD_DIR_FAST:-${BUILD_DIR:-${APP_DIR}/build/fa
 BUILD_DIR_COV=$(realpath -m "${BUILD_DIR_COV:-${APP_DIR}/build/cov}")
 ARTIFACTS_ROOT=$(realpath -m "${ARTIFACTS_ROOT:-${APP_DIR}/.fuzz-artifacts}")
 RUN_DIR="${ARTIFACTS_ROOT}/${RUN_NAME}"
+# Three knobs. Everything else is fixed, so two runs differ only by these.
 WORKERS="${WORKERS:-$(pick_default_workers)}"
-WARMUP_SEC="${WARMUP_SEC:-30}"
-MAIN_SEC="${MAIN_SEC:-60}"
-LIBFUZZER_SEED="${LIBFUZZER_SEED:-13371337}"
-TIMEOUT_SEC="${TIMEOUT_SEC:-2}"
-VALUE_PROFILE="${VALUE_PROFILE:-1}"
-TAIL_BUDGET="${TAIL_BUDGET:-24576}"
-MIN_MAX_LEN="${MIN_MAX_LEN:-65536}"
-MAX_LEN="${MAX_LEN:-}"
+FUZZ_TIME="${FUZZ_TIME:-90}"      # seconds of fuzzing per target
 BUILD_TYPE="${BUILD_TYPE:-RelWithDebInfo}"
-EXTRA_CORPUS="${EXTRA_CORPUS:-}"
+
+# Fixed, deliberately: a campaign is a measurement, and these decide what it
+# measures. Changing one changes results, so change it here where it is reviewed.
+readonly LIBFUZZER_SEED=13371337  # reproducible corpus growth
+# Matches ClusterFuzzLite's FUZZER_ARGS so local and CI runs behave the same.
+TIMEOUT_SEC="${TIMEOUT_SEC:-25}"
+RSS_LIMIT_MB="${RSS_LIMIT_MB:-2560}"
+readonly VALUE_PROFILE=1          # -use_value_profile
+# -max_len is the prefix plus [target].tail_budget from the app manifest; see
+# manifest.dox for why it is declared per app rather than defaulted.
 
 # shellcheck disable=SC1091
 source "${BOLOS_SDK}/fuzzing/sanitizers/load-options.sh"
@@ -105,6 +107,8 @@ run_stage() {
         -timeout="${TIMEOUT_SEC}"
         -len_control=0
         -use_value_profile="${VALUE_PROFILE}"
+        -print_final_stats=1
+        -rss_limit_mb="${RSS_LIMIT_MB}"
         -artifact_prefix="${worker_crash}/"
       )
       [[ -s "${dict_file}" ]] && _fuzz_args+=(-dict="${dict_file}")
@@ -142,31 +146,6 @@ merge_corpus_dirs() {
   "${fuzzer_path}" "${_merge_args[@]}" "${output_dir}" "$@"
 }
 
-copy_bootstrap_corpus() {
-  local source_dir="${1:?missing source corpus dir}"
-  local dest_dir="${2:?missing dest dir}"
-  local label="${3:-corpus}"
-  local compat_key="${4:-}"
-
-  if [[ ! -d "${source_dir}" ]]; then
-    echo "error: ${label} directory does not exist at ${source_dir}" >&2
-    return 1
-  fi
-
-  if [[ -n "${compat_key}" && -f "${source_dir}/.compat-key" ]]; then
-    local source_key
-    source_key=$(tr -d '[:space:]' < "${source_dir}/.compat-key")
-    if [[ -n "${source_key}" && "${source_key}" != "${compat_key}" ]]; then
-      echo "error: ${label} at ${source_dir} is incompatible with the current build" >&2
-      echo "  source compat_key: ${source_key}" >&2
-      echo "  current compat_key: ${compat_key}" >&2
-      return 1
-    fi
-  fi
-
-  cp -a "${source_dir}/." "${dest_dir}/"
-}
-
 if [[ -d "${RUN_DIR}" ]]; then
   if [[ "${OVERWRITE:-0}" == "1" ]]; then
     rm -rf "${RUN_DIR}"
@@ -180,6 +159,7 @@ mkdir -p "${ARTIFACTS_ROOT}" "${RUN_DIR}"
 
 LLVM_PROFDATA_BIN="$(pick_llvm_profdata)"
 LLVM_COV_BIN="$(pick_llvm_cov)"
+check_llvm_versions "$(pick_clang)" "${LLVM_PROFDATA_BIN}" "${LLVM_COV_BIN}"
 
 if [[ "${BUILD_DIR_FAST}" == "${BUILD_DIR_COV}" ]]; then
   echo "error: BUILD_DIR_FAST and BUILD_DIR_COV must be different directories" >&2
@@ -193,23 +173,12 @@ fi
 
 # invariants/<target>.zon snapshots are machine-local (blob sizes depend on the build's memory layout); resetting to .{} forces Absolution to re-discover a model matching the current build.
 BOOTSTRAP_INVARIANT="${BOOTSTRAP_INVARIANT:-auto}"
-_should_bootstrap=0
 case "${BOOTSTRAP_INVARIANT}" in
-  1|true|yes|on)
-    _should_bootstrap=1
-    ;;
-  0|false|no|off)
-    _should_bootstrap=0
-    ;;
-  auto)
-    if [[ "${_CLI_CLEAN}" == "1" ]]; then
-      _should_bootstrap=1
-    fi
-    ;;
-  *)
-    echo "error: BOOTSTRAP_INVARIANT must be 1, 0, or auto (got: ${BOOTSTRAP_INVARIANT})" >&2
-    exit 1
-    ;;
+  auto) _should_bootstrap="${_CLI_CLEAN}" ;;  # only --clean can change the layout
+  1)    _should_bootstrap=1 ;;
+  0)    _should_bootstrap=0 ;;
+  *)    echo "error: BOOTSTRAP_INVARIANT must be 1, 0, or auto (got: ${BOOTSTRAP_INVARIANT})" >&2
+        exit 1 ;;
 esac
 
 if [[ "${_should_bootstrap}" == "1" ]]; then
@@ -255,6 +224,7 @@ if [[ "${SKIP_INVARIANT_SYNC}" != "1" ]]; then
   fi
 fi
 
+
 echo "=== Building fuzzers (coverage) ==="
 configure_fuzz_build "${APP_DIR}" "${BUILD_DIR_COV}" "${BUILD_TYPE}" 1
 
@@ -263,10 +233,6 @@ for _target in "${CAMPAIGN_TARGETS[@]}"; do
   build_fuzzer_target "${BUILD_DIR_COV}" "${_target}"
 done
 
-# scenario_layout.h is updated per-target immediately before that target's
-# seed generation so that SCEN_PREFIX_SIZE always matches the binary prefix
-# for each specific target (different targets may have different prefix sizes
-# when they expose a different set of fuzzable globals).
 
 run_single_target() {
   local target_name="${1}"
@@ -274,13 +240,10 @@ run_single_target() {
   local fuzzer_path="${BUILD_DIR_FAST}/${target_name}"
   local fuzzer_cov_path="${BUILD_DIR_COV}/${target_name}"
   local bootstrap_dir="${target_dir}/bootstrap-base"
-  local warmup_dir="${target_dir}/warmup"
-  local warmup_merged_dir="${target_dir}/warmup-merged"
-  local main_dir="${target_dir}/main"
+  local fuzz_dir="${target_dir}/fuzz"
   local final_corpus_dir="${target_dir}/corpus"
   local replay_profraw_dir="${target_dir}/replay-profraw"
   local dict_file="${target_dir}/${target_name}.dict"
-  local meta_file="${target_dir}/meta.env"
   local replay_log="${target_dir}/replay.log"
 
   mkdir -p "${target_dir}" "${bootstrap_dir}"
@@ -288,11 +251,6 @@ run_single_target() {
   if [[ "${IS_MULTI_TARGET}" == "1" ]]; then
     load_target_config "${target_name}"
   fi
-
-  local key_files=()
-  for _rel in "${KEY_FILES_REL[@]}"; do
-    key_files+=("${APP_DIR}/${_rel}")
-  done
 
   if [[ ! -x "${fuzzer_path}" ]]; then
     echo "error: missing fuzzer binary at ${fuzzer_path}" >&2
@@ -311,12 +269,13 @@ run_single_target() {
     return 1
   fi
 
-  local target_max_len="${MAX_LEN}"
-  if [[ -z "${target_max_len}" ]]; then
-    target_max_len="$(default_max_len_for_prefix "${prefix_size}")"
-  fi
+  # Derived from the target's own prefix size, not configurable: a hand-set
+  # -max_len that disagrees with the prefix silently changes what fraction of each
+  # input is state versus payload.
+  local target_max_len
+  target_max_len="$(default_max_len_for_prefix "${prefix_size}")"
   if (( target_max_len <= prefix_size )); then
-    echo "error: MAX_LEN (${target_max_len}) must be greater than prefix size (${prefix_size}) for ${target_name}" >&2
+    echo "error: computed max_len (${target_max_len}) must exceed the prefix size (${prefix_size}) for ${target_name}" >&2
     return 1
   fi
 
@@ -335,22 +294,14 @@ run_single_target() {
   echo "  Preparing bootstrap corpus for ${target_name}..."
   generate_app_seed_corpus "${bootstrap_dir}" "${target_name}"
 
-  stage_base_corpus "${bootstrap_dir}" "${compat_key}"
-
-  if [[ -n "${EXTRA_CORPUS}" ]]; then
-    local old_ifs="${IFS}"
-    IFS=':'
-    for corpus_dir in ${EXTRA_CORPUS}; do
-      [[ -n "${corpus_dir}" ]] || continue
-      corpus_dir=$(realpath -m "${corpus_dir}")
-      if [[ ! -d "${corpus_dir}" ]]; then
-        echo "error: EXTRA_CORPUS entry does not exist at ${corpus_dir}" >&2
-        return 1
-      fi
-      copy_bootstrap_corpus "${corpus_dir}" "${bootstrap_dir}" "EXTRA_CORPUS entry" "${compat_key}"
-    done
-    IFS="${old_ifs}"
+  # errexit is off inside this function, so this failure would otherwise be silent.
+  if ! stage_base_corpus "${bootstrap_dir}" "${compat_key}"; then
+    echo "  [${target_name}] WARNING: base corpus not staged -- starting from generated" \
+         "seeds only. Re-promote after this run:" >&2
+    echo "    python3 \${BOLOS_SDK}/fuzzing/scripts/corpus.py promote \\" >&2
+    echo "      ${target_dir}/corpus ${BASE_CORPUS_ZIP}" >&2
   fi
+
 
   local min_input_size=$((prefix_size + 4))
   local removed_count=0
@@ -377,73 +328,77 @@ run_single_target() {
     return 1
   fi
 
-  {
-    echo "run_name=${RUN_NAME}"
-    echo "fuzzer=${target_name}"
-    echo "prefix_size=${prefix_size}"
-    echo "max_len=${target_max_len}"
-    echo "build_dir_fast=${BUILD_DIR_FAST}"
-    echo "build_dir_cov=${BUILD_DIR_COV}"
-    echo "build_type=${BUILD_TYPE}"
-    echo "fast_llvm_coverage=OFF"
-    echo "cov_llvm_coverage=ON"
-    echo "workers=${WORKERS}"
-    echo "warmup_sec=${WARMUP_SEC}"
-    echo "main_sec=${MAIN_SEC}"
-    echo "timeout_sec=${TIMEOUT_SEC}"
-    echo "value_profile=${VALUE_PROFILE}"
-    echo "libfuzzer_seed=${LIBFUZZER_SEED}"
-    echo "extra_corpus=${EXTRA_CORPUS}"
-    echo "compat_key=${compat_key}"
-    echo "timestamp_utc=$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
-  } > "${meta_file}"
 
-  local warmup_status=0
-  local main_status=0
-
-  if (( WARMUP_SEC > 0 )); then
-    echo "  [${target_name}] Warmup: ${WORKERS} workers for ${WARMUP_SEC}s"
-    if ! run_stage "${WARMUP_SEC}" "${bootstrap_dir}" "${warmup_dir}" \
+  # One stage. Warmup and main were the same code with a different duration: run
+  # T1, merge the whole corpus, run T2, merge again. The intermediate merge was
+  # never shown to help -- libFuzzer prunes its own corpus -- so it cost a full
+  # merge pass per target and gave two ways to describe one budget.
+  local fuzz_status=0
+  if (( FUZZ_TIME > 0 )); then
+    echo "  [${target_name}] Fuzzing: ${WORKERS} worker(s) for ${FUZZ_TIME}s"
+    if ! run_stage "${FUZZ_TIME}" "${bootstrap_dir}" "${fuzz_dir}" \
         "${fuzzer_path}" "${dict_file}" "${target_max_len}"; then
-      warmup_status=1
+      fuzz_status=1
     fi
     shopt -s nullglob
-    local warmup_corpora=("${warmup_dir}"/worker-*/corpus)
-    shopt -u nullglob
-    merge_corpus_dirs "${warmup_merged_dir}" "${fuzzer_path}" "${dict_file}" "${target_max_len}" \
-      "${bootstrap_dir}" "${warmup_corpora[@]}"
-  else
-    mkdir -p "${warmup_merged_dir}"
-    cp -a "${bootstrap_dir}/." "${warmup_merged_dir}/"
-  fi
-
-  if (( MAIN_SEC > 0 )); then
-    echo "  [${target_name}] Main: ${WORKERS} workers for ${MAIN_SEC}s"
-    if ! run_stage "${MAIN_SEC}" "${warmup_merged_dir}" "${main_dir}" \
-        "${fuzzer_path}" "${dict_file}" "${target_max_len}"; then
-      main_status=1
-    fi
-    shopt -s nullglob
-    local main_corpora=("${main_dir}"/worker-*/corpus)
+    local fuzz_corpora=("${fuzz_dir}"/worker-*/corpus)
     shopt -u nullglob
     merge_corpus_dirs "${final_corpus_dir}" "${fuzzer_path}" "${dict_file}" "${target_max_len}" \
-      "${warmup_merged_dir}" "${main_corpora[@]}"
+      "${bootstrap_dir}" "${fuzz_corpora[@]}"
   else
     mkdir -p "${final_corpus_dir}"
-    cp -a "${warmup_merged_dir}/." "${final_corpus_dir}/"
+    cp -a "${bootstrap_dir}/." "${final_corpus_dir}/"
   fi
 
   local crash_dir="${target_dir}/crashes"
   mkdir -p "${crash_dir}"
-  local crash_count=0
+  # libFuzzer names artifacts by what happened; only crash- is a finding.
+  local crash_count=0 oom_count=0 timeout_count=0 leak_count=0 other_count=0
   shopt -s nullglob
-  for crash_file in "${warmup_dir}"/worker-*/crash/* "${main_dir}"/worker-*/crash/*; do
+  for crash_file in "${fuzz_dir}"/worker-*/crash/*; do
     [[ -f "${crash_file}" ]] || continue
-    cp "${crash_file}" "${crash_dir}/$(basename "${crash_file}")"
-    crash_count=$((crash_count + 1))
+    local _base; _base="$(basename "${crash_file}")"
+    cp "${crash_file}" "${crash_dir}/${_base}"
+    case "${_base}" in
+      crash-*)   crash_count=$((crash_count + 1)) ;;
+      oom-*)     oom_count=$((oom_count + 1)) ;;
+      timeout-*) timeout_count=$((timeout_count + 1)) ;;
+      leak-*)    leak_count=$((leak_count + 1)) ;;
+      *)         other_count=$((other_count + 1)) ;;
+    esac
   done
   shopt -u nullglob
   echo "  [${target_name}] Collected ${crash_count} crash file(s)"
+  if (( oom_count || timeout_count || leak_count || other_count )); then
+    echo "  [${target_name}] Also, NOT crashes -- the run hit a limit:" \
+         "${oom_count} oom, ${timeout_count} timeout, ${leak_count} leak," \
+         "${other_count} other -- see running.dox." >&2
+  fi
+
+  # Recoverable sanitizer diagnostics never abort, so libFuzzer writes no crash
+  # artifact for them and they would otherwise stay buried in the worker logs
+  # while the campaign reported a clean run. Surface them with their sites.
+  local san_report="${target_dir}/sanitizer-reports.txt"
+  shopt -s nullglob
+  local worker_logs=("${fuzz_dir}"/worker-*/fuzz.log)
+  shopt -u nullglob
+  if (( ${#worker_logs[@]} > 0 )); then
+    # Group by site and check, dropping the per-input values so the same defect
+    # does not appear once per hit. grep is line-based, so `.*` is safe here --
+    # `[^\n]*` would be a bracket expression meaning "not n", truncating the text.
+    grep -hoE '[^ ]+\.(c|h):[0-9]+:[0-9]+: runtime error: .*' "${worker_logs[@]}" 2>/dev/null \
+      | sed -e 's/ of value .*//' -e 's/ (aka [^)]*)//g' -e 's/: [0-9-]* \* [0-9-]* cannot/: N * N cannot/' \
+      | sort | uniq -c | sort -rn > "${san_report}" || true
+    if [[ -s "${san_report}" ]]; then
+      local san_sites
+      san_sites=$(wc -l < "${san_report}")
+      echo "  [${target_name}] ${san_sites} recoverable sanitizer report site(s) — no crash artifact is written for these:"
+      sed 's/^/      /' "${san_report}"
+      echo "      full list: ${san_report}"
+    else
+      rm -f "${san_report}"
+    fi
+  fi
 
   mkdir -p "${replay_profraw_dir}"
   : > "${replay_log}"
@@ -476,7 +431,7 @@ run_single_target() {
     echo "${compat_key}" > "${final_corpus_dir}/.compat-key"
   fi
 
-  if (( warmup_status != 0 || main_status != 0 )); then
+  if (( fuzz_status != 0 )); then
     return 1
   fi
 }
@@ -487,7 +442,6 @@ echo "=== Running campaign: ${#CAMPAIGN_TARGETS[@]} target(s) ==="
 
 for _target in "${CAMPAIGN_TARGETS[@]}"; do
   echo "--- Target: ${_target} ---"
-  update_scenario_layout "${BUILD_DIR_FAST}" "${_target}" "${SCENARIO_LAYOUT_HEADER}"
   if ! run_single_target "${_target}"; then
     echo "warning: target ${_target} had failures" >&2
     overall_status=1

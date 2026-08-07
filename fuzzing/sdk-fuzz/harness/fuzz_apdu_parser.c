@@ -2,24 +2,9 @@
 
 #include "mocks.h"
 #include "parser.h"
-#include "scenario_layout.h"
 
 #include <assert.h>
 #include <string.h>
-
-#define FUZZ_PREFIX_SIZE_FALLBACK 0
-#define FUZZ_CTRL_OFF             SCEN_CTRL_OFF
-#define FUZZ_CTRL_LEN             SCEN_CTRL_LEN
-#define fuzz_lane_is_structured(data, ps) \
-    ((ps) > FUZZ_CTRL_OFF && (data)[FUZZ_CTRL_OFF] > FUZZ_STRUCTURED_LANE_THRESHOLD)
-
-#include "fuzz_mutator.h"
-#include "fuzz_layout_check.h"
-
-size_t LLVMFuzzerCustomMutator(uint8_t *data, size_t size, size_t max_size, unsigned int seed)
-{
-    return fuzz_custom_mutator(data, size, max_size, seed);
-}
 
 #define IO_APDU_BUFFER_SIZE (5 + 255)
 
@@ -28,9 +13,7 @@ size_t LLVMFuzzerCustomMutator(uint8_t *data, size_t size, size_t max_size, unsi
 const fuzz_command_spec_t fuzz_commands[] = {
     {.cla = 0x00, .ins = 0x01},
 };
-const size_t fuzz_n_commands = 1;
-
-void fuzz_app_reset(void) {}
+FUZZ_COMMAND_COUNT();
 
 void fuzz_app_dispatch(void *cmd)
 {
@@ -56,9 +39,4 @@ void fuzz_app_dispatch(void *cmd)
             assert(fuzz_tail_len >= 5 + (size_t) parsed.lc);
         }
     }
-}
-
-int fuzz_entry(const uint8_t *data, size_t size)
-{
-    return fuzz_harness_entry(data, size);
 }
