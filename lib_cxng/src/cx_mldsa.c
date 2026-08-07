@@ -70,18 +70,6 @@ typedef struct MLDSA_prehash_info_s {
 } MLDSA_prehash_info_t;
 
 /**
- * Format structure of M' = 0x01 (1b)|| context_len (1b) || context (255b) || OID || PH_M.
- * (FIPS 204, Section 5.4)
- */
-typedef struct MLDSA_formatted_message_s {
-    uint8_t prefix[2U + 255U + MLDSA_PREHASH_OID_LEN]; /**< Prefix = 0x01 (1b)|| context_len (1b) ||
-                                                          context (255b) || OID */
-    size_t         prefix_len;                         /**< Prefix length */
-    const uint8_t *payload;                            /**< Pre-hash PH_M */
-    size_t         payload_len /**< Pre-hash length */;
-} MLDSA_formatted_message_t;
-
-/**
  * @brief Stack-allocated workspace for #MLDSA_internal_sign_core.
  *
  * The signer streams the secret key, the masking vector @c y and the matrix
@@ -277,17 +265,28 @@ static cx_err_t mldsa_format_message_prehash(MLDSA_formatted_message_t *mprime,
  * @param[in]  tr         tr value from secret / public key (MLDSA_TRBYTES bytes).
  * @param[in]  mprime     Formatted message M'.
  */
-static void mldsa_compute_mu(uint8_t                          mu[MLDSA_CRHBYTES],
-                             const uint8_t                    tr[MLDSA_TRBYTES],
-                             const MLDSA_formatted_message_t *mprime)
+static cx_err_t mldsa_compute_mu(uint8_t                          mu[MLDSA_CRHBYTES],
+                                 const uint8_t                    tr[MLDSA_TRBYTES],
+                                 const MLDSA_formatted_message_t *mprime)
 {
     cx_sha3_t sha3_ctx = {0};
+    cx_err_t  error;
 
     memset(&sha3_ctx, 0, sizeof(sha3_ctx));
-    cx_shake256_init_no_throw(&sha3_ctx, MLDSA_CRHBYTES * 8U);
-    cx_hash_no_throw((cx_hash_t *) &sha3_ctx, 0, tr, MLDSA_TRBYTES, NULL, 0);
-    cx_hash_no_throw((cx_hash_t *) &sha3_ctx, 0, mprime->prefix, mprime->prefix_len, NULL, 0);
-    cx_hash_no_throw(
+    error = cx_shake256_init_no_throw(&sha3_ctx, MLDSA_CRHBYTES * 8U);
+    if (error != CX_OK) {
+        return error;
+    }
+    error = cx_hash_no_throw((cx_hash_t *) &sha3_ctx, 0, tr, MLDSA_TRBYTES, NULL, 0);
+    if (error != CX_OK) {
+        return error;
+    }
+    error
+        = cx_hash_no_throw((cx_hash_t *) &sha3_ctx, 0, mprime->prefix, mprime->prefix_len, NULL, 0);
+    if (error != CX_OK) {
+        return error;
+    }
+    return cx_hash_no_throw(
         (cx_hash_t *) &sha3_ctx, CX_LAST, mprime->payload, mprime->payload_len, mu, MLDSA_CRHBYTES);
 }
 
@@ -388,17 +387,32 @@ cx_err_t MLDSA_internal_sign_core(uint8_t                         *sig,
         memcpy(ws->mu, precomputed_mu, MLDSA_CRHBYTES);
     }
     else {
-        mldsa_compute_mu(ws->mu, ws->tr, formatted_mprime);
+        error = mldsa_compute_mu(ws->mu, ws->tr, formatted_mprime);
+        if (error != CX_OK) {
+            goto cleanup;
+        }
     }
 
     // Compute rhoprime = H(K || rnd || mu, 64)
     {
         cx_sha3_t sha3_ctx = {0};
-        cx_shake256_init_no_throw(&sha3_ctx, MLDSA_CRHBYTES * 8U);
-        cx_hash_no_throw((cx_hash_t *) &sha3_ctx, 0, ws->K, MLDSA_SEEDBYTES, NULL, 0);
-        cx_hash_no_throw((cx_hash_t *) &sha3_ctx, 0, rnd_input, MLDSA_RNDBYTES, NULL, 0);
-        cx_hash_no_throw(
+        error              = cx_shake256_init_no_throw(&sha3_ctx, MLDSA_CRHBYTES * 8U);
+        if (error != CX_OK) {
+            goto cleanup;
+        }
+        error = cx_hash_no_throw((cx_hash_t *) &sha3_ctx, 0, ws->K, MLDSA_SEEDBYTES, NULL, 0);
+        if (error != CX_OK) {
+            goto cleanup;
+        }
+        error = cx_hash_no_throw((cx_hash_t *) &sha3_ctx, 0, rnd_input, MLDSA_RNDBYTES, NULL, 0);
+        if (error != CX_OK) {
+            goto cleanup;
+        }
+        error = cx_hash_no_throw(
             (cx_hash_t *) &sha3_ctx, CX_LAST, ws->mu, MLDSA_CRHBYTES, ws->rhoprime, MLDSA_CRHBYTES);
+        if (error != CX_OK) {
+            goto cleanup;
+        }
     }
 
     // Rejection sampling loop
@@ -432,12 +446,15 @@ cx_err_t MLDSA_internal_sign_core(uint8_t                         *sig,
         }
 
         // Challenge hash ctilde = H(mu || w1_packed)
-        MLDSA_UTIL_shake256_two(ws->ctilde,
-                                p->ctilde_bytes,
-                                ws->mu,
-                                MLDSA_CRHBYTES,
-                                ws->w1_packed,
-                                (size_t) p->k * p->polyw1_packed_bytes);
+        error = MLDSA_UTIL_shake256_two(ws->ctilde,
+                                        p->ctilde_bytes,
+                                        ws->mu,
+                                        MLDSA_CRHBYTES,
+                                        ws->w1_packed,
+                                        (size_t) p->k * p->polyw1_packed_bytes);
+        if (error != CX_OK) {
+            goto cleanup;
+        }
 
         MLDSA_SAMPLE_challenge(&ws->cp, ws->ctilde, p->ctilde_bytes, p->tau);
         MLDSA_POLY_ntt(&ws->cp);
@@ -662,7 +679,10 @@ cx_err_t MLDSA_internal_verify_core(const uint8_t                   *sig,
     }
     else {
         MLDSA_UTIL_shake256(ws->overlay.setup_phase.tr, MLDSA_TRBYTES, pk, p->pk_bytes);
-        mldsa_compute_mu(ws->mu, ws->overlay.setup_phase.tr, formatted_mprime);
+        error = mldsa_compute_mu(ws->mu, ws->overlay.setup_phase.tr, formatted_mprime);
+        if (error != CX_OK) {
+            goto cleanup;
+        }
     }
 
     // Sample challenge c from ctilde
@@ -707,12 +727,15 @@ cx_err_t MLDSA_internal_verify_core(const uint8_t                   *sig,
             &ws->w1_packed[(size_t) i * p->polyw1_packed_bytes], &ws->t1tmp, p->gamma2);
     }
 
-    MLDSA_UTIL_shake256_two(ws->ctilde2,
-                            p->ctilde_bytes,
-                            ws->mu,
-                            MLDSA_CRHBYTES,
-                            ws->w1_packed,
-                            (size_t) p->k * p->polyw1_packed_bytes);
+    error = MLDSA_UTIL_shake256_two(ws->ctilde2,
+                                    p->ctilde_bytes,
+                                    ws->mu,
+                                    MLDSA_CRHBYTES,
+                                    ws->w1_packed,
+                                    (size_t) p->k * p->polyw1_packed_bytes);
+    if (error != CX_OK) {
+        goto cleanup;
+    }
 
     // Compare c_tilde
     if (memcmp(ws->ctilde, ws->ctilde2, p->ctilde_bytes) != 0) {
@@ -840,17 +863,32 @@ cx_err_t MLDSA_internal_sign_core(uint8_t                         *sig,
         memcpy(ws->mu, precomputed_mu, MLDSA_CRHBYTES);
     }
     else {
-        mldsa_compute_mu(ws->mu, ws->tr, formatted_mprime);
+        error = mldsa_compute_mu(ws->mu, ws->tr, formatted_mprime);
+        if (error != CX_OK) {
+            goto cleanup;
+        }
     }
 
     // Compute rhoprime = H(K || rnd || mu, 64)
     {
         cx_sha3_t sha3_ctx = {0};
-        cx_shake256_init_no_throw(&sha3_ctx, MLDSA_CRHBYTES * 8U);
-        cx_hash_no_throw((cx_hash_t *) &sha3_ctx, 0, ws->K, MLDSA_SEEDBYTES, NULL, 0);
-        cx_hash_no_throw((cx_hash_t *) &sha3_ctx, 0, rnd_input, MLDSA_RNDBYTES, NULL, 0);
-        cx_hash_no_throw(
+        error              = cx_shake256_init_no_throw(&sha3_ctx, MLDSA_CRHBYTES * 8U);
+        if (error != CX_OK) {
+            goto cleanup;
+        }
+        error = cx_hash_no_throw((cx_hash_t *) &sha3_ctx, 0, ws->K, MLDSA_SEEDBYTES, NULL, 0);
+        if (error != CX_OK) {
+            goto cleanup;
+        }
+        error = cx_hash_no_throw((cx_hash_t *) &sha3_ctx, 0, rnd_input, MLDSA_RNDBYTES, NULL, 0);
+        if (error != CX_OK) {
+            goto cleanup;
+        }
+        error = cx_hash_no_throw(
             (cx_hash_t *) &sha3_ctx, CX_LAST, ws->mu, MLDSA_CRHBYTES, ws->rhoprime, MLDSA_CRHBYTES);
+        if (error != CX_OK) {
+            goto cleanup;
+        }
     }
 
     // Rejection sampling loop
@@ -888,12 +926,15 @@ cx_err_t MLDSA_internal_sign_core(uint8_t                         *sig,
         }
 
         // Compute challenge hash ctilde
-        MLDSA_UTIL_shake256_two(ws->ctilde,
-                                p->ctilde_bytes,
-                                ws->mu,
-                                MLDSA_CRHBYTES,
-                                ws->w1_packed,
-                                (size_t) p->k * p->polyw1_packed_bytes);
+        error = MLDSA_UTIL_shake256_two(ws->ctilde,
+                                        p->ctilde_bytes,
+                                        ws->mu,
+                                        MLDSA_CRHBYTES,
+                                        ws->w1_packed,
+                                        (size_t) p->k * p->polyw1_packed_bytes);
+        if (error != CX_OK) {
+            goto cleanup;
+        }
 
         MLDSA_SAMPLE_challenge(&ws->polybuf.full, ws->ctilde, p->ctilde_bytes, p->tau);
         MLDSA_LOWRAM_challenge_compress(ws->ccomp, &ws->polybuf.full, p->tau);
@@ -1175,7 +1216,10 @@ cx_err_t MLDSA_internal_verify_core(const uint8_t                   *sig,
     }
     else {
         MLDSA_UTIL_shake256(ws->early.tr, MLDSA_TRBYTES, pk, p->pk_bytes);
-        mldsa_compute_mu(ws->mu, ws->early.tr, formatted_mprime);
+        error = mldsa_compute_mu(ws->mu, ws->early.tr, formatted_mprime);
+        if (error != CX_OK) {
+            goto cleanup;
+        }
     }
 
     // Compress challenge for schoolbook use
@@ -1226,12 +1270,15 @@ cx_err_t MLDSA_internal_verify_core(const uint8_t                   *sig,
     }
 
     // Recompute challenge hash
-    MLDSA_UTIL_shake256_two(ws->ctilde2,
-                            p->ctilde_bytes,
-                            ws->mu,
-                            MLDSA_CRHBYTES,
-                            ws->w1_packed,
-                            (size_t) p->k * p->polyw1_packed_bytes);
+    error = MLDSA_UTIL_shake256_two(ws->ctilde2,
+                                    p->ctilde_bytes,
+                                    ws->mu,
+                                    MLDSA_CRHBYTES,
+                                    ws->w1_packed,
+                                    (size_t) p->k * p->polyw1_packed_bytes);
+    if (error != CX_OK) {
+        goto cleanup;
+    }
 
     // Compare c_tilde
     if (memcmp(ws->ctilde, ws->ctilde2, p->ctilde_bytes) != 0) {

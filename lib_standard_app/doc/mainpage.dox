@@ -529,7 +529,7 @@ Standard common codes are defined by `swap_error_common_code_t`:
 
 | Macro | Description |
 |---|---|
-| @ref WEAK | `__attribute((weak))` — marks a function as overridable by application code. |
+| @ref WEAK | `__attribute__((weak))` — marks a function as overridable by application code. |
 | @ref MEMBER_SIZE "MEMBER_SIZE(type, member)" | Size of a struct member without an instance. |
 | @ref ARRAY_LENGTH "ARRAY_LENGTH(array)" | Number of elements in a statically allocated array. |
 
