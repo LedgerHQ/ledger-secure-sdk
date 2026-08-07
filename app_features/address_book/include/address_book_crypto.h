@@ -26,25 +26,20 @@
 
 #ifdef HAVE_ADDRESS_BOOK
 
-bool address_book_generate_group_handle(const path_bip32_t *bip32_path,
-                                        uint8_t             group_handle[GROUP_HANDLE_SIZE]);
+bool address_book_generate_group_handle(uint8_t group_handle[GROUP_HANDLE_SIZE]);
 
-bool address_book_verify_group_handle(const path_bip32_t *bip32_path,
-                                      const uint8_t       group_handle[GROUP_HANDLE_SIZE],
-                                      uint8_t             gid_out[GID_SIZE]);
+bool address_book_verify_group_handle(const uint8_t group_handle[GROUP_HANDLE_SIZE],
+                                      uint8_t       gid_out[GID_SIZE]);
 
-bool address_book_compute_hmac_proof(const path_bip32_t *bip32_path,
-                                     const uint8_t       gid[GID_SIZE],
-                                     const char         *name,
-                                     uint8_t             hmac_out[CX_SHA256_SIZE]);
+bool address_book_compute_hmac_proof(const uint8_t gid[GID_SIZE],
+                                     const char   *name,
+                                     uint8_t       hmac_out[CX_SHA256_SIZE]);
 
-bool address_book_verify_hmac_proof(const path_bip32_t *bip32_path,
-                                    const uint8_t       gid[GID_SIZE],
-                                    const char         *name,
-                                    const uint8_t       hmac_expected[CX_SHA256_SIZE]);
+bool address_book_verify_hmac_proof(const uint8_t gid[GID_SIZE],
+                                    const char   *name,
+                                    const uint8_t hmac_expected[CX_SHA256_SIZE]);
 
-bool address_book_compute_hmac_rest(const path_bip32_t *bip32_path,
-                                    const uint8_t       gid[GID_SIZE],
+bool address_book_compute_hmac_rest(const uint8_t       gid[GID_SIZE],
                                     const char         *scope,
                                     const uint8_t      *identifier,
                                     uint8_t             identifier_len,
@@ -52,8 +47,7 @@ bool address_book_compute_hmac_rest(const path_bip32_t *bip32_path,
                                     uint64_t            chain_id,
                                     uint8_t             hmac_out[CX_SHA256_SIZE]);
 
-bool address_book_verify_hmac_rest(const path_bip32_t *bip32_path,
-                                   const uint8_t       gid[GID_SIZE],
+bool address_book_verify_hmac_rest(const uint8_t       gid[GID_SIZE],
                                    const char         *scope,
                                    const uint8_t      *identifier,
                                    uint8_t             identifier_len,
