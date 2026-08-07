@@ -140,6 +140,13 @@ static size_t serialize_hmac_msg(uint8_t            *msg,
     return offset;
 }
 
+// m/44'/60'/0'/0/0 — hardcoded for all Identity HMAC derivations
+// TODO: to be removed when the OS doesn't need it any more for the HMAC derivation
+static const path_bip32_t s_identity_path = {
+    .length = 5,
+    .path   = {0x8000002C, 0x8000003C, 0x80000000, 0x00000000, 0x00000000},
+};
+
 /* Exported functions --------------------------------------------------------*/
 
 /**
@@ -203,16 +210,19 @@ bool address_book_send_register_identity_response(const uint8_t group_handle[GRO
  * @param[out] group_handle  Output buffer (64 bytes): gid || MAC
  * @return true if successful, false otherwise
  */
-bool address_book_generate_group_handle(const path_bip32_t *bip32_path,
-                                        uint8_t             group_handle[GROUP_HANDLE_SIZE])
+bool address_book_generate_group_handle(uint8_t group_handle[GROUP_HANDLE_SIZE])
 {
     bool     success = false;
     uint8_t *gid     = group_handle;
     uint8_t *mac     = group_handle + GID_SIZE;
 
     cx_rng_no_throw(gid, GID_SIZE);
-    if (!sys_address_book_hmac(
-            bip32_path->path, bip32_path->length, ADDRESS_BOOK_SALT_GROUP, gid, GID_SIZE, mac)) {
+    if (!sys_address_book_hmac(s_identity_path.path,
+                               s_identity_path.length,
+                               ADDRESS_BOOK_SALT_GROUP,
+                               gid,
+                               GID_SIZE,
+                               mac)) {
         goto end;
     }
     success = true;
@@ -232,16 +242,19 @@ end:
  * @param[out] gid_out       Extracted gid (32 bytes), only valid on success
  * @return true if the handle is authentic, false otherwise
  */
-bool address_book_verify_group_handle(const path_bip32_t *bip32_path,
-                                      const uint8_t       group_handle[GROUP_HANDLE_SIZE],
-                                      uint8_t             gid_out[GID_SIZE])
+bool address_book_verify_group_handle(const uint8_t group_handle[GROUP_HANDLE_SIZE],
+                                      uint8_t       gid_out[GID_SIZE])
 {
     bool           success = false;
     const uint8_t *gid     = group_handle;
     const uint8_t *mac     = group_handle + GID_SIZE;
 
-    if (!sys_address_book_hmac_verify(
-            bip32_path->path, bip32_path->length, ADDRESS_BOOK_SALT_GROUP, gid, GID_SIZE, mac)) {
+    if (!sys_address_book_hmac_verify(s_identity_path.path,
+                                      s_identity_path.length,
+                                      ADDRESS_BOOK_SALT_GROUP,
+                                      gid,
+                                      GID_SIZE,
+                                      mac)) {
         PRINTF("[Address Book] Group handle MAC verification failed\n");
         goto end;
     }
@@ -264,10 +277,9 @@ end:
  * @param[out] hmac_out    Output buffer for the 32-byte HMAC
  * @return true if successful, false otherwise
  */
-bool address_book_compute_hmac_proof(const path_bip32_t *bip32_path,
-                                     const uint8_t       gid[GID_SIZE],
-                                     const char         *name,
-                                     uint8_t             hmac_out[CX_SHA256_SIZE])
+bool address_book_compute_hmac_proof(const uint8_t gid[GID_SIZE],
+                                     const char   *name,
+                                     uint8_t       hmac_out[CX_SHA256_SIZE])
 {
     uint8_t msg[HMAC_PROOF_MSG_SIZE] = {0};
     bool    success                  = false;
@@ -276,8 +288,8 @@ bool address_book_compute_hmac_proof(const path_bip32_t *bip32_path,
     if (msg_len == SIZE_MAX) {
         goto end;
     }
-    if (!sys_address_book_hmac(bip32_path->path,
-                               bip32_path->length,
+    if (!sys_address_book_hmac(s_identity_path.path,
+                               s_identity_path.length,
                                ADDRESS_BOOK_SALT_IDENTITY,
                                msg,
                                msg_len,
@@ -300,10 +312,9 @@ end:
  * @param[in] hmac_expected 32-byte HMAC to verify against
  * @return true if valid, false otherwise
  */
-bool address_book_verify_hmac_proof(const path_bip32_t *bip32_path,
-                                    const uint8_t       gid[GID_SIZE],
-                                    const char         *name,
-                                    const uint8_t       hmac_expected[CX_SHA256_SIZE])
+bool address_book_verify_hmac_proof(const uint8_t gid[GID_SIZE],
+                                    const char   *name,
+                                    const uint8_t hmac_expected[CX_SHA256_SIZE])
 {
     uint8_t msg[HMAC_PROOF_MSG_SIZE] = {0};
     bool    success                  = false;
@@ -312,8 +323,8 @@ bool address_book_verify_hmac_proof(const path_bip32_t *bip32_path,
     if (msg_len == SIZE_MAX) {
         goto end;
     }
-    if (!sys_address_book_hmac_verify(bip32_path->path,
-                                      bip32_path->length,
+    if (!sys_address_book_hmac_verify(s_identity_path.path,
+                                      s_identity_path.length,
                                       ADDRESS_BOOK_SALT_IDENTITY,
                                       msg,
                                       msg_len,
@@ -345,8 +356,7 @@ end:
  * @param[out] hmac_out       Output buffer for the 32-byte HMAC
  * @return true if successful, false otherwise
  */
-bool address_book_compute_hmac_rest(const path_bip32_t *bip32_path,
-                                    const uint8_t       gid[GID_SIZE],
+bool address_book_compute_hmac_rest(const uint8_t       gid[GID_SIZE],
                                     const char         *scope,
                                     const uint8_t      *identifier,
                                     uint8_t             identifier_len,
@@ -362,8 +372,8 @@ bool address_book_compute_hmac_rest(const path_bip32_t *bip32_path,
     if (msg_len == SIZE_MAX) {
         goto end;
     }
-    if (!sys_address_book_hmac(bip32_path->path,
-                               bip32_path->length,
+    if (!sys_address_book_hmac(s_identity_path.path,
+                               s_identity_path.length,
                                ADDRESS_BOOK_SALT_IDENTITY,
                                msg,
                                msg_len,
@@ -390,8 +400,7 @@ end:
  * @param[in] hmac_expected 32-byte HMAC to verify against
  * @return true if valid, false otherwise
  */
-bool address_book_verify_hmac_rest(const path_bip32_t *bip32_path,
-                                   const uint8_t       gid[GID_SIZE],
+bool address_book_verify_hmac_rest(const uint8_t       gid[GID_SIZE],
                                    const char         *scope,
                                    const uint8_t      *identifier,
                                    uint8_t             identifier_len,
@@ -407,8 +416,8 @@ bool address_book_verify_hmac_rest(const path_bip32_t *bip32_path,
     if (msg_len == SIZE_MAX) {
         goto end;
     }
-    if (!sys_address_book_hmac_verify(bip32_path->path,
-                                      bip32_path->length,
+    if (!sys_address_book_hmac_verify(s_identity_path.path,
+                                      s_identity_path.length,
                                       ADDRESS_BOOK_SALT_IDENTITY,
                                       msg,
                                       msg_len,

@@ -25,7 +25,7 @@
  *  1. Receive fully assembled payload (multi-chunk reassembly handled by
  *     address_book.c)
  *  2. Parse TLV payload (contact_name + scope + new_identifier +
- *     old_identifier + gid + derivation_path +
+ *     old_identifier + gid [+ derivation_path] +
  *     hmac_proof + hmac_rest)
  *  3. Verify HMAC_PROOF over (gid, contact_name)
  *  4. Verify HMAC_REST over (gid, scope, old_identifier, family[, chain_id])
@@ -222,7 +222,9 @@ static bool handle_group_handle(const tlv_data_t *data, s_edit_ctx *context)
  */
 static bool handle_derivation_path(const tlv_data_t *data, s_edit_ctx *context)
 {
-    return address_book_handle_derivation_path(data, &context->edit->identity.bip32_path);
+    UNUSED(data);
+    UNUSED(context);
+    return true;
 }
 
 /**
@@ -303,7 +305,6 @@ static bool verify_fields(const s_edit_ctx *context)
                                           TAG_ACCOUNT_IDENTIFIER,
                                           TAG_PREVIOUS_IDENTIFIER,
                                           TAG_GROUP_HANDLE,
-                                          TAG_DERIVATION_PATH,
                                           TAG_BLOCKCHAIN_FAMILY,
                                           TAG_HMAC_PROOF,
                                           TAG_HMAC_REST);
@@ -355,8 +356,7 @@ static bool build_and_send_response(void)
 {
     uint8_t hmac_rest[CX_SHA256_SIZE] = {0};
 
-    if (!address_book_compute_hmac_rest(&g_ab_payload.edit_identifier.identity.bip32_path,
-                                        g_ab_payload.edit_identifier.identity.gid,
+    if (!address_book_compute_hmac_rest(g_ab_payload.edit_identifier.identity.gid,
                                         g_ab_payload.edit_identifier.identity.scope,
                                         g_ab_payload.edit_identifier.identity.identifier,
                                         g_ab_payload.edit_identifier.identity.identifier_len,
@@ -364,9 +364,9 @@ static bool build_and_send_response(void)
                                         g_ab_payload.edit_identifier.identity.chain_id,
                                         hmac_rest)) {
         PRINTF("[Edit Identifier] Error: Failed to compute new HMAC_REST\n");
+        explicit_bzero(hmac_rest, sizeof(hmac_rest));
         return false;
     }
-
     bool ok = address_book_send_hmac_proof(TYPE_EDIT_IDENTIFIER, hmac_rest);
     explicit_bzero(hmac_rest, sizeof(hmac_rest));
     return ok;
@@ -446,16 +446,14 @@ bolos_err_t edit_identifier(uint8_t *buffer_in, size_t buffer_in_length)
     print_payload(&ctx);
 
     // Verify the group handle and extract the gid
-    if (!address_book_verify_group_handle(&g_ab_payload.edit_identifier.identity.bip32_path,
-                                          ctx.group_handle,
+    if (!address_book_verify_group_handle(ctx.group_handle,
                                           g_ab_payload.edit_identifier.identity.gid)) {
         PRINTF("[Edit Identifier] Group handle verification failed\n");
         return SWO_SECURITY_CONDITION_NOT_SATISFIED;
     }
 
     // Verify that the wallet holds a valid HMAC_PROOF for the contact name
-    if (!address_book_verify_hmac_proof(&g_ab_payload.edit_identifier.identity.bip32_path,
-                                        g_ab_payload.edit_identifier.identity.gid,
+    if (!address_book_verify_hmac_proof(g_ab_payload.edit_identifier.identity.gid,
                                         g_ab_payload.edit_identifier.identity.contact_name,
                                         ctx.hmac_proof)) {
         PRINTF("[Edit Identifier] HMAC_PROOF verification failed\n");
@@ -463,8 +461,7 @@ bolos_err_t edit_identifier(uint8_t *buffer_in, size_t buffer_in_length)
     }
 
     // Verify that the wallet holds a valid HMAC_REST for the previous identifier
-    if (!address_book_verify_hmac_rest(&g_ab_payload.edit_identifier.identity.bip32_path,
-                                       g_ab_payload.edit_identifier.identity.gid,
+    if (!address_book_verify_hmac_rest(g_ab_payload.edit_identifier.identity.gid,
                                        g_ab_payload.edit_identifier.identity.scope,
                                        g_ab_payload.edit_identifier.old_identifier,
                                        g_ab_payload.edit_identifier.old_identifier_len,
