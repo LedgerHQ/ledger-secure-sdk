@@ -410,10 +410,13 @@ static void review_choice(bool confirm)
 /**
  * @brief Display the Register Identity review screen
  */
-static void ui_display(void)
+static void ui_display(const s_identity_ctx *context)
 {
     memset(&g_ab_ui.list, 0, sizeof(g_ab_ui.list));
-    g_ab_ui.list.nbPairs  = 4;  // name + scope + identifier + network
+    g_ab_ui.list.nbPairs = 3;  // name + scope + identifier
+    if (context->state->identity.blockchain_family == FAMILY_ETHEREUM) {
+        g_ab_ui.list.nbPairs++;  // network
+    }
     g_ab_ui.list.callback = get_register_identity_tagValue;
     address_book_display_review(&LARGE_ADDRESS_BOOK_ICON,
                                 "Review contact details",
@@ -480,7 +483,7 @@ bolos_err_t register_identity(uint8_t *buffer_in, size_t buffer_in_length)
     }
 
     // Display confirmation UI
-    ui_display();
+    ui_display(&ctx);
     return SWO_NO_RESPONSE;
 }
 
