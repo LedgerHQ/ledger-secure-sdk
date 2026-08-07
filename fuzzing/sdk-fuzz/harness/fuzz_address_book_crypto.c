@@ -183,34 +183,34 @@ int fuzz_entry(const uint8_t *data, size_t size)
     switch (L.sel % N_VARIANTS) {
         /* ── address_book_generate_group_handle ── */
         case 0:
-            address_book_generate_group_handle(&bip32, gh_out);
+            address_book_generate_group_handle(gh_out);
             break;
 
         /* ── address_book_verify_group_handle ── */
         case 1:
-            address_book_verify_group_handle(&bip32, L.group_handle, gid_out);
+            address_book_verify_group_handle(L.group_handle, gid_out);
             break;
 
         /* ── address_book_compute_hmac_proof (identity) ── */
         case 2:
-            address_book_compute_hmac_proof(&bip32, L.gid, L.name, out32);
+            address_book_compute_hmac_proof(L.gid, L.name, out32);
             break;
 
         /* ── address_book_verify_hmac_proof (identity) ── */
         case 3:
-            address_book_verify_hmac_proof(&bip32, L.gid, L.name, L.hmac_expected);
+            address_book_verify_hmac_proof(L.gid, L.name, L.hmac_expected);
             break;
 
         /* ── address_book_compute_hmac_rest ── */
         case 4:
             address_book_compute_hmac_rest(
-                &bip32, L.gid, L.scope, L.identifier, id_len, fam, chain_id, out32);
+                L.gid, L.scope, L.identifier, id_len, fam, chain_id, out32);
             break;
 
         /* ── address_book_verify_hmac_rest ── */
         case 5:
             address_book_verify_hmac_rest(
-                &bip32, L.gid, L.scope, L.identifier, id_len, fam, chain_id, L.hmac_expected);
+                L.gid, L.scope, L.identifier, id_len, fam, chain_id, L.hmac_expected);
             break;
 
         /* ── address_book_send_hmac_proof ── */
@@ -245,15 +245,15 @@ int fuzz_entry(const uint8_t *data, size_t size)
             uint8_t hmac_proof[CX_SHA256_SIZE]      = {0};
             uint8_t hmac_rest[CX_SHA256_SIZE]       = {0};
 
-            if (!address_book_generate_group_handle(&bip32, group_handle)) {
+            if (!address_book_generate_group_handle(group_handle)) {
                 break;
             }
             const uint8_t *gid = group_handle; /* first 32 bytes */
-            if (!address_book_compute_hmac_proof(&bip32, gid, L.name, hmac_proof)) {
+            if (!address_book_compute_hmac_proof(gid, L.name, hmac_proof)) {
                 break;
             }
             if (!address_book_compute_hmac_rest(
-                    &bip32, gid, L.scope, L.identifier, id_len, fam, chain_id, hmac_rest)) {
+                    gid, L.scope, L.identifier, id_len, fam, chain_id, hmac_rest)) {
                 break;
             }
             address_book_send_register_identity_response(group_handle, hmac_proof, hmac_rest);
@@ -269,10 +269,10 @@ int fuzz_entry(const uint8_t *data, size_t size)
          * register_identity() when TAG_GROUP_HANDLE is present. */
         case 11: {
             uint8_t gid_buf[GID_SIZE] = {0};
-            if (!address_book_verify_group_handle(&bip32, L.group_handle, gid_buf)) {
+            if (!address_book_verify_group_handle(L.group_handle, gid_buf)) {
                 break;
             }
-            address_book_verify_hmac_proof(&bip32, gid_buf, L.name, L.hmac_proof);
+            address_book_verify_hmac_proof(gid_buf, L.name, L.hmac_proof);
             break;
         }
 
