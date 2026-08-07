@@ -20,7 +20,7 @@
  *  - Missing ACCOUNT_IDENTIFIER       → SWO_INCORRECT_DATA
  *  - Missing GROUP_HANDLE             → SWO_INCORRECT_DATA
  *  - GROUP_HANDLE wrong size          → SWO_INCORRECT_DATA
- *  - Missing DERIVATION_PATH          → SWO_INCORRECT_DATA
+ *  - Missing DERIVATION_PATH          → SWO_SUCCESS (optional, silently ignored)
  *  - Missing BLOCKCHAIN_FAMILY        → SWO_INCORRECT_DATA
  *  - FAMILY_ETHEREUM without CHAIN_ID → SWO_INCORRECT_DATA
  *  - Missing HMAC_PROOF               → SWO_INCORRECT_DATA
@@ -415,13 +415,13 @@ static void test_pc_missing_derivation_path(void)
                                        true,
                                        true,
                                        64,
-                                       false, /* no deriv_path */
+                                       false, /* no deriv_path — optional, ignored */
                                        true,
                                        0x00,
                                        false,
                                        true,
                                        true);
-    TEST_ASSERT_EQUAL_INT(SWO_INCORRECT_DATA, provide_contact(buf, len));
+    TEST_ASSERT_EQUAL_INT(SWO_SUCCESS, provide_contact(buf, len));
 }
 
 static void test_pc_missing_blockchain_family(void)
