@@ -21,9 +21,10 @@
  * @brief Register / Edit Contact Name / Edit Scope / Edit Identifier
  *
  * An Identity is a contact identified by a name, an IDENTIFIER (blockchain
- * address or public key, up to 80 bytes), an optional SCOPE (context
- * string, e.g. "Ethereum"), and a derivation path used to derive the HMAC key
- * for the Proof of Registration.
+ * address or public key, up to 80 bytes), and an optional SCOPE (context
+ * string, e.g. "Ethereum"). HMAC keys are derived from a hardcoded BIP32 path
+ * (g_identity_bip32_path); the TAG_DERIVATION_PATH TLV field is accepted for
+ * backward compatibility but ignored.
  *
  * Active under HAVE_ADDRESS_BOOK (no sub-flag required).
  */
@@ -59,12 +60,13 @@
  *       it is never displayed to the user.
  */
 typedef struct {
-    uint8_t             gid[GID_SIZE];  ///< Device-generated group ID (first 32B of group_handle)
-    char                contact_name[CONTACT_NAME_LENGTH];
-    char                scope[SCOPE_LENGTH];
-    uint8_t             identifier[IDENTIFIER_MAX_LENGTH];
-    uint8_t             identifier_len;
-    path_bip32_t        bip32_path;  ///< Used to derive the HMAC key for the Proof of Registration
+    uint8_t      gid[GID_SIZE];  ///< Device-generated group ID (first 32B of group_handle)
+    char         contact_name[CONTACT_NAME_LENGTH];
+    char         scope[SCOPE_LENGTH];
+    uint8_t      identifier[IDENTIFIER_MAX_LENGTH];
+    uint8_t      identifier_len;
+    path_bip32_t bip32_path;  ///< Optional: derives HMAC key; will be changed by another mechanism
+                              ///< in OS side
     blockchain_family_e blockchain_family;
     uint64_t            chain_id;  ///< Mandatory when blockchain_family == FAMILY_ETHEREUM
 } identity_t;
@@ -85,7 +87,7 @@ typedef struct {
     uint8_t      gid[GID_SIZE];                          ///< Group ID extracted from group_handle
     char         contact_name[CONTACT_NAME_LENGTH];      ///< New contact name
     char         old_contact_name[CONTACT_NAME_LENGTH];  ///< old contact name
-    path_bip32_t bip32_path;                             ///< BIP32 derivation path
+    path_bip32_t bip32_path;                             ///< Optional: BIP32 derivation path
 } edit_contact_name_t;
 
 /**

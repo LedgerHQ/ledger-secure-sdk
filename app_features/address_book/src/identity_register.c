@@ -19,7 +19,7 @@
  * @brief Register Identity flow (P1=0x01, struct type 0x2d)
  *
  * Flow:
- *  1. Parse TLV payload (name + scope + identifier + derivation_path)
+ *  1. Parse TLV payload (name + scope + identifier [+ derivation_path])
  *  2. Coin-app validation: handle_check_register_identity()
  *  3. Display UI: contact name + identifier
  *  4. On confirm: compute HMAC Proof of Registration and send to host
@@ -171,7 +171,9 @@ static bool handle_identifier(const tlv_data_t *data, s_identity_ctx *context)
  */
 static bool handle_derivation_path(const tlv_data_t *data, s_identity_ctx *context)
 {
-    return address_book_handle_derivation_path(data, &context->state->identity.bip32_path);
+    UNUSED(data);
+    UNUSED(context);
+    return true;
 }
 
 /**
@@ -252,7 +254,6 @@ static bool verify_fields(const s_identity_ctx *context)
                                           TAG_CONTACT_NAME,
                                           TAG_SCOPE,
                                           TAG_ACCOUNT_IDENTIFIER,
-                                          TAG_DERIVATION_PATH,
                                           TAG_BLOCKCHAIN_FAMILY);
     if (!result) {
         PRINTF("Missing mandatory fields in Register Identity descriptor!\n");
@@ -284,8 +285,6 @@ static bool verify_fields(const s_identity_ctx *context)
 static void print_payload(const s_identity_ctx *context)
 {
     UNUSED(context);
-    char out[50] = {0};
-
     PRINTF("****************************************************************************\n");
     PRINTF("[Register Identity] - Retrieved Descriptor:\n");
     PRINTF("[Register Identity] -    Contact name:        %s\n",
@@ -293,15 +292,6 @@ static void print_payload(const s_identity_ctx *context)
     if (context->state->identity.scope[0] != '\0') {
         PRINTF("[Register Identity] -    Contact scope:       %s\n",
                context->state->identity.scope);
-    }
-    if (bip32_path_format_simple(&context->state->identity.bip32_path, out, sizeof(out))) {
-        PRINTF("[Register Identity] -    Derivation path[%d]: %s\n",
-               context->state->identity.bip32_path.length,
-               out);
-    }
-    else {
-        PRINTF("[Register Identity] -    Derivation path length[%d] (failed to format)\n",
-               context->state->identity.bip32_path.length);
     }
     PRINTF("[Register Identity] -    Blockchain family:   %s\n",
            FAMILY_AS_STR(context->state->identity.blockchain_family));
@@ -334,8 +324,7 @@ static bool build_and_send_response(void)
     if (g_ab_payload.reg.active) {
         // group_handle and HMAC_PROOF were already verified before the UI — use the
         // pre-extracted GID directly and only compute the new HMAC_REST.
-        if (!address_book_compute_hmac_rest(&g_ab_payload.reg.identity.bip32_path,
-                                            g_ab_payload.reg.gid,
+        if (!address_book_compute_hmac_rest(g_ab_payload.reg.gid,
                                             g_ab_payload.reg.identity.scope,
                                             g_ab_payload.reg.identity.identifier,
                                             g_ab_payload.reg.identity.identifier_len,
@@ -350,22 +339,18 @@ static bool build_and_send_response(void)
         memmove(hmac_proof, g_ab_payload.reg.hmac_proof, CX_SHA256_SIZE);
     }
     else {
-        if (!address_book_generate_group_handle(&g_ab_payload.reg.identity.bip32_path,
-                                                group_handle)) {
+        if (!address_book_generate_group_handle(group_handle)) {
             PRINTF("[Register Identity] Error: Failed to generate group handle\n");
             goto end;
         }
         // group_handle layout: gid(32) | MAC(K_group, gid)(32) — use only the GID prefix here
         const uint8_t *gid = group_handle;
-        if (!address_book_compute_hmac_proof(&g_ab_payload.reg.identity.bip32_path,
-                                             gid,
-                                             g_ab_payload.reg.identity.contact_name,
-                                             hmac_proof)) {
+        if (!address_book_compute_hmac_proof(
+                gid, g_ab_payload.reg.identity.contact_name, hmac_proof)) {
             PRINTF("[Register Identity] Error: Failed to compute HMAC_PROOF\n");
             goto end;
         }
-        if (!address_book_compute_hmac_rest(&g_ab_payload.reg.identity.bip32_path,
-                                            gid,
+        if (!address_book_compute_hmac_rest(gid,
                                             g_ab_payload.reg.identity.scope,
                                             g_ab_payload.reg.identity.identifier,
                                             g_ab_payload.reg.identity.identifier_len,
@@ -461,14 +446,12 @@ bolos_err_t register_identity(uint8_t *buffer_in, size_t buffer_in_length)
     // immediately; only internal crypto operations remain post-confirm.
     if (TLV_CHECK_RECEIVED_TAGS(ctx.received_tags, TAG_GROUP_HANDLE)) {
         g_ab_payload.reg.active = true;
-        if (!address_book_verify_group_handle(&g_ab_payload.reg.identity.bip32_path,
-                                              g_ab_payload.reg.group_handle,
+        if (!address_book_verify_group_handle(g_ab_payload.reg.group_handle,
                                               g_ab_payload.reg.gid)) {
             PRINTF("[Register Identity] Error: Group handle verification failed\n");
             return SWO_SECURITY_CONDITION_NOT_SATISFIED;
         }
-        if (!address_book_verify_hmac_proof(&g_ab_payload.reg.identity.bip32_path,
-                                            g_ab_payload.reg.gid,
+        if (!address_book_verify_hmac_proof(g_ab_payload.reg.gid,
                                             g_ab_payload.reg.identity.contact_name,
                                             g_ab_payload.reg.hmac_proof)) {
             PRINTF("[Register Identity] Error: HMAC_PROOF verification failed\n");
