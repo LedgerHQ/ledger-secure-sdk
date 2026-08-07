@@ -18,7 +18,13 @@
 
 #include "lcx_mldsa.h"
 
-typedef struct MLDSA_formatted_message_s MLDSA_formatted_message_t;
+typedef struct MLDSA_formatted_message_s {
+    uint8_t prefix[2U + 255U + MLDSA_PREHASH_OID_LEN]; /**< Prefix = 0x01 (1b)|| context_len (1b) ||
+                                                          context (255b) || OID */
+    size_t         prefix_len;                         /**< Prefix length */
+    const uint8_t *payload;                            /**< Pre-hash PH_M */
+    size_t         payload_len /**< Pre-hash length */;
+} MLDSA_formatted_message_t;
 
 cx_err_t MLDSA_internal_sign_core(uint8_t                         *sig,
                                   size_t                           sig_len,

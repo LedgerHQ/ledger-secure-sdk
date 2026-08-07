@@ -202,6 +202,119 @@ tokens = [
 ]
 
 [[targets]]
+fuzzer = "fuzz_address_book"
+key_files = [
+    "app_features/address_book/src/address_book.c",
+    "app_features/address_book/src/address_book_common.c",
+    "app_features/address_book/src/address_book_crypto.c",
+    "app_features/address_book/src/identity_register.c",
+    "app_features/address_book/src/identity_edit_contact_name.c",
+    "app_features/address_book/src/identity_edit_identifier.c",
+    "app_features/address_book/src/identity_edit_scope.c",
+    "app_features/address_book/src/identity_provide_contact.c",
+    "app_features/address_book/src/ledger_account_register.c",
+    "app_features/address_book/src/ledger_account_edit.c",
+    "app_features/address_book/src/ledger_account_provide_contact.c",
+]
+[targets.seeds]
+cla = 0x00
+ins = [0x01, 0x02, 0x03, 0x04, 0x11, 0x12, 0x20, 0x21]
+
+[targets.seeds.custom]
+enabled = true
+script  = "generate-seeds-address-book.py"
+
+[targets.dictionary]
+tokens = [
+    # TLV tags — all address-book flows
+    { name = "tag_struct_type",      value = "\\x01" },
+    { name = "tag_struct_version",   value = "\\x02" },
+    { name = "tag_chain_id",         value = "\\x23" },
+    { name = "tag_hmac_proof",       value = "\\x29" },
+    { name = "tag_blockchain_fam",   value = "\\x51" },
+    { name = "tag_deriv_path",       value = "\\x69" },
+    { name = "tag_contact_name",     value = "\\xf0" },
+    { name = "tag_scope",            value = "\\xf1" },
+    { name = "tag_identifier",       value = "\\xf2" },
+    { name = "tag_prev_name",        value = "\\xf3" },
+    { name = "tag_prev_identifier",  value = "\\xf4" },
+    { name = "tag_prev_scope",       value = "\\xf5" },
+    { name = "tag_group_handle",     value = "\\xf6" },
+    { name = "tag_hmac_rest",        value = "\\xf7" },
+    # STRUCTURE_TYPE values — exact byte the parser enforces per command type
+    { name = "type_register_id",          value = "\\x2d" },
+    { name = "type_edit_name",            value = "\\x2e" },
+    { name = "type_reg_ledger_acct",      value = "\\x2f" },
+    { name = "type_edit_ledger_acct",     value = "\\x30" },
+    { name = "type_edit_identifier",      value = "\\x31" },
+    { name = "type_edit_scope",           value = "\\x32" },
+    { name = "type_provide_contact",      value = "\\x33" },
+    { name = "type_provide_la_contact",   value = "\\x34" },
+    # STRUCTURE_VERSION — every descriptor type uses version 0x01
+    { name = "struct_version_1",     value = "\\x01" },
+    # P1 values (APDU sub-command selectors)
+    { name = "p1_register_id",    value = "\\x01" },
+    { name = "p1_edit_name",      value = "\\x02" },
+    { name = "p1_edit_id",        value = "\\x03" },
+    { name = "p1_edit_scope",     value = "\\x04" },
+    { name = "p1_reg_la",         value = "\\x11" },
+    { name = "p1_edit_la",        value = "\\x12" },
+    { name = "p1_provide_id",     value = "\\x20" },
+    { name = "p1_provide_la",     value = "\\x21" },
+    # Blockchain family byte values (only 0x00 and 0x01 are valid)
+    { name = "fam_bitcoin",       value = "\\x00" },
+    { name = "fam_ethereum",      value = "\\x01" },
+    # BIP32 path components
+    { name = "bip32_count_5",     value = "\\x05" },
+    { name = "bip32_hard",        value = "\\x80\\x00\\x00\\x00" },
+    { name = "bip32_44h",         value = "\\x80\\x00\\x00\\x2C" },
+    { name = "bip32_60h",         value = "\\x80\\x00\\x00\\x3C" },
+    { name = "bip32_0",           value = "\\x00\\x00\\x00\\x00" },
+    # Ethernet mainnet chain ID (big-endian uint64 = 1)
+    { name = "chain_id_eth_mainnet", value = "\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x01" },
+]
+
+[[targets]]
+fuzzer = "fuzz_address_book_crypto"
+key_files = [
+    "app_features/address_book/src/address_book_crypto.c",
+]
+# Seeds: byte[0]=flags (0=all syscalls succeed), byte[1]=sel (function variant).
+# One seed per variant so the fuzzer starts with every function reachable.
+seeds = { cla = 0x00, ins = [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b] }
+
+[targets.dictionary]
+tokens = [
+    # flags byte: bit0=hmac_fail, bit1=hmac_verify_fail
+    { name = "flags_none",          value = "\\x00" },
+    { name = "flags_hmac_fail",     value = "\\x01" },
+    { name = "flags_verify_fail",   value = "\\x02" },
+    { name = "flags_both_fail",     value = "\\x03" },
+    # sel variants (0-11)
+    { name = "sel_gen_gh",          value = "\\x00" },
+    { name = "sel_verify_gh",       value = "\\x01" },
+    { name = "sel_compute_proof",   value = "\\x02" },
+    { name = "sel_verify_proof",    value = "\\x03" },
+    { name = "sel_compute_rest",    value = "\\x04" },
+    { name = "sel_verify_rest",     value = "\\x05" },
+    { name = "sel_send_proof",      value = "\\x06" },
+    { name = "sel_send_reg_resp",   value = "\\x07" },
+    { name = "sel_compute_la",      value = "\\x08" },
+    { name = "sel_verify_la",       value = "\\x09" },
+    { name = "sel_new_group_path",  value = "\\x0a" },
+    { name = "sel_exist_group_path",value = "\\x0b" },
+    # Blockchain family values
+    { name = "fam_bitcoin",         value = "\\x00" },
+    { name = "fam_ethereum",        value = "\\x01" },
+    # GID / group_handle sizes (32 and 64 bytes of known bytes)
+    { name = "gid_zeros",           value = "\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00" },
+    { name = "hmac_zeros",          value = "\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00" },
+    # Ethereum chain IDs (big-endian uint64)
+    { name = "chain_id_mainnet",    value = "\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x01" },
+    { name = "chain_id_polygon",    value = "\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x89" },
+]
+
+[[targets]]
 fuzzer = "fuzz_nbgl_page"
 key_files = ["lib_nbgl/src/nbgl_page.c", "lib_nbgl/src/nbgl_layout.c"]
 seeds = { cla = 0x00, ins = [0x01] }

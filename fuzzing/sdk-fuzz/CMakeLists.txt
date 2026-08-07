@@ -25,7 +25,8 @@ set(_SDK_FUZZ_SAN "${LEDGER_FUZZ_DEFAULT_SANITIZERS}")
 set(SDK_FUZZ_TARGETS
     fuzz_alloc fuzz_alloc_utils fuzz_apdu_parser fuzz_base58 fuzz_bip32
     fuzz_lists fuzz_nfc_ndef fuzz_qrcodegen fuzz_tlv_dynamic_descriptor
-    fuzz_tlv_trusted_name fuzz_nbgl_page)
+    fuzz_tlv_trusted_name fuzz_nbgl_page fuzz_address_book
+    fuzz_address_book_crypto)
 
 # Per-target invariants are .gitignored and regenerated each build; bootstrap missing ones to `.{}` so Absolution can refine them on first configure.
 foreach(_fuzzer ${SDK_FUZZ_TARGETS})
@@ -204,6 +205,67 @@ absolution_add_fuzzer(
         ${BOLOS_SDK}/lib_nbgl/include/
         ${BOLOS_SDK}/lib_ux_nbgl/
     COMPILE_DEFINITIONS APPNAME="Fuzzing"
+    LINK_LIBRARIES secure_sdk
+)
+
+set(AB_SOURCES
+    ${BOLOS_SDK}/app_features/address_book/src/address_book.c
+    ${BOLOS_SDK}/app_features/address_book/src/address_book_common.c
+    ${BOLOS_SDK}/app_features/address_book/src/address_book_crypto.c
+    ${BOLOS_SDK}/app_features/address_book/src/identity_register.c
+    ${BOLOS_SDK}/app_features/address_book/src/identity_edit_contact_name.c
+    ${BOLOS_SDK}/app_features/address_book/src/identity_edit_identifier.c
+    ${BOLOS_SDK}/app_features/address_book/src/identity_edit_scope.c
+    ${BOLOS_SDK}/app_features/address_book/src/identity_provide_contact.c
+    ${BOLOS_SDK}/app_features/address_book/src/ledger_account_register.c
+    ${BOLOS_SDK}/app_features/address_book/src/ledger_account_edit.c
+    ${BOLOS_SDK}/app_features/address_book/src/ledger_account_provide_contact.c
+)
+
+absolution_add_fuzzer(
+    NAME fuzz_address_book
+    TARGETS
+        ${SDK_FUZZ_MOCK_SOURCES}
+        ${TLV_EXTRA_SOURCES}
+        ${AB_SOURCES}
+    HARNESS
+        ${CMAKE_SOURCE_DIR}/harness/fuzz_address_book.c
+    ENTRY fuzz_entry
+    INVARIANT ${CMAKE_SOURCE_DIR}/invariants/fuzz_address_book.zon
+    SANITIZERS ${_SDK_FUZZ_SAN}
+    INCLUDE_DIRECTORIES
+        ${SDK_FUZZ_INCLUDE_DIRS}
+        ${CMAKE_SOURCE_DIR}/harness/
+        ${BOLOS_SDK}/app_features/address_book/include/
+    COMPILE_DEFINITIONS
+        APPNAME="Fuzzing"
+        HAVE_ADDRESS_BOOK
+        HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT
+    LINK_LIBRARIES secure_sdk
+)
+
+set(AB_CRYPTO_SOURCES
+    ${BOLOS_SDK}/app_features/address_book/src/address_book_crypto.c
+)
+
+absolution_add_fuzzer(
+    NAME fuzz_address_book_crypto
+    TARGETS
+        ${SDK_FUZZ_MOCK_SOURCES}
+        ${AB_CRYPTO_SOURCES}
+    HARNESS
+        ${CMAKE_SOURCE_DIR}/harness/fuzz_address_book_crypto.c
+    ENTRY fuzz_entry
+    INVARIANT ${CMAKE_SOURCE_DIR}/invariants/fuzz_address_book_crypto.zon
+    SANITIZERS ${_SDK_FUZZ_SAN}
+    INCLUDE_DIRECTORIES
+        ${SDK_FUZZ_INCLUDE_DIRS}
+        ${CMAKE_SOURCE_DIR}/harness/
+        ${BOLOS_SDK}/app_features/address_book/include/
+    COMPILE_DEFINITIONS
+        APPNAME="Fuzzing"
+        HAVE_ADDRESS_BOOK
+        HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT
     LINK_LIBRARIES secure_sdk
 )
 

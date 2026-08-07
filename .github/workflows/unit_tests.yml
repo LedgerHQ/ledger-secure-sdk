@@ -17,13 +17,13 @@ jobs:
       image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-lite:latest
 
     steps:
-      - name: Clone
-        uses: actions/checkout@v6
-
-      - name: Install curl
+      - name: Install system dependencies
         run: |
           apt-get update
-          apt-get install -y curl
+          apt-get install -y ruby
+
+      - name: Clone
+        uses: actions/checkout@v6
 
       - name: Find test directories
         id: find-tests
@@ -52,7 +52,8 @@ jobs:
             echo "::endgroup::"
           done
 
-      - uses: actions/upload-artifact@v6
+      - name: Upload code coverage artifact
+        uses: actions/upload-artifact@v6
         with:
           name: code-coverage
           path: unit-tests/*/coverage
