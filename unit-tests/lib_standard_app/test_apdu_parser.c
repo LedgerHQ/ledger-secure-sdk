@@ -1,17 +1,13 @@
-#include <stdarg.h>
-#include <stddef.h>
-#include <setjmp.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
 
-#include <cmocka.h>
+#include "unity.h"
 
 #include "parser.h"
 
-static void test_apdu_parser(void **state)
+void test_apdu_parser(void)
 {
-    (void) state;
     uint8_t apdu_bad_min_len[] = {0xE0, 0x03, 0x00};              // less than 4 bytes
     uint8_t apdu_bad_lc[]      = {0xE0, 0x03, 0x00, 0x00, 0x01};  // Lc = 1 but no data
     uint8_t apdu_no_lc[]       = {0xE0, 0x03, 0x01, 0x02};
@@ -21,43 +17,46 @@ static void test_apdu_parser(void **state)
     command_t cmd;
 
     memset(&cmd, 0, sizeof(cmd));
-    assert_false(apdu_parser(&cmd, apdu_bad_min_len, sizeof(apdu_bad_min_len)));
+    TEST_ASSERT_FALSE(apdu_parser(&cmd, apdu_bad_min_len, sizeof(apdu_bad_min_len)));
 
     memset(&cmd, 0, sizeof(cmd));
-    assert_false(apdu_parser(&cmd, apdu_bad_lc, sizeof(apdu_bad_min_len)));
+    TEST_ASSERT_FALSE(apdu_parser(&cmd, apdu_bad_lc, sizeof(apdu_bad_min_len)));
 
     memset(&cmd, 0, sizeof(cmd));
-    assert_true(apdu_parser(&cmd, apdu_no_lc, sizeof(apdu_no_lc)));
-    assert_int_equal(cmd.cla, 0xE0);
-    assert_int_equal(cmd.ins, 0x03);
-    assert_int_equal(cmd.p1, 0x01);
-    assert_int_equal(cmd.p2, 0x02);
-    assert_int_equal(cmd.lc, 0);
-    assert_null(cmd.data);
+    TEST_ASSERT_TRUE(apdu_parser(&cmd, apdu_no_lc, sizeof(apdu_no_lc)));
+    TEST_ASSERT_EQUAL_INT(cmd.cla, 0xE0);
+    TEST_ASSERT_EQUAL_INT(cmd.ins, 0x03);
+    TEST_ASSERT_EQUAL_INT(cmd.p1, 0x01);
+    TEST_ASSERT_EQUAL_INT(cmd.p2, 0x02);
+    TEST_ASSERT_EQUAL_INT(cmd.lc, 0);
+    TEST_ASSERT_NULL(cmd.data);
 
     memset(&cmd, 0, sizeof(cmd));
-    assert_true(apdu_parser(&cmd, apdu_no_data, sizeof(apdu_no_data)));
-    assert_int_equal(cmd.cla, 0xE0);
-    assert_int_equal(cmd.ins, 0x03);
-    assert_int_equal(cmd.p1, 0x01);
-    assert_int_equal(cmd.p2, 0x02);
-    assert_int_equal(cmd.lc, 0);
-    assert_null(cmd.data);
+    TEST_ASSERT_TRUE(apdu_parser(&cmd, apdu_no_data, sizeof(apdu_no_data)));
+    TEST_ASSERT_EQUAL_INT(cmd.cla, 0xE0);
+    TEST_ASSERT_EQUAL_INT(cmd.ins, 0x03);
+    TEST_ASSERT_EQUAL_INT(cmd.p1, 0x01);
+    TEST_ASSERT_EQUAL_INT(cmd.p2, 0x02);
+    TEST_ASSERT_EQUAL_INT(cmd.lc, 0);
+    TEST_ASSERT_NULL(cmd.data);
 
     memset(&cmd, 0, sizeof(cmd));
-    assert_true(apdu_parser(&cmd, apdu, sizeof(apdu)));
-    assert_int_equal(cmd.cla, 0xE0);
-    assert_int_equal(cmd.ins, 0x03);
-    assert_int_equal(cmd.p1, 0x01);
-    assert_int_equal(cmd.p2, 0x02);
-    assert_int_equal(cmd.lc, 5);
-    assert_non_null(cmd.data);
-    assert_memory_equal(cmd.data, ((uint8_t[]){0x00, 0x01, 0x02, 0x03, 0x04}), cmd.lc);
+    TEST_ASSERT_TRUE(apdu_parser(&cmd, apdu, sizeof(apdu)));
+    TEST_ASSERT_EQUAL_INT(cmd.cla, 0xE0);
+    TEST_ASSERT_EQUAL_INT(cmd.ins, 0x03);
+    TEST_ASSERT_EQUAL_INT(cmd.p1, 0x01);
+    TEST_ASSERT_EQUAL_INT(cmd.p2, 0x02);
+    TEST_ASSERT_EQUAL_INT(cmd.lc, 5);
+    TEST_ASSERT_NOT_NULL(cmd.data);
+    TEST_ASSERT_EQUAL_MEMORY(cmd.data, ((uint8_t[]){0x00, 0x01, 0x02, 0x03, 0x04}), cmd.lc);
 }
 
-int main()
-{
-    const struct CMUnitTest tests[] = {cmocka_unit_test(test_apdu_parser)};
+void setUp(void) {}
+void tearDown(void) {}
 
-    return cmocka_run_group_tests(tests, NULL, NULL);
+int main(void)
+{
+    UNITY_BEGIN();
+    RUN_TEST(test_apdu_parser);
+    return UNITY_END();
 }

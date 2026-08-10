@@ -1,35 +1,28 @@
-#include <stdarg.h>
-#include <stddef.h>
-#include <setjmp.h>
 #include <stdint.h>
 #include <stdbool.h>
 
-#include <cmocka.h>
+#include "unity.h"
 
 #include "bip32.h"
 
-static void test_bip32_format(void **state)
+void test_bip32_format(void)
 {
-    (void) state;
-
     char output[30];
     bool b = false;
 
     b = bip32_path_format(
         (const uint32_t[5]){0x8000002C, 0x80000000, 0x80000000, 0, 0}, 5, output, sizeof(output));
-    assert_true(b);
-    assert_string_equal(output, "44'/0'/0'/0/0");
+    TEST_ASSERT_TRUE(b);
+    TEST_ASSERT_EQUAL_STRING(output, "44'/0'/0'/0/0");
 
     b = bip32_path_format(
         (const uint32_t[5]){0x8000002C, 0x80000001, 0x80000000, 0, 0}, 5, output, sizeof(output));
-    assert_true(b);
-    assert_string_equal(output, "44'/1'/0'/0/0");
+    TEST_ASSERT_TRUE(b);
+    TEST_ASSERT_EQUAL_STRING(output, "44'/1'/0'/0/0");
 }
 
-static void test_bad_bip32_format(void **state)
+void test_bad_bip32_format(void)
 {
-    (void) state;
-
     char output[30];
     bool b = true;
 
@@ -39,17 +32,15 @@ static void test_bad_bip32_format(void **state)
         11,
         output,
         sizeof(output));
-    assert_false(b);
+    TEST_ASSERT_FALSE(b);
 
     // No BIP32 path (=0)
     b = bip32_path_format(NULL, 0, output, sizeof(output));
-    assert_false(b);
+    TEST_ASSERT_FALSE(b);
 }
 
-static void test_bip32_read(void **state)
+void test_bip32_read(void)
 {
-    (void) state;
-
     // clang-format off
     uint8_t input[20] = {
         0x80, 0x00, 0x00, 0x2C,
@@ -63,13 +54,11 @@ static void test_bip32_read(void **state)
     bool b = false;
 
     b = bip32_path_read(input, sizeof(input), output, 5);
-    assert_true(b);
-    assert_memory_equal(output, expected, 5);
+    TEST_ASSERT_TRUE(b);
+    TEST_ASSERT_EQUAL_MEMORY(output, expected, 5);
 }
 
-static void test_bad_bip32_read(void **state) {
-    (void) state;
-
+void test_bad_bip32_read(void) {
     // clang-format off
     uint8_t input[20] = {
         0x80, 0x00, 0x00, 0x2C,
@@ -81,19 +70,17 @@ static void test_bad_bip32_read(void **state) {
     uint32_t output[10] = {0};
 
     // buffer too small (5 BIP32 paths instead of 10)
-    assert_false(bip32_path_read(input, sizeof(input), output, 10));
+    TEST_ASSERT_FALSE(bip32_path_read(input, sizeof(input), output, 10));
 
     // No BIP32 path
-    assert_false(bip32_path_read(input, sizeof(input), output, 0));
+    TEST_ASSERT_FALSE(bip32_path_read(input, sizeof(input), output, 0));
 
     // More than MAX_BIP32_PATH (=10)
-    assert_false(bip32_path_read(input, sizeof(input), output, 20));
+    TEST_ASSERT_FALSE(bip32_path_read(input, sizeof(input), output, 20));
 }
 
-static void test_bip32_format_simple(void **state)
+void test_bip32_format_simple(void)
 {
-    (void) state;
-
     char output[30];
     bool b = false;
 
@@ -102,16 +89,16 @@ static void test_bip32_format_simple(void **state)
         .length = 5,
     };
     b = bip32_path_format_simple(&bip32, output, sizeof(output));
-    assert_true(b);
-    assert_string_equal(output, "44'/0'/0'/0/0");
+    TEST_ASSERT_TRUE(b);
+    TEST_ASSERT_EQUAL_STRING(output, "44'/0'/0'/0/0");
 
     path_bip32_t bip32_2 = {
         .path   = {0x8000002C, 0x80000001, 0x80000000, 0, 0},
         .length = 5,
     };
     b = bip32_path_format_simple(&bip32_2, output, sizeof(output));
-    assert_true(b);
-    assert_string_equal(output, "44'/1'/0'/0/0");
+    TEST_ASSERT_TRUE(b);
+    TEST_ASSERT_EQUAL_STRING(output, "44'/1'/0'/0/0");
 
     // Single-component path
     path_bip32_t bip32_single = {
@@ -119,14 +106,12 @@ static void test_bip32_format_simple(void **state)
         .length = 1,
     };
     b = bip32_path_format_simple(&bip32_single, output, sizeof(output));
-    assert_true(b);
-    assert_string_equal(output, "0'");
+    TEST_ASSERT_TRUE(b);
+    TEST_ASSERT_EQUAL_STRING(output, "0'");
 }
 
-static void test_bad_bip32_format_simple(void **state)
+void test_bad_bip32_format_simple(void)
 {
-    (void) state;
-
     char output[30];
     bool b = true;
 
@@ -137,25 +122,25 @@ static void test_bad_bip32_format_simple(void **state)
 
     // NULL bip32
     b = bip32_path_format_simple(NULL, output, sizeof(output));
-    assert_false(b);
+    TEST_ASSERT_FALSE(b);
 
     // NULL output buffer
     b = bip32_path_format_simple(&bip32, NULL, sizeof(output));
-    assert_false(b);
+    TEST_ASSERT_FALSE(b);
 
     // Zero-length output buffer
     b = bip32_path_format_simple(&bip32, output, 0);
-    assert_false(b);
+    TEST_ASSERT_FALSE(b);
 
     // length == 0 (rejected by bip32_path_format)
     path_bip32_t bip32_zero = {.path = {0}, .length = 0};
     b = bip32_path_format_simple(&bip32_zero, output, sizeof(output));
-    assert_false(b);
+    TEST_ASSERT_FALSE(b);
 
     // length > MAX_BIP32_PATH (rejected by bip32_path_format)
     path_bip32_t bip32_too_long = {.path = {0}, .length = MAX_BIP32_PATH + 1};
     b = bip32_path_format_simple(&bip32_too_long, output, sizeof(output));
-    assert_false(b);
+    TEST_ASSERT_FALSE(b);
 
     // Output buffer too small to hold the formatted string
     path_bip32_t bip32_long = {
@@ -164,16 +149,19 @@ static void test_bad_bip32_format_simple(void **state)
     };
     char tiny[5];
     b = bip32_path_format_simple(&bip32_long, tiny, sizeof(tiny));
-    assert_false(b);
+    TEST_ASSERT_FALSE(b);
 }
 
-int main() {
-    const struct CMUnitTest tests[] = {cmocka_unit_test(test_bip32_format),
-                                       cmocka_unit_test(test_bad_bip32_format),
-                                       cmocka_unit_test(test_bip32_read),
-                                       cmocka_unit_test(test_bad_bip32_read),
-                                       cmocka_unit_test(test_bip32_format_simple),
-                                       cmocka_unit_test(test_bad_bip32_format_simple)};
+void setUp(void) {}
+void tearDown(void) {}
 
-    return cmocka_run_group_tests(tests, NULL, NULL);
+int main(void) {
+    UNITY_BEGIN();
+    RUN_TEST(test_bip32_format);
+    RUN_TEST(test_bad_bip32_format);
+    RUN_TEST(test_bip32_read);
+    RUN_TEST(test_bad_bip32_read);
+    RUN_TEST(test_bip32_format_simple);
+    RUN_TEST(test_bad_bip32_format_simple);
+    return UNITY_END();
 }
