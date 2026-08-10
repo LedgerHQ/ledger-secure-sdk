@@ -100,16 +100,18 @@ set_property(GLOBAL PROPERTY CMOCK_MOCKED_HEADERS "")
 # ledger_unit_tests_add_test — declare a Unity/CMock unit-test executable.
 # Usage:
 #   ledger_unit_tests_add_test(
-#       NAME          test_foo
-#       SOURCES       ../src/foo.c ../src/bar.c    # sources under test
-#       MOCK_HEADERS  ${SDK_DIR}/include/os.h      # headers to be mocked (optional)
-#       INCLUDE_DIRS  ../src                       # extra -I paths (optional)
-#       COMPILE_DEFS  TARGET_NANOX APPNAME="App"   # extra -D flags  (optional)
+#       NAME            test_foo
+#       SOURCES         ../src/foo.c ../src/bar.c    # sources under test
+#       MOCK_HEADERS    ${SDK_DIR}/include/os.h      # headers to be mocked (optional)
+#       INCLUDE_DIRS    ../src                       # extra -I paths (optional)
+#       COMPILE_DEFS    TARGET_NANOX APPNAME="App"   # extra -D flags  (optional)
+#       COMPILE_OPTIONS -Wno-comment -fsanitize=...  # extra compiler flags (optional)
+#       LINK_OPTIONS    -fsanitize=...               # extra linker flags  (optional)
 #   )
 #######################################################################
 function(ledger_unit_tests_add_test)
     # get args
-    cmake_parse_arguments(ARG "" "NAME" "SOURCES;MOCK_HEADERS;INCLUDE_DIRS;COMPILE_DEFS" ${ARGN})
+    cmake_parse_arguments(ARG "" "NAME" "SOURCES;MOCK_HEADERS;INCLUDE_DIRS;COMPILE_DEFS;COMPILE_OPTIONS;LINK_OPTIONS" ${ARGN})
 
     # for all MOCK_HEADERS, generate a mock source file if not already generated
     set(_cmock_config ${CMAKE_CURRENT_BINARY_DIR}/cmock_config.yml)
@@ -156,6 +158,14 @@ function(ledger_unit_tests_add_test)
 
     if(ARG_COMPILE_DEFS)
         target_compile_definitions(${ARG_NAME} PRIVATE ${ARG_COMPILE_DEFS})
+    endif()
+
+    if(ARG_COMPILE_OPTIONS)
+        target_compile_options(${ARG_NAME} PRIVATE ${ARG_COMPILE_OPTIONS})
+    endif()
+
+    if(ARG_LINK_OPTIONS)
+        target_link_options(${ARG_NAME} PRIVATE ${ARG_LINK_OPTIONS})
     endif()
 
     # register test
