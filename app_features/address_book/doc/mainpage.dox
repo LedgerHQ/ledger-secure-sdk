@@ -97,48 +97,36 @@ type(1) | hmac_proof(32)
 @subsection address_book_group_handle Group Handle
 
 At registration the device generates a random 32-byte Group ID (@c gid) and authenticates
-it with a separate device key:
+it with a separate device key via OS syscall. The resulting opaque token has the structure:
 
 @code
-K_group      = SHA256("AddressBook-Group" || BIP32_PRIVKEY.d)
-group_handle = gid(32) || HMAC-SHA256(K_group, gid)(32)
+group_handle = gid(32) || MAC(K_group, gid)(32)
 @endcode
 
 The wallet stores @c group_handle opaquely.  For each Edit operation the wallet re-sends the
-full @c group_handle; the device verifies the MAC in constant time and — only on success —
-extracts @c gid to authenticate the HMAC proofs.
+full @c group_handle; the device verifies the MAC via syscall in constant time and — only on
+success — extracts @c gid to authenticate the HMAC proofs.
 
 This closes the @b proof @b splicing attack: a wallet that registers two contacts cannot mix
 @c HMAC_PROOF from one with @c HMAC_REST from the other, because neither can fabricate a valid
 @c group_handle for an arbitrary @c gid.
 
-@subsection address_book_kdf Key Derivation
+@subsection address_book_kdf Cryptographic Operations
 
-Three independent KDFs prevent cross-feature key reuse:
-
-@code
-// Group handle MAC key
-K_group   = SHA256("AddressBook-Group"         || BIP32_PRIVKEY.d)
-
-// Identity HMAC key (Register Identity + all Identity Edit flows)
-K_identity = SHA256("AddressBook-Identity"      || BIP32_PRIVKEY.d)
-
-// Ledger Account HMAC key (Register, Edit, and Provide Ledger Account Contact)
-K_account  = SHA256("AddressBook-LedgerAccount" || BIP32_PRIVKEY.d)
-@endcode
+Group Handle generation/verification and Identity HMAC computation/verification are fully
+delegated to the OS via dedicated syscalls — key derivation details are internal to the OS
+and not exposed to the coin application.
 
 @subsection address_book_hmac HMAC Message Formats
 
-<b>Identity — HMAC_PROOF</b> (covers name only):
+<b>Identity — HMAC_PROOF</b>:
 @code
 message = gid(32) | name_len(1) | contact_name
-hmac_proof = HMAC-SHA256(K_identity, message)
 @endcode
 
-<b>Identity — HMAC_REST</b> (covers scope, identifier, and network):
+<b>Identity — HMAC_REST</b>:
 @code
 message = gid(32) | scope_len(1) | scope | id_len(1) | identifier | family(1) [| chain_id(8)]
-hmac_rest = HMAC-SHA256(K_identity, message)
 @endcode
 
 chain_id is included only when @c BLOCKCHAIN_FAMILY = 1 (Ethereum), encoded as 8 bytes big-endian.
@@ -146,7 +134,6 @@ chain_id is included only when @c BLOCKCHAIN_FAMILY = 1 (Ethereum), encoded as 8
 <b>Ledger Account — HMAC_PROOF</b>:
 @code
 message = name_len(1) | account_name | blockchain_family(1) [| chain_id(8)]
-hmac_proof = HMAC-SHA256(K_account, message)
 @endcode
 
 @section address_book_design Key Design Decisions
@@ -162,8 +149,9 @@ hmac_proof = HMAC-SHA256(K_account, message)
    @c gid.  The device verifies ownership before issuing a new @c HMAC_REST.  Because all
    addresses share the same @c gid, a single Edit Contact Name invalidates the @c HMAC_PROOF
    for every address in the group simultaneously.
--# <b>Triple KDF</b>: Separate salts for Group Handle, Identity, and Ledger Account prevent
-   cross-feature key reuse even at the same BIP32 derivation path.
+-# <b>Syscall-backed crypto</b>: All cryptographic operations (Group Handle, Identity, and
+   Ledger Account) are delegated to OS syscalls with distinct domain-separation salts,
+   preventing cross-feature key reuse.
 -# <b>No secrets leave the device</b>: The BIP32 private key, KDF keys, and @c gid are
    computed on-device.  The host receives only the opaque @c group_handle and HMAC proofs.
 -# <b>App validation</b>: Coin-specific validation logic is delegated to the application via
