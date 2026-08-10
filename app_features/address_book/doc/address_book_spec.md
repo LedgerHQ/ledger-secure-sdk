@@ -128,10 +128,10 @@ Next  chunks (P2 = 0x80):  | next_data_slice     |
 
 Payloads that exceed 255 bytes simply span several chunks; the framing is identical to the single-chunk case. The largest payloads (see size notes in §5) are:
 
-- **Edit Identifier** (§5.3, up to 428 B)
-- **Edit Scope** (§5.4, up to 380 B)
-- **Provide Contact** (§5.7, up to 362 B)
-- **Register Identity** (§5.1, up to 312 B) when `GROUP_HANDLE` + `HMAC_PROOF` are present and the identifier exceeds ~38 bytes (non-Ethereum chains)
+- **Edit Identifier** (§5.3, up to 385 B)
+- **Edit Scope** (§5.4, up to 337 B)
+- **Provide Contact** (§5.7, up to 319 B)
+- **Register Identity** (§5.1, up to 269 B) when `GROUP_HANDLE` + `HMAC_PROOF` are present and the identifier exceeds ~77 bytes (non-Ethereum chains)
 
 ---
 
@@ -164,7 +164,7 @@ Multi-byte integer values are encoded **big-endian, minimum length** (no leading
 | 0xf4 | PREVIOUS_IDENTIFIER    | Old identifier, for HMAC verification (Edit Identifier only)                          |
 | 0xf5 | PREVIOUS_SCOPE         | Old scope, for display and HMAC verification (Edit Scope only)                        |
 | 0xf6 | GROUP_HANDLE           | Device-generated opaque token: `gid(32) + HMAC-SHA256(K_group, gid)(32)`; see §4.3    |
-| 0x69 | DERIVATION_PATH        | BIP32 path (packed: depth(1) + indices(4 each))                                       |
+| 0x69 | DERIVATION_PATH        | BIP32 path (packed: depth(1) + indices(4 each)); **Ledger Account only**              |
 | 0x23 | CHAIN_ID               | Chain ID — mandatory for `BLOCKCHAIN_FAMILY = 1` (Ethereum); omitted for others       |
 | 0x51 | BLOCKCHAIN_FAMILY      | Blockchain family (0=Bitcoin, 1=Ethereum, 2=Solana, 3=Polkadot, 4=Cosmos, 5=Cardano)  |
 | 0x29 | HMAC_PROOF             | 32-byte HMAC-SHA256 name-binding proof: covers `gid(32) + name` (§4.3)                |
@@ -185,7 +185,7 @@ Multi-byte integer values are encoded **big-endian, minimum length** (no leading
 
 ### 4.3 Cryptographic KDF
 
-Each feature derives its HMAC key independently using a distinct domain-separation salt, preventing any cross-feature key reuse even when the same BIP32 path is used.
+Each feature derives its HMAC key independently using a distinct domain-separation salt, preventing any cross-feature key reuse. Identity keys are derived solely from the device private key; Ledger Account keys additionally bind to the account's BIP32 path.
 
 #### Group Handle
 
@@ -272,15 +272,14 @@ This allows a wallet to register multiple addresses for the same contact (e.g. t
 | CONTACT_NAME       | 0xf0  | Yes       | 32 B     | Contact name (max 32 printable ASCII chars)                                          |
 | SCOPE              | 0xf1  | Yes       | 32 B     | Context string (e.g. "Ethereum", "Bitcoin legacy", "Solana USDC")                    |
 | ACCOUNT_IDENTIFIER | 0xf2  | Yes       | 80 B     | Blockchain identifier (address or pubkey, chain-dependent)                           |
-| DERIVATION_PATH    | 0x69  | Yes       | 41 B     | BIP32 derivation path (used to derive the HMAC key)                                  |
 | CHAIN_ID           | 0x23  | Cond.     | 8 B      | Chain ID (mandatory for Ethereum)                                                    |
 | BLOCKCHAIN_FAMILY  | 0x51  | Yes       | 1 B      | Blockchain family                                                                    |
 | GROUP_HANDLE       | 0xf6  | Optional  | 64 B     | Existing group handle — links this identifier to an existing contact group           |
 | HMAC_PROOF         | 0x29  | Optional  | 32 B     | `HMAC_PROOF` for the existing group — required when `GROUP_HANDLE` is present        |
 
-> **Payload size (new group):** worst case (max identifier, max path depth) = **212 B** — fits in a single short APDU ✓
+> **Payload size (new group):** worst case (max identifier, Ethereum) = **169 B** — fits in a single short APDU ✓
 >
-> **Payload size (existing group):** adds `GROUP_HANDLE` (66 B with TLV overhead) + `HMAC_PROOF` (34 B) = up to **312 B** for a maximum-size identifier. For Ethereum (20-byte address) the total remains within 255 B ✓. For other chains with large identifiers, multi-chunk transport (see §3) is required.
+> **Payload size (existing group):** adds `GROUP_HANDLE` (66 B with TLV overhead) + `HMAC_PROOF` (34 B) = up to **269 B** for a maximum-size identifier. For Ethereum (20-byte address) the total remains within 255 B ✓. For other chains with large identifiers, multi-chunk transport (see §3) is required.
 
 #### Flow
 
@@ -293,7 +292,7 @@ This allows a wallet to register multiple addresses for the same contact (e.g. t
 ```mermaid
 sequenceDiagram
 
-    Wallet->>Device: CMD_REGISTER_IDENTITY (contact_name + scope + identifier + path [+ group_handle + hmac_proof] + ...)
+    Wallet->>Device: CMD_REGISTER_IDENTITY (contact_name + scope + identifier [+ group_handle + hmac_proof] + ...)
     Device->>Device: Parse TLV
     alt GROUP_HANDLE + HMAC_PROOF provided (existing group)
         Device->>Device: Verify group_handle MAC, extract gid
@@ -341,10 +340,9 @@ Changes the `CONTACT_NAME` of an existing contact. Because `HMAC_PROOF` covers o
 | PREVIOUS_CONTACT_NAME | 0xf3  | Yes       | 32 B     | Old contact name (must match value used at registration) |
 | CONTACT_NAME          | 0xf0  | Yes       | 32 B     | New contact name (max 32 printable ASCII chars)          |
 | GROUP_HANDLE          | 0xf6  | Yes       | 64 B     | Opaque token from Register Identity response             |
-| DERIVATION_PATH       | 0x69  | Yes       | 41 B     | BIP32 derivation path (same as at registration)          |
 | HMAC_PROOF            | 0x29  | Yes       | 32 B     | `HMAC_PROOF` returned by the original Register Identity  |
 
-> **Payload size:** worst case (max path depth, max names) = **217 B** — fits in a single short APDU ✓
+> **Payload size:** worst case (max names) = **174 B** — fits in a single short APDU ✓
 
 #### Flow
 
@@ -358,7 +356,7 @@ Changes the `CONTACT_NAME` of an existing contact. Because `HMAC_PROOF` covers o
 sequenceDiagram
 
     Note over Wallet: Has: group_handle, previous_name, hmac_proof (from registration)
-    Wallet->>Device: CMD_EDIT_CONTACT_NAME (group_handle + previous_name + new_name + hmac_proof + path)
+    Wallet->>Device: CMD_EDIT_CONTACT_NAME (group_handle + previous_name + new_name + hmac_proof)
     Device->>Device: Parse TLV
     Device->>Device: Verify group_handle MAC, extract gid
     Device->>Device: Re-derive HMAC_PROOF(gid, previous_name), compare with hmac_proof
@@ -399,13 +397,12 @@ Changes the `IDENTIFIER` of an existing contact while keeping the same `contact_
 | ACCOUNT_IDENTIFIER  | 0xf2  | Yes       | 80 B     | New blockchain identifier (replacing the old one)                |
 | PREVIOUS_IDENTIFIER | 0xf4  | Yes       | 80 B     | old identifier (to verify the HMAC from the prior registration)  |
 | GROUP_HANDLE        | 0xf6  | Yes       | 64 B     | Opaque token from Register Identity response                     |
-| DERIVATION_PATH     | 0x69  | Yes       | 41 B     | BIP32 derivation path (same as at registration)                  |
 | CHAIN_ID            | 0x23  | Cond.     | 8 B      | Chain ID (mandatory for Ethereum)                                |
 | BLOCKCHAIN_FAMILY   | 0x51  | Yes       | 1 B      | Blockchain family                                                |
 | HMAC_PROOF          | 0x29  | Yes       | 32 B     | `HMAC_PROOF` from Register Identity (verifies the contact name)  |
 | HMAC_REST           | 0xf7  | Yes       | 32 B     | `HMAC_REST` from Register Identity (verifies the old identifier) |
 
-> **Payload size:** worst case (Ethereum, max path depth, max identifiers, with scope) = **428 B** — exceeds the 255 B short APDU limit. Multi-chunk transport is required (see §3).
+> **Payload size:** worst case (Ethereum, max identifiers, with scope) = **385 B** — exceeds the 255 B short APDU limit. Multi-chunk transport is required (see §3).
 
 #### Flow
 
@@ -421,7 +418,7 @@ Changes the `IDENTIFIER` of an existing contact while keeping the same `contact_
 sequenceDiagram
 
     Note over Wallet: Has: group_handle, contact_name, old_identifier, hmac_proof, hmac_rest (from registration)
-    Wallet->>Device: CMD_EDIT_IDENTIFIER (group_handle + contact_name + new_identifier + old_identifier + hmac_proof + hmac_rest + path + ...)
+    Wallet->>Device: CMD_EDIT_IDENTIFIER (group_handle + contact_name + new_identifier + old_identifier + hmac_proof + hmac_rest + ...)
     Device->>Device: Parse TLV
     Device->>Device: Verify group_handle MAC, extract gid
     Device->>Device: Re-derive HMAC_PROOF(gid, contact_name), compare with hmac_proof
@@ -464,13 +461,12 @@ Changes the `SCOPE` of an existing contact while keeping the same `contact_name`
 | ACCOUNT_IDENTIFIER     | 0xf2  | Yes       | 80 B     | Blockchain identifier (unchanged from registration)          |
 | PREVIOUS_SCOPE         | 0xf5  | Yes       | 32 B     | old scope (must match value used at registration)            |
 | GROUP_HANDLE           | 0xf6  | Yes       | 64 B     | Opaque token from Register Identity response                 |
-| DERIVATION_PATH        | 0x69  | Yes       | 41 B     | BIP32 derivation path (same as at registration)              |
 | CHAIN_ID               | 0x23  | Cond.     | 8 B      | Chain ID (mandatory for Ethereum)                            |
 | BLOCKCHAIN_FAMILY      | 0x51  | Yes       | 1 B      | Blockchain family                                            |
 | HMAC_PROOF             | 0x29  | Yes       | 32 B     | `HMAC_PROOF` from Register Identity, proves the contact name |
 | HMAC_REST              | 0xf7  | Yes       | 32 B     | `HMAC_REST` from Register Identity, proves the scope         |
 
-> **Payload size:** worst case (Ethereum, max path depth, max identifier) = **380 B** — exceeds the 255 B short APDU limit. Multi-chunk transport is required (see §3).
+> **Payload size:** worst case (Ethereum, max identifier) = **337 B** — exceeds the 255 B short APDU limit. Multi-chunk transport is required (see §3).
 
 #### Flow
 
@@ -485,7 +481,7 @@ Changes the `SCOPE` of an existing contact while keeping the same `contact_name`
 sequenceDiagram
 
     Note over Wallet: Has: group_handle, contact_name, old_scope, hmac_proof, hmac_rest (from registration)
-    Wallet->>Device: CMD_EDIT_SCOPE (group_handle + contact_name + new_scope + old_scope + hmac_proof + hmac_rest + identifier + path + ...)
+    Wallet->>Device: CMD_EDIT_SCOPE (group_handle + contact_name + new_scope + old_scope + hmac_proof + hmac_rest + identifier + ...)
     Device->>Device: Parse TLV
     Device->>Device: Verify group_handle MAC, extract gid
     Device->>Device: Re-derive HMAC_PROOF(gid, contact_name), compare with hmac_proof
@@ -639,13 +635,12 @@ Sent by the wallet **before a transaction** to let the device substitute a human
 | SCOPE              | 0xf1  | Yes       | 32 B     | Contact scope (must match value used at registration)                  |
 | ACCOUNT_IDENTIFIER | 0xf2  | Yes       | 80 B     | Blockchain identifier (unchanged from registration)                    |
 | GROUP_HANDLE       | 0xf6  | Yes       | 64 B     | Opaque token from Register Identity response                           |
-| DERIVATION_PATH    | 0x69  | Yes       | 41 B     | BIP32 derivation path (same as at registration)                        |
 | CHAIN_ID           | 0x23  | Cond.     | 8 B      | Chain ID (mandatory for Ethereum)                                      |
 | BLOCKCHAIN_FAMILY  | 0x51  | Yes       | 1 B      | Blockchain family                                                      |
 | HMAC_PROOF         | 0x29  | Yes       | 32 B     | `HMAC_PROOF` from Register Identity — proves contact name              |
 | HMAC_REST          | 0xf7  | Yes       | 32 B     | `HMAC_REST` from Register Identity — proves scope + identifier         |
 
-> **Payload size:** worst case (Ethereum, max path depth, max name + scope + identifier) = **362 B** — exceeds the 255 B short APDU limit. Multi-chunk transport is required (see §3).
+> **Payload size:** worst case (Ethereum, max name + scope + identifier) = **319 B** — exceeds the 255 B short APDU limit. Multi-chunk transport is required (see §3).
 
 #### Flow
 
@@ -660,7 +655,7 @@ Sent by the wallet **before a transaction** to let the device substitute a human
 sequenceDiagram
 
     Note over Wallet: Has: group_handle, contact_name, scope, identifier, hmac_proof, hmac_rest
-    Wallet->>Device: CMD_PROVIDE_CONTACT (group_handle + contact_name + scope + identifier + hmac_proof + hmac_rest + path + ...)
+    Wallet->>Device: CMD_PROVIDE_CONTACT (group_handle + contact_name + scope + identifier + hmac_proof + hmac_rest + ...)
     Device->>Device: Parse TLV
     Device->>Device: Verify group_handle MAC, extract gid
     Device->>Device: Re-derive HMAC_PROOF(gid, contact_name), compare with hmac_proof
