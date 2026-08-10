@@ -60,13 +60,11 @@
  *       it is never displayed to the user.
  */
 typedef struct {
-    uint8_t      gid[GID_SIZE];  ///< Device-generated group ID (first 32B of group_handle)
-    char         contact_name[CONTACT_NAME_LENGTH];
-    char         scope[SCOPE_LENGTH];
-    uint8_t      identifier[IDENTIFIER_MAX_LENGTH];
-    uint8_t      identifier_len;
-    path_bip32_t bip32_path;  ///< Optional: derives HMAC key; will be changed by another mechanism
-                              ///< in OS side
+    uint8_t             gid[GID_SIZE];  ///< Device-generated group ID (first 32B of group_handle)
+    char                contact_name[CONTACT_NAME_LENGTH];
+    char                scope[SCOPE_LENGTH];
+    uint8_t             identifier[IDENTIFIER_MAX_LENGTH];
+    uint8_t             identifier_len;
     blockchain_family_e blockchain_family;
     uint64_t            chain_id;  ///< Mandatory when blockchain_family == FAMILY_ETHEREUM
 } identity_t;
@@ -84,10 +82,9 @@ typedef struct {
  * @brief Data extracted from an Edit Contact Name TLV payload.
  */
 typedef struct {
-    uint8_t      gid[GID_SIZE];                          ///< Group ID extracted from group_handle
-    char         contact_name[CONTACT_NAME_LENGTH];      ///< New contact name
-    char         old_contact_name[CONTACT_NAME_LENGTH];  ///< old contact name
-    path_bip32_t bip32_path;                             ///< Optional: BIP32 derivation path
+    uint8_t gid[GID_SIZE];                          ///< Group ID extracted from group_handle
+    char    contact_name[CONTACT_NAME_LENGTH];      ///< New contact name
+    char    old_contact_name[CONTACT_NAME_LENGTH];  ///< old contact name
 } edit_contact_name_t;
 
 /**

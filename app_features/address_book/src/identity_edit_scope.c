@@ -74,7 +74,6 @@ typedef struct {
     X(0xf2, TAG_ACCOUNT_IDENTIFIER, handle_identifier, ENFORCE_UNIQUE_TAG)    \
     X(0xf5, TAG_PREVIOUS_SCOPE, handle_previous_scope, ENFORCE_UNIQUE_TAG)    \
     X(0xf6, TAG_GROUP_HANDLE, handle_group_handle, ENFORCE_UNIQUE_TAG)        \
-    X(0x69, TAG_DERIVATION_PATH, handle_derivation_path, ENFORCE_UNIQUE_TAG)  \
     X(0x23, TAG_CHAIN_ID, handle_chain_id, ENFORCE_UNIQUE_TAG)                \
     X(0x29, TAG_HMAC_PROOF, handle_hmac_proof, ENFORCE_UNIQUE_TAG)            \
     X(0xf7, TAG_HMAC_REST, handle_hmac_rest, ENFORCE_UNIQUE_TAG)              \
@@ -209,20 +208,6 @@ static bool handle_group_handle(const tlv_data_t *data, s_edit_scope_ctx *contex
         return false;
     }
     memmove(context->group_handle, buf.ptr, GROUP_HANDLE_SIZE);
-    return true;
-}
-
-/**
- * @brief Handler for tag \ref DERIVATION_PATH
- *
- * @param[in] data the tlv data
- * @param[in] context the received payload
- * @return whether the handling was successful
- */
-static bool handle_derivation_path(const tlv_data_t *data, s_edit_scope_ctx *context)
-{
-    UNUSED(data);
-    UNUSED(context);
     return true;
 }
 
