@@ -4,88 +4,25 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *
  *****************************************************************************/
-#include <stdarg.h>
-#include <stddef.h>
-#include <setjmp.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#ifdef UNIT_TESTING
-#undef UNIT_TESTING
-#include <cmocka.h>
-#define UNIT_TESTING
-#else
-#include <cmocka.h>
-#endif
+#include "unity.h"
+#include "Mockledger_assert_internals.h"
+#include "Mocklcx_sha256.h"
+#include "Mocklcx_hash.h"
+#include "Mockledger_pki.h"
 
 #include "tlv_use_case_dynamic_descriptor.h"
-#include "ledger_pki.h"
 #include "buffer.h"
-
-/* -------------------------------------------------------------------------- */
-/* Mock definitions                                                           */
-/* -------------------------------------------------------------------------- */
-
-/* Mock PKI verification result */
-static check_signature_with_pki_status_t mock_pki_result = CHECK_SIGNATURE_WITH_PKI_SUCCESS;
-
-check_signature_with_pki_status_t check_signature_with_pki(const buffer_t    hash,
-                                                           const uint8_t    *expected_key_usage,
-                                                           const cx_curve_t *expected_curve,
-                                                           const buffer_t    signature)
-{
-    (void) hash;
-    (void) expected_key_usage;
-    (void) expected_curve;
-    (void) signature;
-    return mock_pki_result;
-}
-
-/* -------------------------------------------------------------------------- */
-/* Helper functions to build TLV payloads                                     */
-/* -------------------------------------------------------------------------- */
-
-static void append_tlv(uint8_t       *buffer,
-                       size_t        *offset,
-                       uint8_t        tag,
-                       const uint8_t *value,
-                       size_t         value_len)
-{
-    buffer[(*offset)++] = tag;
-    buffer[(*offset)++] = (uint8_t) value_len;
-    memcpy(&buffer[*offset], value, value_len);
-    *offset += value_len;
-}
-
-static void append_tlv_uint8(uint8_t *buffer, size_t *offset, uint8_t tag, uint8_t value)
-{
-    append_tlv(buffer, offset, tag, &value, 1);
-}
-
-static void append_tlv_uint32(uint8_t *buffer, size_t *offset, uint8_t tag, uint32_t value)
-{
-    uint8_t bytes[4];
-    bytes[0] = (value >> 24) & 0xFF;
-    bytes[1] = (value >> 16) & 0xFF;
-    bytes[2] = (value >> 8) & 0xFF;
-    bytes[3] = value & 0xFF;
-    append_tlv(buffer, offset, tag, bytes, 4);
-}
-
-static void append_tlv_string(uint8_t *buffer, size_t *offset, uint8_t tag, const char *str)
-{
-    append_tlv(buffer, offset, tag, (const uint8_t *) str, strlen(str));
-}
+#include "test_utils.h"
 
 /* -------------------------------------------------------------------------- */
 /* Test: Valid complete dynamic descriptor                                    */
 /* -------------------------------------------------------------------------- */
 
-static void test_valid_dynamic_descriptor(void **state)
+void test_valid_dynamic_descriptor(void)
 {
-    (void) state;
-
     uint8_t payload[256];
     size_t  offset = 0;
 
@@ -119,27 +56,24 @@ static void test_valid_dynamic_descriptor(void **state)
     buffer_t                     buf = {.ptr = payload, .size = offset, .offset = 0};
     tlv_dynamic_descriptor_out_t out = {0};
 
-    mock_pki_result = CHECK_SIGNATURE_WITH_PKI_SUCCESS;
-
+    check_signature_with_pki_IgnoreAndReturn(CHECK_SIGNATURE_WITH_PKI_SUCCESS);
     tlv_dynamic_descriptor_status_t result = tlv_use_case_dynamic_descriptor(&buf, &out);
 
-    assert_int_equal(result, TLV_DYNAMIC_DESCRIPTOR_SUCCESS);
-    assert_int_equal(out.version, 1);
-    assert_int_equal(out.coin_type, 0x8000003C);
-    assert_string_equal(out.ticker, "BTC");
-    assert_int_equal(out.magnitude, 8);
-    assert_int_equal(out.TUID.size, 4);
-    assert_memory_equal(out.TUID.ptr, tuid, 4);
+    TEST_ASSERT_EQUAL_INT(result, TLV_DYNAMIC_DESCRIPTOR_SUCCESS);
+    TEST_ASSERT_EQUAL_INT(out.version, 1);
+    TEST_ASSERT_EQUAL_INT(out.coin_type, 0x8000003C);
+    TEST_ASSERT_EQUAL_STRING(out.ticker, "BTC");
+    TEST_ASSERT_EQUAL_INT(out.magnitude, 8);
+    TEST_ASSERT_EQUAL_INT(out.TUID.size, 4);
+    TEST_ASSERT_EQUAL_MEMORY(out.TUID.ptr, tuid, 4);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Missing structure type tag                                           */
 /* -------------------------------------------------------------------------- */
 
-static void test_missing_structure_type(void **state)
+void test_missing_structure_type(void)
 {
-    (void) state;
-
     uint8_t payload[256];
     size_t  offset = 0;
 
@@ -159,17 +93,15 @@ static void test_missing_structure_type(void **state)
 
     tlv_dynamic_descriptor_status_t result = tlv_use_case_dynamic_descriptor(&buf, &out);
 
-    assert_int_equal(result, TLV_DYNAMIC_DESCRIPTOR_MISSING_STRUCTURE_TAG);
+    TEST_ASSERT_EQUAL_INT(result, TLV_DYNAMIC_DESCRIPTOR_MISSING_STRUCTURE_TAG);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Wrong structure type                                                 */
 /* -------------------------------------------------------------------------- */
 
-static void test_wrong_structure_type(void **state)
+void test_wrong_structure_type(void)
 {
-    (void) state;
-
     uint8_t payload[256];
     size_t  offset = 0;
 
@@ -189,17 +121,15 @@ static void test_wrong_structure_type(void **state)
 
     tlv_dynamic_descriptor_status_t result = tlv_use_case_dynamic_descriptor(&buf, &out);
 
-    assert_int_equal(result, TLV_DYNAMIC_DESCRIPTOR_WRONG_TYPE);
+    TEST_ASSERT_EQUAL_INT(result, TLV_DYNAMIC_DESCRIPTOR_WRONG_TYPE);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Missing required fields                                              */
 /* -------------------------------------------------------------------------- */
 
-static void test_missing_version_tag(void **state)
+void test_missing_version_tag(void)
 {
-    (void) state;
-
     uint8_t payload[256];
     size_t  offset = 0;
 
@@ -219,13 +149,11 @@ static void test_missing_version_tag(void **state)
 
     tlv_dynamic_descriptor_status_t result = tlv_use_case_dynamic_descriptor(&buf, &out);
 
-    assert_int_equal(result, TLV_DYNAMIC_DESCRIPTOR_MISSING_TAG);
+    TEST_ASSERT_EQUAL_INT(result, TLV_DYNAMIC_DESCRIPTOR_MISSING_TAG);
 }
 
-static void test_missing_signature_tag(void **state)
+void test_missing_signature_tag(void)
 {
-    (void) state;
-
     uint8_t payload[256];
     size_t  offset = 0;
 
@@ -244,17 +172,15 @@ static void test_missing_signature_tag(void **state)
 
     tlv_dynamic_descriptor_status_t result = tlv_use_case_dynamic_descriptor(&buf, &out);
 
-    assert_int_equal(result, TLV_DYNAMIC_DESCRIPTOR_MISSING_TAG);
+    TEST_ASSERT_EQUAL_INT(result, TLV_DYNAMIC_DESCRIPTOR_MISSING_TAG);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Wrong application name                                               */
 /* -------------------------------------------------------------------------- */
 
-static void test_wrong_application_name(void **state)
+void test_wrong_application_name(void)
 {
-    (void) state;
-
     uint8_t payload[256];
     size_t  offset = 0;
 
@@ -274,17 +200,15 @@ static void test_wrong_application_name(void **state)
 
     tlv_dynamic_descriptor_status_t result = tlv_use_case_dynamic_descriptor(&buf, &out);
 
-    assert_int_equal(result, TLV_DYNAMIC_DESCRIPTOR_WRONG_APPLICATION_NAME);
+    TEST_ASSERT_EQUAL_INT(result, TLV_DYNAMIC_DESCRIPTOR_WRONG_APPLICATION_NAME);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Unsupported version                                                  */
 /* -------------------------------------------------------------------------- */
 
-static void test_version_zero(void **state)
+void test_version_zero(void)
 {
-    (void) state;
-
     uint8_t payload[256];
     size_t  offset = 0;
 
@@ -304,13 +228,11 @@ static void test_version_zero(void **state)
 
     tlv_dynamic_descriptor_status_t result = tlv_use_case_dynamic_descriptor(&buf, &out);
 
-    assert_int_equal(result, TLV_DYNAMIC_DESCRIPTOR_UNKNOWN_VERSION);
+    TEST_ASSERT_EQUAL_INT(result, TLV_DYNAMIC_DESCRIPTOR_UNKNOWN_VERSION);
 }
 
-static void test_version_too_high(void **state)
+void test_version_too_high(void)
 {
-    (void) state;
-
     uint8_t payload[256];
     size_t  offset = 0;
 
@@ -330,17 +252,15 @@ static void test_version_too_high(void **state)
 
     tlv_dynamic_descriptor_status_t result = tlv_use_case_dynamic_descriptor(&buf, &out);
 
-    assert_int_equal(result, TLV_DYNAMIC_DESCRIPTOR_UNKNOWN_VERSION);
+    TEST_ASSERT_EQUAL_INT(result, TLV_DYNAMIC_DESCRIPTOR_UNKNOWN_VERSION);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Signature verification failure                                       */
 /* -------------------------------------------------------------------------- */
 
-static void test_signature_verification_failure(void **state)
+void test_signature_verification_failure(void)
 {
-    (void) state;
-
     uint8_t payload[256];
     size_t  offset = 0;
 
@@ -358,55 +278,49 @@ static void test_signature_verification_failure(void **state)
     buffer_t                     buf = {.ptr = payload, .size = offset, .offset = 0};
     tlv_dynamic_descriptor_out_t out = {0};
 
-    mock_pki_result = CHECK_SIGNATURE_WITH_PKI_WRONG_SIGNATURE;
+    check_signature_with_pki_IgnoreAndReturn(CHECK_SIGNATURE_WITH_PKI_WRONG_SIGNATURE);
 
     tlv_dynamic_descriptor_status_t result = tlv_use_case_dynamic_descriptor(&buf, &out);
 
-    assert_true((result & TLV_DYNAMIC_DESCRIPTOR_SIGNATURE_ERROR) != 0);
+    TEST_ASSERT_TRUE((result & TLV_DYNAMIC_DESCRIPTOR_SIGNATURE_ERROR) != 0);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Malformed TLV parsing                                                */
 /* -------------------------------------------------------------------------- */
 
-static void test_invalid_tlv_format(void **state)
+void test_invalid_tlv_format(void)
 {
-    (void) state;
-
     uint8_t                      payload[10] = {0x01, 0xFF, 0x90};  // Length exceeds buffer
     buffer_t                     buf         = {.ptr = payload, .size = 3, .offset = 0};
     tlv_dynamic_descriptor_out_t out         = {0};
 
     tlv_dynamic_descriptor_status_t result = tlv_use_case_dynamic_descriptor(&buf, &out);
 
-    assert_int_equal(result, TLV_DYNAMIC_DESCRIPTOR_PARSING_ERROR);
+    TEST_ASSERT_EQUAL_INT(result, TLV_DYNAMIC_DESCRIPTOR_PARSING_ERROR);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Empty payload                                                        */
 /* -------------------------------------------------------------------------- */
 
-static void test_empty_payload(void **state)
+void test_empty_payload(void)
 {
-    (void) state;
-
     uint8_t                      payload[1] = {0};
     buffer_t                     buf        = {.ptr = payload, .size = 0, .offset = 0};
     tlv_dynamic_descriptor_out_t out        = {0};
 
     tlv_dynamic_descriptor_status_t result = tlv_use_case_dynamic_descriptor(&buf, &out);
 
-    assert_int_equal(result, TLV_DYNAMIC_DESCRIPTOR_MISSING_STRUCTURE_TAG);
+    TEST_ASSERT_EQUAL_INT(result, TLV_DYNAMIC_DESCRIPTOR_MISSING_STRUCTURE_TAG);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Ticker and coin type validation                                      */
 /* -------------------------------------------------------------------------- */
 
-static void test_various_tickers(void **state)
+void test_various_tickers(void)
 {
-    (void) state;
-
     uint8_t payload[256];
     size_t  offset = 0;
 
@@ -425,38 +339,58 @@ static void test_various_tickers(void **state)
     buffer_t                     buf = {.ptr = payload, .size = offset, .offset = 0};
     tlv_dynamic_descriptor_out_t out = {0};
 
-    mock_pki_result = CHECK_SIGNATURE_WITH_PKI_SUCCESS;
-
+    check_signature_with_pki_IgnoreAndReturn(CHECK_SIGNATURE_WITH_PKI_SUCCESS);
     tlv_dynamic_descriptor_status_t result = tlv_use_case_dynamic_descriptor(&buf, &out);
 
-    assert_int_equal(result, TLV_DYNAMIC_DESCRIPTOR_SUCCESS);
-    assert_string_equal(out.ticker, "LONGNAME");
-    assert_int_equal(out.magnitude, 0x12);
+    TEST_ASSERT_EQUAL_INT(result, TLV_DYNAMIC_DESCRIPTOR_SUCCESS);
+    TEST_ASSERT_EQUAL_STRING(out.ticker, "LONGNAME");
+    TEST_ASSERT_EQUAL_INT(out.magnitude, 0x12);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test suite entry point                                                     */
 /* -------------------------------------------------------------------------- */
 
-int main(int argc, char **argv)
+void setUp(void)
 {
-    (void) argc;
-    (void) argv;
+    Mockledger_assert_internals_Init();
+    Mocklcx_sha256_Init();
+    Mocklcx_hash_Init();
+    Mockledger_pki_Init();
 
-    const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_valid_dynamic_descriptor),
-        cmocka_unit_test(test_missing_structure_type),
-        cmocka_unit_test(test_wrong_structure_type),
-        cmocka_unit_test(test_missing_version_tag),
-        cmocka_unit_test(test_missing_signature_tag),
-        cmocka_unit_test(test_wrong_application_name),
-        cmocka_unit_test(test_version_zero),
-        cmocka_unit_test(test_version_too_high),
-        cmocka_unit_test(test_signature_verification_failure),
-        cmocka_unit_test(test_invalid_tlv_format),
-        cmocka_unit_test(test_empty_payload),
-        cmocka_unit_test(test_various_tickers),
-    };
+    assert_exit_Ignore();
+    assert_display_exit_Ignore();
+    cx_sha256_init_no_throw_IgnoreAndReturn(CX_OK);
+    cx_hash_update_IgnoreAndReturn(CX_OK);
+    cx_hash_final_IgnoreAndReturn(CX_OK);
+}
 
-    return cmocka_run_group_tests(tests, NULL, NULL);
+void tearDown(void)
+{
+    Mockledger_assert_internals_Verify();
+    Mockledger_assert_internals_Destroy();
+    Mocklcx_sha256_Verify();
+    Mocklcx_sha256_Destroy();
+    Mocklcx_hash_Verify();
+    Mocklcx_hash_Destroy();
+    Mockledger_pki_Verify();
+    Mockledger_pki_Destroy();
+}
+
+int main(void)
+{
+    UNITY_BEGIN();
+    RUN_TEST(test_valid_dynamic_descriptor);
+    RUN_TEST(test_missing_structure_type);
+    RUN_TEST(test_wrong_structure_type);
+    RUN_TEST(test_missing_version_tag);
+    RUN_TEST(test_missing_signature_tag);
+    RUN_TEST(test_wrong_application_name);
+    RUN_TEST(test_version_zero);
+    RUN_TEST(test_version_too_high);
+    RUN_TEST(test_signature_verification_failure);
+    RUN_TEST(test_invalid_tlv_format);
+    RUN_TEST(test_empty_payload);
+    RUN_TEST(test_various_tickers);
+    return UNITY_END();
 }

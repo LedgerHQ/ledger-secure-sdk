@@ -4,109 +4,28 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *
  *****************************************************************************/
-#include <stdarg.h>
-#include <stddef.h>
-#include <setjmp.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#ifdef UNIT_TESTING
-#undef UNIT_TESTING
-#include <cmocka.h>
-#define UNIT_TESTING
-#else
-#include <cmocka.h>
-#endif
+#include "unity.h"
+#include "Mockledger_assert_internals.h"
+#include "Mocklcx_sha256.h"
+#include "Mocklcx_sha3.h"
+#include "Mocklcx_ripemd160.h"
+#include "Mocklcx_sha512.h"
+#include "Mocklcx_hash.h"
+#include "Mockledger_pki.h"
 
 #include "tlv_use_case_trusted_name.h"
-#include "ledger_pki.h"
 #include "buffer.h"
-
-/* -------------------------------------------------------------------------- */
-/* Mock definitions                                                           */
-/* -------------------------------------------------------------------------- */
-
-static check_signature_with_pki_status_t mock_pki_result = CHECK_SIGNATURE_WITH_PKI_SUCCESS;
-
-check_signature_with_pki_status_t check_signature_with_pki(const buffer_t    hash,
-                                                           const uint8_t    *expected_key_usage,
-                                                           const cx_curve_t *expected_curve,
-                                                           const buffer_t    signature)
-{
-    (void) hash;
-    (void) expected_key_usage;
-    (void) expected_curve;
-    (void) signature;
-    return mock_pki_result;
-}
-
-/* -------------------------------------------------------------------------- */
-/* Helper functions to build TLV payloads                                     */
-/* -------------------------------------------------------------------------- */
-
-static void append_tlv(uint8_t       *buffer,
-                       size_t        *offset,
-                       uint8_t        tag,
-                       const uint8_t *value,
-                       size_t         value_len)
-{
-    buffer[(*offset)++] = tag;
-    buffer[(*offset)++] = (uint8_t) value_len;
-    memcpy(&buffer[*offset], value, value_len);
-    *offset += value_len;
-}
-
-static void append_tlv_uint8(uint8_t *buffer, size_t *offset, uint8_t tag, uint8_t value)
-{
-    append_tlv(buffer, offset, tag, &value, 1);
-}
-
-static void append_tlv_uint16(uint8_t *buffer, size_t *offset, uint8_t tag, uint16_t value)
-{
-    uint8_t bytes[2];
-    bytes[0] = (value >> 8) & 0xFF;
-    bytes[1] = value & 0xFF;
-    append_tlv(buffer, offset, tag, bytes, 2);
-}
-
-static void append_tlv_uint32(uint8_t *buffer, size_t *offset, uint8_t tag, uint32_t value)
-{
-    uint8_t bytes[4];
-    bytes[0] = (value >> 24) & 0xFF;
-    bytes[1] = (value >> 16) & 0xFF;
-    bytes[2] = (value >> 8) & 0xFF;
-    bytes[3] = value & 0xFF;
-    append_tlv(buffer, offset, tag, bytes, 4);
-}
-
-static void append_tlv_uint64(uint8_t *buffer, size_t *offset, uint8_t tag, uint64_t value)
-{
-    uint8_t bytes[8];
-    bytes[0] = (value >> 56) & 0xFF;
-    bytes[1] = (value >> 48) & 0xFF;
-    bytes[2] = (value >> 40) & 0xFF;
-    bytes[3] = (value >> 32) & 0xFF;
-    bytes[4] = (value >> 24) & 0xFF;
-    bytes[5] = (value >> 16) & 0xFF;
-    bytes[6] = (value >> 8) & 0xFF;
-    bytes[7] = value & 0xFF;
-    append_tlv(buffer, offset, tag, bytes, 8);
-}
-
-static void append_tlv_string(uint8_t *buffer, size_t *offset, uint8_t tag, const char *str)
-{
-    append_tlv(buffer, offset, tag, (const uint8_t *) str, strlen(str));
-}
+#include "test_utils.h"
 
 /* -------------------------------------------------------------------------- */
 /* Test: Valid complete trusted name v1                                       */
 /* -------------------------------------------------------------------------- */
 
-static void test_valid_trusted_name_v1(void **state)
+void test_valid_trusted_name_v1(void)
 {
-    (void) state;
-
     uint8_t payload[256];
     size_t  offset = 0;
 
@@ -136,34 +55,31 @@ static void test_valid_trusted_name_v1(void **state)
     buffer_t               buf = {.ptr = payload, .size = offset, .offset = 0};
     tlv_trusted_name_out_t out = {0};
 
-    mock_pki_result = CHECK_SIGNATURE_WITH_PKI_SUCCESS;
-
+    check_signature_with_pki_IgnoreAndReturn(CHECK_SIGNATURE_WITH_PKI_SUCCESS);
     tlv_trusted_name_status_t result = tlv_use_case_trusted_name(&buf, &out);
 
-    assert_int_equal(result, TLV_TRUSTED_NAME_SUCCESS);
-    assert_int_equal(out.version, 1);
-    assert_int_equal(out.trusted_name_type, TLV_TRUSTED_NAME_TYPE_EOA);
-    assert_int_equal(out.trusted_name_source, TLV_TRUSTED_NAME_SOURCE_CRYPTO_ASSET_LIST);
-    assert_int_equal(out.chain_id, 1);
-    assert_int_equal(out.address.size, 42);
-    assert_memory_equal(out.address.ptr, "0x1234567890abcdef1234567890abcdef12345678", 42);
-    assert_int_equal(out.trusted_name.size, 6);
-    assert_memory_equal(out.trusted_name.ptr, "Ledger", 6);
-    assert_false(out.nft_id_received);
-    assert_false(out.source_contract_received);
-    assert_false(out.challenge_received);
-    assert_false(out.not_valid_after_received);
-    assert_false(out.blockchain_family_received);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRUSTED_NAME_SUCCESS);
+    TEST_ASSERT_EQUAL_INT(out.version, 1);
+    TEST_ASSERT_EQUAL_INT(out.trusted_name_type, TLV_TRUSTED_NAME_TYPE_EOA);
+    TEST_ASSERT_EQUAL_INT(out.trusted_name_source, TLV_TRUSTED_NAME_SOURCE_CRYPTO_ASSET_LIST);
+    TEST_ASSERT_EQUAL_INT(out.chain_id, 1);
+    TEST_ASSERT_EQUAL_INT(out.address.size, 42);
+    TEST_ASSERT_EQUAL_MEMORY(out.address.ptr, "0x1234567890abcdef1234567890abcdef12345678", 42);
+    TEST_ASSERT_EQUAL_INT(out.trusted_name.size, 6);
+    TEST_ASSERT_EQUAL_MEMORY(out.trusted_name.ptr, "Ledger", 6);
+    TEST_ASSERT_FALSE(out.nft_id_received);
+    TEST_ASSERT_FALSE(out.source_contract_received);
+    TEST_ASSERT_FALSE(out.challenge_received);
+    TEST_ASSERT_FALSE(out.not_valid_after_received);
+    TEST_ASSERT_FALSE(out.blockchain_family_received);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Valid trusted name v2 with optional fields                           */
 /* -------------------------------------------------------------------------- */
 
-static void test_valid_trusted_name_v2_with_optionals(void **state)
+void test_valid_trusted_name_v2_with_optionals(void)
 {
-    (void) state;
-
     uint8_t payload[512];
     size_t  offset = 0;
 
@@ -195,32 +111,29 @@ static void test_valid_trusted_name_v2_with_optionals(void **state)
     buffer_t               buf = {.ptr = payload, .size = offset, .offset = 0};
     tlv_trusted_name_out_t out = {0};
 
-    mock_pki_result = CHECK_SIGNATURE_WITH_PKI_SUCCESS;
-
+    check_signature_with_pki_IgnoreAndReturn(CHECK_SIGNATURE_WITH_PKI_SUCCESS);
     tlv_trusted_name_status_t result = tlv_use_case_trusted_name(&buf, &out);
 
-    assert_int_equal(result, TLV_TRUSTED_NAME_SUCCESS);
-    assert_int_equal(out.version, 2);
-    assert_true(out.nft_id_received);
-    assert_true(out.source_contract_received);
-    assert_true(out.challenge_received);
-    assert_true(out.not_valid_after_received);
-    assert_int_equal(out.challenge, 0x12345678);
-    assert_int_equal(out.not_valid_after.major, 1);
-    assert_int_equal(out.not_valid_after.minor, 2);
-    assert_int_equal(out.not_valid_after.patch, 0x0304);
-    assert_true(out.blockchain_family_received);
-    assert_int_equal(out.blockchain_family, TLV_TRUSTED_NAME_BLOCKCHAIN_FAMILY_ETHEREUM);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRUSTED_NAME_SUCCESS);
+    TEST_ASSERT_EQUAL_INT(out.version, 2);
+    TEST_ASSERT_TRUE(out.nft_id_received);
+    TEST_ASSERT_TRUE(out.source_contract_received);
+    TEST_ASSERT_TRUE(out.challenge_received);
+    TEST_ASSERT_TRUE(out.not_valid_after_received);
+    TEST_ASSERT_EQUAL_INT(out.challenge, 0x12345678);
+    TEST_ASSERT_EQUAL_INT(out.not_valid_after.major, 1);
+    TEST_ASSERT_EQUAL_INT(out.not_valid_after.minor, 2);
+    TEST_ASSERT_EQUAL_INT(out.not_valid_after.patch, 0x0304);
+    TEST_ASSERT_TRUE(out.blockchain_family_received);
+    TEST_ASSERT_EQUAL_INT(out.blockchain_family, TLV_TRUSTED_NAME_BLOCKCHAIN_FAMILY_ETHEREUM);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Missing structure type tag                                           */
 /* -------------------------------------------------------------------------- */
 
-static void test_missing_structure_type(void **state)
+void test_missing_structure_type(void)
 {
-    (void) state;
-
     uint8_t payload[256];
     size_t  offset = 0;
 
@@ -241,17 +154,15 @@ static void test_missing_structure_type(void **state)
 
     tlv_trusted_name_status_t result = tlv_use_case_trusted_name(&buf, &out);
 
-    assert_int_equal(result, TLV_TRUSTED_NAME_MISSING_STRUCTURE_TAG);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRUSTED_NAME_MISSING_STRUCTURE_TAG);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Wrong structure type                                                 */
 /* -------------------------------------------------------------------------- */
 
-static void test_wrong_structure_type(void **state)
+void test_wrong_structure_type(void)
 {
-    (void) state;
-
     uint8_t payload[256];
     size_t  offset = 0;
 
@@ -272,17 +183,15 @@ static void test_wrong_structure_type(void **state)
 
     tlv_trusted_name_status_t result = tlv_use_case_trusted_name(&buf, &out);
 
-    assert_int_equal(result, TLV_TRUSTED_NAME_WRONG_TYPE);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRUSTED_NAME_WRONG_TYPE);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Missing required fields                                              */
 /* -------------------------------------------------------------------------- */
 
-static void test_missing_version_tag(void **state)
+void test_missing_version_tag(void)
 {
-    (void) state;
-
     uint8_t payload[256];
     size_t  offset = 0;
 
@@ -303,13 +212,11 @@ static void test_missing_version_tag(void **state)
 
     tlv_trusted_name_status_t result = tlv_use_case_trusted_name(&buf, &out);
 
-    assert_int_equal(result, TLV_TRUSTED_NAME_MISSING_TAG);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRUSTED_NAME_MISSING_TAG);
 }
 
-static void test_missing_signature_tag(void **state)
+void test_missing_signature_tag(void)
 {
-    (void) state;
-
     uint8_t payload[256];
     size_t  offset = 0;
 
@@ -329,17 +236,15 @@ static void test_missing_signature_tag(void **state)
 
     tlv_trusted_name_status_t result = tlv_use_case_trusted_name(&buf, &out);
 
-    assert_int_equal(result, TLV_TRUSTED_NAME_MISSING_TAG);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRUSTED_NAME_MISSING_TAG);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Unsupported version                                                  */
 /* -------------------------------------------------------------------------- */
 
-static void test_version_zero(void **state)
+void test_version_zero(void)
 {
-    (void) state;
-
     uint8_t payload[256];
     size_t  offset = 0;
 
@@ -360,13 +265,11 @@ static void test_version_zero(void **state)
 
     tlv_trusted_name_status_t result = tlv_use_case_trusted_name(&buf, &out);
 
-    assert_int_equal(result, TLV_TRUSTED_NAME_UNKNOWN_VERSION);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRUSTED_NAME_UNKNOWN_VERSION);
 }
 
-static void test_version_too_high(void **state)
+void test_version_too_high(void)
 {
-    (void) state;
-
     uint8_t payload[256];
     size_t  offset = 0;
 
@@ -387,17 +290,15 @@ static void test_version_too_high(void **state)
 
     tlv_trusted_name_status_t result = tlv_use_case_trusted_name(&buf, &out);
 
-    assert_int_equal(result, TLV_TRUSTED_NAME_UNKNOWN_VERSION);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRUSTED_NAME_UNKNOWN_VERSION);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Source contract in v1 (unsupported)                                  */
 /* -------------------------------------------------------------------------- */
 
-static void test_source_contract_in_v1(void **state)
+void test_source_contract_in_v1(void)
 {
-    (void) state;
-
     uint8_t payload[256];
     size_t  offset = 0;
 
@@ -420,17 +321,15 @@ static void test_source_contract_in_v1(void **state)
 
     tlv_trusted_name_status_t result = tlv_use_case_trusted_name(&buf, &out);
 
-    assert_int_equal(result, TLV_TRUSTED_NAME_UNSUPPORTED_TAG);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRUSTED_NAME_UNSUPPORTED_TAG);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Wrong key ID                                                         */
 /* -------------------------------------------------------------------------- */
 
-static void test_wrong_key_id(void **state)
+void test_wrong_key_id(void)
 {
-    (void) state;
-
     uint8_t payload[256];
     size_t  offset = 0;
 
@@ -451,17 +350,15 @@ static void test_wrong_key_id(void **state)
 
     tlv_trusted_name_status_t result = tlv_use_case_trusted_name(&buf, &out);
 
-    assert_int_equal(result, TLV_TRUSTED_NAME_WRONG_KEY_ID);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRUSTED_NAME_WRONG_KEY_ID);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Signature verification failure                                       */
 /* -------------------------------------------------------------------------- */
 
-static void test_signature_verification_failure(void **state)
+void test_signature_verification_failure(void)
 {
-    (void) state;
-
     uint8_t payload[256];
     size_t  offset = 0;
 
@@ -480,71 +377,101 @@ static void test_signature_verification_failure(void **state)
     buffer_t               buf = {.ptr = payload, .size = offset, .offset = 0};
     tlv_trusted_name_out_t out = {0};
 
-    mock_pki_result = CHECK_SIGNATURE_WITH_PKI_WRONG_SIGNATURE;
+    check_signature_with_pki_IgnoreAndReturn(CHECK_SIGNATURE_WITH_PKI_WRONG_SIGNATURE);
 
     tlv_trusted_name_status_t result = tlv_use_case_trusted_name(&buf, &out);
 
-    assert_true((result & TLV_TRUSTED_NAME_SIGNATURE_ERROR) != 0);
+    TEST_ASSERT_TRUE((result & TLV_TRUSTED_NAME_SIGNATURE_ERROR) != 0);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Malformed TLV parsing                                                */
 /* -------------------------------------------------------------------------- */
 
-static void test_invalid_tlv_format(void **state)
+void test_invalid_tlv_format(void)
 {
-    (void) state;
-
     uint8_t                payload[10] = {0x01, 0xFF, 0x80};  // Length exceeds buffer
     buffer_t               buf         = {.ptr = payload, .size = 3, .offset = 0};
     tlv_trusted_name_out_t out         = {0};
 
     tlv_trusted_name_status_t result = tlv_use_case_trusted_name(&buf, &out);
 
-    assert_int_equal(result, TLV_TRUSTED_NAME_PARSING_ERROR);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRUSTED_NAME_PARSING_ERROR);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Empty payload                                                        */
 /* -------------------------------------------------------------------------- */
 
-static void test_empty_payload(void **state)
+void test_empty_payload(void)
 {
-    (void) state;
-
     uint8_t                payload[1] = {0};
     buffer_t               buf        = {.ptr = payload, .size = 0, .offset = 0};
     tlv_trusted_name_out_t out        = {0};
 
     tlv_trusted_name_status_t result = tlv_use_case_trusted_name(&buf, &out);
 
-    assert_int_equal(result, TLV_TRUSTED_NAME_MISSING_STRUCTURE_TAG);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRUSTED_NAME_MISSING_STRUCTURE_TAG);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test suite entry point                                                     */
 /* -------------------------------------------------------------------------- */
 
-int main(int argc, char **argv)
+void setUp(void)
 {
-    (void) argc;
-    (void) argv;
+    Mockledger_assert_internals_Init();
+    Mocklcx_sha256_Init();
+    Mocklcx_sha3_Init();
+    Mocklcx_ripemd160_Init();
+    Mocklcx_sha512_Init();
+    Mocklcx_hash_Init();
+    Mockledger_pki_Init();
 
-    const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_valid_trusted_name_v1),
-        cmocka_unit_test(test_valid_trusted_name_v2_with_optionals),
-        cmocka_unit_test(test_missing_structure_type),
-        cmocka_unit_test(test_wrong_structure_type),
-        cmocka_unit_test(test_missing_version_tag),
-        cmocka_unit_test(test_missing_signature_tag),
-        cmocka_unit_test(test_version_zero),
-        cmocka_unit_test(test_version_too_high),
-        cmocka_unit_test(test_source_contract_in_v1),
-        cmocka_unit_test(test_wrong_key_id),
-        cmocka_unit_test(test_signature_verification_failure),
-        cmocka_unit_test(test_invalid_tlv_format),
-        cmocka_unit_test(test_empty_payload),
-    };
+    assert_exit_Ignore();
+    assert_display_exit_Ignore();
+    cx_sha256_init_no_throw_IgnoreAndReturn(CX_OK);
+    cx_sha3_init_no_throw_IgnoreAndReturn(CX_OK);
+    cx_keccak_init_no_throw_IgnoreAndReturn(CX_OK);
+    cx_ripemd160_init_no_throw_IgnoreAndReturn(CX_OK);
+    cx_sha512_init_no_throw_IgnoreAndReturn(CX_OK);
+    cx_hash_update_IgnoreAndReturn(CX_OK);
+    cx_hash_final_IgnoreAndReturn(CX_OK);
+}
 
-    return cmocka_run_group_tests(tests, NULL, NULL);
+void tearDown(void)
+{
+    Mockledger_assert_internals_Verify();
+    Mockledger_assert_internals_Destroy();
+    Mocklcx_sha256_Verify();
+    Mocklcx_sha256_Destroy();
+    Mocklcx_sha3_Verify();
+    Mocklcx_sha3_Destroy();
+    Mocklcx_ripemd160_Verify();
+    Mocklcx_ripemd160_Destroy();
+    Mocklcx_sha512_Verify();
+    Mocklcx_sha512_Destroy();
+    Mocklcx_hash_Verify();
+    Mocklcx_hash_Destroy();
+    Mockledger_pki_Verify();
+    Mockledger_pki_Destroy();
+}
+
+int main(void)
+{
+    UNITY_BEGIN();
+    RUN_TEST(test_valid_trusted_name_v1);
+    RUN_TEST(test_valid_trusted_name_v2_with_optionals);
+    RUN_TEST(test_missing_structure_type);
+    RUN_TEST(test_wrong_structure_type);
+    RUN_TEST(test_missing_version_tag);
+    RUN_TEST(test_missing_signature_tag);
+    RUN_TEST(test_version_zero);
+    RUN_TEST(test_version_too_high);
+    RUN_TEST(test_source_contract_in_v1);
+    RUN_TEST(test_wrong_key_id);
+    RUN_TEST(test_signature_verification_failure);
+    RUN_TEST(test_invalid_tlv_format);
+    RUN_TEST(test_empty_payload);
+    return UNITY_END();
 }

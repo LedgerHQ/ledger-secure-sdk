@@ -4,108 +4,21 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *
  *****************************************************************************/
-#include <stdarg.h>
-#include <stddef.h>
-#include <setjmp.h>
+#include <ctype.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "unity.h"
+#include "Mockledger_assert_internals.h"
+#include "Mocklcx_sha256.h"
+#include "Mocklcx_hash.h"
+#include "Mockos_utils.h"
+#include "Mockos_pki.h"
+#include "Mockledger_pki.h"
 
-#ifdef UNIT_TESTING
-#undef UNIT_TESTING
-#include <cmocka.h>
-#define UNIT_TESTING
-#else
-#include <cmocka.h>
-#endif
-
-#include "os_pki.h"
 #include "tlv_use_case_transaction_check.h"
-#include "ledger_pki.h"
 #include "buffer.h"
-
-/* -------------------------------------------------------------------------- */
-/* Mock definitions                                                           */
-/* -------------------------------------------------------------------------- */
-
-check_signature_with_pki_status_t check_signature_with_pki(const buffer_t    hash,
-                                                           const uint8_t    *expected_key_usage,
-                                                           const cx_curve_t *expected_curve,
-                                                           const buffer_t    signature)
-{
-    (void) hash;
-    (void) expected_key_usage;
-    (void) expected_curve;
-    (void) signature;
-    return mock_type(check_signature_with_pki_status_t);
-}
-
-/* -------------------------------------------------------------------------- */
-/* Helper functions to build TLV payloads                                     */
-/* -------------------------------------------------------------------------- */
-
-/**
- * Encode a value in DER format (short or long form) into buffer at *offset.
- */
-static void der_encode(uint8_t *buffer, size_t *offset, uint32_t value)
-{
-    if (value < 0x80) {
-        buffer[(*offset)++] = (uint8_t) value;
-    }
-    else if (value <= 0xFF) {
-        buffer[(*offset)++] = 0x81;
-        buffer[(*offset)++] = (uint8_t) value;
-    }
-    else if (value <= 0xFFFF) {
-        buffer[(*offset)++] = 0x82;
-        buffer[(*offset)++] = (uint8_t) (value >> 8);
-        buffer[(*offset)++] = (uint8_t) value;
-    }
-    else {
-        // Not needed for our tests, but for completeness
-        buffer[(*offset)++] = 0x84;
-        buffer[(*offset)++] = (uint8_t) (value >> 24);
-        buffer[(*offset)++] = (uint8_t) (value >> 16);
-        buffer[(*offset)++] = (uint8_t) (value >> 8);
-        buffer[(*offset)++] = (uint8_t) value;
-    }
-}
-
-static void append_tlv(uint8_t       *buffer,
-                       size_t        *offset,
-                       uint32_t       tag,
-                       const uint8_t *value,
-                       size_t         value_len)
-{
-    der_encode(buffer, offset, tag);
-    der_encode(buffer, offset, (uint32_t) value_len);
-    memcpy(&buffer[*offset], value, value_len);
-    *offset += value_len;
-}
-
-static void append_tlv_uint8(uint8_t *buffer, size_t *offset, uint32_t tag, uint8_t value)
-{
-    append_tlv(buffer, offset, tag, &value, 1);
-}
-
-static void append_tlv_uint64(uint8_t *buffer, size_t *offset, uint32_t tag, uint64_t value)
-{
-    uint8_t bytes[8];
-    bytes[0] = (value >> 56) & 0xFF;
-    bytes[1] = (value >> 48) & 0xFF;
-    bytes[2] = (value >> 40) & 0xFF;
-    bytes[3] = (value >> 32) & 0xFF;
-    bytes[4] = (value >> 24) & 0xFF;
-    bytes[5] = (value >> 16) & 0xFF;
-    bytes[6] = (value >> 8) & 0xFF;
-    bytes[7] = value & 0xFF;
-    append_tlv(buffer, offset, tag, bytes, 8);
-}
-
-static void append_tlv_string(uint8_t *buffer, size_t *offset, uint32_t tag, const char *str)
-{
-    append_tlv(buffer, offset, tag, (const uint8_t *) str, strlen(str));
-}
+#include "test_utils.h"
 
 /* -------------------------------------------------------------------------- */
 /* Helper: build a valid transaction-type payload into buffer, return offset  */
@@ -174,45 +87,39 @@ static size_t build_valid_transaction_payload(uint8_t *payload)
 /* Test: Valid complete transaction check (transaction type)                   */
 /* -------------------------------------------------------------------------- */
 
-static void test_valid_transaction_check(void **state)
+void test_valid_transaction_check(void)
 {
-    (void) state;
-
     uint8_t payload[512];
     size_t  offset = build_valid_transaction_payload(payload);
 
     buffer_t                    buf = {.ptr = payload, .size = offset, .offset = 0};
     tlv_transaction_check_out_t out = {0};
 
-    will_return(check_signature_with_pki, CHECK_SIGNATURE_WITH_PKI_SUCCESS);
-
+    check_signature_with_pki_IgnoreAndReturn(CHECK_SIGNATURE_WITH_PKI_SUCCESS);
     tlv_transaction_check_status_t result = tlv_use_case_transaction_check(&buf, &out);
 
-    assert_int_equal(result, TLV_TRANSACTION_CHECK_SUCCESS);
-    assert_int_equal(out.risk, TRANSACTION_CHECK_RISK_BENIGN);
-    assert_int_equal(out.category, TRANSACTION_CHECK_CATEGORY_NA);
-    assert_int_equal(out.type, TRANSACTION_CHECK_TYPE_TRANSACTION);
-    assert_int_equal(out.chain_id, 1);
-    assert_true(out.chain_id_received);
-    assert_int_equal(out.tx_hash.size, 32);
-    assert_memory_equal(out.tx_hash.ptr, DUMMY_HASH, 32);
-    assert_int_equal(out.address.size, 20);
-    assert_memory_equal(out.address.ptr, DUMMY_ADDRESS, 20);
-    assert_string_equal(out.tiny_url, "https://l.example/abc");
-    assert_false(out.provider_msg_received);
-    assert_false(out.domain_hash_received);
-    assert_false(out.additional_data_received);
-    assert_string_equal(out.partner, "TestPartner");
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRANSACTION_CHECK_SUCCESS);
+    TEST_ASSERT_EQUAL_INT(out.risk, TRANSACTION_CHECK_RISK_BENIGN);
+    TEST_ASSERT_EQUAL_INT(out.category, TRANSACTION_CHECK_CATEGORY_NA);
+    TEST_ASSERT_EQUAL_INT(out.type, TRANSACTION_CHECK_TYPE_TRANSACTION);
+    TEST_ASSERT_EQUAL_INT(out.chain_id, 1);
+    TEST_ASSERT_TRUE(out.chain_id_received);
+    TEST_ASSERT_EQUAL_INT(out.tx_hash.size, 32);
+    TEST_ASSERT_EQUAL_MEMORY(out.tx_hash.ptr, DUMMY_HASH, 32);
+    TEST_ASSERT_EQUAL_INT(out.address.size, 20);
+    TEST_ASSERT_EQUAL_MEMORY(out.address.ptr, DUMMY_ADDRESS, 20);
+    TEST_ASSERT_EQUAL_STRING(out.tiny_url, "https://l.example/abc");
+    TEST_ASSERT_FALSE(out.provider_msg_received);
+    TEST_ASSERT_FALSE(out.domain_hash_received);
+    TEST_ASSERT_FALSE(out.additional_data_received);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Valid typed-data payload with optional fields                         */
 /* -------------------------------------------------------------------------- */
 
-static void test_valid_typed_data_with_optionals(void **state)
+void test_valid_typed_data_with_optionals(void)
 {
-    (void) state;
-
     uint8_t payload[512];
     size_t  offset = 0;
 
@@ -241,31 +148,28 @@ static void test_valid_typed_data_with_optionals(void **state)
     buffer_t                    buf = {.ptr = payload, .size = offset, .offset = 0};
     tlv_transaction_check_out_t out = {0};
 
-    will_return(check_signature_with_pki, CHECK_SIGNATURE_WITH_PKI_SUCCESS);
-
+    check_signature_with_pki_IgnoreAndReturn(CHECK_SIGNATURE_WITH_PKI_SUCCESS);
     tlv_transaction_check_status_t result = tlv_use_case_transaction_check(&buf, &out);
 
-    assert_int_equal(result, TLV_TRANSACTION_CHECK_SUCCESS);
-    assert_int_equal(out.type, TRANSACTION_CHECK_TYPE_TYPED_DATA);
-    assert_int_equal(out.risk, TRANSACTION_CHECK_RISK_WARNING);
-    assert_int_equal(out.category, TRANSACTION_CHECK_CATEGORY_DAPP);
-    assert_true(out.domain_hash_received);
-    assert_int_equal(out.domain_hash.size, 32);
-    assert_true(out.provider_msg_received);
-    assert_string_equal(out.provider_msg, "Risk detected");
-    assert_true(out.additional_data_received);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRANSACTION_CHECK_SUCCESS);
+    TEST_ASSERT_EQUAL_INT(out.type, TRANSACTION_CHECK_TYPE_TYPED_DATA);
+    TEST_ASSERT_EQUAL_INT(out.risk, TRANSACTION_CHECK_RISK_WARNING);
+    TEST_ASSERT_EQUAL_INT(out.category, TRANSACTION_CHECK_CATEGORY_DAPP);
+    TEST_ASSERT_TRUE(out.domain_hash_received);
+    TEST_ASSERT_EQUAL_INT(out.domain_hash.size, 32);
+    TEST_ASSERT_TRUE(out.provider_msg_received);
+    TEST_ASSERT_EQUAL_STRING(out.provider_msg, "Risk detected");
+    TEST_ASSERT_TRUE(out.additional_data_received);
     // chain_id is optional for typed data and was not provided
-    assert_false(out.chain_id_received);
+    TEST_ASSERT_FALSE(out.chain_id_received);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Missing structure type tag                                           */
 /* -------------------------------------------------------------------------- */
 
-static void test_missing_structure_type(void **state)
+void test_missing_structure_type(void)
 {
-    (void) state;
-
     uint8_t payload[512];
     size_t  offset = 0;
 
@@ -286,17 +190,15 @@ static void test_missing_structure_type(void **state)
 
     tlv_transaction_check_status_t result = tlv_use_case_transaction_check(&buf, &out);
 
-    assert_int_equal(result, TLV_TRANSACTION_CHECK_MISSING_STRUCTURE_TAG);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRANSACTION_CHECK_MISSING_STRUCTURE_TAG);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Wrong structure type                                                 */
 /* -------------------------------------------------------------------------- */
 
-static void test_wrong_structure_type(void **state)
+void test_wrong_structure_type(void)
 {
-    (void) state;
-
     uint8_t payload[512];
     size_t  offset = 0;
 
@@ -317,17 +219,15 @@ static void test_wrong_structure_type(void **state)
 
     tlv_transaction_check_status_t result = tlv_use_case_transaction_check(&buf, &out);
 
-    assert_int_equal(result, TLV_TRANSACTION_CHECK_WRONG_TYPE);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRANSACTION_CHECK_WRONG_TYPE);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Missing required fields                                              */
 /* -------------------------------------------------------------------------- */
 
-static void test_missing_version_tag(void **state)
+void test_missing_version_tag(void)
 {
-    (void) state;
-
     uint8_t payload[512];
     size_t  offset = 0;
 
@@ -348,13 +248,11 @@ static void test_missing_version_tag(void **state)
 
     tlv_transaction_check_status_t result = tlv_use_case_transaction_check(&buf, &out);
 
-    assert_int_equal(result, TLV_TRANSACTION_CHECK_MISSING_TAG);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRANSACTION_CHECK_MISSING_TAG);
 }
 
-static void test_missing_signature_tag(void **state)
+void test_missing_signature_tag(void)
 {
-    (void) state;
-
     uint8_t payload[512];
     size_t  offset = 0;
 
@@ -374,17 +272,15 @@ static void test_missing_signature_tag(void **state)
 
     tlv_transaction_check_status_t result = tlv_use_case_transaction_check(&buf, &out);
 
-    assert_int_equal(result, TLV_TRANSACTION_CHECK_MISSING_TAG);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRANSACTION_CHECK_MISSING_TAG);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Optional chain_id absent for TRANSACTION type                        */
 /* -------------------------------------------------------------------------- */
 
-static void test_missing_chain_id_for_transaction(void **state)
+void test_missing_chain_id_for_transaction(void)
 {
-    (void) state;
-
     uint8_t payload[512];
     size_t  offset = 0;
 
@@ -403,22 +299,19 @@ static void test_missing_chain_id_for_transaction(void **state)
     buffer_t                    buf = {.ptr = payload, .size = offset, .offset = 0};
     tlv_transaction_check_out_t out = {0};
 
-    will_return(check_signature_with_pki, CHECK_SIGNATURE_WITH_PKI_SUCCESS);
-
+    check_signature_with_pki_IgnoreAndReturn(CHECK_SIGNATURE_WITH_PKI_SUCCESS);
     tlv_transaction_check_status_t result = tlv_use_case_transaction_check(&buf, &out);
 
-    assert_int_equal(result, TLV_TRANSACTION_CHECK_SUCCESS);
-    assert_false(out.chain_id_received);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRANSACTION_CHECK_SUCCESS);
+    TEST_ASSERT_FALSE(out.chain_id_received);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Optional domain_hash absent for TYPED_DATA type                      */
 /* -------------------------------------------------------------------------- */
 
-static void test_missing_domain_hash_for_typed_data(void **state)
+void test_missing_domain_hash_for_typed_data(void)
 {
-    (void) state;
-
     uint8_t payload[512];
     size_t  offset = 0;
 
@@ -437,22 +330,19 @@ static void test_missing_domain_hash_for_typed_data(void **state)
     buffer_t                    buf = {.ptr = payload, .size = offset, .offset = 0};
     tlv_transaction_check_out_t out = {0};
 
-    will_return(check_signature_with_pki, CHECK_SIGNATURE_WITH_PKI_SUCCESS);
-
+    check_signature_with_pki_IgnoreAndReturn(CHECK_SIGNATURE_WITH_PKI_SUCCESS);
     tlv_transaction_check_status_t result = tlv_use_case_transaction_check(&buf, &out);
 
-    assert_int_equal(result, TLV_TRANSACTION_CHECK_SUCCESS);
-    assert_false(out.domain_hash_received);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRANSACTION_CHECK_SUCCESS);
+    TEST_ASSERT_FALSE(out.domain_hash_received);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Unsupported version                                                  */
 /* -------------------------------------------------------------------------- */
 
-static void test_version_zero(void **state)
+void test_version_zero(void)
 {
-    (void) state;
-
     uint8_t payload[512];
     size_t  offset = 0;
 
@@ -473,13 +363,11 @@ static void test_version_zero(void **state)
 
     tlv_transaction_check_status_t result = tlv_use_case_transaction_check(&buf, &out);
 
-    assert_int_equal(result, TLV_TRANSACTION_CHECK_UNKNOWN_VERSION);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRANSACTION_CHECK_UNKNOWN_VERSION);
 }
 
-static void test_version_too_high(void **state)
+void test_version_too_high(void)
 {
-    (void) state;
-
     uint8_t payload[512];
     size_t  offset = 0;
 
@@ -500,38 +388,34 @@ static void test_version_too_high(void **state)
 
     tlv_transaction_check_status_t result = tlv_use_case_transaction_check(&buf, &out);
 
-    assert_int_equal(result, TLV_TRANSACTION_CHECK_UNKNOWN_VERSION);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRANSACTION_CHECK_UNKNOWN_VERSION);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Signature verification failure                                       */
 /* -------------------------------------------------------------------------- */
 
-static void test_signature_verification_failure(void **state)
+void test_signature_verification_failure(void)
 {
-    (void) state;
-
     uint8_t payload[512];
     size_t  offset = build_valid_transaction_payload(payload);
 
     buffer_t                    buf = {.ptr = payload, .size = offset, .offset = 0};
     tlv_transaction_check_out_t out = {0};
 
-    will_return(check_signature_with_pki, CHECK_SIGNATURE_WITH_PKI_WRONG_SIGNATURE);
+    check_signature_with_pki_IgnoreAndReturn(CHECK_SIGNATURE_WITH_PKI_WRONG_SIGNATURE);
 
     tlv_transaction_check_status_t result = tlv_use_case_transaction_check(&buf, &out);
 
-    assert_true((result & TLV_TRANSACTION_CHECK_SIGNATURE_ERROR) != 0);
+    TEST_ASSERT_TRUE((result & TLV_TRANSACTION_CHECK_SIGNATURE_ERROR) != 0);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Non-printable provider message rejected                              */
 /* -------------------------------------------------------------------------- */
 
-static void test_non_printable_provider_msg(void **state)
+void test_non_printable_provider_msg(void)
 {
-    (void) state;
-
     uint8_t payload[512];
     size_t  offset = 0;
 
@@ -555,17 +439,15 @@ static void test_non_printable_provider_msg(void **state)
 
     tlv_transaction_check_status_t result = tlv_use_case_transaction_check(&buf, &out);
 
-    assert_int_equal(result, TLV_TRANSACTION_CHECK_PARSING_ERROR);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRANSACTION_CHECK_PARSING_ERROR);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Risk value out of range                                              */
 /* -------------------------------------------------------------------------- */
 
-static void test_risk_out_of_range(void **state)
+void test_risk_out_of_range(void)
 {
-    (void) state;
-
     uint8_t payload[512];
     size_t  offset = 0;
 
@@ -586,69 +468,105 @@ static void test_risk_out_of_range(void **state)
 
     tlv_transaction_check_status_t result = tlv_use_case_transaction_check(&buf, &out);
 
-    assert_int_equal(result, TLV_TRANSACTION_CHECK_PARSING_ERROR);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRANSACTION_CHECK_PARSING_ERROR);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Malformed TLV parsing                                                */
 /* -------------------------------------------------------------------------- */
 
-static void test_invalid_tlv_format(void **state)
+void test_invalid_tlv_format(void)
 {
-    (void) state;
-
     uint8_t                     payload[10] = {0x01, 0xFF, 0x09};  // Length exceeds buffer
     buffer_t                    buf         = {.ptr = payload, .size = 3, .offset = 0};
     tlv_transaction_check_out_t out         = {0};
 
     tlv_transaction_check_status_t result = tlv_use_case_transaction_check(&buf, &out);
 
-    assert_int_equal(result, TLV_TRANSACTION_CHECK_PARSING_ERROR);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRANSACTION_CHECK_PARSING_ERROR);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test: Empty payload                                                        */
 /* -------------------------------------------------------------------------- */
 
-static void test_empty_payload(void **state)
+void test_empty_payload(void)
 {
-    (void) state;
-
     uint8_t                     payload[1] = {0};
     buffer_t                    buf        = {.ptr = payload, .size = 0, .offset = 0};
     tlv_transaction_check_out_t out        = {0};
 
     tlv_transaction_check_status_t result = tlv_use_case_transaction_check(&buf, &out);
 
-    assert_int_equal(result, TLV_TRANSACTION_CHECK_MISSING_STRUCTURE_TAG);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRANSACTION_CHECK_MISSING_STRUCTURE_TAG);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test suite entry point                                                     */
 /* -------------------------------------------------------------------------- */
 
-int main(int argc, char **argv)
+static bool is_printable_string_stub(const char *str, size_t len, int n)
 {
-    (void) argc;
-    (void) argv;
+    (void) n;
+    for (size_t i = 0; i < len; i++) {
+        if (!isprint((unsigned char) str[i])) {
+            return false;
+        }
+    }
+    return true;
+}
 
-    const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_valid_transaction_check),
-        cmocka_unit_test(test_valid_typed_data_with_optionals),
-        cmocka_unit_test(test_missing_structure_type),
-        cmocka_unit_test(test_wrong_structure_type),
-        cmocka_unit_test(test_missing_version_tag),
-        cmocka_unit_test(test_missing_signature_tag),
-        cmocka_unit_test(test_missing_chain_id_for_transaction),
-        cmocka_unit_test(test_missing_domain_hash_for_typed_data),
-        cmocka_unit_test(test_version_zero),
-        cmocka_unit_test(test_version_too_high),
-        cmocka_unit_test(test_signature_verification_failure),
-        cmocka_unit_test(test_non_printable_provider_msg),
-        cmocka_unit_test(test_risk_out_of_range),
-        cmocka_unit_test(test_invalid_tlv_format),
-        cmocka_unit_test(test_empty_payload),
-    };
+void setUp(void)
+{
+    Mockledger_assert_internals_Init();
+    Mocklcx_sha256_Init();
+    Mocklcx_hash_Init();
+    Mockos_utils_Init();
+    Mockos_pki_Init();
+    Mockledger_pki_Init();
 
-    return cmocka_run_group_tests(tests, NULL, NULL);
+    assert_exit_Ignore();
+    assert_display_exit_Ignore();
+    cx_sha256_init_no_throw_IgnoreAndReturn(CX_OK);
+    cx_hash_update_IgnoreAndReturn(CX_OK);
+    cx_hash_final_IgnoreAndReturn(CX_OK);
+    is_printable_string_Stub(is_printable_string_stub);
+    os_pki_get_info_IgnoreAndReturn(0);
+}
+
+void tearDown(void)
+{
+    Mockledger_assert_internals_Verify();
+    Mockledger_assert_internals_Destroy();
+    Mocklcx_sha256_Verify();
+    Mocklcx_sha256_Destroy();
+    Mocklcx_hash_Verify();
+    Mocklcx_hash_Destroy();
+    Mockos_utils_Verify();
+    Mockos_utils_Destroy();
+    Mockos_pki_Verify();
+    Mockos_pki_Destroy();
+    Mockledger_pki_Verify();
+    Mockledger_pki_Destroy();
+}
+
+int main(void)
+{
+    UNITY_BEGIN();
+    RUN_TEST(test_valid_transaction_check);
+    RUN_TEST(test_valid_typed_data_with_optionals);
+    RUN_TEST(test_missing_structure_type);
+    RUN_TEST(test_wrong_structure_type);
+    RUN_TEST(test_missing_version_tag);
+    RUN_TEST(test_missing_signature_tag);
+    RUN_TEST(test_missing_chain_id_for_transaction);
+    RUN_TEST(test_missing_domain_hash_for_typed_data);
+    RUN_TEST(test_version_zero);
+    RUN_TEST(test_version_too_high);
+    RUN_TEST(test_signature_verification_failure);
+    RUN_TEST(test_non_printable_provider_msg);
+    RUN_TEST(test_risk_out_of_range);
+    RUN_TEST(test_invalid_tlv_format);
+    RUN_TEST(test_empty_payload);
+    return UNITY_END();
 }
