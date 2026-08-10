@@ -4,20 +4,10 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *
  *****************************************************************************/
-#include <stdarg.h>
-#include <stddef.h>
-#include <setjmp.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#ifdef UNIT_TESTING
-#undef UNIT_TESTING
-#include <cmocka.h>
-#define UNIT_TESTING
-#else
-#include <cmocka.h>
-#endif
+#include "unity.h"
 
 #include "tlv_library.h"
 #include "buffer.h"
@@ -146,169 +136,149 @@ static bool common_handler(const tlv_data_t *data, void *out)
 /* Tests for __X_DEFINE_TLV__TAG_ASSIGN macro                                 */
 /* -------------------------------------------------------------------------- */
 
-static void test_tag_enum_values(void **state)
+void test_tag_enum_values(void)
 {
-    (void) state;
-
     /* Test that TAG_ASSIGN macro correctly creates enum with specified values */
-    assert_int_equal(TAG_ALPHA, 0x01);
-    assert_int_equal(TAG_BETA, 0x02);
-    assert_int_equal(TAG_GAMMA, 0x03);
+    TEST_ASSERT_EQUAL_INT(TAG_ALPHA, 0x01);
+    TEST_ASSERT_EQUAL_INT(TAG_BETA, 0x02);
+    TEST_ASSERT_EQUAL_INT(TAG_GAMMA, 0x03);
 
     /* Test second parser tags */
-    assert_int_equal(TAG_FOO, 0x10);
-    assert_int_equal(TAG_BAR, 0x20);
+    TEST_ASSERT_EQUAL_INT(TAG_FOO, 0x10);
+    TEST_ASSERT_EQUAL_INT(TAG_BAR, 0x20);
 
     /* Test third parser tags */
-    assert_int_equal(TAG_DELTA, 0x30);
+    TEST_ASSERT_EQUAL_INT(TAG_DELTA, 0x30);
 
     /* Test many tags parser */
-    assert_int_equal(TAG_A0, 0xA0);
-    assert_int_equal(TAG_A7, 0xA7);
+    TEST_ASSERT_EQUAL_INT(TAG_A0, 0xA0);
+    TEST_ASSERT_EQUAL_INT(TAG_A7, 0xA7);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Tests for __X_DEFINE_TLV__TAG_INDEX macro                                  */
 /* -------------------------------------------------------------------------- */
 
-static void test_tag_index_enum(void **state)
+void test_tag_index_enum(void)
 {
-    (void) state;
-
     /* Test that TAG_INDEX macro creates sequential indices starting at 0 */
-    assert_int_equal(TAG_ALPHA_INDEX, 0);
-    assert_int_equal(TAG_BETA_INDEX, 1);
-    assert_int_equal(TAG_GAMMA_INDEX, 2);
+    TEST_ASSERT_EQUAL_INT(TAG_ALPHA_INDEX, 0);
+    TEST_ASSERT_EQUAL_INT(TAG_BETA_INDEX, 1);
+    TEST_ASSERT_EQUAL_INT(TAG_GAMMA_INDEX, 2);
 
     /* Test TAG_COUNT generation */
-    assert_int_equal(test_parser_TAG_COUNT, 3);
-    assert_int_equal(second_parser_TAG_COUNT, 2);
-    assert_int_equal(third_parser_TAG_COUNT, 1);
-    assert_int_equal(many_parser_TAG_COUNT, 8);
+    TEST_ASSERT_EQUAL_INT(test_parser_TAG_COUNT, 3);
+    TEST_ASSERT_EQUAL_INT(second_parser_TAG_COUNT, 2);
+    TEST_ASSERT_EQUAL_INT(third_parser_TAG_COUNT, 1);
+    TEST_ASSERT_EQUAL_INT(many_parser_TAG_COUNT, 8);
 }
 
-static void test_tag_indices_are_sequential(void **state)
+void test_tag_indices_are_sequential(void)
 {
-    (void) state;
-
     /* Verify indices form a continuous sequence */
-    assert_int_equal(TAG_BETA_INDEX - TAG_ALPHA_INDEX, 1);
-    assert_int_equal(TAG_GAMMA_INDEX - TAG_BETA_INDEX, 1);
+    TEST_ASSERT_EQUAL_INT(TAG_BETA_INDEX - TAG_ALPHA_INDEX, 1);
+    TEST_ASSERT_EQUAL_INT(TAG_GAMMA_INDEX - TAG_BETA_INDEX, 1);
 
     /* Verify for many tags parser */
-    assert_int_equal(TAG_A1_INDEX - TAG_A0_INDEX, 1);
-    assert_int_equal(TAG_A2_INDEX - TAG_A1_INDEX, 1);
-    assert_int_equal(TAG_A7_INDEX - TAG_A6_INDEX, 1);
+    TEST_ASSERT_EQUAL_INT(TAG_A1_INDEX - TAG_A0_INDEX, 1);
+    TEST_ASSERT_EQUAL_INT(TAG_A2_INDEX - TAG_A1_INDEX, 1);
+    TEST_ASSERT_EQUAL_INT(TAG_A7_INDEX - TAG_A6_INDEX, 1);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Tests for __X_DEFINE_TLV__TAG_FLAG macro                                   */
 /* -------------------------------------------------------------------------- */
 
-static void test_tag_flag_values(void **state)
+void test_tag_flag_values(void)
 {
-    (void) state;
-
     /* Test that TAG_FLAG macro correctly computes ((TLV_flag_t)1 << INDEX) */
-    assert_int_equal(TAG_ALPHA_FLAG, (TLV_flag_t) 1 << TAG_ALPHA_INDEX);
-    assert_int_equal(TAG_BETA_FLAG, (TLV_flag_t) 1 << TAG_BETA_INDEX);
-    assert_int_equal(TAG_GAMMA_FLAG, (TLV_flag_t) 1 << TAG_GAMMA_INDEX);
+    TEST_ASSERT_EQUAL_INT(TAG_ALPHA_FLAG, (TLV_flag_t) 1 << TAG_ALPHA_INDEX);
+    TEST_ASSERT_EQUAL_INT(TAG_BETA_FLAG, (TLV_flag_t) 1 << TAG_BETA_INDEX);
+    TEST_ASSERT_EQUAL_INT(TAG_GAMMA_FLAG, (TLV_flag_t) 1 << TAG_GAMMA_INDEX);
 
     /* Verify specific flag values */
-    assert_int_equal(TAG_ALPHA_FLAG, 0x01); /* 1 << 0 */
-    assert_int_equal(TAG_BETA_FLAG, 0x02);  /* 1 << 1 */
-    assert_int_equal(TAG_GAMMA_FLAG, 0x04); /* 1 << 2 */
+    TEST_ASSERT_EQUAL_INT(TAG_ALPHA_FLAG, 0x01); /* 1 << 0 */
+    TEST_ASSERT_EQUAL_INT(TAG_BETA_FLAG, 0x02);  /* 1 << 1 */
+    TEST_ASSERT_EQUAL_INT(TAG_GAMMA_FLAG, 0x04); /* 1 << 2 */
 }
 
-static void test_tag_flags_are_unique(void **state)
+void test_tag_flags_are_unique(void)
 {
-    (void) state;
-
     /* Verify that each flag is a unique bit pattern */
-    assert_true((TAG_ALPHA_FLAG & TAG_BETA_FLAG) == 0);
-    assert_true((TAG_ALPHA_FLAG & TAG_GAMMA_FLAG) == 0);
-    assert_true((TAG_BETA_FLAG & TAG_GAMMA_FLAG) == 0);
+    TEST_ASSERT_TRUE((TAG_ALPHA_FLAG & TAG_BETA_FLAG) == 0);
+    TEST_ASSERT_TRUE((TAG_ALPHA_FLAG & TAG_GAMMA_FLAG) == 0);
+    TEST_ASSERT_TRUE((TAG_BETA_FLAG & TAG_GAMMA_FLAG) == 0);
 
     /* Verify OR combination creates unique patterns */
     TLV_flag_t combined = TAG_ALPHA_FLAG | TAG_BETA_FLAG;
-    assert_int_equal(combined, 0x03);
+    TEST_ASSERT_EQUAL_INT(combined, 0x03);
 
     combined = TAG_ALPHA_FLAG | TAG_GAMMA_FLAG;
-    assert_int_equal(combined, 0x05);
+    TEST_ASSERT_EQUAL_INT(combined, 0x05);
 }
 
-static void test_tag_flags_multiple_parsers(void **state)
+void test_tag_flags_multiple_parsers(void)
 {
-    (void) state;
-
     /* Test that flags from different parsers don't collide */
-    assert_int_equal(TAG_FOO_FLAG, (TLV_flag_t) 1 << TAG_FOO_INDEX);
-    assert_int_equal(TAG_BAR_FLAG, (TLV_flag_t) 1 << TAG_BAR_INDEX);
-    assert_int_equal(TAG_DELTA_FLAG, (TLV_flag_t) 1 << TAG_DELTA_INDEX);
+    TEST_ASSERT_EQUAL_INT(TAG_FOO_FLAG, (TLV_flag_t) 1 << TAG_FOO_INDEX);
+    TEST_ASSERT_EQUAL_INT(TAG_BAR_FLAG, (TLV_flag_t) 1 << TAG_BAR_INDEX);
+    TEST_ASSERT_EQUAL_INT(TAG_DELTA_FLAG, (TLV_flag_t) 1 << TAG_DELTA_INDEX);
 
     /* Test many flags */
-    assert_int_equal(TAG_A0_FLAG, (TLV_flag_t) 1 << TAG_A0_INDEX);
-    assert_int_equal(TAG_A7_FLAG, (TLV_flag_t) 1 << TAG_A7_INDEX);
-    assert_int_equal(TAG_A7_FLAG, 0x80); /* 1 << 7 */
+    TEST_ASSERT_EQUAL_INT(TAG_A0_FLAG, (TLV_flag_t) 1 << TAG_A0_INDEX);
+    TEST_ASSERT_EQUAL_INT(TAG_A7_FLAG, (TLV_flag_t) 1 << TAG_A7_INDEX);
+    TEST_ASSERT_EQUAL_INT(TAG_A7_FLAG, 0x80); /* 1 << 7 */
 }
 
 /* -------------------------------------------------------------------------- */
 /* Tests for __X_DEFINE_TLV__TAG_TO_FLAG_CASE macro                           */
 /* -------------------------------------------------------------------------- */
 
-static void test_tag_to_flag_function(void **state)
+void test_tag_to_flag_function(void)
 {
-    (void) state;
-
     /* Test TAG_TO_FLAG_CASE macro generates correct switch cases */
-    assert_int_equal(test_parser_tag_to_flag(TAG_ALPHA), TAG_ALPHA_FLAG);
-    assert_int_equal(test_parser_tag_to_flag(TAG_BETA), TAG_BETA_FLAG);
-    assert_int_equal(test_parser_tag_to_flag(TAG_GAMMA), TAG_GAMMA_FLAG);
+    TEST_ASSERT_EQUAL_INT(test_parser_tag_to_flag(TAG_ALPHA), TAG_ALPHA_FLAG);
+    TEST_ASSERT_EQUAL_INT(test_parser_tag_to_flag(TAG_BETA), TAG_BETA_FLAG);
+    TEST_ASSERT_EQUAL_INT(test_parser_tag_to_flag(TAG_GAMMA), TAG_GAMMA_FLAG);
 
     /* Test unknown tag returns 0 */
-    assert_int_equal(test_parser_tag_to_flag(0x99), 0);
-    assert_int_equal(test_parser_tag_to_flag(0x00), 0);
-    assert_int_equal(test_parser_tag_to_flag(0xFF), 0);
+    TEST_ASSERT_EQUAL_INT(test_parser_tag_to_flag(0x99), 0);
+    TEST_ASSERT_EQUAL_INT(test_parser_tag_to_flag(0x00), 0);
+    TEST_ASSERT_EQUAL_INT(test_parser_tag_to_flag(0xFF), 0);
 }
 
-static void test_tag_to_flag_multiple_parsers(void **state)
+void test_tag_to_flag_multiple_parsers(void)
 {
-    (void) state;
-
     /* Test second parser */
-    assert_int_equal(second_parser_tag_to_flag(TAG_FOO), TAG_FOO_FLAG);
-    assert_int_equal(second_parser_tag_to_flag(TAG_BAR), TAG_BAR_FLAG);
-    assert_int_equal(second_parser_tag_to_flag(0xFF), 0);
+    TEST_ASSERT_EQUAL_INT(second_parser_tag_to_flag(TAG_FOO), TAG_FOO_FLAG);
+    TEST_ASSERT_EQUAL_INT(second_parser_tag_to_flag(TAG_BAR), TAG_BAR_FLAG);
+    TEST_ASSERT_EQUAL_INT(second_parser_tag_to_flag(0xFF), 0);
 
     /* Test third parser */
-    assert_int_equal(third_parser_tag_to_flag(TAG_DELTA), TAG_DELTA_FLAG);
-    assert_int_equal(third_parser_tag_to_flag(0xFF), 0);
+    TEST_ASSERT_EQUAL_INT(third_parser_tag_to_flag(TAG_DELTA), TAG_DELTA_FLAG);
+    TEST_ASSERT_EQUAL_INT(third_parser_tag_to_flag(0xFF), 0);
 
     /* Test many parser */
-    assert_int_equal(many_parser_tag_to_flag(TAG_A0), TAG_A0_FLAG);
-    assert_int_equal(many_parser_tag_to_flag(TAG_A7), TAG_A7_FLAG);
-    assert_int_equal(many_parser_tag_to_flag(0xFF), 0);
+    TEST_ASSERT_EQUAL_INT(many_parser_tag_to_flag(TAG_A0), TAG_A0_FLAG);
+    TEST_ASSERT_EQUAL_INT(many_parser_tag_to_flag(TAG_A7), TAG_A7_FLAG);
+    TEST_ASSERT_EQUAL_INT(many_parser_tag_to_flag(0xFF), 0);
 }
 
-static void test_tag_to_flag_cross_parser_isolation(void **state)
+void test_tag_to_flag_cross_parser_isolation(void)
 {
-    (void) state;
-
     /* Verify that parsers don't accept tags from other parsers */
-    assert_int_equal(test_parser_tag_to_flag(TAG_FOO), 0);
-    assert_int_equal(test_parser_tag_to_flag(TAG_BAR), 0);
-    assert_int_equal(second_parser_tag_to_flag(TAG_ALPHA), 0);
-    assert_int_equal(second_parser_tag_to_flag(TAG_BETA), 0);
+    TEST_ASSERT_EQUAL_INT(test_parser_tag_to_flag(TAG_FOO), 0);
+    TEST_ASSERT_EQUAL_INT(test_parser_tag_to_flag(TAG_BAR), 0);
+    TEST_ASSERT_EQUAL_INT(second_parser_tag_to_flag(TAG_ALPHA), 0);
+    TEST_ASSERT_EQUAL_INT(second_parser_tag_to_flag(TAG_BETA), 0);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Tests for __X_DEFINE_TLV__TAG_CALLBACKS macro                              */
 /* -------------------------------------------------------------------------- */
 
-static void test_parser_function_exists(void **state)
+void test_parser_function_exists(void)
 {
-    (void) state;
-
     /* Verify that DEFINE_TLV_PARSER creates the parser function */
     /* We test this indirectly by checking that the function compiles and links */
     TLV_reception_t received = {0};
@@ -320,10 +290,8 @@ static void test_parser_function_exists(void **state)
     (void) result; /* We don't care about the result, just that it compiles */
 }
 
-static void test_multiple_parser_coexistence(void **state)
+void test_multiple_parser_coexistence(void)
 {
-    (void) state;
-
     /* Test that multiple parsers can coexist without naming conflicts */
     TLV_reception_t received1 = {0}, received2 = {0}, received3 = {0}, received4 = {0};
     test_output_t   out = {0};
@@ -340,97 +308,85 @@ static void test_multiple_parser_coexistence(void **state)
 /* Tests for DEFINE_TLV_PARSER macro integration                              */
 /* -------------------------------------------------------------------------- */
 
-static void test_enum_consistency(void **state)
+void test_enum_consistency(void)
 {
-    (void) state;
-
     /* Comprehensive check that all generated enums are consistent */
-    assert_int_equal(TAG_ALPHA, 0x01);
-    assert_int_equal(TAG_BETA, 0x02);
-    assert_int_equal(TAG_GAMMA, 0x03);
+    TEST_ASSERT_EQUAL_INT(TAG_ALPHA, 0x01);
+    TEST_ASSERT_EQUAL_INT(TAG_BETA, 0x02);
+    TEST_ASSERT_EQUAL_INT(TAG_GAMMA, 0x03);
 
-    assert_int_equal(TAG_ALPHA_FLAG, (TLV_flag_t) 1 << TAG_ALPHA_INDEX);
-    assert_int_equal(TAG_BETA_FLAG, (TLV_flag_t) 1 << TAG_BETA_INDEX);
-    assert_int_equal(TAG_GAMMA_FLAG, (TLV_flag_t) 1 << TAG_GAMMA_INDEX);
+    TEST_ASSERT_EQUAL_INT(TAG_ALPHA_FLAG, (TLV_flag_t) 1 << TAG_ALPHA_INDEX);
+    TEST_ASSERT_EQUAL_INT(TAG_BETA_FLAG, (TLV_flag_t) 1 << TAG_BETA_INDEX);
+    TEST_ASSERT_EQUAL_INT(TAG_GAMMA_FLAG, (TLV_flag_t) 1 << TAG_GAMMA_INDEX);
 
-    assert_int_equal(test_parser_TAG_COUNT, 3);
+    TEST_ASSERT_EQUAL_INT(test_parser_TAG_COUNT, 3);
 }
 
-static void test_parser_tag_count_matches_definitions(void **state)
+void test_parser_tag_count_matches_definitions(void)
 {
-    (void) state;
-
     /* Verify TAG_COUNT matches the number of tags defined */
     /* test_parser has 3 tags */
-    assert_int_equal(test_parser_TAG_COUNT, 3);
+    TEST_ASSERT_EQUAL_INT(test_parser_TAG_COUNT, 3);
 
     /* second_parser has 2 tags */
-    assert_int_equal(second_parser_TAG_COUNT, 2);
+    TEST_ASSERT_EQUAL_INT(second_parser_TAG_COUNT, 2);
 
     /* third_parser has 1 tag */
-    assert_int_equal(third_parser_TAG_COUNT, 1);
+    TEST_ASSERT_EQUAL_INT(third_parser_TAG_COUNT, 1);
 
     /* many_parser has 8 tags */
-    assert_int_equal(many_parser_TAG_COUNT, 8);
+    TEST_ASSERT_EQUAL_INT(many_parser_TAG_COUNT, 8);
 }
 
-static void test_all_flags_can_be_combined(void **state)
+void test_all_flags_can_be_combined(void)
 {
-    (void) state;
-
     /* Test that all flags can be OR'd together without collision */
     TLV_flag_t all_flags = TAG_ALPHA_FLAG | TAG_BETA_FLAG | TAG_GAMMA_FLAG;
-    assert_int_equal(all_flags, 0x07); /* 0b111 */
+    TEST_ASSERT_EQUAL_INT(all_flags, 0x07); /* 0b111 */
 
     /* Verify each flag is still distinguishable */
-    assert_true(all_flags & TAG_ALPHA_FLAG);
-    assert_true(all_flags & TAG_BETA_FLAG);
-    assert_true(all_flags & TAG_GAMMA_FLAG);
+    TEST_ASSERT_TRUE(all_flags & TAG_ALPHA_FLAG);
+    TEST_ASSERT_TRUE(all_flags & TAG_BETA_FLAG);
+    TEST_ASSERT_TRUE(all_flags & TAG_GAMMA_FLAG);
 }
 
-static void test_tag_values_are_preserved(void **state)
+void test_tag_values_are_preserved(void)
 {
-    (void) state;
-
     /* Verify that the X-macro expansion preserves the exact tag values */
     /* This is critical for protocol compatibility */
-    assert_int_equal(TAG_ALPHA, 0x01); /* Not 0 or 1 as index */
-    assert_int_equal(TAG_BETA, 0x02);  /* Not 1 or 2 as index */
-    assert_int_equal(TAG_GAMMA, 0x03); /* Not 2 or 4 as flag */
+    TEST_ASSERT_EQUAL_INT(TAG_ALPHA, 0x01); /* Not 0 or 1 as index */
+    TEST_ASSERT_EQUAL_INT(TAG_BETA, 0x02);  /* Not 1 or 2 as index */
+    TEST_ASSERT_EQUAL_INT(TAG_GAMMA, 0x03); /* Not 2 or 4 as flag */
 
     /* Test with non-sequential values */
-    assert_int_equal(TAG_FOO, 0x10);
-    assert_int_equal(TAG_BAR, 0x20);
-    assert_int_equal(TAG_DELTA, 0x30);
+    TEST_ASSERT_EQUAL_INT(TAG_FOO, 0x10);
+    TEST_ASSERT_EQUAL_INT(TAG_BAR, 0x20);
+    TEST_ASSERT_EQUAL_INT(TAG_DELTA, 0x30);
 }
 
-static void test_index_enumeration_starts_at_zero(void **state)
+void test_index_enumeration_starts_at_zero(void)
 {
-    (void) state;
-
     /* Verify that _INDEX enums always start at 0 */
-    assert_int_equal(TAG_ALPHA_INDEX, 0);
-    assert_int_equal(TAG_FOO_INDEX, 0);
-    assert_int_equal(TAG_DELTA_INDEX, 0);
-    assert_int_equal(TAG_A0_INDEX, 0);
+    TEST_ASSERT_EQUAL_INT(TAG_ALPHA_INDEX, 0);
+    TEST_ASSERT_EQUAL_INT(TAG_FOO_INDEX, 0);
+    TEST_ASSERT_EQUAL_INT(TAG_DELTA_INDEX, 0);
+    TEST_ASSERT_EQUAL_INT(TAG_A0_INDEX, 0);
 }
 
-static void test_flag_computation_correctness(void **state)
+void test_flag_computation_correctness(void)
 {
-    (void) state;
-
     /* Verify flag computation for various index values */
     for (int i = 0; i < 8; i++) {
         TLV_flag_t expected_flag = (TLV_flag_t) 1 << i;
         /* We can't dynamically test this, but we verify the pattern */
         if (i == TAG_ALPHA_INDEX) {
-            assert_int_equal(TAG_ALPHA_FLAG, expected_flag);
+            TEST_ASSERT_EQUAL_INT(TAG_ALPHA_FLAG, expected_flag);
         }
         if (i == TAG_BETA_INDEX) {
-            assert_int_equal(TAG_BETA_FLAG, expected_flag);
+            TEST_ASSERT_EQUAL_INT(TAG_BETA_FLAG, expected_flag);
         }
         if (i == TAG_GAMMA_INDEX) {
-            assert_int_equal(TAG_GAMMA_FLAG, expected_flag);
+            TEST_ASSERT_EQUAL_INT(TAG_GAMMA_FLAG, expected_flag);
         }
     }
 }
@@ -439,30 +395,25 @@ static void test_flag_computation_correctness(void **state)
 /* Tests for 64-bit flag support (tags at index >= 32)                        */
 /* -------------------------------------------------------------------------- */
 
-static void test_large_parser_tag_count(void **state)
+void test_large_parser_tag_count(void)
 {
-    (void) state;
-    assert_int_equal(large_parser_TAG_COUNT, 33);
+    TEST_ASSERT_EQUAL_INT(large_parser_TAG_COUNT, 33);
 }
 
-static void test_flag_above_32bit_boundary(void **state)
+void test_flag_above_32bit_boundary(void)
 {
-    (void) state;
-
     /* TAG_L32 is at index 32 — this is the exact case that was broken with 1U << 32 */
-    assert_int_equal(TAG_L32_INDEX, 32);
-    assert_true(TAG_L32_FLAG == ((TLV_flag_t) 1 << 32));
-    assert_true(TAG_L32_FLAG != 0); /* was 0 with the old 1U << 32 (UB) */
+    TEST_ASSERT_EQUAL_INT(TAG_L32_INDEX, 32);
+    TEST_ASSERT_TRUE(TAG_L32_FLAG == ((TLV_flag_t) 1 << 32));
+    TEST_ASSERT_TRUE(TAG_L32_FLAG != 0); /* was 0 with the old 1U << 32 (UB) */
 
     /* Verify a few lower indices are still correct */
-    assert_true(TAG_L00_FLAG == ((TLV_flag_t) 1 << 0));
-    assert_true(TAG_L31_FLAG == ((TLV_flag_t) 1 << 31));
+    TEST_ASSERT_TRUE(TAG_L00_FLAG == ((TLV_flag_t) 1 << 0));
+    TEST_ASSERT_TRUE(TAG_L31_FLAG == ((TLV_flag_t) 1 << 31));
 }
 
-static void test_large_parser_flags_are_unique(void **state)
+void test_large_parser_flags_are_unique(void)
 {
-    (void) state;
-
     /* Verify that no two flags in the large parser share bits */
     TLV_flag_t all     = 0;
     TLV_flag_t flags[] = {
@@ -474,65 +425,64 @@ static void test_large_parser_flags_are_unique(void **state)
         TAG_L30_FLAG, TAG_L31_FLAG, TAG_L32_FLAG,
     };
     for (size_t i = 0; i < sizeof(flags) / sizeof(flags[0]); i++) {
-        assert_true((all & flags[i]) == 0); /* no overlap */
+        TEST_ASSERT_TRUE((all & flags[i]) == 0); /* no overlap */
         all |= flags[i];
     }
 }
 
-static void test_large_parser_tag_to_flag(void **state)
+void test_large_parser_tag_to_flag(void)
 {
-    (void) state;
-
-    assert_true(large_parser_tag_to_flag(TAG_L00) == TAG_L00_FLAG);
-    assert_true(large_parser_tag_to_flag(TAG_L31) == TAG_L31_FLAG);
-    assert_true(large_parser_tag_to_flag(TAG_L32) == TAG_L32_FLAG);
-    assert_true(large_parser_tag_to_flag(0xFF) == 0);
+    TEST_ASSERT_TRUE(large_parser_tag_to_flag(TAG_L00) == TAG_L00_FLAG);
+    TEST_ASSERT_TRUE(large_parser_tag_to_flag(TAG_L31) == TAG_L31_FLAG);
+    TEST_ASSERT_TRUE(large_parser_tag_to_flag(TAG_L32) == TAG_L32_FLAG);
+    TEST_ASSERT_TRUE(large_parser_tag_to_flag(0xFF) == 0);
 }
 
 /* -------------------------------------------------------------------------- */
 /* Test suite entry point                                                     */
 /* -------------------------------------------------------------------------- */
 
-int main(int argc, char **argv)
+void setUp(void) {}
+void tearDown(void) {}
+
+int main(void)
 {
-    (void) argc;
-    (void) argv;
+    UNITY_BEGIN();
 
-    const struct CMUnitTest tests[] = {
-        /* __X_DEFINE_TLV__TAG_ASSIGN tests */
-        cmocka_unit_test(test_tag_enum_values),
+    /* __X_DEFINE_TLV__TAG_ASSIGN tests */
+    RUN_TEST(test_tag_enum_values);
 
-        /* __X_DEFINE_TLV__TAG_INDEX tests */
-        cmocka_unit_test(test_tag_index_enum),
-        cmocka_unit_test(test_tag_indices_are_sequential),
+    /* __X_DEFINE_TLV__TAG_INDEX tests */
+    RUN_TEST(test_tag_index_enum);
+    RUN_TEST(test_tag_indices_are_sequential);
 
-        /* __X_DEFINE_TLV__TAG_FLAG tests */
-        cmocka_unit_test(test_tag_flag_values),
-        cmocka_unit_test(test_tag_flags_are_unique),
-        cmocka_unit_test(test_tag_flags_multiple_parsers),
+    /* __X_DEFINE_TLV__TAG_FLAG tests */
+    RUN_TEST(test_tag_flag_values);
+    RUN_TEST(test_tag_flags_are_unique);
+    RUN_TEST(test_tag_flags_multiple_parsers);
 
-        /* __X_DEFINE_TLV__TAG_TO_FLAG_CASE tests */
-        cmocka_unit_test(test_tag_to_flag_function),
-        cmocka_unit_test(test_tag_to_flag_multiple_parsers),
-        cmocka_unit_test(test_tag_to_flag_cross_parser_isolation),
+    /* __X_DEFINE_TLV__TAG_TO_FLAG_CASE tests */
+    RUN_TEST(test_tag_to_flag_function);
+    RUN_TEST(test_tag_to_flag_multiple_parsers);
+    RUN_TEST(test_tag_to_flag_cross_parser_isolation);
 
-        /* __X_DEFINE_TLV__TAG_CALLBACKS tests */
-        cmocka_unit_test(test_parser_function_exists),
-        cmocka_unit_test(test_multiple_parser_coexistence),
+    /* __X_DEFINE_TLV__TAG_CALLBACKS tests */
+    RUN_TEST(test_parser_function_exists);
+    RUN_TEST(test_multiple_parser_coexistence);
 
-        /* Integration tests */
-        cmocka_unit_test(test_enum_consistency),
-        cmocka_unit_test(test_parser_tag_count_matches_definitions),
-        cmocka_unit_test(test_all_flags_can_be_combined),
-        cmocka_unit_test(test_tag_values_are_preserved),
-        cmocka_unit_test(test_index_enumeration_starts_at_zero),
-        cmocka_unit_test(test_flag_computation_correctness),
+    /* Integration tests */
+    RUN_TEST(test_enum_consistency);
+    RUN_TEST(test_parser_tag_count_matches_definitions);
+    RUN_TEST(test_all_flags_can_be_combined);
+    RUN_TEST(test_tag_values_are_preserved);
+    RUN_TEST(test_index_enumeration_starts_at_zero);
+    RUN_TEST(test_flag_computation_correctness);
 
-        /* 64-bit flag support tests */
-        cmocka_unit_test(test_large_parser_tag_count),
-        cmocka_unit_test(test_flag_above_32bit_boundary),
-        cmocka_unit_test(test_large_parser_flags_are_unique),
-        cmocka_unit_test(test_large_parser_tag_to_flag),
-    };
-    return cmocka_run_group_tests(tests, NULL, NULL);
+    /* 64-bit flag support tests */
+    RUN_TEST(test_large_parser_tag_count);
+    RUN_TEST(test_flag_above_32bit_boundary);
+    RUN_TEST(test_large_parser_flags_are_unique);
+    RUN_TEST(test_large_parser_tag_to_flag);
+
+    return UNITY_END();
 }
