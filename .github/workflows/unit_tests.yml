@@ -10,60 +10,11 @@ on:
   pull_request:
 
 jobs:
-  job_unit_test:
-    name: Unit test
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-lite:latest
-
-    steps:
-      - name: Install system dependencies
-        run: |
-          apt-get update
-          apt-get install -y ruby
-
-      - name: Clone
-        uses: actions/checkout@v6
-
-      - name: Find test directories
-        id: find-tests
-        working-directory: unit-tests
-        run: |
-          # Find all directories with CMakeLists.txt, excluding mock
-          TEST_DIRS=$(find . -maxdepth 2 -name CMakeLists.txt -not -path "*/mock/*" -exec dirname {} \; | sed 's|^\./||' | sort | tr '\n' ' ')
-          echo "Test directories found: ${TEST_DIRS}"
-          echo "test_dirs=${TEST_DIRS}" >> "${GITHUB_OUTPUT}"
-
-      - name: Build & Run Unit Tests
-        working-directory: unit-tests
-        run: |
-          for dir in ${{ steps.find-tests.outputs.test_dirs }}; do
-            echo "::group::Building tests in ${dir}"
-            (cd "${dir}" && cmake -Bbuild -H. && make -C build && CTEST_OUTPUT_ON_FAILURE=1 make -C build test)
-            echo "::endgroup::"
-          done
-
-      - name: Generate code coverage
-        working-directory: unit-tests
-        run: |
-          for dir in ${{ steps.find-tests.outputs.test_dirs }}; do
-            echo "::group::Generating coverage for ${dir}"
-            (cd "${dir}" && ../gen_coverage.sh)
-            echo "::endgroup::"
-          done
-
-      - name: Upload code coverage artifact
-        uses: actions/upload-artifact@v6
-        with:
-          name: code-coverage
-          path: unit-tests/*/coverage
-
-      - name: Upload to codecov.io
-        uses: codecov/codecov-action@v6
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          directory: ./unit-tests
-          flags: unittests
-          name: codecov-ledger-secure-sdk
-          fail_ci_if_error: true
-          verbose: true
+  unit_test:
+    uses: LedgerHQ/ledger-app-workflows/.github/workflows/reusable_unit_tests.yml@v1
+    with:
+      use_cmake_ut_framework: true
+      repo_is_tool: true
+      test_directory: unit-tests
+    secrets:
+      codecov_token: ${{ secrets.CODECOV_TOKEN }}

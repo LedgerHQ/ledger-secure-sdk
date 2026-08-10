@@ -1,135 +1,111 @@
 cmake_minimum_required(VERSION 3.10)
+project(unit_tests_lib_tlv LANGUAGES C)
 
-if(${CMAKE_VERSION} VERSION_LESS 3.10)
-  cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
-endif()
+set(SDK_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
+include(${SDK_DIR}/cmake/LedgerUT.cmake)
 
-# project information
-project(unit_tests
-    VERSION 0.1
-    DESCRIPTION "Unit tests for PKI helper"
-    LANGUAGES C)
+ledger_unit_tests_init()
 
-# guard against bad build-type strings
-if (NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE "Debug")
-endif()
-
-include(CTest)
-ENABLE_TESTING()
-
-# specify C standard
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_C_STANDARD_REQUIRED True)
-
-set(CMAKE_BUILD_TYPE Debug)
-
-# guard against in-source builds
-if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
-  message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. You may need to remove CMakeCache.txt. ")
-endif()
-
-# Common source files
-set(COMMON_SOURCES
-  mock_os.c
-  ../../lib_tlv/tlv_library.c
-  ../../lib_cxng/src/cx_crc32.c
-  ../../mock/src/cx_crc.c
+set(TLV_COMMON_SOURCES
+    ${SDK_DIR}/lib_tlv/tlv_library.c
 )
 
-# Common source files
-set(USE_CASE_SOURCES
-  ../../lib_tlv/use_cases/tlv_use_case_dynamic_descriptor.c
-  ../../lib_tlv/use_cases/tlv_use_case_trusted_name.c
-  ../../lib_tlv/use_cases/tlv_use_case_transaction_check.c
+set(TLV_USE_CASE_UTILS
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_utils.c
 )
 
-# Common include directories
-set(COMMON_INCLUDES
-  ./
-  ../../target/stax/include
-  ../../include
-  ../../lib_pki
-  ../../lib_tlv
-  ../../lib_tlv/use_cases
-  ../../lib_cxng/include
-  ../../lib_nbgl/include
-  ../../lib_ux_nbgl
-  ../../lib_standard_app
-  ../mock/include
+set(TLV_INCLUDE_DIRS
+    ${UT_INCLUDE_DIRS_SDK}
 )
 
-# Common compile options
-set(COMMON_COMPILE_OPTIONS
-  -Wall
-  -Werror
-  -O0
-  --coverage
-  -Wno-comment
-  -fsanitize=address,undefined
+set(TLV_COMPILE_DEFS
+    ${UT_COMPILE_DEFS_SDK}
+    UNIT_TESTING
+    APPNAME="UnitTests"
+    WITH_STDIO
+    APP_STORAGE_SIZE=5555
+    HAVE_APP_STORAGE
+    HAVE_APP_STORAGE_PROP_SETTINGS
+    HAVE_APP_STORAGE_PROP_DATA
 )
 
-# Common compile definitions
-set(COMMON_DEFINITIONS
-  UNIT_TESTING
-  SCREEN_SIZE_WALLET
-  USB_SEGMENT_SIZE=64
-  HAVE_NBGL
-  HAVE_HASH
-  HAVE_SHA3
-  HAVE_SHA256
-  HAVE_SHA512
-  HAVE_ED25519_CURVE
-  HAVE_ECC_WEIERSTRASS
-  HAVE_SECP256K1_CURVE
-  HAVE_RIPEMD160
-  APPNAME="UnitTests"
-  HAVE_SHA224
-  HAVE_LEDGER_PKI
-  HAVE_ECC
-  HAVE_ECC_TWISTED_EDWARDS
-  HAVE_ECDSA
-  WITH_STDIO
-  HAVE_APP_STORAGE
-  APP_STORAGE_SIZE=5555
-  HAVE_APP_STORAGE_PROP_SETTINGS
-  HAVE_APP_STORAGE_PROP_DATA
-  HAVE_CRC
+set(TLV_COMPILE_OPTIONS -Wno-comment -fsanitize=address,undefined)
+set(TLV_LINK_OPTIONS    -fsanitize=address,undefined)
+
+ledger_unit_tests_add_test(
+    NAME            test_tlv_helpers
+    SOURCES         ${TLV_COMMON_SOURCES}
+    INCLUDE_DIRS    ${TLV_INCLUDE_DIRS}
+    COMPILE_DEFS    ${TLV_COMPILE_DEFS}
+    COMPILE_OPTIONS ${TLV_COMPILE_OPTIONS} -Wno-pedantic
+    LINK_OPTIONS    ${TLV_LINK_OPTIONS}
 )
 
-# Common link options
-set(COMMON_LINK_OPTIONS
-  --coverage
-  -lgcov
-  -fsanitize=address,undefined
+ledger_unit_tests_add_test(
+    NAME            test_tlv_macros
+    SOURCES         ${TLV_COMMON_SOURCES}
+    INCLUDE_DIRS    ${TLV_INCLUDE_DIRS}
+    COMPILE_DEFS    ${TLV_COMPILE_DEFS}
+    COMPILE_OPTIONS ${TLV_COMPILE_OPTIONS} -Wno-pedantic
+    LINK_OPTIONS    ${TLV_LINK_OPTIONS}
 )
 
-# Function to create a test
-function(add_tlv_test TEST_NAME TEST_SOURCE)
-  set(options USE_CASE)
-  cmake_parse_arguments(ARG "${options}" "" "" ${ARGN})
+# dynamic_descriptor uses cx_sha256_init (inline → cx_sha256_init_no_throw),
+# cx_hash_update/final, and CX_ASSERT
+ledger_unit_tests_add_test(
+    NAME            test_tlv_use_case_dynamic_descriptor
+    SOURCES         ${TLV_COMMON_SOURCES}
+                    ${TLV_USE_CASE_UTILS}
+                    ${SDK_DIR}/lib_tlv/use_cases/tlv_use_case_dynamic_descriptor.c
+    MOCK_HEADERS    ${SDK_DIR}/include/ledger_assert_internals.h
+                    ${SDK_DIR}/lib_cxng/include/lcx_sha256.h
+                    ${SDK_DIR}/lib_cxng/include/lcx_hash.h
+                    ${SDK_DIR}/lib_pki/ledger_pki.h
+    INCLUDE_DIRS    ${TLV_INCLUDE_DIRS}
+    COMPILE_DEFS    ${TLV_COMPILE_DEFS}
+    COMPILE_OPTIONS ${TLV_COMPILE_OPTIONS} -Wno-nonnull-compare
+    LINK_OPTIONS    ${TLV_LINK_OPTIONS}
+)
 
-  if(ARG_USE_CASE)
-    add_executable(${TEST_NAME} ${TEST_SOURCE} ${COMMON_SOURCES} ${USE_CASE_SOURCES})
-    target_compile_options(${TEST_NAME} PRIVATE
-      -include ${CMAKE_CURRENT_SOURCE_DIR}/mock_strlcpy.h
-    )
-  else()
-    add_executable(${TEST_NAME} ${TEST_SOURCE} ${COMMON_SOURCES})
-  endif()
+# trusted_name uses all hash init functions + cx_hash_update/final + CX_ASSERT
+# lcx_sha512.h is not self-contained: force-include lcx_hash.h to provide missing types
+ledger_unit_tests_add_test(
+    NAME            test_tlv_use_case_trusted_name
+    SOURCES         ${TLV_COMMON_SOURCES}
+                    ${TLV_USE_CASE_UTILS}
+                    ${SDK_DIR}/lib_tlv/use_cases/tlv_use_case_trusted_name.c
+    MOCK_HEADERS    ${SDK_DIR}/include/ledger_assert_internals.h
+                    ${SDK_DIR}/lib_cxng/include/lcx_sha256.h
+                    ${SDK_DIR}/lib_cxng/include/lcx_sha3.h
+                    ${SDK_DIR}/lib_cxng/include/lcx_ripemd160.h
+                    ${SDK_DIR}/lib_cxng/include/lcx_sha512.h
+                    ${SDK_DIR}/lib_cxng/include/lcx_hash.h
+                    ${SDK_DIR}/lib_pki/ledger_pki.h
+    INCLUDE_DIRS    ${TLV_INCLUDE_DIRS}
+    COMPILE_DEFS    ${TLV_COMPILE_DEFS}
+    COMPILE_OPTIONS ${TLV_COMPILE_OPTIONS} -Wno-nonnull-compare
+                    -include ${SDK_DIR}/lib_cxng/include/lcx_hash.h
+    LINK_OPTIONS    ${TLV_LINK_OPTIONS}
+)
 
-  target_include_directories(${TEST_NAME} PRIVATE ${COMMON_INCLUDES})
-  target_compile_options(${TEST_NAME} PRIVATE ${COMMON_COMPILE_OPTIONS})
-  target_compile_definitions(${TEST_NAME} PRIVATE ${COMMON_DEFINITIONS})
-  target_link_libraries(${TEST_NAME} PRIVATE cmocka gcov)
-  target_link_options(${TEST_NAME} PRIVATE ${COMMON_LINK_OPTIONS})
-
-  add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
-endfunction()
-
-# Add tests
-add_tlv_test(test_tlv_helpers test_tlv_helpers.c)
-add_tlv_test(test_tlv_macros test_tlv_macros.c)
-add_tlv_test(test_tlv_use_case_dynamic_descriptor test_tlv_use_case_dynamic_descriptor.c USE_CASE)
-add_tlv_test(test_tlv_use_case_trusted_name test_tlv_use_case_trusted_name.c USE_CASE)
-add_tlv_test(test_tlv_use_case_transaction_check test_tlv_use_case_transaction_check.c USE_CASE)
+# transaction_check uses cx_sha256_init_no_throw, cx_hash_update/final,
+# is_printable_string, os_pki_get_info, and strlcpy (libbsd)
+ledger_unit_tests_add_test(
+    NAME            test_tlv_use_case_transaction_check
+    SOURCES         ${TLV_COMMON_SOURCES}
+                    ${TLV_USE_CASE_UTILS}
+                    ${SDK_DIR}/lib_tlv/use_cases/tlv_use_case_transaction_check.c
+    MOCK_HEADERS    ${SDK_DIR}/include/ledger_assert_internals.h
+                    ${SDK_DIR}/lib_cxng/include/lcx_sha256.h
+                    ${SDK_DIR}/lib_cxng/include/lcx_hash.h
+                    ${SDK_DIR}/include/os_utils.h
+                    ${SDK_DIR}/include/os_pki.h
+                    ${SDK_DIR}/lib_pki/ledger_pki.h
+    INCLUDE_DIRS    ${TLV_INCLUDE_DIRS}
+                    /usr/include/bsd
+    COMPILE_DEFS    ${TLV_COMPILE_DEFS}
+                    LIBBSD_OVERLAY
+    COMPILE_OPTIONS ${TLV_COMPILE_OPTIONS} -Wno-nonnull-compare
+    LINK_OPTIONS    ${TLV_LINK_OPTIONS}
+)
+target_link_libraries(test_tlv_use_case_transaction_check PRIVATE bsd)
