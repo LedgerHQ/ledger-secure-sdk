@@ -4,8 +4,7 @@
 
 - CMake >= 3.10
 - **Ruby** — required by CMock to generate mock source files at configure time
-- **CMocka >= 1.1.5** — used by the older suites (`app_storage`, `lib_alloc`, `lib_lists`, `lib_standard_app`, `lib_tlv`, `print`)
-- **Unity + CMock** — used by `address_book/`; fetched automatically from GitHub when CMake runs, so the build machine needs network access
+- **Unity + CMock** — fetched automatically from GitHub when CMake runs, so the build machine needs network access
 - lcov >= 1.14 (for code coverage)
 
 All prerequisites are available in the `ledger-app-builder-lite` Docker image used by CI.
@@ -15,20 +14,20 @@ All prerequisites are available in the `ledger-app-builder-lite` Docker image us
 Each test suite lives in its own subdirectory. From the suite's directory:
 
 ```bash
-cmake -Bbuild -H. && make -C build
-CTEST_OUTPUT_ON_FAILURE=1 make -C build test
+cmake -Bbuild -H. && cmake --build build
+ctest --test-dir build --output-on-failure
 ```
 
 ## Code Coverage
 
-From any suite directory:
+From any suite's build directory:
 
 ```bash
-../gen_coverage.sh
+cmake --build build --target generate_coverage
 ```
 
-Produces `coverage.base` and `coverage.capture` (intermediate lcov tracefiles),
-merges them into `coverage.info`, then renders an HTML report in `coverage/index.html`.
+Produces `coverage.info` (lcov tracefile), an HTML report in `coverage/index.html`,
+and optionally `coverage.xml` (Cobertura) if `lcov_cobertura` is installed.
 
 ## Test Suites
 
