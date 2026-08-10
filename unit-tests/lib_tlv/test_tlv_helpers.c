@@ -13,20 +13,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *****************************************************************************/
-#include <stdarg.h>
-#include <stddef.h>
-#include <setjmp.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#ifdef UNIT_TESTING
-#undef UNIT_TESTING
-#include <cmocka.h>
-#define UNIT_TESTING
-#else
-#include <cmocka.h>
-#endif
+#include "unity.h"
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
@@ -67,32 +57,30 @@ static void test_null_pointer_checks(const tlv_data_t *tlv_data)
     uint8_t  u8;
     bool     b;
 
-    assert_false(get_uint64_t_from_tlv_data(tlv_data, NULL));
-    assert_false(get_uint64_t_from_tlv_data(NULL, &u64));
-    assert_false(get_uint64_t_from_tlv_data(NULL, NULL));
+    TEST_ASSERT_FALSE(get_uint64_t_from_tlv_data(tlv_data, NULL));
+    TEST_ASSERT_FALSE(get_uint64_t_from_tlv_data(NULL, &u64));
+    TEST_ASSERT_FALSE(get_uint64_t_from_tlv_data(NULL, NULL));
 
-    assert_false(get_uint32_t_from_tlv_data(tlv_data, NULL));
-    assert_false(get_uint32_t_from_tlv_data(NULL, &u32));
-    assert_false(get_uint32_t_from_tlv_data(NULL, NULL));
+    TEST_ASSERT_FALSE(get_uint32_t_from_tlv_data(tlv_data, NULL));
+    TEST_ASSERT_FALSE(get_uint32_t_from_tlv_data(NULL, &u32));
+    TEST_ASSERT_FALSE(get_uint32_t_from_tlv_data(NULL, NULL));
 
-    assert_false(get_uint16_t_from_tlv_data(tlv_data, NULL));
-    assert_false(get_uint16_t_from_tlv_data(NULL, &u16));
-    assert_false(get_uint16_t_from_tlv_data(NULL, NULL));
+    TEST_ASSERT_FALSE(get_uint16_t_from_tlv_data(tlv_data, NULL));
+    TEST_ASSERT_FALSE(get_uint16_t_from_tlv_data(NULL, &u16));
+    TEST_ASSERT_FALSE(get_uint16_t_from_tlv_data(NULL, NULL));
 
-    assert_false(get_uint8_t_from_tlv_data(tlv_data, NULL));
-    assert_false(get_uint8_t_from_tlv_data(NULL, &u8));
-    assert_false(get_uint8_t_from_tlv_data(NULL, NULL));
+    TEST_ASSERT_FALSE(get_uint8_t_from_tlv_data(tlv_data, NULL));
+    TEST_ASSERT_FALSE(get_uint8_t_from_tlv_data(NULL, &u8));
+    TEST_ASSERT_FALSE(get_uint8_t_from_tlv_data(NULL, NULL));
 
-    assert_false(get_bool_from_tlv_data(tlv_data, NULL));
-    assert_false(get_bool_from_tlv_data(NULL, &b));
-    assert_false(get_bool_from_tlv_data(NULL, NULL));
+    TEST_ASSERT_FALSE(get_bool_from_tlv_data(tlv_data, NULL));
+    TEST_ASSERT_FALSE(get_bool_from_tlv_data(NULL, &b));
+    TEST_ASSERT_FALSE(get_bool_from_tlv_data(NULL, NULL));
 }
 
 /* Test cases */
-static void test_unsigned_tlv_integer_readers(void **state)
+void test_unsigned_tlv_integer_readers(void)
 {
-    (void) state;
-
     typedef struct {
         uint64_t expected;
         size_t   input_size;
@@ -128,52 +116,50 @@ static void test_unsigned_tlv_integer_readers(void **state)
 
         // Test uint64_t
         uint64_t value_64;
-        assert_int_equal(get_uint64_t_from_tlv_data(&tlv_data, &value_64),
-                         vectors[i].expect_success_u64);
+        TEST_ASSERT_EQUAL_INT(get_uint64_t_from_tlv_data(&tlv_data, &value_64),
+                              vectors[i].expect_success_u64);
         if (vectors[i].expect_success_u64) {
-            assert_int_equal(value_64, vectors[i].expected & mask);
+            TEST_ASSERT_EQUAL_INT(value_64, vectors[i].expected & mask);
         }
 
         // Test uint32_t
         uint32_t value_32;
-        assert_int_equal(get_uint32_t_from_tlv_data(&tlv_data, &value_32),
-                         vectors[i].expect_success_u32);
+        TEST_ASSERT_EQUAL_INT(get_uint32_t_from_tlv_data(&tlv_data, &value_32),
+                              vectors[i].expect_success_u32);
         if (vectors[i].expect_success_u32) {
-            assert_int_equal(value_32, (uint32_t) (vectors[i].expected & mask));
+            TEST_ASSERT_EQUAL_INT(value_32, (uint32_t) (vectors[i].expected & mask));
         }
 
         // Test uint16_t
         uint16_t value_16;
-        assert_int_equal(get_uint16_t_from_tlv_data(&tlv_data, &value_16),
-                         vectors[i].expect_success_u16);
+        TEST_ASSERT_EQUAL_INT(get_uint16_t_from_tlv_data(&tlv_data, &value_16),
+                              vectors[i].expect_success_u16);
         if (vectors[i].expect_success_u16) {
-            assert_int_equal(value_16, (uint16_t) (vectors[i].expected & mask));
+            TEST_ASSERT_EQUAL_INT(value_16, (uint16_t) (vectors[i].expected & mask));
         }
 
         // Test uint8_t
         uint8_t value_8;
-        assert_int_equal(get_uint8_t_from_tlv_data(&tlv_data, &value_8),
-                         vectors[i].expect_success_u8);
+        TEST_ASSERT_EQUAL_INT(get_uint8_t_from_tlv_data(&tlv_data, &value_8),
+                              vectors[i].expect_success_u8);
         if (vectors[i].expect_success_u8) {
-            assert_int_equal(value_8, (uint8_t) (vectors[i].expected & mask));
+            TEST_ASSERT_EQUAL_INT(value_8, (uint8_t) (vectors[i].expected & mask));
         }
 
         // Test bool
         bool value_bool;
-        assert_int_equal(get_bool_from_tlv_data(&tlv_data, &value_bool),
-                         vectors[i].expect_success_bool);
+        TEST_ASSERT_EQUAL_INT(get_bool_from_tlv_data(&tlv_data, &value_bool),
+                              vectors[i].expect_success_bool);
         if (vectors[i].expect_success_bool) {
-            assert_int_equal(value_bool, (vectors[i].expected != 0));
+            TEST_ASSERT_EQUAL_INT(value_bool, (vectors[i].expected != 0));
         }
 
         test_null_pointer_checks(&tlv_data);
     }
 }
 
-static void test_unsigned_tlv_buffer_readers(void **state)
+void test_unsigned_tlv_buffer_readers(void)
 {
-    (void) state;
-
     uint8_t    test_data[] = {0xAB, 0x00, 0x03, 0xDE, 0xAD, 0xBE};
     tlv_data_t tlv_data    = {
            .tag   = test_data[0],
@@ -183,27 +169,27 @@ static void test_unsigned_tlv_buffer_readers(void **state)
     buffer_t out;
 
     // Valid: exact size match
-    assert_true(get_buffer_from_tlv_data(&tlv_data, &out, 3, 3));
-    assert_int_equal(out.size, 3);
-    assert_memory_equal(out.ptr, tlv_data.value.ptr, 3);
+    TEST_ASSERT_TRUE(get_buffer_from_tlv_data(&tlv_data, &out, 3, 3));
+    TEST_ASSERT_EQUAL_INT(out.size, 3);
+    TEST_ASSERT_EQUAL_MEMORY(out.ptr, tlv_data.value.ptr, 3);
 
     // Valid: within range
-    assert_true(get_buffer_from_tlv_data(&tlv_data, &out, 2, 4));
-    assert_int_equal(out.size, 3);
+    TEST_ASSERT_TRUE(get_buffer_from_tlv_data(&tlv_data, &out, 2, 4));
+    TEST_ASSERT_EQUAL_INT(out.size, 3);
 
     // Valid: no size restriction
-    assert_true(get_buffer_from_tlv_data(&tlv_data, &out, 0, 0));
-    assert_int_equal(out.size, 3);
+    TEST_ASSERT_TRUE(get_buffer_from_tlv_data(&tlv_data, &out, 0, 0));
+    TEST_ASSERT_EQUAL_INT(out.size, 3);
 
     // Invalid: min_size > value.size
-    assert_false(get_buffer_from_tlv_data(&tlv_data, &out, 4, 0));
+    TEST_ASSERT_FALSE(get_buffer_from_tlv_data(&tlv_data, &out, 4, 0));
 
     // Invalid: max_size < value.size
-    assert_false(get_buffer_from_tlv_data(&tlv_data, &out, 0, 2));
+    TEST_ASSERT_FALSE(get_buffer_from_tlv_data(&tlv_data, &out, 0, 2));
 
     // Invalid: NULL pointers
-    assert_false(get_buffer_from_tlv_data(NULL, &out, 0, 0));
-    assert_false(get_buffer_from_tlv_data(&tlv_data, NULL, 0, 0));
+    TEST_ASSERT_FALSE(get_buffer_from_tlv_data(NULL, &out, 0, 0));
+    TEST_ASSERT_FALSE(get_buffer_from_tlv_data(&tlv_data, NULL, 0, 0));
 }
 
 #define MAKE_TLV(str, len)                                               \
@@ -213,49 +199,47 @@ static void test_unsigned_tlv_buffer_readers(void **state)
         .raw   = {.ptr = (uint8_t *) (str), .size = (len), .offset = 0}, \
     })
 
-static void test_unsigned_tlv_string_readers(void **state)
+void test_unsigned_tlv_string_readers(void)
 {
-    (void) state;
-
     char out[32];
 
     // Valid: simple string
     const char *s1   = "hello";
     tlv_data_t  tlv1 = MAKE_TLV(s1, strlen(s1));
-    assert_true(get_string_from_tlv_data(&tlv1, out, 0, sizeof(out)));
-    assert_string_equal(out, "hello");
+    TEST_ASSERT_TRUE(get_string_from_tlv_data(&tlv1, out, 0, sizeof(out)));
+    TEST_ASSERT_EQUAL_STRING(out, "hello");
 
     // Valid: min_length matches
-    assert_true(get_string_from_tlv_data(&tlv1, out, 5, sizeof(out)));
-    assert_string_equal(out, "hello");
+    TEST_ASSERT_TRUE(get_string_from_tlv_data(&tlv1, out, 5, sizeof(out)));
+    TEST_ASSERT_EQUAL_STRING(out, "hello");
 
     // Valid: no restrictions
-    assert_true(get_string_from_tlv_data(&tlv1, out, 0, 0));
-    assert_string_equal(out, "hello");
+    TEST_ASSERT_TRUE(get_string_from_tlv_data(&tlv1, out, 0, 0));
+    TEST_ASSERT_EQUAL_STRING(out, "hello");
 
     // Valid: exact buffer size
-    assert_true(get_string_from_tlv_data(&tlv1, out, 0, 6));
-    assert_string_equal(out, "hello");
+    TEST_ASSERT_TRUE(get_string_from_tlv_data(&tlv1, out, 0, 6));
+    TEST_ASSERT_EQUAL_STRING(out, "hello");
 
     // Valid: empty string
     tlv_data_t tlv_empty = MAKE_TLV("", 0);
-    assert_true(get_string_from_tlv_data(&tlv_empty, out, 0, sizeof(out)));
-    assert_string_equal(out, "");
+    TEST_ASSERT_TRUE(get_string_from_tlv_data(&tlv_empty, out, 0, sizeof(out)));
+    TEST_ASSERT_EQUAL_STRING(out, "");
 
     // Invalid: min_length too large
-    assert_false(get_string_from_tlv_data(&tlv1, out, 6, sizeof(out)));
+    TEST_ASSERT_FALSE(get_string_from_tlv_data(&tlv1, out, 6, sizeof(out)));
 
     // Invalid: buffer too small
-    assert_false(get_string_from_tlv_data(&tlv1, out, 0, 5));
+    TEST_ASSERT_FALSE(get_string_from_tlv_data(&tlv1, out, 0, 5));
 
     // Invalid: embedded null
     char       s_null[] = {'a', 'b', '\0', 'c', 'd'};
     tlv_data_t tlv_null = MAKE_TLV(s_null, 5);
-    assert_false(get_string_from_tlv_data(&tlv_null, out, 0, sizeof(out)));
+    TEST_ASSERT_FALSE(get_string_from_tlv_data(&tlv_null, out, 0, sizeof(out)));
 
     // Invalid: NULL pointers
-    assert_false(get_string_from_tlv_data(NULL, out, 0, sizeof(out)));
-    assert_false(get_string_from_tlv_data(&tlv1, NULL, 0, sizeof(out)));
+    TEST_ASSERT_FALSE(get_string_from_tlv_data(NULL, out, 0, sizeof(out)));
+    TEST_ASSERT_FALSE(get_string_from_tlv_data(&tlv1, NULL, 0, sizeof(out)));
 }
 
 static TLV_flag_t tag_to_flag_function(TLV_tag_t tag)
@@ -272,83 +256,77 @@ static TLV_flag_t tag_to_flag_function(TLV_tag_t tag)
     }
 }
 
-static void test_tlv_enforce_u8_value(void **state)
+void test_tlv_enforce_u8_value(void)
 {
-    (void) state;
-
     uint8_t    buffer[TLV_HEADER_SIZE + MAX_TLV_SIZE] = {0};
     tlv_data_t tlv;
 
     // Matching value
     tlv = create_tlv_data(buffer, 0x01, 1, 0x42);
-    assert_true(tlv_enforce_u8_value(&tlv, 0x42));
+    TEST_ASSERT_TRUE(tlv_enforce_u8_value(&tlv, 0x42));
 
     // Matching boundary values
     tlv = create_tlv_data(buffer, 0x01, 1, 0x00);
-    assert_true(tlv_enforce_u8_value(&tlv, 0x00));
+    TEST_ASSERT_TRUE(tlv_enforce_u8_value(&tlv, 0x00));
 
     tlv = create_tlv_data(buffer, 0x01, 1, 0xFF);
-    assert_true(tlv_enforce_u8_value(&tlv, 0xFF));
+    TEST_ASSERT_TRUE(tlv_enforce_u8_value(&tlv, 0xFF));
 
     // Value encoded on more than 1 byte but still fits uint8_t (e.g. 8-byte encoding of 0x42)
     tlv = create_tlv_data(buffer, 0x01, 8, 0x42);
-    assert_true(tlv_enforce_u8_value(&tlv, 0x42));
+    TEST_ASSERT_TRUE(tlv_enforce_u8_value(&tlv, 0x42));
 
     // Value mismatch
     tlv = create_tlv_data(buffer, 0x01, 1, 0x42);
-    assert_false(tlv_enforce_u8_value(&tlv, 0x43));
+    TEST_ASSERT_FALSE(tlv_enforce_u8_value(&tlv, 0x43));
 
     tlv = create_tlv_data(buffer, 0x01, 1, 0x00);
-    assert_false(tlv_enforce_u8_value(&tlv, 0x01));
+    TEST_ASSERT_FALSE(tlv_enforce_u8_value(&tlv, 0x01));
 
     // Value does not fit in uint8_t (get_uint8_t_from_tlv_data fails)
     tlv = create_tlv_data(buffer, 0x01, 2, 0xFF00);
-    assert_false(tlv_enforce_u8_value(&tlv, 0x00));
+    TEST_ASSERT_FALSE(tlv_enforce_u8_value(&tlv, 0x00));
 
     // Empty TLV value (size 0, get_uint8_t_from_tlv_data fails)
     tlv = create_tlv_data(buffer, 0x01, 0, 0x00);
-    assert_false(tlv_enforce_u8_value(&tlv, 0x00));
+    TEST_ASSERT_FALSE(tlv_enforce_u8_value(&tlv, 0x00));
 
     // NULL data pointer
-    assert_false(tlv_enforce_u8_value(NULL, 0x42));
+    TEST_ASSERT_FALSE(tlv_enforce_u8_value(NULL, 0x42));
 }
 
-static void test_tlv_check_received_tags(void **state)
+void test_tlv_check_received_tags(void)
 {
-    (void) state;
-
     TLV_reception_t received = {.flags = 0x03, .tag_to_flag_function = tag_to_flag_function};
 
     TLV_tag_t tags_present[] = {0x01, 0x02};
-    assert_true(tlv_check_received_tags(received, tags_present, 2));
+    TEST_ASSERT_TRUE(tlv_check_received_tags(received, tags_present, 2));
 
     TLV_tag_t tags_missing[] = {0x01, 0x02, 0x04};
-    assert_false(tlv_check_received_tags(received, tags_missing, 3));
+    TEST_ASSERT_FALSE(tlv_check_received_tags(received, tags_missing, 3));
 
     TLV_tag_t tags_unknown[] = {0x01, 0x99};
-    assert_false(tlv_check_received_tags(received, tags_unknown, 2));
+    TEST_ASSERT_FALSE(tlv_check_received_tags(received, tags_unknown, 2));
 
-    TLV_tag_t tags_empty[] = {};
-    assert_true(tlv_check_received_tags(received, tags_empty, 0));
+    TEST_ASSERT_TRUE(tlv_check_received_tags(received, NULL, 0));
 
     TLV_tag_t tags_single[] = {0x02};
-    assert_true(tlv_check_received_tags(received, tags_single, 1));
+    TEST_ASSERT_TRUE(tlv_check_received_tags(received, tags_single, 1));
 
     TLV_reception_t received_none = {.flags = 0x00, .tag_to_flag_function = tag_to_flag_function};
-    assert_false(tlv_check_received_tags(received_none, tags_present, 2));
+    TEST_ASSERT_FALSE(tlv_check_received_tags(received_none, tags_present, 2));
 }
 
-int main(int argc, char **argv)
-{
-    (void) argc;
-    (void) argv;
+void setUp(void) {}
+void tearDown(void) {}
 
-    const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_unsigned_tlv_integer_readers),
-        cmocka_unit_test(test_unsigned_tlv_buffer_readers),
-        cmocka_unit_test(test_unsigned_tlv_string_readers),
-        cmocka_unit_test(test_tlv_enforce_u8_value),
-        cmocka_unit_test(test_tlv_check_received_tags),
-    };
-    return cmocka_run_group_tests(tests, NULL, NULL);
+int main(void)
+{
+    UNITY_BEGIN();
+    RUN_TEST(test_unsigned_tlv_integer_readers);
+    RUN_TEST(test_unsigned_tlv_buffer_readers);
+    RUN_TEST(test_unsigned_tlv_string_readers);
+    RUN_TEST(test_tlv_enforce_u8_value);
+    RUN_TEST(test_tlv_check_received_tags);
+    return UNITY_END();
 }
