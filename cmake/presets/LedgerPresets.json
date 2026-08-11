@@ -1,0 +1,110 @@
+{
+  "version": 7,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "ledger-ut",
+      "hidden": true,
+      "description": "Unit tests, built and run on the host with GCC.",
+      "toolchainFile": "$env{BOLOS_SDK}/cmake/toolchains/toolchain_gcc_x86.cmake",
+      "binaryDir": "${sourceDir}/build-cmake/${presetName}",
+      "cacheVariables": {
+        "BUILD_UNIT_TESTS": "ON",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "ENABLE_ADDRESS_BOOK": "ON",
+        "ENABLE_ADDRESS_BOOK_LEDGER_ACCOUNT": "ON",
+        "ENABLE_NBGL_QRCODE": "ON",
+        "ENABLE_NBGL_KEYBOARD": "ON",
+        "ENABLE_NBGL_KEYPAD": "ON",
+        "LEDGER_APPNAME": "UnitTests"
+      }
+    },
+    {
+      "name": "ledger-app-cm33",
+      "hidden": true,
+      "description": "Armv8-M device app (stax, flex, nanos2, apex_p, apex_m).",
+      "toolchainFile": "$env{BOLOS_SDK}/cmake/toolchains/toolchain_clang_cm33.cmake",
+      "binaryDir": "${sourceDir}/build-cmake/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "LEDGER_DEVICE_BUILD": "ON"
+      }
+    },
+    {
+      "name": "ledger-app-cm3",
+      "hidden": true,
+      "description": "Armv7-M device app (nanox).",
+      "toolchainFile": "$env{BOLOS_SDK}/cmake/toolchains/toolchain_clang_cm3.cmake",
+      "binaryDir": "${sourceDir}/build-cmake/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "LEDGER_DEVICE_BUILD": "ON"
+      }
+    },
+    {
+      "name": "ledger-stax",
+      "hidden": true,
+      "inherits": "ledger-app-cm33",
+      "cacheVariables": {
+        "LEDGER_TARGET": "stax"
+      }
+    },
+    {
+      "name": "ledger-flex",
+      "hidden": true,
+      "inherits": "ledger-app-cm33",
+      "cacheVariables": {
+        "LEDGER_TARGET": "flex"
+      }
+    },
+    {
+      "name": "ledger-nanos2",
+      "hidden": true,
+      "inherits": "ledger-app-cm33",
+      "cacheVariables": {
+        "LEDGER_TARGET": "nanos2"
+      }
+    },
+    {
+      "name": "ledger-apex_p",
+      "hidden": true,
+      "inherits": "ledger-app-cm33",
+      "cacheVariables": {
+        "LEDGER_TARGET": "apex_p"
+      }
+    },
+    {
+      "name": "ledger-apex_m",
+      "hidden": true,
+      "inherits": "ledger-app-cm33",
+      "cacheVariables": {
+        "LEDGER_TARGET": "apex_m"
+      }
+    },
+    {
+      "name": "ledger-nanox",
+      "hidden": true,
+      "inherits": "ledger-app-cm3",
+      "cacheVariables": {
+        "LEDGER_TARGET": "nanox"
+      }
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "ledger-ut",
+      "hidden": true,
+      "configurePreset": "ledger-ut",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}

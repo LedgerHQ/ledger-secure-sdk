@@ -1,13 +1,9 @@
-cmake_minimum_required(VERSION 3.10)
 project(unit_tests_lib_tlv LANGUAGES C)
 
-set(SDK_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
-include(${SDK_DIR}/cmake/LedgerUT.cmake)
-
-ledger_unit_tests_init()
+# LedgerUT and ledger_unit_tests_init() live in the root CMakeLists.txt.
 
 set(TLV_COMMON_SOURCES
-    ${SDK_DIR}/lib_tlv/tlv_library.c
+    ${LEDGER_SDK_ROOT}/lib_tlv/tlv_library.c
 )
 
 set(TLV_USE_CASE_UTILS
@@ -21,7 +17,6 @@ set(TLV_INCLUDE_DIRS
 set(TLV_COMPILE_DEFS
     ${UT_COMPILE_DEFS_SDK}
     UNIT_TESTING
-    APPNAME="UnitTests"
     WITH_STDIO
     APP_STORAGE_SIZE=5555
     HAVE_APP_STORAGE
@@ -56,11 +51,11 @@ ledger_unit_tests_add_test(
     NAME            test_tlv_use_case_dynamic_descriptor
     SOURCES         ${TLV_COMMON_SOURCES}
                     ${TLV_USE_CASE_UTILS}
-                    ${SDK_DIR}/lib_tlv/use_cases/tlv_use_case_dynamic_descriptor.c
-    MOCK_HEADERS    ${SDK_DIR}/include/ledger_assert_internals.h
-                    ${SDK_DIR}/lib_cxng/include/lcx_sha256.h
-                    ${SDK_DIR}/lib_cxng/include/lcx_hash.h
-                    ${SDK_DIR}/lib_pki/ledger_pki.h
+                    ${LEDGER_SDK_ROOT}/lib_tlv/use_cases/tlv_use_case_dynamic_descriptor.c
+    MOCK_HEADERS    ${LEDGER_SDK_ROOT}/include/ledger_assert_internals.h
+                    ${LEDGER_SDK_ROOT}/lib_cxng/include/lcx_sha256.h
+                    ${LEDGER_SDK_ROOT}/lib_cxng/include/lcx_hash.h
+                    ${LEDGER_SDK_ROOT}/lib_pki/ledger_pki.h
     INCLUDE_DIRS    ${TLV_INCLUDE_DIRS}
     COMPILE_DEFS    ${TLV_COMPILE_DEFS}
     COMPILE_OPTIONS ${TLV_COMPILE_OPTIONS} -Wno-nonnull-compare
@@ -73,18 +68,18 @@ ledger_unit_tests_add_test(
     NAME            test_tlv_use_case_trusted_name
     SOURCES         ${TLV_COMMON_SOURCES}
                     ${TLV_USE_CASE_UTILS}
-                    ${SDK_DIR}/lib_tlv/use_cases/tlv_use_case_trusted_name.c
-    MOCK_HEADERS    ${SDK_DIR}/include/ledger_assert_internals.h
-                    ${SDK_DIR}/lib_cxng/include/lcx_sha256.h
-                    ${SDK_DIR}/lib_cxng/include/lcx_sha3.h
-                    ${SDK_DIR}/lib_cxng/include/lcx_ripemd160.h
-                    ${SDK_DIR}/lib_cxng/include/lcx_sha512.h
-                    ${SDK_DIR}/lib_cxng/include/lcx_hash.h
-                    ${SDK_DIR}/lib_pki/ledger_pki.h
+                    ${LEDGER_SDK_ROOT}/lib_tlv/use_cases/tlv_use_case_trusted_name.c
+    MOCK_HEADERS    ${LEDGER_SDK_ROOT}/include/ledger_assert_internals.h
+                    ${LEDGER_SDK_ROOT}/lib_cxng/include/lcx_sha256.h
+                    ${LEDGER_SDK_ROOT}/lib_cxng/include/lcx_sha3.h
+                    ${LEDGER_SDK_ROOT}/lib_cxng/include/lcx_ripemd160.h
+                    ${LEDGER_SDK_ROOT}/lib_cxng/include/lcx_sha512.h
+                    ${LEDGER_SDK_ROOT}/lib_cxng/include/lcx_hash.h
+                    ${LEDGER_SDK_ROOT}/lib_pki/ledger_pki.h
     INCLUDE_DIRS    ${TLV_INCLUDE_DIRS}
     COMPILE_DEFS    ${TLV_COMPILE_DEFS}
     COMPILE_OPTIONS ${TLV_COMPILE_OPTIONS} -Wno-nonnull-compare
-                    -include ${SDK_DIR}/lib_cxng/include/lcx_hash.h
+                    -include ${LEDGER_SDK_ROOT}/lib_cxng/include/lcx_hash.h
     LINK_OPTIONS    ${TLV_LINK_OPTIONS}
 )
 
@@ -94,13 +89,13 @@ ledger_unit_tests_add_test(
     NAME            test_tlv_use_case_transaction_check
     SOURCES         ${TLV_COMMON_SOURCES}
                     ${TLV_USE_CASE_UTILS}
-                    ${SDK_DIR}/lib_tlv/use_cases/tlv_use_case_transaction_check.c
-    MOCK_HEADERS    ${SDK_DIR}/include/ledger_assert_internals.h
-                    ${SDK_DIR}/lib_cxng/include/lcx_sha256.h
-                    ${SDK_DIR}/lib_cxng/include/lcx_hash.h
-                    ${SDK_DIR}/include/os_utils.h
-                    ${SDK_DIR}/include/os_pki.h
-                    ${SDK_DIR}/lib_pki/ledger_pki.h
+                    ${LEDGER_SDK_ROOT}/lib_tlv/use_cases/tlv_use_case_transaction_check.c
+    MOCK_HEADERS    ${LEDGER_SDK_ROOT}/include/ledger_assert_internals.h
+                    ${LEDGER_SDK_ROOT}/lib_cxng/include/lcx_sha256.h
+                    ${LEDGER_SDK_ROOT}/lib_cxng/include/lcx_hash.h
+                    ${LEDGER_SDK_ROOT}/include/os_utils.h
+                    ${LEDGER_SDK_ROOT}/include/os_pki.h
+                    ${LEDGER_SDK_ROOT}/lib_pki/ledger_pki.h
     INCLUDE_DIRS    ${TLV_INCLUDE_DIRS}
                     /usr/include/bsd
     COMPILE_DEFS    ${TLV_COMPILE_DEFS}

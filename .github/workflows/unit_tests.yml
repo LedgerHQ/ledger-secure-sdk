@@ -11,10 +11,36 @@ on:
 
 jobs:
   unit_test:
-    uses: LedgerHQ/ledger-app-workflows/.github/workflows/reusable_unit_tests.yml@v1
-    with:
-      use_cmake_ut_framework: true
-      repo_is_tool: true
-      test_directory: unit-tests
-    secrets:
-      codecov_token: ${{ secrets.CODECOV_TOKEN }}
+    name: Unit tests
+    runs-on: ubuntu-latest
+    # Brings clang, ruby (CMock), lcov and Pillow (NBGL glyph generation).
+    container:
+      image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-dev-tools:latest
+
+    steps:
+      - name: Clone
+        uses: actions/checkout@v4
+
+      # The container user differs from the checkout owner, which stops the
+      # SDK_VERSION/SDK_HASH lookup in target_profile.cmake.
+      - name: Trust the checkout
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Configure
+        run: cmake --preset unit-tests
+
+      - name: Build
+        run: cmake --build --preset unit-tests --parallel
+
+      - name: Run tests
+        run: ctest --preset unit-tests
+
+      - name: Generate coverage
+        run: cmake --build --preset unit-tests --target generate_coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: build-cmake/unit-tests/coverage.info
+          fail_ci_if_error: true

@@ -4,7 +4,8 @@
 include(FetchContent)
 include(CTest)
 enable_testing()
-set(LEDGER_UT_DIR ${CMAKE_CURRENT_LIST_DIR})
+
+set(LEDGER_UT_DIR ${CMAKE_CURRENT_LIST_DIR} CACHE INTERNAL "LedgerUT module dir")
 
 #######################################################################
 #                    include defines and includes                     #
@@ -60,11 +61,13 @@ macro(ledger_unit_tests_init)
         message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. You may need to remove CMakeCache.txt. ")
     endif()
 
+    # Exported: init may run in a parent directory of the tests.
     set(CMOCK_GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/mocks)
+    set(LEDGER_UT_CMOCK_CONFIG ${CMAKE_CURRENT_BINARY_DIR}/cmock_config.yml)
     file(MAKE_DIRECTORY ${CMOCK_GEN_DIR})
-    include_directories(${CMAKE_CURRENT_BINARY_DIR}/mocks)
+    include_directories(${CMOCK_GEN_DIR})
     configure_file(${LEDGER_UT_DIR}/cmock_config.yml.in
-        ${CMAKE_CURRENT_BINARY_DIR}/cmock_config.yml
+        ${LEDGER_UT_CMOCK_CONFIG}
         @ONLY)
 
     add_compile_definitions(TEST)
@@ -102,7 +105,7 @@ set_property(GLOBAL PROPERTY CMOCK_MOCKED_HEADERS "")
 #   ledger_unit_tests_add_test(
 #       NAME            test_foo
 #       SOURCES         ../src/foo.c ../src/bar.c    # sources under test
-#       MOCK_HEADERS    ${SDK_DIR}/include/os.h      # headers to be mocked (optional)
+#       MOCK_HEADERS    ${LEDGER_SDK_ROOT}/include/os.h  # headers to mock (optional)
 #       INCLUDE_DIRS    ../src                       # extra -I paths (optional)
 #       COMPILE_DEFS    TARGET_NANOX APPNAME="App"   # extra -D flags  (optional)
 #       COMPILE_OPTIONS -Wno-comment -fsanitize=...  # extra compiler flags (optional)
@@ -114,7 +117,7 @@ function(ledger_unit_tests_add_test)
     cmake_parse_arguments(ARG "" "NAME" "SOURCES;MOCK_HEADERS;INCLUDE_DIRS;COMPILE_DEFS;COMPILE_OPTIONS;LINK_OPTIONS" ${ARGN})
 
     # for all MOCK_HEADERS, generate a mock source file if not already generated
-    set(_cmock_config ${CMAKE_CURRENT_BINARY_DIR}/cmock_config.yml)
+    set(_cmock_config ${LEDGER_UT_CMOCK_CONFIG})
     set(_mock_sources "")
     foreach(_header ${ARG_MOCK_HEADERS})
         get_filename_component(_basename ${_header} NAME_WE)
@@ -168,6 +171,16 @@ function(ledger_unit_tests_add_test)
         target_link_options(${ARG_NAME} PRIVATE ${ARG_LINK_OPTIONS})
     endif()
 
+    # Brings glyphs.h (reached via ux_nbgl.h) and orders the build; data only.
+    if(TARGET nbgl_glyphs)
+        target_link_libraries(${ARG_NAME} PRIVATE nbgl_glyphs)
+    endif()
+
+    # Device defines come from the profile, the same one the device build uses.
+    if(TARGET ledger_target_profile)
+        target_link_libraries(${ARG_NAME} PRIVATE ledger::target-profile)
+    endif()
+
     # register test
     add_test(NAME ${ARG_NAME} COMMAND ${ARG_NAME})
 endfunction()
@@ -176,7 +189,7 @@ endfunction()
 #                           custom targets                            #
 #######################################################################
 add_custom_target(generate_coverage
-    COMMAND ${LEDGER_UT_DIR}/gen_coverage.sh ${CMAKE_SOURCE_DIR}/../src
+    COMMAND ${LEDGER_UT_DIR}/gen_coverage.sh ${CMAKE_SOURCE_DIR}
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     COMMENT "Generating coverage report"
     VERBATIM

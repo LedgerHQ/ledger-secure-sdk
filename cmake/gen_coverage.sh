@@ -5,6 +5,8 @@ set -e
 # Categories are listed twice: first to demote fatal errors to warnings,
 # second to suppress the warning message (lcov convention).
 IGNORE_ERRORS=(--ignore-errors "negative,negative,gcov,gcov,inconsistent,inconsistent,corrupt,corrupt,unused,unused")
+# genhtml rejects the 'gcov' category, which only lcov accepts.
+GENHTML_IGNORE_ERRORS=(--ignore-errors "negative,negative,inconsistent,inconsistent,corrupt,corrupt,unused,unused")
 
 build_dir="$(realpath .)"
 
@@ -38,7 +40,7 @@ else
 fi
 
 echo "Generated 'coverage.info'."
-genhtml --branch-coverage "${IGNORE_ERRORS[@]}" coverage.info -o coverage
+genhtml --branch-coverage "${GENHTML_IGNORE_ERRORS[@]}" coverage.info -o coverage
 
 # generate cobertura report (coverage.xml) for CI/CD pipelines
 cobertura_base="${GITHUB_WORKSPACE:-$(realpath .)}"
