@@ -1,0 +1,27 @@
+{
+  "version": 7,
+  "include": [
+    "LedgerPresets.json"
+  ],
+  "configurePresets": [
+    { "name": "unit-tests", "inherits": "ledger-ut", "displayName": "Unit tests (host GCC)" },
+    { "name": "nanox",  "inherits": "ledger-nanox" },
+    { "name": "nanos2", "inherits": "ledger-nanos2" },
+    { "name": "stax",   "inherits": "ledger-stax" },
+    { "name": "flex",   "inherits": "ledger-flex" },
+    { "name": "apex_p", "inherits": "ledger-apex_p" },
+    { "name": "apex_m", "inherits": "ledger-apex_m" }
+  ],
+  "buildPresets": [
+    { "name": "unit-tests", "configurePreset": "unit-tests" },
+    { "name": "nanox",  "configurePreset": "nanox" },
+    { "name": "nanos2", "configurePreset": "nanos2" },
+    { "name": "stax",   "configurePreset": "stax" },
+    { "name": "flex",   "configurePreset": "flex" },
+    { "name": "apex_p", "configurePreset": "apex_p" },
+    { "name": "apex_m", "configurePreset": "apex_m" }
+  ],
+  "testPresets": [
+    { "name": "unit-tests", "inherits": "ledger-ut", "configurePreset": "unit-tests" }
+  ]
+}

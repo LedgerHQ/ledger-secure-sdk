@@ -89,7 +89,7 @@ endif
 # The search covers the whole SDK tree (SDK_SOURCE_PATH is not final yet at this point),
 # minus the top-level directories that are never part of an app build.
 # Set SDK_REQUIRE_CLEAN=1 (e.g. in release CI) to fail instead of building a dirty SDK.
-SDK_PROVENANCE_EXCLUDE := doc fuzzing tests tools unit-tests
+SDK_PROVENANCE_EXCLUDE := build doc fuzzing tests tools unit-tests
 SDK_UNTRACKED_SOURCES  := $(shell git -C $(BOLOS_SDK) ls-files --others -- '*.[csSh]' \
                             $(foreach dir,$(SDK_PROVENANCE_EXCLUDE),':!:$(dir)/') 2>/dev/null)
 ifneq ($(SDK_UNTRACKED_SOURCES),)
