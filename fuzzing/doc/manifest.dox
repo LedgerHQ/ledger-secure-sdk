@@ -18,8 +18,7 @@ harness_version = "1"        # bump to invalidate old corpora (see below)
 key_files = ["src/handler/get_public_key.c"]   # files to report coverage for
 
 [seeds]
-cla = 0xE0                   # APDU class byte used for generated seeds
-ins = [0x01, 0x02, 0x03]     # one seed per instruction byte
+ins = [0x01, 0x02, 0x03]     # one seed per entry; see [seeds] below
 
 [dictionary]
 tokens = [
@@ -29,7 +28,7 @@ tokens = [
 @endverbatim
 
 Required: `[target].fuzzer`, `[target].harness_version`,
-`[coverage].key_files`, `[seeds].cla`, `[seeds].ins`. Everything else is
+`[coverage].key_files`, `[seeds].ins`. Everything else is
 optional.
 
 @section man_multi Multi-target manifest
@@ -50,7 +49,7 @@ exclude_regexes = [          # drop framework/harness files from the report
 [[targets]]
 fuzzer = "fuzz_base58"
 key_files = ["lib_standard_app/base58.c"]
-seeds = { cla = 0x00, ins = [0x01, 0x02, 0x03] }
+seeds = { ins = [0x01, 0x02, 0x03] }
 
 [targets.dictionary]
 tokens = [
@@ -60,7 +59,7 @@ tokens = [
 [[targets]]
 fuzzer = "fuzz_bip32"
 key_files = ["lib_standard_app/bip32.c"]
-seeds = { cla = 0x00, ins = [0x01] }
+seeds = { ins = [0x01] }
 @endverbatim
 
 Each `[[targets]]` entry inherits `harness_version` from `[sdk]` (and may
@@ -98,18 +97,24 @@ The generic seed generator turns these into starter APDUs.
 
 | Key | Required | Meaning |
 |-----|----------|---------|
-| `cla` | yes | APDU class byte |
-| `ins` | yes | Array of instruction bytes; one seed per value |
+| `ins` | yes | One seed per entry (see the note below) |
 | `generic.enabled` | no (default `true`)  | Emit generic APDU seeds |
 | `custom.enabled`  | no (default `false`) | Also run a custom generator (see below) |
 | `custom.script`   | when custom enabled  | Path to a `script.py <out_dir>` seed generator |
+
+@note `ins` is a **count, not a list of instruction bytes**. The generator emits
+one seed per entry and writes the entry's index into control byte 1, which the
+harness then reduces modulo the app's command count (see @ref fuzzing_harness).
+The byte *values* only appear in seed filenames. Keep the list the same length as
+`fuzz_commands[]`: shorter and the trailing commands get no seeds at all, longer
+and seeds duplicate. `CLA` and `INS` themselves never come from the input -- they
+come from the selected command spec -- which is why there is no `cla` key.
 
 A custom generator is resolved relative to the fuzzing folder, then `APP_DIR`,
 then the SDK scripts directory:
 
 @verbatim
 [seeds]
-cla = 0xE0
 ins = [0x01]
 
 [seeds.custom]
@@ -131,25 +136,6 @@ tokens = [
     { name = "ticker",      value = "USD" },
 ]
 @endverbatim
-
-@subsection man_mocks [mocks]
-
-| Key | Required | Meaning |
-|-----|----------|---------|
-| `override_sources` | no | App sources that replace an SDK mock for this target |
-
-Use this only when an app must supply its own version of a symbol the shared
-mocks already provide. Most apps leave it empty.
-
-@subsection man_layout [layout]
-
-| Key | Required | Meaning |
-|-----|----------|---------|
-| `extra_args` | no | Extra arguments passed to `update-scenario-layout.py` |
-
-Advanced apps use this to expose additional named globals in
-`scenario_layout.h` (for example an app-data window reused from both C and
-the layout tooling). Most apps do not need it.
 
 @section man_compat harness_version and the compatibility key
 
