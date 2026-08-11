@@ -28,12 +28,8 @@ sys.path.insert(0, os.path.realpath(os.path.join(_SCRIPT_DIR, "..", "scripts")))
 from fuzz_seed_utils import (
     resolve_prefix_size,
     resolve_seed_prefix,
-    make_prefix_with_ctrl,
+    ctrl_bytes,
 )
-
-# Absolution ctrl-overlay constants (SCEN_CTRL_OFF / SCEN_CTRL_LEN defaults).
-CTRL_OFF = int(os.environ.get("SCEN_CTRL_OFF", "0"), 0)
-CTRL_LEN = int(os.environ.get("SCEN_CTRL_LEN", "16"), 0)
 
 # ── TLV tag byte values ──────────────────────────────────────────────────────
 TAG_STRUCT_TYPE     = 0x01
@@ -143,8 +139,8 @@ def tlv_raw(tag: int, data: bytes) -> bytes:
 
 def write_seed(output_dir: str, name: str, p1: int, payload: bytes, prefix: bytes) -> None:
     """Write a seed file.  payload = raw TLV bytes (no length header needed)."""
-    header = bytes([0x00, 0x00, p1, 0x00])  # ctrl=0, cmd=0, P1, P2=single-chunk
-    data   = prefix + header + payload
+    # Raw lane, first (only) command; P2=0 is the single-chunk case.
+    data = prefix + ctrl_bytes(structured=False, cmd_idx=0, p1=p1, p2=0) + payload
     path   = os.path.join(output_dir, name)
     with open(path, "wb") as f:
         f.write(data)
@@ -429,12 +425,10 @@ def main() -> None:
     print(f"generating address-book seeds → {out}")
 
     prefix_size = resolve_prefix_size(fuzzer_name="fuzz_address_book")
-    base_prefix = resolve_seed_prefix(prefix_size, fuzzer_name="fuzz_address_book")
-    # Raw lane: ctrl[0] ≤ 102.  Use 0x00 so prefix ctrl is consistent with the
-    # tail ctrl byte written by write_seed.
-    raw_ctrl = bytes(CTRL_LEN)
-    prefix   = make_prefix_with_ctrl(base_prefix, CTRL_OFF, raw_ctrl)
-    print(f"  prefix size: {prefix_size} bytes (CTRL_OFF={CTRL_OFF})")
+    # The prefix is opaque sampled state; control bytes live at the start of the
+    # harness input, which write_seed() puts there.
+    prefix = resolve_seed_prefix(prefix_size, fuzzer_name="fuzz_address_book")
+    print(f"  prefix size: {prefix_size} bytes")
 
     seeds_register_identity(out, prefix)
     seeds_edit_contact_name(out, prefix)
