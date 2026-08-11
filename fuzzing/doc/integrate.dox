@@ -18,7 +18,6 @@ An integrated app owns this subtree at its root:
     fuzz_dispatcher.c      # entry point + adapter to the real dispatcher
   mock/
     mocks.h  / mocks.c     # required fuzz symbols + any app-specific stubs
-    scenario_layout.h      # generated; committed with bootstrap values
   invariants/
     fuzz_globals.zon       # generated model; git-ignored, never committed
     zero-symbols.txt       # globals kept out of the prefix
@@ -40,7 +39,6 @@ An integrated app owns this subtree at its root:
 | `CMakeLists.txt`                  | you      | @ref fuzzing_cmake |
 | `harness/fuzz_dispatcher.c`       | you      | @ref fuzzing_harness |
 | `mock/mocks.h` / `mocks.c`        | you      | @ref fuzzing_mocks |
-| `mock/scenario_layout.h`          | tooling  | @ref fuzzing_mocks |
 | `invariants/zero-symbols.txt`     | you      | @ref fuzzing_invariants |
 | `invariants/domain-overrides.txt` | you      | @ref fuzzing_invariants |
 | `invariants/fuzz_globals.zon`     | tooling  | @ref fuzzing_invariants |

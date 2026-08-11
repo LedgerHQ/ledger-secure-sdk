@@ -19,27 +19,6 @@ def get_app_dir():
     return app_dir
 
 
-def get_layout_header_path():
-    return os.environ.get(
-        "SCENARIO_LAYOUT_HEADER",
-        os.path.join(get_app_dir(), "fuzzing", "mock", "scenario_layout.h"),
-    )
-
-
-def parse_layout_header(path=None):
-    """Parse SCEN_* defines from scenario_layout.h into a dict."""
-    if path is None:
-        path = get_layout_header_path()
-    defs = {}
-    try:
-        with open(path, "r", encoding="utf-8") as fh:
-            for line in fh:
-                m = re.match(r"#define\s+(SCEN_\w+)\s+(\d+)", line)
-                if m:
-                    defs[m.group(1)] = int(m.group(2))
-    except OSError:
-        pass
-    return defs
 
 
 def get_fuzzer_name():
@@ -114,34 +93,12 @@ def resolve_seed_prefix(prefix_size, fuzzer_name=None):
     return b"\x00" * prefix_size
 
 
-def validate_prefix_size(prefix_size, layout_defs):
-    """Check that resolved prefix matches SCEN_PREFIX_SIZE if defined."""
-    header_size = layout_defs.get("SCEN_PREFIX_SIZE")
-    if header_size is not None and header_size != prefix_size:
-        raise SystemExit(
-            f"error: SCEN_PREFIX_SIZE={header_size} "
-            f"!= generated prefix {prefix_size}"
-        )
+# Framework control bytes, at the start of the harness input (see fuzz_defs.h):
+#   [0] lane selector, [1] command index, [2] P1, [3] P2
+CTRL_LEN = 4
 
 
-def make_prefix_with_ctrl(base_prefix, ctrl_off, ctrl_bytes):
-    """Overlay control bytes onto a base prefix at ctrl_off."""
-    buf = bytearray(base_prefix)
-    end = min(ctrl_off + len(ctrl_bytes), len(buf))
-    buf[ctrl_off : end] = ctrl_bytes[: end - ctrl_off]
-    return bytes(buf)
-
-
-def raw_ctrl_bytes(ctrl_len):
-    """Build control bytes for raw lane (below threshold)."""
-    ctrl = bytearray(ctrl_len)
-    ctrl[0] = 10
-    return ctrl
-
-
-def structured_ctrl_bytes(ctrl_len, cmd_idx=0):
-    """Build control bytes for structured lane (above threshold)."""
-    ctrl = bytearray(ctrl_len)
-    ctrl[0] = 0xFF
-    ctrl[1] = cmd_idx
-    return ctrl
+def ctrl_bytes(structured, cmd_idx=0, p1=0, p2=0):
+    """Build the framework control header for a seed input."""
+    lane = STRUCTURED_LANE_THRESHOLD + 1 if structured else 0
+    return bytes([lane & 0xFF, cmd_idx & 0xFF, p1 & 0xFF, p2 & 0xFF])

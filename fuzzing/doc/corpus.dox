@@ -6,10 +6,10 @@ runs and CI start from that coverage instead of rediscovering it every time.
 
 @section cor_promote Promoting a corpus
 
-After a good campaign, promote its merged corpus with `promote-corpus.sh`:
+After a good campaign, promote its merged corpus with `corpus.py promote`:
 
 @verbatim
-"$BOLOS_SDK"/fuzzing/scripts/promote-corpus.sh \
+"$BOLOS_SDK"/fuzzing/scripts/corpus.py promote \
   <app>/.fuzz-artifacts/<run>/targets/<target>/corpus \
   <app>/fuzzing/base-corpus.zip
 @endverbatim
@@ -34,7 +34,7 @@ skipped, so a changed binary is never fed inputs shaped for an old one. Set
 The end-to-end loop:
 
 1. Run a campaign (@ref fuzzing_running).
-2. `promote-corpus.sh` its corpus to `fuzzing/base-corpus.zip`.
+2. `corpus.py promote` its corpus to `fuzzing/base-corpus.zip`.
 3. Commit `base-corpus.zip` and `base-corpus.compat-key`.
 4. The next campaign and every CI run start from it automatically.
 
@@ -51,6 +51,12 @@ So it changes when the prefix size changes, when the invariant model changes
 `harness_version` in the @ref fuzzing_manifest "manifest". When the key changes,
 the old base corpus no longer matches: rerun a campaign and promote again to
 refresh it.
+
+@warning A refusal is easy to miss. `run_single_target` is invoked as
+`if ! run_single_target ...`, which disables `errexit` for its whole body, so the
+campaign continues from generated seeds alone and still reports a coverage number.
+Check for the warning before trusting it: bootstrapping from a few dozen seeds instead
+of a few thousand evolved inputs changes the result materially.
 
 @section cor_when When to promote
 

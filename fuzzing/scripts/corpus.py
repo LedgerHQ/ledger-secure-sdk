@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
-"""Pack/unpack a fuzzing corpus directory using only the standard library.
+"""Pack, unpack, and promote a fuzzing corpus, using only the standard library.
 
 No external ``zip`` / ``unzip`` binary is required. ``.compat-key`` is corpus
-metadata (it ties the corpus to a build), not a fuzz input, so it is never
-stored inside the archive.
+metadata (it ties the corpus to a build), not a fuzz input, so it is never stored
+inside the archive; ``promote`` writes it as a sidecar next to the zip.
 
 Usage:
-    corpus.py pack   <src_dir> <dest.zip>
-    corpus.py unpack <src.zip> <dest_dir>
+    corpus.py pack    <src_dir> <dest.zip>
+    corpus.py unpack  <src.zip> <dest_dir>
+    corpus.py promote <corpus_dir> <base-corpus.zip>
+
+``promote`` is the one to reach for by hand: point it at a campaign's merged
+corpus (``.fuzz-artifacts/<run>/targets/<target>/corpus``) and it produces the
+tracked ``base-corpus.zip`` plus its ``base-corpus.compat-key``.
 """
 import os
 import sys
@@ -47,15 +52,36 @@ def unpack(src_zip, dest_dir):
         zf.extractall(dest_dir)
 
 
+def promote(corpus_dir, dest_zip):
+    """Pack a corpus and copy its compat key to the archive's sidecar."""
+    if not os.path.isdir(corpus_dir):
+        raise SystemExit(f"error: corpus directory not found: {corpus_dir}")
+
+    count = pack(corpus_dir, dest_zip)
+    print(f"corpus: packed {count} file(s) into {dest_zip}", flush=True)
+
+    key_src = os.path.join(corpus_dir, ".compat-key")
+    key_dst = f"{dest_zip[:-4] if dest_zip.endswith('.zip') else dest_zip}.compat-key"
+    if not os.path.isfile(key_src):
+        print(f"warning: {key_src} not found; leaving {key_dst} unchanged", file=sys.stderr)
+        print("hint: run a campaign first so the corpus carries a .compat-key.", file=sys.stderr)
+        return
+
+    with open(key_src, encoding="utf-8") as f:
+        key = "".join(f.read().split())
+    with open(key_dst, "w", encoding="utf-8") as f:
+        f.write(f"{key}\n")
+    print(f"corpus: wrote {key_dst}")
+
+
 def main(argv):
-    if len(argv) != 4 or argv[1] not in ("pack", "unpack"):
+    actions = {"pack": pack, "unpack": unpack, "promote": promote}
+    if len(argv) != 4 or argv[1] not in actions:
         print(__doc__.strip(), file=sys.stderr)
         return 2
+    result = actions[argv[1]](argv[2], argv[3])
     if argv[1] == "pack":
-        count = pack(argv[2], argv[3])
-        print(f"corpus: packed {count} file(s) into {argv[3]}")
-    else:
-        unpack(argv[2], argv[3])
+        print(f"corpus: packed {result} file(s) into {argv[3]}", flush=True)
     return 0
 
 
