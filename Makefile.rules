@@ -83,8 +83,9 @@ APP_SOURCE_PROTOC = $(filter %.pb.c, $(APP_SOURCE_FILES) $(SOURCE_FILES)) $(APP_
 APP_SOURCE_OWN = $(filter-out $(SDK_SOURCE_FROM_APP) $(APP_SOURCE_GEN), $(APP_SOURCE_FILES))
 
 # Separate SDK and APP and GEN sources
+# SDK unit tests live next to the components, in unit-tests/ directories: not app code.
 SOURCES_SDK += \
-    $(foreach libdir, src $(SDK_SOURCE_PATH), $(shell find $(BOLOS_SDK)/$(libdir) -name '*.[csS]')) \
+    $(foreach libdir, src $(SDK_SOURCE_PATH), $(shell find $(BOLOS_SDK)/$(libdir) -name '*.[csS]' -not -path '*/unit-tests/*')) \
     $(SDK_SOURCE_FROM_APP) \
     $(SDK_SOURCE_FILES)
 
@@ -110,7 +111,7 @@ HEADERS_APP = $(eval HEADERS_APP := $(shell find $(APP_SOURCE_PATH) -name '*.h')
 # $(GLYPH_SRC_DIR) holds the generated glyphs.h: a build artifact (not an app source
 # header) included by SDK NBGL/UX sources, so it belongs to the SDK set.
 INCLUDES_PATH_SDK_BASE := $(INCLUDES_PATH_SDK_BASE) \
-    $(foreach libdir, $(SDK_SOURCE_PATH) $(SDK_HEADER_PATH), $(dir $(shell find $(BOLOS_SDK)/$(libdir) -name '*.h'))) \
+    $(foreach libdir, $(SDK_SOURCE_PATH) $(SDK_HEADER_PATH), $(dir $(shell find $(BOLOS_SDK)/$(libdir) -name '*.h' -not -path '*/unit-tests/*'))) \
     $(BOLOS_SDK)/include \
     $(BOLOS_SDK)/include/arm \
     $(GLYPH_SRC_DIR)

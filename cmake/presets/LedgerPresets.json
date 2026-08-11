@@ -1,0 +1,208 @@
+{
+  "version": 7,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "ledger-base",
+      "hidden": true,
+      "description": "Common to all presets: LEDGER_CMAKE_MINIMUM_VERSION is the CMake minimum version of apps.",
+      "cacheVariables": {
+        "LEDGER_CMAKE_MINIMUM_VERSION": "3.28"
+      }
+    },
+    {
+      "name": "ledger-ut",
+      "hidden": true,
+      "inherits": [
+        "ledger-base",
+        "ledger-target-flex"
+      ],
+      "description": "Unit tests, built and run on the host with GCC, with the flex profile.",
+      "toolchainFile": "$env{BOLOS_SDK}/cmake/toolchains/toolchain_gcc_x86.cmake",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "BUILD_UNIT_TESTS": "ON",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "ENABLE_ADDRESS_BOOK": "ON",
+        "ENABLE_ADDRESS_BOOK_LEDGER_ACCOUNT": "ON",
+        "ENABLE_NBGL_QRCODE": "ON",
+        "ENABLE_NBGL_KEYBOARD": "ON",
+        "ENABLE_NBGL_KEYPAD": "ON",
+        "LEDGER_APPNAME": "UnitTests"
+      }
+    },
+    {
+      "name": "ledger-app-cm35p",
+      "hidden": true,
+      "inherits": "ledger-base",
+      "description": "Cortex-M35P device app (stax, flex, nanos2, apex_p, apex_m).",
+      "toolchainFile": "$env{BOLOS_SDK}/cmake/toolchains/toolchain_clang_cm35p.cmake",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "LEDGER_DEVICE_BUILD": "ON"
+      }
+    },
+    {
+      "name": "ledger-app-cm3",
+      "hidden": true,
+      "inherits": "ledger-base",
+      "description": "Cortex-M3 device app (nanox).",
+      "toolchainFile": "$env{BOLOS_SDK}/cmake/toolchains/toolchain_clang_cm3.cmake",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "LEDGER_DEVICE_BUILD": "ON"
+      }
+    },
+    {
+      "name": "ledger-target-stax",
+      "hidden": true,
+      "description": "stax device description, from the stax block of Makefile.defines.",
+      "cacheVariables": {
+        "TARGET": "stax",
+        "LEDGER_TARGET_DEFS": "HAVE_BAGL_FONT_INTER_MEDIUM_32PX;HAVE_BAGL_FONT_INTER_REGULAR_24PX;HAVE_BAGL_FONT_INTER_SEMIBOLD_24PX;HAVE_BAGL_FONT_INTER_SEMIBOLD_24PX_1BPP;HAVE_INAPP_BLE_PAIRING;HAVE_NBGL;HAVE_PIEZO_SOUND;HAVE_SE_EINK_DISPLAY;HAVE_SE_TOUCH;NBGL_PAGE;NBGL_USE_CASE;SCREEN_SIZE_WALLET",
+        "LEDGER_TARGET_GLYPH_DIRS": "wallet;64px;32px",
+        "LEDGER_TARGET_IS_NANO": "OFF",
+        "LEDGER_TARGET_HAS_BLE": "ON",
+        "LEDGER_TARGET_HAS_NFC": "ON",
+        "LEDGER_TARGET_HAS_QRCODE": "ON"
+      }
+    },
+    {
+      "name": "ledger-target-flex",
+      "hidden": true,
+      "description": "flex device description, from the flex block of Makefile.defines.",
+      "cacheVariables": {
+        "TARGET": "flex",
+        "LEDGER_TARGET_DEFS": "HAVE_BAGL_FONT_INTER_MEDIUM_36PX;HAVE_BAGL_FONT_INTER_REGULAR_28PX;HAVE_BAGL_FONT_INTER_SEMIBOLD_28PX;HAVE_INAPP_BLE_PAIRING;HAVE_NBGL;HAVE_PIEZO_SOUND;HAVE_SE_EINK_DISPLAY;HAVE_SE_TOUCH;NBGL_PAGE;NBGL_USE_CASE;SCREEN_SIZE_WALLET",
+        "LEDGER_TARGET_GLYPH_DIRS": "wallet;64px;40px",
+        "LEDGER_TARGET_IS_NANO": "OFF",
+        "LEDGER_TARGET_HAS_BLE": "ON",
+        "LEDGER_TARGET_HAS_NFC": "ON",
+        "LEDGER_TARGET_HAS_QRCODE": "ON"
+      }
+    },
+    {
+      "name": "ledger-target-nanos2",
+      "hidden": true,
+      "description": "nanos2 device description, from the nanos2 block of Makefile.defines, USE_NBGL=1 branch.",
+      "cacheVariables": {
+        "TARGET": "nanos2",
+        "LEDGER_TARGET_DEFS": "BAGL_HEIGHT=64;BAGL_WIDTH=128;HAVE_BAGL_ELLIPSIS;HAVE_BAGL_FONT_OPEN_SANS_EXTRABOLD_11PX;HAVE_BAGL_FONT_OPEN_SANS_LIGHT_16PX;HAVE_BAGL_FONT_OPEN_SANS_REGULAR_11PX;HAVE_BATTERY;HAVE_FONTS;HAVE_INAPP_BLE_PAIRING;HAVE_NBGL;HAVE_SE_BUTTON;HAVE_SE_SCREEN;NBGL_STEP;NBGL_USE_CASE;SCREEN_SIZE_NANO",
+        "LEDGER_TARGET_GLYPH_DIRS": "nano",
+        "LEDGER_TARGET_IS_NANO": "ON",
+        "LEDGER_TARGET_HAS_BLE": "OFF",
+        "LEDGER_TARGET_HAS_NFC": "OFF",
+        "LEDGER_TARGET_HAS_QRCODE": "OFF"
+      }
+    },
+    {
+      "name": "ledger-target-apex_p",
+      "hidden": true,
+      "description": "apex_p device description, from the apex_p block of Makefile.defines.",
+      "cacheVariables": {
+        "TARGET": "apex_p",
+        "LEDGER_TARGET_DEFS": "HAVE_BAGL_FONT_NANODISPLAY_SEMIBOLD_24PX;HAVE_BAGL_FONT_NANOTEXT_BOLD_18PX;HAVE_BAGL_FONT_NANOTEXT_MEDIUM_18PX;HAVE_INAPP_BLE_PAIRING;HAVE_NBGL;HAVE_SE_EINK_DISPLAY;HAVE_SE_TOUCH;NBGL_PAGE;NBGL_USE_CASE;SCREEN_SIZE_WALLET",
+        "LEDGER_TARGET_GLYPH_DIRS": "wallet;48px;24px",
+        "LEDGER_TARGET_IS_NANO": "OFF",
+        "LEDGER_TARGET_HAS_BLE": "ON",
+        "LEDGER_TARGET_HAS_NFC": "ON",
+        "LEDGER_TARGET_HAS_QRCODE": "ON"
+      }
+    },
+    {
+      "name": "ledger-target-apex_m",
+      "hidden": true,
+      "description": "apex_m device description, from the apex_m block of Makefile.defines.",
+      "cacheVariables": {
+        "TARGET": "apex_m",
+        "LEDGER_TARGET_DEFS": "HAVE_BAGL_FONT_NANODISPLAY_SEMIBOLD_24PX;HAVE_BAGL_FONT_NANOTEXT_BOLD_18PX;HAVE_BAGL_FONT_NANOTEXT_MEDIUM_18PX;HAVE_NBGL;HAVE_SE_EINK_DISPLAY;HAVE_SE_TOUCH;NBGL_PAGE;NBGL_USE_CASE;SCREEN_SIZE_WALLET",
+        "LEDGER_TARGET_GLYPH_DIRS": "wallet;48px;24px",
+        "LEDGER_TARGET_IS_NANO": "OFF",
+        "LEDGER_TARGET_HAS_BLE": "OFF",
+        "LEDGER_TARGET_HAS_NFC": "OFF",
+        "LEDGER_TARGET_HAS_QRCODE": "ON"
+      }
+    },
+    {
+      "name": "ledger-target-nanox",
+      "hidden": true,
+      "description": "nanox device description, from the nanox block of Makefile.defines, USE_NBGL=1 branch.",
+      "cacheVariables": {
+        "TARGET": "nanox",
+        "LEDGER_TARGET_DEFS": "BAGL_HEIGHT=64;BAGL_WIDTH=128;HAVE_BAGL_ELLIPSIS;HAVE_BAGL_FONT_OPEN_SANS_EXTRABOLD_11PX;HAVE_BAGL_FONT_OPEN_SANS_LIGHT_16PX;HAVE_BAGL_FONT_OPEN_SANS_REGULAR_11PX;HAVE_BATTERY;HAVE_FONTS;HAVE_INAPP_BLE_PAIRING;HAVE_NBGL;HAVE_SE_BUTTON;HAVE_SE_SCREEN;NBGL_STEP;NBGL_USE_CASE;SCREEN_SIZE_NANO",
+        "LEDGER_TARGET_GLYPH_DIRS": "nano",
+        "LEDGER_TARGET_IS_NANO": "ON",
+        "LEDGER_TARGET_HAS_BLE": "ON",
+        "LEDGER_TARGET_HAS_NFC": "OFF",
+        "LEDGER_TARGET_HAS_QRCODE": "OFF"
+      }
+    },
+    {
+      "name": "ledger-stax",
+      "hidden": true,
+      "inherits": [
+        "ledger-app-cm35p",
+        "ledger-target-stax"
+      ]
+    },
+    {
+      "name": "ledger-flex",
+      "hidden": true,
+      "inherits": [
+        "ledger-app-cm35p",
+        "ledger-target-flex"
+      ]
+    },
+    {
+      "name": "ledger-nanos2",
+      "hidden": true,
+      "inherits": [
+        "ledger-app-cm35p",
+        "ledger-target-nanos2"
+      ]
+    },
+    {
+      "name": "ledger-apex_p",
+      "hidden": true,
+      "inherits": [
+        "ledger-app-cm35p",
+        "ledger-target-apex_p"
+      ]
+    },
+    {
+      "name": "ledger-apex_m",
+      "hidden": true,
+      "inherits": [
+        "ledger-app-cm35p",
+        "ledger-target-apex_m"
+      ]
+    },
+    {
+      "name": "ledger-nanox",
+      "hidden": true,
+      "inherits": [
+        "ledger-app-cm3",
+        "ledger-target-nanox"
+      ]
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "ledger-ut",
+      "hidden": true,
+      "configurePreset": "ledger-ut",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}
