@@ -206,7 +206,6 @@ bool address_book_send_register_identity_response(const uint8_t group_handle[GRO
  * Generates a random 32-byte gid, then authenticates it via OS syscall:
  * group_handle = gid(32) || HMAC-SHA256(K_group, gid)(32)
  *
- * @param[in]  bip32_path    BIP32 path used to derive K_group
  * @param[out] group_handle  Output buffer (64 bytes): gid || MAC
  * @return true if successful, false otherwise
  */
@@ -237,7 +236,6 @@ end:
  * Verifies MAC(K_group, gid) via OS syscall.
  * On success, copies gid into @p gid_out.
  *
- * @param[in]  bip32_path    BIP32 path used to derive K_group
  * @param[in]  group_handle  64-byte handle to verify: gid(32) || MAC(32)
  * @param[out] gid_out       Extracted gid (32 bytes), only valid on success
  * @return true if the handle is authentic, false otherwise
@@ -271,7 +269,6 @@ end:
  * Serializes the HMAC message: gid(32) | name_len(1) | name
  * Then delegates to the OS syscall.
  *
- * @param[in]  bip32_path  BIP32 path used at registration
  * @param[in]  gid         32-byte wallet-generated contact ID
  * @param[in]  name        Contact name (null-terminated)
  * @param[out] hmac_out    Output buffer for the 32-byte HMAC
@@ -306,7 +303,6 @@ end:
 /**
  * @brief Verify HMAC_PROOF for an Identity contact.
  *
- * @param[in] bip32_path   BIP32 path used at registration
  * @param[in] gid          32-byte contact ID
  * @param[in] name         Contact name (null-terminated)
  * @param[in] hmac_expected 32-byte HMAC to verify against
@@ -346,7 +342,6 @@ end:
  *             family(1) [| chain_id(8) for FAMILY_ETHEREUM]
  * Then delegates to the OS syscall.
  *
- * @param[in]  bip32_path     BIP32 path used at registration
  * @param[in]  gid            32-byte contact ID
  * @param[in]  scope          Contact scope (null-terminated, may be empty)
  * @param[in]  identifier     Raw identifier bytes
@@ -390,7 +385,6 @@ end:
 /**
  * @brief Verify HMAC_REST for an Identity contact.
  *
- * @param[in] bip32_path   BIP32 path used at registration
  * @param[in] gid          32-byte contact ID
  * @param[in] scope        Contact scope (null-terminated)
  * @param[in] identifier   Raw identifier bytes
