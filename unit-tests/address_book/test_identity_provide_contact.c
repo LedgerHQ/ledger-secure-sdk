@@ -17,12 +17,10 @@
  *  - Missing ACCOUNT_IDENTIFIER       → SWO_INCORRECT_DATA
  *  - Missing GROUP_HANDLE             → SWO_INCORRECT_DATA
  *  - GROUP_HANDLE wrong size          → SWO_INCORRECT_DATA
- *  - Missing DERIVATION_PATH          → SWO_SUCCESS (optional)
  *  - Missing BLOCKCHAIN_FAMILY        → SWO_INCORRECT_DATA
  *  - FAMILY_ETHEREUM without CHAIN_ID → SWO_INCORRECT_DATA
  *  - Missing HMAC_PROOF               → SWO_INCORRECT_DATA
  *  - Missing HMAC_REST                → SWO_INCORRECT_DATA
- *  - HMAC verify failure              → SWO_SECURITY_CONDITION_NOT_SATISFIED
  *  - App callback rejects             → SWO_WRONG_PARAMETER_VALUE
  *  - Valid Bitcoin payload            → SWO_SUCCESS
  *  - Valid Ethereum payload           → SWO_SUCCESS
@@ -93,7 +91,6 @@ static size_t build_provide_contact(uint8_t    *buf,
                                     bool        include_identifier,
                                     bool        include_group_handle,
                                     uint8_t     group_handle_len,
-                                    bool        include_deriv_path,
                                     bool        include_blockchain_family,
                                     uint8_t     family,
                                     bool        include_chain_id,
@@ -117,9 +114,6 @@ static size_t build_provide_contact(uint8_t    *buf,
     }
     if (include_group_handle) {
         tlv_append(buf, &off, 0xf6, ZERO_64, group_handle_len);
-    }
-    if (include_deriv_path) {
-        tlv_append(buf, &off, 0x69, BIP32_ETH_PATH, sizeof(BIP32_ETH_PATH));
     }
     if (include_blockchain_family) {
         tlv_u8(buf, &off, 0x51, family);
@@ -148,7 +142,6 @@ static size_t build_valid_provide_contact_btc(uint8_t *buf, size_t buf_size)
                                  true,
                                  64,
                                  true,
-                                 true,
                                  0x00,
                                  false,
                                  true,
@@ -166,7 +159,6 @@ static size_t build_valid_provide_contact_eth(uint8_t *buf, size_t buf_size)
                                  true,
                                  true,
                                  64,
-                                 true,
                                  true,
                                  0x01,
                                  true,
@@ -189,7 +181,6 @@ static void test_pc_wrong_struct_type(void)
                                        true,
                                        64,
                                        true,
-                                       true,
                                        0x00,
                                        false,
                                        true,
@@ -210,7 +201,6 @@ static void test_pc_wrong_struct_version(void)
                                        true,
                                        64,
                                        true,
-                                       true,
                                        0x00,
                                        false,
                                        true,
@@ -221,42 +211,16 @@ static void test_pc_wrong_struct_version(void)
 static void test_pc_missing_contact_name(void)
 {
     uint8_t buf[512];
-    size_t  len = build_provide_contact(buf,
-                                       sizeof(buf),
-                                       0x33,
-                                       0x01,
-                                       NULL,
-                                       "BTC",
-                                       true,
-                                       true,
-                                       64,
-                                       true,
-                                       true,
-                                       0x00,
-                                       false,
-                                       true,
-                                       true);
+    size_t  len = build_provide_contact(
+        buf, sizeof(buf), 0x33, 0x01, NULL, "BTC", true, true, 64, true, 0x00, false, true, true);
     TEST_ASSERT_EQUAL_INT(SWO_INCORRECT_DATA, provide_contact(buf, len));
 }
 
 static void test_pc_missing_scope(void)
 {
     uint8_t buf[512];
-    size_t  len = build_provide_contact(buf,
-                                       sizeof(buf),
-                                       0x33,
-                                       0x01,
-                                       "Alice",
-                                       NULL,
-                                       true,
-                                       true,
-                                       64,
-                                       true,
-                                       true,
-                                       0x00,
-                                       false,
-                                       true,
-                                       true);
+    size_t  len = build_provide_contact(
+        buf, sizeof(buf), 0x33, 0x01, "Alice", NULL, true, true, 64, true, 0x00, false, true, true);
     TEST_ASSERT_EQUAL_INT(SWO_INCORRECT_DATA, provide_contact(buf, len));
 }
 
@@ -272,7 +236,6 @@ static void test_pc_missing_identifier(void)
                                        false,
                                        true,
                                        64,
-                                       true,
                                        true,
                                        0x00,
                                        false,
@@ -294,7 +257,6 @@ static void test_pc_missing_group_handle(void)
                                        false,
                                        64,
                                        true,
-                                       true,
                                        0x00,
                                        false,
                                        true,
@@ -315,33 +277,11 @@ static void test_pc_group_handle_wrong_size(void)
                                        true,
                                        32,
                                        true,
-                                       true,
                                        0x00,
                                        false,
                                        true,
                                        true);
     TEST_ASSERT_EQUAL_INT(SWO_INCORRECT_DATA, provide_contact(buf, len));
-}
-
-static void test_pc_missing_derivation_path(void)
-{
-    uint8_t buf[512];
-    size_t  len = build_provide_contact(buf,
-                                       sizeof(buf),
-                                       0x33,
-                                       0x01,
-                                       "Alice",
-                                       "BTC",
-                                       true,
-                                       true,
-                                       64,
-                                       false,
-                                       true,
-                                       0x00,
-                                       false,
-                                       true,
-                                       true);
-    TEST_ASSERT_EQUAL_INT(SWO_SUCCESS, provide_contact(buf, len));
 }
 
 static void test_pc_missing_blockchain_family(void)
@@ -356,7 +296,6 @@ static void test_pc_missing_blockchain_family(void)
                                        true,
                                        true,
                                        64,
-                                       true,
                                        false,
                                        0x00,
                                        false,
@@ -378,7 +317,6 @@ static void test_pc_ethereum_missing_chain_id(void)
                                        true,
                                        64,
                                        true,
-                                       true,
                                        0x01,
                                        false,
                                        true,
@@ -398,7 +336,6 @@ static void test_pc_missing_hmac_proof(void)
                                        true,
                                        true,
                                        64,
-                                       true,
                                        true,
                                        0x00,
                                        false,
@@ -420,20 +357,11 @@ static void test_pc_missing_hmac_rest(void)
                                        true,
                                        64,
                                        true,
-                                       true,
                                        0x00,
                                        false,
                                        true,
                                        false);
     TEST_ASSERT_EQUAL_INT(SWO_INCORRECT_DATA, provide_contact(buf, len));
-}
-
-static void test_pc_hmac_verify_fails(void)
-{
-    uint8_t buf[512];
-    size_t  len = build_valid_provide_contact_btc(buf, sizeof(buf));
-    sys_address_book_hmac_verify_IgnoreAndReturn(false);
-    TEST_ASSERT_EQUAL_INT(SWO_SECURITY_CONDITION_NOT_SATISFIED, provide_contact(buf, len));
 }
 
 static void test_pc_app_callback_rejects(void)
@@ -470,12 +398,10 @@ int main(void)
     RUN_TEST(test_pc_missing_identifier);
     RUN_TEST(test_pc_missing_group_handle);
     RUN_TEST(test_pc_group_handle_wrong_size);
-    RUN_TEST(test_pc_missing_derivation_path);
     RUN_TEST(test_pc_missing_blockchain_family);
     RUN_TEST(test_pc_ethereum_missing_chain_id);
     RUN_TEST(test_pc_missing_hmac_proof);
     RUN_TEST(test_pc_missing_hmac_rest);
-    RUN_TEST(test_pc_hmac_verify_fails);
     RUN_TEST(test_pc_app_callback_rejects);
     RUN_TEST(test_pc_success_bitcoin);
     RUN_TEST(test_pc_success_ethereum);

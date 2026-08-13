@@ -8,7 +8,7 @@
 4. [Common foundations](#4-common-foundations)
    - 4.1 [TLV encoding](#41-tlv-encoding)
    - 4.2 [Reference tables](#42-reference-tables)
-   - 4.3 [Cryptographic KDF](#43-cryptographic-kdf)
+   - 4.3 [Cryptographic operations](#43-cryptographic-operations)
 5. [Sub-commands](#5-sub-commands)
    - 5.1 [Register Identity](#51-register-identity)
    - 5.2 [Edit Contact Name](#52-edit-contact-name)
@@ -128,10 +128,10 @@ Next  chunks (P2 = 0x80):  | next_data_slice     |
 
 Payloads that exceed 255 bytes simply span several chunks; the framing is identical to the single-chunk case. The largest payloads (see size notes in §5) are:
 
-- **Edit Identifier** (§5.3, up to 428 B)
-- **Edit Scope** (§5.4, up to 380 B)
-- **Provide Contact** (§5.7, up to 362 B)
-- **Register Identity** (§5.1, up to 312 B) when `GROUP_HANDLE` + `HMAC_PROOF` are present and the identifier exceeds ~38 bytes (non-Ethereum chains)
+- **Edit Identifier** (§5.3, up to 385 B)
+- **Edit Scope** (§5.4, up to 337 B)
+- **Provide Contact** (§5.7, up to 319 B)
+- **Register Identity** (§5.1, up to 269 B) when `GROUP_HANDLE` + `HMAC_PROOF` are present and the identifier exceeds ~77 bytes (non-Ethereum chains)
 
 ---
 
@@ -164,7 +164,7 @@ Multi-byte integer values are encoded **big-endian, minimum length** (no leading
 | 0xf4 | PREVIOUS_IDENTIFIER    | Old identifier, for HMAC verification (Edit Identifier only)                          |
 | 0xf5 | PREVIOUS_SCOPE         | Old scope, for display and HMAC verification (Edit Scope only)                        |
 | 0xf6 | GROUP_HANDLE           | Device-generated opaque token: `gid(32) + HMAC-SHA256(K_group, gid)(32)`; see §4.3    |
-| 0x69 | DERIVATION_PATH        | BIP32 path (packed: depth(1) + indices(4 each))                                       |
+| 0x69 | DERIVATION_PATH        | BIP32 path (packed: depth(1) + indices(4 each)); **Ledger Account only**              |
 | 0x23 | CHAIN_ID               | Chain ID — mandatory for `BLOCKCHAIN_FAMILY = 1` (Ethereum); omitted for others       |
 | 0x51 | BLOCKCHAIN_FAMILY      | Blockchain family (0=Bitcoin, 1=Ethereum, 2=Solana, 3=Polkadot, 4=Cosmos, 5=Cardano)  |
 | 0x29 | HMAC_PROOF             | 32-byte HMAC-SHA256 name-binding proof: covers `gid(32) + name` (§4.3)                |
@@ -183,30 +183,30 @@ Multi-byte integer values are encoded **big-endian, minimum length** (no leading
 | 0x33        | `TYPE_PROVIDE_CONTACT`                | Provide Contact                |
 | 0x34        | `TYPE_PROVIDE_LEDGER_ACCOUNT_CONTACT` | Provide Ledger Account Contact |
 
-### 4.3 Cryptographic KDF
+### 4.3 Cryptographic operations
 
-Each feature derives its HMAC key independently using a distinct domain-separation salt, preventing any cross-feature key reuse even when the same BIP32 path is used.
+All cryptographic operations — Group Handle generation/verification, Identity HMAC computation/verification, and Ledger Account HMAC computation/verification — are delegated to the OS via two dedicated syscalls:
+
+- `sys_address_book_hmac()` — compute HMAC
+- `sys_address_book_hmac_verify()` — verify HMAC (constant-time)
+
+Key derivation is internal to the OS. Each feature uses a distinct domain-separation salt to prevent cross-feature key reuse.
 
 #### Group Handle
 
-At registration the device generates a random 32-byte **Group ID** (`gid`) and authenticates it with a separate device key:
+At registration the device generates a random 32-byte **Group ID** (`gid`) and authenticates it with a separate device key. The resulting `group_handle` has the following opaque structure:
 
 ```text
-K_group      = HMAC-SHA256("AddressBook-Group" || privkey.d, "")  [via SHA256 KDF]
-group_handle = gid(32) | HMAC-SHA256(K_group, gid)(32)
+group_handle = gid(32) | MAC(K_group, gid)(32)
 ```
 
-The device returns `group_handle` (64 bytes) to the wallet, which stores it opaquely alongside the contact record. For each subsequent Edit operation the wallet re-sends the full `group_handle`; the device recomputes the MAC, verifies it in constant time, and — only on success — extracts `gid` to authenticate the HMAC proofs.
+The device returns `group_handle` (64 bytes) to the wallet, which stores it opaquely alongside the contact record. For each subsequent Edit operation the wallet re-sends the full `group_handle`; the device verifies the MAC via syscall in constant time, and — only on success — extracts `gid` to authenticate the HMAC proofs.
 
 This design prevents **proof splicing**: because the wallet cannot fabricate a valid `group_handle` for an arbitrary `gid`, it cannot mix `HMAC_PROOF` from one registered contact with `HMAC_REST` from another.
 
-#### Identity KDF
+#### Identity HMAC messages
 
-Both Identity HMACs share the same KDF:
-
-```text
-hmac_key = SHA256("AddressBook-Identity" || privkey.d)
-```
+Both Identity HMACs are computed and verified by the OS via syscall. The following message formats define what each proof covers:
 
 **HMAC_PROOF** covers the contact name only. Used by Register Identity (computed), Edit Contact Name (verified then re-computed).
 
@@ -214,7 +214,7 @@ hmac_key = SHA256("AddressBook-Identity" || privkey.d)
 message = gid(32) | name_len(1) | contact_name
 ```
 
-**HMAC_REST** — covers scope, identifier, and network. Used by Register Identity (computed), Edit Identifier (verified then re-computed), and Edit Scope (verified then re-computed).
+**HMAC_REST** covers scope, identifier, and network. Used by Register Identity (computed), Edit Identifier (verified then re-computed), and Edit Scope (verified then re-computed).
 
 ```text
 message = gid(32) | scope_len(1) | scope | id_len(1) | identifier | family(1) [ | chain_id(8) ]
@@ -223,15 +223,17 @@ message = gid(32) | scope_len(1) | scope | id_len(1) | identifier | family(1) [ 
 > `chain_id` is included only when `BLOCKCHAIN_FAMILY = 1` (Ethereum).
 
 Register Identity returns `group_handle`, `HMAC_PROOF`, and `HMAC_REST`. Edit sub-commands receive `group_handle` and both proofs so the device can independently verify the contact binding.
-The tag `HMAC_PROOF` is also used by Ledger Account commands (single HMAC, same tag value, different KDF).
+The tag `HMAC_PROOF` is also used by Ledger Account commands (single HMAC, same tag value, different salt).
 
-#### Ledger Account KDF
+#### Ledger Account HMAC message
+
+**HMAC_PROOF** covers the account name and network. Used by Register Ledger Account (computed), Edit Ledger Account (verified then re-computed), and Provide Ledger Account Contact (verified).
 
 ```text
-hmac_key = SHA256("AddressBook-LedgerAccount" || privkey.d)
+message = name_len(1) | account_name | family(1) [ | chain_id(8) ]
 ```
 
-Used by Register Ledger Account, Edit Ledger Account, and Provide Ledger Account Contact.
+> `chain_id` is included only when `BLOCKCHAIN_FAMILY = 1` (Ethereum).
 
 ---
 
@@ -272,20 +274,19 @@ This allows a wallet to register multiple addresses for the same contact (e.g. t
 | CONTACT_NAME       | 0xf0  | Yes       | 32 B     | Contact name (max 32 printable ASCII chars)                                          |
 | SCOPE              | 0xf1  | Yes       | 32 B     | Context string (e.g. "Ethereum", "Bitcoin legacy", "Solana USDC")                    |
 | ACCOUNT_IDENTIFIER | 0xf2  | Yes       | 80 B     | Blockchain identifier (address or pubkey, chain-dependent)                           |
-| DERIVATION_PATH    | 0x69  | Yes       | 41 B     | BIP32 derivation path (used to derive the HMAC key)                                  |
 | CHAIN_ID           | 0x23  | Cond.     | 8 B      | Chain ID (mandatory for Ethereum)                                                    |
 | BLOCKCHAIN_FAMILY  | 0x51  | Yes       | 1 B      | Blockchain family                                                                    |
 | GROUP_HANDLE       | 0xf6  | Optional  | 64 B     | Existing group handle — links this identifier to an existing contact group           |
 | HMAC_PROOF         | 0x29  | Optional  | 32 B     | `HMAC_PROOF` for the existing group — required when `GROUP_HANDLE` is present        |
 
-> **Payload size (new group):** worst case (max identifier, max path depth) = **212 B** — fits in a single short APDU ✓
+> **Payload size (new group):** worst case (max identifier, Ethereum) = **169 B** — fits in a single short APDU ✓
 >
-> **Payload size (existing group):** adds `GROUP_HANDLE` (66 B with TLV overhead) + `HMAC_PROOF` (34 B) = up to **312 B** for a maximum-size identifier. For Ethereum (20-byte address) the total remains within 255 B ✓. For other chains with large identifiers, multi-chunk transport (see §3) is required.
+> **Payload size (existing group):** adds `GROUP_HANDLE` (66 B with TLV overhead) + `HMAC_PROOF` (34 B) = up to **269 B** for a maximum-size identifier. For Ethereum (20-byte address) the total remains within 255 B ✓. For other chains with large identifiers, multi-chunk transport (see §3) is required.
 
 #### Flow
 
 1. Parse TLV payload.
-2. If `GROUP_HANDLE` is present: verify its MAC (constant-time), extract `gid`, re-derive `HMAC_PROOF` over `(gid, contact_name)` and compare (constant-time) — proves the wallet owns the existing group.
+2. If `GROUP_HANDLE` is present: verify its MAC (constant-time), extract `gid`, verify `HMAC_PROOF` over `(gid, contact_name)` (constant-time) — proves the wallet owns the existing group.
 3. Call `handle_check_register_identity()` (coin-app entrypoint) for chain-specific validation.
 4. Display to user: contact_name + scope + identifier.
 5. On confirm: generate `gid` and compute `group_handle` + `HMAC_PROOF` (new group), or reuse the verified `gid` and echo them back (existing group); then compute `HMAC_REST` for the new `(scope, identifier)`.
@@ -293,22 +294,22 @@ This allows a wallet to register multiple addresses for the same contact (e.g. t
 ```mermaid
 sequenceDiagram
 
-    Wallet->>Device: CMD_REGISTER_IDENTITY (contact_name + scope + identifier + path [+ group_handle + hmac_proof] + ...)
+    Wallet->>Device: CMD_REGISTER_IDENTITY (contact_name + scope + identifier [+ group_handle + hmac_proof] + ...)
     Device->>Device: Parse TLV
     alt GROUP_HANDLE + HMAC_PROOF provided (existing group)
         Device->>Device: Verify group_handle MAC, extract gid
-        Device->>Device: Re-derive HMAC_PROOF(gid, contact_name), compare — proves wallet owns the group
+        Device->>Device: Verify HMAC_PROOF(gid, contact_name) — proves wallet owns the group
     end
     Device->>Device: handle_check_register_identity() [coin-app]
     Device->>User: Display: contact_name / scope / identifier
     User->>Device: Confirm
     alt New group
-        Device->>Device: Generate gid, compute group_handle = gid || HMAC-SHA256(K_group, gid)
-        Device->>Device: HMAC_PROOF = HMAC-SHA256(key, gid|name_len|name)
+        Device->>Device: Generate gid, compute group_handle
+        Device->>Device: Compute HMAC_PROOF
     else Existing group
         Note right of Device: Echo back received group_handle and hmac_proof
     end
-    Device->>Device: HMAC_REST = HMAC-SHA256(key, gid|scope_len|scope|id_len|identifier|family[|chain_id])
+    Device->>Device: Compute HMAC_REST
     Device->>Wallet: 0x2d | group_handle(64) | hmac_proof(32) | hmac_rest(32)  [9000]
     Wallet->>Wallet: Store group_handle + hmac_proof + hmac_rest with (scope, identifier) record
 ```
@@ -341,16 +342,15 @@ Changes the `CONTACT_NAME` of an existing contact. Because `HMAC_PROOF` covers o
 | PREVIOUS_CONTACT_NAME | 0xf3  | Yes       | 32 B     | Old contact name (must match value used at registration) |
 | CONTACT_NAME          | 0xf0  | Yes       | 32 B     | New contact name (max 32 printable ASCII chars)          |
 | GROUP_HANDLE          | 0xf6  | Yes       | 64 B     | Opaque token from Register Identity response             |
-| DERIVATION_PATH       | 0x69  | Yes       | 41 B     | BIP32 derivation path (same as at registration)          |
 | HMAC_PROOF            | 0x29  | Yes       | 32 B     | `HMAC_PROOF` returned by the original Register Identity  |
 
-> **Payload size:** worst case (max path depth, max names) = **217 B** — fits in a single short APDU ✓
+> **Payload size:** worst case (max names) = **174 B** — fits in a single short APDU ✓
 
 #### Flow
 
 1. Parse TLV payload.
 2. Verify `group_handle` MAC (constant-time) and extract `gid`.
-3. Re-derive `HMAC_PROOF` over `(gid, previous_name)` and compare with `hmac_proof` (constant-time) — proves the contact was registered on this device.
+3. Verify `HMAC_PROOF` over `(gid, previous_name)` (constant-time) — proves the contact was registered on this device.
 4. Display to user: `previous_name → new_name`.
 5. On confirm: compute new `HMAC_PROOF` over `(gid, new_name)` and return it.
 
@@ -358,15 +358,13 @@ Changes the `CONTACT_NAME` of an existing contact. Because `HMAC_PROOF` covers o
 sequenceDiagram
 
     Note over Wallet: Has: group_handle, previous_name, hmac_proof (from registration)
-    Wallet->>Device: CMD_EDIT_CONTACT_NAME (group_handle + previous_name + new_name + hmac_proof + path)
+    Wallet->>Device: CMD_EDIT_CONTACT_NAME (group_handle + previous_name + new_name + hmac_proof)
     Device->>Device: Parse TLV
     Device->>Device: Verify group_handle MAC, extract gid
-    Device->>Device: Re-derive HMAC_PROOF(gid, previous_name), compare with hmac_proof
-    Note right of Device: Proves contact registered on this device
+    Device->>Device: Verify HMAC_PROOF(gid, previous_name)    Note right of Device: Proves contact registered on this device
     Device->>User: Display: previous_name → new_name
     User->>Device: Confirm
-    Device->>Device: HMAC_PROOF = HMAC-SHA256(key, gid|name_len|new_name)
-    Device->>Wallet: 0x2e | hmac_proof(32)  [9000]
+    Device->>Device: Compute new HMAC_PROOF(gid, new_name)    Device->>Wallet: 0x2e | hmac_proof(32)  [9000]
     Device->>Device: on_edit_contact_name_applied() [coin-app] — update cached name in place
     Wallet->>Wallet: Replace stored hmac_proof and contact name
 ```
@@ -399,20 +397,19 @@ Changes the `IDENTIFIER` of an existing contact while keeping the same `contact_
 | ACCOUNT_IDENTIFIER  | 0xf2  | Yes       | 80 B     | New blockchain identifier (replacing the old one)                |
 | PREVIOUS_IDENTIFIER | 0xf4  | Yes       | 80 B     | old identifier (to verify the HMAC from the prior registration)  |
 | GROUP_HANDLE        | 0xf6  | Yes       | 64 B     | Opaque token from Register Identity response                     |
-| DERIVATION_PATH     | 0x69  | Yes       | 41 B     | BIP32 derivation path (same as at registration)                  |
 | CHAIN_ID            | 0x23  | Cond.     | 8 B      | Chain ID (mandatory for Ethereum)                                |
 | BLOCKCHAIN_FAMILY   | 0x51  | Yes       | 1 B      | Blockchain family                                                |
 | HMAC_PROOF          | 0x29  | Yes       | 32 B     | `HMAC_PROOF` from Register Identity (verifies the contact name)  |
 | HMAC_REST           | 0xf7  | Yes       | 32 B     | `HMAC_REST` from Register Identity (verifies the old identifier) |
 
-> **Payload size:** worst case (Ethereum, max path depth, max identifiers, with scope) = **428 B** — exceeds the 255 B short APDU limit. Multi-chunk transport is required (see §3).
+> **Payload size:** worst case (Ethereum, max identifiers, with scope) = **385 B** — exceeds the 255 B short APDU limit. Multi-chunk transport is required (see §3).
 
 #### Flow
 
 1. Parse TLV payload.
 2. Verify `group_handle` MAC (constant-time) and extract `gid`.
-3. Re-derive `HMAC_PROOF` over `(gid, contact_name)` and compare with `hmac_proof` (constant-time) — proves the name was registered on this device.
-4. Re-derive `HMAC_REST` over `(gid, scope, old_identifier, family [, chain_id])` and compare with `hmac_rest` (constant-time) — proves the identifier was registered on this device.
+3. Verify `HMAC_PROOF` over `(gid, contact_name)` (constant-time) — proves the name was registered on this device.
+4. Verify `HMAC_REST` over `(gid, scope, old_identifier, family [, chain_id])` (constant-time) — proves the identifier was registered on this device.
 5. Call `handle_check_edit_identifier()` (coin-app entrypoint) for chain-specific validation of the new identifier.
 6. Display to user: `contact_name` / `old_identifier → new_identifier`.
 7. On confirm: compute new `HMAC_REST` over `(gid, scope, new_identifier, family [, chain_id])` and return it.
@@ -421,17 +418,16 @@ Changes the `IDENTIFIER` of an existing contact while keeping the same `contact_
 sequenceDiagram
 
     Note over Wallet: Has: group_handle, contact_name, old_identifier, hmac_proof, hmac_rest (from registration)
-    Wallet->>Device: CMD_EDIT_IDENTIFIER (group_handle + contact_name + new_identifier + old_identifier + hmac_proof + hmac_rest + path + ...)
+    Wallet->>Device: CMD_EDIT_IDENTIFIER (group_handle + contact_name + new_identifier + old_identifier + hmac_proof + hmac_rest + ...)
     Device->>Device: Parse TLV
     Device->>Device: Verify group_handle MAC, extract gid
-    Device->>Device: Re-derive HMAC_PROOF(gid, contact_name), compare with hmac_proof
-    Device->>Device: Re-derive HMAC_REST(gid, scope, old_identifier, family[, chain_id]), compare with hmac_rest
+    Device->>Device: Verify HMAC_PROOF(gid, contact_name)
+    Device->>Device: Verify HMAC_REST(gid, scope, old_identifier, family[, chain_id])
     Note right of Device: Proves contact (name + identifier) registered on this device
     Device->>Device: handle_check_edit_identifier() [coin-app]
     Device->>User: Display: contact_name / old_identifier → new_identifier
     User->>Device: Confirm
-    Device->>Device: HMAC_REST = HMAC-SHA256(key, gid|scope_len|scope|id_len|new_identifier|family[|chain_id])
-    Device->>Wallet: 0x31 | hmac_rest(32)  [9000]
+    Device->>Device: Compute new HMAC_REST(gid, scope, new_identifier, family[, chain_id])    Device->>Wallet: 0x31 | hmac_rest(32)  [9000]
     Device->>Device: on_edit_identifier_applied() [coin-app] — update cached identifier in place
     Wallet->>Wallet: Replace stored hmac_rest and identifier with new values
 ```
@@ -464,20 +460,19 @@ Changes the `SCOPE` of an existing contact while keeping the same `contact_name`
 | ACCOUNT_IDENTIFIER     | 0xf2  | Yes       | 80 B     | Blockchain identifier (unchanged from registration)          |
 | PREVIOUS_SCOPE         | 0xf5  | Yes       | 32 B     | old scope (must match value used at registration)            |
 | GROUP_HANDLE           | 0xf6  | Yes       | 64 B     | Opaque token from Register Identity response                 |
-| DERIVATION_PATH        | 0x69  | Yes       | 41 B     | BIP32 derivation path (same as at registration)              |
 | CHAIN_ID               | 0x23  | Cond.     | 8 B      | Chain ID (mandatory for Ethereum)                            |
 | BLOCKCHAIN_FAMILY      | 0x51  | Yes       | 1 B      | Blockchain family                                            |
 | HMAC_PROOF             | 0x29  | Yes       | 32 B     | `HMAC_PROOF` from Register Identity, proves the contact name |
 | HMAC_REST              | 0xf7  | Yes       | 32 B     | `HMAC_REST` from Register Identity, proves the scope         |
 
-> **Payload size:** worst case (Ethereum, max path depth, max identifier) = **380 B** — exceeds the 255 B short APDU limit. Multi-chunk transport is required (see §3).
+> **Payload size:** worst case (Ethereum, max identifier) = **337 B** — exceeds the 255 B short APDU limit. Multi-chunk transport is required (see §3).
 
 #### Flow
 
 1. Parse TLV payload.
 2. Verify `group_handle` MAC (constant-time) and extract `gid`.
-3. Re-derive `HMAC_PROOF` over `(gid, contact_name)` and compare with `hmac_proof` (constant-time) — proves the name was registered on this device.
-4. Re-derive `HMAC_REST` over `(gid, old_scope, identifier, family [, chain_id])` and compare with `hmac_rest` (constant-time) — proves the scope/identifier were registered on this device.
+3. Verify `HMAC_PROOF` over `(gid, contact_name)` (constant-time) — proves the name was registered on this device.
+4. Verify `HMAC_REST` over `(gid, old_scope, identifier, family [, chain_id])` (constant-time) — proves the scope/identifier were registered on this device.
 5. Display to user: `contact_name` / `old_scope → new_scope`.
 6. On confirm: compute new `HMAC_REST` over `(gid, new_scope, identifier, family [, chain_id])` and return it.
 
@@ -485,16 +480,15 @@ Changes the `SCOPE` of an existing contact while keeping the same `contact_name`
 sequenceDiagram
 
     Note over Wallet: Has: group_handle, contact_name, old_scope, hmac_proof, hmac_rest (from registration)
-    Wallet->>Device: CMD_EDIT_SCOPE (group_handle + contact_name + new_scope + old_scope + hmac_proof + hmac_rest + identifier + path + ...)
+    Wallet->>Device: CMD_EDIT_SCOPE (group_handle + contact_name + new_scope + old_scope + hmac_proof + hmac_rest + identifier + ...)
     Device->>Device: Parse TLV
     Device->>Device: Verify group_handle MAC, extract gid
-    Device->>Device: Re-derive HMAC_PROOF(gid, contact_name), compare with hmac_proof
-    Device->>Device: Re-derive HMAC_REST(gid, old_scope, identifier, family[, chain_id]), compare with hmac_rest
+    Device->>Device: Verify HMAC_PROOF(gid, contact_name)
+    Device->>Device: Verify HMAC_REST(gid, old_scope, identifier, family[, chain_id])
     Note right of Device: Proves contact (name + scope) registered on this device
     Device->>User: Display: contact_name / old_scope → new_scope
     User->>Device: Confirm
-    Device->>Device: HMAC_REST = HMAC-SHA256(key, gid|scope_len|new_scope|id_len|identifier|family[|chain_id])
-    Device->>Wallet: 0x32 | hmac_rest(32)  [9000]
+    Device->>Device: Compute new HMAC_REST(gid, new_scope, identifier, family[, chain_id])    Device->>Wallet: 0x32 | hmac_rest(32)  [9000]
     Device->>Device: on_edit_scope_applied() [coin-app] — update cached scope in place
     Wallet->>Wallet: Replace stored hmac_rest and contact scope
 ```
@@ -639,20 +633,19 @@ Sent by the wallet **before a transaction** to let the device substitute a human
 | SCOPE              | 0xf1  | Yes       | 32 B     | Contact scope (must match value used at registration)                  |
 | ACCOUNT_IDENTIFIER | 0xf2  | Yes       | 80 B     | Blockchain identifier (unchanged from registration)                    |
 | GROUP_HANDLE       | 0xf6  | Yes       | 64 B     | Opaque token from Register Identity response                           |
-| DERIVATION_PATH    | 0x69  | Yes       | 41 B     | BIP32 derivation path (same as at registration)                        |
 | CHAIN_ID           | 0x23  | Cond.     | 8 B      | Chain ID (mandatory for Ethereum)                                      |
 | BLOCKCHAIN_FAMILY  | 0x51  | Yes       | 1 B      | Blockchain family                                                      |
 | HMAC_PROOF         | 0x29  | Yes       | 32 B     | `HMAC_PROOF` from Register Identity — proves contact name              |
 | HMAC_REST          | 0xf7  | Yes       | 32 B     | `HMAC_REST` from Register Identity — proves scope + identifier         |
 
-> **Payload size:** worst case (Ethereum, max path depth, max name + scope + identifier) = **362 B** — exceeds the 255 B short APDU limit. Multi-chunk transport is required (see §3).
+> **Payload size:** worst case (Ethereum, max name + scope + identifier) = **319 B** — exceeds the 255 B short APDU limit. Multi-chunk transport is required (see §3).
 
 #### Flow
 
 1. Parse TLV payload.
 2. Verify `group_handle` MAC (constant-time) and extract `gid`.
-3. Re-derive `HMAC_PROOF` over `(gid, contact_name)` and compare with `hmac_proof` (constant-time) — proves the name was registered on this device.
-4. Re-derive `HMAC_REST` over `(gid, scope, identifier, family [, chain_id])` and compare with `hmac_rest` (constant-time) — proves the scope and identifier were registered on this device.
+3. Verify `HMAC_PROOF` over `(gid, contact_name)` (constant-time) — proves the name was registered on this device.
+4. Verify `HMAC_REST` over `(gid, scope, identifier, family [, chain_id])` (constant-time) — proves the scope and identifier were registered on this device.
 5. Call `handle_provide_identity()` (coin-app entrypoint) — passes the validated contact data for the app to store and use during the upcoming transaction review.
 6. Return `9000` (no data).
 
@@ -660,11 +653,11 @@ Sent by the wallet **before a transaction** to let the device substitute a human
 sequenceDiagram
 
     Note over Wallet: Has: group_handle, contact_name, scope, identifier, hmac_proof, hmac_rest
-    Wallet->>Device: CMD_PROVIDE_CONTACT (group_handle + contact_name + scope + identifier + hmac_proof + hmac_rest + path + ...)
+    Wallet->>Device: CMD_PROVIDE_CONTACT (group_handle + contact_name + scope + identifier + hmac_proof + hmac_rest + ...)
     Device->>Device: Parse TLV
     Device->>Device: Verify group_handle MAC, extract gid
-    Device->>Device: Re-derive HMAC_PROOF(gid, contact_name), compare with hmac_proof
-    Device->>Device: Re-derive HMAC_REST(gid, scope, identifier, family[, chain_id]), compare with hmac_rest
+    Device->>Device: Verify HMAC_PROOF(gid, contact_name)
+    Device->>Device: Verify HMAC_REST(gid, scope, identifier, family[, chain_id])
     Note right of Device: Both proofs valid — contact legitimately registered on this device
     Device->>Device: handle_provide_identity() [coin-app] — store contact data for transaction review
     Device->>Wallet: 9000

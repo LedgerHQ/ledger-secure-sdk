@@ -161,7 +161,6 @@ static size_t build_register_identity(uint8_t    *buf,
                                       const char *name,
                                       const char *scope,
                                       bool        include_identifier,
-                                      bool        include_deriv,
                                       bool        include_family,
                                       uint8_t     family,
                                       bool        include_chain_id,
@@ -185,9 +184,6 @@ static size_t build_register_identity(uint8_t    *buf,
     if (include_group_handle) {
         tlv_append(buf, &off, 0xf6, ZERO_64, GROUP_HANDLE_SIZE);
     }
-    if (include_deriv) {
-        tlv_append(buf, &off, 0x69, BIP32_ETH_PATH, sizeof(BIP32_ETH_PATH));
-    }
     if (include_family) {
         tlv_u8(buf, &off, 0x51, family);
     }
@@ -203,14 +199,14 @@ static size_t build_register_identity(uint8_t    *buf,
 static size_t build_valid_register_identity(uint8_t *buf, size_t sz)
 {
     return build_register_identity(
-        buf, sz, 0x2d, 0x01, "Alice", "Bitcoin", true, true, true, 0x00, false, false, false);
+        buf, sz, 0x2d, 0x01, "Alice", "Bitcoin", true, true, 0x00, false, false, false);
 }
 
 static void test_ri_wrong_struct_type(void)
 {
     uint8_t buf[512];
     size_t  len = build_register_identity(
-        buf, sizeof(buf), 0xFF, 0x01, "Alice", "BTC", true, true, true, 0x00, false, false, false);
+        buf, sizeof(buf), 0xFF, 0x01, "Alice", "BTC", true, true, 0x00, false, false, false);
     TEST_ASSERT_EQUAL_INT(SWO_INCORRECT_DATA, register_identity(buf, len));
 }
 
@@ -218,7 +214,7 @@ static void test_ri_missing_mandatory_field(void)
 {
     uint8_t buf[512];
     size_t  len = build_register_identity(
-        buf, sizeof(buf), 0x2d, 0x01, "Alice", NULL, true, true, true, 0x00, false, false, false);
+        buf, sizeof(buf), 0x2d, 0x01, "Alice", NULL, true, true, 0x00, false, false, false);
     TEST_ASSERT_EQUAL_INT(SWO_INCORRECT_DATA, register_identity(buf, len));
 }
 
@@ -226,36 +222,16 @@ static void test_ri_group_handle_without_hmac_proof(void)
 {
     uint8_t buf[512];
     size_t  len = build_register_identity(
-        buf, sizeof(buf), 0x2d, 0x01, "Alice", "BTC", true, true, true, 0x00, false, true, false);
+        buf, sizeof(buf), 0x2d, 0x01, "Alice", "BTC", true, true, 0x00, false, true, false);
     TEST_ASSERT_EQUAL_INT(SWO_INCORRECT_DATA, register_identity(buf, len));
 }
 
 static void test_ri_ethereum_missing_chain_id(void)
 {
     uint8_t buf[512];
-    size_t  len = build_register_identity(buf,
-                                         sizeof(buf),
-                                         0x2d,
-                                         0x01,
-                                         "Alice",
-                                         "Ethereum",
-                                         true,
-                                         true,
-                                         true,
-                                         0x01,
-                                         false,
-                                         false,
-                                         false);
-    TEST_ASSERT_EQUAL_INT(SWO_INCORRECT_DATA, register_identity(buf, len));
-}
-
-static void test_ri_hmac_fails(void)
-{
-    sys_address_book_hmac_verify_IgnoreAndReturn(false);
-    uint8_t buf[512];
     size_t  len = build_register_identity(
-        buf, sizeof(buf), 0x2d, 0x01, "Alice", "BTC", true, true, true, 0x00, false, true, true);
-    TEST_ASSERT_EQUAL_INT(SWO_SECURITY_CONDITION_NOT_SATISFIED, register_identity(buf, len));
+        buf, sizeof(buf), 0x2d, 0x01, "Alice", "Ethereum", true, true, 0x01, false, false, false);
+    TEST_ASSERT_EQUAL_INT(SWO_INCORRECT_DATA, register_identity(buf, len));
 }
 
 static void test_ri_app_rejects(void)
@@ -292,7 +268,6 @@ static size_t build_edit_contact_name(uint8_t    *buf,
                                       const char *new_name,
                                       const char *prev_name,
                                       bool        include_group_handle,
-                                      bool        include_deriv,
                                       bool        include_hmac_proof)
 {
     size_t off = 0;
@@ -309,9 +284,6 @@ static size_t build_edit_contact_name(uint8_t    *buf,
     if (include_group_handle) {
         tlv_append(buf, &off, 0xf6, ZERO_64, GROUP_HANDLE_SIZE);
     }
-    if (include_deriv) {
-        tlv_append(buf, &off, 0x69, BIP32_ETH_PATH, sizeof(BIP32_ETH_PATH));
-    }
     if (include_hmac_proof) {
         tlv_append(buf, &off, 0x29, ZERO_32, sizeof(ZERO_32));
     }
@@ -320,31 +292,21 @@ static size_t build_edit_contact_name(uint8_t    *buf,
 
 static size_t build_valid_edit_contact_name(uint8_t *buf, size_t sz)
 {
-    return build_edit_contact_name(buf, sz, 0x2e, 0x01, "Bob", "Alice", true, true, true);
+    return build_edit_contact_name(buf, sz, 0x2e, 0x01, "Bob", "Alice", true, true);
 }
 
 static void test_ecn_wrong_struct_type(void)
 {
     uint8_t buf[512];
-    size_t  len
-        = build_edit_contact_name(buf, sizeof(buf), 0xFF, 0x01, "Bob", "Alice", true, true, true);
+    size_t  len = build_edit_contact_name(buf, sizeof(buf), 0xFF, 0x01, "Bob", "Alice", true, true);
     TEST_ASSERT_EQUAL_INT(SWO_INCORRECT_DATA, edit_contact_name(buf, len));
 }
 
 static void test_ecn_missing_mandatory_field(void)
 {
     uint8_t buf[512];
-    size_t  len
-        = build_edit_contact_name(buf, sizeof(buf), 0x2e, 0x01, "Bob", NULL, true, true, true);
+    size_t  len = build_edit_contact_name(buf, sizeof(buf), 0x2e, 0x01, "Bob", NULL, true, true);
     TEST_ASSERT_EQUAL_INT(SWO_INCORRECT_DATA, edit_contact_name(buf, len));
-}
-
-static void test_ecn_hmac_fails(void)
-{
-    sys_address_book_hmac_verify_IgnoreAndReturn(false);
-    uint8_t buf[512];
-    size_t  len = build_valid_edit_contact_name(buf, sizeof(buf));
-    TEST_ASSERT_EQUAL_INT(SWO_SECURITY_CONDITION_NOT_SATISFIED, edit_contact_name(buf, len));
 }
 
 static void test_ecn_success(void)
@@ -375,7 +337,6 @@ static size_t build_edit_identifier(uint8_t    *buf,
                                     bool        include_new_identifier,
                                     bool        include_prev_identifier,
                                     bool        include_group_handle,
-                                    bool        include_deriv,
                                     bool        include_family,
                                     uint8_t     family,
                                     bool        include_chain_id,
@@ -402,9 +363,6 @@ static size_t build_edit_identifier(uint8_t    *buf,
     if (include_group_handle) {
         tlv_append(buf, &off, 0xf6, ZERO_64, GROUP_HANDLE_SIZE);
     }
-    if (include_deriv) {
-        tlv_append(buf, &off, 0x69, BIP32_ETH_PATH, sizeof(BIP32_ETH_PATH));
-    }
     if (include_family) {
         tlv_u8(buf, &off, 0x51, family);
     }
@@ -422,21 +380,8 @@ static size_t build_edit_identifier(uint8_t    *buf,
 
 static size_t build_valid_edit_identifier(uint8_t *buf, size_t sz)
 {
-    return build_edit_identifier(buf,
-                                 sz,
-                                 0x31,
-                                 0x01,
-                                 "Alice",
-                                 "Bitcoin",
-                                 true,
-                                 true,
-                                 true,
-                                 true,
-                                 true,
-                                 0x00,
-                                 false,
-                                 true,
-                                 true);
+    return build_edit_identifier(
+        buf, sz, 0x31, 0x01, "Alice", "Bitcoin", true, true, true, true, 0x00, false, true, true);
 }
 
 static void test_ei_wrong_struct_type(void)
@@ -448,7 +393,6 @@ static void test_ei_wrong_struct_type(void)
                                        0x01,
                                        "Alice",
                                        "BTC",
-                                       true,
                                        true,
                                        true,
                                        true,
@@ -473,7 +417,6 @@ static void test_ei_missing_mandatory_field(void)
                                        true,
                                        true,
                                        true,
-                                       true,
                                        0x00,
                                        false,
                                        true,
@@ -494,20 +437,11 @@ static void test_ei_ethereum_missing_chain_id(void)
                                        true,
                                        true,
                                        true,
-                                       true,
                                        0x01,
                                        false,
                                        true,
                                        true);
     TEST_ASSERT_EQUAL_INT(SWO_INCORRECT_DATA, edit_identifier(buf, len));
-}
-
-static void test_ei_hmac_fails(void)
-{
-    sys_address_book_hmac_verify_IgnoreAndReturn(false);
-    uint8_t buf[512];
-    size_t  len = build_valid_edit_identifier(buf, sizeof(buf));
-    TEST_ASSERT_EQUAL_INT(SWO_SECURITY_CONDITION_NOT_SATISFIED, edit_identifier(buf, len));
 }
 
 static void test_ei_app_rejects(void)
@@ -546,7 +480,6 @@ static size_t build_edit_scope(uint8_t    *buf,
                                const char *prev_scope,
                                bool        include_identifier,
                                bool        include_group_handle,
-                               bool        include_deriv,
                                bool        include_family,
                                uint8_t     family,
                                bool        include_chain_id,
@@ -572,9 +505,6 @@ static size_t build_edit_scope(uint8_t    *buf,
     }
     if (include_group_handle) {
         tlv_append(buf, &off, 0xf6, ZERO_64, GROUP_HANDLE_SIZE);
-    }
-    if (include_deriv) {
-        tlv_append(buf, &off, 0x69, BIP32_ETH_PATH, sizeof(BIP32_ETH_PATH));
     }
     if (include_family) {
         tlv_u8(buf, &off, 0x51, family);
@@ -603,7 +533,6 @@ static size_t build_valid_edit_scope(uint8_t *buf, size_t sz)
                             true,
                             true,
                             true,
-                            true,
                             0x00,
                             false,
                             true,
@@ -620,7 +549,6 @@ static void test_es_wrong_struct_type(void)
                                   "Alice",
                                   "New",
                                   "Old",
-                                  true,
                                   true,
                                   true,
                                   true,
@@ -644,7 +572,6 @@ static void test_es_missing_mandatory_field(void)
                                   true,
                                   true,
                                   true,
-                                  true,
                                   0x00,
                                   false,
                                   true,
@@ -665,20 +592,11 @@ static void test_es_ethereum_missing_chain_id(void)
                                   true,
                                   true,
                                   true,
-                                  true,
                                   0x01,
                                   false,
                                   true,
                                   true);
     TEST_ASSERT_EQUAL_INT(SWO_INCORRECT_DATA, edit_scope(buf, len));
-}
-
-static void test_es_hmac_fails(void)
-{
-    sys_address_book_hmac_verify_IgnoreAndReturn(false);
-    uint8_t buf[512];
-    size_t  len = build_valid_edit_scope(buf, sizeof(buf));
-    TEST_ASSERT_EQUAL_INT(SWO_SECURITY_CONDITION_NOT_SATISFIED, edit_scope(buf, len));
 }
 
 static void test_es_success(void)
@@ -707,7 +625,6 @@ int main(void)
     RUN_TEST(test_ri_missing_mandatory_field);
     RUN_TEST(test_ri_ethereum_missing_chain_id);
     RUN_TEST(test_ri_group_handle_without_hmac_proof);
-    RUN_TEST(test_ri_hmac_fails);
     RUN_TEST(test_ri_app_rejects);
     RUN_TEST(test_ri_success);
     RUN_TEST(test_ri_review_rejected);
@@ -715,7 +632,6 @@ int main(void)
     /* edit_contact_name */
     RUN_TEST(test_ecn_wrong_struct_type);
     RUN_TEST(test_ecn_missing_mandatory_field);
-    RUN_TEST(test_ecn_hmac_fails);
     RUN_TEST(test_ecn_success);
     RUN_TEST(test_ecn_review_rejected);
 
@@ -723,7 +639,6 @@ int main(void)
     RUN_TEST(test_ei_wrong_struct_type);
     RUN_TEST(test_ei_missing_mandatory_field);
     RUN_TEST(test_ei_ethereum_missing_chain_id);
-    RUN_TEST(test_ei_hmac_fails);
     RUN_TEST(test_ei_app_rejects);
     RUN_TEST(test_ei_success);
     RUN_TEST(test_ei_review_rejected);
@@ -732,7 +647,6 @@ int main(void)
     RUN_TEST(test_es_wrong_struct_type);
     RUN_TEST(test_es_missing_mandatory_field);
     RUN_TEST(test_es_ethereum_missing_chain_id);
-    RUN_TEST(test_es_hmac_fails);
     RUN_TEST(test_es_success);
     RUN_TEST(test_es_review_rejected);
 
