@@ -90,7 +90,8 @@ int main(void);
 int compute_address_location(int address)
 {
     // Compute location before relocation (sort of anti PIC)
-    return address - (unsigned int) main + MAIN_LINKER_SCRIPT_LOCATION;
+    return (int) ((uintptr_t) (unsigned int) address - (uintptr_t) main
+                  + MAIN_LINKER_SCRIPT_LOCATION);
 }
 
 void os_longjmp(unsigned int exception)
