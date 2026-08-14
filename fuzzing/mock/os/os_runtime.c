@@ -72,3 +72,17 @@ uint32_t USBD_LL_GetRxDataSize(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
     (void) ep_addr;
     return 0;
 }
+
+void nvm_write(void *dst_adr, void *src_adr, unsigned int src_len)
+{
+    if (dst_adr == NULL || src_len == 0) {
+        return;
+    }
+
+    if (src_adr == NULL) {
+        memset(dst_adr, 0, src_len);
+    }
+    else {
+        memcpy(dst_adr, src_adr, src_len);
+    }
+}
