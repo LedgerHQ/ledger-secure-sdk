@@ -49,6 +49,7 @@ option(FUZZ_ENABLE_SOURCE_COVERAGE
 set(_FUZZ_BASE_COMPILATION_FLAGS
     -fno-common
     -std=gnu99
+    -DFUZZING
     -Wall
     -Wextra
     -Wno-main
