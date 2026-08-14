@@ -37,7 +37,6 @@ set(LIB_MOCK_SOURCES
     ${BOLOS_SDK}/fuzzing/mock/nbgl/nbgl_use_case.c
     ${BOLOS_SDK}/fuzzing/mock/os/os_exceptions.c
     ${BOLOS_SDK}/fuzzing/mock/os/os_runtime.c
-    ${BOLOS_SDK}/fuzzing/mock/os/pic.c
     ${BOLOS_SDK}/fuzzing/mock/fuzz_mutator.c
     ${BOLOS_SDK}/fuzzing/mock/fuzz_runtime.c
     ${BOLOS_SDK}/fuzzing/mock/pki/ledger_pki_policy.c
