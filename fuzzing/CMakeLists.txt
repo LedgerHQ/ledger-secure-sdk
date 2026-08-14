@@ -49,6 +49,7 @@ option(FUZZ_ENABLE_SOURCE_COVERAGE
 set(_FUZZ_BASE_COMPILATION_FLAGS
     -fno-common
     -std=gnu99
+    -DFUZZING
     -Wall
     -Wextra
     -Wno-main
@@ -168,6 +169,10 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
     "fuzzing/ is not a standalone build entry point. Build the SDK self-fuzz "
     "targets via fuzzing/sdk-fuzz, or an app via its own fuzzing/ directory.")
 endif()
+
+# Expose fuzzing/include/ to all intermediate static libraries (standard_app,
+# tlv, etc.) so that our string.h wrapper is on the path when they compile.
+include_directories("${BOLOS_SDK}/fuzzing/include")
 
 # Each lib_*.cmake aggregator pulls in mock.cmake (which defines `mock`).
 foreach(_lib alloc cxng glyphs io lists nbgl nfc pki qrcode standard_app tlv)
