@@ -11,7 +11,7 @@
       "hidden": true,
       "description": "Unit tests, built and run on the host with GCC.",
       "toolchainFile": "$env{BOLOS_SDK}/cmake/toolchains/toolchain_gcc_x86.cmake",
-      "binaryDir": "${sourceDir}/build-cmake/${presetName}",
+      "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
         "BUILD_UNIT_TESTS": "ON",
         "CMAKE_BUILD_TYPE": "Debug",
@@ -29,7 +29,7 @@
       "hidden": true,
       "description": "Armv8-M device app (stax, flex, nanos2, apex_p, apex_m).",
       "toolchainFile": "$env{BOLOS_SDK}/cmake/toolchains/toolchain_clang_cm33.cmake",
-      "binaryDir": "${sourceDir}/build-cmake/${presetName}",
+      "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
@@ -41,7 +41,7 @@
       "hidden": true,
       "description": "Armv7-M device app (nanox).",
       "toolchainFile": "$env{BOLOS_SDK}/cmake/toolchains/toolchain_clang_cm3.cmake",
-      "binaryDir": "${sourceDir}/build-cmake/${presetName}",
+      "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",

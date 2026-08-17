@@ -36,6 +36,9 @@ option(ENABLE_NBGL_KEYPAD "NBGL keypad support" OFF)
 option(ENABLE_SWAP "Build with the swap feature" OFF)
 option(ENABLE_TESTING_SWAP "Build with the swap feature, Speculos only" OFF)
 
+# Makefile.standard_app:130-132
+option(DEBUG_OS_STACK_CONSUMPTION "Track the stack consumption of the OS" OFF)
+
 option(DISABLE_STANDARD_USB "Drop the USB stack" OFF)
 option(DISABLE_STANDARD_WEBUSB "Drop WebUSB" OFF)
 option(DISABLE_STANDARD_U2F "Drop the U2F transport" OFF)
@@ -147,6 +150,10 @@ endif()
 
 if(ENABLE_SWAP OR ENABLE_TESTING_SWAP)
     target_compile_definitions(ledger_target_profile INTERFACE HAVE_SWAP)
+endif()
+
+if(DEBUG_OS_STACK_CONSUMPTION)
+    target_compile_definitions(ledger_target_profile INTERFACE DEBUG_OS_STACK_CONSUMPTION=1)
 endif()
 
 
