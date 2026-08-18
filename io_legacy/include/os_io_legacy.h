@@ -56,9 +56,6 @@ extern unsigned char G_io_asynch_ux_callback;
 
 /* Exported variables --------------------------------------------------------*/
 extern unsigned char G_io_seproxyhal_spi_buffer[OS_IO_SEPH_BUFFER_SIZE];
-#ifdef HAVE_NFC_READER
-extern struct nfc_reader_context G_io_reader_ctx;
-#endif  // HAVE_NFC_READER
 
 /* Exported functions prototypes--------------------------------------------- */
 SYSCALL void io_seph_send(const unsigned char *buffer PLENGTH(length), unsigned short length);
@@ -98,14 +95,3 @@ unsigned char io_event(unsigned char channel);
 
 int io_legacy_apdu_rx(uint8_t handle_ux_events);
 int io_legacy_apdu_tx(const unsigned char *buffer, unsigned short length);
-
-#ifdef HAVE_NFC_READER
-bool io_nfc_reader_send(const uint8_t      *cmd_data,
-                        size_t              cmd_len,
-                        nfc_resp_callback_t callback,
-                        int                 timeout_ms);
-
-/* Return false if nfc reader can not be started in current conditions */
-bool io_nfc_reader_start(nfc_evt_callback_t callback);
-void io_nfc_reader_stop(void);
-#endif  // HAVE_NFC_READER
