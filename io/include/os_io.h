@@ -46,6 +46,7 @@ typedef enum {
     OS_IO_PACKET_TYPE_USB_U2F_HID_CANCEL = 0x25,
     OS_IO_PACKET_TYPE_USB_U2F_HID_RAW    = 0x26,
     OS_IO_PACKET_TYPE_USB_CDC_RAW        = 0x29,
+    OS_IO_PACKET_TYPE_USB_IAP_APDU       = 0x2A,
 
     OS_IO_PACKET_TYPE_BLE_MASK     = 0x30,
     OS_IO_PACKET_TYPE_BLE_APDU     = 0x30,
@@ -69,6 +70,7 @@ typedef enum {
     APDU_TYPE_USB_U2F_CANCEL = OS_IO_PACKET_TYPE_USB_U2F_HID_CANCEL,
     APDU_TYPE_BLE            = OS_IO_PACKET_TYPE_BLE_APDU,
     APDU_TYPE_NFC            = OS_IO_PACKET_TYPE_NFC_APDU,
+    APDU_TYPE_IAP            = OS_IO_PACKET_TYPE_USB_IAP_APDU,
 } apdu_type_t;
 
 typedef enum {
