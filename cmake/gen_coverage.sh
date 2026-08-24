@@ -4,9 +4,13 @@ set -e
 
 # Categories are listed twice: first to demote fatal errors to warnings,
 # second to suppress the warning message (lcov convention).
+<<<<<<< Updated upstream
 IGNORE_ERRORS=(--ignore-errors "negative,negative,gcov,gcov,inconsistent,inconsistent,corrupt,corrupt,unused,unused")
 # genhtml rejects the 'gcov' category, which only lcov accepts.
 GENHTML_IGNORE_ERRORS=(--ignore-errors "negative,negative,inconsistent,inconsistent,corrupt,corrupt,unused,unused")
+=======
+IGNORE_ERRORS=(--ignore-errors "negative,negative,inconsistent,inconsistent,corrupt,corrupt,unused,unused")
+>>>>>>> Stashed changes
 
 build_dir="$(realpath .)"
 
