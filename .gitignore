@@ -30,3 +30,4 @@ fuzzing/sdk-fuzz/mock/scenario_layout.h
 
 # LSP
 compile_commands.json
+build-cmake/

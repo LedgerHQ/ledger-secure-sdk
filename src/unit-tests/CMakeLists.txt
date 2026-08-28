@@ -1,15 +1,11 @@
-cmake_minimum_required(VERSION 3.10)
-project(unit_tests_print LANGUAGES C)
+project(unit_tests_src LANGUAGES C)
 
-set(SDK_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
-include(${SDK_DIR}/cmake/LedgerUT.cmake)
-
-ledger_unit_tests_init()
+# LedgerUT and ledger_unit_tests_init() live in the root CMakeLists.txt.
 
 ledger_unit_tests_add_test(
     NAME            test_print
-    SOURCES         ${SDK_DIR}/src/os_printf.c
-    MOCK_HEADERS    ${SDK_DIR}/io/include/os_io_seph_cmd.h
+    SOURCES         ${LEDGER_SDK_ROOT}/src/os_printf.c
+    MOCK_HEADERS    ${LEDGER_SDK_ROOT}/io/include/os_io_seph_cmd.h
     INCLUDE_DIRS    ${CMAKE_CURRENT_SOURCE_DIR}
                     /usr/include/bsd
                     ${UT_INCLUDE_DIRS_SDK}
