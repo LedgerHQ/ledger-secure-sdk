@@ -16,6 +16,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "ledger_protocol.h"
+#include "os_io_seph_cmd.h"
 #include "usbd_desc.h"
 #include "usbd_ioreq.h"
 #include "usbd_ledger.h"
@@ -196,6 +197,8 @@ USBD_StatusTypeDef USBD_LEDGER_HID_init(USBD_HandleTypeDef *pdev, void *cookie)
         goto error;
     }
 
+    os_io_seph_cmd_usb_ep_auto_rearm(LEDGER_HID_EPOUT_ADDR, true);
+
     status = USBD_LL_PrepareReceive(pdev, LEDGER_HID_EPOUT_ADDR, NULL, LEDGER_HID_EPOUT_SIZE);
 
 error:
@@ -206,6 +209,8 @@ USBD_StatusTypeDef USBD_LEDGER_HID_de_init(USBD_HandleTypeDef *pdev, void *cooki
 {
     UNUSED(pdev);
     UNUSED(cookie);
+
+    os_io_seph_cmd_usb_ep_auto_rearm(LEDGER_HID_EPOUT_ADDR, false);
 
     return USBD_OK;
 }

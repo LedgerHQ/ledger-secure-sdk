@@ -150,6 +150,19 @@ int os_io_seph_cmd_usb_disconnect(void)
         OS_IO_PACKET_TYPE_SEPH, seph_io_usb_disconnect, sizeof(seph_io_usb_disconnect), NULL);
 }
 
+int os_io_seph_cmd_usb_ep_auto_rearm(uint8_t ep_addr, bool enable)
+{
+    uint8_t buffer[6] = {
+        SEPROXYHAL_TAG_USB_CONFIG,
+        0,
+        3,
+        SEPROXYHAL_TAG_USB_CONFIG_AUTO_REARM,
+        ep_addr,
+        enable ? 1 : 0,
+    };
+    return os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, sizeof(buffer), NULL);
+}
+
 int os_io_seph_cmd_mcu_status(void)
 {
     return os_io_tx_cmd(

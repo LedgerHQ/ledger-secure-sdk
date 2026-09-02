@@ -248,6 +248,7 @@ enum seph_protocol_cmd_usb_config_type {
     SEPROXYHAL_TAG_USB_CONFIG_DISCONNECT = 0x02,
     SEPROXYHAL_TAG_USB_CONFIG_ADDR       = 0x03,
     SEPROXYHAL_TAG_USB_CONFIG_ENDPOINTS  = 0x04,
+    SEPROXYHAL_TAG_USB_CONFIG_AUTO_REARM = 0x05,
 };
 enum seph_protocol_cmd_usb_config_end_point_type {
     SEPROXYHAL_TAG_USB_CONFIG_TYPE_DISABLED    = 0x00,
