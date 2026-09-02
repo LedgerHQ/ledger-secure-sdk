@@ -16,6 +16,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "ledger_protocol.h"
+#include "os_io_seph_cmd.h"
 #include "usbd_ioreq.h"
 #include "usbd_ledger.h"
 #include "usbd_ledger_webusb.h"
@@ -262,6 +263,8 @@ const usbd_class_info_t USBD_LEDGER_WEBUSB_class_info = {
 
 /* Private functions ---------------------------------------------------------*/
 
+#define USB_OPTIM_ENABLED 1
+
 /* Exported functions --------------------------------------------------------*/
 USBD_StatusTypeDef USBD_LEDGER_WEBUSB_init(USBD_HandleTypeDef *pdev, void *cookie)
 {
@@ -285,6 +288,8 @@ USBD_StatusTypeDef USBD_LEDGER_WEBUSB_init(USBD_HandleTypeDef *pdev, void *cooki
         goto error;
     }
 
+    os_io_seph_cmd_usb_ep_auto_rearm(LEDGER_WEBUSB_EPOUT_ADDR, USB_OPTIM_ENABLED);
+
     status = USBD_LL_PrepareReceive(pdev, LEDGER_WEBUSB_EPOUT_ADDR, NULL, LEDGER_WEBUSB_EPOUT_SIZE);
 
 error:
@@ -295,6 +300,8 @@ USBD_StatusTypeDef USBD_LEDGER_WEBUSB_de_init(USBD_HandleTypeDef *pdev, void *co
 {
     UNUSED(pdev);
     UNUSED(cookie);
+
+    os_io_seph_cmd_usb_ep_auto_rearm(LEDGER_WEBUSB_EPOUT_ADDR, false);
 
     return USBD_OK;
 }
@@ -376,7 +383,11 @@ USBD_StatusTypeDef USBD_LEDGER_WEBUSB_data_in(USBD_HandleTypeDef *pdev,
                                  NULL,
                                  0,
                                  USBD_LEDGER_protocol_chunk_buffer,
+#if USB_OPTIM_ENABLED
+                                 handle->protocol_data.tx_chunk_length,
+#else
                                  sizeof(USBD_LEDGER_protocol_chunk_buffer),
+#endif
                                  sizeof(USBD_LEDGER_protocol_chunk_buffer));
         if (result != LP_SUCCESS) {
             goto error;
@@ -466,7 +477,11 @@ USBD_StatusTypeDef USBD_LEDGER_WEBUSB_send_packet(USBD_HandleTypeDef *pdev,
                 ret           = USBD_LL_Transmit(pdev,
                                        LEDGER_WEBUSB_EPIN_ADDR,
                                        USBD_LEDGER_protocol_chunk_buffer,
+#if USB_OPTIM_ENABLED
+                                       handle->protocol_data.tx_chunk_length,
+#else
                                        sizeof(USBD_LEDGER_protocol_chunk_buffer),
+#endif
                                        timeout_ms);
             }
             else {

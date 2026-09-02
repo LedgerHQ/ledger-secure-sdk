@@ -38,7 +38,6 @@
 /* Private enumerations ------------------------------------------------------*/
 typedef enum {
     USBD_LEDGER_STATE_INITIALIZED = 0xA0,
-
     USBD_LEDGER_STATE_RUNNING,
     USBD_LEDGER_STATE_STOPPED,
 } usb_ledger_state_t;
