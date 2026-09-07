@@ -271,7 +271,8 @@ int os_io_rx_evt(unsigned char *buffer,
         length = (uint16_t) status;
     }
 
-    if (length > buffer_max_length) {
+    // USB_APDU_EVENT writes to USBD_LEDGER_io_buffer, not to buffer — skip the size guard
+    if ((G_io_seph_buffer[1] != SEPROXYHAL_TAG_USB_APDU_EVENT) && (length > buffer_max_length)) {
         status = -22;  // EINVAL
         goto error;
     }
@@ -280,6 +281,7 @@ int os_io_rx_evt(unsigned char *buffer,
 #ifdef HAVE_IO_USB
         case SEPROXYHAL_TAG_USB_EVENT:
         case SEPROXYHAL_TAG_USB_EP_XFER_EVENT:
+        case SEPROXYHAL_TAG_USB_APDU_EVENT:
             status = USBD_LEDGER_rx_seph_evt(G_io_seph_buffer, length, buffer, buffer_max_length);
             break;
 #endif  // HAVE_IO_USB

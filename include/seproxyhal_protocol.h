@@ -180,6 +180,9 @@ enum seph_protocol_evt_nfc_card_detected_type {
 // EVT : SE_READY_TO_RECEIVE_START_SESSION_EVENT
 #define SEPROXYHAL_TAG_SE_READY_TO_RECEIVE_START_SESSION_EVENT (0x1F)
 
+// EVT : USB APDU EVENT (APDU assembled by MCU from USB chunks)
+#define SEPROXYHAL_TAG_USB_APDU_EVENT (0x20)
+
 //////////////
 // COMMANDS //
 //////////////

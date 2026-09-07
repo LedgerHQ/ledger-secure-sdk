@@ -62,4 +62,9 @@ int32_t USBD_LEDGER_WEBUSB_data_ready(USBD_HandleTypeDef *pdev,
                                       uint8_t            *buffer,
                                       uint16_t            max_length);
 
+int32_t USBD_LEDGER_WEBUSB_rx_assembled_apdu(void          *cookie,
+                                             uint16_t       channel_id,
+                                             const uint8_t *data,
+                                             uint16_t       length);
+
 #endif  // USBD_LEDGER_WEBUSB_H

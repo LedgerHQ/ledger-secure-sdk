@@ -960,6 +960,29 @@ int USBD_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
                 break;
         }
     }
+    else if (seph_buffer[1] == SEPROXYHAL_TAG_USB_APDU_EVENT) {
+        // Payload: [channel_H | channel_L | ep_num | apdu...]
+        if (seph_buffer_length < 7) {
+            goto error;
+        }
+        uint16_t channel_id  = (uint16_t) U2BE(seph_buffer, 4);
+        uint8_t  ep_num      = seph_buffer[6] & 0x7F;
+        uint16_t apdu_length = seph_buffer_length - 7;
+
+        usbd_class_info_t     *class_info     = NULL;
+        usbd_end_point_info_t *end_point_info = NULL;
+        uint8_t                index          = 0;
+        for (index = 0; index < usbd_ledger_data.nb_of_class; index++) {
+            class_info     = usbd_ledger_data.class[index];
+            end_point_info = (usbd_end_point_info_t *) PIC(class_info->end_point);
+            if (((end_point_info->ep_out_addr & 0x7F) == ep_num) && class_info->rx_assembled_apdu) {
+                ((usbd_rx_assembled_apdu_t) PIC(class_info->rx_assembled_apdu))(
+                    class_info->cookie, channel_id, &seph_buffer[7], apdu_length);
+                break;
+            }
+        }
+        status = USBD_LEDGER_data_ready(apdu_buffer, apdu_buffer_max_length);
+    }
     else {
         return -1;
     }
