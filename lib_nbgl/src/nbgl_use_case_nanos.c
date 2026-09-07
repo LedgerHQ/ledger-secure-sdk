@@ -48,6 +48,7 @@ typedef struct ReviewContext_s {
 
 typedef struct ChoiceContext_s {
     const nbgl_icon_details_t   *icon;
+    const char                  *title;  ///< if not NULL, message and subMessage get their own page
     const char                  *message;
     const char                  *subMessage;
     const char                  *confirmText;
@@ -1807,48 +1808,88 @@ static void displayHomePage(nbgl_stepPosition_t pos)
     nbgl_refresh();
 }
 
+// An intro page of a choice flow displays the header text and, below it, at most one other
+// element, as a step cannot hold more. Those elements take one page each, in this order:
+//   1. the icon, if any
+//   2. the message, when the advanced flow uses the title as header text
+//   3. the subMessage, if any
+// The header text is the title of the advanced flow, or the message of the basic one, in which
+// case only the subMessage is left below it.
+
+// Number of pages displayed before the (optional) detail pages and the confirm/cancel ones.
+static uint8_t getChoiceNbIntroPages(void)
+{
+    uint8_t nbPages = 0;
+
+    // no intro at all without a header text
+    if ((context.choice.title == NULL) && (context.choice.message == NULL)) {
+        return 0;
+    }
+    if (context.choice.icon != NULL) {
+        nbPages++;
+    }
+    if ((context.choice.title != NULL) && (context.choice.message != NULL)) {
+        nbPages++;
+    }
+    if (context.choice.subMessage != NULL) {
+        nbPages++;
+    }
+    // the header text still needs a page of its own when nothing goes below it
+    return (nbPages > 0) ? nbPages : 1;
+}
+
+// Text to display under the header text on the given (0-based) intro page, NULL if this page
+// displays the icon instead, or if nothing is left to display below the header.
+static const char *getChoiceIntroSubText(uint8_t page)
+{
+    // Page holding the element being examined. The elements are walked in display order and each
+    // one that is given takes a page, pushing the following ones one page further: when elemPage
+    // reaches the requested page, the element examined at that point is the one to display.
+    uint8_t elemPage = 0;
+
+    if (context.choice.icon != NULL) {
+        if (page == elemPage) {
+            // the icon takes the whole page next to the header text
+            return NULL;
+        }
+        elemPage++;
+    }
+    if ((context.choice.title != NULL) && (context.choice.message != NULL)) {
+        // in the advanced flow the header text is the title, so the message goes below it
+        if (page == elemPage) {
+            return context.choice.message;
+        }
+        elemPage++;
+    }
+    // the subMessage closes the intro, on the last page
+    return (page == elemPage) ? context.choice.subMessage : NULL;
+}
+
 // function used to display the current page in choice
 static void displayChoicePage(nbgl_stepPosition_t pos)
 {
     const char                *text    = NULL;
     const char                *subText = NULL;
     const nbgl_icon_details_t *icon    = NULL;
-    // set to 1 if there is only one page for intro (if either icon or subMessage is NULL)
-    // acceptPage = number of intro pages:
-    //   0 if no message, 1 if message with icon OR subMessage only, 2 if both icon and subMessage
-    uint8_t acceptPage = 0;
+    // acceptPage = number of intro pages, see getChoiceNbIntroPages()
+    uint8_t acceptPage = getChoiceNbIntroPages();
     // nbDetailPages = number of BAR_LIST bar pages shown before confirm/cancel (0 if none)
     // Page order: intro(s) | bar pages | confirm | cancel
     uint8_t nbDetailPages = 0;
 
-    if (context.choice.message != NULL) {
-        if ((context.choice.icon == NULL) || (context.choice.subMessage == NULL)) {
-            acceptPage = 1;
-        }
-        else {
-            acceptPage = 2;
-        }
-    }
     if ((context.choice.details != NULL) && (context.choice.details->type == BAR_LIST_WARNING)) {
         nbDetailPages = context.choice.details->barList.nbBars;
     }
     context.stepCallback = NULL;
 
     if (context.currentPage < acceptPage) {
-        if (context.currentPage == 0) {  // title page
-            text = context.choice.message;
-            if (context.choice.icon != NULL) {
-                icon = context.choice.icon;
-            }
-            else {
-                subText = context.choice.subMessage;
-            }
+        // the header text is repeated on every intro page, the icon (if any) is on the first one
+        // and each remaining text gets a page of its own, see getChoiceIntroSubText()
+        text = (context.choice.title != NULL) ? context.choice.title : context.choice.message;
+        if (context.currentPage == 0) {
+            icon = context.choice.icon;
         }
-        else if ((acceptPage == 2) && (context.currentPage == 1)) {  // sub-title page
-            // displayed only if there is both icon and subMessage
-            text    = context.choice.message;
-            subText = context.choice.subMessage;
-        }
+        subText = getChoiceIntroSubText(context.currentPage);
     }
     else if (context.currentPage < (acceptPage + nbDetailPages)) {
         // BAR_LIST detail pages, shown before confirm/cancel (one page per bar)
@@ -3215,6 +3256,39 @@ void nbgl_useCaseChoice(const nbgl_icon_details_t *icon,
         icon, message, subMessage, confirmText, cancelText, NULL, callback);
 };
 
+// Common implementation of the choice flows. title is NULL for the basic ones, in which case
+// message and subMessage share the same page.
+static void startChoice(const nbgl_icon_details_t *icon,
+                        const char                *title,
+                        const char                *message,
+                        const char                *subMessage,
+                        const char                *confirmText,
+                        const char                *cancelText,
+                        nbgl_genericDetails_t     *details,
+                        nbgl_choiceCallback_t      callback)
+{
+    memset(&context, 0, sizeof(UseCaseContext_t));
+    context.type               = CHOICE_USE_CASE;
+    context.choice.icon        = icon;
+    context.choice.title       = title;
+    context.choice.message     = message;
+    context.choice.subMessage  = subMessage;
+    context.choice.confirmText = confirmText;
+    context.choice.cancelText  = cancelText;
+    context.choice.onChoice    = callback;
+    context.choice.details     = details;
+    context.currentPage        = 0;
+    context.nbPages            = 2 + getChoiceNbIntroPages();  // 2 pages for confirm/cancel
+    if (details != NULL) {
+        // only the first level of details and BAR_LIST type are supported
+        if (details->type == BAR_LIST_WARNING) {
+            context.nbPages += details->barList.nbBars;
+        }
+    }
+
+    displayChoicePage(FORWARD_DIRECTION);
+}
+
 /**
  * @brief Draws a generic choice flow, starting with a centered info, and then two pages, one to
  * accept, the other to refuse. Then, additional pages are added to display the given details The
@@ -3237,38 +3311,11 @@ void nbgl_useCaseChoiceWithDetails(const nbgl_icon_details_t *icon,
                                    nbgl_genericDetails_t     *details,
                                    nbgl_choiceCallback_t      callback)
 {
-    memset(&context, 0, sizeof(UseCaseContext_t));
-    context.type               = CHOICE_USE_CASE;
-    context.choice.icon        = icon;
-    context.choice.message     = message;
-    context.choice.subMessage  = subMessage;
-    context.choice.confirmText = confirmText;
-    context.choice.cancelText  = cancelText;
-    context.choice.onChoice    = callback;
-    context.choice.details     = details;
-    context.currentPage        = 0;
-    context.nbPages            = 2;  // 2 pages for confirm/cancel
-    if (message != NULL) {
-        context.nbPages++;
-        // if both icon and subMessage are non NULL, add a page
-        if ((icon != NULL) && (subMessage != NULL)) {
-            context.nbPages++;
-        }
-    }
-    if (details != NULL) {
-        // only the first level of details and BAR_LIST type are supported
-        if (details->type == BAR_LIST_WARNING) {
-            context.nbPages += details->barList.nbBars;
-        }
-    }
-
-    displayChoicePage(FORWARD_DIRECTION);
+    startChoice(icon, NULL, message, subMessage, confirmText, cancelText, details, callback);
 };
 
-// On Nano, the advanced variant falls back to the basic one:
-// - title     → message  (first text line)
-// - message   → subMessage (second text line; subMessage/gray address is not shown)
-// - headerIcon is ignored (no top-right button on Nano)
+// On Nano, the three texts of the advanced variant are spread over one page each, the title
+// being kept as the first line of all of them. headerIcon is ignored (no top-right button).
 void nbgl_useCaseAdvancedChoiceWithDetails(const nbgl_icon_details_t *centerIcon,
                                            const nbgl_icon_details_t *headerIcon,
                                            const char                *title,
@@ -3280,9 +3327,7 @@ void nbgl_useCaseAdvancedChoiceWithDetails(const nbgl_icon_details_t *centerIcon
                                            nbgl_choiceCallback_t      callback)
 {
     UNUSED(headerIcon);
-    UNUSED(subMessage);
-    nbgl_useCaseChoiceWithDetails(
-        centerIcon, title, message, confirmText, cancelText, details, callback);
+    startChoice(centerIcon, title, message, subMessage, confirmText, cancelText, details, callback);
 }
 
 /**
