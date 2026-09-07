@@ -210,15 +210,11 @@ size_t LLVMFuzzerCustomMutator(uint8_t *data, size_t size, size_t max_size, unsi
 /* ── OS syscall stubs ────────────────────────────────────────────────────── */
 
 /* HMAC always succeeds and produces a deterministic 32-byte output of 0xAB. */
-bool sys_address_book_hmac(const uint32_t        *bip32_path,
-                           size_t                 bip32_path_len,
-                           ADDRESS_BOOK_salt_id_t salt_id,
+bool sys_address_book_hmac(ADDRESS_BOOK_salt_id_t salt_id,
                            const uint8_t         *message,
                            size_t                 message_len,
                            uint8_t                hmac_out[32])
 {
-    (void) bip32_path;
-    (void) bip32_path_len;
     (void) salt_id;
     (void) message;
     (void) message_len;
@@ -227,15 +223,11 @@ bool sys_address_book_hmac(const uint32_t        *bip32_path,
 }
 
 /* HMAC verify always succeeds, enabling the happy path through all flows. */
-bool sys_address_book_hmac_verify(const uint32_t        *bip32_path,
-                                  size_t                 bip32_path_len,
-                                  ADDRESS_BOOK_salt_id_t salt_id,
+bool sys_address_book_hmac_verify(ADDRESS_BOOK_salt_id_t salt_id,
                                   const uint8_t         *message,
                                   size_t                 message_len,
                                   const uint8_t          hmac_expected[32])
 {
-    (void) bip32_path;
-    (void) bip32_path_len;
     (void) salt_id;
     (void) message;
     (void) message_len;
