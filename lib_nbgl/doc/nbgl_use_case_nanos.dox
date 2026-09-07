@@ -370,9 +370,11 @@ A variant of the @ref use_case_choice with an optional *details* modal page, acc
 extra navigation step.
 The @ref nbgl_useCaseAdvancedChoiceWithDetails() function enables to create such a sequence.
 
-On Nano, the *header_icon* and *subMessage* arguments are ignored (no top-right icon button, and
-only one text line below the title is displayed). When *details* is non-NULL, an additional page
-is inserted in the navigation to display the details content.
+On Nano, the *header_icon* argument is ignored (no top-right icon button). A page displays the
+*title* and, below it, a single other element, so the *center_icon*, the *message* and the
+*subMessage* get a page each, in this order, all of them keeping the *title* on top. When
+*details* is non-NULL, an additional page is inserted in the navigation to display the details
+content.
 
 The *callback* argument is called when a choice is done. Its argument is a boolean which is *true*
 upon confirmation, else *false*.
