@@ -65,15 +65,11 @@ bolos_err_t addr_book_handle_apdu(uint8_t *buffer, size_t buffer_len, uint8_t p1
 static bool s_hmac_fail        = false;
 static bool s_hmac_verify_fail = false;
 
-bool sys_address_book_hmac(const uint32_t        *bip32_path,
-                           size_t                 bip32_path_len,
-                           ADDRESS_BOOK_salt_id_t salt_id,
+bool sys_address_book_hmac(ADDRESS_BOOK_salt_id_t salt_id,
                            const uint8_t         *message,
                            size_t                 message_len,
                            uint8_t                hmac_out[CX_SHA256_SIZE])
 {
-    (void) bip32_path;
-    (void) bip32_path_len;
     (void) salt_id;
     (void) message;
     (void) message_len;
@@ -84,15 +80,11 @@ bool sys_address_book_hmac(const uint32_t        *bip32_path,
     return true;
 }
 
-bool sys_address_book_hmac_verify(const uint32_t        *bip32_path,
-                                  size_t                 bip32_path_len,
-                                  ADDRESS_BOOK_salt_id_t salt_id,
+bool sys_address_book_hmac_verify(ADDRESS_BOOK_salt_id_t salt_id,
                                   const uint8_t         *message,
                                   size_t                 message_len,
                                   const uint8_t          hmac_expected[CX_SHA256_SIZE])
 {
-    (void) bip32_path;
-    (void) bip32_path_len;
     (void) salt_id;
     (void) message;
     (void) message_len;

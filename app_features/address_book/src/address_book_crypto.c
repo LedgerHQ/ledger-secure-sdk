@@ -140,13 +140,6 @@ static size_t serialize_hmac_msg(uint8_t            *msg,
     return offset;
 }
 
-// m/44'/60'/0'/0/0 — hardcoded for all Identity HMAC derivations
-// TODO: to be removed when the OS doesn't need it any more for the HMAC derivation
-static const path_bip32_t s_identity_path = {
-    .length = 5,
-    .path   = {0x8000002C, 0x8000003C, 0x80000000, 0x00000000, 0x00000000},
-};
-
 /* Exported functions --------------------------------------------------------*/
 
 /**
@@ -216,12 +209,7 @@ bool address_book_generate_group_handle(uint8_t group_handle[GROUP_HANDLE_SIZE])
     uint8_t *mac     = group_handle + GID_SIZE;
 
     cx_rng_no_throw(gid, GID_SIZE);
-    if (!sys_address_book_hmac(s_identity_path.path,
-                               s_identity_path.length,
-                               ADDRESS_BOOK_SALT_GROUP,
-                               gid,
-                               GID_SIZE,
-                               mac)) {
+    if (!sys_address_book_hmac(ADDRESS_BOOK_SALT_GROUP, gid, GID_SIZE, mac)) {
         goto end;
     }
     success = true;
@@ -247,12 +235,7 @@ bool address_book_verify_group_handle(const uint8_t group_handle[GROUP_HANDLE_SI
     const uint8_t *gid     = group_handle;
     const uint8_t *mac     = group_handle + GID_SIZE;
 
-    if (!sys_address_book_hmac_verify(s_identity_path.path,
-                                      s_identity_path.length,
-                                      ADDRESS_BOOK_SALT_GROUP,
-                                      gid,
-                                      GID_SIZE,
-                                      mac)) {
+    if (!sys_address_book_hmac_verify(ADDRESS_BOOK_SALT_GROUP, gid, GID_SIZE, mac)) {
         PRINTF("[Address Book] Group handle MAC verification failed\n");
         goto end;
     }
@@ -285,12 +268,7 @@ bool address_book_compute_hmac_proof(const uint8_t gid[GID_SIZE],
     if (msg_len == SIZE_MAX) {
         goto end;
     }
-    if (!sys_address_book_hmac(s_identity_path.path,
-                               s_identity_path.length,
-                               ADDRESS_BOOK_SALT_IDENTITY,
-                               msg,
-                               msg_len,
-                               hmac_out)) {
+    if (!sys_address_book_hmac(ADDRESS_BOOK_SALT_IDENTITY, msg, msg_len, hmac_out)) {
         goto end;
     }
     success = true;
@@ -319,12 +297,7 @@ bool address_book_verify_hmac_proof(const uint8_t gid[GID_SIZE],
     if (msg_len == SIZE_MAX) {
         goto end;
     }
-    if (!sys_address_book_hmac_verify(s_identity_path.path,
-                                      s_identity_path.length,
-                                      ADDRESS_BOOK_SALT_IDENTITY,
-                                      msg,
-                                      msg_len,
-                                      hmac_expected)) {
+    if (!sys_address_book_hmac_verify(ADDRESS_BOOK_SALT_IDENTITY, msg, msg_len, hmac_expected)) {
         PRINTF("HMAC_PROOF mismatch\n");
         goto end;
     }
@@ -367,12 +340,7 @@ bool address_book_compute_hmac_rest(const uint8_t       gid[GID_SIZE],
     if (msg_len == SIZE_MAX) {
         goto end;
     }
-    if (!sys_address_book_hmac(s_identity_path.path,
-                               s_identity_path.length,
-                               ADDRESS_BOOK_SALT_IDENTITY,
-                               msg,
-                               msg_len,
-                               hmac_out)) {
+    if (!sys_address_book_hmac(ADDRESS_BOOK_SALT_IDENTITY, msg, msg_len, hmac_out)) {
         goto end;
     }
     success = true;
@@ -410,12 +378,7 @@ bool address_book_verify_hmac_rest(const uint8_t       gid[GID_SIZE],
     if (msg_len == SIZE_MAX) {
         goto end;
     }
-    if (!sys_address_book_hmac_verify(s_identity_path.path,
-                                      s_identity_path.length,
-                                      ADDRESS_BOOK_SALT_IDENTITY,
-                                      msg,
-                                      msg_len,
-                                      hmac_expected)) {
+    if (!sys_address_book_hmac_verify(ADDRESS_BOOK_SALT_IDENTITY, msg, msg_len, hmac_expected)) {
         PRINTF("HMAC_REST mismatch\n");
         goto end;
     }
@@ -455,12 +418,7 @@ bool address_book_compute_hmac_proof_ledger_account(const path_bip32_t *bip32_pa
     if (msg_len == SIZE_MAX) {
         goto end;
     }
-    if (!sys_address_book_hmac(bip32_path->path,
-                               bip32_path->length,
-                               ADDRESS_BOOK_SALT_LEDGER_ACCOUNT,
-                               msg,
-                               msg_len,
-                               hmac_out)) {
+    if (!sys_address_book_hmac(ADDRESS_BOOK_SALT_LEDGER_ACCOUNT, msg, msg_len, hmac_out)) {
         goto end;
     }
     success = true;
@@ -494,12 +452,8 @@ bool address_book_verify_hmac_proof_ledger_account(const path_bip32_t *bip32_pat
     if (msg_len == SIZE_MAX) {
         goto end;
     }
-    if (!sys_address_book_hmac_verify(bip32_path->path,
-                                      bip32_path->length,
-                                      ADDRESS_BOOK_SALT_LEDGER_ACCOUNT,
-                                      msg,
-                                      msg_len,
-                                      hmac_expected)) {
+    if (!sys_address_book_hmac_verify(
+            ADDRESS_BOOK_SALT_LEDGER_ACCOUNT, msg, msg_len, hmac_expected)) {
         PRINTF("HMAC proof mismatch\n");
         goto end;
     }
