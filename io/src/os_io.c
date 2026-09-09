@@ -15,6 +15,10 @@
 #endif  // HAVE_CDCUSB
 #endif  // HAVE_IO_USB
 
+#ifdef HAVE_BOLOS
+#include "ssd1683.h"
+#endif
+
 #ifdef HAVE_BLE
 #include "ble_ledger.h"
 #endif  // HAVE_BLE

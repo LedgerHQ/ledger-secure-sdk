@@ -120,6 +120,7 @@ endif
 #                               DEBUG                               #
 #####################################################################
 
+DEBUG = 1
 ifneq ($(DEBUG), 0)
     ifneq ($(DEBUG_OVER_USB), 0)
         $(error Can't set both DEBUG & DEBUG_OVER_USB)
