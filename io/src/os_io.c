@@ -348,6 +348,20 @@ error:
     return status;
 }
 
+int os_io_rx_evt_until(unsigned char *buffer,
+                       unsigned short buffer_max_length,
+                       unsigned int  *timeout_ms,
+                       bool           check_se_event)
+{
+    int status = 0;
+
+    while (status == 0) {
+        status = os_io_rx_evt(buffer, buffer_max_length, timeout_ms, check_se_event);
+    }
+
+    return status;
+}
+
 int os_io_tx_cmd(uint8_t                     type,
                  const unsigned char *buffer PLENGTH(length),
                  unsigned short              length,

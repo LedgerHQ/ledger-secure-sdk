@@ -377,7 +377,7 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
     sys_ssd1683_set_dc(true);
     sys_ssd1683_set_dc(false);
 #endif
-    status = os_io_rx_evt(G_io_rx_buffer, sizeof(G_io_rx_buffer), NULL, true);
+    status = os_io_rx_evt_until(G_io_rx_buffer, sizeof(G_io_rx_buffer), NULL, true);
 
     if (status > 0) {
         switch (G_io_rx_buffer[0]) {

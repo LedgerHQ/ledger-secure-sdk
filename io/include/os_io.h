@@ -156,6 +156,11 @@ SYSCALL int os_io_tx_cmd(unsigned char               type,  // os_io_packet_type
                          unsigned short              length,
                          unsigned int               *timeout_ms);
 
+SYSCALL int os_io_rx_evt_until(unsigned char *buffer,
+                               unsigned short buffer_max_length,
+                               unsigned int  *timeout_ms,
+                               bool           check_se_event);
+
 SYSCALL int os_io_seph_tx(const unsigned char *buffer PLENGTH(length),
                           unsigned short              length,
                           unsigned int               *timeout_ms);
