@@ -496,7 +496,11 @@ USBD_StatusTypeDef USBD_LEDGER_HID_send_packet(USBD_HandleTypeDef *pdev,
                 ret           = USBD_LL_Transmit(pdev,
                                        LEDGER_HID_EPIN_ADDR,
                                        USBD_LEDGER_protocol_chunk_buffer,
+#if USB_OPTIM_ENABLED
                                        handle->protocol_data.tx_chunk_length,
+#else
+                                       sizeof(USBD_LEDGER_protocol_chunk_buffer),
+#endif
                                        timeout_ms);
             }
             else {
