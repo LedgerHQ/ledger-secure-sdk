@@ -16,7 +16,7 @@
 #endif  // HAVE_IO_USB
 
 #ifdef HAVE_BOLOS
-#include "ssd1683.h"
+// #include "ssd1683.h"
 #endif
 
 #ifdef HAVE_BLE

@@ -28,7 +28,9 @@
 #include "usbd_ledger_cdc.h"
 #ifdef HAVE_BOLOS
 #include "cx_rng_internal.h"
+#ifdef TARGET_APEX
 #include "ssd1683.h"
+#endif
 #else  // !HAVE_BOLOS
 #include "lcx_rng.h"
 #endif  // !HAVE_BOLOS
