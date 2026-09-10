@@ -1,0 +1,17 @@
+# fallback owners
+* @LedgerHQ/embedded-apps @LedgerHQ/embedded-os
+
+# top-level directories
+/.github/ISSUE_TEMPLATE/            @LedgerHQ/embedded-apps
+/.github/workflows/                 @LedgerHQ/embedded-apps
+/.github/pull_request_template.md   @LedgerHQ/embedded-apps
+/arch/                              @LedgerHQ/embedded-apps
+
+# sdk components specific owners
+/app_features/                      @LedgerHQ/embedded-apps
+/lib_tlv/                           @LedgerHQ/embedded-apps
+/lib_alloc/                         @LedgerHQ/embedded-apps
+/lib_lists/                         @LedgerHQ/embedded-apps
+/lib_nfc/                           @LedgerHQ/embedded-os
+/lib_pki/                           @LedgerHQ/embedded-apps
+/lib_ux/                            @LedgerHQ/embedded-apps
