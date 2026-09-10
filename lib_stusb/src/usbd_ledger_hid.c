@@ -65,6 +65,8 @@ typedef struct {
 /* Private variables ---------------------------------------------------------*/
 static ledger_hid_handle_t ledger_hid_handle;
 
+#define USB_OPTIM_ENABLED 0
+
 /* Exported variables --------------------------------------------------------*/
 const usbd_end_point_info_t LEDGER_HID_end_point_info = {
     .ep_in_addr  = LEDGER_HID_EPIN_ADDR,
@@ -199,7 +201,7 @@ USBD_StatusTypeDef USBD_LEDGER_HID_init(USBD_HandleTypeDef *pdev, void *cookie)
         goto error;
     }
 
-    os_io_seph_cmd_usb_ep_auto_rearm(LEDGER_HID_EPOUT_ADDR, true);
+    os_io_seph_cmd_usb_ep_auto_rearm(LEDGER_HID_EPOUT_ADDR, USB_OPTIM_ENABLED);
 
     status = USBD_LL_PrepareReceive(pdev, LEDGER_HID_EPOUT_ADDR, NULL, LEDGER_HID_EPOUT_SIZE);
 
@@ -408,8 +410,11 @@ USBD_StatusTypeDef USBD_LEDGER_HID_data_in(USBD_HandleTypeDef *pdev, void *cooki
             USBD_LL_Transmit(pdev,
                              LEDGER_HID_EPIN_ADDR,
                              USBD_LEDGER_protocol_chunk_buffer,
-                             // sizeof(USBD_LEDGER_protocol_chunk_buffer),
+#if USB_OPTIM_ENABLED
                              handle->protocol_data.tx_chunk_length,
+#else
+                             sizeof(USBD_LEDGER_protocol_chunk_buffer),
+#endif
                              0);
         }
     }
