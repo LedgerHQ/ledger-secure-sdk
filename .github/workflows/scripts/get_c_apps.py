@@ -1,17 +1,13 @@
-import sys
+import os
 import json
 from ledgered.github import GitHubLedgerHQ, NoManifestException, Condition  # type: ignore
 from github.GithubException import GithubException
-
-if len(sys.argv) != 2:
-    print("Usage: get_c_apps.py <github_token>")
-    sys.exit(1)
 
 # Excluded C apps
 excluded_apps = [""]
 
 # Retrieve all private C apps on LedgerHQ GitHub organization
-token = sys.argv[1]
+token = os.environ.get("GH_TOKEN")
 gh = GitHubLedgerHQ(token)
 apps=gh.apps.filter(archived=Condition.WITHOUT,
                     private=Condition.ONLY)
