@@ -21,7 +21,6 @@
 
 #ifdef HAVE_USB_HIDKBD
 
-
 /* Private enumerations ------------------------------------------------------*/
 enum ledger_hid_kbd_state_t {
     LEDGER_HID_KBD_STATE_IDLE,
@@ -202,7 +201,9 @@ USBD_StatusTypeDef USBD_LEDGER_HID_KBD_de_init(USBD_HandleTypeDef *pdev, void *c
     return USBD_OK;
 }
 
-USBD_StatusTypeDef USBD_LEDGER_HID_KBD_setup(USBD_HandleTypeDef *pdev, void *cookie, USBD_SetupReqTypedef *req)
+USBD_StatusTypeDef USBD_LEDGER_HID_KBD_setup(USBD_HandleTypeDef   *pdev,
+                                             void                 *cookie,
+                                             USBD_SetupReqTypedef *req)
 {
     if (!pdev || !cookie || !req) {
         return USBD_FAIL;
@@ -308,7 +309,9 @@ USBD_StatusTypeDef USBD_LEDGER_HID_KBD_ep0_rx_ready(USBD_HandleTypeDef *pdev, vo
     return USBD_OK;
 }
 
-USBD_StatusTypeDef USBD_LEDGER_HID_KBD_data_in(USBD_HandleTypeDef *pdev, void *cookie, uint8_t ep_num)
+USBD_StatusTypeDef USBD_LEDGER_HID_KBD_data_in(USBD_HandleTypeDef *pdev,
+                                               void               *cookie,
+                                               uint8_t             ep_num)
 {
     if (!pdev || !cookie) {
         return USBD_FAIL;
@@ -325,10 +328,10 @@ USBD_StatusTypeDef USBD_LEDGER_HID_KBD_data_in(USBD_HandleTypeDef *pdev, void *c
 }
 
 USBD_StatusTypeDef USBD_LEDGER_HID_KBD_data_out(USBD_HandleTypeDef *pdev,
-                                     void               *cookie,
-                                     uint8_t             ep_num,
-                                     uint8_t            *packet,
-                                     uint16_t            packet_length)
+                                                void               *cookie,
+                                                uint8_t             ep_num,
+                                                uint8_t            *packet,
+                                                uint16_t            packet_length)
 {
     if (!pdev) {
         return USBD_FAIL;
@@ -345,11 +348,11 @@ USBD_StatusTypeDef USBD_LEDGER_HID_KBD_data_out(USBD_HandleTypeDef *pdev,
 }
 
 USBD_StatusTypeDef USBD_LEDGER_HID_KBD_send_packet(USBD_HandleTypeDef *pdev,
-                                        void               *cookie,
-                                        uint8_t             packet_type,
-                                        const uint8_t      *packet,
-                                        uint16_t            packet_length,
-                                        uint32_t            timeout_ms)
+                                                   void               *cookie,
+                                                   uint8_t             packet_type,
+                                                   const uint8_t      *packet,
+                                                   uint16_t            packet_length,
+                                                   uint32_t            timeout_ms)
 {
     if (!pdev || !cookie || !packet) {
         return USBD_FAIL;
