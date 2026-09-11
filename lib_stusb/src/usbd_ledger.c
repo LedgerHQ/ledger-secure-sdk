@@ -544,7 +544,8 @@ void USBD_LEDGER_start(void)
                          sizeof(usbd_ledger_data.name));
 #endif  // TARGET_APEX_M
         }
-        strlcpy_utf8(usbd_ledger_data.name, usbd_ledger_init_data.name, sizeof(usbd_ledger_data.name));
+        strlcpy_utf8(
+            usbd_ledger_data.name, usbd_ledger_init_data.name, sizeof(usbd_ledger_data.name));
 
         // Fill the product type
         usbd_ledger_data.product = USBD_LEDGER_PRODUCT_BLUE;
