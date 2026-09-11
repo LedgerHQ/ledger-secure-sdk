@@ -8,7 +8,7 @@ if len(sys.argv) != 2:
     sys.exit(1)
 
 # Excluded C apps
-excluded_apps = [""]
+excluded_apps = ["app-plugin-rarible", "app-plugin-okx"]
 
 # Retrieve all public apps on LedgerHQ GitHub organization
 token = sys.argv[1]
