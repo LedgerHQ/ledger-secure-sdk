@@ -22,7 +22,6 @@
 
 #ifdef HAVE_WEBUSB
 
-
 /* Private enumerations ------------------------------------------------------*/
 enum ledger_webusb_state_t {
     LEDGER_WEBUSB_STATE_IDLE,
@@ -278,9 +277,10 @@ USBD_StatusTypeDef USBD_LEDGER_WEBUSB_init(USBD_HandleTypeDef *pdev, void *cooki
     memset(handle, 0, sizeof(ledger_webusb_handle_t));
 
     memset(&handle->protocol_data, 0, sizeof(handle->protocol_data));
-    handle->protocol_data.mtu                  = sizeof(USBD_LEDGER_protocol_chunk_buffer);
+    handle->protocol_data.mtu = sizeof(USBD_LEDGER_protocol_chunk_buffer);
 
-    ledger_protocol_result_t result = LEDGER_PROTOCOL_init(&handle->protocol_data, OS_IO_PACKET_TYPE_USB_WEBUSB_APDU);
+    ledger_protocol_result_t result
+        = LEDGER_PROTOCOL_init(&handle->protocol_data, OS_IO_PACKET_TYPE_USB_WEBUSB_APDU);
     if (result != LP_SUCCESS) {
         goto error;
     }
@@ -299,7 +299,9 @@ USBD_StatusTypeDef USBD_LEDGER_WEBUSB_de_init(USBD_HandleTypeDef *pdev, void *co
     return USBD_OK;
 }
 
-USBD_StatusTypeDef USBD_LEDGER_WEBUSB_setup(USBD_HandleTypeDef *pdev, void *cookie, USBD_SetupReqTypedef *req)
+USBD_StatusTypeDef USBD_LEDGER_WEBUSB_setup(USBD_HandleTypeDef   *pdev,
+                                            void                 *cookie,
+                                            USBD_SetupReqTypedef *req)
 {
     if (!pdev || !req) {
         return USBD_FAIL;
@@ -355,7 +357,9 @@ USBD_StatusTypeDef USBD_LEDGER_WEBUSB_ep0_rx_ready(USBD_HandleTypeDef *pdev, voi
     return USBD_OK;
 }
 
-USBD_StatusTypeDef USBD_LEDGER_WEBUSB_data_in(USBD_HandleTypeDef *pdev, void *cookie, uint8_t ep_num)
+USBD_StatusTypeDef USBD_LEDGER_WEBUSB_data_in(USBD_HandleTypeDef *pdev,
+                                              void               *cookie,
+                                              uint8_t             ep_num)
 {
     USBD_StatusTypeDef status = USBD_FAIL;
     if (!cookie) {
@@ -367,23 +371,29 @@ USBD_StatusTypeDef USBD_LEDGER_WEBUSB_data_in(USBD_HandleTypeDef *pdev, void *co
     ledger_webusb_handle_t *handle = (ledger_webusb_handle_t *) PIC(cookie);
 
     if (handle->protocol_data.tx_apdu_buffer) {
-        ledger_protocol_result_t result = LEDGER_PROTOCOL_tx(&handle->protocol_data, NULL, 0, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer), sizeof(USBD_LEDGER_protocol_chunk_buffer));
+        ledger_protocol_result_t result
+            = LEDGER_PROTOCOL_tx(&handle->protocol_data,
+                                 NULL,
+                                 0,
+                                 USBD_LEDGER_protocol_chunk_buffer,
+                                 sizeof(USBD_LEDGER_protocol_chunk_buffer),
+                                 sizeof(USBD_LEDGER_protocol_chunk_buffer));
         if (result != LP_SUCCESS) {
             goto error;
         }
         if (handle->protocol_data.tx_chunk_length >= 2) {
             handle->state = LEDGER_WEBUSB_STATE_BUSY;
-            status = USBD_LL_Transmit(pdev,
-                             LEDGER_WEBUSB_EPIN_ADDR,
-                             USBD_LEDGER_protocol_chunk_buffer,
-                             sizeof(USBD_LEDGER_protocol_chunk_buffer),
-                             0);
+            status        = USBD_LL_Transmit(pdev,
+                                      LEDGER_WEBUSB_EPIN_ADDR,
+                                      USBD_LEDGER_protocol_chunk_buffer,
+                                      sizeof(USBD_LEDGER_protocol_chunk_buffer),
+                                      0);
         }
     }
     if (!handle->protocol_data.tx_apdu_buffer) {
         handle->protocol_data.tx_chunk_length = 0;
         handle->state                         = LEDGER_WEBUSB_STATE_IDLE;
-        status = USBD_OK;
+        status                                = USBD_OK;
     }
 
 error:
@@ -391,10 +401,10 @@ error:
 }
 
 USBD_StatusTypeDef USBD_LEDGER_WEBUSB_data_out(USBD_HandleTypeDef *pdev,
-                                    void               *cookie,
-                                    uint8_t             ep_num,
-                                    uint8_t            *packet,
-                                    uint16_t            packet_length)
+                                               void               *cookie,
+                                               uint8_t             ep_num,
+                                               uint8_t            *packet,
+                                               uint16_t            packet_length)
 {
     USBD_StatusTypeDef status = USBD_FAIL;
     if (!pdev || !cookie || !packet) {
@@ -405,7 +415,14 @@ USBD_StatusTypeDef USBD_LEDGER_WEBUSB_data_out(USBD_HandleTypeDef *pdev,
 
     ledger_webusb_handle_t *handle = (ledger_webusb_handle_t *) PIC(cookie);
 
-    ledger_protocol_result_t result = LEDGER_PROTOCOL_rx(&handle->protocol_data, packet, packet_length, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer), USBD_LEDGER_io_buffer, sizeof(USBD_LEDGER_io_buffer), sizeof(USBD_LEDGER_protocol_chunk_buffer));
+    ledger_protocol_result_t result = LEDGER_PROTOCOL_rx(&handle->protocol_data,
+                                                         packet,
+                                                         packet_length,
+                                                         USBD_LEDGER_protocol_chunk_buffer,
+                                                         sizeof(USBD_LEDGER_protocol_chunk_buffer),
+                                                         USBD_LEDGER_io_buffer,
+                                                         sizeof(USBD_LEDGER_io_buffer),
+                                                         sizeof(USBD_LEDGER_protocol_chunk_buffer));
     if (result != LP_SUCCESS) {
         goto error;
     }
@@ -417,11 +434,11 @@ error:
 }
 
 USBD_StatusTypeDef USBD_LEDGER_WEBUSB_send_packet(USBD_HandleTypeDef *pdev,
-                                       void               *cookie,
-                                       uint8_t             packet_type,
-                                       const uint8_t      *packet,
-                                       uint16_t            packet_length,
-                                       uint32_t            timeout_ms)
+                                                  void               *cookie,
+                                                  uint8_t             packet_type,
+                                                  const uint8_t      *packet,
+                                                  uint16_t            packet_length,
+                                                  uint32_t            timeout_ms)
 {
     USBD_StatusTypeDef ret = USBD_FAIL;
     if (!pdev || !cookie || !packet) {
@@ -432,7 +449,12 @@ USBD_StatusTypeDef USBD_LEDGER_WEBUSB_send_packet(USBD_HandleTypeDef *pdev,
 
     ledger_webusb_handle_t *handle = (ledger_webusb_handle_t *) PIC(cookie);
 
-    ledger_protocol_result_t result = LEDGER_PROTOCOL_tx(&handle->protocol_data, packet, packet_length, USBD_LEDGER_protocol_chunk_buffer, sizeof(USBD_LEDGER_protocol_chunk_buffer), sizeof(USBD_LEDGER_protocol_chunk_buffer));
+    ledger_protocol_result_t result = LEDGER_PROTOCOL_tx(&handle->protocol_data,
+                                                         packet,
+                                                         packet_length,
+                                                         USBD_LEDGER_protocol_chunk_buffer,
+                                                         sizeof(USBD_LEDGER_protocol_chunk_buffer),
+                                                         sizeof(USBD_LEDGER_protocol_chunk_buffer));
     if (result != LP_SUCCESS) {
         goto error;
     }
@@ -466,7 +488,7 @@ error:
 bool USBD_LEDGER_WEBUSB_is_busy(void *cookie)
 {
     ledger_webusb_handle_t *handle = (ledger_webusb_handle_t *) PIC(cookie);
-    bool busy = false;
+    bool                    busy   = false;
 
     if (handle->state == LEDGER_WEBUSB_STATE_BUSY) {
         busy = true;
@@ -495,8 +517,7 @@ int32_t USBD_LEDGER_WEBUSB_data_ready(USBD_HandleTypeDef *pdev,
             status = -1;
         }
         else {
-            memmove(
-                buffer, USBD_LEDGER_io_buffer, handle->protocol_data.rx_apdu_length);
+            memmove(buffer, USBD_LEDGER_io_buffer, handle->protocol_data.rx_apdu_length);
             status = handle->protocol_data.rx_apdu_length;
         }
         handle->protocol_data.rx_apdu_status = APDU_STATUS_WAITING;

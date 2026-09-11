@@ -45,7 +45,7 @@ enum ledger_cdc_state_t {
 #if defined(TARGET_NANOS2)
 #ifdef HAVE_IO_U2F
 #define LEDGER_CDC_CONTROL_EPIN_ADDR (0x82)
-#else   // ! HAVE_IO_U2F
+#else  // ! HAVE_IO_U2F
 #define LEDGER_CDC_CONTROL_EPIN_ADDR (0x81)
 #endif  // !HAVE_IO_U2F
 #else   // !TARGET_NANOS2
@@ -453,7 +453,7 @@ USBD_StatusTypeDef USBD_LEDGER_CDC_data_out(USBD_HandleTypeDef *pdev,
 
     ledger_cdc_handle_t *handle = (ledger_cdc_handle_t *) PIC(cookie);
 
-    if (handle->rx_length  >= sizeof(USBD_LEDGER_io_buffer)) {
+    if (handle->rx_length >= sizeof(USBD_LEDGER_io_buffer)) {
         goto error;
     }
     if (handle->rx_length + packet_length >= sizeof(USBD_LEDGER_io_buffer)) {
@@ -539,10 +539,12 @@ int32_t USBD_LEDGER_CDC_data_ready(USBD_HandleTypeDef *pdev,
     ledger_cdc_handle_t *handle = (ledger_cdc_handle_t *) PIC(cookie);
     if ((handle->tx_in_progress == LEDGER_CDC_STATE_IDLE) && (handle->rx_length != 0)) {
         buffer[0] = OS_IO_PACKET_TYPE_AT_CMD;
-        if (handle->rx_length < (max_length - 1) && (sizeof(USBD_LEDGER_io_buffer) >= handle->rx_length)) {
+        if (handle->rx_length < (max_length - 1)
+            && (sizeof(USBD_LEDGER_io_buffer) >= handle->rx_length)) {
             memmove(&buffer[1], USBD_LEDGER_io_buffer, handle->rx_length);
             status = handle->rx_length + 1;
-        } else {
+        }
+        else {
             status = -1;
         }
         handle->rx_length = 0;

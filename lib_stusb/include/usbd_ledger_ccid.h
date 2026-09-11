@@ -34,24 +34,26 @@
 extern const usbd_class_info_t USBD_LEDGER_CCID_Bulk_class_info;
 
 /* Exported functions prototypes--------------------------------------------- */
-USBD_StatusTypeDef  USBD_LEDGER_CCID_init(USBD_HandleTypeDef *pdev, void *cookie);
-USBD_StatusTypeDef  USBD_LEDGER_CCID_de_init(USBD_HandleTypeDef *pdev, void *cookie);
-USBD_StatusTypeDef  USBD_LEDGER_CCID_setup(USBD_HandleTypeDef *pdev, void *cookie, USBD_SetupReqTypedef *req);
-USBD_StatusTypeDef  USBD_LEDGER_CCID_ep0_rx_ready(USBD_HandleTypeDef *pdev, void *cookie);
-USBD_StatusTypeDef  USBD_LEDGER_CCID_data_in(USBD_HandleTypeDef *pdev, void *cookie, uint8_t ep_num);
-USBD_StatusTypeDef  USBD_LEDGER_CCID_data_out(USBD_HandleTypeDef *pdev,
-                                  void               *cookie,
-                                  uint8_t             ep_num,
-                                  uint8_t            *packet,
-                                  uint16_t            packet_length);
+USBD_StatusTypeDef USBD_LEDGER_CCID_init(USBD_HandleTypeDef *pdev, void *cookie);
+USBD_StatusTypeDef USBD_LEDGER_CCID_de_init(USBD_HandleTypeDef *pdev, void *cookie);
+USBD_StatusTypeDef USBD_LEDGER_CCID_setup(USBD_HandleTypeDef   *pdev,
+                                          void                 *cookie,
+                                          USBD_SetupReqTypedef *req);
+USBD_StatusTypeDef USBD_LEDGER_CCID_ep0_rx_ready(USBD_HandleTypeDef *pdev, void *cookie);
+USBD_StatusTypeDef USBD_LEDGER_CCID_data_in(USBD_HandleTypeDef *pdev, void *cookie, uint8_t ep_num);
+USBD_StatusTypeDef USBD_LEDGER_CCID_data_out(USBD_HandleTypeDef *pdev,
+                                             void               *cookie,
+                                             uint8_t             ep_num,
+                                             uint8_t            *packet,
+                                             uint16_t            packet_length);
 
-USBD_StatusTypeDef  USBD_LEDGER_CCID_send_packet(USBD_HandleTypeDef *pdev,
-                                     void               *cookie,
-                                     uint8_t             packet_type,
-                                     const uint8_t      *packet,
-                                     uint16_t            packet_length,
-                                     uint32_t            timeout_ms);
-bool USBD_LEDGER_CCID_is_busy(void *cookie);
+USBD_StatusTypeDef USBD_LEDGER_CCID_send_packet(USBD_HandleTypeDef *pdev,
+                                                void               *cookie,
+                                                uint8_t             packet_type,
+                                                const uint8_t      *packet,
+                                                uint16_t            packet_length,
+                                                uint32_t            timeout_ms);
+bool               USBD_LEDGER_CCID_is_busy(void *cookie);
 
 int32_t USBD_LEDGER_CCID_data_ready(USBD_HandleTypeDef *pdev,
                                     void               *cookie,
