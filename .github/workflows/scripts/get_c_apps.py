@@ -14,9 +14,7 @@ excluded_apps = [""]
 token = sys.argv[1]
 gh = GitHubLedgerHQ(token)
 apps=gh.apps.filter(archived=Condition.WITHOUT,
-                    private=Condition.ONLY,
-                    exclude_list=excluded_apps,
-                    sdk=["c"])
+                    private=Condition.ONLY)
 
 c_apps = []
 # loop all apps in gh.apps
@@ -28,9 +26,12 @@ for app in apps:
     except GithubException as e:
         pass
     else:
-        c_apps.append({"app-name": app.name,
-                        "build-directory": str(manifest.app.build_directory),
-                        "devices": manifest.app.devices.json})
+        # Filter out apps that are C based
+        if manifest.app.sdk == "c":
+            if app.name not in excluded_apps:
+                c_apps.append({"app-name": app.name,
+                               "build-directory": str(manifest.app.build_directory),
+                               "devices": manifest.app.devices.json})
 
 # Print the number of apps to build
 print("Nb of apps to build: ", len(c_apps))
