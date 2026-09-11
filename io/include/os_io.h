@@ -131,6 +131,8 @@ typedef struct {
 #define OS_IO_BUFFER_SIZE OS_IO_SEPH_BUFFER_SIZE
 #endif  // !CUSTOM_IO_APDU_BUFFER_SIZE
 
+#define OS_IO_STATUS_REPLY_PENDING (-16)
+
 /* Exported macros------------------------------------------------------------*/
 
 /* Exported variables --------------------------------------------------------*/
