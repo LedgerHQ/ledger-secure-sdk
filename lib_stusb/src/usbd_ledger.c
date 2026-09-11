@@ -530,8 +530,8 @@ void USBD_LEDGER_start(void)
 #endif  // TARGET_FATSTACKS || TARGET_STAX
 #if defined(TARGET_FLEX)
             strlcpy_utf8(usbd_ledger_init_data.name,
-                    USBD_FLEX_PRODUCT_STRING,
-                    sizeof(usbd_ledger_data.name));
+                         USBD_FLEX_PRODUCT_STRING,
+                         sizeof(usbd_ledger_data.name));
 #endif  // TARGET_FLEX
 #if defined(TARGET_APEX_P)
             strlcpy_utf8(usbd_ledger_init_data.name,
