@@ -38,22 +38,24 @@ typedef struct {
 typedef USBD_StatusTypeDef (*usbd_class_init_t)(USBD_HandleTypeDef *pdev, void *cookie);
 typedef USBD_StatusTypeDef (*usbd_class_de_init_t)(USBD_HandleTypeDef *pdev, void *cookie);
 typedef USBD_StatusTypeDef (*usbd_class_setup_t)(USBD_HandleTypeDef   *pdev,
-                                      void                 *cookie,
-                                      USBD_SetupReqTypedef *req);
+                                                 void                 *cookie,
+                                                 USBD_SetupReqTypedef *req);
 typedef USBD_StatusTypeDef (*usbd_ep0_rx_ready_t)(USBD_HandleTypeDef *pdev, void *cookie);
-typedef USBD_StatusTypeDef (*usbd_class_data_in_t)(USBD_HandleTypeDef *pdev, void *cookie, uint8_t ep_num);
+typedef USBD_StatusTypeDef (*usbd_class_data_in_t)(USBD_HandleTypeDef *pdev,
+                                                   void               *cookie,
+                                                   uint8_t             ep_num);
 typedef USBD_StatusTypeDef (*usbd_class_data_out_t)(USBD_HandleTypeDef *pdev,
-                                         void               *cookie,
-                                         uint8_t             ep_num,
-                                         uint8_t            *packet,
-                                         uint16_t            packet_length);
+                                                    void               *cookie,
+                                                    uint8_t             ep_num,
+                                                    uint8_t            *packet,
+                                                    uint16_t            packet_length);
 
 typedef USBD_StatusTypeDef (*usbd_send_packet_t)(USBD_HandleTypeDef *pdev,
-                                      void               *cookie,
-                                      uint8_t             packet_type,
-                                      const uint8_t      *packet,
-                                      uint16_t            packet_length,
-                                      uint32_t            timeout_ms);
+                                                 void               *cookie,
+                                                 uint8_t             packet_type,
+                                                 const uint8_t      *packet,
+                                                 uint16_t            packet_length,
+                                                 uint32_t            timeout_ms);
 typedef bool (*usbd_is_busy_t)(void *cookie);
 
 typedef int32_t (*usbd_data_ready_t)(USBD_HandleTypeDef *pdev,

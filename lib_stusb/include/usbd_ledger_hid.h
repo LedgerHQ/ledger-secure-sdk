@@ -36,22 +36,24 @@ extern const usbd_class_info_t USBD_LEDGER_HID_class_info;
 /* Exported functions prototypes--------------------------------------------- */
 USBD_StatusTypeDef USBD_LEDGER_HID_init(USBD_HandleTypeDef *pdev, void *cookie);
 USBD_StatusTypeDef USBD_LEDGER_HID_de_init(USBD_HandleTypeDef *pdev, void *cookie);
-USBD_StatusTypeDef USBD_LEDGER_HID_setup(USBD_HandleTypeDef *pdev, void *cookie, USBD_SetupReqTypedef *req);
+USBD_StatusTypeDef USBD_LEDGER_HID_setup(USBD_HandleTypeDef   *pdev,
+                                         void                 *cookie,
+                                         USBD_SetupReqTypedef *req);
 USBD_StatusTypeDef USBD_LEDGER_HID_ep0_rx_ready(USBD_HandleTypeDef *pdev, void *cookie);
 USBD_StatusTypeDef USBD_LEDGER_HID_data_in(USBD_HandleTypeDef *pdev, void *cookie, uint8_t ep_num);
 USBD_StatusTypeDef USBD_LEDGER_HID_data_out(USBD_HandleTypeDef *pdev,
-                                 void               *cookie,
-                                 uint8_t             ep_num,
-                                 uint8_t            *packet,
-                                 uint16_t            packet_length);
+                                            void               *cookie,
+                                            uint8_t             ep_num,
+                                            uint8_t            *packet,
+                                            uint16_t            packet_length);
 
 USBD_StatusTypeDef USBD_LEDGER_HID_send_packet(USBD_HandleTypeDef *pdev,
-                                    void               *cookie,
-                                    uint8_t             packet_type,
-                                    const uint8_t      *packet,
-                                    uint16_t            packet_length,
-                                    uint32_t            timeout_ms);
-bool USBD_LEDGER_HID_is_busy(void *cookie);
+                                               void               *cookie,
+                                               uint8_t             packet_type,
+                                               const uint8_t      *packet,
+                                               uint16_t            packet_length,
+                                               uint32_t            timeout_ms);
+bool               USBD_LEDGER_HID_is_busy(void *cookie);
 
 int32_t USBD_LEDGER_HID_data_ready(USBD_HandleTypeDef *pdev,
                                    void               *cookie,
