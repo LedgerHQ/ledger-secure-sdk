@@ -535,8 +535,8 @@ void USBD_LEDGER_start(void)
 #endif  // TARGET_FLEX
 #if defined(TARGET_APEX_P)
             strlcpy_utf8(usbd_ledger_init_data.name,
-                    USBD_APEX_P_PRODUCT_STRING,
-                    sizeof(usbd_ledger_data.name));
+                         USBD_APEX_P_PRODUCT_STRING,
+                         sizeof(usbd_ledger_data.name));
 #endif  // TARGET_APEX_P
 #if defined(TARGET_APEX_M)
             strlcpy_utf8(usbd_ledger_init_data.name,
