@@ -515,8 +515,8 @@ void USBD_LEDGER_start(void)
                          sizeof(usbd_ledger_data.name));
 #if defined(TARGET_NANOX)
             strlcpy_utf8(usbd_ledger_init_data.name,
-                    USBD_NANOX_PRODUCT_STRING,
-                    sizeof(usbd_ledger_data.name));
+                         USBD_NANOX_PRODUCT_STRING,
+                         sizeof(usbd_ledger_data.name));
 #endif  // TARGET_NANOX
 #if defined(TARGET_NANOS2)
             strlcpy_utf8(usbd_ledger_init_data.name,
