@@ -520,8 +520,8 @@ void USBD_LEDGER_start(void)
 #endif  // TARGET_NANOX
 #if defined(TARGET_NANOS2)
             strlcpy_utf8(usbd_ledger_init_data.name,
-                    USBD_NANOS_PLUS_PRODUCT_STRING,
-                    sizeof(usbd_ledger_data.name));
+                         USBD_NANOS_PLUS_PRODUCT_STRING,
+                         sizeof(usbd_ledger_data.name));
 #endif  // TARGET_NANOS2
 #if defined(TARGET_FATSTACKS) || defined(TARGET_STAX)
             strlcpy_utf8(usbd_ledger_init_data.name,
