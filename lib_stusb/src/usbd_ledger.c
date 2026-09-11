@@ -28,9 +28,6 @@
 #include "usbd_ledger_cdc.h"
 #ifdef HAVE_BOLOS
 #include "cx_rng_internal.h"
-#ifdef TARGET_APEX
-#include "ssd1683.h"
-#endif
 #else  // !HAVE_BOLOS
 #include "lcx_rng.h"
 #endif  // !HAVE_BOLOS
@@ -514,41 +511,40 @@ void USBD_LEDGER_start(void)
         // Fill the name
         if (!strnlen(usbd_ledger_init_data.name, sizeof(usbd_ledger_init_data.name))) {
             strlcpy_utf8(usbd_ledger_init_data.name,
-                         USBD_BLUE_PRODUCT_STRING,
-                         sizeof(usbd_ledger_data.name));
+                    USBD_BLUE_PRODUCT_STRING,
+                    sizeof(usbd_ledger_data.name));
 #if defined(TARGET_NANOX)
             strlcpy_utf8(usbd_ledger_init_data.name,
-                         USBD_NANOX_PRODUCT_STRING,
-                         sizeof(usbd_ledger_data.name));
+                    USBD_NANOX_PRODUCT_STRING,
+                    sizeof(usbd_ledger_data.name));
 #endif  // TARGET_NANOX
 #if defined(TARGET_NANOS2)
             strlcpy_utf8(usbd_ledger_init_data.name,
-                         USBD_NANOS_PLUS_PRODUCT_STRING,
-                         sizeof(usbd_ledger_data.name));
+                    USBD_NANOS_PLUS_PRODUCT_STRING,
+                    sizeof(usbd_ledger_data.name));
 #endif  // TARGET_NANOS2
 #if defined(TARGET_FATSTACKS) || defined(TARGET_STAX)
             strlcpy_utf8(usbd_ledger_init_data.name,
-                         USBD_STAX_PRODUCT_STRING,
-                         sizeof(usbd_ledger_data.name));
+                    USBD_STAX_PRODUCT_STRING,
+                    sizeof(usbd_ledger_data.name));
 #endif  // TARGET_FATSTACKS || TARGET_STAX
 #if defined(TARGET_FLEX)
             strlcpy_utf8(usbd_ledger_init_data.name,
-                         USBD_FLEX_PRODUCT_STRING,
-                         sizeof(usbd_ledger_data.name));
+                    USBD_FLEX_PRODUCT_STRING,
+                    sizeof(usbd_ledger_data.name));
 #endif  // TARGET_FLEX
 #if defined(TARGET_APEX_P)
             strlcpy_utf8(usbd_ledger_init_data.name,
-                         USBD_APEX_P_PRODUCT_STRING,
-                         sizeof(usbd_ledger_data.name));
+                    USBD_APEX_P_PRODUCT_STRING,
+                    sizeof(usbd_ledger_data.name));
 #endif  // TARGET_APEX_P
 #if defined(TARGET_APEX_M)
             strlcpy_utf8(usbd_ledger_init_data.name,
-                         USBD_APEX_M_PRODUCT_STRING,
-                         sizeof(usbd_ledger_data.name));
+                    USBD_APEX_M_PRODUCT_STRING,
+                    sizeof(usbd_ledger_data.name));
 #endif  // TARGET_APEX_M
         }
-        strlcpy_utf8(
-            usbd_ledger_data.name, usbd_ledger_init_data.name, sizeof(usbd_ledger_data.name));
+        strlcpy_utf8(usbd_ledger_data.name, usbd_ledger_init_data.name, sizeof(usbd_ledger_data.name));
 
         // Fill the product type
         usbd_ledger_data.product = USBD_LEDGER_PRODUCT_BLUE;
@@ -962,29 +958,6 @@ int USBD_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
                 goto error;
                 break;
         }
-    }
-    else if (seph_buffer[1] == SEPROXYHAL_TAG_USB_APDU_EVENT) {
-        // Payload: [channel_H | channel_L | ep_num | apdu...]
-        if (seph_buffer_length < 7) {
-            goto error;
-        }
-        uint16_t channel_id  = (uint16_t) U2BE(seph_buffer, 4);
-        uint8_t  ep_num      = seph_buffer[6] & 0x7F;
-        uint16_t apdu_length = seph_buffer_length - 7;
-
-        usbd_class_info_t     *class_info     = NULL;
-        usbd_end_point_info_t *end_point_info = NULL;
-        uint8_t                index          = 0;
-        for (index = 0; index < usbd_ledger_data.nb_of_class; index++) {
-            class_info     = usbd_ledger_data.class[index];
-            end_point_info = (usbd_end_point_info_t *) PIC(class_info->end_point);
-            if (((end_point_info->ep_out_addr & 0x7F) == ep_num) && class_info->rx_assembled_apdu) {
-                ((usbd_rx_assembled_apdu_t) PIC(class_info->rx_assembled_apdu))(
-                    class_info->cookie, channel_id, &seph_buffer[7], apdu_length);
-                break;
-            }
-        }
-        status = USBD_LEDGER_data_ready(apdu_buffer, apdu_buffer_max_length);
     }
     else {
         return -1;

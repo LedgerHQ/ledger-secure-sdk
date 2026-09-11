@@ -63,11 +63,6 @@ typedef int32_t (*usbd_data_ready_t)(USBD_HandleTypeDef *pdev,
                                      uint8_t            *buffer,
                                      uint16_t            max_length);
 
-typedef int32_t (*usbd_rx_assembled_apdu_t)(void          *cookie,
-                                            uint16_t       channel_id,
-                                            const uint8_t *data,
-                                            uint16_t       length);
-
 typedef void (*usbd_setting_t)(uint32_t class_id, uint8_t *buffer, uint16_t length, void *cookie);
 
 typedef struct usbd_class_info_t_ {
@@ -86,8 +81,6 @@ typedef struct usbd_class_info_t_ {
     usbd_is_busy_t     is_busy;
 
     usbd_data_ready_t data_ready;
-
-    usbd_rx_assembled_apdu_t rx_assembled_apdu;
 
     usbd_setting_t setting;
 

@@ -246,8 +246,6 @@ const usbd_class_info_t USBD_LEDGER_WEBUSB_class_info = {
 
     .data_ready = USBD_LEDGER_WEBUSB_data_ready,
 
-    .rx_assembled_apdu = USBD_LEDGER_WEBUSB_rx_assembled_apdu,
-
     .setting = NULL,
 
     .interface_descriptor      = LEDGER_WEBUSB_descriptors,
@@ -526,30 +524,6 @@ int32_t USBD_LEDGER_WEBUSB_data_ready(USBD_HandleTypeDef *pdev,
     }
 
     return status;
-}
-
-int32_t USBD_LEDGER_WEBUSB_rx_assembled_apdu(void          *cookie,
-                                             uint16_t       channel_id,
-                                             const uint8_t *data,
-                                             uint16_t       length)
-{
-    if (!cookie || !data) {
-        return -1;
-    }
-    if ((uint32_t)(length + 1) > sizeof(USBD_LEDGER_io_buffer)) {
-        return -1;
-    }
-    ledger_webusb_handle_t *handle = (ledger_webusb_handle_t *) PIC(cookie);
-
-    // Store channel_id so LEDGER_PROTOCOL_tx uses the correct channel in the response
-    USBD_LEDGER_protocol_chunk_buffer[0] = (uint8_t) (channel_id >> 8);
-    USBD_LEDGER_protocol_chunk_buffer[1] = (uint8_t) (channel_id);
-
-    USBD_LEDGER_io_buffer[0]             = OS_IO_PACKET_TYPE_USB_WEBUSB_APDU;
-    memmove(&USBD_LEDGER_io_buffer[1], data, length);
-    handle->protocol_data.rx_apdu_status = APDU_STATUS_COMPLETE;
-    handle->protocol_data.rx_apdu_length = length + 1;
-    return 0;
 }
 
 #endif  // HAVE_WEBUSB
