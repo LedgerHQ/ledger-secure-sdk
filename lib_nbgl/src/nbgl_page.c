@@ -70,6 +70,10 @@ static void addContent(nbgl_pageContent_t *content,
             nbgl_contentCenter_t centeredInfo = {0};
             nbgl_layoutButton_t  buttonInfo   = {0};
 
+            if (!headerAdded) {
+                addEmptyHeader(layout, SMALL_CENTERING_HEADER);
+            }
+
             centeredInfo.icon        = content->infoButton.icon;
             centeredInfo.title       = content->infoButton.text;
             centeredInfo.illustrType = ICON_ILLUSTRATION;
