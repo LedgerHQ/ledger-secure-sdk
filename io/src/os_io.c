@@ -66,8 +66,60 @@ uint8_t G_io_init_syscall;
 
 /* Private variables ---------------------------------------------------------*/
 
+#ifndef USE_OS_IO_STACK
+static uint8_t G_io_apdu_slot_owner;
+static bool    G_io_apdu_reject_pending;
+#endif  // !USE_OS_IO_STACK
+
 /* Private functions ---------------------------------------------------------*/
 #ifndef USE_OS_IO_STACK
+static bool apdu_needs_reply(uint8_t type)
+{
+    switch (type) {
+        case OS_IO_PACKET_TYPE_RAW_APDU:
+        case OS_IO_PACKET_TYPE_USB_HID_APDU:
+        case OS_IO_PACKET_TYPE_USB_WEBUSB_APDU:
+        case OS_IO_PACKET_TYPE_USB_CCID_APDU:
+        case OS_IO_PACKET_TYPE_BLE_APDU:
+        case OS_IO_PACKET_TYPE_NFC_APDU:
+            return true;
+        default:
+            return false;
+    }
+}
+
+static bool apdu_slot_is_busy(void)
+{
+    return G_io_apdu_slot_owner != OS_IO_PACKET_TYPE_NONE;
+}
+
+static void apdu_slot_take(uint8_t type)
+{
+    G_io_apdu_slot_owner = type;
+}
+
+static void apdu_slot_release(uint8_t type)
+{
+    if (G_io_apdu_reject_pending) {
+        return;
+    }
+    if ((type != OS_IO_PACKET_TYPE_NONE) && (type == G_io_apdu_slot_owner)) {
+        G_io_apdu_slot_owner = OS_IO_PACKET_TYPE_NONE;
+    }
+}
+
+static void apdu_slot_refuse(uint8_t type)
+{
+    static const unsigned char sw[2] = {(unsigned char) (SWO_COMMAND_NOT_ACCEPTED >> 8),
+                                        (unsigned char) (SWO_COMMAND_NOT_ACCEPTED)};
+
+    if (!G_io_apdu_reject_pending) {
+        G_io_apdu_reject_pending = true;
+        os_io_tx_cmd(type, sw, sizeof(sw), NULL);
+        G_io_apdu_reject_pending = false;
+    }
+}
+
 static int process_itc_event(uint8_t *buffer_in, size_t buffer_in_length)
 {
     int status = 0;
@@ -189,6 +241,7 @@ int os_io_init(os_io_init_t *init)
 
 #ifndef USE_OS_IO_STACK
     G_io_seph_buffer_size = 0;
+    G_io_apdu_slot_owner  = OS_IO_PACKET_TYPE_NONE;
 #endif  // USE_OS_IO_STACK
 
     return 0;
@@ -196,6 +249,10 @@ int os_io_init(os_io_init_t *init)
 
 int os_io_start(void)
 {
+#ifndef USE_OS_IO_STACK
+    G_io_apdu_slot_owner = OS_IO_PACKET_TYPE_NONE;
+#endif  // !USE_OS_IO_STACK
+
 #ifdef HAVE_BLE
     BLE_LEDGER_start();
 #endif  // HAVE_BLE
@@ -213,6 +270,10 @@ int os_io_start(void)
 
 int os_io_stop(void)
 {
+#ifndef USE_OS_IO_STACK
+    G_io_apdu_slot_owner = OS_IO_PACKET_TYPE_NONE;
+#endif  // !USE_OS_IO_STACK
+
 #ifdef HAVE_BLE
     BLE_LEDGER_stop();
 #endif  // HAVE_BLE
@@ -233,8 +294,15 @@ int os_io_rx_evt(unsigned char *buffer,
                  unsigned int  *timeout_ms,
                  bool           check_se_event)
 {
-    int      status = 0;
-    uint16_t length = 0;
+    int      status      = 0;
+    uint16_t length      = 0;
+    uint8_t *dst         = buffer;
+    uint16_t dst_max_len = buffer_max_length;
+
+    if (apdu_slot_is_busy()) {
+        dst         = G_io_seph_buffer;
+        dst_max_len = sizeof(G_io_seph_buffer);
+    }
 
     if (!G_io_seph_buffer_size) {
         status = os_io_seph_se_rx_event(G_io_seph_buffer,
@@ -271,7 +339,7 @@ int os_io_rx_evt(unsigned char *buffer,
         length = (uint16_t) status;
     }
 
-    if (length > buffer_max_length) {
+    if (length > dst_max_len) {
         status = -22;  // EINVAL
         goto error;
     }
@@ -280,25 +348,23 @@ int os_io_rx_evt(unsigned char *buffer,
 #ifdef HAVE_IO_USB
         case SEPROXYHAL_TAG_USB_EVENT:
         case SEPROXYHAL_TAG_USB_EP_XFER_EVENT:
-            status = USBD_LEDGER_rx_seph_evt(G_io_seph_buffer, length, buffer, buffer_max_length);
+            status = USBD_LEDGER_rx_seph_evt(G_io_seph_buffer, length, dst, dst_max_len);
             break;
 #endif  // HAVE_IO_USB
 
 #ifdef HAVE_BLE
         case SEPROXYHAL_TAG_BLE_RECV_EVENT:
-            status = BLE_LEDGER_rx_seph_evt(G_io_seph_buffer, length, buffer, buffer_max_length);
+            status = BLE_LEDGER_rx_seph_evt(G_io_seph_buffer, length, dst, dst_max_len);
             break;
 #endif  // HAVE_BLE
 
 #ifdef HAVE_NFC
         case SEPROXYHAL_TAG_NFC_APDU_EVENT:
-            status
-                = NFC_LEDGER_rx_seph_apdu_evt(G_io_seph_buffer, length, buffer, buffer_max_length);
+            status = NFC_LEDGER_rx_seph_apdu_evt(G_io_seph_buffer, length, dst, dst_max_len);
 
 #ifdef HAVE_NFC_READER
-            if (status > 0 && status < buffer_max_length
-                && buffer[0] == OS_IO_PACKET_TYPE_NFC_APDU_RSP) {
-                os_io_nfc_reader_rx(&buffer[1], status - 1);
+            if (status > 0 && status < dst_max_len && dst[0] == OS_IO_PACKET_TYPE_NFC_APDU_RSP) {
+                os_io_nfc_reader_rx(&dst[1], status - 1);
             }
 #endif  // HAVE_NFC_READER
             break;
@@ -307,7 +373,7 @@ int os_io_rx_evt(unsigned char *buffer,
         case SEPROXYHAL_TAG_NFC_EVENT:
         case SEPROXYHAL_TAG_TICKER_EVENT:
             os_io_nfc_evt(&G_io_seph_buffer[1], status - 1);
-            memmove(buffer, G_io_seph_buffer, length);
+            memmove(dst, G_io_seph_buffer, length);
             break;
 #endif  // HAVE_NFC_READER
 #endif  // HAVE_NFC
@@ -316,17 +382,17 @@ int os_io_rx_evt(unsigned char *buffer,
             // Check size of both buffers:
             //  + Read from 'G_io_seph_buffer'
             //  + Write in 'buffer'
-            if ((length > sizeof(G_io_seph_buffer) - 4) || (length > buffer_max_length - 1)) {
+            if ((length > sizeof(G_io_seph_buffer) - 4) || (length > dst_max_len - 1)) {
                 status = -22;  // EINVAL
                 goto error;
             }
-            buffer[0] = OS_IO_PACKET_TYPE_RAW_APDU;
-            memmove(&buffer[1], &G_io_seph_buffer[4], length);
+            dst[0] = OS_IO_PACKET_TYPE_RAW_APDU;
+            memmove(&dst[1], &G_io_seph_buffer[4], length);
             status = length - 3;
             break;
 
         case SEPROXYHAL_TAG_ITC_EVENT:
-            memmove(buffer, G_io_seph_buffer, length);
+            memmove(dst, G_io_seph_buffer, length);
             status = process_itc_event(&G_io_seph_buffer[1], status - 1);
             if (status > 0) {
                 status = length;
@@ -334,8 +400,25 @@ int os_io_rx_evt(unsigned char *buffer,
             break;
 
         default:
-            memmove(buffer, G_io_seph_buffer, length);
+            memmove(dst, G_io_seph_buffer, length);
             break;
+    }
+    if (status > 0) {
+        if (apdu_needs_reply(dst[0])) {
+            if (apdu_slot_is_busy()) {
+                apdu_slot_refuse(dst[0]);
+                status = OS_IO_STATUS_REPLY_PENDING;
+                goto error;
+            }
+            apdu_slot_take(dst[0]);
+        }
+        if (dst != buffer) {
+            if (status > buffer_max_length) {
+                status = -22;  // EINVAL
+                goto error;
+            }
+            memmove(buffer, dst, status);
+        }
     }
 
 error:
@@ -441,6 +524,7 @@ int os_io_tx_cmd(uint8_t                     type,
         }
     }
 #endif  // HAVE_BLE
+    apdu_slot_release(type);
 
     return status;
 }
