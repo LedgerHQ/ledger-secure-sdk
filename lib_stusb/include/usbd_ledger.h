@@ -18,6 +18,7 @@
 #define USBD_LEDGER_H
 
 /* Includes ------------------------------------------------------------------*/
+#include <stdbool.h>
 #include <stdint.h>
 #include "os_io.h"
 
@@ -103,6 +104,12 @@ int32_t USBD_LEDGER_data_ready(uint8_t *buffer, uint16_t max_length);
 
 // Check data sent
 int32_t USBD_LEDGER_is_busy(void);
+
+// True once a SEPROXYHAL_TAG_USB_EP_XFER_OUT_64_ZEROPADDED event has been received, proving
+// the MCU firmware supports the zero-padded USB optim. Older MCU firmware never sends this
+// event, so callers must not use the matching IN-side optim (USBD_LL_Transmit64ZeroPadded)
+// unless this returns true.
+bool USBD_LEDGER_is_usb_ep_out_64_zeropadded_seen(void);
 
 // Setting
 void USBD_LEDGER_setting(uint32_t class_id, uint32_t setting_id, uint8_t *buffer, uint16_t length);

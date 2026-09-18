@@ -71,6 +71,12 @@ typedef struct {
 
     uint16_t usb_ep_xfer_len[IO_USB_MAX_ENDPOINTS];
     uint8_t *usb_ep_xfer_buffer[IO_USB_MAX_ENDPOINTS];
+
+    // Set once a SEPROXYHAL_TAG_USB_EP_XFER_OUT_64_ZEROPADDED event is received: proves the
+    // MCU firmware supports the zero-padded USB optim, so it is then safe to also use it for
+    // IN transfers (SEPROXYHAL_TAG_USB_EP_PREPARE_DIR_IN_64_ZEROPADDED). Never assumed by
+    // default, since older MCU firmware does not know about this optim.
+    bool usb_ep_out_64_zeropadded_seen;
 } usbd_ledger_data_t;
 
 #ifdef HAVE_PRINTF
@@ -862,6 +868,11 @@ int32_t USBD_LEDGER_is_busy(void)
     return status;
 }
 
+bool USBD_LEDGER_is_usb_ep_out_64_zeropadded_seen(void)
+{
+    return usbd_ledger_data.usb_ep_out_64_zeropadded_seen;
+}
+
 void USBD_LEDGER_setting(uint32_t class_id, uint32_t setting_id, uint8_t *buffer, uint16_t length)
 {
     uint8_t index = 0;
@@ -956,6 +967,11 @@ int USBD_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
 
             case SEPROXYHAL_TAG_USB_EP_XFER_OUT_64_ZEROPADDED:
                 if (epnum < IO_USB_MAX_ENDPOINTS) {
+                    // Receiving this event proves the MCU firmware supports the
+                    // zero-padded USB optim, which makes it safe to also use it for IN
+                    // transfers from now on (see USBD_LEDGER_is_usb_ep_out_64_zeropadded_seen).
+                    usbd_ledger_data.usb_ep_out_64_zeropadded_seen = true;
+
                     // The MCU only forwarded the real (non-padded) bytes of the 64-byte
                     // USB OUT packet over SEPH: restore the zero padding it stripped so
                     // that every consumer downstream sees the same full packet it would
