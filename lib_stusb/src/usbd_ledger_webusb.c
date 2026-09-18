@@ -383,11 +383,7 @@ USBD_StatusTypeDef USBD_LEDGER_WEBUSB_data_in(USBD_HandleTypeDef *pdev,
                                  NULL,
                                  0,
                                  USBD_LEDGER_protocol_chunk_buffer,
-#if USB_OPTIM_ENABLED
                                  handle->protocol_data.tx_chunk_length,
-#else
-                                 sizeof(USBD_LEDGER_protocol_chunk_buffer),
-#endif
                                  sizeof(USBD_LEDGER_protocol_chunk_buffer));
         if (result != LP_SUCCESS) {
             goto error;
@@ -477,11 +473,7 @@ USBD_StatusTypeDef USBD_LEDGER_WEBUSB_send_packet(USBD_HandleTypeDef *pdev,
                 ret           = USBD_LL_Transmit(pdev,
                                        LEDGER_WEBUSB_EPIN_ADDR,
                                        USBD_LEDGER_protocol_chunk_buffer,
-#if USB_OPTIM_ENABLED
                                        handle->protocol_data.tx_chunk_length,
-#else
-                                       sizeof(USBD_LEDGER_protocol_chunk_buffer),
-#endif
                                        timeout_ms);
             }
             else {
