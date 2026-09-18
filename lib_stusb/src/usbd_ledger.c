@@ -976,12 +976,12 @@ int USBD_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
                     // USB OUT packet over SEPH: restore the zero padding it stripped so
                     // that every consumer downstream sees the same full packet it would
                     // have seen without this SEPH bandwidth optimization.
-                    uint8_t out_64_zeropadded_buffer[LEDGER_USBD_DEFAULT_EPOUT_SIZE] = {0};
-                    memcpy(out_64_zeropadded_buffer,
-                           &seph_buffer[7],
-                           MIN(length, sizeof(out_64_zeropadded_buffer)));
-                    USBD_LEDGER_rx_evt_data_out(
-                        epnum, out_64_zeropadded_buffer, sizeof(out_64_zeropadded_buffer));
+
+                    // Fill padding
+                    size_t padding_size = 64 - length;
+                    memset(&seph_buffer[7 + length], 0, padding_size);
+                    // Send packet as a regular data out
+                    USBD_LEDGER_rx_evt_data_out(epnum, &seph_buffer[7], 64);
                     status = USBD_LEDGER_data_ready(apdu_buffer, apdu_buffer_max_length);
                 }
                 else {
