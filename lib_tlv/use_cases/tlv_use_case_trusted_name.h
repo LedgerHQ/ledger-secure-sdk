@@ -76,6 +76,9 @@ typedef enum tlv_trusted_name_blockchain_family_e {
     TLV_TRUSTED_NAME_BLOCKCHAIN_FAMILY_TRON     = 0x06,
 } tlv_trusted_name_blockchain_family_t;
 
+// Deprecated: the signer key ID is no longer checked against a hardcoded value. The signer
+// authorization is enforced by the TRUSTED_NAME key usage of the PKI certificate, which keeps the
+// PKI dynamic. Kept for backward compatibility of the public API.
 typedef enum tlv_trusted_name_signer_key_id_e {
     TLV_TRUSTED_NAME_SIGNER_KEY_ID_TEST = 0x00,
     TLV_TRUSTED_NAME_SIGNER_KEY_ID_PROD = 0x07,
@@ -132,6 +135,8 @@ typedef struct tlv_trusted_name_out_s {
     bool blockchain_family_received;
 } tlv_trusted_name_out_t;
 
+// Note: TLV_TRUSTED_NAME_WRONG_KEY_ID is never returned anymore, the signer key ID is not checked.
+// Its value is kept reserved to avoid renumbering the other status codes.
 typedef enum tlv_trusted_name_status_e {
     TLV_TRUSTED_NAME_SUCCESS               = 0,
     TLV_TRUSTED_NAME_PARSING_ERROR         = 1,
