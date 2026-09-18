@@ -109,7 +109,7 @@ int32_t USBD_LEDGER_is_busy(void);
 // the MCU firmware supports the zero-padded USB optim. Older MCU firmware never sends this
 // event, so callers must not use the matching IN-side optim (USBD_LL_Transmit64ZeroPadded)
 // unless this returns true.
-bool USBD_LEDGER_is_usb_ep_out_64_zeropadded_seen(void);
+bool USBD_LEDGER_is_usb_ep_out_64_zeropadded_seen(uint8_t ep_num);
 
 // Setting
 void USBD_LEDGER_setting(uint32_t class_id, uint32_t setting_id, uint8_t *buffer, uint16_t length);
