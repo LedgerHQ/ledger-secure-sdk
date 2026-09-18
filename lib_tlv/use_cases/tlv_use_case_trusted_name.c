@@ -125,6 +125,8 @@ typedef struct tlv_extracted_s {
     tlv_trusted_name_out_t *output;
 
     // Tags handled by the use case API and not the caller
+    // Note: signer_key_id is parsed but not verified, the signer authorization is enforced by the
+    // key usage of the PKI certificate, see verify_signature()
     uint8_t  structure_type;
     uint16_t signer_key_id;
     uint8_t  signer_algo;
@@ -256,12 +258,6 @@ static bool handle_common(const tlv_data_t *data, tlv_extracted_t *tlv_extracted
 
 static tlv_trusted_name_status_t verify_struct(const tlv_extracted_t *tlv_extracted)
 {
-#ifdef TRUSTED_NAME_TEST_KEY
-    uint16_t valid_key_id = TLV_TRUSTED_NAME_SIGNER_KEY_ID_TEST;
-#else
-    uint16_t valid_key_id = TLV_TRUSTED_NAME_SIGNER_KEY_ID_PROD;
-#endif
-
     if (!TLV_CHECK_RECEIVED_TAGS(tlv_extracted->received_tags, TAG_STRUCTURE_TYPE)) {
         PRINTF("Error: no struct type specified!\n");
         return TLV_TRUSTED_NAME_MISSING_STRUCTURE_TAG;
@@ -311,11 +307,6 @@ static tlv_trusted_name_status_t verify_struct(const tlv_extracted_t *tlv_extrac
         PRINTF("Error: source_contract_received is only supported in v >= %d\n",
                SOURCE_CONTRACT_RECEIVED_MIN_VERSION);
         return TLV_TRUSTED_NAME_UNSUPPORTED_TAG;
-    }
-
-    if (tlv_extracted->signer_key_id != valid_key_id) {
-        PRINTF("Error: wrong metadata key ID %u\n", tlv_extracted->signer_key_id);
-        return TLV_TRUSTED_NAME_WRONG_KEY_ID;
     }
 
     return TLV_TRUSTED_NAME_SUCCESS;
