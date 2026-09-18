@@ -325,10 +325,10 @@ void test_source_contract_in_v1(void)
 }
 
 /* -------------------------------------------------------------------------- */
-/* Test: Wrong key ID                                                         */
+/* Test: Key ID is not checked                                                */
 /* -------------------------------------------------------------------------- */
 
-void test_wrong_key_id(void)
+void test_unchecked_key_id(void)
 {
     uint8_t payload[256];
     size_t  offset = 0;
@@ -340,7 +340,8 @@ void test_wrong_key_id(void)
     append_tlv_string(payload, &offset, 0x20, "Ledger");
     append_tlv_uint64(payload, &offset, 0x23, 1);
     append_tlv_string(payload, &offset, 0x22, "0x1234567890abcdef1234567890abcdef12345678");
-    append_tlv_uint16(payload, &offset, 0x13, 0x99);  // Wrong key ID
+    // Any key ID is accepted, the signer authorization comes from the PKI certificate key usage
+    append_tlv_uint16(payload, &offset, 0x13, 0x99);
     append_tlv_uint8(payload, &offset, 0x14, TLV_TRUSTED_NAME_SIGNER_ALGORITHM_ECDSA_KECCAK_256);
     uint8_t signature[64] = {0};
     append_tlv(payload, &offset, 0x15, signature, sizeof(signature));
@@ -348,9 +349,11 @@ void test_wrong_key_id(void)
     buffer_t               buf = {.ptr = payload, .size = offset, .offset = 0};
     tlv_trusted_name_out_t out = {0};
 
+    check_signature_with_pki_IgnoreAndReturn(CHECK_SIGNATURE_WITH_PKI_SUCCESS);
+
     tlv_trusted_name_status_t result = tlv_use_case_trusted_name(&buf, &out);
 
-    TEST_ASSERT_EQUAL_INT(result, TLV_TRUSTED_NAME_WRONG_KEY_ID);
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRUSTED_NAME_SUCCESS);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -469,7 +472,7 @@ int main(void)
     RUN_TEST(test_version_zero);
     RUN_TEST(test_version_too_high);
     RUN_TEST(test_source_contract_in_v1);
-    RUN_TEST(test_wrong_key_id);
+    RUN_TEST(test_unchecked_key_id);
     RUN_TEST(test_signature_verification_failure);
     RUN_TEST(test_invalid_tlv_format);
     RUN_TEST(test_empty_payload);
