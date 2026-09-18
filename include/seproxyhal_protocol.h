@@ -121,9 +121,10 @@ enum seph_protocol_evt_usb_type {
 // EVT : USB ENDPOINT XFER
 #define SEPROXYHAL_TAG_USB_EP_XFER_EVENT (0x10)
 enum seph_protocol_evt_usb_mask {
-    SEPROXYHAL_TAG_USB_EP_XFER_SETUP = 0x01,
-    SEPROXYHAL_TAG_USB_EP_XFER_IN    = 0x02,
-    SEPROXYHAL_TAG_USB_EP_XFER_OUT   = 0x04,
+    SEPROXYHAL_TAG_USB_EP_XFER_SETUP             = 0x01,
+    SEPROXYHAL_TAG_USB_EP_XFER_IN                = 0x02,
+    SEPROXYHAL_TAG_USB_EP_XFER_OUT               = 0x04,
+    SEPROXYHAL_TAG_USB_EP_XFER_OUT_64_ZEROPADDED = 0x05,
 };
 
 // EVT : MCU CHUNK READ RSP

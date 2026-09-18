@@ -954,6 +954,25 @@ int USBD_LEDGER_rx_seph_evt(uint8_t *seph_buffer,
                 }
                 break;
 
+            case SEPROXYHAL_TAG_USB_EP_XFER_OUT_64_ZEROPADDED:
+                if (epnum < IO_USB_MAX_ENDPOINTS) {
+                    // The MCU only forwarded the real (non-padded) bytes of the 64-byte
+                    // USB OUT packet over SEPH: restore the zero padding it stripped so
+                    // that every consumer downstream sees the same full packet it would
+                    // have seen without this SEPH bandwidth optimization.
+                    uint8_t out_64_zeropadded_buffer[LEDGER_USBD_DEFAULT_EPOUT_SIZE] = {0};
+                    memcpy(out_64_zeropadded_buffer,
+                           &seph_buffer[7],
+                           MIN(length, sizeof(out_64_zeropadded_buffer)));
+                    USBD_LEDGER_rx_evt_data_out(
+                        epnum, out_64_zeropadded_buffer, sizeof(out_64_zeropadded_buffer));
+                    status = USBD_LEDGER_data_ready(apdu_buffer, apdu_buffer_max_length);
+                }
+                else {
+                    goto error;
+                }
+                break;
+
             default:
                 goto error;
                 break;
