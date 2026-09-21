@@ -434,6 +434,9 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
                         buffer_out_length = 0;
                     }
                     if (err == SWO_NO_RESPONSE) {
+                        // TOCTOU: reply deferred (review on screen), block further commands
+                        // until io_legacy_apdu_tx() finally sends it.
+                        os_io_set_reply_pending(true);
                         return SWO_NO_RESPONSE;
                     }
                     G_io_tx_buffer[buffer_out_length++] = err >> 8;
