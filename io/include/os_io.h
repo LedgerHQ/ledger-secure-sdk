@@ -149,6 +149,20 @@ extern uint8_t G_io_init_syscall;
 SYSCALL int os_io_init(os_io_init_t *init);
 SYSCALL int os_io_start(void);
 SYSCALL int os_io_stop(void);
+
+/**
+ * @brief Receive an IO event
+ *
+ * @param buffer Buffer where output event is written.
+ * @param buffer_max_length Maximum length of @p buffer
+ * @param timeout_ms Timeout in ms before reception of event
+ * @param check_se_event If true, the function also process internal OS events
+ *
+ * @return int
+ * @retval < 0 : Error / timeout.
+ * @retval 0   : Event received and processed internally.
+ * @retval > 0 : Event received, to be processed by caller.
+ */
 SYSCALL int os_io_rx_evt(unsigned char *buffer,
                          unsigned short buffer_max_length,
                          unsigned int  *timeout_ms,
@@ -157,6 +171,27 @@ SYSCALL int os_io_tx_cmd(unsigned char               type,  // os_io_packet_type
                          const unsigned char *buffer PLENGTH(length),
                          unsigned short              length,
                          unsigned int               *timeout_ms);
+
+/**
+ * @brief Receive IO events in loop, until a meaningful app event is received.
+ *
+ * Meaningful app events are:
+ * - SEPH events: ticker, status, button, touch.
+ * - OS IO events: APDU received (raw, USB, BLE, NFC)
+ *
+ * @param buffer Buffer where output event is written.
+ * @param buffer_max_length Maximum length of @p buffer
+ * @param timeout_ms Timeout in ms before reception of event
+ * @param check_se_event If true, the function also process internal OS events
+ *
+ * @return int
+ * @retval < 0 : Error / timeout.
+ * @retval > 0 : Event received, to be processed by caller.
+ */
+SYSCALL int os_io_rx_app_evt(unsigned char *buffer,
+                             unsigned short buffer_max_length,
+                             unsigned int  *timeout_ms,
+                             bool           check_se_event);
 
 SYSCALL int os_io_seph_tx(const unsigned char *buffer PLENGTH(length),
                           unsigned short              length,
