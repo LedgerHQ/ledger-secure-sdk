@@ -314,6 +314,10 @@ RETRY:
 
 end:
     *sig_len = out_sig_len;
+#ifdef HAVE_RNG_RFC6979
+    explicit_bzero(&G_cx.rfc6979, sizeof(G_cx.rfc6979));
+#endif
+    explicit_bzero(&u, sizeof(u));
     cx_bn_unlock();
     return error;
 
