@@ -58,6 +58,7 @@ int  os_io_seph_cmd_setup_ticker(unsigned int interval_ms);
 int  os_io_seph_cmd_device_shutdown(uint8_t critical_battery);
 int  os_io_seph_cmd_se_reset(void);
 int  os_io_seph_cmd_usb_disconnect(void);
+int  os_io_seph_cmd_usb_ep_auto_rearm(uint8_t ep_addr, bool enable);
 int  os_io_seph_cmd_mcu_status(void);
 int  os_io_seph_cmd_mcu_go_to_bootloader(void);
 int  os_io_seph_cmd_mcu_lock(void);
