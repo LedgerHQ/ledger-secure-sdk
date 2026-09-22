@@ -358,7 +358,7 @@ int io_legacy_apdu_rx(uint8_t handle_ux_events)
     int                      status      = 0;
     os_io_apdu_post_action_t post_action = OS_IO_APDU_POST_ACTION_NONE;
 
-    status = os_io_rx_evt(G_io_rx_buffer, sizeof(G_io_rx_buffer), NULL, true);
+    status = os_io_rx_evt_until(G_io_rx_buffer, sizeof(G_io_rx_buffer), NULL, true);
 
     if (status > 0) {
         switch (G_io_rx_buffer[0]) {
