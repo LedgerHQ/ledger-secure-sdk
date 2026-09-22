@@ -98,6 +98,11 @@ USBD_StatusTypeDef USBD_LL_Transmit(USBD_HandleTypeDef *pdev,
                                     const uint8_t      *pbuf,
                                     uint32_t            size,
                                     uint32_t            timeout_ms);
+USBD_StatusTypeDef USBD_LL_Transmit64ZeroPadded(USBD_HandleTypeDef *pdev,
+                                                uint8_t             ep_addr,
+                                                const uint8_t      *pbuf,
+                                                uint32_t            size,
+                                                uint32_t            timeout_ms);
 
 USBD_StatusTypeDef USBD_LL_PrepareReceive(USBD_HandleTypeDef *pdev,
                                           uint8_t             ep_addr,
