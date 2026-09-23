@@ -108,6 +108,7 @@ void u4le_encode(unsigned char *buffer, unsigned int offset, unsigned int value)
 int  bytes_to_hex(char *out, size_t outl, const void *value, size_t len);
 int  bytes_to_lowercase_hex(char *out, size_t outl, const void *value, size_t len);
 bool is_printable_string(const char *str, size_t len);
+bool is_displayable_string(const char *str, size_t len);
 bool is_zeroes_buffer(const void *buf, size_t n);
 
 #define ARRAYLEN(array) (sizeof(array) / sizeof(array[0]))
@@ -126,9 +127,6 @@ void os_xor(void *dst, void *src1, void *src2, unsigned int length);
 
 // Secure memory comparison
 char os_secure_memcmp(const void *src1, const void *src2, size_t length);
-
-// Check that a string contains only printable ASCII characters
-bool is_printable_string(const char *str, size_t len);
 
 // Alignement-related
 #define UPPER_ALIGN(adr, align, type)                                                       \
