@@ -217,9 +217,17 @@ void os_explicit_zero_BSS_segment(void)
  *
  * @param[in] str A pointer to the string to be checked
  * @param[in] len The length of the string to be checked
+ * @return true if the string contains only printable ASCII characters (an empty string
+ *         is printable), false otherwise or if @p str is NULL with a non-zero @p len
  */
 bool is_printable_string(const char *str, size_t len)
 {
+    if (len == 0) {
+        return true;
+    }
+    if (str == NULL) {
+        return false;
+    }
     for (size_t i = 0; i < len; i++) {
         if (!isprint((unsigned char) str[i])) {
             return false;
@@ -229,17 +237,53 @@ bool is_printable_string(const char *str, size_t len)
 }
 
 /**
+ * @brief Checks if a string is printable and not blank
+ *
+ * Same check as @ref is_printable_string, but the string must also contain at least one
+ * visible character (0x21 to 0x7E): an empty string, or one made only of spaces, is refused.
+ * Use it for a value that must show something on screen, such as a name.
+ *
+ * @param[in] str A pointer to the string to be checked
+ * @param[in] len The length of the string to be checked
+ * @return true if the string contains only printable ASCII characters and at least one
+ *         character other than a space, false otherwise (including an empty string, or
+ *         @p str being NULL)
+ */
+bool is_displayable_string(const char *str, size_t len)
+{
+    bool has_visible = false;
+
+    if (!is_printable_string(str, len)) {
+        return false;
+    }
+    for (size_t i = 0; i < len; i++) {
+        if (isgraph((unsigned char) str[i])) {
+            has_visible = true;
+            break;
+        }
+    }
+    return has_visible;
+}
+
+/**
  * @brief Checks if a buffer contains only zero bytes
  *
  * This function iterates through the provided buffer and checks if all bytes are zero.
  *
  * @param[in] buf A pointer to the buffer to be checked
  * @param[in] n The number of bytes in the buffer to be checked
- * @return true if all bytes in the buffer are zero, false otherwise
+ * @return true if all bytes in the buffer are zero, false otherwise or if @p buf is NULL with a
+ *         non-zero @p n
  */
 bool is_zeroes_buffer(const void *buf, size_t n)
 {
     const uint8_t *p = buf;
+    if (n == 0) {
+        return true;
+    }
+    if (p == NULL) {
+        return false;
+    }
     for (size_t i = 0; i < n; ++i) {
         if (p[i] != 0) {
             return false;
