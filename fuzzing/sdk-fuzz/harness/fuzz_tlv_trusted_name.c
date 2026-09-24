@@ -26,7 +26,7 @@ static const tlv_tag_info_t TRUSTED_NAME_TAGS[] = {
     {0x72, 32, 32}, /* TAG_NFT_ID */
     {0x73, 1,  40}, /* TAG_SOURCE_CONTRACT */
     {0x12, 1,  4 }, /* TAG_CHALLENGE */
-    {0x10, 4,  4 }, /* TAG_NOT_VALID_AFTER */
+    {0x10, 3,  4 }, /* TAG_NOT_VALID_AFTER */
     {0x13, 1,  2 }, /* TAG_SIGNER_KEY_ID */
     {0x14, 1,  1 }, /* TAG_SIGNER_ALGORITHM */
     {0x15, 64, 72}, /* TAG_DER_SIGNATURE */

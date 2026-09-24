@@ -194,13 +194,21 @@ static bool handle_challenge(const tlv_data_t *data, tlv_extracted_t *tlv_extrac
 
 static bool handle_not_valid_after(const tlv_data_t *data, tlv_extracted_t *tlv_extracted)
 {
-    if (data->value.size != sizeof(tlv_extracted->output->not_valid_after)) {
-        PRINTF("Invalid handle_not_valid_after format length %d\n", data->value.size);
-        return false;
+    switch (data->value.size) {
+        case 3:
+            // uint8 major, uint8 minor, uint8 patch
+            tlv_extracted->output->not_valid_after.patch = data->value.ptr[2];
+            break;
+        case 4:
+            // uint8 major, uint8 minor, uint16 BE patch
+            tlv_extracted->output->not_valid_after.patch = U2BE(data->value.ptr, 2);
+            break;
+        default:
+            PRINTF("Invalid handle_not_valid_after format length %d\n", data->value.size);
+            return false;
     }
     tlv_extracted->output->not_valid_after.major = data->value.ptr[0];
     tlv_extracted->output->not_valid_after.minor = data->value.ptr[1];
-    tlv_extracted->output->not_valid_after.patch = U2BE(data->value.ptr, 2);
     PRINTF("major = %d minor = %d patch = %d\n",
            tlv_extracted->output->not_valid_after.major,
            tlv_extracted->output->not_valid_after.minor,
