@@ -129,6 +129,92 @@ void test_valid_trusted_name_v2_with_optionals(void)
 }
 
 /* -------------------------------------------------------------------------- */
+/* Test: Not valid after with a 3-byte semver                                 */
+/* -------------------------------------------------------------------------- */
+
+static size_t build_payload_with_not_valid_after(uint8_t       *payload,
+                                                 const uint8_t *semver,
+                                                 size_t         semver_size)
+{
+    size_t offset = 0;
+
+    append_tlv_uint8(payload, &offset, 0x01, TLV_STRUCTURE_TYPE_TRUSTED_NAME);
+    append_tlv_uint8(payload, &offset, 0x02, 0x02);  // Version 2
+    append_tlv_uint8(payload, &offset, 0x70, TLV_TRUSTED_NAME_TYPE_TOKEN);
+    append_tlv_uint8(payload, &offset, 0x71, TLV_TRUSTED_NAME_SOURCE_ENS);
+    append_tlv_string(payload, &offset, 0x20, "MyToken");
+    append_tlv_uint64(payload, &offset, 0x23, 137);  // Polygon
+    append_tlv_string(payload, &offset, 0x22, "0xabcdef1234567890abcdef1234567890abcdef12");
+    append_tlv(payload, &offset, 0x10, semver, semver_size);
+    append_tlv_uint16(payload, &offset, 0x13, TLV_TRUSTED_NAME_SIGNER_KEY_ID_PROD);
+    append_tlv_uint8(payload, &offset, 0x14, TLV_TRUSTED_NAME_SIGNER_ALGORITHM_ECDSA_SHA256);
+    uint8_t signature[64] = {0};
+    append_tlv(payload, &offset, 0x15, signature, sizeof(signature));
+
+    return offset;
+}
+
+void test_not_valid_after_3_bytes(void)
+{
+    uint8_t payload[256];
+    uint8_t semver[3] = {0x01, 0x02, 0x03};  // 1.2.3
+    size_t  size      = build_payload_with_not_valid_after(payload, semver, sizeof(semver));
+
+    buffer_t               buf = {.ptr = payload, .size = size, .offset = 0};
+    tlv_trusted_name_out_t out = {0};
+
+    check_signature_with_pki_IgnoreAndReturn(CHECK_SIGNATURE_WITH_PKI_SUCCESS);
+    tlv_trusted_name_status_t result = tlv_use_case_trusted_name(&buf, &out);
+
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRUSTED_NAME_SUCCESS);
+    TEST_ASSERT_TRUE(out.not_valid_after_received);
+    TEST_ASSERT_EQUAL_INT(out.not_valid_after.major, 1);
+    TEST_ASSERT_EQUAL_INT(out.not_valid_after.minor, 2);
+    TEST_ASSERT_EQUAL_INT(out.not_valid_after.patch, 3);
+}
+
+void test_not_valid_after_3_bytes_max(void)
+{
+    uint8_t payload[256];
+    uint8_t semver[3] = {0xFF, 0xFF, 0xFF};
+    size_t  size      = build_payload_with_not_valid_after(payload, semver, sizeof(semver));
+
+    buffer_t               buf = {.ptr = payload, .size = size, .offset = 0};
+    tlv_trusted_name_out_t out = {0};
+
+    check_signature_with_pki_IgnoreAndReturn(CHECK_SIGNATURE_WITH_PKI_SUCCESS);
+    tlv_trusted_name_status_t result = tlv_use_case_trusted_name(&buf, &out);
+
+    TEST_ASSERT_EQUAL_INT(result, TLV_TRUSTED_NAME_SUCCESS);
+    TEST_ASSERT_TRUE(out.not_valid_after_received);
+    TEST_ASSERT_EQUAL_INT(out.not_valid_after.major, 0xFF);
+    TEST_ASSERT_EQUAL_INT(out.not_valid_after.minor, 0xFF);
+    TEST_ASSERT_EQUAL_INT(out.not_valid_after.patch, 0xFF);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Test: Not valid after with an invalid length                               */
+/* -------------------------------------------------------------------------- */
+
+void test_not_valid_after_invalid_length(void)
+{
+    const uint8_t semver[5]   = {0x01, 0x02, 0x03, 0x04, 0x05};
+    const size_t  bad_sizes[] = {0, 1, 2, 5};
+    uint8_t       payload[256];
+
+    for (size_t i = 0; i < sizeof(bad_sizes) / sizeof(bad_sizes[0]); i++) {
+        size_t size = build_payload_with_not_valid_after(payload, semver, bad_sizes[i]);
+
+        buffer_t               buf = {.ptr = payload, .size = size, .offset = 0};
+        tlv_trusted_name_out_t out = {0};
+
+        tlv_trusted_name_status_t result = tlv_use_case_trusted_name(&buf, &out);
+
+        TEST_ASSERT_EQUAL_INT(result, TLV_TRUSTED_NAME_PARSING_ERROR);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
 /* Test: Missing structure type tag                                           */
 /* -------------------------------------------------------------------------- */
 
@@ -465,6 +551,9 @@ int main(void)
     UNITY_BEGIN();
     RUN_TEST(test_valid_trusted_name_v1);
     RUN_TEST(test_valid_trusted_name_v2_with_optionals);
+    RUN_TEST(test_not_valid_after_3_bytes);
+    RUN_TEST(test_not_valid_after_3_bytes_max);
+    RUN_TEST(test_not_valid_after_invalid_length);
     RUN_TEST(test_missing_structure_type);
     RUN_TEST(test_wrong_structure_type);
     RUN_TEST(test_missing_version_tag);
