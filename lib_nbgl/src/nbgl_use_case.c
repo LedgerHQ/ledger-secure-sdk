@@ -4520,7 +4520,8 @@ void nbgl_useCaseReviewStreamingContinueExt(const nbgl_contentTagValueList_t *ta
                                             nbgl_callback_t                   skipCallback)
 {
     // Should follow a call to nbgl_useCaseReviewStreamingStart
-    memset(&genericContext, 0, sizeof(genericContext));
+    // Keep the shared context set up by the streaming start.
+    memset(&genericContext, 0, offsetof(GenericContext_t, sharedCtx));
 
     bundleNavContext.reviewStreaming.choiceCallback = choiceCallback;
     bundleNavContext.reviewStreaming.skipCallback   = skipCallback;
@@ -4585,7 +4586,8 @@ void nbgl_useCaseReviewStreamingFinish(const char           *finishTitle,
                                        nbgl_choiceCallback_t choiceCallback)
 {
     // Should follow a call to nbgl_useCaseReviewStreamingContinue
-    memset(&genericContext, 0, sizeof(genericContext));
+    // Keep the shared context set up by the streaming start.
+    memset(&genericContext, 0, offsetof(GenericContext_t, sharedCtx));
 
     bundleNavContext.reviewStreaming.choiceCallback = choiceCallback;
 
