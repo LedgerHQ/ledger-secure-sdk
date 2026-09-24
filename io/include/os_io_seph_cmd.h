@@ -64,6 +64,25 @@ int  os_io_seph_cmd_mcu_lock(void);
 int  os_io_seph_cmd_mcu_protect(void);
 void os_io_seph_cmd_raw_apdu(const uint8_t *buffer, uint16_t length);
 
+/**
+ * @brief Enable/Disable the SEPH USB APDU proxy
+ *
+ * The SEPH USB APDU proxy is a mechanism implemented in the MCU, that optimizes
+ * the transfer of APDU through USB.
+ *
+ * Optimizations:
+ * - "Auto-rearm": the MCU does not wait for the "PREPARE_DIR_OUT" command to receive USB data.
+ * - Padding: The MCU sends "XFER_OUT_64_ZEROPADDED" packets, containing only meaningful bytes.
+ * - The SE can use "PREPARE_DIR_IN_64_ZEROPADDED" containing only meaningful bytes.
+ *
+ * @note This function does not guarantee that the SEPH USB APDU proxy is enabled. For example, it
+ * has no effect if the MCU does not implement the proxy.
+ *
+ * @param ep_addr Endpoint to enable/disable the proxy on
+ * @param enable true to enable / false to disable
+ */
+int os_io_seph_cmd_enable_usb_apdu_proxy(uint8_t ep_addr, bool enable);
+
 #ifdef HAVE_SHIP_MODE
 int os_io_seph_cmd_set_ship_mode(void);
 #endif  // HAVE_SHIP_MODE

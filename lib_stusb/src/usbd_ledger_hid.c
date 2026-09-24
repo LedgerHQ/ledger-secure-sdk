@@ -16,6 +16,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "ledger_protocol.h"
+#include "os_io_seph_cmd.h"
+#include "usbd_core.h"
 #include "usbd_desc.h"
 #include "usbd_ioreq.h"
 #include "usbd_ledger.h"
@@ -196,6 +198,9 @@ USBD_StatusTypeDef USBD_LEDGER_HID_init(USBD_HandleTypeDef *pdev, void *cookie)
         goto error;
     }
 
+    // Enable SEPH USB APDU proxy to optimize APDU receiving.
+    os_io_seph_cmd_enable_usb_apdu_proxy(LEDGER_HID_EPOUT_ADDR, true);
+
     status = USBD_LL_PrepareReceive(pdev, LEDGER_HID_EPOUT_ADDR, NULL, LEDGER_HID_EPOUT_SIZE);
 
 error:
@@ -206,6 +211,8 @@ USBD_StatusTypeDef USBD_LEDGER_HID_de_init(USBD_HandleTypeDef *pdev, void *cooki
 {
     UNUSED(pdev);
     UNUSED(cookie);
+
+    os_io_seph_cmd_enable_usb_apdu_proxy(LEDGER_HID_EPOUT_ADDR, false);
 
     return USBD_OK;
 }
@@ -480,11 +487,25 @@ USBD_StatusTypeDef USBD_LEDGER_HID_send_packet(USBD_HandleTypeDef *pdev,
         if (handle->state == LEDGER_HID_STATE_IDLE) {
             if (handle->protocol_data.tx_chunk_length >= 2) {
                 handle->state = LEDGER_HID_STATE_BUSY;
-                ret           = USBD_LL_Transmit(pdev,
-                                       LEDGER_HID_EPIN_ADDR,
-                                       USBD_LEDGER_protocol_chunk_buffer,
-                                       sizeof(USBD_LEDGER_protocol_chunk_buffer),
-                                       timeout_ms);
+                // Failsafe: only use `zeropadded` SEPH USB command, if the MCU already sent
+                // a `zeropadded` event on the endpoint.
+                //
+                // It avoid breaking the device if the MCU does not implement the `zeropadded`
+                // messages.
+                if (USBD_LEDGER_is_usb_ep_out_64_zeropadded_seen(LEDGER_HID_EPIN_ADDR & 0x7F)) {
+                    USBD_LL_Transmit64ZeroPadded(pdev,
+                                                 LEDGER_HID_EPIN_ADDR,
+                                                 USBD_LEDGER_protocol_chunk_buffer,
+                                                 handle->protocol_data.tx_chunk_length,
+                                                 timeout_ms);
+                }
+                else {
+                    USBD_LL_Transmit(pdev,
+                                     LEDGER_HID_EPIN_ADDR,
+                                     USBD_LEDGER_protocol_chunk_buffer,
+                                     sizeof(USBD_LEDGER_protocol_chunk_buffer),
+                                     timeout_ms);
+                }
             }
             else {
                 ret = USBD_FAIL;

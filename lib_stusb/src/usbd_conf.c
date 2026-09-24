@@ -19,6 +19,8 @@
 #include "usbd_core.h"
 #include "usbd_conf.h"
 #include "seproxyhal_protocol.h"
+#include "usbd_def.h"
+#include "usbd_ledger.h"
 
 /* Private enumerations ------------------------------------------------------*/
 
@@ -289,6 +291,48 @@ USBD_StatusTypeDef USBD_LL_Transmit(USBD_HandleTypeDef *pdev,
     buffer[3] = ep_addr;
     buffer[4] = SEPROXYHAL_TAG_USB_EP_PREPARE_DIR_IN;
     buffer[5] = size;
+    if (timeout_ms) {
+        if (os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 6, (unsigned int *) &timeout_ms)
+            != TIMEOUT) {
+            os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, pbuf, size, NULL);
+        }
+        else {
+            status = USBD_TIMEOUT;
+        }
+    }
+    else {
+        os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 6, NULL);
+        os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, pbuf, size, NULL);
+    }
+
+    return status;
+}
+
+USBD_StatusTypeDef USBD_LL_Transmit64ZeroPadded(USBD_HandleTypeDef *pdev,
+                                                uint8_t             ep_addr,
+                                                const uint8_t      *pbuf,
+                                                uint32_t            size,
+                                                uint32_t            timeout_ms)
+{
+    USBD_StatusTypeDef status    = USBD_OK;
+    uint8_t            buffer[6] = {0};
+
+    UNUSED(pdev);
+    if (size > LEDGER_USBD_DEFAULT_EPOUT_SIZE) {
+        return USBD_FAIL;
+    }
+
+    if ((ep_addr & 0x7F) >= IO_USB_MAX_ENDPOINTS) {
+        return USBD_FAIL;
+    }
+
+    buffer[0] = SEPROXYHAL_TAG_USB_EP_PREPARE;
+    buffer[1] = (3 + size) >> 8;
+    buffer[2] = (3 + size) >> 0;
+    buffer[3] = ep_addr;
+    buffer[4] = SEPROXYHAL_TAG_USB_EP_PREPARE_DIR_IN_64_ZEROPADDED;
+    buffer[5] = size;
+
     if (timeout_ms) {
         if (os_io_tx_cmd(OS_IO_PACKET_TYPE_SEPH, buffer, 6, (unsigned int *) &timeout_ms)
             != TIMEOUT) {
