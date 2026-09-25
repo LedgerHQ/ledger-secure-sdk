@@ -10,7 +10,7 @@ typedef unsigned short exception_t;
 
 typedef struct try_context_s try_context_t;
 
-#if (defined(ST31) || defined(ST33) || defined(ST33K1M5)) && defined(__arm__)
+#if defined(__arm__)
 // #include <setjmp.h>
 //  GCC/LLVM declare way too big jmp context, reduce them to what is used on CM0+
 
@@ -19,7 +19,6 @@ typedef struct try_context_s try_context_t;
 typedef unsigned int jmp_buf[10];
 
 // borrowed from setjmp.h
-
 #ifdef __GNUC__
 void longjmp(jmp_buf __jmpb, int __retval) __attribute__((__noreturn__));
 #else
