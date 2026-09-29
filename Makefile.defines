@@ -97,8 +97,8 @@ LDFLAGS  += -mno-unaligned-access
 LDFLAGS  += -Wl,--gc-sections -Wl,-Map,$(DBG_DIR)/app.map
 LDFLAGS  += -nostdlib -nodefaultlibs
 
-ENABLE_STACK_PROTECTOR ?= 0
-ifneq ($(ENABLE_STACK_PROTECTOR),0)
+DISABLE_STACK_PROTECTOR ?= 0
+ifneq ($(DISABLE_STACK_PROTECTOR),1)
 	LDLIBS   += -Wl,--wrap=__stack_chk_fail -Wl,--wrap=__stack_chk_init
 	# Enter at __stack_chk_init (overrides ENTRY(main)) so the canary is randomized,
 	# including in sideloads; the init then reaches main via `b main`.
@@ -109,8 +109,8 @@ else
 	LDFLAGS  += -Wl,--defsym,__entry=main
 endif
 
-ENABLE_LINK_TIME_OPTIMIZATION ?= 0
-ifneq ($(ENABLE_LINK_TIME_OPTIMIZATION),0)
+DISABLE_LINK_TIME_OPTIMIZATION ?= 0
+ifneq ($(DISABLE_LINK_TIME_OPTIMIZATION),1)
 	LDFLAGS  += -Wl,-mllvm,-relocation-model=ropi-rwpi -flto
 	CFLAGS   += -flto -DHAS_LTO
 	# Disable LTO for bagl.c
