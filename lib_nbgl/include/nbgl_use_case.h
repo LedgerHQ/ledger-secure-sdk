@@ -665,12 +665,6 @@ void            nbgl_useCaseReviewStart(const nbgl_icon_details_t *icon,
                                         const char                *rejectText,
                                         nbgl_callback_t            continueCallback,
                                         nbgl_callback_t            rejectCallback);
-DEPRECATED void nbgl_useCaseRegularReview(uint8_t                    initPage,
-                                          uint8_t                    nbPages,
-                                          const char                *rejectText,
-                                          nbgl_layoutTouchCallback_t buttonCallback,
-                                          nbgl_navCallback_t         navCallback,
-                                          nbgl_choiceCallback_t      choiceCallback);
 void            nbgl_useCaseStaticReview(const nbgl_contentTagValueList_t *tagValueList,
                                          const nbgl_pageInfoLongPress_t   *infoLongPress,
                                          const char                       *rejectText,

@@ -283,18 +283,6 @@ void nbgl_useCaseReviewStart(const nbgl_icon_details_t *icon __attribute__((unus
     }
 }
 
-void nbgl_useCaseRegularReview(uint8_t                    initPage __attribute__((unused)),
-                               uint8_t                    nbPages __attribute__((unused)),
-                               const char                *rejectText __attribute__((unused)),
-                               nbgl_layoutTouchCallback_t buttonCallback __attribute__((unused)),
-                               nbgl_navCallback_t         navCallback __attribute__((unused)),
-                               nbgl_choiceCallback_t      choiceCallback)
-{
-    if (choiceCallback) {
-        choiceCallback(_nbgl_approve());
-    }
-}
-
 void nbgl_useCaseStaticReview(const nbgl_contentTagValueList_t *tagValueList
                               __attribute__((unused)),
                               const nbgl_pageInfoLongPress_t *infoLongPress __attribute__((unused)),
