@@ -285,7 +285,6 @@ static const char *pageTitle;
 
 // context for navigation use case
 static nbgl_pageNavigationInfo_t navInfo;
-static bool                      forwardNavOnly;
 static NavType_t                 navType;
 
 static DetailsContext_t detailsContext;
@@ -893,10 +892,6 @@ static void displayReviewPage(uint8_t page, bool forceFullRefresh)
         // if we don't do that we cannot remove the '>' in the navigation bar at the last page
         navInfo.nbPages                      = navInfo.activePage + 1;
         content.infoLongPress.longPressToken = CONFIRM_TOKEN;
-        if (forwardNavOnly) {
-            // remove the "Skip" button
-            navInfo.skipText = NULL;
-        }
     }
 
     // override smallCaseForValue for tag/value types to false
@@ -3964,33 +3959,6 @@ void nbgl_useCaseReviewStart(const nbgl_icon_details_t *icon,
 
     pageContext = nbgl_pageDrawInfo(&pageCallback, NULL, &info);
     nbgl_refresh();
-}
-
-/**
- * @deprecated
- * See #nbgl_useCaseReview
- */
-void nbgl_useCaseRegularReview(uint8_t                    initPage,
-                               uint8_t                    nbPages,
-                               const char                *rejectText,
-                               nbgl_layoutTouchCallback_t buttonCallback,
-                               nbgl_navCallback_t         navCallback,
-                               nbgl_choiceCallback_t      choiceCallback)
-{
-    reset_callbacks_and_context();
-
-    // memorize context
-    onChoice       = choiceCallback;
-    onNav          = navCallback;
-    onControls     = buttonCallback;
-    forwardNavOnly = false;
-    navType        = REVIEW_NAV;
-
-    // fill navigation structure
-    UNUSED(rejectText);
-    prepareNavInfo(true, nbPages, getRejectReviewText(TYPE_OPERATION));
-
-    displayReviewPage(initPage, true);
 }
 
 /**
