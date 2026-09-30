@@ -629,7 +629,6 @@ uint8_t nbgl_useCaseGetNbChoicesInPage(uint8_t                          nbChoice
                                        const nbgl_contentRadioChoice_t *choicesList,
                                        uint8_t                          startIndex,
                                        bool                             withNav);
-uint8_t nbgl_useCaseGetNbPagesForTagValueList(const nbgl_contentTagValueList_t *tagValueList);
 
 #ifdef NBGL_KEYPAD
 void nbgl_useCaseKeypad(const char             *title,
