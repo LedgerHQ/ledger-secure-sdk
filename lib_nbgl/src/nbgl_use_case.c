@@ -3442,28 +3442,6 @@ void nbgl_useCaseHome(const char                *appName,
 }
 
 /**
- * @deprecated
- * See #nbgl_useCaseHomeAndSettings
- */
-void nbgl_useCaseHomeExt(const char                *appName,
-                         const nbgl_icon_details_t *appIcon,
-                         const char                *tagline,
-                         bool                       withSettings,
-                         const char                *actionButtonText,
-                         nbgl_callback_t            actionCallback,
-                         nbgl_callback_t            topRightCallback,
-                         nbgl_callback_t            quitCallback)
-{
-    nbgl_homeAction_t homeAction = {.callback = actionCallback,
-                                    .icon     = NULL,
-                                    .style    = STRONG_HOME_ACTION,
-                                    .text     = actionButtonText};
-
-    useCaseHomeExt(
-        appName, appIcon, tagline, withSettings, &homeAction, topRightCallback, quitCallback);
-}
-
-/**
  * @brief Initiates the drawing a set of pages of generic content, with a touchable header (usually
  * to go back or to an upper level) For each page (including the first one), the given 'navCallback'
  * will be called to get the content. Only 'type' and union has to be set in this content.
