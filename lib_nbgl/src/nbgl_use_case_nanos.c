@@ -2549,30 +2549,6 @@ uint8_t nbgl_useCaseGetNbChoicesInPage(uint8_t                          nbChoice
 }
 
 /**
- * @brief  computes the number of pages necessary to display the given list of tag/value pairs
- *
- * @param tagValueList list of tag/value pairs
- * @return the number of pages necessary to display the given list of tag/value pairs
- */
-uint8_t nbgl_useCaseGetNbPagesForTagValueList(const nbgl_contentTagValueList_t *tagValueList)
-{
-    uint8_t nbPages = 0;
-    uint8_t nbPairs = tagValueList->nbPairs;
-    uint8_t nbPairsInPage;
-    uint8_t i = 0;
-    bool    flag;
-
-    while (i < tagValueList->nbPairs) {
-        // upper margin
-        nbPairsInPage = nbgl_useCaseGetNbTagValuesInPageExt(nbPairs, tagValueList, i, false, &flag);
-        i += nbPairsInPage;
-        nbPairs -= nbPairsInPage;
-        nbPages++;
-    }
-    return nbPages;
-}
-
-/**
  * @brief Initiates the drawing a set of pages of generic content, with a touchable header (usually
  * to go back or to an upper level) For each page (including the first one), the given 'navCallback'
  * will be called to get the content. Only 'type' and union has to be set in this content.

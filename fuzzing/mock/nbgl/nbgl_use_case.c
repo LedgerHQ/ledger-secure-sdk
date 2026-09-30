@@ -420,12 +420,6 @@ uint8_t nbgl_useCaseGetNbChoicesInPage(uint8_t                          nbChoice
     return nbChoices;
 }
 
-uint8_t nbgl_useCaseGetNbPagesForTagValueList(const nbgl_contentTagValueList_t *tagValueList
-                                              __attribute__((unused)))
-{
-    return 1;
-}
-
 #ifdef NBGL_KEYPAD
 void nbgl_useCaseKeypad(const char             *title __attribute__((unused)),
                         uint8_t                 minDigits __attribute__((unused)),

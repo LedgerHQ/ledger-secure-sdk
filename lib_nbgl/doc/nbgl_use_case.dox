@@ -1342,10 +1342,6 @@ or similar APIs.
 - @ref nbgl_useCaseGetNbChoicesInPage() — returns the number of radio-choice items that fit in
   one page starting at a given index.
 
-- @ref nbgl_useCaseGetNbPagesForTagValueList() — returns the total number of pages required to
-  display a complete @ref nbgl_contentTagValueList_t. Useful to pre-compute navigation structures
-  before starting a review.
-
 All functions take the navigation bar into account: when a navigation footer is present the
 available area is reduced accordingly.
 
