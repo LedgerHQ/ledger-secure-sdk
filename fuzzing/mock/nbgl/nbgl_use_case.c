@@ -337,17 +337,6 @@ void nbgl_useCaseHome(const char                *appName __attribute__((unused))
 {
 }
 
-void nbgl_useCaseHomeExt(const char                *appName __attribute__((unused)),
-                         const nbgl_icon_details_t *appIcon __attribute__((unused)),
-                         const char                *tagline __attribute__((unused)),
-                         bool                       withSettings __attribute__((unused)),
-                         const char                *actionButtonText __attribute__((unused)),
-                         nbgl_callback_t            actionCallback __attribute__((unused)),
-                         nbgl_callback_t            topRightCallback __attribute__((unused)),
-                         nbgl_callback_t            quitCallback __attribute__((unused)))
-{
-}
-
 void nbgl_useCaseSettings(const char                *settingsTitle __attribute__((unused)),
                           uint8_t                    initPage __attribute__((unused)),
                           uint8_t                    nbPages __attribute__((unused)),
