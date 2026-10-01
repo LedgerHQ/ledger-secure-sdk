@@ -682,6 +682,176 @@ void test_cancel_with_data_is_not_handed_to_the_app(void)
     TEST_ASSERT_EQUAL_UINT8(U2F_STATE_CMD_PROCESSING, ledger_hid_u2f_handle.transport_data.state);
 }
 
+static uint16_t fake_crc16(uint16_t crc, const void *buffer, size_t len, int cmock_num_calls)
+{
+    const uint8_t *bytes = buffer;
+
+    (void) cmock_num_calls;
+    for (size_t i = 0; i < len; i++) {
+        crc = (uint16_t) ((crc << 5) ^ (crc >> 11) ^ bytes[i]);
+    }
+    return crc;
+}
+
+static const uint8_t register_apdu[] = {0x00, 0x01, 0x03, 0x00};
+
+// The app asks for user presence: the host gets 0x6985 and retries until the user approves.
+static void start_user_presence_wait(void)
+{
+    static const uint8_t ask_user[] = {0xFF, 0xFF};
+
+    cx_crc16_update_Stub(fake_crc16);
+    TEST_ASSERT_GREATER_THAN_INT32(
+        0, host_sends(OWNER_CID, U2F_COMMAND_MSG, register_apdu, sizeof(register_apdu)));
+    app_sends(OS_IO_PACKET_TYPE_USB_U2F_HID_APDU, ask_user, sizeof(ask_user));
+
+    TEST_ASSERT_EQUAL_UINT(1, sent_count);
+    TEST_ASSERT_EQUAL_HEX8(U2F_COMMAND_MSG | 0x80, sent[0][4]);
+    TEST_ASSERT_EQUAL_HEX8(0x69, sent[0][7]);
+    TEST_ASSERT_EQUAL_HEX8(0x85, sent[0][8]);
+}
+
+// The transport's own MSG answer during a user-presence wait is sent at once: kept as the
+// backup reply, it pointed to data_ready()'s stack and went out later from a dead frame.
+void test_transport_answer_during_user_presence_is_sent(void)
+{
+    static const uint8_t short_apdu[] = {0x00};
+    static const uint8_t reply[]      = {0x05, 0x04, 0x90, 0x00};
+
+    start_user_presence_wait();
+
+    TEST_ASSERT_EQUAL_INT32(0, host_sends(OWNER_CID, U2F_COMMAND_MSG, short_apdu, 1));
+    TEST_ASSERT_EQUAL_UINT(2, sent_count);
+    TEST_ASSERT_EQUAL_HEX32(OWNER_CID, sent_cid(1));
+    TEST_ASSERT_EQUAL_HEX8(U2F_COMMAND_MSG | 0x80, sent[1][4]);
+    TEST_ASSERT_EQUAL_HEX8(2, sent[1][6]);
+    TEST_ASSERT_EQUAL_HEX8(0x67, sent[1][7]);
+    TEST_ASSERT_EQUAL_HEX8(0x00, sent[1][8]);
+    TEST_ASSERT_EQUAL_UINT8(LEDGER_HID_U2F_USER_PRESENCE_ASKING,
+                            ledger_hid_u2f_handle.user_presence);
+
+    // The user approves: the app's reply is kept, and the host's retry gets it.
+    app_sends(OS_IO_PACKET_TYPE_USB_U2F_HID_APDU, reply, sizeof(reply));
+    TEST_ASSERT_EQUAL_UINT(2, sent_count);
+    TEST_ASSERT_EQUAL_INT32(
+        0, host_sends(OWNER_CID, U2F_COMMAND_MSG, register_apdu, sizeof(register_apdu)));
+    TEST_ASSERT_EQUAL_UINT(3, sent_count);
+    TEST_ASSERT_EQUAL_HEX32(OWNER_CID, sent_cid(2));
+    TEST_ASSERT_EQUAL_HEX8(sizeof(reply), sent[2][6]);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(reply, &sent[2][7], sizeof(reply));
+}
+
+// The app's request for user presence still becomes 0x6985 when it waits behind a packet.
+void test_user_presence_request_behind_a_packet_is_sent_as_0x6985(void)
+{
+    static const uint8_t ask_user[] = {0xFF, 0xFF};
+    static const uint8_t get_info   = 0x04;
+
+    cx_crc16_update_Stub(fake_crc16);
+    TEST_ASSERT_GREATER_THAN_INT32(
+        0, host_sends(OWNER_CID, U2F_COMMAND_MSG, register_apdu, sizeof(register_apdu)));
+    packet_arrives(OTHER_CID, U2F_COMMAND_HID_CBOR | 0x80, &get_info, 1);
+    TEST_ASSERT_EQUAL_INT(USBD_OK,
+                          app_send(OS_IO_PACKET_TYPE_USB_U2F_HID_APDU, ask_user, sizeof(ask_user)));
+    usb_in_drain();
+
+    TEST_ASSERT_EQUAL_UINT(2, sent_count);
+    TEST_ASSERT_EQUAL_HEX32(OWNER_CID, sent_cid(1));
+    TEST_ASSERT_EQUAL_HEX8(U2F_COMMAND_MSG | 0x80, sent[1][4]);
+    TEST_ASSERT_EQUAL_HEX8(0x69, sent[1][7]);
+    TEST_ASSERT_EQUAL_HEX8(0x85, sent[1][8]);
+    TEST_ASSERT_EQUAL_UINT8(LEDGER_HID_U2F_USER_PRESENCE_ASKING,
+                            ledger_hid_u2f_handle.user_presence);
+}
+
+// The owner's command is with the app, and a refusal to another channel is in flight.
+static void start_owner_command_behind_a_refusal(void)
+{
+    static const uint8_t get_info = 0x04;
+
+    TEST_ASSERT_GREATER_THAN_INT32(0, host_sends(OWNER_CID, U2F_COMMAND_HID_CBOR, &get_info, 1));
+    packet_arrives(OTHER_CID, U2F_COMMAND_HID_CBOR | 0x80, &get_info, 1);
+    TEST_ASSERT_TRUE(in_flight);
+}
+
+// A message that waits for the IN endpoint must not be read from the caller's buffer later:
+// os_io_tx_cmd() can return first, and the stack callers' frames are then gone.
+void test_queued_message_does_not_keep_the_callers_buffer(void)
+{
+    uint8_t denied[] = {CTAP2_ERR_OPERATION_DENIED};
+
+    start_owner_command_behind_a_refusal();
+    TEST_ASSERT_EQUAL_INT(USBD_OK,
+                          app_send(OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR, denied, sizeof(denied)));
+    // Copied: the sender may go.
+    TEST_ASSERT_FALSE(USBD_LEDGER_HID_U2F_is_busy(&ledger_hid_u2f_handle));
+    memset(denied, 0xEE, sizeof(denied));
+    usb_in_drain();
+
+    TEST_ASSERT_EQUAL_UINT(2, sent_count);
+    TEST_ASSERT_EQUAL_HEX32(OWNER_CID, sent_cid(1));
+    TEST_ASSERT_EQUAL_HEX8(U2F_COMMAND_HID_CBOR | 0x80, sent[1][4]);
+    TEST_ASSERT_EQUAL_HEX8(1, sent[1][6]);
+    TEST_ASSERT_EQUAL_HEX8(CTAP2_ERR_OPERATION_DENIED, sent[1][7]);
+}
+
+// The largest one-packet message is copied whole: a RAW one carries its command byte too.
+void test_largest_one_packet_message_is_copied_whole(void)
+{
+    uint8_t message[LEDGER_HID_U2F_EPIN_SIZE - 7 + 1];
+    uint8_t expected[sizeof(message)];
+
+    message[0] = U2F_COMMAND_PING;
+    for (unsigned int i = 1; i < sizeof(message); i++) {
+        message[i] = (uint8_t) i;
+    }
+    memcpy(expected, message, sizeof(message));
+
+    start_owner_command_behind_a_refusal();
+    TEST_ASSERT_EQUAL_INT(USBD_OK,
+                          app_send(OS_IO_PACKET_TYPE_USB_U2F_HID_RAW, message, sizeof(message)));
+    memset(message, 0xEE, sizeof(message));
+    usb_in_drain();
+
+    TEST_ASSERT_EQUAL_UINT(2, sent_count);
+    TEST_ASSERT_EQUAL_HEX8(U2F_COMMAND_PING | 0x80, sent[1][4]);
+    TEST_ASSERT_EQUAL_HEX8(sizeof(message) - 1, sent[1][6]);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(&expected[1], &sent[1][7], sizeof(message) - 1);
+}
+
+// Control: a multi-packet reply that waits is still sent whole, from the app's buffer.
+void test_queued_multi_packet_reply_is_sent_whole(void)
+{
+    uint8_t      reply[150];
+    uint8_t      received[sizeof(reply)];
+    unsigned int offset = 0;
+
+    for (unsigned int i = 0; i < sizeof(reply); i++) {
+        reply[i] = (uint8_t) i;
+    }
+    start_owner_command_behind_a_refusal();
+    TEST_ASSERT_EQUAL_INT(USBD_OK,
+                          app_send(OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR, reply, sizeof(reply)));
+    // Read from the sender's buffer later: the sender must wait.
+    TEST_ASSERT_TRUE(USBD_LEDGER_HID_U2F_is_busy(&ledger_hid_u2f_handle));
+    usb_in_drain();
+
+    TEST_ASSERT_EQUAL_UINT(4, sent_count);
+    for (unsigned int i = 1; i < 4; i++) {
+        TEST_ASSERT_EQUAL_HEX32(OWNER_CID, sent_cid(i));
+        unsigned int header = (i == 1) ? 7 : 5;
+        unsigned int chunk  = LEDGER_HID_U2F_EPIN_SIZE - header;
+        if (chunk > sizeof(reply) - offset) {
+            chunk = sizeof(reply) - offset;
+        }
+        memcpy(&received[offset], &sent[i][header], chunk);
+        offset += chunk;
+    }
+    TEST_ASSERT_EQUAL_UINT(sizeof(reply), offset);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(reply, received, sizeof(reply));
+    TEST_ASSERT_EQUAL_HEX32(U2F_FORBIDDEN_CID, ledger_hid_u2f_handle.transport_data.cid);
+}
+
 int main(void)
 {
     UNITY_BEGIN();
@@ -707,5 +877,10 @@ int main(void)
     RUN_TEST(test_command_during_a_refusal_after_the_reply_is_refused);
     RUN_TEST(test_lost_transport_answer_frees_the_channel);
     RUN_TEST(test_cancel_with_data_is_not_handed_to_the_app);
+    RUN_TEST(test_transport_answer_during_user_presence_is_sent);
+    RUN_TEST(test_user_presence_request_behind_a_packet_is_sent_as_0x6985);
+    RUN_TEST(test_queued_message_does_not_keep_the_callers_buffer);
+    RUN_TEST(test_largest_one_packet_message_is_copied_whole);
+    RUN_TEST(test_queued_multi_packet_reply_is_sent_whole);
     return UNITY_END();
 }
