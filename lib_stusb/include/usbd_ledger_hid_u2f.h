@@ -43,23 +43,25 @@ extern const usbd_class_info_t USBD_LEDGER_HID_U2F_class_info;
 USBD_StatusTypeDef USBD_LEDGER_HID_U2F_init(USBD_HandleTypeDef *pdev, void *cookie);
 USBD_StatusTypeDef USBD_LEDGER_HID_U2F_de_init(USBD_HandleTypeDef *pdev, void *cookie);
 USBD_StatusTypeDef USBD_LEDGER_HID_U2F_setup(USBD_HandleTypeDef   *pdev,
-                                  void                 *cookie,
-                                  USBD_SetupReqTypedef *req);
-USBD_StatusTypeDef  USBD_LEDGER_HID_U2F_ep0_rx_ready(USBD_HandleTypeDef *pdev, void *cookie);
-USBD_StatusTypeDef  USBD_LEDGER_HID_U2F_data_in(USBD_HandleTypeDef *pdev, void *cookie, uint8_t ep_num);
-USBD_StatusTypeDef  USBD_LEDGER_HID_U2F_data_out(USBD_HandleTypeDef *pdev,
-                                     void               *cookie,
-                                     uint8_t             ep_num,
-                                     uint8_t            *packet,
-                                     uint16_t            packet_length);
+                                             void                 *cookie,
+                                             USBD_SetupReqTypedef *req);
+USBD_StatusTypeDef USBD_LEDGER_HID_U2F_ep0_rx_ready(USBD_HandleTypeDef *pdev, void *cookie);
+USBD_StatusTypeDef USBD_LEDGER_HID_U2F_data_in(USBD_HandleTypeDef *pdev,
+                                               void               *cookie,
+                                               uint8_t             ep_num);
+USBD_StatusTypeDef USBD_LEDGER_HID_U2F_data_out(USBD_HandleTypeDef *pdev,
+                                                void               *cookie,
+                                                uint8_t             ep_num,
+                                                uint8_t            *packet,
+                                                uint16_t            packet_length);
 
-USBD_StatusTypeDef  USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
-                                         void               *cookie,
-                                         uint8_t             packet_type,
-                                         const uint8_t      *message,
-                                         uint16_t            message_length,
-                                         uint32_t            timeout_ms);
-bool USBD_LEDGER_HID_U2F_is_busy(void *cookie);
+USBD_StatusTypeDef USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
+                                                    void               *cookie,
+                                                    uint8_t             packet_type,
+                                                    const uint8_t      *message,
+                                                    uint16_t            message_length,
+                                                    uint32_t            timeout_ms);
+bool               USBD_LEDGER_HID_U2F_is_busy(void *cookie);
 
 int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
                                        void               *cookie,
