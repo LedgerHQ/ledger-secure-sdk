@@ -458,9 +458,14 @@ USBD_StatusTypeDef USBD_LEDGER_HID_U2F_data_out(USBD_HandleTypeDef *pdev,
 
     UNUSED(ep_num);
 
-    ledger_hid_u2f_handle_t *handle = (ledger_hid_u2f_handle_t *) PIC(cookie);
+    ledger_hid_u2f_handle_t *handle  = (ledger_hid_u2f_handle_t *) PIC(cookie);
+    u2f_error_t              waiting = handle->transport_data.error;
 
     U2F_TRANSPORT_rx(&handle->transport_data, packet, packet_length);
+    // An error not sent yet is kept: its sender holds the channel until it is answered.
+    if ((waiting != CTAP1_ERR_SUCCESS) && (waiting != CTAP1_ERR_OTHER)) {
+        handle->transport_data.error = waiting;
+    }
 
     USBD_LL_PrepareReceive(pdev, LEDGER_HID_U2F_EPOUT_ADDR, NULL, LEDGER_HID_U2F_EPOUT_SIZE);
 
@@ -748,37 +753,37 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
                     }
                 }
                 else if (handle->user_presence == LEDGER_HID_U2F_USER_PRESENCE_CONFIRMED) {
-                    // Send backup response
-                    if (handle->message_crc == crc) {
-                        USBD_LEDGER_HID_U2F_send_message(pdev,
-                                                         cookie,
-                                                         OS_IO_PACKET_TYPE_USB_U2F_HID_APDU,
-                                                         handle->backup_message,
-                                                         handle->backup_message_length,
-                                                         0);
+                    if (handle->message_crc != crc) {
+                        // A changed request gets no answer: free its channel for the others.
+                        handle->transport_data.cid = U2F_FORBIDDEN_CID;
+                        handle->user_presence      = LEDGER_HID_U2F_USER_PRESENCE_IDLE;
                     }
-                    handle->user_presence = LEDGER_HID_U2F_USER_PRESENCE_IDLE;
+                    // Send backup response. With a packet in flight, it waits for the next retry.
+                    else if (USBD_LEDGER_HID_U2F_send_message(pdev,
+                                                              cookie,
+                                                              OS_IO_PACKET_TYPE_USB_U2F_HID_APDU,
+                                                              handle->backup_message,
+                                                              handle->backup_message_length,
+                                                              0)
+                             != USBD_BUSY) {
+                        handle->user_presence = LEDGER_HID_U2F_USER_PRESENCE_IDLE;
+                    }
                 }
 #endif  // !HAVE_BOLOS
                 else if (max_length < handle->transport_data.rx_message_length - 2) {
                     error_msg[1] = CTAP1_ERR_INVALID_LENGTH;
                     USBD_LEDGER_HID_U2F_send_message(
-                        pdev, cookie, OS_IO_PACKET_TYPE_USB_U2F_HID_APDU, error_msg, 2, 0);
+                        pdev, cookie, OS_IO_PACKET_TYPE_USB_U2F_HID_RAW, error_msg, 2, 0);
                 }
                 else {
-                    if (handle->transport_data.rx_message_length + 1 > max_length) {
-                        status = -1;
-                    }
-                    else {
-                        buffer[0] = OS_IO_PACKET_TYPE_USB_U2F_HID_APDU;
-                        memmove(&buffer[1],
-                                &handle->transport_data.rx_message_buffer[3],
-                                handle->transport_data.rx_message_length - 3);
-                        handle->transport_data.state = U2F_STATE_CMD_PROCESSING;
-                        status                       = handle->transport_data.rx_message_length - 2;
-                        handle->message_crc          = crc;
-                        handle->user_presence        = LEDGER_HID_U2F_USER_PRESENCE_IDLE;
-                    }
+                    buffer[0] = OS_IO_PACKET_TYPE_USB_U2F_HID_APDU;
+                    memmove(&buffer[1],
+                            &handle->transport_data.rx_message_buffer[3],
+                            handle->transport_data.rx_message_length - 3);
+                    handle->transport_data.state = U2F_STATE_CMD_PROCESSING;
+                    status                       = handle->transport_data.rx_message_length - 2;
+                    handle->message_crc          = crc;
+                    handle->user_presence        = LEDGER_HID_U2F_USER_PRESENCE_IDLE;
                 }
             }
             break;
@@ -793,20 +798,15 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
             else if (max_length < handle->transport_data.rx_message_length - 2) {
                 error_msg[1] = CTAP1_ERR_INVALID_LENGTH;
                 USBD_LEDGER_HID_U2F_send_message(
-                    pdev, cookie, OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR, error_msg, 2, 0);
+                    pdev, cookie, OS_IO_PACKET_TYPE_USB_U2F_HID_RAW, error_msg, 2, 0);
             }
             else {
-                if (handle->transport_data.rx_message_length + 1 > max_length) {
-                    status = -1;
-                }
-                else {
-                    buffer[0] = OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR;
-                    memmove(&buffer[1],
-                            &handle->transport_data.rx_message_buffer[3],
-                            handle->transport_data.rx_message_length - 3);
-                    handle->transport_data.state = U2F_STATE_CMD_PROCESSING;
-                    status                       = handle->transport_data.rx_message_length - 2;
-                }
+                buffer[0] = OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR;
+                memmove(&buffer[1],
+                        &handle->transport_data.rx_message_buffer[3],
+                        handle->transport_data.rx_message_length - 3);
+                handle->transport_data.state = U2F_STATE_CMD_PROCESSING;
+                status                       = handle->transport_data.rx_message_length - 2;
             }
             break;
 
@@ -832,7 +832,7 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
             else if (max_length < handle->transport_data.rx_message_length - 2) {
                 error_msg[1] = CTAP1_ERR_INVALID_LENGTH;
                 USBD_LEDGER_HID_U2F_send_message(
-                    pdev, cookie, OS_IO_PACKET_TYPE_USB_U2F_HID_CANCEL, error_msg, 2, 0);
+                    pdev, cookie, OS_IO_PACKET_TYPE_USB_U2F_HID_RAW, error_msg, 2, 0);
             }
             else {
                 // CTAPHID_CANCEL is transmitted to the application.
