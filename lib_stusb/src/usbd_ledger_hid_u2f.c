@@ -68,7 +68,11 @@ typedef struct {
     uint8_t protocol;
     uint8_t alt_setting;
     uint8_t idle_state;
-    uint8_t state;  // ledger_hid_u2f_state_t
+    uint8_t state;  // ledger_hid_u2f_state_t, BUSY while an IN packet is in flight
+    // An app message that found the IN endpoint busy, sent as soon as it is free.
+    uint8_t        queued_type;
+    const uint8_t *queued_message;
+    uint16_t       queued_length;
 
     // Transport
     u2f_transport_t transport_data;
@@ -87,6 +91,12 @@ typedef struct {
 /* Private macros-------------------------------------------------------------*/
 
 /* Private functions prototypes ----------------------------------------------*/
+static USBD_StatusTypeDef app_send_message(USBD_HandleTypeDef *pdev,
+                                           void               *cookie,
+                                           uint8_t             packet_type,
+                                           const uint8_t      *message,
+                                           uint16_t            message_length,
+                                           uint32_t            timeout_ms);
 
 /* Private variables ---------------------------------------------------------*/
 static ledger_hid_u2f_handle_t        ledger_hid_u2f_handle;
@@ -182,7 +192,7 @@ const usbd_class_info_t USBD_LEDGER_HID_U2F_class_info = {
     .data_in  = USBD_LEDGER_HID_U2F_data_in,
     .data_out = USBD_LEDGER_HID_U2F_data_out,
 
-    .send_packet = USBD_LEDGER_HID_U2F_send_message,
+    .send_packet = app_send_message,
     .is_busy     = USBD_LEDGER_HID_U2F_is_busy,
 
     .data_ready = USBD_LEDGER_HID_U2F_data_ready,
@@ -351,6 +361,38 @@ USBD_StatusTypeDef USBD_LEDGER_HID_U2F_ep0_rx_ready(USBD_HandleTypeDef *pdev, vo
     return USBD_OK;
 }
 
+// Sends one waiting transport error, the refusal of another channel first.
+static void send_pending_error(USBD_HandleTypeDef      *pdev,
+                               void                    *cookie,
+                               ledger_hid_u2f_handle_t *handle)
+{
+    uint8_t error_msg[2] = {U2F_COMMAND_ERROR, 0};
+
+    if (handle->transport_data.reject_pending) {
+        // Answer the refused sender without ending the command in progress.
+        uint32_t tx_cid = handle->transport_data.tx_cid;
+
+        error_msg[1]                          = handle->transport_data.reject_error;
+        handle->transport_data.reject_pending = false;
+        handle->transport_data.tx_cid         = handle->transport_data.reject_cid;
+        USBD_LEDGER_HID_U2F_send_message(
+            pdev, cookie, OS_IO_PACKET_TYPE_USB_U2F_HID_RAW, error_msg, 2, 0);
+        // With no command in progress, new ones must wait for this packet to complete.
+        handle->transport_data.tx_ends_transaction
+            = (handle->transport_data.cid == U2F_FORBIDDEN_CID);
+        handle->transport_data.tx_cid = tx_cid;
+    }
+    else if (handle->transport_data.error != CTAP1_ERR_SUCCESS) {
+        if (handle->transport_data.error == CTAP2_ERR_INVALID_CBOR) {
+            error_msg[0] = handle->transport_data.rx_message_buffer[0];
+        }
+        error_msg[1]                 = handle->transport_data.error;
+        handle->transport_data.error = CTAP1_ERR_SUCCESS;
+        USBD_LEDGER_HID_U2F_send_message(
+            pdev, cookie, OS_IO_PACKET_TYPE_USB_U2F_HID_RAW, error_msg, 2, 0);
+    }
+}
+
 USBD_StatusTypeDef USBD_LEDGER_HID_U2F_data_in(USBD_HandleTypeDef *pdev,
                                                void               *cookie,
                                                uint8_t             ep_num)
@@ -379,12 +421,20 @@ USBD_StatusTypeDef USBD_LEDGER_HID_U2F_data_in(USBD_HandleTypeDef *pdev,
                              0);
         }
     }
-    if (!handle->transport_data.tx_message_buffer) {
+    else {
+        // The last packet of the message has reached the host.
         handle->transport_data.tx_packet_length = 0;
         handle->state                           = LEDGER_HID_U2F_STATE_IDLE;
-        if ((handle->transport_data.state == U2F_STATE_CMD_PROCESSING)
-            || (handle->transport_data.state == U2F_STATE_CMD_PROCESSING_CANCEL)) {
-            handle->transport_data.state = U2F_STATE_IDLE;
+        U2F_TRANSPORT_tx_done(&handle->transport_data);
+        if (handle->queued_message) {
+            // The app's message goes before any refusal, which could otherwise hold it back.
+            const uint8_t *message = handle->queued_message;
+            handle->queued_message = NULL;
+            USBD_LEDGER_HID_U2F_send_message(
+                pdev, cookie, handle->queued_type, message, handle->queued_length, 0);
+        }
+        else {
+            send_pending_error(pdev, cookie, handle);
         }
     }
 
@@ -423,7 +473,6 @@ USBD_StatusTypeDef USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
         return USBD_FAIL;
     }
 
-    uint8_t                  ret    = USBD_OK;
     ledger_hid_u2f_handle_t *handle = (ledger_hid_u2f_handle_t *) PIC(cookie);
 
     uint8_t        cmd       = 0;
@@ -469,38 +518,63 @@ USBD_StatusTypeDef USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
             break;
     }
 
+    // Never overwrite the packet in flight: a transport answer is dropped, its channel freed.
+    if (handle->state == LEDGER_HID_U2F_STATE_BUSY) {
+        handle->transport_data.tx_ends_transaction = true;
+        return USBD_BUSY;
+    }
+
+    // Nothing is built for a device that is not configured: no data_in would ever end it.
+    if (pdev->dev_state != USBD_STATE_CONFIGURED) {
+        return USBD_FAIL;
+    }
+
     U2F_TRANSPORT_tx(&handle->transport_data,
                      cmd,
                      tx_buffer,
                      tx_length,
                      u2f_transport_packet_buffer,
                      sizeof(u2f_transport_packet_buffer));
-
-    if (handle->transport_data.tx_packet_length) {
-        if (pdev->dev_state == USBD_STATE_CONFIGURED) {
-            if (handle->state == LEDGER_HID_U2F_STATE_IDLE) {
-                if (handle->transport_data.tx_message_buffer) {
-                    handle->state = LEDGER_HID_U2F_STATE_BUSY;
-                }
-                ret = USBD_LL_Transmit(pdev,
-                                       LEDGER_HID_U2F_EPIN_ADDR,
-                                       u2f_transport_packet_buffer,
-                                       LEDGER_HID_U2F_EPIN_SIZE,
-                                       timeout_ms);
-            }
-            else {
-                ret = USBD_BUSY;
-            }
-        }
-        else {
-            ret = USBD_FAIL;
-        }
-    }
-    else {
-        ret = USBD_FAIL;
+    if (!handle->transport_data.tx_packet_length) {
+        return USBD_FAIL;
     }
 
-    return ret;
+    handle->state = LEDGER_HID_U2F_STATE_BUSY;
+    return USBD_LL_Transmit(pdev,
+                            LEDGER_HID_U2F_EPIN_ADDR,
+                            u2f_transport_packet_buffer,
+                            LEDGER_HID_U2F_EPIN_SIZE,
+                            timeout_ms);
+}
+
+// The app's entry: os_io_tx_cmd() ignores a refusal, so a message is queued, not refused.
+static USBD_StatusTypeDef app_send_message(USBD_HandleTypeDef *pdev,
+                                           void               *cookie,
+                                           uint8_t             packet_type,
+                                           const uint8_t      *message,
+                                           uint16_t            message_length,
+                                           uint32_t            timeout_ms)
+{
+    if (!pdev || !cookie || !message || !message_length) {
+        return USBD_FAIL;
+    }
+
+    ledger_hid_u2f_handle_t *handle = (ledger_hid_u2f_handle_t *) PIC(cookie);
+
+    if (handle->state != LEDGER_HID_U2F_STATE_BUSY) {
+        return USBD_LEDGER_HID_U2F_send_message(
+            pdev, cookie, packet_type, message, message_length, timeout_ms);
+    }
+    // A late keepalive is useless: drop it.
+    if (((packet_type == OS_IO_PACKET_TYPE_USB_U2F_HID_RAW)
+         && (message[0] == U2F_COMMAND_HID_KEEP_ALIVE))
+        || handle->queued_message) {
+        return USBD_BUSY;
+    }
+    handle->queued_type    = packet_type;
+    handle->queued_message = message;
+    handle->queued_length  = message_length;
+    return USBD_OK;
 }
 
 bool USBD_LEDGER_HID_U2F_is_busy(void *cookie)
@@ -508,7 +582,9 @@ bool USBD_LEDGER_HID_U2F_is_busy(void *cookie)
     ledger_hid_u2f_handle_t *handle = (ledger_hid_u2f_handle_t *) PIC(cookie);
     bool                     busy   = false;
 
-    if (handle->state == LEDGER_HID_U2F_STATE_BUSY) {
+    // Only while a sender's buffer is still read: os_io_tx_cmd() waits on this, and drops the UX
+    // events it reads meanwhile. A one-packet message is already copied.
+    if (handle->transport_data.tx_message_buffer || handle->queued_message) {
         busy = true;
     }
 
@@ -533,17 +609,13 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
 
     if (handle->transport_data.error == CTAP1_ERR_OTHER) {
         handle->transport_data.error = CTAP1_ERR_SUCCESS;
-        return status;
     }
 
+    // An error sent while an IN packet is in flight would clash with it: data_in sends it after.
+    if (handle->state != LEDGER_HID_U2F_STATE_BUSY) {
+        send_pending_error(pdev, cookie, handle);
+    }
     if (handle->transport_data.error != CTAP1_ERR_SUCCESS) {
-        if (handle->transport_data.error == CTAP2_ERR_INVALID_CBOR) {
-            error_msg[0] = handle->transport_data.rx_message_buffer[0];
-        }
-        error_msg[1]                 = handle->transport_data.error;
-        handle->transport_data.error = CTAP1_ERR_SUCCESS;
-        USBD_LEDGER_HID_U2F_send_message(
-            pdev, cookie, OS_IO_PACKET_TYPE_USB_U2F_HID_RAW, error_msg, 2, 0);
         return status;
     }
 
@@ -754,7 +826,6 @@ int32_t USBD_LEDGER_HID_U2F_data_ready(USBD_HandleTypeDef *pdev,
                 handle->transport_data.state = U2F_STATE_CMD_PROCESSING_CANCEL;
                 status                       = handle->transport_data.rx_message_length - 2;
             }
-            handle->transport_data.cid = U2F_FORBIDDEN_CID;
             break;
 
         case U2F_COMMAND_PING:
