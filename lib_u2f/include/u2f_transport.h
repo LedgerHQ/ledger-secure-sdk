@@ -17,6 +17,7 @@
 #pragma once
 
 /* Includes ------------------------------------------------------------------*/
+#include <stdbool.h>
 #include <stdint.h>
 #include "u2f_types.h"
 
@@ -35,6 +36,14 @@ typedef struct {
 
     u2f_error_t error;
     uint32_t    tx_cid;
+
+    // A packet refused by the channel checks, kept until answered without touching cid/tx_cid.
+    bool        reject_pending;
+    uint32_t    reject_cid;
+    u2f_error_t reject_error;
+
+    // The message being sent ends the transaction once its last packet reaches the host.
+    bool tx_ends_transaction;
 
     const uint8_t *tx_message_buffer;
     uint16_t       tx_message_length;
@@ -62,6 +71,8 @@ typedef struct {
 /* Exported functions prototypes--------------------------------------------- */
 void U2F_TRANSPORT_init(u2f_transport_t *handle, uint8_t type);
 void U2F_TRANSPORT_rx(u2f_transport_t *handle, uint8_t *buffer, uint16_t length);
+// To call once the last packet of the message being sent has reached the host.
+void U2F_TRANSPORT_tx_done(u2f_transport_t *handle);
 void U2F_TRANSPORT_tx(u2f_transport_t *handle,
                       uint8_t          cmd,
                       const uint8_t   *buffer,
