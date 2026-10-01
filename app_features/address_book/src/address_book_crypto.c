@@ -397,15 +397,13 @@ end:
  * Serializes: name_len(1) | name | family(1) [| chain_id(8)]
  * Then delegates to the OS syscall.
  *
- * @param[in]  bip32_path  BIP32 path used at registration
  * @param[in]  name        Account name (null-terminated)
  * @param[in]  family      Blockchain family
  * @param[in]  chain_id    Chain ID (ignored for non-Ethereum families)
  * @param[out] hmac_out    Output buffer for the 32-byte HMAC proof
  * @return true if successful, false otherwise
  */
-bool address_book_compute_hmac_proof_ledger_account(const path_bip32_t *bip32_path,
-                                                    const char         *name,
+bool address_book_compute_hmac_proof_ledger_account(const char         *name,
                                                     blockchain_family_e family,
                                                     uint64_t            chain_id,
                                                     uint8_t             hmac_out[CX_SHA256_SIZE])
@@ -431,15 +429,13 @@ end:
 /**
  * @brief Verify an HMAC Proof of Registration for a Ledger Account.
  *
- * @param[in] bip32_path   BIP32 path used at registration
  * @param[in] name         Account name (null-terminated)
  * @param[in] family       Blockchain family
  * @param[in] chain_id     Chain ID (0 for non-Ethereum)
  * @param[in] hmac_expected 32-byte HMAC proof to verify against
  * @return true if the proof is valid, false otherwise
  */
-bool address_book_verify_hmac_proof_ledger_account(const path_bip32_t *bip32_path,
-                                                   const char         *name,
+bool address_book_verify_hmac_proof_ledger_account(const char         *name,
                                                    blockchain_family_e family,
                                                    uint64_t            chain_id,
                                                    const uint8_t hmac_expected[CX_SHA256_SIZE])

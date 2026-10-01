@@ -7,8 +7,7 @@
  * Fuzz buffer layout (fields are read sequentially; missing bytes → 0):
  *   [0]       flags          bit0=hmac_fail, bit1=hmac_verify_fail
  *   [1]       sel            selects which function(s) to call
- *   [2]       path_len_raw   clamped to [1..MAX_BIP32_PATH]
- *   [3..42]   path[10]       ten uint32_t (big-endian pairs of 2 bytes each)
+ *   [2..42]   unused         reserved, keeps the corpus layout stable
  *   [43..74]  gid[32]
  *   [75]      name_len_raw   clamped to [0..CONTACT_NAME_LENGTH-1]
  *   [76..107] name[32]       null-terminated by harness
@@ -39,7 +38,6 @@
 #include "address_book.h"
 #include "identity.h"
 #include "ledger_account.h"
-#include "bip32.h"
 #include "lcx_sha256.h"
 #include "io.h"
 #include "buffer.h"
@@ -104,8 +102,7 @@ void cx_rng_no_throw(uint8_t *buffer, size_t len)
 typedef struct {
     uint8_t flags;
     uint8_t sel;
-    uint8_t path_len_raw;
-    uint8_t path_bytes[PATH_BYTES]; /* 40 bytes, read as big-endian uint32 pairs */
+    uint8_t unused[1 + PATH_BYTES]; /* 41 bytes, keeps the corpus layout stable */
     uint8_t gid[GID_SIZE];          /* 32 */
     uint8_t name_len_raw;
     char    name[CONTACT_NAME_LENGTH]; /* 33, null-terminated by harness */
@@ -144,15 +141,6 @@ int fuzz_entry(const uint8_t *data, size_t size)
     /* ── Decode flags ── */
     s_hmac_fail        = (L.flags & 0x01) != 0;
     s_hmac_verify_fail = (L.flags & 0x02) != 0;
-
-    /* ── Build BIP32 path ── */
-    path_bip32_t bip32 = {0};
-    bip32.length       = (L.path_len_raw % MAX_BIP32_PATH) + 1U;
-    for (size_t i = 0; i < bip32.length; i++) {
-        const uint8_t *b = &L.path_bytes[i * 4];
-        bip32.path[i] = ((uint32_t) b[0] << 24) | ((uint32_t) b[1] << 16) | ((uint32_t) b[2] << 8)
-                        | (uint32_t) b[3];
-    }
 
     /* ── Decode string lengths and ensure null termination ── */
     size_t nlen                = L.name_len_raw % CONTACT_NAME_LENGTH;
@@ -218,13 +206,12 @@ int fuzz_entry(const uint8_t *data, size_t size)
 #ifdef HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT
         /* ── address_book_compute_hmac_proof_ledger_account ── */
         case 8:
-            address_book_compute_hmac_proof_ledger_account(&bip32, L.name, fam, chain_id, out32);
+            address_book_compute_hmac_proof_ledger_account(L.name, fam, chain_id, out32);
             break;
 
         /* ── address_book_verify_hmac_proof_ledger_account ── */
         case 9:
-            address_book_verify_hmac_proof_ledger_account(
-                &bip32, L.name, fam, chain_id, L.hmac_expected);
+            address_book_verify_hmac_proof_ledger_account(L.name, fam, chain_id, L.hmac_expected);
             break;
 #endif /* HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT */
 
