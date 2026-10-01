@@ -279,7 +279,6 @@ static bool build_and_send_response(void)
     uint8_t hmac_proof[CX_SHA256_SIZE] = {0};
 
     if (!address_book_compute_hmac_proof_ledger_account(
-            &g_ab_payload.edit_ledger_account.ledger_account.bip32_path,
             (const char *) g_ab_payload.edit_ledger_account.ledger_account.account_name,
             g_ab_payload.edit_ledger_account.ledger_account.blockchain_family,
             g_ab_payload.edit_ledger_account.ledger_account.chain_id,
@@ -346,7 +345,6 @@ bolos_err_t edit_ledger_account(uint8_t *buffer_in, size_t buffer_in_length)
 
     // Verify that the host holds a valid proof from the previous registration
     if (!address_book_verify_hmac_proof_ledger_account(
-            &g_ab_payload.edit_ledger_account.ledger_account.bip32_path,
             g_ab_payload.edit_ledger_account.old_account_name,
             g_ab_payload.edit_ledger_account.ledger_account.blockchain_family,
             g_ab_payload.edit_ledger_account.ledger_account.chain_id,
