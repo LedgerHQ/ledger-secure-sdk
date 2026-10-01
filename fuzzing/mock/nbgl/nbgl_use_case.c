@@ -349,19 +349,6 @@ uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPai
     return nbPairs;
 }
 
-uint8_t nbgl_useCaseGetNbTagValuesInPageExt(uint8_t                           nbPairs,
-                                            const nbgl_contentTagValueList_t *tagValueList
-                                            __attribute__((unused)),
-                                            uint8_t startIndex __attribute__((unused)),
-                                            bool    isSkippable __attribute__((unused)),
-                                            bool   *requireSpecificDisplay)
-{
-    if (requireSpecificDisplay) {
-        *requireSpecificDisplay = false;
-    }
-    return nbPairs;
-}
-
 uint8_t nbgl_useCaseGetNbChoicesInPage(uint8_t                          nbChoices,
                                        const nbgl_contentRadioChoice_t *choicesList
                                        __attribute__((unused)),

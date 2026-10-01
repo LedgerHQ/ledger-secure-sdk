@@ -1192,9 +1192,6 @@ or similar APIs.
   page starting at a given index. Sets the *requireSpecificDisplay* output flag when the pair needs
   special rendering (centeredInfo flag or value too long).
 
-- @ref nbgl_useCaseGetNbTagValuesInPageExt() — same as above but also accounts for a potential
-  *skip* header when *isSkippable* is true.
-
 - @ref nbgl_useCaseGetNbChoicesInPage() — returns the number of radio-choice items that fit in
   one page starting at a given index.
 
