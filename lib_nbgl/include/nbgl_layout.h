@@ -814,10 +814,6 @@ int nbgl_layoutUpdateKeyboardContent(nbgl_layout_t *layout, nbgl_layoutKeyboardC
 #else   // HAVE_SE_TOUCH
 int nbgl_layoutUpdateKeyboard(nbgl_layout_t *layout, uint8_t index, uint32_t keyMask);
 int nbgl_layoutAddEnteredText(nbgl_layout_t *layout, const char *text, bool lettersOnly);
-int nbgl_layoutAddEnteredTextAdvanced(nbgl_layout_t *layout,
-                                      const char    *text,
-                                      bool           lettersOnly,
-                                      bool           obfuscated);
 int nbgl_layoutUpdateEnteredText(nbgl_layout_t *layout, uint8_t index, const char *text);
 #endif  // HAVE_SE_TOUCH
 #endif  // NBGL_KEYBOARD
