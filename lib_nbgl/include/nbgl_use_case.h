@@ -613,18 +613,6 @@ uint8_t nbgl_useCaseGetNbTagValuesInPageExt(uint8_t                           nb
                                             uint8_t                           startIndex,
                                             bool                              isSkippable,
                                             bool *requireSpecificDisplay);
-uint8_t nbgl_useCaseGetNbInfosInPage(uint8_t                       nbInfos,
-                                     const nbgl_contentInfoList_t *infosList,
-                                     uint8_t                       startIndex,
-                                     bool                          withNav);
-uint8_t nbgl_useCaseGetNbSwitchesInPage(uint8_t                           nbSwitches,
-                                        const nbgl_contentSwitchesList_t *switchesList,
-                                        uint8_t                           startIndex,
-                                        bool                              withNav);
-uint8_t nbgl_useCaseGetNbBarsInPage(uint8_t                       nbBars,
-                                    const nbgl_contentBarsList_t *barsList,
-                                    uint8_t                       startIndex,
-                                    bool                          withNav);
 uint8_t nbgl_useCaseGetNbChoicesInPage(uint8_t                          nbChoices,
                                        const nbgl_contentRadioChoice_t *choicesList,
                                        uint8_t                          startIndex,

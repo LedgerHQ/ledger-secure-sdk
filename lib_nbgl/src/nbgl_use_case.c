@@ -373,6 +373,19 @@ static void displayTagValueListModal(const nbgl_contentTagValueList_t *tagValues
 static void displaySettingsPage(uint8_t page, bool forceFullRefresh);
 static void displayGenericContextPage(uint8_t pageIdx, bool forceFullRefresh);
 static void pageCallback(int token, uint8_t index);
+
+static uint8_t getNbInfosInPage(uint8_t                       nbInfos,
+                                const nbgl_contentInfoList_t *infosList,
+                                uint8_t                       startIndex,
+                                bool                          withNav);
+static uint8_t getNbSwitchesInPage(uint8_t                           nbSwitches,
+                                   const nbgl_contentSwitchesList_t *switchesList,
+                                   uint8_t                           startIndex,
+                                   bool                              withNav);
+static uint8_t getNbBarsInPage(uint8_t                       nbBars,
+                               const nbgl_contentBarsList_t *barsList,
+                               uint8_t                       startIndex,
+                               bool                          withNav);
 #ifdef NBGL_QRCODE
 static void displayAddressQRCode(void);
 #endif  // NBGL_QRCODE
@@ -2253,16 +2266,16 @@ static uint8_t getNbPagesForContent(const nbgl_content_t *content,
                                                     &flag);
         }
         else if (content->type == INFOS_LIST) {
-            nbElementsInPage = nbgl_useCaseGetNbInfosInPage(
-                nbElements, &content->content.infosList, elemIdx, hasNav);
+            nbElementsInPage
+                = getNbInfosInPage(nbElements, &content->content.infosList, elemIdx, hasNav);
         }
         else if (content->type == SWITCHES_LIST) {
-            nbElementsInPage = nbgl_useCaseGetNbSwitchesInPage(
-                nbElements, &content->content.switchesList, elemIdx, hasNav);
+            nbElementsInPage
+                = getNbSwitchesInPage(nbElements, &content->content.switchesList, elemIdx, hasNav);
         }
         else if (content->type == BARS_LIST) {
-            nbElementsInPage = nbgl_useCaseGetNbBarsInPage(
-                nbElements, &content->content.barsList, elemIdx, hasNav);
+            nbElementsInPage
+                = getNbBarsInPage(nbElements, &content->content.barsList, elemIdx, hasNav);
         }
         else if (content->type == CHOICES_LIST) {
             nbElementsInPage = nbgl_useCaseGetNbChoicesInPage(
@@ -3255,10 +3268,10 @@ uint8_t nbgl_useCaseGetNbTagValuesInPageExt(uint8_t                           nb
  * @param startIndex first index to consider in \b infosList
  * @return the number of infos fitting in a page
  */
-uint8_t nbgl_useCaseGetNbInfosInPage(uint8_t                       nbInfos,
-                                     const nbgl_contentInfoList_t *infosList,
-                                     uint8_t                       startIndex,
-                                     bool                          withNav)
+static uint8_t getNbInfosInPage(uint8_t                       nbInfos,
+                                const nbgl_contentInfoList_t *infosList,
+                                uint8_t                       startIndex,
+                                bool                          withNav)
 {
     uint8_t            nbInfosInPage  = 0;
     uint16_t           currentHeight  = 0;
@@ -3300,10 +3313,10 @@ uint8_t nbgl_useCaseGetNbInfosInPage(uint8_t                       nbInfos,
  * @param startIndex first index to consider in \b switchesList
  * @return the number of switches fitting in a page
  */
-uint8_t nbgl_useCaseGetNbSwitchesInPage(uint8_t                           nbSwitches,
-                                        const nbgl_contentSwitchesList_t *switchesList,
-                                        uint8_t                           startIndex,
-                                        bool                              withNav)
+static uint8_t getNbSwitchesInPage(uint8_t                           nbSwitches,
+                                   const nbgl_contentSwitchesList_t *switchesList,
+                                   uint8_t                           startIndex,
+                                   bool                              withNav)
 {
     uint8_t               nbSwitchesInPage = 0;
     uint16_t              currentHeight    = 0;
@@ -3351,10 +3364,10 @@ uint8_t nbgl_useCaseGetNbSwitchesInPage(uint8_t                           nbSwit
  * @param startIndex first index to consider in \b barsList
  * @return the number of bars fitting in a page
  */
-uint8_t nbgl_useCaseGetNbBarsInPage(uint8_t                       nbBars,
-                                    const nbgl_contentBarsList_t *barsList,
-                                    uint8_t                       startIndex,
-                                    bool                          withNav)
+static uint8_t getNbBarsInPage(uint8_t                       nbBars,
+                               const nbgl_contentBarsList_t *barsList,
+                               uint8_t                       startIndex,
+                               bool                          withNav)
 {
     uint8_t  nbBarsInPage   = 0;
     uint16_t currentHeight  = 0;

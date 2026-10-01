@@ -2469,66 +2469,6 @@ uint8_t nbgl_useCaseGetNbTagValuesInPageExt(uint8_t                           nb
 }
 
 /**
- * @brief with Nano Screen, only a single info is displayable in a page
- *
- * @param nbInfos unused
- * @param infosList unused
- * @param startIndex unused
- * @return the number of infos fitting in a page
- */
-uint8_t nbgl_useCaseGetNbInfosInPage(uint8_t                       nbInfos,
-                                     const nbgl_contentInfoList_t *infosList,
-                                     uint8_t                       startIndex,
-                                     bool                          withNav)
-{
-    UNUSED(nbInfos);
-    UNUSED(infosList);
-    UNUSED(startIndex);
-    UNUSED(withNav);
-    return 1;
-}
-
-/**
- * @brief with Nano Screen, only a single switch is displayable in a page
- *
- * @param nbSwitches unused
- * @param switchesList unused
- * @param startIndex unused
- * @return the number of switches fitting in a page
- */
-uint8_t nbgl_useCaseGetNbSwitchesInPage(uint8_t                           nbSwitches,
-                                        const nbgl_contentSwitchesList_t *switchesList,
-                                        uint8_t                           startIndex,
-                                        bool                              withNav)
-{
-    UNUSED(nbSwitches);
-    UNUSED(switchesList);
-    UNUSED(startIndex);
-    UNUSED(withNav);
-    return 1;
-}
-
-/**
- * @brief with Nano Screen, only a single bar is displayable in a page
- *
- * @param nbBars unused
- * @param barsList unused
- * @param startIndex unused
- * @return the number of bars fitting in a page
- */
-uint8_t nbgl_useCaseGetNbBarsInPage(uint8_t                       nbBars,
-                                    const nbgl_contentBarsList_t *barsList,
-                                    uint8_t                       startIndex,
-                                    bool                          withNav)
-{
-    UNUSED(nbBars);
-    UNUSED(barsList);
-    UNUSED(startIndex);
-    UNUSED(withNav);
-    return 1;
-}
-
-/**
  * @brief with Nano Screen, only a single radio choice displayable in a page
  *
  * @param nbChoices unused

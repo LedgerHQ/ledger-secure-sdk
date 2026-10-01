@@ -362,32 +362,6 @@ uint8_t nbgl_useCaseGetNbTagValuesInPageExt(uint8_t                           nb
     return nbPairs;
 }
 
-uint8_t nbgl_useCaseGetNbInfosInPage(uint8_t                       nbInfos,
-                                     const nbgl_contentInfoList_t *infosList
-                                     __attribute__((unused)),
-                                     uint8_t startIndex __attribute__((unused)),
-                                     bool    withNav __attribute__((unused)))
-{
-    return nbInfos;
-}
-
-uint8_t nbgl_useCaseGetNbSwitchesInPage(uint8_t                           nbSwitches,
-                                        const nbgl_contentSwitchesList_t *switchesList
-                                        __attribute__((unused)),
-                                        uint8_t startIndex __attribute__((unused)),
-                                        bool    withNav __attribute__((unused)))
-{
-    return nbSwitches;
-}
-
-uint8_t nbgl_useCaseGetNbBarsInPage(uint8_t                       nbBars,
-                                    const nbgl_contentBarsList_t *barsList __attribute__((unused)),
-                                    uint8_t startIndex __attribute__((unused)),
-                                    bool    withNav __attribute__((unused)))
-{
-    return nbBars;
-}
-
 uint8_t nbgl_useCaseGetNbChoicesInPage(uint8_t                          nbChoices,
                                        const nbgl_contentRadioChoice_t *choicesList
                                        __attribute__((unused)),

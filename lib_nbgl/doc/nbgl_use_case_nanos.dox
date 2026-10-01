@@ -1195,15 +1195,6 @@ or similar APIs.
 - @ref nbgl_useCaseGetNbTagValuesInPageExt() — same as above but also accounts for a potential
   *skip* header when *isSkippable* is true.
 
-- @ref nbgl_useCaseGetNbInfosInPage() — returns the number of info items (type/content string
-  pairs) that fit in one page starting at a given index.
-
-- @ref nbgl_useCaseGetNbSwitchesInPage() — returns the number of switch items that fit in one
-  page starting at a given index.
-
-- @ref nbgl_useCaseGetNbBarsInPage() — returns the number of touchable bar items that fit in one
-  page starting at a given index.
-
 - @ref nbgl_useCaseGetNbChoicesInPage() — returns the number of radio-choice items that fit in
   one page starting at a given index.
 
