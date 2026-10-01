@@ -131,19 +131,25 @@ static u2f_error_t process_packet(u2f_transport_t *handle, uint8_t *buffer, uint
             goto end;
         }
 
+        // A new first packet ends the message being received, even when it is refused.
+        if (handle->state == U2F_STATE_CMD_FRAMING) {
+            handle->state = U2F_STATE_IDLE;
+        }
+
         // Check if packet will fit in the rx buffer
-        handle->rx_message_length = (uint16_t) U2BE(buffer, 1) + 3;
-        if (handle->rx_message_length > handle->rx_message_buffer_size) {
+        uint32_t message_length = (uint32_t) U2BE(buffer, 1) + 3;
+        if (message_length > handle->rx_message_buffer_size) {
             error = CTAP1_ERR_INVALID_LENGTH;
             goto end;
         }
 
-        if ((handle->rx_message_length <= 3) && (buffer[0] == (U2F_COMMAND_HID_CBOR | 0x80))) {
+        if ((message_length <= 3) && (buffer[0] == (U2F_COMMAND_HID_CBOR | 0x80))) {
             handle->rx_message_buffer[0] = U2F_COMMAND_HID_CBOR;
             error                        = CTAP2_ERR_INVALID_CBOR;
             goto end;
         }
 
+        handle->rx_message_length                              = (uint16_t) message_length;
         handle->state                                          = U2F_STATE_CMD_FRAMING;
         handle->rx_message_offset                              = 0;
         handle->rx_message_buffer[handle->rx_message_offset++] = buffer[0] & 0x7F;  // CMD
@@ -168,8 +174,9 @@ static u2f_error_t process_packet(u2f_transport_t *handle, uint8_t *buffer, uint
         length -= 1;
     }
 
-    // prevent integer underflows in the rest of the operations
-    if (handle->rx_message_length < handle->rx_message_offset) {
+    // prevent integer underflows and buffer overflows in the rest of the operations
+    if ((handle->rx_message_length > handle->rx_message_buffer_size)
+        || (handle->rx_message_length < handle->rx_message_offset)) {
         error = CTAP1_ERR_OTHER;
         goto end;
     }
