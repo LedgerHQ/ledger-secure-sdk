@@ -539,7 +539,7 @@ sequenceDiagram
     Device->>Device: display_register_ledger_account_review() [coin-app]
     Device->>User: Display: account name + address
     User->>Device: Confirm
-    Device->>Device: Derive HMAC key at BIP32 path (Ledger Account KDF)
+    Device->>Device: Derive HMAC key (Ledger Account KDF)
     Device->>Device: HMAC-SHA256(key, name_len|name|family[|chain_id])
     Device->>Wallet: 0x2f | hmac_proof(32)  [9000]
     Wallet->>Wallet: Store hmac_proof with account record
@@ -699,7 +699,7 @@ The device verifies the HMAC Proof of Registration, then derives the Ethereum ad
 #### Flow
 
 1. Parse TLV payload.
-2. Re-derive HMAC over `(account_name, family [, chain_id])` at the given BIP32 path and compare with `hmac_proof` (constant-time) — proves the account was registered on this device.
+2. Re-derive HMAC over `(account_name, family [, chain_id])` and compare with `hmac_proof` (constant-time) — proves the account was registered on this device.
 3. Call `handle_provide_ledger_account()` (coin-app entrypoint) — the app derives the Ethereum address from the BIP32 path, stores the `(address → name)` mapping for use during the upcoming transaction review.
 4. Return `9000` (no data).
 
@@ -709,7 +709,7 @@ sequenceDiagram
     Note over Wallet: Has: account_name, bip32_path, chain_id, hmac_proof (from registration)
     Wallet->>Device: CMD_PROVIDE_LEDGER_ACCOUNT_CONTACT (account_name + bip32_path + chain_id + family + hmac_proof)
     Device->>Device: Parse TLV
-    Device->>Device: Re-derive HMAC(account_name, family[, chain_id]) at bip32_path, compare with hmac_proof
+    Device->>Device: Re-derive HMAC(account_name, family[, chain_id]), compare with hmac_proof
     Note right of Device: Proof valid — account legitimately registered on this device
     Device->>Device: handle_provide_ledger_account() [coin-app] — derive address, store mapping
     Device->>Wallet: 9000

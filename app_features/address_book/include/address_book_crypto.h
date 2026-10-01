@@ -57,14 +57,12 @@ bool address_book_verify_hmac_rest(const uint8_t       gid[GID_SIZE],
 
 #ifdef HAVE_ADDRESS_BOOK_LEDGER_ACCOUNT
 
-bool address_book_compute_hmac_proof_ledger_account(const path_bip32_t *bip32_path,
-                                                    const char         *name,
+bool address_book_compute_hmac_proof_ledger_account(const char         *name,
                                                     blockchain_family_e family,
                                                     uint64_t            chain_id,
                                                     uint8_t             hmac_out[CX_SHA256_SIZE]);
 
-bool address_book_verify_hmac_proof_ledger_account(const path_bip32_t *bip32_path,
-                                                   const char         *name,
+bool address_book_verify_hmac_proof_ledger_account(const char         *name,
                                                    blockchain_family_e family,
                                                    uint64_t            chain_id,
                                                    const uint8_t hmac_expected[CX_SHA256_SIZE]);

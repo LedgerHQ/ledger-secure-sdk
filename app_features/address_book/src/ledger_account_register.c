@@ -235,7 +235,6 @@ static bool build_and_send_response(void)
     uint8_t hmac_proof[CX_SHA256_SIZE] = {0};
 
     if (!address_book_compute_hmac_proof_ledger_account(
-            &g_ab_payload.ledger_account.bip32_path,
             (const char *) g_ab_payload.ledger_account.account_name,
             g_ab_payload.ledger_account.blockchain_family,
             g_ab_payload.ledger_account.chain_id,

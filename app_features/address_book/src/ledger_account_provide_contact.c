@@ -278,9 +278,8 @@ bolos_err_t provide_ledger_account_contact(uint8_t *buffer_in, size_t buffer_in_
     }
     print_payload(&ctx);
 
-    // Verify HMAC Proof of Registration: HMAC(bip32_path, account_name, family, chain_id)
+    // Verify HMAC Proof of Registration: HMAC(account_name, family[, chain_id])
     if (!address_book_verify_hmac_proof_ledger_account(
-            &g_ab_payload.ledger_account.bip32_path,
             g_ab_payload.ledger_account.account_name,
             g_ab_payload.ledger_account.blockchain_family,
             g_ab_payload.ledger_account.chain_id,
