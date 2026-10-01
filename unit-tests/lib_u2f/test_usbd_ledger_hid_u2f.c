@@ -852,6 +852,261 @@ void test_queued_multi_packet_reply_is_sent_whole(void)
     TEST_ASSERT_EQUAL_HEX32(U2F_FORBIDDEN_CID, ledger_hid_u2f_handle.transport_data.cid);
 }
 
+// A CANCEL while a message is being received is not handed to the app, which has nothing to
+// answer: the channel stayed held, and every client got CHANNEL_BUSY until a replug.
+void test_cancel_during_reception_does_not_lock_the_channel(void)
+{
+    static const uint8_t nonce[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+    uint8_t              big[100] = {0x04};
+
+    TEST_ASSERT_EQUAL_INT32(0, host_sends(OWNER_CID, U2F_COMMAND_HID_CBOR, big, sizeof(big)));
+    TEST_ASSERT_EQUAL_INT32(0, host_sends(OWNER_CID, U2F_COMMAND_HID_CANCEL, NULL, 0));
+    TEST_ASSERT_EQUAL_UINT(0, sent_count);
+    TEST_ASSERT_EQUAL_UINT8(U2F_STATE_CMD_FRAMING, ledger_hid_u2f_handle.transport_data.state);
+
+    // A client that reopens the device is served.
+    TEST_ASSERT_EQUAL_INT32(
+        0, host_sends(U2F_BROADCAST_CID, U2F_COMMAND_HID_INIT, nonce, sizeof(nonce)));
+    TEST_ASSERT_EQUAL_UINT(1, sent_count);
+    TEST_ASSERT_EQUAL_HEX32(U2F_BROADCAST_CID, sent_cid(0));
+    TEST_ASSERT_EQUAL_HEX8(U2F_COMMAND_HID_INIT | 0x80, sent[0][4]);
+}
+
+// The owner can still finish its message after the ignored CANCEL.
+void test_owner_message_completes_after_an_ignored_cancel(void)
+{
+    uint8_t big[100] = {0x04};
+
+    TEST_ASSERT_EQUAL_INT32(0, host_sends(OWNER_CID, U2F_COMMAND_HID_CBOR, big, sizeof(big)));
+    TEST_ASSERT_EQUAL_INT32(0, host_sends(OWNER_CID, U2F_COMMAND_HID_CANCEL, NULL, 0));
+    TEST_ASSERT_EQUAL_INT32(sizeof(big) + 1, host_sends_continuation(OWNER_CID, 0));
+    TEST_ASSERT_EQUAL_UINT8(U2F_STATE_CMD_PROCESSING, ledger_hid_u2f_handle.transport_data.state);
+}
+
+// The host writes a whole message, in as many packets as it takes, to an app buffer of
+// max_length bytes. Returns what data_ready() returns for the last packet.
+static int32_t host_sends_message(uint32_t       cid,
+                                  uint8_t        cmd,
+                                  const uint8_t *data,
+                                  uint16_t       len,
+                                  uint8_t       *app_buffer,
+                                  uint16_t       max_length)
+{
+    uint8_t  packet[LEDGER_HID_U2F_EPOUT_SIZE];
+    uint16_t offset = 0;
+    uint8_t  seq    = 0;
+    int32_t  status = 0;
+
+    do {
+        uint16_t header = (offset == 0) ? 7 : 5;
+        uint16_t chunk  = MIN(len - offset, LEDGER_HID_U2F_EPOUT_SIZE - header);
+
+        memset(packet, 0, sizeof(packet));
+        packet[0] = (uint8_t) (cid >> 24);
+        packet[1] = (uint8_t) (cid >> 16);
+        packet[2] = (uint8_t) (cid >> 8);
+        packet[3] = (uint8_t) cid;
+        if (offset == 0) {
+            packet[4] = cmd | 0x80;
+            packet[5] = (uint8_t) (len >> 8);
+            packet[6] = (uint8_t) len;
+        }
+        else {
+            packet[4] = seq++;
+        }
+        memcpy(&packet[header], &data[offset], chunk);
+        offset += chunk;
+
+        USBD_LEDGER_HID_U2F_data_out(
+            &pdev, &ledger_hid_u2f_handle, LEDGER_HID_U2F_EPOUT_ADDR, packet, sizeof(packet));
+        status
+            = USBD_LEDGER_HID_U2F_data_ready(&pdev, &ledger_hid_u2f_handle, app_buffer, max_length);
+        usb_in_drain();
+    } while (offset < len);
+    return status;
+}
+
+// The largest message the receive buffer holds is handed to the app when its buffer is as
+// large, as on the device: it was dropped with no answer and its channel left claimed.
+void test_full_size_message_is_handed_to_the_app(void)
+{
+    static uint8_t data[sizeof(USBD_LEDGER_io_buffer) - 3];
+    static uint8_t app_buffer[sizeof(USBD_LEDGER_io_buffer)];
+
+    for (unsigned int i = 0; i < sizeof(data); i++) {
+        data[i] = (uint8_t) i;
+    }
+    TEST_ASSERT_EQUAL_INT32(
+        sizeof(data) + 1,
+        host_sends_message(
+            OWNER_CID, U2F_COMMAND_HID_CBOR, data, sizeof(data), app_buffer, sizeof(app_buffer)));
+    TEST_ASSERT_EQUAL_HEX8(OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR, app_buffer[0]);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(data, &app_buffer[1], sizeof(data));
+    TEST_ASSERT_EQUAL_UINT(0, sent_count);
+}
+
+// A CBOR too large for the app gets a CTAPHID_ERROR, not a CBOR reply, and frees its channel.
+void test_cbor_too_large_for_the_app_gets_invalid_length(void)
+{
+    static const uint8_t get_info  = 0x04;
+    uint8_t              data[100] = {0x04};
+    uint8_t              app_buffer[64];
+
+    TEST_ASSERT_EQUAL_INT32(
+        0,
+        host_sends_message(
+            OWNER_CID, U2F_COMMAND_HID_CBOR, data, sizeof(data), app_buffer, sizeof(app_buffer)));
+
+    TEST_ASSERT_EQUAL_UINT(1, sent_count);
+    TEST_ASSERT_EQUAL_HEX32(OWNER_CID, sent_cid(0));
+    TEST_ASSERT_EQUAL_HEX8(U2F_COMMAND_ERROR | 0x80, sent[0][4]);
+    TEST_ASSERT_EQUAL_HEX8(1, sent[0][6]);
+    TEST_ASSERT_EQUAL_HEX8(CTAP1_ERR_INVALID_LENGTH, sent[0][7]);
+    TEST_ASSERT_GREATER_THAN_INT32(0, host_sends(OTHER_CID, U2F_COMMAND_HID_CBOR, &get_info, 1));
+}
+
+// The same for a MSG.
+void test_msg_too_large_for_the_app_gets_invalid_length(void)
+{
+    static const uint8_t get_info  = 0x04;
+    uint8_t              data[100] = {0x00, 0x02, 0x03, 0x00};
+    uint8_t              app_buffer[64];
+
+    cx_crc16_update_Stub(fake_crc16);
+    TEST_ASSERT_EQUAL_INT32(
+        0,
+        host_sends_message(
+            OWNER_CID, U2F_COMMAND_MSG, data, sizeof(data), app_buffer, sizeof(app_buffer)));
+
+    TEST_ASSERT_EQUAL_UINT(1, sent_count);
+    TEST_ASSERT_EQUAL_HEX8(U2F_COMMAND_ERROR | 0x80, sent[0][4]);
+    TEST_ASSERT_EQUAL_HEX8(1, sent[0][6]);
+    TEST_ASSERT_EQUAL_HEX8(CTAP1_ERR_INVALID_LENGTH, sent[0][7]);
+    TEST_ASSERT_GREATER_THAN_INT32(0, host_sends(OTHER_CID, U2F_COMMAND_HID_CBOR, &get_info, 1));
+}
+
+// A short OUT packet, as the MCU forwards it without zero padding, must not lock other
+// clients out.
+void test_short_packet_does_not_lock_the_channel(void)
+{
+    static const uint8_t nonce[8]  = {1, 2, 3, 4, 5, 6, 7, 8};
+    uint8_t              packet[4] = {0x22, 0x22, 0x22, 0x22};
+    uint8_t              app_buffer[OS_IO_BUFFER_SIZE];
+
+    USBD_LEDGER_HID_U2F_data_out(
+        &pdev, &ledger_hid_u2f_handle, LEDGER_HID_U2F_EPOUT_ADDR, packet, sizeof(packet));
+    TEST_ASSERT_EQUAL_INT32(0,
+                            USBD_LEDGER_HID_U2F_data_ready(
+                                &pdev, &ledger_hid_u2f_handle, app_buffer, sizeof(app_buffer)));
+    TEST_ASSERT_EQUAL_UINT(0, sent_count);
+
+    TEST_ASSERT_EQUAL_INT32(
+        0, host_sends(U2F_BROADCAST_CID, U2F_COMMAND_HID_INIT, nonce, sizeof(nonce)));
+    TEST_ASSERT_EQUAL_UINT(1, sent_count);
+    TEST_ASSERT_EQUAL_HEX8(U2F_COMMAND_HID_INIT | 0x80, sent[0][4]);
+}
+
+// After the user approved, a changed request gets no answer and drops the approval, as app-u2f
+// expects. It used to hold the channel; with CHANNEL_BUSY instead, the approval waited for a
+// retry that never came, and every later MSG was busy.
+void test_changed_msg_after_approval_is_dropped_and_frees_the_channel(void)
+{
+    static const uint8_t changed_apdu[] = {0x00, 0x01, 0x03, 0x01};
+    static const uint8_t reply[]        = {0x05, 0x04, 0x90, 0x00};
+    static const uint8_t nonce[8]       = {1, 2, 3, 4, 5, 6, 7, 8};
+
+    start_user_presence_wait();
+    app_sends(OS_IO_PACKET_TYPE_USB_U2F_HID_APDU, reply, sizeof(reply));
+
+    TEST_ASSERT_EQUAL_INT32(
+        0, host_sends(OWNER_CID, U2F_COMMAND_MSG, changed_apdu, sizeof(changed_apdu)));
+    TEST_ASSERT_EQUAL_UINT(1, sent_count);
+    TEST_ASSERT_EQUAL_UINT8(LEDGER_HID_U2F_USER_PRESENCE_IDLE, ledger_hid_u2f_handle.user_presence);
+    TEST_ASSERT_EQUAL_HEX32(U2F_FORBIDDEN_CID, ledger_hid_u2f_handle.transport_data.cid);
+
+    // Another client is served.
+    TEST_ASSERT_EQUAL_INT32(
+        0, host_sends(U2F_BROADCAST_CID, U2F_COMMAND_HID_INIT, nonce, sizeof(nonce)));
+    TEST_ASSERT_EQUAL_UINT(2, sent_count);
+    TEST_ASSERT_EQUAL_HEX8(U2F_COMMAND_HID_INIT | 0x80, sent[1][4]);
+
+    // A new request goes to the app, which asks the user again.
+    TEST_ASSERT_GREATER_THAN_INT32(
+        0, host_sends(OWNER_CID, U2F_COMMAND_MSG, register_apdu, sizeof(register_apdu)));
+}
+
+// An approved U2F reply is kept when the host's retry ends while another client's refusal is
+// in flight: it was dropped, and the next retry asked the user again.
+void test_approved_reply_waits_for_a_refusal_in_flight(void)
+{
+    static const uint8_t ask_user[]                      = {0xFF, 0xFF};
+    static const uint8_t reply[]                         = {0x05, 0x04, 0x90, 0x00};
+    static const uint8_t get_info                        = 0x04;
+    uint8_t              apdu[100]                       = {0x00, 0x01, 0x03, 0x00};
+    uint8_t              last[LEDGER_HID_U2F_EPOUT_SIZE] = {0};
+    uint8_t              app_buffer[OS_IO_BUFFER_SIZE];
+
+    cx_crc16_update_Stub(fake_crc16);
+    TEST_ASSERT_GREATER_THAN_INT32(
+        0,
+        host_sends_message(
+            OWNER_CID, U2F_COMMAND_MSG, apdu, sizeof(apdu), app_buffer, sizeof(app_buffer)));
+    app_sends(OS_IO_PACKET_TYPE_USB_U2F_HID_APDU, ask_user, sizeof(ask_user));
+    app_sends(OS_IO_PACKET_TYPE_USB_U2F_HID_APDU, reply, sizeof(reply));
+
+    // The retry's first packet, another client's refusal, then the retry's last packet.
+    packet_arrives(OWNER_CID, U2F_COMMAND_MSG | 0x80, apdu, sizeof(apdu));
+    packet_arrives(OTHER_CID, U2F_COMMAND_HID_CBOR | 0x80, &get_info, 1);
+    last[0] = (uint8_t) (OWNER_CID >> 24);
+    last[1] = (uint8_t) (OWNER_CID >> 16);
+    last[2] = (uint8_t) (OWNER_CID >> 8);
+    last[3] = (uint8_t) OWNER_CID;
+    memcpy(&last[5],
+           &apdu[LEDGER_HID_U2F_EPOUT_SIZE - 7],
+           sizeof(apdu) - (LEDGER_HID_U2F_EPOUT_SIZE - 7));
+    USBD_LEDGER_HID_U2F_data_out(
+        &pdev, &ledger_hid_u2f_handle, LEDGER_HID_U2F_EPOUT_ADDR, last, sizeof(last));
+    USBD_LEDGER_HID_U2F_data_ready(&pdev, &ledger_hid_u2f_handle, app_buffer, sizeof(app_buffer));
+    usb_in_drain();
+    TEST_ASSERT_EQUAL_UINT8(LEDGER_HID_U2F_USER_PRESENCE_CONFIRMED,
+                            ledger_hid_u2f_handle.user_presence);
+
+    // The next retry gets the approved reply.
+    TEST_ASSERT_EQUAL_INT32(
+        0,
+        host_sends_message(
+            OWNER_CID, U2F_COMMAND_MSG, apdu, sizeof(apdu), app_buffer, sizeof(app_buffer)));
+    TEST_ASSERT_EQUAL_HEX32(OWNER_CID, sent_cid(sent_count - 1));
+    TEST_ASSERT_EQUAL_HEX8(sizeof(reply), sent[sent_count - 1][6]);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(reply, &sent[sent_count - 1][7], sizeof(reply));
+}
+
+// An error waiting for the IN endpoint survives the next packet: its sender kept the channel
+// with no answer, and every other client got CHANNEL_BUSY.
+void test_waiting_error_survives_the_next_packet(void)
+{
+    static const uint8_t get_info = 0x04;
+    static const uint8_t nonce[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+    uint8_t              big[100] = {0x04};
+    uint8_t              data[64] = {0x04};
+
+    packet_arrives(OWNER_CID, U2F_COMMAND_HID_CBOR | 0x80, big, sizeof(big));
+    packet_arrives(OTHER_CID, U2F_COMMAND_HID_CBOR | 0x80, &get_info, 1);  // refusal in flight
+    packet_arrives(OWNER_CID, U2F_COMMAND_HID_CBOR | 0x80, data, 2000);    // INVALID_LEN waits
+    packet_arrives(NEW_CID, U2F_COMMAND_HID_CBOR | 0x80, &get_info, 1);    // the next packet
+    usb_in_drain();
+
+    TEST_ASSERT_EQUAL_UINT(3, sent_count);
+    TEST_ASSERT_EQUAL_HEX32(OWNER_CID, sent_cid(2));
+    TEST_ASSERT_EQUAL_HEX8(U2F_COMMAND_ERROR | 0x80, sent[2][4]);
+    TEST_ASSERT_EQUAL_HEX8(CTAP1_ERR_INVALID_LENGTH, sent[2][7]);
+    TEST_ASSERT_EQUAL_HEX32(U2F_FORBIDDEN_CID, ledger_hid_u2f_handle.transport_data.cid);
+
+    TEST_ASSERT_EQUAL_INT32(
+        0, host_sends(U2F_BROADCAST_CID, U2F_COMMAND_HID_INIT, nonce, sizeof(nonce)));
+    TEST_ASSERT_EQUAL_HEX8(U2F_COMMAND_HID_INIT | 0x80, sent[sent_count - 1][4]);
+}
+
 int main(void)
 {
     UNITY_BEGIN();
@@ -882,5 +1137,14 @@ int main(void)
     RUN_TEST(test_queued_message_does_not_keep_the_callers_buffer);
     RUN_TEST(test_largest_one_packet_message_is_copied_whole);
     RUN_TEST(test_queued_multi_packet_reply_is_sent_whole);
+    RUN_TEST(test_cancel_during_reception_does_not_lock_the_channel);
+    RUN_TEST(test_owner_message_completes_after_an_ignored_cancel);
+    RUN_TEST(test_full_size_message_is_handed_to_the_app);
+    RUN_TEST(test_cbor_too_large_for_the_app_gets_invalid_length);
+    RUN_TEST(test_msg_too_large_for_the_app_gets_invalid_length);
+    RUN_TEST(test_short_packet_does_not_lock_the_channel);
+    RUN_TEST(test_changed_msg_after_approval_is_dropped_and_frees_the_channel);
+    RUN_TEST(test_approved_reply_waits_for_a_refusal_in_flight);
+    RUN_TEST(test_waiting_error_survives_the_next_packet);
     return UNITY_END();
 }
