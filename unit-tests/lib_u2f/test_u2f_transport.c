@@ -449,6 +449,63 @@ void test_cancel_with_data_is_ignored(void)
     TEST_ASSERT_EQUAL_HEX8(U2F_COMMAND_HID_CBOR, rx_buffer[0]);
 }
 
+// An oversized first packet from the owner must end its message: its continuation packets
+// were otherwise copied against the refused length, past the end of the buffer.
+void test_oversized_init_drops_the_message_being_received(void)
+{
+    uint8_t data[PACKET] = {0x04};
+
+    start_incomplete_message(OWNER_CID);
+    rx_init_packet(OWNER_CID, U2F_COMMAND_HID_CBOR, data, 2000);
+
+    TEST_ASSERT_EQUAL_UINT8(CTAP1_ERR_INVALID_LENGTH, transport.error);
+    TEST_ASSERT_NOT_EQUAL_UINT8(U2F_STATE_CMD_FRAMING, transport.state);
+    TEST_ASSERT_LESS_OR_EQUAL_UINT16(sizeof(rx_buffer), transport.rx_message_length);
+
+    for (uint8_t seq = 0; seq < 20; seq++) {
+        rx_continuation_packet(OWNER_CID, seq);
+        TEST_ASSERT_EQUAL_UINT8(CTAP1_ERR_OTHER, transport.error);
+    }
+    TEST_ASSERT_NOT_EQUAL_UINT8(U2F_STATE_CMD_COMPLETE, transport.state);
+}
+
+// BCNT 0xFFFD-0xFFFF wrapped to a small length that passed the size check.
+void test_largest_bcnt_is_refused(void)
+{
+    uint8_t data[PACKET] = {0};
+
+    rx_init_packet(OWNER_CID, U2F_COMMAND_HID_CBOR, data, 0xFFFF);
+
+    TEST_ASSERT_EQUAL_UINT8(CTAP1_ERR_INVALID_LENGTH, transport.error);
+    TEST_ASSERT_EQUAL_UINT8(U2F_STATE_IDLE, transport.state);
+}
+
+// An empty CBOR from the owner also ends its message, which would go on as a CBOR.
+void test_empty_cbor_drops_the_message_being_received(void)
+{
+    uint8_t data[100] = {0x01};
+
+    rx_init_packet(OWNER_CID, U2F_COMMAND_PING, data, sizeof(data));
+    rx_init_packet(OWNER_CID, U2F_COMMAND_HID_CBOR, NULL, 0);
+
+    TEST_ASSERT_EQUAL_UINT8(CTAP2_ERR_INVALID_CBOR, transport.error);
+    TEST_ASSERT_EQUAL_UINT8(U2F_STATE_IDLE, transport.state);
+    rx_continuation_packet(OWNER_CID, 0);
+    TEST_ASSERT_EQUAL_UINT8(CTAP1_ERR_OTHER, transport.error);
+    TEST_ASSERT_EQUAL_UINT8(U2F_STATE_IDLE, transport.state);
+}
+
+// Last line of defence: a length larger than the buffer never reaches the copy.
+void test_continuation_never_writes_past_the_buffer(void)
+{
+    start_incomplete_message(OWNER_CID);
+    transport.rx_message_buffer_size = 64;
+    rx_continuation_packet(OWNER_CID, 0);
+
+    TEST_ASSERT_EQUAL_UINT8(CTAP1_ERR_OTHER, transport.error);
+    TEST_ASSERT_EQUAL_UINT16(PACKET - 4, transport.rx_message_offset);
+}
+
 int main(void)
 {
     UNITY_BEGIN();
@@ -476,5 +533,9 @@ int main(void)
     RUN_TEST(test_owner_command_after_cancel_is_refused);
     RUN_TEST(test_cancel_spread_over_packets_is_ignored);
     RUN_TEST(test_cancel_with_data_is_ignored);
+    RUN_TEST(test_oversized_init_drops_the_message_being_received);
+    RUN_TEST(test_largest_bcnt_is_refused);
+    RUN_TEST(test_empty_cbor_drops_the_message_being_received);
+    RUN_TEST(test_continuation_never_writes_past_the_buffer);
     return UNITY_END();
 }
