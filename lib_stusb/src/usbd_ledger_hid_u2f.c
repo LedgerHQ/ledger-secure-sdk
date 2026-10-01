@@ -62,6 +62,9 @@ enum ledger_hid_u2f_user_presence_t {
 
 #define APDU_MIN_HEADER (4 + 3)
 
+// Data bytes in a first packet, after the CID, CMD and BCNT
+#define INIT_PACKET_DATA_SIZE (LEDGER_HID_U2F_EPIN_SIZE - 4 - 3)
+
 /* Private types, structures, unions -----------------------------------------*/
 typedef struct {
     // HID
@@ -73,6 +76,8 @@ typedef struct {
     uint8_t        queued_type;
     const uint8_t *queued_message;
     uint16_t       queued_length;
+    // A queued one-packet message, plus the command byte a RAW message starts with.
+    uint8_t queued_buffer[INIT_PACKET_DATA_SIZE + 1];
 
     // Transport
     u2f_transport_t transport_data;
@@ -478,29 +483,10 @@ USBD_StatusTypeDef USBD_LEDGER_HID_U2F_send_message(USBD_HandleTypeDef *pdev,
     uint8_t        cmd       = 0;
     const uint8_t *tx_buffer = message;
     uint16_t       tx_length = message_length;
-#ifndef HAVE_BOLOS
-    uint8_t status[2];
-#endif  // !HAVE_BOLOS
 
     switch (packet_type) {
         case OS_IO_PACKET_TYPE_USB_U2F_HID_APDU:
             cmd = U2F_COMMAND_MSG;
-// Cannot enable user presence handling in the OS, see OS issues/555 for more information
-#ifndef HAVE_BOLOS
-            U2BE_ENCODE(status, 0, SWO_CONDITIONS_NOT_SATISFIED);
-            if ((message_length == 2) && (message[0] == 0xFF) && (message[1] == 0xFF)) {
-                tx_buffer             = status;
-                handle->user_presence = LEDGER_HID_U2F_USER_PRESENCE_ASKING;
-            }
-            else if (handle->user_presence == LEDGER_HID_U2F_USER_PRESENCE_ASKING) {
-                if ((message_length != 2) || (memcmp(message, status, 2) != 0)) {
-                    handle->user_presence         = LEDGER_HID_U2F_USER_PRESENCE_CONFIRMED;
-                    handle->backup_message        = message;
-                    handle->backup_message_length = message_length;
-                    return USBD_OK;
-                }
-            }
-#endif  // !HAVE_BOLOS
             break;
 
         case OS_IO_PACKET_TYPE_USB_U2F_HID_CBOR:
@@ -561,6 +547,28 @@ static USBD_StatusTypeDef app_send_message(USBD_HandleTypeDef *pdev,
 
     ledger_hid_u2f_handle_t *handle = (ledger_hid_u2f_handle_t *) PIC(cookie);
 
+// Cannot enable user presence handling in the OS, see OS issues/555 for more information
+#ifndef HAVE_BOLOS
+    uint8_t status[2];
+
+    // Only app replies may become the backup: transport answers are on their caller's stack.
+    if (packet_type == OS_IO_PACKET_TYPE_USB_U2F_HID_APDU) {
+        U2BE_ENCODE(status, 0, SWO_CONDITIONS_NOT_SATISFIED);
+        if ((message_length == 2) && (message[0] == 0xFF) && (message[1] == 0xFF)) {
+            message               = status;
+            handle->user_presence = LEDGER_HID_U2F_USER_PRESENCE_ASKING;
+        }
+        else if (handle->user_presence == LEDGER_HID_U2F_USER_PRESENCE_ASKING) {
+            if ((message_length != 2) || (memcmp(message, status, 2) != 0)) {
+                handle->user_presence         = LEDGER_HID_U2F_USER_PRESENCE_CONFIRMED;
+                handle->backup_message        = message;
+                handle->backup_message_length = message_length;
+                return USBD_OK;
+            }
+        }
+    }
+#endif  // !HAVE_BOLOS
+
     if (handle->state != LEDGER_HID_U2F_STATE_BUSY) {
         return USBD_LEDGER_HID_U2F_send_message(
             pdev, cookie, packet_type, message, message_length, timeout_ms);
@@ -571,9 +579,19 @@ static USBD_StatusTypeDef app_send_message(USBD_HandleTypeDef *pdev,
         || handle->queued_message) {
         return USBD_BUSY;
     }
-    handle->queued_type    = packet_type;
-    handle->queued_message = message;
-    handle->queued_length  = message_length;
+    handle->queued_type   = packet_type;
+    handle->queued_length = message_length;
+    uint16_t data_length
+        = message_length - ((packet_type == OS_IO_PACKET_TYPE_USB_U2F_HID_RAW) ? 1 : 0);
+    if (data_length <= INIT_PACKET_DATA_SIZE) {
+        // Short messages are often on the caller's stack, gone once os_io_tx_cmd() returns.
+        memcpy(handle->queued_buffer, message, message_length);
+        handle->queued_message = handle->queued_buffer;
+    }
+    else {
+        // Like any multi-packet send, it is read from the caller's buffer until sent.
+        handle->queued_message = message;
+    }
     return USBD_OK;
 }
 
@@ -584,7 +602,8 @@ bool USBD_LEDGER_HID_U2F_is_busy(void *cookie)
 
     // Only while a sender's buffer is still read: os_io_tx_cmd() waits on this, and drops the UX
     // events it reads meanwhile. A one-packet message is already copied.
-    if (handle->transport_data.tx_message_buffer || handle->queued_message) {
+    if (handle->transport_data.tx_message_buffer
+        || (handle->queued_message && (handle->queued_message != handle->queued_buffer))) {
         busy = true;
     }
 
