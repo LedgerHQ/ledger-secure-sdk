@@ -147,13 +147,9 @@ int nbgl_layoutUpdateKeyboard(nbgl_layout_t *layout, uint8_t index, uint32_t key
  * @param layout the current layout
  * @param text string to display in the area
  * @param lettersOnly if true, display 8 chars placeholders, otherwise 9
- * @param obfuscated if true, entered text is obfuscated
  * @return >= 0 if OK
  */
-int nbgl_layoutAddEnteredTextAdvanced(nbgl_layout_t *layout,
-                                      const char    *text,
-                                      bool           lettersOnly,
-                                      bool           obfuscated)
+int nbgl_layoutAddEnteredText(nbgl_layout_t *layout, const char *text, bool lettersOnly)
 {
     nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
     nbgl_text_entry_t     *textEntry = NULL;
@@ -163,15 +159,10 @@ int nbgl_layoutAddEnteredTextAdvanced(nbgl_layout_t *layout,
         return -1;
     }
 
-    nbgl_font_id_e fontId = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
-    if (obfuscated) {
-        fontId = BAGL_FONT_OBFUSCATED_OPEN_SANS_EXTRABOLD_11px_1bpp;
-    }
-
     // create text area
     textEntry          = (nbgl_text_entry_t *) nbgl_objPoolGet(TEXT_ENTRY, layoutInt->layer);
     textEntry->text    = text;
-    textEntry->fontId  = fontId;
+    textEntry->fontId  = BAGL_FONT_OPEN_SANS_EXTRABOLD_11px_1bpp;
     textEntry->nbChars = lettersOnly ? 8 : 9;
     textEntry->obj.alignmentMarginY = 5;
     textEntry->obj.alignment        = BOTTOM_MIDDLE;
@@ -183,22 +174,6 @@ int nbgl_layoutAddEnteredTextAdvanced(nbgl_layout_t *layout,
 
     // return index of text area to be modified later on
     return (layoutInt->nbChildren - 1);
-}
-
-/**
- * @brief Adds a "text entry" area under the previously entered object.
- *        The max number of really displayable characters is 8, even if there are 9 placeholders (_)
- *        If longer than 8 chars, the first ones are replaced by a '..'
- *        The 9th placeholder is never filled
- *
- * @param layout the current layout
- * @param text string to display in the area
- * @param lettersOnly if true, display 8 chars placeholders, otherwise 9
- * @return >= 0 if OK
- */
-int nbgl_layoutAddEnteredText(nbgl_layout_t *layout, const char *text, bool lettersOnly)
-{
-    return nbgl_layoutAddEnteredTextAdvanced(layout, text, lettersOnly, false);
 }
 
 /**
