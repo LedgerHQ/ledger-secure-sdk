@@ -608,11 +608,6 @@ uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPai
                                          const nbgl_contentTagValueList_t *tagValueList,
                                          uint8_t                           startIndex,
                                          bool                             *requireSpecificDisplay);
-uint8_t nbgl_useCaseGetNbTagValuesInPageExt(uint8_t                           nbPairs,
-                                            const nbgl_contentTagValueList_t *tagValueList,
-                                            uint8_t                           startIndex,
-                                            bool                              isSkippable,
-                                            bool *requireSpecificDisplay);
 uint8_t nbgl_useCaseGetNbChoicesInPage(uint8_t                          nbChoices,
                                        const nbgl_contentRadioChoice_t *choicesList,
                                        uint8_t                          startIndex,

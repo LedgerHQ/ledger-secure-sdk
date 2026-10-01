@@ -3237,29 +3237,6 @@ uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPai
 }
 
 /**
- * @brief computes the number of tag/values pairs displayable in a page, with the given list of
- * tag/value pairs
- *
- * @param nbPairs number of tag/value pairs to use in \b tagValueList
- * @param tagValueList list of tag/value pairs
- * @param startIndex first index to consider in \b tagValueList
- * @param isSkippable if true, a skip header is added
- * @param requireSpecificDisplay (output) set to true if the tag/value needs a specific display:
- *        - centeredInfo flag is enabled
- *        - the tag/value doesn't fit in a page
- * @return the number of tag/value pairs fitting in a page
- */
-uint8_t nbgl_useCaseGetNbTagValuesInPageExt(uint8_t                           nbPairs,
-                                            const nbgl_contentTagValueList_t *tagValueList,
-                                            uint8_t                           startIndex,
-                                            bool                              isSkippable,
-                                            bool *requireSpecificDisplay)
-{
-    return getNbTagValuesInPage(
-        nbPairs, tagValueList, startIndex, isSkippable, false, false, requireSpecificDisplay);
-}
-
-/**
  * @brief computes the number of infos displayable in a page, with the given list of
  * infos
  *

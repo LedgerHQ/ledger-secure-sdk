@@ -2443,32 +2443,6 @@ uint8_t nbgl_useCaseGetNbTagValuesInPage(uint8_t                           nbPai
 }
 
 /**
- * @brief with Nano Screen, only a single tag/value pair is displayable in a page
- *
- * @param nbPairs unused
- * @param tagValueList unused
- * @param startIndex unused
- * @param isSkippable unused
- * @param requireSpecificDisplay (output) set to true if the tag/value needs a specific display:
- *        - centeredInfo flag is enabled
- *        - the tag/value doesn't fit in a page
- * @return the number of tag/value pairs fitting in a page
- */
-uint8_t nbgl_useCaseGetNbTagValuesInPageExt(uint8_t                           nbPairs,
-                                            const nbgl_contentTagValueList_t *tagValueList,
-                                            uint8_t                           startIndex,
-                                            bool                              isSkippable,
-                                            bool *requireSpecificDisplay)
-{
-    UNUSED(nbPairs);
-    UNUSED(tagValueList);
-    UNUSED(startIndex);
-    UNUSED(isSkippable);
-    *requireSpecificDisplay = true;
-    return 1;
-}
-
-/**
  * @brief with Nano Screen, only a single radio choice displayable in a page
  *
  * @param nbChoices unused
