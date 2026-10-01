@@ -506,6 +506,90 @@ void test_continuation_never_writes_past_the_buffer(void)
     TEST_ASSERT_EQUAL_UINT16(PACKET - 4, transport.rx_message_offset);
 }
 
+// With no command in the app, a CANCEL is ignored: handed over, it held the channel with
+// nothing left to answer it. The message being received goes on.
+void test_owner_cancel_during_reception_is_ignored(void)
+{
+    start_incomplete_message(OWNER_CID);
+    rx_init_packet(OWNER_CID, U2F_COMMAND_HID_CANCEL, NULL, 0);
+
+    TEST_ASSERT_EQUAL_UINT8(CTAP1_ERR_OTHER, transport.error);
+    TEST_ASSERT_FALSE(transport.reject_pending);
+    TEST_ASSERT_EQUAL_UINT8(U2F_STATE_CMD_FRAMING, transport.state);
+    TEST_ASSERT_EQUAL_HEX8(U2F_COMMAND_HID_CBOR, rx_buffer[0]);
+
+    rx_continuation_packet(OWNER_CID, 0);
+    TEST_ASSERT_EQUAL_UINT8(CTAP1_ERR_SUCCESS, transport.error);
+    TEST_ASSERT_EQUAL_UINT8(U2F_STATE_CMD_COMPLETE, transport.state);
+}
+
+// The same while the transport's own answer is on its way.
+void test_owner_cancel_during_a_transport_answer_is_ignored(void)
+{
+    static const uint8_t data = 0xA1;
+
+    rx_init_packet(OWNER_CID, U2F_COMMAND_PING, &data, 1);
+    transport.state = U2F_STATE_IDLE;
+    U2F_TRANSPORT_tx(&transport, U2F_COMMAND_PING, &data, 1, tx_packet, sizeof(tx_packet));
+
+    rx_init_packet(OWNER_CID, U2F_COMMAND_HID_CANCEL, NULL, 0);
+    TEST_ASSERT_EQUAL_UINT8(CTAP1_ERR_OTHER, transport.error);
+    TEST_ASSERT_EQUAL_UINT8(U2F_STATE_IDLE, transport.state);
+
+    U2F_TRANSPORT_tx_done(&transport);
+    TEST_ASSERT_EQUAL_HEX32(U2F_FORBIDDEN_CID, transport.cid);
+}
+
+// Control: a second CANCEL for a command already cancelled is still handed over.
+void test_owner_cancel_after_cancel_is_accepted(void)
+{
+    start_owner_command();
+    transport.state = U2F_STATE_CMD_PROCESSING_CANCEL;
+    rx_init_packet(OWNER_CID, U2F_COMMAND_HID_CANCEL, NULL, 0);
+
+    TEST_ASSERT_EQUAL_UINT8(CTAP1_ERR_SUCCESS, transport.error);
+    TEST_ASSERT_EQUAL_UINT8(U2F_STATE_CMD_COMPLETE, transport.state);
+}
+
+// A packet too short for its header is dropped before it can claim the channel: it got no
+// answer, and held the channel against every other client.
+void test_short_packets_do_not_claim_the_channel(void)
+{
+    static const uint8_t get_info                = 0x04;
+    static const uint8_t short_packets[][PACKET] = {
+        {0x22, 0x22, 0x22, 0x22},
+        {0x22, 0x22, 0x22, 0x22, U2F_COMMAND_HID_CBOR | 0x80},
+        {0x22, 0x22, 0x22, 0x22, U2F_COMMAND_HID_CBOR | 0x80, 0x00},
+    };
+
+    for (unsigned int i = 0; i < 3; i++) {
+        uint8_t packet[PACKET];
+
+        memcpy(packet, short_packets[i], sizeof(packet));
+        U2F_TRANSPORT_rx(&transport, packet, (uint16_t) (4 + i));
+        TEST_ASSERT_EQUAL_UINT8(CTAP1_ERR_OTHER, transport.error);
+        TEST_ASSERT_FALSE(transport.reject_pending);
+        TEST_ASSERT_EQUAL_HEX32(U2F_FORBIDDEN_CID, transport.cid);
+    }
+
+    rx_init_packet(OWNER_CID, U2F_COMMAND_HID_CBOR, &get_info, 1);
+    TEST_ASSERT_EQUAL_UINT8(CTAP1_ERR_SUCCESS, transport.error);
+    TEST_ASSERT_EQUAL_HEX32(OWNER_CID, transport.cid);
+}
+
+// Control: a continuation needs only CID and SEQ, so a 5-byte one still counts.
+void test_five_byte_continuation_is_accepted(void)
+{
+    uint8_t packet[PACKET] = {0x11, 0x11, 0x11, 0x11, 0x00};
+
+    start_incomplete_message(OWNER_CID);
+    U2F_TRANSPORT_rx(&transport, packet, 5);
+
+    TEST_ASSERT_EQUAL_UINT8(CTAP1_ERR_SUCCESS, transport.error);
+    TEST_ASSERT_EQUAL_UINT16(1, transport.rx_message_expected_sequence_number);
+    TEST_ASSERT_EQUAL_UINT8(U2F_STATE_CMD_FRAMING, transport.state);
+}
+
 int main(void)
 {
     UNITY_BEGIN();
@@ -537,5 +621,10 @@ int main(void)
     RUN_TEST(test_largest_bcnt_is_refused);
     RUN_TEST(test_empty_cbor_drops_the_message_being_received);
     RUN_TEST(test_continuation_never_writes_past_the_buffer);
+    RUN_TEST(test_owner_cancel_during_reception_is_ignored);
+    RUN_TEST(test_owner_cancel_during_a_transport_answer_is_ignored);
+    RUN_TEST(test_owner_cancel_after_cancel_is_accepted);
+    RUN_TEST(test_short_packets_do_not_claim_the_channel);
+    RUN_TEST(test_five_byte_continuation_is_accepted);
     return UNITY_END();
 }
