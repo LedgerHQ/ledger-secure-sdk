@@ -35,19 +35,16 @@ enum {
 
 #if defined(TARGET_STAX)
 #define ENTRY_DIGITS_LINE_WIDTH       288
-#define ENTRY_DIGITS_HEIGHT           52
 #define ENTRY_DIGITS_CONTAINER_HEIGHT 52
 #define INTER_ENTRY_DIGITS            10
 #define TITLE_MARGIN_Y                8
 #define TITLE_MARGIN_Y_SMALL          8
 #elif defined(TARGET_FLEX)
-#define ENTRY_DIGITS_HEIGHT           64
 #define ENTRY_DIGITS_CONTAINER_HEIGHT 64
 #define INTER_ENTRY_DIGITS            12
 #define TITLE_MARGIN_Y                8
 #define TITLE_MARGIN_Y_SMALL          8
 #elif defined(TARGET_APEX)
-#define ENTRY_DIGITS_HEIGHT           40
 #define ENTRY_DIGITS_CONTAINER_HEIGHT 40
 #define INTER_ENTRY_DIGITS            8
 #define TITLE_MARGIN_Y                13
@@ -209,167 +206,6 @@ int nbgl_layoutUpdateKeypadValidation(nbgl_layout_t *layout, bool softValidation
         return -1;
     }
     keypad->softValidation = softValidation;
-
-    return 0;
-}
-
-/**
- * @brief Adds a placeholder for hidden digits on top of a keypad, to represent the entered digits,
- * as full circles The placeholder is "underligned" with a thin horizontal line of the expected full
- * length
- * @deprecated Use @ref nbgl_layoutAddKeypadContent instead
- *
- * @note It must be the last added object, after potential back key, title, and keypad. Vertical
- * positions of title and hidden digits will be computed here
- *
- * @param layout the current layout
- * @param nbDigits number of digits to be displayed
- * @return the index of digits set, to use in @ref nbgl_layoutUpdateHiddenDigits()
- */
-int nbgl_layoutAddHiddenDigits(nbgl_layout_t *layout, uint8_t nbDigits)
-{
-    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
-    nbgl_container_t      *container;
-    uint8_t                space;
-
-    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutAddHiddenDigits():\n");
-    if (layout == NULL) {
-        return -1;
-    }
-    if (nbDigits > KEYPAD_MAX_DIGITS) {
-        return -1;
-    }
-    if (nbDigits > 8) {
-        space = 4;
-    }
-    else {
-        space = 12;
-    }
-
-    // create a container, invisible or bordered
-    container             = (nbgl_container_t *) nbgl_objPoolGet(CONTAINER, layoutInt->layer);
-    container->nbChildren = nbDigits;
-#ifdef TARGET_STAX
-    container->nbChildren++;  // +1 for the line
-#endif                        // TARGET_STAX
-    container->children = nbgl_containerPoolGet(container->nbChildren, layoutInt->layer);
-    // <space> pixels between each icon (knowing that the effective round are 18px large and the
-    // icon 24px)
-    container->obj.area.width  = nbDigits * DIGIT_ICON.width + (nbDigits - 1) * space;
-    container->obj.area.height = ENTRY_DIGITS_HEIGHT;
-
-    // item N-2 is the title
-    container->obj.alignTo   = layoutInt->container->children[layoutInt->container->nbChildren - 2];
-    container->obj.alignment = BOTTOM_MIDDLE;
-
-    // set this new container as child of the main container
-    layoutAddObject(layoutInt, (nbgl_obj_t *) container);
-
-    // create children of the container, as images (empty circles)
-    nbgl_objPoolGetArray(IMAGE, nbDigits, layoutInt->layer, (nbgl_obj_t **) container->children);
-    for (int i = 0; i < nbDigits; i++) {
-        nbgl_image_t *image    = (nbgl_image_t *) container->children[i];
-        image->buffer          = &DIGIT_ICON;
-        image->foregroundColor = WHITE;
-        if (i > 0) {
-            image->obj.alignment        = MID_RIGHT;
-            image->obj.alignTo          = (nbgl_obj_t *) container->children[i - 1];
-            image->obj.alignmentMarginX = space;
-        }
-        else {
-            image->obj.alignment = MID_LEFT;
-        }
-    }
-#ifdef TARGET_STAX
-    nbgl_line_t *line;
-    // create gray line
-    line                          = (nbgl_line_t *) nbgl_objPoolGet(LINE, layoutInt->layer);
-    line->lineColor               = LIGHT_GRAY;
-    line->obj.alignmentMarginY    = 0;
-    line->obj.alignTo             = NULL;
-    line->obj.alignment           = BOTTOM_MIDDLE;
-    line->obj.area.width          = container->obj.area.width;
-    line->obj.area.height         = 4;
-    line->direction               = HORIZONTAL;
-    line->thickness               = 2;
-    line->offset                  = 2;
-    container->children[nbDigits] = (nbgl_obj_t *) line;
-#endif  // TARGET_STAX
-
-    // return index of keypad to be modified later on
-    return (layoutInt->container->nbChildren - 1);
-}
-
-/**
- * @brief Updates an existing set of hidden digits, with the given configuration
- * @deprecated Use @ref nbgl_layoutUpdateKeypadContent instead
- *
- * @param layout the current layout
- * @param index index returned by @ref nbgl_layoutAddHiddenDigits()
- * @param nbActive number of "active" digits (represented by discs instead of circles)
- * @return >=0 if OK
- */
-int nbgl_layoutUpdateHiddenDigits(nbgl_layout_t *layout, uint8_t index, uint8_t nbActive)
-{
-    nbgl_layoutInternal_t *layoutInt = (nbgl_layoutInternal_t *) layout;
-    nbgl_container_t      *container;
-    nbgl_image_t          *image;
-
-    LOG_DEBUG(LAYOUT_LOGGER, "nbgl_layoutUpdateHiddenDigits(): nbActive = %d\n", nbActive);
-    if (layout == NULL) {
-        return -1;
-    }
-
-    // get container
-    container = (nbgl_container_t *) layoutInt->container->children[index];
-    // sanity check
-    if ((container == NULL) || (container->obj.type != CONTAINER)) {
-        LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateHiddenDigits(): container not found\n");
-        return -1;
-    }
-    if (nbActive > container->nbChildren) {
-        LOG_WARN(LAYOUT_LOGGER,
-                 "nbgl_layoutUpdateHiddenDigits(): nbActive %d > nbChildren %d\n",
-                 nbActive,
-                 container->nbChildren);
-        return -1;
-    }
-    if (nbActive == 0) {
-        // deactivate the first digit
-        image = (nbgl_image_t *) container->children[0];
-        if ((image == NULL) || (image->obj.type != IMAGE)) {
-            LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateHiddenDigits(): image not found\n");
-            return -1;
-        }
-        image->foregroundColor = WHITE;
-    }
-    else {
-        image = (nbgl_image_t *) container->children[nbActive - 1];
-        if ((image == NULL) || (image->obj.type != IMAGE)) {
-            LOG_WARN(LAYOUT_LOGGER, "nbgl_layoutUpdateHiddenDigits(): image not found\n");
-            return -1;
-        }
-        // if the last "active" is already active, it means that we are decreasing the number of
-        // active otherwise we are increasing it
-        if (image->foregroundColor == BLACK) {
-            // all digits are already active
-            if (nbActive == container->nbChildren) {
-                return 0;
-            }
-            // deactivate the next digit — guard against the underline object at children[nbDigits]
-            image = (nbgl_image_t *) container->children[nbActive];
-            if ((image == NULL) || (image->obj.type != IMAGE)) {
-                return 0;
-            }
-            image->foregroundColor = WHITE;
-        }
-        else {
-            image->buffer          = &DIGIT_ICON;
-            image->foregroundColor = BLACK;
-        }
-    }
-
-    nbgl_objDraw((nbgl_obj_t *) image);
 
     return 0;
 }
