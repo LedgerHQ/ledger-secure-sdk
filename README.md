@@ -12,7 +12,7 @@ This directory contains the SDK for Nano X, Nano S+, Stax, Apex+ and Flex applic
 
 This SDK is tightly linked to the Ledger Hardware Wallet OS: BOLOS.
 
-Indeed, it allows to interact with `syscalls` and `cxlib` functions which are embedded in the OS.
+Indeed, it allows interacting with `syscalls` and `cxlib` functions which are embedded in the OS.
 
 Hence you should make sure to use the right SDK version matching your development device OS.
 
@@ -32,28 +32,28 @@ But for that, they need to understand how OS and SDK compatibility are tracked. 
 
 The `API_LEVEL` on `master` branch is kept as the reserved value `0`.
 
-For each released OS there is a corresponding tag in the format `<Device>_<os_version>`, e.g. `NanoX_v2.1.0` for the release of the OS version `v2.1.0` for Nano X device. While on this tag, if you look at the value of the `API_LEVEL` which is defined in `Makefile.defines` you will retrieve the OS `API_LEVEL`.
+For each released OS there is a corresponding tag in the format `<device>_<os_version>`, e.g. `nanox_2.8.0` for the release of the OS version `2.8.0` for Nano X device. While on this tag, if you look at the value of the `API_LEVEL` which is defined in `Makefile.defines` you will retrieve the OS `API_LEVEL`.
 
 There are also `API_LEVEL_<N>` branches with `API_LEVEL` value set to `N`. Their purpose is to allow cherry-picks of bug fixes and improvements that are merged on `master` so that they are available when building the apps for the corresponding OS.
 
-On these `API_LEVEL_<N>` branches, there are tags following the format `v<N>.<minor>.<patch>`, e.g. `v1.1.0` where `N` is the `API_LEVEL`. These tags are used to generate the `SDK_VERSION` which is available at compile time and allows to track the SDK version used to build an app.
+On these `API_LEVEL_<N>` branches, there are tags following the format `v<N>.<minor>.<patch>`, e.g. `v1.1.0` where `N` is the `API_LEVEL`. These tags are used to generate the `SDK_VERSION` which is available at compile time and allows tracking the SDK version used to build an app.
 
-The branch `API_LEVEL_LNS` tracks the sdk for the `NanoS_v2.1.0`. It's naming does not follow the `API_LEVEL_<N>` format because it is not a child of the branch `API_LEVEL_0`.
+The branch `API_LEVEL_LNS` tracks the SDK for `nanos_2.1.0`. Its naming does not follow the `API_LEVEL_<N>` format because it is not a child of the branch `master` (`API_LEVEL = 0`).
 
 In short, to build an app for an OS, you should:
 - Retrieve the OS `API_LEVEL`:
-    - `git checkout <device>_<os_version>`
-    - `grep API_LEVEL Makefile.defines | head -n1`
+  - `git checkout <device>_<os_version>`
+  - `grep API_LEVEL Makefile.defines | head -n1`
 - Check out the `API_LEVEL_<N>` branch related to the OS `API_LEVEL` and make sure it is up to date:
-    - `git checkout API_LEVEL_<N>`
-    - `git pull`
-    - The last commit should be tagged with the complete version of the SDK (`v<N>.<x>.<y>`)
+  - `git checkout API_LEVEL_<N>`
+  - `git pull`
+  - The last commit should be tagged with the complete version of the SDK (`v<N>.<x>.<y>`)
 - Build the app from your app folder:
-    - `make BOLOS_SDK=<path_to_sdk> TARGET=<target>` where `target` is one of `nanox`, `nanos2`, `stax`, `flex`, `apex_p` (`nanos2` is used for Nano S+ device).
+  - `make BOLOS_SDK=<path_to_sdk> TARGET=<target>` where `target` is one of `nanox`, `nanos2`, `stax`, `flex`, `apex_p` (`nanos2` is used for Nano S+ device).
 
 ## About API_LEVEL branches
 
-This list the main API_LEVEL branches with their purposed (corresponding OS) and state if they should still be patched or not (OS not “active” anymore).
+This lists the main API_LEVEL branches with their purpose (corresponding OS) and state if they should still be patched or not (OS not “active” anymore).
 
 The full mapping of API_LEVEL branches, including OS release candidates, is available [here](api_levels.json).
 
@@ -73,9 +73,36 @@ The full mapping of API_LEVEL branches, including OS release candidates, is avai
 | 22   | nanox_2.4.1 <br/> nanos+_1.3.1 <br/> stax_1.6.1 <br/> flex_1.2.1 <br/> nanox_2.4.2 <br/> nanos+_1.3.2 <br/> stax_1.6.2 <br/> flex_1.2.2 <br/>  | :x:                |
 | 24   | nanox_2.5.1 <br/> nanos+_1.4.1 <br/> stax_1.8.1 <br/> flex_1.4.1 <br/>                                                                         | :x:                |
 | 25   | apex_p_1.0.4 <br/> nanox_2.6.0 <br/> nanos+_1.5.0 <br/> stax_1.9.0 <br/> flex_1.5.0 <br/>                                                      | :x:                |
-| 26   | apex_p_1.1.1 <br/> nanox_2.7.1 <br/> nanos+_1.6.1 <br/> stax_1.10.1 <br/> flex_1.6.1 <br/>                                                     | :heavy_check_mark: |
+| 26   | apex_p_1.1.1 <br/> nanox_2.7.1 <br/> nanos+_1.6.1 <br/> stax_1.10.1 <br/> flex_1.6.1 <br/>                                                     | :x:                |
+| 27   | apex_p_1.2.0 <br/> nanox_2.8.0 <br/> nanos+_1.7.0 <br/> stax_1.11.0 <br/> flex_1.7.0 <br/>                                                     | :heavy_check_mark: |
 
-### Cherry-picking process:
+### Cherry-picking process
+
+#### Automatic cherry-pick
+
+When a PR is merged on `master`, the [auto-cherry-pick](.github/workflows/auto-cherry-pick.yml) workflow
+reads its description and looks for checked lines like this one (from the PR template):
+
+```text
+[x] TARGET_API_LEVEL: API_LEVEL_27
+```
+
+- Check the box(es) **before merging**: the description is read when the PR is merged.
+- The line must start with `[x]`, so do not turn it into a list item (`- [x] ...` is ignored).
+  Add one line per target branch; each `API_LEVEL_<N>` branch must already exist.
+- For each target, the PR commits are cherry-picked (with `-x`) onto an `auto_update_API_LEVEL_<N>` branch,
+  and a PR `[AUTO_UPDATE] Branch API_LEVEL_<N>` is opened, with the original author as reviewer.
+  If such a PR is already open, the new commits are added to it.
+- The merge of this PR is always manual. Its branch is deleted once it is closed.
+- The PR's own commits are cherry-picked one by one, so a PR containing a merge commit (e.g. `master` merged
+  into the PR branch) cannot be cherry-picked: rebase the PR branch instead.
+- If a cherry-pick does not apply (conflict, missing previous commit), nothing is pushed and the workflow run fails:
+  fall back to the manual process below.
+
+The workflow can also be run manually (`workflow_dispatch`) with a PR number and a target branch,
+for instance when the box was forgotten before the merge.
+
+#### Manual cherry-pick
 
 - Fetch last changes from remote: `git fetch --all`
 
@@ -85,7 +112,7 @@ The full mapping of API_LEVEL branches, including OS release candidates, is avai
 
 - Push your branch: `git push origin mybranch`
 
-- Create a PR and indicate in it the PR where your cherry-pick where reviewed first.
+- Create a PR and indicate in it the PR where your cherry-picks were reviewed first.
 
 ## Contributing
 
@@ -109,22 +136,21 @@ To enable pre-commit in your development environment:
     ```
 
 ## Documentation
-HTML documentation can be generated by typing:
 
-- For Stax:
-
-```make doc TARGET=stax```
-
-- For Nano X or Nano S+:
-
-```make doc TARGET=nano```
-
-from root directory
-
-The resulting documentation can be found in `build/doc/html/index.html`
-
-If you have not already installed Doxygen, you can do it (on Linux-Ubuntu) with:
+HTML documentation can be generated from the root directory with:
 
 ```shell
-sudo apt-get install doxygen doxygen-doc graphviz
+make doc-wallet   # touchscreen devices (Stax, Flex, Apex P), same as `make doc TARGET=stax`
+make doc-nano     # Nano X / Nano S+, same as `make doc TARGET=nanox`
+make doc-all      # both, plus a landing page
 ```
+
+`doc-wallet` and `doc-nano` write to `build/doc/html/index.html`; `doc-all` writes to `build/doc/site/index.html`.
+
+Dependencies (Ubuntu):
+
+```shell
+sudo apt-get install doxygen graphviz default-jre
+```
+
+`default-jre` is only needed to render the PlantUML diagrams.

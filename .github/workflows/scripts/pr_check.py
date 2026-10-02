@@ -372,18 +372,16 @@ def main():
                                                            args.dry_run)
 
         # Cherry-pick the commits onto the auto_update branch
-        if not cherry_pick_commits(local_repo,
-                                   commits,
-                                   auto_branch,
-                                   default_branch,
-                                   branch_created,
-                                   args.dry_run):
-            result = 1
+        target_ok = cherry_pick_commits(local_repo,
+                                        commits,
+                                        auto_branch,
+                                        default_branch,
+                                        branch_created,
+                                        args.dry_run)
 
-        if result == 0 and not args.dry_run:
+        if target_ok and not args.dry_run:
             # Create a pull request if needed
-            if not create_pull_request_if_needed(git_repo, auto_branch, target_br, args.pull):
-                result = 1
+            target_ok = create_pull_request_if_needed(git_repo, auto_branch, target_br, args.pull)
 
         try:
             # Return to default branch
@@ -392,10 +390,11 @@ def main():
             logger.warning("Failed to checkout to default branch (%s): %s", default_branch, e)
 
         # Set result in summary
-        if result == 0:
+        if target_ok:
             set_gh_summary(f":white_check_mark: {target_br}")
         else:
             set_gh_summary(f":x: {target_br}")
+            result = 1
 
 
     if result != 0:
