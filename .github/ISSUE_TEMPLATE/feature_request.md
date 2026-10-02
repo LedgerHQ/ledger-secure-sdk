@@ -15,4 +15,4 @@ Describe your issue in as much detail as possible here.
 
 * OS and version
 * branch that causes this issue
-* Device (Nano S, Nano X, Nano S+)
+* Device (Nano X, Nano S+, Stax...)
