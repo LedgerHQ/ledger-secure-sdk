@@ -30,7 +30,7 @@ CONST app_storage_t app_storage_real __attribute__((section(".storage_section"))
 #define app_storage (*(volatile app_storage_t *) PIC(&app_storage_real))
 
 /**
- * @brief called by app_storage_init() when it found the storage corrupted and reset it
+ * @brief called by app_storage_init() when it finds the storage corrupted and resets it
  *
  * Empty by default; an application overrides it to learn that the data the storage held is
  * lost, for instance to offer a restore instead of starting from empty data.

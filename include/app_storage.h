@@ -65,7 +65,7 @@ uint32_t app_storage_get_size(void);
 uint16_t app_storage_get_properties(void);
 uint32_t app_storage_get_data_version(void);
 
-/* Called when the initialization found the storage corrupted and reset it: the data it held is
+/* Called when the initialization finds the storage corrupted and resets it: the data it held is
  * lost. Weak and empty by default, for the application to override. */
 void app_storage_corrupted_callback(void);
 
