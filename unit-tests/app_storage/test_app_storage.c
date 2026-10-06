@@ -223,6 +223,13 @@ void test_corruption_callback(void)
     TEST_ASSERT_EQUAL_INT(0, app_storage_get_size());
     TEST_ASSERT_EQUAL_INT(APP_STORAGE_SUCCESS, app_storage_init());
     TEST_ASSERT_EQUAL_INT(2, corrupted_calls);
+
+    // --- Header and CRC zeroed, data left: the data is lost, unlike a first start
+    TEST_ASSERT_EQUAL_INT(sizeof(buf), app_storage_write(buf, sizeof(buf), 0));
+    uint8_t zeroes[offsetof(app_storage_t, data)] = {0};
+    nvm_write((void *) &app_storage_real, zeroes, sizeof(zeroes));
+    TEST_ASSERT_EQUAL_INT(APP_STORAGE_ERR_CORRUPTED, app_storage_init());
+    TEST_ASSERT_EQUAL_INT(3, corrupted_calls);
 }
 
 /* Test that corruption from prepared storage is detected */

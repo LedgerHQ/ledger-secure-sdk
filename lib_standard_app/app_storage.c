@@ -41,12 +41,12 @@ WEAK void app_storage_corrupted_callback(void) {}
  * @brief tells whether the storage was ever initialized
  *
  * A storage that was never initialized is the zeroed section of a fresh installation: an invalid
- * tag with any other byte in the header or the CRC is a damaged header.
+ * tag with any non-zero byte in the CRC, the header or the data is a damaged storage.
  */
 static bool app_storage_is_pristine(void)
 {
     const volatile uint8_t *bytes = (const volatile uint8_t *) &app_storage;
-    for (size_t i = 0; i < offsetof(app_storage_t, data); i++) {
+    for (size_t i = 0; i < sizeof(app_storage_t); i++) {
         if (bytes[i] != 0) {
             return false;
         }
