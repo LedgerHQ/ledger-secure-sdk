@@ -27,6 +27,9 @@
 CONST app_storage_t app_storage_real __attribute__((section(".storage_section")));
 #define app_storage (*(volatile app_storage_t *) PIC(&app_storage_real))
 
+/* Set by app_storage_init() when it found the storage corrupted and reset it */
+static bool app_storage_corrupted;
+
 /**
  * @brief checks if the app storage struct is initialized and valid
  */
@@ -96,7 +99,8 @@ static inline void system_header_reset(void)
  */
 int32_t app_storage_init(void)
 {
-    int32_t status = app_storage_is_initalized();
+    int32_t status        = app_storage_is_initalized();
+    app_storage_corrupted = (status == APP_STORAGE_ERR_CORRUPTED);
     switch (status) {
         case APP_STORAGE_ERR_INVALID_HEADER:
             // Invalid tag or uninitialized storage, reset the HEADER
@@ -167,6 +171,19 @@ uint32_t app_storage_get_data_version(void)
 uint16_t app_storage_get_properties(void)
 {
     return app_storage.header.properties;
+}
+
+/**
+ * @brief tells whether the last app_storage_init() found the storage corrupted
+ *
+ * The storage is then reset to an empty one, so the data it held is lost. On a first start the
+ * storage is not initialized yet, which is not a corruption: nothing was lost.
+ *
+ * @returns true if the storage was corrupted and has been reset, false otherwise
+ */
+bool app_storage_was_corrupted(void)
+{
+    return app_storage_corrupted;
 }
 
 /**

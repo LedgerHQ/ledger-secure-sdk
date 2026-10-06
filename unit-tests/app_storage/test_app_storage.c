@@ -178,6 +178,32 @@ void test_corrupted_storage_from_empty(void)
     TEST_ASSERT_EQUAL_INT(APP_STORAGE_ERR_CORRUPTED, app_storage_init());
 }
 
+/* Test that the corruption status tells a lost storage from a first start or an intact one */
+void test_corruption_status(void)
+{
+    // --- First start: the storage is not initialized yet, nothing is lost
+    TEST_ASSERT_EQUAL_INT(APP_STORAGE_SUCCESS, app_storage_init());
+    TEST_ASSERT_FALSE(app_storage_was_corrupted());
+
+    // --- Intact storage
+    uint8_t buf[20];
+    memset(buf, 0xAA, sizeof(buf));
+    TEST_ASSERT_EQUAL_INT(sizeof(buf), app_storage_write(buf, sizeof(buf), 0));
+    TEST_ASSERT_EQUAL_INT(APP_STORAGE_SUCCESS, app_storage_init());
+    TEST_ASSERT_FALSE(app_storage_was_corrupted());
+
+    // --- Corrupted storage: change data with no CRC update
+    buf[sizeof(buf) - 1] = 0xAB;
+    nvm_write((void *) &app_storage_real.data, buf, sizeof(buf));
+    TEST_ASSERT_EQUAL_INT(APP_STORAGE_ERR_CORRUPTED, app_storage_init());
+    TEST_ASSERT_TRUE(app_storage_was_corrupted());
+    TEST_ASSERT_EQUAL_INT(0, app_storage_get_size());
+
+    // --- The next initialization finds the reset storage intact
+    TEST_ASSERT_EQUAL_INT(APP_STORAGE_SUCCESS, app_storage_init());
+    TEST_ASSERT_FALSE(app_storage_was_corrupted());
+}
+
 /* Test that corruption from prepared storage is detected */
 void test_corrupted_storage_from_prepared(void)
 {
@@ -544,6 +570,7 @@ int main(void)
     UNITY_BEGIN();
     RUN_TEST(test_getters_from_empty);
     RUN_TEST(test_corrupted_storage_from_empty);
+    RUN_TEST(test_corruption_status);
     RUN_TEST(test_read_error_from_empty);
     RUN_TEST(test_write_error_from_empty);
     RUN_TEST(test_data_version_from_empty);

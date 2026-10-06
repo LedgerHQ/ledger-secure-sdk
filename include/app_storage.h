@@ -65,6 +65,9 @@ uint32_t app_storage_get_size(void);
 uint16_t app_storage_get_properties(void);
 uint32_t app_storage_get_data_version(void);
 
+/* Whether the last initialization found the storage corrupted and reset it */
+bool app_storage_was_corrupted(void);
+
 /* Reads app storage data */
 int32_t app_storage_read(void *buf, uint32_t nbyte, uint32_t offset);
 
