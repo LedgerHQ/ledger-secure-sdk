@@ -73,6 +73,14 @@ extern app_storage_t app_storage_real;
 void test_write_read_from_empty(void);
 void test_app_style_from_empty(void);
 
+/* Overrides the weak hook: counts the corruptions app_storage_init() reports */
+static unsigned int corrupted_calls;
+
+void app_storage_corrupted_callback(void)
+{
+    corrupted_calls++;
+}
+
 /* cx_crc32 CMock stub: data-sensitive checksum sufficient for corruption detection */
 static uint32_t cx_crc32_stub(const void *buf, size_t len, int num_calls)
 {
@@ -178,30 +186,43 @@ void test_corrupted_storage_from_empty(void)
     TEST_ASSERT_EQUAL_INT(APP_STORAGE_ERR_CORRUPTED, app_storage_init());
 }
 
-/* Test that the corruption status tells a lost storage from a first start or an intact one */
-void test_corruption_status(void)
+/* Test that the corruption hook tells a lost storage from a first start or an intact one */
+void test_corruption_callback(void)
 {
+    corrupted_calls = 0;
+
     // --- First start: the storage is not initialized yet, nothing is lost
     TEST_ASSERT_EQUAL_INT(APP_STORAGE_SUCCESS, app_storage_init());
-    TEST_ASSERT_FALSE(app_storage_was_corrupted());
+    TEST_ASSERT_EQUAL_INT(0, corrupted_calls);
 
     // --- Intact storage
     uint8_t buf[20];
     memset(buf, 0xAA, sizeof(buf));
     TEST_ASSERT_EQUAL_INT(sizeof(buf), app_storage_write(buf, sizeof(buf), 0));
     TEST_ASSERT_EQUAL_INT(APP_STORAGE_SUCCESS, app_storage_init());
-    TEST_ASSERT_FALSE(app_storage_was_corrupted());
+    TEST_ASSERT_EQUAL_INT(0, corrupted_calls);
 
-    // --- Corrupted storage: change data with no CRC update
+    // --- Corrupted data: change data with no CRC update
     buf[sizeof(buf) - 1] = 0xAB;
     nvm_write((void *) &app_storage_real.data, buf, sizeof(buf));
     TEST_ASSERT_EQUAL_INT(APP_STORAGE_ERR_CORRUPTED, app_storage_init());
-    TEST_ASSERT_TRUE(app_storage_was_corrupted());
+    TEST_ASSERT_EQUAL_INT(1, corrupted_calls);
     TEST_ASSERT_EQUAL_INT(0, app_storage_get_size());
 
     // --- The next initialization finds the reset storage intact
     TEST_ASSERT_EQUAL_INT(APP_STORAGE_SUCCESS, app_storage_init());
-    TEST_ASSERT_FALSE(app_storage_was_corrupted());
+    TEST_ASSERT_EQUAL_INT(1, corrupted_calls);
+
+    // --- Corrupted tag of an initialized storage: its data is lost too, unlike a first start
+    TEST_ASSERT_EQUAL_INT(sizeof(buf), app_storage_write(buf, sizeof(buf), 0));
+    app_storage_header_t header = app_storage_real.header;
+    header.tag[0] ^= 0x01;
+    nvm_write((void *) &app_storage_real.header, &header, sizeof(header));
+    TEST_ASSERT_EQUAL_INT(APP_STORAGE_ERR_CORRUPTED, app_storage_init());
+    TEST_ASSERT_EQUAL_INT(2, corrupted_calls);
+    TEST_ASSERT_EQUAL_INT(0, app_storage_get_size());
+    TEST_ASSERT_EQUAL_INT(APP_STORAGE_SUCCESS, app_storage_init());
+    TEST_ASSERT_EQUAL_INT(2, corrupted_calls);
 }
 
 /* Test that corruption from prepared storage is detected */
@@ -570,7 +591,7 @@ int main(void)
     UNITY_BEGIN();
     RUN_TEST(test_getters_from_empty);
     RUN_TEST(test_corrupted_storage_from_empty);
-    RUN_TEST(test_corruption_status);
+    RUN_TEST(test_corruption_callback);
     RUN_TEST(test_read_error_from_empty);
     RUN_TEST(test_write_error_from_empty);
     RUN_TEST(test_data_version_from_empty);
