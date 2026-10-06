@@ -44,26 +44,39 @@ unsigned int ux_layout_paging_compute(const char               *text_to_split,
     const char  *end    = start + strlen(start);
     while (start < end) {
         unsigned int len             = 0;
+        unsigned int last_len_ok     = 0;
         unsigned int linew           = 0;
+        unsigned int prev_linew      = 0;
         const char  *last_word_delim = start;
         // not reached end of content
-        while (start + len < end
-               // line is not full
-               && linew <= PIXEL_PER_LINE
-               // avoid display buffer overflow for each line
-               // && len < sizeof(G_ux.string_buffer)-1
-        ) {
+        while (start + len < end) {
             // compute new line length
 #ifdef HAVE_FONTS
             linew = bagl_compute_line_width(font, 0, start, len + 1, BAGL_ENCODING_DEFAULT);
 #else   // HAVE_FONTS
             linew = se_compute_line_width_light(start, len + 1, G_ux.layout_paging.format);
 #endif  // HAVE_FONTS
-        // if (start[len] )
+            if (linew != prev_linew) {
+                prev_linew  = linew;
+                last_len_ok = len;
+            }
+
             if (linew > PIXEL_PER_LINE) {
                 // we got a full line
                 break;
             }
+            if (len >= (sizeof(G_ux.string_buffer) - 1)) {
+                // display buffer overflow
+                if (last_len_ok) {
+                    len = last_len_ok;
+                }
+                // don't split an UTF-8 sequence
+                while (len > 1 && ((unsigned char) start[len] & 0xC0) == 0x80) {
+                    len--;
+                }
+                break;
+            }
+
             unsigned char c = start[len];
             if (is_word_delim(c)) {
                 last_word_delim = &start[len];
