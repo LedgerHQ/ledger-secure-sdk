@@ -289,10 +289,10 @@ int os_io_stop(void)
     return 0;
 }
 
-int os_io_rx_evt(unsigned char *buffer,
-                 unsigned short buffer_max_length,
-                 unsigned int  *timeout_ms,
-                 bool           check_se_event)
+int32_t os_io_rx_evt(uint8_t  *buffer,
+                     uint16_t  buffer_max_length,
+                     uint32_t *timeout_ms,
+                     bool      check_se_event)
 {
     int      status      = 0;
     uint16_t length      = 0;
@@ -425,10 +425,10 @@ error:
     return status;
 }
 
-int os_io_rx_app_evt(unsigned char *buffer,
-                     unsigned short buffer_max_length,
-                     unsigned int  *timeout_ms,
-                     bool           check_se_event)
+int32_t os_io_rx_app_evt(uint8_t  *buffer,
+                         uint16_t  buffer_max_length,
+                         uint32_t *timeout_ms,
+                         bool      check_se_event)
 {
     int status = 0;
 

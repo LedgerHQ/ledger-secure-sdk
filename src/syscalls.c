@@ -1635,10 +1635,10 @@ __attribute((weak)) int os_io_tx_cmd(unsigned char        type,
     return (int) SVC_Call(SYSCALL_os_io_tx_cmd_ID, parameters);
 }
 
-__attribute((weak)) int os_io_rx_evt(unsigned char *buffer,
-                                     unsigned short buffer_max_length,
-                                     unsigned int  *timeout_ms,
-                                     bool           check_se_event)
+__attribute((weak)) int32_t os_io_rx_evt(uint8_t  *buffer,
+                                         uint16_t  buffer_max_length,
+                                         uint32_t *timeout_ms,
+                                         bool      check_se_event)
 {
     unsigned int parameters[4];
     parameters[0] = (unsigned int) buffer;
@@ -1648,10 +1648,10 @@ __attribute((weak)) int os_io_rx_evt(unsigned char *buffer,
     return (int) SVC_Call(SYSCALL_os_io_rx_evt_ID, parameters);
 }
 
-__attribute((weak)) int os_io_rx_app_evt(unsigned char *buffer,
-                                         unsigned short buffer_max_length,
-                                         unsigned int  *timeout_ms,
-                                         bool           check_se_event)
+__attribute((weak)) int32_t os_io_rx_app_evt(uint8_t  *buffer,
+                                             uint16_t  buffer_max_length,
+                                             uint32_t *timeout_ms,
+                                             bool      check_se_event)
 {
     unsigned int parameters[4];
     parameters[0] = (unsigned int) buffer;
