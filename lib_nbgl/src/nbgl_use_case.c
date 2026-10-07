@@ -1869,6 +1869,7 @@ static void displaySkipWarning(void)
         .centeredInfo.offsetY = 0,
         .confirmationText     = "Yes, skip",
         .confirmationToken    = SKIP_TOKEN,
+        .cancelToken          = SKIP_TOKEN,
         .tuneId               = TUNE_TAP_CASUAL,
         .modal                = true};
     if (modalPageContext != NULL) {
@@ -3749,6 +3750,7 @@ void nbgl_useCaseChoice(const nbgl_icon_details_t *icon,
     info.centeredInfo.icon  = icon;
     info.confirmationText   = confirmText;
     info.confirmationToken  = CHOICE_TOKEN;
+    info.cancelToken        = CHOICE_TOKEN;
     info.tuneId             = TUNE_TAP_CASUAL;
 
     onChoice    = callback;
@@ -3899,6 +3901,7 @@ void nbgl_useCaseConfirm(const char     *message,
                                                .centeredInfo.offsetY = 0,
                                                .confirmationText     = confirmText,
                                                .confirmationToken    = CHOICE_TOKEN,
+                                               .cancelToken          = CHOICE_TOKEN,
                                                .tuneId               = TUNE_TAP_CASUAL,
                                                .modal                = true};
     onModalConfirm                          = callback;

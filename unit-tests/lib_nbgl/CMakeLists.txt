@@ -36,3 +36,15 @@ ledger_unit_tests_add_test(
     COMPILE_OPTIONS -fsanitize=address,undefined
     LINK_OPTIONS    -fsanitize=address,undefined
 )
+
+# Touch (Flex) build of the NBGL pages
+ledger_unit_tests_add_test(
+    NAME            test_nbgl_page
+    SOURCES         ${SDK_DIR}/lib_nbgl/src/nbgl_page.c
+    INCLUDE_DIRS    ${CMAKE_CURRENT_SOURCE_DIR}
+                    ${UT_INCLUDE_DIRS_SDK}
+    COMPILE_DEFS    ${UT_COMPILE_DEFS_SDK}
+                    APPNAME="UnitTests"
+    COMPILE_OPTIONS -fsanitize=address,undefined
+    LINK_OPTIONS    -fsanitize=address,undefined
+)
