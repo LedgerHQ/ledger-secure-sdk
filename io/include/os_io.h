@@ -163,14 +163,15 @@ SYSCALL int os_io_stop(void);
  * @retval 0   : Event received and processed internally.
  * @retval > 0 : Event received, to be processed by caller.
  */
-SYSCALL int os_io_rx_evt(unsigned char *buffer,
-                         unsigned short buffer_max_length,
-                         unsigned int  *timeout_ms,
-                         bool           check_se_event);
-SYSCALL int os_io_tx_cmd(unsigned char               type,  // os_io_packet_type_t
-                         const unsigned char *buffer PLENGTH(length),
-                         unsigned short              length,
-                         unsigned int               *timeout_ms);
+SYSCALL int32_t os_io_rx_evt(uint8_t  *buffer,
+                             uint16_t  buffer_max_length,
+                             uint32_t *timeout_ms,
+                             bool      check_se_event);
+
+SYSCALL int os_io_tx_cmd(uint8_t               type,  // os_io_packet_type_t
+                         const uint8_t *buffer PLENGTH(length),
+                         unsigned short        length,
+                         unsigned int         *timeout_ms);
 
 /**
  * @brief Receive IO events in loop, until a meaningful app event is received.
@@ -188,10 +189,10 @@ SYSCALL int os_io_tx_cmd(unsigned char               type,  // os_io_packet_type
  * @retval < 0 : Error / timeout.
  * @retval > 0 : Event received, to be processed by caller.
  */
-SYSCALL int os_io_rx_app_evt(unsigned char *buffer,
-                             unsigned short buffer_max_length,
-                             unsigned int  *timeout_ms,
-                             bool           check_se_event);
+SYSCALL int32_t os_io_rx_app_evt(uint8_t  *buffer,
+                                 uint16_t  buffer_max_length,
+                                 uint32_t *timeout_ms,
+                                 bool      check_se_event);
 
 SYSCALL int os_io_seph_tx(const unsigned char *buffer PLENGTH(length),
                           unsigned short              length,
