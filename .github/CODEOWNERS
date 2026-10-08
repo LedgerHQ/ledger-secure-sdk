@@ -2,12 +2,18 @@
 * @LedgerHQ/embedded-apps
 
 # OS owned components
-/lib_nfc/                           @LedgerHQ/embedded-os
-/lib_cxng/                          @LedgerHQ/embedded-os
+/include/                           @LedgerHQ/embedded-os
 /io/                                @LedgerHQ/embedded-os
 /io_legacy/                         @LedgerHQ/embedded-os
 /lib_blewbxx*/                      @LedgerHQ/embedded-os
+/lib_cxng/                          @LedgerHQ/embedded-os
+/lib_nfc/                           @LedgerHQ/embedded-os
 /lib_stusb*/                        @LedgerHQ/embedded-os
+/protocol/                          @LedgerHQ/embedded-os
 
 # shared components
+/lib_nbgl/                          @LedgerHQ/embedded-apps @LedgerHQ/embedded-os
+/lib_u2f*/                          @LedgerHQ/embedded-apps @LedgerHQ/embedded-os
+/lib_ux_nbgl/                       @LedgerHQ/embedded-apps @LedgerHQ/embedded-os
+/qrcode/                            @LedgerHQ/embedded-apps @LedgerHQ/embedded-os
 /src/                               @LedgerHQ/embedded-apps @LedgerHQ/embedded-os
