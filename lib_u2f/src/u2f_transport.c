@@ -49,50 +49,69 @@ static u2f_error_t process_packet(u2f_transport_t *handle, uint8_t *buffer, uint
 /* Private functions ---------------------------------------------------------*/
 static u2f_error_t process_packet(u2f_transport_t *handle, uint8_t *buffer, uint16_t length)
 {
-    u2f_error_t error = CTAP1_ERR_SUCCESS;
+    u2f_error_t error       = CTAP1_ERR_SUCCESS;
+    uint32_t    message_cid = U2F_FORBIDDEN_CID;
 
     // Check CID for USB HID transport
     if (handle->type == U2F_TRANSPORT_TYPE_USB_HID) {
-        if (length < 4) {
-            // CID not complete, answer with broadcast CID?
-            error       = CTAP1_ERR_OTHER;
-            handle->cid = U2F_BROADCAST_CID;
+        if ((length < 5) || ((buffer[4] & 0x80) && (length < 7))) {
+            // Header not complete: the packet is dropped before it can claim the channel
+            error = CTAP1_ERR_OTHER;
             goto end;
         }
-        uint32_t message_cid = U4BE(buffer, 0);
-        handle->tx_cid       = message_cid;
+        message_cid         = U4BE(buffer, 0);
+        bool is_owner       = (handle->cid == message_cid);
+        bool is_cancel      = (buffer[4] == (U2F_COMMAND_HID_CANCEL | 0x80));
+        bool command_in_app = ((handle->state == U2F_STATE_CMD_PROCESSING)
+                               || (handle->state == U2F_STATE_CMD_PROCESSING_CANCEL))
+                              && !handle->tx_ends_transaction;
+        if (!(buffer[4] & 0x80) && (!is_owner || (handle->state != U2F_STATE_CMD_FRAMING))) {
+            // Continuation packet outside the message being received: not answered
+            error = CTAP1_ERR_OTHER;
+            goto end;
+        }
+        if (is_cancel && (!is_owner || (U2BE(buffer, 5) != 0) || !command_in_app)) {
+            // CANCEL is never answered, has no data, and only cancels its sender's command.
+            error = CTAP1_ERR_OTHER;
+            goto end;
+        }
+        // A new client must not be locked out by a sender that stopped mid-message.
+        if ((message_cid == U2F_BROADCAST_CID) && (buffer[4] == (U2F_COMMAND_HID_INIT | 0x80))
+            && (handle->state == U2F_STATE_CMD_FRAMING)) {
+            handle->state = U2F_STATE_IDLE;
+            handle->cid   = U2F_FORBIDDEN_CID;
+        }
         if (message_cid == U2F_FORBIDDEN_CID) {
             // Forbidden CID
             error = CTAP1_ERR_INVALID_CHANNEL;
-            goto end;
+            goto reject;
         }
-        else if ((message_cid == U2F_BROADCAST_CID) && (length >= 5)
+        else if ((message_cid == U2F_BROADCAST_CID)
                  && (buffer[4] != (U2F_COMMAND_HID_INIT | 0x80))) {
             // Broadcast CID but not an init message
-            error       = CTAP1_ERR_INVALID_CHANNEL;
-            handle->cid = message_cid;
-            goto end;
+            error = CTAP1_ERR_INVALID_CHANNEL;
+            goto reject;
         }
         else if ((handle->cid != U2F_FORBIDDEN_CID) && (handle->cid != message_cid)) {
             // CID is already set
             error = CTAP1_ERR_CHANNEL_BUSY;
-            goto end;
+            goto reject;
         }
-        else if ((handle->state > U2F_STATE_CMD_FRAMING) && (length >= 5)
-                 && (buffer[4] != (U2F_COMMAND_HID_CANCEL | 0x80))
-                 && handle->state != U2F_STATE_CMD_PROCESSING_CANCEL) {
-            // Good CID but a request is already in process.
-            // If previous command is CTAPHID_CANCEL (supposedly without response) a new one is
-            // still authorized.
-            // TODO: to check the use case when on-going CTAPHID_CANCEL needs to interrupt UI and to
-            // respond with ERROR_KEEPALIVE_CANCEL while a new U2F_TRANSPORT_TYPE_USB_HID is coming.
+        else if (handle->tx_ends_transaction) {
+            // The reply's last packet has not reached the host yet: the transaction is still on.
             error = CTAP1_ERR_CHANNEL_BUSY;
-            goto end;
+            goto reject;
+        }
+        else if ((handle->state > U2F_STATE_CMD_FRAMING) && !is_cancel) {
+            // Good CID but a request is already in process, even a cancelled one.
+            error = CTAP1_ERR_CHANNEL_BUSY;
+            goto reject;
         }
         else if (handle->cid == U2F_FORBIDDEN_CID) {
             // Set new CID
             handle->cid = message_cid;
         }
+        handle->tx_cid = message_cid;
         buffer += 4;
         length -= 4;
     }
@@ -110,19 +129,25 @@ static u2f_error_t process_packet(u2f_transport_t *handle, uint8_t *buffer, uint
             goto end;
         }
 
+        // A new first packet ends the message being received, even when it is refused.
+        if (handle->state == U2F_STATE_CMD_FRAMING) {
+            handle->state = U2F_STATE_IDLE;
+        }
+
         // Check if packet will fit in the rx buffer
-        handle->rx_message_length = (uint16_t) U2BE(buffer, 1) + 3;
-        if (handle->rx_message_length > handle->rx_message_buffer_size) {
+        uint32_t message_length = (uint32_t) U2BE(buffer, 1) + 3;
+        if (message_length > handle->rx_message_buffer_size) {
             error = CTAP1_ERR_INVALID_LENGTH;
             goto end;
         }
 
-        if ((handle->rx_message_length <= 3) && (buffer[0] == (U2F_COMMAND_HID_CBOR | 0x80))) {
+        if ((message_length <= 3) && (buffer[0] == (U2F_COMMAND_HID_CBOR | 0x80))) {
             handle->rx_message_buffer[0] = U2F_COMMAND_HID_CBOR;
             error                        = CTAP2_ERR_INVALID_CBOR;
             goto end;
         }
 
+        handle->rx_message_length                              = (uint16_t) message_length;
         handle->state                                          = U2F_STATE_CMD_FRAMING;
         handle->rx_message_offset                              = 0;
         handle->rx_message_buffer[handle->rx_message_offset++] = buffer[0] & 0x7F;  // CMD
@@ -147,8 +172,9 @@ static u2f_error_t process_packet(u2f_transport_t *handle, uint8_t *buffer, uint
         length -= 1;
     }
 
-    // prevent integer underflows in the rest of the operations
-    if (handle->rx_message_length < handle->rx_message_offset) {
+    // prevent integer underflows and buffer overflows in the rest of the operations
+    if ((handle->rx_message_length > handle->rx_message_buffer_size)
+        || (handle->rx_message_length < handle->rx_message_offset)) {
         error = CTAP1_ERR_OTHER;
         goto end;
     }
@@ -164,6 +190,15 @@ static u2f_error_t process_packet(u2f_transport_t *handle, uint8_t *buffer, uint
 
 end:
     return error;
+
+reject:
+    // Answered later without touching the channel. One waits at a time: later senders retry.
+    if (!handle->reject_pending) {
+        handle->reject_pending = true;
+        handle->reject_cid     = message_cid;
+        handle->reject_error   = error;
+    }
+    return CTAP1_ERR_OTHER;
 }
 
 /* Exported functions --------------------------------------------------------*/
@@ -173,9 +208,10 @@ void U2F_TRANSPORT_init(u2f_transport_t *handle, uint8_t type)
         return;
     }
 
-    handle->state = U2F_STATE_IDLE;
-    handle->cid   = U2F_FORBIDDEN_CID;
-    handle->type  = type;
+    handle->state          = U2F_STATE_IDLE;
+    handle->cid            = U2F_FORBIDDEN_CID;
+    handle->type           = type;
+    handle->reject_pending = false;
 }
 
 void U2F_TRANSPORT_rx(u2f_transport_t *handle, uint8_t *buffer, uint16_t length)
@@ -185,6 +221,20 @@ void U2F_TRANSPORT_rx(u2f_transport_t *handle, uint8_t *buffer, uint16_t length)
     }
 
     handle->error = process_packet(handle, buffer, length);
+}
+
+void U2F_TRANSPORT_tx_done(u2f_transport_t *handle)
+{
+    if (!handle || handle->tx_message_buffer || !handle->tx_ends_transaction) {
+        return;
+    }
+    // The transaction lasts until the host has the last packet of the response.
+    handle->tx_ends_transaction = false;
+    handle->cid                 = U2F_FORBIDDEN_CID;
+    if ((handle->state == U2F_STATE_CMD_PROCESSING)
+        || (handle->state == U2F_STATE_CMD_PROCESSING_CANCEL)) {
+        handle->state = U2F_STATE_IDLE;
+    }
 }
 
 void U2F_TRANSPORT_tx(u2f_transport_t *handle,
@@ -200,6 +250,8 @@ void U2F_TRANSPORT_tx(u2f_transport_t *handle,
 
     if (buffer) {
         LOG_IO("Tx : INITIALIZATION PACKET\n");
+        // A keepalive is sent while the command is still being processed.
+        handle->tx_ends_transaction        = (cmd != U2F_COMMAND_HID_KEEP_ALIVE);
         handle->tx_message_buffer          = buffer;
         handle->tx_message_length          = length;
         handle->tx_message_sequence_number = 0;
@@ -247,7 +299,6 @@ void U2F_TRANSPORT_tx(u2f_transport_t *handle,
         tx_packet_offset += (handle->tx_message_length - handle->tx_message_offset);
         handle->tx_message_offset = handle->tx_message_length;
         handle->tx_message_buffer = NULL;
-        handle->cid               = U2F_FORBIDDEN_CID;
     }
 
     handle->tx_packet_length = tx_packet_offset;
