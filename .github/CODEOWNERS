@@ -8,3 +8,6 @@
 /io_legacy/                         @LedgerHQ/embedded-os
 /lib_blewbxx*/                      @LedgerHQ/embedded-os
 /lib_stusb*/                        @LedgerHQ/embedded-os
+
+# shared components
+/src/                               @LedgerHQ/embedded-apps @LedgerHQ/embedded-os
