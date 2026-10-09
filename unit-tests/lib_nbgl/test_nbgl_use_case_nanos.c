@@ -272,6 +272,26 @@ static void test_review_max_pairs_with_subtitle_displays_all_before_approve(void
     TEST_ASSERT_TRUE(last_choice);
 }
 
+// index of the first pair to get with the callback (startIndex of the list)
+#define CALLBACK_BASE 50
+
+static nbgl_contentTagValue_t *get_pair(uint8_t pairIndex)
+{
+    TEST_ASSERT_GREATER_OR_EQUAL_UINT8(CALLBACK_BASE, pairIndex);
+    return &pairs[pairIndex - CALLBACK_BASE];
+}
+
+static void test_review_with_callback_starts_at_start_index(void)
+{
+    list            = make_tag_value_list(5);
+    list.pairs      = NULL;
+    list.callback   = get_pair;
+    list.startIndex = CALLBACK_BASE;
+    nbgl_useCaseReview(TYPE_TRANSACTION, &list, &C_icon_warning, "Review", NULL, NULL, on_choice);
+    TEST_ASSERT_EQUAL_INT(0, nb_choices);
+    walk_to_approve_checking_pairs(5);
+}
+
 // ============================================================================
 // nbgl_useCaseAddressReview: 1 title page (+ 1 subtitle page) + address + pairs + approve/reject
 // ============================================================================
@@ -530,6 +550,7 @@ int main(void)
     RUN_TEST(test_review_first_overflowing_count_is_rejected);
     RUN_TEST(test_review_max_pairs_displays_all_before_approve);
     RUN_TEST(test_review_max_pairs_with_subtitle_displays_all_before_approve);
+    RUN_TEST(test_review_with_callback_starts_at_start_index);
     RUN_TEST(test_address_review_overflow_is_rejected);
     RUN_TEST(test_address_review_first_overflowing_counts_are_rejected);
     RUN_TEST(test_address_review_max_pairs_displays_address_and_pairs_before_approve);

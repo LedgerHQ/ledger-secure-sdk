@@ -229,7 +229,8 @@ typedef struct nbgl_contentTagValueList_s {
     nbgl_contentTagValueCallback_t callback;  ///< function to call to retrieve a given pair
     uint8_t nbPairs;  ///< number of pairs in pairs array (or max number of pairs to retrieve with
                       ///< callback)
-    uint8_t startIndex;          ///< index of the first pair to get with callback
+    uint8_t startIndex;  ///< index of the first pair to get with callback (pairs are retrieved
+                         ///< with callback(startIndex) to callback(startIndex + nbPairs - 1))
     bool    hideEndOfLastLine;   ///< if set to true, replace 3 last chars of last line by "..."
     uint8_t nbMaxLinesForValue;  ///< if > 0, set the max number of lines for value field.
     uint8_t token;  ///< the token that will be used as argument of the callback if icon in any
