@@ -1,0 +1,10 @@
+set(UT_COMPILE_DEFS_SDK
+    OS_UNIT_TEST
+    UNIT_TESTING
+    WITH_STDIO
+    noreturn=
+    DEPRECATED=
+    APP_INSTALL_PARAMS_DATA=0x01,0x0b,0x42,0x6f,0x69,0x6c,0x65,0x72,0x70,0x6c,0x61,0x74,0x65
+    APP_FLAGS_APP_LOAD_PARAMS=0x200
+    CACHE INTERNAL "Compile defines for unit tests"
+)
