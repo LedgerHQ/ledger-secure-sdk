@@ -3272,6 +3272,16 @@ static void displayTagValueListModal(const nbgl_contentTagValueList_t *tagValues
     displayTagValueListModalPage(0, true);
 }
 
+// returns true if the given warning contains nothing to display, so that a simple review can be
+// used. Every field leading to a warning page (info, prelude) or button must be checked
+static bool isWarningEmpty(const nbgl_warning_t *warning)
+{
+    return (warning == NULL)
+           || ((warning->predefinedSet == 0) && (warning->info == NULL)
+               && (warning->introDetails == NULL) && (warning->reviewDetails == NULL)
+               && (warning->prelude == NULL));
+}
+
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
@@ -4251,9 +4261,7 @@ void nbgl_useCaseAdvancedReview(nbgl_operationType_t              operationType,
         memcpy(&activeTipBox, tipBox, sizeof(activeTipBox));
     }
     // if no warning at all, it's a simple review
-    if ((warning == NULL)
-        || ((warning->predefinedSet == 0) && (warning->introDetails == NULL)
-            && (warning->reviewDetails == NULL) && (warning->prelude == NULL))) {
+    if (isWarningEmpty(warning)) {
         useCaseReview(operationType,
                       tagValueList,
                       icon,
@@ -4450,9 +4458,7 @@ void nbgl_useCaseAdvancedReviewStreamingStart(nbgl_operationType_t       operati
     reset_callbacks_and_context();
 
     // if no warning at all, it's a simple review
-    if ((warning == NULL)
-        || ((warning->predefinedSet == 0) && (warning->introDetails == NULL)
-            && (warning->reviewDetails == NULL) && (warning->prelude == NULL))) {
+    if (isWarningEmpty(warning)) {
         useCaseReviewStreamingStart(
             operationType, icon, reviewTitle, reviewSubTitle, choiceCallback, true);
         return;
