@@ -356,6 +356,8 @@ static nbgl_contentValueExt_t  extensions[NB_PAIRS];
 static nbgl_contentTagValue_t *pairs;
 static nbgl_content_t          content;
 static nbgl_genericContents_t  contents;
+// index of the first pair to get with the callback (startIndex of the list)
+static uint8_t callbackBase;
 
 static void onReject(void) {}
 
@@ -370,8 +372,9 @@ static void onChoice(bool confirm)
 
 static nbgl_contentTagValue_t *getPair(uint8_t pairIndex)
 {
-    TEST_ASSERT_LESS_THAN_UINT8(NB_PAIRS, pairIndex);
-    return &pairs[pairIndex];
+    TEST_ASSERT_GREATER_OR_EQUAL_UINT8(callbackBase, pairIndex);
+    TEST_ASSERT_LESS_THAN_UINT8(NB_PAIRS, pairIndex - callbackBase);
+    return &pairs[pairIndex - callbackBase];
 }
 
 // Builds the list, each page containing at most maxPairsInPage pairs (forced with forcePageStart)
@@ -390,8 +393,9 @@ static void buildList(uint8_t maxPairsInPage, bool withCallback)
     content.type                                         = TAG_VALUE_CONFIRM;
     content.content.tagValueConfirm.tagValueList.nbPairs = NB_PAIRS;
     if (withCallback) {
-        content.content.tagValueConfirm.tagValueList.pairs    = NULL;
-        content.content.tagValueConfirm.tagValueList.callback = getPair;
+        content.content.tagValueConfirm.tagValueList.pairs      = NULL;
+        content.content.tagValueConfirm.tagValueList.callback   = getPair;
+        content.content.tagValueConfirm.tagValueList.startIndex = callbackBase;
     }
     else {
         content.content.tagValueConfirm.tagValueList.pairs = pairs;
@@ -422,6 +426,7 @@ void setUp(void)
     layout_top_right_icon = NULL;
     nb_choices            = 0;
     last_choice           = false;
+    callbackBase          = 0;
 
     memset(extensions, 0, sizeof(extensions));
     for (uint8_t i = 0; i < NB_PAIRS; i++) {
@@ -485,7 +490,7 @@ static void checkAllAliases(uint8_t maxPairsInPage, bool withCallback)
         TEST_ASSERT_LESS_OR_EQUAL_UINT8_MESSAGE(maxPairsInPage, list->nbPairs, msg);
         if (withCallback) {
             TEST_ASSERT_NULL_MESSAGE(list->pairs, msg);
-            TEST_ASSERT_EQUAL_UINT8_MESSAGE(firstPairIdx, list->startIndex, msg);
+            TEST_ASSERT_EQUAL_UINT8_MESSAGE(callbackBase + firstPairIdx, list->startIndex, msg);
         }
         else {
             TEST_ASSERT_EQUAL_PTR_MESSAGE(&pairs[firstPairIdx], list->pairs, msg);
@@ -552,6 +557,15 @@ static void checkAliasWithoutExtension(bool withCallback)
     touchAlias(2);
     TEST_ASSERT_EQUAL_STRING(aliases[2], modal_title);
     TEST_ASSERT_EQUAL_STRING(full_values[2], modal_full_value);
+}
+
+void test_alias_shows_touched_pair_on_every_page_with_callback_base(void)
+{
+    // the callback must be called from startIndex, on every page and for every alias
+    callbackBase = 50;
+    for (uint8_t maxPairsInPage = 1; maxPairsInPage <= NB_PAIRS; maxPairsInPage++) {
+        checkAllAliases(maxPairsInPage, true);
+    }
 }
 
 void test_alias_without_extension_shows_nothing(void)
@@ -873,6 +887,7 @@ int main(void)
     UNITY_BEGIN();
     RUN_TEST(test_alias_shows_touched_pair_on_every_page);
     RUN_TEST(test_alias_shows_touched_pair_on_every_page_with_callback);
+    RUN_TEST(test_alias_shows_touched_pair_on_every_page_with_callback_base);
     RUN_TEST(test_alias_without_extension_shows_nothing);
     RUN_TEST(test_alias_without_extension_shows_nothing_with_callback);
     RUN_TEST(test_review_spans_at_least_three_pages);

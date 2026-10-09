@@ -215,8 +215,9 @@ typedef struct {
     const nbgl_contentTagValue_t
         *currentPairs;  // to be used to retrieve the pairs with value alias
     nbgl_contentTagValueCallback_t
-                  currentCallback;  // to be used to retrieve the pairs with value alias
-    uint8_t       currentNbPairs;   // total number of pairs in currentPairs (or currentCallback)
+                  currentCallback;    // to be used to retrieve the pairs with value alias
+    uint8_t       currentNbPairs;     // total number of pairs in currentPairs (or currentCallback)
+    uint8_t       currentStartIndex;  // index of the first pair to get with currentCallback
     nbgl_layout_t modalLayout;
     nbgl_layout_t backgroundLayout;
     const nbgl_contentInfoList_t     *currentInfos;
@@ -508,6 +509,18 @@ static uint8_t getContentNbElement(const nbgl_content_t *content)
         default:
             return 1;
     }
+}
+
+// Helper to retrieve the pair at the given index in a tag/value list, either from the pairs array
+// or using the callback. The index is relative to the first pair of the list, so with a callback,
+// the startIndex of the list is added to it
+static const nbgl_contentTagValue_t *getTagValuePair(const nbgl_contentTagValueList_t *tagValueList,
+                                                     uint8_t                           index)
+{
+    if (tagValueList->pairs != NULL) {
+        return PIC(&tagValueList->pairs[index]);
+    }
+    return PIC(tagValueList->callback(tagValueList->startIndex + index));
 }
 
 // Helper to retrieve the content inside a nbgl_genericContents_t using
@@ -802,7 +815,8 @@ static void pageCallback(int token, uint8_t index)
                 pair = &genericContext.currentPairs[absoluteIdx];
             }
             else if (genericContext.currentCallback != NULL) {
-                pair = PIC(genericContext.currentCallback(absoluteIdx));
+                pair = PIC(
+                    genericContext.currentCallback(genericContext.currentStartIndex + absoluteIdx));
             }
         }
         if ((pair != NULL) && (pair->extension != NULL)) {
@@ -1094,23 +1108,18 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
             nbgl_contentTagValueList_t *p_tagValueList = &pageContent->tagValueList;
 
             // memorize pairs (or callback) for usage when alias is used
-            genericContext.currentPairs    = p_content->content.tagValueList.pairs;
-            genericContext.currentCallback = p_content->content.tagValueList.callback;
-            genericContext.currentNbPairs  = p_content->content.tagValueList.nbPairs;
+            genericContext.currentPairs      = p_content->content.tagValueList.pairs;
+            genericContext.currentCallback   = p_content->content.tagValueList.callback;
+            genericContext.currentNbPairs    = p_content->content.tagValueList.nbPairs;
+            genericContext.currentStartIndex = p_content->content.tagValueList.startIndex;
 
             if (flag) {
                 // Flag can be set if the pair is too long to fit or because it needs
                 // to be displayed as centered info.
 
                 // First retrieve the pair
-                const nbgl_layoutTagValue_t *pair;
-
-                if (p_content->content.tagValueList.pairs != NULL) {
-                    pair = PIC(&p_content->content.tagValueList.pairs[nextElementIdx]);
-                }
-                else {
-                    pair = PIC(p_content->content.tagValueList.callback(nextElementIdx));
-                }
+                const nbgl_layoutTagValue_t *pair
+                    = getTagValuePair(&p_content->content.tagValueList, nextElementIdx);
 
                 if (pair->centeredInfo) {
                     pageContent->type = EXTENDED_CENTER;
@@ -1153,13 +1162,14 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
                     }
                 }
                 else {
-                    p_tagValueList->pairs      = NULL;
-                    p_tagValueList->callback   = p_content->content.tagValueList.callback;
-                    p_tagValueList->startIndex = nextElementIdx;
+                    p_tagValueList->pairs    = NULL;
+                    p_tagValueList->callback = p_content->content.tagValueList.callback;
+                    p_tagValueList->startIndex
+                        = p_content->content.tagValueList.startIndex + nextElementIdx;
                     // parse pairs to check if any contains an alias for value
                     for (uint8_t i = 0; i < nbElementsInPage; i++) {
                         const nbgl_layoutTagValue_t *pair
-                            = PIC(p_content->content.tagValueList.callback(nextElementIdx + i));
+                            = getTagValuePair(&p_content->content.tagValueList, nextElementIdx + i);
                         if (pair->aliasValue) {
                             p_tagValueList->token = VALUE_ALIAS_TOKEN;
                             break;
@@ -1208,12 +1218,12 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
             else {
                 p_tagValueList->pairs    = NULL;
                 p_tagValueList->callback = p_content->content.tagValueConfirm.tagValueList.callback;
-                p_tagValueList->startIndex = nextElementIdx;
+                p_tagValueList->startIndex
+                    = p_content->content.tagValueConfirm.tagValueList.startIndex + nextElementIdx;
                 // parse pairs to check if any contains an alias for value
                 for (uint8_t i = 0; i < nbElementsInPage; i++) {
-                    const nbgl_layoutTagValue_t *pair
-                        = PIC(p_content->content.tagValueConfirm.tagValueList.callback(
-                            nextElementIdx + i));
+                    const nbgl_layoutTagValue_t *pair = getTagValuePair(
+                        &p_content->content.tagValueConfirm.tagValueList, nextElementIdx + i);
                     if ((pair != NULL) && (pair->aliasValue)) {
                         p_tagValueList->token = VALUE_ALIAS_TOKEN;
                         break;
@@ -1227,6 +1237,8 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
             genericContext.currentCallback
                 = p_content->content.tagValueConfirm.tagValueList.callback;
             genericContext.currentNbPairs = p_content->content.tagValueConfirm.tagValueList.nbPairs;
+            genericContext.currentStartIndex
+                = p_content->content.tagValueConfirm.tagValueList.startIndex;
             break;
         }
         case SWITCHES_LIST:
@@ -2092,7 +2104,8 @@ static void keyboardGeneric_cb(int token, uint8_t index)
  *
  * @param nbPairs number of tag/value pairs to use in \b tagValueList
  * @param tagValueList list of tag/value pairs
- * @param startIndex first index to consider in \b tagValueList
+ * @param startIndex first index to consider in \b tagValueList (relative to the startIndex of
+ *        \b tagValueList when its pairs are retrieved with its callback)
  * @param isSkippable if true, a skip header is added
  * @param hasConfirmationButton if true, a confirmation button is added at last page
  * @param requireSpecificDisplay (output) set to true if the tag/value needs a specific display:
@@ -2130,12 +2143,7 @@ static uint8_t getNbTagValuesInPage(uint8_t                           nbPairs,
             currentHeight += INTER_TAG_VALUE_MARGIN;
         }
         // fetch tag/value pair strings.
-        if (tagValueList->pairs != NULL) {
-            pair = PIC(&tagValueList->pairs[startIndex + nbPairsInPage]);
-        }
-        else {
-            pair = PIC(tagValueList->callback(startIndex + nbPairsInPage));
-        }
+        pair = getTagValuePair(tagValueList, startIndex + nbPairsInPage);
 
         if (pair->forcePageStart && nbPairsInPage > 0) {
             // This pair must be at the top of a page
@@ -2236,7 +2244,8 @@ static uint8_t getNbTagValuesInPage(uint8_t                           nbPairs,
  *
  * @param nbPairs number of tag/value pairs to use in \b tagValueList
  * @param tagValueList list of tag/value pairs
- * @param startIndex first index to consider in \b tagValueList
+ * @param startIndex first index to consider in \b tagValueList (relative to the startIndex of
+ *        \b tagValueList when its pairs are retrieved with its callback)
  * @return the number of tag/value pairs fitting in a page
  */
 static uint8_t getNbTagValuesInDetailsPage(uint8_t                           nbPairs,
@@ -2256,12 +2265,7 @@ static uint8_t getNbTagValuesInDetailsPage(uint8_t                           nbP
             currentHeight += INTER_TAG_VALUE_MARGIN;
         }
         // fetch tag/value pair strings.
-        if (tagValueList->pairs != NULL) {
-            pair = PIC(&tagValueList->pairs[startIndex + nbPairsInPage]);
-        }
-        else {
-            pair = PIC(tagValueList->callback(startIndex + nbPairsInPage));
-        }
+        pair = getTagValuePair(tagValueList, startIndex + nbPairsInPage);
 
         // tag height
         currentHeight += nbgl_getTextHeightInWidth(
@@ -3304,7 +3308,8 @@ static bool isWarningEmpty(const nbgl_warning_t *warning)
  *
  * @param nbPairs number of tag/value pairs to use in \b tagValueList
  * @param tagValueList list of tag/value pairs
- * @param startIndex first index to consider in \b tagValueList
+ * @param startIndex first index to consider in \b tagValueList (relative to the startIndex of
+ *        \b tagValueList when its pairs are retrieved with its callback)
  * @param requireSpecificDisplay (output) set to true if the tag/value needs a specific display:
  *        - centeredInfo flag is enabled
  *        - the tag/value doesn't fit in a page

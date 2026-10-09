@@ -488,7 +488,8 @@ static void getPairData(const nbgl_contentTagValueList_t *tagValueList,
         pair = PIC(&tagValueList->pairs[index]);
     }
     else {
-        pair = PIC(tagValueList->callback(index));
+        // index is relative to the first pair to get with callback
+        pair = PIC(tagValueList->callback(tagValueList->startIndex + index));
     }
     *item  = pair->item;
     *value = pair->value;
