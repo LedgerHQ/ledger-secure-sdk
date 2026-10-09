@@ -73,6 +73,16 @@ extern app_storage_t app_storage_real;
 void test_write_read_from_empty(void);
 void test_app_style_from_empty(void);
 
+/* Overrides the weak hook: records the status app_storage_init() passes */
+static unsigned int callback_calls;
+static int32_t      callback_status;
+
+void app_storage_callback(int32_t status)
+{
+    callback_calls++;
+    callback_status = status;
+}
+
 /* cx_crc32 CMock stub: data-sensitive checksum sufficient for corruption detection */
 static uint32_t cx_crc32_stub(const void *buf, size_t len, int num_calls)
 {
@@ -102,13 +112,13 @@ static void nvm_write_stub(void *dst_addr, void *src_addr, unsigned int src_len,
 /* Setup / teardown helpers */
 static void setup_from_empty(void)
 {
-    TEST_ASSERT_EQUAL_INT(APP_STORAGE_SUCCESS, app_storage_init());
+    memset(&app_storage_real, 0, sizeof(app_storage_real));
+    TEST_ASSERT_EQUAL_INT(APP_STORAGE_ERR_INVALID_HEADER, app_storage_init());
 }
 
 static void setup_from_prepared(void)
 {
     /* Prepare storage */
-    TEST_ASSERT_EQUAL_INT(APP_STORAGE_SUCCESS, app_storage_init());
     test_write_read_from_empty();
 
     /* Reinit storage */
@@ -118,7 +128,6 @@ static void setup_from_prepared(void)
 static void setup_from_prepared_app_style(void)
 {
     /* Prepare storage */
-    TEST_ASSERT_EQUAL_INT(APP_STORAGE_SUCCESS, app_storage_init());
     test_app_style_from_empty();
 
     /* Reinit storage */
@@ -176,6 +185,93 @@ void test_corrupted_storage_from_empty(void)
     nvm_write((void *) &app_storage_real.data, buf, sizeof(buf));
     // Ensure invalid CRC
     TEST_ASSERT_EQUAL_INT(APP_STORAGE_ERR_CORRUPTED, app_storage_init());
+}
+
+/* Test that the hook tells a first start, an intact storage and a lost one apart */
+void test_init_callback(void)
+{
+    callback_calls = 0;
+
+    // --- First start: no storage yet
+    TEST_ASSERT_EQUAL_INT(APP_STORAGE_ERR_INVALID_HEADER, app_storage_init());
+    TEST_ASSERT_EQUAL_INT(1, callback_calls);
+    TEST_ASSERT_EQUAL_INT(APP_STORAGE_ERR_INVALID_HEADER, callback_status);
+
+    // --- Intact storage
+    uint8_t buf[20];
+    memset(buf, 0xAA, sizeof(buf));
+    TEST_ASSERT_EQUAL_INT(sizeof(buf), app_storage_write(buf, sizeof(buf), 0));
+    TEST_ASSERT_EQUAL_INT(APP_STORAGE_SUCCESS, app_storage_init());
+    TEST_ASSERT_EQUAL_INT(2, callback_calls);
+    TEST_ASSERT_EQUAL_INT(APP_STORAGE_SUCCESS, callback_status);
+
+    // --- Corrupted data: change data with no CRC update
+    buf[sizeof(buf) - 1] = 0xAB;
+    nvm_write((void *) &app_storage_real.data, buf, sizeof(buf));
+    TEST_ASSERT_EQUAL_INT(APP_STORAGE_ERR_CORRUPTED, app_storage_init());
+    TEST_ASSERT_EQUAL_INT(3, callback_calls);
+    TEST_ASSERT_EQUAL_INT(APP_STORAGE_ERR_CORRUPTED, callback_status);
+    TEST_ASSERT_EQUAL_INT(0, app_storage_get_size());
+
+    // --- The next initialization, such as one repeated after an IO reset in the same boot, finds
+    // the reset storage intact: the hook gets APP_STORAGE_SUCCESS, so the loss is reported once
+    TEST_ASSERT_EQUAL_INT(APP_STORAGE_SUCCESS, app_storage_init());
+    TEST_ASSERT_EQUAL_INT(4, callback_calls);
+    TEST_ASSERT_EQUAL_INT(APP_STORAGE_SUCCESS, callback_status);
+
+    // --- Damaged tag of an initialized storage
+    TEST_ASSERT_EQUAL_INT(sizeof(buf), app_storage_write(buf, sizeof(buf), 0));
+    app_storage_header_t header = app_storage_real.header;
+    header.tag[0] ^= 0x01;
+    nvm_write((void *) &app_storage_real.header, &header, sizeof(header));
+    TEST_ASSERT_EQUAL_INT(APP_STORAGE_ERR_CORRUPTED, app_storage_init());
+    TEST_ASSERT_EQUAL_INT(5, callback_calls);
+    TEST_ASSERT_EQUAL_INT(APP_STORAGE_ERR_CORRUPTED, callback_status);
+    TEST_ASSERT_EQUAL_INT(0, app_storage_get_size());
+
+    // --- Tag written in part on a fresh install: still a first start
+    memset(&app_storage_real, 0, sizeof(app_storage_real));
+    app_storage_real.header.tag[0] = APP_STORAGE_TAG[0];
+    TEST_ASSERT_EQUAL_INT(APP_STORAGE_ERR_INVALID_HEADER, app_storage_init());
+    TEST_ASSERT_EQUAL_INT(6, callback_calls);
+    TEST_ASSERT_EQUAL_INT(APP_STORAGE_ERR_INVALID_HEADER, callback_status);
+
+    // --- Each field past the tag tells an initialized storage from a fresh install
+    const size_t fields[] = {offsetof(app_storage_t, crc),
+                             offsetof(app_storage_t, header.size),
+                             offsetof(app_storage_t, header.struct_version),
+                             offsetof(app_storage_t, header.properties),
+                             offsetof(app_storage_t, header.data_version)};
+    for (size_t i = 0; i < sizeof(fields) / sizeof(fields[0]); i++) {
+        memset(&app_storage_real, 0, sizeof(app_storage_real));
+        ((uint8_t *) &app_storage_real)[fields[i]] = 0x01;
+        TEST_ASSERT_EQUAL_INT(APP_STORAGE_ERR_CORRUPTED, app_storage_init());
+    }
+}
+
+/* Test that a size past the storage is a corruption, and that a full storage is not */
+void test_size_past_storage(void)
+{
+    setup_from_empty();
+
+    // --- Full storage
+    uint8_t *buf = malloc(APP_STORAGE_SIZE);
+    TEST_ASSERT_NOT_NULL(buf);
+    memset(buf, 0x55, APP_STORAGE_SIZE);
+    TEST_ASSERT_EQUAL_INT(APP_STORAGE_SIZE, app_storage_write(buf, APP_STORAGE_SIZE, 0));
+    free(buf);
+    TEST_ASSERT_EQUAL_INT(APP_STORAGE_SUCCESS, app_storage_init());
+    TEST_ASSERT_EQUAL_INT(APP_STORAGE_SIZE, app_storage_get_size());
+
+    // --- One byte past the storage, and a size reaching out of the memory
+    const uint32_t sizes[] = {APP_STORAGE_SIZE + 1, 0xFFFFFFFF};
+    for (size_t i = 0; i < sizeof(sizes) / sizeof(sizes[0]); i++) {
+        nvm_write((void *) &app_storage_real.header.size, (void *) &sizes[i], sizeof(sizes[i]));
+        TEST_ASSERT_EQUAL_INT(APP_STORAGE_ERR_CORRUPTED, app_storage_init());
+        TEST_ASSERT_EQUAL_INT(APP_STORAGE_ERR_CORRUPTED, callback_status);
+        TEST_ASSERT_EQUAL_INT(0, app_storage_get_size());
+        TEST_ASSERT_EQUAL_INT(APP_STORAGE_SUCCESS, app_storage_init());
+    }
 }
 
 /* Test that corruption from prepared storage is detected */
@@ -544,6 +640,8 @@ int main(void)
     UNITY_BEGIN();
     RUN_TEST(test_getters_from_empty);
     RUN_TEST(test_corrupted_storage_from_empty);
+    RUN_TEST(test_init_callback);
+    RUN_TEST(test_size_past_storage);
     RUN_TEST(test_read_error_from_empty);
     RUN_TEST(test_write_error_from_empty);
     RUN_TEST(test_data_version_from_empty);
