@@ -213,8 +213,8 @@ void test_init_callback(void)
     TEST_ASSERT_EQUAL_INT(APP_STORAGE_ERR_CORRUPTED, callback_status);
     TEST_ASSERT_EQUAL_INT(0, app_storage_get_size());
 
-    // --- The next initialization, such as one repeated after an IO reset in the same boot, finds
-    // the reset storage intact: the hook gets APP_STORAGE_SUCCESS, so the loss is reported once
+    // --- The next initialization, at the next start or repeated within the same one, finds the
+    // reset storage intact: the hook gets APP_STORAGE_SUCCESS, so the loss is reported once
     TEST_ASSERT_EQUAL_INT(APP_STORAGE_SUCCESS, app_storage_init());
     TEST_ASSERT_EQUAL_INT(4, callback_calls);
     TEST_ASSERT_EQUAL_INT(APP_STORAGE_SUCCESS, callback_status);
