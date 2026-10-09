@@ -15,7 +15,6 @@
  *****************************************************************************/
 
 #ifdef HAVE_APP_STORAGE
-#include <stddef.h>
 #include <string.h>
 #include "app_storage.h"
 #include "app_storage_internal.h"
@@ -30,28 +29,11 @@ CONST app_storage_t app_storage_real __attribute__((section(".storage_section"))
 #define app_storage (*(volatile app_storage_t *) PIC(&app_storage_real))
 
 /**
- * @brief called by app_storage_init() when it finds the storage corrupted and resets it
- *
- * Empty by default; an application overrides it to learn that the data the storage held is
- * lost, for instance to offer a restore instead of starting from empty data.
+ * @brief called by app_storage_init() with the status of the storage it found
  */
-WEAK void app_storage_corrupted_callback(void) {}
-
-/**
- * @brief tells whether the storage was ever initialized
- *
- * A storage that was never initialized is the zeroed section of a fresh installation: an invalid
- * tag with any non-zero byte in the CRC, the header or the data is a damaged storage.
- */
-static bool app_storage_is_pristine(void)
+WEAK void app_storage_callback(int32_t status)
 {
-    const volatile uint8_t *bytes = (const volatile uint8_t *) &app_storage;
-    for (size_t i = 0; i < sizeof(app_storage_t); i++) {
-        if (bytes[i] != 0) {
-            return false;
-        }
-    }
-    return true;
+    (void) status;
 }
 
 /**
@@ -65,13 +47,21 @@ STATIC int32_t app_storage_is_initalized(void)
     }
     else {
         status = APP_STORAGE_ERR_INVALID_HEADER;
+        // A fresh install is all zeros, an initialized storage never is past its tag
+        if ((app_storage.crc != 0) || (app_storage.header.size != 0)
+            || (app_storage.header.struct_version != 0) || (app_storage.header.properties != 0)
+            || (app_storage.header.data_version != 0)) {
+            status = APP_STORAGE_ERR_CORRUPTED;
+        }
         goto error;
     }
 
-    uint32_t crc = cx_crc32((void *) &app_storage.header,
-                            sizeof(app_storage.header) + app_storage.header.size);
-    if (crc != app_storage.crc) {
-        // Invalid CRC, force reset
+    // The size is checked first, for the CRC not to be computed past the end of the storage
+    if ((app_storage.header.size > APP_STORAGE_SIZE)
+        || (cx_crc32((void *) &app_storage.header,
+                     sizeof(app_storage.header) + app_storage.header.size)
+            != app_storage.crc)) {
+        // Invalid size or CRC, force reset
         status = APP_STORAGE_ERR_CORRUPTED;
     }
     else {
@@ -118,31 +108,21 @@ static inline void system_header_reset(void)
  *
  * @returns int32_t
  *
- * @retval APP_STORAGE_SUCCESS Application storage is successfully initialized.
- * @retval APP_STORAGE_ERR_CORRUPTED Error, application storage is corrupted.
+ * @retval APP_STORAGE_SUCCESS The storage was found valid.
+ * @retval APP_STORAGE_ERR_INVALID_HEADER Invalid tag, CRC and rest of the header zero: most likely
+ *         a first start. The storage is reinitialized.
+ * @retval APP_STORAGE_ERR_CORRUPTED Invalid tag, size or CRC: the storage existed and is damaged.
+ *         The storage is reinitialized, any data it held is lost.
  */
 int32_t app_storage_init(void)
 {
     int32_t status = app_storage_is_initalized();
-    if ((status == APP_STORAGE_ERR_INVALID_HEADER) && !app_storage_is_pristine()) {
-        // A damaged tag of an initialized storage: its data is lost as well
-        status = APP_STORAGE_ERR_CORRUPTED;
+    if (status != APP_STORAGE_SUCCESS) {
+        // No storage or a damaged one, reset the header
+        system_header_reset();
     }
-    switch (status) {
-        case APP_STORAGE_ERR_INVALID_HEADER:
-            // Uninitialized storage, reset the HEADER
-            system_header_reset();
-            status = APP_STORAGE_SUCCESS;
-            break;
-        case APP_STORAGE_ERR_CORRUPTED:
-            system_header_reset();
-            app_storage_corrupted_callback();
-            break;
-        case APP_STORAGE_SUCCESS:
-        default:
-            // Return status as-is
-            break;
-    }
+    // Called after the reset, so that the application can already write to the storage
+    app_storage_callback(status);
 
     return status;
 }
