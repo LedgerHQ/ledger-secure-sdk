@@ -75,7 +75,7 @@ CFLAGS   += -std=gnu99
 
 CFLAGS   += -Wall -Wextra
 CFLAGS   += -Wno-main
-CFLAGS   += -Werror=int-to-pointer-cast -Wno-implicit-function-declaration
+CFLAGS   += -Werror=int-to-pointer-cast
 
 # Additional Clang warnings
 CFLAGS   += -Wno-error=int-conversion -Wimplicit-fallthrough
