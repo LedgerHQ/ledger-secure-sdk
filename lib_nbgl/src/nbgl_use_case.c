@@ -213,6 +213,7 @@ typedef struct {
         *currentPairs;  // to be used to retrieve the pairs with value alias
     nbgl_contentTagValueCallback_t
                   currentCallback;  // to be used to retrieve the pairs with value alias
+    uint8_t       currentNbPairs;   // total number of pairs in currentPairs (or currentCallback)
     nbgl_layout_t modalLayout;
     nbgl_layout_t backgroundLayout;
     const nbgl_contentInfoList_t     *currentInfos;
@@ -775,14 +776,24 @@ static void pageCallback(int token, uint8_t index)
     }
     else if (token == VALUE_ALIAS_TOKEN) {
         // the icon next to value alias has been touched
-        const nbgl_contentTagValue_t *pair;
-        if (genericContext.currentPairs != NULL) {
-            pair = &genericContext.currentPairs[genericContext.currentElementIdx + index];
+        const nbgl_contentTagValue_t *pair = NULL;
+        // currentPairs (or currentCallback) is the unsliced list, so the absolute index of the
+        // touched pair is the index of the first pair of the page plus the index in the page
+        uint16_t absoluteIdx = (uint16_t) genericContext.currentElementIdx + index;
+        if (absoluteIdx < genericContext.currentNbPairs) {
+            if (genericContext.currentPairs != NULL) {
+                pair = &genericContext.currentPairs[absoluteIdx];
+            }
+            else if (genericContext.currentCallback != NULL) {
+                pair = PIC(genericContext.currentCallback(absoluteIdx));
+            }
+        }
+        if ((pair != NULL) && (pair->extension != NULL)) {
+            displayFullValuePage(pair->item, pair->value, PIC(pair->extension));
         }
         else {
-            pair = genericContext.currentCallback(genericContext.currentElementIdx + index);
+            LOG_WARN(USE_CASE_LOGGER, "pageCallback(): no alias for index %d\n", absoluteIdx);
         }
-        displayFullValuePage(pair->item, pair->value, pair->extension);
     }
     else if (token == BLIND_WARNING_TOKEN) {
         reviewWithWarnCtx.isIntro = false;
@@ -1072,6 +1083,7 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
             // memorize pairs (or callback) for usage when alias is used
             genericContext.currentPairs    = p_content->content.tagValueList.pairs;
             genericContext.currentCallback = p_content->content.tagValueList.callback;
+            genericContext.currentNbPairs  = p_content->content.tagValueList.nbPairs;
 
             if (flag) {
                 // Flag can be set if the pair is too long to fit or because it needs
@@ -1169,18 +1181,39 @@ static bool genericContextPreparePageContent(const nbgl_content_t *p_content,
                 p_tagValueList            = &pageContent->tagValueList;
             }
             p_tagValueList->nbPairs = nbElementsInPage;
-            p_tagValueList->pairs
-                = PIC(&p_content->content.tagValueConfirm.tagValueList.pairs[nextElementIdx]);
-            // parse pairs to check if any contains an alias for value
-            for (uint8_t i = 0; i < nbElementsInPage; i++) {
-                if (p_tagValueList->pairs[i].aliasValue) {
-                    p_tagValueList->token = VALUE_ALIAS_TOKEN;
-                    break;
+            if (p_content->content.tagValueConfirm.tagValueList.pairs != NULL) {
+                p_tagValueList->pairs
+                    = PIC(&p_content->content.tagValueConfirm.tagValueList.pairs[nextElementIdx]);
+                // parse pairs to check if any contains an alias for value
+                for (uint8_t i = 0; i < nbElementsInPage; i++) {
+                    if (p_tagValueList->pairs[i].aliasValue) {
+                        p_tagValueList->token = VALUE_ALIAS_TOKEN;
+                        break;
+                    }
                 }
             }
-            // memorize pairs (or callback) for usage when alias is used
-            genericContext.currentPairs    = p_tagValueList->pairs;
-            genericContext.currentCallback = p_tagValueList->callback;
+            else {
+                p_tagValueList->pairs    = NULL;
+                p_tagValueList->callback = p_content->content.tagValueConfirm.tagValueList.callback;
+                p_tagValueList->startIndex = nextElementIdx;
+                // parse pairs to check if any contains an alias for value
+                for (uint8_t i = 0; i < nbElementsInPage; i++) {
+                    const nbgl_layoutTagValue_t *pair
+                        = PIC(p_content->content.tagValueConfirm.tagValueList.callback(
+                            nextElementIdx + i));
+                    if ((pair != NULL) && (pair->aliasValue)) {
+                        p_tagValueList->token = VALUE_ALIAS_TOKEN;
+                        break;
+                    }
+                }
+            }
+            // memorize pairs (or callback) for usage when alias is used: the unsliced list must
+            // be used, because the touched pair is retrieved with its absolute index
+            genericContext.currentPairs
+                = PIC(p_content->content.tagValueConfirm.tagValueList.pairs);
+            genericContext.currentCallback
+                = p_content->content.tagValueConfirm.tagValueList.callback;
+            genericContext.currentNbPairs = p_content->content.tagValueConfirm.tagValueList.nbPairs;
             break;
         }
         case SWITCHES_LIST:
@@ -2137,7 +2170,7 @@ static uint8_t getNbTagValuesInPage(uint8_t                           nbPairs,
         }
 
         // potential subAlias text
-        if ((pair->aliasValue) && (pair->extension->aliasSubName)) {
+        if ((pair->aliasValue) && (pair->extension != NULL) && (pair->extension->aliasSubName)) {
             currentHeight += TAG_VALUE_INTERVALE + nbgl_getFontLineHeight(SMALL_REGULAR_FONT);
         }
         if ((currentHeight >= maxUsableHeight) || (nbLines > NB_MAX_LINES_IN_REVIEW)) {
